@@ -1,59 +1,86 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 2/2] Input: add support for the Samsung S6SY761
- touchscreen
-Date: Fri, 3 Nov 2017 16:57:40 -0700
-Message-ID: <20171103235740.cmdbenzsqts2mtsy@dtor-ws>
-References: <20171102060726.3745-1-andi@etezian.org>
- <CGME20171102060735epcas1p15ac186761046eb93f467cd69161e7b50@epcas1p1.samsung.com>
- <20171102060726.3745-3-andi@etezian.org>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] HID: Wacom: switch Dell canvas into highres mode
+Date: Fri, 03 Nov 2017 17:12:08 -0700
+Message-ID: <DE35351F-500C-41C5-90E2-18BC2B48A803@gmail.com>
+References: <20171103172947.15156-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20171102060726.3745-3-andi-ahk0KpmfxKRAfugRpC6u6w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andi Shyti <andi-ahk0KpmfxKRAfugRpC6u6w@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f41.google.com ([74.125.83.41]:45371 "EHLO
+        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751970AbdKDAMP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Nov 2017 20:12:15 -0400
+In-Reply-To: <20171103172947.15156-1-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Andi,
+On November 3, 2017 10:29:47 AM PDT, Benjamin Tissoires <benjamin=2Etissoir=
+es@redhat=2Ecom> wrote:
+>The Dell Canvas exports 2 collections for the Pen part=2E The only
+>difference between the 2 is that the default one has half the
+>resolution
+>of the second one=2E
+>
+>The Windows driver switches the tablet into the second mode, so we
+>should
+>behave the same=2E
+>
+>Signed-off-by: Benjamin Tissoires <benjamin=2Etissoires@redhat=2Ecom>
+>---
+>
+>Hi,
+>
+>well, this is not the cleanest way of handling this mode set, but it is
+>the
+>less intrusive AFAICT=2E
+>
+>I was thinking that we might want to add a new field in struct
+>wacom_feature,
+>but then it wouldn't make sense to keep the set mode specifics in
+>_wacom_query_tablet_data()=2E
+>
+>So I am open to any better suggestion, but this one works and the
+>impact on
+>other HID generic tablets is null=2E
+>
 
-On Thu, Nov 02, 2017 at 03:07:26PM +0900, Andi Shyti wrote:
-> +
-> +	err = s6sy761_hw_init(sdata);
-> +	if (err)
-> +		return err;
-> +
-> +	sdata->input = devm_input_allocate_device(&client->dev);
-> +	if (!sdata->input)
-> +		return -ENOMEM;
-> +
-> +	sdata->input->name = S6SY761_DEV_NAME;
-> +	sdata->input->id.bustype = BUS_I2C;
-> +	sdata->input->open = s6sy761_input_open;
-> +	sdata->input->close = s6sy761_input_close;
-> +
-> +	/* the range has been previously read in hw_init */
-> +	if (sdata->prop.max_x && sdata->prop.max_y) {
+Hmm=2E Agreed that this isn't ideal=2E I'd like to take a look at the desc=
+riptor, if you wouldn't mind sharing it=2E The hardware should be similar t=
+o other devices of ours and it might be possible to piggyback on existing c=
+ode=2E
 
-You do not need make this a conditional, if sdata->prop.max_x or
-sdata->prop.max_y is 0 is it OK.
+Jason
 
-However, there is a slight problem: you call hw_init() on resume,
-potentially updating prop.max_x and prop.max_y and taking them out of
-sync if they have been overridden by the DT data and
-touchscreen_parse_properties(). I think it would be best if
-s6sy761_hw_init() had 2 additional arguments for max_x and max_y and you
-passed them to input_set_abs_params() and left sdata->prop to be managed
-solely by touchscreen_parse_properties().
+>Cheers,
+>Benjamin
+>
+> drivers/hid/wacom_sys=2Ec | 7 +++++++
+> 1 file changed, 7 insertions(+)
+>
+>diff --git a/drivers/hid/wacom_sys=2Ec b/drivers/hid/wacom_sys=2Ec
+>index 906e654fb0ba=2E=2Eee71ad9b6cc1 100644
+>--- a/drivers/hid/wacom_sys=2Ec
+>+++ b/drivers/hid/wacom_sys=2Ec
+>@@ -196,6 +196,13 @@ static void wacom_feature_mapping(struct
+>hid_device *hdev,
+> 		kfree(data);
+> 		break;
+> 	}
+>+
+>+	if (hdev->vendor =3D=3D USB_VENDOR_ID_WACOM &&
+>+	    hdev->product =3D=3D 0x4200 /* Dell Canvas 27 */ &&
+>+	    field->application =3D=3D HID_UP_MSVENDOR) {
+>+		wacom->wacom_wac=2Emode_report =3D field->report->id;
+>+		wacom->wacom_wac=2Emode_value =3D 2;
+>+	}
+> }
+>=20
+> /*
 
-Also, is everything in s6sy761_hw_init() needed at resume time?
 
-Thanks.
-
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--=20
+Sent from my Android device with K-9 Mail=2E Please excuse my brevity=2E

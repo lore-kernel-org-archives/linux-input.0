@@ -1,44 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 resend 0/1] Input: add support HiDeep touchscreen.
-Date: Fri, 3 Nov 2017 17:35:52 -0700
-Message-ID: <20171104003552.ve2elx6s4azzyd6q@dtor-ws>
-References: <1509445077-19246-1-git-send-email-anthony.kim@hideep.com>
+From: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] HID: i2c-hid: add reset gpio property
+Date: Fri, 3 Nov 2017 19:29:35 -0700
+Message-ID: <20171104022934.GA110548@google.com>
+References: <1509418996-25348-1-git-send-email-hl@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f177.google.com ([209.85.223.177]:44739 "EHLO
-        mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751805AbdKDAf4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Nov 2017 20:35:56 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1509445077-19246-1-git-send-email-anthony.kim@hideep.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1509418996-25348-1-git-send-email-hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Anthony Kim <anthony.kim@hideep.com>
-Cc: robh+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, dennis.hong@hideep.com
 
-Hi Anthony,
-
-On Tue, Oct 31, 2017 at 07:17:56PM +0900, Anthony Kim wrote:
-> Hi,
+On Tue, Oct 31, 2017 at 11:03:15AM +0800, Lin Huang wrote:
+> some i2c hid devices have reset gpio, need to control
+> it in the driver.
 > 
-> I remake patch to base on dmitry's modified code.
-> Please refer as follow.
-> http://www.spinics.net/lists/linux-input/msg53724.html
+> Signed-off-by: Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> ---
+> Changes in v2:
+> - Add 10us in usleep_range() upper range
+> - reuse post_power_delay_ms as deassert reset delay
+> - delete deassert_reset_us property
 > 
-> That code is working well almost, but needed to some modified.
-> 
-> - v2
->   - Our fw binary data is little endian, but our IC protocol
->     for fw update use big endian. So it need to convert to big endian data
->     and I added about it.
+>  drivers/hid/i2c-hid/i2c-hid.c         | 61 +++++++++++++++++++++++++++--------
+>  include/linux/platform_data/i2c-hid.h |  3 ++
+>  2 files changed, 50 insertions(+), 14 deletions(-)
 
-I understand that _currently_ your firmware binary is little endian,
-however it is easily remedied on your side. I do not understand why you
-would want to encumber the kernel running on many devices to do that
-conversion on fly.
-
-Thanks.
-
--- 
-Dmitry
+Reviewed-by: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

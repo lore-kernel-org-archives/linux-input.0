@@ -1,48 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.14-rc7
-Date: Fri, 3 Nov 2017 17:20:51 -0700
-Message-ID: <20171104002051.ciabxuxjwclasbfz@dtor-ws>
+Subject: Re: [PATCH v2 resend 0/1] Input: add support HiDeep touchscreen.
+Date: Fri, 3 Nov 2017 17:35:52 -0700
+Message-ID: <20171104003552.ve2elx6s4azzyd6q@dtor-ws>
+References: <1509445077-19246-1-git-send-email-anthony.kim@hideep.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:47563 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752329AbdKDAUy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Nov 2017 20:20:54 -0400
+Received: from mail-io0-f177.google.com ([209.85.223.177]:44739 "EHLO
+        mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751805AbdKDAf4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Nov 2017 20:35:56 -0400
 Content-Disposition: inline
+In-Reply-To: <1509445077-19246-1-git-send-email-anthony.kim@hideep.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Anthony Kim <anthony.kim@hideep.com>
+Cc: robh+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, dennis.hong@hideep.com
 
-Hi Linus,
+Hi Anthony,
 
-Please pull from:
+On Tue, Oct 31, 2017 at 07:17:56PM +0900, Anthony Kim wrote:
+> Hi,
+> 
+> I remake patch to base on dmitry's modified code.
+> Please refer as follow.
+> http://www.spinics.net/lists/linux-input/msg53724.html
+> 
+> That code is working well almost, but needed to some modified.
+> 
+> - v2
+>   - Our fw binary data is little endian, but our IC protocol
+>     for fw update use big endian. So it need to convert to big endian data
+>     and I added about it.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Just a couple of fixups to
-sparse-keymap module and Microchip AR1021 touchscreen driver.
-
-Changelog:
----------
-
-Martin Kepplinger (1):
-      Input: ar1021_i2c - set INPUT_PROP_DIRECT
-
-Stefan Brüns (1):
-      Input: sparse-keymap - send sync event for KE_SW/KE_VSW
-
-Diffstat:
---------
-
- drivers/input/sparse-keymap.c          | 1 +
- drivers/input/touchscreen/ar1021_i2c.c | 1 +
- 2 files changed, 2 insertions(+)
+I understand that _currently_ your firmware binary is little endian,
+however it is easily remedied on your side. I do not understand why you
+would want to encumber the kernel running on many devices to do that
+conversion on fly.
 
 Thanks.
-
 
 -- 
 Dmitry

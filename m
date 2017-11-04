@@ -1,65 +1,85 @@
-From: Brian Norris <briannorris@chromium.org>
-Subject: Re: [PATCH v2 2/2] devicetree: i2c-hid: Add reset property
-Date: Fri, 3 Nov 2017 21:35:04 -0700
-Message-ID: <CA+ASDXOG1HA2zS9uEi0n2Tza1iGvM0x1cntCy1haOf01Wb__3Q@mail.gmail.com>
-References: <1509418996-25348-1-git-send-email-hl@rock-chips.com> <1509418996-25348-2-git-send-email-hl@rock-chips.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:53158 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750959AbdKDEfH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Nov 2017 00:35:07 -0400
-Received: by mail-io0-f196.google.com with SMTP id f20so10414691ioj.9
-        for <linux-input@vger.kernel.org>; Fri, 03 Nov 2017 21:35:07 -0700 (PDT)
-Received: from mail-io0-f171.google.com (mail-io0-f171.google.com. [209.85.223.171])
-        by smtp.gmail.com with ESMTPSA id p198sm1948660itp.3.2017.11.03.21.35.05
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Nov 2017 21:35:06 -0700 (PDT)
-Received: by mail-io0-f171.google.com with SMTP id m16so10472346iod.1
-        for <linux-input@vger.kernel.org>; Fri, 03 Nov 2017 21:35:05 -0700 (PDT)
-In-Reply-To: <1509418996-25348-2-git-send-email-hl@rock-chips.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Subject: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Sat,  4 Nov 2017 21:20:00 +0100
+Message-ID: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Lin Huang <hl@rock-chips.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org, robh@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Mon, Oct 30, 2017 at 8:03 PM, Lin Huang <hl@rock-chips.com> wrote:
-> Document a "reset" and "assert-reset-us", it can be used for
-> driver control reset property. And reuse post-power-on-delay-ms
-> for deassert reset delay.
->
-> Signed-off-by: Lin Huang <hl@rock-chips.com>
-> ---
->  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> index 28e8bd8..6ab0eed 100644
-> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> @@ -31,7 +31,9 @@ device-specific compatible properties, which should be used in addition to the
->
->  - vdd-supply: phandle of the regulator that provides the supply voltage.
->  - post-power-on-delay-ms: time required by the device after enabling its regulators
-> -  before it is ready for communication. Must be used with 'vdd-supply'.
-> +  or deassert reset pin before it is ready for communication.
-> +- reset: phandle of the gpio that provides for hid reset pin.
-> +- assert-reset-us: the device require reset assert time.
+So, after revisiting old mail threads, taking part in a similar discussion on
+the USB list, and implementing a not-convincing solution before, here is what I
+cooked up to document and ease DMA handling for I2C within Linux. Please have a
+look at the documentation introduced in patch 7 for details. And to make it
+clear again: The stuff below is opt-in. If host drivers are not updated, they
+will continue to work like before.
 
-If there was any point in adding the device-specific description
-around "wacom,w9013"...then you should probably mention these
-properties there too. The idea was to document possible properties
-here (where you're adding them already), and to note the property
-names under the devices (or so far, just 1 device) that support them.
-Or IOW, you need an addition like this:
+While previous versions until v3 tried to magically apply bounce buffers when
+needed, it became clear that detecting DMA safe buffers is too fragile. This
+approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+outcome so far is very convincing IMO. The core additions are simple and easy
+to understand. The driver changes for the Renesas IP cores became easy to
+understand, too.
 
- - compatible:
-   * "wacom,w9013" (Wacom W9013 digitizer). Supports:
-     - vdd-supply
-     - post-power-on-delay-ms
-+    - reset-gpios
-+    - assert-reset-us
+Of course, we must now whitelist DMA safe buffers. This series implements it
+for core functionality:
 
-Brian
+a) for the I2C_RDWR when messages come from userspace
+b) for i2c_smbus_xfer_emulated(), DMA safe buffers are now allocated for
+   block transfers
+c) i2c_master_{send|recv} have now a *_dmasafe variant
+
+I am still not sure how we can teach regmap this new flag. regmap is a heavy
+user of I2C, so broonie's opinion here would be great to have. The rest should
+mostly be updating individual drivers which can be done when needed.
+
+All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W) and
+Renesas Lager board (r8a7790/H2). But more testing is really really welcome.
+
+The branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-v6
+
+It is planned to land upstream in v4.16 and I want to push it to linux-next
+early after v4.15 to get lots of testing for the core changes.
+
+Big kudos to Renesas Electronics for funding this work, thank you very much!
+
+Regards,
+
+   Wolfram
+
+Change since V5:
+* i2c_master_{send|recv} have now a *_dmasafe variant
+* for i2c_smbus_xfer_emulated(), DMA safe buffers are now allocated for
+  block transfers
+* updated the documentation
+* merged some rewording suggestions from Jonathan Cameron (thanks!)
+* rebased the patches v4.14-rc6+i2c/for-next, reordered patches
+
+
+Wolfram Sang (9):
+  i2c: add a message flag for DMA safe buffers
+  i2c: add helpers to ease DMA handling
+  i2c: dev: mark RDWR buffers as DMA_SAFE
+  i2c: refactor i2c_master_{send_recv}
+  i2c: add i2c_master_{send|recv}_dmasafe
+  i2c: smbus: use DMA safe buffers for emulated SMBus transactions
+  i2c: add docs to clarify DMA handling
+  i2c: sh_mobile: use core helper to decide when to use DMA
+  i2c: rcar: skip DMA if buffer is not safe
+
+ Documentation/i2c/DMA-considerations |  67 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c        |   2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c   |   8 ++-
+ drivers/i2c/i2c-core-base.c          | 110 ++++++++++++++++++++---------------
+ drivers/i2c/i2c-core-smbus.c         |  45 ++++++++++++--
+ drivers/i2c/i2c-dev.c                |   2 +
+ include/linux/i2c.h                  |  68 ++++++++++++++++++++--
+ include/uapi/linux/i2c.h             |   3 +
+ 8 files changed, 246 insertions(+), 59 deletions(-)
+ create mode 100644 Documentation/i2c/DMA-considerations
+
+-- 
+2.11.0

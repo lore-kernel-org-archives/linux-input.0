@@ -1,124 +1,108 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 3/3] HID: cp2112: fix broken gpio_direction_input callback
-Date: Mon, 6 Nov 2017 18:43:10 +0100
-Message-ID: <20171106174310.GM9728@mail.corp.redhat.com>
-References: <1509621164-28830-1-git-send-email-sebastien.szymanski@armadeus.com>
- <1509621164-28830-3-git-send-email-sebastien.szymanski@armadeus.com>
- <20171106081120.GC9728@mail.corp.redhat.com>
- <cb980f5f-48a0-8de0-f01d-5a90720797d6@armadeus.com>
+Subject: Re: [PATCH] HID: i2c-hid: Add no-irq-after-reset quirk for 0911:5288
+ device
+Date: Mon, 6 Nov 2017 18:50:40 +0100
+Message-ID: <20171106175040.GN9728@mail.corp.redhat.com>
+References: <20171106150041.13933-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35344 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36336 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752629AbdKFRnR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Nov 2017 12:43:17 -0500
+        id S1753493AbdKFRur (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Nov 2017 12:50:47 -0500
 Content-Disposition: inline
-In-Reply-To: <cb980f5f-48a0-8de0-f01d-5a90720797d6@armadeus.com>
+In-Reply-To: <20171106150041.13933-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?Q?S=C3=A9bastien?= Szymanski <sebastien.szymanski@armadeus.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Julien Boibessot <julien.boibessot@armadeus.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On Nov 06 2017 or thereabouts, Sébastien Szymanski wrote:
-> On 11/06/2017 09:11 AM, Benjamin Tissoires wrote:
-> > On Nov 02 2017 or thereabouts, Sébastien Szymanski wrote:
-> >> When everything goes smoothly, ret is set to 0 which makes the function
-> >> to return EIO error.
-> >>
-> >> Fixes: 8e9faa15469e ("HID: cp2112: fix gpio-callback error handling")
-> >> Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-> >> ---
-> >>  drivers/hid/hid-cp2112.c | 5 +++--
-> >>  1 file changed, 3 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> >> index 28e3c18..f7754a6 100644
-> >> --- a/drivers/hid/hid-cp2112.c
-> >> +++ b/drivers/hid/hid-cp2112.c
-> >> @@ -205,12 +205,13 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
-> >>  	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
-> >>  				 CP2112_GPIO_CONFIG_LENGTH, HID_FEATURE_REPORT,
-> >>  				 HID_REQ_SET_REPORT);
-> >> -	if (ret < 0) {
-> >> +	if (ret != CP2112_GPIO_CONFIG_LENGTH) {
-> > 
-> > Ack for this.
+On Nov 06 2017 or thereabouts, Hans de Goede wrote:
+> Several cheap Apollo Lake based laptops / 2-in-1s use an i2c-hid mt
+> touchpad which is advertised by the DSDT with an ACPI HID of "SYNA3602",
+> this touchpad can be found on e.g. the Cube Thinker and the EZBook 3 Pro.
 > 
-> As explained in the interface specification, the device doesn't answer
-> to set reports, so the transfer should be CP2112_GPIO_CONFIG_LENGTH (5)
-> bytes.
+> On my "T-bao Tbook air" the i2c-hid driver fails to bind to this touchpad:
+> "i2c_hid i2c-SYNA3602:00: failed to reset device.".
 > 
-> > 
-> >>  		hid_err(hdev, "error setting GPIO config: %d\n", ret);
-> >>  		goto exit;
-> >>  	}
-> >>  
-> >> -	ret = 0;
-> >> +	mutex_unlock(&dev->lock);
-> >> +	return 0;
-> > 
-> > Wouldn't it be better to just turn
-> > - return ret < 0 ? ret : -EIO;
-> > into
-> > + return ret <= 0 ? ret : -EIO;
-> > at the end of the function?
+> After some debuging this it seems that this touchpad simply never sends
+> an interrupt after a reset as expected by the i2c hid driver. This commit
+> adds a quirk for this device, making i2c_hid_command sleep 100ms after
+> a reset instead of waiting for an irq, fixing i2c-hid failing to bind to
+> this touchpad.
 > 
-> Well, the commit I mentioned in the Fixes tag, changes from
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/hid/hid-ids.h         | 7 +++++++
+>  drivers/hid/i2c-hid/i2c-hid.c | 7 ++++++-
+>  2 files changed, 13 insertions(+), 1 deletion(-)
 > 
-> - return ret <= 0 ? ret : -EIO;
-> 
-> to
-> 
-> + return ret < 0 ? ret : -EIO;
-> 
-> because ret being 0 could mean that one of the hid_hw_raw_request
-> returned 0.
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index be2e005c3c51..47c5e709c2fd 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -1003,6 +1003,13 @@
+>  #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
+>  #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
+>  
+> +/*
+> + * These are from i2c-hid mt touchpads found in several cheap Apollo Lake
+> + * based laptops which advertise the touchpad with an ACPI HID of "SYNA3602".
+> + */
+> +#define I2C_VENDOR_ID_SYNAPTICS		0x0911
 
-True.
+Is this really a Synaptics device? What is the Windows driver
+advertising? Because I am having a hard time Synaptics would do such
+thing. The USB Vendor ID for 0x0911 is "Philips Speech Processing"
+https://usb-ids.gowdy.us/read/UD/0911, and I doubt HID over I2C devices
+are supposed to use anything but USB managed vendor IDs...
 
-So, commit 8e9faa15469e basically makes all transfert return -EIO and
-should be reverted, right?
+> +#define I2C_PRODUCT_ID_SYNA3602		0x5288
+> +
+>  #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
+>  #define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA	0x0855
+>  
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 7f701772edfe..9ceef884a4b3 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -46,6 +46,7 @@
+>  
+>  /* quirks to control the device */
+>  #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
+> +#define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
+>  
+>  /* flags */
+>  #define I2C_HID_STARTED		0
+> @@ -168,6 +169,8 @@ static const struct i2c_hid_quirks {
+>  		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+>  	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
+>  		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+> +	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNA3602,
+> +		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+>  	{ 0, 0 }
+>  };
+>  
+> @@ -252,7 +255,9 @@ static int __i2c_hid_command(struct i2c_client *client,
+>  
+>  	ret = 0;
+>  
+> -	if (wait) {
+> +	if (wait && (ihid->quirks & I2C_HID_QUIRK_NO_IRQ_AFTER_RESET)) {
+> +		msleep(100);
 
-IMO, your commit should be:
-if (ret != CP2112_GPIO_CONFIG_LENGTH) {
-	hid_err(hdev, "error setting GPIO config: %d\n", ret);
-	if (ret >= 0)
-		ret = -EIO;
-	goto exit;
-}
-
-ret = 0;
-exit:
-mutex_unlock(&dev->lock);
-return ret;
-
-How does that sound?
+This is a sad thing to add, but if we do not have the choice... Does the
+Windows driver requires any changes or the Windows shipped one just
+works?
 
 Cheers,
 Benjamin
 
-> 
-> Regards,
-> 
-> > 
-> > I'd rather keep the same exit path in both cases, error or success.
-> > 
-> > Cheers,
-> > Benjamin
-> > 
-> > 
-> >>  
-> >>  exit:
-> >>  	mutex_unlock(&dev->lock);
-> >> -- 
-> >> 2.7.3
-> >>
-> 
-> 
+> +	} else if (wait) {
+>  		i2c_hid_dbg(ihid, "%s: waiting...\n", __func__);
+>  		if (!wait_event_timeout(ihid->wait,
+>  				!test_bit(I2C_HID_RESET_PENDING, &ihid->flags),
 > -- 
-> Sébastien Szymanski
-> Software engineer, Armadeus Systems
-> Tel: +33 (0)9 72 29 41 44
-> Fax: +33 (0)9 72 28 79 26
+> 2.14.3
+> 

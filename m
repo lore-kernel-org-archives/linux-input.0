@@ -1,115 +1,150 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 3/3] HID: multitouch: Fix BTN_LEFT on some touchpads
-Date: Mon, 6 Nov 2017 19:05:55 +0100
-Message-ID: <20171106180555.GP9728@mail.corp.redhat.com>
-References: <20171106150149.13986-1-hdegoede@redhat.com>
- <20171106150149.13986-3-hdegoede@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] HID: i2c-hid: Add no-irq-after-reset quirk for 0911:5288
+ device
+Date: Mon, 6 Nov 2017 21:26:19 +0100
+Message-ID: <27f7f4cd-cb6a-b5bd-8c2e-6cd7f136c108@redhat.com>
+References: <20171106150041.13933-1-hdegoede@redhat.com>
+ <20171106175040.GN9728@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55986 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:65441 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753726AbdKFSGC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Nov 2017 13:06:02 -0500
-Content-Disposition: inline
-In-Reply-To: <20171106150149.13986-3-hdegoede@redhat.com>
+        id S1754654AbdKFU0Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Nov 2017 15:26:24 -0500
+In-Reply-To: <20171106175040.GN9728@mail.corp.redhat.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On Nov 06 2017 or thereabouts, Hans de Goede wrote:
-> This commit fixes 2 different issues with BTN_LEFT on touchpads in one go:
-> 
-> 1) Devices in "single finger hybrid mode" will send one report per finger,
->    on some devices only the first report of such a multi-packet frame will
->    contain a value for BTN_LEFT, in subsequent reports (if multiple fingers
->    are down) the value is always 0, causing hid-mt to report BTN_LEFT going
->    1 - 0 - 1 - 0 when pressing a clickpad and putting down a second finger.
->    This happens for example on USB 0603:0002 mt touchpads.
-> 
-> 2) According to the Win8 Precision Touchpad spec, inside the HID_UP_BUTTON
->    usage-page usage 1 is for a clickpad getting clicked, 2 for an external
->    left button and 3 for an external right button. Since Linux uses
->    BTN_LEFT for a clickpad being clicked we end up mapping both usage 1
->    and 2 to BTN_LEFT and if a single report contains both then we ended
->    up always reporting the value of both in a single SYN, e.g. :
->    BTN_LEFT 1, BTN_LEFT 0, SYN. This happens for example with SYNA3602
->    i2c mt touchpads.
-> 
-> This commit fixes both issues by not immediately reporting BTN_LEFT when
-> we parse the report, but instead or-ing the values of all fields mapped
-> to BTN_LEFT together and reporting the result from mt_sync_frame()
-> when we've a complete frame.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> -Rewrite of v1 of "HID: multitouch: Fix BTN_LEFT 0-1-0-1 events on Novatek
->  mt touchpad" to kill two birds with one stone
-> ---
->  drivers/hid/hid-multitouch.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 76a3e9e074ba..bacbd1ba75ba 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -117,6 +117,7 @@ struct mt_device {
->  	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
->  	int cc_index;	/* contact count field index in the report */
->  	int cc_value_index;	/* contact count value index in the field */
-> +	int btn_left;		/* BTN_LEFT state */
->  	unsigned last_slot_field;	/* the last field of a slot */
->  	unsigned mt_report_id;	/* the report ID of the multitouch device */
->  	unsigned long initial_quirks;	/* initial quirks state */
-> @@ -717,9 +718,11 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->   */
->  static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
->  {
-> +	input_event(input, EV_KEY, BTN_LEFT, td->btn_left);
->  	input_mt_sync_frame(input);
->  	input_sync(input);
->  	td->num_received = 0;
-> +	td->btn_left = 0;
->  	if (test_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags))
->  		set_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
->  	else
-> @@ -794,6 +797,17 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
->  			break;
->  
->  		default:
-> +			/*
-> +			 * On some hardware we get multiple BTN_LEFT reports
-> +			 * per frame, with only 1 report reporting 1 if pressed.
-> +			 * So for BTN_LEFT we or the values together and
-> +			 * report the combined state in mt_sync_frame()
-> +			 */
-> +			if (usage->type == EV_KEY && usage->code == BTN_LEFT) {
-> +				td->btn_left |= value;
+Hi,
 
-Nah... We need to delay all the non multitouch events in the report if
-we are not in the first report. This only fixes BTN_LEFT, but BTN_RIGHT
-and others should also be fixed.
-
-And for the point 2 you are raising, we should probably not map the
-first button in case of a Precision Touchpad which is a non clickpad
-one.
-
-I still think you should rely on the scan time to detect the beginning
-of the frame. If you store the current scan time and remember if we are
-at the beginning or not of the frame (in mt_touch_report()), this should
-be pretty straightforward to fix.
-
-Cheers,
-Benjamin
-
-> +				return;
-> +			}
-> +
->  			if (usage->type)
->  				input_event(input, usage->type, usage->code,
->  						value);
-> -- 
-> 2.14.3
+On 06-11-17 18:50, Benjamin Tissoires wrote:
+> On Nov 06 2017 or thereabouts, Hans de Goede wrote:
+>> Several cheap Apollo Lake based laptops / 2-in-1s use an i2c-hid mt
+>> touchpad which is advertised by the DSDT with an ACPI HID of "SYNA3602",
+>> this touchpad can be found on e.g. the Cube Thinker and the EZBook 3 Pro.
+>>
+>> On my "T-bao Tbook air" the i2c-hid driver fails to bind to this touchpad:
+>> "i2c_hid i2c-SYNA3602:00: failed to reset device.".
+>>
+>> After some debuging this it seems that this touchpad simply never sends
+>> an interrupt after a reset as expected by the i2c hid driver. This commit
+>> adds a quirk for this device, making i2c_hid_command sleep 100ms after
+>> a reset instead of waiting for an irq, fixing i2c-hid failing to bind to
+>> this touchpad.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/hid/hid-ids.h         | 7 +++++++
+>>   drivers/hid/i2c-hid/i2c-hid.c | 7 ++++++-
+>>   2 files changed, 13 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> index be2e005c3c51..47c5e709c2fd 100644
+>> --- a/drivers/hid/hid-ids.h
+>> +++ b/drivers/hid/hid-ids.h
+>> @@ -1003,6 +1003,13 @@
+>>   #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
+>>   #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
+>>   
+>> +/*
+>> + * These are from i2c-hid mt touchpads found in several cheap Apollo Lake
+>> + * based laptops which advertise the touchpad with an ACPI HID of "SYNA3602".
+>> + */
+>> +#define I2C_VENDOR_ID_SYNAPTICS		0x0911
 > 
+> Is this really a Synaptics device? What is the Windows driver
+> advertising?
+
+I'm afraid I've wiped the Windows partition on the device,
+looking at the driver zip which is available for the device,
+there is no specific driver for the touchpad, so I assume it
+just works with the windows default driver.
+
+> Because I am having a hard time Synaptics would do such
+> thing. The USB Vendor ID for 0x0911 is "Philips Speech Processing"
+> https://usb-ids.gowdy.us/read/UD/0911, and I doubt HID over I2C devices
+> are supposed to use anything but USB managed vendor IDs...
+
+Agreed, I guess that the hardware vendor just took the
+first touchpad entry in the DSDT and edited the i2c
+address in there to match the touchpad (and set status
+to present) without changing the HID in the DSDT entry.
+
+So I've opened up the device, the touchpad PCB is marked as:
+
+Hantick
+
+HTX9848TI+EFSA
+
+And has a Hantick HTT5288 controller on there
+(and an EM85F690 fingerprint reader IC).
+
+So the 5288 matches with the product id and it
+seems that Hantick has decided to use 0x0911 as
+vendor id for them.
+
+So for v2 of this patch I will change the defines
+to I2C_VENDOR_ID_HANTICK and I2C_PRODUCT_ID_HANTICK5288.
+
+>> +#define I2C_PRODUCT_ID_SYNA3602		0x5288
+>> +
+>>   #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
+>>   #define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA	0x0855
+>>   
+>> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+>> index 7f701772edfe..9ceef884a4b3 100644
+>> --- a/drivers/hid/i2c-hid/i2c-hid.c
+>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+>> @@ -46,6 +46,7 @@
+>>   
+>>   /* quirks to control the device */
+>>   #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
+>> +#define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
+>>   
+>>   /* flags */
+>>   #define I2C_HID_STARTED		0
+>> @@ -168,6 +169,8 @@ static const struct i2c_hid_quirks {
+>>   		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+>>   	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
+>>   		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+>> +	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNA3602,
+>> +		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+>>   	{ 0, 0 }
+>>   };
+>>   
+>> @@ -252,7 +255,9 @@ static int __i2c_hid_command(struct i2c_client *client,
+>>   
+>>   	ret = 0;
+>>   
+>> -	if (wait) {
+>> +	if (wait && (ihid->quirks & I2C_HID_QUIRK_NO_IRQ_AFTER_RESET)) {
+>> +		msleep(100);
+> 
+> This is a sad thing to add, but if we do not have the choice... Does the
+> Windows driver requires any changes or the Windows shipped one just
+> works?
+
+As said, looking at the driver zip it appears this just works with the
+driver included in Windows.
+
+Regards,
+
+Hans
+
+
+> 
+> Cheers,
+> Benjamin
+> 
+>> +	} else if (wait) {
+>>   		i2c_hid_dbg(ihid, "%s: waiting...\n", __func__);
+>>   		if (!wait_event_timeout(ihid->wait,
+>>   				!test_bit(I2C_HID_RESET_PENDING, &ihid->flags),
+>> -- 
+>> 2.14.3
+>>

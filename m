@@ -1,62 +1,52 @@
-From: hl <hl@rock-chips.com>
-Subject: Re: [PATCH v2 2/2] devicetree: i2c-hid: Add reset property
-Date: Mon, 6 Nov 2017 09:00:52 +0800
-Message-ID: <183df5b3-8e69-4170-eaea-b5d05c5b2c0c@rock-chips.com>
-References: <1509418996-25348-1-git-send-email-hl@rock-chips.com>
- <1509418996-25348-2-git-send-email-hl@rock-chips.com>
- <CA+ASDXOG1HA2zS9uEi0n2Tza1iGvM0x1cntCy1haOf01Wb__3Q@mail.gmail.com>
+From: Anthony Kim <Anthony.Kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH v2 resend 0/1] Input: add support HiDeep touchscreen.
+Date: Mon, 6 Nov 2017 04:00:02 +0000
+Message-ID: <93AED97F53D7B941873C33A3FA30928855B9DA@mbox02.hideep.com>
+References: <1509445077-19246-1-git-send-email-anthony.kim@hideep.com>
+ <20171104003552.ve2elx6s4azzyd6q@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CA+ASDXOG1HA2zS9uEi0n2Tza1iGvM0x1cntCy1haOf01Wb__3Q@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org, robh@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171104003552.ve2elx6s4azzyd6q@dtor-ws>
+Content-Language: ko-KR
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Dmitry Torokhov' <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "'robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org'" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "'linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dennis Hong <Dennis.Hong-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
+Hi Dmitry,
 
+Thanks for your mention.
 
-On Saturday, November 04, 2017 12:35 PM, Brian Norris wrote:
-> On Mon, Oct 30, 2017 at 8:03 PM, Lin Huang <hl@rock-chips.com> wrote:
->> Document a "reset" and "assert-reset-us", it can be used for
->> driver control reset property. And reuse post-power-on-delay-ms
->> for deassert reset delay.
->>
->> Signed-off-by: Lin Huang <hl@rock-chips.com>
->> ---
->>   Documentation/devicetree/bindings/input/hid-over-i2c.txt | 4 +++-
->>   1 file changed, 3 insertions(+), 1 deletion(-)
->>
->> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
->> index 28e8bd8..6ab0eed 100644
->> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
->> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
->> @@ -31,7 +31,9 @@ device-specific compatible properties, which should be used in addition to the
->>
->>   - vdd-supply: phandle of the regulator that provides the supply voltage.
->>   - post-power-on-delay-ms: time required by the device after enabling its regulators
->> -  before it is ready for communication. Must be used with 'vdd-supply'.
->> +  or deassert reset pin before it is ready for communication.
->> +- reset: phandle of the gpio that provides for hid reset pin.
->> +- assert-reset-us: the device require reset assert time.
-> If there was any point in adding the device-specific description
-> around "wacom,w9013"...then you should probably mention these
-> properties there too. The idea was to document possible properties
-> here (where you're adding them already), and to note the property
-> names under the devices (or so far, just 1 device) that support them.
-> Or IOW, you need an addition like this:
->
->   - compatible:
->     * "wacom,w9013" (Wacom W9013 digitizer). Supports:
->       - vdd-supply
->       - post-power-on-delay-ms
-> +    - reset-gpios
-> +    - assert-reset-us
-  Okay, got it, will fix it next version.
->
-> Brian
->
->
->
+>Hi Anthony,
+
+>On Tue, Oct 31, 2017 at 07:17:56PM +0900, Anthony Kim wrote:
+>> Hi,
+>> 
+>> I remake patch to base on dmitry's modified code.
+>> Please refer as follow.
+>> http://www.spinics.net/lists/linux-input/msg53724.html
+>> 
+>> That code is working well almost, but needed to some modified.
+>> 
+>> - v2
+>>   - Our fw binary data is little endian, but our IC protocol
+>>     for fw update use big endian. So it need to convert to big endian data
+>>     and I added about it.
+
+>I understand that _currently_ your firmware binary is little endian, however it is easily remedied on your side. I do not understand why you would want to encumber the kernel running on many devices to do that conversion on fly.
+
+As your mention, I will don't convert to another endian again. I didn't know whether it affected. Just I hoped our IC work well.
+And I will test again using big endian binary. If there need to modify, I will send modified patch.
+
+Thanks! 
+
+>Thanks.
+
+>--
+>Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

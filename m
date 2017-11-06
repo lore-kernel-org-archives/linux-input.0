@@ -1,108 +1,75 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: i2c-hid: Add no-irq-after-reset quirk for 0911:5288
- device
-Date: Mon, 6 Nov 2017 18:50:40 +0100
-Message-ID: <20171106175040.GN9728@mail.corp.redhat.com>
-References: <20171106150041.13933-1-hdegoede@redhat.com>
+Subject: Re: [PATCH v2 2/3] HID: multitouch: Properly deal with reports with
+ 0 touches
+Date: Mon, 6 Nov 2017 18:56:16 +0100
+Message-ID: <20171106175616.GO9728@mail.corp.redhat.com>
+References: <20171106150149.13986-1-hdegoede@redhat.com>
+ <20171106150149.13986-2-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36336 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48460 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753493AbdKFRur (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Nov 2017 12:50:47 -0500
+        id S1753826AbdKFR4X (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Nov 2017 12:56:23 -0500
 Content-Disposition: inline
-In-Reply-To: <20171106150041.13933-1-hdegoede@redhat.com>
+In-Reply-To: <20171106150149.13986-2-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
 On Nov 06 2017 or thereabouts, Hans de Goede wrote:
-> Several cheap Apollo Lake based laptops / 2-in-1s use an i2c-hid mt
-> touchpad which is advertised by the DSDT with an ACPI HID of "SYNA3602",
-> this touchpad can be found on e.g. the Cube Thinker and the EZBook 3 Pro.
+> The Windows Precision Touchpad spec "Figure 4 Button Only Down and Up"
+> and "Table 9 Report Sequence for Button Only Down and Up" indicate
+> that the first packet of a (possibly hybrid mode multi-packet) report
+> may contain a contact-count of 0 if only a button is pressed and no
+> fingers are detected.
 > 
-> On my "T-bao Tbook air" the i2c-hid driver fails to bind to this touchpad:
-> "i2c_hid i2c-SYNA3602:00: failed to reset device.".
-> 
-> After some debuging this it seems that this touchpad simply never sends
-> an interrupt after a reset as expected by the i2c hid driver. This commit
-> adds a quirk for this device, making i2c_hid_command sleep 100ms after
-> a reset instead of waiting for an irq, fixing i2c-hid failing to bind to
-> this touchpad.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/hid/hid-ids.h         | 7 +++++++
->  drivers/hid/i2c-hid/i2c-hid.c | 7 ++++++-
->  2 files changed, 13 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index be2e005c3c51..47c5e709c2fd 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -1003,6 +1003,13 @@
->  #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
->  #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
->  
-> +/*
-> + * These are from i2c-hid mt touchpads found in several cheap Apollo Lake
-> + * based laptops which advertise the touchpad with an ACPI HID of "SYNA3602".
-> + */
-> +#define I2C_VENDOR_ID_SYNAPTICS		0x0911
+> This means that a value of 0 for contact-count is a valid value and
+> should be used as expected contact count when num_received == 0.
 
-Is this really a Synaptics device? What is the Windows driver
-advertising? Because I am having a hard time Synaptics would do such
-thing. The USB Vendor ID for 0x0911 is "Philips Speech Processing"
-https://usb-ids.gowdy.us/read/UD/0911, and I doubt HID over I2C devices
-are supposed to use anything but USB managed vendor IDs...
+Please add something here that explains that num_received == 0 means
+that we are at the beginning of a multi-report frame. I had a hard time
+remembering that actually.
 
-> +#define I2C_PRODUCT_ID_SYNA3602		0x5288
-> +
->  #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
->  #define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA	0x0855
->  
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 7f701772edfe..9ceef884a4b3 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -46,6 +46,7 @@
->  
->  /* quirks to control the device */
->  #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
-> +#define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
->  
->  /* flags */
->  #define I2C_HID_STARTED		0
-> @@ -168,6 +169,8 @@ static const struct i2c_hid_quirks {
->  		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
->  	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
->  		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
-> +	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNA3602,
-> +		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
->  	{ 0, 0 }
->  };
->  
-> @@ -252,7 +255,9 @@ static int __i2c_hid_command(struct i2c_client *client,
->  
->  	ret = 0;
->  
-> -	if (wait) {
-> +	if (wait && (ihid->quirks & I2C_HID_QUIRK_NO_IRQ_AFTER_RESET)) {
-> +		msleep(100);
+> 
+> The only other case where we may get a contact count value of 0
+> when num_received == 0 is when we're somehow out of sync and in
+> that case setting num_expected to 0 so that we ignore contacts
+> until we're back in sync again also is the right thing to do.
 
-This is a sad thing to add, but if we do not have the choice... Does the
-Windows driver requires any changes or the Windows shipped one just
-works?
+Are you sure about that? I mean, if you set num_expected to 0, all
+incoming report will call mt_sync_frame(), which basically flushes all
+the events to the user space.
+
+I am fine accepting a contact count value of 0 if we are at the
+beginning of a multi report frame, but I'd be more happy if you take
+into account the Scan Time HID field value into account instead of a
+computed value.
 
 Cheers,
 Benjamin
 
-> +	} else if (wait) {
->  		i2c_hid_dbg(ihid, "%s: waiting...\n", __func__);
->  		if (!wait_event_timeout(ihid->wait,
->  				!test_bit(I2C_HID_RESET_PENDING, &ihid->flags),
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/hid/hid-multitouch.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index bb939f6990f1..76a3e9e074ba 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -827,7 +827,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+>  	if (td->cc_index >= 0) {
+>  		struct hid_field *field = report->field[td->cc_index];
+>  		int value = field->value[td->cc_value_index];
+> -		if (value)
+> +		if (value || td->num_received == 0)
+>  			td->num_expected = value;
+>  	}
+>  
 > -- 
 > 2.14.3
 > 

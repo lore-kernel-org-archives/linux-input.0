@@ -1,52 +1,72 @@
-From: Anthony Kim <Anthony.Kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH v2 resend 0/1] Input: add support HiDeep touchscreen.
-Date: Mon, 6 Nov 2017 04:00:02 +0000
-Message-ID: <93AED97F53D7B941873C33A3FA30928855B9DA@mbox02.hideep.com>
-References: <1509445077-19246-1-git-send-email-anthony.kim@hideep.com>
- <20171104003552.ve2elx6s4azzyd6q@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v3 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS
+ version 3
+Date: Mon, 6 Nov 2017 08:56:16 +0100
+Message-ID: <CAN+gG=EAHa88ZMgZ4TB5WUgNwoLW9B6+BWsewkcXSVkEChdShg@mail.gmail.com>
+References: <20171105170951.20261-1-yiannis.marangos@gmail.com> <20171105170951.20261-2-yiannis.marangos@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171104003552.ve2elx6s4azzyd6q@dtor-ws>
-Content-Language: ko-KR
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Dmitry Torokhov' <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "'robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org'" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "'linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dennis Hong <Dennis.Hong-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:52587 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751461AbdKFH4S (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Nov 2017 02:56:18 -0500
+Received: by mail-pg0-f65.google.com with SMTP id a192so7588976pge.9
+        for <linux-input@vger.kernel.org>; Sun, 05 Nov 2017 23:56:17 -0800 (PST)
+In-Reply-To: <20171105170951.20261-2-yiannis.marangos@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yiannis Marangos <yiannis.marangos@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Dmitry,
+On Sun, Nov 5, 2017 at 6:09 PM, Yiannis Marangos
+<yiannis.marangos@gmail.com> wrote:
+> Some synaptics devices such as LEN0073 use SMBUS version 3.
+>
+> Signed-off-by: Yiannis Marangos <yiannis.marangos@gmail.com>
+> ---
 
-Thanks for your mention.
+In the same way v2 was:
+Acked-by: Benjamin Tissoires <benjamion.tissoires@redhat.com>
 
->Hi Anthony,
+This also applies to 2/2.
 
->On Tue, Oct 31, 2017 at 07:17:56PM +0900, Anthony Kim wrote:
->> Hi,
->> 
->> I remake patch to base on dmitry's modified code.
->> Please refer as follow.
->> http://www.spinics.net/lists/linux-input/msg53724.html
->> 
->> That code is working well almost, but needed to some modified.
->> 
->> - v2
->>   - Our fw binary data is little endian, but our IC protocol
->>     for fw update use big endian. So it need to convert to big endian data
->>     and I added about it.
+Yiannis, please next time keep the various acked-by, rev-by already
+provided by reviewers, this is less work for the maintainer to gather
+them if they are already there.
 
->I understand that _currently_ your firmware binary is little endian, however it is easily remedied on your side. I do not understand why you would want to encumber the kernel running on many devices to do that conversion on fly.
+Cheers,
+Benjamin
 
-As your mention, I will don't convert to another endian again. I didn't know whether it affected. Just I hoped our IC work well.
-And I will test again using big endian binary. If there need to modify, I will send modified patch.
-
-Thanks! 
-
->Thanks.
-
->--
->Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>  drivers/input/rmi4/rmi_smbus.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+> index 225025a0940c..b6ccf39c6a7b 100644
+> --- a/drivers/input/rmi4/rmi_smbus.c
+> +++ b/drivers/input/rmi4/rmi_smbus.c
+> @@ -312,7 +312,7 @@ static int rmi_smb_probe(struct i2c_client *client,
+>         rmi_smb->xport.dev = &client->dev;
+>         rmi_smb->xport.pdata = *pdata;
+>         rmi_smb->xport.pdata.irq = client->irq;
+> -       rmi_smb->xport.proto_name = "smb2";
+> +       rmi_smb->xport.proto_name = "smb";
+>         rmi_smb->xport.ops = &rmi_smb_ops;
+>
+>         smbus_version = rmi_smb_get_version(rmi_smb);
+> @@ -322,7 +322,7 @@ static int rmi_smb_probe(struct i2c_client *client,
+>         rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
+>                 smbus_version);
+>
+> -       if (smbus_version != 2) {
+> +       if (smbus_version != 2 && smbus_version != 3) {
+>                 dev_err(&client->dev, "Unrecognized SMB version %d\n",
+>                                 smbus_version);
+>                 return -ENODEV;
+> --
+> 2.14.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,93 +1,59 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 3/3] HID: multitouch: Fix BTN_LEFT on some touchpads
-Date: Mon,  6 Nov 2017 16:01:49 +0100
-Message-ID: <20171106150149.13986-3-hdegoede@redhat.com>
-References: <20171106150149.13986-1-hdegoede@redhat.com>
+Subject: [PATCH v2 1/3] HID: multitouch: Fix alphabetic sorting of mt_devices table.
+Date: Mon,  6 Nov 2017 16:01:47 +0100
+Message-ID: <20171106150149.13986-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53250 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:46002 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753614AbdKFPB5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Nov 2017 10:01:57 -0500
-In-Reply-To: <20171106150149.13986-1-hdegoede@redhat.com>
+        id S1753537AbdKFPBy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Nov 2017 10:01:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-This commit fixes 2 different issues with BTN_LEFT on touchpads in one go:
-
-1) Devices in "single finger hybrid mode" will send one report per finger,
-   on some devices only the first report of such a multi-packet frame will
-   contain a value for BTN_LEFT, in subsequent reports (if multiple fingers
-   are down) the value is always 0, causing hid-mt to report BTN_LEFT going
-   1 - 0 - 1 - 0 when pressing a clickpad and putting down a second finger.
-   This happens for example on USB 0603:0002 mt touchpads.
-
-2) According to the Win8 Precision Touchpad spec, inside the HID_UP_BUTTON
-   usage-page usage 1 is for a clickpad getting clicked, 2 for an external
-   left button and 3 for an external right button. Since Linux uses
-   BTN_LEFT for a clickpad being clicked we end up mapping both usage 1
-   and 2 to BTN_LEFT and if a single report contains both then we ended
-   up always reporting the value of both in a single SYN, e.g. :
-   BTN_LEFT 1, BTN_LEFT 0, SYN. This happens for example with SYNA3602
-   i2c mt touchpads.
-
-This commit fixes both issues by not immediately reporting BTN_LEFT when
-we parse the report, but instead or-ing the values of all fields mapped
-to BTN_LEFT together and reporting the result from mt_sync_frame()
-when we've a complete frame.
+Fix alphabetic sorting of mt_devices hid_device_id table.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
-Changes in v2:
--Rewrite of v1 of "HID: multitouch: Fix BTN_LEFT 0-1-0-1 events on Novatek
- mt touchpad" to kill two birds with one stone
----
- drivers/hid/hid-multitouch.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/hid/hid-multitouch.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 76a3e9e074ba..bacbd1ba75ba 100644
+index 9e8c4d2ba11d..bb939f6990f1 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -117,6 +117,7 @@ struct mt_device {
- 	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
- 	int cc_index;	/* contact count field index in the report */
- 	int cc_value_index;	/* contact count value index in the field */
-+	int btn_left;		/* BTN_LEFT state */
- 	unsigned last_slot_field;	/* the last field of a slot */
- 	unsigned mt_report_id;	/* the report ID of the multitouch device */
- 	unsigned long initial_quirks;	/* initial quirks state */
-@@ -717,9 +718,11 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
-  */
- static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
- {
-+	input_event(input, EV_KEY, BTN_LEFT, td->btn_left);
- 	input_mt_sync_frame(input);
- 	input_sync(input);
- 	td->num_received = 0;
-+	td->btn_left = 0;
- 	if (test_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags))
- 		set_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
- 	else
-@@ -794,6 +797,17 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			break;
+@@ -1605,14 +1605,6 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TURBOX,
+ 			USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) },
  
- 		default:
-+			/*
-+			 * On some hardware we get multiple BTN_LEFT reports
-+			 * per frame, with only 1 report reporting 1 if pressed.
-+			 * So for BTN_LEFT we or the values together and
-+			 * report the combined state in mt_sync_frame()
-+			 */
-+			if (usage->type == EV_KEY && usage->code == BTN_LEFT) {
-+				td->btn_left |= value;
-+				return;
-+			}
+-	/* Panasonic panels */
+-	{ .driver_data = MT_CLS_PANASONIC,
+-		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
+-			USB_DEVICE_ID_PANABOARD_UBT780) },
+-	{ .driver_data = MT_CLS_PANASONIC,
+-		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
+-			USB_DEVICE_ID_PANABOARD_UBT880) },
+-
+ 	/* Novatek Panel */
+ 	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
+@@ -1623,6 +1615,14 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			USB_VENDOR_ID_NTRIG, 0x1b05) },
+ 
++	/* Panasonic panels */
++	{ .driver_data = MT_CLS_PANASONIC,
++		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
++			USB_DEVICE_ID_PANABOARD_UBT780) },
++	{ .driver_data = MT_CLS_PANASONIC,
++		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
++			USB_DEVICE_ID_PANABOARD_UBT880) },
 +
- 			if (usage->type)
- 				input_event(input, usage->type, usage->code,
- 						value);
+ 	/* PixArt optical touch screen */
+ 	{ .driver_data = MT_CLS_INRANGE_CONTACTNUMBER,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_PIXART,
 -- 
 2.14.3
 

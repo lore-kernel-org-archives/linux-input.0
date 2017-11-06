@@ -1,78 +1,102 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v3 3/4] Input: gpio_keys - Allow suppression of input
- events for wakeup button presses
-Date: Mon, 6 Nov 2017 14:54:22 +0100
-Message-ID: <93c0efa0-21ba-72cb-5fd7-cc7e480861f6@redhat.com>
-References: <20171030174050.30375-1-hdegoede@redhat.com>
- <20171030174050.30375-3-hdegoede@redhat.com>
- <20171030181706.huwka5foqxparsiq@dtor-ws>
- <b6016f99-a313-164b-9e45-8611982d03a1@redhat.com>
- <20171030204809.mciyapkfqlihg3jd@dtor-ws>
- <7ca65f7f-60c4-04b7-2990-3037216f2be0@redhat.com>
- <20171106091901.GH9728@mail.corp.redhat.com>
+From: =?UTF-8?Q?S=c3=a9bastien_Szymanski?=
+        <sebastien.szymanski@armadeus.com>
+Subject: Re: [PATCH 3/3] HID: cp2112: fix broken gpio_direction_input callback
+Date: Mon, 6 Nov 2017 14:58:46 +0100
+Message-ID: <cb980f5f-48a0-8de0-f01d-5a90720797d6@armadeus.com>
+References: <1509621164-28830-1-git-send-email-sebastien.szymanski@armadeus.com>
+ <1509621164-28830-3-git-send-email-sebastien.szymanski@armadeus.com>
+ <20171106081120.GC9728@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:49118 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753043AbdKFNy1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Nov 2017 08:54:27 -0500
-In-Reply-To: <20171106091901.GH9728@mail.corp.redhat.com>
+Received: from 3.mo6.mail-out.ovh.net ([178.33.253.26]:47693 "EHLO
+        3.mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752800AbdKFOAU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Nov 2017 09:00:20 -0500
+Received: from player735.ha.ovh.net (b9.ovh.net [213.186.33.59])
+        by mo6.mail-out.ovh.net (Postfix) with ESMTP id 8D0D011834F
+        for <linux-input@vger.kernel.org>; Mon,  6 Nov 2017 14:50:19 +0100 (CET)
+In-Reply-To: <20171106081120.GC9728@mail.corp.redhat.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Julien Boibessot <julien.boibessot@armadeus.com>
 
-Hi,
-
-On 06-11-17 10:19, Benjamin Tissoires wrote:
-> On Nov 01 2017 or thereabouts, Hans de Goede wrote:
->> Hi,
+On 11/06/2017 09:11 AM, Benjamin Tissoires wrote:
+> On Nov 02 2017 or thereabouts, Sébastien Szymanski wrote:
+>> When everything goes smoothly, ret is set to 0 which makes the function
+>> to return EIO error.
 >>
->> On 30-10-17 21:48, Dmitry Torokhov wrote:
+>> Fixes: 8e9faa15469e ("HID: cp2112: fix gpio-callback error handling")
+>> Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+>> ---
+>>  drivers/hid/hid-cp2112.c | 5 +++--
+>>  1 file changed, 3 insertions(+), 2 deletions(-)
 >>
->> <snip>
->>
->>>> So both for consistency and because a timeout is racy I believe
->>>> that having the power button not send KEY_POWER after resume is
->>>> the proper solution here.
->>>>
->>>> Note that I've made this configurable and that soc_button_array
->>>> is the only driver getting this enabled, making the power-button
->>>> behavior on PC like devices consistent, without impacting any
->>>> other devices.
->>>
->>> I'd rather we did not make assumption in the kernel about behavior of
->>> userspace we happen to run on. The "PC like" devices change all the
->>> time, and one could even say that failure to deliver events by ACPI
->>> drivers on resume is a bug.
->>>
->>> Please teach userspace how to handle events coming during resume phase
->>> and what to do about them, and be done with it. One option is to say (in
->>> whatever implements your power policy) "we want to ignore next KEY_POWER
->>> event for the next NNN msec". You will need it ianyway if you decide to
->>> put your userspace onto, let's say, ASUS Flip (an ARM device using
->>> gpio-keys for power button and volume up/down buttons on the side of the
->>> case).
->>
->> Ok, I've written and submitted patches for this for gnome:
->> https://bugzilla.gnome.org/show_bug.cgi?id=789771
->>
->> That still leaves the same issue for KDE, XFCE, mate, etc. though,
->> note I've no intention of fixing those.
->>
+>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+>> index 28e3c18..f7754a6 100644
+>> --- a/drivers/hid/hid-cp2112.c
+>> +++ b/drivers/hid/hid-cp2112.c
+>> @@ -205,12 +205,13 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+>>  	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
+>>  				 CP2112_GPIO_CONFIG_LENGTH, HID_FEATURE_REPORT,
+>>  				 HID_REQ_SET_REPORT);
+>> -	if (ret < 0) {
+>> +	if (ret != CP2112_GPIO_CONFIG_LENGTH) {
 > 
-> Hi Hans,
-> 
-> I roughly had a look at the series, and I am wondering, can't we at
-> least take the cleanup patches (1/4 2/4 as far as i can tell)?
+> Ack for this.
 
-You could take those, but I'm not sure they are worth the churn,
-without the need for the interrupt handlers to be able to access
-(more) device-level (rather then button-level) data.
+As explained in the interface specification, the device doesn't answer
+to set reports, so the transfer should be CP2112_GPIO_CONFIG_LENGTH (5)
+bytes.
+
+> 
+>>  		hid_err(hdev, "error setting GPIO config: %d\n", ret);
+>>  		goto exit;
+>>  	}
+>>  
+>> -	ret = 0;
+>> +	mutex_unlock(&dev->lock);
+>> +	return 0;
+> 
+> Wouldn't it be better to just turn
+> - return ret < 0 ? ret : -EIO;
+> into
+> + return ret <= 0 ? ret : -EIO;
+> at the end of the function?
+
+Well, the commit I mentioned in the Fixes tag, changes from
+
+- return ret <= 0 ? ret : -EIO;
+
+to
+
++ return ret < 0 ? ret : -EIO;
+
+because ret being 0 could mean that one of the hid_hw_raw_request
+returned 0.
 
 Regards,
 
-Hans
+> 
+> I'd rather keep the same exit path in both cases, error or success.
+> 
+> Cheers,
+> Benjamin
+> 
+> 
+>>  
+>>  exit:
+>>  	mutex_unlock(&dev->lock);
+>> -- 
+>> 2.7.3
+>>
+
+
+-- 
+Sébastien Szymanski
+Software engineer, Armadeus Systems
+Tel: +33 (0)9 72 29 41 44
+Fax: +33 (0)9 72 28 79 26

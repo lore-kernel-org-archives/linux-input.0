@@ -1,18 +1,18 @@
 From: Bastien Nocera <hadess@hadess.net>
 Subject: Re: [PATCH 0/4] platform/x86: intel-vbtn: Add support for several
  more switches/buttons
-Date: Mon, 06 Nov 2017 13:41:44 +0100
-Message-ID: <1509972104.2869.110.camel@hadess.net>
+Date: Mon, 06 Nov 2017 13:54:25 +0100
+Message-ID: <1509972865.2869.112.camel@hadess.net>
 References: <b8013fda-0f69-41d7-ade3-98ca861dc30d@rwthex-w2-a.rwth-ad.de>
          <CAHp75VfxpUJRdp9hKnPnJ7-7Kfo=DnTm-NRvE-KCQ2ZJ6eehNA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:60301 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752099AbdKFMlt (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Nov 2017 07:41:49 -0500
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:55458 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752172AbdKFMya (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Nov 2017 07:54:30 -0500
 In-Reply-To: <CAHp75VfxpUJRdp9hKnPnJ7-7Kfo=DnTm-NRvE-KCQ2ZJ6eehNA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -43,21 +43,28 @@ On Sun, 2017-11-05 at 14:31 +0200, Andy Shevchenko wrote:
 > > is likely implemented as a switch (SW_ROTATE_LOCK event) on
 > > different
 > > hardware.
+> > 
+> > The fourth patch adds support for the "Windows logo" button/key
+> > found on
+> > the XPS 12 display (i.e. in tablet mode, it is the only key
+> > reachable).
+> > The Lenovo Helix 2 has an equivalent touch button. The event
+> > currently
+> > uses KEY_MENU, although a distinct key code may be a better choice.
+> > 
+> 
+> All, except first, are applied to my review and testing queue,
+> thanks!
+> 
+> > 
+> > Stefan Brüns (4):
+> >   Input: sparse-keymap - send sync event for KE_SW/KW_VSW
+> >   platform/x86: intel-vbtn: support SW_TABLET_MODE
+> >   platform/x86: intel-vbtn: support KEY_ROTATE_DISPLAY
+> >   platform/x86: intel-vbtn: support panel front button
 
-KEY_ROTATE_DISPLAY will resolve to XF86RotateWindows. This is a button
-for devices without accelerometers (such as old Thinkpad tablet models
-with Wacom builtin), to request the display to be rotated. It's not a
-request to the OS to toggle the acceleration lock.
-
-The acceleration lock is currently handled in user-space if "Win+O" is
-pressed, as some BIOSes will generate this key combination directly,
-which Windows will handle.
-
-Please revert this patch, it should send out Win+O instead (or it needs
-another keycode added).
-
-(Also, even if the code ultimately lands in the platform tree, it would
-be nice to send the linux-input list a copy of those types of patches,
-where this problem would have been caught earlier).
+KEY_MENU is the key for the contextual menu. You need to use
+KEY_LEFTMETA. See 791738be57473fddaf393dcedcef31b577231aaa which does
+this for soc_button_array.
 
 Cheers

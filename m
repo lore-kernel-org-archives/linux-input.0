@@ -1,136 +1,53 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 2/3] HID: multitouch: Properly deal with Win8 PTP reports with 0 touches
-Date: Tue,  7 Nov 2017 13:40:26 +0100
-Message-ID: <20171107124027.26984-2-hdegoede@redhat.com>
-References: <20171107124027.26984-1-hdegoede@redhat.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH] HID: sony: Fix SHANWAN pad rumbling on USB
+Date: Tue,  7 Nov 2017 15:24:47 +0100
+Message-ID: <20171107142447.11810-1-hadess@hadess.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47956 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751023AbdKGMkf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 7 Nov 2017 07:40:35 -0500
-In-Reply-To: <20171107124027.26984-1-hdegoede@redhat.com>
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:37345 "EHLO
+        slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751875AbdKGOZL (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Nov 2017 09:25:11 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Szymon Janc <szymon.janc@codecoup.pl>, Bastien Nocera <hadess@hadess.net>
 
-The Windows Precision Touchpad spec "Figure 4 Button Only Down and Up"
-and "Table 9 Report Sequence for Button Only Down and Up" indicate
-that the first packet of a (possibly hybrid mode multi-packet) frame
-may contain a contact-count of 0 if only a button is pressed and no
-fingers are detected.
+The SHANWAN PS3 clone joypad will start its rumble motors as soon as
+it is plugged in via USB. As the additional USB interrupt does nothing on
+the original PS3 Sixaxis joypads, and makes a number of other
+clone joypads actually start sending data, disable that call for
+the SHANWAN so the rumble motors aren't started on plug.
 
-This means that a value of 0 for contact-count is a valid value and
-should be used as expected contact count when it is the first packet
-(num_received == 0), as extra check to make sure that this is the first
-packet of a buttons only frame, we also check that the timestamp is
-different.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
-Changes in v2:
--New patch in v2 of this patch-set
+ drivers/hid/hid-sony.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-Changes in v3:
--Also check timestamps to make sure we're dealing with the first-packet
- of a frame
----
- drivers/hid/hid-multitouch.c | 34 ++++++++++++++++++++++++++++++++--
- include/linux/hid.h          |  1 +
- 2 files changed, 33 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index bb939f6990f1..5d3904d0e89d 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -117,6 +117,9 @@ struct mt_device {
- 	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
- 	int cc_index;	/* contact count field index in the report */
- 	int cc_value_index;	/* contact count value index in the field */
-+	int scantime_index;	/* scantime field index in the report */
-+	int scantime_val_index;	/* scantime value index in the field */
-+	int prev_scantime;	/* scantime reported in the previous packet */
- 	unsigned last_slot_field;	/* the last field of a slot */
- 	unsigned mt_report_id;	/* the report ID of the multitouch device */
- 	unsigned long initial_quirks;	/* initial quirks state */
-@@ -595,6 +598,14 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			/* we don't set td->last_slot_field as contactcount and
- 			 * contact max are global to the report */
- 			return -1;
-+		case HID_DG_SCANTIME:
-+			/* Ignore if indexes are out of bounds. */
-+			if (field->index >= field->report->maxfield ||
-+			    usage->usage_index >= field->report_count)
-+				return 1;
-+			td->scantime_index = field->index;
-+			td->scantime_val_index = usage->usage_index;
-+			return 1;
- 		case HID_DG_TOUCH:
- 			/* Legacy devices use TIPSWITCH and not TOUCH.
- 			 * Let's just ignore this field. */
-@@ -812,9 +823,10 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- {
- 	struct mt_device *td = hid_get_drvdata(hid);
-+	__s32 cls = td->mtclass.name;
- 	struct hid_field *field;
- 	unsigned count;
--	int r, n;
-+	int r, n, scantime = 0;
- 
- 	/* sticky fingers release in progress, abort */
- 	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
-@@ -824,12 +836,29 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- 	 * Includes multi-packet support where subsequent
- 	 * packets are sent with zero contactcount.
- 	 */
-+	if (td->scantime_index >= 0) {
-+		field = report->field[td->scantime_index];
-+		scantime = field->value[td->scantime_val_index];
-+	}
- 	if (td->cc_index >= 0) {
- 		struct hid_field *field = report->field[td->cc_index];
- 		int value = field->value[td->cc_value_index];
--		if (value)
-+
-+		/*
-+		 * For Win8 PTPs the first packet (td->num_received == 0) may
-+		 * have a contactcount of 0 if there only is a button event.
-+		 * We double check that this is not a continuation packet
-+		 * of a possible multi-packet frame be checking that the
-+		 * timestamp has changed.
-+		 */
-+		if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
-+		    td->num_received == 0 && td->prev_scantime != scantime)
-+			td->num_expected = value;
-+		/* A non 0 contact count always indicates a first packet */
-+		else if (value)
- 			td->num_expected = value;
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index d03203a82e8f..b9dc3ac4d4aa 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1439,10 +1439,16 @@ static int sixaxis_set_operational_usb(struct hid_device *hdev)
+ 		goto out;
  	}
-+	td->prev_scantime = scantime;
  
- 	for (r = 0; r < report->maxfield; r++) {
- 		field = report->field[r];
-@@ -1285,6 +1314,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	td->maxcontact_report_id = -1;
- 	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
- 	td->cc_index = -1;
-+	td->scantime_index = -1;
- 	td->mt_report_id = -1;
- 	hid_set_drvdata(hdev, td);
+-	ret = hid_hw_output_report(hdev, buf, 1);
+-	if (ret < 0) {
+-		hid_info(hdev, "can't set operational mode: step 3, ignoring\n");
+-		ret = 0;
++	/*
++	 * But the USB interrupt would cause SHANWAN controllers to
++	 * start rumbling non-stop.
++	 */
++	if (strcmp(hdev->name, "SHANWAN PS3 GamePad")) {
++		ret = hid_hw_output_report(hdev, buf, 1);
++		if (ret < 0) {
++			hid_info(hdev, "can't set operational mode: step 3, ignoring\n");
++			ret = 0;
++		}
+ 	}
  
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index ab05a86269dc..47dd962d9a7a 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -289,6 +289,7 @@ struct hid_item {
- #define HID_DG_DEVICEINDEX	0x000d0053
- #define HID_DG_CONTACTCOUNT	0x000d0054
- #define HID_DG_CONTACTMAX	0x000d0055
-+#define HID_DG_SCANTIME		0x000d0056
- #define HID_DG_BUTTONTYPE	0x000d0059
- #define HID_DG_BARRELSWITCH2	0x000d005a
- #define HID_DG_TOOLSERIALNUMBER	0x000d005b
+ out:
 -- 
 2.14.3
 

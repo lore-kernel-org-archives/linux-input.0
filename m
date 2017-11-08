@@ -1,66 +1,73 @@
 From: Andi Shyti <andi.shyti@samsung.com>
-Subject: [PATCH v6 1/2] dt-bindings: Input: add Samsung S6SY761 touchscreen
- binding file
-Date: Wed, 08 Nov 2017 17:21:04 +0900
-Message-ID: <20171108082105.30739-2-andi.shyti@samsung.com>
-References: <20171108082105.30739-1-andi.shyti@samsung.com>
-        <CGME20171108082115epcas2p4e9f9b62e77ed7f8028e746bc3cd6051c@epcas2p4.samsung.com>
+Subject: [PATCH v6 0/2] add support for the Samsung S6SY761 touchscreen
+Date: Wed, 08 Nov 2017 17:21:03 +0900
+Message-ID: <20171108082105.30739-1-andi.shyti@samsung.com>
+References: <CGME20171108082115epcas2p46263ae444b08441c2e35d9e3a51dd0ca@epcas2p4.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20171108082105.30739-1-andi.shyti@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
 
-Add the binding file for the Samsung capacitive multi-touch
-touchscreen S6SY761.
+Hi,
 
-Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-Acked-by: Rob Herring <robh@kernel.org>
----
- .../bindings/input/touchscreen/samsung,s6sy761.txt | 34 ++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+This patchset adds support for the Samsung s6sy761 touchscreen.
+
+Thanks,
+Andi
+
+v5 - v6
+ - make a clear logical split between hw initialization and
+   resume.
+ - fix an inconsistency when applying the maximum x and y
+   coordinates (as discussed with Dmitry[*]).
+
+[*] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1528801.html
+
+v4 - v5
+ - The previous patch has been split in two parts as requested
+   by Rob and added his ack in the dt-binding patch.
+ - I tried to fix all the reviews from Dmitry[*]
+ - other random cleanups
+
+[*] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1523520.html
+
+v3 - v4
+ - fixed a mismatch on the module name
+
+v2 - v3
+ - added security check on an unsigned value which can (unlikely)
+   get a "negative" value
+
+ - in the probe function the interrupt is requested after the
+   input device registration in order to avoid checking in the
+   interrupt handler whether the input device has been registered
+
+ - removed the 'prev_pm_state' variable. Its original meaning
+   was to restore the state of the device when coming back from
+   sleep mode, but because I removed in patch v2 the low power
+   mode, now the device works only in two modes and therefore
+   'prev_pm_state' is not required any longer.
+
+v1 - v2
+ - remove the low power functionality as it doesn't bring any
+   benefit
+ - use get_unaligned_be16 instead of the form 'a << 8 | b'
+ - use max_t instead of '? :'
+ - use managed 'devm_device_add_group()'
+
+
+Andi Shyti (2):
+  dt-bindings: Input: add Samsung S6SY761 touchscreen binding file
+  Input: add support for the Samsung S6SY761 touchscreen
+
+ .../bindings/input/touchscreen/samsung,s6sy761.txt |  34 ++
+ drivers/input/touchscreen/Kconfig                  |  11 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/s6sy761.c                | 564 +++++++++++++++++++++
+ 4 files changed, 610 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt
+ create mode 100644 drivers/input/touchscreen/s6sy761.c
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt b/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt
-new file mode 100644
-index 000000000000..d9b7c2ff611e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt
-@@ -0,0 +1,34 @@
-+* Samsung S6SY761 touchscreen controller
-+
-+Required properties:
-+- compatible		: must be "samsung,s6sy761"
-+- reg			: I2C slave address, (e.g. 0x48)
-+- interrupt-parent	: the phandle to the interrupt controller which provides
-+			  the interrupt
-+- interrupts		: interrupt specification
-+- avdd-supply		: analogic power supply
-+- vdd-supply		: power supply
-+
-+Optional properties:
-+- touchscreen-size-x	: see touchscreen.txt. This property is embedded in the
-+			  device. If defined it forces a different x resolution.
-+- touchscreen-size-y	: see touchscreen.txt. This property is embedded in the
-+			  device. If defined it forces a different y resolution.
-+
-+Example:
-+
-+i2c@00000000 {
-+
-+	/* ... */
-+
-+	touchscreen@48 {
-+		compatible = "samsung,s6sy761";
-+		reg = <0x48>;
-+		interrupt-parent = <&gpa1>;
-+		interrupts = <1 IRQ_TYPE_NONE>;
-+		avdd-supply = <&ldo30_reg>;
-+		vdd-supply = <&ldo31_reg>;
-+		touchscreen-size-x = <4096>;
-+		touchscreen-size-y = <4096>;
-+	};
-+};
 -- 
 2.15.0

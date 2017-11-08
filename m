@@ -1,7 +1,7 @@
 From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH v3 2/3] Input: ad7897 - use devm_add_action_or_reset to disable the device
-Date: Wed,  8 Nov 2017 17:50:19 +0200
-Message-ID: <20171108155020.3851-3-andi@etezian.org>
+Subject: [PATCH v3 3/3] Input: ad7897 - use separate error handling for different allocators
+Date: Wed,  8 Nov 2017 17:50:20 +0200
+Message-ID: <20171108155020.3851-4-andi@etezian.org>
 References: <20171108155020.3851-1-andi@etezian.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171108155020.3851-1-andi@etezian.org>
@@ -10,70 +10,33 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Michael Hennerich <michael.hennerich@analog.com>, Lars-Peter Clausen <lars@metafoo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Use the ad7877_disable() as a custom action when the driver gets
-removed instead of calling it from the remove function.
-
-Because ad7877_remove() was just calling the disable function,
-get rid of it.
+Split the error between devm_kzalloc and
+devm_input_allocate_device, there is no need to call the second
+allocator if the first has failed. Besides this doesn't provide
+practical advantages.
 
 CC: Michael Hennerich <michael.hennerich@analog.com>
 Signed-off-by: Andi Shyti <andi@etezian.org>
 ---
- drivers/input/touchscreen/ad7877.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ drivers/input/touchscreen/ad7877.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index dd59e4a5eb7d..04ab8fbc8184 100644
+index 04ab8fbc8184..98deffde3fe2 100644
 --- a/drivers/input/touchscreen/ad7877.c
 +++ b/drivers/input/touchscreen/ad7877.c
-@@ -417,8 +417,10 @@ static irqreturn_t ad7877_irq(int irq, void *handle)
- 	return IRQ_HANDLED;
- }
+@@ -710,8 +710,11 @@ static int ad7877_probe(struct spi_device *spi)
+ 	}
  
--static void ad7877_disable(struct ad7877 *ts)
-+static void ad7877_disable(void *data)
- {
-+	struct ad7877 *ts = data;
+ 	ts = devm_kzalloc(&spi->dev, sizeof(struct ad7877), GFP_KERNEL);
++	if (!ts)
++		return -ENOMEM;
 +
- 	mutex_lock(&ts->mutex);
- 
- 	if (!ts->disabled) {
-@@ -712,6 +714,10 @@ static int ad7877_probe(struct spi_device *spi)
- 	if (!ts || !input_dev)
+ 	input_dev = devm_input_allocate_device(&spi->dev);
+-	if (!ts || !input_dev)
++	if (!input_dev)
  		return -ENOMEM;
  
-+	err = devm_add_action_or_reset(&spi->dev, ad7877_disable, ts);
-+	if (err)
-+		return err;
-+
- 	spi_set_drvdata(spi, ts);
- 	ts->spi = spi;
- 	ts->input = input_dev;
-@@ -787,17 +793,6 @@ static int ad7877_probe(struct spi_device *spi)
- 	return input_register_device(input_dev);
- }
- 
--static int ad7877_remove(struct spi_device *spi)
--{
--	struct ad7877 *ts = spi_get_drvdata(spi);
--
--	ad7877_disable(ts);
--
--	dev_dbg(&spi->dev, "unregistered touchscreen\n");
--
--	return 0;
--}
--
- static int __maybe_unused ad7877_suspend(struct device *dev)
- {
- 	struct ad7877 *ts = dev_get_drvdata(dev);
-@@ -824,7 +819,6 @@ static struct spi_driver ad7877_driver = {
- 		.pm	= &ad7877_pm,
- 	},
- 	.probe		= ad7877_probe,
--	.remove		= ad7877_remove,
- };
- 
- module_spi_driver(ad7877_driver);
+ 	err = devm_add_action_or_reset(&spi->dev, ad7877_disable, ts);
 -- 
 2.15.0

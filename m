@@ -1,65 +1,82 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tsc200x-core - set INPUT_PROP_DIRECT
-Date: Tue, 7 Nov 2017 16:21:08 -0800
-Message-ID: <20171108002108.ue5nig27rdriv5zw@dtor-ws>
-References: <20171107234000.10236-1-martink@posteo.de>
+Subject: Re: [PATCH v3 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS
+ version 3
+Date: Tue, 7 Nov 2017 16:24:11 -0800
+Message-ID: <20171108002411.cijgtx7gigpa6ijn@dtor-ws>
+References: <20171105170951.20261-1-yiannis.marangos@gmail.com>
+ <20171105170951.20261-2-yiannis.marangos@gmail.com>
+ <CAN+gG=EAHa88ZMgZ4TB5WUgNwoLW9B6+BWsewkcXSVkEChdShg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:55121 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933222AbdKHAVM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Nov 2017 19:21:12 -0500
+Received: from mail-io0-f194.google.com ([209.85.223.194]:48173 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751516AbdKHAYP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Nov 2017 19:24:15 -0500
+Received: by mail-io0-f194.google.com with SMTP id d66so4115003ioe.5
+        for <linux-input@vger.kernel.org>; Tue, 07 Nov 2017 16:24:14 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20171107234000.10236-1-martink@posteo.de>
+In-Reply-To: <CAN+gG=EAHa88ZMgZ4TB5WUgNwoLW9B6+BWsewkcXSVkEChdShg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Kepplinger <martink@posteo.de>
-Cc: keescook@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Yiannis Marangos <yiannis.marangos@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On Wed, Nov 08, 2017 at 12:40:00AM +0100, Martin Kepplinger wrote:
-> If INPUT_PROP_DIRECT is set, userspace doesn't have to fall back to old
-> ways of identifying touchscreen devices.
+On Mon, Nov 06, 2017 at 08:56:16AM +0100, Benjamin Tissoires wrote:
+> On Sun, Nov 5, 2017 at 6:09 PM, Yiannis Marangos
+> <yiannis.marangos@gmail.com> wrote:
+> > Some synaptics devices such as LEN0073 use SMBUS version 3.
+> >
+> > Signed-off-by: Yiannis Marangos <yiannis.marangos@gmail.com>
+> > ---
 > 
-> In order to identify a touchscreen device, Android for example, seems to
-> already depend on INPUT_PROP_DIRECT to be present in drivers. udev still
-> checks for either BTN_TOUCH or INPUT_PROP_DIRECT. Checking for BTN_TOUCH
-> however can quite easily lead to false positives; it's a code that not only
-> touchscreen device drivers use.
-> 
-> According to the documentation, touchscreen drivers should have this
-> property set and in order to make life easy for userspace, let's set it.
-> 
-> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+> In the same way v2 was:
+> Acked-by: Benjamin Tissoires <benjamion.tissoires@redhat.com>
 
 Applied, thank you.
 
-> ---
 > 
-> Still, as a paranoia measure, I'd not do a bulk-patchset adding this bit
-> to every driver here. I'll add it to drivers I know of, by using them
-> myself or people that report using tslib. Who knows what devices or
-> usecases exist out there :)
+> This also applies to 2/2.
 > 
+> Yiannis, please next time keep the various acked-by, rev-by already
+> provided by reviewers, this is less work for the maintainer to gather
+> them if they are already there.
 > 
->  drivers/input/touchscreen/tsc200x-core.c | 1 +
->  1 file changed, 1 insertion(+)
+> Cheers,
+> Benjamin
 > 
-> diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
-> index 542db26d7fd0..e0fde590df8e 100644
-> --- a/drivers/input/touchscreen/tsc200x-core.c
-> +++ b/drivers/input/touchscreen/tsc200x-core.c
-> @@ -531,6 +531,7 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
->  
->  	input_set_drvdata(input_dev, ts);
->  
-> +	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
->  	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
->  
->  	input_set_abs_params(input_dev, ABS_X,
-> -- 
-> 2.11.0
-> 
+> >  drivers/input/rmi4/rmi_smbus.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+> > index 225025a0940c..b6ccf39c6a7b 100644
+> > --- a/drivers/input/rmi4/rmi_smbus.c
+> > +++ b/drivers/input/rmi4/rmi_smbus.c
+> > @@ -312,7 +312,7 @@ static int rmi_smb_probe(struct i2c_client *client,
+> >         rmi_smb->xport.dev = &client->dev;
+> >         rmi_smb->xport.pdata = *pdata;
+> >         rmi_smb->xport.pdata.irq = client->irq;
+> > -       rmi_smb->xport.proto_name = "smb2";
+> > +       rmi_smb->xport.proto_name = "smb";
+> >         rmi_smb->xport.ops = &rmi_smb_ops;
+> >
+> >         smbus_version = rmi_smb_get_version(rmi_smb);
+> > @@ -322,7 +322,7 @@ static int rmi_smb_probe(struct i2c_client *client,
+> >         rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
+> >                 smbus_version);
+> >
+> > -       if (smbus_version != 2) {
+> > +       if (smbus_version != 2 && smbus_version != 3) {
+> >                 dev_err(&client->dev, "Unrecognized SMB version %d\n",
+> >                                 smbus_version);
+> >                 return -ENODEV;
+> > --
+> > 2.14.3
+> >
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Dmitry

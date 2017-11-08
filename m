@@ -1,57 +1,109 @@
 From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH v3 0/3] use managed functions for ad7897 driver
-Date: Wed,  8 Nov 2017 17:50:17 +0200
-Message-ID: <20171108155020.3851-1-andi@etezian.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 9.mo3.mail-out.ovh.net ([87.98.184.141]:34170 "EHLO
-        9.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752608AbdKHPue (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Nov 2017 10:50:34 -0500
-Received: from player771.ha.ovh.net (b9.ovh.net [213.186.33.59])
-        by mo3.mail-out.ovh.net (Postfix) with ESMTP id 0B98116E8CE
-        for <linux-input@vger.kernel.org>; Wed,  8 Nov 2017 16:50:33 +0100 (CET)
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v3 1/3] Input: ad7897 - use managed allocated resources
+Date: Wed,  8 Nov 2017 17:50:18 +0200
+Message-ID: <20171108155020.3851-2-andi@etezian.org>
+References: <20171108155020.3851-1-andi@etezian.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171108155020.3851-1-andi@etezian.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Michael Hennerich <michael.hennerich@analog.com>, Lars-Peter Clausen <lars@metafoo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
+List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Use managed allocated resources to simplify error handling during
+probing failure and module exiting.
 
-after our discussion[1], I decided to do it a more properly by
-replacing in the touchscreen drivers the initialization functions
-with their related managed functions.
+With this all the goto labels in the probe function together with
+the cleanups in the remove function are unnecessary, therefore
+removed.
 
-I will slowly send patches for other drivers.
+CC: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Andi Shyti <andi@etezian.org>
+---
+ drivers/input/touchscreen/ad7877.c | 42 +++++++++-----------------------------
+ 1 file changed, 10 insertions(+), 32 deletions(-)
 
-The last patch is trivial, but somehow it bothers me, please feel
-free to reject it.
-
-Thanks,
-Andi
-
-v2 - v3
-https://marc.info/?l=linux-kernel&m=151015103707211&w=2
- - fixed a mistake I did while squashing the patches in v2
-   (thanks Lars[2])
-
-v1 - v2
-https://marc.info/?l=linux-kernel&m=150963732620135&w=2
- - squashed all the patches that were switching to the managed
-   resource allocation
- - removed the remove() function and used
-   devm_add_action_or_reset for cleaning when exiting
-
-[1] https://marc.info/?l=linux-input&m=150671805312148&w=2
-[2] https://marc.info/?l=linux-kernel&m=151015513508504&w=2
-
-Andi Shyti (3):
-  Input: ad7897 - use managed allocated resources
-  Input: ad7897 - use devm_add_action_or_reset to disable the device
-  Input: ad7897 - use separate error handling for different allocators
-
- drivers/input/touchscreen/ad7877.c | 65 ++++++++++++--------------------------
- 1 file changed, 20 insertions(+), 45 deletions(-)
-
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index 0381c7809d1b..dd59e4a5eb7d 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -707,12 +707,10 @@ static int ad7877_probe(struct spi_device *spi)
+ 		return err;
+ 	}
+ 
+-	ts = kzalloc(sizeof(struct ad7877), GFP_KERNEL);
+-	input_dev = input_allocate_device();
+-	if (!ts || !input_dev) {
+-		err = -ENOMEM;
+-		goto err_free_mem;
+-	}
++	ts = devm_kzalloc(&spi->dev, sizeof(struct ad7877), GFP_KERNEL);
++	input_dev = devm_input_allocate_device(&spi->dev);
++	if (!ts || !input_dev)
++		return -ENOMEM;
+ 
+ 	spi_set_drvdata(spi, ts);
+ 	ts->spi = spi;
+@@ -764,8 +762,7 @@ static int ad7877_probe(struct spi_device *spi)
+ 	if (verify != AD7877_MM_SEQUENCE){
+ 		dev_err(&spi->dev, "%s: Failed to probe %s\n",
+ 			dev_name(&spi->dev), input_dev->name);
+-		err = -ENODEV;
+-		goto err_free_mem;
++		return -ENODEV;
+ 	}
+ 
+ 	if (gpio3)
+@@ -775,45 +772,26 @@ static int ad7877_probe(struct spi_device *spi)
+ 
+ 	/* Request AD7877 /DAV GPIO interrupt */
+ 
+-	err = request_threaded_irq(spi->irq, NULL, ad7877_irq,
++	err = devm_request_threaded_irq(&spi->dev, spi->irq, NULL, ad7877_irq,
+ 				   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 				   spi->dev.driver->name, ts);
+ 	if (err) {
+ 		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+-		goto err_free_mem;
++		return err;
+ 	}
+ 
+-	err = sysfs_create_group(&spi->dev.kobj, &ad7877_attr_group);
+-	if (err)
+-		goto err_free_irq;
+-
+-	err = input_register_device(input_dev);
++	err = devm_device_add_group(&spi->dev, &ad7877_attr_group);
+ 	if (err)
+-		goto err_remove_attr_group;
+-
+-	return 0;
++		return err;
+ 
+-err_remove_attr_group:
+-	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
+-err_free_irq:
+-	free_irq(spi->irq, ts);
+-err_free_mem:
+-	input_free_device(input_dev);
+-	kfree(ts);
+-	return err;
++	return input_register_device(input_dev);
+ }
+ 
+ static int ad7877_remove(struct spi_device *spi)
+ {
+ 	struct ad7877 *ts = spi_get_drvdata(spi);
+ 
+-	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
+-
+ 	ad7877_disable(ts);
+-	free_irq(ts->spi->irq, ts);
+-
+-	input_unregister_device(ts->input);
+-	kfree(ts);
+ 
+ 	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+ 
 -- 
 2.15.0
-

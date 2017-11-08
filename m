@@ -1,42 +1,65 @@
-From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH v3 3/3] Input: ad7897 - use separate error handling for different allocators
-Date: Wed,  8 Nov 2017 17:50:20 +0200
-Message-ID: <20171108155020.3851-4-andi@etezian.org>
-References: <20171108155020.3851-1-andi@etezian.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171108155020.3851-1-andi@etezian.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Lars-Peter Clausen <lars@metafoo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Wed, 8 Nov 2017 22:50:37 +0000
+Message-ID: <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="7n4kimk7twrwe2wm"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Split the error between devm_kzalloc and
-devm_input_allocate_device, there is no need to call the second
-allocator if the first has failed. Besides this doesn't provide
-practical advantages.
 
-CC: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Andi Shyti <andi@etezian.org>
----
- drivers/input/touchscreen/ad7877.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+--7n4kimk7twrwe2wm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index 04ab8fbc8184..98deffde3fe2 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -710,8 +710,11 @@ static int ad7877_probe(struct spi_device *spi)
- 	}
- 
- 	ts = devm_kzalloc(&spi->dev, sizeof(struct ad7877), GFP_KERNEL);
-+	if (!ts)
-+		return -ENOMEM;
-+
- 	input_dev = devm_input_allocate_device(&spi->dev);
--	if (!ts || !input_dev)
-+	if (!input_dev)
- 		return -ENOMEM;
- 
- 	err = devm_add_action_or_reset(&spi->dev, ad7877_disable, ts);
--- 
-2.15.0
+On Sat, Nov 04, 2017 at 09:20:00PM +0100, Wolfram Sang wrote:
+
+> While previous versions until v3 tried to magically apply bounce buffers when
+> needed, it became clear that detecting DMA safe buffers is too fragile. This
+> approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+> outcome so far is very convincing IMO. The core additions are simple and easy
+> to understand. The driver changes for the Renesas IP cores became easy to
+> understand, too.
+
+It would really help a lot of things if there were a way to detect if a
+given memory block is DMA safe, having to pass the information around
+causes so much pain.  There's the fun with vmalloc() mappings too
+needing to be handled differently too though that's less likely to bite
+I2C.
+
+> I am still not sure how we can teach regmap this new flag. regmap is a heavy
+> user of I2C, so broonie's opinion here would be great to have. The rest should
+> mostly be updating individual drivers which can be done when needed.
+
+We pretty much assume everything is DMA safe already, the majority of
+transfers go to/from kmalloc()ed scratch buffers so actually are DMA
+safe but for bulk transfers we use the caller buffer and there might be
+some problem users.  I can't really think of a particularly good way of
+handling it off the top of my head, obviously not setting the flag is
+easy but doesn't get the benefit while always using a bounce buffer
+would involve lots of unneeded memcpy().  Doing _dmasafe() isn't
+particularly appealing either but might be what we end up with.
+
+--7n4kimk7twrwe2wm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAloDijwACgkQJNaLcl1U
+h9DAxgf/WmS2l1fy0LIY6tamV8LhAiBqI23y7IQSnDP9BaVFEcqc/W2FJDzbS+fi
+2DlKoGi4pRg+iHzvQlizoijoqq3njMrLP1dOm/zZ2dTE9NFCyOg1+pmcK2AyFfSs
+Jl7aXXN46p2ZJQp6H4d6lP4fmHz5YV16lEs/FRjGOQw/1najjj5Pu3erea7cNJcM
+f7wWkq3uUYYtmWnbSY3b0cz3x6N3XEK+wBbqiQyzQwNlS91d2US08ZYfkP1iUW7d
+M18obQUFr5Shz0B8x74dL6hSC8lD1IWVpWiUu3hlNu7viYIgSy6h6s8ocnWf0Nk7
+TXiSbEiuHFukUKkEFVLbc7Rmke3lTg==
+=2nyJ
+-----END PGP SIGNATURE-----
+
+--7n4kimk7twrwe2wm--

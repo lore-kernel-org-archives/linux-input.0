@@ -1,65 +1,60 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
-Date: Wed, 8 Nov 2017 22:50:37 +0000
-Message-ID: <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
-References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH] Input: spaceball - mark expected switch fall-throughs
+Date: Wed, 8 Nov 2017 20:55:59 -0600
+Message-ID: <20171109025559.GA12406@embeddedor.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7n4kimk7twrwe2wm"
-Return-path: <linux-i2c-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
+In preparation to enabling -Wimplicit-fallthrough, mark switch cases
+where we are expecting to fall through.
 
---7n4kimk7twrwe2wm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Addresses-Coverity-ID: 114767
+Addresses-Coverity-ID: 114768
+Addresses-Coverity-ID: 114769
+Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+---
+ drivers/input/joystick/spaceball.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-On Sat, Nov 04, 2017 at 09:20:00PM +0100, Wolfram Sang wrote:
-
-> While previous versions until v3 tried to magically apply bounce buffers when
-> needed, it became clear that detecting DMA safe buffers is too fragile. This
-> approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
-> outcome so far is very convincing IMO. The core additions are simple and easy
-> to understand. The driver changes for the Renesas IP cores became easy to
-> understand, too.
-
-It would really help a lot of things if there were a way to detect if a
-given memory block is DMA safe, having to pass the information around
-causes so much pain.  There's the fun with vmalloc() mappings too
-needing to be handled differently too though that's less likely to bite
-I2C.
-
-> I am still not sure how we can teach regmap this new flag. regmap is a heavy
-> user of I2C, so broonie's opinion here would be great to have. The rest should
-> mostly be updating individual drivers which can be done when needed.
-
-We pretty much assume everything is DMA safe already, the majority of
-transfers go to/from kmalloc()ed scratch buffers so actually are DMA
-safe but for bulk transfers we use the caller buffer and there might be
-some problem users.  I can't really think of a particularly good way of
-handling it off the top of my head, obviously not setting the flag is
-easy but doesn't get the benefit while always using a bounce buffer
-would involve lots of unneeded memcpy().  Doing _dmasafe() isn't
-particularly appealing either but might be what we end up with.
-
---7n4kimk7twrwe2wm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAloDijwACgkQJNaLcl1U
-h9DAxgf/WmS2l1fy0LIY6tamV8LhAiBqI23y7IQSnDP9BaVFEcqc/W2FJDzbS+fi
-2DlKoGi4pRg+iHzvQlizoijoqq3njMrLP1dOm/zZ2dTE9NFCyOg1+pmcK2AyFfSs
-Jl7aXXN46p2ZJQp6H4d6lP4fmHz5YV16lEs/FRjGOQw/1najjj5Pu3erea7cNJcM
-f7wWkq3uUYYtmWnbSY3b0cz3x6N3XEK+wBbqiQyzQwNlS91d2US08ZYfkP1iUW7d
-M18obQUFr5Shz0B8x74dL6hSC8lD1IWVpWiUu3hlNu7viYIgSy6h6s8ocnWf0Nk7
-TXiSbEiuHFukUKkEFVLbc7Rmke3lTg==
-=2nyJ
------END PGP SIGNATURE-----
-
---7n4kimk7twrwe2wm--
+diff --git a/drivers/input/joystick/spaceball.c b/drivers/input/joystick/spaceball.c
+index e9712a1..bb3faef 100644
+--- a/drivers/input/joystick/spaceball.c
++++ b/drivers/input/joystick/spaceball.c
+@@ -162,6 +162,7 @@ static irqreturn_t spaceball_interrupt(struct serio *serio,
+ 				break;
+ 			}
+ 			spaceball->escape = 0;
++			/* fall through */
+ 		case 'M':
+ 		case 'Q':
+ 		case 'S':
+@@ -169,6 +170,7 @@ static irqreturn_t spaceball_interrupt(struct serio *serio,
+ 				spaceball->escape = 0;
+ 				data &= 0x1f;
+ 			}
++			/* fall through */
+ 		default:
+ 			if (spaceball->escape)
+ 				spaceball->escape = 0;
+@@ -234,11 +236,13 @@ static int spaceball_connect(struct serio *serio, struct serio_driver *drv)
+ 			input_dev->keybit[BIT_WORD(BTN_A)] |= BIT_MASK(BTN_A) |
+ 				BIT_MASK(BTN_B) | BIT_MASK(BTN_C) |
+ 				BIT_MASK(BTN_MODE);
++			/* fall through */
+ 		default:
+ 			input_dev->keybit[BIT_WORD(BTN_0)] |= BIT_MASK(BTN_2) |
+ 				BIT_MASK(BTN_3) | BIT_MASK(BTN_4) |
+ 				BIT_MASK(BTN_5) | BIT_MASK(BTN_6) |
+ 				BIT_MASK(BTN_7) | BIT_MASK(BTN_8);
++			/* fall through */
+ 		case SPACEBALL_3003C:
+ 			input_dev->keybit[BIT_WORD(BTN_0)] |= BIT_MASK(BTN_1) |
+ 				BIT_MASK(BTN_8);
+-- 
+2.7.4

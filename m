@@ -1,40 +1,32 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: i2c-hid: Add no-irq-after-reset quirk for
- 0911:5288 device
-Date: Thu, 9 Nov 2017 12:51:52 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711091251370.32604@cbobk.fhfr.pm>
-References: <20171107122800.23196-1-hdegoede@redhat.com>
+Subject: Re: [PATCH] HID: sony: Fix SHANWAN pad rumbling on USB
+Date: Thu, 9 Nov 2017 13:32:11 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1711091331580.32604@cbobk.fhfr.pm>
+References: <20171107142447.11810-1-hadess@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:47472 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:52708 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752066AbdKILvx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Nov 2017 06:51:53 -0500
-In-Reply-To: <20171107122800.23196-1-hdegoede@redhat.com>
+        id S1754299AbdKIMcN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Nov 2017 07:32:13 -0500
+In-Reply-To: <20171107142447.11810-1-hadess@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Szymon Janc <szymon.janc@codecoup.pl>
 
-On Tue, 7 Nov 2017, Hans de Goede wrote:
+On Tue, 7 Nov 2017, Bastien Nocera wrote:
 
-> Several cheap Apollo Lake based laptops / 2-in-1s use an i2c-hid mt
-> touchpad which is advertised by the DSDT with an ACPI HID of "SYNA3602",
-> this touchpad can be found on e.g. the Cube Thinker and the EZBook 3 Pro.
+> The SHANWAN PS3 clone joypad will start its rumble motors as soon as
+> it is plugged in via USB. As the additional USB interrupt does nothing on
+> the original PS3 Sixaxis joypads, and makes a number of other
+> clone joypads actually start sending data, disable that call for
+> the SHANWAN so the rumble motors aren't started on plug.
 > 
-> On my "T-bao Tbook air" the i2c-hid driver fails to bind to this touchpad:
-> "i2c_hid i2c-SYNA3602:00: failed to reset device.".
-> 
-> After some debuging this it seems that this touchpad simply never sends
-> an interrupt after a reset as expected by the i2c hid driver. This commit
-> adds a quirk for this device, making i2c_hid_command sleep 100ms after
-> a reset instead of waiting for an irq, fixing i2c-hid failing to bind to
-> this touchpad.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
 
-Applied to for-4.15/upstream. Thanks,
+Applied to for-4.15/sony.
 
 -- 
 Jiri Kosina

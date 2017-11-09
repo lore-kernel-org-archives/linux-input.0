@@ -1,75 +1,48 @@
 From: =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>
-Subject: [PATCH v2 2/5] platform/x86: intel-vbtn: Support separate press/release events
-Date: Thu, 9 Nov 2017 23:44:33 +0100
-Message-ID: <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de>
+Subject: [PATCH v2 5/5] platform/x86: intel-vbtn: support panel front button
+Date: Thu, 9 Nov 2017 23:44:36 +0100
+Message-ID: <7c072721-1bd8-4921-b759-70bafb2ec894@rwthex-w2-a.rwth-ad.de>
 References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out-1.itc.rwth-aachen.de ([134.130.5.46]:3564 "EHLO
-        mail-out-1.itc.rwth-aachen.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752588AbdKIWoz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Nov 2017 17:44:55 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: platform-driver-x86@vger.kernel.org
 Cc: linux-input@vger.kernel.org, =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>, AceLan Kao <acelan.kao@canonical.com>, Andy Shevchenko <andy@infradead.org>, Darren Hart <dvhart@infradead.org>, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Currently all key events use autorelease, but this forbids use as a
-modifier key.
+The Lenovo Helix 2 and Dell XPS 12 (9Q33) have an extra button on the
+front showing a 'Windows' logo, both reporting event codes 0xC2/0xC3
+on press/release. On the Dell, both press/release are distinct events
+while on the Helix 2 both events are generated on release.
 
-As all event codes come in even/odd pairs, we can lookup the key type
-(KE_KEY/KE_IGNORE) for the key up event corresponding to the currently
-handled key down event. If the key up is ignored, we keep setting the
-autorelease flag for the key down.
+Tested on XPS 12, for info on the Helix 2 see:
+https://www.spinics.net/lists/ibm-acpi-devel/msg03982.html
 
 Signed-off-by: Stefan Brüns <stefan.bruens@rwth-aachen.de>
 
 ---
 
 Changes in v2:
-- New patch, add support for seperate key up/down in intel-vbtn
+- Emit KEY_LEFTMETA instead of KEY_MENU
 
- drivers/platform/x86/intel-vbtn.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index ae55be91a64b..e3f6375af85c 100644
+index a484bcc6393b..0861efe490d0 100644
 --- a/drivers/platform/x86/intel-vbtn.c
 +++ b/drivers/platform/x86/intel-vbtn.c
-@@ -76,14 +76,27 @@ static void notify_handler(acpi_handle handle, u32 event, void *context)
- {
- 	struct platform_device *device = context;
- 	struct intel_vbtn_priv *priv = dev_get_drvdata(&device->dev);
-+	const struct key_entry *ke_rel;
-+	bool autorelease;
- 
- 	if (priv->wakeup_mode) {
- 		if (sparse_keymap_entry_from_scancode(priv->input_dev, event)) {
- 			pm_wakeup_hard_event(&device->dev);
- 			return;
- 		}
--	} else if (sparse_keymap_report_event(priv->input_dev, event, 1, true)) {
--		return;
-+	} else {
-+		/* Use the fact press/release come in even/odd pairs */
-+		if ((event & 1) && sparse_keymap_report_event(priv->input_dev,
-+							      event, 0, false))
-+			return;
-+
-+		ke_rel = sparse_keymap_entry_from_scancode(priv->input_dev,
-+							   event | 1);
-+		autorelease = !ke_rel || ke_rel->type == KE_IGNORE;
-+
-+		if (sparse_keymap_report_event(priv->input_dev, event, 1,
-+					       autorelease))
-+			return;
- 	}
- 	dev_dbg(&device->dev, "unknown event index 0x%x\n", event);
- }
+@@ -38,6 +38,8 @@ static const struct acpi_device_id intel_vbtn_ids[] = {
+ static const struct key_entry intel_vbtn_keymap[] = {
+ 	{ KE_KEY, 0xC0, { KEY_POWER } },	/* power key press */
+ 	{ KE_IGNORE, 0xC1, { KEY_POWER } },	/* power key release */
++	{ KE_KEY, 0xC2, { KEY_LEFTMETA } },		/* 'Windows' key press */
++	{ KE_KEY, 0xC3, { KEY_LEFTMETA } },		/* 'Windows' key release */
+ 	{ KE_KEY, 0xC4, { KEY_VOLUMEUP } },		/* volume-up key press */
+ 	{ KE_IGNORE, 0xC5, { KEY_VOLUMEUP } },		/* volume-up key release */
+ 	{ KE_KEY, 0xC6, { KEY_VOLUMEDOWN } },		/* volume-down key press */
 -- 
 2.15.0
-

@@ -1,242 +1,72 @@
-From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH] Input: ads7846 - use managed allocated resources
-Date: Thu,  9 Nov 2017 16:00:38 +0200
-Message-ID: <20171109140038.19771-1-andi@etezian.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: XBox One S Bluetooth controller hid-recorder
+Date: Thu, 09 Nov 2017 17:01:08 +0100
+Message-ID: <1510243268.2624.37.camel@hadess.net>
+References: <1510241150.2624.33.camel@hadess.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:57051 "EHLO
+        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752355AbdKIQBK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Nov 2017 11:01:10 -0500
+In-Reply-To: <1510241150.2624.33.camel@hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Use managed allocated resources to simplify error handling during
-probing.
+Self follow-up,
 
-Fix goto labels and remove function accordingly.
+On Thu, 2017-11-09 at 16:25 +0100, Bastien Nocera wrote:
+> Hey,
+> 
+> This is the hid-recorder for that device.
+> 
+> I started hid-recorder and pressed:
+> - up, down, left, right, on the d-pad, then left analog stick, then
+> right analog stick
+> - Y, A, X, B on the face buttons (that's up, down, left, right
+> respectively as well)
+> - left button 1, right button 1
+> - left trigger (2), right trigger (2)
+> - menu ("Select") and Start
+> 
+> I just realised that I didn't press down the 2 analog sticks, or on
+> the
+> "vendor" button either. Let me know whether you want a new log with
+> those.
+> 
+> I get this error in the kernel logs:
+> [ 6821.181818] hid-generic 0005:045E:02E0.000A: unknown main item tag
+> 0x0
+> 
+> The analog sticks and d-pad seem to work properly, the problems start
+> with:
+> - button X reports BTN_C instead of BTN_WEST
+> - the left and right trigger buttons report BTN_WEST and BTN_Z
+> respectively
+> - left and trigger analogue triggers report ABS_Z and ABS_RZ, not
+> sure
+> whether this is expected
+> - "Select" reports BTN_TL, "Start" reports BTN_TR
 
-Signed-off-by: Andi Shyti <andi@etezian.org>
----
- drivers/input/touchscreen/ads7846.c | 103 ++++++++++--------------------------
- 1 file changed, 28 insertions(+), 75 deletions(-)
+I discussed this with Benjamin on IRC, and it seems there's nothing
+here that can't be handled by user-space mappings, such as SDL2's
+database.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index a2f45aefce08..2bd7bfd0dc9f 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -527,19 +527,13 @@ static int ads784x_hwmon_register(struct spi_device *spi, struct ads7846 *ts)
- 		break;
- 	}
- 
--	ts->hwmon = hwmon_device_register_with_groups(&spi->dev, spi->modalias,
--						      ts, ads7846_attr_groups);
-+	ts->hwmon = devm_hwmon_device_register_with_groups(&spi->dev,
-+							   spi->modalias, ts,
-+							   ads7846_attr_groups);
- 
- 	return PTR_ERR_OR_ZERO(ts->hwmon);
- }
- 
--static void ads784x_hwmon_unregister(struct spi_device *spi,
--				     struct ads7846 *ts)
--{
--	if (ts->hwmon)
--		hwmon_device_unregister(ts->hwmon);
--}
--
- #else
- static inline int ads784x_hwmon_register(struct spi_device *spi,
- 					 struct ads7846 *ts)
-@@ -547,10 +541,6 @@ static inline int ads784x_hwmon_register(struct spi_device *spi,
- 	return 0;
- }
- 
--static inline void ads784x_hwmon_unregister(struct spi_device *spi,
--					    struct ads7846 *ts)
--{
--}
- #endif
- 
- static ssize_t ads7846_pen_down_show(struct device *dev,
-@@ -947,8 +937,8 @@ static int ads7846_setup_pendown(struct spi_device *spi,
- 		ts->get_pendown_state = pdata->get_pendown_state;
- 	} else if (gpio_is_valid(pdata->gpio_pendown)) {
- 
--		err = gpio_request_one(pdata->gpio_pendown, GPIOF_IN,
--				       "ads7846_pendown");
-+		err = devm_gpio_request_one(&spi->dev, pdata->gpio_pendown,
-+					    GPIOF_IN, "ads7846_pendown");
- 		if (err) {
- 			dev_err(&spi->dev,
- 				"failed to request/setup pendown GPIO%d: %d\n",
-@@ -1283,13 +1273,13 @@ static int ads7846_probe(struct spi_device *spi)
- 	if (err < 0)
- 		return err;
- 
--	ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL);
--	packet = kzalloc(sizeof(struct ads7846_packet), GFP_KERNEL);
--	input_dev = input_allocate_device();
--	if (!ts || !packet || !input_dev) {
--		err = -ENOMEM;
--		goto err_free_mem;
--	}
-+	ts = devm_kzalloc(&spi->dev, sizeof(struct ads7846), GFP_KERNEL);
-+	packet = devm_kzalloc(&spi->dev,
-+			      sizeof(struct ads7846_packet),
-+			      GFP_KERNEL);
-+	input_dev = devm_input_allocate_device(&spi->dev);
-+	if (!ts || !packet || !input_dev)
-+		return -ENOMEM;
- 
- 	spi_set_drvdata(spi, ts);
- 
-@@ -1303,10 +1293,8 @@ static int ads7846_probe(struct spi_device *spi)
- 	pdata = dev_get_platdata(&spi->dev);
- 	if (!pdata) {
- 		pdata = ads7846_probe_dt(&spi->dev);
--		if (IS_ERR(pdata)) {
--			err = PTR_ERR(pdata);
--			goto err_free_mem;
--		}
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
- 	}
- 
- 	ts->model = pdata->model ? : 7846;
-@@ -1321,7 +1309,7 @@ static int ads7846_probe(struct spi_device *spi)
- 		if (pdata->filter_init != NULL) {
- 			err = pdata->filter_init(pdata, &ts->filter_data);
- 			if (err < 0)
--				goto err_free_mem;
-+				return err;
- 		}
- 		ts->filter = pdata->filter;
- 		ts->filter_cleanup = pdata->filter_cleanup;
-@@ -1369,41 +1357,42 @@ static int ads7846_probe(struct spi_device *spi)
- 
- 	ads7846_setup_spi_msg(ts, pdata);
- 
--	ts->reg = regulator_get(&spi->dev, "vcc");
-+	ts->reg = devm_regulator_get(&spi->dev, "vcc");
- 	if (IS_ERR(ts->reg)) {
- 		err = PTR_ERR(ts->reg);
- 		dev_err(&spi->dev, "unable to get regulator: %d\n", err);
--		goto err_free_gpio;
-+		goto err_cleanup_filter;
- 	}
- 
- 	err = regulator_enable(ts->reg);
- 	if (err) {
- 		dev_err(&spi->dev, "unable to enable regulator: %d\n", err);
--		goto err_put_regulator;
-+		goto err_cleanup_filter;
- 	}
- 
- 	irq_flags = pdata->irq_flags ? : IRQF_TRIGGER_FALLING;
- 	irq_flags |= IRQF_ONESHOT;
- 
--	err = request_threaded_irq(spi->irq, ads7846_hard_irq, ads7846_irq,
--				   irq_flags, spi->dev.driver->name, ts);
-+	err = devm_request_threaded_irq(&spi->dev, spi->irq,
-+					ads7846_hard_irq, ads7846_irq,
-+					irq_flags, spi->dev.driver->name, ts);
- 	if (err && !pdata->irq_flags) {
- 		dev_info(&spi->dev,
- 			"trying pin change workaround on irq %d\n", spi->irq);
- 		irq_flags |= IRQF_TRIGGER_RISING;
--		err = request_threaded_irq(spi->irq,
-+		err = devm_request_threaded_irq(&spi->dev, spi->irq,
- 				  ads7846_hard_irq, ads7846_irq,
- 				  irq_flags, spi->dev.driver->name, ts);
- 	}
- 
- 	if (err) {
- 		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
--		goto err_disable_regulator;
-+		goto err_cleanup_filter;
- 	}
- 
- 	err = ads784x_hwmon_register(spi, ts);
- 	if (err)
--		goto err_free_irq;
-+		goto err_cleanup_filter;
- 
- 	dev_info(&spi->dev, "touchscreen, irq %d\n", spi->irq);
- 
-@@ -1416,13 +1405,13 @@ static int ads7846_probe(struct spi_device *spi)
- 	else
- 		(void) ads7846_read12_ser(&spi->dev, READ_12BIT_SER(vaux));
- 
--	err = sysfs_create_group(&spi->dev.kobj, &ads784x_attr_group);
-+	err = devm_device_add_group(&spi->dev, &ads784x_attr_group);
- 	if (err)
--		goto err_remove_hwmon;
-+		goto err_cleanup_filter;
- 
- 	err = input_register_device(input_dev);
- 	if (err)
--		goto err_remove_attr_group;
-+		goto err_cleanup_filter;
- 
- 	device_init_wakeup(&spi->dev, pdata->wakeup);
- 
-@@ -1435,26 +1424,10 @@ static int ads7846_probe(struct spi_device *spi)
- 
- 	return 0;
- 
-- err_remove_attr_group:
--	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
-- err_remove_hwmon:
--	ads784x_hwmon_unregister(spi, ts);
-- err_free_irq:
--	free_irq(spi->irq, ts);
-- err_disable_regulator:
--	regulator_disable(ts->reg);
-- err_put_regulator:
--	regulator_put(ts->reg);
-- err_free_gpio:
--	if (!ts->get_pendown_state)
--		gpio_free(ts->gpio_pendown);
-  err_cleanup_filter:
- 	if (ts->filter_cleanup)
- 		ts->filter_cleanup(ts->filter_data);
-- err_free_mem:
--	input_free_device(input_dev);
--	kfree(packet);
--	kfree(ts);
-+
- 	return err;
- }
- 
-@@ -1462,31 +1435,11 @@ static int ads7846_remove(struct spi_device *spi)
- {
- 	struct ads7846 *ts = spi_get_drvdata(spi);
- 
--	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
--
- 	ads7846_disable(ts);
--	free_irq(ts->spi->irq, ts);
--
--	input_unregister_device(ts->input);
--
--	ads784x_hwmon_unregister(spi, ts);
--
--	regulator_put(ts->reg);
--
--	if (!ts->get_pendown_state) {
--		/*
--		 * If we are not using specialized pendown method we must
--		 * have been relying on gpio we set up ourselves.
--		 */
--		gpio_free(ts->gpio_pendown);
--	}
- 
- 	if (ts->filter_cleanup)
- 		ts->filter_cleanup(ts->filter_data);
- 
--	kfree(ts->packet);
--	kfree(ts);
--
- 	dev_dbg(&spi->dev, "unregistered touchscreen\n");
- 
- 	return 0;
--- 
-2.15.0
+Valve's SteamOS patch (at least the HID hunk) is really a work-around
+for their big picture mode not being able to capture "KEY_MENU" it
+seems:
+https://github.com/ValveSoftware/steamos_kernel/commit/549c3dc10fa3749b
+3999549a2672b14bf0e9786d
+
+There's 2 more problems shown with this device:
+- the hid-generic warning above is "the bt stack forgetting to remove
+the terminating '0' before forwarding it to HID", which we might want
+to fix to avoid bug reports
+- the necessity to disable ERTM to correctly pair and connect with the
+device. This is currently discussed on linux-bluetooth.
+
+Cheers

@@ -1,53 +1,47 @@
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] Input: gamecon - mark expected switch fall-throughs
-Date: Wed, 8 Nov 2017 21:07:12 -0600
-Message-ID: <20171109030712.GA14989@embeddedor.com>
+From: Philip Milev <milev.philip@gmail.com>
+Subject: Tpad SYN1ef7 PNP0f13
+Date: Thu, 9 Nov 2017 08:14:03 +0200
+Message-ID: <CAOKfEHC3VkfcL1r6A=a0PEJ-xFNFVzM1aUZcXzQCLN__Kv45=g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f48.google.com ([74.125.82.48]:49022 "EHLO
+        mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751217AbdKIGOF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Nov 2017 01:14:05 -0500
+Received: by mail-wm0-f48.google.com with SMTP id p75so14687030wmg.3
+        for <linux-input@vger.kernel.org>; Wed, 08 Nov 2017 22:14:05 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch cases
-where we are expecting to fall through.
+Hello,
 
-Addresses-Coverity-ID: 114761
-Addresses-Coverity-ID: 114762
-Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
----
- drivers/input/joystick/gamecon.c | 3 +++
- 1 file changed, 3 insertions(+)
+I can report the following for the 1ef7 touchpad:
 
-diff --git a/drivers/input/joystick/gamecon.c b/drivers/input/joystick/gamecon.c
-index c43f087..ca734ea 100644
---- a/drivers/input/joystick/gamecon.c
-+++ b/drivers/input/joystick/gamecon.c
-@@ -654,6 +654,7 @@ static void gc_psx_report_one(struct gc_pad *pad, unsigned char psx_type,
- 
- 		input_report_key(dev, BTN_THUMBL, ~data[0] & 0x04);
- 		input_report_key(dev, BTN_THUMBR, ~data[0] & 0x02);
-+		/* fall through */
- 
- 	case GC_PSX_NEGCON:
- 	case GC_PSX_ANALOG:
-@@ -887,6 +888,7 @@ static int gc_setup_pad(struct gc *gc, int idx, int pad_type)
- 	case GC_SNES:
- 		for (i = 4; i < 8; i++)
- 			__set_bit(gc_snes_btn[i], input_dev->keybit);
-+		/* fall through */
- 	case GC_NES:
- 		for (i = 0; i < 4; i++)
- 			__set_bit(gc_snes_btn[i], input_dev->keybit);
-@@ -894,6 +896,7 @@ static int gc_setup_pad(struct gc *gc, int idx, int pad_type)
- 
- 	case GC_MULTI2:
- 		__set_bit(BTN_THUMB, input_dev->keybit);
-+		/* fall through */
- 	case GC_MULTI:
- 		__set_bit(BTN_TRIGGER, input_dev->keybit);
- 		break;
--- 
-2.7.4
+[   11.464056] psmouse serio1: synaptics: queried max coordinates: x
+[..5636], y [..4634]
+[   11.494632] psmouse serio1: synaptics: queried min coordinates: x
+[1360..], y [1298..]
+[   11.494640] psmouse serio1: synaptics: Your touchpad (PNP: SYN1ef7
+PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi
+are not used, you might want to try setting
+psmouse.synaptics_intertouch to 1 and report this to
+linux-input@vger.kernel.org.
+[   11.554756] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1,
+id: 0x1e2b1, caps: 0xf00123/0x840300/0x12e800/0x0, board id: 3114, fw
+id: 1805562
+[   11.592940] input: SynPS/2 Synaptics TouchPad as
+/devices/platform/i8042/serio1/input/input9
+
+My machine is hp envy 15 ah150na
+
+Linux linuxbox 4.13.11-gentoo #14 SMP Wed Nov 8 21:08:01 EET 2017
+x86_64 AMD A10-8700P Radeon R6, 10 Compute Cores 4C+6G AuthenticAMD
+GNU/Linux
+
+Please provide details if you need more information.
+
+Thank you and keep up the good work!
+
+Philip

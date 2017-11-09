@@ -1,75 +1,65 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: Wacom: switch Dell canvas into highres mode
-Date: Thu, 9 Nov 2017 14:32:23 -0800
-Message-ID: <CANRwn3ShBkgwdzUT9Gvky7aUz0J++AKWDDDN9wgeuAQOR3sa2g@mail.gmail.com>
-References: <20171103172947.15156-1-benjamin.tissoires@redhat.com>
- <DE35351F-500C-41C5-90E2-18BC2B48A803@gmail.com> <20171106080503.GB9728@mail.corp.redhat.com>
- <nycvar.YFH.7.76.1711091242000.32604@cbobk.fhfr.pm>
+From: =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>
+Subject: [PATCH v2 0/5] platform/x86: intel-vbtn: Add support for several more switches/buttons
+Date: Thu, 9 Nov 2017 23:44:31 +0100
+Message-ID: <e8cfd35b-5678-4374-aea0-22adec33551c@rwthex-w2-a.rwth-ad.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f179.google.com ([209.85.217.179]:48997 "EHLO
-        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751225AbdKIWcZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Nov 2017 17:32:25 -0500
-In-Reply-To: <nycvar.YFH.7.76.1711091242000.32604@cbobk.fhfr.pm>
+Received: from mail-out-2.itc.rwth-aachen.de ([134.130.5.47]:28857 "EHLO
+        mail-out-2.itc.rwth-aachen.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751709AbdKIWoz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Nov 2017 17:44:55 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: platform-driver-x86@vger.kernel.org
+Cc: linux-input@vger.kernel.org, =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Darren Hart <dvhart@infradead.org>
 
-On Thu, Nov 9, 2017 at 3:42 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Mon, 6 Nov 2017, Benjamin Tissoires wrote:
->
->> > >well, this is not the cleanest way of handling this mode set, but it
->> > >is the less intrusive AFAICT.
->> > >
->> > >I was thinking that we might want to add a new field in struct
->> > >wacom_feature, but then it wouldn't make sense to keep the set mode
->> > >specifics in _wacom_query_tablet_data().
->> > >
->> > >So I am open to any better suggestion, but this one works and the
->> > >impact on other HID generic tablets is null.
->> > >
->> >
->> > Hmm. Agreed that this isn't ideal. I'd like to take a look at the
->> > descriptor, if you wouldn't mind sharing it. The hardware should be
->> > similar to other devices of ours and it might be possible to piggyback
->> > on existing code.
->> >
->>
->> Sure, here it comes in the hid-replay format (and with a recording
->> of a single dot from the pen):
->
-> Jason,
->
-> any word on the descriptor please, did you have time to analyze it?
->
-> Merge window for 4.15 is almost there, so in case you don't want to miss
-> it, I'd need your Ack/Nack/Postopne rather quickly.
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+Currently, intel-vbtn only supports the most relevant buttons, although
+there are several more events, mostly in use by convertibles.
 
-I spent some time checking for similar devices and didn't anything
-with a descriptor quite like it. That said, there's a good chance that
-we'll see something similar in the future...
+(Original first patch omitted from series, as already applied upstream.)
 
-I'm still not entirely happy with the one-off approach, but I'll but
-my stamp of approval on it. We can work out a more generic way to
-detect and configure these dual-resolution devices going forward :)
+The first patch adds support for the SW_TABLET_MODE switch, which
+is used by current convertibles.
 
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+The second patch adds support for distinct press/release events in the
+intel-vbtn driver. This is required for the KEY_LEFTMETA modifier
+("Windows logo") key, added later.
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+The third patch introduces a new keycode, KEY_ROTATE_LOCK_TOGGLE, which
+should be used by devices which use a button for rotation lock instead
+of a switch (SW_ROTATE_LOCK).
+
+The fourth patch adds support for the KEY_ROTATE_LOCK_TOGGLE. On the Dell
+XPS 12 (9Q33), rotation lock is implemented as a button to toggle
+between locked and unlocked state. In locked state, the accelerometer
+should be ignored, while in unlocked state the screen contents should
+autorotate based on the tablet orientation.
+
+The fifth patch adds support for the "Windows logo" button/key found on the
+XPS 12 display front. The Lenovo Helix 2 has an equivalent touch button.
+
+Changes in v2:
+- Correct whitespace in key_entry struct
+- New patch, add support for seperate key up/down in intel-vbtn
+- New patch, add support for KEY_ROTATE_LOCK_TOGGLE
+- Emit KEY_ROTATE_LOCK_TOGGLE instead of KEY_ROTATE_DISPLAY
+- Use separate up/down events
+- Emit KEY_LEFTMETA instead of KEY_MENU
+
+Stefan Brüns (5):
+  platform/x86: intel-vbtn: support SW_TABLET_MODE
+  platform/x86: intel-vbtn: Support separate press/release events
+  Input: add KEY_ROTATE_LOCK_TOGGLE
+  platform/x86: intel-vbtn: support KEY_ROTATE_LOCK_TOGGLE
+  platform/x86: intel-vbtn: support panel front button
+
+ drivers/platform/x86/intel-vbtn.c      | 23 +++++++++++++++++++++--
+ include/uapi/linux/input-event-codes.h |  1 +
+ 2 files changed, 22 insertions(+), 2 deletions(-)
+
+-- 
+2.15.0
+

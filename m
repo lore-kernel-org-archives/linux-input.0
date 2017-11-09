@@ -1,72 +1,55 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: XBox One S Bluetooth controller hid-recorder
-Date: Thu, 09 Nov 2017 17:01:08 +0100
-Message-ID: <1510243268.2624.37.camel@hadess.net>
-References: <1510241150.2624.33.camel@hadess.net>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] HID: wacom: generic: Recognize WACOM_HID_WD_PEN as a type
+ of pen collection
+Date: Thu, 9 Nov 2017 08:54:41 -0800
+Message-ID: <CANRwn3T4nvxMGxExtw+QG4msZnd1BUsEH51YCFVuv2j7ob97Ag@mail.gmail.com>
+References: <20171018152713.22633-1-killertofu@gmail.com> <nycvar.YFH.7.76.1710191021420.9294@jbgna.fhfr.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:57051 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752355AbdKIQBK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Nov 2017 11:01:10 -0500
-In-Reply-To: <1510241150.2624.33.camel@hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <nycvar.YFH.7.76.1710191021420.9294@jbgna.fhfr.qr>
+Sender: stable-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "# v3.17+" <stable@vger.kernel.org>, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Self follow-up,
+On Thu, Oct 19, 2017 at 1:22 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Wed, 18 Oct 2017, Jason Gerecke wrote:
+>
+>> The WACOM_PEN_FIELD macro is used to determine if a given HID field shou=
+ld be
+>> associated with pen input. This field includes several known collection =
+types
+>> that Wacom pen data is contained in, but the WACOM_HID_WD_PEN applicatio=
+n
+>> collection type is notably missing. This can result in fields within thi=
+s
+>> kind of collection being completely ignored by the `wacom_usage_mapping`
+>> function, preventing the later '*_event' functions from being notified a=
+bout
+>> changes to their value.
+>>
+>> Fixes: c9c095874a ("HID: wacom: generic: Support and use 'Custom HID' mo=
+de and usages")
+>> Fixes: ac2423c975 ("HID: wacom: generic: add vendor defined touch")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+>
+> Applied to for-4.14/upstream-fixes
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
 
-On Thu, 2017-11-09 at 16:25 +0100, Bastien Nocera wrote:
-> Hey,
-> 
-> This is the hid-recorder for that device.
-> 
-> I started hid-recorder and pressed:
-> - up, down, left, right, on the d-pad, then left analog stick, then
-> right analog stick
-> - Y, A, X, B on the face buttons (that's up, down, left, right
-> respectively as well)
-> - left button 1, right button 1
-> - left trigger (2), right trigger (2)
-> - menu ("Select") and Start
-> 
-> I just realised that I didn't press down the 2 analog sticks, or on
-> the
-> "vendor" button either. Let me know whether you want a new log with
-> those.
-> 
-> I get this error in the kernel logs:
-> [ 6821.181818] hid-generic 0005:045E:02E0.000A: unknown main item tag
-> 0x0
-> 
-> The analog sticks and d-pad seem to work properly, the problems start
-> with:
-> - button X reports BTN_C instead of BTN_WEST
-> - the left and right trigger buttons report BTN_WEST and BTN_Z
-> respectively
-> - left and trigger analogue triggers report ABS_Z and ABS_RZ, not
-> sure
-> whether this is expected
-> - "Select" reports BTN_TL, "Start" reports BTN_TR
+Was this branch ever sent to Linus? I don't see any mention of it (or
+this patch) in the 4.14-rc8 history...
 
-I discussed this with Benjamin on IRC, and it seems there's nothing
-here that can't be handled by user-space mappings, such as SDL2's
-database.
-
-Valve's SteamOS patch (at least the HID hunk) is really a work-around
-for their big picture mode not being able to capture "KEY_MENU" it
-seems:
-https://github.com/ValveSoftware/steamos_kernel/commit/549c3dc10fa3749b
-3999549a2672b14bf0e9786d
-
-There's 2 more problems shown with this device:
-- the hid-generic warning above is "the bt stack forgetting to remove
-the terminating '0' before forwarding it to HID", which we might want
-to fix to avoid bug reports
-- the necessity to disable ERTM to correctly pair and connect with the
-device. This is currently discussed on linux-bluetooth.
-
-Cheers
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....

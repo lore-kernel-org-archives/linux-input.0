@@ -1,313 +1,125 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/5] x86: add enum for hypervisors to replace x86_hyper
-Date: Fri, 10 Nov 2017 10:26:11 -0800
-Message-ID: <20171110182611.maikfgykek7y6xww@dtor-ws>
-References: <20171109132739.23465-1-jgross@suse.com>
-	<20171109132739.23465-3-jgross@suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20171109132739.23465-3-jgross@suse.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Juergen Gross <jgross@suse.com>
-Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, pv-drivers@vmware.com, akataria@vmware.com, virtualization@lists.linux-foundation.org, hpa@zytor.com, tglx@linutronix.de, sthemmin@microsoft.com, x86@kernel.org, moltmann@vmware.com, mingo@redhat.com, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, arnd@arndb.de, xdeguillard@vmware.com, haiyangz@microsoft.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH 1/2] HID: wacom: Properly handle AES serial number and tool type
+Date: Fri, 10 Nov 2017 11:50:00 -0800
+Message-ID: <20171110195001.13081-1-killertofu@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:43216 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753562AbdKJTuf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Nov 2017 14:50:35 -0500
+Received: by mail-qt0-f195.google.com with SMTP id j58so13194355qtj.0
+        for <linux-input@vger.kernel.org>; Fri, 10 Nov 2017 11:50:35 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Thu, Nov 09, 2017 at 02:27:36PM +0100, Juergen Gross wrote:
-> The x86_hyper pointer is only used for checking whether a virtual
-> device is supporting the hypervisor the system is running on.
-> 
-> Use an enum for that purpose instead and drop the x86_hyper pointer.
-> 
-> Cc: kys@microsoft.com
-> Cc: haiyangz@microsoft.com
-> Cc: sthemmin@microsoft.com
-> Cc: akataria@vmware.com
-> Cc: pbonzini@redhat.com
-> Cc: rkrcmar@redhat.com
-> Cc: boris.ostrovsky@oracle.com
-> Cc: devel@linuxdriverproject.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: kvm@vger.kernel.org
-> Cc: xen-devel@lists.xenproject.org
-> Cc: linux-graphics-maintainer@vmware.com
-> Cc: pv-drivers@vmware.com
-> Cc: dmitry.torokhov@gmail.com
-> Cc: xdeguillard@vmware.com
-> Cc: moltmann@vmware.com
-> Cc: arnd@arndb.de
-> Cc: gregkh@linuxfoundation.org
-> Cc: linux-input@vger.kernel.org
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
->  arch/x86/hyperv/hv_init.c         |  2 +-
->  arch/x86/include/asm/hypervisor.h | 23 ++++++++++++++---------
->  arch/x86/kernel/cpu/hypervisor.c  | 12 +++++++++---
->  arch/x86/kernel/cpu/mshyperv.c    |  4 ++--
->  arch/x86/kernel/cpu/vmware.c      |  4 ++--
->  arch/x86/kernel/kvm.c             |  4 ++--
->  arch/x86/xen/enlighten_hvm.c      |  4 ++--
->  arch/x86/xen/enlighten_pv.c       |  4 ++--
->  drivers/hv/vmbus_drv.c            |  2 +-
->  drivers/input/mouse/vmmouse.c     | 10 ++++------
+Current AES sensors relay tool type and serial number information with
+a different set of usages than those prescribed by the modern (i.e.
+MobileStudio Pro and newer) EMR tablet standard. To ensure the driver
+properly understands these usages, we modify them to be compatible.
+The identifying information is split across three consecutive fields:
+a 16-bit WACOM_HID_WT_SERIALNUMBER (which is more accurately described
+as WACOM_HID_WD_TOOLTYPE), a 32-bit HID_DG_TOOLSERIALNUMBER, and an
+8-bit 0xFF000000 (which should be WACOM_HID_WD_SERIALHI). While we're
+at it, we also define proper min/max values since may may be undefined
+on some devices.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 42 +++++++++++++++++++++++++++++++++---------
+ drivers/hid/wacom_wac.h |  3 +++
+ 2 files changed, 36 insertions(+), 9 deletions(-)
 
->  drivers/misc/vmw_balloon.c        |  2 +-
->  11 files changed, 40 insertions(+), 31 deletions(-)
-> 
-> diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-> index a5db63f728a2..a0b86cf486e0 100644
-> --- a/arch/x86/hyperv/hv_init.c
-> +++ b/arch/x86/hyperv/hv_init.c
-> @@ -113,7 +113,7 @@ void hyperv_init(void)
->  	u64 guest_id;
->  	union hv_x64_msr_hypercall_contents hypercall_msr;
->  
-> -	if (x86_hyper != &x86_hyper_ms_hyperv)
-> +	if (x86_hyper_type != X86_HYPER_MS_HYPERV)
->  		return;
->  
->  	/* Allocate percpu VP index */
-> diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
-> index 0eca7239a7aa..1b0a5abcd8ae 100644
-> --- a/arch/x86/include/asm/hypervisor.h
-> +++ b/arch/x86/include/asm/hypervisor.h
-> @@ -29,6 +29,16 @@
->  /*
->   * x86 hypervisor information
->   */
-> +
-> +enum x86_hypervisor_type {
-> +	X86_HYPER_NATIVE = 0,
-> +	X86_HYPER_VMWARE,
-> +	X86_HYPER_MS_HYPERV,
-> +	X86_HYPER_XEN_PV,
-> +	X86_HYPER_XEN_HVM,
-> +	X86_HYPER_KVM,
-> +};
-> +
->  struct hypervisor_x86 {
->  	/* Hypervisor name */
->  	const char	*name;
-> @@ -36,6 +46,9 @@ struct hypervisor_x86 {
->  	/* Detection routine */
->  	uint32_t	(*detect)(void);
->  
-> +	/* Hypervisor type */
-> +	enum x86_hypervisor_type type;
-> +
->  	/* init time callbacks */
->  	struct x86_hyper_init init;
->  
-> @@ -43,15 +56,7 @@ struct hypervisor_x86 {
->  	struct x86_hyper_runtime runtime;
->  };
->  
-> -extern const struct hypervisor_x86 *x86_hyper;
-> -
-> -/* Recognized hypervisors */
-> -extern const struct hypervisor_x86 x86_hyper_vmware;
-> -extern const struct hypervisor_x86 x86_hyper_ms_hyperv;
-> -extern const struct hypervisor_x86 x86_hyper_xen_pv;
-> -extern const struct hypervisor_x86 x86_hyper_xen_hvm;
-> -extern const struct hypervisor_x86 x86_hyper_kvm;
-> -
-> +extern enum x86_hypervisor_type x86_hyper_type;
->  extern void init_hypervisor_platform(void);
->  #else
->  static inline void init_hypervisor_platform(void) { }
-> diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
-> index 22226c1bf092..bea8d3e24f50 100644
-> --- a/arch/x86/kernel/cpu/hypervisor.c
-> +++ b/arch/x86/kernel/cpu/hypervisor.c
-> @@ -26,6 +26,12 @@
->  #include <asm/processor.h>
->  #include <asm/hypervisor.h>
->  
-> +extern const struct hypervisor_x86 x86_hyper_vmware;
-> +extern const struct hypervisor_x86 x86_hyper_ms_hyperv;
-> +extern const struct hypervisor_x86 x86_hyper_xen_pv;
-> +extern const struct hypervisor_x86 x86_hyper_xen_hvm;
-> +extern const struct hypervisor_x86 x86_hyper_kvm;
-> +
->  static const __initconst struct hypervisor_x86 * const hypervisors[] =
->  {
->  #ifdef CONFIG_XEN_PV
-> @@ -41,8 +47,8 @@ static const __initconst struct hypervisor_x86 * const hypervisors[] =
->  #endif
->  };
->  
-> -const struct hypervisor_x86 *x86_hyper;
-> -EXPORT_SYMBOL(x86_hyper);
-> +enum x86_hypervisor_type x86_hyper_type;
-> +EXPORT_SYMBOL(x86_hyper_type);
->  
->  static inline const struct hypervisor_x86 * __init
->  detect_hypervisor_vendor(void)
-> @@ -87,6 +93,6 @@ void __init init_hypervisor_platform(void)
->  	copy_array(&h->init, &x86_init.hyper, sizeof(h->init));
->  	copy_array(&h->runtime, &x86_platform.hyper, sizeof(h->runtime));
->  
-> -	x86_hyper = h;
-> +	x86_hyper_type = h->type;
->  	x86_init.hyper.init_platform();
->  }
-> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-> index 6bb84d655e4b..85eb5fc180c8 100644
-> --- a/arch/x86/kernel/cpu/mshyperv.c
-> +++ b/arch/x86/kernel/cpu/mshyperv.c
-> @@ -254,9 +254,9 @@ static void __init ms_hyperv_init_platform(void)
->  #endif
->  }
->  
-> -const __refconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
-> +const __initconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
->  	.name			= "Microsoft Hyper-V",
->  	.detect			= ms_hyperv_platform,
-> +	.type			= X86_HYPER_MS_HYPERV,
->  	.init.init_platform	= ms_hyperv_init_platform,
->  };
-> -EXPORT_SYMBOL(x86_hyper_ms_hyperv);
-> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-> index 4804c1d063c8..8e005329648b 100644
-> --- a/arch/x86/kernel/cpu/vmware.c
-> +++ b/arch/x86/kernel/cpu/vmware.c
-> @@ -205,10 +205,10 @@ static bool __init vmware_legacy_x2apic_available(void)
->  	       (eax & (1 << VMWARE_PORT_CMD_LEGACY_X2APIC)) != 0;
->  }
->  
-> -const __refconst struct hypervisor_x86 x86_hyper_vmware = {
-> +const __initconst struct hypervisor_x86 x86_hyper_vmware = {
->  	.name			= "VMware",
->  	.detect			= vmware_platform,
-> +	.type			= X86_HYPER_VMWARE,
->  	.init.init_platform	= vmware_platform_setup,
->  	.init.x2apic_available	= vmware_legacy_x2apic_available,
->  };
-> -EXPORT_SYMBOL(x86_hyper_vmware);
-> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-> index 9dca8437c795..a94de09edbed 100644
-> --- a/arch/x86/kernel/kvm.c
-> +++ b/arch/x86/kernel/kvm.c
-> @@ -544,12 +544,12 @@ static uint32_t __init kvm_detect(void)
->  	return kvm_cpuid_base();
->  }
->  
-> -const struct hypervisor_x86 x86_hyper_kvm __refconst = {
-> +const __initconst struct hypervisor_x86 x86_hyper_kvm = {
->  	.name			= "KVM",
->  	.detect			= kvm_detect,
-> +	.type			= X86_HYPER_KVM,
->  	.init.x2apic_available	= kvm_para_available,
->  };
-> -EXPORT_SYMBOL_GPL(x86_hyper_kvm);
->  
->  static __init int activate_jump_labels(void)
->  {
-> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
-> index 7b1622089f96..754d5391d9fa 100644
-> --- a/arch/x86/xen/enlighten_hvm.c
-> +++ b/arch/x86/xen/enlighten_hvm.c
-> @@ -226,12 +226,12 @@ static uint32_t __init xen_platform_hvm(void)
->  	return xen_cpuid_base();
->  }
->  
-> -const struct hypervisor_x86 x86_hyper_xen_hvm = {
-> +const __initconst struct hypervisor_x86 x86_hyper_xen_hvm = {
->  	.name                   = "Xen HVM",
->  	.detect                 = xen_platform_hvm,
-> +	.type			= X86_HYPER_XEN_HVM,
->  	.init.init_platform     = xen_hvm_guest_init,
->  	.init.x2apic_available  = xen_x2apic_para_available,
->  	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
->  	.runtime.pin_vcpu       = xen_pin_vcpu,
->  };
-> -EXPORT_SYMBOL(x86_hyper_xen_hvm);
-> diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-> index 69d1a7054ddb..168efb2534c0 100644
-> --- a/arch/x86/xen/enlighten_pv.c
-> +++ b/arch/x86/xen/enlighten_pv.c
-> @@ -1460,9 +1460,9 @@ static uint32_t __init xen_platform_pv(void)
->  	return 0;
->  }
->  
-> -const struct hypervisor_x86 x86_hyper_xen_pv = {
-> +const __initconst struct hypervisor_x86 x86_hyper_xen_pv = {
->  	.name                   = "Xen PV",
->  	.detect                 = xen_platform_pv,
-> +	.type			= X86_HYPER_XEN_PV,
->  	.runtime.pin_vcpu       = xen_pin_vcpu,
->  };
-> -EXPORT_SYMBOL(x86_hyper_xen_pv);
-> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> index 937801ac2fe0..2cd134dd94d2 100644
-> --- a/drivers/hv/vmbus_drv.c
-> +++ b/drivers/hv/vmbus_drv.c
-> @@ -1534,7 +1534,7 @@ static int __init hv_acpi_init(void)
->  {
->  	int ret, t;
->  
-> -	if (x86_hyper != &x86_hyper_ms_hyperv)
-> +	if (x86_hyper_type != X86_HYPER_MS_HYPERV)
->  		return -ENODEV;
->  
->  	init_completion(&probe_event);
-> diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
-> index 0f586780ceb4..1ae5c1ef3f5b 100644
-> --- a/drivers/input/mouse/vmmouse.c
-> +++ b/drivers/input/mouse/vmmouse.c
-> @@ -316,11 +316,9 @@ static int vmmouse_enable(struct psmouse *psmouse)
->  /*
->   * Array of supported hypervisors.
->   */
-> -static const struct hypervisor_x86 *vmmouse_supported_hypervisors[] = {
-> -	&x86_hyper_vmware,
-> -#ifdef CONFIG_KVM_GUEST
-> -	&x86_hyper_kvm,
-> -#endif
-> +static enum x86_hypervisor_type vmmouse_supported_hypervisors[] = {
-> +	X86_HYPER_VMWARE,
-> +	X86_HYPER_KVM,
->  };
->  
->  /**
-> @@ -331,7 +329,7 @@ static bool vmmouse_check_hypervisor(void)
->  	int i;
->  
->  	for (i = 0; i < ARRAY_SIZE(vmmouse_supported_hypervisors); i++)
-> -		if (vmmouse_supported_hypervisors[i] == x86_hyper)
-> +		if (vmmouse_supported_hypervisors[i] == x86_hyper_type)
->  			return true;
->  
->  	return false;
-> diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
-> index 1e688bfec567..9047c0a529b2 100644
-> --- a/drivers/misc/vmw_balloon.c
-> +++ b/drivers/misc/vmw_balloon.c
-> @@ -1271,7 +1271,7 @@ static int __init vmballoon_init(void)
->  	 * Check if we are running on VMware's hypervisor and bail out
->  	 * if we are not.
->  	 */
-> -	if (x86_hyper != &x86_hyper_vmware)
-> +	if (x86_hyper_type != X86_HYPER_VMWARE)
->  		return -ENODEV;
->  
->  	for (is_2m_pages = 0; is_2m_pages < VMW_BALLOON_NUM_PAGE_SIZES;
-> -- 
-> 2.12.3
-> 
-
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 16af6886e828..ff679ee3b358 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2086,6 +2086,27 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 		break;
+ 	case HID_DG_TOOLSERIALNUMBER:
+ 		wacom_map_usage(input, usage, field, EV_MSC, MSC_SERIAL, 0);
++
++		/* Adjust AES usages to match modern convention */
++		if (usage->hid == WACOM_HID_WT_SERIALNUMBER && field->report_size == 16) {
++			if (field->index + 2 < field->report->maxfield) {
++				struct hid_field *a = field->report->field[field->index + 1];
++				struct hid_field *b = field->report->field[field->index + 2];
++
++				if (a->maxusage > 0 && a->usage[0].hid == HID_DG_TOOLSERIALNUMBER && a->report_size == 32 &&
++				    b->maxusage > 0 && b->usage[0].hid == 0xFF000000 && b->report_size == 8) {
++					features->quirks |= WACOM_QUIRK_AESPEN;
++					usage->hid = WACOM_HID_WD_TOOLTYPE;
++					field->logical_minimum = S16_MIN;
++					field->logical_maximum = S16_MAX;
++					a->logical_minimum = S32_MIN;
++					a->logical_maximum = S32_MAX;
++					b->usage[0].hid = WACOM_HID_WD_SERIALHI;
++					b->logical_minimum = 0;
++					b->logical_maximum = U8_MAX;
++				}
++			}
++		}
+ 		break;
+ 	case WACOM_HID_WD_SENSE:
+ 		features->quirks |= WACOM_QUIRK_SENSE;
+@@ -2093,15 +2114,18 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 		break;
+ 	case WACOM_HID_WD_SERIALHI:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_MISC, 0);
+-		set_bit(EV_KEY, input->evbit);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_BRUSH);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_PENCIL);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_AIRBRUSH);
+-		if (!(features->device_type & WACOM_DEVICETYPE_DIRECT)) {
+-			input_set_capability(input, EV_KEY, BTN_TOOL_MOUSE);
+-			input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
++
++		if (!(features->quirks & WACOM_QUIRK_AESPEN)) {
++			set_bit(EV_KEY, input->evbit);
++			input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
++			input_set_capability(input, EV_KEY, BTN_TOOL_RUBBER);
++			input_set_capability(input, EV_KEY, BTN_TOOL_BRUSH);
++			input_set_capability(input, EV_KEY, BTN_TOOL_PENCIL);
++			input_set_capability(input, EV_KEY, BTN_TOOL_AIRBRUSH);
++			if (!(features->device_type & WACOM_DEVICETYPE_DIRECT)) {
++				input_set_capability(input, EV_KEY, BTN_TOOL_MOUSE);
++				input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
++			}
+ 		}
+ 		break;
+ 	case WACOM_HID_WD_FINGERWHEEL:
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 69dda27e8dde..00bcc8ad5945 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -86,6 +86,7 @@
+ /* device quirks */
+ #define WACOM_QUIRK_BBTOUCH_LOWRES	0x0001
+ #define WACOM_QUIRK_SENSE		0x0002
++#define WACOM_QUIRK_AESPEN		0x0004
+ #define WACOM_QUIRK_BATTERY		0x0008
+ 
+ /* device types */
+@@ -107,6 +108,7 @@
+ #define WACOM_HID_WD_PEN                (WACOM_HID_UP_WACOMDIGITIZER | 0x02)
+ #define WACOM_HID_WD_SENSE              (WACOM_HID_UP_WACOMDIGITIZER | 0x36)
+ #define WACOM_HID_WD_DIGITIZERFNKEYS    (WACOM_HID_UP_WACOMDIGITIZER | 0x39)
++#define WACOM_HID_WD_SERIALNUMBER       (WACOM_HID_UP_WACOMDIGITIZER | 0x5b)
+ #define WACOM_HID_WD_SERIALHI           (WACOM_HID_UP_WACOMDIGITIZER | 0x5c)
+ #define WACOM_HID_WD_TOOLTYPE           (WACOM_HID_UP_WACOMDIGITIZER | 0x77)
+ #define WACOM_HID_WD_DISTANCE           (WACOM_HID_UP_WACOMDIGITIZER | 0x0132)
+@@ -150,6 +152,7 @@
+ #define WACOM_HID_WT_TOUCHSCREEN        (WACOM_HID_UP_WACOMTOUCH | 0x04)
+ #define WACOM_HID_WT_TOUCHPAD           (WACOM_HID_UP_WACOMTOUCH | 0x05)
+ #define WACOM_HID_WT_CONTACTMAX         (WACOM_HID_UP_WACOMTOUCH | 0x55)
++#define WACOM_HID_WT_SERIALNUMBER       (WACOM_HID_UP_WACOMTOUCH | 0x5b)
+ #define WACOM_HID_WT_X                  (WACOM_HID_UP_WACOMTOUCH | 0x130)
+ #define WACOM_HID_WT_Y                  (WACOM_HID_UP_WACOMTOUCH | 0x131)
+ 
 -- 
-Dmitry
+2.15.0
+

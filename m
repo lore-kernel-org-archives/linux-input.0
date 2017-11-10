@@ -1,34 +1,60 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: generic: Recognize WACOM_HID_WD_PEN as a
- type of pen collection
-Date: Fri, 10 Nov 2017 09:45:33 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711100943350.32604@cbobk.fhfr.pm>
-References: <20171018152713.22633-1-killertofu@gmail.com> <nycvar.YFH.7.76.1710191021420.9294@jbgna.fhfr.qr> <CANRwn3T4nvxMGxExtw+QG4msZnd1BUsEH51YCFVuv2j7ob97Ag@mail.gmail.com>
+From: =?UTF-8?Q?S=c3=a9bastien_Szymanski?=
+        <sebastien.szymanski@armadeus.com>
+Subject: Re: [PATCH 1/3] HID: cp2112: fix interface specification URL
+Date: Fri, 10 Nov 2017 10:05:35 +0100
+Message-ID: <8af16807-1e7e-2a80-82a7-1c7d685337b4@armadeus.com>
+References: <1509621164-28830-1-git-send-email-sebastien.szymanski@armadeus.com>
+ <nycvar.YFH.7.76.1711091245160.32604@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43752 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750850AbdKJIpf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Nov 2017 03:45:35 -0500
-In-Reply-To: <CANRwn3T4nvxMGxExtw+QG4msZnd1BUsEH51YCFVuv2j7ob97Ag@mail.gmail.com>
+Received: from 9.mo4.mail-out.ovh.net ([46.105.40.176]:38082 "EHLO
+        9.mo4.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750835AbdKJJti (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Nov 2017 04:49:38 -0500
+Received: from player772.ha.ovh.net (b6.ovh.net [213.186.33.56])
+        by mo4.mail-out.ovh.net (Postfix) with ESMTP id 8A194F3639
+        for <linux-input@vger.kernel.org>; Fri, 10 Nov 2017 10:43:16 +0100 (CET)
+In-Reply-To: <nycvar.YFH.7.76.1711091245160.32604@cbobk.fhfr.pm>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Julien Boibessot <julien.boibessot@armadeus.com>
 
-On Thu, 9 Nov 2017, Jason Gerecke wrote:
+On 11/09/2017 12:45 PM, Jiri Kosina wrote:
+> On Thu, 2 Nov 2017, Sébastien Szymanski wrote:
+> 
+>> Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+>> ---
+>>  drivers/hid/hid-cp2112.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+>> index 078026f..28e3c18 100644
+>> --- a/drivers/hid/hid-cp2112.c
+>> +++ b/drivers/hid/hid-cp2112.c
+>> @@ -21,7 +21,7 @@
+>>   * Data Sheet:
+>>   *   http://www.silabs.com/Support%20Documents/TechnicalDocs/CP2112.pdf
+>>   * Programming Interface Specification:
+>> - *   http://www.silabs.com/Support%20Documents/TechnicalDocs/AN495.pdf
+>> + *   https://www.silabs.com/documents/public/application-notes/an495-cp2112-interface-specification.pdf
+>>   */
+> 
+> I've applied patches 1 and 2 (with stable anotation) for now. Thanks,
+> 
 
-> Was this branch ever sent to Linus? I don't see any mention of it (or 
-> this patch) in the 4.14-rc8 history...
+Thanks, I've send a v2 of patch 3.
 
-I take the blame here; last few weeks were a bit crazy for me, and this 
-slipped through cracks.
+Regards,
 
-I'll be submitting the whole lot for stable, so that it gets included 
-everywhere properly.
+P.S: I don't see patch 1 on your cgit, is it normal?
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Sébastien Szymanski
+Software engineer, Armadeus Systems
+Tel: +33 (0)9 72 29 41 44
+Fax: +33 (0)9 72 28 79 26

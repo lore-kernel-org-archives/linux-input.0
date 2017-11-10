@@ -1,79 +1,185 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 3/3] HID: cp2112: fix broken gpio_direction_input
- callback
-Date: Fri, 10 Nov 2017 11:18:26 +0100
-Message-ID: <20171110101826.GS9728@mail.corp.redhat.com>
-References: <1510304503-30830-1-git-send-email-sebastien.szymanski@armadeus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42132 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751063AbdKJKSc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Nov 2017 05:18:32 -0500
-Content-Disposition: inline
-In-Reply-To: <1510304503-30830-1-git-send-email-sebastien.szymanski@armadeus.com>
-Sender: linux-input-owner@vger.kernel.org
+Subject: [PATCH] HID: input: enable Totem on the Dell Canvas 27
+Date: Fri, 10 Nov 2017 11:26:35 +0100
+Message-ID: <20171110102635.325-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Mario Limonciello <Mario.Limonciello@dell.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?Q?S=C3=A9bastien?= Szymanski <sebastien.szymanski@armadeus.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Julien Boibessot <julien.boibessot@armadeus.com>
 
-On Nov 10 2017 or thereabouts, Sébastien Szymanski wrote:
-> When everything goes smoothly, ret is set to 0 which makes the function
-> to return EIO error.
-> 
-> Fixes: 8e9faa15469e ("HID: cp2112: fix gpio-callback error handling")
-> Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-> ---
-> Changes in v2:
->  - rework error handling to have only one exit path as suggested by
->    Benjamin Tissoires <benjamin.tissoires@redhat.com>
+The Dell Canvas 27 has a tool that can be put on the surface and acts
+as a dial. The firmware processes the detection of the tool and forward
+regular HID reports with X, Y, Azimuth, rotation, width/height.
 
-Looks good to me now. Thanks for the respin:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+The firmware also exports Contact ID, Countact Count which may hint that
+several totems can be used at the same time, but for now, only allow
+one totem at a time.
+
+We also ignore scan time in hid-input.c because there is not much point
+to forward it now given that the indication of the tool being present
+is already provided through BTN_TOOL_DIAL.
+
+We need to add a new BTN_TOOL_DIAL event because the HID mapping
+suggests that this tool is aimed at being used by the system and not
+the applications. Also this prevents current systemd heuristics to
+apply ID_INPUT_TOUCHSCREEN to this new type of devices.
+
+I mapped Azimuth to ABS_WHEEL to somehow ressemble the Wacom Pads.
+Last, both Width and Heigth are groupped together, the FW reports
+similar values for both and we are out of ABS_* events.
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1511846
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+
+Hi,
+
+This is probably v4.16 material as we are close to the merge window
+(I wouldn't mind it applied in v4.15 though ;-P)
+
+The patch does the job but we probably need to decide if the mappings
+I chose are correct.
+
+For the record, I uploaded some evemu-record traces and hid-recorder
+traces in the RH Bz linked above to keep traces of them.
+The interesting one is the evemu one for the totem with this patch
+applied:
+https://bugzilla.redhat.com/attachment.cgi?id=1350389
 
 Cheers,
 Benjamin
 
-> 
->  drivers/hid/hid-cp2112.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> index 28e3c18..68cdc96 100644
-> --- a/drivers/hid/hid-cp2112.c
-> +++ b/drivers/hid/hid-cp2112.c
-> @@ -196,6 +196,8 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
->  				 HID_REQ_GET_REPORT);
->  	if (ret != CP2112_GPIO_CONFIG_LENGTH) {
->  		hid_err(hdev, "error requesting GPIO config: %d\n", ret);
-> +		if (ret >= 0)
-> +			ret = -EIO;
->  		goto exit;
->  	}
->  
-> @@ -205,8 +207,10 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
->  	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
->  				 CP2112_GPIO_CONFIG_LENGTH, HID_FEATURE_REPORT,
->  				 HID_REQ_SET_REPORT);
-> -	if (ret < 0) {
-> +	if (ret != CP2112_GPIO_CONFIG_LENGTH) {
->  		hid_err(hdev, "error setting GPIO config: %d\n", ret);
-> +		if (ret >= 0)
-> +			ret = -EIO;
->  		goto exit;
->  	}
->  
-> @@ -214,7 +218,7 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
->  
->  exit:
->  	mutex_unlock(&dev->lock);
-> -	return ret < 0 ? ret : -EIO;
-> +	return ret;
->  }
->  
->  static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
-> -- 
-> 2.7.3
-> 
+ drivers/hid/hid-input.c                | 28 +++++++++++++++++++++++++++-
+ drivers/hid/hid-multitouch.c           | 11 +++++++++++
+ include/linux/hid.h                    |  6 ++++++
+ include/uapi/linux/input-event-codes.h |  1 +
+ 4 files changed, 45 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 04d01b57d94c..7da72b571b7d 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -229,6 +229,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
+ 	case ABS_X:
+ 	case ABS_Y:
+ 	case ABS_Z:
++	case ABS_TOOL_WIDTH:
+ 	case ABS_MT_POSITION_X:
+ 	case ABS_MT_POSITION_Y:
+ 	case ABS_MT_TOOL_X:
+@@ -786,13 +787,24 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			map_abs_clear(ABS_TILT_Y);
+ 			break;
+ 
++		case 0x3f: /* Azimuth */
++			map_abs_clear(ABS_WHEEL);
++			break;
++
+ 		case 0x33: /* Touch */
+-		case 0x42: /* TipSwitch */
+ 		case 0x43: /* TipSwitch2 */
+ 			device->quirks &= ~HID_QUIRK_NOTOUCH;
+ 			map_key_clear(BTN_TOUCH);
+ 			break;
+ 
++		case 0x42: /* TipSwitch */
++			if (field->application == HID_GD_SYSTEM_MULTIAXIS) {
++				map_key_clear(BTN_TOOL_DIAL);
++			} else {
++				device->quirks &= ~HID_QUIRK_NOTOUCH;
++				map_key_clear(BTN_TOUCH);
++			}
++			break;
+ 		case 0x44: /* BarrelSwitch */
+ 			map_key_clear(BTN_STYLUS);
+ 			break;
+@@ -806,6 +818,20 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			map_key_clear(BTN_TOUCH);
+ 			break;
+ 
++		case 0x48: /* WIDTH */
++		case 0x49: /* HEIGHT */
++			map_abs_clear(ABS_TOOL_WIDTH);
++			break;
++
++		case 0x51: /* CONTACT ID */
++			goto ignore;
++
++		case 0x54: /* CONTACT COUNT */
++			goto ignore;
++
++		case 0x56: /* SCANTIME */
++			goto ignore;
++
+ 		case 0x46: /* TabletPick */
+ 		case 0x5a: /* SecondaryBarrelSwitch */
+ 			map_key_clear(BTN_STYLUS2);
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 65ea23be9677..a0b332518eaa 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -974,6 +974,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	    field->application != HID_DG_TOUCHPAD &&
+ 	    field->application != HID_GD_KEYBOARD &&
+ 	    field->application != HID_GD_SYSTEM_CONTROL &&
++	    field->application != HID_GD_SYSTEM_MULTIAXIS &&
+ 	    field->application != HID_CP_CONSUMER_CONTROL &&
+ 	    field->application != HID_GD_WIRELESS_RADIO_CTLS &&
+ 	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
+@@ -1003,6 +1004,14 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		return 1;
+ 	}
+ 
++	/*
++	 * We do not want to export scantime on System MultiAxis
++	 * for now
++	 */
++	if (field->usage->hid == HID_DG_SCANTIME &&
++	    field->application == HID_GD_SYSTEM_MULTIAXIS)
++		return -1;
++
+ 	/*
+ 	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
+ 	 * for the stylus.
+@@ -1193,6 +1202,8 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 			break;
+ 		case HID_GD_MOUSE:
+ 			suffix = "Mouse";
++		case HID_GD_SYSTEM_MULTIAXIS:
++			suffix = "MultiAxis";
+ 			break;
+ 		case HID_DG_STYLUS:
+ 			suffix = "Pen";
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index d491027a7c22..f93ebbe2f23d 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -189,6 +189,12 @@ struct hid_item {
+  * http://www.usb.org/developers/hidpage/HUTRR40RadioHIDUsagesFinal.pdf
+  */
+ #define HID_GD_WIRELESS_RADIO_CTLS	0x0001000c
++/*
++ * System Multi-Axis, see:
++ * http://www.usb.org/developers/hidpage/HUTRR62_-_Generic_Desktop_CA_for_System_Multi-Axis_Controllers.txt
++ */
++#define HID_GD_SYSTEM_MULTIAXIS	0x0001000e
++
+ #define HID_GD_X		0x00010030
+ #define HID_GD_Y		0x00010031
+ #define HID_GD_Z		0x00010032
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 179891074b3c..f886499fdd4c 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -406,6 +406,7 @@
+ #define BTN_TOOL_MOUSE		0x146
+ #define BTN_TOOL_LENS		0x147
+ #define BTN_TOOL_QUINTTAP	0x148	/* Five fingers on trackpad */
++#define BTN_TOOL_DIAL		0x149	/* System MultiAxis */
+ #define BTN_TOUCH		0x14a
+ #define BTN_STYLUS		0x14b
+ #define BTN_STYLUS2		0x14c
+-- 
+2.14.3

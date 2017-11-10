@@ -1,84 +1,39 @@
 From: Darren Hart <dvhart@infradead.org>
-Subject: Re: [PATCH v2 4/5] platform/x86: intel-vbtn: support
- KEY_ROTATE_LOCK_TOGGLE
-Date: Thu, 9 Nov 2017 16:53:07 -0800
-Message-ID: <20171110005307.GH21449@fury>
+Subject: Re: [PATCH v2 2/5] platform/x86: intel-vbtn: Support separate
+ press/release events
+Date: Thu, 9 Nov 2017 17:34:17 -0800
+Message-ID: <20171110013417.GB9783@fury>
 References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
- <1a034599-ff6c-4a42-8252-4f6007894f4a@rwthex-w2-a.rwth-ad.de>
- <1510270246.2624.43.camel@hadess.net>
- <6070680.Ajd9sKXNqZ@pebbles>
+ <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:54709 "EHLO
+Received: from bombadil.infradead.org ([65.50.211.133]:40485 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755231AbdKJAxM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Nov 2017 19:53:12 -0500
+        with ESMTP id S1755342AbdKJBeU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Nov 2017 20:34:20 -0500
 Content-Disposition: inline
-In-Reply-To: <6070680.Ajd9sKXNqZ@pebbles>
+In-Reply-To: <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Stefan =?iso-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
-Cc: Bastien Nocera <hadess@hadess.net>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
+Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2017 at 01:15:09AM +0100, Stefan Brüns wrote:
-> On Friday, November 10, 2017 12:30:46 AM CET Bastien Nocera wrote:
-> > On Thu, 2017-11-09 at 23:44 +0100, Stefan Brüns wrote:
-> > > The Rotate Lock button event is emitted on the XPS 12 (BIOS A8, but
-> > > not
-> > > on BIOS A2).
-> > > 
-> > > Signed-off-by: Stefan Brüns <stefan.bruens@rwth-aachen.de>
-> > > ---
-> > > 
-> > > Changes in v2:
-> > > - Emit KEY_ROTATE_LOCK_TOGGLE instead of KEY_ROTATE_DISPLAY
-> > > - Use separate up/down events
-> > > 
-> > >  drivers/platform/x86/intel-vbtn.c | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> > > 
-> > > diff --git a/drivers/platform/x86/intel-vbtn.c
-> > > b/drivers/platform/x86/intel-vbtn.c index e3f6375af85c..a484bcc6393b
-> > > 100644
-> > > --- a/drivers/platform/x86/intel-vbtn.c
-> > > +++ b/drivers/platform/x86/intel-vbtn.c
-> > > @@ -42,6 +42,8 @@ static const struct key_entry intel_vbtn_keymap[] = {
-> > > 
-> > >  	{ KE_IGNORE, 0xC5, { KEY_VOLUMEUP } },		/* volume-up key release */
-> > >  	{ KE_KEY, 0xC6, { KEY_VOLUMEDOWN } },		/* volume-down key press */
-> > >  	{ KE_IGNORE, 0xC7, { KEY_VOLUMEDOWN } },	/* volume-down key release 
-> */
-> > > 
-> > > +	{ KE_KEY,    0xC8, { KEY_ROTATE_LOCK_TOGGLE } },	/* rotate-lock key
-> > > press */ +	{ KE_KEY,    0xC9, { KEY_ROTATE_LOCK_TOGGLE } },	/*
-> > > rotate-lock key release */
-> > How are those events sent? When pressing and releasing the key, do you
-> > receive 0xC8 followed by 0xC9? Or do you receive 0xC8 when pressing and
-> > releasing the first time, and 0xC9 when pressing and releasing a second
-> > time?
-> > 
-> > If the former, then it's not going to work. The release is supposed to
-> > be ignored, as you send the event with sparse_keymap_report_event().
-> > 
-> > If the latter, and there's an actual state, does it disable a device
-> > on-board, or activate an LED? If so, then it would need to be a switch,
-> > not a key.
+On Thu, Nov 09, 2017 at 11:44:33PM +0100, Stefan Brüns wrote:
+> Currently all key events use autorelease, but this forbids use as a
+> modifier key.
 > 
-> Do you think I don't test the patches before sending? Let me tell you, it 
-> *does* work.
+> As all event codes come in even/odd pairs, we can lookup the key type
+> (KE_KEY/KE_IGNORE) for the key up event corresponding to the currently
+> handled key down event. If the key up is ignored, we keep setting the
+> autorelease flag for the key down.
 > 
-> You could also read the cover letter, where you find more details, putting the 
-> patches in relation to each other.
 
-Dude, Knock it off. Unacceptable.
-
-The number of patches we receive which have not seen any testing are
-higher than you might think. Bastien took the time to review and ask
-questions in the context of his experience with patches dealing with
-input. These are very reasonable and necessary questions given we
-cannot independently verify patches for most of these platforms.
+What is the use-case for using these buttons as modifiers? I'm picturing one of
+these devices in tablet mode, with a physical Windows button. What other action
+does a user want to modify by holding the Windows button down? Or is there
+another scenario we're trying to support here?
 
 -- 
 Darren Hart

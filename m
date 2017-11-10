@@ -1,62 +1,81 @@
 From: Darren Hart <dvhart@infradead.org>
 Subject: Re: [PATCH v2 2/5] platform/x86: intel-vbtn: Support separate
  press/release events
-Date: Thu, 9 Nov 2017 18:11:37 -0800
-Message-ID: <20171110021137.GE9783@fury>
+Date: Thu, 9 Nov 2017 18:15:55 -0800
+Message-ID: <20171110021555.GF9783@fury>
 References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
  <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de>
- <20171110013417.GB9783@fury>
- <1637751.MqEGyCB5Qi@pebbles>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1637751.MqEGyCB5Qi@pebbles>
+In-Reply-To: <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de>
 Sender: platform-driver-x86-owner@vger.kernel.org
 To: Stefan =?iso-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
-Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
+Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 10, 2017 at 02:58:36AM +0100, Stefan Brüns wrote:
-> On Friday, November 10, 2017 2:34:17 AM CET Darren Hart wrote:
-> > On Thu, Nov 09, 2017 at 11:44:33PM +0100, Stefan Brüns wrote:
-> > > Currently all key events use autorelease, but this forbids use as a
-> > > modifier key.
-> > > 
-> > > As all event codes come in even/odd pairs, we can lookup the key type
-> > > (KE_KEY/KE_IGNORE) for the key up event corresponding to the currently
-> > > handled key down event. If the key up is ignored, we keep setting the
-> > > autorelease flag for the key down.
-> > 
-> > What is the use-case for using these buttons as modifiers? I'm picturing one
-> > of these devices in tablet mode, with a physical Windows button. What other
-> > action does a user want to modify by holding the Windows button down? Or is
-> > there another scenario we're trying to support here?
+On Thu, Nov 09, 2017 at 11:44:33PM +0100, Stefan Brüns wrote:
+> Currently all key events use autorelease, but this forbids use as a
+> modifier key.
 > 
-> Windows/KEY_LEFTMETA can be used as a modifier key, e.g. in combination with 
-> the Volume Up/Down keys. On Windows, the default for Win + VolumeUp creates a 
-> screenshot.
+> As all event codes come in even/odd pairs, we can lookup the key type
+> (KE_KEY/KE_IGNORE) for the key up event corresponding to the currently
+> handled key down event. If the key up is ignored, we keep setting the
+> autorelease flag for the key down.
 > 
-> You can also use this in combination with an onscreen keyboard. Pressing the 
-> hardware button with the hand holding the tablet and typing with the other 
-> hand on the OSK is probably easier than hitting both keys on the OSK.
+> Signed-off-by: Stefan Brüns <stefan.bruens@rwth-aachen.de>
 
-This all makes sense - good context for the commit message. If no other changes
-end up being needed, I'm happy to paste it in at merge. If changes are required,
-please add it in v3.
++Dmitry, curious for your take on this approach.
 
 > 
-> Additionally, the Volume Up/Down currently do not autorepeat, as the key is
-> autoreleased on the press event. The XPS 12 does issue distinct press/release 
-> events, so this could be done properly. The same apparently holds for some 
-> other convertibles, see the links in Patch 1/5.
-
-It sounds like this is spotty across intel-vbtn implementations? Some devices
-emit release, others do not? How would you teach the driver about the
-differences? Assume autorelease and change the sparse keymap entry for DMI
-matched platforms with release? Doable... sounds unpleasant to maintain and
-update. Do we support this fully in userspace already?
+> ---
+> 
+> Changes in v2:
+> - New patch, add support for seperate key up/down in intel-vbtn
+> 
+>  drivers/platform/x86/intel-vbtn.c | 17 +++++++++++++++--
+>  1 file changed, 15 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+> index ae55be91a64b..e3f6375af85c 100644
+> --- a/drivers/platform/x86/intel-vbtn.c
+> +++ b/drivers/platform/x86/intel-vbtn.c
+> @@ -76,14 +76,27 @@ static void notify_handler(acpi_handle handle, u32 event, void *context)
+>  {
+>  	struct platform_device *device = context;
+>  	struct intel_vbtn_priv *priv = dev_get_drvdata(&device->dev);
+> +	const struct key_entry *ke_rel;
+> +	bool autorelease;
+>  
+>  	if (priv->wakeup_mode) {
+>  		if (sparse_keymap_entry_from_scancode(priv->input_dev, event)) {
+>  			pm_wakeup_hard_event(&device->dev);
+>  			return;
+>  		}
+> -	} else if (sparse_keymap_report_event(priv->input_dev, event, 1, true)) {
+> -		return;
+> +	} else {
+> +		/* Use the fact press/release come in even/odd pairs */
+> +		if ((event & 1) && sparse_keymap_report_event(priv->input_dev,
+> +							      event, 0, false))
+> +			return;
+> +
+> +		ke_rel = sparse_keymap_entry_from_scancode(priv->input_dev,
+> +							   event | 1);
+> +		autorelease = !ke_rel || ke_rel->type == KE_IGNORE;
+> +
+> +		if (sparse_keymap_report_event(priv->input_dev, event, 1,
+> +					       autorelease))
+> +			return;
+>  	}
+>  	dev_dbg(&device->dev, "unknown event index 0x%x\n", event);
+>  }
+> -- 
+> 2.15.0
+> 
+> 
 
 -- 
 Darren Hart

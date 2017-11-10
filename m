@@ -1,62 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.14-rc8
-Date: Thu, 9 Nov 2017 23:44:00 -0800
-Message-ID: <20171110074400.oxsabo23rmrtqbdy@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: Wacom: switch Dell canvas into highres mode
+Date: Fri, 10 Nov 2017 09:40:52 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1711100940010.32604@cbobk.fhfr.pm>
+References: <20171103172947.15156-1-benjamin.tissoires@redhat.com> <DE35351F-500C-41C5-90E2-18BC2B48A803@gmail.com> <20171106080503.GB9728@mail.corp.redhat.com> <nycvar.YFH.7.76.1711091242000.32604@cbobk.fhfr.pm>
+ <CANRwn3ShBkgwdzUT9Gvky7aUz0J++AKWDDDN9wgeuAQOR3sa2g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:53824 "EHLO
-        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750847AbdKJHoE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Nov 2017 02:44:04 -0500
-Content-Disposition: inline
+Received: from mx2.suse.de ([195.135.220.15]:43233 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751020AbdKJIkz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Nov 2017 03:40:55 -0500
+In-Reply-To: <CANRwn3ShBkgwdzUT9Gvky7aUz0J++AKWDDDN9wgeuAQOR3sa2g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Hi Linus,
+On Thu, 9 Nov 2017, Jason Gerecke wrote:
 
-Please pull from:
+> I spent some time checking for similar devices and didn't anything
+> with a descriptor quite like it. That said, there's a good chance that
+> we'll see something similar in the future...
+> 
+> I'm still not entirely happy with the one-off approach, but I'll but
+> my stamp of approval on it. We can work out a more generic way to
+> detect and configure these dual-resolution devices going forward :)
+> 
+> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. You will get:
-
-- a new ACPI ID for Elan touchpad found in yet another Ideapad model;
-
-- Synaptics RMI4 will allow binding to controllers reporting SMB version
-  3 (note that we are not adding any new ACPI IDs to the Synaptics PS/2
-  drover so unless user explicitly enables intertouch support there is
-  no user-visible change);
-
-- a fixup to TSC 2004/5 touchscreen driver to mark input devices as
-  "direct" to help userspace identify the type of device they are
-  dealing with.
-
-Changelog:
----------
-
-Kai-Heng Feng (1):
-      Input: elan_i2c - add ELAN060C to the ACPI table
-
-Martin Kepplinger (1):
-      Input: tsc200x-core - set INPUT_PROP_DIRECT
-
-Yiannis Marangos (1):
-      Input: synaptics-rmi4 - RMI4 can also use SMBUS version 3
-
-Diffstat:
---------
-
- drivers/input/mouse/elan_i2c_core.c      | 1 +
- drivers/input/rmi4/rmi_smbus.c           | 4 ++--
- drivers/input/touchscreen/tsc200x-core.c | 1 +
- 3 files changed, 4 insertions(+), 2 deletions(-)
-
-Thanks.
-
+Applied to for-4.15/wacom, thanks for checking.
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs
+

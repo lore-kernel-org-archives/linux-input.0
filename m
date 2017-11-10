@@ -1,101 +1,76 @@
-From: Darren Hart <dvhart@infradead.org>
-Subject: Re: [PATCH v2 4/5] platform/x86: intel-vbtn: support
- KEY_ROTATE_LOCK_TOGGLE
-Date: Thu, 9 Nov 2017 17:54:22 -0800
-Message-ID: <20171110015422.GD9783@fury>
-References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
- <1a034599-ff6c-4a42-8252-4f6007894f4a@rwthex-w2-a.rwth-ad.de>
- <1510270246.2624.43.camel@hadess.net>
- <6070680.Ajd9sKXNqZ@pebbles>
+From: Stefan =?ISO-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
+Subject: Re: [PATCH v2 2/5] platform/x86: intel-vbtn: Support separate press/release events
+Date: Fri, 10 Nov 2017 02:58:36 +0100
+Message-ID: <1637751.MqEGyCB5Qi@pebbles>
+References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de> <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de> <20171110013417.GB9783@fury>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:59404 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755383AbdKJByZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Nov 2017 20:54:25 -0500
-Content-Disposition: inline
-In-Reply-To: <6070680.Ajd9sKXNqZ@pebbles>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="nextPart2629176.D3vXaZ9z9b";
+        micalg=pgp-sha1; protocol="application/pgp-signature"
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20171110013417.GB9783@fury>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>
+Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan =?iso-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
-Cc: Bastien Nocera <hadess@hadess.net>, platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2017 at 01:15:09AM +0100, Stefan Brüns wrote:
-> On Friday, November 10, 2017 12:30:46 AM CET Bastien Nocera wrote:
-> > On Thu, 2017-11-09 at 23:44 +0100, Stefan Brüns wrote:
-> > > The Rotate Lock button event is emitted on the XPS 12 (BIOS A8, but
-> > > not
-> > > on BIOS A2).
-> > > 
-> > > Signed-off-by: Stefan Brüns <stefan.bruens@rwth-aachen.de>
-> > > ---
-> > > 
-> > > Changes in v2:
-> > > - Emit KEY_ROTATE_LOCK_TOGGLE instead of KEY_ROTATE_DISPLAY
-> > > - Use separate up/down events
-> > > 
-> > >  drivers/platform/x86/intel-vbtn.c | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> > > 
-> > > diff --git a/drivers/platform/x86/intel-vbtn.c
-> > > b/drivers/platform/x86/intel-vbtn.c index e3f6375af85c..a484bcc6393b
-> > > 100644
-> > > --- a/drivers/platform/x86/intel-vbtn.c
-> > > +++ b/drivers/platform/x86/intel-vbtn.c
-> > > @@ -42,6 +42,8 @@ static const struct key_entry intel_vbtn_keymap[] = {
-> > > 
-> > >  	{ KE_IGNORE, 0xC5, { KEY_VOLUMEUP } },		/* volume-up key release */
-> > >  	{ KE_KEY, 0xC6, { KEY_VOLUMEDOWN } },		/* volume-down key press */
-> > >  	{ KE_IGNORE, 0xC7, { KEY_VOLUMEDOWN } },	/* volume-down key release 
-> */
-> > > 
-> > > +	{ KE_KEY,    0xC8, { KEY_ROTATE_LOCK_TOGGLE } },	/* rotate-lock key
-> > > press */ +	{ KE_KEY,    0xC9, { KEY_ROTATE_LOCK_TOGGLE } },	/*
-> > > rotate-lock key release */
-> > How are those events sent? When pressing and releasing the key, do you
-> > receive 0xC8 followed by 0xC9? Or do you receive 0xC8 when pressing and
-> > releasing the first time, and 0xC9 when pressing and releasing a second
-> > time?
-> > 
-> > If the former, then it's not going to work. The release is supposed to
-> > be ignored, as you send the event with sparse_keymap_report_event().
-> > 
-> > If the latter, and there's an actual state, does it disable a device
-> > on-board, or activate an LED? If so, then it would need to be a switch,
-> > not a key.
-> 
-> Do you think I don't test the patches before sending? Let me tell you, it 
-> *does* work.
-> 
-> You could also read the cover letter, where you find more details, putting the 
-> patches in relation to each other.
+--nextPart2629176.D3vXaZ9z9b
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
 
-A point of process. If there is context that is needed to explain the
-patch, it belongs in the patch, not just in the cover letter. The cover
-letter is effectively lost once the patches are merged.
+On Friday, November 10, 2017 2:34:17 AM CET Darren Hart wrote:
+> On Thu, Nov 09, 2017 at 11:44:33PM +0100, Stefan Br=FCns wrote:
+> > Currently all key events use autorelease, but this forbids use as a
+> > modifier key.
+> >=20
+> > As all event codes come in even/odd pairs, we can lookup the key type
+> > (KE_KEY/KE_IGNORE) for the key up event corresponding to the currently
+> > handled key down event. If the key up is ignored, we keep setting the
+> > autorelease flag for the key down.
+>=20
+> What is the use-case for using these buttons as modifiers? I'm picturing =
+one
+> of these devices in tablet mode, with a physical Windows button. What oth=
+er
+> action does a user want to modify by holding the Windows button down? Or =
+is
+> there another scenario we're trying to support here?
 
-> 
-> Just in case its not yet clear:
-> The codes are emitted when pressing a button. It is a button, not a switch. 
-> There is no state handled in hardware. On press (as noted by the code 
-> comment), event code 0xc8 is emitted. On release, event code 0xc9 is emitted.
+Windows/KEY_LEFTMETA can be used as a modifier key, e.g. in combination wit=
+h=20
+the Volume Up/Down keys. On Windows, the default for Win + VolumeUp creates=
+ a=20
+screenshot.
 
-This sounds like the "former" scenario Bastien described, for which I understand
-the use case to be:
+You can also use this in combination with an onscreen keyboard. Pressing th=
+e=20
+hardware button with the hand holding the tablet and typing with the other=
+=20
+hand on the OSK is probably easier than hitting both keys on the OSK.
 
-User presses and releases the rotate lock button to prevent the accelerometer for
-triggering screen rotation.
+Additionally, the Volume Up/Down currently do not autorepeat, as the key is
+autoreleased on the press event. The XPS 12 does issue distinct press/relea=
+se=20
+events, so this could be done properly. The same apparently holds for some=
+=20
+other convertibles, see the links in Patch 1/5.
 
-User presses and releases the rotate lock button to allow the accelerometer to
-trigger screen rotation.
+Kind regards,
 
-Is that correct?
+Stefan
 
-If so, why do we need to emit two KEY_ROTATE_LOCK_TOGGLE events each time
-instead of just the press event like the volume buttons?
+=2D-=20
+Stefan Br=FCns  /  Bergstra=DFe 21  /  52062 Aachen
+home: +49 241 53809034     mobile: +49 151 50412019
+--nextPart2629176.D3vXaZ9z9b
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
--- 
-Darren Hart
-VMware Open Source Technology Center
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQSwWRWIpJbl0W4DemNvf0o9jP6qUwUCWgUHzAAKCRBvf0o9jP6q
+U/f8AJ9cavM7MbqNUsuGSK5BNh83ThmpAQCfezT+RVVwnqTHlmPobleeGTIBdZo=
+=g7/J
+-----END PGP SIGNATURE-----
+
+--nextPart2629176.D3vXaZ9z9b--

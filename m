@@ -1,181 +1,313 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 resend 0/1] Input: add support HiDeep touchscreen.
-Date: Fri, 10 Nov 2017 10:25:15 -0800
-Message-ID: <20171110182515.zg3dx5kzpqxcmxfk@dtor-ws>
-References: <1510105085-18050-1-git-send-email-anthony.kim@hideep.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 2/5] x86: add enum for hypervisors to replace x86_hyper
+Date: Fri, 10 Nov 2017 10:26:11 -0800
+Message-ID: <20171110182611.maikfgykek7y6xww@dtor-ws>
+References: <20171109132739.23465-1-jgross@suse.com>
+	<20171109132739.23465-3-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1510105085-18050-1-git-send-email-anthony.kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anthony Kim <anthony.kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dennis.hong-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org
+In-Reply-To: <20171109132739.23465-3-jgross@suse.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Juergen Gross <jgross@suse.com>
+Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, pv-drivers@vmware.com, akataria@vmware.com, virtualization@lists.linux-foundation.org, hpa@zytor.com, tglx@linutronix.de, sthemmin@microsoft.com, x86@kernel.org, moltmann@vmware.com, mingo@redhat.com, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, arnd@arndb.de, xdeguillard@vmware.com, haiyangz@microsoft.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 08, 2017 at 10:38:04AM +0900, Anthony Kim wrote:
-> Hi All,
+On Thu, Nov 09, 2017 at 02:27:36PM +0100, Juergen Gross wrote:
+> The x86_hyper pointer is only used for checking whether a virtual
+> device is supporting the hypervisor the system is running on.
 > 
-> I remaked patch for dmitry's comment.
-> Please refer as follow.
-> http://www.spinics.net/lists/linux-input/msg53799.html
+> Use an enum for that purpose instead and drop the x86_hyper pointer.
 > 
-> I changed our fw binary to big endian format and confirmed that our driver
-> code works well.
+> Cc: kys@microsoft.com
+> Cc: haiyangz@microsoft.com
+> Cc: sthemmin@microsoft.com
+> Cc: akataria@vmware.com
+> Cc: pbonzini@redhat.com
+> Cc: rkrcmar@redhat.com
+> Cc: boris.ostrovsky@oracle.com
+> Cc: devel@linuxdriverproject.org
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: kvm@vger.kernel.org
+> Cc: xen-devel@lists.xenproject.org
+> Cc: linux-graphics-maintainer@vmware.com
+> Cc: pv-drivers@vmware.com
+> Cc: dmitry.torokhov@gmail.com
+> Cc: xdeguillard@vmware.com
+> Cc: moltmann@vmware.com
+> Cc: arnd@arndb.de
+> Cc: gregkh@linuxfoundation.org
+> Cc: linux-input@vger.kernel.org
+> 
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> ---
+>  arch/x86/hyperv/hv_init.c         |  2 +-
+>  arch/x86/include/asm/hypervisor.h | 23 ++++++++++++++---------
+>  arch/x86/kernel/cpu/hypervisor.c  | 12 +++++++++---
+>  arch/x86/kernel/cpu/mshyperv.c    |  4 ++--
+>  arch/x86/kernel/cpu/vmware.c      |  4 ++--
+>  arch/x86/kernel/kvm.c             |  4 ++--
+>  arch/x86/xen/enlighten_hvm.c      |  4 ++--
+>  arch/x86/xen/enlighten_pv.c       |  4 ++--
+>  drivers/hv/vmbus_drv.c            |  2 +-
+>  drivers/input/mouse/vmmouse.c     | 10 ++++------
 
-Applied, thank you.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
+>  drivers/misc/vmw_balloon.c        |  2 +-
+>  11 files changed, 40 insertions(+), 31 deletions(-)
 > 
-> - v3
->   - Reverted code for converts to big endian to previous version.
->   - Changed part of variable order of dwz info structure to order of
->     old version.
-> 
-> - v2
->   - Our fw binary data is little endian, but our IC protocol for fw
->     update use big endian. So it need to conert to big endian data
->     and I added about it.
->   - Changed PGM pattern value to big endian.
->   - Changed to process for product code to using switch case.
-> 
-> Please review this.
-> Thanks!
-> 
-> Ps. I added to changes about code of previous version.
-> 
-> diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
-> index 1df0a43..4455a13 100644
-> --- a/drivers/input/touchscreen/hideep.c
-> +++ b/drivers/input/touchscreen/hideep.c
-> @@ -123,9 +123,9 @@ struct dwz_info {
-> 	__be16 release_ver;
-> 	__be16 custom_ver;
+> diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+> index a5db63f728a2..a0b86cf486e0 100644
+> --- a/arch/x86/hyperv/hv_init.c
+> +++ b/arch/x86/hyperv/hv_init.c
+> @@ -113,7 +113,7 @@ void hyperv_init(void)
+>  	u64 guest_id;
+>  	union hv_x64_msr_hypercall_contents hypercall_msr;
 >  
-> -	u8 model_name[6];
-> 	u8 factory_id;
-> 	u8 panel_type;
-> +	u8 model_name[6];
+> -	if (x86_hyper != &x86_hyper_ms_hyperv)
+> +	if (x86_hyper_type != X86_HYPER_MS_HYPERV)
+>  		return;
 >  
-> 	__be16 extra_option;
-> 	__be16 product_code;
-> @@ -408,7 +408,7 @@ static int hideep_check_status(struct hideep_ts *ts)
->  }
+>  	/* Allocate percpu VP index */
+> diff --git a/arch/x86/include/asm/hypervisor.h b/arch/x86/include/asm/hypervisor.h
+> index 0eca7239a7aa..1b0a5abcd8ae 100644
+> --- a/arch/x86/include/asm/hypervisor.h
+> +++ b/arch/x86/include/asm/hypervisor.h
+> @@ -29,6 +29,16 @@
+>  /*
+>   * x86 hypervisor information
+>   */
+> +
+> +enum x86_hypervisor_type {
+> +	X86_HYPER_NATIVE = 0,
+> +	X86_HYPER_VMWARE,
+> +	X86_HYPER_MS_HYPERV,
+> +	X86_HYPER_XEN_PV,
+> +	X86_HYPER_XEN_HVM,
+> +	X86_HYPER_KVM,
+> +};
+> +
+>  struct hypervisor_x86 {
+>  	/* Hypervisor name */
+>  	const char	*name;
+> @@ -36,6 +46,9 @@ struct hypervisor_x86 {
+>  	/* Detection routine */
+>  	uint32_t	(*detect)(void);
 >  
->  static int hideep_program_page(struct hideep_ts *ts, u32 addr,
-> -			       __be32 *ucode, size_t xfer_count)
-> +			       const __be32 *ucode, size_t xfer_count)
->  {
-> 	u32 val;
-> 	int error;
-> @@ -457,15 +457,13 @@ static int hideep_program_page(struct hideep_ts *ts, u32 addr,
->  }
+> +	/* Hypervisor type */
+> +	enum x86_hypervisor_type type;
+> +
+>  	/* init time callbacks */
+>  	struct x86_hyper_init init;
 >  
->  static int hideep_program_nvm(struct hideep_ts *ts,
-> -			      const u32 *ucode, size_t ucode_len)
-> +			      const __be32 *ucode, size_t ucode_len)
->  {
-> 	struct pgm_packet *packet_r = (void *)ts->xfer_buf;
-> 	__be32 *current_ucode = packet_r->payload;
-> -	__be32 write_ucode[HIDEEP_NVM_PAGE_SIZE];
-> 	size_t xfer_len;
-> 	size_t xfer_count;
-> 	u32 addr = 0;
-> -	int i;
-> 	int error;
+> @@ -43,15 +56,7 @@ struct hypervisor_x86 {
+>  	struct x86_hyper_runtime runtime;
+>  };
 >  
-> 	hideep_nvm_unlock(ts);
-> @@ -483,14 +481,10 @@ static int hideep_program_nvm(struct hideep_ts *ts,
-> 			return error;
-> 		}
->  
-> -		/* Need to because binary data is little endian */
-> -		for (i = 0; i < xfer_len; i++)
-> -			write_ucode[i] = cpu_to_be32(ucode[i]);
+> -extern const struct hypervisor_x86 *x86_hyper;
 > -
-> 		/* See if the page needs updating */
-> -		if (memcmp(write_ucode, current_ucode, xfer_len)) {
-> +		if (memcmp(ucode, current_ucode, xfer_len)) {
-> 			error = hideep_program_page(ts, addr,
-> -						    write_ucode, xfer_count);
-> +						    ucode, xfer_count);
-> 			if (error) {
-> 				dev_err(&ts->client->dev,
-> 					"%s: iwrite failure @%#08x: %d\n",
-> @@ -510,11 +504,10 @@ static int hideep_program_nvm(struct hideep_ts *ts,
->  }
->  
->  static int hideep_verify_nvm(struct hideep_ts *ts,
-> -			     const u32 *ucode, size_t ucode_len)
-> +			     const __be32 *ucode, size_t ucode_len)
->  {
-> 	struct pgm_packet *packet_r = (void *)ts->xfer_buf;
-> 	__be32 *current_ucode = packet_r->payload;
-> -	__be32 verify_ucode[HIDEEP_NVM_PAGE_SIZE];
-> 	size_t xfer_len;
-> 	size_t xfer_count;
-> 	u32 addr = 0;
-> @@ -534,12 +527,8 @@ static int hideep_verify_nvm(struct hideep_ts *ts,
-> 			return error;
-> 		}
->  
-> -		/* Need to because binary data is little endian */
-> -		for (i = 0; i < xfer_len; i++)
-> -			verify_ucode[i] = cpu_to_be32(ucode[i]);
+> -/* Recognized hypervisors */
+> -extern const struct hypervisor_x86 x86_hyper_vmware;
+> -extern const struct hypervisor_x86 x86_hyper_ms_hyperv;
+> -extern const struct hypervisor_x86 x86_hyper_xen_pv;
+> -extern const struct hypervisor_x86 x86_hyper_xen_hvm;
+> -extern const struct hypervisor_x86 x86_hyper_kvm;
 > -
-> -		if (memcmp(verify_ucode, current_ucode, xfer_len)) {
-> -			const u8 *ucode_bytes = (const u8 *)verify_ucode;
-> +		if (memcmp(ucode, current_ucode, xfer_len)) {
-> +			const u8 *ucode_bytes = (const u8 *)ucode;
-> 			const u8 *current_bytes = (const u8 *)current_ucode;
+> +extern enum x86_hypervisor_type x86_hyper_type;
+>  extern void init_hypervisor_platform(void);
+>  #else
+>  static inline void init_hypervisor_platform(void) { }
+> diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
+> index 22226c1bf092..bea8d3e24f50 100644
+> --- a/arch/x86/kernel/cpu/hypervisor.c
+> +++ b/arch/x86/kernel/cpu/hypervisor.c
+> @@ -26,6 +26,12 @@
+>  #include <asm/processor.h>
+>  #include <asm/hypervisor.h>
 >  
-> 			for (i = 0; i < xfer_len; i++)
-> @@ -611,7 +600,7 @@ static int hideep_load_dwz(struct hideep_ts *ts)
+> +extern const struct hypervisor_x86 x86_hyper_vmware;
+> +extern const struct hypervisor_x86 x86_hyper_ms_hyperv;
+> +extern const struct hypervisor_x86 x86_hyper_xen_pv;
+> +extern const struct hypervisor_x86 x86_hyper_xen_hvm;
+> +extern const struct hypervisor_x86 x86_hyper_kvm;
+> +
+>  static const __initconst struct hypervisor_x86 * const hypervisors[] =
+>  {
+>  #ifdef CONFIG_XEN_PV
+> @@ -41,8 +47,8 @@ static const __initconst struct hypervisor_x86 * const hypervisors[] =
+>  #endif
+>  };
+>  
+> -const struct hypervisor_x86 *x86_hyper;
+> -EXPORT_SYMBOL(x86_hyper);
+> +enum x86_hypervisor_type x86_hyper_type;
+> +EXPORT_SYMBOL(x86_hyper_type);
+>  
+>  static inline const struct hypervisor_x86 * __init
+>  detect_hypervisor_vendor(void)
+> @@ -87,6 +93,6 @@ void __init init_hypervisor_platform(void)
+>  	copy_array(&h->init, &x86_init.hyper, sizeof(h->init));
+>  	copy_array(&h->runtime, &x86_platform.hyper, sizeof(h->runtime));
+>  
+> -	x86_hyper = h;
+> +	x86_hyper_type = h->type;
+>  	x86_init.hyper.init_platform();
+>  }
+> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+> index 6bb84d655e4b..85eb5fc180c8 100644
+> --- a/arch/x86/kernel/cpu/mshyperv.c
+> +++ b/arch/x86/kernel/cpu/mshyperv.c
+> @@ -254,9 +254,9 @@ static void __init ms_hyperv_init_platform(void)
+>  #endif
 >  }
 >  
->  static int hideep_flash_firmware(struct hideep_ts *ts,
-> -				 const u32 *ucode, size_t ucode_len)
-> +				 const __be32 *ucode, size_t ucode_len)
->  {
-> 	int retry_cnt = 3;
-> 	int error;
-> @@ -629,7 +618,7 @@ static int hideep_flash_firmware(struct hideep_ts *ts,
+> -const __refconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
+> +const __initconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
+>  	.name			= "Microsoft Hyper-V",
+>  	.detect			= ms_hyperv_platform,
+> +	.type			= X86_HYPER_MS_HYPERV,
+>  	.init.init_platform	= ms_hyperv_init_platform,
+>  };
+> -EXPORT_SYMBOL(x86_hyper_ms_hyperv);
+> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+> index 4804c1d063c8..8e005329648b 100644
+> --- a/arch/x86/kernel/cpu/vmware.c
+> +++ b/arch/x86/kernel/cpu/vmware.c
+> @@ -205,10 +205,10 @@ static bool __init vmware_legacy_x2apic_available(void)
+>  	       (eax & (1 << VMWARE_PORT_CMD_LEGACY_X2APIC)) != 0;
 >  }
 >  
->  static int hideep_update_firmware(struct hideep_ts *ts,
-> -				  const u32 *ucode, size_t ucode_len)
-> +				  const __be32 *ucode, size_t ucode_len)
+> -const __refconst struct hypervisor_x86 x86_hyper_vmware = {
+> +const __initconst struct hypervisor_x86 x86_hyper_vmware = {
+>  	.name			= "VMware",
+>  	.detect			= vmware_platform,
+> +	.type			= X86_HYPER_VMWARE,
+>  	.init.init_platform	= vmware_platform_setup,
+>  	.init.x2apic_available	= vmware_legacy_x2apic_available,
+>  };
+> -EXPORT_SYMBOL(x86_hyper_vmware);
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index 9dca8437c795..a94de09edbed 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -544,12 +544,12 @@ static uint32_t __init kvm_detect(void)
+>  	return kvm_cpuid_base();
+>  }
+>  
+> -const struct hypervisor_x86 x86_hyper_kvm __refconst = {
+> +const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+>  	.name			= "KVM",
+>  	.detect			= kvm_detect,
+> +	.type			= X86_HYPER_KVM,
+>  	.init.x2apic_available	= kvm_para_available,
+>  };
+> -EXPORT_SYMBOL_GPL(x86_hyper_kvm);
+>  
+>  static __init int activate_jump_labels(void)
 >  {
-> 	int error, error2;
+> diff --git a/arch/x86/xen/enlighten_hvm.c b/arch/x86/xen/enlighten_hvm.c
+> index 7b1622089f96..754d5391d9fa 100644
+> --- a/arch/x86/xen/enlighten_hvm.c
+> +++ b/arch/x86/xen/enlighten_hvm.c
+> @@ -226,12 +226,12 @@ static uint32_t __init xen_platform_hvm(void)
+>  	return xen_cpuid_base();
+>  }
 >  
-> @@ -909,7 +898,7 @@ static ssize_t hideep_update_fw(struct device *dev,
-> 	mutex_lock(&ts->dev_mutex);
-> 	disable_irq(client->irq);
+> -const struct hypervisor_x86 x86_hyper_xen_hvm = {
+> +const __initconst struct hypervisor_x86 x86_hyper_xen_hvm = {
+>  	.name                   = "Xen HVM",
+>  	.detect                 = xen_platform_hvm,
+> +	.type			= X86_HYPER_XEN_HVM,
+>  	.init.init_platform     = xen_hvm_guest_init,
+>  	.init.x2apic_available  = xen_x2apic_para_available,
+>  	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
+>  	.runtime.pin_vcpu       = xen_pin_vcpu,
+>  };
+> -EXPORT_SYMBOL(x86_hyper_xen_hvm);
+> diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+> index 69d1a7054ddb..168efb2534c0 100644
+> --- a/arch/x86/xen/enlighten_pv.c
+> +++ b/arch/x86/xen/enlighten_pv.c
+> @@ -1460,9 +1460,9 @@ static uint32_t __init xen_platform_pv(void)
+>  	return 0;
+>  }
 >  
-> -	error = hideep_update_firmware(ts, (const u32 *)fw_entry->data,
-> +	error = hideep_update_firmware(ts, (const __be32 *)fw_entry->data,
-> 				       fw_entry->size);
+> -const struct hypervisor_x86 x86_hyper_xen_pv = {
+> +const __initconst struct hypervisor_x86 x86_hyper_xen_pv = {
+>  	.name                   = "Xen PV",
+>  	.detect                 = xen_platform_pv,
+> +	.type			= X86_HYPER_XEN_PV,
+>  	.runtime.pin_vcpu       = xen_pin_vcpu,
+>  };
+> -EXPORT_SYMBOL(x86_hyper_xen_pv);
+> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+> index 937801ac2fe0..2cd134dd94d2 100644
+> --- a/drivers/hv/vmbus_drv.c
+> +++ b/drivers/hv/vmbus_drv.c
+> @@ -1534,7 +1534,7 @@ static int __init hv_acpi_init(void)
+>  {
+>  	int ret, t;
 >  
-> 	enable_irq(client->irq);
-> 
-> Anthony Kim (1):
->   Input: add support for HiDeep touchscreen
-> 
->  .../bindings/input/touchscreen/hideep.txt          |   42 +
->  .../devicetree/bindings/vendor-prefixes.txt        |    1 +
->  drivers/input/touchscreen/Kconfig                  |   11 +
->  drivers/input/touchscreen/Makefile                 |    1 +
->  drivers/input/touchscreen/hideep.c                 | 1120 ++++++++++++++++++++
->  5 files changed, 1175 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/hideep.txt
->  create mode 100644 drivers/input/touchscreen/hideep.c
-> 
+> -	if (x86_hyper != &x86_hyper_ms_hyperv)
+> +	if (x86_hyper_type != X86_HYPER_MS_HYPERV)
+>  		return -ENODEV;
+>  
+>  	init_completion(&probe_event);
+> diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
+> index 0f586780ceb4..1ae5c1ef3f5b 100644
+> --- a/drivers/input/mouse/vmmouse.c
+> +++ b/drivers/input/mouse/vmmouse.c
+> @@ -316,11 +316,9 @@ static int vmmouse_enable(struct psmouse *psmouse)
+>  /*
+>   * Array of supported hypervisors.
+>   */
+> -static const struct hypervisor_x86 *vmmouse_supported_hypervisors[] = {
+> -	&x86_hyper_vmware,
+> -#ifdef CONFIG_KVM_GUEST
+> -	&x86_hyper_kvm,
+> -#endif
+> +static enum x86_hypervisor_type vmmouse_supported_hypervisors[] = {
+> +	X86_HYPER_VMWARE,
+> +	X86_HYPER_KVM,
+>  };
+>  
+>  /**
+> @@ -331,7 +329,7 @@ static bool vmmouse_check_hypervisor(void)
+>  	int i;
+>  
+>  	for (i = 0; i < ARRAY_SIZE(vmmouse_supported_hypervisors); i++)
+> -		if (vmmouse_supported_hypervisors[i] == x86_hyper)
+> +		if (vmmouse_supported_hypervisors[i] == x86_hyper_type)
+>  			return true;
+>  
+>  	return false;
+> diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+> index 1e688bfec567..9047c0a529b2 100644
+> --- a/drivers/misc/vmw_balloon.c
+> +++ b/drivers/misc/vmw_balloon.c
+> @@ -1271,7 +1271,7 @@ static int __init vmballoon_init(void)
+>  	 * Check if we are running on VMware's hypervisor and bail out
+>  	 * if we are not.
+>  	 */
+> -	if (x86_hyper != &x86_hyper_vmware)
+> +	if (x86_hyper_type != X86_HYPER_VMWARE)
+>  		return -ENODEV;
+>  
+>  	for (is_2m_pages = 0; is_2m_pages < VMW_BALLOON_NUM_PAGE_SIZES;
 > -- 
-> 2.7.4
+> 2.12.3
 > 
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

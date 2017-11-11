@@ -1,50 +1,39 @@
 From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH 2/2] Input: ili210x - use separate error handling for different allocators
-Date: Sat, 11 Nov 2017 07:02:31 +0200
-Message-ID: <20171111050231.29047-3-andi@etezian.org>
-References: <20171111050231.29047-1-andi@etezian.org>
+Subject: [PATCH 0/2] managed resources for ili210x
+Date: Sat, 11 Nov 2017 07:02:29 +0200
+Message-ID: <20171111050231.29047-1-andi@etezian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 20.mo3.mail-out.ovh.net ([178.33.47.94]:40642 "EHLO
-        20.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750768AbdKKFDE (ORCPT
+Received: from 14.mo3.mail-out.ovh.net ([188.165.43.98]:52189 "EHLO
+        14.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750789AbdKKFIc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Nov 2017 00:03:04 -0500
+        Sat, 11 Nov 2017 00:08:32 -0500
 Received: from player771.ha.ovh.net (b9.ovh.net [213.186.33.59])
-        by mo3.mail-out.ovh.net (Postfix) with ESMTP id 4093216F9A3
-        for <linux-input@vger.kernel.org>; Sat, 11 Nov 2017 06:03:03 +0100 (CET)
-In-Reply-To: <20171111050231.29047-1-andi@etezian.org>
+        by mo3.mail-out.ovh.net (Postfix) with ESMTP id 3152E16F816
+        for <linux-input@vger.kernel.org>; Sat, 11 Nov 2017 06:02:44 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@gmail.com>
 
-Split the error between devm_kzalloc and
-devm_input_allocate_device, there is no need to call the second
-allocator if the first has failed. Besides this doesn't provide
-practical advantages.
+Hi Dmitry,
 
-Signed-off-by: Andi Shyti <andi@etezian.org>
----
- drivers/input/touchscreen/ili210x.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+this is another patch of my series for switching the
+touchscreen drivers to to the managed resource allocators.
 
-diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
-index da868b1d0e83..9344c4436430 100644
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -225,8 +225,11 @@ static int ili210x_i2c_probe(struct i2c_client *client,
- 	ymax = panel.finger_max.y_low | (panel.finger_max.y_high << 8);
- 
- 	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
- 	input = devm_input_allocate_device(&client->dev);
--	if (!priv || !input)
-+	if (!input)
- 		return -ENOMEM;
- 
- 	priv->client = client;
+The second patch is very trivial and perhaps bothering only me,
+feel free to ignore.
+
+Thanks,
+Andi
+
+Andi Shyti (2):
+  Input: ili210x - use managed allocated resources
+  Input: ili210x - use separate error handling for different allocators
+
+ drivers/input/touchscreen/ili210x.c | 39 +++++++++++++------------------------
+ 1 file changed, 14 insertions(+), 25 deletions(-)
+
 -- 
 2.15.0
 

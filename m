@@ -1,38 +1,50 @@
 From: Andi Shyti <andi@etezian.org>
-Subject: Re: [PATCH v6 0/2] add support for the Samsung S6SY761 touchscreen
-Date: Sat, 11 Nov 2017 13:35:44 +0900
-Message-ID: <20171111043544.kal5imvs35bcjtj3@jack.zhora.eu>
-References: <CGME20171108082115epcas2p46263ae444b08441c2e35d9e3a51dd0ca@epcas2p4.samsung.com>
- <20171108082105.30739-1-andi.shyti@samsung.com>
- <20171110182458.zckihuqpiagmhnwx@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 2/2] Input: ili210x - use separate error handling for different allocators
+Date: Sat, 11 Nov 2017 07:02:31 +0200
+Message-ID: <20171111050231.29047-3-andi@etezian.org>
+References: <20171111050231.29047-1-andi@etezian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 9.mo3.mail-out.ovh.net ([87.98.184.141]:52475 "EHLO
-        9.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750926AbdKKEf5 (ORCPT
+Received: from 20.mo3.mail-out.ovh.net ([178.33.47.94]:40642 "EHLO
+        20.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750768AbdKKFDE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Nov 2017 23:35:57 -0500
+        Sat, 11 Nov 2017 00:03:04 -0500
 Received: from player771.ha.ovh.net (b9.ovh.net [213.186.33.59])
-        by mo3.mail-out.ovh.net (Postfix) with ESMTP id 9FBE816F927
-        for <linux-input@vger.kernel.org>; Sat, 11 Nov 2017 05:35:55 +0100 (CET)
-Content-Disposition: inline
-In-Reply-To: <20171110182458.zckihuqpiagmhnwx@dtor-ws>
+        by mo3.mail-out.ovh.net (Postfix) with ESMTP id 4093216F9A3
+        for <linux-input@vger.kernel.org>; Sat, 11 Nov 2017 06:03:03 +0100 (CET)
+In-Reply-To: <20171111050231.29047-1-andi@etezian.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andi Shyti <andi.shyti@samsung.com>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@gmail.com>
 
-> On Wed, Nov 08, 2017 at 05:21:03PM +0900, Andi Shyti wrote:
-> > Hi,
-> > 
-> > This patchset adds support for the Samsung s6sy761 touchscreen.
-> > 
-> > Thanks,
-> > Andi
-> 
-> Applied, thank you.
+Split the error between devm_kzalloc and
+devm_input_allocate_device, there is no need to call the second
+allocator if the first has failed. Besides this doesn't provide
+practical advantages.
 
-Thanks for your review :)
+Signed-off-by: Andi Shyti <andi@etezian.org>
+---
+ drivers/input/touchscreen/ili210x.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Andi
+diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+index da868b1d0e83..9344c4436430 100644
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -225,8 +225,11 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 	ymax = panel.finger_max.y_low | (panel.finger_max.y_high << 8);
+ 
+ 	priv = devm_kzalloc(&client->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
+ 	input = devm_input_allocate_device(&client->dev);
+-	if (!priv || !input)
++	if (!input)
+ 		return -ENOMEM;
+ 
+ 	priv->client = client;
+-- 
+2.15.0
+

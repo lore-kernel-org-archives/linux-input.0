@@ -1,85 +1,150 @@
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v6 5/9] i2c: add i2c_master_{send|recv}_dmasafe
-Date: Sat, 11 Nov 2017 00:08:50 +0000
-Message-ID: <20171111000850.00003b44@huawei.com>
+Subject: Re: [PATCH v6 6/9] i2c: smbus: use DMA safe buffers for emulated
+ SMBus transactions
+Date: Sat, 11 Nov 2017 00:13:26 +0000
+Message-ID: <20171111001326.0000349b@huawei.com>
 References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
-        <20171104202009.3818-6-wsa+renesas@sang-engineering.com>
+        <20171104202009.3818-7-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:10515 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753687AbdKKAKP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Nov 2017 19:10:15 -0500
-In-Reply-To: <20171104202009.3818-6-wsa+renesas@sang-engineering.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+In-Reply-To: <20171104202009.3818-7-wsa+renesas@sang-engineering.com>
+Sender: linux-i2c-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mark Brown <broonie@kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-On Sat, 4 Nov 2017 21:20:05 +0100
+On Sat, 4 Nov 2017 21:20:06 +0100
 Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
 
-> Use the new helper to create variants of i2c_master_{send|recv} which
-> mark their buffers as DMA safe.
+> For all block commands, try to allocate a DMA safe buffer and mark it
+> accordingly. Only use the stack, if the buffers cannot be allocated.
 > 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Can't really argue with such a simple patch ;)
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
+Hmm. Interesting balance here as this adds allocations to paths where the i2c
+master can't take advantage.  Not ideal, but perhaps not worth the hassle
+of working around it?
+
+It's only for the block calls I guess so not that major an issue.
+
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 > ---
->  include/linux/i2c.h | 31 +++++++++++++++++++++++++++++++
->  1 file changed, 31 insertions(+)
+>  drivers/i2c/i2c-core-smbus.c | 45 ++++++++++++++++++++++++++++++++++++++------
+>  1 file changed, 39 insertions(+), 6 deletions(-)
 > 
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index ef1a8791c1ae24..8c144e3cbfb261 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -81,6 +81,22 @@ static inline int i2c_master_recv(const struct i2c_client *client,
->  };
+> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+> index 4bb9927afd0106..931c274fe26809 100644
+> --- a/drivers/i2c/i2c-core-smbus.c
+> +++ b/drivers/i2c/i2c-core-smbus.c
+> @@ -18,6 +18,7 @@
+>  #include <linux/err.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-smbus.h>
+> +#include <linux/slab.h>
 >  
->  /**
-> + * i2c_master_recv_dmasafe - issue a single I2C message in master receive mode
-> + *			     using a DMA safe buffer
-> + * @client: Handle to slave device
-> + * @buf: Where to store data read from slave, must be safe to use with DMA
-> + * @count: How many bytes to read, must be less than 64k since msg.len is u16
-> + *
-> + * Returns negative errno, or else the number of bytes read.
-> + */
-> +static inline int i2c_master_recv_dmasafe(const struct i2c_client *client,
-> +					  char *buf, int count)
+>  #define CREATE_TRACE_POINTS
+>  #include <trace/events/smbus.h>
+> @@ -291,6 +292,22 @@ s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client, u8 command,
+>  }
+>  EXPORT_SYMBOL(i2c_smbus_write_i2c_block_data);
+>  
+> +static void i2c_smbus_try_get_dmabuf(struct i2c_msg *msg, u8 init_val)
 > +{
-> +	return i2c_transfer_buffer_flags(client, buf, count,
-> +					 I2C_M_RD | I2C_M_DMA_SAFE);
-> +};
+> +	bool is_read = msg->flags & I2C_M_RD;
+> +	unsigned char *dma_buf;
 > +
-> +/**
->   * i2c_master_send - issue a single I2C message in master transmit mode
->   * @client: Handle to slave device
->   * @buf: Data that will be written to the slave
-> @@ -93,6 +109,21 @@ static inline int i2c_master_send(const struct i2c_client *client,
->  {
->  	return i2c_transfer_buffer_flags(client, (char *)buf, count, 0);
->  };
-> +/**
-> + * i2c_master_send_dmasafe - issue a single I2C message in master transmit mode
-> + *			     using a DMA safe buffer
-> + * @client: Handle to slave device
-> + * @buf: Data that will be written to the slave, must be safe to use with DMA
-> + * @count: How many bytes to write, must be less than 64k since msg.len is u16
-> + *
-> + * Returns negative errno, or else the number of bytes written.
-> + */
-> +static inline int i2c_master_send_dmasafe(const struct i2c_client *client,
-> +					  const char *buf, int count)
-> +{
-> +	return i2c_transfer_buffer_flags(client, (char *)buf, count,
-> +					 I2C_M_DMA_SAFE);
-> +};
+> +	dma_buf = kzalloc(I2C_SMBUS_BLOCK_MAX + (is_read ? 2 : 3), GFP_KERNEL);
+> +	if (!dma_buf)
+> +		return;
+> +
+> +	msg->buf = dma_buf;
+> +	msg->flags |= I2C_M_DMA_SAFE;
+> +
+> +	if (init_val)
+> +		msg->buf[0] = init_val;
+> +
+> +}
+>  /* Simulate a SMBus command using the i2c protocol
+>     No checking of parameters is done!  */
+>  static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+> @@ -368,6 +385,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  			msg[1].flags |= I2C_M_RECV_LEN;
+>  			msg[1].len = 1; /* block length will be added by
+>  					   the underlying bus driver */
+> +			i2c_smbus_try_get_dmabuf(&msg[1], 0);
+>  		} else {
+>  			msg[0].len = data->block[0] + 2;
+>  			if (msg[0].len > I2C_SMBUS_BLOCK_MAX + 2) {
+> @@ -376,8 +394,10 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  					data->block[0]);
+>  				return -EINVAL;
+>  			}
+> +
+> +			i2c_smbus_try_get_dmabuf(&msg[0], command);
+>  			for (i = 1; i < msg[0].len; i++)
+> -				msgbuf0[i] = data->block[i-1];
+> +				msg[0].buf[i] = data->block[i-1];
+>  		}
+>  		break;
+>  	case I2C_SMBUS_BLOCK_PROC_CALL:
+> @@ -389,16 +409,21 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  				data->block[0]);
+>  			return -EINVAL;
+>  		}
+> +
+>  		msg[0].len = data->block[0] + 2;
+> +		i2c_smbus_try_get_dmabuf(&msg[0], command);
+>  		for (i = 1; i < msg[0].len; i++)
+> -			msgbuf0[i] = data->block[i-1];
+> +			msg[0].buf[i] = data->block[i-1];
+> +
+>  		msg[1].flags |= I2C_M_RECV_LEN;
+>  		msg[1].len = 1; /* block length will be added by
+>  				   the underlying bus driver */
+> +		i2c_smbus_try_get_dmabuf(&msg[1], 0);
+>  		break;
+>  	case I2C_SMBUS_I2C_BLOCK_DATA:
+>  		if (read_write == I2C_SMBUS_READ) {
+>  			msg[1].len = data->block[0];
+> +			i2c_smbus_try_get_dmabuf(&msg[1], 0);
+>  		} else {
+>  			msg[0].len = data->block[0] + 1;
+>  			if (msg[0].len > I2C_SMBUS_BLOCK_MAX + 1) {
+> @@ -407,8 +432,10 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  					data->block[0]);
+>  				return -EINVAL;
+>  			}
+> +
+> +			i2c_smbus_try_get_dmabuf(&msg[0], command);
+>  			for (i = 1; i <= data->block[0]; i++)
+> -				msgbuf0[i] = data->block[i];
+> +				msg[0].buf[i] = data->block[i];
+>  		}
+>  		break;
+>  	default:
+> @@ -456,14 +483,20 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  			break;
+>  		case I2C_SMBUS_I2C_BLOCK_DATA:
+>  			for (i = 0; i < data->block[0]; i++)
+> -				data->block[i+1] = msgbuf1[i];
+> +				data->block[i+1] = msg[1].buf[i];
+>  			break;
+>  		case I2C_SMBUS_BLOCK_DATA:
+>  		case I2C_SMBUS_BLOCK_PROC_CALL:
+> -			for (i = 0; i < msgbuf1[0] + 1; i++)
+> -				data->block[i] = msgbuf1[i];
+> +			for (i = 0; i < msg[1].buf[0] + 1; i++)
+> +				data->block[i] = msg[1].buf[i];
+>  			break;
+>  		}
+> +
+> +	if (msg[0].flags & I2C_M_DMA_SAFE)
+> +		kfree(msg[0].buf);
+> +	if (msg[1].flags & I2C_M_DMA_SAFE)
+> +		kfree(msg[1].buf);
+> +
+>  	return 0;
+>  }
 >  
->  /* Transfer num messages.
->   */
-

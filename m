@@ -1,27 +1,96 @@
-From: Amos Kalonzo <daniel.basha.tg@gmail.com>
-Subject: Re:
-Date: Mon, 13 Nov 2017 15:55:00 +0100
-Message-ID: <CAKUwMNDfC9uOG95U5f-i17isa+BX5i3BsL5ROvpZbHGNaz4Q8w__48055.8432093405$1510584959$gmane$org@mail.gmail.com>
-Reply-To: info@acalonzo.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v4 3/4] HID: multitouch: Only look at non touch fields in first packet of a frame
+Date: Mon, 13 Nov 2017 17:32:58 +0100
+Message-ID: <20171113163259.18150-3-hdegoede@redhat.com>
+References: <20171113163259.18150-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f195.google.com ([209.85.161.195]:51208 "EHLO
-        mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752904AbdKMOzF (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Nov 2017 09:55:05 -0500
-Received: by mail-yw0-f195.google.com with SMTP id k3so13593270ywk.8
-        for <linux-input@vger.kernel.org>; Mon, 13 Nov 2017 06:55:05 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:44632 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753862AbdKMQdJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Nov 2017 11:33:09 -0500
+In-Reply-To: <20171113163259.18150-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Attn:
+Devices in "single finger hybrid mode" will send one report per finger,
+on some devices only the first report of such a multi-packet frame will
+contain a value for BTN_LEFT, in subsequent reports (if multiple fingers
+are down) the value is always 0, causing hid-mt to report BTN_LEFT going
+1 - 0 - 1 - 0 when pressing a clickpad and putting down a second finger.
+This happens for example on USB 0603:0002 mt touchpads.
 
-I am wondering why You haven't respond to my email for some days now.
-reference to my client's contract balance payment of (11.7M,USD)
-Kindly get back to me for more details.
+This commit fixes this by only reporting non touch fields for the first
+packet of a (possibly) multi-packet frame.
 
-Best Regards
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v4:
+-New patch in this patch-set with a new approach focussed on only fixing
+ the issues with the USB 0603:0002 mt touchpads
+---
+ drivers/hid/hid-multitouch.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-Amos Kalonzo
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 5d3904d0e89d..bc6a4f13c9ae 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -749,9 +749,11 @@ static int mt_touch_event(struct hid_device *hid, struct hid_field *field,
+ }
+ 
+ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+-				struct hid_usage *usage, __s32 value)
++				struct hid_usage *usage, __s32 value,
++				bool first_packet)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hid);
++	__s32 cls = td->mtclass.name;
+ 	__s32 quirks = td->mtclass.quirks;
+ 	struct input_dev *input = field->hidinput->input;
+ 
+@@ -805,6 +807,15 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ 			break;
+ 
+ 		default:
++			/*
++			 * For Win8 PTP touchpads we should only look at
++			 * non finger/touch events in the first_packet of
++			 * a (possible) multi-packet frame.
++			 */
++			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
++			    !first_packet)
++				return;
++
+ 			if (usage->type)
+ 				input_event(input, usage->type, usage->code,
+ 						value);
+@@ -825,6 +836,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 	struct mt_device *td = hid_get_drvdata(hid);
+ 	__s32 cls = td->mtclass.name;
+ 	struct hid_field *field;
++	bool first_packet;
+ 	unsigned count;
+ 	int r, n, scantime = 0;
+ 
+@@ -860,6 +872,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 	}
+ 	td->prev_scantime = scantime;
+ 
++	first_packet = td->num_received == 0;
+ 	for (r = 0; r < report->maxfield; r++) {
+ 		field = report->field[r];
+ 		count = field->report_count;
+@@ -869,7 +882,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 
+ 		for (n = 0; n < count; n++)
+ 			mt_process_mt_event(hid, field, &field->usage[n],
+-					field->value[n]);
++					    field->value[n], first_packet);
+ 	}
+ 
+ 	if (td->num_received >= td->num_expected)
+-- 
+2.14.3
+

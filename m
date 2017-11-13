@@ -1,69 +1,47 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/3] Input: twl4030-vibra: fix sibling-node lookup
-Date: Mon, 13 Nov 2017 09:11:44 +0000
-Message-ID: <20171113091144.5oz77shbu4oupoy7@dell>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH 2/3] Input: twl6040-vibra: fix child-node lookup
+Date: Mon, 13 Nov 2017 10:16:29 +0100
+Message-ID: <20171113091629.GQ11226@localhost>
 References: <20171111154339.16875-1-johan@kernel.org>
- <20171111175059.lwfhw2wdhlj5yxhc@dtor-ws>
- <20171112121235.GO11226@localhost>
+ <20171111154339.16875-2-johan@kernel.org>
+ <91A591C4-D6BD-462D-B81E-224DB268EDDB@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171112121235.GO11226@localhost>
+In-Reply-To: <91A591C4-D6BD-462D-B81E-224DB268EDDB@goldelico.com>
 Sender: stable-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Marek Belisko <marek@goldelico.com>, Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Johan Hovold <johan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 12 Nov 2017, Johan Hovold wrote:
-
-> [ +CC: Lee, Rob and device-tree list ]
+On Mon, Nov 13, 2017 at 08:30:53AM +0100, H. Nikolaus Schaller wrote:
+> Hi Johan,
 > 
-> On Sat, Nov 11, 2017 at 09:50:59AM -0800, Dmitry Torokhov wrote:
-> > On Sat, Nov 11, 2017 at 04:43:37PM +0100, Johan Hovold wrote:
-> > > A helper purported to look up a child node based on its name was using
-> > > the wrong of-helper and ended up prematurely freeing the parent of-node
-> > > while searching the whole device tree depth-first starting at the parent
-> > > node.
+> > Am 11.11.2017 um 16:43 schrieb Johan Hovold <johan@kernel.org>:
 > > 
-> > Ugh, this all is pretty ugly business. Can we teach MFD to allow
-> > specifying firmware node to be attached to the platform devices it
-> > creates in mfd_add_device() so that the leaf drivers simply call
-> > device_property_read_XXX() on their own device and not be bothered with
-> > weird OF refcount issues or what node they need to locate and parse?
-
-If a child compatible is provided, we already set the child's
-of_node.  It's then up to the driver (set) author(s) to use it in the
-correct manner. 
-
-> Yeah, that may have helped. You can actually specify a compatible string
-> in struct mfd_cell today which does make mfd_add_device() associate a
-> matching child node.
+> > Fix child-node lookup during probe, which ended up searching the whole
+> > device tree depth-first starting at parent rather than just matching on
+> > its children.
+> > 
+> > Later sanity checks on node properties (which would likely be missing)
+> > should prevent this from causing much trouble however, especially as the
+> > original premature free of the parent node has already been fixed
+> > separately (but that "fix" was apparently never backported to stable).
+> > 
+> > Fixes: e7ec014a47e4 ("Input: twl6040-vibra - update for device tree support")
+> > Fixes: c52c545ead97 ("Input: twl6040-vibra - fix DT node memory management")
+> > Cc: stable <stable@vger.kernel.org>     # 3.6
+> > Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> > Cc: H. Nikolaus Schaller <hns@goldelico.com>
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
 > 
-> Some best practice regarding how to deal with MFD and device tree would
-> be good to determine and document too. For example, when should
-> of_platform_populate() be used in favour of mfd_add_device()?
+> Tested-By: H. Nikolaus Schaller <hns@goldelico.com>	(on Pyra OMAP5 hardware)
+> 
+> I also tested your twl4030-vibra patch on GTA04.
+> 
+> No regressions observed.
 
-When the device supports DT and its entire hierarchical layout, along
-with all of its attributes can be expressed in DT.
+Thanks for testing.
 
-> And how best to deal with sibling nodes, which is part of the problem
-> here (I think the mfd should have provided a flag rather than having
-> subdrivers deal with sibling nodes, for example).
-
-I disagree.  The only properties the MFD (parent) driver is interested
-in is ones which are shared across multiple child devices.
-*Everything* which pertains to only a single child device should be
-handled by its accompanying driver. 
-
-> That said, driver authors using the wrong of-helper could possibly have
-> been avoided by amending the kernel docs (I'll do that as a follow up),
-> but once these incorrect usages get in, only review can prevent them
-> from being reproduced through copy-paste coding.
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Johan

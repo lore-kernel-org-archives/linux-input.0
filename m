@@ -1,47 +1,243 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/3] Input: twl6040-vibra: fix child-node lookup
-Date: Mon, 13 Nov 2017 10:16:29 +0100
-Message-ID: <20171113091629.GQ11226@localhost>
-References: <20171111154339.16875-1-johan@kernel.org>
- <20171111154339.16875-2-johan@kernel.org>
- <91A591C4-D6BD-462D-B81E-224DB268EDDB@goldelico.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] HID: wacom: Queue events with missing type/serial
+ data for later processing
+Date: Mon, 13 Nov 2017 10:22:22 +0100
+Message-ID: <20171113092222.GD403@mail.corp.redhat.com>
+References: <20171110195001.13081-1-killertofu@gmail.com>
+ <20171110195001.13081-2-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:43386 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750862AbdKMJW2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Nov 2017 04:22:28 -0500
 Content-Disposition: inline
-In-Reply-To: <91A591C4-D6BD-462D-B81E-224DB268EDDB@goldelico.com>
-Sender: stable-owner@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Johan Hovold <johan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>
+In-Reply-To: <20171110195001.13081-2-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Mon, Nov 13, 2017 at 08:30:53AM +0100, H. Nikolaus Schaller wrote:
-> Hi Johan,
+On Nov 10 2017 or thereabouts, Jason Gerecke wrote:
+> Userspace expects to receive tool type and serial number information
+> for the active pen in the very first kernel report, if such data is
+> supported by the hardware. While this expectation is not an issue for
+> EMR devices, AES sensors will often send several packets worth of in-
+> range data before relaying type/serial data to the kernel. Sending this
+> data "late" can result in proximity-tracking issues by xf86-input-wacom,
+> or an inability to distinguish different pens by input-wacom.
 > 
-> > Am 11.11.2017 um 16:43 schrieb Johan Hovold <johan@kernel.org>:
-> > 
-> > Fix child-node lookup during probe, which ended up searching the whole
-> > device tree depth-first starting at parent rather than just matching on
-> > its children.
-> > 
-> > Later sanity checks on node properties (which would likely be missing)
-> > should prevent this from causing much trouble however, especially as the
-> > original premature free of the parent node has already been fixed
-> > separately (but that "fix" was apparently never backported to stable).
-> > 
-> > Fixes: e7ec014a47e4 ("Input: twl6040-vibra - update for device tree support")
-> > Fixes: c52c545ead97 ("Input: twl6040-vibra - fix DT node memory management")
-> > Cc: stable <stable@vger.kernel.org>     # 3.6
-> > Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> > Cc: H. Nikolaus Schaller <hns@goldelico.com>
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> Options for dealing with this situation include ignoring reports from
+> the tablet until we get the necessary data, or using the information
+> from the last-seen pen instead of the (eventual) real data. Neither
+> option is particularly attractive: the former results in truncated
+> strokes and the latter causes issues with switching between pens.
 > 
-> Tested-By: H. Nikolaus Schaller <hns@goldelico.com>	(on Pyra OMAP5 hardware)
+> This commit instead opts to queue up events with missing information
+> until we receive a report which contains it. At that point, we can
+> update the driver's state variables (id[0] and serial[0]) and replay
+> the queued events.
 > 
-> I also tested your twl4030-vibra patch on GTA04.
-> 
-> No regressions observed.
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> ---
 
-Thanks for testing.
+We already discussed this patch off list for a while with Jason (it
+should actually be v5 or v6 ;-P )
 
-Johan
+The series is:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>  drivers/hid/wacom_sys.c | 110 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/hid/wacom_wac.c |   1 +
+>  drivers/hid/wacom_wac.h |   3 ++
+>  3 files changed, 114 insertions(+)
+> 
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index ab3178bef0b6..0cf78d24cb53 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -56,6 +56,107 @@ static int wacom_set_report(struct hid_device *hdev, u8 type, u8 *buf,
+>  	return retval;
+>  }
+>  
+> +static void wacom_wac_queue_insert(struct hid_device *hdev,
+> +				   struct kfifo_rec_ptr_2 *fifo,
+> +				   u8 *raw_data, int size)
+> +{
+> +	bool warned = false;
+> +
+> +	while (kfifo_avail(fifo) < size) {
+> +		if (!warned)
+> +			hid_warn(hdev, "%s: kfifo has filled, starting to drop events\n", __func__);
+> +		warned = true;
+> +
+> +		kfifo_skip(fifo);
+> +	}
+> +
+> +	kfifo_in(fifo, raw_data, size);
+> +}
+> +
+> +static void wacom_wac_queue_flush(struct hid_device *hdev,
+> +				  struct kfifo_rec_ptr_2 *fifo)
+> +{
+> +	while (!kfifo_is_empty(fifo)) {
+> +		u8 buf[WACOM_PKGLEN_MAX];
+> +		int size;
+> +		int err;
+> +
+> +		size = kfifo_out(fifo, buf, sizeof(buf));
+> +		err = hid_report_raw_event(hdev, HID_INPUT_REPORT, buf, size, false);
+> +		if (err) {
+> +			hid_warn(hdev, "%s: unable to flush event due to error %d\n",
+> +				 __func__, err);
+> +		}
+> +	}
+> +}
+> +
+> +static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+> +		struct hid_report *report, u8 *raw_data, int size)
+> +{
+> +	struct wacom *wacom = hid_get_drvdata(hdev);
+> +	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+> +	struct wacom_features *features = &wacom_wac->features;
+> +	bool flush = false;
+> +	bool insert = false;
+> +	int i, j;
+> +
+> +	if (wacom_wac->serial[0] || !(features->quirks & WACOM_QUIRK_TOOLSERIAL))
+> +		return 0;
+> +
+> +	/* Queue events which have invalid tool type or serial number */
+> +	for (i = 0; i < report->maxfield; i++) {
+> +		for (j = 0; j < report->field[i]->maxusage; j++) {
+> +			struct hid_field *field = report->field[i];
+> +			struct hid_usage *usage = &field->usage[j];
+> +			unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
+> +			unsigned int offset;
+> +			unsigned int size;
+> +			unsigned int value;
+> +
+> +			if (equivalent_usage != HID_DG_INRANGE &&
+> +			    equivalent_usage != HID_DG_TOOLSERIALNUMBER &&
+> +			    equivalent_usage != WACOM_HID_WD_SERIALHI &&
+> +			    equivalent_usage != WACOM_HID_WD_TOOLTYPE)
+> +				continue;
+> +
+> +			offset = field->report_offset;
+> +			size = field->report_size;
+> +			value = hid_field_extract(hdev, raw_data+1, offset + j * size, size);
+> +
+> +			/* If we go out of range, we need to flush the queue ASAP */
+> +			if (equivalent_usage == HID_DG_INRANGE)
+> +				value = !value;
+> +
+> +			if (value) {
+> +				flush = true;
+> +				switch (equivalent_usage) {
+> +				case HID_DG_TOOLSERIALNUMBER:
+> +					wacom_wac->serial[0] = value;
+> +					break;
+> +
+> +				case WACOM_HID_WD_SERIALHI:
+> +					wacom_wac->serial[0] |= ((__u64)value) << 32;
+> +					break;
+> +
+> +				case WACOM_HID_WD_TOOLTYPE:
+> +					wacom_wac->id[0] = value;
+> +					break;
+> +				}
+> +			}
+> +			else {
+> +				insert = true;
+> +			}
+> +		}
+> +	}
+> +
+> +	if (flush)
+> +		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
+> +	else if (insert)
+> +		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo, raw_data, size);
+> +
+> +	return insert && !flush;
+> +}
+> +
+>  static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
+>  		u8 *raw_data, int size)
+>  {
+> @@ -64,6 +165,9 @@ static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
+>  	if (size > WACOM_PKGLEN_MAX)
+>  		return 1;
+>  
+> +	if (wacom_wac_pen_serial_enforce(hdev, report, raw_data, size))
+> +		return -1;
+> +
+>  	memcpy(wacom->wacom_wac.data, raw_data, size);
+>  
+>  	wacom_wac_irq(&wacom->wacom_wac, size);
+> @@ -2578,6 +2682,10 @@ static int wacom_probe(struct hid_device *hdev,
+>  		goto fail;
+>  	}
+>  
+> +	error = kfifo_alloc(&wacom_wac->pen_fifo, WACOM_PKGLEN_MAX, GFP_KERNEL);
+> +	if (error)
+> +		goto fail;
+> +
+>  	wacom_wac->hid_data.inputmode = -1;
+>  	wacom_wac->mode_report = -1;
+>  
+> @@ -2641,6 +2749,8 @@ static void wacom_remove(struct hid_device *hdev)
+>  	if (wacom->wacom_wac.features.type != REMOTE)
+>  		wacom_release_resources(wacom);
+>  
+> +	kfifo_free(&wacom_wac->pen_fifo);
+> +
+>  	hid_set_drvdata(hdev, NULL);
+>  }
+>  
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index ff679ee3b358..7fa373225d8a 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2085,6 +2085,7 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+>  		wacom_map_usage(input, usage, field, EV_KEY, BTN_STYLUS2, 0);
+>  		break;
+>  	case HID_DG_TOOLSERIALNUMBER:
+> +		features->quirks |= WACOM_QUIRK_TOOLSERIAL;
+>  		wacom_map_usage(input, usage, field, EV_MSC, MSC_SERIAL, 0);
+>  
+>  		/* Adjust AES usages to match modern convention */
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 00bcc8ad5945..90b79a723474 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -11,6 +11,7 @@
+>  
+>  #include <linux/types.h>
+>  #include <linux/hid.h>
+> +#include <linux/kfifo.h>
+>  
+>  /* maximum packet length for USB/BT devices */
+>  #define WACOM_PKGLEN_MAX	361
+> @@ -88,6 +89,7 @@
+>  #define WACOM_QUIRK_SENSE		0x0002
+>  #define WACOM_QUIRK_AESPEN		0x0004
+>  #define WACOM_QUIRK_BATTERY		0x0008
+> +#define WACOM_QUIRK_TOOLSERIAL		0x0010
+>  
+>  /* device types */
+>  #define WACOM_DEVICETYPE_NONE           0x0000
+> @@ -338,6 +340,7 @@ struct wacom_wac {
+>  	struct input_dev *pen_input;
+>  	struct input_dev *touch_input;
+>  	struct input_dev *pad_input;
+> +	struct kfifo_rec_ptr_2 pen_fifo;
+>  	int pid;
+>  	int num_contacts_left;
+>  	u8 bt_features;
+> -- 
+> 2.15.0
+> 

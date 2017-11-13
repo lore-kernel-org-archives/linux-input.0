@@ -1,56 +1,67 @@
-From: "M,Shakour Rosarita" <hassantara789@gmail.com>
-Subject: Hello Dear...
-Date: Mon, 13 Nov 2017 12:09:04 +0000
-Message-ID: <CAMyxZDH2p+uK_Um8DSB=B8hEvjMHY+RuQsSgfgLVTKdLjVBK8w__2002.97771157256$1510574960$gmane$org@mail.gmail.com>
-Reply-To: mshakourrosarita22@gmail.com
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH 2/3] Input: twl6040-vibra: fix child-node lookup
+Date: Mon, 13 Nov 2017 16:10:52 +0200
+Message-ID: <e2d4212c-cb75-d98a-caa1-b1d7b2f165f2@ti.com>
+References: <20171111154339.16875-1-johan@kernel.org>
+ <20171111154339.16875-2-johan@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f67.google.com ([209.85.213.67]:44373 "EHLO
-        mail-vk0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752646AbdKMMJG (ORCPT
+Received: from lelnx194.ext.ti.com ([198.47.27.80]:9236 "EHLO
+        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751337AbdKMOKY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Nov 2017 07:09:06 -0500
-Received: by mail-vk0-f67.google.com with SMTP id x65so9881901vkx.1
-        for <linux-input@vger.kernel.org>; Mon, 13 Nov 2017 04:09:06 -0800 (PST)
+        Mon, 13 Nov 2017 09:10:24 -0500
+In-Reply-To: <20171111154339.16875-2-johan@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>, "H . Nikolaus Schaller" <hns@goldelico.com>
 
-Hello Dear...
 
-I know that this message will come to you as a surprise. I hoped that
-you will not expose or betray this trust and confident that I am about
-to repose on you, my name is M, Shakour Rosarita. I am 19 years old
-Girl, female, from Tartu Syria, (never married) 61 kg, white in
-complexion, and I am currently living in the refugee camp here in
-Abidjan Ivory Coast, My late beloved father M,Shakour Hassin was a
-renowned businessman and owner of Natour Petrol Station in Syria, he
-was killed in a stampede riot in Tartu, Syria.
-When I got the news about my parents. I fled to a nearby country
-Jordan before I joined a ferry to Africa and came to Abidjan capital
-city Ivory Coast West Africa find safety here.
-I came in 2015 to Abidjan and I now live in refugee camps here as
-refugees are allowed freely to enter here without, My late father
-deposited (US$6.200.000.00m) My late father kept the money at the bank
-of Africa, I want you to help me transfer the money to your hand so
-that you will help me bring me into your country for my continue
-education.
 
-I sent my pictures here for you to see. Who I am seriously looking for
-a good-person in my life, so I want to hear from you soon and learn
-more about you.
+On 2017-11-11 17:43, Johan Hovold wrote:
+> Fix child-node lookup during probe, which ended up searching the whole
+> device tree depth-first starting at parent rather than just matching on
+> its children.
+> 
+> Later sanity checks on node properties (which would likely be missing)
+> should prevent this from causing much trouble however, especially as the
+> original premature free of the parent node has already been fixed
+> separately (but that "fix" was apparently never backported to stable).
+> 
+> Fixes: e7ec014a47e4 ("Input: twl6040-vibra - update for device tree support")
+> Fixes: c52c545ead97 ("Input: twl6040-vibra - fix DT node memory management")
+> Cc: stable <stable@vger.kernel.org>     # 3.6
 
-I am an open-minded and friendly girl to share a good time with you
-and have fun and enjoy on the go, bird watching, the rest of our
-lives. My Hobbies, tourism books, dance, music, soccer, tennis,
-swimming and cinema.
-I would just think about you, including your dose and doesn=E2=80=99t .I
-believe we will do well together, and live like one family.
-Thank you and God bless you, for you in your promise to help me here,
-looking forward to your reply by the grace of God and have a good day.
-I hope you send me your photos as well? I await your next reply in
-faith please reply through my private email at
-(mshakourrosarita22@gmail.com):
-Thanks.
-Ms Rosarita
+Note that of_get_child_by_name() is not present in 3.6, this was the
+reason the original implementation was using of_find_node_by_name()
+
+> Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> Cc: H. Nikolaus Schaller <hns@goldelico.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/input/misc/twl6040-vibra.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+> index 5690eb7ff954..15e0d352c4cc 100644
+> --- a/drivers/input/misc/twl6040-vibra.c
+> +++ b/drivers/input/misc/twl6040-vibra.c
+> @@ -248,8 +248,7 @@ static int twl6040_vibra_probe(struct platform_device *pdev)
+>  	int vddvibr_uV = 0;
+>  	int error;
+>  
+> -	of_node_get(twl6040_core_dev->of_node);
+> -	twl6040_core_node = of_find_node_by_name(twl6040_core_dev->of_node,
+> +	twl6040_core_node = of_get_child_by_name(twl6040_core_dev->of_node,
+>  						 "vibra");
+>  	if (!twl6040_core_node) {
+>  		dev_err(&pdev->dev, "parent of node is missing?\n");
+> 
+
+- Péter
+
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki

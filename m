@@ -1,64 +1,46 @@
-From: Eudean Sun <eudean@arista.com>
-Subject: [PATCH] HID: cp2112: Fix I2C_BLOCK_DATA transactions
-Date: Mon, 13 Nov 2017 16:03:59 -0800
-Message-ID: <20171114000358.GA14433@mail.arista.com>
+From: Gregor Riepl <onitake@gmail.com>
+Subject: Re: Support for additional properties in touchscreen.h
+Date: Tue, 14 Nov 2017 08:55:01 +0100
+Message-ID: <9b353e37-bba7-c367-bcb1-083e44f4a7b7@gmail.com>
+References: <00f3838a-455a-574b-5a7a-c494cd39e36a@gmail.com>
+ <CAKdAkRS5v8fcL7qzNQxCoos9TxxmTFSArXUcNDjTetVBFcwvAw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:46374 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751028AbdKNAED (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:54788 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751872AbdKNHzF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Nov 2017 19:04:03 -0500
-Received: by mail-qt0-f195.google.com with SMTP id 1so21824080qtn.3
-        for <linux-input@vger.kernel.org>; Mon, 13 Nov 2017 16:04:02 -0800 (PST)
-Content-Disposition: inline
+        Tue, 14 Nov 2017 02:55:05 -0500
+Received: by mail-wm0-f65.google.com with SMTP id r68so19976325wmr.3
+        for <linux-input@vger.kernel.org>; Mon, 13 Nov 2017 23:55:04 -0800 (PST)
+In-Reply-To: <CAKdAkRS5v8fcL7qzNQxCoos9TxxmTFSArXUcNDjTetVBFcwvAw@mail.gmail.com>
+Content-Language: en-GB
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Hans de Goede <j.w.r.degoede@gmail.com>
 
-The existing driver erroneously treats I2C_BLOCK_DATA and BLOCK_DATA
-commands the same. Fix the logic for I2C_BLOCK_DATA reads and writes.
+> The fuzz (smoothing the output coordinates) is done in input core and
+> the touchscreen properties parsing code already handles
+> touchscreen-fuzz-x and touchscreen-fuzz-y parameters. The only thing
+> that is needed is to pass these parameters through DT or ACPI or
+> static properties, based on particular device.
 
-Signed-off-by: Eudean Sun <eudean@arista.com>
----
- drivers/hid/hid-cp2112.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+Thanks for the clarification, Dmitry.
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 078026f..0adece2 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -692,8 +692,16 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
- 					      (u8 *)&word, 2);
- 		break;
- 	case I2C_SMBUS_I2C_BLOCK_DATA:
--		size = I2C_SMBUS_BLOCK_DATA;
--		/* fallthrough */
-+		if (read_write == I2C_SMBUS_READ) {
-+			read_length = data->block[0];
-+			count = cp2112_write_read_req(buf, addr, read_length,
-+						      command, NULL, 0);
-+		} else {
-+			count = cp2112_write_req(buf, addr, command,
-+						 data->block + 1,
-+						 data->block[0]);
-+		}
-+		break;
- 	case I2C_SMBUS_BLOCK_DATA:
- 		if (I2C_SMBUS_READ == read_write) {
- 			count = cp2112_write_read_req(buf, addr,
-@@ -781,6 +789,9 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
- 	case I2C_SMBUS_WORD_DATA:
- 		data->word = le16_to_cpup((__le16 *)buf);
- 		break;
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+		memcpy(data->block + 1, buf, read_length);
-+		break;
- 	case I2C_SMBUS_BLOCK_DATA:
- 		if (read_length > I2C_SMBUS_BLOCK_MAX) {
- 			ret = -EPROTO;
--- 
-2.7.4
+So do I understand correctly that it would suffice to add these parameters to
+a DMI match in drivers/platform/x86/silead_dmi.c ?
 
+Something like:
+
+static const struct property_entry my_imaginary_tablet_props[] = {
+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1920),
+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1080),
+	PROPERTY_ENTRY_U32("touchscreen-fuzz-x", 10),
+	PROPERTY_ENTRY_U32("touchscreen-fuzz-y", 10),
+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-my-imaginary-tablet.fw"),
+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+	{ }
+};

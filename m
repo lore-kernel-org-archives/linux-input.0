@@ -1,219 +1,154 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] HID: input: enable Totem on the Dell Canvas 27
-Date: Tue, 14 Nov 2017 18:50:43 +1000
-Message-ID: <20171114085043.GA29518@jelly>
-References: <20171110102635.325-1-benjamin.tissoires@redhat.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/3] Input: twl4030-vibra: fix sibling-node lookup
+Date: Tue, 14 Nov 2017 10:39:36 +0000
+Message-ID: <20171114103936.4mzcmxuear5kxrtt@dell>
+References: <20171111154339.16875-1-johan@kernel.org>
+ <20171111175059.lwfhw2wdhlj5yxhc@dtor-ws>
+ <20171112121235.GO11226@localhost>
+ <20171113091144.5oz77shbu4oupoy7@dell>
+ <20171113093544.GR11226@localhost>
+ <20171113102028.c53rlcnwrjaey2tv@dell>
+ <20171113115102.GU11226@localhost>
+ <20171113215452.hqjvxjbef4dt5647@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:60739 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751790AbdKNIw4 (ORCPT
+Received: from mail-wm0-f48.google.com ([74.125.82.48]:55076 "EHLO
+        mail-wm0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752319AbdKNKjk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Nov 2017 03:52:56 -0500
+        Tue, 14 Nov 2017 05:39:40 -0500
+Received: by mail-wm0-f48.google.com with SMTP id r68so20977059wmr.3
+        for <linux-input@vger.kernel.org>; Tue, 14 Nov 2017 02:39:39 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20171110102635.325-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <20171113215452.hqjvxjbef4dt5647@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mario Limonciello <Mario.Limonciello@dell.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Johan Hovold <johan@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Marek Belisko <marek@goldelico.com>, Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org
 
-sorry, this one got stuck in my outbox.
+On Mon, 13 Nov 2017, Dmitry Torokhov wrote:
 
-On Fri, Nov 10, 2017 at 11:26:35AM +0100, Benjamin Tissoires wrote:
-> The Dell Canvas 27 has a tool that can be put on the surface and acts
-> as a dial. The firmware processes the detection of the tool and forward
-> regular HID reports with X, Y, Azimuth, rotation, width/height.
+> On Mon, Nov 13, 2017 at 12:51:02PM +0100, Johan Hovold wrote:
+> > On Mon, Nov 13, 2017 at 10:20:28AM +0000, Lee Jones wrote:
+> > > On Mon, 13 Nov 2017, Johan Hovold wrote:
+> > > 
+> > > > On Mon, Nov 13, 2017 at 09:11:44AM +0000, Lee Jones wrote:
+> > > > > On Sun, 12 Nov 2017, Johan Hovold wrote:
+> > > > > 
+> > > > > > [ +CC: Lee, Rob and device-tree list ]
+> > > > > > 
+> > > > > > On Sat, Nov 11, 2017 at 09:50:59AM -0800, Dmitry Torokhov wrote:
+> > > > > > > On Sat, Nov 11, 2017 at 04:43:37PM +0100, Johan Hovold wrote:
+> > > > > > > > A helper purported to look up a child node based on its name was using
+> > > > > > > > the wrong of-helper and ended up prematurely freeing the parent of-node
+> > > > > > > > while searching the whole device tree depth-first starting at the parent
+> > > > > > > > node.
+> > > > > > > 
+> > > > > > > Ugh, this all is pretty ugly business. Can we teach MFD to allow
+> > > > > > > specifying firmware node to be attached to the platform devices it
+> > > > > > > creates in mfd_add_device() so that the leaf drivers simply call
+> > > > > > > device_property_read_XXX() on their own device and not be bothered with
+> > > > > > > weird OF refcount issues or what node they need to locate and parse?
+> > > > > 
+> > > > > If a child compatible is provided, we already set the child's
+> > > > > of_node.  It's then up to the driver (set) author(s) to use it in the
+> > > > > correct manner. 
+> > > > > 
+> > > > > > Yeah, that may have helped. You can actually specify a compatible string
+> > > > > > in struct mfd_cell today which does make mfd_add_device() associate a
+> > > > > > matching child node.
+> > > > > > 
+> > > > > > Some best practice regarding how to deal with MFD and device tree would
+> > > > > > be good to determine and document too. For example, when should
+> > > > > > of_platform_populate() be used in favour of mfd_add_device()?
+> > > > > 
+> > > > > When the device supports DT and its entire hierarchical layout, along
+> > > > > with all of its attributes can be expressed in DT.
+> > > > 
+> > > > Ok, a follow up: When there are different variants of an MFD and that
+> > > > affects the child drivers, then that should be expressed in in the child
+> > > > node compatibles rather than having the child match on the parent node?
+> > > > 
+> > > > I'm asking because this came up recently during review and their seems
+> > > > to be no precedent for matching on the parent compatible in child
+> > > > drivers:
+> > > > 
+> > > > 	https://lkml.kernel.org/r/20171105154725.GA11226@localhost
+> > > 
+> > > Accessing the parent's of_device_id .data directly doesn't sit well
+> > > with me.  The parent driver should pass this type of configuration
+> > > though pdata IMHO.
+> > 
+> > The child driver is only matching on the parent-node compatible string
+> > IIRC, and therefore keeps its own table of all parent compatibles with
+> > its own set of (child) private match data (i.e. the parent compatible
+> > property is matched first by the parent driver, and then again by the
+> > child).
+> > 
+> > Passing through pdata here is not possible since mfd_add_device() isn't
+> > used, right? It could of course be described using properties of the
+> > child node (e.g. by using different child compatible strings).
+> > 
+> > > > > > And how best to deal with sibling nodes, which is part of the problem
+> > > > > > here (I think the mfd should have provided a flag rather than having
+> > > > > > subdrivers deal with sibling nodes, for example).
+> > > > > 
+> > > > > I disagree.  The only properties the MFD (parent) driver is interested
+> > > > > in is ones which are shared across multiple child devices.
+> > > > > *Everything* which pertains to only a single child device should be
+> > > > > handled by its accompanying driver. 
+> > > > 
+> > > > Even if that means leaking details of one child driver into a sibling?
+> > > 
+> > > Not sure what you mean here.  Could you please elaborate or provide an
+> > > example?
+> > 
+> > I mean that the sibling node needs to be aware of the name, compatible
+> > string, or other node properties of its sibling node to be able to parse
+> > sibling nodes itself (rather than the sibling or parent doing so on its
+> > behalf). But it seems you answer this below.
+> > 
+> > > > Isn't it then cleaner to use the parent MFD to coordinate between the
+> > > > cells, just as we do for IO?
+> > > > 
+> > > > In this case a child driver looked up a sibling node based on name, but
+> > > 
+> > > This should not be allowed.  If >1 sibling requires access to a
+> > > particular property, this is normally evidence enough that this
+> > > property should be shared and handled by the parent.
+> > > 
+> > > > that doesn't mean the node is active, that there's a driver bound, or
+> > > > that the sibling node has some other random property for example. The
+> > > > parent could be used for such coordination, if only to pass information
+> > > > from one sibling to another.
+> > > 
+> > > Right.
+> > 
+> > Ok, it seems we're in agreement here.
+> > 
+> > Given that MFD has evolved over time and device-tree support has been
+> > added retroactively to some drivers, we've ended up with a multitude of
+> > different ways of dealing with such issues. I think it may still be a
+> > good idea to jot down some best practices for future driver developers.
 > 
-> The firmware also exports Contact ID, Countact Count which may hint that
-> several totems can be used at the same time, but for now, only allow
-> one totem at a time.
-> 
-> We also ignore scan time in hid-input.c because there is not much point
-> to forward it now given that the indication of the tool being present
-> is already provided through BTN_TOOL_DIAL.
-> 
-> We need to add a new BTN_TOOL_DIAL event because the HID mapping
-> suggests that this tool is aimed at being used by the system and not
-> the applications. Also this prevents current systemd heuristics to
-> apply ID_INPUT_TOUCHSCREEN to this new type of devices.
-> 
-> I mapped Azimuth to ABS_WHEEL to somehow ressemble the Wacom Pads.
+> FWIW here is the patch allowing attaching fwnode to an MFD cell that is
+> not using of_compatible (because if historical reasons). Completely
+> untested as I do not have this hardware.
 
-HID docs indicate this is a full tool rotation, so ABS_RZ would be more
-appropriate?
+I am not familiar with the device_* OF implementation, so find it
+hard to provide a solid, knowledgeable review.  It looks okay in
+principle.
 
-"Azimuth 
-    The counter-clockwise rotation of the cursor about the Z-axis."
+I'd appreciate it if Rob or one of the other DT guys could cast an
+eye though.
 
-But you also say it has rotation, so this is a bit confusing now :)
-We should also use INPUT_PROP_DIRECT here.
+> If this is somewhat acceptable I can untangle core from twl6040
+> changes.
 
-> Last, both Width and Heigth are groupped together, the FW reports
-
-typo: grouped
-
-> similar values for both and we are out of ABS_* events.
-> 
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=1511846
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Hi,
-> 
-> This is probably v4.16 material as we are close to the merge window
-> (I wouldn't mind it applied in v4.15 though ;-P)
-
-I'm going to be annoying here and say I'd like to figure out how to add this
-to libinput first to figure out what details can go wrong before we merge it
-and commit to this forever. Hopefully that shouldn't take that long...
-
-Cheers,
-   Peter
-
-> The patch does the job but we probably need to decide if the mappings
-> I chose are correct.
-> 
-> For the record, I uploaded some evemu-record traces and hid-recorder
-> traces in the RH Bz linked above to keep traces of them.
-> The interesting one is the evemu one for the totem with this patch
-> applied:
-> https://bugzilla.redhat.com/attachment.cgi?id=1350389
-> 
-> Cheers,
-> Benjamin
-> 
->  drivers/hid/hid-input.c                | 28 +++++++++++++++++++++++++++-
->  drivers/hid/hid-multitouch.c           | 11 +++++++++++
->  include/linux/hid.h                    |  6 ++++++
->  include/uapi/linux/input-event-codes.h |  1 +
->  4 files changed, 45 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 04d01b57d94c..7da72b571b7d 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -229,6 +229,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code)
->  	case ABS_X:
->  	case ABS_Y:
->  	case ABS_Z:
-> +	case ABS_TOOL_WIDTH:
->  	case ABS_MT_POSITION_X:
->  	case ABS_MT_POSITION_Y:
->  	case ABS_MT_TOOL_X:
-> @@ -786,13 +787,24 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  			map_abs_clear(ABS_TILT_Y);
->  			break;
->  
-> +		case 0x3f: /* Azimuth */
-> +			map_abs_clear(ABS_WHEEL);
-> +			break;
-> +
->  		case 0x33: /* Touch */
-> -		case 0x42: /* TipSwitch */
->  		case 0x43: /* TipSwitch2 */
->  			device->quirks &= ~HID_QUIRK_NOTOUCH;
->  			map_key_clear(BTN_TOUCH);
->  			break;
->  
-> +		case 0x42: /* TipSwitch */
-> +			if (field->application == HID_GD_SYSTEM_MULTIAXIS) {
-> +				map_key_clear(BTN_TOOL_DIAL);
-> +			} else {
-> +				device->quirks &= ~HID_QUIRK_NOTOUCH;
-> +				map_key_clear(BTN_TOUCH);
-> +			}
-> +			break;
->  		case 0x44: /* BarrelSwitch */
->  			map_key_clear(BTN_STYLUS);
->  			break;
-> @@ -806,6 +818,20 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  			map_key_clear(BTN_TOUCH);
->  			break;
->  
-> +		case 0x48: /* WIDTH */
-> +		case 0x49: /* HEIGHT */
-> +			map_abs_clear(ABS_TOOL_WIDTH);
-> +			break;
-> +
-> +		case 0x51: /* CONTACT ID */
-> +			goto ignore;
-> +
-> +		case 0x54: /* CONTACT COUNT */
-> +			goto ignore;
-> +
-> +		case 0x56: /* SCANTIME */
-> +			goto ignore;
-> +
->  		case 0x46: /* TabletPick */
->  		case 0x5a: /* SecondaryBarrelSwitch */
->  			map_key_clear(BTN_STYLUS2);
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 65ea23be9677..a0b332518eaa 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -974,6 +974,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	    field->application != HID_DG_TOUCHPAD &&
->  	    field->application != HID_GD_KEYBOARD &&
->  	    field->application != HID_GD_SYSTEM_CONTROL &&
-> +	    field->application != HID_GD_SYSTEM_MULTIAXIS &&
->  	    field->application != HID_CP_CONSUMER_CONTROL &&
->  	    field->application != HID_GD_WIRELESS_RADIO_CTLS &&
->  	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
-> @@ -1003,6 +1004,14 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  		return 1;
->  	}
->  
-> +	/*
-> +	 * We do not want to export scantime on System MultiAxis
-> +	 * for now
-> +	 */
-> +	if (field->usage->hid == HID_DG_SCANTIME &&
-> +	    field->application == HID_GD_SYSTEM_MULTIAXIS)
-> +		return -1;
-> +
->  	/*
->  	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
->  	 * for the stylus.
-> @@ -1193,6 +1202,8 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
->  			break;
->  		case HID_GD_MOUSE:
->  			suffix = "Mouse";
-> +		case HID_GD_SYSTEM_MULTIAXIS:
-> +			suffix = "MultiAxis";
->  			break;
->  		case HID_DG_STYLUS:
->  			suffix = "Pen";
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index d491027a7c22..f93ebbe2f23d 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -189,6 +189,12 @@ struct hid_item {
->   * http://www.usb.org/developers/hidpage/HUTRR40RadioHIDUsagesFinal.pdf
->   */
->  #define HID_GD_WIRELESS_RADIO_CTLS	0x0001000c
-> +/*
-> + * System Multi-Axis, see:
-> + * http://www.usb.org/developers/hidpage/HUTRR62_-_Generic_Desktop_CA_for_System_Multi-Axis_Controllers.txt
-> + */
-> +#define HID_GD_SYSTEM_MULTIAXIS	0x0001000e
-> +
->  #define HID_GD_X		0x00010030
->  #define HID_GD_Y		0x00010031
->  #define HID_GD_Z		0x00010032
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 179891074b3c..f886499fdd4c 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -406,6 +406,7 @@
->  #define BTN_TOOL_MOUSE		0x146
->  #define BTN_TOOL_LENS		0x147
->  #define BTN_TOOL_QUINTTAP	0x148	/* Five fingers on trackpad */
-> +#define BTN_TOOL_DIAL		0x149	/* System MultiAxis */
->  #define BTN_TOUCH		0x14a
->  #define BTN_STYLUS		0x14b
->  #define BTN_STYLUS2		0x14c
-> -- 
-> 2.14.3
-> 
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

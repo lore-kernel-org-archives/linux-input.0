@@ -1,66 +1,51 @@
-From: arvindY <arvind.yadav.cs@gmail.com>
-Subject: Re: [PATCH] Input: davinci_keyscan: Free memory occupied by davinci
- key scan device
-Date: Wed, 15 Nov 2017 00:10:34 +0530
-Message-ID: <5A0B38A2.4070208@gmail.com>
-References: <9203eaebf020cbebf5224221d789a0163490d654.1510666872.git.arvind.yadav.cs@gmail.com>
- <20171114181434.lpwhojwemzdruet6@dtor-ws>
+From: Tj <linux@iam.tj>
+Subject: Re: HID: asus: Add T100CHI bluetooth keyboard dock touchpad support
+Date: Tue, 14 Nov 2017 20:09:00 +0000
+Message-ID: <1ac0aab543099ef88f71b44193e1cf30@iam.tj>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain;
+ charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:53610 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755901AbdKNSkk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Nov 2017 13:40:40 -0500
-In-Reply-To: <20171114181434.lpwhojwemzdruet6@dtor-ws>
+Received: from yes.iam.tj ([109.74.197.121]:43876 "EHLO iam.tj"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752151AbdKNUPH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Nov 2017 15:15:07 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux@roeck-us.net, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
+With kernel v4.14 on an Asus T300CHI this appears to be working up to a
+point but it causes the touchpad to FAIL to work on earlier kernels.
 
+The touchpad seems to be in multitouch mode (two-finger scrolling is 
+the
+only MT action I've confirmed so far) but there are some deficiencies.
 
-On Tuesday 14 November 2017 11:44 PM, Dmitry Torokhov wrote:
-> On Tue, Nov 14, 2017 at 07:15:14PM +0530, Arvind Yadav wrote:
->> Here, key_dev is NULL in input_free_device() and It will not free
->> memory occupied by davinci key scan device. Move "key_dev = NULL"
->> after input_free_device().
-> No, this is absolutely wrong. It is disallowed to call
-> input_free_device() after calling input_unregister_device(), because
-> input core will free the device once the last reference is dropped. That
-> is why we set "key_dev" to NULL to turn input_free_device() into a noop.
-Yes, You are correct. Once device is unregistered it will get freed.
+For instance, single or double-tap on the touchpad, or tapping the
+left/right 'button' regions doesn't work.
 
-Thanks, :)
->> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
->> ---
->>   drivers/input/keyboard/davinci_keyscan.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
->> index b20a5d0..22cb8d2 100644
->> --- a/drivers/input/keyboard/davinci_keyscan.c
->> +++ b/drivers/input/keyboard/davinci_keyscan.c
->> @@ -290,13 +290,13 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
->>   	free_irq(davinci_ks->irq, davinci_ks);
->>   fail5:
->>   	input_unregister_device(davinci_ks->input);
->> -	key_dev = NULL;
->>   fail4:
->>   	iounmap(davinci_ks->base);
->>   fail3:
->>   	release_mem_region(davinci_ks->pbase, davinci_ks->base_size);
->>   fail2:
->>   	input_free_device(key_dev);
->> +	key_dev = NULL;
->>   fail1:
->>   	kfree(davinci_ks);
->>   
->> -- 
->> 1.9.1
->>
-> Thanks.
->
+This touchpad is overlaid on a physical 'click' button surface (which I
+suspect operates as the mouse). By this I mean instead of lightly
+tapping the touchpad surface it needs a very firm downward movement
+until a physical 'click' is heard. It resists quite strongly so
+double-clicks in particular are difficult. There's a separate physical 
+'click' area for the right button.
+
+So it works with these hard physical 'click' actions but not when
+tapping the touchpad surface. To compare with the behaviour under 
+previous kernels (where I seem to recall it only needed touchpad taps) I 
+rebooted into an earlier kernel.
+
+The disturbing FAILURE is that if the T300CHI is rebooted - even if 
+from a poweroff - into an earlier kernel version (than v4.14) the 
+touchpad no longer works.
+
+Using hid-recorder I saw that the touchpad is still in multitouch mode 
+(event descriptor id 0x5D rather than 0x06 when doing multitouches).
+
+So far I've not been able to find a way to workaround/fix this. On the 
+face of it the driver needs to put the touchpad back into 'mouse' mode 
+on shutdown.
 

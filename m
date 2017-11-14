@@ -1,51 +1,45 @@
-From: Tj <linux@iam.tj>
-Subject: Re: HID: asus: Add T100CHI bluetooth keyboard dock touchpad support
-Date: Tue, 14 Nov 2017 20:09:00 +0000
-Message-ID: <1ac0aab543099ef88f71b44193e1cf30@iam.tj>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: edt-ft5x06 question
+Date: Tue, 14 Nov 2017 22:42:27 +0100
+Message-ID: <9036109f-ae02-01de-77a7-13442e3d9e53@micronovasrl.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yes.iam.tj ([109.74.197.121]:43876 "EHLO iam.tj"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752151AbdKNUPH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Nov 2017 15:15:07 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: it
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, stefan.schoefegger@ginzinger.com, luca@lucaceresoli.net, simon.budig@kernelconcepts.de, martink@posteo.de, a.mathur@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-With kernel v4.14 on an Asus T300CHI this appears to be working up to a
-point but it causes the touchpad to FAIL to work on earlier kernels.
+Hello everybody,
 
-The touchpad seems to be in multitouch mode (two-finger scrolling is 
-the
-only MT action I've confirmed so far) but there are some deficiencies.
+I'm using ft5206 with edt-ft5x06.c driver,
+but what I see is that registers with M09 or M06
+seem different from focaltech ft5206 
+https://www.buydisplay.com/download/ic/FT5206.pdf
 
-For instance, single or double-tap on the touchpad, or tapping the
-left/right 'button' regions doesn't work.
+For example, except address 0x80 for threshold register(thgroup),
+all the others don't appear:
+GAIN 0x30 or 0x92 should be 0x82(thcal maybe?)
 
-This touchpad is overlaid on a physical 'click' button surface (which I
-suspect operates as the mouse). By this I mean instead of lightly
-tapping the touchpad surface it needs a very firm downward movement
-until a physical 'click' is heard. It resists quite strongly so
-double-clicks in particular are difficult. There's a separate physical 
-'click' area for the right button.
+Can someone clarify this?
 
-So it works with these hard physical 'click' actions but not when
-tapping the touchpad surface. To compare with the behaviour under 
-previous kernels (where I seem to recall it only needed touchpad taps) I 
-rebooted into an earlier kernel.
+Maybe M06 or M09 are a custom firmware for focaltech ft5x,
+then it has different registers?
 
-The disturbing FAILURE is that if the T300CHI is rebooted - even if 
-from a poweroff - into an earlier kernel version (than v4.14) the 
-touchpad no longer works.
+Thanks in advance and
+kind regards to everybody
 
-Using hid-recorder I saw that the touchpad is still in multitouch mode 
-(event descriptor id 0x5D rather than 0x06 when doing multitouches).
+-- 
+Giulio Benetti
+R&D Manager &
+Advanced Research
 
-So far I've not been able to find a way to workaround/fix this. On the 
-face of it the driver needs to put the touchpad back into 'mouse' mode 
-on shutdown.
-
+MICRONOVA SRL
+Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
+Tel. 049/8931563 - Fax 049/8931346
+Cod.Fiscale - P.IVA 02663420285
+Capitale Sociale ¤ 26.000 i.v.
+Iscritta al Reg. Imprese di Padova N. 02663420285
+Numero R.E.A. 258642

@@ -1,257 +1,201 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 3/3] Input: goodix - use generic touchscreen_properties
-Date: Tue, 14 Nov 2017 10:03:30 -0800
-Message-ID: <20171114180330.enmtmi4txedxkyku@dtor-ws>
-References: <20171114124217.2863-1-m.niestroj@grinn-global.com>
- <20171114124217.2863-4-m.niestroj@grinn-global.com>
- <1510670229.2510.17.camel@hadess.net>
+Subject: [git pull] Input updates for v4.15-rc0
+Date: Tue, 14 Nov 2017 10:08:04 -0800
+Message-ID: <20171114180804.qmj3eistln7xt3l3@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:55827 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753447AbdKNSDe (ORCPT
+Received: from mail-io0-f195.google.com ([209.85.223.195]:44865 "EHLO
+        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754242AbdKNSII (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Nov 2017 13:03:34 -0500
-Received: by mail-io0-f193.google.com with SMTP id z74so710936iof.12
-        for <linux-input@vger.kernel.org>; Tue, 14 Nov 2017 10:03:34 -0800 (PST)
+        Tue, 14 Nov 2017 13:08:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1510670229.2510.17.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Marcin Niestroj <m.niestroj@grinn-global.com>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Nov 14, 2017 at 03:37:09PM +0100, Bastien Nocera wrote:
-> On Tue, 2017-11-14 at 13:42 +0100, Marcin Niestroj wrote:
-> > Use touchscreen_properties structure instead of implementing all
-> > properties by our own. It allows to reuse generic code for parsing
-> 
-> "It allows reusing"
-> or
-> "It allows us to reuse".
-> 
-> > device-tree properties (which was implemented manually in the driver
-> > for now). Additionally, it allows us to report events using generic
-> > touchscreen_report_pos(), which automatically handles inverted and
-> > swapped axes.
-> 
-> Looks good otherwise. Yay for code removal.
+Hi Linus,
 
-I am sorry, but I am confused as to why we had to go through all this
-pain fixing the custom code in the driver and then replacing it all with
-touchscreen helpers?
+Please pull from:
 
-If generic code is shorter and also fixed the bug I do not see the
-reason for intermediate steps...
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> 
-> > 
-> > Developed and tested on custom DT-based device with gt1151 touch
-> > panel.
-> > 
-> > Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-> > ---
-> > Changes v1 -> v2:
-> >  * rebased on patches 1 and 2 in series
-> >  * added description of test board in changelog (suggested by
-> > Bastien)
-> > 
-> >  drivers/input/touchscreen/goodix.c | 93 ++++++++++++++------------
-> > ------------
-> >  1 file changed, 33 insertions(+), 60 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/goodix.c
-> > b/drivers/input/touchscreen/goodix.c
-> > index dc832890f6d3..f82101cd9c04 100644
-> > --- a/drivers/input/touchscreen/goodix.c
-> > +++ b/drivers/input/touchscreen/goodix.c
-> > @@ -22,6 +22,7 @@
-> >  #include <linux/i2c.h>
-> >  #include <linux/input.h>
-> >  #include <linux/input/mt.h>
-> > +#include <linux/input/touchscreen.h>
-> >  #include <linux/module.h>
-> >  #include <linux/delay.h>
-> >  #include <linux/irq.h>
-> > @@ -43,11 +44,7 @@ struct goodix_ts_data {
-> >  	struct i2c_client *client;
-> >  	struct input_dev *input_dev;
-> >  	const struct goodix_chip_data *chip;
-> > -	int abs_x_max;
-> > -	int abs_y_max;
-> > -	bool swapped_x_y;
-> > -	bool inverted_x;
-> > -	bool inverted_y;
-> > +	struct touchscreen_properties prop;
-> >  	unsigned int max_touch_num;
-> >  	unsigned int int_trigger_type;
-> >  	struct gpio_desc *gpiod_int;
-> > @@ -295,24 +292,10 @@ static void goodix_ts_report_touch(struct
-> > goodix_ts_data *ts, u8 *coor_data)
-> >  	int input_y = get_unaligned_le16(&coor_data[3]);
-> >  	int input_w = get_unaligned_le16(&coor_data[5]);
-> >  
-> > -	/* Inversions have to happen before axis swapping */
-> > -	if (!ts->swapped_x_y) {
-> > -		if (ts->inverted_x)
-> > -			input_x = ts->abs_x_max - input_x;
-> > -		if (ts->inverted_y)
-> > -			input_y = ts->abs_y_max - input_y;
-> > -	} else {
-> > -		if (ts->inverted_x)
-> > -			input_x = ts->abs_y_max - input_x;
-> > -		if (ts->inverted_y)
-> > -			input_y = ts->abs_x_max - input_y;
-> > -		swap(input_x, input_y);
-> > -	}
-> > -
-> >  	input_mt_slot(ts->input_dev, id);
-> >  	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER,
-> > true);
-> > -	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
-> > -	input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
-> > +	touchscreen_report_pos(ts->input_dev, &ts->prop, input_x,
-> > input_y,
-> > +			true);
-> >  	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR,
-> > input_w);
-> >  	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR,
-> > input_w);
-> >  }
-> > @@ -585,6 +568,7 @@ static int goodix_get_gpio_config(struct
-> > goodix_ts_data *ts)
-> >  static void goodix_read_config(struct goodix_ts_data *ts)
-> >  {
-> >  	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-> > +	int x_max, y_max;
-> >  	int error;
-> >  
-> >  	error = goodix_i2c_read(ts->client, ts->chip->config_addr,
-> > @@ -593,37 +577,34 @@ static void goodix_read_config(struct
-> > goodix_ts_data *ts)
-> >  		dev_warn(&ts->client->dev,
-> >  			 "Error reading config (%d), using
-> > defaults\n",
-> >  			 error);
-> > -		ts->abs_x_max = GOODIX_MAX_WIDTH - 1;
-> > -		ts->abs_y_max = GOODIX_MAX_HEIGHT - 1;
-> > -		if (ts->swapped_x_y)
-> > -			swap(ts->abs_x_max, ts->abs_y_max);
-> > +		x_max = GOODIX_MAX_WIDTH;
-> > +		y_max = GOODIX_MAX_HEIGHT;
-> >  		ts->int_trigger_type = GOODIX_INT_TRIGGER;
-> >  		ts->max_touch_num = GOODIX_MAX_CONTACTS;
-> > -		return;
-> > +		goto input_set_params;
-> >  	}
-> >  
-> > -	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC])
-> > - 1;
-> > -	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC +
-> > 2]) - 1;
-> > -	if (ts->swapped_x_y)
-> > -		swap(ts->abs_x_max, ts->abs_y_max);
-> > +	x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
-> > +	y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
-> >  	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
-> >  	ts->max_touch_num = config[MAX_CONTACTS_LOC] & 0x0f;
-> > -	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num)
-> > {
-> > +	if (!x_max || !y_max || !ts->max_touch_num) {
-> >  		dev_err(&ts->client->dev,
-> >  			"Invalid config, using defaults\n");
-> > -		ts->abs_x_max = GOODIX_MAX_WIDTH - 1;
-> > -		ts->abs_y_max = GOODIX_MAX_HEIGHT - 1;
-> > -		if (ts->swapped_x_y)
-> > -			swap(ts->abs_x_max, ts->abs_y_max);
-> > +		x_max = GOODIX_MAX_WIDTH;
-> > +		y_max = GOODIX_MAX_HEIGHT;
-> >  		ts->max_touch_num = GOODIX_MAX_CONTACTS;
-> >  	}
-> >  
-> > -	if (dmi_check_system(rotated_screen)) {
-> > -		ts->inverted_x = true;
-> > -		ts->inverted_y = true;
-> > -		dev_dbg(&ts->client->dev,
-> > -			 "Applying '180 degrees rotated screen'
-> > quirk\n");
-> > -	}
-> > +input_set_params:
-> > +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
-> > +			0, x_max - 1, 0, 0);
-> > +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
-> > +			0, y_max - 1, 0, 0);
-> > +	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0,
-> > 255, 0, 0);
-> > +	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0,
-> > 255, 0, 0);
-> > +	input_mt_init_slots(ts->input_dev, ts->max_touch_num,
-> > +			INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-> >  }
-> >  
-> >  /**
-> > @@ -698,16 +679,6 @@ static int goodix_request_input_dev(struct
-> > goodix_ts_data *ts)
-> >  		return -ENOMEM;
-> >  	}
-> >  
-> > -	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
-> > -			     0, ts->abs_x_max, 0, 0);
-> > -	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
-> > -			     0, ts->abs_y_max, 0, 0);
-> > -	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0,
-> > 255, 0, 0);
-> > -	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0,
-> > 255, 0, 0);
-> > -
-> > -	input_mt_init_slots(ts->input_dev, ts->max_touch_num,
-> > -			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-> > -
-> >  	ts->input_dev->name = "Goodix Capacitive TouchScreen";
-> >  	ts->input_dev->phys = "input/ts";
-> >  	ts->input_dev->id.bustype = BUS_I2C;
-> > @@ -742,19 +713,21 @@ static int goodix_configure_dev(struct
-> > goodix_ts_data *ts)
-> >  {
-> >  	int error;
-> >  
-> > -	ts->swapped_x_y = device_property_read_bool(&ts->client-
-> > >dev,
-> > -						    "touchscreen-
-> > swapped-x-y");
-> > -	ts->inverted_x = device_property_read_bool(&ts->client->dev,
-> > -						   "touchscreen-
-> > inverted-x");
-> > -	ts->inverted_y = device_property_read_bool(&ts->client->dev,
-> > -						   "touchscreen-
-> > inverted-y");
-> > -
-> > -	goodix_read_config(ts);
-> > -
-> >  	error = goodix_request_input_dev(ts);
-> >  	if (error)
-> >  		return error;
-> >  
-> > +	goodix_read_config(ts);
-> > +
-> > +	touchscreen_parse_properties(ts->input_dev, true, &ts-
-> > >prop);
-> > +
-> > +	if (dmi_check_system(rotated_screen)) {
-> > +		ts->prop.invert_x = true;
-> > +		ts->prop.invert_y = true;
-> > +		dev_dbg(&ts->client->dev,
-> > +			"Applying '180 degrees rotated screen'
-> > quirk\n");
-> > +	}
-> > +
-> >  	ts->irq_flags = goodix_irq_flags[ts->int_trigger_type] |
-> > IRQF_ONESHOT;
-> >  	error = goodix_request_irq(ts);
-> >  	if (error) {
+to receive updates for the input subsystem. You will get:
+
+- 3 new touchscreen drivers: EETI EXC3000, HiDeep, and Samsung S6SY761
+
+- the timer API conversion (setup_timer() -> timer_setup())
+
+- a few drivers swiytched to using managed API for creating custom
+  device attributes
+
+- other assorted fixed and cleanups.
+
+Changelog:
+---------
+
+Ahmet Inan (1):
+      Input: add I2C attached EETI EXC3000 multi touch driver
+
+Andi Shyti (9):
+      Input: stmfts - use devm_device_add_group
+      Input: elants_i2c - use managed devm_device_add_group
+      Input: melfas_mip4 - use managed devm_device_add_group
+      Input: raydium_i2c_ts - use managed devm_device_add_group
+      Input: rohm_bu21023 - use managed devm_device_add_group
+      Input: wdt87xx_i2c - use managed devm_device_add_group
+      Input: edt-ft5x06 - use managed devm_device_add_group
+      Input: ad7879 - use managed devm_device_add_group
+      Input: add support for the Samsung S6SY761 touchscreen
+
+Anthony Kim (1):
+      Input: add support for HiDeep touchscreen
+
+Arnd Bergmann (1):
+      Input: adxl34x - do not treat FIFO_MODE() as boolean
+
+Colin Ian King (2):
+      Input: synaptics-rmi4 - make array rmi_f54_report_type_names static
+      Input: mxs-lradc - remove redundant assignment to pointer input
+
+Dan Carpenter (1):
+      Input: uinput - unlock on allocation failure in ioctl
+
+Dmitry Torokhov (6):
+      Input: elan_i2c - do not clobber interrupt trigger on x86
+      Input: uinput - allow FF requests to time out
+      Input: uinput - fix coding style in uinput_ioctl_handler()
+      Input: uinput - remove uinput_allocate_device()
+      Input: uinput - fold header into the driver proper
+      Input: ps2-gpio - actually abort probe when connected to sleeping GPIOs
+
+Geert Uytterhoeven (1):
+      Input: st1232 - remove obsolete platform device support
+
+Gustavo A. R. Silva (3):
+      Input: spaceball - mark expected switch fall-throughs
+      Input: sidewinder - mark expected switch fall-throughs
+      Input: gamecon - mark expected switch fall-throughs
+
+Kees Cook (8):
+      Input: byd - convert to using timer_setup()
+      Input: alps - convert to using timer_setup()
+      Input: ff_memless - convert to using timer_setup()
+      Input: keyboard - convert timers to use timer_setup()
+      Input: touchsceen - convert timers to use timer_setup()
+      Input: hp_sdc - convert to using timer_setup()
+      Input: hil_mlc - convert to using timer_setup()
+      Input: convert autorepeat timer to use timer_setup()
+
+Linus Walleij (5):
+      Input: gpio_mouse - kill off platform data
+      Input: gpio_mouse - rename platform data variables
+      Input: gpio_mouse - add DT bindings
+      Input: gpio_mouse - convert to use GPIO descriptors
+      Input: gpio_mouse - add device tree probing
+
+Marcin Niestroj (1):
+      Input: goodix - support gt1151 touchpanel
+
+Nik Nyby (1):
+      Input: elan_i2c - remove duplicate ELAN0605 id
+
+Randy Dunlap (1):
+      Input: usbtouchscreen - use EXPERT instead of EMBEDDED for EasyTouch
+
+Russell King (3):
+      Input: sa1111ps2 - use sa1111_get_irq() to obtain IRQ resources
+      Input: sa1111ps2 - remove special sa1111 mmio accessors
+      Input: sa1111ps2 - extend test delay
+
+Sean Young (1):
+      media: ttpci: remove autorepeat handling and use timer_setup
+
+Simon Budig (2):
+      Input: edt-ft5x06 - make distinction between m06/m09/generic more clear
+      Input: edt-ft5x06 - implement support for the EDT-M12 series
+
+Vince Kim (1):
+      Input: cyttsp4 - avoid overflows when calculating memory sizes
+
+stephen lu (2):
+      Input: gpio-keys - convert timers to use timer_setup()
+      Input: ad7877 - convert to using timer_setup()
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/gpio-mouse.txt       |   32 +
+ .../bindings/input/touchscreen/exc3000.txt         |   27 +
+ .../bindings/input/touchscreen/goodix.txt          |    3 +-
+ .../bindings/input/touchscreen/hideep.txt          |   42 +
+ .../bindings/input/touchscreen/samsung,s6sy761.txt |   34 +
+ .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+ drivers/input/ff-memless.c                         |    8 +-
+ drivers/input/input.c                              |   11 +-
+ drivers/input/joystick/gamecon.c                   |    3 +
+ drivers/input/joystick/sidewinder.c                |   10 +-
+ drivers/input/joystick/spaceball.c                 |    4 +
+ drivers/input/keyboard/bf54x-keys.c                |    7 +-
+ drivers/input/keyboard/gpio_keys.c                 |    7 +-
+ drivers/input/keyboard/imx_keypad.c                |    8 +-
+ drivers/input/keyboard/locomokbd.c                 |    7 +-
+ drivers/input/keyboard/omap-keypad.c               |    6 +-
+ drivers/input/keyboard/snvs_pwrkey.c               |    7 +-
+ drivers/input/keyboard/tegra-kbc.c                 |    6 +-
+ drivers/input/misc/adxl34x.c                       |    2 +-
+ drivers/input/misc/uinput.c                        |  305 +++---
+ drivers/input/mouse/alps.c                         |    8 +-
+ drivers/input/mouse/byd.c                          |   10 +-
+ drivers/input/mouse/elan_i2c_core.c                |   11 +-
+ drivers/input/mouse/gpio_mouse.c                   |  206 ++--
+ drivers/input/rmi4/rmi_f54.c                       |    2 +-
+ drivers/input/serio/hil_mlc.c                      |    4 +-
+ drivers/input/serio/hp_sdc.c                       |    5 +-
+ drivers/input/serio/ps2-gpio.c                     |    1 +
+ drivers/input/serio/sa1111ps2.c                    |   69 +-
+ drivers/input/touchscreen/Kconfig                  |   34 +-
+ drivers/input/touchscreen/Makefile                 |    3 +
+ drivers/input/touchscreen/ad7877.c                 |    6 +-
+ drivers/input/touchscreen/ad7879.c                 |   19 +-
+ drivers/input/touchscreen/atmel-wm97xx.c           |   10 +-
+ drivers/input/touchscreen/cyttsp4_core.c           |   59 +-
+ drivers/input/touchscreen/edt-ft5x06.c             |  173 ++-
+ drivers/input/touchscreen/elants_i2c.c             |   19 +-
+ drivers/input/touchscreen/exc3000.c                |  223 ++++
+ drivers/input/touchscreen/goodix.c                 |  125 ++-
+ drivers/input/touchscreen/hideep.c                 | 1120 ++++++++++++++++++++
+ drivers/input/touchscreen/melfas_mip4.c            |   17 +-
+ drivers/input/touchscreen/mxs-lradc-ts.c           |    2 +-
+ drivers/input/touchscreen/raydium_i2c_ts.c         |   18 +-
+ drivers/input/touchscreen/rohm_bu21023.c           |   17 +-
+ drivers/input/touchscreen/s6sy761.c                |  559 ++++++++++
+ drivers/input/touchscreen/st1232.c                 |   16 +-
+ drivers/input/touchscreen/stmfts.c                 |    4 +-
+ drivers/input/touchscreen/tsc200x-core.c           |    6 +-
+ drivers/input/touchscreen/w90p910_ts.c             |    7 +-
+ drivers/input/touchscreen/wdt87xx_i2c.c            |   10 +-
+ drivers/media/pci/ttpci/av7110.h                   |    2 +-
+ drivers/media/pci/ttpci/av7110_ir.c                |   56 +-
+ include/linux/gpio_mouse.h                         |   61 --
+ include/linux/platform_data/st1232_pdata.h         |   14 -
+ include/linux/uinput.h                             |   81 --
+ 55 files changed, 2776 insertions(+), 731 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-mouse.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/hideep.txt
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt
+ create mode 100644 drivers/input/touchscreen/exc3000.c
+ create mode 100644 drivers/input/touchscreen/hideep.c
+ create mode 100644 drivers/input/touchscreen/s6sy761.c
+ delete mode 100644 include/linux/gpio_mouse.h
+ delete mode 100644 include/linux/platform_data/st1232_pdata.h
+ delete mode 100644 include/linux/uinput.h
 
 Thanks.
+
 
 -- 
 Dmitry

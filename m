@@ -1,61 +1,62 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
-Date: Wed, 15 Nov 2017 09:35:29 +0100
-Message-ID: <20171115083529.jmlpcj4td4evj3xl@pali>
-References: <20171115063404.10066-1-aaron.ma@canonical.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: edt-ft5x06 question
+Date: Wed, 15 Nov 2017 09:50:25 +0100
+Message-ID: <a34db111-db8f-1757-95be-fc24e46577d2@lucaceresoli.net>
+References: <9036109f-ae02-01de-77a7-13442e3d9e53@micronovasrl.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:53464 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752853AbdKOIfd (ORCPT
+Received: from srv-hp10-72.netsons.net ([94.141.22.72]:54133 "EHLO
+        srv-hp10-72.netsons.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753800AbdKOJ0m (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Nov 2017 03:35:33 -0500
-Content-Disposition: inline
-In-Reply-To: <20171115063404.10066-1-aaron.ma@canonical.com>
+        Wed, 15 Nov 2017 04:26:42 -0500
+In-Reply-To: <9036109f-ae02-01de-77a7-13442e3d9e53@micronovasrl.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: masaki.ota@jp.alps.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, Aaron Ma <aaron.ma@canonical.com>
+To: Giulio Benetti <giulio.benetti@micronovasrl.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, stefan.schoefegger@ginzinger.com, simon.budig@kernelconcepts.de, martink@posteo.de, a.mathur@samsung.com
 
-On Wednesday 15 November 2017 14:34:04 Aaron Ma wrote:
-> There is a regression of commit 4a646580f793 ("Input: ALPS - fix
-> two-finger scroll breakage"), ALPS device fails with log:
-> 
-> psmouse serio1: alps: Rejected trackstick packet from non DualPoint device
-> 
-> ALPS device with id "74 03 28" report OTP[0] data 0xCE after
-> commit 4a646580f793, after restore the OTP reading order,
-> it becomes to 0x10 as before and reports the right flag.
-> 
-> Fixes: 4a646580f793 ("Input: ALPS - fix two-finger scroll breakage")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-> ---
->  drivers/input/mouse/alps.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 579b899add26..c59b8f7ca2fc 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2562,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
->  
->  	memset(otp, 0, sizeof(otp));
->  
-> -	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
-> -	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
-> +	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
-> +	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
->  		return -1;
->  
->  	alps_update_device_area_ss4_v2(otp, priv);
+Hi Giulio,
 
-Masaki Ota, please look at this patch as it partially revert your commit
-4a646580f793 ("Input: ALPS - fix two-finger scroll breakage"). Something
-smells here.
+On 14/11/2017 22:42, Giulio Benetti wrote:
+> Hello everybody,
+> 
+> I'm using ft5206 with edt-ft5x06.c driver,
+> but what I see is that registers with M09 or M06
+> seem different from focaltech ft5206
+> https://www.buydisplay.com/download/ic/FT5206.pdf
+> 
+> For example, except address 0x80 for threshold register(thgroup),
+> all the others don't appear:
+> GAIN 0x30 or 0x92 should be 0x82(thcal maybe?)
+> 
+> Can someone clarify this?
 
+Are you having any problems, or just investigating?
+
+> Maybe M06 or M09 are a custom firmware for focaltech ft5x,
+> then it has different registers?
+
+All the FT5x06 are 8051-based chips designed to implement touchscreen
+controllers. The FT5x26 are similar but with a more powerful core
+(Cortex-M IIRC).
+
+As far as I could understand and guess, their register interface is
+fully implemented in firmware, so it could change completely from one
+panel to another. However all panels that I have seen seem to use
+firmwares with either the "M06" or the "M09" protocol, which are
+implemented in the Linux driver.
+
+The driver also performs some checks to understand which of the two
+protocols is implemented by the controller. These checks are quite
+horrible, but they worked for me.
+
+The best thing is that you ask a datasheet to your supplier, in order to
+make sure about the protocol and avoid guessing.
+
+Regards,
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+Luca

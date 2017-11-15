@@ -1,92 +1,86 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: edt-ft5x06 question
-Date: Wed, 15 Nov 2017 10:32:08 +0100
-Message-ID: <1510738328.18096.32.camel@kernelconcepts.de>
-References: <9036109f-ae02-01de-77a7-13442e3d9e53@micronovasrl.com>
+From: Tj <linux@iam.tj>
+Subject: Re: HID: asus: Add T100CHI bluetooth keyboard dock touchpad support
+Date: Wed, 15 Nov 2017 10:38:36 +0000
+Message-ID: <33cc2b36-5f64-0894-ef15-aae741b22090@iam.tj>
+References: <1ac0aab543099ef88f71b44193e1cf30@iam.tj>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-        boundary="=-IKTcFEhcdME6ZavYVXLx"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([188.40.83.200]:58704 "EHLO
-        mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756098AbdKOJzP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Nov 2017 04:55:15 -0500
-In-Reply-To: <9036109f-ae02-01de-77a7-13442e3d9e53@micronovasrl.com>
+Received: from yes.iam.tj ([109.74.197.121]:45168 "EHLO iam.tj"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1757302AbdKOKin (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 15 Nov 2017 05:38:43 -0500
+In-Reply-To: <1ac0aab543099ef88f71b44193e1cf30@iam.tj>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Giulio Benetti <giulio.benetti@micronovasrl.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, stefan.schoefegger@ginzinger.com, luca@lucaceresoli.net, martink@posteo.de, a.mathur@samsung.com
+To: linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>
 
+Hans: I replied to the l.i. mailing list yesterday regarding your July
+patches for the Asus T100CHI in the 4.14 kernel but accidentally left
+you off the CC list, so I'm following up now.
 
---=-IKTcFEhcdME6ZavYVXLx
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+This is on a T300CHI - the HID report descriptor looks identical to the
+T100CHI and the report descriptor fix-up enables the special function keys.
 
-Hi Giulio
+I've confirmed that even after powering off the Bluetooth Dock it
+remains in multi-touch mode and therefore has no functionality when
+booting with an earlier kernel where mouse mode is expected.
 
-On Tue, 2017-11-14 at 22:42 +0100, Giulio Benetti wrote:
-> I'm using ft5206 with edt-ft5x06.c driver,
-> but what I see is that registers with M09 or M06
-> seem different from focaltech ft5206=20
-> https://www.buydisplay.com/download/ic/FT5206.pdf
->=20
-> For example, except address 0x80 for threshold register(thgroup),
-> all the others don't appear:
-> GAIN 0x30 or 0x92 should be 0x82(thcal maybe?)
->=20
-> Can someone clarify this?
+I did quite a few experiments and permutations powering it off and on
+again including after booting into the earlier kernel and entering the GUI.
 
-The Registers depend heavily on the actual firmware flashed into the
-ft5x06. M06 and M09 refers to the resp. touch glasses from EDT (hence
-the name of the driver), who have a custom firmware installed. Despite
-being based on the same focaltec chips, their i2c interface is totally
-different...
+I eventually found a way to force it to reset: running hid-recorder and
+turning the dock off whilst doing some multi-touch action!
 
-Most non-EDT ft5x06 touches do use a communication protocol similiar to
-the M09 series. Unfortunately I've witnessed a lot that it is not
-possible to rely on the registers that are supposed to provide
-vendor/model information (according to the Focaltec datasheet). It
-always takes a little bit of tweaking to figure out what resolution=20
-they actually provide (which is possible with the custom EDT-M09
-firmware).
+This also allowed me to confirm that on the earlier kernels (pre v4.14),
+in 'mouse' mode, single finger singe/double taps on the touchpad
+(anywhere on it's surface) work as single/double-click mouse actions,
+including the separate right-button-area tap usually used for context menu.
 
-There is a patch series I've sent to this mailinglist (and need to
-resend, because the first part of the patch series is bogus) that might
-improve the model detection a little bit, but it by no means is
-bulletproof.
+So it seems like there are two bugs here:
 
-(see https://patchwork.kernel.org/patch/9987467/ and=20
-https://patchwork.kernel.org/patch/9987471/)
+1) driver needs to put the touchpad back into mouse mode on exit
 
-For non-EDT touches that are bonded together with a display it is a
-reasonable assumption that the touch resolution matches the screen
-resolution (Which I consider unfortunate: Why throw away more
-resolution?).
+2) single-finger taps need to be handled as position-sensitive mouse
+clicks (left or right button).
 
-Anyway if you have suggestions for improving this driver I am
-interested in feedback.
+Let me know if you need any additional debugging/data capture.
 
-Bye,
-        Simon
+The information in my earlier email is still pertinent:
 
---=20
-     kernel concepts GmbH                 Simon Budig
-     Sieghuetter Hauptweg 48              simon.budig@kernelconcepts.de
-     D-57072 Siegen                       +49-271-771091-17
-     http://www.kernelconcepts.de/
-     HR Siegen, HR B 9613; Gesch=C3=A4ftsf=C3=BChrer: Ole Reinhardt
---=-IKTcFEhcdME6ZavYVXLx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQTPAwhwx6BA+WIUvUM7Y79Fd6yIcAUCWgwJmAAKCRA7Y79Fd6yI
-cFQwAJwOC/mgnIJkyJdvvlBECZxzRfMB1wCfXYJ/oJZ+/fvZDx/PWhq+XXluj6c=
-=b5JT
------END PGP SIGNATURE-----
-
---=-IKTcFEhcdME6ZavYVXLx--
-
+On 14/11/17 20:09, Tj wrote:
+> With kernel v4.14 on an Asus T300CHI this appears to be working up to a
+> point but it causes the touchpad to FAIL to work on earlier kernels.
+> 
+> The touchpad seems to be in multitouch mode (two-finger scrolling is the
+> only MT action I've confirmed so far) but there are some deficiencies.
+> 
+> For instance, single or double-tap on the touchpad, or tapping the
+> left/right 'button' regions doesn't work.
+> 
+> This touchpad is overlaid on a physical 'click' button surface (which I
+> suspect operates as the mouse). By this I mean instead of lightly
+> tapping the touchpad surface it needs a very firm downward movement
+> until a physical 'click' is heard. It resists quite strongly so
+> double-clicks in particular are difficult. There's a separate physical
+> 'click' area for the right button.
+> 
+> So it works with these hard physical 'click' actions but not when
+> tapping the touchpad surface. To compare with the behaviour under
+> previous kernels (where I seem to recall it only needed touchpad taps) I
+> rebooted into an earlier kernel.
+> 
+> The disturbing FAILURE is that if the T300CHI is rebooted - even if from
+> a poweroff - into an earlier kernel version (than v4.14) the touchpad no
+> longer works.
+> 
+> Using hid-recorder I saw that the touchpad is still in multitouch mode
+> (event descriptor id 0x5D rather than 0x06 when doing multitouches).
+> 
+> So far I've not been able to find a way to workaround/fix this. On the
+> face of it the driver needs to put the touchpad back into 'mouse' mode
+> on shutdown.
+> 

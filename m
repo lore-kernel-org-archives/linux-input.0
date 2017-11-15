@@ -1,45 +1,48 @@
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: edt-ft5x06 question
-Date: Tue, 14 Nov 2017 22:42:27 +0100
-Message-ID: <9036109f-ae02-01de-77a7-13442e3d9e53@micronovasrl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: it
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, stefan.schoefegger@ginzinger.com, luca@lucaceresoli.net, simon.budig@kernelconcepts.de, martink@posteo.de, a.mathur@samsung.com
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
+Date: Wed, 15 Nov 2017 14:34:04 +0800
+Message-ID: <20171115063404.10066-1-aaron.ma@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:45832 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751353AbdKOGeQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 15 Nov 2017 01:34:16 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, masaki.ota@jp.alps.com, pali.rohar@gmail.com
 
-Hello everybody,
+There is a regression of commit 4a646580f793 ("Input: ALPS - fix
+two-finger scroll breakage"), ALPS device fails with log:
 
-I'm using ft5206 with edt-ft5x06.c driver,
-but what I see is that registers with M09 or M06
-seem different from focaltech ft5206 
-https://www.buydisplay.com/download/ic/FT5206.pdf
+psmouse serio1: alps: Rejected trackstick packet from non DualPoint device
 
-For example, except address 0x80 for threshold register(thgroup),
-all the others don't appear:
-GAIN 0x30 or 0x92 should be 0x82(thcal maybe?)
+ALPS device with id "74 03 28" report OTP[0] data 0xCE after
+commit 4a646580f793, after restore the OTP reading order,
+it becomes to 0x10 as before and reports the right flag.
 
-Can someone clarify this?
+Fixes: 4a646580f793 ("Input: ALPS - fix two-finger scroll breakage")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+---
+ drivers/input/mouse/alps.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Maybe M06 or M09 are a custom firmware for focaltech ft5x,
-then it has different registers?
-
-Thanks in advance and
-kind regards to everybody
-
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 579b899add26..c59b8f7ca2fc 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2562,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+ 
+ 	memset(otp, 0, sizeof(otp));
+ 
+-	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
+-	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
++	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
++	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
+ 		return -1;
+ 
+ 	alps_update_device_area_ss4_v2(otp, priv);
 -- 
-Giulio Benetti
-R&D Manager &
-Advanced Research
+2.13.6
 
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale ¤ 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642

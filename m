@@ -1,196 +1,120 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: [PATCH] HID: input: enable Totem on the Dell Canvas 27
-Date: Wed, 15 Nov 2017 14:42:40 +0000
-Message-ID: <7d0ebb0aa5c74504ab43611fffe27ba6@ausx13mpc120.AMER.DELL.COM>
-References: <20171110102635.325-1-benjamin.tissoires@redhat.com>
- <20171114085043.GA29518@jelly> <20171114182610.cfqsnwj7lu2by7pu@dtor-ws>
- <20171115125326.GF403@mail.corp.redhat.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Subject: Re: Re: edt-ft5x06 question
+Date: Wed, 15 Nov 2017 17:30:32 +0100
+Message-ID: <49b16b2c-772d-b9d6-993a-063c41e46200@micronovasrl.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from esa2.dell-outbound.iphmx.com ([68.232.149.220]:37740 "EHLO
-        esa2.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1756046AbdKOOmn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Nov 2017 09:42:43 -0500
-In-Reply-To: <20171115125326.GF403@mail.corp.redhat.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: it
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, stefan.schoefegger@ginzinger.com, luca@lucaceresoli.net, simon.budig@kernelconcepts.de, martink@posteo.de, a.mathur@samsung.com
 List-Id: linux-input@vger.kernel.org
-To: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com
-Cc: peter.hutterer@who-t.net, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMg
-W21haWx0bzpiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbV0NCj4gU2VudDogV2VkbmVzZGF5
-LCBOb3ZlbWJlciAxNSwgMjAxNyA2OjUzIEFNDQo+IFRvOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRy
-eS50b3Jva2hvdkBnbWFpbC5jb20+DQo+IENjOiBQZXRlciBIdXR0ZXJlciA8cGV0ZXIuaHV0dGVy
-ZXJAd2hvLXQubmV0PjsgSmlyaSBLb3NpbmEgPGppa29zQGtlcm5lbC5vcmc+Ow0KPiBMaW1vbmNp
-ZWxsbywgTWFyaW8gPE1hcmlvX0xpbW9uY2llbGxvQERlbGwuY29tPjsgbGludXgtaW5wdXRAdmdl
-ci5rZXJuZWwub3JnOw0KPiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6
-IFJlOiBbUEFUQ0hdIEhJRDogaW5wdXQ6IGVuYWJsZSBUb3RlbSBvbiB0aGUgRGVsbCBDYW52YXMg
-MjcNCj4gDQo+IE9uIE5vdiAxNCAyMDE3IG9yIHRoZXJlYWJvdXRzLCBEbWl0cnkgVG9yb2tob3Yg
-d3JvdGU6DQo+ID4gT24gVHVlLCBOb3YgMTQsIDIwMTcgYXQgMDY6NTA6NDNQTSArMTAwMCwgUGV0
-ZXIgSHV0dGVyZXIgd3JvdGU6DQo+ID4gPiBzb3JyeSwgdGhpcyBvbmUgZ290IHN0dWNrIGluIG15
-IG91dGJveC4NCj4gPiA+DQo+ID4gPiBPbiBGcmksIE5vdiAxMCwgMjAxNyBhdCAxMToyNjozNUFN
-ICswMTAwLCBCZW5qYW1pbiBUaXNzb2lyZXMgd3JvdGU6DQo+ID4gPiA+IFRoZSBEZWxsIENhbnZh
-cyAyNyBoYXMgYSB0b29sIHRoYXQgY2FuIGJlIHB1dCBvbiB0aGUgc3VyZmFjZSBhbmQgYWN0cw0K
-PiA+ID4gPiBhcyBhIGRpYWwuIFRoZSBmaXJtd2FyZSBwcm9jZXNzZXMgdGhlIGRldGVjdGlvbiBv
-ZiB0aGUgdG9vbCBhbmQgZm9yd2FyZA0KPiA+ID4gPiByZWd1bGFyIEhJRCByZXBvcnRzIHdpdGgg
-WCwgWSwgQXppbXV0aCwgcm90YXRpb24sIHdpZHRoL2hlaWdodC4NCj4gPiA+ID4NCj4gPiA+ID4g
-VGhlIGZpcm13YXJlIGFsc28gZXhwb3J0cyBDb250YWN0IElELCBDb3VudGFjdCBDb3VudCB3aGlj
-aCBtYXkgaGludCB0aGF0DQo+ID4gPiA+IHNldmVyYWwgdG90ZW1zIGNhbiBiZSB1c2VkIGF0IHRo
-ZSBzYW1lIHRpbWUsIGJ1dCBmb3Igbm93LCBvbmx5IGFsbG93DQo+ID4gPiA+IG9uZSB0b3RlbSBh
-dCBhIHRpbWUuDQo+ID4gPiA+DQo+ID4gPiA+IFdlIGFsc28gaWdub3JlIHNjYW4gdGltZSBpbiBo
-aWQtaW5wdXQuYyBiZWNhdXNlIHRoZXJlIGlzIG5vdCBtdWNoIHBvaW50DQo+ID4gPiA+IHRvIGZv
-cndhcmQgaXQgbm93IGdpdmVuIHRoYXQgdGhlIGluZGljYXRpb24gb2YgdGhlIHRvb2wgYmVpbmcg
-cHJlc2VudA0KPiA+ID4gPiBpcyBhbHJlYWR5IHByb3ZpZGVkIHRocm91Z2ggQlROX1RPT0xfRElB
-TC4NCj4gPiA+ID4NCj4gPiA+ID4gV2UgbmVlZCB0byBhZGQgYSBuZXcgQlROX1RPT0xfRElBTCBl
-dmVudCBiZWNhdXNlIHRoZSBISUQgbWFwcGluZw0KPiA+ID4gPiBzdWdnZXN0cyB0aGF0IHRoaXMg
-dG9vbCBpcyBhaW1lZCBhdCBiZWluZyB1c2VkIGJ5IHRoZSBzeXN0ZW0gYW5kIG5vdA0KPiA+ID4g
-PiB0aGUgYXBwbGljYXRpb25zLiBBbHNvIHRoaXMgcHJldmVudHMgY3VycmVudCBzeXN0ZW1kIGhl
-dXJpc3RpY3MgdG8NCj4gPiA+ID4gYXBwbHkgSURfSU5QVVRfVE9VQ0hTQ1JFRU4gdG8gdGhpcyBu
-ZXcgdHlwZSBvZiBkZXZpY2VzLg0KPiA+ID4gPg0KPiA+ID4gPiBJIG1hcHBlZCBBemltdXRoIHRv
-IEFCU19XSEVFTCB0byBzb21laG93IHJlc3NlbWJsZSB0aGUgV2Fjb20gUGFkcy4NCj4gPiA+DQo+
-ID4gPiBISUQgZG9jcyBpbmRpY2F0ZSB0aGlzIGlzIGEgZnVsbCB0b29sIHJvdGF0aW9uLCBzbyBB
-QlNfUlogd291bGQgYmUgbW9yZQ0KPiA+ID4gYXBwcm9wcmlhdGU/DQo+ID4gPg0KPiA+ID4gIkF6
-aW11dGgNCj4gPiA+ICAgICBUaGUgY291bnRlci1jbG9ja3dpc2Ugcm90YXRpb24gb2YgdGhlIGN1
-cnNvciBhYm91dCB0aGUgWi1heGlzLiINCj4gPg0KPiA+IFJpZ2h0LiBXZSBuaWdodCBhbHNvIHdh
-bnQgdG8gY29uc2lkZXIgd2hldGhlciB3ZSBuZWVkIHRvIGNvbnZlcnQgSElEIHRvDQo+ID4gTGlu
-dXggdmFsdWVzLCBhcyBISUQgaXMgY291bnRlci1jbG9ja3dpc2UsIGFuZCBJIHN1c3BlY3QgTGlu
-dXggd2lsbCBiZQ0KPiA+IGNsb2Nrd2lzZSAod2hhdCBkbyB3ZSByZXBvcnQgZm9yIGpveXN0aWNr
-cz8pLCBzaW1pbGFyIHRvIHdoYXQgd2UgaGFkIGZvcg0KPiA+IEFCU19NVF9PUklFTlRBVElPTi4N
-Cj4gPg0KPiA+ID4NCj4gPiA+IEJ1dCB5b3UgYWxzbyBzYXkgaXQgaGFzIHJvdGF0aW9uLCBzbyB0
-aGlzIGlzIGEgYml0IGNvbmZ1c2luZyBub3cgOikNCj4gPiA+IFdlIHNob3VsZCBhbHNvIHVzZSBJ
-TlBVVF9QUk9QX0RJUkVDVCBoZXJlLg0KPiA+ID4NCj4gPiA+ID4gTGFzdCwgYm90aCBXaWR0aCBh
-bmQgSGVpZ3RoIGFyZSBncm91cHBlZCB0b2dldGhlciwgdGhlIEZXIHJlcG9ydHMNCj4gPiA+DQo+
-ID4gPiB0eXBvOiBncm91cGVkDQo+ID4gPg0KPiA+ID4gPiBzaW1pbGFyIHZhbHVlcyBmb3IgYm90
-aCBhbmQgd2UgYXJlIG91dCBvZiBBQlNfKiBldmVudHMuDQo+ID4gPiA+DQo+ID4gPiA+IExpbms6
-IGh0dHBzOi8vYnVnemlsbGEucmVkaGF0LmNvbS9zaG93X2J1Zy5jZ2k/aWQ9MTUxMTg0Ng0KPiA+
-ID4gPg0KPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBCZW5qYW1pbiBUaXNzb2lyZXMgPGJlbmphbWlu
-LnRpc3NvaXJlc0ByZWRoYXQuY29tPg0KPiA+ID4gPiAtLS0NCj4gPiA+ID4NCj4gPiA+ID4gSGks
-DQo+ID4gPiA+DQo+ID4gPiA+IFRoaXMgaXMgcHJvYmFibHkgdjQuMTYgbWF0ZXJpYWwgYXMgd2Ug
-YXJlIGNsb3NlIHRvIHRoZSBtZXJnZSB3aW5kb3cNCj4gPiA+ID4gKEkgd291bGRuJ3QgbWluZCBp
-dCBhcHBsaWVkIGluIHY0LjE1IHRob3VnaCA7LVApDQo+ID4gPg0KPiA+ID4gSSdtIGdvaW5nIHRv
-IGJlIGFubm95aW5nIGhlcmUgYW5kIHNheSBJJ2QgbGlrZSB0byBmaWd1cmUgb3V0IGhvdyB0byBh
-ZGQgdGhpcw0KPiA+ID4gdG8gbGliaW5wdXQgZmlyc3QgdG8gZmlndXJlIG91dCB3aGF0IGRldGFp
-bHMgY2FuIGdvIHdyb25nIGJlZm9yZSB3ZSBtZXJnZSBpdA0KPiA+ID4gYW5kIGNvbW1pdCB0byB0
-aGlzIGZvcmV2ZXIuIEhvcGVmdWxseSB0aGF0IHNob3VsZG4ndCB0YWtlIHRoYXQgbG9uZy4uLg0K
-PiA+ID4NCj4gDQo+IEkgaGFkIGEgY2hhdCB3aXRoIFBldGVyIHRoaXMgbW9ybmluZy4gVEw7RFIg
-aXMgSSdsbCBuZWVkIHRvIHJld29yayBvbg0KPiB0aGlzIG1vcmUgaGVhdmlseSB0byBwcm92aWRl
-IHRoZSBmaW5hbCB2ZXJzaW9uIHdpdGggTVQgYXhlcywgYW5kIHNraXANCj4gdGhlIHNpbmdsZSBk
-ZXZpY2UgaW1wbGVtZW50YXRpb24uIEkgaGF2ZSBubyBpZGVhcyBpZiB0aGUgRGVsbCBDYW52YXMN
-Cj4gY2FuIHJlcG9ydCBtb3JlIHRoYW4gb25lIHRvdGVtLCBidXQgdGhlIHJlcG9ydCBkZXNjcmlw
-dG9yIHdvdWxkIHNheSBzbywNCj4gc28gd2UgYmV0dGVyIGhhdmUgYSBwcm9wZXIgaW1wbGVtZW50
-YXRpb24gaW5zdGVhZCBvZiBoYXZpbmcgb25lIGZvcg0KPiBzaW5nbGUgZGV2aWNlIGNhcGFibGUg
-YW5kIG9uZSBmb3IgbXVsdGlwbGUgZGV2aWNlcy4NCg0KVGhlIENhbnZhcyBjYW4gb25seSBzdXBw
-b3J0IG9uZSBsYXJnZSB0b3RlbSBhdCBhIHRpbWUuDQoNCj4gDQo+IEknbGwgcHJvYmFibHkgc2Vu
-ZCBhIHYyIGp1c3QgdG8gYWRkcmVzcyB0aGUgaXNzdWVzIHJhaXNlZCBoZXJlLCBidXQgaXQNCj4g
-c2hvdWxkbid0IGJlIG1lcmdlZCBnaXZlbiB0aGF0IHVzZXIgc3BhY2Ugd2lsbCBub3QgYmUgYWNj
-ZXB0aW5nIHN1Y2gNCj4gdmVyc2lvbi4NCj4gDQo+IENoZWVycywNCj4gQmVuamFtaW4NCj4gDQo+
-ID4gPiA+IFRoZSBwYXRjaCBkb2VzIHRoZSBqb2IgYnV0IHdlIHByb2JhYmx5IG5lZWQgdG8gZGVj
-aWRlIGlmIHRoZSBtYXBwaW5ncw0KPiA+ID4gPiBJIGNob3NlIGFyZSBjb3JyZWN0Lg0KPiA+ID4g
-Pg0KPiA+ID4gPiBGb3IgdGhlIHJlY29yZCwgSSB1cGxvYWRlZCBzb21lIGV2ZW11LXJlY29yZCB0
-cmFjZXMgYW5kIGhpZC1yZWNvcmRlcg0KPiA+ID4gPiB0cmFjZXMgaW4gdGhlIFJIIEJ6IGxpbmtl
-ZCBhYm92ZSB0byBrZWVwIHRyYWNlcyBvZiB0aGVtLg0KPiA+ID4gPiBUaGUgaW50ZXJlc3Rpbmcg
-b25lIGlzIHRoZSBldmVtdSBvbmUgZm9yIHRoZSB0b3RlbSB3aXRoIHRoaXMgcGF0Y2gNCj4gPiA+
-ID4gYXBwbGllZDoNCj4gPiA+ID4gaHR0cHM6Ly9idWd6aWxsYS5yZWRoYXQuY29tL2F0dGFjaG1l
-bnQuY2dpP2lkPTEzNTAzODkNCj4gPiA+ID4NCj4gPiA+ID4gQ2hlZXJzLA0KPiA+ID4gPiBCZW5q
-YW1pbg0KPiA+ID4gPg0KPiA+ID4gPiAgZHJpdmVycy9oaWQvaGlkLWlucHV0LmMgICAgICAgICAg
-ICAgICAgfCAyOCArKysrKysrKysrKysrKysrKysrKysrKysrKystDQo+ID4gPiA+ICBkcml2ZXJz
-L2hpZC9oaWQtbXVsdGl0b3VjaC5jICAgICAgICAgICB8IDExICsrKysrKysrKysrDQo+ID4gPiA+
-ICBpbmNsdWRlL2xpbnV4L2hpZC5oICAgICAgICAgICAgICAgICAgICB8ICA2ICsrKysrKw0KPiA+
-ID4gPiAgaW5jbHVkZS91YXBpL2xpbnV4L2lucHV0LWV2ZW50LWNvZGVzLmggfCAgMSArDQo+ID4g
-PiA+ICA0IGZpbGVzIGNoYW5nZWQsIDQ1IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4g
-PiA+ID4NCj4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1pbnB1dC5jIGIvZHJp
-dmVycy9oaWQvaGlkLWlucHV0LmMNCj4gPiA+ID4gaW5kZXggMDRkMDFiNTdkOTRjLi43ZGE3MmI1
-NzFiN2QgMTAwNjQ0DQo+ID4gPiA+IC0tLSBhL2RyaXZlcnMvaGlkL2hpZC1pbnB1dC5jDQo+ID4g
-PiA+ICsrKyBiL2RyaXZlcnMvaGlkL2hpZC1pbnB1dC5jDQo+ID4gPiA+IEBAIC0yMjksNiArMjI5
-LDcgQEAgX19zMzIgaGlkaW5wdXRfY2FsY19hYnNfcmVzKGNvbnN0IHN0cnVjdCBoaWRfZmllbGQN
-Cj4gKmZpZWxkLCBfX3UxNiBjb2RlKQ0KPiA+ID4gPiAgCWNhc2UgQUJTX1g6DQo+ID4gPiA+ICAJ
-Y2FzZSBBQlNfWToNCj4gPiA+ID4gIAljYXNlIEFCU19aOg0KPiA+ID4gPiArCWNhc2UgQUJTX1RP
-T0xfV0lEVEg6DQo+ID4gPiA+ICAJY2FzZSBBQlNfTVRfUE9TSVRJT05fWDoNCj4gPiA+ID4gIAlj
-YXNlIEFCU19NVF9QT1NJVElPTl9ZOg0KPiA+ID4gPiAgCWNhc2UgQUJTX01UX1RPT0xfWDoNCj4g
-PiA+ID4gQEAgLTc4NiwxMyArNzg3LDI0IEBAIHN0YXRpYyB2b2lkIGhpZGlucHV0X2NvbmZpZ3Vy
-ZV91c2FnZShzdHJ1Y3QNCj4gaGlkX2lucHV0ICpoaWRpbnB1dCwgc3RydWN0IGhpZF9maWVsDQo+
-ID4gPiA+ICAJCQltYXBfYWJzX2NsZWFyKEFCU19USUxUX1kpOw0KPiA+ID4gPiAgCQkJYnJlYWs7
-DQo+ID4gPiA+DQo+ID4gPiA+ICsJCWNhc2UgMHgzZjogLyogQXppbXV0aCAqLw0KPiA+ID4gPiAr
-CQkJbWFwX2Fic19jbGVhcihBQlNfV0hFRUwpOw0KPiA+ID4gPiArCQkJYnJlYWs7DQo+ID4gPiA+
-ICsNCj4gPiA+ID4gIAkJY2FzZSAweDMzOiAvKiBUb3VjaCAqLw0KPiA+ID4gPiAtCQljYXNlIDB4
-NDI6IC8qIFRpcFN3aXRjaCAqLw0KPiA+ID4gPiAgCQljYXNlIDB4NDM6IC8qIFRpcFN3aXRjaDIg
-Ki8NCj4gPiA+ID4gIAkJCWRldmljZS0+cXVpcmtzICY9IH5ISURfUVVJUktfTk9UT1VDSDsNCj4g
-PiA+ID4gIAkJCW1hcF9rZXlfY2xlYXIoQlROX1RPVUNIKTsNCj4gPiA+ID4gIAkJCWJyZWFrOw0K
-PiA+ID4gPg0KPiA+ID4gPiArCQljYXNlIDB4NDI6IC8qIFRpcFN3aXRjaCAqLw0KPiA+ID4gPiAr
-CQkJaWYgKGZpZWxkLT5hcHBsaWNhdGlvbiA9PSBISURfR0RfU1lTVEVNX01VTFRJQVhJUykgew0K
-PiA+ID4gPiArCQkJCW1hcF9rZXlfY2xlYXIoQlROX1RPT0xfRElBTCk7DQo+ID4gPiA+ICsJCQl9
-IGVsc2Ugew0KPiA+ID4gPiArCQkJCWRldmljZS0+cXVpcmtzICY9IH5ISURfUVVJUktfTk9UT1VD
-SDsNCj4gPiA+ID4gKwkJCQltYXBfa2V5X2NsZWFyKEJUTl9UT1VDSCk7DQo+ID4gPiA+ICsJCQl9
-DQo+ID4gPiA+ICsJCQlicmVhazsNCj4gPiA+ID4gIAkJY2FzZSAweDQ0OiAvKiBCYXJyZWxTd2l0
-Y2ggKi8NCj4gPiA+ID4gIAkJCW1hcF9rZXlfY2xlYXIoQlROX1NUWUxVUyk7DQo+ID4gPiA+ICAJ
-CQlicmVhazsNCj4gPiA+ID4gQEAgLTgwNiw2ICs4MTgsMjAgQEAgc3RhdGljIHZvaWQgaGlkaW5w
-dXRfY29uZmlndXJlX3VzYWdlKHN0cnVjdA0KPiBoaWRfaW5wdXQgKmhpZGlucHV0LCBzdHJ1Y3Qg
-aGlkX2ZpZWwNCj4gPiA+ID4gIAkJCW1hcF9rZXlfY2xlYXIoQlROX1RPVUNIKTsNCj4gPiA+ID4g
-IAkJCWJyZWFrOw0KPiA+ID4gPg0KPiA+ID4gPiArCQljYXNlIDB4NDg6IC8qIFdJRFRIICovDQo+
-ID4gPiA+ICsJCWNhc2UgMHg0OTogLyogSEVJR0hUICovDQo+ID4gPiA+ICsJCQltYXBfYWJzX2Ns
-ZWFyKEFCU19UT09MX1dJRFRIKTsNCj4gPiA+ID4gKwkJCWJyZWFrOw0KPiA+ID4gPiArDQo+ID4g
-PiA+ICsJCWNhc2UgMHg1MTogLyogQ09OVEFDVCBJRCAqLw0KPiA+ID4gPiArCQkJZ290byBpZ25v
-cmU7DQo+ID4gPiA+ICsNCj4gPiA+ID4gKwkJY2FzZSAweDU0OiAvKiBDT05UQUNUIENPVU5UICov
-DQo+ID4gPiA+ICsJCQlnb3RvIGlnbm9yZTsNCj4gPiA+ID4gKw0KPiA+ID4gPiArCQljYXNlIDB4
-NTY6IC8qIFNDQU5USU1FICovDQo+ID4gPiA+ICsJCQlnb3RvIGlnbm9yZTsNCj4gPiA+ID4gKw0K
-PiA+ID4gPiAgCQljYXNlIDB4NDY6IC8qIFRhYmxldFBpY2sgKi8NCj4gPiA+ID4gIAkJY2FzZSAw
-eDVhOiAvKiBTZWNvbmRhcnlCYXJyZWxTd2l0Y2ggKi8NCj4gPiA+ID4gIAkJCW1hcF9rZXlfY2xl
-YXIoQlROX1NUWUxVUzIpOw0KPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLW11
-bHRpdG91Y2guYyBiL2RyaXZlcnMvaGlkL2hpZC1tdWx0aXRvdWNoLmMNCj4gPiA+ID4gaW5kZXgg
-NjVlYTIzYmU5Njc3Li5hMGIzMzI1MThlYWEgMTAwNjQ0DQo+ID4gPiA+IC0tLSBhL2RyaXZlcnMv
-aGlkL2hpZC1tdWx0aXRvdWNoLmMNCj4gPiA+ID4gKysrIGIvZHJpdmVycy9oaWQvaGlkLW11bHRp
-dG91Y2guYw0KPiA+ID4gPiBAQCAtOTc0LDYgKzk3NCw3IEBAIHN0YXRpYyBpbnQgbXRfaW5wdXRf
-bWFwcGluZyhzdHJ1Y3QgaGlkX2RldmljZSAqaGRldiwNCj4gc3RydWN0IGhpZF9pbnB1dCAqaGks
-DQo+ID4gPiA+ICAJICAgIGZpZWxkLT5hcHBsaWNhdGlvbiAhPSBISURfREdfVE9VQ0hQQUQgJiYN
-Cj4gPiA+ID4gIAkgICAgZmllbGQtPmFwcGxpY2F0aW9uICE9IEhJRF9HRF9LRVlCT0FSRCAmJg0K
-PiA+ID4gPiAgCSAgICBmaWVsZC0+YXBwbGljYXRpb24gIT0gSElEX0dEX1NZU1RFTV9DT05UUk9M
-ICYmDQo+ID4gPiA+ICsJICAgIGZpZWxkLT5hcHBsaWNhdGlvbiAhPSBISURfR0RfU1lTVEVNX01V
-TFRJQVhJUyAmJg0KPiA+ID4gPiAgCSAgICBmaWVsZC0+YXBwbGljYXRpb24gIT0gSElEX0NQX0NP
-TlNVTUVSX0NPTlRST0wgJiYNCj4gPiA+ID4gIAkgICAgZmllbGQtPmFwcGxpY2F0aW9uICE9IEhJ
-RF9HRF9XSVJFTEVTU19SQURJT19DVExTICYmDQo+ID4gPiA+ICAJICAgICEoZmllbGQtPmFwcGxp
-Y2F0aW9uID09IEhJRF9WRF9BU1VTX0NVU1RPTV9NRURJQV9LRVlTICYmDQo+ID4gPiA+IEBAIC0x
-MDAzLDYgKzEwMDQsMTQgQEAgc3RhdGljIGludCBtdF9pbnB1dF9tYXBwaW5nKHN0cnVjdCBoaWRf
-ZGV2aWNlDQo+ICpoZGV2LCBzdHJ1Y3QgaGlkX2lucHV0ICpoaSwNCj4gPiA+ID4gIAkJcmV0dXJu
-IDE7DQo+ID4gPiA+ICAJfQ0KPiA+ID4gPg0KPiA+ID4gPiArCS8qDQo+ID4gPiA+ICsJICogV2Ug
-ZG8gbm90IHdhbnQgdG8gZXhwb3J0IHNjYW50aW1lIG9uIFN5c3RlbSBNdWx0aUF4aXMNCj4gPiA+
-ID4gKwkgKiBmb3Igbm93DQo+ID4gPiA+ICsJICovDQo+ID4gPiA+ICsJaWYgKGZpZWxkLT51c2Fn
-ZS0+aGlkID09IEhJRF9ER19TQ0FOVElNRSAmJg0KPiA+ID4gPiArCSAgICBmaWVsZC0+YXBwbGlj
-YXRpb24gPT0gSElEX0dEX1NZU1RFTV9NVUxUSUFYSVMpDQo+ID4gPiA+ICsJCXJldHVybiAtMTsN
-Cj4gPiA+ID4gKw0KPiA+ID4gPiAgCS8qDQo+ID4gPiA+ICAJICogc29tZSBlZ2FsYXggdG91Y2hz
-Y3JlZW5zIGhhdmUgImFwcGxpY2F0aW9uID09IEhJRF9ER19UT1VDSFNDUkVFTiINCj4gPiA+ID4g
-IAkgKiBmb3IgdGhlIHN0eWx1cy4NCj4gPiA+ID4gQEAgLTExOTMsNiArMTIwMiw4IEBAIHN0YXRp
-YyBpbnQgbXRfaW5wdXRfY29uZmlndXJlZChzdHJ1Y3QgaGlkX2RldmljZQ0KPiAqaGRldiwgc3Ry
-dWN0IGhpZF9pbnB1dCAqaGkpDQo+ID4gPiA+ICAJCQlicmVhazsNCj4gPiA+ID4gIAkJY2FzZSBI
-SURfR0RfTU9VU0U6DQo+ID4gPiA+ICAJCQlzdWZmaXggPSAiTW91c2UiOw0KPiA+ID4gPiArCQlj
-YXNlIEhJRF9HRF9TWVNURU1fTVVMVElBWElTOg0KPiA+ID4gPiArCQkJc3VmZml4ID0gIk11bHRp
-QXhpcyI7DQo+ID4gPiA+ICAJCQlicmVhazsNCj4gPiA+ID4gIAkJY2FzZSBISURfREdfU1RZTFVT
-Og0KPiA+ID4gPiAgCQkJc3VmZml4ID0gIlBlbiI7DQo+ID4gPiA+IGRpZmYgLS1naXQgYS9pbmNs
-dWRlL2xpbnV4L2hpZC5oIGIvaW5jbHVkZS9saW51eC9oaWQuaA0KPiA+ID4gPiBpbmRleCBkNDkx
-MDI3YTdjMjIuLmY5M2ViYmUyZjIzZCAxMDA2NDQNCj4gPiA+ID4gLS0tIGEvaW5jbHVkZS9saW51
-eC9oaWQuaA0KPiA+ID4gPiArKysgYi9pbmNsdWRlL2xpbnV4L2hpZC5oDQo+ID4gPiA+IEBAIC0x
-ODksNiArMTg5LDEyIEBAIHN0cnVjdCBoaWRfaXRlbSB7DQo+ID4gPiA+ICAgKg0KPiBodHRwOi8v
-d3d3LnVzYi5vcmcvZGV2ZWxvcGVycy9oaWRwYWdlL0hVVFJSNDBSYWRpb0hJRFVzYWdlc0ZpbmFs
-LnBkZg0KPiA+ID4gPiAgICovDQo+ID4gPiA+ICAjZGVmaW5lIEhJRF9HRF9XSVJFTEVTU19SQURJ
-T19DVExTCTB4MDAwMTAwMGMNCj4gPiA+ID4gKy8qDQo+ID4gPiA+ICsgKiBTeXN0ZW0gTXVsdGkt
-QXhpcywgc2VlOg0KPiA+ID4gPiArICogaHR0cDovL3d3dy51c2Iub3JnL2RldmVsb3BlcnMvaGlk
-cGFnZS9IVVRSUjYyXy0NCj4gX0dlbmVyaWNfRGVza3RvcF9DQV9mb3JfU3lzdGVtX011bHRpLUF4
-aXNfQ29udHJvbGxlcnMudHh0DQo+ID4gPiA+ICsgKi8NCj4gPiA+ID4gKyNkZWZpbmUgSElEX0dE
-X1NZU1RFTV9NVUxUSUFYSVMJMHgwMDAxMDAwZQ0KPiA+ID4gPiArDQo+ID4gPiA+ICAjZGVmaW5l
-IEhJRF9HRF9YCQkweDAwMDEwMDMwDQo+ID4gPiA+ICAjZGVmaW5lIEhJRF9HRF9ZCQkweDAwMDEw
-MDMxDQo+ID4gPiA+ICAjZGVmaW5lIEhJRF9HRF9aCQkweDAwMDEwMDMyDQo+ID4gPiA+IGRpZmYg
-LS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvaW5wdXQtZXZlbnQtY29kZXMuaCBiL2luY2x1ZGUv
-dWFwaS9saW51eC9pbnB1dC0NCj4gZXZlbnQtY29kZXMuaA0KPiA+ID4gPiBpbmRleCAxNzk4OTEw
-NzRiM2MuLmY4ODY0OTlmZGQ0YyAxMDA2NDQNCj4gPiA+ID4gLS0tIGEvaW5jbHVkZS91YXBpL2xp
-bnV4L2lucHV0LWV2ZW50LWNvZGVzLmgNCj4gPiA+ID4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4
-L2lucHV0LWV2ZW50LWNvZGVzLmgNCj4gPiA+ID4gQEAgLTQwNiw2ICs0MDYsNyBAQA0KPiA+ID4g
-PiAgI2RlZmluZSBCVE5fVE9PTF9NT1VTRQkJMHgxNDYNCj4gPiA+ID4gICNkZWZpbmUgQlROX1RP
-T0xfTEVOUwkJMHgxNDcNCj4gPiA+ID4gICNkZWZpbmUgQlROX1RPT0xfUVVJTlRUQVAJMHgxNDgJ
-LyogRml2ZSBmaW5nZXJzIG9uIHRyYWNrcGFkICovDQo+ID4gPiA+ICsjZGVmaW5lIEJUTl9UT09M
-X0RJQUwJCTB4MTQ5CS8qIFN5c3RlbSBNdWx0aUF4aXMgKi8NCj4gPiA+ID4gICNkZWZpbmUgQlRO
-X1RPVUNICQkweDE0YQ0KPiA+ID4gPiAgI2RlZmluZSBCVE5fU1RZTFVTCQkweDE0Yg0KPiA+ID4g
-PiAgI2RlZmluZSBCVE5fU1RZTFVTMgkJMHgxNGMNCj4gPiA+ID4gLS0NCj4gPiA+ID4gMi4xNC4z
-DQo+ID4gPiA+DQo+ID4NCj4gPiAtLQ0KPiA+IERtaXRyeQ0K
+Hi Luca,
+
+I had problems with e-mail filter, so I rebuilt yours by hand.
+Forgive me.
+
+See below.
+
+Thanks
+Kind regards
+
+ > Hi Giulio,
+ >
+ > On 14/11/2017 22:42, Giulio Benetti wrote:
+ > > Hello everybody,
+ > >
+ > > I'm using ft5206 with edt-ft5x06.c driver,
+ > > but what I see is that registers with M09 or M06
+ > > seem different from focaltech ft5206
+ > > https://www.buydisplay.com/download/ic/FT5206.pdf
+ > >
+ > > For example, except address 0x80 for threshold register(thgroup),
+ > > all the others don't appear:
+ > > GAIN 0x30 or 0x92 should be 0x82(thcal maybe?)
+ > >
+ > > Can someone clarify this?
+ >
+ > Are you having any problems, or just investigating?
+
+I need to add some other IC register to calibrate sensibility with 
+different glasses, but starting from ft5x06 or other Focaltech standard 
+IC FW.
+
+ >
+ > > Maybe M06 or M09 are a custom firmware for focaltech ft5x,
+ > > then it has different registers?
+ >
+ > All the FT5x06 are 8051-based chips designed to implement touchscreen
+ > controllers. The FT5x26 are similar but with a more powerful core
+ > (Cortex-M IIRC).
+ >
+ > As far as I could understand and guess, their register interface is
+ > fully implemented in firmware, so it could change completely from one
+ > panel to another. However all panels that I have seen seem to use
+ > firmwares with either the "M06" or the "M09" protocol, which are
+ > implemented in the Linux driver.
+
+In my case driver recognizes M09, but only address 0x80 
+register(thgroup) is correct.
+The others:
+GAIN: 0x92
+GAIN: 0x93
+GAIN: 0x94
+GAIN: 0x95
+
+are not described in that datasheet.
+The point is that datasheet seems to be official by Focaltech,
+like if they deliver that IC with a standard FW inside.
+I can't find a way to safely probe if it's a standard FW or from EDT M09 
+or M06.
+I wouldn't write a different driver ft5x.c because it's a repeatition,
+but EDT seems a special version(FW) of ft5x.
+
+Maybe on dt-bindings I could force to be EDT or standard.
+On legacy sunxi-3.4 the driver handled this as datasheet I mentioned.
+What do you think?
+
+ >
+ > The driver also performs some checks to understand which of the two
+ > protocols is implemented by the controller. These checks are quite
+ > horrible, but they worked for me.
+
+I have FW with registers as described at 
+https://www.buydisplay.com/download/ic/FT5206.pdf
+and I would like to add them as attributes more and dt-bindings to 
+improve trimming.
+I would call those registers the same as manual:
+THGROUP
+THCAL
+etc.
+
+And I would also like to add a tasklet that recalibrate every 
+minute(specified by attr or dt-binding).
+I want to do this(already done succesfully on 3.4) because I've 
+experienced problems on temperature and mechanical drifts.
+
+ >
+ > The best thing is that you ask a datasheet to your supplier, in order to
+ > make sure about the protocol and avoid guessing.
+ >
+ > Regards,
+ > --
+ > Luca
+
+
+-- 
+Giulio Benetti
+R&D Manager &
+Advanced Research
+
+MICRONOVA SRL
+Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
+Tel. 049/8931563 - Fax 049/8931346
+Cod.Fiscale - P.IVA 02663420285
+Capitale Sociale ¤ 26.000 i.v.
+Iscritta al Reg. Imprese di Padova N. 02663420285
+Numero R.E.A. 258642

@@ -1,145 +1,277 @@
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: Re: edt-ft5x06 question
-Date: Wed, 15 Nov 2017 23:29:04 +0100
-Message-ID: <f532c682-0861-2271-bdec-920a66db0d7a@micronovasrl.com>
-References: <49b16b2c-772d-b9d6-993a-063c41e46200@micronovasrl.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] HID: input: enable Totem on the Dell Canvas 27
+Date: Thu, 16 Nov 2017 11:01:18 +1000
+Message-ID: <20171116010118.GA667@jelly>
+References: <20171110102635.325-1-benjamin.tissoires@redhat.com>
+ <20171114085043.GA29518@jelly>
+ <20171114182610.cfqsnwj7lu2by7pu@dtor-ws>
+ <20171115125326.GF403@mail.corp.redhat.com>
+ <7d0ebb0aa5c74504ab43611fffe27ba6@ausx13mpc120.AMER.DELL.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:49378 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757171AbdKOW3D (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:49328 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752990AbdKPBBh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Nov 2017 17:29:03 -0500
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 4F650B0036E
-        for <linux-input@vger.kernel.org>; Wed, 15 Nov 2017 23:29:02 +0100 (CET)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id THzzWSiBD29i for <linux-input@vger.kernel.org>;
-        Wed, 15 Nov 2017 23:29:01 +0100 (CET)
-In-Reply-To: <49b16b2c-772d-b9d6-993a-063c41e46200@micronovasrl.com>
-Content-Language: it
+        Wed, 15 Nov 2017 20:01:37 -0500
+Content-Disposition: inline
+In-Reply-To: <7d0ebb0aa5c74504ab43611fffe27ba6@ausx13mpc120.AMER.DELL.COM>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, stefan.schoefegger@ginzinger.com, luca@lucaceresoli.net, simon.budig@kernelconcepts.de, martink@posteo.de, a.mathur@samsung.com
+To: Mario.Limonciello@dell.com
+Cc: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Simon,
+On Wed, Nov 15, 2017 at 02:42:40PM +0000, Mario.Limonciello@dell.com wrote:
+> > -----Original Message-----
+> > From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
+> > Sent: Wednesday, November 15, 2017 6:53 AM
+> > To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: Peter Hutterer <peter.hutterer@who-t.net>; Jiri Kosina <jikos@kernel.org>;
+> > Limonciello, Mario <Mario_Limonciello@Dell.com>; linux-input@vger.kernel.org;
+> > linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] HID: input: enable Totem on the Dell Canvas 27
+> > 
+> > On Nov 14 2017 or thereabouts, Dmitry Torokhov wrote:
+> > > On Tue, Nov 14, 2017 at 06:50:43PM +1000, Peter Hutterer wrote:
+> > > > sorry, this one got stuck in my outbox.
+> > > >
+> > > > On Fri, Nov 10, 2017 at 11:26:35AM +0100, Benjamin Tissoires wrote:
+> > > > > The Dell Canvas 27 has a tool that can be put on the surface and acts
+> > > > > as a dial. The firmware processes the detection of the tool and forward
+> > > > > regular HID reports with X, Y, Azimuth, rotation, width/height.
+> > > > >
+> > > > > The firmware also exports Contact ID, Countact Count which may hint that
+> > > > > several totems can be used at the same time, but for now, only allow
+> > > > > one totem at a time.
+> > > > >
+> > > > > We also ignore scan time in hid-input.c because there is not much point
+> > > > > to forward it now given that the indication of the tool being present
+> > > > > is already provided through BTN_TOOL_DIAL.
+> > > > >
+> > > > > We need to add a new BTN_TOOL_DIAL event because the HID mapping
+> > > > > suggests that this tool is aimed at being used by the system and not
+> > > > > the applications. Also this prevents current systemd heuristics to
+> > > > > apply ID_INPUT_TOUCHSCREEN to this new type of devices.
+> > > > >
+> > > > > I mapped Azimuth to ABS_WHEEL to somehow ressemble the Wacom Pads.
+> > > >
+> > > > HID docs indicate this is a full tool rotation, so ABS_RZ would be more
+> > > > appropriate?
+> > > >
+> > > > "Azimuth
+> > > >     The counter-clockwise rotation of the cursor about the Z-axis."
+> > >
+> > > Right. We night also want to consider whether we need to convert HID to
+> > > Linux values, as HID is counter-clockwise, and I suspect Linux will be
+> > > clockwise (what do we report for joysticks?), similar to what we had for
+> > > ABS_MT_ORIENTATION.
+> > >
+> > > >
+> > > > But you also say it has rotation, so this is a bit confusing now :)
+> > > > We should also use INPUT_PROP_DIRECT here.
+> > > >
+> > > > > Last, both Width and Heigth are groupped together, the FW reports
+> > > >
+> > > > typo: grouped
+> > > >
+> > > > > similar values for both and we are out of ABS_* events.
+> > > > >
+> > > > > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1511846
+> > > > >
+> > > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > > > ---
+> > > > >
+> > > > > Hi,
+> > > > >
+> > > > > This is probably v4.16 material as we are close to the merge window
+> > > > > (I wouldn't mind it applied in v4.15 though ;-P)
+> > > >
+> > > > I'm going to be annoying here and say I'd like to figure out how to add this
+> > > > to libinput first to figure out what details can go wrong before we merge it
+> > > > and commit to this forever. Hopefully that shouldn't take that long...
+> > > >
+> > 
+> > I had a chat with Peter this morning. TL;DR is I'll need to rework on
+> > this more heavily to provide the final version with MT axes, and skip
+> > the single device implementation. I have no ideas if the Dell Canvas
+> > can report more than one totem, but the report descriptor would say so,
+> > so we better have a proper implementation instead of having one for
+> > single device capable and one for multiple devices.
+> 
+> The Canvas can only support one large totem at a time.
 
-sorry but as for Luca I've lost mail with mail filter.
-See below my ideas on how to improve it.
+that's the current version but I doubt this will remain so for the upcoming
+years. We can support one totem through the MT protocol but it'll be hard to
+support multiple totems through the single touch protocol. So better safe
+than sorry.
 
-Thanks
-Cheers
-
-Il 15/11/2017 17:30, Giulio Benetti ha scritto:
-> Hi Luca,
-> 
-> I had problems with e-mail filter, so I rebuilt yours by hand.
-> Forgive me.
-> 
-> See below.
-> 
-> Thanks
-> Kind regards
-> 
->  > Hi Giulio,
->  >
->  > On 14/11/2017 22:42, Giulio Benetti wrote:
->  > > Hello everybody,
->  > >
->  > > I'm using ft5206 with edt-ft5x06.c driver,
->  > > but what I see is that registers with M09 or M06
->  > > seem different from focaltech ft5206
->  > > https://www.buydisplay.com/download/ic/FT5206.pdf
->  > >
->  > > For example, except address 0x80 for threshold register(thgroup),
->  > > all the others don't appear:
->  > > GAIN 0x30 or 0x92 should be 0x82(thcal maybe?)
->  > >
->  > > Can someone clarify this?
->  >
->  > Are you having any problems, or just investigating?
-> 
-> I need to add some other IC register to calibrate sensibility with 
-> different glasses, but starting from ft5x06 or other Focaltech standard 
-> IC FW.
-> 
->  >
->  > > Maybe M06 or M09 are a custom firmware for focaltech ft5x,
->  > > then it has different registers?
->  >
->  > All the FT5x06 are 8051-based chips designed to implement touchscreen
->  > controllers. The FT5x26 are similar but with a more powerful core
->  > (Cortex-M IIRC).
->  >
->  > As far as I could understand and guess, their register interface is
->  > fully implemented in firmware, so it could change completely from one
->  > panel to another. However all panels that I have seen seem to use
->  > firmwares with either the "M06" or the "M09" protocol, which are
->  > implemented in the Linux driver.
-> 
-> In my case driver recognizes M09, but only address 0x80 
-> register(thgroup) is correct.
-> The others:
-> GAIN: 0x92
-> GAIN: 0x93
-> GAIN: 0x94
-> GAIN: 0x95
-> 
-> are not described in that datasheet.
-> The point is that datasheet seems to be official by Focaltech,
-> like if they deliver that IC with a standard FW inside.
-> I can't find a way to safely probe if it's a standard FW or from EDT M09 
-> or M06.
-> I wouldn't write a different driver ft5x.c because it's a repeatition,
-> but EDT seems a special version(FW) of ft5x.
-> 
-> Maybe on dt-bindings I could force to be EDT or standard.
-> On legacy sunxi-3.4 the driver handled this as datasheet I mentioned.
-> What do you think?
-> 
->  >
->  > The driver also performs some checks to understand which of the two
->  > protocols is implemented by the controller. These checks are quite
->  > horrible, but they worked for me.
-> 
-> I have FW with registers as described at 
-> https://www.buydisplay.com/download/ic/FT5206.pdf
-> and I would like to add them as attributes more and dt-bindings to 
-> improve trimming.
-> I would call those registers the same as manual:
-> THGROUP
-> THCAL
-> etc.
-> 
-> And I would also like to add a tasklet that recalibrate every 
-> minute(specified by attr or dt-binding).
-> I want to do this(already done succesfully on 3.4) because I've 
-> experienced problems on temperature and mechanical drifts.
-> 
->  >
->  > The best thing is that you ask a datasheet to your supplier, in order to
->  > make sure about the protocol and avoid guessing.
->  >
->  > Regards,
->  > --
->  > Luca
-> 
-> 
+Cheers,
+   Peter
 
 
--- 
-Giulio Benetti
-R&D Manager &
-Advanced Research
-
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale ¤ 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642
+> > I'll probably send a v2 just to address the issues raised here, but it
+> > shouldn't be merged given that user space will not be accepting such
+> > version.
+> > 
+> > Cheers,
+> > Benjamin
+> > 
+> > > > > The patch does the job but we probably need to decide if the mappings
+> > > > > I chose are correct.
+> > > > >
+> > > > > For the record, I uploaded some evemu-record traces and hid-recorder
+> > > > > traces in the RH Bz linked above to keep traces of them.
+> > > > > The interesting one is the evemu one for the totem with this patch
+> > > > > applied:
+> > > > > https://bugzilla.redhat.com/attachment.cgi?id=1350389
+> > > > >
+> > > > > Cheers,
+> > > > > Benjamin
+> > > > >
+> > > > >  drivers/hid/hid-input.c                | 28 +++++++++++++++++++++++++++-
+> > > > >  drivers/hid/hid-multitouch.c           | 11 +++++++++++
+> > > > >  include/linux/hid.h                    |  6 ++++++
+> > > > >  include/uapi/linux/input-event-codes.h |  1 +
+> > > > >  4 files changed, 45 insertions(+), 1 deletion(-)
+> > > > >
+> > > > > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> > > > > index 04d01b57d94c..7da72b571b7d 100644
+> > > > > --- a/drivers/hid/hid-input.c
+> > > > > +++ b/drivers/hid/hid-input.c
+> > > > > @@ -229,6 +229,7 @@ __s32 hidinput_calc_abs_res(const struct hid_field
+> > *field, __u16 code)
+> > > > >  	case ABS_X:
+> > > > >  	case ABS_Y:
+> > > > >  	case ABS_Z:
+> > > > > +	case ABS_TOOL_WIDTH:
+> > > > >  	case ABS_MT_POSITION_X:
+> > > > >  	case ABS_MT_POSITION_Y:
+> > > > >  	case ABS_MT_TOOL_X:
+> > > > > @@ -786,13 +787,24 @@ static void hidinput_configure_usage(struct
+> > hid_input *hidinput, struct hid_fiel
+> > > > >  			map_abs_clear(ABS_TILT_Y);
+> > > > >  			break;
+> > > > >
+> > > > > +		case 0x3f: /* Azimuth */
+> > > > > +			map_abs_clear(ABS_WHEEL);
+> > > > > +			break;
+> > > > > +
+> > > > >  		case 0x33: /* Touch */
+> > > > > -		case 0x42: /* TipSwitch */
+> > > > >  		case 0x43: /* TipSwitch2 */
+> > > > >  			device->quirks &= ~HID_QUIRK_NOTOUCH;
+> > > > >  			map_key_clear(BTN_TOUCH);
+> > > > >  			break;
+> > > > >
+> > > > > +		case 0x42: /* TipSwitch */
+> > > > > +			if (field->application == HID_GD_SYSTEM_MULTIAXIS) {
+> > > > > +				map_key_clear(BTN_TOOL_DIAL);
+> > > > > +			} else {
+> > > > > +				device->quirks &= ~HID_QUIRK_NOTOUCH;
+> > > > > +				map_key_clear(BTN_TOUCH);
+> > > > > +			}
+> > > > > +			break;
+> > > > >  		case 0x44: /* BarrelSwitch */
+> > > > >  			map_key_clear(BTN_STYLUS);
+> > > > >  			break;
+> > > > > @@ -806,6 +818,20 @@ static void hidinput_configure_usage(struct
+> > hid_input *hidinput, struct hid_fiel
+> > > > >  			map_key_clear(BTN_TOUCH);
+> > > > >  			break;
+> > > > >
+> > > > > +		case 0x48: /* WIDTH */
+> > > > > +		case 0x49: /* HEIGHT */
+> > > > > +			map_abs_clear(ABS_TOOL_WIDTH);
+> > > > > +			break;
+> > > > > +
+> > > > > +		case 0x51: /* CONTACT ID */
+> > > > > +			goto ignore;
+> > > > > +
+> > > > > +		case 0x54: /* CONTACT COUNT */
+> > > > > +			goto ignore;
+> > > > > +
+> > > > > +		case 0x56: /* SCANTIME */
+> > > > > +			goto ignore;
+> > > > > +
+> > > > >  		case 0x46: /* TabletPick */
+> > > > >  		case 0x5a: /* SecondaryBarrelSwitch */
+> > > > >  			map_key_clear(BTN_STYLUS2);
+> > > > > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> > > > > index 65ea23be9677..a0b332518eaa 100644
+> > > > > --- a/drivers/hid/hid-multitouch.c
+> > > > > +++ b/drivers/hid/hid-multitouch.c
+> > > > > @@ -974,6 +974,7 @@ static int mt_input_mapping(struct hid_device *hdev,
+> > struct hid_input *hi,
+> > > > >  	    field->application != HID_DG_TOUCHPAD &&
+> > > > >  	    field->application != HID_GD_KEYBOARD &&
+> > > > >  	    field->application != HID_GD_SYSTEM_CONTROL &&
+> > > > > +	    field->application != HID_GD_SYSTEM_MULTIAXIS &&
+> > > > >  	    field->application != HID_CP_CONSUMER_CONTROL &&
+> > > > >  	    field->application != HID_GD_WIRELESS_RADIO_CTLS &&
+> > > > >  	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
+> > > > > @@ -1003,6 +1004,14 @@ static int mt_input_mapping(struct hid_device
+> > *hdev, struct hid_input *hi,
+> > > > >  		return 1;
+> > > > >  	}
+> > > > >
+> > > > > +	/*
+> > > > > +	 * We do not want to export scantime on System MultiAxis
+> > > > > +	 * for now
+> > > > > +	 */
+> > > > > +	if (field->usage->hid == HID_DG_SCANTIME &&
+> > > > > +	    field->application == HID_GD_SYSTEM_MULTIAXIS)
+> > > > > +		return -1;
+> > > > > +
+> > > > >  	/*
+> > > > >  	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
+> > > > >  	 * for the stylus.
+> > > > > @@ -1193,6 +1202,8 @@ static int mt_input_configured(struct hid_device
+> > *hdev, struct hid_input *hi)
+> > > > >  			break;
+> > > > >  		case HID_GD_MOUSE:
+> > > > >  			suffix = "Mouse";
+> > > > > +		case HID_GD_SYSTEM_MULTIAXIS:
+> > > > > +			suffix = "MultiAxis";
+> > > > >  			break;
+> > > > >  		case HID_DG_STYLUS:
+> > > > >  			suffix = "Pen";
+> > > > > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > > > > index d491027a7c22..f93ebbe2f23d 100644
+> > > > > --- a/include/linux/hid.h
+> > > > > +++ b/include/linux/hid.h
+> > > > > @@ -189,6 +189,12 @@ struct hid_item {
+> > > > >   *
+> > http://www.usb.org/developers/hidpage/HUTRR40RadioHIDUsagesFinal.pdf
+> > > > >   */
+> > > > >  #define HID_GD_WIRELESS_RADIO_CTLS	0x0001000c
+> > > > > +/*
+> > > > > + * System Multi-Axis, see:
+> > > > > + * http://www.usb.org/developers/hidpage/HUTRR62_-
+> > _Generic_Desktop_CA_for_System_Multi-Axis_Controllers.txt
+> > > > > + */
+> > > > > +#define HID_GD_SYSTEM_MULTIAXIS	0x0001000e
+> > > > > +
+> > > > >  #define HID_GD_X		0x00010030
+> > > > >  #define HID_GD_Y		0x00010031
+> > > > >  #define HID_GD_Z		0x00010032
+> > > > > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-
+> > event-codes.h
+> > > > > index 179891074b3c..f886499fdd4c 100644
+> > > > > --- a/include/uapi/linux/input-event-codes.h
+> > > > > +++ b/include/uapi/linux/input-event-codes.h
+> > > > > @@ -406,6 +406,7 @@
+> > > > >  #define BTN_TOOL_MOUSE		0x146
+> > > > >  #define BTN_TOOL_LENS		0x147
+> > > > >  #define BTN_TOOL_QUINTTAP	0x148	/* Five fingers on trackpad */
+> > > > > +#define BTN_TOOL_DIAL		0x149	/* System MultiAxis */
+> > > > >  #define BTN_TOUCH		0x14a
+> > > > >  #define BTN_STYLUS		0x14b
+> > > > >  #define BTN_STYLUS2		0x14c
+> > > > > --
+> > > > > 2.14.3
+> > > > >
+> > >
+> > > --
+> > > Dmitry
+> 

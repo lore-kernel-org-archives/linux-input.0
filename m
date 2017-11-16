@@ -1,60 +1,105 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v3 1/2] Input: silead - Add support for capactive home
- button found on some x86 tablets
-Date: Thu, 16 Nov 2017 14:45:55 +0100
-Message-ID: <7ce77147-1f03-5621-a69b-6d03c42006ab@redhat.com>
-References: <20171019071728.6635-1-hdegoede@redhat.com>
- <CAL_Jsq+28caybU9xA+xVSWSFobEuJWgNhoq+YjPHoqpzjxhMng@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] platform/x86: silead_dmi: Add silead,home-button
+ property to some tablets
+Date: Thu, 16 Nov 2017 15:02:20 +0100
+Message-ID: <fc1a0310-8944-27dc-a464-4ac6409b359b@redhat.com>
+References: <20171017154512.30524-1-hdegoede@redhat.com>
+ <20171017154512.30524-2-hdegoede@redhat.com>
+ <CAHp75Vf=MPfCfj3X8ob0+LT_+MT+SW9nsNzw0Pai2OcBrdqWvA@mail.gmail.com>
+ <2e5b4fd2-5445-a1f6-c509-5de2bb96c491@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50126 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935076AbdKPNp5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Nov 2017 08:45:57 -0500
-In-Reply-To: <CAL_Jsq+28caybU9xA+xVSWSFobEuJWgNhoq+YjPHoqpzjxhMng@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <2e5b4fd2-5445-a1f6-c509-5de2bb96c491@redhat.com>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
 Hi,
 
-On 16-11-17 14:34, Rob Herring wrote:
-> On Thu, Oct 19, 2017 at 2:17 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->> On some x86 tablets with a silead touchscreen the windows logo on the
->> front is a capacitive home button. Touching this button results in a touch
->> with bits 12-15 of the Y coordinates set, while normally only the lower 12
->> are used.
->>
->> Detect this and report a KEY_LEFTMETA press when this happens. Note for
->> now we only respond to the Y coordinate bits 12-15 containing 0x01, on some
->> tablets *without* a capacative button I've noticed these bits containing
+On 27-10-17 17:26, Hans de Goede wrote:
+> Hi,
 > 
-> capacitive
-> 
->> 0x04 when crossing the edges of the screen.
+> On 27-10-17 16:39, Andy Shevchenko wrote:
+>> On Tue, Oct 17, 2017 at 6:45 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+>>> Add "silead,home-button" property to entries for tablets which have
+>>> a capacitive home button (typically a windows logo on the front).
+>>>
+>>> This new property is checked for by the new capacitive home button
+>>> support in the silead touchscreen driver.
+>>>
 >>
->> Cc: Rob Herring <robh+dt@kernel.org>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -Only enable support for the home-button if a "silead,home-button"
->>   boolean device-property is set on the device
+>> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 >>
->> Changes in v3:
->> -Document the new silead,home-button property in:
->>   Documentation/devicetree/bindings/input/touchscreen/goodix.txt
->> ---
->>   .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 +
+>> I suppose it's going through input subsystem as dependent patch?
 > 
-> Acked-by: Rob Herring <robh@kernel.org>
+> Since silead_dmi tends to see several patches each cycle I don't
+> think that is a good idea, both patches can be merged independently.
+> 
+> Either patch will not do anything until the other one is merged,
+> having just one or the other present will not cause any problems,
+> so IMHO merging each patch separately is best.
+> 
+> It is probably a good idea to wait for an ack from RobH on the
+> property name before merging this though.
 
-I believe this means this is ready to be merged now. It would be nice
-if we could still get this into 4.15 for rc2 (it is a fix in a way).
+This has been Acked by Rob now, so this patch is ready for merging.
+As discussed before both patches can be merged independently of
+each other.
 
 Regards,
 
 Hans
+
+
+
+>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>> ---
+>>>   drivers/platform/x86/silead_dmi.c | 4 ++++
+>>>   1 file changed, 4 insertions(+)
+>>>
+>>> diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
+>>> index fadfce9b3f5f..ac304f2318cc 100644
+>>> --- a/drivers/platform/x86/silead_dmi.c
+>>> +++ b/drivers/platform/x86/silead_dmi.c
+>>> @@ -58,6 +58,7 @@ static const struct property_entry dexp_ursus_7w_props[] = {
+>>>          PROPERTY_ENTRY_U32("touchscreen-size-y", 630),
+>>>          PROPERTY_ENTRY_STRING("firmware-name", "gsl1686-dexp-ursus-7w.fw"),
+>>>          PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+>>> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+>>>          { }
+>>>   };
+>>>
+>>> @@ -72,6 +73,7 @@ static const struct property_entry surftab_wintron70_st70416_6_props[] = {
+>>>          PROPERTY_ENTRY_STRING("firmware-name",
+>>>                                "gsl1686-surftab-wintron70-st70416-6.fw"),
+>>>          PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+>>> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+>>>          { }
+>>>   };
+>>>
+>>> @@ -116,6 +118,7 @@ static const struct property_entry pov_mobii_wintab_p800w_props[] = {
+>>>          PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
+>>>          PROPERTY_ENTRY_STRING("firmware-name",
+>>>                                "gsl3692-pov-mobii-wintab-p800w.fw"),
+>>> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+>>>          { }
+>>>   };
+>>>
+>>> @@ -143,6 +146,7 @@ static const struct property_entry chuwi_hi8_pro_props[] = {
+>>>          PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
+>>>          PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
+>>>          PROPERTY_ENTRY_STRING("firmware-name", "gsl3680-chuwi-hi8-pro.fw"),
+>>> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+>>>          { }
+>>>   };
+>>>
+>>> -- 
+>>> 2.14.1
+>>>
+>>
+>>
+>>

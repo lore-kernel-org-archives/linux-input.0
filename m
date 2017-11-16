@@ -1,39 +1,60 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: [PATCH] HID: input: enable Totem on the Dell Canvas 27
-Date: Thu, 16 Nov 2017 01:26:31 +0000
-Message-ID: <7b055fc2b544421f9981f6450041df62@ausx13mpc124.AMER.DELL.COM>
-References: <20171110102635.325-1-benjamin.tissoires@redhat.com>
- <20171114085043.GA29518@jelly> <20171114182610.cfqsnwj7lu2by7pu@dtor-ws>
- <20171115125326.GF403@mail.corp.redhat.com>
- <7d0ebb0aa5c74504ab43611fffe27ba6@ausx13mpc120.AMER.DELL.COM>
- <20171116010118.GA667@jelly>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
+Date: Thu, 16 Nov 2017 07:27:02 +0000
+Message-ID: <TYXPR01MB07195A0116F835764DE99882C72E0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+References: <20171115063404.10066-1-aaron.ma@canonical.com>
+ <20171115083529.jmlpcj4td4evj3xl@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171116010118.GA667@jelly>
-Content-Language: en-US
+In-Reply-To: <20171115083529.jmlpcj4td4evj3xl@pali>
+Content-Language: ja-JP
 Sender: linux-kernel-owner@vger.kernel.org
-To: peter.hutterer@who-t.net
-Cc: benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Aaron Ma <aaron.ma@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-> > > I had a chat with Peter this morning. TL;DR is I'll need to rework on
-> > > this more heavily to provide the final version with MT axes, and skip
-> > > the single device implementation. I have no ideas if the Dell Canvas
-> > > can report more than one totem, but the report descriptor would say s=
-o,
-> > > so we better have a proper implementation instead of having one for
-> > > single device capable and one for multiple devices.
-> >
-> > The Canvas can only support one large totem at a time.
->=20
-> that's the current version but I doubt this will remain so for the upcomi=
-ng
-> years. We can support one totem through the MT protocol but it'll be hard=
- to
-> support multiple totems through the single touch protocol. So better safe
-> than sorry.
->=20
-
-As I'm told the limitation is a function of what Windows 10 supports. =20
+SGksIFBhbGksIEFhcm9uLA0KDQpDdXJyZW50IGNvZGUgaXMgY29ycmVjdCBkZXZpY2Ugc2V0dGlu
+ZywgcHJldmlvdXMgY29kZSBpcyB3cm9uZy4NCklmIHRoZSB0cmFja3N0aWNrIGRvZXMgbm90IHdv
+cmsoRFVBTFBPSU5UIGZsYWcgZGlzYWJsZSksIERldmljZSBGaXJtd2FyZSBzZXR0aW5nIGlzIHdy
+b25nLg0KDQpCdXQgcmVjZW50bHkgSSByZWNlaXZlZCB0aGUgc2FtZSByZXBvcnQgZnJvbSBUaGlu
+a3BhZCBMNTcwIHVzZXIsIGFuZCBJIGNoZWNrZWQgdGhpcyBkZXZpY2UgYW5kIGZvdW5kIHRoaXMg
+ZGV2aWNlIEZpcm13YXJlIHNldHRpbmcgaXMgd3JvbmcuIFNvcnJ5IGZvciBvdXIgbWlzdGFrZS4N
+CklzIHlvdXIgbGFwdG9wIEw1NzAgPw0KDQpJIHdpbGwgYWRkIGNvZGUgdGhhdCBzdXBwb3J0cyB0
+aGUgdHJhY2tzdGljayBmb3IgdGhpcyBkZXZpY2UuDQoNCkJlc3QgUmVnYXJkcywNCk1hc2FraSBP
+dGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBQYWxpIFJvaMOhciBbbWFpbHRv
+OnBhbGkucm9oYXJAZ21haWwuY29tXSANClNlbnQ6IFdlZG5lc2RheSwgTm92ZW1iZXIgMTUsIDIw
+MTcgNTozNSBQTQ0KVG86IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5h
+bHBzLmNvbT4NCkNjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2
+Z2VyLmtlcm5lbC5vcmc7IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207IEFhcm9uIE1hIDxhYXJv
+bi5tYUBjYW5vbmljYWwuY29tPg0KU3ViamVjdDogUmU6IFtQQVRDSF0gSW5wdXQ6IEFMUFMgLSBm
+aXggRHVhbFBvaW50IGZsYWcgZm9yIDc0IDAzIDI4IGRldmljZXMNCg0KT24gV2VkbmVzZGF5IDE1
+IE5vdmVtYmVyIDIwMTcgMTQ6MzQ6MDQgQWFyb24gTWEgd3JvdGU6DQo+IFRoZXJlIGlzIGEgcmVn
+cmVzc2lvbiBvZiBjb21taXQgNGE2NDY1ODBmNzkzICgiSW5wdXQ6IEFMUFMgLSBmaXggDQo+IHR3
+by1maW5nZXIgc2Nyb2xsIGJyZWFrYWdlIiksIEFMUFMgZGV2aWNlIGZhaWxzIHdpdGggbG9nOg0K
+PiANCj4gcHNtb3VzZSBzZXJpbzE6IGFscHM6IFJlamVjdGVkIHRyYWNrc3RpY2sgcGFja2V0IGZy
+b20gbm9uIER1YWxQb2ludCANCj4gZGV2aWNlDQo+IA0KPiBBTFBTIGRldmljZSB3aXRoIGlkICI3
+NCAwMyAyOCIgcmVwb3J0IE9UUFswXSBkYXRhIDB4Q0UgYWZ0ZXIgY29tbWl0IA0KPiA0YTY0NjU4
+MGY3OTMsIGFmdGVyIHJlc3RvcmUgdGhlIE9UUCByZWFkaW5nIG9yZGVyLCBpdCBiZWNvbWVzIHRv
+IDB4MTAgDQo+IGFzIGJlZm9yZSBhbmQgcmVwb3J0cyB0aGUgcmlnaHQgZmxhZy4NCj4gDQo+IEZp
+eGVzOiA0YTY0NjU4MGY3OTMgKCJJbnB1dDogQUxQUyAtIGZpeCB0d28tZmluZ2VyIHNjcm9sbCBi
+cmVha2FnZSIpDQo+IENjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4NCj4gU2lnbmVkLW9mZi1i
+eTogQWFyb24gTWEgPGFhcm9uLm1hQGNhbm9uaWNhbC5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9p
+bnB1dC9tb3VzZS9hbHBzLmMgfCA0ICsrLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlv
+bnMoKyksIDIgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9t
+b3VzZS9hbHBzLmMgYi9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMuYyANCj4gaW5kZXggNTc5Yjg5
+OWFkZDI2Li5jNTliOGY3Y2EyZmMgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbW91c2Uv
+YWxwcy5jDQo+ICsrKyBiL2RyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jDQo+IEBAIC0yNTYyLDgg
+KzI1NjIsOCBAQCBzdGF0aWMgaW50IGFscHNfc2V0X2RlZmF1bHRzX3NzNF92MihzdHJ1Y3QgDQo+
+IHBzbW91c2UgKnBzbW91c2UsDQo+ICANCj4gIAltZW1zZXQob3RwLCAwLCBzaXplb2Yob3RwKSk7
+DQo+ICANCj4gLQlpZiAoYWxwc19nZXRfb3RwX3ZhbHVlc19zczRfdjIocHNtb3VzZSwgMSwgJm90
+cFsxXVswXSkgfHwNCj4gLQkgICAgYWxwc19nZXRfb3RwX3ZhbHVlc19zczRfdjIocHNtb3VzZSwg
+MCwgJm90cFswXVswXSkpDQo+ICsJaWYgKGFscHNfZ2V0X290cF92YWx1ZXNfc3M0X3YyKHBzbW91
+c2UsIDAsICZvdHBbMF1bMF0pIHx8DQo+ICsJICAgIGFscHNfZ2V0X290cF92YWx1ZXNfc3M0X3Yy
+KHBzbW91c2UsIDEsICZvdHBbMV1bMF0pKQ0KPiAgCQlyZXR1cm4gLTE7DQo+ICANCj4gIAlhbHBz
+X3VwZGF0ZV9kZXZpY2VfYXJlYV9zczRfdjIob3RwLCBwcml2KTsNCg0KTWFzYWtpIE90YSwgcGxl
+YXNlIGxvb2sgYXQgdGhpcyBwYXRjaCBhcyBpdCBwYXJ0aWFsbHkgcmV2ZXJ0IHlvdXIgY29tbWl0
+DQo0YTY0NjU4MGY3OTMgKCJJbnB1dDogQUxQUyAtIGZpeCB0d28tZmluZ2VyIHNjcm9sbCBicmVh
+a2FnZSIpLiBTb21ldGhpbmcgc21lbGxzIGhlcmUuDQoNCi0tDQpQYWxpIFJvaMOhcg0KcGFsaS5y
+b2hhckBnbWFpbC5jb20NCg==

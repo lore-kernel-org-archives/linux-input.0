@@ -1,41 +1,55 @@
-From: Philippe Ombredanne <pombredanne@nexb.com>
-Subject: Re: [PATCH] input: remove unneeded DRIVER_LICENSE #defines
-Date: Fri, 17 Nov 2017 15:51:31 +0100
-Message-ID: <CAOFm3uG9QVCTEvV-_pjBGgKoHOWi6ps2tp=NABuHinOQi+QeTw@mail.gmail.com>
-References: <20171117141720.GB17880@kroah.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2 2/2] platform/x86: silead_dmi: Add silead,home-button
+ property to some tablets
+Date: Fri, 17 Nov 2017 18:15:55 +0200
+Message-ID: <CAHp75VdG2xRiy-eKuXRy29kfbONU1bDJUYpyOjX37Yjt=1meAQ@mail.gmail.com>
+References: <20171017154512.30524-1-hdegoede@redhat.com> <20171017154512.30524-2-hdegoede@redhat.com>
+ <CAHp75Vf=MPfCfj3X8ob0+LT_+MT+SW9nsNzw0Pai2OcBrdqWvA@mail.gmail.com>
+ <2e5b4fd2-5445-a1f6-c509-5de2bb96c491@redhat.com> <fc1a0310-8944-27dc-a464-4ac6409b359b@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:36152 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757222AbdKQOwN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Nov 2017 09:52:13 -0500
-Received: by mail-wm0-f68.google.com with SMTP id r68so6998852wmr.1
-        for <linux-input@vger.kernel.org>; Fri, 17 Nov 2017 06:52:12 -0800 (PST)
-In-Reply-To: <20171117141720.GB17880@kroah.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <fc1a0310-8944-27dc-a464-4ac6409b359b@redhat.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Fri, Nov 17, 2017 at 3:17 PM, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> There is no need to #define the license of the driver, just put it in
-> the MODULE_LICENSE() line directly as a text string.
+On Thu, Nov 16, 2017 at 4:02 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> On 27-10-17 17:26, Hans de Goede wrote:
+>> On 27-10-17 16:39, Andy Shevchenko wrote:
+>>> On Tue, Oct 17, 2017 at 6:45 PM, Hans de Goede <hdegoede@redhat.com>
+>>> wrote:
+
+>>>> Add "silead,home-button" property to entries for tablets which have
+>>>> a capacitive home button (typically a windows logo on the front).
+>>>>
+>>>> This new property is checked for by the new capacitive home button
+>>>> support in the silead touchscreen driver.
+>>>>
+>>>
+>>> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+>>>
+>>> I suppose it's going through input subsystem as dependent patch?
+>>
+>>
+>> Since silead_dmi tends to see several patches each cycle I don't
+>> think that is a good idea, both patches can be merged independently.
+>>
+>> Either patch will not do anything until the other one is merged,
+>> having just one or the other present will not cause any problems,
+>> so IMHO merging each patch separately is best.
+>>
+>> It is probably a good idea to wait for an ack from RobH on the
+>> property name before merging this though.
 >
-> This allows tools that check that the module license matches the source
-> code license to work properly, as there is no need to unwind the
-> unneeded dereference.  For some of these drivers, the #define is just a
-> few lines above the MODULE_LICENSE() line, which is extra pointless.
 >
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Arvind Yadav <arvind.yadav.cs@gmail.com>
-> Reported-by: Philippe Ombredanne <pombredanne@nexb.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> This has been Acked by Rob now, so this patch is ready for merging.
+> As discussed before both patches can be merged independently of
+> each other.
 
+Pushed to my review and testing queue, thanks!
 
-Reviewed-by: Philippe Ombredanne <pombredanne@nexb.com>
 -- 
-Cordially
-Philippe Ombredanne
+With Best Regards,
+Andy Shevchenko

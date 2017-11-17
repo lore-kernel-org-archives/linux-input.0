@@ -1,53 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 09/10] Input: sirfsoc-onkey: Handle return value of
- platform_get_irq
-Date: Fri, 17 Nov 2017 11:58:59 -0800
-Message-ID: <20171117195859.x34mmfrbhnvh5gpq@dtor-ws>
-References: <1510946132-13554-1-git-send-email-arvind.yadav.cs@gmail.com>
- <1510946132-13554-10-git-send-email-arvind.yadav.cs@gmail.com>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH 1/10 v2] Input: ep93xx_keypad: Fix platform_get_irq's error
+ checking
+Date: Sat, 18 Nov 2017 01:50:01 +0530
+Message-ID: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510949239.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:32962 "EHLO
-        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751015AbdKQT7C (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Nov 2017 14:59:02 -0500
-Content-Disposition: inline
-In-Reply-To: <1510946132-13554-10-git-send-email-arvind.yadav.cs@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, linux@roeck-us.net, wsa@the-dreams.de, daniel.thompson@linaro.org, mcuos.com@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: maxime.ripard@free-electrons.com, wens@csie.org, linux@roeck-us.net, wsa@the-dreams.de, daniel.thompson@linaro.org, mcuos.com@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Sat, Nov 18, 2017 at 12:45:31AM +0530, Arvind Yadav wrote:
-> platform_get_irq() can fail here and we must check its return value.
-> 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+The platform_get_irq() function returns negative if an error occurs.
+zero or positive number on success. platform_get_irq() error checking
+for zero is not correct.
 
-Applied, thank you.
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+changes in v2c:
+               Return keypad->irq insted of -ENXIO.
 
-> ---
->  drivers/input/misc/sirfsoc-onkey.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
-> index 4fd038d..de04b48 100644
-> --- a/drivers/input/misc/sirfsoc-onkey.c
-> +++ b/drivers/input/misc/sirfsoc-onkey.c
-> @@ -149,6 +149,9 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
->  	sirfsoc_pwrc_toggle_interrupts(pwrcdrv, false);
->  
->  	irq = platform_get_irq(pdev, 0);
-> +	if (irq < 0)
-> +		return irq;
-> +
->  	error = devm_request_irq(&pdev->dev, irq,
->  				 sirfsoc_pwrc_isr, 0,
->  				 "sirfsoc_pwrc_int", pwrcdrv);
-> -- 
-> 2.7.4
-> 
+ drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index f77b295..01788a7 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	keypad->irq = platform_get_irq(pdev, 0);
+-	if (!keypad->irq) {
+-		err = -ENXIO;
++	if (keypad->irq < 0) {
++		err = keypad->irq;
+ 		goto failed_free;
+ 	}
+ 
 -- 
-Dmitry
+2.7.4

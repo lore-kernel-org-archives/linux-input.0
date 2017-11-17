@@ -1,120 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: remove unneeded DRIVER_LICENSE #defines
-Date: Fri, 17 Nov 2017 12:33:13 -0800
-Message-ID: <20171117203313.l7lqzrun5bnuj2ht@dtor-ws>
-References: <20171117141720.GB17880@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH 1/3 v2] Input: omap4-keypad: Fix platform_get_irq's error checking
+Date: Sat, 18 Nov 2017 02:28:48 +0530
+Message-ID: <f317ec56b23b11b79284c29d12a7004575aa35db.1510951446.git.arvind.yadav.cs@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:41312 "EHLO
-        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964861AbdKQUdS (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33291 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1761905AbdKQU7W (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Nov 2017 15:33:18 -0500
-Content-Disposition: inline
-In-Reply-To: <20171117141720.GB17880@kroah.com>
+        Fri, 17 Nov 2017 15:59:22 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arvind Yadav <arvind.yadav.cs@gmail.com>, linux-kernel@vger.kernel.org, Philippe Ombredanne <pombredanne@nexb.com>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, linux@roeck-us.net, wsa@the-dreams.de, daniel.thompson@linaro.org, mcuos.com@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Fri, Nov 17, 2017 at 03:17:20PM +0100, Greg Kroah-Hartman wrote:
-> There is no need to #define the license of the driver, just put it in
-> the MODULE_LICENSE() line directly as a text string.
-> 
-> This allows tools that check that the module license matches the source
-> code license to work properly, as there is no need to unwind the
-> unneeded dereference.  For some of these drivers, the #define is just a
-> few lines above the MODULE_LICENSE() line, which is extra pointless.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Arvind Yadav <arvind.yadav.cs@gmail.com>
-> Reported-by: Philippe Ombredanne <pombredanne@nexb.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/input/misc/keyspan_remote.c | 3 +--
->  drivers/input/tablet/acecad.c       | 3 +--
->  drivers/input/tablet/hanwang.c      | 3 +--
->  drivers/input/tablet/kbtab.c        | 3 +--
->  4 files changed, 4 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
-> index 77c47d6325fe..4f13b2f7bf4f 100644
-> --- a/drivers/input/misc/keyspan_remote.c
-> +++ b/drivers/input/misc/keyspan_remote.c
-> @@ -20,7 +20,6 @@
->  #define DRIVER_VERSION	"v0.1"
->  #define DRIVER_AUTHOR	"Michael Downey <downey@zymeta.com>"
->  #define DRIVER_DESC	"Driver for the USB Keyspan remote control."
-> -#define DRIVER_LICENSE	"GPL"
+The platform_get_irq() function returns negative if an error occurs.
+zero or positive number on success. platform_get_irq() error checking
+for zero is not correct.
 
-If we do this, can we also get rid of other DIRVER_* macros that are not
-useful?
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+changes ib v2 :
+               Return error(irq) insted of -EINVAL.
 
->  
->  /* Parameters that can be passed to the driver. */
->  static int debug;
-> @@ -592,4 +591,4 @@ module_usb_driver(keyspan_driver);
->  MODULE_DEVICE_TABLE(usb, keyspan_table);
->  MODULE_AUTHOR(DRIVER_AUTHOR);
->  MODULE_DESCRIPTION(DRIVER_DESC);
-> -MODULE_LICENSE(DRIVER_LICENSE);
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/input/tablet/acecad.c b/drivers/input/tablet/acecad.c
-> index aebb3f9090cd..fcb67c7cd86b 100644
-> --- a/drivers/input/tablet/acecad.c
-> +++ b/drivers/input/tablet/acecad.c
-> @@ -35,12 +35,11 @@
->   */
->  #define DRIVER_VERSION "v3.2"
->  #define DRIVER_DESC    "USB Acecad Flair tablet driver"
-> -#define DRIVER_LICENSE "GPL"
->  #define DRIVER_AUTHOR  "Edouard TISSERANT <edouard.tisserant@wanadoo.fr>"
->  
->  MODULE_AUTHOR(DRIVER_AUTHOR);
->  MODULE_DESCRIPTION(DRIVER_DESC);
-> -MODULE_LICENSE(DRIVER_LICENSE);
-> +MODULE_LICENSE("GPL");
->  
->  #define USB_VENDOR_ID_ACECAD	0x0460
->  #define USB_DEVICE_ID_FLAIR	0x0004
-> diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
-> index df4bea96d7ed..70cb26bbfe1d 100644
-> --- a/drivers/input/tablet/hanwang.c
-> +++ b/drivers/input/tablet/hanwang.c
-> @@ -30,11 +30,10 @@
->  
->  #define DRIVER_AUTHOR   "Xing Wei <weixing@hanwang.com.cn>"
->  #define DRIVER_DESC     "USB Hanwang tablet driver"
-> -#define DRIVER_LICENSE  "GPL"
->  
->  MODULE_AUTHOR(DRIVER_AUTHOR);
->  MODULE_DESCRIPTION(DRIVER_DESC);
-> -MODULE_LICENSE(DRIVER_LICENSE);
-> +MODULE_LICENSE("GPL");
->  
->  #define USB_VENDOR_ID_HANWANG		0x0b57
->  #define HANWANG_TABLET_INT_CLASS	0x0003
-> diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
-> index a41c3ff7c9af..bee18e33e261 100644
-> --- a/drivers/input/tablet/kbtab.c
-> +++ b/drivers/input/tablet/kbtab.c
-> @@ -15,11 +15,10 @@
->  #define DRIVER_VERSION "v0.0.2"
->  #define DRIVER_AUTHOR "Josh Myer <josh@joshisanerd.com>"
->  #define DRIVER_DESC "USB KB Gear JamStudio Tablet driver"
-> -#define DRIVER_LICENSE "GPL"
->  
->  MODULE_AUTHOR(DRIVER_AUTHOR);
->  MODULE_DESCRIPTION(DRIVER_DESC);
-> -MODULE_LICENSE(DRIVER_LICENSE);
-> +MODULE_LICENSE("GPL");
->  
->  #define USB_VENDOR_ID_KBGEAR	0x084e
->  
-> -- 
-> 2.15.0
-> 
+ drivers/input/keyboard/omap4-keypad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index 940d38b..9ad840c 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -251,9 +251,9 @@ static int omap4_keypad_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no keyboard irq assigned\n");
+-		return -EINVAL;
++		return irq;
+ 	}
+ 
+ 	keypad_data = kzalloc(sizeof(struct omap4_keypad), GFP_KERNEL);
 -- 
-Dmitry
+2.7.4
+

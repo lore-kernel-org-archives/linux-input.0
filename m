@@ -1,14 +1,14 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 03/10] Input: twl4030_keypad: Fix platform_get_irq's error checking
-Date: Sat, 18 Nov 2017 00:45:25 +0530
-Message-ID: <1510946132-13554-4-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [PATCH 02/10] Input: omap4-keypad: Fix platform_get_irq's error checking
+Date: Sat, 18 Nov 2017 00:45:24 +0530
+Message-ID: <1510946132-13554-3-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1510946132-13554-1-git-send-email-arvind.yadav.cs@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:46959 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S935545AbdKQTQG (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:40415 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935531AbdKQTQD (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Nov 2017 14:16:06 -0500
+        Fri, 17 Nov 2017 14:16:03 -0500
 In-Reply-To: <1510946132-13554-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -21,19 +21,19 @@ for zero is not correct.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/keyboard/twl4030_keypad.c | 2 +-
+ drivers/input/keyboard/omap4-keypad.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index f9f98ef..f94090e 100644
---- a/drivers/input/keyboard/twl4030_keypad.c
-+++ b/drivers/input/keyboard/twl4030_keypad.c
-@@ -389,7 +389,7 @@ static int twl4030_kp_probe(struct platform_device *pdev)
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index 940d38b..8a4b161 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -251,7 +251,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
  	}
  
- 	kp->irq = platform_get_irq(pdev, 0);
--	if (!kp->irq) {
-+	if (kp->irq < 0) {
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
++	if (irq < 0) {
  		dev_err(&pdev->dev, "no keyboard irq assigned\n");
  		return -EINVAL;
  	}

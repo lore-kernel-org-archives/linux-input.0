@@ -1,51 +1,46 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 1/10 v2] Input: ep93xx_keypad: Fix platform_get_irq's error
- checking
-Date: Sat, 18 Nov 2017 01:50:01 +0530
-Message-ID: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510949239.git.arvind.yadav.cs@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, linux@roeck-us.net, wsa@the-dreams.de, daniel.thompson@linaro.org, mcuos.com@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Subject: [PATCH 8/10 v2] Input: twl4030-pwrbutton: Handle return value of platform_get_irq
+Date: Sat, 18 Nov 2017 01:50:03 +0530
+Message-ID: <5a63dbd55d3d61de6b0a5c530172ea6ff6f85462.1510949239.git.arvind.yadav.cs@gmail.com>
+References: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510949239.git.arvind.yadav.cs@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:40529 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1161776AbdKQUUW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Nov 2017 15:20:22 -0500
+In-Reply-To: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510949239.git.arvind.yadav.cs@gmail.com>
+In-Reply-To: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510949239.git.arvind.yadav.cs@gmail.com>
+References: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510949239.git.arvind.yadav.cs@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, linux@roeck-us.net, wsa@the-dreams.de, daniel.thompson@linaro.org, mcuos.com@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-The platform_get_irq() function returns negative if an error occurs.
-zero or positive number on success. platform_get_irq() error checking
-for zero is not correct.
+platform_get_irq() can fail here and we must check its return value.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
-changes in v2c:
-               Return keypad->irq insted of -ENXIO.
+changes in v2 :
+              return error insted of -ENOMEM.
 
- drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/misc/twl4030-pwrbutton.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
-index f77b295..01788a7 100644
---- a/drivers/input/keyboard/ep93xx_keypad.c
-+++ b/drivers/input/keyboard/ep93xx_keypad.c
-@@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
+index b307cca..64e7d4b 100644
+--- a/drivers/input/misc/twl4030-pwrbutton.c
++++ b/drivers/input/misc/twl4030-pwrbutton.c
+@@ -58,6 +58,9 @@ static int twl4030_pwrbutton_probe(struct platform_device *pdev)
+ 	int irq = platform_get_irq(pdev, 0);
+ 	int err;
  
- 	keypad->irq = platform_get_irq(pdev, 0);
--	if (!keypad->irq) {
--		err = -ENXIO;
-+	if (keypad->irq < 0) {
-+		err = keypad->irq;
- 		goto failed_free;
- 	}
- 
++	if (irq < 0)
++		return irq;
++
+ 	pwr = devm_input_allocate_device(&pdev->dev);
+ 	if (!pwr) {
+ 		dev_err(&pdev->dev, "Can't allocate power button\n");
 -- 
 2.7.4
+

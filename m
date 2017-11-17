@@ -1,124 +1,68 @@
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: Re: Re: edt-ft5x06 question
-Date: Fri, 17 Nov 2017 00:10:30 +0100
-Message-ID: <98c15a70-1756-0037-3803-3b782ede2545@micronovasrl.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: elants_i2c - do not clobber interrupt trigger on x86
+Date: Thu, 16 Nov 2017 17:24:39 -0800
+Message-ID: <20171117012439.bfnczk2mqwsf4iua@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:41430 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936377AbdKPXKb (ORCPT
+Received: from mail-io0-f194.google.com ([209.85.223.194]:46981 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753684AbdKQBYn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Nov 2017 18:10:31 -0500
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id A39AAB00E78
-        for <linux-input@vger.kernel.org>; Fri, 17 Nov 2017 00:10:30 +0100 (CET)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id Za7H6OwyanHI for <linux-input@vger.kernel.org>;
-        Fri, 17 Nov 2017 00:10:30 +0100 (CET)
-Content-Language: it
+        Thu, 16 Nov 2017 20:24:43 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, stefan.schoefegger@ginzinger.com, luca@lucaceresoli.net, simon.budig@kernelconcepts.de, martink@posteo.de, a.mathur@samsung.com
+To: linux-input@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>, Johnny Chuang <johnny.chuang@emc.com.tw>, linux-kernel@vger.kernel.org
 
-Hi Simon,
+This is similar to commit a4b0a58bb142 ("Input: elan_i2c - do not
+clobber interrupt trigger on x86")
 
-sorry for the mess with mailing list.
-My mail filter gave me problems and removed e-mails from linux-input 
-mailing list.
+On x86 we historically used falling edge interrupts in the driver
+because that's how first Chrome devices were configured. They also
+did not use ACPI to enumerate I2C devices (because back then there
+was no kernel support for that), so trigger was hard-coded in the
+driver. However the controller behavior is much more reliable if
+we use level triggers, and that is how we configured ARM devices,
+and how want to configure newer x86 devices as well. All newer
+x86 boxes have their I2C devices enumerated in ACPI.
 
- > Hi Giulio
- >
- > On Tue, 2017-11-14 at 22:42 +0100, Giulio Benetti wrote:
- > > I'm using ft5206 with edt-ft5x06.c driver,
- > > but what I see is that registers with M09 or M06
- > > seem different from focaltech ft5206
- > > https://www.buydisplay.com/download/ic/FT5206.pdf
- > >
- > > For example, except address 0x80 for threshold register(thgroup),
- > > all the others don't appear:
- > > GAIN 0x30 or 0x92 should be 0x82(thcal maybe?)
- > >
- > > Can someone clarify this?
- >
- > The Registers depend heavily on the actual firmware flashed into the
- > ft5x06. M06 and M09 refers to the resp. touch glasses from EDT (hence
- > the name of the driver), who have a custom firmware installed. Despite
- > being based on the same focaltec chips, their i2c interface is totally
- > different...
- >
- > Most non-EDT ft5x06 touches do use a communication protocol similiar to
- > the M09 series. Unfortunately I've witnessed a lot that it is not
- > possible to rely on the registers that are supposed to provide
- > vendor/model information (according to the Focaltec datasheet). It
- > always takes a little bit of tweaking to figure out what resolution
- > they actually provide (which is possible with the custom EDT-M09
- > firmware).
- >
- > There is a patch series I've sent to this mailinglist (and need to
- > resend, because the first part of the patch series is bogus) that might
- > improve the model detection a little bit, but it by no means is
- > bulletproof.
- >
- > (see https://patchwork.kernel.org/patch/9987467/ and
- > https://patchwork.kernel.org/patch/9987471/)
- >
- > For non-EDT touches that are bonded together with a display it is a
- > reasonable assumption that the touch resolution matches the screen
- > resolution (Which I consider unfortunate: Why throw away more
- > resolution?).
- >
- > Anyway if you have suggestions for improving this driver I am
- > interested in feedback.
+Let's see if platform code (ACPI, DT) described interrupt and
+specified particular trigger type, and if so, let's use it instead
+of always clobbering trigger with IRQF_TRIGGER_FALLING. We will
+still use this trigger type as a fallback if platform code left
+interrupt trigger unconfigured.
 
-I only have an idea,
-since we can't know for sure what's the Vendor,
-and we can't know for sure max_x and max_y,
-I would like to add a field in dt to select which vendor to use.
-For example, if you choose "Edt" as vendor, than driver behaves like it 
-does now, otherwise there could be "Focaltech" as vendor, and in that 
-case I could find a way to get max_x and max_y.
-If I can't find a way, we put the need to be inserted in dts both max_x 
-and max_y.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/elants_i2c.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Also I would like to export more registers as attributes and dt.
-
-And last. In my company, on previous projects,
-we experienced problems with temperature and mechanical drifts.
-So the only solution was to send an autocalibrate every n seconds,
-when ts is untouched.
-I did this adding a timed tasklet inside driver,
-so I would like to do the same.
-
-Now what comes in my mind is,
-do we need to keep everything in the same driver edt-ft5x.c?
-Or does it make sense to write new one(focaltech-ft5x.c) based on 
-edt-ft5x.c?
-
-Best regards
-
- >
- > Bye,
- >         Simon
- >
- > --
- >      kernel concepts GmbH                 Simon Budig
- >      Sieghuetter Hauptweg 48              simon.budig@xxxxxxxxxxxxxxxxx
- >      D-57072 Siegen                       +49-271-771091-17
- >      http://www.kernelconcepts.de/
- >      HR Siegen, HR B 9613; Geschäftsführer: Ole Reinhardt
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index e102d7764bc2..1cc3e6b135e7 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -1261,10 +1261,13 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	}
+ 
+ 	/*
+-	 * Systems using device tree should set up interrupt via DTS,
+-	 * the rest will use the default falling edge interrupts.
++	 * Platform code (ACPI, DTS) should normally set up interrupt
++	 * for us, but in case it did not let's fall back to using falling
++	 * edge to be compatible with older Chromebooks.
+ 	 */
+-	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
++	irqflags = irq_get_trigger_type(client->irq);
++	if (!irqflags)
++		irqflags = IRQF_TRIGGER_FALLING;
+` 
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  NULL, elants_i2c_irq,
 -- 
-Giulio Benetti
-R&D Manager &
-Advanced Research
+2.15.0.448.gf294e3d99a-goog
 
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale ¤ 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642
+
+-- 
+Dmitry

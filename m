@@ -1,48 +1,49 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 10/10 v2] Input: palmas-pwrbutton: Handle return value of platform_get_irq
-Date: Sat, 18 Nov 2017 16:25:17 +0530
-Message-ID: <cf9a8dd0a867bb4a9b151523435146f0fb9e2c06.1510999335.git.arvind.yadav.cs@gmail.com>
-References: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510999558.git.arvind.yadav.cs@gmail.com>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Subject: Re: [PATCH] input: remove unneeded DRIVER_LICENSE #defines
+Date: Sat, 18 Nov 2017 13:39:03 +0100
+Message-ID: <CAOFm3uEScMh9PmQMuGvUY39sw=0iJhs0BezQHUhg2-KWZ1fRuQ@mail.gmail.com>
+References: <20171117141720.GB17880@kroah.com> <20171117203313.l7lqzrun5bnuj2ht@dtor-ws>
+ <20171118102724.GF8368@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:44563 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1424128AbdKRK4B (ORCPT
+Received: from mail-wm0-f42.google.com ([74.125.82.42]:47095 "EHLO
+        mail-wm0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1761378AbdKRMjo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 18 Nov 2017 05:56:01 -0500
-In-Reply-To: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510999558.git.arvind.yadav.cs@gmail.com>
-In-Reply-To: <76d6a73ba51e1a8a86d8d9a1d0bbbf7723d5153a.1510999334.git.arvind.yadav.cs@gmail.com>
-References: <76d6a73ba51e1a8a86d8d9a1d0bbbf7723d5153a.1510999334.git.arvind.yadav.cs@gmail.com>
+        Sat, 18 Nov 2017 07:39:44 -0500
+Received: by mail-wm0-f42.google.com with SMTP id u83so2508993wmb.5
+        for <linux-input@vger.kernel.org>; Sat, 18 Nov 2017 04:39:44 -0800 (PST)
+In-Reply-To: <20171118102724.GF8368@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, mcuos.com@gmail.com, linux@roeck-us.net, linux@armlinux.org.uk, lee.jones@linaro.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
 
-platform_get_irq() can fail here and we must check its return value.
+On Sat, Nov 18, 2017 at 11:27 AM, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> Please do, I got rid of all of the DRIVER_VERSION crap in the
+> drivers/usb/ tree a release or so ago, as they make no sense at all.
+> The other defines are also really silly and can be cleaned up too.
+>
+> Want me to do that for drivers/input/ for you?
+>
+> thanks,
+>
+> greg "I'm a janitor now" k-h
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
-changes in v2 :
-              Add failure case '<= 0' instead of '< 0'. IRQ0 is not valid.
 
- drivers/input/misc/palmas-pwrbutton.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Thing could get worse: you could become a documentalist like tglx turned into.
 
-diff --git a/drivers/input/misc/palmas-pwrbutton.c b/drivers/input/misc/palmas-pwrbutton.c
-index 1e1baed..f9b05cf 100644
---- a/drivers/input/misc/palmas-pwrbutton.c
-+++ b/drivers/input/misc/palmas-pwrbutton.c
-@@ -210,6 +210,11 @@ static int palmas_pwron_probe(struct platform_device *pdev)
- 	INIT_DELAYED_WORK(&pwron->input_work, palmas_power_button_work);
- 
- 	pwron->irq = platform_get_irq(pdev, 0);
-+	if (pwron->irq <= 0) {
-+		error = pwron->irq;
-+		goto err_free_input;
-+	}
-+
- 	error = request_threaded_irq(pwron->irq, NULL, pwron_irq,
- 				     IRQF_TRIGGER_HIGH |
- 					IRQF_TRIGGER_LOW |
+For the fun, another weird thingie that I once stumbled upon in an
+out-of-tree third-party module:
+
+MODULE_LICENSE("\x47\x50\x4c\x20\x76\x32");
+
+... which was most likely from a GPL-shy closet Free software
+advocate: this is "GPL v2" in ASCII.
+
 -- 
-2.7.4
-
+Cordially
+Philippe Ombredanne

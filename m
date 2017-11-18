@@ -1,128 +1,93 @@
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Subject: Re: edt-ft5x06 question
-Date: Sat, 18 Nov 2017 22:16:56 +0100
-Message-ID: <BCAF451A-FFA6-46CD-B511-33F89293DA77@micronovasrl.com>
-References: <49b16b2c-772d-b9d6-993a-063c41e46200@micronovasrl.com> <2352100a-db85-e469-95b1-02d9180aba41@lucaceresoli.net> <1510946031.15053.30.camel@kernelconcepts.de>
+From: Tomasz Kramkowski <tk@the-tk.com>
+Subject: Re: [PATCH] HID: elecom: fix the descriptor of the EX-G trackball
+Date: Sat, 18 Nov 2017 22:27:26 +0000
+Message-ID: <20171118222726.GA14579@gaia.local>
+References: <CAGqt0zzPC56sU5=GDS=FkwpTcnjoHotwhOZQ8bEf01=ePObk_A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.micronovasrl.com ([212.103.203.10]:36490 "EHLO
-        mail.micronovasrl.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1763454AbdKRVRC (ORCPT
+Received: from erebus.the-tk.com ([109.74.205.187]:45576 "EHLO
+        erebus.the-tk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1763756AbdKRWeJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 18 Nov 2017 16:17:02 -0500
-Received: from mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1])
-        by mail.micronovasrl.com (Postfix) with ESMTP id 6F6EDB00713
-        for <linux-input@vger.kernel.org>; Sat, 18 Nov 2017 22:17:00 +0100 (CET)
-Received: from mail.micronovasrl.com ([127.0.0.1])
-        by mail.micronovasrl.com (mail.micronovasrl.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 2tTHyIQhZ7LY for <linux-input@vger.kernel.org>;
-        Sat, 18 Nov 2017 22:17:00 +0100 (CET)
-Content-Language: it
-In-Reply-To: <1510946031.15053.30.camel@kernelconcepts.de>
+        Sat, 18 Nov 2017 17:34:09 -0500
+Content-Disposition: inline
+In-Reply-To: <CAGqt0zzPC56sU5=GDS=FkwpTcnjoHotwhOZQ8bEf01=ePObk_A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Simon Budig <simon.budig@kernelconcepts.de>, Luca Ceresoli <luca@lucaceresoli.net>
-Cc: linux-input@vger.kernel.org
+To: Yuxuan Shui <yshuiv7@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Simon,
+Since the device only has 6 physical buttons, I don't think unmasking
+all 8 bits in the HID report descriptor is appropriate. If you do that
+then userspace sees a mouse with 8 buttons and you never know when
+software might actually behave differently depending on that number. (I
+can imagine fancy mouse configuration program which might allow mouse
+button remapping which would enable more button options depending on the
+number of mouse buttons.)
 
-Il 17/11/2017 20:13, Simon Budig ha scritto:
-> [Trimming down the CC list a bit...]
+I think some work could be done to modify the HID report descriptor
+based on which model of trackball the code is working on. (It looks like
+ELECOM used very similar descriptors across the board.)
 
-Thanks
+I was going to do this just now actually but then I noticed that someone
+had beat me to the punch with the EX-G (I was already surprised when I
+found someone had patched the HUGE and DEFT).
 
-> Hi all.
->> On Fri, 2017-11-17 at 18:16 +0100, Luca Ceresoli wrote:
->> What about all the other registers? The datasheet lists a few dozen,
->> not only 0x80. Are they implemented in the panel you are working on?
->>=20
->>> The point is that datasheet seems to be official by Focaltech,
->>> like if they deliver that IC with a standard FW inside.
->>> I can't find a way to safely probe if it's a standard FW or from
->>> EDT M09
->>> or M06.
->>=20
->> Since everything is based on the programmed firmware, and there's no
->> "standard" way to detect firmware version, every firmware detection
->> is
->> bound to be a hack. But there's no better way I'm afraid. Thus device
->> tree seems the only reliable way...
->>=20
->> However, did you check registers FIRMID, FT5201ID (CTPM Vendor ID)
->> and ID_G_LIB_VERSION_H/L? According to their name they might hold
->> interesting info.
-> When I tried to read them from a solomon/goldentek display/touch I did
-> get unreliable data, i.e. I got different values when I had a power
-> cycle inbetween the startups.
-> Basically the firwmare did not implement these registers on the i2c
-> registers and I believe I got whatever happened to sit in the RAM at
-> that point. And that was the point where I gave up on trying to
-> determine the vendor and product, unless I knew where to look for it
-> (mainly the EDT family of touches).
-> And that dubiousness extended to the other registers. At some point I
-> had arbitrary register access via sysfs, but I did not actually bother
-> to determine if they had any effect or provided useful values.
-> Trying to communicate with representatives from Solomon Goldentek (in
-> this case) proved to be incredibly frustrating, because they did not
-> even understand what I was asking for. You don't get a datasheet
-> describing the actual firmware in the chip, it always is the same
-> focaltec datasheet that seems to consist of a lot of wishful thinking.
-> Sometimes you get a linux driver that might even implement a firmware
-> update method, but the quality of the code typically is not that great.
-> Fortunately the "Generic" method implemented in the patch I referred to
-> earlier seems to work reasonably well for the Displays I have at hand.
-> You can configure the max. resolution via devicetree and that gets you
-> 95% of the way.
-> I would not mind additional properties in the devicetree for certain
-> quirks of specific devices (but encoding the vendor of the touch seems
-> beyond the point to me).
+On that note, here's some code I wrote a few months ago to address this
+specific problem on this specific mouse and adapted just yesterday in
+order to begin further work on the driver:
 
-What seems clear to me is that datasheet I=E2=80=99ve pointed out is the bas=
-ic firmware by focaltech.
-And it=E2=80=99s compatible with M09 style.
-But...
+Feel free to re-use bits of it:
 
-> As for frequent recalibration I am not so
-> sure, but then I've not yet seen a touch device where this has to be
-> done.
+diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
+index 54aeea57d209..5af0de38db2c 100644
+--- a/drivers/hid/hid-elecom.c
++++ b/drivers/hid/hid-elecom.c
+@@ -31,6 +37,17 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+                        rdesc[47] = 0x00;
+                }
+                break;
++       case USB_DEVICE_ID_ELECOM_M_XT3URBK:
++               if (*rsize >= 32 && rdesc[12] == 0x95 && rdesc[13] == 0x05 &&
++                   rdesc[14] == 0x75 && rdesc[15] == 0x01 &&
++                   rdesc[20] == 0x29 && rdesc[21] == 0x05 &&
++                   rdesc[30] == 0x75 && rdesc[31] == 0x03) {
++                       hid_info(hdev, "Fixing up Elecom M-XT3URBK report descriptor\n");
++                       rdesc[13] = 0x06;
++                       rdesc[21] = 0x06;
++                       rdesc[31] = 0x02;
++               }
++               break;
 
-We=E2=80=99ve experienced this in every product we have done and we sell.
-At this time there are 3k pcs out with recalibration on 3 different machines=
-, that otherwise did not work properly.
-I mean touch behind 4mm of glass or plexiglass.
+(Note: I just pulled this out of a diff with a bunch of other changes so
+it might not apply cleanly.)
 
-At this point, since I need all the other registers only because of that, I w=
-ould proceed on writing a different driver specific for focaltech standard f=
-irmware as their official datasheet states.
+Aside from the naming of the PID macro, this should work just fine (in
+fact, I tested it).
 
-Something like ft-ft5x.c, without making edt-ft5x.c more complicated, in fac=
-t what I suggest is specific to focaltech standard firmware only and is not a=
-pplicable to edt or other specific firmware.
+If you're wondering why I didn't publish this patch many months (a
+year?) ago when I first wrote it, the reason is that I noticed that the
+mouse has a FEATURE report.
 
-What do you think?
+I had thought that this rather bizarre FEATURE report could be used to
+do something with the 4 other weird INPUT reports that the device has.
 
-Regards
+Upon further inspection of the FEATURE report I can't get it to actually
+do anything AT ALL. I also noticed that the OSX mouse software Elecom
+provides for this mouse doesn't actually touch that FEATURE report (or
+well, I poked around in it using radare2, it would be helpful if someone
+who has a windows/OSX machine and this mouse could confirm this but
+after asking around, I couldn't find any volunteers). This FEATURE
+report seems to have been a dead end in the end.
 
-> (for the records: the "M12" series from EDT is based on a different IC,
-> but their firmware implements a M09-style protocol with a few
-> additions, mainly to identify the panel.)
-> Bye,
->         Simon
+Shows you what happens when you're lazy and put things off until the
+next day (or year)...
 
+P.S. Apologies if I missed anything out or added anything extra to CC,
+I've had to reply to this email without the original message by piecing
+the information together out of the MHonArc header in the spinics.net
+archive. This seems to be the only downside of mailing lists.
 
---=20
-Giulio Benetti
-R&D Manager &
-Advanced Research
-
-MICRONOVA SRL
-Sede: Via A. Niedda 3 - 35010 Vigonza (PD)
-Tel. 049/8931563 - Fax 049/8931346
-Cod.Fiscale - P.IVA 02663420285
-Capitale Sociale =E2=82=AC 26.000 i.v.
-Iscritta al Reg. Imprese di Padova N. 02663420285
-Numero R.E.A. 258642
-
+-- 
+Tomasz Kramkowski | GPG: 40B037BA0A5B8680 | Web: https://the-tk.com/

@@ -1,31 +1,28 @@
 From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Subject: Re: [PATCH 00/10] Handle platform_get_irq's error checking and returns
-Date: Sat, 18 Nov 2017 08:18:59 +0000
-Message-ID: <20171118081859.GV31757@n2100.armlinux.org.uk>
-References: <1510946132-13554-1-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: Re: [PATCH 1/3 v2] Input: omap4-keypad: Fix platform_get_irq's error
+ checking
+Date: Sat, 18 Nov 2017 08:20:27 +0000
+Message-ID: <20171118082026.GY31757@n2100.armlinux.org.uk>
+References: <f317ec56b23b11b79284c29d12a7004575aa35db.1510951446.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from pandora.armlinux.org.uk ([78.32.30.218]:49226 "EHLO
+        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1163182AbdKRIUo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 18 Nov 2017 03:20:44 -0500
 Content-Disposition: inline
-In-Reply-To: <1510946132-13554-1-git-send-email-arvind.yadav.cs@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: daniel.thompson@linaro.org, mcuos.com@gmail.com, wsa@the-dreams.de, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, wens@csie.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, maxime.ripard@free-electrons.com, linux@roeck-us.net
+In-Reply-To: <f317ec56b23b11b79284c29d12a7004575aa35db.1510951446.git.arvind.yadav.cs@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, linux@roeck-us.net, wsa@the-dreams.de, daniel.thompson@linaro.org, mcuos.com@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-On Sat, Nov 18, 2017 at 12:45:22AM +0530, Arvind Yadav wrote:
+On Sat, Nov 18, 2017 at 02:28:48AM +0530, Arvind Yadav wrote:
 > The platform_get_irq() function returns negative if an error occurs.
 > zero or positive number on success. platform_get_irq() error checking
-> for zero is not correct and we must check its return value.
+> for zero is not correct.
 
 IRQ 0 is not a valid interrupt.  The correct test here is <= 0.
 Please rework your patches for this.

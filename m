@@ -1,67 +1,38 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] HID: rmi: Support the Fujitsu R726 Pad dock using hid-rmi
-Date: Fri, 17 Nov 2017 17:21:30 -0800
-Message-ID: <1510968090-24764-1-git-send-email-aduggan@synaptics.com>
+From: Russell King - ARM Linux <linux@armlinux.org.uk>
+Subject: Re: [PATCH 00/10] Handle platform_get_irq's error checking and returns
+Date: Sat, 18 Nov 2017 08:18:59 +0000
+Message-ID: <20171118081859.GV31757@n2100.armlinux.org.uk>
+References: <1510946132-13554-1-git-send-email-arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2nam02on0073.outbound.protection.outlook.com ([104.47.38.73]:18475
-        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1423909AbdKRBVq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Nov 2017 20:21:46 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1510946132-13554-1-git-send-email-arvind.yadav.cs@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: daniel.thompson@linaro.org, mcuos.com@gmail.com, wsa@the-dreams.de, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, wens@csie.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, maxime.ripard@free-electrons.com, linux@roeck-us.net
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-The Fujitsu R726 Pad has an optional USB keyboard dock which contains
-a Synaptics touchpad. The dock identifies itself as a
-Primax Rezel Tablet Keyboard.
+On Sat, Nov 18, 2017 at 12:45:22AM +0530, Arvind Yadav wrote:
+> The platform_get_irq() function returns negative if an error occurs.
+> zero or positive number on success. platform_get_irq() error checking
+> for zero is not correct and we must check its return value.
 
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
----
- drivers/hid/hid-core.c | 1 +
- drivers/hid/hid-ids.h  | 1 +
- drivers/hid/hid-rmi.c  | 1 +
- 3 files changed, 3 insertions(+)
+IRQ 0 is not a valid interrupt.  The correct test here is <= 0.
+Please rework your patches for this.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 330ca98..caacbab 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2253,6 +2253,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- #if IS_ENABLED(CONFIG_HID_RMI)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_REZEL) },
- #endif
- #if IS_ENABLED(CONFIG_HID_ROCCAT)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index be2e005..81c0915 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1146,6 +1146,7 @@
- #define USB_VENDOR_ID_PRIMAX	0x0461
- #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22	0x4d22
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
-+#define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
- 
- 
- #define USB_VENDOR_ID_RISO_KAGAKU	0x1294	/* Riso Kagaku Corp. */
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index ef241d6..a2731f8 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -724,6 +724,7 @@ static const struct hid_device_id rmi_id[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14),
- 		.driver_data = RMI_DEVICE_HAS_PHYS_BUTTONS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_REZEL) },
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, HID_ANY_ID) },
- 	{ }
- };
+Thanks.
+
 -- 
-2.7.4
-
+RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
+According to speedtest.net: 8.21Mbps down 510kbps up

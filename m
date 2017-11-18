@@ -1,42 +1,67 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 5/10 v2] Input: cpcap-pwrbutton: Handle return value of platform_get_irq
-Date: Sat, 18 Nov 2017 02:36:53 +0530
-Message-ID: <ae8e2bcc48ceeb7cf04f4ec19e7cc76d51fcf58f.1510952504.git.arvind.yadav.cs@gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] HID: rmi: Support the Fujitsu R726 Pad dock using hid-rmi
+Date: Fri, 17 Nov 2017 17:21:30 -0800
+Message-ID: <1510968090-24764-1-git-send-email-aduggan@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:43715 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1762079AbdKQVHG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Nov 2017 16:07:06 -0500
+Received: from mail-bl2nam02on0073.outbound.protection.outlook.com ([104.47.38.73]:18475
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1423909AbdKRBVq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Nov 2017 20:21:46 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, linux@roeck-us.net, wsa@the-dreams.de, daniel.thompson@linaro.org, mcuos.com@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-platform_get_irq() can fail here and we must check its return value.
+The Fujitsu R726 Pad has an optional USB keyboard dock which contains
+a Synaptics touchpad. The dock identifies itself as a
+Primax Rezel Tablet Keyboard.
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 ---
-changes in v2 :
-              return irq instead of -ENODEV.
+ drivers/hid/hid-core.c | 1 +
+ drivers/hid/hid-ids.h  | 1 +
+ drivers/hid/hid-rmi.c  | 1 +
+ 3 files changed, 3 insertions(+)
 
- drivers/input/misc/cpcap-pwrbutton.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/input/misc/cpcap-pwrbutton.c b/drivers/input/misc/cpcap-pwrbutton.c
-index 0abef63..3a0626b 100644
---- a/drivers/input/misc/cpcap-pwrbutton.c
-+++ b/drivers/input/misc/cpcap-pwrbutton.c
-@@ -57,6 +57,9 @@ static int cpcap_power_button_probe(struct platform_device *pdev)
- 	int irq = platform_get_irq(pdev, 0);
- 	int err;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 330ca98..caacbab 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2253,6 +2253,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #if IS_ENABLED(CONFIG_HID_RMI)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_REZEL) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_ROCCAT)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index be2e005..81c0915 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1146,6 +1146,7 @@
+ #define USB_VENDOR_ID_PRIMAX	0x0461
+ #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22	0x4d22
+ #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
++#define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
  
-+	if (irq < 0)
-+		return irq;
-+
- 	button = devm_kmalloc(&pdev->dev, sizeof(*button), GFP_KERNEL);
- 	if (!button)
- 		return -ENOMEM;
+ 
+ #define USB_VENDOR_ID_RISO_KAGAKU	0x1294	/* Riso Kagaku Corp. */
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index ef241d6..a2731f8 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -724,6 +724,7 @@ static const struct hid_device_id rmi_id[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14),
+ 		.driver_data = RMI_DEVICE_HAS_PHYS_BUTTONS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_REZEL) },
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, HID_ANY_ID) },
+ 	{ }
+ };
 -- 
 2.7.4
 

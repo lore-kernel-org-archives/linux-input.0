@@ -1,60 +1,64 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 04/10 v3] Input: serio: Fix platform_get_irq's error checking
-Date: Sat, 18 Nov 2017 16:25:11 +0530
-Message-ID: <8104ffc3b7bedee525c0cba9144cedaf04087fd4.1510999558.git.arvind.yadav.cs@gmail.com>
+Subject: [PATCH 03/10 v3] Input: twl4030_keypad: Fix platform_get_irq's error checking
+Date: Sat, 18 Nov 2017 16:25:10 +0530
+Message-ID: <d5ca46d63a41f47411b94c6035d3b8c46bbe8503.1510999558.git.arvind.yadav.cs@gmail.com>
 References: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510999558.git.arvind.yadav.cs@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:33732 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1424029AbdKRKzg (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 18 Nov 2017 05:55:36 -0500
 In-Reply-To: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510999558.git.arvind.yadav.cs@gmail.com>
 In-Reply-To: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510999558.git.arvind.yadav.cs@gmail.com>
 References: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510999558.git.arvind.yadav.cs@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, mcuos.com@gmail.com, linux@roeck-us.net, linux@armlinux.org.uk, lee.jones@linaro.org
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-List-Id: linux-input@vger.kernel.org
 
 The platform_get_irq() function returns negative if an error occurs.
 zero or positive number on success. platform_get_irq() error checking
-for zero is not correct
+for zero is not correct.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
 changes in v2 :
-              irq is unsigned. used struct sun4i_ps2data int variable drvdata->irq.
+              kp->irq is unsigned. use temporary int variable irq.
 changes in v3 :
               Add failure case '<= 0' instead of '< 0'. IRQ0 is not valid.
 
- drivers/input/serio/sun4i-ps2.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/twl4030_keypad.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/serio/sun4i-ps2.c b/drivers/input/serio/sun4i-ps2.c
-index 04b96fe..38bb163 100644
---- a/drivers/input/serio/sun4i-ps2.c
-+++ b/drivers/input/serio/sun4i-ps2.c
-@@ -210,7 +210,6 @@ static int sun4i_ps2_probe(struct platform_device *pdev)
- 	struct sun4i_ps2data *drvdata;
- 	struct serio *serio;
- 	struct device *dev = &pdev->dev;
--	unsigned int irq;
+diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
+index f9f98ef..d921238 100644
+--- a/drivers/input/keyboard/twl4030_keypad.c
++++ b/drivers/input/keyboard/twl4030_keypad.c
+@@ -341,6 +341,7 @@ static int twl4030_kp_probe(struct platform_device *pdev)
+ 	struct input_dev *input;
+ 	u8 reg;
  	int error;
++	int irq;
  
- 	drvdata = kzalloc(sizeof(struct sun4i_ps2data), GFP_KERNEL);
-@@ -263,14 +262,13 @@ static int sun4i_ps2_probe(struct platform_device *pdev)
- 	writel(0, drvdata->reg_base + PS2_REG_GCTL);
- 
- 	/* Get IRQ for the device */
--	irq = platform_get_irq(pdev, 0);
--	if (!irq) {
-+	drvdata->irq = platform_get_irq(pdev, 0);
-+	if (drvdata->irq <= 0) {
- 		dev_err(dev, "no IRQ found\n");
--		error = -ENXIO;
-+		error = drvdata->irq;
- 		goto err_disable_clk;
+ 	kp = devm_kzalloc(&pdev->dev, sizeof(*kp), GFP_KERNEL);
+ 	if (!kp)
+@@ -388,11 +389,12 @@ static int twl4030_kp_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  	}
  
--	drvdata->irq = irq;
- 	drvdata->serio = serio;
- 	drvdata->dev = dev;
+-	kp->irq = platform_get_irq(pdev, 0);
+-	if (!kp->irq) {
++	irq = platform_get_irq(pdev, 0);
++	if (irq <= 0) {
+ 		dev_err(&pdev->dev, "no keyboard irq assigned\n");
+-		return -EINVAL;
++		return irq;
+ 	}
++	kp->irq = irq;
  
+ 	error = matrix_keypad_build_keymap(keymap_data, NULL,
+ 					   TWL4030_MAX_ROWS,
 -- 
 2.7.4
+

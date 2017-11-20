@@ -1,94 +1,78 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
-Date: Mon, 20 Nov 2017 09:29:42 +0100
-Message-ID: <20171120082942.hgvxguc6vjusi52k@pali>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH] Support TrackStick of Thinkpad L570
+Date: Mon, 20 Nov 2017 08:43:45 +0000
+Message-ID: <TYXPR01MB0719CB1198852D3B3231DC3EC7220@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 References: <20171120075530.4880-1-masaki.ota@jp.alps.com>
+ <20171120082942.hgvxguc6vjusi52k@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:39312 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750777AbdKTI3p (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Nov 2017 03:29:45 -0500
-Content-Disposition: inline
-In-Reply-To: <20171120075530.4880-1-masaki.ota@jp.alps.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171120082942.hgvxguc6vjusi52k@pali>
+Content-Language: ja-JP
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, Masaki Ota <012nexus@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "aaron.ma@canonical.com" <aaron.ma@canonical.com>, "jaak@ristioja.ee" <jaak@ristioja.ee>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>, dmitry.torokhov@gmail.com
-Cc: benjamin.tissoires@redhat.com, aaron.ma@canonical.com, jaak@ristioja.ee, masaki.ota@jp.alps.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Monday 20 November 2017 16:55:30 Masaki Ota wrote:
-> From: Masaki Ota <masaki.ota@jp.alps.com>
-> - The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
-> - Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
-> - If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
-> - Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
-
-So, the root of this problem is in ALPS firmware which provides wrong
-information to kernel?
-
-Masaki, I have two questions:
-
-1) Can ALPS or Lenovo release a new firmware update for this Thinkpad to
-   fix this issue?
-
-2) Have all Thinkpad L570 machines trackpoint?
-
-Dmitry, as a workaround for firmware bug on particular notebook, would
-not be better to check DMI information and DMI based hook?
-
-> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-> ---
->  drivers/input/mouse/alps.c | 21 ++++++++++++++++++---
->  1 file changed, 18 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 850b00e3ad8e..cce52104ed5a 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2541,13 +2541,28 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
->  }
->  
->  static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
-> -				       struct alps_data *priv)
-> +				       struct alps_data *priv,
-> +					struct psmouse *psmouse)
->  {
->  	bool is_dual = false;
-> +	int reg_val = 0;
-> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
->  
-> -	if (IS_SS4PLUS_DEV(priv->dev_id))
-> +	if (IS_SS4PLUS_DEV(priv->dev_id)) {
->  		is_dual = (otp[0][0] >> 4) & 0x01;
->  
-> +		/* For support TrackStick of Thinkpad L570 device */
-> +		if (alps_exit_command_mode(psmouse) == 0 &&
-> +			alps_enter_command_mode(psmouse) == 0) {
-> +			reg_val = alps_command_mode_read_reg(psmouse, 0xD7);
-> +		}
-> +		alps_exit_command_mode(psmouse);
-> +		ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
-> +
-> +		if (reg_val == 0x0C || reg_val == 0x1D)
-> +			is_dual = true;
-> +	}
-> +
->  	if (is_dual)
->  		priv->flags |= ALPS_DUALPOINT |
->  					ALPS_DUALPOINT_WITH_PRESSURE;
-> @@ -2570,7 +2585,7 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
->  
->  	alps_update_btn_info_ss4_v2(otp, priv);
->  
-> -	alps_update_dual_info_ss4_v2(otp, priv);
-> +	alps_update_dual_info_ss4_v2(otp, priv, psmouse);
->  
->  	return 0;
->  }
-
--- 
-Pali Rohár
-pali.rohar@gmail.com
+SGksIFBhbGksDQoNCjEpIFllcywgYnV0IHdlIGRvbid0IGhhdmUgRlcgdXBkYXRlIHBsYW4uDQog
+QW5kIHRoaXMgZGV2aWNlIHdvcmtzIGFzIFNNQnVzIGluIFdpbmRvd3MsIHNvIHRoaXMgaXNzdWUg
+aGFwcGVucyBvbiBvbmx5IExpbnV4Lg0KDQoyKSBZZXMuDQoNCkJlc3QgUmVnYXJkcywNCk1hc2Fr
+aSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBQYWxpIFJvaMOhciBbbWFp
+bHRvOnBhbGkucm9oYXJAZ21haWwuY29tXSANClNlbnQ6IE1vbmRheSwgTm92ZW1iZXIgMjAsIDIw
+MTcgNTozMCBQTQ0KVG86IE1hc2FraSBPdGEgPDAxMm5leHVzQGdtYWlsLmNvbT47IGRtaXRyeS50
+b3Jva2hvdkBnbWFpbC5jb20NCkNjOiBiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbTsgYWFy
+b24ubWFAY2Fub25pY2FsLmNvbTsgamFha0ByaXN0aW9qYS5lZTsg5aSq55SwIOecn+WWnCBNYXNh
+a2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29tPjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwu
+b3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQpTdWJqZWN0OiBSZTogW1BBVENIXSBT
+dXBwb3J0IFRyYWNrU3RpY2sgb2YgVGhpbmtwYWQgTDU3MA0KDQpPbiBNb25kYXkgMjAgTm92ZW1i
+ZXIgMjAxNyAxNjo1NTozMCBNYXNha2kgT3RhIHdyb3RlOg0KPiBGcm9tOiBNYXNha2kgT3RhIDxt
+YXNha2kub3RhQGpwLmFscHMuY29tPg0KPiAtIFRoZSBpc3N1ZSBpcyB0aGF0IFRoaW5rcGFkIEw1
+NzAgVHJhY2tTdGljayBkb2VzIG5vdCB3b3JrLiBCZWNhdXNlIHRoZSBtYWluIGludGVyZmFjZSBv
+ZiBUaGlua3BhZCBMNTcwIGRldmljZSBpcyBTTUJ1cywgc28gQUxQUyBvdmVybG9va2VkIFBTMiBp
+bnRlcmZhY2UgRmlybXdhcmUgc2V0dGluZyBvZiBUcmFja1N0aWNrLiBUaGUgZGV0YWlsIGlzIHRo
+YXQgVHJhY2tTdGljayBvdHAgYml0IGlzIGRpc2FibGVkLg0KPiAtIEFkZCB0aGUgY29kZSB0aGF0
+IGNoZWNrcyAweEQ3IGFkZHJlc3MgdmFsdWUuIFRoaXMgdmFsdWUgaXMgZGV2aWNlIG51bWJlciBp
+bmZvcm1hdGlvbiwgc28gd2UgY2FuIGlkZW50aWZ5IHRoZSBkZXZpY2UgYnkgY2hlY2tpbmcgdGhp
+cyB2YWx1ZS4NCj4gLSBJZiB3ZSBjaGVjayAweEQ3IHZhbHVlLCB3ZSBuZWVkIHRvIGVuYWJsZSBD
+b21tYW5kIG1vZGUgYW5kIGFmdGVyIGNoZWNrIHRoZSB2YWx1ZSB3ZSBuZWVkIHRvIGRpc2FibGUg
+Q29tbWFuZCBtb2RlLCB0aGVuIHdlIGhhdmUgdG8gZW5hYmxlIHRoZSBkZXZpY2UoMHhGNCBjb21t
+YW5kKS4NCj4gLSBUaGlua3BhZCBMNTcwIGRldmljZSBudW1iZXIgaXMgMHgwQyBvciAweDFELiBJ
+ZiBpdCBpcyBUUlVFLCBlbmFibGUgQUxQU19EVUFMUE9JTlQgZmxhZy4NCg0KU28sIHRoZSByb290
+IG9mIHRoaXMgcHJvYmxlbSBpcyBpbiBBTFBTIGZpcm13YXJlIHdoaWNoIHByb3ZpZGVzIHdyb25n
+IGluZm9ybWF0aW9uIHRvIGtlcm5lbD8NCg0KTWFzYWtpLCBJIGhhdmUgdHdvIHF1ZXN0aW9uczoN
+Cg0KMSkgQ2FuIEFMUFMgb3IgTGVub3ZvIHJlbGVhc2UgYSBuZXcgZmlybXdhcmUgdXBkYXRlIGZv
+ciB0aGlzIFRoaW5rcGFkIHRvDQogICBmaXggdGhpcyBpc3N1ZT8NCg0KMikgSGF2ZSBhbGwgVGhp
+bmtwYWQgTDU3MCBtYWNoaW5lcyB0cmFja3BvaW50Pw0KDQpEbWl0cnksIGFzIGEgd29ya2Fyb3Vu
+ZCBmb3IgZmlybXdhcmUgYnVnIG9uIHBhcnRpY3VsYXIgbm90ZWJvb2ssIHdvdWxkIG5vdCBiZSBi
+ZXR0ZXIgdG8gY2hlY2sgRE1JIGluZm9ybWF0aW9uIGFuZCBETUkgYmFzZWQgaG9vaz8NCg0KPiBT
+aWduZWQtb2ZmLWJ5OiBNYXNha2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29tPg0KPiAtLS0N
+Cj4gIGRyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jIHwgMjEgKysrKysrKysrKysrKysrKysrLS0t
+DQo+ICAxIGZpbGUgY2hhbmdlZCwgMTggaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCj4g
+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMuYyBiL2RyaXZlcnMvaW5w
+dXQvbW91c2UvYWxwcy5jIA0KPiBpbmRleCA4NTBiMDBlM2FkOGUuLmNjZTUyMTA0ZWQ1YSAxMDA2
+NDQNCj4gLS0tIGEvZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBzLmMNCj4gKysrIGIvZHJpdmVycy9p
+bnB1dC9tb3VzZS9hbHBzLmMNCj4gQEAgLTI1NDEsMTMgKzI1NDEsMjggQEAgc3RhdGljIGludCAN
+Cj4gYWxwc191cGRhdGVfYnRuX2luZm9fc3M0X3YyKHVuc2lnbmVkIGNoYXIgb3RwW11bNF0sICB9
+DQo+ICANCj4gIHN0YXRpYyBpbnQgYWxwc191cGRhdGVfZHVhbF9pbmZvX3NzNF92Mih1bnNpZ25l
+ZCBjaGFyIG90cFtdWzRdLA0KPiAtCQkJCSAgICAgICBzdHJ1Y3QgYWxwc19kYXRhICpwcml2KQ0K
+PiArCQkJCSAgICAgICBzdHJ1Y3QgYWxwc19kYXRhICpwcml2LA0KPiArCQkJCQlzdHJ1Y3QgcHNt
+b3VzZSAqcHNtb3VzZSkNCj4gIHsNCj4gIAlib29sIGlzX2R1YWwgPSBmYWxzZTsNCj4gKwlpbnQg
+cmVnX3ZhbCA9IDA7DQo+ICsJc3RydWN0IHBzMmRldiAqcHMyZGV2ID0gJnBzbW91c2UtPnBzMmRl
+djsNCj4gIA0KPiAtCWlmIChJU19TUzRQTFVTX0RFVihwcml2LT5kZXZfaWQpKQ0KPiArCWlmIChJ
+U19TUzRQTFVTX0RFVihwcml2LT5kZXZfaWQpKSB7DQo+ICAJCWlzX2R1YWwgPSAob3RwWzBdWzBd
+ID4+IDQpICYgMHgwMTsNCj4gIA0KPiArCQkvKiBGb3Igc3VwcG9ydCBUcmFja1N0aWNrIG9mIFRo
+aW5rcGFkIEw1NzAgZGV2aWNlICovDQo+ICsJCWlmIChhbHBzX2V4aXRfY29tbWFuZF9tb2RlKHBz
+bW91c2UpID09IDAgJiYNCj4gKwkJCWFscHNfZW50ZXJfY29tbWFuZF9tb2RlKHBzbW91c2UpID09
+IDApIHsNCj4gKwkJCXJlZ192YWwgPSBhbHBzX2NvbW1hbmRfbW9kZV9yZWFkX3JlZyhwc21vdXNl
+LCAweEQ3KTsNCj4gKwkJfQ0KPiArCQlhbHBzX2V4aXRfY29tbWFuZF9tb2RlKHBzbW91c2UpOw0K
+PiArCQlwczJfY29tbWFuZChwczJkZXYsIE5VTEwsIFBTTU9VU0VfQ01EX0VOQUJMRSk7DQo+ICsN
+Cj4gKwkJaWYgKHJlZ192YWwgPT0gMHgwQyB8fCByZWdfdmFsID09IDB4MUQpDQo+ICsJCQlpc19k
+dWFsID0gdHJ1ZTsNCj4gKwl9DQo+ICsNCj4gIAlpZiAoaXNfZHVhbCkNCj4gIAkJcHJpdi0+Zmxh
+Z3MgfD0gQUxQU19EVUFMUE9JTlQgfA0KPiAgCQkJCQlBTFBTX0RVQUxQT0lOVF9XSVRIX1BSRVNT
+VVJFOw0KPiBAQCAtMjU3MCw3ICsyNTg1LDcgQEAgc3RhdGljIGludCBhbHBzX3NldF9kZWZhdWx0
+c19zczRfdjIoc3RydWN0IA0KPiBwc21vdXNlICpwc21vdXNlLA0KPiAgDQo+ICAJYWxwc191cGRh
+dGVfYnRuX2luZm9fc3M0X3YyKG90cCwgcHJpdik7DQo+ICANCj4gLQlhbHBzX3VwZGF0ZV9kdWFs
+X2luZm9fc3M0X3YyKG90cCwgcHJpdik7DQo+ICsJYWxwc191cGRhdGVfZHVhbF9pbmZvX3NzNF92
+MihvdHAsIHByaXYsIHBzbW91c2UpOw0KPiAgDQo+ICAJcmV0dXJuIDA7DQo+ICB9DQoNCi0tDQpQ
+YWxpIFJvaMOhcg0KcGFsaS5yb2hhckBnbWFpbC5jb20NCg==

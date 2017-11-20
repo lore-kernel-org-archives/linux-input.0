@@ -1,47 +1,44 @@
-From: <peter.enderborg@sonym.com>
-Subject: [PATCH] Add BTN config for ShuttlePro
-Date: Mon, 20 Nov 2017 11:06:14 +0100
-Message-ID: <20171120100614.754-1-peter.enderborg@sonym.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 0/4] Quirks cleanup and hid-generic niceness
+Date: Mon, 20 Nov 2017 11:48:40 +0100
+Message-ID: <20171120104844.31977-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:8362 "EHLO
-        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751105AbdKTKQU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Nov 2017 05:16:20 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:46122 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750962AbdKTKs6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Nov 2017 05:48:58 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Peter Enderborg <peter.enderborg@sony.com>
+To: Jiri Kosina <jikos@kernel.org>, Marcel Holtmann <marcel@holtmann.org>, Niels Skou Olsen <nolsen@jabra.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-From: Peter Enderborg <peter.enderborg@sony.com>
+Hi,
 
-ShuttlePro v2 is using 0x10a to 0x10e for generic usage.
-Add defines for the buttos 0x10a to 0x10f.
+this is v3 rebased on top of for-next.
+There are no other changes.
 
-Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
----
- include/uapi/linux/input-event-codes.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+Cheers,
+Benjamin
 
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 061fa62..b5c4dc9 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -350,6 +350,12 @@
- #define BTN_7			0x107
- #define BTN_8			0x108
- #define BTN_9			0x109
-+#define BTN_10			0x10a
-+#define BTN_11			0x10b
-+#define BTN_12			0x10c
-+#define BTN_13			0x10d
-+#define BTN_14			0x10e
-+#define BTN_15			0x10f
- 
- #define BTN_MOUSE		0x110
- #define BTN_LEFT		0x110
+Benjamin Tissoires (4):
+  HID: core: move the dynamic quirks handling in core
+  HID: quirks: move the list of special devices into a quirk
+  HID: core: move the list of ignored devices in hid-quirks.c
+  HID: core: remove the absolute need of hid_have_special_driver[]
+
+ drivers/hid/Makefile            |    2 +-
+ drivers/hid/hid-core.c          |  932 ++---------------------------
+ drivers/hid/hid-generic.c       |   68 ++-
+ drivers/hid/hid-quirks.c        | 1248 +++++++++++++++++++++++++++++++++++++++
+ drivers/hid/usbhid/Makefile     |    2 +-
+ drivers/hid/usbhid/hid-core.c   |   10 +-
+ drivers/hid/usbhid/hid-quirks.c |  402 -------------
+ include/linux/hid.h             |   21 +-
+ net/bluetooth/hidp/core.c       |    2 +-
+ 9 files changed, 1395 insertions(+), 1292 deletions(-)
+ create mode 100644 drivers/hid/hid-quirks.c
+ delete mode 100644 drivers/hid/usbhid/hid-quirks.c
+
 -- 
-2.7.4
+2.14.3
 

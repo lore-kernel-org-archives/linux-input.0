@@ -1,80 +1,68 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
-Date: Mon, 20 Nov 2017 23:03:32 +0800
-Message-ID: <4ff35112-5fc8-9557-d2bf-1b0cf7e12e1d@canonical.com>
-References: <20171120075530.4880-1-masaki.ota@jp.alps.com>
+From: arvindY <arvind.yadav.cs@gmail.com>
+Subject: Re: [PATCH 01/10 v3] Input: ep93xx_keypad: Fix platform_get_irq's
+ error checking
+Date: Mon, 20 Nov 2017 21:54:42 +0530
+Message-ID: <5A1301CA.7070407@gmail.com>
+References: <a9a25cd5775ba4c76d47e8b66934e470f58d9e72.1510999558.git.arvind.yadav.cs@gmail.com>
+ <20171118183029.zooxomhrejzatuvd@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:38923 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751155AbdKTPEQ (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:39936 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751443AbdKTQYs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Nov 2017 10:04:16 -0500
-In-Reply-To: <20171120075530.4880-1-masaki.ota@jp.alps.com>
-Content-Language: en-US
+        Mon, 20 Nov 2017 11:24:48 -0500
+In-Reply-To: <20171118183029.zooxomhrejzatuvd@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>, dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, pali.rohar@gmail.com, jaak@ristioja.ee, masaki.ota@jp.alps.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: maxime.ripard@free-electrons.com, wens@csie.org, mcuos.com@gmail.com, linux@roeck-us.net, linux@armlinux.org.uk, lee.jones@linaro.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-Tested-by: Aaron Ma <aaron.ma@canonical.com>
+Hi Dmitry,
 
-On 11/20/2017 03:55 PM, Masaki Ota wrote:
-> From: Masaki Ota <masaki.ota@jp.alps.com>
-> - The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
-> - Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
-> - If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
-> - Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
-> 
-> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-> ---
->  drivers/input/mouse/alps.c | 21 ++++++++++++++++++---
->  1 file changed, 18 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 850b00e3ad8e..cce52104ed5a 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2541,13 +2541,28 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
->  }
->  
->  static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
-> -				       struct alps_data *priv)
-> +				       struct alps_data *priv,
-> +					struct psmouse *psmouse)
->  {
->  	bool is_dual = false;
-> +	int reg_val = 0;
-> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
->  
-> -	if (IS_SS4PLUS_DEV(priv->dev_id))
-> +	if (IS_SS4PLUS_DEV(priv->dev_id)) {
->  		is_dual = (otp[0][0] >> 4) & 0x01;
->  
-> +		/* For support TrackStick of Thinkpad L570 device */
-> +		if (alps_exit_command_mode(psmouse) == 0 &&
-> +			alps_enter_command_mode(psmouse) == 0) {
-> +			reg_val = alps_command_mode_read_reg(psmouse, 0xD7);
-> +		}
-> +		alps_exit_command_mode(psmouse);
-> +		ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
-> +
-> +		if (reg_val == 0x0C || reg_val == 0x1D)
-> +			is_dual = true;
-> +	}
-> +
->  	if (is_dual)
->  		priv->flags |= ALPS_DUALPOINT |
->  					ALPS_DUALPOINT_WITH_PRESSURE;
-> @@ -2570,7 +2585,7 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
->  
->  	alps_update_btn_info_ss4_v2(otp, priv);
->  
-> -	alps_update_dual_info_ss4_v2(otp, priv);
-> +	alps_update_dual_info_ss4_v2(otp, priv, psmouse);
->  
->  	return 0;
->  }
-> 
+On Sunday 19 November 2017 12:00 AM, Dmitry Torokhov wrote:
+> On Sat, Nov 18, 2017 at 04:25:08PM +0530, Arvind Yadav wrote:
+>> The platform_get_irq() function returns negative if an error occurs.
+>> zero or positive number on success. platform_get_irq() error checking
+>> for zero is not correct.
+>>
+>> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+>> ---
+>> changes in v2:
+>>                 Return keypad->irq insted of -ENXIO.
+>> changes in v3 :
+>>                 Add failure case '<= 0' instead of '< 0'. IRQ0 is not valid.
+>>
+>>   drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+>> index f77b295..01788a7 100644
+>> --- a/drivers/input/keyboard/ep93xx_keypad.c
+>> +++ b/drivers/input/keyboard/ep93xx_keypad.c
+>> @@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
+>>   	}
+>>   
+>>   	keypad->irq = platform_get_irq(pdev, 0);
+>> -	if (!keypad->irq) {
+>> -		err = -ENXIO;
+>> +	if (keypad->irq <= 0) {
+>> +		err = keypad->irq;
+> Argh, so what will happen if you return with keypad->irq == 0? Can you
+> please stop and consider what exactly  you are doing before churning
+> patches like crazy?
+Sorry for troubling you, I am sending updated patch of this( version - v4).
+If you are ok with v4. Then I will send other patch.
+
+Thanks,
+>>   		goto failed_free;
+>>   	}
+>>   
+>> -- 
+>> 2.7.4
+>>
+> Thanks.
+>
+

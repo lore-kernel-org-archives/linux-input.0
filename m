@@ -1,44 +1,46 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v3] HID: i2c-hid: Allow ACPI systems to specify
- "post-power-on-delay-ms"
-Date: Tue, 21 Nov 2017 13:30:27 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711211330090.11505@cbobk.fhfr.pm>
-References: <20171002213215.32201-1-rajatja@google.com> <20171003181922.42827-1-rajatja@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38412 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751684AbdKUMab (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Nov 2017 07:30:31 -0500
-In-Reply-To: <20171003181922.42827-1-rajatja@google.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH 01/10 v5] Input: ep93xx_keypad: Fix platform_get_irq's error checking
+Date: Tue, 21 Nov 2017 21:41:51 +0530
+Message-ID: <49ba0386f1930f58edfd5ee0f5e65d2a02a46744.1511280261.git.arvind.yadav.cs@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, mcuos.com@gmail.com, linux@roeck-us.net, linux@armlinux.org.uk, lee.jones@linaro.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Rajat Jain <rajatja@google.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Arcari <darcari@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, HungNien Chen <hn.chen@weidahitech.com>, Hans de Goede <hdegoede@redhat.com>, Brian Norris <briannorris@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rajatxjain@gmail.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Tue, 3 Oct 2017, Rajat Jain wrote:
+The platform_get_irq() function returns negative if an error occurs.
+zero or positive number on success. platform_get_irq() error checking
+for zero is not correct.
 
-> The property "post-power-on-delay-ms" allows a platform to specify
-> the delay needed after power-on, but only via device trees currently.
-> Use device_property_* instead of of_* reads to allow ACPI systems to
-> also provide the same information. This is useful for Wacom hardware
-> on ACPI systems.
-> 
-> Signed-off-by: Rajat Jain <rajatja@google.com>
-> ---
-> v3: introduce i2c_hid_fwnode_probe() to parse common device_properties.
->     Also fixup the binding doc to indicate that regulator isn't a
->     requirement for "post-power-on-delay-ms"
-> v2: Don't change any other existing logic, only read "post-power-on-delay-ms"
->     in i2c_hid_acpi_pdata() also.
-> v1: Try to unify everything using device properties, convert i2c_hid_of_probe()
->     to i2c_hid_fwnode_probe() and call i2c_hid_acpi_pdata() if can't get
->     HID register address using device_property.
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+changes in v2 :
+              Return keypad->irq insted of -ENXIO.
+changes in v3 :
+              Add failure case '<= 0' instead of '< 0'. IRQ0 is not valid.
+changes in v4 :
+              Return -ENXIO insted of keypad->irq. Which was not correct in v3.
+changes in v5 :
+              Remove changes of v3 and v4. go back to version v2. Which is correct.
+              No need to check for IRQ0 and return keypad->irq insted of -ENXIO.
 
-Queued now for 4.16 merge window.
+ drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index f77b295..01788a7 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	keypad->irq = platform_get_irq(pdev, 0);
+-	if (!keypad->irq) {
+-		err = -ENXIO;
++	if (keypad->irq < 0) {
++		err = keypad->irq;
+ 		goto failed_free;
+ 	}
+ 
 -- 
-Jiri Kosina
-SUSE Labs
-
+2.7.4

@@ -1,46 +1,68 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 01/10 v5] Input: ep93xx_keypad: Fix platform_get_irq's error checking
-Date: Tue, 21 Nov 2017 21:41:51 +0530
-Message-ID: <49ba0386f1930f58edfd5ee0f5e65d2a02a46744.1511280261.git.arvind.yadav.cs@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: cp2112: Fix I2C_BLOCK_DATA transactions
+Date: Tue, 21 Nov 2017 17:42:54 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1711211742270.11505@cbobk.fhfr.pm>
+References: <20171114000358.GA14433@mail.arista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171114000358.GA14433@mail.arista.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, mcuos.com@gmail.com, linux@roeck-us.net, linux@armlinux.org.uk, lee.jones@linaro.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Eudean Sun <eudean@arista.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Barksdale <dbarksdale@uplogix.com>
 List-Id: linux-input@vger.kernel.org
 
-The platform_get_irq() function returns negative if an error occurs.
-zero or positive number on success. platform_get_irq() error checking
-for zero is not correct.
+On Mon, 13 Nov 2017, Eudean Sun wrote:
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
-changes in v2 :
-              Return keypad->irq insted of -ENXIO.
-changes in v3 :
-              Add failure case '<= 0' instead of '< 0'. IRQ0 is not valid.
-changes in v4 :
-              Return -ENXIO insted of keypad->irq. Which was not correct in v3.
-changes in v5 :
-              Remove changes of v3 and v4. go back to version v2. Which is correct.
-              No need to check for IRQ0 and return keypad->irq insted of -ENXIO.
+> The existing driver erroneously treats I2C_BLOCK_DATA and BLOCK_DATA
+> commands the same. Fix the logic for I2C_BLOCK_DATA reads and writes.
 
- drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Addin David, the original author of the driver (and the code in question 
+as well) to CC.
 
-diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
-index f77b295..01788a7 100644
---- a/drivers/input/keyboard/ep93xx_keypad.c
-+++ b/drivers/input/keyboard/ep93xx_keypad.c
-@@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
- 	}
- 
- 	keypad->irq = platform_get_irq(pdev, 0);
--	if (!keypad->irq) {
--		err = -ENXIO;
-+	if (keypad->irq < 0) {
-+		err = keypad->irq;
- 		goto failed_free;
- 	}
- 
+> 
+> Signed-off-by: Eudean Sun <eudean@arista.com>
+> ---
+>  drivers/hid/hid-cp2112.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+> index 078026f..0adece2 100644
+> --- a/drivers/hid/hid-cp2112.c
+> +++ b/drivers/hid/hid-cp2112.c
+> @@ -692,8 +692,16 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+>  					      (u8 *)&word, 2);
+>  		break;
+>  	case I2C_SMBUS_I2C_BLOCK_DATA:
+> -		size = I2C_SMBUS_BLOCK_DATA;
+> -		/* fallthrough */
+> +		if (read_write == I2C_SMBUS_READ) {
+> +			read_length = data->block[0];
+> +			count = cp2112_write_read_req(buf, addr, read_length,
+> +						      command, NULL, 0);
+> +		} else {
+> +			count = cp2112_write_req(buf, addr, command,
+> +						 data->block + 1,
+> +						 data->block[0]);
+> +		}
+> +		break;
+>  	case I2C_SMBUS_BLOCK_DATA:
+>  		if (I2C_SMBUS_READ == read_write) {
+>  			count = cp2112_write_read_req(buf, addr,
+> @@ -781,6 +789,9 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
+>  	case I2C_SMBUS_WORD_DATA:
+>  		data->word = le16_to_cpup((__le16 *)buf);
+>  		break;
+> +	case I2C_SMBUS_I2C_BLOCK_DATA:
+> +		memcpy(data->block + 1, buf, read_length);
+> +		break;
+>  	case I2C_SMBUS_BLOCK_DATA:
+>  		if (read_length > I2C_SMBUS_BLOCK_MAX) {
+>  			ret = -EPROTO;
+> -- 
+> 2.7.4
+> 
+
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs

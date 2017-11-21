@@ -1,68 +1,39 @@
 From: Jiri Kosina <jikos@kernel.org>
 Subject: Re: [PATCH] HID: cp2112: Fix I2C_BLOCK_DATA transactions
-Date: Tue, 21 Nov 2017 17:42:54 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711211742270.11505@cbobk.fhfr.pm>
-References: <20171114000358.GA14433@mail.arista.com>
+Date: Tue, 21 Nov 2017 17:45:32 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1711211744250.11505@cbobk.fhfr.pm>
+References: <20171114000358.GA14433@mail.arista.com> <nycvar.YFH.7.76.1711211742270.11505@cbobk.fhfr.pm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171114000358.GA14433@mail.arista.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eudean Sun <eudean@arista.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Barksdale <dbarksdale@uplogix.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:36683 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750794AbdKUQpe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Nov 2017 11:45:34 -0500
+In-Reply-To: <nycvar.YFH.7.76.1711211742270.11505@cbobk.fhfr.pm>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Eudean Sun <eudean@arista.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2017, Eudean Sun wrote:
+On Tue, 21 Nov 2017, Jiri Kosina wrote:
 
-> The existing driver erroneously treats I2C_BLOCK_DATA and BLOCK_DATA
-> commands the same. Fix the logic for I2C_BLOCK_DATA reads and writes.
-
-Addin David, the original author of the driver (and the code in question 
-as well) to CC.
-
+> > The existing driver erroneously treats I2C_BLOCK_DATA and BLOCK_DATA
+> > commands the same. Fix the logic for I2C_BLOCK_DATA reads and writes.
 > 
-> Signed-off-by: Eudean Sun <eudean@arista.com>
-> ---
->  drivers/hid/hid-cp2112.c | 15 +++++++++++++--
->  1 file changed, 13 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> index 078026f..0adece2 100644
-> --- a/drivers/hid/hid-cp2112.c
-> +++ b/drivers/hid/hid-cp2112.c
-> @@ -692,8 +692,16 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
->  					      (u8 *)&word, 2);
->  		break;
->  	case I2C_SMBUS_I2C_BLOCK_DATA:
-> -		size = I2C_SMBUS_BLOCK_DATA;
-> -		/* fallthrough */
-> +		if (read_write == I2C_SMBUS_READ) {
-> +			read_length = data->block[0];
-> +			count = cp2112_write_read_req(buf, addr, read_length,
-> +						      command, NULL, 0);
-> +		} else {
-> +			count = cp2112_write_req(buf, addr, command,
-> +						 data->block + 1,
-> +						 data->block[0]);
-> +		}
-> +		break;
->  	case I2C_SMBUS_BLOCK_DATA:
->  		if (I2C_SMBUS_READ == read_write) {
->  			count = cp2112_write_read_req(buf, addr,
-> @@ -781,6 +789,9 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
->  	case I2C_SMBUS_WORD_DATA:
->  		data->word = le16_to_cpup((__le16 *)buf);
->  		break;
-> +	case I2C_SMBUS_I2C_BLOCK_DATA:
-> +		memcpy(data->block + 1, buf, read_length);
-> +		break;
->  	case I2C_SMBUS_BLOCK_DATA:
->  		if (read_length > I2C_SMBUS_BLOCK_MAX) {
->  			ret = -EPROTO;
-> -- 
-> 2.7.4
-> 
+> Addin David, the original author of the driver (and the code in question 
+> as well) to CC.
+
+Alright, that address bounces.
+
+In that case -- could you please be a little bit more specific in the 
+changelog? Namely: what are the observable effects of this bug (did you 
+find it by code inspection or have you seen it triggering) and why this is 
+a proper fix for that bug.
+
+Thanks!
 
 -- 
 Jiri Kosina
 SUSE Labs
+

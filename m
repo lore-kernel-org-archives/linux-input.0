@@ -1,50 +1,42 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v4 4/4] HID: multitouch: Combine all left-button events
- in a frame
-Date: Tue, 21 Nov 2017 13:11:39 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711211310230.11505@cbobk.fhfr.pm>
-References: <20171113163259.18150-1-hdegoede@redhat.com> <20171113163259.18150-4-hdegoede@redhat.com> <20171114080229.GE403@mail.corp.redhat.com>
+Subject: Re: [PATCH v3] HID: i2c-hid: Allow ACPI systems to specify
+ "post-power-on-delay-ms"
+Date: Tue, 21 Nov 2017 13:30:27 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1711211330090.11505@cbobk.fhfr.pm>
+References: <20171002213215.32201-1-rajatja@google.com> <20171003181922.42827-1-rajatja@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36324 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:38412 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751923AbdKUMLl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Nov 2017 07:11:41 -0500
-In-Reply-To: <20171114080229.GE403@mail.corp.redhat.com>
+        id S1751684AbdKUMab (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Nov 2017 07:30:31 -0500
+In-Reply-To: <20171003181922.42827-1-rajatja@google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+To: Rajat Jain <rajatja@google.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Arcari <darcari@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, HungNien Chen <hn.chen@weidahitech.com>, Hans de Goede <hdegoede@redhat.com>, Brian Norris <briannorris@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rajatxjain@gmail.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Tue, 14 Nov 2017, Benjamin Tissoires wrote:
+On Tue, 3 Oct 2017, Rajat Jain wrote:
 
-> > According to the Win8 Precision Touchpad spec, inside the HID_UP_BUTTON
-> > usage-page usage 1 is for a clickpad getting clicked, 2 for an external
-> > left button and 3 for an external right button. Since Linux uses
-> > BTN_LEFT for a clickpad being clicked we end up mapping both usage 1
-> > and 2 to BTN_LEFT and if a single report contains both then we ended
-> > up always reporting the value of both in a single SYN, e.g. :
-> > BTN_LEFT 1, BTN_LEFT 0, SYN. This happens for example with Hantick
-> > HTT5288 i2c mt touchpads.
-> > 
-> > This commit fixes this by not immediately reporting left button when we
-> > parse the report, but instead storing or-ing together the values and
-> > reporting the result from mt_sync_frame() when we've a complete frame.
-> > 
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > ---
+> The property "post-power-on-delay-ms" allows a platform to specify
+> the delay needed after power-on, but only via device trees currently.
+> Use device_property_* instead of of_* reads to allow ACPI systems to
+> also provide the same information. This is useful for Wacom hardware
+> on ACPI systems.
 > 
-> Thanks Hans for the re-spin of the series.
-> I think we are good now, series is:
-> 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Rajat Jain <rajatja@google.com>
+> ---
+> v3: introduce i2c_hid_fwnode_probe() to parse common device_properties.
+>     Also fixup the binding doc to indicate that regulator isn't a
+>     requirement for "post-power-on-delay-ms"
+> v2: Don't change any other existing logic, only read "post-power-on-delay-ms"
+>     in i2c_hid_acpi_pdata() also.
+> v1: Try to unify everything using device properties, convert i2c_hid_of_probe()
+>     to i2c_hid_fwnode_probe() and call i2c_hid_acpi_pdata() if can't get
+>     HID register address using device_property.
 
-Thanks. Hans, last request for you -- HID_DG_SCANTIME handling has in the 
-meantime added for forwarding the MSC_TIMESTAMP (commit 29cc309d8bf1). 
-Could you please respin your patch on top of that (basically just merge 
-your handling with the one added for MSC_TIMESTAMP) and resend? I'll then 
-queue it for 4.16. Thanks,
+Queued now for 4.16 merge window.
 
 -- 
 Jiri Kosina

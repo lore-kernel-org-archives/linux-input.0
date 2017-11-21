@@ -1,38 +1,33 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: Add special driver for Jabra devices
-Date: Tue, 21 Nov 2017 12:58:08 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711211257550.11505@cbobk.fhfr.pm>
-References: <1507113082-31678-1-git-send-email-nolsen@jabra.com>
+Subject: Re: [PATCH 2/2] HID: wacom: Queue events with missing type/serial
+ data for later processing
+Date: Tue, 21 Nov 2017 13:05:00 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1711211304380.11505@cbobk.fhfr.pm>
+References: <20171110195001.13081-1-killertofu@gmail.com> <20171110195001.13081-2-killertofu@gmail.com> <20171113092222.GD403@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:34986 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:35686 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751382AbdKUL6K (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Nov 2017 06:58:10 -0500
-In-Reply-To: <1507113082-31678-1-git-send-email-nolsen@jabra.com>
+        id S1751923AbdKUMFC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Nov 2017 07:05:02 -0500
+In-Reply-To: <20171113092222.GD403@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Niels Skou Olsen <nolsen@jabra.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, 4 Oct 2017, nolsen@jabra.com wrote:
+On Mon, 13 Nov 2017, Benjamin Tissoires wrote:
 
-> From: Niels Skou Olsen <nolsen@jabra.com>
-> 
-> Add a hid-jabra driver to the list of special drivers in hid-core. The
-> driver prevents vendor defined HID usages (FF00-FFFF) in Jabra devices
-> from being mapped to input events, that become unintended mouse events
-> in the X11 server.
-> 
-> Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
-> ---
-> v2: Rebase on patch set "Quirks cleanup and hid-generic niceness", v2
->     (http://www.spinics.net/lists/linux-input/msg53428.html)
+> We already discussed this patch off list for a while with Jason (it
+> should actually be v5 or v6 ;-P )
 
-Applied to for-4.16/hid-quirks-cleanup/jabra as well.
+:)
 
-Thanks,
+> The series is:
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Excellent, thanks. Applied to for-4.16/wacom.
 
 -- 
 Jiri Kosina

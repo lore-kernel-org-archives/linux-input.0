@@ -1,65 +1,59 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v4 4/4] HID: multitouch: Combine all left-button events in
- a frame
-Date: Wed, 22 Nov 2017 12:55:34 +0100
-Message-ID: <e2f18cad-616a-9272-cad4-a3081d016745@redhat.com>
-References: <20171113163259.18150-1-hdegoede@redhat.com>
- <20171113163259.18150-4-hdegoede@redhat.com>
- <20171114080229.GE403@mail.corp.redhat.com>
- <nycvar.YFH.7.76.1711211310230.11505@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v5 1/4] HID: multitouch: Fix alphabetic sorting of mt_devices table.
+Date: Wed, 22 Nov 2017 12:57:07 +0100
+Message-ID: <20171122115710.9978-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39142 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40074 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752371AbdKVLzi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Nov 2017 06:55:38 -0500
-In-Reply-To: <nycvar.YFH.7.76.1711211310230.11505@cbobk.fhfr.pm>
-Content-Language: en-US
+        id S1752261AbdKVL5U (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Nov 2017 06:57:20 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
+Fix alphabetic sorting of mt_devices hid_device_id table.
 
-On 21-11-17 13:11, Jiri Kosina wrote:
-> On Tue, 14 Nov 2017, Benjamin Tissoires wrote:
-> 
->>> According to the Win8 Precision Touchpad spec, inside the HID_UP_BUTTON
->>> usage-page usage 1 is for a clickpad getting clicked, 2 for an external
->>> left button and 3 for an external right button. Since Linux uses
->>> BTN_LEFT for a clickpad being clicked we end up mapping both usage 1
->>> and 2 to BTN_LEFT and if a single report contains both then we ended
->>> up always reporting the value of both in a single SYN, e.g. :
->>> BTN_LEFT 1, BTN_LEFT 0, SYN. This happens for example with Hantick
->>> HTT5288 i2c mt touchpads.
->>>
->>> This commit fixes this by not immediately reporting left button when we
->>> parse the report, but instead storing or-ing together the values and
->>> reporting the result from mt_sync_frame() when we've a complete frame.
->>>
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>> ---
->>
->> Thanks Hans for the re-spin of the series.
->> I think we are good now, series is:
->>
->> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> Thanks. Hans, last request for you -- HID_DG_SCANTIME handling has in the
-> meantime added for forwarding the MSC_TIMESTAMP (commit 29cc309d8bf1).
-> Could you please respin your patch on top of that (basically just merge
-> your handling with the one added for MSC_TIMESTAMP) and resend? I'll then
-> queue it for 4.16. Thanks,
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-multitouch.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-Ok, v5 with this fixed coming up.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 65ea23be9677..9ef24b518f12 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1649,14 +1649,6 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TURBOX,
+ 			USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) },
+ 
+-	/* Panasonic panels */
+-	{ .driver_data = MT_CLS_PANASONIC,
+-		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
+-			USB_DEVICE_ID_PANABOARD_UBT780) },
+-	{ .driver_data = MT_CLS_PANASONIC,
+-		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
+-			USB_DEVICE_ID_PANABOARD_UBT880) },
+-
+ 	/* Novatek Panel */
+ 	{ .driver_data = MT_CLS_NSMU,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
+@@ -1667,6 +1659,14 @@ static const struct hid_device_id mt_devices[] = {
+ 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+ 			USB_VENDOR_ID_NTRIG, 0x1b05) },
+ 
++	/* Panasonic panels */
++	{ .driver_data = MT_CLS_PANASONIC,
++		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
++			USB_DEVICE_ID_PANABOARD_UBT780) },
++	{ .driver_data = MT_CLS_PANASONIC,
++		MT_USB_DEVICE(USB_VENDOR_ID_PANASONIC,
++			USB_DEVICE_ID_PANABOARD_UBT880) },
++
+ 	/* PixArt optical touch screen */
+ 	{ .driver_data = MT_CLS_INRANGE_CONTACTNUMBER,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_PIXART,
+-- 
+2.14.3
 
-Since this fixes 2 touchpad models not working (not being usable at
-least) it would be nice to get this series into 4.15 rc2/rc3 as a
-bugfix IMHO.
-
-Regards,
-
-Hans

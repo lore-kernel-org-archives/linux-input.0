@@ -1,71 +1,96 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v4 4/4] HID: multitouch: Combine all left-button events in
- a frame
-Date: Wed, 22 Nov 2017 15:01:43 +0100
-Message-ID: <81f6ddf6-9af6-7968-ea3d-43b6b4087b32@redhat.com>
-References: <20171113163259.18150-1-hdegoede@redhat.com>
- <20171113163259.18150-4-hdegoede@redhat.com>
- <20171114080229.GE403@mail.corp.redhat.com>
- <nycvar.YFH.7.76.1711211310230.11505@cbobk.fhfr.pm>
- <e2f18cad-616a-9272-cad4-a3081d016745@redhat.com>
- <nycvar.YFH.7.76.1711221436340.11505@cbobk.fhfr.pm>
- <b325d9fd-3761-fb56-d72f-2f78026af6be@redhat.com>
- <20171122135925.GN403@mail.corp.redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: asus: Add product-id for the T100TAF keyboard dock
+Date: Wed, 22 Nov 2017 15:06:47 +0100
+Message-ID: <20171122140647.GO403@mail.corp.redhat.com>
+References: <20171122120500.11206-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40804 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36266 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751259AbdKVOBs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Nov 2017 09:01:48 -0500
-In-Reply-To: <20171122135925.GN403@mail.corp.redhat.com>
-Content-Language: en-US
+        id S1751260AbdKVOGw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Nov 2017 09:06:52 -0500
+Content-Disposition: inline
+In-Reply-To: <20171122120500.11206-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, stable@vger.kernel.org
 
-Hi,
-
-On 22-11-17 14:59, Benjamin Tissoires wrote:
-> On Nov 22 2017 or thereabouts, Hans de Goede wrote:
->> Hi,
->>
->> On 22-11-17 14:37, Jiri Kosina wrote:
->>> On Wed, 22 Nov 2017, Hans de Goede wrote:
->>>
->>>>> Thanks. Hans, last request for you -- HID_DG_SCANTIME handling has in the
->>>>> meantime added for forwarding the MSC_TIMESTAMP (commit 29cc309d8bf1).
->>>>> Could you please respin your patch on top of that (basically just merge
->>>>> your handling with the one added for MSC_TIMESTAMP) and resend? I'll then
->>>>> queue it for 4.16. Thanks,
->>>>
->>>> Ok, v5 with this fixed coming up.
->>>
->>> Thanks a lot Hans.
->>>
->>>> Since this fixes 2 touchpad models not working (not being usable at
->>>> least) it would be nice to get this series into 4.15 rc2/rc3 as a bugfix
->>>> IMHO.
->>>
->>> Hmm, as this is changing common code paths, I'd prefer not to push it
->>> before next merge window really.
->>
->> I understand, although we are still pre-rc1, so if you queue this up
->> for rc2 we won't miss a lot of the testing window, and I don't
->> think a lot of people with hid-mt touchpads are running -next...
->>
->> Benjamin, what is your take on this?
+On Nov 22 2017 or thereabouts, Hans de Goede wrote:
+> The T100TAF keyboard dock has the same special keys and custom
+> protocol multitouch touchpad as the T100TA, but uses a different
+> product id, add support for this.
 > 
-> Well, I think both arguments are valid. I would think the patch series
-> is safe, but we never know.
-> How about we schedule this for 4.16 and get it merged in Fedora
-> 27/rawhide soon, so it gets the testings you want but is still scheduled
-> upstream?
+> Cc: stable@vger.kernel.org
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197849
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/hid/hid-asus.c | 5 ++++-
+>  drivers/hid/hid-core.c | 3 ++-
+>  drivers/hid/hid-ids.h  | 3 ++-
+>  3 files changed, 8 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 1bb7b63b3150..4cdac9857037 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -751,7 +751,10 @@ static const struct hid_device_id asus_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>  		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> -		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
+> +		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
+> +	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+>  	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index f3fcb836a1f9..d6780e1d2526 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1983,7 +1983,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD) },
 
-You mean add it to the 4.15 kernels in rawhide? That would work for me.
+In Jiri's 4.16 branch, this has just moved to drivers/hid-quirks.c and
+is not really necessary anymore (and I am thinking we should actually
+not add new devices there because it is a nice feature to keep the
+hid-generic fallback).
 
-Regards,
+But given that the patch is rather small and matches stable criterias,
+I'd say, for the 4.15 branch:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hans
+Though problem is going to be to merge this with for-next once the 4.16
+branch gets merged in.
+
+Cheers,
+Benjamin
+
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 5da3d6256d25..dc1db8558850 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -178,7 +178,8 @@
+>  #define USB_VENDOR_ID_ASUSTEK		0x0b05
+>  #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+>  #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+> -#define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
+> +#define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
+> +#define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
+>  #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
+>  #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+>  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
+> -- 
+> 2.14.3
+> 

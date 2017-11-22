@@ -1,99 +1,74 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v5 4/4] HID: multitouch: Combine all left-button events in a frame
-Date: Wed, 22 Nov 2017 12:57:10 +0100
-Message-ID: <20171122115710.9978-4-hdegoede@redhat.com>
-References: <20171122115710.9978-1-hdegoede@redhat.com>
+Subject: [PATCH] HID: asus: Add product-id for the T100TAF keyboard dock
+Date: Wed, 22 Nov 2017 13:05:00 +0100
+Message-ID: <20171122120500.11206-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39734 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52218 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752370AbdKVL51 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Nov 2017 06:57:27 -0500
-In-Reply-To: <20171122115710.9978-1-hdegoede@redhat.com>
+        id S1752325AbdKVMFG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Nov 2017 07:05:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 
-According to the Win8 Precision Touchpad spec, inside the HID_UP_BUTTON
-usage-page usage 1 is for a clickpad getting clicked, 2 for an external
-left button and 3 for an external right button. Since Linux uses
-BTN_LEFT for a clickpad being clicked we end up mapping both usage 1
-and 2 to BTN_LEFT and if a single report contains both then we ended
-up always reporting the value of both in a single SYN, e.g. :
-BTN_LEFT 1, BTN_LEFT 0, SYN. This happens for example with Hantick
-HTT5288 i2c mt touchpads.
+The T100TAF keyboard dock has the same special keys and custom
+protocol multitouch touchpad as the T100TA, but uses a different
+product id, add support for this.
 
-This commit fixes this by not immediately reporting left button when we
-parse the report, but instead storing or-ing together the values and
-reporting the result from mt_sync_frame() when we've a complete frame.
-
+Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197849
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
-Changes in v2:
--Rewrite of v1 of "HID: multitouch: Fix BTN_LEFT 0-1-0-1 events on Novatek
- mt touchpad" to kill two birds with one stone
+ drivers/hid/hid-asus.c | 5 ++++-
+ drivers/hid/hid-core.c | 3 ++-
+ drivers/hid/hid-ids.h  | 3 ++-
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
-Changes in v3:
--Delay reporting for all buttons not just for BTN_LEFT
-
-Changes in v4:
--Back to combining only the value for BTN_LEFT, the other issues are fixed
- with the new "HID: multitouch: Only look at non touch fields in first
- packet of a frame" patch
----
- drivers/hid/hid-multitouch.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 760c4a042e6a..76088f2cf598 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -122,6 +122,7 @@ struct mt_device {
- 	int scantime_index;	/* scantime field index in the report */
- 	int scantime_val_index;	/* scantime value index in the field */
- 	int prev_scantime;	/* scantime reported in the previous packet */
-+	int left_button_state;	/* left button state */
- 	unsigned last_slot_field;	/* the last field of a slot */
- 	unsigned mt_report_id;	/* the report ID of the multitouch device */
- 	unsigned long initial_quirks;	/* initial quirks state */
-@@ -743,10 +744,16 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
-  */
- static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
- {
-+	__s32 cls = td->mtclass.name;
-+
-+	if (cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL)
-+		input_event(input, EV_KEY, BTN_LEFT, td->left_button_state);
-+
- 	input_mt_sync_frame(input);
- 	input_event(input, EV_MSC, MSC_TIMESTAMP, td->timestamp);
- 	input_sync(input);
- 	td->num_received = 0;
-+	td->left_button_state = 0;
- 	if (test_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags))
- 		set_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
- 	else
-@@ -857,6 +864,19 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			    !first_packet)
- 				return;
- 
-+			/*
-+			 * For Win8 PTP touchpads we map both the clickpad click
-+			 * and any "external" left buttons to BTN_LEFT if a
-+			 * device claims to have both we need to report 1 for
-+			 * BTN_LEFT if either is pressed, so we or all values
-+			 * together and report the result in mt_sync_frame().
-+			 */
-+			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
-+			    usage->type == EV_KEY && usage->code == BTN_LEFT) {
-+				td->left_button_state |= value;
-+				return;
-+			}
-+
- 			if (usage->type)
- 				input_event(input, usage->type, usage->code,
- 						value);
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 1bb7b63b3150..4cdac9857037 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -751,7 +751,10 @@ static const struct hid_device_id asus_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+-		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
++		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
++	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
++		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+ 	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index f3fcb836a1f9..d6780e1d2526 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1983,7 +1983,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 5da3d6256d25..dc1db8558850 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -178,7 +178,8 @@
+ #define USB_VENDOR_ID_ASUSTEK		0x0b05
+ #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+ #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+-#define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
++#define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
++#define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
+ #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
+ #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+ #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
 -- 
 2.14.3
 

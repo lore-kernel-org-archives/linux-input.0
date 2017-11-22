@@ -1,97 +1,129 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v5 3/4] HID: multitouch: Only look at non touch fields in first packet of a frame
-Date: Wed, 22 Nov 2017 12:57:09 +0100
-Message-ID: <20171122115710.9978-3-hdegoede@redhat.com>
+Subject: [PATCH v5 2/4] HID: multitouch: Properly deal with Win8 PTP reports with 0 touches
+Date: Wed, 22 Nov 2017 12:57:08 +0100
+Message-ID: <20171122115710.9978-2-hdegoede@redhat.com>
 References: <20171122115710.9978-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56036 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48140 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752356AbdKVL5Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Nov 2017 06:57:24 -0500
+        id S1752297AbdKVL5W (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Nov 2017 06:57:22 -0500
 In-Reply-To: <20171122115710.9978-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Devices in "single finger hybrid mode" will send one report per finger,
-on some devices only the first report of such a multi-packet frame will
-contain a value for BTN_LEFT, in subsequent reports (if multiple fingers
-are down) the value is always 0, causing hid-mt to report BTN_LEFT going
-1 - 0 - 1 - 0 when pressing a clickpad and putting down a second finger.
-This happens for example on USB 0603:0002 mt touchpads.
+The Windows Precision Touchpad spec "Figure 4 Button Only Down and Up"
+and "Table 9 Report Sequence for Button Only Down and Up" indicate
+that the first packet of a (possibly hybrid mode multi-packet) frame
+may contain a contact-count of 0 if only a button is pressed and no
+fingers are detected.
 
-This commit fixes this by only reporting non touch fields for the first
-packet of a (possibly) multi-packet frame.
+This means that a value of 0 for contact-count is a valid value and
+should be used as expected contact count when it is the first packet
+(num_received == 0), as extra check to make sure that this is the first
+packet of a buttons only frame, we also check that the timestamp is
+different.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
+Changes in v2:
+-New patch in v2 of this patch-set
+
+Changes in v3:
+-Also check timestamps to make sure we're dealing with the first-packet
+ of a frame
+
 Changes in v4:
--New patch in this patch-set with a new approach focussed on only fixing
- the issues with the USB 0603:0002 mt touchpads
+-Add Benjamin's Reviewed-by
+
+Changes in v5:
+-Rebase on top of latest upstream, which already has some HID_DG_SCANTIME
+ handling
 ---
- drivers/hid/hid-multitouch.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/hid/hid-multitouch.c | 32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index d8b1cad74faf..760c4a042e6a 100644
+index 9ef24b518f12..d8b1cad74faf 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -787,9 +787,11 @@ static int mt_touch_event(struct hid_device *hid, struct hid_field *field,
- }
- 
- static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
--				struct hid_usage *usage, __s32 value)
-+				struct hid_usage *usage, __s32 value,
-+				bool first_packet)
+@@ -119,6 +119,9 @@ struct mt_device {
+ 	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
+ 	int cc_index;	/* contact count field index in the report */
+ 	int cc_value_index;	/* contact count value index in the field */
++	int scantime_index;	/* scantime field index in the report */
++	int scantime_val_index;	/* scantime value index in the field */
++	int prev_scantime;	/* scantime reported in the previous packet */
+ 	unsigned last_slot_field;	/* the last field of a slot */
+ 	unsigned mt_report_id;	/* the report ID of the multitouch device */
+ 	unsigned long initial_quirks;	/* initial quirks state */
+@@ -599,6 +602,12 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 				EV_MSC, MSC_TIMESTAMP);
+ 			input_set_capability(hi->input, EV_MSC, MSC_TIMESTAMP);
+ 			mt_store_field(usage, td, hi);
++			/* Ignore if indexes are out of bounds. */
++			if (field->index >= field->report->maxfield ||
++			    usage->usage_index >= field->report_count)
++				return 1;
++			td->scantime_index = field->index;
++			td->scantime_val_index = usage->usage_index;
+ 			return 1;
+ 		case HID_DG_CONTACTCOUNT:
+ 			/* Ignore if indexes are out of bounds. */
+@@ -855,9 +864,10 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
  {
  	struct mt_device *td = hid_get_drvdata(hid);
 +	__s32 cls = td->mtclass.name;
- 	__s32 quirks = td->mtclass.quirks;
- 	struct input_dev *input = field->hidinput->input;
- 
-@@ -846,6 +848,15 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			break;
- 
- 		default:
-+			/*
-+			 * For Win8 PTP touchpads we should only look at
-+			 * non finger/touch events in the first_packet of
-+			 * a (possible) multi-packet frame.
-+			 */
-+			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
-+			    !first_packet)
-+				return;
-+
- 			if (usage->type)
- 				input_event(input, usage->type, usage->code,
- 						value);
-@@ -866,6 +877,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- 	struct mt_device *td = hid_get_drvdata(hid);
- 	__s32 cls = td->mtclass.name;
  	struct hid_field *field;
-+	bool first_packet;
  	unsigned count;
- 	int r, n, scantime = 0;
+-	int r, n;
++	int r, n, scantime = 0;
  
-@@ -901,6 +913,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 	/* sticky fingers release in progress, abort */
+ 	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+@@ -867,12 +877,29 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 	 * Includes multi-packet support where subsequent
+ 	 * packets are sent with zero contactcount.
+ 	 */
++	if (td->scantime_index >= 0) {
++		field = report->field[td->scantime_index];
++		scantime = field->value[td->scantime_val_index];
++	}
+ 	if (td->cc_index >= 0) {
+ 		struct hid_field *field = report->field[td->cc_index];
+ 		int value = field->value[td->cc_value_index];
+-		if (value)
++
++		/*
++		 * For Win8 PTPs the first packet (td->num_received == 0) may
++		 * have a contactcount of 0 if there only is a button event.
++		 * We double check that this is not a continuation packet
++		 * of a possible multi-packet frame be checking that the
++		 * timestamp has changed.
++		 */
++		if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
++		    td->num_received == 0 && td->prev_scantime != scantime)
++			td->num_expected = value;
++		/* A non 0 contact count always indicates a first packet */
++		else if (value)
+ 			td->num_expected = value;
  	}
- 	td->prev_scantime = scantime;
++	td->prev_scantime = scantime;
  
-+	first_packet = td->num_received == 0;
  	for (r = 0; r < report->maxfield; r++) {
  		field = report->field[r];
- 		count = field->report_count;
-@@ -910,7 +923,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+@@ -1329,6 +1356,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	td->maxcontact_report_id = -1;
+ 	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
+ 	td->cc_index = -1;
++	td->scantime_index = -1;
+ 	td->mt_report_id = -1;
+ 	hid_set_drvdata(hdev, td);
  
- 		for (n = 0; n < count; n++)
- 			mt_process_mt_event(hid, field, &field->usage[n],
--					field->value[n]);
-+					    field->value[n], first_packet);
- 	}
- 
- 	if (td->num_received >= td->num_expected)
 -- 
 2.14.3
 

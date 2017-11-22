@@ -1,129 +1,99 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v5 2/4] HID: multitouch: Properly deal with Win8 PTP reports with 0 touches
-Date: Wed, 22 Nov 2017 12:57:08 +0100
-Message-ID: <20171122115710.9978-2-hdegoede@redhat.com>
+Subject: [PATCH v5 4/4] HID: multitouch: Combine all left-button events in a frame
+Date: Wed, 22 Nov 2017 12:57:10 +0100
+Message-ID: <20171122115710.9978-4-hdegoede@redhat.com>
 References: <20171122115710.9978-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48140 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:39734 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752297AbdKVL5W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Nov 2017 06:57:22 -0500
+        id S1752370AbdKVL51 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Nov 2017 06:57:27 -0500
 In-Reply-To: <20171122115710.9978-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-The Windows Precision Touchpad spec "Figure 4 Button Only Down and Up"
-and "Table 9 Report Sequence for Button Only Down and Up" indicate
-that the first packet of a (possibly hybrid mode multi-packet) frame
-may contain a contact-count of 0 if only a button is pressed and no
-fingers are detected.
+According to the Win8 Precision Touchpad spec, inside the HID_UP_BUTTON
+usage-page usage 1 is for a clickpad getting clicked, 2 for an external
+left button and 3 for an external right button. Since Linux uses
+BTN_LEFT for a clickpad being clicked we end up mapping both usage 1
+and 2 to BTN_LEFT and if a single report contains both then we ended
+up always reporting the value of both in a single SYN, e.g. :
+BTN_LEFT 1, BTN_LEFT 0, SYN. This happens for example with Hantick
+HTT5288 i2c mt touchpads.
 
-This means that a value of 0 for contact-count is a valid value and
-should be used as expected contact count when it is the first packet
-(num_received == 0), as extra check to make sure that this is the first
-packet of a buttons only frame, we also check that the timestamp is
-different.
+This commit fixes this by not immediately reporting left button when we
+parse the report, but instead storing or-ing together the values and
+reporting the result from mt_sync_frame() when we've a complete frame.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 Changes in v2:
--New patch in v2 of this patch-set
+-Rewrite of v1 of "HID: multitouch: Fix BTN_LEFT 0-1-0-1 events on Novatek
+ mt touchpad" to kill two birds with one stone
 
 Changes in v3:
--Also check timestamps to make sure we're dealing with the first-packet
- of a frame
+-Delay reporting for all buttons not just for BTN_LEFT
 
 Changes in v4:
--Add Benjamin's Reviewed-by
-
-Changes in v5:
--Rebase on top of latest upstream, which already has some HID_DG_SCANTIME
- handling
+-Back to combining only the value for BTN_LEFT, the other issues are fixed
+ with the new "HID: multitouch: Only look at non touch fields in first
+ packet of a frame" patch
 ---
- drivers/hid/hid-multitouch.c | 32 ++++++++++++++++++++++++++++++--
- 1 file changed, 30 insertions(+), 2 deletions(-)
+ drivers/hid/hid-multitouch.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 9ef24b518f12..d8b1cad74faf 100644
+index 760c4a042e6a..76088f2cf598 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -119,6 +119,9 @@ struct mt_device {
- 	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
- 	int cc_index;	/* contact count field index in the report */
- 	int cc_value_index;	/* contact count value index in the field */
-+	int scantime_index;	/* scantime field index in the report */
-+	int scantime_val_index;	/* scantime value index in the field */
-+	int prev_scantime;	/* scantime reported in the previous packet */
+@@ -122,6 +122,7 @@ struct mt_device {
+ 	int scantime_index;	/* scantime field index in the report */
+ 	int scantime_val_index;	/* scantime value index in the field */
+ 	int prev_scantime;	/* scantime reported in the previous packet */
++	int left_button_state;	/* left button state */
  	unsigned last_slot_field;	/* the last field of a slot */
  	unsigned mt_report_id;	/* the report ID of the multitouch device */
  	unsigned long initial_quirks;	/* initial quirks state */
-@@ -599,6 +602,12 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 				EV_MSC, MSC_TIMESTAMP);
- 			input_set_capability(hi->input, EV_MSC, MSC_TIMESTAMP);
- 			mt_store_field(usage, td, hi);
-+			/* Ignore if indexes are out of bounds. */
-+			if (field->index >= field->report->maxfield ||
-+			    usage->usage_index >= field->report_count)
-+				return 1;
-+			td->scantime_index = field->index;
-+			td->scantime_val_index = usage->usage_index;
- 			return 1;
- 		case HID_DG_CONTACTCOUNT:
- 			/* Ignore if indexes are out of bounds. */
-@@ -855,9 +864,10 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+@@ -743,10 +744,16 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+  */
+ static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
  {
- 	struct mt_device *td = hid_get_drvdata(hid);
 +	__s32 cls = td->mtclass.name;
- 	struct hid_field *field;
- 	unsigned count;
--	int r, n;
-+	int r, n, scantime = 0;
- 
- 	/* sticky fingers release in progress, abort */
- 	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
-@@ -867,12 +877,29 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- 	 * Includes multi-packet support where subsequent
- 	 * packets are sent with zero contactcount.
- 	 */
-+	if (td->scantime_index >= 0) {
-+		field = report->field[td->scantime_index];
-+		scantime = field->value[td->scantime_val_index];
-+	}
- 	if (td->cc_index >= 0) {
- 		struct hid_field *field = report->field[td->cc_index];
- 		int value = field->value[td->cc_value_index];
--		if (value)
 +
-+		/*
-+		 * For Win8 PTPs the first packet (td->num_received == 0) may
-+		 * have a contactcount of 0 if there only is a button event.
-+		 * We double check that this is not a continuation packet
-+		 * of a possible multi-packet frame be checking that the
-+		 * timestamp has changed.
-+		 */
-+		if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
-+		    td->num_received == 0 && td->prev_scantime != scantime)
-+			td->num_expected = value;
-+		/* A non 0 contact count always indicates a first packet */
-+		else if (value)
- 			td->num_expected = value;
- 	}
-+	td->prev_scantime = scantime;
++	if (cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL)
++		input_event(input, EV_KEY, BTN_LEFT, td->left_button_state);
++
+ 	input_mt_sync_frame(input);
+ 	input_event(input, EV_MSC, MSC_TIMESTAMP, td->timestamp);
+ 	input_sync(input);
+ 	td->num_received = 0;
++	td->left_button_state = 0;
+ 	if (test_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags))
+ 		set_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
+ 	else
+@@ -857,6 +864,19 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ 			    !first_packet)
+ 				return;
  
- 	for (r = 0; r < report->maxfield; r++) {
- 		field = report->field[r];
-@@ -1329,6 +1356,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	td->maxcontact_report_id = -1;
- 	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
- 	td->cc_index = -1;
-+	td->scantime_index = -1;
- 	td->mt_report_id = -1;
- 	hid_set_drvdata(hdev, td);
- 
++			/*
++			 * For Win8 PTP touchpads we map both the clickpad click
++			 * and any "external" left buttons to BTN_LEFT if a
++			 * device claims to have both we need to report 1 for
++			 * BTN_LEFT if either is pressed, so we or all values
++			 * together and report the result in mt_sync_frame().
++			 */
++			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
++			    usage->type == EV_KEY && usage->code == BTN_LEFT) {
++				td->left_button_state |= value;
++				return;
++			}
++
+ 			if (usage->type)
+ 				input_event(input, usage->type, usage->code,
+ 						value);
 -- 
 2.14.3
 

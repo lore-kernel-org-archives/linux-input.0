@@ -1,52 +1,65 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: cp2112: Fix I2C_BLOCK_DATA transactions
-Date: Tue, 21 Nov 2017 21:41:36 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711212141170.11505@cbobk.fhfr.pm>
-References: <20171121184324.GA7204@mail.arista.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v4 4/4] HID: multitouch: Combine all left-button events in
+ a frame
+Date: Wed, 22 Nov 2017 12:55:34 +0100
+Message-ID: <e2f18cad-616a-9272-cad4-a3081d016745@redhat.com>
+References: <20171113163259.18150-1-hdegoede@redhat.com>
+ <20171113163259.18150-4-hdegoede@redhat.com>
+ <20171114080229.GE403@mail.corp.redhat.com>
+ <nycvar.YFH.7.76.1711211310230.11505@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:58263 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:39142 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751067AbdKUUli (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Nov 2017 15:41:38 -0500
-In-Reply-To: <20171121184324.GA7204@mail.arista.com>
+        id S1752371AbdKVLzi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Nov 2017 06:55:38 -0500
+In-Reply-To: <nycvar.YFH.7.76.1711211310230.11505@cbobk.fhfr.pm>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eudean Sun <eudean@arista.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 21 Nov 2017, Eudean Sun wrote:
+Hi,
 
-> The existing driver erroneously treats I2C_BLOCK_DATA and BLOCK_DATA
-> commands the same.
+On 21-11-17 13:11, Jiri Kosina wrote:
+> On Tue, 14 Nov 2017, Benjamin Tissoires wrote:
 > 
-> For I2C_BLOCK_DATA reads, the length of the read is provided in
-> data->block[0], but the length itself should not be sent to the slave. In
-> contrast, for BLOCK_DATA reads no length is specified since the length
-> will be the first byte returned from the slave. When copying data back
-> to the data buffer, for an I2C_BLOCK_DATA read we have to take care not to
-> overwrite data->block[0] to avoid overwriting the length. A BLOCK_DATA
-> read doesn't have this concern since the first byte returned by the device
-> is the length and belongs in data->block[0].
+>>> According to the Win8 Precision Touchpad spec, inside the HID_UP_BUTTON
+>>> usage-page usage 1 is for a clickpad getting clicked, 2 for an external
+>>> left button and 3 for an external right button. Since Linux uses
+>>> BTN_LEFT for a clickpad being clicked we end up mapping both usage 1
+>>> and 2 to BTN_LEFT and if a single report contains both then we ended
+>>> up always reporting the value of both in a single SYN, e.g. :
+>>> BTN_LEFT 1, BTN_LEFT 0, SYN. This happens for example with Hantick
+>>> HTT5288 i2c mt touchpads.
+>>>
+>>> This commit fixes this by not immediately reporting left button when we
+>>> parse the report, but instead storing or-ing together the values and
+>>> reporting the result from mt_sync_frame() when we've a complete frame.
+>>>
+>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>> ---
+>>
+>> Thanks Hans for the re-spin of the series.
+>> I think we are good now, series is:
+>>
+>> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > 
-> For I2C_BLOCK_DATA writes, the length is also provided in data->block[0],
-> but the length itself is not sent to the slave (in contrast to BLOCK_DATA
-> writes where the length prefixes the data sent to the slave).
-> 
-> This was tested on physical hardware using i2cdump with the i and s flags
-> to test the behavior of I2C_BLOCK_DATA reads and BLOCK_DATA reads,
-> respectively. Writes were not tested but the I2C_BLOCK_DATA write change
-> is pretty simple to verify by inspection.
-> 
-> Signed-off-by: Eudean Sun <eudean@arista.com>
-> ---
-> Changes in v2:
->   - Explain the fix and testing in more detail in the commit message.
+> Thanks. Hans, last request for you -- HID_DG_SCANTIME handling has in the
+> meantime added for forwarding the MSC_TIMESTAMP (commit 29cc309d8bf1).
+> Could you please respin your patch on top of that (basically just merge
+> your handling with the one added for MSC_TIMESTAMP) and resend? I'll then
+> queue it for 4.16. Thanks,
 
-Applied to for-4.15/upstream-fixes, thanks.
+Ok, v5 with this fixed coming up.
 
--- 
-Jiri Kosina
-SUSE Labs
+Since this fixes 2 touchpad models not working (not being usable at
+least) it would be nice to get this series into 4.15 rc2/rc3 as a
+bugfix IMHO.
 
+Regards,
+
+Hans

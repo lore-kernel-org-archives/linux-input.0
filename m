@@ -1,92 +1,49 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4/6] Input: touchscreen: remove unneeded MODULE_VERSION() usage
-Date: Wed, 22 Nov 2017 18:49:19 +0100
-Message-ID: <20171122174921.20192-5-gregkh@linuxfoundation.org>
+Subject: [PATCH 6/6] Input: remove remaining unneeded MODULE_VERSION() usage
+Date: Wed, 22 Nov 2017 18:49:21 +0100
+Message-ID: <20171122174921.20192-7-gregkh@linuxfoundation.org>
 References: <20171122174921.20192-1-gregkh@linuxfoundation.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171122174921.20192-1-gregkh@linuxfoundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sangwon Jee <jeesw@melfas.com>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-input@vger.kernel.org
 
 MODULE_VERSION is useless for in-kernel drivers, so just remove all
-usage of it in the touchscreen drivers.  Along with this, some
-DRV_VERSION macros were removed as they are also pointless.
+usage of it in the remaining few input drivers that still used it
+(input-polldev and sparse-keymap).
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sangwon Jee <jeesw@melfas.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/colibri-vf50-ts.c | 2 --
- drivers/input/touchscreen/elants_i2c.c      | 2 --
- drivers/input/touchscreen/melfas_mip4.c     | 1 -
- drivers/input/touchscreen/wdt87xx_i2c.c     | 2 --
- 4 files changed, 7 deletions(-)
+ drivers/input/input-polldev.c | 1 -
+ drivers/input/sparse-keymap.c | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
-index 69c08acae264..82ca5ab65cec 100644
---- a/drivers/input/touchscreen/colibri-vf50-ts.c
-+++ b/drivers/input/touchscreen/colibri-vf50-ts.c
-@@ -28,7 +28,6 @@
- #include <linux/types.h>
+diff --git a/drivers/input/input-polldev.c b/drivers/input/input-polldev.c
+index 3664f81655ca..78df5a74822e 100644
+--- a/drivers/input/input-polldev.c
++++ b/drivers/input/input-polldev.c
+@@ -20,7 +20,6 @@
+ MODULE_AUTHOR("Dmitry Torokhov <dtor@mail.ru>");
+ MODULE_DESCRIPTION("Generic implementation of a polled input device");
+ MODULE_LICENSE("GPL v2");
+-MODULE_VERSION("0.1");
  
- #define DRIVER_NAME			"colibri-vf50-ts"
--#define DRV_VERSION			"1.0"
+ static void input_polldev_queue_work(struct input_polled_dev *dev)
+ {
+diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
+index fd03e55768c9..0cad5e7c559b 100644
+--- a/drivers/input/sparse-keymap.c
++++ b/drivers/input/sparse-keymap.c
+@@ -21,7 +21,6 @@
+ MODULE_AUTHOR("Dmitry Torokhov <dtor@mail.ru>");
+ MODULE_DESCRIPTION("Generic support for sparse keymaps");
+ MODULE_LICENSE("GPL v2");
+-MODULE_VERSION("0.1");
  
- #define VF_ADC_MAX			((1 << 12) - 1)
- 
-@@ -382,4 +381,3 @@ module_platform_driver(vf50_touch_driver);
- MODULE_AUTHOR("Sanchayan Maity");
- MODULE_DESCRIPTION("Colibri VF50 Touchscreen driver");
- MODULE_LICENSE("GPL");
--MODULE_VERSION(DRV_VERSION);
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index e102d7764bc2..a174b8c79ef5 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -44,7 +44,6 @@
- 
- /* Device, Driver information */
- #define DEVICE_NAME	"elants_i2c"
--#define DRV_VERSION	"1.0.9"
- 
- /* Convert from rows or columns into resolution */
- #define ELAN_TS_RESOLUTION(n, m)   (((n) - 1) * (m))
-@@ -1402,5 +1401,4 @@ module_i2c_driver(elants_i2c_driver);
- 
- MODULE_AUTHOR("Scott Liu <scott.liu@emc.com.tw>");
- MODULE_DESCRIPTION("Elan I2c Touchscreen driver");
--MODULE_VERSION(DRV_VERSION);
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 6892f0e28918..430a2bc5f7ca 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1611,6 +1611,5 @@ static struct i2c_driver mip4_driver = {
- module_i2c_driver(mip4_driver);
- 
- MODULE_DESCRIPTION("MELFAS MIP4 Touchscreen");
--MODULE_VERSION("2016.10.31");
- MODULE_AUTHOR("Sangwon Jee <jeesw@melfas.com>");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
-index d351efd18f89..20f7f3902757 100644
---- a/drivers/input/touchscreen/wdt87xx_i2c.c
-+++ b/drivers/input/touchscreen/wdt87xx_i2c.c
-@@ -23,7 +23,6 @@
- #include <asm/unaligned.h>
- 
- #define WDT87XX_NAME		"wdt87xx_i2c"
--#define WDT87XX_DRV_VER		"0.9.8"
- #define WDT87XX_FW_NAME		"wdt87xx_fw.bin"
- #define WDT87XX_CFG_NAME	"wdt87xx_cfg.bin"
- 
-@@ -1183,5 +1182,4 @@ module_i2c_driver(wdt87xx_driver);
- 
- MODULE_AUTHOR("HN Chen <hn.chen@weidahitech.com>");
- MODULE_DESCRIPTION("WeidaHiTech WDT87XX Touchscreen driver");
--MODULE_VERSION(WDT87XX_DRV_VER);
- MODULE_LICENSE("GPL");
+ static unsigned int sparse_keymap_get_key_index(struct input_dev *dev,
+ 						const struct key_entry *k)
 -- 
 2.15.0

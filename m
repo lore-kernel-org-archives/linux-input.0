@@ -1,36 +1,47 @@
-From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Subject: hid-sensor-hub stopped working *again*
-Date: Wed, 22 Nov 2017 16:25:52 +0100
-Message-ID: <1511364352.16347.59.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 0/6] Input: remove unneeded MODULE_VERSION usage
+Date: Wed, 22 Nov 2017 18:49:15 +0100
+Message-ID: <20171122174921.20192-1-gregkh@linuxfoundation.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:46290 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751554AbdKVRtU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Nov 2017 12:49:20 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Hey,
+Here's a short patch series against linux-next at the moment, that
+removes all of the MODULE_VERSION() usage in drivers/input/ as it's not
+needed at all.
 
-Some time between:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f1664eaacec31035450132c46ed2915fd2b2049a
-and the current linus kernels (commit 37cb8e1f8e10), the hid-sensor-hub 
-driver broke again.
+Greg Kroah-Hartman (6):
+  Input: rmi4: remove unneeded MODULE_VERSION() usage
+  Input: keyboard: pmic8xxx: remove unneeded MODULE_VERSION() usage
+  Input: mouse: elan_i2c: remove unneeded MODULE_VERSION() usage
+  Input: touchscreen: remove unneeded MODULE_VERSION() usage
+  Input: misc: remove unneeded MODULE_VERSION() usage
+  Input: remove remaining unneeded MODULE_VERSION() usage
 
-This time, all the values available in sysfs are "0".
+ drivers/input/input-polldev.c               | 1 -
+ drivers/input/keyboard/pmic8xxx-keypad.c    | 1 -
+ drivers/input/misc/apanel.c                 | 2 --
+ drivers/input/misc/ati_remote2.c            | 2 --
+ drivers/input/misc/uinput.c                 | 1 -
+ drivers/input/mouse/elan_i2c_core.c         | 2 --
+ drivers/input/rmi4/rmi_bus.c                | 1 -
+ drivers/input/rmi4/rmi_driver.h             | 2 --
+ drivers/input/rmi4/rmi_i2c.c                | 1 -
+ drivers/input/rmi4/rmi_spi.c                | 1 -
+ drivers/input/sparse-keymap.c               | 1 -
+ drivers/input/touchscreen/colibri-vf50-ts.c | 2 --
+ drivers/input/touchscreen/elants_i2c.c      | 2 --
+ drivers/input/touchscreen/melfas_mip4.c     | 1 -
+ drivers/input/touchscreen/wdt87xx_i2c.c     | 2 --
+ 15 files changed, 22 deletions(-)
 
-I tried reverting:
-iio: hid-sensor-trigger: Don't touch sensors unless user space requests
-but to no avail.
+-- 
+2.15.0
 
-Using a ColorHugALS with the above "hid-sensor-trigger" patch reverted
-I get:
-$ cat /sys/devices/pci0000:00/0000:00:14.0/usb3/3-9/3-9:1.0/0003:273F:1008.0029/HID-SENSOR-200041.2.auto/iio:device0/in_illuminance_raw
-0
-$ cat /sys/devices/pci0000:00/0000:00:14.0/usb3/3-9/3-9:1.0/0003:273F:1008.0029/HID-SENSOR-200041.2.auto/iio:device0/in_intensity_both_raw
-0
-
-Ideas, before I start hooking up a test rig to git bisect this?
-
-Cheers

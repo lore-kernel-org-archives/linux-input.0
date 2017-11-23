@@ -1,40 +1,88 @@
-From: Jonathan Liu <net147@gmail.com>
-Subject: Re: Support TrackStick of Thinkpad L570
-Date: Thu, 23 Nov 2017 21:06:57 +1100
-Message-ID: <CANwerB3gM3n3qz+6nu3Y0hVLQhU-Fu0G94pxfZgj5wAfSwotxw@mail.gmail.com>
-References: <20171120075530.4880-1-masaki.ota@jp.alps.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] HID: asus: Add product-id for the T100TAF keyboard dock
+Date: Thu, 23 Nov 2017 15:41:02 +0100
+Message-ID: <89bd0355-40b5-f0db-f8eb-186e29c95f59@redhat.com>
+References: <20171122120500.11206-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f47.google.com ([209.85.214.47]:42781 "EHLO
-        mail-it0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751375AbdKWKG6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Nov 2017 05:06:58 -0500
-In-Reply-To: <20171120075530.4880-1-masaki.ota@jp.alps.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20171122120500.11206-1-hdegoede@redhat.com>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>
-Cc: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, pali.rohar@gmail.com, aaron.ma@canonical.com, jaak@ristioja.ee, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
-Hi Masaki,
+Hi,
 
-On 20 November 2017 at 18:55, Masaki Ota <012nexus@gmail.com> wrote:
-> From: Masaki Ota <masaki.ota@jp.alps.com>
-> - The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
-> - Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
-> - If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
-> - Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
->
-> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-> ---
->  drivers/input/mouse/alps.c | 21 ++++++++++++++++++---
->  1 file changed, 18 insertions(+), 3 deletions(-)
+On 22-11-17 13:05, Hans de Goede wrote:
+> The T100TAF keyboard dock has the same special keys and custom
+> protocol multitouch touchpad as the T100TA, but uses a different
+> product id, add support for this.
+> 
+> Cc: stable@vger.kernel.org
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197849
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Tested-by: Jonathan Liu <net147@gmail.com>
-
-This fixes trackstick and physical left/middle/right mouse buttons
-above touchpad on Lenovo ThinkPad E570p laptop for me.
+Self nack, this patch is no good, the touchpad has a different
+resolution then the one in the T100TA (I forgot to check this)
+so a slightly more comprehensive patch is needed.
 
 Regards,
-Jonathan
+
+Hans
+
+
+
+> ---
+>   drivers/hid/hid-asus.c | 5 ++++-
+>   drivers/hid/hid-core.c | 3 ++-
+>   drivers/hid/hid-ids.h  | 3 ++-
+>   3 files changed, 8 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 1bb7b63b3150..4cdac9857037 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -751,7 +751,10 @@ static const struct hid_device_id asus_devices[] = {
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>   		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> -		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
+> +		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
+> +	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+>   	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index f3fcb836a1f9..d6780e1d2526 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1983,7 +1983,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 5da3d6256d25..dc1db8558850 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -178,7 +178,8 @@
+>   #define USB_VENDOR_ID_ASUSTEK		0x0b05
+>   #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+>   #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+> -#define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
+> +#define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
+> +#define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
+>   #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
+>   #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+>   #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
+> 

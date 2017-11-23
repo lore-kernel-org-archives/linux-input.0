@@ -1,71 +1,132 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5/6] Input: misc: remove unneeded MODULE_VERSION() usage
-Date: Wed, 22 Nov 2017 18:49:20 +0100
-Message-ID: <20171122174921.20192-6-gregkh@linuxfoundation.org>
-References: <20171122174921.20192-1-gregkh@linuxfoundation.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171122174921.20192-1-gregkh@linuxfoundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ville Syrjala <syrjala@sci.fi>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: input: do not increment usages when a duplicate is found
+Date: Thu, 23 Nov 2017 10:39:47 +0100
+Message-ID: <20171123093947.21388-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:43252 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751998AbdKWJj6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Nov 2017 04:39:58 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-MODULE_VERSION is useless for in-kernel drivers, so just remove all
-usage of it in the misc input drivers.  Along with this, some
-DRIVER_VERSION macros were removed as they are also pointless.
+This is something that bothered us from a long time. When hid-input
+doesn't know how to map a usage, it uses *_MISC. But there is something
+else which increments the usage if the evdev code is already used.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ville Syrjala <syrjala@sci.fi>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This leads to few issues:
+- some devices may have their ABS_X mapped to ABS_Y if they export a bad
+  set of usages (see the DragonRise joysticks IIRC -> fixed in a specific
+  HID driver)
+- *_MISC + N might (will) conflict with other defined axes (my Logitech
+  H800 exports some multitouch axes because of that)
+- this prevents to freely add some new evdev usages, because "hey, my
+  headset will now report ABS_COFFEE, and it's not coffee capable".
+
+So let's try to kill this nonsense, and hope we won't break too many
+devices.
+
+I my headset case, the ABS_MISC axes are created because of some
+proprietary usages, so we might not break that many devices.
+
+For backward compatibility, a quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
+is created and can be applied to any device that needs this behavior.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/misc/apanel.c      | 2 --
- drivers/input/misc/ati_remote2.c | 2 --
- drivers/input/misc/uinput.c      | 1 -
- 3 files changed, 5 deletions(-)
 
-diff --git a/drivers/input/misc/apanel.c b/drivers/input/misc/apanel.c
-index aad1df04c854..094bddf56755 100644
---- a/drivers/input/misc/apanel.c
-+++ b/drivers/input/misc/apanel.c
-@@ -26,7 +26,6 @@
- #include <linux/leds.h>
+Hi Jiri,
+
+this is obviously 4.16 material. It applies on top of your
+for-4.16/hid-quirks-cleanup/_base.
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-input.c | 33 +++++++++++++++++++++++++++++++--
+ include/linux/hid.h     |  2 ++
+ 2 files changed, 33 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 04d01b57d94c..8e824d1e9258 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1100,8 +1100,31 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
  
- #define APANEL_NAME	"Fujitsu Application Panel"
--#define APANEL_VERSION	"1.3.1"
- #define APANEL		"apanel"
+ 	set_bit(usage->type, input->evbit);
  
- /* How often we poll keys - msecs */
-@@ -345,7 +344,6 @@ module_exit(apanel_cleanup);
- MODULE_AUTHOR("Stephen Hemminger <shemminger@linux-foundation.org>");
- MODULE_DESCRIPTION(APANEL_NAME " driver");
- MODULE_LICENSE("GPL");
--MODULE_VERSION(APANEL_VERSION);
+-	while (usage->code <= max && test_and_set_bit(usage->code, bit))
+-		usage->code = find_next_zero_bit(bit, max + 1, usage->code);
++	/*
++	 * This part is *really* controversial:
++	 * - HID aims at being generic so we should do our best to export
++	 *   all incoming events
++	 * - HID describes what events are, so there is no reason for ABS_X
++	 *   to be mapped to ABS_Y
++	 * - HID is using *_MISC+N as a default value, but nothing prevents
++	 *   *_MISC+N to overwrite a legitimate even, which confuses userspace
++	 *   (for instance ABS_MISC + 7 is ABS_MT_SLOT, which has a different
++	 *   processing)
++	 *
++	 * If devices still want to use this (at their own risk), they will
++	 * have to use the quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, but
++	 * the default should be a reliable mapping.
++	 */
++	while (usage->code <= max && test_and_set_bit(usage->code, bit)) {
++		if (device->quirks & HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE) {
++			usage->code = find_next_zero_bit(bit,
++							 max + 1,
++							 usage->code);
++		} else {
++			device->status |= HID_STAT_DUP_DETECTED;
++			goto ignore;
++		}
++	}
  
- MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifeBook*:pvr*:rvnFUJITSU:*");
- MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifebook*:pvr*:rvnFUJITSU:*");
-diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
-index ebf4448b31b9..ded5b84e336d 100644
---- a/drivers/input/misc/ati_remote2.c
-+++ b/drivers/input/misc/ati_remote2.c
-@@ -14,10 +14,8 @@
- #include <linux/module.h>
+ 	if (usage->code > max)
+ 		goto ignore;
+@@ -1610,6 +1633,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 	INIT_LIST_HEAD(&hid->inputs);
+ 	INIT_WORK(&hid->led_work, hidinput_led_worker);
  
- #define DRIVER_DESC    "ATI/Philips USB RF remote driver"
--#define DRIVER_VERSION "0.3"
++	hid->status &= ~HID_STAT_DUP_DETECTED;
++
+ 	if (!force) {
+ 		for (i = 0; i < hid->maxcollection; i++) {
+ 			struct hid_collection *col = &hid->collection[i];
+@@ -1676,6 +1701,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 		goto out_unwind;
+ 	}
  
- MODULE_DESCRIPTION(DRIVER_DESC);
--MODULE_VERSION(DRIVER_VERSION);
- MODULE_AUTHOR("Ville Syrjala <syrjala@sci.fi>");
- MODULE_LICENSE("GPL");
++	if (hid->status & HID_STAT_DUP_DETECTED)
++		hid_info(hid,
++			 "Some usages could not be mapped, please use HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE if this is legitimate.\n");
++
+ 	return 0;
  
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 39ddd9a73feb..91586193115f 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -1085,4 +1085,3 @@ MODULE_ALIAS("devname:" UINPUT_NAME);
- MODULE_AUTHOR("Aristeu Sergio Rozanski Filho");
- MODULE_DESCRIPTION("User level driver support for input subsystem");
- MODULE_LICENSE("GPL");
--MODULE_VERSION("0.3");
+ out_unwind:
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 39cdeb205caa..076876a61a05 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -343,6 +343,7 @@ struct hid_item {
+ #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
+ #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
+ #define HID_QUIRK_HAVE_SPECIAL_DRIVER		0x00080000
++#define HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE	0x00100000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+ #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+ #define HID_QUIRK_NO_IGNORE			0x40000000
+@@ -500,6 +501,7 @@ struct hid_output_fifo {
+ 
+ #define HID_STAT_ADDED		1
+ #define HID_STAT_PARSED		2
++#define HID_STAT_DUP_DETECTED	3
+ 
+ struct hid_input {
+ 	struct list_head list;
 -- 
-2.15.0
+2.14.3
+

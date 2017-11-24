@@ -1,49 +1,41 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: [PATCH] HID: elo: clear BTN_LEFT mapping
-Date: Fri, 24 Nov 2017 14:43:00 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1711241435100.11505@cbobk.fhfr.pm>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH 2/5] gpio: pca953x: Name the gpiochip after the I2C
+ address
+Date: Fri, 24 Nov 2017 15:26:27 +0100
+Message-ID: <20171124142627.GG30167@lunn.ch>
+References: <20171124093045.5961-1-linus.walleij@linaro.org>
+ <20171124093045.5961-3-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from vps0.lunn.ch ([185.16.172.187]:34567 "EHLO vps0.lunn.ch"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752677AbdKXO03 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 24 Nov 2017 09:26:29 -0500
+Content-Disposition: inline
+In-Reply-To: <20171124093045.5961-3-linus.walleij@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+On Fri, Nov 24, 2017 at 10:30:42AM +0100, Linus Walleij wrote:
+> Just putting the name of the I2C device as name for the
+> GPIO chip (label) is ambigous, and makes it hard for us
+> to use GPIO descriptor tables on systems such as DaVinci
+> DA850EVM which has two chips but on I2C address 0x20 and 0x21.
+> 
+> Instead, append "-XX" to the GPIOchip name using the I2C
+> address so we get a unique chip name that can be used
+> in descriptor tables, such as "tca6416-20" and
+> "tca6416-21" on the DaVinci DA850EVM.
 
-ELO devices have one Button usage in GenDesk field, which makes hid-input 
-map it to BTN_LEFT; that confuses userspace, which then considers the 
-device to be a mouse/touchpad instead of touchscreen.
+Hi Linus
 
-Fix that by unmapping BTN_LEFT and keeping only BTN_TOUCH in place.
+Are you making the assumption that there are not two devices at the
+same address but on different I2C busses?
 
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
+How safe is that assumption? Can you include the adapter ID in the
+string?
 
-Now queued in for-4.16/elo
-
- drivers/hid/hid-elo.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/hid/hid-elo.c b/drivers/hid/hid-elo.c
-index 0cd4f7216239..595fe25a92fa 100644
---- a/drivers/hid/hid-elo.c
-+++ b/drivers/hid/hid-elo.c
-@@ -42,6 +42,12 @@ static int elo_input_configured(struct hid_device *hdev,
- {
- 	struct input_dev *input = hidinput->input;
- 
-+	/*
-+	 * ELO devices have one Button usage in GenDesk field, which makes
-+	 * hid-input map it to BTN_LEFT; that confuses userspace, which then
-+	 * considers the device to be a mouse/touchpad instead of touchscreen.
-+	 */
-+	clear_bit(BTN_LEFT, input->keybit);
- 	set_bit(BTN_TOUCH, input->keybit);
- 	set_bit(ABS_PRESSURE, input->absbit);
- 	input_set_abs_params(input, ABS_PRESSURE, 0, 256, 0, 0);
-
--- 
-Jiri Kosina
-SUSE Labs
+	Andrew

@@ -1,78 +1,153 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 0/5] Make gpio_keys accept board descriptors
-Date: Fri, 24 Nov 2017 10:30:40 +0100
-Message-ID: <20171124093045.5961-1-linus.walleij@linaro.org>
+Subject: [PATCH 3/5] ARM: davinci: Switch DA850EVM to use GPIO descriptors
+Date: Fri, 24 Nov 2017 10:30:43 +0100
+Message-ID: <20171124093045.5961-4-linus.walleij@linaro.org>
+References: <20171124093045.5961-1-linus.walleij@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:33825 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752322AbdKXJat (ORCPT
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:39681 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752688AbdKXJa4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Nov 2017 04:30:49 -0500
-Received: by mail-lf0-f65.google.com with SMTP id i14so24744759lfc.1
-        for <linux-input@vger.kernel.org>; Fri, 24 Nov 2017 01:30:49 -0800 (PST)
+        Fri, 24 Nov 2017 04:30:56 -0500
+Received: by mail-lf0-f66.google.com with SMTP id x76so20102268lfb.6
+        for <linux-input@vger.kernel.org>; Fri, 24 Nov 2017 01:30:55 -0800 (PST)
+In-Reply-To: <20171124093045.5961-1-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 Cc: linux-arm-kernel@lists.infradead.org, Linus Walleij <linus.walleij@linaro.org>
 
-The goal I'm working toward is to rid the kernel of the global
-GPIO numberspace.
+To get rid of the global GPIO numberspace we need to move
+to using descriptor tables with local offsets on the GPIO
+chip to reference the GPIO lines used by kernel drivers.
 
-This means GPIO lines should be references by the local offset
-on the GPIO chip.
+This moves the DaVinci DA850EVM board over to using GPIO
+descriptors for passing GPIOs to the GPIO keys.
 
-This patch set starts to move gpio_keys toward using GPIO
-look-up tables instead of global GPIO numbers to find their
-GPIOs.
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ arch/arm/mach-davinci/board-da850-evm.c | 57 ++++++++++++++++++++++++++++-----
+ 1 file changed, 49 insertions(+), 8 deletions(-)
 
-As an example I did (I think) the necessary patches to
-convert DaVinci and i.MX to use this. There are several users
-also x86 platform devices.
-
-Strategy:
-
-- Merge the patch to input/keyboard/gpio_keys* to support
-  using descriptors from board files.
-
-- Refactor the whole universe to get proper names on GPIO
-  chips, and reference the GPIO lines with local offsets using
-  tables, as in the example patches in this series. These
-  can trickle in after the first patch is merged in Input.
-  The work to be done can be seen if you type:
-  git grep gpio_keys_platform_data
-
-- When all are refactored, remove the "gpio" and "active low"
-  members from the platform data and delete the associated
-  legacy GPIO handling in the input driver for gpio_keys.
-
-Posting this with the examples to get buy-in from Dmitry
-before I go and spend time refactoring the world.
-
-I.e. I'm happy if patch 1 gets merged, the rest I will push
-through ARM SoC etc, or if nothing else works (like
-nonresponsive maintainers) I can push it through the GPIO
-tree without bothering Dmitry.
-
-Linus Walleij (5):
-  Input: gpio-keys: Support getting descriptors from board
-  gpio: pca953x: Name the gpiochip after the I2C address
-  ARM: davinci: Switch DA850EVM to use GPIO descriptors
-  ARM: imx: Give all GPIO chips a unique name
-  ARM: imx: Use GPIO descriptors for gpio_keys
-
- arch/arm/mach-davinci/board-da850-evm.c     | 57 ++++++++++++++---
- arch/arm/mach-imx/mach-armadillo5x0.c       | 19 ++++--
- arch/arm/mach-imx/mach-imx27_visstrim_m10.c | 26 ++++++--
- arch/arm/mach-imx/mach-pcm037_eet.c         | 52 +++++++++++----
- arch/arm/mach-imx/mach-vpr200.c             | 99 ++++++++++++++++++++++++-----
- arch/arm/mach-imx/mm-imx21.c                | 12 ++--
- arch/arm/mach-imx/mm-imx27.c                | 12 ++--
- arch/arm/mach-imx/mm-imx3.c                 | 12 ++--
- drivers/gpio/gpio-pca953x.c                 | 17 ++++-
- drivers/input/keyboard/gpio_keys.c          | 14 +++-
- drivers/input/keyboard/gpio_keys_polled.c   | 10 +++
- 11 files changed, 259 insertions(+), 71 deletions(-)
-
+diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+index cbde0030c092..3792d760020f 100644
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -404,11 +404,9 @@ static const char * const da850_evm_ui_exp[] = {
+ static struct gpio_keys_button da850_evm_ui_keys[] = {
+ 	[0 ... DA850_N_UI_PB - 1] = {
+ 		.type			= EV_KEY,
+-		.active_low		= 1,
+ 		.wakeup			= 0,
+ 		.debounce_interval	= DA850_KEYS_DEBOUNCE_MS,
+ 		.code			= -1, /* assigned at runtime */
+-		.gpio			= -1, /* assigned at runtime */
+ 		.desc			= NULL, /* assigned at runtime */
+ 	},
+ };
+@@ -427,6 +425,29 @@ static struct platform_device da850_evm_ui_keys_device = {
+ 	},
+ };
+ 
++static struct gpiod_lookup_table da850_evm_ui_keys_gpios_table = {
++	.dev_id = "gpio-keys-polled",
++	.table = {
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB8,
++			    "pb8", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB7,
++			    "pb7", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB6,
++			    "pb6", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB5,
++			    "pb5", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB4,
++			    "pb4", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB3,
++			    "pb3", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB2,
++			    "pb2", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-20", DA850_EVM_UI_EXP_PB1,
++			    "pb1", GPIO_ACTIVE_LOW),
++
++	},
++};
++
+ static void da850_evm_ui_keys_init(unsigned gpio)
+ {
+ 	int i;
+@@ -436,8 +457,8 @@ static void da850_evm_ui_keys_init(unsigned gpio)
+ 		button = &da850_evm_ui_keys[i];
+ 		button->code = KEY_F8 - i;
+ 		button->desc = da850_evm_ui_exp[DA850_EVM_UI_EXP_PB8 + i];
+-		button->gpio = gpio + DA850_EVM_UI_EXP_PB8 + i;
+ 	}
++	gpiod_add_lookup_table(&da850_evm_ui_keys_gpios_table);
+ }
+ 
+ #ifdef CONFIG_DA850_UI_SD_VIDEO_PORT
+@@ -572,21 +593,17 @@ static const char * const da850_evm_bb_exp[] = {
+ static struct gpio_keys_button da850_evm_bb_keys[] = {
+ 	[0] = {
+ 		.type			= EV_KEY,
+-		.active_low		= 1,
+ 		.wakeup			= 0,
+ 		.debounce_interval	= DA850_KEYS_DEBOUNCE_MS,
+ 		.code			= KEY_PROG1,
+ 		.desc			= NULL, /* assigned at runtime */
+-		.gpio			= -1, /* assigned at runtime */
+ 	},
+ 	[1 ... DA850_N_BB_USER_SW] = {
+ 		.type			= EV_SW,
+-		.active_low		= 1,
+ 		.wakeup			= 0,
+ 		.debounce_interval	= DA850_KEYS_DEBOUNCE_MS,
+ 		.code			= -1, /* assigned at runtime */
+ 		.desc			= NULL, /* assigned at runtime */
+-		.gpio			= -1, /* assigned at runtime */
+ 	},
+ };
+ 
+@@ -604,6 +621,30 @@ static struct platform_device da850_evm_bb_keys_device = {
+ 	},
+ };
+ 
++static struct gpiod_lookup_table da850_evm_bb_keys_gpios_table = {
++	.dev_id = "gpio-keys-polled",
++	.table = {
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_PB1,
++			    "user_pb1", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW1,
++			    "user_sw1", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW2,
++			    "user_sw2", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW3,
++			    "user_sw3", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW4,
++			    "user_sw4", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW5,
++			    "user_sw5", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW6,
++			    "user_sw6", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW7,
++			    "user_sw7", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("tca6416-21", DA850_EVM_BB_EXP_USER_SW8,
++			    "user_sw8", GPIO_ACTIVE_LOW),
++	},
++};
++
+ static void da850_evm_bb_keys_init(unsigned gpio)
+ {
+ 	int i;
+@@ -617,8 +658,8 @@ static void da850_evm_bb_keys_init(unsigned gpio)
+ 		button = &da850_evm_bb_keys[i + 1];
+ 		button->code = SW_LID + i;
+ 		button->desc = da850_evm_bb_exp[DA850_EVM_BB_EXP_USER_SW1 + i];
+-		button->gpio = gpio + DA850_EVM_BB_EXP_USER_SW1 + i;
+ 	}
++	gpiod_add_lookup_table(&da850_evm_bb_keys_gpios_table);
+ }
+ 
+ #define DA850_N_BB_USER_LED	2
 -- 
 2.14.3
 

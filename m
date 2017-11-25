@@ -1,63 +1,67 @@
-From: Dave Young <dyoung@redhat.com>
-Subject: [PATCH] usbhid: add quirk for another PIXART OEM mouse used by HP
-Date: Sat, 25 Nov 2017 13:53:39 +0800
-Message-ID: <20171125055054.GA2139@dhcp-128-65.nay.redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/5] Make gpio_keys accept board descriptors
+Date: Sat, 25 Nov 2017 15:33:24 -0800
+Message-ID: <20171125233324.afdt4netamvkrkm2@dtor-ws>
+References: <20171124093045.5961-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48010 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750737AbdKYFz3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Nov 2017 00:55:29 -0500
+Received: from mail-it0-f68.google.com ([209.85.214.68]:35604 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751173AbdKYXd2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 25 Nov 2017 18:33:28 -0500
+Received: by mail-it0-f68.google.com with SMTP id x28so1750988ita.0
+        for <linux-input@vger.kernel.org>; Sat, 25 Nov 2017 15:33:28 -0800 (PST)
 Content-Disposition: inline
+In-Reply-To: <20171124093045.5961-1-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-This mouse keep disconnecting in runleve 3 like below, add it needs the
-quirk to mute the anoying messages.
+Hi Linus,
 
-[  111.230555] usb 2-2: USB disconnect, device number 6
-[  112.718156] usb 2-2: new low-speed USB device number 7 using xhci_hcd
-[  112.941594] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-[  112.984866] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[  113.027731] usb 2-2: Product: HP USB Optical Mouse
-[  113.069977] usb 2-2: Manufacturer: PixArt
-[  113.113500] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0002/input/input14
-[  113.156787] hid-generic 0003:03F0:094A.0002: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
-[  173.262642] usb 2-2: USB disconnect, device number 7
-[  174.750244] usb 2-2: new low-speed USB device number 8 using xhci_hcd
-[  174.935740] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-[  174.990435] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[  175.014984] usb 2-2: Product: HP USB Optical Mouse
-[  175.037886] usb 2-2: Manufacturer: PixArt
-[  175.061794] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0003/input/input15
-[  175.084946] hid-generic 0003:03F0:094A.0003: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
+On Fri, Nov 24, 2017 at 10:30:40AM +0100, Linus Walleij wrote:
+> The goal I'm working toward is to rid the kernel of the global
+> GPIO numberspace.
+> 
+> This means GPIO lines should be references by the local offset
+> on the GPIO chip.
+> 
+> This patch set starts to move gpio_keys toward using GPIO
+> look-up tables instead of global GPIO numbers to find their
+> GPIOs.
+> 
+> As an example I did (I think) the necessary patches to
+> convert DaVinci and i.MX to use this. There are several users
+> also x86 platform devices.
+> 
+> Strategy:
+> 
+> - Merge the patch to input/keyboard/gpio_keys* to support
+>   using descriptors from board files.
+> 
+> - Refactor the whole universe to get proper names on GPIO
+>   chips, and reference the GPIO lines with local offsets using
+>   tables, as in the example patches in this series. These
+>   can trickle in after the first patch is merged in Input.
+>   The work to be done can be seen if you type:
+>   git grep gpio_keys_platform_data
+> 
+> - When all are refactored, remove the "gpio" and "active low"
+>   members from the platform data and delete the associated
+>   legacy GPIO handling in the input driver for gpio_keys.
+> 
+> Posting this with the examples to get buy-in from Dmitry
+> before I go and spend time refactoring the world.
 
-Signed-off-by: Dave Young <dyoung@redhat.com>
----
- drivers/hid/hid-ids.h           |    1 +
- drivers/hid/usbhid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+I think this is a worthy goal, but I wonder if we could get static GPIO
+descriptors work with fwnode_get_named_gpiod() so we could retire the
+platform data parsing altogether. We'd need to extend static device
+properties to have notion of children though.
 
---- linux-x86.orig/drivers/hid/hid-ids.h
-+++ linux-x86/drivers/hid/hid-ids.h
-@@ -535,6 +535,7 @@
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
-+#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
- 
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
---- linux-x86.orig/drivers/hid/usbhid/hid-quirks.c
-+++ linux-x86/drivers/hid/usbhid/hid-quirks.c
-@@ -99,6 +99,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
-+	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007, HID_QUIRK_ALWAYS_POLL },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077, HID_QUIRK_ALWAYS_POLL },
+Thanks.
+
+-- 
+Dmitry

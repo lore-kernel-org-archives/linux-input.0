@@ -1,41 +1,63 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH 2/5] gpio: pca953x: Name the gpiochip after the I2C
- address
-Date: Fri, 24 Nov 2017 15:26:27 +0100
-Message-ID: <20171124142627.GG30167@lunn.ch>
-References: <20171124093045.5961-1-linus.walleij@linaro.org>
- <20171124093045.5961-3-linus.walleij@linaro.org>
+From: Dave Young <dyoung@redhat.com>
+Subject: [PATCH] usbhid: add quirk for another PIXART OEM mouse used by HP
+Date: Sat, 25 Nov 2017 13:53:39 +0800
+Message-ID: <20171125055054.GA2139@dhcp-128-65.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vps0.lunn.ch ([185.16.172.187]:34567 "EHLO vps0.lunn.ch"
+Received: from mx1.redhat.com ([209.132.183.28]:48010 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752677AbdKXO03 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Nov 2017 09:26:29 -0500
+        id S1750737AbdKYFz3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 25 Nov 2017 00:55:29 -0500
 Content-Disposition: inline
-In-Reply-To: <20171124093045.5961-3-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Fri, Nov 24, 2017 at 10:30:42AM +0100, Linus Walleij wrote:
-> Just putting the name of the I2C device as name for the
-> GPIO chip (label) is ambigous, and makes it hard for us
-> to use GPIO descriptor tables on systems such as DaVinci
-> DA850EVM which has two chips but on I2C address 0x20 and 0x21.
-> 
-> Instead, append "-XX" to the GPIOchip name using the I2C
-> address so we get a unique chip name that can be used
-> in descriptor tables, such as "tca6416-20" and
-> "tca6416-21" on the DaVinci DA850EVM.
+This mouse keep disconnecting in runleve 3 like below, add it needs the
+quirk to mute the anoying messages.
 
-Hi Linus
+[  111.230555] usb 2-2: USB disconnect, device number 6
+[  112.718156] usb 2-2: new low-speed USB device number 7 using xhci_hcd
+[  112.941594] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
+[  112.984866] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[  113.027731] usb 2-2: Product: HP USB Optical Mouse
+[  113.069977] usb 2-2: Manufacturer: PixArt
+[  113.113500] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0002/input/input14
+[  113.156787] hid-generic 0003:03F0:094A.0002: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
+[  173.262642] usb 2-2: USB disconnect, device number 7
+[  174.750244] usb 2-2: new low-speed USB device number 8 using xhci_hcd
+[  174.935740] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
+[  174.990435] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[  175.014984] usb 2-2: Product: HP USB Optical Mouse
+[  175.037886] usb 2-2: Manufacturer: PixArt
+[  175.061794] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0003/input/input15
+[  175.084946] hid-generic 0003:03F0:094A.0003: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
 
-Are you making the assumption that there are not two devices at the
-same address but on different I2C busses?
+Signed-off-by: Dave Young <dyoung@redhat.com>
+---
+ drivers/hid/hid-ids.h           |    1 +
+ drivers/hid/usbhid/hid-quirks.c |    1 +
+ 2 files changed, 2 insertions(+)
 
-How safe is that assumption? Can you include the adapter ID in the
-string?
-
-	Andrew
+--- linux-x86.orig/drivers/hid/hid-ids.h
++++ linux-x86/drivers/hid/hid-ids.h
+@@ -535,6 +535,7 @@
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
+ #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
+ #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
++#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
+ 
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
+--- linux-x86.orig/drivers/hid/usbhid/hid-quirks.c
++++ linux-x86/drivers/hid/usbhid/hid-quirks.c
+@@ -99,6 +99,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
++	{ USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C007, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_C077, HID_QUIRK_ALWAYS_POLL },

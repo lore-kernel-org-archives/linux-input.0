@@ -1,74 +1,124 @@
-From: Anssi Hannula <anssi.hannula@iki.fi>
-Subject: Re: [PATCH] HID: holtekff: move =?UTF-8?Q?MODULE=5F*=20parameters?=
- =?UTF-8?Q?=20out=20of=20=23ifdef=20block?=
-Date: Sun, 26 Nov 2017 13:33:41 +0200
-Message-ID: <1c7617b1459da7d5663bd79a5017d7ac@mail.onse.fi>
-References: <20171126043404.11621-1-dja@axtens.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA keyboard docks
+Date: Sun, 26 Nov 2017 16:40:10 +0100
+Message-ID: <20171126154010.954-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from webmail.tpnet.fi ([62.106.63.33]:44529 "EHLO webmail.tpnet.fi"
+Received: from mx1.redhat.com ([209.132.183.28]:54390 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752071AbdKZLjy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Nov 2017 06:39:54 -0500
-In-Reply-To: <20171126043404.11621-1-dja@axtens.net>
+        id S1752213AbdKZPkP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Nov 2017 10:40:15 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Axtens <dja@axtens.net>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, jikos@kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
+The T100TAF and T100HA keyboard docks have the same special keys and
+custom protocol multitouch touchpad as the T100TA, but use a different
+product id.
 
-Daniel Axtens kirjoitti 2017-11-26 06:34:
-> If you compile with:
-> CONFIG_HID_HOLTEK=m
-> CONFIG_HOLTEK_FF is not set
-> 
-> You get the following warning:
-> WARNING: modpost: missing MODULE_LICENSE() in 
-> drivers/hid/hid-holtekff.o
-> see include/linux/module.h for more information
-> 
-> Fix this by moving the module info out of the #ifdef CONFIG_HOLTEK_FF
-> block and into the un-guarded part of the file.
-> 
-> Signed-off-by: Daniel Axtens <dja@axtens.net>
+The T100TAF and T100HA both use the same product id, but the T100HA's
+touchpad has a different coordinate range.
 
-Thanks!
+This commits adds supports for the new USB id and uses a dmi-check to
+determine if we're dealing with the T100TAF or T100HA.
 
-Acked-by: Anssi Hannula <anssi.hannula@iki.fi>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197849
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-The new device-id is for both the T100TAF and the T100HA
+-The T100HA touchpad has different coordinate ranges, take this into account
+-Rebase on top of hid/for-4.16/hid-quirks-cleanup/_base
+-Drop the ASUS T100TA entry from hid_have_special_driver, things work fine
+ without it
+---
+ drivers/hid/hid-asus.c   | 24 ++++++++++++++++++++++--
+ drivers/hid/hid-ids.h    |  3 ++-
+ drivers/hid/hid-quirks.c |  1 -
+ 3 files changed, 24 insertions(+), 4 deletions(-)
 
-> ---
->  drivers/hid/hid-holtekff.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-holtekff.c b/drivers/hid/hid-holtekff.c
-> index 9325545fc3ae..edc0f64bb584 100644
-> --- a/drivers/hid/hid-holtekff.c
-> +++ b/drivers/hid/hid-holtekff.c
-> @@ -32,10 +32,6 @@
-> 
->  #ifdef CONFIG_HOLTEK_FF
-> 
-> -MODULE_LICENSE("GPL");
-> -MODULE_AUTHOR("Anssi Hannula <anssi.hannula@iki.fi>");
-> -MODULE_DESCRIPTION("Force feedback support for Holtek On Line Grip
-> based devices");
-> -
->  /*
->   * These commands and parameters are currently known:
->   *
-> @@ -223,3 +219,7 @@ static struct hid_driver holtek_driver = {
->  	.probe = holtek_probe,
->  };
->  module_hid_driver(holtek_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Anssi Hannula <anssi.hannula@iki.fi>");
-> +MODULE_DESCRIPTION("Force feedback support for Holtek On Line Grip
-> based devices");
-
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 1bb7b63b3150..6d2894b7d8e7 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -26,6 +26,7 @@
+  * any later version.
+  */
+ 
++#include <linux/dmi.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ #include <linux/input/mt.h>
+@@ -119,6 +120,15 @@ static const struct asus_touchpad_info asus_t100ta_tp = {
+ 	.max_contacts = 5,
+ };
+ 
++static const struct asus_touchpad_info asus_t100ha_tp = {
++	.max_x = 2640,
++	.max_y = 1320,
++	.res_x = 30, /* units/mm */
++	.res_y = 29, /* units/mm */
++	.contact_size = 5,
++	.max_contacts = 5,
++};
++
+ static const struct asus_touchpad_info asus_t100chi_tp = {
+ 	.max_x = 2640,
+ 	.max_y = 1320,
+@@ -606,7 +616,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 		if (intf->altsetting->desc.bInterfaceNumber == T100_TPAD_INTF) {
+ 			drvdata->quirks = QUIRK_SKIP_INPUT_MAPPING;
+-			drvdata->tp = &asus_t100ta_tp;
++			/*
++			 * The T100HA uses the same USB-ids as the T100TAF,
++			 * but has different max_x / max_y values.
++			 */
++			if (dmi_match(DMI_PRODUCT_NAME, "T100HAN"))
++				drvdata->tp = &asus_t100ha_tp;
++			else
++				drvdata->tp = &asus_t100ta_tp;
+ 		}
+ 	}
+ 
+@@ -751,7 +768,10 @@ static const struct hid_device_id asus_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+-		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
++		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
++	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
++		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+ 	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 5da3d6256d25..dc1db8558850 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -178,7 +178,8 @@
+ #define USB_VENDOR_ID_ASUSTEK		0x0b05
+ #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+ #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+-#define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
++#define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
++#define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
+ #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
+ #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+ #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 015e0c10248b..1cf1e9a0d699 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -284,7 +284,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },
 -- 
-Anssi Hannula
+2.14.3
+

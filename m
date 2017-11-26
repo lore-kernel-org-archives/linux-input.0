@@ -1,64 +1,109 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] input: pegasus_notetaker: add license information
-Date: Sun, 26 Nov 2017 09:59:51 +0100
-Message-ID: <20171126085951.GA10018@kroah.com>
-References: <20171118084518.8437-1-martink@posteo.de>
- <20171126004259.xjl2icw3gbyg3hck@dtor-ws>
+From: Shaleen Jain <shaleen@thejains.org.in>
+Subject: Synaptics touchpad intertouch on Galago Pro
+Date: Sun, 26 Nov 2017 11:05:48 +0000
+Message-ID: <0102015ff801301f-97e6e838-7d8c-4a11-bacd-07d445652c18-000000@eu-west-1.amazonses.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171126004259.xjl2icw3gbyg3hck@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from a4-2.smtp-out.eu-west-1.amazonses.com ([54.240.4.2]:43220 "EHLO
+        a4-2.smtp-out.eu-west-1.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751733AbdKZLFu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 26 Nov 2017 06:05:50 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Sat, Nov 25, 2017 at 04:42:59PM -0800, Dmitry Torokhov wrote:
-> Hi Martin,
-> 
-> On Sat, Nov 18, 2017 at 09:45:18AM +0100, Martin Kepplinger wrote:
-> > This adds an SPDX license identifier to this driver I wrote some time back.
-> > 
-> > Signed-off-by: Martin Kepplinger <martink@posteo.de>
-> > ---
-> >  drivers/input/tablet/pegasus_notetaker.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-> > index 47de5a81172f..cdf75c989469 100644
-> > --- a/drivers/input/tablet/pegasus_notetaker.c
-> > +++ b/drivers/input/tablet/pegasus_notetaker.c
-> > @@ -1,3 +1,4 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> 
-> Should this be GPL-2.0+? The MODULE_LICENSE specifies that the module is
-> "GPL" which in kernel land means GPLv2+. Or we should change the module
-> license to strict "GPLv2"?
+Hello,
 
-That is up to Martin, given that he is the author, as to what he wants
-to mark this as.  Odd that it missed the big "fix up all files with no
-license information" sweep.
+After noticing following logs in my dmesg:
 
-Philippe, how did we miss this one?
+psmouse serio2: synaptics: Your touchpad (PNP: SYN1221 PNP0f13) says it
+can support a different bus. If i2c-hid and hid-rmi are not used, you
+might want to try setting psmouse.synaptics_intertouch to 1 and report
+this to linux-input@vger.kernel.org.
+psmouse serio2: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2b1,
+caps: 0xf00223/0x840300/0x26800/0x0, board id: 3175, fw id: 2330500
 
-> Also, why do we use C++ -style comments for this?
+I booted with the mentioned kernel parameter but unfortunately resulted
+in my touchpad not working.
 
-That is what Linus wants, see the thread on lkml in the past few hours
-for his reasoning here.
+Some of the logs with the parameter:
+psmouse serio2: synaptics: queried max coordinates: x [..5718], y
+[..4908]
+psmouse serio2: synaptics: queried min coordinates: x [1238..], y
+[956..]
+psmouse serio2: synaptics: Trying to set up SMBus access
 
-> Greg, do you have any plans on dropping MODULE_LICENSE() altogether and
-> generating the appropriate string from SPDX markings in the source?
+Nov 26 10:33:07 shalzz-galp2 kernel: i801_smbus 0000:00:1f.4: Timeout
+waiting for interrupt!
+Nov 26 10:33:07 shalzz-galp2 kernel: i801_smbus 0000:00:1f.4:
+Transaction timeout
+Nov 26 10:33:07 shalzz-galp2 kernel: rmi4_physical rmi4-00: Failed to
+read irqs, code=-110
+Nov 26 10:33:08 shalzz-galp2 kernel: i801_smbus 0000:00:1f.4: Timeout
+waiting for interrupt!
+Nov 26 10:33:08 shalzz-galp2 kernel: i801_smbus 0000:00:1f.4:
+Transaction timeout
+Nov 26 10:33:08 shalzz-galp2 kernel: rmi4_physical rmi4-00: Failed to
+read irqs, code=-110
+Nov 26 10:33:08 shalzz-galp2 kernel: i801_smbus 0000:00:1f.4: Timeout
+waiting for interrupt!
+Nov 26 10:33:08 shalzz-galp2 kernel: i801_smbus 0000:00:1f.4:
+Transaction timeout
+Nov 26 10:33:08 shalzz-galp2 kernel: rmi4_physical rmi4-00: Failed to
+read irqs, code=-110
 
-At this time, no, it's not a simple solution as it gets messy quickly
-(multiple c files make up modulues, what about .h files, etc...)
+I also noticed this just before the kernel smbus logs:
+Nov 26 10:33:08 shalzz-galp2 kernel: irq 16: nobody cared (try booting
+with the "irqpoll" option)
+Nov 26 10:33:08 shalzz-galp2 kernel: CPU: 2 PID: 0 Comm: swapper/2 Not
+tainted 4.13.12-1-ARCH #1
+Nov 26 10:33:08 shalzz-galp2 kernel: Hardware name:
+Notebook                         N130BU/N130BU, BIOS 1.05.04nRSA
+04/26/2017
+Nov 26 10:33:08 shalzz-galp2 kernel: Call Trace:
+Nov 26 10:33:08 shalzz-galp2 kernel:  <IRQ>
+Nov 26 10:33:08 shalzz-galp2 kernel:  dump_stack+0x63/0x8b
+Nov 26 10:33:08 shalzz-galp2 kernel:  __report_bad_irq+0x35/0xc0
+Nov 26 10:33:08 shalzz-galp2 kernel:  note_interrupt+0x254/0x2a0
+Nov 26 10:33:08 shalzz-galp2 kernel:  handle_irq_event_percpu+0x54/0x80
+Nov 26 10:33:08 shalzz-galp2 kernel:  handle_irq_event+0x3c/0x60
+Nov 26 10:33:08 shalzz-galp2 kernel:  handle_fasteoi_irq+0x85/0x140
+Nov 26 10:33:08 shalzz-galp2 kernel:  handle_irq+0x1a/0x30
+Nov 26 10:33:08 shalzz-galp2 kernel:  do_IRQ+0x46/0xd0
+Nov 26 10:33:08 shalzz-galp2 kernel:  common_interrupt+0x89/0x89
+Nov 26 10:33:08 shalzz-galp2 kernel: RIP:
+0010:cpuidle_enter_state+0x130/0x300
+Nov 26 10:33:08 shalzz-galp2 kernel: RSP: 0018:ffffb029031c3e58 EFLAGS:
+00000246 ORIG_RAX: ffffffffffffffbc
+Nov 26 10:33:08 shalzz-galp2 kernel: RAX: ffff9476fed18d00 RBX:
+0000000088ae713a RCX: 000000000000001f
+Nov 26 10:33:08 shalzz-galp2 kernel: RDX: 0000000088ae713a RSI:
+fffffffdb4166edf RDI: 0000000000000000
+Nov 26 10:33:08 shalzz-galp2 kernel: RBP: ffffb029031c3e98 R08:
+00000000ffffffff R09: 0000000000000008
+Nov 26 10:33:08 shalzz-galp2 kernel: R10: 0000000000000001 R11:
+0000000000000001 R12: ffff9476fed20d20
+Nov 26 10:33:08 shalzz-galp2 kernel: R13: 0000000000000000 R14:
+0000000000000001 R15: ffffffffa4aa96f8
+Nov 26 10:33:08 shalzz-galp2 kernel:  </IRQ>
+Nov 26 10:33:08 shalzz-galp2 kernel:  ? cpuidle_enter_state+0x120/0x300
+Nov 26 10:33:08 shalzz-galp2 kernel:  cpuidle_enter+0x17/0x20
+Nov 26 10:33:08 shalzz-galp2 kernel:  call_cpuidle+0x23/0x40
+Nov 26 10:33:08 shalzz-galp2 kernel:  do_idle+0x18f/0x1e0
+Nov 26 10:33:08 shalzz-galp2 kernel:  cpu_startup_entry+0x73/0x80
+Nov 26 10:33:08 shalzz-galp2 kernel:  start_secondary+0x15a/0x1a0
+Nov 26 10:33:08 shalzz-galp2 kernel:  secondary_startup_64+0x9f/0x9f
+Nov 26 10:33:08 shalzz-galp2 kernel: handlers:
+Nov 26 10:33:08 shalzz-galp2 kernel: [<ffffffffc0712120>] i801_isr
+[i2c_i801]
+Nov 26 10:33:08 shalzz-galp2 kernel: Disabling IRQ #16
 
-> Doing this would prevent mismatches between license notices, SPDX tags
-> and MODULE_LCENSE() strings, which happen very often.
+Please let me know if you need any additional info.
+I'm not subscribed to the list so please cc me.
 
-I agree, but now that we are getting SPDX tags, we can fix up all of the
-mismatches in MODULE_LICENSE() strings, of which there are a lot.
-
-thanks,
-
-greg k-h
+-- 
+Regards,
+Shaleen Jain

@@ -1,51 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elantech - add new icbody type 15
-Date: Sat, 25 Nov 2017 16:49:06 -0800
-Message-ID: <20171126004906.u4eebk6bdfzygu66@dtor-ws>
-References: <20171119145647.4327-1-aaron.ma@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Daniel Axtens <dja@axtens.net>
+Subject: [PATCH] HID: holtekff: move MODULE_* parameters out of #ifdef block
+Date: Sun, 26 Nov 2017 15:34:04 +1100
+Message-ID: <20171126043404.11621-1-dja@axtens.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:41956 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751377AbdKZAtK (ORCPT
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:33494 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751902AbdKZEen (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Nov 2017 19:49:10 -0500
-Content-Disposition: inline
-In-Reply-To: <20171119145647.4327-1-aaron.ma@canonical.com>
+        Sat, 25 Nov 2017 23:34:43 -0500
+Received: by mail-pl0-f67.google.com with SMTP id a12so6524058pll.0
+        for <linux-input@vger.kernel.org>; Sat, 25 Nov 2017 20:34:43 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, anssi.hannula@iki.fi
+Cc: Daniel Axtens <dja@axtens.net>
 
-On Sun, Nov 19, 2017 at 10:56:47PM +0800, Aaron Ma wrote:
-> The touchpad of Lenovo Thinkpad L480 reports it's version as 15.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+If you compile with:
+CONFIG_HID_HOLTEK=m
+CONFIG_HOLTEK_FF is not set
 
-Applied, thank you.
+You get the following warning:
+WARNING: modpost: missing MODULE_LICENSE() in drivers/hid/hid-holtekff.o
+see include/linux/module.h for more information
 
-> ---
->  drivers/input/mouse/elantech.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index b84cd978fce2..a4aaa748e987 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1613,7 +1613,7 @@ static int elantech_set_properties(struct elantech_data *etd)
->  		case 5:
->  			etd->hw_version = 3;
->  			break;
-> -		case 6 ... 14:
-> +		case 6 ... 15:
->  			etd->hw_version = 4;
->  			break;
->  		default:
-> -- 
-> 2.13.6
-> 
+Fix this by moving the module info out of the #ifdef CONFIG_HOLTEK_FF
+block and into the un-guarded part of the file.
 
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+---
+ drivers/hid/hid-holtekff.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-holtekff.c b/drivers/hid/hid-holtekff.c
+index 9325545fc3ae..edc0f64bb584 100644
+--- a/drivers/hid/hid-holtekff.c
++++ b/drivers/hid/hid-holtekff.c
+@@ -32,10 +32,6 @@
+ 
+ #ifdef CONFIG_HOLTEK_FF
+ 
+-MODULE_LICENSE("GPL");
+-MODULE_AUTHOR("Anssi Hannula <anssi.hannula@iki.fi>");
+-MODULE_DESCRIPTION("Force feedback support for Holtek On Line Grip based devices");
+-
+ /*
+  * These commands and parameters are currently known:
+  *
+@@ -223,3 +219,7 @@ static struct hid_driver holtek_driver = {
+ 	.probe = holtek_probe,
+ };
+ module_hid_driver(holtek_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Anssi Hannula <anssi.hannula@iki.fi>");
++MODULE_DESCRIPTION("Force feedback support for Holtek On Line Grip based devices");
 -- 
-Dmitry
+2.11.0
+

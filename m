@@ -1,44 +1,37 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH v2] input: pegasus_notetaker: add license information
-Date: Mon, 27 Nov 2017 08:44:01 +0100
-Message-ID: <20171127074401.16388-1-martink@posteo.de>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2] input: pegasus_notetaker: add license information
+Date: Mon, 27 Nov 2017 08:52:52 +0100
+Message-ID: <20171127075252.GA19416@kroah.com>
 References: <20171126004259.xjl2icw3gbyg3hck@dtor-ws>
+ <20171127074401.16388-1-martink@posteo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171126004259.xjl2icw3gbyg3hck@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <20171127074401.16388-1-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: gregkh@linuxfoundation.org, pombredanne@nexb.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
+To: Martin Kepplinger <martink@posteo.de>
+Cc: dmitry.torokhov@gmail.com, pombredanne@nexb.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This adds an SPDX license identifier to this driver I wrote some time back.
+On Mon, Nov 27, 2017 at 08:44:01AM +0100, Martin Kepplinger wrote:
+> This adds an SPDX license identifier to this driver I wrote some time back.
+> 
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+> ---
+> 
+> Thanks for the feedback. GPL2+ was what I had in mind. My bad. And as I
+> already see a lot of SPDX tags using /**/ comments, I'll use that too.
+> I think if it is hand-written, it shouldn't look too ugly. And in case
+> that's really a no-go, it seems that many many files need to be changed
+> again in any case.
 
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
----
+.h files should be the only ones using /* */, and that is for the ones
+that break the build if they use // (usually arch-specific and uapi
+files)
 
-Thanks for the feedback. GPL2+ was what I had in mind. My bad. And as I
-already see a lot of SPDX tags using /**/ comments, I'll use that too.
-I think if it is hand-written, it shouldn't look too ugly. And in case
-that's really a no-go, it seems that many many files need to be changed
-again in any case.
+So please use // as Linus asked to have done.
 
-                          martin
+thanks,
 
-patch revisions
----------------
-v2: use /**/ comments and fix the license tag to match MODULE_LICENSE()
-
-
- drivers/input/tablet/pegasus_notetaker.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-index 47de5a81172f..93fe8ecab767 100644
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
- /*
-  * Pegasus Mobile Notetaker Pen input tablet driver
-  *
--- 
-2.11.0
+greg k-h

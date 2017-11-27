@@ -1,63 +1,127 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 1/3] Input: hil_mlc: convert timeval to time64_t
-Date: Mon, 27 Nov 2017 12:22:57 +0100
-Message-ID: <20171127112324.1917698-1-arnd@arndb.de>
-Return-path: <linux-parisc-owner@vger.kernel.org>
-Sender: linux-parisc-owner@vger.kernel.org
+Subject: [PATCH 2/3] input: hil_mlc: convert timeval to jiffies
+Date: Mon, 27 Nov 2017 12:22:58 +0100
+Message-ID: <20171127112324.1917698-2-arnd@arndb.de>
+References: <20171127112324.1917698-1-arnd@arndb.de>
+Return-path: <linux-m68k-owner@vger.kernel.org>
+In-Reply-To: <20171127112324.1917698-1-arnd@arndb.de>
+Sender: linux-m68k-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-m68k@lists.linux-m68k.org, Geert Uytterhoeven <geert@linux-m68k.org>, linux-parisc@vger.kernel.org, Helge Deller <deller@gmx.de>, "James E . J . Bottomley" <jejb@parisc-linux.org>, WEN Pingbo <pingbo.wen@linaro.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: WEN Pingbo <pingbo.wen@linaro.org>
 
-Since mlc->lcv_t is only interested in seconds, directly using time64_t
-here.
+struct timeval is not y2038 safe, and what mlc->instart do is
+scheduling a task in a fixed timeout, so jiffies is the
+simplest choice here.
 
-This gets rid of the deprecated do_gettimeofday() and avoids problems
-with time going backwards since we now use the monotonic clocksource.
+In hilse_donode(), the expires in mod_timer equals
 
+	jiffies + intimeout - (now - instart)
+
+If we use jiffies in 'now', the expires equals
+
+	instart + intimeout
+
+So, all we need to do is that making sure expires is a future
+timestamp before passed it to mod_timer.
+
+[arnd: slightly simplified patch further]
+
+Link: https://lists.linaro.org/pipermail/y2038/2015-October/000937.html
 Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/serio/hil_mlc.c | 8 +++-----
- include/linux/hil_mlc.h       | 2 +-
- 2 files changed, 4 insertions(+), 6 deletions(-)
+ drivers/input/serio/hil_mlc.c    | 18 +++++++-----------
+ drivers/input/serio/hp_sdc_mlc.c |  5 +----
+ include/linux/hil_mlc.h          |  4 ++--
+ 3 files changed, 10 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-index d66d01c5373b..581e47119363 100644
+index 581e47119363..e1423f7648d6 100644
 --- a/drivers/input/serio/hil_mlc.c
 +++ b/drivers/input/serio/hil_mlc.c
-@@ -274,14 +274,12 @@ static int hilse_match(hil_mlc *mlc, int unused)
- /* An LCV used to prevent runaway loops, forces 5 second sleep when reset. */
- static int hilse_init_lcv(hil_mlc *mlc, int unused)
- {
--	struct timeval tv;
-+	time64_t now = ktime_get_seconds();
+@@ -602,8 +602,8 @@ static inline void hilse_setup_input(hil_mlc *mlc, const struct hilse_node *node
+ 		BUG();
+ 	}
+ 	mlc->istarted = 1;
+-	mlc->intimeout = node->arg;
+-	do_gettimeofday(&(mlc->instart));
++	mlc->intimeout = usecs_to_jiffies(node->arg);
++	mlc->instart = jiffies;
+ 	mlc->icount = 15;
+ 	memset(mlc->ipacket, 0, 16 * sizeof(hil_packet));
+ 	BUG_ON(down_trylock(&mlc->isem));
+@@ -708,7 +708,7 @@ static int hilse_donode(hil_mlc *mlc)
+ 			break;
+ 		}
+ 		mlc->ostarted = 0;
+-		do_gettimeofday(&(mlc->instart));
++		mlc->instart = jiffies;
+ 		write_unlock_irqrestore(&mlc->lock, flags);
+ 		nextidx = HILSEN_NEXT;
+ 		break;
+@@ -729,18 +729,14 @@ static int hilse_donode(hil_mlc *mlc)
+ #endif
  
--	do_gettimeofday(&tv);
--
--	if (mlc->lcv && (tv.tv_sec - mlc->lcv_tv.tv_sec) < 5)
-+	if (mlc->lcv && (now - mlc->lcv_time) < 5)
- 		return -1;
+ 	while (nextidx & HILSEN_SCHED) {
+-		struct timeval tv;
++		unsigned long now = jiffies;
  
--	mlc->lcv_tv = tv;
-+	mlc->lcv_time = now;
- 	mlc->lcv = 0;
+ 		if (!sched_long)
+ 			goto sched;
  
- 	return 0;
+-		do_gettimeofday(&tv);
+-		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
+-		tv.tv_usec -= mlc->instart.tv_usec;
+-		if (tv.tv_usec >= mlc->intimeout) goto sched;
+-		tv.tv_usec = (mlc->intimeout - tv.tv_usec) * HZ / USEC_PER_SEC;
+-		if (!tv.tv_usec) goto sched;
+-		mod_timer(&hil_mlcs_kicker, jiffies + tv.tv_usec);
++		if (time_after(now, mlc->instart + mlc->intimeout))
++			 goto sched;
++		mod_timer(&hil_mlcs_kicker, mlc->instart + mlc->intimeout);
+ 		break;
+ 	sched:
+ 		tasklet_schedule(&hil_mlcs_tasklet);
+diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
+index d50f0678bf47..232d30c825bd 100644
+--- a/drivers/input/serio/hp_sdc_mlc.c
++++ b/drivers/input/serio/hp_sdc_mlc.c
+@@ -149,7 +149,6 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
+ 
+ 	/* Try to down the semaphore */
+ 	if (down_trylock(&mlc->isem)) {
+-		struct timeval tv;
+ 		if (priv->emtestmode) {
+ 			mlc->ipacket[0] =
+ 				HIL_ERR_INT | (mlc->opacket &
+@@ -160,9 +159,7 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
+ 			/* printk(KERN_DEBUG PREFIX ">[%x]\n", mlc->ipacket[0]); */
+ 			goto wasup;
+ 		}
+-		do_gettimeofday(&tv);
+-		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
+-		if (tv.tv_usec - mlc->instart.tv_usec > mlc->intimeout) {
++		if (time_after(jiffies, mlc->instart + mlc->intimeout)) {
+ 			/*	printk("!%i %i",
+ 				tv.tv_usec - mlc->instart.tv_usec,
+ 				mlc->intimeout);
 diff --git a/include/linux/hil_mlc.h b/include/linux/hil_mlc.h
-index 394a8405dd74..d6fc839bdf46 100644
+index d6fc839bdf46..774f7d3b8f6a 100644
 --- a/include/linux/hil_mlc.h
 +++ b/include/linux/hil_mlc.h
-@@ -149,7 +149,7 @@ struct hil_mlc {
+@@ -144,8 +144,8 @@ struct hil_mlc {
+ 	hil_packet		ipacket[16];
+ 	hil_packet		imatch;
+ 	int			icount;
+-	struct timeval		instart;
+-	suseconds_t		intimeout;
++	unsigned long		instart;
++	unsigned long		intimeout;
  
  	int			ddi;	/* Last operational device id */
  	int			lcv;	/* LCV to throttle loops */
--	struct timeval		lcv_tv; /* Time loop was started */
-+	time64_t		lcv_time; /* Time loop was started */
- 
- 	int			di_map[7]; /* Maps below items to live devs */
- 	struct hil_mlc_devinfo	di[HIL_MLC_DEVMEM];
 -- 
 2.9.0
-

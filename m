@@ -1,33 +1,25 @@
-From: LEND FAIR FINANCIAL <amimacapa@unifap.br>
-Subject: lainatarjous
-Date: Mon, 27 Nov 2017 07:10:29 -0300 (BRT)
-Message-ID: <2053516815.807372.1511777429172.JavaMail.zimbra__10920.6521571197$1511777872$gmane$org@unifap.br>
-Reply-To: LEND FAIR FINANCIAL <lendfair.co.uk@outlook.com>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Subject: Re: [PATCH v3] input: pegasus_notetaker: add license information
+Date: Mon, 27 Nov 2017 11:19:11 +0100
+Message-ID: <CAOFm3uEreaLdi1K_nD3TM-UeAEz_iAA8ujRt-=gYAQZJNPLQpg@mail.gmail.com>
+References: <20171127075252.GA19416@kroah.com> <20171127080239.16846-1-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atlantico.unifap.br ([200.129.167.68]:50638 "EHLO
-        atlantico.unifap.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751392AbdK0KRk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 05:17:40 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171127080239.16846-1-martink@posteo.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Martin Kepplinger <martink@posteo.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Mukava päivä,
+On Mon, Nov 27, 2017 at 9:02 AM, Martin Kepplinger <martink@posteo.de> wrote:
+> This adds an SPDX license identifier to this driver I wrote some time back.
+>
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
 
-Olen rouva Leader Larry, joka on LendFair Loans® -nimisen tunnustetun laillisen lainanantajan yritys. Onko sinulla huono luotto tai tarvitsetko rahaa laskujesi maksamiseen? Annamme kaikenlaisia lainoja yksilölle tai yritykselle niin alhaiseksi kuin 3% korko.
+Reviewed-by: Philippe Ombredanne <pombredanne@nexb.com>
 
-Täytä alla oleva lomake.
-
-Koko nimi:
-sukupuoli:
-Vaadittu määrä:
-kesto:
-
-Voit ottaa yhteyttä meihin puhelimitse: (+44) 703 1920 090 email: lendfair.co.uk@outlook.com
-
-
-Parhain terveisin
-Rouva Leader Larry
+FWIW!
+-- 
+Cordially
+Philippe Ombredanne

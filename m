@@ -1,17 +1,17 @@
 From: LEND FAIR FINANCIAL <amimacapa@unifap.br>
 Subject: lainatarjous
-Date: Mon, 27 Nov 2017 07:08:13 -0300 (BRT)
-Message-ID: <1050861891.806819.1511777293436.JavaMail.zimbra@unifap.br>
+Date: Mon, 27 Nov 2017 07:10:29 -0300 (BRT)
+Message-ID: <2053516815.807372.1511777429172.JavaMail.zimbra__10920.6521571197$1511777872$gmane$org@unifap.br>
 Reply-To: LEND FAIR FINANCIAL <lendfair.co.uk@outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atlantico.unifap.br ([200.129.167.68]:46335 "EHLO
+Received: from atlantico.unifap.br ([200.129.167.68]:50638 "EHLO
         atlantico.unifap.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751225AbdK0KOU (ORCPT
+        with ESMTP id S1751392AbdK0KRk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 05:14:20 -0500
+        Mon, 27 Nov 2017 05:17:40 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 

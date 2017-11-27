@@ -1,106 +1,49 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] input: pegasus_notetaker: add license information
-Date: Mon, 27 Nov 2017 08:55:18 +0100
-Message-ID: <20171127075518.GB19416@kroah.com>
-References: <20171118084518.8437-1-martink@posteo.de>
- <20171126004259.xjl2icw3gbyg3hck@dtor-ws>
- <20171126085951.GA10018@kroah.com>
- <CAOFm3uE7wX-zmSCwABGR3_RR2gZY8MBMwFw42SwRwnDdrJ78Nw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH v3] input: pegasus_notetaker: add license information
+Date: Mon, 27 Nov 2017 09:02:39 +0100
+Message-ID: <20171127080239.16846-1-martink@posteo.de>
+References: <20171127075252.GA19416@kroah.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:34898 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751126AbdK0HzN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 02:55:13 -0500
-Content-Disposition: inline
-In-Reply-To: <CAOFm3uE7wX-zmSCwABGR3_RR2gZY8MBMwFw42SwRwnDdrJ78Nw@mail.gmail.com>
+Received: from mout01.posteo.de ([185.67.36.65]:35927 "EHLO mout01.posteo.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751126AbdK0ICw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Nov 2017 03:02:52 -0500
+Received: from submission (posteo.de [89.146.220.130])
+        by mout01.posteo.de (Postfix) with ESMTPS id 144E121441
+        for <linux-input@vger.kernel.org>; Mon, 27 Nov 2017 09:02:51 +0100 (CET)
+In-Reply-To: <20171127075252.GA19416@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com
+Cc: pombredanne@nexb.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
 
-On Sun, Nov 26, 2017 at 12:28:49PM +0100, Philippe Ombredanne wrote:
-> Greg, Martin:
-> 
-> On Sun, Nov 26, 2017 at 9:59 AM, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> > On Sat, Nov 25, 2017 at 04:42:59PM -0800, Dmitry Torokhov wrote:
-> >> Hi Martin,
-> >>
-> >> On Sat, Nov 18, 2017 at 09:45:18AM +0100, Martin Kepplinger wrote:
-> >> > This adds an SPDX license identifier to this driver I wrote some time back.
-> >> >
-> >> > Signed-off-by: Martin Kepplinger <martink@posteo.de>
-> >> > ---
-> >> >  drivers/input/tablet/pegasus_notetaker.c | 1 +
-> >> >  1 file changed, 1 insertion(+)
-> >> >
-> >> > diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-> >> > index 47de5a81172f..cdf75c989469 100644
-> >> > --- a/drivers/input/tablet/pegasus_notetaker.c
-> >> > +++ b/drivers/input/tablet/pegasus_notetaker.c
-> >> > @@ -1,3 +1,4 @@
-> >> > +// SPDX-License-Identifier: GPL-2.0
-> >>
-> >> Should this be GPL-2.0+? The MODULE_LICENSE specifies that the module is
-> >> "GPL" which in kernel land means GPLv2+. Or we should change the module
-> >> license to strict "GPLv2"?
-> >
-> > That is up to Martin, given that he is the author, as to what he wants
-> > to mark this as.  Odd that it missed the big "fix up all files with no
-> > license information" sweep.
-> >
-> > Philippe, how did we miss this one?
-> 
-> It was not missed but instead was set aside by design.
-> drivers/input/tablet/pegasus_notetaker.c does not have (or rather did
-> not have until now) any licensing information beside a
-> MODULE_LICENSE("GPL") and these were left aside as requiring some
-> extra review and the eventual need of a clarification by the author,
-> just as Martin is rightfully doing so just now.
+This adds an SPDX license identifier to this driver I wrote some time back.
 
-Ah, thanks for the explaination, that makes more sense.
+Signed-off-by: Martin Kepplinger <martink@posteo.de>
+---
 
-> >> Doing this would prevent mismatches between license notices, SPDX tags
-> >> and MODULE_LCENSE() strings, which happen very often.
-> >
-> > I agree, but now that we are getting SPDX tags, we can fix up all of the
-> > mismatches in MODULE_LICENSE() strings, of which there are a lot.
-> 
-> I said that I would take a stab at it... but I did not attack this yet:
-> Let me get over the ThanksGiving hangover and provide a list this
-> week. I guess there could be three lists in fact:
-> 
-> - modules with only a MODULE_LICENSE and no other license info: these
-> could be candidates for adding an SPDX id matching the MODULE_LICENSE
-> 
-> - modules updated to use an SPDX id and with a conflicting
-> MODULE_LICENSE: the MODULE_LICENSE should be aligned to match the SPDX
-> id
-> 
-> - modules not yet updated to use an SPDX id and with a license notice
-> conflicting with the MODULE_LICENSE: the MODULE_LICENSE should be
-> aligned to match the licensing
-> 
-> I'll run a scancode-toolkit scan on the tip of Linus' tree and create
-> a CSV from that to surface these oddities.
-> Unless you prefer me to use another tree like on the USB side for a start.
+ok. thanks for the license-cleanup efforts. I think it's important.
 
-Just doing a big sweep of all of 4.15-rc1 to catch the new files /
-deleted files for the large "here is a first pass of what the spdx id
-should be" like you did before would be great as we are working with the
-4.14 info at the moment.
+                          martin
 
-Any additional work on the MODULE_LICENSE stuff would also be wonderful,
-but might be a bit premature given that we don't have much SPDX coverage
-at the moment.
+patch revisions
+---------------
+v3: use // comments
+v2: use /**/ comments and fix the license tag to match MODULE_LICENSE()
 
-But, if you want to try out the MODULE_LICENSE stuff, doing it on
-drivers/usb/ would be great as that should be all finished with SPDX
-tags now.
 
-thanks,
+ drivers/input/tablet/pegasus_notetaker.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-greg k-h
+diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+index 47de5a81172f..6d8975f49e76 100644
+--- a/drivers/input/tablet/pegasus_notetaker.c
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0+
+ /*
+  * Pegasus Mobile Notetaker Pen input tablet driver
+  *
+-- 
+2.11.0
+

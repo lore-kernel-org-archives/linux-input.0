@@ -1,233 +1,96 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA
- keyboard docks
-Date: Mon, 27 Nov 2017 18:00:24 +0100
-Message-ID: <47b2d7b2-c24b-2705-5be6-9c100d0ed4c0@redhat.com>
-References: <20171126154010.954-1-hdegoede@redhat.com>
- <20171127083531.GD30708@mail.corp.redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Mon, 27 Nov 2017 19:51:16 +0100
+Message-ID: <20171127185116.j2vmkhbik33vk4f7@ninjato>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+ <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="mn6nogm4h73ihrkm"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36734 "EHLO mx1.redhat.com"
+Received: from sauhun.de ([88.99.104.3]:48036 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752578AbdK0RAf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 12:00:35 -0500
-In-Reply-To: <20171127083531.GD30708@mail.corp.redhat.com>
-Content-Language: en-US
+        id S1752774AbdK0SvS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Nov 2017 13:51:18 -0500
+Content-Disposition: inline
+In-Reply-To: <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
-
-Hi,
-
-On 27-11-17 09:35, Benjamin Tissoires wrote:
-> On Nov 26 2017 or thereabouts, Hans de Goede wrote:
->> The T100TAF and T100HA keyboard docks have the same special keys and
->> custom protocol multitouch touchpad as the T100TA, but use a different
->> product id.
->>
->> The T100TAF and T100HA both use the same product id, but the T100HA's
->> touchpad has a different coordinate range.
->>
->> This commits adds supports for the new USB id and uses a dmi-check to
->> determine if we're dealing with the T100TAF or T100HA.
-> 
-> This feels really wrong. Either people at Asus are insane, either the
-> Windows driver has a query to fetch the correct logical and physical
-> min/max.
-
-I'm afraid it is probably the first reason and not the second reason,
-when I was working on Linux webcam support one of the issues was that in
-many Asus laptops the webcam module is mounted upside down and thus sends
-an upside-down picture. I asked via via if Asus internally had a list
-of which webcams are upside down, the answer was: no. Asus simply maintains
-a hacked-together driver-repository per model laptop, in which they
-put hacks until the driver works for that model. At least that is what
-they do with webcams, I would not be surprised if that downloading
-the T100TAF driver and putting it on the T100HA results in the driver
-internally using the wrong coordinate range, something which the user
-will likely not notice anyway since for most usage the coordinate range
-does not matter.
-
-> Could you share the hid-recorder output of the touchpad? Ideally, I'd
-> like to compare it between the 2 (T100TAF and T100HA).
-
-Since this is using a custom report-id hid-recorder does not seem
-to record any data, even with the driver loaded. Anyways here is the
-descriptor, which is what I guess you're most interested in:
-
-D: 0
-R: 85 05 01 09 02 a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02 95 06 81 03 05 01 09 30 09 31 09 38 15 81 25 7f 75 08 95 03 81 06 c0 c0 06 00 ff 09 c5 a1 01 85 0d 09 c5 15 00 26 ff 00 75 08 95 04 b1 02 85 5d 09 01 95 1b 75 08 81 06 c0
-N: ASUS Tech Inc. ASUS HID Device
-P: usb-0000:00:14.0-3.3/input2
-I: 3 0b05 1807
-
-Decoded that is:
-
-Usage Page (Desktop),               ; Generic desktop controls (01h)
-Usage (Mouse),                      ; Mouse (02h, application collection)
-Collection (Application),
-     Report ID (1),
-     Usage (Pointer),                ; Pointer (01h, physical collection)
-     Collection (Physical),
-         Usage Page (Button),        ; Button (09h)
-         Usage Minimum (01h),
-         Usage Maximum (02h),
-         Logical Minimum (0),
-         Logical Maximum (1),
-         Report Size (1),
-         Report Count (2),
-         Input (Variable),
-         Report Count (6),
-         Input (Constant, Variable),
-         Usage Page (Desktop),       ; Generic desktop controls (01h)
-         Usage (X),                  ; X (30h, dynamic value)
-         Usage (Y),                  ; Y (31h, dynamic value)
-         Usage (Wheel),              ; Wheel (38h, dynamic value)
-         Logical Minimum (-127),
-         Logical Maximum (127),
-         Report Size (8),
-         Report Count (3),
-         Input (Variable, Relative),
-     End Collection,
-End Collection,
-Usage Page (FF00h),                 ; FF00h, vendor-defined
-Usage (C5h),
-Collection (Application),
-     Report ID (13),
-     Usage (C5h),
-     Logical Minimum (0),
-     Logical Maximum (255),
-     Report Size (8),
-     Report Count (4),
-     Feature (Variable),
-     Report ID (93),
-     Usage (01h),
-     Report Count (27),
-     Report Size (8),
-     Input (Variable, Relative),
-End Collection
-
-IOW it says it is a mouse + a custom section for the special keys,
-so no useful info there.
-
-I've asked the T100TAF reporter to also collect a descriptor for the
-T100TAF.
-
-> If there is no differences, we might need to resort to have someone
-> sniff the usb traces from a Windows VM :/
-
-There may be some difference in the descriptors, but I wonder if that
-is better then just identifying the model, since that is what we are
-really after and the 2 docks are not compatible.
-
-TL;DR: I really believe that my patch 'as is' is probably the best
-solution.
-
-Regards,
-
-Hans
+To: Mark Brown <broonie@kernel.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 
 
->> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197849
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -The new device-id is for both the T100TAF and the T100HA
->> -The T100HA touchpad has different coordinate ranges, take this into account
->> -Rebase on top of hid/for-4.16/hid-quirks-cleanup/_base
->> -Drop the ASUS T100TA entry from hid_have_special_driver, things work fine
->>   without it
->> ---
->>   drivers/hid/hid-asus.c   | 24 ++++++++++++++++++++++--
->>   drivers/hid/hid-ids.h    |  3 ++-
->>   drivers/hid/hid-quirks.c |  1 -
->>   3 files changed, 24 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
->> index 1bb7b63b3150..6d2894b7d8e7 100644
->> --- a/drivers/hid/hid-asus.c
->> +++ b/drivers/hid/hid-asus.c
->> @@ -26,6 +26,7 @@
->>    * any later version.
->>    */
->>   
->> +#include <linux/dmi.h>
->>   #include <linux/hid.h>
->>   #include <linux/module.h>
->>   #include <linux/input/mt.h>
->> @@ -119,6 +120,15 @@ static const struct asus_touchpad_info asus_t100ta_tp = {
->>   	.max_contacts = 5,
->>   };
->>   
->> +static const struct asus_touchpad_info asus_t100ha_tp = {
->> +	.max_x = 2640,
->> +	.max_y = 1320,
->> +	.res_x = 30, /* units/mm */
->> +	.res_y = 29, /* units/mm */
->> +	.contact_size = 5,
->> +	.max_contacts = 5,
->> +};
->> +
->>   static const struct asus_touchpad_info asus_t100chi_tp = {
->>   	.max_x = 2640,
->>   	.max_y = 1320,
->> @@ -606,7 +616,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>   
->>   		if (intf->altsetting->desc.bInterfaceNumber == T100_TPAD_INTF) {
->>   			drvdata->quirks = QUIRK_SKIP_INPUT_MAPPING;
->> -			drvdata->tp = &asus_t100ta_tp;
->> +			/*
->> +			 * The T100HA uses the same USB-ids as the T100TAF,
->> +			 * but has different max_x / max_y values.
->> +			 */
->> +			if (dmi_match(DMI_PRODUCT_NAME, "T100HAN"))
->> +				drvdata->tp = &asus_t100ha_tp;
->> +			else
->> +				drvdata->tp = &asus_t100ta_tp;
->>   		}
->>   	}
->>   
->> @@ -751,7 +768,10 @@ static const struct hid_device_id asus_devices[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->>   		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->> -		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
->> +		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
->> +	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
->> +		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
->>   	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index 5da3d6256d25..dc1db8558850 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -178,7 +178,8 @@
->>   #define USB_VENDOR_ID_ASUSTEK		0x0b05
->>   #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
->>   #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
->> -#define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
->> +#define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
->> +#define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
->>   #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
->>   #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
->>   #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
->> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
->> index 015e0c10248b..1cf1e9a0d699 100644
->> --- a/drivers/hid/hid-quirks.c
->> +++ b/drivers/hid/hid-quirks.c
->> @@ -284,7 +284,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },
->> -- 
->> 2.14.3
->>
+--mn6nogm4h73ihrkm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Nov 08, 2017 at 10:50:37PM +0000, Mark Brown wrote:
+> On Sat, Nov 04, 2017 at 09:20:00PM +0100, Wolfram Sang wrote:
+>=20
+> > While previous versions until v3 tried to magically apply bounce buffer=
+s when
+> > needed, it became clear that detecting DMA safe buffers is too fragile.=
+ This
+> > approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. =
+The
+> > outcome so far is very convincing IMO. The core additions are simple an=
+d easy
+> > to understand. The driver changes for the Renesas IP cores became easy =
+to
+> > understand, too.
+>=20
+> It would really help a lot of things if there were a way to detect if a
+> given memory block is DMA safe, having to pass the information around
+> causes so much pain.
+
+I so agree.
+
+> > I am still not sure how we can teach regmap this new flag. regmap is a =
+heavy
+> > user of I2C, so broonie's opinion here would be great to have. The rest=
+ should
+> > mostly be updating individual drivers which can be done when needed.
+>=20
+> We pretty much assume everything is DMA safe already, the majority of
+> transfers go to/from kmalloc()ed scratch buffers so actually are DMA
+> safe but for bulk transfers we use the caller buffer and there might be
+> some problem users.
+
+So, pretty much the situation I2C was in before this patch set: we
+pretty much assume DMA safety but there might be problem users.
+
+> I can't really think of a particularly good way of
+> handling it off the top of my head, obviously not setting the flag is
+> easy but doesn't get the benefit while always using a bounce buffer
+> would involve lots of unneeded memcpy().  Doing _dmasafe() isn't
+> particularly appealing either but might be what we end up with.
+
+Okay. That sounds you are fine with the approach taken here, in general?
+
+Thanks,
+
+   Wolfram
+
+
+--mn6nogm4h73ihrkm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlocXqMACgkQFA3kzBSg
+KbZHtxAArjFGCUHWEI0mb69aZ3Afheaj+Ng9703s+B3PW5cz951UVm1iOueCdVIB
+un5esGb+m9z1cP/tJ5BaFO8uveRdwioQ98J33odSQb420mjqrTmRFSecjEyNW7Vv
+6MAQhHXsRNqfACrlRcVsXfbwMvXBt1bE2dzZ6eBle/dG6RX5f9krXklQBzfRbZ54
+3NCZ2lnRJ8aijxWAnqiwMYqHRHP+5L3jxFWGkmdNC0cbogUg/edahv0r63DH+Jn9
+KmF2g/5ANZ1PlXDb+VdTLpmcmYWRniCwcxiVgEoFtb0DAUaExi44boKN6GiJc4Op
+2m2RsxHXjHuAZqbpbPX0zTCDaBnzZTUXJnBFKWEDxJGs+3sxUEsrxDvGCmyYxElE
+fbFMAbuOFdxOWebQPVUZbnWjFqZxD9qsuG36VAhe4qzA3PJrjrCTk+sIHm1a0VwK
+X1IpgUUmCj3Cff/hO8ZKUQgHwBFnp8qpaPrVBpiDX/MLrkt8ngfCj1Km3MCC4O2A
+7ks6G+DD++Bw7Vf1aHUp5aD6+wberxoHSPUKB3CpDXjPusVghKgRb/oz6Il+xFr8
+STcCrzmmAgeIl3RHA2pFKh7B8zMynwte+/2BdoKPN9RH7KGqi5BcC2cdXMXeN/yz
+icSgbMKoMnut/5l5RfMl/1RjAIPb0Mw8OkV/Ye/l3vCqpp06enc=
+=ux9A
+-----END PGP SIGNATURE-----
+
+--mn6nogm4h73ihrkm--

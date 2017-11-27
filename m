@@ -1,62 +1,147 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] usbhid: add quirk for another PIXART OEM mouse used by HP
-Date: Mon, 27 Nov 2017 09:32:42 +0100
-Message-ID: <20171127083242.GA17756@kroah.com>
-References: <20171125055054.GA2139@dhcp-128-65.nay.redhat.com>
- <20171127081631.GB30708@mail.corp.redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA
+ keyboard docks
+Date: Mon, 27 Nov 2017 09:35:31 +0100
+Message-ID: <20171127083531.GD30708@mail.corp.redhat.com>
+References: <20171126154010.954-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:39066 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751141AbdK0Ici (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 03:32:38 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:49162 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751231AbdK0Ifg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Nov 2017 03:35:36 -0500
 Content-Disposition: inline
-In-Reply-To: <20171127081631.GB30708@mail.corp.redhat.com>
+In-Reply-To: <20171126154010.954-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On Mon, Nov 27, 2017 at 09:16:31AM +0100, Benjamin Tissoires wrote:
-> On Nov 25 2017 or thereabouts, Dave Young wrote:
-> > This mouse keep disconnecting in runleve 3 like below, add it needs the
-> > quirk to mute the anoying messages.
-> > 
-> > [  111.230555] usb 2-2: USB disconnect, device number 6
-> > [  112.718156] usb 2-2: new low-speed USB device number 7 using xhci_hcd
-> > [  112.941594] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-> > [  112.984866] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> > [  113.027731] usb 2-2: Product: HP USB Optical Mouse
-> > [  113.069977] usb 2-2: Manufacturer: PixArt
-> > [  113.113500] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0002/input/input14
-> > [  113.156787] hid-generic 0003:03F0:094A.0002: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
-> > [  173.262642] usb 2-2: USB disconnect, device number 7
-> > [  174.750244] usb 2-2: new low-speed USB device number 8 using xhci_hcd
-> > [  174.935740] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-> > [  174.990435] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> > [  175.014984] usb 2-2: Product: HP USB Optical Mouse
-> > [  175.037886] usb 2-2: Manufacturer: PixArt
-> > [  175.061794] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0003/input/input15
-> > [  175.084946] hid-generic 0003:03F0:094A.0003: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
-> > 
-> > Signed-off-by: Dave Young <dyoung@redhat.com>
-> > ---
-> >  drivers/hid/hid-ids.h           |    1 +
-> >  drivers/hid/usbhid/hid-quirks.c |    1 +
+On Nov 26 2017 or thereabouts, Hans de Goede wrote:
+> The T100TAF and T100HA keyboard docks have the same special keys and
+> custom protocol multitouch touchpad as the T100TA, but use a different
+> product id.
 > 
-> Patch looks good and should be good for stable too, but in the file
-> hid-quirks.c file has been moved one folder up. Please rebase the patch
-> on top of https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git/log/?h=for-4.16/hid-quirks-cleanup/_base
-> It should be merged in linux-next in the next few days normally.
+> The T100TAF and T100HA both use the same product id, but the T100HA's
+> touchpad has a different coordinate range.
 > 
-> Jiri, how can we deal with such stable-ish patches?
+> This commits adds supports for the new USB id and uses a dmi-check to
+> determine if we're dealing with the T100TAF or T100HA.
 
-I can almost always handle things as simple as file movements, don't
-worry about that.  If there's a problem, I'll be sure to let people know
-:)
+This feels really wrong. Either people at Asus are insane, either the
+Windows driver has a query to fetch the correct logical and physical
+min/max.
 
-thanks,
+Could you share the hid-recorder output of the touchpad? Ideally, I'd
+like to compare it between the 2 (T100TAF and T100HA).
 
-greg k-h
+If there is no differences, we might need to resort to have someone
+sniff the usb traces from a Windows VM :/
+
+(There is nothing wrong with your code per se, it's just tat it will
+transform this driver into something even more uglier)
+
+Cheers,
+Benjamin
+> 
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197849
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v2:
+> -The new device-id is for both the T100TAF and the T100HA
+> -The T100HA touchpad has different coordinate ranges, take this into account
+> -Rebase on top of hid/for-4.16/hid-quirks-cleanup/_base
+> -Drop the ASUS T100TA entry from hid_have_special_driver, things work fine
+>  without it
+> ---
+>  drivers/hid/hid-asus.c   | 24 ++++++++++++++++++++++--
+>  drivers/hid/hid-ids.h    |  3 ++-
+>  drivers/hid/hid-quirks.c |  1 -
+>  3 files changed, 24 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 1bb7b63b3150..6d2894b7d8e7 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -26,6 +26,7 @@
+>   * any later version.
+>   */
+>  
+> +#include <linux/dmi.h>
+>  #include <linux/hid.h>
+>  #include <linux/module.h>
+>  #include <linux/input/mt.h>
+> @@ -119,6 +120,15 @@ static const struct asus_touchpad_info asus_t100ta_tp = {
+>  	.max_contacts = 5,
+>  };
+>  
+> +static const struct asus_touchpad_info asus_t100ha_tp = {
+> +	.max_x = 2640,
+> +	.max_y = 1320,
+> +	.res_x = 30, /* units/mm */
+> +	.res_y = 29, /* units/mm */
+> +	.contact_size = 5,
+> +	.max_contacts = 5,
+> +};
+> +
+>  static const struct asus_touchpad_info asus_t100chi_tp = {
+>  	.max_x = 2640,
+>  	.max_y = 1320,
+> @@ -606,7 +616,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  
+>  		if (intf->altsetting->desc.bInterfaceNumber == T100_TPAD_INTF) {
+>  			drvdata->quirks = QUIRK_SKIP_INPUT_MAPPING;
+> -			drvdata->tp = &asus_t100ta_tp;
+> +			/*
+> +			 * The T100HA uses the same USB-ids as the T100TAF,
+> +			 * but has different max_x / max_y values.
+> +			 */
+> +			if (dmi_match(DMI_PRODUCT_NAME, "T100HAN"))
+> +				drvdata->tp = &asus_t100ha_tp;
+> +			else
+> +				drvdata->tp = &asus_t100ta_tp;
+>  		}
+>  	}
+>  
+> @@ -751,7 +768,10 @@ static const struct hid_device_id asus_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>  		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> -		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
+> +		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
+> +	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+>  	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 5da3d6256d25..dc1db8558850 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -178,7 +178,8 @@
+>  #define USB_VENDOR_ID_ASUSTEK		0x0b05
+>  #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+>  #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+> -#define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
+> +#define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
+> +#define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
+>  #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
+>  #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+>  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index 015e0c10248b..1cf1e9a0d699 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -284,7 +284,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },
+> -- 
+> 2.14.3
+> 

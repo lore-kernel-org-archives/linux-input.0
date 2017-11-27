@@ -1,127 +1,87 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 2/3] input: hil_mlc: convert timeval to jiffies
-Date: Mon, 27 Nov 2017 12:22:58 +0100
-Message-ID: <20171127112324.1917698-2-arnd@arndb.de>
+Subject: [PATCH 3/3] Input: hp_sdc: convert to ktime_get()
+Date: Mon, 27 Nov 2017 12:22:59 +0100
+Message-ID: <20171127112324.1917698-3-arnd@arndb.de>
 References: <20171127112324.1917698-1-arnd@arndb.de>
 Return-path: <linux-m68k-owner@vger.kernel.org>
 In-Reply-To: <20171127112324.1917698-1-arnd@arndb.de>
 Sender: linux-m68k-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-m68k@lists.linux-m68k.org, Geert Uytterhoeven <geert@linux-m68k.org>, linux-parisc@vger.kernel.org, Helge Deller <deller@gmx.de>, "James E . J . Bottomley" <jejb@parisc-linux.org>, WEN Pingbo <pingbo.wen@linaro.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+Cc: linux-m68k@lists.linux-m68k.org, Geert Uytterhoeven <geert@linux-m68k.org>, linux-parisc@vger.kernel.org, Helge Deller <deller@gmx.de>, "James E . J . Bottomley" <jejb@parisc-linux.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: WEN Pingbo <pingbo.wen@linaro.org>
+This gets rid of the deprecated do_gettimeofday() call in favor
+of ktime_get(), which is also more reliable as it uses monotonic
+times. The code now gets a bit simpler.
 
-struct timeval is not y2038 safe, and what mlc->instart do is
-scheduling a task in a fixed timeout, so jiffies is the
-simplest choice here.
-
-In hilse_donode(), the expires in mod_timer equals
-
-	jiffies + intimeout - (now - instart)
-
-If we use jiffies in 'now', the expires equals
-
-	instart + intimeout
-
-So, all we need to do is that making sure expires is a future
-timestamp before passed it to mod_timer.
-
-[arnd: slightly simplified patch further]
-
-Link: https://lists.linaro.org/pipermail/y2038/2015-October/000937.html
-Signed-off-by: WEN Pingbo <pingbo.wen@linaro.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/serio/hil_mlc.c    | 18 +++++++-----------
- drivers/input/serio/hp_sdc_mlc.c |  5 +----
- include/linux/hil_mlc.h          |  4 ++--
- 3 files changed, 10 insertions(+), 17 deletions(-)
+ drivers/input/serio/hp_sdc.c | 17 +++++++----------
+ include/linux/hp_sdc.h       |  2 +-
+ 2 files changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-index 581e47119363..e1423f7648d6 100644
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -602,8 +602,8 @@ static inline void hilse_setup_input(hil_mlc *mlc, const struct hilse_node *node
- 		BUG();
- 	}
- 	mlc->istarted = 1;
--	mlc->intimeout = node->arg;
--	do_gettimeofday(&(mlc->instart));
-+	mlc->intimeout = usecs_to_jiffies(node->arg);
-+	mlc->instart = jiffies;
- 	mlc->icount = 15;
- 	memset(mlc->ipacket, 0, 16 * sizeof(hil_packet));
- 	BUG_ON(down_trylock(&mlc->isem));
-@@ -708,7 +708,7 @@ static int hilse_donode(hil_mlc *mlc)
- 			break;
- 		}
- 		mlc->ostarted = 0;
--		do_gettimeofday(&(mlc->instart));
-+		mlc->instart = jiffies;
- 		write_unlock_irqrestore(&mlc->lock, flags);
- 		nextidx = HILSEN_NEXT;
- 		break;
-@@ -729,18 +729,14 @@ static int hilse_donode(hil_mlc *mlc)
- #endif
+diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
+index 1d7c7d81a5ef..0b8a25c58d02 100644
+--- a/drivers/input/serio/hp_sdc.c
++++ b/drivers/input/serio/hp_sdc.c
+@@ -193,7 +193,7 @@ static void hp_sdc_take(int irq, void *dev_id, uint8_t status, uint8_t data)
+ 	curr->seq[curr->idx++] = status;
+ 	curr->seq[curr->idx++] = data;
+ 	hp_sdc.rqty -= 2;
+-	do_gettimeofday(&hp_sdc.rtv);
++	hp_sdc.rtime = ktime_get();
  
- 	while (nextidx & HILSEN_SCHED) {
+ 	if (hp_sdc.rqty <= 0) {
+ 		/* All data has been gathered. */
+@@ -306,13 +306,10 @@ static void hp_sdc_tasklet(unsigned long foo)
+ 	write_lock_irq(&hp_sdc.rtq_lock);
+ 
+ 	if (hp_sdc.rcurr >= 0) {
 -		struct timeval tv;
-+		unsigned long now = jiffies;
- 
- 		if (!sched_long)
- 			goto sched;
++		ktime_t now = ktime_get();
  
 -		do_gettimeofday(&tv);
--		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
--		tv.tv_usec -= mlc->instart.tv_usec;
--		if (tv.tv_usec >= mlc->intimeout) goto sched;
--		tv.tv_usec = (mlc->intimeout - tv.tv_usec) * HZ / USEC_PER_SEC;
--		if (!tv.tv_usec) goto sched;
--		mod_timer(&hil_mlcs_kicker, jiffies + tv.tv_usec);
-+		if (time_after(now, mlc->instart + mlc->intimeout))
-+			 goto sched;
-+		mod_timer(&hil_mlcs_kicker, mlc->instart + mlc->intimeout);
- 		break;
- 	sched:
- 		tasklet_schedule(&hil_mlcs_tasklet);
-diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
-index d50f0678bf47..232d30c825bd 100644
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -149,7 +149,6 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
+-		if (tv.tv_sec > hp_sdc.rtv.tv_sec)
+-			tv.tv_usec += USEC_PER_SEC;
+-
+-		if (tv.tv_usec - hp_sdc.rtv.tv_usec > HP_SDC_MAX_REG_DELAY) {
++		if (ktime_after(now, ktime_add_us(hp_sdc.rtime,
++						  HP_SDC_MAX_REG_DELAY))) {
+ 			hp_sdc_transaction *curr;
+ 			uint8_t tmp;
  
- 	/* Try to down the semaphore */
- 	if (down_trylock(&mlc->isem)) {
--		struct timeval tv;
- 		if (priv->emtestmode) {
- 			mlc->ipacket[0] =
- 				HIL_ERR_INT | (mlc->opacket &
-@@ -160,9 +159,7 @@ static int hp_sdc_mlc_in(hil_mlc *mlc, suseconds_t timeout)
- 			/* printk(KERN_DEBUG PREFIX ">[%x]\n", mlc->ipacket[0]); */
- 			goto wasup;
- 		}
--		do_gettimeofday(&tv);
--		tv.tv_usec += USEC_PER_SEC * (tv.tv_sec - mlc->instart.tv_sec);
--		if (tv.tv_usec - mlc->instart.tv_usec > mlc->intimeout) {
-+		if (time_after(jiffies, mlc->instart + mlc->intimeout)) {
- 			/*	printk("!%i %i",
- 				tv.tv_usec - mlc->instart.tv_usec,
- 				mlc->intimeout);
-diff --git a/include/linux/hil_mlc.h b/include/linux/hil_mlc.h
-index d6fc839bdf46..774f7d3b8f6a 100644
---- a/include/linux/hil_mlc.h
-+++ b/include/linux/hil_mlc.h
-@@ -144,8 +144,8 @@ struct hil_mlc {
- 	hil_packet		ipacket[16];
- 	hil_packet		imatch;
- 	int			icount;
--	struct timeval		instart;
--	suseconds_t		intimeout;
-+	unsigned long		instart;
-+	unsigned long		intimeout;
+@@ -321,8 +318,8 @@ static void hp_sdc_tasklet(unsigned long foo)
+ 			 * we'll need to figure out a way to communicate
+ 			 * it back to the application. and be less verbose.
+ 			 */
+-			printk(KERN_WARNING PREFIX "read timeout (%ius)!\n",
+-			       (int)(tv.tv_usec - hp_sdc.rtv.tv_usec));
++			printk(KERN_WARNING PREFIX "read timeout (%lldus)!\n",
++			       ktime_us_delta(now, hp_sdc.rtime));
+ 			curr->idx += hp_sdc.rqty;
+ 			hp_sdc.rqty = 0;
+ 			tmp = curr->seq[curr->actidx];
+@@ -551,7 +548,7 @@ unsigned long hp_sdc_put(void)
  
- 	int			ddi;	/* Last operational device id */
- 	int			lcv;	/* LCV to throttle loops */
+ 			/* Start a new read */
+ 			hp_sdc.rqty = curr->seq[curr->idx];
+-			do_gettimeofday(&hp_sdc.rtv);
++			hp_sdc.rtime = ktime_get();
+ 			curr->idx++;
+ 			/* Still need to lock here in case of spurious irq. */
+ 			write_lock_irq(&hp_sdc.rtq_lock);
+diff --git a/include/linux/hp_sdc.h b/include/linux/hp_sdc.h
+index d392975d8887..6f1dee7e67e0 100644
+--- a/include/linux/hp_sdc.h
++++ b/include/linux/hp_sdc.h
+@@ -281,7 +281,7 @@ typedef struct {
+ 	hp_sdc_transaction *tq[HP_SDC_QUEUE_LEN]; /* All pending read/writes */
+ 
+ 	int		rcurr, rqty;	/* Current read transact in process */
+-	struct timeval	rtv;		/* Time when current read started */
++	ktime_t		rtime;		/* Time when current read started */
+ 	int		wcurr;		/* Current write transact in process */
+ 
+ 	int		dev_err;	/* carries status from registration */
 -- 
 2.9.0

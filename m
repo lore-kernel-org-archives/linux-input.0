@@ -1,68 +1,72 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] usbhid: add quirk for another PIXART OEM mouse used by HP
-Date: Mon, 27 Nov 2017 09:49:51 +0100
-Message-ID: <20171127084951.GF30708@mail.corp.redhat.com>
-References: <20171125055054.GA2139@dhcp-128-65.nay.redhat.com>
- <20171127081631.GB30708@mail.corp.redhat.com>
- <20171127083242.GA17756@kroah.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCH 0/3] Improve CEC autorepeat handling
+Date: Mon, 27 Nov 2017 10:13:51 +0100
+Message-ID: <27b40fb8-a422-e43d-45d4-b4f763f7b82a@xs4all.nl>
+References: <cover.1511523174.git.sean@mess.org>
+ <20171125234752.2z46d3ya7qiaovby@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56860 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751141AbdK0It6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 03:49:58 -0500
-Content-Disposition: inline
-In-Reply-To: <20171127083242.GA17756@kroah.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20171125234752.2z46d3ya7qiaovby@dtor-ws>
+Content-Language: en-US
+Sender: linux-media-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sean Young <sean@mess.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Dave Young <dyoung@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Nov 27 2017 or thereabouts, Greg KH wrote:
-> On Mon, Nov 27, 2017 at 09:16:31AM +0100, Benjamin Tissoires wrote:
-> > On Nov 25 2017 or thereabouts, Dave Young wrote:
-> > > This mouse keep disconnecting in runleve 3 like below, add it needs the
-> > > quirk to mute the anoying messages.
-> > > 
-> > > [  111.230555] usb 2-2: USB disconnect, device number 6
-> > > [  112.718156] usb 2-2: new low-speed USB device number 7 using xhci_hcd
-> > > [  112.941594] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-> > > [  112.984866] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> > > [  113.027731] usb 2-2: Product: HP USB Optical Mouse
-> > > [  113.069977] usb 2-2: Manufacturer: PixArt
-> > > [  113.113500] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0002/input/input14
-> > > [  113.156787] hid-generic 0003:03F0:094A.0002: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
-> > > [  173.262642] usb 2-2: USB disconnect, device number 7
-> > > [  174.750244] usb 2-2: new low-speed USB device number 8 using xhci_hcd
-> > > [  174.935740] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-> > > [  174.990435] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> > > [  175.014984] usb 2-2: Product: HP USB Optical Mouse
-> > > [  175.037886] usb 2-2: Manufacturer: PixArt
-> > > [  175.061794] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0003/input/input15
-> > > [  175.084946] hid-generic 0003:03F0:094A.0003: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
-> > > 
-> > > Signed-off-by: Dave Young <dyoung@redhat.com>
-> > > ---
-> > >  drivers/hid/hid-ids.h           |    1 +
-> > >  drivers/hid/usbhid/hid-quirks.c |    1 +
-> > 
-> > Patch looks good and should be good for stable too, but in the file
-> > hid-quirks.c file has been moved one folder up. Please rebase the patch
-> > on top of https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git/log/?h=for-4.16/hid-quirks-cleanup/_base
-> > It should be merged in linux-next in the next few days normally.
-> > 
-> > Jiri, how can we deal with such stable-ish patches?
+On 11/26/2017 12:47 AM, Dmitry Torokhov wrote:
+> Hi Sean,
 > 
-> I can almost always handle things as simple as file movements, don't
-> worry about that.  If there's a problem, I'll be sure to let people know
-> :)
+> On Fri, Nov 24, 2017 at 11:43:58AM +0000, Sean Young wrote:
+>> Due to the slowness of the CEC bus, autorepeat handling rather special
+>> on CEC. If the repeated user control pressed message is received, a 
+>> keydown repeat should be sent immediately.
 > 
+> This sounds like you want to have hardware autorepeat combined with
+> software one. This seems fairly specific to CEC and I do not think that
+> this should be in input core; but stay in the driver.
+> 
+> Another option just to decide what common delay for CEC autorepeat is
+> and rely on the standard autorepeat handling. The benefit is that users
+> can control the delay before autorepeat kicks in.
 
-OK, thanks Greg.
+They are not allowed to. Autorepeat is only allowed to start when a second
+keydown message arrives within 550 ms as per the spec. After that autorepeat
+continues as long as keydown messages are received within 550ms from the
+previous one. The actual REP_PERIOD time is unrelated to the frequency of
+the CEC messages but should be that of the local system.
 
-Dave, please rebase on top of the branch I mentioned before, and add
-also the stable@ tag.
+The thing to remember here is that CEC is slooow (400 bits/s) so you cannot
+send messages at REP_PERIOD rate. You should see it as messages that tell
+you to enter/stay in autorepeat mode. Not as actual autorepeat messages.
 
-Cheers,
-Benjamin
+> 
+>>
+>> By handling this in the input layer, we can remove some ugly code from
+>> cec, which also sends a keyup event after the first keydown, to prevent
+>> autorepeat.
+> 
+> If driver does not want input core to handle autorepeat (but handle
+> autorepeat by themselves) they should indicate it by setting appropriate
+> dev->rep[REP_DELAY] and dev->rep[REP_PERIOD] before calling
+> input_register_device(). This will let input core know that it should
+> not setup its autorepeat timer.
+
+That only means that I have to setup the autorepeat timer myself, there
+is no benefit in that :-)
+
+Sean, I kind of agree with Dmitry here. The way autorepeat works for CEC
+is pretty specific to that protocol and unlikely to be needed for other
+protocols.
+
+It is also no big deal to keep knowledge of that within cec-adap.c.
+
+The only thing that would be nice to have control over is that with CEC
+userspace shouldn't be able to change REP_DELAY and that REP_DELAY should
+always be identical to REP_PERIOD. If this can be done easily, then that
+would be nice, but it's a nice-to-have in my opinion.
+
+Regards,
+
+	Hans

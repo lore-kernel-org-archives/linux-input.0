@@ -1,388 +1,233 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 0/3] Improve CEC autorepeat handling
-Date: Mon, 27 Nov 2017 16:43:44 +0100
-Message-ID: <2b4a2555-f0b8-4520-f9f0-d0211a637c2b@xs4all.nl>
-References: <cover.1511523174.git.sean@mess.org>
- <20171125234752.2z46d3ya7qiaovby@dtor-ws>
- <27b40fb8-a422-e43d-45d4-b4f763f7b82a@xs4all.nl>
- <20171127094724.6cjl6zex46y6wgfd@gofer.mess.org>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA
+ keyboard docks
+Date: Mon, 27 Nov 2017 18:00:24 +0100
+Message-ID: <47b2d7b2-c24b-2705-5be6-9c100d0ed4c0@redhat.com>
+References: <20171126154010.954-1-hdegoede@redhat.com>
+ <20171127083531.GD30708@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb2-smtp-cloud9.xs4all.net ([194.109.24.26]:42750 "EHLO
-        lb2-smtp-cloud9.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752938AbdK0Pnt (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 10:43:49 -0500
-In-Reply-To: <20171127094724.6cjl6zex46y6wgfd@gofer.mess.org>
+Received: from mx1.redhat.com ([209.132.183.28]:36734 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752578AbdK0RAf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Nov 2017 12:00:35 -0500
+In-Reply-To: <20171127083531.GD30708@mail.corp.redhat.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sean Young <sean@mess.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On 11/27/2017 10:47 AM, Sean Young wrote:
-> Hi Hans,
-> 
-> On Mon, Nov 27, 2017 at 10:13:51AM +0100, Hans Verkuil wrote:
->> On 11/26/2017 12:47 AM, Dmitry Torokhov wrote:
->>> On Fri, Nov 24, 2017 at 11:43:58AM +0000, Sean Young wrote:
->>>> Due to the slowness of the CEC bus, autorepeat handling rather special
->>>> on CEC. If the repeated user control pressed message is received, a 
->>>> keydown repeat should be sent immediately.
->>>
->>> This sounds like you want to have hardware autorepeat combined with
->>> software one. This seems fairly specific to CEC and I do not think that
->>> this should be in input core; but stay in the driver.
->>>
->>> Another option just to decide what common delay for CEC autorepeat is
->>> and rely on the standard autorepeat handling. The benefit is that users
->>> can control the delay before autorepeat kicks in.
->>
->> They are not allowed to. Autorepeat is only allowed to start when a second
->> keydown message arrives within 550 ms as per the spec. After that autorepeat
->> continues as long as keydown messages are received within 550ms from the
->> previous one. The actual REP_PERIOD time is unrelated to the frequency of
->> the CEC messages but should be that of the local system.
->>
->> The thing to remember here is that CEC is slooow (400 bits/s) so you cannot
->> send messages at REP_PERIOD rate. You should see it as messages that tell
->> you to enter/stay in autorepeat mode. Not as actual autorepeat messages.
->>
->>>
->>>>
->>>> By handling this in the input layer, we can remove some ugly code from
->>>> cec, which also sends a keyup event after the first keydown, to prevent
->>>> autorepeat.
->>>
->>> If driver does not want input core to handle autorepeat (but handle
->>> autorepeat by themselves) they should indicate it by setting appropriate
->>> dev->rep[REP_DELAY] and dev->rep[REP_PERIOD] before calling
->>> input_register_device(). This will let input core know that it should
->>> not setup its autorepeat timer.
->>
->> That only means that I have to setup the autorepeat timer myself, there
->> is no benefit in that :-)
->>
->> Sean, I kind of agree with Dmitry here. The way autorepeat works for CEC
->> is pretty specific to that protocol and unlikely to be needed for other
->> protocols.
-> 
-> That's a valid point, I guess. The only downside is special case handling
-> outside the input layer, which would be much simpler in the input layer.
-> 
->> It is also no big deal to keep knowledge of that within cec-adap.c.
-> 
-> So first of all, the sii8620 uses the CEC protocol as well (see commit
-> e25f1f7c94e1 drm/bridge/sii8620: add remote control support), so this
-> will have to go into rc-core, not cec-adap.c. There was a discussion about
-> some time ago.
-> 
-> The current implementation has an ugly key up event which would be nice
-> to do without.
-> 
->> The only thing that would be nice to have control over is that with CEC
->> userspace shouldn't be able to change REP_DELAY and that REP_DELAY should
->> always be identical to REP_PERIOD. If this can be done easily, then that
->> would be nice, but it's a nice-to-have in my opinion.
-> 
-> The REP_DELAY must be equal to REP_PERIOD seems a bit odd to me. In fact,
-> I propose something different. If REP_DELAY != 0 then the input layer
-> produces autorepeats as normal. If REP_DELAY == 0, then generate repeats
-> on the second key down event.
-> 
-> See patch below.
-> 
-> Thanks,
-> Sean
-> ----
-> From 3f439e326888a0ab8688d73c4276ac87b4225b1c Mon Sep 17 00:00:00 2001
-> From: Sean Young <sean@mess.org>
-> Date: Thu, 23 Nov 2017 22:37:10 +0000
-> Subject: [PATCH] media: cec: move cec autorepeat handling to rc-core
-> 
-> CEC autorepeat is different than other protocols. Autorepeat is triggered
-> by the first repeated user control pressed CEC message, rather than a
-> fixed REP_DELAY.
-> 
-> This change also does away with the KEY_UP event directly after the first
-> KEY_DOWN event, which was used to stop autorepeat from starting.
-> 
-> See commit a9a249a2c997 ("media: cec: fix remote control passthrough")
-> for the original change.
-> 
-> Signed-off-by: Sean Young <sean@mess.org>
-> ---
->  drivers/media/cec/cec-adap.c | 56 ++++----------------------------------------
->  drivers/media/cec/cec-core.c | 12 ----------
->  drivers/media/rc/rc-main.c   | 45 +++++++++++++++++++++++++++++++++--
->  include/media/cec.h          |  5 ----
->  include/media/rc-core.h      |  3 +++
->  5 files changed, 51 insertions(+), 70 deletions(-)
-> 
-> diff --git a/drivers/media/cec/cec-adap.c b/drivers/media/cec/cec-adap.c
-> index 98f88c43f62c..258a91800963 100644
-> --- a/drivers/media/cec/cec-adap.c
-> +++ b/drivers/media/cec/cec-adap.c
-> @@ -1788,9 +1788,6 @@ static int cec_receive_notify(struct cec_adapter *adap, struct cec_msg *msg,
->  	int la_idx = cec_log_addr2idx(adap, dest_laddr);
->  	bool from_unregistered = init_laddr == 0xf;
->  	struct cec_msg tx_cec_msg = { };
-> -#ifdef CONFIG_MEDIA_CEC_RC
-> -	int scancode;
-> -#endif
->  
->  	dprintk(2, "%s: %*ph\n", __func__, msg->len, msg->msg);
->  
-> @@ -1886,9 +1883,11 @@ static int cec_receive_notify(struct cec_adapter *adap, struct cec_msg *msg,
->  		 */
->  		case 0x60:
->  			if (msg->len == 2)
-> -				scancode = msg->msg[2];
-> +				rc_keydown(adap->rc, RC_PROTO_CEC,
-> +					   msg->msg[2], 0);
->  			else
-> -				scancode = msg->msg[2] << 8 | msg->msg[3];
-> +				rc_keydown(adap->rc, RC_PROTO_CEC,
-> +					   msg->msg[2] << 8 | msg->msg[3], 0);
->  			break;
->  		/*
->  		 * Other function messages that are not handled.
-> @@ -1901,54 +1900,11 @@ static int cec_receive_notify(struct cec_adapter *adap, struct cec_msg *msg,
->  		 */
->  		case 0x56: case 0x57:
->  		case 0x67: case 0x68: case 0x69: case 0x6a:
-> -			scancode = -1;
->  			break;
->  		default:
-> -			scancode = msg->msg[2];
-> -			break;
-> -		}
-> -
-> -		/* Was repeating, but keypress timed out */
-> -		if (adap->rc_repeating && !adap->rc->keypressed) {
-> -			adap->rc_repeating = false;
-> -			adap->rc_last_scancode = -1;
-> -		}
-> -		/* Different keypress from last time, ends repeat mode */
-> -		if (adap->rc_last_scancode != scancode) {
-> -			rc_keyup(adap->rc);
-> -			adap->rc_repeating = false;
-> -		}
-> -		/* We can't handle this scancode */
-> -		if (scancode < 0) {
-> -			adap->rc_last_scancode = scancode;
-> -			break;
-> -		}
-> -
-> -		/* Send key press */
-> -		rc_keydown(adap->rc, RC_PROTO_CEC, scancode, 0);
-> -
-> -		/* When in repeating mode, we're done */
-> -		if (adap->rc_repeating)
-> -			break;
-> -
-> -		/*
-> -		 * We are not repeating, but the new scancode is
-> -		 * the same as the last one, and this second key press is
-> -		 * within 550 ms (the 'Follower Safety Timeout') from the
-> -		 * previous key press, so we now enable the repeating mode.
-> -		 */
-> -		if (adap->rc_last_scancode == scancode &&
-> -		    msg->rx_ts - adap->rc_last_keypress < 550 * NSEC_PER_MSEC) {
-> -			adap->rc_repeating = true;
-> +			rc_keydown(adap->rc, RC_PROTO_CEC, msg->msg[2], 0);
->  			break;
->  		}
-> -		/*
-> -		 * Not in repeating mode, so avoid triggering repeat mode
-> -		 * by calling keyup.
-> -		 */
-> -		rc_keyup(adap->rc);
-> -		adap->rc_last_scancode = scancode;
-> -		adap->rc_last_keypress = msg->rx_ts;
->  #endif
->  		break;
->  
-> @@ -1958,8 +1914,6 @@ static int cec_receive_notify(struct cec_adapter *adap, struct cec_msg *msg,
->  			break;
->  #ifdef CONFIG_MEDIA_CEC_RC
->  		rc_keyup(adap->rc);
-> -		adap->rc_repeating = false;
-> -		adap->rc_last_scancode = -1;
->  #endif
->  		break;
->  
-> diff --git a/drivers/media/cec/cec-core.c b/drivers/media/cec/cec-core.c
-> index 5870da6a567f..3c67af511c66 100644
-> --- a/drivers/media/cec/cec-core.c
-> +++ b/drivers/media/cec/cec-core.c
-> @@ -280,7 +280,6 @@ struct cec_adapter *cec_allocate_adapter(const struct cec_adap_ops *ops,
->  	adap->rc->priv = adap;
->  	adap->rc->map_name = RC_MAP_CEC;
->  	adap->rc->timeout = MS_TO_NS(100);
-> -	adap->rc_last_scancode = -1;
->  #endif
->  	return adap;
->  }
-> @@ -312,17 +311,6 @@ int cec_register_adapter(struct cec_adapter *adap,
->  			adap->rc = NULL;
->  			return res;
->  		}
-> -		/*
-> -		 * The REP_DELAY for CEC is really the time between the initial
-> -		 * 'User Control Pressed' message and the second. The first
-> -		 * keypress is always seen as non-repeating, the second
-> -		 * (provided it has the same UI Command) will start the 'Press
-> -		 * and Hold' (aka repeat) behavior. By setting REP_DELAY to the
-> -		 * same value as REP_PERIOD the expected CEC behavior is
-> -		 * reproduced.
-> -		 */
-> -		adap->rc->input_dev->rep[REP_DELAY] =
-> -			adap->rc->input_dev->rep[REP_PERIOD];
->  	}
->  #endif
->  
-> diff --git a/drivers/media/rc/rc-main.c b/drivers/media/rc/rc-main.c
-> index 17950e29d4e3..7860ed50bc7f 100644
-> --- a/drivers/media/rc/rc-main.c
-> +++ b/drivers/media/rc/rc-main.c
-> @@ -599,6 +599,7 @@ static void ir_do_keyup(struct rc_dev *dev, bool sync)
->  		return;
->  
->  	IR_dprintk(1, "keyup key 0x%04x\n", dev->last_keycode);
-> +	del_timer_sync(&dev->timer_repeat);
->  	input_report_key(dev->input_dev, dev->last_keycode, 0);
->  	led_trigger_event(led_feedback, LED_OFF);
->  	if (sync)
-> @@ -625,7 +626,6 @@ EXPORT_SYMBOL_GPL(rc_keyup);
->  
->  /**
->   * ir_timer_keyup() - generates a keyup event after a timeout
-> - * @cookie:	a pointer to the struct rc_dev for the device
->   *
->   * This routine will generate a keyup event some time after a keydown event
->   * is generated when no further activity has been detected.
-> @@ -651,6 +651,26 @@ static void ir_timer_keyup(struct timer_list *t)
->  	spin_unlock_irqrestore(&dev->keylock, flags);
->  }
->  
-> +/**
-> + * ir_timer_repeat() - generates a repeat event after a timeout
-> + *
-> + * This routine will generate a soft repeat event every REP_PERIOD
-> + * milliseconds.
-> + */
-> +static void ir_timer_repeat(struct timer_list *t)
-> +{
-> +	struct rc_dev *dev = from_timer(dev, t, timer_repeat);
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&dev->keylock, flags);
-> +	if (dev->keypressed) {
-> +		input_event(dev->input_dev, EV_KEY, dev->last_keycode, 2);
-> +		mod_timer(&dev->timer_repeat,
-> +			  jiffies + dev->input_dev->rep[REP_PERIOD]);
-> +	}
-> +	spin_unlock_irqrestore(&dev->keylock, flags);
-> +}
-> +
->  /**
->   * rc_repeat() - signals that a key is still pressed
->   * @dev:	the struct rc_dev descriptor of the device
-> @@ -719,6 +739,22 @@ static void ir_do_keydown(struct rc_dev *dev, enum rc_proto protocol,
->  		led_trigger_event(led_feedback, LED_FULL);
->  	}
->  
-> +	/*
-> +	 * For CEC, start sending repeat messages as soon as the first
-> +	 * repeated message is sent, as long as REP_DELAY = 0 and REP_PERIOD
-> +	 * is non-zero. Otherwise, the input layer will generate repeat
-> +	 * messages.
-> +	 */
-> +	if (!new_event && keycode != KEY_RESERVED &&
-> +	    dev->allowed_protocols == RC_PROTO_BIT_CEC &&
-> +	    !timer_pending(&dev->timer_repeat) &&
-> +	    dev->input_dev->rep[REP_PERIOD] &&
-> +	    !dev->input_dev->rep[REP_DELAY]) {
-> +		input_event(dev->input_dev, EV_KEY, keycode, 2);
-> +		mod_timer(&dev->timer_repeat, jiffies +
-> +			  msecs_to_jiffies(dev->input_dev->rep[REP_PERIOD]));
-> +	}
-> +
->  	input_sync(dev->input_dev);
->  }
->  
-> @@ -1571,6 +1607,7 @@ struct rc_dev *rc_allocate_device(enum rc_driver_type type)
->  		input_set_drvdata(dev->input_dev, dev);
->  
->  		timer_setup(&dev->timer_keyup, ir_timer_keyup, 0);
-> +		timer_setup(&dev->timer_repeat, ir_timer_repeat, 0);
->  
->  		spin_lock_init(&dev->rc_map.lock);
->  		spin_lock_init(&dev->keylock);
-> @@ -1704,7 +1741,10 @@ static int rc_setup_rx_device(struct rc_dev *dev)
->  	 * to avoid wrong repetition of the keycodes. Note that this must be
->  	 * set after the call to input_register_device().
->  	 */
-> -	dev->input_dev->rep[REP_DELAY] = 500;
-> +	if (dev->allowed_protocols == RC_PROTO_BIT_CEC)
-> +		dev->input_dev->rep[REP_DELAY] = 0;
-> +	else
-> +		dev->input_dev->rep[REP_DELAY] = 500;
->  
->  	/*
->  	 * As a repeat event on protocols like RC-5 and NEC take as long as
-> @@ -1846,6 +1886,7 @@ void rc_unregister_device(struct rc_dev *dev)
->  		return;
->  
->  	del_timer_sync(&dev->timer_keyup);
-> +	del_timer_sync(&dev->timer_repeat);
->  
->  	if (dev->driver_type == RC_DRIVER_IR_RAW)
->  		ir_raw_event_unregister(dev);
-> diff --git a/include/media/cec.h b/include/media/cec.h
-> index 16341210d3ba..5db31bbdf133 100644
-> --- a/include/media/cec.h
-> +++ b/include/media/cec.h
-> @@ -191,11 +191,6 @@ struct cec_adapter {
->  
->  	u32 tx_timeouts;
->  
-> -#ifdef CONFIG_MEDIA_CEC_RC
-> -	bool rc_repeating;
-> -	int rc_last_scancode;
-> -	u64 rc_last_keypress;
-> -#endif
->  #ifdef CONFIG_CEC_NOTIFIER
->  	struct cec_notifier *notifier;
->  #endif
-> diff --git a/include/media/rc-core.h b/include/media/rc-core.h
-> index 314a1edb6189..6ba4be82ef73 100644
-> --- a/include/media/rc-core.h
-> +++ b/include/media/rc-core.h
-> @@ -106,6 +106,8 @@ enum rc_filter_type {
->   * @keypressed: whether a key is currently pressed
->   * @keyup_jiffies: time (in jiffies) when the current keypress should be released
->   * @timer_keyup: timer for releasing a keypress
-> + * @timer_repeat: timer for autorepeat events. This is needed for CEC, which
-> + *	has non-standard repeats.
->   * @last_keycode: keycode of last keypress
->   * @last_protocol: protocol of last keypress
->   * @last_scancode: scancode of last keypress
-> @@ -165,6 +167,7 @@ struct rc_dev {
->  	bool				keypressed;
->  	unsigned long			keyup_jiffies;
->  	struct timer_list		timer_keyup;
-> +	struct timer_list		timer_repeat;
->  	u32				last_keycode;
->  	enum rc_proto			last_protocol;
->  	u32				last_scancode;
-> 
+Hi,
 
-Acked-by: Hans Verkuil <hans.verkuil@cisco.com>
+On 27-11-17 09:35, Benjamin Tissoires wrote:
+> On Nov 26 2017 or thereabouts, Hans de Goede wrote:
+>> The T100TAF and T100HA keyboard docks have the same special keys and
+>> custom protocol multitouch touchpad as the T100TA, but use a different
+>> product id.
+>>
+>> The T100TAF and T100HA both use the same product id, but the T100HA's
+>> touchpad has a different coordinate range.
+>>
+>> This commits adds supports for the new USB id and uses a dmi-check to
+>> determine if we're dealing with the T100TAF or T100HA.
+> 
+> This feels really wrong. Either people at Asus are insane, either the
+> Windows driver has a query to fetch the correct logical and physical
+> min/max.
 
-Thanks!
+I'm afraid it is probably the first reason and not the second reason,
+when I was working on Linux webcam support one of the issues was that in
+many Asus laptops the webcam module is mounted upside down and thus sends
+an upside-down picture. I asked via via if Asus internally had a list
+of which webcams are upside down, the answer was: no. Asus simply maintains
+a hacked-together driver-repository per model laptop, in which they
+put hacks until the driver works for that model. At least that is what
+they do with webcams, I would not be surprised if that downloading
+the T100TAF driver and putting it on the T100HA results in the driver
+internally using the wrong coordinate range, something which the user
+will likely not notice anyway since for most usage the coordinate range
+does not matter.
 
-	Hans
+> Could you share the hid-recorder output of the touchpad? Ideally, I'd
+> like to compare it between the 2 (T100TAF and T100HA).
+
+Since this is using a custom report-id hid-recorder does not seem
+to record any data, even with the driver loaded. Anyways here is the
+descriptor, which is what I guess you're most interested in:
+
+D: 0
+R: 85 05 01 09 02 a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02 95 06 81 03 05 01 09 30 09 31 09 38 15 81 25 7f 75 08 95 03 81 06 c0 c0 06 00 ff 09 c5 a1 01 85 0d 09 c5 15 00 26 ff 00 75 08 95 04 b1 02 85 5d 09 01 95 1b 75 08 81 06 c0
+N: ASUS Tech Inc. ASUS HID Device
+P: usb-0000:00:14.0-3.3/input2
+I: 3 0b05 1807
+
+Decoded that is:
+
+Usage Page (Desktop),               ; Generic desktop controls (01h)
+Usage (Mouse),                      ; Mouse (02h, application collection)
+Collection (Application),
+     Report ID (1),
+     Usage (Pointer),                ; Pointer (01h, physical collection)
+     Collection (Physical),
+         Usage Page (Button),        ; Button (09h)
+         Usage Minimum (01h),
+         Usage Maximum (02h),
+         Logical Minimum (0),
+         Logical Maximum (1),
+         Report Size (1),
+         Report Count (2),
+         Input (Variable),
+         Report Count (6),
+         Input (Constant, Variable),
+         Usage Page (Desktop),       ; Generic desktop controls (01h)
+         Usage (X),                  ; X (30h, dynamic value)
+         Usage (Y),                  ; Y (31h, dynamic value)
+         Usage (Wheel),              ; Wheel (38h, dynamic value)
+         Logical Minimum (-127),
+         Logical Maximum (127),
+         Report Size (8),
+         Report Count (3),
+         Input (Variable, Relative),
+     End Collection,
+End Collection,
+Usage Page (FF00h),                 ; FF00h, vendor-defined
+Usage (C5h),
+Collection (Application),
+     Report ID (13),
+     Usage (C5h),
+     Logical Minimum (0),
+     Logical Maximum (255),
+     Report Size (8),
+     Report Count (4),
+     Feature (Variable),
+     Report ID (93),
+     Usage (01h),
+     Report Count (27),
+     Report Size (8),
+     Input (Variable, Relative),
+End Collection
+
+IOW it says it is a mouse + a custom section for the special keys,
+so no useful info there.
+
+I've asked the T100TAF reporter to also collect a descriptor for the
+T100TAF.
+
+> If there is no differences, we might need to resort to have someone
+> sniff the usb traces from a Windows VM :/
+
+There may be some difference in the descriptors, but I wonder if that
+is better then just identifying the model, since that is what we are
+really after and the 2 docks are not compatible.
+
+TL;DR: I really believe that my patch 'as is' is probably the best
+solution.
+
+Regards,
+
+Hans
+
+
+>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=197849
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>> Changes in v2:
+>> -The new device-id is for both the T100TAF and the T100HA
+>> -The T100HA touchpad has different coordinate ranges, take this into account
+>> -Rebase on top of hid/for-4.16/hid-quirks-cleanup/_base
+>> -Drop the ASUS T100TA entry from hid_have_special_driver, things work fine
+>>   without it
+>> ---
+>>   drivers/hid/hid-asus.c   | 24 ++++++++++++++++++++++--
+>>   drivers/hid/hid-ids.h    |  3 ++-
+>>   drivers/hid/hid-quirks.c |  1 -
+>>   3 files changed, 24 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+>> index 1bb7b63b3150..6d2894b7d8e7 100644
+>> --- a/drivers/hid/hid-asus.c
+>> +++ b/drivers/hid/hid-asus.c
+>> @@ -26,6 +26,7 @@
+>>    * any later version.
+>>    */
+>>   
+>> +#include <linux/dmi.h>
+>>   #include <linux/hid.h>
+>>   #include <linux/module.h>
+>>   #include <linux/input/mt.h>
+>> @@ -119,6 +120,15 @@ static const struct asus_touchpad_info asus_t100ta_tp = {
+>>   	.max_contacts = 5,
+>>   };
+>>   
+>> +static const struct asus_touchpad_info asus_t100ha_tp = {
+>> +	.max_x = 2640,
+>> +	.max_y = 1320,
+>> +	.res_x = 30, /* units/mm */
+>> +	.res_y = 29, /* units/mm */
+>> +	.contact_size = 5,
+>> +	.max_contacts = 5,
+>> +};
+>> +
+>>   static const struct asus_touchpad_info asus_t100chi_tp = {
+>>   	.max_x = 2640,
+>>   	.max_y = 1320,
+>> @@ -606,7 +616,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>>   
+>>   		if (intf->altsetting->desc.bInterfaceNumber == T100_TPAD_INTF) {
+>>   			drvdata->quirks = QUIRK_SKIP_INPUT_MAPPING;
+>> -			drvdata->tp = &asus_t100ta_tp;
+>> +			/*
+>> +			 * The T100HA uses the same USB-ids as the T100TAF,
+>> +			 * but has different max_x / max_y values.
+>> +			 */
+>> +			if (dmi_match(DMI_PRODUCT_NAME, "T100HAN"))
+>> +				drvdata->tp = &asus_t100ha_tp;
+>> +			else
+>> +				drvdata->tp = &asus_t100ta_tp;
+>>   		}
+>>   	}
+>>   
+>> @@ -751,7 +768,10 @@ static const struct hid_device_id asus_devices[] = {
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>>   		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>> -		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
+>> +		USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
+>> +	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>> +		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+>>   	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> index 5da3d6256d25..dc1db8558850 100644
+>> --- a/drivers/hid/hid-ids.h
+>> +++ b/drivers/hid/hid-ids.h
+>> @@ -178,7 +178,8 @@
+>>   #define USB_VENDOR_ID_ASUSTEK		0x0b05
+>>   #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+>>   #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+>> -#define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
+>> +#define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
+>> +#define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
+>>   #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
+>>   #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+>>   #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
+>> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+>> index 015e0c10248b..1cf1e9a0d699 100644
+>> --- a/drivers/hid/hid-quirks.c
+>> +++ b/drivers/hid/hid-quirks.c
+>> @@ -284,7 +284,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
+>> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+>>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+>>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },
+>> -- 
+>> 2.14.3
+>>

@@ -1,110 +1,150 @@
-From: Kevin Fenzi <kevin@scrye.com>
-Subject: Lenovo Active Pen 2 and wacom tablet on yoga 920
-Date: Mon, 27 Nov 2017 12:23:28 -0800
-Message-ID: <458e9d7a-2599-915c-c15e-d08b43f4998d@scrye.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="kLaOm4CIKTCSCVwlsvg7mvCcdH74rCtFh"
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v4] Input: silead - Add support for capactive home button found on some x86 tablets
+Date: Tue, 28 Nov 2017 10:04:30 +0100
+Message-ID: <20171128090430.15065-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 96-71-165-137-static.hfc.comcastbusiness.net ([96.71.165.137]:51246
-        "EHLO mail.scrye.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1752577AbdK0U3o (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Nov 2017 15:29:44 -0500
-Received: from taim.scrye.com (unknown [192.168.21.150])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.scrye.com (Postfix) with ESMTPSA id 25DCF658832
-        for <linux-input@vger.kernel.org>; Mon, 27 Nov 2017 13:23:34 -0700 (MST)
+Received: from mx1.redhat.com ([209.132.183.28]:26669 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752258AbdK1JEg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Nov 2017 04:04:36 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---kLaOm4CIKTCSCVwlsvg7mvCcdH74rCtFh
-Content-Type: multipart/mixed; boundary="UTM784QsmuIt7KCXLOtEa6fF4w6Obm0M2";
- protected-headers="v1"
-From: Kevin Fenzi <kevin@scrye.com>
-To: linux-input@vger.kernel.org
-Message-ID: <458e9d7a-2599-915c-c15e-d08b43f4998d@scrye.com>
-Subject: Lenovo Active Pen 2 and wacom tablet on yoga 920
+On some x86 tablets with a silead touchscreen the windows logo on the
+front is a capacitive home button. Touching this button results in a touch
+with bits 12-15 of the Y coordinates set, while normally only the lower 12
+are used.
 
---UTM784QsmuIt7KCXLOtEa6fF4w6Obm0M2
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Detect this and report a KEY_LEFTMETA press when this happens. Note for
+now we only respond to the Y coordinate bits 12-15 containing 0x01, on some
+tablets *without* a capacative button I've noticed these bits containing
+0x04 when crossing the edges of the screen.
 
-Greetings.
+Cc: Rob Herring <robh+dt@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-Only enable support for the home-button if a "silead,home-button"
+ boolean device-property is set on the device
 
-I'm running into some problems with Lenovo active pen 2 and wacom tablet
-on a new yoga 920.
+Changes in v3:
+-Document the new silead,home-button property in:
+ Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 
-Filed:
-https://bugzilla.redhat.com/show_bug.cgi?id=3D1514837
+Changes in v4:
+-Add Rob's Acked-by for the DT binding
+---
+ .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 +
+ drivers/input/touchscreen/silead.c                 | 46 ++++++++++++++++------
+ 2 files changed, 37 insertions(+), 11 deletions(-)
 
-but I thought I would ask here if anyone had any ideas...
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+index 6aa625e0cb8d..84752de12412 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+@@ -23,6 +23,8 @@ Optional properties:
+ - touchscreen-inverted-y  : See touchscreen.txt
+ - touchscreen-swapped-x-y : See touchscreen.txt
+ - silead,max-fingers	  : maximum number of fingers the touchscreen can detect
++- silead,home-button	  : Boolean, set to true on devices which have a
++			    capacitive home-button build into the touchscreen
+ - vddio-supply		  : regulator phandle for controller VDDIO
+ - avdd-supply		  : regulator phandle for controller AVDD
+ 
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+index 0dbcf105f7db..646b1e768e6b 100644
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -56,7 +56,7 @@
+ #define SILEAD_POINT_Y_MSB_OFF	0x01
+ #define SILEAD_POINT_X_OFF	0x02
+ #define SILEAD_POINT_X_MSB_OFF	0x03
+-#define SILEAD_TOUCH_ID_MASK	0xF0
++#define SILEAD_EXTRA_DATA_MASK	0xF0
+ 
+ #define SILEAD_CMD_SLEEP_MIN	10000
+ #define SILEAD_CMD_SLEEP_MAX	20000
+@@ -109,6 +109,9 @@ static int silead_ts_request_input_dev(struct silead_ts_data *data)
+ 			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED |
+ 			    INPUT_MT_TRACK);
+ 
++	if (device_property_read_bool(dev, "silead,home-button"))
++		input_set_capability(data->input, EV_KEY, KEY_LEFTMETA);
++
+ 	data->input->name = SILEAD_TS_NAME;
+ 	data->input->phys = "input/ts";
+ 	data->input->id.bustype = BUS_I2C;
+@@ -139,7 +142,8 @@ static void silead_ts_read_data(struct i2c_client *client)
+ 	struct input_dev *input = data->input;
+ 	struct device *dev = &client->dev;
+ 	u8 *bufp, buf[SILEAD_TS_DATA_LEN];
+-	int touch_nr, error, i;
++	int touch_nr, softbutton, error, i;
++	bool softbutton_pressed = false;
+ 
+ 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_DATA,
+ 					      SILEAD_TS_DATA_LEN, buf);
+@@ -148,21 +152,40 @@ static void silead_ts_read_data(struct i2c_client *client)
+ 		return;
+ 	}
+ 
+-	touch_nr = buf[0];
+-	if (touch_nr > data->max_fingers) {
++	if (buf[0] > data->max_fingers) {
+ 		dev_warn(dev, "More touches reported then supported %d > %d\n",
+-			 touch_nr, data->max_fingers);
+-		touch_nr = data->max_fingers;
++			 buf[0], data->max_fingers);
++		buf[0] = data->max_fingers;
+ 	}
+ 
++	touch_nr = 0;
+ 	bufp = buf + SILEAD_POINT_DATA_LEN;
+-	for (i = 0; i < touch_nr; i++, bufp += SILEAD_POINT_DATA_LEN) {
+-		/* Bits 4-7 are the touch id */
+-		data->id[i] = (bufp[SILEAD_POINT_X_MSB_OFF] &
+-			       SILEAD_TOUCH_ID_MASK) >> 4;
+-		touchscreen_set_mt_pos(&data->pos[i], &data->prop,
++	for (i = 0; i < buf[0]; i++, bufp += SILEAD_POINT_DATA_LEN) {
++		softbutton = (bufp[SILEAD_POINT_Y_MSB_OFF] &
++			      SILEAD_EXTRA_DATA_MASK) >> 4;
++
++		if (softbutton) {
++			/*
++			 * For now only respond to softbutton == 0x01, some
++			 * tablets *without* a capacative button send 0x04
++			 * when crossing the edges of the screen.
++			 */
++			if (softbutton == 0x01)
++				softbutton_pressed = true;
++
++			continue;
++		}
++
++		/*
++		 * Bits 4-7 are the touch id, note not all models have
++		 * hardware touch ids so atm we don't use these.
++		 */
++		data->id[touch_nr] = (bufp[SILEAD_POINT_X_MSB_OFF] &
++				      SILEAD_EXTRA_DATA_MASK) >> 4;
++		touchscreen_set_mt_pos(&data->pos[touch_nr], &data->prop,
+ 			get_unaligned_le16(&bufp[SILEAD_POINT_X_OFF]) & 0xfff,
+ 			get_unaligned_le16(&bufp[SILEAD_POINT_Y_OFF]) & 0xfff);
++		touch_nr++;
+ 	}
+ 
+ 	input_mt_assign_slots(input, data->slots, data->pos, touch_nr, 0);
+@@ -178,6 +201,7 @@ static void silead_ts_read_data(struct i2c_client *client)
+ 	}
+ 
+ 	input_mt_sync_frame(input);
++	input_report_key(input, KEY_LEFTMETA, softbutton_pressed);
+ 	input_sync(input);
+ }
+ 
+-- 
+2.14.3
 
-Basically when pairing the pen it shows for a second, then drops:
-
-[Sat Nov 18 12:22:42 2017] input: Lenovo Active Pen2 as
-/devices/virtual/misc/uhid/0005:17EF:60A8.0006/input/input23
-[Sat Nov 18 12:22:42 2017] hid-generic 0005:17EF:60A8.0006:
-input,hidraw4: BLUETOOTH HID v0.02 Keyboard [Lenovo Active Pen2] on
-64:6E:69:D1:A0:48
-[Sat Nov 18 12:22:47 2017] Bluetooth: hci0: last event is not cmd
-complete (0x0f)
-[Sat Nov 18 12:23:03 2017] Bluetooth: hci0: last event is not cmd
-complete (0x0f)
-[Sat Nov 18 12:23:19 2017] Bluetooth: hci0: last event is not cmd
-complete (0x0f)
-
-The wacom tablet is never connecting:
-
-[Fri Nov 24 21:47:01 2017] input: Wacom HID 5110 Pen as
-/devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-WCOM5110:00/0=
-018:056A:5110.0003/input/input26
-[Fri Nov 24 21:47:01 2017] input: Wacom HID 5110 Finger as
-/devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-WCOM5110:00/0=
-018:056A:5110.0003/input/input27
-[Fri Nov 24 21:47:01 2017] wacom 0018:056A:5110.0003: hidraw3: I2C HID
-v1.00 Mouse [WCOM5110:00 056A:5110] on i2c-WCOM5110:00
-[Fri Nov 24 21:47:02 2017] i2c_hid i2c-WCOM5110:00: failed to set a
-report to device.
-[Fri Nov 24 21:47:02 2017] wacom 0018:056A:5110.0003: wacom_set_report:
-ran out of retries (last error =3D -121)
-[Fri Nov 24 21:47:02 2017] i2c_hid i2c-WCOM5110:00: failed to set a
-report to device.
-
-Happy to gather more info and/or try patches.
-
-Thanks.
-
-kevin
-
-
---UTM784QsmuIt7KCXLOtEa6fF4w6Obm0M2--
-
---kLaOm4CIKTCSCVwlsvg7mvCcdH74rCtFh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEESz7rprBJHpbnMnrQSzew2A/7u14FAlocdEAACgkQSzew2A/7
-u16z/A/+OV09lDkCpvhOaOcvmf3ppSEn8zymlGuFRkeaUXEc36ihwpOyrvLA/bXZ
-W8mY4KRUez5IUN3BfypOCgSDXxnHfJU8TBVh+mJlySWti8Km0X8k4a7uXlZwL6w7
-KH9p7iTyXi5Zdl/RlRmB+MdJ8pmLYqVXPUtYftTZ/w64Ran6LZaWoD+JUD6tRftl
-pEwKGTtqeWvNRy9CjPYLttVOKs1iD9Tpu8DqoAJxdp1/jRYtS1eJ8svxFqMidrIi
-muWNgddUzCc7O/H2DOXhtBIldEtyNFgQ/+JBIDkxBEukRHnF8PM0zNleK10ZIbhM
-7KPO08kNNp3tko3rFFeHe92q+HnK3e/tGLYvH2eXfTdf1KeNo/2r6CjfEygCYpbG
-LBvweOu7RjBaRbvmsFEekqAvMUit2ibtxEiQ331dB2TjmHNx2AlsQNASKZ5kHUhv
-tlaYDliBoQCaY0uIF7vGBw0uBdGoYv/2OtYFi0hAMImNXmxlj+ncejyafAEv5YYl
-9+7829JDwX5eVm+dC0bcc2DrmANKLGbCOc9ixMAkwwY83BYZ5jvAF4Sds9FPD933
-e58Hw9O498uGMgn3uuNGvqRzcEIyTeWtAGLPLsX/aRiFlMGg2Ll0WcNVWqYMRGtL
-jU78/IHITQVNQoK4hYoAzk4W89sXHLmUPQ8ml1PnUiTMIPTFo1s=
-=iHBa
------END PGP SIGNATURE-----
-
---kLaOm4CIKTCSCVwlsvg7mvCcdH74rCtFh--

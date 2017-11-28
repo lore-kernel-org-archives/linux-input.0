@@ -1,64 +1,78 @@
-From: arvindY <arvind.yadav.cs@gmail.com>
-Subject: Re: [PATCH 01/10 v5] Input: ep93xx_keypad: Fix platform_get_irq's
- error checking
-Date: Tue, 28 Nov 2017 21:29:36 +0530
-Message-ID: <5A1D87E8.3020801@gmail.com>
-References: <49ba0386f1930f58edfd5ee0f5e65d2a02a46744.1511280261.git.arvind.yadav.cs@gmail.com>
+From: Chris Henhawke <chris@hamiltonshells.ca>
+Subject: psmouse.synaptics_intertouch SYN1222 PNP0f13
+Date: Tue, 28 Nov 2017 14:17:23 -0500
+Message-ID: <799a61bd-f654-ce70-8203-267a7207e38b@hamiltonshells.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pl0-f66.google.com ([209.85.160.66]:40035 "EHLO
-        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752380AbdK1P7n (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Nov 2017 10:59:43 -0500
-In-Reply-To: <49ba0386f1930f58edfd5ee0f5e65d2a02a46744.1511280261.git.arvind.yadav.cs@gmail.com>
+Received: from smtp.cogeco.net ([216.221.81.25]:61695 "EHLO fipsb01.cogeco.net"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752226AbdK1T2n (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Nov 2017 14:28:43 -0500
+Received: from localhost (bloomfield.hamiltonshells.ca [127.0.0.1])
+        by bloomfield.hamiltonshells.ca (Postfix) with ESMTP id 002E71C8
+        for <linux-input@vger.kernel.org>; Tue, 28 Nov 2017 14:17:24 -0500 (EST)
+Received: from bloomfield.hamiltonshells.ca ([127.0.0.1])
+        by localhost (bloomfield.hamiltonshells.ca [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id iY3xhf_Gb7KK for <linux-input@vger.kernel.org>;
+        Tue, 28 Nov 2017 14:17:23 -0500 (EST)
+Received: from [192.168.0.12] (gazelle.hamiltonshells.ca [192.168.0.12])
+        by bloomfield.hamiltonshells.ca (Postfix) with ESMTP id A690A1C7
+        for <linux-input@vger.kernel.org>; Tue, 28 Nov 2017 14:17:23 -0500 (EST)
+Content-Language: en-CA
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, maxime.ripard@free-electrons.com, wens@csie.org, mcuos.com@gmail.com, linux@roeck-us.net, linux@armlinux.org.uk, lee.jones@linaro.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Reporting as requested.  Setting the parameter appears to be working. 
+If you need more info, please mail me directly.
 
-Sorry for troubling you. I need to push others also. Please share
-your review comment.
+System76 Gazelle upgrading from 4.9.34 to 4.14.2
 
-Thanks,
+First boot:
+Nov 28 11:24:37 gazelle kernel: psmouse serio2: synaptics: queried max
+coordinates: x [..5674], y [..4764]
+Nov 28 11:24:37 gazelle kernel: psmouse serio2: synaptics: queried min
+coordinates: x [1266..], y [1086..]
+Nov 28 11:24:37 gazelle kernel: psmouse serio2: synaptics: The touchpad
+can support a better bus than the too old PS/2 protocol. Make sure
+MOUSE_PS2_SYNAPTICS_SMBUS and RMI4_SMB are enabled to get a better
+touchpad experience.
+Nov 28 11:24:37 gazelle kernel: psmouse serio2: synaptics: Touchpad
+model: 1, fw: 8.2, id: 0x1e2b1, caps: 0xf00223/0x840300/0x26800/0x0,
+board id: 3189, fw id: 2302754
+Nov 28 11:24:37 gazelle kernel: input: SynPS/2 Synaptics TouchPad as
+/devices/platform/i8042/serio2/input/input12
 
-On Tuesday 21 November 2017 09:41 PM, Arvind Yadav wrote:
-> The platform_get_irq() function returns negative if an error occurs.
-> zero or positive number on success. platform_get_irq() error checking
-> for zero is not correct.
->
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
-> ---
-> changes in v2 :
->                Return keypad->irq insted of -ENXIO.
-> changes in v3 :
->                Add failure case '<= 0' instead of '< 0'. IRQ0 is not valid.
-> changes in v4 :
->                Return -ENXIO insted of keypad->irq. Which was not correct in v3.
-> changes in v5 :
->                Remove changes of v3 and v4. go back to version v2. Which is correct.
->                No need to check for IRQ0 and return keypad->irq insted of -ENXIO.
->
->   drivers/input/keyboard/ep93xx_keypad.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
-> index f77b295..01788a7 100644
-> --- a/drivers/input/keyboard/ep93xx_keypad.c
-> +++ b/drivers/input/keyboard/ep93xx_keypad.c
-> @@ -257,8 +257,8 @@ static int ep93xx_keypad_probe(struct platform_device *pdev)
->   	}
->   
->   	keypad->irq = platform_get_irq(pdev, 0);
-> -	if (!keypad->irq) {
-> -		err = -ENXIO;
-> +	if (keypad->irq < 0) {
-> +		err = keypad->irq;
->   		goto failed_free;
->   	}
->   
+After enabling SMBUS:
+Nov 28 11:54:44 gazelle kernel: psmouse serio2: synaptics: queried max
+coordinates: x [..5674], y [..4764]
+Nov 28 11:54:44 gazelle kernel: psmouse serio2: synaptics: queried min
+coordinates: x [1266..], y [1086..]
+Nov 28 11:54:44 gazelle kernel: psmouse serio2: synaptics: Your touchpad
+(PNP: SYN1222 PNP0f13) says it can support a different bus. If i2c-hid
+and hid-rmi are not used, you might want to try setting
+psmouse.synaptics_intertouch to 1 and report this to
+linux-input@vger.kernel.org.
+Nov 28 11:54:44 gazelle kernel: psmouse serio2: synaptics: Touchpad
+model: 1, fw: 8.2, id: 0x1e2b1, caps: 0xf00223/0x840300/0x26800/0x0,
+board id: 3189, fw id: 2302754
+Nov 28 11:54:44 gazelle kernel: input: SynPS/2 Synaptics TouchPad as
+/devices/platform/i8042/serio2/input/input12
 
+After adding parameter to boot line:
+Nov 28 13:55:28 gazelle kernel: psmouse serio2: synaptics: queried max
+coordinates: x [..5674], y [..4764]
+Nov 28 13:55:28 gazelle kernel: psmouse serio2: synaptics: queried min
+coordinates: x [1266..], y [1086..]
+Nov 28 13:55:28 gazelle kernel: psmouse serio2: synaptics: Trying to set
+up SMBus access
+Nov 28 13:55:28 gazelle kernel: rmi4_smbus 5-002c: registering
+SMbus-connected sensor
+Nov 28 13:55:28 gazelle kernel: rmi4_f01 rmi4-00.fn01: found RMI device,
+manufacturer: Synaptics, product: TM3189-002, fw id: 2302754
+Nov 28 13:55:28 gazelle kernel: input: Synaptics TM3189-002 as
+/devices/rmi4-00/input/input13
+
+Cheers

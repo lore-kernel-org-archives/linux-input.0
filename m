@@ -1,150 +1,67 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4] Input: silead - Add support for capactive home button found on some x86 tablets
-Date: Tue, 28 Nov 2017 10:04:30 +0100
-Message-ID: <20171128090430.15065-1-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:26669 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752258AbdK1JEg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Nov 2017 04:04:36 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Tue, 28 Nov 2017 15:34:46 +0000
+Message-ID: <20171128153446.6pyqtkcvuepil5gi@sirena.org.uk>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+ <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
+ <20171127185116.j2vmkhbik33vk4f7@ninjato>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="g4qm2fugrwbwjqft"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171127185116.j2vmkhbik33vk4f7@ninjato>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>
 
-On some x86 tablets with a silead touchscreen the windows logo on the
-front is a capacitive home button. Touching this button results in a touch
-with bits 12-15 of the Y coordinates set, while normally only the lower 12
-are used.
 
-Detect this and report a KEY_LEFTMETA press when this happens. Note for
-now we only respond to the Y coordinate bits 12-15 containing 0x01, on some
-tablets *without* a capacative button I've noticed these bits containing
-0x04 when crossing the edges of the screen.
+--g4qm2fugrwbwjqft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Cc: Rob Herring <robh+dt@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
--Only enable support for the home-button if a "silead,home-button"
- boolean device-property is set on the device
+On Mon, Nov 27, 2017 at 07:51:16PM +0100, Wolfram Sang wrote:
+> On Wed, Nov 08, 2017 at 10:50:37PM +0000, Mark Brown wrote:
 
-Changes in v3:
--Document the new silead,home-button property in:
- Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > We pretty much assume everything is DMA safe already, the majority of
+> > transfers go to/from kmalloc()ed scratch buffers so actually are DMA
+> > safe but for bulk transfers we use the caller buffer and there might be
+> > some problem users.
 
-Changes in v4:
--Add Rob's Acked-by for the DT binding
----
- .../bindings/input/touchscreen/silead_gsl1680.txt  |  2 +
- drivers/input/touchscreen/silead.c                 | 46 ++++++++++++++++------
- 2 files changed, 37 insertions(+), 11 deletions(-)
+> So, pretty much the situation I2C was in before this patch set: we
+> pretty much assume DMA safety but there might be problem users.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-index 6aa625e0cb8d..84752de12412 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
-@@ -23,6 +23,8 @@ Optional properties:
- - touchscreen-inverted-y  : See touchscreen.txt
- - touchscreen-swapped-x-y : See touchscreen.txt
- - silead,max-fingers	  : maximum number of fingers the touchscreen can detect
-+- silead,home-button	  : Boolean, set to true on devices which have a
-+			    capacitive home-button build into the touchscreen
- - vddio-supply		  : regulator phandle for controller VDDIO
- - avdd-supply		  : regulator phandle for controller AVDD
- 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 0dbcf105f7db..646b1e768e6b 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -56,7 +56,7 @@
- #define SILEAD_POINT_Y_MSB_OFF	0x01
- #define SILEAD_POINT_X_OFF	0x02
- #define SILEAD_POINT_X_MSB_OFF	0x03
--#define SILEAD_TOUCH_ID_MASK	0xF0
-+#define SILEAD_EXTRA_DATA_MASK	0xF0
- 
- #define SILEAD_CMD_SLEEP_MIN	10000
- #define SILEAD_CMD_SLEEP_MAX	20000
-@@ -109,6 +109,9 @@ static int silead_ts_request_input_dev(struct silead_ts_data *data)
- 			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED |
- 			    INPUT_MT_TRACK);
- 
-+	if (device_property_read_bool(dev, "silead,home-button"))
-+		input_set_capability(data->input, EV_KEY, KEY_LEFTMETA);
-+
- 	data->input->name = SILEAD_TS_NAME;
- 	data->input->phys = "input/ts";
- 	data->input->id.bustype = BUS_I2C;
-@@ -139,7 +142,8 @@ static void silead_ts_read_data(struct i2c_client *client)
- 	struct input_dev *input = data->input;
- 	struct device *dev = &client->dev;
- 	u8 *bufp, buf[SILEAD_TS_DATA_LEN];
--	int touch_nr, error, i;
-+	int touch_nr, softbutton, error, i;
-+	bool softbutton_pressed = false;
- 
- 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_DATA,
- 					      SILEAD_TS_DATA_LEN, buf);
-@@ -148,21 +152,40 @@ static void silead_ts_read_data(struct i2c_client *client)
- 		return;
- 	}
- 
--	touch_nr = buf[0];
--	if (touch_nr > data->max_fingers) {
-+	if (buf[0] > data->max_fingers) {
- 		dev_warn(dev, "More touches reported then supported %d > %d\n",
--			 touch_nr, data->max_fingers);
--		touch_nr = data->max_fingers;
-+			 buf[0], data->max_fingers);
-+		buf[0] = data->max_fingers;
- 	}
- 
-+	touch_nr = 0;
- 	bufp = buf + SILEAD_POINT_DATA_LEN;
--	for (i = 0; i < touch_nr; i++, bufp += SILEAD_POINT_DATA_LEN) {
--		/* Bits 4-7 are the touch id */
--		data->id[i] = (bufp[SILEAD_POINT_X_MSB_OFF] &
--			       SILEAD_TOUCH_ID_MASK) >> 4;
--		touchscreen_set_mt_pos(&data->pos[i], &data->prop,
-+	for (i = 0; i < buf[0]; i++, bufp += SILEAD_POINT_DATA_LEN) {
-+		softbutton = (bufp[SILEAD_POINT_Y_MSB_OFF] &
-+			      SILEAD_EXTRA_DATA_MASK) >> 4;
-+
-+		if (softbutton) {
-+			/*
-+			 * For now only respond to softbutton == 0x01, some
-+			 * tablets *without* a capacative button send 0x04
-+			 * when crossing the edges of the screen.
-+			 */
-+			if (softbutton == 0x01)
-+				softbutton_pressed = true;
-+
-+			continue;
-+		}
-+
-+		/*
-+		 * Bits 4-7 are the touch id, note not all models have
-+		 * hardware touch ids so atm we don't use these.
-+		 */
-+		data->id[touch_nr] = (bufp[SILEAD_POINT_X_MSB_OFF] &
-+				      SILEAD_EXTRA_DATA_MASK) >> 4;
-+		touchscreen_set_mt_pos(&data->pos[touch_nr], &data->prop,
- 			get_unaligned_le16(&bufp[SILEAD_POINT_X_OFF]) & 0xfff,
- 			get_unaligned_le16(&bufp[SILEAD_POINT_Y_OFF]) & 0xfff);
-+		touch_nr++;
- 	}
- 
- 	input_mt_assign_slots(input, data->slots, data->pos, touch_nr, 0);
-@@ -178,6 +201,7 @@ static void silead_ts_read_data(struct i2c_client *client)
- 	}
- 
- 	input_mt_sync_frame(input);
-+	input_report_key(input, KEY_LEFTMETA, softbutton_pressed);
- 	input_sync(input);
- }
- 
--- 
-2.14.3
+It's a bit different in that it's much more likely that a SPI controller
+will actually do DMA than an I2C one since the speeds are higher and
+there's frequent applications that do large transfers so it's more
+likely that people will do the right thing as issues would tend to come
+up if they don't.
 
+> > I can't really think of a particularly good way of
+> > handling it off the top of my head, obviously not setting the flag is
+> > easy but doesn't get the benefit while always using a bounce buffer
+> > would involve lots of unneeded memcpy().  Doing _dmasafe() isn't
+> > particularly appealing either but might be what we end up with.
+
+> Okay. That sounds you are fine with the approach taken here, in general?
+
+It's hard to summon enthusiasm but yes, without changes to the DMA stuff
+it's probably as good as we can do.
+
+--g4qm2fugrwbwjqft
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlodghYACgkQJNaLcl1U
+h9DF7Qf/RFs7DXkOGZIsos7EWmLKM4MQxypTYejz8u46jh7yQ9XNHHZMhhr8at6D
+J4bSqVSfTI4wQHzUwWK9tfzM3v1BT1ZnEFU8zvTTLMwVyZO9tVIPqjunnGR3vHvf
+/N+bbI1NKK6zWlp5vaV8OaVL0Utzm0DEY+2mpWVn3I5Q9OI5JkJ0KlZV+xOE5kLk
+5alC3IStVFb+3TiaSXJY9WEiLe21Xau6/xA51iQOdenUgIHfeg2TnLuJiMyvPIRq
+6VH1Hm9AQoNx+SuF4fWIVfzsMtz41iU7GBuJRFtdM6Jp+OftlBCIaUaO19GyqipF
+EOuxWHDGqOCs0wINJJ9EhR07XVDQZA==
+=RZ/Y
+-----END PGP SIGNATURE-----
+
+--g4qm2fugrwbwjqft--

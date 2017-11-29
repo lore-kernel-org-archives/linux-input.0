@@ -1,155 +1,101 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: input: do not increment usages when a duplicate is
- found
-Date: Wed, 29 Nov 2017 13:32:20 +0100
-Message-ID: <20171129123220.GI30708@mail.corp.redhat.com>
-References: <20171123093947.21388-1-benjamin.tissoires@redhat.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: Lenovo Active Pen 2 and wacom tablet on yoga 920
+Date: Wed, 29 Nov 2017 13:43:52 -0800
+Message-ID: <CANRwn3TwZ3xsFGBPC_OLm4tVEc5ZRpmYkiMNnFHjpPre8EXy2g@mail.gmail.com>
+References: <458e9d7a-2599-915c-c15e-d08b43f4998d@scrye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50212 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751069AbdK2Mc0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Nov 2017 07:32:26 -0500
-Content-Disposition: inline
-In-Reply-To: <20171123093947.21388-1-benjamin.tissoires@redhat.com>
+Received: from mail-ua0-f174.google.com ([209.85.217.174]:32833 "EHLO
+        mail-ua0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751596AbdK2Vnx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 29 Nov 2017 16:43:53 -0500
+Received: by mail-ua0-f174.google.com with SMTP id v20so4427944uaj.0
+        for <linux-input@vger.kernel.org>; Wed, 29 Nov 2017 13:43:53 -0800 (PST)
+In-Reply-To: <458e9d7a-2599-915c-c15e-d08b43f4998d@scrye.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kevin Fenzi <kevin@scrye.com>
+Cc: Linux Input <linux-input@vger.kernel.org>
 
-On Nov 23 2017 or thereabouts, Benjamin Tissoires wrote:
-> This is something that bothered us from a long time. When hid-input
-> doesn't know how to map a usage, it uses *_MISC. But there is something
-> else which increments the usage if the evdev code is already used.
-> 
-> This leads to few issues:
-> - some devices may have their ABS_X mapped to ABS_Y if they export a bad
->   set of usages (see the DragonRise joysticks IIRC -> fixed in a specific
->   HID driver)
-> - *_MISC + N might (will) conflict with other defined axes (my Logitech
->   H800 exports some multitouch axes because of that)
-> - this prevents to freely add some new evdev usages, because "hey, my
->   headset will now report ABS_COFFEE, and it's not coffee capable".
-> 
-> So let's try to kill this nonsense, and hope we won't break too many
-> devices.
-> 
-> I my headset case, the ABS_MISC axes are created because of some
-> proprietary usages, so we might not break that many devices.
-> 
-> For backward compatibility, a quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
-> is created and can be applied to any device that needs this behavior.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Hi Jiri,
-> 
-> this is obviously 4.16 material. It applies on top of your
-> for-4.16/hid-quirks-cleanup/_base.
-> 
-> Cheers,
-> Benjamin
-> 
->  drivers/hid/hid-input.c | 33 +++++++++++++++++++++++++++++++--
->  include/linux/hid.h     |  2 ++
->  2 files changed, 33 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 04d01b57d94c..8e824d1e9258 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1100,8 +1100,31 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  
->  	set_bit(usage->type, input->evbit);
->  
-> -	while (usage->code <= max && test_and_set_bit(usage->code, bit))
-> -		usage->code = find_next_zero_bit(bit, max + 1, usage->code);
-> +	/*
-> +	 * This part is *really* controversial:
-> +	 * - HID aims at being generic so we should do our best to export
-> +	 *   all incoming events
-> +	 * - HID describes what events are, so there is no reason for ABS_X
-> +	 *   to be mapped to ABS_Y
-> +	 * - HID is using *_MISC+N as a default value, but nothing prevents
-> +	 *   *_MISC+N to overwrite a legitimate even, which confuses userspace
-> +	 *   (for instance ABS_MISC + 7 is ABS_MT_SLOT, which has a different
-> +	 *   processing)
-> +	 *
-> +	 * If devices still want to use this (at their own risk), they will
-> +	 * have to use the quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, but
-> +	 * the default should be a reliable mapping.
-> +	 */
-> +	while (usage->code <= max && test_and_set_bit(usage->code, bit)) {
-> +		if (device->quirks & HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE) {
-> +			usage->code = find_next_zero_bit(bit,
-> +							 max + 1,
-> +							 usage->code);
-> +		} else {
-> +			device->status |= HID_STAT_DUP_DETECTED;
-> +			goto ignore;
-> +		}
-> +	}
->  
->  	if (usage->code > max)
->  		goto ignore;
-> @@ -1610,6 +1633,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
->  	INIT_LIST_HEAD(&hid->inputs);
->  	INIT_WORK(&hid->led_work, hidinput_led_worker);
->  
-> +	hid->status &= ~HID_STAT_DUP_DETECTED;
-> +
->  	if (!force) {
->  		for (i = 0; i < hid->maxcollection; i++) {
->  			struct hid_collection *col = &hid->collection[i];
-> @@ -1676,6 +1701,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
->  		goto out_unwind;
->  	}
->  
-> +	if (hid->status & HID_STAT_DUP_DETECTED)
-> +		hid_info(hid,
-> +			 "Some usages could not be mapped, please use HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE if this is legitimate.\n");
+Hi Kevin,
 
-This info log is getting really annoying, especially with teh
-hid-generic auto-binding. All the multitouch devices will report it, and
-this is not something we like.
+The Bluetooth and tablet issues are likely to be unrelated. The
+Bluetooth button is completely independent from the rest of the
+tablet, with neither the tablet sensor nor the Wacom driver being
+aware of it.
 
-Maybe we should use it with hid_debug instead?
+>From what I understand, in normal operation the Bluetooth button is
+disconnected most of the time. When you press it, it briefly wakes up,
+connects to the paired PC, appears as a keyboard, sends a key combo,
+and then disconnects until you press it again. If you run something
+like `sudo libinput-debug-events` and then press the button, you
+should be able to see the key combo being sent (as well as the
+connect/disconnect). I'm not sure what's up with the deadlock warning
+that appears in dmesg, however...
 
-> +
->  	return 0;
->  
->  out_unwind:
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 39cdeb205caa..076876a61a05 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -343,6 +343,7 @@ struct hid_item {
->  #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
->  #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
->  #define HID_QUIRK_HAVE_SPECIAL_DRIVER		0x00080000
-> +#define HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE	0x00100000
->  #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
->  #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
->  #define HID_QUIRK_NO_IGNORE			0x40000000
-> @@ -500,6 +501,7 @@ struct hid_output_fifo {
->  
->  #define HID_STAT_ADDED		1
->  #define HID_STAT_PARSED		2
-> +#define HID_STAT_DUP_DETECTED	3
+As for the tablet, the "last error =3D -121" indicates that we got an
+EREMOTEIO error. I've not come across that particular error in this
+function before. I'll need some time to track down why we might be
+getting this from the lower layers.
 
-This is really embarrassing (and took me 2 days to debug). The value
-should be 4, not 3.
-I'll send a followup with an additional one that convert all of those
-with the BIT() macro.
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-Cheers,
-Benjamin
 
->  
->  struct hid_input {
->  	struct list_head list;
-> -- 
-> 2.14.3
-> 
+
+On Mon, Nov 27, 2017 at 12:23 PM, Kevin Fenzi <kevin@scrye.com> wrote:
+> Greetings.
+>
+> I'm running into some problems with Lenovo active pen 2 and wacom tablet
+> on a new yoga 920.
+>
+> Filed:
+> https://bugzilla.redhat.com/show_bug.cgi?id=3D1514837
+>
+> but I thought I would ask here if anyone had any ideas...
+>
+> Basically when pairing the pen it shows for a second, then drops:
+>
+> [Sat Nov 18 12:22:42 2017] input: Lenovo Active Pen2 as
+> /devices/virtual/misc/uhid/0005:17EF:60A8.0006/input/input23
+> [Sat Nov 18 12:22:42 2017] hid-generic 0005:17EF:60A8.0006:
+> input,hidraw4: BLUETOOTH HID v0.02 Keyboard [Lenovo Active Pen2] on
+> 64:6E:69:D1:A0:48
+> [Sat Nov 18 12:22:47 2017] Bluetooth: hci0: last event is not cmd
+> complete (0x0f)
+> [Sat Nov 18 12:23:03 2017] Bluetooth: hci0: last event is not cmd
+> complete (0x0f)
+> [Sat Nov 18 12:23:19 2017] Bluetooth: hci0: last event is not cmd
+> complete (0x0f)
+>
+> The wacom tablet is never connecting:
+>
+> [Fri Nov 24 21:47:01 2017] input: Wacom HID 5110 Pen as
+> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-WCOM5110:00/0=
+018:056A:5110.0003/input/input26
+> [Fri Nov 24 21:47:01 2017] input: Wacom HID 5110 Finger as
+> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-WCOM5110:00/0=
+018:056A:5110.0003/input/input27
+> [Fri Nov 24 21:47:01 2017] wacom 0018:056A:5110.0003: hidraw3: I2C HID
+> v1.00 Mouse [WCOM5110:00 056A:5110] on i2c-WCOM5110:00
+> [Fri Nov 24 21:47:02 2017] i2c_hid i2c-WCOM5110:00: failed to set a
+> report to device.
+> [Fri Nov 24 21:47:02 2017] wacom 0018:056A:5110.0003: wacom_set_report:
+> ran out of retries (last error =3D -121)
+> [Fri Nov 24 21:47:02 2017] i2c_hid i2c-WCOM5110:00: failed to set a
+> report to device.
+>
+> Happy to gather more info and/or try patches.
+>
+> Thanks.
+>
+> kevin
+>

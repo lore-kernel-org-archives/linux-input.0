@@ -1,72 +1,70 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] Input: elants_i2c - do not clobber interrupt trigger on
- x86
-Date: Tue, 28 Nov 2017 17:27:03 -0800
-Message-ID: <0cc2dfb9-8fff-8c69-f18b-6c1c42d6555f@roeck-us.net>
-References: <20171117012439.bfnczk2mqwsf4iua@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pl0-f68.google.com ([209.85.160.68]:38244 "EHLO
-        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752526AbdK2B1G (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Nov 2017 20:27:06 -0500
-In-Reply-To: <20171117012439.bfnczk2mqwsf4iua@dtor-ws>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+From: Masaki Ota <012nexus@gmail.com>
+Subject: [PATCH] Support TrackStick of Thinkpad L570
+Date: Wed, 29 Nov 2017 16:01:05 +0900
+Message-ID: <20171129070105.5540-1-masaki.ota@jp.alps.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, pali.rohar@gmail.com, aaron.ma@canonical.com, jaak@ristioja.ee, masaki.ota@jp.alps.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Johnny Chuang <johnny.chuang@emc.com.tw>, linux-kernel@vger.kernel.org
 
-On 11/16/2017 05:24 PM, Dmitry Torokhov wrote:
-> This is similar to commit a4b0a58bb142 ("Input: elan_i2c - do not
-> clobber interrupt trigger on x86")
-> 
-> On x86 we historically used falling edge interrupts in the driver
-> because that's how first Chrome devices were configured. They also
-> did not use ACPI to enumerate I2C devices (because back then there
-> was no kernel support for that), so trigger was hard-coded in the
-> driver. However the controller behavior is much more reliable if
-> we use level triggers, and that is how we configured ARM devices,
-> and how want to configure newer x86 devices as well. All newer
-> x86 boxes have their I2C devices enumerated in ACPI.
-> 
-> Let's see if platform code (ACPI, DT) described interrupt and
-> specified particular trigger type, and if so, let's use it instead
-> of always clobbering trigger with IRQF_TRIGGER_FALLING. We will
-> still use this trigger type as a fallback if platform code left
-> interrupt trigger unconfigured.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>'
+From: Masaki Ota <masaki.ota@jp.alps.com>
+- The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
+- Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
+- If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
+- Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+---
+ drivers/input/mouse/alps.c | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
-> ---
->   drivers/input/touchscreen/elants_i2c.c | 9 ++++++---
->   1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-> index e102d7764bc2..1cc3e6b135e7 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -1261,10 +1261,13 @@ static int elants_i2c_probe(struct i2c_client *client,
->   	}
->   
->   	/*
-> -	 * Systems using device tree should set up interrupt via DTS,
-> -	 * the rest will use the default falling edge interrupts.
-> +	 * Platform code (ACPI, DTS) should normally set up interrupt
-> +	 * for us, but in case it did not let's fall back to using falling
-> +	 * edge to be compatible with older Chromebooks.
->   	 */
-> -	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
-> +	irqflags = irq_get_trigger_type(client->irq);
-> +	if (!irqflags)
-> +		irqflags = IRQF_TRIGGER_FALLING;
-> `
->   	error = devm_request_threaded_irq(&client->dev, client->irq,
->   					  NULL, elants_i2c_irq,
-> 
-
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 850b00e3ad8e..dd2c9e9f4830 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2541,13 +2541,31 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
+ }
+ 
+ static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
+-				       struct alps_data *priv)
++				       struct alps_data *priv,
++					struct psmouse *psmouse)
+ {
+ 	bool is_dual = false;
++	int reg_val = 0;
++	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 
+-	if (IS_SS4PLUS_DEV(priv->dev_id))
++	if (IS_SS4PLUS_DEV(priv->dev_id)) {
+ 		is_dual = (otp[0][0] >> 4) & 0x01;
+ 
++		if (!is_dual) {
++			/* For support TrackStick of Thinkpad L570 device */
++			if (alps_exit_command_mode(psmouse) == 0 &&
++				alps_enter_command_mode(psmouse) == 0) {
++				reg_val = alps_command_mode_read_reg(psmouse,
++									0xD7);
++			}
++			alps_exit_command_mode(psmouse);
++			ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
++
++			if (reg_val == 0x0C || reg_val == 0x1D)
++				is_dual = true;
++		}
++	}
++
+ 	if (is_dual)
+ 		priv->flags |= ALPS_DUALPOINT |
+ 					ALPS_DUALPOINT_WITH_PRESSURE;
+@@ -2570,7 +2588,7 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+ 
+ 	alps_update_btn_info_ss4_v2(otp, priv);
+ 
+-	alps_update_dual_info_ss4_v2(otp, priv);
++	alps_update_dual_info_ss4_v2(otp, priv, psmouse);
+ 
+ 	return 0;
+ }
+-- 
+2.14.1

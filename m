@@ -1,207 +1,155 @@
-From: Ladislav Michl <ladis@linux-mips.org>
-Subject: [PATCH 2/2] Input: gpio-beeper: drive beeper pin by hrtimer
-Date: Wed, 29 Nov 2017 12:08:26 +0100
-Message-ID: <20171129110825.GC24064@lenoch>
-References: <20171129110627.GA24064@lenoch>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: input: do not increment usages when a duplicate is
+ found
+Date: Wed, 29 Nov 2017 13:32:20 +0100
+Message-ID: <20171129123220.GI30708@mail.corp.redhat.com>
+References: <20171123093947.21388-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eddie.linux-mips.org ([148.251.95.138]:55266 "EHLO
-        cvs.linux-mips.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752604AbdK2LI3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Nov 2017 06:08:29 -0500
-Received: (from localhost user: 'ladis' uid#1021 fake: STDIN
-        (ladis@eddie.linux-mips.org)) by eddie.linux-mips.org
-        id S23990477AbdK2LI1kIe4I (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Nov 2017 12:08:27 +0100
+Received: from mx1.redhat.com ([209.132.183.28]:50212 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751069AbdK2Mc0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 29 Nov 2017 07:32:26 -0500
 Content-Disposition: inline
-In-Reply-To: <20171129110627.GA24064@lenoch>
+In-Reply-To: <20171123093947.21388-1-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This is poor man's solution for those who cannot use pwm-beeper.
-Beeper pin is driven by hrtimer, so hearable jitter is expected,
-but should be acceptable for frequencies under 1kHz. This mode
-is enabled by adding 'beeper-hz' node property.
+On Nov 23 2017 or thereabouts, Benjamin Tissoires wrote:
+> This is something that bothered us from a long time. When hid-input
+> doesn't know how to map a usage, it uses *_MISC. But there is something
+> else which increments the usage if the evdev code is already used.
+> 
+> This leads to few issues:
+> - some devices may have their ABS_X mapped to ABS_Y if they export a bad
+>   set of usages (see the DragonRise joysticks IIRC -> fixed in a specific
+>   HID driver)
+> - *_MISC + N might (will) conflict with other defined axes (my Logitech
+>   H800 exports some multitouch axes because of that)
+> - this prevents to freely add some new evdev usages, because "hey, my
+>   headset will now report ABS_COFFEE, and it's not coffee capable".
+> 
+> So let's try to kill this nonsense, and hope we won't break too many
+> devices.
+> 
+> I my headset case, the ABS_MISC axes are created because of some
+> proprietary usages, so we might not break that many devices.
+> 
+> For backward compatibility, a quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
+> is created and can be applied to any device that needs this behavior.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> 
+> Hi Jiri,
+> 
+> this is obviously 4.16 material. It applies on top of your
+> for-4.16/hid-quirks-cleanup/_base.
+> 
+> Cheers,
+> Benjamin
+> 
+>  drivers/hid/hid-input.c | 33 +++++++++++++++++++++++++++++++--
+>  include/linux/hid.h     |  2 ++
+>  2 files changed, 33 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 04d01b57d94c..8e824d1e9258 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1100,8 +1100,31 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+>  
+>  	set_bit(usage->type, input->evbit);
+>  
+> -	while (usage->code <= max && test_and_set_bit(usage->code, bit))
+> -		usage->code = find_next_zero_bit(bit, max + 1, usage->code);
+> +	/*
+> +	 * This part is *really* controversial:
+> +	 * - HID aims at being generic so we should do our best to export
+> +	 *   all incoming events
+> +	 * - HID describes what events are, so there is no reason for ABS_X
+> +	 *   to be mapped to ABS_Y
+> +	 * - HID is using *_MISC+N as a default value, but nothing prevents
+> +	 *   *_MISC+N to overwrite a legitimate even, which confuses userspace
+> +	 *   (for instance ABS_MISC + 7 is ABS_MT_SLOT, which has a different
+> +	 *   processing)
+> +	 *
+> +	 * If devices still want to use this (at their own risk), they will
+> +	 * have to use the quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, but
+> +	 * the default should be a reliable mapping.
+> +	 */
+> +	while (usage->code <= max && test_and_set_bit(usage->code, bit)) {
+> +		if (device->quirks & HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE) {
+> +			usage->code = find_next_zero_bit(bit,
+> +							 max + 1,
+> +							 usage->code);
+> +		} else {
+> +			device->status |= HID_STAT_DUP_DETECTED;
+> +			goto ignore;
+> +		}
+> +	}
+>  
+>  	if (usage->code > max)
+>  		goto ignore;
+> @@ -1610,6 +1633,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+>  	INIT_LIST_HEAD(&hid->inputs);
+>  	INIT_WORK(&hid->led_work, hidinput_led_worker);
+>  
+> +	hid->status &= ~HID_STAT_DUP_DETECTED;
+> +
+>  	if (!force) {
+>  		for (i = 0; i < hid->maxcollection; i++) {
+>  			struct hid_collection *col = &hid->collection[i];
+> @@ -1676,6 +1701,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+>  		goto out_unwind;
+>  	}
+>  
+> +	if (hid->status & HID_STAT_DUP_DETECTED)
+> +		hid_info(hid,
+> +			 "Some usages could not be mapped, please use HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE if this is legitimate.\n");
 
-Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
----
- .../devicetree/bindings/input/gpio-beeper.txt      |  5 ++
- drivers/input/misc/gpio-beeper.c                   | 92 +++++++++++++++++++---
- 2 files changed, 87 insertions(+), 10 deletions(-)
+This info log is getting really annoying, especially with teh
+hid-generic auto-binding. All the multitouch devices will report it, and
+this is not something we like.
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-beeper.txt b/Documentation/devicetree/bindings/input/gpio-beeper.txt
-index a5086e37fce6..855f8cf8af10 100644
---- a/Documentation/devicetree/bindings/input/gpio-beeper.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-beeper.txt
-@@ -6,6 +6,11 @@ Required properties:
- - compatible:	Should be "gpio-beeper".
- - gpios:	From common gpio binding; gpio connection to beeper enable pin.
- 
-+Optional properties:
-+- beeper-hz:	Bell frequency in Hz. This option enables hrtimer driven beeper
-+		pin toggle. This is only good for poorly designed hardware
-+		where PWM cannot be used as there always be hearable jitter.
-+
- Example:
- 	beeper: beeper {
- 		compatible = "gpio-beeper";
-diff --git a/drivers/input/misc/gpio-beeper.c b/drivers/input/misc/gpio-beeper.c
-index 409c85da71c3..37f22884e967 100644
---- a/drivers/input/misc/gpio-beeper.c
-+++ b/drivers/input/misc/gpio-beeper.c
-@@ -12,6 +12,7 @@
- #include <linux/input.h>
- #include <linux/module.h>
- #include <linux/gpio/consumer.h>
-+#include <linux/hrtimer.h>
- #include <linux/of.h>
- #include <linux/workqueue.h>
- #include <linux/platform_device.h>
-@@ -20,11 +21,19 @@
- 
- struct gpio_beeper {
- 	struct work_struct	work;
-+	struct hrtimer		timer;
- 	struct gpio_desc	*desc;
--	bool			beeping;
-+	ktime_t			tick;
-+	unsigned int		bell_freq;
-+	int			on;
- };
- 
--static void gpio_beeper_toggle(struct gpio_beeper *beep, bool on)
-+static void gpio_beeper_toggle(struct gpio_beeper *beep, int on)
-+{
-+	gpiod_set_value(beep->desc, on);
-+}
-+
-+static void gpio_beeper_toggle_cansleep(struct gpio_beeper *beep, int on)
- {
- 	gpiod_set_value_cansleep(beep->desc, on);
- }
-@@ -33,7 +42,17 @@ static void gpio_beeper_work(struct work_struct *work)
- {
- 	struct gpio_beeper *beep = container_of(work, struct gpio_beeper, work);
- 
--	gpio_beeper_toggle(beep, beep->beeping);
-+	gpio_beeper_toggle_cansleep(beep, beep->on);
-+}
-+
-+static enum hrtimer_restart gpio_beeper_timer(struct hrtimer *timer)
-+{
-+	struct gpio_beeper *beep = container_of(timer, struct gpio_beeper, timer);
-+
-+	beep->on = !beep->on;
-+	gpio_beeper_toggle(beep, beep->on);
-+	hrtimer_forward_now(timer, beep->tick);
-+	return HRTIMER_RESTART;
- }
- 
- static int gpio_beeper_event(struct input_dev *dev, unsigned int type,
-@@ -47,19 +66,59 @@ static int gpio_beeper_event(struct input_dev *dev, unsigned int type,
- 	if (value < 0)
- 		return -EINVAL;
- 
--	beep->beeping = value;
-+	beep->on = value;
- 	/* Schedule work to actually turn the beeper on or off */
- 	schedule_work(&beep->work);
- 
- 	return 0;
- }
- 
-+static int gpio_beeper_tone_event(struct input_dev *dev, unsigned int type,
-+				  unsigned int code, int value)
-+{
-+	struct gpio_beeper *beep = input_get_drvdata(dev);
-+
-+	if (type != EV_SND)
-+		return -ENOTSUPP;
-+
-+	switch (code) {
-+	case SND_BELL:
-+		value = value ? beep->bell_freq : 0;
-+		break;
-+	case SND_TONE:
-+		break;
-+	default:
-+		return -ENOTSUPP;
-+	}
-+
-+	if (value < 0)
-+		return -EINVAL;
-+
-+	if (value) {
-+		beep->tick = ns_to_ktime(1000000000UL / 2 / value);
-+		hrtimer_start(&beep->timer, ns_to_ktime(0), HRTIMER_MODE_REL);
-+	} else {
-+		hrtimer_cancel(&beep->timer);
-+		gpio_beeper_toggle(beep, 0);
-+	}
-+
-+	return 0;
-+}
-+
- static void gpio_beeper_close(struct input_dev *input)
- {
- 	struct gpio_beeper *beep = input_get_drvdata(input);
- 
- 	cancel_work_sync(&beep->work);
--	gpio_beeper_toggle(beep, false);
-+	gpio_beeper_toggle_cansleep(beep, 0);
-+}
-+
-+static void gpio_beeper_tone_close(struct input_dev *input)
-+{
-+	struct gpio_beeper *beep = input_get_drvdata(input);
-+
-+	hrtimer_cancel(&beep->timer);
-+	gpio_beeper_toggle_cansleep(beep, 0);
- }
- 
- static int gpio_beeper_probe(struct platform_device *pdev)
-@@ -80,18 +139,31 @@ static int gpio_beeper_probe(struct platform_device *pdev)
- 	if (!input)
- 		return -ENOMEM;
- 
--	INIT_WORK(&beep->work, gpio_beeper_work);
--
- 	input->name		= pdev->name;
- 	input->id.bustype	= BUS_HOST;
- 	input->id.vendor	= 0x0001;
- 	input->id.product	= 0x0001;
- 	input->id.version	= 0x0100;
--	input->close		= gpio_beeper_close;
--	input->event		= gpio_beeper_event;
--
- 	input_set_capability(input, EV_SND, SND_BELL);
- 
-+	if (device_property_read_u32(dev, "beeper-hz", &beep->bell_freq)) {
-+		input->close = gpio_beeper_close;
-+		input->event = gpio_beeper_event;
-+
-+		INIT_WORK(&beep->work, gpio_beeper_work);
-+	} else {
-+		dev_dbg(dev,
-+			"tone mode enabled using default frequency: %uHz\n",
-+			beep->bell_freq);
-+
-+		input->close = gpio_beeper_tone_close;
-+		input->event = gpio_beeper_tone_event;
-+		input_set_capability(input, EV_SND, SND_TONE);
-+
-+		hrtimer_init(&beep->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+		beep->timer.function = gpio_beeper_timer;
-+	}
-+
- 	input_set_drvdata(input, beep);
- 
- 	return input_register_device(input);
--- 
-2.15.0
+Maybe we should use it with hid_debug instead?
 
+> +
+>  	return 0;
+>  
+>  out_unwind:
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 39cdeb205caa..076876a61a05 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -343,6 +343,7 @@ struct hid_item {
+>  #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
+>  #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
+>  #define HID_QUIRK_HAVE_SPECIAL_DRIVER		0x00080000
+> +#define HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE	0x00100000
+>  #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+>  #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+>  #define HID_QUIRK_NO_IGNORE			0x40000000
+> @@ -500,6 +501,7 @@ struct hid_output_fifo {
+>  
+>  #define HID_STAT_ADDED		1
+>  #define HID_STAT_PARSED		2
+> +#define HID_STAT_DUP_DETECTED	3
+
+This is really embarrassing (and took me 2 days to debug). The value
+should be 4, not 3.
+I'll send a followup with an additional one that convert all of those
+with the BIT() macro.
+
+Cheers,
+Benjamin
+
+>  
+>  struct hid_input {
+>  	struct list_head list;
+> -- 
+> 2.14.3
+> 

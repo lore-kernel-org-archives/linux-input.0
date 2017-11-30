@@ -1,87 +1,58 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
-Date: Thu, 30 Nov 2017 15:55:40 +0800
-Message-ID: <7daec91a-45d3-c6a7-33cd-fcfdf7bcb5e3@canonical.com>
-References: <20171129083358.5063-1-masaki.ota@jp.alps.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 2/5] gpio: pca953x: Name the gpiochip after the I2C address
+Date: Thu, 30 Nov 2017 15:45:22 +0100
+Message-ID: <CACRpkdY8MRAQ_c+mf5R_mbveuKPaJu4_d2gxTCsRraLCRPqi1A@mail.gmail.com>
+References: <20171124093045.5961-1-linus.walleij@linaro.org>
+ <20171124093045.5961-3-linus.walleij@linaro.org> <20171124142627.GG30167@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:37280 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750769AbdK3Hzt (ORCPT
+Received: from mail-io0-f174.google.com ([209.85.223.174]:45475 "EHLO
+        mail-io0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751441AbdK3OpY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Nov 2017 02:55:49 -0500
-In-Reply-To: <20171129083358.5063-1-masaki.ota@jp.alps.com>
-Content-Language: en-US
+        Thu, 30 Nov 2017 09:45:24 -0500
+Received: by mail-io0-f174.google.com with SMTP id e204so7728886iof.12
+        for <linux-input@vger.kernel.org>; Thu, 30 Nov 2017 06:45:23 -0800 (PST)
+In-Reply-To: <20171124142627.GG30167@lunn.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>, dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, pali.rohar@gmail.com, jaak@ristioja.ee, masaki.ota@jp.alps.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 
-Please add the patch version next time.
+On Fri, Nov 24, 2017 at 3:26 PM, Andrew Lunn <andrew@lunn.ch> wrote:
+> On Fri, Nov 24, 2017 at 10:30:42AM +0100, Linus Walleij wrote:
+>> Just putting the name of the I2C device as name for the
+>> GPIO chip (label) is ambigous, and makes it hard for us
+>> to use GPIO descriptor tables on systems such as DaVinci
+>> DA850EVM which has two chips but on I2C address 0x20 and 0x21.
+>>
+>> Instead, append "-XX" to the GPIOchip name using the I2C
+>> address so we get a unique chip name that can be used
+>> in descriptor tables, such as "tca6416-20" and
+>> "tca6416-21" on the DaVinci DA850EVM.
+>
+> Hi Linus
+>
+> Are you making the assumption that there are not two devices at the
+> same address but on different I2C busses?
 
-The patch make trackstick work on L570.
+Yes.
 
-Tested-by: Aaron Ma <aaron.ma@canonical.com>
+> How safe is that assumption? Can you include the adapter ID in the
+> string?
 
-On 11/29/2017 04:33 PM, Masaki Ota wrote:
-> From: Masaki Ota <masaki.ota@jp.alps.com>
-> - The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
-> - Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
-> - If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
-> - Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
-> 
-> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-> ---
->  drivers/input/mouse/alps.c | 24 +++++++++++++++++++++---
->  1 file changed, 21 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 850b00e3ad8e..6f092bdd9fc5 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2541,13 +2541,31 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
->  }
->  
->  static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
-> -				       struct alps_data *priv)
-> +				       struct alps_data *priv,
-> +					struct psmouse *psmouse)
->  {
->  	bool is_dual = false;
-> +	int reg_val = 0;
-> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
->  
-> -	if (IS_SS4PLUS_DEV(priv->dev_id))
-> +	if (IS_SS4PLUS_DEV(priv->dev_id)) {
->  		is_dual = (otp[0][0] >> 4) & 0x01;
->  
-> +		if (!is_dual) {
-> +			/* For support TrackStick of Thinkpad L/E series */
-> +			if (alps_exit_command_mode(psmouse) == 0 &&
-> +				alps_enter_command_mode(psmouse) == 0) {
-> +				reg_val = alps_command_mode_read_reg(psmouse,
-> +									0xD7);
-> +			}
-> +			alps_exit_command_mode(psmouse);
-> +			ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
-> +
-> +			if (reg_val == 0x0C || reg_val == 0x1D)
-> +				is_dual = true;
-> +		}
-> +	}
-> +
->  	if (is_dual)
->  		priv->flags |= ALPS_DUALPOINT |
->  					ALPS_DUALPOINT_WITH_PRESSURE;
-> @@ -2570,7 +2588,7 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
->  
->  	alps_update_btn_info_ss4_v2(otp, priv);
->  
-> -	alps_update_dual_info_ss4_v2(otp, priv);
-> +	alps_update_dual_info_ss4_v2(otp, priv, psmouse);
->  
->  	return 0;
->  }
-> 
+Sure, I just had to come up with something.
+
+The universe of board files is not very big, so the number of
+potentially clashing things is not eternal. This is just a transient
+"contain and deprecate" thing so I think it's unlikely that they
+clash but usually when I say something like that the next day
+it happens...
+
+So I can add the adapter number :)
+
+I am waiting for more feedback on the series before resending.
+
+Yours,
+Linus Walleij

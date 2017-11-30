@@ -1,91 +1,51 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 0/5] Make gpio_keys accept board descriptors
-Date: Thu, 30 Nov 2017 16:44:05 +0100
-Message-ID: <CACRpkdYCn0EuJSXgzEq3+OFpxPtSkO8AEECnusXympAvmdE9cA@mail.gmail.com>
-References: <20171124093045.5961-1-linus.walleij@linaro.org> <20171125233324.afdt4netamvkrkm2@dtor-ws>
+From: =?iso-8859-1?Q?Br=FCns=2C_Stefan?= <Stefan.Bruens@rwth-aachen.de>
+Subject: Re: [PATCH v2 3/5] Input: add KEY_ROTATE_LOCK_TOGGLE
+Date: Thu, 30 Nov 2017 17:51:37 +0000
+Message-ID: <2845999.tyV6EiPLrg@sbruens-linux>
+References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
+ <8ebdb255-b0b5-4de2-a680-e7f6713256d0@rwthex-w2-a.rwth-ad.de>
+ <1510270493.2624.49.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f68.google.com ([209.85.214.68]:45051 "EHLO
-        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751498AbdK3PoG (ORCPT
+Received: from mail-out-2.itc.rwth-aachen.de ([134.130.5.47]:31883 "EHLO
+        mail-out-2.itc.rwth-aachen.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753360AbdK3Rvl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Nov 2017 10:44:06 -0500
-Received: by mail-it0-f68.google.com with SMTP id b5so8805880itc.3
-        for <linux-input@vger.kernel.org>; Thu, 30 Nov 2017 07:44:06 -0800 (PST)
-In-Reply-To: <20171125233324.afdt4netamvkrkm2@dtor-ws>
+        Thu, 30 Nov 2017 12:51:41 -0500
+In-Reply-To: <1510270493.2624.49.camel@hadess.net>
+Content-Language: en-US
+Content-ID: <D052AFA297317F4E88E9A5837555E68F@rwth-ad.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: "platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Sun, Nov 26, 2017 at 12:33 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On Freitag, 10. November 2017 00:34:53 CET Bastien Nocera wrote:
+> On Thu, 2017-11-09 at 23:44 +0100, Stefan Brüns wrote:
+> > The key has the same use as the SW_ROTATE_LOCK, but is used on
+> > devices
+> > where the state is not tracked by the hardware but has to be handled
+> > in software.
+> 
+> I'll let the input and hid subsystem maintainers have the final say
+> here, though I think that sending out Win+O would be easier, as this is
+> already something that desktops need to support for those devices that
+> send the actual Win+O key combination when those buttons are pressed
+> there.
+> 
+> If we're going with the separate keycode, could you also file bugs
+> against xkbd-common and xkeyboard-config to get the key added to the
+> list of XF86 keysyms and to the default evdev keymap? Otherwise Wayland
+> and X11 based desktops won't be able to use it.
 
-> I think this is a worthy goal, but I wonder if we could get static GPIO
-> descriptors work with fwnode_get_named_gpiod()
+Filed for xkeyboard-config:
+https://bugs.freedesktop.org/show_bug.cgi?id=103998
 
-I think that will just work, I can try it on something and see.
+and xkb-common:
+https://github.com/xkbcommon/libxkbcommon/issues/55
 
-> so we could retire the
-> platform data parsing altogether. We'd need to extend static device
-> properties to have notion of children though.
+Regards,
 
-So we are talking about these static device properties I assume?
-
-/**
- * struct gpiod_lookup - lookup table
- * @chip_label: name of the chip the GPIO belongs to
- * @chip_hwnum: hardware number (i.e. relative to the chip) of the GPIO
- * @con_id: name of the GPIO from the device's point of view
- * @idx: index of the GPIO in case several GPIOs share the same name
- * @flags: mask of GPIO_* values
- *
- * gpiod_lookup is a lookup table for associating GPIOs to specific devices and
- * functions using platform data.
- */
-struct gpiod_lookup {
-        const char *chip_label;
-        u16 chip_hwnum;
-        const char *con_id;
-        unsigned int idx;
-        enum gpio_lookup_flags flags;
-};
-
-struct gpiod_lookup_table {
-        struct list_head list;
-        const char *dev_id;
-        struct gpiod_lookup table[];
-};
-
-The fact that keys are modeled as children in DTS/ACPI DSDT
-more of a pecularity to these description languages
-providing opaque configuration nodes.
-
-E.g. these children reflects struct gpio_keys_button being a child of
-struct gpio_keys_platform_data in the board files. But
-it is only one device, "gpio-keys" in the Linux device
-model. The buttons/keys are not devices.
-
-Likewise, in device tree the buttons are not really
-devices under the "gpio-keys" device, they are just property
-nodes in the device tree conveniently set in a hierarchy to
-contain the information. I bet ACPI works the same.
-
-Since GPIO descriptors (like clocks, regulators ...) are
-associated with the device, this becomes problematic: these
-children are not devices. So they need to be associated
-with the device to begin with.
-
-In that case, I would opt to just use the
-unsigned int idx field for determining child number from
-the descriptor table, use con_id for naming the child and
-we are back at essentially the same structure as a backend
-for fwnode.
-
-Due to the complexity of fwnode requireing an entire
-parser for fwnode_operations etc it's a bit of heavy lifting
-so I need to think and experiment some more.
-
-Yours,
-Linus Walleij
+Stefan

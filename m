@@ -1,38 +1,36 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: holtekff: move MODULE_* parameters out of #ifdef
- block
-Date: Fri, 1 Dec 2017 09:53:15 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1712010952590.11505@cbobk.fhfr.pm>
-References: <20171126043404.11621-1-dja@axtens.net>
+Subject: Re: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA
+ keyboard docks
+Date: Fri, 1 Dec 2017 09:55:00 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1712010954120.11505@cbobk.fhfr.pm>
+References: <20171126154010.954-1-hdegoede@redhat.com> <20171127083531.GD30708@mail.corp.redhat.com> <47b2d7b2-c24b-2705-5be6-9c100d0ed4c0@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38992 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:39126 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751444AbdLAIxR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 1 Dec 2017 03:53:17 -0500
-In-Reply-To: <20171126043404.11621-1-dja@axtens.net>
+        id S1751598AbdLAIzC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 1 Dec 2017 03:55:02 -0500
+In-Reply-To: <47b2d7b2-c24b-2705-5be6-9c100d0ed4c0@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Axtens <dja@axtens.net>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, anssi.hannula@iki.fi
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Sun, 26 Nov 2017, Daniel Axtens wrote:
+On Mon, 27 Nov 2017, Hans de Goede wrote:
 
-> If you compile with:
-> CONFIG_HID_HOLTEK=m
-> CONFIG_HOLTEK_FF is not set
-> 
-> You get the following warning:
-> WARNING: modpost: missing MODULE_LICENSE() in drivers/hid/hid-holtekff.o
-> see include/linux/module.h for more information
-> 
-> Fix this by moving the module info out of the #ifdef CONFIG_HOLTEK_FF
-> block and into the un-guarded part of the file.
-> 
-> Signed-off-by: Daniel Axtens <dja@axtens.net>
+> I'm afraid it is probably the first reason and not the second reason,
+> when I was working on Linux webcam support one of the issues was that in
+> many Asus laptops the webcam module is mounted upside down and thus sends
+> an upside-down picture. I asked via via if Asus internally had a list
+> of which webcams are upside down, the answer was: no. Asus simply maintains
+> a hacked-together driver-repository per model laptop, in which they
+> put hacks until the driver works for that model. 
 
-Applied to for-4.15/upstream-fixes. Thanks,
+Man, the world is sick :)
+
+I am unhappily (not because of you, but because of ASUS) applying to 
+for-4.15/upstream-fixes. Thanks,
 
 -- 
 Jiri Kosina

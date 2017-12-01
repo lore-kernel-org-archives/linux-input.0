@@ -1,96 +1,25 @@
-From: Ryan Hendrickson <ryan.hendrickson@alum.mit.edu>
-Subject: [PATCH] bcm5974: report ABS_MT_PRESSURE
-Date: Fri, 1 Dec 2017 12:13:22 -0500 (EST)
-Message-ID: <alpine.LNX.2.21.1712011208150.14154@adam>
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: silead touch problem
+Date: Fri, 1 Dec 2017 19:23:45 +0200
+Message-ID: <Mahogany-0.68.0-7241-20171201-192345.00@nerijus.sat.lt>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="8323328-1093365938-1512148413=:14154"
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vicky.finemachine.org ([45.79.146.116]:59686 "EHLO
-        vicky.finemachine.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750988AbdLART6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 1 Dec 2017 12:19:58 -0500
+Received: from bluegene.sat.lt ([88.119.145.12]:56344 "HELO bluegene.sat.lt"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1751077AbdLARan (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 1 Dec 2017 12:30:43 -0500
+Content-Disposition: INLINE
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Henrik Rydberg <rydberg@bitmath.org>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hello,
 
---8323328-1093365938-1512148413=:14154
-Content-Type: text/plain; format=flowed; charset=ISO-8859-7
-Content-Transfer-Encoding: 8BIT
+With silead kernel driver I can choose main menu item - for example I press File,
+File menu opens, but when I try to choose any submenu - New, Open, Quit -
+nothing happens. In any app.
+Fedora 27, kernel 4.13.15-300.fc27.x86_64.
 
-Report ABS_MT_PRESSURE in the bcm5974 driver with the same data used for
-ABS_PRESSURE.
-
-Some touchpad improvements in recent versions of libinput, such as
-pressure-based palm detection, will only work if ABS_MT_PRESSURE is
-reported.
-
-Signed-off-by: Ryan Hendrickson <ryan.hendrickson@alum.mit.edu>
-
----
-
-Please treat all of this with an extra grain of salt; this is my first real
-foray into both evdev/libinput internals and kernel development. That said,
-I have been running this patch on my daily-use MacBookPro5,1 for several
-months, so I have reason to believe it's stable. It might not be the
-¡right¢ way to do this though; I mostly just copied the corresponding code
-for ABS_PRESSURE, which from this[1] blog post I've inferred should have
-the same values and range.
-
-[1]: http://who-t.blogspot.com/2016/09/understanding-evdev.html
-
-Patch was originally submitted as bug 197909[2], which can be closed if
-this is accepted.
-
-[2]: https://bugzilla.kernel.org/show_bug.cgi?id=197909
-
---- linux-4.13/drivers/input/mouse/bcm5974.c.orig	2017-12-01 11:36:35.258890243 -0500
-+++ linux-4.13/drivers/input/mouse/bcm5974.c	2017-12-01 11:48:55.187342210 -0500
-@@ -548,6 +548,8 @@ static void setup_events_to_report(struc
-  	set_abs(input_dev, ABS_MT_POSITION_X, &cfg->x);
-  	set_abs(input_dev, ABS_MT_POSITION_Y, &cfg->y);
-
-+	set_abs(input_dev, ABS_MT_PRESSURE, &cfg->p);
-+
-  	__set_bit(EV_KEY, input_dev->evbit);
-  	__set_bit(BTN_LEFT, input_dev->keybit);
-
-@@ -575,10 +577,14 @@ static int report_bt_state(struct bcm597
-  	return 0;
-  }
-
--static void report_finger_data(struct input_dev *input, int slot,
-+static void report_finger_data(struct input_dev *input,
-+			       const struct bcm5974_config *cfg,
-+			       int slot,
-  			       const struct input_mt_pos *pos,
-  			       const struct tp_finger *f)
-  {
-+	int abs_p;
-+
-  	input_mt_slot(input, slot);
-  	input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
-
-@@ -594,6 +600,9 @@ static void report_finger_data(struct in
-  			 MAX_FINGER_ORIENTATION - raw2int(f->orientation));
-  	input_report_abs(input, ABS_MT_POSITION_X, pos->x);
-  	input_report_abs(input, ABS_MT_POSITION_Y, pos->y);
-+
-+	abs_p = clamp_val(256 * raw2int(f->touch_major) / cfg->p.max, 0, 255);
-+	input_report_abs(input, ABS_MT_PRESSURE, abs_p);
-  }
-
-  static void report_synaptics_data(struct input_dev *input,
-@@ -640,7 +649,7 @@ static int report_tp_state(struct bcm597
-  	input_mt_assign_slots(input, dev->slots, dev->pos, n, 0);
-
-  	for (i = 0; i < n; i++)
--		report_finger_data(input, dev->slots[i],
-+		report_finger_data(input, c, dev->slots[i],
-  				   &dev->pos[i], dev->index[i]);
-
-  	input_mt_sync_frame(input);
---8323328-1093365938-1512148413=:14154--
+Regards,
+Nerijus

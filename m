@@ -1,72 +1,81 @@
 From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?=
-        <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v4 0/2] Input: Add Cypress Gen5 Touchscreen driver
-Date: Fri,  1 Dec 2017 16:39:55 +0100
-Message-ID: <20171201153957.13053-1-mylene.josserand@free-electrons.com>
+        <mylene.josserand@free-electrons.com>
+Subject: [PATCH v4 2/2] dt-bindings: input: Add documentation for cyttsp5
+Date: Fri,  1 Dec 2017 16:39:57 +0100
+Message-ID: <20171201153957.13053-3-mylene.josserand@free-electrons.com>
+References: <20171201153957.13053-1-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:39820 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751950AbdLAPlC (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 1 Dec 2017 10:41:02 -0500
+In-Reply-To: <20171201153957.13053-1-mylene.josserand@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, mylene.josserand@free-electrons.com, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-Hi everyone,
+Add the Cypress TrueTouch Generation 5 touchscreen device tree bindings
+documentation. It can use I2C or SPI bus.
+This touchscreen can handle some defined zone that are designed and
+sent as button. To be able to customize the keycode sent, the
+"linux,keycodes" property can be used.
 
-Here is a V4 series to add the driver of the touchscreen Cypress,
-TrueTouch Generation 5.
-Based on last master branch of "input" kernel's tree, last commit c1b433e04ef9.
-
-This touchscreen is similar to Cypress generation 4 but the
-registers are different.
-
-This driver uses regmap as it is possible to use I2C or SPI
-busses. Currently, only the I2C support are available in the driver.
-This touchscreen can handle some multitouch events as buttons using
-some defined zones. That is why the driver handles buttons and
-multitouch events.
-
-Changes since v3:
-   - Rebased on last input's branch
-   - Changed the CRC table to use crc_itu_t_table instead of
-   crc_ccitt_false_table which is not merged.
-   - Added selection of CRC_ITU_T on KConfig
-Changes since v2:
-   - Removed pinctrl in dt-binding example which is uncessecary.
-   - Added Acked-by and Reviewed-by received.
-Changes since v1:
-   - Updated the driver according to reviews. Most important modifications:
-   removed unnecessary mutex, updated dev_err output, handled return cases
-   in a better way, created a HID_ENUM, removed magic value, used an
-   existing CRC table and used "linux-keycodes" instead of sub-nodes.
-   - Updated the dt-bindings to use linux-keycodes and removed properties'
-   description that comes from touchscreen's binding.
-
-Patch 01: Add the basis of the driver for Cypress Gen5 Touchscreen.
-Patch 02: Add the binding documentation for this driver.
-
-If you have any remarks, let me know.
-
-Thank you in advance,
-Mylène
-
-Mylène Josserand (2):
-  Input: Add driver for Cypress Generation 5 touchscreen
-  dt-bindings: input: Add documentation for cyttsp5
-
- .../bindings/input/touchscreen/cypress,cyttsp5.txt |   39 +
- drivers/input/touchscreen/Kconfig                  |   16 +
- drivers/input/touchscreen/Makefile                 |    1 +
- drivers/input/touchscreen/cyttsp5.c                | 1110 ++++++++++++++++++++
- 4 files changed, 1166 insertions(+)
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Mylène Josserand <mylene.josserand@free-electrons.com>
+---
+ .../bindings/input/touchscreen/cypress,cyttsp5.txt | 39 ++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cypress,cyttsp5.txt
- create mode 100644 drivers/input/touchscreen/cyttsp5.c
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/cypress,cyttsp5.txt b/Documentation/devicetree/bindings/input/touchscreen/cypress,cyttsp5.txt
+new file mode 100644
+index 000000000000..1e0e90e322c7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/cypress,cyttsp5.txt
+@@ -0,0 +1,39 @@
++* Cypress cyttsp touchscreen controller, generation 5
++
++Required properties:
++ - compatible		: must be "cypress,cyttsp5"
++ - reg			: Device I2C address or SPI chip select number
++ - interrupt-parent	: the phandle for the gpio controller
++			  (see interrupt binding[0]).
++ - interrupts		: (gpio) interrupt to which the chip is connected
++			  (see interrupt binding[0]).
++
++Optional properties:
++ - reset-gpios		: the reset gpio the chip is connected to
++			  (see GPIO binding[1] for more details).
++Some other touchscreen optional properties can be defined such as
++"touchscreen-size-x". See ./touchscreen.txt[2] for more details.
++
++This touchscreen can handle some buttons that are touchscreen's defined zones.
++Each button's event can be customized using a property:
++	- linux,keycodes: List of keycode to emit.
++
++[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
++[1]: Documentation/devicetree/bindings/gpio/gpio.txt
++[2]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
++
++Example:
++&i2c0 {
++	[...]
++
++	touchscreen@24 {
++		compatible = "cypress,cyttsp5";
++		reg = <0x24>;
++
++		interrupt-parent = <&pio>;
++		interrupts = <1 5 IRQ_TYPE_LEVEL_LOW>;
++		reset-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>;
++		touchscreen-swapped-x-y;
++		linux,keycodes = <KEY_HOMEPAGE>, <KEY_MENU>, <KEY_BACK>;
++	};
++};
 -- 
 2.11.0
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

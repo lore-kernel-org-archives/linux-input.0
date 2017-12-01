@@ -1,41 +1,45 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA
- keyboard docks
-Date: Fri, 1 Dec 2017 09:58:11 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1712010957160.11505@cbobk.fhfr.pm>
-References: <20171126154010.954-1-hdegoede@redhat.com> <20171127083531.GD30708@mail.corp.redhat.com> <47b2d7b2-c24b-2705-5be6-9c100d0ed4c0@redhat.com> <nycvar.YFH.7.76.1712010954120.11505@cbobk.fhfr.pm>
+Subject: Re: [PATCH v5] HID: hid-multitouch: support fine-grain orientation
+ reporting
+Date: Fri, 1 Dec 2017 10:01:56 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1712011001320.11505@cbobk.fhfr.pm>
+References: <20171012062143.39785-1-wnhuang@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39323 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752054AbdLAI6M (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 1 Dec 2017 03:58:12 -0500
-In-Reply-To: <nycvar.YFH.7.76.1712010954120.11505@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20171012062143.39785-1-wnhuang@google.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wei-Ning Huang <wnhuang@chromium.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, Henrik Rydberg <rydberg@bitmath.org>, Wei-Ning Huang <wnhuang@google.com>, dmitry.torokhov@gmail.com, corbet@lwn.net, linux-doc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Fri, 1 Dec 2017, Jiri Kosina wrote:
+On Thu, 12 Oct 2017, Wei-Ning Huang wrote:
 
-> > I'm afraid it is probably the first reason and not the second reason,
-> > when I was working on Linux webcam support one of the issues was that in
-> > many Asus laptops the webcam module is mounted upside down and thus sends
-> > an upside-down picture. I asked via via if Asus internally had a list
-> > of which webcams are upside down, the answer was: no. Asus simply maintains
-> > a hacked-together driver-repository per model laptop, in which they
-> > put hacks until the driver works for that model. 
+> From: Wei-Ning Huang <wnhuang@chromium.org>
 > 
-> Man, the world is sick :)
+> The current hid-multitouch driver only allow the report of two
+> orientations, vertical and horizontal. We use the Azimuth orientation
+> usage 0x3F under the Digitizer usage page to report orientation if the
+> device supports it.
 > 
-> I am unhappily (not because of you, but because of ASUS) applying to 
-> for-4.15/upstream-fixes. Thanks,
+> Changelog:
+>   v1 -> v2:
+>    - Fix commit message.
+>    - Remove resolution reporting for ABS_MT_ORIENTATION.
+>   v2 -> v3:
+>    - Fix commit message.
+>   v3 -> v4:
+>    - Fix ABS_MT_ORIENTATION ABS param range.
+>    - Don't set ABS_MT_ORIENTATION in ABS_DG_HEIGHT when it is already
+>      set by ABS_DG_AZIMUTH.
+>   v4 -> v5:
+>    - Improve multi-touch-protocol.rst documentation.
+> 
+> Signed-off-by: Wei-Ning Huang <wnhuang@chromium.org>
+> Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+> Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
 
-Actually from the log and from the base you chose to put the patch on top 
-I understand that you feel it's okay to have this for 4.16, so I am 
-applying it for 4.16 to minimize conflict amount due to quirk handling 
-revamp.
+This is now queued in for-4.16/hid-quirks-cleanup/multitouch.
 
 Thanks,
 

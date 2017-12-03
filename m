@@ -1,84 +1,41 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
-Date: Fri, 1 Dec 2017 22:07:49 +0100
-Message-ID: <20171201210749.el6q62sc22jshwc5@pali>
-References: <20171129083358.5063-1-masaki.ota@jp.alps.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH v4 1/2] Input: Add driver for Cypress Generation 5
+ touchscreen
+Date: Sun, 3 Dec 2017 22:29:41 +0800
+Message-ID: <201712032240.trhmgx8Y%fengguang.wu@intel.com>
+References: <20171201153957.13053-2-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:44076 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752104AbdLCOa2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 3 Dec 2017 09:30:28 -0500
 Content-Disposition: inline
-In-Reply-To: <20171129083358.5063-1-masaki.ota@jp.alps.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>
-Cc: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, aaron.ma@canonical.com, jaak@ristioja.ee, masaki.ota@jp.alps.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20171201153957.13053-2-mylene.josserand@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+Cc: kbuild-all@01.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, mylene.josserand@free-electrons.com, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-On Wednesday 29 November 2017 17:33:58 Masaki Ota wrote:
-> From: Masaki Ota <masaki.ota@jp.alps.com>
-> - The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
-> - Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
-> - If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
-> - Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
-> 
-> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-> ---
->  drivers/input/mouse/alps.c | 24 +++++++++++++++++++++---
->  1 file changed, 21 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 850b00e3ad8e..6f092bdd9fc5 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -2541,13 +2541,31 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
->  }
->  
->  static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
-> -				       struct alps_data *priv)
-> +				       struct alps_data *priv,
-> +					struct psmouse *psmouse)
->  {
->  	bool is_dual = false;
-> +	int reg_val = 0;
-> +	struct ps2dev *ps2dev = &psmouse->ps2dev;
->  
-> -	if (IS_SS4PLUS_DEV(priv->dev_id))
-> +	if (IS_SS4PLUS_DEV(priv->dev_id)) {
->  		is_dual = (otp[0][0] >> 4) & 0x01;
->  
-> +		if (!is_dual) {
-> +			/* For support TrackStick of Thinkpad L/E series */
-> +			if (alps_exit_command_mode(psmouse) == 0 &&
-> +				alps_enter_command_mode(psmouse) == 0) {
-> +				reg_val = alps_command_mode_read_reg(psmouse,
-> +									0xD7);
-> +			}
-> +			alps_exit_command_mode(psmouse);
-> +			ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
-> +
-> +			if (reg_val == 0x0C || reg_val == 0x1D)
-> +				is_dual = true;
-> +		}
-> +	}
-> +
->  	if (is_dual)
->  		priv->flags |= ALPS_DUALPOINT |
->  					ALPS_DUALPOINT_WITH_PRESSURE;
-> @@ -2570,7 +2588,7 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
->  
->  	alps_update_btn_info_ss4_v2(otp, priv);
->  
-> -	alps_update_dual_info_ss4_v2(otp, priv);
-> +	alps_update_dual_info_ss4_v2(otp, priv, psmouse);
+Hi Mylène,
 
-Now looking at this change... Is there reason why you are passing
-psmouse parameter there? Because struct alps_data contains psmouse
-member.
+Thank you for the patch! Perhaps something to improve:
 
->  
->  	return 0;
->  }
+[auto build test WARNING on input/next]
+[also build test WARNING on v4.15-rc1 next-20171201]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
--- 
-Pali RohÃ¡r
-pali.rohar@gmail.com
+url:    https://github.com/0day-ci/linux/commits/Myl-ne-Josserand/Input-Add-driver-for-Cypress-Generation-5-touchscreen/20171203-203557
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+
+
+coccinelle warnings: (new ones prefixed by >>)
+
+>> drivers/input/touchscreen/cyttsp5.c:1098:3-8: No need to set .owner here. The core will do it.
+
+Please review and possibly fold the followup patch.
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation

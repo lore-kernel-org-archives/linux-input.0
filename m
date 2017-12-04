@@ -1,72 +1,121 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID: add quirk for another PIXART OEM mouse used by HP
-Date: Mon, 4 Dec 2017 09:47:08 +0100
-Message-ID: <CAO-hwJ+boe6cAOj+CA+8LfmKSUzOwaqLdMVHzPE4VqcjfHJfRw@mail.gmail.com>
-References: <20171201121934.GA3352@dhcp-128-65.nay.redhat.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
+Date: Mon, 4 Dec 2017 10:11:53 +0100
+Message-ID: <20171204091153.q2i355gqbmf7dbvk@pali>
+References: <20171129083358.5063-1-masaki.ota@jp.alps.com>
+ <20171201210749.el6q62sc22jshwc5@pali>
+ <TYXPR01MB07190FD0598129DE8EE892B3C73C0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f65.google.com ([209.85.213.65]:44213 "EHLO
-        mail-vk0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753216AbdLDIrJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Dec 2017 03:47:09 -0500
-Received: by mail-vk0-f65.google.com with SMTP id s197so9039545vkh.11
-        for <linux-input@vger.kernel.org>; Mon, 04 Dec 2017 00:47:09 -0800 (PST)
-In-Reply-To: <20171201121934.GA3352@dhcp-128-65.nay.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <TYXPR01MB07190FD0598129DE8EE892B3C73C0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: Masaki Ota <012nexus@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "aaron.ma@canonical.com" <aaron.ma@canonical.com>, "jaak@ristioja.ee" <jaak@ristioja.ee>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dave Young <dyoung@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Fri, Dec 1, 2017 at 1:19 PM, Dave Young <dyoung@redhat.com> wrote:
-> This mouse keep disconnecting in runleve 3 like below, add it needs the
-> quirk to mute the anoying messages.
->
-> [  111.230555] usb 2-2: USB disconnect, device number 6
-> [  112.718156] usb 2-2: new low-speed USB device number 7 using xhci_hcd
-> [  112.941594] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-> [  112.984866] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> [  113.027731] usb 2-2: Product: HP USB Optical Mouse
-> [  113.069977] usb 2-2: Manufacturer: PixArt
-> [  113.113500] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0002/input/input14
-> [  113.156787] hid-generic 0003:03F0:094A.0002: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
-> [  173.262642] usb 2-2: USB disconnect, device number 7
-> [  174.750244] usb 2-2: new low-speed USB device number 8 using xhci_hcd
-> [  174.935740] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
-> [  174.990435] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> [  175.014984] usb 2-2: Product: HP USB Optical Mouse
-> [  175.037886] usb 2-2: Manufacturer: PixArt
-> [  175.061794] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0003/input/input15
-> [  175.084946] hid-generic 0003:03F0:094A.0003: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
->
-> Signed-off-by: Dave Young <dyoung@redhat.com>
-> Cc: stable@vger.kernel.org
-> ---
+On Monday 04 December 2017 04:48:43 Masaki Ota wrote:
+> Hi, Pali,
+> 
+> I don't get your point.
+> Please modify the code if you have an idea.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+See below
 
-> v1->v2: rebase to usb tree hid-quirks-cleanup branch
->  drivers/hid/hid-ids.h    |    1 +
->  drivers/hid/hid-quirks.c |    1 +
->  2 files changed, 2 insertions(+)
->
-> --- linux-x86.orig/drivers/hid/hid-ids.h
-> +++ linux-x86/drivers/hid/hid-ids.h
-> @@ -535,6 +535,7 @@
->  #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A  0x0a4a
->  #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A  0x0b4a
->  #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE         0x134a
-> +#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A    0x094a
->
->  #define USB_VENDOR_ID_HUION            0x256c
->  #define USB_DEVICE_ID_HUION_TABLET     0x006e
-> --- linux-x86.orig/drivers/hid/hid-quirks.c
-> +++ linux-x86/drivers/hid/hid-quirks.c
-> @@ -90,6 +90,7 @@ const struct hid_device_id hid_quirks[]
->         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A), HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
-> +       { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Pali Rohár [mailto:pali.rohar@gmail.com] 
+> Sent: Saturday, December 02, 2017 6:08 AM
+> To: Masaki Ota <012nexus@gmail.com>
+> Cc: dmitry.torokhov@gmail.com; benjamin.tissoires@redhat.com; aaron.ma@canonical.com; jaak@ristioja.ee; 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
+> 
+> On Wednesday 29 November 2017 17:33:58 Masaki Ota wrote:
+> > From: Masaki Ota <masaki.ota@jp.alps.com>
+> > - The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
+> > - Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
+> > - If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
+> > - Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
+> > 
+> > Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+> > ---
+> >  drivers/input/mouse/alps.c | 24 +++++++++++++++++++++---
+> >  1 file changed, 21 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c 
+> > index 850b00e3ad8e..6f092bdd9fc5 100644
+> > --- a/drivers/input/mouse/alps.c
+> > +++ b/drivers/input/mouse/alps.c
+> > @@ -2541,13 +2541,31 @@ static int 
+> > alps_update_btn_info_ss4_v2(unsigned char otp[][4],  }
+> >  
+> >  static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
+> > -				       struct alps_data *priv)
+> > +				       struct alps_data *priv,
+> > +					struct psmouse *psmouse)
+> >  {
+
+You can access psmouse from the priv structure as:
+
+  struct psmouse *psmouse = priv->psmouse;
+
+Therefore you do not have to extend function parameters with psmouse
+pointer as that is already present int alps_data.
+
+struct alps_data is defined as:
+
+struct alps_data {
+	struct psmouse *psmouse;
+	...
+}
+
+> >  	bool is_dual = false;
+> > +	int reg_val = 0;
+> > +	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> >  
+> > -	if (IS_SS4PLUS_DEV(priv->dev_id))
+> > +	if (IS_SS4PLUS_DEV(priv->dev_id)) {
+> >  		is_dual = (otp[0][0] >> 4) & 0x01;
+> >  
+> > +		if (!is_dual) {
+> > +			/* For support TrackStick of Thinkpad L/E series */
+> > +			if (alps_exit_command_mode(psmouse) == 0 &&
+> > +				alps_enter_command_mode(psmouse) == 0) {
+> > +				reg_val = alps_command_mode_read_reg(psmouse,
+> > +									0xD7);
+> > +			}
+> > +			alps_exit_command_mode(psmouse);
+> > +			ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
+> > +
+> > +			if (reg_val == 0x0C || reg_val == 0x1D)
+> > +				is_dual = true;
+> > +		}
+> > +	}
+> > +
+> >  	if (is_dual)
+> >  		priv->flags |= ALPS_DUALPOINT |
+> >  					ALPS_DUALPOINT_WITH_PRESSURE;
+> > @@ -2570,7 +2588,7 @@ static int alps_set_defaults_ss4_v2(struct 
+> > psmouse *psmouse,
+> >  
+> >  	alps_update_btn_info_ss4_v2(otp, priv);
+> >  
+> > -	alps_update_dual_info_ss4_v2(otp, priv);
+> > +	alps_update_dual_info_ss4_v2(otp, priv, psmouse);
+> 
+> Now looking at this change... Is there reason why you are passing psmouse parameter there? Because struct alps_data contains psmouse member.
+> 
+> >  
+> >  	return 0;
+> >  }
+> 
+> --
+> Pali Rohár
+> pali.rohar@gmail.com
+
+-- 
+Pali Rohár
+pali.rohar@gmail.com

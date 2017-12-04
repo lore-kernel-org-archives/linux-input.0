@@ -1,97 +1,164 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH] Support TrackStick of Thinkpad L570
-Date: Mon, 4 Dec 2017 09:40:04 +0000
-Message-ID: <TYXPR01MB071970E9BC3BD2CD0F026709C73C0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
+Date: Mon, 4 Dec 2017 10:50:45 +0100
+Message-ID: <20171204095045.lp2vuxtxmmjpsjo7@pali>
 References: <20171129083358.5063-1-masaki.ota@jp.alps.com>
  <20171201210749.el6q62sc22jshwc5@pali>
  <TYXPR01MB07190FD0598129DE8EE892B3C73C0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
  <20171204091153.q2i355gqbmf7dbvk@pali>
+ <TYXPR01MB071970E9BC3BD2CD0F026709C73C0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171204091153.q2i355gqbmf7dbvk@pali>
-Content-Language: ja-JP
+Content-Disposition: inline
+In-Reply-To: <TYXPR01MB071970E9BC3BD2CD0F026709C73C0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
+To: Masaki Ota <masaki.ota@jp.alps.com>
 Cc: Masaki Ota <012nexus@gmail.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "aaron.ma@canonical.com" <aaron.ma@canonical.com>, "jaak@ristioja.ee" <jaak@ristioja.ee>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-SGksIFBhbGksDQoNCkl0IGRvZXMgbm90IHdvcmsgaW4gbXkgdGVzdCByZXN1bHQuDQoNCkJUVywg
-b3RoZXIgc29tZSBmdW5jdGlvbnMgYWxzbyB1c2UgYm90aCBvZiAic3RydWN0IHBzbW91c2UiIGFu
-ZCAic3RydWN0IGFscHNfZGF0YSIgYXJndW1lbnQuDQpJIGp1c3QgZm9sbG93ZWQgaXQuDQoNCkJl
-c3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
-OiBQYWxpIFJvaMOhciBbbWFpbHRvOnBhbGkucm9oYXJAZ21haWwuY29tXSANClNlbnQ6IE1vbmRh
-eSwgRGVjZW1iZXIgMDQsIDIwMTcgNjoxMiBQTQ0KVG86IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90
-YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT4NCkNjOiBNYXNha2kgT3RhIDwwMTJuZXh1c0BnbWFp
-bC5jb20+OyBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBiZW5qYW1pbi50aXNzb2lyZXNAcmVk
-aGF0LmNvbTsgYWFyb24ubWFAY2Fub25pY2FsLmNvbTsgamFha0ByaXN0aW9qYS5lZTsgbGludXgt
-aW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQpTdWJq
-ZWN0OiBSZTogW1BBVENIXSBTdXBwb3J0IFRyYWNrU3RpY2sgb2YgVGhpbmtwYWQgTDU3MA0KDQpP
-biBNb25kYXkgMDQgRGVjZW1iZXIgMjAxNyAwNDo0ODo0MyBNYXNha2kgT3RhIHdyb3RlOg0KPiBI
-aSwgUGFsaSwNCj4gDQo+IEkgZG9uJ3QgZ2V0IHlvdXIgcG9pbnQuDQo+IFBsZWFzZSBtb2RpZnkg
-dGhlIGNvZGUgaWYgeW91IGhhdmUgYW4gaWRlYS4NCg0KU2VlIGJlbG93DQoNCj4gQmVzdCBSZWdh
-cmRzLA0KPiBNYXNha2kgT3RhDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206
-IFBhbGkgUm9ow6FyIFttYWlsdG86cGFsaS5yb2hhckBnbWFpbC5jb21dDQo+IFNlbnQ6IFNhdHVy
-ZGF5LCBEZWNlbWJlciAwMiwgMjAxNyA2OjA4IEFNDQo+IFRvOiBNYXNha2kgT3RhIDwwMTJuZXh1
-c0BnbWFpbC5jb20+DQo+IENjOiBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBiZW5qYW1pbi50
-aXNzb2lyZXNAcmVkaGF0LmNvbTsgDQo+IGFhcm9uLm1hQGNhbm9uaWNhbC5jb207IGphYWtAcmlz
-dGlvamEuZWU7IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSANCj4gPG1hc2FraS5vdGFAanAuYWxw
-cy5jb20+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IA0KPiBsaW51eC1rZXJuZWxAdmdl
-ci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIFN1cHBvcnQgVHJhY2tTdGljayBv
-ZiBUaGlua3BhZCBMNTcwDQo+IA0KPiBPbiBXZWRuZXNkYXkgMjkgTm92ZW1iZXIgMjAxNyAxNzoz
-Mzo1OCBNYXNha2kgT3RhIHdyb3RlOg0KPiA+IEZyb206IE1hc2FraSBPdGEgPG1hc2FraS5vdGFA
-anAuYWxwcy5jb20+DQo+ID4gLSBUaGUgaXNzdWUgaXMgdGhhdCBUaGlua3BhZCBMNTcwIFRyYWNr
-U3RpY2sgZG9lcyBub3Qgd29yay4gQmVjYXVzZSB0aGUgbWFpbiBpbnRlcmZhY2Ugb2YgVGhpbmtw
-YWQgTDU3MCBkZXZpY2UgaXMgU01CdXMsIHNvIEFMUFMgb3Zlcmxvb2tlZCBQUzIgaW50ZXJmYWNl
-IEZpcm13YXJlIHNldHRpbmcgb2YgVHJhY2tTdGljay4gVGhlIGRldGFpbCBpcyB0aGF0IFRyYWNr
-U3RpY2sgb3RwIGJpdCBpcyBkaXNhYmxlZC4NCj4gPiAtIEFkZCB0aGUgY29kZSB0aGF0IGNoZWNr
-cyAweEQ3IGFkZHJlc3MgdmFsdWUuIFRoaXMgdmFsdWUgaXMgZGV2aWNlIG51bWJlciBpbmZvcm1h
-dGlvbiwgc28gd2UgY2FuIGlkZW50aWZ5IHRoZSBkZXZpY2UgYnkgY2hlY2tpbmcgdGhpcyB2YWx1
-ZS4NCj4gPiAtIElmIHdlIGNoZWNrIDB4RDcgdmFsdWUsIHdlIG5lZWQgdG8gZW5hYmxlIENvbW1h
-bmQgbW9kZSBhbmQgYWZ0ZXIgY2hlY2sgdGhlIHZhbHVlIHdlIG5lZWQgdG8gZGlzYWJsZSBDb21t
-YW5kIG1vZGUsIHRoZW4gd2UgaGF2ZSB0byBlbmFibGUgdGhlIGRldmljZSgweEY0IGNvbW1hbmQp
-Lg0KPiA+IC0gVGhpbmtwYWQgTDU3MCBkZXZpY2UgbnVtYmVyIGlzIDB4MEMgb3IgMHgxRC4gSWYg
-aXQgaXMgVFJVRSwgZW5hYmxlIEFMUFNfRFVBTFBPSU5UIGZsYWcuDQo+ID4gDQo+ID4gU2lnbmVk
-LW9mZi1ieTogTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT4NCj4gPiAtLS0NCj4g
-PiAgZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBzLmMgfCAyNCArKysrKysrKysrKysrKysrKysrKyst
-LS0NCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDIxIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0p
-DQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jIGIvZHJp
-dmVycy9pbnB1dC9tb3VzZS9hbHBzLmMgDQo+ID4gaW5kZXggODUwYjAwZTNhZDhlLi42ZjA5MmJk
-ZDlmYzUgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBzLmMNCj4gPiAr
-KysgYi9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMuYw0KPiA+IEBAIC0yNTQxLDEzICsyNTQxLDMx
-IEBAIHN0YXRpYyBpbnQNCj4gPiBhbHBzX3VwZGF0ZV9idG5faW5mb19zczRfdjIodW5zaWduZWQg
-Y2hhciBvdHBbXVs0XSwgIH0NCj4gPiAgDQo+ID4gIHN0YXRpYyBpbnQgYWxwc191cGRhdGVfZHVh
-bF9pbmZvX3NzNF92Mih1bnNpZ25lZCBjaGFyIG90cFtdWzRdLA0KPiA+IC0JCQkJICAgICAgIHN0
-cnVjdCBhbHBzX2RhdGEgKnByaXYpDQo+ID4gKwkJCQkgICAgICAgc3RydWN0IGFscHNfZGF0YSAq
-cHJpdiwNCj4gPiArCQkJCQlzdHJ1Y3QgcHNtb3VzZSAqcHNtb3VzZSkNCj4gPiAgew0KDQpZb3Ug
-Y2FuIGFjY2VzcyBwc21vdXNlIGZyb20gdGhlIHByaXYgc3RydWN0dXJlIGFzOg0KDQogIHN0cnVj
-dCBwc21vdXNlICpwc21vdXNlID0gcHJpdi0+cHNtb3VzZTsNCg0KVGhlcmVmb3JlIHlvdSBkbyBu
-b3QgaGF2ZSB0byBleHRlbmQgZnVuY3Rpb24gcGFyYW1ldGVycyB3aXRoIHBzbW91c2UgcG9pbnRl
-ciBhcyB0aGF0IGlzIGFscmVhZHkgcHJlc2VudCBpbnQgYWxwc19kYXRhLg0KDQpzdHJ1Y3QgYWxw
-c19kYXRhIGlzIGRlZmluZWQgYXM6DQoNCnN0cnVjdCBhbHBzX2RhdGEgew0KCXN0cnVjdCBwc21v
-dXNlICpwc21vdXNlOw0KCS4uLg0KfQ0KDQo+ID4gIAlib29sIGlzX2R1YWwgPSBmYWxzZTsNCj4g
-PiArCWludCByZWdfdmFsID0gMDsNCj4gPiArCXN0cnVjdCBwczJkZXYgKnBzMmRldiA9ICZwc21v
-dXNlLT5wczJkZXY7DQo+ID4gIA0KPiA+IC0JaWYgKElTX1NTNFBMVVNfREVWKHByaXYtPmRldl9p
-ZCkpDQo+ID4gKwlpZiAoSVNfU1M0UExVU19ERVYocHJpdi0+ZGV2X2lkKSkgew0KPiA+ICAJCWlz
-X2R1YWwgPSAob3RwWzBdWzBdID4+IDQpICYgMHgwMTsNCj4gPiAgDQo+ID4gKwkJaWYgKCFpc19k
-dWFsKSB7DQo+ID4gKwkJCS8qIEZvciBzdXBwb3J0IFRyYWNrU3RpY2sgb2YgVGhpbmtwYWQgTC9F
-IHNlcmllcyAqLw0KPiA+ICsJCQlpZiAoYWxwc19leGl0X2NvbW1hbmRfbW9kZShwc21vdXNlKSA9
-PSAwICYmDQo+ID4gKwkJCQlhbHBzX2VudGVyX2NvbW1hbmRfbW9kZShwc21vdXNlKSA9PSAwKSB7
-DQo+ID4gKwkJCQlyZWdfdmFsID0gYWxwc19jb21tYW5kX21vZGVfcmVhZF9yZWcocHNtb3VzZSwN
-Cj4gPiArCQkJCQkJCQkJMHhENyk7DQo+ID4gKwkJCX0NCj4gPiArCQkJYWxwc19leGl0X2NvbW1h
-bmRfbW9kZShwc21vdXNlKTsNCj4gPiArCQkJcHMyX2NvbW1hbmQocHMyZGV2LCBOVUxMLCBQU01P
-VVNFX0NNRF9FTkFCTEUpOw0KPiA+ICsNCj4gPiArCQkJaWYgKHJlZ192YWwgPT0gMHgwQyB8fCBy
-ZWdfdmFsID09IDB4MUQpDQo+ID4gKwkJCQlpc19kdWFsID0gdHJ1ZTsNCj4gPiArCQl9DQo+ID4g
-Kwl9DQo+ID4gKw0KPiA+ICAJaWYgKGlzX2R1YWwpDQo+ID4gIAkJcHJpdi0+ZmxhZ3MgfD0gQUxQ
-U19EVUFMUE9JTlQgfA0KPiA+ICAJCQkJCUFMUFNfRFVBTFBPSU5UX1dJVEhfUFJFU1NVUkU7DQo+
-ID4gQEAgLTI1NzAsNyArMjU4OCw3IEBAIHN0YXRpYyBpbnQgYWxwc19zZXRfZGVmYXVsdHNfc3M0
-X3YyKHN0cnVjdCANCj4gPiBwc21vdXNlICpwc21vdXNlLA0KPiA+ICANCj4gPiAgCWFscHNfdXBk
-YXRlX2J0bl9pbmZvX3NzNF92MihvdHAsIHByaXYpOw0KPiA+ICANCj4gPiAtCWFscHNfdXBkYXRl
-X2R1YWxfaW5mb19zczRfdjIob3RwLCBwcml2KTsNCj4gPiArCWFscHNfdXBkYXRlX2R1YWxfaW5m
-b19zczRfdjIob3RwLCBwcml2LCBwc21vdXNlKTsNCj4gDQo+IE5vdyBsb29raW5nIGF0IHRoaXMg
-Y2hhbmdlLi4uIElzIHRoZXJlIHJlYXNvbiB3aHkgeW91IGFyZSBwYXNzaW5nIHBzbW91c2UgcGFy
-YW1ldGVyIHRoZXJlPyBCZWNhdXNlIHN0cnVjdCBhbHBzX2RhdGEgY29udGFpbnMgcHNtb3VzZSBt
-ZW1iZXIuDQo+IA0KPiA+ICANCj4gPiAgCXJldHVybiAwOw0KPiA+ICB9DQo+IA0KPiAtLQ0KPiBQ
-YWxpIFJvaMOhcg0KPiBwYWxpLnJvaGFyQGdtYWlsLmNvbQ0KDQotLQ0KUGFsaSBSb2jDoXINCnBh
-bGkucm9oYXJAZ21haWwuY29tDQo=
+On Monday 04 December 2017 09:40:04 Masaki Ota wrote:
+> Hi, Pali,
+> 
+> It does not work in my test result.
+
+Hm.. that is strange, we have dangling pointers in struct alps_data?
+Otherwise I have no idea why does not work.
+
+> BTW, other some functions also use both of "struct psmouse" and "struct alps_data" argument.
+
+It does not make sense to pass one structure (via pointers) two times.
+And if this "pattern" is already used in code and reason is that one
+pointer "does not work" because it is dangling, then it is really wrong.
+
+I know it is irrelevant to your patch, but this problem with dangling
+pointer should be fixed, e.g. in next patches (not in this one).
+
+Problems (with memory allocation/pointers) should not be camouflaged.
+Memory corruption in kernel can lead to fatal problems.
+
+> I just followed it.
+
+Blindly following bad code is a bad idea. When we see something like
+this, we should at least stop and ask question "why is this code pattern
+used?".
+
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Pali Rohár [mailto:pali.rohar@gmail.com] 
+> Sent: Monday, December 04, 2017 6:12 PM
+> To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
+> Cc: Masaki Ota <012nexus@gmail.com>; dmitry.torokhov@gmail.com; benjamin.tissoires@redhat.com; aaron.ma@canonical.com; jaak@ristioja.ee; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
+> 
+> On Monday 04 December 2017 04:48:43 Masaki Ota wrote:
+> > Hi, Pali,
+> > 
+> > I don't get your point.
+> > Please modify the code if you have an idea.
+> 
+> See below
+> 
+> > Best Regards,
+> > Masaki Ota
+> > -----Original Message-----
+> > From: Pali Rohár [mailto:pali.rohar@gmail.com]
+> > Sent: Saturday, December 02, 2017 6:08 AM
+> > To: Masaki Ota <012nexus@gmail.com>
+> > Cc: dmitry.torokhov@gmail.com; benjamin.tissoires@redhat.com; 
+> > aaron.ma@canonical.com; jaak@ristioja.ee; 太田 真喜 Masaki Ota 
+> > <masaki.ota@jp.alps.com>; linux-input@vger.kernel.org; 
+> > linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] Support TrackStick of Thinkpad L570
+> > 
+> > On Wednesday 29 November 2017 17:33:58 Masaki Ota wrote:
+> > > From: Masaki Ota <masaki.ota@jp.alps.com>
+> > > - The issue is that Thinkpad L570 TrackStick does not work. Because the main interface of Thinkpad L570 device is SMBus, so ALPS overlooked PS2 interface Firmware setting of TrackStick. The detail is that TrackStick otp bit is disabled.
+> > > - Add the code that checks 0xD7 address value. This value is device number information, so we can identify the device by checking this value.
+> > > - If we check 0xD7 value, we need to enable Command mode and after check the value we need to disable Command mode, then we have to enable the device(0xF4 command).
+> > > - Thinkpad L570 device number is 0x0C or 0x1D. If it is TRUE, enable ALPS_DUALPOINT flag.
+> > > 
+> > > Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+> > > ---
+> > >  drivers/input/mouse/alps.c | 24 +++++++++++++++++++++---
+> > >  1 file changed, 21 insertions(+), 3 deletions(-)
+> > > 
+> > > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c 
+> > > index 850b00e3ad8e..6f092bdd9fc5 100644
+> > > --- a/drivers/input/mouse/alps.c
+> > > +++ b/drivers/input/mouse/alps.c
+> > > @@ -2541,13 +2541,31 @@ static int
+> > > alps_update_btn_info_ss4_v2(unsigned char otp[][4],  }
+> > >  
+> > >  static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
+> > > -				       struct alps_data *priv)
+> > > +				       struct alps_data *priv,
+> > > +					struct psmouse *psmouse)
+> > >  {
+> 
+> You can access psmouse from the priv structure as:
+> 
+>   struct psmouse *psmouse = priv->psmouse;
+> 
+> Therefore you do not have to extend function parameters with psmouse pointer as that is already present int alps_data.
+> 
+> struct alps_data is defined as:
+> 
+> struct alps_data {
+> 	struct psmouse *psmouse;
+> 	...
+> }
+> 
+> > >  	bool is_dual = false;
+> > > +	int reg_val = 0;
+> > > +	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> > >  
+> > > -	if (IS_SS4PLUS_DEV(priv->dev_id))
+> > > +	if (IS_SS4PLUS_DEV(priv->dev_id)) {
+> > >  		is_dual = (otp[0][0] >> 4) & 0x01;
+> > >  
+> > > +		if (!is_dual) {
+> > > +			/* For support TrackStick of Thinkpad L/E series */
+> > > +			if (alps_exit_command_mode(psmouse) == 0 &&
+> > > +				alps_enter_command_mode(psmouse) == 0) {
+> > > +				reg_val = alps_command_mode_read_reg(psmouse,
+> > > +									0xD7);
+> > > +			}
+> > > +			alps_exit_command_mode(psmouse);
+> > > +			ps2_command(ps2dev, NULL, PSMOUSE_CMD_ENABLE);
+> > > +
+> > > +			if (reg_val == 0x0C || reg_val == 0x1D)
+> > > +				is_dual = true;
+> > > +		}
+> > > +	}
+> > > +
+> > >  	if (is_dual)
+> > >  		priv->flags |= ALPS_DUALPOINT |
+> > >  					ALPS_DUALPOINT_WITH_PRESSURE;
+> > > @@ -2570,7 +2588,7 @@ static int alps_set_defaults_ss4_v2(struct 
+> > > psmouse *psmouse,
+> > >  
+> > >  	alps_update_btn_info_ss4_v2(otp, priv);
+> > >  
+> > > -	alps_update_dual_info_ss4_v2(otp, priv);
+> > > +	alps_update_dual_info_ss4_v2(otp, priv, psmouse);
+> > 
+> > Now looking at this change... Is there reason why you are passing psmouse parameter there? Because struct alps_data contains psmouse member.
+> > 
+> > >  
+> > >  	return 0;
+> > >  }
+> > 
+> > --
+> > Pali Rohár
+> > pali.rohar@gmail.com
+> 
+> --
+> Pali Rohár
+> pali.rohar@gmail.com
+
+-- 
+Pali Rohár
+pali.rohar@gmail.com

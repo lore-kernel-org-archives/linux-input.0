@@ -1,54 +1,72 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA
- keyboard docks
-Date: Mon, 4 Dec 2017 09:24:36 +0100
-Message-ID: <3c8f0915-4273-0821-c4c3-3cf088d8bbea@redhat.com>
-References: <20171126154010.954-1-hdegoede@redhat.com>
- <20171127083531.GD30708@mail.corp.redhat.com>
- <47b2d7b2-c24b-2705-5be6-9c100d0ed4c0@redhat.com>
- <nycvar.YFH.7.76.1712010954120.11505@cbobk.fhfr.pm>
- <nycvar.YFH.7.76.1712010957160.11505@cbobk.fhfr.pm>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: add quirk for another PIXART OEM mouse used by HP
+Date: Mon, 4 Dec 2017 09:47:08 +0100
+Message-ID: <CAO-hwJ+boe6cAOj+CA+8LfmKSUzOwaqLdMVHzPE4VqcjfHJfRw@mail.gmail.com>
+References: <20171201121934.GA3352@dhcp-128-65.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59144 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753203AbdLDIYl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 4 Dec 2017 03:24:41 -0500
-In-Reply-To: <nycvar.YFH.7.76.1712010957160.11505@cbobk.fhfr.pm>
-Content-Language: en-US
+Received: from mail-vk0-f65.google.com ([209.85.213.65]:44213 "EHLO
+        mail-vk0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753216AbdLDIrJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Dec 2017 03:47:09 -0500
+Received: by mail-vk0-f65.google.com with SMTP id s197so9039545vkh.11
+        for <linux-input@vger.kernel.org>; Mon, 04 Dec 2017 00:47:09 -0800 (PST)
+In-Reply-To: <20171201121934.GA3352@dhcp-128-65.nay.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Dave Young <dyoung@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi,
+On Fri, Dec 1, 2017 at 1:19 PM, Dave Young <dyoung@redhat.com> wrote:
+> This mouse keep disconnecting in runleve 3 like below, add it needs the
+> quirk to mute the anoying messages.
+>
+> [  111.230555] usb 2-2: USB disconnect, device number 6
+> [  112.718156] usb 2-2: new low-speed USB device number 7 using xhci_hcd
+> [  112.941594] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
+> [  112.984866] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+> [  113.027731] usb 2-2: Product: HP USB Optical Mouse
+> [  113.069977] usb 2-2: Manufacturer: PixArt
+> [  113.113500] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0002/input/input14
+> [  113.156787] hid-generic 0003:03F0:094A.0002: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
+> [  173.262642] usb 2-2: USB disconnect, device number 7
+> [  174.750244] usb 2-2: new low-speed USB device number 8 using xhci_hcd
+> [  174.935740] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
+> [  174.990435] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+> [  175.014984] usb 2-2: Product: HP USB Optical Mouse
+> [  175.037886] usb 2-2: Manufacturer: PixArt
+> [  175.061794] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0003/input/input15
+> [  175.084946] hid-generic 0003:03F0:094A.0003: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
+>
+> Signed-off-by: Dave Young <dyoung@redhat.com>
+> Cc: stable@vger.kernel.org
+> ---
 
-On 01-12-17 09:58, Jiri Kosina wrote:
-> On Fri, 1 Dec 2017, Jiri Kosina wrote:
-> 
->>> I'm afraid it is probably the first reason and not the second reason,
->>> when I was working on Linux webcam support one of the issues was that in
->>> many Asus laptops the webcam module is mounted upside down and thus sends
->>> an upside-down picture. I asked via via if Asus internally had a list
->>> of which webcams are upside down, the answer was: no. Asus simply maintains
->>> a hacked-together driver-repository per model laptop, in which they
->>> put hacks until the driver works for that model.
->>
->> Man, the world is sick :)
->>
->> I am unhappily (not because of you, but because of ASUS) applying to
->> for-4.15/upstream-fixes. Thanks,
-> 
-> Actually from the log and from the base you chose to put the patch on top
-> I understand that you feel it's okay to have this for 4.16, so I am
-> applying it for 4.16 to minimize conflict amount due to quirk handling
-> revamp.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Ack, given that this turned out to be a bit more involved fix then
-I thought at first I aimed it at 4.16.
-
-Regards,
-
-Hans
+> v1->v2: rebase to usb tree hid-quirks-cleanup branch
+>  drivers/hid/hid-ids.h    |    1 +
+>  drivers/hid/hid-quirks.c |    1 +
+>  2 files changed, 2 insertions(+)
+>
+> --- linux-x86.orig/drivers/hid/hid-ids.h
+> +++ linux-x86/drivers/hid/hid-ids.h
+> @@ -535,6 +535,7 @@
+>  #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A  0x0a4a
+>  #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A  0x0b4a
+>  #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE         0x134a
+> +#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A    0x094a
+>
+>  #define USB_VENDOR_ID_HUION            0x256c
+>  #define USB_DEVICE_ID_HUION_TABLET     0x006e
+> --- linux-x86.orig/drivers/hid/hid-quirks.c
+> +++ linux-x86/drivers/hid/hid-quirks.c
+> @@ -90,6 +90,7 @@ const struct hid_device_id hid_quirks[]
+>         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A), HID_QUIRK_ALWAYS_POLL },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HID_QUIRK_MULTI_INPUT },

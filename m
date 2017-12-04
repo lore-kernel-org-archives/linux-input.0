@@ -1,110 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/4] uinput: Add ioctl for using monotonic/ boot times
-Date: Mon, 4 Dec 2017 14:00:01 -0800
-Message-ID: <20171204220001.s2m7j3eztzvtfckp@dtor-ws>
-References: <20171204005545.23325-1-deepa.kernel@gmail.com>
- <20171204005545.23325-2-deepa.kernel@gmail.com>
- <CAK8P3a0bzqBm+3HCsxjtVbYL0-Wt3h=afnN_KQZL+xoktNUP=w@mail.gmail.com>
- <CABeXuvpoAp7PPj=r5VuKXMk5vYUngm0yJBTNCvzmHv1kTJ+Prg@mail.gmail.com>
- <CAK8P3a32z2PsaqG+mFcS-qtPu3moLgiT6eLxRM8pCX+TQKqabA@mail.gmail.com>
- <CABeXuvpyAt0C4wQOzKVii0d7Gv_m7J5rkERpS9g0B2cTy5ewog@mail.gmail.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Mon, 4 Dec 2017 22:05:41 +0000
+Message-ID: <20171204220541.GA11658@finisterre>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+ <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
+ <20171127185116.j2vmkhbik33vk4f7@ninjato>
+ <20171128153446.6pyqtkcvuepil5gi@sirena.org.uk>
+ <20171203194347.bbds47a72xbc4nvl@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:35481 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752642AbdLDWAG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Dec 2017 17:00:06 -0500
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CABeXuvpyAt0C4wQOzKVii0d7Gv_m7J5rkERpS9g0B2cTy5ewog@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20171203194347.bbds47a72xbc4nvl@ninjato>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Mon, Dec 04, 2017 at 01:38:01PM -0800, Deepa Dinamani wrote:
-> On Mon, Dec 4, 2017 at 1:18 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Mon, Dec 4, 2017 at 9:36 PM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
-> >> On Mon, Dec 4, 2017 at 6:21 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> >>> On Mon, Dec 4, 2017 at 1:55 AM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
-> >>>> struct timeval which is part of struct input_event to
-> >>>> maintain the event times is not y2038 safe.
-> >>>>
-> >>>> Real time timestamps are also not ideal for input_event
-> >>>> as this time can go backwards as noted in the patch
-> >>>> a80b83b7b8 by John Stultz.
-> >>>>
-> >>>> Arnd Bergmann suggested deprecating real time and using
-> >>>> monotonic or other timers for all input_event times as a
-> >>>> solution to both the above problems.
-> >>>>
-> >>>> Add a new ioctl to let the user dictate the kind of time
-> >>>> to be used for input events. This is similar to the evdev
-> >>>> implementation of the feature. Realtime is still the
-> >>>> default time. This is to maintain backward compatibility.
-> >>>>
-> >>>> The structure to maintain input events will be changed
-> >>>> in a different patch.
-> >>>
-> >>> Based on Peter's comment from when you first posted this,
-> >>> https://patchwork.kernel.org/patch/9381209/, I tried to follow
-> >>> the code path again, to see if we can come up with a way
-> >>> to avoid introducing a new ioctl.
-> >>>
-> >>> There is one idea I had now: The two events we
-> >>> get (upload and erase) are both triggered from evdev,
-> >>> which gets called from user space through the EVIOCSFF
-> >>> and EVIOCRMFF ioctls. This device already sets the
-> >>> clock domain. Would it make sense to send the event
-> >>> to the uinput owner using the same clock domain that
-> >>> was set by the evdev owner, or are these two separate
-> >>> by definition?
-> >>
-> >> uinput and evdev are two separate drivers. One is to write events to a
-> >> virtual device and the other is to read from any input device.
-> >> I considered both of these separate as the two events.
-> >> Let me know if you guys prefer something else.
-> >
-> > Ok
-> >
-> >> We could also do away with this patch and just say we extend time till
-> >> 2106 as we change struct input_event if we are okay with using
-> >> realtime only for uinput.
-> >
-> > Another option might be to use monotonic times unconditionally
-> > in uinput. The DRM drivers actually did this conversion successfully:
-> > they changed the timestamps from real-time to monotonic-time and
-> > added a module parameter to revert back to the old behavior. In
-> > the end (after a few years) it turned out that nothing relied on real
-> > time anyway, so I sent a patch to kill off the option.
-> >
-> > It seems rather likely that this is in the same category: the user
-> > space reading the events either doesn't access the timestamps
-> > at all, or is only interested in relative times, not absolute ones.
-> >
-> > The one program that I found that reads from /dev/uinput
-> > is this one: http://svn.navi.cx/misc/trunk/inputpipe/src/
-> > Here, all input_events get relayed between two machines,
-> > so an input device on one can be used on the other across
-> > a socket. The input_event data that we get from uinput gets
-> > either interpreted (ignoring the timestamp) or pushed into
-> > the evdev interface on the other machine, which then ignores
-> > the timestamp in the kernel and creates a new stamp instead.
-> 
-> Right. I considered using just monotonic times before.
-> I decided against it as John did not change the default times to
-> monotonic times in a80b83b7b8.
-> But, if nobody really cares about the actual timestamps and only
-> relative timestamps matter, this might be a better option.
 
-The timestamps in the kernel->userspace path in uinput are only for
-force feedback control messages; userspace is not supposed to analyze
-them but simply execute the instructions as they come in. I think we
-should switch to the monotonic time and see if someone screams at us.
-Then we can either add an option or see if there are other means of
-resolving the issue.
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks.
+On Sun, Dec 03, 2017 at 08:43:47PM +0100, Wolfram Sang wrote:
 
--- 
-Dmitry
+> > It's a bit different in that it's much more likely that a SPI controller
+> > will actually do DMA than an I2C one since the speeds are higher and
+> > there's frequent applications that do large transfers so it's more
+> > likely that people will do the right thing as issues would tend to come
+> > up if they don't.
+
+> Yes, for SPI this is true. I was thinking more of regmap with its
+> usage of different transport mechanisms. But I guess they should all be
+> DMA safe because some of them need to be DMA safe?
+
+Possibly.  Hopefully.  I guess we'll find out.
+
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlolxrEACgkQJNaLcl1U
+h9BIpwgAgHPDxEsQuguVjEwmYUaDlg6+A7KqNKkDscBkBtcjuJjy6wdqhhhRiyzU
+JNcqsxq2Ogb83mLZGQnsibgWunG+z1deqiEd55t5V+SvRL/tkdBvu89jZu3CptXF
+2XX50fgea8FDLlShznSwBzkLUfKX8klKJidfZ0d8VWy8xxZPcXf36WF2g+JWtIzT
+YHoCbhoIgNemyfwMVoa/CIiqm1dy9jflCzIRR23mWKTTBBU9sXITRl5/Ytq+pBlw
+B+pSwFfzRA6FiuDDa493eIk2Ktrtb4ONFR7o2Tz2wDMCAN+b3ABpRoS+WPWgSfbt
+8EKHoaQTLPpRohGy3CPZvJiZ4wZznA==
+=OkaE
+-----END PGP SIGNATURE-----
+
+--vkogqOf2sHV7VnPd--

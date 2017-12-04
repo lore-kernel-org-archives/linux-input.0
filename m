@@ -1,7 +1,7 @@
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v3 1/4] uinput: Add ioctl for using monotonic/ boot times
-Date: Sun,  3 Dec 2017 16:55:42 -0800
-Message-ID: <20171204005545.23325-2-deepa.kernel@gmail.com>
+Subject: [PATCH v3 2/4] input: evdev: Replace timeval with timespec64
+Date: Sun,  3 Dec 2017 16:55:43 -0800
+Message-ID: <20171204005545.23325-3-deepa.kernel@gmail.com>
 References: <20171204005545.23325-1-deepa.kernel@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171204005545.23325-1-deepa.kernel@gmail.com>
@@ -10,151 +10,94 @@ To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.ke
 Cc: arnd@arndb.de, y2038@lists.linaro.org
 List-Id: linux-input@vger.kernel.org
 
-struct timeval which is part of struct input_event to
-maintain the event times is not y2038 safe.
+struct timeval is not y2038 safe.
 
-Real time timestamps are also not ideal for input_event
-as this time can go backwards as noted in the patch
-a80b83b7b8 by John Stultz.
+All references to timeval in the kernel will be replaced
+by y2038 safe structures.
+Replace all references to timeval with y2038 safe
+struct timespec64 here.
 
-Arnd Bergmann suggested deprecating real time and using
-monotonic or other timers for all input_event times as a
-solution to both the above problems.
-
-Add a new ioctl to let the user dictate the kind of time
-to be used for input events. This is similar to the evdev
-implementation of the feature. Realtime is still the
-default time. This is to maintain backward compatibility.
-
-The structure to maintain input events will be changed
-in a different patch.
+struct input_event will be changed in a different patch.
 
 Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/misc/uinput.c | 57 ++++++++++++++++++++++++++++++++++++++++++++-
- include/uapi/linux/uinput.h |  3 +++
- 2 files changed, 59 insertions(+), 1 deletion(-)
+ drivers/input/evdev.c | 37 +++++++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 39ddd9a73feb..5a450dc04a94 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -74,6 +74,7 @@ struct uinput_device {
- 	unsigned char		tail;
- 	struct input_event	buff[UINPUT_BUFFER_SIZE];
- 	unsigned int		ff_effects_max;
-+	unsigned int		clk_type;
- 
- 	struct uinput_request	*requests[UINPUT_NUM_REQUESTS];
- 	wait_queue_head_t	requests_waitq;
-@@ -84,11 +85,26 @@ static int uinput_dev_event(struct input_dev *dev,
- 			    unsigned int type, unsigned int code, int value)
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 925571475005..e5dbfc5ff1b0 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -156,15 +156,22 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ static void __evdev_queue_syn_dropped(struct evdev_client *client)
  {
- 	struct uinput_device	*udev = input_get_drvdata(dev);
-+	struct timespec64	ts;
+ 	struct input_event ev;
+-	ktime_t time;
++	struct timespec64 ts;
  
- 	udev->buff[udev->head].type = type;
- 	udev->buff[udev->head].code = code;
- 	udev->buff[udev->head].value = value;
--	do_gettimeofday(&udev->buff[udev->head].time);
-+
-+	switch (udev->clk_type) {
-+	case CLOCK_REALTIME:
+-	time = client->clk_type == EV_CLK_REAL ?
+-			ktime_get_real() :
+-			client->clk_type == EV_CLK_MONO ?
+-				ktime_get() :
+-				ktime_get_boottime();
++	switch (client->clk_type) {
++	case EV_CLK_REAL:
 +		ktime_get_real_ts64(&ts);
 +		break;
-+	case CLOCK_MONOTONIC:
++	case EV_CLK_MONO:
 +		ktime_get_ts64(&ts);
 +		break;
-+	case CLOCK_BOOTTIME:
++	case EV_CLK_BOOT:
 +		get_monotonic_boottime64(&ts);
 +		break;
 +	}
-+
-+	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
-+	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
- 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
  
- 	wake_up_interruptible(&udev->waitq);
-@@ -370,6 +386,7 @@ static int uinput_create_device(struct uinput_device *udev)
- 	if (error)
- 		goto fail2;
+-	ev.time = ktime_to_timeval(time);
++	ev.time.tv_sec = ts.tv_sec;
++	ev.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 	ev.type = EV_SYN;
+ 	ev.code = SYN_DROPPED;
+ 	ev.value = 0;
+@@ -257,17 +264,20 @@ static void __pass_event(struct evdev_client *client,
  
-+	udev->clk_type = CLOCK_REALTIME;
- 	udev->state = UIST_CREATED;
- 
- 	return 0;
-@@ -379,6 +396,38 @@ static int uinput_create_device(struct uinput_device *udev)
- 	return error;
- }
- 
-+static int uinput_set_clk_type(struct uinput_device *udev, unsigned int clkid)
-+{
-+	unsigned int clk_type;
-+
-+	if (udev->state != UIST_CREATED)
-+		return -EINVAL;
-+
-+	switch (clkid) {
-+	/* Realtime clock is only valid until year 2038.*/
-+	case CLOCK_REALTIME:
-+		clk_type = CLOCK_REALTIME;
-+		break;
-+	case CLOCK_MONOTONIC:
-+		clk_type = CLOCK_MONOTONIC;
-+		break;
-+	case CLOCK_BOOTTIME:
-+		clk_type = CLOCK_BOOTTIME;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	if (udev->clk_type != clk_type) {
-+		udev->clk_type = clk_type;
-+
-+		/* Flush pending events */
-+		uinput_flush_requests(udev);
-+	}
-+
-+	return 0;
-+}
-+
- static int uinput_open(struct inode *inode, struct file *file)
+ static void evdev_pass_values(struct evdev_client *client,
+ 			const struct input_value *vals, unsigned int count,
+-			ktime_t *ev_time)
++			struct timespec64 *ev_time)
  {
- 	struct uinput_device *newdev;
-@@ -850,6 +899,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 	char			*phys;
- 	const char		*name;
- 	unsigned int		size;
-+	int			clock_id;
+ 	struct evdev *evdev = client->evdev;
+ 	const struct input_value *v;
+ 	struct input_event event;
++	struct timespec64 ts;
+ 	bool wakeup = false;
  
- 	retval = mutex_lock_interruptible(&udev->mutex);
- 	if (retval)
-@@ -881,6 +931,11 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 		retval = uinput_dev_setup(udev, p);
- 		goto out;
+ 	if (client->revoked)
+ 		return;
  
-+	case UI_SET_CLOCKID:
-+		if (copy_from_user(&clock_id, p, sizeof(unsigned int)))
-+			return -EFAULT;
-+		return uinput_set_clk_type(udev, clock_id);
-+
- 	/* UI_ABS_SETUP is handled in the variable size ioctls */
+-	event.time = ktime_to_timeval(ev_time[client->clk_type]);
++	ts = ev_time[client->clk_type];
++	event.time.tv_sec = ts.tv_sec;
++	event.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
  
- 	case UI_SET_EVBIT:
-diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-index c9e677e3af1d..78b480d1b6c3 100644
---- a/include/uapi/linux/uinput.h
-+++ b/include/uapi/linux/uinput.h
-@@ -134,6 +134,9 @@ struct uinput_abs_setup {
-  */
- #define UI_ABS_SETUP _IOW(UINPUT_IOCTL_BASE, 4, struct uinput_abs_setup)
+ 	/* Interrupts are disabled, just acquire the lock. */
+ 	spin_lock(&client->buffer_lock);
+@@ -304,12 +314,11 @@ static void evdev_events(struct input_handle *handle,
+ {
+ 	struct evdev *evdev = handle->private;
+ 	struct evdev_client *client;
+-	ktime_t ev_time[EV_CLK_MAX];
++	struct timespec64 ev_time[EV_CLK_MAX];
  
-+/* Set clockid to be used for timestamps */
-+#define UI_SET_CLOCKID _IOW(UINPUT_IOCTL_BASE, 5, int)
-+
- #define UI_SET_EVBIT		_IOW(UINPUT_IOCTL_BASE, 100, int)
- #define UI_SET_KEYBIT		_IOW(UINPUT_IOCTL_BASE, 101, int)
- #define UI_SET_RELBIT		_IOW(UINPUT_IOCTL_BASE, 102, int)
+-	ev_time[EV_CLK_MONO] = ktime_get();
+-	ev_time[EV_CLK_REAL] = ktime_mono_to_real(ev_time[EV_CLK_MONO]);
+-	ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_MONO],
+-						 TK_OFFS_BOOT);
++	ktime_get_ts64(&ev_time[EV_CLK_MONO]);
++	ktime_get_real_ts64(&ev_time[EV_CLK_REAL]);
++	get_monotonic_boottime64(&ev_time[EV_CLK_BOOT]);
+ 
+ 	rcu_read_lock();
+ 
 -- 
 2.14.1

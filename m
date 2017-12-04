@@ -1,63 +1,51 @@
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: Re: [PATCH v3 1/4] uinput: Add ioctl for using monotonic/
-	boot times
-Date: Mon, 4 Dec 2017 12:36:21 -0800
-Message-ID: <CABeXuvpoAp7PPj=r5VuKXMk5vYUngm0yJBTNCvzmHv1kTJ+Prg@mail.gmail.com>
+Subject: Re: [PATCH v3 4/4] input: serio: Replace timeval by timespec64
+Date: Mon, 4 Dec 2017 12:37:38 -0800
+Message-ID: <CABeXuvrDnu_8gq=PFT1pFEKq9pwBpybuMu+_Opvf=xC5v_iwZg@mail.gmail.com>
 References: <20171204005545.23325-1-deepa.kernel@gmail.com>
- <20171204005545.23325-2-deepa.kernel@gmail.com>
- <CAK8P3a0bzqBm+3HCsxjtVbYL0-Wt3h=afnN_KQZL+xoktNUP=w@mail.gmail.com>
+ <20171204005545.23325-5-deepa.kernel@gmail.com> <CAK8P3a3xa3erifBXncz7PDD+322XXw+52E3VJ=dO3F0QTHmmFg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <CAK8P3a0bzqBm+3HCsxjtVbYL0-Wt3h=afnN_KQZL+xoktNUP=w@mail.gmail.com>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-it0-f67.google.com ([209.85.214.67]:36202 "EHLO
+        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752034AbdLDUhj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Dec 2017 15:37:39 -0500
+In-Reply-To: <CAK8P3a3xa3erifBXncz7PDD+322XXw+52E3VJ=dO3F0QTHmmFg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>
 
-T24gTW9uLCBEZWMgNCwgMjAxNyBhdCA2OjIxIEFNLCBBcm5kIEJlcmdtYW5uIDxhcm5kQGFybmRi
-LmRlPiB3cm90ZToKPiBPbiBNb24sIERlYyA0LCAyMDE3IGF0IDE6NTUgQU0sIERlZXBhIERpbmFt
-YW5pIDxkZWVwYS5rZXJuZWxAZ21haWwuY29tPiB3cm90ZToKPj4gc3RydWN0IHRpbWV2YWwgd2hp
-Y2ggaXMgcGFydCBvZiBzdHJ1Y3QgaW5wdXRfZXZlbnQgdG8KPj4gbWFpbnRhaW4gdGhlIGV2ZW50
-IHRpbWVzIGlzIG5vdCB5MjAzOCBzYWZlLgo+Pgo+PiBSZWFsIHRpbWUgdGltZXN0YW1wcyBhcmUg
-YWxzbyBub3QgaWRlYWwgZm9yIGlucHV0X2V2ZW50Cj4+IGFzIHRoaXMgdGltZSBjYW4gZ28gYmFj
-a3dhcmRzIGFzIG5vdGVkIGluIHRoZSBwYXRjaAo+PiBhODBiODNiN2I4IGJ5IEpvaG4gU3R1bHR6
-Lgo+Pgo+PiBBcm5kIEJlcmdtYW5uIHN1Z2dlc3RlZCBkZXByZWNhdGluZyByZWFsIHRpbWUgYW5k
-IHVzaW5nCj4+IG1vbm90b25pYyBvciBvdGhlciB0aW1lcnMgZm9yIGFsbCBpbnB1dF9ldmVudCB0
-aW1lcyBhcyBhCj4+IHNvbHV0aW9uIHRvIGJvdGggdGhlIGFib3ZlIHByb2JsZW1zLgo+Pgo+PiBB
-ZGQgYSBuZXcgaW9jdGwgdG8gbGV0IHRoZSB1c2VyIGRpY3RhdGUgdGhlIGtpbmQgb2YgdGltZQo+
-PiB0byBiZSB1c2VkIGZvciBpbnB1dCBldmVudHMuIFRoaXMgaXMgc2ltaWxhciB0byB0aGUgZXZk
-ZXYKPj4gaW1wbGVtZW50YXRpb24gb2YgdGhlIGZlYXR1cmUuIFJlYWx0aW1lIGlzIHN0aWxsIHRo
-ZQo+PiBkZWZhdWx0IHRpbWUuIFRoaXMgaXMgdG8gbWFpbnRhaW4gYmFja3dhcmQgY29tcGF0aWJp
-bGl0eS4KPj4KPj4gVGhlIHN0cnVjdHVyZSB0byBtYWludGFpbiBpbnB1dCBldmVudHMgd2lsbCBi
-ZSBjaGFuZ2VkCj4+IGluIGEgZGlmZmVyZW50IHBhdGNoLgo+Cj4gQmFzZWQgb24gUGV0ZXIncyBj
-b21tZW50IGZyb20gd2hlbiB5b3UgZmlyc3QgcG9zdGVkIHRoaXMsCj4gaHR0cHM6Ly9wYXRjaHdv
-cmsua2VybmVsLm9yZy9wYXRjaC85MzgxMjA5LywgSSB0cmllZCB0byBmb2xsb3cKPiB0aGUgY29k
-ZSBwYXRoIGFnYWluLCB0byBzZWUgaWYgd2UgY2FuIGNvbWUgdXAgd2l0aCBhIHdheQo+IHRvIGF2
-b2lkIGludHJvZHVjaW5nIGEgbmV3IGlvY3RsLgo+Cj4gVGhlcmUgaXMgb25lIGlkZWEgSSBoYWQg
-bm93OiBUaGUgdHdvIGV2ZW50cyB3ZQo+IGdldCAodXBsb2FkIGFuZCBlcmFzZSkgYXJlIGJvdGgg
-dHJpZ2dlcmVkIGZyb20gZXZkZXYsCj4gd2hpY2ggZ2V0cyBjYWxsZWQgZnJvbSB1c2VyIHNwYWNl
-IHRocm91Z2ggdGhlIEVWSU9DU0ZGCj4gYW5kIEVWSU9DUk1GRiBpb2N0bHMuIFRoaXMgZGV2aWNl
-IGFscmVhZHkgc2V0cyB0aGUKPiBjbG9jayBkb21haW4uIFdvdWxkIGl0IG1ha2Ugc2Vuc2UgdG8g
-c2VuZCB0aGUgZXZlbnQKPiB0byB0aGUgdWlucHV0IG93bmVyIHVzaW5nIHRoZSBzYW1lIGNsb2Nr
-IGRvbWFpbiB0aGF0Cj4gd2FzIHNldCBieSB0aGUgZXZkZXYgb3duZXIsIG9yIGFyZSB0aGVzZSB0
-d28gc2VwYXJhdGUKPiBieSBkZWZpbml0aW9uPwoKdWlucHV0IGFuZCBldmRldiBhcmUgdHdvIHNl
-cGFyYXRlIGRyaXZlcnMuIE9uZSBpcyB0byB3cml0ZSBldmVudHMgdG8gYQp2aXJ0dWFsIGRldmlj
-ZSBhbmQgdGhlIG90aGVyIGlzIHRvIHJlYWQgZnJvbSBhbnkgaW5wdXQgZGV2aWNlLgpJIGNvbnNp
-ZGVyZWQgYm90aCBvZiB0aGVzZSBzZXBhcmF0ZSBhcyB0aGUgdHdvIGV2ZW50cy4KTGV0IG1lIGtu
-b3cgaWYgeW91IGd1eXMgcHJlZmVyIHNvbWV0aGluZyBlbHNlLgoKV2UgY291bGQgYWxzbyBkbyBh
-d2F5IHdpdGggdGhpcyBwYXRjaCBhbmQganVzdCBzYXkgd2UgZXh0ZW5kIHRpbWUgdGlsbAoyMTA2
-IGFzIHdlIGNoYW5nZSBzdHJ1Y3QgaW5wdXRfZXZlbnQgaWYgd2UgYXJlIG9rYXkgd2l0aCB1c2lu
-ZwpyZWFsdGltZSBvbmx5IGZvciB1aW5wdXQuCgotRGVlcGEKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxpc3Rz
-LmxpbmFyby5vcmcKaHR0cHM6Ly9saXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8veTIw
-MzgK
+On Mon, Dec 4, 2017 at 5:44 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Mon, Dec 4, 2017 at 1:55 AM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
+>> struct timeval is not y2038 safe.
+>> All references to timeval will be deleted from the
+>> kernel to make it y2038 safe.
+>> Replace its uses by y2038 safe struct timespec64.
+>>
+>> The timestamps changed here only keep track of delta
+>> times. These timestamps are also internal to kernel.
+>> Hence, monotonic times are sufficient here.
+>> The unit of the delta times is also changed in certain
+>> cases to nanoseconds rather than microseconds. This is
+>> in line with timespec64 which keeps time in nanoseconds.
+>>
+>> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+>> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+>
+> Hi Deepa,
+>
+> I forgot you also had these on your backlog. I submitted a different
+> set of patches
+> two weeks ago for the two HP drivers, originally by Pingbo Wen, based on a
+> different approach.
+>
+> That version simplified the code in question a bit more by using jiffies,
+> while your version is a little safer since it changes less. Both versions
+> should be fine though, it's up to Dmitry which one he wants to pick up.
+
+Dmitry, please let me know if you would like this version. If not, I
+can drop the patch when I post an update.
+
+-Deepa

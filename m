@@ -1,52 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH][next] HID: quirks: make array hid_quirks static
-Date: Mon, 4 Dec 2017 13:26:03 +0100
-Message-ID: <CAO-hwJJBtma8K2Z6w_J-SHQbR++ptDsUjPnO3EG8tOYhCxoJUg@mail.gmail.com>
-References: <20171204111910.2840-1-colin.king@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3 4/4] input: serio: Replace timeval by timespec64
+Date: Mon, 4 Dec 2017 14:44:40 +0100
+Message-ID: <CAK8P3a3xa3erifBXncz7PDD+322XXw+52E3VJ=dO3F0QTHmmFg@mail.gmail.com>
+References: <20171204005545.23325-1-deepa.kernel@gmail.com> <20171204005545.23325-5-deepa.kernel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <20171204111910.2840-1-colin.king@canonical.com>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:44400 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752540AbdLDNol (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Dec 2017 08:44:41 -0500
+In-Reply-To: <20171204005545.23325-5-deepa.kernel@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>
 
-On Mon, Dec 4, 2017 at 12:19 PM, Colin King <colin.king@canonical.com> wrote:
-> From: Colin Ian King <colin.king@canonical.com>
+On Mon, Dec 4, 2017 at 1:55 AM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
+> struct timeval is not y2038 safe.
+> All references to timeval will be deleted from the
+> kernel to make it y2038 safe.
+> Replace its uses by y2038 safe struct timespec64.
 >
-> Array hid_quirks is local to the source and does not need to be in
-> global scope, so make it static.
+> The timestamps changed here only keep track of delta
+> times. These timestamps are also internal to kernel.
+> Hence, monotonic times are sufficient here.
+> The unit of the delta times is also changed in certain
+> cases to nanoseconds rather than microseconds. This is
+> in line with timespec64 which keeps time in nanoseconds.
 >
-> Cleans up sparse warning:
-> drivers/hid/hid-quirks.c:29:28: warning: symbol 'hid_quirks' was not
-> declared. Should it be static?
->
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
+> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 
-Sounds good.
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Hi Deepa,
 
-Cheers,
-Benjamin
+I forgot you also had these on your backlog. I submitted a different
+set of patches
+two weeks ago for the two HP drivers, originally by Pingbo Wen, based on a
+different approach.
 
->  drivers/hid/hid-quirks.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 1cf1e9a0d699..627efb74d1e4 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -26,7 +26,7 @@
->   * Alphabetically sorted by vendor then product.
->   */
->
-> -const struct hid_device_id hid_quirks[] = {
-> +static const struct hid_device_id hid_quirks[] = {
->         { HID_USB_DEVICE(USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_GAMEPAD), HID_QUIRK_BADPAD },
->         { HID_USB_DEVICE(USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_PREDATOR), HID_QUIRK_BADPAD },
->         { HID_USB_DEVICE(USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016), HID_QUIRK_FULLSPEED_INTERVAL },
-> --
-> 2.14.1
->
+That version simplified the code in question a bit more by using jiffies,
+while your version is a little safer since it changes less. Both versions
+should be fine though, it's up to Dmitry which one he wants to pick up.
+
+      Arnd

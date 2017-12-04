@@ -1,86 +1,65 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
-Date: Sun, 3 Dec 2017 20:43:47 +0100
-Message-ID: <20171203194347.bbds47a72xbc4nvl@ninjato>
-References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
- <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
- <20171127185116.j2vmkhbik33vk4f7@ninjato>
- <20171128153446.6pyqtkcvuepil5gi@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6wukw5ozyhf42gtr"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171128153446.6pyqtkcvuepil5gi@sirena.org.uk>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: [PATCH v3 0/4] Make input drivers y2038 safe
+Date: Sun,  3 Dec 2017 16:55:41 -0800
+Message-ID: <20171204005545.23325-1-deepa.kernel@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:46995 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752648AbdLDA4S (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 3 Dec 2017 19:56:18 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: arnd@arndb.de, y2038@lists.linaro.org
+
+The series is aimed at making input events y2038 safe.
+It extends the lifetime of the realtime timestamps in the
+events to year 2106.
+The series is also a necessary update as glibc is set to provide
+64 bit time_t support for 32 bit binaries. glibc plan is detailed
+at https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
+
+The series is a result of discussions with Arnd Bergmann and
+Dmitry Torokhov at last Plumbers.
+
+The plan is to deprecate realtime timestamps anyway as they
+are not appropriate for these timestamps as noted in the patch
+a80b83b7b8 by John Stultz.
+
+The design also updates the format of the input events read/ written
+to the device nodes. This breaks 32 bit interface to the input
+events at compile time as preferred by the maintainer.
+
+The userspace library changes to libevdev, libuinput and mtdev
+will be posted to the respective mailing groups for review.
+
+Changes from v2:
+* Updated the design to break 32 bit interfaces at compile time.
+Changes from v1:
+* Updated changes according to review comments.
+* Posted userspace library changes that go along with the series.
+
+Deepa Dinamani (4):
+  uinput: Add ioctl for using monotonic/ boot times
+  input: evdev: Replace timeval with timespec64
+  input: Deprecate real timestamps beyond year 2106
+  input: serio: Replace timeval by timespec64
+
+ drivers/input/evdev.c            | 43 +++++++++++++++++++-----------
+ drivers/input/input-compat.c     | 11 ++++----
+ drivers/input/input-compat.h     |  3 ++-
+ drivers/input/misc/uinput.c      | 57 +++++++++++++++++++++++++++++++++++++++-
+ drivers/input/serio/hil_mlc.c    | 37 +++++++++++++-------------
+ drivers/input/serio/hp_sdc.c     | 17 ++++++------
+ drivers/input/serio/hp_sdc_mlc.c | 10 +++----
+ include/linux/hil_mlc.h          |  6 ++---
+ include/linux/hp_sdc.h           |  6 ++---
+ include/uapi/linux/input.h       | 12 ++++++++-
+ include/uapi/linux/uinput.h      |  3 +++
+ 11 files changed, 143 insertions(+), 62 deletions(-)
 
 
---6wukw5ozyhf42gtr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+base-commit: b0a84f19a5161418d4360cd57603e94ed489915e
+-- 
+2.14.1
 
-
-> > > We pretty much assume everything is DMA safe already, the majority of
-> > > transfers go to/from kmalloc()ed scratch buffers so actually are DMA
-> > > safe but for bulk transfers we use the caller buffer and there might =
-be
-> > > some problem users.
->=20
-> > So, pretty much the situation I2C was in before this patch set: we
-> > pretty much assume DMA safety but there might be problem users.
->=20
-> It's a bit different in that it's much more likely that a SPI controller
-> will actually do DMA than an I2C one since the speeds are higher and
-> there's frequent applications that do large transfers so it's more
-> likely that people will do the right thing as issues would tend to come
-> up if they don't.
-
-Yes, for SPI this is true. I was thinking more of regmap with its
-usage of different transport mechanisms. But I guess they should all be
-DMA safe because some of them need to be DMA safe?
-
-> > > I can't really think of a particularly good way of
-> > > handling it off the top of my head, obviously not setting the flag is
-> > > easy but doesn't get the benefit while always using a bounce buffer
-> > > would involve lots of unneeded memcpy().  Doing _dmasafe() isn't
-> > > particularly appealing either but might be what we end up with.
->=20
-> > Okay. That sounds you are fine with the approach taken here, in general?
->=20
-> It's hard to summon enthusiasm but yes, without changes to the DMA stuff
-> it's probably as good as we can do.
-
-That sums it up pretty nicely. However, despite even my limited
-enthusiasm for this extra flag, I think this set of rules has value. For
-some platforms, DMA works more or less by coincidence and can lead to
-surprises with e.g. virtual stacks. This is not good engineering
-practice, I'd say.
-
-I am going to apply this series now. Thanks for your input!
-
-
---6wukw5ozyhf42gtr
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlokU+8ACgkQFA3kzBSg
-KbZEAw/8C7qguWXZiHqgBFRSBkOKH3nnp7e5WxxGz2maAzQuUOzwoAYTAURYOvM5
-kQ0dIvhOd1rTJRVlEUqCgQnf3jVVzrZLq9iaS/KSiPBi4i18inBnoKSTm/+4tlfS
-HeaXxGokKiQQFwzokP8IkLN4VHWIXTL3yXwByJW8aJlTFSdAVfd8gTs97IOeSAQj
-URF+MfBNSgacEKicgJnfFU6ZFo3ds+tP909xA4lRTDDFLg4GSNPN/9ITUihPb8VW
-jGMRG6WPd8rsH4HDpUpzahQ3Jzy6Kx8WZOjuJNRf1/kgvYK2eFtkzAUcnU2ZMg92
-Za4PJOpY7qB1mMNldZikoXlDkdj3+emlCVlgNt//6/XBvsC6Vxcw4NtnL4B7+JfR
-Zs2Ur1TUbEh0qin4U13piz0GCLTAhosjCwMHvs9luDnuRTAqK9HvnWtTRm/u+Xqs
-Kg9I5v0K9rSwbtTcSbsigahfcRdesbQPchLmDSmZP54EYTg54Ddqqkhki9dAzY7G
-ULy+/MxPOZGjUa6LwLM9Gg8mbS/cLWZZ+WuyGn0k1MerUeRkQYmotR9fRVmGw85Y
-cBYHZo9Dc8SGUtW5yknLDw5bWmKZmHjFMvaJy9i6oGJ5mNfxOi1XCV2uESMMPzRV
-+VRnmHmt37BhIv0ylX8ObdQwmsYVO0vc/W3F+S4xesOJ14B8Btc=
-=pT0C
------END PGP SIGNATURE-----
-
---6wukw5ozyhf42gtr--

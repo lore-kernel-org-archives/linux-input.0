@@ -1,214 +1,88 @@
-From: Tomasz Kramkowski <tk@the-tk.com>
-Subject: [PATCH] HID: elecom: rewrite report fixup for EX-G and future mice
-Date: Mon,  4 Dec 2017 20:55:50 +0000
-Message-ID: <20171204205550.2621-1-tk@the-tk.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3 1/4] uinput: Add ioctl for using monotonic/ boot times
+Date: Mon, 4 Dec 2017 22:18:39 +0100
+Message-ID: <CAK8P3a32z2PsaqG+mFcS-qtPu3moLgiT6eLxRM8pCX+TQKqabA@mail.gmail.com>
+References: <20171204005545.23325-1-deepa.kernel@gmail.com>
+ <20171204005545.23325-2-deepa.kernel@gmail.com> <CAK8P3a0bzqBm+3HCsxjtVbYL0-Wt3h=afnN_KQZL+xoktNUP=w@mail.gmail.com>
+ <CABeXuvpoAp7PPj=r5VuKXMk5vYUngm0yJBTNCvzmHv1kTJ+Prg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Yuxuan Shui <yshuiv7@gmail.com>, =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>, Alex Manoussakis <amanou@gnu.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tomasz Kramkowski <tk@the-tk.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:42966 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751744AbdLDVSk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Dec 2017 16:18:40 -0500
+In-Reply-To: <CABeXuvpoAp7PPj=r5VuKXMk5vYUngm0yJBTNCvzmHv1kTJ+Prg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-This patch rewrites the mouse report fixup used for the DEFT and HUGE
-ELECOM trackballs in order to make it generic enough to fix other ELECOM
-mice with similar issues. This patch also uses this new report fixup
-function to fix the ELECOM EX-G trackball which has 6 physical buttons
-and a similar issue to the other two mice.
+On Mon, Dec 4, 2017 at 9:36 PM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
+> On Mon, Dec 4, 2017 at 6:21 AM, Arnd Bergmann <arnd@arndb.de> wrote:
+>> On Mon, Dec 4, 2017 at 1:55 AM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
+>>> struct timeval which is part of struct input_event to
+>>> maintain the event times is not y2038 safe.
+>>>
+>>> Real time timestamps are also not ideal for input_event
+>>> as this time can go backwards as noted in the patch
+>>> a80b83b7b8 by John Stultz.
+>>>
+>>> Arnd Bergmann suggested deprecating real time and using
+>>> monotonic or other timers for all input_event times as a
+>>> solution to both the above problems.
+>>>
+>>> Add a new ioctl to let the user dictate the kind of time
+>>> to be used for input events. This is similar to the evdev
+>>> implementation of the feature. Realtime is still the
+>>> default time. This is to maintain backward compatibility.
+>>>
+>>> The structure to maintain input events will be changed
+>>> in a different patch.
+>>
+>> Based on Peter's comment from when you first posted this,
+>> https://patchwork.kernel.org/patch/9381209/, I tried to follow
+>> the code path again, to see if we can come up with a way
+>> to avoid introducing a new ioctl.
+>>
+>> There is one idea I had now: The two events we
+>> get (upload and erase) are both triggered from evdev,
+>> which gets called from user space through the EVIOCSFF
+>> and EVIOCRMFF ioctls. This device already sets the
+>> clock domain. Would it make sense to send the event
+>> to the uinput owner using the same clock domain that
+>> was set by the evdev owner, or are these two separate
+>> by definition?
+>
+> uinput and evdev are two separate drivers. One is to write events to a
+> virtual device and the other is to read from any input device.
+> I considered both of these separate as the two events.
+> Let me know if you guys prefer something else.
 
-ELECOM's track record has so far shown that they like to re-use the same
-report descriptor for multiple different mice regardless of the number
-of buttons the mouse has. This means that the missing buttons on
-multiple mice can be fixed in one function without introducing phantom
-buttons which would in turn cause the number of mouse buttons to be
-misreported to userspace.
+Ok
 
-This patch drops the very verbose report descriptor "diff" comment for a
-more abridged yet hopefully just as informative generic version.
+> We could also do away with this patch and just say we extend time till
+> 2106 as we change struct input_event if we are okay with using
+> realtime only for uinput.
 
-Signed-off-by: Tomasz Kramkowski <tk@the-tk.com>
----
-I've let this patch sit on the old thread [1] for two weeks now and
-apart from the removal of the diff nobody has said anything about it so
-I'm posting it as an actual patch now.
+Another option might be to use monotonic times unconditionally
+in uinput. The DRM drivers actually did this conversion successfully:
+they changed the timestamps from real-time to monotonic-time and
+added a module parameter to revert back to the old behavior. In
+the end (after a few years) it turned out that nothing relied on real
+time anyway, so I sent a patch to kill off the option.
 
-It includes a few small fixes that I missed when posting the old one and
-this patch is based on the for-4.16/hid-quirks-cleanup/_base branch for
-convenience. (Since the hid_have_special_driver array has moved to
-hid-quirks.c now.)
+It seems rather likely that this is in the same category: the user
+space reading the events either doesn't access the timestamps
+at all, or is only interested in relative times, not absolute ones.
 
-Once again ccing all the relevant parties. I already explained my reason
-for removing the long diff (unfortunately Diego's email about this got
-dropped from the list as it was a HTML email) and why my replacement is
-still as good.
+The one program that I found that reads from /dev/uinput
+is this one: http://svn.navi.cx/misc/trunk/inputpipe/src/
+Here, all input_events get relayed between two machines,
+so an input device on one can be used on the other across
+a socket. The input_event data that we get from uinput gets
+either interpreted (ignoring the timestamp) or pushed into
+the evdev interface on the other machine, which then ignores
+the timestamp in the kernel and creates a new stamp instead.
 
-This was tested with my EX-G but since I don't have a HUGE or DEFT I
-have to rely on the fact that as far as I could tell the two report
-descriptors are identical and as far as I can tell this change shouldn't
-cause the fixup to work any differently for the other two mice which
-were fixed. However, if one of the original authors of this fixup could
-test with their mice I would very much appreciate the re-assurance.
-
-P.S. Is that #define MOUSE_BUTTONS_MAX appropriate?
-
-[1]: https://marc.info/?i=20171119002353.GA15931@gaia.local
----
- drivers/hid/Kconfig      |  1 +
- drivers/hid/hid-elecom.c | 76 +++++++++++++++++++++++++-----------------------
- drivers/hid/hid-ids.h    |  1 +
- drivers/hid/hid-quirks.c |  1 +
- 4 files changed, 43 insertions(+), 36 deletions(-)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 9058dbc4dd6e..7b1a51c0f326 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -280,6 +280,7 @@ config HID_ELECOM
- 	---help---
- 	Support for ELECOM devices:
- 	  - BM084 Bluetooth Mouse
-+	  - EX-G Trackball (Wired)
- 	  - DEFT Trackball (Wired and wireless)
- 	  - HUGE Trackball (Wired and wireless)
- 
-diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
-index 54aeea57d209..b19361eaae3a 100644
---- a/drivers/hid/hid-elecom.c
-+++ b/drivers/hid/hid-elecom.c
-@@ -1,9 +1,15 @@
- /*
-- *  HID driver for ELECOM devices.
-+ *  HID driver for ELECOM devices:
-+ *  - BM084 Bluetooth Mouse
-+ *  - EX-G Trackball (Wired)
-+ *  - DEFT Trackball (Wired and wireless)
-+ *  - HUGE Trackball (Wired and wireless)
-+ *
-  *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
-  *  Copyright (c) 2016 Yuxuan Shui <yshuiv7@gmail.com>
-  *  Copyright (c) 2017 Diego Elio Pettenò <flameeyes@flameeyes.eu>
-  *  Copyright (c) 2017 Alex Manoussakis <amanou@gnu.org>
-+ *  Copyright (c) 2017 Tomasz Kramkowski <tk@the-tk.com>
-  */
- 
- /*
-@@ -19,6 +25,34 @@
- 
- #include "hid-ids.h"
- 
-+/*
-+ * Certain ELECOM mice misreport their button count meaning that they only work
-+ * correctly with the ELECOM mouse assistant software which is unavailable for
-+ * Linux. A four extra INPUT reports and a FEATURE report are described by the
-+ * report descriptor but it does not appear that these enable software to
-+ * control what the extra buttons map to. The only simple and straightforward
-+ * solution seems to involve fixing up the report descriptor.
-+ *
-+ * Report descriptor format:
-+ * Positions 13, 15, 21 and 31 store the button bit count, button usage minimum,
-+ * button usage maximum and padding bit count respectively.
-+ */
-+#define MOUSE_BUTTONS_MAX 8
-+static void mouse_button_fixup(struct hid_device *hdev,
-+			       __u8 *rdesc, unsigned int *rsize,
-+			       int nbuttons)
-+{
-+	if (*rsize < 32 || rdesc[12] != 0x95 ||
-+	    rdesc[14] != 0x75 || rdesc[15] != 0x01 ||
-+	    rdesc[20] != 0x29 || rdesc[30] != 0x75)
-+		return;
-+	hid_info(hdev, "Fixing up ELECOM mouse button count\n");
-+	nbuttons = clamp(nbuttons, 0, MOUSE_BUTTONS_MAX);
-+	rdesc[13] = nbuttons;
-+	rdesc[21] = nbuttons;
-+	rdesc[31] = MOUSE_BUTTONS_MAX - nbuttons;
-+}
-+
- static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
-@@ -31,45 +65,14 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 			rdesc[47] = 0x00;
- 		}
- 		break;
-+	case USB_DEVICE_ID_ELECOM_EX_G_WIRED:
-+		mouse_button_fixup(hdev, rdesc, rsize, 6);
-+		break;
- 	case USB_DEVICE_ID_ELECOM_DEFT_WIRED:
- 	case USB_DEVICE_ID_ELECOM_DEFT_WIRELESS:
- 	case USB_DEVICE_ID_ELECOM_HUGE_WIRED:
- 	case USB_DEVICE_ID_ELECOM_HUGE_WIRELESS:
--		/* The DEFT/HUGE trackball has eight buttons, but its descriptor
--		 * only reports five, disabling the three Fn buttons on the top
--		 * of the mouse.
--		 *
--		 * Apply the following diff to the descriptor:
--		 *
--		 * Collection (Physical),              Collection (Physical),
--		 *     Report ID (1),                      Report ID (1),
--		 *     Report Count (5),           ->      Report Count (8),
--		 *     Report Size (1),                    Report Size (1),
--		 *     Usage Page (Button),                Usage Page (Button),
--		 *     Usage Minimum (01h),                Usage Minimum (01h),
--		 *     Usage Maximum (05h),        ->      Usage Maximum (08h),
--		 *     Logical Minimum (0),                Logical Minimum (0),
--		 *     Logical Maximum (1),                Logical Maximum (1),
--		 *     Input (Variable),                   Input (Variable),
--		 *     Report Count (1),           ->      Report Count (0),
--		 *     Report Size (3),                    Report Size (3),
--		 *     Input (Constant),                   Input (Constant),
--		 *     Report Size (16),                   Report Size (16),
--		 *     Report Count (2),                   Report Count (2),
--		 *     Usage Page (Desktop),               Usage Page (Desktop),
--		 *     Usage (X),                          Usage (X),
--		 *     Usage (Y),                          Usage (Y),
--		 *     Logical Minimum (-32768),           Logical Minimum (-32768),
--		 *     Logical Maximum (32767),            Logical Maximum (32767),
--		 *     Input (Variable, Relative),         Input (Variable, Relative),
--		 * End Collection,                     End Collection,
--		 */
--		if (*rsize == 213 && rdesc[13] == 5 && rdesc[21] == 5) {
--			hid_info(hdev, "Fixing up Elecom DEFT/HUGE Fn buttons\n");
--			rdesc[13] = 8; /* Button/Variable Report Count */
--			rdesc[21] = 8; /* Button/Variable Usage Maximum */
--			rdesc[29] = 0; /* Button/Constant Report Count */
--		}
-+		mouse_button_fixup(hdev, rdesc, rsize, 8);
- 		break;
- 	}
- 	return rdesc;
-@@ -77,6 +80,7 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 
- static const struct hid_device_id elecom_devices[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_EX_G_WIRED) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRED) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRELESS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_HUGE_WIRED) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5da3d6256d25..d757c78e7e15 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -370,6 +370,7 @@
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-+#define USB_DEVICE_ID_ELECOM_EX_G_WIRED	0x00fb
- #define USB_DEVICE_ID_ELECOM_DEFT_WIRED	0x00fe
- #define USB_DEVICE_ID_ELECOM_DEFT_WIRELESS	0x00ff
- #define USB_DEVICE_ID_ELECOM_HUGE_WIRED	0x010c
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 015e0c10248b..48054d2d6795 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -335,6 +335,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- #endif
- #if IS_ENABLED(CONFIG_HID_ELECOM)
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_EX_G_WIRED) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRED) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRELESS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_HUGE_WIRED) },
--- 
-2.15.1
+       Arnd

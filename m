@@ -1,88 +1,105 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3 1/4] uinput: Add ioctl for using monotonic/ boot times
-Date: Mon, 4 Dec 2017 22:18:39 +0100
-Message-ID: <CAK8P3a32z2PsaqG+mFcS-qtPu3moLgiT6eLxRM8pCX+TQKqabA@mail.gmail.com>
-References: <20171204005545.23325-1-deepa.kernel@gmail.com>
- <20171204005545.23325-2-deepa.kernel@gmail.com> <CAK8P3a0bzqBm+3HCsxjtVbYL0-Wt3h=afnN_KQZL+xoktNUP=w@mail.gmail.com>
- <CABeXuvpoAp7PPj=r5VuKXMk5vYUngm0yJBTNCvzmHv1kTJ+Prg@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for it
+Date: Mon, 4 Dec 2017 22:25:13 +0100
+Message-ID: <20171204212512.6aml52cmzbul423v@ninjato>
+References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ot0-f195.google.com ([74.125.82.195]:42966 "EHLO
-        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751744AbdLDVSk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Dec 2017 16:18:40 -0500
-In-Reply-To: <CABeXuvpoAp7PPj=r5VuKXMk5vYUngm0yJBTNCvzmHv1kTJ+Prg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="tfawbpbm3ykihde2"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mark Brown <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Mon, Dec 4, 2017 at 9:36 PM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
-> On Mon, Dec 4, 2017 at 6:21 AM, Arnd Bergmann <arnd@arndb.de> wrote:
->> On Mon, Dec 4, 2017 at 1:55 AM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
->>> struct timeval which is part of struct input_event to
->>> maintain the event times is not y2038 safe.
->>>
->>> Real time timestamps are also not ideal for input_event
->>> as this time can go backwards as noted in the patch
->>> a80b83b7b8 by John Stultz.
->>>
->>> Arnd Bergmann suggested deprecating real time and using
->>> monotonic or other timers for all input_event times as a
->>> solution to both the above problems.
->>>
->>> Add a new ioctl to let the user dictate the kind of time
->>> to be used for input events. This is similar to the evdev
->>> implementation of the feature. Realtime is still the
->>> default time. This is to maintain backward compatibility.
->>>
->>> The structure to maintain input events will be changed
->>> in a different patch.
->>
->> Based on Peter's comment from when you first posted this,
->> https://patchwork.kernel.org/patch/9381209/, I tried to follow
->> the code path again, to see if we can come up with a way
->> to avoid introducing a new ioctl.
->>
->> There is one idea I had now: The two events we
->> get (upload and erase) are both triggered from evdev,
->> which gets called from user space through the EVIOCSFF
->> and EVIOCRMFF ioctls. This device already sets the
->> clock domain. Would it make sense to send the event
->> to the uinput owner using the same clock domain that
->> was set by the evdev owner, or are these two separate
->> by definition?
->
-> uinput and evdev are two separate drivers. One is to write events to a
-> virtual device and the other is to read from any input device.
-> I considered both of these separate as the two events.
-> Let me know if you guys prefer something else.
 
-Ok
+--tfawbpbm3ykihde2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> We could also do away with this patch and just say we extend time till
-> 2106 as we change struct input_event if we are okay with using
-> realtime only for uinput.
+On Sat, Nov 04, 2017 at 09:20:00PM +0100, Wolfram Sang wrote:
+> So, after revisiting old mail threads, taking part in a similar discussio=
+n on
+> the USB list, and implementing a not-convincing solution before, here is =
+what I
+> cooked up to document and ease DMA handling for I2C within Linux. Please =
+have a
+> look at the documentation introduced in patch 7 for details. And to make =
+it
+> clear again: The stuff below is opt-in. If host drivers are not updated, =
+they
+> will continue to work like before.
+>=20
+> While previous versions until v3 tried to magically apply bounce buffers =
+when
+> needed, it became clear that detecting DMA safe buffers is too fragile. T=
+his
+> approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+> outcome so far is very convincing IMO. The core additions are simple and =
+easy
+> to understand. The driver changes for the Renesas IP cores became easy to
+> understand, too.
+>=20
+> Of course, we must now whitelist DMA safe buffers. This series implements=
+ it
+> for core functionality:
+>=20
+> a) for the I2C_RDWR when messages come from userspace
+> b) for i2c_smbus_xfer_emulated(), DMA safe buffers are now allocated for
+>    block transfers
+> c) i2c_master_{send|recv} have now a *_dmasafe variant
+>=20
+> I am still not sure how we can teach regmap this new flag. regmap is a he=
+avy
+> user of I2C, so broonie's opinion here would be great to have. The rest s=
+hould
+> mostly be updating individual drivers which can be done when needed.
+>=20
+> All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-=
+W) and
+> Renesas Lager board (r8a7790/H2). But more testing is really really welco=
+me.
+>=20
+> The branch can be found here:
+>=20
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic=
+/i2c-core-dma-v6
+>=20
+> It is planned to land upstream in v4.16 and I want to push it to linux-ne=
+xt
+> early after v4.15 to get lots of testing for the core changes.
+>=20
+> Big kudos to Renesas Electronics for funding this work, thank you very mu=
+ch!
+>=20
+> Regards,
+>=20
+>    Wolfram
 
-Another option might be to use monotonic times unconditionally
-in uinput. The DRM drivers actually did this conversion successfully:
-they changed the timestamps from real-time to monotonic-time and
-added a module parameter to revert back to the old behavior. In
-the end (after a few years) it turned out that nothing relied on real
-time anyway, so I sent a patch to kill off the option.
+Applied to for-next after fixing some cosmetic checkpatch issues!
 
-It seems rather likely that this is in the same category: the user
-space reading the events either doesn't access the timestamps
-at all, or is only interested in relative times, not absolute ones.
 
-The one program that I found that reads from /dev/uinput
-is this one: http://svn.navi.cx/misc/trunk/inputpipe/src/
-Here, all input_events get relayed between two machines,
-so an input device on one can be used on the other across
-a socket. The input_event data that we get from uinput gets
-either interpreted (ignoring the timestamp) or pushed into
-the evdev interface on the other machine, which then ignores
-the timestamp in the kernel and creates a new stamp instead.
+--tfawbpbm3ykihde2
+Content-Type: application/pgp-signature; name="signature.asc"
 
-       Arnd
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlolvTgACgkQFA3kzBSg
+KbY1qg//T/ASuI1lCy+YMIjLfcTXYGW+lw9thHUN8OIzDxy02s8yv2pIQr2iCjeJ
+qHQh9uOwDi9HF69+XDrLDy5xOycvMXjbeJtk7iinK6i3rIRVEwwezUw335Vv4Hrk
+7I2P2xq/prU2U7aA+xhvG7ATBOKebFxT0T33/9gXEkOQcFsG9HbKja2WKopZU154
+vjeBP0NeAQVyznhwx/DQ/ASa8dCg44ReJaGzCAwhIFaD5GdS8LohCQkrl9GF3Mex
+/HNgWkDl/VBBZ/u9WjD8pF4kPyRCWncHHyeOTULV+13YyVCMP2p73HyObGu/Ji3O
+OgK8nBwgdx+f00K7rKSiE8OxUfF5ceuut3OUkFWy4wZvmU7JZMtFwKiFwS4lN1Dq
+NCuNeawc4h72Pc6Obt/Yg/vSaAvdKuzO2Uzc3tCJryMBPQkwZlE05qQ1uuevQVm5
+RLmPC9WF9hAz9OMH6FsNZac5FhOVcQ/xIyGVoW/vD2GyZ8CJBfme3qaP3vUhIlVg
+zYTfetzfSuwZ33tirdzvrV3BJa9oonTLSdFoULI2sFgn4DullYmWOmsxNKzQWMhD
+cHgTVA+YzFBjlvhBTwxgg33KqcaUZ7aaouoWKfWNe5qhUjPk9rlNuz0DlNl+FxEr
+UHJ1MVMo+Zee7lnsYsXs4kp8nuGOhU0j35opRhpE4yboQkfITMM=
+=xQCx
+-----END PGP SIGNATURE-----
+
+--tfawbpbm3ykihde2--

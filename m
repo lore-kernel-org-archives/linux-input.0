@@ -1,73 +1,54 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH] Support TrackStick of Thinkpad L570
-Date: Mon, 4 Dec 2017 04:48:43 +0000
-Message-ID: <TYXPR01MB07190FD0598129DE8EE892B3C73C0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
-References: <20171129083358.5063-1-masaki.ota@jp.alps.com>
- <20171201210749.el6q62sc22jshwc5@pali>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] HID: asus: Add product-id for the T100TAF and T100HA
+ keyboard docks
+Date: Mon, 4 Dec 2017 09:24:36 +0100
+Message-ID: <3c8f0915-4273-0821-c4c3-3cf088d8bbea@redhat.com>
+References: <20171126154010.954-1-hdegoede@redhat.com>
+ <20171127083531.GD30708@mail.corp.redhat.com>
+ <47b2d7b2-c24b-2705-5be6-9c100d0ed4c0@redhat.com>
+ <nycvar.YFH.7.76.1712010954120.11505@cbobk.fhfr.pm>
+ <nycvar.YFH.7.76.1712010957160.11505@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171201210749.el6q62sc22jshwc5@pali>
-Content-Language: ja-JP
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, Masaki Ota <012nexus@gmail.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "aaron.ma@canonical.com" <aaron.ma@canonical.com>, "jaak@ristioja.ee" <jaak@ristioja.ee>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:59144 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753203AbdLDIYl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 4 Dec 2017 03:24:41 -0500
+In-Reply-To: <nycvar.YFH.7.76.1712010957160.11505@cbobk.fhfr.pm>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-SGksIFBhbGksDQoNCkkgZG9uJ3QgZ2V0IHlvdXIgcG9pbnQuDQpQbGVhc2UgbW9kaWZ5IHRoZSBj
-b2RlIGlmIHlvdSBoYXZlIGFuIGlkZWEuDQoNCkJlc3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0t
-LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBQYWxpIFJvaMOhciBbbWFpbHRvOnBhbGku
-cm9oYXJAZ21haWwuY29tXSANClNlbnQ6IFNhdHVyZGF5LCBEZWNlbWJlciAwMiwgMjAxNyA2OjA4
-IEFNDQpUbzogTWFzYWtpIE90YSA8MDEybmV4dXNAZ21haWwuY29tPg0KQ2M6IGRtaXRyeS50b3Jv
-a2hvdkBnbWFpbC5jb207IGJlbmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tOyBhYXJvbi5tYUBj
-YW5vbmljYWwuY29tOyBqYWFrQHJpc3Rpb2phLmVlOyDlpKrnlLAg55yf5ZacIE1hc2FraSBPdGEg
-PG1hc2FraS5vdGFAanAuYWxwcy5jb20+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxp
-bnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0hdIFN1cHBvcnQg
-VHJhY2tTdGljayBvZiBUaGlua3BhZCBMNTcwDQoNCk9uIFdlZG5lc2RheSAyOSBOb3ZlbWJlciAy
-MDE3IDE3OjMzOjU4IE1hc2FraSBPdGEgd3JvdGU6DQo+IEZyb206IE1hc2FraSBPdGEgPG1hc2Fr
-aS5vdGFAanAuYWxwcy5jb20+DQo+IC0gVGhlIGlzc3VlIGlzIHRoYXQgVGhpbmtwYWQgTDU3MCBU
-cmFja1N0aWNrIGRvZXMgbm90IHdvcmsuIEJlY2F1c2UgdGhlIG1haW4gaW50ZXJmYWNlIG9mIFRo
-aW5rcGFkIEw1NzAgZGV2aWNlIGlzIFNNQnVzLCBzbyBBTFBTIG92ZXJsb29rZWQgUFMyIGludGVy
-ZmFjZSBGaXJtd2FyZSBzZXR0aW5nIG9mIFRyYWNrU3RpY2suIFRoZSBkZXRhaWwgaXMgdGhhdCBU
-cmFja1N0aWNrIG90cCBiaXQgaXMgZGlzYWJsZWQuDQo+IC0gQWRkIHRoZSBjb2RlIHRoYXQgY2hl
-Y2tzIDB4RDcgYWRkcmVzcyB2YWx1ZS4gVGhpcyB2YWx1ZSBpcyBkZXZpY2UgbnVtYmVyIGluZm9y
-bWF0aW9uLCBzbyB3ZSBjYW4gaWRlbnRpZnkgdGhlIGRldmljZSBieSBjaGVja2luZyB0aGlzIHZh
-bHVlLg0KPiAtIElmIHdlIGNoZWNrIDB4RDcgdmFsdWUsIHdlIG5lZWQgdG8gZW5hYmxlIENvbW1h
-bmQgbW9kZSBhbmQgYWZ0ZXIgY2hlY2sgdGhlIHZhbHVlIHdlIG5lZWQgdG8gZGlzYWJsZSBDb21t
-YW5kIG1vZGUsIHRoZW4gd2UgaGF2ZSB0byBlbmFibGUgdGhlIGRldmljZSgweEY0IGNvbW1hbmQp
-Lg0KPiAtIFRoaW5rcGFkIEw1NzAgZGV2aWNlIG51bWJlciBpcyAweDBDIG9yIDB4MUQuIElmIGl0
-IGlzIFRSVUUsIGVuYWJsZSBBTFBTX0RVQUxQT0lOVCBmbGFnLg0KPiANCj4gU2lnbmVkLW9mZi1i
-eTogTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJz
-L2lucHV0L21vdXNlL2FscHMuYyB8IDI0ICsrKysrKysrKysrKysrKysrKysrKy0tLQ0KPiAgMSBm
-aWxlIGNoYW5nZWQsIDIxIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZm
-IC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBzLmMgYi9kcml2ZXJzL2lucHV0L21vdXNl
-L2FscHMuYyANCj4gaW5kZXggODUwYjAwZTNhZDhlLi42ZjA5MmJkZDlmYzUgMTAwNjQ0DQo+IC0t
-LSBhL2RyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jDQo+ICsrKyBiL2RyaXZlcnMvaW5wdXQvbW91
-c2UvYWxwcy5jDQo+IEBAIC0yNTQxLDEzICsyNTQxLDMxIEBAIHN0YXRpYyBpbnQgDQo+IGFscHNf
-dXBkYXRlX2J0bl9pbmZvX3NzNF92Mih1bnNpZ25lZCBjaGFyIG90cFtdWzRdLCAgfQ0KPiAgDQo+
-ICBzdGF0aWMgaW50IGFscHNfdXBkYXRlX2R1YWxfaW5mb19zczRfdjIodW5zaWduZWQgY2hhciBv
-dHBbXVs0XSwNCj4gLQkJCQkgICAgICAgc3RydWN0IGFscHNfZGF0YSAqcHJpdikNCj4gKwkJCQkg
-ICAgICAgc3RydWN0IGFscHNfZGF0YSAqcHJpdiwNCj4gKwkJCQkJc3RydWN0IHBzbW91c2UgKnBz
-bW91c2UpDQo+ICB7DQo+ICAJYm9vbCBpc19kdWFsID0gZmFsc2U7DQo+ICsJaW50IHJlZ192YWwg
-PSAwOw0KPiArCXN0cnVjdCBwczJkZXYgKnBzMmRldiA9ICZwc21vdXNlLT5wczJkZXY7DQo+ICAN
-Cj4gLQlpZiAoSVNfU1M0UExVU19ERVYocHJpdi0+ZGV2X2lkKSkNCj4gKwlpZiAoSVNfU1M0UExV
-U19ERVYocHJpdi0+ZGV2X2lkKSkgew0KPiAgCQlpc19kdWFsID0gKG90cFswXVswXSA+PiA0KSAm
-IDB4MDE7DQo+ICANCj4gKwkJaWYgKCFpc19kdWFsKSB7DQo+ICsJCQkvKiBGb3Igc3VwcG9ydCBU
-cmFja1N0aWNrIG9mIFRoaW5rcGFkIEwvRSBzZXJpZXMgKi8NCj4gKwkJCWlmIChhbHBzX2V4aXRf
-Y29tbWFuZF9tb2RlKHBzbW91c2UpID09IDAgJiYNCj4gKwkJCQlhbHBzX2VudGVyX2NvbW1hbmRf
-bW9kZShwc21vdXNlKSA9PSAwKSB7DQo+ICsJCQkJcmVnX3ZhbCA9IGFscHNfY29tbWFuZF9tb2Rl
-X3JlYWRfcmVnKHBzbW91c2UsDQo+ICsJCQkJCQkJCQkweEQ3KTsNCj4gKwkJCX0NCj4gKwkJCWFs
-cHNfZXhpdF9jb21tYW5kX21vZGUocHNtb3VzZSk7DQo+ICsJCQlwczJfY29tbWFuZChwczJkZXYs
-IE5VTEwsIFBTTU9VU0VfQ01EX0VOQUJMRSk7DQo+ICsNCj4gKwkJCWlmIChyZWdfdmFsID09IDB4
-MEMgfHwgcmVnX3ZhbCA9PSAweDFEKQ0KPiArCQkJCWlzX2R1YWwgPSB0cnVlOw0KPiArCQl9DQo+
-ICsJfQ0KPiArDQo+ICAJaWYgKGlzX2R1YWwpDQo+ICAJCXByaXYtPmZsYWdzIHw9IEFMUFNfRFVB
-TFBPSU5UIHwNCj4gIAkJCQkJQUxQU19EVUFMUE9JTlRfV0lUSF9QUkVTU1VSRTsNCj4gQEAgLTI1
-NzAsNyArMjU4OCw3IEBAIHN0YXRpYyBpbnQgYWxwc19zZXRfZGVmYXVsdHNfc3M0X3YyKHN0cnVj
-dCANCj4gcHNtb3VzZSAqcHNtb3VzZSwNCj4gIA0KPiAgCWFscHNfdXBkYXRlX2J0bl9pbmZvX3Nz
-NF92MihvdHAsIHByaXYpOw0KPiAgDQo+IC0JYWxwc191cGRhdGVfZHVhbF9pbmZvX3NzNF92Mihv
-dHAsIHByaXYpOw0KPiArCWFscHNfdXBkYXRlX2R1YWxfaW5mb19zczRfdjIob3RwLCBwcml2LCBw
-c21vdXNlKTsNCg0KTm93IGxvb2tpbmcgYXQgdGhpcyBjaGFuZ2UuLi4gSXMgdGhlcmUgcmVhc29u
-IHdoeSB5b3UgYXJlIHBhc3NpbmcgcHNtb3VzZSBwYXJhbWV0ZXIgdGhlcmU/IEJlY2F1c2Ugc3Ry
-dWN0IGFscHNfZGF0YSBjb250YWlucyBwc21vdXNlIG1lbWJlci4NCg0KPiAgDQo+ICAJcmV0dXJu
-IDA7DQo+ICB9DQoNCi0tDQpQYWxpIFJvaMOhcg0KcGFsaS5yb2hhckBnbWFpbC5jb20NCg==
+Hi,
+
+On 01-12-17 09:58, Jiri Kosina wrote:
+> On Fri, 1 Dec 2017, Jiri Kosina wrote:
+> 
+>>> I'm afraid it is probably the first reason and not the second reason,
+>>> when I was working on Linux webcam support one of the issues was that in
+>>> many Asus laptops the webcam module is mounted upside down and thus sends
+>>> an upside-down picture. I asked via via if Asus internally had a list
+>>> of which webcams are upside down, the answer was: no. Asus simply maintains
+>>> a hacked-together driver-repository per model laptop, in which they
+>>> put hacks until the driver works for that model.
+>>
+>> Man, the world is sick :)
+>>
+>> I am unhappily (not because of you, but because of ASUS) applying to
+>> for-4.15/upstream-fixes. Thanks,
+> 
+> Actually from the log and from the base you chose to put the patch on top
+> I understand that you feel it's okay to have this for 4.16, so I am
+> applying it for 4.16 to minimize conflict amount due to quirk handling
+> revamp.
+
+Ack, given that this turned out to be a bit more involved fix then
+I thought at first I aimed it at 4.16.
+
+Regards,
+
+Hans

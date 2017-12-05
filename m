@@ -1,64 +1,43 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH v2 3/5] Input: add KEY_ROTATE_LOCK_TOGGLE
-Date: Tue, 5 Dec 2017 10:50:48 -0800
-Message-ID: <CANRwn3SzMUvNoBjp2X1jtN9XaQ98RxCCZ86Hu4sPQygTORqjKg@mail.gmail.com>
-References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
- <8ebdb255-b0b5-4de2-a680-e7f6713256d0@rwthex-w2-a.rwth-ad.de>
- <1510270493.2624.49.camel@hadess.net> <2845999.tyV6EiPLrg@sbruens-linux>
+From: Tomasz Kramkowski <tk@the-tk.com>
+Subject: Re: [PATCH] HID: elecom: rewrite report fixup for EX-G and future
+ mice
+Date: Tue, 5 Dec 2017 20:17:52 +0000
+Message-ID: <20171205201307.GA13831@gaia.local>
+References: <20171204205550.2621-1-tk@the-tk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <2845999.tyV6EiPLrg@sbruens-linux>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: =?UTF-8?B?QnLDvG5zLCBTdGVmYW4=?= <Stefan.Bruens@rwth-aachen.de>, Alex Hung <alex.hung@canonical.com>
-Cc: Bastien Nocera <hadess@hadess.net>, "platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171204205550.2621-1-tk@the-tk.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Yuxuan Shui <yshuiv7@gmail.com>, Diego Elio =?iso-8859-1?Q?Petten=F2?= <flameeyes@flameeyes.eu>, Alex Manoussakis <amanou@gnu.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Looks like this might also be needed for the MobileStudio Pro...
+On Mon, Dec 04, 2017 at 08:55:50PM +0000, Tomasz Kramkowski wrote:
+> +static void mouse_button_fixup(struct hid_device *hdev,
+> +			       __u8 *rdesc, unsigned int *rsize,
+> +			       int nbuttons)
 
-https://bugzilla.kernel.org/show_bug.cgi?id=3D197991
+I've just remembered what has been bugging me yesterday when I was
+reviewing this patch. I had come to the realisation (and then
+subsequently forgotten) that this function should probably return __u8 *
+and also get assigned to rdesc on the other end. It seems to me that it
+makes most sense to allow for the possibility (although slim) of this
+function eventually being expanded to actually replace the report
+descriptor (technically the full report descriptor contains a bunch of
+useless crap like INPUT reports for media keys and the FEATURE report
+which as far as I can tell is totally useless or may or may not be some
+tactic by ELECOM to future-proof their firmware).
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+The other option would be to make rsize not a pointer because it doesn't
+need to be. But that kind of makes the flow of the two functions
+somewhat inconsistent. I'm not sure if I'm alone in that feeling.
 
+Anyway, I should have written this down when I first caught it, sorry
+for the noise. I'll let you guys review this patch and give any other
+feedback you might have and I'll try to get a v2 as soon as possible
+afterwards.
 
-
-On Thu, Nov 30, 2017 at 9:51 AM, Br=C3=BCns, Stefan
-<Stefan.Bruens@rwth-aachen.de> wrote:
-> On Freitag, 10. November 2017 00:34:53 CET Bastien Nocera wrote:
->> On Thu, 2017-11-09 at 23:44 +0100, Stefan Br=C3=BCns wrote:
->> > The key has the same use as the SW_ROTATE_LOCK, but is used on
->> > devices
->> > where the state is not tracked by the hardware but has to be handled
->> > in software.
->>
->> I'll let the input and hid subsystem maintainers have the final say
->> here, though I think that sending out Win+O would be easier, as this is
->> already something that desktops need to support for those devices that
->> send the actual Win+O key combination when those buttons are pressed
->> there.
->>
->> If we're going with the separate keycode, could you also file bugs
->> against xkbd-common and xkeyboard-config to get the key added to the
->> list of XF86 keysyms and to the default evdev keymap? Otherwise Wayland
->> and X11 based desktops won't be able to use it.
->
-> Filed for xkeyboard-config:
-> https://bugs.freedesktop.org/show_bug.cgi?id=3D103998
->
-> and xkb-common:
-> https://github.com/xkbcommon/libxkbcommon/issues/55
->
-> Regards,
->
-> Stefan
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Tomasz Kramkowski | GPG: 40B037BA0A5B8680 | Web: https://the-tk.com/

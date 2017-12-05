@@ -1,49 +1,58 @@
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v6 0/9] i2c: document DMA handling and add helpers for
- it
-Date: Tue, 5 Dec 2017 11:00:05 +0000
-Message-ID: <20171205110005.00004d66@huawei.com>
-References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
-        <20171108225037.i4dx5iu5zxc542oq@sirena.co.uk>
-        <20171127185116.j2vmkhbik33vk4f7@ninjato>
-        <20171128153446.6pyqtkcvuepil5gi@sirena.org.uk>
-        <20171203194347.bbds47a72xbc4nvl@ninjato>
-        <20171204220541.GA11658@finisterre>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 08/45] drivers: input: remove duplicate includes
+Date: Tue, 5 Dec 2017 10:22:00 -0800
+Message-ID: <20171205182200.lqikv7fsxcdld5rk@dtor-ws>
+References: <1512439272-15824-1-git-send-email-pravin.shedge4linux@gmail.com>
+ <CAO-hwJLM=T35-RFpn=LS=amZmBi9S3eLHVrqsFOs238D3oQexg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171204220541.GA11658@finisterre>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJLM=T35-RFpn=LS=amZmBi9S3eLHVrqsFOs238D3oQexg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Pravin Shedge <pravin.shedge4linux@gmail.com>, Nick Dyer <nick@shmanahar.org>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Colin Ian King <colin.king@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 4 Dec 2017 22:05:41 +0000
-Mark Brown <broonie@kernel.org> wrote:
-
-> On Sun, Dec 03, 2017 at 08:43:47PM +0100, Wolfram Sang wrote:
+On Tue, Dec 05, 2017 at 09:15:55AM +0100, Benjamin Tissoires wrote:
+> Hi,
 > 
-> > > It's a bit different in that it's much more likely that a SPI controller
-> > > will actually do DMA than an I2C one since the speeds are higher and
-> > > there's frequent applications that do large transfers so it's more
-> > > likely that people will do the right thing as issues would tend to come
-> > > up if they don't.  
+> [adding Jiri, the HID maintainer in CC]
 > 
-> > Yes, for SPI this is true. I was thinking more of regmap with its
-> > usage of different transport mechanisms. But I guess they should all be
-> > DMA safe because some of them need to be DMA safe?  
+> On Tue, Dec 5, 2017 at 3:01 AM, Pravin Shedge
+> <pravin.shedge4linux@gmail.com> wrote:
+> > These duplicate includes have been found with scripts/checkincludes.pl but
+> > they have been removed manually to avoid removing false positives.
+> >
+> > Signed-off-by: Pravin Shedge <pravin.shedge4linux@gmail.com>
+> > ---
 > 
-> Possibly.  Hopefully.  I guess we'll find out.
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Applied, thank you.
+
 > 
+> Cheers,
+> Benjamin
+> 
+> >  drivers/input/rmi4/rmi_f34.c | 1 -
+> >  1 file changed, 1 deletion(-)
+> >
+> > diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
+> > index 4cfe970..f1f5ac5 100644
+> > --- a/drivers/input/rmi4/rmi_f34.c
+> > +++ b/drivers/input/rmi4/rmi_f34.c
+> > @@ -11,7 +11,6 @@
+> >  #include <linux/rmi.h>
+> >  #include <linux/firmware.h>
+> >  #include <asm/unaligned.h>
+> > -#include <asm/unaligned.h>
+> >  #include <linux/bitops.h>
+> >
+> >  #include "rmi_driver.h"
+> > --
+> > 2.7.4
+> >
 
-Yeah, optimistic assumption. Plenty of drivers use regmap for the
-convenience of it's caching and field access etc rather than
-because they support multiple buses.
-
-I'll audit the IIO drivers and see where we have issues if we
-start assuming DMA safe for regmap (which makes sense to me).
-
-Probably worth fixing them all up anyway and tends to be straightforward.
-
-Jonathan
+-- 
+Dmitry

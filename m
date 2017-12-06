@@ -1,43 +1,32 @@
-From: Tomasz Kramkowski <tk@the-tk.com>
-Subject: Re: [PATCH] HID: elecom: rewrite report fixup for EX-G and future
- mice
-Date: Tue, 5 Dec 2017 20:17:52 +0000
-Message-ID: <20171205201307.GA13831@gaia.local>
-References: <20171204205550.2621-1-tk@the-tk.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Anthony Kim <anthony.kim@hideep.com>
+Subject: [PATCH] Input: include "linux/gpio/consumer.h" header file.
+Date: Wed,  6 Dec 2017 10:41:15 +0900
+Message-ID: <1512524475-32624-1-git-send-email-anthony.kim@hideep.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171204205550.2621-1-tk@the-tk.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Yuxuan Shui <yshuiv7@gmail.com>, Diego Elio =?iso-8859-1?Q?Petten=F2?= <flameeyes@flameeyes.eu>, Alex Manoussakis <amanou@gnu.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dennis.hong@hideep.com, Anthony Kim <anthony.kim@hideep.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Dec 04, 2017 at 08:55:50PM +0000, Tomasz Kramkowski wrote:
-> +static void mouse_button_fixup(struct hid_device *hdev,
-> +			       __u8 *rdesc, unsigned int *rsize,
-> +			       int nbuttons)
+An error occurred during compile because there is no header file
+at x86 configure.
 
-I've just remembered what has been bugging me yesterday when I was
-reviewing this patch. I had come to the realisation (and then
-subsequently forgotten) that this function should probably return __u8 *
-and also get assigned to rdesc on the other end. It seems to me that it
-makes most sense to allow for the possibility (although slim) of this
-function eventually being expanded to actually replace the report
-descriptor (technically the full report descriptor contains a bunch of
-useless crap like INPUT reports for media keys and the FEATURE report
-which as far as I can tell is totally useless or may or may not be some
-tactic by ELECOM to future-proof their firmware).
+Signed-off-by: Anthony Kim <anthony.kim@hideep.com>
+---
+ drivers/input/touchscreen/hideep.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-The other option would be to make rsize not a pointer because it doesn't
-need to be. But that kind of makes the flow of the two functions
-somewhat inconsistent. I'm not sure if I'm alone in that feeling.
-
-Anyway, I should have written this down when I first caught it, sorry
-for the noise. I'll let you guys review this patch and give any other
-feedback you might have and I'll try to get a v2 as soon as possible
-afterwards.
-
+diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
+index fc080a7..037da00 100644
+--- a/drivers/input/touchscreen/hideep.c
++++ b/drivers/input/touchscreen/hideep.c
+@@ -12,6 +12,7 @@
+ #include <linux/delay.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio/machine.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+ #include <linux/acpi.h>
+ #include <linux/interrupt.h>
 -- 
-Tomasz Kramkowski | GPG: 40B037BA0A5B8680 | Web: https://the-tk.com/
+2.7.4

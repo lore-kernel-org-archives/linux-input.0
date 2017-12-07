@@ -1,108 +1,58 @@
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v4 2/4] input: evdev: Replace timeval with timespec64
-Date: Thu,  7 Dec 2017 10:13:04 -0800
-Message-ID: <20171207181306.5623-3-deepa.kernel@gmail.com>
+Subject: [PATCH v4 1/4] uinput: Use monotonic times for uinput timestamps.
+Date: Thu,  7 Dec 2017 10:13:03 -0800
+Message-ID: <20171207181306.5623-2-deepa.kernel@gmail.com>
 References: <20171207181306.5623-1-deepa.kernel@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:43405 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754077AbdLGSNU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Dec 2017 13:13:20 -0500
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:44300 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753914AbdLGSNT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Dec 2017 13:13:19 -0500
 In-Reply-To: <20171207181306.5623-1-deepa.kernel@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
 
-struct timeval is not y2038 safe.
+struct timeval which is part of struct input_event to
+maintain the event times is not y2038 safe.
 
-All references to timeval in the kernel will be replaced
-by y2038 safe structures.
-Replace all references to timeval with y2038 safe
-struct timespec64 here.
+Real time timestamps are also not ideal for input_event
+as this time can go backwards as noted in the patch
+a80b83b7b8 by John Stultz.
 
-struct input_event will be changed in a different patch.
+The patch switches the timestamps to use monotonic time
+from realtime time. This is assuming no one is using
+absolute times from these timestamps.
+
+The structure to maintain input events will be changed
+in a different patch.
 
 Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/evdev.c | 37 +++++++++++++++++++++++--------------
- 1 file changed, 23 insertions(+), 14 deletions(-)
+ drivers/input/misc/uinput.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 925571475005..e5dbfc5ff1b0 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -156,15 +156,22 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- static void __evdev_queue_syn_dropped(struct evdev_client *client)
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 39ddd9a73feb..d521aecbc078 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -84,11 +84,14 @@ static int uinput_dev_event(struct input_dev *dev,
+ 			    unsigned int type, unsigned int code, int value)
  {
- 	struct input_event ev;
--	ktime_t time;
-+	struct timespec64 ts;
+ 	struct uinput_device	*udev = input_get_drvdata(dev);
++	struct timespec64	ts;
  
--	time = client->clk_type == EV_CLK_REAL ?
--			ktime_get_real() :
--			client->clk_type == EV_CLK_MONO ?
--				ktime_get() :
--				ktime_get_boottime();
-+	switch (client->clk_type) {
-+	case EV_CLK_REAL:
-+		ktime_get_real_ts64(&ts);
-+		break;
-+	case EV_CLK_MONO:
-+		ktime_get_ts64(&ts);
-+		break;
-+	case EV_CLK_BOOT:
-+		get_monotonic_boottime64(&ts);
-+		break;
-+	}
+ 	udev->buff[udev->head].type = type;
+ 	udev->buff[udev->head].code = code;
+ 	udev->buff[udev->head].value = value;
+-	do_gettimeofday(&udev->buff[udev->head].time);
++	ktime_get_ts64(&ts);
++	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
++	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
  
--	ev.time = ktime_to_timeval(time);
-+	ev.time.tv_sec = ts.tv_sec;
-+	ev.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
- 	ev.type = EV_SYN;
- 	ev.code = SYN_DROPPED;
- 	ev.value = 0;
-@@ -257,17 +264,20 @@ static void __pass_event(struct evdev_client *client,
- 
- static void evdev_pass_values(struct evdev_client *client,
- 			const struct input_value *vals, unsigned int count,
--			ktime_t *ev_time)
-+			struct timespec64 *ev_time)
- {
- 	struct evdev *evdev = client->evdev;
- 	const struct input_value *v;
- 	struct input_event event;
-+	struct timespec64 ts;
- 	bool wakeup = false;
- 
- 	if (client->revoked)
- 		return;
- 
--	event.time = ktime_to_timeval(ev_time[client->clk_type]);
-+	ts = ev_time[client->clk_type];
-+	event.time.tv_sec = ts.tv_sec;
-+	event.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
- 
- 	/* Interrupts are disabled, just acquire the lock. */
- 	spin_lock(&client->buffer_lock);
-@@ -304,12 +314,11 @@ static void evdev_events(struct input_handle *handle,
- {
- 	struct evdev *evdev = handle->private;
- 	struct evdev_client *client;
--	ktime_t ev_time[EV_CLK_MAX];
-+	struct timespec64 ev_time[EV_CLK_MAX];
- 
--	ev_time[EV_CLK_MONO] = ktime_get();
--	ev_time[EV_CLK_REAL] = ktime_mono_to_real(ev_time[EV_CLK_MONO]);
--	ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_MONO],
--						 TK_OFFS_BOOT);
-+	ktime_get_ts64(&ev_time[EV_CLK_MONO]);
-+	ktime_get_real_ts64(&ev_time[EV_CLK_REAL]);
-+	get_monotonic_boottime64(&ev_time[EV_CLK_BOOT]);
- 
- 	rcu_read_lock();
- 
+ 	wake_up_interruptible(&udev->waitq);
 -- 
 2.14.1
 

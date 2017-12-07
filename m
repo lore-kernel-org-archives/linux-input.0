@@ -1,58 +1,105 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v4 1/4] uinput: Use monotonic times for uinput timestamps.
-Date: Thu,  7 Dec 2017 10:13:03 -0800
-Message-ID: <20171207181306.5623-2-deepa.kernel@gmail.com>
-References: <20171207181306.5623-1-deepa.kernel@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:44300 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753914AbdLGSNT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Dec 2017 13:13:19 -0500
-In-Reply-To: <20171207181306.5623-1-deepa.kernel@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Aaron Armstrong Skomra <skomra@gmail.com>
+Subject: [PATCH] HID: wacom: EKR: ensure devres groups at higher indexes are released
+Date: Thu,  7 Dec 2017 12:31:56 -0800
+Message-ID: <1512678716-31779-1-git-send-email-skomra@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, jkosina@suse.cz, pinglinux@gmail.com, killertofu@gmail.com, benjamin.tissoires@redhat.com
+Cc: Aaron Armstrong Skomra <skomra@gmail.com>, "stable #4 . 9" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
 
-struct timeval which is part of struct input_event to
-maintain the event times is not y2038 safe.
+Background: ExpressKey Remotes communicate their events via usb dongle.
+Each dongle can hold up to 5 pairings at one time and one EKR (identified
+by its serial number) can unfortunately be paired with its dongle
+more than once. The pairing takes place in a round-robin fashion.
 
-Real time timestamps are also not ideal for input_event
-as this time can go backwards as noted in the patch
-a80b83b7b8 by John Stultz.
+Input devices are only created once per EKR, when a new serial number
+is seen in the list of pairings. However, if a device is created for
+a "higher" paring index and subsequently a second pairing occurs at a
+lower pairing index, unpairing the remote with that serial number from
+any pairing index will currently cause a driver crash. This occurs
+infrequently, as two remotes are necessary to trigger this bug and most
+users have only one remote.
 
-The patch switches the timestamps to use monotonic time
-from realtime time. This is assuming no one is using
-absolute times from these timestamps.
+As an illustration, to trigger the bug you need to have two remotes,
+and pair them in this order:
 
-The structure to maintain input events will be changed
-in a different patch.
+1. slot 0 -> remote 1 (input device created for remote 1)
+2. slot 1 -> remote 1 (duplicate pairing - no device created)
+3. slot 2 -> remote 1 (duplicate pairing - no device created)
+4. slot 3 -> remote 1 (duplicate pairing - no device created)
+5. slot 4 -> remote 2 (input device created for remote 2)
 
-Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+6. slot 0 -> remote 2 (1 destroyed and recreated at slot 1)
+7. slot 1 -> remote 2 (1 destroyed and recreated at slot 2)
+8. slot 2 -> remote 2 (1 destroyed and recreated at slot 3)
+9. slot 3 -> remote 2 (1 destroyed and not recreated)
+10. slot 4 -> remote 2 (2 was already in this slot so no changes)
+
+11. slot 0 -> remote 1 (The current code sees remote 2 was paired over in
+                        one of the dongle slots it occupied and attempts
+                        to remove all information about remote 2 [1]. It
+                        calls wacom_remote_destroy_one for remote 2, but
+                        the destroy function assumes the lowest index is
+                        where the remote's input device was created. The
+                        code "cleans up" the other remote 2 pairings
+                        including the one which the input device was based
+                        on, assuming they were were just duplicate
+                        pairings. However, the cleanup doesn't call the
+                        devres release function for the input device that
+                        was created in slot 4).
+
+This issue is fixed by this commit.
+
+[1] Remote 2 should subsequently be re-created on the next packet from the
+EKR at the lowest numbered slot that it occupies (here slot 1).
+
+Fixes: f9036bd43602 ("HID: wacom: EKR: use devres groups to manage resources")
+Cc: stable <stable@vger.kernel.org> #4.9
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 ---
- drivers/input/misc/uinput.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hid/wacom_sys.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 39ddd9a73feb..d521aecbc078 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -84,11 +84,14 @@ static int uinput_dev_event(struct input_dev *dev,
- 			    unsigned int type, unsigned int code, int value)
- {
- 	struct uinput_device	*udev = input_get_drvdata(dev);
-+	struct timespec64	ts;
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index ee71ad9b6cc1..76531796bd3c 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -2347,23 +2347,23 @@ static void wacom_remote_destroy_one(struct wacom *wacom, unsigned int index)
+ 	int i;
+ 	unsigned long flags;
  
- 	udev->buff[udev->head].type = type;
- 	udev->buff[udev->head].code = code;
- 	udev->buff[udev->head].value = value;
--	do_gettimeofday(&udev->buff[udev->head].time);
-+	ktime_get_ts64(&ts);
-+	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
-+	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
- 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
+-	spin_lock_irqsave(&remote->remote_lock, flags);
+-	remote->remotes[index].registered = false;
+-	spin_unlock_irqrestore(&remote->remote_lock, flags);
++	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
++		if (remote->remotes[i].serial == serial) {
  
- 	wake_up_interruptible(&udev->waitq);
+-	if (remote->remotes[index].battery.battery)
+-		devres_release_group(&wacom->hdev->dev,
+-				     &remote->remotes[index].battery.bat_desc);
++			spin_lock_irqsave(&remote->remote_lock, flags);
++			remote->remotes[i].registered = false;
++			spin_unlock_irqrestore(&remote->remote_lock, flags);
+ 
+-	if (remote->remotes[index].group.name)
+-		devres_release_group(&wacom->hdev->dev,
+-				     &remote->remotes[index]);
++			if (remote->remotes[i].battery.battery)
++				devres_release_group(&wacom->hdev->dev,
++						     &remote->remotes[i].battery.bat_desc);
++
++			if (remote->remotes[i].group.name)
++				devres_release_group(&wacom->hdev->dev,
++						     &remote->remotes[i]);
+ 
+-	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+-		if (remote->remotes[i].serial == serial) {
+ 			remote->remotes[i].serial = 0;
+ 			remote->remotes[i].group.name = NULL;
+-			remote->remotes[i].registered = false;
+ 			remote->remotes[i].battery.battery = NULL;
+ 			wacom->led.groups[i].select = WACOM_STATUS_UNKNOWN;
+ 		}
 -- 
-2.14.1
-
+2.7.4

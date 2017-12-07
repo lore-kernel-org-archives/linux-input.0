@@ -1,53 +1,42 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: core: lower log level for unknown main item tags
- to warnings
-Date: Thu, 7 Dec 2017 11:06:29 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1712071106200.3572@cbobk.fhfr.pm>
-References: <20171206165438.676-1-hdegoede@redhat.com>
+Subject: Re: [PATCH v2] HID: add quirk for another PIXART OEM mouse used by
+ HP
+Date: Thu, 7 Dec 2017 11:09:11 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1712071109020.3572@cbobk.fhfr.pm>
+References: <20171201121934.GA3352@dhcp-128-65.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:44714 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751030AbdLGKGa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 7 Dec 2017 05:06:30 -0500
-In-Reply-To: <20171206165438.676-1-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171201121934.GA3352@dhcp-128-65.nay.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dave Young <dyoung@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Wed, 6 Dec 2017, Hans de Goede wrote:
+On Fri, 1 Dec 2017, Dave Young wrote:
 
-> Given all the effort distros have done with splash-screens to give
-> users a nice clean boot experience, we really want dmesg --level=err
-> to not print anything unless there is a real problem with either the
-> hardware or the kernel. Buggy HID descriptors unfortunately happen
-> all too often, so lower the log level to warning keep the console
-> clear of error messages such as:
+> This mouse keep disconnecting in runleve 3 like below, add it needs the
+> quirk to mute the anoying messages.
 > 
-> [  441.079664] apple 0005:05AC:0239.0003: unknown main item tag 0x0
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/hid/hid-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 7297b1d1300c..c2560aae5542 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -551,7 +551,7 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
->  		ret = hid_add_field(parser, HID_FEATURE_REPORT, data);
->  		break;
->  	default:
-> -		hid_err(parser->device, "unknown main item tag 0x%x\n", item->tag);
-> +		hid_warn(parser->device, "unknown main item tag 0x%x\n", item->tag);
->  		ret = 0;
+> [  111.230555] usb 2-2: USB disconnect, device number 6
+> [  112.718156] usb 2-2: new low-speed USB device number 7 using xhci_hcd
+> [  112.941594] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
+> [  112.984866] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+> [  113.027731] usb 2-2: Product: HP USB Optical Mouse
+> [  113.069977] usb 2-2: Manufacturer: PixArt
+> [  113.113500] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0002/input/input14
+> [  113.156787] hid-generic 0003:03F0:094A.0002: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
+> [  173.262642] usb 2-2: USB disconnect, device number 7
+> [  174.750244] usb 2-2: new low-speed USB device number 8 using xhci_hcd
+> [  174.935740] usb 2-2: New USB device found, idVendor=03f0, idProduct=094a
+> [  174.990435] usb 2-2: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+> [  175.014984] usb 2-2: Product: HP USB Optical Mouse
+> [  175.037886] usb 2-2: Manufacturer: PixArt
+> [  175.061794] input: PixArt HP USB Optical Mouse as /devices/pci0000:00/0000:00:14.0/usb2/2-2/2-2:1.0/0003:03F0:094A.0003/input/input15
+> [  175.084946] hid-generic 0003:03F0:094A.0003: input: USB HID v1.11 Mouse [PixArt HP USB Optical Mouse] on usb-0000:00:14.0-2/input0
 
-Applied to for-4.15/upstream-fixes. Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina
 SUSE Labs
-

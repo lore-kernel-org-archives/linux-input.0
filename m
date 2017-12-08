@@ -1,145 +1,114 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/2] HID: input: do not increment usages when a
- duplicate is found
-Date: Fri, 8 Dec 2017 11:32:26 -0800
-Message-ID: <20171208193226.74jxj256tg6cwagy@dtor-ws>
-References: <20171208142818.15156-1-benjamin.tissoires@redhat.com>
- <20171208142818.15156-3-benjamin.tissoires@redhat.com>
+From: Stefan =?ISO-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
+Subject: Re: [PATCH v2 2/5] platform/x86: intel-vbtn: Support separate press/release events
+Date: Fri, 8 Dec 2017 21:33:29 +0100
+Message-ID: <1632152.oGNe5Yk2uo@pebbles>
+References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de> <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de> <20171110021555.GF9783@fury>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; boundary="nextPart1852755.jDx2VezjqG";
+        micalg=pgp-sha1; protocol="application/pgp-signature"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:46765 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752111AbdLHTca (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Dec 2017 14:32:30 -0500
-Content-Disposition: inline
-In-Reply-To: <20171208142818.15156-3-benjamin.tissoires@redhat.com>
+Received: from mail-out-1.itc.rwth-aachen.de ([134.130.5.46]:30515 "EHLO
+        mail-out-1.itc.rwth-aachen.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751474AbdLHUdh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 8 Dec 2017 15:33:37 -0500
+In-Reply-To: <20171110021555.GF9783@fury>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>
+Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2017 at 03:28:18PM +0100, Benjamin Tissoires wrote:
-> This is something that bothered us from a long time. When hid-input
-> doesn't know how to map a usage, it uses *_MISC. But there is something
-> else which increments the usage if the evdev code is already used.
-> 
-> This leads to few issues:
-> - some devices may have their ABS_X mapped to ABS_Y if they export a bad
->   set of usages (see the DragonRise joysticks IIRC -> fixed in a specific
->   HID driver)
-> - *_MISC + N might (will) conflict with other defined axes (my Logitech
->   H800 exports some multitouch axes because of that)
-> - this prevents to freely add some new evdev usages, because "hey, my
->   headset will now report ABS_COFFEE, and it's not coffee capable".
-> 
-> So let's try to kill this nonsense, and hope we won't break too many
-> devices.
-> 
-> I my headset case, the ABS_MISC axes are created because of some
-> proprietary usages, so we might not break that many devices.
-> 
-> For backward compatibility, a quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
-> is created and can be applied to any device that needs this behavior.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> changes in v2:
-> - fixed a bug where the flag was not used properly and prevented to
->   remove devices
-> - downgrade the error message from info to debug, given that when
->   hid-generic binds first, it will output such kernel log for every
->   multitouch device.
-> 
->  drivers/hid/hid-input.c | 33 +++++++++++++++++++++++++++++++--
->  include/linux/hid.h     |  2 ++
->  2 files changed, 33 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 04d01b57d94c..31bbeb7019bd 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1100,8 +1100,31 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  
->  	set_bit(usage->type, input->evbit);
->  
-> -	while (usage->code <= max && test_and_set_bit(usage->code, bit))
-> -		usage->code = find_next_zero_bit(bit, max + 1, usage->code);
-> +	/*
-> +	 * This part is *really* controversial:
-> +	 * - HID aims at being generic so we should do our best to export
-> +	 *   all incoming events
-> +	 * - HID describes what events are, so there is no reason for ABS_X
-> +	 *   to be mapped to ABS_Y
-> +	 * - HID is using *_MISC+N as a default value, but nothing prevents
-> +	 *   *_MISC+N to overwrite a legitimate even, which confuses userspace
-> +	 *   (for instance ABS_MISC + 7 is ABS_MT_SLOT, which has a different
-> +	 *   processing)
-> +	 *
-> +	 * If devices still want to use this (at their own risk), they will
-> +	 * have to use the quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, but
-> +	 * the default should be a reliable mapping.
-> +	 */
-> +	while (usage->code <= max && test_and_set_bit(usage->code, bit)) {
-> +		if (device->quirks & HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE) {
-> +			usage->code = find_next_zero_bit(bit,
-> +							 max + 1,
-> +							 usage->code);
-> +		} else {
-> +			device->status |= HID_STAT_DUP_DETECTED;
-> +			goto ignore;
-> +		}
-> +	}
->  
->  	if (usage->code > max)
->  		goto ignore;
-> @@ -1610,6 +1633,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
->  	INIT_LIST_HEAD(&hid->inputs);
->  	INIT_WORK(&hid->led_work, hidinput_led_worker);
->  
-> +	hid->status &= ~HID_STAT_DUP_DETECTED;
-> +
->  	if (!force) {
->  		for (i = 0; i < hid->maxcollection; i++) {
->  			struct hid_collection *col = &hid->collection[i];
-> @@ -1676,6 +1701,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
->  		goto out_unwind;
->  	}
->  
-> +	if (hid->status & HID_STAT_DUP_DETECTED)
-> +		hid_dbg(hid,
-> +			"Some usages could not be mapped, please use HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE if this is legitimate.\n");
-> +
->  	return 0;
->  
->  out_unwind:
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 421b62b77c69..de3a8700ccf1 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -344,6 +344,7 @@ struct hid_item {
->  #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
->  #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
->  #define HID_QUIRK_HAVE_SPECIAL_DRIVER		0x00080000
-> +#define HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE	0x00100000
->  #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
->  #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
->  #define HID_QUIRK_NO_IGNORE			0x40000000
+--nextPart1852755.jDx2VezjqG
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
 
-Maybe these should be expressed as BIT() also?
+On Friday, November 10, 2017 3:15:55 AM CET Darren Hart wrote:
+> On Thu, Nov 09, 2017 at 11:44:33PM +0100, Stefan Br=FCns wrote:
+> > Currently all key events use autorelease, but this forbids use as a
+> > modifier key.
+> >=20
+> > As all event codes come in even/odd pairs, we can lookup the key type
+> > (KE_KEY/KE_IGNORE) for the key up event corresponding to the currently
+> > handled key down event. If the key up is ignored, we keep setting the
+> > autorelease flag for the key down.
+> >=20
+> > Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
+>=20
+> +Dmitry, curious for your take on this approach.
 
-> @@ -501,6 +502,7 @@ struct hid_output_fifo {
->  
->  #define HID_STAT_ADDED		BIT(0)
->  #define HID_STAT_PARSED		BIT(1)
-> +#define HID_STAT_DUP_DETECTED	BIT(2)
->  
->  struct hid_input {
->  	struct list_head list;
-> -- 
-> 2.14.3
-> 
+Any response would be appreciated. This is required to make Volume keys wor=
+k=20
+properly.
+=20
+> > ---
+> >=20
+> > Changes in v2:
+> > - New patch, add support for seperate key up/down in intel-vbtn
+> >=20
+> >  drivers/platform/x86/intel-vbtn.c | 17 +++++++++++++++--
+> >  1 file changed, 15 insertions(+), 2 deletions(-)
+> >=20
+> > diff --git a/drivers/platform/x86/intel-vbtn.c
+> > b/drivers/platform/x86/intel-vbtn.c index ae55be91a64b..e3f6375af85c
+> > 100644
+> > --- a/drivers/platform/x86/intel-vbtn.c
+> > +++ b/drivers/platform/x86/intel-vbtn.c
+> > @@ -76,14 +76,27 @@ static void notify_handler(acpi_handle handle, u32
+> > event, void *context)>=20
+> >  {
+> > =20
+> >  	struct platform_device *device =3D context;
+> >  	struct intel_vbtn_priv *priv =3D dev_get_drvdata(&device->dev);
+> >=20
+> > +	const struct key_entry *ke_rel;
+> > +	bool autorelease;
+> >=20
+> >  	if (priv->wakeup_mode) {
+> >  =09
+> >  		if (sparse_keymap_entry_from_scancode(priv->input_dev, event)) {
+> >  	=09
+> >  			pm_wakeup_hard_event(&device->dev);
+> >  			return;
+> >  	=09
+> >  		}
+> >=20
+> > -	} else if (sparse_keymap_report_event(priv->input_dev, event, 1, true=
+))
+> > {
+> > -		return;
+> > +	} else {
+> > +		/* Use the fact press/release come in even/odd pairs */
+> > +		if ((event & 1) && sparse_keymap_report_event(priv->input_dev,
+> > +							      event, 0, false))
+> > +			return;
+> > +
+> > +		ke_rel =3D sparse_keymap_entry_from_scancode(priv->input_dev,
+> > +							   event | 1);
+> > +		autorelease =3D !ke_rel || ke_rel->type =3D=3D KE_IGNORE;
+> > +
+> > +		if (sparse_keymap_report_event(priv->input_dev, event, 1,
+> > +					       autorelease))
+> > +			return;
+> >=20
+> >  	}
+> >  	dev_dbg(&device->dev, "unknown event index 0x%x\n", event);
+> > =20
+> >  }
 
--- 
-Dmitry
+
+=2D-=20
+Stefan Br=FCns  /  Bergstra=DFe 21  /  52062 Aachen
+home: +49 241 53809034     mobile: +49 151 50412019
+--nextPart1852755.jDx2VezjqG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQSwWRWIpJbl0W4DemNvf0o9jP6qUwUCWir3GQAKCRBvf0o9jP6q
+U+I6AJ0QXDLlzd+h9bCga/9/KU776W7i5gCfYIGsfRCuDv+fbDPjvTNj3gLiQho=
+=LngH
+-----END PGP SIGNATURE-----
+
+--nextPart1852755.jDx2VezjqG--

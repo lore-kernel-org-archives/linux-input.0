@@ -1,114 +1,153 @@
-From: Stefan =?ISO-8859-1?Q?Br=FCns?= <stefan.bruens@rwth-aachen.de>
-Subject: Re: [PATCH v2 2/5] platform/x86: intel-vbtn: Support separate press/release events
-Date: Fri, 8 Dec 2017 21:33:29 +0100
-Message-ID: <1632152.oGNe5Yk2uo@pebbles>
-References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de> <024c7574-12f2-4708-9f90-1192856df401@rwthex-w2-a.rwth-ad.de> <20171110021555.GF9783@fury>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: Lenovo Active Pen 2 and wacom tablet on yoga 920
+Date: Fri, 8 Dec 2017 13:24:48 -0800
+Message-ID: <CANRwn3QhW8Ug5=8N3_7hhM-9MdKwY2xtuvp7P5J=2qYo3Y1MPQ@mail.gmail.com>
+References: <458e9d7a-2599-915c-c15e-d08b43f4998d@scrye.com>
+ <CANRwn3TwZ3xsFGBPC_OLm4tVEc5ZRpmYkiMNnFHjpPre8EXy2g@mail.gmail.com> <cae6e993-80af-9acd-b52f-34e493908820@scrye.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1852755.jDx2VezjqG";
-        micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out-1.itc.rwth-aachen.de ([134.130.5.46]:30515 "EHLO
-        mail-out-1.itc.rwth-aachen.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751474AbdLHUdh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 8 Dec 2017 15:33:37 -0500
-In-Reply-To: <20171110021555.GF9783@fury>
+Received: from mail-ua0-f171.google.com ([209.85.217.171]:39590 "EHLO
+        mail-ua0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753086AbdLHVYu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Dec 2017 16:24:50 -0500
+Received: by mail-ua0-f171.google.com with SMTP id i20so8347308uak.6
+        for <linux-input@vger.kernel.org>; Fri, 08 Dec 2017 13:24:49 -0800 (PST)
+In-Reply-To: <cae6e993-80af-9acd-b52f-34e493908820@scrye.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>
-Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Shevchenko <andy@infradead.org>, linux-kernel@vger.kernel.org
+To: Kevin Fenzi <kevin@scrye.com>
+Cc: Linux Input <linux-input@vger.kernel.org>
 
---nextPart1852755.jDx2VezjqG
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+Sorry about the delay in getting back to you on this issue. It looks
+like there are several different reasons that we could be getting
+EREMOTEIO from the lower levels. Would you mind running the sysinfo.sh
+script described at [1] and filing a bug to the project with the
+output attached? This should give me an idea of what kind of hardware
+is present in your 920. You might also try doing the following to see
+if anything interesting gets printed to the dmesg log:
 
-On Friday, November 10, 2017 3:15:55 AM CET Darren Hart wrote:
-> On Thu, Nov 09, 2017 at 11:44:33PM +0100, Stefan Br=FCns wrote:
-> > Currently all key events use autorelease, but this forbids use as a
-> > modifier key.
-> >=20
-> > As all event codes come in even/odd pairs, we can lookup the key type
-> > (KE_KEY/KE_IGNORE) for the key up event corresponding to the currently
-> > handled key down event. If the key up is ignored, we keep setting the
-> > autorelease flag for the key down.
-> >=20
-> > Signed-off-by: Stefan Br=FCns <stefan.bruens@rwth-aachen.de>
->=20
-> +Dmitry, curious for your take on this approach.
+    # echo "file drivers/i2c/*.c +p" > /sys/kernel/debug/dynamic_debug/cont=
+rol
+    # modprobe -r wacom
+    # modprobe wacom
 
-Any response would be appreciated. This is required to make Volume keys wor=
-k=20
-properly.
-=20
-> > ---
-> >=20
-> > Changes in v2:
-> > - New patch, add support for seperate key up/down in intel-vbtn
-> >=20
-> >  drivers/platform/x86/intel-vbtn.c | 17 +++++++++++++++--
-> >  1 file changed, 15 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/platform/x86/intel-vbtn.c
-> > b/drivers/platform/x86/intel-vbtn.c index ae55be91a64b..e3f6375af85c
-> > 100644
-> > --- a/drivers/platform/x86/intel-vbtn.c
-> > +++ b/drivers/platform/x86/intel-vbtn.c
-> > @@ -76,14 +76,27 @@ static void notify_handler(acpi_handle handle, u32
-> > event, void *context)>=20
-> >  {
-> > =20
-> >  	struct platform_device *device =3D context;
-> >  	struct intel_vbtn_priv *priv =3D dev_get_drvdata(&device->dev);
-> >=20
-> > +	const struct key_entry *ke_rel;
-> > +	bool autorelease;
-> >=20
-> >  	if (priv->wakeup_mode) {
-> >  =09
-> >  		if (sparse_keymap_entry_from_scancode(priv->input_dev, event)) {
-> >  	=09
-> >  			pm_wakeup_hard_event(&device->dev);
-> >  			return;
-> >  	=09
-> >  		}
-> >=20
-> > -	} else if (sparse_keymap_report_event(priv->input_dev, event, 1, true=
-))
-> > {
-> > -		return;
-> > +	} else {
-> > +		/* Use the fact press/release come in even/odd pairs */
-> > +		if ((event & 1) && sparse_keymap_report_event(priv->input_dev,
-> > +							      event, 0, false))
-> > +			return;
-> > +
-> > +		ke_rel =3D sparse_keymap_entry_from_scancode(priv->input_dev,
-> > +							   event | 1);
-> > +		autorelease =3D !ke_rel || ke_rel->type =3D=3D KE_IGNORE;
-> > +
-> > +		if (sparse_keymap_report_event(priv->input_dev, event, 1,
-> > +					       autorelease))
-> > +			return;
-> >=20
-> >  	}
-> >  	dev_dbg(&device->dev, "unknown event index 0x%x\n", event);
-> > =20
-> >  }
+Some of the I2C modules (which I suspect your sensor is using) log
+debug messages prior to returning EREMOTEIO. The above will cause
+these debug messages to be printed to dmesg and then reload the wacom
+module. With luck, we might gain a little more information about
+what's triggering the error.
 
+[1]: https://github.com/linuxwacom/wacom-hid-descriptors/
 
-=2D-=20
-Stefan Br=FCns  /  Bergstra=DFe 21  /  52062 Aachen
-home: +49 241 53809034     mobile: +49 151 50412019
---nextPart1852755.jDx2VezjqG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQSwWRWIpJbl0W4DemNvf0o9jP6qUwUCWir3GQAKCRBvf0o9jP6q
-U+I6AJ0QXDLlzd+h9bCga/9/KU776W7i5gCfYIGsfRCuDv+fbDPjvTNj3gLiQho=
-=LngH
------END PGP SIGNATURE-----
-
---nextPart1852755.jDx2VezjqG--
+On Thu, Nov 30, 2017 at 12:53 PM, Kevin Fenzi <kevin@scrye.com> wrote:
+> On 11/29/2017 01:43 PM, Jason Gerecke wrote:
+>> Hi Kevin,
+>>
+>> The Bluetooth and tablet issues are likely to be unrelated. The
+>> Bluetooth button is completely independent from the rest of the
+>> tablet, with neither the tablet sensor nor the Wacom driver being
+>> aware of it.
+>>
+>>>From what I understand, in normal operation the Bluetooth button is
+>> disconnected most of the time. When you press it, it briefly wakes up,
+>> connects to the paired PC, appears as a keyboard, sends a key combo,
+>> and then disconnects until you press it again. If you run something
+>> like `sudo libinput-debug-events` and then press the button, you
+>> should be able to see the key combo being sent (as well as the
+>> connect/disconnect). I'm not sure what's up with the deadlock warning
+>> that appears in dmesg, however...
+>
+> Ah, quite right. Sorry about that, this is my first device with a pen. I
+> expected it to just connect and stay there, but I suppose doing things
+> this way saves a ton of power since it's likely not writing most of the
+> time.
+>
+>>
+>> As for the tablet, the "last error =3D -121" indicates that we got an
+>> EREMOTEIO error. I've not come across that particular error in this
+>> function before. I'll need some time to track down why we might be
+>> getting this from the lower layers.
+>
+> ok, thanks! If you need any more info from me just ask. Happy to test
+> patches or gather more info.
+>
+> kevin
+> --
+>>
+>> Jason
+>> ---
+>> Now instead of four in the eights place /
+>> you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+>> (That is to say, eight) to the two,     /
+>> But you can=E2=80=99t take seven from three,    /
+>> So you look at the sixty-fours....
+>>
+>>
+>>
+>> On Mon, Nov 27, 2017 at 12:23 PM, Kevin Fenzi <kevin@scrye.com> wrote:
+>>> Greetings.
+>>>
+>>> I'm running into some problems with Lenovo active pen 2 and wacom table=
+t
+>>> on a new yoga 920.
+>>>
+>>> Filed:
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=3D1514837
+>>>
+>>> but I thought I would ask here if anyone had any ideas...
+>>>
+>>> Basically when pairing the pen it shows for a second, then drops:
+>>>
+>>> [Sat Nov 18 12:22:42 2017] input: Lenovo Active Pen2 as
+>>> /devices/virtual/misc/uhid/0005:17EF:60A8.0006/input/input23
+>>> [Sat Nov 18 12:22:42 2017] hid-generic 0005:17EF:60A8.0006:
+>>> input,hidraw4: BLUETOOTH HID v0.02 Keyboard [Lenovo Active Pen2] on
+>>> 64:6E:69:D1:A0:48
+>>> [Sat Nov 18 12:22:47 2017] Bluetooth: hci0: last event is not cmd
+>>> complete (0x0f)
+>>> [Sat Nov 18 12:23:03 2017] Bluetooth: hci0: last event is not cmd
+>>> complete (0x0f)
+>>> [Sat Nov 18 12:23:19 2017] Bluetooth: hci0: last event is not cmd
+>>> complete (0x0f)
+>>>
+>>> The wacom tablet is never connecting:
+>>>
+>>> [Fri Nov 24 21:47:01 2017] input: Wacom HID 5110 Pen as
+>>> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-WCOM5110:00=
+/0018:056A:5110.0003/input/input26
+>>> [Fri Nov 24 21:47:01 2017] input: Wacom HID 5110 Finger as
+>>> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-WCOM5110:00=
+/0018:056A:5110.0003/input/input27
+>>> [Fri Nov 24 21:47:01 2017] wacom 0018:056A:5110.0003: hidraw3: I2C HID
+>>> v1.00 Mouse [WCOM5110:00 056A:5110] on i2c-WCOM5110:00
+>>> [Fri Nov 24 21:47:02 2017] i2c_hid i2c-WCOM5110:00: failed to set a
+>>> report to device.
+>>> [Fri Nov 24 21:47:02 2017] wacom 0018:056A:5110.0003: wacom_set_report:
+>>> ran out of retries (last error =3D -121)
+>>> [Fri Nov 24 21:47:02 2017] i2c_hid i2c-WCOM5110:00: failed to set a
+>>> report to device.
+>>>
+>>> Happy to gather more info and/or try patches.
+>>>
+>>> Thanks.
+>>>
+>>> kevin
+>>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" i=
+n
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>
+>
+>

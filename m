@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 1/2] HID: use BIT macro instead of plain integers for flags
-Date: Fri,  8 Dec 2017 15:28:17 +0100
-Message-ID: <20171208142818.15156-2-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 2/2] HID: input: do not increment usages when a duplicate is found
+Date: Fri,  8 Dec 2017 15:28:18 +0100
+Message-ID: <20171208142818.15156-3-benjamin.tissoires@redhat.com>
 References: <20171208142818.15156-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171208142818.15156-1-benjamin.tissoires@redhat.com>
@@ -10,38 +10,117 @@ To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This can lead to some hairy situation with the developer losing
-a day or two realizing that 4 should be after 2, not 3.
+This is something that bothered us from a long time. When hid-input
+doesn't know how to map a usage, it uses *_MISC. But there is something
+else which increments the usage if the evdev code is already used.
+
+This leads to few issues:
+- some devices may have their ABS_X mapped to ABS_Y if they export a bad
+  set of usages (see the DragonRise joysticks IIRC -> fixed in a specific
+  HID driver)
+- *_MISC + N might (will) conflict with other defined axes (my Logitech
+  H800 exports some multitouch axes because of that)
+- this prevents to freely add some new evdev usages, because "hey, my
+  headset will now report ABS_COFFEE, and it's not coffee capable".
+
+So let's try to kill this nonsense, and hope we won't break too many
+devices.
+
+I my headset case, the ABS_MISC axes are created because of some
+proprietary usages, so we might not break that many devices.
+
+For backward compatibility, a quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE
+is created and can be applied to any device that needs this behavior.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
 
-new in v2
+changes in v2:
+- fixed a bug where the flag was not used properly and prevented to
+  remove devices
+- downgrade the error message from info to debug, given that when
+  hid-generic binds first, it will output such kernel log for every
+  multitouch device.
 
- include/linux/hid.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/hid-input.c | 33 +++++++++++++++++++++++++++++++--
+ include/linux/hid.h     |  2 ++
+ 2 files changed, 33 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 04d01b57d94c..31bbeb7019bd 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1100,8 +1100,31 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 
+ 	set_bit(usage->type, input->evbit);
+ 
+-	while (usage->code <= max && test_and_set_bit(usage->code, bit))
+-		usage->code = find_next_zero_bit(bit, max + 1, usage->code);
++	/*
++	 * This part is *really* controversial:
++	 * - HID aims at being generic so we should do our best to export
++	 *   all incoming events
++	 * - HID describes what events are, so there is no reason for ABS_X
++	 *   to be mapped to ABS_Y
++	 * - HID is using *_MISC+N as a default value, but nothing prevents
++	 *   *_MISC+N to overwrite a legitimate even, which confuses userspace
++	 *   (for instance ABS_MISC + 7 is ABS_MT_SLOT, which has a different
++	 *   processing)
++	 *
++	 * If devices still want to use this (at their own risk), they will
++	 * have to use the quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE, but
++	 * the default should be a reliable mapping.
++	 */
++	while (usage->code <= max && test_and_set_bit(usage->code, bit)) {
++		if (device->quirks & HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE) {
++			usage->code = find_next_zero_bit(bit,
++							 max + 1,
++							 usage->code);
++		} else {
++			device->status |= HID_STAT_DUP_DETECTED;
++			goto ignore;
++		}
++	}
+ 
+ 	if (usage->code > max)
+ 		goto ignore;
+@@ -1610,6 +1633,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 	INIT_LIST_HEAD(&hid->inputs);
+ 	INIT_WORK(&hid->led_work, hidinput_led_worker);
+ 
++	hid->status &= ~HID_STAT_DUP_DETECTED;
++
+ 	if (!force) {
+ 		for (i = 0; i < hid->maxcollection; i++) {
+ 			struct hid_collection *col = &hid->collection[i];
+@@ -1676,6 +1701,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 		goto out_unwind;
+ 	}
+ 
++	if (hid->status & HID_STAT_DUP_DETECTED)
++		hid_dbg(hid,
++			"Some usages could not be mapped, please use HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE if this is legitimate.\n");
++
+ 	return 0;
+ 
+ out_unwind:
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index a62ee4a609ac..421b62b77c69 100644
+index 421b62b77c69..de3a8700ccf1 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -494,13 +494,13 @@ struct hid_output_fifo {
- 	char *raw_report;
- };
+@@ -344,6 +344,7 @@ struct hid_item {
+ #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
+ #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
+ #define HID_QUIRK_HAVE_SPECIAL_DRIVER		0x00080000
++#define HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE	0x00100000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
+ #define HID_QUIRK_NO_INIT_REPORTS		0x20000000
+ #define HID_QUIRK_NO_IGNORE			0x40000000
+@@ -501,6 +502,7 @@ struct hid_output_fifo {
  
--#define HID_CLAIMED_INPUT	1
--#define HID_CLAIMED_HIDDEV	2
--#define HID_CLAIMED_HIDRAW	4
--#define HID_CLAIMED_DRIVER	8
-+#define HID_CLAIMED_INPUT	BIT(0)
-+#define HID_CLAIMED_HIDDEV	BIT(1)
-+#define HID_CLAIMED_HIDRAW	BIT(2)
-+#define HID_CLAIMED_DRIVER	BIT(3)
- 
--#define HID_STAT_ADDED		1
--#define HID_STAT_PARSED		2
-+#define HID_STAT_ADDED		BIT(0)
-+#define HID_STAT_PARSED		BIT(1)
+ #define HID_STAT_ADDED		BIT(0)
+ #define HID_STAT_PARSED		BIT(1)
++#define HID_STAT_DUP_DETECTED	BIT(2)
  
  struct hid_input {
  	struct list_head list;

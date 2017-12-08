@@ -1,46 +1,69 @@
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?=
-        <mylene.josserand@free-electrons.com>
-Subject: [PATCH 2/5] arm: dts: sun8i: a83t: Add I2C0 pins group
-Date: Fri,  8 Dec 2017 22:54:16 +0100
-Message-ID: <20171208215419.30396-3-mylene.josserand@free-electrons.com>
+From: Mylene JOSSERAND <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 0/5] sun8i-a83t: Add touchscreen support on TBS A711
+Date: Fri, 8 Dec 2017 23:01:36 +0100
+Message-ID: <20171208230136.1227eed5@dell-desktop.home>
 References: <20171208215419.30396-1-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:51817 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753049AbdLHVyz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Dec 2017 16:54:55 -0500
-In-Reply-To: <20171208215419.30396-1-mylene.josserand@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171208215419.30396-1-mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: simon.budig-t93Ne7XHvje5bSeCtf/tX7NAH6kLmebB@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, maxime.ripard@free-electrons.com, wens@csie.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: simon.budig@kernelconcepts.de, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, mylene.josserand@free-electrons.com, thomas.petazzoni@free-electrons.com
 
-Add pins group to configure it as I2C0.
+Hi,
 
-Signed-off-by: Mylène Josserand <mylene.josserand@free-electrons.com>
----
- arch/arm/boot/dts/sun8i-a83t.dtsi | 5 +++++
- 1 file changed, 5 insertions(+)
+Le Fri,  8 Dec 2017 22:54:14 +0100,
+Mylène Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> a écrit :
 
-diff --git a/arch/arm/boot/dts/sun8i-a83t.dtsi b/arch/arm/boot/dts/sun8i-a83t.dtsi
-index 848cf3f19962..3bce6bd3dc79 100644
---- a/arch/arm/boot/dts/sun8i-a83t.dtsi
-+++ b/arch/arm/boot/dts/sun8i-a83t.dtsi
-@@ -347,6 +347,11 @@
- 			#interrupt-cells = <3>;
- 			#gpio-cells = <3>;
- 
-+			i2c0_pins: i2c0-pins {
-+				pins = "PH0", "PH1";
-+				function = "i2c0";
-+			};
-+
- 			mmc0_pins: mmc0-pins {
- 				pins = "PF0", "PF1", "PF2",
- 				       "PF3", "PF4", "PF5";
--- 
-2.11.0
+> Hello everyone,
+> 
+> This patch series adds touchscreen support (FocalTech EDT-FT5x06
+> Polytouch) for TBS A711 (Allwinner sun8i-a83t SoC).
+> This touchscreen is using i2c so this series adds support of this bus
+> on A83T.
+> 
+> Series information:
+>    - Based on last linux-next (next-20171208)
+>    - Had dependencies on AXP209 Quentin Schultz's series:
+>    https://www.spinics.net/lists/linux-gpio/msg26913.htmlx
 
+I forgot to mention a dependency on Maxime Ripard's patch that
+reinstate AXP813 PMIC:
+https://patchwork.kernel.org/patch/10077037/
+
+Thanks,
+
+Mylène
+
+> 
+> Patch 01: Add i2c0 node on a83t device tree.
+> Patch 02: Add i2c0 pin group.
+> Patch 03: Enable i2c0 on TBS A711.
+> Patch 04: Add support for regulator in the FocalTech touchscreen
+> driver because A711 tablet is using a regulator to power-up the
+> touchscreen. Patch 05: Add the touchscreen node in A711 TBS tablet.
+> 
+> Thank you in advance for any review.
+> Best regards,
+> Mylène
+> 
+> Mylène Josserand (5):
+>   arm: dts: sun8i: a83t: Add I2C0 node
+>   arm: dts: sun8i: a83t: Add I2C0 pins group
+>   arm: dts: sun8i: a83t: a711: Enable I2C0
+>   Input: edt-ft5x06 - Add support for regulator
+>   arm: dts: sun8i: a83t: a711: Add touchscreen node
+> 
+>  arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts | 18 +++++++++++++++++
+>  arch/arm/boot/dts/sun8i-a83t.dtsi         | 16 +++++++++++++++
+>  drivers/input/touchscreen/edt-ft5x06.c    | 33
+> +++++++++++++++++++++++++++++++ 3 files changed, 67 insertions(+)
+> 
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,84 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/5] Input: edt-ft5x06 - Add support for regulator
-Date: Fri, 8 Dec 2017 17:24:46 -0800
-Message-ID: <20171209012446.4oha36s6pf2fjlvn@dtor-ws>
-References: <20171208215419.30396-1-mylene.josserand@free-electrons.com>
- <20171208215419.30396-5-mylene.josserand@free-electrons.com>
- <20171209011629.4nkcjxj2l2j7zyph@dtor-ws>
+From: Tomasz Kramkowski <tk@the-tk.com>
+Subject: Re: [PATCH] HID: elecom: rewrite report fixup for EX-G and future
+ mice
+Date: Sat, 9 Dec 2017 17:23:11 +0000
+Message-ID: <20171209172311.GA5570@gaia.local>
+References: <20171204205550.2621-1-tk@the-tk.com>
+ <20171205201307.GA13831@gaia.local>
+ <nycvar.YFH.7.76.1712071103120.3572@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:39634 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752240AbdLIBYu (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Dec 2017 20:24:50 -0500
+Received: from erebus.the-tk.com ([109.74.205.187]:56608 "EHLO
+        erebus.the-tk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750954AbdLIRXT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 9 Dec 2017 12:23:19 -0500
 Content-Disposition: inline
-In-Reply-To: <20171209011629.4nkcjxj2l2j7zyph@dtor-ws>
+In-Reply-To: <nycvar.YFH.7.76.1712071103120.3572@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, maxime.ripard@free-electrons.com, wens@csie.org, linux-input@vger.kernel.org, simon.budig@kernelconcepts.de, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@free-electrons.com
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Yuxuan Shui <yshuiv7@gmail.com>, Diego Elio =?iso-8859-1?Q?Petten=F2?= <flameeyes@flameeyes.eu>, Alex Manoussakis <amanou@gnu.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2017 at 05:16:29PM -0800, Dmitry Torokhov wrote:
-> Hi Mylène,
+On Thu, Dec 07, 2017 at 11:04:37AM +0100, Jiri Kosina wrote:
+> On Tue, 5 Dec 2017, Tomasz Kramkowski wrote:
 > 
-> On Fri, Dec 08, 2017 at 10:54:18PM +0100, Mylène Josserand wrote:
-> > Add the support of regulator to use them as VCC source.
+> > On Mon, Dec 04, 2017 at 08:55:50PM +0000, Tomasz Kramkowski wrote:
+> > > +static void mouse_button_fixup(struct hid_device *hdev,
+> > > +			       __u8 *rdesc, unsigned int *rsize,
+> > > +			       int nbuttons)
 > > 
-> > Signed-off-by: Mylène Josserand <mylene.josserand@free-electrons.com>
-> > ---
-> >  drivers/input/touchscreen/edt-ft5x06.c | 33 +++++++++++++++++++++++++++++++++
-> >  1 file changed, 33 insertions(+)
-> > 
-> > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> > index c53a3d7239e7..44b0e04a8f35 100644
-> > --- a/drivers/input/touchscreen/edt-ft5x06.c
-> > +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> > @@ -39,6 +39,7 @@
-> >  #include <linux/input/mt.h>
-> >  #include <linux/input/touchscreen.h>
-> >  #include <linux/of_device.h>
-> > +#include <linux/regulator/consumer.h>
-> >  
-> >  #define WORK_REGISTER_THRESHOLD		0x00
-> >  #define WORK_REGISTER_REPORT_RATE	0x08
-> > @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
-> >  	struct touchscreen_properties prop;
-> >  	u16 num_x;
-> >  	u16 num_y;
-> > +	struct regulator *supply;
-> >  
-> >  	struct gpio_desc *reset_gpio;
-> >  	struct gpio_desc *wake_gpio;
-> > @@ -993,6 +995,23 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
-> >  
-> >  	tsdata->max_support_points = chip_data->max_support_points;
-> >  
-> > +	tsdata->supply = devm_regulator_get_optional(&client->dev, "power");
+> > I've just remembered what has been bugging me yesterday when I was
+> > reviewing this patch. I had come to the realisation (and then
+> > subsequently forgotten) that this function should probably return __u8 *
+> > and also get assigned to rdesc on the other end. It seems to me that it
+> > makes most sense to allow for the possibility (although slim) of this
+> > function eventually being expanded to actually replace the report
+> > descriptor 
 > 
-> I'd prefer if we used devm_regulator_get() instead. On a
-> fully-constrained systems a missing regulator will be substituted with a
-> dummy one that you can then use in regulator_enable() and
-> regulator_disable(). The _optional regulator API is reserved for cases
-> where some of chip functionality is optional and you can engage it by
-> powering up parts of the chip. The reset is not such case: it is always
-> present, but may not be exposed to the OS to control.
-> 
-> I think the preference is to call the supply by the name is a datasheet,
-> something like "vcc" or "vdd", etc.
+> Sure, but you can extend the API of mouse_button_fixup() once such need 
+> arises; no need to pass data pointers around without having actual use for 
+> them.
 
-Looking at this some more, you need to make sure your new regulator
-support plays well with reset/wake GPIOs. I.e. you probably want to
-properly bring the chip out of reset in edt_ft5x06_ts_resume() and maybe
-driver the reset line low in suspend to make sure you do not leak into
-the unpowered chip?
-
-Also, please update
-Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt with
-the additional binding data and cc device tree folks and Rob Herring.
-
-Thanks.
+Alright, that's fine. Anything else to change before I send a v2? Also,
+would you like v2 in-reply-to the root of this thread or as its own
+thread?
 
 -- 
-Dmitry
+Tomasz Kramkowski | GPG: 40B037BA0A5B8680 | Web: https://the-tk.com/

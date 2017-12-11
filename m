@@ -1,84 +1,57 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH 3/5] arm: dts: sun8i: a83t: a711: Enable I2C0
-Date: Mon, 11 Dec 2017 08:18:01 +0100
-Message-ID: <20171211071801.ekdzbimk5nvlvekr@flea.lan>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [PATCH 1/5] arm: dts: sun8i: a83t: Add I2C0 node
+Date: Mon, 11 Dec 2017 16:31:20 +0800
+Message-ID: <CAGb2v64awf8YwBM-M6GS_dy+6mpT1e5Bzy-zLYNfRmjLGb55bw@mail.gmail.com>
 References: <20171208215419.30396-1-mylene.josserand@free-electrons.com>
- <20171208215419.30396-4-mylene.josserand@free-electrons.com>
+ <20171208215419.30396-2-mylene.josserand@free-electrons.com> <20171211071513.xgni3t6ihmeeebre@flea.lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="pwxi2hi2goctnmj4"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:51939 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751356AbdLKHSC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 11 Dec 2017 02:18:02 -0500
-Content-Disposition: inline
-In-Reply-To: <20171208215419.30396-4-mylene.josserand@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171211071513.xgni3t6ihmeeebre-ZC1Zs529Oq4@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: =?UTF-8?Q?Myl=C3=A8ne_Josserand?= <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, simon.budig-t93Ne7XHvje5bSeCtf/tX7NAH6kLmebB@public.gmane.org, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, wens@csie.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, simon.budig@kernelconcepts.de, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@free-electrons.com
 
+On Mon, Dec 11, 2017 at 3:15 PM, Maxime Ripard
+<maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+> Hi,
+>
+> On Fri, Dec 08, 2017 at 10:54:15PM +0100, Mylène Josserand wrote:
+>> Add I2C0 node for A83T.
+>>
+>> Signed-off-by: Mylène Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+>> ---
+>>  arch/arm/boot/dts/sun8i-a83t.dtsi | 11 +++++++++++
+>>  1 file changed, 11 insertions(+)
+>>
+>> diff --git a/arch/arm/boot/dts/sun8i-a83t.dtsi b/arch/arm/boot/dts/sun8i-a83t.dtsi
+>> index 19acae1b4089..848cf3f19962 100644
+>> --- a/arch/arm/boot/dts/sun8i-a83t.dtsi
+>> +++ b/arch/arm/boot/dts/sun8i-a83t.dtsi
+>> @@ -177,6 +177,17 @@
+>>                       #dma-cells = <1>;
+>>               };
+>>
+>> +             i2c0: i2c@01c2ac00 {
+>
+> Drop the leading 0, it generates a warning in dtc.
+>
+>> +                     compatible = "allwinner,sun6i-a31-i2c";
+>
+> Can you add a SoC-specific compatible there please?
+>
+>> +                     reg = <0x01c2ac00 0x400>;
+>
+> And you should order your nodes by physical address.
 
---pwxi2hi2goctnmj4
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have a similar patch in my A83T I2S branch:
 
-Hi,
+https://github.com/wens/linux/commit/8b76a3e555b39a06f3f8182e4ff5645de4c4cbc3
 
-On Fri, Dec 08, 2017 at 10:54:17PM +0100, Myl=E8ne Josserand wrote:
-> The A711 has a touchscreen connected by I2C0.
-> Enable only I2C0 node for the moment.
->=20
-> Signed-off-by: Myl=E8ne Josserand <mylene.josserand@free-electrons.com>
-> ---
->  arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts | 7 +++++++
->  1 file changed, 7 insertions(+)
->=20
-> diff --git a/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts b/arch/arm/boot/dt=
-s/sun8i-a83t-tbs-a711.dts
-> index a021ee6da396..84cca1a48cea 100644
-> --- a/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
-> +++ b/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
-> @@ -105,6 +105,13 @@
->  	status =3D "okay";
->  };
-> =20
-> +&i2c0 {
-> +	pinctrl-names =3D "default";
-> +	pinctrl-0 =3D <&i2c0_pins>;
-
-If there's only one set of pins, maybe we should force that muxing in
-the DTSI?
-
-Thanks!
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---pwxi2hi2goctnmj4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIyBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlouMSUACgkQ0rTAlCFN
-r3Txnw/4os801IV5pqqyfTEKogFmGhysgg7sAyWN0Z0o+v0JNYC7d3nrFXtnHiyr
-ZaNYj1lGrF55aP34cdTO5CYbyXIWh5sns2UWKuU594QD8hFcZoNxddSxvpkBLIMY
-/726G81jWamwtHynfedAgySCur2kqndax4oboj9fyg1D+n0o3NTupH9rohZtUWB4
-jlKpDBQpzFSqA2AgGbvTKX9g9nEUve2s84bvzRDpAEezwYKif/9/KdB5J8JjeQp+
-jOo4oEBYszZmmrfBNFl6Go2YB2ly43F/6nSisJGTFGr42SlT3bQ0/lF6Tr9W9yR3
-Oo0YewC/7y2LoejMctLg39FT+wEqqvnUT4S5xa82Wq0sRT8X8wuOH/YGLf6buOgw
-dNWSMJfZuni+TjHcKMp0Aeyeg+KWq0qB6xpVTRe4tCNJUW8/eX29A3F9C9sRafSk
-PuLPYesPMRHgxb1JGEdZC+te/VWAHsGINtX6+9b5Jn9A8Mi45TkpAIIz+093AiOo
-nRbylBO2oLHsncLMH6qia4CMdL+eUG0DQxNANU7+YACNaSVQermjmqh3cn2Ygf1v
-OW4o5O912mSVOX4Xzze3gtJNS7tePE6imLDgWa1XCScSgVeZwASBEQ8wy91l1cIO
-Vl7NAoEWIuhugUhO8teSdJjIA24TSPTAnjzd32bu8XufPFigyw==
-=FJUm
------END PGP SIGNATURE-----
-
---pwxi2hi2goctnmj4--
+ChenYu
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

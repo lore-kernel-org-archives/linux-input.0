@@ -1,54 +1,57 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 5/5] arm: dts: sun8i: a83t: a711: Add touchscreen node
-Date: Mon, 11 Dec 2017 08:16:35 +0100
-Message-ID: <20171211071635.4ntdksmjino4uh2i@flea.lan>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH 3/5] arm: dts: sun8i: a83t: a711: Enable I2C0
+Date: Mon, 11 Dec 2017 08:18:01 +0100
+Message-ID: <20171211071801.ekdzbimk5nvlvekr@flea.lan>
 References: <20171208215419.30396-1-mylene.josserand@free-electrons.com>
- <20171208215419.30396-6-mylene.josserand@free-electrons.com>
+ <20171208215419.30396-4-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wiz72sqo6qhqdtvk"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="pwxi2hi2goctnmj4"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:51939 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751356AbdLKHSC (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 11 Dec 2017 02:18:02 -0500
 Content-Disposition: inline
-In-Reply-To: <20171208215419.30396-6-mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, simon.budig-t93Ne7XHvje5bSeCtf/tX7NAH6kLmebB@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+In-Reply-To: <20171208215419.30396-4-mylene.josserand@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, wens@csie.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, simon.budig@kernelconcepts.de, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@free-electrons.com
 
 
---wiz72sqo6qhqdtvk
+--pwxi2hi2goctnmj4
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On Fri, Dec 08, 2017 at 10:54:19PM +0100, Myl=E8ne Josserand wrote:
-> Tha A711 tablet has a FocalTech EDT-FT5x06 Polytouch touchscreen.
-> It is connected via I2C0 so add his node in i2c0's node.
+On Fri, Dec 08, 2017 at 10:54:17PM +0100, Myl=E8ne Josserand wrote:
+> The A711 has a touchscreen connected by I2C0.
+> Enable only I2C0 node for the moment.
 >=20
-> The reset line is PD5, the interrupt line is PL7 and the power
-> supply is the ldo_io0 regulator.
->=20
-> Signed-off-by: Myl=E8ne Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Signed-off-by: Myl=E8ne Josserand <mylene.josserand@free-electrons.com>
 > ---
->  arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+>  arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts | 7 +++++++
+>  1 file changed, 7 insertions(+)
 >=20
 > diff --git a/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts b/arch/arm/boot/dt=
 s/sun8i-a83t-tbs-a711.dts
-> index 84cca1a48cea..738359917a34 100644
+> index a021ee6da396..84cca1a48cea 100644
 > --- a/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
 > +++ b/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
-> @@ -110,6 +110,17 @@
->  	pinctrl-0 =3D <&i2c0_pins>;
->  	clock-frequency =3D <400000>;
+> @@ -105,6 +105,13 @@
 >  	status =3D "okay";
-> +
-> +	polytouch: edt-ft5x06@38 {
+>  };
+> =20
+> +&i2c0 {
+> +	pinctrl-names =3D "default";
+> +	pinctrl-0 =3D <&i2c0_pins>;
 
-You're not using that label anywhere, so you can drop it, and the node
-name must be the class of the device.
+If there's only one set of pins, maybe we should force that muxing in
+the DTSI?
 
 Thanks!
 Maxime
@@ -58,28 +61,24 @@ Maxime Ripard, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
 
---wiz72sqo6qhqdtvk
+--pwxi2hi2goctnmj4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlouMM8ACgkQ0rTAlCFN
-r3R1zw//aRFpquavLrgR9AuPEmGk7PvCAvv+jUsoFmg/La2tOYZBWoUCht9l7kzc
-U064V8gnUHv/Ux5rXedlDjD+mJN4BUnWlZCOWXVYzv1jqSLkNd2jKpBHzhQpKNZf
-890QSGi871/KxkwghDplpfAeVCZe4M5QxYfSFotOuAlYqER1YJ6ize+FqAfilieD
-cxJvYjVs1OuKP1Z/tEGR8Y+dS9JhFkNMkcS7VDNgpKW13Ksm6ZUtLCOCYBztfO6D
-bx7y2a6duFzMPiJVDWvWeXVw4pQe7GKLF47LXJmr69S74ETeOWYws29wP3uhirUv
-lhNuwZ+d79kYfsO8XZZ/+XshcgnpwQ5C8EDC30YkAJwJztN2U6ytZkpMakTTUDyu
-tH0MQ6aVzM3oYrAOa2XCXZBIoBAWuv2gHOyphp38yM/VriFOFQBW4+2AYM6Hvn+P
-IhJLiN23KrfJ1x7em4VCGgAsVkYcYXt0DST6ivmBc2v90M9xwuFi47flaGSLYuUd
-Y91kxxmoQ0NUK9ljq6tK0CBb7Ydv4Ol3iwwiXszV/IZFoKnzjOkxxnSXLMZ/S2QY
-+P6GIuXnYx0Gm/hi0NVDDOwiuIOLKgifhk3W2FNmLnrg6pMlzLFNQogP5KvbQ/tI
-oo3xTcyoVXQBuq3NmNT9XRuj7lUtITOJgAjpJhfoaAJeYbGp2Ww=
-=1zuM
+iQIyBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlouMSUACgkQ0rTAlCFN
+r3Txnw/4os801IV5pqqyfTEKogFmGhysgg7sAyWN0Z0o+v0JNYC7d3nrFXtnHiyr
+ZaNYj1lGrF55aP34cdTO5CYbyXIWh5sns2UWKuU594QD8hFcZoNxddSxvpkBLIMY
+/726G81jWamwtHynfedAgySCur2kqndax4oboj9fyg1D+n0o3NTupH9rohZtUWB4
+jlKpDBQpzFSqA2AgGbvTKX9g9nEUve2s84bvzRDpAEezwYKif/9/KdB5J8JjeQp+
+jOo4oEBYszZmmrfBNFl6Go2YB2ly43F/6nSisJGTFGr42SlT3bQ0/lF6Tr9W9yR3
+Oo0YewC/7y2LoejMctLg39FT+wEqqvnUT4S5xa82Wq0sRT8X8wuOH/YGLf6buOgw
+dNWSMJfZuni+TjHcKMp0Aeyeg+KWq0qB6xpVTRe4tCNJUW8/eX29A3F9C9sRafSk
+PuLPYesPMRHgxb1JGEdZC+te/VWAHsGINtX6+9b5Jn9A8Mi45TkpAIIz+093AiOo
+nRbylBO2oLHsncLMH6qia4CMdL+eUG0DQxNANU7+YACNaSVQermjmqh3cn2Ygf1v
+OW4o5O912mSVOX4Xzze3gtJNS7tePE6imLDgWa1XCScSgVeZwASBEQ8wy91l1cIO
+Vl7NAoEWIuhugUhO8teSdJjIA24TSPTAnjzd32bu8XufPFigyw==
+=FJUm
 -----END PGP SIGNATURE-----
 
---wiz72sqo6qhqdtvk--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--pwxi2hi2goctnmj4--

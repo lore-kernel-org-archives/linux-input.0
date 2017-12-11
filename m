@@ -1,56 +1,87 @@
-From: Scott Moreau <oreaus@gmail.com>
-Subject: [PATCH] HID: sony: Fix up nyko core controller
-Date: Sun, 10 Dec 2017 19:51:48 -0700
-Message-ID: <1512960708-23379-1-git-send-email-oreaus@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:36737 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751640AbdLKCvw (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 10 Dec 2017 21:51:52 -0500
-Received: by mail-it0-f65.google.com with SMTP id d16so12526089itj.1
-        for <linux-input@vger.kernel.org>; Sun, 10 Dec 2017 18:51:52 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 1/5] arm: dts: sun8i: a83t: Add I2C0 node
+Date: Mon, 11 Dec 2017 08:15:13 +0100
+Message-ID: <20171211071513.xgni3t6ihmeeebre@flea.lan>
+References: <20171208215419.30396-1-mylene.josserand@free-electrons.com>
+ <20171208215419.30396-2-mylene.josserand@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7mew5amzvozgr3w3"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20171208215419.30396-2-mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, simon.budig-t93Ne7XHvje5bSeCtf/tX7NAH6kLmebB@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Scott Moreau <oreaus@gmail.com>
 
-This fixes missing d-pad axis broken since e19a267b99. The axis mapping for
-the nyko controller has the d-pad as axis 0x39 instead of d-pad as buttons.
-This is handled by the default hid mapping so we return 0 in sony_mapping.
-This controller also has no accelerometer so avoid initializing it with
-a condition in sony_input_configured() to setup these controllers.
----
- drivers/hid/hid-sony.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index b9dc3ac..e703024 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1225,6 +1225,9 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (sc->quirks & NAVIGATION_CONTROLLER)
- 		return navigation_mapping(hdev, hi, field, usage, bit, max);
- 
-+	if (sc->quirks & SINO_LITE_CONTROLLER)
-+		return 0;
-+
- 	if (sc->quirks & SIXAXIS_CONTROLLER)
- 		return sixaxis_mapping(hdev, hi, field, usage, bit, max);
- 
-@@ -2566,6 +2569,12 @@ static int sony_input_configured(struct hid_device *hdev,
- 		}
- 
- 		sony_init_output_report(sc, sixaxis_send_output_report);
-+	} else if (sc->quirks & SINO_LITE_CONTROLLER) {
-+		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
-+		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
-+		sc->defer_initialization = 1;
-+
-+		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
- 		/*
- 		 * The Sony Sixaxis does not handle HID Output Reports on the
--- 
-2.7.4
+--7mew5amzvozgr3w3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
+
+On Fri, Dec 08, 2017 at 10:54:15PM +0100, Myl=E8ne Josserand wrote:
+> Add I2C0 node for A83T.
+>=20
+> Signed-off-by: Myl=E8ne Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/sun8i-a83t.dtsi | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+>=20
+> diff --git a/arch/arm/boot/dts/sun8i-a83t.dtsi b/arch/arm/boot/dts/sun8i-=
+a83t.dtsi
+> index 19acae1b4089..848cf3f19962 100644
+> --- a/arch/arm/boot/dts/sun8i-a83t.dtsi
+> +++ b/arch/arm/boot/dts/sun8i-a83t.dtsi
+> @@ -177,6 +177,17 @@
+>  			#dma-cells =3D <1>;
+>  		};
+> =20
+> +		i2c0: i2c@01c2ac00 {
+
+Drop the leading 0, it generates a warning in dtc.
+
+> +			compatible =3D "allwinner,sun6i-a31-i2c";
+
+Can you add a SoC-specific compatible there please?
+
+> +			reg =3D <0x01c2ac00 0x400>;
+
+And you should order your nodes by physical address.
+
+Thanks!
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+--7mew5amzvozgr3w3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlouMG4ACgkQ0rTAlCFN
+r3SFSQ//SmWtanFavf2njXBSWdiV4WzofrO19jkgxy9m15Q2N6QsqlXG55CdFyWZ
+YiH2PCVExuXs2g9011yDp83RcL3FxM/C9K17ouSw4F8DB+tCEHVB+KV/tlzTHXJN
+XZ74+yBlFSnZA+T/S2s1j/cNU5sLIOE0O+E8unkhA30h52rGGB6A/UGVGY5iQFpU
++iu8UsFKWHueHxp/i+elXVjomGMXdImcSmnGczaIg9dU+hrtyPuEOdpGElMkOEiG
+2Gsyy1jXsovlXgY3TDWPAdfQUWZiSmHnhXkE2hX6r1lRhvitdEJbtMBjhqGgb/OJ
+kjtNEO7R9ktWkIomusLjBT1VxDODbdntPMClez4ZaUNPsK9hOyBQ9aG3fULeSLLK
+wbqozA97PGAwq7pm32vM91inyfUbSoY1P3oYglK1O1NfVfCYTOn1o54WLoT4wiZh
+Dc/AZASek2fGkxhqxn9IXw06lWkJsPo2HuQ3/wNuQ12KEngTNEBdC9KrsbZAUXSp
+GeqcXPGnuEDkltT0ZC5saUg6ClGUqtJcWgd8Xrwaw5m750IYFbNJsFSPg6eUlktC
+Cs254EEvsqMDJAdnMniIz6LgnV8WH/3LSAaf+ma6buaMek3ygk0JOWL9MnlzZNVq
+VzUezZRsX6IpAMyoaC5ruEGwz1zgvnDzCEF4c/kv3dv67N1+N5w=
+=0jog
+-----END PGP SIGNATURE-----
+
+--7mew5amzvozgr3w3--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

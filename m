@@ -1,29 +1,42 @@
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: [PATCH] Add touchscreen platform data for the Onda oBook 20 Plus tablet.
-Date: Tue, 12 Dec 2017 03:11:23 +0200
-Message-ID: <Mahogany-0.68.0-8070-20171212-031123.01@nerijus.sat.lt>
-References: <20171210220213.19290-1-nerijus@users.sourceforge.net> <17392159-0968-89f6-d716-137d006a0d80@gmail.com>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Re: [PATCH v2] Input: Add support for PDP Xbox One controllers
+Date: Mon, 11 Dec 2017 21:42:11 -0800
+Message-ID: <c3e05db2-801e-72d6-ebce-6a27ffaef538@gmail.com>
+References: <20171210185208.08d7e52c@volta>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bluegene.sat.lt ([88.119.145.12]:42836 "HELO bluegene.sat.lt"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-        id S1752501AbdLLBMQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 11 Dec 2017 20:12:16 -0500
-Content-Disposition: INLINE
-In-Reply-To: <17392159-0968-89f6-d716-137d006a0d80@gmail.com>
+Received: from mail-pf0-f171.google.com ([209.85.192.171]:43817 "EHLO
+        mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750749AbdLLFmN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 12 Dec 2017 00:42:13 -0500
+Received: by mail-pf0-f171.google.com with SMTP id e3so13420043pfi.10
+        for <linux-input@vger.kernel.org>; Mon, 11 Dec 2017 21:42:13 -0800 (PST)
+In-Reply-To: <20171210185208.08d7e52c@volta>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gregor Riepl <onitake@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: "Mark Furneaux (by way of Mark Furneaux <mark@furneaux.ca>)" <mark@furneaux.ca>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Mon, 11 Dec 2017 19:25:40 +0100 Gregor Riepl <onitake@gmail.com> wrote:
-
-> > +	PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-onda-obook-20-plus.fw"),
+On 12/10/2017 03:52 PM, Mark Furneaux (by way of Mark Furneaux <mark@furneaux.ca>) wrote:
+> Input: Add support for PDP Xbox One controllers
 > 
-> Firmware for this is available here:
-> https://github.com/onitake/gsl-firmware/blob/master/firmware/linux/silead/gsl3676-onda-obook-20-plus.fw
+> Adds support for the current lineup of Xbox One controllers from PDP
+> (Performance Designed Products). These controllers are very picky with
+> their initialization sequence and require an additional 2 packets before
+> they send any input reports.
+> 
+> Signed-off-by: Mark Furneaux <mark@furneaux.ca>
+> 
+> ---
+> Changes in v2:
+> 
+> - Zeroed the sequence numbers and removed the redundant quirk entry.
+> - Corrected mangled formatting from my email client.
+> 
 
-BTW, what could be done with these firmware files? Is it possible to include them in linux-firmware?
+Thanks, LGTM.
 
-Regards,
-Nerijus
+Reviewed-by: Cameron Gutman <aicommander@gmail.com>

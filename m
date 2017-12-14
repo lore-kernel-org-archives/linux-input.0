@@ -1,72 +1,79 @@
-From: Alex Manoussakis <amanou@gnu.org>
-Subject: Re: [PATCH] HID: elecom: rewrite report fixup for EX-G and future
- mice
-Date: Wed, 13 Dec 2017 20:02:02 -0500
-Message-ID: <20171214010202.GA16635@gnu.org>
-References: <20171204205550.2621-1-tk@the-tk.com>
- <20171205201307.GA13831@gaia.local>
- <nycvar.YFH.7.76.1712071103120.3572@cbobk.fhfr.pm>
- <20171209172311.GA5570@gaia.local>
- <nycvar.YFH.7.76.1712111128080.3572@cbobk.fhfr.pm>
- <20171211173116.GA9941@gnu.org>
- <20171213214746.GA23615@gaia.local>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH v4 0/4] Make input drivers y2038 safe
+Date: Thu, 14 Dec 2017 15:33:37 +1000
+Message-ID: <20171214053255.GA4638@jelly>
+References: <20171207181306.5623-1-deepa.kernel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eggs.gnu.org ([208.118.235.92]:56365 "EHLO eggs.gnu.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750788AbdLNBCa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 13 Dec 2017 20:02:30 -0500
-Received: from Debian-exim by eggs.gnu.org with spam-scanned (Exim 4.71)
-        (envelope-from <amanou@gnu.org>)
-        id 1ePHur-0004qW-5k
-        for linux-input@vger.kernel.org; Wed, 13 Dec 2017 20:02:26 -0500
+Received: from leo.clearchain.com ([199.73.29.74]:57448 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750844AbdLNFdr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 14 Dec 2017 00:33:47 -0500
 Content-Disposition: inline
-In-Reply-To: <20171213214746.GA23615@gaia.local>
+In-Reply-To: <20171207181306.5623-1-deepa.kernel@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tomasz Kramkowski <tk@the-tk.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Yuxuan Shui <yshuiv7@gmail.com>, Diego Elio =?iso-8859-1?Q?Petten=F2?= <flameeyes@flameeyes.eu>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, y2038@lists.linaro.org
 
-On Wed, Dec 13, 2017 at 09:47:46PM +0000, Tomasz Kramkowski wrote:
-> On Mon, Dec 11, 2017 at 12:31:16PM -0500, Alex Manoussakis wrote:
-> > Tomasz please add the wireless version in your next patch, a web search
-> > shows it's called M-XT3DRBK and the USB ID is 0x00fc.
+On Thu, Dec 07, 2017 at 10:13:02AM -0800, Deepa Dinamani wrote:
+> The series is aimed at making input events y2038 safe.
+> It extends the lifetime of the realtime timestamps in the
+> events to year 2106.
+> The series is also a necessary update as glibc is set to provide
+> 64 bit time_t support for 32 bit binaries. glibc plan is detailed
+> at https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
 > 
-> I'll call this one EX_G_WIRELESS so that it matches the naming style
+> The series is a result of discussions with Arnd Bergmann and
+> Dmitry Torokhov at last Plumbers.
+> 
+> The plan is to deprecate realtime timestamps anyway as they
+> are not appropriate for these timestamps as noted in the patch
+> a80b83b7b8 by John Stultz.
+> 
+> The design also updates the format of the input events read/ written
+> to the device nodes. This breaks 32 bit interface to the input
+> events at compile time as preferred by the maintainer.
+> 
+> The userspace library changes to libevdev, libuinput and mtdev
+> will be posted to the respective mailing groups for review.
 
-Sounds fine.
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-> However, I'm a bit apprehensive about sending in a patch for a device I
-> can't test. Even if it's most likely going to work. Do you know of
-> anyone who can test this wireless EX-G variant?
+Cheers,
+   Peter
 
-No, but I can imagine their disappointment when their device won't work
-when it could have :-) Most users aren't developers and won't submit kernel
-patches for their device. They'll just assume linux has subpar device support,
-so it's up to us to avoid this :-P
-It would be a pity to miss the opportunity to add a device variant that will
-almost certainly work (and harmless in the extremely remote chance it doesn't).
-
-Even if a Linux user with the wireless device is a developer and decides to fix
-it and sends a patch to add the wireless later it's a lot more work for everyone
-involved (and delay in getting it in mainline) compared to just making your work
-complete now!
-
-I didn't test the wireless HUGE either, but added it anyway. I did see reports
-of people successfully using DKMS modules floating around the Internet with
-their wireless HUGE/DEFT devices. I even tried one of them meant for the
-*wireless* DEFT, and changed the usb ID and saw it worked for my *wired* HUGE.
-This shows how Elecom tries to make their different devices work in the same
-manner as much as possible (which makes sense as they won't want to complicate
-their own software either) making the wireless addition a no-brainer IMO.
-
-Also the EX_G_WIRELESS matches Elecom's convention of incrementing the wired
-device ID by 1 for the wireless, so it all looks consistent and predictable.
-
-BTW I did try your patch with my wired HUGE and it works fine, dmesg showed
-your revised message after booting, and I verified all 3 Fn buttons work fine.
-[    7.444707] elecom 0003:056E:010C.0005: Fixing up ELECOM mouse button count
-
-Thanks!
-Alex
+> Changes from v3:
+> * Updated uinput to support monotonic time only
+> * Addressed review comments
+> Changes from v2:
+> * Updated the design to break 32 bit interfaces at compile time.
+> Changes from v1:
+> * Updated changes according to review comments.
+> * Posted userspace library changes that go along with the series.
+> 
+> Deepa Dinamani (4):
+>   uinput: Use monotonic times for uinput timestamps.
+>   input: evdev: Replace timeval with timespec64
+>   input: Deprecate real timestamps beyond year 2106
+>   input: serio: Replace timeval by timespec64
+> 
+>  drivers/input/evdev.c            | 43 +++++++++++++++++++++++++---------------
+>  drivers/input/input-compat.c     | 11 +++++-----
+>  drivers/input/input-compat.h     |  3 ++-
+>  drivers/input/misc/uinput.c      |  5 ++++-
+>  drivers/input/serio/hil_mlc.c    | 37 +++++++++++++++++-----------------
+>  drivers/input/serio/hp_sdc.c     | 17 ++++++++--------
+>  drivers/input/serio/hp_sdc_mlc.c | 10 +++++-----
+>  include/linux/hil_mlc.h          |  6 +++---
+>  include/linux/hp_sdc.h           |  6 +++---
+>  include/uapi/linux/input.h       | 12 ++++++++++-
+>  10 files changed, 88 insertions(+), 62 deletions(-)
+> 
+> 
+> base-commit: b0a84f19a5161418d4360cd57603e94ed489915e
+> -- 
+> 2.14.1
+> 

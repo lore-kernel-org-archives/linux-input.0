@@ -1,57 +1,64 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] input/touchscreen: fix hideep.c build errors
-Date: Sun, 17 Dec 2017 17:09:52 -0800
-Message-ID: <3cafbae1-1377-3e4f-173e-76ca2a3a1e17@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: [PATCH v5 0/3] Make input drivers y2038 safe
+Date: Sun, 17 Dec 2017 21:18:41 -0800
+Message-ID: <20171218051844.10193-1-deepa.kernel@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:33048 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757194AbdLRBKC (ORCPT
+Received: from mail-pl0-f66.google.com ([209.85.160.66]:46331 "EHLO
+        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751929AbdLRFTR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 Dec 2017 20:10:02 -0500
-Content-Language: en-US
+        Mon, 18 Dec 2017 00:19:17 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kbuild test robot <fengguang.wu@intel.com>, Anthony Kim <anthony.kim@hideep.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+The series is aimed at making input events y2038 safe.
+It extends the lifetime of the realtime timestamps in the
+events to year 2106.
+The series is also a necessary update as glibc is set to provide
+64 bit time_t support for 32 bit binaries. glibc plan is detailed
+at https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
 
-Fix build errors due to missing header file.
+The series is a result of discussions with Arnd Bergmann and
+Dmitry Torokhov at last Plumbers.
 
-Fixes these build errors:
-drivers/input//touchscreen/hideep.c: In function 'hideep_power_on':
-drivers/input//touchscreen/hideep.c:670:3: error: implicit declaration of function 'gpiod_set_value_cansleep'; did you mean 'gpio_set_value_cansleep'? [-Werror=implicit-function-declaration]
-    gpiod_set_value_cansleep(ts->reset_gpio, 0);
-drivers/input//touchscreen/hideep.c: In function 'hideep_power_off':
-drivers/input//touchscreen/hideep.c:688:3: error: implicit declaration of function 'gpiod_set_value'; did you mean 'gpio_set_value'? [-Werror=implicit-function-declaration]
-    gpiod_set_value(ts->reset_gpio, 1);
-drivers/input//touchscreen/hideep.c: In function 'hideep_probe':
-drivers/input//touchscreen/hideep.c:1039:19: error: implicit declaration of function 'devm_gpiod_get_optional'; did you mean 'devm_regulator_get_optional'? [-Werror=implicit-function-declaration]
-   ts->reset_gpio = devm_gpiod_get_optional(&client->dev,
-drivers/input//touchscreen/hideep.c:1040:17: error: 'GPIOD_OUT_HIGH' undeclared (first use in this function); did you mean 'GPIOF_INIT_HIGH'?
-         "reset", GPIOD_OUT_HIGH);
+The plan is to deprecate realtime timestamps anyway as they
+are not appropriate for these timestamps as noted in the patch
+a80b83b7b8 by John Stultz.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kbuild test robot <fengguang.wu@intel.com>
-Cc: Anthony Kim <anthony.kim@hideep.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
----
- drivers/input/touchscreen/hideep.c |    1 +
- 1 file changed, 1 insertion(+)
+The design also updates the format of the input events read/ written
+to the device nodes. This breaks 32 bit interface to the input
+events at compile time as preferred by the maintainer.
 
---- lnx-415-rc3.orig/drivers/input/touchscreen/hideep.c
-+++ lnx-415-rc3/drivers/input/touchscreen/hideep.c
-@@ -11,6 +11,7 @@
- #include <linux/firmware.h>
- #include <linux/delay.h>
- #include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/gpio/machine.h>
- #include <linux/i2c.h>
- #include <linux/acpi.h>
+The userspace library changes to libevdev, libuinput and mtdev
+will be posted to the respective mailing groups for review.
 
+Changes from v4:
+* Dropped serio hil patch
+Changes from v3:
+* Updated uinput to support monotonic time only
+* Addressed review comments
+Changes from v2:
+* Updated the design to break 32 bit interfaces at compile time.
+Changes from v1:
+* Updated changes according to review comments.
+* Posted userspace library changes that go along with the series.
+
+Deepa Dinamani (3):
+  uinput: Use monotonic times for uinput timestamps.
+  input: evdev: Replace timeval with timespec64
+  input: Deprecate real timestamps beyond year 2106
+
+ drivers/input/evdev.c        | 43 +++++++++++++++++++++++++++----------------
+ drivers/input/input-compat.c | 11 ++++++-----
+ drivers/input/input-compat.h |  3 ++-
+ drivers/input/misc/uinput.c  |  5 ++++-
+ include/uapi/linux/input.h   | 12 +++++++++++-
+ 5 files changed, 50 insertions(+), 24 deletions(-)
+
+
+base-commit: 0c1f9d81ac360d8ad31cbfd2bdcf44de8204188e
+-- 
+2.14.1
 

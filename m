@@ -1,190 +1,88 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v5 3/3] input: Deprecate real timestamps beyond year 2106
-Date: Sun, 17 Dec 2017 21:18:44 -0800
-Message-ID: <20171218051844.10193-4-deepa.kernel@gmail.com>
-References: <20171218051844.10193-1-deepa.kernel@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171218051844.10193-1-deepa.kernel@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] Add touchscreen platform data for the Onda oBook 20 Plus tablet.
+Date: Mon, 18 Dec 2017 14:41:04 +0200
+Message-ID: <CAHp75Vfkoze4HjY8dw-aiKjREOEywsUsfXFRCn47j76DCc==fw@mail.gmail.com>
+References: <20171210220213.19290-1-nerijus@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:37336 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752826AbdLRMlG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 18 Dec 2017 07:41:06 -0500
+In-Reply-To: <20171210220213.19290-1-nerijus@users.sourceforge.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 
-struct timeval is not y2038 safe.
-All usage of timeval in the kernel will be replaced by
-y2038 safe structures.
-The change is also necessary as glibc is introducing support
-for 32 bit applications to use 64 bit time_t. Without this
-change, many applications would incorrectly interpret values
-in the struct input_event.
-More details about glibc at
-https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
+On Mon, Dec 11, 2017 at 12:02 AM, Nerijus Baliunas
+<nerijus@users.sourceforge.net> wrote:
+> Signed-off-by: Nerijus Bali=C5=ABnas <nerijus@users.sourceforge.net>
 
-struct input_event maintains time for each input event.
-Real time timestamps are not ideal for input as this
-time can go backwards as noted in the patch a80b83b7b8
-by John Stultz. Hence, having the input_event.time fields
-only big enough for monotonic and boot times are
-sufficient.
+Applied to my review and testing queue with massaged title and written
+commit message, thanks. Please, don't forget to do it yourself next
+time, otherwise it will slow review and promoting.
 
-The change leaves the representation of struct input_event as is
-on 64 bit architectures. But uses 2 unsigned long values on 32 bit
-machines to support real timestamps until year 2106.
-This intentionally breaks the ABI on 32 bit architectures and
-compat handling on 64 bit architectures.
-This is as per maintainer's preference to introduce compile time errors
-rather than run into runtime incompatibilities.
+> ---
+>  drivers/platform/x86/silead_dmi.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>
+> diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/sil=
+ead_dmi.c
+> index 266535c2a72f..414293e8c448 100644
+> --- a/drivers/platform/x86/silead_dmi.c
+> +++ b/drivers/platform/x86/silead_dmi.c
+> @@ -171,6 +171,23 @@ static const struct silead_ts_dmi_data digma_citi_e2=
+00_data =3D {
+>         .properties     =3D digma_citi_e200_props,
+>  };
+>
+> +static const struct property_entry onda_obook_20_plus_props[] =3D {
+> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
+> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
+> +       PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
+> +       PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
+> +       PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
+> +       PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-onda-obook-20-plu=
+s.fw"),
+> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+> +       { }
+> +};
+> +
+> +static const struct silead_ts_dmi_data onda_obook_20_plus_data =3D {
+> +       .acpi_name      =3D "MSSL1680:00",
+> +       .properties     =3D onda_obook_20_plus_props,
+> +};
+> +
+>  static const struct dmi_system_id silead_ts_dmi_table[] =3D {
+>         {
+>                 /* CUBE iwork8 Air */
+> @@ -271,6 +288,14 @@ static const struct dmi_system_id silead_ts_dmi_tabl=
+e[] =3D {
+>                         DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+>                 },
+>         },
+> +       {
+> +               /* Onda oBook 20 Plus */
+> +               .driver_data =3D (void *)&onda_obook_20_plus_data,
+> +               .matches =3D {
+> +                       DMI_MATCH(DMI_SYS_VENDOR, "ONDA"),
+> +                       DMI_MATCH(DMI_PRODUCT_NAME, "OBOOK 20 PLUS"),
+> +               },
+> +       },
+>         { },
+>  };
+>
+> --
+> 2.14.3
+>
 
-The change requires any 32 bit userspace utilities reading or writing
-from event nodes to update their reading format to match the new
-input_event. The changes to the popular libraries will be posted once
-we agree on the kernel change.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
----
- drivers/input/evdev.c        | 14 ++++++++------
- drivers/input/input-compat.c | 11 ++++++-----
- drivers/input/input-compat.h |  3 ++-
- drivers/input/misc/uinput.c  |  4 ++--
- include/uapi/linux/input.h   | 12 +++++++++++-
- 5 files changed, 29 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 3171c4882d80..7a7fb0d0a227 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -135,7 +135,8 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- 			continue;
- 		} else if (head != i) {
- 			/* move entry to fill the gap */
--			client->buffer[head].time = ev->time;
-+			client->buffer[head].input_event_sec = ev->input_event_sec;
-+			client->buffer[head].input_event_usec = ev->input_event_usec;
- 			client->buffer[head].type = ev->type;
- 			client->buffer[head].code = ev->code;
- 			client->buffer[head].value = ev->value;
-@@ -170,8 +171,8 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
- 		break;
- 	}
- 
--	ev.time.tv_sec = ts.tv_sec;
--	ev.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
-+	ev.input_event_sec = ts.tv_sec;
-+	ev.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
- 	ev.type = EV_SYN;
- 	ev.code = SYN_DROPPED;
- 	ev.value = 0;
-@@ -248,7 +249,8 @@ static void __pass_event(struct evdev_client *client,
- 		 */
- 		client->tail = (client->head - 2) & (client->bufsize - 1);
- 
--		client->buffer[client->tail].time = event->time;
-+		client->buffer[client->tail].input_event_sec = event->input_event_sec;
-+		client->buffer[client->tail].input_event_usec = event->input_event_usec;
- 		client->buffer[client->tail].type = EV_SYN;
- 		client->buffer[client->tail].code = SYN_DROPPED;
- 		client->buffer[client->tail].value = 0;
-@@ -276,8 +278,8 @@ static void evdev_pass_values(struct evdev_client *client,
- 		return;
- 
- 	ts = ev_time[client->clk_type];
--	event.time.tv_sec = ts.tv_sec;
--	event.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
-+	event.input_event_sec = ts.tv_sec;
-+	event.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
- 
- 	/* Interrupts are disabled, just acquire the lock. */
- 	spin_lock(&client->buffer_lock);
-diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
-index 2186f71c9fe5..419e40b68486 100644
---- a/drivers/input/input-compat.c
-+++ b/drivers/input/input-compat.c
-@@ -24,14 +24,15 @@ int input_event_from_user(const char __user *buffer,
- 				   sizeof(struct input_event_compat)))
- 			return -EFAULT;
- 
--		event->time.tv_sec = compat_event.time.tv_sec;
--		event->time.tv_usec = compat_event.time.tv_usec;
-+		event->input_event_sec = compat_event.sec;
-+		event->input_event_usec = compat_event.usec;
- 		event->type = compat_event.type;
- 		event->code = compat_event.code;
- 		event->value = compat_event.value;
- 
- 	} else {
--		if (copy_from_user(event, buffer, sizeof(struct input_event)))
-+		if (copy_from_user(event, buffer,
-+				   sizeof(struct input_event)))
- 			return -EFAULT;
- 	}
- 
-@@ -44,8 +45,8 @@ int input_event_to_user(char __user *buffer,
- 	if (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) {
- 		struct input_event_compat compat_event;
- 
--		compat_event.time.tv_sec = event->time.tv_sec;
--		compat_event.time.tv_usec = event->time.tv_usec;
-+		compat_event.sec = event->input_event_sec;
-+		compat_event.usec = event->input_event_usec;
- 		compat_event.type = event->type;
- 		compat_event.code = event->code;
- 		compat_event.value = event->value;
-diff --git a/drivers/input/input-compat.h b/drivers/input/input-compat.h
-index 1563160a7af3..08cd755e73fd 100644
---- a/drivers/input/input-compat.h
-+++ b/drivers/input/input-compat.h
-@@ -18,7 +18,8 @@
- #ifdef CONFIG_COMPAT
- 
- struct input_event_compat {
--	struct compat_timeval time;
-+	compat_ulong_t sec;
-+	compat_ulong_t usec;
- 	__u16 type;
- 	__u16 code;
- 	__s32 value;
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 9251765645d1..03d22fc90a45 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -90,8 +90,8 @@ static int uinput_dev_event(struct input_dev *dev,
- 	udev->buff[udev->head].code = code;
- 	udev->buff[udev->head].value = value;
- 	ktime_get_ts64(&ts);
--	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
--	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
-+	udev->buff[udev->head].input_event_sec = ts.tv_sec;
-+	udev->buff[udev->head].input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
- 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
- 
- 	wake_up_interruptible(&udev->waitq);
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 8c5a0bf6ee35..9c5105ff5cc6 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -21,10 +21,20 @@
- 
- /*
-  * The event structure itself
-+ * Note that __USE_TIME_BITS64 is defined by libc based on
-+ * application's request to use 64 bit time_t.
-  */
--
- struct input_event {
-+#if	(__BITS_PER_LONG != 32 || !defined(__USE_TIME_BITS64)) && !defined(__KERNEL)
- 	struct timeval time;
-+#define input_event_sec time.tv_sec
-+#define input_event_usec time.tv_usec
-+#else
-+	__kernel_ulong_t __sec;
-+	__kernel_ulong_t __usec;
-+#define input_event_sec  __sec
-+#define input_event_usec __usec
-+#endif
- 	__u16 type;
- 	__u16 code;
- 	__s32 value;
--- 
-2.14.1
+--=20
+With Best Regards,
+Andy Shevchenko

@@ -1,68 +1,57 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: Re: [Y2038] [PATCH v4 4/4] input: serio: Replace timeval by timespec64
-Date: Sat, 16 Dec 2017 13:37:09 -0800
-Message-ID: <CABeXuvqkahAH3e-Tdt3n9GgG+r=xJNB4+VqZcea4EtKJONG9MQ@mail.gmail.com>
-References: <20171207181306.5623-1-deepa.kernel@gmail.com> <20171207181306.5623-5-deepa.kernel@gmail.com>
- <1513287928.18523.283.camel@codethink.co.uk>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH] input/touchscreen: fix hideep.c build errors
+Date: Sun, 17 Dec 2017 17:09:52 -0800
+Message-ID: <3cafbae1-1377-3e4f-173e-76ca2a3a1e17@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:46702 "EHLO
-        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756888AbdLPVhL (ORCPT
+Received: from merlin.infradead.org ([205.233.59.134]:33048 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757194AbdLRBKC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 16 Dec 2017 16:37:11 -0500
-In-Reply-To: <1513287928.18523.283.camel@codethink.co.uk>
+        Sun, 17 Dec 2017 20:10:02 -0500
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>, Arnd Bergmann <arnd@arndb.de>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kbuild test robot <fengguang.wu@intel.com>, Anthony Kim <anthony.kim@hideep.com>
 
-On Thu, Dec 14, 2017 at 1:45 PM, Ben Hutchings
-<ben.hutchings@codethink.co.uk> wrote:
-> On Thu, 2017-12-07 at 10:13 -0800, Deepa Dinamani wrote:
->> struct timeval is not y2038 safe.
->> All references to timeval will be deleted from the
->> kernel to make it y2038 safe.
->> Replace its uses by y2038 safe struct timespec64.
->>
->> The timestamps changed here only keep track of delta
->> times. These timestamps are also internal to kernel.
->> Hence, monotonic times are sufficient here.
->> The unit of the delta times is also changed in certain
->> cases to nanoseconds rather than microseconds. This is
->> in line with timespec64 which keeps time in nanoseconds.
-> [...]
->> --- a/drivers/input/serio/hil_mlc.c
->> +++ b/drivers/input/serio/hil_mlc.c
-> [...]
->> @@ -466,7 +466,7 @@ static const struct hilse_node hil_mlc_se[HILSEN_END] = {
->>       FUNC(hilse_init_lcv, 0, HILSEN_NEXT,    HILSEN_SLEEP,   0)
->>
->>       /* 1  HILSEN_RESTART */
->> -     FUNC(hilse_inc_lcv, 10, HILSEN_NEXT,    HILSEN_START,  0)
->> +     FUNC(hilse_inc_lcv, 10000,      HILSEN_NEXT,    HILSEN_START,  0)
-> [...]
->
-> The second macro argument here ends up as the second argument to
-> hilse_inc_lcv() which appears to limit the number of retries, not a
-> time limit.  So I don't think the value here (or wherever else
-> hilse_inc_lcv is referenced) should be changed.
+From: Randy Dunlap <rdunlap@infradead.org>
 
-I think I misread the code here.
+Fix build errors due to missing header file.
 
-> The EXPECT, EXPECT_LAST etc. macros take a timeout ('to' parameter)
-> which is then assigned to hil_mlc::intimeout, so it seems that those
-> *should* be scaled up, but this patch doesn't do that.  It also doesn't
-> change the type of hil_mlc::intimeout (suseconds_t implying units of
-> microseconds) or the comment on hilse_node::arg.
+Fixes these build errors:
+drivers/input//touchscreen/hideep.c: In function 'hideep_power_on':
+drivers/input//touchscreen/hideep.c:670:3: error: implicit declaration of function 'gpiod_set_value_cansleep'; did you mean 'gpio_set_value_cansleep'? [-Werror=implicit-function-declaration]
+    gpiod_set_value_cansleep(ts->reset_gpio, 0);
+drivers/input//touchscreen/hideep.c: In function 'hideep_power_off':
+drivers/input//touchscreen/hideep.c:688:3: error: implicit declaration of function 'gpiod_set_value'; did you mean 'gpio_set_value'? [-Werror=implicit-function-declaration]
+    gpiod_set_value(ts->reset_gpio, 1);
+drivers/input//touchscreen/hideep.c: In function 'hideep_probe':
+drivers/input//touchscreen/hideep.c:1039:19: error: implicit declaration of function 'devm_gpiod_get_optional'; did you mean 'devm_regulator_get_optional'? [-Werror=implicit-function-declaration]
+   ts->reset_gpio = devm_gpiod_get_optional(&client->dev,
+drivers/input//touchscreen/hideep.c:1040:17: error: 'GPIOD_OUT_HIGH' undeclared (first use in this function); did you mean 'GPIOF_INIT_HIGH'?
+         "reset", GPIOD_OUT_HIGH);
 
-Yes, I have overlooked the suseconds_t here. So apart from what you
-point out IN() and a few other things should also be fixed.
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kbuild test robot <fengguang.wu@intel.com>
+Cc: Anthony Kim <anthony.kim@hideep.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/input/touchscreen/hideep.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-I will drop this patch and repost the series as Arnd mentioned he
-already posted a version of this patch. The series can go in without
-it and if we prefer my version here, I can submit the patch alone.
+--- lnx-415-rc3.orig/drivers/input/touchscreen/hideep.c
++++ lnx-415-rc3/drivers/input/touchscreen/hideep.c
+@@ -11,6 +11,7 @@
+ #include <linux/firmware.h>
+ #include <linux/delay.h>
+ #include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/gpio/machine.h>
+ #include <linux/i2c.h>
+ #include <linux/acpi.h>
 
-Thanks,
--Deepa
+

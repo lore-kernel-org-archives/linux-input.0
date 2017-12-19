@@ -1,67 +1,31 @@
-From: Roderick Colenbrander <thunderbird2k@gmail.com>
-Subject: Re: [PATCH v2] HID: sony: Fix up nyko core controller
-Date: Tue, 19 Dec 2017 11:07:12 -0800
-Message-ID: <CAEc3jaBXjgqV0X4eKHYTUzioxdXNqP2x5BTg_A3ansXvj78qHA@mail.gmail.com>
-References: <1513131714-10907-1-git-send-email-oreaus@gmail.com>
+From: Corey Minyard <minyard@acm.org>
+Subject: Re: [-next PATCH 0/4] sysfs and DEVICE_ATTR_<foo>
+Date: Tue, 19 Dec 2017 13:26:26 -0600
+Message-ID: <09832872-8e6c-3327-6e28-7ee6cc48df04@acm.org>
+References: <cover.1513706701.git.joe@perches.com>
+Reply-To: minyard@acm.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yb0-f179.google.com ([209.85.213.179]:36852 "EHLO
-        mail-yb0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751802AbdLSTHN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Dec 2017 14:07:13 -0500
-Received: by mail-yb0-f179.google.com with SMTP id j7so14430454ybl.3
-        for <linux-input@vger.kernel.org>; Tue, 19 Dec 2017 11:07:13 -0800 (PST)
-In-Reply-To: <1513131714-10907-1-git-send-email-oreaus@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <cover.1513706701.git.joe@perches.com>
+Content-Language: en-GB
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Joe Perches <joe@perches.com>, linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, linux-nvme@lists.infradead.org, platform-driver-x86@vger.kernel.org, linux-s390@vger.kernel.org, esc.storagedev@microsemi.com, linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, linux-omap@vger.kernel.org
+Cc: devel@driverdev.osuosl.org, linux-fbdev@vger.kernel.org, linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Scott Moreau <oreaus@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>
 
-(From personal email as work email, doesn't do plain text well..)
+On 12/19/2017 12:15 PM, Joe Perches wrote:
+>   drivers/char/ipmi/ipmi_msghandler.c                | 17 +++---
 
-Acked-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+For ipmi:
 
-On Tue, Dec 12, 2017 at 6:21 PM, Scott Moreau <oreaus@gmail.com> wrote:
-> This fixes missing d-pad axis broken since e19a267b99. The axis mapping for
-> the nyko controller has the d-pad as axis 0x39 instead of d-pad as buttons.
-> This is handled by the default hid mapping so we return 0 in sony_mapping.
-> This controller also has no accelerometer so avoid initializing it with
-> a condition in sony_input_configured() to setup these controllers.
-> ---
->  drivers/hid/hid-sony.c | 7 +++++++
->  1 file changed, 7 insertions(+)
->
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index b9dc3ac..1be0a35 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -1225,6 +1225,9 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
->         if (sc->quirks & NAVIGATION_CONTROLLER)
->                 return navigation_mapping(hdev, hi, field, usage, bit, max);
->
-> +       if (sc->quirks & SINO_LITE_CONTROLLER)
-> +               return 0;
-> +
->         if (sc->quirks & SIXAXIS_CONTROLLER)
->                 return sixaxis_mapping(hdev, hi, field, usage, bit, max);
->
-> @@ -2566,6 +2569,10 @@ static int sony_input_configured(struct hid_device *hdev,
->                 }
->
->                 sony_init_output_report(sc, sixaxis_send_output_report);
-> +       } else if (sc->quirks & SINO_LITE_CONTROLLER) {
-> +               hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
-> +
-> +               sony_init_output_report(sc, sixaxis_send_output_report);
->         } else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
->                 /*
->                  * The Sony Sixaxis does not handle HID Output Reports on the
-> --
-> 2.7.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Acked-by: Corey Minyard <cminyard@mvista.com>

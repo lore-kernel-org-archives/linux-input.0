@@ -1,46 +1,33 @@
-From: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] touchscreen: mms114: add support for mms152
-Date: Tue, 19 Dec 2017 18:10:09 +0900
-Message-ID: <20171219091009.GD25647@gangnam.samsung>
-References: <CGME20171218124955epcas3p3d776375b0dadbc3e0291da6ffb0eb6b6@epcas3p3.samsung.com>
-        <20171218124933.1803-1-simon@lineageos.org>
-        <20171219062252.GC25647@gangnam.samsung>
-        <20171219080409.GA27703@lineageos.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1] HID: sony: Print reversed MAC address via %pMR
+Date: Tue, 19 Dec 2017 19:20:18 +0200
+Message-ID: <1513704018.7000.207.camel@linux.intel.com>
+References: <20171211130612.34715-1-andriy.shevchenko@linux.intel.com>
+         <1DD62093774CEE42AFC16E785A1088049E247090@USCULXMSG13.am.sony.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-disposition: inline
-In-reply-to: <20171219080409.GA27703-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Simon Shields <simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:54894 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750723AbdLSRUW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Dec 2017 12:20:22 -0500
+In-Reply-To: <1DD62093774CEE42AFC16E785A1088049E247090@USCULXMSG13.am.sony.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Simon,
+On Wed, 2017-12-13 at 02:22 +0000, Colenbrander, Roelof wrote:
+> On 12/11/2017 05:07 AM, Andy Shevchenko wrote:
+> > Reversed MAC addresses can be printed directly using %pMR specifier.
 
-> > >  #ifdef CONFIG_OF
-> > >  static const struct of_device_id mms114_dt_match[] = {
-> > > -	{ .compatible = "melfas,mms114" },
-> > > +	{
-> > > +		.compatible = "melfas,mms114",
-> > > +		.data = (void *)TYPE_MMS114,
-> > > +	}, {
-> > > +		.compatible = "melfas,mms152",
-> > > +		.data = (void *)TYPE_MMS152,
-> > 
-> > You are not documenting the new "melfas,mms152" compatible in
-> > Documentation/devicetree/bindings/input/touchscreen/mms114.txt
+> Looks good and in a quick test seems to function.
 > 
-> Yes I am - "melfas,mms152" is added to the documentation
-> as part of this patch. Is there something wrong with what I've done
-> there?
+> Acked-by: Roderick Colenbrander <roderick.colenbranderer@sony.com>
+> 
 
-Oh yes, sorry! I missed it while snipping the code :)
+Benjamin, perhaps it's good enough to being applied?
 
-Please ignore this comment, then.
-
-Andi
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

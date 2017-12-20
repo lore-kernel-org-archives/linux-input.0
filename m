@@ -1,29 +1,73 @@
-From: Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: Re: [-next PATCH 0/4] sysfs and DEVICE_ATTR_<foo>
-Date: Wed, 20 Dec 2017 11:46:06 +0200
-Message-ID: <87r2rppw9t.fsf@linux.intel.com>
-References: <cover.1513706701.git.joe@perches.com>
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?=
+        <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v5 0/2] Input: Add Cypress Gen5 Touchscreen driver
+Date: Wed, 20 Dec 2017 11:08:41 +0100
+Message-ID: <20171220100843.2759-1-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <cover.1513706701.git.joe@perches.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Joe Perches <joe@perches.com>, linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, linux-nvme@lists.infradead.org, platform-driver-x86@vger.kernel.org, linux-s390@vger.kernel.org, esc.storagedev@microsemi.com, linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, linux-omap@vger.kernel.org
-Cc: devel@driverdev.osuosl.org, linux-fbdev@vger.kernel.org, linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-CkhpLAoKSm9lIFBlcmNoZXMgPGpvZUBwZXJjaGVzLmNvbT4gd3JpdGVzOgo+ICBkcml2ZXJzL3Vz
-Yi9waHkvcGh5LXRhaHZvLmMgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCgpBY2tlZC1i
-eTogRmVsaXBlIEJhbGJpIDxmZWxpcGUuYmFsYmlAbGludXguaW50ZWwuY29tPgoKLS0gCmJhbGJp
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkludGVsLWdm
-eCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xp
-c3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeAo=
+Hello,
+
+Here is a V5 series to add the driver of the touchscreen Cypress,
+TrueTouch Generation 5.
+Based on last master branch of "input" kernel's tree.
+
+This patch series has already been posted in several iterations:
+    - v1: Sent on 2017/05/29
+    - v2: Sent on 2017/08/18
+    - v3: Sent on 2017/09/27
+    - v4: Sent on 2017/12/01
+
+As I did not have any comments on the last 3 versions, it would be
+great to have some feedback in case there is something wrong with this
+series?
+
+Changes since v4:
+   - Fixed kbuild errors about enum hid_cmd_state and .owner
+Changes since v3:
+   - Rebased on last input's branch
+   - Changed the CRC table to use crc_itu_t_table instead of
+   crc_ccitt_false_table which is not merged.
+   - Added selection of CRC_ITU_T on KConfig
+Changes since v2:
+   - Removed pinctrl in dt-binding example which is uncessecary.
+   - Added Acked-by and Reviewed-by received.
+Changes since v1:
+   - Updated the driver according to reviews. Most important modifications:
+   removed unnecessary mutex, updated dev_err output, handled return cases
+   in a better way, created a HID_ENUM, removed magic value, used an
+   existing CRC table and used "linux-keycodes" instead of sub-nodes.
+   - Updated the dt-bindings to use linux-keycodes and removed properties'
+   description that comes from touchscreen's binding.
+
+Patch 01: Add the basis of the driver for Cypress Gen5 Touchscreen.
+Patch 02: Add the binding documentation for this driver.
+
+Thank you in advance,
+Mylène
+
+Mylène Josserand (2):
+  Input: Add driver for Cypress Generation 5 touchscreen
+  dt-bindings: input: Add documentation for cyttsp5
+
+ .../bindings/input/touchscreen/cypress,cyttsp5.txt |   39 +
+ drivers/input/touchscreen/Kconfig                  |   16 +
+ drivers/input/touchscreen/Makefile                 |    1 +
+ drivers/input/touchscreen/cyttsp5.c                | 1112 ++++++++++++++++++++
+ 4 files changed, 1168 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cypress,cyttsp5.txt
+ create mode 100644 drivers/input/touchscreen/cyttsp5.c
+
+-- 
+2.11.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

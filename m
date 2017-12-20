@@ -1,44 +1,29 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v1] HID: sony: Print reversed MAC address via %pMR
-Date: Wed, 20 Dec 2017 10:40:58 +0100
-Message-ID: <CAO-hwJ++gQX+72q8AfnM8q8-MzHyFbxUhnjL+=kSQKeUQ+H1KQ@mail.gmail.com>
-References: <20171211130612.34715-1-andriy.shevchenko@linux.intel.com>
- <1DD62093774CEE42AFC16E785A1088049E247090@USCULXMSG13.am.sony.com> <1513704018.7000.207.camel@linux.intel.com>
+From: Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: Re: [-next PATCH 0/4] sysfs and DEVICE_ATTR_<foo>
+Date: Wed, 20 Dec 2017 11:46:06 +0200
+Message-ID: <87r2rppw9t.fsf@linux.intel.com>
+References: <cover.1513706701.git.joe@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f176.google.com ([209.85.216.176]:41287 "EHLO
-        mail-qt0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754643AbdLTJlA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Dec 2017 04:41:00 -0500
-Received: by mail-qt0-f176.google.com with SMTP id i40so27530616qti.8
-        for <linux-input@vger.kernel.org>; Wed, 20 Dec 2017 01:41:00 -0800 (PST)
-In-Reply-To: <1513704018.7000.207.camel@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <cover.1513706701.git.joe@perches.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Joe Perches <joe@perches.com>, linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, linux-nvme@lists.infradead.org, platform-driver-x86@vger.kernel.org, linux-s390@vger.kernel.org, esc.storagedev@microsemi.com, linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org, linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, linux-omap@vger.kernel.org
+Cc: devel@driverdev.osuosl.org, linux-fbdev@vger.kernel.org, linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>, Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Andy,
-
-On Tue, Dec 19, 2017 at 6:20 PM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On Wed, 2017-12-13 at 02:22 +0000, Colenbrander, Roelof wrote:
->> On 12/11/2017 05:07 AM, Andy Shevchenko wrote:
->> > Reversed MAC addresses can be printed directly using %pMR specifier.
->
->> Looks good and in a quick test seems to function.
->>
->> Acked-by: Roderick Colenbrander <roderick.colenbranderer@sony.com>
->>
->
-> Benjamin, perhaps it's good enough to being applied?
-
-This question should be directed to Jiri :)
-
-Anyway:
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
+CkhpLAoKSm9lIFBlcmNoZXMgPGpvZUBwZXJjaGVzLmNvbT4gd3JpdGVzOgo+ICBkcml2ZXJzL3Vz
+Yi9waHkvcGh5LXRhaHZvLmMgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCgpBY2tlZC1i
+eTogRmVsaXBlIEJhbGJpIDxmZWxpcGUuYmFsYmlAbGludXguaW50ZWwuY29tPgoKLS0gCmJhbGJp
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkludGVsLWdm
+eCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xp
+c3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeAo=

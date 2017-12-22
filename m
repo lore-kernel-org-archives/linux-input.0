@@ -1,294 +1,192 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 065/159] x86/virt: Add enum for hypervisors to replace
- x86_hyper
-Date: Fri, 22 Dec 2017 09:45:50 +0100
-Message-ID: <20171222084627.267669895@linuxfoundation.org>
-References: <20171222084623.668990192@linuxfoundation.org>
+From: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Subject: [PATCH 00/14] iio: triggers: add consumer support
+Date: Fri, 22 Dec 2017 17:07:07 +0200
+Message-ID: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20171222084623.668990192@linuxfoundation.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, rkrcmar@redhat.com, pv-drivers@vmware.com, akataria@vmware.com, virtualization@lists.linux-foundation.org, Thomas Gleixner <tglx@linutronix.de>, sthemmin@microsoft.com, moltmann@vmware.com, Ingo Molnar <mingo@kernel.org>, Peter Zijlstra <peterz@infradead.org>, linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, arnd@arndb.de, Xavier Deguillard <xdeguillard@vmware.com>, haiyangz@microsoft.com, devel@linuxdriverproject.org, boris.ostrovsky@oracle.com, Juergen Gross <jgross@suse.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com, stable@vger.kernel.org, pbonzini@redhat.com, Linus Torvalds <torvalds@linux-foundation.org>
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-4.14-stable review patch.  If anyone has any objections, please let me know.
+Hello,
 
-------------------
+I would like to introduce his patch series which implements:
+- new iio channel IIO_POSITION
+- new inkern API to expose iio triggers to consumer drivers
+- new bindings for trigger consumer drivers in device tree
+- new input touchscreen driver for SAMA5D2
+- implementation of POSITION and PRESSURE channels in sama5d2_adc driver
+- devicetree changes for sama5d2 soc w.r.t. resistive touchscreen.
 
-From: Juergen Gross <jgross@suse.com>
+The SAMA5D2 SOC contains the ADC IP which has support
+for a resistive touchscreen inside, using channels 0,1,2,3 from the ADC.
+As discussed earlier on the mailing list, here is an implementation based
+on the fact that the IIO device can expose the trigger and the required
+channels to another driver (in our case the input touchscreen driver).
+This touchscreen driver will consume the trigger and the values ( by
+feeding them to the input subsystem).
 
-commit 03b2a320b19f1424e9ac9c21696be9c60b6d0d93 upstream.
+Design decisions: The touchscreen driver will do a successful probe at
+all times. Only on touch open and close, it will connect to the ADC device.
+This is done to avoid a hard dependency between loading the ADC module and
+the touchscreen one. So probe will always succeed and the dependency
+is only soft.
 
-The x86_hyper pointer is only used for checking whether a virtual
-device is supporting the hypervisor the system is running on.
+Below it's an explanation of each patch in the series. Some changes were
+required in the inkern API and the implementation was done in the ADC driver
+and the touchscreen driver.
 
-Use an enum for that purpose instead and drop the x86_hyper pointer.
+1: Added maintainers entry for new driver. This is done in commit:
+MAINTAINERS: add sama5d2 resistive touchscreen
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Xavier Deguillard <xdeguillard@vmware.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: akataria@vmware.com
-Cc: arnd@arndb.de
-Cc: boris.ostrovsky@oracle.com
-Cc: devel@linuxdriverproject.org
-Cc: dmitry.torokhov@gmail.com
-Cc: gregkh@linuxfoundation.org
-Cc: haiyangz@microsoft.com
-Cc: kvm@vger.kernel.org
-Cc: kys@microsoft.com
-Cc: linux-graphics-maintainer@vmware.com
-Cc: linux-input@vger.kernel.org
-Cc: moltmann@vmware.com
-Cc: pbonzini@redhat.com
-Cc: pv-drivers@vmware.com
-Cc: rkrcmar@redhat.com
-Cc: sthemmin@microsoft.com
-Cc: virtualization@lists.linux-foundation.org
-Cc: xen-devel@lists.xenproject.org
-Link: http://lkml.kernel.org/r/20171109132739.23465-3-jgross@suse.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+2: First we need a new set of channels named Position to report from the IIO
+device the position on the touchpad. This is done in commit :
+iio: Add channel for Position
 
----
- arch/x86/hyperv/hv_init.c         |    2 +-
- arch/x86/include/asm/hypervisor.h |   23 ++++++++++++++---------
- arch/x86/kernel/cpu/hypervisor.c  |   12 +++++++++---
- arch/x86/kernel/cpu/mshyperv.c    |    4 ++--
- arch/x86/kernel/cpu/vmware.c      |    4 ++--
- arch/x86/kernel/kvm.c             |    4 ++--
- arch/x86/xen/enlighten_hvm.c      |    4 ++--
- arch/x86/xen/enlighten_pv.c       |    4 ++--
- drivers/hv/vmbus_drv.c            |    2 +-
- drivers/input/mouse/vmmouse.c     |   10 ++++------
- drivers/misc/vmw_balloon.c        |    2 +-
- 11 files changed, 40 insertions(+), 31 deletions(-)
+3: we need device tree connection between the trigger producer and the
+trigger consumer. I made new bindings very similar with the ones for the IIO
+channels. This is done in the commit:
+dt-bindings: iio: add binding support for iio trigger
+    provider/consumer
 
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -113,7 +113,7 @@ void hyperv_init(void)
- 	u64 guest_id;
- 	union hv_x64_msr_hypercall_contents hypercall_msr;
- 
--	if (x86_hyper != &x86_hyper_ms_hyperv)
-+	if (x86_hyper_type != X86_HYPER_MS_HYPERV)
- 		return;
- 
- 	/* Allocate percpu VP index */
---- a/arch/x86/include/asm/hypervisor.h
-+++ b/arch/x86/include/asm/hypervisor.h
-@@ -29,6 +29,16 @@
- /*
-  * x86 hypervisor information
-  */
-+
-+enum x86_hypervisor_type {
-+	X86_HYPER_NATIVE = 0,
-+	X86_HYPER_VMWARE,
-+	X86_HYPER_MS_HYPERV,
-+	X86_HYPER_XEN_PV,
-+	X86_HYPER_XEN_HVM,
-+	X86_HYPER_KVM,
-+};
-+
- struct hypervisor_x86 {
- 	/* Hypervisor name */
- 	const char	*name;
-@@ -36,6 +46,9 @@ struct hypervisor_x86 {
- 	/* Detection routine */
- 	uint32_t	(*detect)(void);
- 
-+	/* Hypervisor type */
-+	enum x86_hypervisor_type type;
-+
- 	/* init time callbacks */
- 	struct x86_hyper_init init;
- 
-@@ -43,15 +56,7 @@ struct hypervisor_x86 {
- 	struct x86_hyper_runtime runtime;
- };
- 
--extern const struct hypervisor_x86 *x86_hyper;
--
--/* Recognized hypervisors */
--extern const struct hypervisor_x86 x86_hyper_vmware;
--extern const struct hypervisor_x86 x86_hyper_ms_hyperv;
--extern const struct hypervisor_x86 x86_hyper_xen_pv;
--extern const struct hypervisor_x86 x86_hyper_xen_hvm;
--extern const struct hypervisor_x86 x86_hyper_kvm;
--
-+extern enum x86_hypervisor_type x86_hyper_type;
- extern void init_hypervisor_platform(void);
- #else
- static inline void init_hypervisor_platform(void) { }
---- a/arch/x86/kernel/cpu/hypervisor.c
-+++ b/arch/x86/kernel/cpu/hypervisor.c
-@@ -26,6 +26,12 @@
- #include <asm/processor.h>
- #include <asm/hypervisor.h>
- 
-+extern const struct hypervisor_x86 x86_hyper_vmware;
-+extern const struct hypervisor_x86 x86_hyper_ms_hyperv;
-+extern const struct hypervisor_x86 x86_hyper_xen_pv;
-+extern const struct hypervisor_x86 x86_hyper_xen_hvm;
-+extern const struct hypervisor_x86 x86_hyper_kvm;
-+
- static const __initconst struct hypervisor_x86 * const hypervisors[] =
- {
- #ifdef CONFIG_XEN_PV
-@@ -41,8 +47,8 @@ static const __initconst struct hypervis
- #endif
- };
- 
--const struct hypervisor_x86 *x86_hyper;
--EXPORT_SYMBOL(x86_hyper);
-+enum x86_hypervisor_type x86_hyper_type;
-+EXPORT_SYMBOL(x86_hyper_type);
- 
- static inline const struct hypervisor_x86 * __init
- detect_hypervisor_vendor(void)
-@@ -87,6 +93,6 @@ void __init init_hypervisor_platform(voi
- 	copy_array(&h->init, &x86_init.hyper, sizeof(h->init));
- 	copy_array(&h->runtime, &x86_platform.hyper, sizeof(h->runtime));
- 
--	x86_hyper = h;
-+	x86_hyper_type = h->type;
- 	x86_init.hyper.init_platform();
- }
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -254,9 +254,9 @@ static void __init ms_hyperv_init_platfo
- #endif
- }
- 
--const __refconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
-+const __initconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
- 	.name			= "Microsoft Hyper-V",
- 	.detect			= ms_hyperv_platform,
-+	.type			= X86_HYPER_MS_HYPERV,
- 	.init.init_platform	= ms_hyperv_init_platform,
- };
--EXPORT_SYMBOL(x86_hyper_ms_hyperv);
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -205,10 +205,10 @@ static bool __init vmware_legacy_x2apic_
- 	       (eax & (1 << VMWARE_PORT_CMD_LEGACY_X2APIC)) != 0;
- }
- 
--const __refconst struct hypervisor_x86 x86_hyper_vmware = {
-+const __initconst struct hypervisor_x86 x86_hyper_vmware = {
- 	.name			= "VMware",
- 	.detect			= vmware_platform,
-+	.type			= X86_HYPER_VMWARE,
- 	.init.init_platform	= vmware_platform_setup,
- 	.init.x2apic_available	= vmware_legacy_x2apic_available,
- };
--EXPORT_SYMBOL(x86_hyper_vmware);
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -544,12 +544,12 @@ static uint32_t __init kvm_detect(void)
- 	return kvm_cpuid_base();
- }
- 
--const struct hypervisor_x86 x86_hyper_kvm __refconst = {
-+const __initconst struct hypervisor_x86 x86_hyper_kvm = {
- 	.name			= "KVM",
- 	.detect			= kvm_detect,
-+	.type			= X86_HYPER_KVM,
- 	.init.x2apic_available	= kvm_para_available,
- };
--EXPORT_SYMBOL_GPL(x86_hyper_kvm);
- 
- static __init int activate_jump_labels(void)
- {
---- a/arch/x86/xen/enlighten_hvm.c
-+++ b/arch/x86/xen/enlighten_hvm.c
-@@ -226,12 +226,12 @@ static uint32_t __init xen_platform_hvm(
- 	return xen_cpuid_base();
- }
- 
--const struct hypervisor_x86 x86_hyper_xen_hvm = {
-+const __initconst struct hypervisor_x86 x86_hyper_xen_hvm = {
- 	.name                   = "Xen HVM",
- 	.detect                 = xen_platform_hvm,
-+	.type			= X86_HYPER_XEN_HVM,
- 	.init.init_platform     = xen_hvm_guest_init,
- 	.init.x2apic_available  = xen_x2apic_para_available,
- 	.init.init_mem_mapping	= xen_hvm_init_mem_mapping,
- 	.runtime.pin_vcpu       = xen_pin_vcpu,
- };
--EXPORT_SYMBOL(x86_hyper_xen_hvm);
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1459,9 +1459,9 @@ static uint32_t __init xen_platform_pv(v
- 	return 0;
- }
- 
--const struct hypervisor_x86 x86_hyper_xen_pv = {
-+const __initconst struct hypervisor_x86 x86_hyper_xen_pv = {
- 	.name                   = "Xen PV",
- 	.detect                 = xen_platform_pv,
-+	.type			= X86_HYPER_XEN_PV,
- 	.runtime.pin_vcpu       = xen_pin_vcpu,
- };
--EXPORT_SYMBOL(x86_hyper_xen_pv);
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1534,7 +1534,7 @@ static int __init hv_acpi_init(void)
- {
- 	int ret, t;
- 
--	if (x86_hyper != &x86_hyper_ms_hyperv)
-+	if (x86_hyper_type != X86_HYPER_MS_HYPERV)
- 		return -ENODEV;
- 
- 	init_completion(&probe_event);
---- a/drivers/input/mouse/vmmouse.c
-+++ b/drivers/input/mouse/vmmouse.c
-@@ -316,11 +316,9 @@ static int vmmouse_enable(struct psmouse
- /*
-  * Array of supported hypervisors.
-  */
--static const struct hypervisor_x86 *vmmouse_supported_hypervisors[] = {
--	&x86_hyper_vmware,
--#ifdef CONFIG_KVM_GUEST
--	&x86_hyper_kvm,
--#endif
-+static enum x86_hypervisor_type vmmouse_supported_hypervisors[] = {
-+	X86_HYPER_VMWARE,
-+	X86_HYPER_KVM,
- };
- 
- /**
-@@ -331,7 +329,7 @@ static bool vmmouse_check_hypervisor(voi
- 	int i;
- 
- 	for (i = 0; i < ARRAY_SIZE(vmmouse_supported_hypervisors); i++)
--		if (vmmouse_supported_hypervisors[i] == x86_hyper)
-+		if (vmmouse_supported_hypervisors[i] == x86_hyper_type)
- 			return true;
- 
- 	return false;
---- a/drivers/misc/vmw_balloon.c
-+++ b/drivers/misc/vmw_balloon.c
-@@ -1271,7 +1271,7 @@ static int __init vmballoon_init(void)
- 	 * Check if we are running on VMware's hypervisor and bail out
- 	 * if we are not.
- 	 */
--	if (x86_hyper != &x86_hyper_vmware)
-+	if (x86_hyper_type != X86_HYPER_VMWARE)
- 		return -ENODEV;
- 
- 	for (is_2m_pages = 0; is_2m_pages < VMW_BALLOON_NUM_PAGE_SIZES;
+4: we need bindings for the input touchscreen driver, named sama5d2_rts
+(resistive touch screen). This driver will be the consumer for the IIO
+trigger and channels. This is done in the commit:
+dt-bindings: input: touchscreen: sama5d2_rts: create bindings
+
+5: we need some helper functions to get the trigger from the iio device
+from inkern API. This is done in the commit:
+iio: triggers: add helper function to retrieve trigger
+
+6: we need helper functions to attach and detach a pollfunction to and
+from the trigger itself. The trigger is registered by an IIO device, and
+is still connected to it, but we need to be able to register a different
+pollfunc from another driver. Thus I exposed this API to be inkern API.
+This is done in commit:
+iio: triggers: expose attach and detach helpers for pollfuncs
+
+7: we need to be able to attach a pollfunc to a trigger, even if the
+pollfunc is not coming from an iio device. Thus, register the pollfunc using
+the iio_dev of the trigger (in case it's coming as NULL from the pollfunc).
+This is done in the commit:
+iio: triggers: on pollfunc attach, complete iio_dev if NULL
+
+8: we need a private data on the pollfunc, such that the consumer
+driver has a pointer to it's private data when the handler is called.
+This is done in the commit:
+iio: triggers: add private data to pollfuncs
+
+9: we need to have inkern API to be able to look inside the devicetree
+and find from the properties, which trigger(s) need to be connected.
+Created some API that will look through the properties and return found
+triggers. This is done in the commit:
+iio: inkern: triggers: create helpers for OF trigger retrieval
+
+10: in at91-sama5d2_adc we need to remove trigger on module remove in
+order to not have stray triggers that are unusable after the module is
+removed and reinserted. If such triggers stay registered, the code that
+looks through the list of triggers will not work as intended.
+This is done in commit:
+iio: adc: at91-sama5d2_adc: force trigger removal on module remove
+
+11: we need consecutive indexes for the channels provided by at91-sama5d2_adc
+so that we optimize the index values and easier to connect the
+touchscreen driver to the channels as a consumer. This is done in the commit:
+iio: adc: at91-sama5d2_adc: optimize scan index for diff channels
+
+12: the implementation of the channels and the support for position
+conversion and pressure is done in the at91-sama5d2_adc driver.
+The implementation provides a trigger named "touch" which can be
+connected to a consumer driver.
+Once a driver connects and attaches a pollfunc to this trigger, the
+configure trigger callback is called, and then the ADC driver will
+initialize pad measurement.
+First step is to enable touchscreen 4wire support and enable
+pen detect IRQ.
+Once a pen is detected, a periodic trigger is setup to trigger every 2 ms
+(e.g.) and sample the resistive touchscreen values. The trigger poll
+is called, and the consumer driver is then woke up, and it can read the
+respective channels for the values : X, and Y for position and pressure
+channel.
+Because only one trigger can be active in hardware in the same time,
+while touching the pad, the ADC will block any attempt to use the
+triggered buffer. Same, conversions using the software trigger are also
+impossible (since the periodic trigger is setup).
+If some driver wants to attach while the trigger is in use, it will also fail.
+Once the pen is not detected anymore, the trigger is free for use (hardware
+or software trigger, with or without DMA).
+Channels 0,1,2 and 3 are unavailable if a touchscreen is enabled.
+This is done in the commit:
+iio: adc: at91-sama5d2_adc: support for position and pressure channels
+
+13: the implementation of the basic touchscreen driver, which is an IIO
+consumer.
+The driver registers an input device and connects to the given IIO device from
+devicetree. It requires an IIO trigger (acting as a consumer) and three IIO
+channels : one for X position, one for Y position and one for pressure.
+It the reports the values to the input subsystem.
+This is done in the commit:
+input: touchscreen: sama5d2_rts: SAMA5D2 Resistive touchscreen driver
+
+14: Finally, we need to have the node in the sama5d2.dtsi,
+as it's part of the SoC. This is done in the commit:
+ARM: dts: at91: sama5d2: Add resistive touch device
+
+This series is based on the discussion in mailing list and probably requires
+some patching up, but hopefully the idea and the implementation of the inkern
+trigger consumers and the splitting between the ADC driver and the input
+driver is ok like this.
+
+The implementation avoids using a MFD driver, which means to make three
+drivers in fact, one for ADC, one for touch, with a shared IRQ, and a general
+MFD driver that will be a placeholder for the two.
+
+This implementation is based on patches initially written by
+Swamy Bandaru Venkateshwara and Mohamed Jamsheeth Hajanajubudeen
+
+Eugen Hristev (14):
+  MAINTAINERS: add sama5d2 resistive touchscreen
+  iio: Add channel for Position
+  dt-bindings: iio: add binding support for iio trigger
+    provider/consumer
+  dt-bindings: input: touchscreen: sama5d2_rts: create bindings
+  iio: triggers: add helper function to retrieve trigger
+  iio: triggers: expose attach and detach helpers for pollfuncs
+  iio: triggers: on pollfunc attach, complete iio_dev if NULL
+  iio: triggers: add private data to pollfuncs
+  iio: inkern: triggers: create helpers for OF trigger retrieval
+  iio: adc: at91-sama5d2_adc: force trigger removal on module remove
+  iio: adc: at91-sama5d2_adc: optimize scan index for diff channels
+  iio: adc: at91-sama5d2_adc: support for position and pressure channels
+  input: touchscreen: sama5d2_rts: SAMA5D2 Resistive touchscreen driver
+  ARM: dts: at91: sama5d2: Add resistive touch device
+
+ Documentation/ABI/testing/sysfs-bus-iio            |  11 +
+ .../devicetree/bindings/iio/iio-bindings.txt       |  52 ++-
+ .../bindings/input/touchscreen/sama5d2_rts.txt     |  31 ++
+ MAINTAINERS                                        |   6 +
+ arch/arm/boot/dts/sama5d2.dtsi                     |  12 +-
+ drivers/iio/adc/at91-sama5d2_adc.c                 | 460 ++++++++++++++++++++-
+ drivers/iio/iio_core_trigger.h                     |  21 +
+ drivers/iio/industrialio-core.c                    |   1 +
+ drivers/iio/industrialio-trigger.c                 |  42 +-
+ drivers/iio/inkern.c                               |  91 ++++
+ drivers/input/touchscreen/Kconfig                  |  13 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/sama5d2_rts.c            | 287 +++++++++++++
+ include/linux/iio/trigger_consumer.h               |  21 +
+ include/uapi/linux/iio/types.h                     |   1 +
+ tools/iio/iio_event_monitor.c                      |   2 +
+ 16 files changed, 1036 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/sama5d2_rts.txt
+ create mode 100644 drivers/input/touchscreen/sama5d2_rts.c
+
+-- 
+2.7.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

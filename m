@@ -1,57 +1,52 @@
-From: "jeffrey.lin" <yajohn@gmail.com>
-Subject: [PATCH] driver: input :touchscreen :Modify Raydium Firmware update input file
-Date: Thu, 21 Dec 2017 21:51:22 +0800
-Message-ID: <20171221135122.345-1-jeffrey.lin@raydium.corp-partner.google.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:40177 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752316AbdLUNvn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Dec 2017 08:51:43 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Aaron Bottegal <aaronbottegal@gmail.com>
+Subject: [PATCH] HID: corsair: Add K70 Vengeance and K70 RAPIDFIRE to supported devices.
+Date: Fri, 22 Dec 2017 03:32:52 -0500
+Message-ID: <20171222083252.8643-1-aaronbottegal@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Bottegal <aaronbottegal@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, groeck@chromium.org, keith.tzeng@quantatw.com, Katherine.Hsieh@quantatw.com, bleung@google.com
-Cc: jeffrey.lin@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, calvin.tseng@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Modify update firmware to accept alternative file name
+K70 Vengence sends garbage keypresses when changing  backlight brightness.
+This hooks to the existing corsair driver, which filters out those
+invalid keypresses on similar devices in the input mapping code.
 
-Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
+Signed-off-by: Aaron Bottegal <aaronbottegal@gmail.com>
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/hid/hid-corsair.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index a99fb5cac5a0..439d43c3519c 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -130,6 +130,7 @@ struct raydium_data {
- 	struct gpio_desc *reset_gpio;
+diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
+index 9ba5d98a1180..7aa73c758a64 100644
+--- a/drivers/hid/hid-corsair.c
++++ b/drivers/hid/hid-corsair.c
+@@ -2,11 +2,14 @@
+  * HID driver for Corsair devices
+  *
+  * Supported devices:
++ *  - Vengeance K70 Keyboard
++ *  - K70 RAPIDFIRE Keyboard
+  *  - Vengeance K90 Keyboard
+  *  - Scimitar PRO RGB Gaming Mouse
+  *
+  * Copyright (c) 2015 Clement Vuchener
+  * Copyright (c) 2017 Oscar Campos
++ * Copyright (c) 2017 Aaron Bottegal
+  */
  
- 	struct raydium_info info;
-+	char fw_file[64];
- 
- 	struct mutex sysfs_mutex;
- 
-@@ -752,12 +753,16 @@ static int raydium_i2c_fw_update(struct raydium_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	const struct firmware *fw = NULL;
--	const char *fw_file = "raydium.fw";
- 	int error;
- 
--	error = request_firmware(&fw, fw_file, &client->dev);
-+	/* Firmware name */
-+	snprintf(ts->fw_file, sizeof(ts->fw_file),
-+		"raydium_%x.fw", ts->info.hw_ver);
-+	dev_dbg(&client->dev, "firmware name: %s\n", ts->fw_file);
-+
-+	error = request_firmware(&fw, ts->fw_file, &client->dev);
- 	if (error) {
--		dev_err(&client->dev, "Unable to open firmware %s\n", fw_file);
-+		dev_err(&client->dev, "Unable to open firmware %s\n", ts->fw_file);
- 		return error;
- 	}
+ /*
+@@ -717,6 +720,11 @@ static const struct hid_device_id corsair_devices[] = {
+ 			       CORSAIR_USE_K90_BACKLIGHT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR,
+             USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB) },
++	/*
++	 * Vengence K70 and K70 RAPIDFIRE share product IDs.
++	 */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR,
++            USB_DEVICE_ID_CORSAIR_K70R) },
+ 	{}
+ };
  
 -- 
-2.12.2
-
+2.15.1

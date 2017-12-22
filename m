@@ -1,59 +1,40 @@
-From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH 08/14] iio: triggers: add private data to pollfuncs
-Date: Fri, 22 Dec 2017 17:07:15 +0200
-Message-ID: <1513955241-10985-9-git-send-email-eugen.hristev@microchip.com>
+From: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Subject: [PATCH 10/14] iio: adc: at91-sama5d2_adc: force trigger removal on module remove
+Date: Fri, 22 Dec 2017 17:07:17 +0200
+Message-ID: <1513955241-10985-11-git-send-email-eugen.hristev@microchip.com>
 References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: nicolas.ferre@microchip.com, ludovic.desroches@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: Eugen Hristev <eugen.hristev@microchip.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1513955241-10985-1-git-send-email-eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add a private data pointer field to pollfunc struct.
-This is useful in the trigger handler to get specific data
-for the driver registering the pollfunc.
+On module remove, if we do not call trigger remove, the trigger
+stays in the subsystem, and on further module insert, we will have
+multiple triggers, and the old one is not usable.
+Have to call the remove function on module remove to solve this.
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 ---
- include/linux/iio/trigger_consumer.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iio/adc/at91-sama5d2_adc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/iio/trigger_consumer.h b/include/linux/iio/trigger_consumer.h
-index 36e2a02..13be595 100644
---- a/include/linux/iio/trigger_consumer.h
-+++ b/include/linux/iio/trigger_consumer.h
-@@ -29,6 +29,7 @@ struct iio_trigger;
-  * @timestamp:			some devices need a timestamp grabbed as soon
-  *				as possible after the trigger - hence handler
-  *				passes it via here.
-+ * @p:				private data for the poll func owner.
-  **/
- struct iio_poll_func {
- 	struct iio_dev *indio_dev;
-@@ -38,6 +39,7 @@ struct iio_poll_func {
- 	char *name;
- 	int irq;
- 	s64 timestamp;
-+	void *p;
- };
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index 4eff835..7b9febc 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -1180,6 +1180,9 @@ static int at91_adc_remove(struct platform_device *pdev)
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct at91_adc_state *st = iio_priv(indio_dev);
  
- 
-@@ -49,6 +51,13 @@ struct iio_poll_func
- 		    const char *fmt,
- 		    ...);
- void iio_dealloc_pollfunc(struct iio_poll_func *pf);
++	if (st->selected_trig->hw_trig)
++		devm_iio_trigger_unregister(&indio_dev->dev, st->trig);
 +
-+static inline void
-+iio_pollfunc_set_private_data(struct iio_poll_func *pf, void *p)
-+{
-+	pf->p = p;
-+}
-+
- irqreturn_t iio_pollfunc_store_time(int irq, void *p);
+ 	iio_device_unregister(indio_dev);
  
- void iio_trigger_notify_done(struct iio_trigger *trig);
+ 	at91_adc_dma_disable(pdev);
 -- 
 2.7.4

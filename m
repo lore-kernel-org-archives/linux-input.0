@@ -1,49 +1,54 @@
 From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH 01/14] MAINTAINERS: add sama5d2 resistive touchscreen
-Date: Fri, 22 Dec 2017 17:07:08 +0200
-Message-ID: <1513955241-10985-2-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH 14/14] ARM: dts: at91: sama5d2: Add resistive touch device
+Date: Fri, 22 Dec 2017 17:07:21 +0200
+Message-ID: <1513955241-10985-15-git-send-email-eugen.hristev@microchip.com>
 References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: nicolas.ferre@microchip.com, ludovic.desroches@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-Add MAINTAINERS entry for sama5d2 resistive touchscreen driver
+Add the resistive touchscreen device, and the cell numbers to the
+ADC device.
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/sama5d2.dtsi | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 650aa0e..8beec28 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -8957,6 +8957,12 @@ F:	drivers/media/platform/atmel/atmel-isc.c
- F:	drivers/media/platform/atmel/atmel-isc-regs.h
- F:	devicetree/bindings/media/atmel-isc.txt
- 
-+MICROCHIP / ATMEL SAMA5D2 RESISTIVE TOUCHSCREEN DRIVER
-+M:	Eugen Hristev <eugen.hristev@microchip.com>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/input/touchscreen/sama5d2_rts.c
+diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
+index b1a26b4..30b3797 100644
+--- a/arch/arm/boot/dts/sama5d2.dtsi
++++ b/arch/arm/boot/dts/sama5d2.dtsi
+@@ -402,7 +402,6 @@
+ 					compatible = "atmel,hlcdc-display-controller";
+ 					#address-cells = <1>;
+ 					#size-cells = <0>;
+-
+ 					port@0 {
+ 						#address-cells = <1>;
+ 						#size-cells = <0>;
+@@ -1431,6 +1430,17 @@
+ 				atmel,max-sample-rate-hz = <20000000>;
+ 				atmel,startup-time-ms = <4>;
+ 				atmel,trigger-edge-type = <IRQ_TYPE_EDGE_RISING>;
++				#io-channel-cells = <1>;
++				#io-trigger-cells = <1>;
++				status = "disabled";
++			};
 +
- MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER
- M:	Woojung Huh <Woojung.Huh@microchip.com>
- M:	Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
++			resistive_touch: resistive-touch {
++				compatible = "microchip,sama5d2-resistive-touch";
++				io-channels = <&adc 19>, <&adc 20>, <&adc 21>;
++				io-channel-names = "x", "y", "pressure";
++				io-triggers = <&adc 1>;
++				microchip,pressure-threshold = <10000>;
+ 				status = "disabled";
+ 			};
+ 
 -- 
 2.7.4

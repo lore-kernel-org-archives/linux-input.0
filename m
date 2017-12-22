@@ -1,96 +1,47 @@
-From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH 05/14] iio: triggers: add helper function to retrieve trigger
-Date: Fri, 22 Dec 2017 17:07:12 +0200
-Message-ID: <1513955241-10985-6-git-send-email-eugen.hristev@microchip.com>
+From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 14/14] ARM: dts: at91: sama5d2: Add resistive touch device
+Date: Fri, 22 Dec 2017 17:10:16 +0100
+Message-ID: <20171222161016.GI18255@piout.net>
 References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
+ <1513955241-10985-15-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: nicolas.ferre@microchip.com, ludovic.desroches@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: Eugen Hristev <eugen.hristev@microchip.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1513955241-10985-15-git-send-email-eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Cc: nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Add a helper function that will retrieve a trigger by index
-from a device. This is intended to be used in trigger consumer drivers.
+Hi,
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
----
- drivers/iio/iio_core_trigger.h     | 21 +++++++++++++++++++++
- drivers/iio/industrialio-trigger.c | 23 +++++++++++++++++++++++
- 2 files changed, 44 insertions(+)
+On 22/12/2017 at 17:07:21 +0200, Eugen Hristev wrote:
+> Add the resistive touchscreen device, and the cell numbers to the
+> ADC device.
+> 
+> Signed-off-by: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/sama5d2.dtsi | 12 +++++++++++-
+>  1 file changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
+> index b1a26b4..30b3797 100644
+> --- a/arch/arm/boot/dts/sama5d2.dtsi
+> +++ b/arch/arm/boot/dts/sama5d2.dtsi
+> @@ -402,7 +402,6 @@
+>  					compatible = "atmel,hlcdc-display-controller";
+>  					#address-cells = <1>;
+>  					#size-cells = <0>;
+> -
 
-diff --git a/drivers/iio/iio_core_trigger.h b/drivers/iio/iio_core_trigger.h
-index 1fdb1e4..14c4253 100644
---- a/drivers/iio/iio_core_trigger.h
-+++ b/drivers/iio/iio_core_trigger.h
-@@ -21,6 +21,15 @@ void iio_device_register_trigger_consumer(struct iio_dev *indio_dev);
-  **/
- void iio_device_unregister_trigger_consumer(struct iio_dev *indio_dev);
- 
-+/**
-+ * iio_trigger_find_from_device() - get the trigger from the device having the
-+ * index given.
-+ * @indio_dev: iio_dev where to get the trigger from
-+ * @index: the index of the trigger to retrieve
-+ **/
-+__maybe_unused struct iio_trigger *
-+iio_trigger_find_from_device(struct iio_dev *indio_dev, u32 index);
-+
- #else
- 
- /**
-@@ -40,4 +49,16 @@ static void iio_device_unregister_trigger_consumer(struct iio_dev *indio_dev)
- {
- }
- 
-+/**
-+ * iio_trigger_find_from_device() - get the trigger from the device having the
-+ * index given.
-+ * @indio_dev: iio_dev where to get the trigger from
-+ * @index: the index of the trigger to retrieve
-+ **/
-+static __maybe_unused struct iio_trigger *
-+iio_trigger_find_from_device(struct iio_dev *indio_dev, u32 index)
-+{
-+	return NULL;
-+}
-+
- #endif /* CONFIG_TRIGGER_CONSUMER */
-diff --git a/drivers/iio/industrialio-trigger.c b/drivers/iio/industrialio-trigger.c
-index ce66699..cbaa079 100644
---- a/drivers/iio/industrialio-trigger.c
-+++ b/drivers/iio/industrialio-trigger.c
-@@ -134,6 +134,29 @@ int iio_trigger_set_immutable(struct iio_dev *indio_dev, struct iio_trigger *tri
- }
- EXPORT_SYMBOL(iio_trigger_set_immutable);
- 
-+/* Find the trigger from the given device corresponding to given index */
-+struct __maybe_unused iio_trigger *
-+iio_trigger_find_from_device(struct iio_dev *indio_dev, u32 index)
-+{
-+	struct iio_trigger *iter, *trig = NULL;
-+	u32 i = 0;
-+
-+	mutex_lock(&iio_trigger_list_lock);
-+
-+	list_for_each_entry(iter, &iio_trigger_list, list) {
-+		if (!iio_trigger_validate_own_device(iter, indio_dev)) {
-+			if (i == index) {
-+				trig = iter;
-+				break;
-+			}
-+			i++;
-+		}
-+	}
-+	mutex_unlock(&iio_trigger_list_lock);
-+
-+	return trig;
-+}
-+
- /* Search for trigger by name, assuming iio_trigger_list_lock held */
- static struct iio_trigger *__iio_trigger_find_by_name(const char *name)
- {
+This is an unrelated change.
+
+>  					port@0 {
+>  						#address-cells = <1>;
+>  						#size-cells = <0>;
+
 -- 
-2.7.4
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

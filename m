@@ -1,162 +1,150 @@
 From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH 09/14] iio: inkern: triggers: create helpers for OF trigger retrieval
-Date: Fri, 22 Dec 2017 17:07:16 +0200
-Message-ID: <1513955241-10985-10-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH 03/14] dt-bindings: iio: add binding support for iio trigger
+ provider/consumer
+Date: Fri, 22 Dec 2017 17:07:10 +0200
+Message-ID: <1513955241-10985-4-git-send-email-eugen.hristev@microchip.com>
 References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: nicolas.ferre@microchip.com, ludovic.desroches@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-Create helper API to get trigger information from OF regarding
-trigger producer/consumer for iio triggers.
-The functions will search for matching trigger by name, similar
-with channel retrieval
+Add bindings for producer/consumer for iio triggers.
+
+Similar with iio channels, the iio triggers can be connected between drivers:
+one driver will be a producer by registering iio triggers, and another driver
+will connect as a consumer.
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- drivers/iio/inkern.c                 | 91 ++++++++++++++++++++++++++++++++++++
- include/linux/iio/trigger_consumer.h |  1 +
- 2 files changed, 92 insertions(+)
+ .../devicetree/bindings/iio/iio-bindings.txt       | 52 +++++++++++++++++++++-
+ 1 file changed, 51 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index 069defc..58bd18d 100644
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -14,9 +14,13 @@
+diff --git a/Documentation/devicetree/bindings/iio/iio-bindings.txt b/Documentation/devicetree/bindings/iio/iio-bindings.txt
+index 68d6f8c..d861f0df 100644
+--- a/Documentation/devicetree/bindings/iio/iio-bindings.txt
++++ b/Documentation/devicetree/bindings/iio/iio-bindings.txt
+@@ -11,6 +11,10 @@ value of a #io-channel-cells property in the IIO provider node.
  
- #include <linux/iio/iio.h>
- #include "iio_core.h"
-+#include "iio_core_trigger.h"
- #include <linux/iio/machine.h>
- #include <linux/iio/driver.h>
- #include <linux/iio/consumer.h>
-+#include <linux/iio/trigger.h>
-+#include <linux/iio/trigger_consumer.h>
-+
+ [1] http://marc.info/?l=linux-iio&m=135902119507483&w=2
  
- struct iio_map_internal {
- 	struct iio_dev *indio_dev;
-@@ -262,6 +266,39 @@ static struct iio_channel *of_iio_channel_get_all(struct device *dev)
- 	return ERR_PTR(ret);
- }
++Moreover, the provider can have a set of triggers that can be attached to
++from the consumer drivers.
++
++
+ ==IIO providers==
  
-+#ifdef CONFIG_IIO_TRIGGER
-+
-+static struct iio_trigger *of_iio_trigger_get(struct device_node *np, int index)
-+{
-+	struct device *idev;
-+	struct iio_dev *indio_dev;
-+	int err;
-+	struct of_phandle_args iiospec;
-+	struct iio_trigger *trig;
-+
-+	err = of_parse_phandle_with_args(np, "io-triggers",
-+					 "#io-trigger-cells",
-+					 index, &iiospec);
-+	if (err)
-+		return ERR_PTR(err);
-+
-+	idev = bus_find_device(&iio_bus_type, NULL, iiospec.np,
-+			       iio_dev_node_match);
-+	of_node_put(iiospec.np);
-+	if (!idev)
-+		return ERR_PTR(-EPROBE_DEFER);
-+
-+	indio_dev = dev_to_iio_dev(idev);
-+
-+	trig = iio_trigger_find_from_device(indio_dev, iiospec.args[0]);
-+
-+	if (!trig)
-+		return ERR_PTR(-ENODEV);
-+
-+	return trig;
-+}
-+#endif /* CONFIG_IIO_TRIGGER */
-+
- #else /* CONFIG_OF */
+ Required properties:
+@@ -18,6 +22,11 @@ Required properties:
+ 		   with a single IIO output and 1 for nodes with multiple
+ 		   IIO outputs.
  
- static inline struct iio_channel *
-@@ -275,6 +312,12 @@ static inline struct iio_channel *of_iio_channel_get_all(struct device *dev)
- 	return NULL;
- }
++Optional properties:
++#io-trigger-cells: Number of cells for the IIO trigger specifier. Typically 0
++		   for nodes with a single IIO trigger and 1 for nodes with
++		   multiple IIO triggers.
++
+ Example for a simple configuration with no trigger:
  
-+static inline struct iio_trigger *of_iio_trigger_get(struct device_node *np,
-+						     int index)
-+{
-+	return NULL;
-+}
-+
- #endif /* CONFIG_OF */
+ 	adc: voltage-sensor@35 {
+@@ -26,7 +35,7 @@ Example for a simple configuration with no trigger:
+ 		#io-channel-cells = <1>;
+ 	};
  
- static struct iio_channel *iio_channel_get_sys(const char *name,
-@@ -927,3 +970,51 @@ ssize_t iio_write_channel_ext_info(struct iio_channel *chan, const char *attr,
- 			       chan->channel, buf, len);
- }
- EXPORT_SYMBOL_GPL(iio_write_channel_ext_info);
-+
-+#ifdef CONFIG_IIO_TRIGGER
-+struct iio_trigger *iio_trigger_find(struct device *dev, char *name)
-+{
-+	struct device_node *np = dev->of_node;
-+	struct iio_trigger *trig = NULL;
-+
-+	/* Walk up the tree of devices looking for a matching iio trigger */
-+	while (np) {
-+		int index = 0;
-+
-+		/*
-+		 * For named iio triggers, first look up the name in the
-+		 * "io-trigger-names" property.  If it cannot be found, the
-+		 * index will be an error code, and of_iio_trigger_get()
-+		 * will fail.
-+		 */
-+		if (name)
-+			index = of_property_match_string(np, "io-trigger-names",
-+							 name);
-+		trig = of_iio_trigger_get(np, index);
-+		if (!IS_ERR(trig) || PTR_ERR(trig) == -EPROBE_DEFER) {
-+			break;
-+		} else if (name && index >= 0) {
-+			pr_err("ERROR: could not get IIO trigger %pOF:%s(%i)\n",
-+			       np, name ? name : "", index);
-+			return trig;
-+		}
-+
-+		/*
-+		 * No matching IIO trigger found on this node.
-+		 * If the parent node has a "io-trigger-ranges" property,
-+		 * then we can try one of its channels.
-+		 */
-+		np = np->parent;
-+		if (np && !of_get_property(np, "io-trigger-ranges", NULL))
-+			return trig;
-+	}
-+
-+	if (!trig || (IS_ERR(trig) && PTR_ERR(trig) != -EPROBE_DEFER))
-+		dev_dbg(dev, "error retrieving trigger information\n");
-+	else
-+		dev_dbg(dev, "trigger found: %s\n", name);
-+
-+	return trig;
-+}
-+EXPORT_SYMBOL_GPL(iio_trigger_find);
-+#endif /* CONFIG_IIO_TRIGGER */
-diff --git a/include/linux/iio/trigger_consumer.h b/include/linux/iio/trigger_consumer.h
-index 13be595..b2fc485 100644
---- a/include/linux/iio/trigger_consumer.h
-+++ b/include/linux/iio/trigger_consumer.h
-@@ -62,6 +62,7 @@ irqreturn_t iio_pollfunc_store_time(int irq, void *p);
+-Example for a configuration with trigger:
++Example for a configuration with channels provided by trigger:
  
- void iio_trigger_notify_done(struct iio_trigger *trig);
+ 	adc@35 {
+ 		compatible = "some-vendor,some-adc";
+@@ -42,6 +51,17 @@ Example for a configuration with trigger:
+ 		};
+ 	};
  
-+struct iio_trigger *iio_trigger_find(struct device *dev, char *name);
- /*
-  * Two functions for common case where all that happens is a pollfunc
-  * is attached and detached from a trigger
++Example for a configuration for a trigger provider:
++
++	adc: sensor-with-trigger@35 {
++		compatible = "some-vendor,some-adc";
++		reg = <0x35>;
++		#io-channel-cells = <1>;
++		#io-trigger-cells = <1>;
++		/* other properties */
++	};
++
++
+ ==IIO consumers==
+ 
+ Required properties:
+@@ -61,16 +81,38 @@ io-channel-ranges:
+ 		IIO channels from this node. Useful for bus nodes to provide
+ 		and IIO channel to their children.
+ 
++io-triggers:	List of phandle and IIO specifier pairs, one pair
++		for each trigger input to the device. Note: if the
++		IIO trigger provider specifies '0' for #io-trigger-cells,
++		then only the phandle portion of the pair will appear.
++
++io-trigger-names:
++		List of IIO trigger input name strings sorted in the same
++		order as the io-triggers property. Consumers drivers
++		will use io-trigger-names to match IIO trigger input names
++		with IIO specifiers.
++
++io-trigger-ranges:
++		Empty property indicating that child nodes can inherit named
++		IIO triggers from this node. Useful for bus nodes to provide
++		IIO triggers to their children.
++
+ For example:
+ 
+ 	device {
+ 		io-channels = <&adc 1>, <&ref 0>;
+ 		io-channel-names = "vcc", "vdd";
++		io-triggers = <&adc 0>, <&adc 1>;
++		io-trigger-names = "continuous", "external";
+ 	};
+ 
+ This represents a device with two IIO inputs, named "vcc" and "vdd".
+ The vcc channel is connected to output 1 of the &adc device, and the
+ vdd channel is connected to output 0 of the &ref device.
++The device also connects to two IIO trigger inputs, named "continuous" and
++"external". The continuous trigger is connected to the trigger output 0 of the
++&adc device, and the external trigger is connected to the trigger output 1 of
++the same &adc device.
+ 
+ ==Example==
+ 
+@@ -78,6 +120,7 @@ vdd channel is connected to output 0 of the &ref device.
+ 		compatible = "maxim,max1139";
+ 		reg = <0x35>;
+ 		#io-channel-cells = <1>;
++		#io-trigger-cells = <1>;
+ 	};
+ 
+ 	...
+@@ -94,4 +137,11 @@ vdd channel is connected to output 0 of the &ref device.
+ 		compatible = "some-consumer";
+ 		io-channels = <&adc 10>, <&adc 11>;
+ 		io-channel-names = "adc1", "adc2";
++		io-triggers = <&adc 0>;
++	};
++
++	some_other_consumer {
++		compatible = "some-other-consumer";
++		io-triggers = <&adc 1>, <&adc 2>;
++		io-trigger-names = "edge-triggered", "pwm-generated";
+ 	};
 -- 
 2.7.4

@@ -1,16 +1,23 @@
 From: Aaron Bottegal <aaronbottegal@gmail.com>
-Subject: [PATCH] HID: corsair: Add K70 Vengeance and K70 RAPIDFIRE to supported devices.
-Date: Fri, 22 Dec 2017 03:32:52 -0500
-Message-ID: <20171222083252.8643-1-aaronbottegal@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH V2] HID: corsair: Add K70 Vengeance and K70 RAPIDFIRE to
+Date: Fri, 22 Dec 2017 03:38:14 -0500
+Message-ID: <20171222083814.9090-1-aaronbottegal@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:46978 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753735AbdLVIi4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 22 Dec 2017 03:38:56 -0500
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Bottegal <aaronbottegal@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
-K70 Vengence sends garbage keypresses when changing  backlight brightness.
+K70 Vengeance sends garbage keypresses when changing  backlight brightness.
 This hooks to the existing corsair driver, which filters out those
 invalid keypresses on similar devices in the input mapping code.
+
+V2: Fix spelling.
 
 Signed-off-by: Aaron Bottegal <aaronbottegal@gmail.com>
 ---
@@ -41,7 +48,7 @@ index 9ba5d98a1180..7aa73c758a64 100644
  	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR,
              USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB) },
 +	/*
-+	 * Vengence K70 and K70 RAPIDFIRE share product IDs.
++	 * Vengeance K70 and K70 RAPIDFIRE share product IDs.
 +	 */
 +	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR,
 +            USB_DEVICE_ID_CORSAIR_K70R) },
@@ -50,3 +57,4 @@ index 9ba5d98a1180..7aa73c758a64 100644
  
 -- 
 2.15.1
+

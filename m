@@ -1,40 +1,41 @@
-From: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Subject: [PATCH 10/14] iio: adc: at91-sama5d2_adc: force trigger removal on module remove
-Date: Fri, 22 Dec 2017 17:07:17 +0200
-Message-ID: <1513955241-10985-11-git-send-email-eugen.hristev@microchip.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
+Subject: [PATCH 11/14] iio: adc: at91-sama5d2_adc: optimize scan index for diff channels
+Date: Fri, 22 Dec 2017 17:07:18 +0200
+Message-ID: <1513955241-10985-12-git-send-email-eugen.hristev@microchip.com>
 References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1513955241-10985-1-git-send-email-eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: nicolas.ferre@microchip.com, ludovic.desroches@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-On module remove, if we do not call trigger remove, the trigger
-stays in the subsystem, and on further module insert, we will have
-multiple triggers, and the old one is not usable.
-Have to call the remove function on module remove to solve this.
+Optimize the scan index for the differential channels. Before, it
+was single channel count + index of the first single channel
+number of the differential pair. (e.g. 11+0, +2, +4, etc.)
+Divide that number by two (since it's always even), and add it up
+as a scan index to have consecutive numbered channels in the
+index.
 
-Signed-off-by: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- drivers/iio/adc/at91-sama5d2_adc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/adc/at91-sama5d2_adc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
-index 4eff835..7b9febc 100644
+index 7b9febc..9610393 100644
 --- a/drivers/iio/adc/at91-sama5d2_adc.c
 +++ b/drivers/iio/adc/at91-sama5d2_adc.c
-@@ -1180,6 +1180,9 @@ static int at91_adc_remove(struct platform_device *pdev)
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct at91_adc_state *st = iio_priv(indio_dev);
- 
-+	if (st->selected_trig->hw_trig)
-+		devm_iio_trigger_unregister(&indio_dev->dev, st->trig);
-+
- 	iio_device_unregister(indio_dev);
- 
- 	at91_adc_dma_disable(pdev);
+@@ -209,7 +209,7 @@
+ 		.channel = num,						\
+ 		.channel2 = num2,					\
+ 		.address = addr,					\
+-		.scan_index = num + AT91_SAMA5D2_SINGLE_CHAN_CNT,	\
++		.scan_index = (num >> 1) + AT91_SAMA5D2_SINGLE_CHAN_CNT,\
+ 		.scan_type = {						\
+ 			.sign = 's',					\
+ 			.realbits = 12,					\
 -- 
 2.7.4

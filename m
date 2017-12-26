@@ -1,39 +1,84 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 13/14] input: touchscreen: sama5d2_rts: SAMA5D2 Resistive
- touchscreen driver
-Date: Tue, 26 Dec 2017 16:41:35 -0600
-Message-ID: <20171226224135.qzh45mnl3a7ghbfs@rob-hp-laptop>
-References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
- <1513955241-10985-14-git-send-email-eugen.hristev@microchip.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1513955241-10985-14-git-send-email-eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Cc: nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] Fix reporting of touch toggle (WACOM_HID_WD_MUTE_DEVICE) events
+Date: Tue, 26 Dec 2017 14:53:55 -0800
+Message-ID: <20171226225355.27785-1-killertofu@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <binjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 22, 2017 at 05:07:20PM +0200, Eugen Hristev wrote:
-> This is the implementation of the Microchip SAMA5D2 SOC resistive
-> touchscreen driver.
-> The driver registers an input device and connects to the give IIO device
-> from devicetree. It requires an IIO trigger (acting as a consumer) and
-> three IIO channels : one for X position, one for Y position and one
-> for pressure.
-> It the reports the values to the input subsystem.
-> 
-> Some parts of this driver are based on the initial original work by
-> Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
+Touch toggle softkeys send a '1' while pressed and a '0' while released,
+requring the kernel to keep track of wether touch should be enabled or
+disabled. The code does not handle the state transitions properly,
+however. If the key is pressed repeatedly, the following four states
+of states are cycled through (assuming touch starts out enabled):
 
-This doesn't appear to have anything specific to SAMA5D2 SoC, but is 
-rather just a generic ADC (IIO based) resistive touchscreen driver.
+Press:   shared->is_touch_on => 0, SW_MUTE_DEVICE => 1
+Release: shared->is_touch_on => 0, SW_MUTE_DEVICE => 1
+Press:   shared->is_touch_on => 1, SW_MUTE_DEVICE => 0
+Release: shared->is_touch_on => 1, SW_MUTE_DEVICE => 1
 
-Perhaps the binding can also be just an "adc-resistive-touchscreen".
+The hardware always properly enables/disables touch when the key is
+pressed but applications that listen for SW_MUTE_DEVICE events to provide
+feedback about the state will only ever show touch as being enabled while
+the key is held, and only every-other time. This sequence occurs because
+the fallthrough WACOM_HID_WD_TOUCHONOFF case is always handled, and it
+uses the value of the *local* is_touch_on variable as the value to
+report to userspace. The local value is equal to the shared value when
+the button is pressed, but equal to zero when the button is released.
 
-Rob
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reporting the shared value to userspace fixes this problem, but the
+fallthrough case needs to update the shared value in an incompatible
+way (which is why the local variable was introduced in the first place).
+To work around this, we just handle both cases in a single block of code
+and update the shared variable as appropriate.
+
+Fixes: d793ff8187 ("HID: wacom: generic: support touch on/off softkey")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Skomra <aaron.skomra@wacom.com>
+Tested-by: Aaron Skomra <aaron.skomra@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 16af6886e828..7dbff253c05c 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1924,7 +1924,6 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 	struct wacom_features *features = &wacom_wac->features;
+ 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
+ 	int i;
+-	bool is_touch_on = value;
+ 	bool do_report = false;
+ 
+ 	/*
+@@ -1969,16 +1968,17 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 		break;
+ 
+ 	case WACOM_HID_WD_MUTE_DEVICE:
+-		if (wacom_wac->shared->touch_input && value) {
+-			wacom_wac->shared->is_touch_on = !wacom_wac->shared->is_touch_on;
+-			is_touch_on = wacom_wac->shared->is_touch_on;
+-		}
+-
+-		/* fall through*/
+ 	case WACOM_HID_WD_TOUCHONOFF:
+ 		if (wacom_wac->shared->touch_input) {
++			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
++
++			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
++				*is_touch_on = !(*is_touch_on);
++			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
++				*is_touch_on = value;
++
+ 			input_report_switch(wacom_wac->shared->touch_input,
+-					    SW_MUTE_DEVICE, !is_touch_on);
++					    SW_MUTE_DEVICE, !(*is_touch_on));
+ 			input_sync(wacom_wac->shared->touch_input);
+ 		}
+ 		break;
+-- 
+2.15.1

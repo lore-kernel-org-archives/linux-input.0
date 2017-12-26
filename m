@@ -1,58 +1,42 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] Add support for One by Wacom (CTL-472 / CTL-672)
-Date: Tue, 26 Dec 2017 15:50:18 -0800
-Message-ID: <20171226235018.5522-1-killertofu@gmail.com>
-References: <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] Input: mms114 - drop platform data and use generic APIs
+Date: Tue, 26 Dec 2017 17:57:25 -0600
+Message-ID: <20171226235725.frypld2nseydnhtq@rob-hp-laptop>
+References: <20171226032511.17726-1-simon@lineageos.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:33031 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751083AbdLZXuh (ORCPT
+Received: from mail-pl0-f65.google.com ([209.85.160.65]:35316 "EHLO
+        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751357AbdLZX52 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Dec 2017 18:50:37 -0500
-Received: by mail-pf0-f196.google.com with SMTP id y89so19189529pfk.0
-        for <linux-input@vger.kernel.org>; Tue, 26 Dec 2017 15:50:37 -0800 (PST)
-In-Reply-To: <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
+        Tue, 26 Dec 2017 18:57:28 -0500
+Content-Disposition: inline
+In-Reply-To: <20171226032511.17726-1-simon@lineageos.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mx Jing <jingmingxuan@outlook.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Simon Shields <simon@lineageos.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andi Shyti <andi.shyti@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-Adds support for the second-generation "One by Wacom" tablets. These
-devices are similar to the last generation, but a slightly different size
-and reporting a higher number of pressure levels.
+On Tue, Dec 26, 2017 at 02:25:11PM +1100, Simon Shields wrote:
+> The MMS114 platform data has no in-tree users, so drop it,
+> and make the driver depend on CONFIG_OF.
+> 
+> Switch to using the standard touchscreen properties via
+> touchscreen_parse_properties(), and move the old DT parsing code
+> to use device_property_*() APIs.
+> 
+> Finally, use touchscreen_report_pos to report x/y coordinates
+> and drop the custom x/y inversion code.
+> 
+> Signed-off-by: Simon Shields <simon@lineageos.org>
+> ---
+>  .../bindings/input/touchscreen/mms114.txt          |  29 ++--
 
-Signed-off-by: Mx Jing <jingmingxuan@outlook.com>
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_wac.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index aa692e28b2cd..5f932ddcdc49 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4376,6 +4376,12 @@ static const struct wacom_features wacom_features_0x360 =
- static const struct wacom_features wacom_features_0x361 =
- 	{ "Wacom Intuos Pro L", 62200, 43200, 8191, 63,
- 	  INTUOSP2_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9, .touch_max = 10 };
-+static const struct wacom_features wacom_features_0x37A =
-+	{ "Wacom One by Wacom S", 15200, 9500, 2047, 63,
-+	  BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
-+static const struct wacom_features wacom_features_0x37B =
-+	{ "Wacom One by Wacom M", 21600, 13500, 2047, 63,
-+	  BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
- 
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
-@@ -4544,6 +4550,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x343) },
- 	{ BT_DEVICE_WACOM(0x360) },
- 	{ BT_DEVICE_WACOM(0x361) },
-+	{ USB_DEVICE_WACOM(0x37A) },
-+	{ USB_DEVICE_WACOM(0x37B) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x4004) },
- 	{ USB_DEVICE_WACOM(0x5000) },
--- 
-2.15.1
-
+>  drivers/input/touchscreen/Kconfig                  |   1 +
+>  drivers/input/touchscreen/mms114.c                 | 146 +++++++++------------
+>  include/linux/platform_data/mms114.h               |  24 ----
+>  4 files changed, 77 insertions(+), 123 deletions(-)
+>  delete mode 100644 include/linux/platform_data/mms114.h

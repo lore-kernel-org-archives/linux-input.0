@@ -1,84 +1,58 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] Fix reporting of touch toggle (WACOM_HID_WD_MUTE_DEVICE) events
-Date: Tue, 26 Dec 2017 14:53:55 -0800
-Message-ID: <20171226225355.27785-1-killertofu@gmail.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <binjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
+Subject: [PATCH] Add support for One by Wacom (CTL-472 / CTL-672)
+Date: Tue, 26 Dec 2017 15:50:18 -0800
+Message-ID: <20171226235018.5522-1-killertofu@gmail.com>
+References: <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33031 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751083AbdLZXuh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 26 Dec 2017 18:50:37 -0500
+Received: by mail-pf0-f196.google.com with SMTP id y89so19189529pfk.0
+        for <linux-input@vger.kernel.org>; Tue, 26 Dec 2017 15:50:37 -0800 (PST)
+In-Reply-To: <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Mx Jing <jingmingxuan@outlook.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Touch toggle softkeys send a '1' while pressed and a '0' while released,
-requring the kernel to keep track of wether touch should be enabled or
-disabled. The code does not handle the state transitions properly,
-however. If the key is pressed repeatedly, the following four states
-of states are cycled through (assuming touch starts out enabled):
+Adds support for the second-generation "One by Wacom" tablets. These
+devices are similar to the last generation, but a slightly different size
+and reporting a higher number of pressure levels.
 
-Press:   shared->is_touch_on => 0, SW_MUTE_DEVICE => 1
-Release: shared->is_touch_on => 0, SW_MUTE_DEVICE => 1
-Press:   shared->is_touch_on => 1, SW_MUTE_DEVICE => 0
-Release: shared->is_touch_on => 1, SW_MUTE_DEVICE => 1
-
-The hardware always properly enables/disables touch when the key is
-pressed but applications that listen for SW_MUTE_DEVICE events to provide
-feedback about the state will only ever show touch as being enabled while
-the key is held, and only every-other time. This sequence occurs because
-the fallthrough WACOM_HID_WD_TOUCHONOFF case is always handled, and it
-uses the value of the *local* is_touch_on variable as the value to
-report to userspace. The local value is equal to the shared value when
-the button is pressed, but equal to zero when the button is released.
-
-Reporting the shared value to userspace fixes this problem, but the
-fallthrough case needs to update the shared value in an incompatible
-way (which is why the local variable was introduced in the first place).
-To work around this, we just handle both cases in a single block of code
-and update the shared variable as appropriate.
-
-Fixes: d793ff8187 ("HID: wacom: generic: support touch on/off softkey")
-Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Mx Jing <jingmingxuan@outlook.com>
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Aaron Skomra <aaron.skomra@wacom.com>
-Tested-by: Aaron Skomra <aaron.skomra@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/hid/wacom_wac.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 16af6886e828..7dbff253c05c 100644
+index aa692e28b2cd..5f932ddcdc49 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1924,7 +1924,6 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
- 	struct wacom_features *features = &wacom_wac->features;
- 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 	int i;
--	bool is_touch_on = value;
- 	bool do_report = false;
+@@ -4376,6 +4376,12 @@ static const struct wacom_features wacom_features_0x360 =
+ static const struct wacom_features wacom_features_0x361 =
+ 	{ "Wacom Intuos Pro L", 62200, 43200, 8191, 63,
+ 	  INTUOSP2_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9, .touch_max = 10 };
++static const struct wacom_features wacom_features_0x37A =
++	{ "Wacom One by Wacom S", 15200, 9500, 2047, 63,
++	  BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
++static const struct wacom_features wacom_features_0x37B =
++	{ "Wacom One by Wacom M", 21600, 13500, 2047, 63,
++	  BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
  
- 	/*
-@@ -1969,16 +1968,17 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
- 		break;
- 
- 	case WACOM_HID_WD_MUTE_DEVICE:
--		if (wacom_wac->shared->touch_input && value) {
--			wacom_wac->shared->is_touch_on = !wacom_wac->shared->is_touch_on;
--			is_touch_on = wacom_wac->shared->is_touch_on;
--		}
--
--		/* fall through*/
- 	case WACOM_HID_WD_TOUCHONOFF:
- 		if (wacom_wac->shared->touch_input) {
-+			bool *is_touch_on = &wacom_wac->shared->is_touch_on;
-+
-+			if (equivalent_usage == WACOM_HID_WD_MUTE_DEVICE && value)
-+				*is_touch_on = !(*is_touch_on);
-+			else if (equivalent_usage == WACOM_HID_WD_TOUCHONOFF)
-+				*is_touch_on = value;
-+
- 			input_report_switch(wacom_wac->shared->touch_input,
--					    SW_MUTE_DEVICE, !is_touch_on);
-+					    SW_MUTE_DEVICE, !(*is_touch_on));
- 			input_sync(wacom_wac->shared->touch_input);
- 		}
- 		break;
+ static const struct wacom_features wacom_features_HID_ANY_ID =
+ 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
+@@ -4544,6 +4550,8 @@ const struct hid_device_id wacom_ids[] = {
+ 	{ USB_DEVICE_WACOM(0x343) },
+ 	{ BT_DEVICE_WACOM(0x360) },
+ 	{ BT_DEVICE_WACOM(0x361) },
++	{ USB_DEVICE_WACOM(0x37A) },
++	{ USB_DEVICE_WACOM(0x37B) },
+ 	{ USB_DEVICE_WACOM(0x4001) },
+ 	{ USB_DEVICE_WACOM(0x4004) },
+ 	{ USB_DEVICE_WACOM(0x5000) },
 -- 
 2.15.1
+

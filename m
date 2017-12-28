@@ -1,117 +1,46 @@
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?=
-        <mylene.josserand@free-electrons.com>
-Subject: [PATCH v2 1/2] Input: edt-ft5x06 - Add support for regulator
-Date: Thu, 28 Dec 2017 17:33:35 +0100
-Message-ID: <20171228163336.28131-2-mylene.josserand@free-electrons.com>
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
+Subject: [PATCH v2 2/2] arm: dts: sun8i: a83t: a711: Add touchscreen node
+Date: Thu, 28 Dec 2017 17:33:36 +0100
+Message-ID: <20171228163336.28131-3-mylene.josserand@free-electrons.com>
 References: <20171228163336.28131-1-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <20171228163336.28131-1-mylene.josserand@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, maxime.ripard@free-electrons.com, wens@csie.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, mylene.josserand@free-electrons.com, thomas.petazzoni@free-electrons.com, quentin.schulz@free-electrons.com
+Cc: thomas.petazzoni@free-electrons.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, quentin.schulz@free-electrons.com, linux-input@vger.kernel.org, mylene.josserand@free-electrons.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Add the support of regulator to use it as VCC source.
-
-Signed-off-by: Mylène Josserand <mylene.josserand@free-electrons.com>
----
- .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
- drivers/input/touchscreen/edt-ft5x06.c             | 33 ++++++++++++++++++++++
- 2 files changed, 34 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-index 025cf8c9324a..48e975b9c1aa 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-@@ -30,6 +30,7 @@ Required properties:
- Optional properties:
-  - reset-gpios: GPIO specification for the RESET input
-  - wake-gpios:  GPIO specification for the WAKE input
-+ - vcc-supply:  Regulator that supplies the touchscreen
- 
-  - pinctrl-names: should be "default"
-  - pinctrl-0:   a phandle pointing to the pin settings for the
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index c53a3d7239e7..5ee14a25a382 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -39,6 +39,7 @@
- #include <linux/input/mt.h>
- #include <linux/input/touchscreen.h>
- #include <linux/of_device.h>
-+#include <linux/regulator/consumer.h>
- 
- #define WORK_REGISTER_THRESHOLD		0x00
- #define WORK_REGISTER_REPORT_RATE	0x08
-@@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
- 	struct touchscreen_properties prop;
- 	u16 num_x;
- 	u16 num_y;
-+	struct regulator *vcc;
- 
- 	struct gpio_desc *reset_gpio;
- 	struct gpio_desc *wake_gpio;
-@@ -993,6 +995,23 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 
- 	tsdata->max_support_points = chip_data->max_support_points;
- 
-+	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
-+	if (IS_ERR(tsdata->vcc)) {
-+		error = PTR_ERR(tsdata->vcc);
-+		dev_err(&client->dev, "failed to request regulator: %d\n",
-+			error);
-+		return error;
-+	};
-+
-+	if (tsdata->vcc) {
-+		error = regulator_enable(tsdata->vcc);
-+		if (error < 0) {
-+			dev_err(&client->dev, "failed to enable vcc: %d\n",
-+				error);
-+			return error;
-+		}
-+	}
-+
- 	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
- 						     "reset", GPIOD_OUT_HIGH);
- 	if (IS_ERR(tsdata->reset_gpio)) {
-@@ -1122,20 +1141,34 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
- static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
- 
- 	if (device_may_wakeup(dev))
- 		enable_irq_wake(client->irq);
- 
-+	if (tsdata->vcc)
-+		regulator_disable(tsdata->vcc);
-+
- 	return 0;
- }
- 
- static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-+	int ret;
- 
- 	if (device_may_wakeup(dev))
- 		disable_irq_wake(client->irq);
- 
-+	if (tsdata->vcc) {
-+		ret = regulator_enable(tsdata->vcc);
-+		if (ret < 0) {
-+			dev_err(dev, "failed to enable vcc: %d\n", ret);
-+			return ret;
-+		}
-+	}
-+
- 	return 0;
- }
- 
--- 
-2.11.0
+VGhhIEE3MTEgdGFibGV0IGhhcyBhIEZvY2FsVGVjaCBFRFQtRlQ1eDA2IFBvbHl0b3VjaCB0b3Vj
+aHNjcmVlbi4KSXQgaXMgY29ubmVjdGVkIHZpYSBJMkMwLiBUaGUgcmVzZXQgbGluZSBpcyBQRDUs
+IHRoZSBpbnRlcnJ1cHQKbGluZSBpcyBQTDcgYW5kIHRoZSBWQ0Mgc3VwcGx5IGlzIHRoZSBsZG9f
+aW8wIHJlZ3VsYXRvci4KClNpZ25lZC1vZmYtYnk6IE15bMOobmUgSm9zc2VyYW5kIDxteWxlbmUu
+am9zc2VyYW5kQGZyZWUtZWxlY3Ryb25zLmNvbT4KLS0tCiBhcmNoL2FybS9ib290L2R0cy9zdW44
+aS1hODN0LXRicy1hNzExLmR0cyB8IDE2ICsrKysrKysrKysrKysrKysKIDEgZmlsZSBjaGFuZ2Vk
+LCAxNiBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vYm9vdC9kdHMvc3VuOGkt
+YTgzdC10YnMtYTcxMS5kdHMgYi9hcmNoL2FybS9ib290L2R0cy9zdW44aS1hODN0LXRicy1hNzEx
+LmR0cwppbmRleCBhMDIxZWU2ZGEzOTYuLjc4NDBmOWFhOTA5NCAxMDA2NDQKLS0tIGEvYXJjaC9h
+cm0vYm9vdC9kdHMvc3VuOGktYTgzdC10YnMtYTcxMS5kdHMKKysrIGIvYXJjaC9hcm0vYm9vdC9k
+dHMvc3VuOGktYTgzdC10YnMtYTcxMS5kdHMKQEAgLTEwNSw2ICsxMDUsMjIgQEAKIAlzdGF0dXMg
+PSAib2theSI7CiB9OwogCismaTJjMCB7CisJY2xvY2stZnJlcXVlbmN5ID0gPDQwMDAwMD47CisJ
+c3RhdHVzID0gIm9rYXkiOworCisJdG91Y2hzY3JlZW5AMzggeworCQljb21wYXRpYmxlID0gImVk
+dCxlZHQtZnQ1eDA2IjsKKwkJcmVnID0gPDB4Mzg+OworCQlpbnRlcnJ1cHQtcGFyZW50ID0gPCZy
+X3Bpbz47CisJCWludGVycnVwdHMgPSA8MCA3IElSUV9UWVBFX0VER0VfRkFMTElORz47CisJCXJl
+c2V0LWdwaW9zID0gPCZwaW8gMyA1IEdQSU9fQUNUSVZFX0xPVz47CisJCXZjYy1zdXBwbHkgPSA8
+JnJlZ19sZG9faW8wPjsKKwkJdG91Y2hzY3JlZW4tc2l6ZS14ID0gPDEwMjQ+OworCQl0b3VjaHNj
+cmVlbi1zaXplLXkgPSA8NjAwPjsKKwl9OworfTsKKwogJm1tYzAgewogCXZtbWMtc3VwcGx5ID0g
+PCZyZWdfZGNkYzE+OwogCXBpbmN0cmwtbmFtZXMgPSAiZGVmYXVsdCI7Ci0tIAoyLjExLjAKCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0t
+a2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcK
+aHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2Vy
+bmVsCg==

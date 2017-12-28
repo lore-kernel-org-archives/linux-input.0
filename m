@@ -1,46 +1,69 @@
-From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@free-electrons.com>
-Subject: [PATCH v2 2/2] arm: dts: sun8i: a83t: a711: Add touchscreen node
-Date: Thu, 28 Dec 2017 17:33:36 +0100
-Message-ID: <20171228163336.28131-3-mylene.josserand@free-electrons.com>
+From: Mylene JOSSERAND <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v2 0/2] sun8i-a83t: Add touchscreen support on TBS A711
+Date: Thu, 28 Dec 2017 17:46:01 +0100
+Message-ID: <20171228174601.2df74c9d@dell-desktop.home>
 References: <20171228163336.28131-1-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20171228163336.28131-1-mylene.josserand@free-electrons.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, maxime.ripard@free-electrons.com, wens@csie.org
-Cc: thomas.petazzoni@free-electrons.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, quentin.schulz@free-electrons.com, linux-input@vger.kernel.org, mylene.josserand@free-electrons.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171228163336.28131-1-mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-VGhhIEE3MTEgdGFibGV0IGhhcyBhIEZvY2FsVGVjaCBFRFQtRlQ1eDA2IFBvbHl0b3VjaCB0b3Vj
-aHNjcmVlbi4KSXQgaXMgY29ubmVjdGVkIHZpYSBJMkMwLiBUaGUgcmVzZXQgbGluZSBpcyBQRDUs
-IHRoZSBpbnRlcnJ1cHQKbGluZSBpcyBQTDcgYW5kIHRoZSBWQ0Mgc3VwcGx5IGlzIHRoZSBsZG9f
-aW8wIHJlZ3VsYXRvci4KClNpZ25lZC1vZmYtYnk6IE15bMOobmUgSm9zc2VyYW5kIDxteWxlbmUu
-am9zc2VyYW5kQGZyZWUtZWxlY3Ryb25zLmNvbT4KLS0tCiBhcmNoL2FybS9ib290L2R0cy9zdW44
-aS1hODN0LXRicy1hNzExLmR0cyB8IDE2ICsrKysrKysrKysrKysrKysKIDEgZmlsZSBjaGFuZ2Vk
-LCAxNiBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vYm9vdC9kdHMvc3VuOGkt
-YTgzdC10YnMtYTcxMS5kdHMgYi9hcmNoL2FybS9ib290L2R0cy9zdW44aS1hODN0LXRicy1hNzEx
-LmR0cwppbmRleCBhMDIxZWU2ZGEzOTYuLjc4NDBmOWFhOTA5NCAxMDA2NDQKLS0tIGEvYXJjaC9h
-cm0vYm9vdC9kdHMvc3VuOGktYTgzdC10YnMtYTcxMS5kdHMKKysrIGIvYXJjaC9hcm0vYm9vdC9k
-dHMvc3VuOGktYTgzdC10YnMtYTcxMS5kdHMKQEAgLTEwNSw2ICsxMDUsMjIgQEAKIAlzdGF0dXMg
-PSAib2theSI7CiB9OwogCismaTJjMCB7CisJY2xvY2stZnJlcXVlbmN5ID0gPDQwMDAwMD47CisJ
-c3RhdHVzID0gIm9rYXkiOworCisJdG91Y2hzY3JlZW5AMzggeworCQljb21wYXRpYmxlID0gImVk
-dCxlZHQtZnQ1eDA2IjsKKwkJcmVnID0gPDB4Mzg+OworCQlpbnRlcnJ1cHQtcGFyZW50ID0gPCZy
-X3Bpbz47CisJCWludGVycnVwdHMgPSA8MCA3IElSUV9UWVBFX0VER0VfRkFMTElORz47CisJCXJl
-c2V0LWdwaW9zID0gPCZwaW8gMyA1IEdQSU9fQUNUSVZFX0xPVz47CisJCXZjYy1zdXBwbHkgPSA8
-JnJlZ19sZG9faW8wPjsKKwkJdG91Y2hzY3JlZW4tc2l6ZS14ID0gPDEwMjQ+OworCQl0b3VjaHNj
-cmVlbi1zaXplLXkgPSA8NjAwPjsKKwl9OworfTsKKwogJm1tYzAgewogCXZtbWMtc3VwcGx5ID0g
-PCZyZWdfZGNkYzE+OwogCXBpbmN0cmwtbmFtZXMgPSAiZGVmYXVsdCI7Ci0tIAoyLjExLjAKCgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0t
-a2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcK
-aHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2Vy
-bmVsCg==
+Hello,
+
+Le Thu, 28 Dec 2017 17:33:34 +0100,
+Mylène Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> a écrit :
+
+> Hello everyone,
+> 
+> This is a V2 of the patch series that adds touchscreen support
+> (FocalTech EDT-FT5x06 Polytouch) for TBS A711 (Allwinner sun8i-a83t SoC).
+> Based on last linux-next (next-20171222).
+> 
+> Changes since v1:
+>    - Remove patches 01 and 02 as Chen-Yu Tsai sent a similar patch:
+>    https://patchwork.kernel.org/patch/10111431/
+>    and it is merged on last next-20171222.
+>    (See commit f066f46ce5a5 "ARM: dts: sun8i: a83t: Add I2C device nodes and pinmux settings")
+>    - Update regulator according to Dmitry Torokhov's review: remove "optional"
+>    suffix while retrieving the regulator, rename it into "vcc" instead of
+>    "power" and add bindings documentation.
+
+I notice that I forgot the second review of Dmitry about reset/wake
+gpios so I will send a V3 with the modifications.
+
+Thanks,
+
+Mylène
+
+>    - Update device tree according to Maxime Ripard's review: remove the
+>    label and rename the node.
+>    - Squash patch 03 with patch 05 to add I2C0 and touchscreen's node
+>    in one patch (see patch 02).
+> 
+> Patch 01: Add support for regulator in the FocalTech touchscreen driver
+> because A711 tablet is using a regulator to power-up the touchscreen.
+> Patch 02: Add i2c0 and touchscreen's node for A711 TBS tablet.
+> 
+> Thank you in advance for any review.
+> Best regards,
+> Mylène
+> 
+> Mylène Josserand (2):
+>   Input: edt-ft5x06 - Add support for regulator
+>   arm: dts: sun8i: a83t: a711: Add touchscreen node
+> 
+>  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
+>  arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts          | 16 +++++++++++
+>  drivers/input/touchscreen/edt-ft5x06.c             | 33 ++++++++++++++++++++++
+>  3 files changed, 50 insertions(+)
+> 
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

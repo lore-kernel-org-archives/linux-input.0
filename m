@@ -1,80 +1,38 @@
-From: "Mrs. Michelle Richard" <unionbanktransferunit.bankplc@gmail.com>
-Subject: Kannst du mir helfen?
-Date: Thu, 28 Dec 2017 06:59:30 +0100
-Message-ID: <CAEU+9WEPW1LGomuhKMF5KkDHYoP15XF_N1uCfccF59q9fi92Nw@mail.gmail.com>
-Reply-To: michellerrichard@outlook.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Zhuohua Li <lizhuohua1994@gmail.com>
+Subject: [PATCH] Input: misc: Kconfig: fixed a spelling mistake
+Date: Thu, 28 Dec 2017 16:30:50 +0800
+Message-ID: <20171228083050.6475-1-lizhuohua1994@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:39478 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751111AbdL1F7b (ORCPT
+Received: from mail-pl0-f67.google.com ([209.85.160.67]:36534 "EHLO
+        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751079AbdL1IbY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Dec 2017 00:59:31 -0500
-Received: by mail-wm0-f68.google.com with SMTP id i11so42095403wmf.4
-        for <linux-input@vger.kernel.org>; Wed, 27 Dec 2017 21:59:31 -0800 (PST)
+        Thu, 28 Dec 2017 03:31:24 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Zhuohua Li <lizhuohua1994@gmail.com>
 
-Lieber geliebter,
+fixed a spelling mistake: buttong -> button
 
-Bitte lesen Sie dies langsam und sorgf=C3=A4ltig, da es eine der
-wichtigsten E-Mails sein kann, die Sie jemals bekommen.Ich bin Frau
-Michelle Richard, ich war mit dem verstorbenen Robert Richard
-verheiratet.Er arbeitete fr=C3=BCher mit Shell Petroleum Development
-Company London und war auch ein erfahrene Auftragnehmer in der
-Westafrikanischen Region.Er starb am Montag, den 31. Juli 2003 in
-Paris. Wir waren sieben Jahre ohne Kind verheiratet.
+Signed-off-by: Zhuohua Li <lizhuohua1994@gmail.com>
+---
+ drivers/input/misc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-W=C3=A4hrend du das liest, will ich nicht, dass du Mitleid mit mir hast,
-weil ich glaube, dass jeder irgendwann sterben wird. Ich wurde mit
-Speiser=C3=B6hrenkrebs diagnostiziert und mein Arzt sagte mir, dass ich
-wegen meiner komplizierten Gesundheitsprobleme nicht lange =C3=BCberleben
-w=C3=BCrde.
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 9f082a388388..509ba8ef1464 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -468,7 +468,7 @@ config INPUT_TPS65218_PWRBUTTON
+ 	tristate "TPS65218 Power button driver"
+ 	depends on (MFD_TPS65217 || MFD_TPS65218)
+ 	help
+-	  Say Y here if you want to enable power buttong reporting for
++	  Say Y here if you want to enable power button reporting for
+ 	  TPS65217 and TPS65218 Power Management IC devices.
+ 
+ 	  To compile this driver as a module, choose M here. The module will
+-- 
+2.13.6
 
-Ich m=C3=B6chte, dass Gott mir gn=C3=A4dig ist und meine Seele akzeptiert, =
-also
-habe ich beschlossen, Wohlt=C3=A4tigkeitsorganisationen / Kirchen /
-Moscheen / mutterlosen Babys / Tempeln / weniger Privilegierten und
-Witwen Almosen zu geben, so wie ich m=C3=B6chte, dass dies eine der letzten
-guten Taten ist Ich mache es auf der Erde, bevor ich sterbe. Bis jetzt
-habe ich Geld an einige Wohlt=C3=A4tigkeitsorganisationen im Oman, Wales,
-Algerien und Malaysia verteilt. Jetzt wo sich meine Gesundheit so
-stark verschlechtert hat, kann ich das nicht mehr selbst machen.
-
-Ich habe einmal meine Familienangeh=C3=B6rigen gebeten, eines meiner Konten
-zu schlie=C3=9Fen und das Geld, das ich dort habe, an eine
-Wohlt=C3=A4tigkeitsorganisation in =C3=96sterreich, Belgien, Deutschland, d=
-en
-Niederlanden und der Schweiz zu verteilen. Sie weigerten sich und
-behielten das Geld f=C3=BCr sich. Daher traue ich nicht sie mehr, als sie
-scheinen, nicht mit dem bestraft zu werden, was ich f=C3=BCr sie verlassen
-habe. Das letzte Geld, das niemand kennt, ist die riesige Bareinlage
-von 6 Millionen US-Dollar, die ich bei einer Bank in Thailand habe, wo
-ich den Fonds eingezahlt habe. Ich m=C3=B6chte, dass Sie diesen Fonds f=C3=
-=BCr
-Wohlt=C3=A4tigkeitsprogramme nutzen und die Menschen in Ihrem Land
-unterst=C3=BCtzen, wenn Sie nur aufrichtig sind.
-
-Ich habe diese Entscheidung getroffen, weil ich kein Kind habe, das
-dieses Geld erben w=C3=BCrde, ich habe keine Angst vor dem Tod, daher wei=
-=C3=9F
-ich, wohin ich gehe. Ich wei=C3=9F, dass ich im Scho=C3=9F des Herrn sein w=
-erde.
-Sobald ich Ihre Antwort erhalten habe, gebe ich Ihnen den Kontakt zur
-Bank und erteile Ihnen ein Vollmachtsschreiben, das Sie als
-Erstbeg=C3=BCnstigten dieses Fonds erm=C3=A4chtigt, dieses
-Wohlt=C3=A4tigkeitsprogramm sofort in Ihrem Land zu beginnen.
-
-Ich m=C3=B6chte, dass Sie immer f=C3=BCr mich beten. Jede Verz=C3=B6gerung =
-Ihrer
-Antwort wird mir Raum geben, eine andere Person f=C3=BCr diesen Zweck zu
-finden. Wenn Sie nicht interessiert sind, entschuldigen Sie bitte,
-dass ich Sie kontaktiert habe. Sie erreichen mich mit oder antworten
-Sie mir auf meine private E-Mail: (michellerich@outlook.com).
-
-Vielen Dank,
-Dein,
-Frau Michelle Richard
-Email; michellerich@outlook.com

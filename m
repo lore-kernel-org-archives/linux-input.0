@@ -1,128 +1,155 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 03/14] dt-bindings: iio: add binding support for iio
- trigger provider/consumer
-Date: Fri, 29 Dec 2017 17:24:01 +0000
-Message-ID: <20171229172401.1f6bc823@archlinux>
-References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
-        <1513955241-10985-4-git-send-email-eugen.hristev@microchip.com>
-        <20171226223500.dxbp26bsx2ojbicr@rob-hp-laptop>
+From: Sebastian Schmidt <yath@yath.de>
+Subject: Re: PROBLEM: Changing speed on ThinkPad X1 Carbon 5th trackpoint
+ causes "failed to enable mouse"
+Date: Fri, 29 Dec 2017 20:05:30 +0100
+Message-ID: <20171229190529.GA2108@marax.lan.yath.de>
+References: <20171228091125.GA743@marax.lan.yath.de>
+ <c6427787-112c-d6f7-4f77-ae44c6aebb2f@canonical.com>
+ <20171228142855.GA2007@marax.lan.yath.de>
+ <f1fb1612-2d16-25a4-b57e-c56a01b729c2@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:53264 "EHLO mail.kernel.org"
+Received: from karr.yath.de ([144.76.4.50]:41442 "EHLO karr.yath.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751569AbdL2RYG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 29 Dec 2017 12:24:06 -0500
-In-Reply-To: <20171226223500.dxbp26bsx2ojbicr@rob-hp-laptop>
+        id S1751200AbdL2TFi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 29 Dec 2017 14:05:38 -0500
+Content-Disposition: inline
+In-Reply-To: <f1fb1612-2d16-25a4-b57e-c56a01b729c2@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Eugen Hristev <eugen.hristev@microchip.com>, nicolas.ferre@microchip.com, ludovic.desroches@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Aaron Ma <aaron.ma@canonical.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-On Tue, 26 Dec 2017 16:35:00 -0600
-Rob Herring <robh@kernel.org> wrote:
-
-> On Fri, Dec 22, 2017 at 05:07:10PM +0200, Eugen Hristev wrote:
-> > Add bindings for producer/consumer for iio triggers.
-> > 
-> > Similar with iio channels, the iio triggers can be connected between drivers:
-> > one driver will be a producer by registering iio triggers, and another driver
-> > will connect as a consumer.
-> > 
-> > Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-In cases where the connectivity is entirely known to the various drivers
-(battery chargers integrated in SoCs that use ADC channels for example) we
-have always kept the map in driver.
-
-I'm not yet entirely clear if we can do this here.  Might make sense if
-we can...
-
-
-> > ---
-> >  .../devicetree/bindings/iio/iio-bindings.txt       | 52 +++++++++++++++++++++-
-> >  1 file changed, 51 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/iio/iio-bindings.txt b/Documentation/devicetree/bindings/iio/iio-bindings.txt
-> > index 68d6f8c..d861f0df 100644
-> > --- a/Documentation/devicetree/bindings/iio/iio-bindings.txt
-> > +++ b/Documentation/devicetree/bindings/iio/iio-bindings.txt
-> > @@ -11,6 +11,10 @@ value of a #io-channel-cells property in the IIO provider node.
-> >  
-> >  [1] http://marc.info/?l=linux-iio&m=135902119507483&w=2
-> >  
-> > +Moreover, the provider can have a set of triggers that can be attached to
-> > +from the consumer drivers.
-> > +
-> > +
-> >  ==IIO providers==
-> >  
-> >  Required properties:
-> > @@ -18,6 +22,11 @@ Required properties:
-> >  		   with a single IIO output and 1 for nodes with multiple
-> >  		   IIO outputs.
-> >  
-> > +Optional properties:
-> > +#io-trigger-cells: Number of cells for the IIO trigger specifier. Typically 0
-> > +		   for nodes with a single IIO trigger and 1 for nodes with
-> > +		   multiple IIO triggers.
-> > +
-> >  Example for a simple configuration with no trigger:
-> >  
-> >  	adc: voltage-sensor@35 {
-> > @@ -26,7 +35,7 @@ Example for a simple configuration with no trigger:
-> >  		#io-channel-cells = <1>;
-> >  	};
-> >  
-> > -Example for a configuration with trigger:
-> > +Example for a configuration with channels provided by trigger:
-> >  
-> >  	adc@35 {
-> >  		compatible = "some-vendor,some-adc";
-> > @@ -42,6 +51,17 @@ Example for a configuration with trigger:
-> >  		};
-> >  	};
-> >  
-> > +Example for a configuration for a trigger provider:
-> > +
-> > +	adc: sensor-with-trigger@35 {
-> > +		compatible = "some-vendor,some-adc";
-> > +		reg = <0x35>;
-> > +		#io-channel-cells = <1>;
-> > +		#io-trigger-cells = <1>;
-> > +		/* other properties */
-> > +	};
-> > +
-> > +
-> >  ==IIO consumers==
-> >  
-> >  Required properties:
-> > @@ -61,16 +81,38 @@ io-channel-ranges:
-> >  		IIO channels from this node. Useful for bus nodes to provide
-> >  		and IIO channel to their children.
-> >  
-> > +io-triggers:	List of phandle and IIO specifier pairs, one pair
-> > +		for each trigger input to the device. Note: if the
-> > +		IIO trigger provider specifies '0' for #io-trigger-cells,
-> > +		then only the phandle portion of the pair will appear.
-> > +
-> > +io-trigger-names:
-> > +		List of IIO trigger input name strings sorted in the same
-> > +		order as the io-triggers property. Consumers drivers
-> > +		will use io-trigger-names to match IIO trigger input names
-> > +		with IIO specifiers.
-> > +
-> > +io-trigger-ranges:
-> > +		Empty property indicating that child nodes can inherit named
-> > +		IIO triggers from this node. Useful for bus nodes to provide
-> > +		IIO triggers to their children.  
+On Thu, Dec 28, 2017 at 11:53:44PM +0800, Aaron Ma wrote:
+> The set on sysfs "speed" will execute the following code:
+> 1, set #define PSMOUSE_CMD_DISABLE     0x00f5;
+> 2, set #define TP_SPEED                0x60    /* Speed of TP Cursor */
+> with the value in speed.
+> 3, set #define PSMOUSE_CMD_ENABLE      0x00f4
 > 
-> I think it would be better to be explicit in the child nodes. What's the 
-> use you had in mind?
-> 
-> Rob
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> When set 3rd step, it fails to write the cmd to ps2dev.
+> This issue should be related to trackpoint firmware that response on all
+> commands.
 
+Sorry, I’m not sure I can follow. Is this a bug in my Trackpoint
+firmware and I need to update it?
+
+> And for the trackpoint is too fast or sensitive, please change it in
+> setting of gnome (I assume you are using), the setting will use the
+> libinput(wayland) and xerver-input-synaptics driver to set the mouse
+> speed. It should be worked as expected.
+
+Are you saying the sysfs settings are not supposed to work? From a
+user’s perspective I’ve upgraded my kernel (to a stable version, into
+which that patch was merged), found my mouse too fast and a knob called
+“speed” in sysfs. Just touching that knob (by echoing the same value)
+broke my mouse entirely, and that’s the problem I’m reporting.
+
+I’m using i3 on “plain” Xorg, no Wayland or any desktop environment.
+synclient only appears to have options for the touchpad, as far as I can
+tell from the names:
+% synclient 
+Parameter settings:
+    LeftEdge                = 77
+    RightEdge               = 1859
+    TopEdge                 = 57
+    BottomEdge              = 1000
+    FingerLow               = 25
+    FingerHigh              = 30
+    MaxTapTime              = 180
+    MaxTapMove              = 97
+    MaxDoubleTapTime        = 180
+    SingleTapTimeout        = 180
+    ClickTime               = 100
+    EmulateMidButtonTime    = 0
+    EmulateTwoFingerMinZ    = 282
+    EmulateTwoFingerMinW    = 7
+    VertScrollDelta         = 44
+    HorizScrollDelta        = 44
+    VertEdgeScroll          = 0
+    HorizEdgeScroll         = 0
+    CornerCoasting          = 0
+    VertTwoFingerScroll     = 1
+    HorizTwoFingerScroll    = 0
+    MinSpeed                = 1
+    MaxSpeed                = 1.75
+    AccelFactor             = 0.090703
+    TouchpadOff             = 0
+    LockedDrags             = 0
+    LockedDragTimeout       = 5000
+    RTCornerButton          = 0
+    RBCornerButton          = 0
+    LTCornerButton          = 0
+    LBCornerButton          = 0
+    TapButton1              = 0
+    TapButton2              = 0
+    TapButton3              = 0
+    ClickFinger1            = 1
+    ClickFinger2            = 3
+    ClickFinger3            = 2
+    CircularScrolling       = 0
+    CircScrollDelta         = 0.1
+    CircScrollTrigger       = 0
+    CircularPad             = 0
+    PalmDetect              = 0
+    PalmMinWidth            = 10
+    PalmMinZ                = 200
+    CoastingSpeed           = 20
+    CoastingFriction        = 50
+    PressureMotionMinZ      = 30
+    PressureMotionMaxZ      = 160
+    PressureMotionMinFactor = 1
+    PressureMotionMaxFactor = 1
+    GrabEventDevice         = 0
+    TapAndDragGesture       = 1
+    AreaLeftEdge            = 0
+    AreaRightEdge           = 0
+    AreaTopEdge             = 0
+    AreaBottomEdge          = 0
+    HorizHysteresis         = 11
+    VertHysteresis          = 11
+    ClickPad                = 1
+    RightButtonAreaLeft     = 968
+    RightButtonAreaRight    = 0
+    RightButtonAreaTop      = 866
+    RightButtonAreaBottom   = 0
+    MiddleButtonAreaLeft    = 0
+    MiddleButtonAreaRight   = 0
+    MiddleButtonAreaTop     = 0
+    MiddleButtonAreaBottom  = 0
+%
+
+The xinput properties don’t show a (non-zero) speed either:
+% xinput list-props "TPPS/2 IBM TrackPoint"
+Device 'TPPS/2 IBM TrackPoint':
+        Device Enabled (142):   1
+        Coordinate Transformation Matrix (144): 1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000
+        libinput Natural Scrolling Enabled (326):       0
+        libinput Natural Scrolling Enabled Default (327):       0
+        libinput Left Handed Enabled (328):     0
+        libinput Left Handed Enabled Default (329):     0
+        libinput Accel Speed (330):     0.000000
+        libinput Accel Speed Default (331):     0.000000
+        libinput Accel Profiles Available (332):        1, 1
+        libinput Accel Profile Enabled (333):   1, 0
+        libinput Accel Profile Enabled Default (334):   1, 0
+        libinput Scroll Methods Available (335):        0, 0, 1
+        libinput Scroll Method Enabled (336):   0, 0, 1
+        libinput Scroll Method Enabled Default (337):   0, 0, 1
+        libinput Button Scrolling Button (338): 2
+        libinput Button Scrolling Button Default (339): 2
+        libinput Middle Emulation Enabled (340):        0
+        libinput Middle Emulation Enabled Default (341):        0
+        libinput Send Events Modes Available (265):     1, 0
+        libinput Send Events Mode Enabled (266):        0, 0
+        libinput Send Events Mode Enabled Default (267):        0, 0
+        Device Node (268):      "/dev/input/event17"
+        Device Product ID (269):        2, 10
+        libinput Drag Lock Buttons (342):       <no items>
+        libinput Horizontal Scroll Enabled (343):       1
+%
+
+Thanks,
+Sebastian

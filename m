@@ -1,783 +1,423 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 12/14] iio: adc: at91-sama5d2_adc: support for position
- and pressure channels
-Date: Fri, 29 Dec 2017 17:02:36 +0000
-Message-ID: <20171229170236.06bf6394@archlinux>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 13/14] input: touchscreen: sama5d2_rts: SAMA5D2
+ Resistive touchscreen driver
+Date: Fri, 29 Dec 2017 17:16:27 +0000
+Message-ID: <20171229171627.60f1a789@archlinux>
 References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
-        <1513955241-10985-13-git-send-email-eugen.hristev@microchip.com>
+        <1513955241-10985-14-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1513955241-10985-13-git-send-email-eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Cc: nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751246AbdL2RQc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 29 Dec 2017 12:16:32 -0500
+In-Reply-To: <1513955241-10985-14-git-send-email-eugen.hristev@microchip.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: nicolas.ferre@microchip.com, ludovic.desroches@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Fri, 22 Dec 2017 17:07:19 +0200
-Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org> wrote:
+On Fri, 22 Dec 2017 17:07:20 +0200
+Eugen Hristev <eugen.hristev@microchip.com> wrote:
 
-> The ADC IP supports position and pressure measurements for a touchpad
-> connected on channels 0,1,2,3 for a 4-wire touchscreen with pressure
-> measurement support.
-> Using the inkern API, a driver can request a trigger and read the
-> channel values from the ADC.
-> The implementation provides a trigger named "touch" which can be
-> connected to a consumer driver.
-> Once a driver connects and attaches a pollfunc to this trigger, the
-> configure trigger callback is called, and then the ADC driver will
-> initialize pad measurement.
-> First step is to enable touchscreen 4wire support and enable
-> pen detect IRQ.
-> Once a pen is detected, a periodic trigger is setup to trigger every
-> 2 ms (e.g.) and sample the resistive touchscreen values. The trigger poll
-> is called, and the consumer driver is then woke up, and it can read the
-> respective channels for the values : X, and Y for position and pressure
-> channel.
-> Because only one trigger can be active in hardware in the same time,
-> while touching the pad, the ADC will block any attempt to use the
-> triggered buffer. Same, conversions using the software trigger are also
-> impossible (since the periodic trigger is setup).
-> If some driver wants to attach while the trigger is in use, it will
-> also fail.
-> Once the pen is not detected anymore, the trigger is free for use (hardware
-> or software trigger, with or without DMA).
-> Channels 0,1,2 and 3 are unavailable if a touchscreen is enabled.
+> This is the implementation of the Microchip SAMA5D2 SOC resistive
+> touchscreen driver.
+> The driver registers an input device and connects to the give IIO device
+> from devicetree. It requires an IIO trigger (acting as a consumer) and
+> three IIO channels : one for X position, one for Y position and one
+> for pressure.
+> It the reports the values to the input subsystem.
 > 
-> Some parts of this patch are based on initial original work by
+> Some parts of this driver are based on the initial original work by
 > Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
 > 
-OK, so comments inline.
+> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 
-What I'm missing currently though is an explanation of why the slightly
-more standard arrangement of using a callback buffer doesn't work here.
-The only addition I think you need to do that is to allow a consumer to
-request a particular trigger.  I also think some of the other provisions
-could be handled using standard features and slightly reducing the flexibility.
-I don't know for example if it's useful to allow other channels to be
-read when touch is not in progress or not.
+I've suggested some difference in implementation, but this is very nearly
+a generic resistive touch screen driver which is rather nice.
 
-So restrictions:
+It does use somewhat magic trigger which is effectively a filtered
+periodic trigger (only fires when touch has occurred) which would not
+be particularly hard to implement in other resistive touch screen ADCs.
+I'm not totally sure that is a strong requirement though - any periodic
+trigger would work.
 
-1. Touch screen channels can only be read when touch is enabled.
- - use the available_scan_masks to control this. Or the callback that lets
-   you do the same dynamically.
-2. You need to push these channels to your consumer driver.
- - register a callback buffer rather than jumping through the hoops to
-   insert your own pollfunc.  That will call a function in your
-   consumer, providing the data from the 3 channels directly.
-3. You need to make sure it is using the right driver.  For that you
-   will I think need a new interface.
+Anyhow, the big stuff to my mind is whether we can use the buffer_cb
+code to do this.  I originally wrote that for an accelerometer to input
+bridge driver (which I never got around to finishing upstreaming). It's
+existing usecases are rather esoteric but it should work here I think.
 
-Various other comments inline. I may well be missing something as this is
-a fair bit of complex code to read - if so then next version should have
-a clear cover letter describing why this more standard approach can't be
-used.
+Jonathan
 
-> Signed-off-by: Eugen Hristev <eugen.hristev-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 > ---
->  drivers/iio/adc/at91-sama5d2_adc.c | 455 ++++++++++++++++++++++++++++++++++++-
->  1 file changed, 446 insertions(+), 9 deletions(-)
+>  drivers/input/touchscreen/Kconfig       |  13 ++
+>  drivers/input/touchscreen/Makefile      |   1 +
+>  drivers/input/touchscreen/sama5d2_rts.c | 287 ++++++++++++++++++++++++++++++++
+>  3 files changed, 301 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/sama5d2_rts.c
 > 
-> diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
-> index 9610393..79eb197 100644
-> --- a/drivers/iio/adc/at91-sama5d2_adc.c
-> +++ b/drivers/iio/adc/at91-sama5d2_adc.c
-> @@ -102,14 +102,26 @@
->  #define AT91_SAMA5D2_LCDR	0x20
->  /* Interrupt Enable Register */
->  #define AT91_SAMA5D2_IER	0x24
-> +/* Interrupt Enable Register - TS X measurement ready */
-> +#define AT91_SAMA5D2_IER_XRDY   BIT(20)
-> +/* Interrupt Enable Register - TS Y measurement ready */
-> +#define AT91_SAMA5D2_IER_YRDY   BIT(21)
-> +/* Interrupt Enable Register - TS pressure measurement ready */
-> +#define AT91_SAMA5D2_IER_PRDY   BIT(22)
->  /* Interrupt Enable Register - general overrun error */
->  #define AT91_SAMA5D2_IER_GOVRE BIT(25)
-> +/* Interrupt Enable Register - Pen detect */
-> +#define AT91_SAMA5D2_IER_PEN    BIT(29)
-> +/* Interrupt Enable Register - No pen detect */
-> +#define AT91_SAMA5D2_IER_NOPEN  BIT(30)
->  /* Interrupt Disable Register */
->  #define AT91_SAMA5D2_IDR	0x28
->  /* Interrupt Mask Register */
->  #define AT91_SAMA5D2_IMR	0x2c
->  /* Interrupt Status Register */
->  #define AT91_SAMA5D2_ISR	0x30
-> +/* Interrupt Status Register - Pen touching sense status */
-> +#define AT91_SAMA5D2_ISR_PENS   BIT(31)
->  /* Last Channel Trigger Mode Register */
->  #define AT91_SAMA5D2_LCTMR	0x34
->  /* Last Channel Compare Window Register */
-> @@ -131,8 +143,37 @@
->  #define AT91_SAMA5D2_CDR0	0x50
->  /* Analog Control Register */
->  #define AT91_SAMA5D2_ACR	0x94
-> +/* Analog Control Register - Pen detect sensitivity mask */
-> +#define AT91_SAMA5D2_ACR_PENDETSENS_MASK        GENMASK(0, 1)
->  /* Touchscreen Mode Register */
->  #define AT91_SAMA5D2_TSMR	0xb0
-> +/* Touchscreen Mode Register - No touch mode */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_NONE           0
-> +/* Touchscreen Mode Register - 4 wire screen, no pressure measurement */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_4WIRE_NO_PRESS 1
-> +/* Touchscreen Mode Register - 4 wire screen, pressure measurement */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_4WIRE_PRESS    2
-> +/* Touchscreen Mode Register - 5 wire screen */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_5WIRE          3
-> +/* Touchscreen Mode Register - Average samples mask */
-> +#define AT91_SAMA5D2_TSMR_TSAV_MASK		(3 << 4)
-> +/* Touchscreen Mode Register - Average samples */
-> +#define AT91_SAMA5D2_TSMR_TSAV(x)		((x) << 4)
-> +/* Touchscreen Mode Register - Touch/trigger frequency ratio mask */
-> +#define AT91_SAMA5D2_TSMR_TSFREQ_MASK		(0xf << 8)
-> +/* Touchscreen Mode Register - Touch/trigger freqency ratio */
-> +#define AT91_SAMA5D2_TSMR_TSFREQ(x)		((x) << 8)
-> +/* Touchscreen Mode Register - Pen Debounce Time mask */
-> +#define AT91_SAMA5D2_TSMR_PENDBC_MASK		(0xf << 28)
-> +/* Touchscreen Mode Register - Pen Debounce Time */
-> +#define AT91_SAMA5D2_TSMR_PENDBC(x)            ((x) << 28)
-> +/* Touchscreen Mode Register - No DMA for touch measurements */
-> +#define AT91_SAMA5D2_TSMR_NOTSDMA               BIT(22)
-> +/* Touchscreen Mode Register - Disable pen detection */
-> +#define AT91_SAMA5D2_TSMR_PENDET_DIS            (0 << 24)
-> +/* Touchscreen Mode Register - Enable pen detection */
-> +#define AT91_SAMA5D2_TSMR_PENDET_ENA            BIT(24)
-> +
->  /* Touchscreen X Position Register */
->  #define AT91_SAMA5D2_XPOSR	0xb4
->  /* Touchscreen Y Position Register */
-> @@ -151,7 +192,12 @@
->  #define AT91_SAMA5D2_TRGR_TRGMOD_EXT_TRIG_FALL 2
->  /* Trigger Mode external trigger any edge */
->  #define AT91_SAMA5D2_TRGR_TRGMOD_EXT_TRIG_ANY 3
-> -
-> +/* Trigger Mode internal periodic */
-> +#define AT91_SAMA5D2_TRGR_TRGMOD_PERIODIC 5
-> +/* Trigger Mode - trigger period mask */
-> +#define AT91_SAMA5D2_TRGR_TRGPER_MASK		(0xffff << 16)
-> +/* Trigger Mode - trigger period */
-> +#define AT91_SAMA5D2_TRGR_TRGPER(x)		((x) << 16)
->  /* Correction Select Register */
->  #define AT91_SAMA5D2_COSR	0xd0
->  /* Correction Value Register */
-> @@ -169,6 +215,21 @@
->  #define AT91_SAMA5D2_SINGLE_CHAN_CNT 12
->  #define AT91_SAMA5D2_DIFF_CHAN_CNT 6
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 64b30fe..db8f541 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -126,6 +126,19 @@ config TOUCHSCREEN_ATMEL_MXT_T37
+>  	  Say Y here if you want support to output data from the T37
+>  	  Diagnostic Data object using a V4L device.
 >  
-> +#define AT91_SAMA5D2_TIMESTAMP_CHAN_IDX	(AT91_SAMA5D2_SINGLE_CHAN_CNT + \
-> +					AT91_SAMA5D2_DIFF_CHAN_CNT + 1)
+> +config TOUCHSCREEN_SAMA5D2
+> +	tristate "Microchip SAMA5D2 resistive touchscreen support"
+> +	depends on ARCH_AT91
+> +	depends on AT91_SAMA5D2_ADC
+> +	help
+> +	  Say Y here if you have 4-wire touchscreen connected
+> +          to ADC Controller on your SAMA5D2 Microchip SoC.
 > +
-> +#define AT91_SAMA5D2_TOUCH_X_CHAN_IDX	(AT91_SAMA5D2_TIMESTAMP_CHAN_IDX + 1)
-> +#define AT91_SAMA5D2_TOUCH_Y_CHAN_IDX	(AT91_SAMA5D2_TOUCH_X_CHAN_IDX + 1)
-> +#define AT91_SAMA5D2_TOUCH_P_CHAN_IDX	(AT91_SAMA5D2_TOUCH_Y_CHAN_IDX + 1)
+> +          If unsure, say N.
 > +
-> +#define TOUCH_SAMPLE_PERIOD_US          2000    /* 2ms */
-
-These all need the AT91_SAMA5D2 prefix.
-
-> +#define TOUCH_PEN_DETECT_DEBOUNCE_US    200
+> +          To compile this driver as a module, choose M here: the
+> +          module will be called sama5d2_rts.
 > +
-> +#define XYZ_MASK			GENMASK(11, 0)
-> +
-> +#define MAX_POS_BITS			12
-> +
-> +#define AT91_ADC_TOUCH_TRIG_SHORTNAME	"touch"
->  /*
->   * Maximum number of bytes to hold conversion from all channels
->   * without the timestamp.
-> @@ -222,6 +283,37 @@
->  		.indexed = 1,						\
->  	}
->  
-> +#define AT91_SAMA5D2_CHAN_TOUCH(num, name, mod)				\
-> +	{								\
-> +		.type = IIO_POSITION,					\
-> +		.modified = 1,						\
-> +		.channel = num,						\
-> +		.channel2 = mod,					\
-> +		.scan_index = num,					\
-> +		.scan_type = {						\
-> +			.sign = 'u',					\
-> +			.realbits = 12,					\
-> +			.storagebits = 16,				\
-> +		},							\
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
-> +		.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_SAMP_FREQ),\
-> +		.datasheet_name = name,					\
-> +	}
-> +#define AT91_SAMA5D2_CHAN_PRESSURE(num, name)				\
-> +	{								\
-> +		.type = IIO_PRESSURE,					\
-> +		.channel = num,						\
-> +		.scan_index = num,					\
-> +		.scan_type = {						\
-> +			.sign = 'u',					\
-> +			.realbits = 12,					\
-> +			.storagebits = 16,				\
-> +		},							\
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
-> +		.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_SAMP_FREQ),\
-> +		.datasheet_name = name,					\
-> +	}
-> +
->  #define at91_adc_readl(st, reg)		readl_relaxed(st->base + reg)
->  #define at91_adc_writel(st, reg, val)	writel_relaxed(val, st->base + reg)
->  
-> @@ -239,6 +331,20 @@ struct at91_adc_trigger {
->  };
->  
->  /**
-> + * at91_adc_touch - at91-sama5d2 touchscreen information struct
-> + * @trig:			hold the start timestamp of dma operation
-> + * @sample_period_val:		the value for periodic trigger interval
-> + * @touching:			is the pen touching the screen or not
-> + * @x_pos:			temporary placeholder for pressure computation
+>  config TOUCHSCREEN_AUO_PIXCIR
+>  	tristate "AUO in-cell touchscreen using Pixcir ICs"
+>  	depends on I2C
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 850c156..9a2772e 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -16,6 +16,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
+>  obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
+>  obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
+>  obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
+> +obj-$(CONFIG_TOUCHSCREEN_SAMA5D2)	+= sama5d2_rts.o
+>  obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+= auo-pixcir-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_BU21013)	+= bu21013_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_CHIPONE_ICN8318)	+= chipone_icn8318.o
+> diff --git a/drivers/input/touchscreen/sama5d2_rts.c b/drivers/input/touchscreen/sama5d2_rts.c
+> new file mode 100644
+> index 0000000..e2ae413
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/sama5d2_rts.c
+> @@ -0,0 +1,287 @@
+> +/*
+> + * Microchip resistive touchscreen (RTS) driver for SAMA5D2.
+> + *
+> + * Copyright (C) 2017 Microchip Technology,
+> + * Author: Eugen Hristev <eugen.hristev@microchip.com>
+> + *
+> + * SPDX-License-Identifier: GPL-2.0
 > + */
-> +struct at91_adc_touch {
-> +	struct iio_trigger		*trig;
-> +	u16				sample_period_val;
-> +	bool				touching;
-> +	u32				x_pos;
-> +};
+> +#include <linux/input.h>
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/iio/consumer.h>
+> +#include <linux/iio/trigger.h>
+> +#include <linux/iio/trigger_consumer.h>
+> +
+> +#define DRIVER_NAME					"sama5d2_rts"
+> +#define MAX_POS_MASK					GENMASK(11, 0)
+> +#define AT91_RTS_DEFAULT_PRESSURE_THRESHOLD		10000
 > +
 > +/**
->   * at91_adc_dma - at91-sama5d2 dma information struct
->   * @dma_chan:		the dma channel acquired
->   * @rx_buf:		dma coherent allocated area
-> @@ -267,18 +373,22 @@ struct at91_adc_state {
->  	struct regulator		*reg;
->  	struct regulator		*vref;
->  	int				vref_uv;
-> +	unsigned int			current_sample_rate;
->  	struct iio_trigger		*trig;
->  	const struct at91_adc_trigger	*selected_trig;
->  	const struct iio_chan_spec	*chan;
->  	bool				conversion_done;
->  	u32				conversion_value;
-> +	bool				touch_requested;
->  	struct at91_adc_soc_info	soc_info;
->  	wait_queue_head_t		wq_data_available;
->  	struct at91_adc_dma		dma_st;
-> +	struct at91_adc_touch		touch_st;
->  	u16				buffer[AT91_BUFFER_MAX_HWORDS];
->  	/*
->  	 * lock to prevent concurrent 'single conversion' requests through
-> -	 * sysfs.
-> +	 * sysfs. Also protects when enabling or disabling touchscreen
-> +	 * producer mode and checking if this mode is enabled or not.
->  	 */
->  	struct mutex			lock;
->  };
-> @@ -310,6 +420,7 @@ static const struct at91_adc_trigger at91_adc_trigger_list[] = {
->  	},
->  };
->  
-> +/* channel order is not subject to change. inkern consumers rely on this */
->  static const struct iio_chan_spec at91_adc_channels[] = {
->  	AT91_SAMA5D2_CHAN_SINGLE(0, 0x50),
->  	AT91_SAMA5D2_CHAN_SINGLE(1, 0x54),
-> @@ -329,10 +440,103 @@ static const struct iio_chan_spec at91_adc_channels[] = {
->  	AT91_SAMA5D2_CHAN_DIFF(6, 7, 0x68),
->  	AT91_SAMA5D2_CHAN_DIFF(8, 9, 0x70),
->  	AT91_SAMA5D2_CHAN_DIFF(10, 11, 0x78),
-> -	IIO_CHAN_SOFT_TIMESTAMP(AT91_SAMA5D2_SINGLE_CHAN_CNT
-> -				+ AT91_SAMA5D2_DIFF_CHAN_CNT + 1),
-> +	IIO_CHAN_SOFT_TIMESTAMP(AT91_SAMA5D2_TIMESTAMP_CHAN_IDX),
-> +	AT91_SAMA5D2_CHAN_TOUCH(AT91_SAMA5D2_TOUCH_X_CHAN_IDX, "x", IIO_MOD_X),
-> +	AT91_SAMA5D2_CHAN_TOUCH(AT91_SAMA5D2_TOUCH_Y_CHAN_IDX, "y", IIO_MOD_Y),
-> +	AT91_SAMA5D2_CHAN_PRESSURE(AT91_SAMA5D2_TOUCH_P_CHAN_IDX, "pressure"),
->  };
->  
-> +static int at91_adc_configure_touch(struct at91_adc_state *st, bool state)
-> +{
-> +	u32 clk_khz = st->current_sample_rate / 1000;
-> +	int i = 0;
-> +	u16 pendbc;
-> +	u32 tsmr, acr;
+> + * at91_rts - at91 resistive touchscreen information struct
+> + * @input:		the input device structure that we register
+> + * @chan_x:		X channel to IIO device to get position on X axis
+> + * @chan_y:		Y channel to IIO device to get position on Y axis
+> + * @chan_pressure:	pressure channel to IIO device to get pressure
+> + * @trig:		trigger to IIO device to register to for polling
+> + * @rts_pf:		pollfunc for the trigger to be called by IIO dev
+> + * @pressure_threshold:	number representing the threshold for the pressure
+> + * @adc_connected:	to know if adc device is connected
+> + * @workq:		to defer computations to this work queue for reporting
+> + */
+> +struct at91_rts {
+> +	struct input_dev	*input;
+> +	struct iio_channel	*chan_x, *chan_y, *chan_pressure;
+> +	struct iio_trigger	*trig;
+> +	struct iio_poll_func	*rts_pf;
+> +	u32                     pressure_threshold;
+> +	bool			adc_connected;
+> +	struct work_struct	workq;
+> +};
 > +
-> +	if (!state) {
-> +		/* disabling touch IRQs and setting mode to no touch enabled */
-> +		at91_adc_writel(st, AT91_SAMA5D2_IDR,
-> +				AT91_SAMA5D2_IER_PEN | AT91_SAMA5D2_IER_NOPEN);
-> +		at91_adc_writel(st, AT91_SAMA5D2_TSMR, 0);
+> +static irqreturn_t at91_rts_trigger_handler(int irq, void *p)
+> +{
+> +	struct at91_rts *st = ((struct iio_poll_func *)p)->p;
+> +
+> +	schedule_work(&st->workq);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static void at91_rts_workq_handler(struct work_struct *workq)
+> +{
+> +	struct at91_rts *st = container_of(workq, struct at91_rts, workq);
+> +	unsigned int x, y, press;
+> +	int ret;
+> +
+
+If we were instead to use a callback buffer this would all be
+in the ADC driver as a simple 3 element channel scan.
+
+> +	/* read the channels, if all good, report touch */
+> +	ret = iio_read_channel_raw(st->chan_x, &x);
+> +	if (ret < 0)
+> +		goto at91_rts_workq_handler_end_touch;
+> +
+> +	ret = iio_read_channel_raw(st->chan_y, &y);
+> +	if (ret < 0)
+> +		goto at91_rts_workq_handler_end_touch;
+> +
+> +	ret = iio_read_channel_raw(st->chan_pressure, &press);
+> +	if (ret < 0)
+> +		goto at91_rts_workq_handler_end_touch;
+> +
+At this point our callback would be called and provided the above data.
+
+> +	/* if pressure too low, don't report */
+> +	if (press > st->pressure_threshold)
+> +		goto at91_rts_workq_handler_exit;
+> +
+> +	input_report_abs(st->input, ABS_X, x);
+> +	input_report_abs(st->input, ABS_Y, y);
+> +	input_report_abs(st->input, ABS_PRESSURE, press);
+> +	input_report_key(st->input, BTN_TOUCH, 1);
+> +	input_sync(st->input);
+> +
+
+This would be back in the callback buffer code once the
+callback has run.
+
+Has the interesting side effect of making this code effectively generic.
+It no longer has any ties to the at91 at all that I can spot.
+Just a selection of channels and a request for a particular trigger -
+both of which could come from device tree.
+
+> +	iio_trigger_notify_done(st->trig);
+> +	return;
+> +
+> +at91_rts_workq_handler_end_touch:
+> +	/* report end of touch */
+> +	input_report_key(st->input, BTN_TOUCH, 0);
+> +	input_sync(st->input);
+> +at91_rts_workq_handler_exit:
+> +	iio_trigger_notify_done(st->trig);
+> +}
+> +
+> +static int at91_rts_open(struct input_dev *dev)
+> +{
+> +	int ret;
+> +	struct at91_rts *st = input_get_drvdata(dev);
+> +
+> +	/* avoid multiple initialization in case touchscreen is opened again */
+> +	if (st->adc_connected)
 > +		return 0;
-> +	}
+> +
 > +	/*
-> +	 * debounce time is in microseconds, we need it in milliseconds to
-> +	 * multiply with kilohertz, so, divide by 1000, but after the multiply.
-> +	 * round up to make sure pendbc is at least 1
+> +	 * First, look for the channels. It is possible that the ADC device
+> +	 * did not probe yet, but we already probed, so we returning probe defer
+> +	 * doesn't make much sense.
+
+Quite - so why not do the obvious and request these in the probe and hold
+them until remove?  Then if they aren't ready defer the probe. This driver
+is useless until the ADC is there so why let it successfully probe before
+that point?
+
 > +	 */
-> +	pendbc = round_up(TOUCH_PEN_DETECT_DEBOUNCE_US * clk_khz / 1000, 1);
+> +	st->chan_x = iio_channel_get(dev->dev.parent, "x");
+> +	if (IS_ERR_OR_NULL(st->chan_x)) {
+> +		dev_err(dev->dev.parent, "cannot get X channel from ADC");
+> +		ret = PTR_ERR(st->chan_x);
+> +		goto at91_rts_open_free_chan;
+> +	}
 > +
-> +	/* get the required exponent */
-> +	while (pendbc >> i++)
-> +		;
-This is related to the first 0?  There are cleaner ways of doing this
-with ffs and friends.
+> +	st->chan_y = iio_channel_get(dev->dev.parent, "y");
+> +	if (IS_ERR_OR_NULL(st->chan_y)) {
+> +		dev_err(dev->dev.parent, "cannot get Y channel from ADC");
+> +		ret = PTR_ERR(st->chan_y);
+> +		goto at91_rts_open_free_chan;
+> +	}
 > +
-> +	pendbc = i;
+> +	st->chan_pressure = iio_channel_get(dev->dev.parent, "pressure");
+> +	if (IS_ERR_OR_NULL(st->chan_pressure)) {
+> +		dev_err(dev->dev.parent, "cannot get pressure channel from ADC");
+> +		ret = PTR_ERR(st->chan_pressure);
+> +		goto at91_rts_open_free_chan;
+> +	}
 > +
-> +	tsmr = AT91_SAMA5D2_TSMR_TSMODE_4WIRE_PRESS;
+> +	/* look for the trigger in device tree */
+> +	st->trig = iio_trigger_find(dev->dev.parent, NULL);
+> +	if (IS_ERR_OR_NULL(st->trig)) {
+> +		dev_err(dev->dev.parent, "cannot get trigger from ADC");
+> +		ret = PTR_ERR(st->trig)
+This also feels like it should be retrieved during the probe and we should
+defer if that fails.  Can't do anything useful without it!
+> +		goto at91_rts_open_free_chan;
+> +	}
 > +
-> +	tsmr |= AT91_SAMA5D2_TSMR_TSAV(1) & AT91_SAMA5D2_TSMR_TSAV_MASK;
-> +	tsmr |= AT91_SAMA5D2_TSMR_PENDBC(pendbc) &
-> +		AT91_SAMA5D2_TSMR_PENDBC_MASK;
-> +	tsmr |= AT91_SAMA5D2_TSMR_NOTSDMA;
-> +	tsmr |= AT91_SAMA5D2_TSMR_PENDET_ENA;
-> +	tsmr |= AT91_SAMA5D2_TSMR_TSFREQ(1) & AT91_SAMA5D2_TSMR_TSFREQ_MASK;
+> +	/* allocate a pollfunc for the trigger */
+> +	st->rts_pf = iio_alloc_pollfunc(at91_rts_trigger_handler, NULL,
+> +					IRQF_ONESHOT, NULL,
+> +					dev->dev.parent->of_node->name);
+> +	if (!st->rts_pf) {
+> +		ret = -ENOMEM;
+> +		dev_err(dev->dev.parent, "cannot allocate trigger pollfunc");
+> +		goto at91_rts_open_free_chan;
+> +	}
 > +
-> +	at91_adc_writel(st, AT91_SAMA5D2_TSMR, tsmr);
+> +	iio_pollfunc_set_private_data(st->rts_pf, st);
 > +
-> +	acr =  at91_adc_readl(st, AT91_SAMA5D2_ACR);
-> +	acr &= ~AT91_SAMA5D2_ACR_PENDETSENS_MASK;
-> +	acr |= 0x02 & AT91_SAMA5D2_ACR_PENDETSENS_MASK;
-> +	at91_adc_writel(st, AT91_SAMA5D2_ACR, acr);
+> +	/*
+> +	 * Attach the pollfunc to the trigger. This will also call the
+> +	 * configure function to enable the trigger
+> +	 */
+> +	ret = iio_trigger_attach_poll_func(st->trig, st->rts_pf);
+> +	if (ret)
+> +		goto at91_rts_open_dealloc_pf;
+Ah. Now I think I see why you needed the poll function rather than 
+doing this with a callback buffer.
+
+I'd rather see a consumer interface that requests the whole ADC runs on
+a particular trigger.
+
 > +
-> +	/* Sample Period Time = (TRGPER + 1) / ADCClock */
-> +	st->touch_st.sample_period_val = round_up((TOUCH_SAMPLE_PERIOD_US *
-> +					 clk_khz / 1000) - 1, 1);
-> +	/* enable pen detect IRQ */
-> +	at91_adc_writel(st, AT91_SAMA5D2_IER, AT91_SAMA5D2_IER_PEN);
+> +	dev_dbg(dev->dev.parent, "channels found, attached to trigger");
 > +
+> +	st->adc_connected = true;
 > +	return 0;
-> +}
 > +
-> +static int at91_adc_touch_trigger_validate_device(struct iio_trigger *trig,
-> +						  struct iio_dev *indio_dev)
-> +{
-> +	/* the touch trigger cannot be used with a buffer */
-> +	return -EBUSY;
-> +}
-> +
-> +static int at91_adc_configure_touch_trigger(struct iio_trigger *trig,
-> +					    bool state)
-> +{
-> +	struct iio_dev *indio_dev = iio_trigger_get_drvdata(trig);
-> +	struct at91_adc_state *st = iio_priv(indio_dev);
-> +	int ret = 0;
-> +
+> +at91_rts_open_dealloc_pf:
+> +	iio_dealloc_pollfunc(st->rts_pf);
+> +at91_rts_open_free_chan:
+> +	if (!IS_ERR_OR_NULL(st->chan_x))
+> +		iio_channel_release(st->chan_x);
+> +	if (!IS_ERR_OR_NULL(st->chan_y))
+> +		iio_channel_release(st->chan_y);
+> +	if (!IS_ERR_OR_NULL(st->chan_pressure))
+> +		iio_channel_release(st->chan_pressure);
 > +	/*
-> +	 * If we configure this with the IRQ enabled, the pen detected IRQ
-> +	 * might fire before we finish setting all up, and the IRQ handler
-> +	 * might misbehave. Better to reenable the IRQ after we are done
+> +	 * Avoid keeping old values in channel pointers. in case some channel
+> +	 * failed and we reopen them, and now fail, we will have invalid values
+> +	 * to release. So write them as NULL now.
 > +	 */
-> +	disable_irq_nosync(st->irq);
-> +
-> +	mutex_lock(&st->lock);
-> +	if (state) {
-> +		ret = iio_buffer_enabled(indio_dev);
-> +		if (ret) {
-> +			dev_dbg(&indio_dev->dev, "trigger is currently in use\n");
-> +			ret = -EBUSY;
-> +			goto configure_touch_unlock_exit;
-> +		}
-> +	}
-> +	at91_adc_configure_touch(st, state);
-> +	st->touch_requested = state;
-> +
-> +configure_touch_unlock_exit:
-> +	enable_irq(st->irq);
-> +	mutex_unlock(&st->lock);
+> +	st->chan_x = NULL;
+> +	st->chan_y = NULL;
+> +	st->chan_pressure = NULL;
 > +	return ret;
 > +}
 > +
->  static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
->  {
->  	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
-> @@ -390,12 +594,27 @@ static int at91_adc_reenable_trigger(struct iio_trigger *trig)
->  	return 0;
->  }
->  
-> +static int at91_adc_reenable_touch_trigger(struct iio_trigger *trig)
+> +static void at91_rts_close(struct input_dev *dev)
 > +{
-> +	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
-> +	struct at91_adc_state *st = iio_priv(indio);
+> +	struct at91_rts *st = input_get_drvdata(dev);
 > +
-> +	enable_irq(st->irq);
+> +	if (!st->adc_connected)
+> +		return;
+> +
+> +	iio_trigger_detach_poll_func(st->trig, st->rts_pf);
+> +	iio_dealloc_pollfunc(st->rts_pf);
+> +
+> +	if (!IS_ERR_OR_NULL(st->chan_x))
+> +		iio_channel_release(st->chan_x);
+> +	if (!IS_ERR_OR_NULL(st->chan_y))
+> +		iio_channel_release(st->chan_y);
+> +	if (!IS_ERR_OR_NULL(st->chan_pressure))
+> +		iio_channel_release(st->chan_pressure);
+> +
+> +	st->adc_connected = false;
+> +}
+> +
+> +static int at91_rts_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +	struct at91_rts *st;
+> +	struct input_dev *input;
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *node = dev->of_node;
+> +
+> +	st = devm_kzalloc(dev, sizeof(struct at91_rts), GFP_KERNEL);
+> +	if (!st)
+> +		return -ENOMEM;
+> +	st->adc_connected = false;
+> +
+> +	INIT_WORK(&st->workq, at91_rts_workq_handler);
+> +
+> +	input = devm_input_allocate_device(dev);
+> +	if (!input) {
+> +		dev_err(dev, "failed to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	ret = of_property_read_u32(node, "microchip,pressure-threshold",
+> +				   &st->pressure_threshold);
+> +	if (ret < 0) {
+> +		dev_dbg(dev, "can't get touchscreen pressure threshold property.\n");
+> +		st->pressure_threshold = AT91_RTS_DEFAULT_PRESSURE_THRESHOLD;
+> +	}
+> +
+> +	input->name = DRIVER_NAME;
+> +	input->id.bustype = BUS_HOST;
+> +	input->dev.parent = &pdev->dev;
+> +	input->open = at91_rts_open;
+> +	input->close = at91_rts_close;
+> +
+> +	input_set_abs_params(input, ABS_X, 0, MAX_POS_MASK - 1, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, MAX_POS_MASK, 0, 0);
+> +	input_set_abs_params(input, ABS_PRESSURE, 0, 0xffffff, 0, 0);
+> +
+> +	input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> +	input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +
+> +	st->input = input;
+> +	input_set_drvdata(input, st);
+> +
+> +	ret = input_register_device(input);
+> +	if (ret) {
+> +		dev_err(dev, "failed to register input device: %d", ret);
+> +		return ret;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, st);
+> +
+> +	dev_info(dev, "probed successfully\n");
+
+Not useful. There are many ways to find this out without looking at dmesg.
+Please remove.
+
+> +	return 0;
+> +}
+> +
+> +static int at91_rts_remove(struct platform_device *pdev)
+> +{
+> +	struct at91_rts *st = platform_get_drvdata(pdev);
+> +
+> +	input_unregister_device(st->input);
 > +
 > +	return 0;
 > +}
->  static const struct iio_trigger_ops at91_adc_trigger_ops = {
->  	.set_trigger_state = &at91_adc_configure_trigger,
->  	.try_reenable = &at91_adc_reenable_trigger,
->  	.validate_device = iio_trigger_validate_own_device,
->  };
->  
-> +static const struct iio_trigger_ops at91_adc_touch_trigger_ops = {
-> +	.set_trigger_state = &at91_adc_configure_touch_trigger,
-> +	.try_reenable = &at91_adc_reenable_touch_trigger,
-> +	.validate_device = &at91_adc_touch_trigger_validate_device,
+> +
+> +static const struct of_device_id at91_rts_of_match[] = {
+> +	{
+> +		.compatible = "microchip,sama5d2-resistive-touch",
+> +	}, {
+> +		/* sentinel */
+> +	},
+> +};
+> +MODULE_DEVICE_TABLE(of, at91_rts_of_match);
+> +
+> +static struct platform_driver atmel_rts_driver = {
+> +	.probe = at91_rts_probe,
+> +	.remove = at91_rts_remove,
+> +	.driver = {
+> +		   .name = DRIVER_NAME,
+> +		   .of_match_table = of_match_ptr(at91_rts_of_match),
+> +	},
 > +};
 > +
->  static int at91_adc_dma_size_done(struct at91_adc_state *st)
->  {
->  	struct dma_tx_state state;
-> @@ -490,6 +709,23 @@ static int at91_adc_dma_start(struct iio_dev *indio_dev)
->  	return 0;
->  }
->  
-> +static int at91_adc_buffer_preenable(struct iio_dev *indio_dev)
-> +{
-> +	struct at91_adc_state *st = iio_priv(indio_dev);
-> +	int ret;
+> +module_platform_driver(atmel_rts_driver);
 > +
-> +	/* have to make sure nobody is requesting the trigger right now */
+> +MODULE_AUTHOR("Eugen Hristev <eugen.hristev@microchip.com>");
+> +MODULE_DESCRIPTION("Microchip SAMA5D2 Resistive Touch Driver");
+> +MODULE_LICENSE("GPL v2");
 
-This needs some more explanation as I don't totally follow what this
-is designed to protect against.
-
-Realistically a device is only useful if it has one trigger at a time
-feeding a valid set of channels to however many consumers (whether
-in the driver or not).
-
-> +	mutex_lock(&st->lock);
-> +	ret = st->touch_requested;
-> +	mutex_unlock(&st->lock);
-> +
-> +	/*
-> +	 * if the trigger is used by the touchscreen,
-> +	 * we must return an error
-> +	 */
-> +	return ret ? -EBUSY : 0;
-> +}
-> +
->  static int at91_adc_buffer_postenable(struct iio_dev *indio_dev)
->  {
->  	int ret;
-> @@ -538,6 +774,7 @@ static int at91_adc_buffer_predisable(struct iio_dev *indio_dev)
->  }
->  
->  static const struct iio_buffer_setup_ops at91_buffer_setup_ops = {
-> +	.preenable = &at91_adc_buffer_preenable,
->  	.postenable = &at91_adc_buffer_postenable,
->  	.predisable = &at91_adc_buffer_predisable,
->  };
-> @@ -555,7 +792,11 @@ static struct iio_trigger *at91_adc_allocate_trigger(struct iio_dev *indio,
->  
->  	trig->dev.parent = indio->dev.parent;
->  	iio_trigger_set_drvdata(trig, indio);
-> -	trig->ops = &at91_adc_trigger_ops;
-> +
-> +	if (strcmp(trigger_name, AT91_ADC_TOUCH_TRIG_SHORTNAME))
-
-Pass this is as a parameter to the function and avoid the strcmp nastiness.
-
-> +		trig->ops = &at91_adc_trigger_ops;
-> +	else
-> +		trig->ops = &at91_adc_touch_trigger_ops;
->  
->  	ret = devm_iio_trigger_register(&indio->dev, trig);
->  	if (ret)
-> @@ -571,7 +812,16 @@ static int at91_adc_trigger_init(struct iio_dev *indio)
->  	st->trig = at91_adc_allocate_trigger(indio, st->selected_trig->name);
->  	if (IS_ERR(st->trig)) {
->  		dev_err(&indio->dev,
-> -			"could not allocate trigger\n");
-> +			"could not allocate trigger %s\n",
-> +			 st->selected_trig->name);
-> +		return PTR_ERR(st->trig);
-> +	}
-> +
-> +	st->touch_st.trig = at91_adc_allocate_trigger(indio,
-> +						AT91_ADC_TOUCH_TRIG_SHORTNAME);
-> +	if (IS_ERR(st->trig)) {
-> +		dev_err(&indio->dev, "could not allocate trigger"
-> +			AT91_ADC_TOUCH_TRIG_SHORTNAME "\n");
->  		return PTR_ERR(st->trig);
->  	}
->  
-> @@ -703,6 +953,8 @@ static void at91_adc_setup_samp_freq(struct at91_adc_state *st, unsigned freq)
->  
->  	dev_dbg(&indio_dev->dev, "freq: %u, startup: %u, prescal: %u\n",
->  		freq, startup, prescal);
-> +
-> +	st->current_sample_rate = freq;
->  }
->  
->  static unsigned at91_adc_get_sample_freq(struct at91_adc_state *st)
-> @@ -718,23 +970,77 @@ static unsigned at91_adc_get_sample_freq(struct at91_adc_state *st)
->  	return f_adc;
->  }
->  
-> +static irqreturn_t at91_adc_pen_detect_interrupt(struct at91_adc_state *st)
-> +{
-> +	at91_adc_writel(st, AT91_SAMA5D2_IDR, AT91_SAMA5D2_IER_PEN);
-> +	at91_adc_writel(st, AT91_SAMA5D2_IER, AT91_SAMA5D2_IER_NOPEN |
-> +			AT91_SAMA5D2_IER_XRDY | AT91_SAMA5D2_IER_YRDY |
-> +			AT91_SAMA5D2_IER_PRDY);
-> +	at91_adc_writel(st, AT91_SAMA5D2_TRGR,
-> +			AT91_SAMA5D2_TRGR_TRGMOD_PERIODIC |
-> +			AT91_SAMA5D2_TRGR_TRGPER(st->touch_st.sample_period_val));
-> +	st->touch_st.touching = true;
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static irqreturn_t at91_adc_no_pen_detect_interrupt(struct at91_adc_state *st)
-> +{
-> +	at91_adc_writel(st, AT91_SAMA5D2_TRGR, 0);
-> +	at91_adc_writel(st, AT91_SAMA5D2_IDR, AT91_SAMA5D2_IER_NOPEN |
-> +			AT91_SAMA5D2_IER_XRDY | AT91_SAMA5D2_IER_YRDY |
-> +			AT91_SAMA5D2_IER_PRDY);
-> +	st->touch_st.touching = false;
-Hmm. I think we are unfortunately racing here.  There is nothing preventing
-this running concurrently with the read_raw calls that check the same variable.
-
-If this is fine (because we will always get valid data anyway (if stale)
-then a comment is needed to explain that.
-
-> +
-> +	disable_irq_nosync(st->irq);
-> +	iio_trigger_poll(st->touch_st.trig);
-
-Comment to explain why a poll here is fine, but not on the pen on would be
-good (I can guess but better to state it!)
-
-> +
-> +	at91_adc_writel(st, AT91_SAMA5D2_IER, AT91_SAMA5D2_IER_PEN);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
->  static irqreturn_t at91_adc_interrupt(int irq, void *private)
->  {
->  	struct iio_dev *indio = private;
->  	struct at91_adc_state *st = iio_priv(indio);
->  	u32 status = at91_adc_readl(st, AT91_SAMA5D2_ISR);
->  	u32 imr = at91_adc_readl(st, AT91_SAMA5D2_IMR);
-> +	u32 rdy_mask = AT91_SAMA5D2_IER_XRDY | AT91_SAMA5D2_IER_YRDY |
-> +			AT91_SAMA5D2_IER_PRDY;
->  
->  	if (!(status & imr))
->  		return IRQ_NONE;
->  
-> -	if (iio_buffer_enabled(indio) && !st->dma_st.dma_chan) {
-> +	if (st->touch_requested && (status & AT91_SAMA5D2_IER_PEN)) {
-> +		/* pen detected IRQ */
-> +		return at91_adc_pen_detect_interrupt(st);
-> +	} else if (st->touch_requested && (status & AT91_SAMA5D2_IER_NOPEN)) {
-> +		/* nopen detected IRQ */
-> +		return at91_adc_no_pen_detect_interrupt(st);
-> +	} else if (st->touch_requested && (status & AT91_SAMA5D2_ISR_PENS) &&
-> +		   ((status & rdy_mask) == rdy_mask)) {
-> +		/* periodic trigger IRQ - during pen sense */
-> +		disable_irq_nosync(irq);
-> +		iio_trigger_poll(st->touch_st.trig);
-> +	} else if ((st->touch_requested && (status & AT91_SAMA5D2_ISR_PENS))) {
-> +		/*
-> +		 * touching, but the measurements are not ready yet.
-> +		 * read and ignore.
-> +		 */
-> +		status = at91_adc_readl(st, AT91_SAMA5D2_XPOSR);
-> +		status = at91_adc_readl(st, AT91_SAMA5D2_YPOSR);
-> +		status = at91_adc_readl(st, AT91_SAMA5D2_PRESSR);
-> +	} else if (iio_buffer_enabled(indio) && !st->dma_st.dma_chan) {
-> +		/* buffered trigger without DMA */
->  		disable_irq_nosync(irq);
->  		iio_trigger_poll(indio->trig);
->  	} else if (iio_buffer_enabled(indio) && st->dma_st.dma_chan) {
-> +		/* buffered trigger with DMA - should not happen */
->  		disable_irq_nosync(irq);
->  		WARN(true, "Unexpected irq occurred\n");
->  	} else if (!iio_buffer_enabled(indio)) {
-> +		/* software requested conversion */
->  		st->conversion_value = at91_adc_readl(st, st->chan->address);
->  		st->conversion_done = true;
->  		wake_up_interruptible(&st->wq_data_available);
-> @@ -742,6 +1048,96 @@ static irqreturn_t at91_adc_interrupt(int irq, void *private)
->  	return IRQ_HANDLED;
->  }
->  
-> +static u32 at91_adc_touch_x_pos(struct at91_adc_state *st)
-> +{
-> +	u32 xscale, val;
-> +	u32 x, xpos;
-> +
-> +	/* x position = (x / xscale) * max, max = 2^MAX_POS_BITS - 1 */
-> +	val = at91_adc_readl(st, AT91_SAMA5D2_XPOSR);
-> +	if (!val)
-> +		dev_dbg(&iio_priv_to_dev(st)->dev, "x_pos is 0\n");
-> +
-> +	xpos = val & XYZ_MASK;
-> +	x = (xpos << MAX_POS_BITS) - xpos;
-> +	xscale = (val >> 16) & XYZ_MASK;
-> +	if (xscale == 0) {
-> +		dev_err(&iio_priv_to_dev(st)->dev, "xscale is 0\n");
-> +		return 0;
-> +	}
-> +	x /= xscale;
-> +	st->touch_st.x_pos = x;
-> +
-> +	return x;
-> +}
-> +
-> +static u32 at91_adc_touch_y_pos(struct at91_adc_state *st)
-> +{
-> +	u32 yscale, val;
-> +	u32 y, ypos;
-> +
-> +	/* y position = (y / yscale) * max, max = 2^MAX_POS_BITS - 1 */
-> +	val = at91_adc_readl(st, AT91_SAMA5D2_YPOSR);
-> +	ypos = val & XYZ_MASK;
-> +	y = (ypos << MAX_POS_BITS) - ypos;
-> +	yscale = (val >> 16) & XYZ_MASK;
-> +
-> +	if (yscale == 0)
-> +		return 0;
-> +
-> +	y /= yscale;
-> +
-> +	return y;
-> +}
-> +
-> +static u32 at91_adc_touch_pressure(struct at91_adc_state *st)
-> +{
-> +	u32 val, z1, z2;
-> +	u32 pres;
-> +	u32 rxp = 1;
-> +	u32 factor = 1000;
-> +
-> +	/* calculate the pressure */
-> +	val = at91_adc_readl(st, AT91_SAMA5D2_PRESSR);
-> +	z1 = val & XYZ_MASK;
-
-XYZ_MASK seems oddly named given what this seems to be doing...
-
-> +	z2 = (val >> 16) & XYZ_MASK;
-> +
-> +	if (z1 != 0)
-> +		pres = rxp * (st->touch_st.x_pos * factor / 1024) *
-> +			(z2 * factor / z1 - factor) /
-> +			factor;
-> +	else
-> +		pres = 0xFFFFFFFF;       /* no pen contact */
-> +
-> +	return pres;
-> +}
-> +
-> +static int at91_adc_read_position(struct at91_adc_state *st, int chan, int *val)
-> +{
-> +	if (!st->touch_st.touching)
-> +		return -ENODATA;
-> +	if (chan == AT91_SAMA5D2_TOUCH_X_CHAN_IDX)
-> +		*val = at91_adc_touch_x_pos(st);
-> +	else if (chan == AT91_SAMA5D2_TOUCH_Y_CHAN_IDX)
-> +		*val = at91_adc_touch_y_pos(st);
-> +	else
-> +		return -ENODATA;
-> +
-> +	return IIO_VAL_INT;
-> +}
-> +
-> +static int at91_adc_read_pressure(struct at91_adc_state *st, int chan, int *val)
-> +{
-> +	if (!st->touch_st.touching)
-> +		return -ENODATA;
-> +	if (chan == AT91_SAMA5D2_TOUCH_P_CHAN_IDX)
-
-General code flow simpler if you check error first
-if (chan != AT91_SAMA5D2_TOUCH_P_CHAN_IDX)
-	return -ENODATA;
-
-*val =...
-
-> +		*val = at91_adc_touch_pressure(st);
-> +	else
-> +		return -ENODATA;
-> +
-> +	return IIO_VAL_INT;
-> +}
-> +
->  static int at91_adc_read_raw(struct iio_dev *indio_dev,
->  			     struct iio_chan_spec const *chan,
->  			     int *val, int *val2, long mask)
-> @@ -752,11 +1148,38 @@ static int at91_adc_read_raw(struct iio_dev *indio_dev,
->  
->  	switch (mask) {
->  	case IIO_CHAN_INFO_RAW:
-> +		mutex_lock(&st->lock);
-> +
-> +		if (chan->type == IIO_POSITION) {
-
-Switch or else if as only one is true at a time.
-
-Hmm. So you allow sysfs reads of these channels if touch in progress.
-Do we actually have a use for this?  Seems we could have simpler code
-by just not providing direct reads for them if not.
-
-> +			ret = at91_adc_read_position(st, chan->channel, val);
-> +			mutex_unlock(&st->lock);
-> +			return ret;
-> +		}
-> +		if (chan->type == IIO_PRESSURE) {
-> +			ret = at91_adc_read_pressure(st, chan->channel, val);
-> +			mutex_unlock(&st->lock);
-> +			return ret;
-> +		}
-> +		/* if we using touch, channels 0, 1, 2, 3 are unavailable */
-> +		if (st->touch_requested && chan->channel <= 3) {
-> +			mutex_unlock(&st->lock);
-> +			return -EBUSY;
-> +		}
-> +		/*
-> +		 * if we have the periodic trigger set up, we can't use
-> +		 * software trigger either.
-> +		 */
-> +		if (st->touch_st.touching) {
-
-> +			mutex_unlock(&st->lock);
-> +			return -ENODATA;
-> +		}
-> +
->  		/* we cannot use software trigger if hw trigger enabled */
->  		ret = iio_device_claim_direct_mode(indio_dev);
-> -		if (ret)
-> +		if (ret) {
-> +			mutex_unlock(&st->lock);
->  			return ret;
-> -		mutex_lock(&st->lock);
-> +		}
->  
->  		st->chan = chan;
->  
-> @@ -785,6 +1208,11 @@ static int at91_adc_read_raw(struct iio_dev *indio_dev,
->  
->  		at91_adc_writel(st, AT91_SAMA5D2_IDR, BIT(chan->channel));
->  		at91_adc_writel(st, AT91_SAMA5D2_CHDR, BIT(chan->channel));
-> +		/*
-> +		 * It is possible that after this conversion, we reuse these
-> +		 * channels for the touchscreen. So, reset the COR now.
-> +		 */
-> +		at91_adc_writel(st, AT91_SAMA5D2_COR, 0);
->  
->  		/* Needed to ACK the DRDY interruption */
->  		at91_adc_readl(st, AT91_SAMA5D2_LCDR);
-> @@ -1180,6 +1608,10 @@ static int at91_adc_remove(struct platform_device *pdev)
->  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
->  	struct at91_adc_state *st = iio_priv(indio_dev);
->  
-> +	mutex_lock(&st->lock);
-> +	devm_iio_trigger_unregister(&indio_dev->dev, st->touch_st.trig);
-
-As before this needs detailed explanation. It should not be necessary.
-
-> +	mutex_unlock(&st->lock);
-> +
->  	if (st->selected_trig->hw_trig)
->  		devm_iio_trigger_unregister(&indio_dev->dev, st->trig);
->  
-> @@ -1245,6 +1677,11 @@ static __maybe_unused int at91_adc_resume(struct device *dev)
->  	if (iio_buffer_enabled(indio_dev))
->  		at91_adc_configure_trigger(st->trig, true);
->  
-> +	mutex_lock(&st->lock);
-> +	if (st->touch_requested)
-> +		at91_adc_configure_touch_trigger(st->touch_st.trig, true);
-> +	mutex_unlock(&st->lock);
-> +
->  	return 0;
->  
->  vref_disable_resume:

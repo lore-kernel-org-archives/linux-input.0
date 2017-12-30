@@ -1,54 +1,65 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: PROBLEM: Changing speed on ThinkPad X1 Carbon 5th trackpoint
- causes "failed to enable mouse"
-Date: Sat, 30 Dec 2017 23:08:44 +0800
-Message-ID: <4eeea63f-3131-0571-26e4-0f645dd3bc62@canonical.com>
-References: <c6427787-112c-d6f7-4f77-ae44c6aebb2f@canonical.com>
- <20171228142855.GA2007@marax.lan.yath.de>
- <f1fb1612-2d16-25a4-b57e-c56a01b729c2@canonical.com>
- <20171229190529.GA2108@marax.lan.yath.de>
- <f8795209-1b95-81a5-5fbe-f3e3fdc0d18f@canonical.com>
- <20171230095705.GA1861@marax.lan.yath.de>
- <4ca11d3d-4e7c-5bef-1811-9bc95b6e901a@canonical.com>
- <20171230141138.GA23284@marax.lan.yath.de>
- <d8770041-baf4-205e-7818-7ea477f69a29@canonical.com>
- <20171230144040.GB23284@marax.lan.yath.de> <20171230150235.GA19890@kroah.com>
+From: Sebastian Schmidt <yath@yath.de>
+Subject: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware ID"
+Date: Sat, 30 Dec 2017 16:22:13 +0100
+Message-ID: <20171230152213.GA2099@marax.lan.yath.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:43195 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750828AbdL3PIu (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 30 Dec 2017 10:08:50 -0500
-In-Reply-To: <20171230150235.GA19890@kroah.com>
-Content-Language: en-US
+Received: from karr.yath.de ([144.76.4.50]:47822 "EHLO karr.yath.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750950AbdL3PWV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 30 Dec 2017 10:22:21 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>, Sebastian Schmidt <yath@yath.de>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: Greg KH <gregkh@linuxfoundation.org>, Aaron Ma <aaron.ma@canonical.com>
 
-Greg, Please check my last e-mail.
+This reverts commit ec667683c532c93fb41e100e5d61a518971060e2, which
+breaks the Trackpoint on ThinkPad X1 Carbon Gen5 (Model 20HR). That
+commit intended to add support for later firmware versions to the
+trackpoint driver, however, the version is reported in the second byte
+whereas the change was made to the magic byte preceding that version.
+The update package linked by Lenovo suggests that 20HR models use an
+ALPS Touchpad instead.
 
-My patch will enable the synaptic trackpoint features like scroll mode
-with middle button and trackpoint stick.
+Signed-off-by: Sebastian Schmidt <yath@yath.de>
+Acked-by: Greg KH <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+---
+ drivers/input/mouse/trackpoint.c | 3 +--
+ drivers/input/mouse/trackpoint.h | 3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
-Even there is a firmware issue that it can not be set speed on sysfs.
-But it is not driver issue.
-We can NOT to make wrong code than facing the real issue.
+diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+index 0871010f18d5..20b5b21c1bba 100644
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -265,8 +265,7 @@ static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *fir
+ 	if (ps2_command(&psmouse->ps2dev, param, MAKE_PS2_CMD(0, 2, TP_READ_ID)))
+ 		return -1;
+ 
+-	/* add new TP ID. */
+-	if (!(param[0] & TP_MAGIC_IDENT))
++	if (param[0] != TP_MAGIC_IDENT)
+ 		return -1;
+ 
+ 	if (firmware_id)
+diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
+index 88055755f82e..5617ed3a7d7a 100644
+--- a/drivers/input/mouse/trackpoint.h
++++ b/drivers/input/mouse/trackpoint.h
+@@ -21,9 +21,8 @@
+ #define TP_COMMAND		0xE2	/* Commands start with this */
+ 
+ #define TP_READ_ID		0xE1	/* Sent for device identification */
+-#define TP_MAGIC_IDENT		0x03	/* Sent after a TP_READ_ID followed */
++#define TP_MAGIC_IDENT		0x01	/* Sent after a TP_READ_ID followed */
+ 					/* by the firmware ID */
+-					/* Firmware ID includes 0x1, 0x2, 0x3 */
+ 
+ 
+ /*
+-- 
+2.15.1
 
-Regards,
-Aaron
-
-On 12/30/2017 11:02 PM, Greg KH wrote:
-> On Sat, Dec 30, 2017 at 03:40:40PM +0100, Sebastian Schmidt wrote:
->> Because reverting your commit fixes the issue for me.
-> 
-> Great, it should be reverted then.  Care to send the patch that does the
-> revert to make it easy for Dmitry to apply it?
-> 
-> thanks,
-> 
-> greg k-h
-> 

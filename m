@@ -1,49 +1,36 @@
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Sebastian Schmidt <yath@yath.de>
 Subject: Re: PROBLEM: Changing speed on ThinkPad X1 Carbon 5th trackpoint
  causes "failed to enable mouse"
-Date: Sat, 30 Dec 2017 23:46:53 +0800
-Message-ID: <0eb65344-d160-bb14-723a-1d06ac3e1b33@canonical.com>
-References: <f1fb1612-2d16-25a4-b57e-c56a01b729c2@canonical.com>
- <20171229190529.GA2108@marax.lan.yath.de>
- <f8795209-1b95-81a5-5fbe-f3e3fdc0d18f@canonical.com>
+Date: Sat, 30 Dec 2017 16:53:58 +0100
+Message-ID: <20171230155358.GE23284@marax.lan.yath.de>
+References: <f8795209-1b95-81a5-5fbe-f3e3fdc0d18f@canonical.com>
  <20171230095705.GA1861@marax.lan.yath.de>
  <4ca11d3d-4e7c-5bef-1811-9bc95b6e901a@canonical.com>
  <20171230141138.GA23284@marax.lan.yath.de>
  <d8770041-baf4-205e-7818-7ea477f69a29@canonical.com>
- <20171230144040.GB23284@marax.lan.yath.de> <20171230150235.GA19890@kroah.com>
+ <20171230144040.GB23284@marax.lan.yath.de>
+ <20171230150235.GA19890@kroah.com>
  <4eeea63f-3131-0571-26e4-0f645dd3bc62@canonical.com>
  <20171230152616.GA26378@kroah.com>
+ <0eb65344-d160-bb14-723a-1d06ac3e1b33@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:43447 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750947AbdL3PrB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 30 Dec 2017 10:47:01 -0500
-In-Reply-To: <20171230152616.GA26378@kroah.com>
-Content-Language: en-US
+Received: from karr.yath.de ([144.76.4.50]:48150 "EHLO karr.yath.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750931AbdL3PyG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 30 Dec 2017 10:54:06 -0500
+Content-Disposition: inline
+In-Reply-To: <0eb65344-d160-bb14-723a-1d06ac3e1b33@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Sebastian Schmidt <yath@yath.de>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Aaron Ma <aaron.ma@canonical.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Without my commit the trackpoint is identified to "generic PS/2 mouse",
-some features like the scroll mode (middle button and trackpoint) can
-not work.
-And there is no speed in sysfs that can control the mouse speed.
+On Sat, Dec 30, 2017 at 11:46:53PM +0800, Aaron Ma wrote:
+> Without my commit the trackpoint is identified to "generic PS/2 mouse",
+> some features like the scroll mode (middle button and trackpoint) can
+> not work.
 
-With my commit, it includes trackpoint features like scroll mode.
-But it failed to set speed in sysfs,
-The real issue: the firmware of trackpoint is failed to responded the
-commands of speed.
-But user can use xinput/xorg/udev to set the speed correctly.
-
-Reverting this patch will not make things better or work properly.
-So I don't think it should be reverted.
-
-Sorry for my poor English.
-
-Thanks,
-Aaron
+Actually, this used to work even prior to your patch for me. So we
+apparently have different types of Trackpoint.

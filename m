@@ -1,59 +1,63 @@
-From: Leonardo Fontenelle <leonardof@fastmail.com>
-Subject: dmesg asked me to email about touchpad
-Date: Sat, 30 Dec 2017 10:33:18 -0200
-Message-ID: <1514637198.2138681.1219545288.099EC796@webmail.messagingengine.com>
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: Re: PROBLEM: Changing speed on ThinkPad X1 Carbon 5th trackpoint
+ causes "failed to enable mouse"
+Date: Sat, 30 Dec 2017 21:54:39 +0800
+Message-ID: <4ca11d3d-4e7c-5bef-1811-9bc95b6e901a@canonical.com>
+References: <20171228091125.GA743@marax.lan.yath.de>
+ <c6427787-112c-d6f7-4f77-ae44c6aebb2f@canonical.com>
+ <20171228142855.GA2007@marax.lan.yath.de>
+ <f1fb1612-2d16-25a4-b57e-c56a01b729c2@canonical.com>
+ <20171229190529.GA2108@marax.lan.yath.de>
+ <f8795209-1b95-81a5-5fbe-f3e3fdc0d18f@canonical.com>
+ <20171230095705.GA1861@marax.lan.yath.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:48601 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750759AbdL3MdS (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:42738 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750806AbdL3Nyt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 30 Dec 2017 07:33:18 -0500
-Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3CFD521969
-        for <linux-input@vger.kernel.org>; Sat, 30 Dec 2017 07:33:18 -0500 (EST)
+        Sat, 30 Dec 2017 08:54:49 -0500
+In-Reply-To: <20171230095705.GA1861@marax.lan.yath.de>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Sebastian Schmidt <yath@yath.de>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-I got this on my dmesg:
+I believe it should be a firmware issue on trackpoint.
 
-[    8.757452] psmouse serio4: synaptics: Your touchpad (PNP: SYN019e SYN01=
-00 SYN0002 PNP0f13) says it can support a different bus. If i2c-hid and hid=
--rmi are not used, you might want to try setting psmouse.synaptics_intertou=
-ch to 1 and report this to linux-input@vger.kernel.org.
-[    8.824695] psmouse serio4: synaptics: Touchpad model: 1, fw: 8.1, id: 0=
-x1e2b1, caps: 0xd00123/0x840300/0x27c00/0x0, board id: 2251, fw id: 1241283
-[    8.868370] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042=
-/serio4/input/input24
+There are several ways to set the speed & sensitivity:
+1, udev hwdb/rules;
+2, xorg conf;
+3, GUI;
 
-After setting the boot parameter, dmesg says:
+It seems users are rarely to use sysfs directly, so the bug is still there.
 
-[=C2=A0=C2=A0=C2=A0 8.484085] psmouse serio4: synaptics: queried max coordi=
-nates: x [..5660], y [..4742]
-[=C2=A0=C2=A0=C2=A0 8.521340] psmouse serio4: synaptics: queried min coordi=
-nates: x [1282..], y [1110..]
-[=C2=A0=C2=A0=C2=A0 8.521344] psmouse serio4: synaptics: Trying to set up S=
-MBus access
-[=C2=A0=C2=A0=C2=A0 8.535868] rmi4_smbus 9-002c: registering SMbus-connecte=
-d sensor
+Regards,
+Aaron
 
-Both before and after setting psmouse.synaptics_intertouch, I had:
-
-$ lsmod | fgrep hid
-mac_hid=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0 16384=C2=A0 0
-
-Despite the name, this is an HP Folio 9470m running Arch Linux with Linux 4=
-.14.9. The touchpad works fine either way.
-
-I do not subscribe to the list, please cc me so that I can provide further =
- necessary information.
-
-Thanks for making things work.
-
-Sincerely,
-
-Leonardo Ferreira Fontenelle
+On 12/30/2017 05:57 PM, Sebastian Schmidt wrote:
+> On Sat, Dec 30, 2017 at 02:43:16PM +0800, Aaron Ma wrote:
+>> Please try:
+>> $ xinput set-prop "TPPS/2 IBM TrackPoint" "libinput Accel Speed" -1
+>>
+>> The last value of speed can be -1 to 1.
+> 
+> Ah. That indeed changes the speed, thanks!
+> 
+> However, please let me ask again: Isn’t the sysfs interface supposed to
+> work, too? I’ve got my problem resolved for Xorg now, but about every
+> article on the internet refers to the sysfs interface for changing the
+> speed, cf. <https://www.google.com/search?q=trackpoint+speed>.
+> 
+> I’m also fine with the assertion that Lenovo shipped a broken firmware,
+> but I’d expect some warning in dmesg then and a reasonable fallback (to
+> a regular PS/2 mouse?) then. Can we at least agree that there is a
+> driver bug that ought to be fixed or a firmware bug that ought to be
+> worked around?
+> 
+> Thanks,
+> Sebastian
+> 

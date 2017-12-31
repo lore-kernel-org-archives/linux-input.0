@@ -1,48 +1,35 @@
 From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: PROBLEM: Changing speed on ThinkPad X1 Carbon 5th trackpoint
- causes "failed to enable mouse"
-Date: Sun, 31 Dec 2017 02:54:55 +0800
-Message-ID: <c9f4591f-c40f-deb2-f379-310f159c06cb@canonical.com>
-References: <4ca11d3d-4e7c-5bef-1811-9bc95b6e901a@canonical.com>
- <20171230141138.GA23284@marax.lan.yath.de>
- <d8770041-baf4-205e-7818-7ea477f69a29@canonical.com>
- <20171230144040.GB23284@marax.lan.yath.de> <20171230150235.GA19890@kroah.com>
- <4eeea63f-3131-0571-26e4-0f645dd3bc62@canonical.com>
- <20171230152616.GA26378@kroah.com>
- <0eb65344-d160-bb14-723a-1d06ac3e1b33@canonical.com>
- <20171230155358.GE23284@marax.lan.yath.de>
- <02082a9b-8fdd-0878-0daa-ead72743d5fd@canonical.com>
- <20171230181625.GA1687@marax.lan.yath.de>
+Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware
+ ID"
+Date: Sun, 31 Dec 2017 12:37:56 +0800
+Message-ID: <dcfb84c8-4ad8-8276-5451-ee91fc84f742@canonical.com>
+References: <20171230152213.GA2099@marax.lan.yath.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:44669 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:48146 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750950AbdL3SzC (ORCPT
+        with ESMTP id S1750923AbdLaEiE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 30 Dec 2017 13:55:02 -0500
-In-Reply-To: <20171230181625.GA1687@marax.lan.yath.de>
+        Sat, 30 Dec 2017 23:38:04 -0500
+In-Reply-To: <20171230152213.GA2099@marax.lan.yath.de>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Schmidt <yath@yath.de>
-Cc: Greg KH <gregkh@linuxfoundation.org>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Sebastian Schmidt <yath@yath.de>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: Greg KH <gregkh@linuxfoundation.org>
 
-The patch[2] is recognized to ""ImPS/2 Generic Wheel Mouse""
-Please refer to link:
-https://lkml.org/lkml/2017/8/21/558
-Which mentioned my commit can resolve his issue.
+Please refer to the Lenovo forum:
 
-Your scroll mode is workable by libinput and that is not enabled by
-kernel driver.
-People who used "xorg-input-evdev" will *NOT* enable scroll mode.
+https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/Special_Interest_Linux/thread-id/9645/page/23
 
-Lenovo delivered some different touchpads/trackpoint, sometimes with
-broken firmwares.
-I have helped one person:edvard.holst@gmail.com who had investigated
-trackpoint bug for long time, he mentioned the your link[1] long time
-ago. Finally it's firmware didn't respond anything through PS/2 command.
+The patch you tried to revert solved many people's issue.
+Also the people who used the trackpointdetect.exe to identify their ID
+as (Elan (ID:03).
 
-LEN009a/LEN0072 do have some difference, but for your log and e-mail, I
-didn't see any difference.
+The elan driver can *not* work on their trackpoint, neither does ALPS.
+They didn't match the ID tables, commands on ALPS or Elan driver.
+
+The error log of Windows firmware update tools maybe wrong, so do NOT
+based on it to guess what device it is.

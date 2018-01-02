@@ -1,57 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] xen/input: do not advertise multi-touch pressure support
-Date: Tue, 2 Jan 2018 09:39:53 -0800
-Message-ID: <20180102173953.tje4tz2ng3fnfijw@dtor-ws>
-References: <1514880775-31185-1-git-send-email-andr2000@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:35138 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751211AbeABRj5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 12:39:57 -0500
-Content-Disposition: inline
-In-Reply-To: <1514880775-31185-1-git-send-email-andr2000@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Paul Cercueil <paul@crapouillou.net>
+Subject: [PATCH v2] platform/x86: silead_dmi: Add entry for the Teclast X98 Plus II
+Date: Tue,  2 Jan 2018 19:39:27 +0100
+Message-ID: <20180102183928.15267-1-paul@crapouillou.net>
+References: <20180102134239.3579-1-paul@crapouillou.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180102134239.3579-1-paul@crapouillou.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>
 List-Id: linux-input@vger.kernel.org
-To: Oleksandr Andrushchenko <andr2000@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, Andrii Chepurnyi <andrii_chepurnyi@epam.com>
 
-On Tue, Jan 02, 2018 at 10:12:55AM +0200, Oleksandr Andrushchenko wrote:
-> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> 
-> Some user-space applications expect multi-touch pressure
-> on contact to be reported if it is advertised in device
-> properties. Otherwise, such applications may treat reports
-> not as actual touches, but hovering. Currently this is
-> only advertised, but not reported.
-> Fix this by not advertising that ABS_MT_PRESSURE is supported.
-> 
-> Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> Signed-off-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+Add touchscreen platform data for the Teclast X98 Plus II tablet.
 
-Applied, thank you.
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/platform/x86/silead_dmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-> ---
->  drivers/input/misc/xen-kbdfront.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-> index 6bf56bb5f8d9..d91f3b1c5375 100644
-> --- a/drivers/input/misc/xen-kbdfront.c
-> +++ b/drivers/input/misc/xen-kbdfront.c
-> @@ -326,8 +326,6 @@ static int xenkbd_probe(struct xenbus_device *dev,
->  				     0, width, 0, 0);
->  		input_set_abs_params(mtouch, ABS_MT_POSITION_Y,
->  				     0, height, 0, 0);
-> -		input_set_abs_params(mtouch, ABS_MT_PRESSURE,
-> -				     0, 255, 0, 0);
->  
->  		ret = input_mt_init_slots(mtouch, num_cont, INPUT_MT_DIRECT);
->  		if (ret) {
-> -- 
-> 2.7.4
-> 
+ v2: Rebased on top of http://git.infradead.org/users/dvhart/linux-platform-drivers-x86.git/shortlog/refs/heads/review-andy
 
+diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
+index 713446ee3b61..ee8d8e844eb0 100644
+--- a/drivers/platform/x86/silead_dmi.c
++++ b/drivers/platform/x86/silead_dmi.c
+@@ -247,6 +247,22 @@ static const struct silead_ts_dmi_data trekstor_primebook_c13_data = {
+ 	.properties	= trekstor_primebook_c13_props,
+ };
+ 
++static const struct property_entry teclast_x98plus2_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 2048),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1280),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	PROPERTY_ENTRY_STRING("firmware-name",
++			      "gsl1686-teclast_x98plus2.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct silead_ts_dmi_data teclast_x98plus2_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= teclast_x98plus2_props,
++};
++
+ static const struct dmi_system_id silead_ts_dmi_table[] = {
+ 	{
+ 		/* CUBE iwork8 Air */
+@@ -388,6 +404,14 @@ static const struct dmi_system_id silead_ts_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Primebook C13"),
+ 		},
+ 	},
++	{
++		/* Teclast X98 Plus II */
++		.driver_data = (void *)&teclast_x98plus2_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "X98 Plus II"),
++		},
++	},
+ 	{ },
+ };
+ 
 -- 
-Dmitry
+2.11.0

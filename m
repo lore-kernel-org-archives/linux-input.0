@@ -1,131 +1,124 @@
-From: Javad Karabi <karabijavad@gmail.com>
-Subject: Re: xps 15 9560 touchpad high interrupts
-Date: Mon, 1 Jan 2018 17:18:00 -0600
-Message-ID: <CAEOHGOkWni9J_abVidDgvyQj0ae7UNUOwmfxHWBTTcaNQ7LNAw@mail.gmail.com>
-References: <CAEOHGO=GYr4NCnwNXf=it6WFVRQ0d-eYTVKoZSiuhYhumnBK5A@mail.gmail.com>
- <20171231062520.qlcijf32eoqhdksf@sapphire.tkos.co.il> <CAEOHGOks90Am19G4-YALXq6vL8GOM9V0Mmf65-rUNYOvf5Rhyw@mail.gmail.com>
- <20180101061441.mi3fxata4prkt4eu@sapphire.tkos.co.il>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5 2/3] input: evdev: Replace timeval with timespec64
+Date: Mon, 1 Jan 2018 22:46:17 -0800
+Message-ID: <20180102064617.zmv6ospfkectaa37@dtor-ws>
+References: <20171218051844.10193-1-deepa.kernel@gmail.com>
+ <20171218051844.10193-3-deepa.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f172.google.com ([209.85.220.172]:45727 "EHLO
-        mail-qk0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752456AbeAAXSC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 1 Jan 2018 18:18:02 -0500
-In-Reply-To: <20180101061441.mi3fxata4prkt4eu@sapphire.tkos.co.il>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:41594 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751313AbeABGqV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 01:46:21 -0500
+Content-Disposition: inline
+In-Reply-To: <20171218051844.10193-3-deepa.kernel@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Baruch Siach <baruch@tkos.co.il>
-Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
 
-On Mon, Jan 1, 2018 at 12:14 AM, Baruch Siach <baruch@tkos.co.il> wrote:
-> Hi Javad Karabi,
->
-> Added linux-i2c to Cc.
->
-> On Sun, Dec 31, 2017 at 03:58:57PM -0600, Javad Karabi wrote:
->> On Sun, Dec 31, 2017 at 12:25 AM, Baruch Siach <baruch@tkos.co.il> wrote:
->> > Added linux-input list to Cc.
->> >
->> > On Sat, Dec 30, 2017 at 05:10:06PM -0600, Javad Karabi wrote:
->> > > im trying to figure out why i get like 7000 interrupts a second simply by
->> > > resting my finger on the touchpad (not even moving it)
->> > > this is on a xps 15 9560
->> > > and the touchpad is at
->> > > DLL07BE:01 06CB:7A13 Touchpad as
->> > > /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/
->> > i2c-DLL07BE:01/0018:06CB:7A13.0009/input/input58
->> > >
->> > > could you provide me with any advice as to where i should look to figure
->> > > this out?
->> > > i have already tried adding code to i2c-designware-platdrv.c
->> > > i added
->> > > dev->clk_freq = 100000;
->> > > in dw_i2c_plat_probe, but it still shoots off thousands of interrupts a
->> > > second (and they are apparently spurious interrupts, atleast accoding
->> > > to /proc/irq/17/spurious
->> > >
->> > > could you provide any guidance at all? would be much appreciated.. i
->> > > would love to fix this issue and get it upstreamed in the kernel if
->> > > possible.
->> > > thank you
->> >
->> > i2c_designware is a I2C bus master driver. It allows the host to
->> > communicate with various devices. Your touchpad is apparently one such
->> > device. But each device on the I2C bus needs its own driver. I have no
->> > idea which driver handles your touchpad device. Maybe someone on the
->> > linux-input list knows.
->> >
->> > Specifically, the interrupts handling has nothing to do with the I2C bus.
->> > Unlike PCIe, I2C provides no in-bus interrupt delivery facility. I2C
->> > devices usually use a separate dedicated interrupt line. So the spurious
->> > interrupts that you see must be handled at the touchpad input driver
->> > level.
->> >
->> > One thing that might help others help you is the version of the kernel you
->> > are running. Please provide the output of 'uname -rv' on your machine.
->>
->> uname -rv
->> 4.15.0-rc5 #2 SMP Thu Dec 28 18:21:06 CST 2017
->>
->> for what its worth, i think it might be hid_multitouch that is handling the
->> touchpad, since when i rmmod it, my touchpad is no longer active.
->
-> The hid-multitouch driver handles USB devices, not I2C. The code at
-> drivers/hid/hid-multitouch.c shows a few supported USB_VENDOR_ID_SYNAPTICS
-> (0x06cb) devices, but the 0x7a13 device ID does not appear there as of
-> v4.15-rc6. Maybe your kernel is patched to add support for that device.
->
-> I guess that i2c_designware appears on the device hierarchy because the
-> "smart" USB hub on your system is controlled over the I2C bus.
->
->> when you say that the touchpad driver handles the irq stuff... i am a
->> little confused because i2c-designware-platdrv.c contains this line:
->> irq = platform_get_irq(pdev, 0);
->
-> Do you have an indication that irq 17 belongs to i2c-designware?
->
-> The i2c-designware driver uses an interrupt to handle its hardware buffer, and
-> to receive transactions status. I2C is a slow protocol, so most controller
-> implementations are asynchronous. If this irq misbehaves, then there is most
-> likely a problem with the i2c-designware driver.
->
->> i would assume that hid_multitouch would contain irq related code if i am
->> understanding you correctly?
->> am i misunderstanding?
->
-> Since hid-multitouch is a USB driver, the irq handle itself is in the USB bus
-> driver.
->
-> baruch
->
-> --
->      http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-> =}------------------------------------------------ooO--U--Ooo------------{=
->    - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
+Hi Deepa,
 
+On Sun, Dec 17, 2017 at 09:18:43PM -0800, Deepa Dinamani wrote:
+> struct timeval is not y2038 safe.
+> 
+> All references to timeval in the kernel will be replaced
+> by y2038 safe structures.
+> Replace all references to timeval with y2038 safe
+> struct timespec64 here.
+> 
+> struct input_event will be changed in a different patch.
+> 
+> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+> ---
+>  drivers/input/evdev.c | 37 +++++++++++++++++++++++--------------
+>  1 file changed, 23 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index 0193dd4f0452..3171c4882d80 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -156,15 +156,22 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+>  {
+>  	struct input_event ev;
+> -	ktime_t time;
+> +	struct timespec64 ts;
+>  
+> -	time = client->clk_type == EV_CLK_REAL ?
+> -			ktime_get_real() :
+> -			client->clk_type == EV_CLK_MONO ?
+> -				ktime_get() :
+> -				ktime_get_boottime();
+> +	switch (client->clk_type) {
+> +	case EV_CLK_REAL:
+> +		ktime_get_real_ts64(&ts);
+> +		break;
+> +	case EV_CLK_MONO:
+> +		ktime_get_ts64(&ts);
+> +		break;
+> +	case EV_CLK_BOOT:
+> +		get_monotonic_boottime64(&ts);
+> +		break;
+> +	}
+>  
+> -	ev.time = ktime_to_timeval(time);
+> +	ev.time.tv_sec = ts.tv_sec;
+> +	ev.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+>  	ev.type = EV_SYN;
+>  	ev.code = SYN_DROPPED;
+>  	ev.value = 0;
+> @@ -257,17 +264,20 @@ static void __pass_event(struct evdev_client *client,
+>  
+>  static void evdev_pass_values(struct evdev_client *client,
+>  			const struct input_value *vals, unsigned int count,
+> -			ktime_t *ev_time)
+> +			struct timespec64 *ev_time)
+>  {
+>  	struct evdev *evdev = client->evdev;
+>  	const struct input_value *v;
+>  	struct input_event event;
+> +	struct timespec64 ts;
+>  	bool wakeup = false;
+>  
+>  	if (client->revoked)
+>  		return;
+>  
+> -	event.time = ktime_to_timeval(ev_time[client->clk_type]);
+> +	ts = ev_time[client->clk_type];
+> +	event.time.tv_sec = ts.tv_sec;
+> +	event.time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
+>  
+>  	/* Interrupts are disabled, just acquire the lock. */
+>  	spin_lock(&client->buffer_lock);
+> @@ -304,12 +314,11 @@ static void evdev_events(struct input_handle *handle,
+>  {
+>  	struct evdev *evdev = handle->private;
+>  	struct evdev_client *client;
+> -	ktime_t ev_time[EV_CLK_MAX];
+> +	struct timespec64 ev_time[EV_CLK_MAX];
+>  
+> -	ev_time[EV_CLK_MONO] = ktime_get();
+> -	ev_time[EV_CLK_REAL] = ktime_mono_to_real(ev_time[EV_CLK_MONO]);
+> -	ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_MONO],
+> -						 TK_OFFS_BOOT);
+> +	ktime_get_ts64(&ev_time[EV_CLK_MONO]);
+> +	ktime_get_real_ts64(&ev_time[EV_CLK_REAL]);
+> +	get_monotonic_boottime64(&ev_time[EV_CLK_BOOT]);
 
-uname -rv:
-4.15.0-rc5-00248-gf39d7d78b70e #2 SMP Sun Dec 31 18:17:25 CST 2017
+This may result in different ev_time[] members holding different times,
+whereas the original code would take one time sample and convert it to
+different clocks.
 
-the git commit i am at is f39d7d78b70e0f39facb1e4fab77ad3df5c52a35
+Also, why can't we keep using ktime_t internally? It is y2038 safe,
+right? I think you should drop this patch and adjust the 3rd one to
+massage the input event timestamp patch to do ktime->timespec64->input
+timestamp conversion.
 
-> Do you have an indication that irq 17 belongs to i2c-designware?
-from /proc/interrupts:
-  17:   47105193          0          0          0          0
-0          0          0  IR-IO-APIC   17-fasteoi   idma64.1,
-i2c_designware.1
+Thanks.
 
-if i rmmod idma64, the behavior remains the same, so im assuming this
-is all i2c_designware thats causing this problem.
-
-> then there is most likely a problem with the i2c-designware driver.
-do you have any idea what the problem might be? i know i should look
-in the code for i2c-designware, but why would a touchpad be shooting
-off interrupts like that with my finger simply resting on it?
-
-i have a theory, could you tell me if this makes sense?
-perhaps the touchpad hardware is configured with a very high
-sensitivity. so in theory if the sensitivity was decreased, then
-resting my finger would not trigger interrupts until i move it a
-larger amount?
+-- 
+Dmitry

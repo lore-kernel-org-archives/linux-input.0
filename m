@@ -1,70 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 1/3] uinput: Use monotonic times for uinput timestamps.
-Date: Mon, 1 Jan 2018 22:46:52 -0800
-Message-ID: <20180102064652.jjf4h4m33atgprbb@dtor-ws>
-References: <20171218051844.10193-1-deepa.kernel@gmail.com>
- <20171218051844.10193-2-deepa.kernel@gmail.com>
+Subject: Re: [PATCH] Input: misc: gpio_tilt: Delete driver
+Date: Mon, 1 Jan 2018 22:50:17 -0800
+Message-ID: <20180102065017.gobr623tzmhem7l7@dtor-ws>
+References: <20171227121547.20558-1-linus.walleij@linaro.org>
+ <14171345.p7a3jPx4Si@phil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:38775 "EHLO
+Received: from mail-it0-f65.google.com ([209.85.214.65]:38086 "EHLO
         mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751273AbeABGq4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 01:46:56 -0500
+        with ESMTP id S1751216AbeABGuU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 01:50:20 -0500
+Received: by mail-it0-f65.google.com with SMTP id r6so38457988itr.3
+        for <linux-input@vger.kernel.org>; Mon, 01 Jan 2018 22:50:20 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20171218051844.10193-2-deepa.kernel@gmail.com>
+In-Reply-To: <14171345.p7a3jPx4Si@phil>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
+To: Heiko Stuebner <heiko@sntech.de>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Sun, Dec 17, 2017 at 09:18:42PM -0800, Deepa Dinamani wrote:
-> struct timeval which is part of struct input_event to
-> maintain the event times is not y2038 safe.
+On Wed, Dec 27, 2017 at 02:51:45PM +0100, Heiko Stuebner wrote:
+> Hi Linus,
 > 
-> Real time timestamps are also not ideal for input_event
-> as this time can go backwards as noted in the patch
-> a80b83b7b8 by John Stultz.
+> Am Mittwoch, 27. Dezember 2017, 13:15:47 CET schrieb Linus Walleij:
+> > This driver was merged in 2011 as a tool for detecting the orientation
+> > of a screen. The device driver assumes board file setup using the
+> > platform data from <linux/input/gpio_tilt.h>. But no boards in the
+> > kernel tree defines this platform data.
+> > 
+> > As I am faced with refactoring drivers to use GPIO descriptors and
+> > pass decriptor tables from boards, or use the device tree device
+> > drivers like these creates a serious problem: I cannot fix them and
+> > cannot test them, not even compile-test them with a system actually
+> > using it (no in-tree boardfile).
+> > 
+> > I suggest to delete this driver and rewrite it using device tree if
+> > it is still in use on actively maintained systems.
+> > 
+> > I can also offer to rewrite it out of the blue using device tree if
+> > someone promise to test it and help me iterate it.
+> > 
+> > Cc: Heiko Stübner <heiko@sntech.de>
+> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> > ---
+> > Heiko: not meaning to be militant here, just contain the situation,
+> > as stated: if you like the driver and can test it, I can reimplement
+> > it from scratch using device tree.
 > 
-> The patch switches the timestamps to use monotonic time
-> from realtime time. This is assuming no one is using
-> absolute times from these timestamps.
+> It seems that piece of hardware (gpio-connected orientation-sensors)
+> was really only used in the one s3c24xx-based device I hacked on in 2011.
 > 
-> The structure to maintain input events will be changed
-> in a different patch.
+> I somehow lost focus from trying to do the s3c24xx devicetree migration
+> when I started hacking on Rockchip stuff, so while I do have the devices
+> still around, I don't think I'll find the time and energy trying to get a
+> recent kernel to run on them anyway, so I'm fine with dropping the driver.
+> It's simple enough to get reintroduced if someone really finds a device
+> using it or time to redo the ereader support using devicetree.
 > 
-> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-> Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+> So long story short
+> Acked-by: Heiko Stuebner <heiko@sntech.de>
 
 Applied, thank you.
-
-> ---
->  drivers/input/misc/uinput.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 91df0df15e68..9251765645d1 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -84,11 +84,14 @@ static int uinput_dev_event(struct input_dev *dev,
->  			    unsigned int type, unsigned int code, int value)
->  {
->  	struct uinput_device	*udev = input_get_drvdata(dev);
-> +	struct timespec64	ts;
->  
->  	udev->buff[udev->head].type = type;
->  	udev->buff[udev->head].code = code;
->  	udev->buff[udev->head].value = value;
-> -	do_gettimeofday(&udev->buff[udev->head].time);
-> +	ktime_get_ts64(&ts);
-> +	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
-> +	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
->  	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
->  
->  	wake_up_interruptible(&udev->waitq);
-> -- 
-> 2.14.1
-> 
 
 -- 
 Dmitry

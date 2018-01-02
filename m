@@ -1,41 +1,46 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [RFC PATCH] input: Add disable sysfs entry for every input device
-Date: Tue, 2 Jan 2018 22:54:37 +0100
-Message-ID: <20180102215437.i3x2j6jvxtac4ntt@pali>
-References: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com>
- <1483370825.2420.8.camel@hadess.net>
- <201701021809.58943@pali>
- <1483442481.2420.12.camel@hadess.net>
- <60c21c4d-bb81-342a-45e1-7e92313e05d7@gmail.com>
- <1483540655.2420.18.camel@hadess.net>
+From: Darren Hart <dvhart@infradead.org>
+Subject: Re: [PATCH v2] platform/x86: silead_dmi: Add entry for the Teclast
+ X98 Plus II
+Date: Tue, 2 Jan 2018 15:40:33 -0800
+Message-ID: <20180102234033.GB24794@fury>
+References: <20180102134239.3579-1-paul@crapouillou.net>
+ <20180102183928.15267-1-paul@crapouillou.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:38391 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750922AbeABXkh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 18:40:37 -0500
 Content-Disposition: inline
-In-Reply-To: <1483540655.2420.18.camel@hadess.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20180102183928.15267-1-paul@crapouillou.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andy@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wednesday 04 January 2017 15:37:35 Bastien Nocera wrote:
-> I don't doubt that the use cases should be catered for, I essentially
-> did that same work without kernel changes for GNOME. What I doubt is
-> the fuzzy semantics, the fact that the device is kept opened but no
-> data is sent (that's not power saving), that whether users are revoked
-> or should be revoked isn't clear, and that the goal is basically to
-> work around stupid input handling when at the console. When running a
-> display manager, this is all avoided.
+On Tue, Jan 02, 2018 at 07:39:27PM +0100, Paul Cercueil wrote:
+> Add touchscreen platform data for the Teclast X98 Plus II tablet.
 > 
-> If this were to go through, then the semantics and behaviour needs to
-> be better explained, power saving actually made possible, and make sure
-> that libinput can proxy that state to the users on the console. Or an
-> ioctl added to the evdev device to disable them.
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Acked-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/platform/x86/silead_dmi.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+>  v2: Rebased on top of http://git.infradead.org/users/dvhart/linux-platform-drivers-x86.git/shortlog/refs/heads/review-andy
 
-So, do you mean to implement this "disable" action as ioctl for
-particular /dev/input/event* device (instead of sysfs entry)?
+Generally "testing" is the branch you want to base on if linus/master
+doesn't work as the review-* branches *will* rebase frequently.
+Exceptions exist of course, and this patch is just fine - just for
+future reference.
+
+Andy pushed his changes to testing already, so this is no longer
+dependent on his review queue. I have applied to review-dvhart, will go
+to testing shortly.
+
+Thank you Paul.
 
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+Darren Hart
+VMware Open Source Technology Center

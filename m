@@ -1,67 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware
- ID"
-Date: Mon, 1 Jan 2018 23:08:11 -0800
-Message-ID: <20180102070811.p7gfaq3vr55sdbd3@dtor-ws>
-References: <20171230152213.GA2099@marax.lan.yath.de>
- <dcfb84c8-4ad8-8276-5451-ee91fc84f742@canonical.com>
- <20171231082646.GC25965@kroah.com>
- <901a0a66-eb83-9dcd-658c-5b09eabcab88@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: [PATCH] xen/input: do not advertise multi-touch pressure support
+Date: Tue,  2 Jan 2018 10:12:55 +0200
+Message-ID: <1514880775-31185-1-git-send-email-andr2000@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f53.google.com ([209.85.214.53]:40794 "EHLO
-        mail-it0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750787AbeABHIP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 02:08:15 -0500
-Received: by mail-it0-f53.google.com with SMTP id f190so38470105ita.5
-        for <linux-input@vger.kernel.org>; Mon, 01 Jan 2018 23:08:15 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <901a0a66-eb83-9dcd-658c-5b09eabcab88@canonical.com>
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:38388 "EHLO
+        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750736AbeABINJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 03:13:09 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Sebastian Schmidt <yath@yath.de>, linux-input@vger.kernel.org
+To: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: andr2000@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, Andrii Chepurnyi <andrii_chepurnyi@epam.com>
 
-Hi Aaron,
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-On Sun, Dec 31, 2017 at 04:51:09PM +0800, Aaron Ma wrote:
-> 1, Commit ec667683c53 addes support of the new trackpoint.
-> The trackpoint can be identified as "TPPS/2 IBM TrackPoint" and set
-> properties OK. Trackpoint enabled some enhanced features.
-> Without this commit there will be no scroll mode when xf86-input-evdev
-> is used.
-> 
-> 2, trackpoint.c export a speed of sysfs,
-> the speed sys file can't be set right value on X1 Carbon 5th. This issue
-> is caused by trackpoint firmware.
+Some user-space applications expect multi-touch pressure
+on contact to be reported if it is advertised in device
+properties. Otherwise, such applications may treat reports
+not as actual touches, but hovering. Currently this is
+only advertised, but not reported.
+Fix this by not advertising that ABS_MT_PRESSURE is supported.
 
-No, I do not believe that this is an issue with the firmware. Rather, it
-seems that Lenovo is multi-sourcing trackpoint for their devices, and
-not all of them implement the IBM trackpoint protocol. We will need to
-contact Elan to figure out what capabilities their trackpoints have.
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Signed-off-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-> Workaround is to use xinput/xorg/udev/GUI to set trackpoint speed.
-
-I'd rather we did not force users to do that.
-
-> 
-> 3, Windowds tool Trackpointdetect.exe shows it is ELAN (ID:03) in error log.
-> After debugging psmouse driver on it, the IDs and FW/hardware version is
-> not ELAN. Forcing to load ELAN driver will not make it work.
-
-We do not have a special driver for Elan trackpoints and if they do not
-fully implement IBM trackpoint protocol, then standard PS/2 mode should
-be used, at least until someone creates a proper Elan trackpoint driver.
-
-The original "magic ID" for the IBM trcakpoints was 0x1. This value was
-described in the original trackpoint spec and has not changed since late
-90th. Now we have 0x2 and 0x3. Could they indicate ALPS and Elan
-trackpoints respectively? What ID does your Yoga report? Does it support
-all features exported by the trackpoint driver (speed, sensitivity,
-inertia, etc)?
-
-Thanks.
-
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 6bf56bb5f8d9..d91f3b1c5375 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -326,8 +326,6 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 				     0, width, 0, 0);
+ 		input_set_abs_params(mtouch, ABS_MT_POSITION_Y,
+ 				     0, height, 0, 0);
+-		input_set_abs_params(mtouch, ABS_MT_PRESSURE,
+-				     0, 255, 0, 0);
+ 
+ 		ret = input_mt_init_slots(mtouch, num_cont, INPUT_MT_DIRECT);
+ 		if (ret) {
 -- 
-Dmitry
+2.7.4
+

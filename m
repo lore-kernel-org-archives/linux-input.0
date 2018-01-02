@@ -1,45 +1,88 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware
- ID"
-Date: Tue, 2 Jan 2018 21:57:55 +0800
-Message-ID: <ac087ae7-54d4-d038-daa7-048c87368d17@canonical.com>
-References: <20171230152213.GA2099@marax.lan.yath.de>
- <dcfb84c8-4ad8-8276-5451-ee91fc84f742@canonical.com>
- <20171231082646.GC25965@kroah.com>
- <901a0a66-eb83-9dcd-658c-5b09eabcab88@canonical.com>
- <20180102070811.p7gfaq3vr55sdbd3@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] platform/x86: silead_dmi: Add entry for the Teclast X98
+ Plus II
+Date: Tue, 2 Jan 2018 16:34:27 +0100
+Message-ID: <997c8889-4e7f-89e3-b8a5-0cccd3cf5000@redhat.com>
+References: <20180102134239.3579-1-paul@crapouillou.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:45373 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752359AbeABN6F (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 08:58:05 -0500
-In-Reply-To: <20180102070811.p7gfaq3vr55sdbd3@dtor-ws>
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20180102134239.3579-1-paul@crapouillou.net>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Paul Cercueil <paul@crapouillou.net>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Sebastian Schmidt <yath@yath.de>, linux-input@vger.kernel.org
 
-No, it is not a regression of this commit.
+Hi,
 
-ThinkPad X1 Yoga 2nd:
-   trackpoint (ID: 01)
+On 02-01-18 14:42, Paul Cercueil wrote:
+> Add touchscreen platform data for the Teclast X98 Plus II tablet.
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 
-ThinkPad X1 Yoga 3rd:
-   trackpoint (ID: 03)
+Looks good to me:
 
-Both laptop's trackpoints have the same behavior.
-Writing "speed" of sysfs is failed.
+Acked-by: Hans de Goede <hdegoede@redhat.com>
 
-Override the ID and force loading drivers/input/mouse/elantech.c,
-it causes too many failure and trackpoint stops work.
+You should probably send a v2 rebased on top of:
 
-The ID of "2.4.18 READ SECONDARY ID (x"E1")" in TrackPoint specification
-does not indicate any other vendors but only trackpoint.
-Elantech uses 0x03e9.
-ALPS uses 0x00e6/0x00e7/0x00ec.
+http://git.infradead.org/users/dvhart/linux-platform-drivers-x86.git/shortlog/refs/heads/review-andy
 
-Maybe the windows tool's is wrong like Linux driver before.
+Which has several additional entries compared to the version you
+used as base.
+
+Regards,
+
+Hans
+
+
+
+> ---
+>   drivers/platform/x86/silead_dmi.c | 24 ++++++++++++++++++++++++
+>   1 file changed, 24 insertions(+)
+> 
+> diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
+> index 266535c2a72f..ebe8692a2868 100644
+> --- a/drivers/platform/x86/silead_dmi.c
+> +++ b/drivers/platform/x86/silead_dmi.c
+> @@ -171,6 +171,22 @@ static const struct silead_ts_dmi_data digma_citi_e200_data = {
+>   	.properties	= digma_citi_e200_props,
+>   };
+>   
+> +static const struct property_entry teclast_x98plus2_props[] = {
+> +	PROPERTY_ENTRY_U32("touchscreen-size-x", 2048),
+> +	PROPERTY_ENTRY_U32("touchscreen-size-y", 1280),
+> +	PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
+> +	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
+> +	PROPERTY_ENTRY_STRING("firmware-name",
+> +			      "gsl1686-teclast_x98plus2.fw"),
+> +	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+> +	{ }
+> +};
+> +
+> +static const struct silead_ts_dmi_data teclast_x98plus2_data = {
+> +	.acpi_name	= "MSSL1680:00",
+> +	.properties	= teclast_x98plus2_props,
+> +};
+> +
+>   static const struct dmi_system_id silead_ts_dmi_table[] = {
+>   	{
+>   		/* CUBE iwork8 Air */
+> @@ -271,6 +287,14 @@ static const struct dmi_system_id silead_ts_dmi_table[] = {
+>   			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+>   		},
+>   	},
+> +	{
+> +		/* Teclast X98 Plus II */
+> +		.driver_data = (void *)&teclast_x98plus2_data,
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "X98 Plus II"),
+> +		},
+> +	},
+>   	{ },
+>   };
+>   
+> 

@@ -1,80 +1,57 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: [PATCH 2/2] HID: i2c-hid: Fix resume issue on Raydium touchscreen device
-Date: Wed,  3 Jan 2018 01:30:06 +0800
-Message-ID: <20180102173006.506-2-aaron.ma@canonical.com>
-References: <20180102173006.506-1-aaron.ma@canonical.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180102173006.506-1-aaron.ma@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com, aaron.ma@canonical.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] xen/input: do not advertise multi-touch pressure support
+Date: Tue, 2 Jan 2018 09:39:53 -0800
+Message-ID: <20180102173953.tje4tz2ng3fnfijw@dtor-ws>
+References: <1514880775-31185-1-git-send-email-andr2000@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-it0-f65.google.com ([209.85.214.65]:35138 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751211AbeABRj5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 12:39:57 -0500
+Content-Disposition: inline
+In-Reply-To: <1514880775-31185-1-git-send-email-andr2000@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oleksandr Andrushchenko <andr2000@gmail.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, Andrii Chepurnyi <andrii_chepurnyi@epam.com>
 
-When Rayd touchscreen resumed from S3, it issues too many errors like:
-i2c_hid i2c-RAYD0001:00: i2c_hid_get_input: incomplete report (58/5442)
+On Tue, Jan 02, 2018 at 10:12:55AM +0200, Oleksandr Andrushchenko wrote:
+> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> 
+> Some user-space applications expect multi-touch pressure
+> on contact to be reported if it is advertised in device
+> properties. Otherwise, such applications may treat reports
+> not as actual touches, but hovering. Currently this is
+> only advertised, but not reported.
+> Fix this by not advertising that ABS_MT_PRESSURE is supported.
+> 
+> Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> Signed-off-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
 
-And all the report data are corrupted, touchscreen is unresponsive.
+Applied, thank you.
 
-Fix this by re-sending report description command after resume.
-Add device ID as a quirk.
+> ---
+>  drivers/input/misc/xen-kbdfront.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+> index 6bf56bb5f8d9..d91f3b1c5375 100644
+> --- a/drivers/input/misc/xen-kbdfront.c
+> +++ b/drivers/input/misc/xen-kbdfront.c
+> @@ -326,8 +326,6 @@ static int xenkbd_probe(struct xenbus_device *dev,
+>  				     0, width, 0, 0);
+>  		input_set_abs_params(mtouch, ABS_MT_POSITION_Y,
+>  				     0, height, 0, 0);
+> -		input_set_abs_params(mtouch, ABS_MT_PRESSURE,
+> -				     0, 255, 0, 0);
+>  
+>  		ret = input_mt_init_slots(mtouch, num_cont, INPUT_MT_DIRECT);
+>  		if (ret) {
+> -- 
+> 2.7.4
+> 
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
----
- drivers/hid/hid-ids.h         |  3 +++
- drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++++++++
- 2 files changed, 16 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5da3d6256d25..753cc10aa699 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -516,6 +516,9 @@
- #define I2C_VENDOR_ID_HANTICK		0x0911
- #define I2C_PRODUCT_ID_HANTICK_5288	0x5288
- 
-+#define I2C_VENDOR_ID_RAYD		0x2386
-+#define I2C_PRODUCT_ID_RAYD_3118	0x3118
-+
- #define USB_VENDOR_ID_HANWANG		0x0b57
- #define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
- #define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 09404ffdb08b..57a447a9d40e 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -47,6 +47,7 @@
- /* quirks to control the device */
- #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
- #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
-+#define I2C_HID_QUIRK_RESEND_REPORT_DESCR	BIT(2)
- 
- /* flags */
- #define I2C_HID_STARTED		0
-@@ -171,6 +172,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
- 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-+	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
-+		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
- 	{ 0, 0 }
- };
- 
-@@ -1211,6 +1214,16 @@ static int i2c_hid_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
-+	/* RAYDIUM device (2386:3118) need to re-send report descr cmd
-+	 * after resume, after this it will be back normal.
-+	 * otherwise it issues too many incomplete reports.
-+	 */
-+	if (ihid->quirks & I2C_HID_QUIRK_RESEND_REPORT_DESCR) {
-+		ret = i2c_hid_command(client, &hid_report_descr_cmd, NULL, 0);
-+		if (!ret)
-+			return ret;
-+	}
-+
- 	if (hid->driver && hid->driver->reset_resume) {
- 		ret = hid->driver->reset_resume(hid);
- 		return ret;
 -- 
-2.14.3
+Dmitry

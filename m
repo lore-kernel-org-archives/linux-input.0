@@ -1,57 +1,54 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [RFC PATCH] input: Add disable sysfs entry for every input
- device
-Date: Wed, 03 Jan 2018 02:47:29 +0100
-Message-ID: <1514944049.2523.28.camel@hadess.net>
-References: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com>
-         <1483370825.2420.8.camel@hadess.net> <201701021809.58943@pali>
-         <1483442481.2420.12.camel@hadess.net>
-         <60c21c4d-bb81-342a-45e1-7e92313e05d7@gmail.com>
-         <1483540655.2420.18.camel@hadess.net>
-         <20180102215437.i3x2j6jvxtac4ntt@pali>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] platform/x86: silead_dmi: Add entry for the Teclast
+ X98 Plus II
+Date: Wed, 3 Jan 2018 09:01:34 +0100
+Message-ID: <5c5301e1-48f5-5762-b1d8-95e5f4a2bd8d@redhat.com>
+References: <20180102134239.3579-1-paul@crapouillou.net>
+ <20180102183928.15267-1-paul@crapouillou.net> <20180102234033.GB24794@fury>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay5-d.mail.gandi.net ([217.70.183.197]:55835 "EHLO
-        relay5-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751013AbeACBre (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 Jan 2018 20:47:34 -0500
-In-Reply-To: <20180102215437.i3x2j6jvxtac4ntt@pali>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35597 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751154AbeACIBh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Jan 2018 03:01:37 -0500
+Received: by mail-wm0-f66.google.com with SMTP id a79so1174012wma.0
+        for <linux-input@vger.kernel.org>; Wed, 03 Jan 2018 00:01:36 -0800 (PST)
+In-Reply-To: <20180102234033.GB24794@fury>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>, Paul Cercueil <paul@crapouillou.net>
+Cc: Andy Shevchenko <andy@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 2018-01-02 at 22:54 +0100, Pali Rohár wrote:
-> On Wednesday 04 January 2017 15:37:35 Bastien Nocera wrote:
-> > I don't doubt that the use cases should be catered for, I
-> > essentially
-> > did that same work without kernel changes for GNOME. What I doubt
-> > is
-> > the fuzzy semantics, the fact that the device is kept opened but no
-> > data is sent (that's not power saving), that whether users are
-> > revoked
-> > or should be revoked isn't clear, and that the goal is basically to
-> > work around stupid input handling when at the console. When running
-> > a
-> > display manager, this is all avoided.
-> > 
-> > If this were to go through, then the semantics and behaviour needs
-> > to
-> > be better explained, power saving actually made possible, and make
-> > sure
-> > that libinput can proxy that state to the users on the console. Or
-> > an
-> > ioctl added to the evdev device to disable them.
+Hi,
+
+On 03-01-18 00:40, Darren Hart wrote:
+> On Tue, Jan 02, 2018 at 07:39:27PM +0100, Paul Cercueil wrote:
+>> Add touchscreen platform data for the Teclast X98 Plus II tablet.
+>>
+>> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>> Acked-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/platform/x86/silead_dmi.c | 24 ++++++++++++++++++++++++
+>>   1 file changed, 24 insertions(+)
+>>
+>>   v2: Rebased on top of http://git.infradead.org/users/dvhart/linux-platform-drivers-x86.git/shortlog/refs/heads/review-andy
 > 
-> So, do you mean to implement this "disable" action as ioctl for
-> particular /dev/input/event* device (instead of sysfs entry)?
+> Generally "testing" is the branch you want to base on if linus/master
+> doesn't work as the review-* branches *will* rebase frequently.
+> Exceptions exist of course, and this patch is just fine - just for
+> future reference.
 
-Yes, so the device can be powered down without the device node being
-closed and made unavailable. I don't know whether that's something
-that's already possible for all cases, but there's already
-opportunistic in a lot of drivers and subsystems.
+This is my "fault", I asked Paul to rebase on top of
+review-andy as that had 1 new silead_dmi patches missing
+from testing, so otherwise we would end up with a conflict when
+merging review branches. Same reason why I've been basing my
+silead_dmi patches on top of review-andy even though that is
+an unusual base to use.
 
-This opens up a whole new wave of potential problems, but it's a more
-generally useful mechanism, I would think.
+Regards,
+
+Hans
+

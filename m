@@ -1,98 +1,118 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Fix resume issue on Raydium touchscreen device
-Date: Thu, 4 Jan 2018 11:34:10 +0100
-Message-ID: <CAO-hwJJ3n3YD1+pKvKRRoCX8y-5xZwemKLuLi7aqWSQT=J645A@mail.gmail.com>
-References: <20180102173006.506-1-aaron.ma@canonical.com> <20180102173006.506-2-aaron.ma@canonical.com>
+Subject: Re: [PATCH 1/2] HID: core: i2c-hid: fix size check and type usage
+Date: Thu, 4 Jan 2018 11:44:04 +0100
+Message-ID: <CAO-hwJ+3Dz3g410cHwz3o_0f=2J2aa=+E5RY2sG28amjw8LcHQ@mail.gmail.com>
+References: <20180102173006.506-1-aaron.ma@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180102173006.506-2-aaron.ma@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:34912 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752721AbeADKoF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 4 Jan 2018 05:44:05 -0500
+Received: by mail-qt0-f193.google.com with SMTP id u10so1353623qtg.2
+        for <linux-input@vger.kernel.org>; Thu, 04 Jan 2018 02:44:05 -0800 (PST)
+In-Reply-To: <20180102173006.506-1-aaron.ma@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Aaron Ma <aaron.ma@canonical.com>
 Cc: lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
-List-Id: linux-input@vger.kernel.org
 
 Hi Aaron,
 
+There are quite some changes I'd like to see in this patch. See below.
+
 On Tue, Jan 2, 2018 at 6:30 PM, Aaron Ma <aaron.ma@canonical.com> wrote:
-> When Rayd touchscreen resumed from S3, it issues too many errors like:
-> i2c_hid i2c-RAYD0001:00: i2c_hid_get_input: incomplete report (58/5442)
+> When convert char array with signed int, if the inbuf[x] is negative then
+> upper bits will be set to 1. Fix this by using u8 instead of char.
 >
-> And all the report data are corrupted, touchscreen is unresponsive.
+> ret_size has to be at least 3, hid_input_report use it after minus 2 bytes.
 >
-> Fix this by re-sending report description command after resume.
-
-Is this something the Windows driver does unconditionally?
-I'd rather not add a quirk if the Windows driver does it all the time,
-and hardware manufacturers start relying on it.
-
-Otherwise, the patch looks good, I just want to be sure that we
-actually need the quirk or if we should do it all the time.
-
-Cheers,
-Benjamin
-
-> Add device ID as a quirk.
+> size should be more than 0 to keep memset safe.
 >
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
 > ---
->  drivers/hid/hid-ids.h         |  3 +++
->  drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++++++++
->  2 files changed, 16 insertions(+)
+>  drivers/hid/hid-core.c        |  4 ++--
+>  drivers/hid/i2c-hid/i2c-hid.c | 10 +++++-----
+
+I'd like to have this patch at least split in 2. One for hid-core, one
+for i2c-hid.
+Both files are not targeting the same issue, so it would make sense to
+not have them in the same patch.
+
+>  2 files changed, 7 insertions(+), 7 deletions(-)
 >
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 5da3d6256d25..753cc10aa699 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -516,6 +516,9 @@
->  #define I2C_VENDOR_ID_HANTICK          0x0911
->  #define I2C_PRODUCT_ID_HANTICK_5288    0x5288
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 0c3f608131cf..992547771d96 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1506,7 +1506,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
+>         if (rsize > HID_MAX_BUFFER_SIZE)
+>                 rsize = HID_MAX_BUFFER_SIZE;
 >
-> +#define I2C_VENDOR_ID_RAYD             0x2386
-> +#define I2C_PRODUCT_ID_RAYD_3118       0x3118
-> +
->  #define USB_VENDOR_ID_HANWANG          0x0b57
->  #define USB_DEVICE_ID_HANWANG_TABLET_FIRST     0x5000
->  #define USB_DEVICE_ID_HANWANG_TABLET_LAST      0x8fff
+> -       if (csize < rsize) {
+> +       if ((csize < rsize) && (csize > 0)) {
+
+I would think a call to this function with a csize <= 0 is a reason to fail.
+
+And actually, I think an other thing we shouold do is changing the
+prototype to have an unsigned int for size instead of a simple int.
+Tracking the impact of such change might involve a bigger patch than a
+simple check here, but we should be able to at least have the compiler
+complaining if some driver starts using negative values.
+
+>                 dbg_hid("report %d is too short, (%d < %d)\n", report->id,
+>                                 csize, rsize);
+>                 memset(cdata + csize, 0, rsize - csize);
+> @@ -1566,7 +1566,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+>         report_enum = hid->report_enum + type;
+>         hdrv = hid->driver;
+>
+> -       if (!size) {
+> +       if (size <= 0) {
+
+This should also be solved by changing the prototype of the function.
+
+>                 dbg_hid("empty report\n");
+>                 ret = -1;
+>                 goto unlock;
 > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 09404ffdb08b..57a447a9d40e 100644
+> index e054ee43c1e2..09404ffdb08b 100644
 > --- a/drivers/hid/i2c-hid/i2c-hid.c
 > +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -47,6 +47,7 @@
->  /* quirks to control the device */
->  #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV       BIT(0)
->  #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET       BIT(1)
-> +#define I2C_HID_QUIRK_RESEND_REPORT_DESCR      BIT(2)
+> @@ -144,10 +144,10 @@ struct i2c_hid {
+>                                                    * register of the HID
+>                                                    * descriptor. */
+>         unsigned int            bufsize;        /* i2c buffer size */
+> -       char                    *inbuf;         /* Input buffer */
+> -       char                    *rawbuf;        /* Raw Input buffer */
+> -       char                    *cmdbuf;        /* Command buffer */
+> -       char                    *argsbuf;       /* Command arguments buffer */
+> +       u8                      *inbuf;         /* Input buffer */
+> +       u8                      *rawbuf;        /* Raw Input buffer */
+> +       u8                      *cmdbuf;        /* Command buffer */
+> +       u8                      *argsbuf;       /* Command arguments buffer */
 >
->  /* flags */
->  #define I2C_HID_STARTED                0
-> @@ -171,6 +172,8 @@ static const struct i2c_hid_quirks {
->                 I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
->         { I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
->                 I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-> +       { I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
-> +               I2C_HID_QUIRK_RESEND_REPORT_DESCR },
->         { 0, 0 }
->  };
+>         unsigned long           flags;          /* device flags */
+>         unsigned long           quirks;         /* Various quirks */
+> @@ -473,7 +473,7 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
 >
-> @@ -1211,6 +1214,16 @@ static int i2c_hid_resume(struct device *dev)
->         if (ret)
->                 return ret;
+>         ret_size = ihid->inbuf[0] | ihid->inbuf[1] << 8;
 >
-> +       /* RAYDIUM device (2386:3118) need to re-send report descr cmd
-> +        * after resume, after this it will be back normal.
-> +        * otherwise it issues too many incomplete reports.
-> +        */
-> +       if (ihid->quirks & I2C_HID_QUIRK_RESEND_REPORT_DESCR) {
-> +               ret = i2c_hid_command(client, &hid_report_descr_cmd, NULL, 0);
-> +               if (!ret)
-> +                       return ret;
-> +       }
-> +
->         if (hid->driver && hid->driver->reset_resume) {
->                 ret = hid->driver->reset_resume(hid);
->                 return ret;
+> -       if (!ret_size) {
+> +       if (ret_size <= 2) {
+
+Please do a separate case, after this one. RESET is acked by a size of
+0, a size of 1 or 2 is a bug that needs to be fixed from the HW point
+of view.
+
+Cheers,
+Benjamin
+
+>                 /* host or device initiated RESET completed */
+>                 if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
+>                         wake_up(&ihid->wait);
 > --
 > 2.14.3
 >

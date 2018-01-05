@@ -1,121 +1,85 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] driver: input :touchscreen :Modify Raydium Firmware
- update input file
-Date: Thu, 4 Jan 2018 21:53:38 -0800
-Message-ID: <20180105055338.cogtaty5p5r5gglt@dtor-ws>
-References: <20171221135122.345-1-jeffrey.lin@raydium.corp-partner.google.com>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH] Input: stmfts,s6sy671 - add SPDX identifier
+Date: Fri, 05 Jan 2018 18:57:15 +0900
+Message-ID: <20180105095715.GA6679@gangnam.samsung>
+References: <CGME20171212074156epcas2p4fefff65c3316ec1aa9b3d7797aaca550@epcas2p4.samsung.com>
+        <20171212074149.7844-1-andi.shyti@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:38346 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751220AbeAEFxm (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 5 Jan 2018 00:53:42 -0500
-Content-Disposition: inline
-In-Reply-To: <20171221135122.345-1-jeffrey.lin@raydium.corp-partner.google.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-disposition: inline
+In-reply-to: <20171212074149.7844-1-andi.shyti@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
-To: "jeffrey.lin" <yajohn@gmail.com>
-Cc: groeck@chromium.org, keith.tzeng@quantatw.com, Katherine.Hsieh@quantatw.com, bleung@google.com, jeffrey.lin@rad-ic.com, KP.li@rad-ic.com, albert.shieh@rad-ic.com, calvin.tseng@rad-ic.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Jeffrey,
+Hi Dmitry,
 
-On Thu, Dec 21, 2017 at 09:51:22PM +0800, jeffrey.lin wrote:
-> Modify update firmware to accept alternative file name
+this is a kind ping, would you also mind giving me a feedback to
+all the previous patches I sent?
+
+Thanks,
+Andi
+
+On Tue, Dec 12, 2017 at 04:41:49PM +0900, Andi Shyti wrote:
+> Replace the original license statement with the SPDX identifier.
 > 
-> Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
+> Update also the copyright owner adding myself as co-owner of the
+> copyright.
+> 
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
 > ---
->  drivers/input/touchscreen/raydium_i2c_ts.c | 11 ++++++++---
->  1 file changed, 8 insertions(+), 3 deletions(-)
+>  drivers/input/touchscreen/s6sy761.c | 15 +++++----------
+>  drivers/input/touchscreen/stmfts.c  | 15 +++++----------
+>  2 files changed, 10 insertions(+), 20 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-> index a99fb5cac5a0..439d43c3519c 100644
-> --- a/drivers/input/touchscreen/raydium_i2c_ts.c
-> +++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-> @@ -130,6 +130,7 @@ struct raydium_data {
->  	struct gpio_desc *reset_gpio;
+> diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
+> index 26b1cb8a88ec..675efa93d444 100644
+> --- a/drivers/input/touchscreen/s6sy761.c
+> +++ b/drivers/input/touchscreen/s6sy761.c
+> @@ -1,13 +1,8 @@
+> -/*
+> - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> - * Author: Andi Shyti <andi.shyti@samsung.com>
+> - *
+> - * This program is free software; you can redistribute it and/or modify
+> - * it under the terms of the GNU General Public License version 2 as
+> - * published by the Free Software Foundation.
+> - *
+> - * Samsung S6SY761 Touchscreen device driver
+> - */
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Samsung S6SY761 Touchscreen device driver
+> +//
+> +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
 >  
->  	struct raydium_info info;
-> +	char fw_file[64];
-
-You do not really need to keep the firmware name in driver data, just
-use a temporary in raydium_i2c_fw_update().
-
+>  #include <asm/unaligned.h>
+>  #include <linux/delay.h>
+> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+> index c12d01899939..2a123e20a42e 100644
+> --- a/drivers/input/touchscreen/stmfts.c
+> +++ b/drivers/input/touchscreen/stmfts.c
+> @@ -1,13 +1,8 @@
+> -/*
+> - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> - * Author: Andi Shyti <andi.shyti@samsung.com>
+> - *
+> - * This program is free software; you can redistribute it and/or modify
+> - * it under the terms of the GNU General Public License version 2 as
+> - * published by the Free Software Foundation.
+> - *
+> - * STMicroelectronics FTS Touchscreen device driver
+> - */
+> +// SPDX-License-Identifier: GPL-2.0
+> +// STMicroelectronics FTS Touchscreen device driver
+> +//
+> +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
 >  
->  	struct mutex sysfs_mutex;
->  
-> @@ -752,12 +753,16 @@ static int raydium_i2c_fw_update(struct raydium_data *ts)
->  {
->  	struct i2c_client *client = ts->client;
->  	const struct firmware *fw = NULL;
-> -	const char *fw_file = "raydium.fw";
->  	int error;
->  
-> -	error = request_firmware(&fw, fw_file, &client->dev);
-> +	/* Firmware name */
-> +	snprintf(ts->fw_file, sizeof(ts->fw_file),
-> +		"raydium_%x.fw", ts->info.hw_ver);
-
-hw_ver is LE32, you need to convert it to CPU endianness before using.
-Also it would be better if we used the same encoding for the hardware
-version as the one that we use when we output it in sysfs. It makes
-userspace life a bit easier I think.
-
-How about the version of the patch below?
-
-Thanks.
-
--- 
-Dmitry
-
-
-Input: raydium_i2c_ts - include hardware version in firmware name
-
-From: Jeffrey Lin <jeffrey.lin@rad-ic.com>
-
-Add hardware version to the firmware file name to handle scenarios where
-single system image supports variety of devices.
-
-Signed-off-by: Jeffrey Lin <jeffrey.lin@rad-ic.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/raydium_i2c_ts.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 100538d64fff..d1c09e6a2cb6 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -752,13 +752,20 @@ static int raydium_i2c_fw_update(struct raydium_data *ts)
- {
- 	struct i2c_client *client = ts->client;
- 	const struct firmware *fw = NULL;
--	const char *fw_file = "raydium.fw";
-+	char *fw_file;
- 	int error;
- 
-+	fw_file = kasprintf(GFP_KERNEL, "raydium_%#04x.fw",
-+			    le32_to_cpu(ts->info.hw_ver));
-+	if (!fw_file)
-+		return -ENOMEM;
-+
-+	dev_dbg(&client->dev, "firmware name: %s\n", fw_file);
-+
- 	error = request_firmware(&fw, fw_file, &client->dev);
- 	if (error) {
- 		dev_err(&client->dev, "Unable to open firmware %s\n", fw_file);
--		return error;
-+		goto out_free_fw_file;
- 	}
- 
- 	disable_irq(client->irq);
-@@ -787,6 +794,9 @@ static int raydium_i2c_fw_update(struct raydium_data *ts)
- 
- 	release_firmware(fw);
- 
-+out_free_fw_file:
-+	kfree(fw_file);
-+
- 	return error;
- }
- 
+>  #include <linux/delay.h>
+>  #include <linux/i2c.h>
+> -- 
+> 2.15.1
+> 

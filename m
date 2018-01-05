@@ -1,85 +1,67 @@
-From: Andi Shyti <andi.shyti@samsung.com>
-Subject: Re: [PATCH] Input: stmfts,s6sy671 - add SPDX identifier
-Date: Fri, 05 Jan 2018 18:57:15 +0900
-Message-ID: <20180105095715.GA6679@gangnam.samsung>
-References: <CGME20171212074156epcas2p4fefff65c3316ec1aa9b3d7797aaca550@epcas2p4.samsung.com>
-        <20171212074149.7844-1-andi.shyti@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-disposition: inline
-In-reply-to: <20171212074149.7844-1-andi.shyti@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/2] HID: asus: Add touchpad max x/y and resolution info for the T200TA
+Date: Fri,  5 Jan 2018 12:09:18 +0100
+Message-ID: <20180105110919.30399-1-hdegoede@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:52792 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750992AbeAELJY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 5 Jan 2018 06:09:24 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Hi Dmitry,
+The Asus T200TA uses the same USB device-id for its keyboard dock as the
+T100TA, but the touchpad has a different size and corresponding different
+max x/y values.
 
-this is a kind ping, would you also mind giving me a feedback to
-all the previous patches I sent?
+Add a separate asus_touchpad_info struct for the T200TA and select this
+based on the DMI product-name (as we are already doing for the T100HA),
+so that we report the correct info to userspace.
 
-Thanks,
-Andi
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hid/hid-asus.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-On Tue, Dec 12, 2017 at 04:41:49PM +0900, Andi Shyti wrote:
-> Replace the original license statement with the SPDX identifier.
-> 
-> Update also the copyright owner adding myself as co-owner of the
-> copyright.
-> 
-> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> ---
->  drivers/input/touchscreen/s6sy761.c | 15 +++++----------
->  drivers/input/touchscreen/stmfts.c  | 15 +++++----------
->  2 files changed, 10 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
-> index 26b1cb8a88ec..675efa93d444 100644
-> --- a/drivers/input/touchscreen/s6sy761.c
-> +++ b/drivers/input/touchscreen/s6sy761.c
-> @@ -1,13 +1,8 @@
-> -/*
-> - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> - * Author: Andi Shyti <andi.shyti@samsung.com>
-> - *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License version 2 as
-> - * published by the Free Software Foundation.
-> - *
-> - * Samsung S6SY761 Touchscreen device driver
-> - */
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Samsung S6SY761 Touchscreen device driver
-> +//
-> +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
->  
->  #include <asm/unaligned.h>
->  #include <linux/delay.h>
-> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-> index c12d01899939..2a123e20a42e 100644
-> --- a/drivers/input/touchscreen/stmfts.c
-> +++ b/drivers/input/touchscreen/stmfts.c
-> @@ -1,13 +1,8 @@
-> -/*
-> - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> - * Author: Andi Shyti <andi.shyti@samsung.com>
-> - *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License version 2 as
-> - * published by the Free Software Foundation.
-> - *
-> - * STMicroelectronics FTS Touchscreen device driver
-> - */
-> +// SPDX-License-Identifier: GPL-2.0
-> +// STMicroelectronics FTS Touchscreen device driver
-> +//
-> +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
->  
->  #include <linux/delay.h>
->  #include <linux/i2c.h>
-> -- 
-> 2.15.1
-> 
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 6d2894b7d8e7..07525bc99b6a 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -129,6 +129,15 @@ static const struct asus_touchpad_info asus_t100ha_tp = {
+ 	.max_contacts = 5,
+ };
+ 
++static const struct asus_touchpad_info asus_t200ta_tp = {
++	.max_x = 3120,
++	.max_y = 1716,
++	.res_x = 30, /* units/mm */
++	.res_y = 28, /* units/mm */
++	.contact_size = 5,
++	.max_contacts = 5,
++};
++
+ static const struct asus_touchpad_info asus_t100chi_tp = {
+ 	.max_x = 2640,
+ 	.max_y = 1320,
+@@ -617,11 +626,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		if (intf->altsetting->desc.bInterfaceNumber == T100_TPAD_INTF) {
+ 			drvdata->quirks = QUIRK_SKIP_INPUT_MAPPING;
+ 			/*
+-			 * The T100HA uses the same USB-ids as the T100TAF,
+-			 * but has different max_x / max_y values.
++			 * The T100HA uses the same USB-ids as the T100TAF and
++			 * the T200TA uses the same USB-ids as the T100TA, while
++			 * both have different max x/y values as the T100TA[F].
+ 			 */
+ 			if (dmi_match(DMI_PRODUCT_NAME, "T100HAN"))
+ 				drvdata->tp = &asus_t100ha_tp;
++			else if (dmi_match(DMI_PRODUCT_NAME, "T200TA"))
++				drvdata->tp = &asus_t200ta_tp;
+ 			else
+ 				drvdata->tp = &asus_t100ta_tp;
+ 		}
+-- 
+2.14.3
+

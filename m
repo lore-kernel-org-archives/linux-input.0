@@ -1,87 +1,103 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware
- ID"
-Date: Fri, 5 Jan 2018 08:23:13 -0800
-Message-ID: <20180105162313.higyrbd6unumgtjb@dtor-ws>
-References: <20171230152213.GA2099@marax.lan.yath.de>
- <dcfb84c8-4ad8-8276-5451-ee91fc84f742@canonical.com>
- <20171231082646.GC25965@kroah.com>
- <901a0a66-eb83-9dcd-658c-5b09eabcab88@canonical.com>
- <20180102070811.p7gfaq3vr55sdbd3@dtor-ws>
- <ac087ae7-54d4-d038-daa7-048c87368d17@canonical.com>
- <20180105005659.j2x56opkq74wm7v2@dtor-ws>
- <598ac534-ed9b-1377-70c5-eec7b7521755@canonical.com>
+Subject: Re: [PATCH] Input: stmfts,s6sy671 - add SPDX identifier
+Date: Fri, 5 Jan 2018 08:49:58 -0800
+Message-ID: <20180105164958.csojn6vhy72bwoac@dtor-ws>
+References: <CGME20171212074156epcas2p4fefff65c3316ec1aa9b3d7797aaca550@epcas2p4.samsung.com>
+ <20171212074149.7844-1-andi.shyti@samsung.com>
+ <20180105095715.GA6679@gangnam.samsung>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f52.google.com ([74.125.83.52]:41401 "EHLO
-        mail-pg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751870AbeAEQXR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 5 Jan 2018 11:23:17 -0500
-Received: by mail-pg0-f52.google.com with SMTP id 77so2157148pgd.8
-        for <linux-input@vger.kernel.org>; Fri, 05 Jan 2018 08:23:17 -0800 (PST)
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <598ac534-ed9b-1377-70c5-eec7b7521755@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20180105095715.GA6679@gangnam.samsung>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Sebastian Schmidt <yath@yath.de>, linux-input@vger.kernel.org
 
-Hi Aaron,
+Hi Andi,
 
-On Fri, Jan 05, 2018 at 09:29:26PM +0800, Aaron Ma wrote:
-> Hi Dmitry:
+On Fri, Jan 05, 2018 at 06:57:15PM +0900, Andi Shyti wrote:
+> Hi Dmitry,
 > 
-> Got the official info from Lenovo:
-> Lenovo introduced new TrackPoint compatible sticks ( ELAN/Alps/NXP
-> sticks) from 2016.
-> These new devices only support the minimum commands described in the
-> spec, which has been used in the current Windows driver.
+> this is a kind ping, would you also mind giving me a feedback to
 
-What is the exact list of the commands supported by each variant?
+Yes, sorry. Could you please split the patch for each driver
+individually? Also, until we have an update to the CodingStyle doc
+mandating the C++ style comments, I'd prefer keeping the original style
+of comments. So // for the SPDX line and /* */ for the rest.
 
-> 
-> Legacy TrackPoint: 0101 – 0E01
-> ALPS: 0102 – FF02
-> ELAN:0103 – FF03
-> NXP: 0104 – FF04
-> 
-> 2.4.18 READ SECONDARY ID (x"E1")
-> This command will read the secondary device ID of the pointing device (2
-> bytes).  The least significant byte is sent first.  For the first byte,
-> the legacy TrackPoint controller from IBM will always return x"01", the
-> pointing stick from ALPS will always return x"02", the pointing stick
-> from Elan will always return x"03”, and the pointing stick from NXP will
-> always return 0x”04".  And a second byte which denotes a specific set of
-> functional specifications.  Differing ROM versions are used to denote
-> changes within a given functional set.
+Thanks!
 
-Can you/Lenovo share the updated spec?
+> all the previous patches I sent?
+
+Could you tell me what reviews I owe you? My mailbox keeps growing :(
 
 > 
-> The new devices (include Legacy ID:01) will not support the sysfs like
-> speed.
+> Thanks,
+> Andi
 > 
-> So it is not right to revert the commit, it is about to add another 0x04
-> ID in it.
-> 
-> Old sysfs could be stayed for old legacy device ID:01 or removed.
-
-No, because there are devices that have trackpoints properly
-implementing the protocol, before Lenovo started their "innovation".
-
-Do we have any way to distinguish between properly implemented
-trackpoints and Lenovo "improved" ones? I played with gen3 Carbon, and
-while it does not error out on "speed" attribute, unlike gen5, it still
-has no visible effects. Additionally, the "press to select"
-functionality seems to be disabled, and trying to enable it via sysfs
-results in register content being reverted to the original "disabled"
-setting in a second or two. Setting to swap X and Y axes does not work
-either, not sure about other bits of that control register.
-"sensitivity" does work though, again unlike my gen5.
-
-Thanks.
+> On Tue, Dec 12, 2017 at 04:41:49PM +0900, Andi Shyti wrote:
+> > Replace the original license statement with the SPDX identifier.
+> > 
+> > Update also the copyright owner adding myself as co-owner of the
+> > copyright.
+> > 
+> > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> > ---
+> >  drivers/input/touchscreen/s6sy761.c | 15 +++++----------
+> >  drivers/input/touchscreen/stmfts.c  | 15 +++++----------
+> >  2 files changed, 10 insertions(+), 20 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
+> > index 26b1cb8a88ec..675efa93d444 100644
+> > --- a/drivers/input/touchscreen/s6sy761.c
+> > +++ b/drivers/input/touchscreen/s6sy761.c
+> > @@ -1,13 +1,8 @@
+> > -/*
+> > - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> > - * Author: Andi Shyti <andi.shyti@samsung.com>
+> > - *
+> > - * This program is free software; you can redistribute it and/or modify
+> > - * it under the terms of the GNU General Public License version 2 as
+> > - * published by the Free Software Foundation.
+> > - *
+> > - * Samsung S6SY761 Touchscreen device driver
+> > - */
+> > +// SPDX-License-Identifier: GPL-2.0
+> > +// Samsung S6SY761 Touchscreen device driver
+> > +//
+> > +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> > +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
+> >  
+> >  #include <asm/unaligned.h>
+> >  #include <linux/delay.h>
+> > diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+> > index c12d01899939..2a123e20a42e 100644
+> > --- a/drivers/input/touchscreen/stmfts.c
+> > +++ b/drivers/input/touchscreen/stmfts.c
+> > @@ -1,13 +1,8 @@
+> > -/*
+> > - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> > - * Author: Andi Shyti <andi.shyti@samsung.com>
+> > - *
+> > - * This program is free software; you can redistribute it and/or modify
+> > - * it under the terms of the GNU General Public License version 2 as
+> > - * published by the Free Software Foundation.
+> > - *
+> > - * STMicroelectronics FTS Touchscreen device driver
+> > - */
+> > +// SPDX-License-Identifier: GPL-2.0
+> > +// STMicroelectronics FTS Touchscreen device driver
+> > +//
+> > +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
+> > +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
+> >  
+> >  #include <linux/delay.h>
+> >  #include <linux/i2c.h>
+> > -- 
+> > 2.15.1
+> > 
 
 -- 
 Dmitry

@@ -1,103 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: stmfts,s6sy671 - add SPDX identifier
-Date: Fri, 5 Jan 2018 08:49:58 -0800
-Message-ID: <20180105164958.csojn6vhy72bwoac@dtor-ws>
-References: <CGME20171212074156epcas2p4fefff65c3316ec1aa9b3d7797aaca550@epcas2p4.samsung.com>
- <20171212074149.7844-1-andi.shyti@samsung.com>
- <20180105095715.GA6679@gangnam.samsung>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] HID: asus: Fix special function keys on T200TA
+Date: Fri, 5 Jan 2018 18:00:09 +0100
+Message-ID: <CAO-hwJKyO+fWno7OaHBdki3pmCr183wh4NexkjYa73Jqi_ni7g@mail.gmail.com>
+References: <20180105110919.30399-1-hdegoede@redhat.com> <20180105110919.30399-2-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180105095715.GA6679@gangnam.samsung>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Shyti <andi.shyti@samsung.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:44947 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752206AbeAERAK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 5 Jan 2018 12:00:10 -0500
+Received: by mail-qt0-f196.google.com with SMTP id m59so6427959qte.11
+        for <linux-input@vger.kernel.org>; Fri, 05 Jan 2018 09:00:10 -0800 (PST)
+In-Reply-To: <20180105110919.30399-2-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Hi Andi,
+On Fri, Jan 5, 2018 at 12:09 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Just like on the T100TA the T200TA HID descriptors for the 0xff32
+> Asus vendor usage page need a small fixup. But on the T200TA the HID
+> descriptors are larger because they have descrriptors for one more
+> (unused) HID report appended.
+>
+> Extend the T100TA descriptor fixup to also check for the T200TA's
+> descriptors size.
 
-On Fri, Jan 05, 2018 at 06:57:15PM +0900, Andi Shyti wrote:
-> Hi Dmitry,
-> 
-> this is a kind ping, would you also mind giving me a feedback to
+Sigh, both are:
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Yes, sorry. Could you please split the patch for each driver
-individually? Also, until we have an update to the CodingStyle doc
-mandating the C++ style comments, I'd prefer keeping the original style
-of comments. So // for the SPDX line and /* */ for the rest.
+Cheers,
+Benjamin
 
-Thanks!
-
-> all the previous patches I sent?
-
-Could you tell me what reviews I owe you? My mailbox keeps growing :(
-
-> 
-> Thanks,
-> Andi
-> 
-> On Tue, Dec 12, 2017 at 04:41:49PM +0900, Andi Shyti wrote:
-> > Replace the original license statement with the SPDX identifier.
-> > 
-> > Update also the copyright owner adding myself as co-owner of the
-> > copyright.
-> > 
-> > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> > ---
-> >  drivers/input/touchscreen/s6sy761.c | 15 +++++----------
-> >  drivers/input/touchscreen/stmfts.c  | 15 +++++----------
-> >  2 files changed, 10 insertions(+), 20 deletions(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
-> > index 26b1cb8a88ec..675efa93d444 100644
-> > --- a/drivers/input/touchscreen/s6sy761.c
-> > +++ b/drivers/input/touchscreen/s6sy761.c
-> > @@ -1,13 +1,8 @@
-> > -/*
-> > - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> > - * Author: Andi Shyti <andi.shyti@samsung.com>
-> > - *
-> > - * This program is free software; you can redistribute it and/or modify
-> > - * it under the terms of the GNU General Public License version 2 as
-> > - * published by the Free Software Foundation.
-> > - *
-> > - * Samsung S6SY761 Touchscreen device driver
-> > - */
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +// Samsung S6SY761 Touchscreen device driver
-> > +//
-> > +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> > +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
-> >  
-> >  #include <asm/unaligned.h>
-> >  #include <linux/delay.h>
-> > diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-> > index c12d01899939..2a123e20a42e 100644
-> > --- a/drivers/input/touchscreen/stmfts.c
-> > +++ b/drivers/input/touchscreen/stmfts.c
-> > @@ -1,13 +1,8 @@
-> > -/*
-> > - * Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> > - * Author: Andi Shyti <andi.shyti@samsung.com>
-> > - *
-> > - * This program is free software; you can redistribute it and/or modify
-> > - * it under the terms of the GNU General Public License version 2 as
-> > - * published by the Free Software Foundation.
-> > - *
-> > - * STMicroelectronics FTS Touchscreen device driver
-> > - */
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +// STMicroelectronics FTS Touchscreen device driver
-> > +//
-> > +// Copyright (c) 2017 Samsung Electronics Co., Ltd.
-> > +// Copyright (c) 2017 Andi Shyti <andi.shyti@samsung.com>
-> >  
-> >  #include <linux/delay.h>
-> >  #include <linux/i2c.h>
-> > -- 
-> > 2.15.1
-> > 
-
--- 
-Dmitry
+>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/hid/hid-asus.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 07525bc99b6a..88b9703318e4 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -715,9 +715,10 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>                 hid_info(hdev, "Fixing up Asus notebook report descriptor\n");
+>                 rdesc[55] = 0xdd;
+>         }
+> -       /* For the T100TA keyboard dock */
+> +       /* For the T100TA/T200TA keyboard dock */
+>         if (drvdata->quirks & QUIRK_T100_KEYBOARD &&
+> -                *rsize == 76 && rdesc[73] == 0x81 && rdesc[74] == 0x01) {
+> +                (*rsize == 76 || *rsize == 101) &&
+> +                rdesc[73] == 0x81 && rdesc[74] == 0x01) {
+>                 hid_info(hdev, "Fixing up Asus T100 keyb report descriptor\n");
+>                 rdesc[74] &= ~HID_MAIN_ITEM_CONSTANT;
+>         }
+> --
+> 2.14.3
+>

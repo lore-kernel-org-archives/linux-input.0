@@ -1,49 +1,109 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/2] HID: asus: Fix special function keys on T200TA
-Date: Fri,  5 Jan 2018 12:09:19 +0100
-Message-ID: <20180105110919.30399-2-hdegoede@redhat.com>
-References: <20180105110919.30399-1-hdegoede@redhat.com>
+From: =?big5?B?SmVmZnJleSBMaW4gKKpMuHGzuSk=?= <Jeffrey.Lin@rad-ic.com>
+Subject: RE: [PATCH] driver: input :touchscreen :Modify Raydium Firmware
+ update input file
+Date: Fri, 5 Jan 2018 12:12:18 +0000
+Message-ID: <9BE4B49389AB2F41A64A32DFC844F1DF759C9C14@RADHCMS5.corp.rad-ic.com>
+References: <20171221135122.345-1-jeffrey.lin@raydium.corp-partner.google.com>
+ <20180105055338.cogtaty5p5r5gglt@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="big5"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38048 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750992AbeAELJZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 5 Jan 2018 06:09:25 -0500
-In-Reply-To: <20180105110919.30399-1-hdegoede@redhat.com>
+Received: from 59-124-178-101.HINET-IP.hinet.net ([59.124.178.101]:26348 "EHLO
+        mse2.corp.rad-ic.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751469AbeAEMiW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 5 Jan 2018 07:38:22 -0500
+Received: from mse2.corp.rad-ic.com (localhost [127.0.0.2] (may be forged))
+        by mse2.corp.rad-ic.com with ESMTP id w05CCtnJ054007
+        for <linux-input@vger.kernel.org>; Fri, 5 Jan 2018 20:12:55 +0800 (GMT-8)
+        (envelope-from Jeffrey.Lin@rad-ic.com)
+In-Reply-To: <20180105055338.cogtaty5p5r5gglt@dtor-ws>
+Content-Language: zh-TW
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "jeffrey.lin" <yajohn@gmail.com>
+Cc: "groeck@chromium.org" <groeck@chromium.org>, "keith.tzeng@quantatw.com" <keith.tzeng@quantatw.com>, "Katherine.Hsieh@quantatw.com" <Katherine.Hsieh@quantatw.com>, "bleung@google.com" <bleung@google.com>, =?big5?B?S1AgTGkgKKf1qfitvyk=?= <KP.Li@rad-ic.com>, =?big5?B?QWxiZXJ0IFNoaWVoICjBwqpZ3rMp?= <Albert.Shieh@rad-ic.com>, =?big5?B?Q2FsdmluIFRzZW5nICAotL+w6ql2KQ==?= <Calvin.Tseng@rad-ic.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, =?big5?B?S2V2aW4gQ2hpdSAoqvSrVLrNKQ==?= <Kevin.Chiu@quantatw.com>, =?big5?B?SmFja3kgTGluICiqTKthqfop?= <Jacky.Lin@rad-ic.com>
 
-Just like on the T100TA the T200TA HID descriptors for the 0xff32
-Asus vendor usage page need a small fixup. But on the T200TA the HID
-descriptors are larger because they have descrriptors for one more
-(unused) HID report appended.
-
-Extend the T100TA descriptor fixup to also check for the T200TA's
-descriptors size.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/hid-asus.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 07525bc99b6a..88b9703318e4 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -715,9 +715,10 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		hid_info(hdev, "Fixing up Asus notebook report descriptor\n");
- 		rdesc[55] = 0xdd;
- 	}
--	/* For the T100TA keyboard dock */
-+	/* For the T100TA/T200TA keyboard dock */
- 	if (drvdata->quirks & QUIRK_T100_KEYBOARD &&
--		 *rsize == 76 && rdesc[73] == 0x81 && rdesc[74] == 0x01) {
-+		 (*rsize == 76 || *rsize == 101) &&
-+		 rdesc[73] == 0x81 && rdesc[74] == 0x01) {
- 		hid_info(hdev, "Fixing up Asus T100 keyb report descriptor\n");
- 		rdesc[74] &= ~HID_MAIN_ITEM_CONSTANT;
- 	}
--- 
-2.14.3
-
+RG1pdHJ5Og0KSSd2ZSB2ZXJpZmllZCBwYXNzIHRoZSBwYXRjaCB5b3UgaGFkIG1vZGlmaWVkLiBN
+YW55IHRoYW5rcy4NCg0KQmVzdCBSZWdhcmRzDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQpKZWZmcmV5IExpbiwg
+qky4cbO5DQpSYXlkaXVtIFNlbWljb25kdWN0b3IgQ29ycG9yYXRpb24sILfnuams7KfeDQpUZWw6
+KDAzKTY2Ni0xODE4IEV4dC40MTYzDQpGYXg6KDAzKTY2Ni0xOTE5DQoNCi0tLS0tT3JpZ2luYWwg
+TWVzc2FnZS0tLS0tDQpGcm9tOiBEbWl0cnkgVG9yb2tob3YgW21haWx0bzpkbWl0cnkudG9yb2to
+b3ZAZ21haWwuY29tXQ0KU2VudDogRnJpZGF5LCBKYW51YXJ5IDA1LCAyMDE4IDE6NTQgUE0NClRv
+OiBqZWZmcmV5Lmxpbg0KQ2M6IGdyb2Vja0BjaHJvbWl1bS5vcmc7IGtlaXRoLnR6ZW5nQHF1YW50
+YXR3LmNvbTsgS2F0aGVyaW5lLkhzaWVoQHF1YW50YXR3LmNvbTsgYmxldW5nQGdvb2dsZS5jb207
+IEplZmZyZXkgTGluICiqTLhxs7kpOyBLUCBMaSAop/Wp+K2/KTsgQWxiZXJ0IFNoaWVoICjBwqpZ
+3rMpOyBDYWx2aW4gVHNlbmcgKLS/sOqpdik7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7
+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDogUmU6IFtQQVRDSF0gZHJpdmVy
+OiBpbnB1dCA6dG91Y2hzY3JlZW4gOk1vZGlmeSBSYXlkaXVtIEZpcm13YXJlIHVwZGF0ZSBpbnB1
+dCBmaWxlDQoNCkhpIEplZmZyZXksDQoNCk9uIFRodSwgRGVjIDIxLCAyMDE3IGF0IDA5OjUxOjIy
+UE0gKzA4MDAsIGplZmZyZXkubGluIHdyb3RlOg0KPiBNb2RpZnkgdXBkYXRlIGZpcm13YXJlIHRv
+IGFjY2VwdCBhbHRlcm5hdGl2ZSBmaWxlIG5hbWUNCj4NCj4gU2lnbmVkLW9mZi1ieTogamVmZnJl
+eS5saW4gPGplZmZyZXkubGluQHJhZC1pYy5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9pbnB1dC90
+b3VjaHNjcmVlbi9yYXlkaXVtX2kyY190cy5jIHwgMTEgKysrKysrKystLS0NCj4gIDEgZmlsZSBj
+aGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+DQo+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3JheWRpdW1faTJjX3RzLmMgYi9kcml2ZXJzL2lu
+cHV0L3RvdWNoc2NyZWVuL3JheWRpdW1faTJjX3RzLmMNCj4gaW5kZXggYTk5ZmI1Y2FjNWEwLi40
+MzlkNDNjMzUxOWMgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vcmF5
+ZGl1bV9pMmNfdHMuYw0KPiArKysgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3JheWRpdW1f
+aTJjX3RzLmMNCj4gQEAgLTEzMCw2ICsxMzAsNyBAQCBzdHJ1Y3QgcmF5ZGl1bV9kYXRhIHsNCj4g
+ICAgICAgc3RydWN0IGdwaW9fZGVzYyAqcmVzZXRfZ3BpbzsNCj4NCj4gICAgICAgc3RydWN0IHJh
+eWRpdW1faW5mbyBpbmZvOw0KPiArICAgICBjaGFyIGZ3X2ZpbGVbNjRdOw0KDQpZb3UgZG8gbm90
+IHJlYWxseSBuZWVkIHRvIGtlZXAgdGhlIGZpcm13YXJlIG5hbWUgaW4gZHJpdmVyIGRhdGEsIGp1
+c3QNCnVzZSBhIHRlbXBvcmFyeSBpbiByYXlkaXVtX2kyY19md191cGRhdGUoKS4NCg0KPg0KPiAg
+ICAgICBzdHJ1Y3QgbXV0ZXggc3lzZnNfbXV0ZXg7DQo+DQo+IEBAIC03NTIsMTIgKzc1MywxNiBA
+QCBzdGF0aWMgaW50IHJheWRpdW1faTJjX2Z3X3VwZGF0ZShzdHJ1Y3QgcmF5ZGl1bV9kYXRhICp0
+cykNCj4gIHsNCj4gICAgICAgc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCA9IHRzLT5jbGllbnQ7
+DQo+ICAgICAgIGNvbnN0IHN0cnVjdCBmaXJtd2FyZSAqZncgPSBOVUxMOw0KPiAtICAgICBjb25z
+dCBjaGFyICpmd19maWxlID0gInJheWRpdW0uZnciOw0KPiAgICAgICBpbnQgZXJyb3I7DQo+DQo+
+IC0gICAgIGVycm9yID0gcmVxdWVzdF9maXJtd2FyZSgmZncsIGZ3X2ZpbGUsICZjbGllbnQtPmRl
+dik7DQo+ICsgICAgIC8qIEZpcm13YXJlIG5hbWUgKi8NCj4gKyAgICAgc25wcmludGYodHMtPmZ3
+X2ZpbGUsIHNpemVvZih0cy0+ZndfZmlsZSksDQo+ICsgICAgICAgICAgICAgInJheWRpdW1fJXgu
+ZnciLCB0cy0+aW5mby5od192ZXIpOw0KDQpod192ZXIgaXMgTEUzMiwgeW91IG5lZWQgdG8gY29u
+dmVydCBpdCB0byBDUFUgZW5kaWFubmVzcyBiZWZvcmUgdXNpbmcuDQpBbHNvIGl0IHdvdWxkIGJl
+IGJldHRlciBpZiB3ZSB1c2VkIHRoZSBzYW1lIGVuY29kaW5nIGZvciB0aGUgaGFyZHdhcmUNCnZl
+cnNpb24gYXMgdGhlIG9uZSB0aGF0IHdlIHVzZSB3aGVuIHdlIG91dHB1dCBpdCBpbiBzeXNmcy4g
+SXQgbWFrZXMNCnVzZXJzcGFjZSBsaWZlIGEgYml0IGVhc2llciBJIHRoaW5rLg0KDQpIb3cgYWJv
+dXQgdGhlIHZlcnNpb24gb2YgdGhlIHBhdGNoIGJlbG93Pw0KDQpUaGFua3MuDQoNCi0tDQpEbWl0
+cnkNCg0KDQpJbnB1dDogcmF5ZGl1bV9pMmNfdHMgLSBpbmNsdWRlIGhhcmR3YXJlIHZlcnNpb24g
+aW4gZmlybXdhcmUgbmFtZQ0KDQpGcm9tOiBKZWZmcmV5IExpbiA8amVmZnJleS5saW5AcmFkLWlj
+LmNvbT4NCg0KQWRkIGhhcmR3YXJlIHZlcnNpb24gdG8gdGhlIGZpcm13YXJlIGZpbGUgbmFtZSB0
+byBoYW5kbGUgc2NlbmFyaW9zIHdoZXJlDQpzaW5nbGUgc3lzdGVtIGltYWdlIHN1cHBvcnRzIHZh
+cmlldHkgb2YgZGV2aWNlcy4NCg0KU2lnbmVkLW9mZi1ieTogSmVmZnJleSBMaW4gPGplZmZyZXku
+bGluQHJhZC1pYy5jb20+DQpTaWduZWQtb2ZmLWJ5OiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50
+b3Jva2hvdkBnbWFpbC5jb20+DQotLS0NCiBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3JheWRp
+dW1faTJjX3RzLmMgfCAgIDE0ICsrKysrKysrKysrKy0tDQogMSBmaWxlIGNoYW5nZWQsIDEyIGlu
+c2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0
+L3RvdWNoc2NyZWVuL3JheWRpdW1faTJjX3RzLmMgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
+L3JheWRpdW1faTJjX3RzLmMNCmluZGV4IDEwMDUzOGQ2NGZmZi4uZDFjMDllNmEyY2I2IDEwMDY0
+NA0KLS0tIGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9yYXlkaXVtX2kyY190cy5jDQorKysg
+Yi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3JheWRpdW1faTJjX3RzLmMNCkBAIC03NTIsMTMg
+Kzc1MiwyMCBAQCBzdGF0aWMgaW50IHJheWRpdW1faTJjX2Z3X3VwZGF0ZShzdHJ1Y3QgcmF5ZGl1
+bV9kYXRhICp0cykNCiB7DQogICAgICAgIHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQgPSB0cy0+
+Y2xpZW50Ow0KICAgICAgICBjb25zdCBzdHJ1Y3QgZmlybXdhcmUgKmZ3ID0gTlVMTDsNCi0gICAg
+ICAgY29uc3QgY2hhciAqZndfZmlsZSA9ICJyYXlkaXVtLmZ3IjsNCisgICAgICAgY2hhciAqZndf
+ZmlsZTsNCiAgICAgICAgaW50IGVycm9yOw0KDQorICAgICAgIGZ3X2ZpbGUgPSBrYXNwcmludGYo
+R0ZQX0tFUk5FTCwgInJheWRpdW1fJSMwNHguZnciLA0KKyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIGxlMzJfdG9fY3B1KHRzLT5pbmZvLmh3X3ZlcikpOw0KKyAgICAgICBpZiAoIWZ3X2ZpbGUp
+DQorICAgICAgICAgICAgICAgcmV0dXJuIC1FTk9NRU07DQorDQorICAgICAgIGRldl9kYmcoJmNs
+aWVudC0+ZGV2LCAiZmlybXdhcmUgbmFtZTogJXNcbiIsIGZ3X2ZpbGUpOw0KKw0KICAgICAgICBl
+cnJvciA9IHJlcXVlc3RfZmlybXdhcmUoJmZ3LCBmd19maWxlLCAmY2xpZW50LT5kZXYpOw0KICAg
+ICAgICBpZiAoZXJyb3IpIHsNCiAgICAgICAgICAgICAgICBkZXZfZXJyKCZjbGllbnQtPmRldiwg
+IlVuYWJsZSB0byBvcGVuIGZpcm13YXJlICVzXG4iLCBmd19maWxlKTsNCi0gICAgICAgICAgICAg
+ICByZXR1cm4gZXJyb3I7DQorICAgICAgICAgICAgICAgZ290byBvdXRfZnJlZV9md19maWxlOw0K
+ICAgICAgICB9DQoNCiAgICAgICAgZGlzYWJsZV9pcnEoY2xpZW50LT5pcnEpOw0KQEAgLTc4Nyw2
+ICs3OTQsOSBAQCBzdGF0aWMgaW50IHJheWRpdW1faTJjX2Z3X3VwZGF0ZShzdHJ1Y3QgcmF5ZGl1
+bV9kYXRhICp0cykNCg0KICAgICAgICByZWxlYXNlX2Zpcm13YXJlKGZ3KTsNCg0KK291dF9mcmVl
+X2Z3X2ZpbGU6DQorICAgICAgIGtmcmVlKGZ3X2ZpbGUpOw0KKw0KICAgICAgICByZXR1cm4gZXJy
+b3I7DQogfQ0KDQpDT05GSURFTlRJQUxJVFkgQU5EIFBST1BSSUVUQVJZIFJFTUlOREVSOg0KVGhp
+cyBtZXNzYWdlIGFuZCBhbnkgYXR0YWNobWVudCBtYXkgY29udGFpbiBjb25maWRlbnRpYWwgaW5m
+b3JtYXRpb24uIEFsbCByaWdodHMgaW5jbHVkaW5nIGludGVsbGVjdHVhbCBwcm9wZXJ0eSByaWdo
+dHMgYXJpc2luZyBvdXQgb2YgdGhpcyBjb3JyZXNwb25kZW5jZSBzaGFsbCBiZWxvbmcgdG8gUmF5
+ZGl1bSBTZW1pY29uZHVjdG9yIENvcnAuIEFueSB1bmF1dGhvcml6ZWQgZGlzY2xvc3VyZSwgZm9y
+d2FyZGluZywgdXNpbmcsIG1vZGlmeWluZywgc3ByZWFkaW5nLCBwdWJsaXNoaW5nIG9yIGNvcHlp
+bmcgdGhpcyBlbWFpbCBhbmQgdGhlIGNvbnRlbnQgaXMgaWxsZWdhbCBhbmQgc3RyaWN0bHkgcHJv
+aGliaXRlZC4NCklmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIHBsZWFzZSBu
+b3RpZnkgdGhlIHNlbmRlciBieSByZXBseWluZyB0byB0aGlzIG1lc3NhZ2UgYW5kIGRlbGV0ZSBh
+bGwgY29waWVzIG9mIGl0IGZyb20geW91ciBzeXN0ZW0uIFRoYW5rIHlvdSBmb3IgY29vcGVyYXRp
+b24uDQo=

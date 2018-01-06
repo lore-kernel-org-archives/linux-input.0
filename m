@@ -1,123 +1,66 @@
-From: Nir Perry <nirperry@gmail.com>
-Subject: [PATCH] input: multi-touch fix for ALPS touchpads ("SS4 plus" variant)
-Date: Sat, 6 Jan 2018 13:54:47 +0200
-Message-ID: <CAE1KSOPo=uQbE4tCpZF4UzXRsfzA1gTqW4-UURGjt2u2+ZH_Mg@mail.gmail.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFP] iio: Support of gesture sensor as a standard IIO sensor
+Date: Sat, 6 Jan 2018 13:12:31 +0000
+Message-ID: <20180106131231.078492c3@archlinux>
+References: <1515197240.26317.65.camel@intel.com>
+        <20180106002024.012f44c0@alans-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:38144 "EHLO
-        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753084AbeAFLys (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Jan 2018 06:54:48 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20180106002024.012f44c0@alans-desktop>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Cc: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi all,
+On Sat, 6 Jan 2018 00:20:24 +0000
+Alan Cox <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org> wrote:
 
-I think a minor "typo" bug was accidentally introduced to ALPS
-touchpad driver by a previous bug-fix (commit
-4a646580f793d19717f7e034c8d473b509c27d49, "Input: ALPS - fix
-two-finger scroll breakage in right side on ALPS touchpad").
-It breaks how multi-touch events are decoded on some ALPS touchpads,
-so for example tapping with three-fingers can no longer be used to
-emulate middle-mouse-button (the kernel doesn't recognize this as the
-proper event, and doesn't report it correctly to userspace).
-This affects touchpads that use SS4 "plus" protocol variant, like
-those found on Dell E7270 & E7470 laptops (tested on E7270).
+> > >From an IIO sensor point of view A Gesture sensor:    
+> > Outputs
+> > 	A pre defined activity type
+> > 		WAKE
+> > 		TILT
+> > 		GLANCE
+> > 		PICK_UP
+> > 		 &
+> > 		 more
+> > 
+> > 	A user defined activity type as "string"
+> > 
+> > Inputs
+> > 	A raw binary cdev interface to download templates/patterns
+> > 
+> > 
+> > I want to gather more opinions before submitting a RFC patch.  
+> 
+> The only question I have is should it appear under IIO or should it be an
+> input event interface. It feels to me more like an input device in that in
+> this case while it's not keys or joystick it is still 'please do X'. That
+> might also make it much easier (in the non-Android space in particular)
+> to bind these activities to actions in things like web browsers.
+> 
+I agree that this may well be an option for many of the gestures specifically
+metioned (flicks etc and glyphs).
 
-The cause of the problem
-------------------------------------------
-First, probably due to a typo, the code in alps_decode_ss4_v2() for
-case SS4_PACKET_ID_MULTI used inconsistent indices to "f->mt[]". You
-can see 0 & 1 are used for the "if" part but 2 & 3 are used for the
-"else" part, which I believe is a typo.
-Second, in the previous patch, new macros were introduced to decode X
-coordinates specific to the SS4 "plus" variant, but the macro to
-define the maximum X value wasn't changed accordingly. The macros to
-decode X values for "plus" variant are effectively shifted right by 1
-bit, but the max wasn't shifted too. This causes the driver to
-incorrectly handle "no data" cases, which also interfered with how
-multi-touch was handled. To fix it - I created new SS4 "plus" macros
-for the max value - SS4_PLUS_MFPACKET_NO_AX &
-SS4_PLUS_MFPACKET_NO_AX_BL. To make the change a little more readable,
-I moved also the Y-max lines so they are closer to the X-max lines.
-To get three-finger tap to work both changes are required.
+However, there are other obvious uses of this technology such as step detection
+or activity classification (running, walking sitting) that so far have fallen
+in the scope of IIO as they aren't really things you expect the device to
+perform an an action in response to.  Another one of those messy corners
+that fall through the gaps!
 
-The included patch was generated against the mainline tree today, but
-was also tested against the 4.14 kernel branch. I've included in this
-e-mail the people involved with the old patch from August, plus Pali
-Roh=C3=A1r who is listed as the ALPS PS/2 touchpad driver reviewer (in the
-maintainers file).
+The drivers/iio/accel/mma9553.c does activity detection, but that isn't
+really 'events' in the same way as we have here...
 
-Fixes: 4a646580f793d19717f7e034c8d473b509c27d49 ("Input: ALPS - fix
-two-finger scroll breakage in right side on ALPS touchpad")
+So right answer might be a hybrid of an underlying flexible IIO device
+and an input front end for when it makes sense.
 
-Regards,
-Nir
+We probably need to get the in kernel use of IIO events sorted.  Non event
+stuff has been sorted for years, but this last corner was never of enough
+interest to anyone to actually implement it (it's fairly straight forward
+to do).
 
-Signed-off-by: Nir Perry <nirperry@gmail.com>
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 579b899..dbe57da 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1250,29 +1250,32 @@ static int alps_decode_ss4_v2(struct alps_fields *f=
-,
-        case SS4_PACKET_ID_MULTI:
-                if (priv->flags & ALPS_BUTTONPAD) {
-                        if (IS_SS4PLUS_DEV(priv->dev_id)) {
--                               f->mt[0].x =3D SS4_PLUS_BTL_MF_X_V2(p, 0);
--                               f->mt[1].x =3D SS4_PLUS_BTL_MF_X_V2(p, 1);
-+                               f->mt[2].x =3D SS4_PLUS_BTL_MF_X_V2(p, 0);
-+                               f->mt[3].x =3D SS4_PLUS_BTL_MF_X_V2(p, 1);
-+                               no_data_x =3D SS4_PLUS_MFPACKET_NO_AX_BL;
-                        } else {
-                                f->mt[2].x =3D SS4_BTL_MF_X_V2(p, 0);
-                                f->mt[3].x =3D SS4_BTL_MF_X_V2(p, 1);
-+                               no_data_x =3D SS4_MFPACKET_NO_AX_BL;
-                        }
-+                       no_data_y =3D SS4_MFPACKET_NO_AY_BL;
-
-                        f->mt[2].y =3D SS4_BTL_MF_Y_V2(p, 0);
-                        f->mt[3].y =3D SS4_BTL_MF_Y_V2(p, 1);
--                       no_data_x =3D SS4_MFPACKET_NO_AX_BL;
--                       no_data_y =3D SS4_MFPACKET_NO_AY_BL;
-                } else {
-                        if (IS_SS4PLUS_DEV(priv->dev_id)) {
--                               f->mt[0].x =3D SS4_PLUS_STD_MF_X_V2(p, 0);
--                               f->mt[1].x =3D SS4_PLUS_STD_MF_X_V2(p, 1);
-+                               f->mt[2].x =3D SS4_PLUS_STD_MF_X_V2(p, 0);
-+                               f->mt[3].x =3D SS4_PLUS_STD_MF_X_V2(p, 1);
-+                               no_data_x =3D SS4_PLUS_MFPACKET_NO_AX;
-                        } else {
--                               f->mt[0].x =3D SS4_STD_MF_X_V2(p, 0);
--                               f->mt[1].x =3D SS4_STD_MF_X_V2(p, 1);
-+                               f->mt[2].x =3D SS4_STD_MF_X_V2(p, 0);
-+                               f->mt[3].x =3D SS4_STD_MF_X_V2(p, 1);
-+                               no_data_x =3D SS4_MFPACKET_NO_AX;
-                        }
-+                       no_data_y =3D SS4_MFPACKET_NO_AY;
-+
-                        f->mt[2].y =3D SS4_STD_MF_Y_V2(p, 0);
-                        f->mt[3].y =3D SS4_STD_MF_Y_V2(p, 1);
--                       no_data_x =3D SS4_MFPACKET_NO_AX;
--                       no_data_y =3D SS4_MFPACKET_NO_AY;
-                }
-
-                f->first_mp =3D 0;
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index c80a7c7..3dfae83 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -145,6 +145,8 @@ enum SS4_PACKET_ID {
- #define SS4_MFPACKET_NO_AY     4080    /* Y-Coordinate value */
- #define SS4_MFPACKET_NO_AX_BL  8176    /* Buttonless X-Coordinate value */
- #define SS4_MFPACKET_NO_AY_BL  4088    /* Buttonless Y-Coordinate value */
-+#define SS4_PLUS_MFPACKET_NO_AX        4080    /* SS4 PLUS, x  */
-+#define SS4_PLUS_MFPACKET_NO_AX_BL     4088    /* Buttonless SS4 PLUS, x *=
-/
-
- /*
-  * enum V7_PACKET_ID - defines the packet type for V7
+> (+ linux-input)
+> 
+> Alan

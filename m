@@ -1,55 +1,64 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH][next] HID: asus: make array 'buf' static const, shrinks object size
-Date: Sat,  6 Jan 2018 15:50:27 +0000
-Message-ID: <20180106155027.17561-1-colin.king@canonical.com>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: Re: [RFP] iio: Support of gesture sensor as a standard IIO sensor
+Date: Sat, 6 Jan 2018 17:43:12 +0000
+Message-ID: <1515260592.23948.23.camel@intel.com>
+References: <1515197240.26317.65.camel@intel.com>
+         <20180106002024.012f44c0@alans-desktop> <20180106131231.078492c3@archlinux>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:59620 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753376AbeAFPub (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Jan 2018 10:50:31 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180106131231.078492c3@archlinux>
+Content-Language: en-US
+Content-ID: <5E95013F1EDF7B4B8FC5DAB99624B4CD@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "gnomes@lxorguk.ukuu.org.uk" <gnomes@lxorguk.ukuu.org.uk>, "jic23@kernel.org" <jic23@kernel.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
-
-Don't populate the const read-only array 'buf' on the stack but instead
-make it stati. Makes the object code smaller by 26 bytes:
-
-Before:
-   text	   data	    bss	    dec	    hex	filename
-  14378	   2384	     64	  16826	   41ba	linux/drivers/hid/hid-asus.o
-
-After:
-   text	   data	    bss	    dec	    hex	filename
-  14296	   2440	     64	  16800	   41a0	linux/drivers/hid/hid-asus.o
-
-(gcc version 7.2.0 x86_64)
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/hid/hid-asus.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 6d2894b7d8e7..89d29f323366 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -561,7 +561,9 @@ static int asus_input_mapping(struct hid_device *hdev,
- static int asus_start_multitouch(struct hid_device *hdev)
- {
- 	int ret;
--	const unsigned char buf[] = { FEATURE_REPORT_ID, 0x00, 0x03, 0x01, 0x00 };
-+	static const unsigned char buf[] = {
-+		FEATURE_REPORT_ID, 0x00, 0x03, 0x01, 0x00
-+	};
- 	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
- 
- 	if (!dmabuf) {
--- 
-2.15.1
-
+T24gU2F0LCAyMDE4LTAxLTA2IGF0IDEzOjEyICswMDAwLCBKb25hdGhhbiBDYW1lcm9uIHdyb3Rl
+Og0KPiBPbiBTYXQsIDYgSmFuIDIwMTggMDA6MjA6MjQgKzAwMDANCj4gQWxhbiBDb3ggPGdub21l
+c0BseG9yZ3VrLnVrdXUub3JnLnVrPiB3cm90ZToNCj4gDQo+ID4gDQo+ID4gPiANCj4gPiA+ID4g
+DQo+ID4gPiA+IEZyb20gYW4gSUlPIHNlbnNvciBwb2ludCBvZiB2aWV3IEEgR2VzdHVyZSBzZW5z
+b3I6wqDCoMKgwqANCj4gPiA+IE91dHB1dHMNCj4gPiA+IAlBIHByZSBkZWZpbmVkIGFjdGl2aXR5
+IHR5cGUNCj4gPiA+IAkJV0FLRQ0KPiA+ID4gCQlUSUxUDQo+ID4gPiAJCUdMQU5DRQ0KPiA+ID4g
+CQlQSUNLX1VQDQo+ID4gPiAJCcKgJg0KPiA+ID4gCQnCoG1vcmUNCj4gPiA+IA0KPiA+ID4gCUEg
+dXNlciBkZWZpbmVkIGFjdGl2aXR5IHR5cGUgYXMgInN0cmluZyINCj4gPiA+IA0KPiA+ID4gSW5w
+dXRzDQo+ID4gPiAJQSByYXcgYmluYXJ5IGNkZXYgaW50ZXJmYWNlIHRvIGRvd25sb2FkIHRlbXBs
+YXRlcy9wYXR0ZXJucw0KPiA+ID4gDQo+ID4gPiANCj4gPiA+IEkgd2FudCB0byBnYXRoZXIgbW9y
+ZSBvcGluaW9ucyBiZWZvcmUgc3VibWl0dGluZyBhIFJGQyBwYXRjaC7CoMKgDQo+ID4gVGhlIG9u
+bHkgcXVlc3Rpb24gSSBoYXZlIGlzIHNob3VsZCBpdCBhcHBlYXIgdW5kZXIgSUlPIG9yIHNob3Vs
+ZCBpdA0KPiA+IGJlIGFuDQo+ID4gaW5wdXQgZXZlbnQgaW50ZXJmYWNlLiBJdCBmZWVscyB0byBt
+ZSBtb3JlIGxpa2UgYW4gaW5wdXQgZGV2aWNlIGluDQo+ID4gdGhhdCBpbg0KPiA+IHRoaXMgY2Fz
+ZSB3aGlsZSBpdCdzIG5vdCBrZXlzIG9yIGpveXN0aWNrIGl0IGlzIHN0aWxsICdwbGVhc2UgZG8N
+Cj4gPiBYJy4gVGhhdA0KPiA+IG1pZ2h0IGFsc28gbWFrZSBpdCBtdWNoIGVhc2llciAoaW4gdGhl
+IG5vbi1BbmRyb2lkIHNwYWNlIGluDQo+ID4gcGFydGljdWxhcikNCj4gPiB0byBiaW5kIHRoZXNl
+IGFjdGl2aXRpZXMgdG8gYWN0aW9ucyBpbiB0aGluZ3MgbGlrZSB3ZWIgYnJvd3NlcnMuDQo+ID4g
+DQo+IEkgYWdyZWUgdGhhdCB0aGlzIG1heSB3ZWxsIGJlIGFuIG9wdGlvbiBmb3IgbWFueSBvZiB0
+aGUgZ2VzdHVyZXMNCj4gc3BlY2lmaWNhbGx5DQo+IG1ldGlvbmVkIChmbGlja3MgZXRjIGFuZCBn
+bHlwaHMpLg0KPiANCj4gSG93ZXZlciwgdGhlcmUgYXJlIG90aGVyIG9idmlvdXMgdXNlcyBvZiB0
+aGlzIHRlY2hub2xvZ3kgc3VjaCBhcyBzdGVwDQo+IGRldGVjdGlvbg0KPiBvciBhY3Rpdml0eSBj
+bGFzc2lmaWNhdGlvbiAocnVubmluZywgd2Fsa2luZyBzaXR0aW5nKSB0aGF0IHNvIGZhcg0KPiBo
+YXZlIGZhbGxlbg0KPiBpbiB0aGUgc2NvcGUgb2YgSUlPIGFzIHRoZXkgYXJlbid0IHJlYWxseSB0
+aGluZ3MgeW91IGV4cGVjdCB0aGUNCj4gZGV2aWNlIHRvDQo+IHBlcmZvcm0gYW4gYW4gYWN0aW9u
+IGluIHJlc3BvbnNlIHRvLsKgwqBBbm90aGVyIG9uZSBvZiB0aG9zZSBtZXNzeQ0KPiBjb3JuZXJz
+DQo+IHRoYXQgZmFsbCB0aHJvdWdoIHRoZSBnYXBzIQ0KPiANCj4gVGhlIGRyaXZlcnMvaWlvL2Fj
+Y2VsL21tYTk1NTMuYyBkb2VzIGFjdGl2aXR5IGRldGVjdGlvbiwgYnV0IHRoYXQNCj4gaXNuJ3QN
+Cj4gcmVhbGx5ICdldmVudHMnIGluIHRoZSBzYW1lIHdheSBhcyB3ZSBoYXZlIGhlcmUuLi4NCj4g
+DQo+IFNvIHJpZ2h0IGFuc3dlciBtaWdodCBiZSBhIGh5YnJpZCBvZiBhbiB1bmRlcmx5aW5nIGZs
+ZXhpYmxlIElJTw0KPiBkZXZpY2UNCj4gYW5kIGFuIGlucHV0IGZyb250IGVuZCBmb3Igd2hlbiBp
+dCBtYWtlcyBzZW5zZS4NCg0KV2hhdCBhYm91dCB3ZSBjYW4gYWxzbyBzZW5kIGFuIGlucHV0IGV2
+ZW50LCBpZiB0aGUgZXZlbnQgaXMgb25lIG9mIHRoZQ0KaW5wdXQgZXZlbnQgdHlwZSB3aGljaCBp
+cyBkZWZpbmVkIGluwqB1YXBpL2xpbnV4L2lucHV0LWV2ZW50LWNvZGVzLmg/DQoNCg0KPiANCj4g
+V2UgcHJvYmFibHkgbmVlZCB0byBnZXQgdGhlIGluIGtlcm5lbCB1c2Ugb2YgSUlPIGV2ZW50cyBz
+b3J0ZWQuwqDCoE5vbg0KPiBldmVudA0KPiBzdHVmZiBoYXMgYmVlbiBzb3J0ZWQgZm9yIHllYXJz
+LCBidXQgdGhpcyBsYXN0IGNvcm5lciB3YXMgbmV2ZXIgb2YNCj4gZW5vdWdoDQo+IGludGVyZXN0
+IHRvIGFueW9uZSB0byBhY3R1YWxseSBpbXBsZW1lbnQgaXQgKGl0J3MgZmFpcmx5IHN0cmFpZ2h0
+DQo+IGZvcndhcmQNCj4gdG8gZG8pLg0KQ3VycmVudGx5IGluIElJTyBldmVudCBpcyBhIHU2NCB2
+YWx1ZSBpbiBGaWZvLiBCdXQgaGVyZSB3ZSBuZWVkIHNvbWUNCnVzZXIgZGVmaW5lZCBldmVudHMg
+YWxzby4gU2luY2UgdGhpcyBBQkkgbWF5IGFscmVhZHkgbWF5IGJlIGluIHVzZSBzbw0KY2FuJ3Qg
+Y2hhbmdlIHU2NCB0byBhIHN0cnVjdHVyZSB3aXRoIGRhdGEgdHlwZSBkZWZpbml0aW9uIGFuZA0K
+YXNzb2NpYXRlZCBkYXRhLiBCdXQgd2UgY2FuIGRlZmluZSBhZGRpdGlvbmFsIHByZWRlZmluZWQg
+aWRzIGZvciBjdXN0b20NCmV2ZW50cyAoU2ltaWxhciB0byBISUQgc2Vuc29yIHVzYWdlIHNwZWMg
+YWRkZWQgQ1VTVE9NIHVzYWdlIGlkcykuDQoNClRoYW5rcywNClNyaW5pdmFzDQoNCj4gDQo+ID4g
+DQo+ID4gKCsgbGludXgtaW5wdXQpDQo+ID4gDQo+ID4gQWxhbg==

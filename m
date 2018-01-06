@@ -1,60 +1,123 @@
-From: 60629177@mylife.unisa.ac.za
-Subject: Hallo mein lieber Freund,
-Date: Sat, 06 Jan 2018 11:44:29 +0530
-Message-ID: <DB5PR01MB10142EC5F752D04CAA730624B51D0@DB5PR01MB1014.eurprd01.prod.exchangelabs.com>
-Reply-To: verahollin88@gmail.com
+From: Nir Perry <nirperry@gmail.com>
+Subject: [PATCH] input: multi-touch fix for ALPS touchpads ("SS4 plus" variant)
+Date: Sat, 6 Jan 2018 13:54:47 +0200
+Message-ID: <CAE1KSOPo=uQbE4tCpZF4UzXRsfzA1gTqW4-UURGjt2u2+ZH_Mg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-he1eur02hn0214.outbound.protection.outlook.com ([104.47.5.214]:1935
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750783AbeAFGMh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 6 Jan 2018 01:12:37 -0500
-Content-Description: Mail message body
+Received: from mail-io0-f194.google.com ([209.85.223.194]:38144 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753084AbeAFLys (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Jan 2018 06:54:48 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <60629177@mylife.unisa.ac.za>
+To: Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hallo mein lieber Freund,
+Hi all,
 
-Ich schreibe dir diese Post mit schweren Tr=E4nen In meinen Augen und gro=
-=DFem Kummer in meinem Herzen, Mein Name ist Vera Hollin Kvan, und ich kont=
-aktiere dich aus meinem Land Indien Ich m=F6chte dir das sagen, weil ich ke=
-ine habe Eine andere M=F6glichkeit, als Ihnen zu sagen, wie ich ber=FChrt w=
-ar, um Sie zu =F6ffnen, heiratete ich mit Herrn Hollin Kvan, der f=FCr neun=
- Jahre mit der tunesischen Botschaft in Madrid Spanien arbeitete, bevor er =
-im Jahr 2005 starb. Wir waren elf Jahre ohne verheiratet Kind.
+I think a minor "typo" bug was accidentally introduced to ALPS
+touchpad driver by a previous bug-fix (commit
+4a646580f793d19717f7e034c8d473b509c27d49, "Input: ALPS - fix
+two-finger scroll breakage in right side on ALPS touchpad").
+It breaks how multi-touch events are decoded on some ALPS touchpads,
+so for example tapping with three-fingers can no longer be used to
+emulate middle-mouse-button (the kernel doesn't recognize this as the
+proper event, and doesn't report it correctly to userspace).
+This affects touchpads that use SS4 "plus" protocol variant, like
+those found on Dell E7270 & E7470 laptops (tested on E7270).
 
-Er starb nach einer kurzen Krankheit, die nur f=FCnf Tage dauerte. Seit sei=
-nem Tod entschied ich mich, nicht wieder zu heiraten. Als mein verstorbener=
- Mann noch am Leben war, hinterlegte er die Summe von $ 4.850.000,00USD (Vi=
-er Millionen achthundertundf=FCnfzigtausend Dollar) in einer Bank hier in I=
-ndien Neu-Delhi, der Hauptstadt Indiens, gegenw=E4rtig dieses Geld ist imme=
-r noch in der Bank.
+The cause of the problem
+------------------------------------------
+First, probably due to a typo, the code in alps_decode_ss4_v2() for
+case SS4_PACKET_ID_MULTI used inconsistent indices to "f->mt[]". You
+can see 0 & 1 are used for the "if" part but 2 & 3 are used for the
+"else" part, which I believe is a typo.
+Second, in the previous patch, new macros were introduced to decode X
+coordinates specific to the SS4 "plus" variant, but the macro to
+define the maximum X value wasn't changed accordingly. The macros to
+decode X values for "plus" variant are effectively shifted right by 1
+bit, but the max wasn't shifted too. This causes the driver to
+incorrectly handle "no data" cases, which also interfered with how
+multi-touch was handled. To fix it - I created new SS4 "plus" macros
+for the max value - SS4_PLUS_MFPACKET_NO_AX &
+SS4_PLUS_MFPACKET_NO_AX_BL. To make the change a little more readable,
+I moved also the Y-max lines so they are closer to the X-max lines.
+To get three-finger tap to work both changes are required.
 
-Er stellte dieses Geld f=FCr den Export von Gold aus dem Minenfactory in Ma=
-drid Spanien zur Verf=FCgung. In letzter Zeit sagte mir mein Doktor, dass i=
-ch wegen der Krebserkrankung f=FCr die Dauer von sieben Monaten nicht =FCbe=
-rleben w=FCrde. Derjenige, der mich am meisten st=F6rt, ist meine Schlaganf=
-all-Krankheit. Nachdem ich meinen Zustand gekannt habe, habe ich beschlosse=
-n, dir dieses Geld auszuh=E4ndigen, um auf die weniger privilegierten Mensc=
-hen aufzupassen, du wirst dieses Geld auf die Art und Weise benutzen, wie i=
-ch es hier unterrichten werde.
+The included patch was generated against the mainline tree today, but
+was also tested against the 4.14 kernel branch. I've included in this
+e-mail the people involved with the old patch from August, plus Pali
+Roh=C3=A1r who is listed as the ALPS PS/2 touchpad driver reviewer (in the
+maintainers file).
 
-Ich m=F6chte, dass Sie 30 Prozent des gesamten Geldes f=FCr Ihren pers=F6nl=
-ichen Gebrauch aufwenden, w=E4hrend 70% des Geldes an wohlt=E4tige Zwecke g=
-ehen, Menschen auf der Stra=DFe und dem Waisenhaus helfen. Ich bin als Wais=
-e aufgewachsen und habe keinen K=F6rper als mein Familienmitglied, nur um z=
-u beenden, dass das Haus Gottes auch erhalten wird. Mache dies, damit Gott =
-meine S=FCnden vergibt und meine Seele akzeptiert, weil diese Krankheiten m=
-ich so sehr leiden. Sobald ich Ihre Antwort erhalten habe, werde ich Ihnen =
-den Kontakt der Bank hier in Delhi Indien geben und ich werde auch den Bank=
-manager beauftragen, Ihnen einen Vollmachtenbrief auszustellen, der Ihnen d=
-en gegenw=E4rtigen Beg=FCnstigten des Geldes in der Bank beweisen wird, wen=
-n Sie versichern mir, dass Sie entsprechend handeln werden, wie ich hier an=
-gegeben habe.
+Fixes: 4a646580f793d19717f7e034c8d473b509c27d49 ("Input: ALPS - fix
+two-finger scroll breakage in right side on ALPS touchpad")
 
-Ich hoffe auf Ihre Antwort.
-Von Vera Hollin kVan
+Regards,
+Nir
+
+Signed-off-by: Nir Perry <nirperry@gmail.com>
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 579b899..dbe57da 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1250,29 +1250,32 @@ static int alps_decode_ss4_v2(struct alps_fields *f=
+,
+        case SS4_PACKET_ID_MULTI:
+                if (priv->flags & ALPS_BUTTONPAD) {
+                        if (IS_SS4PLUS_DEV(priv->dev_id)) {
+-                               f->mt[0].x =3D SS4_PLUS_BTL_MF_X_V2(p, 0);
+-                               f->mt[1].x =3D SS4_PLUS_BTL_MF_X_V2(p, 1);
++                               f->mt[2].x =3D SS4_PLUS_BTL_MF_X_V2(p, 0);
++                               f->mt[3].x =3D SS4_PLUS_BTL_MF_X_V2(p, 1);
++                               no_data_x =3D SS4_PLUS_MFPACKET_NO_AX_BL;
+                        } else {
+                                f->mt[2].x =3D SS4_BTL_MF_X_V2(p, 0);
+                                f->mt[3].x =3D SS4_BTL_MF_X_V2(p, 1);
++                               no_data_x =3D SS4_MFPACKET_NO_AX_BL;
+                        }
++                       no_data_y =3D SS4_MFPACKET_NO_AY_BL;
+
+                        f->mt[2].y =3D SS4_BTL_MF_Y_V2(p, 0);
+                        f->mt[3].y =3D SS4_BTL_MF_Y_V2(p, 1);
+-                       no_data_x =3D SS4_MFPACKET_NO_AX_BL;
+-                       no_data_y =3D SS4_MFPACKET_NO_AY_BL;
+                } else {
+                        if (IS_SS4PLUS_DEV(priv->dev_id)) {
+-                               f->mt[0].x =3D SS4_PLUS_STD_MF_X_V2(p, 0);
+-                               f->mt[1].x =3D SS4_PLUS_STD_MF_X_V2(p, 1);
++                               f->mt[2].x =3D SS4_PLUS_STD_MF_X_V2(p, 0);
++                               f->mt[3].x =3D SS4_PLUS_STD_MF_X_V2(p, 1);
++                               no_data_x =3D SS4_PLUS_MFPACKET_NO_AX;
+                        } else {
+-                               f->mt[0].x =3D SS4_STD_MF_X_V2(p, 0);
+-                               f->mt[1].x =3D SS4_STD_MF_X_V2(p, 1);
++                               f->mt[2].x =3D SS4_STD_MF_X_V2(p, 0);
++                               f->mt[3].x =3D SS4_STD_MF_X_V2(p, 1);
++                               no_data_x =3D SS4_MFPACKET_NO_AX;
+                        }
++                       no_data_y =3D SS4_MFPACKET_NO_AY;
++
+                        f->mt[2].y =3D SS4_STD_MF_Y_V2(p, 0);
+                        f->mt[3].y =3D SS4_STD_MF_Y_V2(p, 1);
+-                       no_data_x =3D SS4_MFPACKET_NO_AX;
+-                       no_data_y =3D SS4_MFPACKET_NO_AY;
+                }
+
+                f->first_mp =3D 0;
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index c80a7c7..3dfae83 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -145,6 +145,8 @@ enum SS4_PACKET_ID {
+ #define SS4_MFPACKET_NO_AY     4080    /* Y-Coordinate value */
+ #define SS4_MFPACKET_NO_AX_BL  8176    /* Buttonless X-Coordinate value */
+ #define SS4_MFPACKET_NO_AY_BL  4088    /* Buttonless Y-Coordinate value */
++#define SS4_PLUS_MFPACKET_NO_AX        4080    /* SS4 PLUS, x  */
++#define SS4_PLUS_MFPACKET_NO_AX_BL     4088    /* Buttonless SS4 PLUS, x *=
+/
+
+ /*
+  * enum V7_PACKET_ID - defines the packet type for V7

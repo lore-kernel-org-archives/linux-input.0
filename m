@@ -1,56 +1,201 @@
 From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v6 0/1] Make input drivers y2038 safe
-Date: Sat,  6 Jan 2018 16:19:14 -0800
-Message-ID: <20180107001915.15287-1-deepa.kernel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: y2038@lists.linaro.org, peter.hutterer@who-t.net, arnd@arndb.de
+Subject: [PATCH v6 1/1] input: Deprecate real timestamps beyond year 2106
+Date: Sat,  6 Jan 2018 16:19:15 -0800
+Message-ID: <20180107001915.15287-2-deepa.kernel@gmail.com>
+References: <20180107001915.15287-1-deepa.kernel@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:45555 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752622AbeAGATd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Jan 2018 19:19:33 -0500
+In-Reply-To: <20180107001915.15287-1-deepa.kernel@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
 
-VGhlIHNlcmllcyBpcyBhaW1lZCBhdCBtYWtpbmcgaW5wdXQgZXZlbnRzIHkyMDM4IHNhZmUuCkl0
-IGV4dGVuZHMgdGhlIGxpZmV0aW1lIG9mIHRoZSByZWFsdGltZSB0aW1lc3RhbXBzIGluIHRoZQpl
-dmVudHMgdG8geWVhciAyMTA2LgpUaGUgc2VyaWVzIGlzIGFsc28gYSBuZWNlc3NhcnkgdXBkYXRl
-IGFzIGdsaWJjIGlzIHNldCB0byBwcm92aWRlCjY0IGJpdCB0aW1lX3Qgc3VwcG9ydCBmb3IgMzIg
-Yml0IGJpbmFyaWVzLiBnbGliYyBwbGFuIGlzIGRldGFpbGVkCmF0IGh0dHBzOi8vc291cmNld2Fy
-ZS5vcmcvZ2xpYmMvd2lraS9ZMjAzOFByb29mbmVzc0Rlc2lnbiAuCgpUaGUgc2VyaWVzIGlzIGEg
-cmVzdWx0IG9mIGRpc2N1c3Npb25zIHdpdGggQXJuZCBCZXJnbWFubiBhbmQKRG1pdHJ5IFRvcm9r
-aG92IGF0IGxhc3QgUGx1bWJlcnMuCgpUaGUgcGxhbiBpcyB0byBkZXByZWNhdGUgcmVhbHRpbWUg
-dGltZXN0YW1wcyBhbnl3YXkgYXMgdGhleQphcmUgbm90IGFwcHJvcHJpYXRlIGZvciB0aGVzZSB0
-aW1lc3RhbXBzIGFzIG5vdGVkIGluIHRoZSBwYXRjaAphODBiODNiN2I4IGJ5IEpvaG4gU3R1bHR6
-LgoKVGhlIGRlc2lnbiBhbHNvIHVwZGF0ZXMgdGhlIGZvcm1hdCBvZiB0aGUgaW5wdXQgZXZlbnRz
-IHJlYWQvIHdyaXR0ZW4KdG8gdGhlIGRldmljZSBub2Rlcy4gVGhpcyBicmVha3MgMzIgYml0IGlu
-dGVyZmFjZSB0byB0aGUgaW5wdXQKZXZlbnRzIGF0IGNvbXBpbGUgdGltZSBhcyBwcmVmZXJyZWQg
-YnkgdGhlIG1haW50YWluZXIuCgpUaGUgdXNlcnNwYWNlIGxpYnJhcnkgY2hhbmdlcyB0byBsaWJl
-dmRldiwgbGlidWlucHV0IGFuZCBtdGRldgp3aWxsIGJlIHBvc3RlZCB0byB0aGUgcmVzcGVjdGl2
-ZSBtYWlsaW5nIGdyb3VwcyBmb3IgcmV2aWV3LgoKQ2hhbmdlcyBmcm9tIHY1OgoqIERyb3BwZWQg
-cGF0Y2ggMSwgc2luY2UgaXQgaGFzIGFscmVhZHkgYmVlbiBhcHBsaWVkCiogQ29tYmluZWQgcGF0
-Y2hlcyAyIGFuZCAzCiogQWRkcmVzc2VkIG1pbm9yIHJldmlldyBjb21tZW50cwpDaGFuZ2VzIGZy
-b20gdjQ6CiogRHJvcHBlZCBzZXJpbyBoaWwgcGF0Y2gKQ2hhbmdlcyBmcm9tIHYzOgoqIFVwZGF0
-ZWQgdWlucHV0IHRvIHN1cHBvcnQgbW9ub3RvbmljIHRpbWUgb25seQoqIEFkZHJlc3NlZCByZXZp
-ZXcgY29tbWVudHMKQ2hhbmdlcyBmcm9tIHYyOgoqIFVwZGF0ZWQgdGhlIGRlc2lnbiB0byBicmVh
-ayAzMiBiaXQgaW50ZXJmYWNlcyBhdCBjb21waWxlIHRpbWUuCkNoYW5nZXMgZnJvbSB2MToKKiBV
-cGRhdGVkIGNoYW5nZXMgYWNjb3JkaW5nIHRvIHJldmlldyBjb21tZW50cy4KKiBQb3N0ZWQgdXNl
-cnNwYWNlIGxpYnJhcnkgY2hhbmdlcyB0aGF0IGdvIGFsb25nIHdpdGggdGhlIHNlcmllcy4KCkRl
-ZXBhIERpbmFtYW5pICgxKToKICBpbnB1dDogRGVwcmVjYXRlIHJlYWwgdGltZXN0YW1wcyBiZXlv
-bmQgeWVhciAyMTA2CgogZHJpdmVycy9pbnB1dC9ldmRldi5jICAgICAgICB8IDE2ICsrKysrKysr
-KysrKy0tLS0KIGRyaXZlcnMvaW5wdXQvaW5wdXQtY29tcGF0LmMgfCAgOCArKysrLS0tLQogZHJp
-dmVycy9pbnB1dC9pbnB1dC1jb21wYXQuaCB8ICAzICsrLQogZHJpdmVycy9pbnB1dC9taXNjL3Vp
-bnB1dC5jICB8ICA0ICsrLS0KIGluY2x1ZGUvdWFwaS9saW51eC9pbnB1dC5oICAgfCAxMiArKysr
-KysrKysrKy0KIDUgZmlsZXMgY2hhbmdlZCwgMzEgaW5zZXJ0aW9ucygrKSwgMTIgZGVsZXRpb25z
-KC0pCgoKYmFzZS1jb21taXQ6IDBjMWY5ZDgxYWMzNjBkOGFkMzFjYmZkMmJkY2Y0NGRlODIwNDE4
-OGUKcHJlcmVxdWlzaXRlLXBhdGNoLWlkOiA2YzkwM2MwMGM5ZDUxOTE2MTllZmU5ZjI2ZTI2MDAx
-OTczMzZlNmIyCi0tIAoyLjE0LjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClkyMDM4IG1haWxpbmcgbGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0
-dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3kyMDM4Cg==
+struct timeval is not y2038 safe.
+All usage of timeval in the kernel will be replaced by
+y2038 safe structures.
+The change is also necessary as glibc is introducing support
+for 32 bit applications to use 64 bit time_t. Without this
+change, many applications would incorrectly interpret values
+in the struct input_event.
+More details about glibc at
+https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
+
+struct input_event maintains time for each input event.
+Real time timestamps are not ideal for input as this
+time can go backwards as noted in the patch a80b83b7b8
+by John Stultz. Hence, having the input_event.time fields
+only big enough for monotonic and boot times are
+sufficient.
+
+The change leaves the representation of struct input_event as is
+on 64 bit architectures. But uses 2 unsigned long values on 32 bit
+machines to support real timestamps until year 2106.
+This intentionally breaks the ABI on 32 bit architectures and
+compat handling on 64 bit architectures.
+This is as per maintainer's preference to introduce compile time errors
+rather than run into runtime incompatibilities.
+
+The change requires any 32 bit userspace utilities reading or writing
+from event nodes to update their reading format to match the new
+input_event. The changes to the popular libraries will be posted once
+we agree on the kernel change.
+
+Suggested-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ drivers/input/evdev.c        | 16 ++++++++++++----
+ drivers/input/input-compat.c |  8 ++++----
+ drivers/input/input-compat.h |  3 ++-
+ drivers/input/misc/uinput.c  |  4 ++--
+ include/uapi/linux/input.h   | 12 +++++++++++-
+ 5 files changed, 31 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 0193dd4f0452..8a8a905ab886 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -135,7 +135,8 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+ 			continue;
+ 		} else if (head != i) {
+ 			/* move entry to fill the gap */
+-			client->buffer[head].time = ev->time;
++			client->buffer[head].input_event_sec = ev->input_event_sec;
++			client->buffer[head].input_event_usec = ev->input_event_usec;
+ 			client->buffer[head].type = ev->type;
+ 			client->buffer[head].code = ev->code;
+ 			client->buffer[head].value = ev->value;
+@@ -157,6 +158,7 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ {
+ 	struct input_event ev;
+ 	ktime_t time;
++	struct timespec64 ts;
+ 
+ 	time = client->clk_type == EV_CLK_REAL ?
+ 			ktime_get_real() :
+@@ -164,7 +166,9 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+ 				ktime_get() :
+ 				ktime_get_boottime();
+ 
+-	ev.time = ktime_to_timeval(time);
++	ts = ktime_to_timespec64(time);
++	ev.input_event_sec = ts.tv_sec;
++	ev.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 	ev.type = EV_SYN;
+ 	ev.code = SYN_DROPPED;
+ 	ev.value = 0;
+@@ -241,7 +245,8 @@ static void __pass_event(struct evdev_client *client,
+ 		 */
+ 		client->tail = (client->head - 2) & (client->bufsize - 1);
+ 
+-		client->buffer[client->tail].time = event->time;
++		client->buffer[client->tail].input_event_sec = event->input_event_sec;
++		client->buffer[client->tail].input_event_usec = event->input_event_usec;
+ 		client->buffer[client->tail].type = EV_SYN;
+ 		client->buffer[client->tail].code = SYN_DROPPED;
+ 		client->buffer[client->tail].value = 0;
+@@ -262,12 +267,15 @@ static void evdev_pass_values(struct evdev_client *client,
+ 	struct evdev *evdev = client->evdev;
+ 	const struct input_value *v;
+ 	struct input_event event;
++	struct timespec64 ts;
+ 	bool wakeup = false;
+ 
+ 	if (client->revoked)
+ 		return;
+ 
+-	event.time = ktime_to_timeval(ev_time[client->clk_type]);
++	ts = ktime_to_timespec64(ev_time[client->clk_type]);
++	event.input_event_sec = ts.tv_sec;
++	event.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 
+ 	/* Interrupts are disabled, just acquire the lock. */
+ 	spin_lock(&client->buffer_lock);
+diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
+index 2186f71c9fe5..fda8d6d2a268 100644
+--- a/drivers/input/input-compat.c
++++ b/drivers/input/input-compat.c
+@@ -24,8 +24,8 @@ int input_event_from_user(const char __user *buffer,
+ 				   sizeof(struct input_event_compat)))
+ 			return -EFAULT;
+ 
+-		event->time.tv_sec = compat_event.time.tv_sec;
+-		event->time.tv_usec = compat_event.time.tv_usec;
++		event->input_event_sec = compat_event.sec;
++		event->input_event_usec = compat_event.usec;
+ 		event->type = compat_event.type;
+ 		event->code = compat_event.code;
+ 		event->value = compat_event.value;
+@@ -44,8 +44,8 @@ int input_event_to_user(char __user *buffer,
+ 	if (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) {
+ 		struct input_event_compat compat_event;
+ 
+-		compat_event.time.tv_sec = event->time.tv_sec;
+-		compat_event.time.tv_usec = event->time.tv_usec;
++		compat_event.sec = event->input_event_sec;
++		compat_event.usec = event->input_event_usec;
+ 		compat_event.type = event->type;
+ 		compat_event.code = event->code;
+ 		compat_event.value = event->value;
+diff --git a/drivers/input/input-compat.h b/drivers/input/input-compat.h
+index 1563160a7af3..08cd755e73fd 100644
+--- a/drivers/input/input-compat.h
++++ b/drivers/input/input-compat.h
+@@ -18,7 +18,8 @@
+ #ifdef CONFIG_COMPAT
+ 
+ struct input_event_compat {
+-	struct compat_timeval time;
++	compat_ulong_t sec;
++	compat_ulong_t usec;
+ 	__u16 type;
+ 	__u16 code;
+ 	__s32 value;
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 9251765645d1..03d22fc90a45 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -90,8 +90,8 @@ static int uinput_dev_event(struct input_dev *dev,
+ 	udev->buff[udev->head].code = code;
+ 	udev->buff[udev->head].value = value;
+ 	ktime_get_ts64(&ts);
+-	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
+-	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
++	udev->buff[udev->head].input_event_sec = ts.tv_sec;
++	udev->buff[udev->head].input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
+ 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
+ 
+ 	wake_up_interruptible(&udev->waitq);
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 8c5a0bf6ee35..9c5105ff5cc6 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -21,10 +21,20 @@
+ 
+ /*
+  * The event structure itself
++ * Note that __USE_TIME_BITS64 is defined by libc based on
++ * application's request to use 64 bit time_t.
+  */
+-
+ struct input_event {
++#if	(__BITS_PER_LONG != 32 || !defined(__USE_TIME_BITS64)) && !defined(__KERNEL)
+ 	struct timeval time;
++#define input_event_sec time.tv_sec
++#define input_event_usec time.tv_usec
++#else
++	__kernel_ulong_t __sec;
++	__kernel_ulong_t __usec;
++#define input_event_sec  __sec
++#define input_event_usec __usec
++#endif
+ 	__u16 type;
+ 	__u16 code;
+ 	__s32 value;
+-- 
+2.14.1
+

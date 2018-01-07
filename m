@@ -1,201 +1,590 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH v6 1/1] input: Deprecate real timestamps beyond year 2106
-Date: Sat,  6 Jan 2018 16:19:15 -0800
-Message-ID: <20180107001915.15287-2-deepa.kernel@gmail.com>
-References: <20180107001915.15287-1-deepa.kernel@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware
+ ID"
+Date: Sat, 6 Jan 2018 22:52:01 -0800
+Message-ID: <20180107065201.q2xck62unijt3avr@dtor-ws>
+References: <20171230152213.GA2099@marax.lan.yath.de>
+ <dcfb84c8-4ad8-8276-5451-ee91fc84f742@canonical.com>
+ <20171231082646.GC25965@kroah.com>
+ <901a0a66-eb83-9dcd-658c-5b09eabcab88@canonical.com>
+ <20180102070811.p7gfaq3vr55sdbd3@dtor-ws>
+ <ac087ae7-54d4-d038-daa7-048c87368d17@canonical.com>
+ <20180105005659.j2x56opkq74wm7v2@dtor-ws>
+ <598ac534-ed9b-1377-70c5-eec7b7521755@canonical.com>
+ <20180105162313.higyrbd6unumgtjb@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:45555 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752622AbeAGATd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Jan 2018 19:19:33 -0500
-In-Reply-To: <20180107001915.15287-1-deepa.kernel@gmail.com>
+Received: from mail-pl0-f66.google.com ([209.85.160.66]:46303 "EHLO
+        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751485AbeAGGwF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 7 Jan 2018 01:52:05 -0500
+Received: by mail-pl0-f66.google.com with SMTP id i6so5709885plt.13
+        for <linux-input@vger.kernel.org>; Sat, 06 Jan 2018 22:52:05 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20180105162313.higyrbd6unumgtjb@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: peter.hutterer@who-t.net, arnd@arndb.de, y2038@lists.linaro.org
+To: Aaron Ma <aaron.ma@canonical.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, Sebastian Schmidt <yath@yath.de>, linux-input@vger.kernel.org
 
-struct timeval is not y2038 safe.
-All usage of timeval in the kernel will be replaced by
-y2038 safe structures.
-The change is also necessary as glibc is introducing support
-for 32 bit applications to use 64 bit time_t. Without this
-change, many applications would incorrectly interpret values
-in the struct input_event.
-More details about glibc at
-https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
+On Fri, Jan 05, 2018 at 08:23:13AM -0800, Dmitry Torokhov wrote:
+> Hi Aaron,
+> 
+> On Fri, Jan 05, 2018 at 09:29:26PM +0800, Aaron Ma wrote:
+> > Hi Dmitry:
+> > 
+> > Got the official info from Lenovo:
+> > Lenovo introduced new TrackPoint compatible sticks ( ELAN/Alps/NXP
+> > sticks) from 2016.
+> > These new devices only support the minimum commands described in the
+> > spec, which has been used in the current Windows driver.
+> 
+> What is the exact list of the commands supported by each variant?
+> 
+> > 
+> > Legacy TrackPoint: 0101 – 0E01
+> > ALPS: 0102 – FF02
+> > ELAN:0103 – FF03
+> > NXP: 0104 – FF04
+> > 
+> > 2.4.18 READ SECONDARY ID (x"E1")
+> > This command will read the secondary device ID of the pointing device (2
+> > bytes).  The least significant byte is sent first.  For the first byte,
+> > the legacy TrackPoint controller from IBM will always return x"01", the
+> > pointing stick from ALPS will always return x"02", the pointing stick
+> > from Elan will always return x"03”, and the pointing stick from NXP will
+> > always return 0x”04".  And a second byte which denotes a specific set of
+> > functional specifications.  Differing ROM versions are used to denote
+> > changes within a given functional set.
+> 
+> Can you/Lenovo share the updated spec?
+> 
+> > 
+> > The new devices (include Legacy ID:01) will not support the sysfs like
+> > speed.
+> > 
+> > So it is not right to revert the commit, it is about to add another 0x04
+> > ID in it.
+> > 
+> > Old sysfs could be stayed for old legacy device ID:01 or removed.
+> 
+> No, because there are devices that have trackpoints properly
+> implementing the protocol, before Lenovo started their "innovation".
+> 
+> Do we have any way to distinguish between properly implemented
+> trackpoints and Lenovo "improved" ones? I played with gen3 Carbon, and
+> while it does not error out on "speed" attribute, unlike gen5, it still
+> has no visible effects. Additionally, the "press to select"
+> functionality seems to be disabled, and trying to enable it via sysfs
+> results in register content being reverted to the original "disabled"
+> setting in a second or two. Setting to swap X and Y axes does not work
+> either, not sure about other bits of that control register.
+> "sensitivity" does work though, again unlike my gen5.
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
 
-struct input_event maintains time for each input event.
-Real time timestamps are not ideal for input as this
-time can go backwards as noted in the patch a80b83b7b8
-by John Stultz. Hence, having the input_event.time fields
-only big enough for monotonic and boot times are
-sufficient.
+Guys, could you please try the patch below? It will not solve the
+"speed" issue on 0x01 devices, but hopefully we won't be exposing
+non-existing controls on others.
 
-The change leaves the representation of struct input_event as is
-on 64 bit architectures. But uses 2 unsigned long values on 32 bit
-machines to support real timestamps until year 2106.
-This intentionally breaks the ABI on 32 bit architectures and
-compat handling on 64 bit architectures.
-This is as per maintainer's preference to introduce compile time errors
-rather than run into runtime incompatibilities.
+Thanks!
 
-The change requires any 32 bit userspace utilities reading or writing
-from event nodes to update their reading format to match the new
-input_event. The changes to the popular libraries will be posted once
-we agree on the kernel change.
+-- 
+Dmitry
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+
+Input: trackpoint - only expose supported controls for Elan, ALPS and NXP
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+The newer trackpoints from ALPS, Elan and NXP implement a very limited
+subset of extended commands and controls that the original trackpoints
+implemented, so we should not be exposing not working controls in sysfs.
+The newer trackpoints also do not implement "Power On Reset" or "Read
+Extended Button Status", so we should not be using these commands during
+initialization.
+
+While we are at it, let's change "unsigned char" to u8 for byte data or
+bool for booleans and use better suited error codes instead of -1.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/evdev.c        | 16 ++++++++++++----
- drivers/input/input-compat.c |  8 ++++----
- drivers/input/input-compat.h |  3 ++-
- drivers/input/misc/uinput.c  |  4 ++--
- include/uapi/linux/input.h   | 12 +++++++++++-
- 5 files changed, 31 insertions(+), 12 deletions(-)
+ drivers/input/mouse/trackpoint.c |  241 +++++++++++++++++++++++---------------
+ drivers/input/mouse/trackpoint.h |   34 +++--
+ 2 files changed, 168 insertions(+), 107 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 0193dd4f0452..8a8a905ab886 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -135,7 +135,8 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- 			continue;
- 		} else if (head != i) {
- 			/* move entry to fill the gap */
--			client->buffer[head].time = ev->time;
-+			client->buffer[head].input_event_sec = ev->input_event_sec;
-+			client->buffer[head].input_event_usec = ev->input_event_usec;
- 			client->buffer[head].type = ev->type;
- 			client->buffer[head].code = ev->code;
- 			client->buffer[head].value = ev->value;
-@@ -157,6 +158,7 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
+diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+index 0871010f18d5..0ca80f465359 100644
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -19,6 +19,13 @@
+ #include "psmouse.h"
+ #include "trackpoint.h"
+ 
++static const char * const trackpoint_variants[] = {
++	[TP_VARIANT_IBM]	= "IBM",
++	[TP_VARIANT_ALPS]	= "ALPS",
++	[TP_VARIANT_ELAN]	= "Elan",
++	[TP_VARIANT_NXP]	= "NXP",
++};
++
+ /*
+  * Power-on Reset: Resets all trackpoint parameters, including RAM values,
+  * to defaults.
+@@ -26,7 +33,7 @@
+  */
+ static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
  {
- 	struct input_event ev;
- 	ktime_t time;
-+	struct timespec64 ts;
+-	unsigned char results[2];
++	u8 results[2];
+ 	int tries = 0;
  
- 	time = client->clk_type == EV_CLK_REAL ?
- 			ktime_get_real() :
-@@ -164,7 +166,9 @@ static void __evdev_queue_syn_dropped(struct evdev_client *client)
- 				ktime_get() :
- 				ktime_get_boottime();
+ 	/* Issue POR command, and repeat up to once if 0xFC00 received */
+@@ -38,7 +45,7 @@ static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
  
--	ev.time = ktime_to_timeval(time);
-+	ts = ktime_to_timespec64(time);
-+	ev.input_event_sec = ts.tv_sec;
-+	ev.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
- 	ev.type = EV_SYN;
- 	ev.code = SYN_DROPPED;
- 	ev.value = 0;
-@@ -241,7 +245,8 @@ static void __pass_event(struct evdev_client *client,
- 		 */
- 		client->tail = (client->head - 2) & (client->bufsize - 1);
+ 	/* Check for success response -- 0xAA00 */
+ 	if (results[0] != 0xAA || results[1] != 0x00)
+-		return -1;
++		return -ENODEV;
  
--		client->buffer[client->tail].time = event->time;
-+		client->buffer[client->tail].input_event_sec = event->input_event_sec;
-+		client->buffer[client->tail].input_event_usec = event->input_event_usec;
- 		client->buffer[client->tail].type = EV_SYN;
- 		client->buffer[client->tail].code = SYN_DROPPED;
- 		client->buffer[client->tail].value = 0;
-@@ -262,12 +267,15 @@ static void evdev_pass_values(struct evdev_client *client,
- 	struct evdev *evdev = client->evdev;
- 	const struct input_value *v;
- 	struct input_event event;
-+	struct timespec64 ts;
- 	bool wakeup = false;
+ 	return 0;
+ }
+@@ -46,8 +53,7 @@ static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
+ /*
+  * Device IO: read, write and toggle bit
+  */
+-static int trackpoint_read(struct ps2dev *ps2dev,
+-			   unsigned char loc, unsigned char *results)
++static int trackpoint_read(struct ps2dev *ps2dev, u8 loc, u8 *results)
+ {
+ 	if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
+ 	    ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 1, loc))) {
+@@ -57,8 +63,7 @@ static int trackpoint_read(struct ps2dev *ps2dev,
+ 	return 0;
+ }
  
- 	if (client->revoked)
- 		return;
+-static int trackpoint_write(struct ps2dev *ps2dev,
+-			    unsigned char loc, unsigned char val)
++static int trackpoint_write(struct ps2dev *ps2dev, u8 loc, u8 val)
+ {
+ 	if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
+ 	    ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_WRITE_MEM)) ||
+@@ -70,8 +75,7 @@ static int trackpoint_write(struct ps2dev *ps2dev,
+ 	return 0;
+ }
  
--	event.time = ktime_to_timeval(ev_time[client->clk_type]);
-+	ts = ktime_to_timespec64(ev_time[client->clk_type]);
-+	event.input_event_sec = ts.tv_sec;
-+	event.input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
+-static int trackpoint_toggle_bit(struct ps2dev *ps2dev,
+-				 unsigned char loc, unsigned char mask)
++static int trackpoint_toggle_bit(struct ps2dev *ps2dev, u8 loc, u8 mask)
+ {
+ 	/* Bad things will happen if the loc param isn't in this range */
+ 	if (loc < 0x20 || loc >= 0x2F)
+@@ -87,11 +91,11 @@ static int trackpoint_toggle_bit(struct ps2dev *ps2dev,
+ 	return 0;
+ }
  
- 	/* Interrupts are disabled, just acquire the lock. */
- 	spin_lock(&client->buffer_lock);
-diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
-index 2186f71c9fe5..fda8d6d2a268 100644
---- a/drivers/input/input-compat.c
-+++ b/drivers/input/input-compat.c
-@@ -24,8 +24,8 @@ int input_event_from_user(const char __user *buffer,
- 				   sizeof(struct input_event_compat)))
- 			return -EFAULT;
+-static int trackpoint_update_bit(struct ps2dev *ps2dev, unsigned char loc,
+-				 unsigned char mask, unsigned char value)
++static int trackpoint_update_bit(struct ps2dev *ps2dev,
++				 u8 loc, u8 mask, u8 value)
+ {
+ 	int retval = 0;
+-	unsigned char data;
++	u8 data;
  
--		event->time.tv_sec = compat_event.time.tv_sec;
--		event->time.tv_usec = compat_event.time.tv_usec;
-+		event->input_event_sec = compat_event.sec;
-+		event->input_event_usec = compat_event.usec;
- 		event->type = compat_event.type;
- 		event->code = compat_event.code;
- 		event->value = compat_event.value;
-@@ -44,8 +44,8 @@ int input_event_to_user(char __user *buffer,
- 	if (in_compat_syscall() && !COMPAT_USE_64BIT_TIME) {
- 		struct input_event_compat compat_event;
+ 	trackpoint_read(ps2dev, loc, &data);
+ 	if (((data & mask) == mask) != !!value)
+@@ -105,17 +109,18 @@ static int trackpoint_update_bit(struct ps2dev *ps2dev, unsigned char loc,
+  */
+ struct trackpoint_attr_data {
+ 	size_t field_offset;
+-	unsigned char command;
+-	unsigned char mask;
+-	unsigned char inverted;
+-	unsigned char power_on_default;
++	u8 command;
++	u8 mask;
++	bool inverted;
++	u8 power_on_default;
+ };
  
--		compat_event.time.tv_sec = event->time.tv_sec;
--		compat_event.time.tv_usec = event->time.tv_usec;
-+		compat_event.sec = event->input_event_sec;
-+		compat_event.usec = event->input_event_usec;
- 		compat_event.type = event->type;
- 		compat_event.code = event->code;
- 		compat_event.value = event->value;
-diff --git a/drivers/input/input-compat.h b/drivers/input/input-compat.h
-index 1563160a7af3..08cd755e73fd 100644
---- a/drivers/input/input-compat.h
-+++ b/drivers/input/input-compat.h
-@@ -18,7 +18,8 @@
- #ifdef CONFIG_COMPAT
+-static ssize_t trackpoint_show_int_attr(struct psmouse *psmouse, void *data, char *buf)
++static ssize_t trackpoint_show_int_attr(struct psmouse *psmouse,
++					void *data, char *buf)
+ {
+ 	struct trackpoint_data *tp = psmouse->private;
+ 	struct trackpoint_attr_data *attr = data;
+-	unsigned char value = *(unsigned char *)((char *)tp + attr->field_offset);
++	u8 value = *(u8 *)((void *)tp + attr->field_offset);
  
- struct input_event_compat {
--	struct compat_timeval time;
-+	compat_ulong_t sec;
-+	compat_ulong_t usec;
- 	__u16 type;
- 	__u16 code;
- 	__s32 value;
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 9251765645d1..03d22fc90a45 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -90,8 +90,8 @@ static int uinput_dev_event(struct input_dev *dev,
- 	udev->buff[udev->head].code = code;
- 	udev->buff[udev->head].value = value;
- 	ktime_get_ts64(&ts);
--	udev->buff[udev->head].time.tv_sec = ts.tv_sec;
--	udev->buff[udev->head].time.tv_usec = ts.tv_nsec / NSEC_PER_USEC;
-+	udev->buff[udev->head].input_event_sec = ts.tv_sec;
-+	udev->buff[udev->head].input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
- 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
+ 	if (attr->inverted)
+ 		value = !value;
+@@ -128,8 +133,8 @@ static ssize_t trackpoint_set_int_attr(struct psmouse *psmouse, void *data,
+ {
+ 	struct trackpoint_data *tp = psmouse->private;
+ 	struct trackpoint_attr_data *attr = data;
+-	unsigned char *field = (unsigned char *)((char *)tp + attr->field_offset);
+-	unsigned char value;
++	u8 *field = (void *)tp + attr->field_offset;
++	u8 value;
+ 	int err;
  
- 	wake_up_interruptible(&udev->waitq);
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 8c5a0bf6ee35..9c5105ff5cc6 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -21,10 +21,20 @@
+ 	err = kstrtou8(buf, 10, &value);
+@@ -157,17 +162,14 @@ static ssize_t trackpoint_set_bit_attr(struct psmouse *psmouse, void *data,
+ {
+ 	struct trackpoint_data *tp = psmouse->private;
+ 	struct trackpoint_attr_data *attr = data;
+-	unsigned char *field = (unsigned char *)((char *)tp + attr->field_offset);
+-	unsigned int value;
++	bool *field = (void *)tp + attr->field_offset;
++	bool value;
+ 	int err;
+ 
+-	err = kstrtouint(buf, 10, &value);
++	err = kstrtobool(buf, &value);
+ 	if (err)
+ 		return err;
+ 
+-	if (value > 1)
+-		return -EINVAL;
+-
+ 	if (attr->inverted)
+ 		value = !value;
+ 
+@@ -193,30 +195,6 @@ PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,				\
+ 		    &trackpoint_attr_##_name,				\
+ 		    trackpoint_show_int_attr, trackpoint_set_bit_attr)
+ 
+-#define TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name)			\
+-do {									\
+-	struct trackpoint_attr_data *_attr = &trackpoint_attr_##_name;	\
+-									\
+-	trackpoint_update_bit(&_psmouse->ps2dev,			\
+-			_attr->command, _attr->mask, _tp->_name);	\
+-} while (0)
+-
+-#define TRACKPOINT_UPDATE(_power_on, _psmouse, _tp, _name)		\
+-do {									\
+-	if (!_power_on ||						\
+-	    _tp->_name != trackpoint_attr_##_name.power_on_default) {	\
+-		if (!trackpoint_attr_##_name.mask)			\
+-			trackpoint_write(&_psmouse->ps2dev,		\
+-				 trackpoint_attr_##_name.command,	\
+-				 _tp->_name);				\
+-		else							\
+-			TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name);	\
+-	}								\
+-} while (0)
+-
+-#define TRACKPOINT_SET_POWER_ON_DEFAULT(_tp, _name)				\
+-	(_tp->_name = trackpoint_attr_##_name.power_on_default)
+-
+ TRACKPOINT_INT_ATTR(sensitivity, TP_SENS, TP_DEF_SENS);
+ TRACKPOINT_INT_ATTR(speed, TP_SPEED, TP_DEF_SPEED);
+ TRACKPOINT_INT_ATTR(inertia, TP_INERTIA, TP_DEF_INERTIA);
+@@ -229,13 +207,33 @@ TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME, TP_DEF_Z_TIME);
+ TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV, TP_DEF_JENKS_CURV);
+ TRACKPOINT_INT_ATTR(drift_time, TP_DRIFT_TIME, TP_DEF_DRIFT_TIME);
+ 
+-TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0,
++TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, false,
+ 		    TP_DEF_PTSON);
+-TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0,
++TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, false,
+ 		    TP_DEF_SKIPBACK);
+-TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1,
++TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, true,
+ 		    TP_DEF_EXT_DEV);
+ 
++static bool trackpoint_is_attr_available(struct psmouse *psmouse,
++					 struct attribute *attr)
++{
++	struct trackpoint_data *tp = psmouse->private;
++
++	return tp->variant_id == TP_VARIANT_IBM ||
++		attr == &psmouse_attr_sensitivity.dattr.attr ||
++		attr == &psmouse_attr_press_to_select.dattr.attr;
++}
++
++static umode_t trackpoint_is_attr_visible(struct kobject *kobj,
++					  struct attribute *attr, int n)
++{
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct serio *serio = to_serio_port(dev);
++	struct psmouse *psmouse = serio_get_drvdata(serio);
++
++	return trackpoint_is_attr_available(psmouse, attr) ? attr->mode : 0;
++}
++
+ static struct attribute *trackpoint_attrs[] = {
+ 	&psmouse_attr_sensitivity.dattr.attr,
+ 	&psmouse_attr_speed.dattr.attr,
+@@ -255,24 +253,56 @@ static struct attribute *trackpoint_attrs[] = {
+ };
+ 
+ static struct attribute_group trackpoint_attr_group = {
+-	.attrs = trackpoint_attrs,
++	.is_visible	= trackpoint_is_attr_visible,
++	.attrs		= trackpoint_attrs,
+ };
+ 
+-static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *firmware_id)
+-{
+-	unsigned char param[2] = { 0 };
++#define TRACKPOINT_UPDATE(_power_on, _psmouse, _tp, _name)		\
++do {									\
++	struct trackpoint_attr_data *_attr = &trackpoint_attr_##_name;	\
++									\
++	if ((!_power_on || _tp->_name != _attr->power_on_default) &&	\
++	    trackpoint_is_attr_available(_psmouse,			\
++				&psmouse_attr_##_name.dattr.attr)) {	\
++		if (!_attr->mask)					\
++			trackpoint_write(&_psmouse->ps2dev,		\
++					 _attr->command, _tp->_name);	\
++		else							\
++			trackpoint_update_bit(&_psmouse->ps2dev,	\
++					_attr->command, _attr->mask,	\
++					_tp->_name);			\
++	}								\
++} while (0)
+ 
+-	if (ps2_command(&psmouse->ps2dev, param, MAKE_PS2_CMD(0, 2, TP_READ_ID)))
+-		return -1;
++#define TRACKPOINT_SET_POWER_ON_DEFAULT(_tp, _name)			\
++do {									\
++	_tp->_name = trackpoint_attr_##_name.power_on_default;		\
++} while (0)
+ 
+-	/* add new TP ID. */
+-	if (!(param[0] & TP_MAGIC_IDENT))
+-		return -1;
++static int trackpoint_start_protocol(struct psmouse *psmouse,
++				     u8 *variant_id, u8 *firmware_id)
++{
++	u8 param[2] = { 0 };
++	int error;
+ 
+-	if (firmware_id)
+-		*firmware_id = param[1];
++	error = ps2_command(&psmouse->ps2dev,
++			    param, MAKE_PS2_CMD(0, 2, TP_READ_ID));
++	if (error)
++		return error;
++
++	switch (param[0]) {
++	case TP_VARIANT_IBM:
++	case TP_VARIANT_ALPS:
++	case TP_VARIANT_ELAN:
++	case TP_VARIANT_NXP:
++		if (variant_id)
++			*variant_id = param[0];
++		if (firmware_id)
++			*firmware_id = param[1];
++		break;
++	}
+ 
+-	return 0;
++	return -ENODEV;
+ }
  
  /*
-  * The event structure itself
-+ * Note that __USE_TIME_BITS64 is defined by libc based on
-+ * application's request to use 64 bit time_t.
-  */
+@@ -285,7 +315,7 @@ static int trackpoint_sync(struct psmouse *psmouse, bool in_power_on_state)
+ {
+ 	struct trackpoint_data *tp = psmouse->private;
+ 
+-	if (!in_power_on_state) {
++	if (!in_power_on_state && tp->variant_id == TP_VARIANT_IBM) {
+ 		/*
+ 		 * Disable features that may make device unusable
+ 		 * with this driver.
+@@ -347,7 +377,8 @@ static void trackpoint_defaults(struct trackpoint_data *tp)
+ 
+ static void trackpoint_disconnect(struct psmouse *psmouse)
+ {
+-	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj, &trackpoint_attr_group);
++	device_remove_group(&psmouse->ps2dev.serio->dev,
++			    &trackpoint_attr_group);
+ 
+ 	kfree(psmouse->private);
+ 	psmouse->private = NULL;
+@@ -355,14 +386,20 @@ static void trackpoint_disconnect(struct psmouse *psmouse)
+ 
+ static int trackpoint_reconnect(struct psmouse *psmouse)
+ {
+-	int reset_fail;
++	struct trackpoint_data *tp = psmouse->private;
++	int error;
++	bool was_reset;
+ 
+-	if (trackpoint_start_protocol(psmouse, NULL))
+-		return -1;
++	error = trackpoint_start_protocol(psmouse, NULL, NULL);
++	if (error)
++		return error;
+ 
+-	reset_fail = trackpoint_power_on_reset(&psmouse->ps2dev);
+-	if (trackpoint_sync(psmouse, !reset_fail))
+-		return -1;
++	was_reset = tp->variant_id == TP_VARIANT_IBM &&
++		    trackpoint_power_on_reset(&psmouse->ps2dev) == 0;
++
++	error = trackpoint_sync(psmouse, was_reset);
++	if (error)
++		return error;
+ 
+ 	return 0;
+ }
+@@ -370,46 +407,62 @@ static int trackpoint_reconnect(struct psmouse *psmouse)
+ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ {
+ 	struct ps2dev *ps2dev = &psmouse->ps2dev;
+-	unsigned char firmware_id;
+-	unsigned char button_info;
++	struct trackpoint_data *tp;
++	u8 variant_id;
++	u8 firmware_id;
++	u8 button_info;
+ 	int error;
+ 
+-	if (trackpoint_start_protocol(psmouse, &firmware_id))
+-		return -1;
++	error = trackpoint_start_protocol(psmouse, &variant_id, &firmware_id);
++	if (error)
++		return error;
+ 
+ 	if (!set_properties)
+ 		return 0;
+ 
+-	if (trackpoint_read(ps2dev, TP_EXT_BTN, &button_info)) {
+-		psmouse_warn(psmouse, "failed to get extended button data, assuming 3 buttons\n");
+-		button_info = 0x33;
+-	}
 -
- struct input_event {
-+#if	(__BITS_PER_LONG != 32 || !defined(__USE_TIME_BITS64)) && !defined(__KERNEL)
- 	struct timeval time;
-+#define input_event_sec time.tv_sec
-+#define input_event_usec time.tv_usec
-+#else
-+	__kernel_ulong_t __sec;
-+	__kernel_ulong_t __usec;
-+#define input_event_sec  __sec
-+#define input_event_usec __usec
-+#endif
- 	__u16 type;
- 	__u16 code;
- 	__s32 value;
--- 
-2.14.1
-
+-	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
+-	if (!psmouse->private)
++	tp = kzalloc(sizeof(*tp), GFP_KERNEL);
++	if (!tp)
+ 		return -ENOMEM;
+ 
+-	psmouse->vendor = "IBM";
++	trackpoint_defaults(tp);
++	tp->variant_id = variant_id;
++	tp->firmware_id = firmware_id;
++
++	psmouse->private = tp;
++
++	psmouse->vendor = trackpoint_variants[variant_id];
+ 	psmouse->name = "TrackPoint";
+ 
+ 	psmouse->reconnect = trackpoint_reconnect;
+ 	psmouse->disconnect = trackpoint_disconnect;
+ 
++	if (variant_id != TP_VARIANT_IBM) {
++		/* Newer variants do not support extended button query. */
++		button_info = 0x33;
++	} else {
++		error = trackpoint_read(ps2dev, TP_EXT_BTN, &button_info);
++		if (error) {
++			psmouse_warn(psmouse,
++				     "failed to get extended button data, assuming 3 buttons\n");
++			button_info = 0x33;
++		}
++	}
++
+ 	if ((button_info & 0x0f) >= 3)
+-		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
++		input_set_capability(psmouse->dev, EV_KEY, BTN_MIDDLE);
+ 
+ 	__set_bit(INPUT_PROP_POINTER, psmouse->dev->propbit);
+ 	__set_bit(INPUT_PROP_POINTING_STICK, psmouse->dev->propbit);
+ 
+-	trackpoint_defaults(psmouse->private);
+-
+-	error = trackpoint_power_on_reset(ps2dev);
+-
+-	/* Write defaults to TP only if reset fails. */
+-	if (error)
++	if (variant_id != TP_VARIANT_IBM ||
++	    trackpoint_power_on_reset(ps2dev) != 0) {
++		/*
++		 * Write defaults to TP if we did not reset the trackpoint.
++		 */
+ 		trackpoint_sync(psmouse, false);
++	}
+ 
+-	error = sysfs_create_group(&ps2dev->serio->dev.kobj, &trackpoint_attr_group);
++	error = device_add_group(&ps2dev->serio->dev, &trackpoint_attr_group);
+ 	if (error) {
+ 		psmouse_err(psmouse,
+ 			    "failed to create sysfs attributes, error: %d\n",
+@@ -420,8 +473,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+ 	}
+ 
+ 	psmouse_info(psmouse,
+-		     "IBM TrackPoint firmware: 0x%02x, buttons: %d/%d\n",
+-		     firmware_id,
++		     "%s TrackPoint firmware: 0x%02x, buttons: %d/%d\n",
++		     psmouse->vendor, firmware_id,
+ 		     (button_info & 0xf0) >> 4, button_info & 0x0f);
+ 
+ 	return 0;
+diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
+index 88055755f82e..10a039148234 100644
+--- a/drivers/input/mouse/trackpoint.h
++++ b/drivers/input/mouse/trackpoint.h
+@@ -21,10 +21,16 @@
+ #define TP_COMMAND		0xE2	/* Commands start with this */
+ 
+ #define TP_READ_ID		0xE1	/* Sent for device identification */
+-#define TP_MAGIC_IDENT		0x03	/* Sent after a TP_READ_ID followed */
+-					/* by the firmware ID */
+-					/* Firmware ID includes 0x1, 0x2, 0x3 */
+ 
++/*
++ * Valid first byte responses to the "Read Secondary ID" (0xE1) command.
++ * 0x01 was the original IBM trackpoint, others implement very limited
++ * subset of trackpoint features.
++ */
++#define TP_VARIANT_IBM		0x01
++#define TP_VARIANT_ALPS		0x02
++#define TP_VARIANT_ELAN		0x03
++#define TP_VARIANT_NXP		0x04
+ 
+ /*
+  * Commands
+@@ -136,18 +142,20 @@
+ 
+ #define MAKE_PS2_CMD(params, results, cmd) ((params<<12) | (results<<8) | (cmd))
+ 
+-struct trackpoint_data
+-{
+-	unsigned char sensitivity, speed, inertia, reach;
+-	unsigned char draghys, mindrag;
+-	unsigned char thresh, upthresh;
+-	unsigned char ztime, jenks;
+-	unsigned char drift_time;
++struct trackpoint_data {
++	u8 variant_id;
++	u8 firmware_id;
++
++	u8 sensitivity, speed, inertia, reach;
++	u8 draghys, mindrag;
++	u8 thresh, upthresh;
++	u8 ztime, jenks;
++	u8 drift_time;
+ 
+ 	/* toggles */
+-	unsigned char press_to_select;
+-	unsigned char skipback;
+-	unsigned char ext_dev;
++	bool press_to_select;
++	bool skipback;
++	bool ext_dev;
+ };
+ 
+ #ifdef CONFIG_MOUSE_PS2_TRACKPOINT

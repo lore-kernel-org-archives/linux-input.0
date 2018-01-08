@@ -1,89 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 1/1] input: Deprecate real timestamps beyond
-	year 2106
-Date: Mon, 8 Jan 2018 13:51:11 -0800
-Message-ID: <20180108215111.tqnhr5k5easbrh4b@dtor-ws>
-References: <20180107001915.15287-1-deepa.kernel@gmail.com>
- <20180107001915.15287-2-deepa.kernel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-Content-Disposition: inline
-In-Reply-To: <20180107001915.15287-2-deepa.kernel@gmail.com>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: y2038@lists.linaro.org, peter.hutterer@who-t.net, linux-kernel@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: [PATCH] Input: cyapa - remove duplicated macro definitions
+Date: Mon,  8 Jan 2018 22:54:02 +0100
+Message-ID: <20180108215402.25612-1-linux@rasmusvillemoes.dk>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGkgRGVlcGEsCgpPbiBTYXQsIEphbiAwNiwgMjAxOCBhdCAwNDoxOToxNVBNIC0wODAwLCBEZWVw
-YSBEaW5hbWFuaSB3cm90ZToKPiBzdHJ1Y3QgdGltZXZhbCBpcyBub3QgeTIwMzggc2FmZS4KPiBB
-bGwgdXNhZ2Ugb2YgdGltZXZhbCBpbiB0aGUga2VybmVsIHdpbGwgYmUgcmVwbGFjZWQgYnkKPiB5
-MjAzOCBzYWZlIHN0cnVjdHVyZXMuCj4gVGhlIGNoYW5nZSBpcyBhbHNvIG5lY2Vzc2FyeSBhcyBn
-bGliYyBpcyBpbnRyb2R1Y2luZyBzdXBwb3J0Cj4gZm9yIDMyIGJpdCBhcHBsaWNhdGlvbnMgdG8g
-dXNlIDY0IGJpdCB0aW1lX3QuIFdpdGhvdXQgdGhpcwo+IGNoYW5nZSwgbWFueSBhcHBsaWNhdGlv
-bnMgd291bGQgaW5jb3JyZWN0bHkgaW50ZXJwcmV0IHZhbHVlcwo+IGluIHRoZSBzdHJ1Y3QgaW5w
-dXRfZXZlbnQuCj4gTW9yZSBkZXRhaWxzIGFib3V0IGdsaWJjIGF0Cj4gaHR0cHM6Ly9zb3VyY2V3
-YXJlLm9yZy9nbGliYy93aWtpL1kyMDM4UHJvb2ZuZXNzRGVzaWduIC4KPiAKPiBzdHJ1Y3QgaW5w
-dXRfZXZlbnQgbWFpbnRhaW5zIHRpbWUgZm9yIGVhY2ggaW5wdXQgZXZlbnQuCj4gUmVhbCB0aW1l
-IHRpbWVzdGFtcHMgYXJlIG5vdCBpZGVhbCBmb3IgaW5wdXQgYXMgdGhpcwo+IHRpbWUgY2FuIGdv
-IGJhY2t3YXJkcyBhcyBub3RlZCBpbiB0aGUgcGF0Y2ggYTgwYjgzYjdiOAo+IGJ5IEpvaG4gU3R1
-bHR6LiBIZW5jZSwgaGF2aW5nIHRoZSBpbnB1dF9ldmVudC50aW1lIGZpZWxkcwo+IG9ubHkgYmln
-IGVub3VnaCBmb3IgbW9ub3RvbmljIGFuZCBib290IHRpbWVzIGFyZQo+IHN1ZmZpY2llbnQuCgpJ
-IGFtIGhhcHB5IHdpdGggdGhlIHBhdGNoLCBidXQgaGF2ZSBzb21lIGNvbmNlcm5zIGFib3V0IGNo
-YW5nZWxvZy4gVGhlCmNoYW5nZSBkb2VzIG5vdCByZWFsbHkgcHJldmVudCBhbnlvbmUgZnJvbSB1
-c2luZyBDTE9DS19SRUFMVElNRSBwYXN0CjIxMDYsIGVzcGVjaWFsbHkgb24gNjQgYml0IGFyY2hl
-cy4gV2UgYXJlIHNpbXBseSBleHRlbmRpbmcgcmFuZ2Ugb2YKcmVwb3J0ZWQgc2Vjb25kcyBpbiBp
-bnB1dCBldmVudCBieSBjb252ZXJ0aW5nIGZyb20gc2lnbmVkIHRvIHVuc2lnbmVkCnZhbHVlLgoK
-PiAKPiBUaGUgY2hhbmdlIGxlYXZlcyB0aGUgcmVwcmVzZW50YXRpb24gb2Ygc3RydWN0IGlucHV0
-X2V2ZW50IGFzIGlzCj4gb24gNjQgYml0IGFyY2hpdGVjdHVyZXMuIEJ1dCB1c2VzIDIgdW5zaWdu
-ZWQgbG9uZyB2YWx1ZXMgb24gMzIgYml0Cj4gbWFjaGluZXMgdG8gc3VwcG9ydCByZWFsIHRpbWVz
-dGFtcHMgdW50aWwgeWVhciAyMTA2Lgo+IFRoaXMgaW50ZW50aW9uYWxseSBicmVha3MgdGhlIEFC
-SSBvbiAzMiBiaXQgYXJjaGl0ZWN0dXJlcyBhbmQKPiBjb21wYXQgaGFuZGxpbmcgb24gNjQgYml0
-IGFyY2hpdGVjdHVyZXMuCj4gVGhpcyBpcyBhcyBwZXIgbWFpbnRhaW5lcidzIHByZWZlcmVuY2Ug
-dG8gaW50cm9kdWNlIGNvbXBpbGUgdGltZSBlcnJvcnMKPiByYXRoZXIgdGhhbiBydW4gaW50byBy
-dW50aW1lIGluY29tcGF0aWJpbGl0aWVzLgoKV2UgYXJlIGJyZWFraW5nIEFQSSwgbm90IEFCSSB0
-aG91Z2guIFRoZSBBQkkgZm9yIGV4aXN0aW5nIHByb2dyYW1zIGlzCmV4YWN0bHkgdGhlIHNhbWUs
-IGl0IGlzIG9ubHkgd2hlbiBzeXN0ZW0gc3RhcnRzIHVzaW5nIHRoZSBuZXdlciBnbGliYwpzdXBw
-b3J0aW5nIGV4dGVuZGVkIHRpbWUgdGhlIGNvbXBpbGF0aW9uIHdpbGwgYnJlYWsuCgo+IFRoZSBj
-aGFuZ2UgcmVxdWlyZXMgYW55IDMyIGJpdCB1c2Vyc3BhY2UgdXRpbGl0aWVzIHJlYWRpbmcgb3Ig
-d3JpdGluZwo+IGZyb20gZXZlbnQgbm9kZXMgdG8gdXBkYXRlIHRoZWlyIHJlYWRpbmcgZm9ybWF0
-IHRvIG1hdGNoIHRoZSBuZXcKPiBpbnB1dF9ldmVudC4gVGhlIGNoYW5nZXMgdG8gdGhlIHBvcHVs
-YXIgbGlicmFyaWVzIHdpbGwgYmUgcG9zdGVkIG9uY2UKPiB3ZSBhZ3JlZSBvbiB0aGUga2VybmVs
-IGNoYW5nZS4KCkkgcHJvcG9zZSB3ZSBoYXZlIHRoZSBmb2xsb3dpbmcgY2hhbmdlbG9nOgoKCklu
-cHV0OiBleHRlbmQgdXNhYmxlIGxpZmUgb2YgZXZlbnQgdGltZXN0YW1wcyB0byAyMTA2IG9uIDMy
-IGJpdCBzeXN0ZW1zCgpUaGUgaW5wdXQgZXZlbnRzIHVzZSBzdHJ1Y3QgdGltZXZhbCB0byBzdG9y
-ZSBldmVudCB0aW1lLCB1bmZvcnR1bmF0ZWx5CnRoaXMgc3RydWN0dXJlIGlzIG5vdCB5MjAzOCBz
-YWZlIGFuZCBpcyBiZWluZyByZXBsYWNlZCBpbiBrZXJuZWwgd2l0aAp5MjAzOCBzYWZlIHN0cnVj
-dHVyZXMuCgpCZWNhdXNlIG9mIEFCSSBjb25jZXJucyB3ZSBjYW4gbm90IGNoYW5nZSB0aGUgc2l6
-ZSBvciB0aGUgbGF5b3V0IG9mCnN0cnVjdHVyZSBpbnB1dF9ldmVudCwgc28gd2Ugb3B0IHRvIHJl
-LWludGVycHJldGluZyB0aGUgJ3NlY29uZHMnIHBhcnQKb2YgdGltZXN0YW1wIGFzIGFuIHVuc2ln
-bmVkIHZhbHVlLCBlZmZlY3RpdmVseSBkb3VibGluZyB0aGUgcmFuZ2Ugb2YKdmFsdWVzLCB0byB5
-ZWFyIDIxMDYuCgpOZXdlciBnbGliYyB0aGF0IGhhcyBzdXBwb3J0IGZvciAzMiBiaXQgYXBwbGlj
-YXRpb25zIHRvIHVzZSA2NCBiaXQKdGltZV90IHN1cHBsaWVzIF9fVVNFX1RJTUVfQklUUzY0IGRl
-ZmluZSBbMV0sIHRoYXQgd2UgY2FuIHVzZSB0byBwcmVzZW50CnRoZSB1c2Vyc3BhY2Ugd2l0aCB1
-cGRhdGVkIGlucHV0X2V2ZW50IGxheW91dC4gVGhlIHVwZGF0ZWQgbGF5b3V0IHdpbGwKY2F1c2Ug
-dGhlIGNvbXBpbGUgdGltZSBicmVha2FnZSwgYWxlcnRpbmcgYXBwbGljYXRpb25zIGFuZCBkaXN0
-cmlidXRpb25zCm1haW50YWluZXJzIHRvIHRoZSBpc3N1ZS4gRXhpc3RpbmcgMzIgYmluYXJpZXMg
-d2lsbCBjb250aW51ZSB3b3JraW5nCndpdGhvdXQgYW55IGNoYW5nZXMgdW50aWwgMjAzOC4KClVs
-dGltYXRlbHkgdXNlcnNwYWNlIGFwcGxpY2F0aW9ucyBzaG91bGQgc3dpdGNoIHRvIHVzaW5nIG1v
-bm90b25pYyBvcgpib290IHRpbWUgY2xvY2tzLCBhcyByZWFsdGltZSBjbG9jayBpcyBub3QgdmVy
-eSB3ZWxsIHN1aXRlZCBmb3IgaW5wdXQKZXZlbnQgdGltZXN0YW1wcyBhcyBpdCBjYW4gZ28gYmFj
-a3dhcmRzIChzZWUgYTgwYjgzYjdiOCAiSW5wdXQ6IGV2ZGV2IC0KYWRkIENMT0NLX0JPT1RUSU1F
-IHN1cHBvcnQiIGJ5IGJ5IEpvaG4gU3R1bHR6KS4gV2l0aCBtb25vdG9uaWMgY2xvY2sgdGhlCnBy
-YWN0aWNhbCByYW5nZSBvZiByZXBvcnRlZCB0aW1lcyB3aWxsIGFsd2F5cyBmaXQgaW50byB0aGUg
-cGFpciBvZiAzMgpiaXQgdmFsdWVzLCBhcyB3ZSBkbyBub3QgZXhwZWN0IGFueSBzeXN0ZW0gdG8g
-c3RheSB1cCBmb3IgYSBodW5kcmVkCnllYXJzIHdpdGhvdXQgYSBzaW5nbGUgcmVib290LgoKWzFd
-IGh0dHBzOi8vc291cmNld2FyZS5vcmcvZ2xpYmMvd2lraS9ZMjAzOFByb29mbmVzc0Rlc2lnbgoK
-ClBsZWFzZSBsZXQgbWUga25vdyBpZiB5b3UgZGlzYWdlZSB3aXRoIHRoZSBhYm92ZS4KClRoYW5r
-cyEKCi0tIApEbWl0cnkKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxpc3RzLmxpbmFyby5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8veTIwMzgK
+Apart from whitespace differences, this block of macros is repeated
+twice:
+
+$ x=./drivers/input/mouse/cyapa_gen3.c; diff -w -u <(sed -n '139,181p' $x) <(sed -n '182,224p' $x)
+$
+
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+---
+ drivers/input/mouse/cyapa_gen3.c | 43 ----------------------------------------
+ 1 file changed, 43 deletions(-)
+
+diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
+index 1cbfa4a6e830..076dda4a66da 100644
+--- a/drivers/input/mouse/cyapa_gen3.c
++++ b/drivers/input/mouse/cyapa_gen3.c
+@@ -136,49 +136,6 @@ static const u8 bl_exit[] = { 0x00, 0xff, 0xa5, 0x00, 0x01, 0x02, 0x03, 0x04,
+ 		0x05, 0x06, 0x07 };
+ 
+ 
+- /* for byte read/write command */
+-#define CMD_RESET      0
+-#define CMD_POWER_MODE 1
+-#define CMD_DEV_STATUS 2
+-#define CMD_REPORT_MAX_BASELINE 3
+-#define CMD_REPORT_MIN_BASELINE 4
+-#define SMBUS_BYTE_CMD(cmd) (((cmd) & 0x3f) << 1)
+-#define CYAPA_SMBUS_RESET         SMBUS_BYTE_CMD(CMD_RESET)
+-#define CYAPA_SMBUS_POWER_MODE    SMBUS_BYTE_CMD(CMD_POWER_MODE)
+-#define CYAPA_SMBUS_DEV_STATUS    SMBUS_BYTE_CMD(CMD_DEV_STATUS)
+-#define CYAPA_SMBUS_MAX_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MAX_BASELINE)
+-#define CYAPA_SMBUS_MIN_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MIN_BASELINE)
+-
+- /* for group registers read/write command */
+-#define REG_GROUP_DATA 0
+-#define REG_GROUP_CMD 2
+-#define REG_GROUP_QUERY 3
+-#define SMBUS_GROUP_CMD(grp) (0x80 | (((grp) & 0x07) << 3))
+-#define CYAPA_SMBUS_GROUP_DATA	 SMBUS_GROUP_CMD(REG_GROUP_DATA)
+-#define CYAPA_SMBUS_GROUP_CMD	 SMBUS_GROUP_CMD(REG_GROUP_CMD)
+-#define CYAPA_SMBUS_GROUP_QUERY	 SMBUS_GROUP_CMD(REG_GROUP_QUERY)
+-
+- /* for register block read/write command */
+-#define CMD_BL_STATUS 0
+-#define CMD_BL_HEAD 1
+-#define CMD_BL_CMD 2
+-#define CMD_BL_DATA 3
+-#define CMD_BL_ALL 4
+-#define CMD_BLK_PRODUCT_ID 5
+-#define CMD_BLK_HEAD 6
+-#define SMBUS_BLOCK_CMD(cmd) (0xc0 | (((cmd) & 0x1f) << 1))
+-
+-/* register block read/write command in bootloader mode */
+-#define CYAPA_SMBUS_BL_STATUS  SMBUS_BLOCK_CMD(CMD_BL_STATUS)
+-#define CYAPA_SMBUS_BL_HEAD    SMBUS_BLOCK_CMD(CMD_BL_HEAD)
+-#define CYAPA_SMBUS_BL_CMD     SMBUS_BLOCK_CMD(CMD_BL_CMD)
+-#define CYAPA_SMBUS_BL_DATA    SMBUS_BLOCK_CMD(CMD_BL_DATA)
+-#define CYAPA_SMBUS_BL_ALL     SMBUS_BLOCK_CMD(CMD_BL_ALL)
+-
+-/* register block read/write command in operational mode */
+-#define CYAPA_SMBUS_BLK_PRODUCT_ID SMBUS_BLOCK_CMD(CMD_BLK_PRODUCT_ID)
+-#define CYAPA_SMBUS_BLK_HEAD SMBUS_BLOCK_CMD(CMD_BLK_HEAD)
+-
+  /* for byte read/write command */
+ #define CMD_RESET 0
+ #define CMD_POWER_MODE 1
+-- 
+2.15.1

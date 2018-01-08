@@ -1,96 +1,89 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 2/3] input: evdev: Replace timeval with timespec64
-Date: Mon, 8 Jan 2018 12:54:00 -0800
-Message-ID: <20180108205400.3tsq2egipygaov72@dtor-ws>
-References: <20171218051844.10193-1-deepa.kernel@gmail.com>
- <20171218051844.10193-3-deepa.kernel@gmail.com>
- <20180102064617.zmv6ospfkectaa37@dtor-ws>
- <CAK8P3a0EEGtSJ6g1JWwkZWaKTDFNN=q-ZQXcmzK4q3-xiBC+4Q@mail.gmail.com>
- <CABeXuvpo4cGPZ9heU3ZqWt88WSCbF3qp2NmfU+q94zc4-o0C_g@mail.gmail.com>
+Subject: Re: [PATCH v6 1/1] input: Deprecate real timestamps beyond
+	year 2106
+Date: Mon, 8 Jan 2018 13:51:11 -0800
+Message-ID: <20180108215111.tqnhr5k5easbrh4b@dtor-ws>
+References: <20180107001915.15287-1-deepa.kernel@gmail.com>
+ <20180107001915.15287-2-deepa.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:44919 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757783AbeAHUyE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 8 Jan 2018 15:54:04 -0500
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
 Content-Disposition: inline
-In-Reply-To: <CABeXuvpo4cGPZ9heU3ZqWt88WSCbF3qp2NmfU+q94zc4-o0C_g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <20180107001915.15287-2-deepa.kernel@gmail.com>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
 To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, y2038 Mailman List <y2038@lists.linaro.org>
+Cc: y2038@lists.linaro.org, peter.hutterer@who-t.net, linux-kernel@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Sat, Jan 06, 2018 at 01:43:34PM -0800, Deepa Dinamani wrote:
-> On Tue, Jan 2, 2018 at 7:35 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Tue, Jan 2, 2018 at 7:46 AM, Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> >> On Sun, Dec 17, 2017 at 09:18:43PM -0800, Deepa Dinamani wrote:
-> >>> @@ -304,12 +314,11 @@ static void evdev_events(struct input_handle *handle,
-> >>>  {
-> >>>       struct evdev *evdev = handle->private;
-> >>>       struct evdev_client *client;
-> >>> -     ktime_t ev_time[EV_CLK_MAX];
-> >>> +     struct timespec64 ev_time[EV_CLK_MAX];
-> >>>
-> >>> -     ev_time[EV_CLK_MONO] = ktime_get();
-> >>> -     ev_time[EV_CLK_REAL] = ktime_mono_to_real(ev_time[EV_CLK_MONO]);
-> >>> -     ev_time[EV_CLK_BOOT] = ktime_mono_to_any(ev_time[EV_CLK_MONO],
-> >>> -                                              TK_OFFS_BOOT);
-> >>> +     ktime_get_ts64(&ev_time[EV_CLK_MONO]);
-> >>> +     ktime_get_real_ts64(&ev_time[EV_CLK_REAL]);
-> >>> +     get_monotonic_boottime64(&ev_time[EV_CLK_BOOT]);
-> >>
-> >> This may result in different ev_time[] members holding different times,
-> >> whereas the original code would take one time sample and convert it to
-> >> different clocks.
-> >
-> > Is this important? On each client we only return one of the two
-> > times, and I would guess that you cannot rely on a correlation
-> > between timestamps on different devices, since the boot and real
-> > offsets can change over time.
-> 
-> Right. I didn't think this was an issue either.
-> 
-> >> Also, why can't we keep using ktime_t internally? It is y2038 safe,
-> >> right?
-> >
-> > Correct, but there may also be a performance difference if we get
-> > a lot of events, not sure if that matters.
-> >
-> >> I think you should drop this patch and adjust the 3rd one to
-> >> massage the input event timestamp patch to do ktime->timespec64->input
-> >> timestamp conversion.
-> >
-> > The change in __evdev_queue_syn_dropped still seems useful to me
-> > as ktime_get_*ts64() is a bit more efficient than ktime_get*() followed by
-> > a slow ktime_to_timespec64() or ktime_to_timeval().
-> >
-> > For evdev_events(), doing a single ktime_get() followed by a
-> > ktime_to_timespec64/ktime_to_timeval can be faster than three
-> > ktime_get_*ts64 (depending on the hardware clock source), or
-> > it can be slower depending on the CPU and the clocksource
-> > hardware. Again, no idea if this matters at the usual rate of
-> > input events.
-> >
-> > I guess dropping the evdev_events() change and replacing it with a
-> > ktime_to_timespec64 change in evdev_pass_values()
-> > would be fine here, it should keep the current performance
-> > behavior and get rid of the timeval.
-> 
-> I was trying to use timespec64 everywhere so that we would not have
-> conversions back and forth at the input layer.
-> I dropped the ktime_t conversions for now and merged this patch with
-> the next one as requested.
-> 
-> Let me know if you would like to keep the changes Arnd preferred above
-> for __evdev_queue_syn_dropped(). I can submit a separate patch if this
-> is preferred.
-
-__evdev_queue_syn_dropped() is extremely cold path (hopefully, if it is
-not we have much bigger problems) so I'd leave it as is.
-
-Thanks!
-
--- 
-Dmitry
+SGkgRGVlcGEsCgpPbiBTYXQsIEphbiAwNiwgMjAxOCBhdCAwNDoxOToxNVBNIC0wODAwLCBEZWVw
+YSBEaW5hbWFuaSB3cm90ZToKPiBzdHJ1Y3QgdGltZXZhbCBpcyBub3QgeTIwMzggc2FmZS4KPiBB
+bGwgdXNhZ2Ugb2YgdGltZXZhbCBpbiB0aGUga2VybmVsIHdpbGwgYmUgcmVwbGFjZWQgYnkKPiB5
+MjAzOCBzYWZlIHN0cnVjdHVyZXMuCj4gVGhlIGNoYW5nZSBpcyBhbHNvIG5lY2Vzc2FyeSBhcyBn
+bGliYyBpcyBpbnRyb2R1Y2luZyBzdXBwb3J0Cj4gZm9yIDMyIGJpdCBhcHBsaWNhdGlvbnMgdG8g
+dXNlIDY0IGJpdCB0aW1lX3QuIFdpdGhvdXQgdGhpcwo+IGNoYW5nZSwgbWFueSBhcHBsaWNhdGlv
+bnMgd291bGQgaW5jb3JyZWN0bHkgaW50ZXJwcmV0IHZhbHVlcwo+IGluIHRoZSBzdHJ1Y3QgaW5w
+dXRfZXZlbnQuCj4gTW9yZSBkZXRhaWxzIGFib3V0IGdsaWJjIGF0Cj4gaHR0cHM6Ly9zb3VyY2V3
+YXJlLm9yZy9nbGliYy93aWtpL1kyMDM4UHJvb2ZuZXNzRGVzaWduIC4KPiAKPiBzdHJ1Y3QgaW5w
+dXRfZXZlbnQgbWFpbnRhaW5zIHRpbWUgZm9yIGVhY2ggaW5wdXQgZXZlbnQuCj4gUmVhbCB0aW1l
+IHRpbWVzdGFtcHMgYXJlIG5vdCBpZGVhbCBmb3IgaW5wdXQgYXMgdGhpcwo+IHRpbWUgY2FuIGdv
+IGJhY2t3YXJkcyBhcyBub3RlZCBpbiB0aGUgcGF0Y2ggYTgwYjgzYjdiOAo+IGJ5IEpvaG4gU3R1
+bHR6LiBIZW5jZSwgaGF2aW5nIHRoZSBpbnB1dF9ldmVudC50aW1lIGZpZWxkcwo+IG9ubHkgYmln
+IGVub3VnaCBmb3IgbW9ub3RvbmljIGFuZCBib290IHRpbWVzIGFyZQo+IHN1ZmZpY2llbnQuCgpJ
+IGFtIGhhcHB5IHdpdGggdGhlIHBhdGNoLCBidXQgaGF2ZSBzb21lIGNvbmNlcm5zIGFib3V0IGNo
+YW5nZWxvZy4gVGhlCmNoYW5nZSBkb2VzIG5vdCByZWFsbHkgcHJldmVudCBhbnlvbmUgZnJvbSB1
+c2luZyBDTE9DS19SRUFMVElNRSBwYXN0CjIxMDYsIGVzcGVjaWFsbHkgb24gNjQgYml0IGFyY2hl
+cy4gV2UgYXJlIHNpbXBseSBleHRlbmRpbmcgcmFuZ2Ugb2YKcmVwb3J0ZWQgc2Vjb25kcyBpbiBp
+bnB1dCBldmVudCBieSBjb252ZXJ0aW5nIGZyb20gc2lnbmVkIHRvIHVuc2lnbmVkCnZhbHVlLgoK
+PiAKPiBUaGUgY2hhbmdlIGxlYXZlcyB0aGUgcmVwcmVzZW50YXRpb24gb2Ygc3RydWN0IGlucHV0
+X2V2ZW50IGFzIGlzCj4gb24gNjQgYml0IGFyY2hpdGVjdHVyZXMuIEJ1dCB1c2VzIDIgdW5zaWdu
+ZWQgbG9uZyB2YWx1ZXMgb24gMzIgYml0Cj4gbWFjaGluZXMgdG8gc3VwcG9ydCByZWFsIHRpbWVz
+dGFtcHMgdW50aWwgeWVhciAyMTA2Lgo+IFRoaXMgaW50ZW50aW9uYWxseSBicmVha3MgdGhlIEFC
+SSBvbiAzMiBiaXQgYXJjaGl0ZWN0dXJlcyBhbmQKPiBjb21wYXQgaGFuZGxpbmcgb24gNjQgYml0
+IGFyY2hpdGVjdHVyZXMuCj4gVGhpcyBpcyBhcyBwZXIgbWFpbnRhaW5lcidzIHByZWZlcmVuY2Ug
+dG8gaW50cm9kdWNlIGNvbXBpbGUgdGltZSBlcnJvcnMKPiByYXRoZXIgdGhhbiBydW4gaW50byBy
+dW50aW1lIGluY29tcGF0aWJpbGl0aWVzLgoKV2UgYXJlIGJyZWFraW5nIEFQSSwgbm90IEFCSSB0
+aG91Z2guIFRoZSBBQkkgZm9yIGV4aXN0aW5nIHByb2dyYW1zIGlzCmV4YWN0bHkgdGhlIHNhbWUs
+IGl0IGlzIG9ubHkgd2hlbiBzeXN0ZW0gc3RhcnRzIHVzaW5nIHRoZSBuZXdlciBnbGliYwpzdXBw
+b3J0aW5nIGV4dGVuZGVkIHRpbWUgdGhlIGNvbXBpbGF0aW9uIHdpbGwgYnJlYWsuCgo+IFRoZSBj
+aGFuZ2UgcmVxdWlyZXMgYW55IDMyIGJpdCB1c2Vyc3BhY2UgdXRpbGl0aWVzIHJlYWRpbmcgb3Ig
+d3JpdGluZwo+IGZyb20gZXZlbnQgbm9kZXMgdG8gdXBkYXRlIHRoZWlyIHJlYWRpbmcgZm9ybWF0
+IHRvIG1hdGNoIHRoZSBuZXcKPiBpbnB1dF9ldmVudC4gVGhlIGNoYW5nZXMgdG8gdGhlIHBvcHVs
+YXIgbGlicmFyaWVzIHdpbGwgYmUgcG9zdGVkIG9uY2UKPiB3ZSBhZ3JlZSBvbiB0aGUga2VybmVs
+IGNoYW5nZS4KCkkgcHJvcG9zZSB3ZSBoYXZlIHRoZSBmb2xsb3dpbmcgY2hhbmdlbG9nOgoKCklu
+cHV0OiBleHRlbmQgdXNhYmxlIGxpZmUgb2YgZXZlbnQgdGltZXN0YW1wcyB0byAyMTA2IG9uIDMy
+IGJpdCBzeXN0ZW1zCgpUaGUgaW5wdXQgZXZlbnRzIHVzZSBzdHJ1Y3QgdGltZXZhbCB0byBzdG9y
+ZSBldmVudCB0aW1lLCB1bmZvcnR1bmF0ZWx5CnRoaXMgc3RydWN0dXJlIGlzIG5vdCB5MjAzOCBz
+YWZlIGFuZCBpcyBiZWluZyByZXBsYWNlZCBpbiBrZXJuZWwgd2l0aAp5MjAzOCBzYWZlIHN0cnVj
+dHVyZXMuCgpCZWNhdXNlIG9mIEFCSSBjb25jZXJucyB3ZSBjYW4gbm90IGNoYW5nZSB0aGUgc2l6
+ZSBvciB0aGUgbGF5b3V0IG9mCnN0cnVjdHVyZSBpbnB1dF9ldmVudCwgc28gd2Ugb3B0IHRvIHJl
+LWludGVycHJldGluZyB0aGUgJ3NlY29uZHMnIHBhcnQKb2YgdGltZXN0YW1wIGFzIGFuIHVuc2ln
+bmVkIHZhbHVlLCBlZmZlY3RpdmVseSBkb3VibGluZyB0aGUgcmFuZ2Ugb2YKdmFsdWVzLCB0byB5
+ZWFyIDIxMDYuCgpOZXdlciBnbGliYyB0aGF0IGhhcyBzdXBwb3J0IGZvciAzMiBiaXQgYXBwbGlj
+YXRpb25zIHRvIHVzZSA2NCBiaXQKdGltZV90IHN1cHBsaWVzIF9fVVNFX1RJTUVfQklUUzY0IGRl
+ZmluZSBbMV0sIHRoYXQgd2UgY2FuIHVzZSB0byBwcmVzZW50CnRoZSB1c2Vyc3BhY2Ugd2l0aCB1
+cGRhdGVkIGlucHV0X2V2ZW50IGxheW91dC4gVGhlIHVwZGF0ZWQgbGF5b3V0IHdpbGwKY2F1c2Ug
+dGhlIGNvbXBpbGUgdGltZSBicmVha2FnZSwgYWxlcnRpbmcgYXBwbGljYXRpb25zIGFuZCBkaXN0
+cmlidXRpb25zCm1haW50YWluZXJzIHRvIHRoZSBpc3N1ZS4gRXhpc3RpbmcgMzIgYmluYXJpZXMg
+d2lsbCBjb250aW51ZSB3b3JraW5nCndpdGhvdXQgYW55IGNoYW5nZXMgdW50aWwgMjAzOC4KClVs
+dGltYXRlbHkgdXNlcnNwYWNlIGFwcGxpY2F0aW9ucyBzaG91bGQgc3dpdGNoIHRvIHVzaW5nIG1v
+bm90b25pYyBvcgpib290IHRpbWUgY2xvY2tzLCBhcyByZWFsdGltZSBjbG9jayBpcyBub3QgdmVy
+eSB3ZWxsIHN1aXRlZCBmb3IgaW5wdXQKZXZlbnQgdGltZXN0YW1wcyBhcyBpdCBjYW4gZ28gYmFj
+a3dhcmRzIChzZWUgYTgwYjgzYjdiOCAiSW5wdXQ6IGV2ZGV2IC0KYWRkIENMT0NLX0JPT1RUSU1F
+IHN1cHBvcnQiIGJ5IGJ5IEpvaG4gU3R1bHR6KS4gV2l0aCBtb25vdG9uaWMgY2xvY2sgdGhlCnBy
+YWN0aWNhbCByYW5nZSBvZiByZXBvcnRlZCB0aW1lcyB3aWxsIGFsd2F5cyBmaXQgaW50byB0aGUg
+cGFpciBvZiAzMgpiaXQgdmFsdWVzLCBhcyB3ZSBkbyBub3QgZXhwZWN0IGFueSBzeXN0ZW0gdG8g
+c3RheSB1cCBmb3IgYSBodW5kcmVkCnllYXJzIHdpdGhvdXQgYSBzaW5nbGUgcmVib290LgoKWzFd
+IGh0dHBzOi8vc291cmNld2FyZS5vcmcvZ2xpYmMvd2lraS9ZMjAzOFByb29mbmVzc0Rlc2lnbgoK
+ClBsZWFzZSBsZXQgbWUga25vdyBpZiB5b3UgZGlzYWdlZSB3aXRoIHRoZSBhYm92ZS4KClRoYW5r
+cyEKCi0tIApEbWl0cnkKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KWTIwMzggbWFpbGluZyBsaXN0ClkyMDM4QGxpc3RzLmxpbmFyby5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW5hcm8ub3JnL21haWxtYW4vbGlzdGluZm8veTIwMzgK

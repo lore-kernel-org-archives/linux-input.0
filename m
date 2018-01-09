@@ -1,30 +1,94 @@
-From: Daniel Drake <drake@endlessm.com>
-Subject: Re: [PATCH] HID: asus: only support backlight when it's not driven by WMI
-Date: Tue, 9 Jan 2018 13:41:31 -0600
-Message-ID: <CAD8Lp46gbny3mV2CgWnrJnEpZpNo-P-GgKA5-DypykbmGoUhQg@mail.gmail.com>
-References: <20180109012042.13947-1-drake@endlessm.com> <CAHp75Veyrzh+gV_8ff7TRqWpVx4h+2Qg05j9OpNXCH+E1+hsQg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: cyapa - remove duplicated macro definitions
+Date: Tue, 9 Jan 2018 11:46:21 -0800
+Message-ID: <20180109194621.kdqm3wmqfigmzam5@dtor-ws>
+References: <20180108215402.25612-1-linux@rasmusvillemoes.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Veyrzh+gV_8ff7TRqWpVx4h+2Qg05j9OpNXCH+E1+hsQg@mail.gmail.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>, Carlo Caione <carlo@endlessm.com>, Corentin Chary <corentin.chary@gmail.com>, acpi4asus-user <acpi4asus-user@lists.sourceforge.net>, Platform Driver <platform-driver-x86@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:43937 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751614AbeAITqY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Jan 2018 14:46:24 -0500
+Content-Disposition: inline
+In-Reply-To: <20180108215402.25612-1-linux@rasmusvillemoes.dk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jan 9, 2018 at 1:32 PM, Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
-> Imagine someone who on possession of laptop where it's not needed
-> having old kernel configuration.
-> Building new kernel with old configuration will bring a regression.
->
-> Selection is also not a solution since we don't need all crap in
-> kernel because of some particular case.
->
-> So, NO.
+On Mon, Jan 08, 2018 at 10:54:02PM +0100, Rasmus Villemoes wrote:
+> Apart from whitespace differences, this block of macros is repeated
+> twice:
+> 
+> $ x=./drivers/input/mouse/cyapa_gen3.c; diff -w -u <(sed -n '139,181p' $x) <(sed -n '182,224p' $x)
+> $
+> 
+> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-If I can't use depends nor select, then what options are left? What
-alternative solutions do you have in mind?
+Applied, thank you.
 
-Thanks
-Daniel
+> ---
+>  drivers/input/mouse/cyapa_gen3.c | 43 ----------------------------------------
+>  1 file changed, 43 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
+> index 1cbfa4a6e830..076dda4a66da 100644
+> --- a/drivers/input/mouse/cyapa_gen3.c
+> +++ b/drivers/input/mouse/cyapa_gen3.c
+> @@ -136,49 +136,6 @@ static const u8 bl_exit[] = { 0x00, 0xff, 0xa5, 0x00, 0x01, 0x02, 0x03, 0x04,
+>  		0x05, 0x06, 0x07 };
+>  
+>  
+> - /* for byte read/write command */
+> -#define CMD_RESET      0
+> -#define CMD_POWER_MODE 1
+> -#define CMD_DEV_STATUS 2
+> -#define CMD_REPORT_MAX_BASELINE 3
+> -#define CMD_REPORT_MIN_BASELINE 4
+> -#define SMBUS_BYTE_CMD(cmd) (((cmd) & 0x3f) << 1)
+> -#define CYAPA_SMBUS_RESET         SMBUS_BYTE_CMD(CMD_RESET)
+> -#define CYAPA_SMBUS_POWER_MODE    SMBUS_BYTE_CMD(CMD_POWER_MODE)
+> -#define CYAPA_SMBUS_DEV_STATUS    SMBUS_BYTE_CMD(CMD_DEV_STATUS)
+> -#define CYAPA_SMBUS_MAX_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MAX_BASELINE)
+> -#define CYAPA_SMBUS_MIN_BASELINE  SMBUS_BYTE_CMD(CMD_REPORT_MIN_BASELINE)
+> -
+> - /* for group registers read/write command */
+> -#define REG_GROUP_DATA 0
+> -#define REG_GROUP_CMD 2
+> -#define REG_GROUP_QUERY 3
+> -#define SMBUS_GROUP_CMD(grp) (0x80 | (((grp) & 0x07) << 3))
+> -#define CYAPA_SMBUS_GROUP_DATA	 SMBUS_GROUP_CMD(REG_GROUP_DATA)
+> -#define CYAPA_SMBUS_GROUP_CMD	 SMBUS_GROUP_CMD(REG_GROUP_CMD)
+> -#define CYAPA_SMBUS_GROUP_QUERY	 SMBUS_GROUP_CMD(REG_GROUP_QUERY)
+> -
+> - /* for register block read/write command */
+> -#define CMD_BL_STATUS 0
+> -#define CMD_BL_HEAD 1
+> -#define CMD_BL_CMD 2
+> -#define CMD_BL_DATA 3
+> -#define CMD_BL_ALL 4
+> -#define CMD_BLK_PRODUCT_ID 5
+> -#define CMD_BLK_HEAD 6
+> -#define SMBUS_BLOCK_CMD(cmd) (0xc0 | (((cmd) & 0x1f) << 1))
+> -
+> -/* register block read/write command in bootloader mode */
+> -#define CYAPA_SMBUS_BL_STATUS  SMBUS_BLOCK_CMD(CMD_BL_STATUS)
+> -#define CYAPA_SMBUS_BL_HEAD    SMBUS_BLOCK_CMD(CMD_BL_HEAD)
+> -#define CYAPA_SMBUS_BL_CMD     SMBUS_BLOCK_CMD(CMD_BL_CMD)
+> -#define CYAPA_SMBUS_BL_DATA    SMBUS_BLOCK_CMD(CMD_BL_DATA)
+> -#define CYAPA_SMBUS_BL_ALL     SMBUS_BLOCK_CMD(CMD_BL_ALL)
+> -
+> -/* register block read/write command in operational mode */
+> -#define CYAPA_SMBUS_BLK_PRODUCT_ID SMBUS_BLOCK_CMD(CMD_BLK_PRODUCT_ID)
+> -#define CYAPA_SMBUS_BLK_HEAD SMBUS_BLOCK_CMD(CMD_BLK_HEAD)
+> -
+>   /* for byte read/write command */
+>  #define CMD_RESET 0
+>  #define CMD_POWER_MODE 1
+> -- 
+> 2.15.1
+> 
+
+-- 
+Dmitry

@@ -1,114 +1,126 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 1/1] input: Deprecate real timestamps beyond year 2106
-Date: Mon, 8 Jan 2018 16:32:07 -0800
-Message-ID: <20180109003207.hptfbrbhul66pdfp@dtor-ws>
-References: <20180107001915.15287-1-deepa.kernel@gmail.com>
- <20180107001915.15287-2-deepa.kernel@gmail.com>
- <20180108215111.tqnhr5k5easbrh4b@dtor-ws>
- <CABeXuvr0a_h5tYbe0_yyUOqnpnqYvvRckyK7GbxNj8JzofY1dg@mail.gmail.com>
+Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware
+ ID"
+Date: Mon, 8 Jan 2018 16:40:35 -0800
+Message-ID: <20180109004035.znq4alueyhds45f5@dtor-ws>
+References: <dcfb84c8-4ad8-8276-5451-ee91fc84f742@canonical.com>
+ <20171231082646.GC25965@kroah.com>
+ <901a0a66-eb83-9dcd-658c-5b09eabcab88@canonical.com>
+ <20180102070811.p7gfaq3vr55sdbd3@dtor-ws>
+ <ac087ae7-54d4-d038-daa7-048c87368d17@canonical.com>
+ <20180105005659.j2x56opkq74wm7v2@dtor-ws>
+ <598ac534-ed9b-1377-70c5-eec7b7521755@canonical.com>
+ <20180105162313.higyrbd6unumgtjb@dtor-ws>
+ <20180107065201.q2xck62unijt3avr@dtor-ws>
+ <20180108151101.GA2220@marax.lan.yath.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:46637 "EHLO
+        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750742AbeAIAki (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 8 Jan 2018 19:40:38 -0500
+Received: by mail-pf0-f179.google.com with SMTP id y5so3371363pff.13
+        for <linux-input@vger.kernel.org>; Mon, 08 Jan 2018 16:40:38 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <CABeXuvr0a_h5tYbe0_yyUOqnpnqYvvRckyK7GbxNj8JzofY1dg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Arnd Bergmann <arnd@arndb.de>, y2038 Mailman List <y2038@lists.linaro.org>
+In-Reply-To: <20180108151101.GA2220@marax.lan.yath.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Schmidt <yath@yath.de>
+Cc: Aaron Ma <aaron.ma@canonical.com>, Greg KH <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Mon, Jan 08, 2018 at 04:07:22PM -0800, Deepa Dinamani wrote:
-> On Mon, Jan 8, 2018 at 1:51 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Deepa,
-> >
-> > On Sat, Jan 06, 2018 at 04:19:15PM -0800, Deepa Dinamani wrote:
-> >> struct timeval is not y2038 safe.
-> >> All usage of timeval in the kernel will be replaced by
-> >> y2038 safe structures.
-> >> The change is also necessary as glibc is introducing support
-> >> for 32 bit applications to use 64 bit time_t. Without this
-> >> change, many applications would incorrectly interpret values
-> >> in the struct input_event.
-> >> More details about glibc at
-> >> https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
-> >>
-> >> struct input_event maintains time for each input event.
-> >> Real time timestamps are not ideal for input as this
-> >> time can go backwards as noted in the patch a80b83b7b8
-> >> by John Stultz. Hence, having the input_event.time fields
-> >> only big enough for monotonic and boot times are
-> >> sufficient.
-> >
-> > I am happy with the patch, but have some concerns about changelog. The
-> > change does not really prevent anyone from using CLOCK_REALTIME past
-> > 2106, especially on 64 bit arches. We are simply extending range of
-> > reported seconds in input event by converting from signed to unsigned
-> > value.
-> 
-> I was interpreting working incorrectly on 32 bit architectures, but
-> working correctly on 64 bit architectures as a failure of the feature
-> to use realtime clock at all.
-> But, you are correct that the patch does not actively do anything to
-> stop people from using realtime clock.
-> 
-> >>
-> >> The change leaves the representation of struct input_event as is
-> >> on 64 bit architectures. But uses 2 unsigned long values on 32 bit
-> >> machines to support real timestamps until year 2106.
-> >> This intentionally breaks the ABI on 32 bit architectures and
-> >> compat handling on 64 bit architectures.
-> >> This is as per maintainer's preference to introduce compile time errors
-> >> rather than run into runtime incompatibilities.
-> >
-> > We are breaking API, not ABI though. The ABI for existing programs is
-> > exactly the same, it is only when system starts using the newer glibc
-> > supporting extended time the compilation will break.
-> 
-> I was interpreting not being able to use negative timestamps on 32 bit
-> machines as breaking the ABI.
-> 
-> >> The change requires any 32 bit userspace utilities reading or writing
-> >> from event nodes to update their reading format to match the new
-> >> input_event. The changes to the popular libraries will be posted once
-> >> we agree on the kernel change.
-> > I propose we have the following changelog:
-> >
-> >
-> > Input: extend usable life of event timestamps to 2106 on 32 bit systems
-> >
-> > The input events use struct timeval to store event time, unfortunately
-> > this structure is not y2038 safe and is being replaced in kernel with
-> > y2038 safe structures.
-> >
-> > Because of ABI concerns we can not change the size or the layout of
-> > structure input_event, so we opt to re-interpreting the 'seconds' part
-> > of timestamp as an unsigned value, effectively doubling the range of
-> > values, to year 2106.
-> > Newer glibc that has support for 32 bit applications to use 64 bit
-> > time_t supplies __USE_TIME_BITS64 define [1], that we can use to present
-> > the userspace with updated input_event layout. The updated layout will
-> > cause the compile time breakage, alerting applications and distributions
-> > maintainers to the issue. Existing 32 binaries will continue working
-> > without any changes until 2038.
-> >
-> > Ultimately userspace applications should switch to using monotonic or
-> > boot time clocks, as realtime clock is not very well suited for input
-> > event timestamps as it can go backwards (see a80b83b7b8 "Input: evdev -
-> > add CLOCK_BOOTTIME support" by by John Stultz). With monotonic clock the
-> > practical range of reported times will always fit into the pair of 32
-> > bit values, as we do not expect any system to stay up for a hundred
-> > years without a single reboot.
-> >
-> > [1] https://sourceware.org/glibc/wiki/Y2038ProofnessDesign
-> >
-> >
-> > Please let me know if you disagee with the above.
-> 
-> I'm fine with this commit text. Let me know if you would like me to update this.
+Hi Sebastian,
 
-No, unless somebody yells I'll change it on my side.
+On Mon, Jan 08, 2018 at 04:11:01PM +0100, Sebastian Schmidt wrote:
+> Hi Dmitry,
+> 
+> On Sat, Jan 06, 2018 at 10:52:01PM -0800, Dmitry Torokhov wrote:
+> > Guys, could you please try the patch below? It will not solve the
+> > "speed" issue on 0x01 devices, but hopefully we won't be exposing
+> > non-existing controls on others.
+> 
+> Thanks for looking into this. Which speed issue on 0x01 devices? I
+> thought those were the legacy ones that used to work and still do as
+> ever.
+> 
+> I've tried your (slightly modified, see below) patch and the trackpoint
+> now gets apparently[1] correctly detected as "psmouse serio2:
+> trackpoint: Elan TrackPoint firmware: 0x04, buttons: 3/3". However, I
+> still have the feeling that it's a lot more sensitive (or faster?) than
+> with the regular PS/2 driver - even with libinput accel speed turned to
+> -1. I don't know how I could measure this objectively, but there must be
+> some difference between the trackpoint driver and the regular one. Is it
+> maybe an init sequence that causes it to report more sensitively, or a
+> different resolution, or ...? I really have no idea how mice work. :)
 
-Thanks.
+Hmm.. Can you try writing different values to "sensitivity" attribute
+and let me know if this changes behavior. Try 0x66, 0x73, 0x80, 0x8F,
+0xA0, 0xB3, 0xC9, 0xE1, 0xFC values (smaller should be less sensitive).
+I believe we try to program it to 0x80 by default.
+
+Also, I think libinput/udev is trying to "normalize" trackstick feel,
+see /lib/udev/hwdb.d/70-pointingstick.hwdb I am adding Peter Hutterer to
+see if he has any more info.
+
+> 
+> Also, I'm wondering, since my trackpoint works just fine as "Generic
+> PS/2 Mouse", including the third button. The driver even says:
+> | /*
+> |  * Bare PS/2 protocol "detection". Always succeeds.
+> |  */
+> | static int ps2bare_detect(struct psmouse *psmouse, bool set_properties)
+> | {
+> | [...]
+> |         /*
+> |          * We have no way of figuring true number of buttons so let's
+> |          * assume that the device has 3.
+> |          */
+> |         __set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+> |     }
+> | 
+> |     return 0;
+> | }
+> 
+> So I wonder what driver Aaron was using that didn't report a third
+> button. What vendor/firmwares did you (get reports of) have that middle
+> mouse button problem on, Aaron?
+
+No, the functionality Aaron is after is scrolling with the trackpoint -
+if you hold middle button and press onto the trackpoint upwards or
+downwards it should scroll window content.
+
+> 
+> Thanks,
+> 
+> Sebastian
+> 
+> 
+> 1: If it's actually Elan. I've taken out my battery but could only
+> find FRU numbers on the back of the keyboard, no signs of a vendor.
+> <https://photos.app.goo.gl/iafpfzvRY042dOBo2> or
+> <https://t.yath.de/IMG_20180108_143205.jpg>
+> 
+> In trackpoint_start_protocol:
+> > +   switch (param[0]) {
+> > +   case TP_VARIANT_IBM:
+> > +   case TP_VARIANT_ALPS:
+> > +   case TP_VARIANT_ELAN:
+> > +   case TP_VARIANT_NXP:
+> > +       if (variant_id)
+> > +           *variant_id = param[0];
+> > +       if (firmware_id)
+> > +           *firmware_id = param[1];
+> > +       break;
+>           ^^^^^
+>           That should be a return 0.
+
+Yes, indeed.
+
+> > +   }
+> > 
+> > -   return 0;
+> > +   return -ENODEV;
+> >  }
 
 -- 
 Dmitry

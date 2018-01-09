@@ -1,139 +1,65 @@
-From: Daniel Drake <drake@endlessm.com>
-Subject: [PATCH] HID: asus: only support backlight when it's not driven by WMI
-Date: Mon,  8 Jan 2018 19:20:42 -0600
-Message-ID: <20180109012042.13947-1-drake@endlessm.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] Input: twl4030-vibra: fix sibling-node lookup
+Date: Mon, 8 Jan 2018 17:35:38 -0800
+Message-ID: <20180109013538.7hvspp65suhzbpv6@dtor-ws>
+References: <20171111154339.16875-1-johan@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f67.google.com ([209.85.218.67]:42185 "EHLO
-        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934072AbeAIBUq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 8 Jan 2018 20:20:46 -0500
-Received: by mail-oi0-f67.google.com with SMTP id o64so9430056oia.9
-        for <linux-input@vger.kernel.org>; Mon, 08 Jan 2018 17:20:46 -0800 (PST)
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:38385 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751518AbeAIBfm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 8 Jan 2018 20:35:42 -0500
+Content-Disposition: inline
+In-Reply-To: <20171111154339.16875-1-johan@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux@endlessm.com, carlo@endlessm.com, corentin.chary@gmail.com, acpi4asus-user@lists.sourceforge.net, platform-driver-x86@vger.kernel.org
+To: Johan Hovold <johan@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Marek Belisko <marek@goldelico.com>
 
-The Asus GL502VSK has the same 0B05:1837 keyboard as we've seen in
-several Republic of Gamers laptops.
+On Sat, Nov 11, 2017 at 04:43:37PM +0100, Johan Hovold wrote:
+> A helper purported to look up a child node based on its name was using
+> the wrong of-helper and ended up prematurely freeing the parent of-node
+> while searching the whole device tree depth-first starting at the parent
+> node.
+> 
+> Fixes: 64b9e4d803b1 ("input: twl4030-vibra: Support for DT booted kernel")
+> Fixes: e661d0a04462 ("Input: twl4030-vibra - fix ERROR: Bad of_node_put() warning")
+> Cc: stable <stable@vger.kernel.org>     # 3.7
+> Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> Cc: Marek Belisko <marek@goldelico.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
-However, in this model, the keybard backlight control exposed by hid-asus
-has no effect on the keyboard backlight. Instead, the keyboard
-backlight is correctly driven by asus-wmi.
+Applied, thank you.
 
-With two keyboard backlight devices available (and only the acer-wmi
-one working), GNOME is picking the wrong one to drive in the UI.
+> ---
+>  drivers/input/misc/twl4030-vibra.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+> index 6c51d404874b..c37aea9ac272 100644
+> --- a/drivers/input/misc/twl4030-vibra.c
+> +++ b/drivers/input/misc/twl4030-vibra.c
+> @@ -178,12 +178,14 @@ static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
+>  			 twl4030_vibra_suspend, twl4030_vibra_resume);
+>  
+>  static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+> -			      struct device_node *node)
+> +			      struct device_node *parent)
+>  {
+> +	struct device_node *node;
+> +
+>  	if (pdata && pdata->coexist)
+>  		return true;
+>  
+> -	node = of_find_node_by_name(node, "codec");
+> +	node = of_get_child_by_name(parent, "codec");
+>  	if (node) {
+>  		of_node_put(node);
+>  		return true;
+> -- 
+> 2.15.0
+> 
 
-Avoid this problem by not creating the backlight interface when we
-detect a WMI-driven keyboard backlight.
-
-We have also tested Asus GL702VMK which does have the hid-asus
-backlight present, and it still works fine with this patch (WMI method
-call returns UNSUPPORTED_METHOD).
-
-Signed-off-by: Daniel Drake <drake@endlessm.com>
----
- drivers/hid/Kconfig    |  1 +
- drivers/hid/hid-asus.c | 53 +++++++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 53 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 779c5ae47f36..6d95abc9d8a1 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -149,6 +149,7 @@ config HID_APPLEIR
- config HID_ASUS
- 	tristate "Asus"
- 	depends on LEDS_CLASS
-+	depends on ACPI_WMI
- 	---help---
- 	Support for Asus notebook built-in keyboard and touchpad via i2c, and
- 	the Asus Republic of Gamers laptop keyboard special keys.
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 1bb7b63b3150..e6830946b4a4 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -26,6 +26,7 @@
-  * any later version.
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/input/mt.h>
-@@ -78,6 +79,12 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- 
- #define TRKID_SGN       ((TRKID_MAX + 1) >> 1)
- 
-+#define ASUS_WMI_MGMT_GUID		"97845ED0-4E6D-11DE-8A39-0800200C9A66"
-+#define ASUS_WMI_METHODID_DSTS2		0x53545344 /* Device STatuS #2*/
-+#define ASUS_WMI_DEVID_KBD_BACKLIGHT	0x00050021
-+#define ASUS_WMI_UNSUPPORTED_METHOD	0xFFFFFFFE
-+#define ASUS_WMI_DSTS_PRESENCE_BIT	0x00010000
-+
- struct asus_kbd_leds {
- 	struct led_classdev cdev;
- 	struct hid_device *hdev;
-@@ -330,6 +337,48 @@ static void asus_kbd_backlight_work(struct work_struct *work)
- 		hid_err(led->hdev, "Asus failed to set keyboard backlight: %d\n", ret);
- }
- 
-+/* WMI-based keyboard backlight LED control (via asus-wmi driver) takes
-+ * precedence. We only activate HID-based backlight control when the
-+ * WMI control is not available.
-+ */
-+static bool asus_kbd_wmi_led_control_present(struct hid_device *hdev)
-+{
-+	u32 args[] = { ASUS_WMI_DEVID_KBD_BACKLIGHT, 0 };
-+	struct acpi_buffer input = { (acpi_size) sizeof(args), &args };
-+	struct acpi_buffer output = { ACPI_ALLOCATE_BUFFER, NULL };
-+	acpi_status status;
-+	union acpi_object *obj;
-+	u32 value;
-+
-+	status = wmi_evaluate_method(ASUS_WMI_MGMT_GUID, 0,
-+				     ASUS_WMI_METHODID_DSTS2,
-+				     &input, &output);
-+
-+	if (ACPI_FAILURE(status)) {
-+		hid_dbg(hdev, "WMI backlight method failed: %d", status);
-+		return false;
-+	}
-+
-+	obj = (union acpi_object *)output.pointer;
-+	if (!obj || obj->type != ACPI_TYPE_INTEGER) {
-+		hid_dbg(hdev, "WMI backlight method unexpected return type");
-+		kfree(obj);
-+		return false;
-+	}
-+
-+	value = (u32) obj->integer.value;
-+	kfree(obj);
-+
-+	hid_dbg(hdev, "WMI backlight check: method returned %x", value);
-+
-+	if (value == ASUS_WMI_UNSUPPORTED_METHOD) {
-+		hid_dbg(hdev, "WMI backlight method unsupported");
-+		return false;
-+	}
-+
-+	return !!(value & ASUS_WMI_DSTS_PRESENCE_BIT);
-+}
-+
- static int asus_kbd_register_leds(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-@@ -417,7 +466,9 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 
- 	drvdata->input = input;
- 
--	if (drvdata->enable_backlight && asus_kbd_register_leds(hdev))
-+	if (drvdata->enable_backlight &&
-+	    !asus_kbd_wmi_led_control_present(hdev) &&
-+	    asus_kbd_register_leds(hdev))
- 		hid_warn(hdev, "Failed to initialize backlight.\n");
- 
- 	return 0;
 -- 
-2.14.1
-
+Dmitry

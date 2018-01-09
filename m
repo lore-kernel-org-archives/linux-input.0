@@ -1,100 +1,114 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: Re: [PATCH v6 1/1] input: Deprecate real timestamps beyond
-	year 2106
-Date: Mon, 8 Jan 2018 16:07:22 -0800
-Message-ID: <CABeXuvr0a_h5tYbe0_yyUOqnpnqYvvRckyK7GbxNj8JzofY1dg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6 1/1] input: Deprecate real timestamps beyond year 2106
+Date: Mon, 8 Jan 2018 16:32:07 -0800
+Message-ID: <20180109003207.hptfbrbhul66pdfp@dtor-ws>
 References: <20180107001915.15287-1-deepa.kernel@gmail.com>
  <20180107001915.15287-2-deepa.kernel@gmail.com>
  <20180108215111.tqnhr5k5easbrh4b@dtor-ws>
+ <CABeXuvr0a_h5tYbe0_yyUOqnpnqYvvRckyK7GbxNj8JzofY1dg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <20180108215111.tqnhr5k5easbrh4b@dtor-ws>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CABeXuvr0a_h5tYbe0_yyUOqnpnqYvvRckyK7GbxNj8JzofY1dg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Arnd Bergmann <arnd@arndb.de>, y2038 Mailman List <y2038@lists.linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gTW9uLCBKYW4gOCwgMjAxOCBhdCAxOjUxIFBNLCBEbWl0cnkgVG9yb2tob3YKPGRtaXRyeS50
-b3Jva2hvdkBnbWFpbC5jb20+IHdyb3RlOgo+IEhpIERlZXBhLAo+Cj4gT24gU2F0LCBKYW4gMDYs
-IDIwMTggYXQgMDQ6MTk6MTVQTSAtMDgwMCwgRGVlcGEgRGluYW1hbmkgd3JvdGU6Cj4+IHN0cnVj
-dCB0aW1ldmFsIGlzIG5vdCB5MjAzOCBzYWZlLgo+PiBBbGwgdXNhZ2Ugb2YgdGltZXZhbCBpbiB0
-aGUga2VybmVsIHdpbGwgYmUgcmVwbGFjZWQgYnkKPj4geTIwMzggc2FmZSBzdHJ1Y3R1cmVzLgo+
-PiBUaGUgY2hhbmdlIGlzIGFsc28gbmVjZXNzYXJ5IGFzIGdsaWJjIGlzIGludHJvZHVjaW5nIHN1
-cHBvcnQKPj4gZm9yIDMyIGJpdCBhcHBsaWNhdGlvbnMgdG8gdXNlIDY0IGJpdCB0aW1lX3QuIFdp
-dGhvdXQgdGhpcwo+PiBjaGFuZ2UsIG1hbnkgYXBwbGljYXRpb25zIHdvdWxkIGluY29ycmVjdGx5
-IGludGVycHJldCB2YWx1ZXMKPj4gaW4gdGhlIHN0cnVjdCBpbnB1dF9ldmVudC4KPj4gTW9yZSBk
-ZXRhaWxzIGFib3V0IGdsaWJjIGF0Cj4+IGh0dHBzOi8vc291cmNld2FyZS5vcmcvZ2xpYmMvd2lr
-aS9ZMjAzOFByb29mbmVzc0Rlc2lnbiAuCj4+Cj4+IHN0cnVjdCBpbnB1dF9ldmVudCBtYWludGFp
-bnMgdGltZSBmb3IgZWFjaCBpbnB1dCBldmVudC4KPj4gUmVhbCB0aW1lIHRpbWVzdGFtcHMgYXJl
-IG5vdCBpZGVhbCBmb3IgaW5wdXQgYXMgdGhpcwo+PiB0aW1lIGNhbiBnbyBiYWNrd2FyZHMgYXMg
-bm90ZWQgaW4gdGhlIHBhdGNoIGE4MGI4M2I3YjgKPj4gYnkgSm9obiBTdHVsdHouIEhlbmNlLCBo
-YXZpbmcgdGhlIGlucHV0X2V2ZW50LnRpbWUgZmllbGRzCj4+IG9ubHkgYmlnIGVub3VnaCBmb3Ig
-bW9ub3RvbmljIGFuZCBib290IHRpbWVzIGFyZQo+PiBzdWZmaWNpZW50Lgo+Cj4gSSBhbSBoYXBw
-eSB3aXRoIHRoZSBwYXRjaCwgYnV0IGhhdmUgc29tZSBjb25jZXJucyBhYm91dCBjaGFuZ2Vsb2cu
-IFRoZQo+IGNoYW5nZSBkb2VzIG5vdCByZWFsbHkgcHJldmVudCBhbnlvbmUgZnJvbSB1c2luZyBD
-TE9DS19SRUFMVElNRSBwYXN0Cj4gMjEwNiwgZXNwZWNpYWxseSBvbiA2NCBiaXQgYXJjaGVzLiBX
-ZSBhcmUgc2ltcGx5IGV4dGVuZGluZyByYW5nZSBvZgo+IHJlcG9ydGVkIHNlY29uZHMgaW4gaW5w
-dXQgZXZlbnQgYnkgY29udmVydGluZyBmcm9tIHNpZ25lZCB0byB1bnNpZ25lZAo+IHZhbHVlLgoK
-SSB3YXMgaW50ZXJwcmV0aW5nIHdvcmtpbmcgaW5jb3JyZWN0bHkgb24gMzIgYml0IGFyY2hpdGVj
-dHVyZXMsIGJ1dAp3b3JraW5nIGNvcnJlY3RseSBvbiA2NCBiaXQgYXJjaGl0ZWN0dXJlcyBhcyBh
-IGZhaWx1cmUgb2YgdGhlIGZlYXR1cmUKdG8gdXNlIHJlYWx0aW1lIGNsb2NrIGF0IGFsbC4KQnV0
-LCB5b3UgYXJlIGNvcnJlY3QgdGhhdCB0aGUgcGF0Y2ggZG9lcyBub3QgYWN0aXZlbHkgZG8gYW55
-dGhpbmcgdG8Kc3RvcCBwZW9wbGUgZnJvbSB1c2luZyByZWFsdGltZSBjbG9jay4KCj4+Cj4+IFRo
-ZSBjaGFuZ2UgbGVhdmVzIHRoZSByZXByZXNlbnRhdGlvbiBvZiBzdHJ1Y3QgaW5wdXRfZXZlbnQg
-YXMgaXMKPj4gb24gNjQgYml0IGFyY2hpdGVjdHVyZXMuIEJ1dCB1c2VzIDIgdW5zaWduZWQgbG9u
-ZyB2YWx1ZXMgb24gMzIgYml0Cj4+IG1hY2hpbmVzIHRvIHN1cHBvcnQgcmVhbCB0aW1lc3RhbXBz
-IHVudGlsIHllYXIgMjEwNi4KPj4gVGhpcyBpbnRlbnRpb25hbGx5IGJyZWFrcyB0aGUgQUJJIG9u
-IDMyIGJpdCBhcmNoaXRlY3R1cmVzIGFuZAo+PiBjb21wYXQgaGFuZGxpbmcgb24gNjQgYml0IGFy
-Y2hpdGVjdHVyZXMuCj4+IFRoaXMgaXMgYXMgcGVyIG1haW50YWluZXIncyBwcmVmZXJlbmNlIHRv
-IGludHJvZHVjZSBjb21waWxlIHRpbWUgZXJyb3JzCj4+IHJhdGhlciB0aGFuIHJ1biBpbnRvIHJ1
-bnRpbWUgaW5jb21wYXRpYmlsaXRpZXMuCj4KPiBXZSBhcmUgYnJlYWtpbmcgQVBJLCBub3QgQUJJ
-IHRob3VnaC4gVGhlIEFCSSBmb3IgZXhpc3RpbmcgcHJvZ3JhbXMgaXMKPiBleGFjdGx5IHRoZSBz
-YW1lLCBpdCBpcyBvbmx5IHdoZW4gc3lzdGVtIHN0YXJ0cyB1c2luZyB0aGUgbmV3ZXIgZ2xpYmMK
-PiBzdXBwb3J0aW5nIGV4dGVuZGVkIHRpbWUgdGhlIGNvbXBpbGF0aW9uIHdpbGwgYnJlYWsuCgpJ
-IHdhcyBpbnRlcnByZXRpbmcgbm90IGJlaW5nIGFibGUgdG8gdXNlIG5lZ2F0aXZlIHRpbWVzdGFt
-cHMgb24gMzIgYml0Cm1hY2hpbmVzIGFzIGJyZWFraW5nIHRoZSBBQkkuCgo+PiBUaGUgY2hhbmdl
-IHJlcXVpcmVzIGFueSAzMiBiaXQgdXNlcnNwYWNlIHV0aWxpdGllcyByZWFkaW5nIG9yIHdyaXRp
-bmcKPj4gZnJvbSBldmVudCBub2RlcyB0byB1cGRhdGUgdGhlaXIgcmVhZGluZyBmb3JtYXQgdG8g
-bWF0Y2ggdGhlIG5ldwo+PiBpbnB1dF9ldmVudC4gVGhlIGNoYW5nZXMgdG8gdGhlIHBvcHVsYXIg
-bGlicmFyaWVzIHdpbGwgYmUgcG9zdGVkIG9uY2UKPj4gd2UgYWdyZWUgb24gdGhlIGtlcm5lbCBj
-aGFuZ2UuCj4gSSBwcm9wb3NlIHdlIGhhdmUgdGhlIGZvbGxvd2luZyBjaGFuZ2Vsb2c6Cj4KPgo+
-IElucHV0OiBleHRlbmQgdXNhYmxlIGxpZmUgb2YgZXZlbnQgdGltZXN0YW1wcyB0byAyMTA2IG9u
-IDMyIGJpdCBzeXN0ZW1zCj4KPiBUaGUgaW5wdXQgZXZlbnRzIHVzZSBzdHJ1Y3QgdGltZXZhbCB0
-byBzdG9yZSBldmVudCB0aW1lLCB1bmZvcnR1bmF0ZWx5Cj4gdGhpcyBzdHJ1Y3R1cmUgaXMgbm90
-IHkyMDM4IHNhZmUgYW5kIGlzIGJlaW5nIHJlcGxhY2VkIGluIGtlcm5lbCB3aXRoCj4geTIwMzgg
-c2FmZSBzdHJ1Y3R1cmVzLgo+Cj4gQmVjYXVzZSBvZiBBQkkgY29uY2VybnMgd2UgY2FuIG5vdCBj
-aGFuZ2UgdGhlIHNpemUgb3IgdGhlIGxheW91dCBvZgo+IHN0cnVjdHVyZSBpbnB1dF9ldmVudCwg
-c28gd2Ugb3B0IHRvIHJlLWludGVycHJldGluZyB0aGUgJ3NlY29uZHMnIHBhcnQKPiBvZiB0aW1l
-c3RhbXAgYXMgYW4gdW5zaWduZWQgdmFsdWUsIGVmZmVjdGl2ZWx5IGRvdWJsaW5nIHRoZSByYW5n
-ZSBvZgo+IHZhbHVlcywgdG8geWVhciAyMTA2Lgo+IE5ld2VyIGdsaWJjIHRoYXQgaGFzIHN1cHBv
-cnQgZm9yIDMyIGJpdCBhcHBsaWNhdGlvbnMgdG8gdXNlIDY0IGJpdAo+IHRpbWVfdCBzdXBwbGll
-cyBfX1VTRV9USU1FX0JJVFM2NCBkZWZpbmUgWzFdLCB0aGF0IHdlIGNhbiB1c2UgdG8gcHJlc2Vu
-dAo+IHRoZSB1c2Vyc3BhY2Ugd2l0aCB1cGRhdGVkIGlucHV0X2V2ZW50IGxheW91dC4gVGhlIHVw
-ZGF0ZWQgbGF5b3V0IHdpbGwKPiBjYXVzZSB0aGUgY29tcGlsZSB0aW1lIGJyZWFrYWdlLCBhbGVy
-dGluZyBhcHBsaWNhdGlvbnMgYW5kIGRpc3RyaWJ1dGlvbnMKPiBtYWludGFpbmVycyB0byB0aGUg
-aXNzdWUuIEV4aXN0aW5nIDMyIGJpbmFyaWVzIHdpbGwgY29udGludWUgd29ya2luZwo+IHdpdGhv
-dXQgYW55IGNoYW5nZXMgdW50aWwgMjAzOC4KPgo+IFVsdGltYXRlbHkgdXNlcnNwYWNlIGFwcGxp
-Y2F0aW9ucyBzaG91bGQgc3dpdGNoIHRvIHVzaW5nIG1vbm90b25pYyBvcgo+IGJvb3QgdGltZSBj
-bG9ja3MsIGFzIHJlYWx0aW1lIGNsb2NrIGlzIG5vdCB2ZXJ5IHdlbGwgc3VpdGVkIGZvciBpbnB1
-dAo+IGV2ZW50IHRpbWVzdGFtcHMgYXMgaXQgY2FuIGdvIGJhY2t3YXJkcyAoc2VlIGE4MGI4M2I3
-YjggIklucHV0OiBldmRldiAtCj4gYWRkIENMT0NLX0JPT1RUSU1FIHN1cHBvcnQiIGJ5IGJ5IEpv
-aG4gU3R1bHR6KS4gV2l0aCBtb25vdG9uaWMgY2xvY2sgdGhlCj4gcHJhY3RpY2FsIHJhbmdlIG9m
-IHJlcG9ydGVkIHRpbWVzIHdpbGwgYWx3YXlzIGZpdCBpbnRvIHRoZSBwYWlyIG9mIDMyCj4gYml0
-IHZhbHVlcywgYXMgd2UgZG8gbm90IGV4cGVjdCBhbnkgc3lzdGVtIHRvIHN0YXkgdXAgZm9yIGEg
-aHVuZHJlZAo+IHllYXJzIHdpdGhvdXQgYSBzaW5nbGUgcmVib290Lgo+Cj4gWzFdIGh0dHBzOi8v
-c291cmNld2FyZS5vcmcvZ2xpYmMvd2lraS9ZMjAzOFByb29mbmVzc0Rlc2lnbgo+Cj4KPiBQbGVh
-c2UgbGV0IG1lIGtub3cgaWYgeW91IGRpc2FnZWUgd2l0aCB0aGUgYWJvdmUuCgpJJ20gZmluZSB3
-aXRoIHRoaXMgY29tbWl0IHRleHQuIExldCBtZSBrbm93IGlmIHlvdSB3b3VsZCBsaWtlIG1lIHRv
-IHVwZGF0ZSB0aGlzLgoKVGhhbmtzLApEZWVwYQpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlzdHMubGluYXJv
-Lm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95MjAzOAo=
+On Mon, Jan 08, 2018 at 04:07:22PM -0800, Deepa Dinamani wrote:
+> On Mon, Jan 8, 2018 at 1:51 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > Hi Deepa,
+> >
+> > On Sat, Jan 06, 2018 at 04:19:15PM -0800, Deepa Dinamani wrote:
+> >> struct timeval is not y2038 safe.
+> >> All usage of timeval in the kernel will be replaced by
+> >> y2038 safe structures.
+> >> The change is also necessary as glibc is introducing support
+> >> for 32 bit applications to use 64 bit time_t. Without this
+> >> change, many applications would incorrectly interpret values
+> >> in the struct input_event.
+> >> More details about glibc at
+> >> https://sourceware.org/glibc/wiki/Y2038ProofnessDesign .
+> >>
+> >> struct input_event maintains time for each input event.
+> >> Real time timestamps are not ideal for input as this
+> >> time can go backwards as noted in the patch a80b83b7b8
+> >> by John Stultz. Hence, having the input_event.time fields
+> >> only big enough for monotonic and boot times are
+> >> sufficient.
+> >
+> > I am happy with the patch, but have some concerns about changelog. The
+> > change does not really prevent anyone from using CLOCK_REALTIME past
+> > 2106, especially on 64 bit arches. We are simply extending range of
+> > reported seconds in input event by converting from signed to unsigned
+> > value.
+> 
+> I was interpreting working incorrectly on 32 bit architectures, but
+> working correctly on 64 bit architectures as a failure of the feature
+> to use realtime clock at all.
+> But, you are correct that the patch does not actively do anything to
+> stop people from using realtime clock.
+> 
+> >>
+> >> The change leaves the representation of struct input_event as is
+> >> on 64 bit architectures. But uses 2 unsigned long values on 32 bit
+> >> machines to support real timestamps until year 2106.
+> >> This intentionally breaks the ABI on 32 bit architectures and
+> >> compat handling on 64 bit architectures.
+> >> This is as per maintainer's preference to introduce compile time errors
+> >> rather than run into runtime incompatibilities.
+> >
+> > We are breaking API, not ABI though. The ABI for existing programs is
+> > exactly the same, it is only when system starts using the newer glibc
+> > supporting extended time the compilation will break.
+> 
+> I was interpreting not being able to use negative timestamps on 32 bit
+> machines as breaking the ABI.
+> 
+> >> The change requires any 32 bit userspace utilities reading or writing
+> >> from event nodes to update their reading format to match the new
+> >> input_event. The changes to the popular libraries will be posted once
+> >> we agree on the kernel change.
+> > I propose we have the following changelog:
+> >
+> >
+> > Input: extend usable life of event timestamps to 2106 on 32 bit systems
+> >
+> > The input events use struct timeval to store event time, unfortunately
+> > this structure is not y2038 safe and is being replaced in kernel with
+> > y2038 safe structures.
+> >
+> > Because of ABI concerns we can not change the size or the layout of
+> > structure input_event, so we opt to re-interpreting the 'seconds' part
+> > of timestamp as an unsigned value, effectively doubling the range of
+> > values, to year 2106.
+> > Newer glibc that has support for 32 bit applications to use 64 bit
+> > time_t supplies __USE_TIME_BITS64 define [1], that we can use to present
+> > the userspace with updated input_event layout. The updated layout will
+> > cause the compile time breakage, alerting applications and distributions
+> > maintainers to the issue. Existing 32 binaries will continue working
+> > without any changes until 2038.
+> >
+> > Ultimately userspace applications should switch to using monotonic or
+> > boot time clocks, as realtime clock is not very well suited for input
+> > event timestamps as it can go backwards (see a80b83b7b8 "Input: evdev -
+> > add CLOCK_BOOTTIME support" by by John Stultz). With monotonic clock the
+> > practical range of reported times will always fit into the pair of 32
+> > bit values, as we do not expect any system to stay up for a hundred
+> > years without a single reboot.
+> >
+> > [1] https://sourceware.org/glibc/wiki/Y2038ProofnessDesign
+> >
+> >
+> > Please let me know if you disagee with the above.
+> 
+> I'm fine with this commit text. Let me know if you would like me to update this.
+
+No, unless somebody yells I'll change it on my side.
+
+Thanks.
+
+-- 
+Dmitry

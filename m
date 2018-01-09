@@ -1,59 +1,100 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: intel-ish-hid: Enable Cannon Lake and Coffee Lake
- laptop/desktop
-Date: Mon, 08 Jan 2018 14:12:53 -0800
-Message-ID: <1515449573.585.18.camel@linux.intel.com>
-References: <20171220192410.87748-1-srinivas.pandruvada@linux.intel.com>
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: Re: [PATCH v6 1/1] input: Deprecate real timestamps beyond
+	year 2106
+Date: Mon, 8 Jan 2018 16:07:22 -0800
+Message-ID: <CABeXuvr0a_h5tYbe0_yyUOqnpnqYvvRckyK7GbxNj8JzofY1dg@mail.gmail.com>
+References: <20180107001915.15287-1-deepa.kernel@gmail.com>
+ <20180107001915.15287-2-deepa.kernel@gmail.com>
+ <20180108215111.tqnhr5k5easbrh4b@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171220192410.87748-1-srinivas.pandruvada@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <20180108215111.tqnhr5k5easbrh4b@dtor-ws>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: y2038 Mailman List <y2038@lists.linaro.org>, Peter Hutterer <peter.hutterer@who-t.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Jiri,
-
-Hope this fine to queue this for 4.16.
-
-Thanks,
-Srinivas
-
-On Wed, 2017-12-20 at 11:24 -0800, Srinivas Pandruvada wrote:
-> Added PCI ID for Cannon Lake and Coffee Lake laptop/desktop skews.
-> 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.c
-> om>
-> ---
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
->  2 files changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> index 2aac097c3f70..97869b7410eb 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> @@ -28,6 +28,7 @@
->  #define SPT_Ax_DEVICE_ID	0x9D35
->  #define CNL_Ax_DEVICE_ID	0x9DFC
->  #define GLK_Ax_DEVICE_ID	0x31A2
-> +#define CNL_H_DEVICE_ID		0xA37C
->  
->  #define	REVISION_ID_CHT_A0	0x6
->  #define	REVISION_ID_CHT_Ax_SI	0x0
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index 20d824f74f99..582e449be9fe 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -37,6 +37,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, SPT_Ax_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CNL_Ax_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, GLK_Ax_DEVICE_ID)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CNL_H_DEVICE_ID)},
->  	{0, }
->  };
->  MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
+T24gTW9uLCBKYW4gOCwgMjAxOCBhdCAxOjUxIFBNLCBEbWl0cnkgVG9yb2tob3YKPGRtaXRyeS50
+b3Jva2hvdkBnbWFpbC5jb20+IHdyb3RlOgo+IEhpIERlZXBhLAo+Cj4gT24gU2F0LCBKYW4gMDYs
+IDIwMTggYXQgMDQ6MTk6MTVQTSAtMDgwMCwgRGVlcGEgRGluYW1hbmkgd3JvdGU6Cj4+IHN0cnVj
+dCB0aW1ldmFsIGlzIG5vdCB5MjAzOCBzYWZlLgo+PiBBbGwgdXNhZ2Ugb2YgdGltZXZhbCBpbiB0
+aGUga2VybmVsIHdpbGwgYmUgcmVwbGFjZWQgYnkKPj4geTIwMzggc2FmZSBzdHJ1Y3R1cmVzLgo+
+PiBUaGUgY2hhbmdlIGlzIGFsc28gbmVjZXNzYXJ5IGFzIGdsaWJjIGlzIGludHJvZHVjaW5nIHN1
+cHBvcnQKPj4gZm9yIDMyIGJpdCBhcHBsaWNhdGlvbnMgdG8gdXNlIDY0IGJpdCB0aW1lX3QuIFdp
+dGhvdXQgdGhpcwo+PiBjaGFuZ2UsIG1hbnkgYXBwbGljYXRpb25zIHdvdWxkIGluY29ycmVjdGx5
+IGludGVycHJldCB2YWx1ZXMKPj4gaW4gdGhlIHN0cnVjdCBpbnB1dF9ldmVudC4KPj4gTW9yZSBk
+ZXRhaWxzIGFib3V0IGdsaWJjIGF0Cj4+IGh0dHBzOi8vc291cmNld2FyZS5vcmcvZ2xpYmMvd2lr
+aS9ZMjAzOFByb29mbmVzc0Rlc2lnbiAuCj4+Cj4+IHN0cnVjdCBpbnB1dF9ldmVudCBtYWludGFp
+bnMgdGltZSBmb3IgZWFjaCBpbnB1dCBldmVudC4KPj4gUmVhbCB0aW1lIHRpbWVzdGFtcHMgYXJl
+IG5vdCBpZGVhbCBmb3IgaW5wdXQgYXMgdGhpcwo+PiB0aW1lIGNhbiBnbyBiYWNrd2FyZHMgYXMg
+bm90ZWQgaW4gdGhlIHBhdGNoIGE4MGI4M2I3YjgKPj4gYnkgSm9obiBTdHVsdHouIEhlbmNlLCBo
+YXZpbmcgdGhlIGlucHV0X2V2ZW50LnRpbWUgZmllbGRzCj4+IG9ubHkgYmlnIGVub3VnaCBmb3Ig
+bW9ub3RvbmljIGFuZCBib290IHRpbWVzIGFyZQo+PiBzdWZmaWNpZW50Lgo+Cj4gSSBhbSBoYXBw
+eSB3aXRoIHRoZSBwYXRjaCwgYnV0IGhhdmUgc29tZSBjb25jZXJucyBhYm91dCBjaGFuZ2Vsb2cu
+IFRoZQo+IGNoYW5nZSBkb2VzIG5vdCByZWFsbHkgcHJldmVudCBhbnlvbmUgZnJvbSB1c2luZyBD
+TE9DS19SRUFMVElNRSBwYXN0Cj4gMjEwNiwgZXNwZWNpYWxseSBvbiA2NCBiaXQgYXJjaGVzLiBX
+ZSBhcmUgc2ltcGx5IGV4dGVuZGluZyByYW5nZSBvZgo+IHJlcG9ydGVkIHNlY29uZHMgaW4gaW5w
+dXQgZXZlbnQgYnkgY29udmVydGluZyBmcm9tIHNpZ25lZCB0byB1bnNpZ25lZAo+IHZhbHVlLgoK
+SSB3YXMgaW50ZXJwcmV0aW5nIHdvcmtpbmcgaW5jb3JyZWN0bHkgb24gMzIgYml0IGFyY2hpdGVj
+dHVyZXMsIGJ1dAp3b3JraW5nIGNvcnJlY3RseSBvbiA2NCBiaXQgYXJjaGl0ZWN0dXJlcyBhcyBh
+IGZhaWx1cmUgb2YgdGhlIGZlYXR1cmUKdG8gdXNlIHJlYWx0aW1lIGNsb2NrIGF0IGFsbC4KQnV0
+LCB5b3UgYXJlIGNvcnJlY3QgdGhhdCB0aGUgcGF0Y2ggZG9lcyBub3QgYWN0aXZlbHkgZG8gYW55
+dGhpbmcgdG8Kc3RvcCBwZW9wbGUgZnJvbSB1c2luZyByZWFsdGltZSBjbG9jay4KCj4+Cj4+IFRo
+ZSBjaGFuZ2UgbGVhdmVzIHRoZSByZXByZXNlbnRhdGlvbiBvZiBzdHJ1Y3QgaW5wdXRfZXZlbnQg
+YXMgaXMKPj4gb24gNjQgYml0IGFyY2hpdGVjdHVyZXMuIEJ1dCB1c2VzIDIgdW5zaWduZWQgbG9u
+ZyB2YWx1ZXMgb24gMzIgYml0Cj4+IG1hY2hpbmVzIHRvIHN1cHBvcnQgcmVhbCB0aW1lc3RhbXBz
+IHVudGlsIHllYXIgMjEwNi4KPj4gVGhpcyBpbnRlbnRpb25hbGx5IGJyZWFrcyB0aGUgQUJJIG9u
+IDMyIGJpdCBhcmNoaXRlY3R1cmVzIGFuZAo+PiBjb21wYXQgaGFuZGxpbmcgb24gNjQgYml0IGFy
+Y2hpdGVjdHVyZXMuCj4+IFRoaXMgaXMgYXMgcGVyIG1haW50YWluZXIncyBwcmVmZXJlbmNlIHRv
+IGludHJvZHVjZSBjb21waWxlIHRpbWUgZXJyb3JzCj4+IHJhdGhlciB0aGFuIHJ1biBpbnRvIHJ1
+bnRpbWUgaW5jb21wYXRpYmlsaXRpZXMuCj4KPiBXZSBhcmUgYnJlYWtpbmcgQVBJLCBub3QgQUJJ
+IHRob3VnaC4gVGhlIEFCSSBmb3IgZXhpc3RpbmcgcHJvZ3JhbXMgaXMKPiBleGFjdGx5IHRoZSBz
+YW1lLCBpdCBpcyBvbmx5IHdoZW4gc3lzdGVtIHN0YXJ0cyB1c2luZyB0aGUgbmV3ZXIgZ2xpYmMK
+PiBzdXBwb3J0aW5nIGV4dGVuZGVkIHRpbWUgdGhlIGNvbXBpbGF0aW9uIHdpbGwgYnJlYWsuCgpJ
+IHdhcyBpbnRlcnByZXRpbmcgbm90IGJlaW5nIGFibGUgdG8gdXNlIG5lZ2F0aXZlIHRpbWVzdGFt
+cHMgb24gMzIgYml0Cm1hY2hpbmVzIGFzIGJyZWFraW5nIHRoZSBBQkkuCgo+PiBUaGUgY2hhbmdl
+IHJlcXVpcmVzIGFueSAzMiBiaXQgdXNlcnNwYWNlIHV0aWxpdGllcyByZWFkaW5nIG9yIHdyaXRp
+bmcKPj4gZnJvbSBldmVudCBub2RlcyB0byB1cGRhdGUgdGhlaXIgcmVhZGluZyBmb3JtYXQgdG8g
+bWF0Y2ggdGhlIG5ldwo+PiBpbnB1dF9ldmVudC4gVGhlIGNoYW5nZXMgdG8gdGhlIHBvcHVsYXIg
+bGlicmFyaWVzIHdpbGwgYmUgcG9zdGVkIG9uY2UKPj4gd2UgYWdyZWUgb24gdGhlIGtlcm5lbCBj
+aGFuZ2UuCj4gSSBwcm9wb3NlIHdlIGhhdmUgdGhlIGZvbGxvd2luZyBjaGFuZ2Vsb2c6Cj4KPgo+
+IElucHV0OiBleHRlbmQgdXNhYmxlIGxpZmUgb2YgZXZlbnQgdGltZXN0YW1wcyB0byAyMTA2IG9u
+IDMyIGJpdCBzeXN0ZW1zCj4KPiBUaGUgaW5wdXQgZXZlbnRzIHVzZSBzdHJ1Y3QgdGltZXZhbCB0
+byBzdG9yZSBldmVudCB0aW1lLCB1bmZvcnR1bmF0ZWx5Cj4gdGhpcyBzdHJ1Y3R1cmUgaXMgbm90
+IHkyMDM4IHNhZmUgYW5kIGlzIGJlaW5nIHJlcGxhY2VkIGluIGtlcm5lbCB3aXRoCj4geTIwMzgg
+c2FmZSBzdHJ1Y3R1cmVzLgo+Cj4gQmVjYXVzZSBvZiBBQkkgY29uY2VybnMgd2UgY2FuIG5vdCBj
+aGFuZ2UgdGhlIHNpemUgb3IgdGhlIGxheW91dCBvZgo+IHN0cnVjdHVyZSBpbnB1dF9ldmVudCwg
+c28gd2Ugb3B0IHRvIHJlLWludGVycHJldGluZyB0aGUgJ3NlY29uZHMnIHBhcnQKPiBvZiB0aW1l
+c3RhbXAgYXMgYW4gdW5zaWduZWQgdmFsdWUsIGVmZmVjdGl2ZWx5IGRvdWJsaW5nIHRoZSByYW5n
+ZSBvZgo+IHZhbHVlcywgdG8geWVhciAyMTA2Lgo+IE5ld2VyIGdsaWJjIHRoYXQgaGFzIHN1cHBv
+cnQgZm9yIDMyIGJpdCBhcHBsaWNhdGlvbnMgdG8gdXNlIDY0IGJpdAo+IHRpbWVfdCBzdXBwbGll
+cyBfX1VTRV9USU1FX0JJVFM2NCBkZWZpbmUgWzFdLCB0aGF0IHdlIGNhbiB1c2UgdG8gcHJlc2Vu
+dAo+IHRoZSB1c2Vyc3BhY2Ugd2l0aCB1cGRhdGVkIGlucHV0X2V2ZW50IGxheW91dC4gVGhlIHVw
+ZGF0ZWQgbGF5b3V0IHdpbGwKPiBjYXVzZSB0aGUgY29tcGlsZSB0aW1lIGJyZWFrYWdlLCBhbGVy
+dGluZyBhcHBsaWNhdGlvbnMgYW5kIGRpc3RyaWJ1dGlvbnMKPiBtYWludGFpbmVycyB0byB0aGUg
+aXNzdWUuIEV4aXN0aW5nIDMyIGJpbmFyaWVzIHdpbGwgY29udGludWUgd29ya2luZwo+IHdpdGhv
+dXQgYW55IGNoYW5nZXMgdW50aWwgMjAzOC4KPgo+IFVsdGltYXRlbHkgdXNlcnNwYWNlIGFwcGxp
+Y2F0aW9ucyBzaG91bGQgc3dpdGNoIHRvIHVzaW5nIG1vbm90b25pYyBvcgo+IGJvb3QgdGltZSBj
+bG9ja3MsIGFzIHJlYWx0aW1lIGNsb2NrIGlzIG5vdCB2ZXJ5IHdlbGwgc3VpdGVkIGZvciBpbnB1
+dAo+IGV2ZW50IHRpbWVzdGFtcHMgYXMgaXQgY2FuIGdvIGJhY2t3YXJkcyAoc2VlIGE4MGI4M2I3
+YjggIklucHV0OiBldmRldiAtCj4gYWRkIENMT0NLX0JPT1RUSU1FIHN1cHBvcnQiIGJ5IGJ5IEpv
+aG4gU3R1bHR6KS4gV2l0aCBtb25vdG9uaWMgY2xvY2sgdGhlCj4gcHJhY3RpY2FsIHJhbmdlIG9m
+IHJlcG9ydGVkIHRpbWVzIHdpbGwgYWx3YXlzIGZpdCBpbnRvIHRoZSBwYWlyIG9mIDMyCj4gYml0
+IHZhbHVlcywgYXMgd2UgZG8gbm90IGV4cGVjdCBhbnkgc3lzdGVtIHRvIHN0YXkgdXAgZm9yIGEg
+aHVuZHJlZAo+IHllYXJzIHdpdGhvdXQgYSBzaW5nbGUgcmVib290Lgo+Cj4gWzFdIGh0dHBzOi8v
+c291cmNld2FyZS5vcmcvZ2xpYmMvd2lraS9ZMjAzOFByb29mbmVzc0Rlc2lnbgo+Cj4KPiBQbGVh
+c2UgbGV0IG1lIGtub3cgaWYgeW91IGRpc2FnZWUgd2l0aCB0aGUgYWJvdmUuCgpJJ20gZmluZSB3
+aXRoIHRoaXMgY29tbWl0IHRleHQuIExldCBtZSBrbm93IGlmIHlvdSB3b3VsZCBsaWtlIG1lIHRv
+IHVwZGF0ZSB0aGlzLgoKVGhhbmtzLApEZWVwYQpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpZMjAzOCBtYWlsaW5nIGxpc3QKWTIwMzhAbGlzdHMubGluYXJv
+Lm9yZwpodHRwczovL2xpc3RzLmxpbmFyby5vcmcvbWFpbG1hbi9saXN0aW5mby95MjAzOAo=

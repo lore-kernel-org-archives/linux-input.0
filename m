@@ -1,51 +1,51 @@
-From: Andi Shyti <andi.shyti@samsung.com>
-Subject: Re: [PATCH] Input: stmfts,s6sy671 - add SPDX identifier
-Date: Tue, 09 Jan 2018 14:23:31 +0900
-Message-ID: <20180109052331.GC11443@gangnam.samsung>
-References: <CGME20171212074156epcas2p4fefff65c3316ec1aa9b3d7797aaca550@epcas2p4.samsung.com>
-        <20171212074149.7844-1-andi.shyti@samsung.com>
-        <20180105095715.GA6679@gangnam.samsung>
-        <20180105164958.csojn6vhy72bwoac@dtor-ws>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH 1/3] Input: twl4030-vibra: fix sibling-node lookup
+Date: Tue, 9 Jan 2018 10:21:12 +0100
+Message-ID: <20180109092112.GJ11344@localhost>
+References: <20171111154339.16875-1-johan@kernel.org>
+ <20171211102121.GJ5672@localhost>
+ <20180108135502.GF11344@localhost>
+ <20180109013638.vjeou77idumazgcq@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-disposition: inline
-In-reply-to: <20180105164958.csojn6vhy72bwoac@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <20180109013638.vjeou77idumazgcq@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Johan Hovold <johan@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Marek Belisko <marek@goldelico.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On Fri, Jan 05, 2018 at 08:49:58AM -0800, Dmitry Torokhov wrote:
-> Hi Andi,
-> 
-> On Fri, Jan 05, 2018 at 06:57:15PM +0900, Andi Shyti wrote:
-> > Hi Dmitry,
+On Mon, Jan 08, 2018 at 05:36:38PM -0800, Dmitry Torokhov wrote:
+> On Mon, Jan 08, 2018 at 02:55:02PM +0100, Johan Hovold wrote:
+> > On Mon, Dec 11, 2017 at 11:21:21AM +0100, Johan Hovold wrote:
+> > > On Sat, Nov 11, 2017 at 04:43:37PM +0100, Johan Hovold wrote:
+> > > > A helper purported to look up a child node based on its name was using
+> > > > the wrong of-helper and ended up prematurely freeing the parent of-node
+> > > > while searching the whole device tree depth-first starting at the parent
+> > > > node.
+> > > > 
+> > > > Fixes: 64b9e4d803b1 ("input: twl4030-vibra: Support for DT booted kernel")
+> > > > Fixes: e661d0a04462 ("Input: twl4030-vibra - fix ERROR: Bad of_node_put() warning")
+> > > > Cc: stable <stable@vger.kernel.org>     # 3.7
+> > > > Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> > > > Cc: Marek Belisko <marek@goldelico.com>
+> > > > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > > > ---
+> > > 
+> > > Just wanted to send a reminder about this series. I believe these bugs
+> > > need to be fixes regardless of whether MFD-core eventually provides some
+> > > means of avoiding such lookups in cell drivers (i.e. the discussion
+> > > which appears to have stalled).
 > > 
-> > this is a kind ping, would you also mind giving me a feedback to
+> > Another month, another reminder: Will you pick this series up for 4.16,
+> > Dmitry?
 > 
-> Yes, sorry. Could you please split the patch for each driver
-> individually? Also, until we have an update to the CodingStyle doc
-> mandating the C++ style comments, I'd prefer keeping the original style
-> of comments. So // for the SPDX line and /* */ for the rest.
+> Sorry, I was hoping we'd have some movement in MFD... Applied all 3,
+> thank you.
 
-I was actually following Linus guideline [1] [2]. I also had the
-same discussion previously in another context [3].
-
-Please let me know if you still want a mixed style of comments in
-the next patch.
+No worries. The MFD changes can be done as follow-ons (when people can
+find some spare cycles). I agree with the general direction.
 
 Thanks,
-Andi
-
-[1] https://marc.info/?l=linux-kernel&m=151163713125320&w=2
-    ...
-    └-> https://marc.info/?l=linux-kernel&m=151163867325641&w=2
-        ...
-        └-> https://marc.info/?l=linux-kernel&m=151163867325641&w=2
-
-[2] https://marc.info/?l=linux-kernel&m=150964359922353
-[3] https://marc.info/?l=linux-kernel&m=151312974503109&w=2
+Johan

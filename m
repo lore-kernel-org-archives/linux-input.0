@@ -1,76 +1,44 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: goodix - disable IRQs while suspended
-Date: Wed, 10 Jan 2018 15:14:58 +0100
-Message-ID: <1515593698.2523.56.camel@hadess.net>
-References: <20180110113456.3091-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:49675 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751812AbeAJOPB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 10 Jan 2018 09:15:01 -0500
-In-Reply-To: <20180110113456.3091-1-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] input: of_touchscreen: add MODULE_LICENSE
+Date: Wed, 10 Jan 2018 17:31:26 +0100
+Message-ID: <20180110163137.543730-1-arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
 
-On Wed, 2018-01-10 at 12:34 +0100, Hans de Goede wrote:
-> We should not try to do any i2c transfers before the controller is
-> resumed (which happens before our resume method gets called).
-> 
-> So we need to disable our IRQ while suspended to enforce this. The
-> code paths for devices with GPIOs for the int and reset pins already
-> disable the IRQ the through goodix_free_irq().
-> 
-> This commit also disables the IRQ while suspended for devices without
-> GPIOs for the int and reset pins.
+The lack of the MODULE_LICENSE tag can lead to a warning here:
 
-Do disable_irq() and enable_irq() require to be paired, and if so, are
-goodix_suspend() and goodix_resume() guaranteed to be paired?
+WARNING: modpost: missing MODULE_LICENSE() in drivers/input/touchscreen/of_touchscreen.o
 
-Other than that, looks good to me. Please add the name of the device(s)
-you tested this on in the changelog and add your tested-by, to show
-it's not a "compile-only check" kind of commit.
+I'm adding a license and description tag, but no MODULE_AUTHOR()
+as this file is a collection of standalone helper functions that
+were all added by different developers.
 
-Cheers
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/touchscreen/of_touchscreen.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/input/touchscreen/goodix.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c
-> b/drivers/input/touchscreen/goodix.c
-> index 69d0b8cbc71f..ecec8eb17f28 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -878,8 +878,10 @@ static int __maybe_unused goodix_suspend(struct
-> device *dev)
->  	int error;
->  
->  	/* We need gpio pins to suspend/resume */
-> -	if (!ts->gpiod_int || !ts->gpiod_rst)
-> +	if (!ts->gpiod_int || !ts->gpiod_rst) {
-> +		disable_irq(client->irq);
->  		return 0;
-> +	}
->  
->  	wait_for_completion(&ts->firmware_loading_complete);
->  
-> @@ -919,8 +921,10 @@ static int __maybe_unused goodix_resume(struct
-> device *dev)
->  	struct goodix_ts_data *ts = i2c_get_clientdata(client);
->  	int error;
->  
-> -	if (!ts->gpiod_int || !ts->gpiod_rst)
-> +	if (!ts->gpiod_int || !ts->gpiod_rst) {
-> +		enable_irq(client->irq);
->  		return 0;
-> +	}
->  
->  	/*
->  	 * Exit sleep mode by outputting HIGH level to INT pin
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index 8d7f9c8f2771..9642f103b726 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -13,6 +13,7 @@
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
++#include <linux/module.h>
+ 
+ static bool touchscreen_get_prop_u32(struct device *dev,
+ 				     const char *property,
+@@ -185,3 +186,6 @@ void touchscreen_report_pos(struct input_dev *input,
+ 	input_report_abs(input, multitouch ? ABS_MT_POSITION_Y : ABS_Y, y);
+ }
+ EXPORT_SYMBOL(touchscreen_report_pos);
++
++MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("Device-tree helpers functions for touchscreen devices");
+-- 
+2.9.0

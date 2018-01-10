@@ -1,300 +1,40 @@
-From: Robert Munteanu <rombert@apache.org>
-Subject: [RFC PATCH] Fix modifier keys for Redragon Asura Keyboard
-Date: Wed, 10 Jan 2018 11:23:02 +0200
-Message-ID: <20180110092302.6001-1-rombert@apache.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Robert Munteanu <rombert@apache.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH] HID: roccat: prevent an out of bounds read in
+ kovaplus_profile_activated()
+Date: Wed, 10 Jan 2018 12:39:03 +0300
+Message-ID: <20180110093903.yyoknoi7oc2cd5iy@mwanda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from aserp2130.oracle.com ([141.146.126.79]:49998 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751693AbeAJJje (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 10 Jan 2018 04:39:34 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-The microdia family of keyboards uses a non-standard way of sending
-modifier keys.
+We get the "new_profile_index" value from the mouse device when we're
+handling raw events.  Smatch taints it as untrusted data and complains
+that we need a bounds check.  This seems like a reasonable warning
+otherwise there is a small read beyond the end of the array.
 
-The down event always sets the first bit to 0x04 and the second keycode
-to a custom value For instance, left shift sends the following bits
+Fixes: 0e70f97f257e ("HID: roccat: Add support for Kova[+] mouse")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-  04 02 00 00 00 00 00 00
-
-while left control sends
-
-  04 01 00 00 00 00 00 00
-
-As a result all modifier keys are mapped to left shift and the keyboard is
-non-functional in that respect. To solve the problem, we capture the
-raw data in raw_event and manually generate the correct input events.
-
-The keyboard functions mostly as expected now, with only a few minor
-issues:
-
-- two USB devices are detected instead of 1
-- some key combinations are not triggered - e.g.
-  left shift + left ctrl + p. However, the same combination is recognized
-  with the right shift key.
-
-Tested on Kernel 4.14.12
-
-Changelog:
-
-- v2: modifier keys work, some combinations are still troublesome
-- v3: style cleanup, rebase on top of 4.14
-
-Signed-off-by: Robert Munteanu <rombert@apache.org>
----
- drivers/hid/Kconfig        |   9 +++
- drivers/hid/Makefile       |   2 +-
- drivers/hid/hid-core.c     |   3 +
- drivers/hid/hid-ids.h      |   3 +
- drivers/hid/hid-microdia.c | 178 +++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 194 insertions(+), 1 deletion(-)
- create mode 100644 drivers/hid/hid-microdia.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 374301fcbc86..0033a81f0ad4 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -548,6 +548,15 @@ config HID_MAYFLASH
- 	Say Y here if you have HJZ Mayflash PS3 game controller adapters
- 	and want to enable force feedback support.
- 
-+config HID_MICRODIA
-+	tristate "Microdia based keyboards"
-+	depends on HID
-+	default !EXPERT
-+	---help---
-+    Support for Microdia devices that are not compliant with the HID standard.
-+
-+    One known example if the Redragon Asura Keyboard.
-+
- config HID_MICROSOFT
- 	tristate "Microsoft non-fully HID-compliant devices"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 235bd2a7b333..e66a305876c5 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -62,6 +62,7 @@ obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
- obj-$(CONFIG_HID_LOGITECH_HIDPP)	+= hid-logitech-hidpp.o
- obj-$(CONFIG_HID_MAGICMOUSE)	+= hid-magicmouse.o
- obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
-+obj-$(CONFIG_HID_MICRODIA)  += hid-microdia.o
- obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
- obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
- obj-$(CONFIG_HID_MULTITOUCH)	+= hid-multitouch.o
-@@ -121,4 +122,3 @@ obj-$(CONFIG_USB_KBD)		+= usbhid/
- 
- obj-$(CONFIG_I2C_HID)		+= i2c-hid/
- 
--obj-$(CONFIG_INTEL_ISH_HID)	+= intel-ish-hid/
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 330ca983828b..eeb325e3ff0d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2388,6 +2388,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
- #endif
- #if IS_ENABLED(CONFIG_HID_ZYDACRON)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
-+#endif
-+#if IS_ENABLED(CONFIG_HID_MICRODIA)
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICRODIA,  USB_DEVICE_ID_REDRAGON_ASURA) },
- #endif
- 	{ }
- };
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index be2e005c3c51..2edbf01361f1 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1161,4 +1161,7 @@
- #define USB_VENDOR_ID_UGTIZER			0x2179
- #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
- 
-+#define USB_VENDOR_ID_MICRODIA          0x0c45
-+#define USB_DEVICE_ID_REDRAGON_ASURA    0x760b
-+
- #endif
-diff --git a/drivers/hid/hid-microdia.c b/drivers/hid/hid-microdia.c
-new file mode 100644
-index 000000000000..a6119786859d
---- /dev/null
-+++ b/drivers/hid/hid-microdia.c
-@@ -0,0 +1,178 @@
-+/*
-+ *  HID driver for Microdia-based keyboards
-+ *
-+ *  Copyright (c) 2017 Robert Munteanu
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/log2.h>
-+#include <linux/input-event-codes.h>
-+
-+#include "hid-ids.h"
-+
-+
-+// The microdia family of keyboards uses a non-standard way of sending
-+// modifier keys
-+//
-+// The down event always sets the first bit to 0x04 and the second keycode
-+// to a custom value. For instance, left shift sends the following bits
-+//
-+//   04 02 00 00 00 00 00 00
-+//
-+// while left control sends
-+//
-+//   04 01 00 00 00 00 00 00
-+//
-+// Unfortunately these are all mapped to left shift and the keyboard is
-+// non-functional in that respect. To solve the problem, we capture the
-+// raw data in raw_event and manually generate the correct input events
-+//
-+// TODO
-+//
-+// 1. Some modifiers keys still don't work, e.g. Ctrl-Shift-P
-+//    Interestingly enough, this happens when pressing the physical
-+//    left shift key, but now when pressing the physical right shift key.
-+//    hexdump does not show them either.
-+// 2. A second USB keyboard is registered, but it should be removed
-+// 3. Modifier keys sometimes get stuck, need to re-press to clear
-+
-+static int microdia_input_configured(struct hid_device *hdev,
-+	struct hid_input *hi)
-+{
-+
-+	hid_info(hdev, "Configuring input");
-+
-+	hid_set_drvdata(hdev, hi);
-+
-+	return 0;
-+}
-+
-+static int microdia_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+		struct hid_field *field, struct hid_usage *usage,
-+		unsigned long **bit, int *max)
-+{
-+	// do not map left shift since we will manually generate input
-+	// events in microdia_raw_event
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_KEYBOARD)
-+		if ((usage->hid & HID_USAGE) == 0xe1)
-+			return -1;
-+
-+	return 0;
-+}
-+
-+// array index of a modifier matches the bit index in the data payload
-+// the modifier data is always stored in the second int
-+// e.g. for left alt the 1 bit is set - 04 04 ...
-+// TODO - second entry should be left shift, but that's not possible
-+// since we ignore it in the mapping
-+static int microdia_modifiers[7] = {
-+		KEY_LEFTCTRL,
-+		KEY_RIGHTSHIFT,
-+		KEY_LEFTALT,
-+		KEY_LEFTMETA,
-+		KEY_RIGHTCTRL,
-+		KEY_RIGHTSHIFT,
-+		KEY_RIGHTALT
-+};
-+
-+static int microdia_last_handled_modifier;
-+
-+static int microdia_raw_event(struct hid_device *hdev,
-+		struct hid_report *report, u8 *data, int size)
-+{
-+	int i, changed_key, new_value, mapped_key;
-+	struct hid_input *hi;
-+
-+	// 1. validate that we get 8 bits of the for 04 xx 00 00 00 00 00 00
-+	if (size != 8) {
-+		hid_info(hdev, "size is %d, ignoring\n", size);
-+		return 0;
-+	}
-+
-+	if (data[0] != 4) {
-+		hid_info(hdev, "data[0] is %d, ignoring\n", data[0]);
-+		return 0;
-+	}
-+
-+	// TODO - can I somehow use a bit mask? data & 0x00ffffff != 0
-+	for (i = 2; i < size; i++) {
-+		if (data[i] != 0) {
-+			hid_info(hdev, "data[%d] is %d, ignoring\n", i,
-+				data[i]);
-+			return 0;
-+		}
-+	}
-+
-+	// TODO - don't process the keyup event 04 00 00 00 00 00 00 00
-+	// if we don't expect a modifier key 'up' event
-+
-+	// 2. detect based on previous data what key was pressed or depressed
-+	// a key was pressed or depressed if its bit has a different value
-+	// between this and the previous invocation. If the bit is set
-+	// it was pressed
-+
-+	changed_key = data[1] ^ microdia_last_handled_modifier;
-+	new_value = (data[1] & changed_key) != 0;
-+	// TODO - is ilog2 really needed?
-+	mapped_key = microdia_modifiers[ilog2(changed_key)];
-+
-+	hid_info(hdev, "Got payload 0x%x\n", data[1]);
-+	hid_info(hdev, "Detected key %d value %d\n", changed_key, new_value);
-+
-+	// 3. report the key event and track what was sent
-+	hi = hid_get_drvdata(hdev);
-+
-+	hid_info(hdev, "Reporting key %d with value %d\n", mapped_key,
-+		new_value);
-+	input_report_key(hi->input, mapped_key, new_value);
-+
-+	microdia_last_handled_modifier = data[1];
-+
-+	return 1;
-+}
-+
-+static __u8 *microdia_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+	unsigned int *rsize)
-+{
-+
-+	int i;
-+
-+	hid_info(hdev, "Report size is %d", *rsize);
-+
-+	for (i = 0 ; i < *rsize; i++)
-+		hid_info(hdev, "%2d ", rdesc[i]);
-+
-+	hid_info(hdev, "\n");
-+
-+	return rdesc;
-+}
-+
-+static const struct hid_device_id microdia_devices[] = {
-+	{HID_USB_DEVICE(USB_VENDOR_ID_MICRODIA, USB_DEVICE_ID_REDRAGON_ASURA)},
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(hid, microdia_devices);
-+
-+static struct hid_driver microdia_driver = {
-+	.name = "microdia",
-+	.input_mapping = microdia_input_mapping,
-+	.id_table = microdia_devices,
-+	.raw_event = microdia_raw_event,
-+	.input_configured = microdia_input_configured,
-+	.report_fixup = microdia_report_fixup,
-+};
-+
-+module_hid_driver(microdia_driver);
-+
-+MODULE_LICENSE("GPL");
--- 
-2.15.1
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 43617fb28b87..317c9c2c0a7c 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -37,6 +37,8 @@ static uint kovaplus_convert_event_cpi(uint value)
+ static void kovaplus_profile_activated(struct kovaplus_device *kovaplus,
+ 		uint new_profile_index)
+ {
++	if (new_profile_index >= ARRAY_SIZE(kovaplus->profile_settings))
++		return;
+ 	kovaplus->actual_profile = new_profile_index;
+ 	kovaplus->actual_cpi = kovaplus->profile_settings[new_profile_index].cpi_startup_level;
+ 	kovaplus->actual_x_sensitivity = kovaplus->profile_settings[new_profile_index].sensitivity_x;

@@ -1,116 +1,346 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: multi-touch fix for ALPS touchpads ("SS4 plus"
- variant)
-Date: Thu, 11 Jan 2018 23:43:11 -0800
-Message-ID: <20180112074311.tlhgpwp2szgldxi7@dtor-ws>
-References: <CAE1KSOPo=uQbE4tCpZF4UzXRsfzA1gTqW4-UURGjt2u2+ZH_Mg@mail.gmail.com>
- <TYXPR01MB0719F851EB4CC5EA8375845EC7170@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+Subject: Re: [RESEND PATCH v2] input: pxrc: new driver for PhoenixRC Flight
+ Controller Adapter
+Date: Fri, 12 Jan 2018 00:05:35 -0800
+Message-ID: <20180112080535.iw64xbjvtomusc5n@dtor-ws>
+References: <20180110131139.7238-1-marcus.folkesson@gmail.com>
+ <20180111003714.34kgsbdtaqjwuyis@dtor-ws>
+ <20180111120742.GA32505@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <TYXPR01MB0719F851EB4CC5EA8375845EC7170@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+In-Reply-To: <20180111120742.GA32505@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: Nir Perry <nirperry@gmail.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Tomohiro Yoshidomi <sylph23k@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 12, 2018 at 01:02:55AM +0000, Masaki Ota wrote:
-> Hi, Nir,
+On Thu, Jan 11, 2018 at 01:07:42PM +0100, Marcus Folkesson wrote:
+> Hi Dmitry,
 > 
-> Wow, thank you for fixing the bug.
-> Your code is correct!
+> Thank you for your review!
+> 
+> On Wed, Jan 10, 2018 at 04:37:14PM -0800, Dmitry Torokhov wrote:
+> > Hi Marcus,
+> > 
+> > On Wed, Jan 10, 2018 at 02:11:39PM +0100, Marcus Folkesson wrote:
+> > > This driver let you plug in your RC controller to the adapter and
+> > > use it as input device in various RC simulators.
+> > > 
+> > > Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> > > ---
+> > > v2:
+> > > 	- Change module license to GPLv2 to match SPDX tag
+> > > 
+> > >  Documentation/input/devices/pxrc.rst |  57 ++++++++
+> > >  drivers/input/joystick/Kconfig       |   9 ++
+> > >  drivers/input/joystick/Makefile      |   1 +
+> > >  drivers/input/joystick/pxrc.c        | 254 +++++++++++++++++++++++++++++++++++
+> > >  4 files changed, 321 insertions(+)
+> > >  create mode 100644 Documentation/input/devices/pxrc.rst
+> > >  create mode 100644 drivers/input/joystick/pxrc.c
+> > > 
+> > > diff --git a/Documentation/input/devices/pxrc.rst b/Documentation/input/devices/pxrc.rst
+> > > new file mode 100644
+> > > index 000000000000..0ec466c58958
+> > > --- /dev/null
+> > > +++ b/Documentation/input/devices/pxrc.rst
+> > > @@ -0,0 +1,57 @@
+> > > +=======================================================
+> > > +pxrc - PhoenixRC Flight Controller Adapter
+> > > +=======================================================
+> > > +
+> > > +:Author: Marcus Folkesson <marcus.folkesson@gmail.com>
+> > > +
+> > > +This driver let you use your own RC controller plugged into the
+> > > +adapter that comes with PhoenixRC [1]_ or other compatible adapters.
+> > > +
+> > > +The adapter supports 7 analog channels and 1 digital input switch.
+> > > +
+> > > +Notes
+> > > +=====
+> > > +
+> > > +Many RC controllers is able to configure which stick goes to which channel.
+> > > +This is also configurable in most simulators, so a matching is not necessary.
+> > > +
+> > > +The driver is generating the following input event for analog channels:
+> > > +
+> > > ++---------+----------------+
+> > > +| Channel |      Event     |
+> > > ++=========+================+
+> > > +|     1   |  ABS_X         |
+> > > ++---------+----------------+
+> > > +|     2   |  ABS_Y         |
+> > > ++---------+----------------+
+> > > +|     3   |  ABS_RX        |
+> > > ++---------+----------------+
+> > > +|     4   |  ABS_RY        |
+> > > ++---------+----------------+
+> > > +|     5   |  ABS_TILT_X    |
+> > > ++---------+----------------+
+> > > +|     6   |  ABS_TILT_Y    |
+> > > ++---------+----------------+
+> > 
+> > TILT are normally reserved for stylus/pen. Do we have better event codes
+> > maybe? Is there a picture of the RC so I can make more sense of the
+> > proposed event assignment?
+> > 
+> 
+> Ok, maybe RUDDER and MISC?
 
-Great, I am putting you down as "Reviewed-by" then. Thanks!
+OK.
+
+> The driver is actually for an "adapter" [1] that you connect your RC to.
+> The RC is then mapping its sticks/buttons to different channels. Unlike other
+> joysticks, this mapping is not fixed but something you setup in your RC.
+> 
+> For example, I'm using a Turnigy 9xr[2].
+> 
+> The RC is typically used with a RC Flight Simulator software (I'm using
+> Heli-X [3] when testing) which also map the channels to events (throttle,
+> rudder and so on).
+> 
+> 
+> > > +|     7   |  ABS_THROTTLE  |
+> > > ++---------+----------------+
+> > > +
+> > > +The digital input switch is generated as an `BTN_A` event.
+> > > +
+> > > +Manual Testing
+> > > +==============
+> > > +
+> > > +To test this driver's functionality you may use `input-event` which is part of
+> > > +the `input layer utilities` suite [2]_.
+> > > +
+> > > +For example::
+> > > +
+> > > +    > modprobe pxrc
+> > > +    > input-events <devnr>
+> > > +
+> > > +To print all input events from input `devnr`.
+> > > +
+> > > +References
+> > > +==========
+> > > +
+> > > +.. [1] http://www.phoenix-sim.com/
+> > > +.. [2] https://www.kraxel.org/cgit/input/
+> > > diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+> > > index f3c2f6ea8b44..18ab6dafff41 100644
+> > > --- a/drivers/input/joystick/Kconfig
+> > > +++ b/drivers/input/joystick/Kconfig
+> > > @@ -351,4 +351,13 @@ config JOYSTICK_PSXPAD_SPI_FF
+> > >  
+> > >  	  To drive rumble motor a dedicated power supply is required.
+> > >  
+> > > +config JOYSTICK_PXRC
+> > > +	tristate "PhoenixRC Flight Controller Adapter"
+> > > +	depends on USB_ARCH_HAS_HCD
+> > > +	select USB
+> > > +	help
+> > > +	  Say Y here if you want to use the PhoenixRC Flight Controller Adapter.
+> > > +
+> > > +	  To compile this driver as a module, choose M here: the
+> > > +	  module will be called pxrc.
+> > >  endif
+> > > diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+> > > index 67651efda2e1..dd0492ebbed7 100644
+> > > --- a/drivers/input/joystick/Makefile
+> > > +++ b/drivers/input/joystick/Makefile
+> > > @@ -23,6 +23,7 @@ obj-$(CONFIG_JOYSTICK_JOYDUMP)		+= joydump.o
+> > >  obj-$(CONFIG_JOYSTICK_MAGELLAN)		+= magellan.o
+> > >  obj-$(CONFIG_JOYSTICK_MAPLE)		+= maplecontrol.o
+> > >  obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+= psxpad-spi.o
+> > > +obj-$(CONFIG_JOYSTICK_PXRC)			+= pxrc.o
+> > >  obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
+> > >  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
+> > >  obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
+> > > diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
+> > > new file mode 100644
+> > > index 000000000000..2bec99df97e2
+> > > --- /dev/null
+> > > +++ b/drivers/input/joystick/pxrc.c
+> > > @@ -0,0 +1,254 @@
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > > +/*
+> > > + * Driver for Phoenix RC Flight Controller Adapter
+> > > + *
+> > > + * Copyright (C) 2018 Marcus Folkesson <marcus.folkesson@gmail.com>
+> > > + *
+> > > + */
+> > > +
+> > > +#include <linux/kernel.h>
+> > > +#include <linux/errno.h>
+> > > +#include <linux/slab.h>
+> > > +#include <linux/module.h>
+> > > +#include <linux/kref.h>
+> > > +#include <linux/uaccess.h>
+> > > +#include <linux/usb.h>
+> > > +#include <linux/mutex.h>
+> > > +#include <linux/input.h>
+> > > +
+> > > +#define PXRC_VENDOR_ID	(0x1781)
+> > > +#define PXRC_PRODUCT_ID	(0x0898)
+> > > +
+> > > +static const struct usb_device_id pxrc_table[] = {
+> > > +	{ USB_DEVICE(PXRC_VENDOR_ID, PXRC_PRODUCT_ID) },
+> > > +	{ }
+> > > +};
+> > > +MODULE_DEVICE_TABLE(usb, pxrc_table);
+> > > +
+> > > +struct usb_pxrc {
+> > > +	struct input_dev	*input_dev;
+> > > +	struct usb_device	*udev;
+> > > +	struct usb_interface	*interface;
+> > > +	struct usb_anchor	anchor;
+> > > +	__u8			epaddr;
+> > > +	char			phys[64];
+> > > +	unsigned char           *data;
+> > > +	size_t			bsize;
+> > > +	struct kref		kref;
+> > > +};
+> > > +
+> > > +#define to_pxrc_dev(d) container_of(d, struct usb_pxrc, kref)
+> > > +static void pxrc_delete(struct kref *kref)
+> > > +{
+> > > +	struct usb_pxrc *pxrc = to_pxrc_dev(kref);
+> > > +
+> > > +	usb_put_dev(pxrc->udev);
+> > > +}
+> > > +
+> > > +static void pxrc_usb_irq(struct urb *urb)
+> > > +{
+> > > +	struct usb_pxrc *pxrc = urb->context;
+> > > +
+> > > +	switch (urb->status) {
+> > > +	case 0:
+> > > +		/* success */
+> > > +		break;
+> > > +	case -ETIME:
+> > > +		/* this urb is timing out */
+> > > +		dev_dbg(&pxrc->interface->dev,
+> > > +			"%s - urb timed out - was the device unplugged?\n",
+> > > +			__func__);
+> > > +		return;
+> > > +	case -ECONNRESET:
+> > > +	case -ENOENT:
+> > > +	case -ESHUTDOWN:
+> > > +	case -EPIPE:
+> > > +		/* this urb is terminated, clean up */
+> > > +		dev_dbg(&pxrc->interface->dev, "%s - urb shutting down with status: %d\n",
+> > > +			__func__, urb->status);
+> > > +		return;
+> > > +	default:
+> > > +		dev_dbg(&pxrc->interface->dev, "%s - nonzero urb status received: %d\n",
+> > > +			__func__, urb->status);
+> > > +		goto exit;
+> > > +	}
+> > > +
+> > > +	if (urb->actual_length == 8) {
+> > > +		input_report_abs(pxrc->input_dev, ABS_X, pxrc->data[0]);
+> > > +		input_report_abs(pxrc->input_dev, ABS_Y, pxrc->data[2]);
+> > > +		input_report_abs(pxrc->input_dev, ABS_RX, pxrc->data[3]);
+> > > +		input_report_abs(pxrc->input_dev, ABS_RY, pxrc->data[4]);
+> > > +		input_report_abs(pxrc->input_dev, ABS_TILT_X, pxrc->data[5]);
+> > > +		input_report_abs(pxrc->input_dev, ABS_TILT_Y, pxrc->data[6]);
+> > > +		input_report_abs(pxrc->input_dev, ABS_THROTTLE, pxrc->data[7]);
+> > > +
+> > > +		input_report_key(pxrc->input_dev, BTN_A, pxrc->data[1]);
+> > > +	}
+> > > +
+> > > +exit:
+> > > +	/* Resubmit to fetch new fresh URBs */
+> > > +	usb_anchor_urb(urb, &pxrc->anchor);
+> > > +	if (usb_submit_urb(urb, GFP_ATOMIC) < 0)
+> > > +		usb_unanchor_urb(urb);
+> > > +}
+> > > +
+> > > +static int pxrc_submit_intr_urb(struct usb_pxrc *pxrc)
+> > > +{
+> > > +	struct urb *urb;
+> > > +	unsigned int pipe;
+> > > +	int err;
+> > > +
+> > > +	urb = usb_alloc_urb(0, GFP_KERNEL);
+> > > +	if (!urb)
+> > > +		return -ENOMEM;
+> > > +
+> > > +	pipe = usb_rcvintpipe(pxrc->udev, pxrc->epaddr),
+> > > +	usb_fill_int_urb(urb, pxrc->udev, pipe, pxrc->data, pxrc->bsize,
+> > > +						pxrc_usb_irq, pxrc, 1);
+> > > +	usb_anchor_urb(urb, &pxrc->anchor);
+> > > +	err = usb_submit_urb(urb, GFP_KERNEL);
+> > > +	if (err < 0)
+> > > +		usb_unanchor_urb(urb);
+> > > +
+> > > +	usb_free_urb(urb);
+> > > +	return err;
+> > > +}
+> > > +
+> > > +static int pxrc_open(struct input_dev *input)
+> > > +{
+> > > +	struct usb_pxrc *pxrc = input_get_drvdata(input);
+> > > +	int err;
+> > > +
+> > > +	err = pxrc_submit_intr_urb(pxrc);
+> > > +	if (err < 0)
+> > > +		goto error;
+> > > +
+> > > +	kref_get(&pxrc->kref);
+> > > +	return 0;
+> > > +
+> > > +error:
+> > > +	usb_kill_anchored_urbs(&pxrc->anchor);
+> > > +	return err;
+> > > +}
+> > > +
+> > > +static void pxrc_close(struct input_dev *input)
+> > > +{
+> > > +	struct usb_pxrc *pxrc = input_get_drvdata(input);
+> > > +
+> > > +	usb_kill_anchored_urbs(&pxrc->anchor);
+> > > +	kref_put(&pxrc->kref, pxrc_delete);
+> > 
+> > This is way to complex and I am not sure why you need to anchor URBs and
+> > have a separate refcounting, etc. I do not think it is even safe with
+> > module unloading as kref might be in flight as you run through module
+> > unload and devm will destroy most of the objects.
+> > 
+> > Why don't you simply use usb_kill_urb() here and be done.
+> > input_unregister_device() that is called as part of devm unwind on
+> > device unbind will make sure that pxrc_close() is called.
+> > 
+> > Thanks.
+> > 
+> 
+> Ok, I drop the refcounting. pxrc_delete() did more before I changed most
+> allocations to devm_*.
+> I tried to get the refcounting similiar to /drivers/usb/usb-skeleton.c.
+> 
+> I have tried different approaches with the create/delete URBs.
+> At first I had the URB in the usb_pxrc struct that I allocated in the
+> probe function where I also submitted the URB.
+> 
+> This worked but I found it waste to submit URBs when noone has opened the
+> device, so I moved the submitting to pxrc_open().
+> The problem was that the same URB was submitted multiple times (gives a
+> warning) upon multiple calls to open(2).
+
+open() should only be called once, unless close() was called. So as long
+as you kill the URB in close(), you should not see warnings.
 
 > 
-> Best Regards,
-> Masaki Ota
-> -----Original Message-----
-> From: Nir Perry [mailto:nirperry@gmail.com] 
-> Sent: Saturday, January 06, 2018 8:55 PM
-> To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>; Dmitry Torokhov <dmitry.torokhov@gmail.com>; Pali Rohár <pali.rohar@gmail.com>
-> Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org
-> Subject: [PATCH] input: multi-touch fix for ALPS touchpads ("SS4 plus" variant)
+> So I removed the URB from usb_pxrc and used an anchor to still have a
+> reference to it for deletion. This part is heavily inspired by
+> drivers/bluetooth/bpa10x.c.
+> Maybe I should do it differently?
 > 
-> Hi all,
-> 
-> I think a minor "typo" bug was accidentally introduced to ALPS touchpad driver by a previous bug-fix (commit 4a646580f793d19717f7e034c8d473b509c27d49, "Input: ALPS - fix two-finger scroll breakage in right side on ALPS touchpad").
-> It breaks how multi-touch events are decoded on some ALPS touchpads, so for example tapping with three-fingers can no longer be used to emulate middle-mouse-button (the kernel doesn't recognize this as the proper event, and doesn't report it correctly to userspace).
-> This affects touchpads that use SS4 "plus" protocol variant, like those found on Dell E7270 & E7470 laptops (tested on E7270).
-> 
-> The cause of the problem
-> ------------------------------------------
-> First, probably due to a typo, the code in alps_decode_ss4_v2() for case SS4_PACKET_ID_MULTI used inconsistent indices to "f->mt[]". You can see 0 & 1 are used for the "if" part but 2 & 3 are used for the "else" part, which I believe is a typo.
-> Second, in the previous patch, new macros were introduced to decode X coordinates specific to the SS4 "plus" variant, but the macro to define the maximum X value wasn't changed accordingly. The macros to decode X values for "plus" variant are effectively shifted right by 1 bit, but the max wasn't shifted too. This causes the driver to incorrectly handle "no data" cases, which also interfered with how multi-touch was handled. To fix it - I created new SS4 "plus" macros for the max value - SS4_PLUS_MFPACKET_NO_AX & SS4_PLUS_MFPACKET_NO_AX_BL. To make the change a little more readable, I moved also the Y-max lines so they are closer to the X-max lines.
-> To get three-finger tap to work both changes are required.
-> 
-> The included patch was generated against the mainline tree today, but was also tested against the 4.14 kernel branch. I've included in this e-mail the people involved with the old patch from August, plus Pali Rohár who is listed as the ALPS PS/2 touchpad driver reviewer (in the maintainers file).
-> 
-> Fixes: 4a646580f793d19717f7e034c8d473b509c27d49 ("Input: ALPS - fix two-finger scroll breakage in right side on ALPS touchpad")
-> 
-> Regards,
-> Nir
-> 
-> Signed-off-by: Nir Perry <nirperry@gmail.com> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c index 579b899..dbe57da 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -1250,29 +1250,32 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
->         case SS4_PACKET_ID_MULTI:
->                 if (priv->flags & ALPS_BUTTONPAD) {
->                         if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> -                               f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-> -                               f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-> +                               f->mt[2].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-> +                               f->mt[3].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-> +                               no_data_x = SS4_PLUS_MFPACKET_NO_AX_BL;
->                         } else {
->                                 f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
->                                 f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
-> +                               no_data_x = SS4_MFPACKET_NO_AX_BL;
->                         }
-> +                       no_data_y = SS4_MFPACKET_NO_AY_BL;
-> 
->                         f->mt[2].y = SS4_BTL_MF_Y_V2(p, 0);
->                         f->mt[3].y = SS4_BTL_MF_Y_V2(p, 1);
-> -                       no_data_x = SS4_MFPACKET_NO_AX_BL;
-> -                       no_data_y = SS4_MFPACKET_NO_AY_BL;
->                 } else {
->                         if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> -                               f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-> -                               f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-> +                               f->mt[2].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-> +                               f->mt[3].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-> +                               no_data_x = SS4_PLUS_MFPACKET_NO_AX;
->                         } else {
-> -                               f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-> -                               f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
-> +                               f->mt[2].x = SS4_STD_MF_X_V2(p, 0);
-> +                               f->mt[3].x = SS4_STD_MF_X_V2(p, 1);
-> +                               no_data_x = SS4_MFPACKET_NO_AX;
->                         }
-> +                       no_data_y = SS4_MFPACKET_NO_AY;
-> +
->                         f->mt[2].y = SS4_STD_MF_Y_V2(p, 0);
->                         f->mt[3].y = SS4_STD_MF_Y_V2(p, 1);
-> -                       no_data_x = SS4_MFPACKET_NO_AX;
-> -                       no_data_y = SS4_MFPACKET_NO_AY;
->                 }
-> 
->                 f->first_mp = 0;
-> diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h index c80a7c7..3dfae83 100644
-> --- a/drivers/input/mouse/alps.h
-> +++ b/drivers/input/mouse/alps.h
-> @@ -145,6 +145,8 @@ enum SS4_PACKET_ID {
->  #define SS4_MFPACKET_NO_AY     4080    /* Y-Coordinate value */
->  #define SS4_MFPACKET_NO_AX_BL  8176    /* Buttonless X-Coordinate value */
->  #define SS4_MFPACKET_NO_AY_BL  4088    /* Buttonless Y-Coordinate value */
-> +#define SS4_PLUS_MFPACKET_NO_AX        4080    /* SS4 PLUS, x  */
-> +#define SS4_PLUS_MFPACKET_NO_AX_BL     4088    /* Buttonless SS4 PLUS, x */
-> 
->  /*
->   * enum V7_PACKET_ID - defines the packet type for V7
+> I must admit that I'm not very familiar with USB drivers.
+
+I'd probably look at drivers/input/mouse/synaptics_usb.c and structured
+your driver similarly.
+
+Thanks.
 
 -- 
 Dmitry

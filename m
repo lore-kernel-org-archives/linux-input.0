@@ -1,521 +1,356 @@
-From: Alexandrov Stansilav <neko@nya.ai>
-Subject: [PATCH] input: Add driver for USB ELAN Touchpad
-Date: Sun, 14 Jan 2018 02:33:49 +0300
-Message-ID: <20180113233349.2480-1-neko@nya.ai>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from thorium.nya.ai ([109.195.179.38]:49642 "EHLO thorium.nya.ai"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751168AbeAMXnO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 13 Jan 2018 18:43:14 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 12/14] iio: adc: at91-sama5d2_adc: support for position
+ and pressure channels
+Date: Sun, 14 Jan 2018 10:47:39 +0000
+Message-ID: <20180114104739.3f0b50c5@archlinux>
+References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
+        <1513955241-10985-13-git-send-email-eugen.hristev@microchip.com>
+        <20171229170236.06bf6394@archlinux>
+        <25045512-f372-3f25-e84f-ed809db9dde3@microchip.com>
+        <20180106150537.684345f3@archlinux>
+        <20180108141252.GC2425@rfolt0960.corp.atmel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180108141252.GC2425@rfolt0960.corp.atmel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: Eugen Hristev <eugen.hristev@microchip.com>, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
 
-This is driver for usb touchpad found on HP Pavilion x2 10-p0xx
-laptop. On this device keyboard and touchpad connected as a single
-usb device with two interfaces: keyboard, which exposes ordinary keys
-and second interface is touchpad which also contains FlightMode button and
-audio mute led (which physically placed on keyboard for some reason).
+On Mon, 8 Jan 2018 15:12:52 +0100
+Ludovic Desroches <ludovic.desroches@microchip.com> wrote:
 
-Initially, this touchpad works in mouse emulation mode, this driver will
-switch it to touchpad mode, which can track 5 fingers and can report
-coordinates for two of them.
+> Hi Jonathan, Eugen,
+> 
+> On Sat, Jan 06, 2018 at 03:05:37PM +0000, Jonathan Cameron wrote:
+> > On Thu, 4 Jan 2018 17:17:54 +0200
+> > Eugen Hristev <eugen.hristev@microchip.com> wrote:
+> >   
+> > > On 29.12.2017 19:02, Jonathan Cameron wrote:  
+> > > > On Fri, 22 Dec 2017 17:07:19 +0200
+> > > > Eugen Hristev <eugen.hristev@microchip.com> wrote:
+> > > >     
+> > > >> The ADC IP supports position and pressure measurements for a touchpad
+> > > >> connected on channels 0,1,2,3 for a 4-wire touchscreen with pressure
+> > > >> measurement support.
+> > > >> Using the inkern API, a driver can request a trigger and read the
+> > > >> channel values from the ADC.
+> > > >> The implementation provides a trigger named "touch" which can be
+> > > >> connected to a consumer driver.
+> > > >> Once a driver connects and attaches a pollfunc to this trigger, the
+> > > >> configure trigger callback is called, and then the ADC driver will
+> > > >> initialize pad measurement.
+> > > >> First step is to enable touchscreen 4wire support and enable
+> > > >> pen detect IRQ.
+> > > >> Once a pen is detected, a periodic trigger is setup to trigger every
+> > > >> 2 ms (e.g.) and sample the resistive touchscreen values. The trigger poll
+> > > >> is called, and the consumer driver is then woke up, and it can read the
+> > > >> respective channels for the values : X, and Y for position and pressure
+> > > >> channel.
+> > > >> Because only one trigger can be active in hardware in the same time,
+> > > >> while touching the pad, the ADC will block any attempt to use the
+> > > >> triggered buffer. Same, conversions using the software trigger are also
+> > > >> impossible (since the periodic trigger is setup).
+> > > >> If some driver wants to attach while the trigger is in use, it will
+> > > >> also fail.
+> > > >> Once the pen is not detected anymore, the trigger is free for use (hardware
+> > > >> or software trigger, with or without DMA).
+> > > >> Channels 0,1,2 and 3 are unavailable if a touchscreen is enabled.
+> > > >>
+> > > >> Some parts of this patch are based on initial original work by
+> > > >> Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
+> > > >>    
+> > > > OK, so comments inline.
+> > > > 
+> > > > What I'm missing currently though is an explanation of why the slightly
+> > > > more standard arrangement of using a callback buffer doesn't work here.
+> > > > The only addition I think you need to do that is to allow a consumer to
+> > > > request a particular trigger.  I also think some of the other provisions
+> > > > could be handled using standard features and slightly reducing the flexibility.
+> > > > I don't know for example if it's useful to allow other channels to be
+> > > > read when touch is not in progress or not.
+> > > > 
+> > > > So restrictions:
+> > > > 
+> > > > 1. Touch screen channels can only be read when touch is enabled.
+> > > >   - use the available_scan_masks to control this. Or the callback that lets
+> > > >     you do the same dynamically.
+> > > > 2. You need to push these channels to your consumer driver.
+> > > >   - register a callback buffer rather than jumping through the hoops to
+> > > >     insert your own pollfunc.  That will call a function in your
+> > > >     consumer, providing the data from the 3 channels directly.
+> > > > 3. You need to make sure it is using the right driver.  For that you
+> > > >     will I think need a new interface.
+> > > > 
+> > > > Various other comments inline. I may well be missing something as this is
+> > > > a fair bit of complex code to read - if so then next version should have
+> > > > a clear cover letter describing why this more standard approach can't be
+> > > > used.    
+> > > 
+> > > Hello Jonathan and thanks for the review of my patch series,
+> > > 
+> > > before starting and working over the required modifications and 
+> > > suggestions that you sent me, I want to be a little more explicit about 
+> > > the design of my implementation.
+> > > Hope this will clarify some things, and maybe I can as well understand 
+> > > better what you have in mind to support this feature set.
+> > > 
+> > > Why have I picked a pollfunction: We discussed a while back on the 
+> > > mailing list that you do not have an inkern mechanism to expose the 
+> > > triggers to other drivers, and that it may be a good idea to have it for 
+> > > such kind of actually multi function device, instead of having a MFD 
+> > > driver, an ADC driver, and an Input driver, all sharing the same 
+> > > register map, the same IRQ , etc, with some kind of synchronization to 
+> > > avoid stepping on each other for the hardware resource.  
+> > 
+> > No disagreement with that principle.
+> >   
+> > > So I considered to expose the trigger by attaching and detaching 
+> > > pollfunctions to it. Which is the main thing what we use a trigger for.  
+> > 
+> > Hmm. It's definitely one approach. But we do already have other drivers
+> > where the trigger is controlled by a consumer and to my mind that
+> > is a cleaner approach as it doesn't short cut the equivalent of
+> > doing it from userspace.
+> > 
+> > drivers/iio/potentiostat/lmp91000.c does something similar though
+> > for a rather different use. You need your consumer interface
+> > to get the handle to the trigger in this case
+> > (the lmp91000 is actually providing the trigger rather than
+> > consuming it).
+> > 
+> >   
+> > > 
+> > > So, what I had in mind, was to create a consumer driver that will 
+> > > request triggers from the IIO device just like other drivers request 
+> > > channels (part which is already done in IIO).
+> > > In order to do this I had to somehow wake up the consumer driver when 
+> > > new data was available from the touchscreen. So, having the IRQ only in 
+> > > the ADC device, and then on Pen detect and No pen detect just start or 
+> > > stop the periodic trigger, which needs to be polled. The magic part is 
+> > > that the consumer driver has a poll function already attached to this 
+> > > trigger, so the poll function is just called every time we have new 
+> > > data. The poll function is attached as an irq handler, and then we can 
+> > > reuse all the read_raw data by using a scheduled work from the consumer 
+> > > driver, to read the channels.  
+> > 
+> > If you had done this via a callback buffer the only difference is that
+> > the pollfunc would have been a standard one pulling the relevant channels
+> > and passing them on down to the buffer interface which could then decide
+> > what to do with them.
+> >   
+> > > To do this, the ADC registers a special trigger named "touch trigger" 
+> > > which is never enabled by the ADC driver. Instead, when a pollfunc is 
+> > > attached to it, the attach function will also configure it with enabled 
+> > > state.  
+> > 
+> > Whilst it might not make sense to enable it in the touch screen driver
+> > I'm not sure there is strictly any reason to prevent it being so used.
+> >   
+> > > In the ADC, this means to start the touchscreen functionality. If 
+> > > the touch is requested, it will standby and wait for pen detect IRQ.
+> > > Once we have pen detect, we can use a periodic trigger to sample the 
+> > > touch data, and poll the "touch" trigger. The consumer driver will wake 
+> > > up and schedule a work , that will use the standard read raw interface 
+> > > (inkern) that will read three virtual channels (position + pressure). 
+> > > They are not actual hardware channels, as the touch information is being 
+> > > received on channels 0,1,2,3, but reading these virtual channels will 
+> > > read from different registers inside the ADC IP ( x position, y 
+> > > position, pressure), do some computations on the data, and feed the 
+> > > consumer with the values , hiding the behind the scenes hardware 
+> > > specific calculations.  
+> > 
+> > I wouldn't worry about whether they are real channels or not. This
+> > is really similar to a differential ADC (some of those do the differential
+> > digitally). Light sensors often have a number of 'real' channels used
+> > to derive (via hideous non linear calculations) the illuminance as
+> > it's hard to build a light sensor with the same sensitivity as the human
+> > eye.  We have worse 'non real' channels as well such as activity channels
+> > on some the accelerometers that report if it thinks you are walking /
+> > running etc.
+> >    
+> > > After trigger is polled , the ADC will resume normal functionality, and 
+> > > the consumer driver will continue to sleep.  
+> > 
+> > So this is where I'm unsure.  Do you actually have a usecase where it
+> > makes the sense to read from the ADC only when there is no touch?  Any
+> > system doing that has an obvious denial of service attack - touch the
+> > screen.
+> >   
+> 
+> You're right. We have an issue in this case due to the hardware. Using
+> touchscreen has side effects on other channels. We can use only one
+> trigger for all the channels. The situation would have been better with
+> a trigger dedicated to the touchscreen.
+> 
+> At the moment, we have not really stated about the exclusive use or not
+> of the touchscreen. We suppose we can get some customers wanting to use
+> both touchscreen and ADC. Eugen tried to deal with this case but, as you
+> noticed, it can lead to DoS.
 
-Signed-off-by: Alexandrov Stansilav <neko@nya.ai>
----
- drivers/hid/Kconfig      |   8 +
- drivers/hid/Makefile     |   1 +
- drivers/hid/hid-elan.c   | 421 +++++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h    |   1 +
- drivers/hid/hid-quirks.c |   3 +
- 5 files changed, 434 insertions(+)
- create mode 100644 drivers/hid/hid-elan.c
+It's a restriction people aren't going to expect unfortunately...
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 9058dbc4d..8452d1bc9 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -274,6 +274,14 @@ config HID_EMS_FF
- 	Currently the following devices are known to be supported:
- 	 - Trio Linker Plus II
- 
-+config HID_ELAN
-+	tristate "ELAN USB Touchpad Support"
-+	depends on LEDS_CLASS && USB_HID
-+	---help---
-+	Say Y to enable support for the USB ELAN touchpad
-+	Currently the following devices are known to be supported:
-+	 - HP Pavilion X2 10-p0XX.
-+
- config HID_ELECOM
- 	tristate "ELECOM HID devices"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index eb13b9e92..713601c7b 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -39,6 +39,7 @@ obj-$(CONFIG_HID_CP2112)	+= hid-cp2112.o
- obj-$(CONFIG_HID_CYPRESS)	+= hid-cypress.o
- obj-$(CONFIG_HID_DRAGONRISE)	+= hid-dr.o
- obj-$(CONFIG_HID_EMS_FF)	+= hid-emsff.o
-+obj-$(CONFIG_HID_ELAN)		+= hid-elan.o
- obj-$(CONFIG_HID_ELECOM)	+= hid-elecom.o
- obj-$(CONFIG_HID_ELO)		+= hid-elo.o
- obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
-diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
-new file mode 100644
-index 000000000..803a72578
---- /dev/null
-+++ b/drivers/hid/hid-elan.c
-@@ -0,0 +1,421 @@
-+/*
-+ * HID Driver for ELAN Touchpad
-+ *
-+ * Currently only supports touchpad found on HP Pavilion X2 10
-+ *
-+ * Copyright (c) 2016 Alexandrov Stanislav <neko@nya.ai>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/input/mt.h>
-+#include <linux/leds.h>
-+#include <linux/module.h>
-+#include <linux/usb.h>
-+
-+#include "hid-ids.h"
-+
-+#define ELAN_SINGLE_FINGER	0x81
-+#define ELAN_MT_FIRST_FINGER	0x82
-+#define ELAN_MT_SECOND_FINGER	0x83
-+#define ELAN_INPUT_REPORT_SIZE	8
-+
-+#define ELAN_MUTE_LED_REPORT	0xBC
-+#define ELAN_LED_REPORT_SIZE	8
-+
-+struct elan_touchpad_settings {
-+	u8 max_fingers;
-+	u16 max_x;
-+	u16 max_y;
-+	u8 max_area_x;
-+	u8 max_area_y;
-+	u8 max_w;
-+	int usb_bInterfaceNumber;
-+};
-+
-+struct elan_drvdata {
-+	struct input_dev *input;
-+	u8 prev_report[ELAN_INPUT_REPORT_SIZE];
-+	struct led_classdev mute_led;
-+	u8 mute_led_state;
-+	struct elan_touchpad_settings *settings;
-+};
-+
-+static int is_not_elan_touchpad(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+	struct elan_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	return (intf->altsetting->desc.bInterfaceNumber != drvdata->settings->usb_bInterfaceNumber);
-+}
-+
-+static int elan_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-+			      struct hid_field *field, struct hid_usage *usage,
-+			      unsigned long **bit, int *max)
-+{
-+	if (is_not_elan_touchpad(hdev))
-+		return 0;
-+
-+	if (field->report->id == ELAN_SINGLE_FINGER ||
-+	    field->report->id == ELAN_MT_FIRST_FINGER ||
-+	    field->report->id == ELAN_MT_SECOND_FINGER)
-+		return -1;
-+
-+	return 0;
-+}
-+
-+static int elan_input_configured(struct hid_device *hdev, struct hid_input *hi)
-+{
-+	int ret;
-+	struct input_dev *input;
-+	struct elan_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	if (is_not_elan_touchpad(hdev))
-+		return 0;
-+
-+	input = devm_input_allocate_device(&hdev->dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	input->name = "Elan Touchpad";
-+	input->phys = hdev->phys;
-+	input->uniq = hdev->uniq;
-+	input->id.bustype = hdev->bus;
-+	input->id.vendor  = hdev->vendor;
-+	input->id.product = hdev->product;
-+	input->id.version = hdev->version;
-+	input->dev.parent = &hdev->dev;
-+
-+	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+			     drvdata->settings->max_x, 0, 0);
-+	input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+			     drvdata->settings->max_y, 0, 0);
-+	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0,
-+			     drvdata->settings->max_fingers, 0, 0);
-+	input_set_abs_params(input, ABS_TOOL_WIDTH, 0,
-+			     drvdata->settings->max_w, 0, 0);
-+
-+	__set_bit(BTN_LEFT, input->keybit);
-+	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+
-+	ret = input_mt_init_slots(input, drvdata->settings->max_fingers,
-+				  INPUT_MT_POINTER);
-+	if (ret) {
-+		hid_err(hdev, "Failed to init elan MT slots: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = input_register_device(input);
-+	if (ret) {
-+		hid_err(hdev, "Failed to register elan input device: %d\n",
-+			ret);
-+		input_free_device(input);
-+		return ret;
-+	}
-+
-+	drvdata->input = input;
-+
-+	return 0;
-+}
-+
-+static void elan_report_mt_slot(struct elan_drvdata *drvdata, u8 *data,
-+				unsigned int slot_num)
-+{
-+	struct input_dev *input = drvdata->input;
-+	int x, y, w;
-+
-+	bool active = !!data;
-+
-+	input_mt_slot(input, slot_num);
-+	input_mt_report_slot_state(input, MT_TOOL_FINGER, active);
-+	if (active) {
-+		x = ((data[0] & 0xF0) << 4) | data[1];
-+		y = drvdata->settings->max_y -
-+		    (((data[0] & 0x07) << 8) | data[2]);
-+		w = data[4];
-+
-+		input_report_abs(input, ABS_MT_POSITION_X, x);
-+		input_report_abs(input, ABS_MT_POSITION_Y, y);
-+		input_report_abs(input, ABS_TOOL_WIDTH, w);
-+	}
-+}
-+
-+static void elan_report_input(struct elan_drvdata *drvdata, u8 *data)
-+{
-+	int i;
-+	struct input_dev *input = drvdata->input;
-+
-+	/*
-+	 * There is 3 types of reports: for single touch,
-+	 * for multitouch - first finger and for multitouch - second finger
-+	 *
-+	 * packet structure for ELAN_SINGLE_FINGER and ELAN_MT_FIRST_FINGER:
-+	 *
-+	 * byte 1: 1   0   0   0   0   0   0   1  // 0x81 or 0x82
-+	 * byte 2: 0   0   0   0   0   0   0   0  // looks like unused
-+	 * byte 3: f5  f4  f3  f2  f1  0   0   L
-+	 * byte 4: x12 x11 x10 x9  0?  y11 y10 y9
-+	 * byte 5: x8  x7  x6  x5  x4  x3  x2  x1
-+	 * byte 6: y8  y7  y6  y5  y4  y3  y2  y1
-+	 * byte 7: sy4 sy3 sy2 sy1 sx4 sx3 sx2 sx1
-+	 * byte 8: w8  w7  w6  w5  w4  w3  w2  w1
-+	 *
-+	 * packet structure for ELAN_MT_SECOND_FINGER:
-+	 *
-+	 * byte 1: 1   0   0   0   0   0   1   1  // 0x83
-+	 * byte 2: x12 x11 x10 x9  0   y11 y10 y9
-+	 * byte 3: x8  x7  x6  x5  x4  x3  x2  x1
-+	 * byte 4: y8  y7  y6  y5  y4  y3  y2  y1
-+	 * byte 5: sy4 sy3 sy2 sy1 sx4 sx3 sx2 sx1
-+	 * byte 6: w8  w7  w6  w5  w4  w3  w2  w1
-+	 * byte 7: 0   0   0   0   0   0   0   0
-+	 * byte 8: 0   0   0   0   0   0   0   0
-+	 *
-+	 * f5-f1: finger touch bits
-+	 * L: clickpad button
-+	 * sy / sx: not sure yet, but this looks like rectangular
-+	 * area for finger
-+	 * w: looks like finger width
-+	 */
-+
-+	if (data[0] == ELAN_SINGLE_FINGER) {
-+		for (i = 0; i < drvdata->settings->max_fingers; i++) {
-+			if (data[2] & BIT(i + 3))
-+				elan_report_mt_slot(drvdata, data + 3, i);
-+			else
-+				elan_report_mt_slot(drvdata, NULL, i);
-+		}
-+		input_report_key(input, BTN_LEFT, data[2] & 0x01);
-+	}
-+	/*
-+	 * When touched with two fingers Elan touchpad will emit two HID reports
-+	 * first is ELAN_MT_FIRST_FINGER and second is ELAN_MT_SECOND_FINGER
-+	 * we will save ELAN_MT_FIRST_FINGER report and wait for
-+	 * ELAN_MT_SECOND_FINGER to finish multitouch
-+	 */
-+	if (data[0] == ELAN_MT_FIRST_FINGER) {
-+		memcpy(drvdata->prev_report, data,
-+		       sizeof(drvdata->prev_report));
-+		return;
-+	}
-+
-+	if (data[0] == ELAN_MT_SECOND_FINGER) {
-+		int first = 0;
-+		u8 *prev_report = drvdata->prev_report;
-+
-+		if (prev_report[0] != ELAN_MT_FIRST_FINGER)
-+			return;
-+
-+		for (i = 0; i < drvdata->settings->max_fingers; i++) {
-+			if (prev_report[2] & BIT(i + 3)) {
-+				if (!first) {
-+					first = 1;
-+					elan_report_mt_slot(drvdata, prev_report + 3, i);
-+				} else {
-+					elan_report_mt_slot(drvdata, data + 1, i);
-+				}
-+			} else {
-+				elan_report_mt_slot(drvdata, NULL, i);
-+			}
-+		}
-+		input_report_key(input, BTN_LEFT, prev_report[2] & 0x01);
-+	}
-+
-+	input_mt_sync_frame(input);
-+	input_sync(input);
-+}
-+
-+static int elan_raw_event(struct hid_device *hdev,
-+			  struct hid_report *report, u8 *data, int size)
-+{
-+	struct elan_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	if (is_not_elan_touchpad(hdev))
-+		return 0;
-+
-+	if (data[0] == ELAN_SINGLE_FINGER ||
-+	    data[0] == ELAN_MT_FIRST_FINGER ||
-+	    data[0] == ELAN_MT_SECOND_FINGER) {
-+		if (size == ELAN_INPUT_REPORT_SIZE) {
-+			elan_report_input(drvdata, data);
-+			return 1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int elan_start_multitouch(struct hid_device *hdev)
-+{
-+	int ret;
-+
-+	/*
-+	 * This byte sequence will enable multitouch mode and disable
-+	 * mouse emulation
-+	 */
-+	const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
-+	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
-+
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	ret = hid_hw_raw_request(hdev, dmabuf[0], dmabuf, sizeof(buf),
-+				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+
-+	kfree(dmabuf);
-+
-+	if (ret != sizeof(buf)) {
-+		hid_err(hdev, "Failed to start multitouch: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static enum led_brightness elan_mute_led_get_brigtness(struct led_classdev *led_cdev)
-+{
-+	struct device *dev = led_cdev->dev->parent;
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct elan_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	return drvdata->mute_led_state;
-+}
-+
-+static int elan_mute_led_set_brigtness(struct led_classdev *led_cdev,
-+				       enum led_brightness value)
-+{
-+	int ret;
-+	u8 led_state;
-+	struct device *dev = led_cdev->dev->parent;
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct elan_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	unsigned char *dmabuf = kzalloc(ELAN_LED_REPORT_SIZE, GFP_KERNEL);
-+
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	led_state = !!value;
-+
-+	dmabuf[0] = ELAN_MUTE_LED_REPORT;
-+	dmabuf[1] = 0x02;
-+	dmabuf[2] = led_state;
-+
-+	ret = hid_hw_raw_request(hdev, dmabuf[0], dmabuf, ELAN_LED_REPORT_SIZE,
-+				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+
-+	kfree(dmabuf);
-+
-+	if (ret != ELAN_LED_REPORT_SIZE) {
-+		hid_err(hdev, "Failed to set mute led brightness: %d\n", ret);
-+		return ret;
-+	}
-+
-+	drvdata->mute_led_state = led_state;
-+	return 0;
-+}
-+
-+static int elan_init_mute_led(struct hid_device *hdev)
-+{
-+	struct elan_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct led_classdev *mute_led = &drvdata->mute_led;
-+
-+	mute_led->name = "elan:red:mute";
-+	mute_led->brightness_get = elan_mute_led_get_brigtness;
-+	mute_led->brightness_set_blocking = elan_mute_led_set_brigtness;
-+	mute_led->max_brightness = LED_ON;
-+	mute_led->dev = &hdev->dev;
-+
-+	return devm_led_classdev_register(&hdev->dev, mute_led);
-+}
-+
-+static int elan_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int ret;
-+	struct elan_drvdata *drvdata;
-+
-+	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
-+
-+	if (!drvdata)
-+		return -ENOMEM;
-+
-+	drvdata->settings = (struct elan_touchpad_settings *)id->driver_data;
-+	hid_set_drvdata(hdev, drvdata);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "Hid Parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret) {
-+		hid_err(hdev, "Hid hw start failed\n");
-+		return ret;
-+	}
-+
-+	if (is_not_elan_touchpad(hdev))
-+		return 0;
-+
-+	if (!drvdata->input) {
-+		hid_err(hdev, "Input device is not registred\n");
-+		ret = -ENAVAIL;
-+		goto err;
-+	}
-+
-+	ret = elan_start_multitouch(hdev);
-+	if (ret)
-+		goto err;
-+
-+	ret = elan_init_mute_led(hdev);
-+	if (ret)
-+		goto err;
-+
-+	return 0;
-+err:
-+	hid_hw_stop(hdev);
-+	return ret;
-+}
-+
-+static void elan_remove(struct hid_device *hdev)
-+{
-+	hid_hw_stop(hdev);
-+}
-+
-+static const struct elan_touchpad_settings hp_x2_10_touchpad_data = {
-+	.max_fingers = 5,
-+	.max_x = 2930,
-+	.max_y = 1250,
-+	.max_area_x = 15,
-+	.max_area_y = 15,
-+	.max_w = 255,
-+	.usb_bInterfaceNumber = 1,
-+};
-+
-+static const struct hid_device_id elan_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_HP_X2_10_COVER),
-+		(kernel_ulong_t)&hp_x2_10_touchpad_data},
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(hid, elan_devices);
-+
-+static struct hid_driver elan_driver = {
-+	.name = "elan",
-+	.id_table = elan_devices,
-+	.input_mapping = elan_input_mapping,
-+	.input_configured = elan_input_configured,
-+	.raw_event = elan_raw_event,
-+	.probe = elan_probe,
-+	.remove = elan_remove,
-+};
-+
-+module_hid_driver(elan_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Alexandrov Stanislav");
-+MODULE_DESCRIPTION("Driver for HID ELAN Touchpads");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5207be9bd..0b638e5fc 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -368,6 +368,7 @@
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
- 
- #define USB_VENDOR_ID_ELAN		0x04f3
-+#define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 245345ae6..762efa7c3 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -333,6 +333,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
- #endif
-+#if IS_ENABLED(CONFIG_HID_ELAN)
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_HP_X2_10_COVER) },
-+#endif
- #if IS_ENABLED(CONFIG_HID_ELECOM)
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRED) },
--- 
-2.13.6
+> 
+> > > We need to have a periodic trigger to sample the data because the actual 
+> > > analog to digital conversion inside the IP block needs to be triggered. 
+> > > The touchscreen data measurements cannot happen in hardware without 
+> > > being triggered. If I try with a hrtimer to get a periodic IRQ to just 
+> > > read the data, it will never be ready. The datasheet states that the 
+> > > touchscreen measurements "will be attached to the conversion sequence". 
+> > > So the periodic trigger is forcing a conversion sequence. This could be 
+> > > done with a software trigger as well, but why the hassle to start it 
+> > > every 2 milliseconds (or other time interval), if we can do it by 
+> > > periodic trigger ?  
+> > 
+> > Ah, one reason here would be to allow separate consumers to use the
+> > device. In that case you'd run with a periodic trigger all the time
+> > and have two buffers attached, the buffer_cb that is feeding your
+> > touchscreen and another buffer to deal with the other channels
+> > (presumably the standard one an IIO device has when using buffered
+> > interfaces).  
+> 
+> The issue is that we are sharing the periodic trigger so we have to use
+> the same period for both usage.
 
+Whilst a somewhat irritating restriction, it's probably not disastrous for
+most ADC uses.
+
+Jonathan
+> 
+> Regards
+> 
+> Ludovic
+> 
+> > 
+> > The buffer demux would ensure the data from the right channels
+> > ends up in the right place.  It makes it look to the buffer
+> > consumer like it is the only thing using / controlling the data
+> > flow.
+> >   
+> > > Once we get the No pen IRQ, we stop the periodic trigger and it can be 
+> > > used in another purpose (software or external as of now in the driver, 
+> > > in the future we can add PWM trigger and Timer trigger)  
+> > 
+> > This case isn't really useful though as any other use is denied
+> > access when touch occurs.
+> > 
+> > I'll summarise what I think would work for this below.
+> >   
+> > > 
+> > > In short, the ADC in Sama5D2 also supports touchscreen, and in 
+> > > touchscreen mode , 4 of the channels are being used for this purpose. 
+> > > This however, doesn't stop the ADC to use the other channels . The 
+> > > hardware has 12 total single channels and they can be paired to have 6 
+> > > more differential channels. The only thing that is blocked is the 
+> > > trigger, but only if the pen is touching (when we start the periodic 
+> > > trigger to sample the touchscreen). If the pen is not touching, an 
+> > > external trigger or software trigger can be used without any issues (so 
+> > > why limit the functionality, if this is available from hardware ?). 
+> > > Because of the reason I discussed above (touchscreen sequence must be 
+> > > triggered), we cannot use another trigger in the same time.
+> > > 
+> > > 
+> > > I see your idea with the callback buffer and it's worth exploring. 
+> > > Mainly this series was to actually show you what I had in mind about 
+> > > supporting the resistive touchscreen, and to give you some actually 
+> > > working code/patch, so we can discuss based on real implementation, not 
+> > > just suppositions.  
+> > 
+> > That side of things is fine.
+> >   
+> > > 
+> > > You are right in many of the other comments that you said, and I will 
+> > > come up with a v2 to this series. For now, I need to know if this is a 
+> > > good or right direction in which I am going, or I should try to change 
+> > > all the mechanism to callback buffer ? Or maybe I am totally in a bad 
+> > > direction ?
+> > > The requirements are that the consumer driver needs to be somehow woke 
+> > > up for every new touch data available, and report to the input 
+> > > subsystem. As it was done before, the at91 old driver, just creates and 
+> > > registers an input device by itself, and then reports the position and 
+> > > touches. I was thinking that with this trigger consumer implementation, 
+> > > things can be better in terms of subsystem separation and support.
+> > > 
+> > > Thanks again and let me know of your thoughts,
+> > > 
+> > > Eugen  
+> > 
+> > So a couple of things come to mind on how I'd structure this.
+> > So what we have (very briefly)
+> > 
+> > No touch screen case:
+> > * Generic ADC using all sorts of different triggers
+> > 
+> > Touch screen only case:
+> > * Interrupt to indicate pen on / off
+> > * A need to do a periodic trigger of the device but only
+> > useful when touch is in progress.
+> > 
+> > Touch screen and other users:
+> > * Interrupt to indicate pen on / off
+> > * Periodic trigger needed for touchscreen when touch in progress.
+> > * Do not have denial of service on other channels.
+> > 
+> > First two cases are easy enough by having a magic trigger, third
+> > case is harder.
+> > If we have the touchscreen then I would drop support for direct access to
+> > to ADC channels whilst it's in use (so no sysfs - or emulate it if you
+> > really want it by stashing results from scans done when touch is in
+> > progress).
+> > 
+> > Have your touch screen channels just as normal additional channels,
+> > but only via the buffered interface (no _RAW attribute).
+> > If someone sets up to read them via buffered interface with
+> > a different trigger I think they'll get values - whether they
+> > are right is dependent (if I understand correctly) on whether
+> > there is a touch in progress.  So no harm done and it'll make
+> > the logic simpler.
+> > 
+> > The moment touch is opened and acquires the IIO channels
+> > fix the trigger (may need new interface) to the periodic one
+> > that you were enabling and disabling on touch.
+> > Things get dicey if there is an existing user so you may
+> > have to do it on driver probe rather than open of the input
+> > device if we effectively want touch to have the highest
+> > priority use of the ADC.
+> > 
+> > If other channels are enabled for buffered mode then note
+> > this in the driver and have the periodic trigger on all the
+> > time (to ensure they keep getting read)  This will pass
+> > garbage to your touch screen driver, but it'll remove it due
+> > to the pressure value being too low so no harm there.
+> > 
+> > Normal path will work for non touch channels (and in theory
+> > the touch ones if they are turned on) via IIO buffer
+> > interface.  It'll be restricted in form due to the needs of
+> > the touch driver, but better than nothing and should cover
+> > most usecases.
+> > 
+> > Now the interrupt on / off on touch bit becomes an optimization
+> > in the case of only the buffer_cb being attached.
+> > 
+> > I think that fits cleanly in the current IIO framework and
+> > looks more similar to our existing provider consumer approaches.
+> > 
+> > Still needs the hooks to get hold of the trigger though so
+> > as to be able to tell the ADC which one to use. So rather
+> > than being a trigger consumer interface, it's more of a trigger
+> > configuration interface..  Exact term doesn't matter though.
+> > 
+> > Jonathan
+> >   
+> > > 
+> > > 
+> > > 
+> > > [...]
+> > > --
+> > > To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html  
+> >   
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,356 +1,663 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 12/14] iio: adc: at91-sama5d2_adc: support for position
- and pressure channels
-Date: Sun, 14 Jan 2018 10:47:39 +0000
-Message-ID: <20180114104739.3f0b50c5@archlinux>
-References: <1513955241-10985-1-git-send-email-eugen.hristev@microchip.com>
-        <1513955241-10985-13-git-send-email-eugen.hristev@microchip.com>
-        <20171229170236.06bf6394@archlinux>
-        <25045512-f372-3f25-e84f-ed809db9dde3@microchip.com>
-        <20180106150537.684345f3@archlinux>
-        <20180108141252.GC2425@rfolt0960.corp.atmel.com>
+From: ulrik.debie-os@e2big.org
+Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint firmware
+ ID"
+Date: Sun, 14 Jan 2018 21:57:33 +0100
+Message-ID: <20180114205732.GA4614@beacon.debie>
+References: <dcfb84c8-4ad8-8276-5451-ee91fc84f742@canonical.com>
+ <20171231082646.GC25965@kroah.com>
+ <901a0a66-eb83-9dcd-658c-5b09eabcab88@canonical.com>
+ <20180102070811.p7gfaq3vr55sdbd3@dtor-ws>
+ <ac087ae7-54d4-d038-daa7-048c87368d17@canonical.com>
+ <20180105005659.j2x56opkq74wm7v2@dtor-ws>
+ <598ac534-ed9b-1377-70c5-eec7b7521755@canonical.com>
+ <20180105162313.higyrbd6unumgtjb@dtor-ws>
+ <20180107065201.q2xck62unijt3avr@dtor-ws>
+ <20180114203958.GA3686@beacon.debie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180108141252.GC2425@rfolt0960.corp.atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: Eugen Hristev <eugen.hristev@microchip.com>, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com, linux-iio@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from e2big.org ([198.61.226.133]:46663 "EHLO e2big.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752157AbeANU5o (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 14 Jan 2018 15:57:44 -0500
+Content-Disposition: inline
+In-Reply-To: <20180114203958.GA3686@beacon.debie>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Aaron Ma <aaron.ma@canonical.com>, Greg KH <gregkh@linuxfoundation.org>, Sebastian Schmidt <yath@yath.de>, linux-input@vger.kernel.org
 
-On Mon, 8 Jan 2018 15:12:52 +0100
-Ludovic Desroches <ludovic.desroches@microchip.com> wrote:
+Hi,
 
-> Hi Jonathan, Eugen,
+On Sun, Jan 14, 2018 at 09:39:58PM +0100, ulrik.debie-os@e2big.org wrote:
 > 
-> On Sat, Jan 06, 2018 at 03:05:37PM +0000, Jonathan Cameron wrote:
-> > On Thu, 4 Jan 2018 17:17:54 +0200
-> > Eugen Hristev <eugen.hristev@microchip.com> wrote:
-> >   
-> > > On 29.12.2017 19:02, Jonathan Cameron wrote:  
-> > > > On Fri, 22 Dec 2017 17:07:19 +0200
-> > > > Eugen Hristev <eugen.hristev@microchip.com> wrote:
-> > > >     
-> > > >> The ADC IP supports position and pressure measurements for a touchpad
-> > > >> connected on channels 0,1,2,3 for a 4-wire touchscreen with pressure
-> > > >> measurement support.
-> > > >> Using the inkern API, a driver can request a trigger and read the
-> > > >> channel values from the ADC.
-> > > >> The implementation provides a trigger named "touch" which can be
-> > > >> connected to a consumer driver.
-> > > >> Once a driver connects and attaches a pollfunc to this trigger, the
-> > > >> configure trigger callback is called, and then the ADC driver will
-> > > >> initialize pad measurement.
-> > > >> First step is to enable touchscreen 4wire support and enable
-> > > >> pen detect IRQ.
-> > > >> Once a pen is detected, a periodic trigger is setup to trigger every
-> > > >> 2 ms (e.g.) and sample the resistive touchscreen values. The trigger poll
-> > > >> is called, and the consumer driver is then woke up, and it can read the
-> > > >> respective channels for the values : X, and Y for position and pressure
-> > > >> channel.
-> > > >> Because only one trigger can be active in hardware in the same time,
-> > > >> while touching the pad, the ADC will block any attempt to use the
-> > > >> triggered buffer. Same, conversions using the software trigger are also
-> > > >> impossible (since the periodic trigger is setup).
-> > > >> If some driver wants to attach while the trigger is in use, it will
-> > > >> also fail.
-> > > >> Once the pen is not detected anymore, the trigger is free for use (hardware
-> > > >> or software trigger, with or without DMA).
-> > > >> Channels 0,1,2 and 3 are unavailable if a touchscreen is enabled.
-> > > >>
-> > > >> Some parts of this patch are based on initial original work by
-> > > >> Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
-> > > >>    
-> > > > OK, so comments inline.
+> Hi Dmitry, Sebastian,
+> Nack for the patch..
+> As Sebastian pointed out, the trackpoint detection will always report an error. (see below)
+> 
+> I builded your original patch and it resulted in detection as generic mouse for the trackpoint:
+> 
+> [    0.838143] serio: i8042 KBD port at 0x60,0x64 irq 1
+> [    0.838146] serio: i8042 AUX port at 0x60,0x64 irq 12
+> [    0.838267] mousedev: PS/2 mouse device common for all mice
+> [    9.321140] psmouse serio1: synaptics: queried max coordinates: x [..5676], y [..4758]
+> [    9.367095] psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1096..]
+> [    9.367103] psmouse serio1: synaptics: The touchpad can support a better bus than the too old PS/2 protocol. Make sure MOUSE_PS2_SYNAPTICS_SMBUS and RMI4_SMB are enabled to get a better touchpad experience.
+> [    9.455953] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2b1, caps: 0xf007a3/0x943300/0x12e800/0x410000, board id: 3157, fw id: 2405942
+> [    9.455970] psmouse serio1: synaptics: serio: Synaptics pass-through port at isa0060/serio1/input0
+> [    9.514117] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input7
+> [   11.458443] input: PS/2 Generic Mouse as /devices/platform/i8042/serio1/serio2/input/input18
+> 
+> When I fixed your patch, it resulted in: (timing difference is because a dvd was inserted before)
+> [    0.843661] serio: i8042 KBD port at 0x60,0x64 irq 1
+> [    0.843664] serio: i8042 AUX port at 0x60,0x64 irq 12
+> [    0.843793] mousedev: PS/2 mouse device common for all mice
+> [    3.822411] psmouse serio1: synaptics: queried max coordinates: x [..5676], y [..4758]
+> [    3.868196] psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1096..]
+> [    3.868203] psmouse serio1: synaptics: The touchpad can support a better bus than the too old PS/2 protocol. Make sure MOUSE_PS2_SYNAPTICS_SMBUS and RMI4_SMB are enabled to get a better touchpad experience.
+> [    3.961024] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2b1, caps: 0xf007a3/0x943300/0x12e800/0x410000, board id: 3157, fw id: 2405942
+> [    3.961038] psmouse serio1: synaptics: serio: Synaptics pass-through port at isa0060/serio1/input0
+> [    4.017290] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input7
+> [    4.407930] psmouse serio2: trackpoint: failed to get extended button data, assuming 3 buttons
+> [    8.460022] psmouse serio2: trackpoint: IBM TrackPoint firmware: 0x0e, buttons: 3/3
+> [    8.740439] input: TPPS/2 IBM TrackPoint as /devices/platform/i8042/serio1/serio2/input/input18
+> 
+> functionally both versions (with/without bug) resulted in a functional trackpoint with 3 buttons.
+> 
+> Sebastian, with regards to your middle button question, as you can see in the output I've such hardware. (lenovo e570).
+
+Sorry Sebastian, I was thinking Aaron had commited 
+"Input: trackpoint - assume 3 buttons when buttons detection fails"
+commit 293b915fd9bebf33cdc906516fb28d54649a25ac but actually Oscar
+Campos did. I just realised when I reread his mails that you were
+actually not pointing to the patch where Aaron suggested an 
+amendment to this 3 button commit but actually to his commit
+that resulted in regression for you.
+
+
+> 
+> Dimitrios, wasn't it your intention that this hardware would be detected as NON IBM ? Apparently it
+> is IBM and still fails "Read Extended Button Status".
+> 
+> Kind regards,
+> Ulrik
+Kind regards,
+Ulrik
+> 
+> On Sat, Jan 06, 2018 at 10:52:01PM -0800, Dmitry Torokhov wrote:
+> > Date:   Sat, 6 Jan 2018 22:52:01 -0800
+> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > To: Aaron Ma <aaron.ma@canonical.com>
+> > Cc: Greg KH <gregkh@linuxfoundation.org>, Sebastian Schmidt <yath@yath.de>,
+> >  linux-input@vger.kernel.org
+> > Subject: Re: [PATCH] Revert "Input: trackpoint - add new trackpoint
+> >  firmware ID"
+> > X-Mailing-List: linux-input@vger.kernel.org
+> > 
+> > On Fri, Jan 05, 2018 at 08:23:13AM -0800, Dmitry Torokhov wrote:
+> > > Hi Aaron,
+> > > 
+> > > On Fri, Jan 05, 2018 at 09:29:26PM +0800, Aaron Ma wrote:
+> > > > Hi Dmitry:
 > > > > 
-> > > > What I'm missing currently though is an explanation of why the slightly
-> > > > more standard arrangement of using a callback buffer doesn't work here.
-> > > > The only addition I think you need to do that is to allow a consumer to
-> > > > request a particular trigger.  I also think some of the other provisions
-> > > > could be handled using standard features and slightly reducing the flexibility.
-> > > > I don't know for example if it's useful to allow other channels to be
-> > > > read when touch is not in progress or not.
+> > > > Got the official info from Lenovo:
+> > > > Lenovo introduced new TrackPoint compatible sticks ( ELAN/Alps/NXP
+> > > > sticks) from 2016.
+> > > > These new devices only support the minimum commands described in the
+> > > > spec, which has been used in the current Windows driver.
+> > > 
+> > > What is the exact list of the commands supported by each variant?
+> > > 
 > > > > 
-> > > > So restrictions:
+> > > > Legacy TrackPoint: 0101 – 0E01
+> > > > ALPS: 0102 – FF02
+> > > > ELAN:0103 – FF03
+> > > > NXP: 0104 – FF04
 > > > > 
-> > > > 1. Touch screen channels can only be read when touch is enabled.
-> > > >   - use the available_scan_masks to control this. Or the callback that lets
-> > > >     you do the same dynamically.
-> > > > 2. You need to push these channels to your consumer driver.
-> > > >   - register a callback buffer rather than jumping through the hoops to
-> > > >     insert your own pollfunc.  That will call a function in your
-> > > >     consumer, providing the data from the 3 channels directly.
-> > > > 3. You need to make sure it is using the right driver.  For that you
-> > > >     will I think need a new interface.
+> > > > 2.4.18 READ SECONDARY ID (x"E1")
+> > > > This command will read the secondary device ID of the pointing device (2
+> > > > bytes).  The least significant byte is sent first.  For the first byte,
+> > > > the legacy TrackPoint controller from IBM will always return x"01", the
+> > > > pointing stick from ALPS will always return x"02", the pointing stick
+> > > > from Elan will always return x"03”, and the pointing stick from NXP will
+> > > > always return 0x”04".  And a second byte which denotes a specific set of
+> > > > functional specifications.  Differing ROM versions are used to denote
+> > > > changes within a given functional set.
+> > > 
+> > > Can you/Lenovo share the updated spec?
+> > > 
 > > > > 
-> > > > Various other comments inline. I may well be missing something as this is
-> > > > a fair bit of complex code to read - if so then next version should have
-> > > > a clear cover letter describing why this more standard approach can't be
-> > > > used.    
+> > > > The new devices (include Legacy ID:01) will not support the sysfs like
+> > > > speed.
+> > > > 
+> > > > So it is not right to revert the commit, it is about to add another 0x04
+> > > > ID in it.
+> > > > 
+> > > > Old sysfs could be stayed for old legacy device ID:01 or removed.
 > > > 
-> > > Hello Jonathan and thanks for the review of my patch series,
+> > > No, because there are devices that have trackpoints properly
+> > > implementing the protocol, before Lenovo started their "innovation".
 > > > 
-> > > before starting and working over the required modifications and 
-> > > suggestions that you sent me, I want to be a little more explicit about 
-> > > the design of my implementation.
-> > > Hope this will clarify some things, and maybe I can as well understand 
-> > > better what you have in mind to support this feature set.
+> > > Do we have any way to distinguish between properly implemented
+> > > trackpoints and Lenovo "improved" ones? I played with gen3 Carbon, and
+> > > while it does not error out on "speed" attribute, unlike gen5, it still
+> > > has no visible effects. Additionally, the "press to select"
+> > > functionality seems to be disabled, and trying to enable it via sysfs
+> > > results in register content being reverted to the original "disabled"
+> > > setting in a second or two. Setting to swap X and Y axes does not work
+> > > either, not sure about other bits of that control register.
+> > > "sensitivity" does work though, again unlike my gen5.
 > > > 
-> > > Why have I picked a pollfunction: We discussed a while back on the 
-> > > mailing list that you do not have an inkern mechanism to expose the 
-> > > triggers to other drivers, and that it may be a good idea to have it for 
-> > > such kind of actually multi function device, instead of having a MFD 
-> > > driver, an ADC driver, and an Input driver, all sharing the same 
-> > > register map, the same IRQ , etc, with some kind of synchronization to 
-> > > avoid stepping on each other for the hardware resource.  
-> > 
-> > No disagreement with that principle.
-> >   
-> > > So I considered to expose the trigger by attaching and detaching 
-> > > pollfunctions to it. Which is the main thing what we use a trigger for.  
-> > 
-> > Hmm. It's definitely one approach. But we do already have other drivers
-> > where the trigger is controlled by a consumer and to my mind that
-> > is a cleaner approach as it doesn't short cut the equivalent of
-> > doing it from userspace.
-> > 
-> > drivers/iio/potentiostat/lmp91000.c does something similar though
-> > for a rather different use. You need your consumer interface
-> > to get the handle to the trigger in this case
-> > (the lmp91000 is actually providing the trigger rather than
-> > consuming it).
-> > 
-> >   
+> > > Thanks.
 > > > 
-> > > So, what I had in mind, was to create a consumer driver that will 
-> > > request triggers from the IIO device just like other drivers request 
-> > > channels (part which is already done in IIO).
-> > > In order to do this I had to somehow wake up the consumer driver when 
-> > > new data was available from the touchscreen. So, having the IRQ only in 
-> > > the ADC device, and then on Pen detect and No pen detect just start or 
-> > > stop the periodic trigger, which needs to be polled. The magic part is 
-> > > that the consumer driver has a poll function already attached to this 
-> > > trigger, so the poll function is just called every time we have new 
-> > > data. The poll function is attached as an irq handler, and then we can 
-> > > reuse all the read_raw data by using a scheduled work from the consumer 
-> > > driver, to read the channels.  
+> > > -- 
+> > > Dmitry
 > > 
-> > If you had done this via a callback buffer the only difference is that
-> > the pollfunc would have been a standard one pulling the relevant channels
-> > and passing them on down to the buffer interface which could then decide
-> > what to do with them.
-> >   
-> > > To do this, the ADC registers a special trigger named "touch trigger" 
-> > > which is never enabled by the ADC driver. Instead, when a pollfunc is 
-> > > attached to it, the attach function will also configure it with enabled 
-> > > state.  
+> > Guys, could you please try the patch below? It will not solve the
+> > "speed" issue on 0x01 devices, but hopefully we won't be exposing
+> > non-existing controls on others.
 > > 
-> > Whilst it might not make sense to enable it in the touch screen driver
-> > I'm not sure there is strictly any reason to prevent it being so used.
-> >   
-> > > In the ADC, this means to start the touchscreen functionality. If 
-> > > the touch is requested, it will standby and wait for pen detect IRQ.
-> > > Once we have pen detect, we can use a periodic trigger to sample the 
-> > > touch data, and poll the "touch" trigger. The consumer driver will wake 
-> > > up and schedule a work , that will use the standard read raw interface 
-> > > (inkern) that will read three virtual channels (position + pressure). 
-> > > They are not actual hardware channels, as the touch information is being 
-> > > received on channels 0,1,2,3, but reading these virtual channels will 
-> > > read from different registers inside the ADC IP ( x position, y 
-> > > position, pressure), do some computations on the data, and feed the 
-> > > consumer with the values , hiding the behind the scenes hardware 
-> > > specific calculations.  
+> > Thanks!
 > > 
-> > I wouldn't worry about whether they are real channels or not. This
-> > is really similar to a differential ADC (some of those do the differential
-> > digitally). Light sensors often have a number of 'real' channels used
-> > to derive (via hideous non linear calculations) the illuminance as
-> > it's hard to build a light sensor with the same sensitivity as the human
-> > eye.  We have worse 'non real' channels as well such as activity channels
-> > on some the accelerometers that report if it thinks you are walking /
-> > running etc.
-> >    
-> > > After trigger is polled , the ADC will resume normal functionality, and 
-> > > the consumer driver will continue to sleep.  
+> > -- 
+> > Dmitry
 > > 
-> > So this is where I'm unsure.  Do you actually have a usecase where it
-> > makes the sense to read from the ADC only when there is no touch?  Any
-> > system doing that has an obvious denial of service attack - touch the
-> > screen.
-> >   
+> > 
+> > Input: trackpoint - only expose supported controls for Elan, ALPS and NXP
+> > 
+> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > 
+> > The newer trackpoints from ALPS, Elan and NXP implement a very limited
+> > subset of extended commands and controls that the original trackpoints
+> > implemented, so we should not be exposing not working controls in sysfs.
+> > The newer trackpoints also do not implement "Power On Reset" or "Read
+> > Extended Button Status", so we should not be using these commands during
+> > initialization.
+> > 
+> > While we are at it, let's change "unsigned char" to u8 for byte data or
+> > bool for booleans and use better suited error codes instead of -1.
+> > 
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/mouse/trackpoint.c |  241 +++++++++++++++++++++++---------------
+> >  drivers/input/mouse/trackpoint.h |   34 +++--
+> >  2 files changed, 168 insertions(+), 107 deletions(-)
+> > 
+> > diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+> > index 0871010f18d5..0ca80f465359 100644
+> > --- a/drivers/input/mouse/trackpoint.c
+> > +++ b/drivers/input/mouse/trackpoint.c
+> > @@ -19,6 +19,13 @@
+> >  #include "psmouse.h"
+> >  #include "trackpoint.h"
+> >  
+> > +static const char * const trackpoint_variants[] = {
+> > +	[TP_VARIANT_IBM]	= "IBM",
+> > +	[TP_VARIANT_ALPS]	= "ALPS",
+> > +	[TP_VARIANT_ELAN]	= "Elan",
+> > +	[TP_VARIANT_NXP]	= "NXP",
+> > +};
+> > +
+> >  /*
+> >   * Power-on Reset: Resets all trackpoint parameters, including RAM values,
+> >   * to defaults.
+> > @@ -26,7 +33,7 @@
+> >   */
+> >  static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
+> >  {
+> > -	unsigned char results[2];
+> > +	u8 results[2];
+> >  	int tries = 0;
+> >  
+> >  	/* Issue POR command, and repeat up to once if 0xFC00 received */
+> > @@ -38,7 +45,7 @@ static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
+> >  
+> >  	/* Check for success response -- 0xAA00 */
+> >  	if (results[0] != 0xAA || results[1] != 0x00)
+> > -		return -1;
+> > +		return -ENODEV;
+> >  
+> >  	return 0;
+> >  }
+> > @@ -46,8 +53,7 @@ static int trackpoint_power_on_reset(struct ps2dev *ps2dev)
+> >  /*
+> >   * Device IO: read, write and toggle bit
+> >   */
+> > -static int trackpoint_read(struct ps2dev *ps2dev,
+> > -			   unsigned char loc, unsigned char *results)
+> > +static int trackpoint_read(struct ps2dev *ps2dev, u8 loc, u8 *results)
+> >  {
+> >  	if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
+> >  	    ps2_command(ps2dev, results, MAKE_PS2_CMD(0, 1, loc))) {
+> > @@ -57,8 +63,7 @@ static int trackpoint_read(struct ps2dev *ps2dev,
+> >  	return 0;
+> >  }
+> >  
+> > -static int trackpoint_write(struct ps2dev *ps2dev,
+> > -			    unsigned char loc, unsigned char val)
+> > +static int trackpoint_write(struct ps2dev *ps2dev, u8 loc, u8 val)
+> >  {
+> >  	if (ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_COMMAND)) ||
+> >  	    ps2_command(ps2dev, NULL, MAKE_PS2_CMD(0, 0, TP_WRITE_MEM)) ||
+> > @@ -70,8 +75,7 @@ static int trackpoint_write(struct ps2dev *ps2dev,
+> >  	return 0;
+> >  }
+> >  
+> > -static int trackpoint_toggle_bit(struct ps2dev *ps2dev,
+> > -				 unsigned char loc, unsigned char mask)
+> > +static int trackpoint_toggle_bit(struct ps2dev *ps2dev, u8 loc, u8 mask)
+> >  {
+> >  	/* Bad things will happen if the loc param isn't in this range */
+> >  	if (loc < 0x20 || loc >= 0x2F)
+> > @@ -87,11 +91,11 @@ static int trackpoint_toggle_bit(struct ps2dev *ps2dev,
+> >  	return 0;
+> >  }
+> >  
+> > -static int trackpoint_update_bit(struct ps2dev *ps2dev, unsigned char loc,
+> > -				 unsigned char mask, unsigned char value)
+> > +static int trackpoint_update_bit(struct ps2dev *ps2dev,
+> > +				 u8 loc, u8 mask, u8 value)
+> >  {
+> >  	int retval = 0;
+> > -	unsigned char data;
+> > +	u8 data;
+> >  
+> >  	trackpoint_read(ps2dev, loc, &data);
+> >  	if (((data & mask) == mask) != !!value)
+> > @@ -105,17 +109,18 @@ static int trackpoint_update_bit(struct ps2dev *ps2dev, unsigned char loc,
+> >   */
+> >  struct trackpoint_attr_data {
+> >  	size_t field_offset;
+> > -	unsigned char command;
+> > -	unsigned char mask;
+> > -	unsigned char inverted;
+> > -	unsigned char power_on_default;
+> > +	u8 command;
+> > +	u8 mask;
+> > +	bool inverted;
+> > +	u8 power_on_default;
+> >  };
+> >  
+> > -static ssize_t trackpoint_show_int_attr(struct psmouse *psmouse, void *data, char *buf)
+> > +static ssize_t trackpoint_show_int_attr(struct psmouse *psmouse,
+> > +					void *data, char *buf)
+> >  {
+> >  	struct trackpoint_data *tp = psmouse->private;
+> >  	struct trackpoint_attr_data *attr = data;
+> > -	unsigned char value = *(unsigned char *)((char *)tp + attr->field_offset);
+> > +	u8 value = *(u8 *)((void *)tp + attr->field_offset);
+> >  
+> >  	if (attr->inverted)
+> >  		value = !value;
+> > @@ -128,8 +133,8 @@ static ssize_t trackpoint_set_int_attr(struct psmouse *psmouse, void *data,
+> >  {
+> >  	struct trackpoint_data *tp = psmouse->private;
+> >  	struct trackpoint_attr_data *attr = data;
+> > -	unsigned char *field = (unsigned char *)((char *)tp + attr->field_offset);
+> > -	unsigned char value;
+> > +	u8 *field = (void *)tp + attr->field_offset;
+> > +	u8 value;
+> >  	int err;
+> >  
+> >  	err = kstrtou8(buf, 10, &value);
+> > @@ -157,17 +162,14 @@ static ssize_t trackpoint_set_bit_attr(struct psmouse *psmouse, void *data,
+> >  {
+> >  	struct trackpoint_data *tp = psmouse->private;
+> >  	struct trackpoint_attr_data *attr = data;
+> > -	unsigned char *field = (unsigned char *)((char *)tp + attr->field_offset);
+> > -	unsigned int value;
+> > +	bool *field = (void *)tp + attr->field_offset;
+> > +	bool value;
+> >  	int err;
+> >  
+> > -	err = kstrtouint(buf, 10, &value);
+> > +	err = kstrtobool(buf, &value);
+> >  	if (err)
+> >  		return err;
+> >  
+> > -	if (value > 1)
+> > -		return -EINVAL;
+> > -
+> >  	if (attr->inverted)
+> >  		value = !value;
+> >  
+> > @@ -193,30 +195,6 @@ PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,				\
+> >  		    &trackpoint_attr_##_name,				\
+> >  		    trackpoint_show_int_attr, trackpoint_set_bit_attr)
+> >  
+> > -#define TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name)			\
+> > -do {									\
+> > -	struct trackpoint_attr_data *_attr = &trackpoint_attr_##_name;	\
+> > -									\
+> > -	trackpoint_update_bit(&_psmouse->ps2dev,			\
+> > -			_attr->command, _attr->mask, _tp->_name);	\
+> > -} while (0)
+> > -
+> > -#define TRACKPOINT_UPDATE(_power_on, _psmouse, _tp, _name)		\
+> > -do {									\
+> > -	if (!_power_on ||						\
+> > -	    _tp->_name != trackpoint_attr_##_name.power_on_default) {	\
+> > -		if (!trackpoint_attr_##_name.mask)			\
+> > -			trackpoint_write(&_psmouse->ps2dev,		\
+> > -				 trackpoint_attr_##_name.command,	\
+> > -				 _tp->_name);				\
+> > -		else							\
+> > -			TRACKPOINT_UPDATE_BIT(_psmouse, _tp, _name);	\
+> > -	}								\
+> > -} while (0)
+> > -
+> > -#define TRACKPOINT_SET_POWER_ON_DEFAULT(_tp, _name)				\
+> > -	(_tp->_name = trackpoint_attr_##_name.power_on_default)
+> > -
+> >  TRACKPOINT_INT_ATTR(sensitivity, TP_SENS, TP_DEF_SENS);
+> >  TRACKPOINT_INT_ATTR(speed, TP_SPEED, TP_DEF_SPEED);
+> >  TRACKPOINT_INT_ATTR(inertia, TP_INERTIA, TP_DEF_INERTIA);
+> > @@ -229,13 +207,33 @@ TRACKPOINT_INT_ATTR(ztime, TP_Z_TIME, TP_DEF_Z_TIME);
+> >  TRACKPOINT_INT_ATTR(jenks, TP_JENKS_CURV, TP_DEF_JENKS_CURV);
+> >  TRACKPOINT_INT_ATTR(drift_time, TP_DRIFT_TIME, TP_DEF_DRIFT_TIME);
+> >  
+> > -TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, 0,
+> > +TRACKPOINT_BIT_ATTR(press_to_select, TP_TOGGLE_PTSON, TP_MASK_PTSON, false,
+> >  		    TP_DEF_PTSON);
+> > -TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, 0,
+> > +TRACKPOINT_BIT_ATTR(skipback, TP_TOGGLE_SKIPBACK, TP_MASK_SKIPBACK, false,
+> >  		    TP_DEF_SKIPBACK);
+> > -TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, 1,
+> > +TRACKPOINT_BIT_ATTR(ext_dev, TP_TOGGLE_EXT_DEV, TP_MASK_EXT_DEV, true,
+> >  		    TP_DEF_EXT_DEV);
+> >  
+> > +static bool trackpoint_is_attr_available(struct psmouse *psmouse,
+> > +					 struct attribute *attr)
+> > +{
+> > +	struct trackpoint_data *tp = psmouse->private;
+> > +
+> > +	return tp->variant_id == TP_VARIANT_IBM ||
+> > +		attr == &psmouse_attr_sensitivity.dattr.attr ||
+> > +		attr == &psmouse_attr_press_to_select.dattr.attr;
+> > +}
+> > +
+> > +static umode_t trackpoint_is_attr_visible(struct kobject *kobj,
+> > +					  struct attribute *attr, int n)
+> > +{
+> > +	struct device *dev = container_of(kobj, struct device, kobj);
+> > +	struct serio *serio = to_serio_port(dev);
+> > +	struct psmouse *psmouse = serio_get_drvdata(serio);
+> > +
+> > +	return trackpoint_is_attr_available(psmouse, attr) ? attr->mode : 0;
+> > +}
+> > +
+> >  static struct attribute *trackpoint_attrs[] = {
+> >  	&psmouse_attr_sensitivity.dattr.attr,
+> >  	&psmouse_attr_speed.dattr.attr,
+> > @@ -255,24 +253,56 @@ static struct attribute *trackpoint_attrs[] = {
+> >  };
+> >  
+> >  static struct attribute_group trackpoint_attr_group = {
+> > -	.attrs = trackpoint_attrs,
+> > +	.is_visible	= trackpoint_is_attr_visible,
+> > +	.attrs		= trackpoint_attrs,
+> >  };
+> >  
+> > -static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *firmware_id)
+> > -{
+> > -	unsigned char param[2] = { 0 };
+> > +#define TRACKPOINT_UPDATE(_power_on, _psmouse, _tp, _name)		\
+> > +do {									\
+> > +	struct trackpoint_attr_data *_attr = &trackpoint_attr_##_name;	\
+> > +									\
+> > +	if ((!_power_on || _tp->_name != _attr->power_on_default) &&	\
+> > +	    trackpoint_is_attr_available(_psmouse,			\
+> > +				&psmouse_attr_##_name.dattr.attr)) {	\
+> > +		if (!_attr->mask)					\
+> > +			trackpoint_write(&_psmouse->ps2dev,		\
+> > +					 _attr->command, _tp->_name);	\
+> > +		else							\
+> > +			trackpoint_update_bit(&_psmouse->ps2dev,	\
+> > +					_attr->command, _attr->mask,	\
+> > +					_tp->_name);			\
+> > +	}								\
+> > +} while (0)
+> >  
+> > -	if (ps2_command(&psmouse->ps2dev, param, MAKE_PS2_CMD(0, 2, TP_READ_ID)))
+> > -		return -1;
+> > +#define TRACKPOINT_SET_POWER_ON_DEFAULT(_tp, _name)			\
+> > +do {									\
+> > +	_tp->_name = trackpoint_attr_##_name.power_on_default;		\
+> > +} while (0)
+> >  
+> > -	/* add new TP ID. */
+> > -	if (!(param[0] & TP_MAGIC_IDENT))
+> > -		return -1;
+> > +static int trackpoint_start_protocol(struct psmouse *psmouse,
+> > +				     u8 *variant_id, u8 *firmware_id)
+> > +{
+> > +	u8 param[2] = { 0 };
+> > +	int error;
+> >  
+> > -	if (firmware_id)
+> > -		*firmware_id = param[1];
+> > +	error = ps2_command(&psmouse->ps2dev,
+> > +			    param, MAKE_PS2_CMD(0, 2, TP_READ_ID));
+> > +	if (error)
+> > +		return error;
+> > +
+> > +	switch (param[0]) {
+> > +	case TP_VARIANT_IBM:
+> > +	case TP_VARIANT_ALPS:
+> > +	case TP_VARIANT_ELAN:
+> > +	case TP_VARIANT_NXP:
+> > +		if (variant_id)
+> > +			*variant_id = param[0];
+> > +		if (firmware_id)
+> > +			*firmware_id = param[1];
+> > +		break;
+> > +	}
+> >  
+> > -	return 0;
+> > +	return -ENODEV;
 > 
-> You're right. We have an issue in this case due to the hardware. Using
-> touchscreen has side effects on other channels. We can use only one
-> trigger for all the channels. The situation would have been better with
-> a trigger dedicated to the touchscreen.
+> always report error .. not good.
 > 
-> At the moment, we have not really stated about the exclusive use or not
-> of the touchscreen. We suppose we can get some customers wanting to use
-> both touchscreen and ADC. Eugen tried to deal with this case but, as you
-> noticed, it can lead to DoS.
-
-It's a restriction people aren't going to expect unfortunately...
-
-> 
-> > > We need to have a periodic trigger to sample the data because the actual 
-> > > analog to digital conversion inside the IP block needs to be triggered. 
-> > > The touchscreen data measurements cannot happen in hardware without 
-> > > being triggered. If I try with a hrtimer to get a periodic IRQ to just 
-> > > read the data, it will never be ready. The datasheet states that the 
-> > > touchscreen measurements "will be attached to the conversion sequence". 
-> > > So the periodic trigger is forcing a conversion sequence. This could be 
-> > > done with a software trigger as well, but why the hassle to start it 
-> > > every 2 milliseconds (or other time interval), if we can do it by 
-> > > periodic trigger ?  
-> > 
-> > Ah, one reason here would be to allow separate consumers to use the
-> > device. In that case you'd run with a periodic trigger all the time
-> > and have two buffers attached, the buffer_cb that is feeding your
-> > touchscreen and another buffer to deal with the other channels
-> > (presumably the standard one an IIO device has when using buffered
-> > interfaces).  
-> 
-> The issue is that we are sharing the periodic trigger so we have to use
-> the same period for both usage.
-
-Whilst a somewhat irritating restriction, it's probably not disastrous for
-most ADC uses.
-
-Jonathan
-> 
-> Regards
-> 
-> Ludovic
-> 
-> > 
-> > The buffer demux would ensure the data from the right channels
-> > ends up in the right place.  It makes it look to the buffer
-> > consumer like it is the only thing using / controlling the data
-> > flow.
-> >   
-> > > Once we get the No pen IRQ, we stop the periodic trigger and it can be 
-> > > used in another purpose (software or external as of now in the driver, 
-> > > in the future we can add PWM trigger and Timer trigger)  
-> > 
-> > This case isn't really useful though as any other use is denied
-> > access when touch occurs.
-> > 
-> > I'll summarise what I think would work for this below.
-> >   
-> > > 
-> > > In short, the ADC in Sama5D2 also supports touchscreen, and in 
-> > > touchscreen mode , 4 of the channels are being used for this purpose. 
-> > > This however, doesn't stop the ADC to use the other channels . The 
-> > > hardware has 12 total single channels and they can be paired to have 6 
-> > > more differential channels. The only thing that is blocked is the 
-> > > trigger, but only if the pen is touching (when we start the periodic 
-> > > trigger to sample the touchscreen). If the pen is not touching, an 
-> > > external trigger or software trigger can be used without any issues (so 
-> > > why limit the functionality, if this is available from hardware ?). 
-> > > Because of the reason I discussed above (touchscreen sequence must be 
-> > > triggered), we cannot use another trigger in the same time.
-> > > 
-> > > 
-> > > I see your idea with the callback buffer and it's worth exploring. 
-> > > Mainly this series was to actually show you what I had in mind about 
-> > > supporting the resistive touchscreen, and to give you some actually 
-> > > working code/patch, so we can discuss based on real implementation, not 
-> > > just suppositions.  
-> > 
-> > That side of things is fine.
-> >   
-> > > 
-> > > You are right in many of the other comments that you said, and I will 
-> > > come up with a v2 to this series. For now, I need to know if this is a 
-> > > good or right direction in which I am going, or I should try to change 
-> > > all the mechanism to callback buffer ? Or maybe I am totally in a bad 
-> > > direction ?
-> > > The requirements are that the consumer driver needs to be somehow woke 
-> > > up for every new touch data available, and report to the input 
-> > > subsystem. As it was done before, the at91 old driver, just creates and 
-> > > registers an input device by itself, and then reports the position and 
-> > > touches. I was thinking that with this trigger consumer implementation, 
-> > > things can be better in terms of subsystem separation and support.
-> > > 
-> > > Thanks again and let me know of your thoughts,
-> > > 
-> > > Eugen  
-> > 
-> > So a couple of things come to mind on how I'd structure this.
-> > So what we have (very briefly)
-> > 
-> > No touch screen case:
-> > * Generic ADC using all sorts of different triggers
-> > 
-> > Touch screen only case:
-> > * Interrupt to indicate pen on / off
-> > * A need to do a periodic trigger of the device but only
-> > useful when touch is in progress.
-> > 
-> > Touch screen and other users:
-> > * Interrupt to indicate pen on / off
-> > * Periodic trigger needed for touchscreen when touch in progress.
-> > * Do not have denial of service on other channels.
-> > 
-> > First two cases are easy enough by having a magic trigger, third
-> > case is harder.
-> > If we have the touchscreen then I would drop support for direct access to
-> > to ADC channels whilst it's in use (so no sysfs - or emulate it if you
-> > really want it by stashing results from scans done when touch is in
-> > progress).
-> > 
-> > Have your touch screen channels just as normal additional channels,
-> > but only via the buffered interface (no _RAW attribute).
-> > If someone sets up to read them via buffered interface with
-> > a different trigger I think they'll get values - whether they
-> > are right is dependent (if I understand correctly) on whether
-> > there is a touch in progress.  So no harm done and it'll make
-> > the logic simpler.
-> > 
-> > The moment touch is opened and acquires the IIO channels
-> > fix the trigger (may need new interface) to the periodic one
-> > that you were enabling and disabling on touch.
-> > Things get dicey if there is an existing user so you may
-> > have to do it on driver probe rather than open of the input
-> > device if we effectively want touch to have the highest
-> > priority use of the ADC.
-> > 
-> > If other channels are enabled for buffered mode then note
-> > this in the driver and have the periodic trigger on all the
-> > time (to ensure they keep getting read)  This will pass
-> > garbage to your touch screen driver, but it'll remove it due
-> > to the pressure value being too low so no harm there.
-> > 
-> > Normal path will work for non touch channels (and in theory
-> > the touch ones if they are turned on) via IIO buffer
-> > interface.  It'll be restricted in form due to the needs of
-> > the touch driver, but better than nothing and should cover
-> > most usecases.
-> > 
-> > Now the interrupt on / off on touch bit becomes an optimization
-> > in the case of only the buffer_cb being attached.
-> > 
-> > I think that fits cleanly in the current IIO framework and
-> > looks more similar to our existing provider consumer approaches.
-> > 
-> > Still needs the hooks to get hold of the trigger though so
-> > as to be able to tell the ADC which one to use. So rather
-> > than being a trigger consumer interface, it's more of a trigger
-> > configuration interface..  Exact term doesn't matter though.
-> > 
-> > Jonathan
-> >   
-> > > 
-> > > 
-> > > 
-> > > [...]
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html  
-> >   
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >  }
+> >  
+> >  /*
+> > @@ -285,7 +315,7 @@ static int trackpoint_sync(struct psmouse *psmouse, bool in_power_on_state)
+> >  {
+> >  	struct trackpoint_data *tp = psmouse->private;
+> >  
+> > -	if (!in_power_on_state) {
+> > +	if (!in_power_on_state && tp->variant_id == TP_VARIANT_IBM) {
+> >  		/*
+> >  		 * Disable features that may make device unusable
+> >  		 * with this driver.
+> > @@ -347,7 +377,8 @@ static void trackpoint_defaults(struct trackpoint_data *tp)
+> >  
+> >  static void trackpoint_disconnect(struct psmouse *psmouse)
+> >  {
+> > -	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj, &trackpoint_attr_group);
+> > +	device_remove_group(&psmouse->ps2dev.serio->dev,
+> > +			    &trackpoint_attr_group);
+> >  
+> >  	kfree(psmouse->private);
+> >  	psmouse->private = NULL;
+> > @@ -355,14 +386,20 @@ static void trackpoint_disconnect(struct psmouse *psmouse)
+> >  
+> >  static int trackpoint_reconnect(struct psmouse *psmouse)
+> >  {
+> > -	int reset_fail;
+> > +	struct trackpoint_data *tp = psmouse->private;
+> > +	int error;
+> > +	bool was_reset;
+> >  
+> > -	if (trackpoint_start_protocol(psmouse, NULL))
+> > -		return -1;
+> > +	error = trackpoint_start_protocol(psmouse, NULL, NULL);
+> > +	if (error)
+> > +		return error;
+> >  
+> > -	reset_fail = trackpoint_power_on_reset(&psmouse->ps2dev);
+> > -	if (trackpoint_sync(psmouse, !reset_fail))
+> > -		return -1;
+> > +	was_reset = tp->variant_id == TP_VARIANT_IBM &&
+> > +		    trackpoint_power_on_reset(&psmouse->ps2dev) == 0;
+> > +
+> > +	error = trackpoint_sync(psmouse, was_reset);
+> > +	if (error)
+> > +		return error;
+> >  
+> >  	return 0;
+> >  }
+> > @@ -370,46 +407,62 @@ static int trackpoint_reconnect(struct psmouse *psmouse)
+> >  int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+> >  {
+> >  	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> > -	unsigned char firmware_id;
+> > -	unsigned char button_info;
+> > +	struct trackpoint_data *tp;
+> > +	u8 variant_id;
+> > +	u8 firmware_id;
+> > +	u8 button_info;
+> >  	int error;
+> >  
+> > -	if (trackpoint_start_protocol(psmouse, &firmware_id))
+> > -		return -1;
+> > +	error = trackpoint_start_protocol(psmouse, &variant_id, &firmware_id);
+> > +	if (error)
+> > +		return error;
+> >  
+> >  	if (!set_properties)
+> >  		return 0;
+> >  
+> > -	if (trackpoint_read(ps2dev, TP_EXT_BTN, &button_info)) {
+> > -		psmouse_warn(psmouse, "failed to get extended button data, assuming 3 buttons\n");
+> > -		button_info = 0x33;
+> > -	}
+> > -
+> > -	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
+> > -	if (!psmouse->private)
+> > +	tp = kzalloc(sizeof(*tp), GFP_KERNEL);
+> > +	if (!tp)
+> >  		return -ENOMEM;
+> >  
+> > -	psmouse->vendor = "IBM";
+> > +	trackpoint_defaults(tp);
+> > +	tp->variant_id = variant_id;
+> > +	tp->firmware_id = firmware_id;
+> > +
+> > +	psmouse->private = tp;
+> > +
+> > +	psmouse->vendor = trackpoint_variants[variant_id];
+> >  	psmouse->name = "TrackPoint";
+> >  
+> >  	psmouse->reconnect = trackpoint_reconnect;
+> >  	psmouse->disconnect = trackpoint_disconnect;
+> >  
+> > +	if (variant_id != TP_VARIANT_IBM) {
+> > +		/* Newer variants do not support extended button query. */
+> > +		button_info = 0x33;
+> > +	} else {
+> > +		error = trackpoint_read(ps2dev, TP_EXT_BTN, &button_info);
+> > +		if (error) {
+> > +			psmouse_warn(psmouse,
+> > +				     "failed to get extended button data, assuming 3 buttons\n");
+> > +			button_info = 0x33;
+> > +		}
+> > +	}
+> > +
+> >  	if ((button_info & 0x0f) >= 3)
+> > -		__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
+> > +		input_set_capability(psmouse->dev, EV_KEY, BTN_MIDDLE);
+> >  
+> >  	__set_bit(INPUT_PROP_POINTER, psmouse->dev->propbit);
+> >  	__set_bit(INPUT_PROP_POINTING_STICK, psmouse->dev->propbit);
+> >  
+> > -	trackpoint_defaults(psmouse->private);
+> > -
+> > -	error = trackpoint_power_on_reset(ps2dev);
+> > -
+> > -	/* Write defaults to TP only if reset fails. */
+> > -	if (error)
+> > +	if (variant_id != TP_VARIANT_IBM ||
+> > +	    trackpoint_power_on_reset(ps2dev) != 0) {
+> > +		/*
+> > +		 * Write defaults to TP if we did not reset the trackpoint.
+> > +		 */
+> >  		trackpoint_sync(psmouse, false);
+> > +	}
+> >  
+> > -	error = sysfs_create_group(&ps2dev->serio->dev.kobj, &trackpoint_attr_group);
+> > +	error = device_add_group(&ps2dev->serio->dev, &trackpoint_attr_group);
+> >  	if (error) {
+> >  		psmouse_err(psmouse,
+> >  			    "failed to create sysfs attributes, error: %d\n",
+> > @@ -420,8 +473,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+> >  	}
+> >  
+> >  	psmouse_info(psmouse,
+> > -		     "IBM TrackPoint firmware: 0x%02x, buttons: %d/%d\n",
+> > -		     firmware_id,
+> > +		     "%s TrackPoint firmware: 0x%02x, buttons: %d/%d\n",
+> > +		     psmouse->vendor, firmware_id,
+> >  		     (button_info & 0xf0) >> 4, button_info & 0x0f);
+> >  
+> >  	return 0;
+> > diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
+> > index 88055755f82e..10a039148234 100644
+> > --- a/drivers/input/mouse/trackpoint.h
+> > +++ b/drivers/input/mouse/trackpoint.h
+> > @@ -21,10 +21,16 @@
+> >  #define TP_COMMAND		0xE2	/* Commands start with this */
+> >  
+> >  #define TP_READ_ID		0xE1	/* Sent for device identification */
+> > -#define TP_MAGIC_IDENT		0x03	/* Sent after a TP_READ_ID followed */
+> > -					/* by the firmware ID */
+> > -					/* Firmware ID includes 0x1, 0x2, 0x3 */
+> >  
+> > +/*
+> > + * Valid first byte responses to the "Read Secondary ID" (0xE1) command.
+> > + * 0x01 was the original IBM trackpoint, others implement very limited
+> > + * subset of trackpoint features.
+> > + */
+> > +#define TP_VARIANT_IBM		0x01
+> > +#define TP_VARIANT_ALPS		0x02
+> > +#define TP_VARIANT_ELAN		0x03
+> > +#define TP_VARIANT_NXP		0x04
+> >  
+> >  /*
+> >   * Commands
+> > @@ -136,18 +142,20 @@
+> >  
+> >  #define MAKE_PS2_CMD(params, results, cmd) ((params<<12) | (results<<8) | (cmd))
+> >  
+> > -struct trackpoint_data
+> > -{
+> > -	unsigned char sensitivity, speed, inertia, reach;
+> > -	unsigned char draghys, mindrag;
+> > -	unsigned char thresh, upthresh;
+> > -	unsigned char ztime, jenks;
+> > -	unsigned char drift_time;
+> > +struct trackpoint_data {
+> > +	u8 variant_id;
+> > +	u8 firmware_id;
+> > +
+> > +	u8 sensitivity, speed, inertia, reach;
+> > +	u8 draghys, mindrag;
+> > +	u8 thresh, upthresh;
+> > +	u8 ztime, jenks;
+> > +	u8 drift_time;
+> >  
+> >  	/* toggles */
+> > -	unsigned char press_to_select;
+> > -	unsigned char skipback;
+> > -	unsigned char ext_dev;
+> > +	bool press_to_select;
+> > +	bool skipback;
+> > +	bool ext_dev;
+> >  };
+> >  
+> >  #ifdef CONFIG_MOUSE_PS2_TRACKPOINT
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html

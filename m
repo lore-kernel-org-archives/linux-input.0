@@ -1,49 +1,38 @@
-From: Silvan Jegen <s.jegen@gmail.com>
-Subject: Re: [PATCH] HID: roccat: prevent an out of bounds read in
- kovaplus_profile_activated()
-Date: Mon, 15 Jan 2018 21:21:11 +0100
-Message-ID: <20180115202111.GA12555@myarchbang.localdomain>
-References: <20180110093903.yyoknoi7oc2cd5iy@mwanda>
+From: Daniel Drake <drake@endlessm.com>
+Subject: Re: [PATCH] HID: asus: only support backlight when it's not driven by WMI
+Date: Mon, 15 Jan 2018 14:33:29 -0600
+Message-ID: <CAD8Lp476c1stJOScWBuX2ZsNrORKVYnUJL1UnwCp6hQOzXASvw@mail.gmail.com>
+References: <20180109012042.13947-1-drake@endlessm.com> <CAHp75Veyrzh+gV_8ff7TRqWpVx4h+2Qg05j9OpNXCH+E1+hsQg@mail.gmail.com>
+ <CAD8Lp46gbny3mV2CgWnrJnEpZpNo-P-GgKA5-DypykbmGoUhQg@mail.gmail.com>
+ <CAHp75Vc962G3rufA_D1GY=Giy7u0vri4_vQnFPYCxZ_w6N_2GQ@mail.gmail.com> <CAMz_NCr-3taeHeZ3NF2LYXrMGf25gWgL+dzdO=Ca=Bxug2EbCw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180110093903.yyoknoi7oc2cd5iy@mwanda>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f53.google.com ([209.85.218.53]:40333 "EHLO
+        mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751110AbeAOUdb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 15 Jan 2018 15:33:31 -0500
+Received: by mail-oi0-f53.google.com with SMTP id u83so9113652oie.7
+        for <linux-input@vger.kernel.org>; Mon, 15 Jan 2018 12:33:30 -0800 (PST)
+In-Reply-To: <CAMz_NCr-3taeHeZ3NF2LYXrMGf25gWgL+dzdO=Ca=Bxug2EbCw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mustafa Kuscu <mustafakuscu@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>, Carlo Caione <carlo@endlessm.com>, Corentin Chary <corentin.chary@gmail.com>, acpi4asus-user <acpi4asus-user@lists.sourceforge.net>, Platform Driver <platform-driver-x86@vger.kernel.org>
 
-Hi
+Hi Mustafa,
+On Fri, Jan 12, 2018 at 1:33 PM, Mustafa Kuscu <mustafakuscu@gmail.com> wrote:
 
-On Wed, Jan 10, 2018 at 12:39:03PM +0300, Dan Carpenter wrote:
-> We get the "new_profile_index" value from the mouse device when we're
-> handling raw events.  Smatch taints it as untrusted data and complains
-> that we need a bounds check.  This seems like a reasonable warning
-> otherwise there is a small read beyond the end of the array.
-> 
-> Fixes: 0e70f97f257e ("HID: roccat: Add support for Kova[+] mouse")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+>      { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> -        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+> +        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1), QUIRK_USE_KBD_BACKLIGHT },
 
-Looks good to me.
+This change is already included in the latest version of Linux so I
+assume you are just running an old version.
 
-Acked-by: Silvan Jegen <s.jegen@gmail.com>
+Andy, still waiting for any more feedback on the issue detailed in
+this thread once you have a chance.
 
-
-> diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-> index 43617fb28b87..317c9c2c0a7c 100644
-> --- a/drivers/hid/hid-roccat-kovaplus.c
-> +++ b/drivers/hid/hid-roccat-kovaplus.c
-> @@ -37,6 +37,8 @@ static uint kovaplus_convert_event_cpi(uint value)
->  static void kovaplus_profile_activated(struct kovaplus_device *kovaplus,
->  		uint new_profile_index)
->  {
-> +	if (new_profile_index >= ARRAY_SIZE(kovaplus->profile_settings))
-> +		return;
->  	kovaplus->actual_profile = new_profile_index;
->  	kovaplus->actual_cpi = kovaplus->profile_settings[new_profile_index].cpi_startup_level;
->  	kovaplus->actual_x_sensitivity = kovaplus->profile_settings[new_profile_index].sensitivity_x;
-> --
-> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks
+Daniel

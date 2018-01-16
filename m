@@ -1,58 +1,77 @@
-From: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+From: Simon Shields <simon@lineageos.org>
 Subject: Re: [PATCH v2] Input: mms114 - drop platform data and use generic
  APIs
-Date: Tue, 16 Jan 2018 16:56:11 +0900
-Message-ID: <20180116075611.GC30945@gangnam.samsung>
+Date: Tue, 16 Jan 2018 19:52:06 +1100
+Message-ID: <20180116085206.GA18232@lineageos.org>
 References: <CGME20180113020518epcas1p3987c04ac42714710204aca5a800a4f5b@epcas1p3.samsung.com>
-        <20180113020456.12391-1-simon@lineageos.org>
+ <20180113020456.12391-1-simon@lineageos.org>
+ <20180116075611.GC30945@gangnam.samsung>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-disposition: inline
-In-reply-to: <20180113020456.12391-1-simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Simon Shields <simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pl0-f65.google.com ([209.85.160.65]:42800 "EHLO
+        mail-pl0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750790AbeAPIwO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 16 Jan 2018 03:52:14 -0500
+Content-Disposition: inline
+In-Reply-To: <20180116075611.GC30945@gangnam.samsung>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>
 
-Hi Simon,
+Hi Andi,
 
-On Sat, Jan 13, 2018 at 01:04:56PM +1100, Simon Shields wrote:
-> The MMS114 platform data has no in-tree users, so drop it,
-> and make the driver depend on CONFIG_OF.
+Thanks for the review!
+
+On Tue, Jan 16, 2018 at 04:56:11PM +0900, Andi Shyti wrote:
+> Hi Simon,
 > 
-> Switch to using the standard touchscreen properties via
-> touchscreen_parse_properties(), and move the old DT parsing code
-> to use device_property_*() APIs.
+> On Sat, Jan 13, 2018 at 01:04:56PM +1100, Simon Shields wrote:
+> > The MMS114 platform data has no in-tree users, so drop it,
+> > and make the driver depend on CONFIG_OF.
+> > 
+> > Switch to using the standard touchscreen properties via
+> > touchscreen_parse_properties(), and move the old DT parsing code
+> > to use device_property_*() APIs.
+> > 
+> > Finally, use touchscreen_report_pos to report x/y coordinates
+> > and drop the custom x/y inversion code.
+> > 
+> > Signed-off-by: Simon Shields <simon@lineageos.org>
+> > ---
+> >  .../bindings/input/touchscreen/mms114.txt          |  29 ++--
+> >  drivers/input/touchscreen/Kconfig                  |   1 +
+> >  drivers/input/touchscreen/mms114.c                 | 152 +++++++++------------
+> >  include/linux/platform_data/mms114.h               |  24 ----
+> >  4 files changed, 83 insertions(+), 123 deletions(-)
+> >  delete mode 100644 include/linux/platform_data/mms114.h
+> > 
 > 
-> Finally, use touchscreen_report_pos to report x/y coordinates
-> and drop the custom x/y inversion code.
+> The patch looks good, but you would also need to update the dtsi
+> files in this same patch:
 > 
-> Signed-off-by: Simon Shields <simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-> ---
->  .../bindings/input/touchscreen/mms114.txt          |  29 ++--
->  drivers/input/touchscreen/Kconfig                  |   1 +
->  drivers/input/touchscreen/mms114.c                 | 152 +++++++++------------
->  include/linux/platform_data/mms114.h               |  24 ----
->  4 files changed, 83 insertions(+), 123 deletions(-)
->  delete mode 100644 include/linux/platform_data/mms114.h
+> ./arch/arm/boot/dts/exynos4412-trats2.dts
+> ./arch/arm/boot/dts/exynos4210-trats.dts
 > 
+> and Cc the Samsung-soc mailing list.
+> 
+> For now it's a nack because the touchscreen would not work
+> anymore with the trats boards.
 
-The patch looks good, but you would also need to update the dtsi
-files in this same patch:
+This patch keeps support for the old bindings. I've verified that both
+the old and new bindings work on a GT-I9300 (trats2 with a different
+bootloader/partition layout).
 
-./arch/arm/boot/dts/exynos4412-trats2.dts
-./arch/arm/boot/dts/exynos4210-trats.dts
+> 
+> One more thing, you forgot Rob's ACK.
 
-and Cc the Samsung-soc mailing list.
+I wasn't sure whether or not to keep the Reviewed-By tag, since
+this is a new version of the patch. In the future, I'll keep it.
 
-For now it's a nack because the touchscreen would not work
-anymore with the trats boards.
+> 
+> Andi
 
-One more thing, you forgot Rob's ACK.
-
-Andi
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Simon

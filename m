@@ -1,481 +1,73 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] input: pxrc: new driver for PhoenixRC Flight
- Controller Adapter
-Date: Tue, 16 Jan 2018 15:16:25 -0800
-Message-ID: <20180116231625.e3sgum667xfuumx4@dtor-ws>
-References: <20180113201532.26016-1-marcus.folkesson@gmail.com>
+Subject: Re: [PATCH] Input: synaptics - reset the ABS_X/Y fuzz after
+ initializing MT axes
+Date: Tue, 16 Jan 2018 15:41:26 -0800
+Message-ID: <20180116234126.4qxrvfyacy2grw37@dtor-ws>
+References: <20180116053459.GA14660@jelly>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pl0-f66.google.com ([209.85.160.66]:33443 "EHLO
+        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750772AbeAPXla (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 16 Jan 2018 18:41:30 -0500
+Received: by mail-pl0-f66.google.com with SMTP id t4so4577655plo.0
+        for <linux-input@vger.kernel.org>; Tue, 16 Jan 2018 15:41:30 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20180113201532.26016-1-marcus.folkesson@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Tomohiro Yoshidomi <sylph23k@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20180116053459.GA14660@jelly>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
 
-Hi Marcus,
-
-On Sat, Jan 13, 2018 at 09:15:32PM +0100, Marcus Folkesson wrote:
-> This driver let you plug in your RC controller to the adapter and
-> use it as input device in various RC simulators.
+On Tue, Jan 16, 2018 at 03:34:59PM +1000, Peter Hutterer wrote:
+> input_mt_init_slots() resets the ABS_X/Y fuzz to 0 and expects the driver to
+> call input_mt_report_pointer_emulation(). That is based on the MT position
+> bits which are already defuzzed - hence a fuzz of 0.
 > 
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> In the case of synaptics semi-mt devices, we report the ABS_X/Y axes manually.
+> This results in the MT position being defuzzed but the single-touch emulation
+> missing that defuzzing.
+> 
+> Work around this by re-initializing the ABS_X/Y axes after the MT axis to
+> get the same fuzz value back.
+> 
+> https://bugs.freedesktop.org/show_bug.cgi?id=104533
+> 
+> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+
+Applied, thank you.
+
 > ---
-> v3:
-> 	- Use RUDDER and MISC instead of TILT_X and TILT_Y
-> 	- Drop kref and anchor
-> 	- Rework URB handling
-> 	- Add PM support
-
-How did you test the PM support? By default the autopm is disabled on
-USB devices; you need to enable it by writing to sysfs (I believe you
-need to 'echo "auto" > /sys/bus/usb/<device>/power/control) and see if
-it gets autosuspended when not in use and resumed after you start
-interacting with it.
-
-> v2:
-> 	- Change module license to GPLv2 to match SPDX tag
+> Semi-mt devices are Dodos, so I'd rather go for the easy fix here than a
+> big rewrite of that code.
 > 
->  Documentation/input/devices/pxrc.rst |  57 +++++++
->  drivers/input/joystick/Kconfig       |   9 +
->  drivers/input/joystick/Makefile      |   1 +
->  drivers/input/joystick/pxrc.c        | 320 +++++++++++++++++++++++++++++++++++
->  4 files changed, 387 insertions(+)
->  create mode 100644 Documentation/input/devices/pxrc.rst
->  create mode 100644 drivers/input/joystick/pxrc.c
+>  drivers/input/mouse/synaptics.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
-> diff --git a/Documentation/input/devices/pxrc.rst b/Documentation/input/devices/pxrc.rst
-> new file mode 100644
-> index 000000000000..ca11f646bae8
-> --- /dev/null
-> +++ b/Documentation/input/devices/pxrc.rst
-> @@ -0,0 +1,57 @@
-> +=======================================================
-> +pxrc - PhoenixRC Flight Controller Adapter
-> +=======================================================
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index ee5466a374bf..0e04275e0d74 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -1280,6 +1280,14 @@ static void set_input_params(struct psmouse *psmouse,
+>  				    INPUT_MT_POINTER |
+>  				    (cr48_profile_sensor ?
+>  					INPUT_MT_TRACK : INPUT_MT_SEMI_MT));
 > +
-> +:Author: Marcus Folkesson <marcus.folkesson@gmail.com>
-> +
-> +This driver let you use your own RC controller plugged into the
-> +adapter that comes with PhoenixRC [1]_ or other compatible adapters.
-> +
-> +The adapter supports 7 analog channels and 1 digital input switch.
-> +
-> +Notes
-> +=====
-> +
-> +Many RC controllers is able to configure which stick goes to which channel.
-> +This is also configurable in most simulators, so a matching is not necessary.
-> +
-> +The driver is generating the following input event for analog channels:
-> +
-> ++---------+----------------+
-> +| Channel |      Event     |
-> ++=========+================+
-> +|     1   |  ABS_X         |
-> ++---------+----------------+
-> +|     2   |  ABS_Y         |
-> ++---------+----------------+
-> +|     3   |  ABS_RX        |
-> ++---------+----------------+
-> +|     4   |  ABS_RY        |
-> ++---------+----------------+
-> +|     5   |  ABS_RUDDER    |
-> ++---------+----------------+
-> +|     6   |  ABS_THROTTLE  |
-> ++---------+----------------+
-> +|     7   |  ABS_MISC      |
-> ++---------+----------------+
-> +
-> +The digital input switch is generated as an `BTN_A` event.
-> +
-> +Manual Testing
-> +==============
-> +
-> +To test this driver's functionality you may use `input-event` which is part of
-> +the `input layer utilities` suite [2]_.
-> +
-> +For example::
-> +
-> +    > modprobe pxrc
-> +    > input-events <devnr>
-> +
-> +To print all input events from input `devnr`.
-> +
-> +References
-> +==========
-> +
-> +.. [1] http://www.phoenix-sim.com/
-> +.. [2] https://www.kraxel.org/cgit/input/
-> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
-> index f3c2f6ea8b44..18ab6dafff41 100644
-> --- a/drivers/input/joystick/Kconfig
-> +++ b/drivers/input/joystick/Kconfig
-> @@ -351,4 +351,13 @@ config JOYSTICK_PSXPAD_SPI_FF
+> +		/* For semi-mt devices we send ABS_X/Y ourselves instead of
+> +		 * input_mt_report_pointer_emulation. But
+> +		 * input_mt_init_slots() resets the fuzz to 0, leading to a
+> +		 * filtered ABS_MT_POSITION_X but an unfiltered ABS_X
+> +		 * position. Let's re-initialize ABS_X/Y here. */
+> +		if (!cr48_profile_sensor)
+> +			set_abs_position_params(dev, &priv->info, ABS_X, ABS_Y);
+>  	}
 >  
->  	  To drive rumble motor a dedicated power supply is required.
->  
-> +config JOYSTICK_PXRC
-> +	tristate "PhoenixRC Flight Controller Adapter"
-> +	depends on USB_ARCH_HAS_HCD
-> +	select USB
-> +	help
-> +	  Say Y here if you want to use the PhoenixRC Flight Controller Adapter.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called pxrc.
->  endif
-> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
-> index 67651efda2e1..dd0492ebbed7 100644
-> --- a/drivers/input/joystick/Makefile
-> +++ b/drivers/input/joystick/Makefile
-> @@ -23,6 +23,7 @@ obj-$(CONFIG_JOYSTICK_JOYDUMP)		+= joydump.o
->  obj-$(CONFIG_JOYSTICK_MAGELLAN)		+= magellan.o
->  obj-$(CONFIG_JOYSTICK_MAPLE)		+= maplecontrol.o
->  obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+= psxpad-spi.o
-> +obj-$(CONFIG_JOYSTICK_PXRC)			+= pxrc.o
->  obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
->  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
->  obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
-> diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
-> new file mode 100644
-> index 000000000000..98d9b8184c46
-> --- /dev/null
-> +++ b/drivers/input/joystick/pxrc.c
-> @@ -0,0 +1,320 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Driver for Phoenix RC Flight Controller Adapter
-> + *
-> + * Copyright (C) 2018 Marcus Folkesson <marcus.folkesson@gmail.com>
-> + *
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/slab.h>
-> +#include <linux/module.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/usb.h>
-> +#include <linux/usb/input.h>
-> +#include <linux/mutex.h>
-> +#include <linux/input.h>
-> +
-> +#define PXRC_VENDOR_ID	(0x1781)
-> +#define PXRC_PRODUCT_ID	(0x0898)
-> +
-> +static const struct usb_device_id pxrc_table[] = {
-> +	{ USB_DEVICE(PXRC_VENDOR_ID, PXRC_PRODUCT_ID) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(usb, pxrc_table);
-> +
-> +struct pxrc {
-> +	struct input_dev	*input;
-> +	struct usb_device	*udev;
-> +	struct usb_interface	*intf;
-> +	struct urb		*urb;
-> +	__u8			epaddr;
-> +	char			phys[64];
-> +	unsigned char           *data;
-> +	size_t			bsize;
-> +};
-> +
-> +static void pxrc_usb_irq(struct urb *urb)
-> +{
-> +	struct pxrc *pxrc = urb->context;
-> +	int error;
-> +
-> +	switch (urb->status) {
-> +	case 0:
-> +		/* success */
-> +		break;
-> +	case -ETIME:
-> +		/* this urb is timing out */
-> +		dev_dbg(&pxrc->intf->dev,
-> +			"%s - urb timed out - was the device unplugged?\n",
-> +			__func__);
-> +		return;
-> +	case -ECONNRESET:
-> +	case -ENOENT:
-> +	case -ESHUTDOWN:
-> +	case -EPIPE:
-> +		/* this urb is terminated, clean up */
-> +		dev_dbg(&pxrc->intf->dev, "%s - urb shutting down with status: %d\n",
-> +			__func__, urb->status);
-> +		return;
-> +	default:
-> +		dev_dbg(&pxrc->intf->dev, "%s - nonzero urb status received: %d\n",
-> +			__func__, urb->status);
-> +		goto exit;
-> +	}
-> +
-> +	if (urb->actual_length == 8) {
-> +		input_report_abs(pxrc->input, ABS_X, pxrc->data[0]);
-> +		input_report_abs(pxrc->input, ABS_Y, pxrc->data[2]);
-> +		input_report_abs(pxrc->input, ABS_RX, pxrc->data[3]);
-> +		input_report_abs(pxrc->input, ABS_RY, pxrc->data[4]);
-> +		input_report_abs(pxrc->input, ABS_RUDDER, pxrc->data[5]);
-> +		input_report_abs(pxrc->input, ABS_THROTTLE, pxrc->data[6]);
-> +		input_report_abs(pxrc->input, ABS_MISC, pxrc->data[7]);
-> +
-> +		input_report_key(pxrc->input, BTN_A, pxrc->data[1]);
-> +	}
-> +
-> +exit:
-
-I think you need
-
-	usb_mark_last_busy(interface_to_usbdev(pxrc->intf));
-
-here.
-
-> +	/* Resubmit to fetch new fresh URBs */
-> +	error = usb_submit_urb(urb, GFP_ATOMIC);
-> +	if (error && error != -EPERM)
-> +		dev_err(&pxrc->intf->dev,
-> +			"%s - usb_submit_urb failed with result: %d",
-> +			__func__, error);
-> +}
-> +
-> +static int pxrc_open(struct input_dev *input)
-> +{
-> +	struct pxrc *pxrc = input_get_drvdata(input);
-> +	int retval;
-> +
-> +	retval = usb_autopm_get_interface(pxrc->intf);
-> +	if (retval) {
-> +		dev_err(&pxrc->intf->dev,
-> +			"%s - usb_autopm_get_interface failed, error: %d\n",
-> +			__func__, retval);
-> +		return retval;
-> +	}
-> +
-> +	retval = usb_submit_urb(pxrc->urb, GFP_KERNEL);
-> +	if (retval) {
-> +		dev_err(&pxrc->intf->dev,
-> +			"%s - usb_submit_urb failed, error: %d\n",
-> +			__func__, retval);
-> +		retval = -EIO;
-> +		goto out;
-> +	}
-> +
-> +	pxrc->intf->needs_remote_wakeup = 1;
-> +
-> +out:
-> +	usb_autopm_put_interface(pxrc->intf);
-> +	return retval;
-> +}
-> +
-> +static void pxrc_close(struct input_dev *input)
-> +{
-> +	struct pxrc *pxrc = input_get_drvdata(input);
-> +	int autopm_error;
-> +
-> +	autopm_error = usb_autopm_get_interface(pxrc->intf);
-> +
-> +	usb_kill_urb(pxrc->urb);
-> +	pxrc->intf->needs_remote_wakeup = 0;
-> +
-> +	if (!autopm_error)
-> +		usb_autopm_put_interface(pxrc->intf);
-> +}
-> +
-> +static int pxrc_usb_init(struct pxrc *pxrc)
-> +{
-> +	struct usb_endpoint_descriptor *epirq;
-> +	unsigned int pipe;
-> +	int retval;
-> +
-> +	/* Set up the endpoint information */
-> +	/* This device only has an interrupt endpoint */
-> +	retval = usb_find_common_endpoints(pxrc->intf->cur_altsetting,
-> +			NULL, NULL, &epirq, NULL);
-> +	if (retval) {
-> +		dev_err(&pxrc->intf->dev,
-> +			"Could not find endpoint\n");
-> +		goto error;
-> +	}
-> +
-> +	pxrc->bsize = usb_endpoint_maxp(epirq);
-> +	pxrc->epaddr = epirq->bEndpointAddress;
-> +	pxrc->data = devm_kmalloc(&pxrc->intf->dev, pxrc->bsize, GFP_KERNEL);
-> +	if (!pxrc->data) {
-> +		retval = -ENOMEM;
-> +		goto error;
-> +	}
-> +
-> +	usb_set_intfdata(pxrc->intf, pxrc);
-> +	usb_make_path(pxrc->udev, pxrc->phys, sizeof(pxrc->phys));
-> +	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
-> +
-> +	pxrc->urb = usb_alloc_urb(0, GFP_KERNEL);
-> +	if (!pxrc->urb) {
-> +		retval = -ENOMEM;
-> +		goto error;
-> +	}
-> +
-> +	pipe = usb_rcvintpipe(pxrc->udev, pxrc->epaddr),
-> +	usb_fill_int_urb(pxrc->urb, pxrc->udev, pipe, pxrc->data, pxrc->bsize,
-> +						pxrc_usb_irq, pxrc, 1);
-> +
-> +error:
-> +	return retval;
-> +
-> +
-> +}
-> +
-> +
-> +static int pxrc_input_init(struct pxrc *pxrc)
-> +{
-> +	pxrc->input = devm_input_allocate_device(&pxrc->intf->dev);
-> +	if (pxrc->input == NULL) {
-> +		dev_err(&pxrc->intf->dev, "couldn't allocate input device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	pxrc->input->name = "PXRC Flight Controller Adapter";
-> +	pxrc->input->phys = pxrc->phys;
-> +	usb_to_input_id(pxrc->udev, &pxrc->input->id);
-> +
-> +	pxrc->input->open = pxrc_open;
-> +	pxrc->input->close = pxrc_close;
-> +
-> +	input_set_capability(pxrc->input, EV_KEY, BTN_A);
-> +	input_set_abs_params(pxrc->input, ABS_X, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_Y, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_RX, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_RY, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_RUDDER, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_THROTTLE, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_MISC, 0, 255, 0, 0);
-> +
-> +	input_set_drvdata(pxrc->input, pxrc);
-> +
-> +	return input_register_device(pxrc->input);
-> +}
-> +
-> +static int pxrc_probe(struct usb_interface *intf,
-> +		      const struct usb_device_id *id)
-> +{
-> +	struct pxrc *pxrc;
-> +	int retval;
-> +
-> +	pxrc = devm_kzalloc(&intf->dev, sizeof(*pxrc), GFP_KERNEL);
-> +
-> +	if (!pxrc)
-> +		return -ENOMEM;
-> +
-> +	pxrc->udev = usb_get_dev(interface_to_usbdev(intf));
-> +	pxrc->intf = intf;
-> +
-> +	retval = pxrc_usb_init(pxrc);
-> +	if (retval)
-> +		goto error;
-> +
-> +	retval = pxrc_input_init(pxrc);
-> +	if (retval)
-> +		goto err_free_urb;
-> +
-> +	return 0;
-> +
-> +err_free_urb:
-> +	usb_free_urb(pxrc->urb);
-> +
-> +error:
-> +	return retval;
-> +}
-> +
-> +static void pxrc_disconnect(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc = usb_get_intfdata(intf);
-> +
-> +	usb_free_urb(pxrc->urb);
-> +	usb_set_intfdata(intf, NULL);
-> +}
-> +
-> +static int pxrc_suspend(struct usb_interface *intf, pm_message_t message)
-> +{
-> +	struct pxrc *pxrc = usb_get_intfdata(intf);
-> +	struct input_dev *input_dev = pxrc->input;
-> +
-> +	mutex_lock(&input_dev->mutex);
-> +	usb_kill_urb(pxrc->urb);
-> +	mutex_unlock(&input_dev->mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pxrc_resume(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc = usb_get_intfdata(intf);
-> +	struct input_dev *input_dev = pxrc->input;
-> +	int retval = 0;
-> +
-> +	mutex_lock(&input_dev->mutex);
-> +
-> +	if (input_dev->users && usb_submit_urb(pxrc->urb, GFP_NOIO) < 0)
-> +		retval = -EIO;
-> +
-> +	mutex_unlock(&input_dev->mutex);
-> +
-> +	return retval;
-> +}
-> +
-> +static int pxrc_pre_reset(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc = usb_get_intfdata(intf);
-> +	struct input_dev *input_dev = pxrc->input;
-> +
-> +	mutex_lock(&input_dev->mutex);
-> +	usb_kill_urb(pxrc->urb);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pxrc_post_reset(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc = usb_get_intfdata(intf);
-> +	struct input_dev *input_dev = pxrc->input;
-> +	int retval = 0;
-> +
-> +	if (input_dev->users && usb_submit_urb(pxrc->urb, GFP_NOIO) < 0)
-> +		retval = -EIO;
-> +
-> +	mutex_unlock(&input_dev->mutex);
-> +
-> +	return retval;
-> +}
-> +
-> +static int pxrc_reset_resume(struct usb_interface *intf)
-> +{
-> +	return pxrc_resume(intf);
-> +}
-> +
-> +static struct usb_driver pxrc_driver = {
-> +	.name =		"pxrc",
-> +	.probe =	pxrc_probe,
-> +	.disconnect =	pxrc_disconnect,
-> +	.id_table =	pxrc_table,
-> +	.suspend	= pxrc_suspend,
-> +	.resume		= pxrc_resume,
-> +	.pre_reset	= pxrc_pre_reset,
-> +	.post_reset	= pxrc_post_reset,
-> +	.reset_resume	= pxrc_reset_resume,
-> +	.supports_autosuspend = 1,
-> +};
-> +
-> +module_usb_driver(pxrc_driver);
-> +
-> +MODULE_AUTHOR("Marcus Folkesson <marcus.folkesson@gmail.com>");
-> +MODULE_DESCRIPTION("PhoenixRC Flight Controller Adapter");
-> +MODULE_LICENSE("GPL v2");
+>  	if (SYN_CAP_PALMDETECT(info->capabilities))
 > -- 
-> 2.15.1
+> 2.14.3
 > 
-
-Thank you.
 
 -- 
 Dmitry

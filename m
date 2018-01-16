@@ -1,62 +1,58 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH] Input: synaptics - reset the ABS_X/Y fuzz after initializing
- MT axes
-Date: Tue, 16 Jan 2018 15:34:59 +1000
-Message-ID: <20180116053459.GA14660@jelly>
+From: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v2] Input: mms114 - drop platform data and use generic
+ APIs
+Date: Tue, 16 Jan 2018 16:56:11 +0900
+Message-ID: <20180116075611.GC30945@gangnam.samsung>
+References: <CGME20180113020518epcas1p3987c04ac42714710204aca5a800a4f5b@epcas1p3.samsung.com>
+        <20180113020456.12391-1-simon@lineageos.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:50926 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750709AbeAPFey (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 16 Jan 2018 00:34:54 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-disposition: inline
+In-reply-to: <20180113020456.12391-1-simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Simon Shields <simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
 
-input_mt_init_slots() resets the ABS_X/Y fuzz to 0 and expects the driver to
-call input_mt_report_pointer_emulation(). That is based on the MT position
-bits which are already defuzzed - hence a fuzz of 0.
+Hi Simon,
 
-In the case of synaptics semi-mt devices, we report the ABS_X/Y axes manually.
-This results in the MT position being defuzzed but the single-touch emulation
-missing that defuzzing.
+On Sat, Jan 13, 2018 at 01:04:56PM +1100, Simon Shields wrote:
+> The MMS114 platform data has no in-tree users, so drop it,
+> and make the driver depend on CONFIG_OF.
+> 
+> Switch to using the standard touchscreen properties via
+> touchscreen_parse_properties(), and move the old DT parsing code
+> to use device_property_*() APIs.
+> 
+> Finally, use touchscreen_report_pos to report x/y coordinates
+> and drop the custom x/y inversion code.
+> 
+> Signed-off-by: Simon Shields <simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
+> ---
+>  .../bindings/input/touchscreen/mms114.txt          |  29 ++--
+>  drivers/input/touchscreen/Kconfig                  |   1 +
+>  drivers/input/touchscreen/mms114.c                 | 152 +++++++++------------
+>  include/linux/platform_data/mms114.h               |  24 ----
+>  4 files changed, 83 insertions(+), 123 deletions(-)
+>  delete mode 100644 include/linux/platform_data/mms114.h
+> 
 
-Work around this by re-initializing the ABS_X/Y axes after the MT axis to
-get the same fuzz value back.
+The patch looks good, but you would also need to update the dtsi
+files in this same patch:
 
-https://bugs.freedesktop.org/show_bug.cgi?id=104533
+./arch/arm/boot/dts/exynos4412-trats2.dts
+./arch/arm/boot/dts/exynos4210-trats.dts
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
----
-Semi-mt devices are Dodos, so I'd rather go for the easy fix here than a
-big rewrite of that code.
+and Cc the Samsung-soc mailing list.
 
- drivers/input/mouse/synaptics.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+For now it's a nack because the touchscreen would not work
+anymore with the trats boards.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index ee5466a374bf..0e04275e0d74 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1280,6 +1280,14 @@ static void set_input_params(struct psmouse *psmouse,
- 				    INPUT_MT_POINTER |
- 				    (cr48_profile_sensor ?
- 					INPUT_MT_TRACK : INPUT_MT_SEMI_MT));
-+
-+		/* For semi-mt devices we send ABS_X/Y ourselves instead of
-+		 * input_mt_report_pointer_emulation. But
-+		 * input_mt_init_slots() resets the fuzz to 0, leading to a
-+		 * filtered ABS_MT_POSITION_X but an unfiltered ABS_X
-+		 * position. Let's re-initialize ABS_X/Y here. */
-+		if (!cr48_profile_sensor)
-+			set_abs_position_params(dev, &priv->info, ABS_X, ABS_Y);
- 	}
- 
- 	if (SYN_CAP_PALMDETECT(info->capabilities))
--- 
-2.14.3
+One more thing, you forgot Rob's ACK.
 
+Andi
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

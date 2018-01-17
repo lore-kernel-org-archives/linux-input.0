@@ -1,104 +1,65 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: Re: [PATCH v4] input: pxrc: new driver for PhoenixRC Flight
- Controller Adapter
-Date: Wed, 17 Jan 2018 20:45:16 +0100
-Message-ID: <20180117194516.GC10949@gmail.com>
-References: <20180117190716.22380-1-marcus.folkesson@gmail.com>
- <9607d51a-4382-396c-a4bd-46bbb24ba46e@infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] HID: quirks: Fix keyboard + touchpad on Toshiba Click Mini not working
+Date: Wed, 17 Jan 2018 21:05:55 +0100
+Message-ID: <20180117200555.22990-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f68.google.com ([209.85.215.68]:41139 "EHLO
-        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750888AbeAQTpW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Jan 2018 14:45:22 -0500
-Content-Disposition: inline
-In-Reply-To: <9607d51a-4382-396c-a4bd-46bbb24ba46e@infradead.org>
+Received: from mx1.redhat.com ([209.132.183.28]:38748 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752100AbeAQUGH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 17 Jan 2018 15:06:07 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Tomohiro Yoshidomi <sylph23k@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
 
+The Toshiba Click Mini uses an i2c attached keyboard/touchpad combo
+(single i2c_hid device for both) which has a vid:pid of 04F3:0401,
+which is also used by a bunch of Elan touchpads which are handled by the
+drivers/input/mouse/elan_i2c driver, but that driver deals with pure
+touchpads and does not work for a combo device such as the one on the
+Toshiba Click Mini.
 
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The combo on the Mini has an ACPI id of ELAN0800, which is not claimed
+by the elan_i2c driver, so check for that and if it is found do not ignore
+the device. This fixes the keyboard/touchpad combo on the Mini not working
+(although with the touchpad in mouse emulation mode).
 
-Hi Randy!
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hid/hid-quirks.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-On Wed, Jan 17, 2018 at 11:13:43AM -0800, Randy Dunlap wrote:
-> On 01/17/2018 11:07 AM, Marcus Folkesson wrote:
-> > This driver let you plug in your RC controller to the adapter and
-> > use it as input device in various RC simulators.
-> >=20
-> > Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> > ---
->=20
-> > diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kc=
-onfig
-> > index f3c2f6ea8b44..18ab6dafff41 100644
-> > --- a/drivers/input/joystick/Kconfig
-> > +++ b/drivers/input/joystick/Kconfig
-> > @@ -351,4 +351,13 @@ config JOYSTICK_PSXPAD_SPI_FF
-> > =20
-> >  	  To drive rumble motor a dedicated power supply is required.
-> > =20
-> > +config JOYSTICK_PXRC
-> > +	tristate "PhoenixRC Flight Controller Adapter"
-> > +	depends on USB_ARCH_HAS_HCD
-> > +	select USB
->=20
-> Drop the (first) depends and change "select USB" to "depends on USB".
->=20
-> Argh, there are lots of input/ drivers that do that.  That's bad/wrong.
-> A driver should not select (enable) an entire subsystem.  If the user had
-> the subsystem disabled, it should stay that way.
->=20
-> Dmitry, you can expect some patches...
->=20
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 1cf1e9a0d699..ed4b30bbdde3 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -729,7 +729,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0401) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+@@ -997,6 +996,17 @@ bool hid_ignore(struct hid_device *hdev)
+ 		    strncmp(hdev->name, "www.masterkit.ru MA901", 22) == 0)
+ 			return true;
+ 		break;
++	case USB_VENDOR_ID_ELAN:
++		/*
++		 * Many Elan devices have a product id of 0x0401 and are handled
++		 * by the elan_i2c input driver. But the ACPI HID ELAN0800 dev
++		 * is not (and cannot be) handled by that driver ->
++		 * Ignore all 0x0401 devs except for the ELAN0800 dev.
++		 */
++		if (hdev->product == 0x0401 &&
++		    strncmp(hdev->name, "ELAN0800", 8) != 0)
++			return true;
++		break;
+ 	}
+ 
+ 	if (hdev->type == HID_TYPE_USBMOUSE &&
+-- 
+2.14.3
 
-Hah, of course it should be "depends on" :-)
-Other drivers fooled me...
-
-Should I fix the other drivers too when I'm on it, or do you?
-
-
-> > +	help
-> > +	  Say Y here if you want to use the PhoenixRC Flight Controller Adapt=
-er.
-> > +
-> > +	  To compile this driver as a module, choose M here: the
-> > +	  module will be called pxrc.
-> >  endif
->=20
-> --=20
-> ~Randy
-
-
-Best regards
-Marcus Folkesson
-
---mxv5cy4qt+RJ9ypb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlpfp8YACgkQiIBOb1ld
-UjLStg//fdSW3QIp4nfEJPMCabzcWNbdaGeFBQKCTEWzNIeoI/HnzVk4FSggk06e
-30Kd6OZCYqkRAT3lndTTUPi2dSIZ18JOAMm1urZ8WzTnrd0x3MrPqdbzpfvIqsrf
-qCbnz+NB44bo50VgG7rOE8gGk9KUMNW59h+CnvlIfE+s0jqtNQ3Lmi8ZHe0eUKQ4
-1+OghVRl0kmjPfE5bQzJ5saqNruaMgjKo2tP1p0fLlFgjp+Kvk61CutNX7KS6iHr
-BqvTbDN3NXpyjXa51Du7r/47D3DG2uN47rkas1p5Tc/fV2rfSByyDEZVQkWQ9Lx6
-LgNykA7L47WxpHnjPn9S6EP8RmO141gIGAuTMK/smcfdBg+vTWuXRHaIDpAJBDQl
-Oqh7FU/0TkZkmGvXVot+d/HjPVmUgVluj1VPIXawV9PbDDlSEoKaE0qfDPJeEbuh
-PElWg2U2fKjD2jSY3QtZN6rjIOzZ3eDaWJ9WdC8zKPeFG9aOx3FI/YXbeXK6RXJ0
-pQmM2dEgvUsj0ri4lIAmnTcbCRIdH9YuCZlJ3FU+CUX8z7t4o2pct/zAGFALfmwJ
-n1tqJU+o5o8NlPXemUQd94yAih7vJsEizcX8bddShXV1Q7NAHjTbkFy6xjH1EN+u
-TeOuI4WsWtiyvUGOz6tiYhXQqflDX05AzmWhB9IXkrmIPbT0cRg=
-=X1na
------END PGP SIGNATURE-----
-
---mxv5cy4qt+RJ9ypb--

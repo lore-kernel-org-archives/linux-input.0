@@ -1,79 +1,53 @@
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH] input: misc: make USB drivers depend on USB
-Date: Wed, 17 Jan 2018 22:33:05 +0100
-Message-ID: <20180117213305.965-1-marcus.folkesson@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:43314 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752446AbeAQVdU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Jan 2018 16:33:20 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Rob Herring <robh@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Damien Riegel <damien.riegel@savoirfairelinux.com>, Marcus Folkesson <marcus.folkesson@gmail.com>, Joseph Chen <chenjh@rock-chips.com>
+Subject: [PATCH] input: mouse: make USB drivers depend on USB
+Date: Wed, 17 Jan 2018 22:35:35 +0100
+Message-ID: <20180117213535.1102-1-marcus.folkesson@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Marcus Folkesson <marcus.folkesson@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 A driver should not enable an entire subsystem.
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- drivers/input/misc/Kconfig | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/input/mouse/Kconfig | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 9f082a388388..dd04da910bc9 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -354,8 +354,7 @@ config INPUT_ATLAS_BTNS
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 89ebb8f39fee..38aed9b0bcb8 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -202,8 +202,7 @@ config MOUSE_SERIAL
  
- config INPUT_ATI_REMOTE2
- 	tristate "ATI / Philips USB RF remote control"
+ config MOUSE_APPLETOUCH
+ 	tristate "Apple USB Touchpad support"
 -	depends on USB_ARCH_HAS_HCD
 -	select USB
 +	depends on USB
  	help
- 	  Say Y here if you want to use an ATI or Philips USB RF remote control.
- 	  These are RF remotes with USB receivers.
-@@ -369,8 +368,7 @@ config INPUT_ATI_REMOTE2
+ 	  Say Y here if you want to use an Apple USB Touchpad.
  
- config INPUT_KEYSPAN_REMOTE
- 	tristate "Keyspan DMR USB remote control"
+@@ -223,8 +222,7 @@ config MOUSE_APPLETOUCH
+ 
+ config MOUSE_BCM5974
+ 	tristate "Apple USB BCM5974 Multitouch trackpad support"
 -	depends on USB_ARCH_HAS_HCD
 -	select USB
 +	depends on USB
  	help
- 	  Say Y here if you want to use a Keyspan DMR USB remote control.
- 	  Currently only the UIA-11 type of receiver has been tested.  The tag
-@@ -401,8 +399,7 @@ config INPUT_KXTJ9_POLLED_MODE
+ 	  Say Y here if you have an Apple USB BCM5974 Multitouch
+ 	  trackpad.
+@@ -418,8 +416,7 @@ config MOUSE_SYNAPTICS_I2C
  
- config INPUT_POWERMATE
- 	tristate "Griffin PowerMate and Contour Jog support"
+ config MOUSE_SYNAPTICS_USB
+ 	tristate "Synaptics USB device support"
 -	depends on USB_ARCH_HAS_HCD
 -	select USB
 +	depends on USB
  	help
- 	  Say Y here if you want to use Griffin PowerMate or Contour Jog devices.
- 	  These are aluminum dials which can measure clockwise and anticlockwise
-@@ -417,8 +414,7 @@ config INPUT_POWERMATE
- 
- config INPUT_YEALINK
- 	tristate "Yealink usb-p1k voip phone"
--	depends on USB_ARCH_HAS_HCD
--	select USB
-+	depends on USB
- 	help
- 	  Say Y here if you want to enable keyboard and LCD functions of the
- 	  Yealink usb-p1k usb phones. The audio part is enabled by the generic
-@@ -432,8 +428,7 @@ config INPUT_YEALINK
- 
- config INPUT_CM109
- 	tristate "C-Media CM109 USB I/O Controller"
--	depends on USB_ARCH_HAS_HCD
--	select USB
-+	depends on USB
- 	help
- 	  Say Y here if you want to enable keyboard and buzzer functions of the
- 	  C-Media CM109 usb phones. The audio part is enabled by the generic
+ 	  Say Y here if you want to use a Synaptics USB touchpad or pointing
+ 	  stick.
 -- 
 2.15.1
-

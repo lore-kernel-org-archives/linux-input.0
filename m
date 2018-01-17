@@ -1,39 +1,57 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH] input: touchscreen: make USB drivers depend on USB
-Date: Wed, 17 Jan 2018 22:40:22 +0100
-Message-ID: <20180117214022.1380-1-marcus.folkesson@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: joystick: make USB drivers depend on USB
+Date: Wed, 17 Jan 2018 13:53:16 -0800
+Message-ID: <20180117215316.7qe5o2pspb3dqgny@dtor-ws>
+References: <20180117213010.810-1-marcus.folkesson@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:37084 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752778AbeAQVkk (ORCPT
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:38806 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752746AbeAQVxT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Jan 2018 16:40:40 -0500
+        Wed, 17 Jan 2018 16:53:19 -0500
+Content-Disposition: inline
+In-Reply-To: <20180117213010.810-1-marcus.folkesson@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Andi Shyti <andi.shyti@samsung.com>, Michael Hennerich <michael.hennerich@analog.com>, Jelle van der Waa <jelle@vdwaa.nl>, Marcus Folkesson <marcus.folkesson@gmail.com>, Anthony Kim <anthony.kim@hideep.com>, hns@goldelico.com, Randy Dunlap <rdunlap@infradead.org>, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, Martin Kepplinger <martink@posteo.de>, Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Tomohiro Yoshidomi <sylph23k@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-A driver should not enable an entire subsystem.
+On Wed, Jan 17, 2018 at 10:30:10PM +0100, Marcus Folkesson wrote:
+> A driver should not enable an entire subsystem.
 
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- drivers/input/touchscreen/Kconfig | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+I disagree. As you go through menuconfig and you encounter this option
+and you have the hardware and you want to enable it, you should be able
+to do so. Otherwise you enable bunch of functionality, then go back,
+see what new options appeared, enable them, go back, see if any more new
+options appeared, and so on.
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 38a226f9fcbd..08d2c1434493 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -837,8 +837,7 @@ config TOUCHSCREEN_WM97XX_ZYLONITE
- 
- config TOUCHSCREEN_USB_COMPOSITE
- 	tristate "USB Touchscreen Driver"
--	depends on USB_ARCH_HAS_HCD
--	select USB
-+	depends on USB
- 	help
- 	  USB Touchscreen driver for:
- 	  - eGalax Touchkit USB (also includes eTurboTouch CT-410/510/700)
+What exactly prompted this change?
+
+> 
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> ---
+>  drivers/input/joystick/Kconfig | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+> index 332c0cc1b2ab..4a199cff8c68 100644
+> --- a/drivers/input/joystick/Kconfig
+> +++ b/drivers/input/joystick/Kconfig
+> @@ -279,8 +279,7 @@ config JOYSTICK_JOYDUMP
+>  
+>  config JOYSTICK_XPAD
+>  	tristate "X-Box gamepad support"
+> -	depends on USB_ARCH_HAS_HCD
+> -	select USB
+> +	depends on USB
+>  	help
+>  	  Say Y here if you want to use the X-Box pad with your computer.
+>  	  Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYDEV)
+> -- 
+> 2.15.1
+> 
+
 -- 
-2.15.1
-
+Dmitry

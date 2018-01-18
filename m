@@ -1,60 +1,50 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH] input: joystick: make USB drivers depend on USB
-Date: Wed, 17 Jan 2018 16:01:36 -0800
-Message-ID: <0d326efa-9134-d515-973e-791919f478f0@infradead.org>
-References: <20180117213010.810-1-marcus.folkesson@gmail.com>
- <20180117215316.7qe5o2pspb3dqgny@dtor-ws>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1] HID: sony: Print reversed MAC address via %pMR
+Date: Thu, 18 Jan 2018 15:41:50 +0200
+Message-ID: <1516282910.7000.1058.camel@linux.intel.com>
+References: <20171211130612.34715-1-andriy.shevchenko@linux.intel.com>
+         <1DD62093774CEE42AFC16E785A1088049E247090@USCULXMSG13.am.sony.com>
+         <1513704018.7000.207.camel@linux.intel.com>
+         <CAO-hwJ++gQX+72q8AfnM8q8-MzHyFbxUhnjL+=kSQKeUQ+H1KQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180117215316.7qe5o2pspb3dqgny@dtor-ws>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Tomohiro Yoshidomi <sylph23k@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:5949 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932326AbeARNlx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 18 Jan 2018 08:41:53 -0500
+In-Reply-To: <CAO-hwJ++gQX+72q8AfnM8q8-MzHyFbxUhnjL+=kSQKeUQ+H1KQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>, Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 01/17/2018 01:53 PM, Dmitry Torokhov wrote:
-> On Wed, Jan 17, 2018 at 10:30:10PM +0100, Marcus Folkesson wrote:
->> A driver should not enable an entire subsystem.
+On Wed, 2017-12-20 at 10:40 +0100, Benjamin Tissoires wrote:
+> Hi Andy,
 > 
-> I disagree. As you go through menuconfig and you encounter this option
-> and you have the hardware and you want to enable it, you should be able
-> to do so. Otherwise you enable bunch of functionality, then go back,
-> see what new options appeared, enable them, go back, see if any more new
-> options appeared, and so on.
+> On Tue, Dec 19, 2017 at 6:20 PM, Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > On Wed, 2017-12-13 at 02:22 +0000, Colenbrander, Roelof wrote:
+> > > On 12/11/2017 05:07 AM, Andy Shevchenko wrote:
+> > > > Reversed MAC addresses can be printed directly using %pMR
+> > > > specifier.
+> > > Looks good and in a quick test seems to function.
+> > > 
+> > > Acked-by: Roderick Colenbrander <roderick.colenbranderer@sony.com>
+> > > 
+> > 
+> > Benjamin, perhaps it's good enough to being applied?
 > 
-> What exactly prompted this change?
+> This question should be directed to Jiri :)
 
-Two things:  today when I reviewed Marcus's patch that selected USB, I
-commented something along that line.
+Jiri?
 
-But that was based on something that Linus has written at least two times
-in the past on lkml.
+> Anyway:
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
->>
->> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
->> ---
->>  drivers/input/joystick/Kconfig | 3 +--
->>  1 file changed, 1 insertion(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
->> index 332c0cc1b2ab..4a199cff8c68 100644
->> --- a/drivers/input/joystick/Kconfig
->> +++ b/drivers/input/joystick/Kconfig
->> @@ -279,8 +279,7 @@ config JOYSTICK_JOYDUMP
->>  
->>  config JOYSTICK_XPAD
->>  	tristate "X-Box gamepad support"
->> -	depends on USB_ARCH_HAS_HCD
->> -	select USB
->> +	depends on USB
->>  	help
->>  	  Say Y here if you want to use the X-Box pad with your computer.
->>  	  Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYDEV)
->> -- 
-
+Thanks!
 
 -- 
-~Randy
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

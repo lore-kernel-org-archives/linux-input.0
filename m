@@ -1,52 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: remove at32psif
-Date: Thu, 18 Jan 2018 11:55:43 -0800
-Message-ID: <20180118195543.wn6tl57zd2jg3on4@dtor-ws>
-References: <20180118185811.12856-1-clabbe.montjoie@gmail.com>
- <20180118192017.k3gqrbqcwp53cc7z@dtor-ws>
- <20180118194824.GA1276@Red>
+From: =?UTF-8?q?Jean-Fran=C3=A7ois=20T=C3=AAtu?=
+        <jean-francois.tetu@savoirfairelinux.com>
+Subject: [RESEND PATCH] Documentation: input: ff: fix small typos
+Date: Thu, 18 Jan 2018 16:49:03 -0500
+Message-ID: <20180118214903.21017-1-jean-francois.tetu@savoirfairelinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:42268 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932269AbeARTzq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 Jan 2018 14:55:46 -0500
-Content-Disposition: inline
-In-Reply-To: <20180118194824.GA1276@Red>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Jean-Fran=C3=A7ois=20T=C3=AAtu?= <jean-francois.tetu@savoirfairelinux.com>
 List-Id: linux-input@vger.kernel.org
-To: Corentin Labbe <clabbe.montjoie@gmail.com>, egtvedt@samfundet.no
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2018 at 08:48:24PM +0100, Corentin Labbe wrote:
-> On Thu, Jan 18, 2018 at 11:20:17AM -0800, Dmitry Torokhov wrote:
-> > On Thu, Jan 18, 2018 at 07:58:11PM +0100, Corentin Labbe wrote:
-> > > Since AVR32 arch is gone, at32psif driver is useless.
-> > > This patch remove it.
-> > > 
-> > > Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-> > 
-> > Applied, thank you.
-> > 
-> > What about:
-> > 
-> > config TOUCHSCREEN_WM97XX_ATMEL
-> > 	tristate "WM97xx Atmel accelerated touch"
-> > 	depends on TOUCHSCREEN_WM97XX && AVR32 
-> > 
-> > ?
-> > 
-> 
-> It was my second target BUT the code content reference to AT91 (wm97xx continuous touch driver for Atmel AT91 and AVR32) so perhaps it could be keeped.
-> 
-> But someone need to test it.
+Fix small typos in the Instructions and Uploading sections. Fix a typo in
+the start/stop effect example usage code.
 
-"&& AVR32" means that nobody ever ran it on AT91 though...
-Hans-Christian, any ideas?
+Signed-off-by: Jean-François Têtu <jean-francois.tetu@savoirfairelinux.com>
+---
+ Documentation/input/ff.rst | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Thanks.
-
+diff --git a/Documentation/input/ff.rst b/Documentation/input/ff.rst
+index 26d461998e08..0c02e87ee86d 100644
+--- a/Documentation/input/ff.rst
++++ b/Documentation/input/ff.rst
+@@ -31,7 +31,7 @@ To enable force feedback, you have to:
+ 
+ Before you start, let me WARN you that some devices shake violently during the
+ initialisation phase. This happens for example with my "AVB Top Shot Pegasus".
+-To stop this annoying behaviour, move you joystick to its limits. Anyway, you
++To stop this annoying behaviour, move your joystick to its limits. Anyway, you
+ should keep a hand on your device, in order to avoid it to break down if
+ something goes wrong.
+ 
+@@ -121,7 +121,7 @@ uploaded, but not played.
+ The content of effect may be modified. In particular, its field "id" is set
+ to the unique id assigned by the driver. This data is required for performing
+ some operations (removing an effect, controlling the playback).
+-This if field must be set to -1 by the user in order to tell the driver to
++The "id" field must be set to -1 by the user in order to tell the driver to
+ allocate a new effect.
+ 
+ Effects are file descriptor specific.
+@@ -178,7 +178,7 @@ Control of playing is done with write(). Below is an example:
+ 	stop.code = effect.id;
+ 	stop.value = 0;
+ 
+-	write(fd, (const void*) &play, sizeof(stop));
++	write(fd, (const void*) &stop, sizeof(stop));
+ 
+ Setting the gain
+ ----------------
 -- 
-Dmitry
+2.15.1
+

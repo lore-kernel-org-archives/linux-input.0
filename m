@@ -1,71 +1,58 @@
-From: thatslyude@gmail.com
-Subject: Re: [PATCH 1/3] Input: synaptics_rmi4 - do not delete interrupt
- memory too early
-Date: Thu, 18 Jan 2018 20:05:51 -0500
-Message-ID: <1516323951.2814.2.camel@gmail.com>
-References: <20180119004955.247190-1-dmitry.torokhov@gmail.com>
-         <20180119004955.247190-2-dmitry.torokhov@gmail.com>
+From: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
+Subject: Re: [PATCH] input: remove at32psif
+Date: Fri, 19 Jan 2018 08:25:44 +0100
+Message-ID: <20180119072544.j2wcvbtls7vzufzo@samfundet.no>
+References: <20180118185811.12856-1-clabbe.montjoie@gmail.com>
+ <20180118192017.k3gqrbqcwp53cc7z@dtor-ws>
+ <20180118194824.GA1276@Red>
+ <20180118195543.wn6tl57zd2jg3on4@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f193.google.com ([209.85.217.193]:40551 "EHLO
-        mail-ua0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753476AbeASBGW (ORCPT
+Received: from cassarossa.samfundet.no ([193.35.52.29]:46361 "EHLO
+        cassarossa.samfundet.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751548AbeASITc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 Jan 2018 20:06:22 -0500
-In-Reply-To: <20180119004955.247190-2-dmitry.torokhov@gmail.com>
+        Fri, 19 Jan 2018 03:19:32 -0500
+Content-Disposition: inline
+In-Reply-To: <20180118195543.wn6tl57zd2jg3on4@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Damjan Georgievski <gdamjan@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, stable@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Corentin Labbe <clabbe.montjoie@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-(hope you don't mind that I'm using my gmail address for this ;)
+Around Thu 18 Jan 2018 11:55:43 -0800 or thereabout, Dmitry Torokhov wrote:
+> On Thu, Jan 18, 2018 at 08:48:24PM +0100, Corentin Labbe wrote:
+>> On Thu, Jan 18, 2018 at 11:20:17AM -0800, Dmitry Torokhov wrote:
+>> > On Thu, Jan 18, 2018 at 07:58:11PM +0100, Corentin Labbe wrote:
+>> > > Since AVR32 arch is gone, at32psif driver is useless.
+>> > > This patch remove it.
+>> > > 
+>> > > Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+>> > 
+>> > Applied, thank you.
+>> > 
+>> > What about:
+>> > 
+>> > config TOUCHSCREEN_WM97XX_ATMEL
+>> > 	tristate "WM97xx Atmel accelerated touch"
+>> > 	depends on TOUCHSCREEN_WM97XX && AVR32 
+>> > 
+>> > ?
+>> > 
+>> 
+>> It was my second target BUT the code content reference to AT91 (wm97xx continuous touch driver for Atmel AT91 and AVR32) so perhaps it could be keeped.
+>> 
+>> But someone need to test it.
+> 
+> "&& AVR32" means that nobody ever ran it on AT91 though...
+> Hans-Christian, any ideas?
 
-On Thu, 2018-01-18 at 16:49 -0800, Dmitry Torokhov wrote:
-> We want to free memory reserved for interrupt mask handling only after we
-> free functions, as function drivers might want to mask interrupts. This is
-> needed for the followup patch to the F03 that would implement unmasking and
-> masking interrupts from the serio pass-through port open() and close()
-> methods.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/rmi4/rmi_driver.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_driver.c
-> b/drivers/input/rmi4/rmi_driver.c
-> index 27791d6546c66..ce3ede289ed04 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -41,6 +41,13 @@ void rmi_free_function_list(struct rmi_device *rmi_dev)
->  
->  	rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Freeing function list\n");
->  
-> +	/* Doing it in the reverse order so F01 will be removed last */
-> +	list_for_each_entry_safe_reverse(fn, tmp,
-> +					 &data->function_list, node) {
-> +		list_del(&fn->node);
-> +		rmi_unregister_function(fn);
-> +	}
-> +
->  	devm_kfree(&rmi_dev->dev, data->irq_memory);
->  	data->irq_memory = NULL;
->  	data->irq_status = NULL;
-> @@ -50,13 +57,6 @@ void rmi_free_function_list(struct rmi_device *rmi_dev)
->  
->  	data->f01_container = NULL;
->  	data->f34_container = NULL;
-> -
-> -	/* Doing it in the reverse order so F01 will be removed last */
-> -	list_for_each_entry_safe_reverse(fn, tmp,
-> -					 &data->function_list, node) {
-> -		list_del(&fn->node);
-> -		rmi_unregister_function(fn);
-> -	}
->  }
->  
->  static int reset_one_function(struct rmi_function *fn)
+I never tested accelerating WM97xx codecs on AT91, hence it is AVR32 only. It
+can be removed.
+
+Thanks for cleaning (-:
+
+-- 
+Best regards,
+Hans-Christian Noren Egtvedt

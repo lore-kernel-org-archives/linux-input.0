@@ -1,56 +1,33 @@
-From: =?UTF-8?q?Jean-Fran=C3=A7ois=20T=C3=AAtu?=
-        <jean-francois.tetu@savoirfairelinux.com>
-Subject: [RESEND PATCH] Documentation: input: ff: fix small typos
-Date: Thu, 18 Jan 2018 16:49:03 -0500
-Message-ID: <20180118214903.21017-1-jean-francois.tetu@savoirfairelinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Jean-Fran=C3=A7ois=20T=C3=AAtu?= <jean-francois.tetu@savoirfairelinux.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 0/3] RMI4: improve trackpoint detection
+Date: Thu, 18 Jan 2018 16:49:52 -0800
+Message-ID: <20180119004955.247190-1-dmitry.torokhov@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:40475 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754793AbeASAt7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 18 Jan 2018 19:49:59 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lyude Paul <thatslyude@gmail.com>, Damjan Georgievski <gdamjan@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
 
-Fix small typos in the Instructions and Uploading sections. Fix a typo in
-the start/stop effect example usage code.
+Hi,
 
-Signed-off-by: Jean-François Têtu <jean-francois.tetu@savoirfairelinux.com>
----
- Documentation/input/ff.rst | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+The following patch series is hopefully improves trackpint detection
+on systems using RMI4 and PS/2 guest modules. The issue was that we
+were registering port too early, before RMI driver was ready to service
+interrupts properly, so psmouse would try to get ID from the device and RMI
+driver would still be initializing other functions and interrupts would still be
+masked, so GetID would simply time out. Then we may or may not get interrupt
+from trackpoint and run through the detection again, but probably much later.
 
-diff --git a/Documentation/input/ff.rst b/Documentation/input/ff.rst
-index 26d461998e08..0c02e87ee86d 100644
---- a/Documentation/input/ff.rst
-+++ b/Documentation/input/ff.rst
-@@ -31,7 +31,7 @@ To enable force feedback, you have to:
- 
- Before you start, let me WARN you that some devices shake violently during the
- initialisation phase. This happens for example with my "AVB Top Shot Pegasus".
--To stop this annoying behaviour, move you joystick to its limits. Anyway, you
-+To stop this annoying behaviour, move your joystick to its limits. Anyway, you
- should keep a hand on your device, in order to avoid it to break down if
- something goes wrong.
- 
-@@ -121,7 +121,7 @@ uploaded, but not played.
- The content of effect may be modified. In particular, its field "id" is set
- to the unique id assigned by the driver. This data is required for performing
- some operations (removing an effect, controlling the playback).
--This if field must be set to -1 by the user in order to tell the driver to
-+The "id" field must be set to -1 by the user in order to tell the driver to
- allocate a new effect.
- 
- Effects are file descriptor specific.
-@@ -178,7 +178,7 @@ Control of playing is done with write(). Below is an example:
- 	stop.code = effect.id;
- 	stop.value = 0;
- 
--	write(fd, (const void*) &play, sizeof(stop));
-+	write(fd, (const void*) &stop, sizeof(stop));
- 
- Setting the gain
- ----------------
+Please take a look and hpefully give it a try. Damjan, I hope it might fix your
+issue with trackpoint appearing much much later.
+
+Thanks!
+
 -- 
-2.15.1
+Dmitry
 

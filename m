@@ -1,63 +1,87 @@
-From: thatslyude@gmail.com
-Subject: Re: [PATCH 3/3] Input: synaptics-rmi4 - log when we create a guest
- serio port
-Date: Fri, 19 Jan 2018 13:10:18 -0500
-Message-ID: <1516385418.2814.5.camel@gmail.com>
-References: <20180119004955.247190-1-dmitry.torokhov@gmail.com>
-         <20180119004955.247190-4-dmitry.torokhov@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2] Input: mms114 - drop platform data and use generic
+ APIs
+Date: Fri, 19 Jan 2018 12:42:50 -0600
+Message-ID: <20180119184250.qdw3uu6tkufqhm2g@rob-hp-laptop>
+References: <CGME20180113020518epcas1p3987c04ac42714710204aca5a800a4f5b@epcas1p3.samsung.com>
+ <20180113020456.12391-1-simon@lineageos.org>
+ <20180116075611.GC30945@gangnam.samsung>
+ <20180116085206.GA18232@lineageos.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f195.google.com ([209.85.216.195]:36538 "EHLO
-        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755968AbeASSKU (ORCPT
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:39051 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755830AbeASSmx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Jan 2018 13:10:20 -0500
-In-Reply-To: <20180119004955.247190-4-dmitry.torokhov@gmail.com>
+        Fri, 19 Jan 2018 13:42:53 -0500
+Content-Disposition: inline
+In-Reply-To: <20180116085206.GA18232@lineageos.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Damjan Georgievski <gdamjan@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
+To: Simon Shields <simon@lineageos.org>
+Cc: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+On Tue, Jan 16, 2018 at 07:52:06PM +1100, Simon Shields wrote:
+> Hi Andi,
+> 
+> Thanks for the review!
+> 
+> On Tue, Jan 16, 2018 at 04:56:11PM +0900, Andi Shyti wrote:
+> > Hi Simon,
+> > 
+> > On Sat, Jan 13, 2018 at 01:04:56PM +1100, Simon Shields wrote:
+> > > The MMS114 platform data has no in-tree users, so drop it,
+> > > and make the driver depend on CONFIG_OF.
+> > > 
+> > > Switch to using the standard touchscreen properties via
+> > > touchscreen_parse_properties(), and move the old DT parsing code
+> > > to use device_property_*() APIs.
+> > > 
+> > > Finally, use touchscreen_report_pos to report x/y coordinates
+> > > and drop the custom x/y inversion code.
+> > > 
+> > > Signed-off-by: Simon Shields <simon@lineageos.org>
+> > > ---
+> > >  .../bindings/input/touchscreen/mms114.txt          |  29 ++--
+> > >  drivers/input/touchscreen/Kconfig                  |   1 +
+> > >  drivers/input/touchscreen/mms114.c                 | 152 +++++++++------------
+> > >  include/linux/platform_data/mms114.h               |  24 ----
+> > >  4 files changed, 83 insertions(+), 123 deletions(-)
+> > >  delete mode 100644 include/linux/platform_data/mms114.h
+> > > 
+> > 
+> > The patch looks good, but you would also need to update the dtsi
+> > files in this same patch:
 
-On Thu, 2018-01-18 at 16:49 -0800, Dmitry Torokhov wrote:
-> To ease analyzing boot behavior from logs, let's log when we are about to
-> register the pass-through serio port.
+Yes, but dts updates should be a separate patch. Really, the DT docs are 
+supposed to be too, but I let that go if there's no other review 
+changes.
+
+> > 
+> > ./arch/arm/boot/dts/exynos4412-trats2.dts
+> > ./arch/arm/boot/dts/exynos4210-trats.dts
+> > 
+> > and Cc the Samsung-soc mailing list.
+> > 
+> > For now it's a nack because the touchscreen would not work
+> > anymore with the trats boards.
 > 
-> Also, let's drop "Synaptics" prefix from the port name, as RMI4 is good
-> enough indicator already, and having the prefix means that the name does
-> not fit into serio->name field. While at it move from hard-coded seio->phys
-> to one mentioning the sensor ID (such as "rmi4-00.fn03/serio0").
+> This patch keeps support for the old bindings. I've verified that both
+> the old and new bindings work on a GT-I9300 (trats2 with a different
+> bootloader/partition layout).
+
+The driver needs to support both old and new. The dts files can be 
+updated as long as they'd still work the same. Old dtb and new kernel is 
+the primary case we care about preserving the ABI.
+
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/rmi4/rmi_f03.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+> > 
+> > One more thing, you forgot Rob's ACK.
 > 
-> diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-> index 7ccbb370a9a81..88822196d6b72 100644
-> --- a/drivers/input/rmi4/rmi_f03.c
-> +++ b/drivers/input/rmi4/rmi_f03.c
-> @@ -184,14 +184,15 @@ static int rmi_f03_register_pt(struct f03_data *f03)
->  	serio->close = rmi_f03_pt_close;
->  	serio->port_data = f03;
->  
-> -	strlcpy(serio->name, "Synaptics RMI4 PS/2 pass-through",
-> -		sizeof(serio->name));
-> -	strlcpy(serio->phys, "synaptics-rmi4-pt/serio1",
-> -		sizeof(serio->phys));
-> +	strlcpy(serio->name, "RMI4 PS/2 pass-through", sizeof(serio-
-> >name));
-> +	snprintf(serio->phys, sizeof(serio->phys), "%s/serio0",
-> +		 dev_name(&f03->fn->dev));
->  	serio->dev.parent = &f03->fn->dev;
->  
->  	f03->serio = serio;
->  
-> +	printk(KERN_INFO "serio: %s port at %s\n",
-> +		serio->name, dev_name(&f03->fn->dev));
->  	serio_register_port(serio);
->  
->  	return 0;
+> I wasn't sure whether or not to keep the Reviewed-By tag, since
+> this is a new version of the patch. In the future, I'll keep it.
+
+Yes, you should as long as the binding doesn't change significantly.
+
+Rob

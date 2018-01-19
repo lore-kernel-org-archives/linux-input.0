@@ -1,34 +1,61 @@
-From: Will Roberts <wildwilhelm@gmail.com>
-Subject: Elantech touchpad very slow and laggy with high CPU usage
-Date: Fri, 19 Jan 2018 20:15:05 +0100
-Message-ID: <CADHR4-+FXgBT058w1eqcZExezd9fPugAbSm+19DpnJevXt=Q4Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 0/7] libps2 facelift
+Date: Fri, 19 Jan 2018 11:41:04 -0800
+Message-ID: <20180119194111.185590-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f174.google.com ([209.85.128.174]:39481 "EHLO
-        mail-wr0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755985AbeASTPH (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:39377 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755932AbeASTlP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Jan 2018 14:15:07 -0500
-Received: by mail-wr0-f174.google.com with SMTP id z48so2494285wrz.6
-        for <linux-input@vger.kernel.org>; Fri, 19 Jan 2018 11:15:06 -0800 (PST)
+        Fri, 19 Jan 2018 14:41:15 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I'm having an issue with an Elantech 1200 touchpad behaving poorly on
-an asus laptop.  I think I can show that recording the touchpad with
-hid-recorder delivers a clean event stream, but recording with
-evemu-record produces the funky behaviour.
+The main reason for the patch series is to have a bit more manageable
+debug info for PS/2 init sequence: raw i8042 debug is way too noisy,
+one has to decode sliced commands by hand, etc, etc. With proposed
+changes you get a nice parsed command flow:
 
-If anybody on here gets a chance, can you take a quick look at the bug
-report I opened:
-https://bugzilla.kernel.org/show_bug.cgi?id=198473
+[14421.985416] __ps2_command: psmouse serio2: f5 [] - 0/00000000 []
+[14421.993112] __ps2_command: psmouse serio2: f6 [] - 0/00000000 []
+[14422.007738] __ps2_command: psmouse serio2: e1 [] - 0/00000000 [03 04]
+[14422.042522] __ps2_command: psmouse serio2: e2 [81 4a 80] - 0/00000000 []
+[14422.057091] __ps2_command: psmouse serio2: e2 [2c] - 0/00000000 [20]
+[14422.057118] psmouse serio2: trackpoint: Elan TrackPoint firmware: 0x04, buttons: 3/3
+[14422.072062] __ps2_command: psmouse serio2: f3 [64] - 0/00000000 []
+[14422.086839] __ps2_command: psmouse serio2: e8 [03] - 0/00000000 []
+[14422.094306] __ps2_command: psmouse serio2: e6 [] - 0/00000000 []
+[14422.094504] input: TPPS/2 Elan TrackPoint as /devices/rmi4-00/rmi4-00.fn03/serio2/input/input33
+[14422.128629] __ps2_command: psmouse serio2: f4 [] - 0/00000000 []
 
-I would be very grateful for any tips on how to diagnose this further,
-or any guesses as to what the problem could be.  Thanks in advance!
+Additionally libps2 now can handle command and parameter byte
+retransmissions and we relaxed rules for getting initial ACK to the
+command byte, which hopefully will help properly detect devices that
+are not silent when we start probing them.
 
-Best wishes,
-Will Roberts
+Thanks.
+
+Dmitry Torokhov (7):
+  Input: libps2 - fix switch statement formatting
+  Input: libps2 - use u8 for byte data
+  Input: libps2 - use BIT() for bitmask constants
+  Input: psmouse - move sliced command implementation to libps2
+  Input: libps2 - add debugging statements
+  Input: libps2 - support retransmission of command data
+  Input: libps2 - relax command byte ACK handling
+
+ drivers/input/mouse/elantech.c     |  12 +-
+ drivers/input/mouse/logips2pp.c    |   2 +-
+ drivers/input/mouse/psmouse-base.c |  26 ---
+ drivers/input/mouse/psmouse.h      |   1 -
+ drivers/input/mouse/synaptics.c    |   8 +-
+ drivers/input/serio/libps2.c       | 322 +++++++++++++++++++++++++------------
+ include/linux/libps2.h             |  34 ++--
+ 7 files changed, 249 insertions(+), 156 deletions(-)
+
+-- 
+Dmitry

@@ -1,177 +1,63 @@
 From: thatslyude@gmail.com
-Subject: Re: [PATCH 2/3] Input: synaptics_rmi4 - unmask F03 interrupts when
- port is opened
-Date: Fri, 19 Jan 2018 13:08:47 -0500
-Message-ID: <1516385327.2814.4.camel@gmail.com>
+Subject: Re: [PATCH 3/3] Input: synaptics-rmi4 - log when we create a guest
+ serio port
+Date: Fri, 19 Jan 2018 13:10:18 -0500
+Message-ID: <1516385418.2814.5.camel@gmail.com>
 References: <20180119004955.247190-1-dmitry.torokhov@gmail.com>
-         <20180119004955.247190-3-dmitry.torokhov@gmail.com>
+         <20180119004955.247190-4-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180119004955.247190-3-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Damjan Georgievski <gdamjan@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, stable@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:36538 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755968AbeASSKU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 19 Jan 2018 13:10:20 -0500
+In-Reply-To: <20180119004955.247190-4-dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-Looks good to me.
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Damjan Georgievski <gdamjan@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
 
 Reviewed-by: Lyude Paul <lyude@redhat.com>
 
 On Thu, 2018-01-18 at 16:49 -0800, Dmitry Torokhov wrote:
-> Currently we register the pass-through serio port when we probe the F03 RMI
-> function, and then, in sensor configure phase, we unmask interrupts.
-> Unfortunately this is too late, as other drivers are free probe devices
-> attached to the serio port as soon as it is probed. Because interrupts are
-> masked, the IO times out, which may result in not being able to detect
-> trackpoints on the pass-through port.
+> To ease analyzing boot behavior from logs, let's log when we are about to
+> register the pass-through serio port.
 > 
-> To fix the issue we implement open() and close() methods for the
-> pass-through serio port and unmask interrupts from there. We also move
-> creation of the pass-through port form probe to configure stage, as RMI
-> driver does not enable transport interrupt until all functions are probed
-> (we should change this, but this is a separate topic).
+> Also, let's drop "Synaptics" prefix from the port name, as RMI4 is good
+> enough indicator already, and having the prefix means that the name does
+> not fit into serio->name field. While at it move from hard-coded seio->phys
+> to one mentioning the sensor ID (such as "rmi4-00.fn03/serio0").
 > 
-> We also try to clear the pending data before unmasking interrupts, because
-> some devices like to spam the system with multiple 0xaa 0x00 announcements,
-> which may interfere with us trying to query ID of the device.
-> 
-> Fixes: c5e8848fc98e ("Input: synaptics-rmi4 - add support for F03")
-> Cc: stable@vger.kernel.org
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/rmi4/rmi_f03.c | 64 +++++++++++++++++++++++++++++++++++++--
-> -----
->  1 file changed, 54 insertions(+), 10 deletions(-)
+>  drivers/input/rmi4/rmi_f03.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
 > 
 > diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-> index ad71a5e768dc4..7ccbb370a9a81 100644
+> index 7ccbb370a9a81..88822196d6b72 100644
 > --- a/drivers/input/rmi4/rmi_f03.c
 > +++ b/drivers/input/rmi4/rmi_f03.c
-> @@ -32,6 +32,7 @@ struct f03_data {
->  	struct rmi_function *fn;
->  
->  	struct serio *serio;
-> +	bool serio_registered;
->  
->  	unsigned int overwrite_buttons;
->  
-> @@ -138,6 +139,37 @@ static int rmi_f03_initialize(struct f03_data *f03)
->  	return 0;
->  }
->  
-> +static int rmi_f03_pt_open(struct serio *serio)
-> +{
-> +	struct f03_data *f03 = serio->port_data;
-> +	struct rmi_function *fn = f03->fn;
-> +	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
-> +	const u16 data_addr = fn->fd.data_base_addr + RMI_F03_OB_OFFSET;
-> +	u8 obs[RMI_F03_QUEUE_LENGTH * RMI_F03_OB_SIZE];
-> +	int error;
-> +
-> +	/*
-> +	 * Consume any pending data. Some devices like to spam with
-> +	 * 0xaa 0x00 announcements which may confuse us as we try to
-> +	 * probe the device.
-> +	 */
-> +	error = rmi_read_block(fn->rmi_dev, data_addr, &obs, ob_len);
-> +	if (!error)
-> +		rmi_dbg(RMI_DEBUG_FN, &fn->dev,
-> +			"%s: Consumed %*ph (%d) from PS2 guest\n",
-> +			__func__, ob_len, obs, ob_len);
-> +
-> +	return fn->rmi_dev->driver->set_irq_bits(fn->rmi_dev, fn-
-> >irq_mask);
-> +}
-> +
-> +static void rmi_f03_pt_close(struct serio *serio)
-> +{
-> +	struct f03_data *f03 = serio->port_data;
-> +	struct rmi_function *fn = f03->fn;
-> +
-> +	fn->rmi_dev->driver->clear_irq_bits(fn->rmi_dev, fn->irq_mask);
-> +}
-> +
->  static int rmi_f03_register_pt(struct f03_data *f03)
->  {
->  	struct serio *serio;
-> @@ -148,6 +180,8 @@ static int rmi_f03_register_pt(struct f03_data *f03)
->  
->  	serio->id.type = SERIO_PS_PSTHRU;
->  	serio->write = rmi_f03_pt_write;
-> +	serio->open = rmi_f03_pt_open;
-> +	serio->close = rmi_f03_pt_close;
+> @@ -184,14 +184,15 @@ static int rmi_f03_register_pt(struct f03_data *f03)
+>  	serio->close = rmi_f03_pt_close;
 >  	serio->port_data = f03;
 >  
->  	strlcpy(serio->name, "Synaptics RMI4 PS/2 pass-through",
-> @@ -184,17 +218,27 @@ static int rmi_f03_probe(struct rmi_function *fn)
->  			 f03->device_count);
+> -	strlcpy(serio->name, "Synaptics RMI4 PS/2 pass-through",
+> -		sizeof(serio->name));
+> -	strlcpy(serio->phys, "synaptics-rmi4-pt/serio1",
+> -		sizeof(serio->phys));
+> +	strlcpy(serio->name, "RMI4 PS/2 pass-through", sizeof(serio-
+> >name));
+> +	snprintf(serio->phys, sizeof(serio->phys), "%s/serio0",
+> +		 dev_name(&f03->fn->dev));
+>  	serio->dev.parent = &f03->fn->dev;
 >  
->  	dev_set_drvdata(dev, f03);
-> -
-> -	error = rmi_f03_register_pt(f03);
-> -	if (error)
-> -		return error;
-> -
->  	return 0;
->  }
+>  	f03->serio = serio;
 >  
->  static int rmi_f03_config(struct rmi_function *fn)
->  {
-> -	fn->rmi_dev->driver->set_irq_bits(fn->rmi_dev, fn->irq_mask);
-> +	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
-> +	int error;
-> +
-> +	if (!f03->serio_registered) {
-> +		error = rmi_f03_register_pt(f03);
-> +		if (error)
-> +			return error;
-> +
-> +		f03->serio_registered = true;
-> +	} else {
-> +		/*
-> +		 * We must be re-configuring the sensor, just enable
-> +		 * interrupts for this function.
-> +		 */
-> +		fn->rmi_dev->driver->set_irq_bits(fn->rmi_dev, fn-
-> >irq_mask);
-> +	}
+> +	printk(KERN_INFO "serio: %s port at %s\n",
+> +		serio->name, dev_name(&f03->fn->dev));
+>  	serio_register_port(serio);
 >  
 >  	return 0;
->  }
-> @@ -204,7 +248,7 @@ static int rmi_f03_attention(struct rmi_function *fn,
-> unsigned long *irq_bits)
->  	struct rmi_device *rmi_dev = fn->rmi_dev;
->  	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
->  	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
-> -	u16 data_addr = fn->fd.data_base_addr;
-> +	const u16 data_addr = fn->fd.data_base_addr + RMI_F03_OB_OFFSET;
->  	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
->  	u8 obs[RMI_F03_QUEUE_LENGTH * RMI_F03_OB_SIZE];
->  	u8 ob_status;
-> @@ -226,8 +270,7 @@ static int rmi_f03_attention(struct rmi_function *fn,
-> unsigned long *irq_bits)
->  		drvdata->attn_data.size -= ob_len;
->  	} else {
->  		/* Grab all of the data registers, and check them for data
-> */
-> -		error = rmi_read_block(fn->rmi_dev, data_addr +
-> RMI_F03_OB_OFFSET,
-> -				       &obs, ob_len);
-> +		error = rmi_read_block(fn->rmi_dev, data_addr, &obs,
-> ob_len);
->  		if (error) {
->  			dev_err(&fn->dev,
->  				"%s: Failed to read F03 output buffers:
-> %d\n",
-> @@ -266,7 +309,8 @@ static void rmi_f03_remove(struct rmi_function *fn)
->  {
->  	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
->  
-> -	serio_unregister_port(f03->serio);
-> +	if (f03->serio_registered)
-> +		serio_unregister_port(f03->serio);
->  }
->  
->  struct rmi_function_handler rmi_f03_handler = {

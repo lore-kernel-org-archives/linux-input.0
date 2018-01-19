@@ -1,73 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/7] Input: libps2 - use BIT() for bitmask constants
-Date: Fri, 19 Jan 2018 14:39:12 -0800
-Message-ID: <20180119223912.ifpgwt2kxmq7l7gs@dtor-ws>
-References: <20180119194111.185590-1-dmitry.torokhov@gmail.com>
- <20180119194111.185590-4-dmitry.torokhov@gmail.com>
- <2d0591a7-ccab-872f-d52d-c8adf51d4373@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH 0/7] psmouse assorted cleanups
+Date: Fri, 19 Jan 2018 15:06:22 -0800
+Message-ID: <20180119230629.49428-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33288 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756655AbeASWjQ (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:46946 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752190AbeASXGd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Jan 2018 17:39:16 -0500
-Content-Disposition: inline
-In-Reply-To: <2d0591a7-ccab-872f-d52d-c8adf51d4373@infradead.org>
+        Fri, 19 Jan 2018 18:06:33 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jan 19, 2018 at 02:26:20PM -0800, Randy Dunlap wrote:
-> On 01/19/2018 11:41 AM, Dmitry Torokhov wrote:
-> > Let's explicitly document bit numbers with BIT() macro.
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Makes sense, but something should
-> #include <linux/bitops.h>
+Hi,
 
-Indeed, I'll add it, thanks.
+Just a few cleanups to psmouse code: BIT(), sign_extend(), u8 for data,
+etc. Plus a patch from Stephen Lyons to handle A4Tech mice with 2 scroll
+wheels.
 
-> 
-> per Documentation/process/submit-checklist.rst Rule #1:
-> 1) If you use a facility then #include the file that defines/declares
->    that facility.  Don't depend on other header files pulling in ones
->    that you use.
-> 
-> 
-> > ---
-> >  include/linux/libps2.h | 10 +++++-----
-> >  1 file changed, 5 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/include/linux/libps2.h b/include/linux/libps2.h
-> > index 365c50b097ded..649295a5ff47d 100644
-> > --- a/include/linux/libps2.h
-> > +++ b/include/linux/libps2.h
-> > @@ -20,11 +20,11 @@
-> >  #define PS2_RET_NAK		0xfe
-> >  #define PS2_RET_ERR		0xfc
-> >  
-> > -#define PS2_FLAG_ACK		1	/* Waiting for ACK/NAK */
-> > -#define PS2_FLAG_CMD		2	/* Waiting for command to finish */
-> > -#define PS2_FLAG_CMD1		4	/* Waiting for the first byte of command response */
-> > -#define PS2_FLAG_WAITID		8	/* Command execiting is GET ID */
-> > -#define PS2_FLAG_NAK		16	/* Last transmission was NAKed */
-> > +#define PS2_FLAG_ACK		BIT(0)	/* Waiting for ACK/NAK */
-> > +#define PS2_FLAG_CMD		BIT(1)	/* Waiting for a command to finish */
-> > +#define PS2_FLAG_CMD1		BIT(2)	/* Waiting for the first byte of command response */
-> > +#define PS2_FLAG_WAITID		BIT(3)	/* Command executing is GET ID */
-> > +#define PS2_FLAG_NAK		BIT(4)	/* Last transmission was NAKed */
-> >  
-> >  struct ps2dev {
-> >  	struct serio *serio;
-> > 
-> 
-> 
-> -- 
-> ~Randy
+Thanks.
+
+Dmitry Torokhov (6):
+  Input: psmouse - create helper for reporting standard buttons/motion
+  Input: psmouse - clean up code
+  Input: logips2pp - clean up code
+  Input: lifebook - clean up code
+  Input: synaptics - switch to using input_set_capability
+  Input: synaptics - handle errors from input_mt_init_slots()
+
+Stephen Lyons (1):
+  Input: psmouse - add support for 2nd wheel on A4Tech Dual-Scroll wheel
+    mice
+
+ drivers/input/mouse/alps.c         |  30 ++----
+ drivers/input/mouse/elantech.c     |  28 ++----
+ drivers/input/mouse/lifebook.c     |  62 +++++++------
+ drivers/input/mouse/logips2pp.c    | 152 ++++++++++++++++++-------------
+ drivers/input/mouse/psmouse-base.c | 181 +++++++++++++++++++++++--------------
+ drivers/input/mouse/psmouse.h      |   4 +
+ drivers/input/mouse/sentelic.c     |  11 +--
+ drivers/input/mouse/synaptics.c    |  82 ++++++++++-------
+ 8 files changed, 302 insertions(+), 248 deletions(-)
 
 -- 
 Dmitry

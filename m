@@ -1,51 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 3/3] Input: synaptics-rmi4 - log when we create a guest serio port
-Date: Thu, 18 Jan 2018 16:49:55 -0800
-Message-ID: <20180119004955.247190-4-dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/3] Input: synaptics_rmi4 - do not delete interrupt memory too early
+Date: Thu, 18 Jan 2018 16:49:53 -0800
+Message-ID: <20180119004955.247190-2-dmitry.torokhov@gmail.com>
 References: <20180119004955.247190-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36347 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754796AbeASAuA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 18 Jan 2018 19:50:00 -0500
 In-Reply-To: <20180119004955.247190-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lyude Paul <thatslyude@gmail.com>, Damjan Georgievski <gdamjan@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lyude Paul <thatslyude@gmail.com>, Damjan Georgievski <gdamjan@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, stable@vger.kernel.org
 
-To ease analyzing boot behavior from logs, let's log when we are about to
-register the pass-through serio port.
+We want to free memory reserved for interrupt mask handling only after we
+free functions, as function drivers might want to mask interrupts. This is
+needed for the followup patch to the F03 that would implement unmasking and
+masking interrupts from the serio pass-through port open() and close()
+methods.
 
-Also, let's drop "Synaptics" prefix from the port name, as RMI4 is good
-enough indicator already, and having the prefix means that the name does
-not fit into serio->name field. While at it move from hard-coded seio->phys
-to one mentioning the sensor ID (such as "rmi4-00.fn03/serio0").
-
+Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/rmi4/rmi_f03.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-index 7ccbb370a9a81..88822196d6b72 100644
---- a/drivers/input/rmi4/rmi_f03.c
-+++ b/drivers/input/rmi4/rmi_f03.c
-@@ -184,14 +184,15 @@ static int rmi_f03_register_pt(struct f03_data *f03)
- 	serio->close = rmi_f03_pt_close;
- 	serio->port_data = f03;
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 27791d6546c66..ce3ede289ed04 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -41,6 +41,13 @@ void rmi_free_function_list(struct rmi_device *rmi_dev)
  
--	strlcpy(serio->name, "Synaptics RMI4 PS/2 pass-through",
--		sizeof(serio->name));
--	strlcpy(serio->phys, "synaptics-rmi4-pt/serio1",
--		sizeof(serio->phys));
-+	strlcpy(serio->name, "RMI4 PS/2 pass-through", sizeof(serio->name));
-+	snprintf(serio->phys, sizeof(serio->phys), "%s/serio0",
-+		 dev_name(&f03->fn->dev));
- 	serio->dev.parent = &f03->fn->dev;
+ 	rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev, "Freeing function list\n");
  
- 	f03->serio = serio;
++	/* Doing it in the reverse order so F01 will be removed last */
++	list_for_each_entry_safe_reverse(fn, tmp,
++					 &data->function_list, node) {
++		list_del(&fn->node);
++		rmi_unregister_function(fn);
++	}
++
+ 	devm_kfree(&rmi_dev->dev, data->irq_memory);
+ 	data->irq_memory = NULL;
+ 	data->irq_status = NULL;
+@@ -50,13 +57,6 @@ void rmi_free_function_list(struct rmi_device *rmi_dev)
  
-+	printk(KERN_INFO "serio: %s port at %s\n",
-+		serio->name, dev_name(&f03->fn->dev));
- 	serio_register_port(serio);
+ 	data->f01_container = NULL;
+ 	data->f34_container = NULL;
+-
+-	/* Doing it in the reverse order so F01 will be removed last */
+-	list_for_each_entry_safe_reverse(fn, tmp,
+-					 &data->function_list, node) {
+-		list_del(&fn->node);
+-		rmi_unregister_function(fn);
+-	}
+ }
  
- 	return 0;
+ static int reset_one_function(struct rmi_function *fn)
 -- 
 2.16.0.rc1.238.g530d649a79-goog
+

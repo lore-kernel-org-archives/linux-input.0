@@ -1,148 +1,337 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4/7] Input: lifebook - clean up code
-Date: Fri, 19 Jan 2018 15:06:26 -0800
-Message-ID: <20180119230629.49428-5-dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/7] Input: psmouse - create helper for reporting standard buttons/motion
+Date: Fri, 19 Jan 2018 15:06:23 -0800
+Message-ID: <20180119230629.49428-2-dmitry.torokhov@gmail.com>
 References: <20180119230629.49428-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:45579 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756201AbeASXGh (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:39419 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753427AbeASXGe (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 Jan 2018 18:06:37 -0500
+        Fri, 19 Jan 2018 18:06:34 -0500
 In-Reply-To: <20180119230629.49428-1-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-- use u8 instead of unsigned char for byte data
-- use input_set_capability() instead of manipulating capabilities bits
-  directly
-- do not abuse -1 as error code, propagate errors from various calls.
+Many protocol driver re-implement code to parse buttons or motion data from
+the standard PS/2 protocol. Let's split the parsing into separate
+functions and reuse them in protocol drivers.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/mouse/lifebook.c | 50 ++++++++++++++++++++++++------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
+ drivers/input/mouse/alps.c         | 30 +++++++-----------------------
+ drivers/input/mouse/elantech.c     | 28 ++++++++++------------------
+ drivers/input/mouse/lifebook.c     | 12 ++++--------
+ drivers/input/mouse/logips2pp.c    | 10 ++++------
+ drivers/input/mouse/psmouse-base.c | 26 ++++++++++++++++++++------
+ drivers/input/mouse/psmouse.h      |  4 ++++
+ drivers/input/mouse/sentelic.c     | 11 +----------
+ 7 files changed, 50 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/input/mouse/lifebook.c b/drivers/input/mouse/lifebook.c
-index 65efaade0820d..a5765f747c020 100644
---- a/drivers/input/mouse/lifebook.c
-+++ b/drivers/input/mouse/lifebook.c
-@@ -17,6 +17,7 @@
- #include <linux/libps2.h>
- #include <linux/dmi.h>
- #include <linux/slab.h>
-+#include <linux/types.h>
- 
- #include "psmouse.h"
- #include "lifebook.h"
-@@ -136,7 +137,7 @@ static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse)
- 	struct lifebook_data *priv = psmouse->private;
- 	struct input_dev *dev1 = psmouse->dev;
- 	struct input_dev *dev2 = priv ? priv->dev2 : NULL;
--	unsigned char *packet = psmouse->packet;
-+	u8 *packet = psmouse->packet;
- 	bool relative_packet = packet[0] & 0x08;
- 
- 	if (relative_packet || !lifebook_use_6byte_proto) {
-@@ -201,10 +202,12 @@ static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse)
- static int lifebook_absolute_mode(struct psmouse *psmouse)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
--	unsigned char param;
-+	u8 param;
-+	int error;
- 
--	if (psmouse_reset(psmouse))
--		return -1;
-+	error = psmouse_reset(psmouse);
-+	if (error)
-+		return error;
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index dbe57da8c1a1b..f9c7f24522644 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -827,7 +827,7 @@ static void alps_process_packet_v6(struct psmouse *psmouse)
+ 	unsigned char *packet = psmouse->packet;
+ 	struct input_dev *dev = psmouse->dev;
+ 	struct input_dev *dev2 = priv->dev2;
+-	int x, y, z, left, right, middle;
++	int x, y, z;
  
  	/*
- 	 * Enable absolute output -- ps2_command fails always but if
-@@ -220,15 +223,15 @@ static int lifebook_absolute_mode(struct psmouse *psmouse)
- static void lifebook_relative_mode(struct psmouse *psmouse)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
--	unsigned char param = 0x06;
-+	u8 param = 0x06;
+ 	 * We can use Byte5 to distinguish if the packet is from Touchpad
+@@ -847,9 +847,6 @@ static void alps_process_packet_v6(struct psmouse *psmouse)
+ 		x = packet[1] | ((packet[3] & 0x20) << 2);
+ 		y = packet[2] | ((packet[3] & 0x40) << 1);
+ 		z = packet[4];
+-		left = packet[3] & 0x01;
+-		right = packet[3] & 0x02;
+-		middle = packet[3] & 0x04;
  
- 	ps2_command(ps2dev, &param, PSMOUSE_CMD_SETRES);
+ 		/* To prevent the cursor jump when finger lifted */
+ 		if (x == 0x7F && y == 0x7F && z == 0x7F)
+@@ -859,9 +856,7 @@ static void alps_process_packet_v6(struct psmouse *psmouse)
+ 		input_report_rel(dev2, REL_X, (char)x / 4);
+ 		input_report_rel(dev2, REL_Y, -((char)y / 4));
+ 
+-		input_report_key(dev2, BTN_LEFT, left);
+-		input_report_key(dev2, BTN_RIGHT, right);
+-		input_report_key(dev2, BTN_MIDDLE, middle);
++		psmouse_report_standard_buttons(dev2, packet[3]);
+ 
+ 		input_sync(dev2);
+ 		return;
+@@ -871,8 +866,6 @@ static void alps_process_packet_v6(struct psmouse *psmouse)
+ 	x = packet[1] | ((packet[3] & 0x78) << 4);
+ 	y = packet[2] | ((packet[4] & 0x78) << 4);
+ 	z = packet[5];
+-	left = packet[3] & 0x01;
+-	right = packet[3] & 0x02;
+ 
+ 	if (z > 30)
+ 		input_report_key(dev, BTN_TOUCH, 1);
+@@ -888,8 +881,8 @@ static void alps_process_packet_v6(struct psmouse *psmouse)
+ 	input_report_key(dev, BTN_TOOL_FINGER, z > 0);
+ 
+ 	/* v6 touchpad does not have middle button */
+-	input_report_key(dev, BTN_LEFT, left);
+-	input_report_key(dev, BTN_RIGHT, right);
++	packet[3] &= ~BIT(2);
++	psmouse_report_standard_buttons(dev2, packet[3]);
+ 
+ 	input_sync(dev);
+ }
+@@ -1098,7 +1091,7 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
+ 	struct alps_data *priv = psmouse->private;
+ 	unsigned char *packet = psmouse->packet;
+ 	struct input_dev *dev2 = priv->dev2;
+-	int x, y, z, left, right, middle;
++	int x, y, z;
+ 
+ 	/* It should be a DualPoint when received trackstick packet */
+ 	if (!(priv->flags & ALPS_DUALPOINT)) {
+@@ -1112,16 +1105,10 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
+ 	    ((packet[3] & 0x20) << 1);
+ 	z = (packet[5] & 0x3f) | ((packet[3] & 0x80) >> 1);
+ 
+-	left = (packet[1] & 0x01);
+-	right = (packet[1] & 0x02) >> 1;
+-	middle = (packet[1] & 0x04) >> 2;
+-
+ 	input_report_rel(dev2, REL_X, (char)x);
+ 	input_report_rel(dev2, REL_Y, -((char)y));
+ 
+-	input_report_key(dev2, BTN_LEFT, left);
+-	input_report_key(dev2, BTN_RIGHT, right);
+-	input_report_key(dev2, BTN_MIDDLE, middle);
++	psmouse_report_standard_buttons(dev2, packet[1]);
+ 
+ 	input_sync(dev2);
+ }
+@@ -1503,10 +1490,7 @@ static void alps_report_bare_ps2_packet(struct psmouse *psmouse,
+ 		alps_report_buttons(dev, dev2,
+ 				packet[0] & 1, packet[0] & 2, packet[0] & 4);
+ 
+-	input_report_rel(dev, REL_X,
+-		packet[1] ? packet[1] - ((packet[0] << 4) & 0x100) : 0);
+-	input_report_rel(dev, REL_Y,
+-		packet[2] ? ((packet[0] << 3) & 0x100) - packet[2] : 0);
++	psmouse_report_standard_motion(dev, packet);
+ 
+ 	input_sync(dev);
+ }
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index a4aaa748e987f..af7fc17c14d96 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -279,8 +279,8 @@ static void elantech_report_absolute_v1(struct psmouse *psmouse)
+ 	input_report_key(dev, BTN_TOOL_FINGER, fingers == 1);
+ 	input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers == 2);
+ 	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers == 3);
+-	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+-	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
++
++	psmouse_report_standard_buttons(dev, packet[0]);
+ 
+ 	if (etd->fw_version < 0x020000 &&
+ 	    (etd->capabilities[0] & ETP_CAP_HAS_ROCKER)) {
+@@ -390,8 +390,7 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
+ 	input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers == 2);
+ 	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers == 3);
+ 	input_report_key(dev, BTN_TOOL_QUADTAP, fingers == 4);
+-	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+-	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
++	psmouse_report_standard_buttons(dev, packet[0]);
+ 	if (etd->reports_pressure) {
+ 		input_report_abs(dev, ABS_PRESSURE, pres);
+ 		input_report_abs(dev, ABS_TOOL_WIDTH, width);
+@@ -434,9 +433,7 @@ static void elantech_report_trackpoint(struct psmouse *psmouse,
+ 		x = packet[4] - (int)((packet[1]^0x80) << 1);
+ 		y = (int)((packet[2]^0x80) << 1) - packet[5];
+ 
+-		input_report_key(tp_dev, BTN_LEFT, packet[0] & 0x01);
+-		input_report_key(tp_dev, BTN_RIGHT, packet[0] & 0x02);
+-		input_report_key(tp_dev, BTN_MIDDLE, packet[0] & 0x04);
++		psmouse_report_standard_buttons(tp_dev, packet[0]);
+ 
+ 		input_report_rel(tp_dev, REL_X, x);
+ 		input_report_rel(tp_dev, REL_Y, y);
+@@ -526,12 +523,10 @@ static void elantech_report_absolute_v3(struct psmouse *psmouse,
+ 	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers == 3);
+ 
+ 	/* For clickpads map both buttons to BTN_LEFT */
+-	if (etd->fw_version & 0x001000) {
++	if (etd->fw_version & 0x001000)
+ 		input_report_key(dev, BTN_LEFT, packet[0] & 0x03);
+-	} else {
+-		input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+-		input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+-	}
++	else
++		psmouse_report_standard_buttons(dev, packet[0]);
+ 
+ 	input_report_abs(dev, ABS_PRESSURE, pres);
+ 	input_report_abs(dev, ABS_TOOL_WIDTH, width);
+@@ -546,13 +541,10 @@ static void elantech_input_sync_v4(struct psmouse *psmouse)
+ 	unsigned char *packet = psmouse->packet;
+ 
+ 	/* For clickpads map both buttons to BTN_LEFT */
+-	if (etd->fw_version & 0x001000) {
++	if (etd->fw_version & 0x001000)
+ 		input_report_key(dev, BTN_LEFT, packet[0] & 0x03);
+-	} else {
+-		input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+-		input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+-		input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
+-	}
++	else
++		psmouse_report_standard_buttons(dev, packet[0]);
+ 
+ 	input_mt_report_pointer_emulation(dev, true);
+ 	input_sync(dev);
+diff --git a/drivers/input/mouse/lifebook.c b/drivers/input/mouse/lifebook.c
+index 13d324cef7df5..65efaade0820d 100644
+--- a/drivers/input/mouse/lifebook.c
++++ b/drivers/input/mouse/lifebook.c
+@@ -188,14 +188,10 @@ static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse)
+ 	}
+ 
+ 	if (dev2) {
+-		if (relative_packet) {
+-			input_report_rel(dev2, REL_X,
+-				((packet[0] & 0x10) ? packet[1] - 256 : packet[1]));
+-			input_report_rel(dev2, REL_Y,
+-				 -(int)((packet[0] & 0x20) ? packet[2] - 256 : packet[2]));
+-		}
+-		input_report_key(dev2, BTN_LEFT, packet[0] & 0x01);
+-		input_report_key(dev2, BTN_RIGHT, packet[0] & 0x02);
++		if (relative_packet)
++			psmouse_report_standard_motion(dev2, packet);
++
++		psmouse_report_standard_buttons(dev2, packet[0]);
+ 		input_sync(dev2);
+ 	}
+ 
+diff --git a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
+index ef9c97f5e3d78..b7d17db632fc0 100644
+--- a/drivers/input/mouse/logips2pp.c
++++ b/drivers/input/mouse/logips2pp.c
+@@ -88,16 +88,14 @@ static psmouse_ret_t ps2pp_process_byte(struct psmouse *psmouse)
+ 				    (packet[1] >> 4) | (packet[0] & 0x30));
+ 			break;
+ 		}
++
++		psmouse_report_standard_buttons(dev, packet[0]);
++
+ 	} else {
+ 		/* Standard PS/2 motion data */
+-		input_report_rel(dev, REL_X, packet[1] ? (int) packet[1] - (int) ((packet[0] << 4) & 0x100) : 0);
+-		input_report_rel(dev, REL_Y, packet[2] ? (int) ((packet[0] << 3) & 0x100) - (int) packet[2] : 0);
++		psmouse_report_standard_packet(dev, packet);
+ 	}
+ 
+-	input_report_key(dev, BTN_LEFT,    packet[0]       & 1);
+-	input_report_key(dev, BTN_MIDDLE, (packet[0] >> 2) & 1);
+-	input_report_key(dev, BTN_RIGHT,  (packet[0] >> 1) & 1);
+-
+ 	input_sync(dev);
+ 
+ 	return PSMOUSE_FULL_PACKET;
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 8ac9e03c05b45..19f7727555911 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -116,13 +116,30 @@ static DEFINE_MUTEX(psmouse_mutex);
+ 
+ static struct workqueue_struct *kpsmoused_wq;
+ 
+-static void psmouse_report_standard_buttons(struct input_dev *dev, u8 buttons)
++void psmouse_report_standard_buttons(struct input_dev *dev, u8 buttons)
+ {
+ 	input_report_key(dev, BTN_LEFT,   buttons & BIT(0));
+ 	input_report_key(dev, BTN_MIDDLE, buttons & BIT(2));
+ 	input_report_key(dev, BTN_RIGHT,  buttons & BIT(1));
  }
  
- static void lifebook_set_resolution(struct psmouse *psmouse, unsigned int resolution)
- {
--	static const unsigned char params[] = { 0, 1, 2, 2, 3 };
--	unsigned char p;
-+	static const u8 params[] = { 0, 1, 2, 2, 3 };
-+	u8 p;
- 
- 	if (resolution == 0 || resolution > 400)
- 		resolution = 400;
-@@ -253,11 +256,11 @@ static void lifebook_disconnect(struct psmouse *psmouse)
- int lifebook_detect(struct psmouse *psmouse, bool set_properties)
- {
- 	if (!lifebook_present)
--		return -1;
-+		return -ENXIO;
- 
- 	if (desired_serio_phys &&
- 	    strcmp(psmouse->ps2dev.serio->phys, desired_serio_phys))
--		return -1;
-+		return -ENXIO;
- 
- 	if (set_properties) {
- 		psmouse->vendor = "Fujitsu";
-@@ -290,10 +293,10 @@ static int lifebook_create_relative_device(struct psmouse *psmouse)
- 	dev2->id.version = 0x0000;
- 	dev2->dev.parent = &psmouse->ps2dev.serio->dev;
- 
--	dev2->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
--	dev2->relbit[BIT_WORD(REL_X)] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
--	dev2->keybit[BIT_WORD(BTN_LEFT)] =
--				BIT_MASK(BTN_LEFT) | BIT_MASK(BTN_RIGHT);
-+	input_set_capability(dev2, EV_REL, REL_X);
-+	input_set_capability(dev2, EV_REL, REL_Y);
-+	input_set_capability(dev2, EV_KEY, BTN_LEFT);
-+	input_set_capability(dev2, EV_KEY, BTN_RIGHT);
- 
- 	error = input_register_device(priv->dev2);
- 	if (error)
-@@ -312,21 +315,26 @@ int lifebook_init(struct psmouse *psmouse)
- {
- 	struct input_dev *dev1 = psmouse->dev;
- 	int max_coord = lifebook_use_6byte_proto ? 4096 : 1024;
-+	int error;
++void psmouse_report_standard_motion(struct input_dev *dev, u8 *packet)
++{
++	int x, y;
 +
-+	error = lifebook_absolute_mode(psmouse);
-+	if (error)
-+		return error;
++	x = packet[1] ? packet[1] - ((packet[0] << 4) & 0x100) : 0;
++	y = packet[2] ? packet[2] - ((packet[0] << 3) & 0x100) : 0;
++
++	input_report_rel(dev, REL_X, x);
++	input_report_rel(dev, REL_Y, -y);
++}
++
++void psmouse_report_standard_packet(struct input_dev *dev, u8 *packet)
++{
++	psmouse_report_standard_buttons(dev, packet[0]);
++	psmouse_report_standard_motion(dev, packet);
++}
++
+ /*
+  * psmouse_process_byte() analyzes the PS/2 data stream and reports
+  * relevant events to the input module once full packet has arrived.
+@@ -195,11 +212,8 @@ psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
+ 	}
  
--	if (lifebook_absolute_mode(psmouse))
--		return -1;
-+	/* Clear default capabilities */
-+	bitmap_zero(dev1->evbit, EV_CNT);
-+	bitmap_zero(dev1->relbit, REL_CNT);
-+	bitmap_zero(dev1->keybit, KEY_CNT);
+ 	/* Generic PS/2 Mouse */
+-	psmouse_report_standard_buttons(dev,
+-					packet[0] | psmouse->extra_buttons);
+-
+-	input_report_rel(dev, REL_X, packet[1] ? (int) packet[1] - (int) ((packet[0] << 4) & 0x100) : 0);
+-	input_report_rel(dev, REL_Y, packet[2] ? (int) ((packet[0] << 3) & 0x100) - (int) packet[2] : 0);
++	packet[0] |= psmouse->extra_buttons;
++	psmouse_report_standard_packet(dev, packet);
  
--	dev1->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
--	dev1->relbit[0] = 0;
--	dev1->keybit[BIT_WORD(BTN_MOUSE)] = 0;
--	dev1->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	input_set_capability(dev1, EV_KEY, BTN_TOUCH);
- 	input_set_abs_params(dev1, ABS_X, 0, max_coord, 0, 0);
- 	input_set_abs_params(dev1, ABS_Y, 0, max_coord, 0, 0);
+ 	input_sync(dev);
  
- 	if (!desired_serio_phys) {
--		if (lifebook_create_relative_device(psmouse)) {
-+		error = lifebook_create_relative_device(psmouse);
-+		if (error) {
- 			lifebook_relative_mode(psmouse);
--			return -1;
-+			return error;
- 		}
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index 8cd453808cc7d..8bc99691494e9 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -140,6 +140,10 @@ int psmouse_activate(struct psmouse *psmouse);
+ int psmouse_deactivate(struct psmouse *psmouse);
+ bool psmouse_matches_pnp_id(struct psmouse *psmouse, const char * const ids[]);
+ 
++void psmouse_report_standard_buttons(struct input_dev *, u8 buttons);
++void psmouse_report_standard_motion(struct input_dev *, u8 *packet);
++void psmouse_report_standard_packet(struct input_dev *, u8 *packet);
++
+ struct psmouse_attribute {
+ 	struct device_attribute dattr;
+ 	void *data;
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 11c32ac8234b2..1d6010d463e2c 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -710,7 +710,6 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 	unsigned char *packet = psmouse->packet;
+ 	unsigned char button_status = 0, lscroll = 0, rscroll = 0;
+ 	unsigned short abs_x, abs_y, fgrs = 0;
+-	int rel_x, rel_y;
+ 
+ 	if (psmouse->pktcnt < 4)
+ 		return PSMOUSE_GOOD_DATA;
+@@ -840,15 +839,7 @@ static psmouse_ret_t fsp_process_byte(struct psmouse *psmouse)
+ 		/*
+ 		 * Standard PS/2 Mouse
+ 		 */
+-		input_report_key(dev, BTN_LEFT, packet[0] & 1);
+-		input_report_key(dev, BTN_MIDDLE, (packet[0] >> 2) & 1);
+-		input_report_key(dev, BTN_RIGHT, (packet[0] >> 1) & 1);
+-
+-		rel_x = packet[1] ? (int)packet[1] - (int)((packet[0] << 4) & 0x100) : 0;
+-		rel_y = packet[2] ? (int)((packet[0] << 3) & 0x100) - (int)packet[2] : 0;
+-
+-		input_report_rel(dev, REL_X, rel_x);
+-		input_report_rel(dev, REL_Y, rel_y);
++		psmouse_report_standard_packet(dev, packet);
+ 		break;
  	}
  
 -- 

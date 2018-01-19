@@ -1,148 +1,190 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5/7] Input: libps2 - add debugging statements
-Date: Fri, 19 Jan 2018 11:41:09 -0800
-Message-ID: <20180119194111.185590-6-dmitry.torokhov@gmail.com>
-References: <20180119194111.185590-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180119194111.185590-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
+Subject: Re: [PATCH] HID: sony: Report DS4 version info through sysfs
+Date: Fri, 19 Jan 2018 22:20:47 +0000
+Message-ID: <1DD62093774CEE42AFC16E785A1088049E25D48A@USCULXMSG13.am.sony.com>
+References: <20171219190443.52950-1-roderick@gaikai.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-dm3nam03on0108.outbound.protection.outlook.com ([104.47.41.108]:61770
+        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1756492AbeASWUx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 19 Jan 2018 17:20:53 -0500
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "roderick@gaikai.com" <roderick@gaikai.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
 
-Debugging via i8042.debug and analyzing raw PS/2 data stream may be
-cumbersome as you need to locate the boundaries of commands, decipher the
-sliced commands, etc, etc. Let's add a bit more high level debug statements
-for ps2_sendbyte(), ps2_command(), and ps2_sliced_command().
-
-We do not introduce a new module parameter, but rater rely on the kernel
-having dynamic debug facility enabled (which most everyone has nowadays).
-Enable with:
-
-echo "file libps2.c +pf" > /sys/kernel/debug/dynamic_debug/control
-
-or add "libps2.dyndbg=+pf" to the kernel command line.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/serio/libps2.c | 52 +++++++++++++++++++++++++++++++++-----------
- 1 file changed, 39 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
-index e96ae477f0b56..82befae4dab04 100644
---- a/drivers/input/serio/libps2.c
-+++ b/drivers/input/serio/libps2.c
-@@ -26,22 +26,20 @@ MODULE_AUTHOR("Dmitry Torokhov <dtor@mail.ru>");
- MODULE_DESCRIPTION("PS/2 driver library");
- MODULE_LICENSE("GPL");
- 
--/*
-- * ps2_sendbyte() sends a byte to the device and waits for acknowledge.
-- * It doesn't handle retransmission, though it could - because if there
-- * is a need for retransmissions device has to be replaced anyway.
-- *
-- * ps2_sendbyte() can only be called from a process context.
-- */
--
--int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
-+static int ps2_do_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
- {
-+	int error;
-+
- 	serio_pause_rx(ps2dev->serio);
- 	ps2dev->nak = 1;
- 	ps2dev->flags |= PS2_FLAG_ACK;
- 	serio_continue_rx(ps2dev->serio);
- 
--	if (serio_write(ps2dev->serio, byte) == 0)
-+	error = serio_write(ps2dev->serio, byte);
-+	if (error)
-+		dev_dbg(&ps2dev->serio->dev,
-+			"failed to write %#02x: %d\n", byte, error);
-+	else
- 		wait_event_timeout(ps2dev->wait,
- 				   !(ps2dev->flags & PS2_FLAG_ACK),
- 				   msecs_to_jiffies(timeout));
-@@ -52,6 +50,24 @@ int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
- 
- 	return -ps2dev->nak;
- }
-+
-+/*
-+ * ps2_sendbyte() sends a byte to the device and waits for acknowledge.
-+ * It doesn't handle retransmission, though it could - because if there
-+ * is a need for retransmissions device has to be replaced anyway.
-+ *
-+ * ps2_sendbyte() can only be called from a process context.
-+ */
-+
-+int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
-+{
-+	int retval;
-+
-+	retval = ps2_do_sendbyte(ps2dev, byte, timeout);
-+	dev_dbg(&ps2dev->serio->dev, "%02x - %x\n", byte, ps2dev->nak);
-+
-+	return retval;
-+}
- EXPORT_SYMBOL(ps2_sendbyte);
- 
- void ps2_begin_command(struct ps2dev *ps2dev)
-@@ -186,6 +202,7 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- 	unsigned int receive = (command >> 8) & 0xf;
- 	int rc = -1;
- 	int i;
-+	u8 send_param[16];
- 
- 	if (receive > sizeof(ps2dev->cmdbuf)) {
- 		WARN_ON(1);
-@@ -197,6 +214,8 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- 		return -1;
- 	}
- 
-+	memcpy(send_param, param, send);
-+
- 	serio_pause_rx(ps2dev->serio);
- 	ps2dev->flags = command == PS2_CMD_GETID ? PS2_FLAG_WAITID : 0;
- 	ps2dev->cmdcnt = receive;
-@@ -210,14 +229,14 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- 	 * ACKing the reset command, and so it can take a long
- 	 * time before the ACK arrives.
- 	 */
--	if (ps2_sendbyte(ps2dev, command & 0xff,
--			 command == PS2_CMD_RESET_BAT ? 1000 : 200)) {
-+	if (ps2_do_sendbyte(ps2dev, command & 0xff,
-+			    command == PS2_CMD_RESET_BAT ? 1000 : 200)) {
- 		serio_pause_rx(ps2dev->serio);
- 		goto out_reset_flags;
- 	}
- 
- 	for (i = 0; i < send; i++) {
--		if (ps2_sendbyte(ps2dev, param[i], 200)) {
-+		if (ps2_do_sendbyte(ps2dev, param[i], 200)) {
- 			serio_pause_rx(ps2dev->serio);
- 			goto out_reset_flags;
- 		}
-@@ -253,6 +272,12 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- 	ps2dev->flags = 0;
- 	serio_continue_rx(ps2dev->serio);
- 
-+	dev_dbg(&ps2dev->serio->dev,
-+		"%02x [%*ph] - %x/%08lx [%*ph]\n",
-+		command & 0xff, send, send_param,
-+		ps2dev->nak, ps2dev->flags,
-+		receive, param ?: send_param);
-+
- 	return rc;
- }
- EXPORT_SYMBOL(__ps2_command);
-@@ -296,6 +321,7 @@ int ps2_sliced_command(struct ps2dev *ps2dev, u8 command)
- 	}
- 
- out:
-+	dev_dbg(&ps2dev->serio->dev, "%02x - %d\n", command, retval);
- 	ps2_end_command(ps2dev);
- 	return retval;
- }
--- 
-2.16.0.rc1.238.g530d649a79-goog
+Hi all,=0A=
+=0A=
+Any thoughts on this patch?=0A=
+=0A=
+Thanks,=0A=
+Roderick=0A=
+=0A=
+On 12/19/2017 11:05 AM, Roderick Colenbrander wrote:=0A=
+> From: Roderick Colenbrander <roderick.colenbrander@sony.com>=0A=
+> =0A=
+> Report DS4 firmware and hardware version through sysfs for both=0A=
+> USB and Bluetooth. This information is important for userspace=0A=
+> in particular for device specific quirks (e.g. in Bluetooth stacks).=0A=
+> =0A=
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>=0A=
+> ---=0A=
+>   drivers/hid/hid-sony.c | 83 +++++++++++++++++++++++++++++++++++++++++++=
++++++++=0A=
+>   1 file changed, 83 insertions(+)=0A=
+> =0A=
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c=0A=
+> index b9dc3ac4d4aa..432d9a47cab0 100644=0A=
+> --- a/drivers/hid/hid-sony.c=0A=
+> +++ b/drivers/hid/hid-sony.c=0A=
+> @@ -473,6 +473,7 @@ struct motion_output_report_02 {=0A=
+>   #define DS4_FEATURE_REPORT_0x02_SIZE 37=0A=
+>   #define DS4_FEATURE_REPORT_0x05_SIZE 41=0A=
+>   #define DS4_FEATURE_REPORT_0x81_SIZE 7=0A=
+> +#define DS4_FEATURE_REPORT_0xA3_SIZE 49=0A=
+>   #define DS4_INPUT_REPORT_0x11_SIZE 78=0A=
+>   #define DS4_OUTPUT_REPORT_0x05_SIZE 32=0A=
+>   #define DS4_OUTPUT_REPORT_0x11_SIZE 78=0A=
+> @@ -544,6 +545,8 @@ struct sony_sc {=0A=
+>   	struct power_supply *battery;=0A=
+>   	struct power_supply_desc battery_desc;=0A=
+>   	int device_id;=0A=
+> +	unsigned fw_version;=0A=
+> +	unsigned hw_version;=0A=
+>   	u8 *output_report_dmabuf;=0A=
+>   =0A=
+>   #ifdef CONFIG_SONY_FF=0A=
+> @@ -627,6 +630,29 @@ static ssize_t ds4_store_poll_interval(struct device=
+ *dev,=0A=
+>   static DEVICE_ATTR(bt_poll_interval, 0644, ds4_show_poll_interval,=0A=
+>   		ds4_store_poll_interval);=0A=
+>   =0A=
+> +static ssize_t sony_show_firmware_version(struct device *dev,=0A=
+> +				struct device_attribute=0A=
+> +				*attr, char *buf)=0A=
+> +{=0A=
+> +	struct hid_device *hdev =3D to_hid_device(dev);=0A=
+> +	struct sony_sc *sc =3D hid_get_drvdata(hdev);=0A=
+> +=0A=
+> +	return snprintf(buf, PAGE_SIZE, "0x%04x\n", sc->fw_version);=0A=
+> +}=0A=
+> +=0A=
+> +static DEVICE_ATTR(firmware_version, 0444, sony_show_firmware_version, N=
+ULL);=0A=
+> +=0A=
+> +static ssize_t sony_show_hardware_version(struct device *dev,=0A=
+> +				struct device_attribute=0A=
+> +				*attr, char *buf)=0A=
+> +{=0A=
+> +	struct hid_device *hdev =3D to_hid_device(dev);=0A=
+> +	struct sony_sc *sc =3D hid_get_drvdata(hdev);=0A=
+> +=0A=
+> +	return snprintf(buf, PAGE_SIZE, "0x%04x\n", sc->hw_version);=0A=
+> +}=0A=
+> +=0A=
+> +static DEVICE_ATTR(hardware_version, 0444, sony_show_hardware_version, N=
+ULL);=0A=
+>   =0A=
+>   static u8 *motion_fixup(struct hid_device *hdev, u8 *rdesc,=0A=
+>   			     unsigned int *rsize)=0A=
+> @@ -1646,6 +1672,31 @@ static void dualshock4_calibration_work(struct wor=
+k_struct *work)=0A=
+>   	spin_unlock_irqrestore(&sc->lock, flags);=0A=
+>   }=0A=
+>   =0A=
+> +static int dualshock4_get_version_info(struct sony_sc *sc)=0A=
+> +{=0A=
+> +	u8 *buf;=0A=
+> +	int ret;=0A=
+> +=0A=
+> +	buf =3D kmalloc(DS4_FEATURE_REPORT_0xA3_SIZE, GFP_KERNEL);=0A=
+> +	if (!buf)=0A=
+> +		return -ENOMEM;=0A=
+> +=0A=
+> +	ret =3D hid_hw_raw_request(sc->hdev, 0xA3, buf,=0A=
+> +				 DS4_FEATURE_REPORT_0xA3_SIZE,=0A=
+> +				 HID_FEATURE_REPORT,=0A=
+> +				 HID_REQ_GET_REPORT);=0A=
+> +	if (ret < 0) {=0A=
+> +		kfree(buf);=0A=
+> +		return ret;=0A=
+> +	}=0A=
+> +=0A=
+> +	sc->hw_version =3D get_unaligned_le16(&buf[35]);=0A=
+> +	sc->fw_version =3D get_unaligned_le16(&buf[41]);=0A=
+> +=0A=
+> +	kfree(buf);=0A=
+> +	return 0;=0A=
+> +}=0A=
+> +=0A=
+>   static void sixaxis_set_leds_from_id(struct sony_sc *sc)=0A=
+>   {=0A=
+>   	static const u8 sixaxis_leds[10][4] =3D {=0A=
+> @@ -2619,6 +2670,28 @@ static int sony_input_configured(struct hid_device=
+ *hdev,=0A=
+>   			goto err_stop;=0A=
+>   		}=0A=
+>   =0A=
+> +		ret =3D dualshock4_get_version_info(sc);=0A=
+> +		if (ret < 0) {=0A=
+> +			hid_err(sc->hdev, "Failed to get version data from Dualshock 4\n");=
+=0A=
+> +			goto err_stop;=0A=
+> +		}=0A=
+> +=0A=
+> +		ret =3D device_create_file(&sc->hdev->dev, &dev_attr_firmware_version)=
+;=0A=
+> +		if (ret) {=0A=
+> +			/* Make zero for cleanup reasons of sysfs entries. */=0A=
+> +			sc->fw_version =3D 0;=0A=
+> +			sc->hw_version =3D 0;=0A=
+> +			hid_err(sc->hdev, "can't create sysfs firmware_version attribute err:=
+ %d\n", ret);=0A=
+> +			goto err_stop;=0A=
+> +		}=0A=
+> +=0A=
+> +		ret =3D device_create_file(&sc->hdev->dev, &dev_attr_hardware_version)=
+;=0A=
+> +		if (ret) {=0A=
+> +			sc->hw_version =3D 0;=0A=
+> +			hid_err(sc->hdev, "can't create sysfs hardware_version attribute err:=
+ %d\n", ret);=0A=
+> +			goto err_stop;=0A=
+> +		}=0A=
+> +=0A=
+>   		/*=0A=
+>   		 * The Dualshock 4 touchpad supports 2 touches and has a=0A=
+>   		 * resolution of 1920x942 (44.86 dots/mm).=0A=
+> @@ -2695,6 +2768,10 @@ static int sony_input_configured(struct hid_device=
+ *hdev,=0A=
+>   	 */=0A=
+>   	if (sc->ds4_bt_poll_interval)=0A=
+>   		device_remove_file(&sc->hdev->dev, &dev_attr_bt_poll_interval);=0A=
+> +	if (sc->fw_version)=0A=
+> +		device_remove_file(&sc->hdev->dev, &dev_attr_firmware_version);=0A=
+> +	if (sc->hw_version)=0A=
+> +		device_remove_file(&sc->hdev->dev, &dev_attr_hardware_version);=0A=
+>   	if (sc->quirks & SONY_LED_SUPPORT)=0A=
+>   		sony_leds_remove(sc);=0A=
+>   	if (sc->quirks & SONY_BATTERY_SUPPORT)=0A=
+> @@ -2796,6 +2873,12 @@ static void sony_remove(struct hid_device *hdev)=
+=0A=
+>   	if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)=0A=
+>   		device_remove_file(&sc->hdev->dev, &dev_attr_bt_poll_interval);=0A=
+>   =0A=
+> +	if (sc->fw_version)=0A=
+> +		device_remove_file(&sc->hdev->dev, &dev_attr_firmware_version);=0A=
+> +=0A=
+> +	if (sc->hw_version)=0A=
+> +		device_remove_file(&sc->hdev->dev, &dev_attr_hardware_version);=0A=
+> +=0A=
+>   	sony_cancel_work_sync(sc);=0A=
+>   =0A=
+>   	kfree(sc->output_report_dmabuf);=0A=
+> =0A=
+=0A=

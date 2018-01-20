@@ -1,27 +1,29 @@
 From: Heiko Stuebner <heiko@sntech.de>
-Subject: Re: [PATCH 2/2] Input: zforce_ts: Delete an unnecessary return statement in zforce_input_close()
-Date: Sat, 20 Jan 2018 21:27:13 +0100
-Message-ID: <7942584.ySXY2G0O1B@phil>
-References: <e36553b1-3221-7944-59bd-6bb9358c488f@users.sourceforge.net> <7d14b5af-bc11-305c-6a90-18e8a3b3196c@users.sourceforge.net>
+Subject: Re: [PATCH 1/2] Input: zforce_ts: Delete an error message for a failed memory allocation in zforce_parse_dt()
+Date: Sat, 20 Jan 2018 21:26:57 +0100
+Message-ID: <4286739.AIUNhEQfUE@phil>
+References: <e36553b1-3221-7944-59bd-6bb9358c488f@users.sourceforge.net> <2f111be7-11cd-d4a5-3c42-92290c1597d2@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7Bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <7d14b5af-bc11-305c-6a90-18e8a3b3196c@users.sourceforge.net>
-Sender: kernel-janitors-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from gloria.sntech.de ([95.129.55.99]:46490 "EHLO gloria.sntech.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1756615AbeATU2a (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 20 Jan 2018 15:28:30 -0500
+In-Reply-To: <2f111be7-11cd-d4a5-3c42-92290c1597d2@users.sourceforge.net>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: SF Markus Elfring <elfring@users.sourceforge.net>
 Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Am Samstag, 20. Januar 2018, 21:20:38 CET schrieb SF Markus Elfring:
+Am Samstag, 20. Januar 2018, 21:18:45 CET schrieb SF Markus Elfring:
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 20 Jan 2018 20:43:06 +0100
+> Date: Sat, 20 Jan 2018 20:36:33 +0100
 > 
-> The script "checkpatch.pl" pointed information out like the following.
+> Omit an extra message for a memory allocation failure in this function.
 > 
-> WARNING: void function return statements are not generally useful
-> 
-> Thus remove such a statement in the affected function.
+> This issue was detected by using the Coccinelle software.
 > 
 > Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 

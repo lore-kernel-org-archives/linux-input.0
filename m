@@ -1,51 +1,129 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input: sur40: Improve a size determination in
- sur40_probe()
-Date: Sat, 20 Jan 2018 22:30:08 +0100
-Message-ID: <11e0b313-f8c2-93ec-0324-24b30053a586@users.sourceforge.net>
-References: <a7e25da3-587a-f0e8-d574-8066b340d9a6@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: [PATCH 1/2] input: synaptics_usb: fix deadlock in autosuspend
+Date: Sat, 20 Jan 2018 22:47:26 +0100
+Message-ID: <20180120214727.9067-1-marcus.folkesson@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.17.11]:52191 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756652AbeATVaP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 20 Jan 2018 16:30:15 -0500
-In-Reply-To: <a7e25da3-587a-f0e8-d574-8066b340d9a6@users.sourceforge.net>
-Content-Language: en-GB
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:34931 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756652AbeATVro (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 20 Jan 2018 16:47:44 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Florian Echtler <floe@butterbrot.org>, Johan Hovold <johan@kernel.org>, Martin Kaltenbrunner <modin@yuri.at>, Martin Kepplinger <martink@posteo.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marcus Folkesson <marcus.folkesson@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 20 Jan 2018 22:16:14 +0100
+usb_autopm_get_interface() that is called in synusb_open() does an
+autoresume if the device is suspended.
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+input_dev->mutex used in synusb_resume() is in this case already
+taken by the input subsystem and will cause a deadlock.
 
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- drivers/input/touchscreen/sur40.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics_usb.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index c7a0a92b2044..946e1a0328b4 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -550,7 +550,7 @@ static int sur40_probe(struct usb_interface *interface,
- 		return -ENODEV;
+diff --git a/drivers/input/mouse/synaptics_usb.c b/drivers/input/mouse/synaptics_usb.c
+index cb7d15d826d0..2c66913cf5a2 100644
+--- a/drivers/input/mouse/synaptics_usb.c
++++ b/drivers/input/mouse/synaptics_usb.c
+@@ -82,6 +82,9 @@ struct synusb {
+ 	struct urb *urb;
+ 	unsigned char *data;
  
- 	/* Allocate memory for our device state and initialize it. */
--	sur40 = kzalloc(sizeof(struct sur40_state), GFP_KERNEL);
-+	sur40 = kzalloc(sizeof(*sur40), GFP_KERNEL);
- 	if (!sur40)
- 		return -ENOMEM;
++	/* serialize access to open/suspend */
++	struct mutex pm_mutex;
++
+ 	/* input device related data structures */
+ 	struct input_dev *input;
+ 	char name[128];
+@@ -252,6 +255,7 @@ static int synusb_open(struct input_dev *dev)
+ 		return retval;
+ 	}
  
++	mutex_lock(&synusb->pm_mutex);
+ 	retval = usb_submit_urb(synusb->urb, GFP_KERNEL);
+ 	if (retval) {
+ 		dev_err(&synusb->intf->dev,
+@@ -264,6 +268,7 @@ static int synusb_open(struct input_dev *dev)
+ 	synusb->intf->needs_remote_wakeup = 1;
+ 
+ out:
++	mutex_unlock(&synusb->pm_mutex);
+ 	usb_autopm_put_interface(synusb->intf);
+ 	return retval;
+ }
+@@ -275,8 +280,10 @@ static void synusb_close(struct input_dev *dev)
+ 
+ 	autopm_error = usb_autopm_get_interface(synusb->intf);
+ 
++	mutex_lock(&synusb->pm_mutex);
+ 	usb_kill_urb(synusb->urb);
+ 	synusb->intf->needs_remote_wakeup = 0;
++	mutex_unlock(&synusb->pm_mutex);
+ 
+ 	if (!autopm_error)
+ 		usb_autopm_put_interface(synusb->intf);
+@@ -315,6 +322,7 @@ static int synusb_probe(struct usb_interface *intf,
+ 	synusb->udev = udev;
+ 	synusb->intf = intf;
+ 	synusb->input = input_dev;
++	mutex_init(&synusb->pm_mutex);
+ 
+ 	synusb->flags = id->driver_info;
+ 	if (synusb->flags & SYNUSB_COMBO) {
+@@ -466,11 +474,10 @@ static void synusb_disconnect(struct usb_interface *intf)
+ static int synusb_suspend(struct usb_interface *intf, pm_message_t message)
+ {
+ 	struct synusb *synusb = usb_get_intfdata(intf);
+-	struct input_dev *input_dev = synusb->input;
+ 
+-	mutex_lock(&input_dev->mutex);
++	mutex_lock(&synusb->pm_mutex);
+ 	usb_kill_urb(synusb->urb);
+-	mutex_unlock(&input_dev->mutex);
++	mutex_unlock(&synusb->pm_mutex);
+ 
+ 	return 0;
+ }
+@@ -481,14 +488,14 @@ static int synusb_resume(struct usb_interface *intf)
+ 	struct input_dev *input_dev = synusb->input;
+ 	int retval = 0;
+ 
+-	mutex_lock(&input_dev->mutex);
++	mutex_lock(&synusb->pm_mutex);
+ 
+ 	if ((input_dev->users || (synusb->flags & SYNUSB_IO_ALWAYS)) &&
+ 	    usb_submit_urb(synusb->urb, GFP_NOIO) < 0) {
+ 		retval = -EIO;
+ 	}
+ 
+-	mutex_unlock(&input_dev->mutex);
++	mutex_unlock(&synusb->pm_mutex);
+ 
+ 	return retval;
+ }
+@@ -496,9 +503,8 @@ static int synusb_resume(struct usb_interface *intf)
+ static int synusb_pre_reset(struct usb_interface *intf)
+ {
+ 	struct synusb *synusb = usb_get_intfdata(intf);
+-	struct input_dev *input_dev = synusb->input;
+ 
+-	mutex_lock(&input_dev->mutex);
++	mutex_lock(&synusb->pm_mutex);
+ 	usb_kill_urb(synusb->urb);
+ 
+ 	return 0;
+@@ -515,7 +521,7 @@ static int synusb_post_reset(struct usb_interface *intf)
+ 		retval = -EIO;
+ 	}
+ 
+-	mutex_unlock(&input_dev->mutex);
++	mutex_unlock(&synusb->pm_mutex);
+ 
+ 	return retval;
+ }
 -- 
 2.15.1
 

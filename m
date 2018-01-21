@@ -1,48 +1,27 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input: da9034-ts: Improve a size determination in
- da9034_touch_probe()
-Date: Sun, 21 Jan 2018 20:48:37 +0100
-Message-ID: <8e27d655-4f18-b156-3d78-a12b28f79b5b@users.sourceforge.net>
-References: <44ae37ef-deaa-c963-e0f7-c407159afa0c@users.sourceforge.net>
+From: Ms Melisa Mehmet <dubos@lmd.polytechnique.fr>
+Subject: Proposal
+Date: Sun, 21 Jan 2018 19:17:52 +0100
+Message-ID: <4b7da4525cbc3141b17f61767e934674@lmd.polytechnique.fr>
+Reply-To: miss.melisa.mehmett@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <44ae37ef-deaa-c963-e0f7-c407159afa0c@users.sourceforge.net>
-Content-Language: en-GB
-Sender: kernel-janitors-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx-b.polytechnique.fr ([129.104.30.15]:60123 "EHLO
+        mx-b.polytechnique.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750890AbeAUT4t (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 21 Jan 2018 14:56:49 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 21 Jan 2018 20:36:20 +0100
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
 
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/touchscreen/da9034-ts.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/da9034-ts.c b/drivers/input/touchscreen/da9034-ts.c
-index b30cfe1e62da..c9c423aebe1e 100644
---- a/drivers/input/touchscreen/da9034-ts.c
-+++ b/drivers/input/touchscreen/da9034-ts.c
-@@ -303,8 +303,7 @@ static int da9034_touch_probe(struct platform_device *pdev)
- 	struct input_dev *input_dev;
- 	int error;
- 
--	touch = devm_kzalloc(&pdev->dev, sizeof(struct da9034_touch),
--			     GFP_KERNEL);
-+	touch = devm_kzalloc(&pdev->dev, sizeof(*touch), GFP_KERNEL);
- 	if (!touch)
- 		return -ENOMEM;
- 
 -- 
-2.16.0
+Hello 
 
+i want to invest in your region i have some funds under my management
+please let me know if we can work together on this investment plan.
+
+Regards 
+Melisa Mehmet

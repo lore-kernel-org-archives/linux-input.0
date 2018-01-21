@@ -1,8 +1,8 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 1/3] Input: cyttsp4_core: Delete two error messages for a
- failed memory allocation in cyttsp4_probe()
-Date: Sun, 21 Jan 2018 21:27:28 +0100
-Message-ID: <2ca4b5f1-2b2f-19f4-d0ce-95586bb9d5cd@users.sourceforge.net>
+Subject: [PATCH 2/3] Input: cyttsp4_core: Delete an unnecessary return
+ statement in three functions
+Date: Sun, 21 Jan 2018 21:29:20 +0100
+Message-ID: <fd2239f0-ec16-ee88-5418-a7ae3efa1e21@users.sourceforge.net>
 References: <61183426-0b2a-4b93-933c-a2dfd487d92b@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -16,35 +16,48 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 21 Jan 2018 20:57:40 +0100
+Date: Sun, 21 Jan 2018 21:13:21 +0100
 
-Omit extra messages for a memory allocation failure in this function.
+The script "checkpatch.pl" pointed information out like the following.
 
-This issue was detected by using the Coccinelle software.
+WARNING: void function return statements are not generally useful
+
+Thus remove such a statement in the affected functions.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/input/touchscreen/cyttsp4_core.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/input/touchscreen/cyttsp4_core.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
 diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
-index 727c3232517c..f0bf3cc20e9d 100644
+index f0bf3cc20e9d..35f48b66ff36 100644
 --- a/drivers/input/touchscreen/cyttsp4_core.c
 +++ b/drivers/input/touchscreen/cyttsp4_core.c
-@@ -2037,14 +2037,12 @@ struct cyttsp4 *cyttsp4_probe(const struct cyttsp4_bus_ops *ops,
+@@ -956,8 +956,6 @@ static void cyttsp4_get_mt_touches(struct cyttsp4_mt_data *md, int num_cur_tch)
+ 	cyttsp4_final_sync(md->input, si->si_ofs.tch_abs[CY_TCH_T].max, ids);
  
- 	cd = kzalloc(sizeof(*cd), GFP_KERNEL);
- 	if (!cd) {
--		dev_err(dev, "%s: Error, kzalloc\n", __func__);
- 		rc = -ENOMEM;
- 		goto error_alloc_data;
- 	}
+ 	md->num_prv_tch = num_cur_tch;
+-
+-	return;
+ }
  
- 	cd->xfer_buf = kzalloc(xfer_buf_size, GFP_KERNEL);
- 	if (!cd->xfer_buf) {
--		dev_err(dev, "%s: Error, kzalloc\n", __func__);
- 		rc = -ENOMEM;
- 		goto error_free_cd;
- 	}
+ /* read xy_data for all current touches */
+@@ -1272,8 +1270,6 @@ static void cyttsp4_watchdog_timer(struct timer_list *t)
+ 	dev_vdbg(cd->dev, "%s: Watchdog timer triggered\n", __func__);
+ 
+ 	schedule_work(&cd->watchdog_work);
+-
+-	return;
+ }
+ 
+ static int cyttsp4_request_exclusive(struct cyttsp4 *cd, void *ownptr,
+@@ -1492,7 +1488,6 @@ static void cyttsp4_watchdog_work(struct work_struct *work)
+ 	cyttsp4_start_wd_timer(cd);
+ cyttsp4_timer_watchdog_exit_error:
+ 	mutex_unlock(&cd->system_lock);
+-	return;
+ }
+ 
+ static int cyttsp4_core_sleep_(struct cyttsp4 *cd)
 -- 
 2.16.0

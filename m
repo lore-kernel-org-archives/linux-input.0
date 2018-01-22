@@ -1,69 +1,58 @@
 From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH v4 1/2] Input: Add driver for Cypress Generation 5
- touchscreen
-Date: Mon, 22 Jan 2018 13:50:49 +0100
-Message-ID: <20180122125049.4bqqqbgdlkdadpjh@flea.lan>
-References: <20171201153957.13053-1-mylene.josserand@free-electrons.com>
- <20171201153957.13053-2-mylene.josserand@free-electrons.com>
+Subject: Re: [PATCH v2 1/2] Input: edt-ft5x06 - Add support for regulator
+Date: Mon, 22 Jan 2018 13:51:28 +0100
+Message-ID: <20180122125128.5bs2l6gtiutoawlk@flea.lan>
+References: <20171228163336.28131-1-mylene.josserand@free-electrons.com>
+ <20171228163336.28131-2-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2qxrwdnpwuosh4y6"
+        protocol="application/pgp-signature"; boundary="td3jxty4iikh24mj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171201153957.13053-2-mylene.josserand@free-electrons.com>
+In-Reply-To: <20171228163336.28131-2-mylene.josserand@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, thomas.petazzoni@free-electrons.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux@armlinux.org.uk, wens@csie.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, quentin.schulz@free-electrons.com
 List-Id: linux-input@vger.kernel.org
 
 
---2qxrwdnpwuosh4y6
+--td3jxty4iikh24mj
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Dmitry,
 
-On Fri, Dec 01, 2017 at 04:39:56PM +0100, Myl=E8ne Josserand wrote:
-> This is the basic driver for the Cypress TrueTouch Gen5 touchscreen
-> controllers. This driver supports only the I2C bus but it uses regmap
-> so SPI support could be added later.
-> The touchscreen can retrieve some defined zone that are handled as
-> buttons (according to the hardware). That is why it handles
-> button and multitouch events.
+On Thu, Dec 28, 2017 at 05:33:35PM +0100, Myl=E8ne Josserand wrote:
+> Add the support of regulator to use it as VCC source.
 >=20
-> Reviewed-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 > Signed-off-by: Myl=E8ne Josserand <mylene.josserand@free-electrons.com>
 
-Can we have some review here? This is the fourth iteration, with the
-first having been sent back in May, and as far as I know we never got
-any review from you. Can we please move forward on this?
-
-Maxime
+Ping?
 
 --=20
 Maxime Ripard, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
 
---2qxrwdnpwuosh4y6
+--td3jxty4iikh24mj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlpl3igACgkQ0rTAlCFN
-r3TFkQ/6AhP31hSEL1wyw40vQ0dqOapJIdz4pDcNp4arCvxuRsIH4gno/vPrBtvi
-kcvCpvB8ws6ZQU8+6cyuKSa+gMTO9WgD7iI6TPc5Yz8wzSxEfmrBHNT5E/OPksCl
-di8IP9xwiAeCABgiCQksi+A6rWe1W94idGWAXXFw2miL5oLW81Qt8PCLadZmeVeR
-hlIs2C+l1DY2Gi6iPk1Lqjc/9wZFIbEjpHN26zlSOKanRLIKUFXzD1DjEiy9z4lS
-0ereNkyNu+rKqnNynS9VPZcveivh7czGVoy1PeG5PXjtX+mwcZpw94w13UfLPTBc
-+vgh986EHo97tt6Lz5bYGSzwnpHA7HYfZ0Wqbq8NF6+bpBvY5rv2cjtY7i3xqvp4
-UpCwxlDMVhioIjD5pxK4fsgcylSWZcD9W6Pa/ux/2093RGHOhwi6Uitz89oH2iVp
-dJaERZVjdXxTAa7G9OJHmpypZpVL3IdMXj3MNQxnG7x9urC2GCRUNVFohtHEe2F/
-PnrnWVl7uOPwQW/VhtwwrzJVkINq+905V5FmQdHiyqyABl4WO9RA7CqDRvDvFFxD
-jMVEEZ9Vonp90ABnmgL89NhsdDCGFdAxMiV8QR4Ad2zCnkYd9hZTY1nmLtoYFlLh
-FeBK+Iq9wgAFtalYJb431GPYahLhYFOwqYEeDZ69RTiLR/qG008=
-=/AGC
+iQIzBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlpl3k8ACgkQ0rTAlCFN
+r3Sbcw//Tz0W4LD+G/7D0fWOZx9JivKDZMbz7iv7HexGQ+ReZLfNS6S8nWZ1Nny2
+Pw7xAIlvnQ6jaGZfnfot1FF82kwDNig7j83iS7alF1nKiKf+IO1ip8GHZwY7viai
+WJdy5PYKv5pHesRSFJ+4rlmQ4kzyI6hXy2tFfkXQtBwFuKYuS8aOFTRG3Llisj46
+jnjkLhNBbKWU3yliKqogTnKJUGZbg/LdH0+pFsw9J7zxG8Gg9+QZPRAseQpASmiE
+j8zup338s9y9hHdueBC4PECRlQk2KQOQLxFhpa31UI/9bOHnp2gupkvNCfmvkDun
+lmzi96W/W0xXxIqj9RF2E6Sy3bNTXnRclTaXM/X00aOhSd3xVjag2xLobjT8bBy4
+2E4pVCBaS7+K5Co3qWtyj31kfa2UzAQyH16OSqFCD5kC6+oAYh1WTXIjdLAM2bZj
+MyPCf+YOojMpkU3Oi0CfmjMLVtbNfD+YpLYntK7M015UlF9B7CmL+Ggk13ad4SVo
+a7EfWiF9v0Y69S7ws1W2p+OUgEGmcxwUppsg/oIQ7p76/gR/vxlNGn26TtVfj5p7
+Od3A3DgYjj596YmPKeKvvAd6hCUkrrB080EnnYuonpuh4wAgSZhZugQ4zm/rcjKk
+XHsOYnoWGywD53HFYuFBZwTpsHqmfUGXp2vmVtuXDX4l78ocn2k=
+=T2X5
 -----END PGP SIGNATURE-----
 
---2qxrwdnpwuosh4y6--
+--td3jxty4iikh24mj--

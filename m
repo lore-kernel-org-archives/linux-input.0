@@ -1,160 +1,198 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] Input: edt-ft5x06 - Add support for regulator
-Date: Mon, 22 Jan 2018 09:42:08 -0800
-Message-ID: <CAKdAkRQme1Y+t4qxLGOFojEji1L6z3L0XS4+W0FdQ36-2hxW=A@mail.gmail.com>
-References: <20171228163336.28131-1-mylene.josserand@free-electrons.com> <20171228163336.28131-2-mylene.josserand@free-electrons.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 5/7] Input: libps2 - add debugging statements
+Date: Mon, 22 Jan 2018 10:33:49 -0800
+Message-ID: <20180122183349.tsojlsejjvpagxam@dtor-ws>
+References: <20180119194111.185590-1-dmitry.torokhov@gmail.com>
+ <20180119194111.185590-6-dmitry.torokhov@gmail.com>
+ <20180121202230.GB23310@beacon.debie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171228163336.28131-2-mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?UTF-8?Q?Myl=C3=A8ne_Josserand?= <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Russell King - ARM Linux <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:39120 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751102AbeAVSdx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 22 Jan 2018 13:33:53 -0500
+Content-Disposition: inline
+In-Reply-To: <20180121202230.GB23310@beacon.debie>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: ulrik.debie-os@e2big.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>
 
-Hi Myl=C3=A8ne,
+H Ulrik,
 
-On Thu, Dec 28, 2017 at 8:33 AM, Myl=C3=A8ne Josserand
-<mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
-> Add the support of regulator to use it as VCC source.
->
-> Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org=
->
-> ---
->  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
->  drivers/input/touchscreen/edt-ft5x06.c             | 33 ++++++++++++++++=
-++++++
->  2 files changed, 34 insertions(+)
->
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x=
-06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> index 025cf8c9324a..48e975b9c1aa 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> @@ -30,6 +30,7 @@ Required properties:
->  Optional properties:
->   - reset-gpios: GPIO specification for the RESET input
->   - wake-gpios:  GPIO specification for the WAKE input
-> + - vcc-supply:  Regulator that supplies the touchscreen
->
->   - pinctrl-names: should be "default"
->   - pinctrl-0:   a phandle pointing to the pin settings for the
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touch=
-screen/edt-ft5x06.c
-> index c53a3d7239e7..5ee14a25a382 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -39,6 +39,7 @@
->  #include <linux/input/mt.h>
->  #include <linux/input/touchscreen.h>
->  #include <linux/of_device.h>
-> +#include <linux/regulator/consumer.h>
->
->  #define WORK_REGISTER_THRESHOLD                0x00
->  #define WORK_REGISTER_REPORT_RATE      0x08
-> @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
->         struct touchscreen_properties prop;
->         u16 num_x;
->         u16 num_y;
-> +       struct regulator *vcc;
->
->         struct gpio_desc *reset_gpio;
->         struct gpio_desc *wake_gpio;
-> @@ -993,6 +995,23 @@ static int edt_ft5x06_ts_probe(struct i2c_client *cl=
-ient,
->
->         tsdata->max_support_points =3D chip_data->max_support_points;
->
-> +       tsdata->vcc =3D devm_regulator_get(&client->dev, "vcc");
-> +       if (IS_ERR(tsdata->vcc)) {
-> +               error =3D PTR_ERR(tsdata->vcc);
-> +               dev_err(&client->dev, "failed to request regulator: %d\n"=
-,
-> +                       error);
-> +               return error;
-> +       };
+On Sun, Jan 21, 2018 at 09:22:31PM +0100, ulrik.debie-os@e2big.org wrote:
+> 
+> Hi,
+> 
+> the patch series looks nice, but best to also include the procedure
+> described here in Documentation/input somewhere. I would not expect
+> everyone to dig into git commit logs to find the howto :)
 
-As 0-day pounted out, this semicolon is not needed.
-
-> +
-> +       if (tsdata->vcc) {
-
-You do not need to check for non-NULL here, devm_regulator_get() wil
-lnever give you a NULL. If regulator is not defined in DT/board
-mappings, then dummy regulator will be provided. You can call
-regulator_enable() and regulator_disable() and other regulator APIs
-with dummy regulator.
-
-> +               error =3D regulator_enable(tsdata->vcc);
-> +               if (error < 0) {
-> +                       dev_err(&client->dev, "failed to enable vcc: %d\n=
-",
-> +                               error);
-> +                       return error;
-> +               }
-> +       }
-> +
->         tsdata->reset_gpio =3D devm_gpiod_get_optional(&client->dev,
->                                                      "reset", GPIOD_OUT_H=
-IGH);
->         if (IS_ERR(tsdata->reset_gpio)) {
-> @@ -1122,20 +1141,34 @@ static int edt_ft5x06_ts_remove(struct i2c_client=
- *client)
->  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
->  {
->         struct i2c_client *client =3D to_i2c_client(dev);
-> +       struct edt_ft5x06_ts_data *tsdata =3D i2c_get_clientdata(client);
->
->         if (device_may_wakeup(dev))
->                 enable_irq_wake(client->irq);
->
-> +       if (tsdata->vcc)
-
-Same here.
-
-> +               regulator_disable(tsdata->vcc);
-> +
->         return 0;
->  }
->
->  static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
->  {
->         struct i2c_client *client =3D to_i2c_client(dev);
-> +       struct edt_ft5x06_ts_data *tsdata =3D i2c_get_clientdata(client);
-> +       int ret;
->
->         if (device_may_wakeup(dev))
->                 disable_irq_wake(client->irq);
->
-> +       if (tsdata->vcc) {
-
-And here.
-
-> +               ret =3D regulator_enable(tsdata->vcc);
-> +               if (ret < 0) {
-> +                       dev_err(dev, "failed to enable vcc: %d\n", ret);
-> +                       return ret;
-> +               }
-
-Since power to the device may have been cut, I think you need to
-restore the register settings to whatever it was (factory vs work
-mode, threshold, gain and offset registers, etc, etc).
-
-> +       }
-> +
->         return 0;
->  }
->
-> --
-> 2.11.0
->
+Right now we do not have any notes in kernel on debugging PS/2 devices,
+although we have a bunch of tools (ps2emu), etc. I wonder if I can get
+Benjamin or Lyude or Hans or Peter write something up as they've been
+doing a lot of touchpad bringups...
 
 Thanks.
 
---=20
+> 
+> Best regards,
+> Ulrik
+> 
+> 
+> On Fri, Jan 19, 2018 at 11:41:09AM -0800, Dmitry Torokhov wrote:
+> > Date:   Fri, 19 Jan 2018 11:41:09 -0800
+> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede
+> >  <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>
+> > Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+> > Subject: [PATCH 5/7] Input: libps2 - add debugging statements
+> > X-Mailer: git-send-email 2.16.0.rc1.238.g530d649a79-goog
+> > X-Mailing-List: linux-input@vger.kernel.org
+> > 
+> > Debugging via i8042.debug and analyzing raw PS/2 data stream may be
+> > cumbersome as you need to locate the boundaries of commands, decipher the
+> > sliced commands, etc, etc. Let's add a bit more high level debug statements
+> > for ps2_sendbyte(), ps2_command(), and ps2_sliced_command().
+> > 
+> > We do not introduce a new module parameter, but rater rely on the kernel
+> > having dynamic debug facility enabled (which most everyone has nowadays).
+> > Enable with:
+> > 
+> > echo "file libps2.c +pf" > /sys/kernel/debug/dynamic_debug/control
+> > 
+> > or add "libps2.dyndbg=+pf" to the kernel command line.
+> > 
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/serio/libps2.c | 52 +++++++++++++++++++++++++++++++++-----------
+> >  1 file changed, 39 insertions(+), 13 deletions(-)
+> > 
+> > diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
+> > index e96ae477f0b56..82befae4dab04 100644
+> > --- a/drivers/input/serio/libps2.c
+> > +++ b/drivers/input/serio/libps2.c
+> > @@ -26,22 +26,20 @@ MODULE_AUTHOR("Dmitry Torokhov <dtor@mail.ru>");
+> >  MODULE_DESCRIPTION("PS/2 driver library");
+> >  MODULE_LICENSE("GPL");
+> >  
+> > -/*
+> > - * ps2_sendbyte() sends a byte to the device and waits for acknowledge.
+> > - * It doesn't handle retransmission, though it could - because if there
+> > - * is a need for retransmissions device has to be replaced anyway.
+> > - *
+> > - * ps2_sendbyte() can only be called from a process context.
+> > - */
+> > -
+> > -int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
+> > +static int ps2_do_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
+> >  {
+> > +	int error;
+> > +
+> >  	serio_pause_rx(ps2dev->serio);
+> >  	ps2dev->nak = 1;
+> >  	ps2dev->flags |= PS2_FLAG_ACK;
+> >  	serio_continue_rx(ps2dev->serio);
+> >  
+> > -	if (serio_write(ps2dev->serio, byte) == 0)
+> > +	error = serio_write(ps2dev->serio, byte);
+> > +	if (error)
+> > +		dev_dbg(&ps2dev->serio->dev,
+> > +			"failed to write %#02x: %d\n", byte, error);
+> > +	else
+> >  		wait_event_timeout(ps2dev->wait,
+> >  				   !(ps2dev->flags & PS2_FLAG_ACK),
+> >  				   msecs_to_jiffies(timeout));
+> > @@ -52,6 +50,24 @@ int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
+> >  
+> >  	return -ps2dev->nak;
+> >  }
+> > +
+> > +/*
+> > + * ps2_sendbyte() sends a byte to the device and waits for acknowledge.
+> > + * It doesn't handle retransmission, though it could - because if there
+> > + * is a need for retransmissions device has to be replaced anyway.
+> > + *
+> > + * ps2_sendbyte() can only be called from a process context.
+> > + */
+> > +
+> > +int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
+> > +{
+> > +	int retval;
+> > +
+> > +	retval = ps2_do_sendbyte(ps2dev, byte, timeout);
+> > +	dev_dbg(&ps2dev->serio->dev, "%02x - %x\n", byte, ps2dev->nak);
+> > +
+> > +	return retval;
+> > +}
+> >  EXPORT_SYMBOL(ps2_sendbyte);
+> >  
+> >  void ps2_begin_command(struct ps2dev *ps2dev)
+> > @@ -186,6 +202,7 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
+> >  	unsigned int receive = (command >> 8) & 0xf;
+> >  	int rc = -1;
+> >  	int i;
+> > +	u8 send_param[16];
+> >  
+> >  	if (receive > sizeof(ps2dev->cmdbuf)) {
+> >  		WARN_ON(1);
+> > @@ -197,6 +214,8 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
+> >  		return -1;
+> >  	}
+> >  
+> > +	memcpy(send_param, param, send);
+> > +
+> >  	serio_pause_rx(ps2dev->serio);
+> >  	ps2dev->flags = command == PS2_CMD_GETID ? PS2_FLAG_WAITID : 0;
+> >  	ps2dev->cmdcnt = receive;
+> > @@ -210,14 +229,14 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
+> >  	 * ACKing the reset command, and so it can take a long
+> >  	 * time before the ACK arrives.
+> >  	 */
+> > -	if (ps2_sendbyte(ps2dev, command & 0xff,
+> > -			 command == PS2_CMD_RESET_BAT ? 1000 : 200)) {
+> > +	if (ps2_do_sendbyte(ps2dev, command & 0xff,
+> > +			    command == PS2_CMD_RESET_BAT ? 1000 : 200)) {
+> >  		serio_pause_rx(ps2dev->serio);
+> >  		goto out_reset_flags;
+> >  	}
+> >  
+> >  	for (i = 0; i < send; i++) {
+> > -		if (ps2_sendbyte(ps2dev, param[i], 200)) {
+> > +		if (ps2_do_sendbyte(ps2dev, param[i], 200)) {
+> >  			serio_pause_rx(ps2dev->serio);
+> >  			goto out_reset_flags;
+> >  		}
+> > @@ -253,6 +272,12 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
+> >  	ps2dev->flags = 0;
+> >  	serio_continue_rx(ps2dev->serio);
+> >  
+> > +	dev_dbg(&ps2dev->serio->dev,
+> > +		"%02x [%*ph] - %x/%08lx [%*ph]\n",
+> > +		command & 0xff, send, send_param,
+> > +		ps2dev->nak, ps2dev->flags,
+> > +		receive, param ?: send_param);
+> > +
+> >  	return rc;
+> >  }
+> >  EXPORT_SYMBOL(__ps2_command);
+> > @@ -296,6 +321,7 @@ int ps2_sliced_command(struct ps2dev *ps2dev, u8 command)
+> >  	}
+> >  
+> >  out:
+> > +	dev_dbg(&ps2dev->serio->dev, "%02x - %d\n", command, retval);
+> >  	ps2_end_command(ps2dev);
+> >  	return retval;
+> >  }
+> > -- 
+> > 2.16.0.rc1.238.g530d649a79-goog
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

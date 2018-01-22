@@ -1,49 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: Add support for PDP Xbox One controllers
-Date: Mon, 22 Jan 2018 11:25:33 -0800
-Message-ID: <20180122192533.5bjek4ibrregkmqf@dtor-ws>
-References: <20171210185208.08d7e52c@volta>
- <c3e05db2-801e-72d6-ebce-6a27ffaef538@gmail.com>
+Subject: Re: [PATCH] Input: ads7846 - use managed allocated resources
+Date: Mon, 22 Jan 2018 11:58:08 -0800
+Message-ID: <20180122195808.modzzlhiw5xnuez5@dtor-ws>
+References: <20171109140038.19771-1-andi@etezian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:45321 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750825AbeAVTZh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Jan 2018 14:25:37 -0500
-Received: by mail-pg0-f67.google.com with SMTP id m136so897594pga.12
-        for <linux-input@vger.kernel.org>; Mon, 22 Jan 2018 11:25:37 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <c3e05db2-801e-72d6-ebce-6a27ffaef538@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20171109140038.19771-1-andi@etezian.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Shyti <andi@etezian.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: "Mark Furneaux (by way of Mark Furneaux <mark@furneaux.ca>)" <mark@furneaux.ca>, linux-input@vger.kernel.org
 
-On Mon, Dec 11, 2017 at 09:42:11PM -0800, Cameron Gutman wrote:
-> On 12/10/2017 03:52 PM, Mark Furneaux (by way of Mark Furneaux <mark@furneaux.ca>) wrote:
-> > Input: Add support for PDP Xbox One controllers
-> > 
-> > Adds support for the current lineup of Xbox One controllers from PDP
-> > (Performance Designed Products). These controllers are very picky with
-> > their initialization sequence and require an additional 2 packets before
-> > they send any input reports.
-> > 
-> > Signed-off-by: Mark Furneaux <mark@furneaux.ca>
-> > 
-> > ---
-> > Changes in v2:
-> > 
-> > - Zeroed the sequence numbers and removed the redundant quirk entry.
-> > - Corrected mangled formatting from my email client.
-> > 
-> 
-> Thanks, LGTM.
-> 
-> Reviewed-by: Cameron Gutman <aicommander@gmail.com>
+Hi Andi,
 
-Applied and earmarked for stable, thank you.
+On Thu, Nov 09, 2017 at 04:00:38PM +0200, Andi Shyti wrote:
+> @@ -1462,31 +1435,11 @@ static int ads7846_remove(struct spi_device *spi)
+>  {
+>  	struct ads7846 *ts = spi_get_drvdata(spi);
+>  
+> -	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
+> -
+>  	ads7846_disable(ts);
+> -	free_irq(ts->spi->irq, ts);
+> -
+> -	input_unregister_device(ts->input);
+> -
+> -	ads784x_hwmon_unregister(spi, ts);
+> -
+> -	regulator_put(ts->reg);
+> -
+> -	if (!ts->get_pendown_state) {
+> -		/*
+> -		 * If we are not using specialized pendown method we must
+> -		 * have been relying on gpio we set up ourselves.
+> -		 */
+> -		gpio_free(ts->gpio_pendown);
+> -	}
+>  
+>  	if (ts->filter_cleanup)
+>  		ts->filter_cleanup(ts->filter_data);
+
+You need to either remove custom filter support from the driver, or
+install an action to use devm* to do filter cleanup. Given that, as far
+as I can see, we do not have users of custom filters in mainline, and
+they are not compatible with DT-based systems, I'd rather we removed
+them.
+
+>  
+> -	kfree(ts->packet);
+> -	kfree(ts);
+> -
+>  	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+>  
+>  	return 0;
+> -- 
+> 2.15.0
+> 
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,63 +1,69 @@
-From: Andi Shyti <andi@etezian.org>
-Subject: Re: [PATCH] Input: edt-ft5x06: Delete an error message for a failed
- memory allocation in edt_ft5x06_ts_probe()
-Date: Mon, 22 Jan 2018 16:43:03 +0900
-Message-ID: <20180122074303.GB26752@brancaleone.zhora.eu>
-References: <45f8a6c2-423b-5bc1-6512-c5b954c5620b@users.sourceforge.net>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v4 1/2] Input: Add driver for Cypress Generation 5
+ touchscreen
+Date: Mon, 22 Jan 2018 13:50:49 +0100
+Message-ID: <20180122125049.4bqqqbgdlkdadpjh@flea.lan>
+References: <20171201153957.13053-1-mylene.josserand@free-electrons.com>
+ <20171201153957.13053-2-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 7.mo7.mail-out.ovh.net ([46.105.43.131]:32936 "EHLO
-        7.mo7.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752480AbeAVJAV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Jan 2018 04:00:21 -0500
-Received: from player788.ha.ovh.net (b7.ovh.net [213.186.33.57])
-        by mo7.mail-out.ovh.net (Postfix) with ESMTP id D393D8BAD2
-        for <linux-input@vger.kernel.org>; Mon, 22 Jan 2018 08:43:22 +0100 (CET)
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="2qxrwdnpwuosh4y6"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <45f8a6c2-423b-5bc1-6512-c5b954c5620b@users.sourceforge.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20171201153957.13053-2-mylene.josserand@free-electrons.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, thomas.petazzoni@free-electrons.com
 List-Id: linux-input@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, Andi Shyti <andi@etezian.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?iso-8859-15?Q?G=FCnter_R=F6ck?= <linux@roeck-us.net>, Martin Kepplinger <martink@posteo.de>, Rob Herring <robh@kernel.org>, Simon Budig <simon.budig@kernelconcepts.de>, Stefan =?iso-8859-15?Q?Sch=F6fegger?= <stefan.schoefegger@ginzinger.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-Hi Markus,
 
-On Sun, Jan 21, 2018 at 08:19:00PM +0100, SF Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sun, 21 Jan 2018 20:10:03 +0100
-> 
-> Omit an extra message for a memory allocation failure in this function.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+--2qxrwdnpwuosh4y6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Andi Shyti <andi@etezian.org>
+Dmitry,
 
-Thanks,
-Andi
+On Fri, Dec 01, 2017 at 04:39:56PM +0100, Myl=E8ne Josserand wrote:
+> This is the basic driver for the Cypress TrueTouch Gen5 touchscreen
+> controllers. This driver supports only the I2C bus but it uses regmap
+> so SPI support could be added later.
+> The touchscreen can retrieve some defined zone that are handled as
+> buttons (according to the hardware). That is why it handles
+> button and multitouch events.
+>=20
+> Reviewed-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+> Signed-off-by: Myl=E8ne Josserand <mylene.josserand@free-electrons.com>
 
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index c53a3d7239e7..9d2799c90150 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -978,10 +978,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
->  	dev_dbg(&client->dev, "probing for EDT FT5x06 I2C\n");
->  
->  	tsdata = devm_kzalloc(&client->dev, sizeof(*tsdata), GFP_KERNEL);
-> -	if (!tsdata) {
-> -		dev_err(&client->dev, "failed to allocate driver data.\n");
-> +	if (!tsdata)
->  		return -ENOMEM;
-> -	}
->  
->  	chip_data = of_device_get_match_data(&client->dev);
->  	if (!chip_data)
-> -- 
-> 2.16.0
+Can we have some review here? This is the fourth iteration, with the
+first having been sent back in May, and as far as I know we never got
+any review from you. Can we please move forward on this?
+
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+--2qxrwdnpwuosh4y6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE0VqZU19dR2zEVaqr0rTAlCFNr3QFAlpl3igACgkQ0rTAlCFN
+r3TFkQ/6AhP31hSEL1wyw40vQ0dqOapJIdz4pDcNp4arCvxuRsIH4gno/vPrBtvi
+kcvCpvB8ws6ZQU8+6cyuKSa+gMTO9WgD7iI6TPc5Yz8wzSxEfmrBHNT5E/OPksCl
+di8IP9xwiAeCABgiCQksi+A6rWe1W94idGWAXXFw2miL5oLW81Qt8PCLadZmeVeR
+hlIs2C+l1DY2Gi6iPk1Lqjc/9wZFIbEjpHN26zlSOKanRLIKUFXzD1DjEiy9z4lS
+0ereNkyNu+rKqnNynS9VPZcveivh7czGVoy1PeG5PXjtX+mwcZpw94w13UfLPTBc
++vgh986EHo97tt6Lz5bYGSzwnpHA7HYfZ0Wqbq8NF6+bpBvY5rv2cjtY7i3xqvp4
+UpCwxlDMVhioIjD5pxK4fsgcylSWZcD9W6Pa/ux/2093RGHOhwi6Uitz89oH2iVp
+dJaERZVjdXxTAa7G9OJHmpypZpVL3IdMXj3MNQxnG7x9urC2GCRUNVFohtHEe2F/
+PnrnWVl7uOPwQW/VhtwwrzJVkINq+905V5FmQdHiyqyABl4WO9RA7CqDRvDvFFxD
+jMVEEZ9Vonp90ABnmgL89NhsdDCGFdAxMiV8QR4Ad2zCnkYd9hZTY1nmLtoYFlLh
+FeBK+Iq9wgAFtalYJb431GPYahLhYFOwqYEeDZ69RTiLR/qG008=
+=/AGC
+-----END PGP SIGNATURE-----
+
+--2qxrwdnpwuosh4y6--

@@ -1,56 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1] Input: docs - use PROPERTY_ENTRY_U32() directly
-Date: Mon, 22 Jan 2018 09:28:33 -0800
-Message-ID: <20180122172833.hvfg2qcnpzscbymm@dtor-ws>
-References: <20180122125457.6226-1-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] input: da9052_tsi: remove unused mutex
+Date: Mon, 22 Jan 2018 09:28:44 -0800
+Message-ID: <20180122172844.e3on5yqyw67gbh7u@dtor-ws>
+References: <20180122155254.9255-1-marcus.folkesson@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:42274 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751028AbeAVR2h (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:35465 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751028AbeAVR2r (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Jan 2018 12:28:37 -0500
+        Mon, 22 Jan 2018 12:28:47 -0500
 Content-Disposition: inline
-In-Reply-To: <20180122125457.6226-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20180122155254.9255-1-marcus.folkesson@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Support Opensource <support.opensource@diasemi.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jan 22, 2018 at 02:54:57PM +0200, Andy Shevchenko wrote:
-> Instead of using PROPERTY_ENTRY_INTEGER() with explicitly supplied type,
-> use PROPERTY_ENTRY_U32() dedicated macro.
-> 
-> It will help modify internals of built-in device properties API.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Mon, Jan 22, 2018 at 04:52:53PM +0100, Marcus Folkesson wrote:
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 
 Applied, thank you.
 
 > ---
->  Documentation/input/devices/rotary-encoder.rst | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/input/touchscreen/da9052_tsi.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> diff --git a/Documentation/input/devices/rotary-encoder.rst b/Documentation/input/devices/rotary-encoder.rst
-> index b07b20a295ac..810ae02bdaa0 100644
-> --- a/Documentation/input/devices/rotary-encoder.rst
-> +++ b/Documentation/input/devices/rotary-encoder.rst
-> @@ -108,9 +108,9 @@ example below:
->  	};
->  
->  	static const struct property_entry rotary_encoder_properties[] __initconst = {
-> -		PROPERTY_ENTRY_INTEGER("rotary-encoder,steps-per-period", u32, 24),
-> -		PROPERTY_ENTRY_INTEGER("linux,axis",			  u32, ABS_X),
-> -		PROPERTY_ENTRY_INTEGER("rotary-encoder,relative_axis",	  u32, 0),
-> +		PROPERTY_ENTRY_U32("rotary-encoder,steps-per-period", 24),
-> +		PROPERTY_ENTRY_U32("linux,axis",		      ABS_X),
-> +		PROPERTY_ENTRY_U32("rotary-encoder,relative_axis",    0),
->  		{ },
->  	};
->  
+> diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
+> index 5a013bb7bcad..b5dfd5944cc3 100644
+> --- a/drivers/input/touchscreen/da9052_tsi.c
+> +++ b/drivers/input/touchscreen/da9052_tsi.c
+> @@ -26,7 +26,6 @@ struct da9052_tsi {
+>  	struct da9052 *da9052;
+>  	struct input_dev *dev;
+>  	struct delayed_work ts_pen_work;
+> -	struct mutex mutex;
+>  	bool stopped;
+>  	bool adc_on;
+>  };
 > -- 
 > 2.15.1
 > 

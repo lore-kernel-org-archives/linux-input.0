@@ -1,100 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/3] Input: ad7897 - use devm_add_action_or_reset to
- disable the device
-Date: Mon, 22 Jan 2018 17:40:09 -0800
-Message-ID: <20180123014009.dtk3obr4fj4vztzr@dtor-ws>
-References: <20171108155020.3851-1-andi@etezian.org>
- <20171108155020.3851-3-andi@etezian.org>
+Subject: Re: [PATCH] Input: stmfts,s6sy671 - add SPDX identifier
+Date: Mon, 22 Jan 2018 17:41:11 -0800
+Message-ID: <20180123014111.qt76xd7dnjikpmm7@dtor-ws>
+References: <CGME20171212074156epcas2p4fefff65c3316ec1aa9b3d7797aaca550@epcas2p4.samsung.com>
+ <20171212074149.7844-1-andi.shyti@samsung.com>
+ <20180105095715.GA6679@gangnam.samsung>
+ <20180105164958.csojn6vhy72bwoac@dtor-ws>
+ <20180109052331.GC11443@gangnam.samsung>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:44645 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751336AbeAWBkM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Jan 2018 20:40:12 -0500
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171108155020.3851-3-andi@etezian.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20180109052331.GC11443@gangnam.samsung>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Philippe Ombredanne <pombredanne@nexb.com>
 List-Id: linux-input@vger.kernel.org
-To: Andi Shyti <andi@etezian.org>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Lars-Peter Clausen <lars@metafoo.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>
 
-Hi Andi,
+On Tue, Jan 09, 2018 at 02:23:31PM +0900, Andi Shyti wrote:
+> Hi Dmitry,
+> 
+> On Fri, Jan 05, 2018 at 08:49:58AM -0800, Dmitry Torokhov wrote:
+> > Hi Andi,
+> > 
+> > On Fri, Jan 05, 2018 at 06:57:15PM +0900, Andi Shyti wrote:
+> > > Hi Dmitry,
+> > > 
+> > > this is a kind ping, would you also mind giving me a feedback to
+> > 
+> > Yes, sorry. Could you please split the patch for each driver
+> > individually? Also, until we have an update to the CodingStyle doc
+> > mandating the C++ style comments, I'd prefer keeping the original style
+> > of comments. So // for the SPDX line and /* */ for the rest.
+> 
+> I was actually following Linus guideline [1] [2]. I also had the
+> same discussion previously in another context [3].
+> 
+> Please let me know if you still want a mixed style of comments in
+> the next patch.
 
-On Wed, Nov 08, 2017 at 05:50:19PM +0200, Andi Shyti wrote:
-> Use the ad7877_disable() as a custom action when the driver gets
-> removed instead of calling it from the remove function.
-> 
-> Because ad7877_remove() was just calling the disable function,
-> get rid of it.
-> 
+Eh, I guess it does not matter in the grand scheme of things; applied as
+is.
 
-There is not reason why this change needs to be split from the first
-one; I folded it back in and applied, thank you.
+Thank you.
 
-> CC: Michael Hennerich <michael.hennerich@analog.com>
-> Signed-off-by: Andi Shyti <andi@etezian.org>
-> ---
->  drivers/input/touchscreen/ad7877.c | 20 +++++++-------------
->  1 file changed, 7 insertions(+), 13 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-> index dd59e4a5eb7d..04ab8fbc8184 100644
-> --- a/drivers/input/touchscreen/ad7877.c
-> +++ b/drivers/input/touchscreen/ad7877.c
-> @@ -417,8 +417,10 @@ static irqreturn_t ad7877_irq(int irq, void *handle)
->  	return IRQ_HANDLED;
->  }
->  
-> -static void ad7877_disable(struct ad7877 *ts)
-> +static void ad7877_disable(void *data)
->  {
-> +	struct ad7877 *ts = data;
-> +
->  	mutex_lock(&ts->mutex);
->  
->  	if (!ts->disabled) {
-> @@ -712,6 +714,10 @@ static int ad7877_probe(struct spi_device *spi)
->  	if (!ts || !input_dev)
->  		return -ENOMEM;
->  
-> +	err = devm_add_action_or_reset(&spi->dev, ad7877_disable, ts);
-> +	if (err)
-> +		return err;
-> +
->  	spi_set_drvdata(spi, ts);
->  	ts->spi = spi;
->  	ts->input = input_dev;
-> @@ -787,17 +793,6 @@ static int ad7877_probe(struct spi_device *spi)
->  	return input_register_device(input_dev);
->  }
->  
-> -static int ad7877_remove(struct spi_device *spi)
-> -{
-> -	struct ad7877 *ts = spi_get_drvdata(spi);
-> -
-> -	ad7877_disable(ts);
-> -
-> -	dev_dbg(&spi->dev, "unregistered touchscreen\n");
-> -
-> -	return 0;
-> -}
-> -
->  static int __maybe_unused ad7877_suspend(struct device *dev)
->  {
->  	struct ad7877 *ts = dev_get_drvdata(dev);
-> @@ -824,7 +819,6 @@ static struct spi_driver ad7877_driver = {
->  		.pm	= &ad7877_pm,
->  	},
->  	.probe		= ad7877_probe,
-> -	.remove		= ad7877_remove,
->  };
->  
->  module_spi_driver(ad7877_driver);
-> -- 
-> 2.15.0
+> Thanks,
+> Andi
 > 
+> [1] https://marc.info/?l=linux-kernel&m=151163713125320&w=2
+>     ...
+>     └-> https://marc.info/?l=linux-kernel&m=151163867325641&w=2
+>         ...
+>         └-> https://marc.info/?l=linux-kernel&m=151163867325641&w=2
+> 
+> [2] https://marc.info/?l=linux-kernel&m=150964359922353
+> [3] https://marc.info/?l=linux-kernel&m=151312974503109&w=2
 
 -- 
 Dmitry

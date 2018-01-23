@@ -1,88 +1,60 @@
-From: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH v2] Input: mms114 - drop platform data and use generic
- APIs
-Date: Tue, 23 Jan 2018 20:15:29 +0900
-Message-ID: <20180123111529.GA29613@gangnam.samsung>
-References: <CGME20180113020518epcas1p3987c04ac42714710204aca5a800a4f5b@epcas1p3.samsung.com>
-        <20180113020456.12391-1-simon@lineageos.org>
-        <20180116075611.GC30945@gangnam.samsung>
-        <20180116085206.GA18232@lineageos.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-disposition: inline
-In-reply-to: <20180116085206.GA18232-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Simon Shields <simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+From: Alberto Ponces <ponces26@gmail.com>
+Subject: [PATCH] Add touchscreen platform data for the Teclast X3 Plus tablet.
+Date: Tue, 23 Jan 2018 11:18:07 +0000
+Message-ID: <1516706288-177-1-git-send-email-ponces26@gmail.com>
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: ponces26@gmail.com, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Simon,
+Add touchscreen platform data for the Teclast X3 Plus tablet.
 
-sorry for the late answer,
+Signed-off-by: Alberto Ponces <ponces26@gmail.com>
+---
+ drivers/platform/x86/silead_dmi.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-On Tue, Jan 16, 2018 at 07:52:06PM +1100, Simon Shields wrote:
-> Hi Andi,
-> 
-> Thanks for the review!
-> 
-> On Tue, Jan 16, 2018 at 04:56:11PM +0900, Andi Shyti wrote:
-> > Hi Simon,
-> > 
-> > On Sat, Jan 13, 2018 at 01:04:56PM +1100, Simon Shields wrote:
-> > > The MMS114 platform data has no in-tree users, so drop it,
-> > > and make the driver depend on CONFIG_OF.
-> > > 
-> > > Switch to using the standard touchscreen properties via
-> > > touchscreen_parse_properties(), and move the old DT parsing code
-> > > to use device_property_*() APIs.
-> > > 
-> > > Finally, use touchscreen_report_pos to report x/y coordinates
-> > > and drop the custom x/y inversion code.
-> > > 
-> > > Signed-off-by: Simon Shields <simon-WP75azK+jQYgsBAKwltoeQ@public.gmane.org>
-> > > ---
-> > >  .../bindings/input/touchscreen/mms114.txt          |  29 ++--
-> > >  drivers/input/touchscreen/Kconfig                  |   1 +
-> > >  drivers/input/touchscreen/mms114.c                 | 152 +++++++++------------
-> > >  include/linux/platform_data/mms114.h               |  24 ----
-> > >  4 files changed, 83 insertions(+), 123 deletions(-)
-> > >  delete mode 100644 include/linux/platform_data/mms114.h
-> > > 
-> > 
-> > The patch looks good, but you would also need to update the dtsi
-> > files in this same patch:
-> > 
-> > ./arch/arm/boot/dts/exynos4412-trats2.dts
-> > ./arch/arm/boot/dts/exynos4210-trats.dts
-> > 
-> > and Cc the Samsung-soc mailing list.
-> > 
-> > For now it's a nack because the touchscreen would not work
-> > anymore with the trats boards.
-> 
-> This patch keeps support for the old bindings. I've verified that both
-> the old and new bindings work on a GT-I9300 (trats2 with a different
-> bootloader/partition layout).
-
-Oh, yes, I read the patch partially, I didn't see that you
-actually kept the back compatibility by doing this:
-
-> +     if (mms114_parse_dt(data) < 0) {
-> +             /* No valid legacy binding found, try the common one */
-> +             touchscreen_parse_properties(input_dev, true, &data->props);
-
-[...]
-
-Sorry for the confusion, please add:
-
-Reviewed-by: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Tested-by: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-
-And for reference to Dmitry, there is also Rob's ack.
-
-Andi
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
+index 266535c..d4c1190 100644
+--- a/drivers/platform/x86/silead_dmi.c
++++ b/drivers/platform/x86/silead_dmi.c
+@@ -171,6 +171,20 @@ static const struct silead_ts_dmi_data digma_citi_e200_data = {
+ 	.properties	= digma_citi_e200_props,
+ };
+ 
++static const struct property_entry teclast_x3_plus_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1980),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1500),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-teclast-x3-plus.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct silead_ts_dmi_data teclast_x3_plus_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= teclast_x3_plus_props,
++};
++
+ static const struct dmi_system_id silead_ts_dmi_table[] = {
+ 	{
+ 		/* CUBE iwork8 Air */
+@@ -271,6 +285,15 @@ static const struct dmi_system_id silead_ts_dmi_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+ 		},
+ 	},
++	{
++		/* Teclast X3 Plus */
++		.driver_data = (void *)&teclast_x3_plus_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "X3 Plus"),
++			DMI_MATCH(DMI_BOARD_NAME, "X3 Plus"),
++		},
++	},
+ 	{ },
+ };
+ 
+-- 
+2.7.4

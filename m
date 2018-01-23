@@ -1,31 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] Add support for One by Wacom (CTL-472 / CTL-672)
-Date: Tue, 23 Jan 2018 15:44:01 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1801231543210.11852@cbobk.fhfr.pm>
-References: <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr> <20171226235018.5522-1-killertofu@gmail.com>
+Subject: Re: [PATCH 1/2] HID: asus: Add touchpad max x/y and resolution info
+ for the T200TA
+Date: Tue, 23 Jan 2018 15:45:21 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1801231545060.11852@cbobk.fhfr.pm>
+References: <20180105110919.30399-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50997 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:51075 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751565AbeAWOoE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 23 Jan 2018 09:44:04 -0500
-In-Reply-To: <20171226235018.5522-1-killertofu@gmail.com>
+        id S1751565AbeAWOpX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 23 Jan 2018 09:45:23 -0500
+In-Reply-To: <20180105110919.30399-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Mx Jing <jingmingxuan@outlook.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Tue, 26 Dec 2017, Jason Gerecke wrote:
+On Fri, 5 Jan 2018, Hans de Goede wrote:
 
-> Adds support for the second-generation "One by Wacom" tablets. These
-> devices are similar to the last generation, but a slightly different size
-> and reporting a higher number of pressure levels.
+> The Asus T200TA uses the same USB device-id for its keyboard dock as the
+> T100TA, but the touchpad has a different size and corresponding different
+> max x/y values.
+> 
+> Add a separate asus_touchpad_info struct for the T200TA and select this
+> based on the DMI product-name (as we are already doing for the T100HA),
+> so that we report the correct info to userspace.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Please don't forget to put proper prefixes in the patch title ("HID: 
-wacom", as usual) next time.
-
-Applied to for-4.16/wacom, thanks.
+Unhappily applied both to for-4.16/hid-quirks-cleanup/asus. Thanks,
 
 -- 
 Jiri Kosina

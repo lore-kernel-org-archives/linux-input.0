@@ -1,64 +1,75 @@
-From: Alberto Ponces <ponces26@gmail.com>
-Subject: [PATCH v2] platform/x86: silead_dmi: Add touchscreen platform data for the Teclast X3 Plus tablet
-Date: Tue, 23 Jan 2018 18:33:38 +0000
-Message-ID: <1516732419-125-1-git-send-email-ponces26@gmail.com>
-References: <1516706288-177-1-git-send-email-ponces26@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1516706288-177-1-git-send-email-ponces26@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: ponces26@gmail.com, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: edt-ft5x06 - fix error handling for factory mode on
+ non-M06
+Date: Tue, 23 Jan 2018 10:52:36 -0800
+Message-ID: <20180123185236.fxjqpnscgx42s5lf@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:45558 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751474AbeAWSwk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 23 Jan 2018 13:52:40 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Simon Budig <simon.budig@kernelconcepts.de>, Andi Shyti <andi@etezian.org>, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Mylene Josserand <mylene.josserand@free-electrons.com>, linux-kernel@vger.kernel.org
 
-Add touchscreen platform data for the Teclast X3 Plus tablet.
+When attempting enter factory mode on firmware that does not support it,
+we'd error out, but leave the device with interrupts disabled, and thus
+touch not working. Fix it by moving the check before we disable
+interrupts/allocate memory for debug buffers.
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Signed-off-by: Alberto Ponces <ponces26@gmail.com>
+Fixes: fd335ab04b3f ("Input: edt-ft5x06 - add support for M09 firmware version")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/platform/x86/silead_dmi.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/input/touchscreen/edt-ft5x06.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
-index 048a82f..3a62409 100644
---- a/drivers/platform/x86/silead_dmi.c
-+++ b/drivers/platform/x86/silead_dmi.c
-@@ -263,6 +263,20 @@ static const struct silead_ts_dmi_data teclast_x98plus2_data = {
- 	.properties	= teclast_x98plus2_props,
- };
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index c53a3d7239e72..1e18ca0d1b4e1 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -511,6 +511,12 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+ 	int ret;
+ 	int error;
  
-+static const struct property_entry teclast_x3_plus_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1980),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1500),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-teclast-x3-plus.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
-+	{ }
-+};
++	if (tsdata->version != EDT_M06) {
++		dev_err(&client->dev,
++			"No factory mode support for non-M06 devices\n");
++		return -EINVAL;
++	}
 +
-+static const struct silead_ts_dmi_data teclast_x3_plus_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= teclast_x3_plus_props,
-+};
-+
- static const struct dmi_system_id silead_ts_dmi_table[] = {
- 	{
- 		/* CUBE iwork8 Air */
-@@ -423,6 +437,15 @@ static const struct dmi_system_id silead_ts_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "X98 Plus II"),
- 		},
- 	},
-+	{
-+		/* Teclast X3 Plus */
-+		.driver_data = (void *)&teclast_x3_plus_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "X3 Plus"),
-+			DMI_MATCH(DMI_BOARD_NAME, "X3 Plus"),
-+		},
-+	},
- 	{ },
- };
+ 	disable_irq(client->irq);
  
+ 	if (!tsdata->raw_buffer) {
+@@ -524,9 +530,6 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+ 	}
+ 
+ 	/* mode register is 0x3c when in the work mode */
+-	if (tsdata->version != EDT_M06)
+-		goto m09_out;
+-
+ 	error = edt_ft5x06_register_write(tsdata, WORK_REGISTER_OPMODE, 0x03);
+ 	if (error) {
+ 		dev_err(&client->dev,
+@@ -559,11 +562,6 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+ 	enable_irq(client->irq);
+ 
+ 	return error;
+-
+-m09_out:
+-	dev_err(&client->dev, "No factory mode support for M09/M12/GENERIC_FT\n");
+-	return -EINVAL;
+-
+ }
+ 
+ static int edt_ft5x06_work_mode(struct edt_ft5x06_ts_data *tsdata)
 -- 
-2.7.4
+2.16.0.rc1.238.g530d649a79-goog
+
+
+-- 
+Dmitry

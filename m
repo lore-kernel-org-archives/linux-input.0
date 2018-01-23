@@ -1,60 +1,33 @@
-From: Alberto Ponces <ponces26@gmail.com>
-Subject: [PATCH] Add touchscreen platform data for the Teclast X3 Plus tablet.
-Date: Tue, 23 Jan 2018 11:18:07 +0000
-Message-ID: <1516706288-177-1-git-send-email-ponces26@gmail.com>
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: ponces26@gmail.com, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: rmi: Support the Fujitsu R726 Pad dock using
+ hid-rmi
+Date: Tue, 23 Jan 2018 15:20:57 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1801231520450.11852@cbobk.fhfr.pm>
+References: <1510968090-24764-1-git-send-email-aduggan@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:48459 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751704AbeAWOVA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 23 Jan 2018 09:21:00 -0500
+In-Reply-To: <1510968090-24764-1-git-send-email-aduggan@synaptics.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Add touchscreen platform data for the Teclast X3 Plus tablet.
+On Fri, 17 Nov 2017, Andrew Duggan wrote:
 
-Signed-off-by: Alberto Ponces <ponces26@gmail.com>
----
- drivers/platform/x86/silead_dmi.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+> The Fujitsu R726 Pad has an optional USB keyboard dock which contains
+> a Synaptics touchpad. The dock identifies itself as a
+> Primax Rezel Tablet Keyboard.
+> 
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 
-diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
-index 266535c..d4c1190 100644
---- a/drivers/platform/x86/silead_dmi.c
-+++ b/drivers/platform/x86/silead_dmi.c
-@@ -171,6 +171,20 @@ static const struct silead_ts_dmi_data digma_citi_e200_data = {
- 	.properties	= digma_citi_e200_props,
- };
- 
-+static const struct property_entry teclast_x3_plus_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1980),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1500),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-teclast-x3-plus.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
-+	{ }
-+};
-+
-+static const struct silead_ts_dmi_data teclast_x3_plus_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= teclast_x3_plus_props,
-+};
-+
- static const struct dmi_system_id silead_ts_dmi_table[] = {
- 	{
- 		/* CUBE iwork8 Air */
-@@ -271,6 +285,15 @@ static const struct dmi_system_id silead_ts_dmi_table[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
- 		},
- 	},
-+	{
-+		/* Teclast X3 Plus */
-+		.driver_data = (void *)&teclast_x3_plus_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "TECLAST"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "X3 Plus"),
-+			DMI_MATCH(DMI_BOARD_NAME, "X3 Plus"),
-+		},
-+	},
- 	{ },
- };
- 
+Applied, thanks.
+
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs
+

@@ -1,47 +1,64 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input: wm831x-on: Improve a size determination in
- wm831x_on_probe()
-Date: Wed, 24 Jan 2018 22:22:35 +0100
-Message-ID: <43f052c7-c98d-7ca2-08ca-e5428b5ad575@users.sourceforge.net>
-References: <e307cfde-58e2-3f4d-ecd7-5c80ace0bb5b@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e307cfde-58e2-3f4d-ecd7-5c80ace0bb5b@users.sourceforge.net>
-Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, patches@opensource.cirrus.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+From: Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH v1] Revert "Input: synaptics_rmi4 - use devm_device_add_group() for attributes in F01"
+Date: Wed, 24 Jan 2018 21:26:03 +0000
+Message-ID: <1516829163-27534-1-git-send-email-nick@shmanahar.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avasout06.plus.net ([212.159.14.18]:52252 "EHLO
+        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932238AbeAXV0M (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 24 Jan 2018 16:26:12 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, Chris Healy <cphealy@gmail.com>, Lucas Stach <l.stach@pengutronix.de>, Nick Dyer <nick@shmanahar.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 24 Jan 2018 21:58:42 +0100
+Since the sysfs attribute hangs off the RMI bus, which doesn't go away during
+firmware flash, it needs to be explictly removed, otherwise we would try and
+register the same attribute twice.
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+This reverts commit 36a44af5c176d619552d99697433261141dd1296.
 
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Nick Dyer <nick@shmanahar.org>
 ---
- drivers/input/misc/wm831x-on.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/rmi4/rmi_f01.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
-index 06f5c4857a0c..0d8f7a11f63d 100644
---- a/drivers/input/misc/wm831x-on.c
-+++ b/drivers/input/misc/wm831x-on.c
-@@ -75,8 +75,7 @@ static int wm831x_on_probe(struct platform_device *pdev)
- 	int irq = wm831x_irq(wm831x, platform_get_irq(pdev, 0));
- 	int ret;
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index ae966e3..8a07ae1 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -570,14 +570,19 @@ static int rmi_f01_probe(struct rmi_function *fn)
  
--	wm831x_on = devm_kzalloc(&pdev->dev, sizeof(struct wm831x_on),
--				 GFP_KERNEL);
-+	wm831x_on = devm_kzalloc(&pdev->dev, sizeof(*wm831x_on), GFP_KERNEL);
- 	if (!wm831x_on)
- 		return -ENOMEM;
+ 	dev_set_drvdata(&fn->dev, f01);
  
+-	error = devm_device_add_group(&fn->rmi_dev->dev, &rmi_f01_attr_group);
++	error = sysfs_create_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
+ 	if (error)
+-		dev_warn(&fn->dev,
+-			 "Failed to create attribute group: %d\n", error);
++		dev_warn(&fn->dev, "Failed to create sysfs group: %d\n", error);
+ 
+ 	return 0;
+ }
+ 
++static void rmi_f01_remove(struct rmi_function *fn)
++{
++	/* Note that the bus device is used, not the F01 device */
++	sysfs_remove_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
++}
++
+ static int rmi_f01_config(struct rmi_function *fn)
+ {
+ 	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+@@ -717,6 +722,7 @@ struct rmi_function_handler rmi_f01_handler = {
+ 	},
+ 	.func		= 0x01,
+ 	.probe		= rmi_f01_probe,
++	.remove		= rmi_f01_remove,
+ 	.config		= rmi_f01_config,
+ 	.attention	= rmi_f01_attention,
+ 	.suspend	= rmi_f01_suspend,
 -- 
-2.16.1
+2.7.4
+

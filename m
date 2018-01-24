@@ -1,41 +1,35 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 3/3] Input: apbps2: Fix typos in a comment
-Date: Wed, 24 Jan 2018 17:36:53 +0100
-Message-ID: <ba412c8a-e125-2289-ffdf-da3d68533c55@users.sourceforge.net>
-References: <50013a33-b7ca-fce1-9769-bfe3db850a8a@users.sourceforge.net>
+Subject: [PATCH 0/2] Input-arc_ps2: Adjustments for two function
+ implementations
+Date: Wed, 24 Jan 2018 18:38:13 +0100
+Message-ID: <f3c837b2-7be1-11fe-ba2c-1792590125d2@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50013a33-b7ca-fce1-9769-bfe3db850a8a@users.sourceforge.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.web.de ([212.227.15.4]:50945 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S964840AbeAXRiQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 24 Jan 2018 12:38:16 -0500
 Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, trivial@kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 24 Jan 2018 17:21:18 +0100
+Date: Wed, 24 Jan 2018 18:34:56 +0100
 
-Adjust two words in this description.
+Two update suggestions were taken into account
+from static source code analysis.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/serio/apbps2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Markus Elfring (2):
+  Delete an error message for a failed memory allocation in arc_ps2_probe()
+  Improve a size determination in two functions
 
-diff --git a/drivers/input/serio/apbps2.c b/drivers/input/serio/apbps2.c
-index a1c64df3b6cb..baa93bad993c 100644
---- a/drivers/input/serio/apbps2.c
-+++ b/drivers/input/serio/apbps2.c
-@@ -117,7 +117,7 @@ static int apbps2_open(struct serio *io)
- 	while ((ioread32be(&priv->regs->status) & APBPS2_STATUS_DR) && --limit)
- 		tmp = ioread32be(&priv->regs->data);
- 
--	/* Enable reciever and it's interrupt */
-+	/* Enable receiver and its interrupt */
- 	iowrite32be(APBPS2_CTRL_RE | APBPS2_CTRL_RI, &priv->regs->ctrl);
- 
- 	return 0;
+ drivers/input/serio/arc_ps2.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
 -- 
 2.16.1
+

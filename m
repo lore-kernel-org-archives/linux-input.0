@@ -1,50 +1,133 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input: gtco: Improve a size determination in gtco_probe()
-Date: Wed, 24 Jan 2018 16:15:59 +0100
-Message-ID: <0c363cc1-5532-e482-82bf-c8b59c2bd72f@users.sourceforge.net>
-References: <5c4410ab-5174-ce8d-cab6-7979aa61f996@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.4]:54899 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933948AbeAXPQD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 Jan 2018 10:16:03 -0500
-In-Reply-To: <5c4410ab-5174-ce8d-cab6-7979aa61f996@users.sourceforge.net>
-Content-Language: en-GB
-Sender: linux-input-owner@vger.kernel.org
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: [PATCH 1/2] input: pagasus_notetaker: fix deadlock in autosuspend
+Date: Wed, 24 Jan 2018 16:46:41 +0100
+Message-ID: <20180124154642.28824-1-marcus.folkesson@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 24 Jan 2018 15:08:42 +0100
+usb_autopm_get_interface() that is called in pegasus_open() does an
+autoresume if the device is suspended.
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+input_dev->mutex used in pegasus_resume() is in this case already
+taken by the input subsystem and will cause a deadlock.
 
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- drivers/input/tablet/gtco.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/tablet/pegasus_notetaker.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-index f2670872735f..6094241d4aa1 100644
---- a/drivers/input/tablet/gtco.c
-+++ b/drivers/input/tablet/gtco.c
-@@ -829,7 +829,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
- 	struct usb_device	*udev = interface_to_usbdev(usbinterface);
+diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+index 47de5a81172f..9ab1ed5e20e7 100644
+--- a/drivers/input/tablet/pegasus_notetaker.c
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -41,6 +41,7 @@
+ #include <linux/usb/input.h>
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
++#include <linux/mutex.h>
  
- 	/* Allocate memory for device structure */
--	gtco = kzalloc(sizeof(struct gtco), GFP_KERNEL);
-+	gtco = kzalloc(sizeof(*gtco), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!gtco || !input_dev) {
- 		dev_err(&usbinterface->dev, "No more memory\n");
+ /* USB HID defines */
+ #define USB_REQ_GET_REPORT		0x01
+@@ -76,6 +77,10 @@ struct pegasus {
+ 	struct usb_device *usbdev;
+ 	struct usb_interface *intf;
+ 	struct urb *irq;
++
++	/* serialize access to open/suspend */
++	struct mutex pm_mutex;
++
+ 	char name[128];
+ 	char phys[64];
+ 	struct work_struct init;
+@@ -216,6 +221,7 @@ static int pegasus_open(struct input_dev *dev)
+ 	if (error)
+ 		return error;
+ 
++	mutex_lock(&pegasus->pm_mutex);
+ 	pegasus->irq->dev = pegasus->usbdev;
+ 	if (usb_submit_urb(pegasus->irq, GFP_KERNEL)) {
+ 		error = -EIO;
+@@ -226,12 +232,14 @@ static int pegasus_open(struct input_dev *dev)
+ 	if (error)
+ 		goto err_kill_urb;
+ 
++	mutex_unlock(&pegasus->pm_mutex);
+ 	return 0;
+ 
+ err_kill_urb:
+ 	usb_kill_urb(pegasus->irq);
+ 	cancel_work_sync(&pegasus->init);
+ err_autopm_put:
++	mutex_unlock(&pegasus->pm_mutex);
+ 	usb_autopm_put_interface(pegasus->intf);
+ 	return error;
+ }
+@@ -240,8 +248,11 @@ static void pegasus_close(struct input_dev *dev)
+ {
+ 	struct pegasus *pegasus = input_get_drvdata(dev);
+ 
++	mutex_lock(&pegasus->pm_mutex);
+ 	usb_kill_urb(pegasus->irq);
+ 	cancel_work_sync(&pegasus->init);
++	mutex_unlock(&pegasus->pm_mutex);
++
+ 	usb_autopm_put_interface(pegasus->intf);
+ }
+ 
+@@ -274,6 +285,8 @@ static int pegasus_probe(struct usb_interface *intf,
+ 		goto err_free_mem;
+ 	}
+ 
++	mutex_init(&pegasus->pm_mutex);
++
+ 	pegasus->usbdev = dev;
+ 	pegasus->dev = input_dev;
+ 	pegasus->intf = intf;
+@@ -388,10 +401,10 @@ static int pegasus_suspend(struct usb_interface *intf, pm_message_t message)
+ {
+ 	struct pegasus *pegasus = usb_get_intfdata(intf);
+ 
+-	mutex_lock(&pegasus->dev->mutex);
++	mutex_lock(&pegasus->pm_mutex);
+ 	usb_kill_urb(pegasus->irq);
+ 	cancel_work_sync(&pegasus->init);
+-	mutex_unlock(&pegasus->dev->mutex);
++	mutex_unlock(&pegasus->pm_mutex);
+ 
+ 	return 0;
+ }
+@@ -401,10 +414,10 @@ static int pegasus_resume(struct usb_interface *intf)
+ 	struct pegasus *pegasus = usb_get_intfdata(intf);
+ 	int retval = 0;
+ 
+-	mutex_lock(&pegasus->dev->mutex);
++	mutex_lock(&pegasus->pm_mutex);
+ 	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
+ 		retval = -EIO;
+-	mutex_unlock(&pegasus->dev->mutex);
++	mutex_unlock(&pegasus->pm_mutex);
+ 
+ 	return retval;
+ }
+@@ -414,14 +427,14 @@ static int pegasus_reset_resume(struct usb_interface *intf)
+ 	struct pegasus *pegasus = usb_get_intfdata(intf);
+ 	int retval = 0;
+ 
+-	mutex_lock(&pegasus->dev->mutex);
++	mutex_lock(&pegasus->pm_mutex);
+ 	if (pegasus->dev->users) {
+ 		retval = pegasus_set_mode(pegasus, PEN_MODE_XY,
+ 					  NOTETAKER_LED_MOUSE);
+ 		if (!retval && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
+ 			retval = -EIO;
+ 	}
+-	mutex_unlock(&pegasus->dev->mutex);
++	mutex_unlock(&pegasus->pm_mutex);
+ 
+ 	return retval;
+ }
 -- 
-2.16.1
-
+2.15.1

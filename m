@@ -1,16 +1,18 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 0/3] Input-bcm5974: Adjustments for two function
- implementations
-Date: Wed, 24 Jan 2018 21:29:00 +0100
-Message-ID: <0505482c-287f-8809-76e3-960cf45b3c0a@users.sourceforge.net>
+Subject: [PATCH 1/3] Input: bcm5974: Delete an error message for a failed
+ memory allocation in bcm5974_wellspring_mode()
+Date: Wed, 24 Jan 2018 21:30:09 +0100
+Message-ID: <9371a1f7-beee-212d-05d7-ba081a6990c1@users.sourceforge.net>
+References: <0505482c-287f-8809-76e3-960cf45b3c0a@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.3]:56296 "EHLO mout.web.de"
+Received: from mout.web.de ([212.227.15.14]:54808 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932164AbeAXU3G (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 Jan 2018 15:29:06 -0500
+        id S932072AbeAXUaN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 24 Jan 2018 15:30:13 -0500
+In-Reply-To: <0505482c-287f-8809-76e3-960cf45b3c0a@users.sourceforge.net>
 Content-Language: en-GB
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,20 +20,29 @@ To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, He
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 24 Jan 2018 21:25:24 +0100
+Date: Wed, 24 Jan 2018 21:09:28 +0100
 
-Three update suggestions were taken into account
-from static source code analysis.
+Omit an extra message for a memory allocation failure in this function.
 
-Markus Elfring (3):
-  Delete an error message for a failed memory allocation
-    in bcm5974_wellspring_mode()
-  Return directly after a failed kmalloc() in bcm5974_wellspring_mode()
-  Improve a size determination in bcm5974_probe()
+This issue was detected by using the Coccinelle software.
 
- drivers/input/mouse/bcm5974.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/input/mouse/bcm5974.c | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index d0122134f320..994805513df9 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -670,7 +670,6 @@ static int bcm5974_wellspring_mode(struct bcm5974 *dev, bool on)
+ 
+ 	data = kmalloc(c->um_size, GFP_KERNEL);
+ 	if (!data) {
+-		dev_err(&dev->intf->dev, "out of memory\n");
+ 		retval = -ENOMEM;
+ 		goto out;
+ 	}
 -- 
 2.16.1
 

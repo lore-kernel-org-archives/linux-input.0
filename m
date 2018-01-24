@@ -1,90 +1,31 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH 2/2] input: usbtouchscreen: do not rely on input_dev->users
-Date: Wed, 24 Jan 2018 16:47:13 +0100
-Message-ID: <20180124154713.28962-2-marcus.folkesson@gmail.com>
-References: <20180124154713.28962-1-marcus.folkesson@gmail.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 0/3] Input-apbps2: Adjustments for two function
+ implementations
+Date: Wed, 24 Jan 2018 17:33:43 +0100
+Message-ID: <50013a33-b7ca-fce1-9769-bfe3db850a8a@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180124154713.28962-1-marcus.folkesson@gmail.com>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-If the device is unused and suspended, a call to open will cause the
-device to autoresume through the call to usb_autopm_get_interface().
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 24 Jan 2018 17:30:12 +0100
 
-input_dev->users is already incremented by the input subsystem,
-therefore this expression will always be evaluated to true:
+Three update suggestions were taken into account
+from static source code analysis.
 
-	if (input->users || usbtouch->type->irq_always)
-		result = usb_submit_urb(usbtouch->irq, GFP_NOIO);
+Markus Elfring (3):
+  Delete an error message for a failed memory allocation
+  Improve a size determination
+  Fix typos in a comment
 
-The same URB will then be fail when resubmitted in usbtouch_open().
+ drivers/input/serio/apbps2.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-Introduce usbtouch->is_open to keep track of the state instead.
-
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- drivers/input/touchscreen/usbtouchscreen.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index e964658203d8..0356ad792e40 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -114,6 +114,7 @@ struct usbtouch_usb {
- 	struct input_dev *input;
- 	struct usbtouch_device_info *type;
- 	struct mutex pm_mutex;  /* serialize access to open/suspend */
-+	bool is_open;
- 	char name[128];
- 	char phys[64];
- 	void *priv;
-@@ -1466,6 +1467,7 @@ static int usbtouch_open(struct input_dev *input)
- 	}
- 
- 	usbtouch->interface->needs_remote_wakeup = 1;
-+	usbtouch->is_open = 1;
- out_put:
- 	mutex_unlock(&usbtouch->pm_mutex);
- 	usb_autopm_put_interface(usbtouch->interface);
-@@ -1481,6 +1483,7 @@ static void usbtouch_close(struct input_dev *input)
- 	mutex_lock(&usbtouch->pm_mutex);
- 	if (!usbtouch->type->irq_always)
- 		usb_kill_urb(usbtouch->irq);
-+	usbtouch->is_open = 0;
- 	mutex_lock(&usbtouch->pm_mutex);
- 
- 	r = usb_autopm_get_interface(usbtouch->interface);
-@@ -1502,11 +1505,10 @@ static int usbtouch_suspend
- static int usbtouch_resume(struct usb_interface *intf)
- {
- 	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
--	struct input_dev *input = usbtouch->input;
- 	int result = 0;
- 
- 	mutex_lock(&usbtouch->pm_mutex);
--	if (input->users || usbtouch->type->irq_always)
-+	if (usbtouch->is_open || usbtouch->type->irq_always)
- 		result = usb_submit_urb(usbtouch->irq, GFP_NOIO);
- 	mutex_unlock(&usbtouch->pm_mutex);
- 
-@@ -1516,7 +1518,6 @@ static int usbtouch_resume(struct usb_interface *intf)
- static int usbtouch_reset_resume(struct usb_interface *intf)
- {
- 	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
--	struct input_dev *input = usbtouch->input;
- 	int err = 0;
- 
- 	/* reinit the device */
-@@ -1532,7 +1533,7 @@ static int usbtouch_reset_resume(struct usb_interface *intf)
- 
- 	/* restart IO if needed */
- 	mutex_lock(&usbtouch->pm_mutex);
--	if (input->users)
-+	if (usbtouch->is_open)
- 		err = usb_submit_urb(usbtouch->irq, GFP_NOIO);
- 	mutex_unlock(&usbtouch->pm_mutex);
- 
 -- 
-2.15.1
+2.16.1

@@ -1,37 +1,33 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: [PATCH v3 0/3] Input: goodix - fixes and conversion to touchscreen_properties
-Date: Thu, 25 Jan 2018 20:08:26 +0100
-Message-ID: <20180125190829.8968-1-m.niestroj@grinn-global.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 0/2] Input-da9063_onkey: Adjustments for da9063_onkey_probe()
+Date: Thu, 25 Jan 2018 20:34:29 +0100
+Message-ID: <9b0e8f6a-6386-d307-34fc-7936c52bd0c6@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.megiteam.pl ([31.186.83.105]:58631 "EHLO smtp.megiteam.pl"
+Received: from mout.web.de ([212.227.15.3]:61918 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751011AbeAYTdm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Jan 2018 14:33:42 -0500
+        id S1751174AbeAYTed (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Jan 2018 14:34:33 -0500
+Content-Language: en-GB
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, Marcin Niestroj <m.niestroj@grinn-global.com>
+To: linux-input@vger.kernel.org, support.opensource@diasemi.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-Hi,
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Thu, 25 Jan 2018 20:30:40 +0100
 
-In this patch series I have only improved / fixed commit descriptions.
+Two update suggestions were taken into account
+from static source code analysis.
 
-In comments of v2 patch series [1] there was a question if we should
-left these 3 patches separate or meld them together. However there was
-no decision made, so I've kept them separate for now. That way patches
-1 and 2 can be easily backported to stable releases.
+Markus Elfring (2):
+  Delete an error message for a failed memory allocation
+  Improve a size determination
 
-Patches were rebased and tested on v4.15-rc9.
-
-[1] https://www.spinics.net/lists/linux-input/msg53976.html
-
-Marcin Niestroj (3):
-  Input: goodix - fix reported range
-  Input: goodix - fix simultaneous axes inversion and swap
-  Input: goodix - use generic touchscreen_properties
-
- drivers/input/touchscreen/goodix.c | 87 +++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 54 deletions(-)
+ drivers/input/misc/da9063_onkey.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
 -- 
 2.16.1

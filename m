@@ -1,69 +1,47 @@
-From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: [PATCH v3 1/3] Input: goodix - fix reported range
-Date: Thu, 25 Jan 2018 20:08:27 +0100
-Message-ID: <20180125190829.8968-2-m.niestroj@grinn-global.com>
-References: <20180125190829.8968-1-m.niestroj@grinn-global.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.megiteam.pl ([31.186.83.105]:43425 "EHLO smtp.megiteam.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751171AbeAYTf6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Jan 2018 14:35:58 -0500
-In-Reply-To: <20180125190829.8968-1-m.niestroj@grinn-global.com>
-Sender: linux-input-owner@vger.kernel.org
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 2/2] Input: da9063_onkey: Improve a size determination in
+ da9063_onkey_probe()
+Date: Thu, 25 Jan 2018 20:36:22 +0100
+Message-ID: <b6c60de6-122b-43d8-8298-9bd0be98dfee@users.sourceforge.net>
+References: <9b0e8f6a-6386-d307-34fc-7936c52bd0c6@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <9b0e8f6a-6386-d307-34fc-7936c52bd0c6@users.sourceforge.net>
+Content-Language: en-GB
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, support.opensource@diasemi.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, Marcin Niestroj <m.niestroj@grinn-global.com>
 
-Touchscreen coordinates are 0-indexed, so report touchscreen range
-as (0:size-1).
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Thu, 25 Jan 2018 20:24:47 +0100
 
-Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
-Fixes: ca96ea86eed4 ("Input: add driver for the Goodix touchpanel")
+Replace the specification of a data structure by a pointer dereference
+as the parameter for the operator "sizeof" to make the corresponding size
+determination a bit safer according to the Linux coding style convention.
+
+This issue was detected by using the Coccinelle software.
+
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
-Changes v2 -> v3: fix commit description (suggested by Bastien)
+ drivers/input/misc/da9063_onkey.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Changes v1 -> v2: patch splitted off from patch 3 (suggested by Bastien)
-
- drivers/input/touchscreen/goodix.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 69d0b8cbc71f..7896097ca69b 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -587,8 +587,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- 		dev_warn(&ts->client->dev,
- 			 "Error reading config (%d), using defaults\n",
- 			 error);
--		ts->abs_x_max = GOODIX_MAX_WIDTH;
--		ts->abs_y_max = GOODIX_MAX_HEIGHT;
-+		ts->abs_x_max = GOODIX_MAX_WIDTH - 1;
-+		ts->abs_y_max = GOODIX_MAX_HEIGHT - 1;
- 		if (ts->swapped_x_y)
- 			swap(ts->abs_x_max, ts->abs_y_max);
- 		ts->int_trigger_type = GOODIX_INT_TRIGGER;
-@@ -596,8 +596,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- 		return;
- 	}
+diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
+index acf592975bef..310f9c408636 100644
+--- a/drivers/input/misc/da9063_onkey.c
++++ b/drivers/input/misc/da9063_onkey.c
+@@ -213,8 +213,7 @@ static int da9063_onkey_probe(struct platform_device *pdev)
+ 	if (!match)
+ 		return -ENXIO;
  
--	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
--	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
-+	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]) - 1;
-+	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]) - 1;
- 	if (ts->swapped_x_y)
- 		swap(ts->abs_x_max, ts->abs_y_max);
- 	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
-@@ -605,8 +605,8 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- 	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
- 		dev_err(&ts->client->dev,
- 			"Invalid config, using defaults\n");
--		ts->abs_x_max = GOODIX_MAX_WIDTH;
--		ts->abs_y_max = GOODIX_MAX_HEIGHT;
-+		ts->abs_x_max = GOODIX_MAX_WIDTH - 1;
-+		ts->abs_y_max = GOODIX_MAX_HEIGHT - 1;
- 		if (ts->swapped_x_y)
- 			swap(ts->abs_x_max, ts->abs_y_max);
- 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+-	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
+-			     GFP_KERNEL);
++	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
+ 	if (!onkey)
+ 		return -ENOMEM;
+ 
 -- 
 2.16.1
-

@@ -1,55 +1,78 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input: sirfsoc-onkey: Improve a size determination in
- sirfsoc_pwrc_probe()
-Date: Thu, 25 Jan 2018 16:48:16 +0100
-Message-ID: <07e55fcd-8ba5-bae4-0d05-34ada8453a47@users.sourceforge.net>
-References: <b66f4105-57f2-adc2-ecde-cd4dacac408c@users.sourceforge.net>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH v2 3/5] Input: add KEY_ROTATE_LOCK_TOGGLE
+Date: Thu, 25 Jan 2018 08:23:56 -0800
+Message-ID: <CANRwn3R_SKzJyH3pNCpuzp+4--ebzG5VRCh9YEtj+F3VUJ1xew@mail.gmail.com>
+References: <20171109224436.16472-1-stefan.bruens@rwth-aachen.de>
+ <8ebdb255-b0b5-4de2-a680-e7f6713256d0@rwthex-w2-a.rwth-ad.de>
+ <1510270493.2624.49.camel@hadess.net> <2845999.tyV6EiPLrg@sbruens-linux> <CANRwn3SzMUvNoBjp2X1jtN9XaQ98RxCCZ86Hu4sPQygTORqjKg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <b66f4105-57f2-adc2-ecde-cd4dacac408c@users.sourceforge.net>
-Content-Language: en-GB
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Barry Song <baohua@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kernel-janitors@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <CANRwn3SzMUvNoBjp2X1jtN9XaQ98RxCCZ86Hu4sPQygTORqjKg@mail.gmail.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: =?UTF-8?B?QnLDvG5zLCBTdGVmYW4=?= <Stefan.Bruens@rwth-aachen.de>, Alex Hung <alex.hung@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bastien Nocera <hadess@hadess.net>, "platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 25 Jan 2018 16:35:13 +0100
+Any movement on this? Are we just waiting on an ACK/NAK from Dmitry?
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
-
-This issue was detected by using the Coccinelle software.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Jason
 ---
- drivers/input/misc/sirfsoc-onkey.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
-index 9d8b4e2d7063..cdad20811d35 100644
---- a/drivers/input/misc/sirfsoc-onkey.c
-+++ b/drivers/input/misc/sirfsoc-onkey.c
-@@ -111,8 +111,7 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
- 	int irq;
- 	int error;
- 
--	pwrcdrv = devm_kzalloc(&pdev->dev, sizeof(struct sirfsoc_pwrc_drvdata),
--			       GFP_KERNEL);
-+	pwrcdrv = devm_kzalloc(&pdev->dev, sizeof(*pwrcdrv), GFP_KERNEL);
- 	if (!pwrcdrv)
- 		return -ENOMEM;
- 
--- 
-2.16.1
+
+On Tue, Dec 5, 2017 at 10:50 AM, Jason Gerecke <killertofu@gmail.com> wrote=
+:
+> Looks like this might also be needed for the MobileStudio Pro...
+>
+> https://bugzilla.kernel.org/show_bug.cgi?id=3D197991
+>
+> Jason
+> ---
+> Now instead of four in the eights place /
+> you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+> (That is to say, eight) to the two,     /
+> But you can=E2=80=99t take seven from three,    /
+> So you look at the sixty-fours....
+>
+>
+>
+> On Thu, Nov 30, 2017 at 9:51 AM, Br=C3=BCns, Stefan
+> <Stefan.Bruens@rwth-aachen.de> wrote:
+>> On Freitag, 10. November 2017 00:34:53 CET Bastien Nocera wrote:
+>>> On Thu, 2017-11-09 at 23:44 +0100, Stefan Br=C3=BCns wrote:
+>>> > The key has the same use as the SW_ROTATE_LOCK, but is used on
+>>> > devices
+>>> > where the state is not tracked by the hardware but has to be handled
+>>> > in software.
+>>>
+>>> I'll let the input and hid subsystem maintainers have the final say
+>>> here, though I think that sending out Win+O would be easier, as this is
+>>> already something that desktops need to support for those devices that
+>>> send the actual Win+O key combination when those buttons are pressed
+>>> there.
+>>>
+>>> If we're going with the separate keycode, could you also file bugs
+>>> against xkbd-common and xkeyboard-config to get the key added to the
+>>> list of XF86 keysyms and to the default evdev keymap? Otherwise Wayland
+>>> and X11 based desktops won't be able to use it.
+>>
+>> Filed for xkeyboard-config:
+>> https://bugs.freedesktop.org/show_bug.cgi?id=3D103998
+>>
+>> and xkb-common:
+>> https://github.com/xkbcommon/libxkbcommon/issues/55
+>>
+>> Regards,
+>>
+>> Stefan
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" i=
+n
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

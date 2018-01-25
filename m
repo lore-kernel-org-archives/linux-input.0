@@ -1,20 +1,24 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] Input: tegra-kbc: Delete an error message for a failed memory
- allocation in tegra_kbc_probe()
-Date: Thu, 25 Jan 2018 21:41:43 +0100
-Message-ID: <4b9b77a1-e5af-21c9-f219-be72430fc76f@users.sourceforge.net>
+Subject: [PATCH] Input: spear-keyboard: Delete an error message for a failed
+ memory allocation in spear_kbd_probe()
+Date: Thu, 25 Jan 2018 21:52:05 +0100
+Message-ID: <57b7b09c-1f32-8f0b-cc1c-135e1ef211ed@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.web.de ([212.227.15.4]:58103 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751138AbeAYUwT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Jan 2018 15:52:19 -0500
 Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Rakesh Iyer <riyer@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 25 Jan 2018 21:36:46 +0100
+Date: Thu, 25 Jan 2018 21:49:13 +0100
 
 Omit an extra message for a memory allocation failure in this function.
 
@@ -22,24 +26,25 @@ This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/input/keyboard/tegra-kbc.c | 4 +---
+ drivers/input/keyboard/spear-keyboard.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 875205f445b5..a4d6eea7aebe 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -622,10 +622,8 @@ static int tegra_kbc_probe(struct platform_device *pdev)
- 	match = of_match_device(tegra_kbc_of_match, &pdev->dev);
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index 7d25fa338ab4..1386440a870d 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -197,10 +197,8 @@ static int spear_kbd_probe(struct platform_device *pdev)
+ 	}
  
- 	kbc = devm_kzalloc(&pdev->dev, sizeof(*kbc), GFP_KERNEL);
--	if (!kbc) {
--		dev_err(&pdev->dev, "failed to alloc memory for kbc\n");
-+	if (!kbc)
+ 	kbd = devm_kzalloc(&pdev->dev, sizeof(*kbd), GFP_KERNEL);
+-	if (!kbd) {
+-		dev_err(&pdev->dev, "not enough memory for driver data\n");
++	if (!kbd)
  		return -ENOMEM;
 -	}
  
- 	kbc->dev = &pdev->dev;
- 	kbc->hw_support = match->data;
+ 	input_dev = devm_input_allocate_device(&pdev->dev);
+ 	if (!input_dev) {
 -- 
 2.16.1
+

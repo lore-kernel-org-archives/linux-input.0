@@ -1,32 +1,55 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH 1/2] Input: wm831x-on: Delete an error message for a
- failed memory allocation in wm831x_on_probe()
-Date: Thu, 25 Jan 2018 09:49:10 +0000
-Message-ID: <20180125094910.t4w75kk4ygyw5x76@localhost.localdomain>
-References: <e307cfde-58e2-3f4d-ecd7-5c80ace0bb5b@users.sourceforge.net>
- <d393999d-0c39-c9ea-3a0c-eb534e61b665@users.sourceforge.net>
+From: Simon Shields <simon@lineageos.org>
+Subject: Re: [PATCH 0/4] MMS114 touchscreen patches
+Date: Fri, 26 Jan 2018 00:01:59 +1100
+Message-ID: <20180125130159.GA26726@lineageos.org>
+References: <20180124193804.155654-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <d393999d-0c39-c9ea-3a0c-eb534e61b665@users.sourceforge.net>
+In-Reply-To: <20180124193804.155654-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, patches@opensource.cirrus.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andi Shyti <andi.shyti@samsung.com>, Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 24, 2018 at 10:21:39PM +0100, SF Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Wed, 24 Jan 2018 21:55:49 +0100
-> 
-> Omit an extra message for a memory allocation failure in this function.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
+Hi Dmitry,
 
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Thanks for the extra fixes!
 
-Thanks,
-Charles
+On Wed, Jan 24, 2018 at 11:38:00AM -0800, Dmitry Torokhov wrote:
+> Hi,
+> 
+> This is a combination of couple of my patches + Simons patches dropping
+> support for platform data and adding support for mms152, slightly reworked.
+> 
+> Andi, because patches changed a bit I did not add your reviewed-by or
+> tested-by, please take another look.
+> 
+> Thanks!
+> 
+> Dmitry Torokhov (2):
+>   Input: mms114 - do not clobber interrupt trigger
+>   Input: mms114 - mark as direct input device
+> 
+> Simon Shields (2):
+>   Input: mms114 - drop platform data and use generic APIs
+>   Input: mms114 - add support for mms152
+> 
+>  .../bindings/input/touchscreen/mms114.txt          |  35 ++--
+>  drivers/input/touchscreen/mms114.c                 | 229 ++++++++++++---------
+>  include/linux/platform_data/mms114.h               |  24 ---
+>  3 files changed, 151 insertions(+), 137 deletions(-)
+>  delete mode 100644 include/linux/platform_data/mms114.h
+> 
+> -- 
+> Dmitry
+> 
+
+All looks good to me. Tested on MMS114 and MMS152.
+
+Reviewed-by: Simon Shields <simon@lineageos.org>
+Tested-by: Simon Shields <simon@lineageos.org>
+
+Cheers,
+Simon

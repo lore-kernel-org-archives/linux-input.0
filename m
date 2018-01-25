@@ -1,47 +1,76 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 1/2] Input: da9063_onkey: Delete an error message for a failed
- memory allocation in da9063_onkey_probe()
-Date: Thu, 25 Jan 2018 20:35:23 +0100
-Message-ID: <77166fc3-f853-46a2-2a90-141e7a6e039b@users.sourceforge.net>
-References: <9b0e8f6a-6386-d307-34fc-7936c52bd0c6@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9b0e8f6a-6386-d307-34fc-7936c52bd0c6@users.sourceforge.net>
-Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, support.opensource@diasemi.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: [PATCH v3 2/3] Input: goodix - fix simultaneous axes inversion and swap
+Date: Thu, 25 Jan 2018 20:08:28 +0100
+Message-ID: <20180125190829.8968-3-m.niestroj@grinn-global.com>
+References: <20180125190829.8968-1-m.niestroj@grinn-global.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.megiteam.pl ([31.186.83.105]:59229 "EHLO smtp.megiteam.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751171AbeAYTf4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Jan 2018 14:35:56 -0500
+In-Reply-To: <20180125190829.8968-1-m.niestroj@grinn-global.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, Marcin Niestroj <m.niestroj@grinn-global.com>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 25 Jan 2018 20:22:57 +0100
+goodix_ts_data structure contains abs_x_max and abs_y_max members,
+which contain already swapped maximum ranges. That causes reporting
+touch events with invalid position (out of range values).
 
-Omit an extra message for a memory allocation failure in this function.
+Problem occurs for example when ts->inverted_x and ts->swapped_x_y are
+true, but ts->inverted_y is false. Assuming we have 720x1280 touch
+panel, ts->abs_x_max == 1279 and ts->abs_y_max == 719 (because we
+inverted that in goodix_read_config()). Now let's assume that we
+received event from (0:0) position (in touch panel original
+coordinates). In function goodix_ts_report_touch() we calculate
+input_x as 1279, but after swapping input_y takes that value (which is
+more that maximum 719 value reported during initialization).
 
-This issue was detected by using the Coccinelle software.
+Take into account that abs_x_max and abs_y_max are already swapped
+in goodix_ts_report_touch(), so position for inverted axes will be
+calculated correctly.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+Fixes: ad48cf5e9597 ("Input: goodix - add axis swapping and axis inversion support")
 ---
- drivers/input/misc/da9063_onkey.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Changes v2 -> v3 (suggested by Bastien):
+ - add explanation about when the problem occurs
 
-diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-index 3e9c353d82ef..acf592975bef 100644
---- a/drivers/input/misc/da9063_onkey.c
-+++ b/drivers/input/misc/da9063_onkey.c
-@@ -215,10 +215,8 @@ static int da9063_onkey_probe(struct platform_device *pdev)
+Changes v1 -> v2 (suggested by Bastien):
+ - patch splitted off from patch 3
+
+ drivers/input/touchscreen/goodix.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 7896097ca69b..dc832890f6d3 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -296,12 +296,18 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+ 	int input_w = get_unaligned_le16(&coor_data[5]);
  
- 	onkey = devm_kzalloc(&pdev->dev, sizeof(struct da9063_onkey),
- 			     GFP_KERNEL);
--	if (!onkey) {
--		dev_err(&pdev->dev, "Failed to allocate memory.\n");
-+	if (!onkey)
- 		return -ENOMEM;
--	}
+ 	/* Inversions have to happen before axis swapping */
+-	if (ts->inverted_x)
+-		input_x = ts->abs_x_max - input_x;
+-	if (ts->inverted_y)
+-		input_y = ts->abs_y_max - input_y;
+-	if (ts->swapped_x_y)
++	if (!ts->swapped_x_y) {
++		if (ts->inverted_x)
++			input_x = ts->abs_x_max - input_x;
++		if (ts->inverted_y)
++			input_y = ts->abs_y_max - input_y;
++	} else {
++		if (ts->inverted_x)
++			input_x = ts->abs_y_max - input_x;
++		if (ts->inverted_y)
++			input_y = ts->abs_x_max - input_y;
+ 		swap(input_x, input_y);
++	}
  
- 	onkey->config = match->data;
- 	onkey->dev = &pdev->dev;
+ 	input_mt_slot(ts->input_dev, id);
+ 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
 -- 
 2.16.1
+

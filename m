@@ -1,204 +1,38 @@
 From: Marcin Niestroj <m.niestroj@grinn-global.com>
-Subject: [PATCH v3 3/3] Input: goodix - use generic touchscreen_properties
-Date: Thu, 25 Jan 2018 20:08:29 +0100
-Message-ID: <20180125190829.8968-4-m.niestroj@grinn-global.com>
-References: <20180125190829.8968-1-m.niestroj@grinn-global.com>
+Subject: [PATCH v3 0/3] Input: goodix - fixes and conversion to touchscreen_properties
+Date: Thu, 25 Jan 2018 20:08:26 +0100
+Message-ID: <20180125190829.8968-1-m.niestroj@grinn-global.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.megiteam.pl ([31.186.83.105]:52721 "EHLO smtp.megiteam.pl"
+Received: from smtp.megiteam.pl ([31.186.83.105]:58631 "EHLO smtp.megiteam.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751011AbeAYTdk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Jan 2018 14:33:40 -0500
-In-Reply-To: <20180125190829.8968-1-m.niestroj@grinn-global.com>
+        id S1751011AbeAYTdm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Jan 2018 14:33:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Bastien Nocera <hadess@hadess.net>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, Marcin Niestroj <m.niestroj@grinn-global.com>
 
-Use touchscreen_properties structure instead of implementing all
-properties by our own. It allows us to reuse generic code for parsing
-device-tree properties (which was implemented manually in the driver
-for now). Additionally, it allows us to report events using generic
-touchscreen_report_pos(), which automatically handles inverted and
-swapped axes.
+Hi,
 
-Developed and tested on custom DT-based device with gt1151 touch
-panel.
+In this patch series I have only improved / fixed commit descriptions.
 
-Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
----
-Changes v2 -> v3 (suggested by Bastien):
- - fix commit description
+In comments of v2 patch series [1] there was a question if we should
+left these 3 patches separate or meld them together. However there was
+no decision made, so I've kept them separate for now. That way patches
+1 and 2 can be easily backported to stable releases.
 
-Changes v1 -> v2:
- - rebased on patches 1 and 2 in series
- - added description of test board in changelog (suggested by Bastien)
+Patches were rebased and tested on v4.15-rc9.
 
- drivers/input/touchscreen/goodix.c | 93 ++++++++++++++------------------------
- 1 file changed, 33 insertions(+), 60 deletions(-)
+[1] https://www.spinics.net/lists/linux-input/msg53976.html
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index dc832890f6d3..f82101cd9c04 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -22,6 +22,7 @@
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
- #include <linux/module.h>
- #include <linux/delay.h>
- #include <linux/irq.h>
-@@ -43,11 +44,7 @@ struct goodix_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input_dev;
- 	const struct goodix_chip_data *chip;
--	int abs_x_max;
--	int abs_y_max;
--	bool swapped_x_y;
--	bool inverted_x;
--	bool inverted_y;
-+	struct touchscreen_properties prop;
- 	unsigned int max_touch_num;
- 	unsigned int int_trigger_type;
- 	struct gpio_desc *gpiod_int;
-@@ -295,24 +292,10 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
- 	int input_y = get_unaligned_le16(&coor_data[3]);
- 	int input_w = get_unaligned_le16(&coor_data[5]);
- 
--	/* Inversions have to happen before axis swapping */
--	if (!ts->swapped_x_y) {
--		if (ts->inverted_x)
--			input_x = ts->abs_x_max - input_x;
--		if (ts->inverted_y)
--			input_y = ts->abs_y_max - input_y;
--	} else {
--		if (ts->inverted_x)
--			input_x = ts->abs_y_max - input_x;
--		if (ts->inverted_y)
--			input_y = ts->abs_x_max - input_y;
--		swap(input_x, input_y);
--	}
--
- 	input_mt_slot(ts->input_dev, id);
- 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
--	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
--	input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
-+	touchscreen_report_pos(ts->input_dev, &ts->prop, input_x, input_y,
-+			true);
- 	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, input_w);
- 	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
- }
-@@ -585,6 +568,7 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
- static void goodix_read_config(struct goodix_ts_data *ts)
- {
- 	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-+	int x_max, y_max;
- 	int error;
- 
- 	error = goodix_i2c_read(ts->client, ts->chip->config_addr,
-@@ -593,37 +577,34 @@ static void goodix_read_config(struct goodix_ts_data *ts)
- 		dev_warn(&ts->client->dev,
- 			 "Error reading config (%d), using defaults\n",
- 			 error);
--		ts->abs_x_max = GOODIX_MAX_WIDTH - 1;
--		ts->abs_y_max = GOODIX_MAX_HEIGHT - 1;
--		if (ts->swapped_x_y)
--			swap(ts->abs_x_max, ts->abs_y_max);
-+		x_max = GOODIX_MAX_WIDTH;
-+		y_max = GOODIX_MAX_HEIGHT;
- 		ts->int_trigger_type = GOODIX_INT_TRIGGER;
- 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
--		return;
-+		goto input_set_params;
- 	}
- 
--	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]) - 1;
--	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]) - 1;
--	if (ts->swapped_x_y)
--		swap(ts->abs_x_max, ts->abs_y_max);
-+	x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
-+	y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
- 	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
- 	ts->max_touch_num = config[MAX_CONTACTS_LOC] & 0x0f;
--	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
-+	if (!x_max || !y_max || !ts->max_touch_num) {
- 		dev_err(&ts->client->dev,
- 			"Invalid config, using defaults\n");
--		ts->abs_x_max = GOODIX_MAX_WIDTH - 1;
--		ts->abs_y_max = GOODIX_MAX_HEIGHT - 1;
--		if (ts->swapped_x_y)
--			swap(ts->abs_x_max, ts->abs_y_max);
-+		x_max = GOODIX_MAX_WIDTH;
-+		y_max = GOODIX_MAX_HEIGHT;
- 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
- 	}
- 
--	if (dmi_check_system(rotated_screen)) {
--		ts->inverted_x = true;
--		ts->inverted_y = true;
--		dev_dbg(&ts->client->dev,
--			 "Applying '180 degrees rotated screen' quirk\n");
--	}
-+input_set_params:
-+	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
-+			0, x_max - 1, 0, 0);
-+	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
-+			0, y_max - 1, 0, 0);
-+	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
-+	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
-+	input_mt_init_slots(ts->input_dev, ts->max_touch_num,
-+			INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
- }
- 
- /**
-@@ -698,16 +679,6 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
- 		return -ENOMEM;
- 	}
- 
--	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
--			     0, ts->abs_x_max, 0, 0);
--	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
--			     0, ts->abs_y_max, 0, 0);
--	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
--	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
--
--	input_mt_init_slots(ts->input_dev, ts->max_touch_num,
--			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
--
- 	ts->input_dev->name = "Goodix Capacitive TouchScreen";
- 	ts->input_dev->phys = "input/ts";
- 	ts->input_dev->id.bustype = BUS_I2C;
-@@ -742,19 +713,21 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- {
- 	int error;
- 
--	ts->swapped_x_y = device_property_read_bool(&ts->client->dev,
--						    "touchscreen-swapped-x-y");
--	ts->inverted_x = device_property_read_bool(&ts->client->dev,
--						   "touchscreen-inverted-x");
--	ts->inverted_y = device_property_read_bool(&ts->client->dev,
--						   "touchscreen-inverted-y");
--
--	goodix_read_config(ts);
--
- 	error = goodix_request_input_dev(ts);
- 	if (error)
- 		return error;
- 
-+	goodix_read_config(ts);
-+
-+	touchscreen_parse_properties(ts->input_dev, true, &ts->prop);
-+
-+	if (dmi_check_system(rotated_screen)) {
-+		ts->prop.invert_x = true;
-+		ts->prop.invert_y = true;
-+		dev_dbg(&ts->client->dev,
-+			"Applying '180 degrees rotated screen' quirk\n");
-+	}
-+
- 	ts->irq_flags = goodix_irq_flags[ts->int_trigger_type] | IRQF_ONESHOT;
- 	error = goodix_request_irq(ts);
- 	if (error) {
+Marcin Niestroj (3):
+  Input: goodix - fix reported range
+  Input: goodix - fix simultaneous axes inversion and swap
+  Input: goodix - use generic touchscreen_properties
+
+ drivers/input/touchscreen/goodix.c | 87 +++++++++++++++-----------------------
+ 1 file changed, 33 insertions(+), 54 deletions(-)
+
 -- 
 2.16.1
 

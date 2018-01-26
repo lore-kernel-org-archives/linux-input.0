@@ -1,50 +1,63 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] Input: pxa27x_keypad: Delete an error message for a failed
- memory allocation
-Date: Thu, 25 Jan 2018 22:20:07 +0100
-Message-ID: <6162ffdd-7375-a7c7-fafd-0b167f874a0e@users.sourceforge.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v4.15-rc9
+Date: Thu, 25 Jan 2018 17:17:33 -0800
+Message-ID: <20180126011733.ocuj5gsrelcd2n7x@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.4]:62770 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751204AbeAYVUL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Jan 2018 16:20:11 -0500
-Content-Language: en-GB
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:40277 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751375AbeAZBRh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 Jan 2018 20:17:37 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Arvind Yadav <arvind.yadav.cs@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 25 Jan 2018 22:15:27 +0100
+Hi Linus,
 
-Omit an extra message for a memory allocation failure in this function.
+Please pull from:
 
-This issue was detected by using the Coccinelle software.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/keyboard/pxa27x_keypad.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+to receive updates for the input subsystem. The main item is that we try
+to handle better newer trackpoints on Lenovo devices that now being
+produced by Elan/ALPS/NXP and only implement a small subset of the
+original IBM trackpoint controls.
 
-diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-index d0bdaeadf86d..bafd075344e2 100644
---- a/drivers/input/keyboard/pxa27x_keypad.c
-+++ b/drivers/input/keyboard/pxa27x_keypad.c
-@@ -290,10 +290,8 @@ static int pxa27x_keypad_build_keycode_from_dt(struct pxa27x_keypad *keypad)
- 	int error;
- 
- 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
--	if (!pdata) {
--		dev_err(dev, "failed to allocate memory for pdata\n");
-+	if (!pdata)
- 		return -ENOMEM;
--	}
- 
- 	error = pxa27x_keypad_matrix_key_parse_dt(keypad, pdata);
- 	if (error) {
+Changelog:
+---------
+
+Aaron Ma (1):
+      Input: trackpoint - force 3 buttons if 0 button is reported
+
+Andi Shyti (1):
+      Input: stmfts,s6sy671 - add SPDX identifier
+
+Dmitry Torokhov (1):
+      Input: trackpoint - only expose supported controls for Elan, ALPS and NXP
+
+Mark Furneaux (1):
+      Input: xpad - add support for PDP Xbox One controllers
+
+Nick Dyer (1):
+      Revert "Input: synaptics_rmi4 - use devm_device_add_group() for attributes in F01"
+
+Diffstat:
+--------
+
+ drivers/input/joystick/xpad.c       |  19 +++
+ drivers/input/mouse/trackpoint.c    | 245 ++++++++++++++++++++++--------------
+ drivers/input/mouse/trackpoint.h    |  34 +++--
+ drivers/input/rmi4/rmi_f01.c        |  12 +-
+ drivers/input/touchscreen/s6sy761.c |  15 +--
+ drivers/input/touchscreen/stmfts.c  |  15 +--
+ 6 files changed, 210 insertions(+), 130 deletions(-)
+
+Thanks.
+
+
 -- 
-2.16.1
-
+Dmitry

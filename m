@@ -1,63 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.15-rc9
-Date: Thu, 25 Jan 2018 17:17:33 -0800
-Message-ID: <20180126011733.ocuj5gsrelcd2n7x@dtor-ws>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH 1/4] Input: mms114 - do not clobber interrupt trigger
+Date: Fri, 26 Jan 2018 13:54:57 +0900
+Message-ID: <20180126045457.GP7575@gangnam.samsung>
+References: <20180124193804.155654-1-dmitry.torokhov@gmail.com>
+        <CGME20180124193813epcas4p3a6c1f4b22fccd9a0ff0b7682b0b9bcff@epcas4p3.samsung.com>
+        <20180124193804.155654-2-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:40277 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751375AbeAZBRh (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:22422 "EHLO
+        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750823AbeAZEzA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Jan 2018 20:17:37 -0500
-Content-Disposition: inline
+        Thu, 25 Jan 2018 23:55:00 -0500
+Content-disposition: inline
+In-reply-to: <20180124193804.155654-2-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Simon Shields <simon@lineageos.org>, Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Linus,
+Hi Dmitry,
 
-Please pull from:
+On Wed, Jan 24, 2018 at 11:38:01AM -0800, Dmitry Torokhov wrote:
+> Rely on the platform (device tree, ACPI, etc) to properly configure
+> interrupt trigger/polarity instead of hardcoding the falling edge.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+Tested-by: Andi Shyti <andi.shyti@samsung.com>
 
-to receive updates for the input subsystem. The main item is that we try
-to handle better newer trackpoints on Lenovo devices that now being
-produced by Elan/ALPS/NXP and only implement a small subset of the
-original IBM trackpoint controls.
-
-Changelog:
----------
-
-Aaron Ma (1):
-      Input: trackpoint - force 3 buttons if 0 button is reported
-
-Andi Shyti (1):
-      Input: stmfts,s6sy671 - add SPDX identifier
-
-Dmitry Torokhov (1):
-      Input: trackpoint - only expose supported controls for Elan, ALPS and NXP
-
-Mark Furneaux (1):
-      Input: xpad - add support for PDP Xbox One controllers
-
-Nick Dyer (1):
-      Revert "Input: synaptics_rmi4 - use devm_device_add_group() for attributes in F01"
-
-Diffstat:
---------
-
- drivers/input/joystick/xpad.c       |  19 +++
- drivers/input/mouse/trackpoint.c    | 245 ++++++++++++++++++++++--------------
- drivers/input/mouse/trackpoint.h    |  34 +++--
- drivers/input/rmi4/rmi_f01.c        |  12 +-
- drivers/input/touchscreen/s6sy761.c |  15 +--
- drivers/input/touchscreen/stmfts.c  |  15 +--
- 6 files changed, 210 insertions(+), 130 deletions(-)
-
-Thanks.
-
-
--- 
-Dmitry
+Thanks,
+Andi

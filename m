@@ -1,48 +1,36 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input: max7359_keypad: Improve a size determination in
- max7359_probe()
-Date: Sat, 27 Jan 2018 13:15:06 +0100
-Message-ID: <c75b2086-5b58-638a-781d-fe6c4545619a@users.sourceforge.net>
-References: <95f7f53b-fa1e-8270-ae4c-5b3d721a4831@users.sourceforge.net>
+Subject: [PATCH 0/2] Input: matrix_keypad: Adjustments for two function
+ implementations
+Date: Sat, 27 Jan 2018 13:52:06 +0100
+Message-ID: <106bffd0-28ed-7c33-1f32-ae84b40f52c7@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <95f7f53b-fa1e-8270-ae4c-5b3d721a4831@users.sourceforge.net>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.web.de ([217.72.192.78]:57576 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752358AbeA0MwQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 27 Jan 2018 07:52:16 -0500
 Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, David Rivshin <DRivshin@allworx.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 27 Jan 2018 13:00:10 +0100
+Date: Sat, 27 Jan 2018 13:48:42 +0100
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+Two update suggestions were taken into account
+from static source code analysis.
 
-This issue was detected by using the Coccinelle software.
+Markus Elfring (2):
+  Delete two error messages for a failed memory allocation
+    in matrix_keypad_parse_dt()
+  Improve a size determination in matrix_keypad_probe()
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/keyboard/max7359_keypad.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/input/keyboard/matrix_keypad.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
-index ba6a670a769e..7791250b4667 100644
---- a/drivers/input/keyboard/max7359_keypad.c
-+++ b/drivers/input/keyboard/max7359_keypad.c
-@@ -181,9 +181,7 @@ static int max7359_probe(struct i2c_client *client,
- 	}
- 
- 	dev_dbg(&client->dev, "keys FIFO is 0x%02x\n", ret);
--
--	keypad = devm_kzalloc(&client->dev, sizeof(struct max7359_keypad),
--			      GFP_KERNEL);
-+	keypad = devm_kzalloc(&client->dev, sizeof(*keypad), GFP_KERNEL);
- 	if (!keypad)
- 		return -ENOMEM;
- 
 -- 
 2.16.1
+

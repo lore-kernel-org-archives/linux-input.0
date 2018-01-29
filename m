@@ -1,24 +1,22 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/8] Input: mms114 - replace mdelay with msleep
-Date: Mon, 29 Jan 2018 11:46:43 -0800
-Message-ID: <20180129194643.wwccgov65m7mcw5h@dtor-ws>
+Subject: Re: [PATCH 6/8] Input: mms114 - Use BIT() macro instead of explicit
+ shifting
+Date: Mon, 29 Jan 2018 11:46:52 -0800
+Message-ID: <20180129194652.wf7oklunpu2fyoo6@dtor-ws>
 References: <20180129113323.18961-1-andi.shyti@samsung.com>
- <CGME20180129113331epcas2p3fab78689f5f00a3049ae675bbc8dee59@epcas2p3.samsung.com>
- <20180129113323.18961-4-andi.shyti@samsung.com>
+ <CGME20180129113331epcas2p130b8bf772fc3124c0a76a0938bcacecc@epcas2p1.samsung.com>
+ <20180129113323.18961-7-andi.shyti@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180129113323.18961-4-andi.shyti@samsung.com>
+In-Reply-To: <20180129113323.18961-7-andi.shyti@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Shyti <andi.shyti@samsung.com>
 Cc: Simon Shields <simon@lineageos.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 29, 2018 at 08:33:18PM +0900, Andi Shyti wrote:
-> 200ms seconds is a very long time to keep the CPU busy looping.
-> Use msleep instead.
-> 
+On Mon, Jan 29, 2018 at 08:33:21PM +0900, Andi Shyti wrote:
 > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
 
 Applied, thank you.
@@ -28,18 +26,18 @@ Applied, thank you.
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 > diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-> index 94a97049d711..fb4435ae506b 100644
+> index fdf23bc416af..d70c03adf148 100644
 > --- a/drivers/input/touchscreen/mms114.c
 > +++ b/drivers/input/touchscreen/mms114.c
-> @@ -290,7 +290,7 @@ static int mms114_start(struct mms114_data *data)
->  		return error;
->  	}
+> @@ -21,7 +21,7 @@
+>  /* Write only registers */
+>  #define MMS114_MODE_CONTROL		0x01
+>  #define MMS114_OPERATION_MODE_MASK	0xe
+> -#define MMS114_ACTIVE			(1 << 1)
+> +#define MMS114_ACTIVE			BIT(1)
 >  
-> -	mdelay(MMS114_POWERON_DELAY);
-> +	msleep(MMS114_POWERON_DELAY);
->  
->  	error = mms114_setup_regs(data);
->  	if (error < 0) {
+>  #define MMS114_XY_RESOLUTION_H		0x02
+>  #define MMS114_X_RESOLUTION		0x03
 > -- 
 > 2.15.1
 > 

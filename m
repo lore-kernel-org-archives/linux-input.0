@@ -1,98 +1,170 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
-Date: Mon, 29 Jan 2018 14:51:38 -0800
-Message-ID: <20180129225138.voujq54itw7yblbi@dtor-ws>
-References: <20171115063404.10066-1-aaron.ma@canonical.com>
- <20171115083529.jmlpcj4td4evj3xl@pali>
- <TYXPR01MB07195A0116F835764DE99882C72E0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH 2/8] Input: mms114 - get read of custm i2c read/write
+ functions
+Date: Tue, 30 Jan 2018 08:25:23 +0900
+Message-ID: <20180129232523.GU7575@gangnam.samsung>
+References: <20180129113323.18961-1-andi.shyti@samsung.com>
+        <CGME20180129113331epcas2p1851ecb668e26bee1a09d162b4fe42225@epcas2p1.samsung.com>
+        <20180129113323.18961-3-andi.shyti@samsung.com>
+        <20180129190141.w2q55gfjjnvepl6k@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:45401 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751273AbeA2Wvl (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:49323 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751417AbeA2XZ0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Jan 2018 17:51:41 -0500
-Content-Disposition: inline
-In-Reply-To: <TYXPR01MB07195A0116F835764DE99882C72E0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+        Mon, 29 Jan 2018 18:25:26 -0500
+Content-disposition: inline
+In-reply-to: <20180129190141.w2q55gfjjnvepl6k@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aaron Ma <aaron.ma@canonical.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Simon Shields <simon@lineageos.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
 
-Hi,
+Hi Dmitry,
 
-On Thu, Nov 16, 2017 at 07:27:02AM +0000, Masaki Ota wrote:
-> Hi, Pali, Aaron,
-> 
-> Current code is correct device setting, previous code is wrong.
-> If the trackstick does not work(DUALPOINT flag disable), Device Firmware setting is wrong.
-> 
-> But recently I received the same report from Thinkpad L570 user, and I checked this device and found this device Firmware setting is wrong. Sorry for our mistake.
-> Is your laptop L570 ?
-> 
-> I will add code that supports the trackstick for this device.
-
-Sorry for resurrecting this old thread, I am just trying to understand
-what went wrong here. Is the sequence of "f0 f0 e9" and "ea ea e9" is
-important in getting the correct OTP data and we originally got this
-order wrong? It is not clear from the original patch and discussion that
-this change was intentional.
-
-Thanks.
-
-> 
-> Best Regards,
-> Masaki Ota
-> -----Original Message-----
-> From: Pali Rohár [mailto:pali.rohar@gmail.com] 
-> Sent: Wednesday, November 15, 2017 5:35 PM
-> To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
-> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; dmitry.torokhov@gmail.com; Aaron Ma <aaron.ma@canonical.com>
-> Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
-> 
-> On Wednesday 15 November 2017 14:34:04 Aaron Ma wrote:
-> > There is a regression of commit 4a646580f793 ("Input: ALPS - fix 
-> > two-finger scroll breakage"), ALPS device fails with log:
+On Mon, Jan 29, 2018 at 11:01:41AM -0800, Dmitry Torokhov wrote:
+> On Mon, Jan 29, 2018 at 08:33:17PM +0900, Andi Shyti wrote:
+> > The 'mms114_read_reg' and 'mms114_write_reg' are used when
+> > reading or writing to the 'MMS114_MODE_CONTROL' register for
+> > updating the 'cache_mode_control' variable.
 > > 
-> > psmouse serio1: alps: Rejected trackstick packet from non DualPoint 
-> > device
+> > Update the 'cache_mode_control' variable in the calling
+> > mms114_set_active() function and get rid of all the custom i2c
+> > read/write functions.
 > > 
-> > ALPS device with id "74 03 28" report OTP[0] data 0xCE after commit 
-> > 4a646580f793, after restore the OTP reading order, it becomes to 0x10 
-> > as before and reports the right flag.
+> > With this remove also the redundant sleep of MMS114_I2C_DELAY
+> > (50us) between i2c operations. The waiting should to be handled
+> > by the i2c driver.
 > > 
-> > Fixes: 4a646580f793 ("Input: ALPS - fix two-finger scroll breakage")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+> > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
 > > ---
-> >  drivers/input/mouse/alps.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >  drivers/input/touchscreen/mms114.c | 87 +++++---------------------------------
+> >  1 file changed, 10 insertions(+), 77 deletions(-)
 > > 
-> > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c 
-> > index 579b899add26..c59b8f7ca2fc 100644
-> > --- a/drivers/input/mouse/alps.c
-> > +++ b/drivers/input/mouse/alps.c
-> > @@ -2562,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct 
-> > psmouse *psmouse,
+> > diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+> > index 0b8b1f0e8ba6..94a97049d711 100644
+> > --- a/drivers/input/touchscreen/mms114.c
+> > +++ b/drivers/input/touchscreen/mms114.c
+> > @@ -37,9 +37,6 @@
+> >  #define MMS152_FW_REV			0xE1
+> >  #define MMS152_COMPAT_GROUP		0xF2
 > >  
-> >  	memset(otp, 0, sizeof(otp));
+> > -/* Minimum delay time is 50us between stop and start signal of i2c */
+> > -#define MMS114_I2C_DELAY		50
+> > -
+> >  /* 200ms needs after power on */
+> >  #define MMS114_POWERON_DELAY		200
 > >  
-> > -	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
-> > -	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
-> > +	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
-> > +	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
-> >  		return -1;
+> > @@ -83,76 +80,6 @@ struct mms114_touch {
+> >  	u8 reserved[2];
+> >  } __packed;
 > >  
-> >  	alps_update_device_area_ss4_v2(otp, priv);
+> > -static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
+> > -			     unsigned int len, u8 *val)
+> > -{
+> > -	struct i2c_client *client = data->client;
+> > -	struct i2c_msg xfer[2];
+> > -	u8 buf = reg & 0xff;
+> > -	int error;
+> > -
+> > -	if (reg <= MMS114_MODE_CONTROL && reg + len > MMS114_MODE_CONTROL)
+> > -		BUG();
+> > -
+> > -	/* Write register: use repeated start */
+> > -	xfer[0].addr = client->addr;
+> > -	xfer[0].flags = I2C_M_TEN | I2C_M_NOSTART;
 > 
-> Masaki Ota, please look at this patch as it partially revert your commit
-> 4a646580f793 ("Input: ALPS - fix two-finger scroll breakage"). Something smells here.
-> 
-> --
-> Pali Rohár
-> pali.rohar@gmail.com
+> So the chip does not use 10-bit addressing? What about I2C_M_NOSTART? It
+> is not needed also?
 
--- 
-Dmitry
+>From the datasheet I have no, indeed I don't understand why this
+is coming. That's why I asked Simon to test it on his device as
+well.
+
+On my device this patch works just fine.
+
+> > -	xfer[0].len = 1;
+> > -	xfer[0].buf = &buf;
+> > -
+> > -	/* Read data */
+> > -	xfer[1].addr = client->addr;
+> > -	xfer[1].flags = I2C_M_RD;
+> > -	xfer[1].len = len;
+> > -	xfer[1].buf = val;
+> > -
+> > -	error = i2c_transfer(client->adapter, xfer, 2);
+> > -	if (error != 2) {
+> > -		dev_err(&client->dev,
+> > -			"%s: i2c transfer failed (%d)\n", __func__, error);
+> > -		return error < 0 ? error : -EIO;
+> > -	}
+> > -	udelay(MMS114_I2C_DELAY);
+> > -
+> > -	return 0;
+> > -}
+> > -
+> > -static int mms114_read_reg(struct mms114_data *data, unsigned int reg)
+> > -{
+> > -	u8 val;
+> > -	int error;
+> > -
+> > -	if (reg == MMS114_MODE_CONTROL)
+> > -		return data->cache_mode_control;
+> > -
+> > -	error = __mms114_read_reg(data, reg, 1, &val);
+> > -	return error < 0 ? error : val;
+> > -}
+> > -
+> > -static int mms114_write_reg(struct mms114_data *data, unsigned int reg,
+> > -			    unsigned int val)
+> > -{
+> > -	struct i2c_client *client = data->client;
+> > -	u8 buf[2];
+> > -	int error;
+> > -
+> > -	buf[0] = reg & 0xff;
+> > -	buf[1] = val & 0xff;
+> > -
+> > -	error = i2c_master_send(client, buf, 2);
+> > -	if (error != 2) {
+> > -		dev_err(&client->dev,
+> > -			"%s: i2c send failed (%d)\n", __func__, error);
+> > -		return error < 0 ? error : -EIO;
+> > -	}
+> > -	udelay(MMS114_I2C_DELAY);
+> > -
+> > -	if (reg == MMS114_MODE_CONTROL)
+> > -		data->cache_mode_control = val;
+> > -
+> > -	return 0;
+> > -}
+> > -
+> >  static void mms114_process_mt(struct mms114_data *data, struct mms114_touch *touch)
+> >  {
+> >  	struct i2c_client *client = data->client;
+> > @@ -231,19 +158,25 @@ static irqreturn_t mms114_interrupt(int irq, void *dev_id)
+> >  
+> >  static int mms114_set_active(struct mms114_data *data, bool active)
+> >  {
+> > -	int val;
+> > +	int val, err;
+> >  
+> > -	val = mms114_read_reg(data, MMS114_MODE_CONTROL);
+> > +	val = i2c_smbus_read_byte_data(data->client, MMS114_MODE_CONTROL);
+> 
+> If I  understand the original commit for the driver, the control
+> register is write only and is not to be read from, that is why we have
+> this cached value. With your change you read form it.
+
+Still in my datasheet thee MMS114_MODE_CONTROL is a R/W register.
+Still I don't understand the original choice, but it doesn't
+change much anyway, I can keep the original idea of never reading
+from it. Or I can rework this function in a better way.
+
+> By the way, have you looked into converting it all to regmap?
+
+I could.
+
+Andi

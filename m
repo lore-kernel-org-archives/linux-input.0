@@ -1,67 +1,98 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] iio/orientation: Delete an error message for a failed memory
- allocation in two functions
-Date: Mon, 29 Jan 2018 22:26:15 +0100
-Message-ID: <ebf6c923-d641-8bf8-5544-630a5ee39980@users.sourceforge.net>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
+Date: Mon, 29 Jan 2018 14:51:38 -0800
+Message-ID: <20180129225138.voujq54itw7yblbi@dtor-ws>
+References: <20171115063404.10066-1-aaron.ma@canonical.com>
+ <20171115083529.jmlpcj4td4evj3xl@pali>
+ <TYXPR01MB07195A0116F835764DE99882C72E0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.3]:61956 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751398AbeA2V0i (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Jan 2018 16:26:38 -0500
-Content-Language: en-US
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:45401 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751273AbeA2Wvl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 Jan 2018 17:51:41 -0500
+Content-Disposition: inline
+In-Reply-To: <TYXPR01MB07195A0116F835764DE99882C72E0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aaron Ma <aaron.ma@canonical.com>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Mon, 29 Jan 2018 22:20:07 +0100
+Hi,
 
-Omit an extra message for a memory allocation failure in these functions.
+On Thu, Nov 16, 2017 at 07:27:02AM +0000, Masaki Ota wrote:
+> Hi, Pali, Aaron,
+> 
+> Current code is correct device setting, previous code is wrong.
+> If the trackstick does not work(DUALPOINT flag disable), Device Firmware setting is wrong.
+> 
+> But recently I received the same report from Thinkpad L570 user, and I checked this device and found this device Firmware setting is wrong. Sorry for our mistake.
+> Is your laptop L570 ?
+> 
+> I will add code that supports the trackstick for this device.
 
-This issue was detected by using the Coccinelle software.
+Sorry for resurrecting this old thread, I am just trying to understand
+what went wrong here. Is the sequence of "f0 f0 e9" and "ea ea e9" is
+important in getting the correct OTP data and we originally got this
+order wrong? It is not clear from the original patch and discussion that
+this change was intentional.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/iio/orientation/hid-sensor-incl-3d.c  | 4 +---
- drivers/iio/orientation/hid-sensor-rotation.c | 4 +---
- 2 files changed, 2 insertions(+), 6 deletions(-)
+Thanks.
 
-diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
-index 1e5451d1ff88..742c0e0eb4cf 100644
---- a/drivers/iio/orientation/hid-sensor-incl-3d.c
-+++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
-@@ -336,10 +336,8 @@ static int hid_incl_3d_probe(struct platform_device *pdev)
- 
- 	indio_dev->channels = kmemdup(incl_3d_channels,
- 				      sizeof(incl_3d_channels), GFP_KERNEL);
--	if (!indio_dev->channels) {
--		dev_err(&pdev->dev, "failed to duplicate channels\n");
-+	if (!indio_dev->channels)
- 		return -ENOMEM;
--	}
- 
- 	ret = incl_3d_parse_report(pdev, hsdev,
- 				   (struct iio_chan_spec *)indio_dev->channels,
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index a69db2002414..cbf5e406b1ee 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -277,10 +277,8 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
- 	indio_dev->channels = devm_kmemdup(&pdev->dev, dev_rot_channels,
- 					   sizeof(dev_rot_channels),
- 					   GFP_KERNEL);
--	if (!indio_dev->channels) {
--		dev_err(&pdev->dev, "failed to duplicate channels\n");
-+	if (!indio_dev->channels)
- 		return -ENOMEM;
--	}
- 
- 	ret = dev_rot_parse_report(pdev, hsdev,
- 				   (struct iio_chan_spec *)indio_dev->channels,
+> 
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Pali Rohár [mailto:pali.rohar@gmail.com] 
+> Sent: Wednesday, November 15, 2017 5:35 PM
+> To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
+> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; dmitry.torokhov@gmail.com; Aaron Ma <aaron.ma@canonical.com>
+> Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
+> 
+> On Wednesday 15 November 2017 14:34:04 Aaron Ma wrote:
+> > There is a regression of commit 4a646580f793 ("Input: ALPS - fix 
+> > two-finger scroll breakage"), ALPS device fails with log:
+> > 
+> > psmouse serio1: alps: Rejected trackstick packet from non DualPoint 
+> > device
+> > 
+> > ALPS device with id "74 03 28" report OTP[0] data 0xCE after commit 
+> > 4a646580f793, after restore the OTP reading order, it becomes to 0x10 
+> > as before and reports the right flag.
+> > 
+> > Fixes: 4a646580f793 ("Input: ALPS - fix two-finger scroll breakage")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+> > ---
+> >  drivers/input/mouse/alps.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c 
+> > index 579b899add26..c59b8f7ca2fc 100644
+> > --- a/drivers/input/mouse/alps.c
+> > +++ b/drivers/input/mouse/alps.c
+> > @@ -2562,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct 
+> > psmouse *psmouse,
+> >  
+> >  	memset(otp, 0, sizeof(otp));
+> >  
+> > -	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
+> > -	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
+> > +	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
+> > +	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
+> >  		return -1;
+> >  
+> >  	alps_update_device_area_ss4_v2(otp, priv);
+> 
+> Masaki Ota, please look at this patch as it partially revert your commit
+> 4a646580f793 ("Input: ALPS - fix two-finger scroll breakage"). Something smells here.
+> 
+> --
+> Pali Rohár
+> pali.rohar@gmail.com
+
 -- 
-2.16.1
-
+Dmitry

@@ -1,44 +1,55 @@
-From: Andi Shyti <andi.shyti@samsung.com>
-Subject: [PATCH 8/8] Input: mms114 - fix typo in definition
-Date: Mon, 29 Jan 2018 20:33:23 +0900
-Message-ID: <20180129113323.18961-9-andi.shyti@samsung.com>
-References: <20180129113323.18961-1-andi.shyti@samsung.com>
-        <CGME20180129113332epcas1p1edee9b62330e4bcfddf4ab7586843ce4@epcas1p1.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20180129113323.18961-1-andi.shyti@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Shields <simon@lineageos.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1] i2c-hid: Use ACPI_COMPANION() directly
+Date: Mon, 29 Jan 2018 17:48:04 +0200
+Message-ID: <1517240884.7000.1304.camel@linux.intel.com>
+References: <20180119143504.16684-1-andriy.shevchenko@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga18.intel.com ([134.134.136.126]:51582 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750959AbeA2P5h (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 Jan 2018 10:57:37 -0500
+In-Reply-To: <20180119143504.16684-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-It's 'MMS114_INFORMATION', not 'MMS114_INFOMATION'
+On Fri, 2018-01-19 at 16:35 +0200, Andy Shevchenko wrote:
+> Instead of doing additional checks and functional calls,
+> just get ACPI companion device directly.
+> 
 
-Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
----
- drivers/input/touchscreen/mms114.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Any comments on this? The rationale is to prevent people copy'n'paste
+current approach instead of better one which is presented by this
+change.
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 3230c92de1ed..5b609531b3aa 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -28,7 +28,7 @@
- 
- /* Read only registers */
- #define MMS114_PACKET_SIZE		0x0f
--#define MMS114_INFOMATION		0x10
-+#define MMS114_INFORMATION		0x10
- #define MMS114_TSP_REV			0xf0
- 
- #define MMS152_FW_REV			0xe1
-@@ -138,7 +138,7 @@ static irqreturn_t mms114_interrupt(int irq, void *dev_id)
- 
- 	touch_size = packet_size / MMS114_PACKET_NUM;
- 
--	error = i2c_smbus_read_i2c_block_data(data->client, MMS114_INFOMATION,
-+	error = i2c_smbus_read_i2c_block_data(data->client, MMS114_INFORMATION,
- 					      packet_size, (u8 *)touch);
- 	if (error < 0)
- 		goto out;
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-
+> hid.c
+> index 7230243b94d3..0d3ca542e987 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -891,10 +891,10 @@ static int i2c_hid_acpi_pdata(struct i2c_client
+> *client,
+>  
+>  static void i2c_hid_acpi_fix_up_power(struct device *dev)
+>  {
+> -	acpi_handle handle = ACPI_HANDLE(dev);
+>  	struct acpi_device *adev;
+>  
+> -	if (handle && acpi_bus_get_device(handle, &adev) == 0)
+> +	adev = ACPI_COMPANION(dev);
+> +	if (adev)
+>  		acpi_device_fix_up_power(adev);
+>  }
+>  
+
 -- 
-2.15.1
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

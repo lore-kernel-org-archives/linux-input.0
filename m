@@ -1,46 +1,46 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] Input: gamecon: Improve a size determination in
- gc_attach()
-Date: Sat, 27 Jan 2018 17:15:21 +0100
-Message-ID: <423af7ee-401a-5e6a-b7f1-fb9b223a2b75@users.sourceforge.net>
-References: <e02726e3-2ee7-e690-a8ea-90a55f8fd0c2@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e02726e3-2ee7-e690-a8ea-90a55f8fd0c2@users.sourceforge.net>
-Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Gustavo A. R. Silva" <garsilva@embeddedor.com>, Joe Perches <joe@perches.com>, Kees Cook <keescook@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: [PATCH 0/8] Melfas MMS114 touchscreen cleanups
+Date: Mon, 29 Jan 2018 20:33:15 +0900
+Message-ID: <20180129113323.18961-1-andi.shyti@samsung.com>
+References: <CGME20180129113330epcas2p353fa87845f4a1e21661032f16b11be82@epcas2p3.samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:31887 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751321AbeA2Ldd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 Jan 2018 06:33:33 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Shields <simon@lineageos.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 27 Jan 2018 16:30:58 +0100
+Hi Dmitry,
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+this patchset contains some cleanups for the mms114 driver. The
+first two patches are the most important because they get rid of
+the custom i2c read/write functions and use the smbus instead.
 
-This issue was detected by using the Coccinelle software.
+The others come from a "cleanup rush" I felt into.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/joystick/gamecon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I tested the patchest on the mms114 touchscreen in trats2, I
+would appreaciate if Simon can test it on mms152.
 
-diff --git a/drivers/input/joystick/gamecon.c b/drivers/input/joystick/gamecon.c
-index f6006383d30d..0e3d47ab9ab9 100644
---- a/drivers/input/joystick/gamecon.c
-+++ b/drivers/input/joystick/gamecon.c
-@@ -965,7 +965,7 @@ static void gc_attach(struct parport *pp)
- 		return;
- 	}
- 
--	gc = kzalloc(sizeof(struct gc), GFP_KERNEL);
-+	gc = kzalloc(sizeof(*gc), GFP_KERNEL);
- 	if (!gc)
- 		goto err_unreg_pardev;
- 
+Thanks,
+Andi
+
+Andi Shyti (8):
+  Input: mms114 - use smbus functions whenever possible
+  Input: mms114 - get read of custm i2c read/write functions
+  Input: mms114 - replace mdelay with msleep
+  Input: mms114 - remove unused variable
+  Input: mms114 - use lower case for hexadecimal values
+  Input: mms114 - Use BIT() macro instead of explicit shifting
+  Input: mms114 - add SPDX identifier
+  Input: mms114 - fix typo in definition
+
+ drivers/input/touchscreen/mms114.c | 150 +++++++++++--------------------------
+ 1 file changed, 44 insertions(+), 106 deletions(-)
+
 -- 
-2.16.1
+2.15.1
+

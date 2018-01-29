@@ -1,46 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/8] Input: mms114 - remove unused variable
-Date: Mon, 29 Jan 2018 10:43:09 -0800
-Message-ID: <20180129184309.ljnw63owyuhofqko@dtor-ws>
+Subject: Re: [PATCH 5/8] Input: mms114 - use lower case for hexadecimal values
+Date: Mon, 29 Jan 2018 10:56:31 -0800
+Message-ID: <20180129185631.wvgl3il6tu6nk7ew@dtor-ws>
 References: <20180129113323.18961-1-andi.shyti@samsung.com>
- <CGME20180129113331epcas2p3bb7bc89558e7219ef257b36fa47dc076@epcas2p3.samsung.com>
- <20180129113323.18961-5-andi.shyti@samsung.com>
+ <CGME20180129113331epcas2p29c39450d723f7d2085fc10a74a74e53c@epcas2p2.samsung.com>
+ <20180129113323.18961-6-andi.shyti@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180129113323.18961-5-andi.shyti@samsung.com>
+In-Reply-To: <20180129113323.18961-6-andi.shyti@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andi Shyti <andi.shyti@samsung.com>
 Cc: Simon Shields <simon@lineageos.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 29, 2018 at 08:33:19PM +0900, Andi Shyti wrote:
-> '__packed' is not used anywhere, remove it.
-
-Umm, this is not a variable, this is type annotation meaning that the
-structure is packed. Still not needed, as we are not using anything but
-u8 data elements, but justification is completely wrong.
-
-> 
+On Mon, Jan 29, 2018 at 08:33:20PM +0900, Andi Shyti wrote:
 > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+
+But why?
+
 > ---
->  drivers/input/touchscreen/mms114.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/touchscreen/mms114.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-> index fb4435ae506b..11dba8bb48e3 100644
+> index 11dba8bb48e3..fdf23bc416af 100644
 > --- a/drivers/input/touchscreen/mms114.c
 > +++ b/drivers/input/touchscreen/mms114.c
-> @@ -78,7 +78,7 @@ struct mms114_touch {
->  	u8 width;
->  	u8 strength;
->  	u8 reserved[2];
-> -} __packed;
-> +};
+> @@ -20,7 +20,7 @@
 >  
->  static void mms114_process_mt(struct mms114_data *data, struct mms114_touch *touch)
->  {
+>  /* Write only registers */
+>  #define MMS114_MODE_CONTROL		0x01
+> -#define MMS114_OPERATION_MODE_MASK	0xE
+> +#define MMS114_OPERATION_MODE_MASK	0xe
+>  #define MMS114_ACTIVE			(1 << 1)
+>  
+>  #define MMS114_XY_RESOLUTION_H		0x02
+> @@ -30,12 +30,12 @@
+>  #define MMS114_MOVING_THRESHOLD		0x06
+>  
+>  /* Read only registers */
+> -#define MMS114_PACKET_SIZE		0x0F
+> +#define MMS114_PACKET_SIZE		0x0f
+>  #define MMS114_INFOMATION		0x10
+> -#define MMS114_TSP_REV			0xF0
+> +#define MMS114_TSP_REV			0xf0
+>  
+> -#define MMS152_FW_REV			0xE1
+> -#define MMS152_COMPAT_GROUP		0xF2
+> +#define MMS152_FW_REV			0xe1
+> +#define MMS152_COMPAT_GROUP		0xf2
+>  
+>  /* 200ms needs after power on */
+>  #define MMS114_POWERON_DELAY		200
 > -- 
 > 2.15.1
 > 

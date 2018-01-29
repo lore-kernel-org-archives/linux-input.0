@@ -1,46 +1,36 @@
 From: Andi Shyti <andi.shyti@samsung.com>
-Subject: [PATCH 0/8] Melfas MMS114 touchscreen cleanups
-Date: Mon, 29 Jan 2018 20:33:15 +0900
-Message-ID: <20180129113323.18961-1-andi.shyti@samsung.com>
-References: <CGME20180129113330epcas2p353fa87845f4a1e21661032f16b11be82@epcas2p3.samsung.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:31887 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751321AbeA2Ldd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Jan 2018 06:33:33 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 3/8] Input: mms114 - replace mdelay with msleep
+Date: Mon, 29 Jan 2018 20:33:18 +0900
+Message-ID: <20180129113323.18961-4-andi.shyti@samsung.com>
+References: <20180129113323.18961-1-andi.shyti@samsung.com>
+        <CGME20180129113331epcas2p3fab78689f5f00a3049ae675bbc8dee59@epcas2p3.samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <20180129113323.18961-1-andi.shyti@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Shields <simon@lineageos.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
+List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+200ms seconds is a very long time to keep the CPU busy looping.
+Use msleep instead.
 
-this patchset contains some cleanups for the mms114 driver. The
-first two patches are the most important because they get rid of
-the custom i2c read/write functions and use the smbus instead.
+Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+---
+ drivers/input/touchscreen/mms114.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-The others come from a "cleanup rush" I felt into.
-
-I tested the patchest on the mms114 touchscreen in trats2, I
-would appreaciate if Simon can test it on mms152.
-
-Thanks,
-Andi
-
-Andi Shyti (8):
-  Input: mms114 - use smbus functions whenever possible
-  Input: mms114 - get read of custm i2c read/write functions
-  Input: mms114 - replace mdelay with msleep
-  Input: mms114 - remove unused variable
-  Input: mms114 - use lower case for hexadecimal values
-  Input: mms114 - Use BIT() macro instead of explicit shifting
-  Input: mms114 - add SPDX identifier
-  Input: mms114 - fix typo in definition
-
- drivers/input/touchscreen/mms114.c | 150 +++++++++++--------------------------
- 1 file changed, 44 insertions(+), 106 deletions(-)
-
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 94a97049d711..fb4435ae506b 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -290,7 +290,7 @@ static int mms114_start(struct mms114_data *data)
+ 		return error;
+ 	}
+ 
+-	mdelay(MMS114_POWERON_DELAY);
++	msleep(MMS114_POWERON_DELAY);
+ 
+ 	error = mms114_setup_regs(data);
+ 	if (error < 0) {
 -- 
 2.15.1
-

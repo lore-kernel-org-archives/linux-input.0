@@ -1,54 +1,78 @@
-From: Andi Shyti <andi.shyti@samsung.com>
-Subject: Re: [PATCH 5/8] Input: mms114 - use lower case for hexadecimal
- values
-Date: Tue, 30 Jan 2018 08:41:58 +0900
-Message-ID: <20180129234158.GX7575@gangnam.samsung>
-References: <20180129113323.18961-1-andi.shyti@samsung.com>
-        <CGME20180129113331epcas2p29c39450d723f7d2085fc10a74a74e53c@epcas2p2.samsung.com>
-        <20180129113323.18961-6-andi.shyti@samsung.com>
-        <20180129185631.wvgl3il6tu6nk7ew@dtor-ws>
-        <20180129232923.GW7575@gangnam.samsung>
-        <20180129233335.ikqioeetkkvocblm@dtor-ws>
+From: Damjan Georgievski <gdamjan@gmail.com>
+Subject: Trackpoint not found when loading psmouse before rmi_smbus
+Date: Tue, 30 Jan 2018 13:46:29 +0100
+Message-ID: <CAEk1YH68KecWAyeKTu_paL3CLtxLuw1hrH7Z4B_FqiWQML666Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-disposition: inline
-In-reply-to: <20180129233335.ikqioeetkkvocblm@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Simon Shields <simon@lineageos.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:54543 "EHLO
+        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751822AbeA3Mqb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 30 Jan 2018 07:46:31 -0500
+Received: by mail-wm0-f47.google.com with SMTP id i186so850170wmi.4
+        for <linux-input@vger.kernel.org>; Tue, 30 Jan 2018 04:46:30 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Dmitry,
+This is tested on X1 Carbon (gen 5)
+pnp id: LEN0072
+kernel 4.15.0
 
-On Mon, Jan 29, 2018 at 03:33:35PM -0800, Dmitry Torokhov wrote:
-> On Tue, Jan 30, 2018 at 08:29:23AM +0900, Andi Shyti wrote:
-> > Hi Dmitry,
-> > 
-> > On Mon, Jan 29, 2018 at 10:56:31AM -0800, Dmitry Torokhov wrote:
-> > > On Mon, Jan 29, 2018 at 08:33:20PM +0900, Andi Shyti wrote:
-> > > > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> > > 
-> > > But why?
-> > 
-> > I think this patch is trivial and the subject itself is quite
-> > self-explanatory and the commit message would be a copy-paste of
-> > it.
-> 
-> Here is where we disagree. Why lowercase is preferred over uppercase? Do
-> we have this in coding style (and I completely forgot about it)? Or is
-> it your preference (mine is too to be fair, but I also do not care
-> about churning the code for it)?
+Since by default psmouse complains about
+"synaptics: Your touchpad (PNP: LEN0072 PNP0f13) says it can support a
+different bus....",
+I've patched the kernel to add the pnp id to smbus_pnp_ids in
+drivers/input/mouse/synaptics.c [1],
+and the trackpad seems to work at least a  bit smoother (it could be
+placebo though).
 
-I think this is the case where the cultural habits become law, I've
-been writing lower case hex values from years and my eyes are so
-used to it that it looks wrong to have them written upper case.
-Many maintainers reject upper case hex values.
+But, with the default setup, and rmi_smbus and psmouse are both
+compiled as modules, the trackpoint device never appears in dmesg.
+I can make it appear if I put rmi_smbus in /etc/modules-load.d/ so it
+loads before psmouse, or if I unload psmouse and load it again.
 
-As well as many reject the " ? : " conditional form.
+I can even reproduce it by unloading both rmi_smbus and psmouse, and
+then only loading psmouse
+(psmouse seems to load rmi_smbus and switch the trackpad to it but the
+trackpoint is lost)
 
-In any case, you're basically right here, at this point I
-don't mind if you drop it :)
+Here's the output of dmesg. first part when psmouse is loaded before
+rmi_smbus, second when rmi_smbus is first loaded, then psmouse:
 
-Thanks,
-Andi
+[ 3720.674955] psmouse serio1: synaptics: queried max coordinates: x
+[..5676], y [..4760]
+[ 3720.707854] psmouse serio1: synaptics: queried min coordinates: x
+[1266..], y [1094..]
+[ 3720.707866] psmouse serio1: synaptics: Trying to set up SMBus access
+[ 3720.719392] rmi4_smbus 6-002c: registering SMbus-connected sensor
+[ 3720.780999] rmi4_f01 rmi4-02.fn01: found RMI device, manufacturer:
+Synaptics, product: TM3289-002, fw id: 2492434
+[ 3720.848800] input: Synaptics TM3289-002 as /devices/rmi4-02/input/input26
+
+<...  no other messages here I just put a separator to be a bit more clear ...>
+
+[ 3755.533836] psmouse serio1: synaptics: queried max coordinates: x
+[..5676], y [..4760]
+[ 3755.565863] psmouse serio1: synaptics: queried min coordinates: x
+[1266..], y [1094..]
+[ 3755.565875] psmouse serio1: synaptics: Trying to set up SMBus access
+[ 3755.569661] rmi4_smbus 6-002c: registering SMbus-connected sensor
+[ 3755.636795] rmi4_f01 rmi4-03.fn01: found RMI device, manufacturer:
+Synaptics, product: TM3289-002, fw id: 2492434
+[ 3755.701859] input: Synaptics TM3289-002 as /devices/rmi4-03/input/input30
+[ 3755.836966] psmouse serio5: trackpoint: ALPS TrackPoint firmware:
+0x01, buttons: 3/3
+[ 3755.880664] input: TPPS/2 ALPS TrackPoint as
+/devices/rmi4-03/rmi4-03.fn03/serio5/input/input31
+[ 3758.969259] psmouse serio5: TrackPoint at
+synaptics-rmi4-pt/serio1/input0 lost synchronization, throwing 1 bytes
+away.
+
+
+[1]
+https://github.com/gdamjan/linux/commit/fa6b3c893bea6d017b575438a4b367f2a7fc7717
+
+-- 
+damjan

@@ -1,172 +1,500 @@
-From: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>
-Subject: Re: i8042 AUX port [serio1] suspend takes a second on Dell XPS 13
- 9360 and TUXEDO Book 1406
-Date: Tue, 30 Jan 2018 19:39:32 +0100
-Message-ID: <a7c19320-4942-e41d-5323-0ac3693e7012@molgen.mpg.de>
-References: <5a74e1a7-2083-c6b2-f51a-f44908ac8bc4@molgen.mpg.de>
- <20180130175017.72inurhk5l7tcvae@dtor-ws>
- <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: Re: [PATCH v5] input: pxrc: new driver for PhoenixRC Flight
+ Controller Adapter
+Date: Tue, 30 Jan 2018 21:32:38 +0100
+Message-ID: <20180130203238.GB7723@gmail.com>
+References: <20180120205840.14506-1-marcus.folkesson@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="------------ms060202020301020608010004"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <20180120205840.14506-1-marcus.folkesson@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Tomohiro Yoshidomi <sylph23k@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, Philippe Ombredanne <pombredanne@nexb.com>, Kate Stewart <kstewart@linuxfoundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
 
---------------ms060202020301020608010004
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+--mxv5cy4qt+RJ9ypb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Dear Dmitry,
+Hello Dmitry,
+
+Do you mind have a look at v5?
+
+Thanks!
 
 
-On 01/30/18 19:07, Dmitry Torokhov wrote:
-> On Tue, Jan 30, 2018 at 09:52:45AM -0800, Dmitry Torokhov wrote:
-
->> On Tue, Jan 30, 2018 at 06:36:34PM +0100, Paul Menzel wrote:
-
->>> I do not know, when it started, but with Linux 4.14-rc8 and 4.15,
->>> benchmarking suspend and resume time with `sleepgraph.py` [1][2], the=
-re is a
->>> regression, that i8042 AUX port [serio1] suspend takes a second on De=
-ll XPS
->>> 13 9360 and TUXEDO Book 1406.
->>
->> It would be really helpful to know when the regression started.
+On Sat, Jan 20, 2018 at 09:58:40PM +0100, Marcus Folkesson wrote:
+> This driver let you plug in your RC controller to the adapter and
+> use it as input device in various RC simulators.
 >=20
-> So the reason it takes longer is because the touchpad does not want to
-> talk to us for some reason and we wait until commands time out:
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> ---
 >=20
-> [   94.591636] calling  serio1+ @ 2299, parent: i8042
-> [   94.794292] psmouse serio1: Failed to disable mouse on isa0060/serio=
-1
-> [   95.593303] call serio1+ returned 0 after 974280 usecs
+> v5:
+> 	- Drop autosuspend support
+> 	- Use pm_mutex instead of input_dev->mutex
+> 	- Use pxrc->is_open instead of input_dev->users
+> v4:
+> 	- Add call to usb_mark_last_busy() in irq
+> 	- Move code from pxrc_resume() to pxrc_reset_resume()
+> v3:
+> 	- Use RUDDER and MISC instead of TILT_X and TILT_Y
+> 	- Drop kref and anchor
+> 	- Rework URB handling
+> 	- Add PM support
+> v2:
+> 	- Change module license to GPLv2 to match SPDX tag
 >=20
-> but it is not clear why it happens, I do not think we changed anything
-> in that path for a while, so it might be some other change affecting
-> things indirectly. I'm afraid you'll have to narrow the scope, and
-> ideally bisect.
+>=20
+>  Documentation/input/devices/pxrc.rst |  57 +++++++
+>  drivers/input/joystick/Kconfig       |   9 ++
+>  drivers/input/joystick/Makefile      |   1 +
+>  drivers/input/joystick/pxrc.c        | 303 +++++++++++++++++++++++++++++=
+++++++
+>  4 files changed, 370 insertions(+)
+>  create mode 100644 Documentation/input/devices/pxrc.rst
+>  create mode 100644 drivers/input/joystick/pxrc.c
+>=20
+> diff --git a/Documentation/input/devices/pxrc.rst b/Documentation/input/d=
+evices/pxrc.rst
+> new file mode 100644
+> index 000000000000..ca11f646bae8
+> --- /dev/null
+> +++ b/Documentation/input/devices/pxrc.rst
+> @@ -0,0 +1,57 @@
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D
+> +pxrc - PhoenixRC Flight Controller Adapter
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D
+> +
+> +:Author: Marcus Folkesson <marcus.folkesson@gmail.com>
+> +
+> +This driver let you use your own RC controller plugged into the
+> +adapter that comes with PhoenixRC [1]_ or other compatible adapters.
+> +
+> +The adapter supports 7 analog channels and 1 digital input switch.
+> +
+> +Notes
+> +=3D=3D=3D=3D=3D
+> +
+> +Many RC controllers is able to configure which stick goes to which chann=
+el.
+> +This is also configurable in most simulators, so a matching is not neces=
+sary.
+> +
+> +The driver is generating the following input event for analog channels:
+> +
+> ++---------+----------------+
+> +| Channel |      Event     |
+> ++=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D+
+> +|     1   |  ABS_X         |
+> ++---------+----------------+
+> +|     2   |  ABS_Y         |
+> ++---------+----------------+
+> +|     3   |  ABS_RX        |
+> ++---------+----------------+
+> +|     4   |  ABS_RY        |
+> ++---------+----------------+
+> +|     5   |  ABS_RUDDER    |
+> ++---------+----------------+
+> +|     6   |  ABS_THROTTLE  |
+> ++---------+----------------+
+> +|     7   |  ABS_MISC      |
+> ++---------+----------------+
+> +
+> +The digital input switch is generated as an `BTN_A` event.
+> +
+> +Manual Testing
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +To test this driver's functionality you may use `input-event` which is p=
+art of
+> +the `input layer utilities` suite [2]_.
+> +
+> +For example::
+> +
+> +    > modprobe pxrc
+> +    > input-events <devnr>
+> +
+> +To print all input events from input `devnr`.
+> +
+> +References
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +.. [1] http://www.phoenix-sim.com/
+> +.. [2] https://www.kraxel.org/cgit/input/
+> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kcon=
+fig
+> index f3c2f6ea8b44..332c0cc1b2ab 100644
+> --- a/drivers/input/joystick/Kconfig
+> +++ b/drivers/input/joystick/Kconfig
+> @@ -351,4 +351,13 @@ config JOYSTICK_PSXPAD_SPI_FF
+> =20
+>  	  To drive rumble motor a dedicated power supply is required.
+> =20
+> +config JOYSTICK_PXRC
+> +	tristate "PhoenixRC Flight Controller Adapter"
+> +	depends on USB_ARCH_HAS_HCD
+> +	depends on USB
+> +	help
+> +	  Say Y here if you want to use the PhoenixRC Flight Controller Adapter.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called pxrc.
+>  endif
+> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Mak=
+efile
+> index 67651efda2e1..dd0492ebbed7 100644
+> --- a/drivers/input/joystick/Makefile
+> +++ b/drivers/input/joystick/Makefile
+> @@ -23,6 +23,7 @@ obj-$(CONFIG_JOYSTICK_JOYDUMP)		+=3D joydump.o
+>  obj-$(CONFIG_JOYSTICK_MAGELLAN)		+=3D magellan.o
+>  obj-$(CONFIG_JOYSTICK_MAPLE)		+=3D maplecontrol.o
+>  obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+=3D psxpad-spi.o
+> +obj-$(CONFIG_JOYSTICK_PXRC)			+=3D pxrc.o
+>  obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+=3D sidewinder.o
+>  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+=3D spaceball.o
+>  obj-$(CONFIG_JOYSTICK_SPACEORB)		+=3D spaceorb.o
+> diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
+> new file mode 100644
+> index 000000000000..07a0dbd3ced2
+> --- /dev/null
+> +++ b/drivers/input/joystick/pxrc.c
+> @@ -0,0 +1,303 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Driver for Phoenix RC Flight Controller Adapter
+> + *
+> + * Copyright (C) 2018 Marcus Folkesson <marcus.folkesson@gmail.com>
+> + *
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/errno.h>
+> +#include <linux/slab.h>
+> +#include <linux/module.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/usb.h>
+> +#include <linux/usb/input.h>
+> +#include <linux/mutex.h>
+> +#include <linux/input.h>
+> +
+> +#define PXRC_VENDOR_ID	(0x1781)
+> +#define PXRC_PRODUCT_ID	(0x0898)
+> +
+> +static const struct usb_device_id pxrc_table[] =3D {
+> +	{ USB_DEVICE(PXRC_VENDOR_ID, PXRC_PRODUCT_ID) },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(usb, pxrc_table);
+> +
+> +struct pxrc {
+> +	struct input_dev	*input;
+> +	struct usb_device	*udev;
+> +	struct usb_interface	*intf;
+> +	struct urb		*urb;
+> +	struct mutex		pm_mutex;
+> +	bool			is_open;
+> +	__u8			epaddr;
+> +	char			phys[64];
+> +	unsigned char           *data;
+> +	size_t			bsize;
+> +};
+> +
+> +static void pxrc_usb_irq(struct urb *urb)
+> +{
+> +	struct pxrc *pxrc =3D urb->context;
+> +	int error;
+> +
+> +	switch (urb->status) {
+> +	case 0:
+> +		/* success */
+> +		break;
+> +	case -ETIME:
+> +		/* this urb is timing out */
+> +		dev_dbg(&pxrc->intf->dev,
+> +			"%s - urb timed out - was the device unplugged?\n",
+> +			__func__);
+> +		return;
+> +	case -ECONNRESET:
+> +	case -ENOENT:
+> +	case -ESHUTDOWN:
+> +	case -EPIPE:
+> +		/* this urb is terminated, clean up */
+> +		dev_dbg(&pxrc->intf->dev, "%s - urb shutting down with status: %d\n",
+> +			__func__, urb->status);
+> +		return;
+> +	default:
+> +		dev_dbg(&pxrc->intf->dev, "%s - nonzero urb status received: %d\n",
+> +			__func__, urb->status);
+> +		goto exit;
+> +	}
+> +
+> +	if (urb->actual_length =3D=3D 8) {
+> +		input_report_abs(pxrc->input, ABS_X, pxrc->data[0]);
+> +		input_report_abs(pxrc->input, ABS_Y, pxrc->data[2]);
+> +		input_report_abs(pxrc->input, ABS_RX, pxrc->data[3]);
+> +		input_report_abs(pxrc->input, ABS_RY, pxrc->data[4]);
+> +		input_report_abs(pxrc->input, ABS_RUDDER, pxrc->data[5]);
+> +		input_report_abs(pxrc->input, ABS_THROTTLE, pxrc->data[6]);
+> +		input_report_abs(pxrc->input, ABS_MISC, pxrc->data[7]);
+> +
+> +		input_report_key(pxrc->input, BTN_A, pxrc->data[1]);
+> +	}
+> +
+> +exit:
+> +	/* Resubmit to fetch new fresh URBs */
+> +	error =3D usb_submit_urb(urb, GFP_ATOMIC);
+> +	if (error && error !=3D -EPERM)
+> +		dev_err(&pxrc->intf->dev,
+> +			"%s - usb_submit_urb failed with result: %d",
+> +			__func__, error);
+> +}
+> +
+> +static int pxrc_open(struct input_dev *input)
+> +{
+> +	struct pxrc *pxrc =3D input_get_drvdata(input);
+> +	int retval;
+> +
+> +	mutex_lock(&pxrc->pm_mutex);
+> +	retval =3D usb_submit_urb(pxrc->urb, GFP_KERNEL);
+> +	if (retval) {
+> +		dev_err(&pxrc->intf->dev,
+> +			"%s - usb_submit_urb failed, error: %d\n",
+> +			__func__, retval);
+> +		retval =3D -EIO;
+> +		goto out;
+> +	}
+> +
+> +	pxrc->is_open =3D true;
+> +
+> +out:
+> +	mutex_unlock(&pxrc->pm_mutex);
+> +	return retval;
+> +}
+> +
+> +static void pxrc_close(struct input_dev *input)
+> +{
+> +	struct pxrc *pxrc =3D input_get_drvdata(input);
+> +
+> +	mutex_lock(&pxrc->pm_mutex);
+> +	usb_kill_urb(pxrc->urb);
+> +	pxrc->is_open =3D false;
+> +	mutex_unlock(&pxrc->pm_mutex);
+> +}
+> +
+> +static int pxrc_usb_init(struct pxrc *pxrc)
+> +{
+> +	struct usb_endpoint_descriptor *epirq;
+> +	unsigned int pipe;
+> +	int retval;
+> +
+> +	/* Set up the endpoint information */
+> +	/* This device only has an interrupt endpoint */
+> +	retval =3D usb_find_common_endpoints(pxrc->intf->cur_altsetting,
+> +			NULL, NULL, &epirq, NULL);
+> +	if (retval) {
+> +		dev_err(&pxrc->intf->dev,
+> +			"Could not find endpoint\n");
+> +		goto error;
+> +	}
+> +
+> +	pxrc->bsize =3D usb_endpoint_maxp(epirq);
+> +	pxrc->epaddr =3D epirq->bEndpointAddress;
+> +	pxrc->data =3D devm_kmalloc(&pxrc->intf->dev, pxrc->bsize, GFP_KERNEL);
+> +	if (!pxrc->data) {
+> +		retval =3D -ENOMEM;
+> +		goto error;
+> +	}
+> +
+> +	usb_set_intfdata(pxrc->intf, pxrc);
+> +	usb_make_path(pxrc->udev, pxrc->phys, sizeof(pxrc->phys));
+> +	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
+> +
+> +	pxrc->urb =3D usb_alloc_urb(0, GFP_KERNEL);
+> +	if (!pxrc->urb) {
+> +		retval =3D -ENOMEM;
+> +		goto error;
+> +	}
+> +
+> +	pipe =3D usb_rcvintpipe(pxrc->udev, pxrc->epaddr),
+> +	usb_fill_int_urb(pxrc->urb, pxrc->udev, pipe, pxrc->data, pxrc->bsize,
+> +						pxrc_usb_irq, pxrc, 1);
+> +
+> +error:
+> +	return retval;
+> +
+> +
+> +}
+> +
+> +static int pxrc_input_init(struct pxrc *pxrc)
+> +{
+> +	pxrc->input =3D devm_input_allocate_device(&pxrc->intf->dev);
+> +	if (pxrc->input =3D=3D NULL) {
+> +		dev_err(&pxrc->intf->dev, "couldn't allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	pxrc->input->name =3D "PXRC Flight Controller Adapter";
+> +	pxrc->input->phys =3D pxrc->phys;
+> +	usb_to_input_id(pxrc->udev, &pxrc->input->id);
+> +
+> +	pxrc->input->open =3D pxrc_open;
+> +	pxrc->input->close =3D pxrc_close;
+> +
+> +	input_set_capability(pxrc->input, EV_KEY, BTN_A);
+> +	input_set_abs_params(pxrc->input, ABS_X, 0, 255, 0, 0);
+> +	input_set_abs_params(pxrc->input, ABS_Y, 0, 255, 0, 0);
+> +	input_set_abs_params(pxrc->input, ABS_RX, 0, 255, 0, 0);
+> +	input_set_abs_params(pxrc->input, ABS_RY, 0, 255, 0, 0);
+> +	input_set_abs_params(pxrc->input, ABS_RUDDER, 0, 255, 0, 0);
+> +	input_set_abs_params(pxrc->input, ABS_THROTTLE, 0, 255, 0, 0);
+> +	input_set_abs_params(pxrc->input, ABS_MISC, 0, 255, 0, 0);
+> +
+> +	input_set_drvdata(pxrc->input, pxrc);
+> +
+> +	return input_register_device(pxrc->input);
+> +}
+> +
+> +static int pxrc_probe(struct usb_interface *intf,
+> +		      const struct usb_device_id *id)
+> +{
+> +	struct pxrc *pxrc;
+> +	int retval;
+> +
+> +	pxrc =3D devm_kzalloc(&intf->dev, sizeof(*pxrc), GFP_KERNEL);
+> +	if (!pxrc)
+> +		return -ENOMEM;
+> +
+> +	mutex_init(&pxrc->pm_mutex);
+> +	pxrc->udev =3D usb_get_dev(interface_to_usbdev(intf));
+> +	pxrc->intf =3D intf;
+> +
+> +	retval =3D pxrc_usb_init(pxrc);
+> +	if (retval)
+> +		goto error;
+> +
+> +	retval =3D pxrc_input_init(pxrc);
+> +	if (retval)
+> +		goto err_free_urb;
+> +
+> +	return 0;
+> +
+> +err_free_urb:
+> +	usb_free_urb(pxrc->urb);
+> +
+> +error:
+> +	return retval;
+> +}
+> +
+> +static void pxrc_disconnect(struct usb_interface *intf)
+> +{
+> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
+> +
+> +	usb_free_urb(pxrc->urb);
+> +	usb_set_intfdata(intf, NULL);
+> +}
+> +
+> +static int pxrc_suspend(struct usb_interface *intf, pm_message_t message)
+> +{
+> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
+> +
+> +	mutex_lock(&pxrc->pm_mutex);
+> +	if (pxrc->is_open)
+> +		usb_kill_urb(pxrc->urb);
+> +	mutex_unlock(&pxrc->pm_mutex);
+> +
+> +	return 0;
+> +}
+> +
+> +static int pxrc_resume(struct usb_interface *intf)
+> +{
+> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
+> +	int retval =3D 0;
+> +
+> +	mutex_lock(&pxrc->pm_mutex);
+> +	if (pxrc->is_open && usb_submit_urb(pxrc->urb, GFP_KERNEL) < 0)
+> +		retval =3D -EIO;
+> +
+> +	mutex_unlock(&pxrc->pm_mutex);
+> +	return retval;
+> +}
+> +
+> +static int pxrc_pre_reset(struct usb_interface *intf)
+> +{
+> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
+> +
+> +	mutex_lock(&pxrc->pm_mutex);
+> +	usb_kill_urb(pxrc->urb);
+> +	return 0;
+> +}
+> +
+> +static int pxrc_post_reset(struct usb_interface *intf)
+> +{
+> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
+> +	int retval =3D 0;
+> +
+> +	if (pxrc->is_open && usb_submit_urb(pxrc->urb, GFP_KERNEL) < 0)
+> +		retval =3D -EIO;
+> +
+> +	mutex_unlock(&pxrc->pm_mutex);
+> +
+> +	return retval;
+> +}
+> +
+> +static int pxrc_reset_resume(struct usb_interface *intf)
+> +{
+> +	return pxrc_resume(intf);
+> +}
+> +
+> +static struct usb_driver pxrc_driver =3D {
+> +	.name =3D		"pxrc",
+> +	.probe =3D	pxrc_probe,
+> +	.disconnect =3D	pxrc_disconnect,
+> +	.id_table =3D	pxrc_table,
+> +	.suspend	=3D pxrc_suspend,
+> +	.resume		=3D pxrc_resume,
+> +	.pre_reset	=3D pxrc_pre_reset,
+> +	.post_reset	=3D pxrc_post_reset,
+> +	.reset_resume	=3D pxrc_reset_resume,
+> +};
+> +
+> +module_usb_driver(pxrc_driver);
+> +
+> +MODULE_AUTHOR("Marcus Folkesson <marcus.folkesson@gmail.com>");
+> +MODULE_DESCRIPTION("PhoenixRC Flight Controller Adapter");
+> +MODULE_LICENSE("GPL v2");
+> --=20
+> 2.15.1
+>=20
 
-Thank you for looking into this. Just to note, that it worked with Linux =
+--mxv5cy4qt+RJ9ypb
+Content-Type: application/pgp-signature; name="signature.asc"
 
-4.14.1 from Ubuntu 17.10, so it=E2=80=99s probably something in 4.15. Bis=
-ecting=20
-will take a bit, as the FTRACE stuff broke in Linux 4.15-rc1 and was=20
-only fixed in 4.15-rc9. Hopefully, it=E2=80=99s just one commit I need to=
-=20
-backport. I=E2=80=99ll get back to you hopefully at the end of the week.
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlpw1mEACgkQiIBOb1ld
+UjI18BAArGhhbB1pPOJDE/lnQKBWS+DlYu2ZQWqphozQuxvj04QxlDLDRECHYrpd
+usUeD4i6KHiQ0uJjafLeQzoSfbvMGaV7wo5iXsyykkXcG1TCLJ7yiLt+VrUg1eUJ
+BSRqW5iKr3a7tKZwau6VjvWHgQ7cJKkPgX7EUwgxfdQapgoxuXkrb2GzUd9O/kYI
+krZsRCXz8V2C1RryS6mk9nNah+aRS9JfRGCkB3Lzd+fVs4cjiX1tsbB0JSPZind7
+WY6XhfTzOvYiTQkA91ouMQoXxbdgev+GwsCgILYmruW3TbBYCG4SNheRtk2tMOzc
+heqUgjsb59AApBTR6c4Ce9mv1RZ7PPaCpFC/ObopKN58/bU1KuQbNApSHDzjH17v
+Ni10RjFIb1WwoG7A2wQtvj0lu71mRr48w4Q+14BLpCC/nvgzt/S92opNC/NyD9e3
++YtkNwivxSjpmUnGVh0qvkcCmGsUY6JI9vwR2aJYCToBKeOLX5bC3zA6ZLFQGDRK
+mRoLwpsFQFLHSrqZs9YZKuf4/ht0y5FOzgm26cJqsYf9ltGlJfveUCMkUvnTyOmk
+u4auiL127KQaerpWKccKJdwMGVeBeDT5lY6BCY9ia0qxgTe0wed0tiMcCmRi2W9O
+7bz7xSiI6XFuaWZK2eWychhtF4//hh4oSWiPlv8f7QbQqBiOrQQ=
+=6AO1
+-----END PGP SIGNATURE-----
 
-Kind regards,
-
-Paul
-
-
---------------ms060202020301020608010004
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCC
-EFowggUSMIID+qADAgECAgkA4wvV+K8l2YEwDQYJKoZIhvcNAQELBQAwgYIxCzAJBgNVBAYT
-AkRFMSswKQYDVQQKDCJULVN5c3RlbXMgRW50ZXJwcmlzZSBTZXJ2aWNlcyBHbWJIMR8wHQYD
-VQQLDBZULVN5c3RlbXMgVHJ1c3QgQ2VudGVyMSUwIwYDVQQDDBxULVRlbGVTZWMgR2xvYmFs
-Um9vdCBDbGFzcyAyMB4XDTE2MDIyMjEzMzgyMloXDTMxMDIyMjIzNTk1OVowgZUxCzAJBgNV
-BAYTAkRFMUUwQwYDVQQKEzxWZXJlaW4genVyIEZvZXJkZXJ1bmcgZWluZXMgRGV1dHNjaGVu
-IEZvcnNjaHVuZ3NuZXR6ZXMgZS4gVi4xEDAOBgNVBAsTB0RGTi1QS0kxLTArBgNVBAMTJERG
-Ti1WZXJlaW4gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgMjCCASIwDQYJKoZIhvcNAQEBBQAD
-ggEPADCCAQoCggEBAMtg1/9moUHN0vqHl4pzq5lN6mc5WqFggEcVToyVsuXPztNXS43O+FZs
-FVV2B+pG/cgDRWM+cNSrVICxI5y+NyipCf8FXRgPxJiZN7Mg9mZ4F4fCnQ7MSjLnFp2uDo0p
-eQcAIFTcFV9Kltd4tjTTwXS1nem/wHdN6r1ZB+BaL2w8pQDcNb1lDY9/Mm3yWmpLYgHurDg0
-WUU2SQXaeMpqbVvAgWsRzNI8qIv4cRrKO+KA3Ra0Z3qLNupOkSk9s1FcragMvp0049ENF4N1
-xDkesJQLEvHVaY4l9Lg9K7/AjsMeO6W/VRCrKq4Xl14zzsjz9AkH4wKGMUZrAcUQDBHHWekC
-AwEAAaOCAXQwggFwMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQUk+PYMiba1fFKpZFK4OpL
-4qIMz+EwHwYDVR0jBBgwFoAUv1kgNgB5oKAia4zV8mHSuCzLgkowEgYDVR0TAQH/BAgwBgEB
-/wIBAjAzBgNVHSAELDAqMA8GDSsGAQQBga0hgiwBAQQwDQYLKwYBBAGBrSGCLB4wCAYGZ4EM
-AQICMEwGA1UdHwRFMEMwQaA/oD2GO2h0dHA6Ly9wa2kwMzM2LnRlbGVzZWMuZGUvcmwvVGVs
-ZVNlY19HbG9iYWxSb290X0NsYXNzXzIuY3JsMIGGBggrBgEFBQcBAQR6MHgwLAYIKwYBBQUH
-MAGGIGh0dHA6Ly9vY3NwMDMzNi50ZWxlc2VjLmRlL29jc3ByMEgGCCsGAQUFBzAChjxodHRw
-Oi8vcGtpMDMzNi50ZWxlc2VjLmRlL2NydC9UZWxlU2VjX0dsb2JhbFJvb3RfQ2xhc3NfMi5j
-ZXIwDQYJKoZIhvcNAQELBQADggEBAIcL/z4Cm2XIVi3WO5qYi3FP2ropqiH5Ri71sqQPrhE4
-eTizDnS6dl2e6BiClmLbTDPo3flq3zK9LExHYFV/53RrtCyD2HlrtrdNUAtmB7Xts5et6u5/
-MOaZ/SLick0+hFvu+c+Z6n/XUjkurJgARH5pO7917tALOxrN5fcPImxHhPalR6D90Bo0fa3S
-PXez7vTXTf/D6OWST1k+kEcQSrCFWMBvf/iu7QhCnh7U3xQuTY+8npTD5+32GPg8SecmqKc2
-2CzeIs2LgtjZeOJVEqM7h0S2EQvVDFKvaYwPBt/QolOLV5h7z/0HJPT8vcP9SpIClxvyt7bP
-ZYoaorVyGTkwggWNMIIEdaADAgECAgwcOtRQhH7u81j4jncwDQYJKoZIhvcNAQELBQAwgZUx
-CzAJBgNVBAYTAkRFMUUwQwYDVQQKEzxWZXJlaW4genVyIEZvZXJkZXJ1bmcgZWluZXMgRGV1
-dHNjaGVuIEZvcnNjaHVuZ3NuZXR6ZXMgZS4gVi4xEDAOBgNVBAsTB0RGTi1QS0kxLTArBgNV
-BAMTJERGTi1WZXJlaW4gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgMjAeFw0xNjExMDMxNTI0
-NDhaFw0zMTAyMjIyMzU5NTlaMGoxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIDAZCYXllcm4xETAP
-BgNVBAcMCE11ZW5jaGVuMSAwHgYDVQQKDBdNYXgtUGxhbmNrLUdlc2VsbHNjaGFmdDEVMBMG
-A1UEAwwMTVBHIENBIC0gRzAyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnhx4
-59Lh4WqgOs/Md04XxU2yFtfM15ZuJV0PZP7BmqSJKLLPyqmOrADfNdJ5PIGBto2JBhtRRBHd
-G0GROOvTRHjzOga95WOTeura79T21FWwwAwa29OFnD3ZplQs6HgdwQrZWNi1WHNJxn/4mA19
-rNEBUc5urSIpZPvZi5XmlF3v3JHOlx3KWV7mUteB4pwEEfGTg4npPAJbp2o7arxQdoIq+Pu2
-OsvqhD7Rk4QeaX+EM1QS4lqd1otW4hE70h/ODPy1xffgbZiuotWQLC6nIwa65Qv6byqlIX0q
-Zuu99Vsu+r3sWYsL5SBkgecNI7fMJ5tfHrjoxfrKl/ErTAt8GQIDAQABo4ICBTCCAgEwEgYD
-VR0TAQH/BAgwBgEB/wIBATAOBgNVHQ8BAf8EBAMCAQYwKQYDVR0gBCIwIDANBgsrBgEEAYGt
-IYIsHjAPBg0rBgEEAYGtIYIsAQEEMB0GA1UdDgQWBBTEiKUH7rh7qgwTv9opdGNSG0lwFjAf
-BgNVHSMEGDAWgBST49gyJtrV8UqlkUrg6kviogzP4TCBjwYDVR0fBIGHMIGEMECgPqA8hjpo
-dHRwOi8vY2RwMS5wY2EuZGZuLmRlL2dsb2JhbC1yb290LWcyLWNhL3B1Yi9jcmwvY2Fjcmwu
-Y3JsMECgPqA8hjpodHRwOi8vY2RwMi5wY2EuZGZuLmRlL2dsb2JhbC1yb290LWcyLWNhL3B1
-Yi9jcmwvY2FjcmwuY3JsMIHdBggrBgEFBQcBAQSB0DCBzTAzBggrBgEFBQcwAYYnaHR0cDov
-L29jc3AucGNhLmRmbi5kZS9PQ1NQLVNlcnZlci9PQ1NQMEoGCCsGAQUFBzAChj5odHRwOi8v
-Y2RwMS5wY2EuZGZuLmRlL2dsb2JhbC1yb290LWcyLWNhL3B1Yi9jYWNlcnQvY2FjZXJ0LmNy
-dDBKBggrBgEFBQcwAoY+aHR0cDovL2NkcDIucGNhLmRmbi5kZS9nbG9iYWwtcm9vdC1nMi1j
-YS9wdWIvY2FjZXJ0L2NhY2VydC5jcnQwDQYJKoZIhvcNAQELBQADggEBABLpeD5FygzqOjj+
-/lAOy20UQOGWlx0RMuPcI4nuyFT8SGmK9lD7QCg/HoaJlfU/r78ex+SEide326evlFAoJXIF
-jVyzNltDhpMKrPIDuh2N12zyn1EtagqPL6hu4pVRzcBpl/F2HCvtmMx5K4WN1L1fmHWLcSap
-dhXLvAZ9RG/B3rqyULLSNN8xHXYXpmtvG0VGJAndZ+lj+BH7uvd3nHWnXEHC2q7iQlDUqg0a
-wIqWJgdLlx1Q8Dg/sodv0m+LN0kOzGvVDRCmowBdWGhhusD+duKV66pBl+qhC+4LipariWaM
-qK5ppMQROATjYeNRvwI+nDcEXr2vDaKmdbxgDVwwggWvMIIEl6ADAgECAgweKlJIhfynPMVG
-/KIwDQYJKoZIhvcNAQELBQAwajELMAkGA1UEBhMCREUxDzANBgNVBAgMBkJheWVybjERMA8G
-A1UEBwwITXVlbmNoZW4xIDAeBgNVBAoMF01heC1QbGFuY2stR2VzZWxsc2NoYWZ0MRUwEwYD
-VQQDDAxNUEcgQ0EgLSBHMDIwHhcNMTcxMTE0MTEzNDE2WhcNMjAxMTEzMTEzNDE2WjCBizEL
-MAkGA1UEBhMCREUxIDAeBgNVBAoMF01heC1QbGFuY2stR2VzZWxsc2NoYWZ0MTQwMgYDVQQL
-DCtNYXgtUGxhbmNrLUluc3RpdHV0IGZ1ZXIgbW9sZWt1bGFyZSBHZW5ldGlrMQ4wDAYDVQQL
-DAVNUElNRzEUMBIGA1UEAwwLUGF1bCBNZW56ZWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
-ggEKAoIBAQDIh/UR/AX/YQ48VWWDMLTYtXjYJyhRHMc81ZHMMoaoG66lWB9MtKRTnB5lovLZ
-enTIUyPsCrMhTqV9CWzDf6v9gOTWVxHEYqrUwK5H1gx4XoK81nfV8oGV4EKuVmmikTXiztGz
-peyDmOY8o/EFNWP7YuRkY/lPQJQBeBHYq9AYIgX4StuXu83nusq4MDydygVOeZC15ts0tv3/
-6WmibmZd1OZRqxDOkoBbY3Djx6lERohs3IKS6RKiI7e90rCSy9rtidJBOvaQS9wvtOSKPx0a
-+2pAgJEVzZFjOAfBcXydXtqXhcpOi2VCyl+7+LnnTz016JJLsCBuWEcB3kP9nJYNAgMBAAGj
-ggIxMIICLTAJBgNVHRMEAjAAMA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcD
-AgYIKwYBBQUHAwQwHQYDVR0OBBYEFHM0Mc3XjMLlhWpp4JufRELL4A/qMB8GA1UdIwQYMBaA
-FMSIpQfuuHuqDBO/2il0Y1IbSXAWMCAGA1UdEQQZMBeBFXBtZW56ZWxAbW9sZ2VuLm1wZy5k
-ZTB9BgNVHR8EdjB0MDigNqA0hjJodHRwOi8vY2RwMS5wY2EuZGZuLmRlL21wZy1nMi1jYS9w
-dWIvY3JsL2NhY3JsLmNybDA4oDagNIYyaHR0cDovL2NkcDIucGNhLmRmbi5kZS9tcGctZzIt
-Y2EvcHViL2NybC9jYWNybC5jcmwwgc0GCCsGAQUFBwEBBIHAMIG9MDMGCCsGAQUFBzABhido
-dHRwOi8vb2NzcC5wY2EuZGZuLmRlL09DU1AtU2VydmVyL09DU1AwQgYIKwYBBQUHMAKGNmh0
-dHA6Ly9jZHAxLnBjYS5kZm4uZGUvbXBnLWcyLWNhL3B1Yi9jYWNlcnQvY2FjZXJ0LmNydDBC
-BggrBgEFBQcwAoY2aHR0cDovL2NkcDIucGNhLmRmbi5kZS9tcGctZzItY2EvcHViL2NhY2Vy
-dC9jYWNlcnQuY3J0MEAGA1UdIAQ5MDcwDwYNKwYBBAGBrSGCLAEBBDARBg8rBgEEAYGtIYIs
-AQEEAwYwEQYPKwYBBAGBrSGCLAIBBAMGMA0GCSqGSIb3DQEBCwUAA4IBAQCQs6bUDROpFO2F
-Qz2FMgrdb39VEo8P3DhmpqkaIMC5ZurGbbAL/tAR6lpe4af682nEOJ7VW86ilsIJgm1j0ueY
-aOuL8jrN4X7IF/8KdZnnNnImW3QVni6TCcc+7+ggci9JHtt0IDCj5vPJBpP/dKXLCN4M+exl
-GXYpfHgxh8gclJPY1rquhQrihCzHfKB01w9h9tWZDVMtSoy9EUJFhCXw7mYUsvBeJwZesN2B
-fndPkrXx6XWDdU3S1LyKgHlLIFtarLFm2Hb5zAUR33h+26cN6ohcGqGEEzgIG8tXS8gztEaj
-1s2RyzmKd4SXTkKR3GhkZNVWy+gM68J7jP6zzN+cMYIDmjCCA5YCAQEwejBqMQswCQYDVQQG
-EwJERTEPMA0GA1UECAwGQmF5ZXJuMREwDwYDVQQHDAhNdWVuY2hlbjEgMB4GA1UECgwXTWF4
-LVBsYW5jay1HZXNlbGxzY2hhZnQxFTATBgNVBAMMDE1QRyBDQSAtIEcwMgIMHipSSIX8pzzF
-RvyiMA0GCWCGSAFlAwQCAQUAoIIB8TAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0xODAxMzAxODM5MzJaMC8GCSqGSIb3DQEJBDEiBCAPXsfJq1yy7kP2orFU
-kz+6N3zAChaj57ZjFvFcPsa0JjBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFlAwQBKjALBglg
-hkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcG
-BSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGJBgkrBgEEAYI3EAQxfDB6MGoxCzAJBgNVBAYTAkRF
-MQ8wDQYDVQQIDAZCYXllcm4xETAPBgNVBAcMCE11ZW5jaGVuMSAwHgYDVQQKDBdNYXgtUGxh
-bmNrLUdlc2VsbHNjaGFmdDEVMBMGA1UEAwwMTVBHIENBIC0gRzAyAgweKlJIhfynPMVG/KIw
-gYsGCyqGSIb3DQEJEAILMXygejBqMQswCQYDVQQGEwJERTEPMA0GA1UECAwGQmF5ZXJuMREw
-DwYDVQQHDAhNdWVuY2hlbjEgMB4GA1UECgwXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxFTAT
-BgNVBAMMDE1QRyBDQSAtIEcwMgIMHipSSIX8pzzFRvyiMA0GCSqGSIb3DQEBAQUABIIBAFCq
-YS5WkIITUezLM3/EjyGto/5dKQJHQX8YVURmD+yjo3UaEnmhAz2sFte0tENUhNw7dODQWekz
-nvzN3jUGWzW9giGBUohlnSPkx/XDbOgxhgKYIwJfSVD+C2ZO3sKbggKU8hy45i/SG2HY0eBH
-9WKr5Lj13m3jn1og4apa1CwhIlAFXq5XvUg4XxS/C1OlOu6nqNwNFLWyKuNTKoR4EWcdwzSi
-7r1Hw+Es81ox/k/RDfMbZK2265IJB95COec6IKzpIXSNUini73+VqJMi4ciRWa00/AALF9y1
-7co++rJE7yobQjbdqyJxBlwU+Gx0HsFAuQbohD+kto6G6olbpW0AAAAAAAA=
---------------ms060202020301020608010004--
+--mxv5cy4qt+RJ9ypb--

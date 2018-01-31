@@ -1,45 +1,48 @@
-From: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: [PATCH] hid-sensor-gyro-3d: Delete an error message for a failed
- memory allocation in hid_gyro_3d_probe()
-Date: Wed, 31 Jan 2018 21:43:10 +0100
-Message-ID: <e3308896-dd91-1af0-912f-32cc0794361e@users.sourceforge.net>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] hid-sensor-accel-3d: Delete an error message for a failed
+ memory allocation in hid_accel_3d_probe()
+Date: Wed, 31 Jan 2018 22:26:14 +0100
+Message-ID: <0406765c-bdd1-1a82-cf66-1c248063ae4f@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <kernel-janitors-owner@vger.kernel.org>
 Content-Language: en-US
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: kernel-janitors-owner@vger.kernel.org
+To: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Date: Wed, 31 Jan 2018 21:36:53 +0100
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 31 Jan 2018 22:20:56 +0100
 
 Omit an extra message for a memory allocation failure in this function.
 
 This issue was detected by using the Coccinelle software.
 
-Signed-off-by: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/iio/gyro/hid-sensor-gyro-3d.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-index f59995a90387..93465816c5c7 100644
---- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
-+++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-@@ -317,10 +317,8 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
- 
- 	indio_dev->channels = kmemdup(gyro_3d_channels,
- 				      sizeof(gyro_3d_channels), GFP_KERNEL);
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index c066a3bdbff7..3d0acde40285 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -383,11 +383,9 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 	indio_dev->channels = kmemdup(channel_spec, channel_size, GFP_KERNEL);
+-
 -	if (!indio_dev->channels) {
 -		dev_err(&pdev->dev, "failed to duplicate channels\n");
 +	if (!indio_dev->channels)
  		return -ENOMEM;
 -	}
- 
- 	ret = gyro_3d_parse_report(pdev, hsdev,
- 				   (struct iio_chan_spec *)indio_dev->channels,
++
+ 	ret = accel_3d_parse_report(pdev, hsdev,
+ 				(struct iio_chan_spec *)indio_dev->channels,
+ 				hsdev->usage, accel_state);
 -- 
 2.16.1
+

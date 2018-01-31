@@ -1,62 +1,45 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH] iio/light: Delete an error message for a failed memory
- allocation in two functions
-Date: Wed, 31 Jan 2018 21:21:43 +0100
-Message-ID: <377187b2-abb5-b693-2e95-8674748854c1@users.sourceforge.net>
+From: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: [PATCH] hid-sensor-gyro-3d: Delete an error message for a failed
+ memory allocation in hid_gyro_3d_probe()
+Date: Wed, 31 Jan 2018 21:43:10 +0100
+Message-ID: <e3308896-dd91-1af0-912f-32cc0794361e@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Archana Patni <archana.patni@linux.intel.com>, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Wed, 31 Jan 2018 21:12:09 +0100
+From: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Date: Wed, 31 Jan 2018 21:36:53 +0100
 
-Omit an extra message for a memory allocation failure in these functions.
+Omit an extra message for a memory allocation failure in this function.
 
 This issue was detected by using the Coccinelle software.
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 ---
- drivers/iio/light/hid-sensor-als.c  | 4 +---
- drivers/iio/light/hid-sensor-prox.c | 4 +---
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ drivers/iio/gyro/hid-sensor-gyro-3d.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index befd693a4a31..83654156d952 100644
---- a/drivers/iio/light/hid-sensor-als.c
-+++ b/drivers/iio/light/hid-sensor-als.c
-@@ -299,10 +299,8 @@ static int hid_als_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+index f59995a90387..93465816c5c7 100644
+--- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
++++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+@@ -317,10 +317,8 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
  
- 	indio_dev->channels = kmemdup(als_channels,
- 				      sizeof(als_channels), GFP_KERNEL);
+ 	indio_dev->channels = kmemdup(gyro_3d_channels,
+ 				      sizeof(gyro_3d_channels), GFP_KERNEL);
 -	if (!indio_dev->channels) {
 -		dev_err(&pdev->dev, "failed to duplicate channels\n");
 +	if (!indio_dev->channels)
  		return -ENOMEM;
 -	}
  
- 	ret = als_parse_report(pdev, hsdev,
- 			       (struct iio_chan_spec *)indio_dev->channels,
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 45107f7537b5..f4487620e08b 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -277,10 +277,8 @@ static int hid_prox_probe(struct platform_device *pdev)
- 
- 	indio_dev->channels = kmemdup(prox_channels, sizeof(prox_channels),
- 				      GFP_KERNEL);
--	if (!indio_dev->channels) {
--		dev_err(&pdev->dev, "failed to duplicate channels\n");
-+	if (!indio_dev->channels)
- 		return -ENOMEM;
--	}
- 
- 	ret = prox_parse_report(pdev, hsdev,
- 				(struct iio_chan_spec *)indio_dev->channels,
+ 	ret = gyro_3d_parse_report(pdev, hsdev,
+ 				   (struct iio_chan_spec *)indio_dev->channels,
 -- 
 2.16.1

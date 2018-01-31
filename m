@@ -1,95 +1,62 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: Re: [PATCH 7/8] Input: mms114 - add SPDX identifier
-Date: Wed, 31 Jan 2018 08:31:38 +0100
-Message-ID: <20180131073138.GA1499@gmail.com>
-References: <20180129113323.18961-1-andi.shyti@samsung.com>
- <CGME20180129113331epcas2p193a0a99f660793fbfcf2ec825fac0e2c@epcas2p1.samsung.com>
- <20180129113323.18961-8-andi.shyti@samsung.com>
- <20180129194659.df7nlhwx4demk6o6@dtor-ws>
- <20180131060726.GB7575@gangnam.samsung>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] iio/light: Delete an error message for a failed memory
+ allocation in two functions
+Date: Wed, 31 Jan 2018 21:21:43 +0100
+Message-ID: <377187b2-abb5-b693-2e95-8674748854c1@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180131060726.GB7575@gangnam.samsung>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Shyti <andi.shyti@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Shields <simon@lineageos.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, jeesw@melfas.com
+To: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Archana Patni <archana.patni@linux.intel.com>, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Wed, 31 Jan 2018 21:12:09 +0100
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Omit an extra message for a memory allocation failure in these functions.
 
-Hi Andy,
+This issue was detected by using the Coccinelle software.
 
-On Wed, Jan 31, 2018 at 03:07:26PM +0900, Andi Shyti wrote:
-> Hi Dmitry,
->=20
-> > > -/*
-> > > - * Copyright (C) 2012 Samsung Electronics Co.Ltd
-> > > - * Author: Joonyoung Shim <jy0922.shim@samsung.com>
-> > > - *
-> > > - * This program is free software; you can redistribute it and/or mod=
-ify
-> > > - * it under the terms of the GNU General Public License version 2 as
-> > > - * published by the Free Software Foundation.
-> > > - */
-> > > +// SPDX-License-Identifier: GPL-2.0
-> > > +// Samsung S6SY761 Touchscreen device driver
->=20
-> I'm very sorry, but my distrcation will kill me one day.
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/iio/light/hid-sensor-als.c  | 4 +---
+ drivers/iio/light/hid-sensor-prox.c | 4 +---
+ 2 files changed, 2 insertions(+), 6 deletions(-)
 
-More coffee or sleep - your choice ;-)
-
->=20
-> Is it possible to revert this patch or do you want me to send a
-> fix?
-
-When you are on it;
-
-Change
-MODULE_LICENSE("GPL");
-
-to=20
-MODULE_LICENSE("GPL v2");
-To match the former license text and SPDX-identifier.
-
-See include/linux/module.h:
- *	"GPL"				[GNU Public License v2 or later]
- *	"GPL v2"			[GNU Public License v2]
-
-
-Thanks,
-
->=20
-> Sorry,
-> Andi
-
-Best regards
-Marcus Folkesson
-
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlpxcNQACgkQiIBOb1ld
-UjLkiBAAz3axi8vpqDvFexWxr2odDWF/j4YgRZ0dqltXKkPd6CIyb4EoAwxYBZ6S
-nro8MdGQp1k/x5Eg23RPrO6iCu+OY30qmRc/X6v+1FCN61S3ftKqYvXmuYCu+NDy
-2H1sbXQk1/w5wCNKwUV9BJHytssIPHY3ZCbwaseQTfQriu78X1adn0Bz0G9KMjnQ
-bS7kCW8PnTdZsw5kjwVuEG10XYNjTe+/13476FSSsPRwmIFVNcN6oFXASzc5fVs4
-UuIDU2SF62ayZbvaZfuDxa5W9gfcT8sS0Hb7rZpvYTzL43wxUvkkQiTTQbd4pWWi
-MZaNS3SzIEpWJxzxjWl+l7/tWETy3Qw51FAX6jeLgpLcyW8H8UzkR+pHsfWuufi6
-NEXymJxbZNw1POploSQTMnbWeBQUq1D956m8KOOe6gnP3JP4LMJvDXEX3fQFVHl4
-GKRdNp7lwVbdaOFCVP34SRPj9gtd49TXJyZnF5UBArzixW91BK9AZA/e/z5x5gFd
-K9Dme73mpCgG441wqDa9rYpb0x59ph0pypLBVkUe7g0jBe5Z62U1sdoE1kyB1wnK
-2PLPvcxSOrRy4QLVWHjBMZIrgig3Qfwcj/yW4E05boaMfPep2scF+1NaF0/ohh/F
-3Tnwz6Tgsp/UQpUgsHeq+0mi8ML3v2ViWFNnVjAUw0XnXb4OTXM=
-=kUeJ
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index befd693a4a31..83654156d952 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -299,10 +299,8 @@ static int hid_als_probe(struct platform_device *pdev)
+ 
+ 	indio_dev->channels = kmemdup(als_channels,
+ 				      sizeof(als_channels), GFP_KERNEL);
+-	if (!indio_dev->channels) {
+-		dev_err(&pdev->dev, "failed to duplicate channels\n");
++	if (!indio_dev->channels)
+ 		return -ENOMEM;
+-	}
+ 
+ 	ret = als_parse_report(pdev, hsdev,
+ 			       (struct iio_chan_spec *)indio_dev->channels,
+diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+index 45107f7537b5..f4487620e08b 100644
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -277,10 +277,8 @@ static int hid_prox_probe(struct platform_device *pdev)
+ 
+ 	indio_dev->channels = kmemdup(prox_channels, sizeof(prox_channels),
+ 				      GFP_KERNEL);
+-	if (!indio_dev->channels) {
+-		dev_err(&pdev->dev, "failed to duplicate channels\n");
++	if (!indio_dev->channels)
+ 		return -ENOMEM;
+-	}
+ 
+ 	ret = prox_parse_report(pdev, hsdev,
+ 				(struct iio_chan_spec *)indio_dev->channels,
+-- 
+2.16.1

@@ -1,218 +1,259 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.16-rc0
-Date: Thu, 1 Feb 2018 10:07:06 -0800
-Message-ID: <20180201180706.hu42scirtu5mx6bo@dtor-ws>
+From: Todd Kelner <tsopdump@gmail.com>
+Subject: [PATCH] HID: sony: Add touchpad support for NSG-MR5U and NSG-MR7U
+ remotes
+Date: Thu, 1 Feb 2018 11:09:07 -0700
+Message-ID: <20180201180904.x3gwrrtur7uioeoo@todd-HP-Compaq-Elite-8300-USDT>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:37083 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752292AbeBASHK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Feb 2018 13:07:10 -0500
+Received: from mail-it0-f66.google.com ([209.85.214.66]:35323 "EHLO
+        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752646AbeBASJJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Feb 2018 13:09:09 -0500
+Received: by mail-it0-f66.google.com with SMTP id e1so4883563ita.0
+        for <linux-input@vger.kernel.org>; Thu, 01 Feb 2018 10:09:09 -0800 (PST)
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Linus,
+Sony's NSG-MR5U and NSG-MR7U remote controls have a full keyboard and a
+touchpad.  The keyboard is already supported by the existing Linux
+kernel and drivers but the touchpad is not recognized.  This patch adds
+the coded needed to bring full functionality to the touchpad.
 
-Please pull from:
+Note that these remotes use the vendor code for SMK even though they are
+Sony branded.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Known limitations
+- The built-in accelerometers are not supported by these changes
+- When the Drag (Fn) key is used as a mouse button, the button is
+  automatically released when the key begins repeating.  There are two
+  workarounds for this 1) Use the button behind the touchpad instead of
+  the Drag (Fn) key or 2) Disable the key repeat functionality or
+  increase the key repeat delay.
 
-to receive updates for the input subsystem. You will get:
+Signed-off-by: Todd Kelner <tsopdump@gmail.com>
+---
+ drivers/hid/hid-core.c |   2 +
+ drivers/hid/hid-ids.h  |   2 +
+ drivers/hid/hid-sony.c | 118 +++++++++++++++++++++++++++++++++++++++++++++++--
+ 3 files changed, 119 insertions(+), 3 deletions(-)
 
-- evdev interface has been adjusted to extend the life of timestamps on
-  32 bit systems to the year of 2108
-
-- Synaptics RMI4 driver's PS/2 guest handling ha beed updated to improve
-  chances of detecting trackpoints on the pass-through port
-
-- mms114 touchcsreen controller driver has been updated to support
-  generic device properties and work with mms152 cntrollers
-
-- Goodix driver now supports generic touchscreen properties
-
-- couple of drivers for AVR32 architecture are gone as the architecture
-  support has been removed from the kernel
-
-- gpio-tilt driver has been removed as there are no mainline users and
-  the driver itself is using legacy APIs and relies on platform data
-
-- MODULE_LINECSE/MODULE_VERSION cleanups
-
-Changelog:
----------
-
-Andi Shyti (6):
-      Input: stmfts,s6sy671 - add SPDX identifier
-      Input: ad7877 - use managed resource allocations
-      Input: stmfts - set IRQ_NOAUTOEN to the irq flag
-      Input: mms114 - replace mdelay with msleep
-      Input: mms114 - use BIT() macro instead of explicit shifting
-      Input: mms114 - fix typo in definition
-
-Andy Shevchenko (1):
-      Input: docs - use PROPERTY_ENTRY_U32() directly
-
-Arnd Bergmann (1):
-      Input: hp_sdc - convert to ktime_get()
-
-Colin Ian King (1):
-      Input: cyapa - remove redundant assignment to 'pwr_cmd'
-
-Corentin Labbe (2):
-      Input: remove at32psif
-      Input: remove atmel-wm97xx touchscreen driver
-
-Deepa Dinamani (2):
-      Input: uinput - use monotonic times for timestamps
-      Input: extend usable life of event timestamps to 2106 on 32 bit systems
-
-Dmitry Torokhov (7):
-      Input: psmouse - fix Synaptics detection when protocol is disabled
-      Input: synaptics-rmi4 - do not delete interrupt memory too early
-      Input: synaptics-rmi4 - unmask F03 interrupts when port is opened
-      Input: synaptics-rmi4 - log when we create a guest serio port
-      Input: edt-ft5x06 - fix error handling for factory mode on non-M06
-      Input: mms114 - do not clobber interrupt trigger
-      Input: mms114 - mark as direct input device
-
-Greg Kroah-Hartman (7):
-      Input: remove unneeded DRIVER_LICENSE #defines
-      Input: synaptics_rmi4 - remove unneeded MODULE_VERSION() usage
-      Input: pmic8xxx-keypad - remove unneeded MODULE_VERSION() usage
-      Input: elan_i2c - remove unneeded MODULE_VERSION() usage
-      Input: remove unneeded MODULE_VERSION() usage in touchscreen drivers
-      Input: remove unneeded MODULE_VERSION() usage in misc input drivers
-      Input: remove remaining unneeded MODULE_VERSION() usage
-
-Hans de Goede (2):
-      Input: silead - add support for capactive home button found on some x86 tablets
-      Input: goodix - disable IRQs while suspended
-
-Jean-François Têtu (1):
-      Input: fix small typos in force feedback documentation
-
-Jeffrey Lin (1):
-      Input: raydium_i2c_ts - include hardware version in firmware name
-
-Julia Lawall (1):
-      Input: inline macros for MODULE_LICENSE, etc
-
-Linus Walleij (1):
-      Input: gpio_tilt - delete driver
-
-Marcin Niestroj (1):
-      Input: goodix - use generic touchscreen_properties
-
-Marcus Folkesson (1):
-      Input: da9052_tsi - remove unused mutex
-
-Markus Elfring (2):
-      Input: auo-pixcir-ts - remove custom log for a failed memory allocation
-      Input: auo-pixcir-ts - delete an unnecessary return statement
-
-Peter Hutterer (1):
-      Input: synaptics - reset the ABS_X/Y fuzz after initializing MT axes
-
-Pravin Shedge (1):
-      Input: synaptic_rmi4 - remove duplicate include in F34
-
-Rasmus Villemoes (1):
-      Input: cyapa - remove duplicated macro definitions
-
-Simon Shields (2):
-      Input: mms114 - drop platform data and use generic APIs
-      Input: mms114 - add support for mms152
-
-WEN Pingbo (2):
-      Input: hil_mlc - convert timeval to time64_t
-      Input: hil_mlc - convert timeval to jiffies
-
-Zhuohua Li (1):
-      Input: tps65218-pwrbutton - fix a spelling mistake in Kconfig
-
-Diffstat:
---------
-
- .../bindings/input/touchscreen/mms114.txt          |  35 +-
- .../bindings/input/touchscreen/silead_gsl1680.txt  |   2 +
- Documentation/gpio/drivers-on-gpio.txt             |   5 -
- Documentation/input/devices/gpio-tilt.rst          | 103 -----
- Documentation/input/devices/rotary-encoder.rst     |   6 +-
- Documentation/input/ff.rst                         |   6 +-
- drivers/input/evdev.c                              |  20 +-
- drivers/input/input-compat.c                       |   8 +-
- drivers/input/input-compat.h                       |   3 +-
- drivers/input/input-polldev.c                      |   1 -
- drivers/input/joystick/xpad.c                      |   7 +-
- drivers/input/keyboard/pmic8xxx-keypad.c           |   1 -
- drivers/input/misc/Kconfig                         |  16 +-
- drivers/input/misc/Makefile                        |   1 -
- drivers/input/misc/apanel.c                        |   2 -
- drivers/input/misc/ati_remote2.c                   |   2 -
- drivers/input/misc/gpio_tilt_polled.c              | 210 ----------
- drivers/input/misc/keyspan_remote.c                |  11 +-
- drivers/input/misc/uinput.c                        |   6 +-
- drivers/input/misc/yealink.c                       |   6 +-
- drivers/input/mouse/cyapa.c                        |   2 +-
- drivers/input/mouse/cyapa_gen3.c                   |  43 --
- drivers/input/mouse/elan_i2c_core.c                |   2 -
- drivers/input/mouse/psmouse-base.c                 |  34 +-
- drivers/input/mouse/synaptics.c                    |  10 +
- drivers/input/rmi4/rmi_bus.c                       |   1 -
- drivers/input/rmi4/rmi_driver.c                    |  14 +-
- drivers/input/rmi4/rmi_driver.h                    |   2 -
- drivers/input/rmi4/rmi_f03.c                       |  73 +++-
- drivers/input/rmi4/rmi_f34.c                       |   1 -
- drivers/input/rmi4/rmi_i2c.c                       |   1 -
- drivers/input/rmi4/rmi_spi.c                       |   1 -
- drivers/input/serio/Kconfig                        |  10 -
- drivers/input/serio/Makefile                       |   1 -
- drivers/input/serio/at32psif.c                     | 357 -----------------
- drivers/input/serio/hil_mlc.c                      |  26 +-
- drivers/input/serio/hp_sdc.c                       |  17 +-
- drivers/input/serio/hp_sdc_mlc.c                   |   5 +-
- drivers/input/sparse-keymap.c                      |   1 -
- drivers/input/tablet/acecad.c                      |  14 +-
- drivers/input/tablet/aiptek.c                      |  11 +-
- drivers/input/tablet/hanwang.c                     |  10 +-
- drivers/input/tablet/kbtab.c                       |  17 +-
- drivers/input/touchscreen/Kconfig                  |  15 -
- drivers/input/touchscreen/Makefile                 |   1 -
- drivers/input/touchscreen/ad7877.c                 |  67 ++--
- drivers/input/touchscreen/atmel-wm97xx.c           | 436 ---------------------
- drivers/input/touchscreen/auo-pixcir-ts.c          |   6 +-
- drivers/input/touchscreen/colibri-vf50-ts.c        |   2 -
- drivers/input/touchscreen/da9052_tsi.c             |   1 -
- drivers/input/touchscreen/edt-ft5x06.c             |  14 +-
- drivers/input/touchscreen/elants_i2c.c             |   2 -
- drivers/input/touchscreen/goodix.c                 | 149 +++----
- drivers/input/touchscreen/melfas_mip4.c            |   1 -
- drivers/input/touchscreen/mms114.c                 | 240 +++++++-----
- drivers/input/touchscreen/raydium_i2c_ts.c         |  14 +-
- drivers/input/touchscreen/silead.c                 |  46 ++-
- drivers/input/touchscreen/stmfts.c                 |  11 +-
- drivers/input/touchscreen/usbtouchscreen.c         |   9 +-
- drivers/input/touchscreen/wdt87xx_i2c.c            |   2 -
- include/linux/hil_mlc.h                            |   6 +-
- include/linux/hp_sdc.h                             |   2 +-
- include/linux/input/gpio_tilt.h                    |  74 ----
- include/linux/platform_data/mms114.h               |  24 --
- include/uapi/linux/input.h                         |  11 +
- 65 files changed, 491 insertions(+), 1746 deletions(-)
- delete mode 100644 Documentation/input/devices/gpio-tilt.rst
- delete mode 100644 drivers/input/misc/gpio_tilt_polled.c
- delete mode 100644 drivers/input/serio/at32psif.c
- delete mode 100644 drivers/input/touchscreen/atmel-wm97xx.c
- delete mode 100644 include/linux/input/gpio_tilt.h
- delete mode 100644 include/linux/platform_data/mms114.h
-
-Thanks.
-
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 0c3f608131cf..4b6be344466b 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2301,6 +2301,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #if IS_ENABLED(CONFIG_HID_SONY)
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 5da3d6256d25..793d80bdd301 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -954,6 +954,8 @@
+ 
+ #define USB_VENDOR_ID_SMK		0x0609
+ #define USB_DEVICE_ID_SMK_PS3_BDREMOTE	0x0306
++#define USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE	0x0368
++#define USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE	0x0369
+ 
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index b9dc3ac4d4aa..8504f4fae6af 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -9,6 +9,7 @@
+  *  Copyright (c) 2006-2013 Jiri Kosina
+  *  Copyright (c) 2013 Colin Leitner <colin.leitner@gmail.com>
+  *  Copyright (c) 2014-2016 Frank Praznik <frank.praznik@gmail.com>
++ *  Copyright (c) 2018 Todd Kelner
+  */
+ 
+ /*
+@@ -55,6 +56,8 @@
+ #define NAVIGATION_CONTROLLER_BT  BIT(11)
+ #define SINO_LITE_CONTROLLER      BIT(12)
+ #define FUTUREMAX_DANCE_MAT       BIT(13)
++#define NSG_MR5U_REMOTE_BT        BIT(14)
++#define NSG_MR7U_REMOTE_BT        BIT(15)
+ 
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+ #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+@@ -72,8 +75,11 @@
+ 				MOTION_CONTROLLER)
+ #define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_BT |\
+ 			MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
++#define NSG_MRXU_REMOTE (NSG_MR5U_REMOTE_BT | NSG_MR7U_REMOTE_BT)
+ 
+ #define MAX_LEDS 4
++#define NSG_MRXU_MAX_X 1667
++#define NSG_MRXU_MAX_Y 1868
+ 
+ 
+ /* PS/3 Motion controller */
+@@ -1072,6 +1078,75 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	}
+ }
+ 
++static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
++{
++	int n, offset;
++	u8 active;
++
++	/*
++	 * The NSG-MRxU multi-touch trackpad data starts at offset 1 and
++	 *   the touch-related data starts at offset 2.
++	 * For the first byte, bit 0 is set when touchpad button is pressed.
++	 * Bit 3 is set when a touch is active and the drag (Fn) key is pressed.
++	 * This drag key is mapped to BTN_LEFT.
++	 * Bit 4 is set when only the first touch point is active.
++	 * Bit 6 is set when only the second touch point is active.
++	 * Bits 5 and 7 are set when both touch points are active.
++	 * The next 3 bytes are two 12 bit X/Y coordinates for the first touch.
++	 * The following byte, offset 5, has the touch width and length.
++	 *   Bits 0-4=X (width), bits 5-7=Y (length).
++	 * A signed relative X coordinate is at offset 6.
++	 * The bytes at offset 7-9 are the second touch X/Y coordinates.
++	 * Offset 10 has the second touch width and length.
++	 * Offset 11 has the relative Y coordinate.
++	 */
++	offset = 1;
++
++	input_report_key(sc->touchpad, BTN_LEFT, rd[offset] & 0x0F);
++	active = (rd[offset] >> 4);
++
++	offset++;
++
++	for (n = 0; n < 2; n++) {
++		u16 x, y;
++		u8 contactx, contacty;
++		unsigned int rel_axis;
++
++		x = rd[offset] | ((rd[offset+1] & 0x0F) << 8);
++		y = ((rd[offset+1] & 0xF0) >> 4) | (rd[offset+2] << 4);
++
++		input_mt_slot(sc->touchpad, n);
++		input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active & 0x03);
++
++		if (active & 0x03) {
++			contactx = rd[offset+3] & 0x0F;
++			contacty = rd[offset+3] >> 4;
++			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MAJOR,
++				max(contactx, contacty));
++			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MINOR,
++				max(contactx, contacty));
++			input_report_abs(sc->touchpad, ABS_MT_ORIENTATION,
++				(bool) (contactx > contacty));
++			input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
++			input_report_abs(sc->touchpad, ABS_MT_POSITION_Y,
++				NSG_MRXU_MAX_Y - y);
++			if (n == 0)
++				rel_axis = REL_X;
++			else
++				rel_axis = REL_Y;
++
++			input_report_rel(sc->touchpad, rel_axis, rd[offset+4]);
++		}
++
++		offset += 5;
++		active >>= 2;
++	}
++
++	input_mt_sync_frame(sc->touchpad);
++
++	input_sync(sc->touchpad);
++}
++
+ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		u8 *rd, int size)
+ {
+@@ -1180,6 +1255,10 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		}
+ 
+ 		dualshock4_parse_report(sc, rd, size);
++
++	} else if ((sc->quirks & NSG_MRXU_REMOTE) && rd[0] == 0x02) {
++		nsg_mrxu_parse_report(sc, rd, size);
++		return 1;
+ 	}
+ 
+ 	if (sc->defer_initialization) {
+@@ -1268,9 +1347,11 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 	snprintf(name, name_sz, "%s" DS4_TOUCHPAD_SUFFIX, sc->hdev->name);
+ 	sc->touchpad->name = name;
+ 
+-	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
+-	if (ret < 0)
+-		goto err;
++	if (!(sc->quirks & NSG_MRXU_REMOTE)) {
++		ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
++		if (ret < 0)
++			goto err;
++	}
+ 
+ 	/* We map the button underneath the touchpad to BTN_LEFT. */
+ 	__set_bit(EV_KEY, sc->touchpad->evbit);
+@@ -1280,6 +1361,17 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_X, 0, w, 0, 0);
+ 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_Y, 0, h, 0, 0);
+ 
++	if (sc->quirks & NSG_MRXU_REMOTE) {
++		__set_bit(EV_REL, sc->touchpad->evbit);
++		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MAJOR, 0, 15, 0, 0);
++		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MINOR, 0, 15, 0, 0);
++		input_set_abs_params(sc->touchpad, ABS_MT_ORIENTATION, 0, 1, 0, 0);
++
++		ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
++		if (ret < 0)
++			goto err;
++	}
++
+ 	ret = input_register_device(sc->touchpad);
+ 	if (ret < 0)
+ 		goto err;
+@@ -2654,6 +2746,20 @@ static int sony_input_configured(struct hid_device *hdev,
+ 		}
+ 
+ 		sony_init_output_report(sc, dualshock4_send_output_report);
++	} else if (sc->quirks & NSG_MRXU_REMOTE) {
++		/*
++		 * The NSG-MRxU touchpad supports 2 touches and has a
++		 * resolution of 1667x1868
++		 */
++		ret = sony_register_touchpad(sc, 2,
++			NSG_MRXU_MAX_X, NSG_MRXU_MAX_Y);
++		if (ret) {
++			hid_err(sc->hdev,
++			"Unable to initialize multi-touch slots: %d\n",
++			ret);
++			goto err_stop;
++		}
++
+ 	} else if (sc->quirks & MOTION_CONTROLLER) {
+ 		sony_init_output_report(sc, motion_send_output_report);
+ 	} else {
+@@ -2892,6 +2998,12 @@ static const struct hid_device_id sony_devices[] = {
+ 	/* Nyko Core Controller for PS3 */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
++	/* SMK-Link NSG-MR5U Remote Control */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE),
++		.driver_data = NSG_MR5U_REMOTE_BT },
++	/* SMK-Link NSG-MR7U Remote Control */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE),
++		.driver_data = NSG_MR7U_REMOTE_BT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, sony_devices);
 -- 
-Dmitry
+2.14.1
+

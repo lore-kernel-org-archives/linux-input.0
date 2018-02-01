@@ -1,145 +1,125 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 devices
-Date: Thu, 1 Feb 2018 13:14:29 -0800
-Message-ID: <CAKdAkRS_TjTi-VxGg59+aw8wQZxrx8YBAF+m9MdknYNdKGyrvQ@mail.gmail.com>
-References: <20180124104121.7g3zfay5smc5v2tc@pali> <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
+From: <Mario.Limonciello@dell.com>
+Subject: RE: Dell docking station & Dell Embedded Controller & PS/2 devices
+Date: Thu, 1 Feb 2018 21:23:40 +0000
+Message-ID: <ffe4f35a6570401083d7032e261daa20@ausx13mpc120.AMER.DELL.COM>
+References: <20180124104121.7g3zfay5smc5v2tc@pali>
+ <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
  <bb5156667d084d77841f7078d373a265@ausx13mpc120.AMER.DELL.COM>
+ <CAKdAkRS_TjTi-VxGg59+aw8wQZxrx8YBAF+m9MdknYNdKGyrvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f179.google.com ([209.85.217.179]:42194 "EHLO
-        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751604AbeBAVOa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Feb 2018 16:14:30 -0500
-In-Reply-To: <bb5156667d084d77841f7078d373a265@ausx13mpc120.AMER.DELL.COM>
+Received: from esa7.dell-outbound.iphmx.com ([68.232.153.96]:63734 "EHLO
+        esa7.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751715AbeBAVXn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 1 Feb 2018 16:23:43 -0500
+In-Reply-To: <CAKdAkRS_TjTi-VxGg59+aw8wQZxrx8YBAF+m9MdknYNdKGyrvQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mario Limonciello <Mario.Limonciello@dell.com>
-Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com
+Cc: pali.rohar@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Feb 1, 2018 at 11:35 AM,  <Mario.Limonciello@dell.com> wrote:
->
->
->> -----Original Message-----
->> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
->> Sent: Thursday, February 1, 2018 1:30 PM
->> To: Pali Roh=C3=A1r <pali.rohar@gmail.com>
->> Cc: Limonciello, Mario <Mario_Limonciello@Dell.com>; linux-
->> input@vger.kernel.org; linux-kernel@vger.kernel.org
->> Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 devi=
-ces
->>
->> Hi Pali,
->>
->> On Wed, Jan 24, 2018 at 11:41:21AM +0100, Pali Roh=C3=A1r wrote:
->> > Hi Dmitry!
->> >
->> > I'm observing a problem with internal touchpad (handled by psmouse.ko)
->> > on Dell laptops connected to Dell E docking station. When I connect
->> > external PS/2 keyboard to docking station then internal laptop touchpa=
-d
->> > switch from multitouch absolute mode to relative bare PS/2 mode.
->> >
->> > And because ALPS driver in psmouse.ko is capable to process interleave=
-d
->> > bare 3-byte PS/2 packets with 6-byte ALPS packets (which handles
->> > trackstick data on some ALPS models), ALPS driver does not show any
->> > message about this "downgrade" from multitouch to bare mode. And
->> > continue working in bare mode.
->> >
->> > When I rmmod psmouse and modprobe it again, then touchpad switch back =
-to
->> > multitouch mode.
->> >
->> > Mario told me that Dell Embedded Controller, which handle internal
->> > keyboard, internal touchpad and external PS/2 keyboard, automatically
->> > send RESET command to *all* those devices when external PS/2 keyboard =
-is
->> > connected. Therefore this is reason why touchpad downgrade to to bare
->> > mode. And according to Mario, host system should issue vendor specific
->> > PS/2 commands to re-initialize all PS/2 devices when this situation
->> > happen. Mario also told me that Windows is doing this action.
->>
->> Yeah, I remember fun with Inspiron 8100 - when you dock it it woudl
->> silently switch Synaptics touchpad into standard mode and it would not
->> come back as Synaptics until you disconnect. And there was no
->> notification to the kernel as far as I could tell.
->>
->> It could be that we need to monitor dock events and then kick reconnect
->> of serio port, either from userspace via udev (I think that would be
->> preferred), or in kernel.
->>
->> >
->> > Every time when I connect external PS/2 keyboard to dock I see this
->> > message in dmesg:
->> >
->> > Spurious ACK... Some program might be trying to access hardware direct=
-ly.
->> >
->> > I see it also every time when I dock laptop into docking station (to
->> > which is keyboard already connected). And it happens also when I conne=
-ct
->> > external PS/2 mouse to dock.
->> >
->> > Dmitry, how to handle this situation to re-initialize psmouse.ko when
->> > external PS/2 device is connected to Dell E docking station? According
->> > to Mario, this is how Dell Embedded Controller is designed and suppose
->> > how OS should work with it.
->> >
->> > Manually rmmoding and modprobing for every docking/undocking laptop is
->> > not ideal solution.
->> >
->> > Could it be possible to use that Spurious ATKBD_RET_ACK from atkbd.c b=
-e
->> > handled on Dell systems (probably via DMI) as an event to reset and
->> > reinitialize all PS/2 devices?
->>
->> So we need to figure out what exactly we are getting from the docking
->> station in this case. We do try to handle the new device 0xaa 0x00
->> announcements:
->
-> Docking station itself won't have sent any events.  The PS2 ports in it
-> are electrically wired to the external PS2 pins in the docking adapter on
-> the system.
->
-> System EC is what will be sending any PS2 events.
-
-OK, it does not matter from the input layer POW, if they are PS/2
-events they should be coming from i8042.
-
->
->>
->>       /* Check if this is a new device announcement (0xAA 0x00) */
->>       if (unlikely(psmouse->packet[0] =3D=3D PSMOUSE_RET_BAT && psmouse-
->> >pktcnt <=3D 2)) {
->>               if (psmouse->pktcnt =3D=3D 1) {
->>                       psmouse->last =3D jiffies;
->>                       goto out;
->>               }
->>
->>               if (psmouse->packet[1] =3D=3D PSMOUSE_RET_ID ||
->>                   (psmouse->protocol->type =3D=3D PSMOUSE_HGPK &&
->>                    psmouse->packet[1] =3D=3D PSMOUSE_RET_BAT)) {
->>                       __psmouse_set_state(psmouse, PSMOUSE_IGNORE);
->>                       serio_reconnect(serio);
->>                       goto out;
->>               }
->>
->> ...
->>
->> I am not sure where the "spurious ACK comes from". Can you enable i8042
->> debug before trying to dock and capture the data stream from the mouse?
->>
->
-> The system EC has reset PS2 devices (but AFAIK kernel won't have seen thi=
-s
-> communication).
-
-So what kind of communication does EC send when docking? It sounds it
-is completely out of band from PS/2 connection.
-
-Thanks.
-
---=20
-Dmitry
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBEbWl0cnkgVG9yb2tob3YgW21h
+aWx0bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiBTZW50OiBUaHVyc2RheSwgRmVicnVh
+cnkgMSwgMjAxOCAzOjE0IFBNDQo+IFRvOiBMaW1vbmNpZWxsbywgTWFyaW8gPE1hcmlvX0xpbW9u
+Y2llbGxvQERlbGwuY29tPg0KPiBDYzogUGFsaSBSb2jDoXIgPHBhbGkucm9oYXJAZ21haWwuY29t
+PjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsa21sIDxsaW51eC0NCj4ga2VybmVsQHZn
+ZXIua2VybmVsLm9yZz4NCj4gU3ViamVjdDogUmU6IERlbGwgZG9ja2luZyBzdGF0aW9uICYgRGVs
+bCBFbWJlZGRlZCBDb250cm9sbGVyICYgUFMvMiBkZXZpY2VzDQo+IA0KPiBPbiBUaHUsIEZlYiAx
+LCAyMDE4IGF0IDExOjM1IEFNLCAgPE1hcmlvLkxpbW9uY2llbGxvQGRlbGwuY29tPiB3cm90ZToN
+Cj4gPg0KPiA+DQo+ID4+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4+IEZyb206IERt
+aXRyeSBUb3Jva2hvdiBbbWFpbHRvOmRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb21dDQo+ID4+IFNl
+bnQ6IFRodXJzZGF5LCBGZWJydWFyeSAxLCAyMDE4IDE6MzAgUE0NCj4gPj4gVG86IFBhbGkgUm9o
+w6FyIDxwYWxpLnJvaGFyQGdtYWlsLmNvbT4NCj4gPj4gQ2M6IExpbW9uY2llbGxvLCBNYXJpbyA8
+TWFyaW9fTGltb25jaWVsbG9ARGVsbC5jb20+OyBsaW51eC0NCj4gPj4gaW5wdXRAdmdlci5rZXJu
+ZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+ID4+IFN1YmplY3Q6IFJlOiBE
+ZWxsIGRvY2tpbmcgc3RhdGlvbiAmIERlbGwgRW1iZWRkZWQgQ29udHJvbGxlciAmIFBTLzIgZGV2
+aWNlcw0KPiA+Pg0KPiA+PiBIaSBQYWxpLA0KPiA+Pg0KPiA+PiBPbiBXZWQsIEphbiAyNCwgMjAx
+OCBhdCAxMTo0MToyMUFNICswMTAwLCBQYWxpIFJvaMOhciB3cm90ZToNCj4gPj4gPiBIaSBEbWl0
+cnkhDQo+ID4+ID4NCj4gPj4gPiBJJ20gb2JzZXJ2aW5nIGEgcHJvYmxlbSB3aXRoIGludGVybmFs
+IHRvdWNocGFkIChoYW5kbGVkIGJ5IHBzbW91c2Uua28pDQo+ID4+ID4gb24gRGVsbCBsYXB0b3Bz
+IGNvbm5lY3RlZCB0byBEZWxsIEUgZG9ja2luZyBzdGF0aW9uLiBXaGVuIEkgY29ubmVjdA0KPiA+
+PiA+IGV4dGVybmFsIFBTLzIga2V5Ym9hcmQgdG8gZG9ja2luZyBzdGF0aW9uIHRoZW4gaW50ZXJu
+YWwgbGFwdG9wIHRvdWNocGFkDQo+ID4+ID4gc3dpdGNoIGZyb20gbXVsdGl0b3VjaCBhYnNvbHV0
+ZSBtb2RlIHRvIHJlbGF0aXZlIGJhcmUgUFMvMiBtb2RlLg0KPiA+PiA+DQo+ID4+ID4gQW5kIGJl
+Y2F1c2UgQUxQUyBkcml2ZXIgaW4gcHNtb3VzZS5rbyBpcyBjYXBhYmxlIHRvIHByb2Nlc3MgaW50
+ZXJsZWF2ZWQNCj4gPj4gPiBiYXJlIDMtYnl0ZSBQUy8yIHBhY2tldHMgd2l0aCA2LWJ5dGUgQUxQ
+UyBwYWNrZXRzICh3aGljaCBoYW5kbGVzDQo+ID4+ID4gdHJhY2tzdGljayBkYXRhIG9uIHNvbWUg
+QUxQUyBtb2RlbHMpLCBBTFBTIGRyaXZlciBkb2VzIG5vdCBzaG93IGFueQ0KPiA+PiA+IG1lc3Nh
+Z2UgYWJvdXQgdGhpcyAiZG93bmdyYWRlIiBmcm9tIG11bHRpdG91Y2ggdG8gYmFyZSBtb2RlLiBB
+bmQNCj4gPj4gPiBjb250aW51ZSB3b3JraW5nIGluIGJhcmUgbW9kZS4NCj4gPj4gPg0KPiA+PiA+
+IFdoZW4gSSBybW1vZCBwc21vdXNlIGFuZCBtb2Rwcm9iZSBpdCBhZ2FpbiwgdGhlbiB0b3VjaHBh
+ZCBzd2l0Y2ggYmFjayB0bw0KPiA+PiA+IG11bHRpdG91Y2ggbW9kZS4NCj4gPj4gPg0KPiA+PiA+
+IE1hcmlvIHRvbGQgbWUgdGhhdCBEZWxsIEVtYmVkZGVkIENvbnRyb2xsZXIsIHdoaWNoIGhhbmRs
+ZSBpbnRlcm5hbA0KPiA+PiA+IGtleWJvYXJkLCBpbnRlcm5hbCB0b3VjaHBhZCBhbmQgZXh0ZXJu
+YWwgUFMvMiBrZXlib2FyZCwgYXV0b21hdGljYWxseQ0KPiA+PiA+IHNlbmQgUkVTRVQgY29tbWFu
+ZCB0byAqYWxsKiB0aG9zZSBkZXZpY2VzIHdoZW4gZXh0ZXJuYWwgUFMvMiBrZXlib2FyZCBpcw0K
+PiA+PiA+IGNvbm5lY3RlZC4gVGhlcmVmb3JlIHRoaXMgaXMgcmVhc29uIHdoeSB0b3VjaHBhZCBk
+b3duZ3JhZGUgdG8gdG8gYmFyZQ0KPiA+PiA+IG1vZGUuIEFuZCBhY2NvcmRpbmcgdG8gTWFyaW8s
+IGhvc3Qgc3lzdGVtIHNob3VsZCBpc3N1ZSB2ZW5kb3Igc3BlY2lmaWMNCj4gPj4gPiBQUy8yIGNv
+bW1hbmRzIHRvIHJlLWluaXRpYWxpemUgYWxsIFBTLzIgZGV2aWNlcyB3aGVuIHRoaXMgc2l0dWF0
+aW9uDQo+ID4+ID4gaGFwcGVuLiBNYXJpbyBhbHNvIHRvbGQgbWUgdGhhdCBXaW5kb3dzIGlzIGRv
+aW5nIHRoaXMgYWN0aW9uLg0KPiA+Pg0KPiA+PiBZZWFoLCBJIHJlbWVtYmVyIGZ1biB3aXRoIElu
+c3Bpcm9uIDgxMDAgLSB3aGVuIHlvdSBkb2NrIGl0IGl0IHdvdWRsDQo+ID4+IHNpbGVudGx5IHN3
+aXRjaCBTeW5hcHRpY3MgdG91Y2hwYWQgaW50byBzdGFuZGFyZCBtb2RlIGFuZCBpdCB3b3VsZCBu
+b3QNCj4gPj4gY29tZSBiYWNrIGFzIFN5bmFwdGljcyB1bnRpbCB5b3UgZGlzY29ubmVjdC4gQW5k
+IHRoZXJlIHdhcyBubw0KPiA+PiBub3RpZmljYXRpb24gdG8gdGhlIGtlcm5lbCBhcyBmYXIgYXMg
+SSBjb3VsZCB0ZWxsLg0KPiA+Pg0KPiA+PiBJdCBjb3VsZCBiZSB0aGF0IHdlIG5lZWQgdG8gbW9u
+aXRvciBkb2NrIGV2ZW50cyBhbmQgdGhlbiBraWNrIHJlY29ubmVjdA0KPiA+PiBvZiBzZXJpbyBw
+b3J0LCBlaXRoZXIgZnJvbSB1c2Vyc3BhY2UgdmlhIHVkZXYgKEkgdGhpbmsgdGhhdCB3b3VsZCBi
+ZQ0KPiA+PiBwcmVmZXJyZWQpLCBvciBpbiBrZXJuZWwuDQo+ID4+DQo+ID4+ID4NCj4gPj4gPiBF
+dmVyeSB0aW1lIHdoZW4gSSBjb25uZWN0IGV4dGVybmFsIFBTLzIga2V5Ym9hcmQgdG8gZG9jayBJ
+IHNlZSB0aGlzDQo+ID4+ID4gbWVzc2FnZSBpbiBkbWVzZzoNCj4gPj4gPg0KPiA+PiA+IFNwdXJp
+b3VzIEFDSy4uLiBTb21lIHByb2dyYW0gbWlnaHQgYmUgdHJ5aW5nIHRvIGFjY2VzcyBoYXJkd2Fy
+ZSBkaXJlY3RseS4NCj4gPj4gPg0KPiA+PiA+IEkgc2VlIGl0IGFsc28gZXZlcnkgdGltZSB3aGVu
+IEkgZG9jayBsYXB0b3AgaW50byBkb2NraW5nIHN0YXRpb24gKHRvDQo+ID4+ID4gd2hpY2ggaXMg
+a2V5Ym9hcmQgYWxyZWFkeSBjb25uZWN0ZWQpLiBBbmQgaXQgaGFwcGVucyBhbHNvIHdoZW4gSSBj
+b25uZWN0DQo+ID4+ID4gZXh0ZXJuYWwgUFMvMiBtb3VzZSB0byBkb2NrLg0KPiA+PiA+DQo+ID4+
+ID4gRG1pdHJ5LCBob3cgdG8gaGFuZGxlIHRoaXMgc2l0dWF0aW9uIHRvIHJlLWluaXRpYWxpemUg
+cHNtb3VzZS5rbyB3aGVuDQo+ID4+ID4gZXh0ZXJuYWwgUFMvMiBkZXZpY2UgaXMgY29ubmVjdGVk
+IHRvIERlbGwgRSBkb2NraW5nIHN0YXRpb24/IEFjY29yZGluZw0KPiA+PiA+IHRvIE1hcmlvLCB0
+aGlzIGlzIGhvdyBEZWxsIEVtYmVkZGVkIENvbnRyb2xsZXIgaXMgZGVzaWduZWQgYW5kIHN1cHBv
+c2UNCj4gPj4gPiBob3cgT1Mgc2hvdWxkIHdvcmsgd2l0aCBpdC4NCj4gPj4gPg0KPiA+PiA+IE1h
+bnVhbGx5IHJtbW9kaW5nIGFuZCBtb2Rwcm9iaW5nIGZvciBldmVyeSBkb2NraW5nL3VuZG9ja2lu
+ZyBsYXB0b3AgaXMNCj4gPj4gPiBub3QgaWRlYWwgc29sdXRpb24uDQo+ID4+ID4NCj4gPj4gPiBD
+b3VsZCBpdCBiZSBwb3NzaWJsZSB0byB1c2UgdGhhdCBTcHVyaW91cyBBVEtCRF9SRVRfQUNLIGZy
+b20gYXRrYmQuYyBiZQ0KPiA+PiA+IGhhbmRsZWQgb24gRGVsbCBzeXN0ZW1zIChwcm9iYWJseSB2
+aWEgRE1JKSBhcyBhbiBldmVudCB0byByZXNldCBhbmQNCj4gPj4gPiByZWluaXRpYWxpemUgYWxs
+IFBTLzIgZGV2aWNlcz8NCj4gPj4NCj4gPj4gU28gd2UgbmVlZCB0byBmaWd1cmUgb3V0IHdoYXQg
+ZXhhY3RseSB3ZSBhcmUgZ2V0dGluZyBmcm9tIHRoZSBkb2NraW5nDQo+ID4+IHN0YXRpb24gaW4g
+dGhpcyBjYXNlLiBXZSBkbyB0cnkgdG8gaGFuZGxlIHRoZSBuZXcgZGV2aWNlIDB4YWEgMHgwMA0K
+PiA+PiBhbm5vdW5jZW1lbnRzOg0KPiA+DQo+ID4gRG9ja2luZyBzdGF0aW9uIGl0c2VsZiB3b24n
+dCBoYXZlIHNlbnQgYW55IGV2ZW50cy4gIFRoZSBQUzIgcG9ydHMgaW4gaXQNCj4gPiBhcmUgZWxl
+Y3RyaWNhbGx5IHdpcmVkIHRvIHRoZSBleHRlcm5hbCBQUzIgcGlucyBpbiB0aGUgZG9ja2luZyBh
+ZGFwdGVyIG9uDQo+ID4gdGhlIHN5c3RlbS4NCj4gPg0KPiA+IFN5c3RlbSBFQyBpcyB3aGF0IHdp
+bGwgYmUgc2VuZGluZyBhbnkgUFMyIGV2ZW50cy4NCj4gDQo+IE9LLCBpdCBkb2VzIG5vdCBtYXR0
+ZXIgZnJvbSB0aGUgaW5wdXQgbGF5ZXIgUE9XLCBpZiB0aGV5IGFyZSBQUy8yDQo+IGV2ZW50cyB0
+aGV5IHNob3VsZCBiZSBjb21pbmcgZnJvbSBpODA0Mi4NCj4gDQo+ID4NCj4gPj4NCj4gPj4gICAg
+ICAgLyogQ2hlY2sgaWYgdGhpcyBpcyBhIG5ldyBkZXZpY2UgYW5ub3VuY2VtZW50ICgweEFBIDB4
+MDApICovDQo+ID4+ICAgICAgIGlmICh1bmxpa2VseShwc21vdXNlLT5wYWNrZXRbMF0gPT0gUFNN
+T1VTRV9SRVRfQkFUICYmIHBzbW91c2UtDQo+ID4+ID5wa3RjbnQgPD0gMikpIHsNCj4gPj4gICAg
+ICAgICAgICAgICBpZiAocHNtb3VzZS0+cGt0Y250ID09IDEpIHsNCj4gPj4gICAgICAgICAgICAg
+ICAgICAgICAgIHBzbW91c2UtPmxhc3QgPSBqaWZmaWVzOw0KPiA+PiAgICAgICAgICAgICAgICAg
+ICAgICAgZ290byBvdXQ7DQo+ID4+ICAgICAgICAgICAgICAgfQ0KPiA+Pg0KPiA+PiAgICAgICAg
+ICAgICAgIGlmIChwc21vdXNlLT5wYWNrZXRbMV0gPT0gUFNNT1VTRV9SRVRfSUQgfHwNCj4gPj4g
+ICAgICAgICAgICAgICAgICAgKHBzbW91c2UtPnByb3RvY29sLT50eXBlID09IFBTTU9VU0VfSEdQ
+SyAmJg0KPiA+PiAgICAgICAgICAgICAgICAgICAgcHNtb3VzZS0+cGFja2V0WzFdID09IFBTTU9V
+U0VfUkVUX0JBVCkpIHsNCj4gPj4gICAgICAgICAgICAgICAgICAgICAgIF9fcHNtb3VzZV9zZXRf
+c3RhdGUocHNtb3VzZSwgUFNNT1VTRV9JR05PUkUpOw0KPiA+PiAgICAgICAgICAgICAgICAgICAg
+ICAgc2VyaW9fcmVjb25uZWN0KHNlcmlvKTsNCj4gPj4gICAgICAgICAgICAgICAgICAgICAgIGdv
+dG8gb3V0Ow0KPiA+PiAgICAgICAgICAgICAgIH0NCj4gPj4NCj4gPj4gLi4uDQo+ID4+DQo+ID4+
+IEkgYW0gbm90IHN1cmUgd2hlcmUgdGhlICJzcHVyaW91cyBBQ0sgY29tZXMgZnJvbSIuIENhbiB5
+b3UgZW5hYmxlIGk4MDQyDQo+ID4+IGRlYnVnIGJlZm9yZSB0cnlpbmcgdG8gZG9jayBhbmQgY2Fw
+dHVyZSB0aGUgZGF0YSBzdHJlYW0gZnJvbSB0aGUgbW91c2U/DQo+ID4+DQo+ID4NCj4gPiBUaGUg
+c3lzdGVtIEVDIGhhcyByZXNldCBQUzIgZGV2aWNlcyAoYnV0IEFGQUlLIGtlcm5lbCB3b24ndCBo
+YXZlIHNlZW4gdGhpcw0KPiA+IGNvbW11bmljYXRpb24pLg0KPiANCj4gU28gd2hhdCBraW5kIG9m
+IGNvbW11bmljYXRpb24gZG9lcyBFQyBzZW5kIHdoZW4gZG9ja2luZz8gSXQgc291bmRzIGl0DQo+
+IGlzIGNvbXBsZXRlbHkgb3V0IG9mIGJhbmQgZnJvbSBQUy8yIGNvbm5lY3Rpb24uDQoNClllcyBp
+dCdzIG91dCBvZiBiYW5kIGZyb20gUFMvMiBjb25uZWN0aW9uIE9TIHNlZXMuICBIb3dldmVyIGFz
+IFBhbGkgaGFzIA0KbWVudGlvbmVkIHRoaXMgaXNzdWUgd2lsbCBoYXBwZW4gZXZlbiBpZiBhbHJl
+YWR5IGRvY2tlZCBidXQgeW91IHBsdWcgaW4NClBTLzIga2V5Ym9hcmQuDQoNCkl0IHdpbGwgcHJv
+YmFibHkgYmUgY2xlYXJlciB0byB5b3Ugd2hhdCBPUyBoYXMgc2VlbiBmcm9tIHRoaXMgd2hlbiBQ
+YWxpDQpzaGFyZXMgdGhlIGNhcHR1cmVkIGRhdGEgc3RyZWFtLg0K

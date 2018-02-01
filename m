@@ -1,125 +1,55 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: Dell docking station & Dell Embedded Controller & PS/2 devices
-Date: Thu, 1 Feb 2018 21:23:40 +0000
-Message-ID: <ffe4f35a6570401083d7032e261daa20@ausx13mpc120.AMER.DELL.COM>
-References: <20180124104121.7g3zfay5smc5v2tc@pali>
- <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
- <bb5156667d084d77841f7078d373a265@ausx13mpc120.AMER.DELL.COM>
- <CAKdAkRS_TjTi-VxGg59+aw8wQZxrx8YBAF+m9MdknYNdKGyrvQ@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Trackpoint not found when loading psmouse before rmi_smbus
+Date: Thu, 1 Feb 2018 14:54:11 -0800
+Message-ID: <CAKdAkRT4ktdJwFTQCDRA2GWir4hXuE34kfii6mvXauh1pK-X3g@mail.gmail.com>
+References: <CAEk1YH68KecWAyeKTu_paL3CLtxLuw1hrH7Z4B_FqiWQML666Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from esa7.dell-outbound.iphmx.com ([68.232.153.96]:63734 "EHLO
-        esa7.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751715AbeBAVXn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 1 Feb 2018 16:23:43 -0500
-In-Reply-To: <CAKdAkRS_TjTi-VxGg59+aw8wQZxrx8YBAF+m9MdknYNdKGyrvQ@mail.gmail.com>
-Content-Language: en-US
+Received: from mail-vk0-f65.google.com ([209.85.213.65]:43486 "EHLO
+        mail-vk0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751967AbeBAWyN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Feb 2018 17:54:13 -0500
+Received: by mail-vk0-f65.google.com with SMTP id x203so12328549vkx.10
+        for <linux-input@vger.kernel.org>; Thu, 01 Feb 2018 14:54:12 -0800 (PST)
+In-Reply-To: <CAEk1YH68KecWAyeKTu_paL3CLtxLuw1hrH7Z4B_FqiWQML666Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: pali.rohar@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Damjan Georgievski <gdamjan@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBEbWl0cnkgVG9yb2tob3YgW21h
-aWx0bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiBTZW50OiBUaHVyc2RheSwgRmVicnVh
-cnkgMSwgMjAxOCAzOjE0IFBNDQo+IFRvOiBMaW1vbmNpZWxsbywgTWFyaW8gPE1hcmlvX0xpbW9u
-Y2llbGxvQERlbGwuY29tPg0KPiBDYzogUGFsaSBSb2jDoXIgPHBhbGkucm9oYXJAZ21haWwuY29t
-PjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsa21sIDxsaW51eC0NCj4ga2VybmVsQHZn
-ZXIua2VybmVsLm9yZz4NCj4gU3ViamVjdDogUmU6IERlbGwgZG9ja2luZyBzdGF0aW9uICYgRGVs
-bCBFbWJlZGRlZCBDb250cm9sbGVyICYgUFMvMiBkZXZpY2VzDQo+IA0KPiBPbiBUaHUsIEZlYiAx
-LCAyMDE4IGF0IDExOjM1IEFNLCAgPE1hcmlvLkxpbW9uY2llbGxvQGRlbGwuY29tPiB3cm90ZToN
-Cj4gPg0KPiA+DQo+ID4+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4+IEZyb206IERt
-aXRyeSBUb3Jva2hvdiBbbWFpbHRvOmRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb21dDQo+ID4+IFNl
-bnQ6IFRodXJzZGF5LCBGZWJydWFyeSAxLCAyMDE4IDE6MzAgUE0NCj4gPj4gVG86IFBhbGkgUm9o
-w6FyIDxwYWxpLnJvaGFyQGdtYWlsLmNvbT4NCj4gPj4gQ2M6IExpbW9uY2llbGxvLCBNYXJpbyA8
-TWFyaW9fTGltb25jaWVsbG9ARGVsbC5jb20+OyBsaW51eC0NCj4gPj4gaW5wdXRAdmdlci5rZXJu
-ZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+ID4+IFN1YmplY3Q6IFJlOiBE
-ZWxsIGRvY2tpbmcgc3RhdGlvbiAmIERlbGwgRW1iZWRkZWQgQ29udHJvbGxlciAmIFBTLzIgZGV2
-aWNlcw0KPiA+Pg0KPiA+PiBIaSBQYWxpLA0KPiA+Pg0KPiA+PiBPbiBXZWQsIEphbiAyNCwgMjAx
-OCBhdCAxMTo0MToyMUFNICswMTAwLCBQYWxpIFJvaMOhciB3cm90ZToNCj4gPj4gPiBIaSBEbWl0
-cnkhDQo+ID4+ID4NCj4gPj4gPiBJJ20gb2JzZXJ2aW5nIGEgcHJvYmxlbSB3aXRoIGludGVybmFs
-IHRvdWNocGFkIChoYW5kbGVkIGJ5IHBzbW91c2Uua28pDQo+ID4+ID4gb24gRGVsbCBsYXB0b3Bz
-IGNvbm5lY3RlZCB0byBEZWxsIEUgZG9ja2luZyBzdGF0aW9uLiBXaGVuIEkgY29ubmVjdA0KPiA+
-PiA+IGV4dGVybmFsIFBTLzIga2V5Ym9hcmQgdG8gZG9ja2luZyBzdGF0aW9uIHRoZW4gaW50ZXJu
-YWwgbGFwdG9wIHRvdWNocGFkDQo+ID4+ID4gc3dpdGNoIGZyb20gbXVsdGl0b3VjaCBhYnNvbHV0
-ZSBtb2RlIHRvIHJlbGF0aXZlIGJhcmUgUFMvMiBtb2RlLg0KPiA+PiA+DQo+ID4+ID4gQW5kIGJl
-Y2F1c2UgQUxQUyBkcml2ZXIgaW4gcHNtb3VzZS5rbyBpcyBjYXBhYmxlIHRvIHByb2Nlc3MgaW50
-ZXJsZWF2ZWQNCj4gPj4gPiBiYXJlIDMtYnl0ZSBQUy8yIHBhY2tldHMgd2l0aCA2LWJ5dGUgQUxQ
-UyBwYWNrZXRzICh3aGljaCBoYW5kbGVzDQo+ID4+ID4gdHJhY2tzdGljayBkYXRhIG9uIHNvbWUg
-QUxQUyBtb2RlbHMpLCBBTFBTIGRyaXZlciBkb2VzIG5vdCBzaG93IGFueQ0KPiA+PiA+IG1lc3Nh
-Z2UgYWJvdXQgdGhpcyAiZG93bmdyYWRlIiBmcm9tIG11bHRpdG91Y2ggdG8gYmFyZSBtb2RlLiBB
-bmQNCj4gPj4gPiBjb250aW51ZSB3b3JraW5nIGluIGJhcmUgbW9kZS4NCj4gPj4gPg0KPiA+PiA+
-IFdoZW4gSSBybW1vZCBwc21vdXNlIGFuZCBtb2Rwcm9iZSBpdCBhZ2FpbiwgdGhlbiB0b3VjaHBh
-ZCBzd2l0Y2ggYmFjayB0bw0KPiA+PiA+IG11bHRpdG91Y2ggbW9kZS4NCj4gPj4gPg0KPiA+PiA+
-IE1hcmlvIHRvbGQgbWUgdGhhdCBEZWxsIEVtYmVkZGVkIENvbnRyb2xsZXIsIHdoaWNoIGhhbmRs
-ZSBpbnRlcm5hbA0KPiA+PiA+IGtleWJvYXJkLCBpbnRlcm5hbCB0b3VjaHBhZCBhbmQgZXh0ZXJu
-YWwgUFMvMiBrZXlib2FyZCwgYXV0b21hdGljYWxseQ0KPiA+PiA+IHNlbmQgUkVTRVQgY29tbWFu
-ZCB0byAqYWxsKiB0aG9zZSBkZXZpY2VzIHdoZW4gZXh0ZXJuYWwgUFMvMiBrZXlib2FyZCBpcw0K
-PiA+PiA+IGNvbm5lY3RlZC4gVGhlcmVmb3JlIHRoaXMgaXMgcmVhc29uIHdoeSB0b3VjaHBhZCBk
-b3duZ3JhZGUgdG8gdG8gYmFyZQ0KPiA+PiA+IG1vZGUuIEFuZCBhY2NvcmRpbmcgdG8gTWFyaW8s
-IGhvc3Qgc3lzdGVtIHNob3VsZCBpc3N1ZSB2ZW5kb3Igc3BlY2lmaWMNCj4gPj4gPiBQUy8yIGNv
-bW1hbmRzIHRvIHJlLWluaXRpYWxpemUgYWxsIFBTLzIgZGV2aWNlcyB3aGVuIHRoaXMgc2l0dWF0
-aW9uDQo+ID4+ID4gaGFwcGVuLiBNYXJpbyBhbHNvIHRvbGQgbWUgdGhhdCBXaW5kb3dzIGlzIGRv
-aW5nIHRoaXMgYWN0aW9uLg0KPiA+Pg0KPiA+PiBZZWFoLCBJIHJlbWVtYmVyIGZ1biB3aXRoIElu
-c3Bpcm9uIDgxMDAgLSB3aGVuIHlvdSBkb2NrIGl0IGl0IHdvdWRsDQo+ID4+IHNpbGVudGx5IHN3
-aXRjaCBTeW5hcHRpY3MgdG91Y2hwYWQgaW50byBzdGFuZGFyZCBtb2RlIGFuZCBpdCB3b3VsZCBu
-b3QNCj4gPj4gY29tZSBiYWNrIGFzIFN5bmFwdGljcyB1bnRpbCB5b3UgZGlzY29ubmVjdC4gQW5k
-IHRoZXJlIHdhcyBubw0KPiA+PiBub3RpZmljYXRpb24gdG8gdGhlIGtlcm5lbCBhcyBmYXIgYXMg
-SSBjb3VsZCB0ZWxsLg0KPiA+Pg0KPiA+PiBJdCBjb3VsZCBiZSB0aGF0IHdlIG5lZWQgdG8gbW9u
-aXRvciBkb2NrIGV2ZW50cyBhbmQgdGhlbiBraWNrIHJlY29ubmVjdA0KPiA+PiBvZiBzZXJpbyBw
-b3J0LCBlaXRoZXIgZnJvbSB1c2Vyc3BhY2UgdmlhIHVkZXYgKEkgdGhpbmsgdGhhdCB3b3VsZCBi
-ZQ0KPiA+PiBwcmVmZXJyZWQpLCBvciBpbiBrZXJuZWwuDQo+ID4+DQo+ID4+ID4NCj4gPj4gPiBF
-dmVyeSB0aW1lIHdoZW4gSSBjb25uZWN0IGV4dGVybmFsIFBTLzIga2V5Ym9hcmQgdG8gZG9jayBJ
-IHNlZSB0aGlzDQo+ID4+ID4gbWVzc2FnZSBpbiBkbWVzZzoNCj4gPj4gPg0KPiA+PiA+IFNwdXJp
-b3VzIEFDSy4uLiBTb21lIHByb2dyYW0gbWlnaHQgYmUgdHJ5aW5nIHRvIGFjY2VzcyBoYXJkd2Fy
-ZSBkaXJlY3RseS4NCj4gPj4gPg0KPiA+PiA+IEkgc2VlIGl0IGFsc28gZXZlcnkgdGltZSB3aGVu
-IEkgZG9jayBsYXB0b3AgaW50byBkb2NraW5nIHN0YXRpb24gKHRvDQo+ID4+ID4gd2hpY2ggaXMg
-a2V5Ym9hcmQgYWxyZWFkeSBjb25uZWN0ZWQpLiBBbmQgaXQgaGFwcGVucyBhbHNvIHdoZW4gSSBj
-b25uZWN0DQo+ID4+ID4gZXh0ZXJuYWwgUFMvMiBtb3VzZSB0byBkb2NrLg0KPiA+PiA+DQo+ID4+
-ID4gRG1pdHJ5LCBob3cgdG8gaGFuZGxlIHRoaXMgc2l0dWF0aW9uIHRvIHJlLWluaXRpYWxpemUg
-cHNtb3VzZS5rbyB3aGVuDQo+ID4+ID4gZXh0ZXJuYWwgUFMvMiBkZXZpY2UgaXMgY29ubmVjdGVk
-IHRvIERlbGwgRSBkb2NraW5nIHN0YXRpb24/IEFjY29yZGluZw0KPiA+PiA+IHRvIE1hcmlvLCB0
-aGlzIGlzIGhvdyBEZWxsIEVtYmVkZGVkIENvbnRyb2xsZXIgaXMgZGVzaWduZWQgYW5kIHN1cHBv
-c2UNCj4gPj4gPiBob3cgT1Mgc2hvdWxkIHdvcmsgd2l0aCBpdC4NCj4gPj4gPg0KPiA+PiA+IE1h
-bnVhbGx5IHJtbW9kaW5nIGFuZCBtb2Rwcm9iaW5nIGZvciBldmVyeSBkb2NraW5nL3VuZG9ja2lu
-ZyBsYXB0b3AgaXMNCj4gPj4gPiBub3QgaWRlYWwgc29sdXRpb24uDQo+ID4+ID4NCj4gPj4gPiBD
-b3VsZCBpdCBiZSBwb3NzaWJsZSB0byB1c2UgdGhhdCBTcHVyaW91cyBBVEtCRF9SRVRfQUNLIGZy
-b20gYXRrYmQuYyBiZQ0KPiA+PiA+IGhhbmRsZWQgb24gRGVsbCBzeXN0ZW1zIChwcm9iYWJseSB2
-aWEgRE1JKSBhcyBhbiBldmVudCB0byByZXNldCBhbmQNCj4gPj4gPiByZWluaXRpYWxpemUgYWxs
-IFBTLzIgZGV2aWNlcz8NCj4gPj4NCj4gPj4gU28gd2UgbmVlZCB0byBmaWd1cmUgb3V0IHdoYXQg
-ZXhhY3RseSB3ZSBhcmUgZ2V0dGluZyBmcm9tIHRoZSBkb2NraW5nDQo+ID4+IHN0YXRpb24gaW4g
-dGhpcyBjYXNlLiBXZSBkbyB0cnkgdG8gaGFuZGxlIHRoZSBuZXcgZGV2aWNlIDB4YWEgMHgwMA0K
-PiA+PiBhbm5vdW5jZW1lbnRzOg0KPiA+DQo+ID4gRG9ja2luZyBzdGF0aW9uIGl0c2VsZiB3b24n
-dCBoYXZlIHNlbnQgYW55IGV2ZW50cy4gIFRoZSBQUzIgcG9ydHMgaW4gaXQNCj4gPiBhcmUgZWxl
-Y3RyaWNhbGx5IHdpcmVkIHRvIHRoZSBleHRlcm5hbCBQUzIgcGlucyBpbiB0aGUgZG9ja2luZyBh
-ZGFwdGVyIG9uDQo+ID4gdGhlIHN5c3RlbS4NCj4gPg0KPiA+IFN5c3RlbSBFQyBpcyB3aGF0IHdp
-bGwgYmUgc2VuZGluZyBhbnkgUFMyIGV2ZW50cy4NCj4gDQo+IE9LLCBpdCBkb2VzIG5vdCBtYXR0
-ZXIgZnJvbSB0aGUgaW5wdXQgbGF5ZXIgUE9XLCBpZiB0aGV5IGFyZSBQUy8yDQo+IGV2ZW50cyB0
-aGV5IHNob3VsZCBiZSBjb21pbmcgZnJvbSBpODA0Mi4NCj4gDQo+ID4NCj4gPj4NCj4gPj4gICAg
-ICAgLyogQ2hlY2sgaWYgdGhpcyBpcyBhIG5ldyBkZXZpY2UgYW5ub3VuY2VtZW50ICgweEFBIDB4
-MDApICovDQo+ID4+ICAgICAgIGlmICh1bmxpa2VseShwc21vdXNlLT5wYWNrZXRbMF0gPT0gUFNN
-T1VTRV9SRVRfQkFUICYmIHBzbW91c2UtDQo+ID4+ID5wa3RjbnQgPD0gMikpIHsNCj4gPj4gICAg
-ICAgICAgICAgICBpZiAocHNtb3VzZS0+cGt0Y250ID09IDEpIHsNCj4gPj4gICAgICAgICAgICAg
-ICAgICAgICAgIHBzbW91c2UtPmxhc3QgPSBqaWZmaWVzOw0KPiA+PiAgICAgICAgICAgICAgICAg
-ICAgICAgZ290byBvdXQ7DQo+ID4+ICAgICAgICAgICAgICAgfQ0KPiA+Pg0KPiA+PiAgICAgICAg
-ICAgICAgIGlmIChwc21vdXNlLT5wYWNrZXRbMV0gPT0gUFNNT1VTRV9SRVRfSUQgfHwNCj4gPj4g
-ICAgICAgICAgICAgICAgICAgKHBzbW91c2UtPnByb3RvY29sLT50eXBlID09IFBTTU9VU0VfSEdQ
-SyAmJg0KPiA+PiAgICAgICAgICAgICAgICAgICAgcHNtb3VzZS0+cGFja2V0WzFdID09IFBTTU9V
-U0VfUkVUX0JBVCkpIHsNCj4gPj4gICAgICAgICAgICAgICAgICAgICAgIF9fcHNtb3VzZV9zZXRf
-c3RhdGUocHNtb3VzZSwgUFNNT1VTRV9JR05PUkUpOw0KPiA+PiAgICAgICAgICAgICAgICAgICAg
-ICAgc2VyaW9fcmVjb25uZWN0KHNlcmlvKTsNCj4gPj4gICAgICAgICAgICAgICAgICAgICAgIGdv
-dG8gb3V0Ow0KPiA+PiAgICAgICAgICAgICAgIH0NCj4gPj4NCj4gPj4gLi4uDQo+ID4+DQo+ID4+
-IEkgYW0gbm90IHN1cmUgd2hlcmUgdGhlICJzcHVyaW91cyBBQ0sgY29tZXMgZnJvbSIuIENhbiB5
-b3UgZW5hYmxlIGk4MDQyDQo+ID4+IGRlYnVnIGJlZm9yZSB0cnlpbmcgdG8gZG9jayBhbmQgY2Fw
-dHVyZSB0aGUgZGF0YSBzdHJlYW0gZnJvbSB0aGUgbW91c2U/DQo+ID4+DQo+ID4NCj4gPiBUaGUg
-c3lzdGVtIEVDIGhhcyByZXNldCBQUzIgZGV2aWNlcyAoYnV0IEFGQUlLIGtlcm5lbCB3b24ndCBo
-YXZlIHNlZW4gdGhpcw0KPiA+IGNvbW11bmljYXRpb24pLg0KPiANCj4gU28gd2hhdCBraW5kIG9m
-IGNvbW11bmljYXRpb24gZG9lcyBFQyBzZW5kIHdoZW4gZG9ja2luZz8gSXQgc291bmRzIGl0DQo+
-IGlzIGNvbXBsZXRlbHkgb3V0IG9mIGJhbmQgZnJvbSBQUy8yIGNvbm5lY3Rpb24uDQoNClllcyBp
-dCdzIG91dCBvZiBiYW5kIGZyb20gUFMvMiBjb25uZWN0aW9uIE9TIHNlZXMuICBIb3dldmVyIGFz
-IFBhbGkgaGFzIA0KbWVudGlvbmVkIHRoaXMgaXNzdWUgd2lsbCBoYXBwZW4gZXZlbiBpZiBhbHJl
-YWR5IGRvY2tlZCBidXQgeW91IHBsdWcgaW4NClBTLzIga2V5Ym9hcmQuDQoNCkl0IHdpbGwgcHJv
-YmFibHkgYmUgY2xlYXJlciB0byB5b3Ugd2hhdCBPUyBoYXMgc2VlbiBmcm9tIHRoaXMgd2hlbiBQ
-YWxpDQpzaGFyZXMgdGhlIGNhcHR1cmVkIGRhdGEgc3RyZWFtLg0K
+Hi Damjan,
+
+On Tue, Jan 30, 2018 at 4:46 AM, Damjan Georgievski <gdamjan@gmail.com> wrote:
+> This is tested on X1 Carbon (gen 5)
+> pnp id: LEN0072
+> kernel 4.15.0
+>
+> Since by default psmouse complains about
+> "synaptics: Your touchpad (PNP: LEN0072 PNP0f13) says it can support a
+> different bus....",
+> I've patched the kernel to add the pnp id to smbus_pnp_ids in
+> drivers/input/mouse/synaptics.c [1],
+> and the trackpad seems to work at least a  bit smoother (it could be
+> placebo though).
+>
+> But, with the default setup, and rmi_smbus and psmouse are both
+> compiled as modules, the trackpoint device never appears in dmesg.
+> I can make it appear if I put rmi_smbus in /etc/modules-load.d/ so it
+> loads before psmouse, or if I unload psmouse and load it again.
+>
+> I can even reproduce it by unloading both rmi_smbus and psmouse, and
+> then only loading psmouse
+> (psmouse seems to load rmi_smbus and switch the trackpad to it but the
+> trackpoint is lost)
+
+Please try with these patches:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=next&id=a1ab69021a584d952e6548a44b93760547b1b6b5
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=next&id=6abe534f0776d2437c8302f58d8eb5abd483e926
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=next&id=9f87b9fc369f7719ccdac5077855c5c03b625571
+
+Thanks.
+
+-- 
+Dmitry

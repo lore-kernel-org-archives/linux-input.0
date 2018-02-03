@@ -1,17 +1,17 @@
 From: "Zhang Bo" <zbsdta@126.com>
-Subject: Re:Re: [PATCH] Input: matrix_keypad - fix keypad does not response
-Date: Sun, 4 Feb 2018 00:24:25 +0800 (CST)
-Message-ID: <718216bd.37a7.1615c7bb222.Coremail.zbsdta@126.com>
+Subject: Re: [PATCH] Input: matrix_keypad - fix keypad does not response
+Date: Sun, 4 Feb 2018 00:31:29 +0800 (CST)
+Message-ID: <3527eac2.37b3.1615c822887.Coremail.zbsdta@126.com>
 References: <20180203120046.10988-1-zbsdta@126.com>
  <20180203134450.GC707@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=GBK
 Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m15-42.126.com ([220.181.15.42]:8673 "EHLO m15-42.126.com"
+Received: from m15-42.126.com ([220.181.15.42]:10893 "EHLO m15-42.126.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751644AbeBCQYi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 3 Feb 2018 11:24:38 -0500
+        id S1752026AbeBCQbg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 3 Feb 2018 11:31:36 -0500
 In-Reply-To: <20180203134450.GC707@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -56,4 +56,4 @@ IGVuYWJsZWQgd2hlbgo+Y2FsbGluZyBzcGluX2xvY2tfaXJxKCkuCgpzcGluX2xvY2tfaXJxIGFu
 ZCAgc3Bpbl91bmxvY2tfaXJxIGFyZSBjYWxsZWQgaW4gbWF0cml4X2tleXBhZF9zdG9wIGFuZCBt
 YXRyaXhfa2V5cGFkX3N0YXJ0CndoaWNoIGFyZSBpbiBzdXNwZW5kIGFuZCByZXN1bWUsICB0aGV5
 IHJ1biBpbiBwcm9jZXNzIGNvbnRleHQsIG1hdHJpeF9rZXlwYWRfc2NhbiBydW5zIGluCndvcmtl
-ciB3aGljaCBpcyBpbiBwcm9jZXNzIGNvbnRleHQgYWxzby4K
+ciB3aGljaCBpcyBpbiBwcm9jZXNzIGNvbnRleHQgYWxzby4=

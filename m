@@ -1,86 +1,50 @@
-From: Zhang Bo <zbsdta@126.com>
-Subject: [PATCH] Input: matrix_keypad - fix keypad does not response
-Date: Sat,  3 Feb 2018 20:00:46 +0800
-Message-ID: <20180203120046.10988-1-zbsdta@126.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] hid-rmi: Delete an error message for a failed memory
+ allocation in rmi_probe()
+Date: Sat, 3 Feb 2018 13:48:25 +0100
+Message-ID: <07a48fd9-de27-52d5-7a53-8eb1de4de14b@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m50-111.126.com ([123.125.50.111]:39342 "EHLO m50-111.126.com"
+Received: from mout.web.de ([217.72.192.78]:65050 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751789AbeBCMCB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 3 Feb 2018 07:02:01 -0500
+        id S1752241AbeBCMsh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 3 Feb 2018 07:48:37 -0500
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: DRivshin@allworx.com, robh@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zbsdta@126.com, zhang.bo19@zte.com.cn
+To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>
 
-From: zhangbo <zbsdta@126.com>
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sat, 3 Feb 2018 13:42:08 +0100
 
-If matrix_keypad_stop() is calling and the keypad interrupt is triggered,
-disable_row_irqs() is called by both matrix_keypad_interrupt() and
-matrix_keypad_stop() at the same time. then disable_row_irqs() is called
-twice, and the device enter suspend state before keypad->work is executed.
-At this condition the device will start keypad and enable irq once after
-resume. and then irqs are disabled yet because irqs are disabled twice and
-only enable once.
+Omit an extra message for a memory allocation failure in this function.
 
-Signed-off-by: zhangbo <zbsdta@126.com>
+This issue was detected by using the Coccinelle software.
+
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/input/keyboard/matrix_keypad.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/hid/hid-rmi.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 1f316d66e6f7..13fe51824637 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -169,7 +169,8 @@ static void matrix_keypad_scan(struct work_struct *work)
- 	/* Enable IRQs again */
- 	spin_lock_irq(&keypad->lock);
- 	keypad->scan_pending = false;
--	enable_row_irqs(keypad);
-+	if (keypad->stopped == false)
-+		enable_row_irqs(keypad);
- 	spin_unlock_irq(&keypad->lock);
- }
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 0f43c4292685..d92a17954b67 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -678,10 +678,8 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	alloc_size = data->output_report_size + data->input_report_size;
  
-@@ -202,14 +203,16 @@ static int matrix_keypad_start(struct input_dev *dev)
- {
- 	struct matrix_keypad *keypad = input_get_drvdata(dev);
+ 	data->writeReport = devm_kzalloc(&hdev->dev, alloc_size, GFP_KERNEL);
+-	if (!data->writeReport) {
+-		hid_err(hdev, "failed to allocate buffer for HID reports\n");
++	if (!data->writeReport)
+ 		return -ENOMEM;
+-	}
  
-+	spin_lock_irq(&keypad->lock);
- 	keypad->stopped = false;
--	mb();
+ 	data->readReport = data->writeReport + data->output_report_size;
  
- 	/*
- 	 * Schedule an immediate key scan to capture current key state;
- 	 * columns will be activated and IRQs be enabled after the scan.
- 	 */
--	schedule_delayed_work(&keypad->work, 0);
-+	if (keypad->scan_pending == false)
-+		schedule_delayed_work(&keypad->work, 0);
-+	spin_unlock_irq(&keypad->lock);
- 
- 	return 0;
- }
-@@ -218,14 +221,17 @@ static void matrix_keypad_stop(struct input_dev *dev)
- {
- 	struct matrix_keypad *keypad = input_get_drvdata(dev);
- 
-+	spin_lock_irq(&keypad->lock);
- 	keypad->stopped = true;
--	mb();
--	flush_work(&keypad->work.work);
- 	/*
- 	 * matrix_keypad_scan() will leave IRQs enabled;
- 	 * we should disable them now.
- 	 */
--	disable_row_irqs(keypad);
-+	if (keypad->scan_pending == false)
-+		disable_row_irqs(keypad);
-+	spin_unlock_irq(&keypad->lock);
-+
-+	flush_work(&keypad->work.work);
- }
- 
- #ifdef CONFIG_PM_SLEEP
 -- 
-2.14.3
+2.16.1
 

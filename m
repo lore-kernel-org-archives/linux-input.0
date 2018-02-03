@@ -1,59 +1,39 @@
-From: "Zhang Bo" <zbsdta@126.com>
-Subject: Re: [PATCH] Input: matrix_keypad - fix keypad does not response
-Date: Sun, 4 Feb 2018 00:31:29 +0800 (CST)
-Message-ID: <3527eac2.37b3.1615c822887.Coremail.zbsdta@126.com>
-References: <20180203120046.10988-1-zbsdta@126.com>
- <20180203134450.GC707@gmail.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 0/6] HID-Prodikeys: Adjustments for two function
+ implementations
+Date: Sat, 3 Feb 2018 18:36:46 +0100
+Message-ID: <c388b4d8-fa43-1bf2-e27d-1a3a8d636118@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GBK
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m15-42.126.com ([220.181.15.42]:10893 "EHLO m15-42.126.com"
+Received: from mout.web.de ([212.227.17.11]:60285 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752026AbeBCQbg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 3 Feb 2018 11:31:36 -0500
-In-Reply-To: <20180203134450.GC707@gmail.com>
+        id S1752606AbeBCRgz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 3 Feb 2018 12:36:55 -0500
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: dmitry.torokhov@gmail.com, DRivshin@allworx.com, robh@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhang.bo19@zte.com.cn
+To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-QXQgMjAxOC0wMi0wMyAyMTo0NDo1MCwgIk1hcmN1cyBGb2xrZXNzb24iIDxtYXJjdXMuZm9sa2Vz
-c29uQGdtYWlsLmNvbT4gd3JvdGU6Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tleWJv
-YXJkL21hdHJpeF9rZXlwYWQuYyBiL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tleXBh
-ZC5jCj4+IGluZGV4IDFmMzE2ZDY2ZTZmNy4uMTNmZTUxODI0NjM3IDEwMDY0NAo+PiAtLS0gYS9k
-cml2ZXJzL2lucHV0L2tleWJvYXJkL21hdHJpeF9rZXlwYWQuYwo+PiArKysgYi9kcml2ZXJzL2lu
-cHV0L2tleWJvYXJkL21hdHJpeF9rZXlwYWQuYwo+PiBAQCAtMTY5LDcgKzE2OSw4IEBAIHN0YXRp
-YyB2b2lkIG1hdHJpeF9rZXlwYWRfc2NhbihzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCj4+ICAJ
-LyogRW5hYmxlIElSUXMgYWdhaW4gKi8KPj4gIAlzcGluX2xvY2tfaXJxKCZrZXlwYWQtPmxvY2sp
-Owo+PiAgCWtleXBhZC0+c2Nhbl9wZW5kaW5nID0gZmFsc2U7Cj4+IC0JZW5hYmxlX3Jvd19pcnFz
-KGtleXBhZCk7Cj4+ICsJaWYgKGtleXBhZC0+c3RvcHBlZCA9PSBmYWxzZSkKPj4gKwkJZW5hYmxl
-X3Jvd19pcnFzKGtleXBhZCk7Cj4+ICAJc3Bpbl91bmxvY2tfaXJxKCZrZXlwYWQtPmxvY2spOwo+
-PiAgfQo+PiAgCj4+IEBAIC0yMDIsMTQgKzIwMywxNiBAQCBzdGF0aWMgaW50IG1hdHJpeF9rZXlw
-YWRfc3RhcnQoc3RydWN0IGlucHV0X2RldiAqZGV2KQo+PiAgewo+PiAgCXN0cnVjdCBtYXRyaXhf
-a2V5cGFkICprZXlwYWQgPSBpbnB1dF9nZXRfZHJ2ZGF0YShkZXYpOwo+PiAgCj4+ICsJc3Bpbl9s
-b2NrX2lycSgma2V5cGFkLT5sb2NrKTsKPj4gIAlrZXlwYWQtPnN0b3BwZWQgPSBmYWxzZTsKPj4g
-LQltYigpOwo+PiAgCj4+ICAJLyoKPj4gIAkgKiBTY2hlZHVsZSBhbiBpbW1lZGlhdGUga2V5IHNj
-YW4gdG8gY2FwdHVyZSBjdXJyZW50IGtleSBzdGF0ZTsKPj4gIAkgKiBjb2x1bW5zIHdpbGwgYmUg
-YWN0aXZhdGVkIGFuZCBJUlFzIGJlIGVuYWJsZWQgYWZ0ZXIgdGhlIHNjYW4uCj4+ICAJICovCj4+
-IC0Jc2NoZWR1bGVfZGVsYXllZF93b3JrKCZrZXlwYWQtPndvcmssIDApOwo+PiArCWlmIChrZXlw
-YWQtPnNjYW5fcGVuZGluZyA9PSBmYWxzZSkKPj4gKwkJc2NoZWR1bGVfZGVsYXllZF93b3JrKCZr
-ZXlwYWQtPndvcmssIDApOwo+PiArCXNwaW5fdW5sb2NrX2lycSgma2V5cGFkLT5sb2NrKTsKPj4g
-IAo+PiAgCXJldHVybiAwOwo+PiAgfQo+PiBAQCAtMjE4LDE0ICsyMjEsMTcgQEAgc3RhdGljIHZv
-aWQgbWF0cml4X2tleXBhZF9zdG9wKHN0cnVjdCBpbnB1dF9kZXYgKmRldikKPj4gIHsKPj4gIAlz
-dHJ1Y3QgbWF0cml4X2tleXBhZCAqa2V5cGFkID0gaW5wdXRfZ2V0X2RydmRhdGEoZGV2KTsKPj4g
-IAo+PiArCXNwaW5fbG9ja19pcnEoJmtleXBhZC0+bG9jayk7Cj4+ICAJa2V5cGFkLT5zdG9wcGVk
-ID0gdHJ1ZTsKPj4gLQltYigpOwo+PiAtCWZsdXNoX3dvcmsoJmtleXBhZC0+d29yay53b3JrKTsK
-Pj4gIAkvKgo+PiAgCSAqIG1hdHJpeF9rZXlwYWRfc2NhbigpIHdpbGwgbGVhdmUgSVJRcyBlbmFi
-bGVkOwo+PiAgCSAqIHdlIHNob3VsZCBkaXNhYmxlIHRoZW0gbm93Lgo+PiAgCSAqLwo+PiAtCWRp
-c2FibGVfcm93X2lycXMoa2V5cGFkKTsKPj4gKwlpZiAoa2V5cGFkLT5zY2FuX3BlbmRpbmcgPT0g
-ZmFsc2UpCj4+ICsJCWRpc2FibGVfcm93X2lycXMoa2V5cGFkKTsKPj4gKwlzcGluX3VubG9ja19p
-cnEoJmtleXBhZC0+bG9jayk7Cj4+ICsKPj4gKwlmbHVzaF93b3JrKCZrZXlwYWQtPndvcmsud29y
-ayk7Cj4+ICB9Cj4KPgo+SHVtLCBJIHRoaW5rIHdlIHNob3VsZCB1c2Ugc3Bpbl9sb2NrX2lycXNh
-dmUvc3Bpbl9sb2NrX2lycXJlc3RvcmUKPmluc3RlYWQgdG8gYmUgb24gdGhlIHNhZmUgc2lkZS4g
-Cj5JIGRvbid0IHNlZSBob3cgd2UgY291bGQgZ3VhcmFudGVlIHRoYXQgaXJxcyBpcyBhbGx3YXlz
-IGVuYWJsZWQgd2hlbgo+Y2FsbGluZyBzcGluX2xvY2tfaXJxKCkuCgpzcGluX2xvY2tfaXJxIGFu
-ZCAgc3Bpbl91bmxvY2tfaXJxIGFyZSBjYWxsZWQgaW4gbWF0cml4X2tleXBhZF9zdG9wIGFuZCBt
-YXRyaXhfa2V5cGFkX3N0YXJ0CndoaWNoIGFyZSBpbiBzdXNwZW5kIGFuZCByZXN1bWUsICB0aGV5
-IHJ1biBpbiBwcm9jZXNzIGNvbnRleHQsIG1hdHJpeF9rZXlwYWRfc2NhbiBydW5zIGluCndvcmtl
-ciB3aGljaCBpcyBpbiBwcm9jZXNzIGNvbnRleHQgYWxzby4=
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sat, 3 Feb 2018 18:21:23 +0100
+
+A few update suggestions were taken into account
+from static source code analysis.
+
+Markus Elfring (6):
+  Delete two error messages for a failed memory allocation in pk_probe()
+  Delete an unnecessary variable initialisation in pk_probe()
+  Move an assignment in pk_probe()
+  Delete an unnecessary return statement in pcmidi_send_note()
+  Combine two condition checks into one statement in pcmidi_send_note()
+  Rename a jump label in pcmidi_send_note()
+
+ drivers/hid/hid-prodikeys.c | 21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
+
+-- 
+2.16.1
+

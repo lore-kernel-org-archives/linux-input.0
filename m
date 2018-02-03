@@ -1,83 +1,28 @@
-From: Zhang Bo <zbsdta@126.com>
-Subject: [PATCH] Input: matrix_keypad - fix keypad does not response
-Date: Sat,  3 Feb 2018 22:03:34 +0800
-Message-ID: <20180203140334.14552-1-zbsdta@126.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: robh@kernel.org, DRivshin@allworx.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhang.bo19@zte.com.cn, zbsdta@126.com
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: Re: [PATCH 1/2] HID: core: i2c-hid: fix size check and type usage
+Date: Sat, 3 Feb 2018 22:17:41 +0800
+Message-ID: <2d4f53f1-5a4f-9950-ace7-eca3d6607ade@canonical.com>
+References: <20180102173006.506-1-aaron.ma@canonical.com>
+ <20180203083651.GB707@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:52756 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751787AbeBCORw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Feb 2018 09:17:52 -0500
+In-Reply-To: <20180203083651.GB707@gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
 
-If matrix_keypad_stop() is calling and the keypad interrupt is triggered,
-disable_row_irqs() is called by both matrix_keypad_interrupt() and
-matrix_keypad_stop() at the same time. then disable_row_irqs() is called
-twice, and the device enter suspend state before keypad->work is executed.
-At this condition the device will start keypad and enable irq once after
-resume. and then irqs are disabled yet because irqs are disabled twice and
-only enable once.
+Hi Marcus:
 
-Take lock around keypad->stopped and queue delayed work in
-matrix_keypad_start() and matrix_keypad_stop() to ensure irqs operation and
-scheduling scan work are in atomic operation.
+This patch is replaced by v2 patches you just reviewed.
 
-Signed-off-by: Zhang Bo <zbsdta@126.com>
----
- drivers/input/keyboard/matrix_keypad.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+Thanks,
+Aaron
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 1f316d66e6f7..13fe51824637 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -169,7 +169,8 @@ static void matrix_keypad_scan(struct work_struct *work)
- 	/* Enable IRQs again */
- 	spin_lock_irq(&keypad->lock);
- 	keypad->scan_pending = false;
--	enable_row_irqs(keypad);
-+	if (keypad->stopped == false)
-+		enable_row_irqs(keypad);
- 	spin_unlock_irq(&keypad->lock);
- }
- 
-@@ -202,14 +203,16 @@ static int matrix_keypad_start(struct input_dev *dev)
- {
- 	struct matrix_keypad *keypad = input_get_drvdata(dev);
- 
-+	spin_lock_irq(&keypad->lock);
- 	keypad->stopped = false;
--	mb();
- 
- 	/*
- 	 * Schedule an immediate key scan to capture current key state;
- 	 * columns will be activated and IRQs be enabled after the scan.
- 	 */
--	schedule_delayed_work(&keypad->work, 0);
-+	if (keypad->scan_pending == false)
-+		schedule_delayed_work(&keypad->work, 0);
-+	spin_unlock_irq(&keypad->lock);
- 
- 	return 0;
- }
-@@ -218,14 +221,17 @@ static void matrix_keypad_stop(struct input_dev *dev)
- {
- 	struct matrix_keypad *keypad = input_get_drvdata(dev);
- 
-+	spin_lock_irq(&keypad->lock);
- 	keypad->stopped = true;
--	mb();
--	flush_work(&keypad->work.work);
- 	/*
- 	 * matrix_keypad_scan() will leave IRQs enabled;
- 	 * we should disable them now.
- 	 */
--	disable_row_irqs(keypad);
-+	if (keypad->scan_pending == false)
-+		disable_row_irqs(keypad);
-+	spin_unlock_irq(&keypad->lock);
-+
-+	flush_work(&keypad->work.work);
- }
- 
- #ifdef CONFIG_PM_SLEEP
--- 
-2.14.3

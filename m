@@ -1,65 +1,86 @@
-From: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>
-Subject: Re: i8042 AUX port [serio1] suspend takes a second on Dell XPS 13
- 9360 and TUXEDO Book 1406
-Date: Sat, 3 Feb 2018 12:09:44 +0100
-Message-ID: <5d6a4804-d4d1-df4f-6b63-43ac6b00af96@molgen.mpg.de>
-References: <5a74e1a7-2083-c6b2-f51a-f44908ac8bc4@molgen.mpg.de>
- <20180130175017.72inurhk5l7tcvae@dtor-ws>
- <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
- <a7c19320-4942-e41d-5323-0ac3693e7012@molgen.mpg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a7c19320-4942-e41d-5323-0ac3693e7012@molgen.mpg.de>
-Content-Language: de-DE
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de
+From: Zhang Bo <zbsdta@126.com>
+Subject: [PATCH] Input: matrix_keypad - fix keypad does not response
+Date: Sat,  3 Feb 2018 20:00:46 +0800
+Message-ID: <20180203120046.10988-1-zbsdta@126.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from m50-111.126.com ([123.125.50.111]:39342 "EHLO m50-111.126.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751789AbeBCMCB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 3 Feb 2018 07:02:01 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: DRivshin@allworx.com, robh@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zbsdta@126.com, zhang.bo19@zte.com.cn
 
-Dear Dmitry,
+From: zhangbo <zbsdta@126.com>
 
+If matrix_keypad_stop() is calling and the keypad interrupt is triggered,
+disable_row_irqs() is called by both matrix_keypad_interrupt() and
+matrix_keypad_stop() at the same time. then disable_row_irqs() is called
+twice, and the device enter suspend state before keypad->work is executed.
+At this condition the device will start keypad and enable irq once after
+resume. and then irqs are disabled yet because irqs are disabled twice and
+only enable once.
 
-Am 30.01.2018 um 19:39 schrieb Paul Menzel:
+Signed-off-by: zhangbo <zbsdta@126.com>
+---
+ drivers/input/keyboard/matrix_keypad.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-> On 01/30/18 19:07, Dmitry Torokhov wrote:
->> On Tue, Jan 30, 2018 at 09:52:45AM -0800, Dmitry Torokhov wrote:
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index 1f316d66e6f7..13fe51824637 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -169,7 +169,8 @@ static void matrix_keypad_scan(struct work_struct *work)
+ 	/* Enable IRQs again */
+ 	spin_lock_irq(&keypad->lock);
+ 	keypad->scan_pending = false;
+-	enable_row_irqs(keypad);
++	if (keypad->stopped == false)
++		enable_row_irqs(keypad);
+ 	spin_unlock_irq(&keypad->lock);
+ }
+ 
+@@ -202,14 +203,16 @@ static int matrix_keypad_start(struct input_dev *dev)
+ {
+ 	struct matrix_keypad *keypad = input_get_drvdata(dev);
+ 
++	spin_lock_irq(&keypad->lock);
+ 	keypad->stopped = false;
+-	mb();
+ 
+ 	/*
+ 	 * Schedule an immediate key scan to capture current key state;
+ 	 * columns will be activated and IRQs be enabled after the scan.
+ 	 */
+-	schedule_delayed_work(&keypad->work, 0);
++	if (keypad->scan_pending == false)
++		schedule_delayed_work(&keypad->work, 0);
++	spin_unlock_irq(&keypad->lock);
+ 
+ 	return 0;
+ }
+@@ -218,14 +221,17 @@ static void matrix_keypad_stop(struct input_dev *dev)
+ {
+ 	struct matrix_keypad *keypad = input_get_drvdata(dev);
+ 
++	spin_lock_irq(&keypad->lock);
+ 	keypad->stopped = true;
+-	mb();
+-	flush_work(&keypad->work.work);
+ 	/*
+ 	 * matrix_keypad_scan() will leave IRQs enabled;
+ 	 * we should disable them now.
+ 	 */
+-	disable_row_irqs(keypad);
++	if (keypad->scan_pending == false)
++		disable_row_irqs(keypad);
++	spin_unlock_irq(&keypad->lock);
++
++	flush_work(&keypad->work.work);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+-- 
+2.14.3
 
->>> On Tue, Jan 30, 2018 at 06:36:34PM +0100, Paul Menzel wrote:
-
->>>> I do not know, when it started, but with Linux 4.14-rc8 and 4.15,
->>>> benchmarking suspend and resume time with `sleepgraph.py` [1][2], 
->>>> there is a
->>>> regression, that i8042 AUX port [serio1] suspend takes a second on 
->>>> Dell XPS
->>>> 13 9360 and TUXEDO Book 1406.
->>>
->>> It would be really helpful to know when the regression started.
->>
->> So the reason it takes longer is because the touchpad does not want to
->> talk to us for some reason and we wait until commands time out:
->>
->> [   94.591636] calling  serio1+ @ 2299, parent: i8042
->> [   94.794292] psmouse serio1: Failed to disable mouse on isa0060/serio1
->> [   95.593303] call serio1+ returned 0 after 974280 usecs
->>
->> but it is not clear why it happens, I do not think we changed anything
->> in that path for a while, so it might be some other change affecting
->> things indirectly. I'm afraid you'll have to narrow the scope, and
->> ideally bisect.
-> 
-> Thank you for looking into this. Just to note, that it worked with Linux 
-> 4.14.1 from Ubuntu 17.10, so it’s probably something in 4.15. Bisecting 
-> will take a bit, as the FTRACE stuff broke in Linux 4.15-rc1 and was 
-> only fixed in 4.15-rc9. Hopefully, it’s just one commit I need to 
-> backport. I’ll get back to you hopefully at the end of the week.
-
-Unfortunately, I am unable to reproduce it currently. Also not with the 
-original Linux kernel versions I tried. I’ll report back, when I see it 
-the next time.
-
-
-Kind regards,
-
-Paul

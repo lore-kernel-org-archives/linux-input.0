@@ -1,142 +1,191 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: Re: [PATCH 1/2] HID: core: i2c-hid: fix size check and type usage
-Date: Sat, 3 Feb 2018 09:36:51 +0100
-Message-ID: <20180203083651.GB707@gmail.com>
-References: <20180102173006.506-1-aaron.ma@canonical.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] HID: Roccat: Delete an error message for a failed memory
+ allocation in nine functions
+Date: Sat, 3 Feb 2018 11:50:12 +0100
+Message-ID: <5df2ad06-296d-7552-d36d-dd8b09ad6f6d@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:45940 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750725AbeBCIgz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Feb 2018 03:36:55 -0500
-Content-Disposition: inline
-In-Reply-To: <20180102173006.506-1-aaron.ma@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: kernel-janitors-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Stefan Achatz <erazor_de@users.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
 
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Sat, 3 Feb 2018 11:45:15 +0100
 
---0eh6TmSyL6TZE2Uz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Omit an extra message for a memory allocation failure in these functions.
 
-Hi Aaron,
+This issue was detected by using the Coccinelle software.
 
-On Wed, Jan 03, 2018 at 01:30:05AM +0800, Aaron Ma wrote:
-> When convert char array with signed int, if the inbuf[x] is negative then
-> upper bits will be set to 1. Fix this by using u8 instead of char.
->=20
-> ret_size has to be at least 3, hid_input_report use it after minus 2 byte=
-s.
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/hid/hid-roccat-arvo.c     | 5 ++---
+ drivers/hid/hid-roccat-isku.c     | 5 ++---
+ drivers/hid/hid-roccat-koneplus.c | 5 ++---
+ drivers/hid/hid-roccat-konepure.c | 5 ++---
+ drivers/hid/hid-roccat-kovaplus.c | 5 ++---
+ drivers/hid/hid-roccat-lua.c      | 5 ++---
+ drivers/hid/hid-roccat-pyra.c     | 5 ++---
+ drivers/hid/hid-roccat-ryos.c     | 5 ++---
+ drivers/hid/hid-roccat-savu.c     | 5 ++---
+ 9 files changed, 18 insertions(+), 27 deletions(-)
 
-At least 2?
-hid_input_report() checks (!size)
+diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
+index 329c5d1270f9..8d1eccd4fffd 100644
+--- a/drivers/hid/hid-roccat-arvo.c
++++ b/drivers/hid/hid-roccat-arvo.c
+@@ -300,10 +300,9 @@ static int arvo_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	arvo = kzalloc(sizeof(*arvo), GFP_KERNEL);
+-	if (!arvo) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!arvo)
+ 		return -ENOMEM;
+-	}
++
+ 	hid_set_drvdata(hdev, arvo);
+ 
+ 	retval = arvo_init_arvo_device_struct(usb_dev, arvo);
+diff --git a/drivers/hid/hid-roccat-isku.c b/drivers/hid/hid-roccat-isku.c
+index 02db537f8f3e..6f18925c72db 100644
+--- a/drivers/hid/hid-roccat-isku.c
++++ b/drivers/hid/hid-roccat-isku.c
+@@ -280,10 +280,9 @@ static int isku_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	isku = kzalloc(sizeof(*isku), GFP_KERNEL);
+-	if (!isku) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!isku)
+ 		return -ENOMEM;
+-	}
++
+ 	hid_set_drvdata(hdev, isku);
+ 
+ 	retval = isku_init_isku_device_struct(usb_dev, isku);
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 09e8fc72aa1d..3981553d02a6 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -385,10 +385,9 @@ static int koneplus_init_specials(struct hid_device *hdev)
+ 			== USB_INTERFACE_PROTOCOL_MOUSE) {
+ 
+ 		koneplus = kzalloc(sizeof(*koneplus), GFP_KERNEL);
+-		if (!koneplus) {
+-			hid_err(hdev, "can't alloc device descriptor\n");
++		if (!koneplus)
+ 			return -ENOMEM;
+-		}
++
+ 		hid_set_drvdata(hdev, koneplus);
+ 
+ 		retval = koneplus_init_koneplus_device_struct(usb_dev, koneplus);
+diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
+index 07de2f9014c6..529e6024e73f 100644
+--- a/drivers/hid/hid-roccat-konepure.c
++++ b/drivers/hid/hid-roccat-konepure.c
+@@ -89,10 +89,9 @@ static int konepure_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	konepure = kzalloc(sizeof(*konepure), GFP_KERNEL);
+-	if (!konepure) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!konepure)
+ 		return -ENOMEM;
+-	}
++
+ 	hid_set_drvdata(hdev, konepure);
+ 
+ 	retval = roccat_common2_device_init_struct(usb_dev, konepure);
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 43617fb28b87..da9c090542c6 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -452,10 +452,9 @@ static int kovaplus_init_specials(struct hid_device *hdev)
+ 			== USB_INTERFACE_PROTOCOL_MOUSE) {
+ 
+ 		kovaplus = kzalloc(sizeof(*kovaplus), GFP_KERNEL);
+-		if (!kovaplus) {
+-			hid_err(hdev, "can't alloc device descriptor\n");
++		if (!kovaplus)
+ 			return -ENOMEM;
+-		}
++
+ 		hid_set_drvdata(hdev, kovaplus);
+ 
+ 		retval = kovaplus_init_kovaplus_device_struct(usb_dev, kovaplus);
+diff --git a/drivers/hid/hid-roccat-lua.c b/drivers/hid/hid-roccat-lua.c
+index ac1a7313e259..0ccaa345de27 100644
+--- a/drivers/hid/hid-roccat-lua.c
++++ b/drivers/hid/hid-roccat-lua.c
+@@ -123,10 +123,9 @@ static int lua_init_specials(struct hid_device *hdev)
+ 	int retval;
+ 
+ 	lua = kzalloc(sizeof(*lua), GFP_KERNEL);
+-	if (!lua) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!lua)
+ 		return -ENOMEM;
+-	}
++
+ 	hid_set_drvdata(hdev, lua);
+ 
+ 	retval = lua_init_lua_device_struct(usb_dev, lua);
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index b30aa7b82bf8..c22cc42dadb6 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -404,10 +404,9 @@ static int pyra_init_specials(struct hid_device *hdev)
+ 			== USB_INTERFACE_PROTOCOL_MOUSE) {
+ 
+ 		pyra = kzalloc(sizeof(*pyra), GFP_KERNEL);
+-		if (!pyra) {
+-			hid_err(hdev, "can't alloc device descriptor\n");
++		if (!pyra)
+ 			return -ENOMEM;
+-		}
++
+ 		hid_set_drvdata(hdev, pyra);
+ 
+ 		retval = pyra_init_pyra_device_struct(usb_dev, pyra);
+diff --git a/drivers/hid/hid-roccat-ryos.c b/drivers/hid/hid-roccat-ryos.c
+index 47cc8f30ff6d..1153e07ae415 100644
+--- a/drivers/hid/hid-roccat-ryos.c
++++ b/drivers/hid/hid-roccat-ryos.c
+@@ -97,10 +97,9 @@ static int ryos_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	ryos = kzalloc(sizeof(*ryos), GFP_KERNEL);
+-	if (!ryos) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!ryos)
+ 		return -ENOMEM;
+-	}
++
+ 	hid_set_drvdata(hdev, ryos);
+ 
+ 	retval = roccat_common2_device_init_struct(usb_dev, ryos);
+diff --git a/drivers/hid/hid-roccat-savu.c b/drivers/hid/hid-roccat-savu.c
+index 6dbf6e04dce7..3b39f6556708 100644
+--- a/drivers/hid/hid-roccat-savu.c
++++ b/drivers/hid/hid-roccat-savu.c
+@@ -69,10 +69,9 @@ static int savu_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	savu = kzalloc(sizeof(*savu), GFP_KERNEL);
+-	if (!savu) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!savu)
+ 		return -ENOMEM;
+-	}
++
+ 	hid_set_drvdata(hdev, savu);
+ 
+ 	retval = roccat_common2_device_init_struct(usb_dev, savu);
+-- 
+2.16.1
 
->=20
-> size should be more than 0 to keep memset safe.
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-> ---
->  drivers/hid/hid-core.c        |  4 ++--
->  drivers/hid/i2c-hid/i2c-hid.c | 10 +++++-----
->  2 files changed, 7 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 0c3f608131cf..992547771d96 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1506,7 +1506,7 @@ int hid_report_raw_event(struct hid_device *hid, in=
-t type, u8 *data, int size,
->  	if (rsize > HID_MAX_BUFFER_SIZE)
->  		rsize =3D HID_MAX_BUFFER_SIZE;
-> =20
-> -	if (csize < rsize) {
-> +	if ((csize < rsize) && (csize > 0)) {
->  		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
->  				csize, rsize);
->  		memset(cdata + csize, 0, rsize - csize);
-> @@ -1566,7 +1566,7 @@ int hid_input_report(struct hid_device *hid, int ty=
-pe, u8 *data, int size, int i
->  	report_enum =3D hid->report_enum + type;
->  	hdrv =3D hid->driver;
-> =20
-> -	if (!size) {
-> +	if (size <=3D 0) {
-
-All code that is using hid_input_report() seems to check that no
-negative size is provided.
-
-If we want this check, maybe we should consider making size unsigned
-instead?
-
->  		dbg_hid("empty report\n");
->  		ret =3D -1;
->  		goto unlock;
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index e054ee43c1e2..09404ffdb08b 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -144,10 +144,10 @@ struct i2c_hid {
->  						   * register of the HID
->  						   * descriptor. */
->  	unsigned int		bufsize;	/* i2c buffer size */
-> -	char			*inbuf;		/* Input buffer */
-> -	char			*rawbuf;	/* Raw Input buffer */
-> -	char			*cmdbuf;	/* Command buffer */
-> -	char			*argsbuf;	/* Command arguments buffer */
-> +	u8			*inbuf;		/* Input buffer */
-> +	u8			*rawbuf;	/* Raw Input buffer */
-> +	u8			*cmdbuf;	/* Command buffer */
-> +	u8			*argsbuf;	/* Command arguments buffer */
-
-Looks good
-
-> =20
->  	unsigned long		flags;		/* device flags */
->  	unsigned long		quirks;		/* Various quirks */
-> @@ -473,7 +473,7 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
-> =20
->  	ret_size =3D ihid->inbuf[0] | ihid->inbuf[1] << 8;
-> =20
-> -	if (!ret_size) {
-> +	if (ret_size <=3D 2) {
-
-if (ret_size < 2) ?
-
-
->  		/* host or device initiated RESET completed */
->  		if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
->  			wake_up(&ihid->wait);
-> --=20
-> 2.14.3
-
-
-Best regards
-Marcus Folkesson
-
---0eh6TmSyL6TZE2Uz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlp1dJ4ACgkQiIBOb1ld
-UjJwoQ/8CjhTg3RxsLsSW9f2be0hZ8HzlHBn2YkE6J97mt6kYV2twMaaN29slSNi
-t+c1w5EK4qFpMZbQ3yl4023fnEgZPrh52TpdiyJJXCb5sSqfaOuHVu1eBIgIEIRg
-bHbN+CpXpMhBHRy5mbCzWh6tRJfGT45wO9Sh9w+k3QMNVhh8XkHsBUbSUjEl6ozV
-8fnONxnArhXoVfYVfg+42QRg6FYImZT93LzNM1kQLg8F8azZgd0jug5mi2ickdH5
-VXG6iZ0hD7d8yZu6+o2TAS6rK4AVDHX3+ZqZ9maIb4hR6h7D4SibQ5qP4TbbASTt
-VNXrJVCI8vBg5Cm+lvVKwNXA5TO4VmJfv3CkQ7+4w9z3J5tzieAVUY7qy/MxhCu6
-rWEjxTm19m7zp6HkJff22DiljRBCIGP6NqvMpJf8X4uFBNtj2cUeRY5vwX9X1Ub1
-TO+0mvQh61SKdjEn6VXlqqz/vzpHCt7Nx/ENLpEL/EYOyj4GChvpsSVoLYjwsrxp
-WQl6ScEUS8c1Rx6WN859QqxUNCRsWwzNdN1jIncuMosBcM6i0AT/TxyHpp8yeLmM
-+29t1UyiuVHPqvmsylat1M7EO49BVfIKN/AEWEujngBsxhJrQZ6lNKNqoRvUunxM
-wABz7m0IU/W309MMd81f2zBFH5DtNKFU0YDxS36JRdcFvRHY6p4=
-=IoLX
------END PGP SIGNATURE-----
-
---0eh6TmSyL6TZE2Uz--

@@ -1,138 +1,105 @@
 From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH v2 2/2] HID: core: Fix size as type u32
-Date: Sat, 3 Feb 2018 22:28:41 +0800
-Message-ID: <27dd1296-8422-e123-b5c6-b28141bd270c@canonical.com>
-References: <20180108024141.10590-1-aaron.ma@canonical.com>
- <20180108024141.10590-2-aaron.ma@canonical.com>
- <20180203075531.GA707@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180203075531.GA707@gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com
+Subject: [PATCH] HID: Fix hid_report_len usage
+Date: Sat,  3 Feb 2018 23:57:15 +0800
+Message-ID: <20180203155715.2970-1-aaron.ma@canonical.com>
+References: <20180108024141.10590-2-aaron.ma@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:53503 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751963AbeBCP5Z (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Feb 2018 10:57:25 -0500
+In-Reply-To: <20180108024141.10590-2-aaron.ma@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: aaron.ma@canonical.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 02/03/2018 03:55 PM, Marcus Folkesson wrote:
-> Hi Aaron,
-> 
-> On Mon, Jan 08, 2018 at 10:41:41AM +0800, Aaron Ma wrote:
->> When size is negative, calling memset will make segment fault.
->> Declare the size as type u32 to keep memset safe.
->>
->> size in struct hid_report is unsigned, fix return type of
->> hid_report_len to u32.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
->> ---
->>  drivers/hid/hid-core.c | 10 +++++-----
->>  include/linux/hid.h    |  6 +++---
->>  2 files changed, 8 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 0c3f608131cf..cf81c53e3b98 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -1390,7 +1390,7 @@ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags)
->>  	 * of implement() working on 8 byte chunks
->>  	 */
->>  
->> -	int len = hid_report_len(report) + 7;
->> +	u32 len = hid_report_len(report) + 7;
->>  
->>  	return kmalloc(len, flags);
->>  }
->> @@ -1455,7 +1455,7 @@ void __hid_request(struct hid_device *hid, struct hid_report *report,
->>  {
->>  	char *buf;
->>  	int ret;
->> -	int len;
->> +	u32 len;
->>  
->>  	buf = hid_alloc_report_buf(report, GFP_KERNEL);
->>  	if (!buf)
->> @@ -1481,14 +1481,14 @@ void __hid_request(struct hid_device *hid, struct hid_report *report,
->>  }
->>  EXPORT_SYMBOL_GPL(__hid_request);
->>  
->> -int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
->> +int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
->>  		int interrupt)
->>  {
->>  	struct hid_report_enum *report_enum = hid->report_enum + type;
->>  	struct hid_report *report;
->>  	struct hid_driver *hdrv;
->>  	unsigned int a;
->> -	int rsize, csize = size;
->> +	u32 rsize, csize = size;
->>  	u8 *cdata = data;
->>  	int ret = 0;
->>  
->> @@ -1546,7 +1546,7 @@ EXPORT_SYMBOL_GPL(hid_report_raw_event);
->>   *
->>   * This is data entry for lower layers.
->>   */
->> -int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int interrupt)
->> +int hid_input_report(struct hid_device *hid, int type, u8 *data, u32 size, int interrupt)
->>  {
->>  	struct hid_report_enum *report_enum;
->>  	struct hid_driver *hdrv;
->> diff --git a/include/linux/hid.h b/include/linux/hid.h
->> index d491027a7c22..9bc296eebc98 100644
->> --- a/include/linux/hid.h
->> +++ b/include/linux/hid.h
->> @@ -841,7 +841,7 @@ extern int hidinput_connect(struct hid_device *hid, unsigned int force);
->>  extern void hidinput_disconnect(struct hid_device *);
->>  
->>  int hid_set_field(struct hid_field *, unsigned, __s32);
->> -int hid_input_report(struct hid_device *, int type, u8 *, int, int);
->> +int hid_input_report(struct hid_device *, int type, u8 *, u32, int);
->>  int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
->>  struct hid_field *hidinput_get_led_field(struct hid_device *hid);
->>  unsigned int hidinput_count_leds(struct hid_device *hid);
->> @@ -1088,13 +1088,13 @@ static inline void hid_hw_wait(struct hid_device *hdev)
->>   *
->>   * @report: the report we want to know the length
->>   */
->> -static inline int hid_report_len(struct hid_report *report)
->> +static inline u32 hid_report_len(struct hid_report *report)
-> hid_report_len() is used in several files.
-> If we think it is a good idea to change the return type, we should fix
-> these files as well.
-> 
-> [08:47:56]marcus@little:~/git/linux$ git grep -l hid_report_len
-> drivers/hid/hid-core.c
-> drivers/hid/hid-input.c
-> drivers/hid/hid-multitouch.c
-> drivers/hid/hid-rmi.c
-> drivers/hid/usbhid/hid-core.c
-> drivers/hid/wacom_sys.c
-> drivers/staging/greybus/hid.c
-> include/linux/hid.h
+Follow the change of return type u32 of hid_report_len,
+fix all the types of variables those get the return value of
+hid_report_len to u32, and all other code already uses u32.
 
+Cc: stable@vger.kernel.org
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+---
+ drivers/hid/hid-input.c      | 3 ++-
+ drivers/hid/hid-multitouch.c | 5 +++--
+ drivers/hid/hid-rmi.c        | 4 ++--
+ drivers/hid/wacom_sys.c      | 4 ++--
+ 4 files changed, 9 insertions(+), 7 deletions(-)
 
-Sure, I will fix these return type in a new patch.
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 04d01b57d94c..d86398755b0d 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1368,7 +1368,8 @@ static void hidinput_led_worker(struct work_struct *work)
+ 					      led_work);
+ 	struct hid_field *field;
+ 	struct hid_report *report;
+-	int len, ret;
++	int ret;
++	u32 len;
+ 	__u8 *buf;
+ 
+ 	field = hidinput_get_led_field(hid);
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 3b4739bde05d..2e1736ba2444 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -370,7 +370,8 @@ static const struct attribute_group mt_attribute_group = {
+ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+-	int ret, size = hid_report_len(report);
++	int ret;
++	u32 size = hid_report_len(report);
+ 	u8 *buf;
+ 
+ 	/*
+@@ -1183,7 +1184,7 @@ static void mt_set_input_mode(struct hid_device *hdev)
+ 	struct hid_report_enum *re;
+ 	struct mt_class *cls = &td->mtclass;
+ 	char *buf;
+-	int report_len;
++	u32 report_len;
+ 
+ 	if (td->inputmode < 0)
+ 		return;
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index c6c05df3e8d2..9c9362149641 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -89,8 +89,8 @@ struct rmi_data {
+ 	u8 *writeReport;
+ 	u8 *readReport;
+ 
+-	int input_report_size;
+-	int output_report_size;
++	u32 input_report_size;
++	u32 output_report_size;
+ 
+ 	unsigned long flags;
+ 
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 409543160af7..b54ef1ffcbec 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -219,7 +219,7 @@ static void wacom_feature_mapping(struct hid_device *hdev,
+ 	unsigned int equivalent_usage = wacom_equivalent_usage(usage->hid);
+ 	u8 *data;
+ 	int ret;
+-	int n;
++	u32 n;
+ 
+ 	switch (equivalent_usage) {
+ 	case HID_DG_CONTACTMAX:
+@@ -519,7 +519,7 @@ static int wacom_set_device_mode(struct hid_device *hdev,
+ 	u8 *rep_data;
+ 	struct hid_report *r;
+ 	struct hid_report_enum *re;
+-	int length;
++	u32 length;
+ 	int error = -ENOMEM, limit = 0;
+ 
+ 	if (wacom_wac->mode_report < 0)
+-- 
+2.14.3
 
-Thanks,
-Aaron
-
-
-> 
->>  {
->>  	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
->>  	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
->>  }
->>  
->> -int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
->> +int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
->>  		int interrupt);
->>  
->>  /* HID quirks API */
->> -- 
->> 2.14.3
-> Best regards
-> Marcus Folkesson

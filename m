@@ -1,91 +1,59 @@
-From: Zhang Bo <zbsdta@126.com>
-Subject: [PATCH v2] Input: matrix_keypad - fix keypad does not response
-Date: Sat,  3 Feb 2018 23:58:16 +0800
-Message-ID: <20180203155816.18221-1-zbsdta@126.com>
+From: "Zhang Bo" <zbsdta@126.com>
+Subject: Re:Re: [PATCH] Input: matrix_keypad - fix keypad does not response
+Date: Sun, 4 Feb 2018 00:24:25 +0800 (CST)
+Message-ID: <718216bd.37a7.1615c7bb222.Coremail.zbsdta@126.com>
+References: <20180203120046.10988-1-zbsdta@126.com>
+ <20180203134450.GC707@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m50-112.126.com ([123.125.50.112]:57224 "EHLO m50-112.126.com"
+Received: from m15-42.126.com ([220.181.15.42]:8673 "EHLO m15-42.126.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751932AbeBCP7a (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 3 Feb 2018 10:59:30 -0500
+        id S1751644AbeBCQYi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 3 Feb 2018 11:24:38 -0500
+In-Reply-To: <20180203134450.GC707@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: robh@kernel.org, DRivshin@allworx.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhang.bo19@zte.com.cn, andy.shevchenko@gmail.com, zbsdta@126.com
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: dmitry.torokhov@gmail.com, DRivshin@allworx.com, robh@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhang.bo19@zte.com.cn
 
-If matrix_keypad_stop() is calling and the keypad interrupt is triggered,
-disable_row_irqs() is called by both matrix_keypad_interrupt() and
-matrix_keypad_stop() at the same time. then disable_row_irqs() is called
-twice, and the device enter suspend state before keypad->work is executed.
-At this condition the device will start keypad and enable irq once after
-resume. and then irqs are disabled yet because irqs are disabled twice and
-only enable once.
-
-Take lock around keypad->stopped and queue delayed work in
-matrix_keypad_start() and matrix_keypad_stop() to ensure irqs operation and
-scheduling scan work are in atomic operation.
-
-Signed-off-by: Zhang Bo <zbsdta@126.com>
----
-Changes in v2:
-  - Change commit message and full name in the signed-off-by tag.
-
- drivers/input/keyboard/matrix_keypad.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 1f316d66e6f7..13fe51824637 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -169,7 +169,8 @@ static void matrix_keypad_scan(struct work_struct *work)
- 	/* Enable IRQs again */
- 	spin_lock_irq(&keypad->lock);
- 	keypad->scan_pending = false;
--	enable_row_irqs(keypad);
-+	if (keypad->stopped == false)
-+		enable_row_irqs(keypad);
- 	spin_unlock_irq(&keypad->lock);
- }
- 
-@@ -202,14 +203,16 @@ static int matrix_keypad_start(struct input_dev *dev)
- {
- 	struct matrix_keypad *keypad = input_get_drvdata(dev);
- 
-+	spin_lock_irq(&keypad->lock);
- 	keypad->stopped = false;
--	mb();
- 
- 	/*
- 	 * Schedule an immediate key scan to capture current key state;
- 	 * columns will be activated and IRQs be enabled after the scan.
- 	 */
--	schedule_delayed_work(&keypad->work, 0);
-+	if (keypad->scan_pending == false)
-+		schedule_delayed_work(&keypad->work, 0);
-+	spin_unlock_irq(&keypad->lock);
- 
- 	return 0;
- }
-@@ -218,14 +221,17 @@ static void matrix_keypad_stop(struct input_dev *dev)
- {
- 	struct matrix_keypad *keypad = input_get_drvdata(dev);
- 
-+	spin_lock_irq(&keypad->lock);
- 	keypad->stopped = true;
--	mb();
--	flush_work(&keypad->work.work);
- 	/*
- 	 * matrix_keypad_scan() will leave IRQs enabled;
- 	 * we should disable them now.
- 	 */
--	disable_row_irqs(keypad);
-+	if (keypad->scan_pending == false)
-+		disable_row_irqs(keypad);
-+	spin_unlock_irq(&keypad->lock);
-+
-+	flush_work(&keypad->work.work);
- }
- 
- #ifdef CONFIG_PM_SLEEP
--- 
-2.14.3
-
+QXQgMjAxOC0wMi0wMyAyMTo0NDo1MCwgIk1hcmN1cyBGb2xrZXNzb24iIDxtYXJjdXMuZm9sa2Vz
+c29uQGdtYWlsLmNvbT4gd3JvdGU6Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tleWJv
+YXJkL21hdHJpeF9rZXlwYWQuYyBiL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvbWF0cml4X2tleXBh
+ZC5jCj4+IGluZGV4IDFmMzE2ZDY2ZTZmNy4uMTNmZTUxODI0NjM3IDEwMDY0NAo+PiAtLS0gYS9k
+cml2ZXJzL2lucHV0L2tleWJvYXJkL21hdHJpeF9rZXlwYWQuYwo+PiArKysgYi9kcml2ZXJzL2lu
+cHV0L2tleWJvYXJkL21hdHJpeF9rZXlwYWQuYwo+PiBAQCAtMTY5LDcgKzE2OSw4IEBAIHN0YXRp
+YyB2b2lkIG1hdHJpeF9rZXlwYWRfc2NhbihzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCj4+ICAJ
+LyogRW5hYmxlIElSUXMgYWdhaW4gKi8KPj4gIAlzcGluX2xvY2tfaXJxKCZrZXlwYWQtPmxvY2sp
+Owo+PiAgCWtleXBhZC0+c2Nhbl9wZW5kaW5nID0gZmFsc2U7Cj4+IC0JZW5hYmxlX3Jvd19pcnFz
+KGtleXBhZCk7Cj4+ICsJaWYgKGtleXBhZC0+c3RvcHBlZCA9PSBmYWxzZSkKPj4gKwkJZW5hYmxl
+X3Jvd19pcnFzKGtleXBhZCk7Cj4+ICAJc3Bpbl91bmxvY2tfaXJxKCZrZXlwYWQtPmxvY2spOwo+
+PiAgfQo+PiAgCj4+IEBAIC0yMDIsMTQgKzIwMywxNiBAQCBzdGF0aWMgaW50IG1hdHJpeF9rZXlw
+YWRfc3RhcnQoc3RydWN0IGlucHV0X2RldiAqZGV2KQo+PiAgewo+PiAgCXN0cnVjdCBtYXRyaXhf
+a2V5cGFkICprZXlwYWQgPSBpbnB1dF9nZXRfZHJ2ZGF0YShkZXYpOwo+PiAgCj4+ICsJc3Bpbl9s
+b2NrX2lycSgma2V5cGFkLT5sb2NrKTsKPj4gIAlrZXlwYWQtPnN0b3BwZWQgPSBmYWxzZTsKPj4g
+LQltYigpOwo+PiAgCj4+ICAJLyoKPj4gIAkgKiBTY2hlZHVsZSBhbiBpbW1lZGlhdGUga2V5IHNj
+YW4gdG8gY2FwdHVyZSBjdXJyZW50IGtleSBzdGF0ZTsKPj4gIAkgKiBjb2x1bW5zIHdpbGwgYmUg
+YWN0aXZhdGVkIGFuZCBJUlFzIGJlIGVuYWJsZWQgYWZ0ZXIgdGhlIHNjYW4uCj4+ICAJICovCj4+
+IC0Jc2NoZWR1bGVfZGVsYXllZF93b3JrKCZrZXlwYWQtPndvcmssIDApOwo+PiArCWlmIChrZXlw
+YWQtPnNjYW5fcGVuZGluZyA9PSBmYWxzZSkKPj4gKwkJc2NoZWR1bGVfZGVsYXllZF93b3JrKCZr
+ZXlwYWQtPndvcmssIDApOwo+PiArCXNwaW5fdW5sb2NrX2lycSgma2V5cGFkLT5sb2NrKTsKPj4g
+IAo+PiAgCXJldHVybiAwOwo+PiAgfQo+PiBAQCAtMjE4LDE0ICsyMjEsMTcgQEAgc3RhdGljIHZv
+aWQgbWF0cml4X2tleXBhZF9zdG9wKHN0cnVjdCBpbnB1dF9kZXYgKmRldikKPj4gIHsKPj4gIAlz
+dHJ1Y3QgbWF0cml4X2tleXBhZCAqa2V5cGFkID0gaW5wdXRfZ2V0X2RydmRhdGEoZGV2KTsKPj4g
+IAo+PiArCXNwaW5fbG9ja19pcnEoJmtleXBhZC0+bG9jayk7Cj4+ICAJa2V5cGFkLT5zdG9wcGVk
+ID0gdHJ1ZTsKPj4gLQltYigpOwo+PiAtCWZsdXNoX3dvcmsoJmtleXBhZC0+d29yay53b3JrKTsK
+Pj4gIAkvKgo+PiAgCSAqIG1hdHJpeF9rZXlwYWRfc2NhbigpIHdpbGwgbGVhdmUgSVJRcyBlbmFi
+bGVkOwo+PiAgCSAqIHdlIHNob3VsZCBkaXNhYmxlIHRoZW0gbm93Lgo+PiAgCSAqLwo+PiAtCWRp
+c2FibGVfcm93X2lycXMoa2V5cGFkKTsKPj4gKwlpZiAoa2V5cGFkLT5zY2FuX3BlbmRpbmcgPT0g
+ZmFsc2UpCj4+ICsJCWRpc2FibGVfcm93X2lycXMoa2V5cGFkKTsKPj4gKwlzcGluX3VubG9ja19p
+cnEoJmtleXBhZC0+bG9jayk7Cj4+ICsKPj4gKwlmbHVzaF93b3JrKCZrZXlwYWQtPndvcmsud29y
+ayk7Cj4+ICB9Cj4KPgo+SHVtLCBJIHRoaW5rIHdlIHNob3VsZCB1c2Ugc3Bpbl9sb2NrX2lycXNh
+dmUvc3Bpbl9sb2NrX2lycXJlc3RvcmUKPmluc3RlYWQgdG8gYmUgb24gdGhlIHNhZmUgc2lkZS4g
+Cj5JIGRvbid0IHNlZSBob3cgd2UgY291bGQgZ3VhcmFudGVlIHRoYXQgaXJxcyBpcyBhbGx3YXlz
+IGVuYWJsZWQgd2hlbgo+Y2FsbGluZyBzcGluX2xvY2tfaXJxKCkuCgpzcGluX2xvY2tfaXJxIGFu
+ZCAgc3Bpbl91bmxvY2tfaXJxIGFyZSBjYWxsZWQgaW4gbWF0cml4X2tleXBhZF9zdG9wIGFuZCBt
+YXRyaXhfa2V5cGFkX3N0YXJ0CndoaWNoIGFyZSBpbiBzdXNwZW5kIGFuZCByZXN1bWUsICB0aGV5
+IHJ1biBpbiBwcm9jZXNzIGNvbnRleHQsIG1hdHJpeF9rZXlwYWRfc2NhbiBydW5zIGluCndvcmtl
+ciB3aGljaCBpcyBpbiBwcm9jZXNzIGNvbnRleHQgYWxzby4K

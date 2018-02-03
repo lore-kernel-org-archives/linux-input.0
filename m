@@ -1,45 +1,50 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] HID: ntrig: Improve a size determination in ntrig_probe()
-Date: Sat, 3 Feb 2018 22:00:40 +0100
-Message-ID: <cdf13343-71ff-1ebe-d90e-f480febbe45f@users.sourceforge.net>
-References: <86d02ef2-0ac2-5462-0ff0-a0cd87c3d1f7@users.sourceforge.net>
+Subject: [PATCH] HID: magicmouse: Delete an error message for a failed memory
+ allocation in magicmouse_probe()
+Date: Sat, 3 Feb 2018 22:20:10 +0100
+Message-ID: <79c01fa9-647c-5c34-41cc-3bc9c09f38ee@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <86d02ef2-0ac2-5462-0ff0-a0cd87c3d1f7@users.sourceforge.net>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.web.de ([212.227.17.12]:53391 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752489AbeBCVUY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 3 Feb 2018 16:20:24 -0500
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 3 Feb 2018 21:48:39 +0100
+Date: Sat, 3 Feb 2018 22:15:05 +0100
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+Omit an extra message for a memory allocation failure in this function.
 
 This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/hid/hid-ntrig.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-magicmouse.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 2a8dafaea2f0..c6878a6a147c 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -904,7 +904,7 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		hdev->quirks |= HID_QUIRK_MULTI_INPUT
- 				| HID_QUIRK_NO_INIT_REPORTS;
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 42ed887ba0be..8d17a812c5ba 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -501,10 +501,8 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	int ret;
  
--	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
-+	nd = kmalloc(sizeof(*nd), GFP_KERNEL);
- 	if (!nd)
+ 	msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
+-	if (msc == NULL) {
+-		hid_err(hdev, "can't alloc magicmouse descriptor\n");
++	if (!msc)
  		return -ENOMEM;
+-	}
+ 
+ 	msc->scroll_accel = SCROLL_ACCEL_DEFAULT;
  
 -- 
 2.16.1
+

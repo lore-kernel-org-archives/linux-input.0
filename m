@@ -1,66 +1,66 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH] hid-sensor-accel-3d: Delete an error message for a
- failed memory allocation in hid_accel_3d_probe()
-Date: Sun, 4 Feb 2018 11:23:46 +0000
-Message-ID: <20180204112346.0977e938@archlinux>
-References: <0406765c-bdd1-1a82-cf66-1c248063ae4f@users.sourceforge.net>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Cirque/ALPS touchpad documentation
+Date: Sun, 4 Feb 2018 14:58:12 +0100
+Message-ID: <20180204135812.5qnwgimcqsdhnkc7@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="xkn7ajb7dqqv5jz7"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34256 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750821AbeBDLXv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 4 Feb 2018 06:23:51 -0500
-In-Reply-To: <0406765c-bdd1-1a82-cf66-1c248063ae4f@users.sourceforge.net>
+Received: from mail-wr0-f193.google.com ([209.85.128.193]:45450 "EHLO
+        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750888AbeBDN6Q (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Feb 2018 08:58:16 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2018 22:26:14 +0100
-SF Markus Elfring <elfring@users.sourceforge.net> wrote:
 
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Wed, 31 Jan 2018 22:20:56 +0100
-> 
-> Omit an extra message for a memory allocation failure in this function.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+--xkn7ajb7dqqv5jz7
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Marcus,
+Hi!
 
-If making changes like this I would suggest only sending one until
-you have have a response from the relevant maintainer.
+Now I find on cirque website that there is some documentation for
+GlidePoint/ALPS touchpads/trackpads. The most interesting part is
+"GP-AN- 130823 INTERFACING TO GEN4 OVER I2C (PDF)" on website:
+http://www.cirque.com/gen4-dev-resources
 
-It would save you time as often these sorts of changes are
-a matter of personal taste and weighing up of costs vs gains
-- hence it is not obvious that they will be accepted.
+There is basic I2C and HID protocol information with Memory Table
+registers in section 7.
 
-Jonathan
+Looking at mouse/alps.c and hid/hid-alps.c source code, it seems that
+those 0xC2C0 and other "random" numbers have real meaning. And it should
+be possible to set more configuration options for ALPS touchpads. There
+are some coordinate algorithms or configuration for sample rate, etc.
 
-> ---
->  drivers/iio/accel/hid-sensor-accel-3d.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-> index c066a3bdbff7..3d0acde40285 100644
-> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
-> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-> @@ -383,11 +383,9 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->  	indio_dev->channels = kmemdup(channel_spec, channel_size, GFP_KERNEL);
-> -
-> -	if (!indio_dev->channels) {
-> -		dev_err(&pdev->dev, "failed to duplicate channels\n");
-> +	if (!indio_dev->channels)
->  		return -ENOMEM;
-> -	}
-> +
->  	ret = accel_3d_parse_report(pdev, hsdev,
->  				(struct iio_chan_spec *)indio_dev->channels,
->  				hsdev->usage, accel_state);
+PS/2 protocol description is completely missing in that documentation,
+but e.g. addresses passed to PS/2 function alps_command_mode_read_reg()
+perfectly matches addresses in above memory table (e.g. AuxDevicePresent
+=3D enable/disable trackstick, etc...).
 
+I have not know that there is released such documentation for ALPS
+devices, so I'm sending this email... maybe it can be useful for you
+too.
+
+On that page is also documentation with source code examples how to
+update firmware in touchpads.
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--xkn7ajb7dqqv5jz7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWncRbAAKCRCL8Mk9A+RD
+UtOqAJ9kAsuVIp3bq+qBF0NZWfzPM3IdnQCgtggUD0jNB9Q38l1viqMvbmcQ/1k=
+=Rrok
+-----END PGP SIGNATURE-----
+
+--xkn7ajb7dqqv5jz7--

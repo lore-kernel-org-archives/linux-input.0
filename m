@@ -1,55 +1,75 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] iio/pressure: Delete an error message for a failed
- memory allocation in hid_press_probe()
-Date: Sun, 4 Feb 2018 10:58:39 +0000
-Message-ID: <20180204105839.606f8d2e@archlinux>
-References: <e7dfe444-616a-e156-31d5-8ed626434d1f@users.sourceforge.net>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH] iio/orientation: Delete an error message for a failed
+ memory allocation in two functions
+Date: Sun, 4 Feb 2018 11:01:07 +0000
+Message-ID: <20180204110107.19861b13@archlinux>
+References: <ebf6c923-d641-8bf8-5544-630a5ee39980@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <e7dfe444-616a-e156-31d5-8ed626434d1f-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Archana Patni <archana.patni-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:54098 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750862AbeBDLBM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 4 Feb 2018 06:01:12 -0500
+In-Reply-To: <ebf6c923-d641-8bf8-5544-630a5ee39980@users.sourceforge.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-On Mon, 29 Jan 2018 22:04:11 +0100
-SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org> wrote:
+On Mon, 29 Jan 2018 22:26:15 +0100
+SF Markus Elfring <elfring@users.sourceforge.net> wrote:
 
-> From: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-> Date: Mon, 29 Jan 2018 21:55:08 +0100
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Mon, 29 Jan 2018 22:20:07 +0100
 > 
-> Omit an extra message for a memory allocation failure in this function.
+> Omit an extra message for a memory allocation failure in these functions.
 > 
 > This issue was detected by using the Coccinelle software.
 > 
-> Signed-off-by: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 
-Whilst the error message doesn't add a lot, it does add some information
-over a simple memory copy failed error.
-
-Hence I think we should keep it.
+Same response as previous patch - it might not be adding much information,
+but it is adding some so we should keep it.
 
 Jonathan
 
 > ---
->  drivers/iio/pressure/hid-sensor-press.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+>  drivers/iio/orientation/hid-sensor-incl-3d.c  | 4 +---
+>  drivers/iio/orientation/hid-sensor-rotation.c | 4 +---
+>  2 files changed, 2 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
-> index 4c437918f1d2..9de7590d50b0 100644
-> --- a/drivers/iio/pressure/hid-sensor-press.c
-> +++ b/drivers/iio/pressure/hid-sensor-press.c
-> @@ -280,10 +280,8 @@ static int hid_press_probe(struct platform_device *pdev)
+> diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
+> index 1e5451d1ff88..742c0e0eb4cf 100644
+> --- a/drivers/iio/orientation/hid-sensor-incl-3d.c
+> +++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
+> @@ -336,10 +336,8 @@ static int hid_incl_3d_probe(struct platform_device *pdev)
 >  
->  	indio_dev->channels = kmemdup(press_channels, sizeof(press_channels),
->  				      GFP_KERNEL);
+>  	indio_dev->channels = kmemdup(incl_3d_channels,
+>  				      sizeof(incl_3d_channels), GFP_KERNEL);
 > -	if (!indio_dev->channels) {
 > -		dev_err(&pdev->dev, "failed to duplicate channels\n");
 > +	if (!indio_dev->channels)
 >  		return -ENOMEM;
 > -	}
 >  
->  	ret = press_parse_report(pdev, hsdev,
->  				 (struct iio_chan_spec *)indio_dev->channels,
+>  	ret = incl_3d_parse_report(pdev, hsdev,
+>  				   (struct iio_chan_spec *)indio_dev->channels,
+> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+> index a69db2002414..cbf5e406b1ee 100644
+> --- a/drivers/iio/orientation/hid-sensor-rotation.c
+> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
+> @@ -277,10 +277,8 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+>  	indio_dev->channels = devm_kmemdup(&pdev->dev, dev_rot_channels,
+>  					   sizeof(dev_rot_channels),
+>  					   GFP_KERNEL);
+> -	if (!indio_dev->channels) {
+> -		dev_err(&pdev->dev, "failed to duplicate channels\n");
+> +	if (!indio_dev->channels)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	ret = dev_rot_parse_report(pdev, hsdev,
+>  				   (struct iio_chan_spec *)indio_dev->channels,
+

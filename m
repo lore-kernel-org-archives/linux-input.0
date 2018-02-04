@@ -1,216 +1,137 @@
 From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 devices
-Date: Sun, 4 Feb 2018 21:07:57 +0100
-Message-ID: <20180204200757.kt5awlysvbbthlep@pali>
-References: <20180124104121.7g3zfay5smc5v2tc@pali>
- <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
- <bb5156667d084d77841f7078d373a265@ausx13mpc120.AMER.DELL.COM>
- <CAKdAkRS_TjTi-VxGg59+aw8wQZxrx8YBAF+m9MdknYNdKGyrvQ@mail.gmail.com>
- <ffe4f35a6570401083d7032e261daa20@ausx13mpc120.AMER.DELL.COM>
+Subject: Re: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
+Date: Sun, 4 Feb 2018 21:21:18 +0100
+Message-ID: <20180204202118.fmyhcqmteyu6jnit@pali>
+References: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
+ <201709080848.53286@pali>
+ <52f87b68-8a6b-1d9c-f341-1e488ff43441@posteo.net>
+ <201709091036.06899@pali>
+ <20170909181218.GA29107@dtor-ws>
+ <b3b06164-183b-d3f8-8de2-804eb1d343dd@posteo.net>
+ <KAWPR01MB1092DDBF54FC34842384D3BBC7680@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+ <7d5d4e88-b6d2-ce7b-a529-18f2b131fa7f@posteo.net>
+ <20180204181605.eknruesqvvnncrqd@pali>
+ <f291e382-b90e-baba-fb3c-bdebc991a21d@posteo.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="t7ychuym3ussoodl"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="vaxkck2ulk7n5oyu"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f51.google.com ([74.125.82.51]:35050 "EHLO
+        mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752531AbeBDUVV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Feb 2018 15:21:21 -0500
+Received: by mail-wm0-f51.google.com with SMTP id r78so22080595wme.0
+        for <linux-input@vger.kernel.org>; Sun, 04 Feb 2018 12:21:21 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <ffe4f35a6570401083d7032e261daa20@ausx13mpc120.AMER.DELL.COM>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mario.Limonciello@dell.com
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <f291e382-b90e-baba-fb3c-bdebc991a21d@posteo.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Juanito <juam+kernel@posteo.net>
+Cc: Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Paul Donohue <linux-kernel@paulsd.com>
 
 
---t7ychuym3ussoodl
+--vaxkck2ulk7n5oyu
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thursday 01 February 2018 21:23:40 Mario.Limonciello@dell.com wrote:
-> > -----Original Message-----
-> > From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > Sent: Thursday, February 1, 2018 3:14 PM
-> > To: Limonciello, Mario <Mario_Limonciello@Dell.com>
-> > Cc: Pali Roh=C3=A1r <pali.rohar@gmail.com>; linux-input@vger.kernel.org=
-; lkml <linux-
-> > kernel@vger.kernel.org>
-> > Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 dev=
-ices
+On Sunday 04 February 2018 20:39:06 Juanito wrote:
+> On 02/04/2018 07:16 PM, Pali Roh=C3=A1r wrote:
+> > On Monday 11 September 2017 13:26:30 Juanito wrote:
+> >> Hi Masaki Ota,
+> >>
+> >> Thanks!
+> >>
+> >> On 11.09.2017 04:38, Masaki Ota wrote:
+> >>> Hi, Juanito,
+> >>>
+> >>> In my information, ALPS Touchpad is used on Thinkpad E series and L s=
+eries.
+> >>> I don't know the device that is ALPS Touchpad + other vendor TrackSti=
+ck.
+> >>> But Lenovo might use ALPS Touchpad on such a combination.
+> >>>
+> >>
+> >> Well, that is probably my fault, as it is not the original touchpad th=
+at
+> >> was delievered with the laptop. I bought the touchpad (that included
+> >> the three buttons) separately because I didn't like the clickpad that
+> >> came with my laptop.
 > >=20
-> > On Thu, Feb 1, 2018 at 11:35 AM,  <Mario.Limonciello@dell.com> wrote:
-> > >
-> > >
-> > >> -----Original Message-----
-> > >> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> > >> Sent: Thursday, February 1, 2018 1:30 PM
-> > >> To: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> > >> Cc: Limonciello, Mario <Mario_Limonciello@Dell.com>; linux-
-> > >> input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > >> Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 =
-devices
-> > >>
-> > >> Hi Pali,
-> > >>
-> > >> On Wed, Jan 24, 2018 at 11:41:21AM +0100, Pali Roh=C3=A1r wrote:
-> > >> > Hi Dmitry!
-> > >> >
-> > >> > I'm observing a problem with internal touchpad (handled by psmouse=
-=2Eko)
-> > >> > on Dell laptops connected to Dell E docking station. When I connect
-> > >> > external PS/2 keyboard to docking station then internal laptop tou=
-chpad
-> > >> > switch from multitouch absolute mode to relative bare PS/2 mode.
-> > >> >
-> > >> > And because ALPS driver in psmouse.ko is capable to process interl=
-eaved
-> > >> > bare 3-byte PS/2 packets with 6-byte ALPS packets (which handles
-> > >> > trackstick data on some ALPS models), ALPS driver does not show any
-> > >> > message about this "downgrade" from multitouch to bare mode. And
-> > >> > continue working in bare mode.
-> > >> >
-> > >> > When I rmmod psmouse and modprobe it again, then touchpad switch b=
-ack to
-> > >> > multitouch mode.
-> > >> >
-> > >> > Mario told me that Dell Embedded Controller, which handle internal
-> > >> > keyboard, internal touchpad and external PS/2 keyboard, automatica=
-lly
-> > >> > send RESET command to *all* those devices when external PS/2 keybo=
-ard is
-> > >> > connected. Therefore this is reason why touchpad downgrade to to b=
-are
-> > >> > mode. And according to Mario, host system should issue vendor spec=
-ific
-> > >> > PS/2 commands to re-initialize all PS/2 devices when this situation
-> > >> > happen. Mario also told me that Windows is doing this action.
-> > >>
-> > >> Yeah, I remember fun with Inspiron 8100 - when you dock it it woudl
-> > >> silently switch Synaptics touchpad into standard mode and it would n=
-ot
-> > >> come back as Synaptics until you disconnect. And there was no
-> > >> notification to the kernel as far as I could tell.
-> > >>
-> > >> It could be that we need to monitor dock events and then kick reconn=
-ect
-> > >> of serio port, either from userspace via udev (I think that would be
-> > >> preferred), or in kernel.
-> > >>
-> > >> >
-> > >> > Every time when I connect external PS/2 keyboard to dock I see this
-> > >> > message in dmesg:
-> > >> >
-> > >> > Spurious ACK... Some program might be trying to access hardware di=
-rectly.
-> > >> >
-> > >> > I see it also every time when I dock laptop into docking station (=
-to
-> > >> > which is keyboard already connected). And it happens also when I c=
-onnect
-> > >> > external PS/2 mouse to dock.
-> > >> >
-> > >> > Dmitry, how to handle this situation to re-initialize psmouse.ko w=
-hen
-> > >> > external PS/2 device is connected to Dell E docking station? Accor=
-ding
-> > >> > to Mario, this is how Dell Embedded Controller is designed and sup=
-pose
-> > >> > how OS should work with it.
-> > >> >
-> > >> > Manually rmmoding and modprobing for every docking/undocking lapto=
-p is
-> > >> > not ideal solution.
-> > >> >
-> > >> > Could it be possible to use that Spurious ATKBD_RET_ACK from atkbd=
-=2Ec be
-> > >> > handled on Dell systems (probably via DMI) as an event to reset and
-> > >> > reinitialize all PS/2 devices?
-> > >>
-> > >> So we need to figure out what exactly we are getting from the docking
-> > >> station in this case. We do try to handle the new device 0xaa 0x00
-> > >> announcements:
-> > >
-> > > Docking station itself won't have sent any events.  The PS2 ports in =
-it
-> > > are electrically wired to the external PS2 pins in the docking adapte=
-r on
-> > > the system.
-> > >
-> > > System EC is what will be sending any PS2 events.
+> > Hi Juanito,
 > >=20
-> > OK, it does not matter from the input layer POW, if they are PS/2
-> > events they should be coming from i8042.
-
-Dell EC sends reset to touchpad, not to kernel.
-
-> > >
-> > >>
-> > >>       /* Check if this is a new device announcement (0xAA 0x00) */
-> > >>       if (unlikely(psmouse->packet[0] =3D=3D PSMOUSE_RET_BAT && psmo=
-use-
-> > >> >pktcnt <=3D 2)) {
-> > >>               if (psmouse->pktcnt =3D=3D 1) {
-> > >>                       psmouse->last =3D jiffies;
-> > >>                       goto out;
-> > >>               }
-> > >>
-> > >>               if (psmouse->packet[1] =3D=3D PSMOUSE_RET_ID ||
-> > >>                   (psmouse->protocol->type =3D=3D PSMOUSE_HGPK &&
-> > >>                    psmouse->packet[1] =3D=3D PSMOUSE_RET_BAT)) {
-> > >>                       __psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-> > >>                       serio_reconnect(serio);
-> > >>                       goto out;
-> > >>               }
-> > >>
-> > >> ...
-> > >>
-> > >> I am not sure where the "spurious ACK comes from". Can you enable i8=
-042
-> > >> debug before trying to dock and capture the data stream from the mou=
-se?
-> > >>
-> > >
-> > > The system EC has reset PS2 devices (but AFAIK kernel won't have seen=
- this
-> > > communication).
-> >=20
-> > So what kind of communication does EC send when docking? It sounds it
-> > is completely out of band from PS/2 connection.
 >=20
-> Yes it's out of band from PS/2 connection OS sees.  However as Pali has=
-=20
-> mentioned this issue will happen even if already docked but you plug in
-> PS/2 keyboard.
+> Hi Pali,
 >=20
-> It will probably be clearer to you what OS has seen from this when Pali
-> shares the captured data stream.
+> > if you are still want to play with your touchpad hardware, I have a good
+> > news for your.
+> >=20
+>=20
+> Yeah! I'd love to get it to work! It's just I've been "working" on some
+> other projects and my last kernel builds didn't work at all so I gave up
+> and never got back to it.
+>=20
+> Thank you very much for that!
+>=20
+> > It looks like that at least ALPS rushmore touchpads allow to receive RAW
+> > PS/2 packets from trackstick to host kernel, without modifying them by
+> > touchpad. Plus I was able to tell ALPS touchpad to start "mixing" those
+> > RAW trackstick PS/2 packets with native touchpad packets.
+> >=20
+> > On my configuration trackstick in RAW PS/2 mode by default talks with
+> > standard bare 3 byte PS/2 protocol and touchpad in 6 byte ALPS protocol.
+> > alps.c/psmouse.ko is already able to process and parse such mixed
+> > packets. And trackstick can be switched to some extended 4 byte
+> > protocol...
+> >=20
+> > All this happen when passthrough mode is enabled.
+> >=20
+> > From my understanding it seems that in normal mode, touchpad and
+> > trackstick communicate with that 4 byte protocol and touchpad converts
+> > it into 6 byte ALPS protocol and then send to kernel.
+> >=20
+> > On thinkpads trackstick communicate with TPPS/2 protcol and above 4
+> > byte. So in my opinion ALPS touchpad by default cannot understand it.
+> > But you should be able to enter passthrough mode and then you would
+> > receive that TPPS/2 in alps kernel code.
+> >=20
+>=20
+> I don't really understand what you mean. Do I "just" have to set it to
+> passthrough mode? How exactly can I do that?
 
-Currently I'm not near my docking station, so cannot do testing.
+Look at function alps_passthrough_mode_v3(). And try to call it after
+touchpad is initialized.
 
-But in logs I can dig these lines which appeared every time after
-putting notebook into dock (which has PS/2 keyboard connected):
+You can also look which alps_command_mode_write_reg() functions are
+called for your touchpad and maybe try to figure out what those
+registers can enabled/disable.
 
-kernel: [20127.033965] atkbd serio0: Spurious ACK on isa0060/serio0. Some p=
-rogram might be trying to access hardware directly.
-kernel: [20127.076030] acpi PNP0401:00: Already enumerated
-kernel: [20127.083088] acpi PNP0501:00: Still not present
-kernel: [20127.087042] acpi device:41: Cannot transition to power state D3h=
-ot for parent in (unknown)
+On http://www.cirque.com/gen4-dev-resources you can find document named
+GP-AN- 130823 INTERFACING TO GEN4 OVER I2C (PDF) which contains
+some description of those registers (in section 7).
 
-And sometimes after 1-5s I see Spurious event again:
+Register C2C8, bit 0 has description "PS2AuxControl.CommandPassThruEnabled"
 
-kernel: [20128.325569] atkbd serio0: Spurious ACK on isa0060/serio0. Some p=
-rogram might be trying to access hardware directly.
+If trackstick is not detected, it seems you can "force" enable it by
+setting bit 7 "PS2AuxControl.AuxDevicePresent" in same register.
+
+> Again, thank you very much!
+
+Have you tried to read from that register which Masaki Ota talked in
+previous emails?
 
 --=20
 Pali Roh=C3=A1r
 pali.rohar@gmail.com
 
---t7ychuym3ussoodl
+--vaxkck2ulk7n5oyu
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWndoGQAKCRCL8Mk9A+RD
-UgFlAJ4n0AZpq2JpBeSawLnaKepLMK2NtwCgufXAVOhQd83obQ2+oPixXkC233o=
-=z8NN
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWndrPAAKCRCL8Mk9A+RD
+UmSzAJsEGRc7mgRPeQGIPgyIKJ5+dNSqVwCgoFegtqlGpUcxPKrUFUi40bN6MeU=
+=vt7A
 -----END PGP SIGNATURE-----
 
---t7ychuym3ussoodl--
+--vaxkck2ulk7n5oyu--

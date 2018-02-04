@@ -1,55 +1,55 @@
-From: Zhang Bo <zbsdta@126.com>
-Subject: [PATCH v3] Input: matrix_keypad - fix keypad does not response
-Date: Sun,  4 Feb 2018 08:19:22 +0800
-Message-ID: <20180204001922.32084-1-zbsdta@126.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m50-110.126.com ([123.125.50.110]:42085 "EHLO m50-110.126.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752210AbeBDAUF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 3 Feb 2018 19:20:05 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] iio/pressure: Delete an error message for a failed
+ memory allocation in hid_press_probe()
+Date: Sun, 4 Feb 2018 10:58:39 +0000
+Message-ID: <20180204105839.606f8d2e@archlinux>
+References: <e7dfe444-616a-e156-31d5-8ed626434d1f@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <e7dfe444-616a-e156-31d5-8ed626434d1f-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Cc: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Archana Patni <archana.patni-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: zbsdta@126.com, DRivshin@allworx.com, robh@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhang.bo19@zte.com.cn
 
-If matrix_keypad_stop() is calling and the keypad interrupt is triggered,
-disable_row_irqs() is called by both matrix_keypad_interrupt() and
-matrix_keypad_stop() at the same time. then disable_row_irqs() is called
-twice, and the device enter suspend state before keypad->work is executed.
-At this condition the device will start keypad and enable irq once after
-resume. and then irqs are disabled yet because irqs are disabled twice and
-only enable once.
+On Mon, 29 Jan 2018 22:04:11 +0100
+SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org> wrote:
 
-Take lock around keypad->stopped to ensure irqs operation is in atomic
-operation.
+> From: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+> Date: Mon, 29 Jan 2018 21:55:08 +0100
+> 
+> Omit an extra message for a memory allocation failure in this function.
+> 
+> This issue was detected by using the Coccinelle software.
+> 
+> Signed-off-by: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 
-Signed-off-by: Zhang Bo <zbsdta@126.com>
----
-Changes in v3:
-  - delete no needed lock protection, only add lock in matrix_keypad_stop().
-Changes in v2:
-  - Change commit message and full name in the signed-off-by tag.
+Whilst the error message doesn't add a lot, it does add some information
+over a simple memory copy failed error.
 
- drivers/input/keyboard/matrix_keypad.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Hence I think we should keep it.
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 1f316d66e6f7..41614c185918 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -218,8 +218,10 @@ static void matrix_keypad_stop(struct input_dev *dev)
- {
- 	struct matrix_keypad *keypad = input_get_drvdata(dev);
- 
-+	spin_lock_irq(&keypad->lock);
- 	keypad->stopped = true;
--	mb();
-+	spin_unlock_irq(&keypad->lock);
-+
- 	flush_work(&keypad->work.work);
- 	/*
- 	 * matrix_keypad_scan() will leave IRQs enabled;
--- 
-2.14.3
+Jonathan
 
-
+> ---
+>  drivers/iio/pressure/hid-sensor-press.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
+> index 4c437918f1d2..9de7590d50b0 100644
+> --- a/drivers/iio/pressure/hid-sensor-press.c
+> +++ b/drivers/iio/pressure/hid-sensor-press.c
+> @@ -280,10 +280,8 @@ static int hid_press_probe(struct platform_device *pdev)
+>  
+>  	indio_dev->channels = kmemdup(press_channels, sizeof(press_channels),
+>  				      GFP_KERNEL);
+> -	if (!indio_dev->channels) {
+> -		dev_err(&pdev->dev, "failed to duplicate channels\n");
+> +	if (!indio_dev->channels)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	ret = press_parse_report(pdev, hsdev,
+>  				 (struct iio_chan_spec *)indio_dev->channels,

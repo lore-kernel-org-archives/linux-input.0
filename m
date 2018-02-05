@@ -1,12 +1,12 @@
 From: Florian Echtler <floe@butterbrot.org>
-Subject: [PATCH 3/5] add video control register handlers
-Date: Mon,  5 Feb 2018 15:29:39 +0100
-Message-ID: <1517840981-12280-4-git-send-email-floe@butterbrot.org>
+Subject: [PATCH 5/5] add default control values as module parameters
+Date: Mon,  5 Feb 2018 15:29:41 +0100
+Message-ID: <1517840981-12280-6-git-send-email-floe@butterbrot.org>
 References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:41566 "EHLO butterbrot.org"
+Received: from butterbrot.org ([176.9.106.16]:41562 "EHLO butterbrot.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752935AbeBEOhb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1752937AbeBEOhb (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Mon, 5 Feb 2018 09:37:31 -0500
 In-Reply-To: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
@@ -16,94 +16,40 @@ Cc: linux-input@vger.kernel.org, modin@yuri.at, Florian Echtler <floe@butterbrot
 
 Signed-off-by: Florian Echtler <floe@butterbrot.org>
 ---
- drivers/input/touchscreen/sur40.c | 70 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 70 insertions(+)
+ drivers/input/touchscreen/sur40.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 0dbb004..63c7264b 100644
+index c4b7cf1..d612f3f 100644
 --- a/drivers/input/touchscreen/sur40.c
 +++ b/drivers/input/touchscreen/sur40.c
-@@ -247,6 +255,80 @@ static int sur40_command(struct sur40_state *dev,
- 			       0x00, index, buffer, size, 1000);
+@@ -173,6 +173,14 @@ int sur40_v4l2_contrast   = SUR40_CONTRAST_DEF;   /* blacklevel   */
+ int sur40_v4l2_gain       = SUR40_GAIN_DEF;       /* gain         */
+ int sur40_v4l2_backlight  = 1;                    /* preprocessor */
+ 
++/* module parameters */
++static uint irlevel = SUR40_BRIGHTNESS_DEF;
++module_param(irlevel, uint, 0644);
++MODULE_PARM_DESC(irlevel, "set default irlevel");
++static uint vsvideo = SUR40_VSVIDEO_DEF;
++module_param(vsvideo, uint, 0644);
++MODULE_PARM_DESC(vsvideo, "set default vsvideo");
++
+ static const struct v4l2_pix_format sur40_pix_format[] = {
+ 	{
+ 		.pixelformat = V4L2_TCH_FMT_TU08,
+@@ -372,6 +380,11 @@ static void sur40_open(struct input_polled_dev *polldev)
+ 
+ 	dev_dbg(sur40->dev, "open\n");
+ 	sur40_init(sur40);
++
++	/* set default values */
++	sur40_set_irlevel(sur40, irlevel);
++	sur40_set_vsvideo(sur40, vsvideo);
++	sur40_set_preprocessor(sur40, SUR40_BACKLIGHT_DEF);
  }
  
-+/* poke a byte in the panel register space */
-+static int sur40_poke(struct sur40_state *dev, u8 offset, u8 value)
-+{
-+	int result;
-+	u8 index = 0x96; // 0xae for permanent write
-+
-+	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
-+		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-+		0x32, index, NULL, 0, 1000);
-+	if (result < 0)
-+		goto error;
-+	msleep(5);
-+
-+	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
-+		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-+		0x72, offset, NULL, 0, 1000);
-+	if (result < 0)
-+		goto error;
-+	msleep(5);
-+
-+	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
-+		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-+		0xb2, value, NULL, 0, 1000);
-+	if (result < 0)
-+		goto error;
-+	msleep(5);
-+
-+error:
-+	return result;
-+}
-+
-+static int sur40_set_preprocessor(struct sur40_state *dev, u8 value)
-+{
-+	u8 setting_07[2] = { 0x01, 0x00 };
-+	u8 setting_17[2] = { 0x85, 0x80 };
-+	int result;
-+
-+	if (value > 1)
-+		return -ERANGE;
-+
-+	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
-+		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-+		0x07, setting_07[value], NULL, 0, 1000);
-+	if (result < 0)
-+		goto error;
-+	msleep(5);
-+
-+	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
-+		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-+		0x17, setting_17[value], NULL, 0, 1000);
-+	if (result < 0)
-+		goto error;
-+	msleep(5);
-+
-+error:
-+	return result;
-+}
-+
-+static void sur40_set_vsvideo(struct sur40_state *handle, u8 value)
-+{
-+	int i;
-+
-+	for (i = 0; i < 4; i++)
-+		sur40_poke(handle, 0x1c+i, value);
-+}
-+
-+static void sur40_set_irlevel(struct sur40_state *handle, u8 value)
-+{
-+	int i;
-+
-+	for (i = 0; i < 8; i++)
-+		sur40_poke(handle, 0x08+(2*i), value);
-+}
-+
- /* Initialization routine, called from sur40_open */
- static int sur40_init(struct sur40_state *dev)
- {
+ /* Disable device, polling has stopped. */
 -- 
 2.7.4
 

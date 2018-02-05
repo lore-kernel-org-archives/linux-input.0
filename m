@@ -1,40 +1,67 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: ALPS Trackpoint & pressure
-Date: Mon, 5 Feb 2018 14:49:55 -0800
-Message-ID: <20180205224955.GB46524@dtor-ws>
-References: <20180204150839.b5qm4wb26vic35st@pali>
+Subject: Re: [PATCH v3] Input: matrix_keypad - fix keypad does not response
+Date: Mon, 5 Feb 2018 15:07:29 -0800
+Message-ID: <20180205230729.GD46524@dtor-ws>
+References: <20180204001922.32084-1-zbsdta@126.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f52.google.com ([74.125.83.52]:37412 "EHLO
-        mail-pg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750796AbeBEWt7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Feb 2018 17:49:59 -0500
+Received: from mail-pl0-f68.google.com ([209.85.160.68]:44884 "EHLO
+        mail-pl0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750724AbeBEXHc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Feb 2018 18:07:32 -0500
 Content-Disposition: inline
-In-Reply-To: <20180204150839.b5qm4wb26vic35st@pali>
+In-Reply-To: <20180204001922.32084-1-zbsdta@126.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Zhang Bo <zbsdta@126.com>
+Cc: DRivshin@allworx.com, robh@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zhang.bo19@zte.com.cn
 
-On Sun, Feb 04, 2018 at 04:08:39PM +0100, Pali Rohár wrote:
-> Hi! Now playing again with trackpoint connected to ALPS rushmore
-> touchpad and I'm seeking a nice feature. Via ALPS PS/2 protocol it
-> reports pressure of trackpoint. Parser for it is already implemented in
-> alps.c and value is assigned to variable "z". When I just move
-> trackpoint z is zero, when I push trackpoint while moving, then z is
-> number higher, maximally 32. Variable "z" is set, but unused.
+On Sun, Feb 04, 2018 at 08:19:22AM +0800, Zhang Bo wrote:
+> If matrix_keypad_stop() is calling and the keypad interrupt is triggered,
+> disable_row_irqs() is called by both matrix_keypad_interrupt() and
+> matrix_keypad_stop() at the same time. then disable_row_irqs() is called
+> twice, and the device enter suspend state before keypad->work is executed.
+> At this condition the device will start keypad and enable irq once after
+> resume. and then irqs are disabled yet because irqs are disabled twice and
+> only enable once.
 > 
-> Do we have some input interface which can be used to report this
-> pressure of trackpoint to userspace? I can use this feature e.g. as
-> additional button...
+> Take lock around keypad->stopped to ensure irqs operation is in atomic
+> operation.
+> 
+> Signed-off-by: Zhang Bo <zbsdta@126.com>
 
-We could either do the conversion in kernel and emit BTN_LEFT, or
-report ABS_PRESSURE and see if userspace will be able to handle
-REL_X/REL_Y/ABS_PRESSURE device.
+Applied, thank you.
 
-Adding Peter.
+> ---
+> Changes in v3:
+>   - delete no needed lock protection, only add lock in matrix_keypad_stop().
+> Changes in v2:
+>   - Change commit message and full name in the signed-off-by tag.
+> 
+>  drivers/input/keyboard/matrix_keypad.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+> index 1f316d66e6f7..41614c185918 100644
+> --- a/drivers/input/keyboard/matrix_keypad.c
+> +++ b/drivers/input/keyboard/matrix_keypad.c
+> @@ -218,8 +218,10 @@ static void matrix_keypad_stop(struct input_dev *dev)
+>  {
+>  	struct matrix_keypad *keypad = input_get_drvdata(dev);
+>  
+> +	spin_lock_irq(&keypad->lock);
+>  	keypad->stopped = true;
+> -	mb();
+> +	spin_unlock_irq(&keypad->lock);
+> +
+>  	flush_work(&keypad->work.work);
+>  	/*
+>  	 * matrix_keypad_scan() will leave IRQs enabled;
+> -- 
+> 2.14.3
+> 
+> 
 
 -- 
 Dmitry

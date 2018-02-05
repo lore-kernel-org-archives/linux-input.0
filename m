@@ -1,47 +1,42 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 4/5] add V4L2 control functions
-Date: Mon, 5 Feb 2018 22:40:10 +0100
-Message-ID: <a968db4a-bce8-423b-ccca-d9a613acec99@xs4all.nl>
-References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
- <1517840981-12280-5-git-send-email-floe@butterbrot.org>
- <4835be2b-238c-bb27-e9e5-98642ae76733@xs4all.nl>
- <alpine.DEB.2.10.1802052234090.18874@butterbrot>
+From: Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
+Subject: Re: hid-sensor-accel-3d: Delete an error message for a failed memory allocation in hid_accel_3d_probe()
+Date: Mon, 05 Feb 2018 21:51:44 +0000
+Message-ID: <87DF341A-1356-4B1B-8D25-14D5B0AAB01D@jic23.retrosnub.co.uk>
+References: <0406765c-bdd1-1a82-cf66-1c248063ae4f@users.sourceforge.net> <20180204112346.0977e938@archlinux> <9420fc82-1a37-3601-bafe-f57ef953bfcd@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <alpine.DEB.2.10.1802052234090.18874@butterbrot>
-Content-Language: en-US
-Sender: linux-media-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-media@vger.kernel.org, linux-input@vger.kernel.org, modin@yuri.at
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <9420fc82-1a37-3601-bafe-f57ef953bfcd-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 02/05/2018 10:36 PM, Florian Echtler wrote:
-> Hello Hans,
-> 
-> On Mon, 5 Feb 2018, Hans Verkuil wrote:
->> On 02/05/2018 03:29 PM, Florian Echtler wrote:
->>> +
->>> +static int sur40_vidioc_queryctrl(struct file *file, void *fh,
->>> +			       struct v4l2_queryctrl *qc)
->>
->> Sorry, but this is very wrong. Use the control framework instead. See
->> https://hverkuil.home.xs4all.nl/spec/kapi/v4l2-controls.html and pretty much all
->> media drivers (with the exception of uvc). See for example this driver:
->> drivers/media/pci/tw68/tw68-video.c (randomly chosen).
->>
->> It actually makes life a lot easier for you as you don't have to perform any
->> range checks and all control ioctls are automatically supported for you.
-> 
-> thanks for the quick reply, I wasn't aware of that framework at all :-) 
-> Will certainly use it.
-> 
-> What's the earliest kernel version this is supported on, in case we want 
-> to backport this for our standalone module, too?
 
-Initial commit was in August 2010, so it's been around for quite some time :-)
 
-Regards,
+On 5 February 2018 18:26:59 GMT, SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org> wrote:
+>> If making changes like this I would suggest only sending one until
+>> you have have a response from the relevant maintainer.
+>
+>The corresponding feedback can become more positive for such
+>a transformation pattern after a while, can't it?
 
-	Hans
+Not in that sort of time period.
+>
+>
+>> It would save you time as often these sorts of changes are
+>> a matter of personal taste and weighing up of costs vs gains
+>> - hence it is not obvious that they will be accepted.
+>
+>Can the wording “WARNING: Possible unnecessary 'out of memory' message”
+>(from the script “checkpatch.pl”) be another incentive?
+
+No. The key word is possible. Check patch is dumb and often gives false positives.
+>
+>Regards,
+>Markus
+
+-- 
+Sent from my Android device with K-9 Mail. Please excuse my brevity.

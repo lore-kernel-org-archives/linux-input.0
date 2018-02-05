@@ -1,55 +1,109 @@
-From: Damjan Georgievski <gdamjan@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - Lenovo Carbon X1 Gen5 (2017) devices
- should use RMI
-Date: Mon, 5 Feb 2018 12:56:35 +0100
-Message-ID: <CAEk1YH7=aWJDGbdNj7jeRsOAn01eTCnm9Sc=KVTQ4KFEZ2PsSA@mail.gmail.com>
-References: <20170818193436.GA31365@dtor-ws> <CAEk1YH7A3ENphMLdgdgMqyvq5CmCe3P5KpeekPpzV_4FcGUU-g@mail.gmail.com>
- <20170821154522.GA21773@dtor-ws> <CAEk1YH7+8Vnqpe5o30bsgH+fU7U+T9uEtHmK+dah5vaPwo1w0Q@mail.gmail.com>
- <CAEk1YH7Ni04Hs4RHtDJyE368aA4-DSW5aGx+v8kpbhLF2OR2Sg@mail.gmail.com> <20180202205050.i5pkl3rji45oovxb@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Florian Echtler <floe@butterbrot.org>
+Subject: [PATCH 3/5] add video control register handlers
+Date: Mon,  5 Feb 2018 15:29:39 +0100
+Message-ID: <1517840981-12280-4-git-send-email-floe@butterbrot.org>
+References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:36044 "EHLO
-        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752271AbeBEL4h (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Feb 2018 06:56:37 -0500
-Received: by mail-wm0-f45.google.com with SMTP id f3so25398008wmc.1
-        for <linux-input@vger.kernel.org>; Mon, 05 Feb 2018 03:56:36 -0800 (PST)
-In-Reply-To: <20180202205050.i5pkl3rji45oovxb@dtor-ws>
+Received: from butterbrot.org ([176.9.106.16]:41566 "EHLO butterbrot.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752935AbeBEOhb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 5 Feb 2018 09:37:31 -0500
+In-Reply-To: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org, hverkuil@xs4all.nl
+Cc: linux-input@vger.kernel.org, modin@yuri.at, Florian Echtler <floe@butterbrot.org>
 
->> >>> Second issues is, trackpoint is reported as "ImPS/2 Generic Wheel
->> >>> Mouse". Middle button scrolling is not enabled by default.
->> >>
->> >> I think this will be fixed by:
->> >>
->> >> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/patch/?id=ec667683c532c93fb41e100e5d61a518971060e2
->> >>
->> >
->> > Interesting, with this patch, the trackpoint appeared sooner, but
->> > still late (at the 44 second mark):
->>
->> but that seems sporadic. on second boot, it didn't show up until I
->> reloaded the psmouse module
->>
->> any ideas how to debug this issue further? possibly before the change
->> goes upstream.
->
-> Damjan,
->
-> Since my other patches seem to have fixed the trackpoint detection
-> issue, mind giving your "tested-by" to this patch so I can get it in?
+Signed-off-by: Florian Echtler <floe@butterbrot.org>
+---
+ drivers/input/touchscreen/sur40.c | 70 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 70 insertions(+)
 
-let me just run some more tests and I'll get back to you soon.
-
-I'm getting some weird clicks on the trackpad, I want to compare with
-vanilla kernel.
-
-Dimitry, what's best for testing, 4.15.1 + your patches or should I use 4.16rc1?
-
-
+diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+index 0dbb004..63c7264b 100644
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -247,6 +255,80 @@ static int sur40_command(struct sur40_state *dev,
+ 			       0x00, index, buffer, size, 1000);
+ }
+ 
++/* poke a byte in the panel register space */
++static int sur40_poke(struct sur40_state *dev, u8 offset, u8 value)
++{
++	int result;
++	u8 index = 0x96; // 0xae for permanent write
++
++	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
++		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
++		0x32, index, NULL, 0, 1000);
++	if (result < 0)
++		goto error;
++	msleep(5);
++
++	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
++		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
++		0x72, offset, NULL, 0, 1000);
++	if (result < 0)
++		goto error;
++	msleep(5);
++
++	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
++		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
++		0xb2, value, NULL, 0, 1000);
++	if (result < 0)
++		goto error;
++	msleep(5);
++
++error:
++	return result;
++}
++
++static int sur40_set_preprocessor(struct sur40_state *dev, u8 value)
++{
++	u8 setting_07[2] = { 0x01, 0x00 };
++	u8 setting_17[2] = { 0x85, 0x80 };
++	int result;
++
++	if (value > 1)
++		return -ERANGE;
++
++	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
++		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
++		0x07, setting_07[value], NULL, 0, 1000);
++	if (result < 0)
++		goto error;
++	msleep(5);
++
++	result = usb_control_msg(dev->usbdev, usb_sndctrlpipe(dev->usbdev, 0),
++		SUR40_POKE, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
++		0x17, setting_17[value], NULL, 0, 1000);
++	if (result < 0)
++		goto error;
++	msleep(5);
++
++error:
++	return result;
++}
++
++static void sur40_set_vsvideo(struct sur40_state *handle, u8 value)
++{
++	int i;
++
++	for (i = 0; i < 4; i++)
++		sur40_poke(handle, 0x1c+i, value);
++}
++
++static void sur40_set_irlevel(struct sur40_state *handle, u8 value)
++{
++	int i;
++
++	for (i = 0; i < 8; i++)
++		sur40_poke(handle, 0x08+(2*i), value);
++}
++
+ /* Initialization routine, called from sur40_open */
+ static int sur40_init(struct sur40_state *dev)
+ {
 -- 
-damjan
+2.7.4
+

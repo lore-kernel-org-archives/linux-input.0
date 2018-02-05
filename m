@@ -1,176 +1,66 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 4/5] add V4L2 control functions
-Date: Mon, 5 Feb 2018 15:54:27 +0100
-Message-ID: <4835be2b-238c-bb27-e9e5-98642ae76733@xs4all.nl>
+Subject: Re: [PATCH 5/5] add default control values as module parameters
+Date: Mon, 5 Feb 2018 15:56:11 +0100
+Message-ID: <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
 References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
- <1517840981-12280-5-git-send-email-floe@butterbrot.org>
+ <1517840981-12280-6-git-send-email-floe@butterbrot.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud8.xs4all.net ([194.109.24.29]:36962 "EHLO
-        lb3-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752843AbeBEOyd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 5 Feb 2018 09:54:33 -0500
-In-Reply-To: <1517840981-12280-5-git-send-email-floe@butterbrot.org>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1517840981-12280-6-git-send-email-floe@butterbrot.org>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
 Cc: linux-input@vger.kernel.org, modin@yuri.at
+List-Id: linux-input@vger.kernel.org
 
 On 02/05/2018 03:29 PM, Florian Echtler wrote:
 > Signed-off-by: Florian Echtler <floe@butterbrot.org>
-> ---
->  drivers/input/touchscreen/sur40.c | 114 ++++++++++++++++++++++++++++++++++++++
->  1 file changed, 114 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-> index 63c7264b..c4b7cf1 100644
-> --- a/drivers/input/touchscreen/sur40.c
-> +++ b/drivers/input/touchscreen/sur40.c
-> @@ -953,6 +953,119 @@ static int sur40_vidioc_g_fmt(struct file *file, void *priv,
->  	return 0;
->  }
->  
-> +
-> +static int sur40_vidioc_queryctrl(struct file *file, void *fh,
-> +			       struct v4l2_queryctrl *qc)
-> +{
-> +
-> +	switch (qc->id) {
-> +	case V4L2_CID_BRIGHTNESS:
-> +		qc->flags = 0;
-> +		sprintf(qc->name, "Brightness");
-> +		qc->type = V4L2_CTRL_TYPE_INTEGER;
-> +		qc->minimum = SUR40_BRIGHTNESS_MIN;
-> +		qc->default_value = SUR40_BRIGHTNESS_DEF;
-> +		qc->maximum = SUR40_BRIGHTNESS_MAX;
-> +		qc->step = 8;
-> +		return 0;
-> +	case V4L2_CID_CONTRAST:
-> +		qc->flags = 0;
-> +		sprintf(qc->name, "Contrast");
-> +		qc->type = V4L2_CTRL_TYPE_INTEGER;
-> +		qc->minimum = SUR40_CONTRAST_MIN;
-> +		qc->default_value = SUR40_CONTRAST_DEF;
-> +		qc->maximum = SUR40_CONTRAST_MAX;
-> +		qc->step = 1;
-> +		return 0;
-> +	case V4L2_CID_GAIN:
-> +		qc->flags = 0;
-> +		sprintf(qc->name, "Gain");
-> +		qc->type = V4L2_CTRL_TYPE_INTEGER;
-> +		qc->minimum = SUR40_GAIN_MIN;
-> +		qc->default_value = SUR40_GAIN_DEF;
-> +		qc->maximum = SUR40_GAIN_MAX;
-> +		qc->step = 1;
-> +		return 0;
-> +	case V4L2_CID_BACKLIGHT_COMPENSATION:
-> +		qc->flags = 0;
-> +		sprintf(qc->name, "Preprocessor");
-> +		qc->type = V4L2_CTRL_TYPE_INTEGER;
-> +		qc->minimum = SUR40_BACKLIGHT_MIN;
-> +		qc->default_value = SUR40_BACKLIGHT_DEF;
-> +		qc->maximum = SUR40_BACKLIGHT_MAX;
-> +		qc->step = 1;
-> +		return 0;
-> +	default:
-> +		qc->flags = V4L2_CTRL_FLAG_DISABLED;
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +static int sur40_vidioc_g_ctrl(struct file *file, void *fh,
-> +			    struct v4l2_control *ctrl)
-> +{
-> +
-> +	switch (ctrl->id) {
-> +	case V4L2_CID_BRIGHTNESS:
-> +		ctrl->value = sur40_v4l2_brightness;
-> +		return 0;
-> +	case V4L2_CID_CONTRAST:
-> +		ctrl->value = sur40_v4l2_contrast;
-> +		return 0;
-> +	case V4L2_CID_GAIN:
-> +		ctrl->value = sur40_v4l2_gain;
-> +		return 0;
-> +	case V4L2_CID_BACKLIGHT_COMPENSATION:
-> +		ctrl->value = sur40_v4l2_backlight;
-> +		return 0;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +static int sur40_vidioc_s_ctrl(struct file *file, void *fh,
-> +			    struct v4l2_control *ctrl)
-> +{
-> +	u8 value = 0;
-> +	struct sur40_state *sur40 = video_drvdata(file);
-> +
-> +	switch (ctrl->id) {
-> +	case V4L2_CID_BRIGHTNESS:
-> +		sur40_v4l2_brightness = ctrl->value;
-> +		if (sur40_v4l2_brightness < SUR40_BRIGHTNESS_MIN)
-> +			sur40_v4l2_brightness = SUR40_BRIGHTNESS_MIN;
-> +		else if (sur40_v4l2_brightness > SUR40_BRIGHTNESS_MAX)
-> +			sur40_v4l2_brightness = SUR40_BRIGHTNESS_MAX;
-> +		sur40_set_irlevel(sur40, sur40_v4l2_brightness);
-> +		return 0;
-> +	case V4L2_CID_CONTRAST:
-> +		sur40_v4l2_contrast = ctrl->value;
-> +		if (sur40_v4l2_contrast < SUR40_CONTRAST_MIN)
-> +			sur40_v4l2_contrast = SUR40_CONTRAST_MIN;
-> +		else if (sur40_v4l2_contrast > SUR40_CONTRAST_MAX)
-> +			sur40_v4l2_contrast = SUR40_CONTRAST_MAX;
-> +		value = (sur40_v4l2_contrast << 4) + sur40_v4l2_gain;
-> +		sur40_set_vsvideo(sur40, value);
-> +		return 0;
-> +	case V4L2_CID_GAIN:
-> +		sur40_v4l2_gain = ctrl->value;
-> +		if (sur40_v4l2_gain < SUR40_GAIN_MIN)
-> +			sur40_v4l2_gain = SUR40_GAIN_MIN;
-> +		else if (sur40_v4l2_gain > SUR40_GAIN_MAX)
-> +			sur40_v4l2_gain = SUR40_GAIN_MAX;
-> +		value = (sur40_v4l2_contrast << 4) + sur40_v4l2_gain;
-> +		sur40_set_vsvideo(sur40, value);
-> +		return 0;
-> +	case V4L2_CID_BACKLIGHT_COMPENSATION:
-> +		sur40_v4l2_backlight = ctrl->value;
-> +		sur40_set_preprocessor(sur40, sur40_v4l2_backlight);
-> +		return 0;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +
->  static int sur40_ioctl_parm(struct file *file, void *priv,
->  			    struct v4l2_streamparm *p)
->  {
-> @@ -1071,6 +1181,10 @@ static const struct v4l2_ioctl_ops sur40_video_ioctl_ops = {
->  	.vidioc_g_input		= sur40_vidioc_g_input,
->  	.vidioc_s_input		= sur40_vidioc_s_input,
->  
-> +	.vidioc_queryctrl	= sur40_vidioc_queryctrl,
-> +	.vidioc_g_ctrl		= sur40_vidioc_g_ctrl,
-> +	.vidioc_s_ctrl		= sur40_vidioc_s_ctrl,
-> +
->  	.vidioc_reqbufs		= vb2_ioctl_reqbufs,
->  	.vidioc_create_bufs	= vb2_ioctl_create_bufs,
->  	.vidioc_querybuf	= vb2_ioctl_querybuf,
-> 
 
-Sorry, but this is very wrong. Use the control framework instead. See
-https://hverkuil.home.xs4all.nl/spec/kapi/v4l2-controls.html and pretty much all
-media drivers (with the exception of uvc). See for example this driver:
-drivers/media/pci/tw68/tw68-video.c (randomly chosen).
+Please add a change log when you make a patch.
 
-It actually makes life a lot easier for you as you don't have to perform any
-range checks and all control ioctls are automatically supported for you.
+I for one would like to know why this has to be supplied as a module option.
+Some documentation in the code would be helpful as well (e.g. I have no idea
+what a 'vsvideo' is).
 
 Regards,
 
 	Hans
+
+> ---
+>  drivers/input/touchscreen/sur40.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+> index c4b7cf1..d612f3f 100644
+> --- a/drivers/input/touchscreen/sur40.c
+> +++ b/drivers/input/touchscreen/sur40.c
+> @@ -173,6 +173,14 @@ int sur40_v4l2_contrast   = SUR40_CONTRAST_DEF;   /* blacklevel   */
+>  int sur40_v4l2_gain       = SUR40_GAIN_DEF;       /* gain         */
+>  int sur40_v4l2_backlight  = 1;                    /* preprocessor */
+>  
+> +/* module parameters */
+> +static uint irlevel = SUR40_BRIGHTNESS_DEF;
+> +module_param(irlevel, uint, 0644);
+> +MODULE_PARM_DESC(irlevel, "set default irlevel");
+> +static uint vsvideo = SUR40_VSVIDEO_DEF;
+> +module_param(vsvideo, uint, 0644);
+> +MODULE_PARM_DESC(vsvideo, "set default vsvideo");
+> +
+>  static const struct v4l2_pix_format sur40_pix_format[] = {
+>  	{
+>  		.pixelformat = V4L2_TCH_FMT_TU08,
+> @@ -372,6 +380,11 @@ static void sur40_open(struct input_polled_dev *polldev)
+>  
+>  	dev_dbg(sur40->dev, "open\n");
+>  	sur40_init(sur40);
+> +
+> +	/* set default values */
+> +	sur40_set_irlevel(sur40, irlevel);
+> +	sur40_set_vsvideo(sur40, vsvideo);
+> +	sur40_set_preprocessor(sur40, SUR40_BACKLIGHT_DEF);
+>  }
+>  
+>  /* Disable device, polling has stopped. */
+> 

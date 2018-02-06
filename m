@@ -1,88 +1,32 @@
-From: Florian Echtler <floe@butterbrot.org>
-Subject: Re: [PATCH 5/5] add default control values as module parameters
-Date: Tue, 6 Feb 2018 10:18:25 +0100
-Message-ID: <a7724625-de74-871f-7728-79b751481970@butterbrot.org>
-References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
- <1517840981-12280-6-git-send-email-floe@butterbrot.org>
- <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 0/3] HID-Logitech: Adjustments for two function
+ implementations
+Date: Tue, 6 Feb 2018 15:43:18 +0100
+Message-ID: <5c76a767-b1cb-2486-f24d-0d5a220b8985@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS"
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, modin@yuri.at
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS
-Content-Type: multipart/mixed; boundary="wEc2UAGF14PcTCjwPo6j2KzkslocR2Yd4";
- protected-headers="v1"
-From: Florian Echtler <floe@butterbrot.org>
-To: Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, modin@yuri.at
-Message-ID: <a7724625-de74-871f-7728-79b751481970@butterbrot.org>
-Subject: Re: [PATCH 5/5] add default control values as module parameters
-References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
- <1517840981-12280-6-git-send-email-floe@butterbrot.org>
- <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
-In-Reply-To: <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Tue, 6 Feb 2018 15:38:30 +0100
 
---wEc2UAGF14PcTCjwPo6j2KzkslocR2Yd4
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: quoted-printable
+Three update suggestions were taken into account
+from static source code analysis.
 
-On 05.02.2018 15:56, Hans Verkuil wrote:
-> Please add a change log when you make a patch.
-> I for one would like to know why this has to be supplied as a module op=
-tion.
+Markus Elfring (3):
+  Delete an error message for a failed memory allocation in lg_probe()
+  Improve a size determination in lg_probe()
+  Delete an error message for a failed memory allocation in lg4ff_init()
 
-The idea here was that each individual SUR40 device will likely have slig=
-htly
-different "ideal" settings for the parameters, and by using the module op=
-tions,
-you can set them right away at startup.
+ drivers/hid/hid-lg.c    | 7 +++----
+ drivers/hid/hid-lg4ff.c | 4 +---
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
-I'm aware that the usual way to do this would be from userspace using v4l=
-2-ctl,
-but the SUR40 is sort of a special case: the video settings will also inf=
-luence
-the internal touch detection, and in the worst case, starting the driver =
-with
-the default parameters from flash will immediately cause so many false-po=
-sitive
-touch points to be detected that the graphical shell becomes unusable. Th=
-is has
-actually happened several times during testing, so we considered a module=
- option
-to be the easiest way for dealing with this.
-
-> Some documentation in the code would be helpful as well (e.g. I have no=
- idea
-> what a 'vsvideo' is).
-Right - will do that, too.
-
-Best regards, Florian
---=20
-SENT FROM MY DEC VT50 TERMINAL
-
-
---wEc2UAGF14PcTCjwPo6j2KzkslocR2Yd4--
-
---Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iEYEARECAAYFAlp5cuEACgkQ7CzyshGvatjZcACeL0eqkiv3pcSCBOUVKpdNVvaW
-GVAAoONHdLxcpy/RQuNTpnjHaqKDOuR/
-=Rat+
------END PGP SIGNATURE-----
-
---Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS--
+-- 
+2.16.1

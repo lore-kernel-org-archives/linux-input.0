@@ -1,7 +1,7 @@
 From: Florian Echtler <floe@butterbrot.org>
-Subject: [PATCH 2/5] add control definitions
-Date: Tue,  6 Feb 2018 22:01:42 +0100
-Message-ID: <1517950905-5015-3-git-send-email-floe@butterbrot.org>
+Subject: [PATCH 4/5] register control handlers using V4L2 control framework
+Date: Tue,  6 Feb 2018 22:01:44 +0100
+Message-ID: <1517950905-5015-5-git-send-email-floe@butterbrot.org>
 References: <1517950905-5015-1-git-send-email-floe@butterbrot.org>
 Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <1517950905-5015-1-git-send-email-floe@butterbrot.org>
@@ -10,41 +10,117 @@ To: hverkuil@xs4all.nl, linux-media@vger.kernel.org
 Cc: linux-input@vger.kernel.org, modin@yuri.at, Florian Echtler <floe@butterbrot.org>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds parameter definitions for the four userspace controls that
-the SUR40 can currently provide.
+This patch registers four standard control handlers using the corresponding
+V4L2 framework.
 
 Signed-off-by: Florian Echtler <floe@butterbrot.org>
 ---
- drivers/input/touchscreen/sur40.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/input/touchscreen/sur40.c | 51 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 51 insertions(+)
 
 diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 8375b06..3af63415 100644
+index 7f6461d..66ef7e6 100644
 --- a/drivers/input/touchscreen/sur40.c
 +++ b/drivers/input/touchscreen/sur40.c
-@@ -149,6 +149,23 @@ struct sur40_image_header {
- #define SUR40_TOUCH	0x02
- #define SUR40_TAG	0x04
+@@ -38,6 +38,7 @@
+ #include <media/v4l2-device.h>
+ #include <media/v4l2-dev.h>
+ #include <media/v4l2-ioctl.h>
++#include <media/v4l2-ctrls.h>
+ #include <media/videobuf2-v4l2.h>
+ #include <media/videobuf2-dma-sg.h>
  
-+/* video controls */
-+#define SUR40_BRIGHTNESS_MAX 0xFF
-+#define SUR40_BRIGHTNESS_MIN 0x00
-+#define SUR40_BRIGHTNESS_DEF 0xFF
+@@ -198,6 +199,7 @@ struct sur40_state {
+ 	struct video_device vdev;
+ 	struct mutex lock;
+ 	struct v4l2_pix_format pix_fmt;
++	struct v4l2_ctrl_handler ctrls;
+ 
+ 	struct vb2_queue queue;
+ 	struct list_head buf_list;
+@@ -207,6 +209,7 @@ struct sur40_state {
+ 	struct sur40_data *bulk_in_buffer;
+ 	size_t bulk_in_size;
+ 	u8 bulk_in_epaddr;
++	u8 vsvideo;
+ 
+ 	char phys[64];
+ };
+@@ -220,6 +223,11 @@ struct sur40_buffer {
+ static const struct video_device sur40_video_device;
+ static const struct vb2_queue sur40_queue;
+ static void sur40_process_video(struct sur40_state *sur40);
++static int sur40_s_ctrl(struct v4l2_ctrl *ctrl);
 +
-+#define SUR40_CONTRAST_MAX 0x0F
-+#define SUR40_CONTRAST_MIN 0x00
-+#define SUR40_CONTRAST_DEF 0x0A
++static const struct v4l2_ctrl_ops sur40_ctrl_ops = {
++	.s_ctrl = sur40_s_ctrl,
++};
+ 
+ /*
+  * Note: an earlier, non-public version of this driver used USB_RECIP_ENDPOINT
+@@ -722,6 +730,23 @@ static int sur40_probe(struct usb_interface *interface,
+ 	sur40->vdev.queue = &sur40->queue;
+ 	video_set_drvdata(&sur40->vdev, sur40);
+ 
++	/* initialize the control handler for 4 controls */
++	v4l2_ctrl_handler_init(&sur40->ctrls, 4);
++	sur40->v4l2.ctrl_handler = &sur40->ctrls;
 +
-+#define SUR40_GAIN_MAX 0x09
-+#define SUR40_GAIN_MIN 0x00
-+#define SUR40_GAIN_DEF 0x08
++	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_BRIGHTNESS,
++	  SUR40_BRIGHTNESS_MIN, SUR40_BRIGHTNESS_MAX, 1, SUR40_BRIGHTNESS_DEF);
 +
-+#define SUR40_BACKLIGHT_MAX 0x01
-+#define SUR40_BACKLIGHT_MIN 0x00
-+#define SUR40_BACKLIGHT_DEF 0x01
++	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_CONTRAST,
++	  SUR40_CONTRAST_MIN, SUR40_CONTRAST_MAX, 1, SUR40_CONTRAST_DEF);
 +
- static const struct v4l2_pix_format sur40_pix_format[] = {
- 	{
- 		.pixelformat = V4L2_TCH_FMT_TU08,
++	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_GAIN,
++	  SUR40_GAIN_MIN, SUR40_GAIN_MAX, 1, SUR40_GAIN_DEF);
++
++	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops,
++	  V4L2_CID_BACKLIGHT_COMPENSATION, SUR40_BACKLIGHT_MIN,
++	  SUR40_BACKLIGHT_MAX, 1, SUR40_BACKLIGHT_DEF);
++
+ 	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH, -1);
+ 	if (error) {
+ 		dev_err(&interface->dev,
+@@ -754,6 +779,7 @@ static void sur40_disconnect(struct usb_interface *interface)
+ {
+ 	struct sur40_state *sur40 = usb_get_intfdata(interface);
+ 
++	v4l2_ctrl_handler_free(&sur40->ctrls);
+ 	video_unregister_device(&sur40->vdev);
+ 	v4l2_device_unregister(&sur40->v4l2);
+ 
+@@ -947,6 +973,31 @@ static int sur40_vidioc_g_fmt(struct file *file, void *priv,
+ 	return 0;
+ }
+ 
++static int sur40_s_ctrl(struct v4l2_ctrl *ctrl)
++{
++	struct sur40_state *sur40  = container_of(ctrl->handler,
++	  struct sur40_state, ctrls);
++	u8 value = sur40->vsvideo;
++
++	switch (ctrl->id) {
++	case V4L2_CID_BRIGHTNESS:
++		sur40_set_irlevel(sur40, ctrl->val);
++		break;
++	case V4L2_CID_CONTRAST:
++		value = (value & 0x0F) | (ctrl->val << 4);
++		sur40_set_vsvideo(sur40, value);
++		break;
++	case V4L2_CID_GAIN:
++		value = (value & 0xF0) | (ctrl->val);
++		sur40_set_vsvideo(sur40, value);
++		break;
++	case V4L2_CID_BACKLIGHT_COMPENSATION:
++		sur40_set_preprocessor(sur40, ctrl->val);
++		break;
++	}
++	return 0;
++}
++
+ static int sur40_ioctl_parm(struct file *file, void *priv,
+ 			    struct v4l2_streamparm *p)
+ {
 -- 
 2.7.4

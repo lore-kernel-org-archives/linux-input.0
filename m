@@ -1,151 +1,77 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 4/5] register control handlers using V4L2 control
- framework
-Date: Tue, 6 Feb 2018 22:26:14 +0100
-Message-ID: <26d18caf-631b-f78f-6fcb-dfdcdb46420f@xs4all.nl>
+Subject: Re: [PATCH 5/5] add module parameters for default values
+Date: Tue, 6 Feb 2018 22:31:13 +0100
+Message-ID: <c64ae317-d393-1784-1184-4a24a2907112@xs4all.nl>
 References: <1517950905-5015-1-git-send-email-floe@butterbrot.org>
- <1517950905-5015-5-git-send-email-floe@butterbrot.org>
+ <1517950905-5015-6-git-send-email-floe@butterbrot.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud8.xs4all.net ([194.109.24.29]:50431 "EHLO
-        lb3-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753296AbeBFV0U (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 6 Feb 2018 16:26:20 -0500
-In-Reply-To: <1517950905-5015-5-git-send-email-floe@butterbrot.org>
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1517950905-5015-6-git-send-email-floe@butterbrot.org>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-media-owner@vger.kernel.org
 To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
 Cc: linux-input@vger.kernel.org, modin@yuri.at
+List-Id: linux-input@vger.kernel.org
 
 On 02/06/2018 10:01 PM, Florian Echtler wrote:
-> This patch registers four standard control handlers using the corresponding
-> V4L2 framework.
+> To allow setting custom parameters for the sensor directly at startup, the
+> three primary controls are exposed as module parameters in this patch.
 > 
 > Signed-off-by: Florian Echtler <floe@butterbrot.org>
 > ---
->  drivers/input/touchscreen/sur40.c | 51 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 51 insertions(+)
+>  drivers/input/touchscreen/sur40.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
 > 
 > diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-> index 7f6461d..66ef7e6 100644
+> index 66ef7e6..d1fcb95 100644
 > --- a/drivers/input/touchscreen/sur40.c
 > +++ b/drivers/input/touchscreen/sur40.c
-> @@ -38,6 +38,7 @@
->  #include <media/v4l2-device.h>
->  #include <media/v4l2-dev.h>
->  #include <media/v4l2-ioctl.h>
-> +#include <media/v4l2-ctrls.h>
->  #include <media/videobuf2-v4l2.h>
->  #include <media/videobuf2-dma-sg.h>
+> @@ -167,6 +167,17 @@ struct sur40_image_header {
+>  #define SUR40_BACKLIGHT_MIN 0x00
+>  #define SUR40_BACKLIGHT_DEF 0x01
 >  
-> @@ -198,6 +199,7 @@ struct sur40_state {
->  	struct video_device vdev;
->  	struct mutex lock;
->  	struct v4l2_pix_format pix_fmt;
-> +	struct v4l2_ctrl_handler ctrls;
+> +/* module parameters */
+> +static uint brightness = SUR40_BRIGHTNESS_DEF;
+> +module_param(brightness, uint, 0644);
+> +MODULE_PARM_DESC(brightness, "set default brightness");
+> +static uint contrast = SUR40_CONTRAST_DEF;
+> +module_param(contrast, uint, 0644);
+> +MODULE_PARM_DESC(contrast, "set default contrast");
+> +static uint gain = SUR40_GAIN_DEF;
+> +module_param(gain, uint, 0644);
+> +MODULE_PARM_DESC(contrast, "set default gain");
 
-This is normally called 'hdl' or 'ctrl_handler'.
+contrast -> gain
 
->  
->  	struct vb2_queue queue;
->  	struct list_head buf_list;
-> @@ -207,6 +209,7 @@ struct sur40_state {
->  	struct sur40_data *bulk_in_buffer;
->  	size_t bulk_in_size;
->  	u8 bulk_in_epaddr;
-> +	u8 vsvideo;
->  
->  	char phys[64];
->  };
-> @@ -220,6 +223,11 @@ struct sur40_buffer {
->  static const struct video_device sur40_video_device;
->  static const struct vb2_queue sur40_queue;
->  static void sur40_process_video(struct sur40_state *sur40);
-> +static int sur40_s_ctrl(struct v4l2_ctrl *ctrl);
-> +
-> +static const struct v4l2_ctrl_ops sur40_ctrl_ops = {
-> +	.s_ctrl = sur40_s_ctrl,
-> +};
->  
->  /*
->   * Note: an earlier, non-public version of this driver used USB_RECIP_ENDPOINT
-> @@ -722,6 +730,23 @@ static int sur40_probe(struct usb_interface *interface,
->  	sur40->vdev.queue = &sur40->queue;
->  	video_set_drvdata(&sur40->vdev, sur40);
->  
-> +	/* initialize the control handler for 4 controls */
-> +	v4l2_ctrl_handler_init(&sur40->ctrls, 4);
-> +	sur40->v4l2.ctrl_handler = &sur40->ctrls;
-> +
-> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_BRIGHTNESS,
-> +	  SUR40_BRIGHTNESS_MIN, SUR40_BRIGHTNESS_MAX, 1, SUR40_BRIGHTNESS_DEF);
-> +
-> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_CONTRAST,
-> +	  SUR40_CONTRAST_MIN, SUR40_CONTRAST_MAX, 1, SUR40_CONTRAST_DEF);
-> +
-> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_GAIN,
-> +	  SUR40_GAIN_MIN, SUR40_GAIN_MAX, 1, SUR40_GAIN_DEF);
-> +
-> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops,
-> +	  V4L2_CID_BACKLIGHT_COMPENSATION, SUR40_BACKLIGHT_MIN,
-> +	  SUR40_BACKLIGHT_MAX, 1, SUR40_BACKLIGHT_DEF);
+Isn't 'initial gain' better than 'default gain'?
 
-You need to check if the creation succeeded:
+If I load this module with gain=X, will the gain control also
+start off at X? I didn't see any code for that.
 
-	if (ctrls->error) {
-		v4l2_ctrl_handler_free(ctrls);
-		// exit
-	}
-> +
->  	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH, -1);
->  	if (error) {
->  		dev_err(&interface->dev,
-> @@ -754,6 +779,7 @@ static void sur40_disconnect(struct usb_interface *interface)
->  {
->  	struct sur40_state *sur40 = usb_get_intfdata(interface);
->  
-> +	v4l2_ctrl_handler_free(&sur40->ctrls);
->  	video_unregister_device(&sur40->vdev);
->  	v4l2_device_unregister(&sur40->v4l2);
->  
-> @@ -947,6 +973,31 @@ static int sur40_vidioc_g_fmt(struct file *file, void *priv,
->  	return 0;
->  }
->  
-> +static int sur40_s_ctrl(struct v4l2_ctrl *ctrl)
-> +{
-> +	struct sur40_state *sur40  = container_of(ctrl->handler,
-> +	  struct sur40_state, ctrls);
-> +	u8 value = sur40->vsvideo;
-> +
-> +	switch (ctrl->id) {
-> +	case V4L2_CID_BRIGHTNESS:
-> +		sur40_set_irlevel(sur40, ctrl->val);
-> +		break;
-> +	case V4L2_CID_CONTRAST:
-> +		value = (value & 0x0F) | (ctrl->val << 4);
-> +		sur40_set_vsvideo(sur40, value);
-> +		break;
-> +	case V4L2_CID_GAIN:
-> +		value = (value & 0xF0) | (ctrl->val);
-> +		sur40_set_vsvideo(sur40, value);
-> +		break;
-> +	case V4L2_CID_BACKLIGHT_COMPENSATION:
-> +		sur40_set_preprocessor(sur40, ctrl->val);
-> +		break;
-> +	}
-> +	return 0;
-> +}
-> +
->  static int sur40_ioctl_parm(struct file *file, void *priv,
->  			    struct v4l2_streamparm *p)
->  {
-> 
+It might be useful to add the allowed range in the description.
+E.g.: "set initial gain, range=0-255". Perhaps mention even the
+default value, but I'm not sure if that's really needed.
 
-Looks good otherwise.
+Regards,
 
 	Hans
+
+> +
+>  static const struct v4l2_pix_format sur40_pix_format[] = {
+>  	{
+>  		.pixelformat = V4L2_TCH_FMT_TU08,
+> @@ -374,6 +385,11 @@ static void sur40_open(struct input_polled_dev *polldev)
+>  
+>  	dev_dbg(sur40->dev, "open\n");
+>  	sur40_init(sur40);
+> +
+> +	/* set default values */
+> +	sur40_set_irlevel(sur40, brightness & 0xFF);
+> +	sur40_set_vsvideo(sur40, ((contrast & 0x0F) << 4) | (gain & 0x0F));
+> +	sur40_set_preprocessor(sur40, SUR40_BACKLIGHT_DEF);
+>  }
+>  
+>  /* Disable device, polling has stopped. */
+> 

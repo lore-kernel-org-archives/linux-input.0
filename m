@@ -1,36 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BUG] drivers/input/misc/pcap: a possible sleep-in-atomic bug in
- pcap_keys_handler
-Date: Mon, 5 Feb 2018 15:25:14 -0800
-Message-ID: <20180205232514.GE46524@dtor-ws>
-References: <9af81fe8-e07c-9161-2d85-3eb23a198ec9@gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: ALPS Trackpoint & pressure
+Date: Tue, 6 Feb 2018 10:29:47 +1000
+Message-ID: <20180206002947.GB27776@jelly>
+References: <20180204150839.b5qm4wb26vic35st@pali>
+ <20180205224955.GB46524@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <9af81fe8-e07c-9161-2d85-3eb23a198ec9@gmail.com>
+In-Reply-To: <20180205224955.GB46524@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jia-Ju Bai <baijiaju1990@gmail.com>, Daniel Ribeiro <drwyrm@gmail.com>
-Cc: ilya.muromec@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Dec 12, 2017 at 04:32:01PM +0800, Jia-Ju Bai wrote:
-> According to drivers/input/misc/pcap_keys.c, the kernel module may sleep in
-> the interrupt handler.
-> The function call path is:
-> pcap_keys_handler (interrupt handler)
->   ezx_pcap_read
->     mutex_lock --> may sleep
+On Mon, Feb 05, 2018 at 02:49:55PM -0800, Dmitry Torokhov wrote:
+> On Sun, Feb 04, 2018 at 04:08:39PM +0100, Pali Rohár wrote:
+> > Hi! Now playing again with trackpoint connected to ALPS rushmore
+> > touchpad and I'm seeking a nice feature. Via ALPS PS/2 protocol it
+> > reports pressure of trackpoint. Parser for it is already implemented in
+> > alps.c and value is assigned to variable "z". When I just move
+> > trackpoint z is zero, when I push trackpoint while moving, then z is
+> > number higher, maximally 32. Variable "z" is set, but unused.
+> > 
+> > Do we have some input interface which can be used to report this
+> > pressure of trackpoint to userspace? I can use this feature e.g. as
+> > additional button...
 > 
-> I do not find a good way to fix it, so I only report.
-> This possible bug is found by my static analysis tool (DSAC) and checked by
-> my code review.
+> We could either do the conversion in kernel and emit BTN_LEFT, or
+> report ABS_PRESSURE and see if userspace will be able to handle
+> REL_X/REL_Y/ABS_PRESSURE device.
+> 
+> Adding Peter.
 
-Let's see if Daniel's email still work. I am not sure how it worked to
-begin with, given that we've been taking that mutex since very
-beginning, and pcap_isr_work() disables local interrupts...
+judging by trackpoint history, I'd leave the pressure->click conversion to
+userspace because every trackpoint may need a different threshold setting.
+"easier" to have this in userspace with dmi matches etc. plus, converting to
+BTN_LEFT in the kernel means we cannot use it as a separate interaction
+anymore.
 
-Thanks.
- 
--- 
-Dmitry
+That aside, I think exporting ABS_PRESSURE is fine, that's what it's there
+for. Nothing will use it for now though, tbh not sure yet how that would be
+exported from libinput. but worth filing a bug for, please assign it to me.
+
+Cheers,
+   Peter

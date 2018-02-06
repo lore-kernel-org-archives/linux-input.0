@@ -1,26 +1,88 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: =?UTF-8?Q?Re:_Software_evolution_around_=e2=80=9ccheckpatch.pl?=
- =?UTF-8?B?4oCdPw==?=
-Date: Tue, 6 Feb 2018 09:45:48 +0100
-Message-ID: <f008911b-c595-6e0f-d85f-076e994ae7db@users.sourceforge.net>
-References: <0406765c-bdd1-1a82-cf66-1c248063ae4f@users.sourceforge.net>
- <20180204112346.0977e938@archlinux>
- <9420fc82-1a37-3601-bafe-f57ef953bfcd@users.sourceforge.net>
- <87DF341A-1356-4B1B-8D25-14D5B0AAB01D@jic23.retrosnub.co.uk>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH 5/5] add default control values as module parameters
+Date: Tue, 6 Feb 2018 10:18:25 +0100
+Message-ID: <a7724625-de74-871f-7728-79b751481970@butterbrot.org>
+References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
+ <1517840981-12280-6-git-send-email-floe@butterbrot.org>
+ <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <87DF341A-1356-4B1B-8D25-14D5B0AAB01D@jic23.retrosnub.co.uk>
-Content-Language: en-US
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org, modin@yuri.at
 List-Id: linux-input@vger.kernel.org
 
-> Check patch is dumb and often gives false positives.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS
+Content-Type: multipart/mixed; boundary="wEc2UAGF14PcTCjwPo6j2KzkslocR2Yd4";
+ protected-headers="v1"
+From: Florian Echtler <floe@butterbrot.org>
+To: Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org
+Cc: linux-input@vger.kernel.org, modin@yuri.at
+Message-ID: <a7724625-de74-871f-7728-79b751481970@butterbrot.org>
+Subject: Re: [PATCH 5/5] add default control values as module parameters
+References: <1517840981-12280-1-git-send-email-floe@butterbrot.org>
+ <1517840981-12280-6-git-send-email-floe@butterbrot.org>
+ <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
+In-Reply-To: <0be7b0ae-e0e0-7b25-fd76-8cf6387a4dd6@xs4all.nl>
 
-Would you like to improve this software situation anyhow?
+--wEc2UAGF14PcTCjwPo6j2KzkslocR2Yd4
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
-Markus
+On 05.02.2018 15:56, Hans Verkuil wrote:
+> Please add a change log when you make a patch.
+> I for one would like to know why this has to be supplied as a module op=
+tion.
+
+The idea here was that each individual SUR40 device will likely have slig=
+htly
+different "ideal" settings for the parameters, and by using the module op=
+tions,
+you can set them right away at startup.
+
+I'm aware that the usual way to do this would be from userspace using v4l=
+2-ctl,
+but the SUR40 is sort of a special case: the video settings will also inf=
+luence
+the internal touch detection, and in the worst case, starting the driver =
+with
+the default parameters from flash will immediately cause so many false-po=
+sitive
+touch points to be detected that the graphical shell becomes unusable. Th=
+is has
+actually happened several times during testing, so we considered a module=
+ option
+to be the easiest way for dealing with this.
+
+> Some documentation in the code would be helpful as well (e.g. I have no=
+ idea
+> what a 'vsvideo' is).
+Right - will do that, too.
+
+Best regards, Florian
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--wEc2UAGF14PcTCjwPo6j2KzkslocR2Yd4--
+
+--Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iEYEARECAAYFAlp5cuEACgkQ7CzyshGvatjZcACeL0eqkiv3pcSCBOUVKpdNVvaW
+GVAAoONHdLxcpy/RQuNTpnjHaqKDOuR/
+=Rat+
+-----END PGP SIGNATURE-----
+
+--Vq4OEuC6OZhnCNdvwzDnffhYppb2O2PCS--

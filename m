@@ -1,48 +1,59 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: ALPS Trackpoint & pressure
-Date: Tue, 6 Feb 2018 10:29:47 +1000
-Message-ID: <20180206002947.GB27776@jelly>
-References: <20180204150839.b5qm4wb26vic35st@pali>
- <20180205224955.GB46524@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: touchscreen: ar1021_i2c: enable touch mode
+ during open
+Date: Mon, 5 Feb 2018 17:20:27 -0800
+Message-ID: <20180206012027.GF46524@dtor-ws>
+References: <1493295756-17812-1-git-send-email-martin.kepplinger@ginzinger.com>
+ <CAH9NwWeom2H89D5hUixxSL28YgDna_WS26boayzUBAPyVFUvTA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f54.google.com ([74.125.83.54]:42605 "EHLO
+        mail-pg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751835AbeBFBUb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Feb 2018 20:20:31 -0500
 Content-Disposition: inline
-In-Reply-To: <20180205224955.GB46524@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CAH9NwWeom2H89D5hUixxSL28YgDna_WS26boayzUBAPyVFUvTA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: Martin Kepplinger <martin.kepplinger@ginzinger.com>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Mon, Feb 05, 2018 at 02:49:55PM -0800, Dmitry Torokhov wrote:
-> On Sun, Feb 04, 2018 at 04:08:39PM +0100, Pali Rohár wrote:
-> > Hi! Now playing again with trackpoint connected to ALPS rushmore
-> > touchpad and I'm seeking a nice feature. Via ALPS PS/2 protocol it
-> > reports pressure of trackpoint. Parser for it is already implemented in
-> > alps.c and value is assigned to variable "z". When I just move
-> > trackpoint z is zero, when I push trackpoint while moving, then z is
-> > number higher, maximally 32. Variable "z" is set, but unused.
-> > 
-> > Do we have some input interface which can be used to report this
-> > pressure of trackpoint to userspace? I can use this feature e.g. as
-> > additional button...
+On Mon, Feb 05, 2018 at 11:07:08AM +0100, Christian Gmeiner wrote:
+> Hi all.
 > 
-> We could either do the conversion in kernel and emit BTN_LEFT, or
-> report ABS_PRESSURE and see if userspace will be able to handle
-> REL_X/REL_Y/ABS_PRESSURE device.
+> 2017-04-27 14:22 GMT+02:00 Martin Kepplinger <martin.kepplinger@ginzinger.com>:
+> > The device could as well be in command mode, in which this driver cannot
+> > handle the device. When opening the device, let's make sure the device
+> > will be in the mode we expect it to be for this driver.
+> >
 > 
-> Adding Peter.
+> I run into issues caused by this change. It turns out that the device
+> is non-functional
+> after some warm-reboots and as a result I am not able to use xorg's
+> evdev driver.
+> So I have some questions about this change:
+> 
+> * Should we enable irq before calling i2c_master_send(..) as the chip raises an
+>   irq if the command was processed?
 
-judging by trackpoint history, I'd leave the pressure->click conversion to
-userspace because every trackpoint may need a different threshold setting.
-"easier" to have this in userspace with dmi matches etc. plus, converting to
-BTN_LEFT in the kernel means we cannot use it as a separate interaction
-anymore.
+Well, we do not care about the response... However, what is your
+interrupt trigger settings? Are you using edge by chance? If so, please
+try switching to level.
 
-That aside, I think exporting ABS_PRESSURE is fine, that's what it's there
-for. Nothing will use it for now though, tbh not sure yet how that would be
-exported from libinput. but worth filing a bug for, please assign it to me.
+> 
+> * Would it be enough to send this command only once during driver
+> lifetime? I can
+>   see that on my system open gets called 3 times during boot-up.
+> 
+> * What are the circumstances the touch device would be in an other state? In the
+>   official kernel driver the userspace can send commands via sysfs.
+> Also the driver
+>   does set the touch enable mode as this patch does.
 
-Cheers,
-   Peter
+What is "the official kernel driver"?
+
+Thanks.
+
+-- 
+Dmitry

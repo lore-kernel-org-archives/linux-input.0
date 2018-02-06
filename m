@@ -1,47 +1,45 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] HID: asus: Return an error code only as a constant in
- asus_start_multitouch()
-Date: Tue, 6 Feb 2018 18:30:50 +0100
-Message-ID: <8408b92e-81fc-89d2-6bf3-e7948673fed6@users.sourceforge.net>
-References: <5289ace9-8927-9803-4692-c7c621ab0a8d@users.sourceforge.net>
+Subject: [PATCH] HID: apple: Delete an error message for a failed memory
+ allocation in apple_probe()
+Date: Tue, 6 Feb 2018 20:35:01 +0100
+Message-ID: <83d48f20-dd03-00fc-bfea-cd4a87b7254c@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <5289ace9-8927-9803-4692-c7c621ab0a8d@users.sourceforge.net>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: en-US
-Sender: kernel-janitors-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 6 Feb 2018 18:18:50 +0100
+Date: Tue, 6 Feb 2018 20:06:53 +0100
 
-Return an error code without storing it in an intermediate variable.
+Omit an extra message for a memory allocation failure in this function.
+
+This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/hid/hid-asus.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/hid/hid-apple.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 9573e0b41922..5e143552dab9 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -564,10 +564,8 @@ static int asus_start_multitouch(struct hid_device *hdev)
- 	const unsigned char buf[] = { FEATURE_REPORT_ID, 0x00, 0x03, 0x01, 0x00 };
- 	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 25b7bd56ae11..d739dd3aa622 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -374,10 +374,8 @@ static int apple_probe(struct hid_device *hdev,
+ 	int ret;
  
--	if (!dmabuf) {
--		ret = -ENOMEM;
--		return ret;
+ 	asc = devm_kzalloc(&hdev->dev, sizeof(*asc), GFP_KERNEL);
+-	if (asc == NULL) {
+-		hid_err(hdev, "can't alloc apple descriptor\n");
++	if (!asc)
+ 		return -ENOMEM;
 -	}
-+	if (!dmabuf)
-+		return -ENOMEM;
  
- 	ret = hid_hw_raw_request(hdev, dmabuf[0], dmabuf, sizeof(buf),
- 					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 	asc->quirks = quirks;
+ 
 -- 
 2.16.1
-

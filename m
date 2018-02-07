@@ -1,87 +1,84 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 5/5] add module parameters for default values
-Date: Wed, 7 Feb 2018 10:02:24 +0100
-Message-ID: <c3f7b904-fb23-5925-0826-da5ad7ed84ad@xs4all.nl>
-References: <1517950905-5015-1-git-send-email-floe@butterbrot.org>
- <1517950905-5015-6-git-send-email-floe@butterbrot.org>
- <c64ae317-d393-1784-1184-4a24a2907112@xs4all.nl>
- <039aaa61-4150-ebde-5f9e-a0ffc8888cfb@butterbrot.org>
+From: Peter Suetterlin <pit@astro.su.se>
+Subject: Lenovo T460p touchpad and kernel 4.15.0
+Date: Wed, 7 Feb 2018 12:31:30 +0000
+Message-ID: <20180207123130.GA24827@dubshen.astro.su.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <039aaa61-4150-ebde-5f9e-a0ffc8888cfb@butterbrot.org>
-Content-Language: en-US
-Sender: linux-media-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, modin@yuri.at
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-prod-route02.it.su.se ([77.238.35.140]:54540 "EHLO
+        mail-prod-route02.it.su.se" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753731AbeBGMlL (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 7 Feb 2018 07:41:11 -0500
+Received: from e-mailfilter02.sunet.se (e-mailfilter02.sunet.se [IPv6:2001:6b0:8:2::202])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail-prod-route02.it.su.se (Postfix) with ESMTPS id 3zc10M72lXzyt9
+        for <linux-input@vger.kernel.org>; Wed,  7 Feb 2018 13:31:31 +0100 (CET)
+Received: from smtp.su.se (mail-prod-smtp03.it.su.se [130.237.181.83])
+        by e-mailfilter02.sunet.se (8.14.4/8.14.4/Debian-8+deb8u2) with ESMTP id w17CVUC8167264
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <linux-input@vger.kernel.org>; Wed, 7 Feb 2018 13:31:31 +0100
+Received: from dubshen.astro.su.se (dubshen.astro.su.se [130.237.166.72])
+        by smtp.su.se (Postfix) with ESMTPS id 3zc10L5lZ0zyty
+        for <linux-input@vger.kernel.org>; Wed,  7 Feb 2018 13:31:30 +0100 (CET)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On 02/07/18 09:33, Florian Echtler wrote:
-> On 06.02.2018 22:31, Hans Verkuil wrote:
->> On 02/06/2018 10:01 PM, Florian Echtler wrote:
->>> To allow setting custom parameters for the sensor directly at startup, the
->>> three primary controls are exposed as module parameters in this patch.
->>>
->>> +/* module parameters */
->>> +static uint brightness = SUR40_BRIGHTNESS_DEF;
->>> +module_param(brightness, uint, 0644);
->>> +MODULE_PARM_DESC(brightness, "set default brightness");
->>> +static uint contrast = SUR40_CONTRAST_DEF;
->>> +module_param(contrast, uint, 0644);
->>> +MODULE_PARM_DESC(contrast, "set default contrast");
->>> +static uint gain = SUR40_GAIN_DEF;
->>> +module_param(gain, uint, 0644);
->>> +MODULE_PARM_DESC(contrast, "set default gain");
->>
->> contrast -> gain
-> 
-> Ah, typo. Thanks, will fix that.
-> 
->> Isn't 'initial gain' better than 'default gain'?
-> 
-> Probably correct, yes.
-> 
->> If I load this module with gain=X, will the gain control also
->> start off at X? I didn't see any code for that.
-> 
-> This reminds me: how can I get/set the control from inside the driver?
-> Should I use something like the following:
-> 
-> struct v4l2_ctrl *ctrl = v4l2_ctrl_find(&sur40->ctrls, V4L2_CID_BRIGHTNESS);
-> int val = v4l2_ctrl_g_ctrl(ctrl);
-> // modify val...
-> v4l2_ctrl_s_ctrl(ctrl, val);
 
-Yes, that's correct. Usually drivers store the ctrl in their state struct
-when they create the control. That way you don't have to find it.
+  Hi,
 
-> 
->> It might be useful to add the allowed range in the description.
->> E.g.: "set initial gain, range=0-255". Perhaps mention even the
->> default value, but I'm not sure if that's really needed.
-> 
-> Good point, though - right now the code directly sets the registers without any
-> clamping, I guess it would be better to call the control framework as mentioned
-> above?
+After switching to kernel 4.15.0 (openSUSE Tumbleweed 20180203) the touchpad of
+my Lenovo T460p stops working after a resume/suspend cycle.
 
-Easiest is just to use this value for the default when you create the
-control. Just clamp it first.
+Comparing to old logfiles I found a notice
 
-E.g.:
+  "Your touchpad (PNP: LEN2018 PNP0f13) says it can support a different bus. If
+  i2c-hid and hid-rmi are not used, you might want to try setting
+  psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org."
 
-static uint gain = SUR40_GAIN_DEF;
-module_param(gain, uint, 0644);
+That's why I'm writing here now.
 
-...
+The old logfile (from kernel 4.14.15) had this notice from psmouse:
 
-gain = clamp(gain, SUR40_GAIN_MIN, SUR40_GAIN_MAX);
-v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_GAIN,
-	  SUR40_GAIN_MIN, SUR40_GAIN_MAX, 1, gain);
+ kernel: psmouse serio1: synaptics: queried max coordinates: x [..5676], y [..4758]
+ kernel: psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1096..]
+ kernel: psmouse serio1: synaptics: Your touchpad (PNP:
+     LEN2018 PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are
+     not used, you might want to try setting psmouse.synaptics_intertouch to 1 and
+     report this to linux-input@vger.kernel.org.
+ kernel: psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2b1, caps: 0xf006a3/0x943300/0x12e800/0x10000, board id: 3053,fw id: 2010421
+ kernel: psmouse serio1: synaptics: serio: Synaptics pass-through port at isa0060/serio1/input0
 
-You need to clamp gain first, otherwise v4l2_ctrl_new_std would fail
-if the given default value is out of range.
+rmi was not used in this version
+
+Booting 4.15.0 shows the same, just without the notice, but further down also
+
+ kernel: input: Synaptics TM3053-006 as /devices/rmi4-00/input/input23
+
+During resume I then get the following:
+
+ kernel: rmi4_smbus 8-002c: failed to get SMBus version number!
+ kernel: rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed to read current IRQ mask.
+ kernel: rmi4_f01 rmi4-00.fn01: Failed to restore normal operation: -16.
+ kernel: rmi4_f01 rmi4-00.fn01: Resume failed with code -16.
+ kernel: rmi4_physical rmi4-00: Failed to suspend functions: -16
+ kernel: rmi4_smbus 8-002c: Failed to resume device: -16
+ kernel: rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03 TX register (-16).
+
+which likely(?) is the reason for the non-working touchpad.
+(The trackpoint is affected, too, BTW, but I don't use it)
+
+If you need more info let me know (please via direct mail, I'm not on the list)
 
 Regards,
 
-	Hans
+  Pit
+  
+-- 
+Dr. Peter "Pit" Suetterlin                 http://www.astro.su.se/~pit
+Institute for Solar Physics
+Tel.: +34 922 405 590  (Spain)             P.Suetterlin@royac.iac.es
+      +46 8 5537 8558  (Sweden)            Peter.Suetterlin@astro.su.se

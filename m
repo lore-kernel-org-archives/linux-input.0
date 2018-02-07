@@ -1,44 +1,15 @@
 From: Florian Echtler <floe@butterbrot.org>
-Subject: [PATCH 1/4] add missing blob structure field for tag id
-Date: Wed,  7 Feb 2018 14:00:35 +0100
-Message-ID: <1518008438-26603-2-git-send-email-floe@butterbrot.org>
-References: <1518008438-26603-1-git-send-email-floe@butterbrot.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from butterbrot.org ([176.9.106.16]:44006 "EHLO butterbrot.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753630AbeBGNAo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Feb 2018 08:00:44 -0500
-In-Reply-To: <1518008438-26603-1-git-send-email-floe@butterbrot.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v3] add video controls for SUR40 driver
+Date: Wed,  7 Feb 2018 14:00:34 +0100
+Message-ID: <1518008438-26603-1-git-send-email-floe@butterbrot.org>
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
 To: hverkuil@xs4all.nl, linux-media@vger.kernel.org
-Cc: linux-input@vger.kernel.org, modin@yuri.at, Florian Echtler <floe@butterbrot.org>
+Cc: linux-input@vger.kernel.org, modin@yuri.at
+List-Id: linux-input@vger.kernel.org
 
-The SUR40 can recognize specific printed patterns directly in hardware;
-this information (i.e. the pattern id) is present but currently unused
-in the blob structure.
+As discussed previously, here's the third iteration of my patch to add
+control functions for the SUR40 driver, with (hopefully) correct handling
+of default values/module parameters, using the V4L2 control framework.
 
-Signed-off-by: Florian Echtler <floe@butterbrot.org>
----
- drivers/input/touchscreen/sur40.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index f16f835..8375b06 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -81,7 +81,10 @@ struct sur40_blob {
- 
- 	__le32 area;       /* size in pixels/pressure (?) */
- 
--	u8 padding[32];
-+	u8 padding[24];
-+
-+	__le32 tag_id;     /* valid when type == 0x04 (SUR40_TAG) */
-+	__le32 unknown;
- 
- } __packed;
- 
--- 
-2.7.4
-
+Best regards, Florian

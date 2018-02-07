@@ -1,99 +1,60 @@
-From: Damjan Georgievski <gdamjan@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - Lenovo Carbon X1 Gen5 (2017) devices
- should use RMI
-Date: Wed, 7 Feb 2018 15:43:10 +0100
-Message-ID: <CAEk1YH4aBP+zw2cRJSro5A-4-jQr5Xwi_iuMqTZFtEQGRERkMw@mail.gmail.com>
-References: <20170818193436.GA31365@dtor-ws> <CAEk1YH7A3ENphMLdgdgMqyvq5CmCe3P5KpeekPpzV_4FcGUU-g@mail.gmail.com>
- <20170821154522.GA21773@dtor-ws> <CAEk1YH7+8Vnqpe5o30bsgH+fU7U+T9uEtHmK+dah5vaPwo1w0Q@mail.gmail.com>
- <CAEk1YH7Ni04Hs4RHtDJyE368aA4-DSW5aGx+v8kpbhLF2OR2Sg@mail.gmail.com>
- <20180202205050.i5pkl3rji45oovxb@dtor-ws> <CAEk1YH7=aWJDGbdNj7jeRsOAn01eTCnm9Sc=KVTQ4KFEZ2PsSA@mail.gmail.com>
+From: =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= <christoph@boehmwalder.at>
+Subject: [PATCH 3/3] hid: logitech-dj: delete unnecessary error messages
+Date: Wed,  7 Feb 2018 18:08:00 +0100
+Message-ID: <20180207170800.15015-4-christoph@boehmwalder.at>
+References: <20180207170800.15015-1-christoph@boehmwalder.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:37874 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754011AbeBGOnL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Feb 2018 09:43:11 -0500
-Received: by mail-wm0-f68.google.com with SMTP id v71so3790664wmv.2
-        for <linux-input@vger.kernel.org>; Wed, 07 Feb 2018 06:43:11 -0800 (PST)
-In-Reply-To: <CAEk1YH7=aWJDGbdNj7jeRsOAn01eTCnm9Sc=KVTQ4KFEZ2PsSA@mail.gmail.com>
+Received: from zimbra.linuxprofi.at ([93.83.54.199]:45630 "EHLO
+        zimbra.linuxprofi.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754392AbeBGRQc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Feb 2018 12:16:32 -0500
+In-Reply-To: <20180207170800.15015-1-christoph@boehmwalder.at>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= <christoph@boehmwalder.at>
 
-On 5 February 2018 at 12:56, Damjan Georgievski <gdamjan@gmail.com> wrote:
->>> >>> Second issues is, trackpoint is reported as "ImPS/2 Generic Wheel
->>> >>> Mouse". Middle button scrolling is not enabled by default.
->>> >>
->>> >> I think this will be fixed by:
->>> >>
->>> >> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/patch=
-/?id=3Dec667683c532c93fb41e100e5d61a518971060e2
->>> >>
->>> >
->>> > Interesting, with this patch, the trackpoint appeared sooner, but
->>> > still late (at the 44 second mark):
->>>
->>> but that seems sporadic. on second boot, it didn't show up until I
->>> reloaded the psmouse module
->>>
->>> any ideas how to debug this issue further? possibly before the change
->>> goes upstream.
->>
->> Damjan,
->>
->> Since my other patches seem to have fixed the trackpoint detection
->> issue, mind giving your "tested-by" to this patch so I can get it in?
->
-> let me just run some more tests and I'll get back to you soon.
->
-> I'm getting some weird clicks on the trackpad, I want to compare with
-> vanilla kernel.
->
-> Dimitry, what's best for testing, 4.15.1 + your patches or should I use 4=
-.16rc1?
+Remove some "out of memory" messages that are considered useless.
 
-The only difference I've noticed is these event that seems to be
-repeated/stuck (BTN_LEFT 19.60)?:
-$ sudo libinput debug-events --device /dev/input/event16
--event16  DEVICE_ADDED     Synaptics TM3289-002              seat0
-default group1  cap:pg  size 102x56mm tap(dl off) left scroll-nat
-scroll-2fg-edge click-buttonareas-clickfinger dwt-on
-=E2=80=A6
- event16  POINTER_BUTTON   +19.56s      BTN_LEFT (272) pressed, seat count:=
- 1
- event16  POINTER_BUTTON   +19.58s      BTN_LEFT (272) released, seat count=
-: 0
- event16  POINTER_BUTTON   +19.60s      BTN_LEFT (272) pressed, seat count:=
- 1
- event16  POINTER_BUTTON   +19.66s      BTN_LEFT (272) released, seat count=
-: 0
- event16  POINTER_BUTTON   +20.47s      BTN_MIDDLE (274) pressed, seat coun=
-t: 1
- event16  POINTER_BUTTON   +19.60s      BTN_LEFT (272) pressed, seat count:=
- 1
- event16  POINTER_BUTTON   +20.54s      BTN_MIDDLE (274) released, seat cou=
-nt: 0
- event16  POINTER_BUTTON   +20.57s      BTN_MIDDLE (274) pressed, seat coun=
-t: 1
- event16  POINTER_BUTTON   +19.60s      BTN_LEFT (272) pressed, seat count:=
- 1
- event16  POINTER_BUTTON   +20.57s      BTN_MIDDLE (274) released, seat cou=
-nt: 0
- event16  POINTER_BUTTON   +21.34s      BTN_MIDDLE (274) pressed, seat coun=
-t: 1
- event16  POINTER_BUTTON   +19.60s      BTN_LEFT (272) pressed, seat count:=
- 1
- event16  POINTER_BUTTON   +21.43s      BTN_MIDDLE (274) released, seat cou=
-nt: 0
- event16  POINTER_BUTTON   +21.94s      BTN_MIDDLE (274) pressed, seat coun=
-t: 1
- event16  POINTER_BUTTON   +19.60s      BTN_LEFT (272) pressed, seat count:=
- 1
- event16  POINTER_BUTTON   +22.02s      BTN_MIDDLE (274) released, seat cou=
-nt: 0
+Signed-off-by: Christoph Böhmwalder <christoph@boehmwalder.at>
+---
+ drivers/hid/hid-logitech-dj.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
---=20
-damjan
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 59c54cb4bc64..ba5239840cda 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -414,11 +414,8 @@ static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
+ 
+ 	dj_dev = kzalloc(sizeof(*dj_dev), GFP_KERNEL);
+ 
+-	if (!dj_dev) {
+-		dev_err(&djrcv_hdev->dev, "%s: failed allocating dj_device\n",
+-			__func__);
++	if (!dj_dev)
+ 		goto dj_device_allocate_fail;
+-	}
+ 
+ 	dj_dev->reports_supported =
+ 		get_unaligned_le32(dj_report->report_params
+@@ -1015,11 +1012,9 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 	/* Treat interface 2 */
+ 
+ 	djrcv_dev = kzalloc(sizeof(*djrcv_dev), GFP_KERNEL);
+-	if (!djrcv_dev) {
+-		dev_err(&hdev->dev,
+-			"%s:failed allocating dj_receiver_dev\n", __func__);
++	if (!djrcv_dev)
+ 		return -ENOMEM;
+-	}
++
+ 	djrcv_dev->hdev = hdev;
+ 	INIT_WORK(&djrcv_dev->work, delayedwork_callback);
+ 	spin_lock_init(&djrcv_dev->lock);
+-- 
+2.13.6
+

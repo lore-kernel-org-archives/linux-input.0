@@ -1,20 +1,20 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH 2/4] add default settings and module parameters for video
- controls
-Date: Wed, 7 Feb 2018 14:20:30 +0100
-Message-ID: <40460636-1de2-c280-fe23-ec93f27242ed@xs4all.nl>
+Subject: Re: [PATCH 4/4] add video control handlers using V4L2 control
+ framework
+Date: Wed, 7 Feb 2018 14:22:50 +0100
+Message-ID: <aba77562-d4fc-b1e1-81a4-25316c953338@xs4all.nl>
 References: <1518008438-26603-1-git-send-email-floe@butterbrot.org>
- <1518008438-26603-3-git-send-email-floe@butterbrot.org>
+ <1518008438-26603-5-git-send-email-floe@butterbrot.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb3-smtp-cloud8.xs4all.net ([194.109.24.29]:59975 "EHLO
+Received: from lb3-smtp-cloud8.xs4all.net ([194.109.24.29]:54266 "EHLO
         lb3-smtp-cloud8.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753846AbeBGNUg (ORCPT
+        by vger.kernel.org with ESMTP id S1753696AbeBGNWz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Feb 2018 08:20:36 -0500
-In-Reply-To: <1518008438-26603-3-git-send-email-floe@butterbrot.org>
+        Wed, 7 Feb 2018 08:22:55 -0500
+In-Reply-To: <1518008438-26603-5-git-send-email-floe@butterbrot.org>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -22,63 +22,138 @@ To: Florian Echtler <floe@butterbrot.org>, linux-media@vger.kernel.org
 Cc: linux-input@vger.kernel.org, modin@yuri.at
 
 On 02/07/18 14:00, Florian Echtler wrote:
-> This patch adds parameter definitions and module parameters for the four
-> userspace controls that the SUR40 can currently provide.
+> This patch registers four standard control handlers using the corresponding
+> V4L2 framework.
 > 
 > Signed-off-by: Florian Echtler <floe@butterbrot.org>
 > ---
->  drivers/input/touchscreen/sur40.c | 28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
+>  drivers/input/touchscreen/sur40.c | 64 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 64 insertions(+)
 > 
 > diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-> index 8375b06..8a5b031 100644
+> index d6fa25e..b92325b 100644
 > --- a/drivers/input/touchscreen/sur40.c
 > +++ b/drivers/input/touchscreen/sur40.c
-> @@ -149,6 +149,34 @@ struct sur40_image_header {
->  #define SUR40_TOUCH	0x02
->  #define SUR40_TAG	0x04
+> @@ -38,6 +38,7 @@
+>  #include <media/v4l2-device.h>
+>  #include <media/v4l2-dev.h>
+>  #include <media/v4l2-ioctl.h>
+> +#include <media/v4l2-ctrls.h>
+>  #include <media/videobuf2-v4l2.h>
+>  #include <media/videobuf2-dma-sg.h>
 >  
-> +/* video controls */
-> +#define SUR40_BRIGHTNESS_MAX 0xFF
-> +#define SUR40_BRIGHTNESS_MIN 0x00
-> +#define SUR40_BRIGHTNESS_DEF 0xFF
-> +
-> +#define SUR40_CONTRAST_MAX 0x0F
-> +#define SUR40_CONTRAST_MIN 0x00
-> +#define SUR40_CONTRAST_DEF 0x0A
+> @@ -209,6 +210,7 @@ struct sur40_state {
+>  	struct video_device vdev;
+>  	struct mutex lock;
+>  	struct v4l2_pix_format pix_fmt;
+> +	struct v4l2_ctrl_handler ctrls;
 
-It's kernel style to use lowercase hex values.
+Please rename this to either hdl or ctrl_handler. 'ctrls' is confusing.
 
+>  
+>  	struct vb2_queue queue;
+>  	struct list_head buf_list;
+> @@ -218,6 +220,7 @@ struct sur40_state {
+>  	struct sur40_data *bulk_in_buffer;
+>  	size_t bulk_in_size;
+>  	u8 bulk_in_epaddr;
+> +	u8 vsvideo;
+>  
+>  	char phys[64];
+>  };
+> @@ -231,6 +234,11 @@ struct sur40_buffer {
+>  static const struct video_device sur40_video_device;
+>  static const struct vb2_queue sur40_queue;
+>  static void sur40_process_video(struct sur40_state *sur40);
+> +static int sur40_s_ctrl(struct v4l2_ctrl *ctrl);
 > +
-> +#define SUR40_GAIN_MAX 0x09
-> +#define SUR40_GAIN_MIN 0x00
-> +#define SUR40_GAIN_DEF 0x08
+> +static const struct v4l2_ctrl_ops sur40_ctrl_ops = {
+> +	.s_ctrl = sur40_s_ctrl,
+> +};
+>  
+>  /*
+>   * Note: an earlier, non-public version of this driver used USB_RECIP_ENDPOINT
+> @@ -737,6 +745,36 @@ static int sur40_probe(struct usb_interface *interface,
+>  	sur40->vdev.queue = &sur40->queue;
+>  	video_set_drvdata(&sur40->vdev, sur40);
+>  
+> +	/* initialize the control handler for 4 controls */
+> +	v4l2_ctrl_handler_init(&sur40->ctrls, 4);
+> +	sur40->v4l2.ctrl_handler = &sur40->ctrls;
+> +	sur40->vsvideo = (SUR40_CONTRAST_DEF << 4) | SUR40_GAIN_DEF;
 > +
-> +#define SUR40_BACKLIGHT_MAX 0x01
-> +#define SUR40_BACKLIGHT_MIN 0x00
-> +#define SUR40_BACKLIGHT_DEF 0x01
+> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_BRIGHTNESS,
+> +	  SUR40_BRIGHTNESS_MIN, SUR40_BRIGHTNESS_MAX, 1, clamp(brightness,
+> +	  (uint)SUR40_BRIGHTNESS_MIN, (uint)SUR40_BRIGHTNESS_MAX));
 > +
-> +/* module parameters */
-> +static uint brightness = SUR40_BRIGHTNESS_DEF;
-> +module_param(brightness, uint, 0644);
-> +MODULE_PARM_DESC(brightness, "set initial brightness");
+> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_CONTRAST,
+> +	  SUR40_CONTRAST_MIN, SUR40_CONTRAST_MAX, 1, clamp(contrast,
+> +	  (uint)SUR40_CONTRAST_MIN, (uint)SUR40_CONTRAST_MAX));
+> +
+> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops, V4L2_CID_GAIN,
+> +	  SUR40_GAIN_MIN, SUR40_GAIN_MAX, 1, clamp(gain,
+> +	  (uint)SUR40_GAIN_MIN, (uint)SUR40_GAIN_MAX));
+> +
+> +	v4l2_ctrl_new_std(&sur40->ctrls, &sur40_ctrl_ops,
+> +	  V4L2_CID_BACKLIGHT_COMPENSATION, SUR40_BACKLIGHT_MIN,
+> +	  SUR40_BACKLIGHT_MAX, 1, SUR40_BACKLIGHT_DEF);
+> +
+> +	v4l2_ctrl_handler_setup(&sur40->ctrls);
+> +
+> +	if (sur40->ctrls.error) {
+> +		dev_err(&interface->dev,
+> +			"Unable to register video controls.");
+> +		v4l2_ctrl_handler_free(&sur40->ctrls);
+> +		goto err_unreg_v4l2;
+> +	}
+> +
+>  	error = video_register_device(&sur40->vdev, VFL_TYPE_TOUCH, -1);
+>  	if (error) {
+>  		dev_err(&interface->dev,
+> @@ -769,6 +807,7 @@ static void sur40_disconnect(struct usb_interface *interface)
+>  {
+>  	struct sur40_state *sur40 = usb_get_intfdata(interface);
+>  
+> +	v4l2_ctrl_handler_free(&sur40->ctrls);
+>  	video_unregister_device(&sur40->vdev);
+>  	v4l2_device_unregister(&sur40->v4l2);
+>  
+> @@ -962,6 +1001,31 @@ static int sur40_vidioc_g_fmt(struct file *file, void *priv,
+>  	return 0;
+>  }
+>  
+> +static int sur40_s_ctrl(struct v4l2_ctrl *ctrl)
+> +{
+> +	struct sur40_state *sur40  = container_of(ctrl->handler,
+> +	  struct sur40_state, ctrls);
+> +	u8 value = sur40->vsvideo;
+> +
+> +	switch (ctrl->id) {
+> +	case V4L2_CID_BRIGHTNESS:
+> +		sur40_set_irlevel(sur40, ctrl->val);
+> +		break;
+> +	case V4L2_CID_CONTRAST:
+> +		value = (value & 0x0F) | (ctrl->val << 4);
+> +		sur40_set_vsvideo(sur40, value);
+> +		break;
+> +	case V4L2_CID_GAIN:
+> +		value = (value & 0xF0) | (ctrl->val);
+> +		sur40_set_vsvideo(sur40, value);
+> +		break;
+> +	case V4L2_CID_BACKLIGHT_COMPENSATION:
+> +		sur40_set_preprocessor(sur40, ctrl->val);
+> +		break;
+> +	}
+> +	return 0;
+> +}
+> +
+>  static int sur40_ioctl_parm(struct file *file, void *priv,
+>  			    struct v4l2_streamparm *p)
+>  {
+> 
 
-No range in the param description? I think you can do some macro magic so you
-can use the MIN/MAX defines in the string.
+Looks good otherwise.
 
 Regards,
 
 	Hans
-
-> +static uint contrast = SUR40_CONTRAST_DEF;
-> +module_param(contrast, uint, 0644);
-> +MODULE_PARM_DESC(contrast, "set initial contrast");
-> +static uint gain = SUR40_GAIN_DEF;
-> +module_param(gain, uint, 0644);
-> +MODULE_PARM_DESC(gain, "set initial gain");
-> +
->  static const struct v4l2_pix_format sur40_pix_format[] = {
->  	{
->  		.pixelformat = V4L2_TCH_FMT_TU08,
-> 
-

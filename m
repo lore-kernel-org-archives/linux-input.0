@@ -1,29 +1,56 @@
-From: Christoph =?utf-8?Q?B=C3=B6hmwalder?= <christoph@boehmwalder.at>
-Subject: Re: [PATCH 3/3] hid: logitech-dj: delete unnecessary error messages
-Date: Thu, 8 Feb 2018 10:06:33 +0100
-Message-ID: <20180208090633.l754nmho4bs4tnhb@localhost>
-References: <20180207170800.15015-1-christoph@boehmwalder.at>
- <20180207170800.15015-4-christoph@boehmwalder.at>
- <20180208075628.GA2860@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: Re: [git pull] Input updates for v4.15-rc8
+Date: Thu, 8 Feb 2018 11:04:22 +0100
+Message-ID: <b41e15f7-845a-6873-ddd1-0829b39319a4@suse.cz>
+References: <20180119174205.iq76oggc2h7neymf@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180208075628.GA2860@gmail.com>
+In-Reply-To: <20180119174205.iq76oggc2h7neymf@dtor-ws>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Feb 08, 2018 at 08:56:28AM +0100, Marcus Folkesson wrote:
+On 01/19/2018, 06:42 PM, Dmitry Torokhov wrote:
+> Please pull from:
 > 
-> Thank you, but Markus Elfring already has a submitted a patch for this one.
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 > 
-> /Marcus
+> to receive updates for the input subsystem. You will get:
+> 
+...
+> - touchpad on Lenovo T640p is switched over to SMbus/RMI
+...
 
-Ah sorry, I must've missed that one.  Feel free to dismiss it then (it's
-obviously independent of the other two anyways).
+> 王振杰 (1):
+>       Input: synaptics - Lenovo Thinkpad T460p devices should use RMI
 
---
-Regards,
-Christoph
+Hi,
+
+one of openSUSE users with T460p reports that the touchpad is defunct
+after resume in 4.15. psmouse.synaptics_intertouch=0 works around the
+problem.
+
+The problem is:
+ kernel: rmi4_smbus 8-002c: failed to get SMBus version number!
+ kernel: rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed to read
+current IRQ mask.
+ kernel: rmi4_f01 rmi4-00.fn01: Failed to restore normal operation: -16.
+ kernel: rmi4_f01 rmi4-00.fn01: Resume failed with code -16.
+ kernel: rmi4_physical rmi4-00: Failed to suspend functions: -16
+ kernel: rmi4_smbus 8-002c: Failed to resume device: -16
+ kernel: rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03
+TX register (-16).
+
+The downstream bug is at:
+https://bugzilla.suse.com/show_bug.cgi?id=1079862
+
+Any ideas?
+
+thanks,
+-- 
+js
+suse labs

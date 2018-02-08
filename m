@@ -1,56 +1,87 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: Re: [git pull] Input updates for v4.15-rc8
-Date: Thu, 8 Feb 2018 11:04:22 +0100
-Message-ID: <b41e15f7-845a-6873-ddd1-0829b39319a4@suse.cz>
-References: <20180119174205.iq76oggc2h7neymf@dtor-ws>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: ALPS Trackpoint & pressure
+Date: Fri, 9 Feb 2018 00:21:41 +0100
+Message-ID: <20180208232141.2jxjd2xzkfua42mr@pali>
+References: <20180204150839.b5qm4wb26vic35st@pali>
+ <20180205224955.GB46524@dtor-ws>
+ <20180206002947.GB27776@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180119174205.iq76oggc2h7neymf@dtor-ws>
-Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="yt7uegiil54peyln"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:34288 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752054AbeBHXVp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Feb 2018 18:21:45 -0500
+Content-Disposition: inline
+In-Reply-To: <20180206002947.GB27776@jelly>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 01/19/2018, 06:42 PM, Dmitry Torokhov wrote:
-> Please pull from:
-> 
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-> 
-> to receive updates for the input subsystem. You will get:
-> 
-...
-> - touchpad on Lenovo T640p is switched over to SMbus/RMI
-...
 
-> 王振杰 (1):
->       Input: synaptics - Lenovo Thinkpad T460p devices should use RMI
+--yt7uegiil54peyln
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Tuesday 06 February 2018 10:29:47 Peter Hutterer wrote:
+> On Mon, Feb 05, 2018 at 02:49:55PM -0800, Dmitry Torokhov wrote:
+> > On Sun, Feb 04, 2018 at 04:08:39PM +0100, Pali Roh=C3=A1r wrote:
+> > > Hi! Now playing again with trackpoint connected to ALPS rushmore
+> > > touchpad and I'm seeking a nice feature. Via ALPS PS/2 protocol it
+> > > reports pressure of trackpoint. Parser for it is already implemented =
+in
+> > > alps.c and value is assigned to variable "z". When I just move
+> > > trackpoint z is zero, when I push trackpoint while moving, then z is
+> > > number higher, maximally 32. Variable "z" is set, but unused.
+> > >=20
+> > > Do we have some input interface which can be used to report this
+> > > pressure of trackpoint to userspace? I can use this feature e.g. as
+> > > additional button...
+> >=20
+> > We could either do the conversion in kernel and emit BTN_LEFT, or
+> > report ABS_PRESSURE and see if userspace will be able to handle
+> > REL_X/REL_Y/ABS_PRESSURE device.
+> >=20
+> > Adding Peter.
+>=20
+> judging by trackpoint history, I'd leave the pressure->click conversion to
+> userspace because every trackpoint may need a different threshold setting.
+> "easier" to have this in userspace with dmi matches etc. plus, converting=
+ to
+> BTN_LEFT in the kernel means we cannot use it as a separate interaction
+> anymore.
 
-one of openSUSE users with T460p reports that the touchpad is defunct
-after resume in 4.15. psmouse.synaptics_intertouch=0 works around the
-problem.
+Also BTN_LEFT is already reported when left button under trackpoint is
+pressed. Therefore it would not be possible to distinguish between
+trackpoint "press" and real left button press.
 
-The problem is:
- kernel: rmi4_smbus 8-002c: failed to get SMBus version number!
- kernel: rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed to read
-current IRQ mask.
- kernel: rmi4_f01 rmi4-00.fn01: Failed to restore normal operation: -16.
- kernel: rmi4_f01 rmi4-00.fn01: Resume failed with code -16.
- kernel: rmi4_physical rmi4-00: Failed to suspend functions: -16
- kernel: rmi4_smbus 8-002c: Failed to resume device: -16
- kernel: rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03
-TX register (-16).
+> That aside, I think exporting ABS_PRESSURE is fine, that's what it's there
+> for. Nothing will use it for now though, tbh not sure yet how that would =
+be
+> exported from libinput. but worth filing a bug for, please assign it to m=
+e.
 
-The downstream bug is at:
-https://bugzilla.suse.com/show_bug.cgi?id=1079862
+Ok, so ABS_PRESSURE? Also then question is, how to report minimal and
+maximal (possible) value? If we are going to "standardize" API for it,
+we should also define min/max values, so userspace would be able to
+normalize this pressure event. I can imagine that some devices can
+report 8bit value, but ALPS rushmore reports only 5bit value.
 
-Any ideas?
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
 
-thanks,
--- 
-js
-suse labs
+--yt7uegiil54peyln
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWnzbggAKCRCL8Mk9A+RD
+UqSSAJ9f43wEMj2CwVK5QVJu3OAXOCq/PACfay6sJF8STOOq8pFYo4MRXelDrAU=
+=121q
+-----END PGP SIGNATURE-----
+
+--yt7uegiil54peyln--

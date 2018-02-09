@@ -1,108 +1,49 @@
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [PATCH 1/3] Input: gpio-keys - add support for wakeup interrupt trigger type
-Date: Fri,  9 Feb 2018 19:55:08 +0800
-Message-ID: <20180209115510.11868-2-jeffy.chen@rock-chips.com>
-References: <20180209115510.11868-1-jeffy.chen@rock-chips.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180209115510.11868-1-jeffy.chen@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: briannorris@google.com, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] Input: gpio_keys: Add level trigger support for GPIO keys
+Date: Fri, 9 Feb 2018 17:03:54 +0200
+Message-ID: <CAHp75VcJdYh8fKpqkRXxegRkESaN2Cgxybyei1NVwf_1C7rhwQ@mail.gmail.com>
+References: <6c53b9ccfd4a56fc1b00e243bb9e7cae9e124932.1518155780.git.baolin.wang@linaro.org>
+ <CAKdAkRQ6+9=GUJfoMT_gtwS8DqWKeH9FAqPG2BFzL9GPbPNB4w@mail.gmail.com> <CAMz4kuKb8g5dAu5WQ847CODtVgJQBa_svbeQGGDsYpCjipBp_g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAMz4kuKb8g5dAu5WQ847CODtVgJQBa_svbeQGGDsYpCjipBp_g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, stephen lu <lumotuwe-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joseph Lo <josephl-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Kate Stewart <kstewart-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Philippe Ombredanne <pombredanne-od1rfyK75/E@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DTML <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add support for specifying a different interrupt trigger type for wakeup
-when using the gpio-keys input device as a wakeup source.
+On Fri, Feb 9, 2018 at 11:23 AM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On 9 February 2018 at 14:39, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>> On Thu, Feb 8, 2018 at 10:08 PM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>>> On some platforms (such as Spreadtrum platform), the GPIO keys can only
+>>> be triggered by level type.
+>>
+>> How do you stop the interrupt from re-triggering as long as the key
+>> stays pressed?
+>
+> We will set the level type irq handler as handle_level_irq(), in this
+> function, it will mask and ack the irq firstly.
 
-This would allow the device to configure when to wakeup the system. For
-example a gpio-keys input device for pen insert, may only want to wakeup
-the system when ejecting the pen.
+Wouldn't be ambiguous?
 
-Suggested-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
----
+1. User presses the key ->
+  a) we got edge followed by level signaling;
+  b) IRQ core masks line, calls handler, ACKs, unmasks;
+  c) somewhere here Press Event is sent;
+  d) we still have level... We get IRQ fired again? But see 1. It
+obviously not the case.
+2. User releases the key ->
+  ...
 
- drivers/input/keyboard/gpio_keys.c | 20 ++++++++++++++++++--
- include/linux/gpio_keys.h          |  2 ++
- 2 files changed, 20 insertions(+), 2 deletions(-)
+So, the main question if I understood Dmitry correctly is the period
+in time where IRQ line should be masked on one hand, and on the other
+it will guarantee that user didn't release-press cylcle.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 87e613dc33b8..5e5c93b75a71 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -45,6 +45,7 @@ struct gpio_button_data {
- 	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
- 
- 	unsigned int irq;
-+	unsigned int irq_trigger_type;
- 	spinlock_t lock;
- 	bool disabled;
- 	bool key_pressed;
-@@ -618,6 +619,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 		return error;
- 	}
- 
-+	bdata->irq_trigger_type = irq_get_trigger_type(bdata->irq);
-+
- 	return 0;
- }
- 
-@@ -718,6 +721,9 @@ gpio_keys_get_devtree_pdata(struct device *dev)
- 			/* legacy name */
- 			fwnode_property_read_bool(child, "gpio-key,wakeup");
- 
-+		fwnode_property_read_u32(child, "wakeup-trigger-type",
-+					 &button->wakeup_trigger_type);
-+
- 		button->can_disable =
- 			fwnode_property_read_bool(child, "linux,can-disable");
- 
-@@ -854,7 +860,12 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
- 	if (device_may_wakeup(dev)) {
- 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
- 			struct gpio_button_data *bdata = &ddata->data[i];
--			if (bdata->button->wakeup)
-+			const struct gpio_keys_button *button = bdata->button;
-+
-+			if (button->wakeup && button->wakeup_trigger_type)
-+				irq_set_irq_type(bdata->irq,
-+						 button->wakeup_trigger_type);
-+			if (button->wakeup)
- 				enable_irq_wake(bdata->irq);
- 			bdata->suspended = true;
- 		}
-@@ -878,7 +889,12 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
- 	if (device_may_wakeup(dev)) {
- 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
- 			struct gpio_button_data *bdata = &ddata->data[i];
--			if (bdata->button->wakeup)
-+			const struct gpio_keys_button *button = bdata->button;
-+
-+			if (button->wakeup && button->wakeup_trigger_type)
-+				irq_set_irq_type(bdata->irq,
-+						 bdata->irq_trigger_type);
-+			if (button->wakeup)
- 				disable_irq_wake(bdata->irq);
- 			bdata->suspended = false;
- 		}
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index d06bf77400f1..9b7e7137f768 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -13,6 +13,7 @@ struct device;
-  * @desc:		label that will be attached to button's gpio
-  * @type:		input event type (%EV_KEY, %EV_SW, %EV_ABS)
-  * @wakeup:		configure the button as a wake-up source
-+ * @wakeup_trigger_type:	wakeup interrupt trigger type
-  * @debounce_interval:	debounce ticks interval in msecs
-  * @can_disable:	%true indicates that userspace is allowed to
-  *			disable button via sysfs
-@@ -26,6 +27,7 @@ struct gpio_keys_button {
- 	const char *desc;
- 	unsigned int type;
- 	int wakeup;
-+	int wakeup_trigger_type;
- 	int debounce_interval;
- 	bool can_disable;
- 	int value;
 -- 
-2.11.0
+With Best Regards,
+Andy Shevchenko
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,49 +1,87 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Input: gpio_keys: Add level trigger support for GPIO keys
-Date: Fri, 9 Feb 2018 17:03:54 +0200
-Message-ID: <CAHp75VcJdYh8fKpqkRXxegRkESaN2Cgxybyei1NVwf_1C7rhwQ@mail.gmail.com>
-References: <6c53b9ccfd4a56fc1b00e243bb9e7cae9e124932.1518155780.git.baolin.wang@linaro.org>
- <CAKdAkRQ6+9=GUJfoMT_gtwS8DqWKeH9FAqPG2BFzL9GPbPNB4w@mail.gmail.com> <CAMz4kuKb8g5dAu5WQ847CODtVgJQBa_svbeQGGDsYpCjipBp_g@mail.gmail.com>
+From: Brian Norris <briannorris@chromium.org>
+Subject: Re: [PATCH 2/3] Input: gpio-keys - allow setting wakeup interrupt
+ trigger type in DT
+Date: Fri, 9 Feb 2018 15:42:47 -0800
+Message-ID: <20180209234246.GA252335@ban.mtv.corp.google.com>
+References: <20180209115510.11868-1-jeffy.chen@rock-chips.com>
+ <20180209115510.11868-3-jeffy.chen@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAMz4kuKb8g5dAu5WQ847CODtVgJQBa_svbeQGGDsYpCjipBp_g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, stephen lu <lumotuwe-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joseph Lo <josephl-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Kate Stewart <kstewart-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Philippe Ombredanne <pombredanne-od1rfyK75/E@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DTML <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:37484 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753251AbeBIXmv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Feb 2018 18:42:51 -0500
+Received: by mail-pg0-f65.google.com with SMTP id o1so4638214pgn.4
+        for <linux-input@vger.kernel.org>; Fri, 09 Feb 2018 15:42:51 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20180209115510.11868-3-jeffy.chen@rock-chips.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, briannorris@google.com, dtor@google.com, dianders@google.com, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 
-On Fri, Feb 9, 2018 at 11:23 AM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 9 February 2018 at 14:39, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> On Thu, Feb 8, 2018 at 10:08 PM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->>> On some platforms (such as Spreadtrum platform), the GPIO keys can only
->>> be triggered by level type.
->>
->> How do you stop the interrupt from re-triggering as long as the key
->> stays pressed?
->
-> We will set the level type irq handler as handle_level_irq(), in this
-> function, it will mask and ack the irq firstly.
+Hi Jeffy,
 
-Wouldn't be ambiguous?
+On Fri, Feb 09, 2018 at 07:55:09PM +0800, Jeffy Chen wrote:
+> Allow specifying a different interrupt trigger type for wakeup when
+> using the gpio-keys input device as a wakeup source.
+> 
+> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+> ---
+> 
+>  Documentation/devicetree/bindings/input/gpio-keys.txt | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
+> index a94940481e55..61926cef708f 100644
+> --- a/Documentation/devicetree/bindings/input/gpio-keys.txt
+> +++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+> @@ -26,6 +26,15 @@ Optional subnode-properties:
+>  	  If not specified defaults to 5.
+>  	- wakeup-source: Boolean, button can wake-up the system.
+>  			 (Legacy property supported: "gpio-key,wakeup")
+> +	- wakeup-trigger-type: Specifies the interrupt trigger type for wakeup.
+> +		 The value is defined in <dt-bindings/interrupt-controller/irq.h>
 
-1. User presses the key ->
-  a) we got edge followed by level signaling;
-  b) IRQ core masks line, calls handler, ACKs, unmasks;
-  c) somewhere here Press Event is sent;
-  d) we still have level... We get IRQ fired again? But see 1. It
-obviously not the case.
-2. User releases the key ->
-  ...
+Do you really want to codify interrupt triggers here? It seems like most
+of the information about edge vs. level is already codified elsewhere,
+so this becomes a little redundant. And in fact, some bindings may be
+specifying a "gpio", not technically an interrupt (at least not
+directly), so it feels weird to apply IRQ_* flags to them right here.
+Anyway, I think he only piece you really want to describe here is, do we
+wake on "event asserted", "event deasserted", or both. (The "none" case
+would just mean you shouldn't have the "wakeup-source" property.)
 
-So, the main question if I understood Dmitry correctly is the period
-in time where IRQ line should be masked on one hand, and on the other
-it will guarantee that user didn't release-press cylcle.
+So maybe:
 
--- 
-With Best Regards,
-Andy Shevchenko
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	wakeup-trigger-type: Specifies whether the key should wake the
+	system when asserted, when deasserted, or both. This property is
+	only valid for keys that wake up the system (e.g., when the
+	"wakeup-source" property is also provided). Supported values
+	are:
+	  1: asserted
+	  2: deasserted
+	  3: both asserted and deasserted
+
+? We could still make macros out of those, if we want
+(input/linux-event-codes.h?). And then leave it up to the driver to
+determine how to translate that into the appropriate edge or level
+triggers.
+
+Brian
+
+> +		 Only the following flags are supported:
+> +			IRQ_TYPE_NONE
+> +			IRQ_TYPE_EDGE_RISING
+> +			IRQ_TYPE_EDGE_FALLING
+> +			IRQ_TYPE_EDGE_BOTH
+> +			IRQ_TYPE_LEVEL_HIGH
+> +			IRQ_TYPE_LEVEL_LOW
+>  	- linux,can-disable: Boolean, indicates that button is connected
+>  	  to dedicated (not shared) interrupt which can be disabled to
+>  	  suppress events from the button.
+> -- 
+> 2.11.0
+> 
+> 

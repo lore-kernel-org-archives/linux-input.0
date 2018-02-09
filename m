@@ -1,82 +1,70 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: ALPS Trackpoint & pressure
-Date: Fri, 9 Feb 2018 09:57:03 +1000
-Message-ID: <20180208235703.GA4300@jelly>
-References: <20180204150839.b5qm4wb26vic35st@pali>
- <20180205224955.GB46524@dtor-ws>
- <20180206002947.GB27776@jelly>
- <20180208232141.2jxjd2xzkfua42mr@pali>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [git pull] Input updates for v4.15-rc8
+Date: Thu, 8 Feb 2018 17:39:16 -0800
+Message-ID: <20180209013916.GA42766@dtor-ws>
+References: <20180119174205.iq76oggc2h7neymf@dtor-ws>
+ <b41e15f7-845a-6873-ddd1-0829b39319a4@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:13105 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751317AbeBHX5K (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Feb 2018 18:57:10 -0500
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:38412 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752154AbeBIBjU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Feb 2018 20:39:20 -0500
 Content-Disposition: inline
-In-Reply-To: <20180208232141.2jxjd2xzkfua42mr@pali>
+In-Reply-To: <b41e15f7-845a-6873-ddd1-0829b39319a4@suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Fri, Feb 09, 2018 at 12:21:41AM +0100, Pali Rohár wrote:
-> On Tuesday 06 February 2018 10:29:47 Peter Hutterer wrote:
-> > On Mon, Feb 05, 2018 at 02:49:55PM -0800, Dmitry Torokhov wrote:
-> > > On Sun, Feb 04, 2018 at 04:08:39PM +0100, Pali Rohár wrote:
-> > > > Hi! Now playing again with trackpoint connected to ALPS rushmore
-> > > > touchpad and I'm seeking a nice feature. Via ALPS PS/2 protocol it
-> > > > reports pressure of trackpoint. Parser for it is already implemented in
-> > > > alps.c and value is assigned to variable "z". When I just move
-> > > > trackpoint z is zero, when I push trackpoint while moving, then z is
-> > > > number higher, maximally 32. Variable "z" is set, but unused.
-> > > > 
-> > > > Do we have some input interface which can be used to report this
-> > > > pressure of trackpoint to userspace? I can use this feature e.g. as
-> > > > additional button...
-> > > 
-> > > We could either do the conversion in kernel and emit BTN_LEFT, or
-> > > report ABS_PRESSURE and see if userspace will be able to handle
-> > > REL_X/REL_Y/ABS_PRESSURE device.
-> > > 
-> > > Adding Peter.
+On Thu, Feb 08, 2018 at 11:04:22AM +0100, Jiri Slaby wrote:
+> On 01/19/2018, 06:42 PM, Dmitry Torokhov wrote:
+> > Please pull from:
 > > 
-> > judging by trackpoint history, I'd leave the pressure->click conversion to
-> > userspace because every trackpoint may need a different threshold setting.
-> > "easier" to have this in userspace with dmi matches etc. plus, converting to
-> > BTN_LEFT in the kernel means we cannot use it as a separate interaction
-> > anymore.
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> > 
+> > to receive updates for the input subsystem. You will get:
+> > 
+> ...
+> > - touchpad on Lenovo T640p is switched over to SMbus/RMI
+> ...
 > 
-> Also BTN_LEFT is already reported when left button under trackpoint is
-> pressed. Therefore it would not be possible to distinguish between
-> trackpoint "press" and real left button press.
-
-yep, that's what I meant with "we cannot use it as separate interaction",
-we'd have no way to know how the click was generated.
-
+> > çŽ‹æŒ¯æ° (1):
+> >       Input: synaptics - Lenovo Thinkpad T460p devices should use RMI
 > 
-> > That aside, I think exporting ABS_PRESSURE is fine, that's what it's there
-> > for. Nothing will use it for now though, tbh not sure yet how that would be
-> > exported from libinput. but worth filing a bug for, please assign it to me.
+> Hi,
 > 
-> Ok, so ABS_PRESSURE? Also then question is, how to report minimal and
-> maximal (possible) value? If we are going to "standardize" API for it,
-> we should also define min/max values, so userspace would be able to
-> normalize this pressure event. I can imagine that some devices can
-> report 8bit value, but ALPS rushmore reports only 5bit value.
+> one of openSUSE users with T460p reports that the touchpad is defunct
+> after resume in 4.15. psmouse.synaptics_intertouch=0 works around the
+> problem.
+> 
+> The problem is:
+>  kernel: rmi4_smbus 8-002c: failed to get SMBus version number!
+>  kernel: rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed to read
+> current IRQ mask.
+>  kernel: rmi4_f01 rmi4-00.fn01: Failed to restore normal operation: -16.
+>  kernel: rmi4_f01 rmi4-00.fn01: Resume failed with code -16.
+>  kernel: rmi4_physical rmi4-00: Failed to suspend functions: -16
+>  kernel: rmi4_smbus 8-002c: Failed to resume device: -16
+>  kernel: rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to write to F03
+> TX register (-16).
+> 
+> The downstream bug is at:
+> https://bugzilla.suse.com/show_bug.cgi?id=1079862
+> 
+> Any ideas?
 
-tbh, I'm not putting my hopes on this being an accurate range ever. So
-what's likely going to happen is that you pick a best-guess min/max for the
-kernel and then we have dmi-based overrides for every single trackpoint in
-userspace to tell us what a realistic threshold value for a click is and
-what the actual min/max ranges is.
+Hmm, maybe the seuence between psmouse and rmi/smbus is not quite right
+on resume on that box. Can you ask the reporter to:
 
-This is relatively easy to measure in userspace, we can pop it into
-60-evdev.hwdb to override the min/max and ship the threshold values as
-libinput-specific files. It's awful, but most likely the best we can do.
+echo 1 > /sys/power/pm_print_times
+suspend/resume
 
-But hey, at least a min of 0 will be accurate ;)
+and send dmesg?
 
-Cheers,
-   Peter
+Thanks.
+
+-- 
+Dmitry

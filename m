@@ -1,95 +1,130 @@
-From: JeffyChen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: Re: [PATCH 2/3] Input: gpio-keys - allow setting wakeup interrupt
- trigger type in DT
-Date: Sat, 10 Feb 2018 08:06:39 +0800
-Message-ID: <5A7E378F.4060100@rock-chips.com>
-References: <20180209115510.11868-1-jeffy.chen@rock-chips.com> <20180209115510.11868-3-jeffy.chen@rock-chips.com> <20180209234246.GA252335@ban.mtv.corp.google.com>
+From: R0b0t1 <r030t1@gmail.com>
+Subject: UHID Device Reports Do Not Generate OS Activity
+Date: Sat, 10 Feb 2018 03:33:41 -0600
+Message-ID: <CAAD4mYj0pUUbwX8mKDP2qTn=QZM9ubk3f9FsabefK4xntY7bFA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20180209234246.GA252335-1WoqFLEneaORBCj4nEdE8WJtCfot02Oa@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, briannorris-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, dtor-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, dianders-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Content-Type: multipart/mixed; boundary="001a114115ae38e6f00564d8577b"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f41.google.com ([209.85.215.41]:38909 "EHLO
+        mail-lf0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750909AbeBJJdo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 10 Feb 2018 04:33:44 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi Brian,
+--001a114115ae38e6f00564d8577b
+Content-Type: text/plain; charset="UTF-8"
 
-Thanks for your reply.
+Hello,
 
-On 02/10/2018 07:42 AM, Brian Norris wrote:
-> Hi Jeffy,
->
-> On Fri, Feb 09, 2018 at 07:55:09PM +0800, Jeffy Chen wrote:
->> Allow specifying a different interrupt trigger type for wakeup when
->> using the gpio-keys input device as a wakeup source.
->>
->> Signed-off-by: Jeffy Chen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
->> ---
->>
->>   Documentation/devicetree/bindings/input/gpio-keys.txt | 9 +++++++++
->>   1 file changed, 9 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
->> index a94940481e55..61926cef708f 100644
->> --- a/Documentation/devicetree/bindings/input/gpio-keys.txt
->> +++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
->> @@ -26,6 +26,15 @@ Optional subnode-properties:
->>   	  If not specified defaults to 5.
->>   	- wakeup-source: Boolean, button can wake-up the system.
->>   			 (Legacy property supported: "gpio-key,wakeup")
->> +	- wakeup-trigger-type: Specifies the interrupt trigger type for wakeup.
->> +		 The value is defined in <dt-bindings/interrupt-controller/irq.h>
->
-> Do you really want to codify interrupt triggers here? It seems like most
-> of the information about edge vs. level is already codified elsewhere,
-> so this becomes a little redundant. And in fact, some bindings may be
-> specifying a "gpio", not technically an interrupt (at least not
-> directly), so it feels weird to apply IRQ_* flags to them right here.
-> Anyway, I think he only piece you really want to describe here is, do we
-> wake on "event asserted", "event deasserted", or both. (The "none" case
-> would just mean you shouldn't have the "wakeup-source" property.)
->
-> So maybe:
->
-> 	wakeup-trigger-type: Specifies whether the key should wake the
-> 	system when asserted, when deasserted, or both. This property is
-> 	only valid for keys that wake up the system (e.g., when the
-> 	"wakeup-source" property is also provided). Supported values
-> 	are:
-> 	  1: asserted
-> 	  2: deasserted
-> 	  3: both asserted and deasserted
->
-> ? We could still make macros out of those, if we want
-> (input/linux-event-codes.h?). And then leave it up to the driver to
-> determine how to translate that into the appropriate edge or level
-> triggers.
-make sense, will do it in the next version.
->
-> Brian
->
->> +		 Only the following flags are supported:
->> +			IRQ_TYPE_NONE
->> +			IRQ_TYPE_EDGE_RISING
->> +			IRQ_TYPE_EDGE_FALLING
->> +			IRQ_TYPE_EDGE_BOTH
->> +			IRQ_TYPE_LEVEL_HIGH
->> +			IRQ_TYPE_LEVEL_LOW
->>   	- linux,can-disable: Boolean, indicates that button is connected
->>   	  to dedicated (not shared) interrupt which can be disabled to
->>   	  suppress events from the button.
->> --
->> 2.11.0
->>
->>
->
->
->
+I am trying to simulate a keyboard using the uhid interface. The fake
+device shows up in dmesg, but attempting to press the "a" key does
+nothing I can see. No input appears in the active terminal, nor in an
+xev window.
 
+The program receives UHID_OPEN, UHID_START, and UHID_CLOSE.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Many different report descriptors were tried. The one currently
+uncommented is the one distributed with the USB implementor forum's
+HID report descriptor tool. The other is one found in a description of
+a boot device compatible keyboard.
+
+Thanks in advance,
+     R0b0t1
+
+--001a114115ae38e6f00564d8577b
+Content-Type: text/x-csrc; charset="US-ASCII"; name="kbd.c"
+Content-Disposition: attachment; filename="kbd.c"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_jdh5y6km0
+
+I2RlZmluZSBfR05VX1NPVVJDRQojaW5jbHVkZSA8c3RkbGliLmg+CiNpbmNsdWRlIDxzdGRpby5o
+PgojaW5jbHVkZSA8c3RkaW50Lmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHN0cmlu
+Zy5oPgoKI2luY2x1ZGUgPGVycm5vLmg+CiNpbmNsdWRlIDxmY250bC5oPgojaW5jbHVkZSA8cG9s
+bC5oPgoKI2luY2x1ZGUgPHN5cy9pb2N0bC5oPgojaW5jbHVkZSA8bGludXgvdWhpZC5oPgoKI2Rl
+ZmluZSBoYW5kbGVfZXJyb3IobSkgXAoJZG8geyBwZXJyb3IobSk7IGV4aXQoRVhJVF9GQUlMVVJF
+KTsgfSB3aGlsZSAoMCkKCnN0YXRpYyB1bnNpZ25lZCBjaGFyIHJkZXNjW10gPSB7CgkweDA1LCAw
+eDAxLAoJMHgwOSwgMHgwNiwKCTB4YTEsIDB4MDEsCgoJMHgwNSwgMHgwNywKCTB4MTksIDB4ZTAs
+CgkweDI5LCAweGU3LAoJMHgxNSwgMHgwMCwKCTB4MjUsIDB4MDEsCgkweDc1LCAweDAxLAoJMHg5
+NSwgMHgwOCwKCTB4ODEsIDB4MDIsCgoJMHg5NSwgMHgwMSwKCTB4NzUsIDB4MDgsCgkweDgxLCAw
+eDAzLAoKCTB4OTUsIDB4MDUsCgkweDc1LCAweDAxLAoJMHgwNSwgMHgwOCwKCTB4MTksIDB4MDEs
+CgkweDI5LCAweDA1LAoJMHg5MSwgMHgwMiwKCgkweDk1LCAweDAxLAoJMHg3NSwgMHgwMywKCTB4
+OTEsIDB4MDMsCgoJMHg5NSwgMHgwNiwKCTB4NzUsIDB4MDgsCgkweDE1LCAweDAwLAoJMHgyNSwg
+MHg2NSwKCTB4MDUsIDB4MDcsCgkweDE5LCAweDAwLAoJMHgyOSwgMHg2NSwKCTB4ODEsIDB4MDAs
+CgoJMHhjMAp9OwoKLyoKc3RhdGljIHVuc2lnbmVkIGNoYXIgcmRlc2NbXSA9IHsKCTB4MDUsIDB4
+MDEsIC8vIFVzYWdlIFBhZ2UgKEdlbmVyaWMgRGVza3RvcCkKCTB4MDksIDB4MDYsIC8vIFVzYWdl
+IChLZXlib2FyZCkKCgkweGExLCAweDAxLCAvLyBDb2xsZWN0aW9uIChBcHBsaWNhdGlvbikKCQoJ
+Ly8gTW9kaWZpZXIgcmVwb3J0LgoJMHg3NSwgMHgwMSwgLy8gUmVwb3J0IFNpemUgKDEpCgkweDk1
+LCAweDA4LCAvLyBSZXBvcnQgQ291bnQgKDgpCgkweDA1LCAweDA3LCAvLyBVc2FnZSBQYWdlIChL
+ZXkgQ29kZXMpCgkweDE5LCAweGUwLCAvLyBVc2FnZSBNaW5pbXVtICgyMjQpCgkweDI5LCAweGU3
+LCAvLyBVc2FnZSBNYXhpbXVtICgyMzEpCgkweDE1LCAweDAwLCAvLyBMb2dpY2FsIE1pbmltdW0g
+KDApIC0gU2hvcnRlbiAoMHgxNCk/CgkweDI1LCAweDAxLCAvLyBMb2dpY2FsIE1heGltdW0gKDEp
+CgkweDgxLCAweDAyLCAvLyBJbnB1dCAoRGF0YSwgVmFyaWFibGUsIEFic29sdXRlKQoKCS8vIFJl
+c2VydmVkIGJ5dGUuCgkweDk1LCAweDAxLCAvLyBSZXBvcnQgQ291bnQgKDEpCgkweDc1LCAweDA4
+LCAvLyBSZXBvcnQgU2l6ZSAoOCkKCTB4ODEsIDB4MDEsIC8vIElucHV0IChDb25zdGFudCkKCgkv
+LyBMRUQgcmVwb3J0LgoJMHg5NSwgMHgwNSwgLy8gUmVwb3J0IENvdW50ICg1KQoJMHg3NSwgMHgw
+MSwgLy8gUmVwb3J0IFNpemUgKDEpCgkweDA1LCAweDA4LCAvLyBVc2FnZSBQYWdlIChMRURzKQoJ
+MHgxOSwgMHgwMSwgLy8gVXNhZ2UgTWluaW11bSAoMSkKCTB4MjksIDB4MDUsIC8vIFVzYWdlIE1h
+eGltdW0gKDUpCgkweDkxLCAweDAyLCAvLyBPdXRwdXQgKERhdGEsIFZhcmlhYmxlLCBBYnNvbHV0
+ZSkKCgkvLyBMRUQgcmVwb3J0IHBhZGRpbmcuCgkweDk1LCAweDAxLCAvLyBSZXBvcnQgQ291bnQg
+KDEpCgkweDc1LCAweDAzLCAvLyBSZXBvcnQgU2l6ZSAoMykKCTB4OTEsIDB4MDEsIC8vIE91dHB1
+dCAoQ29uc3RhbnQpCgoJLy8gS2V5IGNvZGUgcmVwb3J0LgoJMHg5NSwgMHgwNiwgLy8gUmVwb3J0
+IENvdW50ICg2KQoJMHg3NSwgMHgwOCwgLy8gUmVwb3J0IFNpemUgKDgpCgkweDE1LCAweDAwLCAv
+LyBMb2dpY2FsIE1pbmltdW0gKDApCgkweDI2LCAweGZmLCAweDAwLCAvLyBMb2dpY2FsIE1heGlt
+dW0gKDI1NSkKCTB4MDUsIDB4MDcsIC8vIFVzYWdlIFBhZ2UgKEtleSBDb2RlcykKCTB4MTksIDB4
+MDAsIC8vIFVzYWdlIE1pbmltdW0gKDApCgkweDI5LCAweGZmLCAvLyBVc2FnZSBNYXhpbXVtICgy
+NTUpCgkweDgxLCAweDAwLCAvLyBJbnB1dCAoRGF0YSwgQXJyYXkpCgoJMHhjMAkJLy8gRW5kIENv
+bGxlY3Rpb24KfTsKKi8KCgpzdGF0aWMgaW50CnVoaWRfd3JpdGUoaW50IGZkLCBjb25zdCBzdHJ1
+Y3QgdWhpZF9ldmVudCAqaGUpCnsKCXNzaXplX3QgciA9IHdyaXRlKGZkLCBoZSwgc2l6ZW9mKCpo
+ZSkpOwoJaWYgKHIgPCAwKSB7CgkJZnByaW50ZihzdGRlcnIsICJ3cml0ZTogY2Fubm90IHdyaXRl
+IHRvIHVoaWQ6ICVtXG4iKTsKCQlyZXR1cm4gLWVycm5vOwoJfSBlbHNlIGlmIChyICE9IHNpemVv
+ZigqaGUpKSB7CgkJZnByaW50ZihzdGRlcnIsICJ3cml0ZTogd3Jvbmcgc2l6ZSB3cml0dGVuIHRv
+IHVoaWQ6ICVsZCAhPSAlbHVcbiIsCgkJCQlyLCBzaXplb2YoKmhlKSk7CgkJcmV0dXJuIC1FRkFV
+TFQ7Cgl9IGVsc2UgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQKdWhpZF9ldmVudChpbnQgZmQpCnsK
+CXN0cnVjdCB1aGlkX2V2ZW50IGhlOwoJc3NpemVfdCBzejsKCWlmICgoc3ogPSByZWFkKGZkLCAm
+aGUsIHNpemVvZihoZSkpKSA9PSAtMSkKCQloYW5kbGVfZXJyb3IoInJlYWQiKTsKCglzd2l0Y2gg
+KGhlLnR5cGUpIHsKCWNhc2UgVUhJRF9TVEFSVDoKCQlmcHJpbnRmKHN0ZGVyciwgIlVISURfU1RB
+UlQgZnJvbSB1aGlkLWRldi5cbiIpOwoJCWJyZWFrOwoJY2FzZSBVSElEX1NUT1A6CgkJZnByaW50
+ZihzdGRlcnIsICJVSElEX1NUT1AgZnJvbSB1aGlkLWRldi5cbiIpOwoJCWJyZWFrOwoJY2FzZSBV
+SElEX09QRU46CgkJZnByaW50ZihzdGRlcnIsICJVSElEX09QRU4gZnJvbSB1aGlkLWRldi5cbiIp
+OwoJCXJldHVybiAwOwoJY2FzZSBVSElEX0NMT1NFOgoJCWZwcmludGYoc3RkZXJyLCAiVUhJRF9D
+TE9TRSBmcm9tIHVoaWQtZGV2LlxuIik7CgkJYnJlYWs7CgljYXNlIFVISURfT1VUUFVUOgoJCWZw
+cmludGYoc3RkZXJyLCAiVUhJRF9PVVRQVVQgZnJvbSB1aGlkLWRldi5cbiIpOwoJCS8vIFRPRE86
+IEhhbmRsZSBvdXRwdXQuCgkJYnJlYWs7CgljYXNlIFVISURfT1VUUFVUX0VWOgoJCWZwcmludGYo
+c3RkZXJyLCAiVUhJRF9PVVRQVVRfRVYgZnJvbSB1aGlkLWRldi5cbiIpOwoJCWJyZWFrOwoJZGVm
+YXVsdDoKCQlmcHJpbnRmKHN0ZGVyciwgIkludmFsaWQgZXZlbnQgZnJvbSB1aGlkLWRldjogJXUu
+XG4iLCBoZS50eXBlKTsKCX0KCglyZXR1cm4gMTsKfQoKaW50Cm1haW4oaW50IGFyZ2MsIGNoYXIg
+KmFyZ3ZbXSkKewoJaW50IGZkOwoJc3NpemVfdCBzejsKCXN0cnVjdCB1aGlkX2V2ZW50IGhlOwoK
+CWlmICgoZmQgPSBvcGVuKCIvZGV2L3VoaWQiLCBPX1JEV1IgfCBPX0NMT0VYRUMpKSA9PSAtMSkK
+CQloYW5kbGVfZXJyb3IoIm9wZW4iKTsKCglzdHJ1Y3QgcG9sbGZkIGZkc1sxXSA9IHsKCQl7LmZk
+ID0gZmQsIC5ldmVudHMgPSBQT0xMSU59Cgl9OwoKCW1lbXNldCgmaGUsIDAsIHNpemVvZihoZSkp
+OwoJaGUudHlwZSA9IFVISURfQ1JFQVRFMjsKCXN0cmNweSgoY2hhciAqKWhlLnUuY3JlYXRlLm5h
+bWUsICJrYi1kYWVtb24tZGV2aWNlIik7CgltZW1jcHkoaGUudS5jcmVhdGUyLnJkX2RhdGEsIHJk
+ZXNjLCBzaXplb2YocmRlc2MpKTsKCWhlLnUuY3JlYXRlMi5yZF9zaXplID0gc2l6ZW9mKHJkZXNj
+KTsKCWhlLnUuY3JlYXRlMi5idXMgPSBCVVNfVVNCOwoJaGUudS5jcmVhdGUyLnZlbmRvciA9IDB4
+MTVkOTsKCWhlLnUuY3JlYXRlMi5wcm9kdWN0ID0gMHgwYTM3OwoJaGUudS5jcmVhdGUyLnZlcnNp
+b24gPSAwOwoJaGUudS5jcmVhdGUyLmNvdW50cnkgPSAwOwoJaWYgKHVoaWRfd3JpdGUoZmQsICZo
+ZSkpCgkJaGFuZGxlX2Vycm9yKCJ1aGlkX3dyaXRlIik7CgoJY2hhciBjb250ID0gMTsKCXdoaWxl
+IChjb250KSB7CgkJaW50IG4gPSBwcG9sbChmZHMsIHNpemVvZihmZHMpLCBOVUxMLCBOVUxMKTsK
+CQlpZiAobiA9PSAtMSkKCQkJaGFuZGxlX2Vycm9yKCJwcG9sbCIpOwoKCQlmb3IgKGludCBpID0g
+MDsgaSA8IG47IGkrKykgewoJCQlpZiAoZmRzW2ldLmZkID09IGZkICYmCgkJCQlmZHNbaV0ucmV2
+ZW50cyAmIFBPTExJTikKCQkJCWNvbnQgPSB1aGlkX2V2ZW50KGZkc1tpXS5mZCk7CgkJfQoJfQoK
+CW1lbXNldCgmaGUsIDAsIHNpemVvZihoZSkpOwoJaGUudHlwZSA9IFVISURfSU5QVVQyOwoJaGUu
+dS5pbnB1dDIuc2l6ZSA9IDg7CgloZS51LmlucHV0Mi5kYXRhWzBdID0gMHgwMDsKCWhlLnUuaW5w
+dXQyLmRhdGFbMV0gPSAweDAwOwoJaGUudS5pbnB1dDIuZGF0YVsyXSA9IDB4MDQ7CgloZS51Lmlu
+cHV0Mi5kYXRhWzNdID0gMHgwMDsKCWhlLnUuaW5wdXQyLmRhdGFbNF0gPSAweDAwOwoJaGUudS5p
+bnB1dDIuZGF0YVs1XSA9IDB4MDA7CgloZS51LmlucHV0Mi5kYXRhWzZdID0gMHgwMDsKCWhlLnUu
+aW5wdXQyLmRhdGFbN10gPSAweDAwOwoJaWYgKHVoaWRfd3JpdGUoZmQsICZoZSkpCgkJaGFuZGxl
+X2Vycm9yKCJ1aGlkX3dyaXRlIik7CgoJbWVtc2V0KCZoZSwgMCwgc2l6ZW9mKGhlKSk7CgloZS50
+eXBlID0gVUhJRF9JTlBVVDI7CgloZS51LmlucHV0Mi5zaXplID0gODsKCWhlLnUuaW5wdXQyLmRh
+dGFbMF0gPSAweDAwOwoJaGUudS5pbnB1dDIuZGF0YVsxXSA9IDB4MDA7CgloZS51LmlucHV0Mi5k
+YXRhWzJdID0gMHgwMDsKCWhlLnUuaW5wdXQyLmRhdGFbM10gPSAweDAwOwoJaGUudS5pbnB1dDIu
+ZGF0YVs0XSA9IDB4MDA7CgloZS51LmlucHV0Mi5kYXRhWzVdID0gMHgwMDsKCWhlLnUuaW5wdXQy
+LmRhdGFbNl0gPSAweDAwOwoJaGUudS5pbnB1dDIuZGF0YVs3XSA9IDB4MDA7CglpZiAodWhpZF93
+cml0ZShmZCwgJmhlKSkKCQloYW5kbGVfZXJyb3IoInVoaWRfd3JpdGUiKTsKCQoJbWVtc2V0KCZo
+ZSwgMCwgc2l6ZW9mKGhlKSk7CgloZS50eXBlID0gVUhJRF9ERVNUUk9ZOwoJaWYgKHVoaWRfd3Jp
+dGUoZmQsICZoZSkpCgkJaGFuZGxlX2Vycm9yKCJ1aGlkX3dyaXRlIik7Cgl1aGlkX2V2ZW50KGZk
+KTsKCgoJcmV0dXJuIEVYSVRfU1VDQ0VTUzsKfQo=
+--001a114115ae38e6f00564d8577b--

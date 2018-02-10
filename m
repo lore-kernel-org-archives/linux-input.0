@@ -1,56 +1,112 @@
-From: Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
-Subject: Re: Software evolution around =?UTF-8?B?4oCcY2hlY2twYXRjaC5wbA==?=
- =?UTF-8?B?4oCdPw==?=
-Date: Sat, 10 Feb 2018 15:57:34 +0000
-Message-ID: <20180210155734.708d01b6@archlinux>
-References: <0406765c-bdd1-1a82-cf66-1c248063ae4f@users.sourceforge.net>
-        <20180204112346.0977e938@archlinux>
-        <9420fc82-1a37-3601-bafe-f57ef953bfcd@users.sourceforge.net>
-        <87DF341A-1356-4B1B-8D25-14D5B0AAB01D@jic23.retrosnub.co.uk>
-        <f008911b-c595-6e0f-d85f-076e994ae7db@users.sourceforge.net>
-        <20180210145336.233c721d@archlinux>
-        <1518274783.6579.2.camel@perches.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1518274783.6579.2.camel-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Guus Sliepen <guus@sliepen.org>
+Subject: [PATCH] HID: corsair: Add support for the GLAIVE RGB gaming mouse
+Date: Sat, 10 Feb 2018 18:12:12 +0100
+Message-ID: <20180210171212.7988-1-guus@sliepen.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arianus.sliepen.org ([92.243.30.131]:38096 "EHLO
+        arianus.sliepen.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750857AbeBJRTQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 10 Feb 2018 12:19:16 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jikos@kernel.org
+Cc: Guus Sliepen <guus@sliepen.org>
 
-On Sat, 10 Feb 2018 06:59:43 -0800
-Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org> wrote:
+This mouse sold by Corsair as the GLAIVE RGB gaming mouse has the same
+problem with its HID reports as the Scimitar PRO RGB, so reuse the
+same fix for the GLAIVE RGB.
 
-> On Sat, 2018-02-10 at 14:53 +0000, Jonathan Cameron wrote:
-> > While it would be great to improve checkpatches false
-> > positive rate, it's very nature as a string matcher makes
-> > this hard.  
-> 
-> true.
-> 
-> what are the false positives you see?
-> 
-This particular case is only 'sort of' a false positive
-in the warning that a message printed on a memory allocation
-failure 'may' not add any information over the generic case.
+Signed-off-by: Guus Sliepen <guus@sliepen.org>
+---
+ drivers/hid/hid-corsair.c | 16 ++++++++++------
+ drivers/hid/hid-ids.h     |  1 +
+ drivers/hid/hid-quirks.c  |  2 ++
+ 3 files changed, 13 insertions(+), 6 deletions(-)
 
-Very hard to judge on whether it is useful to know more than
-an allocation failed somewhere or not.
+diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
+index 9ba5d98a1..6c9c8fe1b 100644
+--- a/drivers/hid/hid-corsair.c
++++ b/drivers/hid/hid-corsair.c
+@@ -673,7 +673,7 @@ static int corsair_input_mapping(struct hid_device *dev,
+ }
+ 
+ /*
+- * The report descriptor of Corsair Scimitar RGB Pro gaming mouse is
++ * The report descriptor of some of the Corsair gaming mice is
+  * non parseable as they define two consecutive Logical Minimum for
+  * the Usage Page (Consumer) in rdescs bytes 75 and 77 being 77 0x16
+  * that should be obviousy 0x26 for Logical Magimum of 16 bits. This
+@@ -681,7 +681,8 @@ static int corsair_input_mapping(struct hid_device *dev,
+  * Minimum being larger than Logical Maximum.
+  *
+  * This driver fixes the report descriptor for:
+- * - USB ID b1c:1b3e, sold as Scimitar RGB Pro Gaming mouse
++ * - USB ID 1b1c:1b34, sold as GLAIVE RGB Gaming mouse
++ * - USB ID 1b1c:1b3e, sold as Scimitar RGB Pro Gaming mouse
+  */
+ 
+ static __u8 *corsair_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+@@ -691,13 +692,14 @@ static __u8 *corsair_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 
+ 	if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
+ 		/*
+-		 * Corsair Scimitar RGB Pro report descriptor is broken and
+-		 * defines two different Logical Minimum for the Consumer
+-		 * Application. The byte 77 should be a 0x26 defining a 16
+-		 * bits integer for the Logical Maximum but it is a 0x16
++		 * Corsair GLAIVE RGB and Scimitar RGB Pro report descriptor is
++		 * broken and defines two different Logical Minimum for the
++		 * Consumer Application. The byte 77 should be a 0x26 defining
++		 * a 16 bits integer for the Logical Maximum but it is a 0x16
+ 		 * instead (Logical Minimum)
+ 		 */
+ 		switch (hdev->product) {
++		case USB_DEVICE_ID_CORSAIR_GLAIVE_RGB:
+ 		case USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB:
+ 			if (*rsize >= 172 && rdesc[75] == 0x15 && rdesc[77] == 0x16
+ 			&& rdesc[78] == 0xff && rdesc[79] == 0x0f) {
+@@ -715,6 +717,8 @@ static const struct hid_device_id corsair_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K90),
+ 		.driver_data = CORSAIR_USE_K90_MACRO |
+ 			       CORSAIR_USE_K90_BACKLIGHT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR,
++            USB_DEVICE_ID_CORSAIR_GLAIVE_RGB) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR,
+             USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB) },
+ 	{}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 43ddcdfbd..a099e5194 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -291,6 +291,7 @@
+ #define USB_DEVICE_ID_CORSAIR_K70RGB    0x1b13
+ #define USB_DEVICE_ID_CORSAIR_STRAFE    0x1b15
+ #define USB_DEVICE_ID_CORSAIR_K65RGB    0x1b17
++#define USB_DEVICE_ID_CORSAIR_GLAIVE_RGB        0x1b34
+ #define USB_DEVICE_ID_CORSAIR_K70RGB_RAPIDFIRE  0x1b38
+ #define USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE  0x1b39
+ #define USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB  0x1b3e
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 5f6035a5c..7203eba3c 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -62,6 +62,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K70R), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K95RGB), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_M65RGB), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_GLAIVE_RGB), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_STRAFE), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51), HID_QUIRK_NOGET },
+@@ -317,6 +318,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #endif
+ #if IS_ENABLED(CONFIG_HID_CORSAIR)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K90) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_GLAIVE_RGB) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_CP2112)
+-- 
+2.16.1
 
-Message makes this clear:
->“WARNING: Possible unnecessary 'out of memory' message”
->(from the script “checkpatch.pl”)  
-
-We also have the balance between any changes to existing code
-adding 'some' maintenance overhead vs changing this stuff
-in a new driver - which is what checkpatch is really intended
-for.
-
-So I think checkpatch is striking the right balance here in
-how it warns.  Obviously if it could assess the text
-and come to an informed decision that would be great but
-we are some way from that ;)
-
-Jonathan

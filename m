@@ -1,60 +1,59 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: =?UTF-8?Q?Re:_Software_evolution_around_=e2=80=9ccheckpatch.pl?=
- =?UTF-8?B?4oCdPw==?=
-Date: Sat, 10 Feb 2018 19:30:15 +0100
-Message-ID: <a988eca2-36d4-19bd-e92c-1a92e497e0da@users.sourceforge.net>
-References: <0406765c-bdd1-1a82-cf66-1c248063ae4f@users.sourceforge.net>
- <20180204112346.0977e938@archlinux>
- <9420fc82-1a37-3601-bafe-f57ef953bfcd@users.sourceforge.net>
- <87DF341A-1356-4B1B-8D25-14D5B0AAB01D@jic23.retrosnub.co.uk>
- <f008911b-c595-6e0f-d85f-076e994ae7db@users.sourceforge.net>
- <20180210145336.233c721d@archlinux> <1518274783.6579.2.camel@perches.com>
- <20180210155734.708d01b6@archlinux> <1518284577.16865.8.camel@perches.com>
+From: Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] Input: gpio_keys: Add level trigger support for GPIO keys
+Date: Sun, 11 Feb 2018 09:54:51 +0800
+Message-ID: <CAMz4kuJjLDGrrHyd2xQ1+ojxjtbVoyX=9OA1sB9K9oVqM7D3xg@mail.gmail.com>
+References: <6c53b9ccfd4a56fc1b00e243bb9e7cae9e124932.1518155780.git.baolin.wang@linaro.org>
+ <CAKdAkRQ6+9=GUJfoMT_gtwS8DqWKeH9FAqPG2BFzL9GPbPNB4w@mail.gmail.com>
+ <CAMz4kuKb8g5dAu5WQ847CODtVgJQBa_svbeQGGDsYpCjipBp_g@mail.gmail.com> <CAHp75VcJdYh8fKpqkRXxegRkESaN2Cgxybyei1NVwf_1C7rhwQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <1518284577.16865.8.camel@perches.com>
-Content-Language: en-US
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>, Jonathan Cameron <jic23@jic23.retrosnub.co.uk>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Jiri Kosina <jikos@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAHp75VcJdYh8fKpqkRXxegRkESaN2Cgxybyei1NVwf_1C7rhwQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, stephen lu <lumotuwe-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joseph Lo <josephl-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Kate Stewart <kstewart-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Philippe Ombredanne <pombredanne-od1rfyK75/E@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DTML <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
->> So I think checkpatch is striking the right balance here in
->> how it warns.  Obviously if it could assess the text
->> and come to an informed decision that would be great but
->> we are some way from that ;)
-> 
-> The 'informed' bit is difficult as it is mostly a political problem.
+On 9 February 2018 at 23:03, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Fri, Feb 9, 2018 at 11:23 AM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>> On 9 February 2018 at 14:39, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>>> On Thu, Feb 8, 2018 at 10:08 PM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>>>> On some platforms (such as Spreadtrum platform), the GPIO keys can only
+>>>> be triggered by level type.
+>>>
+>>> How do you stop the interrupt from re-triggering as long as the key
+>>> stays pressed?
+>>
+>> We will set the level type irq handler as handle_level_irq(), in this
+>> function, it will mask and ack the irq firstly.
+>
+> Wouldn't be ambiguous?
+>
+> 1. User presses the key ->
+>   a) we got edge followed by level signaling;
+>   b) IRQ core masks line, calls handler, ACKs, unmasks;
+>   c) somewhere here Press Event is sent;
+>   d) we still have level... We get IRQ fired again? But see 1. It
+> obviously not the case.
+> 2. User releases the key ->
+>   ...
+>
+> So, the main question if I understood Dmitry correctly is the period
+> in time where IRQ line should be masked on one hand, and on the other
+> it will guarantee that user didn't release-press cylcle.
 
-I find such a view very interesting.
+Yes, you and Dmitry are right. I realized my problem. When I tested on
+Spreadtrum platform, we use Spreadtrum-special EIC (external interrupt
+controller) to trigger button events, if we acked the EIC irq, it will
+drop the interrupt line and never trigger events until we set irq type
+again. But this can not work for general GPIOs like you said.
 
+So I think I need disable the irq until reversing the level type. Thanks.
 
-> I just wish Markus would improve his consistently terrible commit messages
-
-I tried to achieve another clarification a few times.
-
-
-> that just restate the action being done and detail
-> _why_ a particular thing _should_ be done.
-
-Unfortunately, it seems that no other contributors picked
-corresponding opportunities up so far.
-
-You indicated also special software development challenges in your commit
-“checkpatch: attempt to find unnecessary 'out of memory' messages”.
-
-https://lkml.org/lkml/2014/6/10/382
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ebfdc40969f24fc0cdd1349835d36e8ebae05374
-
-
-> His acceptance rate would improve as many of these back and forth
-> replies for what trivialities he posts as patches would be minimized.
-
-My selection of change possibilities leads to mixed integration results.
-
-I stumbled on variations for general change resistance.
-
-Regards,
-Markus
+-- 
+Baolin.wang
+Best Regards
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,58 +1,113 @@
 From: Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] Input: gpio_keys: Add level trigger support for GPIO keys
-Date: Sun, 11 Feb 2018 09:54:51 +0800
-Message-ID: <CAMz4kuJjLDGrrHyd2xQ1+ojxjtbVoyX=9OA1sB9K9oVqM7D3xg@mail.gmail.com>
-References: <6c53b9ccfd4a56fc1b00e243bb9e7cae9e124932.1518155780.git.baolin.wang@linaro.org>
- <CAKdAkRQ6+9=GUJfoMT_gtwS8DqWKeH9FAqPG2BFzL9GPbPNB4w@mail.gmail.com>
- <CAMz4kuKb8g5dAu5WQ847CODtVgJQBa_svbeQGGDsYpCjipBp_g@mail.gmail.com> <CAHp75VcJdYh8fKpqkRXxegRkESaN2Cgxybyei1NVwf_1C7rhwQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH v2] Input: gpio_keys: Add level trigger support for GPIO keys
+Date: Sun, 11 Feb 2018 14:55:04 +0800
+Message-ID: <7fc26df245d56fd2014532b56e67630e76e2c513.1518316248.git.baolin.wang@linaro.org>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAHp75VcJdYh8fKpqkRXxegRkESaN2Cgxybyei1NVwf_1C7rhwQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, stephen lu <lumotuwe-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joseph Lo <josephl-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Kate Stewart <kstewart-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Philippe Ombredanne <pombredanne-od1rfyK75/E@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DTML <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, lkml <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, lumotuwe-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, josephl-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, kstewart-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, pombredanne-od1rfyK75/E@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 9 February 2018 at 23:03, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Fri, Feb 9, 2018 at 11:23 AM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> On 9 February 2018 at 14:39, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->>> On Thu, Feb 8, 2018 at 10:08 PM, Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->>>> On some platforms (such as Spreadtrum platform), the GPIO keys can only
->>>> be triggered by level type.
->>>
->>> How do you stop the interrupt from re-triggering as long as the key
->>> stays pressed?
->>
->> We will set the level type irq handler as handle_level_irq(), in this
->> function, it will mask and ack the irq firstly.
->
-> Wouldn't be ambiguous?
->
-> 1. User presses the key ->
->   a) we got edge followed by level signaling;
->   b) IRQ core masks line, calls handler, ACKs, unmasks;
->   c) somewhere here Press Event is sent;
->   d) we still have level... We get IRQ fired again? But see 1. It
-> obviously not the case.
-> 2. User releases the key ->
->   ...
->
-> So, the main question if I understood Dmitry correctly is the period
-> in time where IRQ line should be masked on one hand, and on the other
-> it will guarantee that user didn't release-press cylcle.
+On some platforms (such as Spreadtrum platform), the GPIO keys can only
+be triggered by level type. So this patch introduces one property to
+indicate if the GPIO trigger type is level trigger or edge trigger.
 
-Yes, you and Dmitry are right. I realized my problem. When I tested on
-Spreadtrum platform, we use Spreadtrum-special EIC (external interrupt
-controller) to trigger button events, if we acked the EIC irq, it will
-drop the interrupt line and never trigger events until we set irq type
-again. But this can not work for general GPIOs like you said.
+Signed-off-by: Baolin Wang <baolin.wang-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+Changes since v1:
+ - Diable the GPIO irq until reversing the GPIO level type.
+---
+ .../devicetree/bindings/input/gpio-keys.txt        |    2 ++
+ drivers/input/keyboard/gpio_keys.c                 |   26 +++++++++++++++++++-
+ include/linux/gpio_keys.h                          |    1 +
+ 3 files changed, 28 insertions(+), 1 deletion(-)
 
-So I think I need disable the irq until reversing the level type. Thanks.
-
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
+index a949404..e3104bd 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+@@ -29,6 +29,8 @@ Optional subnode-properties:
+ 	- linux,can-disable: Boolean, indicates that button is connected
+ 	  to dedicated (not shared) interrupt which can be disabled to
+ 	  suppress events from the button.
++	- gpio-key,level-trigger: Boolean, indicates that button's interrupt
++	  type is level trigger. Otherwise it is edge trigger as default.
+ 
+ Example nodes:
+ 
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 87e613d..218698a 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -385,6 +385,20 @@ static void gpio_keys_gpio_work_func(struct work_struct *work)
+ 	struct gpio_button_data *bdata =
+ 		container_of(work, struct gpio_button_data, work.work);
+ 
++	if (bdata->button->level_trigger) {
++		unsigned int trigger =
++			irq_get_trigger_type(bdata->irq) & ~IRQF_TRIGGER_MASK;
++		int state = gpiod_get_raw_value_cansleep(bdata->gpiod);
++
++		if (state)
++			trigger |= IRQF_TRIGGER_LOW;
++		else
++			trigger |= IRQF_TRIGGER_HIGH;
++
++		irq_set_irq_type(bdata->irq, trigger);
++		enable_irq(bdata->irq);
++	}
++
+ 	gpio_keys_gpio_report_event(bdata);
+ 
+ 	if (bdata->button->wakeup)
+@@ -397,6 +411,9 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+ 
+ 	BUG_ON(irq != bdata->irq);
+ 
++	if (bdata->button->level_trigger)
++		disable_irq_nosync(bdata->irq);
++
+ 	if (bdata->button->wakeup) {
+ 		const struct gpio_keys_button *button = bdata->button;
+ 
+@@ -566,7 +583,11 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		INIT_DELAYED_WORK(&bdata->work, gpio_keys_gpio_work_func);
+ 
+ 		isr = gpio_keys_gpio_isr;
+-		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
++		if (button->level_trigger)
++			irqflags = gpiod_is_active_low(bdata->gpiod) ?
++				IRQF_TRIGGER_LOW : IRQF_TRIGGER_HIGH;
++		else
++			irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
+ 
+ 	} else {
+ 		if (!button->irq) {
+@@ -721,6 +742,9 @@ static void gpio_keys_close(struct input_dev *input)
+ 		button->can_disable =
+ 			fwnode_property_read_bool(child, "linux,can-disable");
+ 
++		button->level_trigger =
++			fwnode_property_read_bool(child, "gpio-key,level-trigger");
++
+ 		if (fwnode_property_read_u32(child, "debounce-interval",
+ 					 &button->debounce_interval))
+ 			button->debounce_interval = 5;
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index d06bf77..5095645 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -28,6 +28,7 @@ struct gpio_keys_button {
+ 	int wakeup;
+ 	int debounce_interval;
+ 	bool can_disable;
++	bool level_trigger;
+ 	int value;
+ 	unsigned int irq;
+ };
 -- 
-Baolin.wang
-Best Regards
+1.7.9.5
+
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

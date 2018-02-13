@@ -1,220 +1,44 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH 3/3] HID: steam: add battery device.
-Date: Tue, 13 Feb 2018 13:03:08 +0100
-Message-ID: <20180213120308.23879-3-rodrigorivascosta@gmail.com>
-References: <20180213120308.23879-1-rodrigorivascosta@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH resend] Input: silead - add Chuwi Hi8 support
+Date: Tue, 13 Feb 2018 16:42:38 +0100
+Message-ID: <20180213154238.19181-2-hdegoede@redhat.com>
+References: <20180213154238.19181-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:39971 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934946AbeBMMDp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Feb 2018 07:03:45 -0500
-In-Reply-To: <20180213120308.23879-1-rodrigorivascosta@gmail.com>
+Received: from mx3-rdu2.redhat.com ([66.187.233.73]:50216 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S933672AbeBMPmn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Feb 2018 10:42:43 -0500
+In-Reply-To: <20180213154238.19181-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Maruyama Shohei <cheat.sc.linux@outlook.com>
 
-The wireless Steam Controller is battery operated, so add the battery
-device and power information.
+From: Maruyama Shohei <cheat.sc.linux@outlook.com>
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+This commit add ACPI support for Chuwi Hi8 tablet. On the ACPI table of
+the tablet, GSL1680 is registered as MSSL0001, so the driver does not
+recognize the device. This commit resolve it.
+
+Signed-off-by: Shohei Maruyama <cheat.sc.linux@outlook.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-steam.c | 139 +++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 138 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/silead.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index f269a986e2be..eb2424688092 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -20,6 +20,7 @@
- #include <linux/hid.h>
- #include <linux/module.h>
- #include <linux/workqueue.h>
-+#include <linux/power_supply.h>
- #include "hid-ids.h"
- 
- MODULE_LICENSE("GPL");
-@@ -35,6 +36,10 @@ struct steam_device {
- 	struct work_struct work_connect;
- 	bool connected;
- 	char serial_no[11];
-+	struct power_supply_desc battery_desc;
-+	struct power_supply *battery;
-+	u8 battery_charge;
-+	u16 voltage;
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+index 646b1e768e6b..ff7043f74a3d 100644
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -602,6 +602,7 @@ static const struct acpi_device_id silead_ts_acpi_match[] = {
+ 	{ "GSL3675", 0 },
+ 	{ "GSL3692", 0 },
+ 	{ "MSSL1680", 0 },
++	{ "MSSL0001", 0 },
+ 	{ }
  };
- 
- static int steam_register(struct steam_device *steam);
-@@ -45,6 +50,8 @@ static int steam_send_report(struct steam_device *steam,
- 		u8 *cmd, int size);
- static int steam_recv_report(struct steam_device *steam,
- 		u8 *data, int size);
-+static int steam_battery_register(struct steam_device *steam);
-+static void steam_do_battery_event(struct steam_device *steam, u8 *data);
- 
- static int steam_input_open(struct input_dev *dev)
- {
-@@ -311,7 +318,8 @@ static int steam_raw_event(struct hid_device *hdev,
- 		}
- 		break;
- 	case 0x04:
--		/* TODO battery status */
-+		if (steam->quirks & STEAM_QUIRK_WIRELESS)
-+			steam_do_battery_event(steam, data);
- 		break;
- 	}
- 	return 0;
-@@ -517,6 +525,10 @@ static int steam_register(struct steam_device *steam)
- 
- 	steam->input_dev = input;
- 
-+	/* ignore battery errors, we can live without it */
-+	if (steam->quirks & STEAM_QUIRK_WIRELESS)
-+		steam_battery_register(steam);
-+
- 	return 0;
- 
- input_register_fail:
-@@ -528,6 +540,12 @@ static void steam_unregister(struct steam_device *steam)
- {
- 	dbg_hid("%s\n", __func__);
- 
-+	if (steam->battery) {
-+		power_supply_unregister(steam->battery);
-+		steam->battery = NULL;
-+		kfree(steam->battery_desc.name);
-+		steam->battery_desc.name = NULL;
-+	}
- 	if (steam->input_dev) {
- 		hid_info(steam->hid_dev, "Steam Controller SN: '%s' disconnected",
- 			steam->serial_no);
-@@ -536,6 +554,125 @@ static void steam_unregister(struct steam_device *steam)
- 	}
- }
- 
-+/* The size for this message payload is 11.
-+ * The known values are:
-+ *  Offset| Type  | Meaning
-+ * -------+-------+---------------------------
-+ *  4-7   | u32   | sequence number
-+ *  8-11  | --    | always 0
-+ *  12-13 | u16   | voltage (mV)
-+ *  14    | u8    | battery percent
-+ */
-+static void steam_do_battery_event(struct steam_device *steam, u8 *data)
-+{
-+	unsigned long flags;
-+	s16 volts = le16_to_cpup((__le16 *)(data + 12));
-+	u8 batt = data[14];
-+
-+	dbg_hid("%s: %d %d\n", __func__, volts, batt);
-+
-+	if (unlikely(!steam->battery)) {
-+		dbg_hid("%s: battery data without connect event\n", __func__);
-+		steam_do_connect_event(steam, true);
-+		return;
-+	}
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	steam->voltage = volts;
-+	steam->battery_charge = batt;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
-+	power_supply_changed(steam->battery);
-+}
-+
-+static enum power_supply_property steam_battery_props[] = {
-+	POWER_SUPPLY_PROP_PRESENT,
-+	POWER_SUPPLY_PROP_SCOPE,
-+	POWER_SUPPLY_PROP_VOLTAGE_NOW,
-+	POWER_SUPPLY_PROP_CAPACITY,
-+};
-+
-+static int steam_battery_get_property(struct power_supply *psy,
-+				     enum power_supply_property psp,
-+				     union power_supply_propval *val)
-+{
-+	struct steam_device *steam = power_supply_get_drvdata(psy);
-+	unsigned long flags;
-+	s16 volts;
-+	u8 batt;
-+	int ret = 0;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	volts = steam->voltage;
-+	batt = steam->battery_charge;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_PRESENT:
-+		val->intval = 1;
-+		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
-+	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-+		val->intval = volts * 1000; /* mV -> uV */
-+		break;
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		val->intval = batt;
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+	return ret;
-+}
-+
-+static int steam_battery_register(struct steam_device *steam)
-+{
-+	struct power_supply *battery;
-+	struct power_supply_config battery_cfg = { .drv_data = steam, };
-+	unsigned long flags;
-+	int ret;
-+
-+	dbg_hid("%s\n", __func__);
-+
-+	steam->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
-+	steam->battery_desc.properties = steam_battery_props;
-+	steam->battery_desc.num_properties = ARRAY_SIZE(steam_battery_props);
-+	steam->battery_desc.get_property = steam_battery_get_property;
-+	steam->battery_desc.name = kasprintf(GFP_KERNEL,
-+			"steam-controller-%s-battery", steam->serial_no);
-+	if (!steam->battery_desc.name) {
-+		ret = -ENOMEM;
-+		goto print_name_fail;
-+	}
-+
-+	/* avoid the warning of 0% battery while waiting for the first info */
-+	spin_lock_irqsave(&steam->lock, flags);
-+	steam->voltage = 3000;
-+	steam->battery_charge = 100;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
-+	battery = power_supply_register(&steam->hid_dev->dev,
-+			&steam->battery_desc, &battery_cfg);
-+	if (IS_ERR(battery)) {
-+		ret = PTR_ERR(battery);
-+		hid_err(steam->hid_dev,
-+				"%s:power_supply_register returned error %d\n",
-+				__func__, ret);
-+		goto power_supply_reg_fail;
-+	}
-+	steam->battery = battery;
-+	power_supply_powers(steam->battery, &steam->hid_dev->dev);
-+	return 0;
-+
-+power_supply_reg_fail:
-+	kfree(steam->battery_desc.name);
-+	steam->battery_desc.name = NULL;
-+print_name_fail:
-+	return ret;
-+}
-+
- static const struct hid_device_id steam_controllers[] = {
- 	{ /* Wired Steam Controller */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
+ MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
 -- 
-2.16.1
+2.14.3
 

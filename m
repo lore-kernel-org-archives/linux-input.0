@@ -1,83 +1,66 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: i8042 AUX port [serio1] suspend takes a second on Dell XPS 13
- 9360
-Date: Wed, 14 Feb 2018 17:11:40 +0000
-Message-ID: <609c1f35df7346da8ac1d12c35e04cf7@ausx13mpc120.AMER.DELL.COM>
-References: <5a74e1a7-2083-c6b2-f51a-f44908ac8bc4@molgen.mpg.de>
- <20180130175017.72inurhk5l7tcvae@dtor-ws>
- <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
- <f02b699d-b130-c09f-3e09-db62ecf2df2c@molgen.mpg.de>
+From: Philippe Ombredanne <pombredanne@nexb.com>
+Subject: Re: [PATCH 1/3] HID: add driver for Valve Steam Controller
+Date: Wed, 14 Feb 2018 22:28:37 +0100
+Message-ID: <CAOFm3uGsCU4eRn-1+DozBy2=OB2U7SurYn3rhmwJ=GWjQkG_1A@mail.gmail.com>
+References: <20180213120308.23879-1-rodrigorivascosta@gmail.com> <CAO-hwJKmrapd-VtbRgsM_zr6mHDvG8eyvdmo=56W_kmURjvX4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from esa7.dell-outbound.iphmx.com ([68.232.153.96]:3615 "EHLO
-        esa7.dell-outbound.iphmx.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1161673AbeBNSTS (ORCPT
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:51421 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1030501AbeBNV3T (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Feb 2018 13:19:18 -0500
-In-Reply-To: <f02b699d-b130-c09f-3e09-db62ecf2df2c@molgen.mpg.de>
-Content-Language: en-US
+        Wed, 14 Feb 2018 16:29:19 -0500
+Received: by mail-wm0-f66.google.com with SMTP id r71so25382216wmd.1
+        for <linux-input@vger.kernel.org>; Wed, 14 Feb 2018 13:29:19 -0800 (PST)
+In-Reply-To: <CAO-hwJKmrapd-VtbRgsM_zr6mHDvG8eyvdmo=56W_kmURjvX4g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: pmenzel+linux-input@molgen.mpg.de, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de, linux@leemhuis.info
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogUGF1bCBNZW56ZWwgW21h
-aWx0bzpwbWVuemVsK2xpbnV4LWlucHV0QG1vbGdlbi5tcGcuZGVdDQo+IFNlbnQ6IFdlZG5lc2Rh
-eSwgRmVicnVhcnkgMTQsIDIwMTggMTA6NDEgQU0NCj4gVG86IERtaXRyeSBUb3Jva2hvdiA8ZG1p
-dHJ5LnRvcm9raG92QGdtYWlsLmNvbT4NCj4gQ2M6IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9y
-ZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgaXQrbGludXgtDQo+IGlucHV0QG1vbGdl
-bi5tcGcuZGU7IExpbW9uY2llbGxvLCBNYXJpbyA8TWFyaW9fTGltb25jaWVsbG9ARGVsbC5jb20+
-Ow0KPiBUaG9yc3RlbiBMZWVtaHVpcyA8bGludXhAbGVlbWh1aXMuaW5mbz4NCj4gU3ViamVjdDog
-UmU6IGk4MDQyIEFVWCBwb3J0IFtzZXJpbzFdIHN1c3BlbmQgdGFrZXMgYSBzZWNvbmQgb24gRGVs
-bCBYUFMgMTMgOTM2MA0KPiANCj4gRGVhciBEbWl0cnksDQo+IA0KPiANCj4gT24gMDEvMzAvMTgg
-MTk6MDcsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToNCj4gPiBPbiBUdWUsIEphbiAzMCwgMjAxOCBh
-dCAwOTo1Mjo0NUFNIC0wODAwLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+IA0KPiA+PiBPbiBU
-dWUsIEphbiAzMCwgMjAxOCBhdCAwNjozNjozNFBNICswMTAwLCBQYXVsIE1lbnplbCB3cm90ZToN
-Cj4gDQo+ID4+PiBJIGRvIG5vdCBrbm93LCB3aGVuIGl0IHN0YXJ0ZWQsIGJ1dCB3aXRoIExpbnV4
-IDQuMTQtcmM4IGFuZCA0LjE1LA0KPiA+Pj4gYmVuY2htYXJraW5nIHN1c3BlbmQgYW5kIHJlc3Vt
-ZSB0aW1lIHdpdGggYHNsZWVwZ3JhcGgucHlgIFsxXVsyXSwgdGhlcmUgaXMgYQ0KPiA+Pj4gcmVn
-cmVzc2lvbiwgdGhhdCBpODA0MiBBVVggcG9ydCBbc2VyaW8xXSBzdXNwZW5kIHRha2VzIGEgc2Vj
-b25kIG9uIERlbGwgWFBTDQo+ID4+PiAxMyA5MzYwIGFuZCBUVVhFRE8gQm9vayAxNDA2Lg0KPiA+
-Pg0KPiA+PiBJdCB3b3VsZCBiZSByZWFsbHkgaGVscGZ1bCB0byBrbm93IHdoZW4gdGhlIHJlZ3Jl
-c3Npb24gc3RhcnRlZC4NCj4gPg0KPiA+IFNvIHRoZSByZWFzb24gaXQgdGFrZXMgbG9uZ2VyIGlz
-IGJlY2F1c2UgdGhlIHRvdWNocGFkIGRvZXMgbm90IHdhbnQgdG8NCj4gPiB0YWxrIHRvIHVzIGZv
-ciBzb21lIHJlYXNvbiBhbmQgd2Ugd2FpdCB1bnRpbCBjb21tYW5kcyB0aW1lIG91dDoNCj4gPg0K
-PiA+IFsgICA5NC41OTE2MzZdIGNhbGxpbmcgIHNlcmlvMSsgQCAyMjk5LCBwYXJlbnQ6IGk4MDQy
-DQo+ID4gWyAgIDk0Ljc5NDI5Ml0gcHNtb3VzZSBzZXJpbzE6IEZhaWxlZCB0byBkaXNhYmxlIG1v
-dXNlIG9uIGlzYTAwNjAvc2VyaW8xDQo+ID4gWyAgIDk1LjU5MzMwM10gY2FsbCBzZXJpbzErIHJl
-dHVybmVkIDAgYWZ0ZXIgOTc0MjgwIHVzZWNzDQo+ID4NCj4gPiBidXQgaXQgaXMgbm90IGNsZWFy
-IHdoeSBpdCBoYXBwZW5zLCBJIGRvIG5vdCB0aGluayB3ZSBjaGFuZ2VkIGFueXRoaW5nDQo+ID4g
-aW4gdGhhdCBwYXRoIGZvciBhIHdoaWxlLCBzbyBpdCBtaWdodCBiZSBzb21lIG90aGVyIGNoYW5n
-ZSBhZmZlY3RpbmcNCj4gPiB0aGluZ3MgaW5kaXJlY3RseS4gSSdtIGFmcmFpZCB5b3UnbGwgaGF2
-ZSB0byBuYXJyb3cgdGhlIHNjb3BlLCBhbmQNCj4gPiBpZGVhbGx5IGJpc2VjdC4NCg0KUGxlYXNl
-IGtlZXAgaW4gbWluZCB0aGUgWFBTIDkzNjAgaGFzIGEgdG91Y2hwYWQgdGhhdCBjYW4gb3BlcmF0
-ZSBpbiBJMkMNCm9yIFBTMiBtb2Rlcy4gIEl0J3MgY29ubmVjdGVkIHRvIGJvdGggYnVzZXMgYW5k
-IHdpdGggdGhlIHJpZ2h0IGluaXRpYWxpemF0aW9uDQpzZXF1ZW5jZSB3aWxsIGNvbWUgdXAgaW4g
-STJDIG1vZGUuDQoNCkFzc3VtaW5nIFBhdWwgTS4gaGFzIGNvbXBpbGVkIGFuZCB1c2VkIGhpZC1t
-dWx0aXRvdWNoIGFuZCBpMmMtaGlkIHRoZQ0KdG91Y2hwYWQgc2hvdWxkIGJlIG9wZXJhdGluZyBp
-biBJMkMgbW9kZS4NCg0KV2hlbiB0aGlzIGhhcHBlbnMgSSBleHBlY3QgdGhhdCB0aGUgdG91Y2hw
-YWQgc2hvdWxkbid0IGJlIHJlc3BvbmRpbmcNCnRvIFBTMiBjb21tYW5kcy4NCg0KQXMgYSBkZWJ1
-Z2dpbmcgdGFjdGljLCB5b3UgbWF5IGNvbnNpZGVyIHRvIHVubG9hZCBwc21vdXNlIGJlZm9yZQ0K
-c3VzcGVuZCBhbmQgc3RpbGwgc2VlIHRoZSB0b3VjaHBhZCBvcGVyYXRpb25hbC4NCg0KPiANCj4g
-VGhhbmsgeW91IGZvciB5b3VyIHJlcGxpZXMuIEZpcnN0IG9mIGFsbCwgaXQgbG9va3MgbGlrZSAq
-b25seSogdGhlIERlbGwNCj4gc3lzdGVtIGlzIGVmZmVjdGVkIGFzIEkgd2FzIHVuYWJsZSB0byBy
-ZXByb2R1Y2UgaXQgb24gdGhlIFRVWEVETyBCb29rDQo+IDE0MDYuIEkgaGF2ZSB0byB2ZXJpZnkg
-dGhhdCBieSBmaW5kaW5nIG9sZCBsb2cgZmlsZXMuDQoNCkRvZXMgdGhpcyBvdGhlciBsYXB0b3Ag
-eW91IGFyZSBkcmF3aW5nIGEgY29tcGFyaXNvbiB0byBhbHNvIGhhdmUgYSANCnRvdWNocGFkIHRo
-YXQgY2FuIG9wZXJhdGUgaW4gbXVsdGlwbGUgbW9kZXM/DQoNClRvIG1ha2UgYW4gYWNjdXJhdGUg
-Y29tcGFyaXNvbiB5b3Ugc2hvdWxkIGRldGVybWluZSB3aGF0IG1vZGUgaXQncyBpbi4NCg0KPiAN
-Cj4gU3RhcnRpbmcgdGhlIGJpc2VjdCBiZXR3ZWVuIDQuMTQgYW5kIDQuMTUtcmMxIGl0IHR1cm5z
-IG91dCwgdGhhdCB0aGUNCj4gcHJvYmxlbSBpcyBhbHNvIHJlcHJvZHVjaWJsZSB3aXRoIDQuMTQs
-IGFuZCBJIHJlbWVtYmVyZWQgd3JvbmcuIExvb2tpbmcNCj4gbW9yZSBpbnRvIGl0LCBJIGNvdWxk
-IGFsc28gcmVwcm9kdWNlIGl0IHdpdGggTGludXggNC4xMy4wLTMyLWdlbmVyaWMNCj4gZnJvbSBV
-YnVudHUgMTYuMDQgKEhhcmR3YXJlIEVuYWJsZW1lbnQgU3RhY2spLiBCdXQgbXkgb2xkIGxvZ3Mg
-ZG8gbm90DQo+IHNob3cgdGhlIHByb2JsZW0uIEFzIHRoZSBVRUZJIGZpcm13YXJlIHdhcyB1cGRh
-dGVkIHRvIHZlcnNpb24gMi41LjAgaW4NCj4gdGhlIG1lYW50aW1lLCBpdCBjb3VsZCBhbHNvIGJl
-IHJlbGF0ZWQgdG8gdGhhdC4NCj4gDQo+IFNvIGl0IHR1cm5zIG91dCwgd2l0aCA0LjE2LXJjMSBJ
-IHNlZSB0aGlzIGRlbGF5L2ZhaWx1cmUgbWVzc2FnZSBvbmx5DQo+IGR1cmluZyB0aGUgZmlyc3Qg
-c3VzcGVuZC4gU3VzcGVuZGluZyBhIHNlY29uZCB0aW1lLCBJIGRvIG5vdCBzZWUgdGhlDQo+IG1l
-c3NhZ2UuDQo+IA0KPiBBbnkgaGludHMgaG93IHRvIGRlYnVnIHRoaXMgZnVydGhlciBhcmUgbXVj
-aCBhcHByZWNpYXRlZC4gQ291bGQgaXQgYmUNCj4gcmVsYXRlZCB0byB0aGUgZW1iZWRkZWQgY29u
-dHJvbGxlcj8NCj4gDQo+IA0KPiBLaW5kIHJlZ2FyZHMsDQo+IA0KPiBQYXVsDQoNCg==
+Benjamin, Rodrigo,
+
+On Wed, Feb 14, 2018 at 3:45 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> On Tue, Feb 13, 2018 at 1:03 PM, Rodrigo Rivas Costa <rodrigorivascosta@gmail.com> wrote:
+
+<snip>
+>> --- /dev/null
+>> +++ b/drivers/hid/hid-steam.c
+>> @@ -0,0 +1,480 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>
+> Non standard header
+
+Benjamin:
+What do you mean by this?
+This is following the proper style for this line as documented (and
+discussed on list at great length) [1]
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/license-rules.rst
+
+
+>> +/*
+>> + * HID driver for Valve Steam Controller
+>> + *
+>> + * Supports both the wired and wireless interfaces.
+>> + *
+>> + * Copyright (c) 2018 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+>> + */
+>> +
+>> +/*
+>> + * This program is free software; you can redistribute it and/or modify it
+>> + * under the terms of the GNU General Public License as published by the Free
+>> + * Software Foundation; either version 2 of the License, or (at your option)
+>> + * any later version.
+>> + */
+
+Rodrigo,
+Since you used the proper SPDX tag (in the proper style as explained
+in the doc), you can remove this boilerplate alright as it does double
+duty with the tag.
+
+-- 
+Cordially
+Philippe Ombredanne

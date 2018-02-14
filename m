@@ -1,66 +1,97 @@
-From: Philippe Ombredanne <pombredanne@nexb.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 Subject: Re: [PATCH 1/3] HID: add driver for Valve Steam Controller
-Date: Wed, 14 Feb 2018 22:28:37 +0100
-Message-ID: <CAOFm3uGsCU4eRn-1+DozBy2=OB2U7SurYn3rhmwJ=GWjQkG_1A@mail.gmail.com>
-References: <20180213120308.23879-1-rodrigorivascosta@gmail.com> <CAO-hwJKmrapd-VtbRgsM_zr6mHDvG8eyvdmo=56W_kmURjvX4g@mail.gmail.com>
+Date: Thu, 15 Feb 2018 00:29:57 +0100
+Message-ID: <20180214232957.GB3741@casa>
+References: <20180213120308.23879-1-rodrigorivascosta@gmail.com>
+ <CAO-hwJKmrapd-VtbRgsM_zr6mHDvG8eyvdmo=56W_kmURjvX4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:51421 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030501AbeBNV3T (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Feb 2018 16:29:19 -0500
-Received: by mail-wm0-f66.google.com with SMTP id r71so25382216wmd.1
-        for <linux-input@vger.kernel.org>; Wed, 14 Feb 2018 13:29:19 -0800 (PST)
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <CAO-hwJKmrapd-VtbRgsM_zr6mHDvG8eyvdmo=56W_kmURjvX4g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Benjamin, Rodrigo,
+On Wed, Feb 14, 2018 at 03:45:14PM +0100, Benjamin Tissoires wrote:
+> I think I had a look at this a while ago, and didn't want to interfere
+> with SteamOS regarding this. I think your patch should be fine in that
+> regard, but have you tried SteamOS on a kernel patched with your
+> series? Does it behave properly or will it break?
 
-On Wed, Feb 14, 2018 at 3:45 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> On Tue, Feb 13, 2018 at 1:03 PM, Rodrigo Rivas Costa <rodrigorivascosta@gmail.com> wrote:
+Well, SteamOS is just a modified Debian with the Steam Client running in
+Big Picture mode (fullscreen). I tried the Steam Client with this driver
+and it works just fine: 
+- The first thing the Steam Client (SC) does is to disable the virtual
+  keyboard and mouse, so not creating those input devices make no
+  difference.
+- Input events are sent both to the libusb (or whatever SC uses) and
+  this driver.
+- The only source of conflict would be in sending commands to the
+  controller. But currently the only command sent is the get_serial, and
+  that seems to do no harm.
 
-<snip>
->> --- /dev/null
->> +++ b/drivers/hid/hid-steam.c
->> @@ -0,0 +1,480 @@
->> +// SPDX-License-Identifier: GPL-2.0
->
-> Non standard header
+> > +
+> > +       hid_info(hdev, "Steam Controller connected");
+> > +
+> > +       input = input_allocate_device();
+> 
+> Don't you need one input node per wireless gamepad too?
+> 
+No, the wired and wireless methods are two different USB devices.
+The wireless adaptor is a small usb device that creates 4 HID interfaces
+for the 4 to-be-connected controllers. When the 'connected' event
+arrives on one of those interfaces we will create one input device.
+Another controller connected will use a different interface so another
+unrelated input device will be created.
 
-Benjamin:
-What do you mean by this?
-This is following the proper style for this line as documented (and
-discussed on list at great length) [1]
+The wired adaptor is the controller connected directly to USB: it
+creates one HID inteface and one input device directly.
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/license-rules.rst
+Anyway, one steam_device will contain 0 or 1 input_device.
 
+> > +       input->name = "Steam Controller";
+> 
+> In case of the wireless controllers, you might want to personalize this a bit.
 
->> +/*
->> + * HID driver for Valve Steam Controller
->> + *
->> + * Supports both the wired and wireless interfaces.
->> + *
->> + * Copyright (c) 2018 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
->> + */
->> +
->> +/*
->> + * This program is free software; you can redistribute it and/or modify it
->> + * under the terms of the GNU General Public License as published by the Free
->> + * Software Foundation; either version 2 of the License, or (at your option)
->> + * any later version.
->> + */
+Do you mean e.g. "Wireless Steam Controller"? Would be wise to add the serial
+number here (from PATCH 2/3?)? Or is the 'uniq' enough for that?
 
-Rodrigo,
-Since you used the proper SPDX tag (in the proper style as explained
-in the doc), you can remove this boilerplate alright as it does double
-duty with the tag.
+> > +       input_set_abs_params(input, ABS_Z, 0, 255, 0, 0);
+> > +       input_set_abs_params(input, ABS_RZ, 0, 255, 0, 0);
+> > +       input_set_abs_params(input, ABS_X, -32767, 32767, 0, 0);
+> > +       input_set_abs_params(input, ABS_Y, -32767, 32767, 0, 0);
+> 
+> You are also probably missing the resolution bits. We need to
+> accurately report the physical dimensions to the user space (thanks to
+> the resolution)
+> 
+> > +       input_set_abs_params(input, ABS_RX, -32767, 32767, 0, 0);
+> > +       input_set_abs_params(input, ABS_RY, -32767, 32767, 0, 0);
+> 
+> What do RX/RY correspond to?
 
--- 
-Cordially
-Philippe Ombredanne
+This gamepad has 1 joystick and 2 touchpads (lpad and rpad).
+I'm mapping the joystick/lpad to ABS_X/ABS_Y and the rpad to
+ABS_RX/ABS_RY.
+
+About the resolution, I looked around other drivers and many have 0 as
+resolution... is it necessary only in the pads or the joystick too?
+And what are the units of that value?
+For reference, the pads are round and exactly 40 mm in diameter.
+
+Why the lpad and the joystick are mapped to the same axes? Well, because
+the device returns them at the same offset. We could make them
+apart by using bits 10.3 (lpad_touch) and 10.7 (lpad_and_joy) but I
+don't think it is worth it... you use the joystick and the lpad with the
+same thumb!
+
+> Anyway. Thanks for the driver, there are a few bits to fix, nothing
+> scary though.
+
+Great, I'll correct all those issues and resubmit the patches in a few
+days. It is my very first driver and I'm still a bit slow...
+
+Thank you for your attention!
+Rodrigo.

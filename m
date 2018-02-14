@@ -1,232 +1,181 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 3/3] HID: steam: add battery device.
-Date: Wed, 14 Feb 2018 15:54:53 +0100
-Message-ID: <CAO-hwJLsUBsYux2qnDMWg+2fS0ypF2O-DQAN3uVAG50RB0FfVw@mail.gmail.com>
-References: <20180213120308.23879-1-rodrigorivascosta@gmail.com> <20180213120308.23879-3-rodrigorivascosta@gmail.com>
+From: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>
+Subject: Re: i8042 AUX port [serio1] suspend takes a second on Dell XPS 13
+ 9360
+Date: Wed, 14 Feb 2018 17:41:29 +0100
+Message-ID: <f02b699d-b130-c09f-3e09-db62ecf2df2c@molgen.mpg.de>
+References: <5a74e1a7-2083-c6b2-f51a-f44908ac8bc4@molgen.mpg.de>
+ <20180130175017.72inurhk5l7tcvae@dtor-ws>
+ <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:46917 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1030529AbeBNOyz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Feb 2018 09:54:55 -0500
-Received: by mail-qk0-f193.google.com with SMTP id g129so12393642qkb.13
-        for <linux-input@vger.kernel.org>; Wed, 14 Feb 2018 06:54:54 -0800 (PST)
-In-Reply-To: <20180213120308.23879-3-rodrigorivascosta@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="------------ms090106010501060506050603"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de, Mario Limonciello <mario.limonciello@dell.com>, Thorsten Leemhuis <linux@leemhuis.info>
 List-Id: linux-input@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Tue, Feb 13, 2018 at 1:03 PM, Rodrigo Rivas Costa
-<rodrigorivascosta@gmail.com> wrote:
-> The wireless Steam Controller is battery operated, so add the battery
-> device and power information.
->
-> Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-> ---
->  drivers/hid/hid-steam.c | 139 +++++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 138 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index f269a986e2be..eb2424688092 100644
-> --- a/drivers/hid/hid-steam.c
-> +++ b/drivers/hid/hid-steam.c
-> @@ -20,6 +20,7 @@
->  #include <linux/hid.h>
->  #include <linux/module.h>
->  #include <linux/workqueue.h>
-> +#include <linux/power_supply.h>
->  #include "hid-ids.h"
->
->  MODULE_LICENSE("GPL");
-> @@ -35,6 +36,10 @@ struct steam_device {
->         struct work_struct work_connect;
->         bool connected;
->         char serial_no[11];
-> +       struct power_supply_desc battery_desc;
-> +       struct power_supply *battery;
-> +       u8 battery_charge;
-> +       u16 voltage;
->  };
->
->  static int steam_register(struct steam_device *steam);
-> @@ -45,6 +50,8 @@ static int steam_send_report(struct steam_device *steam,
->                 u8 *cmd, int size);
->  static int steam_recv_report(struct steam_device *steam,
->                 u8 *data, int size);
-> +static int steam_battery_register(struct steam_device *steam);
-> +static void steam_do_battery_event(struct steam_device *steam, u8 *data);
->
->  static int steam_input_open(struct input_dev *dev)
->  {
-> @@ -311,7 +318,8 @@ static int steam_raw_event(struct hid_device *hdev,
->                 }
->                 break;
->         case 0x04:
-> -               /* TODO battery status */
-> +               if (steam->quirks & STEAM_QUIRK_WIRELESS)
-> +                       steam_do_battery_event(steam, data);
->                 break;
->         }
->         return 0;
-> @@ -517,6 +525,10 @@ static int steam_register(struct steam_device *steam)
->
->         steam->input_dev = input;
->
-> +       /* ignore battery errors, we can live without it */
-> +       if (steam->quirks & STEAM_QUIRK_WIRELESS)
-> +               steam_battery_register(steam);
-> +
->         return 0;
->
->  input_register_fail:
-> @@ -528,6 +540,12 @@ static void steam_unregister(struct steam_device *steam)
->  {
->         dbg_hid("%s\n", __func__);
->
-> +       if (steam->battery) {
-> +               power_supply_unregister(steam->battery);
-> +               steam->battery = NULL;
-> +               kfree(steam->battery_desc.name);
-> +               steam->battery_desc.name = NULL;
-> +       }
->         if (steam->input_dev) {
->                 hid_info(steam->hid_dev, "Steam Controller SN: '%s' disconnected",
->                         steam->serial_no);
-> @@ -536,6 +554,125 @@ static void steam_unregister(struct steam_device *steam)
->         }
->  }
->
-> +/* The size for this message payload is 11.
-> + * The known values are:
-> + *  Offset| Type  | Meaning
-> + * -------+-------+---------------------------
-> + *  4-7   | u32   | sequence number
-> + *  8-11  | --    | always 0
-> + *  12-13 | u16   | voltage (mV)
-> + *  14    | u8    | battery percent
-> + */
-> +static void steam_do_battery_event(struct steam_device *steam, u8 *data)
-> +{
-> +       unsigned long flags;
-> +       s16 volts = le16_to_cpup((__le16 *)(data + 12));
-> +       u8 batt = data[14];
-> +
-> +       dbg_hid("%s: %d %d\n", __func__, volts, batt);
-> +
-> +       if (unlikely(!steam->battery)) {
-> +               dbg_hid("%s: battery data without connect event\n", __func__);
-> +               steam_do_connect_event(steam, true);
-> +               return;
-> +       }
-> +
-> +       spin_lock_irqsave(&steam->lock, flags);
-> +       steam->voltage = volts;
-> +       steam->battery_charge = batt;
-> +       spin_unlock_irqrestore(&steam->lock, flags);
-> +
-> +       power_supply_changed(steam->battery);
-> +}
-> +
-> +static enum power_supply_property steam_battery_props[] = {
-> +       POWER_SUPPLY_PROP_PRESENT,
-> +       POWER_SUPPLY_PROP_SCOPE,
-> +       POWER_SUPPLY_PROP_VOLTAGE_NOW,
-> +       POWER_SUPPLY_PROP_CAPACITY,
-> +};
-> +
-> +static int steam_battery_get_property(struct power_supply *psy,
-> +                                    enum power_supply_property psp,
-> +                                    union power_supply_propval *val)
-> +{
-> +       struct steam_device *steam = power_supply_get_drvdata(psy);
-> +       unsigned long flags;
-> +       s16 volts;
-> +       u8 batt;
-> +       int ret = 0;
-> +
-> +       spin_lock_irqsave(&steam->lock, flags);
-> +       volts = steam->voltage;
-> +       batt = steam->battery_charge;
-> +       spin_unlock_irqrestore(&steam->lock, flags);
-> +
-> +       switch (psp) {
-> +       case POWER_SUPPLY_PROP_PRESENT:
-> +               val->intval = 1;
-> +               break;
-> +       case POWER_SUPPLY_PROP_SCOPE:
-> +               val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-> +               break;
-> +       case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-> +               val->intval = volts * 1000; /* mV -> uV */
-> +               break;
-> +       case POWER_SUPPLY_PROP_CAPACITY:
-> +               val->intval = batt;
-> +               break;
-> +       default:
-> +               ret = -EINVAL;
-> +               break;
-> +       }
-> +       return ret;
-> +}
-> +
-> +static int steam_battery_register(struct steam_device *steam)
-> +{
-> +       struct power_supply *battery;
-> +       struct power_supply_config battery_cfg = { .drv_data = steam, };
-> +       unsigned long flags;
-> +       int ret;
-> +
-> +       dbg_hid("%s\n", __func__);
-> +
-> +       steam->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
-> +       steam->battery_desc.properties = steam_battery_props;
-> +       steam->battery_desc.num_properties = ARRAY_SIZE(steam_battery_props);
-> +       steam->battery_desc.get_property = steam_battery_get_property;
-> +       steam->battery_desc.name = kasprintf(GFP_KERNEL,
-> +                       "steam-controller-%s-battery", steam->serial_no);
+This is a cryptographically signed message in MIME format.
 
-Please devm_kasprintf() so you don't have to free the memory later.
+--------------ms090106010501060506050603
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-Benjamin
+Dear Dmitry,
 
-> +       if (!steam->battery_desc.name) {
-> +               ret = -ENOMEM;
-> +               goto print_name_fail;
-> +       }
-> +
-> +       /* avoid the warning of 0% battery while waiting for the first info */
-> +       spin_lock_irqsave(&steam->lock, flags);
-> +       steam->voltage = 3000;
-> +       steam->battery_charge = 100;
-> +       spin_unlock_irqrestore(&steam->lock, flags);
-> +
-> +       battery = power_supply_register(&steam->hid_dev->dev,
-> +                       &steam->battery_desc, &battery_cfg);
-> +       if (IS_ERR(battery)) {
-> +               ret = PTR_ERR(battery);
-> +               hid_err(steam->hid_dev,
-> +                               "%s:power_supply_register returned error %d\n",
-> +                               __func__, ret);
-> +               goto power_supply_reg_fail;
-> +       }
-> +       steam->battery = battery;
-> +       power_supply_powers(steam->battery, &steam->hid_dev->dev);
-> +       return 0;
-> +
-> +power_supply_reg_fail:
-> +       kfree(steam->battery_desc.name);
-> +       steam->battery_desc.name = NULL;
-> +print_name_fail:
-> +       return ret;
-> +}
-> +
->  static const struct hid_device_id steam_controllers[] = {
->         { /* Wired Steam Controller */
->           HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
-> --
-> 2.16.1
->
+
+On 01/30/18 19:07, Dmitry Torokhov wrote:
+> On Tue, Jan 30, 2018 at 09:52:45AM -0800, Dmitry Torokhov wrote:
+
+>> On Tue, Jan 30, 2018 at 06:36:34PM +0100, Paul Menzel wrote:
+
+>>> I do not know, when it started, but with Linux 4.14-rc8 and 4.15,
+>>> benchmarking suspend and resume time with `sleepgraph.py` [1][2], the=
+re is a
+>>> regression, that i8042 AUX port [serio1] suspend takes a second on De=
+ll XPS
+>>> 13 9360 and TUXEDO Book 1406.
+>>
+>> It would be really helpful to know when the regression started.
+>=20
+> So the reason it takes longer is because the touchpad does not want to
+> talk to us for some reason and we wait until commands time out:
+>=20
+> [   94.591636] calling  serio1+ @ 2299, parent: i8042
+> [   94.794292] psmouse serio1: Failed to disable mouse on isa0060/serio=
+1
+> [   95.593303] call serio1+ returned 0 after 974280 usecs
+>=20
+> but it is not clear why it happens, I do not think we changed anything
+> in that path for a while, so it might be some other change affecting
+> things indirectly. I'm afraid you'll have to narrow the scope, and
+> ideally bisect.
+
+Thank you for your replies. First of all, it looks like *only* the Dell=20
+system is effected as I was unable to reproduce it on the TUXEDO Book=20
+1406. I have to verify that by finding old log files.
+
+Starting the bisect between 4.14 and 4.15-rc1 it turns out, that the=20
+problem is also reproducible with 4.14, and I remembered wrong. Looking=20
+more into it, I could also reproduce it with Linux 4.13.0-32-generic=20
+from Ubuntu 16.04 (Hardware Enablement Stack). But my old logs do not=20
+show the problem. As the UEFI firmware was updated to version 2.5.0 in=20
+the meantime, it could also be related to that.
+
+So it turns out, with 4.16-rc1 I see this delay/failure message only=20
+during the first suspend. Suspending a second time, I do not see the=20
+message.
+
+Any hints how to debug this further are much appreciated. Could it be=20
+related to the embedded controller?
+
+
+Kind regards,
+
+Paul
+
+
+--------------ms090106010501060506050603
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCC
+EFowggUSMIID+qADAgECAgkA4wvV+K8l2YEwDQYJKoZIhvcNAQELBQAwgYIxCzAJBgNVBAYT
+AkRFMSswKQYDVQQKDCJULVN5c3RlbXMgRW50ZXJwcmlzZSBTZXJ2aWNlcyBHbWJIMR8wHQYD
+VQQLDBZULVN5c3RlbXMgVHJ1c3QgQ2VudGVyMSUwIwYDVQQDDBxULVRlbGVTZWMgR2xvYmFs
+Um9vdCBDbGFzcyAyMB4XDTE2MDIyMjEzMzgyMloXDTMxMDIyMjIzNTk1OVowgZUxCzAJBgNV
+BAYTAkRFMUUwQwYDVQQKEzxWZXJlaW4genVyIEZvZXJkZXJ1bmcgZWluZXMgRGV1dHNjaGVu
+IEZvcnNjaHVuZ3NuZXR6ZXMgZS4gVi4xEDAOBgNVBAsTB0RGTi1QS0kxLTArBgNVBAMTJERG
+Ti1WZXJlaW4gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgMjCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAMtg1/9moUHN0vqHl4pzq5lN6mc5WqFggEcVToyVsuXPztNXS43O+FZs
+FVV2B+pG/cgDRWM+cNSrVICxI5y+NyipCf8FXRgPxJiZN7Mg9mZ4F4fCnQ7MSjLnFp2uDo0p
+eQcAIFTcFV9Kltd4tjTTwXS1nem/wHdN6r1ZB+BaL2w8pQDcNb1lDY9/Mm3yWmpLYgHurDg0
+WUU2SQXaeMpqbVvAgWsRzNI8qIv4cRrKO+KA3Ra0Z3qLNupOkSk9s1FcragMvp0049ENF4N1
+xDkesJQLEvHVaY4l9Lg9K7/AjsMeO6W/VRCrKq4Xl14zzsjz9AkH4wKGMUZrAcUQDBHHWekC
+AwEAAaOCAXQwggFwMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQUk+PYMiba1fFKpZFK4OpL
+4qIMz+EwHwYDVR0jBBgwFoAUv1kgNgB5oKAia4zV8mHSuCzLgkowEgYDVR0TAQH/BAgwBgEB
+/wIBAjAzBgNVHSAELDAqMA8GDSsGAQQBga0hgiwBAQQwDQYLKwYBBAGBrSGCLB4wCAYGZ4EM
+AQICMEwGA1UdHwRFMEMwQaA/oD2GO2h0dHA6Ly9wa2kwMzM2LnRlbGVzZWMuZGUvcmwvVGVs
+ZVNlY19HbG9iYWxSb290X0NsYXNzXzIuY3JsMIGGBggrBgEFBQcBAQR6MHgwLAYIKwYBBQUH
+MAGGIGh0dHA6Ly9vY3NwMDMzNi50ZWxlc2VjLmRlL29jc3ByMEgGCCsGAQUFBzAChjxodHRw
+Oi8vcGtpMDMzNi50ZWxlc2VjLmRlL2NydC9UZWxlU2VjX0dsb2JhbFJvb3RfQ2xhc3NfMi5j
+ZXIwDQYJKoZIhvcNAQELBQADggEBAIcL/z4Cm2XIVi3WO5qYi3FP2ropqiH5Ri71sqQPrhE4
+eTizDnS6dl2e6BiClmLbTDPo3flq3zK9LExHYFV/53RrtCyD2HlrtrdNUAtmB7Xts5et6u5/
+MOaZ/SLick0+hFvu+c+Z6n/XUjkurJgARH5pO7917tALOxrN5fcPImxHhPalR6D90Bo0fa3S
+PXez7vTXTf/D6OWST1k+kEcQSrCFWMBvf/iu7QhCnh7U3xQuTY+8npTD5+32GPg8SecmqKc2
+2CzeIs2LgtjZeOJVEqM7h0S2EQvVDFKvaYwPBt/QolOLV5h7z/0HJPT8vcP9SpIClxvyt7bP
+ZYoaorVyGTkwggWNMIIEdaADAgECAgwcOtRQhH7u81j4jncwDQYJKoZIhvcNAQELBQAwgZUx
+CzAJBgNVBAYTAkRFMUUwQwYDVQQKEzxWZXJlaW4genVyIEZvZXJkZXJ1bmcgZWluZXMgRGV1
+dHNjaGVuIEZvcnNjaHVuZ3NuZXR6ZXMgZS4gVi4xEDAOBgNVBAsTB0RGTi1QS0kxLTArBgNV
+BAMTJERGTi1WZXJlaW4gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkgMjAeFw0xNjExMDMxNTI0
+NDhaFw0zMTAyMjIyMzU5NTlaMGoxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIDAZCYXllcm4xETAP
+BgNVBAcMCE11ZW5jaGVuMSAwHgYDVQQKDBdNYXgtUGxhbmNrLUdlc2VsbHNjaGFmdDEVMBMG
+A1UEAwwMTVBHIENBIC0gRzAyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnhx4
+59Lh4WqgOs/Md04XxU2yFtfM15ZuJV0PZP7BmqSJKLLPyqmOrADfNdJ5PIGBto2JBhtRRBHd
+G0GROOvTRHjzOga95WOTeura79T21FWwwAwa29OFnD3ZplQs6HgdwQrZWNi1WHNJxn/4mA19
+rNEBUc5urSIpZPvZi5XmlF3v3JHOlx3KWV7mUteB4pwEEfGTg4npPAJbp2o7arxQdoIq+Pu2
+OsvqhD7Rk4QeaX+EM1QS4lqd1otW4hE70h/ODPy1xffgbZiuotWQLC6nIwa65Qv6byqlIX0q
+Zuu99Vsu+r3sWYsL5SBkgecNI7fMJ5tfHrjoxfrKl/ErTAt8GQIDAQABo4ICBTCCAgEwEgYD
+VR0TAQH/BAgwBgEB/wIBATAOBgNVHQ8BAf8EBAMCAQYwKQYDVR0gBCIwIDANBgsrBgEEAYGt
+IYIsHjAPBg0rBgEEAYGtIYIsAQEEMB0GA1UdDgQWBBTEiKUH7rh7qgwTv9opdGNSG0lwFjAf
+BgNVHSMEGDAWgBST49gyJtrV8UqlkUrg6kviogzP4TCBjwYDVR0fBIGHMIGEMECgPqA8hjpo
+dHRwOi8vY2RwMS5wY2EuZGZuLmRlL2dsb2JhbC1yb290LWcyLWNhL3B1Yi9jcmwvY2Fjcmwu
+Y3JsMECgPqA8hjpodHRwOi8vY2RwMi5wY2EuZGZuLmRlL2dsb2JhbC1yb290LWcyLWNhL3B1
+Yi9jcmwvY2FjcmwuY3JsMIHdBggrBgEFBQcBAQSB0DCBzTAzBggrBgEFBQcwAYYnaHR0cDov
+L29jc3AucGNhLmRmbi5kZS9PQ1NQLVNlcnZlci9PQ1NQMEoGCCsGAQUFBzAChj5odHRwOi8v
+Y2RwMS5wY2EuZGZuLmRlL2dsb2JhbC1yb290LWcyLWNhL3B1Yi9jYWNlcnQvY2FjZXJ0LmNy
+dDBKBggrBgEFBQcwAoY+aHR0cDovL2NkcDIucGNhLmRmbi5kZS9nbG9iYWwtcm9vdC1nMi1j
+YS9wdWIvY2FjZXJ0L2NhY2VydC5jcnQwDQYJKoZIhvcNAQELBQADggEBABLpeD5FygzqOjj+
+/lAOy20UQOGWlx0RMuPcI4nuyFT8SGmK9lD7QCg/HoaJlfU/r78ex+SEide326evlFAoJXIF
+jVyzNltDhpMKrPIDuh2N12zyn1EtagqPL6hu4pVRzcBpl/F2HCvtmMx5K4WN1L1fmHWLcSap
+dhXLvAZ9RG/B3rqyULLSNN8xHXYXpmtvG0VGJAndZ+lj+BH7uvd3nHWnXEHC2q7iQlDUqg0a
+wIqWJgdLlx1Q8Dg/sodv0m+LN0kOzGvVDRCmowBdWGhhusD+duKV66pBl+qhC+4LipariWaM
+qK5ppMQROATjYeNRvwI+nDcEXr2vDaKmdbxgDVwwggWvMIIEl6ADAgECAgweKlJIhfynPMVG
+/KIwDQYJKoZIhvcNAQELBQAwajELMAkGA1UEBhMCREUxDzANBgNVBAgMBkJheWVybjERMA8G
+A1UEBwwITXVlbmNoZW4xIDAeBgNVBAoMF01heC1QbGFuY2stR2VzZWxsc2NoYWZ0MRUwEwYD
+VQQDDAxNUEcgQ0EgLSBHMDIwHhcNMTcxMTE0MTEzNDE2WhcNMjAxMTEzMTEzNDE2WjCBizEL
+MAkGA1UEBhMCREUxIDAeBgNVBAoMF01heC1QbGFuY2stR2VzZWxsc2NoYWZ0MTQwMgYDVQQL
+DCtNYXgtUGxhbmNrLUluc3RpdHV0IGZ1ZXIgbW9sZWt1bGFyZSBHZW5ldGlrMQ4wDAYDVQQL
+DAVNUElNRzEUMBIGA1UEAwwLUGF1bCBNZW56ZWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+ggEKAoIBAQDIh/UR/AX/YQ48VWWDMLTYtXjYJyhRHMc81ZHMMoaoG66lWB9MtKRTnB5lovLZ
+enTIUyPsCrMhTqV9CWzDf6v9gOTWVxHEYqrUwK5H1gx4XoK81nfV8oGV4EKuVmmikTXiztGz
+peyDmOY8o/EFNWP7YuRkY/lPQJQBeBHYq9AYIgX4StuXu83nusq4MDydygVOeZC15ts0tv3/
+6WmibmZd1OZRqxDOkoBbY3Djx6lERohs3IKS6RKiI7e90rCSy9rtidJBOvaQS9wvtOSKPx0a
++2pAgJEVzZFjOAfBcXydXtqXhcpOi2VCyl+7+LnnTz016JJLsCBuWEcB3kP9nJYNAgMBAAGj
+ggIxMIICLTAJBgNVHRMEAjAAMA4GA1UdDwEB/wQEAwIF4DAdBgNVHSUEFjAUBggrBgEFBQcD
+AgYIKwYBBQUHAwQwHQYDVR0OBBYEFHM0Mc3XjMLlhWpp4JufRELL4A/qMB8GA1UdIwQYMBaA
+FMSIpQfuuHuqDBO/2il0Y1IbSXAWMCAGA1UdEQQZMBeBFXBtZW56ZWxAbW9sZ2VuLm1wZy5k
+ZTB9BgNVHR8EdjB0MDigNqA0hjJodHRwOi8vY2RwMS5wY2EuZGZuLmRlL21wZy1nMi1jYS9w
+dWIvY3JsL2NhY3JsLmNybDA4oDagNIYyaHR0cDovL2NkcDIucGNhLmRmbi5kZS9tcGctZzIt
+Y2EvcHViL2NybC9jYWNybC5jcmwwgc0GCCsGAQUFBwEBBIHAMIG9MDMGCCsGAQUFBzABhido
+dHRwOi8vb2NzcC5wY2EuZGZuLmRlL09DU1AtU2VydmVyL09DU1AwQgYIKwYBBQUHMAKGNmh0
+dHA6Ly9jZHAxLnBjYS5kZm4uZGUvbXBnLWcyLWNhL3B1Yi9jYWNlcnQvY2FjZXJ0LmNydDBC
+BggrBgEFBQcwAoY2aHR0cDovL2NkcDIucGNhLmRmbi5kZS9tcGctZzItY2EvcHViL2NhY2Vy
+dC9jYWNlcnQuY3J0MEAGA1UdIAQ5MDcwDwYNKwYBBAGBrSGCLAEBBDARBg8rBgEEAYGtIYIs
+AQEEAwYwEQYPKwYBBAGBrSGCLAIBBAMGMA0GCSqGSIb3DQEBCwUAA4IBAQCQs6bUDROpFO2F
+Qz2FMgrdb39VEo8P3DhmpqkaIMC5ZurGbbAL/tAR6lpe4af682nEOJ7VW86ilsIJgm1j0ueY
+aOuL8jrN4X7IF/8KdZnnNnImW3QVni6TCcc+7+ggci9JHtt0IDCj5vPJBpP/dKXLCN4M+exl
+GXYpfHgxh8gclJPY1rquhQrihCzHfKB01w9h9tWZDVMtSoy9EUJFhCXw7mYUsvBeJwZesN2B
+fndPkrXx6XWDdU3S1LyKgHlLIFtarLFm2Hb5zAUR33h+26cN6ohcGqGEEzgIG8tXS8gztEaj
+1s2RyzmKd4SXTkKR3GhkZNVWy+gM68J7jP6zzN+cMYIDmjCCA5YCAQEwejBqMQswCQYDVQQG
+EwJERTEPMA0GA1UECAwGQmF5ZXJuMREwDwYDVQQHDAhNdWVuY2hlbjEgMB4GA1UECgwXTWF4
+LVBsYW5jay1HZXNlbGxzY2hhZnQxFTATBgNVBAMMDE1QRyBDQSAtIEcwMgIMHipSSIX8pzzF
+RvyiMA0GCWCGSAFlAwQCAQUAoIIB8TAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0xODAyMTQxNjQxMjlaMC8GCSqGSIb3DQEJBDEiBCB9oLlhw3cjKt3VnkU8
+kB30gwqRUECuh5aoBpsAtBYHWTBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFlAwQBKjALBglg
+hkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcG
+BSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGJBgkrBgEEAYI3EAQxfDB6MGoxCzAJBgNVBAYTAkRF
+MQ8wDQYDVQQIDAZCYXllcm4xETAPBgNVBAcMCE11ZW5jaGVuMSAwHgYDVQQKDBdNYXgtUGxh
+bmNrLUdlc2VsbHNjaGFmdDEVMBMGA1UEAwwMTVBHIENBIC0gRzAyAgweKlJIhfynPMVG/KIw
+gYsGCyqGSIb3DQEJEAILMXygejBqMQswCQYDVQQGEwJERTEPMA0GA1UECAwGQmF5ZXJuMREw
+DwYDVQQHDAhNdWVuY2hlbjEgMB4GA1UECgwXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxFTAT
+BgNVBAMMDE1QRyBDQSAtIEcwMgIMHipSSIX8pzzFRvyiMA0GCSqGSIb3DQEBAQUABIIBACKL
+uVZI65n2XgNRCqIRUhYcN59HvArDyR4PR4fIRmR0W+aidJ0Ir77gUGKpaopkOCi4l3DxdWy9
+KKYOjDOr2QyWgX8OGLBb83Kfe0AFVbltT0gM42Ro8yUtlGhbASX17bEhwE6+7wrgm8r6CNUq
+623nJgevifj2COS4vGfYJv0IQTmUiORdcQOJUCFyBKVU4BslfxBs7sQ6nprSk4YAWV8+hJLc
+q0eXbtmzW0NJM5sORKhfgkNYHw4lmkhvDn+r55bLtfPhlz4CHuj8wQnGHf7V94AkQUwjNZ9e
+F/mTlGN2XdGzVG8fCKi4PYEo15b62fIkkKGZG5glZnr0WlQmaT8AAAAAAAA=
+--------------ms090106010501060506050603--

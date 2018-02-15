@@ -1,52 +1,102 @@
-From: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>
-Subject: [PATCH] input/mouse/synaptics: Add SYN1217 to PNP detection list
-Date: Thu, 15 Feb 2018 14:50:34 +0100
-Message-ID: <a157ea03-b7ca-9a20-308d-70b0504d0c83@molgen.mpg.de>
+From: <Mario.Limonciello@dell.com>
+Subject: RE: i8042 AUX port [serio1] suspend takes a second on Dell XPS 13
+ 9360
+Date: Thu, 15 Feb 2018 15:22:25 +0000
+Message-ID: <33355407b8d74575bab0c36e442141ea@ausx13mpc120.AMER.DELL.COM>
+References: <5a74e1a7-2083-c6b2-f51a-f44908ac8bc4@molgen.mpg.de>
+ <20180130175017.72inurhk5l7tcvae@dtor-ws>
+ <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
+ <f02b699d-b130-c09f-3e09-db62ecf2df2c@molgen.mpg.de>
+ <609c1f35df7346da8ac1d12c35e04cf7@ausx13mpc120.AMER.DELL.COM>
+ <b9223169-2282-4ada-999a-7f50d205ca7d@molgen.mpg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: de-DE
+In-Reply-To: <b9223169-2282-4ada-999a-7f50d205ca7d@molgen.mpg.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de
+To: pmenzel+linux-input@molgen.mpg.de, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de, linux@leemhuis.info
 List-Id: linux-input@vger.kernel.org
 
-Date: Wed, 14 Feb 2018 18:16:43 +0100
-
-On the TUXEDO Book BU1406, since Linux 4.12, the Linux kernel logs the 
-message
-below.
-
-```
-kernel: psmouse serio1: synaptics: Your touchpad (PNP: SYN1217 PNP0f13) 
-says it can support a different bus. If i2c-hid and hid-rmi are not 
-used, you might want to try setting psmouse.synaptics_intertouch to 1 
-and report this to linux-input@vger.kernel.org.
-```
-
-Booting with `psmouse.synaptics_intertouch=1`, the touchpad continues to
-work, so add the ID of the device to the list of IDs, whose devices
-support I2C mode.
-
-CC: stable@vger.kernel.org
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
----
-  drivers/input/mouse/synaptics.c | 1 +
-  1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/mouse/synaptics.c 
-b/drivers/input/mouse/synaptics.c
-index 3d2e23a0ae39..80ddbb966d83 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -178,6 +178,7 @@ static const char * const smbus_pnp_ids[] = {
-  };
-
-  static const char * const forcepad_pnp_ids[] = {
-+	"SYN1217",
-  	"SYN300D",
-  	"SYN3014",
-  	NULL
--- 
-2.14.1
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBQYXVsIE1lbnplbCBbbWFpbHRv
+OnBtZW56ZWwrbGludXgtaW5wdXRAbW9sZ2VuLm1wZy5kZV0NCj4gU2VudDogVGh1cnNkYXksIEZl
+YnJ1YXJ5IDE1LCAyMDE4IDI6MjYgQU0NCj4gVG86IExpbW9uY2llbGxvLCBNYXJpbyA8TWFyaW9f
+TGltb25jaWVsbG9ARGVsbC5jb20+OyBEbWl0cnkgVG9yb2tob3YNCj4gPGRtaXRyeS50b3Jva2hv
+dkBnbWFpbC5jb20+DQo+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtl
+cm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGl0K2xpbnV4LQ0KPiBpbnB1dEBtb2xnZW4ubXBnLmRlOyBs
+aW51eEBsZWVtaHVpcy5pbmZvDQo+IFN1YmplY3Q6IFJlOiBpODA0MiBBVVggcG9ydCBbc2VyaW8x
+XSBzdXNwZW5kIHRha2VzIGEgc2Vjb25kIG9uIERlbGwgWFBTIDEzIDkzNjANCj4gDQo+IERlYXIg
+TWFyaW8sIGRlYXIgRG1pdHJ5LA0KPiANCj4gDQo+IE9uIDAyLzE0LzE4IDE4OjExLCBNYXJpby5M
+aW1vbmNpZWxsb0BkZWxsLmNvbSB3cm90ZToNCj4gPg0KPiA+DQo+ID4+IC0tLS0tT3JpZ2luYWwg
+TWVzc2FnZS0tLS0tDQo+ID4+IEZyb206IFBhdWwgTWVuemVsIFttYWlsdG86cG1lbnplbCtsaW51
+eC1pbnB1dEBtb2xnZW4ubXBnLmRlXQ0KPiA+PiBTZW50OiBXZWRuZXNkYXksIEZlYnJ1YXJ5IDE0
+LCAyMDE4IDEwOjQxIEFNDQo+ID4+IFRvOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hv
+dkBnbWFpbC5jb20+DQo+ID4+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4
+LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGl0K2xpbnV4LQ0KPiA+PiBpbnB1dEBtb2xnZW4ubXBn
+LmRlOyBMaW1vbmNpZWxsbywgTWFyaW8gPE1hcmlvX0xpbW9uY2llbGxvQERlbGwuY29tPjsNCj4g
+Pj4gVGhvcnN0ZW4gTGVlbWh1aXMgPGxpbnV4QGxlZW1odWlzLmluZm8+DQo+ID4+IFN1YmplY3Q6
+IFJlOiBpODA0MiBBVVggcG9ydCBbc2VyaW8xXSBzdXNwZW5kIHRha2VzIGEgc2Vjb25kIG9uIERl
+bGwgWFBTIDEzIDkzNjANCj4gDQo+ID4+IE9uIDAxLzMwLzE4IDE5OjA3LCBEbWl0cnkgVG9yb2to
+b3Ygd3JvdGU6DQo+ID4+PiBPbiBUdWUsIEphbiAzMCwgMjAxOCBhdCAwOTo1Mjo0NUFNIC0wODAw
+LCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+ID4+DQo+ID4+Pj4gT24gVHVlLCBKYW4gMzAsIDIw
+MTggYXQgMDY6MzY6MzRQTSArMDEwMCwgUGF1bCBNZW56ZWwgd3JvdGU6DQo+ID4+DQo+ID4+Pj4+
+IEkgZG8gbm90IGtub3csIHdoZW4gaXQgc3RhcnRlZCwgYnV0IHdpdGggTGludXggNC4xNC1yYzgg
+YW5kIDQuMTUsDQo+ID4+Pj4+IGJlbmNobWFya2luZyBzdXNwZW5kIGFuZCByZXN1bWUgdGltZSB3
+aXRoIGBzbGVlcGdyYXBoLnB5YCBbMV1bMl0sIHRoZXJlIGlzDQo+IGENCj4gPj4+Pj4gcmVncmVz
+c2lvbiwgdGhhdCBpODA0MiBBVVggcG9ydCBbc2VyaW8xXSBzdXNwZW5kIHRha2VzIGEgc2Vjb25k
+IG9uIERlbGwgWFBTDQo+ID4+Pj4+IDEzIDkzNjAgYW5kIFRVWEVETyBCb29rIDE0MDYuDQo+ID4+
+Pj4NCj4gPj4+PiBJdCB3b3VsZCBiZSByZWFsbHkgaGVscGZ1bCB0byBrbm93IHdoZW4gdGhlIHJl
+Z3Jlc3Npb24gc3RhcnRlZC4NCj4gPj4+DQo+ID4+PiBTbyB0aGUgcmVhc29uIGl0IHRha2VzIGxv
+bmdlciBpcyBiZWNhdXNlIHRoZSB0b3VjaHBhZCBkb2VzIG5vdCB3YW50IHRvDQo+ID4+PiB0YWxr
+IHRvIHVzIGZvciBzb21lIHJlYXNvbiBhbmQgd2Ugd2FpdCB1bnRpbCBjb21tYW5kcyB0aW1lIG91
+dDoNCj4gPj4+DQo+ID4+PiBbICAgOTQuNTkxNjM2XSBjYWxsaW5nICBzZXJpbzErIEAgMjI5OSwg
+cGFyZW50OiBpODA0Mg0KPiA+Pj4gWyAgIDk0Ljc5NDI5Ml0gcHNtb3VzZSBzZXJpbzE6IEZhaWxl
+ZCB0byBkaXNhYmxlIG1vdXNlIG9uIGlzYTAwNjAvc2VyaW8xDQo+ID4+PiBbICAgOTUuNTkzMzAz
+XSBjYWxsIHNlcmlvMSsgcmV0dXJuZWQgMCBhZnRlciA5NzQyODAgdXNlY3MNCj4gPj4+DQo+ID4+
+PiBidXQgaXQgaXMgbm90IGNsZWFyIHdoeSBpdCBoYXBwZW5zLCBJIGRvIG5vdCB0aGluayB3ZSBj
+aGFuZ2VkIGFueXRoaW5nDQo+ID4+PiBpbiB0aGF0IHBhdGggZm9yIGEgd2hpbGUsIHNvIGl0IG1p
+Z2h0IGJlIHNvbWUgb3RoZXIgY2hhbmdlIGFmZmVjdGluZw0KPiA+Pj4gdGhpbmdzIGluZGlyZWN0
+bHkuIEknbSBhZnJhaWQgeW91J2xsIGhhdmUgdG8gbmFycm93IHRoZSBzY29wZSwgYW5kDQo+ID4+
+PiBpZGVhbGx5IGJpc2VjdC4NCj4gPg0KPiA+IFBsZWFzZSBrZWVwIGluIG1pbmQgdGhlIFhQUyA5
+MzYwIGhhcyBhIHRvdWNocGFkIHRoYXQgY2FuIG9wZXJhdGUgaW4gSTJDDQo+ID4gb3IgUFMyIG1v
+ZGVzLiAgSXQncyBjb25uZWN0ZWQgdG8gYm90aCBidXNlcyBhbmQgd2l0aCB0aGUgcmlnaHQgaW5p
+dGlhbGl6YXRpb24NCj4gPiBzZXF1ZW5jZSB3aWxsIGNvbWUgdXAgaW4gSTJDIG1vZGUuDQo+ID4N
+Cj4gPiBBc3N1bWluZyBQYXVsIE0uIGhhcyBjb21waWxlZCBhbmQgdXNlZCBoaWQtbXVsdGl0b3Vj
+aCBhbmQgaTJjLWhpZCB0aGUNCj4gPiB0b3VjaHBhZCBzaG91bGQgYmUgb3BlcmF0aW5nIGluIEky
+QyBtb2RlLg0KPiA+DQo+ID4gV2hlbiB0aGlzIGhhcHBlbnMgSSBleHBlY3QgdGhhdCB0aGUgdG91
+Y2hwYWQgc2hvdWxkbid0IGJlIHJlc3BvbmRpbmcNCj4gPiB0byBQUzIgY29tbWFuZHMuDQo+ID4N
+Cj4gPiBBcyBhIGRlYnVnZ2luZyB0YWN0aWMsIHlvdSBtYXkgY29uc2lkZXIgdG8gdW5sb2FkIHBz
+bW91c2UgYmVmb3JlDQo+ID4gc3VzcGVuZCBhbmQgc3RpbGwgc2VlIHRoZSB0b3VjaHBhZCBvcGVy
+YXRpb25hbC4NCj4gDQo+IFRoYW5rIHlvdSEgVW5sb2FkaW5nICpwc21vdXNlKiB3aXRoIGBzdWRv
+IG1vZHByb2JlIC1yIHBzbW91c2VgIGluZGVlZA0KPiB3b3JrZWQgb24gdGhlIERlbGwgWFBTIDEz
+IDkzNjAsIHRoYXQgbWVhbnMsIHRoZSBjdXJzb3IgaXMgc3RpbGwgZnVuY3Rpb25pbmcuDQo+IA0K
+PiA+PiBUaGFuayB5b3UgZm9yIHlvdXIgcmVwbGllcy4gRmlyc3Qgb2YgYWxsLCBpdCBsb29rcyBs
+aWtlICpvbmx5KiB0aGUgRGVsbA0KPiA+PiBzeXN0ZW0gaXMgZWZmZWN0ZWQgYXMgSSB3YXMgdW5h
+YmxlIHRvIHJlcHJvZHVjZSBpdCBvbiB0aGUgVFVYRURPIEJvb2sNCj4gPj4gMTQwNi4gSSBoYXZl
+IHRvIHZlcmlmeSB0aGF0IGJ5IGZpbmRpbmcgb2xkIGxvZyBmaWxlcy4NCj4gPg0KPiA+IERvZXMg
+dGhpcyBvdGhlciBsYXB0b3AgeW91IGFyZSBkcmF3aW5nIGEgY29tcGFyaXNvbiB0byBhbHNvIGhh
+dmUgYQ0KPiA+IHRvdWNocGFkIHRoYXQgY2FuIG9wZXJhdGUgaW4gbXVsdGlwbGUgbW9kZXM/DQo+
+ID4NCj4gPiBUbyBtYWtlIGFuIGFjY3VyYXRlIGNvbXBhcmlzb24geW91IHNob3VsZCBkZXRlcm1p
+bmUgd2hhdCBtb2RlIGl0J3MgaW4uDQo+IA0KPiBZZWFoLCByZW1vdmluZyB0aGUgbW9kdWxlICpw
+c21vdXNlKiwgdGhlIGN1cnNvciBkaWRu4oCZdCB3b3JrIHRoZXJlDQo+IGFueW1vcmUuIEkgd2Fz
+IHJlYWxseSBzdXJlLCB0aGF0IEkgc2F3IHRoYXQgcHJvYmxlbSBvbmNlIG9uIHRoZSBUVVhFRE8N
+Cj4gZGV2aWNlIHRvbywgYnV0IG11c3QgaGF2ZSBiZWVuIG1pc3Rha2VuLCB0aGF04oCZcyB3aHkg
+SSBjb3JyZWN0ZWQgaXQuDQo+IFNvcnJ5IGZvciB0aGUgbWlzdW5kZXJzdGFuZGluZy4NCj4gDQo+
+IFNvLCB3aHkgZG9lcyAqcHNtb3VzZSogZ2V0IGxvYWRlZCBvbiB0aGUgRGVsbCBYUFMgMTMgOTM2
+MCBzaW5jZSBhdCBsZWFzdA0KPiBMaW51eCA0LjEzPyBPciB3aGVyZSB0aGUgbW9kdWxlcyBhZGRl
+ZCBjYXVzaW5nIHRoZSB0b3VjaHBhZCB0byBvcGVyYXRlDQo+IGluIEkyQyBtb2RlLCB3aGljaCBj
+YXVzZXMgUFMyIHRvIHN0b3AgdG8gd29yaz8NCj4gDQoNCkl0IHdhcyBsaWtlIHRoYXQgYmVmb3Jl
+IHRoaXMgbGFwdG9wIGV2ZW4gbGF1bmNoZWQgdG8gdGhlIG1hcmtldC4NCkl0J3MgYmVlbiBsaWtl
+IHRoYXQgc2luY2Ugd2F5IGJlZm9yZSA0LjEzLiAgSSB3YW50IHRvIHNheSBtYXliZSAzLjEzaXNo
+IGlzIHdoZW4NCkkyQyBtb2RlIHdvdWxkIGNvbWUgdXAgaW5zdGVhZC4NCg0KVGhlIG9yZGVyIG9m
+IGV2ZW50cyBnb2VzIHNvbWV0aGluZyBsaWtlIHRoaXM6DQoxKSBUb3VjaHBhZCBpcyBpbml0aWFs
+bHkgaW4gUFMyIG1vZGUNCjIpIHBzbW91c2UgbG9hZHMNCjMpIEl0IHJlcG9ydHMgdGhhdCBpdCBt
+YXkgYmUgc3VwcG9ydGFibGUgYnkgYSBkaWZmZXJlbnQgYnVzDQo0KSBUaGUgc2VxdWVuY2UgdG8g
+c3dpdGNoIHRvIEkyQyBtb2RlIGhhcHBlbnMNCjUpIGkyYy1oaWQgYW5kIGhpZC1tdWx0aXRvdWNo
+IGdldCBsb2FkZWQNCjYpIHBzbW91c2UgaXMgbm8gbG9uZ2VyIGZ1bmN0aW9uYWwNCg0KRG1pdHJ5
+IGlzIHRoZXJlIGEgd2F5IHRoYXQgd2UgY2FuIGNvbm5lY3QgdGhlIHR3byBldmVudHM/ICBXaGVu
+IGkyYy1oaWQgZmluZHMNCnRoZSB0b3VjaHBhZCBub3RpZnkgcHNtb3VzZSB0byB1bmxvYWQgb3Ig
+YXQgbGVhc3Qgc3RvcCB0cnlpbmcgdG8gYWNjZXNzIGl0IHRvIHByZXZlbnQNCnRoZSBwcm9ibGVt
+IFBhdWwgaXMgdGFsa2luZyBhYm91dCB3aXRoIHN1c3BlbmQ/DQo=

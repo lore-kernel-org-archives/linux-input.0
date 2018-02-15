@@ -1,36 +1,140 @@
 From: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>
-Subject: Add touchpad of Dell XPS 13 9360 to Synaptics Intertouch list
-Date: Thu, 15 Feb 2018 09:37:22 +0100
-Message-ID: <132020ce-4061-3792-c325-6fa16210df94@molgen.mpg.de>
+Subject: Re: i8042 AUX port [serio1] suspend takes a second on Dell XPS 13
+ 9360
+Date: Thu, 15 Feb 2018 09:40:19 +0100
+Message-ID: <735d9857-712d-05fb-228e-12705a93ebcc@molgen.mpg.de>
+References: <5a74e1a7-2083-c6b2-f51a-f44908ac8bc4@molgen.mpg.de>
+ <20180130175017.72inurhk5l7tcvae@dtor-ws>
+ <20180130180736.ehucqywbz7zdl4v7@dtor-ws>
+ <f02b699d-b130-c09f-3e09-db62ecf2df2c@molgen.mpg.de>
+ <609c1f35df7346da8ac1d12c35e04cf7@ausx13mpc120.AMER.DELL.COM>
+ <b9223169-2282-4ada-999a-7f50d205ca7d@molgen.mpg.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="------------ms060304080008040901040906"
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256; boundary="------------ms010203060508070204020100"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <b9223169-2282-4ada-999a-7f50d205ca7d@molgen.mpg.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de
+To: Mario Limonciello <mario.limonciello@dell.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, it+linux-input@molgen.mpg.de, linux@leemhuis.info
 List-Id: linux-input@vger.kernel.org
 
 This is a cryptographically signed message in MIME format.
 
---------------ms060304080008040901040906
+--------------ms010203060508070204020100
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-Dear Linux folks,
+Dear Mario, dear Dmitry,
 
 
-On the Dell XPS 13 9360, Linux asks me to report the device DLL075b to=20
-be added to `forcepad_pnp_ids`.
+On 02/15/18 09:26, Paul Menzel wrote:
 
-> [    7.180131] psmouse serio1: synaptics: Your touchpad (PNP: DLL075b P=
-NP0f13) says it can support a different bus. If i2c-hid and hid-rmi are n=
-ot used, you might want to try setting psmouse.synaptics_intertouch to 1 =
-and report this to linux-input@vger.kernel.org.
+> On 02/14/18 18:11, Mario.Limonciello@dell.com wrote:
+>>
+>>
+>>> -----Original Message-----
+>>> From: Paul Menzel [mailto:pmenzel+linux-input@molgen.mpg.de]
+>>> Sent: Wednesday, February 14, 2018 10:41 AM
+>>> To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; it+lin=
+ux-
+>>> input@molgen.mpg.de; Limonciello, Mario <Mario_Limonciello@Dell.com>;=
 
-I booted Linux 4.16-rc1 with `psmouse.synaptics_intertouch=3D1` added to =
+>>> Thorsten Leemhuis <linux@leemhuis.info>
+>>> Subject: Re: i8042 AUX port [serio1] suspend takes a second on Dell=20
+>>> XPS 13 9360
+>=20
+>>> On 01/30/18 19:07, Dmitry Torokhov wrote:
+>>>> On Tue, Jan 30, 2018 at 09:52:45AM -0800, Dmitry Torokhov wrote:
+>>>
+>>>>> On Tue, Jan 30, 2018 at 06:36:34PM +0100, Paul Menzel wrote:
+>>>
+>>>>>> I do not know, when it started, but with Linux 4.14-rc8 and 4.15,
+>>>>>> benchmarking suspend and resume time with `sleepgraph.py` [1][2], =
 
-the Linux command line, and everything continued to work.
+>>>>>> there is a
+>>>>>> regression, that i8042 AUX port [serio1] suspend takes a second on=
+=20
+>>>>>> Dell XPS
+>>>>>> 13 9360 and TUXEDO Book 1406.
+>>>>>
+>>>>> It would be really helpful to know when the regression started.
+>>>>
+>>>> So the reason it takes longer is because the touchpad does not want =
+to
+>>>> talk to us for some reason and we wait until commands time out:
+>>>>
+>>>> [=C2=A0=C2=A0 94.591636] calling=C2=A0 serio1+ @ 2299, parent: i8042=
+
+>>>> [=C2=A0=C2=A0 94.794292] psmouse serio1: Failed to disable mouse on =
+
+>>>> isa0060/serio1
+>>>> [=C2=A0=C2=A0 95.593303] call serio1+ returned 0 after 974280 usecs
+>>>>
+>>>> but it is not clear why it happens, I do not think we changed anythi=
+ng
+>>>> in that path for a while, so it might be some other change affecting=
+
+>>>> things indirectly. I'm afraid you'll have to narrow the scope, and
+>>>> ideally bisect.
+>>
+>> Please keep in mind the XPS 9360 has a touchpad that can operate in I2=
+C
+>> or PS2 modes.=C2=A0 It's connected to both buses and with the right=20
+>> initialization
+>> sequence will come up in I2C mode.
+>>
+>> Assuming Paul M. has compiled and used hid-multitouch and i2c-hid the
+>> touchpad should be operating in I2C mode.
+>>
+>> When this happens I expect that the touchpad shouldn't be responding
+>> to PS2 commands.
+>>
+>> As a debugging tactic, you may consider to unload psmouse before
+>> suspend and still see the touchpad operational.
+>=20
+> Thank you! Unloading *psmouse* with `sudo modprobe -r psmouse` indeed=20
+> worked on the Dell XPS 13 9360, that means, the cursor is still=20
+> functioning.
+
+But to clarify, the TUXEDO device can be booted with=20
+`psmouse.synaptics_intertouch=3D1`, and the cursor still works. (I am=20
+going to send a patch.) So the EC(?) on the TUXEDO device seems to=20
+support PS2 and I2C modes, and doesn=E2=80=99t show the same problems as =
+the=20
+Dell device.
+
+>>> Thank you for your replies. First of all, it looks like *only* the De=
+ll
+>>> system is effected as I was unable to reproduce it on the TUXEDO Book=
+
+>>> 1406. I have to verify that by finding old log files.
+>>
+>> Does this other laptop you are drawing a comparison to also have a
+>> touchpad that can operate in multiple modes?
+>>
+>> To make an accurate comparison you should determine what mode it's in.=
+
+>=20
+> Yeah, removing the module *psmouse*, the cursor didn=E2=80=99t work the=
+re=20
+> anymore. I was really sure, that I saw that problem once on the TUXEDO =
+
+> device too, but must have been mistaken, that=E2=80=99s why I corrected=
+ it.=20
+> Sorry for the misunderstanding.
+>=20
+> So, why does *psmouse* get loaded on the Dell XPS 13 9360 since at leas=
+t=20
+> Linux 4.13? Or where the modules added causing the touchpad to operate =
+
+> in I2C mode, which causes PS2 to stop to work?
+>=20
+> Please find the full Linux kernel messages attached.
+
+Starting the system with `psmouse.synaptics_intertouch=3D1`, the one=20
+second delay is still reproducible.
 
 
 Kind regards,
@@ -38,7 +142,7 @@ Kind regards,
 Paul
 
 
---------------ms060304080008040901040906
+--------------ms010203060508070204020100
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -126,18 +230,18 @@ fndPkrXx6XWDdU3S1LyKgHlLIFtarLFm2Hb5zAUR33h+26cN6ohcGqGEEzgIG8tXS8gztEaj
 EwJERTEPMA0GA1UECAwGQmF5ZXJuMREwDwYDVQQHDAhNdWVuY2hlbjEgMB4GA1UECgwXTWF4
 LVBsYW5jay1HZXNlbGxzY2hhZnQxFTATBgNVBAMMDE1QRyBDQSAtIEcwMgIMHipSSIX8pzzF
 RvyiMA0GCWCGSAFlAwQCAQUAoIIB8TAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0xODAyMTUwODM3MjJaMC8GCSqGSIb3DQEJBDEiBCAX9bNdFSnzBHz0l4XM
-LDl7ZCgQm4c9tuGmxaMmeMXKrzBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFlAwQBKjALBglg
+SIb3DQEJBTEPFw0xODAyMTUwODQwMTlaMC8GCSqGSIb3DQEJBDEiBCC3aq/Jq3imWLtM0snu
+KBrxwMHmuSdDEcvIfdYGhi6TlDBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCGSAFlAwQBKjALBglg
 hkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcG
 BSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGJBgkrBgEEAYI3EAQxfDB6MGoxCzAJBgNVBAYTAkRF
 MQ8wDQYDVQQIDAZCYXllcm4xETAPBgNVBAcMCE11ZW5jaGVuMSAwHgYDVQQKDBdNYXgtUGxh
 bmNrLUdlc2VsbHNjaGFmdDEVMBMGA1UEAwwMTVBHIENBIC0gRzAyAgweKlJIhfynPMVG/KIw
 gYsGCyqGSIb3DQEJEAILMXygejBqMQswCQYDVQQGEwJERTEPMA0GA1UECAwGQmF5ZXJuMREw
 DwYDVQQHDAhNdWVuY2hlbjEgMB4GA1UECgwXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxFTAT
-BgNVBAMMDE1QRyBDQSAtIEcwMgIMHipSSIX8pzzFRvyiMA0GCSqGSIb3DQEBAQUABIIBABH/
-4xa06eE4ZSg5h7Wo5305duVGe8024EIUu207b9T3MFA9MeUP+q6hrU6M6i8eRsiLwlg+ejeP
-tcLxlSvq2MQAaax3erEIKtyfz939BGrrdnuWunzqj94hSHiUucWqr8Gae4PIXxITqZud6Ow2
-h/hlomjQtAM3LDY40JShvKuDnKSf8K2dlU1elgg0O2HRlINTwJgv7lWizRgLmSCpXftf0bQ/
-27tn35uM9xZISaZ05alX2aHZYuy7r8P+48mZjPSoOClx2wvjrt+c1DAZtoMhUysCzJx2IaBE
-t+OFUwzCOHMf6mjQvGCzvtS4zB1oUf9HKacc9dxDs4zvDJ3NoZsAAAAAAAA=
---------------ms060304080008040901040906--
+BgNVBAMMDE1QRyBDQSAtIEcwMgIMHipSSIX8pzzFRvyiMA0GCSqGSIb3DQEBAQUABIIBAFzu
+PbeWliKeiskX9liaowP4cMPM9m4/Up++WMgpU7InxCcbYsYNA7ExHhsDxOTR/p134VXnkIGJ
+dhsm7yMSgilGretmdKV8J0OsqSp0aLkjNXCOR3pyXkQU9olSmFAG7u4YXB5bj8AEV7p8RqAa
+QI+K7MEnHZNdAfM8YOfiYo2rDDaOLiclaWCtafD2JoMEEtftO5zEoh6igneLMHJXmT2mYqpV
+RydtN3nPGp+SsRkRfYy73ATE+/IGKROs2g8ceRT2o9/hZSCyWMqhHF+j+c0H6fvOkpBu2nRP
+fPDdvNjW3oS4wiakHrpg94YJnnkMEH4iYdqUlHcrd2+yb381+owAAAAAAAA=
+--------------ms010203060508070204020100--

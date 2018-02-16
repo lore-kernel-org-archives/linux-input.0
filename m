@@ -1,82 +1,84 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH 1/2] input: touchscreen: ar1021_i2c: enable touch mode
- during open
-Date: Fri, 16 Feb 2018 17:46:01 +0100
-Message-ID: <CAH9NwWdLqQCrsFtmYC5wHy2hZ38MZfPexF4QuJ0z56dyXYf7ZQ@mail.gmail.com>
-References: <1493295756-17812-1-git-send-email-martin.kepplinger@ginzinger.com>
- <CAH9NwWeom2H89D5hUixxSL28YgDna_WS26boayzUBAPyVFUvTA@mail.gmail.com> <20180206012027.GF46524@dtor-ws>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: Re: [PATCH 2/3] HID: steam: add serial number information.
+Date: Fri, 16 Feb 2018 21:59:39 +0100
+Message-ID: <20180216205939.GA17329@casa>
+References: <20180213120308.23879-1-rodrigorivascosta@gmail.com>
+ <20180213120308.23879-2-rodrigorivascosta@gmail.com>
+ <CAO-hwJK5sos9=RDajS_cXBzfePqf6TJs3Z-jk568sumR-zjqdw@mail.gmail.com>
+ <20180215221633.GA18755@casa>
+ <CAO-hwJLjFaP3ZLoM+EDbruoRhOyPPFXmo7FWGoXESc9XgkD4Kg@mail.gmail.com>
+ <20180216090243.GB18755@casa>
+ <CAO-hwJKuWWiNX63=X1GSEQQ1cPhi35g6NuX7gsFNGj_s0UdM+Q@mail.gmail.com>
+ <20180216095722.GC18755@casa>
+ <CAO-hwJ+9Jvd8x5dRaerstzeNNgY4_mUar77BB1k2ctxaOCJLtQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180206012027.GF46524@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Martin Kepplinger <martin.kepplinger@ginzinger.com>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:51082 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750713AbeBPU7o (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 16 Feb 2018 15:59:44 -0500
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJ+9Jvd8x5dRaerstzeNNgY4_mUar77BB1k2ctxaOCJLtQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-2018-02-06 2:20 GMT+01:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Mon, Feb 05, 2018 at 11:07:08AM +0100, Christian Gmeiner wrote:
->> Hi all.
->>
->> 2017-04-27 14:22 GMT+02:00 Martin Kepplinger <martin.kepplinger@ginzinger.com>:
->> > The device could as well be in command mode, in which this driver cannot
->> > handle the device. When opening the device, let's make sure the device
->> > will be in the mode we expect it to be for this driver.
->> >
->>
->> I run into issues caused by this change. It turns out that the device
->> is non-functional
->> after some warm-reboots and as a result I am not able to use xorg's
->> evdev driver.
->> So I have some questions about this change:
->>
->> * Should we enable irq before calling i2c_master_send(..) as the chip raises an
->>   irq if the command was processed?
->
-> Well, we do not care about the response... However, what is your
-> interrupt trigger settings? Are you using edge by chance? If so, please
-> try switching to level.
->
+On Fri, Feb 16, 2018 at 11:38:11AM +0100, Benjamin Tissoires wrote:
+> On Fri, Feb 16, 2018 at 10:57 AM, Rodrigo Rivas Costa
+> <rodrigorivascosta@gmail.com> wrote:
+> > On Fri, Feb 16, 2018 at 10:31:35AM +0100, Benjamin Tissoires wrote:
+> >> > Ok, I'll do that. The weird thing, however, is that:
+> >> >
+> >> >         hid_hw_raw_request(steam->hid_dev, 0x00,
+> >> >                 buf, hid_report_len(r), /* 64 */
+> >> >                 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+> >> >
+> >> > fails with EOVERFLOW. I have to use:
+> >> >
+> >> >         hid_hw_raw_request(steam->hid_dev, 0x00,
+> >> >                 buf, 65
+> >> >                 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+> >> >
+> >> > which just feels wrong to me.
+> >>
+> >> Indeed
+> >>
+> 
+> Arf, looks like usbhid expects the buffer to start with 0x00 when the
+> report is not numbered, thus adding one to the report length.
+> 
+> I guess that nobody tried to recently set/get reports on a device
+> without a report ID. And hidraw matches this behavior too, which means
+> it's hard to change.
+> 
+> One thing I'd like to try to change is the result of hid_report_len.
+> If everybody expects the size to be of one more when the report is
+> unnumbered, maybe we could simply add this placeholder in the report
+> size from the beginning.
 
-We may should take care of the response. I have seen strange responses
-after the third open of the device.
+I've been trying to make sense of all this numbered/buf++/count-- stuff,
+and I admit I don't understand half of it...
 
-&i2c2 {
-       ar1021@4d {
-               compatible = "microchip,ar1021-i2c";
-               reg = <0x4d>;
-               interrupt-parent = <&gpio3>;
-               interrupts = <26 IRQ_TYPE_EDGE_RISING>;
-       };
-};
+But about that +7 in hid_alloc_report_buf(), isn't it to make room for
+the implement()/extract() functions? And IIUIC those are not used for
+raw_requests... they are instead passed directly to usb_control_msg()
+(or whatever the ll driver does). That's the point of being raw, isn't
+it?
 
-I am not sure if this is really the cause of the problem! As without this commit
-my device survives one week of a automated touch-press-test done with some
-mechanical gear and with the help of an SPS.
+If I'm right with that, would it make sense to go back to kzalloc(65)?
 
->>
->> * Would it be enough to send this command only once during driver
->> lifetime? I can
->>   see that on my system open gets called 3 times during boot-up.
->>
->> * What are the circumstances the touch device would be in an other state? In the
->>   official kernel driver the userspace can send commands via sysfs.
->> Also the driver
->>   does set the touch enable mode as this patch does.
->
-> What is "the official kernel driver"?
->
+If I'm wrong, then if you agree, I'll default to:
 
-http://ww1.microchip.com/downloads/en/DeviceDoc/AR1020-AR1021-LINUX-SPI-I2C-V102.tar.gz
+	hid_hw_raw_request(steam->hid_dev, 0x00,
+		buf, hid_report_len(r) + 1, /* count the request number	*/
+		HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
 
-As it is release time at my company I had to stop finding the root
-cause but will look into the issue
-again in 2-3 weeks.
+Then, if hid_report_len() is ever updated to return the +1, this one
+should be removed. And even if it is not, we still have +6 extra bytes
+from hid_alloc_report_buf(), so no real harm done.
 
-
--- 
-greets
---
-Christian Gmeiner, MSc
-
-https://christian-gmeiner.info
+Regards.
+Rodrigo

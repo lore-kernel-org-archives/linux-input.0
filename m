@@ -1,115 +1,51 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/3] HID: steam: add serial number information.
-Date: Fri, 16 Feb 2018 11:38:11 +0100
-Message-ID: <CAO-hwJ+9Jvd8x5dRaerstzeNNgY4_mUar77BB1k2ctxaOCJLtQ@mail.gmail.com>
-References: <20180213120308.23879-1-rodrigorivascosta@gmail.com>
- <20180213120308.23879-2-rodrigorivascosta@gmail.com> <CAO-hwJK5sos9=RDajS_cXBzfePqf6TJs3Z-jk568sumR-zjqdw@mail.gmail.com>
- <20180215221633.GA18755@casa> <CAO-hwJLjFaP3ZLoM+EDbruoRhOyPPFXmo7FWGoXESc9XgkD4Kg@mail.gmail.com>
- <20180216090243.GB18755@casa> <CAO-hwJKuWWiNX63=X1GSEQQ1cPhi35g6NuX7gsFNGj_s0UdM+Q@mail.gmail.com>
- <20180216095722.GC18755@casa>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v1] i2c-hid: Use ACPI_COMPANION() directly
+Date: Fri, 16 Feb 2018 13:21:49 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1802161321390.13621@cbobk.fhfr.pm>
+References: <20180119143504.16684-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f171.google.com ([209.85.220.171]:44973 "EHLO
-        mail-qk0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933609AbeBPKiM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 16 Feb 2018 05:38:12 -0500
-Received: by mail-qk0-f171.google.com with SMTP id l23so3154492qkk.11
-        for <linux-input@vger.kernel.org>; Fri, 16 Feb 2018 02:38:12 -0800 (PST)
-In-Reply-To: <20180216095722.GC18755@casa>
+Received: from mx2.suse.de ([195.135.220.15]:49728 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965852AbeBPMVv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 16 Feb 2018 07:21:51 -0500
+In-Reply-To: <20180119143504.16684-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Fri, Feb 16, 2018 at 10:57 AM, Rodrigo Rivas Costa
-<rodrigorivascosta@gmail.com> wrote:
-> On Fri, Feb 16, 2018 at 10:31:35AM +0100, Benjamin Tissoires wrote:
->> > Ok, I'll do that. The weird thing, however, is that:
->> >
->> >         hid_hw_raw_request(steam->hid_dev, 0x00,
->> >                 buf, hid_report_len(r), /* 64 */
->> >                 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
->> >
->> > fails with EOVERFLOW. I have to use:
->> >
->> >         hid_hw_raw_request(steam->hid_dev, 0x00,
->> >                 buf, 65
->> >                 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
->> >
->> > which just feels wrong to me.
->>
->> Indeed
->>
->> >
->> > And looking around drivers/hid/*.c I see that most calls to
->> > hid_hw_raw_request(..., HID_REQ_GET_REPORT) use a buffer allocated with
->> > {devm_,}kzalloc() and a constant length, never using
->> > hid_alloc_report_buf() or hid_report_len().
->>
->> well, hid-input.c and hid-multitouch.c are using
->> hid_alloc_report_buf() and these two are the most generic ones. We
->> haven't converted everybody to use hid_alloc_report_buf(), but it's
->> not a reason to not use it for new drivers :)
->
-> Agreed. And they use hid_report_len() on the hid_hw_raw_request().
->
-> Now my guess is that hid_report_len() should return 65 instead of 64.
-> And it would do that if the report.id would be >0, but, alas, it is =0.
-> Maybe feature reports should add 1 without checking id>0? Or maybe
-> the Steam report descriptor is wrong and I should use report_fixup or
-> something?
->
->> No, it's unlikely that there is a bug. Can you forward to me the
->> report descriptors of the Steam controller (ideally with the tool
->> hid-recorder from http://bentiss.github.io/hid-replay-docs/, so I can
->> get a few events too)?
->
-> Sure, see the attached file. It is the wired one, I opened jstest and
-> moved the joystick around to get a few events. Unfortunately the
-> HID_REQ_GET_REPORT are not recorded.
->
-> For the casual reader, here is the decoded report descriptor [1]:
->
-> 0x06, 0x00, 0xFF,  // Usage Page (Vendor Defined 0xFF00)
-> 0x09, 0x01,        // Usage (0x01)
-> 0xA1, 0x01,        // Collection (Application)
-> 0x15, 0x00,        //   Logical Minimum (0)
-> 0x26, 0xFF, 0x00,  //   Logical Maximum (255)
-> 0x75, 0x08,        //   Report Size (8)
-> 0x95, 0x40,        //   Report Count (64)
-> 0x09, 0x01,        //   Usage (0x01)
-> 0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-> 0x95, 0x40,        //   Report Count (64)
-> 0x09, 0x01,        //   Usage (0x01)
-> 0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-> 0x95, 0x40,        //   Report Count (64)
-> 0x09, 0x01,        //   Usage (0x01)
-> 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-> 0xC0,              // End Collection
->
+On Fri, 19 Jan 2018, Andy Shevchenko wrote:
 
->
-> [1]: http://eleccelerator.com/usbdescreqparser/
+> Instead of doing additional checks and functional calls,
+> just get ACPI companion device directly.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 7230243b94d3..0d3ca542e987 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -891,10 +891,10 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
+>  
+>  static void i2c_hid_acpi_fix_up_power(struct device *dev)
+>  {
+> -	acpi_handle handle = ACPI_HANDLE(dev);
+>  	struct acpi_device *adev;
+>  
+> -	if (handle && acpi_bus_get_device(handle, &adev) == 0)
+> +	adev = ACPI_COMPANION(dev);
+> +	if (adev)
+>  		acpi_device_fix_up_power(adev);
+>  }
 
+Applied to for-4.17/hid-i2c. Thanks,
 
-Thanks.
+-- 
+Jiri Kosina
+SUSE Labs
 
-Arf, looks like usbhid expects the buffer to start with 0x00 when the
-report is not numbered, thus adding one to the report length.
-
-I guess that nobody tried to recently set/get reports on a device
-without a report ID. And hidraw matches this behavior too, which means
-it's hard to change.
-
-One thing I'd like to try to change is the result of hid_report_len.
-If everybody expects the size to be of one more when the report is
-unnumbered, maybe we could simply add this placeholder in the report
-size from the beginning.
-
-We'd need more testing though that just my gut feeling that it's the
-right thing to do.
-
-Cheers,
-Benjamin

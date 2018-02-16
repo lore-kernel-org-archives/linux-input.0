@@ -1,40 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH][next] HID: asus: make array 'buf' static const, shrinks
- object size
-Date: Fri, 16 Feb 2018 13:35:10 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1802161335000.13621@cbobk.fhfr.pm>
-References: <20180106155027.17561-1-colin.king@canonical.com>
+Subject: Re: [PATCH] HID: uhid: use strlcpy() instead of strncpy()
+Date: Fri, 16 Feb 2018 13:37:15 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1802161337050.13621@cbobk.fhfr.pm>
+References: <1515500612-191425-1-git-send-email-wangxiongfeng2@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50409 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:50603 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S966628AbeBPMfM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 16 Feb 2018 07:35:12 -0500
-In-Reply-To: <20180106155027.17561-1-colin.king@canonical.com>
+        id S966628AbeBPMhS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 16 Feb 2018 07:37:18 -0500
+In-Reply-To: <1515500612-191425-1-git-send-email-wangxiongfeng2@huawei.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, 6 Jan 2018, Colin King wrote:
+On Tue, 9 Jan 2018, Xiongfeng Wang wrote:
 
-> From: Colin Ian King <colin.king@canonical.com>
+> From: Xiongfeng Wang <xiongfeng.wang@linaro.org>
 > 
-> Don't populate the const read-only array 'buf' on the stack but instead
-> make it stati. Makes the object code smaller by 26 bytes:
+> gcc-8 reports
 > 
-> Before:
->    text	   data	    bss	    dec	    hex	filename
->   14378	   2384	     64	  16826	   41ba	linux/drivers/hid/hid-asus.o
+> drivers/hid/uhid.c: In function 'uhid_dev_create2':
+> ./include/linux/string.h:245:9: warning: '__builtin_strncpy' output may
+> be truncated copying 127 bytes from a string of length 127
+> [-Wstringop-truncation]
 > 
-> After:
->    text	   data	    bss	    dec	    hex	filename
->   14296	   2440	     64	  16800	   41a0	linux/drivers/hid/hid-asus.o
-> 
-> (gcc version 7.2.0 x86_64)
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> The compiler require that the input param 'len' of strncpy() should be
+> greater than the length of the src string, so that '\0' is copied as
+> well. We can just use strlcpy() to avoid this warning.
 
 Applied to for-4.17/upstream.
 

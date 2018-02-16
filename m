@@ -1,78 +1,68 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 Subject: Re: [PATCH 2/3] HID: steam: add serial number information.
-Date: Fri, 16 Feb 2018 09:44:34 +0100
-Message-ID: <CAO-hwJLjFaP3ZLoM+EDbruoRhOyPPFXmo7FWGoXESc9XgkD4Kg@mail.gmail.com>
+Date: Fri, 16 Feb 2018 10:02:43 +0100
+Message-ID: <20180216090243.GB18755@casa>
 References: <20180213120308.23879-1-rodrigorivascosta@gmail.com>
- <20180213120308.23879-2-rodrigorivascosta@gmail.com> <CAO-hwJK5sos9=RDajS_cXBzfePqf6TJs3Z-jk568sumR-zjqdw@mail.gmail.com>
+ <20180213120308.23879-2-rodrigorivascosta@gmail.com>
+ <CAO-hwJK5sos9=RDajS_cXBzfePqf6TJs3Z-jk568sumR-zjqdw@mail.gmail.com>
  <20180215221633.GA18755@casa>
+ <CAO-hwJLjFaP3ZLoM+EDbruoRhOyPPFXmo7FWGoXESc9XgkD4Kg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f181.google.com ([209.85.220.181]:33082 "EHLO
-        mail-qk0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754926AbeBPIof (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 16 Feb 2018 03:44:35 -0500
-Received: by mail-qk0-f181.google.com with SMTP id f25so2913904qkm.0
-        for <linux-input@vger.kernel.org>; Fri, 16 Feb 2018 00:44:35 -0800 (PST)
-In-Reply-To: <20180215221633.GA18755@casa>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJLjFaP3ZLoM+EDbruoRhOyPPFXmo7FWGoXESc9XgkD4Kg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Thu, Feb 15, 2018 at 11:16 PM, Rodrigo Rivas Costa
-<rodrigorivascosta@gmail.com> wrote:
-> On Wed, Feb 14, 2018 at 03:51:31PM +0100, Benjamin Tissoires wrote:
->> On Tue, Feb 13, 2018 at 1:03 PM, Rodrigo Rivas Costa
->> > +#define STEAM_FEATURE_REPORT_SIZE 65
->> > +
->> > +static int steam_send_report(struct steam_device *steam,
->> > +               u8 *cmd, int size)
->> > +{
->> > +       int retry;
->> > +       int ret;
->> > +       u8 *buf = kzalloc(STEAM_FEATURE_REPORT_SIZE, GFP_KERNEL);
->>
->> Please use hid_alloc_report_buf() as sometimes we need to allocate a
->> slightly bigger report.
->
-> I have an issue with this one. The problem is that using
-> hid_report_len() on the feature report returns 64. But I must call
-> hid_hw_raw_request() with 65 or it will fail with EOVERFLOW.
->
-> Currently I'm allocating a buffer of 65 bytes and all is well.
-> If I change to hid_alloc_report_buf(), the current implementation
-> allocates (64+7), so I'm still safe. But I'm worried that the extra
-> bytes are not guaranteed and a future implementation could return
-> exactly 64 bytes, leaving me 1 byte short.
->
-> About why an array of 65 is required for a report of size 64, I think it
-> is related to hid_report->id == 0 (so hid_report_enum->numbered == 0).
+On Fri, Feb 16, 2018 at 09:44:34AM +0100, Benjamin Tissoires wrote:
+> > I have an issue with this one. The problem is that using
+> > hid_report_len() on the feature report returns 64. But I must call
+> > hid_hw_raw_request() with 65 or it will fail with EOVERFLOW.
+> >
+> > Currently I'm allocating a buffer of 65 bytes and all is well.
+> > If I change to hid_alloc_report_buf(), the current implementation
+> > allocates (64+7), so I'm still safe. But I'm worried that the extra
+> > bytes are not guaranteed and a future implementation could return
+> > exactly 64 bytes, leaving me 1 byte short.
+> >
+> > About why an array of 65 is required for a report of size 64, I think it
+> > is related to hid_report->id == 0 (so hid_report_enum->numbered == 0).
+> 
+> That's the other way around actually. If you are just using the output
+> of hid_report_len(), it will take into account the extra byte for the
+> report ID.
+> *But*, given the way implement() is working (see the comment in the
+> implementation of hid_alloc_report()), you need to have up to 7 extra
+> bytes to not have the EOVERFLOW.
+> 
+> So if we ever change the implement() function (which is *really*
+> unlikely), we will have to make sure hid_alloc_report() still works,
+> so you are on the safe side if you use hid_alloc_report().
 
-That's the other way around actually. If you are just using the output
-of hid_report_len(), it will take into account the extra byte for the
-report ID.
-*But*, given the way implement() is working (see the comment in the
-implementation of hid_alloc_report()), you need to have up to 7 extra
-bytes to not have the EOVERFLOW.
+Ok, I'll do that. The weird thing, however, is that:
 
-So if we ever change the implement() function (which is *really*
-unlikely), we will have to make sure hid_alloc_report() still works,
-so you are on the safe side if you use hid_alloc_report().
+	hid_hw_raw_request(steam->hid_dev, 0x00,
+		buf, hid_report_len(r), /* 64 */
+		HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
 
->
-> So what would be the proper solution?
+fails with EOVERFLOW. I have to use:
 
-hid_alloc_report() is the one you want :)
-And generally speaking, using the internal API to deal with reports
-and others is the safe bet, as you are guaranteed to not being broken
-if the API changes (or it'll be a regression and we will have to take
-this as high priority).
+	hid_hw_raw_request(steam->hid_dev, 0x00,
+		buf, 65
+		HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
 
-Cheers,
-Benjamin
+which just feels wrong to me.
 
->
-> Thanks.
-> Rodrigo.
+And looking around drivers/hid/*.c I see that most calls to
+hid_hw_raw_request(..., HID_REQ_GET_REPORT) use a buffer allocated with
+{devm_,}kzalloc() and a constant length, never using
+hid_alloc_report_buf() or hid_report_len().
+
+Maybe there is a bug in hid_hw_raw_request() and it should add 1 to the
+given buffer len? But then, custom buffer allocations will overflow by
+one!
+
+Rodrigo.

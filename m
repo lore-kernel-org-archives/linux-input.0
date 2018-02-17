@@ -1,84 +1,119 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH 2/3] HID: steam: add serial number information.
-Date: Fri, 16 Feb 2018 21:59:39 +0100
-Message-ID: <20180216205939.GA17329@casa>
-References: <20180213120308.23879-1-rodrigorivascosta@gmail.com>
- <20180213120308.23879-2-rodrigorivascosta@gmail.com>
- <CAO-hwJK5sos9=RDajS_cXBzfePqf6TJs3Z-jk568sumR-zjqdw@mail.gmail.com>
- <20180215221633.GA18755@casa>
- <CAO-hwJLjFaP3ZLoM+EDbruoRhOyPPFXmo7FWGoXESc9XgkD4Kg@mail.gmail.com>
- <20180216090243.GB18755@casa>
- <CAO-hwJKuWWiNX63=X1GSEQQ1cPhi35g6NuX7gsFNGj_s0UdM+Q@mail.gmail.com>
- <20180216095722.GC18755@casa>
- <CAO-hwJ+9Jvd8x5dRaerstzeNNgY4_mUar77BB1k2ctxaOCJLtQ@mail.gmail.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC PATCH] input: Add disable sysfs entry for every input device
+Date: Sat, 17 Feb 2018 22:19:14 +0100
+Message-ID: <20180217211914.GB9640@amd>
+References: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com>
+ <1483370825.2420.8.camel@hadess.net>
+ <201701021809.58943@pali>
+ <1483442481.2420.12.camel@hadess.net>
+ <60c21c4d-bb81-342a-45e1-7e92313e05d7@gmail.com>
+ <1483540655.2420.18.camel@hadess.net>
+ <20180102215437.i3x2j6jvxtac4ntt@pali>
+ <1514944049.2523.28.camel@hadess.net>
+ <20180103093133.u7wszegjk2msxryl@pali>
+ <20180109020424.GC29886@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ZfOjI3PrQbgiZnxM"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:51082 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750713AbeBPU7o (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:57931 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751262AbeBQVTG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 16 Feb 2018 15:59:44 -0500
+        Sat, 17 Feb 2018 16:19:06 -0500
 Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+9Jvd8x5dRaerstzeNNgY4_mUar77BB1k2ctxaOCJLtQ@mail.gmail.com>
+In-Reply-To: <20180109020424.GC29886@jelly>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Feb 16, 2018 at 11:38:11AM +0100, Benjamin Tissoires wrote:
-> On Fri, Feb 16, 2018 at 10:57 AM, Rodrigo Rivas Costa
-> <rodrigorivascosta@gmail.com> wrote:
-> > On Fri, Feb 16, 2018 at 10:31:35AM +0100, Benjamin Tissoires wrote:
-> >> > Ok, I'll do that. The weird thing, however, is that:
-> >> >
-> >> >         hid_hw_raw_request(steam->hid_dev, 0x00,
-> >> >                 buf, hid_report_len(r), /* 64 */
-> >> >                 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> >> >
-> >> > fails with EOVERFLOW. I have to use:
-> >> >
-> >> >         hid_hw_raw_request(steam->hid_dev, 0x00,
-> >> >                 buf, 65
-> >> >                 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> >> >
-> >> > which just feels wrong to me.
-> >>
-> >> Indeed
-> >>
-> 
-> Arf, looks like usbhid expects the buffer to start with 0x00 when the
-> report is not numbered, thus adding one to the report length.
-> 
-> I guess that nobody tried to recently set/get reports on a device
-> without a report ID. And hidraw matches this behavior too, which means
-> it's hard to change.
-> 
-> One thing I'd like to try to change is the result of hid_report_len.
-> If everybody expects the size to be of one more when the report is
-> unnumbered, maybe we could simply add this placeholder in the report
-> size from the beginning.
 
-I've been trying to make sense of all this numbered/buf++/count-- stuff,
-and I admit I don't understand half of it...
+--ZfOjI3PrQbgiZnxM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But about that +7 in hid_alloc_report_buf(), isn't it to make room for
-the implement()/extract() functions? And IIUIC those are not used for
-raw_requests... they are instead passed directly to usb_control_msg()
-(or whatever the ll driver does). That's the point of being raw, isn't
-it?
+Hi!
 
-If I'm right with that, would it make sense to go back to kzalloc(65)?
+> > > > So, do you mean to implement this "disable" action as ioctl for
+> > > > particular /dev/input/event* device (instead of sysfs entry)?
+> > >=20
+> > > Yes, so the device can be powered down without the device node being
+> > > closed and made unavailable. I don't know whether that's something
+> > > that's already possible for all cases, but there's already
+> > > opportunistic in a lot of drivers and subsystems.
+> > >=20
+> > > This opens up a whole new wave of potential problems, but it's a more
+> > > generally useful mechanism, I would think.
+> >=20
+> > Ok. How should API for this ioctl looks like? And do you have an idea
+> > for name of that ioctl?
+> >=20
+> > Dmitry, what do you think about it? It is acceptable for you?
+>=20
+> first: sysfs files are pretty terrible because writing to them requires r=
+oot
+> and we don't have the benefit of logind. so for any sysfs toggle expect
+> a nicely integrated userspace solution to be less than optimal.
 
-If I'm wrong, then if you agree, I'll default to:
+Well, you can chmod / chown sysfs files.
 
-	hid_hw_raw_request(steam->hid_dev, 0x00,
-		buf, hid_report_len(r) + 1, /* count the request number	*/
-		HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+> besides: 99% of the above is figuring out the policy *when* to disable the
+> device. disabling it is trivial by just closing the evdev nodes and tbh I
+> don't think we (in userspace) should care about whether the device is
+> powered down or now, it should be the default assumption that it is power=
+ed
+> down when not in use.
+>=20
+> for the cases where you must keep the device open but you don't want even=
+ts,=20
+> EVIOCSMASK is likely the best solution. improving the kernel so it powers
+> down the device when the mask excludes all events (and there are no other
+> listeners) could be an interesting task.
 
-Then, if hid_report_len() is ever updated to return the +1, this one
-should be removed. And even if it is not, we still have +6 extra bytes
-from hid_alloc_report_buf(), so no real harm done.
+But yes, that sounds like an idea.
 
-Regards.
-Rodrigo
+BTW in the meantime, someone added this to pmos wiki... this should
+solve some of my problems.
+
+Best regards,
+								Pavel
+
+
+
+FILE=3D~/.screenoff
+if [ -f $FILE ]; then
+ xinput set-prop 8 "Device Enabled" 1
+ xinput set-prop 6 "Device Enabled" 1
+ xinput set-prop 9 "Device Enabled" 1
+ xset dpms force on
+ rm ~/.screenoff
+else
+ xinput set-prop 8 "Device Enabled" 0
+ xinput set-prop 6 "Device Enabled" 0
+ xinput set-prop 9 "Device Enabled" 0
+ xset dpms force off
+ touch ~/.screenoff
+fi
+				=09
+
+   =20
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--ZfOjI3PrQbgiZnxM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlqInFIACgkQMOfwapXb+vL/awCfZnFF2Msqonv7wV4aJYaJaADM
+jfUAnilWGYTRsXLO3vwGbdY4aUW3uUw4
+=JgLb
+-----END PGP SIGNATURE-----
+
+--ZfOjI3PrQbgiZnxM--

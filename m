@@ -1,119 +1,295 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC PATCH] input: Add disable sysfs entry for every input device
-Date: Sat, 17 Feb 2018 22:19:14 +0100
-Message-ID: <20180217211914.GB9640@amd>
-References: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com>
- <1483370825.2420.8.camel@hadess.net>
- <201701021809.58943@pali>
- <1483442481.2420.12.camel@hadess.net>
- <60c21c4d-bb81-342a-45e1-7e92313e05d7@gmail.com>
- <1483540655.2420.18.camel@hadess.net>
- <20180102215437.i3x2j6jvxtac4ntt@pali>
- <1514944049.2523.28.camel@hadess.net>
- <20180103093133.u7wszegjk2msxryl@pali>
- <20180109020424.GC29886@jelly>
+From: Todd Kelner <tsopdump@gmail.com>
+Subject: [PATCH v2] HID: sony: Add touchpad support for NSG-MR5U and NSG-MR7U
+ remotes
+Date: Sat, 17 Feb 2018 16:47:10 -0700
+Message-ID: <20180217234707.GA2922@me-C51-MCP51>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ZfOjI3PrQbgiZnxM"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:57931 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751262AbeBQVTG (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:33180 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751101AbeBQXrM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 17 Feb 2018 16:19:06 -0500
+        Sat, 17 Feb 2018 18:47:12 -0500
+Received: by mail-pg0-f65.google.com with SMTP id g12so4524566pgs.0
+        for <linux-input@vger.kernel.org>; Sat, 17 Feb 2018 15:47:12 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20180109020424.GC29886@jelly>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Roderick Colenbrander <thunderbird2k@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
+Sony's NSG-MR5U and NSG-MR7U remote controls have a full keyboard and a
+touchpad.  The keyboard is already supported by the existing Linux
+kernel and drivers but the touchpad is not recognized.  This patch adds
+the coded needed to bring full functionality to the touchpad.
 
---ZfOjI3PrQbgiZnxM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Note that these remotes use the vendor code for SMK even though they are
+Sony branded.
 
-Hi!
+Known limitations
+- The built-in accelerometers are not supported by these changes
+- When the Drag (Fn) key is used as a mouse button, the button is
+automatically released when the key begins repeating.  There are two
+  workarounds for this 1) Use the button behind the touchpad instead of
+  the Drag (Fn) key or 2) Disable the key repeat functionality or
+  increase the key repeat delay.
 
-> > > > So, do you mean to implement this "disable" action as ioctl for
-> > > > particular /dev/input/event* device (instead of sysfs entry)?
-> > >=20
-> > > Yes, so the device can be powered down without the device node being
-> > > closed and made unavailable. I don't know whether that's something
-> > > that's already possible for all cases, but there's already
-> > > opportunistic in a lot of drivers and subsystems.
-> > >=20
-> > > This opens up a whole new wave of potential problems, but it's a more
-> > > generally useful mechanism, I would think.
-> >=20
-> > Ok. How should API for this ioctl looks like? And do you have an idea
-> > for name of that ioctl?
-> >=20
-> > Dmitry, what do you think about it? It is acceptable for you?
->=20
-> first: sysfs files are pretty terrible because writing to them requires r=
-oot
-> and we don't have the benefit of logind. so for any sysfs toggle expect
-> a nicely integrated userspace solution to be less than optimal.
+Signed-off-by: Todd Kelner <tsopdump@gmail.com>
+---
+Changes in v2:
+- Brought code up-to-date with latest changes from git
+- Converted relative trackpad coordinates from unsigned to signed
+- In sony_register_touchpad, merged two occurrences of
+   input_mt_init_slots into one
+- Added new parameters to sony_register_trackpad to support touch major
+   and minor and orientation settings
 
-Well, you can chmod / chown sysfs files.
+ drivers/hid/hid-ids.h    |   3 ++
+ drivers/hid/hid-quirks.c |   2 +
+ drivers/hid/hid-sony.c   | 131 ++++++++++++++++++++++++++++++++++++++++++++---
+ 3 files changed, 130 insertions(+), 6 deletions(-)
 
-> besides: 99% of the above is figuring out the policy *when* to disable the
-> device. disabling it is trivial by just closing the evdev nodes and tbh I
-> don't think we (in userspace) should care about whether the device is
-> powered down or now, it should be the default assumption that it is power=
-ed
-> down when not in use.
->=20
-> for the cases where you must keep the device open but you don't want even=
-ts,=20
-> EVIOCSMASK is likely the best solution. improving the kernel so it powers
-> down the device when the mask excludes all events (and there are no other
-> listeners) could be an interesting task.
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 43ddcdf..5d56387 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -958,6 +958,9 @@
+ 
+ #define USB_VENDOR_ID_SMK		0x0609
+ #define USB_DEVICE_ID_SMK_PS3_BDREMOTE	0x0306
++#define USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE       0x0368
++#define USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE       0x0369
++
+ 
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 5f6035a..376cbbc 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -608,6 +608,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #if IS_ENABLED(CONFIG_HID_SONY)
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index ccdc5f2..e475c50 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -9,6 +9,7 @@
+  *  Copyright (c) 2006-2013 Jiri Kosina
+  *  Copyright (c) 2013 Colin Leitner <colin.leitner@gmail.com>
+  *  Copyright (c) 2014-2016 Frank Praznik <frank.praznik@gmail.com>
++ *  Copyright (c) 2018 Todd Kelner
+  */
+ 
+ /*
+@@ -55,6 +56,8 @@
+ #define NAVIGATION_CONTROLLER_BT  BIT(11)
+ #define SINO_LITE_CONTROLLER      BIT(12)
+ #define FUTUREMAX_DANCE_MAT       BIT(13)
++#define NSG_MR5U_REMOTE_BT        BIT(14)
++#define NSG_MR7U_REMOTE_BT        BIT(15)
+ 
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+ #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+@@ -72,8 +75,11 @@
+ 				MOTION_CONTROLLER)
+ #define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_BT |\
+ 			MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
++#define NSG_MRXU_REMOTE (NSG_MR5U_REMOTE_BT | NSG_MR7U_REMOTE_BT)
+ 
+ #define MAX_LEDS 4
++#define NSG_MRXU_MAX_X 1667
++#define NSG_MRXU_MAX_Y 1868
+ 
+ 
+ /* PS/3 Motion controller */
+@@ -1098,6 +1104,80 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	}
+ }
+ 
++static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
++{
++	int n, offset, relx, rely;
++	u8 active;
++
++	/*
++	 * The NSG-MRxU multi-touch trackpad data starts at offset 1 and
++	 *   the touch-related data starts at offset 2.
++	 * For the first byte, bit 0 is set when touchpad button is pressed.
++	 * Bit 2 is set when a touch is active and the drag (Fn) key is pressed.
++	 * This drag key is mapped to BTN_LEFT.  It is operational only when a 
++	 *   touch point is active.
++	 * Bit 4 is set when only the first touch point is active.
++	 * Bit 6 is set when only the second touch point is active.
++	 * Bits 5 and 7 are set when both touch points are active.
++	 * The next 3 bytes are two 12 bit X/Y coordinates for the first touch.
++	 * The following byte, offset 5, has the touch width and length.
++	 *   Bits 0-4=X (width), bits 5-7=Y (length).
++	 * A signed relative X coordinate is at offset 6.
++	 * The bytes at offset 7-9 are the second touch X/Y coordinates.
++	 * Offset 10 has the second touch width and length.
++	 * Offset 11 has the relative Y coordinate.
++	 */
++	offset = 1;
++
++	input_report_key(sc->touchpad, BTN_LEFT, rd[offset] & 0x0F);
++	active = (rd[offset] >> 4);
++	relx = (s8) rd[offset+5];
++	rely = ((s8) rd[offset+10]) * -1;
++
++	offset++;
++
++	for (n = 0; n < 2; n++) {
++		u16 x, y;
++		u8 contactx, contacty;
++
++		x = rd[offset] | ((rd[offset+1] & 0x0F) << 8);
++		y = ((rd[offset+1] & 0xF0) >> 4) | (rd[offset+2] << 4);
++
++		input_mt_slot(sc->touchpad, n);
++		input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active & 0x03);
++
++		if (active & 0x03) {
++			contactx = rd[offset+3] & 0x0F;
++			contacty = rd[offset+3] >> 4;
++			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MAJOR,
++				max(contactx, contacty));
++			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MINOR,
++				min(contactx, contacty));
++			input_report_abs(sc->touchpad, ABS_MT_ORIENTATION,
++				(bool) (contactx > contacty));
++			input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
++			input_report_abs(sc->touchpad, ABS_MT_POSITION_Y,
++				NSG_MRXU_MAX_Y - y);
++			/*
++			 * The relative coordinates belong to the first touch
++			 * point, when present, or to the second touch point
++			 * when the first is not active.
++			 */
++			if ((n == 0) || ((n == 1) && (active & 0x01))) {
++				input_report_rel(sc->touchpad, REL_X, relx);
++				input_report_rel(sc->touchpad, REL_Y, rely);
++			}
++		}
++
++		offset += 5;
++		active >>= 2;
++	}
++
++	input_mt_sync_frame(sc->touchpad);
++
++	input_sync(sc->touchpad);
++}
++
+ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		u8 *rd, int size)
+ {
+@@ -1206,6 +1286,10 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		}
+ 
+ 		dualshock4_parse_report(sc, rd, size);
++
++	} else if ((sc->quirks & NSG_MRXU_REMOTE) && rd[0] == 0x02) {
++		nsg_mrxu_parse_report(sc, rd, size);
++		return 1;
+ 	}
+ 
+ 	if (sc->defer_initialization) {
+@@ -1263,7 +1347,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
+ }
+ 
+ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+-					int w, int h)
++		int w, int h, int touch_major, int touch_minor, int orientation)
+ {
+ 	size_t name_sz;
+ 	char *name;
+@@ -1294,10 +1378,6 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 	snprintf(name, name_sz, "%s" DS4_TOUCHPAD_SUFFIX, sc->hdev->name);
+ 	sc->touchpad->name = name;
+ 
+-	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
+-	if (ret < 0)
+-		goto err;
+-
+ 	/* We map the button underneath the touchpad to BTN_LEFT. */
+ 	__set_bit(EV_KEY, sc->touchpad->evbit);
+ 	__set_bit(BTN_LEFT, sc->touchpad->keybit);
+@@ -1306,6 +1386,25 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_X, 0, w, 0, 0);
+ 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_Y, 0, h, 0, 0);
+ 
++	if (touch_major > 0) {
++		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MAJOR, 
++			0, touch_major, 0, 0);
++		if (touch_minor > 0)
++			input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MINOR, 
++				0, touch_minor, 0, 0);
++		if (orientation > 0)
++			input_set_abs_params(sc->touchpad, ABS_MT_ORIENTATION, 
++				0, orientation, 0, 0);
++	}
++
++	if (sc->quirks & NSG_MRXU_REMOTE) {
++		__set_bit(EV_REL, sc->touchpad->evbit);
++	}
++
++	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
++	if (ret < 0)
++		goto err;
++
+ 	ret = input_register_device(sc->touchpad);
+ 	if (ret < 0)
+ 		goto err;
+@@ -2690,7 +2789,7 @@ static int sony_input_configured(struct hid_device *hdev,
+ 		 * The Dualshock 4 touchpad supports 2 touches and has a
+ 		 * resolution of 1920x942 (44.86 dots/mm).
+ 		 */
+-		ret = sony_register_touchpad(sc, 2, 1920, 942);
++		ret = sony_register_touchpad(sc, 2, 1920, 942, 0, 0, 0);
+ 		if (ret) {
+ 			hid_err(sc->hdev,
+ 			"Unable to initialize multi-touch slots: %d\n",
+@@ -2721,6 +2820,20 @@ static int sony_input_configured(struct hid_device *hdev,
+ 		}
+ 
+ 		sony_init_output_report(sc, dualshock4_send_output_report);
++	} else if (sc->quirks & NSG_MRXU_REMOTE) {
++		/*
++		 * The NSG-MRxU touchpad supports 2 touches and has a
++		 * resolution of 1667x1868
++		 */
++		ret = sony_register_touchpad(sc, 2,
++			NSG_MRXU_MAX_X, NSG_MRXU_MAX_Y, 15, 15, 1);
++		if (ret) {
++			hid_err(sc->hdev,
++			"Unable to initialize multi-touch slots: %d\n",
++			ret);
++			goto err_stop;
++		}
++
+ 	} else if (sc->quirks & MOTION_CONTROLLER) {
+ 		sony_init_output_report(sc, motion_send_output_report);
+ 	} else {
+@@ -2969,6 +3082,12 @@ static const struct hid_device_id sony_devices[] = {
+ 	/* Nyko Core Controller for PS3 */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
++	/* SMK-Link NSG-MR5U Remote Control */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE),
++		.driver_data = NSG_MR5U_REMOTE_BT },
++	/* SMK-Link NSG-MR7U Remote Control */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE),
++		.driver_data = NSG_MR7U_REMOTE_BT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, sony_devices);
+-- 
+2.7.4
 
-But yes, that sounds like an idea.
-
-BTW in the meantime, someone added this to pmos wiki... this should
-solve some of my problems.
-
-Best regards,
-								Pavel
-
-
-
-FILE=3D~/.screenoff
-if [ -f $FILE ]; then
- xinput set-prop 8 "Device Enabled" 1
- xinput set-prop 6 "Device Enabled" 1
- xinput set-prop 9 "Device Enabled" 1
- xset dpms force on
- rm ~/.screenoff
-else
- xinput set-prop 8 "Device Enabled" 0
- xinput set-prop 6 "Device Enabled" 0
- xinput set-prop 9 "Device Enabled" 0
- xset dpms force off
- touch ~/.screenoff
-fi
-				=09
-
-   =20
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---ZfOjI3PrQbgiZnxM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlqInFIACgkQMOfwapXb+vL/awCfZnFF2Msqonv7wV4aJYaJaADM
-jfUAnilWGYTRsXLO3vwGbdY4aUW3uUw4
-=JgLb
------END PGP SIGNATURE-----
-
---ZfOjI3PrQbgiZnxM--

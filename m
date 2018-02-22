@@ -1,295 +1,188 @@
-From: Todd Kelner <tsopdump@gmail.com>
-Subject: [PATCH v2] HID: sony: Add touchpad support for NSG-MR5U and NSG-MR7U
- remotes
-Date: Sat, 17 Feb 2018 16:47:10 -0700
-Message-ID: <20180217234707.GA2922@me-C51-MCP51>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
+Subject: [PATCH v3 00/10] extend PWM framework to support PWM modes
+Date: Thu, 22 Feb 2018 14:01:11 +0200
+Message-ID: <1519300881-8136-1-git-send-email-claudiu.beznea@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:33180 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751101AbeBQXrM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 17 Feb 2018 18:47:12 -0500
-Received: by mail-pg0-f65.google.com with SMTP id g12so4524566pgs.0
-        for <linux-input@vger.kernel.org>; Sat, 17 Feb 2018 15:47:12 -0800 (PST)
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: thierry.reding@gmail.com, shc_work@mail.ru, kgene@kernel.org, krzk@kernel.org, linux@armlinux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, kamil@wypas.org, b.zolnierkie@samsung.com, jdelvare@suse.com, linux@roeck-us.net, dmitry.torokhov@gmail.com, rpurdie@rpsys.net, jacek.anaszewski@gmail.com, pavel@ucw.cz, mchehab@kernel.org, sean@mess.org, lee.jones@linaro.org, daniel.thompson@linaro.org, jingoohan1@gmail.com, milo.kim@ti.com, robh+dt@kernel.org, mark.rutland@arm.com, corbet@lwn.net, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com
+Cc: linux-hwmon@vger.kernel.org, linux-pwm@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Claudiu Beznea <claudiu.beznea@microchip.com>, linux-leds@vger.kernel.org, linux-input@vger.kernel.org, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Roderick Colenbrander <thunderbird2k@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Sony's NSG-MR5U and NSG-MR7U remote controls have a full keyboard and a
-touchpad.  The keyboard is already supported by the existing Linux
-kernel and drivers but the touchpad is not recognized.  This patch adds
-the coded needed to bring full functionality to the touchpad.
+Hi all,
 
-Note that these remotes use the vendor code for SMK even though they are
-Sony branded.
+Please give feedback on these patches which extends the PWM framework in
+order to support multiple PWM modes of operations. This series is a rework
+of [1] and [2].
 
-Known limitations
-- The built-in accelerometers are not supported by these changes
-- When the Drag (Fn) key is used as a mouse button, the button is
-automatically released when the key begins repeating.  There are two
-  workarounds for this 1) Use the button behind the touchpad instead of
-  the Drag (Fn) key or 2) Disable the key repeat functionality or
-  increase the key repeat delay.
+The current patch series add the following PWM modes:
+- PWM mode normal
+- PWM mode complementary
+- PWM mode push-pull
 
-Signed-off-by: Todd Kelner <tsopdump@gmail.com>
----
+Normal mode - for PWM channels with one output; output waveforms looks like
+this:
+             __    __    __    __
+    PWM   __|  |__|  |__|  |__|  |__
+            <--T-->
+
+    Where T is the signal period
+
+Since PWMs with more than one output per channel could be used as one
+output PWM the normal mode is the default mode for all PWMs (if not
+specified otherwise).
+
+Complementary mode - for PWM channels with two outputs; output waveforms
+for a PWM channel in complementary mode looks line this:
+             __    __    __    __
+    PWMH1 __|  |__|  |__|  |__|  |__
+          __    __    __    __    __
+    PWML1   |__|  |__|  |__|  |__|
+            <--T-->
+
+    Where T is the signal period.
+
+Push-pull mode - for PWM channels with two outputs; output waveforms for a
+PWM channel in push-pull mode with normal polarity looks like this:
+            __          __
+    PWMH __|  |________|  |________
+                  __          __
+    PWML ________|  |________|  |__
+           <--T-->
+
+    If polarity is inversed:
+         __    ________    ________
+    PWMH   |__|        |__|
+         ________    ________    __
+    PWML         |__|        |__|
+           <--T-->
+
+    Where T is the signal period.
+
+The PWM working modes are per PWM channel registered as PWM's capabilities.
+The driver registers itself to PWM core a get_caps() function, in
+struct pwm_ops, that will be used by PWM core to retrieve PWM capabilities.
+If this function is not registered in driver's probe, a default function
+will be used to retrieve PWM capabilities. Currently, the default
+capabilities includes only PWM normal mode.
+
+PWM state has been updated to keep PWM mode. PWM mode could be configured
+via sysfs or via DT. pwm_apply_state() will do the preliminary validation
+for PWM mode to be applied.
+
+In sysfs, user could get PWM modes by reading mode file of PWM device:
+root@sama5d2-xplained:/sys/class/pwm/pwmchip0/pwm2# ls -l
+total 0
+-r--r--r-- 1 root root 4096 Oct  9 09:07 capture
+lrwxrwxrwx 1 root root    0 Oct  9 09:07 device -> ../../pwmchip0
+-rw-r--r-- 1 root root 4096 Oct  9 08:42 duty_cycle
+-rw-r--r-- 1 root root 4096 Oct  9 08:44 enable
+--w------- 1 root root 4096 Oct  9 09:07 export
+-rw-r--r-- 1 root root 4096 Oct  9 08:43 mode
+-r--r--r-- 1 root root 4096 Oct  9 09:07 npwm
+-rw-r--r-- 1 root root 4096 Oct  9 08:42 period
+-rw-r--r-- 1 root root 4096 Oct  9 08:44 polarity
+drwxr-xr-x 2 root root    0 Oct  9 09:07 power
+lrwxrwxrwx 1 root root    0 Oct  9 09:07 subsystem -> ../../../../../../../../class/pwm
+-rw-r--r-- 1 root root 4096 Oct  9 08:42 uevent
+--w------- 1 root root 4096 Oct  9 09:07 unexport
+root@sama5d2-xplained:/sys/class/pwm/pwmchip0/pwm2# cat mode
+normal complementary [push-pull]
+
+The mode enclosed in bracket is the currently active mode.
+
+The mode could be set, via sysfs, by writing to mode file one of the modes
+displayed at read:
+root@sama5d2-xplained:/sys/class/pwm/pwmchip0/pwm2# echo normal > mode
+root@sama5d2-xplained:/sys/class/pwm/pwmchip0/pwm2# cat mode
+[normal] complementary push-pull 
+
+The PWM push-pull mode could be usefull in applications like half bridge
+converters.
+
+This series also add support for PWM modes on Atmel/Microchip SoCs.
+
+Thank you,
+Claudiu Beznea
+
+[1] https://www.spinics.net/lists/arm-kernel/msg580275.html
+[2] https://lkml.org/lkml/2018/1/12/359
+
+Changes in v3:
+- removed changes related to only one of_xlate function for all PWM drivers
+- switch to PWM capabilities per PWM channel nor per PWM chip
+- squash documentation and bindings patches as requeted by reviewer
+- introduced PWM_MODE(name) macro and used a bit enum for pwm modes
+- related to DT bindings, used flags cell also for PWM modes
+- updated of_xlate specific functions with "state->mode = mode;"
+  instructions to avoid pwm_apply_state() failures
+- use available modes for PWM channel in pwm_config() by first calling
+  pwm_get_caps() to get caps.modes
+- use loops through available modes in mode_store()/mode_show() and also in
+  of_pwm_xlate_with_flags() instead of "if else" instructions; in this way,
+  the addition of a new mode is independent of this code sections
+- use DTLI=1, DTHI=0 register settings to obtain push-pull mode waveforms
+  for Atmel/Microchip PWM controller.
+
 Changes in v2:
-- Brought code up-to-date with latest changes from git
-- Converted relative trackpad coordinates from unsigned to signed
-- In sony_register_touchpad, merged two occurrences of
-   input_mt_init_slots into one
-- Added new parameters to sony_register_trackpad to support touch major
-   and minor and orientation settings
+- remove of_xlate and of_pwm_n_cells and use generic functions to pharse DT
+  inputs; this is done in patches 1, 2, 3, 4, 5, 6, 7 of this series; this will
+  make easy the addition of PWM mode support from DT
+- add PWM mode normal
+- register PWM modes as capabilities of PWM chips at driver probe and, in case
+  driver doesn't provide these capabilities use default ones
+- change the way PWM mode is pharsed via DT by using a new input for pwms
+  binding property
 
- drivers/hid/hid-ids.h    |   3 ++
- drivers/hid/hid-quirks.c |   2 +
- drivers/hid/hid-sony.c   | 131 ++++++++++++++++++++++++++++++++++++++++++++---
- 3 files changed, 130 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 43ddcdf..5d56387 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -958,6 +958,9 @@
- 
- #define USB_VENDOR_ID_SMK		0x0609
- #define USB_DEVICE_ID_SMK_PS3_BDREMOTE	0x0306
-+#define USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE       0x0368
-+#define USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE       0x0369
-+
- 
- #define USB_VENDOR_ID_SONY			0x054c
- #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 5f6035a..376cbbc 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -608,6 +608,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- #if IS_ENABLED(CONFIG_HID_SONY)
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index ccdc5f2..e475c50 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -9,6 +9,7 @@
-  *  Copyright (c) 2006-2013 Jiri Kosina
-  *  Copyright (c) 2013 Colin Leitner <colin.leitner@gmail.com>
-  *  Copyright (c) 2014-2016 Frank Praznik <frank.praznik@gmail.com>
-+ *  Copyright (c) 2018 Todd Kelner
-  */
- 
- /*
-@@ -55,6 +56,8 @@
- #define NAVIGATION_CONTROLLER_BT  BIT(11)
- #define SINO_LITE_CONTROLLER      BIT(12)
- #define FUTUREMAX_DANCE_MAT       BIT(13)
-+#define NSG_MR5U_REMOTE_BT        BIT(14)
-+#define NSG_MR7U_REMOTE_BT        BIT(15)
- 
- #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
- #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
-@@ -72,8 +75,11 @@
- 				MOTION_CONTROLLER)
- #define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_BT |\
- 			MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
-+#define NSG_MRXU_REMOTE (NSG_MR5U_REMOTE_BT | NSG_MR7U_REMOTE_BT)
- 
- #define MAX_LEDS 4
-+#define NSG_MRXU_MAX_X 1667
-+#define NSG_MRXU_MAX_Y 1868
- 
- 
- /* PS/3 Motion controller */
-@@ -1098,6 +1104,80 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
- 	}
- }
- 
-+static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
-+{
-+	int n, offset, relx, rely;
-+	u8 active;
-+
-+	/*
-+	 * The NSG-MRxU multi-touch trackpad data starts at offset 1 and
-+	 *   the touch-related data starts at offset 2.
-+	 * For the first byte, bit 0 is set when touchpad button is pressed.
-+	 * Bit 2 is set when a touch is active and the drag (Fn) key is pressed.
-+	 * This drag key is mapped to BTN_LEFT.  It is operational only when a 
-+	 *   touch point is active.
-+	 * Bit 4 is set when only the first touch point is active.
-+	 * Bit 6 is set when only the second touch point is active.
-+	 * Bits 5 and 7 are set when both touch points are active.
-+	 * The next 3 bytes are two 12 bit X/Y coordinates for the first touch.
-+	 * The following byte, offset 5, has the touch width and length.
-+	 *   Bits 0-4=X (width), bits 5-7=Y (length).
-+	 * A signed relative X coordinate is at offset 6.
-+	 * The bytes at offset 7-9 are the second touch X/Y coordinates.
-+	 * Offset 10 has the second touch width and length.
-+	 * Offset 11 has the relative Y coordinate.
-+	 */
-+	offset = 1;
-+
-+	input_report_key(sc->touchpad, BTN_LEFT, rd[offset] & 0x0F);
-+	active = (rd[offset] >> 4);
-+	relx = (s8) rd[offset+5];
-+	rely = ((s8) rd[offset+10]) * -1;
-+
-+	offset++;
-+
-+	for (n = 0; n < 2; n++) {
-+		u16 x, y;
-+		u8 contactx, contacty;
-+
-+		x = rd[offset] | ((rd[offset+1] & 0x0F) << 8);
-+		y = ((rd[offset+1] & 0xF0) >> 4) | (rd[offset+2] << 4);
-+
-+		input_mt_slot(sc->touchpad, n);
-+		input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active & 0x03);
-+
-+		if (active & 0x03) {
-+			contactx = rd[offset+3] & 0x0F;
-+			contacty = rd[offset+3] >> 4;
-+			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MAJOR,
-+				max(contactx, contacty));
-+			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MINOR,
-+				min(contactx, contacty));
-+			input_report_abs(sc->touchpad, ABS_MT_ORIENTATION,
-+				(bool) (contactx > contacty));
-+			input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
-+			input_report_abs(sc->touchpad, ABS_MT_POSITION_Y,
-+				NSG_MRXU_MAX_Y - y);
-+			/*
-+			 * The relative coordinates belong to the first touch
-+			 * point, when present, or to the second touch point
-+			 * when the first is not active.
-+			 */
-+			if ((n == 0) || ((n == 1) && (active & 0x01))) {
-+				input_report_rel(sc->touchpad, REL_X, relx);
-+				input_report_rel(sc->touchpad, REL_Y, rely);
-+			}
-+		}
-+
-+		offset += 5;
-+		active >>= 2;
-+	}
-+
-+	input_mt_sync_frame(sc->touchpad);
-+
-+	input_sync(sc->touchpad);
-+}
-+
- static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		u8 *rd, int size)
- {
-@@ -1206,6 +1286,10 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		}
- 
- 		dualshock4_parse_report(sc, rd, size);
-+
-+	} else if ((sc->quirks & NSG_MRXU_REMOTE) && rd[0] == 0x02) {
-+		nsg_mrxu_parse_report(sc, rd, size);
-+		return 1;
- 	}
- 
- 	if (sc->defer_initialization) {
-@@ -1263,7 +1347,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- }
- 
- static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
--					int w, int h)
-+		int w, int h, int touch_major, int touch_minor, int orientation)
- {
- 	size_t name_sz;
- 	char *name;
-@@ -1294,10 +1378,6 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
- 	snprintf(name, name_sz, "%s" DS4_TOUCHPAD_SUFFIX, sc->hdev->name);
- 	sc->touchpad->name = name;
- 
--	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
--	if (ret < 0)
--		goto err;
--
- 	/* We map the button underneath the touchpad to BTN_LEFT. */
- 	__set_bit(EV_KEY, sc->touchpad->evbit);
- 	__set_bit(BTN_LEFT, sc->touchpad->keybit);
-@@ -1306,6 +1386,25 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
- 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_X, 0, w, 0, 0);
- 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_Y, 0, h, 0, 0);
- 
-+	if (touch_major > 0) {
-+		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MAJOR, 
-+			0, touch_major, 0, 0);
-+		if (touch_minor > 0)
-+			input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MINOR, 
-+				0, touch_minor, 0, 0);
-+		if (orientation > 0)
-+			input_set_abs_params(sc->touchpad, ABS_MT_ORIENTATION, 
-+				0, orientation, 0, 0);
-+	}
-+
-+	if (sc->quirks & NSG_MRXU_REMOTE) {
-+		__set_bit(EV_REL, sc->touchpad->evbit);
-+	}
-+
-+	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
-+	if (ret < 0)
-+		goto err;
-+
- 	ret = input_register_device(sc->touchpad);
- 	if (ret < 0)
- 		goto err;
-@@ -2690,7 +2789,7 @@ static int sony_input_configured(struct hid_device *hdev,
- 		 * The Dualshock 4 touchpad supports 2 touches and has a
- 		 * resolution of 1920x942 (44.86 dots/mm).
- 		 */
--		ret = sony_register_touchpad(sc, 2, 1920, 942);
-+		ret = sony_register_touchpad(sc, 2, 1920, 942, 0, 0, 0);
- 		if (ret) {
- 			hid_err(sc->hdev,
- 			"Unable to initialize multi-touch slots: %d\n",
-@@ -2721,6 +2820,20 @@ static int sony_input_configured(struct hid_device *hdev,
- 		}
- 
- 		sony_init_output_report(sc, dualshock4_send_output_report);
-+	} else if (sc->quirks & NSG_MRXU_REMOTE) {
-+		/*
-+		 * The NSG-MRxU touchpad supports 2 touches and has a
-+		 * resolution of 1667x1868
-+		 */
-+		ret = sony_register_touchpad(sc, 2,
-+			NSG_MRXU_MAX_X, NSG_MRXU_MAX_Y, 15, 15, 1);
-+		if (ret) {
-+			hid_err(sc->hdev,
-+			"Unable to initialize multi-touch slots: %d\n",
-+			ret);
-+			goto err_stop;
-+		}
-+
- 	} else if (sc->quirks & MOTION_CONTROLLER) {
- 		sony_init_output_report(sc, motion_send_output_report);
- 	} else {
-@@ -2969,6 +3082,12 @@ static const struct hid_device_id sony_devices[] = {
- 	/* Nyko Core Controller for PS3 */
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
- 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
-+	/* SMK-Link NSG-MR5U Remote Control */
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE),
-+		.driver_data = NSG_MR5U_REMOTE_BT },
-+	/* SMK-Link NSG-MR7U Remote Control */
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE),
-+		.driver_data = NSG_MR7U_REMOTE_BT },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, sony_devices);
+Claudiu Beznea (10):
+  pwm: extend PWM framework with PWM modes
+  pwm: clps711x: populate PWM mode in of_xlate function
+  pwm: cros-ec: populate PWM mode in of_xlate function
+  pwm: pxa: populate PWM mode in of_xlate function
+  pwm: add PWM mode to pwm_config()
+  pwm: add PWM modes
+  pwm: atmel: add pwm capabilities
+  pwm: add push-pull mode support
+  pwm: add documentation for pwm push-pull mode
+  pwm: atmel: add push-pull mode support
+
+ Documentation/devicetree/bindings/pwm/pwm.txt |  11 ++-
+ Documentation/pwm.txt                         |  42 ++++++++-
+ arch/arm/mach-s3c24xx/mach-rx1950.c           |  11 ++-
+ drivers/bus/ts-nbus.c                         |   2 +-
+ drivers/clk/clk-pwm.c                         |   3 +-
+ drivers/gpu/drm/i915/intel_panel.c            |  17 +++-
+ drivers/hwmon/pwm-fan.c                       |   2 +-
+ drivers/input/misc/max77693-haptic.c          |   2 +-
+ drivers/input/misc/max8997_haptic.c           |   6 +-
+ drivers/leds/leds-pwm.c                       |   5 +-
+ drivers/media/rc/ir-rx51.c                    |   5 +-
+ drivers/media/rc/pwm-ir-tx.c                  |   5 +-
+ drivers/pwm/core.c                            |  98 ++++++++++++++++++++-
+ drivers/pwm/pwm-atmel.c                       | 118 +++++++++++++++++++-------
+ drivers/pwm/pwm-clps711x.c                    |  12 ++-
+ drivers/pwm/pwm-cros-ec.c                     |   4 +
+ drivers/pwm/pwm-pxa.c                         |   4 +
+ drivers/pwm/sysfs.c                           |  56 ++++++++++++
+ drivers/video/backlight/lm3630a_bl.c          |   4 +-
+ drivers/video/backlight/lp855x_bl.c           |   4 +-
+ drivers/video/backlight/lp8788_bl.c           |   5 +-
+ drivers/video/backlight/pwm_bl.c              |  11 ++-
+ drivers/video/fbdev/ssd1307fb.c               |   3 +-
+ include/dt-bindings/pwm/pwm.h                 |   2 +
+ include/linux/pwm.h                           | 100 +++++++++++++++++++++-
+ 25 files changed, 470 insertions(+), 62 deletions(-)
+
 -- 
 2.7.4
-

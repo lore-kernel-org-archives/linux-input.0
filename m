@@ -1,16 +1,15 @@
-From: Claudiu Beznea <Claudiu.Beznea@microchip.com>
-Subject: Re: [PATCH v3 06/10] pwm: add PWM modes
-Date: Thu, 22 Feb 2018 19:42:29 +0200
-Message-ID: <e5090740-520a-34c0-6b52-09cc8ada11b1@microchip.com>
-References: <1519300881-8136-1-git-send-email-claudiu.beznea@microchip.com>
- <1519300881-8136-7-git-send-email-claudiu.beznea@microchip.com>
- <CAHp75Ver6GuKSDooAr2DW+eqt=B3p8O+X6+rOSWNgfhHxgVqNQ@mail.gmail.com>
+From: JeffyChen <jeffy.chen@rock-chips.com>
+Subject: Re: [PATCH v2 0/3] gpio-keys: Add support for specifying wakeup event
+ action
+Date: Fri, 23 Feb 2018 17:43:06 +0800
+Message-ID: <5A8FE22A.1070709@rock-chips.com>
+References: <20180210110907.5504-1-jeffy.chen@rock-chips.com>
+ <1541427.8RRpDbxO4f@diego>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAHp75Ver6GuKSDooAr2DW+eqt=B3p8O+X6+rOSWNgfhHxgVqNQ@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <1541427.8RRpDbxO4f@diego>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,35 +19,29 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, milo.kim@ti.com, linux-fbdev@vger.kernel.org, Sean Young <sean@mess.org>, devicetree <devicetree@vger.kernel.org>, David Airlie <airlied@linux.ie>, Michael Turquette <mturquette@baylibre.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, kamil@wypas.org, dri-devel@lists.freedesktop.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, linux-clk@vger.kernel.org, Linux LED Subsystem <linux-leds@vger.kernel.org>, Daniel Thompson <daniel.thompson@linaro.org>, linux-samsung-soc@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>, Jonathan Corbet <corbet@lwn.net>, Linux Documentation List <linux-doc@vger.kernel.org>, Russell King - ARM Linux <linux@armlinux.org.>
+To: =?UTF-8?B?SGVpa28gU3TDvGJuZXI=?= <heiko@sntech.de>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Emil Renner Berthing <kernel@esmil.dk>, stephen lu <lumotuwe@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Joseph Lo <josephl@nvidia.com>, Brian Norris <briannorris@chromium.org>, linux-rockchip@lists.infradead.org, Matthias Kaehlcke <mka@chromium.org>, linux-input@vger.kernel.org, Arvind Yadav <arvind.yadav.cs@gmail.com>, dtor@google.com, devicetree@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, dianders@google.com, Rob Herring <robh+dt@kernel.org>, briannorris@google.com, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Philippe Ombredanne <pombredanne@nexb.com>, Enric Balletbo i Serra <enric.bal>
 List-Id: linux-input@vger.kernel.org
 
-
-
-On 22.02.2018 19:28, Andy Shevchenko wrote:
-> On Thu, Feb 22, 2018 at 2:01 PM, Claudiu Beznea
-> <claudiu.beznea@microchip.com> wrote:
->> Add PWM normal and complementary modes.
-> 
->> +- PWM_DTMODE_COMPLEMENTARY: PWM complementary working mode (for PWM
->> +channels two outputs); if not specified, the default for PWM channel will
->> +be used
-> 
-> What DT stands for?
-It stands for Device Tree. It remained this way from the previous version. In
-the previous version I had modes described in an enum, to be used by PWM core,
-as follows:
-enum pwm_mode {
-	PWM_MODE_NORMAL,
-	PWM_MODE_COMPLEMENTARY,
-};
-
-and, to avoid conflict b/w these defines and the one from
-include/dt-bindings/pwm/pwm.h I introduced this DT in the define names from
-dt-bindings. But now the DT might be removed since I've changed the way the PWM
-mode is identified in PWM core. I will remove the DT in the next version, if not
-requested otherwise.
-
-Thank you,
-Claudiu Benea
+SGkgSGVpa28sCgpUaGFua3MgZm9yIHlvdXIgcmVwbHkgOikKCk9uIDAyLzE0LzIwMTggMDk6Mzkg
+UE0sIEhlaWtvIFN0w7xibmVyIHdyb3RlOgo+IEhpIEplZmZ5LAo+Cj4gQW0gU2Ftc3RhZywgMTAu
+IEZlYnJ1YXIgMjAxOCwgMTI6MDk6MDQgQ0VUIHNjaHJpZWIgSmVmZnkgQ2hlbjoKPj4gT24gY2hy
+b21lYm9vayBrZXZpbiwgd2UgYXJlIHVzaW5nIGdwaW8ta2V5cyBmb3IgcGVuIGluc2VydCBldmVu
+dC4gQnV0Cj4+IHdlIG9ubHkgd2FudCBpdCB0byB3YWtldXAgdGhlIHN5c3RlbSB3aGVuIGVqZWN0
+aW5nIHRoZSBwZW4uCj4+Cj4+IFNvIHdlIG1heSBuZWVkIHRvIGNoYW5nZSB0aGUgaW50ZXJydXB0
+IHRyaWdnZXIgdHlwZSBkdXJpbmcgc3VzcGVuZGluZy4KPj4KPj4gQ2hhbmdlcyBpbiB2MjoKPj4g
+U3BlY2lmeSB3YWtldXAgZXZlbnQgYWN0aW9uIGluc3RlYWQgb2YgaXJxIHRyaWdnZXIgdHlwZSBh
+cyBCcmlhbgo+PiBzdWdnZXN0ZWQuCj4+Cj4+IEplZmZ5IENoZW4gKDMpOgo+PiAgICBJbnB1dDog
+Z3Bpby1rZXlzIC0gYWRkIHN1cHBvcnQgZm9yIHdha2V1cCBldmVudCBhY3Rpb24KPj4gICAgSW5w
+dXQ6IGdwaW8ta2V5cyAtIGFsbG93IHNldHRpbmcgd2FrZXVwIGV2ZW50IGFjdGlvbiBpbiBEVAo+
+PiAgICBhcm02NDogZHRzOiByb2NrY2hpcDogQXZvaWQgd2FrZXVwIHdoZW4gaW5zZXJ0aW5nIHRo
+ZSBwZW4KPgo+IFRoZSByZWNpcGllbnQtc2VsZWN0aW9uIGZvciB0aGUgbWFpbCB0aHJlYWQgc2Vl
+bXMgdG8gYmUgYSBiaXQgb2ZmIGFuZAo+IEkgb25seSBnb3QgdGhlIGNvdmVyLWxldHRlciBhbmQg
+cGF0Y2ggMy8zLgo+IFRoZXJlZm9yZSBJIHdvbid0IHJlYWxseSBzZWUgaWYgYW5kIHdoZW4gdGhl
+IElucHV0LWNoYW5nZXMgZ2V0Cj4gYWNjZXB0ZWQuIFNvIHBsZWFzZSBwaW5nIG1lIG9uY2UgdGhh
+dCBoYXMgaGFwcGVuZWQgc28gSSBjYW4gcGljayB1cAo+IHRoZSByb2NrY2hpcCBkdHMgY2hhbmdl
+IGZvciBpdC4Kb29wcywgc29ycnksIGknbGwgYWRkIHlvdSB0byB0aGUgQ0MgbGlzdCBpbiB0aGUg
+bmV4dCB2ZXJzaW9uIDopCgo+Cj4KPiBUaGFua3MKPiBIZWlrbwo+Cj4KPgoKCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1h
+aWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xp
+c3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==

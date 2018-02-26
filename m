@@ -1,104 +1,75 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: Re: [PATCH v2] Input: gpio_keys: Add level trigger support for GPIO keys
-Date: Mon, 26 Feb 2018 14:24:09 +0800
-Message-ID: <CAMz4ku+0uzSDiM3AOnDcnVDqAjoV47nVAK+yQAw2CzgO6Yw-Bg@mail.gmail.com>
-References: <7fc26df245d56fd2014532b56e67630e76e2c513.1518316248.git.baolin.wang@linaro.org>
- <20180219181159.tzbhhvbvpc236qma@rob-hp-laptop> <CAMz4kuL-VZ8XY5-ZLWfXLVXWb4zmxD-aaLQ-ka9M8V83y1B7Ag@mail.gmail.com>
+From: Claudiu Beznea <Claudiu.Beznea@microchip.com>
+Subject: Re: [PATCH v3 01/10] pwm: extend PWM framework with PWM modes
+Date: Mon, 26 Feb 2018 10:11:45 +0200
+Message-ID: <a26cdf7b-024e-957b-8691-c3c898d0d9d6@microchip.com>
+References: <1519300881-8136-2-git-send-email-claudiu.beznea@microchip.com>
+ <201802250410.reI8wAy2%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMz4kuL-VZ8XY5-ZLWfXLVXWb4zmxD-aaLQ-ka9M8V83y1B7Ag@mail.gmail.com>
+In-Reply-To: <201802250410.reI8wAy2%fengguang.wu@intel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Greg KH <gregkh@linuxfoundation.org>, stephen lu <lumotuwe@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Joseph Lo <josephl@nvidia.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, linux-input@vger.kernel.org, DTML <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@01.org, thierry.reding@gmail.com, shc_work@mail.ru, kgene@kernel.org, krzk@kernel.org, linux@armlinux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, kamil@wypas.org, b.zolnierkie@samsung.com, jdelvare@suse.com, linux@roeck-us.net, dmitry.torokhov@gmail.com, rpurdie@rpsys.net, jacek.anaszewski@gmail.com, pavel@ucw.cz, mchehab@kernel.org, sean@mess.org, lee.jones@linaro.org, daniel.thompson@linaro.org, jingoohan1@gmail.com, milo.kim@ti.com, robh+dt@kernel.org, mark.rutland@arm.com, corbet@lwn.net, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com, linux-pwm@vger.kernel.orgl
 List-Id: linux-input@vger.kernel.org
 
-Hi Rob,
+I'll rebase it on latest for-next in next version.
 
-On 21 February 2018 at 19:35, Baolin Wang <baolin.wang@linaro.org> wrote:
-> Hi Rob,
->
-> On 20 February 2018 at 02:11, Rob Herring <robh@kernel.org> wrote:
->> On Sun, Feb 11, 2018 at 02:55:04PM +0800, Baolin Wang wrote:
->>> On some platforms (such as Spreadtrum platform), the GPIO keys can only
->>> be triggered by level type. So this patch introduces one property to
->>> indicate if the GPIO trigger type is level trigger or edge trigger.
->>
->> If the parent interrupt controller only supports a certain trigger, then
->> it should ignore setting the trigger type.
->
-> We still need to set high level type trigger or low level type trigger
-> if it only supports level trigger.
->
->>
->>>
->>> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
->>> ---
->>> Changes since v1:
->>>  - Diable the GPIO irq until reversing the GPIO level type.
->>> ---
->>>  .../devicetree/bindings/input/gpio-keys.txt        |    2 ++
->>>  drivers/input/keyboard/gpio_keys.c                 |   26 +++++++++++++++++++-
->>>  include/linux/gpio_keys.h                          |    1 +
->>>  3 files changed, 28 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
->>> index a949404..e3104bd 100644
->>> --- a/Documentation/devicetree/bindings/input/gpio-keys.txt
->>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
->>> @@ -29,6 +29,8 @@ Optional subnode-properties:
->>>       - linux,can-disable: Boolean, indicates that button is connected
->>>         to dedicated (not shared) interrupt which can be disabled to
->>>         suppress events from the button.
->>> +     - gpio-key,level-trigger: Boolean, indicates that button's interrupt
->>> +       type is level trigger. Otherwise it is edge trigger as default.
->>
->> No. Just use 'interrupts' instead of 'gpios' and specify the trigger
->> type. Or put both if you need to read the state.
->
-> Okay, so something as below to get the level type from the
-> 'interrupts' property.
-> if (fwnode_property_read_u32(child, "interrupts", &button->level_type))
->         button->level_type = IRQ_TYPE_NONE;
+Thank you,
+Claudiu Beznea
 
-After more thinking, if we use 'interrupts' to indicate the irq type
-for this case, we cannot specify the irq number due to the irq number
-should be get by gpiod_to_irq(). So the device nodes look weird, since
-we should define the index of the interrupt controller instead of the
-irq type if the #interrupt_cells is set to 1 according to the
-interrupt controller documentation. What do you think about this?
-Thanks.
-
-gpio-keys {
-            compatible = "gpio-keys";
-
-            key-volumedown {
-                label = "Volume Down Key";
-                linux,code = <KEY_VOLUMEDOWN>;
-                gpios = <&ap_eic_debounce 2 GPIO_ACTIVE_LOW>;
-                debounce-interval = <2>;
-                wakeup-source;
-                interrupts = <IRQ_TYPE_LEVEL_LOW>;
-            };
-
-            key-volumeup {
-                label = "Volume Up Key";
-                linux,code = <KEY_VOLUMEUP>;
-                gpios = <&pmic_eic 10 GPIO_ACTIVE_HIGH>;
-                debounce-interval = <2>;
-                wakeup-source;
-                interrupts = <IRQ_TYPE_LEVEL_HIGH>;
-            };
-
-            key-power {
-                label = "Power Key";
-                linux,code = <KEY_POWER>;
-                gpios = <&pmic_eic 1 GPIO_ACTIVE_HIGH>;
-                wakeup-source;
-                interrupts = <IRQ_TYPE_LEVEL_HIGH>;
-            };
-};
-
--- 
-Baolin Wang
-Best Regards
+On 24.02.2018 22:49, kbuild test robot wrote:
+> Hi Claudiu,
+> 
+> Thank you for the patch! Perhaps something to improve:
+> 
+> [auto build test WARNING on pwm/for-next]
+> [also build test WARNING on v4.16-rc2 next-20180223]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Claudiu-Beznea/extend-PWM-framework-to-support-PWM-modes/20180225-024011
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/thierry.reding/linux-pwm.git for-next
+> config: xtensa-allmodconfig (attached as .config)
+> compiler: xtensa-linux-gcc (GCC) 7.2.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         make.cross ARCH=xtensa 
+> 
+> All warnings (new ones prefixed by >>):
+> 
+>>> drivers//pwm/pwm-sun4i.c:36:0: warning: "PWM_MODE" redefined
+>     #define PWM_MODE  BIT(7)
+>     
+>    In file included from drivers//pwm/pwm-sun4i.c:19:0:
+>    include/linux/pwm.h:40:0: note: this is the location of the previous definition
+>     #define PWM_MODE(name)  BIT(PWM_MODE_##name##_BIT)
+>     
+> 
+> vim +/PWM_MODE +36 drivers//pwm/pwm-sun4i.c
+> 
+> 09853ce7 Alexandre Belloni 2014-12-17  29  
+> 09853ce7 Alexandre Belloni 2014-12-17  30  #define PWMCH_OFFSET		15
+> 09853ce7 Alexandre Belloni 2014-12-17  31  #define PWM_PRESCAL_MASK	GENMASK(3, 0)
+> 09853ce7 Alexandre Belloni 2014-12-17  32  #define PWM_PRESCAL_OFF		0
+> 09853ce7 Alexandre Belloni 2014-12-17  33  #define PWM_EN			BIT(4)
+> 09853ce7 Alexandre Belloni 2014-12-17  34  #define PWM_ACT_STATE		BIT(5)
+> 09853ce7 Alexandre Belloni 2014-12-17  35  #define PWM_CLK_GATING		BIT(6)
+> 09853ce7 Alexandre Belloni 2014-12-17 @36  #define PWM_MODE		BIT(7)
+> 09853ce7 Alexandre Belloni 2014-12-17  37  #define PWM_PULSE		BIT(8)
+> 09853ce7 Alexandre Belloni 2014-12-17  38  #define PWM_BYPASS		BIT(9)
+> 09853ce7 Alexandre Belloni 2014-12-17  39  
+> 
+> :::::: The code at line 36 was first introduced by commit
+> :::::: 09853ce7bc1003a490c7ee74a5705d7a7cf16b7d pwm: Add Allwinner SoC support
+> 
+> :::::: TO: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> :::::: CC: Thierry Reding <thierry.reding@gmail.com>
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> 

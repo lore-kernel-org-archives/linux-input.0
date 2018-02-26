@@ -1,71 +1,70 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 0/3] new driver for Valve Steam Controller
-Date: Mon, 26 Feb 2018 10:50:59 +0100
-Message-ID: <CAO-hwJ+PDkR4v5r93KJBCqxfm3FTCkrzaOd-K=HxLMwhoAomXQ@mail.gmail.com>
-References: <20180225185250.10759-1-rodrigorivascosta@gmail.com>
+From: Jani Nikula <jani.nikula@linux.intel.com>
+Subject: Re: [PATCH v3 05/10] pwm: add PWM mode to pwm_config()
+Date: Mon, 26 Feb 2018 11:57:25 +0200
+Message-ID: <87po4s2hve.fsf@intel.com>
+References: <1519300881-8136-1-git-send-email-claudiu.beznea@microchip.com>
+ <1519300881-8136-6-git-send-email-claudiu.beznea@microchip.com>
+ <20180222123308.mypx2r7n6o63mj5z@oak.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180225185250.10759-1-rodrigorivascosta@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20180222123308.mypx2r7n6o63mj5z@oak.lan>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Daniel Thompson <daniel.thompson@linaro.org>, Claudiu Beznea <claudiu.beznea@microchip.com>
+Cc: mark.rutland@arm.com, milo.kim@ti.com, linux-fbdev@vger.kernel.org, sean@mess.org, devicetree@vger.kernel.org, airlied@linux.ie, mturquette@baylibre.com, kamil@wypas.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, alexandre.belloni@free-electrons.com, pavel@ucw.cz, lee.jones@linaro.org, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, linux-samsung-soc@vger.kernel.org, shc_work@mail.ru, corbet@lwn.net, linux-doc@vger.kernel.org, linux@armlinux.org.uk, krzk@kernel.org, kgene@kernel.org, linux-input@vger.kernel.org, linux@roeck-us.net, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, jdelvare@suse.com, b.zolnierkie@samsung.com, intel-gfx@lists.freedesktop.org, robh+dt@kernel.org, jacek.anaszewski@gmail.com, rodrigo.vivi@intel.com, mchehab@kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, jingoohan1@gmail.com, dm
 List-Id: linux-input@vger.kernel.org
 
-Hi Rodrigo,
-
-On Sun, Feb 25, 2018 at 7:52 PM, Rodrigo Rivas Costa
-<rodrigorivascosta@gmail.com> wrote:
-> This patchset implements a driver for Valve Steam Controller, based on a
-> reverse analysis by myself.
-
-To me, the code looks OK now. I haven't got the time to do a better
-review, so giving my:
-Acked-by: Bnejamin Tissoires <benjamin.tissoires@redhat.com>
-
-However, before we include it, I'd like to have the ACK from
-Pierre-Loup and Clément. They should be more qualified than me to say
-if this will interfere with the official Steam client (I think we are
-good now, but that's just my opinion).
-
-Cheers,
-Benjamin
-
->
-> This is reroll v3, codenamed "lazy lizard". Changes from v2:
->  * Use RCU to do the dynamic connec/disconnect of wireless devices. Please,
->    to anybody that knows their way around RCU, review.
->  * Remove entries in hid-quirks.c as they are no longer needed. This allows
->    this module to be blacklisted without side effects.
->  * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
->    existing use cases (lizard mode). A user-space tool to do that is
->    linked.
->  * Fully separated axes for joystick and left-pad. As it happens, there are
->    people with too many fingers.
->  * Add fuzz values for left/right pad axes, they are a little wiggly.
->
-> Notable changes from patchset v1:
->  * Remove references to USB. Now the interesting interfaces are selected by
->    looking for the ones with feature reports.
->  * Feature reports buffers are allocated with hid_alloc_report_buf().
->  * Feature report length is checked, to avoid overflows in case of
->    corrupt/malicius USB devices.
->  * Resolution added to the ABS axes.
->  * A lot of minor cleanups.
->
-> Rodrigo Rivas Costa (3):
->   HID: add driver for Valve Steam Controller
->   HID: steam: add serial number information.
->   HID: steam: add battery device.
->
->  drivers/hid/Kconfig     |   8 +
->  drivers/hid/Makefile    |   1 +
->  drivers/hid/hid-ids.h   |   4 +
->  drivers/hid/hid-steam.c | 777 ++++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 790 insertions(+)
->  create mode 100644 drivers/hid/hid-steam.c
->
-> --
-> 2.16.2
->
+T24gVGh1LCAyMiBGZWIgMjAxOCwgRGFuaWVsIFRob21wc29uIDxkYW5pZWwudGhvbXBzb25AbGlu
+YXJvLm9yZz4gd3JvdGU6Cj4gT24gVGh1LCBGZWIgMjIsIDIwMTggYXQgMDI6MDE6MTZQTSArMDIw
+MCwgQ2xhdWRpdSBCZXpuZWEgd3JvdGU6Cj4+IEFkZCBQV00gbW9kZSB0byBwd21fY29uZmlnKCkg
+ZnVuY3Rpb24uIFRoZSBkcml2ZXJzIHdoaWNoIHVzZXMgcHdtX2NvbmZpZygpCj4+IHdlcmUgYWRh
+cHRlZCB0byB0aGlzIGNoYW5nZS4KPj4gCj4+IFNpZ25lZC1vZmYtYnk6IENsYXVkaXUgQmV6bmVh
+IDxjbGF1ZGl1LmJlem5lYUBtaWNyb2NoaXAuY29tPgo+PiAtLS0KPj4gIGFyY2gvYXJtL21hY2gt
+czNjMjR4eC9tYWNoLXJ4MTk1MC5jICB8IDExICsrKysrKysrKy0tCj4+ICBkcml2ZXJzL2J1cy90
+cy1uYnVzLmMgICAgICAgICAgICAgICAgfCAgMiArLQo+PiAgZHJpdmVycy9jbGsvY2xrLXB3bS5j
+ICAgICAgICAgICAgICAgIHwgIDMgKystCj4+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9w
+YW5lbC5jICAgfCAxNyArKysrKysrKysrKysrKy0tLQo+PiAgZHJpdmVycy9od21vbi9wd20tZmFu
+LmMgICAgICAgICAgICAgIHwgIDIgKy0KPj4gIGRyaXZlcnMvaW5wdXQvbWlzYy9tYXg3NzY5My1o
+YXB0aWMuYyB8ICAyICstCj4+ICBkcml2ZXJzL2lucHV0L21pc2MvbWF4ODk5N19oYXB0aWMuYyAg
+fCAgNiArKysrKy0KPj4gIGRyaXZlcnMvbGVkcy9sZWRzLXB3bS5jICAgICAgICAgICAgICB8ICA1
+ICsrKystCj4+ICBkcml2ZXJzL21lZGlhL3JjL2lyLXJ4NTEuYyAgICAgICAgICAgfCAgNSArKysr
+LQo+PiAgZHJpdmVycy9tZWRpYS9yYy9wd20taXItdHguYyAgICAgICAgIHwgIDUgKysrKy0KPj4g
+IGRyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xtMzYzMGFfYmwuYyB8ICA0ICsrKy0KPj4gIGRyaXZl
+cnMvdmlkZW8vYmFja2xpZ2h0L2xwODU1eF9ibC5jICB8ICA0ICsrKy0KPj4gIGRyaXZlcnMvdmlk
+ZW8vYmFja2xpZ2h0L2xwODc4OF9ibC5jICB8ICA1ICsrKystCj4+ICBkcml2ZXJzL3ZpZGVvL2Jh
+Y2tsaWdodC9wd21fYmwuYyAgICAgfCAxMSArKysrKysrKystLQo+PiAgZHJpdmVycy92aWRlby9m
+YmRldi9zc2QxMzA3ZmIuYyAgICAgIHwgIDMgKystCj4+ICBpbmNsdWRlL2xpbnV4L3B3bS5oICAg
+ICAgICAgICAgICAgICAgfCAgNiArKysrLS0KPj4gIDE2IGZpbGVzIGNoYW5nZWQsIDcwIGluc2Vy
+dGlvbnMoKyksIDIxIGRlbGV0aW9ucygtKQo+PiAKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlk
+ZW8vYmFja2xpZ2h0L2xtMzYzMGFfYmwuYyBiL2RyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xtMzYz
+MGFfYmwuYwo+PiBpbmRleCAyMDMwYTZiNzdhMDkuLjY5NmZhMjVkYWZkMiAxMDA2NDQKPj4gLS0t
+IGEvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvbG0zNjMwYV9ibC5jCj4+ICsrKyBiL2RyaXZlcnMv
+dmlkZW8vYmFja2xpZ2h0L2xtMzYzMGFfYmwuYwo+PiBAQCAtMTY1LDggKzE2NSwxMCBAQCBzdGF0
+aWMgdm9pZCBsbTM2MzBhX3B3bV9jdHJsKHN0cnVjdCBsbTM2MzBhX2NoaXAgKnBjaGlwLCBpbnQg
+YnIsIGludCBicl9tYXgpCj4+ICB7Cj4+ICAJdW5zaWduZWQgaW50IHBlcmlvZCA9IHBjaGlwLT5w
+ZGF0YS0+cHdtX3BlcmlvZDsKPj4gIAl1bnNpZ25lZCBpbnQgZHV0eSA9IGJyICogcGVyaW9kIC8g
+YnJfbWF4Owo+PiArCXN0cnVjdCBwd21fY2FwcyBjYXBzID0geyB9Owo+PiAgCj4+IC0JcHdtX2Nv
+bmZpZyhwY2hpcC0+cHdtZCwgZHV0eSwgcGVyaW9kKTsKPj4gKwlwd21fZ2V0X2NhcHMocGNoaXAt
+PnB3bWQtPmNoaXAsIHBjaGlwLT5wd21kLCAmY2Fwcyk7Cj4+ICsJcHdtX2NvbmZpZyhwY2hpcC0+
+cHdtZCwgZHV0eSwgcGVyaW9kLCBCSVQoZmZzKGNhcHMubW9kZXMpIC0gMSkpOwo+Cj4gV2VsbC4u
+LiBJIGFkbWl0IEkndmUgb25seSByZWFsbHkgbG9va2VkIGF0IHRoZSBwYXRjaGVzIHRoYXQgaW1w
+YWN0IAo+IGJhY2tsaWdodCBidXQgZGlzcGVyc2luZyB0aGlzIHJlYWxseSBvZGQgbG9va2luZyBi
+aXQgdHdpZGRsaW5nIAo+IHRocm91Z2hvdXQgdGhlIGtlcm5lbCBkb2Vzbid0IHN0cmlrZSBtZSBh
+IGdyZWF0IEFQSSBkZXNpZ24uCj4KPiBJTUhPIGNhbGxlcnMgc2hvdWxkIG5vdCBiZSByZXF1aXJl
+ZCB0byBmaW5kIHRoZSBmaXJzdCBzZXQgYml0IGluCj4gc29tZSBzcGVjaWFsbHkgY3JhZnRlZCBz
+ZXQgb2YgY2FwYWJpbGl0eSBiaXRzIHNpbXBseSB0byBnZXQgc2FuZSAKPiBkZWZhdWx0IGJlaGF2
+aW91ci4KCkFncmVlZC4gSU1ITyB0aGUgcmVndWxhciB1c2UgY2FzZSBiZWNvbWVzIHJhdGhlciB0
+ZWRpb3VzLCB1Z2x5LCBhbmQKZXJyb3IgcHJvbmUuCgpCUiwKSmFuaS4KCgotLSAKSmFuaSBOaWt1
+bGEsIEludGVsIE9wZW4gU291cmNlIFRlY2hub2xvZ3kgQ2VudGVyCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50
+ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeAo=

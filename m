@@ -1,75 +1,71 @@
-From: Claudiu Beznea <Claudiu.Beznea@microchip.com>
-Subject: Re: [PATCH v3 01/10] pwm: extend PWM framework with PWM modes
-Date: Mon, 26 Feb 2018 10:11:45 +0200
-Message-ID: <a26cdf7b-024e-957b-8691-c3c898d0d9d6@microchip.com>
-References: <1519300881-8136-2-git-send-email-claudiu.beznea@microchip.com>
- <201802250410.reI8wAy2%fengguang.wu@intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3 0/3] new driver for Valve Steam Controller
+Date: Mon, 26 Feb 2018 10:50:59 +0100
+Message-ID: <CAO-hwJ+PDkR4v5r93KJBCqxfm3FTCkrzaOd-K=HxLMwhoAomXQ@mail.gmail.com>
+References: <20180225185250.10759-1-rodrigorivascosta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201802250410.reI8wAy2%fengguang.wu@intel.com>
-Content-Language: en-US
+In-Reply-To: <20180225185250.10759-1-rodrigorivascosta@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: kbuild-all@01.org, thierry.reding@gmail.com, shc_work@mail.ru, kgene@kernel.org, krzk@kernel.org, linux@armlinux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, kamil@wypas.org, b.zolnierkie@samsung.com, jdelvare@suse.com, linux@roeck-us.net, dmitry.torokhov@gmail.com, rpurdie@rpsys.net, jacek.anaszewski@gmail.com, pavel@ucw.cz, mchehab@kernel.org, sean@mess.org, lee.jones@linaro.org, daniel.thompson@linaro.org, jingoohan1@gmail.com, milo.kim@ti.com, robh+dt@kernel.org, mark.rutland@arm.com, corbet@lwn.net, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com, linux-pwm@vger.kernel.orgl
+To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-I'll rebase it on latest for-next in next version.
+Hi Rodrigo,
 
-Thank you,
-Claudiu Beznea
+On Sun, Feb 25, 2018 at 7:52 PM, Rodrigo Rivas Costa
+<rodrigorivascosta@gmail.com> wrote:
+> This patchset implements a driver for Valve Steam Controller, based on a
+> reverse analysis by myself.
 
-On 24.02.2018 22:49, kbuild test robot wrote:
-> Hi Claudiu,
-> 
-> Thank you for the patch! Perhaps something to improve:
-> 
-> [auto build test WARNING on pwm/for-next]
-> [also build test WARNING on v4.16-rc2 next-20180223]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Claudiu-Beznea/extend-PWM-framework-to-support-PWM-modes/20180225-024011
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/thierry.reding/linux-pwm.git for-next
-> config: xtensa-allmodconfig (attached as .config)
-> compiler: xtensa-linux-gcc (GCC) 7.2.0
-> reproduce:
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # save the attached .config to linux build tree
->         make.cross ARCH=xtensa 
-> 
-> All warnings (new ones prefixed by >>):
-> 
->>> drivers//pwm/pwm-sun4i.c:36:0: warning: "PWM_MODE" redefined
->     #define PWM_MODE  BIT(7)
->     
->    In file included from drivers//pwm/pwm-sun4i.c:19:0:
->    include/linux/pwm.h:40:0: note: this is the location of the previous definition
->     #define PWM_MODE(name)  BIT(PWM_MODE_##name##_BIT)
->     
-> 
-> vim +/PWM_MODE +36 drivers//pwm/pwm-sun4i.c
-> 
-> 09853ce7 Alexandre Belloni 2014-12-17  29  
-> 09853ce7 Alexandre Belloni 2014-12-17  30  #define PWMCH_OFFSET		15
-> 09853ce7 Alexandre Belloni 2014-12-17  31  #define PWM_PRESCAL_MASK	GENMASK(3, 0)
-> 09853ce7 Alexandre Belloni 2014-12-17  32  #define PWM_PRESCAL_OFF		0
-> 09853ce7 Alexandre Belloni 2014-12-17  33  #define PWM_EN			BIT(4)
-> 09853ce7 Alexandre Belloni 2014-12-17  34  #define PWM_ACT_STATE		BIT(5)
-> 09853ce7 Alexandre Belloni 2014-12-17  35  #define PWM_CLK_GATING		BIT(6)
-> 09853ce7 Alexandre Belloni 2014-12-17 @36  #define PWM_MODE		BIT(7)
-> 09853ce7 Alexandre Belloni 2014-12-17  37  #define PWM_PULSE		BIT(8)
-> 09853ce7 Alexandre Belloni 2014-12-17  38  #define PWM_BYPASS		BIT(9)
-> 09853ce7 Alexandre Belloni 2014-12-17  39  
-> 
-> :::::: The code at line 36 was first introduced by commit
-> :::::: 09853ce7bc1003a490c7ee74a5705d7a7cf16b7d pwm: Add Allwinner SoC support
-> 
-> :::::: TO: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> :::::: CC: Thierry Reding <thierry.reding@gmail.com>
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
-> 
+To me, the code looks OK now. I haven't got the time to do a better
+review, so giving my:
+Acked-by: Bnejamin Tissoires <benjamin.tissoires@redhat.com>
+
+However, before we include it, I'd like to have the ACK from
+Pierre-Loup and Clément. They should be more qualified than me to say
+if this will interfere with the official Steam client (I think we are
+good now, but that's just my opinion).
+
+Cheers,
+Benjamin
+
+>
+> This is reroll v3, codenamed "lazy lizard". Changes from v2:
+>  * Use RCU to do the dynamic connec/disconnect of wireless devices. Please,
+>    to anybody that knows their way around RCU, review.
+>  * Remove entries in hid-quirks.c as they are no longer needed. This allows
+>    this module to be blacklisted without side effects.
+>  * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
+>    existing use cases (lizard mode). A user-space tool to do that is
+>    linked.
+>  * Fully separated axes for joystick and left-pad. As it happens, there are
+>    people with too many fingers.
+>  * Add fuzz values for left/right pad axes, they are a little wiggly.
+>
+> Notable changes from patchset v1:
+>  * Remove references to USB. Now the interesting interfaces are selected by
+>    looking for the ones with feature reports.
+>  * Feature reports buffers are allocated with hid_alloc_report_buf().
+>  * Feature report length is checked, to avoid overflows in case of
+>    corrupt/malicius USB devices.
+>  * Resolution added to the ABS axes.
+>  * A lot of minor cleanups.
+>
+> Rodrigo Rivas Costa (3):
+>   HID: add driver for Valve Steam Controller
+>   HID: steam: add serial number information.
+>   HID: steam: add battery device.
+>
+>  drivers/hid/Kconfig     |   8 +
+>  drivers/hid/Makefile    |   1 +
+>  drivers/hid/hid-ids.h   |   4 +
+>  drivers/hid/hid-steam.c | 777 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 790 insertions(+)
+>  create mode 100644 drivers/hid/hid-steam.c
+>
+> --
+> 2.16.2
+>

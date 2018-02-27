@@ -1,157 +1,89 @@
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
-Subject: [PATCH 1/2] input: Add RAVE SP Powerbutton driver
-Date: Mon, 26 Feb 2018 07:41:29 -0800
-Message-ID: <20180226154130.25774-1-andrew.smirnov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrey Smirnov <andrew.smirnov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Chris Healy <cphealy@gmail.com>, Lucas Stach <l.stach@pengutronix.de>
+From: Daniel Thompson <daniel.thompson@linaro.org>
+Subject: Re: [PATCH v3 05/10] pwm: add PWM mode to pwm_config()
+Date: Tue, 27 Feb 2018 10:54:44 +0000
+Message-ID: <20180227105444.lo4pee7vh4we3foq@oak.lan>
+References: <1519300881-8136-1-git-send-email-claudiu.beznea@microchip.com>
+ <1519300881-8136-6-git-send-email-claudiu.beznea@microchip.com>
+ <20180222123308.mypx2r7n6o63mj5z@oak.lan>
+ <87po4s2hve.fsf@intel.com>
+ <3a70b89c-b470-3723-760c-5294d0a75230@microchip.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <3a70b89c-b470-3723-760c-5294d0a75230@microchip.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Claudiu Beznea <Claudiu.Beznea@microchip.com>
+Cc: mark.rutland@arm.com, milo.kim@ti.com, linux-fbdev@vger.kernel.org, sean@mess.org, devicetree@vger.kernel.org, airlied@linux.ie, mturquette@baylibre.com, kamil@wypas.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, thierry.reding@gmail.com, alexandre.belloni@free-electrons.com, pavel@ucw.cz, lee.jones@linaro.org, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, linux-samsung-soc@vger.kernel.org, shc_work@mail.ru, corbet@lwn.net, linux-doc@vger.kernel.org, linux@armlinux.org.uk, krzk@kernel.org, kgene@kernel.org, linux-input@vger.kernel.org, linux@roeck-us.net, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, jdelvare@suse.com, b.zolnierkie@samsung.com, intel-gfx@lists.freedesktop.org, robh+dt@kernel.org, jacek.anaszewski@gmail.com, rodrigo.vivi@intel.com, mchehab@kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add driver that properly handles input event emitted by RAVE SP
-devices.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: devicetree@vger.kernel.org
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
----
- drivers/input/misc/Kconfig             |  9 ++++
- drivers/input/misc/Makefile            |  1 +
- drivers/input/misc/rave-sp-pwrbutton.c | 92 ++++++++++++++++++++++++++++++++++
- 3 files changed, 102 insertions(+)
- create mode 100644 drivers/input/misc/rave-sp-pwrbutton.c
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 62a1312a7387..6a3c753b093b 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -841,4 +841,13 @@ config INPUT_HISI_POWERKEY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called hisi_powerkey.
- 
-+config INPUT_RAVE_SP_PWRBUTTON
-+	tristate "RAVE SP Power button Driver"
-+	depends on RAVE_SP_CORE
-+	help
-+	  Say Y here if you want to enable power key reporting from RAVE SP
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called rave-sp-pwrbutton.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index a8f61af865aa..6ebeec1f4dd0 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -80,3 +80,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
- obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
-+obj-$(CONFIG_INPUT_RAVE_SP_PWRBUTTON)	+= rave-sp-pwrbutton.o
-diff --git a/drivers/input/misc/rave-sp-pwrbutton.c b/drivers/input/misc/rave-sp-pwrbutton.c
-new file mode 100644
-index 000000000000..7511062c724b
---- /dev/null
-+++ b/drivers/input/misc/rave-sp-pwrbutton.c
-@@ -0,0 +1,92 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+
-+/*
-+ * Power Button driver for RAVE SP
-+ *
-+ * Copyright (C) 2017 Zodiac Inflight Innovations
-+ *
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mfd/rave-sp.h>
-+#include <linux/platform_device.h>
-+
-+#define RAVE_SP_EVNT_BUTTON_PRESS	(RAVE_SP_EVNT_BASE + 0x00)
-+
-+struct rave_sp_power_button {
-+	struct input_dev *idev;
-+	struct notifier_block nb;
-+};
-+
-+static int rave_sp_power_button_event(struct notifier_block *nb,
-+				      unsigned long action, void *data)
-+{
-+	struct rave_sp_power_button *pb =
-+		container_of(nb, struct rave_sp_power_button, nb);
-+	const u8 event = rave_sp_action_unpack_event(action);
-+	const u8 value = rave_sp_action_unpack_value(action);
-+	struct input_dev *idev = pb->idev;
-+
-+	if (event == RAVE_SP_EVNT_BUTTON_PRESS) {
-+		input_report_key(idev, KEY_POWER, value);
-+		input_sync(idev);
-+
-+		return NOTIFY_STOP;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static int rave_sp_pwrbutton_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct rave_sp_power_button *pb;
-+	struct input_dev *idev;
-+	int ret;
-+
-+	pb = devm_kzalloc(dev, sizeof(*pb), GFP_KERNEL);
-+	if (!pb)
-+		return -ENOMEM;
-+
-+	idev = devm_input_allocate_device(dev);
-+	if (!idev)
-+		return -ENOMEM;
-+
-+	idev->name = pdev->name;
-+	idev->dev.parent = dev;
-+
-+	input_set_capability(idev, EV_KEY, KEY_POWER);
-+
-+	ret = input_register_device(idev);
-+	if (ret)
-+		return ret;
-+
-+	pb->idev = idev;
-+	pb->nb.notifier_call = rave_sp_power_button_event;
-+	pb->nb.priority = 128;
-+
-+	return devm_rave_sp_register_event_notifier(dev, &pb->nb);
-+}
-+
-+static const struct of_device_id rave_sp_pwrbutton_of_match[] = {
-+	{ .compatible = "zii,rave-sp-pwrbutton" },
-+	{}
-+};
-+
-+static struct platform_driver rave_sp_pwrbutton_driver = {
-+	.probe = rave_sp_pwrbutton_probe,
-+	.driver	= {
-+		.name = KBUILD_MODNAME,
-+		.of_match_table = rave_sp_pwrbutton_of_match,
-+	},
-+};
-+module_platform_driver(rave_sp_pwrbutton_driver);
-+
-+MODULE_DEVICE_TABLE(of, rave_sp_pwrbutton_of_match);
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Andrey Vostrikov <andrey.vostrikov@cogentembedded.com>");
-+MODULE_AUTHOR("Nikita Yushchenko <nikita.yoush@cogentembedded.com>");
-+MODULE_AUTHOR("Andrey Smirnov <andrew.smirnov@gmail.com>");
-+MODULE_DESCRIPTION("RAVE SP Power Button driver");
--- 
-2.14.3
+T24gTW9uLCBGZWIgMjYsIDIwMTggYXQgMDQ6MjQ6MTVQTSArMDIwMCwgQ2xhdWRpdSBCZXpuZWEg
+d3JvdGU6Cj4gT24gMjYuMDIuMjAxOCAxMTo1NywgSmFuaSBOaWt1bGEgd3JvdGU6Cj4gPiBPbiBU
+aHUsIDIyIEZlYiAyMDE4LCBEYW5pZWwgVGhvbXBzb24gPGRhbmllbC50aG9tcHNvbkBsaW5hcm8u
+b3JnPiB3cm90ZToKPiA+PiBPbiBUaHUsIEZlYiAyMiwgMjAxOCBhdCAwMjowMToxNlBNICswMjAw
+LCBDbGF1ZGl1IEJlem5lYSB3cm90ZToKPiA+Pj4gQWRkIFBXTSBtb2RlIHRvIHB3bV9jb25maWco
+KSBmdW5jdGlvbi4gVGhlIGRyaXZlcnMgd2hpY2ggdXNlcyBwd21fY29uZmlnKCkKPiA+Pj4gd2Vy
+ZSBhZGFwdGVkIHRvIHRoaXMgY2hhbmdlLgo+ID4+Pgo+ID4+PiBTaWduZWQtb2ZmLWJ5OiBDbGF1
+ZGl1IEJlem5lYSA8Y2xhdWRpdS5iZXpuZWFAbWljcm9jaGlwLmNvbT4KPiA+Pj4gLS0tCj4gPj4+
+ICBhcmNoL2FybS9tYWNoLXMzYzI0eHgvbWFjaC1yeDE5NTAuYyAgfCAxMSArKysrKysrKystLQo+
+ID4+PiAgZHJpdmVycy9idXMvdHMtbmJ1cy5jICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+Pj4g
+IGRyaXZlcnMvY2xrL2Nsay1wd20uYyAgICAgICAgICAgICAgICB8ICAzICsrLQo+ID4+PiAgZHJp
+dmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcGFuZWwuYyAgIHwgMTcgKysrKysrKysrKysrKystLS0K
+PiA+Pj4gIGRyaXZlcnMvaHdtb24vcHdtLWZhbi5jICAgICAgICAgICAgICB8ICAyICstCj4gPj4+
+ICBkcml2ZXJzL2lucHV0L21pc2MvbWF4Nzc2OTMtaGFwdGljLmMgfCAgMiArLQo+ID4+PiAgZHJp
+dmVycy9pbnB1dC9taXNjL21heDg5OTdfaGFwdGljLmMgIHwgIDYgKysrKystCj4gPj4+ICBkcml2
+ZXJzL2xlZHMvbGVkcy1wd20uYyAgICAgICAgICAgICAgfCAgNSArKysrLQo+ID4+PiAgZHJpdmVy
+cy9tZWRpYS9yYy9pci1yeDUxLmMgICAgICAgICAgIHwgIDUgKysrKy0KPiA+Pj4gIGRyaXZlcnMv
+bWVkaWEvcmMvcHdtLWlyLXR4LmMgICAgICAgICB8ICA1ICsrKystCj4gPj4+ICBkcml2ZXJzL3Zp
+ZGVvL2JhY2tsaWdodC9sbTM2MzBhX2JsLmMgfCAgNCArKystCj4gPj4+ICBkcml2ZXJzL3ZpZGVv
+L2JhY2tsaWdodC9scDg1NXhfYmwuYyAgfCAgNCArKystCj4gPj4+ICBkcml2ZXJzL3ZpZGVvL2Jh
+Y2tsaWdodC9scDg3ODhfYmwuYyAgfCAgNSArKysrLQo+ID4+PiAgZHJpdmVycy92aWRlby9iYWNr
+bGlnaHQvcHdtX2JsLmMgICAgIHwgMTEgKysrKysrKysrLS0KPiA+Pj4gIGRyaXZlcnMvdmlkZW8v
+ZmJkZXYvc3NkMTMwN2ZiLmMgICAgICB8ICAzICsrLQo+ID4+PiAgaW5jbHVkZS9saW51eC9wd20u
+aCAgICAgICAgICAgICAgICAgIHwgIDYgKysrKy0tCj4gPj4+ICAxNiBmaWxlcyBjaGFuZ2VkLCA3
+MCBpbnNlcnRpb25zKCspLCAyMSBkZWxldGlvbnMoLSkKPiA+Pj4KPiA+Pj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xtMzYzMGFfYmwuYyBiL2RyaXZlcnMvdmlkZW8vYmFj
+a2xpZ2h0L2xtMzYzMGFfYmwuYwo+ID4+PiBpbmRleCAyMDMwYTZiNzdhMDkuLjY5NmZhMjVkYWZk
+MiAxMDA2NDQKPiA+Pj4gLS0tIGEvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvbG0zNjMwYV9ibC5j
+Cj4gPj4+ICsrKyBiL2RyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xtMzYzMGFfYmwuYwo+ID4+PiBA
+QCAtMTY1LDggKzE2NSwxMCBAQCBzdGF0aWMgdm9pZCBsbTM2MzBhX3B3bV9jdHJsKHN0cnVjdCBs
+bTM2MzBhX2NoaXAgKnBjaGlwLCBpbnQgYnIsIGludCBicl9tYXgpCj4gPj4+ICB7Cj4gPj4+ICAJ
+dW5zaWduZWQgaW50IHBlcmlvZCA9IHBjaGlwLT5wZGF0YS0+cHdtX3BlcmlvZDsKPiA+Pj4gIAl1
+bnNpZ25lZCBpbnQgZHV0eSA9IGJyICogcGVyaW9kIC8gYnJfbWF4Owo+ID4+PiArCXN0cnVjdCBw
+d21fY2FwcyBjYXBzID0geyB9Owo+ID4+PiAgCj4gPj4+IC0JcHdtX2NvbmZpZyhwY2hpcC0+cHdt
+ZCwgZHV0eSwgcGVyaW9kKTsKPiA+Pj4gKwlwd21fZ2V0X2NhcHMocGNoaXAtPnB3bWQtPmNoaXAs
+IHBjaGlwLT5wd21kLCAmY2Fwcyk7Cj4gPj4+ICsJcHdtX2NvbmZpZyhwY2hpcC0+cHdtZCwgZHV0
+eSwgcGVyaW9kLCBCSVQoZmZzKGNhcHMubW9kZXMpIC0gMSkpOwo+ID4+Cj4gPj4gV2VsbC4uLiBJ
+IGFkbWl0IEkndmUgb25seSByZWFsbHkgbG9va2VkIGF0IHRoZSBwYXRjaGVzIHRoYXQgaW1wYWN0
+IAo+ID4+IGJhY2tsaWdodCBidXQgZGlzcGVyc2luZyB0aGlzIHJlYWxseSBvZGQgbG9va2luZyBi
+aXQgdHdpZGRsaW5nIAo+ID4+IHRocm91Z2hvdXQgdGhlIGtlcm5lbCBkb2Vzbid0IHN0cmlrZSBt
+ZSBhIGdyZWF0IEFQSSBkZXNpZ24uCj4gPj4KPiA+PiBJTUhPIGNhbGxlcnMgc2hvdWxkIG5vdCBi
+ZSByZXF1aXJlZCB0byBmaW5kIHRoZSBmaXJzdCBzZXQgYml0IGluCj4gPj4gc29tZSBzcGVjaWFs
+bHkgY3JhZnRlZCBzZXQgb2YgY2FwYWJpbGl0eSBiaXRzIHNpbXBseSB0byBnZXQgc2FuZSAKPiA+
+PiBkZWZhdWx0IGJlaGF2aW91ci4KPiA+IAo+ID4gQWdyZWVkLiBJTUhPIHRoZSByZWd1bGFyIHVz
+ZSBjYXNlIGJlY29tZXMgcmF0aGVyIHRlZGlvdXMsIHVnbHksIGFuZAo+ID4gZXJyb3IgcHJvbmUu
+Cj4gCj4gVXNpbmcgc2ltcGx5IFBXTV9NT0RFKE5PUk1BTCkgaW5zdGVhZCBvZiBCSVQoZmZzKGNh
+cHMubW9kZXMpIC0gMSkgd291bGQgYmUgT0sKPiBmcm9tIHlvdXIgc2lkZT8KPgo+IE9yLCB3aGF0
+IGFib3V0IHVzaW5nIGEgZnVuY3Rpb24gbGlrZSBwd21fbW9kZV9maXJzdCgpIHRvIGdldCB0aGUg
+Zmlyc3Qgc3VwcG9ydGVkCj4gbW9kZSBieSBQV00gY2hhbm5lbD8KPiAKPiBPciwgd291bGQgeW91
+IHByZWZlciB0byBzb2x2ZSB0aGlzIGluc2lkZSBwd21fY29uZmlnKCkgZnVuY3Rpb24sIGxldCdz
+IHNheSwgaW4KPiBjYXNlIGFuIGludmFsaWQgbW9kZSBpcyBwYXNzZWQgYXMgYXJndW1lbnQsIHRv
+IGxldCBwd21fY29uZmlnKCkgdG8gY2hvb3NlIHRoZQo+IGZpcnN0IGF2YWlsYWJsZSBQV00gbW9k
+ZSBmb3IgUFdNIGNoYW5uZWwgcGFzc2VkIGFzIGFyZ3VtZW50PwoKV2hhdCBpcyBpdCB0aGF0IGFj
+dHVhbGx5IG5lZWRzIHNvbHZpbmc/CgpJZiBhIGRyaXZlciByZXF1ZXN0cyBub3JtYWwgbW9kZSBh
+bmQgdGhlIFBXTSBkcml2ZXIgY2Fubm90IHN1cHBvcnQgaXQKd2h5IG5vdCBqdXN0IHJldHVybiBh
+biBlcnJvciBhbiBtb3ZlIG9uLgoKUHV0IGFub3RoZXIgd2F5LCB3aGF0IGlzIHRoZSB1c2UgY2Fz
+ZSBmb3Igc2VjcmV0bHkgYWRvcHRpbmcgYSBtb2RlIHRoZQpjYWxsZXIgZGlkbid0IHdhbnQ/IFVu
+ZGVyIHdoYXQgY2lyY3Vtc3RhbmNlcyBpcyB0aGlzIGEgZ29vZCB0aGluZz8KCgpEYW5pZWwuCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBt
+YWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3Rz
+LmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

@@ -1,118 +1,46 @@
-From: Claudiu Beznea <Claudiu.Beznea@microchip.com>
-Subject: Re: [PATCH v3 05/10] pwm: add PWM mode to pwm_config()
-Date: Tue, 27 Feb 2018 18:15:50 +0200
-Message-ID: <66059303-3a17-d534-3581-9c03cc05a909@microchip.com>
-References: <1519300881-8136-1-git-send-email-claudiu.beznea@microchip.com>
- <1519300881-8136-6-git-send-email-claudiu.beznea@microchip.com>
- <20180222123308.mypx2r7n6o63mj5z@oak.lan> <87po4s2hve.fsf@intel.com>
- <3a70b89c-b470-3723-760c-5294d0a75230@microchip.com>
- <20180227105444.lo4pee7vh4we3foq@oak.lan>
- <8e1d3b30-3543-56fd-7be6-7fe6edcb40d9@microchip.com>
- <20180227153812.txt2vsdygfnobo33@oak.lan>
+From: Stephan Mueller <smueller@chronox.de>
+Subject: Re: [PATCH v3] input: bcm5974 - Add driver for Apple Magic Trackpad 2
+Date: Tue, 27 Feb 2018 17:37:45 +0100
+Message-ID: <1566223.3I8hjEaRec@tauon.chronox.de>
+References: <40764439.8xGR6LbaWR@positron.chronox.de> <2305311.UGlXl2onVb@positron.chronox.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20180227153812.txt2vsdygfnobo33@oak.lan>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: mark.rutland@arm.com, milo.kim@ti.com, linux-fbdev@vger.kernel.org, sean@mess.org, devicetree@vger.kernel.org, airlied@linux.ie, mturquette@baylibre.com, kamil@wypas.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, alexandre.belloni@free-electrons.com, pavel@ucw.cz, lee.jones@linaro.org, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, linux-samsung-soc@vger.kernel.org, shc_work@mail.ru, corbet@lwn.net, linux-doc@vger.kernel.org, linux@armlinux.org.uk, krzk@kernel.org, kgene@kernel.org, linux-input@vger.kernel.org, linux@roeck-us.net, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, jdelvare@suse.com, b.zolnierkie@samsung.com, intel-gfx@lists.freedesktop.org, robh+dt@kernel.org, jacek.anaszewski@gmail.com, rodrigo.vivi@intel.com, mchehab@kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, jingoohan1@gmail.com, dm
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2305311.UGlXl2onVb@positron.chronox.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-input@vger.kernel.org, marek.wyborski@emwesoft.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-CgpPbiAyNy4wMi4yMDE4IDE3OjM4LCBEYW5pZWwgVGhvbXBzb24gd3JvdGU6Cj4gT24gVHVlLCBG
-ZWIgMjcsIDIwMTggYXQgMDE6NDA6NThQTSArMDIwMCwgQ2xhdWRpdSBCZXpuZWEgd3JvdGU6Cj4+
-IE9uIDI3LjAyLjIwMTggMTI6NTQsIERhbmllbCBUaG9tcHNvbiB3cm90ZToKPj4+IE9uIE1vbiwg
-RmViIDI2LCAyMDE4IGF0IDA0OjI0OjE1UE0gKzAyMDAsIENsYXVkaXUgQmV6bmVhIHdyb3RlOgo+
-Pj4+IE9uIDI2LjAyLjIwMTggMTE6NTcsIEphbmkgTmlrdWxhIHdyb3RlOgo+Pj4+PiBPbiBUaHUs
-IDIyIEZlYiAyMDE4LCBEYW5pZWwgVGhvbXBzb24gPGRhbmllbC50aG9tcHNvbkBsaW5hcm8ub3Jn
-PiB3cm90ZToKPj4+Pj4+IE9uIFRodSwgRmViIDIyLCAyMDE4IGF0IDAyOjAxOjE2UE0gKzAyMDAs
-IENsYXVkaXUgQmV6bmVhIHdyb3RlOgo+Pj4+Pj4+IEFkZCBQV00gbW9kZSB0byBwd21fY29uZmln
-KCkgZnVuY3Rpb24uIFRoZSBkcml2ZXJzIHdoaWNoIHVzZXMgcHdtX2NvbmZpZygpCj4+Pj4+Pj4g
-d2VyZSBhZGFwdGVkIHRvIHRoaXMgY2hhbmdlLgo+Pj4+Pj4+Cj4+Pj4+Pj4gU2lnbmVkLW9mZi1i
-eTogQ2xhdWRpdSBCZXpuZWEgPGNsYXVkaXUuYmV6bmVhQG1pY3JvY2hpcC5jb20+Cj4+Pj4+Pj4g
-LS0tCj4+Pj4+Pj4gIGFyY2gvYXJtL21hY2gtczNjMjR4eC9tYWNoLXJ4MTk1MC5jICB8IDExICsr
-KysrKysrKy0tCj4+Pj4+Pj4gIGRyaXZlcnMvYnVzL3RzLW5idXMuYyAgICAgICAgICAgICAgICB8
-ICAyICstCj4+Pj4+Pj4gIGRyaXZlcnMvY2xrL2Nsay1wd20uYyAgICAgICAgICAgICAgICB8ICAz
-ICsrLQo+Pj4+Pj4+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRlbF9wYW5lbC5jICAgfCAxNyAr
-KysrKysrKysrKysrKy0tLQo+Pj4+Pj4+ICBkcml2ZXJzL2h3bW9uL3B3bS1mYW4uYyAgICAgICAg
-ICAgICAgfCAgMiArLQo+Pj4+Pj4+ICBkcml2ZXJzL2lucHV0L21pc2MvbWF4Nzc2OTMtaGFwdGlj
-LmMgfCAgMiArLQo+Pj4+Pj4+ICBkcml2ZXJzL2lucHV0L21pc2MvbWF4ODk5N19oYXB0aWMuYyAg
-fCAgNiArKysrKy0KPj4+Pj4+PiAgZHJpdmVycy9sZWRzL2xlZHMtcHdtLmMgICAgICAgICAgICAg
-IHwgIDUgKysrKy0KPj4+Pj4+PiAgZHJpdmVycy9tZWRpYS9yYy9pci1yeDUxLmMgICAgICAgICAg
-IHwgIDUgKysrKy0KPj4+Pj4+PiAgZHJpdmVycy9tZWRpYS9yYy9wd20taXItdHguYyAgICAgICAg
-IHwgIDUgKysrKy0KPj4+Pj4+PiAgZHJpdmVycy92aWRlby9iYWNrbGlnaHQvbG0zNjMwYV9ibC5j
-IHwgIDQgKysrLQo+Pj4+Pj4+ICBkcml2ZXJzL3ZpZGVvL2JhY2tsaWdodC9scDg1NXhfYmwuYyAg
-fCAgNCArKystCj4+Pj4+Pj4gIGRyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xwODc4OF9ibC5jICB8
-ICA1ICsrKystCj4+Pj4+Pj4gIGRyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L3B3bV9ibC5jICAgICB8
-IDExICsrKysrKysrKy0tCj4+Pj4+Pj4gIGRyaXZlcnMvdmlkZW8vZmJkZXYvc3NkMTMwN2ZiLmMg
-ICAgICB8ICAzICsrLQo+Pj4+Pj4+ICBpbmNsdWRlL2xpbnV4L3B3bS5oICAgICAgICAgICAgICAg
-ICAgfCAgNiArKysrLS0KPj4+Pj4+PiAgMTYgZmlsZXMgY2hhbmdlZCwgNzAgaW5zZXJ0aW9ucygr
-KSwgMjEgZGVsZXRpb25zKC0pCj4+Pj4+Pj4KPj4+Pj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92
-aWRlby9iYWNrbGlnaHQvbG0zNjMwYV9ibC5jIGIvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvbG0z
-NjMwYV9ibC5jCj4+Pj4+Pj4gaW5kZXggMjAzMGE2Yjc3YTA5Li42OTZmYTI1ZGFmZDIgMTAwNjQ0
-Cj4+Pj4+Pj4gLS0tIGEvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvbG0zNjMwYV9ibC5jCj4+Pj4+
-Pj4gKysrIGIvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvbG0zNjMwYV9ibC5jCj4+Pj4+Pj4gQEAg
-LTE2NSw4ICsxNjUsMTAgQEAgc3RhdGljIHZvaWQgbG0zNjMwYV9wd21fY3RybChzdHJ1Y3QgbG0z
-NjMwYV9jaGlwICpwY2hpcCwgaW50IGJyLCBpbnQgYnJfbWF4KQo+Pj4+Pj4+ICB7Cj4+Pj4+Pj4g
-IAl1bnNpZ25lZCBpbnQgcGVyaW9kID0gcGNoaXAtPnBkYXRhLT5wd21fcGVyaW9kOwo+Pj4+Pj4+
-ICAJdW5zaWduZWQgaW50IGR1dHkgPSBiciAqIHBlcmlvZCAvIGJyX21heDsKPj4+Pj4+PiArCXN0
-cnVjdCBwd21fY2FwcyBjYXBzID0geyB9Owo+Pj4+Pj4+ICAKPj4+Pj4+PiAtCXB3bV9jb25maWco
-cGNoaXAtPnB3bWQsIGR1dHksIHBlcmlvZCk7Cj4+Pj4+Pj4gKwlwd21fZ2V0X2NhcHMocGNoaXAt
-PnB3bWQtPmNoaXAsIHBjaGlwLT5wd21kLCAmY2Fwcyk7Cj4+Pj4+Pj4gKwlwd21fY29uZmlnKHBj
-aGlwLT5wd21kLCBkdXR5LCBwZXJpb2QsIEJJVChmZnMoY2Fwcy5tb2RlcykgLSAxKSk7Cj4+Pj4+
-Pgo+Pj4+Pj4gV2VsbC4uLiBJIGFkbWl0IEkndmUgb25seSByZWFsbHkgbG9va2VkIGF0IHRoZSBw
-YXRjaGVzIHRoYXQgaW1wYWN0IAo+Pj4+Pj4gYmFja2xpZ2h0IGJ1dCBkaXNwZXJzaW5nIHRoaXMg
-cmVhbGx5IG9kZCBsb29raW5nIGJpdCB0d2lkZGxpbmcgCj4+Pj4+PiB0aHJvdWdob3V0IHRoZSBr
-ZXJuZWwgZG9lc24ndCBzdHJpa2UgbWUgYSBncmVhdCBBUEkgZGVzaWduLgo+Pj4+Pj4KPj4+Pj4+
-IElNSE8gY2FsbGVycyBzaG91bGQgbm90IGJlIHJlcXVpcmVkIHRvIGZpbmQgdGhlIGZpcnN0IHNl
-dCBiaXQgaW4KPj4+Pj4+IHNvbWUgc3BlY2lhbGx5IGNyYWZ0ZWQgc2V0IG9mIGNhcGFiaWxpdHkg
-Yml0cyBzaW1wbHkgdG8gZ2V0IHNhbmUgCj4+Pj4+PiBkZWZhdWx0IGJlaGF2aW91ci4KPj4+Pj4K
-Pj4+Pj4gQWdyZWVkLiBJTUhPIHRoZSByZWd1bGFyIHVzZSBjYXNlIGJlY29tZXMgcmF0aGVyIHRl
-ZGlvdXMsIHVnbHksIGFuZAo+Pj4+PiBlcnJvciBwcm9uZS4KPj4+Pgo+Pj4+IFVzaW5nIHNpbXBs
-eSBQV01fTU9ERShOT1JNQUwpIGluc3RlYWQgb2YgQklUKGZmcyhjYXBzLm1vZGVzKSAtIDEpIHdv
-dWxkIGJlIE9LCj4+Pj4gZnJvbSB5b3VyIHNpZGU/Cj4+Pj4KPj4+PiBPciwgd2hhdCBhYm91dCB1
-c2luZyBhIGZ1bmN0aW9uIGxpa2UgcHdtX21vZGVfZmlyc3QoKSB0byBnZXQgdGhlIGZpcnN0IHN1
-cHBvcnRlZAo+Pj4+IG1vZGUgYnkgUFdNIGNoYW5uZWw/Cj4+Pj4KPj4+PiBPciwgd291bGQgeW91
-IHByZWZlciB0byBzb2x2ZSB0aGlzIGluc2lkZSBwd21fY29uZmlnKCkgZnVuY3Rpb24sIGxldCdz
-IHNheSwgaW4KPj4+PiBjYXNlIGFuIGludmFsaWQgbW9kZSBpcyBwYXNzZWQgYXMgYXJndW1lbnQs
-IHRvIGxldCBwd21fY29uZmlnKCkgdG8gY2hvb3NlIHRoZQo+Pj4+IGZpcnN0IGF2YWlsYWJsZSBQ
-V00gbW9kZSBmb3IgUFdNIGNoYW5uZWwgcGFzc2VkIGFzIGFyZ3VtZW50Pwo+Pj4KPj4+IFdoYXQg
-aXMgaXQgdGhhdCBhY3R1YWxseSBuZWVkcyBzb2x2aW5nPwo+Pj4KPj4+IElmIGEgZHJpdmVyIHJl
-cXVlc3RzIG5vcm1hbCBtb2RlIGFuZCB0aGUgUFdNIGRyaXZlciBjYW5ub3Qgc3VwcG9ydCBpdAo+
-Pj4gd2h5IG5vdCBqdXN0IHJldHVybiBhbiBlcnJvciBhbiBtb3ZlIG9uLgo+PiBCZWNhdXNlLCBz
-aW1wbHksIEkgd2Fzbid0IGF3YXJlIG9mIHdoYXQgdGhlc2UgUFdNIGNsaWVudCBkcml2ZXJzIG5l
-ZWRzIGZvci4KPiAKPiBJJ20gYWZyYWlkIHlvdSBoYXZlIGNvbmZ1c2VkIG1lIGhlcmUuCj4gCj4g
-RGlkbid0IHlvdSBqdXN0ICphZGQqIHRoZSB3aG9sZSBjb25jZXB0IG9mIFBXTSBjYXBzIHdpdGgg
-eW91ciBwYXRjaGVzPwo+IEhvdyBjb3VsZCBhbnkgZXhpc3RpbmcgY2FsbCBzaXRlIGV4cGVjdCBh
-bnl0aGluZyBleGNlcHQgbm9ybWFsIG1vZGUuCj4gVW50aWwgbm93IHRoZXJlIGhhcyBiZWVuIG5v
-IHBvc3NpYmxpdHkgdG8gcmVxdWVzdCBhbnl0aGluZyBlbHNlLgpBZ3JlZS4gQW5kIGFncmVlIEkg
-d2FzIGNvbmZ1c2luZyBpbiBwcmV2aW91cyBlbWFpbCwgc29ycnkgYWJvdXQgdGhhdC4gQW5kCmFn
-cmVlIHRoYXQgdGhlcmUgd2FzIG5vdGhpbmcgYmVmb3JlIGFuZCBldmVyeXRoaW5nIHNob3VsZCB3
-b3JrIHdpdGggUFdNCm5vcm1hbCBtb2RlLgoKV2hlbiBJIGNob29zZSB0byBoYXZlIEJJVChmZnMo
-Y2Fwcy5tb2RlcykpIGluc3RlYWQgb2YgUFdNX01PREUoTk9STUFMKSBJCndhcyB0aGlua2luZyBh
-dCBoYXZpbmcgdGhlc2UgcHdtX2NvbmZpZygpIGNhbGxzIHdvcmtpbmcgYWxsIHRoZSB0aW1lIGhh
-dmluZwppbiBtaW5kIHRoYXQgaW4gZnV0dXJlIHRoZSBQV00gY29udHJvbGxlcnMgdGhhdCB0aGVz
-ZSBkcml2ZXJzIHVzZSwgbWlnaHQKY2hhbmdlIGluIHRlcm1zIG9mIFBXTSBzdXBwb3J0ZWQgbW9k
-ZXMuCgpUaGFuayB5b3UsCkNsYXVkaXUgQmV6bmVhCgo+IAo+IAo+Pj4gUHV0IGFub3RoZXIgd2F5
-LCB3aGF0IGlzIHRoZSB1c2UgY2FzZSBmb3Igc2VjcmV0bHkgYWRvcHRpbmcgYSBtb2RlIHRoZQo+
-Pj4gY2FsbGVyIGRpZG4ndCB3YW50PyBVbmRlciB3aGF0IGNpcmN1bXN0YW5jZXMgaXMgdGhpcyBh
-IGdvb2QgdGhpbmc/Cj4+IE5vIG9uZS4uLiBCdXQgSSB3YXNuJ3QgYXdhcmUgb2Ygd2hhdCB0aGUg
-UFdNIGNsaWVudHMgbmVlZHMgZm9yIGZyb20gdGhlaXIgUFdNCj4+IGNvbnRyb2xsZXJzLiBBdCB0
-aGlzIG1vbWVudCBoYXZpbmcgQklUKGZmcyhjYXBzLm1vZGVzKSkgaW5zdGVhZCBvZgo+PiBQV01f
-TU9ERShOT1JNQUwpIGlzIG1vc3RseSB0aGUgc2FtZSBzaW5jZSBhbGwgdGhlIGRyaXZlciB0aGF0
-IGhhcyBub3QgZXhwbGljaXRseQo+PiByZWdpc3RlcmVkIFBXTSBjYXBzIHdpbGwgdXNlIFBXTSBu
-b3JtYWwgbW9kZS4KPj4KPj4gSSB3aWxsIHVzZSBQV01fTU9ERShOT1JNQUwpIGluc3RlYWQgb2Yg
-dGhpcyBpbiBhbGwgdGhlIGNhc2VzIGlmIHRoaXMgaXMgT0sgZnJvbQo+PiB5b3VyIHNpZGUuCj4+
-Cj4+IFRoYW5rIHlvdSwKPj4gQ2xhdWRpdSBCZXpuZWEKPj4+Cj4+Pgo+Pj4gRGFuaWVsLgo+Pj4K
-PiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwt
-Z2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8v
-bGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+Am Sonntag, 21. Januar 2018, 23:06:55 CET schrieb Stephan Müller:
+
+Hi Jiri, Dimity, Henrik,
+
+> Hi,
+> 
+> Changes v3:
+> * port to 4.15-rc8
+> * small code cleanups (isolation of type casts to functions pertaining
+>   to the Apple Magic Trackpad 2
+> * clean up all checkpatch.pl errors and warnings (except those
+>   where the patch uses the structure of existing code fragments)
+> * updated horizontal and vertical limits to capture start of movements
+>   in the outer areas of the pad
+> 
+> ---8<---
+> 
+> Add support for Apple Magic Trackpad 2 in bcm5974 (MacBook Tochpad) driver.
+> The Magic Trackpad 2 needs to be switched into the finger-reporting-mode,
+> just like the other macbook touchpads as well. But the format is different
+> to the ones before. The Header is 12 Bytes long and each reported finger
+> is additional 9 Bytes. The data order reported by the hardware is
+> different as well.
+
+May I ask whether there is an issue in the patch? I have not received any 
+feedback and would like to inquire about the status of the patch.
+
+I would like to have Touchpad 2 properly supported.
+
+Thanks a lot
+Stephan

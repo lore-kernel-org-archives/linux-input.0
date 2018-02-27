@@ -1,89 +1,108 @@
-From: Daniel Thompson <daniel.thompson@linaro.org>
+From: Claudiu Beznea <Claudiu.Beznea@microchip.com>
 Subject: Re: [PATCH v3 05/10] pwm: add PWM mode to pwm_config()
-Date: Tue, 27 Feb 2018 10:54:44 +0000
-Message-ID: <20180227105444.lo4pee7vh4we3foq@oak.lan>
+Date: Tue, 27 Feb 2018 13:40:58 +0200
+Message-ID: <8e1d3b30-3543-56fd-7be6-7fe6edcb40d9@microchip.com>
 References: <1519300881-8136-1-git-send-email-claudiu.beznea@microchip.com>
  <1519300881-8136-6-git-send-email-claudiu.beznea@microchip.com>
- <20180222123308.mypx2r7n6o63mj5z@oak.lan>
- <87po4s2hve.fsf@intel.com>
+ <20180222123308.mypx2r7n6o63mj5z@oak.lan> <87po4s2hve.fsf@intel.com>
  <3a70b89c-b470-3723-760c-5294d0a75230@microchip.com>
+ <20180227105444.lo4pee7vh4we3foq@oak.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <3a70b89c-b470-3723-760c-5294d0a75230@microchip.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Claudiu Beznea <Claudiu.Beznea@microchip.com>
-Cc: mark.rutland@arm.com, milo.kim@ti.com, linux-fbdev@vger.kernel.org, sean@mess.org, devicetree@vger.kernel.org, airlied@linux.ie, mturquette@baylibre.com, kamil@wypas.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, thierry.reding@gmail.com, alexandre.belloni@free-electrons.com, pavel@ucw.cz, lee.jones@linaro.org, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, linux-samsung-soc@vger.kernel.org, shc_work@mail.ru, corbet@lwn.net, linux-doc@vger.kernel.org, linux@armlinux.org.uk, krzk@kernel.org, kgene@kernel.org, linux-input@vger.kernel.org, linux@roeck-us.net, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, jdelvare@suse.com, b.zolnierkie@samsung.com, intel-gfx@lists.freedesktop.org, robh+dt@kernel.org, jacek.anaszewski@gmail.com, rodrigo.vivi@intel.com, mchehab@kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180227105444.lo4pee7vh4we3foq@oak.lan>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>, thierry.reding@gmail.com, shc_work@mail.ru, kgene@kernel.org, krzk@kernel.org, linux@armlinux.org.uk, mturquette@baylibre.com, sboyd@codeaurora.org, joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com, airlied@linux.ie, kamil@wypas.org, b.zolnierkie@samsung.com, jdelvare@suse.com, linux@roeck-us.net, dmitry.torokhov@gmail.com, rpurdie@rpsys.net, jacek.anaszewski@gmail.com, pavel@ucw.cz, mchehab@kernel.org, sean@mess.org, lee.jones@linaro.org, jingoohan1@gmail.com, milo.kim@ti.com, robh+dt@kernel.org, mark.rutland@arm.com, corbet@lwn.net, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com, linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-ar
 List-Id: linux-input@vger.kernel.org
 
-T24gTW9uLCBGZWIgMjYsIDIwMTggYXQgMDQ6MjQ6MTVQTSArMDIwMCwgQ2xhdWRpdSBCZXpuZWEg
-d3JvdGU6Cj4gT24gMjYuMDIuMjAxOCAxMTo1NywgSmFuaSBOaWt1bGEgd3JvdGU6Cj4gPiBPbiBU
-aHUsIDIyIEZlYiAyMDE4LCBEYW5pZWwgVGhvbXBzb24gPGRhbmllbC50aG9tcHNvbkBsaW5hcm8u
-b3JnPiB3cm90ZToKPiA+PiBPbiBUaHUsIEZlYiAyMiwgMjAxOCBhdCAwMjowMToxNlBNICswMjAw
-LCBDbGF1ZGl1IEJlem5lYSB3cm90ZToKPiA+Pj4gQWRkIFBXTSBtb2RlIHRvIHB3bV9jb25maWco
-KSBmdW5jdGlvbi4gVGhlIGRyaXZlcnMgd2hpY2ggdXNlcyBwd21fY29uZmlnKCkKPiA+Pj4gd2Vy
-ZSBhZGFwdGVkIHRvIHRoaXMgY2hhbmdlLgo+ID4+Pgo+ID4+PiBTaWduZWQtb2ZmLWJ5OiBDbGF1
-ZGl1IEJlem5lYSA8Y2xhdWRpdS5iZXpuZWFAbWljcm9jaGlwLmNvbT4KPiA+Pj4gLS0tCj4gPj4+
-ICBhcmNoL2FybS9tYWNoLXMzYzI0eHgvbWFjaC1yeDE5NTAuYyAgfCAxMSArKysrKysrKystLQo+
-ID4+PiAgZHJpdmVycy9idXMvdHMtbmJ1cy5jICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+Pj4g
-IGRyaXZlcnMvY2xrL2Nsay1wd20uYyAgICAgICAgICAgICAgICB8ICAzICsrLQo+ID4+PiAgZHJp
-dmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcGFuZWwuYyAgIHwgMTcgKysrKysrKysrKysrKystLS0K
-PiA+Pj4gIGRyaXZlcnMvaHdtb24vcHdtLWZhbi5jICAgICAgICAgICAgICB8ICAyICstCj4gPj4+
-ICBkcml2ZXJzL2lucHV0L21pc2MvbWF4Nzc2OTMtaGFwdGljLmMgfCAgMiArLQo+ID4+PiAgZHJp
-dmVycy9pbnB1dC9taXNjL21heDg5OTdfaGFwdGljLmMgIHwgIDYgKysrKystCj4gPj4+ICBkcml2
-ZXJzL2xlZHMvbGVkcy1wd20uYyAgICAgICAgICAgICAgfCAgNSArKysrLQo+ID4+PiAgZHJpdmVy
-cy9tZWRpYS9yYy9pci1yeDUxLmMgICAgICAgICAgIHwgIDUgKysrKy0KPiA+Pj4gIGRyaXZlcnMv
-bWVkaWEvcmMvcHdtLWlyLXR4LmMgICAgICAgICB8ICA1ICsrKystCj4gPj4+ICBkcml2ZXJzL3Zp
-ZGVvL2JhY2tsaWdodC9sbTM2MzBhX2JsLmMgfCAgNCArKystCj4gPj4+ICBkcml2ZXJzL3ZpZGVv
-L2JhY2tsaWdodC9scDg1NXhfYmwuYyAgfCAgNCArKystCj4gPj4+ICBkcml2ZXJzL3ZpZGVvL2Jh
-Y2tsaWdodC9scDg3ODhfYmwuYyAgfCAgNSArKysrLQo+ID4+PiAgZHJpdmVycy92aWRlby9iYWNr
-bGlnaHQvcHdtX2JsLmMgICAgIHwgMTEgKysrKysrKysrLS0KPiA+Pj4gIGRyaXZlcnMvdmlkZW8v
-ZmJkZXYvc3NkMTMwN2ZiLmMgICAgICB8ICAzICsrLQo+ID4+PiAgaW5jbHVkZS9saW51eC9wd20u
-aCAgICAgICAgICAgICAgICAgIHwgIDYgKysrKy0tCj4gPj4+ICAxNiBmaWxlcyBjaGFuZ2VkLCA3
-MCBpbnNlcnRpb25zKCspLCAyMSBkZWxldGlvbnMoLSkKPiA+Pj4KPiA+Pj4gZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xtMzYzMGFfYmwuYyBiL2RyaXZlcnMvdmlkZW8vYmFj
-a2xpZ2h0L2xtMzYzMGFfYmwuYwo+ID4+PiBpbmRleCAyMDMwYTZiNzdhMDkuLjY5NmZhMjVkYWZk
-MiAxMDA2NDQKPiA+Pj4gLS0tIGEvZHJpdmVycy92aWRlby9iYWNrbGlnaHQvbG0zNjMwYV9ibC5j
-Cj4gPj4+ICsrKyBiL2RyaXZlcnMvdmlkZW8vYmFja2xpZ2h0L2xtMzYzMGFfYmwuYwo+ID4+PiBA
-QCAtMTY1LDggKzE2NSwxMCBAQCBzdGF0aWMgdm9pZCBsbTM2MzBhX3B3bV9jdHJsKHN0cnVjdCBs
-bTM2MzBhX2NoaXAgKnBjaGlwLCBpbnQgYnIsIGludCBicl9tYXgpCj4gPj4+ICB7Cj4gPj4+ICAJ
-dW5zaWduZWQgaW50IHBlcmlvZCA9IHBjaGlwLT5wZGF0YS0+cHdtX3BlcmlvZDsKPiA+Pj4gIAl1
-bnNpZ25lZCBpbnQgZHV0eSA9IGJyICogcGVyaW9kIC8gYnJfbWF4Owo+ID4+PiArCXN0cnVjdCBw
-d21fY2FwcyBjYXBzID0geyB9Owo+ID4+PiAgCj4gPj4+IC0JcHdtX2NvbmZpZyhwY2hpcC0+cHdt
-ZCwgZHV0eSwgcGVyaW9kKTsKPiA+Pj4gKwlwd21fZ2V0X2NhcHMocGNoaXAtPnB3bWQtPmNoaXAs
-IHBjaGlwLT5wd21kLCAmY2Fwcyk7Cj4gPj4+ICsJcHdtX2NvbmZpZyhwY2hpcC0+cHdtZCwgZHV0
-eSwgcGVyaW9kLCBCSVQoZmZzKGNhcHMubW9kZXMpIC0gMSkpOwo+ID4+Cj4gPj4gV2VsbC4uLiBJ
-IGFkbWl0IEkndmUgb25seSByZWFsbHkgbG9va2VkIGF0IHRoZSBwYXRjaGVzIHRoYXQgaW1wYWN0
-IAo+ID4+IGJhY2tsaWdodCBidXQgZGlzcGVyc2luZyB0aGlzIHJlYWxseSBvZGQgbG9va2luZyBi
-aXQgdHdpZGRsaW5nIAo+ID4+IHRocm91Z2hvdXQgdGhlIGtlcm5lbCBkb2Vzbid0IHN0cmlrZSBt
-ZSBhIGdyZWF0IEFQSSBkZXNpZ24uCj4gPj4KPiA+PiBJTUhPIGNhbGxlcnMgc2hvdWxkIG5vdCBi
-ZSByZXF1aXJlZCB0byBmaW5kIHRoZSBmaXJzdCBzZXQgYml0IGluCj4gPj4gc29tZSBzcGVjaWFs
-bHkgY3JhZnRlZCBzZXQgb2YgY2FwYWJpbGl0eSBiaXRzIHNpbXBseSB0byBnZXQgc2FuZSAKPiA+
-PiBkZWZhdWx0IGJlaGF2aW91ci4KPiA+IAo+ID4gQWdyZWVkLiBJTUhPIHRoZSByZWd1bGFyIHVz
-ZSBjYXNlIGJlY29tZXMgcmF0aGVyIHRlZGlvdXMsIHVnbHksIGFuZAo+ID4gZXJyb3IgcHJvbmUu
-Cj4gCj4gVXNpbmcgc2ltcGx5IFBXTV9NT0RFKE5PUk1BTCkgaW5zdGVhZCBvZiBCSVQoZmZzKGNh
-cHMubW9kZXMpIC0gMSkgd291bGQgYmUgT0sKPiBmcm9tIHlvdXIgc2lkZT8KPgo+IE9yLCB3aGF0
-IGFib3V0IHVzaW5nIGEgZnVuY3Rpb24gbGlrZSBwd21fbW9kZV9maXJzdCgpIHRvIGdldCB0aGUg
-Zmlyc3Qgc3VwcG9ydGVkCj4gbW9kZSBieSBQV00gY2hhbm5lbD8KPiAKPiBPciwgd291bGQgeW91
-IHByZWZlciB0byBzb2x2ZSB0aGlzIGluc2lkZSBwd21fY29uZmlnKCkgZnVuY3Rpb24sIGxldCdz
-IHNheSwgaW4KPiBjYXNlIGFuIGludmFsaWQgbW9kZSBpcyBwYXNzZWQgYXMgYXJndW1lbnQsIHRv
-IGxldCBwd21fY29uZmlnKCkgdG8gY2hvb3NlIHRoZQo+IGZpcnN0IGF2YWlsYWJsZSBQV00gbW9k
-ZSBmb3IgUFdNIGNoYW5uZWwgcGFzc2VkIGFzIGFyZ3VtZW50PwoKV2hhdCBpcyBpdCB0aGF0IGFj
-dHVhbGx5IG5lZWRzIHNvbHZpbmc/CgpJZiBhIGRyaXZlciByZXF1ZXN0cyBub3JtYWwgbW9kZSBh
-bmQgdGhlIFBXTSBkcml2ZXIgY2Fubm90IHN1cHBvcnQgaXQKd2h5IG5vdCBqdXN0IHJldHVybiBh
-biBlcnJvciBhbiBtb3ZlIG9uLgoKUHV0IGFub3RoZXIgd2F5LCB3aGF0IGlzIHRoZSB1c2UgY2Fz
-ZSBmb3Igc2VjcmV0bHkgYWRvcHRpbmcgYSBtb2RlIHRoZQpjYWxsZXIgZGlkbid0IHdhbnQ/IFVu
-ZGVyIHdoYXQgY2lyY3Vtc3RhbmNlcyBpcyB0aGlzIGEgZ29vZCB0aGluZz8KCgpEYW5pZWwuCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBt
-YWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3Rz
-LmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+
+
+On 27.02.2018 12:54, Daniel Thompson wrote:
+> On Mon, Feb 26, 2018 at 04:24:15PM +0200, Claudiu Beznea wrote:
+>> On 26.02.2018 11:57, Jani Nikula wrote:
+>>> On Thu, 22 Feb 2018, Daniel Thompson <daniel.thompson@linaro.org> wrote:
+>>>> On Thu, Feb 22, 2018 at 02:01:16PM +0200, Claudiu Beznea wrote:
+>>>>> Add PWM mode to pwm_config() function. The drivers which uses pwm_config()
+>>>>> were adapted to this change.
+>>>>>
+>>>>> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+>>>>> ---
+>>>>>  arch/arm/mach-s3c24xx/mach-rx1950.c  | 11 +++++++++--
+>>>>>  drivers/bus/ts-nbus.c                |  2 +-
+>>>>>  drivers/clk/clk-pwm.c                |  3 ++-
+>>>>>  drivers/gpu/drm/i915/intel_panel.c   | 17 ++++++++++++++---
+>>>>>  drivers/hwmon/pwm-fan.c              |  2 +-
+>>>>>  drivers/input/misc/max77693-haptic.c |  2 +-
+>>>>>  drivers/input/misc/max8997_haptic.c  |  6 +++++-
+>>>>>  drivers/leds/leds-pwm.c              |  5 ++++-
+>>>>>  drivers/media/rc/ir-rx51.c           |  5 ++++-
+>>>>>  drivers/media/rc/pwm-ir-tx.c         |  5 ++++-
+>>>>>  drivers/video/backlight/lm3630a_bl.c |  4 +++-
+>>>>>  drivers/video/backlight/lp855x_bl.c  |  4 +++-
+>>>>>  drivers/video/backlight/lp8788_bl.c  |  5 ++++-
+>>>>>  drivers/video/backlight/pwm_bl.c     | 11 +++++++++--
+>>>>>  drivers/video/fbdev/ssd1307fb.c      |  3 ++-
+>>>>>  include/linux/pwm.h                  |  6 ++++--
+>>>>>  16 files changed, 70 insertions(+), 21 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
+>>>>> index 2030a6b77a09..696fa25dafd2 100644
+>>>>> --- a/drivers/video/backlight/lm3630a_bl.c
+>>>>> +++ b/drivers/video/backlight/lm3630a_bl.c
+>>>>> @@ -165,8 +165,10 @@ static void lm3630a_pwm_ctrl(struct lm3630a_chip *pchip, int br, int br_max)
+>>>>>  {
+>>>>>  	unsigned int period = pchip->pdata->pwm_period;
+>>>>>  	unsigned int duty = br * period / br_max;
+>>>>> +	struct pwm_caps caps = { };
+>>>>>  
+>>>>> -	pwm_config(pchip->pwmd, duty, period);
+>>>>> +	pwm_get_caps(pchip->pwmd->chip, pchip->pwmd, &caps);
+>>>>> +	pwm_config(pchip->pwmd, duty, period, BIT(ffs(caps.modes) - 1));
+>>>>
+>>>> Well... I admit I've only really looked at the patches that impact 
+>>>> backlight but dispersing this really odd looking bit twiddling 
+>>>> throughout the kernel doesn't strike me a great API design.
+>>>>
+>>>> IMHO callers should not be required to find the first set bit in
+>>>> some specially crafted set of capability bits simply to get sane 
+>>>> default behaviour.
+>>>
+>>> Agreed. IMHO the regular use case becomes rather tedious, ugly, and
+>>> error prone.
+>>
+>> Using simply PWM_MODE(NORMAL) instead of BIT(ffs(caps.modes) - 1) would be OK
+>> from your side?
+>>
+>> Or, what about using a function like pwm_mode_first() to get the first supported
+>> mode by PWM channel?
+>>
+>> Or, would you prefer to solve this inside pwm_config() function, let's say, in
+>> case an invalid mode is passed as argument, to let pwm_config() to choose the
+>> first available PWM mode for PWM channel passed as argument?
+> 
+> What is it that actually needs solving?
+> 
+> If a driver requests normal mode and the PWM driver cannot support it
+> why not just return an error an move on.
+Because, simply, I wasn't aware of what these PWM client drivers needs for.
+
+> 
+> Put another way, what is the use case for secretly adopting a mode the
+> caller didn't want? Under what circumstances is this a good thing?
+No one... But I wasn't aware of what the PWM clients needs for from their PWM
+controllers. At this moment having BIT(ffs(caps.modes)) instead of
+PWM_MODE(NORMAL) is mostly the same since all the driver that has not explicitly
+registered PWM caps will use PWM normal mode.
+
+I will use PWM_MODE(NORMAL) instead of this in all the cases if this is OK from
+your side.
+
+Thank you,
+Claudiu Beznea
+> 
+> 
+> Daniel.
+> 

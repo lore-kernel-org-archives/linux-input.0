@@ -1,524 +1,293 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RFC 3/4] hwmon: add Gateworks System Controller support
-Date: Wed, 28 Feb 2018 14:36:49 -0800
-Message-ID: <20180228223649.GA12887@roeck-us.net>
-References: <1519780874-8558-1-git-send-email-tharvey@gateworks.com>
- <1519780874-8558-4-git-send-email-tharvey@gateworks.com>
- <69ea679a-91a7-761d-4fa8-2ac4c351fd43@roeck-us.net>
- <CAJ+vNU3U85mwv9_U5O5Xq3o=D7k_63Dwy4xf+bbLiink7pyapQ@mail.gmail.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: Re: [PATCH v4 1/4] HID: add driver for Valve Steam Controller
+Date: Wed, 28 Feb 2018 23:49:26 +0100
+Message-ID: <20180228224926.GA7009@casa>
+References: <20180228184322.29636-1-rodrigorivascosta@gmail.com>
+ <20180228184322.29636-2-rodrigorivascosta@gmail.com>
+ <CAHp75VfPK=yAx9TLEX-W0SrK8xXQzrP4wAuFWS3zEjHGoPJRsw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAJ+vNU3U85mwv9_U5O5Xq3o=D7k_63Dwy4xf+bbLiink7pyapQ@mail.gmail.com>
+In-Reply-To: <CAHp75VfPK=yAx9TLEX-W0SrK8xXQzrP4wAuFWS3zEjHGoPJRsw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 28, 2018 at 01:44:36PM -0800, Tim Harvey wrote:
-> On Tue, Feb 27, 2018 at 6:05 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On 02/27/2018 05:21 PM, Tim Harvey wrote:
-> >>
-> >> The Gateworks System Controller has a hwmon sub-component that exposes
-> >> up to 16 ADC's, some of which are temperature sensors, others which are
-> >> voltage inputs. The ADC configuration (register mapping and name) is
-> >> configured via device-tree and varies board to board.
-> >>
-> >> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> >> ---
-> >>   drivers/hwmon/Kconfig     |   6 +
-> >>   drivers/hwmon/Makefile    |   1 +
-> >>   drivers/hwmon/gsc-hwmon.c | 299
-> >> ++++++++++++++++++++++++++++++++++++++++++++++
-> >>   3 files changed, 306 insertions(+)
-> >>   create mode 100644 drivers/hwmon/gsc-hwmon.c
-> >>
-> >> diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-> >> index 7ad0176..9cdc3cb 100644
-> >> --- a/drivers/hwmon/Kconfig
-> >> +++ b/drivers/hwmon/Kconfig
-> >> @@ -475,6 +475,12 @@ config SENSORS_F75375S
-> >>           This driver can also be built as a module.  If so, the module
-> >>           will be called f75375s.
-> >>   +config SENSORS_GSC
-> >> +        tristate "Gateworks System Controller ADC"
-> >> +        depends on MFD_GSC
-> >> +        help
-> >> +          Support for the Gateworks System Controller A/D converters.
-> >> +
-> >>   config SENSORS_MC13783_ADC
-> >>           tristate "Freescale MC13783/MC13892 ADC"
-> >>           depends on MFD_MC13XXX
-> >> diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-> >> index 0fe489f..835a536 100644
-> >> --- a/drivers/hwmon/Makefile
-> >> +++ b/drivers/hwmon/Makefile
-> >> @@ -69,6 +69,7 @@ obj-$(CONFIG_SENSORS_G760A)   += g760a.o
-> >>   obj-$(CONFIG_SENSORS_G762)    += g762.o
-> >>   obj-$(CONFIG_SENSORS_GL518SM) += gl518sm.o
-> >>   obj-$(CONFIG_SENSORS_GL520SM) += gl520sm.o
-> >> +obj-$(CONFIG_SENSORS_GSC)      += gsc-hwmon.o
-> >>   obj-$(CONFIG_SENSORS_GPIO_FAN)        += gpio-fan.o
-> >>   obj-$(CONFIG_SENSORS_HIH6130) += hih6130.o
-> >>   obj-$(CONFIG_SENSORS_ULTRA45) += ultra45_env.o
-> >> diff --git a/drivers/hwmon/gsc-hwmon.c b/drivers/hwmon/gsc-hwmon.c
-> >> new file mode 100644
-> >> index 0000000..3e14bea
-> >> --- /dev/null
-> >> +++ b/drivers/hwmon/gsc-hwmon.c
-> >> @@ -0,0 +1,299 @@
-> >> +// SPDX-License-Identifier: GPL-2.0
-> >> +/*
-> >> + * Copyright (C) 2018 Gateworks Corporation
-> >> + */
-> >> +#define DEBUG
-> 
-> Guenter,
-> 
-> Thanks for the review!
-> 
+On Wed, Feb 28, 2018 at 09:21:15PM +0200, Andy Shevchenko wrote:
+> On Wed, Feb 28, 2018 at 8:43 PM, Rodrigo Rivas Costa
+> <rodrigorivascosta@gmail.com> wrote:
+> > There are two ways to connect the Steam Controller: directly to the USB
+> > or with the USB wireless adapter.  Both methods are similar, but the
+> > wireless adapter can connect up to 4 devices at the same time.
 > >
+> > The wired device will appear as 3 interfaces: a virtual mouse, a virtual
+> > keyboard and a custom HID device.
 > >
-> > Please no.
-> 
-> oops - left that in by mistake.
-> 
+> > The wireless device will appear as 5 interfaces: a virtual keyboard and
+> > 4 custom HID devices, that will remain silent until a device is actually
+> > connected.
 > >
-> >> +
-> >> +#include <linux/hwmon.h>
-> >> +#include <linux/hwmon-sysfs.h>
-> >> +#include <linux/mfd/gsc.h>
-> >> +#include <linux/module.h>
-> >> +#include <linux/of.h>
-> >> +#include <linux/platform_device.h>
-> >> +#include <linux/regmap.h>
-> >> +#include <linux/slab.h>
-> >> +
-> >> +/* map channel to channel info */
-> >> +struct gsc_hwmon_ch {
-> >> +       u8 reg;
-> >> +       char name[32];
-> >> +};
-> >> +static struct gsc_hwmon_ch gsc_temp_ch[16];
+> > The custom HID device has a report descriptor with all vendor specific
+> > usages, so the hid-generic is not very useful. In a PC/SteamBox Valve
+> > Steam Client provices a software translation by using direct USB access
+> > and a creates a uinput virtual gamepad.
 > >
-> >
-> > 16 temperature channels ...
+> > This driver was reverse engineered to provide direct kernel support in
+> > case you cannot, or do not want to, use Valve Steam Client. It disables
+> > the virtual keyboard and mouse, as they are not so useful when you have
+> > a working gamepad.
 > 
-> It has 16x ADC channels where some can be temperatures and others can
-> be voltage inputs (based on device tree).
 > 
-That was just to point out that you use smaller arrays later on.
+> > +// SPDX-License-Identifier: GPL-2.0
+> 
+> > +MODULE_LICENSE("GPL");
+> 
+> Not the same.
 
-> >
-> >
-> >> +static struct gsc_hwmon_ch gsc_in_ch[16];
-> >> +static struct gsc_hwmon_ch gsc_fan_ch[5];
-> >> +
-> >> +static int
-> >> +gsc_hwmon_read(struct device *dev, enum hwmon_sensor_types type, u32
-> >> attr,
-> >> +              int ch, long *val)
-> >> +{
-> >> +       struct gsc_dev *gsc = dev_get_drvdata(dev);
-> >> +       int sz, ret;
-> >> +       u8 reg;
-> >> +       u8 buf[3];
-> >> +
-> >> +       dev_dbg(dev, "%s type=%d attr=%d ch=%d\n", __func__, type, attr,
-> >> ch);
-> >> +       switch (type) {
-> >> +       case hwmon_in:
-> >> +               sz = 3;
-> >> +               reg = gsc_in_ch[ch].reg;
-> >> +               break;
-> >> +       case hwmon_temp:
-> >> +               sz = 2;
-> >> +               reg = gsc_temp_ch[ch].reg;
-> >> +               break;
-> >> +       default:
-> >> +               return -EOPNOTSUPP;
-> >> +       }
-> >> +
-> >> +       ret = regmap_bulk_read(gsc->regmap_hwmon, reg, &buf, sz);
-> >> +       if (!ret) {
-> >> +               *val = 0;
-> >> +               while (sz-- > 0)
-> >> +                       *val |= (buf[sz] << (8*sz));
-> >> +               if ((type == hwmon_temp) && *val > 0x8000)
-> >
-> >
-> > Excessive [and inconsistent] ( )
-> >
-> > Please make this
-> >         if (ret)
-> >                 return ret;
-> >         ...
-> >         return 0;
-> 
-> understood - a much cleaner pattern
-> 
-> >
-> >
-> >> +                       *val -= 0xffff;
-> >> +       }
-> >> +
-> >> +       return ret;
-> >> +}
-> >> +
-> >> +static int
-> >> +gsc_hwmon_read_string(struct device *dev, enum hwmon_sensor_types type,
-> >> +                     u32 attr, int ch, const char **buf)
-> >> +{
-> >> +       dev_dbg(dev, "%s type=%d attr=%d ch=%d\n", __func__, type, attr,
-> >> ch);
-> >> +       switch (type) {
-> >> +       case hwmon_in:
-> >> +       case hwmon_temp:
-> >> +       case hwmon_fan:
-> >> +               switch (attr) {
-> >> +               case hwmon_in_label:
-> >> +                       *buf = gsc_in_ch[ch].name;
-> >> +                       return 0;
-> >> +                       break;
-> >> +               case hwmon_temp_label:
-> >> +                       *buf = gsc_temp_ch[ch].name;
-> >> +                       return 0;
-> >> +                       break;
-> >> +               case hwmon_fan_label:
-> >> +                       *buf = gsc_fan_ch[ch].name;
-> >> +                       return 0;
-> >> +                       break;
-> >
-> >
-> > return followed by break doesn't make sense.
-> 
-> right - removed
-> 
-> >
-> >
-> >> +               default:
-> >> +                       break;
-> >> +               }
-> >> +               break;
-> >> +       default:
-> >> +               break;
-> >> +       }
-> >> +
-> >> +       return -ENOTSUPP;
-> >> +}
-> >> +
-> >> +static int
-> >> +gsc_hwmon_write(struct device *dev, enum hwmon_sensor_types type, u32
-> >> attr,
-> >> +              int ch, long val)
-> >> +{
-> >> +       struct gsc_dev *gsc = dev_get_drvdata(dev);
-> >> +       int ret;
-> >> +       u8 reg;
-> >> +       u8 buf[3];
-> >> +
-> >> +       dev_dbg(dev, "%s type=%d attr=%d ch=%d\n", __func__, type, attr,
-> >> ch);
-> >> +       switch (type) {
-> >> +       case hwmon_fan:
-> >> +               buf[0] = val & 0xff;
-> >> +               buf[1] = (val >> 8) & 0xff;
-> >> +               reg = gsc_fan_ch[ch].reg;
-> >> +               ret = regmap_bulk_write(gsc->regmap_hwmon, reg, &buf, 2);
-> >
-> >
-> >         &buf -> buf
-> 
-> yikes - thanks for catching that
-> 
-> >
-> >> +               break;
-> >> +       default:
-> >> +               ret = -EOPNOTSUPP;
-> >> +               break;
-> >> +       }
-> >> +
-> >> +       return ret;
-> >> +}
-> >> +
-> >> +static umode_t
-> >> +gsc_hwmon_is_visible(const void *_data, enum hwmon_sensor_types type, u32
-> >> attr,
-> >> +                    int ch)
-> >> +{
-> >> +       const struct gsc_dev *gsc = _data;
-> >> +       struct device *dev = gsc->dev;
-> >> +       umode_t mode = 0;
-> >> +
-> >> +       switch (type) {
-> >> +       case hwmon_fan:
-> >> +               if (attr == hwmon_fan_input)
-> >> +                       mode = (S_IRUGO | S_IWUSR);
-> >
-> >
-> > Unnecessary ( )
-> 
-> ok
-> 
-> >
-> >
-> >> +               break;
-> >> +       case hwmon_temp:
-> >> +       case hwmon_in:
-> >> +               mode = S_IRUGO;
-> >> +               break;
-> >> +       default:
-> >> +               break;
-> >> +       }
-> >> +       dev_dbg(dev, "%s type=%d attr=%d ch=%d mode=0x%x\n", __func__,
-> >> type,
-> >> +               attr, ch, mode);
-> >> +
-> >> +       return mode;
-> >> +}
-> >> +
-> >> +static u32 gsc_in_config[] = {
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       HWMON_I_INPUT,
-> >> +       0
-> >> +};
-> >> +static const struct hwmon_channel_info gsc_in = {
-> >> +       .type = hwmon_in,
-> >> +       .config = gsc_in_config,
-> >> +};
-> >> +
-> >> +static u32 gsc_temp_config[] = {
-> >> +       HWMON_T_INPUT,
-> >> +       HWMON_T_INPUT,
-> >> +       HWMON_T_INPUT,
-> >> +       HWMON_T_INPUT,
-> >> +       HWMON_T_INPUT,
-> >> +       HWMON_T_INPUT,
-> >> +       HWMON_T_INPUT,
-> >> +       HWMON_T_INPUT,
-> >> +       0
-> >
-> >
-> > ... but this array only has 8+1 elements. This seems inconsistent.
-> > How about using some defines for array sizes ?
-> >
-> > Also, why initialize those arrays ? You are overwriting them below.
-> > You could just use a static size array instead.
-> >
-> > I assume it is guaranteed that there is only exactly one instance
-> > of this device in the system. Have you tried what happens if you
-> > declare two instances anyway ? The result must be interesting,
-> > with all those static variables.
-> 
-> yes, that static arrays are not very forward-thinking and yes my
-> arrays are not consistent. I'll convert to dynamically allocating the
-> channels for v2
-> 
-> >
-> >> +};
-> >> +static const struct hwmon_channel_info gsc_temp = {
-> >> +       .type = hwmon_temp,
-> >> +       .config = gsc_temp_config,
-> >> +};
-> >> +
-> >> +static u32 gsc_fan_config[] = {
-> >> +       HWMON_F_INPUT,
-> >> +       HWMON_F_INPUT,
-> >> +       HWMON_F_INPUT,
-> >> +       HWMON_F_INPUT,
-> >> +       HWMON_F_INPUT,
-> >> +       HWMON_F_INPUT,
-> >> +       0,
-> >> +};
-> >
-> >
-> > The matching gsc_fan_ch has only 5 entries.
-> 
-> right - certainly an issue
-> 
-> >
-> >
-> >> +static const struct hwmon_channel_info gsc_fan = {
-> >> +       .type = hwmon_fan,
-> >> +       .config = gsc_fan_config,
-> >> +};
-> >> +
-> >> +static const struct hwmon_channel_info *gsc_info[] = {
-> >> +       &gsc_temp,
-> >> +       &gsc_in,
-> >> +       &gsc_fan,
-> >> +       NULL
-> >> +};
-> >> +
-> >> +static const struct hwmon_ops gsc_hwmon_ops = {
-> >> +       .is_visible = gsc_hwmon_is_visible,
-> >> +       .read = gsc_hwmon_read,
-> >> +       .read_string = gsc_hwmon_read_string,
-> >> +       .write = gsc_hwmon_write,
-> >> +};
-> >> +
-> >> +static const struct hwmon_chip_info gsc_chip_info = {
-> >> +       .ops = &gsc_hwmon_ops,
-> >> +       .info = gsc_info,
-> >> +};
-> >> +
-> >> +static int gsc_hwmon_probe(struct platform_device *pdev)
-> >> +{
-> >> +       struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
-> >> +       struct device_node *np;
-> >> +       struct device *hwmon;
-> >> +       int temp_count = 0;
-> >> +       int in_count = 0;
-> >> +       int fan_count = 0;
-> >> +       int ret;
-> >> +
-> >> +       dev_dbg(&pdev->dev, "%s\n", __func__);
-> >
-> >
-> > You declare local 'dev' variables all over the place, except here,
-> > where it would actually be used multiple times.
-> >
-> > Please either declare one here as well, or drop all the others.
-> 
-> will do
-> 
-> >
-> >> +       np = of_get_next_child(pdev->dev.of_node, NULL);
-> >> +       while (np) {
-> >> +               u32 reg, type;
-> >> +               const char *label;
-> >> +
-> >> +               of_property_read_u32(np, "reg", &reg);
-> >> +               of_property_read_u32(np, "type", &type);
-> >> +               label = of_get_property(np, "label", NULL);
-> >
-> >
-> > It must be interesting to see what happens if no 'label' property
-> > is provided. Have you tried ? Also, no validation of 'reg' and 'type' ?
-> > Are you sure ?
-> 
-> will add validation
-> 
-> >
-> >> +               switch(type) {
-> >> +               case 0: /* temperature sensor */
-> >> +                       gsc_temp_config[temp_count] = HWMON_T_INPUT |
-> >> +                                                     HWMON_T_LABEL;
-> >> +                       gsc_temp_ch[temp_count].reg = reg;
-> >> +                       strncpy(gsc_temp_ch[temp_count].name, label, 32);
-> >
-> >
-> > This leaves the string unterminated if it is too long. Have you tested
-> > what happens in this situation ? Consider using strlcpy instead.
-> >
-> > Also please use sizeof() instead of '32'.
-> 
-> ok
-> 
-> >
-> >> +                       if (temp_count < ARRAY_SIZE(gsc_temp_config))
-> >> +                               temp_count++;
-> >
-> >
-> > I would suggest to abort with EINVAL if this happens. Otherwise the last
-> > entry
-> > is overwritten, which doesn't make much sense. Also, this accepts up to
-> > ARRAY_SIZE()
-> > entries, leaving no termination.
-> >
-> >> +                       break;
-> >> +               case 1: /* voltage sensor */
-> >> +                       gsc_in_config[in_count] = HWMON_I_INPUT |
-> >> +                                                 HWMON_I_LABEL;
-> >> +                       gsc_in_ch[in_count].reg = reg;
-> >
-> >
-> > So a reg value of 0xXXyy is auto-converted to 0xYY ?
-> 
-> Do you mean stuffing a u32 into a u8?
-> 
+Hmmm... I copied from usb-skeleton.c, IIRC...
+I'll change to GPL-2.0+, that would be correct, I think.
 
-That is what you do, isn't it ? So reg=0xffff and reg=0xfeff will both
-map to 0xff. Or, in other word, the code happily accepts invalid values
-and converts them into something else.
+> 
+> > +static void steam_unregister(struct steam_device *steam)
+> > +{
+> > +       struct input_dev *input;
+> > +
+> > +       rcu_read_lock();
+> > +       input = rcu_dereference(steam->input);
+> > +       rcu_read_unlock();
+> > +
+> 
+> > +       if (input) {
+> 
+> if (!input)
+>  return;
+> 
+> ?
+That was because of symmetry, because further patches add more objects.
+Then
+if (input)
+	free(input);
+if (battery)
+	free(battery);
+/* in the future *(
+if (input_gyro)
+	free(input_gyro);
 
-> >
-> >> +                       strncpy(gsc_in_ch[in_count].name, label, 32);
-> >> +                       if (in_count < ARRAY_SIZE(gsc_in_config))
-> >> +                               in_count++;
-> >> +                       break;
-> >> +               case 2: /* fan controller setpoint */
-> >> +                       gsc_fan_config[fan_count] = HWMON_F_INPUT |
-> >> +                                                   HWMON_F_LABEL;
-> >> +                       gsc_fan_ch[fan_count].reg = reg;
-> >
-> >
-> > It is going to be interesting to see what happens if there are more than
-> > 5 such entries.
-> 
-> will fix
-> 
-> >
-> >> +                       strncpy(gsc_fan_ch[fan_count].name, label, 32);
-> >> +                       if (fan_count < ARRAY_SIZE(gsc_fan_config))
-> >> +                               fan_count++;
-> >> +                       break;
-> >
-> >
-> > All other types are silently ignored ?
-> 
-> will fix
-> 
-> >
-> >> +               }
-> >> +               np = of_get_next_child(pdev->dev.of_node, np);
-> >> +       }
-> >> +       /* terminate list */
-> >> +       gsc_in_config[in_count] = 0;
-> >> +       gsc_temp_config[temp_count] = 0;
-> >> +       gsc_fan_config[fan_count] = 0;
-> >> +
-> >
-> > I would suggest to move above code into a separate function.
-> 
-> will do
-> 
-> >
-> >> +       hwmon = devm_hwmon_device_register_with_info(&pdev->dev,
-> >> +                                                    KBUILD_MODNAME, gsc,
-> >> +                                                    &gsc_chip_info,
-> >> NULL);
-> >> +       if (IS_ERR(hwmon)) {
-> >> +               ret = PTR_ERR(hwmon);
-> >> +               dev_err(&pdev->dev, "Unable to register hwmon device:
-> >> %d\n",
-> >> +                       ret);
-> >> +               return ret;
-> >> +       }
-> >
-> >
-> > The error would be ENOMEM. Is it necessary to report that again ?
-> 
-> could also return -EINVAL but not with the args I'm passing in so I'll
-> change it to:
-> return PTR_ERR_OR_ZERO(hwmon);
-> 
-Much preferred.
+Sure, the last one can do an early return, but you break symmetry.
 
-Thanks,
-Guenter
+> 
+> > +               RCU_INIT_POINTER(steam->input, NULL);
+> > +               synchronize_rcu();
+> > +               hid_info(steam->hdev, "Steam Controller disconnected");
+> > +               input_unregister_device(input);
+> > +       }
+> > +}
+> 
+> > +static bool steam_is_valve_interface(struct hid_device *hdev)
+> > +{
+> > +       struct hid_report_enum *rep_enum;
+> > +       struct hid_report *hreport;
+> > +
+> > +       /*
+> > +        * The wired device creates 3 interfaces:
+> > +        *  0: emulated mouse.
+> > +        *  1: emulated keyboard.
+> > +        *  2: the real game pad.
+> > +        * The wireless device creates 5 interfaces:
+> > +        *  0: emulated keyboard.
+> > +        *  1-4: slots where up to 4 real game pads will be connected to.
+> > +        * We know which one is the real gamepad interface because they are the
+> > +        * only ones with a feature report.
+> > +        */
+> > +       rep_enum = &hdev->report_enum[HID_FEATURE_REPORT];
+> 
+> > +       list_for_each_entry(hreport, &rep_enum->report_list, list) {
+> > +               /* should we check hreport->id == 0? */
+> > +               return true;
+> > +       }
+> > +       return false;
+> 
+> So, for now it's just an equivalent of
+> 
+> return !list_empty();
+> 
+> ?
+
+I was expecting to add a few more checks in the middle, but those
+weren't needed at the end.
+I'll change that.
+
+> 
+> > +}
+> 
+> > +       /*
+> > +        * From this point on, if anything fails return 0 and ignores
+> > +        * the error, so that the default HID devices are still bound.
+> > +        */
+> > +       steam = devm_kzalloc(&hdev->dev,
+> > +                       sizeof(struct steam_device), GFP_KERNEL);
+> 
+> sizeof(*steam) saves a line.
+
+Right, changed.
+
+> 
+> > +       if (!steam) {
+> > +               ret = -ENOMEM;
+> > +               goto mem_fail;
+> > +       }
+> 
+> > +static void steam_remove(struct hid_device *hdev)
+> > +{
+> > +       struct steam_device *steam = hid_get_drvdata(hdev);
+> > +
+> > +       if (steam && (steam->quirks & STEAM_QUIRK_WIRELESS)) {
+> > +               hid_info(hdev, "Steam wireless receiver disconnected");
+> > +               hid_hw_close(hdev);
+> > +       }
+> > +
+> > +       hid_hw_stop(hdev);
+> > +
+> > +       if (steam) {
+> > +               cancel_work_sync(&steam->work_connect);
+> > +               steam_unregister(steam);
+> 
+> > +               hid_set_drvdata(hdev, NULL);
+> 
+> Hmm.. Doesn't HID do this?
+
+Do you mean the hid_set_drvdata(hdev, NULL)? I'm not sure, I didn't see
+that on hid-core.c or hid-generic.c. And a call like this is done in
+many modules... so I did the same, just to be sure.
+> 
+> > +       }
+> 
+> if (steam) {
+> ...
+>        hid_hw_stop(hdev);
+> ...
+> } else {
+>        hid_hw_stop(hdev);
+> }
+> 
+> ?
+
+I have no real preference. Your version has two 'if', mine has two 'if'.
+What about:
+
+static void steam_remove(struct hid_device *hdev)
+{
+	struct steam_device *steam = hid_get_drvdata(hdev);
+
+	if (!steam) {
+		hid_hw_stop(hdev);
+		return;
+	}
+
+	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+		hid_info(hdev, "Steam wireless receiver disconnected");
+		hid_hw_close(hdev);
+	}
+	hid_hw_stop(hdev);
+	cancel_work_sync(&steam->work_connect);
+	steam_unregister(steam);
+	hid_set_drvdata(hdev, NULL);
+}
+
+
+> 
+> > +}
+> 
+> > +static void steam_do_input_event(struct steam_device *steam,
+> > +               struct input_dev *input, u8 *data)
+> > +{
+> > +       /* 24 bits of buttons */
+> > +       u8 b8, b9, b10;
+> > +       bool lpad_touched, lpad_and_joy;
+> > +
+> > +       b8 = data[8];
+> > +       b9 = data[9];
+> > +       b10 = data[10];
+> > +
+> > +       input_report_abs(input, ABS_Z, data[11]);
+> > +       input_report_abs(input, ABS_RZ, data[12]);
+> > +
+> > +       /*
+> > +        * These two bits tells how to interpret the values X and Y.
+> > +        * lpad_and_joy tells that the joystick and the lpad are used at the
+> > +        * same time.
+> > +        * lpad_touched tells whether X/Y are to be read as lpad coord or
+> > +        * joystick values.
+> > +        * (lpad_touched || lpad_and_joy) tells if the lpad is really touched.
+> > +        */
+> 
+> > +       lpad_touched = b10 & 0x08;
+> 
+> BIT(3) ?
+> 
+> > +       lpad_and_joy = b10 & 0x80;
+> 
+> BIT(7) ?
+> 
+> > +       input_event(input, EV_KEY, BTN_TR2, !!(b8 & 0x01));
+> > +       input_event(input, EV_KEY, BTN_TL2, !!(b8 & 0x02));
+> > +       input_event(input, EV_KEY, BTN_TR, !!(b8 & 0x04));
+> > +       input_event(input, EV_KEY, BTN_TL, !!(b8 & 0x08));
+> > +       input_event(input, EV_KEY, BTN_Y, !!(b8 & 0x10));
+> > +       input_event(input, EV_KEY, BTN_B, !!(b8 & 0x20));
+> > +       input_event(input, EV_KEY, BTN_X, !!(b8 & 0x40));
+> > +       input_event(input, EV_KEY, BTN_A, !!(b8 & 0x80));
+> > +       input_event(input, EV_KEY, BTN_SELECT, !!(b9 & 0x10));
+> > +       input_event(input, EV_KEY, BTN_MODE, !!(b9 & 0x20));
+> > +       input_event(input, EV_KEY, BTN_START, !!(b9 & 0x40));
+> > +       input_event(input, EV_KEY, BTN_GEAR_DOWN, !!(b9 & 0x80));
+> > +       input_event(input, EV_KEY, BTN_GEAR_UP, !!(b10 & 0x01));
+> > +       input_event(input, EV_KEY, BTN_THUMBR, !!(b10 & 0x04));
+> > +       input_event(input, EV_KEY, BTN_THUMBL, !!(b10 & 0x40));
+> > +       input_event(input, EV_KEY, BTN_THUMB, lpad_touched || lpad_and_joy);
+> > +       input_event(input, EV_KEY, BTN_THUMB2, !!(b10 & 0x10));
+> 
+> BIT(x) ?
+> 
+> > +
+> > +       input_report_abs(input, ABS_HAT0X,
+> > +                       !!(b9 & 0x02) - !!(b9 & 0x04));
+> > +       input_report_abs(input, ABS_HAT0Y,
+> > +                       !!(b9 & 0x08) - !!(b9 & 0x01));
+> 
+> BIT(x) ?
+
+That's certainly nicer. Changed.
+> 
+> > +}
+> 
+> > +static int steam_raw_event(struct hid_device *hdev,
+> > +                       struct hid_report *report, u8 *data,
+> > +                       int size)
+> > +{
+> > +       struct steam_device *steam = hid_get_drvdata(hdev);
+> > +       struct input_dev *input;
+> > +
+> 
+> > +       if (!steam)
+> > +               return 0;
+> 
+> When it's possible?
+
+That's because how the new automatic unbinding/rebinding of hid-generic
+works. This driver binds all the interfaces of the device, including the
+virtual mouse and keyboard (!steam_is_valve_interface()).  Those
+hid_devices do not have a steam_device, but they still generate
+raw_events.
+> 
+> > +       return 0;
+> > +}
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
+
+Regards.
+Rodrigo.

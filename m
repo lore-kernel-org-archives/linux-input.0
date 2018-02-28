@@ -1,41 +1,56 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [RFC 0/4] Add support for the Gateworks System Controller
-Date: Wed, 28 Feb 2018 17:56:18 +0100
-Message-ID: <20180228165618.GC29484@lunn.ch>
-References: <1519780874-8558-1-git-send-email-tharvey@gateworks.com>
- <20180228144424.GC12303@lunn.ch>
- <CAJ+vNU3hG7z1mB0xKFZu-8o1r3hj-pOqkfVnWHvxxaxzrpGuzw@mail.gmail.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: [PATCH v4 0/4] new driver for Valve Steam Controller
+Date: Wed, 28 Feb 2018 19:43:18 +0100
+Message-ID: <20180228184322.29636-1-rodrigorivascosta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJ+vNU3hG7z1mB0xKFZu-8o1r3hj-pOqkfVnWHvxxaxzrpGuzw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Tim
+This patchset implements a driver for Valve Steam Controller, based on a
+reverse analysis by myself.
 
-Cool. I would say this is done right.
+This is reroll v4, changes since v3:
+ * Add command to check the wireless connection status on probe, without
+   waiting for a message (thanks to Clément Vuchener for the tip).
+ * Removed the error code on redundant connection/disconnection messages. That
+   was harmless but polluted dmesg.
+ * Added buttons for touching the left-pad and right-pad.
+ * Fixed a misplaced #include from 2/4 to 1/4.
 
-> One issue I'm trying to figure out the best way to deal with is the
-> fact that the GSC can 'NAK' transactions occasionally which is why I
-> override the regmap read/write functions and provide retries. This
-> resolves the issue for the mfd core driver and sub-module drivers but
-> doesn't resolve the issue with these 'emulated devices' which have
-> their own stand-alone drivers. I'm not sure how to best deal with that
-> yet. I tried to add retires to the i2c adapter but that wasn't
-> accepted upstream because it was too generic and I was told I need to
-> work around it in device-drivers.
+I've added the new command from the first point in a new commit, so now there
+are 4 parts. Feel free to merge that with the previous (or all of them) if you
+wish.
 
-How about writing an i2c bus driver which sits directly on top of
-another i2c bus? Basically a one port i2c mux.
+About the new buttons, before I considered those unnecesary because I thought
+of the pads as a kind of flat joysticks, so when they are not touched they go
+back to the virtual center (0,0), and the touch/untouch events are not useful.
+But I've been proved short-sighted in this kind of decisions before, so I've
+added them, sure they are useful for somebody.
 
-The current mux code does not seem to directly allow it, since it
-calls i2c_transfer() directly on the parent, where as you want it to
-call your own i2c_transfer function. But maybe you could expended the
-core mux code to allow the i2c_mux_core structure to contain a transfer
-function?
+Also, I've been running some tests, with the driver, the Steam Client and my
+stemctrl utility [1], and all works just fine. Even unloading and reloading
+the modules (with a UDEV rule to disable the lizard mode) while the Steam
+Client is running works without any issue.
 
-      Andrew
+[1]: https://github.com/rodrigorc/steamctrl
+
+Rodrigo Rivas Costa (4):
+  HID: add driver for Valve Steam Controller
+  HID: steam: add serial number information.
+  HID: steam: command to check wireless connection
+  HID: steam: add battery device.
+
+ drivers/hid/Kconfig     |   8 +
+ drivers/hid/Makefile    |   1 +
+ drivers/hid/hid-ids.h   |   4 +
+ drivers/hid/hid-steam.c | 797 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 810 insertions(+)
+ create mode 100644 drivers/hid/hid-steam.c
+
+-- 
+2.16.2

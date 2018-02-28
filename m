@@ -1,226 +1,362 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v4 1/4] HID: add driver for Valve Steam Controller
-Date: Wed, 28 Feb 2018 21:21:15 +0200
-Message-ID: <CAHp75VfPK=yAx9TLEX-W0SrK8xXQzrP4wAuFWS3zEjHGoPJRsw@mail.gmail.com>
-References: <20180228184322.29636-1-rodrigorivascosta@gmail.com> <20180228184322.29636-2-rodrigorivascosta@gmail.com>
+From: Tim Harvey <tharvey@gateworks.com>
+Subject: Re: [RFC 4/4] input: misc: Add Gateworks System Controller support
+Date: Wed, 28 Feb 2018 11:44:12 -0800
+Message-ID: <CAJ+vNU04YO5KOgMcqvxaZDwgRBJrxhOAe0jXVCYv_9k6-2XpAQ@mail.gmail.com>
+References: <1519780874-8558-1-git-send-email-tharvey@gateworks.com>
+ <1519780874-8558-5-git-send-email-tharvey@gateworks.com> <20180228045438.GA151045@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228184322.29636-2-rodrigorivascosta@gmail.com>
+In-Reply-To: <20180228045438.GA151045@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 28, 2018 at 8:43 PM, Rodrigo Rivas Costa
-<rodrigorivascosta@gmail.com> wrote:
-> There are two ways to connect the Steam Controller: directly to the USB
-> or with the USB wireless adapter.  Both methods are similar, but the
-> wireless adapter can connect up to 4 devices at the same time.
+On Tue, Feb 27, 2018 at 8:54 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Tim,
+
+Hi Dmitry - thanks for the review!
+
 >
-> The wired device will appear as 3 interfaces: a virtual mouse, a virtual
-> keyboard and a custom HID device.
+> On Tue, Feb 27, 2018 at 05:21:14PM -0800, Tim Harvey wrote:
+>> Add support for dispatching Linux Input events for the various interrupts
+>> the Gateworks System Controller provides.
+>>
+>> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+>> ---
+>>  drivers/input/misc/Kconfig     |   6 ++
+>>  drivers/input/misc/Makefile    |   1 +
+>>  drivers/input/misc/gsc-input.c | 196 +++++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 203 insertions(+)
+>>  create mode 100644 drivers/input/misc/gsc-input.c
+>>
+>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>> index 9f082a3..3d18a0e 100644
+>> --- a/drivers/input/misc/Kconfig
+>> +++ b/drivers/input/misc/Kconfig
+>> @@ -117,6 +117,12 @@ config INPUT_E3X0_BUTTON
+>>         To compile this driver as a module, choose M here: the
+>>         module will be called e3x0_button.
+>>
+>> +config INPUT_GSC
+>> +     tristate "Gateworks System Controller input support"
+>> +     depends on MFD_GSC
+>> +     help
+>> +       Say Y here if you want Gateworks System Controller input support.
+>> +
 >
-> The wireless device will appear as 5 interfaces: a virtual keyboard and
-> 4 custom HID devices, that will remain silent until a device is actually
-> connected.
+> "To compile this driver as a module..."
 >
-> The custom HID device has a report descriptor with all vendor specific
-> usages, so the hid-generic is not very useful. In a PC/SteamBox Valve
-> Steam Client provices a software translation by using direct USB access
-> and a creates a uinput virtual gamepad.
+
+ok
+
+>>  config INPUT_PCSPKR
+>>       tristate "PC Speaker support"
+>>       depends on PCSPKR_PLATFORM
+>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+>> index 4b6118d..969debe 100644
+>> --- a/drivers/input/misc/Makefile
+>> +++ b/drivers/input/misc/Makefile
+>> @@ -38,6 +38,7 @@ obj-$(CONFIG_INPUT_GP2A)            += gp2ap002a00f.o
+>>  obj-$(CONFIG_INPUT_GPIO_BEEPER)              += gpio-beeper.o
+>>  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED) += gpio_tilt_polled.o
+>>  obj-$(CONFIG_INPUT_GPIO_DECODER)     += gpio_decoder.o
+>> +obj-$(CONFIG_INPUT_GSC)                      += gsc-input.o
+>>  obj-$(CONFIG_INPUT_HISI_POWERKEY)    += hisi_powerkey.o
+>>  obj-$(CONFIG_HP_SDC_RTC)             += hp_sdc_rtc.o
+>>  obj-$(CONFIG_INPUT_IMS_PCU)          += ims-pcu.o
+>> diff --git a/drivers/input/misc/gsc-input.c b/drivers/input/misc/gsc-input.c
+>> new file mode 100644
+>> index 0000000..7cf217c
+>> --- /dev/null
+>> +++ b/drivers/input/misc/gsc-input.c
+>> @@ -0,0 +1,196 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>> +/*
+>> + * Copyright (C) 2018 Gateworks Corporation
+>> + */
 >
-> This driver was reverse engineered to provide direct kernel support in
-> case you cannot, or do not want to, use Valve Steam Client. It disables
-> the virtual keyboard and mouse, as they are not so useful when you have
-> a working gamepad.
+> Let's keep the same // comment block fir the copyright notice as well.
+> An one-line describing what this driver is would be appreciated too.
+
+ok - will have this in v2:
+
+// SPDX-License-Identifier: GPL-2.0
+//
+// Copyright (C) 2018 Gateworks Corporation
+//
+// This driver dispatches Linux input events for GSC interrupt events
+//
 
 
-> +// SPDX-License-Identifier: GPL-2.0
+>
+>> +#define DEBUG
+>
+> Please no.
+>
 
-> +MODULE_LICENSE("GPL");
+oops, did not mean to submit that
 
-Not the same.
+>> +
+>> +#include <linux/input.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/regmap.h>
+>> +
+>> +#include <linux/mfd/gsc.h>
+>> +
+>> +struct gsc_irq {
+>> +     unsigned int irq;
+>> +     const char *name;
+>> +     unsigned int virq;
+>> +};
+>> +
+>> +static struct gsc_irq gsc_irqs[] = {
+>> +     { GSC_IRQ_PB,           "button" },
+>> +     { GSC_IRQ_KEY_ERASED,   "key-erased" },
+>> +     { GSC_IRQ_EEPROM_WP,    "eeprom-wp" },
+>> +     { GSC_IRQ_TAMPER,       "tamper" },
+>> +     { GSC_IRQ_SWITCH_HOLD,  "button-held" },
+>> +};
+>> +
+>> +struct gsc_input_info {
+>> +     struct device *dev;
+>> +     struct gsc_dev *gsc;
+>> +     struct input_dev *input;
+>> +
+>> +     int irq;
+>> +     struct work_struct irq_work;
+>> +     struct mutex mutex;
+>> +};
+>> +
+>> +static void gsc_input_irq_work(struct work_struct *work)
+>> +{
+>> +     struct gsc_input_info *info = container_of(work, struct gsc_input_info,
+>> +                                                irq_work);
+>> +     struct gsc_dev *gsc = info->gsc;
+>> +     int i, ret = 0;
+>> +     int key, sts;
+>> +     struct gsc_irq *gsc_irq = NULL;
+>> +
+>> +     dev_dbg(gsc->dev, "%s irq%d\n", __func__, info->irq);
+>> +     mutex_lock(&info->mutex);
+>> +
+>> +     for (i = 0; i < ARRAY_SIZE(gsc_irqs);i++)
+>> +             if (info->irq == gsc_irqs[i].virq)
+>> +                     gsc_irq = &gsc_irqs[i];
+>> +     if (!gsc_irq) {
+>> +             dev_err(info->dev, "interrupt: irq%d occurred\n", info->irq);
+>> +             mutex_unlock(&info->mutex);
+>> +             return;
+>> +     }
+>> +
+>> +     ret = regmap_read(info->gsc->regmap, GSC_IRQ_STATUS, &sts);
+>
+> Why is this needed? To clear irq? What happens if several events happen
+> at the same time? Do we lose one of them?
 
-> +static void steam_unregister(struct steam_device *steam)
-> +{
-> +       struct input_dev *input;
-> +
-> +       rcu_read_lock();
-> +       input = rcu_dereference(steam->input);
-> +       rcu_read_unlock();
-> +
+it was for original debugging and not needed - will remove
 
-> +       if (input) {
+>
+>> +     if (ret) {
+>> +             dev_err(info->dev, "failed to read status register\n");
+>> +             mutex_unlock(&info->mutex);
+>> +             return;
+>> +     }
+>> +
+>> +     key = -1;
+>> +     switch (gsc_irq->virq) {
+>> +     case GSC_IRQ_PB:
+>> +             key = BTN_0;
+>> +             break;
+>> +     case GSC_IRQ_KEY_ERASED:
+>> +             key = BTN_1;
+>> +             break;
+>> +     case GSC_IRQ_EEPROM_WP:
+>> +             key = BTN_2;
+>> +             break;
+>> +     case GSC_IRQ_GPIO:
+>> +             key = BTN_3;
+>> +             break;
+>> +     case GSC_IRQ_TAMPER:
+>> +             key = BTN_4;
+>> +             break;
+>> +     case GSC_IRQ_SWITCH_HOLD:
+>> +             key = BTN_5;
+>
+> Could we provide the mapping in DTS instead of hard-coding them?
 
-if (!input)
- return;
+Yes, that makes sense. I'll propose something like the following in v2:
 
-?
+gsc_input {
+   compatible = "gw,gsc-input";
 
-> +               RCU_INIT_POINTER(steam->input, NULL);
-> +               synchronize_rcu();
-> +               hid_info(steam->hdev, "Steam Controller disconnected");
-> +               input_unregister_device(input);
-> +       }
-> +}
+   button {
+      label = "user pushbutton";
+      linux,code = <256>;
+      interrupts = <0>
+   };
 
-> +static bool steam_is_valve_interface(struct hid_device *hdev)
-> +{
-> +       struct hid_report_enum *rep_enum;
-> +       struct hid_report *hreport;
-> +
-> +       /*
-> +        * The wired device creates 3 interfaces:
-> +        *  0: emulated mouse.
-> +        *  1: emulated keyboard.
-> +        *  2: the real game pad.
-> +        * The wireless device creates 5 interfaces:
-> +        *  0: emulated keyboard.
-> +        *  1-4: slots where up to 4 real game pads will be connected to.
-> +        * We know which one is the real gamepad interface because they are the
-> +        * only ones with a feature report.
-> +        */
-> +       rep_enum = &hdev->report_enum[HID_FEATURE_REPORT];
+   key-erased {
+      label = "key erased";
+      linux,code = <257>;
+      interrupts = <1>
+   };
 
-> +       list_for_each_entry(hreport, &rep_enum->report_list, list) {
-> +               /* should we check hreport->id == 0? */
-> +               return true;
-> +       }
-> +       return false;
+   ...
+};
 
-So, for now it's just an equivalent of
 
-return !list_empty();
+>
+>> +             break;
+>> +     }
+>> +
+>> +     if (key != -1) {
+>> +             dev_dbg(&info->input->dev, "bit%d: key=0x%03x %s\n",
+>> +                     gsc_irq->virq, key, gsc_irq->name);
+>> +             input_report_key(info->input, key, 1);
+>
+>                 input_sync();
 
-?
+right - thanks!
 
-> +}
+>
+>> +             input_report_key(info->input, key, 0);
+>> +             input_sync(info->input);
+>> +     }
+>> +
+>> +     mutex_unlock(&info->mutex);
+>> +}
+>> +
+>> +static irqreturn_t gsc_input_irq(int irq, void *data)
+>> +{
+>> +     struct gsc_input_info *info = data;
+>> +
+>> +     dev_dbg(info->gsc->dev, "%s irq%d\n", __func__, irq);
+>> +     info->irq = irq;
+>> +     schedule_work(&info->irq_work);
+>
+> Why not use threaded interrupt?
 
-> +       /*
-> +        * From this point on, if anything fails return 0 and ignores
-> +        * the error, so that the default HID devices are still bound.
-> +        */
-> +       steam = devm_kzalloc(&hdev->dev,
-> +                       sizeof(struct steam_device), GFP_KERNEL);
+I am using request_threaded_irq with thread_fn with thread_fn (vs handler).
 
-sizeof(*steam) saves a line.
+Do you mean why use a work procedure? I guess I don't need that and
+can call input_report_key directly from the irq.
 
-> +       if (!steam) {
-> +               ret = -ENOMEM;
-> +               goto mem_fail;
-> +       }
+>
+>> +
+>> +     return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int gsc_input_probe(struct platform_device *pdev)
+>> +{
+>> +     struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
+>> +     struct gsc_input_info *info;
+>> +     struct input_dev *input;
+>> +     int ret, i;
+>> +
+>> +     dev_dbg(&pdev->dev, "%s\n", __func__);
+>> +     info = devm_kzalloc(&pdev->dev, sizeof(struct gsc_input_info),
+>> +                         GFP_KERNEL);
+>> +     if (!info)
+>> +             return -ENOMEM;
+>> +     info->dev = &pdev->dev;
+>> +     info->gsc = gsc;
+>> +
+>> +     /* Register input device */
+>> +     input = devm_input_allocate_device(&pdev->dev);
+>> +     if (!input) {
+>> +             dev_err(&pdev->dev, "Can't allocate input device\n");
+>> +             return -ENOMEM;
+>> +     }
+>> +     info->input = input;
+>> +
+>> +     input->name = KBUILD_MODNAME;
+>> +     input->dev.parent = &pdev->dev;
+>
+> Not needed - it is set by devm_input_allocate_device().
 
-> +static void steam_remove(struct hid_device *hdev)
-> +{
-> +       struct steam_device *steam = hid_get_drvdata(hdev);
-> +
-> +       if (steam && (steam->quirks & STEAM_QUIRK_WIRELESS)) {
-> +               hid_info(hdev, "Steam wireless receiver disconnected");
-> +               hid_hw_close(hdev);
-> +       }
-> +
-> +       hid_hw_stop(hdev);
-> +
-> +       if (steam) {
-> +               cancel_work_sync(&steam->work_connect);
-> +               steam_unregister(steam);
+ok
 
-> +               hid_set_drvdata(hdev, NULL);
+>
+>> +
+>> +     input_set_capability(input, EV_KEY, BTN_0); /* button */
+>> +     input_set_capability(input, EV_KEY, BTN_1); /* key erased */
+>> +     input_set_capability(input, EV_KEY, BTN_2); /* ee wp */
+>> +     input_set_capability(input, EV_KEY, BTN_3); /* gpio */
+>> +     input_set_capability(input, EV_KEY, BTN_4); /* tamper */
+>> +     input_set_capability(input, EV_KEY, BTN_5); /* button held */
+>> +
+>> +     ret = input_register_device(input);
+>> +     if (ret < 0) {
+>> +             dev_err(&pdev->dev, "Can't register input device: %d\n", ret);
+>> +             return ret;
+>> +     }
+>> +
+>> +     platform_set_drvdata(pdev, gsc);
+>> +     mutex_init(&info->mutex);
+>> +     INIT_WORK(&info->irq_work, gsc_input_irq_work);
+>> +
+>> +     /* Support irq domain */
+>> +     for (i = 0; i < ARRAY_SIZE(gsc_irqs); i++) {
+>> +             struct gsc_irq *gsc_irq = &gsc_irqs[i];
+>> +             int virq;
+>> +
+>> +             virq = regmap_irq_get_virq(gsc->irq_chip_data, gsc_irq->irq);
+>> +             if (virq <= 0)
+>> +                     return -EINVAL;
+>> +             gsc_irq->virq = virq;
+>
+> I'd say mapping should be done by MFD piece. You can add interrupts as
+> resources and fetch them here.
 
-Hmm.. Doesn't HID do this?
+can you point me to an example dts/driver?
 
-> +       }
+Tim
 
-if (steam) {
-...
-       hid_hw_stop(hdev);
-...
-} else {
-       hid_hw_stop(hdev);
-}
-
-?
-
-> +}
-
-> +static void steam_do_input_event(struct steam_device *steam,
-> +               struct input_dev *input, u8 *data)
-> +{
-> +       /* 24 bits of buttons */
-> +       u8 b8, b9, b10;
-> +       bool lpad_touched, lpad_and_joy;
-> +
-> +       b8 = data[8];
-> +       b9 = data[9];
-> +       b10 = data[10];
-> +
-> +       input_report_abs(input, ABS_Z, data[11]);
-> +       input_report_abs(input, ABS_RZ, data[12]);
-> +
-> +       /*
-> +        * These two bits tells how to interpret the values X and Y.
-> +        * lpad_and_joy tells that the joystick and the lpad are used at the
-> +        * same time.
-> +        * lpad_touched tells whether X/Y are to be read as lpad coord or
-> +        * joystick values.
-> +        * (lpad_touched || lpad_and_joy) tells if the lpad is really touched.
-> +        */
-
-> +       lpad_touched = b10 & 0x08;
-
-BIT(3) ?
-
-> +       lpad_and_joy = b10 & 0x80;
-
-BIT(7) ?
-
-> +       input_event(input, EV_KEY, BTN_TR2, !!(b8 & 0x01));
-> +       input_event(input, EV_KEY, BTN_TL2, !!(b8 & 0x02));
-> +       input_event(input, EV_KEY, BTN_TR, !!(b8 & 0x04));
-> +       input_event(input, EV_KEY, BTN_TL, !!(b8 & 0x08));
-> +       input_event(input, EV_KEY, BTN_Y, !!(b8 & 0x10));
-> +       input_event(input, EV_KEY, BTN_B, !!(b8 & 0x20));
-> +       input_event(input, EV_KEY, BTN_X, !!(b8 & 0x40));
-> +       input_event(input, EV_KEY, BTN_A, !!(b8 & 0x80));
-> +       input_event(input, EV_KEY, BTN_SELECT, !!(b9 & 0x10));
-> +       input_event(input, EV_KEY, BTN_MODE, !!(b9 & 0x20));
-> +       input_event(input, EV_KEY, BTN_START, !!(b9 & 0x40));
-> +       input_event(input, EV_KEY, BTN_GEAR_DOWN, !!(b9 & 0x80));
-> +       input_event(input, EV_KEY, BTN_GEAR_UP, !!(b10 & 0x01));
-> +       input_event(input, EV_KEY, BTN_THUMBR, !!(b10 & 0x04));
-> +       input_event(input, EV_KEY, BTN_THUMBL, !!(b10 & 0x40));
-> +       input_event(input, EV_KEY, BTN_THUMB, lpad_touched || lpad_and_joy);
-> +       input_event(input, EV_KEY, BTN_THUMB2, !!(b10 & 0x10));
-
-BIT(x) ?
-
-> +
-> +       input_report_abs(input, ABS_HAT0X,
-> +                       !!(b9 & 0x02) - !!(b9 & 0x04));
-> +       input_report_abs(input, ABS_HAT0Y,
-> +                       !!(b9 & 0x08) - !!(b9 & 0x01));
-
-BIT(x) ?
-
-> +}
-
-> +static int steam_raw_event(struct hid_device *hdev,
-> +                       struct hid_report *report, u8 *data,
-> +                       int size)
-> +{
-> +       struct steam_device *steam = hid_get_drvdata(hdev);
-> +       struct input_dev *input;
-> +
-
-> +       if (!steam)
-> +               return 0;
-
-When it's possible?
-
-> +       return 0;
-> +}
-
--- 
-With Best Regards,
-Andy Shevchenko
+>
+>> +
+>> +             ret = devm_request_threaded_irq(&pdev->dev, virq, NULL,
+>> +                                             gsc_input_irq, 0,
+>> +                                             gsc_irq->name, info);
+>> +             if (ret) {
+>> +                     dev_err(&pdev->dev,
+>> +                             "failed: irq request (IRQ: %d, error: %d\n)",
+>> +                             gsc_irq->irq, ret);
+>> +                     return ret;
+>> +             }
+>> +     }
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static const struct of_device_id gsc_input_dt_ids[] = {
+>> +     { .compatible = "gw,gsc-input", },
+>> +     {}
+>> +};
+>> +
+>> +static struct platform_driver gsc_input_driver = {
+>> +     .driver = {
+>> +             .name = KBUILD_MODNAME,
+>> +             .of_match_table = gsc_input_dt_ids,
+>> +     },
+>> +     .probe = gsc_input_probe,
+>> +};
+>> +
+>> +module_platform_driver(gsc_input_driver);
+>> +
+>> +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
+>> +MODULE_DESCRIPTION("GSC input driver");
+>> +MODULE_LICENSE("GPL v2");
+>> --
+>> 2.7.4
+>>
+>
+> Thanks.
+>
+> --
+> Dmitry

@@ -1,78 +1,95 @@
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [RESEND PATCH 4/6] input: pegasus_notetaker: do not rely on input_dev->users
-Date: Wed, 28 Feb 2018 14:38:01 +0100
-Message-ID: <20180228133803.30040-5-marcus.folkesson@gmail.com>
-References: <20180228133803.30040-1-marcus.folkesson@gmail.com>
+Subject: Fix deadlocks in autosuspend
+Date: Wed, 28 Feb 2018 14:37:57 +0100
+Message-ID: <20180228133803.30040-1-marcus.folkesson@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228133803.30040-1-marcus.folkesson@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-If the device is unused and suspended, a call to open will cause the
-device to autoresume through the call to usb_autopm_get_interface().
+Hello,
 
-input_dev->users is already incremented by the input subsystem,
-therefore this expression will always be evaluated to true:
+I have not recieved any feedback on these so I resend them.
 
-	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
-		retval = -EIO;
+I got this deadlock on my own driver (pxrc) when using the same
+construction.
 
-The same URB will then be fail when resubmitted in pegasus_open().
+Please have a look
 
-Introduce pegasus->is_open to keep track of the state instead.
+Here is a clip from 
+[PATCH v3] input: pxrc: new driver for PhoenixRC Flight Controller Adapter [1]
+that describes the problem.
 
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- drivers/input/tablet/pegasus_notetaker.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+-------------------------------8<----------------------------------------------
+Also, I think we have a deadlock in the synaptics_usb driver.
 
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-index 9ab1ed5e20e7..74c93e09c337 100644
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -80,6 +80,7 @@ struct pegasus {
- 
- 	/* serialize access to open/suspend */
- 	struct mutex pm_mutex;
-+	bool is_open;
- 
- 	char name[128];
- 	char phys[64];
-@@ -232,6 +233,7 @@ static int pegasus_open(struct input_dev *dev)
- 	if (error)
- 		goto err_kill_urb;
- 
-+	pegasus->is_open = 1;
- 	mutex_unlock(&pegasus->pm_mutex);
- 	return 0;
- 
-@@ -251,6 +253,7 @@ static void pegasus_close(struct input_dev *dev)
- 	mutex_lock(&pegasus->pm_mutex);
- 	usb_kill_urb(pegasus->irq);
- 	cancel_work_sync(&pegasus->init);
-+	pegasus->is_open = 0;
- 	mutex_unlock(&pegasus->pm_mutex);
- 
- 	usb_autopm_put_interface(pegasus->intf);
-@@ -415,7 +418,7 @@ static int pegasus_resume(struct usb_interface *intf)
- 	int retval = 0;
- 
- 	mutex_lock(&pegasus->pm_mutex);
--	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
-+	if (pegasus->is_open && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
- 		retval = -EIO;
- 	mutex_unlock(&pegasus->pm_mutex);
- 
-@@ -428,7 +431,7 @@ static int pegasus_reset_resume(struct usb_interface *intf)
- 	int retval = 0;
- 
- 	mutex_lock(&pegasus->pm_mutex);
--	if (pegasus->dev->users) {
-+	if (pegasus->is_open) {
- 		retval = pegasus_set_mode(pegasus, PEN_MODE_XY,
- 					  NOTETAKER_LED_MOUSE);
- 		if (!retval && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
--- 
-2.16.2
+When the device is suspended and someone is open the device, the input
+subsystem will call input_open_device() which takes the
+input_dev->mutex and then call input_dev->open().
+
+synusb_open() has a call to usb_autopm_get_interface() which will
+result in a call to the registered resume-function if the device is
+suspended. (see Documentation/driver-api/usb/power-manaement.rst).
+
+In the case of snaptics_usb, it will take the input_dev->mutex in the
+resume function.
+
+I have no synaptic mouse, but tested to put the same code into my
+driver just to confirm, and got the following dump:
+
+[ 9215.626476] INFO: task input-events:8590 blocked for more than 120 seconds.
+[ 9215.626495]       Not tainted 4.15.0-rc8-ARCH+ #6
+[ 9215.626500] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[ 9215.626507] input-events    D    0  8590   4394 0x00000004
+[ 9215.626520] Call Trace:
+[ 9215.626546]  ? __schedule+0x236/0x850
+[ 9215.626559]  schedule+0x2f/0x90
+[ 9215.626569]  schedule_preempt_disabled+0x11/0x20
+[ 9215.626579]  __mutex_lock.isra.0+0x1aa/0x520
+[ 9215.626609]  ? usb_runtime_suspend+0x70/0x70 [usbcore]
+[ 9215.626622]  ? pxrc_resume+0x37/0x70 [pxrc]
+[ 9215.626632]  pxrc_resume+0x37/0x70 [pxrc]
+[ 9215.626655]  usb_resume_interface.isra.2+0x39/0xe0 [usbcore]
+[ 9215.626676]  usb_resume_both+0xd2/0x120 [usbcore]
+[ 9215.626688]  __rpm_callback+0xb6/0x1f0
+[ 9215.626699]  rpm_callback+0x1f/0x70
+[ 9215.626718]  ? usb_runtime_suspend+0x70/0x70 [usbcore]
+[ 9215.626726]  rpm_resume+0x4e2/0x7f0
+[ 9215.626737]  rpm_resume+0x582/0x7f0
+[ 9215.626749]  __pm_runtime_resume+0x3a/0x50
+[ 9215.626767]  usb_autopm_get_interface+0x1d/0x50 [usbcore]
+[ 9215.626780]  pxrc_open+0x17/0x8d [pxrc]
+[ 9215.626791]  input_open_device+0x70/0xa0
+[ 9215.626804]  evdev_open+0x183/0x1c0 [evdev]
+[ 9215.626819]  chrdev_open+0xa0/0x1b0
+[ 9215.626830]  ? cdev_put.part.1+0x20/0x20
+[ 9215.626840]  do_dentry_open+0x1ad/0x2c0
+[ 9215.626855]  path_openat+0x576/0x1300
+[ 9215.626868]  ? alloc_set_pte+0x22c/0x520
+[ 9215.626883]  ? filemap_map_pages+0x19b/0x340
+[ 9215.626893]  do_filp_open+0x9b/0x110
+[ 9215.626908]  ? __check_object_size+0x9d/0x190
+[ 9215.626920]  ? __alloc_fd+0xaf/0x160
+[ 9215.626931]  ? do_sys_open+0x1bd/0x250
+[ 9215.626942]  do_sys_open+0x1bd/0x250
+[ 9215.626956]  entry_SYSCALL_64_fastpath+0x20/0x83
+[ 9215.626967] RIP: 0033:0x7fbf6358f7ae
+
+
+tablet/pegasus_notetaker.c and touchscreen/usbtouchscreen.c has the same
+construction (taking input_dev->mutex in resume/suspend and call
+usb_autopm_get_interface() in open()).
+
+I will create a separate "pm_mutex" to use instead of input_dev->mutex
+to get rid of the lockups in those drivers 
+
+-------------------------------8<----------------------------------------------
+
+
+[1] https://lkml.org/lkml/2018/1/20/191
+
+Thanks,
+
+Best regards
+Marcus Folkesson

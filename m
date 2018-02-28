@@ -1,88 +1,38 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [RESEND PATCH 2/6] input: synaptics_usb: do not rely on input_dev->users
-Date: Wed, 28 Feb 2018 14:37:59 +0100
-Message-ID: <20180228133803.30040-3-marcus.folkesson@gmail.com>
-References: <20180228133803.30040-1-marcus.folkesson@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v3] Input: gpio_keys: Add level trigger support for GPIO keys
+Date: Wed, 28 Feb 2018 15:44:18 +0100
+Message-ID: <CAK8P3a1v2GanneaFKpXWjWLt1YzibJ9Bh7vUcd_SH-4jGN_1+A@mail.gmail.com>
+References: <826093167e8fb24723f474b0272f3dcab1b6a97e.1519821626.git.baolin.wang@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228133803.30040-1-marcus.folkesson@gmail.com>
+In-Reply-To: <826093167e8fb24723f474b0272f3dcab1b6a97e.1519821626.git.baolin.wang@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, gregkh <gregkh@linuxfoundation.org>, lumotuwe@gmail.com, Arvind Yadav <arvind.yadav.cs@gmail.com>, josephl@nvidia.com, kstewart@linuxfoundation.org, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-If the device is unused and suspended, a call to open will cause the
-device to autoresume through the call to usb_autopm_get_interface().
+On Wed, Feb 28, 2018 at 1:44 PM, Baolin Wang <baolin.wang@linaro.org> wrote:
+> On some platforms (such as Spreadtrum platform), the GPIO keys can only
+> be triggered by level type. So this patch introduces one property to
+> indicate if the GPIO trigger type is level trigger or edge trigger.
+>
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> ---
+> Changes since v2:
+>  - Use 'interrupt' property to indicate the irq type.
+>
+> Changes since v1:
+>  - Diable the GPIO irq until reversing the GPIO level type.
 
-input_dev->users is already incremented by the input subsystem,
-therefore this expression will always be evaluated to true:
+I've looked at your patch in more detail now, and given it a bit more thought.
 
-	if ((input_dev->users || (synusb->flags & SYNUSB_IO_ALWAYS)) &&
-	    usb_submit_urb(synusb->urb, GFP_NOIO) < 0) {
-		retval = -EIO;
-	}
+I wonder if you could move that logic into your gpiochip/irqchip driver instead.
+It seems that what you do in the gpio-keys driver is to emulate edge triggered
+behavior on a level triggered irqchip.
 
-The same URB will then be fail when resubmitted in synusb_open().
+If you put the same logic into the gpio driver, you could simply make it
+pretend to support an edge trigger on both edges and call into the interrupt
+handler whenever the state changes.
 
-Introduce synusb->is_open to keep track of the state instead.
-
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- drivers/input/mouse/synaptics_usb.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics_usb.c b/drivers/input/mouse/synaptics_usb.c
-index 2c66913cf5a2..e2b726751220 100644
---- a/drivers/input/mouse/synaptics_usb.c
-+++ b/drivers/input/mouse/synaptics_usb.c
-@@ -84,6 +84,7 @@ struct synusb {
- 
- 	/* serialize access to open/suspend */
- 	struct mutex pm_mutex;
-+	bool is_open;
- 
- 	/* input device related data structures */
- 	struct input_dev *input;
-@@ -266,6 +267,7 @@ static int synusb_open(struct input_dev *dev)
- 	}
- 
- 	synusb->intf->needs_remote_wakeup = 1;
-+	synusb->is_open = 1;
- 
- out:
- 	mutex_unlock(&synusb->pm_mutex);
-@@ -283,6 +285,7 @@ static void synusb_close(struct input_dev *dev)
- 	mutex_lock(&synusb->pm_mutex);
- 	usb_kill_urb(synusb->urb);
- 	synusb->intf->needs_remote_wakeup = 0;
-+	synusb->is_open = 0;
- 	mutex_unlock(&synusb->pm_mutex);
- 
- 	if (!autopm_error)
-@@ -485,12 +488,11 @@ static int synusb_suspend(struct usb_interface *intf, pm_message_t message)
- static int synusb_resume(struct usb_interface *intf)
- {
- 	struct synusb *synusb = usb_get_intfdata(intf);
--	struct input_dev *input_dev = synusb->input;
- 	int retval = 0;
- 
- 	mutex_lock(&synusb->pm_mutex);
- 
--	if ((input_dev->users || (synusb->flags & SYNUSB_IO_ALWAYS)) &&
-+	if ((synusb->is_open || (synusb->flags & SYNUSB_IO_ALWAYS)) &&
- 	    usb_submit_urb(synusb->urb, GFP_NOIO) < 0) {
- 		retval = -EIO;
- 	}
-@@ -513,10 +515,9 @@ static int synusb_pre_reset(struct usb_interface *intf)
- static int synusb_post_reset(struct usb_interface *intf)
- {
- 	struct synusb *synusb = usb_get_intfdata(intf);
--	struct input_dev *input_dev = synusb->input;
- 	int retval = 0;
- 
--	if ((input_dev->users || (synusb->flags & SYNUSB_IO_ALWAYS)) &&
-+	if ((synusb->is_open || (synusb->flags & SYNUSB_IO_ALWAYS)) &&
- 	    usb_submit_urb(synusb->urb, GFP_NOIO) < 0) {
- 		retval = -EIO;
- 	}
--- 
-2.16.2
+        Arnd

@@ -1,299 +1,192 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC 4/4] input: misc: Add Gateworks System Controller support
-Date: Tue, 27 Feb 2018 20:54:38 -0800
-Message-ID: <20180228045438.GA151045@dtor-ws>
-References: <1519780874-8558-1-git-send-email-tharvey@gateworks.com>
- <1519780874-8558-5-git-send-email-tharvey@gateworks.com>
+Subject: Re: [PATCH 1/2] input: Add RAVE SP Powerbutton driver
+Date: Tue, 27 Feb 2018 20:59:35 -0800
+Message-ID: <20180228045935.GB151045@dtor-ws>
+References: <20180226154130.25774-1-andrew.smirnov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1519780874-8558-5-git-send-email-tharvey@gateworks.com>
+In-Reply-To: <20180226154130.25774-1-andrew.smirnov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Chris Healy <cphealy@gmail.com>, Lucas Stach <l.stach@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-Hi Tim,
+Hi Andrey,
 
-On Tue, Feb 27, 2018 at 05:21:14PM -0800, Tim Harvey wrote:
-> Add support for dispatching Linux Input events for the various interrupts
-> the Gateworks System Controller provides.
+On Mon, Feb 26, 2018 at 07:41:29AM -0800, Andrey Smirnov wrote:
+> Add driver that properly handles input event emitted by RAVE SP
+> devices.
 > 
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: devicetree@vger.kernel.org
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Cc: Chris Healy <cphealy@gmail.com>
+> Cc: Lucas Stach <l.stach@pengutronix.de>
+> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
 > ---
->  drivers/input/misc/Kconfig     |   6 ++
->  drivers/input/misc/Makefile    |   1 +
->  drivers/input/misc/gsc-input.c | 196 +++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 203 insertions(+)
->  create mode 100644 drivers/input/misc/gsc-input.c
+>  drivers/input/misc/Kconfig             |  9 ++++
+>  drivers/input/misc/Makefile            |  1 +
+>  drivers/input/misc/rave-sp-pwrbutton.c | 92 ++++++++++++++++++++++++++++++++++
+>  3 files changed, 102 insertions(+)
+>  create mode 100644 drivers/input/misc/rave-sp-pwrbutton.c
 > 
 > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 9f082a3..3d18a0e 100644
+> index 62a1312a7387..6a3c753b093b 100644
 > --- a/drivers/input/misc/Kconfig
 > +++ b/drivers/input/misc/Kconfig
-> @@ -117,6 +117,12 @@ config INPUT_E3X0_BUTTON
+> @@ -841,4 +841,13 @@ config INPUT_HISI_POWERKEY
 >  	  To compile this driver as a module, choose M here: the
->  	  module will be called e3x0_button.
+>  	  module will be called hisi_powerkey.
 >  
-> +config INPUT_GSC
-> +	tristate "Gateworks System Controller input support"
-> +	depends on MFD_GSC
+> +config INPUT_RAVE_SP_PWRBUTTON
+> +	tristate "RAVE SP Power button Driver"
+> +	depends on RAVE_SP_CORE
 > +	help
-> +	  Say Y here if you want Gateworks System Controller input support.
+> +	  Say Y here if you want to enable power key reporting from RAVE SP
 > +
-
-"To compile this driver as a module..."
-
->  config INPUT_PCSPKR
->  	tristate "PC Speaker support"
->  	depends on PCSPKR_PLATFORM
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called rave-sp-pwrbutton.
+> +
+>  endif
 > diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 4b6118d..969debe 100644
+> index a8f61af865aa..6ebeec1f4dd0 100644
 > --- a/drivers/input/misc/Makefile
 > +++ b/drivers/input/misc/Makefile
-> @@ -38,6 +38,7 @@ obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
->  obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
->  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
->  obj-$(CONFIG_INPUT_GPIO_DECODER)	+= gpio_decoder.o
-> +obj-$(CONFIG_INPUT_GSC)			+= gsc-input.o
->  obj-$(CONFIG_INPUT_HISI_POWERKEY)	+= hisi_powerkey.o
->  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
->  obj-$(CONFIG_INPUT_IMS_PCU)		+= ims-pcu.o
-> diff --git a/drivers/input/misc/gsc-input.c b/drivers/input/misc/gsc-input.c
+> @@ -80,3 +80,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+>  obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+>  obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+>  obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
+> +obj-$(CONFIG_INPUT_RAVE_SP_PWRBUTTON)	+= rave-sp-pwrbutton.o
+
+Please put it in [somewhat] alphabetical order (even though ideapad is
+out of order). 
+
+
+> diff --git a/drivers/input/misc/rave-sp-pwrbutton.c b/drivers/input/misc/rave-sp-pwrbutton.c
 > new file mode 100644
-> index 0000000..7cf217c
+> index 000000000000..7511062c724b
 > --- /dev/null
-> +++ b/drivers/input/misc/gsc-input.c
-> @@ -0,0 +1,196 @@
-> +// SPDX-License-Identifier: GPL-2.0
+> +++ b/drivers/input/misc/rave-sp-pwrbutton.c
+> @@ -0,0 +1,92 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +
 > +/*
-> + * Copyright (C) 2018 Gateworks Corporation
+> + * Power Button driver for RAVE SP
+> + *
+> + * Copyright (C) 2017 Zodiac Inflight Innovations
+> + *
 > + */
 
-Let's keep the same // comment block fir the copyright notice as well.
-An one-line describing what this driver is would be appreciated too.
-
-> +#define DEBUG
-
-Please no.
+Let's keep SPDX and copyright in the same // comment block.
 
 > +
 > +#include <linux/input.h>
-> +#include <linux/interrupt.h>
 > +#include <linux/kernel.h>
 > +#include <linux/module.h>
+> +#include <linux/mfd/rave-sp.h>
 > +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
 > +
-> +#include <linux/mfd/gsc.h>
+> +#define RAVE_SP_EVNT_BUTTON_PRESS	(RAVE_SP_EVNT_BASE + 0x00)
 > +
-> +struct gsc_irq {
-> +	unsigned int irq;
-> +	const char *name;
-> +	unsigned int virq;
+> +struct rave_sp_power_button {
+> +	struct input_dev *idev;
+> +	struct notifier_block nb;
 > +};
 > +
-> +static struct gsc_irq gsc_irqs[] = {
-> +	{ GSC_IRQ_PB,		"button" },
-> +	{ GSC_IRQ_KEY_ERASED,	"key-erased" },
-> +	{ GSC_IRQ_EEPROM_WP,	"eeprom-wp" },
-> +	{ GSC_IRQ_TAMPER,	"tamper" },
-> +	{ GSC_IRQ_SWITCH_HOLD,	"button-held" },
-> +};
-> +
-> +struct gsc_input_info {
-> +	struct device *dev;
-> +	struct gsc_dev *gsc;
-> +	struct input_dev *input;
-> +
-> +	int irq;
-> +	struct work_struct irq_work;
-> +	struct mutex mutex;
-> +};
-> +
-> +static void gsc_input_irq_work(struct work_struct *work)
+> +static int rave_sp_power_button_event(struct notifier_block *nb,
+> +				      unsigned long action, void *data)
 > +{
-> +	struct gsc_input_info *info = container_of(work, struct gsc_input_info,
-> +						   irq_work);
-> +	struct gsc_dev *gsc = info->gsc;
-> +	int i, ret = 0;
-> +	int key, sts;
-> +	struct gsc_irq *gsc_irq = NULL;
+> +	struct rave_sp_power_button *pb =
+> +		container_of(nb, struct rave_sp_power_button, nb);
+> +	const u8 event = rave_sp_action_unpack_event(action);
+> +	const u8 value = rave_sp_action_unpack_value(action);
+> +	struct input_dev *idev = pb->idev;
 > +
-> +	dev_dbg(gsc->dev, "%s irq%d\n", __func__, info->irq);
-> +	mutex_lock(&info->mutex);
+> +	if (event == RAVE_SP_EVNT_BUTTON_PRESS) {
+> +		input_report_key(idev, KEY_POWER, value);
+> +		input_sync(idev);
 > +
-> +	for (i = 0; i < ARRAY_SIZE(gsc_irqs);i++)
-> +		if (info->irq == gsc_irqs[i].virq)
-> +			gsc_irq = &gsc_irqs[i];
-> +	if (!gsc_irq) {
-> +		dev_err(info->dev, "interrupt: irq%d occurred\n", info->irq);
-> +		mutex_unlock(&info->mutex);
-> +		return;
+> +		return NOTIFY_STOP;
 > +	}
 > +
-> +	ret = regmap_read(info->gsc->regmap, GSC_IRQ_STATUS, &sts);
-
-Why is this needed? To clear irq? What happens if several events happen
-at the same time? Do we lose one of them?
-
-> +	if (ret) {
-> +		dev_err(info->dev, "failed to read status register\n");
-> +		mutex_unlock(&info->mutex);
-> +		return;
-> +	}
-> +
-> +	key = -1;
-> +	switch (gsc_irq->virq) {
-> +	case GSC_IRQ_PB:
-> +		key = BTN_0;
-> +		break;
-> +	case GSC_IRQ_KEY_ERASED:
-> +		key = BTN_1;
-> +		break;
-> +	case GSC_IRQ_EEPROM_WP:
-> +		key = BTN_2;
-> +		break;
-> +	case GSC_IRQ_GPIO:
-> +		key = BTN_3;
-> +		break;
-> +	case GSC_IRQ_TAMPER:
-> +		key = BTN_4;
-> +		break;
-> +	case GSC_IRQ_SWITCH_HOLD:
-> +		key = BTN_5;
-
-Could we provide the mapping in DTS instead of hard-coding them?
-
-> +		break;
-> +	}
-> +
-> +	if (key != -1) {
-> +		dev_dbg(&info->input->dev, "bit%d: key=0x%03x %s\n",
-> +			gsc_irq->virq, key, gsc_irq->name);
-> +		input_report_key(info->input, key, 1);
-
-		input_sync();
-
-> +		input_report_key(info->input, key, 0);
-> +		input_sync(info->input);
-> +	}
-> +
-> +	mutex_unlock(&info->mutex);
+> +	return NOTIFY_DONE;
 > +}
 > +
-> +static irqreturn_t gsc_input_irq(int irq, void *data)
+> +static int rave_sp_pwrbutton_probe(struct platform_device *pdev)
 > +{
-> +	struct gsc_input_info *info = data;
+> +	struct device *dev = &pdev->dev;
+> +	struct rave_sp_power_button *pb;
+> +	struct input_dev *idev;
+> +	int ret;
 > +
-> +	dev_dbg(info->gsc->dev, "%s irq%d\n", __func__, irq);
-> +	info->irq = irq;
-> +	schedule_work(&info->irq_work);
-
-Why not use threaded interrupt?
-
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int gsc_input_probe(struct platform_device *pdev)
-> +{
-> +	struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
-> +	struct gsc_input_info *info;
-> +	struct input_dev *input;
-> +	int ret, i;
-> +
-> +	dev_dbg(&pdev->dev, "%s\n", __func__);
-> +	info = devm_kzalloc(&pdev->dev, sizeof(struct gsc_input_info),
-> +			    GFP_KERNEL);
-> +	if (!info)
+> +	pb = devm_kzalloc(dev, sizeof(*pb), GFP_KERNEL);
+> +	if (!pb)
 > +		return -ENOMEM;
-> +	info->dev = &pdev->dev;
-> +	info->gsc = gsc;
 > +
-> +	/* Register input device */
-> +	input = devm_input_allocate_device(&pdev->dev);
-> +	if (!input) {
-> +		dev_err(&pdev->dev, "Can't allocate input device\n");
+> +	idev = devm_input_allocate_device(dev);
+> +	if (!idev)
 > +		return -ENOMEM;
-> +	}
-> +	info->input = input;
 > +
-> +	input->name = KBUILD_MODNAME;
-> +	input->dev.parent = &pdev->dev;
+> +	idev->name = pdev->name;
+> +	idev->dev.parent = dev;
 
-Not needed - it is set by devm_input_allocate_device().
+Not needed - done by devm_input_allocate_device().
 
 > +
-> +	input_set_capability(input, EV_KEY, BTN_0); /* button */
-> +	input_set_capability(input, EV_KEY, BTN_1); /* key erased */
-> +	input_set_capability(input, EV_KEY, BTN_2); /* ee wp */
-> +	input_set_capability(input, EV_KEY, BTN_3); /* gpio */
-> +	input_set_capability(input, EV_KEY, BTN_4); /* tamper */
-> +	input_set_capability(input, EV_KEY, BTN_5); /* button held */
+> +	input_set_capability(idev, EV_KEY, KEY_POWER);
 > +
-> +	ret = input_register_device(input);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "Can't register input device: %d\n", ret);
+> +	ret = input_register_device(idev);
+> +	if (ret)
 > +		return ret;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, gsc);
-> +	mutex_init(&info->mutex);
-> +	INIT_WORK(&info->irq_work, gsc_input_irq_work);
-> +
-> +	/* Support irq domain */
-> +	for (i = 0; i < ARRAY_SIZE(gsc_irqs); i++) {
-> +		struct gsc_irq *gsc_irq = &gsc_irqs[i];
-> +		int virq;
-> +
-> +		virq = regmap_irq_get_virq(gsc->irq_chip_data, gsc_irq->irq);
-> +		if (virq <= 0)
-> +			return -EINVAL;
-> +		gsc_irq->virq = virq;
 
-I'd say mapping should be done by MFD piece. You can add interrupts as
-resources and fetch them here.
+Please call this "error".
 
 > +
-> +		ret = devm_request_threaded_irq(&pdev->dev, virq, NULL,
-> +						gsc_input_irq, 0,
-> +						gsc_irq->name, info);
-> +		if (ret) {
-> +			dev_err(&pdev->dev,
-> +				"failed: irq request (IRQ: %d, error: %d\n)",
-> +				gsc_irq->irq, ret);
-> +			return ret;
-> +		}
-> +	}
+> +	pb->idev = idev;
+> +	pb->nb.notifier_call = rave_sp_power_button_event;
+> +	pb->nb.priority = 128;
 > +
-> +	return 0;
+> +	return devm_rave_sp_register_event_notifier(dev, &pb->nb);
+
+Prefer
+
+	error = devm_rave...();
+	if (error)
+		return error;
+
+	return 0;
+
 > +}
 > +
-> +static const struct of_device_id gsc_input_dt_ids[] = {
-> +	{ .compatible = "gw,gsc-input", },
+> +static const struct of_device_id rave_sp_pwrbutton_of_match[] = {
+> +	{ .compatible = "zii,rave-sp-pwrbutton" },
 > +	{}
 > +};
 > +
-> +static struct platform_driver gsc_input_driver = {
-> +	.driver = {
+> +static struct platform_driver rave_sp_pwrbutton_driver = {
+> +	.probe = rave_sp_pwrbutton_probe,
+> +	.driver	= {
 > +		.name = KBUILD_MODNAME,
-> +		.of_match_table = gsc_input_dt_ids,
+> +		.of_match_table = rave_sp_pwrbutton_of_match,
 > +	},
-> +	.probe = gsc_input_probe,
 > +};
+> +module_platform_driver(rave_sp_pwrbutton_driver);
 > +
-> +module_platform_driver(gsc_input_driver);
-> +
-> +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
-> +MODULE_DESCRIPTION("GSC input driver");
-> +MODULE_LICENSE("GPL v2");
+> +MODULE_DEVICE_TABLE(of, rave_sp_pwrbutton_of_match);
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Andrey Vostrikov <andrey.vostrikov@cogentembedded.com>");
+> +MODULE_AUTHOR("Nikita Yushchenko <nikita.yoush@cogentembedded.com>");
+> +MODULE_AUTHOR("Andrey Smirnov <andrew.smirnov@gmail.com>");
+> +MODULE_DESCRIPTION("RAVE SP Power Button driver");
 > -- 
-> 2.7.4
+> 2.14.3
 > 
-
-Thanks.
 
 -- 
 Dmitry

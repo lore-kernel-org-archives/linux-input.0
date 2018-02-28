@@ -1,46 +1,51 @@
-From: Stephan Mueller <smueller@chronox.de>
-Subject: Re: [PATCH v3] input: bcm5974 - Add driver for Apple Magic Trackpad 2
-Date: Tue, 27 Feb 2018 17:37:45 +0100
-Message-ID: <1566223.3I8hjEaRec@tauon.chronox.de>
-References: <40764439.8xGR6LbaWR@positron.chronox.de> <2305311.UGlXl2onVb@positron.chronox.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+From: Tim Harvey <tharvey@gateworks.com>
+Subject: [RFC 0/4] Add support for the Gateworks System Controller
+Date: Tue, 27 Feb 2018 17:21:10 -0800
+Message-ID: <1519780874-8558-1-git-send-email-tharvey@gateworks.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2305311.UGlXl2onVb@positron.chronox.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: linux-input@vger.kernel.org, marek.wyborski@emwesoft.com, linux-kernel@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Am Sonntag, 21. Januar 2018, 23:06:55 CET schrieb Stephan Müller:
+This series adds support for the Gateworks System Controller used on Gateworks
+Laguna, Ventana, and Newport product families.
 
-Hi Jiri, Dimity, Henrik,
+The GSC is an MSP430 I2C slave controller whose firmware embeds the following
+features:
+ - I/O expander (16 GPIO's emulating a PCA955x)
+ - EEPROM (enumating AT24)
+ - RTC (enumating DS1672)
+ - HWMON
+ - Interrupt controller with tamper detect, user pushbotton
+ - Watchdog controller capable of full board power-cycle
+ - Power Control capable of full board power-cycle
 
-> Hi,
-> 
-> Changes v3:
-> * port to 4.15-rc8
-> * small code cleanups (isolation of type casts to functions pertaining
->   to the Apple Magic Trackpad 2
-> * clean up all checkpatch.pl errors and warnings (except those
->   where the patch uses the structure of existing code fragments)
-> * updated horizontal and vertical limits to capture start of movements
->   in the outer areas of the pad
-> 
-> ---8<---
-> 
-> Add support for Apple Magic Trackpad 2 in bcm5974 (MacBook Tochpad) driver.
-> The Magic Trackpad 2 needs to be switched into the finger-reporting-mode,
-> just like the other macbook touchpads as well. But the format is different
-> to the ones before. The Header is 12 Bytes long and each reported finger
-> is additional 9 Bytes. The data order reported by the hardware is
-> different as well.
+see http://trac.gateworks.com/wiki/gsc for more details
 
-May I ask whether there is an issue in the patch? I have not received any 
-feedback and would like to inquire about the status of the patch.
+Tim Harvey (4):
+  dt-bindings: mfd: Add Gateworks System Controller bindings
+  mfd: add Gateworks System Controller core driver
+  hwmon: add Gateworks System Controller support
+  input: misc: Add Gateworks System Controller support
 
-I would like to have Touchpad 2 properly supported.
+ Documentation/devicetree/bindings/mfd/gsc.txt |  69 ++++++
+ drivers/hwmon/Kconfig                         |   6 +
+ drivers/hwmon/Makefile                        |   1 +
+ drivers/hwmon/gsc-hwmon.c                     | 299 +++++++++++++++++++++++
+ drivers/input/misc/Kconfig                    |   6 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/gsc-input.c                | 196 +++++++++++++++
+ drivers/mfd/Kconfig                           |  10 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/gsc.c                             | 330 ++++++++++++++++++++++++++
+ include/linux/mfd/gsc.h                       |  79 ++++++
+ 11 files changed, 998 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/gsc.txt
+ create mode 100644 drivers/hwmon/gsc-hwmon.c
+ create mode 100644 drivers/input/misc/gsc-input.c
+ create mode 100644 drivers/mfd/gsc.c
+ create mode 100644 include/linux/mfd/gsc.h
 
-Thanks a lot
-Stephan
+-- 
+2.7.4

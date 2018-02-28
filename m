@@ -1,157 +1,66 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v4 2/4] HID: steam: add serial number information.
-Date: Wed, 28 Feb 2018 22:17:50 +0200
-Message-ID: <CAHp75VfxaxLJWK1Hk9PRiU0L2MuLPX5VoPsn6RRmmXg-apXo6Q@mail.gmail.com>
-References: <20180228184322.29636-1-rodrigorivascosta@gmail.com> <20180228184322.29636-3-rodrigorivascosta@gmail.com>
+From: Tim Harvey <tharvey@gateworks.com>
+Subject: Re: [RFC 2/4] mfd: add Gateworks System Controller core driver
+Date: Wed, 28 Feb 2018 13:14:00 -0800
+Message-ID: <CAJ+vNU0uRdG2vJWLc5ohBLNuzkKNQdH9-rSQxPAVW92f72yOPA@mail.gmail.com>
+References: <1519780874-8558-1-git-send-email-tharvey@gateworks.com>
+ <1519780874-8558-3-git-send-email-tharvey@gateworks.com> <170c83e1-8a34-5103-3767-139b22081cf9@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228184322.29636-3-rodrigorivascosta@gmail.com>
+In-Reply-To: <170c83e1-8a34-5103-3767-139b22081cf9@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 28, 2018 at 8:43 PM, Rodrigo Rivas Costa
-<rodrigorivascosta@gmail.com> wrote:
-> This device has a feature report to send and receive commands.
-> Use it to get the serial number and set the device's uniq value.
-
->  #include <linux/module.h>
->  #include <linux/workqueue.h>
->  #include <linux/rcupdate.h>
-
-> +#include <linux/delay.h>
-
-Better to keep it somehow sorted (yes, I see it's not originally, but
-better to squeeze new header to the most ordered part).
-
-
-> @@ -41,8 +42,99 @@ struct steam_device {
->         unsigned long quirks;
->         struct work_struct work_connect;
->         bool connected;
-
-> +       char serial_no[11];
-
-11 is a magic.
-
->  };
+On Tue, Feb 27, 2018 at 6:00 PM, Randy Dunlap <rdunlap@infradead.org> wrote:
+> On 02/27/2018 05:21 PM, Tim Harvey wrote:
+>> The Gateworks System Controller (GSC) is an I2C slave controller
+>> implemented with an MSP430 micro-controller whose firmware embeds the
+>> following features:
+>>  - I/O expander (16 GPIO's) using PCA955x protocol
+>>  - Real Time Clock using DS1672 protocol
+>>  - User EEPROM using AT24 protocol
+>>  - HWMON using custom protocol
+>>  - Interrupt controller with tamper detect, user pushbotton
+>>  - Watchdog controller capable of full board power-cycle
+>>  - Power Control capable of full board power-cycle
+>>
+>> see http://trac.gateworks.com/wiki/gsc for more details
+>>
+>> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+>> ---
+>>  drivers/mfd/Kconfig     |  10 ++
+>>  drivers/mfd/Makefile    |   1 +
+>>  drivers/mfd/gsc.c       | 330 ++++++++++++++++++++++++++++++++++++++++++++++++
+>>  include/linux/mfd/gsc.h |  79 ++++++++++++
+>>  4 files changed, 420 insertions(+)
+>>  create mode 100644 drivers/mfd/gsc.c
+>>  create mode 100644 include/linux/mfd/gsc.h
+>>
+>> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+>> index 1d20a80..16dd486 100644
+>> --- a/drivers/mfd/Kconfig
+>> +++ b/drivers/mfd/Kconfig
+>> @@ -341,6 +341,16 @@ config MFD_EXYNOS_LPASS
+>>         Select this option to enable support for Samsung Exynos Low Power
+>>         Audio Subsystem.
+>>
+>> +config MFD_GSC
+>> +     tristate "Gateworks System Controller"
+>> +     depends on (I2C && OF) || COMPILE_TEST
 >
-> +static int steam_recv_report(struct steam_device *steam,
-> +               u8 *data, int size)
-> +{
-> +       struct hid_report *r;
-> +       u8 *buf;
-> +       int ret;
-> +
-> +       r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-> +       if (hid_report_len(r) < 64)
-> +               return -EINVAL;
+> Do both I2C and OF have stubs so that a driver will build when they are
+> both disabled?  I.e., only COMPILE_TEST is enabled?
 
-+ empty line.
+Randy,
 
-> +       buf = hid_alloc_report_buf(r, GFP_KERNEL);
-> +       if (!buf)
-> +               return -ENOMEM;
-> +
-> +       /*
-> +        * The report ID is always 0, so strip the first byte from the output.
-> +        * hid_report_len() is not counting the report ID, so +1 to the length
-> +        * or else we get a EOVERFLOW. We are safe from a buffer overflow
-> +        * because hid_alloc_report_buf() allocates +7 bytes.
-> +        */
-> +       ret = hid_hw_raw_request(steam->hdev, 0x00,
-> +                       buf, hid_report_len(r) + 1,
-> +                       HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> +       if (ret > 0)
-> +               memcpy(data, buf + 1, min(size, ret - 1));
-> +       kfree(buf);
-> +       return ret;
-> +}
-> +
-> +static int steam_send_report(struct steam_device *steam,
-> +               u8 *cmd, int size)
-> +{
-> +       struct hid_report *r;
-> +       u8 *buf;
-> +       int retry;
-> +       int ret;
-> +
-> +       r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-> +       if (hid_report_len(r) < 64)
-> +               return -EINVAL;
+No, at this point it requires both I2C and OF. I may add platform data
+to support an older non-device-tree family of boards but it still
+would require I2C.
 
-+empty line.
+I will remove the || COMPILE_TEST
 
-> +       buf = hid_alloc_report_buf(r, GFP_KERNEL);
-> +       if (!buf)
-> +               return -ENOMEM;
-> +
-> +       /* The report ID is always 0 */
-> +       memcpy(buf + 1, cmd, size);
-> +
-> +       /*
-> +        * Sometimes the wireless controller fails with EPIPE
-> +        * when sending a feature report.
-> +        * Doing a HID_REQ_GET_REPORT and waiting for a while
-> +        * seems to fix that.
-> +        */
+Thanks for catching that.
 
-> +       for (retry = 0; retry < 10; ++retry) {
-> +               ret = hid_hw_raw_request(steam->hdev, 0,
-> +                               buf, size + 1,
-> +                               HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> +               if (ret != -EPIPE)
-> +                       break;
-> +               steam_recv_report(steam, NULL, 0);
-> +               msleep(50);
-> +       }
-
-Personally I consider do{}while in case of "timeout loops" much easier to parse.
-
-unsigned int retry = 10;
-...
-
-do {
-...
-} while (--retry);
-
-> +       kfree(buf);
-> +       if (ret < 0)
-> +               hid_err(steam->hdev, "%s: error %d (%*ph)\n", __func__,
-> +                               ret, size, cmd);
-> +       return ret;
-> +}
-> +
-> +static int steam_get_serial(struct steam_device *steam)
-> +{
-> +       /*
-> +        * Send: 0xae 0x15 0x01
-> +        * Recv: 0xae 0x15 0x01 serialnumber (10 chars)
-> +        */
-> +       int ret;
-> +       u8 cmd[] = {0xae, 0x15, 0x01};
-
-> +       u8 reply[14];
-> +
-> +       ret = steam_send_report(steam, cmd, sizeof(cmd));
-> +       if (ret < 0)
-> +               return ret;
-> +       ret = steam_recv_report(steam, reply, sizeof(reply));
-> +       if (ret < 0)
-> +               return ret;
-
-
-> +       reply[13] = 0;
-> +       strcpy(steam->serial_no, reply + 3);
-
-strlcpy()
-
-> +       return 0;
-> +}
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+Tim

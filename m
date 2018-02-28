@@ -1,75 +1,135 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2] Input: gpio_keys: Add level trigger support for GPIO keys
-Date: Wed, 28 Feb 2018 13:53:43 +0100
-Message-ID: <CACRpkdad4ZYa27Xd73QAsxvhJmBZnFRhDk-10yiitKYSrvxzWQ@mail.gmail.com>
-References: <7fc26df245d56fd2014532b56e67630e76e2c513.1518316248.git.baolin.wang@linaro.org>
- <20180219181159.tzbhhvbvpc236qma@rob-hp-laptop> <CAMz4kuL-VZ8XY5-ZLWfXLVXWb4zmxD-aaLQ-ka9M8V83y1B7Ag@mail.gmail.com>
- <CAMz4ku+0uzSDiM3AOnDcnVDqAjoV47nVAK+yQAw2CzgO6Yw-Bg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: [RESEND PATCH 3/6] input: pagasus_notetaker: fix deadlock in autosuspend
+Date: Wed, 28 Feb 2018 14:38:00 +0100
+Message-ID: <20180228133803.30040-4-marcus.folkesson@gmail.com>
+References: <20180228133803.30040-1-marcus.folkesson@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMz4ku+0uzSDiM3AOnDcnVDqAjoV47nVAK+yQAw2CzgO6Yw-Bg@mail.gmail.com>
+In-Reply-To: <20180228133803.30040-1-marcus.folkesson@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Baolin Wang <baolin.wang@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Greg KH <gregkh@linuxfoundation.org>, stephen lu <lumotuwe@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Joseph Lo <josephl@nvidia.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Linux Input <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Marcus Folkesson <marcus.folkesson@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Feb 26, 2018 at 7:24 AM, Baolin Wang <baolin.wang@linaro.org> wrote:
-> On 21 February 2018 at 19:35, Baolin Wang <baolin.wang@linaro.org> wrote:
->> On 20 February 2018 at 02:11, Rob Herring <robh@kernel.org> wrote:
+usb_autopm_get_interface() that is called in pegasus_open() does an
+autoresume if the device is suspended.
 
->>>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
->>>> index a949404..e3104bd 100644
->>>> --- a/Documentation/devicetree/bindings/input/gpio-keys.txt
->>>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
->>>> @@ -29,6 +29,8 @@ Optional subnode-properties:
->>>>       - linux,can-disable: Boolean, indicates that button is connected
->>>>         to dedicated (not shared) interrupt which can be disabled to
->>>>         suppress events from the button.
->>>> +     - gpio-key,level-trigger: Boolean, indicates that button's interrupt
->>>> +       type is level trigger. Otherwise it is edge trigger as default.
->>>
->>> No. Just use 'interrupts' instead of 'gpios' and specify the trigger
->>> type. Or put both if you need to read the state.
->>
->> Okay, so something as below to get the level type from the
->> 'interrupts' property.
->> if (fwnode_property_read_u32(child, "interrupts", &button->level_type))
->>         button->level_type = IRQ_TYPE_NONE;
->
-> After more thinking, if we use 'interrupts' to indicate the irq type
-> for this case, we cannot specify the irq number due to the irq number
-> should be get by gpiod_to_irq(). So the device nodes look weird, since
-> we should define the index of the interrupt controller instead of the
-> irq type if the #interrupt_cells is set to 1 according to the
-> interrupt controller documentation. What do you think about this?
+input_dev->mutex used in pegasus_resume() is in this case already
+taken by the input subsystem and will cause a deadlock.
 
-I think what you're ultimately seeing is a bad fit between this
-GPIO/irq-controller and the Linux gpio keys driver, it doesn't
-have very much to do with the device tree bindings.
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+---
+ drivers/input/tablet/pegasus_notetaker.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-What I think is appropriate is to try to create a new input driver
-in Linux that just takes an interrupt, not a GPIO, and let the
-GPIO chip only act as an irqchip for this.
-
-This avoid the complicated step of converting a GPIO to an
-interrupt in order to use it, when all you really want to
-do is use an interrupt, you don't really care about the
-GPIO here, correct?
-
-So we would create
-drivers/input/keyboard/interrupt_keys.c
-however I suspect a bunch of code would need to be shared
-with gpio_keys.c so maybe it is necessary to break out the
-parts of gpio_keys.c into its own helper file.
-
-Or maybe even have the
-pure interrupt handling as part of gpio_keys.c, i.e. if the
-driver can't find any associated GPIO, it goes on to
-check if there is an interrupt assigned to the device node
-and use that directly instead.
-
-Either way, Dmitry must be involved.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+index 47de5a81172f..9ab1ed5e20e7 100644
+--- a/drivers/input/tablet/pegasus_notetaker.c
++++ b/drivers/input/tablet/pegasus_notetaker.c
+@@ -41,6 +41,7 @@
+ #include <linux/usb/input.h>
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
++#include <linux/mutex.h>
+ 
+ /* USB HID defines */
+ #define USB_REQ_GET_REPORT		0x01
+@@ -76,6 +77,10 @@ struct pegasus {
+ 	struct usb_device *usbdev;
+ 	struct usb_interface *intf;
+ 	struct urb *irq;
++
++	/* serialize access to open/suspend */
++	struct mutex pm_mutex;
++
+ 	char name[128];
+ 	char phys[64];
+ 	struct work_struct init;
+@@ -216,6 +221,7 @@ static int pegasus_open(struct input_dev *dev)
+ 	if (error)
+ 		return error;
+ 
++	mutex_lock(&pegasus->pm_mutex);
+ 	pegasus->irq->dev = pegasus->usbdev;
+ 	if (usb_submit_urb(pegasus->irq, GFP_KERNEL)) {
+ 		error = -EIO;
+@@ -226,12 +232,14 @@ static int pegasus_open(struct input_dev *dev)
+ 	if (error)
+ 		goto err_kill_urb;
+ 
++	mutex_unlock(&pegasus->pm_mutex);
+ 	return 0;
+ 
+ err_kill_urb:
+ 	usb_kill_urb(pegasus->irq);
+ 	cancel_work_sync(&pegasus->init);
+ err_autopm_put:
++	mutex_unlock(&pegasus->pm_mutex);
+ 	usb_autopm_put_interface(pegasus->intf);
+ 	return error;
+ }
+@@ -240,8 +248,11 @@ static void pegasus_close(struct input_dev *dev)
+ {
+ 	struct pegasus *pegasus = input_get_drvdata(dev);
+ 
++	mutex_lock(&pegasus->pm_mutex);
+ 	usb_kill_urb(pegasus->irq);
+ 	cancel_work_sync(&pegasus->init);
++	mutex_unlock(&pegasus->pm_mutex);
++
+ 	usb_autopm_put_interface(pegasus->intf);
+ }
+ 
+@@ -274,6 +285,8 @@ static int pegasus_probe(struct usb_interface *intf,
+ 		goto err_free_mem;
+ 	}
+ 
++	mutex_init(&pegasus->pm_mutex);
++
+ 	pegasus->usbdev = dev;
+ 	pegasus->dev = input_dev;
+ 	pegasus->intf = intf;
+@@ -388,10 +401,10 @@ static int pegasus_suspend(struct usb_interface *intf, pm_message_t message)
+ {
+ 	struct pegasus *pegasus = usb_get_intfdata(intf);
+ 
+-	mutex_lock(&pegasus->dev->mutex);
++	mutex_lock(&pegasus->pm_mutex);
+ 	usb_kill_urb(pegasus->irq);
+ 	cancel_work_sync(&pegasus->init);
+-	mutex_unlock(&pegasus->dev->mutex);
++	mutex_unlock(&pegasus->pm_mutex);
+ 
+ 	return 0;
+ }
+@@ -401,10 +414,10 @@ static int pegasus_resume(struct usb_interface *intf)
+ 	struct pegasus *pegasus = usb_get_intfdata(intf);
+ 	int retval = 0;
+ 
+-	mutex_lock(&pegasus->dev->mutex);
++	mutex_lock(&pegasus->pm_mutex);
+ 	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
+ 		retval = -EIO;
+-	mutex_unlock(&pegasus->dev->mutex);
++	mutex_unlock(&pegasus->pm_mutex);
+ 
+ 	return retval;
+ }
+@@ -414,14 +427,14 @@ static int pegasus_reset_resume(struct usb_interface *intf)
+ 	struct pegasus *pegasus = usb_get_intfdata(intf);
+ 	int retval = 0;
+ 
+-	mutex_lock(&pegasus->dev->mutex);
++	mutex_lock(&pegasus->pm_mutex);
+ 	if (pegasus->dev->users) {
+ 		retval = pegasus_set_mode(pegasus, PEN_MODE_XY,
+ 					  NOTETAKER_LED_MOUSE);
+ 		if (!retval && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
+ 			retval = -EIO;
+ 	}
+-	mutex_unlock(&pegasus->dev->mutex);
++	mutex_unlock(&pegasus->pm_mutex);
+ 
+ 	return retval;
+ }
+-- 
+2.16.2

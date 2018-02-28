@@ -1,64 +1,29 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH v4 3/4] HID: steam: command to check wireless connection
-Date: Wed, 28 Feb 2018 19:43:21 +0100
-Message-ID: <20180228184322.29636-4-rodrigorivascosta@gmail.com>
-References: <20180228184322.29636-1-rodrigorivascosta@gmail.com>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [RFC 2/4] mfd: add Gateworks System Controller core driver
+Date: Wed, 28 Feb 2018 19:53:02 +0100
+Message-ID: <20180228185302.GD1203@lunn.ch>
+References: <1519780874-8558-1-git-send-email-tharvey@gateworks.com>
+ <1519780874-8558-3-git-send-email-tharvey@gateworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228184322.29636-1-rodrigorivascosta@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1519780874-8558-3-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+To: Tim Harvey <tharvey@gateworks.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The wireless adaptor does not tell if a device is already connected when
-steam_probe() is run.
-Use a command to request the connection status.
+> +		dev_err(&client->dev, ">> 0x%02x %d\n", reg, ret);
+> +		return ret;
+> +	}
+> +	dev_dbg(&client->dev, ">> 0x%02x=0x%02x (%d)\n", reg, val, retry);
+> +
+> +        return 0;
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
----
- drivers/hid/hid-steam.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+Hi Tim
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 9e4b1f640bef..894b678685d3 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -114,6 +114,11 @@ static int steam_send_report(struct steam_device *steam,
- 	return ret;
- }
+There appears to be a few spaces vs tabs issues in this file.
+
+      Andrew
  
-+static inline int steam_send_report_byte(struct steam_device *steam, u8 cmd)
-+{
-+	return steam_send_report(steam, &cmd, 1);
-+}
-+
- static int steam_get_serial(struct steam_device *steam)
- {
- 	/*
-@@ -135,6 +140,16 @@ static int steam_get_serial(struct steam_device *steam)
- 	return 0;
- }
- 
-+/*
-+ * This command requests the wireless adaptor to post an event
-+ * with the connection status. Useful if this driver is loaded when
-+ * the controller is already connected.
-+ */
-+static inline int steam_request_conn_status(struct steam_device *steam)
-+{
-+	return steam_send_report_byte(steam, 0xb4);
-+}
-+
- static int steam_input_open(struct input_dev *dev)
- {
- 	struct steam_device *steam = input_get_drvdata(dev);
-@@ -363,6 +378,7 @@ static int steam_probe(struct hid_device *hdev,
- 			goto hid_hw_open_fail;
- 		}
- 		hid_info(hdev, "Steam wireless receiver connected");
-+		steam_request_conn_status(steam);
- 	} else {
- 		ret = steam_register(steam);
- 		if (ret) {
--- 
-2.16.2

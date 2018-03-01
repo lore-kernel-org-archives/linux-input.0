@@ -1,62 +1,118 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 Subject: Re: [PATCH v4 1/4] HID: add driver for Valve Steam Controller
-Date: Thu, 1 Mar 2018 08:50:17 +0100
-Message-ID: <20180301075017.GB8901@gmail.com>
+Date: Thu, 1 Mar 2018 12:20:37 +0200
+Message-ID: <CAHp75Vd9wgX8S=4hGFERN5bEN9q4=DxYcDea9Z=mvSRi2GcxeQ@mail.gmail.com>
 References: <20180228184322.29636-1-rodrigorivascosta@gmail.com>
- <20180228184322.29636-2-rodrigorivascosta@gmail.com>
- <CAHp75VfPK=yAx9TLEX-W0SrK8xXQzrP4wAuFWS3zEjHGoPJRsw@mail.gmail.com>
+ <20180228184322.29636-2-rodrigorivascosta@gmail.com> <CAHp75VfPK=yAx9TLEX-W0SrK8xXQzrP4wAuFWS3zEjHGoPJRsw@mail.gmail.com>
  <20180228224926.GA7009@casa>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <20180228224926.GA7009@casa>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Rodrigo,
-
-On Wed, Feb 28, 2018 at 11:49:26PM +0100, Rodrigo Rivas Costa wrote:
+On Thu, Mar 1, 2018 at 12:49 AM, Rodrigo Rivas Costa
+<rodrigorivascosta@gmail.com> wrote:
 > On Wed, Feb 28, 2018 at 09:21:15PM +0200, Andy Shevchenko wrote:
-> > On Wed, Feb 28, 2018 at 8:43 PM, Rodrigo Rivas Costa
-> > <rodrigorivascosta@gmail.com> wrote:
-> > > There are two ways to connect the Steam Controller: directly to the USB
-> > > or with the USB wireless adapter.  Both methods are similar, but the
-> > > wireless adapter can connect up to 4 devices at the same time.
-> > >
-> > > The wired device will appear as 3 interfaces: a virtual mouse, a virtual
-> > > keyboard and a custom HID device.
-> > >
-> > > The wireless device will appear as 5 interfaces: a virtual keyboard and
-> > > 4 custom HID devices, that will remain silent until a device is actually
-> > > connected.
-> > >
-> > > The custom HID device has a report descriptor with all vendor specific
-> > > usages, so the hid-generic is not very useful. In a PC/SteamBox Valve
-> > > Steam Client provices a software translation by using direct USB access
-> > > and a creates a uinput virtual gamepad.
-> > >
-> > > This driver was reverse engineered to provide direct kernel support in
-> > > case you cannot, or do not want to, use Valve Steam Client. It disables
-> > > the virtual keyboard and mouse, as they are not so useful when you have
-> > > a working gamepad.
-> > 
-> > 
-> > > +// SPDX-License-Identifier: GPL-2.0
-> > 
-> > > +MODULE_LICENSE("GPL");
-> > 
-> > Not the same.
-> 
-> Hmmm... I copied from usb-skeleton.c, IIRC...
-> I'll change to GPL-2.0+, that would be correct, I think.
+>> On Wed, Feb 28, 2018 at 8:43 PM, Rodrigo Rivas Costa
+>> <rodrigorivascosta@gmail.com> wrote:
 
-Yep, the usb-skeleton.c is wrong.
-I have prepared a patch, just not submitted it yet..
+>> > +       if (input) {
+>>
+>> if (!input)
+>>  return;
+>>
+>> ?
+> That was because of symmetry, because further patches add more objects.
+> Then
+> if (input)
+>         free(input);
+> if (battery)
+>         free(battery);
+> /* in the future *(
+> if (input_gyro)
+>         free(input_gyro);
+>
+> Sure, the last one can do an early return, but you break symmetry.
 
-GPL-2.0+ is "GPLv2 or later" if that is what you want.
+The generic APIs when designed properly are NULL aware at freeing resources.
 
-Best regards
-Marcus Folkesson
+So, it should look like
+
+free(input);
+free(battery);
+free(input_gyro);
+
+
+>> > +       if (steam) {
+>> > +               cancel_work_sync(&steam->work_connect);
+>> > +               steam_unregister(steam);
+>>
+>> > +               hid_set_drvdata(hdev, NULL);
+>>
+>> Hmm.. Doesn't HID do this?
+>
+> Do you mean the hid_set_drvdata(hdev, NULL)? I'm not sure, I didn't see
+> that on hid-core.c or hid-generic.c. And a call like this is done in
+> many modules... so I did the same, just to be sure.
+
+What you are looking for is, AFAIU:
+
+drivers/base/dd.c:902:          dev_set_drvdata(dev, NULL);
+
+
+>>
+>> > +       }
+>>
+>> if (steam) {
+>> ...
+>>        hid_hw_stop(hdev);
+>> ...
+>> } else {
+>>        hid_hw_stop(hdev);
+>> }
+>>
+>> ?
+>
+> I have no real preference. Your version has two 'if', mine has two 'if'.
+> What about:
+>
+> static void steam_remove(struct hid_device *hdev)
+> {
+>         struct steam_device *steam = hid_get_drvdata(hdev);
+>
+>         if (!steam) {
+>                 hid_hw_stop(hdev);
+>                 return;
+>         }
+>
+>         if (steam->quirks & STEAM_QUIRK_WIRELESS) {
+>                 hid_info(hdev, "Steam wireless receiver disconnected");
+>                 hid_hw_close(hdev);
+>         }
+>         hid_hw_stop(hdev);
+>         cancel_work_sync(&steam->work_connect);
+>         steam_unregister(steam);
+
+>         hid_set_drvdata(hdev, NULL);
+
+w/o this one.
+
+> }
+
+For me my version looks more compact to read, but at the end it's up to you.
+Another option split if (steam) variant into helper, and thus
+
+if (steam)
+ steam_non_null_device_remove();
+else
+ hid_hw_stop();
+
+But again, up to you (that's why question mark in the first place above).
+
+-- 
+With Best Regards,
+Andy Shevchenko

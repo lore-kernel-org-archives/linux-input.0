@@ -1,117 +1,35 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v4 1/4] HID: add driver for Valve Steam Controller
-Date: Thu, 1 Mar 2018 12:20:37 +0200
-Message-ID: <CAHp75Vd9wgX8S=4hGFERN5bEN9q4=DxYcDea9Z=mvSRi2GcxeQ@mail.gmail.com>
-References: <20180228184322.29636-1-rodrigorivascosta@gmail.com>
- <20180228184322.29636-2-rodrigorivascosta@gmail.com> <CAHp75VfPK=yAx9TLEX-W0SrK8xXQzrP4wAuFWS3zEjHGoPJRsw@mail.gmail.com>
- <20180228224926.GA7009@casa>
+Subject: Re: [PATCH v4] Input: gpio_keys: Add level trigger support for GPIO keys
+Date: Thu, 1 Mar 2018 14:09:06 +0200
+Message-ID: <CAHp75VcgUmOoo-jRbM-Gyp1JTY-2rJri8e7u2miYSvRM_4HmPg@mail.gmail.com>
+References: <9ea2faf9c1cf8439f3a8ad495c6a2b49dacad7bd.1519889208.git.baolin.wang@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180228224926.GA7009@casa>
+In-Reply-To: <9ea2faf9c1cf8439f3a8ad495c6a2b49dacad7bd.1519889208.git.baolin.wang@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stephen lu <lumotuwe@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Joseph Lo <josephl@nvidia.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, linux-input <linux-input@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 1, 2018 at 12:49 AM, Rodrigo Rivas Costa
-<rodrigorivascosta@gmail.com> wrote:
-> On Wed, Feb 28, 2018 at 09:21:15PM +0200, Andy Shevchenko wrote:
->> On Wed, Feb 28, 2018 at 8:43 PM, Rodrigo Rivas Costa
->> <rodrigorivascosta@gmail.com> wrote:
+On Thu, Mar 1, 2018 at 9:36 AM, Baolin Wang <baolin.wang@linaro.org> wrote:
+> On some platforms (such as Spreadtrum platform), the GPIO keys can only
+> be triggered by level type. So this patch introduces one trigger_type to
+> indicate if the button's interrupt type is level trigger or edge trigger.
 
->> > +       if (input) {
->>
->> if (!input)
->>  return;
->>
->> ?
-> That was because of symmetry, because further patches add more objects.
-> Then
-> if (input)
->         free(input);
-> if (battery)
->         free(battery);
-> /* in the future *(
-> if (input_gyro)
->         free(input_gyro);
->
-> Sure, the last one can do an early return, but you break symmetry.
+>                         button->irq =
+>                                 irq_of_parse_and_map(to_of_node(child), 0);
 
-The generic APIs when designed properly are NULL aware at freeing resources.
+AFAIU, 0 means NO_IRQ, thus,
 
-So, it should look like
+> +                       if (button->irq)
+> +                               button->trigger_type =
+> +                                       irq_get_trigger_type(button->irq);
 
-free(input);
-free(battery);
-free(input_gyro);
+irq_get_trigger_type(NO_IRQ) should return 0.
 
-
->> > +       if (steam) {
->> > +               cancel_work_sync(&steam->work_connect);
->> > +               steam_unregister(steam);
->>
->> > +               hid_set_drvdata(hdev, NULL);
->>
->> Hmm.. Doesn't HID do this?
->
-> Do you mean the hid_set_drvdata(hdev, NULL)? I'm not sure, I didn't see
-> that on hid-core.c or hid-generic.c. And a call like this is done in
-> many modules... so I did the same, just to be sure.
-
-What you are looking for is, AFAIU:
-
-drivers/base/dd.c:902:          dev_set_drvdata(dev, NULL);
-
-
->>
->> > +       }
->>
->> if (steam) {
->> ...
->>        hid_hw_stop(hdev);
->> ...
->> } else {
->>        hid_hw_stop(hdev);
->> }
->>
->> ?
->
-> I have no real preference. Your version has two 'if', mine has two 'if'.
-> What about:
->
-> static void steam_remove(struct hid_device *hdev)
-> {
->         struct steam_device *steam = hid_get_drvdata(hdev);
->
->         if (!steam) {
->                 hid_hw_stop(hdev);
->                 return;
->         }
->
->         if (steam->quirks & STEAM_QUIRK_WIRELESS) {
->                 hid_info(hdev, "Steam wireless receiver disconnected");
->                 hid_hw_close(hdev);
->         }
->         hid_hw_stop(hdev);
->         cancel_work_sync(&steam->work_connect);
->         steam_unregister(steam);
-
->         hid_set_drvdata(hdev, NULL);
-
-w/o this one.
-
-> }
-
-For me my version looks more compact to read, but at the end it's up to you.
-Another option split if (steam) variant into helper, and thus
-
-if (steam)
- steam_non_null_device_remove();
-else
- hid_hw_stop();
-
-But again, up to you (that's why question mark in the first place above).
+Therefore, if (button->irq) is redundant.
+Did I miss anything?
 
 -- 
 With Best Regards,

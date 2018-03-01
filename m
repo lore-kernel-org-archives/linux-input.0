@@ -1,182 +1,48 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH v4 2/4] HID: steam: add serial number information.
-Date: Thu, 1 Mar 2018 00:12:15 +0100
-Message-ID: <20180228231215.GB7009@casa>
-References: <20180228184322.29636-1-rodrigorivascosta@gmail.com>
- <20180228184322.29636-3-rodrigorivascosta@gmail.com>
- <CAHp75VfxaxLJWK1Hk9PRiU0L2MuLPX5VoPsn6RRmmXg-apXo6Q@mail.gmail.com>
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: Re: [PATCH v3] Input: gpio_keys: Add level trigger support for GPIO keys
+Date: Thu, 1 Mar 2018 15:35:23 +0800
+Message-ID: <CAMz4kuLNbsZjDPW19V96yL3DzY-bJsjRR=o+w0x4PGyxZFZ0dg@mail.gmail.com>
+References: <826093167e8fb24723f474b0272f3dcab1b6a97e.1519821626.git.baolin.wang@linaro.org>
+ <CAK8P3a1v2GanneaFKpXWjWLt1YzibJ9Bh7vUcd_SH-4jGN_1+A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAHp75VfxaxLJWK1Hk9PRiU0L2MuLPX5VoPsn6RRmmXg-apXo6Q@mail.gmail.com>
+In-Reply-To: <CAK8P3a1v2GanneaFKpXWjWLt1YzibJ9Bh7vUcd_SH-4jGN_1+A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, gregkh <gregkh@linuxfoundation.org>, stephen lu <lumotuwe@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Joseph Lo <josephl@nvidia.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 28, 2018 at 10:17:50PM +0200, Andy Shevchenko wrote:
-> On Wed, Feb 28, 2018 at 8:43 PM, Rodrigo Rivas Costa
-> <rodrigorivascosta@gmail.com> wrote:
-> > This device has a feature report to send and receive commands.
-> > Use it to get the serial number and set the device's uniq value.
-> 
-> >  #include <linux/module.h>
-> >  #include <linux/workqueue.h>
-> >  #include <linux/rcupdate.h>
-> 
-> > +#include <linux/delay.h>
-> 
-> Better to keep it somehow sorted (yes, I see it's not originally, but
-> better to squeeze new header to the most ordered part).
+On 28 February 2018 at 22:44, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Wed, Feb 28, 2018 at 1:44 PM, Baolin Wang <baolin.wang@linaro.org> wrote:
+>> On some platforms (such as Spreadtrum platform), the GPIO keys can only
+>> be triggered by level type. So this patch introduces one property to
+>> indicate if the GPIO trigger type is level trigger or edge trigger.
+>>
+>> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+>> ---
+>> Changes since v2:
+>>  - Use 'interrupt' property to indicate the irq type.
+>>
+>> Changes since v1:
+>>  - Diable the GPIO irq until reversing the GPIO level type.
+>
+> I've looked at your patch in more detail now, and given it a bit more thought.
+>
+> I wonder if you could move that logic into your gpiochip/irqchip driver instead.
+> It seems that what you do in the gpio-keys driver is to emulate edge triggered
+> behavior on a level triggered irqchip.
+>
+> If you put the same logic into the gpio driver, you could simply make it
+> pretend to support an edge trigger on both edges and call into the interrupt
+> handler whenever the state changes.
+>
 
-Do you mean alphabetically? Or by topic/submodule? I just added it to
-the end of the include list.
-> 
-> 
-> > @@ -41,8 +42,99 @@ struct steam_device {
-> >         unsigned long quirks;
-> >         struct work_struct work_connect;
-> >         bool connected;
-> 
-> > +       char serial_no[11];
-> 
-> 11 is a magic.
-Magic indeed, it is 10 because the Valve protocol says so, and +1 for
-the NUL.  I'll add a #define for that 10.
-> 
-> >  };
-> >
-> > +static int steam_recv_report(struct steam_device *steam,
-> > +               u8 *data, int size)
-> > +{
-> > +       struct hid_report *r;
-> > +       u8 *buf;
-> > +       int ret;
-> > +
-> > +       r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-> > +       if (hid_report_len(r) < 64)
-> > +               return -EINVAL;
-> 
-> + empty line.
+That is really a good suggestion, which can avoid duplicate level
+reverse logic in different drivers. So this patch can be simplified
+just adding one trigger_type to indicate the interrupt type (not
+always edge trigger). Thanks for your suggestion.
 
-Ok.
-
-> 
-> > +       buf = hid_alloc_report_buf(r, GFP_KERNEL);
-> > +       if (!buf)
-> > +               return -ENOMEM;
-> > +
-> > +       /*
-> > +        * The report ID is always 0, so strip the first byte from the output.
-> > +        * hid_report_len() is not counting the report ID, so +1 to the length
-> > +        * or else we get a EOVERFLOW. We are safe from a buffer overflow
-> > +        * because hid_alloc_report_buf() allocates +7 bytes.
-> > +        */
-> > +       ret = hid_hw_raw_request(steam->hdev, 0x00,
-> > +                       buf, hid_report_len(r) + 1,
-> > +                       HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-> > +       if (ret > 0)
-> > +               memcpy(data, buf + 1, min(size, ret - 1));
-> > +       kfree(buf);
-> > +       return ret;
-> > +}
-> > +
-> > +static int steam_send_report(struct steam_device *steam,
-> > +               u8 *cmd, int size)
-> > +{
-> > +       struct hid_report *r;
-> > +       u8 *buf;
-> > +       int retry;
-> > +       int ret;
-> > +
-> > +       r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-> > +       if (hid_report_len(r) < 64)
-> > +               return -EINVAL;
-> 
-> +empty line.
-
-Ok.
-
-> 
-> > +       buf = hid_alloc_report_buf(r, GFP_KERNEL);
-> > +       if (!buf)
-> > +               return -ENOMEM;
-> > +
-> > +       /* The report ID is always 0 */
-> > +       memcpy(buf + 1, cmd, size);
-> > +
-> > +       /*
-> > +        * Sometimes the wireless controller fails with EPIPE
-> > +        * when sending a feature report.
-> > +        * Doing a HID_REQ_GET_REPORT and waiting for a while
-> > +        * seems to fix that.
-> > +        */
-> 
-> > +       for (retry = 0; retry < 10; ++retry) {
-> > +               ret = hid_hw_raw_request(steam->hdev, 0,
-> > +                               buf, size + 1,
-> > +                               HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> > +               if (ret != -EPIPE)
-> > +                       break;
-> > +               steam_recv_report(steam, NULL, 0);
-> > +               msleep(50);
-> > +       }
-> 
-> Personally I consider do{}while in case of "timeout loops" much easier to parse.
-> 
-> unsigned int retry = 10;
-> ...
-> 
-> do {
-> ...
-> } while (--retry);
-> 
-
-Ok, it looks like it is done this way in most places. Also renamed to 'retries'.
-
-> > +       kfree(buf);
-> > +       if (ret < 0)
-> > +               hid_err(steam->hdev, "%s: error %d (%*ph)\n", __func__,
-> > +                               ret, size, cmd);
-> > +       return ret;
-> > +}
-> > +
-> > +static int steam_get_serial(struct steam_device *steam)
-> > +{
-> > +       /*
-> > +        * Send: 0xae 0x15 0x01
-> > +        * Recv: 0xae 0x15 0x01 serialnumber (10 chars)
-> > +        */
-> > +       int ret;
-> > +       u8 cmd[] = {0xae, 0x15, 0x01};
-> 
-> > +       u8 reply[14];
-> > +
-> > +       ret = steam_send_report(steam, cmd, sizeof(cmd));
-> > +       if (ret < 0)
-> > +               return ret;
-> > +       ret = steam_recv_report(steam, reply, sizeof(reply));
-> > +       if (ret < 0)
-> > +               return ret;
-> 
-> 
-> > +       reply[13] = 0;
-> > +       strcpy(steam->serial_no, reply + 3);
-> 
-> strlcpy()
-
-Well, I've set a NUL byte at the end so the overflow is impossible.
-I'll change it anyway, for extra safety.
-
-> 
-> > +       return 0;
-> > +}
-> 
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
-
-Regards.
-Rodrigo
+-- 
+Baolin.wang
+Best Regards

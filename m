@@ -1,61 +1,41 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: Re: [PATCH v3] Input: gpio_keys: Add level trigger support for GPIO keys
-Date: Fri, 2 Mar 2018 11:10:31 +0800
-Message-ID: <CAMz4ku+Ruz=O9NE4x+cm4tFXR+en7mKX4D0aP841qKrdRMMP6Q@mail.gmail.com>
-References: <826093167e8fb24723f474b0272f3dcab1b6a97e.1519821626.git.baolin.wang@linaro.org>
- <CAK8P3a1v2GanneaFKpXWjWLt1YzibJ9Bh7vUcd_SH-4jGN_1+A@mail.gmail.com>
- <CAMz4kuLNbsZjDPW19V96yL3DzY-bJsjRR=o+w0x4PGyxZFZ0dg@mail.gmail.com> <20180302004404.GA242226@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+Subject: [PATCH v3 0/3] gpio-keys: Add support for specifying wakeup event action
+Date: Fri,  2 Mar 2018 11:50:59 +0800
+Message-ID: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180302004404.GA242226@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, gregkh <gregkh@linuxfoundation.org>, stephen lu <lumotuwe@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Joseph Lo <josephl@nvidia.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>
+To: linux-kernel@vger.kernel.org
+Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Joseph Lo <josephl@nvidia.com>, Rob Herring <robh+dt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Mark Yao <markyao0591@gmail.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Brian Norris <briannorris@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, linux-rockchip@lists.infradead.org, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Matthias Kaehlcke <mka@chromium.org>, devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>, Greg
 List-Id: linux-input@vger.kernel.org
 
-On 2 March 2018 at 08:44, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Thu, Mar 01, 2018 at 03:35:23PM +0800, Baolin Wang wrote:
->> On 28 February 2018 at 22:44, Arnd Bergmann <arnd@arndb.de> wrote:
->> > On Wed, Feb 28, 2018 at 1:44 PM, Baolin Wang <baolin.wang@linaro.org> wrote:
->> >> On some platforms (such as Spreadtrum platform), the GPIO keys can only
->> >> be triggered by level type. So this patch introduces one property to
->> >> indicate if the GPIO trigger type is level trigger or edge trigger.
->> >>
->> >> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
->> >> ---
->> >> Changes since v2:
->> >>  - Use 'interrupt' property to indicate the irq type.
->> >>
->> >> Changes since v1:
->> >>  - Diable the GPIO irq until reversing the GPIO level type.
->> >
->> > I've looked at your patch in more detail now, and given it a bit more thought.
->> >
->> > I wonder if you could move that logic into your gpiochip/irqchip driver instead.
->> > It seems that what you do in the gpio-keys driver is to emulate edge triggered
->> > behavior on a level triggered irqchip.
->> >
->> > If you put the same logic into the gpio driver, you could simply make it
->> > pretend to support an edge trigger on both edges and call into the interrupt
->> > handler whenever the state changes.
->> >
->>
->> That is really a good suggestion, which can avoid duplicate level
->> reverse logic in different drivers. So this patch can be simplified
->> just adding one trigger_type to indicate the interrupt type (not
->> always edge trigger). Thanks for your suggestion.
->
-> No, there is no need to add trigger type. The gpio-keys driver expects
-> trigger with both edges, falling and rising. If your GPIO chip does not
-> support it natively, you need to emulate edge trigger via level
-> interrupts by reprogramming trigger from active low to active high and
-> back on the fly. This should be done in the gpiochip/irqchip driver.
-> There is no need to change gpio-keys driver.
 
-Yes, you are right, It can work on my platform after modifying my GPIO
-driver like you and Arnd's suggestion. Thanks for all your help.
+On chromebook kevin, we are using gpio-keys for pen insert event. But
+we only want it to wakeup the system when ejecting the pen.
+
+So we may need to change the interrupt trigger type during suspending.
+
+Changes in v3:
+Adding more comments as Brian suggested.
+
+Changes in v2:
+Specify wakeup event action instead of irq trigger type as Brian
+suggested.
+Specify wakeup event action instead of irq trigger type as Brian
+suggested.
+Specify wakeup event action instead of irq trigger type as Brian
+suggested.
+
+Jeffy Chen (3):
+  Input: gpio-keys - add support for wakeup event action
+  Input: gpio-keys - allow setting wakeup event action in DT
+  arm64: dts: rockchip: Avoid wakeup when inserting the pen
+
+ .../devicetree/bindings/input/gpio-keys.txt        |  8 +++++
+ arch/arm64/boot/dts/rockchip/rk3399-gru-kevin.dts  |  2 ++
+ drivers/input/keyboard/gpio_keys.c                 | 39 ++++++++++++++++++++++
+ include/linux/gpio_keys.h                          |  2 ++
+ include/uapi/linux/input-event-codes.h             |  9 +++++
+ 5 files changed, 60 insertions(+)
 
 -- 
-Baolin.wang
-Best Regards
+2.11.0

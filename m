@@ -1,41 +1,48 @@
 From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [PATCH v3 0/3] gpio-keys: Add support for specifying wakeup event action
-Date: Fri,  2 Mar 2018 11:50:59 +0800
-Message-ID: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
+Subject: [PATCH v3 2/3] Input: gpio-keys - allow setting wakeup event action in DT
+Date: Fri,  2 Mar 2018 11:51:01 +0800
+Message-ID: <20180302035102.10084-3-jeffy.chen@rock-chips.com>
+References: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Joseph Lo <josephl@nvidia.com>, Rob Herring <robh+dt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Mark Yao <markyao0591@gmail.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Brian Norris <briannorris@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, linux-rockchip@lists.infradead.org, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Matthias Kaehlcke <mka@chromium.org>, devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>, Greg
+Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
 
+Allow specifying event actions to trigger wakeup when using the
+gpio-keys input device as a wakeup source.
 
-On chromebook kevin, we are using gpio-keys for pen insert event. But
-we only want it to wakeup the system when ejecting the pen.
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+---
 
-So we may need to change the interrupt trigger type during suspending.
-
-Changes in v3:
-Adding more comments as Brian suggested.
-
+Changes in v3: None
 Changes in v2:
 Specify wakeup event action instead of irq trigger type as Brian
 suggested.
-Specify wakeup event action instead of irq trigger type as Brian
-suggested.
-Specify wakeup event action instead of irq trigger type as Brian
-suggested.
 
-Jeffy Chen (3):
-  Input: gpio-keys - add support for wakeup event action
-  Input: gpio-keys - allow setting wakeup event action in DT
-  arm64: dts: rockchip: Avoid wakeup when inserting the pen
+ Documentation/devicetree/bindings/input/gpio-keys.txt | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
- .../devicetree/bindings/input/gpio-keys.txt        |  8 +++++
- arch/arm64/boot/dts/rockchip/rk3399-gru-kevin.dts  |  2 ++
- drivers/input/keyboard/gpio_keys.c                 | 39 ++++++++++++++++++++++
- include/linux/gpio_keys.h                          |  2 ++
- include/uapi/linux/input-event-codes.h             |  9 +++++
- 5 files changed, 60 insertions(+)
-
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
+index a94940481e55..996ce84352cb 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+@@ -26,6 +26,14 @@ Optional subnode-properties:
+ 	  If not specified defaults to 5.
+ 	- wakeup-source: Boolean, button can wake-up the system.
+ 			 (Legacy property supported: "gpio-key,wakeup")
++	- wakeup-event-action: Specifies whether the key should wake the
++	  system when asserted, when deasserted, or both. This property is
++	  only valid for keys that wake up the system (e.g., when the
++	  "wakeup-source" property is also provided).
++	  Supported values are defined in linux-event-codes.h:
++		EV_ACT_ASSERTED		- asserted
++		EV_ACT_DEASSERTED	- deasserted
++		EV_ACT_ANY		- both asserted and deasserted
+ 	- linux,can-disable: Boolean, indicates that button is connected
+ 	  to dedicated (not shared) interrupt which can be disabled to
+ 	  suppress events from the button.
 -- 
 2.11.0

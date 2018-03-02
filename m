@@ -1,100 +1,74 @@
-From: Aishwarya Pant <aishpant@gmail.com>
-Subject: [PATCH] HID: ntrig: document sysfs interface
-Date: Fri, 2 Mar 2018 11:00:17 +0530
-Message-ID: <20180302053017.GA23123@mordor.localdomain>
+From: Claudiu Beznea <Claudiu.Beznea@microchip.com>
+Subject: Re: [PATCH v3 05/10] pwm: add PWM mode to pwm_config()
+Date: Fri, 2 Mar 2018 11:19:43 +0200
+Message-ID: <0c3fc3ba-8640-0b2c-a9ec-ab848227c92d@microchip.com>
+References: <1519300881-8136-1-git-send-email-claudiu.beznea@microchip.com>
+ <1519300881-8136-6-git-send-email-claudiu.beznea@microchip.com>
+ <20180228194429.GD22932@mithrandir>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Greg KH <gregkh@linuxfoundation.org>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180228194429.GD22932@mithrandir>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: mark.rutland@arm.com, milo.kim@ti.com, linux-fbdev@vger.kernel.org, sean@mess.org, devicetree@vger.kernel.org, airlied@linux.ie, mturquette@baylibre.com, joonas.lahtinen@linux.intel.com, kamil@wypas.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, alexandre.belloni@free-electrons.com, pavel@ucw.cz, lee.jones@linaro.org, linux-clk@vger.kernel.org, linux-leds@vger.kernel.org, daniel.thompson@linaro.org, linux-samsung-soc@vger.kernel.org, shc_work@mail.ru, corbet@lwn.net, linux-doc@vger.kernel.org, linux@armlinux.org.uk, krzk@kernel.org, kgene@kernel.org, linux-input@vger.kernel.org, linux@roeck-us.net, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, jdelvare@suse.com, b.zolnierkie@samsung.com, intel-gfx@lists.freedesktop.org, jani.nikula@linux.intel.com, robh+dt@kernel.org, jacek.anaszewski@gmail.com, rodrigo.vivi@intel.com, mchehab@kernel.orgl
 List-Id: linux-input@vger.kernel.org
 
-Add sysfs documentation for N-Trig touchscreens under Documentation/ABI.
-Descriptions have been collected from code comments.
 
-Signed-off-by: Aishwarya Pant <aishpant@gmail.com>
----
- Documentation/ABI/testing/sysfs-driver-hid-ntrig | 70 ++++++++++++++++++++++++
- 1 file changed, 70 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-ntrig
 
-diff --git a/Documentation/ABI/testing/sysfs-driver-hid-ntrig b/Documentation/ABI/testing/sysfs-driver-hid-ntrig
-new file mode 100644
-index 000000000000..e574a5625efe
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-driver-hid-ntrig
-@@ -0,0 +1,70 @@
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/activate_slack
-+Date:		May, 2010
-+KernelVersion:	2.6.35
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Number of contact frames ignored before acknowledging the
-+		start of activity (activating touch).
-+
-+
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/decativate_slack
-+Date:		May, 2010
-+KernelVersion:	2.6.35
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Number of empty (no contact) frames ignored before
-+		acknowledging the end of activity (deactivating touch).
-+
-+		When the last finger is removed from the device, it sends a
-+		number of empty frames. By holding off on deactivation for a few
-+		frames false erroneous disconnects can be tolerated, where the
-+		sensor may mistakenly not detect a finger that is still present.
-+
-+
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/activation_width
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/activation_height
-+Date:		May, 2010
-+KernelVersion:	2.6.35
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Threholds to override activation slack.
-+
-+		activation_width:	(RW) Width threshold to immediately
-+					start processing touch events.
-+
-+		activation_height:	(RW) Height threshold to immediately
-+					start processing touch events.
-+
-+
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/min_width
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/min_height
-+Date:		May, 2010
-+KernelVersion:	2.6.35
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		Minimum size contact accepted.
-+
-+		min_width:	(RW) Minimum touch contact width to decide
-+				activation and activity.
-+
-+		min_height:	(RW) Minimum touch contact height to decide
-+				activation and activity.
-+
-+
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/sensor_physical_width
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/sensor_physical_height
-+Date:		May, 2010
-+KernelVersion:	2.6.35
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RO) These are internal ranges not used for normal events but
-+		useful for tuning.
-+
-+
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/sensor_logical_width
-+What:		/sys/bus/hid/drivers/ntrig/<dev>/sensor_logical_height
-+Date:		May, 2010
-+KernelVersion:	2.6.35
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RO) The range for positions reported during activity.
--- 
-2.16.2
+On 28.02.2018 21:44, Thierry Reding wrote:
+> On Thu, Feb 22, 2018 at 02:01:16PM +0200, Claudiu Beznea wrote:
+>> Add PWM mode to pwm_config() function. The drivers which uses pwm_config()
+>> were adapted to this change.
+>>
+>> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+>> ---
+>>  arch/arm/mach-s3c24xx/mach-rx1950.c  | 11 +++++++++--
+>>  drivers/bus/ts-nbus.c                |  2 +-
+>>  drivers/clk/clk-pwm.c                |  3 ++-
+>>  drivers/gpu/drm/i915/intel_panel.c   | 17 ++++++++++++++---
+>>  drivers/hwmon/pwm-fan.c              |  2 +-
+>>  drivers/input/misc/max77693-haptic.c |  2 +-
+>>  drivers/input/misc/max8997_haptic.c  |  6 +++++-
+>>  drivers/leds/leds-pwm.c              |  5 ++++-
+>>  drivers/media/rc/ir-rx51.c           |  5 ++++-
+>>  drivers/media/rc/pwm-ir-tx.c         |  5 ++++-
+>>  drivers/video/backlight/lm3630a_bl.c |  4 +++-
+>>  drivers/video/backlight/lp855x_bl.c  |  4 +++-
+>>  drivers/video/backlight/lp8788_bl.c  |  5 ++++-
+>>  drivers/video/backlight/pwm_bl.c     | 11 +++++++++--
+>>  drivers/video/fbdev/ssd1307fb.c      |  3 ++-
+>>  include/linux/pwm.h                  |  6 ++++--
+>>  16 files changed, 70 insertions(+), 21 deletions(-)
+> 
+> I don't think it makes sense to leak mode support into the legacy API.
+> The pwm_config() function is considered legacy
+I missed this aspect.
+
+ and should eventually go
+> away. As such it doesn't make sense to integrate a new feature such as
+> PWM modes into it. 
+Agree.
+
+All users of pwm_config() assume normal mode, and
+> that's what pwm_config() should provide.
+Agree.
+
+> 
+> Anyone that needs something other than normal mode should use the new
+> atomic PWM API.
+Agree.
+
+> 
+> Thierry
+> 

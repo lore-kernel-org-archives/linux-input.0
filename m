@@ -1,146 +1,192 @@
-From: Aishwarya Pant <aishpant@gmail.com>
-Subject: [PATCH] Input: trackpoint: document sysfs interface
-Date: Fri, 2 Mar 2018 23:00:19 +0530
-Message-ID: <20180302173019.GA27660@mordor.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: Florent Flament <contact@florentflament.com>
+Subject: [PATCH] HID: Logitech K290: Add driver for the Logitech K290 USB keyboard
+Date: Fri,  2 Mar 2018 23:04:25 +0100
+Message-ID: <20180302220425.27707-1-contact@florentflament.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Greg KH <gregkh@linuxfoundation.org>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, linux-doc@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Florent Flament <contact@florentflament.com>
 List-Id: linux-input@vger.kernel.org
 
-Descriptions have been collected from git commit logs, code commits and
-the TrackPoint System Version 4.0 Engineering Specification.
+With the generic HID driver, K290 keyboards' F1 to F12 keys send
+multimedia events by default, and standard keycodes when the function
+key is pressed. This driver allows to configure K290 keyboards, so
+that F1 to F12 have a standard behavior and send multimedia events
+when the function key is pressed. The keyboard mode is set through the
+fn_mode module parameter: when set to 1 (default setting) the keyboard
+behaves as with the generic HID driver, when set to 0 the keyboard is
+configured to work as standard keyboards.
 
-Signed-off-by: Aishwarya Pant <aishpant@gmail.com>
+Signed-off-by: Florent Flament <contact@florentflament.com>
 ---
- .../ABI/testing/sysfs-devices-platform-trackpoint  | 115 +++++++++++++++++++++
- 1 file changed, 115 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-devices-platform-trackpoint
+ drivers/hid/Kconfig             |  18 +++++++
+ drivers/hid/Makefile            |   1 +
+ drivers/hid/hid-ids.h           |   1 +
+ drivers/hid/hid-logitech-k290.c | 103 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 123 insertions(+)
+ create mode 100644 drivers/hid/hid-logitech-k290.c
 
-diff --git a/Documentation/ABI/testing/sysfs-devices-platform-trackpoint b/Documentation/ABI/testing/sysfs-devices-platform-trackpoint
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 19c499f5623d..6686da8daac6 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -488,6 +488,24 @@ config HID_LOGITECH_HIDPP
+ 	T651, TK820), some mice (Zone Touch mouse), or even keyboards (Solar
+ 	Keyboard).
+ 
++config HID_LOGITECH_K290
++	tristate "Logitech K290 Keyboard support"
++	depends on USB_HID
++	---help---
++	This enhances support of Logitech K290 keyboards.
++
++	With the generic HID driver, K290 keyboards' F1 to F12 keys
++	send multimedia events by default, and standard keycodes when
++	the function key is pressed. This driver allows to configure
++	K290 keyboards, so that F1 to F12 have a standard behavior and
++	send multimedia events when the function key is pressed. The
++	keyboard mode is set through the fn_mode module parameter:
++	when set to 1 (default setting) the keyboard behaves as with
++	the generic HID driver, when set to 0 the keyboard is
++	configured to work as standard keyboards.
++
++	Say Y if you have a Logitech K290 keyboard.
++
+ config LOGITECH_FF
+ 	bool "Logitech force feedback support"
+ 	depends on HID_LOGITECH
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index eb13b9e92d85..78079d3a5d58 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -61,6 +61,7 @@ obj-$(CONFIG_HID_LENOVO)	+= hid-lenovo.o
+ obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
+ obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
+ obj-$(CONFIG_HID_LOGITECH_HIDPP)	+= hid-logitech-hidpp.o
++obj-$(CONFIG_HID_LOGITECH_K290)	+= hid-logitech-k290.o
+ obj-$(CONFIG_HID_MAGICMOUSE)	+= hid-magicmouse.o
+ obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
+ obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9454ac134ce2..68caba7e666c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -693,6 +693,7 @@
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_PS3 0x0306
+ #define USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS 0xc24d
++#define USB_DEVICE_ID_LOGITECH_KEYBOARD_K290	0xc31f
+ #define USB_DEVICE_ID_LOGITECH_MOUSE_C01A	0xc01a
+ #define USB_DEVICE_ID_LOGITECH_MOUSE_C05A	0xc05a
+ #define USB_DEVICE_ID_LOGITECH_MOUSE_C06A	0xc06a
+diff --git a/drivers/hid/hid-logitech-k290.c b/drivers/hid/hid-logitech-k290.c
 new file mode 100644
-index 000000000000..df11901a6b3d
+index 000000000000..37045da8cc02
 --- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-devices-platform-trackpoint
-@@ -0,0 +1,115 @@
-+What:		/sys/devices/platform/i8042/.../sensitivity
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Trackpoint sensitivity.
++++ b/drivers/hid/hid-logitech-k290.c
+@@ -0,0 +1,103 @@
++/*
++ * HID driver for Logitech K290 keyboard
++ *
++ * Copyright (c) 2018 Florent Flament
++ *
++ * This drivers allows to configure the K290 keyboard's function key
++ * behaviour (whether function mode is activated or not by default).
++ *
++ * Logitech custom commands taken from Marcus Ilgner k290-fnkeyctl
++ * (https://github.com/milgner/k290-fnkeyctl):
++ * K290_SET_FUNCTION_CMD
++ * K290_SET_FUNCTION_VAL
++ * K290_SET_FUNCTION_OFF
++ * K290_SET_FUNCTION_ON
++ *
++ * Based on hid-accutouch.c and hid-elo.c
++ *
++ * This driver is licensed under the terms of GPLv2.
++ */
 +
-+What:		/sys/devices/platform/i8042/.../intertia
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Negative inertia factor. High values cause the cursor to
-+		snap backward when the trackpoint is released.
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/mod_devicetable.h>
++#include <linux/stat.h>
++#include <linux/types.h>
++#include <linux/usb.h>
 +
-+What:		/sys/devices/platform/i8042/.../reach
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Backup range for z-axis press.
++#include "hid-ids.h"
++#include "usbhid/usbhid.h"
 +
-+What:		/sys/devices/platform/i8042/.../draghys
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) The drag hysteresis controls how hard it is to drag with
-+		z-axis pressed.
++// Logitech K290 custom USB command and value to setup function key
++#define	K290_SET_FUNCTION_CMD 0x02
++#define K290_SET_FUNCTION_VAL 0x001a
 +
-+What:		/sys/devices/platform/i8042/.../mindrag
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Minimum amount of force needed to trigger dragging.
++// Have function mode turned off (as with standard keyboards)
++#define K290_SET_FUNCTION_OFF 0x0001
++// Have function mode turned on (default k290 behavior)
++#define K290_SET_FUNCTION_ON  0x0000
 +
-+What:		/sys/devices/platform/i8042/.../speed
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Speed of the trackpoint cursor.
++// Function key default mode is set at module load time for every K290
++// keyboards plugged on the machine. By default fn_mode = 1, i.e
++// sending K290_SET_FUNCTION_ON (default K290 behavior).
++static bool fn_mode = 1;
++module_param(fn_mode, bool, 0444);
++MODULE_PARM_DESC(fn_mode, "Logitech K290 function key mode (default = 1)");
 +
-+What:		/sys/devices/platform/i8042/.../thresh
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Minimum value for z-axis force required to trigger a press
-+		or release, relative to the running average.
++static void k290_set_function(struct usb_device *dev, uint16_t function_mode)
++{
++	int ret;
 +
-+What:		/sys/devices/platform/i8042/.../upthresh
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) The offset from the running average required to generate a
-+		select (click) on z-axis on release.
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
++			      K290_SET_FUNCTION_CMD,
++			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
++			      K290_SET_FUNCTION_VAL,
++			      function_mode, 0, 0, USB_CTRL_SET_TIMEOUT);
 +
-+What:		/sys/devices/platform/i8042/.../ztime
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) This attribute determines how sharp a press has to be in
-+		order to be recognized.
++	if (ret < 0)
++		dev_err(&dev->dev,
++			"Failed to setup K290 function key, error %d\n", ret);
++}
 +
-+What:		/sys/devices/platform/i8042/.../jenks
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Minimum curvature in degrees required to generate a double
-+		click without a release.
++static int k290_set_function_hid_device(struct hid_device *hid)
++{
++	struct usb_device *usb_dev = hid_to_usb_dev(hid);
 +
-+What:		/sys/devices/platform/i8042/.../skipback
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) When the skipback bit is set, backup cursor movement during
-+		releases from drags will be suppressed. The default value for
-+		this bit is 0.
++	k290_set_function(usb_dev,
++			fn_mode ? K290_SET_FUNCTION_ON : K290_SET_FUNCTION_OFF);
++	return 0;
++}
 +
-+What:		/sys/devices/platform/i8042/.../ext_dev
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Disable (0) or enable (1) external pointing device.
++static int k290_input_configured(struct hid_device *hid,
++				 struct hid_input *hidinput)
++{
++	return k290_set_function_hid_device(hid);
++}
 +
-+What:		/sys/devices/platform/i8042/.../press_to_select
-+Date:		Aug, 2005
-+KernelVersion:	2.6.14
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) Writing a value of 1 to this file will enable the Press to
-+		Select functions like tapping the control stick to simulate a
-+		left click, and writing 0 will disable it.
++static int k290_resume(struct hid_device *hid)
++{
++	return k290_set_function_hid_device(hid);
++}
 +
-+What:		/sys/devices/platform/i8042/.../drift_time
-+Date:		Dec, 2014
-+KernelVersion:	3.19
-+Contact:	linux-input@vger.kernel.org
-+Description:
-+		(RW) This parameter controls the period of time to test for a
-+		‘hands off’ condition (i.e. when no force is applied) before a
-+		drift (noise) calibration occurs.
++static const struct hid_device_id k290_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++			 USB_DEVICE_ID_LOGITECH_KEYBOARD_K290) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, k290_devices);
 +
-+		IBM Trackpoints have a feature to compensate for drift by
-+		recalibrating themselves periodically. By default, if for 0.5
-+		seconds there is no change in position, it's used as the new
-+		zero. This duration is too low. Often, the calibration happens
-+		when the trackpoint is in fact being used.
++static struct hid_driver k290_driver = {
++	.name = "hid-logitech-k290",
++	.id_table = k290_devices,
++	.input_configured = k290_input_configured,
++	.resume = k290_resume,
++	.reset_resume = k290_resume,
++};
++
++module_hid_driver(k290_driver);
++
++MODULE_AUTHOR("Florent Flament <contact@florentflament.com>");
++MODULE_DESCRIPTION("Logitech K290 keyboard driver");
++MODULE_LICENSE("GPL v2");
 -- 
-2.16.2
+2.14.3

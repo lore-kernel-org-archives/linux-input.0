@@ -1,48 +1,176 @@
 From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [PATCH v3 2/3] Input: gpio-keys - allow setting wakeup event action in DT
-Date: Fri,  2 Mar 2018 11:51:01 +0800
-Message-ID: <20180302035102.10084-3-jeffy.chen@rock-chips.com>
+Subject: [PATCH v3 1/3] Input: gpio-keys - add support for wakeup event action
+Date: Fri,  2 Mar 2018 11:51:00 +0800
+Message-ID: <20180302035102.10084-2-jeffy.chen@rock-chips.com>
 References: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
+Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, Guenter Roeck <linux@roeck-us.net>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Allow specifying event actions to trigger wakeup when using the
-gpio-keys input device as a wakeup source.
+Add support for specifying event actions to trigger wakeup when using
+the gpio-keys input device as a wakeup source.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+This would allow the device to configure when to wakeup the system. For
+example a gpio-keys input device for pen insert, may only want to wakeup
+the system when ejecting the pen.
+
+Suggested-by: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 ---
 
-Changes in v3: None
+Changes in v3:
+Adding more comments as Brian suggested.
+
 Changes in v2:
 Specify wakeup event action instead of irq trigger type as Brian
 suggested.
 
- Documentation/devicetree/bindings/input/gpio-keys.txt | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/keyboard/gpio_keys.c     | 39 ++++++++++++++++++++++++++++++++++
+ include/linux/gpio_keys.h              |  2 ++
+ include/uapi/linux/input-event-codes.h |  9 ++++++++
+ 3 files changed, 50 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
-index a94940481e55..996ce84352cb 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
-@@ -26,6 +26,14 @@ Optional subnode-properties:
- 	  If not specified defaults to 5.
- 	- wakeup-source: Boolean, button can wake-up the system.
- 			 (Legacy property supported: "gpio-key,wakeup")
-+	- wakeup-event-action: Specifies whether the key should wake the
-+	  system when asserted, when deasserted, or both. This property is
-+	  only valid for keys that wake up the system (e.g., when the
-+	  "wakeup-source" property is also provided).
-+	  Supported values are defined in linux-event-codes.h:
-+		EV_ACT_ASSERTED		- asserted
-+		EV_ACT_DEASSERTED	- deasserted
-+		EV_ACT_ANY		- both asserted and deasserted
- 	- linux,can-disable: Boolean, indicates that button is connected
- 	  to dedicated (not shared) interrupt which can be disabled to
- 	  suppress events from the button.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 87e613dc33b8..607f3960c886 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -45,6 +45,8 @@ struct gpio_button_data {
+ 	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
+ 
+ 	unsigned int irq;
++	unsigned int irq_trigger_type;
++	unsigned int wakeup_trigger_type;
+ 	spinlock_t lock;
+ 	bool disabled;
+ 	bool key_pressed;
+@@ -540,6 +542,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	}
+ 
+ 	if (bdata->gpiod) {
++		int active_low = gpiod_is_active_low(bdata->gpiod);
++
+ 		if (button->debounce_interval) {
+ 			error = gpiod_set_debounce(bdata->gpiod,
+ 					button->debounce_interval * 1000);
+@@ -568,6 +572,22 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		isr = gpio_keys_gpio_isr;
+ 		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
+ 
++		switch (button->wakeup_event_action) {
++		case EV_ACT_ASSERTED:
++			bdata->wakeup_trigger_type = active_low ?
++				IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
++			break;
++		case EV_ACT_DEASSERTED:
++			bdata->wakeup_trigger_type = active_low ?
++				IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
++			break;
++		default:
++			/*
++			 * For other cases, we are OK letting suspend/resume
++			 * not reconfigure the trigger type.
++			 */
++			break;
++		}
+ 	} else {
+ 		if (!button->irq) {
+ 			dev_err(dev, "Found button without gpio or irq\n");
+@@ -586,6 +606,12 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 
+ 		isr = gpio_keys_irq_isr;
+ 		irqflags = 0;
++
++		/*
++		 * For IRQ buttons, the irq trigger type for press and release
++		 * are the same. So we don't need to reconfigure the trigger
++		 * type for wakeup.
++		 */
+ 	}
+ 
+ 	bdata->code = &ddata->keymap[idx];
+@@ -618,6 +644,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		return error;
+ 	}
+ 
++	bdata->irq_trigger_type = irq_get_trigger_type(bdata->irq);
++
+ 	return 0;
+ }
+ 
+@@ -718,6 +746,9 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 			/* legacy name */
+ 			fwnode_property_read_bool(child, "gpio-key,wakeup");
+ 
++		fwnode_property_read_u32(child, "wakeup-event-action",
++					 &button->wakeup_event_action);
++
+ 		button->can_disable =
+ 			fwnode_property_read_bool(child, "linux,can-disable");
+ 
+@@ -854,6 +885,10 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
+ 	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
+ 			struct gpio_button_data *bdata = &ddata->data[i];
++
++			if (bdata->button->wakeup && bdata->wakeup_trigger_type)
++				irq_set_irq_type(bdata->irq,
++						 bdata->wakeup_trigger_type);
+ 			if (bdata->button->wakeup)
+ 				enable_irq_wake(bdata->irq);
+ 			bdata->suspended = true;
+@@ -878,6 +913,10 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
+ 	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
+ 			struct gpio_button_data *bdata = &ddata->data[i];
++
++			if (bdata->button->wakeup && bdata->wakeup_trigger_type)
++				irq_set_irq_type(bdata->irq,
++						 bdata->irq_trigger_type);
+ 			if (bdata->button->wakeup)
+ 				disable_irq_wake(bdata->irq);
+ 			bdata->suspended = false;
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index d06bf77400f1..7160df54a6fe 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -13,6 +13,7 @@ struct device;
+  * @desc:		label that will be attached to button's gpio
+  * @type:		input event type (%EV_KEY, %EV_SW, %EV_ABS)
+  * @wakeup:		configure the button as a wake-up source
++ * @wakeup_event_action:	event action to trigger wakeup
+  * @debounce_interval:	debounce ticks interval in msecs
+  * @can_disable:	%true indicates that userspace is allowed to
+  *			disable button via sysfs
+@@ -26,6 +27,7 @@ struct gpio_keys_button {
+ 	const char *desc;
+ 	unsigned int type;
+ 	int wakeup;
++	int wakeup_event_action;
+ 	int debounce_interval;
+ 	bool can_disable;
+ 	int value;
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 53fbae27b280..d7917b0bd438 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -32,6 +32,15 @@
+ #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
+ 
+ /*
++ * Event action types
++ */
++#define EV_ACT_ANY			0x00	/* asserted or deasserted */
++#define EV_ACT_ASSERTED			0x01	/* asserted */
++#define EV_ACT_DEASSERTED		0x02	/* deasserted */
++#define EV_ACT_MAX			0x02
++#define EV_ACT_CNT			(EV_ACT_MAX+1)
++
++/*
+  * Event types
+  */
+ 
 -- 
 2.11.0

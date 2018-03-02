@@ -1,60 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: gpio_keys: Add level trigger support for GPIO
- keys
-Date: Thu, 1 Mar 2018 16:44:04 -0800
-Message-ID: <20180302004404.GA242226@dtor-ws>
-References: <826093167e8fb24723f474b0272f3dcab1b6a97e.1519821626.git.baolin.wang@linaro.org>
- <CAK8P3a1v2GanneaFKpXWjWLt1YzibJ9Bh7vUcd_SH-4jGN_1+A@mail.gmail.com>
- <CAMz4kuLNbsZjDPW19V96yL3DzY-bJsjRR=o+w0x4PGyxZFZ0dg@mail.gmail.com>
+From: Brian Norris <briannorris@chromium.org>
+Subject: Re: [PATCH v2 1/3] Input: gpio-keys - add support for wakeup event
+ action
+Date: Thu, 1 Mar 2018 18:32:30 -0800
+Message-ID: <20180302023229.GA164361@rodete-desktop-imager.corp.google.com>
+References: <20180210110907.5504-1-jeffy.chen@rock-chips.com>
+ <20180210110907.5504-2-jeffy.chen@rock-chips.com>
+ <20180212221309.GA66974@ban.mtv.corp.google.com>
+ <5A8FE726.6080903@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMz4kuLNbsZjDPW19V96yL3DzY-bJsjRR=o+w0x4PGyxZFZ0dg@mail.gmail.com>
+In-Reply-To: <5A8FE726.6080903@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, gregkh <gregkh@linuxfoundation.org>, stephen lu <lumotuwe@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Joseph Lo <josephl@nvidia.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>
+To: JeffyChen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, briannorris@google.com, dtor@google.com, dianders@google.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 01, 2018 at 03:35:23PM +0800, Baolin Wang wrote:
-> On 28 February 2018 at 22:44, Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Wed, Feb 28, 2018 at 1:44 PM, Baolin Wang <baolin.wang@linaro.org> wrote:
-> >> On some platforms (such as Spreadtrum platform), the GPIO keys can only
-> >> be triggered by level type. So this patch introduces one property to
-> >> indicate if the GPIO trigger type is level trigger or edge trigger.
-> >>
-> >> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> >> ---
-> >> Changes since v2:
-> >>  - Use 'interrupt' property to indicate the irq type.
-> >>
-> >> Changes since v1:
-> >>  - Diable the GPIO irq until reversing the GPIO level type.
-> >
-> > I've looked at your patch in more detail now, and given it a bit more thought.
-> >
-> > I wonder if you could move that logic into your gpiochip/irqchip driver instead.
-> > It seems that what you do in the gpio-keys driver is to emulate edge triggered
-> > behavior on a level triggered irqchip.
-> >
-> > If you put the same logic into the gpio driver, you could simply make it
-> > pretend to support an edge trigger on both edges and call into the interrupt
-> > handler whenever the state changes.
-> >
+Hi,
+
+On Fri, Feb 23, 2018 at 06:04:22PM +0800, Jeffy Chen wrote:
+> On 02/13/2018 06:13 AM, Brian Norris wrote:
+> > > >
+> > > >  	if (bdata->gpiod) {
+> > > >+		int active_low = gpiod_is_active_low(bdata->gpiod);
+> > > >+
+> > > >  		if (button->debounce_interval) {
+> > > >  			error = gpiod_set_debounce(bdata->gpiod,
+> > > >  					button->debounce_interval * 1000);
+> > > >@@ -568,6 +572,16 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+> > > >  		isr = gpio_keys_gpio_isr;
+> > > >  		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
+> > > >
+> > > >+		switch (button->wakeup_event_action) {
+> > > >+		case EV_ACT_ASSERTED:
+> > > >+			bdata->wakeup_trigger_type = active_low ?
+> > > >+				IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
+> > > >+			break;
+> > > >+		case EV_ACT_DEASSERTED:
+> > > >+			bdata->wakeup_trigger_type = active_low ?
+> > > >+				IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+> > > >+			break;
+> > What about EV_ACT_ANY? And default case? I think for ANY, we're OK
+> > letting suspend/resume not reconfigure the trigger type, but maybe a
+> > comment here to note that?
+> right, will add comment in the next version.
+> > 
+> > > >+		}
+> > > >  	} else {
+> > What about the 'else' case? Shouldn't we try to handle that?
+> i think the else case is for irq key, which would generate down and up
+> events in one irq, so it would use the same trigger type for all these 3
+> cases.
+
+Not necessarily. It uses whatever trigger was provided in
+platform/DT/etc. data. You could retrieve that with
+irq_get_trigger_type() and try to interpret that. Or you could just
+outlaw using that combination (e.g., in the binding documentation).
+
+Brian
+
+> i'll add comment in the next version too.
+> > 
+> > Brian
+> > 
 > 
-> That is really a good suggestion, which can avoid duplicate level
-> reverse logic in different drivers. So this patch can be simplified
-> just adding one trigger_type to indicate the interrupt type (not
-> always edge trigger). Thanks for your suggestion.
-
-No, there is no need to add trigger type. The gpio-keys driver expects
-trigger with both edges, falling and rising. If your GPIO chip does not
-support it natively, you need to emulate edge trigger via level
-interrupts by reprogramming trigger from active low to active high and
-back on the fly. This should be done in the gpiochip/irqchip driver.
-There is no need to change gpio-keys driver.
-
-Thanks.
-
--- 
-Dmitry
+> 

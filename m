@@ -1,32 +1,60 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 2/3] Input: gpio-keys - allow setting wakeup event
- action in DT
-Date: Thu, 1 Mar 2018 15:26:20 -0600
-Message-ID: <20180301212620.bfrz6qjqsg4xkdaa@rob-hp-laptop>
-References: <20180210110907.5504-1-jeffy.chen@rock-chips.com>
- <20180210110907.5504-3-jeffy.chen@rock-chips.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] Input: gpio_keys: Add level trigger support for GPIO
+ keys
+Date: Thu, 1 Mar 2018 16:44:04 -0800
+Message-ID: <20180302004404.GA242226@dtor-ws>
+References: <826093167e8fb24723f474b0272f3dcab1b6a97e.1519821626.git.baolin.wang@linaro.org>
+ <CAK8P3a1v2GanneaFKpXWjWLt1YzibJ9Bh7vUcd_SH-4jGN_1+A@mail.gmail.com>
+ <CAMz4kuLNbsZjDPW19V96yL3DzY-bJsjRR=o+w0x4PGyxZFZ0dg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180210110907.5504-3-jeffy.chen@rock-chips.com>
+In-Reply-To: <CAMz4kuLNbsZjDPW19V96yL3DzY-bJsjRR=o+w0x4PGyxZFZ0dg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, briannorris@google.com, dtor@google.com, dianders@google.com, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, gregkh <gregkh@linuxfoundation.org>, stephen lu <lumotuwe@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Joseph Lo <josephl@nvidia.com>, Kate Stewart <kstewart@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Feb 10, 2018 at 07:09:06PM +0800, Jeffy Chen wrote:
-> Allow specifying event actions to trigger wakeup when using the
-> gpio-keys input device as a wakeup source.
+On Thu, Mar 01, 2018 at 03:35:23PM +0800, Baolin Wang wrote:
+> On 28 February 2018 at 22:44, Arnd Bergmann <arnd@arndb.de> wrote:
+> > On Wed, Feb 28, 2018 at 1:44 PM, Baolin Wang <baolin.wang@linaro.org> wrote:
+> >> On some platforms (such as Spreadtrum platform), the GPIO keys can only
+> >> be triggered by level type. So this patch introduces one property to
+> >> indicate if the GPIO trigger type is level trigger or edge trigger.
+> >>
+> >> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> >> ---
+> >> Changes since v2:
+> >>  - Use 'interrupt' property to indicate the irq type.
+> >>
+> >> Changes since v1:
+> >>  - Diable the GPIO irq until reversing the GPIO level type.
+> >
+> > I've looked at your patch in more detail now, and given it a bit more thought.
+> >
+> > I wonder if you could move that logic into your gpiochip/irqchip driver instead.
+> > It seems that what you do in the gpio-keys driver is to emulate edge triggered
+> > behavior on a level triggered irqchip.
+> >
+> > If you put the same logic into the gpio driver, you could simply make it
+> > pretend to support an edge trigger on both edges and call into the interrupt
+> > handler whenever the state changes.
+> >
 > 
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> ---
-> 
-> Changes in v2:
-> Specify wakeup event action instead of irq trigger type as Brian
-> suggested.
-> 
->  Documentation/devicetree/bindings/input/gpio-keys.txt | 8 ++++++++
->  1 file changed, 8 insertions(+)
+> That is really a good suggestion, which can avoid duplicate level
+> reverse logic in different drivers. So this patch can be simplified
+> just adding one trigger_type to indicate the interrupt type (not
+> always edge trigger). Thanks for your suggestion.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+No, there is no need to add trigger type. The gpio-keys driver expects
+trigger with both edges, falling and rising. If your GPIO chip does not
+support it natively, you need to emulate edge trigger via level
+interrupts by reprogramming trigger from active low to active high and
+back on the fly. This should be done in the gpiochip/irqchip driver.
+There is no need to change gpio-keys driver.
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,192 +1,109 @@
-From: Florent Flament <contact@florentflament.com>
-Subject: [PATCH] HID: Logitech K290: Add driver for the Logitech K290 USB keyboard
-Date: Fri,  2 Mar 2018 23:04:25 +0100
-Message-ID: <20180302220425.27707-1-contact@florentflament.com>
+From: Brian Norris <briannorris@chromium.org>
+Subject: Re: [PATCH v3 1/3] Input: gpio-keys - add support for wakeup event
+ action
+Date: Fri, 2 Mar 2018 17:10:17 -0800
+Message-ID: <20180303011016.GA258190@rodete-desktop-imager.corp.google.com>
+References: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
+ <20180302035102.10084-2-jeffy.chen@rock-chips.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180302035102.10084-2-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Florent Flament <contact@florentflament.com>
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Guenter Roeck <linux@roeck-us.net>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-With the generic HID driver, K290 keyboards' F1 to F12 keys send
-multimedia events by default, and standard keycodes when the function
-key is pressed. This driver allows to configure K290 keyboards, so
-that F1 to F12 have a standard behavior and send multimedia events
-when the function key is pressed. The keyboard mode is set through the
-fn_mode module parameter: when set to 1 (default setting) the keyboard
-behaves as with the generic HID driver, when set to 0 the keyboard is
-configured to work as standard keyboards.
+Hi Jeffy,
 
-Signed-off-by: Florent Flament <contact@florentflament.com>
----
- drivers/hid/Kconfig             |  18 +++++++
- drivers/hid/Makefile            |   1 +
- drivers/hid/hid-ids.h           |   1 +
- drivers/hid/hid-logitech-k290.c | 103 ++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 123 insertions(+)
- create mode 100644 drivers/hid/hid-logitech-k290.c
+On Fri, Mar 02, 2018 at 11:51:00AM +0800, Jeffy Chen wrote:
+> Add support for specifying event actions to trigger wakeup when using
+> the gpio-keys input device as a wakeup source.
+> 
+> This would allow the device to configure when to wakeup the system. For
+> example a gpio-keys input device for pen insert, may only want to wakeup
+> the system when ejecting the pen.
+> 
+> Suggested-by: Brian Norris <briannorris@chromium.org>
+> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+> ---
+> 
+> Changes in v3:
+> Adding more comments as Brian suggested.
+> 
+> Changes in v2:
+> Specify wakeup event action instead of irq trigger type as Brian
+> suggested.
+> 
+>  drivers/input/keyboard/gpio_keys.c     | 39 ++++++++++++++++++++++++++++++++++
+>  include/linux/gpio_keys.h              |  2 ++
+>  include/uapi/linux/input-event-codes.h |  9 ++++++++
+>  3 files changed, 50 insertions(+)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 87e613dc33b8..607f3960c886 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 19c499f5623d..6686da8daac6 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -488,6 +488,24 @@ config HID_LOGITECH_HIDPP
- 	T651, TK820), some mice (Zone Touch mouse), or even keyboards (Solar
- 	Keyboard).
- 
-+config HID_LOGITECH_K290
-+	tristate "Logitech K290 Keyboard support"
-+	depends on USB_HID
-+	---help---
-+	This enhances support of Logitech K290 keyboards.
-+
-+	With the generic HID driver, K290 keyboards' F1 to F12 keys
-+	send multimedia events by default, and standard keycodes when
-+	the function key is pressed. This driver allows to configure
-+	K290 keyboards, so that F1 to F12 have a standard behavior and
-+	send multimedia events when the function key is pressed. The
-+	keyboard mode is set through the fn_mode module parameter:
-+	when set to 1 (default setting) the keyboard behaves as with
-+	the generic HID driver, when set to 0 the keyboard is
-+	configured to work as standard keyboards.
-+
-+	Say Y if you have a Logitech K290 keyboard.
-+
- config LOGITECH_FF
- 	bool "Logitech force feedback support"
- 	depends on HID_LOGITECH
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index eb13b9e92d85..78079d3a5d58 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -61,6 +61,7 @@ obj-$(CONFIG_HID_LENOVO)	+= hid-lenovo.o
- obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
- obj-$(CONFIG_HID_LOGITECH_DJ)	+= hid-logitech-dj.o
- obj-$(CONFIG_HID_LOGITECH_HIDPP)	+= hid-logitech-hidpp.o
-+obj-$(CONFIG_HID_LOGITECH_K290)	+= hid-logitech-k290.o
- obj-$(CONFIG_HID_MAGICMOUSE)	+= hid-magicmouse.o
- obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
- obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9454ac134ce2..68caba7e666c 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -693,6 +693,7 @@
- #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
- #define USB_DEVICE_ID_LOGITECH_HARMONY_PS3 0x0306
- #define USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS 0xc24d
-+#define USB_DEVICE_ID_LOGITECH_KEYBOARD_K290	0xc31f
- #define USB_DEVICE_ID_LOGITECH_MOUSE_C01A	0xc01a
- #define USB_DEVICE_ID_LOGITECH_MOUSE_C05A	0xc05a
- #define USB_DEVICE_ID_LOGITECH_MOUSE_C06A	0xc06a
-diff --git a/drivers/hid/hid-logitech-k290.c b/drivers/hid/hid-logitech-k290.c
-new file mode 100644
-index 000000000000..37045da8cc02
---- /dev/null
-+++ b/drivers/hid/hid-logitech-k290.c
-@@ -0,0 +1,103 @@
-+/*
-+ * HID driver for Logitech K290 keyboard
-+ *
-+ * Copyright (c) 2018 Florent Flament
-+ *
-+ * This drivers allows to configure the K290 keyboard's function key
-+ * behaviour (whether function mode is activated or not by default).
-+ *
-+ * Logitech custom commands taken from Marcus Ilgner k290-fnkeyctl
-+ * (https://github.com/milgner/k290-fnkeyctl):
-+ * K290_SET_FUNCTION_CMD
-+ * K290_SET_FUNCTION_VAL
-+ * K290_SET_FUNCTION_OFF
-+ * K290_SET_FUNCTION_ON
-+ *
-+ * Based on hid-accutouch.c and hid-elo.c
-+ *
-+ * This driver is licensed under the terms of GPLv2.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/stat.h>
-+#include <linux/types.h>
-+#include <linux/usb.h>
-+
-+#include "hid-ids.h"
-+#include "usbhid/usbhid.h"
-+
-+// Logitech K290 custom USB command and value to setup function key
-+#define	K290_SET_FUNCTION_CMD 0x02
-+#define K290_SET_FUNCTION_VAL 0x001a
-+
-+// Have function mode turned off (as with standard keyboards)
-+#define K290_SET_FUNCTION_OFF 0x0001
-+// Have function mode turned on (default k290 behavior)
-+#define K290_SET_FUNCTION_ON  0x0000
-+
-+// Function key default mode is set at module load time for every K290
-+// keyboards plugged on the machine. By default fn_mode = 1, i.e
-+// sending K290_SET_FUNCTION_ON (default K290 behavior).
-+static bool fn_mode = 1;
-+module_param(fn_mode, bool, 0444);
-+MODULE_PARM_DESC(fn_mode, "Logitech K290 function key mode (default = 1)");
-+
-+static void k290_set_function(struct usb_device *dev, uint16_t function_mode)
-+{
-+	int ret;
-+
-+	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
-+			      K290_SET_FUNCTION_CMD,
-+			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+			      K290_SET_FUNCTION_VAL,
-+			      function_mode, 0, 0, USB_CTRL_SET_TIMEOUT);
-+
-+	if (ret < 0)
-+		dev_err(&dev->dev,
-+			"Failed to setup K290 function key, error %d\n", ret);
-+}
-+
-+static int k290_set_function_hid_device(struct hid_device *hid)
-+{
-+	struct usb_device *usb_dev = hid_to_usb_dev(hid);
-+
-+	k290_set_function(usb_dev,
-+			fn_mode ? K290_SET_FUNCTION_ON : K290_SET_FUNCTION_OFF);
-+	return 0;
-+}
-+
-+static int k290_input_configured(struct hid_device *hid,
-+				 struct hid_input *hidinput)
-+{
-+	return k290_set_function_hid_device(hid);
-+}
-+
-+static int k290_resume(struct hid_device *hid)
-+{
-+	return k290_set_function_hid_device(hid);
-+}
-+
-+static const struct hid_device_id k290_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+			 USB_DEVICE_ID_LOGITECH_KEYBOARD_K290) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, k290_devices);
-+
-+static struct hid_driver k290_driver = {
-+	.name = "hid-logitech-k290",
-+	.id_table = k290_devices,
-+	.input_configured = k290_input_configured,
-+	.resume = k290_resume,
-+	.reset_resume = k290_resume,
-+};
-+
-+module_hid_driver(k290_driver);
-+
-+MODULE_AUTHOR("Florent Flament <contact@florentflament.com>");
-+MODULE_DESCRIPTION("Logitech K290 keyboard driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.14.3
+...
+
+> @@ -586,6 +606,12 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  
+>  		isr = gpio_keys_irq_isr;
+>  		irqflags = 0;
+> +
+> +		/*
+> +		 * For IRQ buttons, the irq trigger type for press and release
+> +		 * are the same. So we don't need to reconfigure the trigger
+> +		 * type for wakeup.
+> +		 */
+
+Ah, I think I misunderstood what the (non-GPIO) IRQ-based trigger was
+doing. It's just emulating an instantaneous press/release (or, with a
+configurable release delay), so there isn't really a way to say "only
+wake me on one edge".
+
+So that still doesn't really mean we use the "same" trigger for all
+wakeup trigger types. It really just means we can't support any
+customization here -- we wake based on whatever the IRQ represents
+(which today is probably just EV_ACT_ANY).
+
+I guess it's fine to just ignore the wakeup-trigger-type property here,
+but it would also be equally valid to reject it outright I think.
+
+Anyway, that's only a mild complaint. For the whole series:
+
+Tested-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+
+Thanks!
+
+>  	}
+>  
+>  	bdata->code = &ddata->keymap[idx];
+...
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 53fbae27b280..d7917b0bd438 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -32,6 +32,15 @@
+>  #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
+>  
+>  /*
+> + * Event action types
+> + */
+> +#define EV_ACT_ANY			0x00	/* asserted or deasserted */
+> +#define EV_ACT_ASSERTED			0x01	/* asserted */
+> +#define EV_ACT_DEASSERTED		0x02	/* deasserted */
+> +#define EV_ACT_MAX			0x02
+> +#define EV_ACT_CNT			(EV_ACT_MAX+1)
+> +
+> +/*
+>   * Event types
+>   */
+>  
+> -- 
+> 2.11.0
+> 
+> 

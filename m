@@ -1,11 +1,14 @@
 From: Florent Flament <contact@florentflament.com>
-Subject: [PATCH] HID: Logitech K290: Add driver for the Logitech K290 USB keyboard
-Date: Sun,  4 Mar 2018 18:00:04 +0100
-Message-ID: <20180304170004.26553-1-contact@florentflament.com>
+Subject: [PATCH v2 1/1] HID: Logitech K290: Add driver for the Logitech K290 USB keyboard
+Date: Sun,  4 Mar 2018 23:14:25 +0100
+Message-ID: <20180304221425.28611-2-contact@florentflament.com>
+References: <20180304170004.26553-1-contact@florentflament.com>
+ <20180304221425.28611-1-contact@florentflament.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180304221425.28611-1-contact@florentflament.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Florent Flament <contact@florentflament.com>
+To: andy.shevchenko@gmail.com
+Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Florent Flament <contact@florentflament.com>
 List-Id: linux-input@vger.kernel.org
 
 With the generic HID driver, K290 keyboards' F1 to F12 keys send

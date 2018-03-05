@@ -1,188 +1,128 @@
-From: Tim Harvey <tharvey@gateworks.com>
-Subject: [PATCH v2 1/4] dt-bindings: mfd: Add Gateworks System Controller bindings
-Date: Mon,  5 Mar 2018 14:02:38 -0800
-Message-ID: <1520287361-12569-2-git-send-email-tharvey@gateworks.com>
-References: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH v4 00/38] DRM Rockchip rk3399 (Kevin)
+Date: Mon,  5 Mar 2018 23:12:35 +0100
+Message-ID: <20180305221313.3751-1-enric.balletbo@collabora.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
+To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
+Cc: hshi@chromium.org, wzz@rock-chips.com, hl@rock-chips.com, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, dianders@chromium.org, linux-rockchip@lists.infradead.org, ykk@rock-chips.com, orjan.eide@arm.com, mark.yao@rock-chips.com, m.szyprowski@samsung.com, Andrzej Hajda <a.hajda@samsung.com>, Yakir Yang <kuankuan.y@gmail.com>, Jingoo Han <jingoohan1@gmail.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, linux-samsung-soc@vger.kernel.org, Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-input@vger.kernel.org, Jeffy Chen <jeffy.chen@rock-chips.com>, Kukjin Kim <kgene@kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Henrik Rydberg <rydberg@bitmath.org>, Joonyoung Shim <jy0922.shim@samsung.c>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds documentation of device-tree bindings for the
-Gateworks System Controller (GSC).
+Hi,
 
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
----
- Documentation/devicetree/bindings/mfd/gsc.txt | 159 ++++++++++++++++++++++++++
- 1 file changed, 159 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/gsc.txt
+This patchset includes cleanups, improvements, and bug fixes for
+Rockchip DRM driver and PSR support.
 
-diff --git a/Documentation/devicetree/bindings/mfd/gsc.txt b/Documentation/devicetree/bindings/mfd/gsc.txt
-new file mode 100644
-index 0000000..fe5d114
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/gsc.txt
-@@ -0,0 +1,159 @@
-+Gateworks System Controller multi-function device
-+
-+The GSC is a Multifunction I2C slave device with the following submodules:
-+- WDT
-+- GPIO
-+- Pushbutton controller
-+- HWMON
-+
-+Required properties:
-+- compatible : Must be "gw,gsc_v1", "gw,gsc_v2", "gw,gsc_v3"
-+- reg: I2C address of the device
-+- interrupts: interrupt triggered by GSC_IRQ# signal
-+- interrupt-parent: Interrupt controller GSC is connected to
-+- #interrupt-cells: should be <1>, index of the interrupt within the
-+  controller, in accordance with the "one cell" variant of
-+  <devicetree/bindings/interrupt-controller/interrupt.txt>
-+
-+Optional nodes:
-+* watchdog:
-+The GSC provides a Watchdog monitor which can power cycle the board's
-+primary power supply on most board models when tripped.
-+
-+Required properties:
-+- compatible: must be "gw,gsc-watchdog"
-+
-+* input:
-+The GSC provides an input device capable of dispatching Linux Input events
-+for user pushbutton events, tamper switch events, etc.
-+
-+Required properties:
-+- compatible: must be "gw,gsc-input"
-+
-+* hwmon:
-+The GSC provides a set of Analog to Digitcal Converter (ADC) pins used for
-+temperature and/or voltage monitoring.
-+
-+Required properties:
-+- compatible: must be "gw,gsc-hwmon"
-+
-+Example:
-+
-+	gsc: gsc@20 {
-+		compatible = "gw,gsc_v2";
-+		reg = <0x20>;
-+		interrupt-parent = <&gpio1>;
-+		interrupts = <4 GPIO_ACTIVE_LOW>;
-+		interrupt-controller;
-+		#interrupt-cells = <1>;
-+
-+		gsc_input {
-+			compatible = "gw,gsc-input";
-+		};
-+
-+		gsc_watchdog {
-+			compatible = "gw,gsc-watchdog";
-+		};
-+
-+		gsc_hwmon {
-+			compatible = "gw,gsc-hwmon";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			hwmon@0 { /* A0: Board Temperature */
-+				type = <0>;
-+				reg = <0x00>;
-+				label = "temp";
-+			};
-+
-+			hwmon@1 { /* A1: Input Voltage */
-+				type = <1>;
-+				reg = <0x02>;
-+				label = "Vin";
-+			};
-+
-+			hwmon@2 { /* A2: 5P0 */
-+				type = <1>;
-+				reg = <0x0b>;
-+				label = "5P0";
-+			};
-+
-+			hwmon@4 { /* A4: 0-5V input */
-+				type = <1>;
-+				reg = <0x14>;
-+				label = "ANL0";
-+			};
-+
-+			hwmon@5 { /* A5: 2P5 PCIe/GigE */
-+				type = <1>;
-+				reg = <0x23>;
-+				label = "2P5";
-+			};
-+
-+			hwmon@6 { /* A6: 1P8 Aud/Vid */
-+				type = <1>;
-+				reg = <0x1d>;
-+				label = "1P8";
-+			};
-+
-+			hwmon@7 { /* A7: GPS */
-+				type = <1>;
-+				reg = <0x26>;
-+				label = "GPS";
-+			};
-+
-+			hwmon@12 { /* A12: VDD_CORE */
-+				type = <1>;
-+				reg = <0x3>;
-+				label = "VDD_CORE";
-+			};
-+
-+			hwmon@13 { /* A13: VDD_SOC */
-+				type = <1>;
-+				reg = <0x11>;
-+				label = "VDD_SOC";
-+			};
-+
-+			hwmon@14 { /* A14: 1P0 PCIe SW */
-+				type = <1>;
-+				reg = <0x20>;
-+				label = "1P0";
-+			};
-+
-+			hwmon@15 { /* fan0 */
-+				type = <2>;
-+				reg = <0x2c>;
-+				label = "fan_50p";
-+			};
-+
-+			hwmon@16 { /* fan1 */
-+				type = <2>;
-+				reg = <0x2e>;
-+				label = "fan_60p";
-+			};
-+
-+			hwmon@17 { /* fan2 */
-+				type = <2>;
-+				reg = <0x30>;
-+				label = "fan_70p";
-+			};
-+
-+			hwmon@18 { /* fan3 */
-+				type = <2>;
-+				reg = <0x32>;
-+				label = "fan_80p";
-+			};
-+
-+			hwmon@19 { /* fan4 */
-+				type = <2>;
-+				reg = <0x34>;
-+				label = "fan_90p";
-+			};
-+
-+			hwmon@20 { /* fan5 */
-+				type = <2>;
-+				reg = <0x36>;
-+				label = "fan_100p";
-+			};
-+		};
-+	};
+This new version is the same as before but rebased on top of
+drm-misc-next plus the Marek patches that fixes Chromebook2 Peach-Pit [1]
+and the latest series of Rockchip rk3399 eDP support [2].
+
+[1] https://www.spinics.net/lists/dri-devel/msg167804.html
+[2] https://www.spinics.net/lists/dri-devel/msg167770.html
+
+Regards,
+ Enric
+
+Changes in v4:
+- Rebased all on top of drm-misc-next
+- Removed the following patches as are already applied.
+  [PATCH v3 01/43] drm/rockchip: Get rid of unnecessary struct fields
+  [PATCH v3 02/43] drm/rockchip: support prime import sg table
+  [PATCH v3 03/43] drm/rockchip: Respect page offset for PRIME mmap
+  calls
+- Removed the following patches as now are part of another patchset
+  [PATCH v3 05/43] drm/bridge: analogix_dp: Don't power bridge in
+  analogix_dp_bind
+  [PATCH v3 33/43] drm/panel: simple: Change mode for Sharp lq123p1jx31
+
+Changes in v3:
+- Addressed some of the comments from Sean on the v2
+
+Changes in v2:
+- A few patches have been replaced by newer and cleaner versions from
+  the ChromeOS kernel gerrit, especially about disallowing PSR for the
+  whole atomic commit.
+
+
+Douglas Anderson (4):
+  drm/bridge: analogix_dp: Reorder plat_data->power_off to happen sooner
+  drm/bridge: analogix_dp: Properly log AUX CH errors
+  drm/bridge: analogix_dp: Properly disable aux chan retries on rockchip
+  drm/bridge: analogix_dp: Split the platform-specific poweron in two
+    parts
+
+Kristian H. Kristensen (1):
+  drm/rockchip: Disable PSR on input events
+
+Lin Huang (6):
+  drm/bridge: analogix_dp: Move enable video into config_video()
+  drm/bridge: analogix_dp: Check AUX_EN status when doing AUX transfer
+  drm/bridge: analogix_dp: Ensure edp is disabled when shutting down the
+    panel
+  drm/bridge: analogix_dp: Extend hpd check time to 100ms
+  drm/bridge: analogix_dp: Check dpcd write/read status
+  drm/bridge: analogix_dp: Reset aux channel if an error occurred
+
+Mark Yao (1):
+  drm/rockchip: pre dither down when output bpc is 8bit
+
+Sean Paul (2):
+  drm/rockchip: Don't use atomic constructs for psr
+  drm/rockchip: Remove analogix psr worker
+
+Tomasz Figa (7):
+  drm/rockchip: analogix_dp: Do not call Analogix code before bind
+  drm/rockchip: Cancel PSR enable work before changing the state
+  drm/rockchip: psr: Avoid redundant calls to .set() callback
+  drm/rockchip: psr: Sanitize semantics of allow/disallow API
+  drm/rockchip: Disable PSR from reboot notifier
+  drm/rockchip: Disallow PSR for the whole atomic commit
+  drm/rockchip: psr: Remove flush by CRTC
+
+Yakir Yang (1):
+  drm/bridge: analogix_dp: detect Sink PSR state after configuring the
+    PSR
+
+zain wang (16):
+  drm/bridge: analogix_dp: set psr activate/deactivate when
+    enable/disable bridge
+  drm/bridge: analogix_dp: Don't change psr while bridge is disabled
+  drm/rockchip: add mutex vop lock
+  drm/bridge: analogix_dp: add fast link train for eDP
+  drm/rockchip: Only wait for panel ACK on PSR entry
+  drm/bridge: analogix_dp: Don't use fast link training when panel just
+    powered up
+  drm/bridge: analogix_dp: Retry bridge enable when it failed
+  drm/bridge: analogix_dp: Wait for HPD signal before configuring link
+  drm/bridge: analogix_dp: Set PD_INC_BG first when powering up edp phy
+  drm/bridge: analogix_dp: Fix incorrect usage of enhanced mode
+  drm/bridge: analogix_dp: Fix AUX_PD bit for Rockchip
+  drm/rockchip: Restore psr->state when enable/disable psr failed
+  drm/bridge: analogix_dp: Don't use ANALOGIX_DP_PLL_CTL to control pll
+  drm/bridge: analogix_dp: Fix timeout of video streamclk config
+  drm/bridge: analogix_dp: Fix incorrect operations with register
+    ANALOGIX_DP_FUNC_EN_1
+  drm/bridge: analogix_dp: Move fast link training detect to set_bridge
+
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 452 ++++++++++++++++-----
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.h |  14 +-
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c  | 274 ++++++++-----
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h  |   7 +
+ drivers/gpu/drm/exynos/exynos_dp.c                 |   2 +-
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    |  73 ++--
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.c        |   2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.h        |   3 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_fb.c         |  61 ++-
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c        | 361 ++++++++++------
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.h        |   7 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c        |  47 ++-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.h        |   1 +
+ drivers/gpu/drm/rockchip/rockchip_vop_reg.c        |   1 +
+ include/drm/bridge/analogix_dp.h                   |   5 +-
+ 15 files changed, 915 insertions(+), 395 deletions(-)
+
 -- 
-2.7.4
+2.16.1

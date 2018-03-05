@@ -1,289 +1,454 @@
 From: Tim Harvey <tharvey@gateworks.com>
-Subject: [PATCH v2 4/4] input: misc: Add Gateworks System Controller support
-Date: Mon,  5 Mar 2018 14:02:41 -0800
-Message-ID: <1520287361-12569-5-git-send-email-tharvey@gateworks.com>
+Subject: [PATCH v2 3/4] hwmon: add Gateworks System Controller support
+Date: Mon,  5 Mar 2018 14:02:40 -0800
+Message-ID: <1520287361-12569-4-git-send-email-tharvey@gateworks.com>
 References: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
 
-Add support for dispatching Linux Input events for the various interrupts
-the Gateworks System Controller provides.
+The Gateworks System Controller has a hwmon sub-component that exposes
+up to 16 ADC's, some of which are temperature sensors, others which are
+voltage inputs. The ADC configuration (register mapping and name) is
+configured via device-tree and varies board to board.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Tim Harvey <tharvey@gateworks.com>
 ---
 v2:
-- reword Kconfig
-- revise license comment block
-- remove unnecessary read of status register
-- remove unnecessary setting of input->dev.parent
-- use dt bindings for irq to keycode mapping
-- add support for platform-data
-- remove work-queue
+- change license comment style
+- remove DEBUG
+- simplify regmap_bulk_read err check
+- remove break after returns in switch statement
+- fix fan setpoint buffer address
+- remove unnecessary parens
+- consistently use struct device *dev pointer
+- change license/comment block
+- add validation for hwmon child node props
+- move parsing of of to own function
+- use strlcpy to ensure null termination
+- fix static array sizes and removed unnecessary initializers
+- dynamically allocate channels
+- fix fan input label
+- support platform data
+- fixed whitespace issues
 
- drivers/input/misc/Kconfig              |   9 ++
- drivers/input/misc/Makefile             |   1 +
- drivers/input/misc/gsc-input.c          | 180 ++++++++++++++++++++++++++++++++
- include/linux/platform_data/gsc_input.h |  30 ++++++
- 4 files changed, 220 insertions(+)
- create mode 100644 drivers/input/misc/gsc-input.c
- create mode 100644 include/linux/platform_data/gsc_input.h
+ drivers/hwmon/Kconfig                   |   9 +
+ drivers/hwmon/Makefile                  |   1 +
+ drivers/hwmon/gsc-hwmon.c               | 330 ++++++++++++++++++++++++++++++++
+ include/linux/platform_data/gsc_hwmon.h |  34 ++++
+ 4 files changed, 374 insertions(+)
+ create mode 100644 drivers/hwmon/gsc-hwmon.c
+ create mode 100644 include/linux/platform_data/gsc_hwmon.h
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 9f082a3..e05f4fe 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -117,6 +117,15 @@ config INPUT_E3X0_BUTTON
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called e3x0_button.
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index 7ad0176..e052798b 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -475,6 +475,15 @@ config SENSORS_F75375S
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called f75375s.
  
-+config INPUT_GSC
-+	tristate "Gateworks System Controller input support"
-+	depends on MFD_GSC
-+	help
-+	  Support GSC events as Linux input events.
++config SENSORS_GSC
++        tristate "Gateworks System Controller ADC"
++        depends on MFD_GSC
++        help
++          Support for the Gateworks System Controller A/D converters.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gsc_input.
++	  To compile this driver as a module, choose M here:
++	  the module will be called gsc-hwmon.
 +
- config INPUT_PCSPKR
- 	tristate "PC Speaker support"
- 	depends on PCSPKR_PLATFORM
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 4b6118d..969debe 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -38,6 +38,7 @@ obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
- obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
- obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
- obj-$(CONFIG_INPUT_GPIO_DECODER)	+= gpio_decoder.o
-+obj-$(CONFIG_INPUT_GSC)			+= gsc-input.o
- obj-$(CONFIG_INPUT_HISI_POWERKEY)	+= hisi_powerkey.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
- obj-$(CONFIG_INPUT_IMS_PCU)		+= ims-pcu.o
-diff --git a/drivers/input/misc/gsc-input.c b/drivers/input/misc/gsc-input.c
+ config SENSORS_MC13783_ADC
+         tristate "Freescale MC13783/MC13892 ADC"
+         depends on MFD_MC13XXX
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index 0fe489f..835a536 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -69,6 +69,7 @@ obj-$(CONFIG_SENSORS_G760A)	+= g760a.o
+ obj-$(CONFIG_SENSORS_G762)	+= g762.o
+ obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
+ obj-$(CONFIG_SENSORS_GL520SM)	+= gl520sm.o
++obj-$(CONFIG_SENSORS_GSC)	+= gsc-hwmon.o
+ obj-$(CONFIG_SENSORS_GPIO_FAN)	+= gpio-fan.o
+ obj-$(CONFIG_SENSORS_HIH6130)	+= hih6130.o
+ obj-$(CONFIG_SENSORS_ULTRA45)	+= ultra45_env.o
+diff --git a/drivers/hwmon/gsc-hwmon.c b/drivers/hwmon/gsc-hwmon.c
 new file mode 100644
-index 0000000..27b5e93
+index 0000000..cf55457
 --- /dev/null
-+++ b/drivers/input/misc/gsc-input.c
-@@ -0,0 +1,180 @@
++++ b/drivers/hwmon/gsc-hwmon.c
+@@ -0,0 +1,330 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * Copyright (C) 2018 Gateworks Corporation
 + *
-+ * This driver dispatches Linux input events for GSC interrupt events
++ * This driver registers Linux HWMON attributes for GSC ADC's
 + */
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/mfd/gsc.h>
 +#include <linux/module.h>
 +#include <linux/of.h>
-+#include <linux/of_irq.h>
 +#include <linux/platform_device.h>
 +#include <linux/regmap.h>
++#include <linux/slab.h>
 +
-+#include <linux/mfd/gsc.h>
-+#include <linux/platform_data/gsc_input.h>
++#include <linux/platform_data/gsc_hwmon.h>
 +
-+struct gsc_input_button_priv {
-+	struct input_dev *input;
-+	const struct gsc_input_button *button;
-+};
++#define GSC_HWMON_MAX_TEMP_CH	16
++#define GSC_HWMON_MAX_IN_CH	16
++#define GSC_HWMON_MAX_FAN_CH	6
 +
-+struct gsc_input_data {
++struct gsc_hwmon_data {
 +	struct gsc_dev *gsc;
-+	struct gsc_input_platform_data *pdata;
-+	struct input_dev *input;
-+	struct gsc_input_button_priv *buttons;
-+	int nbuttons;
-+	unsigned int irqs[];
-+#if 0
-+	int irq;
-+	struct work_struct irq_work;
-+	struct mutex mutex;
-+#endif
++	struct device *dev;
++	struct gsc_hwmon_platform_data *pdata;
++	const struct gsc_hwmon_channel *temp_ch[GSC_HWMON_MAX_TEMP_CH];
++	const struct gsc_hwmon_channel *in_ch[GSC_HWMON_MAX_IN_CH];
++	const struct gsc_hwmon_channel *fan_ch[GSC_HWMON_MAX_FAN_CH];
++	u32 temp_config[GSC_HWMON_MAX_TEMP_CH + 1];
++	u32 in_config[GSC_HWMON_MAX_IN_CH + 1];
++	u32 fan_config[GSC_HWMON_MAX_FAN_CH + 1];
++	struct hwmon_channel_info temp_info;
++	struct hwmon_channel_info in_info;
++	struct hwmon_channel_info fan_info;
++	const struct hwmon_channel_info *info[4];
++	struct hwmon_chip_info chip;
 +};
 +
-+static irqreturn_t gsc_input_irq(int irq, void *data)
++static int
++gsc_hwmon_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
++	       int channel, long *val)
 +{
-+	const struct gsc_input_button_priv *button_priv = data;
-+	struct input_dev *input = button_priv->input;
++	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
++	int sz, ret;
++	u8 reg;
++	u8 buf[3];
 +
-+	dev_dbg(&input->dev, "irq%d code=%d\n", irq, button_priv->button->code);
-+	input_report_key(input, button_priv->button->code, 1);
-+	input_sync(input);
-+	input_report_key(input, button_priv->button->code, 0);
-+	input_sync(input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static struct gsc_input_platform_data *
-+gsc_input_get_devtree_pdata(struct device *dev)
-+{
-+	struct gsc_input_platform_data *pdata;
-+	struct fwnode_handle *child;
-+	struct gsc_input_button *button;
-+	int nbuttons;
-+
-+	nbuttons = device_get_child_node_count(dev);
-+	dev_dbg(dev, "buttons=%d\n", nbuttons);
-+	if (nbuttons == 0)
-+		return ERR_PTR(-ENODEV);
-+
-+	pdata = devm_kzalloc(dev,
-+			     sizeof(*pdata) + nbuttons * sizeof(*button),
-+			     GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
-+
-+	button = (struct gsc_input_button *)(pdata + 1);
-+	pdata->buttons = button;
-+	pdata->nbuttons = nbuttons;
-+
-+	device_property_read_string(dev, "label", &pdata->name);
-+
-+	device_for_each_child_node(dev, child) {
-+		if (is_of_node(child))
-+			button->irq = irq_of_parse_and_map(to_of_node(child),
-+							   0);
-+		if (fwnode_property_read_u32(child, "linux,code",
-+					     &button->code)) {
-+			dev_err(dev, "Button without keycode\n");
-+			fwnode_handle_put(child);
-+			return ERR_PTR(-EINVAL);
-+		}
-+		fwnode_property_read_string(child, "label", &button->desc);
-+		button++;
++	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
++		channel);
++	switch (type) {
++	case hwmon_in:
++		if (channel > GSC_HWMON_MAX_IN_CH)
++			return -EOPNOTSUPP;
++		reg = hwmon->in_ch[channel]->reg;
++		sz = 3;
++		break;
++	case hwmon_temp:
++		if (channel > GSC_HWMON_MAX_TEMP_CH)
++			return -EOPNOTSUPP;
++		reg = hwmon->temp_ch[channel]->reg;
++		sz = 2;
++		break;
++	case hwmon_fan:
++		if (channel > GSC_HWMON_MAX_FAN_CH)
++			return -EOPNOTSUPP;
++		reg = hwmon->fan_ch[channel]->reg;
++		sz = 2;
++		break;
++	default:
++		return -EOPNOTSUPP;
 +	}
 +
-+	return pdata;
-+}
-+
-+static int gsc_input_probe(struct platform_device *pdev)
-+{
-+	struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
-+	struct device *dev = &pdev->dev;
-+	struct gsc_input_platform_data *pdata = dev_get_platdata(dev);
-+	struct gsc_input_data *input;
-+	int i, ret;
-+
-+	if (!pdata) {
-+		pdata = gsc_input_get_devtree_pdata(dev);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
-+	}
-+
-+	input = devm_kzalloc(dev, sizeof(*input), GFP_KERNEL);
-+	if (!input)
-+		return -ENOMEM;
-+	input->gsc = gsc;
-+	input->pdata = pdata;
-+
-+	input->buttons = devm_kzalloc(dev, pdata->nbuttons *
-+				      sizeof(struct gsc_input_button_priv),
-+				      GFP_KERNEL);
-+	if (!input->buttons)
-+		return -ENOMEM;
-+
-+	/* Register input device */
-+	input->input = devm_input_allocate_device(dev);
-+	if (!input->input) {
-+		dev_err(dev, "Can't allocate input device\n");
-+		return -ENOMEM;
-+	}
-+	input->input->name = pdata->name ? : pdev->name;
-+
-+	platform_set_drvdata(pdev, gsc);
-+
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		const struct gsc_input_button *button = &pdata->buttons[i];
-+		struct gsc_input_button_priv *button_priv = &input->buttons[i];
-+
-+		button_priv = &input->buttons[i];
-+		button_priv->button = &pdata->buttons[i];
-+		button_priv->input = input->input;
-+		input_set_capability(input->input, EV_KEY, button->code);
-+
-+		ret = devm_request_threaded_irq(dev, button->irq, NULL,
-+						gsc_input_irq, 0,
-+						button->desc,
-+						button_priv);
-+		if (ret) {
-+			dev_err(dev, "irq%d request failed: %d\n)", button->irq,
-+				ret);
-+			return ret;
-+		}
-+		dev_dbg(dev, "button: irq%d/%d code=%d %s\n",
-+			button->irq - pdata->buttons[0].irq,
-+			button->irq,
-+			button->code, button->desc);
-+	}
-+
-+	ret = input_register_device(input->input);
-+	if (ret < 0) {
-+		dev_err(dev, "Can't register input device: %d\n", ret);
++	ret = regmap_bulk_read(hwmon->gsc->regmap_hwmon, reg, &buf, sz);
++	if (ret)
 +		return ret;
++
++	*val = 0;
++	while (sz-- > 0)
++		*val |= (buf[sz] << (8*sz));
++	if ((type == hwmon_temp) && *val > 0x8000)
++		*val -= 0xffff;
++
++	return 0;
++}
++
++static int
++gsc_hwmon_read_string(struct device *dev, enum hwmon_sensor_types type,
++		      u32 attr, int channel, const char **buf)
++{
++	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
++
++	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
++		channel);
++	switch (type) {
++	case hwmon_in:
++		if (channel > GSC_HWMON_MAX_IN_CH)
++			return -EOPNOTSUPP;
++		*buf = hwmon->in_ch[channel]->name;
++		break;
++	case hwmon_temp:
++		if (channel > GSC_HWMON_MAX_TEMP_CH)
++			return -EOPNOTSUPP;
++		*buf = hwmon->temp_ch[channel]->name;
++		break;
++	case hwmon_fan:
++		if (channel > GSC_HWMON_MAX_FAN_CH)
++			return -EOPNOTSUPP;
++		*buf = hwmon->fan_ch[channel]->name;
++		break;
++	default:
++		return -ENOTSUPP;
 +	}
 +
 +	return 0;
 +}
 +
-+static const struct of_device_id gsc_input_dt_ids[] = {
-+	{ .compatible = "gw,gsc-input", },
++static int
++gsc_hwmon_write(struct device *dev, enum hwmon_sensor_types type, u32 attr,
++		int channel, long val)
++{
++	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
++	u8 buf[3];
++
++	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
++		channel);
++	switch (type) {
++	case hwmon_fan:
++		if (channel == GSC_HWMON_MAX_FAN_CH)
++			return -EOPNOTSUPP;
++		buf[0] = val & 0xff;
++		buf[1] = (val >> 8) & 0xff;
++		return regmap_bulk_write(hwmon->gsc->regmap_hwmon,
++					 hwmon->fan_ch[channel]->reg, buf, 2);
++	default:
++		break;
++	}
++
++	return -EOPNOTSUPP;
++}
++
++static umode_t
++gsc_hwmon_is_visible(const void *_data, enum hwmon_sensor_types type, u32 attr,
++		     int ch)
++{
++	const struct gsc_hwmon_data *hwmon = _data;
++	struct device *dev = hwmon->gsc->dev;
++	umode_t mode = 0;
++
++	switch (type) {
++	case hwmon_fan:
++		mode = S_IRUGO;
++		if (attr == hwmon_fan_input)
++			mode |= S_IWUSR;
++		break;
++	case hwmon_temp:
++	case hwmon_in:
++		mode = S_IRUGO;
++		break;
++	default:
++		break;
++	}
++	dev_dbg(dev, "%s type=%d attr=%d ch=%d mode=0x%x\n", __func__, type,
++		attr, ch, mode);
++
++	return mode;
++}
++
++static const struct hwmon_ops gsc_hwmon_ops = {
++	.is_visible = gsc_hwmon_is_visible,
++	.read = gsc_hwmon_read,
++	.read_string = gsc_hwmon_read_string,
++	.write = gsc_hwmon_write,
++};
++
++static struct gsc_hwmon_platform_data *
++gsc_hwmon_get_devtree_pdata(struct device *dev)
++{
++	struct gsc_hwmon_platform_data *pdata;
++	struct gsc_hwmon_channel *ch;
++	struct fwnode_handle *child;
++	int nchannels;
++
++	nchannels = device_get_child_node_count(dev);
++	dev_dbg(dev, "channels=%d\n", nchannels);
++	if (nchannels == 0)
++		return ERR_PTR(-ENODEV);
++
++	pdata = devm_kzalloc(dev,
++			     sizeof(*pdata) + nchannels * sizeof(*ch),
++			     GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
++	ch = (struct gsc_hwmon_channel *)(pdata + 1);
++	pdata->channels = ch;
++	pdata->nchannels = nchannels;
++
++	/* allocate structures for channels and count instances of each type */
++	device_for_each_child_node(dev, child) {
++		if (fwnode_property_read_string(child, "label", &ch->name)) {
++			dev_err(dev, "channel without label\n");
++			fwnode_handle_put(child);
++			return ERR_PTR(-EINVAL);
++		}
++		if (fwnode_property_read_u32(child, "reg", &ch->reg)) {
++			dev_err(dev, "channel without reg\n");
++			fwnode_handle_put(child);
++			return ERR_PTR(-EINVAL);
++		}
++		if (fwnode_property_read_u32(child, "type", &ch->type)) {
++			dev_err(dev, "channel without type\n");
++			fwnode_handle_put(child);
++			return ERR_PTR(-EINVAL);
++		}
++		dev_dbg(dev, "of: reg=0x%02x type=%d %s\n", ch->reg, ch->type,
++			ch->name);
++		ch++;
++	}
++
++	return pdata;
++}
++
++static int gsc_hwmon_probe(struct platform_device *pdev)
++{
++	struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
++	struct device *dev = &pdev->dev;
++	struct gsc_hwmon_platform_data *pdata = dev_get_platdata(dev);
++	struct gsc_hwmon_data *hwmon;
++	int i, i_in, i_temp, i_fan;
++
++	if (!pdata) {
++		pdata = gsc_hwmon_get_devtree_pdata(dev);
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
++	}
++
++	hwmon = devm_kzalloc(dev, sizeof(*hwmon), GFP_KERNEL);
++	if (!hwmon)
++		return -ENOMEM;
++	hwmon->gsc = gsc;
++	hwmon->pdata = pdata;
++
++	for (i = 0, i_in = 0, i_temp = 0, i_fan = 0;
++	     i < hwmon->pdata->nchannels; i++) {
++		const struct gsc_hwmon_channel *ch = &pdata->channels[i];
++
++		if (ch->reg > GSC_HWMON_MAX_REG) {
++			dev_err(dev, "invalid reg: 0x%02x\n", ch->reg);
++			return -EINVAL;
++		}
++		switch (ch->type) {
++		case type_temperature:
++			if (i_temp == GSC_HWMON_MAX_TEMP_CH) {
++				dev_err(dev, "too many temp channels\n");
++				return -EINVAL;
++			}
++			hwmon->temp_ch[i_temp] = ch;
++			hwmon->temp_config[i_temp] = HWMON_T_INPUT |
++						     HWMON_T_LABEL;
++			i_temp++;
++			break;
++		case type_voltage:
++			if (i_in == GSC_HWMON_MAX_IN_CH) {
++				dev_err(dev, "too many voltage channels\n");
++				return -EINVAL;
++			}
++			hwmon->in_ch[i_in] = ch;
++			hwmon->in_config[i_in] =
++				HWMON_I_INPUT | HWMON_I_LABEL;
++			i_in++;
++			break;
++		case type_fan:
++			if (i_fan == GSC_HWMON_MAX_FAN_CH) {
++				dev_err(dev, "too many voltage channels\n");
++				return -EINVAL;
++			}
++			hwmon->fan_ch[i_fan] = ch;
++			hwmon->fan_config[i_fan] =
++				HWMON_F_INPUT | HWMON_F_LABEL;
++			i_fan++;
++			break;
++		default:
++			dev_err(dev, "invalid type: %d\n", ch->type);
++			return -EINVAL;
++		}
++		dev_dbg(dev, "pdata: reg=0x%02x type=%d %s\n", ch->reg,
++			ch->type, ch->name);
++	}
++
++	/* terminate channel config lists */
++	hwmon->temp_config[i_temp] = 0;
++	hwmon->in_config[i_in] = 0;
++	hwmon->fan_config[i_fan] = 0;
++
++	/* setup config structures */
++	hwmon->chip.ops = &gsc_hwmon_ops;
++	hwmon->chip.info = hwmon->info;
++	hwmon->info[0] = &hwmon->temp_info;
++	hwmon->info[1] = &hwmon->in_info;
++	hwmon->info[2] = &hwmon->fan_info;
++	hwmon->temp_info.type = hwmon_temp;
++	hwmon->temp_info.config = hwmon->temp_config;
++	hwmon->in_info.type = hwmon_in;
++	hwmon->in_info.config = hwmon->in_config;
++	hwmon->fan_info.type = hwmon_fan;
++	hwmon->fan_info.config = hwmon->fan_config;
++
++	hwmon->dev = devm_hwmon_device_register_with_info(dev,
++							  KBUILD_MODNAME, hwmon,
++							  &hwmon->chip, NULL);
++	return PTR_ERR_OR_ZERO(hwmon->dev);
++}
++
++static const struct of_device_id gsc_hwmon_of_match[] = {
++	{ .compatible = "gw,gsc-hwmon", },
 +	{}
 +};
 +
-+static struct platform_driver gsc_input_driver = {
++static struct platform_driver gsc_hwmon_driver = {
 +	.driver = {
 +		.name = KBUILD_MODNAME,
-+		.of_match_table = gsc_input_dt_ids,
++		.of_match_table = gsc_hwmon_of_match,
 +	},
-+	.probe = gsc_input_probe,
++	.probe = gsc_hwmon_probe,
 +};
 +
-+module_platform_driver(gsc_input_driver);
++module_platform_driver(gsc_hwmon_driver);
 +
 +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
-+MODULE_DESCRIPTION("GSC input driver");
++MODULE_DESCRIPTION("GSC hardware monitor driver");
 +MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/platform_data/gsc_input.h b/include/linux/platform_data/gsc_input.h
+diff --git a/include/linux/platform_data/gsc_hwmon.h b/include/linux/platform_data/gsc_hwmon.h
 new file mode 100644
-index 0000000..1a34284
+index 0000000..ba4f811
 --- /dev/null
-+++ b/include/linux/platform_data/gsc_input.h
-@@ -0,0 +1,30 @@
++++ b/include/linux/platform_data/gsc_hwmon.h
+@@ -0,0 +1,34 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _GSC_INPUT_H
-+#define _GSC_INPUT_H
++#ifndef _GSC_HWMON_H
++#define _GSC_HWMON_H
 +
-+/**
-+ * struct gsc_input_button - configuration parameters
-+ * @code:	input event code (KEY_*, SW_*)
-+ * @irq:	irq index
-+ * @desc:	name of interrupt
-+ */
-+struct gsc_input_button {
-+	unsigned int irq;
-+	unsigned int code;
-+	const char *desc;
++enum gsc_hwmon_type {
++	type_temperature,
++	type_voltage,
++	type_fan,
 +};
 +
 +/**
-+ * struct gsc_input_platform_data - platform data for gsc_input driver
-+ * @buttons:	pointer to array of gsc_input_button structures
-+ *		describing buttons mapped to interrupt events
-+ * @nbuttons:	number of elements in @buttons array
-+ * @name:	input device name
++ * struct gsc_hwmon_channel - configuration parameters
++ * @reg:  I2C register offset
++ * @type: channel type
++ * @name: channel name
 + */
-+struct gsc_input_platform_data {
-+	const struct gsc_input_button *buttons;
-+	int nbuttons;
++struct gsc_hwmon_channel {
++	unsigned int reg;
++	unsigned int type;
 +	const char *name;
++};
++
++/**
++ * struct gsc_hwmon_platform_data - platform data for gsc_hwmon driver
++ * @channels:	pointer to array of gsc_hwmon_channel structures
++ *		describing channels
++ * @nchannels:	number of elements in @channels array
++ */
++struct gsc_hwmon_platform_data {
++	const struct gsc_hwmon_channel *channels;
++	int nchannels;
 +};
 +
 +#endif

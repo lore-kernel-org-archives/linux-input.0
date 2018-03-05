@@ -1,128 +1,471 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v4 00/38] DRM Rockchip rk3399 (Kevin)
-Date: Mon,  5 Mar 2018 23:12:35 +0100
-Message-ID: <20180305221313.3751-1-enric.balletbo@collabora.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v2 3/4] hwmon: add Gateworks System Controller support
+Date: Mon, 5 Mar 2018 15:12:32 -0800
+Message-ID: <20180305231232.GB13099@roeck-us.net>
+References: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
+ <1520287361-12569-4-git-send-email-tharvey@gateworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1520287361-12569-4-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: hshi@chromium.org, wzz@rock-chips.com, hl@rock-chips.com, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, dianders@chromium.org, linux-rockchip@lists.infradead.org, ykk@rock-chips.com, orjan.eide@arm.com, mark.yao@rock-chips.com, m.szyprowski@samsung.com, Andrzej Hajda <a.hajda@samsung.com>, Yakir Yang <kuankuan.y@gmail.com>, Jingoo Han <jingoohan1@gmail.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, linux-samsung-soc@vger.kernel.org, Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-input@vger.kernel.org, Jeffy Chen <jeffy.chen@rock-chips.com>, Kukjin Kim <kgene@kernel.org>, Tomeu Vizoso <tomeu.vizoso@collabora.com>, Henrik Rydberg <rydberg@bitmath.org>, Joonyoung Shim <jy0922.shim@samsung.c>
+To: Tim Harvey <tharvey@gateworks.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Mon, Mar 05, 2018 at 02:02:40PM -0800, Tim Harvey wrote:
+> The Gateworks System Controller has a hwmon sub-component that exposes
+> up to 16 ADC's, some of which are temperature sensors, others which are
+> voltage inputs. The ADC configuration (register mapping and name) is
+> configured via device-tree and varies board to board.
+> 
+> Cc: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+> ---
+> v2:
+> - change license comment style
+> - remove DEBUG
+> - simplify regmap_bulk_read err check
+> - remove break after returns in switch statement
+> - fix fan setpoint buffer address
+> - remove unnecessary parens
+> - consistently use struct device *dev pointer
+> - change license/comment block
+> - add validation for hwmon child node props
+> - move parsing of of to own function
+> - use strlcpy to ensure null termination
+> - fix static array sizes and removed unnecessary initializers
+> - dynamically allocate channels
+> - fix fan input label
+> - support platform data
+> - fixed whitespace issues
+> 
+>  drivers/hwmon/Kconfig                   |   9 +
+>  drivers/hwmon/Makefile                  |   1 +
+>  drivers/hwmon/gsc-hwmon.c               | 330 ++++++++++++++++++++++++++++++++
+>  include/linux/platform_data/gsc_hwmon.h |  34 ++++
+>  4 files changed, 374 insertions(+)
+>  create mode 100644 drivers/hwmon/gsc-hwmon.c
+>  create mode 100644 include/linux/platform_data/gsc_hwmon.h
+> 
+> diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+> index 7ad0176..e052798b 100644
+> --- a/drivers/hwmon/Kconfig
+> +++ b/drivers/hwmon/Kconfig
+> @@ -475,6 +475,15 @@ config SENSORS_F75375S
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called f75375s.
+>  
+> +config SENSORS_GSC
+> +        tristate "Gateworks System Controller ADC"
+> +        depends on MFD_GSC
+> +        help
+> +          Support for the Gateworks System Controller A/D converters.
+> +
+> +	  To compile this driver as a module, choose M here:
+> +	  the module will be called gsc-hwmon.
+> +
+>  config SENSORS_MC13783_ADC
+>          tristate "Freescale MC13783/MC13892 ADC"
+>          depends on MFD_MC13XXX
+> diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+> index 0fe489f..835a536 100644
+> --- a/drivers/hwmon/Makefile
+> +++ b/drivers/hwmon/Makefile
+> @@ -69,6 +69,7 @@ obj-$(CONFIG_SENSORS_G760A)	+= g760a.o
+>  obj-$(CONFIG_SENSORS_G762)	+= g762.o
+>  obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
+>  obj-$(CONFIG_SENSORS_GL520SM)	+= gl520sm.o
+> +obj-$(CONFIG_SENSORS_GSC)	+= gsc-hwmon.o
+>  obj-$(CONFIG_SENSORS_GPIO_FAN)	+= gpio-fan.o
+>  obj-$(CONFIG_SENSORS_HIH6130)	+= hih6130.o
+>  obj-$(CONFIG_SENSORS_ULTRA45)	+= ultra45_env.o
+> diff --git a/drivers/hwmon/gsc-hwmon.c b/drivers/hwmon/gsc-hwmon.c
+> new file mode 100644
+> index 0000000..cf55457
+> --- /dev/null
+> +++ b/drivers/hwmon/gsc-hwmon.c
+> @@ -0,0 +1,330 @@
+> +/* SPDX-License-Identifier: GPL-2.0
+> + *
+> + * Copyright (C) 2018 Gateworks Corporation
+> + *
+> + * This driver registers Linux HWMON attributes for GSC ADC's
+> + */
+> +#include <linux/hwmon.h>
+> +#include <linux/hwmon-sysfs.h>
+> +#include <linux/mfd/gsc.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +
+> +#include <linux/platform_data/gsc_hwmon.h>
+> +
+> +#define GSC_HWMON_MAX_TEMP_CH	16
+> +#define GSC_HWMON_MAX_IN_CH	16
+> +#define GSC_HWMON_MAX_FAN_CH	6
+> +
+> +struct gsc_hwmon_data {
+> +	struct gsc_dev *gsc;
+> +	struct device *dev;
+> +	struct gsc_hwmon_platform_data *pdata;
+> +	const struct gsc_hwmon_channel *temp_ch[GSC_HWMON_MAX_TEMP_CH];
+> +	const struct gsc_hwmon_channel *in_ch[GSC_HWMON_MAX_IN_CH];
+> +	const struct gsc_hwmon_channel *fan_ch[GSC_HWMON_MAX_FAN_CH];
+> +	u32 temp_config[GSC_HWMON_MAX_TEMP_CH + 1];
+> +	u32 in_config[GSC_HWMON_MAX_IN_CH + 1];
+> +	u32 fan_config[GSC_HWMON_MAX_FAN_CH + 1];
+> +	struct hwmon_channel_info temp_info;
+> +	struct hwmon_channel_info in_info;
+> +	struct hwmon_channel_info fan_info;
+> +	const struct hwmon_channel_info *info[4];
+> +	struct hwmon_chip_info chip;
+> +};
+> +
+> +static int
+> +gsc_hwmon_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+> +	       int channel, long *val)
+> +{
+> +	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
+> +	int sz, ret;
+> +	u8 reg;
+> +	u8 buf[3];
+> +
+> +	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
+> +		channel);
+> +	switch (type) {
+> +	case hwmon_in:
+> +		if (channel > GSC_HWMON_MAX_IN_CH)
+> +			return -EOPNOTSUPP;
+> +		reg = hwmon->in_ch[channel]->reg;
+> +		sz = 3;
+> +		break;
+> +	case hwmon_temp:
+> +		if (channel > GSC_HWMON_MAX_TEMP_CH)
+> +			return -EOPNOTSUPP;
+> +		reg = hwmon->temp_ch[channel]->reg;
+> +		sz = 2;
+> +		break;
+> +	case hwmon_fan:
+> +		if (channel > GSC_HWMON_MAX_FAN_CH)
+> +			return -EOPNOTSUPP;
+> +		reg = hwmon->fan_ch[channel]->reg;
+> +		sz = 2;
+> +		break;
+> +	default:
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+> +	ret = regmap_bulk_read(hwmon->gsc->regmap_hwmon, reg, &buf, sz);
+> +	if (ret)
+> +		return ret;
+> +
+> +	*val = 0;
+> +	while (sz-- > 0)
+> +		*val |= (buf[sz] << (8*sz));
+> +	if ((type == hwmon_temp) && *val > 0x8000)
+> +		*val -= 0xffff;
+> +
+> +	return 0;
+> +}
+> +
+> +static int
+> +gsc_hwmon_read_string(struct device *dev, enum hwmon_sensor_types type,
+> +		      u32 attr, int channel, const char **buf)
+> +{
+> +	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
+> +
+> +	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
+> +		channel);
+> +	switch (type) {
+> +	case hwmon_in:
+> +		if (channel > GSC_HWMON_MAX_IN_CH)
+> +			return -EOPNOTSUPP;
 
-This patchset includes cleanups, improvements, and bug fixes for
-Rockchip DRM driver and PSR support.
+First of all, this is wrong. in_ch only has GSC_HWMON_MAX_IN_CH
+elements, meaning hwmon->in_ch[GSC_HWMON_MAX_IN_CH] will access
+data after the end of the array. Second, valitations should not
+be done here but in the is_visible function.
 
-This new version is the same as before but rebased on top of
-drm-misc-next plus the Marek patches that fixes Chromebook2 Peach-Pit [1]
-and the latest series of Rockchip rk3399 eDP support [2].
+> +		*buf = hwmon->in_ch[channel]->name;
+> +		break;
+> +	case hwmon_temp:
+> +		if (channel > GSC_HWMON_MAX_TEMP_CH)
+> +			return -EOPNOTSUPP;
 
-[1] https://www.spinics.net/lists/dri-devel/msg167804.html
-[2] https://www.spinics.net/lists/dri-devel/msg167770.html
+Same here and everywhere else.
 
-Regards,
- Enric
-
-Changes in v4:
-- Rebased all on top of drm-misc-next
-- Removed the following patches as are already applied.
-  [PATCH v3 01/43] drm/rockchip: Get rid of unnecessary struct fields
-  [PATCH v3 02/43] drm/rockchip: support prime import sg table
-  [PATCH v3 03/43] drm/rockchip: Respect page offset for PRIME mmap
-  calls
-- Removed the following patches as now are part of another patchset
-  [PATCH v3 05/43] drm/bridge: analogix_dp: Don't power bridge in
-  analogix_dp_bind
-  [PATCH v3 33/43] drm/panel: simple: Change mode for Sharp lq123p1jx31
-
-Changes in v3:
-- Addressed some of the comments from Sean on the v2
-
-Changes in v2:
-- A few patches have been replaced by newer and cleaner versions from
-  the ChromeOS kernel gerrit, especially about disallowing PSR for the
-  whole atomic commit.
-
-
-Douglas Anderson (4):
-  drm/bridge: analogix_dp: Reorder plat_data->power_off to happen sooner
-  drm/bridge: analogix_dp: Properly log AUX CH errors
-  drm/bridge: analogix_dp: Properly disable aux chan retries on rockchip
-  drm/bridge: analogix_dp: Split the platform-specific poweron in two
-    parts
-
-Kristian H. Kristensen (1):
-  drm/rockchip: Disable PSR on input events
-
-Lin Huang (6):
-  drm/bridge: analogix_dp: Move enable video into config_video()
-  drm/bridge: analogix_dp: Check AUX_EN status when doing AUX transfer
-  drm/bridge: analogix_dp: Ensure edp is disabled when shutting down the
-    panel
-  drm/bridge: analogix_dp: Extend hpd check time to 100ms
-  drm/bridge: analogix_dp: Check dpcd write/read status
-  drm/bridge: analogix_dp: Reset aux channel if an error occurred
-
-Mark Yao (1):
-  drm/rockchip: pre dither down when output bpc is 8bit
-
-Sean Paul (2):
-  drm/rockchip: Don't use atomic constructs for psr
-  drm/rockchip: Remove analogix psr worker
-
-Tomasz Figa (7):
-  drm/rockchip: analogix_dp: Do not call Analogix code before bind
-  drm/rockchip: Cancel PSR enable work before changing the state
-  drm/rockchip: psr: Avoid redundant calls to .set() callback
-  drm/rockchip: psr: Sanitize semantics of allow/disallow API
-  drm/rockchip: Disable PSR from reboot notifier
-  drm/rockchip: Disallow PSR for the whole atomic commit
-  drm/rockchip: psr: Remove flush by CRTC
-
-Yakir Yang (1):
-  drm/bridge: analogix_dp: detect Sink PSR state after configuring the
-    PSR
-
-zain wang (16):
-  drm/bridge: analogix_dp: set psr activate/deactivate when
-    enable/disable bridge
-  drm/bridge: analogix_dp: Don't change psr while bridge is disabled
-  drm/rockchip: add mutex vop lock
-  drm/bridge: analogix_dp: add fast link train for eDP
-  drm/rockchip: Only wait for panel ACK on PSR entry
-  drm/bridge: analogix_dp: Don't use fast link training when panel just
-    powered up
-  drm/bridge: analogix_dp: Retry bridge enable when it failed
-  drm/bridge: analogix_dp: Wait for HPD signal before configuring link
-  drm/bridge: analogix_dp: Set PD_INC_BG first when powering up edp phy
-  drm/bridge: analogix_dp: Fix incorrect usage of enhanced mode
-  drm/bridge: analogix_dp: Fix AUX_PD bit for Rockchip
-  drm/rockchip: Restore psr->state when enable/disable psr failed
-  drm/bridge: analogix_dp: Don't use ANALOGIX_DP_PLL_CTL to control pll
-  drm/bridge: analogix_dp: Fix timeout of video streamclk config
-  drm/bridge: analogix_dp: Fix incorrect operations with register
-    ANALOGIX_DP_FUNC_EN_1
-  drm/bridge: analogix_dp: Move fast link training detect to set_bridge
-
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 452 ++++++++++++++++-----
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.h |  14 +-
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c  | 274 ++++++++-----
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h  |   7 +
- drivers/gpu/drm/exynos/exynos_dp.c                 |   2 +-
- drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    |  73 ++--
- drivers/gpu/drm/rockchip/rockchip_drm_drv.c        |   2 +-
- drivers/gpu/drm/rockchip/rockchip_drm_drv.h        |   3 +-
- drivers/gpu/drm/rockchip/rockchip_drm_fb.c         |  61 ++-
- drivers/gpu/drm/rockchip/rockchip_drm_psr.c        | 361 ++++++++++------
- drivers/gpu/drm/rockchip/rockchip_drm_psr.h        |   7 +-
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c        |  47 ++-
- drivers/gpu/drm/rockchip/rockchip_drm_vop.h        |   1 +
- drivers/gpu/drm/rockchip/rockchip_vop_reg.c        |   1 +
- include/drm/bridge/analogix_dp.h                   |   5 +-
- 15 files changed, 915 insertions(+), 395 deletions(-)
-
--- 
-2.16.1
+> +		*buf = hwmon->temp_ch[channel]->name;
+> +		break;
+> +	case hwmon_fan:
+> +		if (channel > GSC_HWMON_MAX_FAN_CH)
+> +			return -EOPNOTSUPP;
+> +		*buf = hwmon->fan_ch[channel]->name;
+> +		break;
+> +	default:
+> +		return -ENOTSUPP;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int
+> +gsc_hwmon_write(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+> +		int channel, long val)
+> +{
+> +	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
+> +	u8 buf[3];
+> +
+> +	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
+> +		channel);
+> +	switch (type) {
+> +	case hwmon_fan:
+> +		if (channel == GSC_HWMON_MAX_FAN_CH)
+> +			return -EOPNOTSUPP;
+> +		buf[0] = val & 0xff;
+> +		buf[1] = (val >> 8) & 0xff;
+> +		return regmap_bulk_write(hwmon->gsc->regmap_hwmon,
+> +					 hwmon->fan_ch[channel]->reg, buf, 2);
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return -EOPNOTSUPP;
+> +}
+> +
+> +static umode_t
+> +gsc_hwmon_is_visible(const void *_data, enum hwmon_sensor_types type, u32 attr,
+> +		     int ch)
+> +{
+> +	const struct gsc_hwmon_data *hwmon = _data;
+> +	struct device *dev = hwmon->gsc->dev;
+> +	umode_t mode = 0;
+> +
+> +	switch (type) {
+> +	case hwmon_fan:
+> +		mode = S_IRUGO;
+> +		if (attr == hwmon_fan_input)
+> +			mode |= S_IWUSR;
+> +		break;
+> +	case hwmon_temp:
+> +	case hwmon_in:
+> +		mode = S_IRUGO;
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +	dev_dbg(dev, "%s type=%d attr=%d ch=%d mode=0x%x\n", __func__, type,
+> +		attr, ch, mode);
+> +
+> +	return mode;
+> +}
+> +
+> +static const struct hwmon_ops gsc_hwmon_ops = {
+> +	.is_visible = gsc_hwmon_is_visible,
+> +	.read = gsc_hwmon_read,
+> +	.read_string = gsc_hwmon_read_string,
+> +	.write = gsc_hwmon_write,
+> +};
+> +
+> +static struct gsc_hwmon_platform_data *
+> +gsc_hwmon_get_devtree_pdata(struct device *dev)
+> +{
+> +	struct gsc_hwmon_platform_data *pdata;
+> +	struct gsc_hwmon_channel *ch;
+> +	struct fwnode_handle *child;
+> +	int nchannels;
+> +
+> +	nchannels = device_get_child_node_count(dev);
+> +	dev_dbg(dev, "channels=%d\n", nchannels);
+> +	if (nchannels == 0)
+> +		return ERR_PTR(-ENODEV);
+> +
+> +	pdata = devm_kzalloc(dev,
+> +			     sizeof(*pdata) + nchannels * sizeof(*ch),
+> +			     GFP_KERNEL);
+> +	if (!pdata)
+> +		return ERR_PTR(-ENOMEM);
+> +	ch = (struct gsc_hwmon_channel *)(pdata + 1);
+> +	pdata->channels = ch;
+> +	pdata->nchannels = nchannels;
+> +
+> +	/* allocate structures for channels and count instances of each type */
+> +	device_for_each_child_node(dev, child) {
+> +		if (fwnode_property_read_string(child, "label", &ch->name)) {
+> +			dev_err(dev, "channel without label\n");
+> +			fwnode_handle_put(child);
+> +			return ERR_PTR(-EINVAL);
+> +		}
+> +		if (fwnode_property_read_u32(child, "reg", &ch->reg)) {
+> +			dev_err(dev, "channel without reg\n");
+> +			fwnode_handle_put(child);
+> +			return ERR_PTR(-EINVAL);
+> +		}
+> +		if (fwnode_property_read_u32(child, "type", &ch->type)) {
+> +			dev_err(dev, "channel without type\n");
+> +			fwnode_handle_put(child);
+> +			return ERR_PTR(-EINVAL);
+> +		}
+> +		dev_dbg(dev, "of: reg=0x%02x type=%d %s\n", ch->reg, ch->type,
+> +			ch->name);
+> +		ch++;
+> +	}
+> +
+> +	return pdata;
+> +}
+> +
+> +static int gsc_hwmon_probe(struct platform_device *pdev)
+> +{
+> +	struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
+> +	struct device *dev = &pdev->dev;
+> +	struct gsc_hwmon_platform_data *pdata = dev_get_platdata(dev);
+> +	struct gsc_hwmon_data *hwmon;
+> +	int i, i_in, i_temp, i_fan;
+> +
+> +	if (!pdata) {
+> +		pdata = gsc_hwmon_get_devtree_pdata(dev);
+> +		if (IS_ERR(pdata))
+> +			return PTR_ERR(pdata);
+> +	}
+> +
+> +	hwmon = devm_kzalloc(dev, sizeof(*hwmon), GFP_KERNEL);
+> +	if (!hwmon)
+> +		return -ENOMEM;
+> +	hwmon->gsc = gsc;
+> +	hwmon->pdata = pdata;
+> +
+> +	for (i = 0, i_in = 0, i_temp = 0, i_fan = 0;
+> +	     i < hwmon->pdata->nchannels; i++) {
+> +		const struct gsc_hwmon_channel *ch = &pdata->channels[i];
+> +
+> +		if (ch->reg > GSC_HWMON_MAX_REG) {
+> +			dev_err(dev, "invalid reg: 0x%02x\n", ch->reg);
+> +			return -EINVAL;
+> +		}
+> +		switch (ch->type) {
+> +		case type_temperature:
+> +			if (i_temp == GSC_HWMON_MAX_TEMP_CH) {
+> +				dev_err(dev, "too many temp channels\n");
+> +				return -EINVAL;
+> +			}
+> +			hwmon->temp_ch[i_temp] = ch;
+> +			hwmon->temp_config[i_temp] = HWMON_T_INPUT |
+> +						     HWMON_T_LABEL;
+> +			i_temp++;
+> +			break;
+> +		case type_voltage:
+> +			if (i_in == GSC_HWMON_MAX_IN_CH) {
+> +				dev_err(dev, "too many voltage channels\n");
+> +				return -EINVAL;
+> +			}
+> +			hwmon->in_ch[i_in] = ch;
+> +			hwmon->in_config[i_in] =
+> +				HWMON_I_INPUT | HWMON_I_LABEL;
+> +			i_in++;
+> +			break;
+> +		case type_fan:
+> +			if (i_fan == GSC_HWMON_MAX_FAN_CH) {
+> +				dev_err(dev, "too many voltage channels\n");
+> +				return -EINVAL;
+> +			}
+> +			hwmon->fan_ch[i_fan] = ch;
+> +			hwmon->fan_config[i_fan] =
+> +				HWMON_F_INPUT | HWMON_F_LABEL;
+> +			i_fan++;
+> +			break;
+> +		default:
+> +			dev_err(dev, "invalid type: %d\n", ch->type);
+> +			return -EINVAL;
+> +		}
+> +		dev_dbg(dev, "pdata: reg=0x%02x type=%d %s\n", ch->reg,
+> +			ch->type, ch->name);
+> +	}
+> +
+> +	/* terminate channel config lists */
+> +	hwmon->temp_config[i_temp] = 0;
+> +	hwmon->in_config[i_in] = 0;
+> +	hwmon->fan_config[i_fan] = 0;
+> +
+> +	/* setup config structures */
+> +	hwmon->chip.ops = &gsc_hwmon_ops;
+> +	hwmon->chip.info = hwmon->info;
+> +	hwmon->info[0] = &hwmon->temp_info;
+> +	hwmon->info[1] = &hwmon->in_info;
+> +	hwmon->info[2] = &hwmon->fan_info;
+> +	hwmon->temp_info.type = hwmon_temp;
+> +	hwmon->temp_info.config = hwmon->temp_config;
+> +	hwmon->in_info.type = hwmon_in;
+> +	hwmon->in_info.config = hwmon->in_config;
+> +	hwmon->fan_info.type = hwmon_fan;
+> +	hwmon->fan_info.config = hwmon->fan_config;
+> +
+> +	hwmon->dev = devm_hwmon_device_register_with_info(dev,
+> +							  KBUILD_MODNAME, hwmon,
+> +							  &hwmon->chip, NULL);
+> +	return PTR_ERR_OR_ZERO(hwmon->dev);
+> +}
+> +
+> +static const struct of_device_id gsc_hwmon_of_match[] = {
+> +	{ .compatible = "gw,gsc-hwmon", },
+> +	{}
+> +};
+> +
+> +static struct platform_driver gsc_hwmon_driver = {
+> +	.driver = {
+> +		.name = KBUILD_MODNAME,
+> +		.of_match_table = gsc_hwmon_of_match,
+> +	},
+> +	.probe = gsc_hwmon_probe,
+> +};
+> +
+> +module_platform_driver(gsc_hwmon_driver);
+> +
+> +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
+> +MODULE_DESCRIPTION("GSC hardware monitor driver");
+> +MODULE_LICENSE("GPL v2");
+> diff --git a/include/linux/platform_data/gsc_hwmon.h b/include/linux/platform_data/gsc_hwmon.h
+> new file mode 100644
+> index 0000000..ba4f811
+> --- /dev/null
+> +++ b/include/linux/platform_data/gsc_hwmon.h
+> @@ -0,0 +1,34 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _GSC_HWMON_H
+> +#define _GSC_HWMON_H
+> +
+> +enum gsc_hwmon_type {
+> +	type_temperature,
+> +	type_voltage,
+> +	type_fan,
+> +};
+> +
+> +/**
+> + * struct gsc_hwmon_channel - configuration parameters
+> + * @reg:  I2C register offset
+> + * @type: channel type
+> + * @name: channel name
+> + */
+> +struct gsc_hwmon_channel {
+> +	unsigned int reg;
+> +	unsigned int type;
+> +	const char *name;
+> +};
+> +
+> +/**
+> + * struct gsc_hwmon_platform_data - platform data for gsc_hwmon driver
+> + * @channels:	pointer to array of gsc_hwmon_channel structures
+> + *		describing channels
+> + * @nchannels:	number of elements in @channels array
+> + */
+> +struct gsc_hwmon_platform_data {
+> +	const struct gsc_hwmon_channel *channels;
+> +	int nchannels;
+> +};
+> +
+> +#endif
+> -- 
+> 2.7.4
+> 

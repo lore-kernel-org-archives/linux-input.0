@@ -1,230 +1,290 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/3] Input: gpio-keys - add support for wakeup event
- action
-Date: Mon, 5 Mar 2018 16:30:09 -0800
-Message-ID: <20180306003009.GA2205@dtor-ws>
-References: <20180302035102.10084-1-jeffy.chen@rock-chips.com>
- <20180302035102.10084-2-jeffy.chen@rock-chips.com>
+From: Florent Flament <contact@florentflament.com>
+Subject: Re: [PATCH v2 1/1] HID: Logitech K290: Add driver for the Logitech
+ K290 USB keyboard
+Date: Tue, 06 Mar 2018 00:31:37 +0100
+Message-ID: <1520292697.14077.14.camel@florentflament.com>
+References: <20180304170004.26553-1-contact@florentflament.com>
+         <20180304221425.28611-1-contact@florentflament.com>
+         <20180304221425.28611-2-contact@florentflament.com>
+         <CAE7qMrpF4dGCUrtnXbxb4MLFPZ0Wf13mrQEPypwPbEHaB9e44A@mail.gmail.com>
+         <CAO-hwJK=LVZXU5M1CxRvm43TzL7qVqNNepwT2qrriMnCS3akeA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180302035102.10084-2-jeffy.chen@rock-chips.com>
+In-Reply-To: <CAO-hwJK=LVZXU5M1CxRvm43TzL7qVqNNepwT2qrriMnCS3akeA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Guenter Roeck <linux@roeck-us.net>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nestor Lopez Casado <nlopezcasad@logitech.com>
+Cc: andy.shevchenko@gmail.com, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Jeffy,
+On Mon, 2018-03-05 at 18:26 +0100, Benjamin Tissoires wrote:
+> Hi Florent,
 
-On Fri, Mar 02, 2018 at 11:51:00AM +0800, Jeffy Chen wrote:
-> Add support for specifying event actions to trigger wakeup when using
-> the gpio-keys input device as a wakeup source.
+Hi Benjamin,
+
 > 
-> This would allow the device to configure when to wakeup the system. For
-> example a gpio-keys input device for pen insert, may only want to wakeup
-> the system when ejecting the pen.
+> On Mon, Mar 5, 2018 at 10:31 AM, Nestor Lopez Casado
+> <nlopezcasad@logitech.com> wrote:
+> > Hello Florent,
+> > 
+> > In my view, this driver may not be a good idea. The default
+> > behaviour
+> > of K290 is 'send multimedia keycodes' with the user given the
+> > choice
+> > to change that behaviour via vendor commands. Putting a driver that
+> > will unconditionally change that behaviour without the user's
+> > consent
+> > might bother other users that prefer the multimedia keycodes by
+> > default.
+> > 
+> > Besides, I'd argue that instead of a kernel module this would be
+> > best
+> > achieved from a user space application. Something in the lines of
+> > Solaar (github pwr/solaar) or libratbag (there's an issue open to
+> > support keyboards) or even a specific application built for the
+> > purpose. Anyways, please collect the input from Benjamin and Jiri
+> > as
+> > they as they best placed to advise than myself.
 > 
-> Suggested-by: Brian Norris <briannorris@chromium.org>
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> ---
+> On top of what Nestor said, this type of functionality, if we want to
+> have them in the kernel should probably be integrated in
+> hid-logitech-hidpp, in order not having some magic reports to send.
 > 
-> Changes in v3:
-> Adding more comments as Brian suggested.
+> Things like reconnect of the device would be handled far more easily
+> in hid-logitech-hidpp while you would be reinventing the wheel here.
 > 
-> Changes in v2:
-> Specify wakeup event action instead of irq trigger type as Brian
-> suggested.
+> One other thing I do not like in this submission of the driver is the
+> direct use of USB while we have a full transport agnostic layer
+> called
+> HID.
+
+Fair enough, I didn't have a look at how hid-logitech-hidpp is working
+yet. I'll dig into that to see if this driver can me implemented more
+elegantly.
+
+Regards,
+Florent
+
+> Cheers,
+> Benjamin
 > 
->  drivers/input/keyboard/gpio_keys.c     | 39 ++++++++++++++++++++++++++++++++++
->  include/linux/gpio_keys.h              |  2 ++
->  include/uapi/linux/input-event-codes.h |  9 ++++++++
->  3 files changed, 50 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 87e613dc33b8..607f3960c886 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -45,6 +45,8 @@ struct gpio_button_data {
->  	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
->  
->  	unsigned int irq;
-> +	unsigned int irq_trigger_type;
-> +	unsigned int wakeup_trigger_type;
->  	spinlock_t lock;
->  	bool disabled;
->  	bool key_pressed;
-> @@ -540,6 +542,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  	}
->  
->  	if (bdata->gpiod) {
-> +		int active_low = gpiod_is_active_low(bdata->gpiod);
-> +
->  		if (button->debounce_interval) {
->  			error = gpiod_set_debounce(bdata->gpiod,
->  					button->debounce_interval * 1000);
-> @@ -568,6 +572,22 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  		isr = gpio_keys_gpio_isr;
->  		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
->  
-> +		switch (button->wakeup_event_action) {
-> +		case EV_ACT_ASSERTED:
-> +			bdata->wakeup_trigger_type = active_low ?
-> +				IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
-
-				IRQ_TYPE_EDGE_FALLING : IRQ_TYPE_EDGE_RISING;
-
-> +			break;
-> +		case EV_ACT_DEASSERTED:
-> +			bdata->wakeup_trigger_type = active_low ?
-> +				IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
-> +			break;
-
-		case EV_ACT_ANY:
-> +		default:
-> +			/*
-> +			 * For other cases, we are OK letting suspend/resume
-> +			 * not reconfigure the trigger type.
-> +			 */
-> +			break;
-> +		}
->  	} else {
->  		if (!button->irq) {
->  			dev_err(dev, "Found button without gpio or irq\n");
-> @@ -586,6 +606,12 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  
->  		isr = gpio_keys_irq_isr;
->  		irqflags = 0;
-> +
-> +		/*
-> +		 * For IRQ buttons, the irq trigger type for press and release
-> +		 * are the same. So we don't need to reconfigure the trigger
-> +		 * type for wakeup.
-
-That is not entirely accurate. Interrupt triggers button press, which is
-followed by either immediate or delayed release. There is no interrupt
-for release.
-
-> +		 */
->  	}
->  
->  	bdata->code = &ddata->keymap[idx];
-> @@ -618,6 +644,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->  		return error;
->  	}
->  
-> +	bdata->irq_trigger_type = irq_get_trigger_type(bdata->irq);
-
-Why do we need to store the trigger type? It is always both edges for
-gpio-based keys and we do not support changing wakeup trigger for
-interrupt-based keys.
-
-> +
->  	return 0;
->  }
->  
-> @@ -718,6 +746,9 @@ gpio_keys_get_devtree_pdata(struct device *dev)
->  			/* legacy name */
->  			fwnode_property_read_bool(child, "gpio-key,wakeup");
->  
-> +		fwnode_property_read_u32(child, "wakeup-event-action",
-> +					 &button->wakeup_event_action);
-> +
->  		button->can_disable =
->  			fwnode_property_read_bool(child, "linux,can-disable");
->  
-> @@ -854,6 +885,10 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
->  	if (device_may_wakeup(dev)) {
->  		for (i = 0; i < ddata->pdata->nbuttons; i++) {
->  			struct gpio_button_data *bdata = &ddata->data[i];
-> +
-> +			if (bdata->button->wakeup && bdata->wakeup_trigger_type)
-> +				irq_set_irq_type(bdata->irq,
-> +						 bdata->wakeup_trigger_type);
-
-			if (bdata->button->wakeup) {
-				if (bdata->wakeup_trigger_type) {
-					error = ...;
-				}
-
-				enable_irq_wake(bdata->irq);
-			}
-
-Might need to be split into a helper; if you add error handling to
-enable_irq_wake() that woudl be great too.
-
->  			if (bdata->button->wakeup)
->  				enable_irq_wake(bdata->irq);
->  			bdata->suspended = true;
-> @@ -878,6 +913,10 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
->  	if (device_may_wakeup(dev)) {
->  		for (i = 0; i < ddata->pdata->nbuttons; i++) {
->  			struct gpio_button_data *bdata = &ddata->data[i];
-> +
-> +			if (bdata->button->wakeup && bdata->wakeup_trigger_type)
-> +				irq_set_irq_type(bdata->irq,
-> +						 bdata->irq_trigger_type);
-
-Just use IRQ_TYPE_EDGE_BOTH.
-
->  			if (bdata->button->wakeup)
->  				disable_irq_wake(bdata->irq);
->  			bdata->suspended = false;
-> diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-> index d06bf77400f1..7160df54a6fe 100644
-> --- a/include/linux/gpio_keys.h
-> +++ b/include/linux/gpio_keys.h
-> @@ -13,6 +13,7 @@ struct device;
->   * @desc:		label that will be attached to button's gpio
->   * @type:		input event type (%EV_KEY, %EV_SW, %EV_ABS)
->   * @wakeup:		configure the button as a wake-up source
-> + * @wakeup_event_action:	event action to trigger wakeup
->   * @debounce_interval:	debounce ticks interval in msecs
->   * @can_disable:	%true indicates that userspace is allowed to
->   *			disable button via sysfs
-> @@ -26,6 +27,7 @@ struct gpio_keys_button {
->  	const char *desc;
->  	unsigned int type;
->  	int wakeup;
-> +	int wakeup_event_action;
->  	int debounce_interval;
->  	bool can_disable;
->  	int value;
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 53fbae27b280..d7917b0bd438 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -32,6 +32,15 @@
->  #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
->  
->  /*
-> + * Event action types
-> + */
-> +#define EV_ACT_ANY			0x00	/* asserted or deasserted */
-> +#define EV_ACT_ASSERTED			0x01	/* asserted */
-> +#define EV_ACT_DEASSERTED		0x02	/* deasserted */
-
-These do not belong here: they are of no interest to userspace but
-simply a driver specific quirk. If you want to share symbolic names add
-include/dt-bindings/input/gpio-keys.h
-
-
-> +#define EV_ACT_MAX			0x02
-> +#define EV_ACT_CNT			(EV_ACT_MAX+1)
-
-These are not needed at all: you are not defining input bitmasks.
-
-> +
-> +/*
->   * Event types
->   */
->  
-> -- 
-> 2.11.0
-> 
-> 
-
-Thanks.
-
--- 
-Dmitry
+> > 
+> > Cheers,
+> > -nestor
+> > 
+> > On Sun, Mar 4, 2018 at 11:14 PM, Florent Flament
+> > <contact@florentflament.com> wrote:
+> > > With the generic HID driver, K290 keyboards' F1 to F12 keys send
+> > > multimedia events by default, and standard keycodes when the
+> > > function
+> > > key is pressed. This driver allows to configure K290 keyboards,
+> > > so
+> > > that F1 to F12 have a standard behavior and send multimedia
+> > > events
+> > > when the function key is pressed. The keyboard mode is set
+> > > through the
+> > > fn_mode module parameter: when set to 1 (default setting) the
+> > > keyboard
+> > > behaves as with the generic HID driver, when set to 0 the
+> > > keyboard is
+> > > configured to work as standard keyboards.
+> > > 
+> > > Signed-off-by: Florent Flament <contact@florentflament.com>
+> > > ---
+> > >  drivers/hid/Kconfig             |  18 ++++++++
+> > >  drivers/hid/Makefile            |   1 +
+> > >  drivers/hid/hid-ids.h           |   1 +
+> > >  drivers/hid/hid-logitech-k290.c | 100
+> > > ++++++++++++++++++++++++++++++++++++++++
+> > >  4 files changed, 120 insertions(+)
+> > >  create mode 100644 drivers/hid/hid-logitech-k290.c
+> > > 
+> > > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> > > index 19c499f5623d..6686da8daac6 100644
+> > > --- a/drivers/hid/Kconfig
+> > > +++ b/drivers/hid/Kconfig
+> > > @@ -488,6 +488,24 @@ config HID_LOGITECH_HIDPP
+> > >         T651, TK820), some mice (Zone Touch mouse), or even
+> > > keyboards (Solar
+> > >         Keyboard).
+> > > 
+> > > +config HID_LOGITECH_K290
+> > > +       tristate "Logitech K290 Keyboard support"
+> > > +       depends on USB_HID
+> > > +       ---help---
+> > > +       This enhances support of Logitech K290 keyboards.
+> > > +
+> > > +       With the generic HID driver, K290 keyboards' F1 to F12
+> > > keys
+> > > +       send multimedia events by default, and standard keycodes
+> > > when
+> > > +       the function key is pressed. This driver allows to
+> > > configure
+> > > +       K290 keyboards, so that F1 to F12 have a standard
+> > > behavior and
+> > > +       send multimedia events when the function key is pressed.
+> > > The
+> > > +       keyboard mode is set through the fn_mode module
+> > > parameter:
+> > > +       when set to 1 (default setting) the keyboard behaves as
+> > > with
+> > > +       the generic HID driver, when set to 0 the keyboard is
+> > > +       configured to work as standard keyboards.
+> > > +
+> > > +       Say Y if you have a Logitech K290 keyboard.
+> > > +
+> > >  config LOGITECH_FF
+> > >         bool "Logitech force feedback support"
+> > >         depends on HID_LOGITECH
+> > > diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> > > index eb13b9e92d85..78079d3a5d58 100644
+> > > --- a/drivers/hid/Makefile
+> > > +++ b/drivers/hid/Makefile
+> > > @@ -61,6 +61,7 @@ obj-$(CONFIG_HID_LENOVO)      += hid-lenovo.o
+> > >  obj-$(CONFIG_HID_LOGITECH)     += hid-logitech.o
+> > >  obj-$(CONFIG_HID_LOGITECH_DJ)  += hid-logitech-dj.o
+> > >  obj-$(CONFIG_HID_LOGITECH_HIDPP)       += hid-logitech-hidpp.o
+> > > +obj-$(CONFIG_HID_LOGITECH_K290)        += hid-logitech-k290.o
+> > >  obj-$(CONFIG_HID_MAGICMOUSE)   += hid-magicmouse.o
+> > >  obj-$(CONFIG_HID_MAYFLASH)     += hid-mf.o
+> > >  obj-$(CONFIG_HID_MICROSOFT)    += hid-microsoft.o
+> > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > > index 9454ac134ce2..68caba7e666c 100644
+> > > --- a/drivers/hid/hid-ids.h
+> > > +++ b/drivers/hid/hid-ids.h
+> > > @@ -693,6 +693,7 @@
+> > >  #define USB_DEVICE_ID_LOGITECH_HARMONY_LAST 0xc14f
+> > >  #define USB_DEVICE_ID_LOGITECH_HARMONY_PS3 0x0306
+> > >  #define USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS 0xc24d
+> > > +#define USB_DEVICE_ID_LOGITECH_KEYBOARD_K290   0xc31f
+> > >  #define USB_DEVICE_ID_LOGITECH_MOUSE_C01A      0xc01a
+> > >  #define USB_DEVICE_ID_LOGITECH_MOUSE_C05A      0xc05a
+> > >  #define USB_DEVICE_ID_LOGITECH_MOUSE_C06A      0xc06a
+> > > diff --git a/drivers/hid/hid-logitech-k290.c b/drivers/hid/hid-
+> > > logitech-k290.c
+> > > new file mode 100644
+> > > index 000000000000..36fdb5838842
+> > > --- /dev/null
+> > > +++ b/drivers/hid/hid-logitech-k290.c
+> > > @@ -0,0 +1,100 @@
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > > +/*
+> > > + * HID driver for Logitech K290 keyboard
+> > > + *
+> > > + * Copyright (c) 2018 Florent Flament
+> > > + *
+> > > + * This drivers allows to configure the K290 keyboard's function
+> > > key
+> > > + * behaviour (whether function mode is activated or not by
+> > > default).
+> > > + *
+> > > + * Logitech custom commands taken from Marcus Ilgner k290-
+> > > fnkeyctl
+> > > + * (https://github.com/milgner/k290-fnkeyctl):
+> > > + * K290_SET_FUNCTION_CMD
+> > > + * K290_SET_FUNCTION_VAL
+> > > + * K290_SET_FUNCTION_OFF
+> > > + * K290_SET_FUNCTION_ON
+> > > + *
+> > > + * Based on hid-accutouch.c and hid-elo.c
+> > > + */
+> > > +
+> > > +#include <linux/device.h>
+> > > +#include <linux/hid.h>
+> > > +#include <linux/module.h>
+> > > +#include <linux/stat.h>
+> > > +#include <linux/types.h>
+> > > +#include <linux/usb.h>
+> > > +
+> > > +#include "hid-ids.h"
+> > > +#include "usbhid/usbhid.h"
+> > > +
+> > > +// Logitech K290 custom USB command and value to setup function
+> > > key
+> > > +#define K290_SET_FUNCTION_CMD 0x02
+> > > +#define K290_SET_FUNCTION_VAL 0x001a
+> > > +
+> > > +// Have function mode turned off (as with standard keyboards)
+> > > +#define K290_SET_FUNCTION_OFF 0x0001
+> > > +// Have function mode turned on (default k290 behavior)
+> > > +#define K290_SET_FUNCTION_ON  0x0000
+> > > +
+> > > +// Function key default mode is set at module load time for
+> > > every K290
+> > > +// keyboards plugged on the machine. By default fn_mode = 1, i.e
+> > > +// sending K290_SET_FUNCTION_ON (default K290 behavior).
+> > > +static bool fn_mode = 1;
+> > > +module_param(fn_mode, bool, 0444);
+> > > +MODULE_PARM_DESC(fn_mode, "Logitech K290 function key mode
+> > > (default = 1)");
+> > > +
+> > > +static void k290_set_function(struct usb_device *dev, uint16_t
+> > > function_mode)
+> > > +{
+> > > +       int ret;
+> > > +
+> > > +       ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+> > > +                             K290_SET_FUNCTION_CMD,
+> > > +                             USB_DIR_OUT | USB_TYPE_VENDOR |
+> > > USB_RECIP_DEVICE,
+> > > +                             K290_SET_FUNCTION_VAL,
+> > > +                             function_mode, 0, 0,
+> > > USB_CTRL_SET_TIMEOUT);
+> > > +
+> > > +       if (ret < 0)
+> > > +               dev_err(&dev->dev,
+> > > +                       "Failed to setup K290 function key, error
+> > > %d\n", ret);
+> > > +}
+> > > +
+> > > +static int k290_set_function_hid_device(struct hid_device *hid)
+> > > +{
+> > > +       struct usb_device *usb_dev = hid_to_usb_dev(hid);
+> > > +
+> > > +       k290_set_function(usb_dev,
+> > > +                       fn_mode ? K290_SET_FUNCTION_ON :
+> > > K290_SET_FUNCTION_OFF);
+> > > +       return 0;
+> > > +}
+> > > +
+> > > +static int k290_input_configured(struct hid_device *hid,
+> > > +                                struct hid_input *hidinput)
+> > > +{
+> > > +       return k290_set_function_hid_device(hid);
+> > > +}
+> > > +
+> > > +static int k290_resume(struct hid_device *hid)
+> > > +{
+> > > +       return k290_set_function_hid_device(hid);
+> > > +}
+> > > +
+> > > +static const struct hid_device_id k290_devices[] = {
+> > > +       { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> > > +                        USB_DEVICE_ID_LOGITECH_KEYBOARD_K290) },
+> > > +       { }
+> > > +};
+> > > +MODULE_DEVICE_TABLE(hid, k290_devices);
+> > > +
+> > > +static struct hid_driver k290_driver = {
+> > > +       .name = "hid-logitech-k290",
+> > > +       .id_table = k290_devices,
+> > > +       .input_configured = k290_input_configured,
+> > > +       .resume = k290_resume,
+> > > +       .reset_resume = k290_resume,
+> > > +};
+> > > +
+> > > +module_hid_driver(k290_driver);
+> > > +
+> > > +MODULE_AUTHOR("Florent Flament <contact@florentflament.com>");
+> > > +MODULE_DESCRIPTION("Logitech K290 keyboard driver");
+> > > +MODULE_LICENSE("GPL v2");
+> > > --
+> > > 2.14.3
+> > > 
+> > > --
+> > > To unsubscribe from this list: send the line "unsubscribe linux-
+> > > input" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.htm
+> > > l

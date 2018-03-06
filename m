@@ -1,54 +1,75 @@
-From: Florent Flament <contact@florentflament.com>
-Subject: Re: [PATCH v2 1/1] HID: Logitech K290: Add driver for the Logitech
- K290 USB keyboard
-Date: Tue, 06 Mar 2018 00:25:05 +0100
-Message-ID: <1520292305.14077.11.camel@florentflament.com>
-References: <20180304170004.26553-1-contact@florentflament.com>
-         <20180304221425.28611-1-contact@florentflament.com>
-         <20180304221425.28611-2-contact@florentflament.com>
-         <CAE7qMrpF4dGCUrtnXbxb4MLFPZ0Wf13mrQEPypwPbEHaB9e44A@mail.gmail.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] HID: hid-ntrig: use true and false for boolean values
+Date: Mon, 5 Mar 2018 18:06:24 -0600
+Message-ID: <20180306000624.GA2680@embeddedgus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAE7qMrpF4dGCUrtnXbxb4MLFPZ0Wf13mrQEPypwPbEHaB9e44A@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc: andy.shevchenko@gmail.com, jikos@kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2018-03-05 at 10:31 +0100, Nestor Lopez Casado wrote:
-> Hello Florent,
+Assign true or false to boolean variables instead of an integer value.
 
-Hi Nestor,
+This issue was detected with the help of Coccinelle.
 
-> In my view, this driver may not be a good idea. The default behaviour
-> of K290 is 'send multimedia keycodes' with the user given the choice
-> to change that behaviour via vendor commands. Putting a driver that
-> will unconditionally change that behaviour without the user's consent
-> might bother other users that prefer the multimedia keycodes by
-> default.
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/hid/hid-ntrig.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Actually, the default behavior of the proposed driver is currently to
-let the K290 send multimedia keycodes by default (as if using the
-generic HID driver). And this behavior can be changed by using the
-fn_mode parameter. We may also add a third behavior consisting in not
-doing anything, and letting a user space application managing the
-keyboard, which could possibly be the default behavior.
-
-> Besides, I'd argue that instead of a kernel module this would be best
-> achieved from a user space application. Something in the lines of
-> Solaar (github pwr/solaar) or libratbag (there's an issue open to
-> support keyboards) or even a specific application built for the
-> purpose. Anyways, please collect the input from Benjamin and Jiri as
-> they as they best placed to advise than myself.
-
-Indeed, this driver is based on a working user space application
-available there https://github.com/milgner/k290-fnkeyctl . However, I
-feel a bit awkward to have to install a dedicated package, or compile &
-install an application to have proper support of a keyboard. I feel
-like it would be more beautiful to have it supported directly by a
-module, like most devices.
-
-Regards,
-Florent
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 3d121d8..43b1c72 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -591,8 +591,8 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 	switch (usage->hid) {
+ 	case 0xff000001:
+ 		/* Tag indicating the start of a multitouch group */
+-		nd->reading_mt = 1;
+-		nd->first_contact_touch = 0;
++		nd->reading_mt = true;
++		nd->first_contact_touch = false;
+ 		break;
+ 	case HID_DG_TIPSWITCH:
+ 		nd->tipswitch = value;
+@@ -663,7 +663,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			 * even if deactivation slack is turned off.
+ 			 */
+ 			nd->act_state = deactivate_slack - 1;
+-			nd->confidence = 0;
++			nd->confidence = false;
+ 			break;
+ 		}
+ 
+@@ -679,7 +679,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			 */
+ 			if (nd->w < nd->min_width ||
+ 			    nd->h < nd->min_height)
+-				nd->confidence = 0;
++				nd->confidence = false;
+ 		} else
+ 			break;
+ 
+@@ -758,7 +758,7 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 		if (!nd->reading_mt) /* Just to be sure */
+ 			break;
+ 
+-		nd->reading_mt = 0;
++		nd->reading_mt = false;
+ 
+ 
+ 		/*
+@@ -910,7 +910,7 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return -ENOMEM;
+ 	}
+ 
+-	nd->reading_mt = 0;
++	nd->reading_mt = false;
+ 	nd->min_width = 0;
+ 	nd->min_height = 0;
+ 	nd->activate_slack = activate_slack;
+-- 
+2.7.4

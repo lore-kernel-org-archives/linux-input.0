@@ -1,49 +1,92 @@
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [PATCH v4 2/3] Input: gpio-keys - allow setting wakeup event action in DT
-Date: Tue,  6 Mar 2018 15:51:22 +0800
-Message-ID: <20180306075123.20989-1-jeffy.chen@rock-chips.com>
-References: <20180306074418.8879-2-jeffy.chen@rock-chips.com>
+From: Danilo Krummrich <danilokrummrich@dk-develop.de>
+Subject: [PATCH resend] usb: quirks: add control message delay for 1b1c:1b20
+Date: Tue,  6 Mar 2018 09:38:49 +0100
+Message-ID: <20180306083849.3293-1-danilokrummrich@dk-develop.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180306074418.8879-2-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
+To: gregkh@linuxfoundation.org, felipe.balbi@linux.intel.com
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kai.heng.feng@canonical.com, Danilo Krummrich <danilokrummrich@dk-develop.de>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Allow specifying event actions to trigger wakeup when using the
-gpio-keys input device as a wakeup source.
+Corsair Strafe RGB keyboard does not respond to usb control messages
+sometimes and hence generates timeouts.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+Commit de3af5bf259d ("usb: quirks: add delay init quirk for Corsair
+Strafe RGB keyboard") tried to fix those timeouts by adding
+USB_QUIRK_DELAY_INIT.
+
+Unfortunately, even with this quirk timeouts of usb_control_msg()
+can still be seen, but with a lower frequency (approx. 1 out of 15):
+
+[   29.103520] usb 1-8: string descriptor 0 read error: -110
+[   34.363097] usb 1-8: can't set config #1, error -110
+
+Adding further delays to different locations where usb control
+messages are issued just moves the timeouts to other locations,
+e.g.:
+
+[   35.400533] usbhid 1-8:1.0: can't add hid device: -110
+[   35.401014] usbhid: probe of 1-8:1.0 failed with error -110
+
+The only way to reliably avoid those issues is having a pause after
+each usb control message. In approx. 200 boot cycles no more timeouts
+were seen.
+
+Addionaly, keep USB_QUIRK_DELAY_INIT as it turned out to be necessary
+to have the delay in hub_port_connect() after hub_port_init().
+
+The overall boot time seems not to be influenced by these additional
+delays, even on fast machines and lightweight distributions.
+
+Fixes: de3af5bf259d ("usb: quirks: add delay init quirk for Corsair Strafe RGB keyboard")
+Cc: stable@vger.kernel.org
+Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
 ---
+ drivers/usb/core/message.c | 4 ++++
+ drivers/usb/core/quirks.c  | 3 ++-
+ include/linux/usb/quirks.h | 3 +++
+ 3 files changed, 9 insertions(+), 1 deletion(-)
 
-Changes in v4: None
-Changes in v3: None
-Changes in v2:
-Specify wakeup event action instead of irq trigger type as Brian
-suggested.
-
- Documentation/devicetree/bindings/input/gpio-keys.txt | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
-index a94940481e55..996ce84352cb 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
-@@ -26,6 +26,14 @@ Optional subnode-properties:
- 	  If not specified defaults to 5.
- 	- wakeup-source: Boolean, button can wake-up the system.
- 			 (Legacy property supported: "gpio-key,wakeup")
-+	- wakeup-event-action: Specifies whether the key should wake the
-+	  system when asserted, when deasserted, or both. This property is
-+	  only valid for keys that wake up the system (e.g., when the
-+	  "wakeup-source" property is also provided).
-+	  Supported values are defined in linux-event-codes.h:
-+		EV_ACT_ASSERTED		- asserted
-+		EV_ACT_DEASSERTED	- deasserted
-+		EV_ACT_ANY		- both asserted and deasserted
- 	- linux,can-disable: Boolean, indicates that button is connected
- 	  to dedicated (not shared) interrupt which can be disabled to
- 	  suppress events from the button.
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index c64cf6c4a83d..0c11d40a12bc 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -151,6 +151,10 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe, __u8 request,
+ 
+ 	ret = usb_internal_control_msg(dev, pipe, dr, data, size, timeout);
+ 
++	/* Linger a bit, prior to the next control message. */
++	if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
++		msleep(200);
++
+ 	kfree(dr);
+ 
+ 	return ret;
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index f4a548471f0f..54b019e267c5 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -230,7 +230,8 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	{ USB_DEVICE(0x1b1c, 0x1b13), .driver_info = USB_QUIRK_DELAY_INIT },
+ 
+ 	/* Corsair Strafe RGB */
+-	{ USB_DEVICE(0x1b1c, 0x1b20), .driver_info = USB_QUIRK_DELAY_INIT },
++	{ USB_DEVICE(0x1b1c, 0x1b20), .driver_info = USB_QUIRK_DELAY_INIT |
++	  USB_QUIRK_DELAY_CTRL_MSG },
+ 
+ 	/* Corsair K70 LUX */
+ 	{ USB_DEVICE(0x1b1c, 0x1b36), .driver_info = USB_QUIRK_DELAY_INIT },
+diff --git a/include/linux/usb/quirks.h b/include/linux/usb/quirks.h
+index f1fcec2fd5f8..b7a99ce56bc9 100644
+--- a/include/linux/usb/quirks.h
++++ b/include/linux/usb/quirks.h
+@@ -63,4 +63,7 @@
+  */
+ #define USB_QUIRK_DISCONNECT_SUSPEND		BIT(12)
+ 
++/* Device needs a pause after every control message. */
++#define USB_QUIRK_DELAY_CTRL_MSG		BIT(13)
++
+ #endif /* __LINUX_USB_QUIRKS_H */
 -- 
-2.11.0
+2.16.2

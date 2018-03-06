@@ -1,22 +1,27 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: logitech-hidpp: document sysfs interface
-Date: Tue, 6 Mar 2018 15:18:32 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1803061518140.15778@cbobk.fhfr.pm>
-References: <20180302131653.GA24934@mordor.localdomain>
+Subject: Re: [PATCH] HID: hid-ntrig: use true and false for boolean values
+Date: Tue, 6 Mar 2018 15:20:15 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1803061519430.15778@cbobk.fhfr.pm>
+References: <20180306000624.GA2680@embeddedgus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180302131653.GA24934@mordor.localdomain>
+In-Reply-To: <20180306000624.GA2680@embeddedgus>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Aishwarya Pant <aishpant@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Greg KH <gregkh@linuxfoundation.org>, Julia Lawall <julia.lawall@lip6.fr>, linux-doc@vger.kernel.org
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2 Mar 2018, Aishwarya Pant wrote:
+On Mon, 5 Mar 2018, Gustavo A. R. Silva wrote:
 
-> Descriptions have been collected from git commit logs.
+> Assign true or false to boolean variables instead of an integer value.
+> 
+> This issue was detected with the help of Coccinelle.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-Applied, thanks.
+I've commited this (and the hid-multitouch variant of it as well) to 
+for-4.17/upstream.
 
 -- 
 Jiri Kosina

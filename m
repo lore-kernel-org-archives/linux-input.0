@@ -1,61 +1,57 @@
-From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [PATCH v5 0/3] gpio-keys: Add support for specifying wakeup event
- action
-Date: Thu,  8 Mar 2018 15:32:10 +0800
-Message-ID: <20180308073213.8419-1-jeffy.chen@rock-chips.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v4.16-rc4
+Date: Wed, 7 Mar 2018 15:53:11 -0800
+Message-ID: <20180307235311.GB231572@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, heiko@sntech.de, stephen lu <lumotuwe@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Joseph Lo <josephl@nvidia.com>, Emil Renner Berthing <kernel@esmil.dk>, Brian Norris <briannorris@chromium.org>, linux-rockchip@lists.infradead.org, Matthias Kaehlcke <mka@chromium.org>, linux-input@vger.kernel.org, briannorris@google.com, dtor@google.com, devicetree@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Jeffy Chen <jeffy.chen@rock-chips.com>, dianders@google.com, Rob Herring <robh+dt@kernel.org>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Philippe
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi Linus,
 
-On chromebook kevin, we are using gpio-keys for pen insert event. But
-we only want it to wakeup the system when ejecting the pen.
+Please pull from:
 
-So we may need to change the interrupt trigger type during suspending.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Changes in v5:
-Remove unneeded irq_wake flag as Andy suggested.
+to receive updates for the input subsystem:
 
-Changes in v4:
-Add dt-binding gpio-keys.h, stop saving irq trigger type, add enable/disable wakeup helpers as Dmitry suggested.
-Include dt-binding gpio-keys.h
+- we are reverting patch that was switched touchpad on Lenovo T460P over
+  to native RMI because on these boxes BIOS messes up with SMBus
+  controller state. We might re-enable it later once SMBus issue is
+  resolved
 
-Changes in v3:
-Adding more comments as Brian suggested.
+- disabling interrupts in matrix_keypad driver was racy
 
-Changes in v2:
-Specify wakeup event action instead of irq trigger type as Brian
-suggested.
-Specify wakeup event action instead of irq trigger type as Brian
-suggested.
-Specify wakeup event action instead of irq trigger type as Brian
-suggested.
+- mms114 now has SPDX header and matching MODULE_LICENSE
 
-Jeffy Chen (3):
-  Input: gpio-keys - add support for wakeup event action
-  Input: gpio-keys - allow setting wakeup event action in DT
-  arm64: dts: rockchip: kevin: Avoid wakeup when inserting the pen
 
- .../devicetree/bindings/input/gpio-keys.txt        |  8 +++
- arch/arm64/boot/dts/rockchip/rk3399-gru-kevin.dts  |  3 ++
- drivers/input/keyboard/gpio_keys.c                 | 63 ++++++++++++++++++++--
- include/dt-bindings/input/gpio-keys.h              | 13 +++++
- include/linux/gpio_keys.h                          |  2 +
- 5 files changed, 86 insertions(+), 3 deletions(-)
- create mode 100644 include/dt-bindings/input/gpio-keys.h
+Changelog:
+---------
+
+Andi Shyti (2):
+      Input: mms114 - fix license module information
+      Input: mms114 - add SPDX identifier
+
+Dmitry Torokhov (1):
+      Revert "Input: synaptics - Lenovo Thinkpad T460p devices should use RMI"
+
+Zhang Bo (1):
+      Input: matrix_keypad - fix race when disabling interrupts
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/matrix_keypad.c |  4 +++-
+ drivers/input/mouse/synaptics.c        |  1 -
+ drivers/input/touchscreen/mms114.c     | 15 ++++++---------
+ 3 files changed, 9 insertions(+), 11 deletions(-)
+
+Thanks.
+
 
 -- 
-2.11.0
+Dmitry

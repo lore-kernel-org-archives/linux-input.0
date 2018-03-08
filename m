@@ -1,40 +1,50 @@
-From: JeffyChen <jeffy.chen@rock-chips.com>
-Subject: Re: [PATCH v4 1/3] Input: gpio-keys - add support for wakeup event
- action
-Date: Thu, 08 Mar 2018 15:32:09 +0800
-Message-ID: <5AA0E6F9.6060704@rock-chips.com>
-References: <20180306074418.8879-1-jeffy.chen@rock-chips.com> <20180306074418.8879-2-jeffy.chen@rock-chips.com> <CAHp75VcmbHbnD8FnTHXAqGajhs10wA7Z7U_D6SY9=j=y+GLLPA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+Subject: [PATCH v5 2/3] Input: gpio-keys - allow setting wakeup event action in DT
+Date: Thu,  8 Mar 2018 15:32:12 +0800
+Message-ID: <20180308073213.8419-3-jeffy.chen@rock-chips.com>
+References: <20180308073213.8419-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VcmbHbnD8FnTHXAqGajhs10wA7Z7U_D6SY9=j=y+GLLPA@mail.gmail.com>
+In-Reply-To: <20180308073213.8419-1-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, briannorris@google.com, =?UTF-8?B?SGVpa28gU3TDvGJuZXI=?= <heiko@sntech.de>, Dmitry Torokhov <dtor@google.com>, Douglas Anderson <dianders@google.com>, devicetree <devicetree@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input <linux-input@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Andy,
+Allow specifying event actions to trigger wakeup when using the
+gpio-keys input device as a wakeup source.
 
-Thanks for your reply.
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+---
 
-On 03/07/2018 07:57 PM, Andy Shevchenko wrote:
-> On Tue, Mar 6, 2018 at 9:44 AM, Jeffy Chen <jeffy.chen@rock-chips.com> wrote:
->> Add support for specifying event actions to trigger wakeup when using
->> the gpio-keys input device as a wakeup source.
->>
->> This would allow the device to configure when to wakeup the system. For
->> example a gpio-keys input device for pen insert, may only want to wakeup
->> the system when ejecting the pen.
->
->> +       bool wakeup_enabled;
->
->> +                       if (bdata->wakeup_enabled) {
->
-> This is redundant. IRQ core keeps track on this information already.
->
-> Check below as an example
-> aef3ad103a68 ("serial: core: remove unneeded irq_wake flag")
->
-right, that make sense.
->
+Changes in v5: None
+Changes in v4: None
+Changes in v3: None
+Changes in v2:
+Specify wakeup event action instead of irq trigger type as Brian
+suggested.
+
+ Documentation/devicetree/bindings/input/gpio-keys.txt | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
+index a94940481e55..996ce84352cb 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+@@ -26,6 +26,14 @@ Optional subnode-properties:
+ 	  If not specified defaults to 5.
+ 	- wakeup-source: Boolean, button can wake-up the system.
+ 			 (Legacy property supported: "gpio-key,wakeup")
++	- wakeup-event-action: Specifies whether the key should wake the
++	  system when asserted, when deasserted, or both. This property is
++	  only valid for keys that wake up the system (e.g., when the
++	  "wakeup-source" property is also provided).
++	  Supported values are defined in linux-event-codes.h:
++		EV_ACT_ASSERTED		- asserted
++		EV_ACT_DEASSERTED	- deasserted
++		EV_ACT_ANY		- both asserted and deasserted
+ 	- linux,can-disable: Boolean, indicates that button is connected
+ 	  to dedicated (not shared) interrupt which can be disabled to
+ 	  suppress events from the button.
+-- 
+2.11.0

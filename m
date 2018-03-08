@@ -1,202 +1,215 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V1] Input: pm8941-pwrkey: add resin key capabilities
-Date: Wed, 7 Mar 2018 12:21:47 -0800
-Message-ID: <20180307202147.GB195580@dtor-ws>
-References: <1520410173-2507-1-git-send-email-tirupath@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+Subject: [PATCH v5 1/3] Input: gpio-keys - add support for wakeup event action
+Date: Thu,  8 Mar 2018 15:32:11 +0800
+Message-ID: <20180308073213.8419-2-jeffy.chen@rock-chips.com>
+References: <20180308073213.8419-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1520410173-2507-1-git-send-email-tirupath@codeaurora.org>
+In-Reply-To: <20180308073213.8419-1-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tirupathi Reddy <tirupath@codeaurora.org>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, Jeffy Chen <jeffy.chen@rock-chips.com>, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Tirupathi,
+Add support for specifying event actions to trigger wakeup when using
+the gpio-keys input device as a wakeup source.
 
-On Wed, Mar 07, 2018 at 01:39:33PM +0530, Tirupathi Reddy wrote:
-> Add resin key support to handle different types of key events
-> defined in different platforms.
-> 
-> Signed-off-by: Tirupathi Reddy <tirupath@codeaurora.org>
-> ---
->  .../bindings/input/qcom,pm8941-pwrkey.txt          | 20 ++++++-
->  drivers/input/misc/pm8941-pwrkey.c                 | 63 +++++++++++++++++++++-
->  2 files changed, 81 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> index 07bf55f..1c437e9 100644
-> --- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> +++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> @@ -20,6 +20,14 @@ PROPERTIES
->  		    defined by the binding document describing the node's
->  		    interrupt parent.
->  
-> +- interrupt-names:
-> +	Usage: required
-> +	Value type: <stringlist>
-> +	Definition: Interrupt names.  This list must match up 1-to-1 with the
-> +		    interrupts specified in the 'interrupts' property. "kpdpwr"
-> +		    must be specified.  "resin" may be specified for some
-> +		    platforms.
-> +
->  - debounce:
->  	Usage: optional
->  	Value type: <u32>
-> @@ -32,12 +40,22 @@ PROPERTIES
->  	Definition: presence of this property indicates that the KPDPWR_N pin
->  		    should be configured for pull up.
->  
-> +- linux,code:
-> +	Usage: required for "resin" key
-> +	Value type: <u32>
-> +	Definition: The input key-code associated with the resin key.
-> +		    Use the linux event codes defined in
-> +		    include/dt-bindings/input/linux-event-codes.h
-> +
->  EXAMPLE
->  
->  	pwrkey@800 {
->  		compatible = "qcom,pm8941-pwrkey";
->  		reg = <0x800>;
-> -		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
-> +		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>,
-> +			     <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
-> +		interrupt-names = "kpdpwr", "resin";
->  		debounce = <15625>;
->  		bias-pull-up;
-> +		linux,code = <KEY_VOLUMEDOWN>;
->  	};
-> diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-> index 18ad956..3f801cf 100644
-> --- a/drivers/input/misc/pm8941-pwrkey.c
-> +++ b/drivers/input/misc/pm8941-pwrkey.c
-> @@ -28,6 +28,7 @@
->  
->  #define PON_RT_STS			0x10
->  #define  PON_KPDPWR_N_SET		BIT(0)
-> +#define  PON_RESIN_N_SET		BIT(1)
->  
->  #define PON_PS_HOLD_RST_CTL		0x5a
->  #define PON_PS_HOLD_RST_CTL2		0x5b
-> @@ -46,6 +47,8 @@
->  struct pm8941_pwrkey {
->  	struct device *dev;
->  	int irq;
-> +	int resin_irq;
-> +	u32 resin_key_code;
->  	u32 baseaddr;
->  	struct regmap *regmap;
->  	struct input_dev *input;
-> @@ -130,6 +133,24 @@ static irqreturn_t pm8941_pwrkey_irq(int irq, void *_data)
->  	return IRQ_HANDLED;
->  }
->  
-> +static irqreturn_t pm8941_resinkey_irq(int irq, void *_data)
-> +{
-> +	struct pm8941_pwrkey *pwrkey = _data;
-> +	unsigned int sts;
-> +	int error;
-> +
-> +	error = regmap_read(pwrkey->regmap,
-> +			    pwrkey->baseaddr + PON_RT_STS, &sts);
-> +	if (error)
-> +		return IRQ_HANDLED;
+This would allow the device to configure when to wakeup the system. For
+example a gpio-keys input device for pen insert, may only want to wakeup
+the system when ejecting the pen.
 
-It looks like you are reading the same register as the power on key.
-Won't you lose events if both are pressed at the same time?
+Suggested-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+---
 
-I think you need a unified interrupt handler...
+Changes in v5:
+Remove unneeded irq_wake flag as Andy suggested.
 
-> +
-> +	input_report_key(pwrkey->input, pwrkey->resin_key_code,
-> +			 !!(sts & PON_RESIN_N_SET));
-> +	input_sync(pwrkey->input);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
->  static int __maybe_unused pm8941_pwrkey_suspend(struct device *dev)
->  {
->  	struct pm8941_pwrkey *pwrkey = dev_get_drvdata(dev);
-> @@ -153,6 +174,35 @@ static int __maybe_unused pm8941_pwrkey_resume(struct device *dev)
->  static SIMPLE_DEV_PM_OPS(pm8941_pwr_key_pm_ops,
->  			 pm8941_pwrkey_suspend, pm8941_pwrkey_resume);
->  
-> +static int pm8941_resin_key_init(struct pm8941_pwrkey *pwrkey)
-> +{
-> +	int error;
-> +
-> +	/*
-> +	 * Get the standard-key parameters. This might not be
-> +	 * specified if there is no key mapping on the reset line.
-> +	 */
-> +	error = of_property_read_u32(pwrkey->dev->of_node, "linux,code",
-> +			&pwrkey->resin_key_code);
-> +	if (error) {
-> +		dev_err(pwrkey->dev, "failed to read key-code for resin key\n");
-> +		return error;
-> +	}
-> +
-> +	/* Register key configuration */
-> +	input_set_capability(pwrkey->input, EV_KEY, pwrkey->resin_key_code);
-> +
-> +	error = devm_request_threaded_irq(pwrkey->dev, pwrkey->resin_irq,
-> +					  NULL, pm8941_resinkey_irq,
-> +					  IRQF_ONESHOT,
-> +					  "pm8941_resinkey", pwrkey);
-> +	if (error)
-> +		dev_err(pwrkey->dev, "failed requesting resin key IRQ: %d\n",
-> +			error);
-> +
-> +	return error;
-> +}
-> +
->  static int pm8941_pwrkey_probe(struct platform_device *pdev)
->  {
->  	struct pm8941_pwrkey *pwrkey;
-> @@ -182,7 +232,7 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
->  		return -ENODEV;
->  	}
->  
-> -	pwrkey->irq = platform_get_irq(pdev, 0);
-> +	pwrkey->irq = platform_get_irq_byname(pdev, "kpdpwr");
+Changes in v4:
+Add dt-binding gpio-keys.h, stop saving irq trigger type, add enable/disable wakeup helpers as Dmitry suggested.
 
-You are breaking support for old DTS here I'm afraid.
+Changes in v3:
+Adding more comments as Brian suggested.
 
->  	if (pwrkey->irq < 0) {
->  		dev_err(&pdev->dev, "failed to get irq\n");
->  		return pwrkey->irq;
-> @@ -241,6 +291,17 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
->  		return error;
->  	}
->  
-> +	pwrkey->resin_irq = platform_get_irq_byname(pdev, "resin");
-> +	if (pwrkey->resin_irq >= 0) {
+Changes in v2:
+Specify wakeup event action instead of irq trigger type as Brian
+suggested.
 
-This is not entirely correct. I'd say if you have -ENXIO you can
-conclude that the support for "resin" key is not enabled, but the rest
-of the errors you should report up the stack. Deferrals will be retried
-and other errors are fatal.
+ drivers/input/keyboard/gpio_keys.c    | 63 +++++++++++++++++++++++++++++++++--
+ include/dt-bindings/input/gpio-keys.h | 13 ++++++++
+ include/linux/gpio_keys.h             |  2 ++
+ 3 files changed, 75 insertions(+), 3 deletions(-)
+ create mode 100644 include/dt-bindings/input/gpio-keys.h
 
-> +		/* resin key capabilities are defined in device node */
-> +		error = pm8941_resin_key_init(pwrkey);
-> +		if (error) {
-> +			dev_err(&pdev->dev, "failed resin key initialization: %d\n",
-> +				error);
-> +			return error;
-> +		}
-> +	}
-> +
->  	error = input_register_device(pwrkey->input);
->  	if (error) {
->  		dev_err(&pdev->dev, "failed to register input device: %d\n",
-> -- 
-> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
-> 
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 87e613dc33b8..f6d5cfd44833 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -30,6 +30,7 @@
+ #include <linux/of.h>
+ #include <linux/of_irq.h>
+ #include <linux/spinlock.h>
++#include <dt-bindings/input/gpio-keys.h>
+ 
+ struct gpio_button_data {
+ 	const struct gpio_keys_button *button;
+@@ -45,6 +46,7 @@ struct gpio_button_data {
+ 	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
+ 
+ 	unsigned int irq;
++	unsigned int wakeup_trigger_type;
+ 	spinlock_t lock;
+ 	bool disabled;
+ 	bool key_pressed;
+@@ -540,6 +542,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	}
+ 
+ 	if (bdata->gpiod) {
++		int active_low = gpiod_is_active_low(bdata->gpiod);
++
+ 		if (button->debounce_interval) {
+ 			error = gpiod_set_debounce(bdata->gpiod,
+ 					button->debounce_interval * 1000);
+@@ -568,6 +572,24 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		isr = gpio_keys_gpio_isr;
+ 		irqflags = IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING;
+ 
++		switch (button->wakeup_event_action) {
++		case EV_ACT_ASSERTED:
++			bdata->wakeup_trigger_type = active_low ?
++				IRQ_TYPE_EDGE_FALLING : IRQ_TYPE_EDGE_RISING;
++			break;
++		case EV_ACT_DEASSERTED:
++			bdata->wakeup_trigger_type = active_low ?
++				IRQ_TYPE_EDGE_RISING : IRQ_TYPE_EDGE_FALLING;
++			break;
++		case EV_ACT_ANY:
++			/* fall through */
++		default:
++			/*
++			 * For other cases, we are OK letting suspend/resume
++			 * not reconfigure the trigger type.
++			 */
++			break;
++		}
+ 	} else {
+ 		if (!button->irq) {
+ 			dev_err(dev, "Found button without gpio or irq\n");
+@@ -586,6 +608,11 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 
+ 		isr = gpio_keys_irq_isr;
+ 		irqflags = 0;
++
++		/*
++		 * For IRQ buttons, there is no interrupt for release.
++		 * So we don't need to reconfigure the trigger type for wakeup.
++		 */
+ 	}
+ 
+ 	bdata->code = &ddata->keymap[idx];
+@@ -718,6 +745,9 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 			/* legacy name */
+ 			fwnode_property_read_bool(child, "gpio-key,wakeup");
+ 
++		fwnode_property_read_u32(child, "wakeup-event-action",
++					 &button->wakeup_event_action);
++
+ 		button->can_disable =
+ 			fwnode_property_read_bool(child, "linux,can-disable");
+ 
+@@ -845,6 +875,31 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static int gpio_keys_enable_wakeup(struct gpio_button_data *bdata)
++{
++	int ret;
++
++	ret = enable_irq_wake(bdata->irq);
++	if (ret)
++		return ret;
++
++	if (bdata->wakeup_trigger_type)
++		irq_set_irq_type(bdata->irq, bdata->wakeup_trigger_type);
++
++	return 0;
++}
++
++static void gpio_keys_disable_wakeup(struct gpio_button_data *bdata)
++{
++	/**
++	 * The trigger type is always both edges for gpio-based keys and we do
++	 * not support changing wakeup trigger for interrupt-based keys.
++	 */
++	if (bdata->wakeup_trigger_type)
++		irq_set_irq_type(bdata->irq, IRQ_TYPE_EDGE_BOTH);
++	disable_irq_wake(bdata->irq);
++}
++
+ static int __maybe_unused gpio_keys_suspend(struct device *dev)
+ {
+ 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
+@@ -854,8 +909,9 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
+ 	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
+ 			struct gpio_button_data *bdata = &ddata->data[i];
++
+ 			if (bdata->button->wakeup)
+-				enable_irq_wake(bdata->irq);
++				gpio_keys_enable_wakeup(bdata);
+ 			bdata->suspended = true;
+ 		}
+ 	} else {
+@@ -878,9 +934,10 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
+ 	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+-			if (bdata->button->wakeup)
+-				disable_irq_wake(bdata->irq);
++
+ 			bdata->suspended = false;
++			if (irqd_is_wakeup_set(irq_get_irq_data(bdata->irq)))
++				gpio_keys_disable_wakeup(bdata);
+ 		}
+ 	} else {
+ 		mutex_lock(&input->mutex);
+diff --git a/include/dt-bindings/input/gpio-keys.h b/include/dt-bindings/input/gpio-keys.h
+new file mode 100644
+index 000000000000..8962df79e753
+--- /dev/null
++++ b/include/dt-bindings/input/gpio-keys.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * This header provides constants for gpio keys bindings.
++ */
++
++#ifndef _DT_BINDINGS_GPIO_KEYS_H
++#define _DT_BINDINGS_GPIO_KEYS_H
++
++#define EV_ACT_ANY		0x00	/* asserted or deasserted */
++#define EV_ACT_ASSERTED		0x01	/* asserted */
++#define EV_ACT_DEASSERTED	0x02	/* deasserted */
++
++#endif /* _DT_BINDINGS_GPIO_KEYS_H */
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index d06bf77400f1..7160df54a6fe 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -13,6 +13,7 @@ struct device;
+  * @desc:		label that will be attached to button's gpio
+  * @type:		input event type (%EV_KEY, %EV_SW, %EV_ABS)
+  * @wakeup:		configure the button as a wake-up source
++ * @wakeup_event_action:	event action to trigger wakeup
+  * @debounce_interval:	debounce ticks interval in msecs
+  * @can_disable:	%true indicates that userspace is allowed to
+  *			disable button via sysfs
+@@ -26,6 +27,7 @@ struct gpio_keys_button {
+ 	const char *desc;
+ 	unsigned int type;
+ 	int wakeup;
++	int wakeup_event_action;
+ 	int debounce_interval;
+ 	bool can_disable;
+ 	int value;
 -- 
-Dmitry
+2.11.0

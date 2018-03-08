@@ -1,50 +1,40 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 2/2] dt-bindings: input: Add binding for RAVE SP input
- driver
-Date: Wed, 7 Mar 2018 20:04:47 -0600
-Message-ID: <20180308020447.rkpfcyeoh2b255bg@rob-hp-laptop>
-References: <20180307020134.26293-1-andrew.smirnov@gmail.com>
- <20180307020134.26293-2-andrew.smirnov@gmail.com>
+From: JeffyChen <jeffy.chen@rock-chips.com>
+Subject: Re: [PATCH v4 1/3] Input: gpio-keys - add support for wakeup event
+ action
+Date: Thu, 08 Mar 2018 15:32:09 +0800
+Message-ID: <5AA0E6F9.6060704@rock-chips.com>
+References: <20180306074418.8879-1-jeffy.chen@rock-chips.com> <20180306074418.8879-2-jeffy.chen@rock-chips.com> <CAHp75VcmbHbnD8FnTHXAqGajhs10wA7Z7U_D6SY9=j=y+GLLPA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180307020134.26293-2-andrew.smirnov@gmail.com>
+In-Reply-To: <CAHp75VcmbHbnD8FnTHXAqGajhs10wA7Z7U_D6SY9=j=y+GLLPA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Chris Healy <cphealy@gmail.com>, Lucas Stach <l.stach@pengutronix.de>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, briannorris@google.com, =?UTF-8?B?SGVpa28gU3TDvGJuZXI=?= <heiko@sntech.de>, Dmitry Torokhov <dtor@google.com>, Douglas Anderson <dianders@google.com>, devicetree <devicetree@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input <linux-input@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Mar 06, 2018 at 06:01:34PM -0800, Andrey Smirnov wrote:
-> Add Device Tree bindings for RAVE SP input drvier - an MFD cell of
-> parent RAVE SP driver (documented in
-> Documentation/devicetree/bindings/mfd/zii,rave-sp.txt).
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: devicetree@vger.kernel.org
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: Chris Healy <cphealy@gmail.com>
-> Cc: Lucas Stach <l.stach@pengutronix.de>
-> Acked-by: Lucas Stach <l.stach@pengutronix.de>
-> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> ---
-> 
-> Changes since [v2]:
-> 
-> 	- Collected Acked-by from Lucas
-> 
-> 	- Removed unnecessary status="okay"
-> 
-> No changes between v1 and v2, so v1 is not referenced here.
-> 
-> [v2] lkml.kernel.org/r/20180301165527.22274-2-andrew.smirnov@gmail.com
-> 
->  .../bindings/input/zii,rave-sp-pwrbutton.txt       | 23 ++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/zii,rave-sp-pwrbutton.txt
+Hi Andy,
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Thanks for your reply.
+
+On 03/07/2018 07:57 PM, Andy Shevchenko wrote:
+> On Tue, Mar 6, 2018 at 9:44 AM, Jeffy Chen <jeffy.chen@rock-chips.com> wrote:
+>> Add support for specifying event actions to trigger wakeup when using
+>> the gpio-keys input device as a wakeup source.
+>>
+>> This would allow the device to configure when to wakeup the system. For
+>> example a gpio-keys input device for pen insert, may only want to wakeup
+>> the system when ejecting the pen.
+>
+>> +       bool wakeup_enabled;
+>
+>> +                       if (bdata->wakeup_enabled) {
+>
+> This is redundant. IRQ core keeps track on this information already.
+>
+> Check below as an example
+> aef3ad103a68 ("serial: core: remove unneeded irq_wake flag")
+>
+right, that make sense.
+>

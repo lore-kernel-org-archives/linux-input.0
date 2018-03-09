@@ -1,50 +1,103 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v5 1/3] Input: gpio-keys - add support for wakeup event
- action
-Date: Fri, 9 Mar 2018 17:27:21 -0600
-Message-ID: <20180309232720.pmqaulifiqa5czul@rob-hp-laptop>
-References: <20180308073213.8419-1-jeffy.chen@rock-chips.com>
- <20180308073213.8419-2-jeffy.chen@rock-chips.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: stmpe-keypad - remove VLA usage
+Date: Fri, 9 Mar 2018 15:32:35 -0800
+Message-ID: <20180309233235.GC60941@dtor-ws>
+References: <20180309224208.GA7080@embeddedor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180308073213.8419-2-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180309224208.GA7080@embeddedor.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 08, 2018 at 03:32:11PM +0800, Jeffy Chen wrote:
-> Add support for specifying event actions to trigger wakeup when using
-> the gpio-keys input device as a wakeup source.
+On Fri, Mar 09, 2018 at 04:42:08PM -0600, Gustavo A. R. Silva wrote:
+> In preparation to enabling -Wvla, remove VLA and replace it
+> with a fixed-length array instead.
 > 
-> This would allow the device to configure when to wakeup the system. For
-> example a gpio-keys input device for pen insert, may only want to wakeup
-> the system when ejecting the pen.
+> Fixed as part of the directive to remove all VLAs from
+> the kernel: https://lkml.org/lkml/2018/3/7/621
 > 
-> Suggested-by: Brian Norris <briannorris@chromium.org>
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
 > ---
+>  drivers/input/keyboard/stmpe-keypad.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
 > 
-> Changes in v5:
-> Remove unneeded irq_wake flag as Andy suggested.
-> 
-> Changes in v4:
-> Add dt-binding gpio-keys.h, stop saving irq trigger type, add enable/disable wakeup helpers as Dmitry suggested.
-> 
-> Changes in v3:
-> Adding more comments as Brian suggested.
-> 
-> Changes in v2:
-> Specify wakeup event action instead of irq trigger type as Brian
-> suggested.
-> 
->  drivers/input/keyboard/gpio_keys.c    | 63 +++++++++++++++++++++++++++++++++--
->  include/dt-bindings/input/gpio-keys.h | 13 ++++++++
+> diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
+> index 8c6c0b9..cfa1dbe 100644
+> --- a/drivers/input/keyboard/stmpe-keypad.c
+> +++ b/drivers/input/keyboard/stmpe-keypad.c
+> @@ -48,6 +48,8 @@
+>  #define STMPE_KEYPAD_KEYMAP_MAX_SIZE \
+>  	(STMPE_KEYPAD_MAX_ROWS * STMPE_KEYPAD_MAX_COLS)
+>  
+> +#define MAX_NUM_DATA			5
+> +
+>  /**
+>   * struct stmpe_keypad_variant - model-specific attributes
+>   * @auto_increment: whether the KPC_DATA_BYTE register address
+> @@ -74,7 +76,7 @@ struct stmpe_keypad_variant {
+>  static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
+>  	[STMPE1601] = {
+>  		.auto_increment		= true,
+> -		.num_data		= 5,
+> +		.num_data		= MAX_NUM_DATA,
+>  		.num_normal_data	= 3,
+>  		.max_cols		= 8,
+>  		.max_rows		= 8,
+> @@ -84,7 +86,7 @@ static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
+>  	[STMPE2401] = {
+>  		.auto_increment		= false,
+>  		.set_pullup		= true,
+> -		.num_data		= 3,
+> +		.num_data		= MAX_NUM_DATA - 2,
 
-This file should be in the binding patch.
+Logically MAX_NUM_DATA - 2 does not mean anything, it is simply a way
+for you to get to 3, so I'd rather we did not do that.
 
->  include/linux/gpio_keys.h             |  2 ++
->  3 files changed, 75 insertions(+), 3 deletions(-)
->  create mode 100644 include/dt-bindings/input/gpio-keys.h
+Can we do
+
+#define STMPE1601_NUM_DATA	5
+#define STMPE2401_NUM_DATA	3
+#define STMPE2403_NUM_DATA	5
+#define MAX_NUM_DATA		max3(STMPE1601_NUM_DATA, \
+				     STMPE2401_NUM_DATA, \
+				     STMPE2403_NUM_DATA)
+
+
+or simply
+
+/* Make sure it covers all cases above */
+#define MAX_NUM_DATA		5
+
+>  		.num_normal_data	= 2,
+>  		.max_cols		= 8,
+>  		.max_rows		= 12,
+> @@ -94,7 +96,7 @@ static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
+>  	[STMPE2403] = {
+>  		.auto_increment		= true,
+>  		.set_pullup		= true,
+> -		.num_data		= 5,
+> +		.num_data		= MAX_NUM_DATA,
+>  		.num_normal_data	= 3,
+>  		.max_cols		= 8,
+>  		.max_rows		= 12,
+> @@ -156,7 +158,7 @@ static irqreturn_t stmpe_keypad_irq(int irq, void *dev)
+>  	struct stmpe_keypad *keypad = dev;
+>  	struct input_dev *input = keypad->input;
+>  	const struct stmpe_keypad_variant *variant = keypad->variant;
+> -	u8 fifo[variant->num_data];
+> +	u8 fifo[MAX_NUM_DATA];
+>  	int ret;
+>  	int i;
+>  
+> -- 
+> 2.7.4
+> 
+
+Thanks.
+
+-- 
+Dmitry

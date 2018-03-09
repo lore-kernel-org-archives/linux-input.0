@@ -1,141 +1,111 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v5 10/36] drm/bridge: analogix_dp: Retry bridge enable when it
- failed
-Date: Fri,  9 Mar 2018 23:23:01 +0100
-Message-ID: <20180309222327.18689-11-enric.balletbo@collabora.com>
+Subject: [PATCH v5 23/36] drm/bridge: analogix_dp: Move fast link training detect to set_bridge
+Date: Fri,  9 Mar 2018 23:23:14 +0100
+Message-ID: <20180309222327.18689-24-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+CgpXaGVuIHdlIGVuYWJsZSBicmlk
-Z2UgZmFpbGVkLCB3ZSBoYXZlIHRvIHJldHJ5IGl0LCBvdGhlcndpc2Ugd2Ugd291bGQgZ2V0CnRo
-ZSBhYm5vcm1hbCBkaXNwbGF5LgoKQ2M6IFN0w6lwaGFuZSBNYXJjaGVzaW4gPG1hcmNoZXVAY2hy
-b21pdW0ub3JnPgpTaWduZWQtb2ZmLWJ5OiB6YWluIHdhbmcgPHd6ekByb2NrLWNoaXBzLmNvbT4K
-U2lnbmVkLW9mZi1ieTogU2VhbiBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+ClNpZ25lZC1v
-ZmYtYnk6IFRoaWVycnkgRXNjYW5kZSA8dGhpZXJyeS5lc2NhbmRlQGNvbGxhYm9yYS5jb20+ClJl
-dmlld2VkLWJ5OiBBbmRyemVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPgpTaWduZWQtb2Zm
-LWJ5OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29t
-PgpUZXN0ZWQtYnk6IE1hcmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNvbT4K
-LS0tCgogZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMg
-fCA2NSArKysrKysrKysrKysrKysrKy0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxv
-Z2l4L2FuYWxvZ2l4X2RwX2NvcmUuaCB8ICAzICstCiBkcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2Fu
-YWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jICB8ICA1ICstCiAzIGZpbGVzIGNoYW5nZWQsIDU2IGlu
-c2VydGlvbnMoKyksIDE3IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
-bS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5jIGIvZHJpdmVycy9ncHUvZHJtL2Jy
-aWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMKaW5kZXggZWE3YTgwYTk4OWM2Li5jODE3
-MzNiODE4NWUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5h
-bG9naXhfZHBfY29yZS5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5h
-bG9naXhfZHBfY29yZS5jCkBAIC00Myw4ICs0MywxMCBAQCBzdHJ1Y3QgYnJpZGdlX2luaXQgewog
-CXN0cnVjdCBkZXZpY2Vfbm9kZSAqbm9kZTsKIH07CiAKLXN0YXRpYyB2b2lkIGFuYWxvZ2l4X2Rw
-X2luaXRfZHAoc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCitzdGF0aWMgaW50IGFuYWxv
-Z2l4X2RwX2luaXRfZHAoc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCiB7CisJaW50IHJl
-dDsKKwogCWFuYWxvZ2l4X2RwX3Jlc2V0KGRwKTsKIAogCWFuYWxvZ2l4X2RwX3N3cmVzZXQoZHAp
-OwpAQCAtNTYsMTAgKzU4LDEzIEBAIHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2luaXRfZHAoc3Ry
-dWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCiAJYW5hbG9naXhfZHBfZW5hYmxlX3N3X2Z1bmN0
-aW9uKGRwKTsKIAogCWFuYWxvZ2l4X2RwX2NvbmZpZ19pbnRlcnJ1cHQoZHApOwotCWFuYWxvZ2l4
-X2RwX2luaXRfYW5hbG9nX2Z1bmMoZHApOworCXJldCA9IGFuYWxvZ2l4X2RwX2luaXRfYW5hbG9n
-X2Z1bmMoZHApOworCWlmIChyZXQpCisJCXJldHVybiByZXQ7CiAKIAlhbmFsb2dpeF9kcF9pbml0
-X2hwZChkcCk7CiAJYW5hbG9naXhfZHBfaW5pdF9hdXgoZHApOworCXJldHVybiAwOwogfQogCiBz
-dGF0aWMgaW50IGFuYWxvZ2l4X2RwX2RldGVjdF9ocGQoc3RydWN0IGFuYWxvZ2l4X2RwX2Rldmlj
-ZSAqZHApCkBAIC05MTgsNyArOTIzLDcgQEAgc3RhdGljIGlycXJldHVybl90IGFuYWxvZ2l4X2Rw
-X2lycV90aHJlYWQoaW50IGlycSwgdm9pZCAqYXJnKQogCXJldHVybiBJUlFfSEFORExFRDsKIH0K
-IAotc3RhdGljIHZvaWQgYW5hbG9naXhfZHBfY29tbWl0KHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZp
-Y2UgKmRwKQorc3RhdGljIGludCBhbmFsb2dpeF9kcF9jb21taXQoc3RydWN0IGFuYWxvZ2l4X2Rw
-X2RldmljZSAqZHApCiB7CiAJaW50IHJldDsKIApAQCAtOTI4LDExICs5MzMsMTAgQEAgc3RhdGlj
-IHZvaWQgYW5hbG9naXhfZHBfY29tbWl0KHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQog
-CQkJRFJNX0VSUk9SKCJmYWlsZWQgdG8gZGlzYWJsZSB0aGUgcGFuZWxcbiIpOwogCX0KIAotCXJl
-dCA9IHJlYWR4X3BvbGxfdGltZW91dChhbmFsb2dpeF9kcF90cmFpbl9saW5rLCBkcCwgcmV0LCAh
-cmV0LCAxMDAsCi0JCQkJIERQX1RJTUVPVVRfVFJBSU5JTkdfVVMgKiA1KTsKKwlyZXQgPSBhbmFs
-b2dpeF9kcF90cmFpbl9saW5rKGRwKTsKIAlpZiAocmV0KSB7CiAJCWRldl9lcnIoZHAtPmRldiwg
-InVuYWJsZSB0byBkbyBsaW5rIHRyYWluLCByZXQ9JWRcbiIsIHJldCk7Ci0JCXJldHVybjsKKwkJ
-cmV0dXJuIHJldDsKIAl9CiAKIAlhbmFsb2dpeF9kcF9lbmFibGVfc2NyYW1ibGUoZHAsIDEpOwpA
-QCAtOTUzLDYgKzk1Nyw3IEBAIHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2NvbW1pdChzdHJ1Y3Qg
-YW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIAlkcC0+cHNyX2VuYWJsZSA9IGFuYWxvZ2l4X2RwX2Rl
-dGVjdF9zaW5rX3BzcihkcCk7CiAJaWYgKGRwLT5wc3JfZW5hYmxlKQogCQlhbmFsb2dpeF9kcF9l
-bmFibGVfc2lua19wc3IoZHApOworCXJldHVybiAwOwogfQogCiAvKgpAQCAtMTE0OSwxMiArMTE1
-NCw5IEBAIHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2JyaWRnZV9wcmVfZW5hYmxlKHN0cnVjdCBk
-cm1fYnJpZGdlICpicmlkZ2UpCiAJCURSTV9FUlJPUigiZmFpbGVkIHRvIHNldHVwIHRoZSBwYW5l
-bCByZXQgPSAlZFxuIiwgcmV0KTsKIH0KIAotc3RhdGljIHZvaWQgYW5hbG9naXhfZHBfYnJpZGdl
-X2VuYWJsZShzdHJ1Y3QgZHJtX2JyaWRnZSAqYnJpZGdlKQorc3RhdGljIGludCBhbmFsb2dpeF9k
-cF9zZXRfYnJpZGdlKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQogewotCXN0cnVjdCBh
-bmFsb2dpeF9kcF9kZXZpY2UgKmRwID0gYnJpZGdlLT5kcml2ZXJfcHJpdmF0ZTsKLQotCWlmIChk
-cC0+ZHBtc19tb2RlID09IERSTV9NT0RFX0RQTVNfT04pCi0JCXJldHVybjsKKwlpbnQgcmV0Owog
-CiAJcG1fcnVudGltZV9nZXRfc3luYyhkcC0+ZGV2KTsKIApAQCAtMTE2MiwxMSArMTE2NCw0NiBA
-QCBzdGF0aWMgdm9pZCBhbmFsb2dpeF9kcF9icmlkZ2VfZW5hYmxlKHN0cnVjdCBkcm1fYnJpZGdl
-ICpicmlkZ2UpCiAJCWRwLT5wbGF0X2RhdGEtPnBvd2VyX29uKGRwLT5wbGF0X2RhdGEpOwogCiAJ
-cGh5X3Bvd2VyX29uKGRwLT5waHkpOwotCWFuYWxvZ2l4X2RwX2luaXRfZHAoZHApOworCisJcmV0
-ID0gYW5hbG9naXhfZHBfaW5pdF9kcChkcCk7CisJaWYgKHJldCkKKwkJZ290byBvdXRfZHBfaW5p
-dDsKKworCXJldCA9IGFuYWxvZ2l4X2RwX2NvbW1pdChkcCk7CisJaWYgKHJldCkKKwkJZ290byBv
-dXRfZHBfaW5pdDsKKwogCWVuYWJsZV9pcnEoZHAtPmlycSk7Ci0JYW5hbG9naXhfZHBfY29tbWl0
-KGRwKTsKKwlyZXR1cm4gMDsKIAotCWRwLT5kcG1zX21vZGUgPSBEUk1fTU9ERV9EUE1TX09OOwor
-b3V0X2RwX2luaXQ6CisJcGh5X3Bvd2VyX29mZihkcC0+cGh5KTsKKwlpZiAoZHAtPnBsYXRfZGF0
-YS0+cG93ZXJfb2ZmKQorCQlkcC0+cGxhdF9kYXRhLT5wb3dlcl9vZmYoZHAtPnBsYXRfZGF0YSk7
-CisJcG1fcnVudGltZV9wdXRfc3luYyhkcC0+ZGV2KTsKKworCXJldHVybiByZXQ7Cit9CisKK3N0
-YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2JyaWRnZV9lbmFibGUoc3RydWN0IGRybV9icmlkZ2UgKmJy
-aWRnZSkKK3sKKwlzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCA9IGJyaWRnZS0+ZHJpdmVy
-X3ByaXZhdGU7CisJaW50IHRpbWVvdXRfbG9vcCA9IDA7CisKKwlpZiAoZHAtPmRwbXNfbW9kZSA9
-PSBEUk1fTU9ERV9EUE1TX09OKQorCQlyZXR1cm47CisKKwl3aGlsZSAodGltZW91dF9sb29wIDwg
-TUFYX1BMTF9MT0NLX0xPT1ApIHsKKwkJaWYgKGFuYWxvZ2l4X2RwX3NldF9icmlkZ2UoZHApID09
-IDApIHsKKwkJCWRwLT5kcG1zX21vZGUgPSBEUk1fTU9ERV9EUE1TX09OOworCQkJcmV0dXJuOwor
-CQl9CisJCWRldl9lcnIoZHAtPmRldiwgImZhaWxlZCB0byBzZXQgYnJpZGdlLCByZXRyeTogJWRc
-biIsCisJCQl0aW1lb3V0X2xvb3ApOworCQl0aW1lb3V0X2xvb3ArKzsKKwkJdXNsZWVwX3Jhbmdl
-KDEwLCAxMSk7CisJfQorCWRldl9lcnIoZHAtPmRldiwgInRvbyBtYW55IHRpbWVzIHJldHJ5IHNl
-dCBicmlkZ2UsIGdpdmUgaXQgdXBcbiIpOwogfQogCiBzdGF0aWMgdm9pZCBhbmFsb2dpeF9kcF9i
-cmlkZ2VfZGlzYWJsZShzdHJ1Y3QgZHJtX2JyaWRnZSAqYnJpZGdlKQpkaWZmIC0tZ2l0IGEvZHJp
-dmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmggYi9kcml2ZXJz
-L2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuaAppbmRleCA0MDNmZjg1
-MzQ2NGIuLjc2OTI1NWRjNmU5OSAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9h
-bmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmgKKysrIGIvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9h
-bmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmgKQEAgLTE5LDYgKzE5LDcgQEAKICNkZWZpbmUgRFBf
-VElNRU9VVF9MT09QX0NPVU5UIDEwMAogI2RlZmluZSBNQVhfQ1JfTE9PUCA1CiAjZGVmaW5lIE1B
-WF9FUV9MT09QIDUKKyNkZWZpbmUgTUFYX1BMTF9MT0NLX0xPT1AgNQogCiAvKiBUcmFpbmluZyB0
-YWtlcyAyMm1zIGlmIEFVWCBjaGFubmVsIGNvbW0gZmFpbHMuIFVzZSB0aGlzIGFzIHJldHJ5IGlu
-dGVydmFsICovCiAjZGVmaW5lIERQX1RJTUVPVVRfVFJBSU5JTkdfVVMJCQkyMjAwMApAQCAtMTk3
-LDcgKzE5OCw3IEBAIHZvaWQgYW5hbG9naXhfZHBfc2V0X3BsbF9wb3dlcl9kb3duKHN0cnVjdCBh
-bmFsb2dpeF9kcF9kZXZpY2UgKmRwLCBib29sIGVuYWJsZSk7CiB2b2lkIGFuYWxvZ2l4X2RwX3Nl
-dF9hbmFsb2dfcG93ZXJfZG93bihzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCwKIAkJCQkg
-ICAgICAgZW51bSBhbmFsb2dfcG93ZXJfYmxvY2sgYmxvY2ssCiAJCQkJICAgICAgIGJvb2wgZW5h
-YmxlKTsKLXZvaWQgYW5hbG9naXhfZHBfaW5pdF9hbmFsb2dfZnVuYyhzdHJ1Y3QgYW5hbG9naXhf
-ZHBfZGV2aWNlICpkcCk7CitpbnQgYW5hbG9naXhfZHBfaW5pdF9hbmFsb2dfZnVuYyhzdHJ1Y3Qg
-YW5hbG9naXhfZHBfZGV2aWNlICpkcCk7CiB2b2lkIGFuYWxvZ2l4X2RwX2luaXRfaHBkKHN0cnVj
-dCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKTsKIHZvaWQgYW5hbG9naXhfZHBfZm9yY2VfaHBkKHN0
-cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKTsKIGVudW0gZHBfaXJxX3R5cGUgYW5hbG9naXhf
-ZHBfZ2V0X2lycV90eXBlKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKTsKZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmMgYi9k
-cml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jCmluZGV4IGU3
-OGM4NjFiOWUwNi4uYjQ3YzVhZjQzNTYwIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vYnJp
-ZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9icmlk
-Z2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmMKQEAgLTMzMyw3ICszMzMsNyBAQCB2b2lkIGFu
-YWxvZ2l4X2RwX3NldF9hbmFsb2dfcG93ZXJfZG93bihzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNl
-ICpkcCwKIAl9CiB9CiAKLXZvaWQgYW5hbG9naXhfZHBfaW5pdF9hbmFsb2dfZnVuYyhzdHJ1Y3Qg
-YW5hbG9naXhfZHBfZGV2aWNlICpkcCkKK2ludCBhbmFsb2dpeF9kcF9pbml0X2FuYWxvZ19mdW5j
-KHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQogewogCXUzMiByZWc7CiAJaW50IHRpbWVv
-dXRfbG9vcCA9IDA7CkBAIC0zNTUsNyArMzU1LDcgQEAgdm9pZCBhbmFsb2dpeF9kcF9pbml0X2Fu
-YWxvZ19mdW5jKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQogCQkJdGltZW91dF9sb29w
-Kys7CiAJCQlpZiAoRFBfVElNRU9VVF9MT09QX0NPVU5UIDwgdGltZW91dF9sb29wKSB7CiAJCQkJ
-ZGV2X2VycihkcC0+ZGV2LCAiZmFpbGVkIHRvIGdldCBwbGwgbG9jayBzdGF0dXNcbiIpOwotCQkJ
-CXJldHVybjsKKwkJCQlyZXR1cm4gLUVUSU1FRE9VVDsKIAkJCX0KIAkJCXVzbGVlcF9yYW5nZSgx
-MCwgMjApOwogCQl9CkBAIC0zNjYsNiArMzY2LDcgQEAgdm9pZCBhbmFsb2dpeF9kcF9pbml0X2Fu
-YWxvZ19mdW5jKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQogCXJlZyAmPSB+KFNFUkRF
-U19GSUZPX0ZVTkNfRU5fTiB8IExTX0NMS19ET01BSU5fRlVOQ19FTl9OCiAJCXwgQVVYX0ZVTkNf
-RU5fTik7CiAJd3JpdGVsKHJlZywgZHAtPnJlZ19iYXNlICsgQU5BTE9HSVhfRFBfRlVOQ19FTl8y
-KTsKKwlyZXR1cm4gMDsKIH0KIAogdm9pZCBhbmFsb2dpeF9kcF9jbGVhcl9ob3RwbHVnX2ludGVy
-cnVwdHMoc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCi0tIAoyLjE2LjEKCgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVs
-IG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDov
-L2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+From: zain wang <wzz@rock-chips.com>
+
+It's too early to detect fast link training, if other step after it
+failed, we will set fast_link flag to 1, and retry set_bridge again. In
+this case we will power down and power up panel power supply, and we
+will do fast link training since we have set fast_link flag to 1. In
+fact, we should do full link training now, not the fast link training.
+So we should move the fast link detection at the end of set_bridge.
+
+Cc: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: zain wang <wzz@rock-chips.com>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+---
+
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 42 +++++++++++++---------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+index d76e1652b1fd..37b16643f14c 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -601,7 +601,7 @@ static int analogix_dp_process_equalizer_training(struct analogix_dp_device *dp)
+ {
+ 	int lane, lane_count, retval;
+ 	u32 reg;
+-	u8 link_align, link_status[2], adjust_request[2], spread;
++	u8 link_align, link_status[2], adjust_request[2];
+ 
+ 	usleep_range(400, 401);
+ 
+@@ -645,20 +645,6 @@ static int analogix_dp_process_equalizer_training(struct analogix_dp_device *dp)
+ 		dev_dbg(dp->dev, "final lane count = %.2x\n",
+ 			dp->link_train.lane_count);
+ 
+-		retval = drm_dp_dpcd_readb(&dp->aux, DP_MAX_DOWNSPREAD,
+-					   &spread);
+-		if (retval != 1) {
+-			dev_err(dp->dev, "failed to read downspread %d\n",
+-				retval);
+-			dp->fast_train_enable = false;
+-		} else {
+-			dp->fast_train_enable =
+-				(spread & DP_NO_AUX_HANDSHAKE_LINK_TRAINING) ?
+-					true : false;
+-		}
+-		dev_dbg(dp->dev, "fast link training %s\n",
+-			dp->fast_train_enable ? "supported" : "unsupported");
+-
+ 		dp->link_train.lt_state = FINISHED;
+ 
+ 		return 0;
+@@ -996,6 +982,22 @@ static irqreturn_t analogix_dp_irq_thread(int irq, void *arg)
+ 	return IRQ_HANDLED;
+ }
+ 
++static int analogix_dp_fast_link_train_detection(struct analogix_dp_device *dp)
++{
++	int ret;
++	u8 spread;
++
++	ret = drm_dp_dpcd_readb(&dp->aux, DP_MAX_DOWNSPREAD, &spread);
++	if (ret != 1) {
++		dev_err(dp->dev, "failed to read downspread %d\n", ret);
++		return ret;
++	}
++	dp->fast_train_enable = !!(spread & DP_NO_AUX_HANDSHAKE_LINK_TRAINING);
++	dev_dbg(dp->dev, "fast link training %s\n",
++		dp->fast_train_enable ? "supported" : "unsupported");
++	return 0;
++}
++
+ static int analogix_dp_commit(struct analogix_dp_device *dp)
+ {
+ 	int ret;
+@@ -1038,8 +1040,16 @@ static int analogix_dp_commit(struct analogix_dp_device *dp)
+ 	if (ret)
+ 		return ret;
+ 
+-	if (dp->psr_enable)
++	if (dp->psr_enable) {
+ 		ret = analogix_dp_enable_sink_psr(dp);
++		if (ret)
++			return ret;
++	}
++
++	/* Check whether panel supports fast training */
++	ret =  analogix_dp_fast_link_train_detection(dp);
++	if (ret)
++		dp->psr_enable = false;
+ 
+ 	return ret;
+ }
+-- 
+2.16.1

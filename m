@@ -1,63 +1,98 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v5 13/36] drm/bridge: analogix_dp: Ensure edp is disabled when
- shutting down the panel
-Date: Fri,  9 Mar 2018 23:23:04 +0100
-Message-ID: <20180309222327.18689-14-enric.balletbo@collabora.com>
+Subject: [PATCH v5 18/36] drm/bridge: analogix_dp: Reset aux channel if an error occurred
+Date: Fri,  9 Mar 2018 23:23:09 +0100
+Message-ID: <20180309222327.18689-19-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogTGluIEh1YW5nIDxobEByb2NrLWNoaXBzLmNvbT4KCldoZW4gcGFuZWwgaXMgc2h1dCBk
-b3duLCB3ZSBzaG91bGQgbWFrZSBzdXJlIGVkcCBjYW4gYmUgZGlzYWJsZWQgdG8gYXZvaWQKdW5k
-ZWZpbmVkIGJlaGF2aW9yLgoKQ2M6IFN0w6lwaGFuZSBNYXJjaGVzaW4gPG1hcmNoZXVAY2hyb21p
-dW0ub3JnPgpTaWduZWQtb2ZmLWJ5OiBMaW4gSHVhbmcgPGhsQHJvY2stY2hpcHMuY29tPgpTaWdu
-ZWQtb2ZmLWJ5OiB6YWluIHdhbmcgPHd6ekByb2NrLWNoaXBzLmNvbT4KU2lnbmVkLW9mZi1ieTog
-U2VhbiBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+ClNpZ25lZC1vZmYtYnk6IFRoaWVycnkg
-RXNjYW5kZSA8dGhpZXJyeS5lc2NhbmRlQGNvbGxhYm9yYS5jb20+ClJldmlld2VkLWJ5OiBBbmRy
-emVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPgpTaWduZWQtb2ZmLWJ5OiBFbnJpYyBCYWxs
-ZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgpUZXN0ZWQtYnk6IE1h
-cmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNvbT4KLS0tCgogZHJpdmVycy9n
-cHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMgfCAxMSArKysrKysrKysr
-KwogMSBmaWxlIGNoYW5nZWQsIDExIGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9kcml2ZXJz
-L2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYyBiL2RyaXZlcnMvZ3B1
-L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5jCmluZGV4IDkyZmI5YTA3MmNi
-Ni4uM2EyMjJlN2U0NmVlIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxv
-Z2l4L2FuYWxvZ2l4X2RwX2NvcmUuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxv
-Z2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwpAQCAtMTE2MCw2ICsxMTYwLDEyIEBAIHN0YXRpYyBpbnQg
-YW5hbG9naXhfZHBfc2V0X2JyaWRnZShzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIAog
-CXBtX3J1bnRpbWVfZ2V0X3N5bmMoZHAtPmRldik7CiAKKwlyZXQgPSBjbGtfcHJlcGFyZV9lbmFi
-bGUoZHAtPmNsb2NrKTsKKwlpZiAocmV0IDwgMCkgeworCQlEUk1fRVJST1IoIkZhaWxlZCB0byBw
-cmVwYXJlX2VuYWJsZSB0aGUgY2xvY2sgY2xrIFslZF1cbiIsIHJldCk7CisJCWdvdG8gb3V0X2Rw
-X2Nsa19wcmU7CisJfQorCiAJaWYgKGRwLT5wbGF0X2RhdGEtPnBvd2VyX29uKQogCQlkcC0+cGxh
-dF9kYXRhLT5wb3dlcl9vbihkcC0+cGxhdF9kYXRhKTsKIApAQCAtMTE5MSw2ICsxMTk3LDggQEAg
-c3RhdGljIGludCBhbmFsb2dpeF9kcF9zZXRfYnJpZGdlKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZp
-Y2UgKmRwKQogCXBoeV9wb3dlcl9vZmYoZHAtPnBoeSk7CiAJaWYgKGRwLT5wbGF0X2RhdGEtPnBv
-d2VyX29mZikKIAkJZHAtPnBsYXRfZGF0YS0+cG93ZXJfb2ZmKGRwLT5wbGF0X2RhdGEpOworCWNs
-a19kaXNhYmxlX3VucHJlcGFyZShkcC0+Y2xvY2spOworb3V0X2RwX2Nsa19wcmU6CiAJcG1fcnVu
-dGltZV9wdXRfc3luYyhkcC0+ZGV2KTsKIAogCXJldHVybiByZXQ7CkBAIC0xMjMzLDExICsxMjQx
-LDE0IEBAIHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2JyaWRnZV9kaXNhYmxlKHN0cnVjdCBkcm1f
-YnJpZGdlICpicmlkZ2UpCiAJfQogCiAJZGlzYWJsZV9pcnEoZHAtPmlycSk7CisJYW5hbG9naXhf
-ZHBfc2V0X2FuYWxvZ19wb3dlcl9kb3duKGRwLCBQT1dFUl9BTEwsIDEpOwogCXBoeV9wb3dlcl9v
-ZmYoZHAtPnBoeSk7CiAKIAlpZiAoZHAtPnBsYXRfZGF0YS0+cG93ZXJfb2ZmKQogCQlkcC0+cGxh
-dF9kYXRhLT5wb3dlcl9vZmYoZHAtPnBsYXRfZGF0YSk7CiAKKwljbGtfZGlzYWJsZV91bnByZXBh
-cmUoZHAtPmNsb2NrKTsKKwogCXBtX3J1bnRpbWVfcHV0X3N5bmMoZHAtPmRldik7CiAKIAlyZXQg
-PSBhbmFsb2dpeF9kcF9wcmVwYXJlX3BhbmVsKGRwLCBmYWxzZSwgdHJ1ZSk7Ci0tIAoyLjE2LjEK
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1h
-cm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5v
-cmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0t
-a2VybmVsCg==
+From: Lin Huang <hl@rock-chips.com>
+
+AUX errors are caused by many different reasons. We may not know what
+happened in aux channel on failure, so let's reset aux channel if some
+errors occurred.
+
+Cc: 征增 王 <wzz@rock-chips.com>
+Cc: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Lin Huang <hl@rock-chips.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+index dee1ba109b5f..7b7fd227e1f9 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+@@ -466,6 +466,10 @@ void analogix_dp_init_aux(struct analogix_dp_device *dp)
+ 	reg = RPLY_RECEIV | AUX_ERR;
+ 	writel(reg, dp->reg_base + ANALOGIX_DP_INT_STA);
+ 
++	analogix_dp_set_analog_power_down(dp, AUX_BLOCK, true);
++	usleep_range(10, 11);
++	analogix_dp_set_analog_power_down(dp, AUX_BLOCK, false);
++
+ 	analogix_dp_reset_aux(dp);
+ 
+ 	/* Disable AUX transaction H/W retry */
+@@ -1159,7 +1163,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+ 				 reg, !(reg & AUX_EN), 25, 500 * 1000);
+ 	if (ret) {
+ 		dev_err(dp->dev, "AUX CH enable timeout!\n");
+-		return -ETIMEDOUT;
++		goto aux_error;
+ 	}
+ 
+ 	/* TODO: Wait for an interrupt instead of looping? */
+@@ -1168,7 +1172,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+ 				 reg, reg & RPLY_RECEIV, 10, 20 * 1000);
+ 	if (ret) {
+ 		dev_err(dp->dev, "AUX CH cmd reply timeout!\n");
+-		return -ETIMEDOUT;
++		goto aux_error;
+ 	}
+ 
+ 	/* Clear interrupt source for AUX CH command reply */
+@@ -1178,7 +1182,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+ 	reg = readl(dp->reg_base + ANALOGIX_DP_INT_STA);
+ 	if (reg & AUX_ERR) {
+ 		writel(AUX_ERR, dp->reg_base + ANALOGIX_DP_INT_STA);
+-		return -EREMOTEIO;
++		goto aux_error;
+ 	}
+ 
+ 	/* Check AUX CH error access status */
+@@ -1186,7 +1190,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+ 	if ((reg & AUX_STATUS_MASK)) {
+ 		dev_err(dp->dev, "AUX CH error happened: %d\n\n",
+ 			reg & AUX_STATUS_MASK);
+-		return -EREMOTEIO;
++		goto aux_error;
+ 	}
+ 
+ 	if (msg->request & DP_AUX_I2C_READ) {
+@@ -1212,4 +1216,10 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+ 		msg->reply = DP_AUX_NATIVE_REPLY_ACK;
+ 
+ 	return num_transferred > 0 ? num_transferred : -EBUSY;
++
++aux_error:
++	/* if aux err happen, reset aux */
++	analogix_dp_init_aux(dp);
++
++	return -EREMOTEIO;
+ }
+-- 
+2.16.1

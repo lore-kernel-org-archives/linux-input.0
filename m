@@ -1,7 +1,7 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v5 17/36] drm/bridge: analogix_dp: Fix AUX_PD bit for Rockchip
-Date: Fri,  9 Mar 2018 23:23:08 +0100
-Message-ID: <20180309222327.18689-18-enric.balletbo@collabora.com>
+Subject: [PATCH v5 22/36] drm/bridge: analogix_dp: Fix incorrect operations with register ANALOGIX_DP_FUNC_EN_1
+Date: Fri,  9 Mar 2018 23:23:13 +0100
+Message-ID: <20180309222327.18689-23-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
@@ -12,10 +12,22 @@ List-Id: linux-input@vger.kernel.org
 
 From: zain wang <wzz@rock-chips.com>
 
-There are some different bits between Rockchip and Exynos in register
-"AUX_PD". This patch fixes the incorrect operations about it.
+Register ANALOGIX_DP_FUNC_EN_1(offset 0x18), Rockchip is different to
+Exynos:
 
-Cc: Douglas Anderson <dianders@chromium.org>
+on Exynos edp phy,
+BIT 7		MASTER_VID_FUNC_EN_N
+BIT 6		reserved
+BIT 5		SLAVE_VID_FUNC_EN_N
+
+on Rockchip edp phy,
+BIT 7		reserved
+BIT 6		RK_VID_CAP_FUNC_EN_N
+BIT 5		RK_VID_FIFO_FUNC_EN_N
+
+So, we should do some private operations to Rockchip.
+
+Cc: Tomasz Figa <tfiga@chromium.org>
 Signed-off-by: zain wang <wzz@rock-chips.com>
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
@@ -24,167 +36,60 @@ Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 ---
 
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 117 ++++++++++++----------
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h |   2 +
- 2 files changed, 65 insertions(+), 54 deletions(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 19 ++++++++++++++-----
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h |  2 ++
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-index bb72f8b0e603..dee1ba109b5f 100644
+index 02ab1aaa9993..4eae206ec31b 100644
 --- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
 +++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-@@ -248,76 +248,85 @@ void analogix_dp_set_analog_power_down(struct analogix_dp_device *dp,
- {
+@@ -126,9 +126,14 @@ void analogix_dp_reset(struct analogix_dp_device *dp)
+ 	analogix_dp_stop_video(dp);
+ 	analogix_dp_enable_video_mute(dp, 0);
+ 
+-	reg = MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N |
+-		AUD_FIFO_FUNC_EN_N | AUD_FUNC_EN_N |
+-		HDCP_FUNC_EN_N | SW_FUNC_EN_N;
++	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
++		reg = RK_VID_CAP_FUNC_EN_N | RK_VID_FIFO_FUNC_EN_N |
++			SW_FUNC_EN_N;
++	else
++		reg = MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N |
++			AUD_FIFO_FUNC_EN_N | AUD_FUNC_EN_N |
++			HDCP_FUNC_EN_N | SW_FUNC_EN_N;
++
+ 	writel(reg, dp->reg_base + ANALOGIX_DP_FUNC_EN_1);
+ 
+ 	reg = SSC_FUNC_EN_N | AUX_FUNC_EN_N |
+@@ -971,8 +976,12 @@ void analogix_dp_config_video_slave_mode(struct analogix_dp_device *dp)
  	u32 reg;
- 	u32 phy_pd_addr = ANALOGIX_DP_PHY_PD;
-+	u32 mask;
  
- 	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
- 		phy_pd_addr = ANALOGIX_DP_PD;
+ 	reg = readl(dp->reg_base + ANALOGIX_DP_FUNC_EN_1);
+-	reg &= ~(MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N);
+-	reg |= MASTER_VID_FUNC_EN_N;
++	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type)) {
++		reg &= ~(RK_VID_CAP_FUNC_EN_N | RK_VID_FIFO_FUNC_EN_N);
++	} else {
++		reg &= ~(MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N);
++		reg |= MASTER_VID_FUNC_EN_N;
++	}
+ 	writel(reg, dp->reg_base + ANALOGIX_DP_FUNC_EN_1);
  
- 	switch (block) {
- 	case AUX_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= AUX_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~AUX_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
-+			mask = RK_AUX_PD;
-+		else
-+			mask = AUX_PD;
-+
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH0_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH0_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH0_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH0_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH1_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH1_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH1_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH1_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH2_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH2_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH2_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH2_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH3_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH3_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH3_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH3_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case ANALOG_TOTAL:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= DP_PHY_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~DP_PHY_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		/*
-+		 * There is no bit named DP_PHY_PD, so We used DP_INC_BG
-+		 * to power off everything instead of DP_PHY_PD in
-+		 * Rockchip
-+		 */
-+		if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
-+			mask = DP_INC_BG;
-+		else
-+			mask = DP_PHY_PD;
-+
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+
-+		writel(reg, dp->reg_base + phy_pd_addr);
-+		if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
-+			usleep_range(10, 15);
- 		break;
- 	case POWER_ALL:
- 		if (enable) {
+ 	reg = readl(dp->reg_base + ANALOGIX_DP_VIDEO_CTL_10);
 diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
-index 9602668669f4..b633a4a5082a 100644
+index b633a4a5082a..0cf27c731727 100644
 --- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
 +++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
-@@ -345,7 +345,9 @@
- #define DP_INC_BG				(0x1 << 7)
- #define DP_EXP_BG				(0x1 << 6)
- #define DP_PHY_PD				(0x1 << 5)
-+#define RK_AUX_PD				(0x1 << 5)
- #define AUX_PD					(0x1 << 4)
-+#define RK_PLL_PD				(0x1 << 4)
- #define CH3_PD					(0x1 << 3)
- #define CH2_PD					(0x1 << 2)
- #define CH1_PD					(0x1 << 1)
+@@ -127,7 +127,9 @@
+ 
+ /* ANALOGIX_DP_FUNC_EN_1 */
+ #define MASTER_VID_FUNC_EN_N			(0x1 << 7)
++#define RK_VID_CAP_FUNC_EN_N			(0x1 << 6)
+ #define SLAVE_VID_FUNC_EN_N			(0x1 << 5)
++#define RK_VID_FIFO_FUNC_EN_N			(0x1 << 5)
+ #define AUD_FIFO_FUNC_EN_N			(0x1 << 4)
+ #define AUD_FUNC_EN_N				(0x1 << 3)
+ #define HDCP_FUNC_EN_N				(0x1 << 2)
 -- 
 2.16.1

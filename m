@@ -1,7 +1,7 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v5 31/36] drm/rockchip: Cancel PSR enable work before changing the state
-Date: Fri,  9 Mar 2018 23:23:22 +0100
-Message-ID: <20180309222327.18689-32-enric.balletbo@collabora.com>
+Subject: [PATCH v5 27/36] drm/rockchip: pre dither down when output bpc is 8bit
+Date: Fri,  9 Mar 2018 23:23:18 +0100
+Message-ID: <20180309222327.18689-28-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
@@ -10,68 +10,104 @@ To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@
 Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Tomasz Figa <tfiga@chromium.org>
+From: Mark Yao <mark.yao@rock-chips.com>
 
-If we change the state first and reschedule later, we might have the
-work executed according to previous scheduled time and end up with PSR
-re-enabled instantly. Let's cancel the work before changing the state.
+Some encoder have a crc verification check, crc check fail if
+input and output data is not equal.
 
-While at it, consolidate psr_disable_handler() to just call
-rockchip_drm_do_flush(), as they are both supposed to do the same.
+That means encoder input and output need use same color depth,
+vop can output 10bit data to encoder, but some panel only support
+8bit depth, that would make crc check die.
 
-Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+So pre dither down vop data to 8bit if panel's bpc is 8.
+
+Signed-off-by: Mark Yao <mark.yao@rock-chips.com>
+[seanpaul resolved conflict in rockchip_drm_vop.c]
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
 Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 ---
 
- drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c | 2 ++
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.h     | 1 +
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c     | 6 ++++++
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.h     | 1 +
+ drivers/gpu/drm/rockchip/rockchip_vop_reg.c     | 1 +
+ 5 files changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-index a107845ba97c..c8655e625ba2 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-@@ -138,18 +138,6 @@ static void psr_flush_handler(struct work_struct *work)
- 	mutex_unlock(&psr->lock);
- }
- 
--static void psr_disable_handler(struct work_struct *work)
--{
--	struct psr_drv *psr = container_of(work, struct psr_drv, disable_work);
--
--	/* If the state has changed since we initiated the flush, do nothing */
--	mutex_lock(&psr->lock);
--	if (psr->state == PSR_ENABLE)
--		psr_set_state_locked(psr, PSR_FLUSH);
--	mutex_unlock(&psr->lock);
--	mod_delayed_work(system_wq, &psr->flush_work, PSR_FLUSH_TIMEOUT_MS);
--}
--
- /**
-  * rockchip_drm_psr_activate - activate PSR on the given pipe
-  * @encoder: encoder to obtain the PSR encoder
-@@ -198,6 +186,7 @@ EXPORT_SYMBOL(rockchip_drm_psr_deactivate);
- 
- static void rockchip_drm_do_flush(struct psr_drv *psr)
+diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+index 8c884f9ce713..b3f46ed24cdc 100644
+--- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
++++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+@@ -218,6 +218,7 @@ rockchip_dp_drm_encoder_atomic_check(struct drm_encoder *encoder,
+ 				      struct drm_connector_state *conn_state)
  {
-+	cancel_delayed_work_sync(&psr->flush_work);
- 	psr_set_state(psr, PSR_FLUSH);
- 	mod_delayed_work(system_wq, &psr->flush_work, PSR_FLUSH_TIMEOUT_MS);
- }
-@@ -244,6 +233,13 @@ void rockchip_drm_psr_flush_all(struct drm_device *dev)
- }
- EXPORT_SYMBOL(rockchip_drm_psr_flush_all);
+ 	struct rockchip_crtc_state *s = to_rockchip_crtc_state(crtc_state);
++	struct drm_display_info *di = &conn_state->connector->display_info;
  
-+static void psr_disable_handler(struct work_struct *work)
-+{
-+	struct psr_drv *psr = container_of(work, struct psr_drv, disable_work);
+ 	/*
+ 	 * The hardware IC designed that VOP must output the RGB10 video
+@@ -229,6 +230,7 @@ rockchip_dp_drm_encoder_atomic_check(struct drm_encoder *encoder,
+ 
+ 	s->output_mode = ROCKCHIP_OUT_MODE_AAAA;
+ 	s->output_type = DRM_MODE_CONNECTOR_eDP;
++	s->output_bpc = di->bpc;
+ 
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.h b/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
+index 9c064a40458b..3a6ebfc26036 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
+@@ -36,6 +36,7 @@ struct rockchip_crtc_state {
+ 	struct drm_crtc_state base;
+ 	int output_type;
+ 	int output_mode;
++	int output_bpc;
+ };
+ #define to_rockchip_crtc_state(s) \
+ 		container_of(s, struct rockchip_crtc_state, base)
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index b601c59e76a8..e2c9ee3204f4 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -923,6 +923,12 @@ static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	if (s->output_mode == ROCKCHIP_OUT_MODE_AAAA &&
+ 	    !(vop_data->feature & VOP_FEATURE_OUTPUT_RGB10))
+ 		s->output_mode = ROCKCHIP_OUT_MODE_P888;
 +
-+	rockchip_drm_do_flush(psr);
-+}
++	if (s->output_mode == ROCKCHIP_OUT_MODE_AAAA && s->output_bpc == 8)
++		VOP_REG_SET(vop, common, pre_dither_down, 1);
++	else
++		VOP_REG_SET(vop, common, pre_dither_down, 0);
 +
- static void psr_input_event(struct input_handle *handle,
- 			    unsigned int type, unsigned int code,
- 			    int value)
+ 	VOP_REG_SET(vop, common, out_mode, s->output_mode);
+ 
+ 	VOP_REG_SET(vop, modeset, htotal_pw, (htotal << 16) | hsync_len);
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.h b/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
+index 56bbd2e2a8ef..084acdd0019a 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
+@@ -67,6 +67,7 @@ struct vop_common {
+ 	struct vop_reg cfg_done;
+ 	struct vop_reg dsp_blank;
+ 	struct vop_reg data_blank;
++	struct vop_reg pre_dither_down;
+ 	struct vop_reg dither_down;
+ 	struct vop_reg dither_up;
+ 	struct vop_reg gate_en;
+diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+index 2e4eea3459fe..08023d3ecb76 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
++++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+@@ -264,6 +264,7 @@ static const struct vop_common rk3288_common = {
+ 	.standby = VOP_REG_SYNC(RK3288_SYS_CTRL, 0x1, 22),
+ 	.gate_en = VOP_REG(RK3288_SYS_CTRL, 0x1, 23),
+ 	.mmu_en = VOP_REG(RK3288_SYS_CTRL, 0x1, 20),
++	.pre_dither_down = VOP_REG(RK3288_DSP_CTRL1, 0x1, 1),
+ 	.dither_down = VOP_REG(RK3288_DSP_CTRL1, 0xf, 1),
+ 	.dither_up = VOP_REG(RK3288_DSP_CTRL1, 0x1, 6),
+ 	.data_blank = VOP_REG(RK3288_DSP_CTRL0, 0x1, 19),
 -- 
 2.16.1

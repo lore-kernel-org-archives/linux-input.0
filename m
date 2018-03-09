@@ -1,75 +1,213 @@
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] Input: stmpe-keypad - remove VLA usage
-Date: Fri, 9 Mar 2018 16:42:08 -0600
-Message-ID: <20180309224208.GA7080@embeddedor.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/4] dt-bindings: mfd: Add Gateworks System Controller
+ bindings
+Date: Fri, 9 Mar 2018 17:14:33 -0600
+Message-ID: <20180309231433.tmlfy6vwbkvopmwd@rob-hp-laptop>
+References: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
+ <1520287361-12569-2-git-send-email-tharvey@gateworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <1520287361-12569-2-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+To: Tim Harvey <tharvey@gateworks.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In preparation to enabling -Wvla, remove VLA and replace it
-with a fixed-length array instead.
+On Mon, Mar 05, 2018 at 02:02:38PM -0800, Tim Harvey wrote:
+> This patch adds documentation of device-tree bindings for the
+> Gateworks System Controller (GSC).
+> 
+> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/gsc.txt | 159 ++++++++++++++++++++++++++
+>  1 file changed, 159 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/gsc.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/gsc.txt b/Documentation/devicetree/bindings/mfd/gsc.txt
+> new file mode 100644
+> index 0000000..fe5d114
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/gsc.txt
+> @@ -0,0 +1,159 @@
+> +Gateworks System Controller multi-function device
+> +
+> +The GSC is a Multifunction I2C slave device with the following submodules:
+> +- WDT
+> +- GPIO
+> +- Pushbutton controller
+> +- HWMON
+> +
+> +Required properties:
+> +- compatible : Must be "gw,gsc_v1", "gw,gsc_v2", "gw,gsc_v3"
 
-Fixed as part of the directive to remove all VLAs from
-the kernel: https://lkml.org/lkml/2018/3/7/621
+s/_/-/
 
-Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
----
- drivers/input/keyboard/stmpe-keypad.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+> +- reg: I2C address of the device
+> +- interrupts: interrupt triggered by GSC_IRQ# signal
+> +- interrupt-parent: Interrupt controller GSC is connected to
+> +- #interrupt-cells: should be <1>, index of the interrupt within the
+> +  controller, in accordance with the "one cell" variant of
+> +  <devicetree/bindings/interrupt-controller/interrupt.txt>
+> +
+> +Optional nodes:
+> +* watchdog:
+> +The GSC provides a Watchdog monitor which can power cycle the board's
+> +primary power supply on most board models when tripped.
+> +
+> +Required properties:
+> +- compatible: must be "gw,gsc-watchdog"
+> +
+> +* input:
+> +The GSC provides an input device capable of dispatching Linux Input events
 
-diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
-index 8c6c0b9..cfa1dbe 100644
---- a/drivers/input/keyboard/stmpe-keypad.c
-+++ b/drivers/input/keyboard/stmpe-keypad.c
-@@ -48,6 +48,8 @@
- #define STMPE_KEYPAD_KEYMAP_MAX_SIZE \
- 	(STMPE_KEYPAD_MAX_ROWS * STMPE_KEYPAD_MAX_COLS)
- 
-+#define MAX_NUM_DATA			5
-+
- /**
-  * struct stmpe_keypad_variant - model-specific attributes
-  * @auto_increment: whether the KPC_DATA_BYTE register address
-@@ -74,7 +76,7 @@ struct stmpe_keypad_variant {
- static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
- 	[STMPE1601] = {
- 		.auto_increment		= true,
--		.num_data		= 5,
-+		.num_data		= MAX_NUM_DATA,
- 		.num_normal_data	= 3,
- 		.max_cols		= 8,
- 		.max_rows		= 8,
-@@ -84,7 +86,7 @@ static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
- 	[STMPE2401] = {
- 		.auto_increment		= false,
- 		.set_pullup		= true,
--		.num_data		= 3,
-+		.num_data		= MAX_NUM_DATA - 2,
- 		.num_normal_data	= 2,
- 		.max_cols		= 8,
- 		.max_rows		= 12,
-@@ -94,7 +96,7 @@ static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
- 	[STMPE2403] = {
- 		.auto_increment		= true,
- 		.set_pullup		= true,
--		.num_data		= 5,
-+		.num_data		= MAX_NUM_DATA,
- 		.num_normal_data	= 3,
- 		.max_cols		= 8,
- 		.max_rows		= 12,
-@@ -156,7 +158,7 @@ static irqreturn_t stmpe_keypad_irq(int irq, void *dev)
- 	struct stmpe_keypad *keypad = dev;
- 	struct input_dev *input = keypad->input;
- 	const struct stmpe_keypad_variant *variant = keypad->variant;
--	u8 fifo[variant->num_data];
-+	u8 fifo[MAX_NUM_DATA];
- 	int ret;
- 	int i;
- 
--- 
-2.7.4
+Linux details that are not relevant to the binding.
+
+> +for user pushbutton events, tamper switch events, etc.
+> +
+> +Required properties:
+> +- compatible: must be "gw,gsc-input"
+> +
+> +* hwmon:
+> +The GSC provides a set of Analog to Digitcal Converter (ADC) pins used for
+> +temperature and/or voltage monitoring.
+> +
+> +Required properties:
+> +- compatible: must be "gw,gsc-hwmon"
+> +
+> +Example:
+> +
+> +	gsc: gsc@20 {
+> +		compatible = "gw,gsc_v2";
+> +		reg = <0x20>;
+> +		interrupt-parent = <&gpio1>;
+> +		interrupts = <4 GPIO_ACTIVE_LOW>;
+> +		interrupt-controller;
+> +		#interrupt-cells = <1>;
+> +
+> +		gsc_input {
+
+input {
+
+> +			compatible = "gw,gsc-input";
+> +		};
+> +
+> +		gsc_watchdog {
+
+watchdog {
+
+> +			compatible = "gw,gsc-watchdog";
+> +		};
+> +
+> +		gsc_hwmon {
+
+hwmon {
+
+> +			compatible = "gw,gsc-hwmon";
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			hwmon@0 { /* A0: Board Temperature */
+> +				type = <0>;
+
+Not documented.
+
+> +				reg = <0x00>;
+> +				label = "temp";
+> +			};
+> +
+> +			hwmon@1 { /* A1: Input Voltage */
+> +				type = <1>;
+> +				reg = <0x02>;
+> +				label = "Vin";
+> +			};
+> +
+> +			hwmon@2 { /* A2: 5P0 */
+> +				type = <1>;
+> +				reg = <0x0b>;
+> +				label = "5P0";
+> +			};
+> +
+> +			hwmon@4 { /* A4: 0-5V input */
+> +				type = <1>;
+> +				reg = <0x14>;
+> +				label = "ANL0";
+> +			};
+> +
+> +			hwmon@5 { /* A5: 2P5 PCIe/GigE */
+> +				type = <1>;
+> +				reg = <0x23>;
+> +				label = "2P5";
+> +			};
+> +
+> +			hwmon@6 { /* A6: 1P8 Aud/Vid */
+> +				type = <1>;
+> +				reg = <0x1d>;
+> +				label = "1P8";
+> +			};
+> +
+> +			hwmon@7 { /* A7: GPS */
+> +				type = <1>;
+> +				reg = <0x26>;
+> +				label = "GPS";
+> +			};
+> +
+> +			hwmon@12 { /* A12: VDD_CORE */
+> +				type = <1>;
+> +				reg = <0x3>;
+> +				label = "VDD_CORE";
+> +			};
+> +
+> +			hwmon@13 { /* A13: VDD_SOC */
+> +				type = <1>;
+> +				reg = <0x11>;
+> +				label = "VDD_SOC";
+> +			};
+> +
+> +			hwmon@14 { /* A14: 1P0 PCIe SW */
+> +				type = <1>;
+> +				reg = <0x20>;
+> +				label = "1P0";
+> +			};
+> +
+> +			hwmon@15 { /* fan0 */
+> +				type = <2>;
+> +				reg = <0x2c>;
+> +				label = "fan_50p";
+> +			};
+> +
+> +			hwmon@16 { /* fan1 */
+> +				type = <2>;
+> +				reg = <0x2e>;
+> +				label = "fan_60p";
+> +			};
+> +
+> +			hwmon@17 { /* fan2 */
+> +				type = <2>;
+> +				reg = <0x30>;
+> +				label = "fan_70p";
+> +			};
+> +
+> +			hwmon@18 { /* fan3 */
+> +				type = <2>;
+> +				reg = <0x32>;
+> +				label = "fan_80p";
+> +			};
+> +
+> +			hwmon@19 { /* fan4 */
+> +				type = <2>;
+> +				reg = <0x34>;
+> +				label = "fan_90p";
+> +			};
+> +
+> +			hwmon@20 { /* fan5 */
+> +				type = <2>;
+> +				reg = <0x36>;
+> +				label = "fan_100p";
+> +			};
+> +		};
+> +	};
+> -- 
+> 2.7.4
+> 

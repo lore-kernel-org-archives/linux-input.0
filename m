@@ -1,7 +1,7 @@
 From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [RESEND PATCH v4 1/4] mfd: syscon: Set name of regmap_config
-Date: Fri,  9 Mar 2018 16:43:48 +0800
-Message-ID: <20180309084351.32009-2-jeffy.chen@rock-chips.com>
+Subject: [RESEND PATCH v4 2/4] rtc: at91sam9: Set name of regmap_config
+Date: Fri,  9 Mar 2018 16:43:49 +0800
+Message-ID: <20180309084351.32009-3-jeffy.chen@rock-chips.com>
 References: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
@@ -16,24 +16,26 @@ having a valid name will end up using "dummy*" to create debugfs dir.
 Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 ---
 
-Changes in v4: None
-Changes in v3:
-Modify commit message.
+Changes in v4:
+Not to use rtc dev to init regmap, the gpbr is not directly related to
+the rtc.
 
- drivers/mfd/syscon.c | 1 +
+Changes in v3: None
+
+ drivers/rtc/rtc-at91sam9.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
-index fc9ba0ea4e44..b6d05cd934e6 100644
---- a/drivers/mfd/syscon.c
-+++ b/drivers/mfd/syscon.c
-@@ -110,6 +110,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
- 	syscon_config.reg_stride = reg_io_width;
- 	syscon_config.val_bits = reg_io_width * 8;
- 	syscon_config.max_register = resource_size(&res) - reg_io_width;
-+	syscon_config.name = of_node_full_name(np);
+diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
+index 7418a763ce52..ee71e647fd43 100644
+--- a/drivers/rtc/rtc-at91sam9.c
++++ b/drivers/rtc/rtc-at91sam9.c
+@@ -349,6 +349,7 @@ static const struct rtc_class_ops at91_rtc_ops = {
+ };
  
- 	regmap = regmap_init_mmio(NULL, base, &syscon_config);
- 	if (IS_ERR(regmap)) {
+ static const struct regmap_config gpbr_regmap_config = {
++	.name = "gpbr",
+ 	.reg_bits = 32,
+ 	.val_bits = 32,
+ 	.reg_stride = 4,
 -- 
 2.11.0

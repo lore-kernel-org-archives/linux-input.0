@@ -1,82 +1,95 @@
-From: Enric Balletbo i Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Subject: [PATCH v5 02/36] drm/rockchip: Remove analogix psr worker
-Date: Fri,  9 Mar 2018 23:22:53 +0100
-Message-ID: <20180309222327.18689-3-enric.balletbo@collabora.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH v5 36/36] drm/rockchip: psr: Remove flush by CRTC
+Date: Fri,  9 Mar 2018 23:23:27 +0100
+Message-ID: <20180309222327.18689-37-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20180309222327.18689-1-enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hjc-TNX95d0MmH7DzftRWevZcw@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org
-Cc: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, a.hajda-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, ykk-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kernel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, orjan.eide-5wv7dgnIgG8@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, mark.yao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, wzz-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Enric Balletbo i Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, kuankuan.y-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hshi-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogU2VhbiBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+CgpOb3cgdGhhdCB0aGUgc3Bp
-bmxvY2tzIGFuZCB0aW1lcnMgYXJlIGdvbmUsIHdlIGNhbiByZW1vdmUgdGhlIHBzcgp3b3JrZXIg
-bG9jYXRlZCBpbiByb2NrY2hpcCdzIGFuYWxvZ2l4IGRyaXZlciBhbmQgZG8gdGhlIGVuYWJsZS9k
-aXNhYmxlCmRpcmVjdGx5LiBUaGlzIHNob3VsZCBzaW1wbGlmeSB0aGUgY29kZSBhbmQgcmVtb3Zl
-IHJhY2VzIG9uIGRpc2FibGUuCgpDYzog5b6B5aKeIOeOiyA8d3p6QHJvY2stY2hpcHMuY29tPgpD
-YzogU3TDqXBoYW5lIE1hcmNoZXNpbiA8bWFyY2hldUBjaHJvbWl1bS5vcmc+ClNpZ25lZC1vZmYt
-Ynk6IFNlYW4gUGF1bCA8c2VhbnBhdWxAY2hyb21pdW0ub3JnPgpTaWduZWQtb2ZmLWJ5OiBUaGll
-cnJ5IEVzY2FuZGUgPHRoaWVycnkuZXNjYW5kZUBjb2xsYWJvcmEuY29tPgpTaWduZWQtb2ZmLWJ5
-OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgpU
-ZXN0ZWQtYnk6IE1hcmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNvbT4KLS0t
-CgogZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL2FuYWxvZ2l4X2RwLXJvY2tjaGlwLmMgfCAzMSAr
-Ky0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCsp
-LCAyOSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAv
-YW5hbG9naXhfZHAtcm9ja2NoaXAuYyBiL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9hbmFsb2dp
-eF9kcC1yb2NrY2hpcC5jCmluZGV4IDdkNzZmZjQ3MDI4ZC4uMzYzMzQ4MzlhM2Y4IDEwMDY0NAot
-LS0gYS9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvYW5hbG9naXhfZHAtcm9ja2NoaXAuYworKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvYW5hbG9naXhfZHAtcm9ja2NoaXAuYwpAQCAtNzEs
-MTAgKzcxLDYgQEAgc3RydWN0IHJvY2tjaGlwX2RwX2RldmljZSB7CiAJc3RydWN0IHJlZ21hcCAg
-ICAgICAgICAgICpncmY7CiAJc3RydWN0IHJlc2V0X2NvbnRyb2wgICAgICpyc3Q7CiAKLQlzdHJ1
-Y3Qgd29ya19zdHJ1Y3QJIHBzcl93b3JrOwotCXN0cnVjdCBtdXRleCAgICAgICAgICAgICBwc3Jf
-bG9jazsKLQl1bnNpZ25lZCBpbnQgICAgICAgICAgICAgcHNyX3N0YXRlOwotCiAJY29uc3Qgc3Ry
-dWN0IHJvY2tjaGlwX2RwX2NoaXBfZGF0YSAqZGF0YTsKIAogCXN0cnVjdCBhbmFsb2dpeF9kcF9k
-ZXZpY2UgKmFkcDsKQEAgLTg0LDI4ICs4MCwxMyBAQCBzdHJ1Y3Qgcm9ja2NoaXBfZHBfZGV2aWNl
-IHsKIHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX3Bzcl9zZXQoc3RydWN0IGRybV9lbmNvZGVyICpl
-bmNvZGVyLCBib29sIGVuYWJsZWQpCiB7CiAJc3RydWN0IHJvY2tjaGlwX2RwX2RldmljZSAqZHAg
-PSB0b19kcChlbmNvZGVyKTsKKwlpbnQgcmV0OwogCiAJaWYgKCFhbmFsb2dpeF9kcF9wc3Jfc3Vw
-cG9ydGVkKGRwLT5hZHApKQogCQlyZXR1cm47CiAKIAlEUk1fREVWX0RFQlVHKGRwLT5kZXYsICIl
-cyBQU1IuLi5cbiIsIGVuYWJsZWQgPyAiRW50cnkiIDogIkV4aXQiKTsKIAotCW11dGV4X2xvY2so
-JmRwLT5wc3JfbG9jayk7Ci0JaWYgKGVuYWJsZWQpCi0JCWRwLT5wc3Jfc3RhdGUgPSBFRFBfVlND
-X1BTUl9TVEFURV9BQ1RJVkU7Ci0JZWxzZQotCQlkcC0+cHNyX3N0YXRlID0gfkVEUF9WU0NfUFNS
-X1NUQVRFX0FDVElWRTsKLQotCXNjaGVkdWxlX3dvcmsoJmRwLT5wc3Jfd29yayk7Ci0JbXV0ZXhf
-dW5sb2NrKCZkcC0+cHNyX2xvY2spOwotfQotCi1zdGF0aWMgdm9pZCBhbmFsb2dpeF9kcF9wc3Jf
-d29yayhzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCi17Ci0Jc3RydWN0IHJvY2tjaGlwX2RwX2Rl
-dmljZSAqZHAgPQotCQkJCWNvbnRhaW5lcl9vZih3b3JrLCB0eXBlb2YoKmRwKSwgcHNyX3dvcmsp
-OwotCWludCByZXQ7Ci0KIAlyZXQgPSByb2NrY2hpcF9kcm1fd2FpdF92YWN0X2VuZChkcC0+ZW5j
-b2Rlci5jcnRjLAogCQkJCQkgUFNSX1dBSVRfTElORV9GTEFHX1RJTUVPVVRfTVMpOwogCWlmIChy
-ZXQpIHsKQEAgLTExMywxMiArOTQsMTAgQEAgc3RhdGljIHZvaWQgYW5hbG9naXhfZHBfcHNyX3dv
-cmsoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQogCQlyZXR1cm47CiAJfQogCi0JbXV0ZXhfbG9j
-aygmZHAtPnBzcl9sb2NrKTsKLQlpZiAoZHAtPnBzcl9zdGF0ZSA9PSBFRFBfVlNDX1BTUl9TVEFU
-RV9BQ1RJVkUpCisJaWYgKGVuYWJsZWQpCiAJCWFuYWxvZ2l4X2RwX2VuYWJsZV9wc3IoZHAtPmFk
-cCk7CiAJZWxzZQogCQlhbmFsb2dpeF9kcF9kaXNhYmxlX3BzcihkcC0+YWRwKTsKLQltdXRleF91
-bmxvY2soJmRwLT5wc3JfbG9jayk7CiB9CiAKIHN0YXRpYyBpbnQgcm9ja2NoaXBfZHBfcHJlX2lu
-aXQoc3RydWN0IHJvY2tjaGlwX2RwX2RldmljZSAqZHApCkBAIC0xMzUsOCArMTE0LDYgQEAgc3Rh
-dGljIGludCByb2NrY2hpcF9kcF9wb3dlcm9uKHN0cnVjdCBhbmFsb2dpeF9kcF9wbGF0X2RhdGEg
-KnBsYXRfZGF0YSkKIAlzdHJ1Y3Qgcm9ja2NoaXBfZHBfZGV2aWNlICpkcCA9IHRvX2RwKHBsYXRf
-ZGF0YSk7CiAJaW50IHJldDsKIAotCWNhbmNlbF93b3JrX3N5bmMoJmRwLT5wc3Jfd29yayk7Ci0K
-IAlyZXQgPSBjbGtfcHJlcGFyZV9lbmFibGUoZHAtPnBjbGspOwogCWlmIChyZXQgPCAwKSB7CiAJ
-CURSTV9ERVZfRVJST1IoZHAtPmRldiwgImZhaWxlZCB0byBlbmFibGUgcGNsayAlZFxuIiwgcmV0
-KTsKQEAgLTM1NSwxMCArMzMyLDYgQEAgc3RhdGljIGludCByb2NrY2hpcF9kcF9iaW5kKHN0cnVj
-dCBkZXZpY2UgKmRldiwgc3RydWN0IGRldmljZSAqbWFzdGVyLAogCWRwLT5wbGF0X2RhdGEucG93
-ZXJfb2ZmID0gcm9ja2NoaXBfZHBfcG93ZXJkb3duOwogCWRwLT5wbGF0X2RhdGEuZ2V0X21vZGVz
-ID0gcm9ja2NoaXBfZHBfZ2V0X21vZGVzOwogCi0JbXV0ZXhfaW5pdCgmZHAtPnBzcl9sb2NrKTsK
-LQlkcC0+cHNyX3N0YXRlID0gfkVEUF9WU0NfUFNSX1NUQVRFX0FDVElWRTsKLQlJTklUX1dPUkso
-JmRwLT5wc3Jfd29yaywgYW5hbG9naXhfZHBfcHNyX3dvcmspOwotCiAJcmV0ID0gcm9ja2NoaXBf
-ZHJtX3Bzcl9yZWdpc3RlcigmZHAtPmVuY29kZXIsIGFuYWxvZ2l4X2RwX3Bzcl9zZXQpOwogCWlm
-IChyZXQgPCAwKQogCQlnb3RvIGVycl9jbGVhbnVwX2VuY29kZXI7Ci0tIAoyLjE2LjEKCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpMaW51eC1yb2NrY2hp
-cCBtYWlsaW5nIGxpc3QKTGludXgtcm9ja2NoaXBAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8v
-bGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LXJvY2tjaGlwCg==
+From: Tomasz Figa <tfiga@chromium.org>
+
+It is not used anymore after last changes and it was not even correct to
+begin with as it assumed a 1:1 relation between a CRTC and encoder,
+while in fact a CRTC can be attached to multiple encoders.
+
+Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+---
+
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 35 -----------------------------
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.h |  1 -
+ 2 files changed, 36 deletions(-)
+
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+index 1bf5cba9a64d..b1988ac758d5 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+@@ -40,23 +40,6 @@ struct psr_drv {
+ 	int (*set)(struct drm_encoder *encoder, bool enable);
+ };
+ 
+-static struct psr_drv *find_psr_by_crtc(struct drm_crtc *crtc)
+-{
+-	struct rockchip_drm_private *drm_drv = crtc->dev->dev_private;
+-	struct psr_drv *psr;
+-
+-	mutex_lock(&drm_drv->psr_list_lock);
+-	list_for_each_entry(psr, &drm_drv->psr_list, list) {
+-		if (psr->encoder->crtc == crtc)
+-			goto out;
+-	}
+-	psr = ERR_PTR(-ENODEV);
+-
+-out:
+-	mutex_unlock(&drm_drv->psr_list_lock);
+-	return psr;
+-}
+-
+ static struct psr_drv *find_psr_by_encoder(struct drm_encoder *encoder)
+ {
+ 	struct rockchip_drm_private *drm_drv = encoder->dev->dev_private;
+@@ -173,24 +156,6 @@ static void rockchip_drm_do_flush(struct psr_drv *psr)
+ 	mutex_unlock(&psr->lock);
+ }
+ 
+-/**
+- * rockchip_drm_psr_flush - flush a single pipe
+- * @crtc: CRTC of the pipe to flush
+- *
+- * Returns:
+- * 0 on success, -errno on fail
+- */
+-int rockchip_drm_psr_flush(struct drm_crtc *crtc)
+-{
+-	struct psr_drv *psr = find_psr_by_crtc(crtc);
+-	if (IS_ERR(psr))
+-		return PTR_ERR(psr);
+-
+-	rockchip_drm_do_flush(psr);
+-	return 0;
+-}
+-EXPORT_SYMBOL(rockchip_drm_psr_flush);
+-
+ /**
+  * rockchip_drm_psr_flush_all - force to flush all registered PSR encoders
+  * @dev: drm device
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
+index 40e026c14168..860c62494496 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
+@@ -16,7 +16,6 @@
+ #define __ROCKCHIP_DRM_PSR___
+ 
+ void rockchip_drm_psr_flush_all(struct drm_device *dev);
+-int rockchip_drm_psr_flush(struct drm_crtc *crtc);
+ 
+ int rockchip_drm_psr_inhibit_put(struct drm_encoder *encoder);
+ int rockchip_drm_psr_inhibit_get(struct drm_encoder *encoder);
+-- 
+2.16.1

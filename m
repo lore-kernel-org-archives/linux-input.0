@@ -1,7 +1,7 @@
 From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [RESEND PATCH v4 2/4] rtc: at91sam9: Set name of regmap_config
-Date: Fri,  9 Mar 2018 16:43:49 +0800
-Message-ID: <20180309084351.32009-3-jeffy.chen@rock-chips.com>
+Subject: [RESEND PATCH v4 4/4] ARM: rockchip: Set name of regmap_config
+Date: Fri,  9 Mar 2018 16:43:51 +0800
+Message-ID: <20180309084351.32009-5-jeffy.chen@rock-chips.com>
 References: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
@@ -16,24 +16,21 @@ having a valid name will end up using "dummy*" to create debugfs dir.
 Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 ---
 
-Changes in v4:
-Not to use rtc dev to init regmap, the gpbr is not directly related to
-the rtc.
-
+Changes in v4: None
 Changes in v3: None
 
- drivers/rtc/rtc-at91sam9.c | 1 +
+ arch/arm/mach-rockchip/platsmp.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-at91sam9.c b/drivers/rtc/rtc-at91sam9.c
-index 7418a763ce52..ee71e647fd43 100644
---- a/drivers/rtc/rtc-at91sam9.c
-+++ b/drivers/rtc/rtc-at91sam9.c
-@@ -349,6 +349,7 @@ static const struct rtc_class_ops at91_rtc_ops = {
- };
+diff --git a/arch/arm/mach-rockchip/platsmp.c b/arch/arm/mach-rockchip/platsmp.c
+index ecec340ca345..51984a40b097 100644
+--- a/arch/arm/mach-rockchip/platsmp.c
++++ b/arch/arm/mach-rockchip/platsmp.c
+@@ -208,6 +208,7 @@ static int __init rockchip_smp_prepare_sram(struct device_node *node)
+ }
  
- static const struct regmap_config gpbr_regmap_config = {
-+	.name = "gpbr",
+ static const struct regmap_config rockchip_pmu_regmap_config = {
++	.name = "rockchip-pmu",
  	.reg_bits = 32,
  	.val_bits = 32,
  	.reg_stride = 4,

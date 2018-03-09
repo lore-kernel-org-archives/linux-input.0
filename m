@@ -1,77 +1,77 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v5 09/36] drm/bridge: analogix_dp: Don't use fast link
- training when panel just powered up
-Date: Fri,  9 Mar 2018 23:23:00 +0100
-Message-ID: <20180309222327.18689-10-enric.balletbo@collabora.com>
+Subject: [PATCH v5 31/36] drm/rockchip: Cancel PSR enable work before changing the state
+Date: Fri,  9 Mar 2018 23:23:22 +0100
+Message-ID: <20180309222327.18689-32-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+CgpQYW5lbCB3b3VsZCByZXNldCBp
-dHMgc2V0dGluZyB3aGVuIGl0IHBvd2VycyBkb3duLiBJdCB3b3VsZCBmb3JnZXQgdGhlIGxhc3QK
-c3VjY2VlZGVkIGxpbmsgdHJhaW5pbmcgc2V0dGluZy4gU28gd2UgY2FuJ3QgdXNlIHRoZSBsYXN0
-IHN1Y2Nlc3NmdWwgbGluawp0cmFpbmluZyBzZXR0aW5nIHRvIGRvIGZhc3QgbGluayB0cmFpbmlu
-Zy4gTGV0J3MgcmVzZXQgZmFzdF90cmFpbl9lbmFibGUgaW4KYW5hbG9naXhfZHBfYnJpZGdlX2Rp
-c2FibGUoKTsKCkNjOiBTdMOpcGhhbmUgTWFyY2hlc2luIDxtYXJjaGV1QGNocm9taXVtLm9yZz4K
-U2lnbmVkLW9mZi1ieTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+ClNpZ25lZC1vZmYt
-Ynk6IFNlYW4gUGF1bCA8c2VhbnBhdWxAY2hyb21pdW0ub3JnPgpTaWduZWQtb2ZmLWJ5OiBUaGll
-cnJ5IEVzY2FuZGUgPHRoaWVycnkuZXNjYW5kZUBjb2xsYWJvcmEuY29tPgpTaWduZWQtb2ZmLWJ5
-OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgpU
-ZXN0ZWQtYnk6IE1hcmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNvbT4KLS0t
-CgogZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMgfCA5
-ICsrKysrLS0tLQogZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9j
-b3JlLmggfCAyICstCiAyIGZpbGVzIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlv
-bnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxv
-Z2l4X2RwX2NvcmUuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhf
-ZHBfY29yZS5jCmluZGV4IGY5NjYxYjQxMGNiOS4uZWE3YTgwYTk4OWM2IDEwMDY0NAotLS0gYS9k
-cml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYworKysgYi9k
-cml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwpAQCAtNTc5
-LDE0ICs1NzksMTQgQEAgc3RhdGljIGludCBhbmFsb2dpeF9kcF9wcm9jZXNzX2VxdWFsaXplcl90
-cmFpbmluZyhzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIAkJaWYgKHJldHZhbCAhPSAx
-KSB7CiAJCQlkZXZfZXJyKGRwLT5kZXYsICJmYWlsZWQgdG8gcmVhZCBkb3duc3ByZWFkICVkXG4i
-LAogCQkJCXJldHZhbCk7Ci0JCQlkcC0+ZmFzdF90cmFpbl9zdXBwb3J0ID0gZmFsc2U7CisJCQlk
-cC0+ZmFzdF90cmFpbl9lbmFibGUgPSBmYWxzZTsKIAkJfSBlbHNlIHsKLQkJCWRwLT5mYXN0X3Ry
-YWluX3N1cHBvcnQgPQorCQkJZHAtPmZhc3RfdHJhaW5fZW5hYmxlID0KIAkJCQkoc3ByZWFkICYg
-RFBfTk9fQVVYX0hBTkRTSEFLRV9MSU5LX1RSQUlOSU5HKSA/CiAJCQkJCXRydWUgOiBmYWxzZTsK
-IAkJfQogCQlkZXZfZGJnKGRwLT5kZXYsICJmYXN0IGxpbmsgdHJhaW5pbmcgJXNcbiIsCi0JCQlk
-cC0+ZmFzdF90cmFpbl9zdXBwb3J0ID8gInN1cHBvcnRlZCIgOiAidW5zdXBwb3J0ZWQiKTsKKwkJ
-CWRwLT5mYXN0X3RyYWluX2VuYWJsZSA/ICJzdXBwb3J0ZWQiIDogInVuc3VwcG9ydGVkIik7CiAK
-IAkJLyogc2V0IGVuaGFuY2VkIG1vZGUgaWYgYXZhaWxhYmxlICovCiAJCWFuYWxvZ2l4X2RwX3Nl
-dF9lbmhhbmNlZF9tb2RlKGRwKTsKQEAgLTc5Myw3ICs3OTMsNyBAQCBzdGF0aWMgaW50IGFuYWxv
-Z2l4X2RwX2Zhc3RfbGlua190cmFpbihzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIAog
-c3RhdGljIGludCBhbmFsb2dpeF9kcF90cmFpbl9saW5rKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZp
-Y2UgKmRwKQogewotCWlmIChkcC0+ZmFzdF90cmFpbl9zdXBwb3J0KQorCWlmIChkcC0+ZmFzdF90
-cmFpbl9lbmFibGUpCiAJCXJldHVybiBhbmFsb2dpeF9kcF9mYXN0X2xpbmtfdHJhaW4oZHApOwog
-CiAJcmV0dXJuIGFuYWxvZ2l4X2RwX2Z1bGxfbGlua190cmFpbihkcCwgZHAtPnZpZGVvX2luZm8u
-bWF4X2xhbmVfY291bnQsCkBAIC0xMTk3LDYgKzExOTcsNyBAQCBzdGF0aWMgdm9pZCBhbmFsb2dp
-eF9kcF9icmlkZ2VfZGlzYWJsZShzdHJ1Y3QgZHJtX2JyaWRnZSAqYnJpZGdlKQogCQlEUk1fRVJS
-T1IoImZhaWxlZCB0byBzZXR1cCB0aGUgcGFuZWwgcmV0ID0gJWRcbiIsIHJldCk7CiAKIAlkcC0+
-cHNyX2VuYWJsZSA9IGZhbHNlOworCWRwLT5mYXN0X3RyYWluX2VuYWJsZSA9IGZhbHNlOwogCWRw
-LT5kcG1zX21vZGUgPSBEUk1fTU9ERV9EUE1TX09GRjsKIH0KIApkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmggYi9kcml2ZXJzL2dw
-dS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuaAppbmRleCA2YTk2ZWY3ZTY5
-MzQuLjQwM2ZmODUzNDY0YiAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFs
-b2dpeC9hbmFsb2dpeF9kcF9jb3JlLmgKKysrIGIvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFs
-b2dpeC9hbmFsb2dpeF9kcF9jb3JlLmgKQEAgLTE3Myw3ICsxNzMsNyBAQCBzdHJ1Y3QgYW5hbG9n
-aXhfZHBfZGV2aWNlIHsKIAlpbnQJCQlocGRfZ3BpbzsKIAlib29sICAgICAgICAgICAgICAgICAg
-ICBmb3JjZV9ocGQ7CiAJYm9vbAkJCXBzcl9lbmFibGU7Ci0JYm9vbAkJCWZhc3RfdHJhaW5fc3Vw
-cG9ydDsKKwlib29sCQkJZmFzdF90cmFpbl9lbmFibGU7CiAKIAlzdHJ1Y3QgbXV0ZXgJCXBhbmVs
-X2xvY2s7CiAJYm9vbAkJCXBhbmVsX2lzX21vZGVzZXQ7Ci0tIAoyLjE2LjEKCgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1h
-aWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xp
-c3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+From: Tomasz Figa <tfiga@chromium.org>
+
+If we change the state first and reschedule later, we might have the
+work executed according to previous scheduled time and end up with PSR
+re-enabled instantly. Let's cancel the work before changing the state.
+
+While at it, consolidate psr_disable_handler() to just call
+rockchip_drm_do_flush(), as they are both supposed to do the same.
+
+Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+---
+
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+index a107845ba97c..c8655e625ba2 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+@@ -138,18 +138,6 @@ static void psr_flush_handler(struct work_struct *work)
+ 	mutex_unlock(&psr->lock);
+ }
+ 
+-static void psr_disable_handler(struct work_struct *work)
+-{
+-	struct psr_drv *psr = container_of(work, struct psr_drv, disable_work);
+-
+-	/* If the state has changed since we initiated the flush, do nothing */
+-	mutex_lock(&psr->lock);
+-	if (psr->state == PSR_ENABLE)
+-		psr_set_state_locked(psr, PSR_FLUSH);
+-	mutex_unlock(&psr->lock);
+-	mod_delayed_work(system_wq, &psr->flush_work, PSR_FLUSH_TIMEOUT_MS);
+-}
+-
+ /**
+  * rockchip_drm_psr_activate - activate PSR on the given pipe
+  * @encoder: encoder to obtain the PSR encoder
+@@ -198,6 +186,7 @@ EXPORT_SYMBOL(rockchip_drm_psr_deactivate);
+ 
+ static void rockchip_drm_do_flush(struct psr_drv *psr)
+ {
++	cancel_delayed_work_sync(&psr->flush_work);
+ 	psr_set_state(psr, PSR_FLUSH);
+ 	mod_delayed_work(system_wq, &psr->flush_work, PSR_FLUSH_TIMEOUT_MS);
+ }
+@@ -244,6 +233,13 @@ void rockchip_drm_psr_flush_all(struct drm_device *dev)
+ }
+ EXPORT_SYMBOL(rockchip_drm_psr_flush_all);
+ 
++static void psr_disable_handler(struct work_struct *work)
++{
++	struct psr_drv *psr = container_of(work, struct psr_drv, disable_work);
++
++	rockchip_drm_do_flush(psr);
++}
++
+ static void psr_input_event(struct input_handle *handle,
+ 			    unsigned int type, unsigned int code,
+ 			    int value)
+-- 
+2.16.1

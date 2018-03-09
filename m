@@ -1,24 +1,32 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v5 08/36] drm/bridge: analogix_dp: Check AUX_EN status when doing AUX transfer
-Date: Fri,  9 Mar 2018 23:22:59 +0100
-Message-ID: <20180309222327.18689-9-enric.balletbo@collabora.com>
+Subject: [PATCH v5 04/36] drm/rockchip: add mutex vop lock
+Date: Fri,  9 Mar 2018 23:22:55 +0100
+Message-ID: <20180309222327.18689-5-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-From: Lin Huang <hl@rock-chips.com>
+From: zain wang <wzz@rock-chips.com>
 
-We should check AUX_EN bit to confirm the AUX CH operation is completed.
+Add a lock to vop to avoid disabling the crtc while waiting for a line
+flag while enabling psr. If we disable in the middle of waiting for the
+line flag, we'll end up timing out or worse.
 
-Cc: Stéphane Marchesin <marcheu@chromium.org>
-Signed-off-by: Lin Huang <hl@rock-chips.com>
 Signed-off-by: zain wang <wzz@rock-chips.com>
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
@@ -26,54 +34,109 @@ Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 ---
 
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 25 +++++++++++++----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 30 +++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-index 9df2f3ef000c..e78c861b9e06 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-@@ -1073,9 +1073,9 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
- {
- 	u32 reg;
- 	u8 *buffer = msg->buffer;
--	int timeout_loop = 0;
- 	unsigned int i;
- 	int num_transferred = 0;
-+	int ret;
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index 158e79e5062e..b601c59e76a8 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -117,6 +117,8 @@ struct vop {
+ 	spinlock_t reg_lock;
+ 	/* lock vop irq reg */
+ 	spinlock_t irq_lock;
++	/* protects crtc enable/disable */
++	struct mutex vop_lock;
  
- 	/* Buffer size of AUX CH is 16 bytes */
- 	if (WARN_ON(msg->size > 16))
-@@ -1139,17 +1139,20 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+ 	unsigned int irq;
  
- 	writel(reg, dp->reg_base + ANALOGIX_DP_AUX_CH_CTL_2);
+@@ -569,6 +571,7 @@ static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
  
--	/* Is AUX CH command reply received? */
-+	ret = readx_poll_timeout(readl, dp->reg_base + ANALOGIX_DP_AUX_CH_CTL_2,
-+				 reg, !(reg & AUX_EN), 25, 500 * 1000);
-+	if (ret) {
-+		dev_err(dp->dev, "AUX CH enable timeout!\n");
-+		return -ETIMEDOUT;
-+	}
+ 	WARN_ON(vop->event);
+ 
++	mutex_lock(&vop->vop_lock);
+ 	drm_crtc_vblank_off(crtc);
+ 
+ 	/*
+@@ -604,6 +607,7 @@ static void vop_crtc_atomic_disable(struct drm_crtc *crtc,
+ 	clk_disable(vop->aclk);
+ 	clk_disable(vop->hclk);
+ 	pm_runtime_put(vop->dev);
++	mutex_unlock(&vop->vop_lock);
+ 
+ 	if (crtc->state->event && !crtc->state->active) {
+ 		spin_lock_irq(&crtc->dev->event_lock);
+@@ -868,10 +872,13 @@ static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	uint32_t pin_pol, val;
+ 	int ret;
+ 
++	mutex_lock(&vop->vop_lock);
 +
- 	/* TODO: Wait for an interrupt instead of looping? */
--	reg = readl(dp->reg_base + ANALOGIX_DP_INT_STA);
--	while (!(reg & RPLY_RECEIV)) {
--		timeout_loop++;
--		if (timeout_loop > DP_TIMEOUT_LOOP_COUNT) {
--			dev_err(dp->dev, "AUX CH command reply failed!\n");
--			return -ETIMEDOUT;
--		}
--		reg = readl(dp->reg_base + ANALOGIX_DP_INT_STA);
--		usleep_range(10, 11);
-+	/* Is AUX CH command reply received? */
-+	ret = readx_poll_timeout(readl, dp->reg_base + ANALOGIX_DP_INT_STA,
-+				 reg, reg & RPLY_RECEIV, 10, 20 * 1000);
-+	if (ret) {
-+		dev_err(dp->dev, "AUX CH cmd reply timeout!\n");
-+		return -ETIMEDOUT;
+ 	WARN_ON(vop->event);
+ 
+ 	ret = vop_enable(crtc);
+ 	if (ret) {
++		mutex_unlock(&vop->vop_lock);
+ 		DRM_DEV_ERROR(vop->dev, "Failed to enable vop (%d)\n", ret);
+ 		return;
+ 	}
+@@ -935,6 +942,7 @@ static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	clk_set_rate(vop->dclk, adjusted_mode->clock * 1000);
+ 
+ 	VOP_REG_SET(vop, common, standby, 0);
++	mutex_unlock(&vop->vop_lock);
+ }
+ 
+ static bool vop_fs_irq_is_pending(struct vop *vop)
+@@ -1473,15 +1481,21 @@ int rockchip_drm_wait_vact_end(struct drm_crtc *crtc, unsigned int mstimeout)
+ {
+ 	struct vop *vop = to_vop(crtc);
+ 	unsigned long jiffies_left;
++	int ret = 0;
+ 
+ 	if (!crtc || !vop->is_enabled)
+ 		return -ENODEV;
+ 
+-	if (mstimeout <= 0)
+-		return -EINVAL;
++	mutex_lock(&vop->vop_lock);
++	if (mstimeout <= 0) {
++		ret = -EINVAL;
++		goto out;
++	}
+ 
+-	if (vop_line_flag_irq_is_enabled(vop))
+-		return -EBUSY;
++	if (vop_line_flag_irq_is_enabled(vop)) {
++		ret = -EBUSY;
++		goto out;
++	}
+ 
+ 	reinit_completion(&vop->line_flag_completion);
+ 	vop_line_flag_irq_enable(vop);
+@@ -1492,10 +1506,13 @@ int rockchip_drm_wait_vact_end(struct drm_crtc *crtc, unsigned int mstimeout)
+ 
+ 	if (jiffies_left == 0) {
+ 		DRM_DEV_ERROR(vop->dev, "Timeout waiting for IRQ\n");
+-		return -ETIMEDOUT;
++		ret = -ETIMEDOUT;
++		goto out;
  	}
  
- 	/* Clear interrupt source for AUX CH command reply */
+-	return 0;
++out:
++	mutex_unlock(&vop->vop_lock);
++	return ret;
+ }
+ EXPORT_SYMBOL(rockchip_drm_wait_vact_end);
+ 
+@@ -1545,6 +1562,7 @@ static int vop_bind(struct device *dev, struct device *master, void *data)
+ 
+ 	spin_lock_init(&vop->reg_lock);
+ 	spin_lock_init(&vop->irq_lock);
++	mutex_init(&vop->vop_lock);
+ 
+ 	ret = devm_request_irq(dev, vop->irq, vop_isr,
+ 			       IRQF_SHARED, dev_name(dev), vop);
 -- 
 2.16.1

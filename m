@@ -1,143 +1,91 @@
-From: Enric Balletbo i Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Subject: [PATCH v5 03/36] drm/bridge: analogix_dp: Don't change psr while
- bridge is disabled
-Date: Fri,  9 Mar 2018 23:22:54 +0100
-Message-ID: <20180309222327.18689-4-enric.balletbo@collabora.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH v5 06/36] drm/rockchip: Only wait for panel ACK on PSR entry
+Date: Fri,  9 Mar 2018 23:22:57 +0100
+Message-ID: <20180309222327.18689-7-enric.balletbo@collabora.com>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20180309222327.18689-1-enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hjc-TNX95d0MmH7DzftRWevZcw@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org
-Cc: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, a.hajda-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, ykk-TNX95d0MmH7DzftRWevZcw@public.gmane.org, kernel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, orjan.eide-5wv7dgnIgG8@public.gmane.org, wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org, jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, mark.yao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, wzz-TNX95d0MmH7DzftRWevZcw@public.gmane.org, hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org, Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Enric Balletbo i Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, kuankuan.y-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, hshi-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, Sonny Rao <sonnyrao@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-From: zain wang <wzz-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-
-There is a race between AUX CH bring-up and enabling bridge which will
-cause link training to fail. To avoid hitting it, don't change psr state
-while enabling the bridge.
-
-Cc: Tomeu Vizoso <tomeu.vizoso-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Cc: Sean Paul <seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: zain wang <wzz-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Signed-off-by: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-[seanpaul fixed up the commit message a bit and renamed *_supported to *_enabled]
-Signed-off-by: Sean Paul <seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: Thierry Escande <thierry.escande-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
-Tested-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
-
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 15 ++++++++-------
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.h |  2 +-
- drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    |  2 +-
- include/drm/bridge/analogix_dp.h                   |  2 +-
- 4 files changed, 11 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index e738aa6de1af..ee00d3d920e0 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -98,18 +98,18 @@ static int analogix_dp_detect_hpd(struct analogix_dp_device *dp)
- 	return 0;
- }
- 
--int analogix_dp_psr_supported(struct analogix_dp_device *dp)
-+int analogix_dp_psr_enabled(struct analogix_dp_device *dp)
- {
- 
--	return dp->psr_support;
-+	return dp->psr_enable;
- }
--EXPORT_SYMBOL_GPL(analogix_dp_psr_supported);
-+EXPORT_SYMBOL_GPL(analogix_dp_psr_enabled);
- 
- int analogix_dp_enable_psr(struct analogix_dp_device *dp)
- {
- 	struct edp_vsc_psr psr_vsc;
- 
--	if (!dp->psr_support)
-+	if (!dp->psr_enable)
- 		return 0;
- 
- 	/* Prepare VSC packet as per EDP 1.4 spec, Table 6.9 */
-@@ -131,7 +131,7 @@ int analogix_dp_disable_psr(struct analogix_dp_device *dp)
- 	struct edp_vsc_psr psr_vsc;
- 	int ret;
- 
--	if (!dp->psr_support)
-+	if (!dp->psr_enable)
- 		return 0;
- 
- 	/* Prepare VSC packet as per EDP 1.4 spec, Table 6.9 */
-@@ -871,8 +871,8 @@ static void analogix_dp_commit(struct analogix_dp_device *dp)
- 	/* Enable video */
- 	analogix_dp_start_video(dp);
- 
--	dp->psr_support = analogix_dp_detect_sink_psr(dp);
--	if (dp->psr_support)
-+	dp->psr_enable = analogix_dp_detect_sink_psr(dp);
-+	if (dp->psr_enable)
- 		analogix_dp_enable_sink_psr(dp);
- }
- 
-@@ -1117,6 +1117,7 @@ static void analogix_dp_bridge_disable(struct drm_bridge *bridge)
- 	if (ret)
- 		DRM_ERROR("failed to setup the panel ret = %d\n", ret);
- 
-+	dp->psr_enable = false;
- 	dp->dpms_mode = DRM_MODE_DPMS_OFF;
- }
- 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.h b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.h
-index b039b28d8fcc..e135a42cb19e 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.h
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.h
-@@ -170,7 +170,7 @@ struct analogix_dp_device {
- 	int			dpms_mode;
- 	int			hpd_gpio;
- 	bool                    force_hpd;
--	bool			psr_support;
-+	bool			psr_enable;
- 
- 	struct mutex		panel_lock;
- 	bool			panel_is_modeset;
-diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-index 36334839a3f8..3e8bf79bea58 100644
---- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-@@ -82,7 +82,7 @@ static void analogix_dp_psr_set(struct drm_encoder *encoder, bool enabled)
- 	struct rockchip_dp_device *dp = to_dp(encoder);
- 	int ret;
- 
--	if (!analogix_dp_psr_supported(dp->adp))
-+	if (!analogix_dp_psr_enabled(dp->adp))
- 		return;
- 
- 	DRM_DEV_DEBUG(dp->dev, "%s PSR...\n", enabled ? "Entry" : "Exit");
-diff --git a/include/drm/bridge/analogix_dp.h b/include/drm/bridge/analogix_dp.h
-index 711fff9b6803..e9a1116d2f8e 100644
---- a/include/drm/bridge/analogix_dp.h
-+++ b/include/drm/bridge/analogix_dp.h
-@@ -41,7 +41,7 @@ struct analogix_dp_plat_data {
- 			 struct drm_connector *);
- };
- 
--int analogix_dp_psr_supported(struct analogix_dp_device *dp);
-+int analogix_dp_psr_enabled(struct analogix_dp_device *dp);
- int analogix_dp_enable_psr(struct analogix_dp_device *dp);
- int analogix_dp_disable_psr(struct analogix_dp_device *dp);
- 
--- 
-2.16.1
+RnJvbTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+CgpXZSBjdXJyZW50bHkgd2FpdCBm
+b3IgdGhlIHBhbmVsIHRvIG1pcnJvciBvdXIgaW50ZW5kZWQgUFNSIHN0YXRlCmJlZm9yZSBjb250
+aW51aW5nIG9uIGJvdGggUFNSIGVudGVyIGFuZCBQU1IgZXhpdC4gVGhpcyBpcyByZWFsbHkKb25s
+eSBpbXBvcnRhbnQgdG8gZG8gd2hlbiB3ZSdyZSBlbnRlcmluZyBQU1IsIHNpbmNlIHdlIHdhbnQg
+dG8KYmUgc3VyZSB0aGUgbGFzdCBmcmFtZSB3ZSBwdXNoZWQgaXMgYmVpbmcgc2VydmVkIGZyb20g
+dGhlIHBhbmVsJ3MKaW50ZXJuYWwgZmIgYmVmb3JlIHNodXR0aW5nIGRvd24gdGhlIHNvYyBibG9j
+a3MgKHZvcC9hbmFsb2dpeCkuCgpUaGlzIHBhdGNoIGNoYW5nZXMgdGhlIGJlaGF2aW9yIHN1Y2gg
+dGhhdCB3ZSBvbmx5IHdhaXQgZm9yIHRoZQpwYW5lbCB0byBjb21wbGV0ZSB0aGUgUFNSIHRyYW5z
+aXRpb24gd2hlbiB3ZSdyZSBlbnRlcmluZyBQU1IsIGFuZAp0byBza2lwIHZlcmlmaWNhdGlvbiB3
+aGVuIHdlJ3JlIGV4aXRpbmcuCgpDYzogU3TDqXBoYW5lIE1hcmNoZXNpbiA8bWFyY2hldUBjaHJv
+bWl1bS5vcmc+CkNjOiBTb25ueSBSYW8gPHNvbm55cmFvQGNocm9taXVtLm9yZz4KU2lnbmVkLW9m
+Zi1ieTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+ClNpZ25lZC1vZmYtYnk6IFNlYW4g
+UGF1bCA8c2VhbnBhdWxAY2hyb21pdW0ub3JnPgpTaWduZWQtb2ZmLWJ5OiBUaGllcnJ5IEVzY2Fu
+ZGUgPHRoaWVycnkuZXNjYW5kZUBjb2xsYWJvcmEuY29tPgpTaWduZWQtb2ZmLWJ5OiBFbnJpYyBC
+YWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgpUZXN0ZWQtYnk6
+IE1hcmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNvbT4KLS0tCgogZHJpdmVy
+cy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMgfCA0ICsrLS0KIGRy
+aXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5oIHwgMiArLQog
+ZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYyAgfCA1ICsr
+KystCiAzIGZpbGVzIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKCmRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2Nv
+cmUuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5j
+CmluZGV4IDgwNmMzODc4YjNkNi4uNWEyZTM1ZGM0MWUzIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dw
+dS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYworKysgYi9kcml2ZXJzL2dw
+dS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwpAQCAtMTI1LDcgKzEyNSw3
+IEBAIGludCBhbmFsb2dpeF9kcF9lbmFibGVfcHNyKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2Ug
+KmRwKQogCXBzcl92c2MuREIwID0gMDsKIAlwc3JfdnNjLkRCMSA9IEVEUF9WU0NfUFNSX1NUQVRF
+X0FDVElWRSB8IEVEUF9WU0NfUFNSX0NSQ19WQUxVRVNfVkFMSUQ7CiAKLQlyZXR1cm4gYW5hbG9n
+aXhfZHBfc2VuZF9wc3Jfc3BkKGRwLCAmcHNyX3ZzYyk7CisJcmV0dXJuIGFuYWxvZ2l4X2RwX3Nl
+bmRfcHNyX3NwZChkcCwgJnBzcl92c2MsIHRydWUpOwogfQogRVhQT1JUX1NZTUJPTF9HUEwoYW5h
+bG9naXhfZHBfZW5hYmxlX3Bzcik7CiAKQEAgLTE1MSw3ICsxNTEsNyBAQCBpbnQgYW5hbG9naXhf
+ZHBfZGlzYWJsZV9wc3Ioc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCiAJaWYgKHJldCAh
+PSAxKQogCQlkZXZfZXJyKGRwLT5kZXYsICJGYWlsZWQgdG8gc2V0IERQIFBvd2VyMCAlZFxuIiwg
+cmV0KTsKIAotCXJldHVybiBhbmFsb2dpeF9kcF9zZW5kX3Bzcl9zcGQoZHAsICZwc3JfdnNjKTsK
+KwlyZXR1cm4gYW5hbG9naXhfZHBfc2VuZF9wc3Jfc3BkKGRwLCAmcHNyX3ZzYywgZmFsc2UpOwog
+fQogRVhQT1JUX1NZTUJPTF9HUEwoYW5hbG9naXhfZHBfZGlzYWJsZV9wc3IpOwogCmRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuaCBi
+L2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5oCmluZGV4
+IDkyMDYwN2Q3ZWIzZS4uNmE5NmVmN2U2OTM0IDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0v
+YnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuaAorKysgYi9kcml2ZXJzL2dwdS9kcm0v
+YnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuaApAQCAtMjUzLDcgKzI1Myw3IEBAIHZv
+aWQgYW5hbG9naXhfZHBfZW5hYmxlX3NjcmFtYmxpbmcoc3RydWN0IGFuYWxvZ2l4X2RwX2Rldmlj
+ZSAqZHApOwogdm9pZCBhbmFsb2dpeF9kcF9kaXNhYmxlX3NjcmFtYmxpbmcoc3RydWN0IGFuYWxv
+Z2l4X2RwX2RldmljZSAqZHApOwogdm9pZCBhbmFsb2dpeF9kcF9lbmFibGVfcHNyX2NyYyhzdHJ1
+Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCk7CiBpbnQgYW5hbG9naXhfZHBfc2VuZF9wc3Jfc3Bk
+KHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwLAotCQkJICAgICBzdHJ1Y3QgZWRwX3ZzY19w
+c3IgKnZzYyk7CisJCQkgICAgIHN0cnVjdCBlZHBfdnNjX3BzciAqdnNjLCBib29sIGJsb2NraW5n
+KTsKIHNzaXplX3QgYW5hbG9naXhfZHBfdHJhbnNmZXIoc3RydWN0IGFuYWxvZ2l4X2RwX2Rldmlj
+ZSAqZHAsCiAJCQkgICAgIHN0cnVjdCBkcm1fZHBfYXV4X21zZyAqbXNnKTsKIApkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYyBiL2Ry
+aXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmMKaW5kZXggMDA1
+YTNmNzAwNWQyLi45ZGYyZjNlZjAwMGMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9icmlk
+Z2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL2JyaWRn
+ZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYwpAQCAtMTAwNyw3ICsxMDA3LDcgQEAgc3RhdGlj
+IHNzaXplX3QgYW5hbG9naXhfZHBfZ2V0X3Bzcl9zdGF0dXMoc3RydWN0IGFuYWxvZ2l4X2RwX2Rl
+dmljZSAqZHApCiB9CiAKIGludCBhbmFsb2dpeF9kcF9zZW5kX3Bzcl9zcGQoc3RydWN0IGFuYWxv
+Z2l4X2RwX2RldmljZSAqZHAsCi0JCQkgICAgIHN0cnVjdCBlZHBfdnNjX3BzciAqdnNjKQorCQkJ
+ICAgICBzdHJ1Y3QgZWRwX3ZzY19wc3IgKnZzYywgYm9vbCBibG9ja2luZykKIHsKIAl1bnNpZ25l
+ZCBpbnQgdmFsOwogCWludCByZXQ7CkBAIC0xMDUzLDYgKzEwNTMsOSBAQCBpbnQgYW5hbG9naXhf
+ZHBfc2VuZF9wc3Jfc3BkKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwLAogCXZhbCB8PSBJ
+Rl9FTjsKIAl3cml0ZWwodmFsLCBkcC0+cmVnX2Jhc2UgKyBBTkFMT0dJWF9EUF9QS1RfU0VORF9D
+VEwpOwogCisJaWYgKCFibG9ja2luZykKKwkJcmV0dXJuIDA7CisKIAlyZXQgPSByZWFkeF9wb2xs
+X3RpbWVvdXQoYW5hbG9naXhfZHBfZ2V0X3Bzcl9zdGF0dXMsIGRwLCBwc3Jfc3RhdHVzLAogCQlw
+c3Jfc3RhdHVzID49IDAgJiYKIAkJKCh2c2MtPkRCMSAmJiBwc3Jfc3RhdHVzID09IERQX1BTUl9T
+SU5LX0FDVElWRV9SRkIpIHx8Ci0tIAoyLjE2LjEKCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51
+eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5v
+cmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==

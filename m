@@ -1,84 +1,28 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH v2] Input: stmpe-keypad - remove VLA usage
-Date: Fri, 9 Mar 2018 21:36:12 -0600
-Message-ID: <20180310033612.GA8010@embeddedgus>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH v2 1/4] dt-bindings: mfd: Add Gateworks System Controller bindings
+Date: Sat, 10 Mar 2018 10:57:43 -0300
+Message-ID: <CAOMZO5Cw+XW_G_euCL5itmuvfxDDnWWHqg2EjPTCVkuTzqXHug@mail.gmail.com>
+References: <1520287361-12569-1-git-send-email-tharvey@gateworks.com> <1520287361-12569-2-git-send-email-tharvey@gateworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <1520287361-12569-2-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+To: Tim Harvey <tharvey@gateworks.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In preparation to enabling -Wvla, remove VLA and replace it
-with a fixed-length array instead.
+Hi Tim,
 
-Fixed as part of the directive to remove all VLAs from
-the kernel: https://lkml.org/lkml/2018/3/7/621
+On Mon, Mar 5, 2018 at 7:02 PM, Tim Harvey <tharvey@gateworks.com> wrote:
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
-Changes in v2:
- - Update the code based on Dmitry Torokhov comments. Thanks Dmitry.
+> +
+> +                       hwmon@1 { /* A1: Input Voltage */
+> +                               type = <1>;
+> +                               reg = <0x02>;
 
- drivers/input/keyboard/stmpe-keypad.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+Unit address (@1) does not match the 'reg' value.
 
-diff --git a/drivers/input/keyboard/stmpe-keypad.c b/drivers/input/keyboard/stmpe-keypad.c
-index 8c6c0b9..d69e631 100644
---- a/drivers/input/keyboard/stmpe-keypad.c
-+++ b/drivers/input/keyboard/stmpe-keypad.c
-@@ -48,6 +48,14 @@
- #define STMPE_KEYPAD_KEYMAP_MAX_SIZE \
- 	(STMPE_KEYPAD_MAX_ROWS * STMPE_KEYPAD_MAX_COLS)
- 
-+
-+#define STMPE1601_NUM_DATA	5
-+#define STMPE2401_NUM_DATA	3
-+#define STMPE2403_NUM_DATA	5
-+
-+/* Make sure it covers all cases above */
-+#define MAX_NUM_DATA		5
-+
- /**
-  * struct stmpe_keypad_variant - model-specific attributes
-  * @auto_increment: whether the KPC_DATA_BYTE register address
-@@ -74,7 +82,7 @@ struct stmpe_keypad_variant {
- static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
- 	[STMPE1601] = {
- 		.auto_increment		= true,
--		.num_data		= 5,
-+		.num_data		= STMPE1601_NUM_DATA,
- 		.num_normal_data	= 3,
- 		.max_cols		= 8,
- 		.max_rows		= 8,
-@@ -84,7 +92,7 @@ static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
- 	[STMPE2401] = {
- 		.auto_increment		= false,
- 		.set_pullup		= true,
--		.num_data		= 3,
-+		.num_data		= STMPE2401_NUM_DATA,
- 		.num_normal_data	= 2,
- 		.max_cols		= 8,
- 		.max_rows		= 12,
-@@ -94,7 +102,7 @@ static const struct stmpe_keypad_variant stmpe_keypad_variants[] = {
- 	[STMPE2403] = {
- 		.auto_increment		= true,
- 		.set_pullup		= true,
--		.num_data		= 5,
-+		.num_data		= STMPE2403_NUM_DATA,
- 		.num_normal_data	= 3,
- 		.max_cols		= 8,
- 		.max_rows		= 12,
-@@ -156,7 +164,7 @@ static irqreturn_t stmpe_keypad_irq(int irq, void *dev)
- 	struct stmpe_keypad *keypad = dev;
- 	struct input_dev *input = keypad->input;
- 	const struct stmpe_keypad_variant *variant = keypad->variant;
--	u8 fifo[variant->num_data];
-+	u8 fifo[MAX_NUM_DATA];
- 	int ret;
- 	int i;
- 
--- 
-2.7.4
+If someone build this example with W=1 a warning will be shown.
+
+Same problem happens in other places of this example.

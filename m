@@ -1,64 +1,102 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH v5 3/4] HID: steam: command to check wireless connection
-Date: Sun, 11 Mar 2018 20:58:41 +0100
-Message-ID: <20180311195842.5551-4-rodrigorivascosta@gmail.com>
+From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+Subject: Re: [PATCH v5 0/4] new driver for Valve Steam Controller
+Date: Sun, 11 Mar 2018 16:12:41 -0700
+Message-ID: <99cb195e-589c-b3fc-1237-e1c8f557c51e@valvesoftware.com>
 References: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?Q?Cl=c3=a9ment_VUCHENER?= <clement.vuchener@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The wireless adaptor does not tell if a device is already connected when
-steam_probe() is run.
-Use a command to request the connection status.
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
----
- drivers/hid/hid-steam.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 03eebc4c28ba..3d34716ae55f 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -118,6 +118,11 @@ static int steam_send_report(struct steam_device *steam,
- 	return ret;
- }
- 
-+static inline int steam_send_report_byte(struct steam_device *steam, u8 cmd)
-+{
-+	return steam_send_report(steam, &cmd, 1);
-+}
-+
- static int steam_get_serial(struct steam_device *steam)
- {
- 	/*
-@@ -139,6 +144,16 @@ static int steam_get_serial(struct steam_device *steam)
- 	return 0;
- }
- 
-+/*
-+ * This command requests the wireless adaptor to post an event
-+ * with the connection status. Useful if this driver is loaded when
-+ * the controller is already connected.
-+ */
-+static inline int steam_request_conn_status(struct steam_device *steam)
-+{
-+	return steam_send_report_byte(steam, 0xb4);
-+}
-+
- static int steam_input_open(struct input_dev *dev)
- {
- 	struct steam_device *steam = input_get_drvdata(dev);
-@@ -360,6 +375,7 @@ static int steam_probe(struct hid_device *hdev,
- 			goto hid_hw_open_fail;
- 		}
- 		hid_info(hdev, "Steam wireless receiver connected");
-+		steam_request_conn_status(steam);
- 	} else {
- 		ret = steam_register(steam);
- 		if (ret) {
--- 
-2.16.2
+On 03/11/2018 12:58 PM, Rodrigo Rivas Costa wrote:
+> This patchset implements a driver for Valve Steam Controller, based on a
+> reverse analysis by myself.
+>=20
+> Sorry, I've been out of town for a few weeks and couldn't keep up with th=
+is...
+>=20
+> @Pierre-Loup and @Cl=C3=A9ment, could you please have another look at thi=
+s and
+> check if it is worthy? Benjamin will not commit it without an express ACK=
+ from
+> Valve. Of course he is right to be cautious, but I checked this driver wi=
+th
+> the Steam Client and all seems to go just fine. I think that there is a l=
+ot of
+> Linux out of the desktop that could use this driver and cannot use the St=
+eam
+> Client. Worst case scenario, this driver can now be blacklisted, but I ho=
+pe
+> that will not be needed.
+
+Hi Rodrigo,
+
+I think the approach you outlined earlier of only sending configuration=20
+commands to the device when something is actively using the driver is=20
+sane. I won't have the cycles to thoroughly check all the possible=20
+interactions with the client in the near future, so in the interest of=20
+not blocking development I'd say go for it. I'll try to get someone to=20
+take the patchset for a spin soon.
+
+Thanks,
+  - Pierre-Loup
+
+>=20
+> For full reference, I'm adding a full changelog of this patchset.
+>=20
+> Changes in v5:
+>   * Fix license SPDX to GPL-2.0+.
+>   * Minor stylistic changes (BIT(3) instead 0x08 and so on).
+>=20
+> Changes in v4:
+>   * Add command to check the wireless connection status on probe, without
+>     waiting for a message (thanks to Cl=C3=A9ment Vuchener for the tip).
+>   * Removed the error code on redundant connection/disconnection messages=
+. That
+>     was harmless but polluted dmesg.
+>   * Added buttons for touching the left-pad and right-pad.
+>   * Fixed a misplaced #include from 2/4 to 1/4.
+>=20
+> Changes in v3:
+>   * Use RCU to do the dynamic connec/disconnect of wireless devices.
+>   * Remove entries in hid-quirks.c as they are no longer needed. This all=
+ows
+>     this module to be blacklisted without side effects.
+>   * Do not bypass the virtual keyboard/mouse HID devices to avoid breakin=
+g
+>     existing use cases (lizard mode). A user-space tool to do that is
+>     linked.
+>   * Fully separated axes for joystick and left-pad. As it happens.
+>   * Add fuzz values for left/right pad axes, they are a little wiggly.
+>=20
+> Changes in v2:
+>   * Remove references to USB. Now the interesting interfaces are selected=
+ by
+>     looking for the ones with feature reports.
+>   * Feature reports buffers are allocated with hid_alloc_report_buf().
+>   * Feature report length is checked, to avoid overflows in case of
+>     corrupt/malicius USB devices.
+>   * Resolution added to the ABS axes.
+>   * A lot of minor cleanups.
+>=20
+> Rodrigo Rivas Costa (4):
+>    HID: add driver for Valve Steam Controller
+>    HID: steam: add serial number information.
+>    HID: steam: command to check wireless connection
+>    HID: steam: add battery device.
+>=20
+>   drivers/hid/Kconfig     |   8 +
+>   drivers/hid/Makefile    |   1 +
+>   drivers/hid/hid-ids.h   |   4 +
+>   drivers/hid/hid-steam.c | 794 +++++++++++++++++++++++++++++++++++++++++=
++++++++
+>   4 files changed, 807 insertions(+)
+>   create mode 100644 drivers/hid/hid-steam.c
+>=20

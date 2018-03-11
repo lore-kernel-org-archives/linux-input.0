@@ -1,139 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 4/4] input: misc: Add Gateworks System Controller
- support
-Date: Sat, 10 Mar 2018 10:45:02 -0800
-Message-ID: <20180310184502.GE260013@dtor-ws>
-References: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
- <1520287361-12569-5-git-send-email-tharvey@gateworks.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: [PATCH v5 0/4] new driver for Valve Steam Controller
+Date: Sun, 11 Mar 2018 20:58:38 +0100
+Message-ID: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1520287361-12569-5-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 05, 2018 at 02:02:41PM -0800, Tim Harvey wrote:
-> Add support for dispatching Linux Input events for the various interrupts
-> the Gateworks System Controller provides.
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> ---
-> v2:
-> - reword Kconfig
-> - revise license comment block
-> - remove unnecessary read of status register
-> - remove unnecessary setting of input->dev.parent
-> - use dt bindings for irq to keycode mapping
-> - add support for platform-data
-> - remove work-queue
-> 
->  drivers/input/misc/Kconfig              |   9 ++
->  drivers/input/misc/Makefile             |   1 +
->  drivers/input/misc/gsc-input.c          | 180 ++++++++++++++++++++++++++++++++
->  include/linux/platform_data/gsc_input.h |  30 ++++++
->  4 files changed, 220 insertions(+)
->  create mode 100644 drivers/input/misc/gsc-input.c
->  create mode 100644 include/linux/platform_data/gsc_input.h
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 9f082a3..e05f4fe 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -117,6 +117,15 @@ config INPUT_E3X0_BUTTON
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called e3x0_button.
->  
-> +config INPUT_GSC
-> +	tristate "Gateworks System Controller input support"
-> +	depends on MFD_GSC
-> +	help
-> +	  Support GSC events as Linux input events.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called gsc_input.
-> +
->  config INPUT_PCSPKR
->  	tristate "PC Speaker support"
->  	depends on PCSPKR_PLATFORM
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 4b6118d..969debe 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -38,6 +38,7 @@ obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
->  obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
->  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED)	+= gpio_tilt_polled.o
->  obj-$(CONFIG_INPUT_GPIO_DECODER)	+= gpio_decoder.o
-> +obj-$(CONFIG_INPUT_GSC)			+= gsc-input.o
->  obj-$(CONFIG_INPUT_HISI_POWERKEY)	+= hisi_powerkey.o
->  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
->  obj-$(CONFIG_INPUT_IMS_PCU)		+= ims-pcu.o
-> diff --git a/drivers/input/misc/gsc-input.c b/drivers/input/misc/gsc-input.c
-> new file mode 100644
-> index 0000000..27b5e93
-> --- /dev/null
-> +++ b/drivers/input/misc/gsc-input.c
-> @@ -0,0 +1,180 @@
-> +/* SPDX-License-Identifier: GPL-2.0
-> + *
-> + * Copyright (C) 2018 Gateworks Corporation
-> + *
-> + * This driver dispatches Linux input events for GSC interrupt events
-> + */
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +
-> +#include <linux/mfd/gsc.h>
-> +#include <linux/platform_data/gsc_input.h>
-> +
-> +struct gsc_input_button_priv {
-> +	struct input_dev *input;
-> +	const struct gsc_input_button *button;
-> +};
-> +
-> +struct gsc_input_data {
-> +	struct gsc_dev *gsc;
-> +	struct gsc_input_platform_data *pdata;
-> +	struct input_dev *input;
-> +	struct gsc_input_button_priv *buttons;
-> +	int nbuttons;
-> +	unsigned int irqs[];
-> +#if 0
-> +	int irq;
-> +	struct work_struct irq_work;
-> +	struct mutex mutex;
-> +#endif
-> +};
-> +
-> +static irqreturn_t gsc_input_irq(int irq, void *data)
-> +{
-> +	const struct gsc_input_button_priv *button_priv = data;
-> +	struct input_dev *input = button_priv->input;
-> +
-> +	dev_dbg(&input->dev, "irq%d code=%d\n", irq, button_priv->button->code);
-> +	input_report_key(input, button_priv->button->code, 1);
-> +	input_sync(input);
-> +	input_report_key(input, button_priv->button->code, 0);
-> +	input_sync(input);
-> +
-> +	return IRQ_HANDLED;
+This patchset implements a driver for Valve Steam Controller, based on a
+reverse analysis by myself.
 
-Hmm, so in the end this is just a bunch of buttons connected to
-interrupt lines. We already have a driver for that, called gpio-keys. It
-can work in pure interrupt mode (i.e. do not need real GPIO pin, just
-interrupt, and it will generate key down and up events when interrupt
-arrives, with possible delay for the up event).
+Sorry, I've been out of town for a few weeks and couldn't keep up with this...
 
-Thanks.
+@Pierre-Loup and @Clément, could you please have another look at this and
+check if it is worthy? Benjamin will not commit it without an express ACK from
+Valve. Of course he is right to be cautious, but I checked this driver with
+the Steam Client and all seems to go just fine. I think that there is a lot of
+Linux out of the desktop that could use this driver and cannot use the Steam
+Client. Worst case scenario, this driver can now be blacklisted, but I hope
+that will not be needed.
+
+For full reference, I'm adding a full changelog of this patchset.
+
+Changes in v5:
+ * Fix license SPDX to GPL-2.0+.
+ * Minor stylistic changes (BIT(3) instead 0x08 and so on).
+
+Changes in v4:
+ * Add command to check the wireless connection status on probe, without
+   waiting for a message (thanks to Clément Vuchener for the tip).
+ * Removed the error code on redundant connection/disconnection messages. That
+   was harmless but polluted dmesg.
+ * Added buttons for touching the left-pad and right-pad.
+ * Fixed a misplaced #include from 2/4 to 1/4.
+
+Changes in v3:
+ * Use RCU to do the dynamic connec/disconnect of wireless devices.
+ * Remove entries in hid-quirks.c as they are no longer needed. This allows
+   this module to be blacklisted without side effects.
+ * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
+   existing use cases (lizard mode). A user-space tool to do that is
+   linked.
+ * Fully separated axes for joystick and left-pad. As it happens.
+ * Add fuzz values for left/right pad axes, they are a little wiggly.
+
+Changes in v2:
+ * Remove references to USB. Now the interesting interfaces are selected by
+   looking for the ones with feature reports.
+ * Feature reports buffers are allocated with hid_alloc_report_buf().
+ * Feature report length is checked, to avoid overflows in case of
+   corrupt/malicius USB devices.
+ * Resolution added to the ABS axes.
+ * A lot of minor cleanups.
+
+Rodrigo Rivas Costa (4):
+  HID: add driver for Valve Steam Controller
+  HID: steam: add serial number information.
+  HID: steam: command to check wireless connection
+  HID: steam: add battery device.
+
+ drivers/hid/Kconfig     |   8 +
+ drivers/hid/Makefile    |   1 +
+ drivers/hid/hid-ids.h   |   4 +
+ drivers/hid/hid-steam.c | 794 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 807 insertions(+)
+ create mode 100644 drivers/hid/hid-steam.c
 
 -- 
-Dmitry
+2.16.2

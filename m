@@ -1,15 +1,15 @@
 From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v5 01/36] drm/bridge: analogix_dp: detect Sink PSR state
- after configuring the PSR
-Date: Mon, 12 Mar 2018 18:00:34 +0100
-Message-ID: <1575553.xWh7et7hg4@diego>
+Subject: Re: [PATCH v5 03/36] drm/bridge: analogix_dp: Don't change psr while
+ bridge is disabled
+Date: Mon, 12 Mar 2018 18:02:39 +0100
+Message-ID: <11981411.JMsWtk38iA@diego>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
- <20180309222327.18689-2-enric.balletbo@collabora.com>
+ <20180309222327.18689-4-enric.balletbo@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180309222327.18689-2-enric.balletbo@collabora.com>
+In-Reply-To: <20180309222327.18689-4-enric.balletbo@collabora.com>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
@@ -20,23 +20,24 @@ List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
 Errors-To: dri-devel-bounces@lists.freedesktop.org
 Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, thierry.reding@gmail.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, linux-kernel@vger.kernel.org, jeffy.chen@rock-chips.com, =?ISO-8859-1?Q?St=E9phane?= Marchesin <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, tfiga@chromium.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, thierry.reding@gmail.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, linux-kernel@vger.kernel.org, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, Tomeu Vizoso <tomeu.vizoso@collabora.com>, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, tfiga@chromium.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-QW0gRnJlaXRhZywgOS4gTcOkcnogMjAxOCwgMjM6MjI6NTIgQ0VUIHNjaHJpZWIgRW5yaWMgQmFs
-bGV0Ym8gaSBTZXJyYToKPiBGcm9tOiBZYWtpciBZYW5nIDx5a2tAcm9jay1jaGlwcy5jb20+Cj4g
-Cj4gTWFrZSBzdXJlIHRoZSByZXF1ZXN0IFBTUiBzdGF0ZSB0YWtlcyBlZmZlY3QgaW4gYW5hbG9n
-aXhfZHBfc2VuZF9wc3Jfc3BkKCkKPiBmdW5jdGlvbiwgb3IgcHJpbnQgdGhlIHNpbmsgUFNSIGVy
-cm9yIHN0YXRlIGlmIHdlIGZhaWxlZCB0byBhcHBseSB0aGUKPiByZXF1ZXN0ZWQgUFNSIHNldHRp
-bmcuCj4gCj4gQ2M6IOW+geWiniDnjosgPHd6ekByb2NrLWNoaXBzLmNvbT4KPiBDYzogU3TDqXBo
-YW5lIE1hcmNoZXNpbiA8bWFyY2hldUBjaHJvbWl1bS5vcmc+Cj4gU2lnbmVkLW9mZi1ieTogWWFr
-aXIgWWFuZyA8eWtrQHJvY2stY2hpcHMuY29tPgo+IFtzZWFucGF1bCBjaGFuZ2VkIHRpbWVvdXQg
-bG9vcCB0byBhIHJlYWR4IHBvbGxdCj4gU2lnbmVkLW9mZi1ieTogU2VhbiBQYXVsIDxzZWFucGF1
-bEBjaHJvbWl1bS5vcmc+Cj4gU2lnbmVkLW9mZi1ieTogVGhpZXJyeSBFc2NhbmRlIDx0aGllcnJ5
-LmVzY2FuZGVAY29sbGFib3JhLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBFbnJpYyBCYWxsZXRibyBp
-IFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgo+IFRlc3RlZC1ieTogTWFyZWsg
-U3p5cHJvd3NraSA8bS5zenlwcm93c2tpQHNhbXN1bmcuY29tPgoKUmV2aWV3ZWQtYnk6IEhlaWtv
-IFN0dWVibmVyIDxoZWlrb0BzbnRlY2guZGU+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3Rz
-LmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL2RyaS1kZXZlbAo=
+QW0gRnJlaXRhZywgOS4gTcOkcnogMjAxOCwgMjM6MjI6NTQgQ0VUIHNjaHJpZWIgRW5yaWMgQmFs
+bGV0Ym8gaSBTZXJyYToKPiBGcm9tOiB6YWluIHdhbmcgPHd6ekByb2NrLWNoaXBzLmNvbT4KPiAK
+PiBUaGVyZSBpcyBhIHJhY2UgYmV0d2VlbiBBVVggQ0ggYnJpbmctdXAgYW5kIGVuYWJsaW5nIGJy
+aWRnZSB3aGljaCB3aWxsCj4gY2F1c2UgbGluayB0cmFpbmluZyB0byBmYWlsLiBUbyBhdm9pZCBo
+aXR0aW5nIGl0LCBkb24ndCBjaGFuZ2UgcHNyIHN0YXRlCj4gd2hpbGUgZW5hYmxpbmcgdGhlIGJy
+aWRnZS4KPiAKPiBDYzogVG9tZXUgVml6b3NvIDx0b21ldS52aXpvc29AY29sbGFib3JhLmNvbT4K
+PiBDYzogU2VhbiBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+Cj4gU2lnbmVkLW9mZi1ieTog
+emFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+Cj4gU2lnbmVkLW9mZi1ieTogQ2Flc2FyIFdh
+bmcgPHd4dEByb2NrLWNoaXBzLmNvbT4KPiBbc2VhbnBhdWwgZml4ZWQgdXAgdGhlIGNvbW1pdCBt
+ZXNzYWdlIGEgYml0IGFuZCByZW5hbWVkICpfc3VwcG9ydGVkIHRvCj4gKl9lbmFibGVkXSBTaWdu
+ZWQtb2ZmLWJ5OiBTZWFuIFBhdWwgPHNlYW5wYXVsQGNocm9taXVtLm9yZz4KPiBTaWduZWQtb2Zm
+LWJ5OiBUaGllcnJ5IEVzY2FuZGUgPHRoaWVycnkuZXNjYW5kZUBjb2xsYWJvcmEuY29tPgo+IFNp
+Z25lZC1vZmYtYnk6IEVucmljIEJhbGxldGJvIGkgU2VycmEgPGVucmljLmJhbGxldGJvQGNvbGxh
+Ym9yYS5jb20+Cj4gVGVzdGVkLWJ5OiBNYXJlayBTenlwcm93c2tpIDxtLnN6eXByb3dza2lAc2Ft
+c3VuZy5jb20+CgpSZXZpZXdlZC1ieTogSGVpa28gU3R1ZWJuZXIgPGhlaWtvQHNudGVjaC5kZT4K
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==

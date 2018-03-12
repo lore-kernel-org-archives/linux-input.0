@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 05/14] platform/chrome: chromeos_laptop - stop setting suspend mode for Atmel devices
-Date: Mon, 12 Mar 2018 12:08:58 -0700
-Message-ID: <20180312190907.174301-6-dmitry.torokhov@gmail.com>
+Subject: [PATCH 04/14] platform/chrome: chromeos_laptop - add SPDX identifier
+Date: Mon, 12 Mar 2018 12:08:57 -0700
+Message-ID: <20180312190907.174301-5-dmitry.torokhov@gmail.com>
 References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
@@ -10,33 +10,48 @@ To: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
 Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Atmel touch controller driver no longer respects suspend mode specified in
-platform data, so let's stop setting it.
+Replace the original license statement with the SPDX identifier.
+Add also one line of description as recommended by the COPYING file.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/platform/chrome/chromeos_laptop.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/platform/chrome/chromeos_laptop.c | 27 +++++------------------
+ 1 file changed, 5 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
-index 54a13c70e1d8f..0a43f1833de3f 100644
+index d8599736a41a2..54a13c70e1d8f 100644
 --- a/drivers/platform/chrome/chromeos_laptop.c
 +++ b/drivers/platform/chrome/chromeos_laptop.c
-@@ -100,7 +100,6 @@ static struct mxt_platform_data atmel_224s_tp_platform_data = {
- 	.irqflags		= IRQF_TRIGGER_FALLING,
- 	.t19_num_keys		= ARRAY_SIZE(mxt_t19_keys),
- 	.t19_keymap		= mxt_t19_keys,
--	.suspend_mode		= MXT_SUSPEND_T9_CTRL,
- };
+@@ -1,25 +1,8 @@
+-/*
+- *  chromeos_laptop.c - Driver to instantiate Chromebook i2c/smbus devices.
+- *
+- *  Author : Benson Leung <bleung@chromium.org>
+- *
+- *  Copyright (C) 2012 Google, Inc.
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License as published by
+- *  the Free Software Foundation; either version 2 of the License, or
+- *  (at your option) any later version.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to the Free Software
+- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+- *
+- */
++// SPDX-License-Identifier: GPL-2.0+
++// Driver to instantiate Chromebook i2c/smbus devices.
++//
++// Copyright (C) 2012 Google, Inc.
++// Author: Benson Leung <bleung@chromium.org>
  
- static struct i2c_board_info atmel_224s_tp_device = {
-@@ -111,7 +110,6 @@ static struct i2c_board_info atmel_224s_tp_device = {
- 
- static struct mxt_platform_data atmel_1664s_platform_data = {
- 	.irqflags		= IRQF_TRIGGER_FALLING,
--	.suspend_mode		= MXT_SUSPEND_T9_CTRL,
- };
- 
- static struct i2c_board_info atmel_1664s_device = {
+ #include <linux/dmi.h>
+ #include <linux/i2c.h>
 -- 
 2.16.2.660.g709887971b-goog

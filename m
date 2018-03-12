@@ -1,43 +1,83 @@
-From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v5 00/36] DRM Rockchip rk3399 (Kevin)
-Date: Mon, 12 Mar 2018 18:27:03 +0100
-Message-ID: <2145089.N3HHEgGPyY@diego>
-References: <20180309222327.18689-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180309222327.18689-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, thierry.reding@gmail.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, linux-kernel@vger.kernel.org, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, tfiga@chromium.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 01/14] Input: atmel_mxt_ts - do not pass suspend mode in platform data
+Date: Mon, 12 Mar 2018 12:08:54 -0700
+Message-ID: <20180312190907.174301-2-dmitry.torokhov@gmail.com>
+References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
+Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-QW0gRnJlaXRhZywgOS4gTcOkcnogMjAxOCwgMjM6MjI6NTEgQ0VUIHNjaHJpZWIgRW5yaWMgQmFs
-bGV0Ym8gaSBTZXJyYToKPiBIaSwKPiAKPiBUaGlzIHBhdGNoc2V0IGluY2x1ZGVzIGNsZWFudXBz
-LCBpbXByb3ZlbWVudHMsIGFuZCBidWcgZml4ZXMgZm9yCj4gUm9ja2NoaXAgRFJNIGRyaXZlciBh
-bmQgUFNSIHN1cHBvcnQuCj4gCj4gVGhpcyBuZXcgdmVyc2lvbiBpcyB0aGUgc2FtZSBhcyBiZWZv
-cmUgcmVtb3Zpbmcgc29tZSBvZiB0aGUgcGF0Y2hlcwo+IGFscmVhZHkgYXBwbGllZCBhbmQgZml4
-aW5nIHRoZSBFeHlub3MgaXNzdWUgZHVlIHBhdGNoICdbdjQgMTUvMzhdCj4gZHJtL2JyaWRnZTog
-YW5hbG9naXhfZHA6IEVuc3VyZSBlZHAgaXMgZGlzYWJsZWQgd2hlbiBzaHV0dGluZyBkb3duCj4g
-dGhlIHBhbmVsJyByZXBvcnRlZCBieSBNYXJlay4KClRoZSBzZXJpZXMgb24gYm90aCByazMyODgg
-KHdpdGhvdXQgcHNyKSBhbmQgcmszMzk5ICh3aXRoIHBzcikKVGVzdGVkLWJ5OiBIZWlrbyBTdHVl
-Ym5lciA8aGVpa29Ac250ZWNoLmRlPgoKCkkndmUgdHJpZWQgcmV2aWV3aW5nIGF0IGxlYXN0IHRo
-ZSBSb2NrY2hpcCBwYXJ0cywgc28gaWYgIGJyaWRnZS0KbWFpbnRhaW5lcnMgYXJlIGdvaW5nIHRv
-IGFwcGx5IHBhdGNoZXMgdG8gZHJtLW1pc2MgdGhleSBjb3VsZApwaWNrIHVwIHRoZSBpbnRlcmxp
-bmtlZCBSb2NrY2hpcCBwYXRjaGVzIGFzIHdlbGwuCgpJIGRvbid0IHRoaW5rIGl0J3MgbmVjZXNz
-YXJ5IHRvIHdhaXQgZm9yIHRoZSBmdWxsIHNlcmllcyB0byBiZSBtZXJnZWFibGUKYW5kIGJlZm9y
-ZSBJIGp1c3QgcGlja2VkIHRoaW5ncyBmcm9tIHRoZSBiZWdpbm5pbmcgdGhhdCBsb29rZWQgcmVh
-ZHkKYW5kIHdvcmtlZCwgc28gSSBndWVzcyBjb250aW51aW5nIHRoaXMgd2F5IGNvdWxkIGhlbHAg
-bWFraW5nIHRoYXQKY2h1bmsgb2YgcGF0Y2hlcyBzbWFsbGVyIDotKSAuCgoKSGVpa28KX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxp
-bmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
-ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+The way we are supposed to put controller to sleep and wake it up does not
+depend on the platform, but rather on controller itself. Controllers using
+T9 require manipulating T9 control register, while others, using newer
+T100, should be put to sleep by adjusting T7 power config.
+
+We'll keep pdata->suspend_mode for now and remove it when we rework
+chromeos-laptop driver.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 7659bc48f1db8..1aabfae1297ba 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -2868,8 +2868,8 @@ static const struct attribute_group mxt_attr_group = {
+ 
+ static void mxt_start(struct mxt_data *data)
+ {
+-	switch (data->pdata->suspend_mode) {
+-	case MXT_SUSPEND_T9_CTRL:
++	switch (data->multitouch) {
++	case MXT_TOUCH_MULTI_T9:
+ 		mxt_soft_reset(data);
+ 
+ 		/* Touch enable */
+@@ -2878,7 +2878,7 @@ static void mxt_start(struct mxt_data *data)
+ 				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0x83);
+ 		break;
+ 
+-	case MXT_SUSPEND_DEEP_SLEEP:
++	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 	default:
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_RUN);
+ 
+@@ -2886,19 +2886,18 @@ static void mxt_start(struct mxt_data *data)
+ 		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
+ 		break;
+ 	}
+-
+ }
+ 
+ static void mxt_stop(struct mxt_data *data)
+ {
+-	switch (data->pdata->suspend_mode) {
+-	case MXT_SUSPEND_T9_CTRL:
++	switch (data->multitouch) {
++	case MXT_TOUCH_MULTI_T9:
+ 		/* Touch disable */
+ 		mxt_write_object(data,
+ 				MXT_TOUCH_MULTI_T9, MXT_T9_CTRL, 0);
+ 		break;
+ 
+-	case MXT_SUSPEND_DEEP_SLEEP:
++	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 	default:
+ 		mxt_set_t7_power_cfg(data, MXT_POWER_CFG_DEEPSLEEP);
+ 		break;
+@@ -2954,8 +2953,6 @@ static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+ 		pdata->t19_keymap = keymap;
+ 	}
+ 
+-	pdata->suspend_mode = MXT_SUSPEND_DEEP_SLEEP;
+-
+ 	return pdata;
+ }
+ #else
+-- 
+2.16.2.660.g709887971b-goog

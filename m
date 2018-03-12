@@ -1,7 +1,7 @@
 From: Jeffy Chen <jeffy.chen@rock-chips.com>
-Subject: [PATCH v5 3/4] clk: lpc32xx: Set name of regmap_config
-Date: Mon, 12 Mar 2018 17:51:41 +0800
-Message-ID: <20180312095142.30854-4-jeffy.chen@rock-chips.com>
+Subject: [PATCH v5 4/4] ARM: rockchip: Set name of regmap_config
+Date: Mon, 12 Mar 2018 17:51:42 +0800
+Message-ID: <20180312095142.30854-5-jeffy.chen@rock-chips.com>
 References: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
@@ -20,18 +20,18 @@ Changes in v5: None
 Changes in v4: None
 Changes in v3: None
 
- drivers/clk/nxp/clk-lpc32xx.c | 1 +
+ arch/arm/mach-rockchip/platsmp.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/nxp/clk-lpc32xx.c b/drivers/clk/nxp/clk-lpc32xx.c
-index f5d815f577e0..a2a0a7f3bc57 100644
---- a/drivers/clk/nxp/clk-lpc32xx.c
-+++ b/drivers/clk/nxp/clk-lpc32xx.c
-@@ -67,6 +67,7 @@
- #define LPC32XX_USB_CLK_STS		0xF8
+diff --git a/arch/arm/mach-rockchip/platsmp.c b/arch/arm/mach-rockchip/platsmp.c
+index ecec340ca345..51984a40b097 100644
+--- a/arch/arm/mach-rockchip/platsmp.c
++++ b/arch/arm/mach-rockchip/platsmp.c
+@@ -208,6 +208,7 @@ static int __init rockchip_smp_prepare_sram(struct device_node *node)
+ }
  
- static struct regmap_config lpc32xx_scb_regmap_config = {
-+	.name = "lpc32xx-scb",
+ static const struct regmap_config rockchip_pmu_regmap_config = {
++	.name = "rockchip-pmu",
  	.reg_bits = 32,
  	.val_bits = 32,
  	.reg_stride = 4,

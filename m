@@ -1,53 +1,55 @@
-From: JeffyChen <jeffy.chen@rock-chips.com>
-Subject: Re: [PATCH v5 1/3] Input: gpio-keys - add support for wakeup event
- action
-Date: Mon, 12 Mar 2018 18:40:54 +0800
-Message-ID: <5AA65936.7040500@rock-chips.com>
-References: <20180308073213.8419-1-jeffy.chen@rock-chips.com> <20180308073213.8419-2-jeffy.chen@rock-chips.com> <20180310181509.GB260013@dtor-ws>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v5 1/4] mfd: syscon: Set name of regmap_config
+Date: Mon, 12 Mar 2018 14:06:52 +0000
+Message-ID: <20180312140652.7ffdls4pccih32vk@dell>
+References: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
+ <20180312095142.30854-2-jeffy.chen@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180310181509.GB260013@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <20180312095142.30854-2-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Rob Herring <robh+dt@kernel.org>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, broonie@kernel.org, alexandre.belloni@bootlin.com, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Joseph Lo <josephl@nvidia.com>, Rob Herring <robh+dt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Emil Renner Berthing <kernel@esmil.dk>, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, linux-rockchip@lists.infradead.org, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Matthias Kaehlcke <mka@chromium.org>, devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arvind Yadav <arvind.>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Mon, 12 Mar 2018, Jeffy Chen wrote:
 
-Thanks for your reply.
+> We are now allowing to register debugfs without a valid device, and not
+> having a valid name will end up using "dummy*" to create debugfs dir.
+> 
+> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+> ---
+> 
+> Changes in v5:
+> CC lee.jones@linaro.org
+> 
+> Changes in v4: None
+> Changes in v3:
+> Modify commit message.
+> 
+>  drivers/mfd/syscon.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-On 03/11/2018 02:15 AM, Dmitry Torokhov wrote:>> +static int 
-gpio_keys_enable_wakeup(struct gpio_button_data *bdata)
- > These new helpers need to be __maybe_unused in case we compile on system
- > without suspend support.
- >
- > I also wanted a bit more of error handling, so I ended up with the
- > version of the patch below. Can you please try it and let me know if I
- > broke it.
+Looks okay.  Applied, thanks.
 
-sure, the patch you sent works :)
+> diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
+> index fc9ba0ea4e44..b6d05cd934e6 100644
+> --- a/drivers/mfd/syscon.c
+> +++ b/drivers/mfd/syscon.c
+> @@ -110,6 +110,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
+>  	syscon_config.reg_stride = reg_io_width;
+>  	syscon_config.val_bits = reg_io_width * 8;
+>  	syscon_config.max_register = resource_size(&res) - reg_io_width;
+> +	syscon_config.name = of_node_full_name(np);
+>  
+>  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
+>  	if (IS_ERR(regmap)) {
 
-Tested-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-
- >
- > Thanks.
- >
- > -- Dmitry
- >
- > Input: gpio-keys - add support for wakeup event action
- >
- > From: Jeffy Chen <jeffy.chen@rock-chips.com>
- >
- > Add support for specifying event actions to trigger wakeup when using
- > the gpio-keys input device as a wakeup source.
- >
- > This would allow the device to configure when to wakeup the system. For
- > example a gpio-keys input device for pen insert, may only want to wakeup
- > the system when ejecting the pen.
- >
- > Suggested-by: Brian Norris <briannorris@chromium.org>
- > Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
- > Reviewed-by: Rob Herring <robh@kernel.org>
- > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

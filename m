@@ -1,131 +1,178 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH v5 0/4] new driver for Valve Steam Controller
-Date: Mon, 12 Mar 2018 21:51:58 +0100
-Message-ID: <20180312205158.GB21621@casa>
-References: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
- <CAM4jgCq5UT0SBKA1DMfsAKd8R+yn0ViPr0U-iE8-tWjgA9hTTQ@mail.gmail.com>
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Subject: [PATCH] Input: alps - Demystify trackstick initialization for v3 and v6 protocols
+Date: Tue, 13 Mar 2018 00:09:15 +0100
+Message-ID: <20180312230915.26050-1-pali.rohar@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAM4jgCq5UT0SBKA1DMfsAKd8R+yn0ViPr0U-iE8-tWjgA9hTTQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 12, 2018 at 03:30:43PM +0100, ClÈment VUCHENER wrote:
-> 2018-03-11 20:58 GMT+01:00 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>:
-> > This patchset implements a driver for Valve Steam Controller, based on a
-> > reverse analysis by myself.
-> >
-> > Sorry, I've been out of town for a few weeks and couldn't keep up with this...
-> >
-> > @Pierre-Loup and @ClÈment, could you please have another look at this and
-> > check if it is worthy? Benjamin will not commit it without an express ACK from
-> > Valve. Of course he is right to be cautious, but I checked this driver with
-> > the Steam Client and all seems to go just fine. I think that there is a lot of
-> > Linux out of the desktop that could use this driver and cannot use the Steam
-> > Client. Worst case scenario, this driver can now be blacklisted, but I hope
-> > that will not be needed.
-> 
-> I tested the driver with my 4.15 fedora kernel (I only built the
-> module not the whole kernel) and I got double inputs (your driver
-> input device + steam uinput device) when testing Shovel Knight with
-> Steam Big Picture. It seems to work fine when the inputs are the same,
-> but after changing the controller configuration in Steam, the issue
-> became apparent.
+Remove cite "Not sure what this does, but it is absolutely essential".
 
-I assumed that when several joysticks are available, games would listen
-to one one of them. It looks like I'm wrong, and some (many?) games will
-listen to all available joysticks at the same time. Thus having two
-logical joysticks that represent the same physical one is not good.
+Extract initialization of trackstick part when touchpad is in passthrought
+mode for v3 and v6 protocols into own function. Initialization for v3 is:
+setscale11, setscale11, setscale11, nibble 0x9, nibble 0x4. Initialization
+for v6 is: setscale11, setscale11, setscale11, setrate 0xC8, setrate 0x14.
+Nibbles 0x9 and 0x4 for v3 protocol correspondent to setrate 0xC8 and 0x14,
+therefore these sequences are same.
 
-An easy solution would be that Steam Client grabs this driver
-(ioctl(EVIOCGRAB)) when creating the uinput device. Another solution
-would be that Steam Client blacklists this driver, of course.
+When touchpad is in passthrought mode, then OS communicates with trackstick
+and this sequence is some magic vendor PS/2 command to put trackstick into
+"extended" mode. After that sequence trackstick starts reporting packets in
+some vendor 4 bytes format (first byte is always 0xE8).
 
-> And without Steam and your external tool, you get double inputs too. I
-> tried RetroArch and it was unusable because of the keyboard inputs
-> from the lizard mode (e.g. pressing B also presses Esc and quits
-> RetroArch). Having to download and compile an external tool to make
-> the driver work properly may be too difficult for the user. Your goal
-> was to provide an alternative to user space drivers but now you
-> actually depend on (a very simple) one.
+Next step after configuring trackstick to be in "extended" mode, is to
+configure touchpad for v3 protocol to expect that trackstick reports data
+in "extended" mode. For v3 protocol this is done by setting bit 1 in
+register 0xC2C8 (offset 0x08 from base address 0xC2C0).
 
-Yes, I noticed that. TBH, this driver without Steam Client or the
-user-space tool is not very nice, precisely because you'll get constant
-Escape and Enter presses, and most games react to those.
+When both touchpad and trackstick are not configured for "extended" mode
+then touchpad reports trackstick packets in different format, which is not
+supported by psmouse/alps driver (yet).
 
-Frankly speaking, I'm not sure how to proceed. I can think of the
-following options:
- 1.Steam Client installation could add a file to blacklist
-   hid-steam, just as it adds a few udev rules.
- 2.The default CONFIG_HID_STEAM can be changed to "n". Maybe only
-   on the architectures for which there is a Steam Client available.
-   This way DIY projects will still be able to use it.
- 3.This driver could be abandoned :-(. Just use Steam Client if possible or
-   any of the user-mode drivers available.
+In Cirque documentation GP-AN- 130823 INTERFACING TO GEN4 OVER I2C (PDF)
+available at http://www.cirque.com/gen4-dev-resources is Logical Address
+0xC2C8 named as PS2AuxControl and Bit Number 1 as ProcessAuxExtendedData
+with description: Auxiliary device data is assumed to be extended data when
+set.
 
-If we decide for 1 or 2, then the lizard mode could be disabled without
-ill effects. We could even enable the gyro and all the other gadgets
-without worring about current compatibility.
+Signed-off-by: Pali Roh√°r <pali.rohar@gmail.com>
+---
+ drivers/input/mouse/alps.c | 80 ++++++++++++++++++++++++++++------------------
+ 1 file changed, 49 insertions(+), 31 deletions(-)
 
-At the end of the day, I think that it is up to Valve what to do.
-Best Regards.
-Rodrigo.
-
-> Also the button and axis codes do not match the gamepad API doc
-> (https://www.kernel.org/doc/Documentation/input/gamepad.txt).
-> 
-> >
-> > For full reference, I'm adding a full changelog of this patchset.
-> >
-> > Changes in v5:
-> >  * Fix license SPDX to GPL-2.0+.
-> >  * Minor stylistic changes (BIT(3) instead 0x08 and so on).
-> >
-> > Changes in v4:
-> >  * Add command to check the wireless connection status on probe, without
-> >    waiting for a message (thanks to ClÈment Vuchener for the tip).
-> >  * Removed the error code on redundant connection/disconnection messages. That
-> >    was harmless but polluted dmesg.
-> >  * Added buttons for touching the left-pad and right-pad.
-> >  * Fixed a misplaced #include from 2/4 to 1/4.
-> >
-> > Changes in v3:
-> >  * Use RCU to do the dynamic connec/disconnect of wireless devices.
-> >  * Remove entries in hid-quirks.c as they are no longer needed. This allows
-> >    this module to be blacklisted without side effects.
-> >  * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
-> >    existing use cases (lizard mode). A user-space tool to do that is
-> >    linked.
-> >  * Fully separated axes for joystick and left-pad. As it happens.
-> >  * Add fuzz values for left/right pad axes, they are a little wiggly.
-> >
-> > Changes in v2:
-> >  * Remove references to USB. Now the interesting interfaces are selected by
-> >    looking for the ones with feature reports.
-> >  * Feature reports buffers are allocated with hid_alloc_report_buf().
-> >  * Feature report length is checked, to avoid overflows in case of
-> >    corrupt/malicius USB devices.
-> >  * Resolution added to the ABS axes.
-> >  * A lot of minor cleanups.
-> >
-> > Rodrigo Rivas Costa (4):
-> >   HID: add driver for Valve Steam Controller
-> >   HID: steam: add serial number information.
-> >   HID: steam: command to check wireless connection
-> >   HID: steam: add battery device.
-> >
-> >  drivers/hid/Kconfig     |   8 +
-> >  drivers/hid/Makefile    |   1 +
-> >  drivers/hid/hid-ids.h   |   4 +
-> >  drivers/hid/hid-steam.c | 794 ++++++++++++++++++++++++++++++++++++++++++++++++
-> >  4 files changed, 807 insertions(+)
-> >  create mode 100644 drivers/hid/hid-steam.c
-> >
-> > --
-> > 2.16.2
-> >
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index dbe57da8c1a1..010c1bcdb06d 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2063,14 +2063,11 @@ static int alps_hw_init_v1_v2(struct psmouse *psmouse)
+ 	return 0;
+ }
+ 
+-static int alps_hw_init_v6(struct psmouse *psmouse)
++/* Must be in passthrough mode when calling this function */
++static int alps_trackstick_enter_extended_mode_v3_v6(struct psmouse *psmouse)
+ {
+ 	unsigned char param[2] = {0xC8, 0x14};
+ 
+-	/* Enter passthrough mode to let trackpoint enter 6byte raw mode */
+-	if (alps_passthrough_mode_v2(psmouse, true))
+-		return -1;
+-
+ 	if (ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11) ||
+ 	    ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11) ||
+ 	    ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11) ||
+@@ -2078,9 +2075,25 @@ static int alps_hw_init_v6(struct psmouse *psmouse)
+ 	    ps2_command(&psmouse->ps2dev, &param[1], PSMOUSE_CMD_SETRATE))
+ 		return -1;
+ 
++	return 0;
++}
++
++static int alps_hw_init_v6(struct psmouse *psmouse)
++{
++	int ret;
++
++	/* Enter passthrough mode to let trackpoint enter 6byte raw mode */
++	if (alps_passthrough_mode_v2(psmouse, true))
++		return -1;
++
++	ret = alps_trackstick_enter_extended_mode_v3_v6(psmouse);
++
+ 	if (alps_passthrough_mode_v2(psmouse, false))
+ 		return -1;
+ 
++	if (ret)
++		return ret;
++
+ 	if (alps_absolute_mode_v6(psmouse)) {
+ 		psmouse_err(psmouse, "Failed to enable absolute mode\n");
+ 		return -1;
+@@ -2154,10 +2167,18 @@ static int alps_probe_trackstick_v3_v7(struct psmouse *psmouse, int reg_base)
+ 
+ static int alps_setup_trackstick_v3(struct psmouse *psmouse, int reg_base)
+ {
+-	struct ps2dev *ps2dev = &psmouse->ps2dev;
+ 	int ret = 0;
++	int reg_val;
+ 	unsigned char param[4];
+ 
++	/*
++	 * We need to configure trackstick to report data for touchpad in
++	 * extended format. And also we need to tell touchpad to expect data
++	 * from trackstick in extended format. Without this configuration
++	 * trackstick packets sent from touchpad are in basic format which is
++	 * different from what we expect.
++	 */
++
+ 	if (alps_passthrough_mode_v3(psmouse, reg_base, true))
+ 		return -EIO;
+ 
+@@ -2175,39 +2196,36 @@ static int alps_setup_trackstick_v3(struct psmouse *psmouse, int reg_base)
+ 		ret = -ENODEV;
+ 	} else {
+ 		psmouse_dbg(psmouse, "trackstick E7 report: %3ph\n", param);
+-
+-		/*
+-		 * Not sure what this does, but it is absolutely
+-		 * essential. Without it, the touchpad does not
+-		 * work at all and the trackstick just emits normal
+-		 * PS/2 packets.
+-		 */
+-		if (ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11) ||
+-		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11) ||
+-		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11) ||
+-		    alps_command_mode_send_nibble(psmouse, 0x9) ||
+-		    alps_command_mode_send_nibble(psmouse, 0x4)) {
+-			psmouse_err(psmouse,
+-				    "Error sending magic E6 sequence\n");
++		if (alps_trackstick_enter_extended_mode_v3_v6(psmouse)) {
++			psmouse_err(psmouse, "Failed to enter into trackstick extended mode\n");
+ 			ret = -EIO;
+-			goto error;
+ 		}
++	}
++
++	if (alps_passthrough_mode_v3(psmouse, reg_base, false))
++		return -EIO;
++
++	if (ret)
++		return ret;
+ 
++	if (alps_enter_command_mode(psmouse))
++		return -EIO;
++
++	reg_val = alps_command_mode_read_reg(psmouse, reg_base + 0x08);
++	if (reg_val == -1) {
++		ret = -EIO;
++	} else {
+ 		/*
+-		 * This ensures the trackstick packets are in the format
+-		 * supported by this driver. If bit 1 isn't set the packet
+-		 * format is different.
++		 * Tell touchpad that trackstick is now in extended mode.
++		 * If bit 1 isn't set the packet format is different.
+ 		 */
+-		if (alps_enter_command_mode(psmouse) ||
+-		    alps_command_mode_write_reg(psmouse,
+-						reg_base + 0x08, 0x82) ||
+-		    alps_exit_command_mode(psmouse))
++		reg_val |= BIT(1);
++		if (__alps_command_mode_write_reg(psmouse, reg_val))
+ 			ret = -EIO;
+ 	}
+ 
+-error:
+-	if (alps_passthrough_mode_v3(psmouse, reg_base, false))
+-		ret = -EIO;
++	if (alps_exit_command_mode(psmouse))
++		return -EIO;
+ 
+ 	return ret;
+ }
+-- 
+2.11.0

@@ -1,110 +1,52 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH v5 0/4] new driver for Valve Steam Controller
-Date: Mon, 12 Mar 2018 08:35:18 +0100
-Message-ID: <20180312073518.GA21621@casa>
-References: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
- <99cb195e-589c-b3fc-1237-e1c8f557c51e@valvesoftware.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [RESEND PATCH v4 1/4] mfd: syscon: Set name of regmap_config
+Date: Mon, 12 Mar 2018 09:12:14 +0000
+Message-ID: <20180312091214.f6dwq6q3eqqblfnf@dell>
+References: <20180309084351.32009-1-jeffy.chen@rock-chips.com>
+ <20180309084351.32009-2-jeffy.chen@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <99cb195e-589c-b3fc-1237-e1c8f557c51e@valvesoftware.com>
+In-Reply-To: <20180309084351.32009-2-jeffy.chen@rock-chips.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Cameron Gutman <aicommander@gmail.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jeffy Chen <jeffy.chen@rock-chips.com>
+Cc: linux-kernel@vger.kernel.org, broonie@kernel.org, alexandre.belloni@bootlin.com, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Joseph Lo <josephl@nvidia.com>, Rob Herring <robh+dt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Emil Renner Berthing <kernel@esmil.dk>, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, linux-rockchip@lists.infradead.org, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Matthias Kaehlcke <mka@chromium.org>, devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arvind Yadav <arvind.>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Mar 11, 2018 at 04:12:41PM -0700, Pierre-Loup A. Griffais wrote:
-> 
-> 
-> On 03/11/2018 12:58 PM, Rodrigo Rivas Costa wrote:
-> > This patchset implements a driver for Valve Steam Controller, based on a
-> > reverse analysis by myself.
-> > 
-> > Sorry, I've been out of town for a few weeks and couldn't keep up with this...
-> > 
-> > @Pierre-Loup and @Cl�ment, could you please have another look at this and
-> > check if it is worthy? Benjamin will not commit it without an express ACK from
-> > Valve. Of course he is right to be cautious, but I checked this driver with
-> > the Steam Client and all seems to go just fine. I think that there is a lot of
-> > Linux out of the desktop that could use this driver and cannot use the Steam
-> > Client. Worst case scenario, this driver can now be blacklisted, but I hope
-> > that will not be needed.
-> 
-> Hi Rodrigo,
-> 
-> I think the approach you outlined earlier of only sending configuration
-> commands to the device when something is actively using the driver is sane.
-> I won't have the cycles to thoroughly check all the possible interactions
-> with the client in the near future, so in the interest of not blocking
-> development I'd say go for it. I'll try to get someone to take the patchset
-> for a spin soon.
+On Fri, 09 Mar 2018, Jeffy Chen wrote:
 
-First of all, thank you very much for your attention.
-
-Note that this driver does not send any configuration command at all. It
-only sends commands get_serial (ae 15 01) and get_comm_status (b4), and
-those just on probe time. That should be quite safe IMO.
-
-Sending a configuration command, such as enable/disable_gyro on
-input->open() is probably not so safe, so I'm leaving that for an
-eventual future patch. Many games (and even X) enumerate the input
-devices by opening and closing them. That could cause trouble...
-
-
-Best regards.
-Rodrigo
-
+> We are now allowing to register debugfs without a valid device, and not
+> having a valid name will end up using "dummy*" to create debugfs dir.
 > 
-> Thanks,
->  - Pierre-Loup
+> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+> ---
 > 
-> > 
-> > For full reference, I'm adding a full changelog of this patchset.
-> > 
-> > Changes in v5:
-> >   * Fix license SPDX to GPL-2.0+.
-> >   * Minor stylistic changes (BIT(3) instead 0x08 and so on).
-> > 
-> > Changes in v4:
-> >   * Add command to check the wireless connection status on probe, without
-> >     waiting for a message (thanks to Cl�ment Vuchener for the tip).
-> >   * Removed the error code on redundant connection/disconnection messages. That
-> >     was harmless but polluted dmesg.
-> >   * Added buttons for touching the left-pad and right-pad.
-> >   * Fixed a misplaced #include from 2/4 to 1/4.
-> > 
-> > Changes in v3:
-> >   * Use RCU to do the dynamic connec/disconnect of wireless devices.
-> >   * Remove entries in hid-quirks.c as they are no longer needed. This allows
-> >     this module to be blacklisted without side effects.
-> >   * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
-> >     existing use cases (lizard mode). A user-space tool to do that is
-> >     linked.
-> >   * Fully separated axes for joystick and left-pad. As it happens.
-> >   * Add fuzz values for left/right pad axes, they are a little wiggly.
-> > 
-> > Changes in v2:
-> >   * Remove references to USB. Now the interesting interfaces are selected by
-> >     looking for the ones with feature reports.
-> >   * Feature reports buffers are allocated with hid_alloc_report_buf().
-> >   * Feature report length is checked, to avoid overflows in case of
-> >     corrupt/malicius USB devices.
-> >   * Resolution added to the ABS axes.
-> >   * A lot of minor cleanups.
-> > 
-> > Rodrigo Rivas Costa (4):
-> >    HID: add driver for Valve Steam Controller
-> >    HID: steam: add serial number information.
-> >    HID: steam: command to check wireless connection
-> >    HID: steam: add battery device.
-> > 
-> >   drivers/hid/Kconfig     |   8 +
-> >   drivers/hid/Makefile    |   1 +
-> >   drivers/hid/hid-ids.h   |   4 +
-> >   drivers/hid/hid-steam.c | 794 ++++++++++++++++++++++++++++++++++++++++++++++++
-> >   4 files changed, 807 insertions(+)
-> >   create mode 100644 drivers/hid/hid-steam.c
-> > 
+> Changes in v4: None
+> Changes in v3:
+> Modify commit message.
 > 
+>  drivers/mfd/syscon.c | 1 +
+>  1 file changed, 1 insertion(+)
+
+Is this the RESEND I requested?  I can still only see this patch.
+
+> diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
+> index fc9ba0ea4e44..b6d05cd934e6 100644
+> --- a/drivers/mfd/syscon.c
+> +++ b/drivers/mfd/syscon.c
+> @@ -110,6 +110,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
+>  	syscon_config.reg_stride = reg_io_width;
+>  	syscon_config.val_bits = reg_io_width * 8;
+>  	syscon_config.max_register = resource_size(&res) - reg_io_width;
+> +	syscon_config.name = of_node_full_name(np);
+>  
+>  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
+>  	if (IS_ERR(regmap)) {
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

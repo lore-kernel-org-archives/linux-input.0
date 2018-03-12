@@ -1,55 +1,109 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v5 1/4] mfd: syscon: Set name of regmap_config
-Date: Mon, 12 Mar 2018 14:06:52 +0000
-Message-ID: <20180312140652.7ffdls4pccih32vk@dell>
-References: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
- <20180312095142.30854-2-jeffy.chen@rock-chips.com>
+From: =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>
+Subject: Re: [PATCH v5 0/4] new driver for Valve Steam Controller
+Date: Mon, 12 Mar 2018 15:30:43 +0100
+Message-ID: <CAM4jgCq5UT0SBKA1DMfsAKd8R+yn0ViPr0U-iE8-tWjgA9hTTQ@mail.gmail.com>
+References: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180312095142.30854-2-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, broonie@kernel.org, alexandre.belloni@bootlin.com, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Joseph Lo <josephl@nvidia.com>, Rob Herring <robh+dt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Emil Renner Berthing <kernel@esmil.dk>, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, linux-rockchip@lists.infradead.org, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Matthias Kaehlcke <mka@chromium.org>, devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arvind Yadav <arvind.>
+To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 12 Mar 2018, Jeffy Chen wrote:
+2018-03-11 20:58 GMT+01:00 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com=
+>:
+> This patchset implements a driver for Valve Steam Controller, based on a
+> reverse analysis by myself.
+>
+> Sorry, I've been out of town for a few weeks and couldn't keep up with th=
+is...
+>
+> @Pierre-Loup and @Cl=C3=A9ment, could you please have another look at thi=
+s and
+> check if it is worthy? Benjamin will not commit it without an express ACK=
+ from
+> Valve. Of course he is right to be cautious, but I checked this driver wi=
+th
+> the Steam Client and all seems to go just fine. I think that there is a l=
+ot of
+> Linux out of the desktop that could use this driver and cannot use the St=
+eam
+> Client. Worst case scenario, this driver can now be blacklisted, but I ho=
+pe
+> that will not be needed.
 
-> We are now allowing to register debugfs without a valid device, and not
-> having a valid name will end up using "dummy*" to create debugfs dir.
-> 
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> ---
-> 
+I tested the driver with my 4.15 fedora kernel (I only built the
+module not the whole kernel) and I got double inputs (your driver
+input device + steam uinput device) when testing Shovel Knight with
+Steam Big Picture. It seems to work fine when the inputs are the same,
+but after changing the controller configuration in Steam, the issue
+became apparent.
+
+And without Steam and your external tool, you get double inputs too. I
+tried RetroArch and it was unusable because of the keyboard inputs
+from the lizard mode (e.g. pressing B also presses Esc and quits
+RetroArch). Having to download and compile an external tool to make
+the driver work properly may be too difficult for the user. Your goal
+was to provide an alternative to user space drivers but now you
+actually depend on (a very simple) one.
+
+Also the button and axis codes do not match the gamepad API doc
+(https://www.kernel.org/doc/Documentation/input/gamepad.txt).
+
+>
+> For full reference, I'm adding a full changelog of this patchset.
+>
 > Changes in v5:
-> CC lee.jones@linaro.org
-> 
-> Changes in v4: None
+>  * Fix license SPDX to GPL-2.0+.
+>  * Minor stylistic changes (BIT(3) instead 0x08 and so on).
+>
+> Changes in v4:
+>  * Add command to check the wireless connection status on probe, without
+>    waiting for a message (thanks to Cl=C3=A9ment Vuchener for the tip).
+>  * Removed the error code on redundant connection/disconnection messages.=
+ That
+>    was harmless but polluted dmesg.
+>  * Added buttons for touching the left-pad and right-pad.
+>  * Fixed a misplaced #include from 2/4 to 1/4.
+>
 > Changes in v3:
-> Modify commit message.
-> 
->  drivers/mfd/syscon.c | 1 +
->  1 file changed, 1 insertion(+)
-
-Looks okay.  Applied, thanks.
-
-> diff --git a/drivers/mfd/syscon.c b/drivers/mfd/syscon.c
-> index fc9ba0ea4e44..b6d05cd934e6 100644
-> --- a/drivers/mfd/syscon.c
-> +++ b/drivers/mfd/syscon.c
-> @@ -110,6 +110,7 @@ static struct syscon *of_syscon_register(struct device_node *np)
->  	syscon_config.reg_stride = reg_io_width;
->  	syscon_config.val_bits = reg_io_width * 8;
->  	syscon_config.max_register = resource_size(&res) - reg_io_width;
-> +	syscon_config.name = of_node_full_name(np);
->  
->  	regmap = regmap_init_mmio(NULL, base, &syscon_config);
->  	if (IS_ERR(regmap)) {
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+>  * Use RCU to do the dynamic connec/disconnect of wireless devices.
+>  * Remove entries in hid-quirks.c as they are no longer needed. This allo=
+ws
+>    this module to be blacklisted without side effects.
+>  * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
+>    existing use cases (lizard mode). A user-space tool to do that is
+>    linked.
+>  * Fully separated axes for joystick and left-pad. As it happens.
+>  * Add fuzz values for left/right pad axes, they are a little wiggly.
+>
+> Changes in v2:
+>  * Remove references to USB. Now the interesting interfaces are selected =
+by
+>    looking for the ones with feature reports.
+>  * Feature reports buffers are allocated with hid_alloc_report_buf().
+>  * Feature report length is checked, to avoid overflows in case of
+>    corrupt/malicius USB devices.
+>  * Resolution added to the ABS axes.
+>  * A lot of minor cleanups.
+>
+> Rodrigo Rivas Costa (4):
+>   HID: add driver for Valve Steam Controller
+>   HID: steam: add serial number information.
+>   HID: steam: command to check wireless connection
+>   HID: steam: add battery device.
+>
+>  drivers/hid/Kconfig     |   8 +
+>  drivers/hid/Makefile    |   1 +
+>  drivers/hid/hid-ids.h   |   4 +
+>  drivers/hid/hid-steam.c | 794 ++++++++++++++++++++++++++++++++++++++++++=
+++++++
+>  4 files changed, 807 insertions(+)
+>  create mode 100644 drivers/hid/hid-steam.c
+>
+> --
+> 2.16.2
+>

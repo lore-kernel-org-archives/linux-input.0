@@ -1,26 +1,53 @@
-From: Heiko Stuebner <heiko@sntech.de>
-Subject: Re: [PATCH v5 4/4] ARM: rockchip: Set name of regmap_config
-Date: Mon, 12 Mar 2018 11:11:04 +0100
-Message-ID: <6419126.t34s1xtZxx@phil>
-References: <20180312095142.30854-1-jeffy.chen@rock-chips.com> <20180312095142.30854-5-jeffy.chen@rock-chips.com>
+From: JeffyChen <jeffy.chen@rock-chips.com>
+Subject: Re: [PATCH v5 1/3] Input: gpio-keys - add support for wakeup event
+ action
+Date: Mon, 12 Mar 2018 18:40:54 +0800
+Message-ID: <5AA65936.7040500@rock-chips.com>
+References: <20180308073213.8419-1-jeffy.chen@rock-chips.com> <20180308073213.8419-2-jeffy.chen@rock-chips.com> <20180310181509.GB260013@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180312095142.30854-5-jeffy.chen@rock-chips.com>
+In-Reply-To: <20180310181509.GB260013@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffy Chen <jeffy.chen@rock-chips.com>
-Cc: linux-kernel@vger.kernel.org, broonie@kernel.org, alexandre.belloni@bootlin.com, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Joseph Lo <josephl@nvidia.com>, Rob Herring <robh+dt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, lee.jones@linaro.org, Emil Renner Berthing <kernel@esmil.dk>, Brian Norris <briannorris@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Philippe Ombredanne <pombredanne@nexb.com>, linux-rockchip@lists.infradead.org, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Matthias Kaehlcke <mka@chromium.org>, devicetree@vger.kernel.org, stephen lu <lumotuwe@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, briannorris@google.com, heiko@sntech.de, dtor@google.com, dianders@google.com, devicetree@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Thomas Gleixner <tglx@linutronix.de>, Joseph Lo <josephl@nvidia.com>, stephen lu <lumotuwe@gmail.com>, Rob Herring <robh+dt@kernel.org>, Kate Stewart <kstewart@linuxfoundation.org>, linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Philippe Ombredanne <pombredanne@nexb.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Am Montag, 12. März 2018, 10:51:42 CET schrieb Jeffy Chen:
-> We are now allowing to register debugfs without a valid device, and not
-> having a valid name will end up using "dummy*" to create debugfs dir.
-> 
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+Hi Dmitry,
 
-applied for 4.17
+Thanks for your reply.
 
+On 03/11/2018 02:15 AM, Dmitry Torokhov wrote:>> +static int 
+gpio_keys_enable_wakeup(struct gpio_button_data *bdata)
+ > These new helpers need to be __maybe_unused in case we compile on system
+ > without suspend support.
+ >
+ > I also wanted a bit more of error handling, so I ended up with the
+ > version of the patch below. Can you please try it and let me know if I
+ > broke it.
 
-Thanks
-Heiko
+sure, the patch you sent works :)
+
+Tested-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+
+ >
+ > Thanks.
+ >
+ > -- Dmitry
+ >
+ > Input: gpio-keys - add support for wakeup event action
+ >
+ > From: Jeffy Chen <jeffy.chen@rock-chips.com>
+ >
+ > Add support for specifying event actions to trigger wakeup when using
+ > the gpio-keys input device as a wakeup source.
+ >
+ > This would allow the device to configure when to wakeup the system. For
+ > example a gpio-keys input device for pen insert, may only want to wakeup
+ > the system when ejecting the pen.
+ >
+ > Suggested-by: Brian Norris <briannorris@chromium.org>
+ > Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+ > Reviewed-by: Rob Herring <robh@kernel.org>
+ > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>

@@ -1,129 +1,119 @@
 From: Archit Taneja <architt@codeaurora.org>
-Subject: Re: [PATCH v5 17/36] drm/bridge: analogix_dp: Fix AUX_PD bit for
- Rockchip
-Date: Wed, 14 Mar 2018 11:53:20 +0530
-Message-ID: <0b27e434-92fd-0033-9a45-a87170de2da1@codeaurora.org>
+Subject: Re: [PATCH v5 18/36] drm/bridge: analogix_dp: Reset aux channel if an
+ error occurred
+Date: Wed, 14 Mar 2018 12:00:51 +0530
+Message-ID: <f878c57e-5a72-5d09-6935-db255502e006@codeaurora.org>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
- <20180309222327.18689-18-enric.balletbo@collabora.com>
+ <20180309222327.18689-19-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180309222327.18689-18-enric.balletbo@collabora.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180309222327.18689-19-enric.balletbo@collabora.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-CgpPbiBTYXR1cmRheSAxMCBNYXJjaCAyMDE4IDAzOjUzIEFNLCBFbnJpYyBCYWxsZXRibyBpIFNl
-cnJhIHdyb3RlOgo+IEZyb206IHphaW4gd2FuZyA8d3p6QHJvY2stY2hpcHMuY29tPgo+IAo+IFRo
-ZXJlIGFyZSBzb21lIGRpZmZlcmVudCBiaXRzIGJldHdlZW4gUm9ja2NoaXAgYW5kIEV4eW5vcyBp
-biByZWdpc3Rlcgo+ICJBVVhfUEQiLiBUaGlzIHBhdGNoIGZpeGVzIHRoZSBpbmNvcnJlY3Qgb3Bl
-cmF0aW9ucyBhYm91dCBpdC4KCllvdSBtZWFuIHRoZSByZWdpc3RlciBBTkFMT0dJWF9EUF9QSFlf
-UEQvQU5BTE9HSVhfRFBfUEQsIHJpZ2h0PyBBVVhfUEQKc291bmRzIGxpa2UganVzdCBvbmUgb2Yg
-dGhlIGZpZWxkcyBvZiB0aGUgcmVnaXN0ZXIuCgpXaXRoIHRoYXQsCgpSZXZpZXdlZC1ieTogQXJj
-aGl0IFRhbmVqYSA8YXJjaGl0dEBjb2RlYXVyb3JhLm9yZz4KClRoYW5rcywKQXJjaGl0Cgo+IAo+
-IENjOiBEb3VnbGFzIEFuZGVyc29uIDxkaWFuZGVyc0BjaHJvbWl1bS5vcmc+Cj4gU2lnbmVkLW9m
-Zi1ieTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+Cj4gU2lnbmVkLW9mZi1ieTogU2Vh
-biBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+Cj4gU2lnbmVkLW9mZi1ieTogVGhpZXJyeSBF
-c2NhbmRlIDx0aGllcnJ5LmVzY2FuZGVAY29sbGFib3JhLmNvbT4KPiBSZXZpZXdlZC1ieTogQW5k
-cnplaiBIYWpkYSA8YS5oYWpkYUBzYW1zdW5nLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBFbnJpYyBC
-YWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgo+IFRlc3RlZC1i
-eTogTWFyZWsgU3p5cHJvd3NraSA8bS5zenlwcm93c2tpQHNhbXN1bmcuY29tPgo+IC0tLQo+IAo+
-ICAgZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYyB8IDEx
-NyArKysrKysrKysrKystLS0tLS0tLS0tCj4gICBkcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxv
-Z2l4L2FuYWxvZ2l4X2RwX3JlZy5oIHwgICAyICsKPiAgIDIgZmlsZXMgY2hhbmdlZCwgNjUgaW5z
-ZXJ0aW9ucygrKSwgNTQgZGVsZXRpb25zKC0pCj4gCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1
-L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmMgYi9kcml2ZXJzL2dwdS9kcm0v
-YnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jCj4gaW5kZXggYmI3MmY4YjBlNjAzLi5k
-ZWUxYmExMDliNWYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dp
-eC9hbmFsb2dpeF9kcF9yZWcuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9n
-aXgvYW5hbG9naXhfZHBfcmVnLmMKPiBAQCAtMjQ4LDc2ICsyNDgsODUgQEAgdm9pZCBhbmFsb2dp
-eF9kcF9zZXRfYW5hbG9nX3Bvd2VyX2Rvd24oc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHAs
-Cj4gICB7Cj4gICAJdTMyIHJlZzsKPiAgIAl1MzIgcGh5X3BkX2FkZHIgPSBBTkFMT0dJWF9EUF9Q
-SFlfUEQ7Cj4gKwl1MzIgbWFzazsKPiAgIAo+ICAgCWlmIChkcC0+cGxhdF9kYXRhICYmIGlzX3Jv
-Y2tjaGlwKGRwLT5wbGF0X2RhdGEtPmRldl90eXBlKSkKPiAgIAkJcGh5X3BkX2FkZHIgPSBBTkFM
-T0dJWF9EUF9QRDsKPiAgIAo+ICAgCXN3aXRjaCAoYmxvY2spIHsKPiAgIAljYXNlIEFVWF9CTE9D
-SzoKPiAtCQlpZiAoZW5hYmxlKSB7Cj4gLQkJCXJlZyA9IHJlYWRsKGRwLT5yZWdfYmFzZSArIHBo
-eV9wZF9hZGRyKTsKPiAtCQkJcmVnIHw9IEFVWF9QRDsKPiAtCQkJd3JpdGVsKHJlZywgZHAtPnJl
-Z19iYXNlICsgcGh5X3BkX2FkZHIpOwo+IC0JCX0gZWxzZSB7Cj4gLQkJCXJlZyA9IHJlYWRsKGRw
-LT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKPiAtCQkJcmVnICY9IH5BVVhfUEQ7Cj4gLQkJCXdy
-aXRlbChyZWcsIGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKPiAtCQl9Cj4gKwkJaWYgKGRw
-LT5wbGF0X2RhdGEgJiYgaXNfcm9ja2NoaXAoZHAtPnBsYXRfZGF0YS0+ZGV2X3R5cGUpKQo+ICsJ
-CQltYXNrID0gUktfQVVYX1BEOwo+ICsJCWVsc2UKPiArCQkJbWFzayA9IEFVWF9QRDsKPiArCj4g
-KwkJcmVnID0gcmVhZGwoZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwo+ICsJCWlmIChlbmFi
-bGUpCj4gKwkJCXJlZyB8PSBtYXNrOwo+ICsJCWVsc2UKPiArCQkJcmVnICY9IH5tYXNrOwo+ICsJ
-CXdyaXRlbChyZWcsIGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKPiAgIAkJYnJlYWs7Cj4g
-ICAJY2FzZSBDSDBfQkxPQ0s6Cj4gLQkJaWYgKGVuYWJsZSkgewo+IC0JCQlyZWcgPSByZWFkbChk
-cC0+cmVnX2Jhc2UgKyBwaHlfcGRfYWRkcik7Cj4gLQkJCXJlZyB8PSBDSDBfUEQ7Cj4gLQkJCXdy
-aXRlbChyZWcsIGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKPiAtCQl9IGVsc2Ugewo+IC0J
-CQlyZWcgPSByZWFkbChkcC0+cmVnX2Jhc2UgKyBwaHlfcGRfYWRkcik7Cj4gLQkJCXJlZyAmPSB+
-Q0gwX1BEOwo+IC0JCQl3cml0ZWwocmVnLCBkcC0+cmVnX2Jhc2UgKyBwaHlfcGRfYWRkcik7Cj4g
-LQkJfQo+ICsJCW1hc2sgPSBDSDBfUEQ7Cj4gKwkJcmVnID0gcmVhZGwoZHAtPnJlZ19iYXNlICsg
-cGh5X3BkX2FkZHIpOwo+ICsKPiArCQlpZiAoZW5hYmxlKQo+ICsJCQlyZWcgfD0gbWFzazsKPiAr
-CQllbHNlCj4gKwkJCXJlZyAmPSB+bWFzazsKPiArCQl3cml0ZWwocmVnLCBkcC0+cmVnX2Jhc2Ug
-KyBwaHlfcGRfYWRkcik7Cj4gICAJCWJyZWFrOwo+ICAgCWNhc2UgQ0gxX0JMT0NLOgo+IC0JCWlm
-IChlbmFibGUpIHsKPiAtCQkJcmVnID0gcmVhZGwoZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIp
-Owo+IC0JCQlyZWcgfD0gQ0gxX1BEOwo+IC0JCQl3cml0ZWwocmVnLCBkcC0+cmVnX2Jhc2UgKyBw
-aHlfcGRfYWRkcik7Cj4gLQkJfSBlbHNlIHsKPiAtCQkJcmVnID0gcmVhZGwoZHAtPnJlZ19iYXNl
-ICsgcGh5X3BkX2FkZHIpOwo+IC0JCQlyZWcgJj0gfkNIMV9QRDsKPiAtCQkJd3JpdGVsKHJlZywg
-ZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwo+IC0JCX0KPiArCQltYXNrID0gQ0gxX1BEOwo+
-ICsJCXJlZyA9IHJlYWRsKGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKPiArCj4gKwkJaWYg
-KGVuYWJsZSkKPiArCQkJcmVnIHw9IG1hc2s7Cj4gKwkJZWxzZQo+ICsJCQlyZWcgJj0gfm1hc2s7
-Cj4gKwkJd3JpdGVsKHJlZywgZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwo+ICAgCQlicmVh
-azsKPiAgIAljYXNlIENIMl9CTE9DSzoKPiAtCQlpZiAoZW5hYmxlKSB7Cj4gLQkJCXJlZyA9IHJl
-YWRsKGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKPiAtCQkJcmVnIHw9IENIMl9QRDsKPiAt
-CQkJd3JpdGVsKHJlZywgZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwo+IC0JCX0gZWxzZSB7
-Cj4gLQkJCXJlZyA9IHJlYWRsKGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKPiAtCQkJcmVn
-ICY9IH5DSDJfUEQ7Cj4gLQkJCXdyaXRlbChyZWcsIGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRy
-KTsKPiAtCQl9Cj4gKwkJbWFzayA9IENIMl9QRDsKPiArCQlyZWcgPSByZWFkbChkcC0+cmVnX2Jh
-c2UgKyBwaHlfcGRfYWRkcik7Cj4gKwo+ICsJCWlmIChlbmFibGUpCj4gKwkJCXJlZyB8PSBtYXNr
-Owo+ICsJCWVsc2UKPiArCQkJcmVnICY9IH5tYXNrOwo+ICsJCXdyaXRlbChyZWcsIGRwLT5yZWdf
-YmFzZSArIHBoeV9wZF9hZGRyKTsKPiAgIAkJYnJlYWs7Cj4gICAJY2FzZSBDSDNfQkxPQ0s6Cj4g
-LQkJaWYgKGVuYWJsZSkgewo+IC0JCQlyZWcgPSByZWFkbChkcC0+cmVnX2Jhc2UgKyBwaHlfcGRf
-YWRkcik7Cj4gLQkJCXJlZyB8PSBDSDNfUEQ7Cj4gLQkJCXdyaXRlbChyZWcsIGRwLT5yZWdfYmFz
-ZSArIHBoeV9wZF9hZGRyKTsKPiAtCQl9IGVsc2Ugewo+IC0JCQlyZWcgPSByZWFkbChkcC0+cmVn
-X2Jhc2UgKyBwaHlfcGRfYWRkcik7Cj4gLQkJCXJlZyAmPSB+Q0gzX1BEOwo+IC0JCQl3cml0ZWwo
-cmVnLCBkcC0+cmVnX2Jhc2UgKyBwaHlfcGRfYWRkcik7Cj4gLQkJfQo+ICsJCW1hc2sgPSBDSDNf
-UEQ7Cj4gKwkJcmVnID0gcmVhZGwoZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwo+ICsKPiAr
-CQlpZiAoZW5hYmxlKQo+ICsJCQlyZWcgfD0gbWFzazsKPiArCQllbHNlCj4gKwkJCXJlZyAmPSB+
-bWFzazsKPiArCQl3cml0ZWwocmVnLCBkcC0+cmVnX2Jhc2UgKyBwaHlfcGRfYWRkcik7Cj4gICAJ
-CWJyZWFrOwo+ICAgCWNhc2UgQU5BTE9HX1RPVEFMOgo+IC0JCWlmIChlbmFibGUpIHsKPiAtCQkJ
-cmVnID0gcmVhZGwoZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwo+IC0JCQlyZWcgfD0gRFBf
-UEhZX1BEOwo+IC0JCQl3cml0ZWwocmVnLCBkcC0+cmVnX2Jhc2UgKyBwaHlfcGRfYWRkcik7Cj4g
-LQkJfSBlbHNlIHsKPiAtCQkJcmVnID0gcmVhZGwoZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIp
-Owo+IC0JCQlyZWcgJj0gfkRQX1BIWV9QRDsKPiAtCQkJd3JpdGVsKHJlZywgZHAtPnJlZ19iYXNl
-ICsgcGh5X3BkX2FkZHIpOwo+IC0JCX0KPiArCQkvKgo+ICsJCSAqIFRoZXJlIGlzIG5vIGJpdCBu
-YW1lZCBEUF9QSFlfUEQsIHNvIFdlIHVzZWQgRFBfSU5DX0JHCj4gKwkJICogdG8gcG93ZXIgb2Zm
-IGV2ZXJ5dGhpbmcgaW5zdGVhZCBvZiBEUF9QSFlfUEQgaW4KPiArCQkgKiBSb2NrY2hpcAo+ICsJ
-CSAqLwo+ICsJCWlmIChkcC0+cGxhdF9kYXRhICYmIGlzX3JvY2tjaGlwKGRwLT5wbGF0X2RhdGEt
-PmRldl90eXBlKSkKPiArCQkJbWFzayA9IERQX0lOQ19CRzsKPiArCQllbHNlCj4gKwkJCW1hc2sg
-PSBEUF9QSFlfUEQ7Cj4gKwo+ICsJCXJlZyA9IHJlYWRsKGRwLT5yZWdfYmFzZSArIHBoeV9wZF9h
-ZGRyKTsKPiArCQlpZiAoZW5hYmxlKQo+ICsJCQlyZWcgfD0gbWFzazsKPiArCQllbHNlCj4gKwkJ
-CXJlZyAmPSB+bWFzazsKPiArCj4gKwkJd3JpdGVsKHJlZywgZHAtPnJlZ19iYXNlICsgcGh5X3Bk
-X2FkZHIpOwo+ICsJCWlmIChkcC0+cGxhdF9kYXRhICYmIGlzX3JvY2tjaGlwKGRwLT5wbGF0X2Rh
-dGEtPmRldl90eXBlKSkKPiArCQkJdXNsZWVwX3JhbmdlKDEwLCAxNSk7Cj4gICAJCWJyZWFrOwo+
-ICAgCWNhc2UgUE9XRVJfQUxMOgo+ICAgCQlpZiAoZW5hYmxlKSB7Cj4gZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmggYi9kcml2ZXJz
-L2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5oCj4gaW5kZXggOTYwMjY2
-ODY2OWY0Li5iNjMzYTRhNTA4MmEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRn
-ZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuaAo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9icmlk
-Z2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmgKPiBAQCAtMzQ1LDcgKzM0NSw5IEBACj4gICAj
-ZGVmaW5lIERQX0lOQ19CRwkJCQkoMHgxIDw8IDcpCj4gICAjZGVmaW5lIERQX0VYUF9CRwkJCQko
-MHgxIDw8IDYpCj4gICAjZGVmaW5lIERQX1BIWV9QRAkJCQkoMHgxIDw8IDUpCj4gKyNkZWZpbmUg
-UktfQVVYX1BECQkJCSgweDEgPDwgNSkKPiAgICNkZWZpbmUgQVVYX1BECQkJCQkoMHgxIDw8IDQp
-Cj4gKyNkZWZpbmUgUktfUExMX1BECQkJCSgweDEgPDwgNCkKPiAgICNkZWZpbmUgQ0gzX1BECQkJ
-CQkoMHgxIDw8IDMpCj4gICAjZGVmaW5lIENIMl9QRAkJCQkJKDB4MSA8PCAyKQo+ICAgI2RlZmlu
-ZSBDSDFfUEQJCQkJCSgweDEgPDwgMSkKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMu
-ZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlz
-dGluZm8vZHJpLWRldmVsCg==
+
+
+On Saturday 10 March 2018 03:53 AM, Enric Balletbo i Serra wrote:
+> From: Lin Huang <hl@rock-chips.com>
+> 
+> AUX errors are caused by many different reasons. We may not know what
+> happened in aux channel on failure, so let's reset aux channel if some
+> errors occurred.
+> 
+> Cc: 征增 王 <wzz@rock-chips.com>
+> Cc: Douglas Anderson <dianders@chromium.org>
+> Signed-off-by: Lin Huang <hl@rock-chips.com>
+> Signed-off-by: Sean Paul <seanpaul@chromium.org>
+> Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+> Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+> 
+>   drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 18 ++++++++++++++----
+>   1 file changed, 14 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+> index dee1ba109b5f..7b7fd227e1f9 100644
+> --- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+> +++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+> @@ -466,6 +466,10 @@ void analogix_dp_init_aux(struct analogix_dp_device *dp)
+>   	reg = RPLY_RECEIV | AUX_ERR;
+>   	writel(reg, dp->reg_base + ANALOGIX_DP_INT_STA);
+>   
+> +	analogix_dp_set_analog_power_down(dp, AUX_BLOCK, true);
+> +	usleep_range(10, 11);
+> +	analogix_dp_set_analog_power_down(dp, AUX_BLOCK, false);
+> +
+
+Is this additional power on/off the analog power to the AUX block
+required to reset it correctly? If so, could you mention that in the
+commit message?
+
+>   	analogix_dp_reset_aux(dp);
+>   
+>   	/* Disable AUX transaction H/W retry */
+> @@ -1159,7 +1163,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+>   				 reg, !(reg & AUX_EN), 25, 500 * 1000);
+>   	if (ret) {
+>   		dev_err(dp->dev, "AUX CH enable timeout!\n");
+> -		return -ETIMEDOUT;
+> +		goto aux_error;
+>   	}
+>   
+>   	/* TODO: Wait for an interrupt instead of looping? */
+> @@ -1168,7 +1172,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+>   				 reg, reg & RPLY_RECEIV, 10, 20 * 1000);
+>   	if (ret) {
+>   		dev_err(dp->dev, "AUX CH cmd reply timeout!\n");
+> -		return -ETIMEDOUT;
+> +		goto aux_error;
+>   	}
+>   
+>   	/* Clear interrupt source for AUX CH command reply */
+> @@ -1178,7 +1182,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+>   	reg = readl(dp->reg_base + ANALOGIX_DP_INT_STA);
+>   	if (reg & AUX_ERR) {
+>   		writel(AUX_ERR, dp->reg_base + ANALOGIX_DP_INT_STA);
+> -		return -EREMOTEIO;
+> +		goto aux_error;
+>   	}
+>   
+>   	/* Check AUX CH error access status */
+> @@ -1186,7 +1190,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+>   	if ((reg & AUX_STATUS_MASK)) {
+>   		dev_err(dp->dev, "AUX CH error happened: %d\n\n",
+>   			reg & AUX_STATUS_MASK);
+> -		return -EREMOTEIO;
+> +		goto aux_error;
+>   	}
+>   
+>   	if (msg->request & DP_AUX_I2C_READ) {
+> @@ -1212,4 +1216,10 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+>   		msg->reply = DP_AUX_NATIVE_REPLY_ACK;
+>   
+>   	return num_transferred > 0 ? num_transferred : -EBUSY;
+> +
+> +aux_error:
+> +	/* if aux err happen, reset aux */
+> +	analogix_dp_init_aux(dp);
+> +
+> +	return -EREMOTEIO;
+
+A couple of ETIMEDOUTs have been replaced with EREMOTEIOs after this
+change. Maybe we set it the error no in ret and return ret?
+
+With those changes,
+
+Reviewed-by: Archit Taneja <architt@codeaurora.org>
+
+Thanks,
+Archit
+
+>   }
+> 

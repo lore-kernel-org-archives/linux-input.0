@@ -1,177 +1,50 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH 03/14] Input: atmel_mxt_ts - switch ChromeOS ACPI devices
- to generic props
-Date: Wed, 14 Mar 2018 20:52:27 +0000
-Message-ID: <20180314205227.GC26353@lava.h.shmanahar.org>
-References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
- <20180312190907.174301-4-dmitry.torokhov@gmail.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 00/47] arch-removal: device drivers
+Date: Wed, 14 Mar 2018 23:45:54 +0100
+Message-ID: <CAJZ5v0jsoxWRiwPOCJH6AAz-MiccOuicD8peCevLRMbTfc7LEg@mail.gmail.com>
+References: <20180314153603.3127932-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180312190907.174301-4-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+In-Reply-To: <20180314153603.3127932-1-arnd@arndb.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
+Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, "open list:ULTRA-WIDEBAND (UWB) SUBSYSTEM:" <linux-usb@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, alexandre.belloni@bootlin.com, linux-ide@vger.kernel.org, netdev <netdev@vger.kernel.org>, linux-mtd@lists.infradead.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-rtc@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Herbert Xu <herbert@gondor.apana.org.au>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, linux-mmc <linux-mmc@vger.kernel.org>, shli@kernel.org, wg@grandegger.com, linux-crypto@vger.kernel.org, Linux PWM List <linux-pwm@vger.kernel.org>, linux-watchdog@vger.k
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 12, 2018 at 12:08:56PM -0700, Dmitry Torokhov wrote:
-> Move older ChromeOS devices describing Atmel controllers in ACPI, but not
-> providing enough details to configure the controllers properly, from
-> platform data over to generic device properties. This will allow us
-> remove support for platform data later on, leaving only generic device
-> properties in place.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Wed, Mar 14, 2018 at 4:35 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> Hi driver maintainers,
+>
+> I just posted one series with the removal of eight architectures,
+> see https://lkml.org/lkml/2018/3/14/505 for details, or
+> https://lwn.net/Articles/748074/ for more background.
+>
+> These are the device drivers that go along with them. I have already
+> picked up the drivers for arch/metag/ into my tree, they were reviewed
+> earlier.
+>
+> Please let me know if you have any concerns with the patch, or if you
+> prefer to pick up the patches in your respective trees.  I created
+> the patches with 'git format-patch -D', so they will not apply without
+> manually removing those files.
+>
+> For anything else, I'd keep the removal patches in my asm-generic tree
+> and will send a pull request for 4.17 along with the actual arch removal.
 
-Acked-by: Nick Dyer <nick@shmanahar.org>
+Please include the cpufreq patches into that and you can add ACKs from
+me on them if that helps.
 
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 63 +++++++++++++++---------
->  1 file changed, 40 insertions(+), 23 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 072b78d3c6e00..cf2aac4e79ae8 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -2972,7 +2972,7 @@ mxt_parse_device_properties(struct i2c_client *client)
->  
->  struct mxt_acpi_platform_data {
->  	const char *hid;
-> -	struct mxt_platform_data pdata;
-> +	const struct property_entry *props;
->  };
->  
->  static unsigned int samus_touchpad_buttons[] = {
-> @@ -2982,14 +2982,16 @@ static unsigned int samus_touchpad_buttons[] = {
->  	BTN_LEFT
->  };
->  
-> +static const struct property_entry samus_touchpad_props[] = {
-> +	PROPERTY_ENTRY_U32_ARRAY("linux,gpio-keymap", samus_touchpad_buttons),
-> +	{ }
-> +};
-> +
->  static struct mxt_acpi_platform_data samus_platform_data[] = {
->  	{
->  		/* Touchpad */
->  		.hid	= "ATML0000",
-> -		.pdata	= {
-> -			.t19_num_keys	= ARRAY_SIZE(samus_touchpad_buttons),
-> -			.t19_keymap	= samus_touchpad_buttons,
-> -		},
-> +		.props	= samus_touchpad_props,
->  	},
->  	{
->  		/* Touchscreen */
-> @@ -3007,14 +3009,16 @@ static unsigned int chromebook_tp_buttons[] = {
->  	BTN_LEFT
->  };
->  
-> +static const struct property_entry chromebook_tp_props[] = {
-> +	PROPERTY_ENTRY_U32_ARRAY("linux,gpio-keymap", chromebook_tp_buttons),
-> +	{ }
-> +};
-> +
->  static struct mxt_acpi_platform_data chromebook_platform_data[] = {
->  	{
->  		/* Touchpad */
->  		.hid	= "ATML0000",
-> -		.pdata	= {
-> -			.t19_num_keys	= ARRAY_SIZE(chromebook_tp_buttons),
-> -			.t19_keymap	= chromebook_tp_buttons,
-> -		},
-> +		.props	= chromebook_tp_props,
->  	},
->  	{
->  		/* Touchscreen */
-> @@ -3044,7 +3048,7 @@ static const struct dmi_system_id mxt_dmi_table[] = {
->  	{ }
->  };
->  
-> -static const struct mxt_platform_data *mxt_parse_acpi(struct i2c_client *client)
-> +static int mxt_acpi_probe(struct i2c_client *client)
->  {
->  	struct acpi_device *adev;
->  	const struct dmi_system_id *system_id;
-> @@ -3061,33 +3065,46 @@ static const struct mxt_platform_data *mxt_parse_acpi(struct i2c_client *client)
->  	 * as a threshold.
->  	 */
->  	if (client->addr < 0x40)
-> -		return ERR_PTR(-ENXIO);
-> +		return -ENXIO;
->  
->  	adev = ACPI_COMPANION(&client->dev);
->  	if (!adev)
-> -		return ERR_PTR(-ENOENT);
-> +		return -ENOENT;
->  
->  	system_id = dmi_first_match(mxt_dmi_table);
->  	if (!system_id)
-> -		return ERR_PTR(-ENOENT);
-> +		return -ENOENT;
->  
->  	acpi_pdata = system_id->driver_data;
->  	if (!acpi_pdata)
-> -		return ERR_PTR(-ENOENT);
-> +		return -ENOENT;
->  
->  	while (acpi_pdata->hid) {
-> -		if (!strcmp(acpi_device_hid(adev), acpi_pdata->hid))
-> -			return &acpi_pdata->pdata;
-> +		if (!strcmp(acpi_device_hid(adev), acpi_pdata->hid)) {
-> +			/*
-> +			 * Remove previously installed properties if we
-> +			 * are probing this device not for the very first
-> +			 * time.
-> +			 */
-> +			device_remove_properties(&client->dev);
-> +
-> +			/*
-> +			 * Now install the platform-specific properties
-> +			 * that are missing from ACPI.
-> +			 */
-> +			device_add_properties(&client->dev, acpi_pdata->props);
-> +			break;
-> +		}
->  
->  		acpi_pdata++;
->  	}
->  
-> -	return ERR_PTR(-ENOENT);
-> +	return 0;
->  }
->  #else
-> -static const struct mxt_platform_data *mxt_parse_acpi(struct i2c_client *client)
-> +static int mxt_acpi_probe(struct i2c_client *client)
->  {
-> -	return ERR_PTR(-ENOENT);
-> +	return -ENOENT;
->  }
->  #endif
->  
-> @@ -3100,10 +3117,6 @@ mxt_get_platform_data(struct i2c_client *client)
->  	if (pdata)
->  		return pdata;
->  
-> -	pdata = mxt_parse_acpi(client);
-> -	if (!IS_ERR(pdata) || PTR_ERR(pdata) != -ENOENT)
-> -		return pdata;
-> -
->  	return mxt_parse_device_properties(client);
->  }
->  
-> @@ -3113,6 +3126,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	const struct mxt_platform_data *pdata;
->  	int error;
->  
-> +	error = mxt_acpi_probe(client);
-> +	if (error && error != -ENOENT)
-> +		return error;
-> +
->  	pdata = mxt_get_platform_data(client);
->  	if (IS_ERR(pdata))
->  		return PTR_ERR(pdata);
-> -- 
-> 2.16.2.660.g709887971b-goog
-> 
+Thanks!
+
+______________________________________________________
+Linux MTD discussion mailing list
+http://lists.infradead.org/mailman/listinfo/linux-mtd/

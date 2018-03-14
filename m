@@ -1,134 +1,263 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH V2] Input: pm8941-pwrkey: add resin key capabilities
-Date: Tue, 13 Mar 2018 19:40:48 -0700
-Message-ID: <20180314024048.GA11034@tuxbook-pro>
-References: <1520930158-5854-1-git-send-email-tirupath@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nicolas Boichat <drinkcat@chromium.org>
+Subject: [PATCH v4] HID: google: add google hammer HID driver
+Date: Wed, 14 Mar 2018 13:22:19 +0800
+Message-ID: <20180314052219.224622-1-drinkcat@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1520930158-5854-1-git-send-email-tirupath@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tirupathi Reddy <tirupath@codeaurora.org>
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dtor@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue 13 Mar 01:35 PDT 2018, Tirupathi Reddy wrote:
+From: Wei-Ning Huang <wnhuang@chromium.org>
 
-> Add resin key support to handle different types of key events
-> defined in different platforms.
-> 
-> Signed-off-by: Tirupathi Reddy <tirupath@codeaurora.org>
-> ---
->  .../bindings/input/qcom,pm8941-pwrkey.txt          | 20 ++++++-
->  drivers/input/misc/pm8941-pwrkey.c                 | 65 +++++++++++++++++++++-
->  2 files changed, 83 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> index 07bf55f..f499cf8 100644
-> --- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> +++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> @@ -20,6 +20,14 @@ PROPERTIES
->  		    defined by the binding document describing the node's
->  		    interrupt parent.
->  
-> +- interrupt-names:
-> +	Usage: required
-> +	Value type: <stringlist>
-> +	Definition: Interrupt names.  This list must match up 1-to-1 with the
-> +		    interrupts specified in the 'interrupts' property. "kpdpwr"
-> +		    must be specified and should be the first entry of the list.
-> +		    "resin" may be specified for some platforms.
-> +
->  - debounce:
->  	Usage: optional
->  	Value type: <u32>
-> @@ -32,12 +40,22 @@ PROPERTIES
->  	Definition: presence of this property indicates that the KPDPWR_N pin
->  		    should be configured for pull up.
->  
-> +- linux,code:
-> +	Usage: required for "resin" key
-> +	Value type: <u32>
-> +	Definition: The input key-code associated with the resin key.
-> +		    Use the linux event codes defined in
-> +		    include/dt-bindings/input/linux-event-codes.h
+Add Google hammer HID driver. This driver allow us to control hammer
+keyboard backlight and support future features.
 
-For completeness sake I think this should list both the key code for the
-power key and for the RESIN key.
+We add a new HID quirk, that allows us to have the keyboard interface
+to bind to google-hammer driver, while the touchpad interface can
+bind to the multitouch driver.
 
-> +
->  EXAMPLE
->  
->  	pwrkey@800 {
->  		compatible = "qcom,pm8941-pwrkey";
->  		reg = <0x800>;
-> -		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
-> +		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>,
-> +			     <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
-> +		interrupt-names = "kpdpwr", "resin";
->  		debounce = <15625>;
->  		bias-pull-up;
+Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+---
 
-Do we need to support defining the bias for the resin as well?
+Changes since v3:
+ - Rebase on latest linux-next/master, which moved the quirk list from
+   hid-core.c to hid-quirks.c. Also, completely rework the logic to make
+   it possible to bind google-hammer driver to keyboard interface, and
+   generic multitouch driver to touchpad interface, as it is much simpler
+   to do now that quirks are read early in hid_add_device.
+ - Add dynamic backlight detection support (only such devices have an
+   output HID descriptor).
+ - Add support for wand (one more USB product ID).
+ - Add SPDX-License-Identifier, fix one minor formatting issue.
 
-Perhaps it makes more sense to describe the RESIN key with a separate
-compatible and define that in a node of its own (we can still implement
-this in the same driver - if there's any chance of reuse...).
+ drivers/hid/Kconfig             |   6 ++
+ drivers/hid/Makefile            |   1 +
+ drivers/hid/hid-core.c          |   4 ++
+ drivers/hid/hid-google-hammer.c | 116 ++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h           |   3 +
+ drivers/hid/hid-quirks.c        |   5 ++
+ include/linux/hid.h             |   2 +
+ 7 files changed, 137 insertions(+)
+ create mode 100644 drivers/hid/hid-google-hammer.c
 
-> +		linux,code = <KEY_VOLUMEDOWN>;
->  	};
-> diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-> index 18ad956..2fffc7c 100644
-> --- a/drivers/input/misc/pm8941-pwrkey.c
-> +++ b/drivers/input/misc/pm8941-pwrkey.c
-> @@ -28,6 +28,7 @@
->  
->  #define PON_RT_STS			0x10
->  #define  PON_KPDPWR_N_SET		BIT(0)
-> +#define  PON_RESIN_N_SET		BIT(1)
->  
->  #define PON_PS_HOLD_RST_CTL		0x5a
->  #define PON_PS_HOLD_RST_CTL2		0x5b
-> @@ -46,6 +47,7 @@
->  struct pm8941_pwrkey {
->  	struct device *dev;
->  	int irq;
-> +	u32 resin_key_code;
->  	u32 baseaddr;
->  	struct regmap *regmap;
->  	struct input_dev *input;
-> @@ -130,6 +132,24 @@ static irqreturn_t pm8941_pwrkey_irq(int irq, void *_data)
->  	return IRQ_HANDLED;
->  }
->  
-> +static irqreturn_t pm8941_resinkey_irq(int irq, void *_data)
-> +{
-> +	struct pm8941_pwrkey *pwrkey = _data;
-> +	unsigned int sts;
-> +	int error;
-> +
-> +	error = regmap_read(pwrkey->regmap,
-> +			    pwrkey->baseaddr + PON_RT_STS, &sts);
-
-This needs to be broken because the line is 81 chars long, if you use a
-shorter name for the return value (e.g. "ret") you don't need to do
-this.
-
-> +	if (error)
-> +		return IRQ_HANDLED;
-> +
-> +	input_report_key(pwrkey->input, pwrkey->resin_key_code,
-> +			 !!(sts & PON_RESIN_N_SET));
-
-Put pwrkey->resin_key_code in a local variable named "key" (or even
-key_code) and you don't need to line wrap this one.
-
-> +	input_sync(pwrkey->input);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-
-Regards,
-Bjorn
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 1fce4c94e5ac..60252fd796f6 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -339,6 +339,12 @@ config HOLTEK_FF
+ 	  Say Y here if you have a Holtek On Line Grip based game controller
+ 	  and want to have force feedback support for it.
+ 
++config HID_GOOGLE_HAMMER
++	tristate "Google Hammer Keyboard"
++	depends on USB_HID && LEDS_CLASS
++	---help---
++	Say Y here if you have a Google Hammer device.
++
+ config HID_GT683R
+ 	tristate "MSI GT68xR LED support"
+ 	depends on LEDS_CLASS && USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 713601c7bfa6..17a8bd97da9d 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -45,6 +45,7 @@ obj-$(CONFIG_HID_ELO)		+= hid-elo.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+ obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
+ obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
++obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
+ obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
+ obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 36af26c2565b..61c7d135d680 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2116,6 +2116,10 @@ int hid_add_device(struct hid_device *hdev)
+ 		ret = hid_scan_report(hdev);
+ 		if (ret)
+ 			hid_warn(hdev, "bad device descriptor (%d)\n", ret);
++
++		if (hdev->quirks & HID_QUIRK_NO_GENERIC &&
++				hdev->group == HID_GROUP_GENERIC)
++			hdev->group = HID_GROUP_GENERIC_OVERRIDE;
+ 	}
+ 
+ 	/* XXX hack, any other cleaner solution after the driver core
+diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+new file mode 100644
+index 000000000000..e7ad042a8464
+--- /dev/null
++++ b/drivers/hid/hid-google-hammer.c
+@@ -0,0 +1,116 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  HID driver for Google Hammer device.
++ *
++ *  Copyright (c) 2017 Google Inc.
++ *  Author: Wei-Ning Huang <wnhuang@google.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/hid.h>
++#include <linux/leds.h>
++#include <linux/module.h>
++#include <linux/usb.h>
++
++#include "hid-ids.h"
++
++#define MAX_BRIGHTNESS 100
++
++struct hammer_kbd_leds {
++	struct led_classdev cdev;
++	struct hid_device *hdev;
++	u8 buf[2] ____cacheline_aligned;
++};
++
++static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
++		enum led_brightness br)
++{
++	struct hammer_kbd_leds *led = container_of(cdev,
++						   struct hammer_kbd_leds,
++						   cdev);
++	int ret;
++
++	led->buf[0] = 0;
++	led->buf[1] = br;
++
++	ret = hid_hw_output_report(led->hdev, led->buf, sizeof(led->buf));
++	if (ret == -ENOSYS)
++		ret = hid_hw_raw_request(led->hdev, 0, led->buf,
++					 sizeof(led->buf),
++					 HID_OUTPUT_REPORT,
++					 HID_REQ_SET_REPORT);
++	if (ret < 0)
++		hid_err(led->hdev, "failed to set keyboard backlight: %d\n",
++			ret);
++	return ret;
++}
++
++static int hammer_register_leds(struct hid_device *hdev)
++{
++	struct hammer_kbd_leds *kbd_backlight;
++
++	kbd_backlight = devm_kzalloc(&hdev->dev,
++				     sizeof(*kbd_backlight),
++				     GFP_KERNEL);
++	if (!kbd_backlight)
++		return -ENOMEM;
++
++	kbd_backlight->hdev = hdev;
++	kbd_backlight->cdev.name = "hammer::kbd_backlight";
++	kbd_backlight->cdev.max_brightness = MAX_BRIGHTNESS;
++	kbd_backlight->cdev.brightness_set_blocking =
++		hammer_kbd_brightness_set_blocking;
++	kbd_backlight->cdev.flags = LED_HW_PLUGGABLE;
++
++	/* Set backlight to 0% initially. */
++	hammer_kbd_brightness_set_blocking(&kbd_backlight->cdev, 0);
++
++	return devm_led_classdev_register(&hdev->dev, &kbd_backlight->cdev);
++}
++
++static int hammer_input_configured(struct hid_device *hdev,
++				   struct hid_input *hi)
++{
++	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++
++	struct list_head *report_list =
++		&hdev->report_enum[HID_OUTPUT_REPORT].report_list;
++
++	if (intf->cur_altsetting->desc.bInterfaceProtocol ==
++	    USB_INTERFACE_PROTOCOL_KEYBOARD && !list_empty(report_list)) {
++		int err = hammer_register_leds(hdev);
++
++		if (err)
++			hid_warn(hdev,
++				 "Failed to register keyboard backlight: %d\n",
++				 err);
++	}
++
++	return 0;
++}
++
++static const struct hid_device_id hammer_devices[] = {
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, hammer_devices);
++
++static struct hid_driver hammer_driver = {
++	.name = "hammer",
++	.id_table = hammer_devices,
++	.input_configured = hammer_input_configured,
++};
++module_hid_driver(hammer_driver);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 41f227a841fb..5a3a7ead3012 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -448,7 +448,10 @@
+ #define USB_DEVICE_ID_GOODTOUCH_000f	0x000f
+ 
+ #define USB_VENDOR_ID_GOOGLE		0x18d1
++#define USB_DEVICE_ID_GOOGLE_HAMMER	0x5022
+ #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE	0x5028
++#define USB_DEVICE_ID_GOOGLE_STAFF	0x502b
++#define USB_DEVICE_ID_GOOGLE_WAND	0x502d
+ 
+ #define USB_VENDOR_ID_GOTOP		0x08f2
+ #define USB_DEVICE_ID_SUPER_Q2		0x007f
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 587e2681a53f..d112a14da200 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -84,6 +84,11 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
++#if IS_ENABLED(CONFIG_HID_GOOGLE_HAMMER)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER), HID_QUIRK_NO_GENERIC },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF), HID_QUIRK_NO_GENERIC },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND), HID_QUIRK_NO_GENERIC },
++#endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index dfea5a656a1a..f2655265f8b5 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -340,6 +340,7 @@ struct hid_item {
+ #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
+ /* 0x00000200 reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
+ #define HID_QUIRK_ALWAYS_POLL			0x00000400
++#define HID_QUIRK_NO_GENERIC			0x00000800
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
+ #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
+@@ -359,6 +360,7 @@ struct hid_item {
+ #define HID_GROUP_MULTITOUCH			0x0002
+ #define HID_GROUP_SENSOR_HUB			0x0003
+ #define HID_GROUP_MULTITOUCH_WIN_8		0x0004
++#define HID_GROUP_GENERIC_OVERRIDE		0x0005
+ 
+ /*
+  * Vendor specific HID device groups
+-- 
+2.16.2.804.g6dcf76e118-goog

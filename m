@@ -1,365 +1,456 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 11/16] treewide: simplify Kconfig dependencies for removed
- archs
-Date: Wed, 14 Mar 2018 15:43:46 +0100
-Message-ID: <20180314144614.1632190-1-arnd@arndb.de>
-References: <20180314143529.1456168-1-arnd@arndb.de>
+Subject: [PATCH 00/47] arch-removal: device drivers
+Date: Wed, 14 Mar 2018 16:35:13 +0100
+Message-ID: <20180314153603.3127932-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180314143529.1456168-1-arnd@arndb.de>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: linux-arch@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org, linux-pwm@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, linux-mm@kvack.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-spi@vger.kernel.org, linux-block@vger.kernel.org, linux-ide@vger.kernel.org, linux-input@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
+Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: ulf.hansson@linaro.org, linux-usb@vger.kernel.org, wsa@the-dreams.de, linux-iio@vger.kernel.org, viresh.kumar@linaro.org, linus.walleij@linaro.org, alexandre.belloni@bootlin.com, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org, lars@metafoo.de, herbert@gondor.apana.org.au, corbet@lwn.net, linux-doc@vger.kernel.org, stern@rowland.harvard.edu, linux-serial@vger.kernel.org, jslaby@suse.com, linux-mmc@vger.kernel.org, shli@kernel.org, wg@grandegger.com, linux-crypto@vger.kernel.org, alsa-devel@alsa-project.org, linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, b.zolnierkie@samsung.com, linux-input@vger.kernel.org, linux-can@vger.kernel.org, linux-raid@vger.kernel.org, boris.brezillon@bootlin.com, broonie@kernel.org, bp@alien8.de, linux-fbdev@vger.ker
 List-Id: linux-input@vger.kernel.org
 
-QSBsb3Qgb2YgS2NvbmZpZyBzeW1ib2xzIGhhdmUgYXJjaGl0ZWN0dXJlIHNwZWNpZmljIGRlcGVu
-ZGVuY2llcy4KSW4gdGhvc2UgY2FzZXMgdGhhdCBkZXBlbmQgb24gYXJjaGl0ZWN0dXJlcyB3ZSBo
-YXZlIGFscmVhZHkgcmVtb3ZlZCwKdGhleSBjYW4gYmUgb21pdHRlZC4KClNpZ25lZC1vZmYtYnk6
-IEFybmQgQmVyZ21hbm4gPGFybmRAYXJuZGIuZGU+Ci0tLQogYmxvY2svYm91bmNlLmMgICAgICAg
-ICAgICAgICAgICAgICAgIHwgIDIgKy0KIGRyaXZlcnMvaWRlL0tjb25maWcgICAgICAgICAgICAg
-ICAgICB8ICAyICstCiBkcml2ZXJzL2lkZS9pZGUtZ2VuZXJpYy5jICAgICAgICAgICAgfCAxMiAr
-LS0tLS0tLS0tLS0KIGRyaXZlcnMvaW5wdXQvam95c3RpY2svYW5hbG9nLmMgICAgICB8ICAyICst
-CiBkcml2ZXJzL2lzZG4vaGlzYXgvS2NvbmZpZyAgICAgICAgICAgfCAxMCArKysrKy0tLS0tCiBk
-cml2ZXJzL25ldC9ldGhlcm5ldC9kYXZpY29tL0tjb25maWcgfCAgMiArLQogZHJpdmVycy9uZXQv
-ZXRoZXJuZXQvc21zYy9LY29uZmlnICAgIHwgIDYgKysrLS0tCiBkcml2ZXJzL25ldC93aXJlbGVz
-cy9jaXNjby9LY29uZmlnICAgfCAgMiArLQogZHJpdmVycy9wd20vS2NvbmZpZyAgICAgICAgICAg
-ICAgICAgIHwgIDIgKy0KIGRyaXZlcnMvcnRjL0tjb25maWcgICAgICAgICAgICAgICAgICB8ICAy
-ICstCiBkcml2ZXJzL3NwaS9LY29uZmlnICAgICAgICAgICAgICAgICAgfCAgNCArKy0tCiBkcml2
-ZXJzL3VzYi9tdXNiL0tjb25maWcgICAgICAgICAgICAgfCAgMiArLQogZHJpdmVycy92aWRlby9j
-b25zb2xlL0tjb25maWcgICAgICAgIHwgIDMgKy0tCiBkcml2ZXJzL3dhdGNoZG9nL0tjb25maWcg
-ICAgICAgICAgICAgfCAgNiAtLS0tLS0KIGRyaXZlcnMvd2F0Y2hkb2cvTWFrZWZpbGUgICAgICAg
-ICAgICB8ICA2IC0tLS0tLQogZnMvS2NvbmZpZy5iaW5mbXQgICAgICAgICAgICAgICAgICAgIHwg
-IDUgKystLS0KIGZzL21pbml4L0tjb25maWcgICAgICAgICAgICAgICAgICAgICB8ICAyICstCiBp
-bmNsdWRlL2xpbnV4L2lkZS5oICAgICAgICAgICAgICAgICAgfCAgNyArLS0tLS0tCiBpbml0L0tj
-b25maWcgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNSArKy0tLQogbGliL0tjb25maWcuZGVi
-dWcgICAgICAgICAgICAgICAgICAgIHwgMTMgKysrKystLS0tLS0tLQogbGliL3Rlc3RfdXNlcl9j
-b3B5LmMgICAgICAgICAgICAgICAgIHwgIDIgLS0KIG1tL0tjb25maWcgICAgICAgICAgICAgICAg
-ICAgICAgICAgICB8ICA3IC0tLS0tLS0KIG1tL3BlcmNwdS5jICAgICAgICAgICAgICAgICAgICAg
-ICAgICB8ICA0IC0tLS0KIDIzIGZpbGVzIGNoYW5nZWQsIDMxIGluc2VydGlvbnMoKyksIDc3IGRl
-bGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2Jsb2NrL2JvdW5jZS5jIGIvYmxvY2svYm91bmNlLmMK
-aW5kZXggNmEzZTY4MjkyMjczLi5kZDBiOTNmMmE4NzEgMTAwNjQ0Ci0tLSBhL2Jsb2NrL2JvdW5j
-ZS5jCisrKyBiL2Jsb2NrL2JvdW5jZS5jCkBAIC0zMSw3ICszMSw3IEBACiBzdGF0aWMgc3RydWN0
-IGJpb19zZXQgKmJvdW5jZV9iaW9fc2V0LCAqYm91bmNlX2Jpb19zcGxpdDsKIHN0YXRpYyBtZW1w
-b29sX3QgKnBhZ2VfcG9vbCwgKmlzYV9wYWdlX3Bvb2w7CiAKLSNpZiBkZWZpbmVkKENPTkZJR19I
-SUdITUVNKSB8fCBkZWZpbmVkKENPTkZJR19ORUVEX0JPVU5DRV9QT09MKQorI2lmIGRlZmluZWQo
-Q09ORklHX0hJR0hNRU0pCiBzdGF0aWMgX19pbml0IGludCBpbml0X2VtZXJnZW5jeV9wb29sKHZv
-aWQpCiB7CiAjaWYgZGVmaW5lZChDT05GSUdfSElHSE1FTSkgJiYgIWRlZmluZWQoQ09ORklHX01F
-TU9SWV9IT1RQTFVHKQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pZGUvS2NvbmZpZyBiL2RyaXZlcnMv
-aWRlL0tjb25maWcKaW5kZXggY2YxZmIzZmI1ZDI2Li45MDFiODgzMzg0N2YgMTAwNjQ0Ci0tLSBh
-L2RyaXZlcnMvaWRlL0tjb25maWcKKysrIGIvZHJpdmVycy9pZGUvS2NvbmZpZwpAQCAtMjAwLDcg
-KzIwMCw3IEBAIGNvbW1lbnQgIklERSBjaGlwc2V0IHN1cHBvcnQvYnVnZml4ZXMiCiAKIGNvbmZp
-ZyBJREVfR0VORVJJQwogCXRyaXN0YXRlICJnZW5lcmljL2RlZmF1bHQgSURFIGNoaXBzZXQgc3Vw
-cG9ydCIKLQlkZXBlbmRzIG9uIEFMUEhBIHx8IFg4NiB8fCBJQTY0IHx8IE0zMlIgfHwgTUlQUyB8
-fCBBUkNIX1JQQworCWRlcGVuZHMgb24gQUxQSEEgfHwgWDg2IHx8IElBNjQgfHwgTUlQUyB8fCBB
-UkNIX1JQQwogCWRlZmF1bHQgQVJNICYmIEFSQ0hfUlBDCiAJaGVscAogCSAgVGhpcyBpcyB0aGUg
-Z2VuZXJpYyBJREUgZHJpdmVyLiAgVGhpcyBkcml2ZXIgYXR0YWNoZXMgdG8gdGhlCmRpZmYgLS1n
-aXQgYS9kcml2ZXJzL2lkZS9pZGUtZ2VuZXJpYy5jIGIvZHJpdmVycy9pZGUvaWRlLWdlbmVyaWMu
-YwppbmRleCA1NGQ3YzQ2ODVkMjMuLjgwYzBkNjliODNhYyAxMDA2NDQKLS0tIGEvZHJpdmVycy9p
-ZGUvaWRlLWdlbmVyaWMuYworKysgYi9kcml2ZXJzL2lkZS9pZGUtZ2VuZXJpYy5jCkBAIC0xMywx
-MyArMTMsMTAgQEAKICNpbmNsdWRlIDxsaW51eC9pZGUuaD4KICNpbmNsdWRlIDxsaW51eC9wY2lf
-aWRzLmg+CiAKLS8qIEZJWE1FOiBjb252ZXJ0IGFybSBhbmQgbTMyciB0byB1c2UgaWRlX3BsYXRm
-b3JtIGhvc3QgZHJpdmVyICovCisvKiBGSVhNRTogY29udmVydCBhcm0gdG8gdXNlIGlkZV9wbGF0
-Zm9ybSBob3N0IGRyaXZlciAqLwogI2lmZGVmIENPTkZJR19BUk0KICNpbmNsdWRlIDxhc20vaXJx
-Lmg+CiAjZW5kaWYKLSNpZmRlZiBDT05GSUdfTTMyUgotI2luY2x1ZGUgPGFzbS9tMzJyLmg+Ci0j
-ZW5kaWYKIAogI2RlZmluZSBEUlZfTkFNRQkiaWRlX2dlbmVyaWMiCiAKQEAgLTM1LDEzICszMiw2
-IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaWRlX3BvcnRfaW5mbyBpZGVfZ2VuZXJpY19wb3J0X2lu
-Zm8gPSB7CiAjaWZkZWYgQ09ORklHX0FSTQogc3RhdGljIGNvbnN0IHUxNiBsZWdhY3lfYmFzZXNb
-XSA9IHsgMHgxZjAgfTsKIHN0YXRpYyBjb25zdCBpbnQgbGVnYWN5X2lycXNbXSAgPSB7IElSUV9I
-QVJERElTSyB9OwotI2VsaWYgZGVmaW5lZChDT05GSUdfUExBVF9NMzI3MDBVVCkgfHwgZGVmaW5l
-ZChDT05GSUdfUExBVF9NQVBQSTIpIHx8IFwKLSAgICAgIGRlZmluZWQoQ09ORklHX1BMQVRfT1BT
-UFVUKQotc3RhdGljIGNvbnN0IHUxNiBsZWdhY3lfYmFzZXNbXSA9IHsgMHgxZjAgfTsKLXN0YXRp
-YyBjb25zdCBpbnQgbGVnYWN5X2lycXNbXSAgPSB7IFBMRF9JUlFfQ0ZJUkVRIH07Ci0jZWxpZiBk
-ZWZpbmVkKENPTkZJR19QTEFUX01BUFBJMykKLXN0YXRpYyBjb25zdCB1MTYgbGVnYWN5X2Jhc2Vz
-W10gPSB7IDB4MWYwLCAweDE3MCB9Owotc3RhdGljIGNvbnN0IGludCBsZWdhY3lfaXJxc1tdICA9
-IHsgUExEX0lSUV9DRklSRVEsIFBMRF9JUlFfSURFSVJFUSB9OwogI2VsaWYgZGVmaW5lZChDT05G
-SUdfQUxQSEEpCiBzdGF0aWMgY29uc3QgdTE2IGxlZ2FjeV9iYXNlc1tdID0geyAweDFmMCwgMHgx
-NzAsIDB4MWU4LCAweDE2OCB9Owogc3RhdGljIGNvbnN0IGludCBsZWdhY3lfaXJxc1tdICA9IHsg
-MTQsIDE1LCAxMSwgMTAgfTsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvam95c3RpY2svYW5h
-bG9nLmMgYi9kcml2ZXJzL2lucHV0L2pveXN0aWNrL2FuYWxvZy5jCmluZGV4IGJlMWI0OTIxZjIy
-YS4uZWVmYWM3OTc4ZjkzIDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L2pveXN0aWNrL2FuYWxv
-Zy5jCisrKyBiL2RyaXZlcnMvaW5wdXQvam95c3RpY2svYW5hbG9nLmMKQEAgLTE2Myw3ICsxNjMs
-NyBAQCBzdGF0aWMgdW5zaWduZWQgaW50IGdldF90aW1lX3BpdCh2b2lkKQogI2RlZmluZSBHRVRf
-VElNRSh4KQlkbyB7IHggPSAodW5zaWduZWQgaW50KXJkdHNjKCk7IH0gd2hpbGUgKDApCiAjZGVm
-aW5lIERFTFRBKHgseSkJKCh5KS0oeCkpCiAjZGVmaW5lIFRJTUVfTkFNRQkiVFNDIgotI2VsaWYg
-ZGVmaW5lZChfX2FscGhhX18pIHx8IGRlZmluZWQoQ09ORklHX0FSTSkgfHwgZGVmaW5lZChDT05G
-SUdfQVJNNjQpIHx8IGRlZmluZWQoQ09ORklHX1JJU0NWKSB8fCBkZWZpbmVkKENPTkZJR19USUxF
-KQorI2VsaWYgZGVmaW5lZChfX2FscGhhX18pIHx8IGRlZmluZWQoQ09ORklHX0FSTSkgfHwgZGVm
-aW5lZChDT05GSUdfQVJNNjQpIHx8IGRlZmluZWQoQ09ORklHX1JJU0NWKQogI2RlZmluZSBHRVRf
-VElNRSh4KQlkbyB7IHggPSBnZXRfY3ljbGVzKCk7IH0gd2hpbGUgKDApCiAjZGVmaW5lIERFTFRB
-KHgseSkJKCh5KS0oeCkpCiAjZGVmaW5lIFRJTUVfTkFNRQkiZ2V0X2N5Y2xlcyIKZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvaXNkbi9oaXNheC9LY29uZmlnIGIvZHJpdmVycy9pc2RuL2hpc2F4L0tjb25m
-aWcKaW5kZXggZWI4M2Q5NGFiNGZlLi4zOGNmYzhiYWFlMTkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMv
-aXNkbi9oaXNheC9LY29uZmlnCisrKyBiL2RyaXZlcnMvaXNkbi9oaXNheC9LY29uZmlnCkBAIC0x
-MDksNyArMTA5LDcgQEAgY29uZmlnIEhJU0FYXzE2XzMKIAogY29uZmlnIEhJU0FYX1RFTEVTUENJ
-CiAJYm9vbCAiVGVsZXMgUENJIgotCWRlcGVuZHMgb24gUENJICYmIChCUk9LRU4gfHwgIShTUEFS
-QyB8fCBQUEMgfHwgUEFSSVNDIHx8IE02OEsgfHwgKE1JUFMgJiYgIUNQVV9MSVRUTEVfRU5ESUFO
-KSB8fCBGUlYgfHwgKFhURU5TQSAmJiAhQ1BVX0xJVFRMRV9FTkRJQU4pKSkKKwlkZXBlbmRzIG9u
-IFBDSSAmJiAoQlJPS0VOIHx8ICEoU1BBUkMgfHwgUFBDIHx8IFBBUklTQyB8fCBNNjhLIHx8IChN
-SVBTICYmICFDUFVfTElUVExFX0VORElBTikgfHwgKFhURU5TQSAmJiAhQ1BVX0xJVFRMRV9FTkRJ
-QU4pKSkKIAloZWxwCiAJICBUaGlzIGVuYWJsZXMgSGlTYXggc3VwcG9ydCBmb3IgdGhlIFRlbGVz
-IFBDSS4KIAkgIFNlZSA8ZmlsZTpEb2N1bWVudGF0aW9uL2lzZG4vUkVBRE1FLkhpU2F4PiBvbiBo
-b3cgdG8gY29uZmlndXJlIGl0LgpAQCAtMjM3LDcgKzIzNyw3IEBAIGNvbmZpZyBISVNBWF9NSUMK
-IAogY29uZmlnIEhJU0FYX05FVEpFVAogCWJvb2wgIk5FVGpldCBjYXJkIgotCWRlcGVuZHMgb24g
-UENJICYmIChCUk9LRU4gfHwgIShQUEMgfHwgUEFSSVNDIHx8IE02OEsgfHwgKE1JUFMgJiYgIUNQ
-VV9MSVRUTEVfRU5ESUFOKSB8fCBGUlYgfHwgKFhURU5TQSAmJiAhQ1BVX0xJVFRMRV9FTkRJQU4p
-IHx8IE1JQ1JPQkxBWkUpKQorCWRlcGVuZHMgb24gUENJICYmIChCUk9LRU4gfHwgIShQUEMgfHwg
-UEFSSVNDIHx8IE02OEsgfHwgKE1JUFMgJiYgIUNQVV9MSVRUTEVfRU5ESUFOKSB8fCAoWFRFTlNB
-ICYmICFDUFVfTElUVExFX0VORElBTikgfHwgTUlDUk9CTEFaRSkpCiAJZGVwZW5kcyBvbiBWSVJU
-X1RPX0JVUwogCWhlbHAKIAkgIFRoaXMgZW5hYmxlcyBIaVNheCBzdXBwb3J0IGZvciB0aGUgTmV0
-SmV0IGZyb20gVHJhdmVyc2UKQEAgLTI0OSw3ICsyNDksNyBAQCBjb25maWcgSElTQVhfTkVUSkVU
-CiAKIGNvbmZpZyBISVNBWF9ORVRKRVRfVQogCWJvb2wgIk5FVHNwaWRlciBVIGNhcmQiCi0JZGVw
-ZW5kcyBvbiBQQ0kgJiYgKEJST0tFTiB8fCAhKFBQQyB8fCBQQVJJU0MgfHwgTTY4SyB8fCAoTUlQ
-UyAmJiAhQ1BVX0xJVFRMRV9FTkRJQU4pIHx8IEZSViB8fCAoWFRFTlNBICYmICFDUFVfTElUVExF
-X0VORElBTikgfHwgTUlDUk9CTEFaRSkpCisJZGVwZW5kcyBvbiBQQ0kgJiYgKEJST0tFTiB8fCAh
-KFBQQyB8fCBQQVJJU0MgfHwgTTY4SyB8fCAoTUlQUyAmJiAhQ1BVX0xJVFRMRV9FTkRJQU4pIHx8
-IChYVEVOU0EgJiYgIUNQVV9MSVRUTEVfRU5ESUFOKSB8fCBNSUNST0JMQVpFKSkKIAlkZXBlbmRz
-IG9uIFZJUlRfVE9fQlVTCiAJaGVscAogCSAgVGhpcyBlbmFibGVzIEhpU2F4IHN1cHBvcnQgZm9y
-IHRoZSBOZXRzcGlkZXIgVSBpbnRlcmZhY2UgSVNETiBjYXJkCkBAIC0zMTgsNyArMzE4LDcgQEAg
-Y29uZmlnIEhJU0FYX0dBWkVMCiAKIGNvbmZpZyBISVNBWF9IRkNfUENJCiAJYm9vbCAiSEZDIFBD
-SS1CdXMgY2FyZHMiCi0JZGVwZW5kcyBvbiBQQ0kgJiYgKEJST0tFTiB8fCAhKFNQQVJDIHx8IFBQ
-QyB8fCBQQVJJU0MgfHwgTTY4SyB8fCAoTUlQUyAmJiAhQ1BVX0xJVFRMRV9FTkRJQU4pIHx8IEZS
-ViB8fCAoWFRFTlNBICYmICFDUFVfTElUVExFX0VORElBTikpKQorCWRlcGVuZHMgb24gUENJICYm
-IChCUk9LRU4gfHwgIShTUEFSQyB8fCBQUEMgfHwgUEFSSVNDIHx8IE02OEsgfHwgKE1JUFMgJiYg
-IUNQVV9MSVRUTEVfRU5ESUFOKSB8fCAoWFRFTlNBICYmICFDUFVfTElUVExFX0VORElBTikpKQog
-CWhlbHAKIAkgIFRoaXMgZW5hYmxlcyBIaVNheCBzdXBwb3J0IGZvciB0aGUgSEZDLVMgUENJIDJC
-RFMwIGJhc2VkIGNhcmRzLgogCkBAIC0zNDMsNyArMzQzLDcgQEAgY29uZmlnIEhJU0FYX0hGQ19T
-WAogCiBjb25maWcgSElTQVhfRU5URVJOT1dfUENJCiAJYm9vbCAiRm9ybXVsYS1uIGVudGVyOm5v
-dyBQQ0kgY2FyZCIKLQlkZXBlbmRzIG9uIEhJU0FYX05FVEpFVCAmJiBQQ0kgJiYgKEJST0tFTiB8
-fCAhKFNQQVJDIHx8IFBQQyB8fCBQQVJJU0MgfHwgTTY4SyB8fCAoTUlQUyAmJiAhQ1BVX0xJVFRM
-RV9FTkRJQU4pIHx8IEZSViB8fCAoWFRFTlNBICYmICFDUFVfTElUVExFX0VORElBTikpKQorCWRl
-cGVuZHMgb24gSElTQVhfTkVUSkVUICYmIFBDSSAmJiAoQlJPS0VOIHx8ICEoU1BBUkMgfHwgUFBD
-IHx8IFBBUklTQyB8fCBNNjhLIHx8IChNSVBTICYmICFDUFVfTElUVExFX0VORElBTikgfHwgKFhU
-RU5TQSAmJiAhQ1BVX0xJVFRMRV9FTkRJQU4pKSkKIAloZWxwCiAJICBUaGlzIGVuYWJsZXMgSGlT
-YXggc3VwcG9ydCBmb3IgdGhlIEZvcm11bGEtbiBlbnRlcjpub3cgUENJCiAJICBJU0ROIGNhcmQu
-CmRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC9ldGhlcm5ldC9kYXZpY29tL0tjb25maWcgYi9kcml2
-ZXJzL25ldC9ldGhlcm5ldC9kYXZpY29tL0tjb25maWcKaW5kZXggN2VjMmQ3NGY5NGQzLi42ODBh
-NmQ5ODNmMzcgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvbmV0L2V0aGVybmV0L2Rhdmljb20vS2NvbmZp
-ZworKysgYi9kcml2ZXJzL25ldC9ldGhlcm5ldC9kYXZpY29tL0tjb25maWcKQEAgLTQsNyArNCw3
-IEBACiAKIGNvbmZpZyBETTkwMDAKIAl0cmlzdGF0ZSAiRE05MDAwIHN1cHBvcnQiCi0JZGVwZW5k
-cyBvbiBBUk0gfHwgQkxBQ0tGSU4gfHwgTUlQUyB8fCBDT0xERklSRSB8fCBOSU9TMgorCWRlcGVu
-ZHMgb24gQVJNIHx8IE1JUFMgfHwgQ09MREZJUkUgfHwgTklPUzIKIAlzZWxlY3QgQ1JDMzIKIAlz
-ZWxlY3QgTUlJCiAJLS0taGVscC0tLQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvZXRoZXJuZXQv
-c21zYy9LY29uZmlnIGIvZHJpdmVycy9uZXQvZXRoZXJuZXQvc21zYy9LY29uZmlnCmluZGV4IDk0
-ODYwM2U5YjkwNS4uM2RhMGM1NzNkMmFiIDEwMDY0NAotLS0gYS9kcml2ZXJzL25ldC9ldGhlcm5l
-dC9zbXNjL0tjb25maWcKKysrIGIvZHJpdmVycy9uZXQvZXRoZXJuZXQvc21zYy9LY29uZmlnCkBA
-IC01LDggKzUsOCBAQAogY29uZmlnIE5FVF9WRU5ET1JfU01TQwogCWJvb2wgIlNNQyAoU01TQykv
-V2VzdGVybiBEaWdpdGFsIGRldmljZXMiCiAJZGVmYXVsdCB5Ci0JZGVwZW5kcyBvbiBBUk0gfHwg
-QVJNNjQgfHwgQVRBUklfRVRIRVJOQVQgfHwgQkxBQ0tGSU4gfHwgQ09MREZJUkUgfHwgXAotCQkg
-ICBJU0EgfHwgTTMyUiB8fCBNQUMgfHwgTUlQUyB8fCBOSU9TMiB8fCBQQ0kgfHwgXAorCWRlcGVu
-ZHMgb24gQVJNIHx8IEFSTTY0IHx8IEFUQVJJX0VUSEVSTkFUIHx8IENPTERGSVJFIHx8IFwKKwkJ
-ICAgSVNBIHx8IE1BQyB8fCBNSVBTIHx8IE5JT1MyIHx8IFBDSSB8fCBcCiAJCSAgIFBDTUNJQSB8
-fCBTVVBFUkggfHwgWFRFTlNBIHx8IEg4MzAwCiAJLS0taGVscC0tLQogCSAgSWYgeW91IGhhdmUg
-YSBuZXR3b3JrIChFdGhlcm5ldCkgY2FyZCBiZWxvbmdpbmcgdG8gdGhpcyBjbGFzcywgc2F5IFku
-CkBAIC0zNyw3ICszNyw3IEBAIGNvbmZpZyBTTUM5MVgKIAlzZWxlY3QgQ1JDMzIKIAlzZWxlY3Qg
-TUlJCiAJZGVwZW5kcyBvbiAhT0YgfHwgR1BJT0xJQgotCWRlcGVuZHMgb24gQVJNIHx8IEFSTTY0
-IHx8IEFUQVJJX0VUSEVSTkFUIHx8IEJMQUNLRklOIHx8IENPTERGSVJFIHx8IFwKKwlkZXBlbmRz
-IG9uIEFSTSB8fCBBUk02NCB8fCBBVEFSSV9FVEhFUk5BVCB8fCBDT0xERklSRSB8fCBcCiAJCSAg
-IE0zMlIgfHwgTUlQUyB8fCBOSU9TMiB8fCBTVVBFUkggfHwgWFRFTlNBIHx8IEg4MzAwCiAJLS0t
-aGVscC0tLQogCSAgVGhpcyBpcyBhIGRyaXZlciBmb3IgU01DJ3MgOTF4IHNlcmllcyBvZiBFdGhl
-cm5ldCBjaGlwc2V0cywKZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3dpcmVsZXNzL2Npc2NvL0tj
-b25maWcgYi9kcml2ZXJzL25ldC93aXJlbGVzcy9jaXNjby9LY29uZmlnCmluZGV4IGIyMjU2N2Rm
-Zjg5My4uOGVkMGIxNTRiYjMzIDEwMDY0NAotLS0gYS9kcml2ZXJzL25ldC93aXJlbGVzcy9jaXNj
-by9LY29uZmlnCisrKyBiL2RyaXZlcnMvbmV0L3dpcmVsZXNzL2Npc2NvL0tjb25maWcKQEAgLTMz
-LDcgKzMzLDcgQEAgY29uZmlnIEFJUk8KIAogY29uZmlnIEFJUk9fQ1MKIAl0cmlzdGF0ZSAiQ2lz
-Y28vQWlyb25ldCAzNFgvMzVYLzQ1MDAvNDgwMCBQQ01DSUEgY2FyZHMiCi0JZGVwZW5kcyBvbiBD
-Rkc4MDIxMSAmJiBQQ01DSUEgJiYgKEJST0tFTiB8fCAhTTMyUikKKwlkZXBlbmRzIG9uIENGRzgw
-MjExICYmIFBDTUNJQQogCXNlbGVjdCBXSVJFTEVTU19FWFQKIAlzZWxlY3QgV0VYVF9TUFkKIAlz
-ZWxlY3QgV0VYVF9QUklWCmRpZmYgLS1naXQgYS9kcml2ZXJzL3B3bS9LY29uZmlnIGIvZHJpdmVy
-cy9wd20vS2NvbmZpZwppbmRleCA3NjNlZTUwZWE1N2QuLmYxNmFhZDNiZjVkNiAxMDA2NDQKLS0t
-IGEvZHJpdmVycy9wd20vS2NvbmZpZworKysgYi9kcml2ZXJzL3B3bS9LY29uZmlnCkBAIC00Myw3
-ICs0Myw3IEBAIGNvbmZpZyBQV01fQUI4NTAwCiAKIGNvbmZpZyBQV01fQVRNRUwKIAl0cmlzdGF0
-ZSAiQXRtZWwgUFdNIHN1cHBvcnQiCi0JZGVwZW5kcyBvbiBBUkNIX0FUOTEgfHwgQVZSMzIKKwlk
-ZXBlbmRzIG9uIEFSQ0hfQVQ5MQogCWhlbHAKIAkgIEdlbmVyaWMgUFdNIGZyYW1ld29yayBkcml2
-ZXIgZm9yIEF0bWVsIFNvQy4KIApkaWZmIC0tZ2l0IGEvZHJpdmVycy9ydGMvS2NvbmZpZyBiL2Ry
-aXZlcnMvcnRjL0tjb25maWcKaW5kZXggYmU1YTNkYzk5YzExLi40NmFmMTBhYzQ1ZmMgMTAwNjQ0
-Ci0tLSBhL2RyaXZlcnMvcnRjL0tjb25maWcKKysrIGIvZHJpdmVycy9ydGMvS2NvbmZpZwpAQCAt
-ODY4LDcgKzg2OCw3IEBAIGNvbW1lbnQgIlBsYXRmb3JtIFJUQyBkcml2ZXJzIgogCiBjb25maWcg
-UlRDX0RSVl9DTU9TCiAJdHJpc3RhdGUgIlBDLXN0eWxlICdDTU9TJyIKLQlkZXBlbmRzIG9uIFg4
-NiB8fCBBUk0gfHwgTTMyUiB8fCBQUEMgfHwgTUlQUyB8fCBTUEFSQzY0CisJZGVwZW5kcyBvbiBY
-ODYgfHwgQVJNIHx8IFBQQyB8fCBNSVBTIHx8IFNQQVJDNjQKIAlkZWZhdWx0IHkgaWYgWDg2CiAJ
-c2VsZWN0IFJUQ19NQzE0NjgxOF9MSUIKIAloZWxwCmRpZmYgLS1naXQgYS9kcml2ZXJzL3NwaS9L
-Y29uZmlnIGIvZHJpdmVycy9zcGkvS2NvbmZpZwppbmRleCA2MDM3ODM5NzZiODEuLjEwM2MxM2Zj
-ZWZhMCAxMDA2NDQKLS0tIGEvZHJpdmVycy9zcGkvS2NvbmZpZworKysgYi9kcml2ZXJzL3NwaS9L
-Y29uZmlnCkBAIC03MiwxMCArNzIsMTAgQEAgY29uZmlnIFNQSV9BUk1BREFfMzcwMAogY29uZmln
-IFNQSV9BVE1FTAogCXRyaXN0YXRlICJBdG1lbCBTUEkgQ29udHJvbGxlciIKIAlkZXBlbmRzIG9u
-IEhBU19ETUEKLQlkZXBlbmRzIG9uIChBUkNIX0FUOTEgfHwgQVZSMzIgfHwgQ09NUElMRV9URVNU
-KQorCWRlcGVuZHMgb24gQVJDSF9BVDkxIHx8IENPTVBJTEVfVEVTVAogCWhlbHAKIAkgIFRoaXMg
-c2VsZWN0cyBhIGRyaXZlciBmb3IgdGhlIEF0bWVsIFNQSSBDb250cm9sbGVyLCBwcmVzZW50IG9u
-Ci0JICBtYW55IEFUMzIgKEFWUjMyKSBhbmQgQVQ5MSAoQVJNKSBjaGlwcy4KKwkgIG1hbnkgQVQ5
-MSBBUk0gY2hpcHMuCiAKIGNvbmZpZyBTUElfQVUxNTUwCiAJdHJpc3RhdGUgIkF1MTU1MC9BdTEy
-MDAvQXUxMzAwIFNQSSBDb250cm9sbGVyIgpkaWZmIC0tZ2l0IGEvZHJpdmVycy91c2IvbXVzYi9L
-Y29uZmlnIGIvZHJpdmVycy91c2IvbXVzYi9LY29uZmlnCmluZGV4IDU1MDZhOWMwM2MxZi4uZTc1
-N2FmYzFjZmQwIDEwMDY0NAotLS0gYS9kcml2ZXJzL3VzYi9tdXNiL0tjb25maWcKKysrIGIvZHJp
-dmVycy91c2IvbXVzYi9LY29uZmlnCkBAIC04Nyw3ICs4Nyw3IEBAIGNvbmZpZyBVU0JfTVVTQl9E
-QThYWAogY29uZmlnIFVTQl9NVVNCX1RVU0I2MDEwCiAJdHJpc3RhdGUgIlRVU0I2MDEwIgogCWRl
-cGVuZHMgb24gSEFTX0lPTUVNCi0JZGVwZW5kcyBvbiAoQVJDSF9PTUFQMlBMVVMgfHwgQ09NUElM
-RV9URVNUKSAmJiAhQkxBQ0tGSU4KKwlkZXBlbmRzIG9uIEFSQ0hfT01BUDJQTFVTIHx8IENPTVBJ
-TEVfVEVTVAogCWRlcGVuZHMgb24gTk9QX1VTQl9YQ0VJViA9IFVTQl9NVVNCX0hEUkMgIyBib3Ro
-IGJ1aWx0LWluIG9yIGJvdGggbW9kdWxlcwogCiBjb25maWcgVVNCX01VU0JfT01BUDJQTFVTCmRp
-ZmYgLS1naXQgYS9kcml2ZXJzL3ZpZGVvL2NvbnNvbGUvS2NvbmZpZyBiL2RyaXZlcnMvdmlkZW8v
-Y29uc29sZS9LY29uZmlnCmluZGV4IDAwNWVkODdjODIxNi4uYTllMzk4YzE0NGY4IDEwMDY0NAot
-LS0gYS9kcml2ZXJzL3ZpZGVvL2NvbnNvbGUvS2NvbmZpZworKysgYi9kcml2ZXJzL3ZpZGVvL2Nv
-bnNvbGUvS2NvbmZpZwpAQCAtNiw4ICs2LDcgQEAgbWVudSAiQ29uc29sZSBkaXNwbGF5IGRyaXZl
-ciBzdXBwb3J0IgogCiBjb25maWcgVkdBX0NPTlNPTEUKIAlib29sICJWR0EgdGV4dCBjb25zb2xl
-IiBpZiBFWFBFUlQgfHwgIVg4NgotCWRlcGVuZHMgb24gITR4eCAmJiAhUFBDXzh4eCAmJiAhU1BB
-UkMgJiYgIU02OEsgJiYgIVBBUklTQyAmJiAhRlJWICYmIFwKLQkJIVNVUEVSSCAmJiAhQkxBQ0tG
-SU4gJiYgIUFWUjMyICYmICFDUklTICYmIFwKKwlkZXBlbmRzIG9uICE0eHggJiYgIVBQQ184eHgg
-JiYgIVNQQVJDICYmICFNNjhLICYmICFQQVJJU0MgJiYgICFTVVBFUkggJiYgXAogCQkoIUFSTSB8
-fCBBUkNIX0ZPT1RCUklER0UgfHwgQVJDSF9JTlRFR1JBVE9SIHx8IEFSQ0hfTkVUV0lOREVSKSAm
-JiBcCiAJCSFBUk02NCAmJiAhQVJDICYmICFNSUNST0JMQVpFICYmICFPUEVOUklTQwogCWRlZmF1
-bHQgeQpkaWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9LY29uZmlnIGIvZHJpdmVycy93YXRj
-aGRvZy9LY29uZmlnCmluZGV4IDBlMTk2NzkzNDhkMS4uNzkwMjBjZTk1ZGUyIDEwMDY0NAotLS0g
-YS9kcml2ZXJzL3dhdGNoZG9nL0tjb25maWcKKysrIGIvZHJpdmVycy93YXRjaGRvZy9LY29uZmln
-CkBAIC04MjgsMTAgKzgyOCw2IEBAIGNvbmZpZyBCRklOX1dEVAogCSAgVG8gY29tcGlsZSB0aGlz
-IGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlCiAJICBtb2R1bGUgd2lsbCBi
-ZSBjYWxsZWQgYmZpbl93ZHQuCiAKLSMgQ1JJUyBBcmNoaXRlY3R1cmUKLQotIyBGUlYgQXJjaGl0
-ZWN0dXJlCi0KICMgWDg2IChpMzg2ICsgaWE2NCArIHg4Nl82NCkgQXJjaGl0ZWN0dXJlCiAKIGNv
-bmZpZyBBQ1FVSVJFX1dEVApAQCAtMTQzMSw4ICsxNDI3LDYgQEAgY29uZmlnIE5JQzcwMThfV0RU
-CiAJICBUbyBjb21waWxlIHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0
-aGUgbW9kdWxlIHdpbGwgYmUKIAkgIGNhbGxlZCBuaWM3MDE4X3dkdC4KIAotIyBNMzJSIEFyY2hp
-dGVjdHVyZQotCiAjIE02OEsgQXJjaGl0ZWN0dXJlCiAKIGNvbmZpZyBNNTR4eF9XQVRDSERPRwpk
-aWZmIC0tZ2l0IGEvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZSBiL2RyaXZlcnMvd2F0Y2hkb2cv
-TWFrZWZpbGUKaW5kZXggMDQ3NGQzOGFhODU0Li4xZjlhMDIzNWYyMmMgMTAwNjQ0Ci0tLSBhL2Ry
-aXZlcnMvd2F0Y2hkb2cvTWFrZWZpbGUKKysrIGIvZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZQpA
-QCAtOTQsMTAgKzk0LDYgQEAgb2JqLSQoQ09ORklHX1NQUkRfV0FUQ0hET0cpICs9IHNwcmRfd2R0
-Lm8KICMgQkxBQ0tGSU4gQXJjaGl0ZWN0dXJlCiBvYmotJChDT05GSUdfQkZJTl9XRFQpICs9IGJm
-aW5fd2R0Lm8KIAotIyBDUklTIEFyY2hpdGVjdHVyZQotCi0jIEZSViBBcmNoaXRlY3R1cmUKLQog
-IyBYODYgKGkzODYgKyBpYTY0ICsgeDg2XzY0KSBBcmNoaXRlY3R1cmUKIG9iai0kKENPTkZJR19B
-Q1FVSVJFX1dEVCkgKz0gYWNxdWlyZXdkdC5vCiBvYmotJChDT05GSUdfQURWQU5URUNIX1dEVCkg
-Kz0gYWR2YW50ZWNod2R0Lm8KQEAgLTE0Niw4ICsxNDIsNiBAQCBvYmotJChDT05GSUdfSU5URUxf
-TUVJX1dEVCkgKz0gbWVpX3dkdC5vCiBvYmotJChDT05GSUdfTkk5MDNYX1dEVCkgKz0gbmk5MDN4
-X3dkdC5vCiBvYmotJChDT05GSUdfTklDNzAxOF9XRFQpICs9IG5pYzcwMThfd2R0Lm8KIAotIyBN
-MzJSIEFyY2hpdGVjdHVyZQotCiAjIE02OEsgQXJjaGl0ZWN0dXJlCiBvYmotJChDT05GSUdfTTU0
-eHhfV0FUQ0hET0cpICs9IG01NHh4X3dkdC5vCiAKZGlmZiAtLWdpdCBhL2ZzL0tjb25maWcuYmlu
-Zm10IGIvZnMvS2NvbmZpZy5iaW5mbXQKaW5kZXggNThjMmJiZDM4NWFkLi41N2EyN2M0MmI1YWMg
-MTAwNjQ0Ci0tLSBhL2ZzL0tjb25maWcuYmluZm10CisrKyBiL2ZzL0tjb25maWcuYmluZm10CkBA
-IC0xLDYgKzEsNiBAQAogY29uZmlnIEJJTkZNVF9FTEYKIAlib29sICJLZXJuZWwgc3VwcG9ydCBm
-b3IgRUxGIGJpbmFyaWVzIgotCWRlcGVuZHMgb24gTU1VICYmIChCUk9LRU4gfHwgIUZSVikKKwlk
-ZXBlbmRzIG9uIE1NVQogCXNlbGVjdCBFTEZDT1JFCiAJZGVmYXVsdCB5CiAJLS0taGVscC0tLQpA
-QCAtMzUsNyArMzUsNyBAQCBjb25maWcgQVJDSF9CSU5GTVRfRUxGX1NUQVRFCiBjb25maWcgQklO
-Rk1UX0VMRl9GRFBJQwogCWJvb2wgIktlcm5lbCBzdXBwb3J0IGZvciBGRFBJQyBFTEYgYmluYXJp
-ZXMiCiAJZGVmYXVsdCB5IGlmICFCSU5GTVRfRUxGCi0JZGVwZW5kcyBvbiAoQVJNIHx8IEZSViB8
-fCBCTEFDS0ZJTiB8fCAoU1VQRVJIMzIgJiYgIU1NVSkgfHwgQzZYKQorCWRlcGVuZHMgb24gKEFS
-TSB8fCAoU1VQRVJIMzIgJiYgIU1NVSkgfHwgQzZYKQogCXNlbGVjdCBFTEZDT1JFCiAJaGVscAog
-CSAgRUxGIEZEUElDIGJpbmFyaWVzIGFyZSBiYXNlZCBvbiBFTEYsIGJ1dCBhbGxvdyB0aGUgaW5k
-aXZpZHVhbCBsb2FkCkBAIC05MCw3ICs5MCw2IEBAIGNvbmZpZyBCSU5GTVRfU0NSSVBUCiBjb25m
-aWcgQklORk1UX0ZMQVQKIAlib29sICJLZXJuZWwgc3VwcG9ydCBmb3IgZmxhdCBiaW5hcmllcyIK
-IAlkZXBlbmRzIG9uICFNTVUgfHwgQVJNIHx8IE02OEsKLQlkZXBlbmRzIG9uICFGUlYgfHwgQlJP
-S0VOCiAJaGVscAogCSAgU3VwcG9ydCB1Q2xpbnV4IEZMQVQgZm9ybWF0IGJpbmFyaWVzLgogCmRp
-ZmYgLS1naXQgYS9mcy9taW5peC9LY29uZmlnIGIvZnMvbWluaXgvS2NvbmZpZwppbmRleCBmMmEw
-Y2ZjZWYxMWQuLmJjZDUzYTc5MTU2ZiAxMDA2NDQKLS0tIGEvZnMvbWluaXgvS2NvbmZpZworKysg
-Yi9mcy9taW5peC9LY29uZmlnCkBAIC0xOCw3ICsxOCw3IEBAIGNvbmZpZyBNSU5JWF9GUwogCiBj
-b25maWcgTUlOSVhfRlNfTkFUSVZFX0VORElBTgogCWRlZl9ib29sIE1JTklYX0ZTCi0JZGVwZW5k
-cyBvbiBNMzJSIHx8IE1JQ1JPQkxBWkUgfHwgTUlQUyB8fCBTMzkwIHx8IFNVUEVSSCB8fCBTUEFS
-QyB8fCBYVEVOU0EgfHwgKE02OEsgJiYgIU1NVSkKKwlkZXBlbmRzIG9uIE1JQ1JPQkxBWkUgfHwg
-TUlQUyB8fCBTMzkwIHx8IFNVUEVSSCB8fCBTUEFSQyB8fCBYVEVOU0EgfHwgKE02OEsgJiYgIU1N
-VSkKIAogY29uZmlnIE1JTklYX0ZTX0JJR19FTkRJQU5fMTZCSVRfSU5ERVhFRAogCWRlZl9ib29s
-IE1JTklYX0ZTCmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L2lkZS5oIGIvaW5jbHVkZS9saW51
-eC9pZGUuaAppbmRleCAyMGQ0MmMwZDlmYjYuLjFkNmYxNjExMGVhZSAxMDA2NDQKLS0tIGEvaW5j
-bHVkZS9saW51eC9pZGUuaAorKysgYi9pbmNsdWRlL2xpbnV4L2lkZS5oCkBAIC0yNSwxNSArMjUs
-MTAgQEAKICNpbmNsdWRlIDxhc20vYnl0ZW9yZGVyLmg+CiAjaW5jbHVkZSA8YXNtL2lvLmg+CiAK
-LSNpZiBkZWZpbmVkKENPTkZJR19DUklTKSB8fCBkZWZpbmVkKENPTkZJR19GUlYpCi0jIGRlZmlu
-ZSBTVVBQT1JUX1ZMQl9TWU5DIDAKLSNlbHNlCi0jIGRlZmluZSBTVVBQT1JUX1ZMQl9TWU5DIDEK
-LSNlbmRpZgotCiAvKgogICogUHJvYmFibHkgbm90IHdpc2UgdG8gZmlkZGxlIHdpdGggdGhlc2UK
-ICAqLworI2RlZmluZSBTVVBQT1JUX1ZMQl9TWU5DIDEKICNkZWZpbmUgSURFX0RFRkFVTFRfTUFY
-X0ZBSUxVUkVTCTEKICNkZWZpbmUgRVJST1JfTUFYCTgJLyogTWF4IHJlYWQvd3JpdGUgZXJyb3Jz
-IHBlciBzZWN0b3IgKi8KICNkZWZpbmUgRVJST1JfUkVTRVQJMwkvKiBSZXNldCBjb250cm9sbGVy
-IGV2ZXJ5IDR0aCByZXRyeSAqLwpkaWZmIC0tZ2l0IGEvaW5pdC9LY29uZmlnIGIvaW5pdC9LY29u
-ZmlnCmluZGV4IGExNGJjYzk3MjRhMi4uMjg1MjY5MmQ3YzljIDEwMDY0NAotLS0gYS9pbml0L0tj
-b25maWcKKysrIGIvaW5pdC9LY29uZmlnCkBAIC05OTgsNyArOTk4LDYgQEAgY29uZmlnIFJFTEFZ
-CiAKIGNvbmZpZyBCTEtfREVWX0lOSVRSRAogCWJvb2wgIkluaXRpYWwgUkFNIGZpbGVzeXN0ZW0g
-YW5kIFJBTSBkaXNrIChpbml0cmFtZnMvaW5pdHJkKSBzdXBwb3J0IgotCWRlcGVuZHMgb24gQlJP
-S0VOIHx8ICFGUlYKIAloZWxwCiAJICBUaGUgaW5pdGlhbCBSQU0gZmlsZXN5c3RlbSBpcyBhIHJh
-bWZzIHdoaWNoIGlzIGxvYWRlZCBieSB0aGUKIAkgIGJvb3QgbG9hZGVyIChsb2FkbGluIG9yIGxp
-bG8pIGFuZCB0aGF0IGlzIG1vdW50ZWQgYXMgcm9vdApAQCAtMTEwOCw3ICsxMTA3LDcgQEAgY29u
-ZmlnIE1VTFRJVVNFUgogCiBjb25maWcgU0dFVE1BU0tfU1lTQ0FMTAogCWJvb2wgInNnZXRtYXNr
-L3NzZXRtYXNrIHN5c2NhbGxzIHN1cHBvcnQiIGlmIEVYUEVSVAotCWRlZl9ib29sIFBBUklTQyB8
-fCBCTEFDS0ZJTiB8fCBNNjhLIHx8IFBQQyB8fCBNSVBTIHx8IFg4NiB8fCBTUEFSQyB8fCBDUklT
-IHx8IE1JQ1JPQkxBWkUgfHwgU1VQRVJICisJZGVmX2Jvb2wgUEFSSVNDIHx8IE02OEsgfHwgUFBD
-IHx8IE1JUFMgfHwgWDg2IHx8IFNQQVJDIHx8IE1JQ1JPQkxBWkUgfHwgU1VQRVJICiAJLS0taGVs
-cC0tLQogCSAgc3lzX3NnZXRtYXNrIGFuZCBzeXNfc3NldG1hc2sgYXJlIG9ic29sZXRlIHN5c3Rl
-bSBjYWxscwogCSAgbm8gbG9uZ2VyIHN1cHBvcnRlZCBpbiBsaWJjIGJ1dCBzdGlsbCBlbmFibGVk
-IGJ5IGRlZmF1bHQgaW4gc29tZQpAQCAtMTM3MCw3ICsxMzY5LDcgQEAgY29uZmlnIEtBTExTWU1T
-X0FCU09MVVRFX1BFUkNQVQogY29uZmlnIEtBTExTWU1TX0JBU0VfUkVMQVRJVkUKIAlib29sCiAJ
-ZGVwZW5kcyBvbiBLQUxMU1lNUwotCWRlZmF1bHQgIUlBNjQgJiYgIShUSUxFICYmIDY0QklUKQor
-CWRlZmF1bHQgIUlBNjQKIAloZWxwCiAJICBJbnN0ZWFkIG9mIGVtaXR0aW5nIHRoZW0gYXMgYWJz
-b2x1dGUgdmFsdWVzIGluIHRoZSBuYXRpdmUgd29yZCBzaXplLAogCSAgZW1pdCB0aGUgc3ltYm9s
-IHJlZmVyZW5jZXMgaW4gdGhlIGthbGxzeW1zIHRhYmxlIGFzIDMyLWJpdCBlbnRyaWVzLApkaWZm
-IC0tZ2l0IGEvbGliL0tjb25maWcuZGVidWcgYi9saWIvS2NvbmZpZy5kZWJ1ZwppbmRleCA0MWFj
-OWQyOTQyNDUuLjY5MjdjNmQ4ZDE4NSAxMDA2NDQKLS0tIGEvbGliL0tjb25maWcuZGVidWcKKysr
-IGIvbGliL0tjb25maWcuZGVidWcKQEAgLTE2NSw3ICsxNjUsNyBAQCBjb25maWcgREVCVUdfSU5G
-T19SRURVQ0VECiAKIGNvbmZpZyBERUJVR19JTkZPX1NQTElUCiAJYm9vbCAiUHJvZHVjZSBzcGxp
-dCBkZWJ1Z2luZm8gaW4gLmR3byBmaWxlcyIKLQlkZXBlbmRzIG9uIERFQlVHX0lORk8gJiYgIUZS
-VgorCWRlcGVuZHMgb24gREVCVUdfSU5GTwogCWhlbHAKIAkgIEdlbmVyYXRlIGRlYnVnIGluZm8g
-aW50byBzZXBhcmF0ZSAuZHdvIGZpbGVzLiBUaGlzIHNpZ25pZmljYW50bHkKIAkgIHJlZHVjZXMg
-dGhlIGJ1aWxkIGRpcmVjdG9yeSBzaXplIGZvciBidWlsZHMgd2l0aCBERUJVR19JTkZPLApAQCAt
-MzU0LDEwICszNTQsNyBAQCBjb25maWcgQVJDSF9XQU5UX0ZSQU1FX1BPSU5URVJTCiAKIGNvbmZp
-ZyBGUkFNRV9QT0lOVEVSCiAJYm9vbCAiQ29tcGlsZSB0aGUga2VybmVsIHdpdGggZnJhbWUgcG9p
-bnRlcnMiCi0JZGVwZW5kcyBvbiBERUJVR19LRVJORUwgJiYgXAotCQkoQ1JJUyB8fCBNNjhLIHx8
-IEZSViB8fCBVTUwgfHwgXAotCQkgU1VQRVJIIHx8IEJMQUNLRklOKSB8fCBcCi0JCUFSQ0hfV0FO
-VF9GUkFNRV9QT0lOVEVSUworCWRlcGVuZHMgb24gREVCVUdfS0VSTkVMICYmIChNNjhLIHx8IFVN
-TCB8fCBTVVBFUkgpIHx8IEFSQ0hfV0FOVF9GUkFNRV9QT0lOVEVSUwogCWRlZmF1bHQgeSBpZiAo
-REVCVUdfSU5GTyAmJiBVTUwpIHx8IEFSQ0hfV0FOVF9GUkFNRV9QT0lOVEVSUwogCWhlbHAKIAkg
-IElmIHlvdSBzYXkgWSBoZXJlIHRoZSByZXN1bHRpbmcga2VybmVsIGltYWdlIHdpbGwgYmUgc2xp
-Z2h0bHkKQEAgLTExMzgsNyArMTEzNSw3IEBAIGNvbmZpZyBMT0NLREVQCiAJYm9vbAogCWRlcGVu
-ZHMgb24gREVCVUdfS0VSTkVMICYmIFRSQUNFX0lSUUZMQUdTX1NVUFBPUlQgJiYgU1RBQ0tUUkFD
-RV9TVVBQT1JUICYmIExPQ0tERVBfU1VQUE9SVAogCXNlbGVjdCBTVEFDS1RSQUNFCi0Jc2VsZWN0
-IEZSQU1FX1BPSU5URVIgaWYgIU1JUFMgJiYgIVBQQyAmJiAhQVJNX1VOV0lORCAmJiAhUzM5MCAm
-JiAhTUlDUk9CTEFaRSAmJiAhQVJDICYmICFTQ09SRSAmJiAhWDg2CisJc2VsZWN0IEZSQU1FX1BP
-SU5URVIgaWYgIU1JUFMgJiYgIVBQQyAmJiAhQVJNX1VOV0lORCAmJiAhUzM5MCAmJiAhTUlDUk9C
-TEFaRSAmJiAhQVJDICYmICFYODYKIAlzZWxlY3QgS0FMTFNZTVMKIAlzZWxlY3QgS0FMTFNZTVNf
-QUxMCiAKQEAgLTE1NzEsNyArMTU2OCw3IEBAIGNvbmZpZyBGQVVMVF9JTkpFQ1RJT05fU1RBQ0tU
-UkFDRV9GSUxURVIKIAlkZXBlbmRzIG9uIEZBVUxUX0lOSkVDVElPTl9ERUJVR19GUyAmJiBTVEFD
-S1RSQUNFX1NVUFBPUlQKIAlkZXBlbmRzIG9uICFYODZfNjQKIAlzZWxlY3QgU1RBQ0tUUkFDRQot
-CXNlbGVjdCBGUkFNRV9QT0lOVEVSIGlmICFNSVBTICYmICFQUEMgJiYgIVMzOTAgJiYgIU1JQ1JP
-QkxBWkUgJiYgIUFSTV9VTldJTkQgJiYgIUFSQyAmJiAhU0NPUkUgJiYgIVg4NgorCXNlbGVjdCBG
-UkFNRV9QT0lOVEVSIGlmICFNSVBTICYmICFQUEMgJiYgIVMzOTAgJiYgIU1JQ1JPQkxBWkUgJiYg
-IUFSTV9VTldJTkQgJiYgIUFSQyAmJiAhWDg2CiAJaGVscAogCSAgUHJvdmlkZSBzdGFja3RyYWNl
-IGZpbHRlciBmb3IgZmF1bHQtaW5qZWN0aW9uIGNhcGFiaWxpdGllcwogCkBAIC0xOTY5LDcgKzE5
-NjYsNyBAQCBjb25maWcgU1RSSUNUX0RFVk1FTQogCWJvb2wgIkZpbHRlciBhY2Nlc3MgdG8gL2Rl
-di9tZW0iCiAJZGVwZW5kcyBvbiBNTVUgJiYgREVWTUVNCiAJZGVwZW5kcyBvbiBBUkNIX0hBU19E
-RVZNRU1fSVNfQUxMT1dFRAotCWRlZmF1bHQgeSBpZiBUSUxFIHx8IFBQQyB8fCBYODYgfHwgQVJN
-NjQKKwlkZWZhdWx0IHkgaWYgUFBDIHx8IFg4NiB8fCBBUk02NAogCS0tLWhlbHAtLS0KIAkgIElm
-IHRoaXMgb3B0aW9uIGlzIGRpc2FibGVkLCB5b3UgYWxsb3cgdXNlcnNwYWNlIChyb290KSBhY2Nl
-c3MgdG8gYWxsCiAJICBvZiBtZW1vcnksIGluY2x1ZGluZyBrZXJuZWwgYW5kIHVzZXJzcGFjZSBt
-ZW1vcnkuIEFjY2lkZW50YWwKZGlmZiAtLWdpdCBhL2xpYi90ZXN0X3VzZXJfY29weS5jIGIvbGli
-L3Rlc3RfdXNlcl9jb3B5LmMKaW5kZXggYTY1NTZmMzM2NGQxLi5lMTYxZjA0OThmNDIgMTAwNjQ0
-Ci0tLSBhL2xpYi90ZXN0X3VzZXJfY29weS5jCisrKyBiL2xpYi90ZXN0X3VzZXJfY29weS5jCkBA
-IC0zMSw4ICszMSw2IEBACiAgKiB0aGVpciBjYXBhYmlsaXR5IGF0IGNvbXBpbGUtdGltZSwgd2Ug
-anVzdCBoYXZlIHRvIG9wdC1vdXQgY2VydGFpbiBhcmNocy4KICAqLwogI2lmIEJJVFNfUEVSX0xP
-TkcgPT0gNjQgfHwgKCEoZGVmaW5lZChDT05GSUdfQVJNKSAmJiAhZGVmaW5lZChNTVUpKSAmJiBc
-Ci0JCQkgICAgIWRlZmluZWQoQ09ORklHX0JMQUNLRklOKSAmJglcCi0JCQkgICAgIWRlZmluZWQo
-Q09ORklHX00zMlIpICYmCQlcCiAJCQkgICAgIWRlZmluZWQoQ09ORklHX002OEspICYmCQlcCiAJ
-CQkgICAgIWRlZmluZWQoQ09ORklHX01JQ1JPQkxBWkUpICYmCVwKIAkJCSAgICAhZGVmaW5lZChD
-T05GSUdfTklPUzIpICYmCQlcCmRpZmYgLS1naXQgYS9tbS9LY29uZmlnIGIvbW0vS2NvbmZpZwpp
-bmRleCBhYmVmYTU3M2JjZDguLmQ1MDA0ZDgyYTFkNiAxMDA2NDQKLS0tIGEvbW0vS2NvbmZpZwor
-KysgYi9tbS9LY29uZmlnCkBAIC0yNzgsMTMgKzI3OCw2IEBAIGNvbmZpZyBCT1VOQ0UKIAkgIGJ5
-IGRlZmF1bHQgd2hlbiBaT05FX0RNQSBvciBISUdITUVNIGlzIHNlbGVjdGVkLCBidXQgeW91CiAJ
-ICBtYXkgc2F5IG4gdG8gb3ZlcnJpZGUgdGhpcy4KIAotIyBPbiB0aGUgJ3RpbGUnIGFyY2gsIFVT
-QiBPSENJIG5lZWRzIHRoZSBib3VuY2UgcG9vbCBzaW5jZSB0aWxlZ3ggd2lsbCBvZnRlbgotIyBo
-YXZlIG1vcmUgdGhhbiA0R0Igb2YgbWVtb3J5LCBidXQgd2UgZG9uJ3QgY3VycmVudGx5IHVzZSB0
-aGUgSU9UTEIgdG8gcHJlc2VudAotIyBhIDMyLWJpdCBhZGRyZXNzIHRvIE9IQ0kuICBTbyB3ZSBu
-ZWVkIHRvIHVzZSBhIGJvdW5jZSBwb29sIGluc3RlYWQuCi1jb25maWcgTkVFRF9CT1VOQ0VfUE9P
-TAotCWJvb2wKLQlkZWZhdWx0IHkgaWYgVElMRSAmJiBVU0JfT0hDSV9IQ0QKLQogY29uZmlnIE5S
-X1FVSUNLCiAJaW50CiAJZGVwZW5kcyBvbiBRVUlDS0xJU1QKZGlmZiAtLWdpdCBhL21tL3BlcmNw
-dS5jIGIvbW0vcGVyY3B1LmMKaW5kZXggNTBlN2ZkZjg0MDU1Li43OWUzNTQ5Y2FiMGYgMTAwNjQ0
-Ci0tLSBhL21tL3BlcmNwdS5jCisrKyBiL21tL3BlcmNwdS5jCkBAIC0yNzE5LDExICsyNzE5LDcg
-QEAgdm9pZCBfX2luaXQgc2V0dXBfcGVyX2NwdV9hcmVhcyh2b2lkKQogCiAJaWYgKHBjcHVfc2V0
-dXBfZmlyc3RfY2h1bmsoYWksIGZjKSA8IDApCiAJCXBhbmljKCJGYWlsZWQgdG8gaW5pdGlhbGl6
-ZSBwZXJjcHUgYXJlYXMuIik7Ci0jaWZkZWYgQ09ORklHX0NSSVMKLSN3YXJuaW5nICJ0aGUgQ1JJ
-UyBhcmNoaXRlY3R1cmUgaGFzIHBoeXNpY2FsIGFuZCB2aXJ0dWFsIGFkZHJlc3NlcyBjb25mdXNl
-ZCIKLSNlbHNlCiAJcGNwdV9mcmVlX2FsbG9jX2luZm8oYWkpOwotI2VuZGlmCiB9CiAKICNlbmRp
-ZgkvKiBDT05GSUdfU01QICovCi0tIAoyLjkuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
-bGlzdGluZm8vZHJpLWRldmVsCg==
+Hi driver maintainers,
+
+I just posted one series with the removal of eight architectures,
+see https://lkml.org/lkml/2018/3/14/505 for details, or
+https://lwn.net/Articles/748074/ for more background.
+
+These are the device drivers that go along with them. I have already
+picked up the drivers for arch/metag/ into my tree, they were reviewed
+earlier.
+
+Please let me know if you have any concerns with the patch, or if you
+prefer to pick up the patches in your respective trees.  I created
+the patches with 'git format-patch -D', so they will not apply without
+manually removing those files.
+
+For anything else, I'd keep the removal patches in my asm-generic tree
+and will send a pull request for 4.17 along with the actual arch removal.
+
+       Arnd
+
+Arnd Bergmann
+  edac: remove tile driver
+  net: tile: remove ethernet drivers
+  net: adi: remove blackfin ethernet drivers
+  net: 8390: remove m32r specific bits
+  net: remove cris etrax ethernet driver
+  net: smsc: remove m32r specific smc91x configuration
+  raid: remove tile specific raid6 implementation
+  rtc: remove tile driver
+  rtc: remove bfin driver
+  char: remove obsolete ds1302 rtc driver
+  char: remove tile-srom.c
+  char: remove blackfin OTP driver
+  pcmcia: remove m32r drivers
+  pcmcia: remove blackfin driver
+  ASoC: remove blackfin drivers
+  video/logo: remove obsolete logo files
+  fbdev: remove blackfin drivers
+  fbdev: s1d13xxxfb: remove m32r specific hacks
+  crypto: remove blackfin CRC driver
+  media: platform: remove blackfin capture driver
+  media: platform: remove m32r specific arv driver
+  cpufreq: remove blackfin driver
+  cpufreq: remove cris specific drivers
+  gpio: remove etraxfs driver
+  pinctrl: remove adi2/blackfin drivers
+  ata: remove bf54x driver
+  input: keyboard: remove bf54x driver
+  input: misc: remove blackfin rotary driver
+  mmc: remove bfin_sdh driver
+  can: remove bfin_can driver
+  watchdog: remove bfin_wdt driver
+  mtd: maps: remove bfin-async-flash driver
+  mtd: nand: remove bf5xx_nand driver
+  spi: remove blackfin related host drivers
+  i2c: remove bfin-twi driver
+  pwm: remobe pwm-bfin driver
+  usb: host: remove tilegx platform glue
+  usb: musb: remove blackfin port
+  usb: isp1362: remove blackfin arch glue
+  serial: remove cris/etrax uart drivers
+  serial: remove blackfin drivers
+  serial: remove m32r_sio driver
+  serial: remove tile uart driver
+  tty: remove bfin_jtag_comm and hvc_bfin_jtag drivers
+  tty: hvc: remove tile driver
+  staging: irda: remove bfin_sir driver
+  staging: iio: remove iio-trig-bfin-timer driver
+
+ .../devicetree/bindings/gpio/gpio-etraxfs.txt      |   22 -
+ .../bindings/serial/axis,etraxfs-uart.txt          |   22 -
+ Documentation/watchdog/watchdog-parameters.txt     |    5 -
+ MAINTAINERS                                        |    8 -
+ drivers/ata/Kconfig                                |    9 -
+ drivers/ata/Makefile                               |    1 -
+ drivers/ata/pata_bf54x.c                           | 1703 --------
+ drivers/char/Kconfig                               |   48 -
+ drivers/char/Makefile                              |    3 -
+ drivers/char/bfin-otp.c                            |  237 --
+ drivers/char/ds1302.c                              |  357 --
+ drivers/char/tile-srom.c                           |  475 ---
+ drivers/cpufreq/Makefile                           |    3 -
+ drivers/cpufreq/blackfin-cpufreq.c                 |  217 -
+ drivers/cpufreq/cris-artpec3-cpufreq.c             |   93 -
+ drivers/cpufreq/cris-etraxfs-cpufreq.c             |   92 -
+ drivers/crypto/Kconfig                             |    7 -
+ drivers/crypto/Makefile                            |    1 -
+ drivers/crypto/bfin_crc.c                          |  753 ----
+ drivers/crypto/bfin_crc.h                          |  124 -
+ drivers/edac/Kconfig                               |    8 -
+ drivers/edac/Makefile                              |    2 -
+ drivers/edac/tile_edac.c                           |  265 --
+ drivers/gpio/Kconfig                               |    9 -
+ drivers/gpio/Makefile                              |    1 -
+ drivers/gpio/gpio-etraxfs.c                        |  475 ---
+ drivers/i2c/busses/Kconfig                         |   18 -
+ drivers/i2c/busses/Makefile                        |    1 -
+ drivers/i2c/busses/i2c-bfin-twi.c                  |  737 ----
+ drivers/input/keyboard/Kconfig                     |    9 -
+ drivers/input/keyboard/Makefile                    |    1 -
+ drivers/input/keyboard/bf54x-keys.c                |  396 --
+ drivers/input/misc/Kconfig                         |    9 -
+ drivers/input/misc/Makefile                        |    1 -
+ drivers/input/misc/bfin_rotary.c                   |  294 --
+ drivers/media/platform/Kconfig                     |   22 -
+ drivers/media/platform/Makefile                    |    4 -
+ drivers/media/platform/arv.c                       |  884 ----
+ drivers/media/platform/blackfin/Kconfig            |   16 -
+ drivers/media/platform/blackfin/Makefile           |    2 -
+ drivers/media/platform/blackfin/bfin_capture.c     |  983 -----
+ drivers/media/platform/blackfin/ppi.c              |  361 --
+ drivers/mmc/host/Kconfig                           |   19 -
+ drivers/mmc/host/Makefile                          |    1 -
+ drivers/mmc/host/bfin_sdh.c                        |  679 ----
+ drivers/mtd/maps/Kconfig                           |   10 -
+ drivers/mtd/maps/Makefile                          |    1 -
+ drivers/mtd/maps/bfin-async-flash.c                |  196 -
+ drivers/mtd/nand/raw/Kconfig                       |   32 -
+ drivers/mtd/nand/raw/Makefile                      |    1 -
+ drivers/mtd/nand/raw/bf5xx_nand.c                  |  861 ----
+ drivers/net/Makefile                               |    1 -
+ drivers/net/can/Kconfig                            |    9 -
+ drivers/net/can/Makefile                           |    1 -
+ drivers/net/can/bfin_can.c                         |  784 ----
+ drivers/net/cris/Makefile                          |    1 -
+ drivers/net/cris/eth_v10.c                         | 1742 --------
+ drivers/net/ethernet/8390/Kconfig                  |    3 +-
+ drivers/net/ethernet/8390/ne.c                     |   23 +-
+ drivers/net/ethernet/Kconfig                       |    2 -
+ drivers/net/ethernet/Makefile                      |    2 -
+ drivers/net/ethernet/adi/Kconfig                   |   66 -
+ drivers/net/ethernet/adi/Makefile                  |    5 -
+ drivers/net/ethernet/adi/bfin_mac.c                | 1881 ---------
+ drivers/net/ethernet/adi/bfin_mac.h                |  104 -
+ drivers/net/ethernet/smsc/Kconfig                  |    4 +-
+ drivers/net/ethernet/smsc/smc91x.h                 |   26 -
+ drivers/net/ethernet/tile/Kconfig                  |   18 -
+ drivers/net/ethernet/tile/Makefile                 |   11 -
+ drivers/net/ethernet/tile/tilegx.c                 | 2279 -----------
+ drivers/net/ethernet/tile/tilepro.c                | 2397 -----------
+ drivers/pcmcia/Kconfig                             |   26 -
+ drivers/pcmcia/Makefile                            |    3 -
+ drivers/pcmcia/bfin_cf_pcmcia.c                    |  316 --
+ drivers/pcmcia/m32r_cfc.c                          |  786 ----
+ drivers/pcmcia/m32r_cfc.h                          |   88 -
+ drivers/pcmcia/m32r_pcc.c                          |  763 ----
+ drivers/pcmcia/m32r_pcc.h                          |   66 -
+ drivers/pinctrl/Kconfig                            |   19 -
+ drivers/pinctrl/Makefile                           |    3 -
+ drivers/pinctrl/pinctrl-adi2-bf54x.c               |  588 ---
+ drivers/pinctrl/pinctrl-adi2-bf60x.c               |  517 ---
+ drivers/pinctrl/pinctrl-adi2.c                     | 1114 -----
+ drivers/pinctrl/pinctrl-adi2.h                     |   75 -
+ drivers/pwm/Kconfig                                |    9 -
+ drivers/pwm/Makefile                               |    1 -
+ drivers/pwm/pwm-bfin.c                             |  157 -
+ drivers/rtc/Kconfig                                |   17 -
+ drivers/rtc/Makefile                               |    2 -
+ drivers/rtc/rtc-bfin.c                             |  448 ---
+ drivers/rtc/rtc-tile.c                             |  143 -
+ drivers/spi/Kconfig                                |   19 -
+ drivers/spi/Makefile                               |    3 -
+ drivers/spi/spi-adi-v3.c                           |  984 -----
+ drivers/spi/spi-bfin-sport.c                       |  919 -----
+ drivers/spi/spi-bfin5xx.c                          | 1462 -------
+ drivers/staging/iio/Kconfig                        |    1 -
+ drivers/staging/iio/Makefile                       |    1 -
+ drivers/staging/iio/trigger/Kconfig                |   19 -
+ drivers/staging/iio/trigger/Makefile               |    5 -
+ drivers/staging/iio/trigger/iio-trig-bfin-timer.c  |  292 --
+ drivers/staging/iio/trigger/iio-trig-bfin-timer.h  |   25 -
+ drivers/staging/irda/drivers/Kconfig               |   45 -
+ drivers/staging/irda/drivers/Makefile              |    1 -
+ drivers/staging/irda/drivers/bfin_sir.c            |  819 ----
+ drivers/staging/irda/drivers/bfin_sir.h            |   93 -
+ drivers/tty/Kconfig                                |   13 -
+ drivers/tty/Makefile                               |    1 -
+ drivers/tty/bfin_jtag_comm.c                       |  353 --
+ drivers/tty/hvc/Kconfig                            |    9 -
+ drivers/tty/hvc/Makefile                           |    2 -
+ drivers/tty/hvc/hvc_bfin_jtag.c                    |  104 -
+ drivers/tty/hvc/hvc_tile.c                         |  196 -
+ drivers/tty/serial/Kconfig                         |  198 -
+ drivers/tty/serial/Makefile                        |    6 -
+ drivers/tty/serial/bfin_sport_uart.c               |  937 -----
+ drivers/tty/serial/bfin_sport_uart.h               |   86 -
+ drivers/tty/serial/bfin_uart.c                     | 1551 -------
+ drivers/tty/serial/crisv10.c                       | 4248 --------------------
+ drivers/tty/serial/crisv10.h                       |  133 -
+ drivers/tty/serial/etraxfs-uart.c                  |  960 -----
+ drivers/tty/serial/m32r_sio.c                      | 1053 -----
+ drivers/tty/serial/m32r_sio_reg.h                  |  150 -
+ drivers/tty/serial/tilegx.c                        |  689 ----
+ drivers/usb/host/Kconfig                           |    1 +
+ drivers/usb/host/ehci-hcd.c                        |    5 -
+ drivers/usb/host/ehci-tilegx.c                     |  207 -
+ drivers/usb/host/isp1362.h                         |   44 -
+ drivers/usb/host/ohci-hcd.c                        |   18 -
+ drivers/usb/host/ohci-tilegx.c                     |  196 -
+ drivers/usb/musb/Kconfig                           |   10 +-
+ drivers/usb/musb/Makefile                          |    1 -
+ drivers/usb/musb/blackfin.c                        |  623 ---
+ drivers/usb/musb/blackfin.h                        |   81 -
+ drivers/usb/musb/musb_core.c                       |    5 -
+ drivers/usb/musb/musb_core.h                       |   30 -
+ drivers/usb/musb/musb_debugfs.c                    |    2 -
+ drivers/usb/musb/musb_dma.h                        |   11 -
+ drivers/usb/musb/musb_gadget.c                     |   35 -
+ drivers/usb/musb/musb_regs.h                       |  182 -
+ drivers/usb/musb/musbhsdma.c                       |    5 -
+ drivers/usb/musb/musbhsdma.h                       |   64 -
+ drivers/video/fbdev/Kconfig                        |  103 -
+ drivers/video/fbdev/Makefile                       |    5 -
+ drivers/video/fbdev/bf537-lq035.c                  |  891 ----
+ drivers/video/fbdev/bf54x-lq043fb.c                |  764 ----
+ drivers/video/fbdev/bfin-lq035q1-fb.c              |  864 ----
+ drivers/video/fbdev/bfin-t350mcqb-fb.c             |  669 ---
+ drivers/video/fbdev/bfin_adv7393fb.c               |  828 ----
+ drivers/video/fbdev/bfin_adv7393fb.h               |  319 --
+ drivers/video/fbdev/s1d13xxxfb.c                   |   10 -
+ drivers/video/logo/Kconfig                         |   15 -
+ drivers/video/logo/Makefile                        |    3 -
+ drivers/video/logo/logo.c                          |   12 -
+ drivers/video/logo/logo_blackfin_clut224.ppm       | 1127 ------
+ drivers/video/logo/logo_blackfin_vga16.ppm         | 1127 ------
+ drivers/video/logo/logo_m32r_clut224.ppm           | 1292 ------
+ drivers/watchdog/Kconfig                           |   17 -
+ drivers/watchdog/Makefile                          |    7 -
+ drivers/watchdog/bfin_wdt.c                        |  476 ---
+ include/linux/bfin_mac.h                           |   30 -
+ include/linux/linux_logo.h                         |    3 -
+ include/linux/platform_data/bfin_rotary.h          |  117 -
+ include/linux/platform_data/pinctrl-adi2.h         |   40 -
+ include/linux/raid/pq.h                            |    1 -
+ include/linux/usb/musb.h                           |    7 -
+ include/linux/usb/tilegx.h                         |   35 -
+ include/media/blackfin/bfin_capture.h              |   39 -
+ include/media/blackfin/ppi.h                       |   94 -
+ lib/raid6/Makefile                                 |    6 -
+ lib/raid6/algos.c                                  |    3 -
+ lib/raid6/test/Makefile                            |    7 -
+ lib/raid6/tilegx.uc                                |   87 -
+ sound/soc/Kconfig                                  |    1 -
+ sound/soc/Makefile                                 |    1 -
+ sound/soc/blackfin/Kconfig                         |  205 -
+ sound/soc/blackfin/Makefile                        |   40 -
+ sound/soc/blackfin/bf5xx-ac97-pcm.c                |  480 ---
+ sound/soc/blackfin/bf5xx-ac97.c                    |  388 --
+ sound/soc/blackfin/bf5xx-ac97.h                    |   57 -
+ sound/soc/blackfin/bf5xx-ad1836.c                  |  109 -
+ sound/soc/blackfin/bf5xx-ad193x.c                  |  131 -
+ sound/soc/blackfin/bf5xx-ad1980.c                  |  109 -
+ sound/soc/blackfin/bf5xx-ad73311.c                 |  212 -
+ sound/soc/blackfin/bf5xx-i2s-pcm.c                 |  373 --
+ sound/soc/blackfin/bf5xx-i2s-pcm.h                 |   17 -
+ sound/soc/blackfin/bf5xx-i2s.c                     |  391 --
+ sound/soc/blackfin/bf5xx-sport.c                   | 1102 -----
+ sound/soc/blackfin/bf5xx-sport.h                   |  174 -
+ sound/soc/blackfin/bf5xx-ssm2602.c                 |  126 -
+ sound/soc/blackfin/bf6xx-i2s.c                     |  239 --
+ sound/soc/blackfin/bf6xx-sport.c                   |  425 --
+ sound/soc/blackfin/bf6xx-sport.h                   |   82 -
+ sound/soc/blackfin/bfin-eval-adau1373.c            |  173 -
+ sound/soc/blackfin/bfin-eval-adau1701.c            |  113 -
+ sound/soc/blackfin/bfin-eval-adau1x61.c            |  142 -
+ sound/soc/blackfin/bfin-eval-adau1x81.c            |  129 -
+ sound/soc/blackfin/bfin-eval-adav80x.c             |  145 -
+ 198 files changed, 7 insertions(+), 56230 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/gpio/gpio-etraxfs.txt
+ delete mode 100644 Documentation/devicetree/bindings/serial/axis,etraxfs-uart.txt
+ delete mode 100644 drivers/ata/pata_bf54x.c
+ delete mode 100644 drivers/char/bfin-otp.c
+ delete mode 100644 drivers/char/ds1302.c
+ delete mode 100644 drivers/char/tile-srom.c
+ delete mode 100644 drivers/cpufreq/blackfin-cpufreq.c
+ delete mode 100644 drivers/cpufreq/cris-artpec3-cpufreq.c
+ delete mode 100644 drivers/cpufreq/cris-etraxfs-cpufreq.c
+ delete mode 100644 drivers/crypto/bfin_crc.c
+ delete mode 100644 drivers/crypto/bfin_crc.h
+ delete mode 100644 drivers/edac/tile_edac.c
+ delete mode 100644 drivers/gpio/gpio-etraxfs.c
+ delete mode 100644 drivers/i2c/busses/i2c-bfin-twi.c
+ delete mode 100644 drivers/input/keyboard/bf54x-keys.c
+ delete mode 100644 drivers/input/misc/bfin_rotary.c
+ delete mode 100644 drivers/media/platform/arv.c
+ delete mode 100644 drivers/media/platform/blackfin/Kconfig
+ delete mode 100644 drivers/media/platform/blackfin/Makefile
+ delete mode 100644 drivers/media/platform/blackfin/bfin_capture.c
+ delete mode 100644 drivers/media/platform/blackfin/ppi.c
+ delete mode 100644 drivers/mmc/host/bfin_sdh.c
+ delete mode 100644 drivers/mtd/maps/bfin-async-flash.c
+ delete mode 100644 drivers/mtd/nand/raw/bf5xx_nand.c
+ delete mode 100644 drivers/net/can/bfin_can.c
+ delete mode 100644 drivers/net/cris/Makefile
+ delete mode 100644 drivers/net/cris/eth_v10.c
+ delete mode 100644 drivers/net/ethernet/adi/Kconfig
+ delete mode 100644 drivers/net/ethernet/adi/Makefile
+ delete mode 100644 drivers/net/ethernet/adi/bfin_mac.c
+ delete mode 100644 drivers/net/ethernet/adi/bfin_mac.h
+ delete mode 100644 drivers/net/ethernet/tile/Kconfig
+ delete mode 100644 drivers/net/ethernet/tile/Makefile
+ delete mode 100644 drivers/net/ethernet/tile/tilegx.c
+ delete mode 100644 drivers/net/ethernet/tile/tilepro.c
+ delete mode 100644 drivers/pcmcia/bfin_cf_pcmcia.c
+ delete mode 100644 drivers/pcmcia/m32r_cfc.c
+ delete mode 100644 drivers/pcmcia/m32r_cfc.h
+ delete mode 100644 drivers/pcmcia/m32r_pcc.c
+ delete mode 100644 drivers/pcmcia/m32r_pcc.h
+ delete mode 100644 drivers/pinctrl/pinctrl-adi2-bf54x.c
+ delete mode 100644 drivers/pinctrl/pinctrl-adi2-bf60x.c
+ delete mode 100644 drivers/pinctrl/pinctrl-adi2.c
+ delete mode 100644 drivers/pinctrl/pinctrl-adi2.h
+ delete mode 100644 drivers/pwm/pwm-bfin.c
+ delete mode 100644 drivers/rtc/rtc-bfin.c
+ delete mode 100644 drivers/rtc/rtc-tile.c
+ delete mode 100644 drivers/spi/spi-adi-v3.c
+ delete mode 100644 drivers/spi/spi-bfin-sport.c
+ delete mode 100644 drivers/spi/spi-bfin5xx.c
+ delete mode 100644 drivers/staging/iio/trigger/Kconfig
+ delete mode 100644 drivers/staging/iio/trigger/Makefile
+ delete mode 100644 drivers/staging/iio/trigger/iio-trig-bfin-timer.c
+ delete mode 100644 drivers/staging/iio/trigger/iio-trig-bfin-timer.h
+ delete mode 100644 drivers/staging/irda/drivers/bfin_sir.c
+ delete mode 100644 drivers/staging/irda/drivers/bfin_sir.h
+ delete mode 100644 drivers/tty/bfin_jtag_comm.c
+ delete mode 100644 drivers/tty/hvc/hvc_bfin_jtag.c
+ delete mode 100644 drivers/tty/hvc/hvc_tile.c
+ delete mode 100644 drivers/tty/serial/bfin_sport_uart.c
+ delete mode 100644 drivers/tty/serial/bfin_sport_uart.h
+ delete mode 100644 drivers/tty/serial/bfin_uart.c
+ delete mode 100644 drivers/tty/serial/crisv10.c
+ delete mode 100644 drivers/tty/serial/crisv10.h
+ delete mode 100644 drivers/tty/serial/etraxfs-uart.c
+ delete mode 100644 drivers/tty/serial/m32r_sio.c
+ delete mode 100644 drivers/tty/serial/m32r_sio_reg.h
+ delete mode 100644 drivers/tty/serial/tilegx.c
+ delete mode 100644 drivers/usb/host/ehci-tilegx.c
+ delete mode 100644 drivers/usb/host/ohci-tilegx.c
+ delete mode 100644 drivers/usb/musb/blackfin.c
+ delete mode 100644 drivers/usb/musb/blackfin.h
+ delete mode 100644 drivers/video/fbdev/bf537-lq035.c
+ delete mode 100644 drivers/video/fbdev/bf54x-lq043fb.c
+ delete mode 100644 drivers/video/fbdev/bfin-lq035q1-fb.c
+ delete mode 100644 drivers/video/fbdev/bfin-t350mcqb-fb.c
+ delete mode 100644 drivers/video/fbdev/bfin_adv7393fb.c
+ delete mode 100644 drivers/video/fbdev/bfin_adv7393fb.h
+ delete mode 100644 drivers/video/logo/logo_blackfin_clut224.ppm
+ delete mode 100644 drivers/video/logo/logo_blackfin_vga16.ppm
+ delete mode 100644 drivers/video/logo/logo_m32r_clut224.ppm
+ delete mode 100644 drivers/watchdog/bfin_wdt.c
+ delete mode 100644 include/linux/bfin_mac.h
+ delete mode 100644 include/linux/platform_data/bfin_rotary.h
+ delete mode 100644 include/linux/platform_data/pinctrl-adi2.h
+ delete mode 100644 include/linux/usb/tilegx.h
+ delete mode 100644 include/media/blackfin/bfin_capture.h
+ delete mode 100644 include/media/blackfin/ppi.h
+ delete mode 100644 lib/raid6/tilegx.uc
+ delete mode 100644 sound/soc/blackfin/Kconfig
+ delete mode 100644 sound/soc/blackfin/Makefile
+ delete mode 100644 sound/soc/blackfin/bf5xx-ac97-pcm.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-ac97.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-ac97.h
+ delete mode 100644 sound/soc/blackfin/bf5xx-ad1836.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-ad193x.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-ad1980.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-ad73311.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-i2s-pcm.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-i2s-pcm.h
+ delete mode 100644 sound/soc/blackfin/bf5xx-i2s.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-sport.c
+ delete mode 100644 sound/soc/blackfin/bf5xx-sport.h
+ delete mode 100644 sound/soc/blackfin/bf5xx-ssm2602.c
+ delete mode 100644 sound/soc/blackfin/bf6xx-i2s.c
+ delete mode 100644 sound/soc/blackfin/bf6xx-sport.c
+ delete mode 100644 sound/soc/blackfin/bf6xx-sport.h
+ delete mode 100644 sound/soc/blackfin/bfin-eval-adau1373.c
+ delete mode 100644 sound/soc/blackfin/bfin-eval-adau1701.c
+ delete mode 100644 sound/soc/blackfin/bfin-eval-adau1x61.c
+ delete mode 100644 sound/soc/blackfin/bfin-eval-adau1x81.c
+ delete mode 100644 sound/soc/blackfin/bfin-eval-adav80x.c
+
+-- 
+Cc: linux@roeck-us.net
+Cc: corbet@lwn.net
+Cc: tj@kernel.org
+Cc: gregkh@linuxfoundation.org
+Cc: rjw@rjwysocki.net
+Cc: viresh.kumar@linaro.org
+Cc: herbert@gondor.apana.org.au
+Cc: davem@davemloft.net
+Cc: bp@alien8.de
+Cc: mchehab@kernel.org
+Cc: linus.walleij@linaro.org
+Cc: wsa@the-dreams.de
+Cc: dmitry.torokhov@gmail.com
+Cc: ulf.hansson@linaro.org
+Cc: boris.brezillon@bootlin.com
+Cc: cyrille.pitchen@wedev4u.fr
+Cc: wg@grandegger.com
+Cc: mkl@pengutronix.de
+Cc: alexandre.belloni@bootlin.com
+Cc: broonie@kernel.org
+Cc: jic23@kernel.org
+Cc: lars@metafoo.de
+Cc: jslaby@suse.com
+Cc: stern@rowland.harvard.edu
+Cc: b.zolnierkie@samsung.com
+Cc: shli@kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Cc: linux-doc@vger.kernel.org
+Cc: linux-ide@vger.kernel.org
+Cc: linux-pm@vger.kernel.org
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-edac@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: linux-mmc@vger.kernel.org
+Cc: linux-mtd@lists.infradead.org
+Cc: netdev@vger.kernel.org
+Cc: linux-can@vger.kernel.org
+Cc: linux-pwm@vger.kernel.org
+Cc: linux-rtc@vger.kernel.org
+Cc: linux-spi@vger.kernel.org
+Cc: linux-iio@vger.kernel.org
+Cc: linux-serial@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Cc: linux-fbdev@vger.kernel.org
+Cc: linux-raid@vger.kernel.org
+Cc: alsa-devel@alsa-project.org
+
+______________________________________________________
+Linux MTD discussion mailing list
+http://lists.infradead.org/mailman/listinfo/linux-mtd/

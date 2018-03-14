@@ -1,50 +1,83 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 00/47] arch-removal: device drivers
-Date: Wed, 14 Mar 2018 23:45:54 +0100
-Message-ID: <CAJZ5v0jsoxWRiwPOCJH6AAz-MiccOuicD8peCevLRMbTfc7LEg@mail.gmail.com>
-References: <20180314153603.3127932-1-arnd@arndb.de>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3
+ and v6 protocols
+Date: Wed, 14 Mar 2018 23:58:16 +0100
+Message-ID: <20180314225816.634w64kggycj67ec@pali>
+References: <20180312230915.26050-1-pali.rohar@gmail.com>
+ <20180312231335.fnfxgenu22utr3z6@pali>
+ <TYXPR01MB0719092EDE164BA6C576A1C7C7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
-In-Reply-To: <20180314153603.3127932-1-arnd@arndb.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, "open list:ULTRA-WIDEBAND (UWB) SUBSYSTEM:" <linux-usb@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, alexandre.belloni@bootlin.com, linux-ide@vger.kernel.org, netdev <netdev@vger.kernel.org>, linux-mtd@lists.infradead.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-rtc@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Herbert Xu <herbert@gondor.apana.org.au>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, linux-mmc <linux-mmc@vger.kernel.org>, shli@kernel.org, wg@grandegger.com, linux-crypto@vger.kernel.org, Linux PWM List <linux-pwm@vger.kernel.org>, linux-watchdog@vger.k
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="66ugg6jf3vaojm63"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <TYXPR01MB0719092EDE164BA6C576A1C7C7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 14, 2018 at 4:35 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> Hi driver maintainers,
->
-> I just posted one series with the removal of eight architectures,
-> see https://lkml.org/lkml/2018/3/14/505 for details, or
-> https://lwn.net/Articles/748074/ for more background.
->
-> These are the device drivers that go along with them. I have already
-> picked up the drivers for arch/metag/ into my tree, they were reviewed
-> earlier.
->
-> Please let me know if you have any concerns with the patch, or if you
-> prefer to pick up the patches in your respective trees.  I created
-> the patches with 'git format-patch -D', so they will not apply without
-> manually removing those files.
->
-> For anything else, I'd keep the removal patches in my asm-generic tree
-> and will send a pull request for 4.17 along with the actual arch removal.
 
-Please include the cpufreq patches into that and you can add ACKs from
-me on them if that helps.
+--66ugg6jf3vaojm63
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks!
+Hi! Thank you for information.
 
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
+Your PS/2 Aux Port Control description seems to really matches. Just
+there is reverse order of bits. Bit 0 in description is highest,
+therefore matches BIT(7) macro.
+
+Bit 6 in description (BIT(1) in code) describes SP Extended Mode which
+alps.c enabled. And in that description is written:
+
+"If 1 SP is extended packet format (driver must set SP raw mode and GP
+absolute mode)."
+
+Do you have any idea what "SP raw mode" is? How to set it? For me it
+looks like it could be that extended mode of trackstick itself.
+
+"GP absolute mode" I guess is GlidePoint absolute mode, therefore enable
+6 byte absolute mode for touchpad.
+
+And for Bit 7 (BIT(0)) is written:
+
+This bit is used with the PS/2 Aux port to use the Pass-Thru mode ( see
+appendix A ). Do you have some information about this appendix A?
+
+On Wednesday 14 March 2018 10:21:43 Masaki Ota wrote:
+> Hi, Pali,
+>=20
+> I just picked up the spec which relates with trackstic.
+>=20
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Pali Roh=C3=A1r [mailto:pali.rohar@gmail.com]=20
+> Sent: Tuesday, March 13, 2018 8:14 AM
+> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alps.=
+com>; Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization fo=
+r v3 and v6 protocols
+>=20
+> Masaki, if you have access to the internal ALPS v3 / Rushmore documentati=
+on, I would like to have a review of this patch or confirmation of those in=
+formation :-)
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--66ugg6jf3vaojm63
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWqmpAgAKCRCL8Mk9A+RD
+UjwmAKCIxUQ7IDM0TLHJg8NQVwGQcMskTwCeJRtJUhh9kMeZDzwrQeq0ALRVYH4=
+=37VS
+-----END PGP SIGNATURE-----
+
+--66ugg6jf3vaojm63--

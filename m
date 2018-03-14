@@ -1,148 +1,315 @@
-From: Tim Harvey <tharvey@gateworks.com>
-Subject: Re: [PATCH v2 4/4] input: misc: Add Gateworks System Controller support
-Date: Wed, 14 Mar 2018 10:13:59 -0700
-Message-ID: <CAJ+vNU3gtvQ4WyHxg-6hd7EMSq3H-dOTQ--Wod0YcrnUj7_KWw@mail.gmail.com>
-References: <1520287361-12569-1-git-send-email-tharvey@gateworks.com>
- <1520287361-12569-5-git-send-email-tharvey@gateworks.com> <20180310184502.GE260013@dtor-ws>
+From: Dmitry Torokhov <dtor@chromium.org>
+Subject: Re: [PATCH v4] HID: google: add google hammer HID driver
+Date: Wed, 14 Mar 2018 11:05:39 -0700
+Message-ID: <CAE_wzQ_Bw3bh-e_KX-y+4PODeCo7PAGHih9zsWZFNAcA5c0F1Q@mail.gmail.com>
+References: <20180314052219.224622-1-drinkcat@chromium.org> <CAO-hwJ+MqTubu6+QMOV6QkxR1_ph7OBx2hnBkPr9MfCs9YSPhQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180310184502.GE260013@dtor-ws>
+In-Reply-To: <CAO-hwJ+MqTubu6+QMOV6QkxR1_ph7OBx2hnBkPr9MfCs9YSPhQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Nicolas Boichat <drinkcat@chromium.org>, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Guenter Roeck <groeck@chromium.org>, Dmitry Torokhov <dtor@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Mar 10, 2018 at 10:45 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Mar 05, 2018 at 02:02:41PM -0800, Tim Harvey wrote:
->> Add support for dispatching Linux Input events for the various interrupts
->> the Gateworks System Controller provides.
->>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
->> ---
->> v2:
->> - reword Kconfig
->> - revise license comment block
->> - remove unnecessary read of status register
->> - remove unnecessary setting of input->dev.parent
->> - use dt bindings for irq to keycode mapping
->> - add support for platform-data
->> - remove work-queue
->>
->>  drivers/input/misc/Kconfig              |   9 ++
->>  drivers/input/misc/Makefile             |   1 +
->>  drivers/input/misc/gsc-input.c          | 180 ++++++++++++++++++++++++++++++++
->>  include/linux/platform_data/gsc_input.h |  30 ++++++
->>  4 files changed, 220 insertions(+)
->>  create mode 100644 drivers/input/misc/gsc-input.c
->>  create mode 100644 include/linux/platform_data/gsc_input.h
->>
->> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
->> index 9f082a3..e05f4fe 100644
->> --- a/drivers/input/misc/Kconfig
->> +++ b/drivers/input/misc/Kconfig
->> @@ -117,6 +117,15 @@ config INPUT_E3X0_BUTTON
->>         To compile this driver as a module, choose M here: the
->>         module will be called e3x0_button.
->>
->> +config INPUT_GSC
->> +     tristate "Gateworks System Controller input support"
->> +     depends on MFD_GSC
->> +     help
->> +       Support GSC events as Linux input events.
->> +
->> +       To compile this driver as a module, choose M here: the
->> +       module will be called gsc_input.
->> +
->>  config INPUT_PCSPKR
->>       tristate "PC Speaker support"
->>       depends on PCSPKR_PLATFORM
->> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
->> index 4b6118d..969debe 100644
->> --- a/drivers/input/misc/Makefile
->> +++ b/drivers/input/misc/Makefile
->> @@ -38,6 +38,7 @@ obj-$(CONFIG_INPUT_GP2A)            += gp2ap002a00f.o
->>  obj-$(CONFIG_INPUT_GPIO_BEEPER)              += gpio-beeper.o
->>  obj-$(CONFIG_INPUT_GPIO_TILT_POLLED) += gpio_tilt_polled.o
->>  obj-$(CONFIG_INPUT_GPIO_DECODER)     += gpio_decoder.o
->> +obj-$(CONFIG_INPUT_GSC)                      += gsc-input.o
->>  obj-$(CONFIG_INPUT_HISI_POWERKEY)    += hisi_powerkey.o
->>  obj-$(CONFIG_HP_SDC_RTC)             += hp_sdc_rtc.o
->>  obj-$(CONFIG_INPUT_IMS_PCU)          += ims-pcu.o
->> diff --git a/drivers/input/misc/gsc-input.c b/drivers/input/misc/gsc-input.c
->> new file mode 100644
->> index 0000000..27b5e93
->> --- /dev/null
->> +++ b/drivers/input/misc/gsc-input.c
->> @@ -0,0 +1,180 @@
->> +/* SPDX-License-Identifier: GPL-2.0
->> + *
->> + * Copyright (C) 2018 Gateworks Corporation
->> + *
->> + * This driver dispatches Linux input events for GSC interrupt events
->> + */
->> +#include <linux/input.h>
->> +#include <linux/interrupt.h>
->> +#include <linux/kernel.h>
->> +#include <linux/module.h>
->> +#include <linux/of.h>
->> +#include <linux/of_irq.h>
->> +#include <linux/platform_device.h>
->> +#include <linux/regmap.h>
->> +
->> +#include <linux/mfd/gsc.h>
->> +#include <linux/platform_data/gsc_input.h>
->> +
->> +struct gsc_input_button_priv {
->> +     struct input_dev *input;
->> +     const struct gsc_input_button *button;
->> +};
->> +
->> +struct gsc_input_data {
->> +     struct gsc_dev *gsc;
->> +     struct gsc_input_platform_data *pdata;
->> +     struct input_dev *input;
->> +     struct gsc_input_button_priv *buttons;
->> +     int nbuttons;
->> +     unsigned int irqs[];
->> +#if 0
->> +     int irq;
->> +     struct work_struct irq_work;
->> +     struct mutex mutex;
->> +#endif
->> +};
->> +
->> +static irqreturn_t gsc_input_irq(int irq, void *data)
->> +{
->> +     const struct gsc_input_button_priv *button_priv = data;
->> +     struct input_dev *input = button_priv->input;
->> +
->> +     dev_dbg(&input->dev, "irq%d code=%d\n", irq, button_priv->button->code);
->> +     input_report_key(input, button_priv->button->code, 1);
->> +     input_sync(input);
->> +     input_report_key(input, button_priv->button->code, 0);
->> +     input_sync(input);
->> +
->> +     return IRQ_HANDLED;
+On Wed, Mar 14, 2018 at 9:16 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
 >
-> Hmm, so in the end this is just a bunch of buttons connected to
-> interrupt lines. We already have a driver for that, called gpio-keys. It
-> can work in pure interrupt mode (i.e. do not need real GPIO pin, just
-> interrupt, and it will generate key down and up events when interrupt
-> arrives, with possible delay for the up event).
+> Hi Nicolas,
+>
+> On Wed, Mar 14, 2018 at 6:22 AM, Nicolas Boichat <drinkcat@chromium.org> wrote:
+> > From: Wei-Ning Huang <wnhuang@chromium.org>
+> >
+> > Add Google hammer HID driver. This driver allow us to control hammer
+> > keyboard backlight and support future features.
+> >
+> > We add a new HID quirk, that allows us to have the keyboard interface
+> > to bind to google-hammer driver, while the touchpad interface can
+> > bind to the multitouch driver.
+> >
+> > Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+> > Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+> > ---
+> >
+> > Changes since v3:
+> >  - Rebase on latest linux-next/master, which moved the quirk list from
+> >    hid-core.c to hid-quirks.c. Also, completely rework the logic to make
+> >    it possible to bind google-hammer driver to keyboard interface, and
+> >    generic multitouch driver to touchpad interface, as it is much simpler
+> >    to do now that quirks are read early in hid_add_device.
+>
+> Ouch, this logic seems too convoluted for me.
+>
+> Just to be sure:
+> - some of your devices export 2 USB interfaces on the same device (so
+> same VID/PID)
+> - one of this interface should be handled by hid-multitouch
+> - the other should be handled by hid-google-hammer
+> - the purpose of the new quirk and HID class are to allow
+> hid-google-hammer to only bind on the non multitouch interface
+>
+> Am I correct?
+>
+> If I am, given that we now don't need to blacklist the drivers for
+> hid-generic since e04a0442d33b8cf183bba38646447b891bb02123, I do not
+> understand why simply declaring  "{ HID_DEVICE(BUS_USB,
+> HID_GROUP_GENERIC,  USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER)
+> }," (same for the 2 others) is not enough to have hid-google-hammer
+> binding only on the non-multitouch interface.
+>
+> Could you please give a shot at it?
 >
 
-Dmitry,
+Ah, cool, if we now forcibly try to rebind devices from generic HID to
+specialized driver when it appears, then we indeed to not have to do
+this dance with "overrides".
 
-Yes that's what it does and yes your correct the gpio-keys driver will
-work perfect for that. Thanks for calling me out on that - I had not
-realized the gpio-keys driver could work from 'interrupts'.
-
-I'll remove the input driver in my next submission. At least I know
-how to properly write an input driver now from your previous review :)
-
-Thanks,
-
-Tim
+>
+> >  - Add dynamic backlight detection support (only such devices have an
+> >    output HID descriptor).
+> >  - Add support for wand (one more USB product ID).
+> >  - Add SPDX-License-Identifier, fix one minor formatting issue.
+> >
+> >  drivers/hid/Kconfig             |   6 ++
+> >  drivers/hid/Makefile            |   1 +
+> >  drivers/hid/hid-core.c          |   4 ++
+> >  drivers/hid/hid-google-hammer.c | 116 ++++++++++++++++++++++++++++++++
+> >  drivers/hid/hid-ids.h           |   3 +
+> >  drivers/hid/hid-quirks.c        |   5 ++
+> >  include/linux/hid.h             |   2 +
+> >  7 files changed, 137 insertions(+)
+> >  create mode 100644 drivers/hid/hid-google-hammer.c
+> >
+> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> > index 1fce4c94e5ac..60252fd796f6 100644
+> > --- a/drivers/hid/Kconfig
+> > +++ b/drivers/hid/Kconfig
+> > @@ -339,6 +339,12 @@ config HOLTEK_FF
+> >           Say Y here if you have a Holtek On Line Grip based game controller
+> >           and want to have force feedback support for it.
+> >
+> > +config HID_GOOGLE_HAMMER
+> > +       tristate "Google Hammer Keyboard"
+> > +       depends on USB_HID && LEDS_CLASS
+> > +       ---help---
+> > +       Say Y here if you have a Google Hammer device.
+> > +
+> >  config HID_GT683R
+> >         tristate "MSI GT68xR LED support"
+> >         depends on LEDS_CLASS && USB_HID
+> > diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> > index 713601c7bfa6..17a8bd97da9d 100644
+> > --- a/drivers/hid/Makefile
+> > +++ b/drivers/hid/Makefile
+> > @@ -45,6 +45,7 @@ obj-$(CONFIG_HID_ELO)         += hid-elo.o
+> >  obj-$(CONFIG_HID_EZKEY)                += hid-ezkey.o
+> >  obj-$(CONFIG_HID_GEMBIRD)      += hid-gembird.o
+> >  obj-$(CONFIG_HID_GFRM)         += hid-gfrm.o
+> > +obj-$(CONFIG_HID_GOOGLE_HAMMER)        += hid-google-hammer.o
+> >  obj-$(CONFIG_HID_GT683R)       += hid-gt683r.o
+> >  obj-$(CONFIG_HID_GYRATION)     += hid-gyration.o
+> >  obj-$(CONFIG_HID_HOLTEK)       += hid-holtek-kbd.o
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > index 36af26c2565b..61c7d135d680 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -2116,6 +2116,10 @@ int hid_add_device(struct hid_device *hdev)
+> >                 ret = hid_scan_report(hdev);
+> >                 if (ret)
+> >                         hid_warn(hdev, "bad device descriptor (%d)\n", ret);
+> > +
+> > +               if (hdev->quirks & HID_QUIRK_NO_GENERIC &&
+> > +                               hdev->group == HID_GROUP_GENERIC)
+> > +                       hdev->group = HID_GROUP_GENERIC_OVERRIDE;
+> >         }
+> >
+> >         /* XXX hack, any other cleaner solution after the driver core
+> > diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+> > new file mode 100644
+> > index 000000000000..e7ad042a8464
+> > --- /dev/null
+> > +++ b/drivers/hid/hid-google-hammer.c
+> > @@ -0,0 +1,116 @@
+> > +// SPDX-License-Identifier: GPL-2.0+
+> > +/*
+> > + *  HID driver for Google Hammer device.
+> > + *
+> > + *  Copyright (c) 2017 Google Inc.
+> > + *  Author: Wei-Ning Huang <wnhuang@google.com>
+> > + */
+> > +
+> > +/*
+> > + * This program is free software; you can redistribute it and/or modify it
+> > + * under the terms of the GNU General Public License as published by the Free
+> > + * Software Foundation; either version 2 of the License, or (at your option)
+> > + * any later version.
+> > + */
+> > +
+> > +#include <linux/hid.h>
+> > +#include <linux/leds.h>
+> > +#include <linux/module.h>
+> > +#include <linux/usb.h>
+>
+> Generally that's a no from me to include usb.h. I'd rather have you
+> decide on which interface to create the LEDs based on the report
+> descriptors, so we can replay the device with uhid without crashing
+> the kernel.
+>
+> > +
+> > +#include "hid-ids.h"
+> > +
+> > +#define MAX_BRIGHTNESS 100
+> > +
+> > +struct hammer_kbd_leds {
+> > +       struct led_classdev cdev;
+> > +       struct hid_device *hdev;
+> > +       u8 buf[2] ____cacheline_aligned;
+> > +};
+> > +
+> > +static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
+> > +               enum led_brightness br)
+> > +{
+> > +       struct hammer_kbd_leds *led = container_of(cdev,
+> > +                                                  struct hammer_kbd_leds,
+> > +                                                  cdev);
+> > +       int ret;
+> > +
+> > +       led->buf[0] = 0;
+> > +       led->buf[1] = br;
+> > +
+> > +       ret = hid_hw_output_report(led->hdev, led->buf, sizeof(led->buf));
+> > +       if (ret == -ENOSYS)
+> > +               ret = hid_hw_raw_request(led->hdev, 0, led->buf,
+> > +                                        sizeof(led->buf),
+> > +                                        HID_OUTPUT_REPORT,
+> > +                                        HID_REQ_SET_REPORT);
+> > +       if (ret < 0)
+> > +               hid_err(led->hdev, "failed to set keyboard backlight: %d\n",
+> > +                       ret);
+> > +       return ret;
+> > +}
+> > +
+> > +static int hammer_register_leds(struct hid_device *hdev)
+> > +{
+> > +       struct hammer_kbd_leds *kbd_backlight;
+> > +
+> > +       kbd_backlight = devm_kzalloc(&hdev->dev,
+> > +                                    sizeof(*kbd_backlight),
+> > +                                    GFP_KERNEL);
+> > +       if (!kbd_backlight)
+> > +               return -ENOMEM;
+> > +
+> > +       kbd_backlight->hdev = hdev;
+> > +       kbd_backlight->cdev.name = "hammer::kbd_backlight";
+> > +       kbd_backlight->cdev.max_brightness = MAX_BRIGHTNESS;
+> > +       kbd_backlight->cdev.brightness_set_blocking =
+> > +               hammer_kbd_brightness_set_blocking;
+> > +       kbd_backlight->cdev.flags = LED_HW_PLUGGABLE;
+> > +
+> > +       /* Set backlight to 0% initially. */
+> > +       hammer_kbd_brightness_set_blocking(&kbd_backlight->cdev, 0);
+> > +
+> > +       return devm_led_classdev_register(&hdev->dev, &kbd_backlight->cdev);
+> > +}
+> > +
+> > +static int hammer_input_configured(struct hid_device *hdev,
+> > +                                  struct hid_input *hi)
+> > +{
+> > +       struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+> > +
+> > +       struct list_head *report_list =
+> > +               &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+> > +
+> > +       if (intf->cur_altsetting->desc.bInterfaceProtocol ==
+> > +           USB_INTERFACE_PROTOCOL_KEYBOARD && !list_empty(report_list)) {
+>
+> See above. I am pretty sure you can find something in the report
+> descriptor to discriminate the LED capable device from the others.
+>
+> Cheers,
+> Benjamin
+>
+> > +               int err = hammer_register_leds(hdev);
+> > +
+> > +               if (err)
+> > +                       hid_warn(hdev,
+> > +                                "Failed to register keyboard backlight: %d\n",
+> > +                                err);
+> > +       }
+> > +
+> > +       return 0;
+> > +}
+> > +
+> > +static const struct hid_device_id hammer_devices[] = {
+> > +       { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
+> > +                    USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
+> > +       { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
+> > +                    USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
+> > +       { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
+> > +                    USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND) },
+> > +       { }
+> > +};
+> > +MODULE_DEVICE_TABLE(hid, hammer_devices);
+> > +
+> > +static struct hid_driver hammer_driver = {
+> > +       .name = "hammer",
+> > +       .id_table = hammer_devices,
+> > +       .input_configured = hammer_input_configured,
+> > +};
+> > +module_hid_driver(hammer_driver);
+> > +
+> > +MODULE_LICENSE("GPL");
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index 41f227a841fb..5a3a7ead3012 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -448,7 +448,10 @@
+> >  #define USB_DEVICE_ID_GOODTOUCH_000f   0x000f
+> >
+> >  #define USB_VENDOR_ID_GOOGLE           0x18d1
+> > +#define USB_DEVICE_ID_GOOGLE_HAMMER    0x5022
+> >  #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE        0x5028
+> > +#define USB_DEVICE_ID_GOOGLE_STAFF     0x502b
+> > +#define USB_DEVICE_ID_GOOGLE_WAND      0x502d
+> >
+> >  #define USB_VENDOR_ID_GOTOP            0x08f2
+> >  #define USB_DEVICE_ID_SUPER_Q2         0x007f
+> > diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> > index 587e2681a53f..d112a14da200 100644
+> > --- a/drivers/hid/hid-quirks.c
+> > +++ b/drivers/hid/hid-quirks.c
+> > @@ -84,6 +84,11 @@ static const struct hid_device_id hid_quirks[] = {
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
+> > +#if IS_ENABLED(CONFIG_HID_GOOGLE_HAMMER)
+> > +       { HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER), HID_QUIRK_NO_GENERIC },
+> > +       { HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF), HID_QUIRK_NO_GENERIC },
+> > +       { HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND), HID_QUIRK_NO_GENERIC },
+> > +#endif
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+> > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > index dfea5a656a1a..f2655265f8b5 100644
+> > --- a/include/linux/hid.h
+> > +++ b/include/linux/hid.h
+> > @@ -340,6 +340,7 @@ struct hid_item {
+> >  #define HID_QUIRK_NO_EMPTY_INPUT               0x00000100
+> >  /* 0x00000200 reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
+> >  #define HID_QUIRK_ALWAYS_POLL                  0x00000400
+> > +#define HID_QUIRK_NO_GENERIC                   0x00000800
+> >  #define HID_QUIRK_SKIP_OUTPUT_REPORTS          0x00010000
+> >  #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID                0x00020000
+> >  #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP 0x00040000
+> > @@ -359,6 +360,7 @@ struct hid_item {
+> >  #define HID_GROUP_MULTITOUCH                   0x0002
+> >  #define HID_GROUP_SENSOR_HUB                   0x0003
+> >  #define HID_GROUP_MULTITOUCH_WIN_8             0x0004
+> > +#define HID_GROUP_GENERIC_OVERRIDE             0x0005
+> >
+> >  /*
+> >   * Vendor specific HID device groups
+> > --
+> > 2.16.2.804.g6dcf76e118-goog
+> >

@@ -1,263 +1,122 @@
-From: Nicolas Boichat <drinkcat@chromium.org>
-Subject: [PATCH v4] HID: google: add google hammer HID driver
-Date: Wed, 14 Mar 2018 13:22:19 +0800
-Message-ID: <20180314052219.224622-1-drinkcat@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dtor@chromium.org
+From: Archit Taneja <architt@codeaurora.org>
+Subject: Re: [PATCH v5 01/36] drm/bridge: analogix_dp: detect Sink PSR state
+ after configuring the PSR
+Date: Wed, 14 Mar 2018 10:59:27 +0530
+Message-ID: <c2a7ac1d-5021-508a-18bc-cf61ca676688@codeaurora.org>
+References: <20180309222327.18689-1-enric.balletbo@collabora.com>
+ <20180309222327.18689-2-enric.balletbo@collabora.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180309222327.18689-2-enric.balletbo@collabora.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?Q?St=c3=a9phane_Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-From: Wei-Ning Huang <wnhuang@chromium.org>
-
-Add Google hammer HID driver. This driver allow us to control hammer
-keyboard backlight and support future features.
-
-We add a new HID quirk, that allows us to have the keyboard interface
-to bind to google-hammer driver, while the touchpad interface can
-bind to the multitouch driver.
-
-Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
----
-
-Changes since v3:
- - Rebase on latest linux-next/master, which moved the quirk list from
-   hid-core.c to hid-quirks.c. Also, completely rework the logic to make
-   it possible to bind google-hammer driver to keyboard interface, and
-   generic multitouch driver to touchpad interface, as it is much simpler
-   to do now that quirks are read early in hid_add_device.
- - Add dynamic backlight detection support (only such devices have an
-   output HID descriptor).
- - Add support for wand (one more USB product ID).
- - Add SPDX-License-Identifier, fix one minor formatting issue.
-
- drivers/hid/Kconfig             |   6 ++
- drivers/hid/Makefile            |   1 +
- drivers/hid/hid-core.c          |   4 ++
- drivers/hid/hid-google-hammer.c | 116 ++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h           |   3 +
- drivers/hid/hid-quirks.c        |   5 ++
- include/linux/hid.h             |   2 +
- 7 files changed, 137 insertions(+)
- create mode 100644 drivers/hid/hid-google-hammer.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 1fce4c94e5ac..60252fd796f6 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -339,6 +339,12 @@ config HOLTEK_FF
- 	  Say Y here if you have a Holtek On Line Grip based game controller
- 	  and want to have force feedback support for it.
- 
-+config HID_GOOGLE_HAMMER
-+	tristate "Google Hammer Keyboard"
-+	depends on USB_HID && LEDS_CLASS
-+	---help---
-+	Say Y here if you have a Google Hammer device.
-+
- config HID_GT683R
- 	tristate "MSI GT68xR LED support"
- 	depends on LEDS_CLASS && USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 713601c7bfa6..17a8bd97da9d 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -45,6 +45,7 @@ obj-$(CONFIG_HID_ELO)		+= hid-elo.o
- obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
- obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
- obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
-+obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
- obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
- obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
- obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 36af26c2565b..61c7d135d680 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2116,6 +2116,10 @@ int hid_add_device(struct hid_device *hdev)
- 		ret = hid_scan_report(hdev);
- 		if (ret)
- 			hid_warn(hdev, "bad device descriptor (%d)\n", ret);
-+
-+		if (hdev->quirks & HID_QUIRK_NO_GENERIC &&
-+				hdev->group == HID_GROUP_GENERIC)
-+			hdev->group = HID_GROUP_GENERIC_OVERRIDE;
- 	}
- 
- 	/* XXX hack, any other cleaner solution after the driver core
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-new file mode 100644
-index 000000000000..e7ad042a8464
---- /dev/null
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -0,0 +1,116 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ *  HID driver for Google Hammer device.
-+ *
-+ *  Copyright (c) 2017 Google Inc.
-+ *  Author: Wei-Ning Huang <wnhuang@google.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/leds.h>
-+#include <linux/module.h>
-+#include <linux/usb.h>
-+
-+#include "hid-ids.h"
-+
-+#define MAX_BRIGHTNESS 100
-+
-+struct hammer_kbd_leds {
-+	struct led_classdev cdev;
-+	struct hid_device *hdev;
-+	u8 buf[2] ____cacheline_aligned;
-+};
-+
-+static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
-+		enum led_brightness br)
-+{
-+	struct hammer_kbd_leds *led = container_of(cdev,
-+						   struct hammer_kbd_leds,
-+						   cdev);
-+	int ret;
-+
-+	led->buf[0] = 0;
-+	led->buf[1] = br;
-+
-+	ret = hid_hw_output_report(led->hdev, led->buf, sizeof(led->buf));
-+	if (ret == -ENOSYS)
-+		ret = hid_hw_raw_request(led->hdev, 0, led->buf,
-+					 sizeof(led->buf),
-+					 HID_OUTPUT_REPORT,
-+					 HID_REQ_SET_REPORT);
-+	if (ret < 0)
-+		hid_err(led->hdev, "failed to set keyboard backlight: %d\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hammer_register_leds(struct hid_device *hdev)
-+{
-+	struct hammer_kbd_leds *kbd_backlight;
-+
-+	kbd_backlight = devm_kzalloc(&hdev->dev,
-+				     sizeof(*kbd_backlight),
-+				     GFP_KERNEL);
-+	if (!kbd_backlight)
-+		return -ENOMEM;
-+
-+	kbd_backlight->hdev = hdev;
-+	kbd_backlight->cdev.name = "hammer::kbd_backlight";
-+	kbd_backlight->cdev.max_brightness = MAX_BRIGHTNESS;
-+	kbd_backlight->cdev.brightness_set_blocking =
-+		hammer_kbd_brightness_set_blocking;
-+	kbd_backlight->cdev.flags = LED_HW_PLUGGABLE;
-+
-+	/* Set backlight to 0% initially. */
-+	hammer_kbd_brightness_set_blocking(&kbd_backlight->cdev, 0);
-+
-+	return devm_led_classdev_register(&hdev->dev, &kbd_backlight->cdev);
-+}
-+
-+static int hammer_input_configured(struct hid_device *hdev,
-+				   struct hid_input *hi)
-+{
-+	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+
-+	struct list_head *report_list =
-+		&hdev->report_enum[HID_OUTPUT_REPORT].report_list;
-+
-+	if (intf->cur_altsetting->desc.bInterfaceProtocol ==
-+	    USB_INTERFACE_PROTOCOL_KEYBOARD && !list_empty(report_list)) {
-+		int err = hammer_register_leds(hdev);
-+
-+		if (err)
-+			hid_warn(hdev,
-+				 "Failed to register keyboard backlight: %d\n",
-+				 err);
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id hammer_devices[] = {
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, hammer_devices);
-+
-+static struct hid_driver hammer_driver = {
-+	.name = "hammer",
-+	.id_table = hammer_devices,
-+	.input_configured = hammer_input_configured,
-+};
-+module_hid_driver(hammer_driver);
-+
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 41f227a841fb..5a3a7ead3012 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -448,7 +448,10 @@
- #define USB_DEVICE_ID_GOODTOUCH_000f	0x000f
- 
- #define USB_VENDOR_ID_GOOGLE		0x18d1
-+#define USB_DEVICE_ID_GOOGLE_HAMMER	0x5022
- #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE	0x5028
-+#define USB_DEVICE_ID_GOOGLE_STAFF	0x502b
-+#define USB_DEVICE_ID_GOOGLE_WAND	0x502d
- 
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 587e2681a53f..d112a14da200 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -84,6 +84,11 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FREESCALE, USB_DEVICE_ID_FREESCALE_MX28), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTABA, USB_DEVICE_ID_LED_DISPLAY), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, USB_DEVICE_ID_GREENASIA_DUAL_USB_JOYPAD), HID_QUIRK_MULTI_INPUT },
-+#if IS_ENABLED(CONFIG_HID_GOOGLE_HAMMER)
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER), HID_QUIRK_NO_GENERIC },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF), HID_QUIRK_NO_GENERIC },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND), HID_QUIRK_NO_GENERIC },
-+#endif
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index dfea5a656a1a..f2655265f8b5 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -340,6 +340,7 @@ struct hid_item {
- #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
- /* 0x00000200 reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
- #define HID_QUIRK_ALWAYS_POLL			0x00000400
-+#define HID_QUIRK_NO_GENERIC			0x00000800
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
- #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
- #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
-@@ -359,6 +360,7 @@ struct hid_item {
- #define HID_GROUP_MULTITOUCH			0x0002
- #define HID_GROUP_SENSOR_HUB			0x0003
- #define HID_GROUP_MULTITOUCH_WIN_8		0x0004
-+#define HID_GROUP_GENERIC_OVERRIDE		0x0005
- 
- /*
-  * Vendor specific HID device groups
--- 
-2.16.2.804.g6dcf76e118-goog
+CgpPbiBTYXR1cmRheSAxMCBNYXJjaCAyMDE4IDAzOjUyIEFNLCBFbnJpYyBCYWxsZXRibyBpIFNl
+cnJhIHdyb3RlOgo+IEZyb206IFlha2lyIFlhbmcgPHlra0Byb2NrLWNoaXBzLmNvbT4KPiAKPiBN
+YWtlIHN1cmUgdGhlIHJlcXVlc3QgUFNSIHN0YXRlIHRha2VzIGVmZmVjdCBpbiBhbmFsb2dpeF9k
+cF9zZW5kX3Bzcl9zcGQoKQo+IGZ1bmN0aW9uLCBvciBwcmludCB0aGUgc2luayBQU1IgZXJyb3Ig
+c3RhdGUgaWYgd2UgZmFpbGVkIHRvIGFwcGx5IHRoZQo+IHJlcXVlc3RlZCBQU1Igc2V0dGluZy4K
+ClJldmlld2VkLWJ5OiBBcmNoaXQgVGFuZWphIDxhcmNoaXR0QGNvZGVhdXJvcmEub3JnPgoKPiAK
+PiBDYzog5b6B5aKeIOeOiyA8d3p6QHJvY2stY2hpcHMuY29tPgo+IENjOiBTdMOpcGhhbmUgTWFy
+Y2hlc2luIDxtYXJjaGV1QGNocm9taXVtLm9yZz4KPiBTaWduZWQtb2ZmLWJ5OiBZYWtpciBZYW5n
+IDx5a2tAcm9jay1jaGlwcy5jb20+Cj4gW3NlYW5wYXVsIGNoYW5nZWQgdGltZW91dCBsb29wIHRv
+IGEgcmVhZHggcG9sbF0KPiBTaWduZWQtb2ZmLWJ5OiBTZWFuIFBhdWwgPHNlYW5wYXVsQGNocm9t
+aXVtLm9yZz4KPiBTaWduZWQtb2ZmLWJ5OiBUaGllcnJ5IEVzY2FuZGUgPHRoaWVycnkuZXNjYW5k
+ZUBjb2xsYWJvcmEuY29tPgo+IFNpZ25lZC1vZmYtYnk6IEVucmljIEJhbGxldGJvIGkgU2VycmEg
+PGVucmljLmJhbGxldGJvQGNvbGxhYm9yYS5jb20+Cj4gVGVzdGVkLWJ5OiBNYXJlayBTenlwcm93
+c2tpIDxtLnN6eXByb3dza2lAc2Ftc3VuZy5jb20+Cj4gLS0tCj4gCj4gICBkcml2ZXJzL2dwdS9k
+cm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYyB8ICA2ICsrLS0KPiAgIGRyaXZl
+cnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5oIHwgIDYgKystLQo+
+ICAgZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYyAgfCAz
+NSArKysrKysrKysrKysrKysrKysrLS0tCj4gICAzIGZpbGVzIGNoYW5nZWQsIDM3IGluc2VydGlv
+bnMoKyksIDEwIGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0v
+YnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlk
+Z2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5jCj4gaW5kZXggYTY5M2FiMzA3OGYwLi5lNzM4
+YWE2ZGUxYWYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9h
+bmFsb2dpeF9kcF9jb3JlLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4
+L2FuYWxvZ2l4X2RwX2NvcmUuYwo+IEBAIC0xMjIsOCArMTIyLDcgQEAgaW50IGFuYWxvZ2l4X2Rw
+X2VuYWJsZV9wc3Ioc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCj4gICAJcHNyX3ZzYy5E
+QjAgPSAwOwo+ICAgCXBzcl92c2MuREIxID0gRURQX1ZTQ19QU1JfU1RBVEVfQUNUSVZFIHwgRURQ
+X1ZTQ19QU1JfQ1JDX1ZBTFVFU19WQUxJRDsKPiAgIAo+IC0JYW5hbG9naXhfZHBfc2VuZF9wc3Jf
+c3BkKGRwLCAmcHNyX3ZzYyk7Cj4gLQlyZXR1cm4gMDsKPiArCXJldHVybiBhbmFsb2dpeF9kcF9z
+ZW5kX3Bzcl9zcGQoZHAsICZwc3JfdnNjKTsKPiAgIH0KPiAgIEVYUE9SVF9TWU1CT0xfR1BMKGFu
+YWxvZ2l4X2RwX2VuYWJsZV9wc3IpOwo+ICAgCj4gQEAgLTE0OSw4ICsxNDgsNyBAQCBpbnQgYW5h
+bG9naXhfZHBfZGlzYWJsZV9wc3Ioc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCj4gICAJ
+aWYgKHJldCAhPSAxKQo+ICAgCQlkZXZfZXJyKGRwLT5kZXYsICJGYWlsZWQgdG8gc2V0IERQIFBv
+d2VyMCAlZFxuIiwgcmV0KTsKPiAgIAo+IC0JYW5hbG9naXhfZHBfc2VuZF9wc3Jfc3BkKGRwLCAm
+cHNyX3ZzYyk7Cj4gLQlyZXR1cm4gMDsKPiArCXJldHVybiBhbmFsb2dpeF9kcF9zZW5kX3Bzcl9z
+cGQoZHAsICZwc3JfdnNjKTsKPiAgIH0KPiAgIEVYUE9SVF9TWU1CT0xfR1BMKGFuYWxvZ2l4X2Rw
+X2Rpc2FibGVfcHNyKTsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdl
+L2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuaCBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5h
+bG9naXgvYW5hbG9naXhfZHBfY29yZS5oCj4gaW5kZXggNWM2YTI4ODA2MTI5Li5iMDM5YjI4ZDhm
+Y2MgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dp
+eF9kcF9jb3JlLmgKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxv
+Z2l4X2RwX2NvcmUuaAo+IEBAIC0yMCw2ICsyMCw4IEBACj4gICAjZGVmaW5lIE1BWF9DUl9MT09Q
+IDUKPiAgICNkZWZpbmUgTUFYX0VRX0xPT1AgNQo+ICAgCj4gKyNkZWZpbmUgRFBfVElNRU9VVF9Q
+U1JfTE9PUF9NUwkJCTMwMAo+ICsKPiAgIC8qIERQX01BWF9MQU5FX0NPVU5UICovCj4gICAjZGVm
+aW5lIERQQ0RfRU5IQU5DRURfRlJBTUVfQ0FQKHgpCQkoKCh4KSA+PiA3KSAmIDB4MSkKPiAgICNk
+ZWZpbmUgRFBDRF9NQVhfTEFORV9DT1VOVCh4KQkJCSgoeCkgJiAweDFmKQo+IEBAIC0yNDcsOCAr
+MjQ5LDggQEAgdm9pZCBhbmFsb2dpeF9kcF9jb25maWdfdmlkZW9fc2xhdmVfbW9kZShzdHJ1Y3Qg
+YW5hbG9naXhfZHBfZGV2aWNlICpkcCk7Cj4gICB2b2lkIGFuYWxvZ2l4X2RwX2VuYWJsZV9zY3Jh
+bWJsaW5nKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKTsKPiAgIHZvaWQgYW5hbG9naXhf
+ZHBfZGlzYWJsZV9zY3JhbWJsaW5nKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKTsKPiAg
+IHZvaWQgYW5hbG9naXhfZHBfZW5hYmxlX3Bzcl9jcmMoc3RydWN0IGFuYWxvZ2l4X2RwX2Rldmlj
+ZSAqZHApOwo+IC12b2lkIGFuYWxvZ2l4X2RwX3NlbmRfcHNyX3NwZChzdHJ1Y3QgYW5hbG9naXhf
+ZHBfZGV2aWNlICpkcCwKPiAtCQkJICAgICAgc3RydWN0IGVkcF92c2NfcHNyICp2c2MpOwo+ICtp
+bnQgYW5hbG9naXhfZHBfc2VuZF9wc3Jfc3BkKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRw
+LAo+ICsJCQkgICAgIHN0cnVjdCBlZHBfdnNjX3BzciAqdnNjKTsKPiAgIHNzaXplX3QgYW5hbG9n
+aXhfZHBfdHJhbnNmZXIoc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHAsCj4gICAJCQkgICAg
+IHN0cnVjdCBkcm1fZHBfYXV4X21zZyAqbXNnKTsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jIGIvZHJpdmVycy9ncHUv
+ZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYwo+IGluZGV4IDMwMzA4M2FkMjhl
+My4uMDA1YTNmNzAwNWQyIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5h
+bG9naXgvYW5hbG9naXhfZHBfcmVnLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2Fu
+YWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jCj4gQEAgLTEwLDEwICsxMCwxMSBAQAo+ICAgICogb3B0
+aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KPiAgICAqLwo+ICAgCj4gLSNpbmNsdWRlIDxsaW51eC9k
+ZXZpY2UuaD4KPiAtI2luY2x1ZGUgPGxpbnV4L2lvLmg+Cj4gICAjaW5jbHVkZSA8bGludXgvZGVs
+YXkuaD4KPiArI2luY2x1ZGUgPGxpbnV4L2RldmljZS5oPgo+ICAgI2luY2x1ZGUgPGxpbnV4L2dw
+aW8uaD4KPiArI2luY2x1ZGUgPGxpbnV4L2lvLmg+Cj4gKyNpbmNsdWRlIDxsaW51eC9pb3BvbGwu
+aD4KPiAgIAo+ICAgI2luY2x1ZGUgPGRybS9icmlkZ2UvYW5hbG9naXhfZHAuaD4KPiAgIAo+IEBA
+IC05OTIsMTAgKzk5MywyNSBAQCB2b2lkIGFuYWxvZ2l4X2RwX2VuYWJsZV9wc3JfY3JjKHN0cnVj
+dCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQo+ICAgCXdyaXRlbChQU1JfVklEX0NSQ19FTkFCTEUs
+IGRwLT5yZWdfYmFzZSArIEFOQUxPR0lYX0RQX0NSQ19DT04pOwo+ICAgfQo+ICAgCj4gLXZvaWQg
+YW5hbG9naXhfZHBfc2VuZF9wc3Jfc3BkKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwLAo+
+IC0JCQkgICAgICBzdHJ1Y3QgZWRwX3ZzY19wc3IgKnZzYykKPiArc3RhdGljIHNzaXplX3QgYW5h
+bG9naXhfZHBfZ2V0X3Bzcl9zdGF0dXMoc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCj4g
+K3sKPiArCXNzaXplX3QgdmFsOwo+ICsJdTggc3RhdHVzOwo+ICsKPiArCXZhbCA9IGRybV9kcF9k
+cGNkX3JlYWRiKCZkcC0+YXV4LCBEUF9QU1JfU1RBVFVTLCAmc3RhdHVzKTsKPiArCWlmICh2YWwg
+PCAwKSB7Cj4gKwkJZGV2X2VycihkcC0+ZGV2LCAiUFNSX1NUQVRVUyByZWFkIGZhaWxlZCByZXQ9
+JXpkIiwgdmFsKTsKPiArCQlyZXR1cm4gdmFsOwo+ICsJfQo+ICsJcmV0dXJuIHN0YXR1czsKPiAr
+fQo+ICsKPiAraW50IGFuYWxvZ2l4X2RwX3NlbmRfcHNyX3NwZChzdHJ1Y3QgYW5hbG9naXhfZHBf
+ZGV2aWNlICpkcCwKPiArCQkJICAgICBzdHJ1Y3QgZWRwX3ZzY19wc3IgKnZzYykKPiAgIHsKPiAg
+IAl1bnNpZ25lZCBpbnQgdmFsOwo+ICsJaW50IHJldDsKPiArCXNzaXplX3QgcHNyX3N0YXR1czsK
+PiAgIAo+ICAgCS8qIGRvbid0IHNlbmQgaW5mbyBmcmFtZSAqLwo+ICAgCXZhbCA9IHJlYWRsKGRw
+LT5yZWdfYmFzZSArIEFOQUxPR0lYX0RQX1BLVF9TRU5EX0NUTCk7Cj4gQEAgLTEwMzYsNiArMTA1
+MiwxNyBAQCB2b2lkIGFuYWxvZ2l4X2RwX3NlbmRfcHNyX3NwZChzdHJ1Y3QgYW5hbG9naXhfZHBf
+ZGV2aWNlICpkcCwKPiAgIAl2YWwgPSByZWFkbChkcC0+cmVnX2Jhc2UgKyBBTkFMT0dJWF9EUF9Q
+S1RfU0VORF9DVEwpOwo+ICAgCXZhbCB8PSBJRl9FTjsKPiAgIAl3cml0ZWwodmFsLCBkcC0+cmVn
+X2Jhc2UgKyBBTkFMT0dJWF9EUF9QS1RfU0VORF9DVEwpOwo+ICsKPiArCXJldCA9IHJlYWR4X3Bv
+bGxfdGltZW91dChhbmFsb2dpeF9kcF9nZXRfcHNyX3N0YXR1cywgZHAsIHBzcl9zdGF0dXMsCj4g
+KwkJcHNyX3N0YXR1cyA+PSAwICYmCj4gKwkJKCh2c2MtPkRCMSAmJiBwc3Jfc3RhdHVzID09IERQ
+X1BTUl9TSU5LX0FDVElWRV9SRkIpIHx8Cj4gKwkJKCF2c2MtPkRCMSAmJiBwc3Jfc3RhdHVzID09
+IERQX1BTUl9TSU5LX0lOQUNUSVZFKSksIDE1MDAsCj4gKwkJRFBfVElNRU9VVF9QU1JfTE9PUF9N
+UyAqIDEwMDApOwo+ICsJaWYgKHJldCkgewo+ICsJCWRldl93YXJuKGRwLT5kZXYsICJGYWlsZWQg
+dG8gYXBwbHkgUFNSICVkXG4iLCByZXQpOwo+ICsJCXJldHVybiByZXQ7Cj4gKwl9Cj4gKwlyZXR1
+cm4gMDsKPiAgIH0KPiAgIAo+ICAgc3NpemVfdCBhbmFsb2dpeF9kcF90cmFuc2ZlcihzdHJ1Y3Qg
+YW5hbG9naXhfZHBfZGV2aWNlICpkcCwKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMu
+ZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlz
+dGluZm8vZHJpLWRldmVsCg==

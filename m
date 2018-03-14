@@ -1,90 +1,84 @@
 From: Archit Taneja <architt@codeaurora.org>
-Subject: Re: [PATCH v5 08/36] drm/bridge: analogix_dp: Check AUX_EN status
- when doing AUX transfer
-Date: Wed, 14 Mar 2018 11:31:28 +0530
-Message-ID: <def00ec1-3c4d-62c0-fe1f-f695c5e84b47@codeaurora.org>
+Subject: Re: [PATCH v5 09/36] drm/bridge: analogix_dp: Don't use fast link
+ training when panel just powered up
+Date: Wed, 14 Mar 2018 11:33:05 +0530
+Message-ID: <b8d58bba-ac1d-f9b5-fb7f-70a529c9a918@codeaurora.org>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
- <20180309222327.18689-9-enric.balletbo@collabora.com>
+ <20180309222327.18689-10-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180309222327.18689-9-enric.balletbo@collabora.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180309222327.18689-10-enric.balletbo@collabora.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, =?UTF-8?Q?St=c3=a9phane_Marchesin?= <marcheu@chromium.org>
+Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?Q?St=c3=a9phane_Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-
-
-On Saturday 10 March 2018 03:52 AM, Enric Balletbo i Serra wrote:
-> From: Lin Huang <hl@rock-chips.com>
-> 
-> We should check AUX_EN bit to confirm the AUX CH operation is completed.
-> 
-
-Reviewed-by: Archit Taneja <architt@codeaurora.org>
-
-Thanks,
-Archit
-
-> Cc: Stéphane Marchesin <marcheu@chromium.org>
-> Signed-off-by: Lin Huang <hl@rock-chips.com>
-> Signed-off-by: zain wang <wzz@rock-chips.com>
-> Signed-off-by: Sean Paul <seanpaul@chromium.org>
-> Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> ---
-> 
->   drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 25 +++++++++++++----------
->   1 file changed, 14 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-> index 9df2f3ef000c..e78c861b9e06 100644
-> --- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-> +++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-> @@ -1073,9 +1073,9 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
->   {
->   	u32 reg;
->   	u8 *buffer = msg->buffer;
-> -	int timeout_loop = 0;
->   	unsigned int i;
->   	int num_transferred = 0;
-> +	int ret;
->   
->   	/* Buffer size of AUX CH is 16 bytes */
->   	if (WARN_ON(msg->size > 16))
-> @@ -1139,17 +1139,20 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
->   
->   	writel(reg, dp->reg_base + ANALOGIX_DP_AUX_CH_CTL_2);
->   
-> -	/* Is AUX CH command reply received? */
-> +	ret = readx_poll_timeout(readl, dp->reg_base + ANALOGIX_DP_AUX_CH_CTL_2,
-> +				 reg, !(reg & AUX_EN), 25, 500 * 1000);
-> +	if (ret) {
-> +		dev_err(dp->dev, "AUX CH enable timeout!\n");
-> +		return -ETIMEDOUT;
-> +	}
-> +
->   	/* TODO: Wait for an interrupt instead of looping? */
-> -	reg = readl(dp->reg_base + ANALOGIX_DP_INT_STA);
-> -	while (!(reg & RPLY_RECEIV)) {
-> -		timeout_loop++;
-> -		if (timeout_loop > DP_TIMEOUT_LOOP_COUNT) {
-> -			dev_err(dp->dev, "AUX CH command reply failed!\n");
-> -			return -ETIMEDOUT;
-> -		}
-> -		reg = readl(dp->reg_base + ANALOGIX_DP_INT_STA);
-> -		usleep_range(10, 11);
-> +	/* Is AUX CH command reply received? */
-> +	ret = readx_poll_timeout(readl, dp->reg_base + ANALOGIX_DP_INT_STA,
-> +				 reg, reg & RPLY_RECEIV, 10, 20 * 1000);
-> +	if (ret) {
-> +		dev_err(dp->dev, "AUX CH cmd reply timeout!\n");
-> +		return -ETIMEDOUT;
->   	}
->   
->   	/* Clear interrupt source for AUX CH command reply */
-> 
+CgpPbiBTYXR1cmRheSAxMCBNYXJjaCAyMDE4IDAzOjUzIEFNLCBFbnJpYyBCYWxsZXRibyBpIFNl
+cnJhIHdyb3RlOgo+IEZyb206IHphaW4gd2FuZyA8d3p6QHJvY2stY2hpcHMuY29tPgo+IAo+IFBh
+bmVsIHdvdWxkIHJlc2V0IGl0cyBzZXR0aW5nIHdoZW4gaXQgcG93ZXJzIGRvd24uIEl0IHdvdWxk
+IGZvcmdldCB0aGUgbGFzdAo+IHN1Y2NlZWRlZCBsaW5rIHRyYWluaW5nIHNldHRpbmcuIFNvIHdl
+IGNhbid0IHVzZSB0aGUgbGFzdCBzdWNjZXNzZnVsIGxpbmsKPiB0cmFpbmluZyBzZXR0aW5nIHRv
+IGRvIGZhc3QgbGluayB0cmFpbmluZy4gTGV0J3MgcmVzZXQgZmFzdF90cmFpbl9lbmFibGUgaW4K
+PiBhbmFsb2dpeF9kcF9icmlkZ2VfZGlzYWJsZSgpOwo+IAoKUmV2aWV3ZWQtYnk6IEFyY2hpdCBU
+YW5lamEgPGFyY2hpdHRAY29kZWF1cm9yYS5vcmc+CgpUaGFua3MsCkFyY2hpdAoKPiBDYzogU3TD
+qXBoYW5lIE1hcmNoZXNpbiA8bWFyY2hldUBjaHJvbWl1bS5vcmc+Cj4gU2lnbmVkLW9mZi1ieTog
+emFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+Cj4gU2lnbmVkLW9mZi1ieTogU2VhbiBQYXVs
+IDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+Cj4gU2lnbmVkLW9mZi1ieTogVGhpZXJyeSBFc2NhbmRl
+IDx0aGllcnJ5LmVzY2FuZGVAY29sbGFib3JhLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBFbnJpYyBC
+YWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgo+IFRlc3RlZC1i
+eTogTWFyZWsgU3p5cHJvd3NraSA8bS5zenlwcm93c2tpQHNhbXN1bmcuY29tPgo+IC0tLQo+IAo+
+ICAgZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMgfCA5
+ICsrKysrLS0tLQo+ICAgZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9k
+cF9jb3JlLmggfCAyICstCj4gICAyIGZpbGVzIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwgNSBk
+ZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFs
+b2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4
+L2FuYWxvZ2l4X2RwX2NvcmUuYwo+IGluZGV4IGY5NjYxYjQxMGNiOS4uZWE3YTgwYTk4OWM2IDEw
+MDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBf
+Y29yZS5jCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9k
+cF9jb3JlLmMKPiBAQCAtNTc5LDE0ICs1NzksMTQgQEAgc3RhdGljIGludCBhbmFsb2dpeF9kcF9w
+cm9jZXNzX2VxdWFsaXplcl90cmFpbmluZyhzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkK
+PiAgIAkJaWYgKHJldHZhbCAhPSAxKSB7Cj4gICAJCQlkZXZfZXJyKGRwLT5kZXYsICJmYWlsZWQg
+dG8gcmVhZCBkb3duc3ByZWFkICVkXG4iLAo+ICAgCQkJCXJldHZhbCk7Cj4gLQkJCWRwLT5mYXN0
+X3RyYWluX3N1cHBvcnQgPSBmYWxzZTsKPiArCQkJZHAtPmZhc3RfdHJhaW5fZW5hYmxlID0gZmFs
+c2U7Cj4gICAJCX0gZWxzZSB7Cj4gLQkJCWRwLT5mYXN0X3RyYWluX3N1cHBvcnQgPQo+ICsJCQlk
+cC0+ZmFzdF90cmFpbl9lbmFibGUgPQo+ICAgCQkJCShzcHJlYWQgJiBEUF9OT19BVVhfSEFORFNI
+QUtFX0xJTktfVFJBSU5JTkcpID8KPiAgIAkJCQkJdHJ1ZSA6IGZhbHNlOwo+ICAgCQl9Cj4gICAJ
+CWRldl9kYmcoZHAtPmRldiwgImZhc3QgbGluayB0cmFpbmluZyAlc1xuIiwKPiAtCQkJZHAtPmZh
+c3RfdHJhaW5fc3VwcG9ydCA/ICJzdXBwb3J0ZWQiIDogInVuc3VwcG9ydGVkIik7Cj4gKwkJCWRw
+LT5mYXN0X3RyYWluX2VuYWJsZSA/ICJzdXBwb3J0ZWQiIDogInVuc3VwcG9ydGVkIik7Cj4gICAK
+PiAgIAkJLyogc2V0IGVuaGFuY2VkIG1vZGUgaWYgYXZhaWxhYmxlICovCj4gICAJCWFuYWxvZ2l4
+X2RwX3NldF9lbmhhbmNlZF9tb2RlKGRwKTsKPiBAQCAtNzkzLDcgKzc5Myw3IEBAIHN0YXRpYyBp
+bnQgYW5hbG9naXhfZHBfZmFzdF9saW5rX3RyYWluKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2Ug
+KmRwKQo+ICAgCj4gICBzdGF0aWMgaW50IGFuYWxvZ2l4X2RwX3RyYWluX2xpbmsoc3RydWN0IGFu
+YWxvZ2l4X2RwX2RldmljZSAqZHApCj4gICB7Cj4gLQlpZiAoZHAtPmZhc3RfdHJhaW5fc3VwcG9y
+dCkKPiArCWlmIChkcC0+ZmFzdF90cmFpbl9lbmFibGUpCj4gICAJCXJldHVybiBhbmFsb2dpeF9k
+cF9mYXN0X2xpbmtfdHJhaW4oZHApOwo+ICAgCj4gICAJcmV0dXJuIGFuYWxvZ2l4X2RwX2Z1bGxf
+bGlua190cmFpbihkcCwgZHAtPnZpZGVvX2luZm8ubWF4X2xhbmVfY291bnQsCj4gQEAgLTExOTcs
+NiArMTE5Nyw3IEBAIHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2JyaWRnZV9kaXNhYmxlKHN0cnVj
+dCBkcm1fYnJpZGdlICpicmlkZ2UpCj4gICAJCURSTV9FUlJPUigiZmFpbGVkIHRvIHNldHVwIHRo
+ZSBwYW5lbCByZXQgPSAlZFxuIiwgcmV0KTsKPiAgIAo+ICAgCWRwLT5wc3JfZW5hYmxlID0gZmFs
+c2U7Cj4gKwlkcC0+ZmFzdF90cmFpbl9lbmFibGUgPSBmYWxzZTsKPiAgIAlkcC0+ZHBtc19tb2Rl
+ID0gRFJNX01PREVfRFBNU19PRkY7Cj4gICB9Cj4gICAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9n
+cHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmggYi9kcml2ZXJzL2dwdS9k
+cm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuaAo+IGluZGV4IDZhOTZlZjdlNjkz
+NC4uNDAzZmY4NTM0NjRiIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5h
+bG9naXgvYW5hbG9naXhfZHBfY29yZS5oCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9h
+bmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmgKPiBAQCAtMTczLDcgKzE3Myw3IEBAIHN0cnVjdCBh
+bmFsb2dpeF9kcF9kZXZpY2Ugewo+ICAgCWludAkJCWhwZF9ncGlvOwo+ICAgCWJvb2wgICAgICAg
+ICAgICAgICAgICAgIGZvcmNlX2hwZDsKPiAgIAlib29sCQkJcHNyX2VuYWJsZTsKPiAtCWJvb2wJ
+CQlmYXN0X3RyYWluX3N1cHBvcnQ7Cj4gKwlib29sCQkJZmFzdF90cmFpbl9lbmFibGU7Cj4gICAK
+PiAgIAlzdHJ1Y3QgbXV0ZXgJCXBhbmVsX2xvY2s7Cj4gICAJYm9vbAkJCXBhbmVsX2lzX21vZGVz
+ZXQ7Cj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRy
+aS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRw
+czovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=

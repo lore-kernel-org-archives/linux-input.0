@@ -1,124 +1,79 @@
 From: Archit Taneja <architt@codeaurora.org>
-Subject: Re: [PATCH v5 19/36] drm/rockchip: Restore psr->state when
- enable/disable psr failed
-Date: Wed, 14 Mar 2018 12:02:18 +0530
-Message-ID: <0c9d07eb-a37b-f257-ce72-4b6a13e6d511@codeaurora.org>
+Subject: Re: [PATCH v5 20/36] drm/bridge: analogix_dp: Don't use
+ ANALOGIX_DP_PLL_CTL to control pll
+Date: Wed, 14 Mar 2018 12:03:02 +0530
+Message-ID: <d6e35524-3eb6-8fa6-21c3-9f9463365236@codeaurora.org>
 References: <20180309222327.18689-1-enric.balletbo@collabora.com>
- <20180309222327.18689-20-enric.balletbo@collabora.com>
+ <20180309222327.18689-21-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180309222327.18689-20-enric.balletbo@collabora.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180309222327.18689-21-enric.balletbo@collabora.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-CgpPbiBTYXR1cmRheSAxMCBNYXJjaCAyMDE4IDAzOjUzIEFNLCBFbnJpYyBCYWxsZXRibyBpIFNl
-cnJhIHdyb3RlOgo+IEZyb206IHphaW4gd2FuZyA8d3p6QHJvY2stY2hpcHMuY29tPgo+IAo+IElm
-IHdlIGZhaWxlZCBkaXNhYmxlIHBzciwgaXQgd291bGQgaGFuZyB0aGUgZGlzcGxheSB1bnRpbCBu
-ZXh0IHBzcgo+IGN5Y2xlIGNvbWluZy4gU28gd2Ugc2hvdWxkIHJlc3RvcmUgcHNyLT5zdGF0ZSB3
-aGVuIGl0IGZhaWxlZC4KPiAKCkZvciB0aGUgYnJpZGdlIHBhcnQsCgpSZXZpZXdlZC1ieTogQXJj
-aGl0IFRhbmVqYSA8YXJjaGl0dEBjb2RlYXVyb3JhLm9yZz4KClRoYW5rcywKQXJjaGl0Cgo+IENj
-OiBUb21hc3ogRmlnYSA8dGZpZ2FAY2hyb21pdW0ub3JnPgo+IFNpZ25lZC1vZmYtYnk6IHphaW4g
-d2FuZyA8d3p6QHJvY2stY2hpcHMuY29tPgo+IFNpZ25lZC1vZmYtYnk6IERvdWdsYXMgQW5kZXJz
-b24gPGRpYW5kZXJzQGNocm9taXVtLm9yZz4KPiBTaWduZWQtb2ZmLWJ5OiBTZWFuIFBhdWwgPHNl
-YW5wYXVsQGNocm9taXVtLm9yZz4KPiBTaWduZWQtb2ZmLWJ5OiBUaGllcnJ5IEVzY2FuZGUgPHRo
-aWVycnkuZXNjYW5kZUBjb2xsYWJvcmEuY29tPgo+IFNpZ25lZC1vZmYtYnk6IEVucmljIEJhbGxl
-dGJvIGkgU2VycmEgPGVucmljLmJhbGxldGJvQGNvbGxhYm9yYS5jb20+Cj4gVGVzdGVkLWJ5OiBN
-YXJlayBTenlwcm93c2tpIDxtLnN6eXByb3dza2lAc2Ftc3VuZy5jb20+Cj4gLS0tCj4gCj4gICBk
-cml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYyB8ICA0ICsr
-Ky0KPiAgIGRyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9hbmFsb2dpeF9kcC1yb2NrY2hpcC5jICAg
-IHwgMTAgKysrKystLS0tLQo+ICAgZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL3JvY2tjaGlwX2Ry
-bV9wc3IuYyAgICAgICAgfCAyMCArKysrKysrKysrKysrLS0tLS0tLQo+ICAgZHJpdmVycy9ncHUv
-ZHJtL3JvY2tjaGlwL3JvY2tjaGlwX2RybV9wc3IuaCAgICAgICAgfCAgMiArLQo+ICAgNCBmaWxl
-cyBjaGFuZ2VkLCAyMiBpbnNlcnRpb25zKCspLCAxNCBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMg
-Yi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwo+IGlu
-ZGV4IGJlNmVkZGQwZDBhNy4uMWYxY2I2MjQ0MTRkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1
-L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5jCj4gKysrIGIvZHJpdmVycy9n
-cHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMKPiBAQCAtMTUzLDggKzE1
-MywxMCBAQCBpbnQgYW5hbG9naXhfZHBfZGlzYWJsZV9wc3Ioc3RydWN0IGFuYWxvZ2l4X2RwX2Rl
-dmljZSAqZHApCj4gICAJcHNyX3ZzYy5EQjEgPSAwOwo+ICAgCj4gICAJcmV0ID0gZHJtX2RwX2Rw
-Y2Rfd3JpdGViKCZkcC0+YXV4LCBEUF9TRVRfUE9XRVIsIERQX1NFVF9QT1dFUl9EMCk7Cj4gLQlp
-ZiAocmV0ICE9IDEpCj4gKwlpZiAocmV0ICE9IDEpIHsKPiAgIAkJZGV2X2VycihkcC0+ZGV2LCAi
-RmFpbGVkIHRvIHNldCBEUCBQb3dlcjAgJWRcbiIsIHJldCk7Cj4gKwkJcmV0dXJuIHJldDsKPiAr
-CX0KPiAgIAo+ICAgCXJldHVybiBhbmFsb2dpeF9kcF9zZW5kX3Bzcl9zcGQoZHAsICZwc3JfdnNj
-LCBmYWxzZSk7Cj4gICB9Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9h
-bmFsb2dpeF9kcC1yb2NrY2hpcC5jIGIvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL2FuYWxvZ2l4
-X2RwLXJvY2tjaGlwLmMKPiBpbmRleCAzZThiZjc5YmVhNTguLjhjODg0ZjljZTcxMyAxMDA2NDQK
-PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvYW5hbG9naXhfZHAtcm9ja2NoaXAuYwo+
-ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9hbmFsb2dpeF9kcC1yb2NrY2hpcC5jCj4g
-QEAgLTc3LDEzICs3NywxMyBAQCBzdHJ1Y3Qgcm9ja2NoaXBfZHBfZGV2aWNlIHsKPiAgIAlzdHJ1
-Y3QgYW5hbG9naXhfZHBfcGxhdF9kYXRhIHBsYXRfZGF0YTsKPiAgIH07Cj4gICAKPiAtc3RhdGlj
-IHZvaWQgYW5hbG9naXhfZHBfcHNyX3NldChzdHJ1Y3QgZHJtX2VuY29kZXIgKmVuY29kZXIsIGJv
-b2wgZW5hYmxlZCkKPiArc3RhdGljIGludCBhbmFsb2dpeF9kcF9wc3Jfc2V0KHN0cnVjdCBkcm1f
-ZW5jb2RlciAqZW5jb2RlciwgYm9vbCBlbmFibGVkKQo+ICAgewo+ICAgCXN0cnVjdCByb2NrY2hp
-cF9kcF9kZXZpY2UgKmRwID0gdG9fZHAoZW5jb2Rlcik7Cj4gICAJaW50IHJldDsKPiAgIAo+ICAg
-CWlmICghYW5hbG9naXhfZHBfcHNyX2VuYWJsZWQoZHAtPmFkcCkpCj4gLQkJcmV0dXJuOwo+ICsJ
-CXJldHVybiAwOwo+ICAgCj4gICAJRFJNX0RFVl9ERUJVRyhkcC0+ZGV2LCAiJXMgUFNSLi4uXG4i
-LCBlbmFibGVkID8gIkVudHJ5IiA6ICJFeGl0Iik7Cj4gICAKPiBAQCAtOTEsMTMgKzkxLDEzIEBA
-IHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX3Bzcl9zZXQoc3RydWN0IGRybV9lbmNvZGVyICplbmNv
-ZGVyLCBib29sIGVuYWJsZWQpCj4gICAJCQkJCSBQU1JfV0FJVF9MSU5FX0ZMQUdfVElNRU9VVF9N
-Uyk7Cj4gICAJaWYgKHJldCkgewo+ICAgCQlEUk1fREVWX0VSUk9SKGRwLT5kZXYsICJsaW5lIGZs
-YWcgaW50ZXJydXB0IGRpZCBub3QgYXJyaXZlXG4iKTsKPiAtCQlyZXR1cm47Cj4gKwkJcmV0dXJu
-IC1FVElNRURPVVQ7Cj4gICAJfQo+ICAgCj4gICAJaWYgKGVuYWJsZWQpCj4gLQkJYW5hbG9naXhf
-ZHBfZW5hYmxlX3BzcihkcC0+YWRwKTsKPiArCQlyZXR1cm4gYW5hbG9naXhfZHBfZW5hYmxlX3Bz
-cihkcC0+YWRwKTsKPiAgIAllbHNlCj4gLQkJYW5hbG9naXhfZHBfZGlzYWJsZV9wc3IoZHAtPmFk
-cCk7Cj4gKwkJcmV0dXJuIGFuYWxvZ2l4X2RwX2Rpc2FibGVfcHNyKGRwLT5hZHApOwo+ICAgfQo+
-ICAgCj4gICBzdGF0aWMgaW50IHJvY2tjaGlwX2RwX3ByZV9pbml0KHN0cnVjdCByb2NrY2hpcF9k
-cF9kZXZpY2UgKmRwKQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9j
-a2NoaXBfZHJtX3Bzci5jIGIvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL3JvY2tjaGlwX2RybV9w
-c3IuYwo+IGluZGV4IGIzMzljYTk0MzEzOS4uOTM3NmY0Mzk2YjZiIDEwMDY0NAo+IC0tLSBhL2Ry
-aXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9yb2NrY2hpcF9kcm1fcHNyLmMKPiArKysgYi9kcml2ZXJz
-L2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5jCj4gQEAgLTM2LDcgKzM2LDcgQEAg
-c3RydWN0IHBzcl9kcnYgewo+ICAgCj4gICAJc3RydWN0IGRlbGF5ZWRfd29yawlmbHVzaF93b3Jr
-Owo+ICAgCj4gLQl2b2lkICgqc2V0KShzdHJ1Y3QgZHJtX2VuY29kZXIgKmVuY29kZXIsIGJvb2wg
-ZW5hYmxlKTsKPiArCWludCAoKnNldCkoc3RydWN0IGRybV9lbmNvZGVyICplbmNvZGVyLCBib29s
-IGVuYWJsZSk7Cj4gICB9Owo+ICAgCj4gICBzdGF0aWMgc3RydWN0IHBzcl9kcnYgKmZpbmRfcHNy
-X2J5X2NydGMoc3RydWN0IGRybV9jcnRjICpjcnRjKQo+IEBAIC05MywxOSArOTMsMjUgQEAgc3Rh
-dGljIHZvaWQgcHNyX3NldF9zdGF0ZV9sb2NrZWQoc3RydWN0IHBzcl9kcnYgKnBzciwgZW51bSBw
-c3Jfc3RhdGUgc3RhdGUpCj4gICAJCXJldHVybjsKPiAgIAl9Cj4gICAKPiAtCXBzci0+c3RhdGUg
-PSBzdGF0ZTsKPiAtCj4gICAJLyogQWN0dWFsbHkgY29tbWl0IHRoZSBzdGF0ZSBjaGFuZ2UgdG8g
-aGFyZHdhcmUgKi8KPiAtCXN3aXRjaCAocHNyLT5zdGF0ZSkgewo+ICsJc3dpdGNoIChzdGF0ZSkg
-ewo+ICAgCWNhc2UgUFNSX0VOQUJMRToKPiAtCQlwc3ItPnNldChwc3ItPmVuY29kZXIsIHRydWUp
-Owo+ICsJCWlmIChwc3ItPnNldChwc3ItPmVuY29kZXIsIHRydWUpKQo+ICsJCQlyZXR1cm47Cj4g
-ICAJCWJyZWFrOwo+ICAgCj4gICAJY2FzZSBQU1JfRElTQUJMRToKPiAgIAljYXNlIFBTUl9GTFVT
-SDoKPiAtCQlwc3ItPnNldChwc3ItPmVuY29kZXIsIGZhbHNlKTsKPiArCQlpZiAocHNyLT5zZXQo
-cHNyLT5lbmNvZGVyLCBmYWxzZSkpCj4gKwkJCXJldHVybjsKPiAgIAkJYnJlYWs7Cj4gKwo+ICsJ
-ZGVmYXVsdDoKPiArCQlwcl9lcnIoIiVzOiBVbmtub3duIHN0YXRlICVkXG4iLCBfX2Z1bmNfXywg
-c3RhdGUpOwo+ICsJCXJldHVybjsKPiAgIAl9Cj4gKwo+ICsJcHNyLT5zdGF0ZSA9IHN0YXRlOwo+
-ICAgfQo+ICAgCj4gICBzdGF0aWMgdm9pZCBwc3Jfc2V0X3N0YXRlKHN0cnVjdCBwc3JfZHJ2ICpw
-c3IsIGVudW0gcHNyX3N0YXRlIHN0YXRlKQo+IEBAIC0yMjksNyArMjM1LDcgQEAgRVhQT1JUX1NZ
-TUJPTChyb2NrY2hpcF9kcm1fcHNyX2ZsdXNoX2FsbCk7Cj4gICAgKiBaZXJvIG9uIHN1Y2Nlc3Ms
-IG5lZ2F0aXZlIGVycm5vIG9uIGZhaWx1cmUuCj4gICAgKi8KPiAgIGludCByb2NrY2hpcF9kcm1f
-cHNyX3JlZ2lzdGVyKHN0cnVjdCBkcm1fZW5jb2RlciAqZW5jb2RlciwKPiAtCQkJdm9pZCAoKnBz
-cl9zZXQpKHN0cnVjdCBkcm1fZW5jb2RlciAqLCBib29sIGVuYWJsZSkpCj4gKwkJCWludCAoKnBz
-cl9zZXQpKHN0cnVjdCBkcm1fZW5jb2RlciAqLCBib29sIGVuYWJsZSkpCj4gICB7Cj4gICAJc3Ry
-dWN0IHJvY2tjaGlwX2RybV9wcml2YXRlICpkcm1fZHJ2ID0gZW5jb2Rlci0+ZGV2LT5kZXZfcHJp
-dmF0ZTsKPiAgIAlzdHJ1Y3QgcHNyX2RydiAqcHNyOwo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dw
-dS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5oIGIvZHJpdmVycy9ncHUvZHJtL3JvY2tj
-aGlwL3JvY2tjaGlwX2RybV9wc3IuaAo+IGluZGV4IGIxZWEwMTU1ZTU3Yy4uMDY1MzdlZTI3NTY1
-IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9yb2NrY2hpcF9kcm1fcHNy
-LmgKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5oCj4g
-QEAgLTIyLDcgKzIyLDcgQEAgaW50IHJvY2tjaGlwX2RybV9wc3JfYWN0aXZhdGUoc3RydWN0IGRy
-bV9lbmNvZGVyICplbmNvZGVyKTsKPiAgIGludCByb2NrY2hpcF9kcm1fcHNyX2RlYWN0aXZhdGUo
-c3RydWN0IGRybV9lbmNvZGVyICplbmNvZGVyKTsKPiAgIAo+ICAgaW50IHJvY2tjaGlwX2RybV9w
-c3JfcmVnaXN0ZXIoc3RydWN0IGRybV9lbmNvZGVyICplbmNvZGVyLAo+IC0JCQl2b2lkICgqcHNy
-X3NldCkoc3RydWN0IGRybV9lbmNvZGVyICosIGJvb2wgZW5hYmxlKSk7Cj4gKwkJCWludCAoKnBz
-cl9zZXQpKHN0cnVjdCBkcm1fZW5jb2RlciAqLCBib29sIGVuYWJsZSkpOwo+ICAgdm9pZCByb2Nr
-Y2hpcF9kcm1fcHNyX3VucmVnaXN0ZXIoc3RydWN0IGRybV9lbmNvZGVyICplbmNvZGVyKTsKPiAg
-IAo+ICAgI2VuZGlmIC8qIF9fUk9DS0NISVBfRFJNX1BTUl9fICovCj4gCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QK
-ZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9w
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+
+
+On Saturday 10 March 2018 03:53 AM, Enric Balletbo i Serra wrote:
+> From: zain wang <wzz@rock-chips.com>
+> 
+> There is no register named ANALOGIX_DP_PLL_CTL in Rockchip edp phy reg
+> list.  We should use BIT_4 in ANALOGIX_DP_PD to control the pll power
+> instead of ANALOGIX_DP_PLL_CTL.
+> 
+
+Reviewed-by: Archit Taneja <architt@codeaurora.org>
+
+Thanks,
+Archit
+
+> Cc: Douglas Anderson <dianders@chromium.org>
+> Signed-off-by: zain wang <wzz@rock-chips.com>
+> Signed-off-by: Sean Paul <seanpaul@chromium.org>
+> Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+> Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> ---
+> 
+>   drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 20 ++++++++++++--------
+>   1 file changed, 12 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+> index 7b7fd227e1f9..02ab1aaa9993 100644
+> --- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+> +++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+> @@ -230,16 +230,20 @@ enum pll_status analogix_dp_get_pll_lock_status(struct analogix_dp_device *dp)
+>   void analogix_dp_set_pll_power_down(struct analogix_dp_device *dp, bool enable)
+>   {
+>   	u32 reg;
+> +	u32 mask = DP_PLL_PD;
+> +	u32 pd_addr = ANALOGIX_DP_PLL_CTL;
+>   
+> -	if (enable) {
+> -		reg = readl(dp->reg_base + ANALOGIX_DP_PLL_CTL);
+> -		reg |= DP_PLL_PD;
+> -		writel(reg, dp->reg_base + ANALOGIX_DP_PLL_CTL);
+> -	} else {
+> -		reg = readl(dp->reg_base + ANALOGIX_DP_PLL_CTL);
+> -		reg &= ~DP_PLL_PD;
+> -		writel(reg, dp->reg_base + ANALOGIX_DP_PLL_CTL);
+> +	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type)) {
+> +		pd_addr = ANALOGIX_DP_PD;
+> +		mask = RK_PLL_PD;
+>   	}
+> +
+> +	reg = readl(dp->reg_base + pd_addr);
+> +	if (enable)
+> +		reg |= mask;
+> +	else
+> +		reg &= ~mask;
+> +	writel(reg, dp->reg_base + pd_addr);
+>   }
+>   
+>   void analogix_dp_set_analog_power_down(struct analogix_dp_device *dp,
+> 

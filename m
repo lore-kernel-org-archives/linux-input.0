@@ -1,33 +1,49 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v4 1/2] kernel.h: Introduce const_max() for VLA removal
-Date: Thu, 15 Mar 2018 16:49:27 -0700
-Message-ID: <CAGXu5j+Dv_wQgHWgT=9eSoKX7AcqnumuRsNFUoZ765WWizKytw@mail.gmail.com>
-References: <1521143266-31350-1-git-send-email-keescook@chromium.org>
- <1521143266-31350-2-git-send-email-keescook@chromium.org> <CA+55aFzu+VU_FVZdbLCZttUspZdJCvBhkuo4V69H=XnqmLrpLA@mail.gmail.com>
- <CAGXu5jKtv=a8qTy1-AfbzNRB=Azb8V7Pt1M4QMVYNKg6+Ci7=Q@mail.gmail.com>
- <CA+55aFwDJ906oQ-98L2DNrjfKtb6cd5ykwMxpG942qxCFmAoEQ@mail.gmail.com>
- <CAGXu5jLHam5kz18k9uvhsz2WYodkF2v1tsEOV4Sx0O7jir4B3A@mail.gmail.com>
- <CA+55aFzO12QMFJHe8osoWfph8jnjgp_jLUQWmgbNmth_KwPxXw@mail.gmail.com>
- <CAGXu5jLHW00UmSDyAmdLpin6L636XbP3brH=pn4qh1bN87AirA@mail.gmail.com> <CA+55aFyRV9KXzeQZpVYsZYVUJm-ASgu_4_1+8Y8-0KH-YT2M8Q@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 01/14] Input: atmel_mxt_ts - do not pass suspend mode in
+ platform data
+Date: Thu, 15 Mar 2018 16:56:21 -0700
+Message-ID: <20180315235621.GA60361@dtor-ws>
+References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+ <20180312190907.174301-2-dmitry.torokhov@gmail.com>
+ <20180314205123.GA26353@lava.h.shmanahar.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CA+55aFyRV9KXzeQZpVYsZYVUJm-ASgu_4_1+8Y8-0KH-YT2M8Q@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180314205123.GA26353@lava.h.shmanahar.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
+To: Nick Dyer <nick@shmanahar.org>
+Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 15, 2018 at 4:46 PM, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> What I'm *not* so much ok with is "const_max(5,sizeof(x))" erroring
-> out, or silently causing insane behavior due to hidden subtle type
-> casts..
+On Wed, Mar 14, 2018 at 08:51:24PM +0000, Nick Dyer wrote:
+> Hi Dmitry-
+> 
+> Thanks for sending these patches!
+> 
+> On Mon, Mar 12, 2018 at 12:08:54PM -0700, Dmitry Torokhov wrote:
+> > The way we are supposed to put controller to sleep and wake it up does not
+> > depend on the platform, but rather on controller itself. Controllers using
+> > T9 require manipulating T9 control register, while others, using newer
+> > T100, should be put to sleep by adjusting T7 power config.
+> 
+> I'm afraid this is actually a misconception. If you look at object table
+> for the older T9 device, you'll find it has the T7 object and it in fact
+> works exactly the same way as the T100-based device.
+> 
+> The MXT_SUSPEND_T9_CTRL is in there because on your older Pixel devices
+> the config saved into NVRAM on the touch controller has a zero byte in
+> the T9 CTRL setting, meaning the touch controller will never wake up
+> unless the driver knows to write 0x83 into it.
 
-Yup! I like it as an explicit argument. Thanks!
+Ah, OK, I see. I would really like to drop this pdata->suspend_mode
+stuff and I do not want to create "pixel-screwed-up" property either...
+I guess for the time being I'll put a DMI quirk for Link to restore T9
+control method, and then look into cleaning it all up. We have quite a
+bit different code in chromeos kernel trees and I'd like to reconcile
+it.
 
--Kees
+Thanks.
 
 -- 
-Kees Cook
-Pixel Security
+Dmitry

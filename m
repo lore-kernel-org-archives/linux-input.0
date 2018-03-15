@@ -1,7 +1,7 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Kees Cook <keescook@chromium.org>
 Subject: Re: [PATCH v4 1/2] kernel.h: Introduce const_max() for VLA removal
-Date: Thu, 15 Mar 2018 16:47:38 -0700
-Message-ID: <CA+55aFwQ=TzFLKq8h0Vj7M7=j-W0AwqLeqDSd6ncDjBpDxNucA@mail.gmail.com>
+Date: Thu, 15 Mar 2018 16:49:27 -0700
+Message-ID: <CAGXu5j+Dv_wQgHWgT=9eSoKX7AcqnumuRsNFUoZ765WWizKytw@mail.gmail.com>
 References: <1521143266-31350-1-git-send-email-keescook@chromium.org>
  <1521143266-31350-2-git-send-email-keescook@chromium.org> <CA+55aFzu+VU_FVZdbLCZttUspZdJCvBhkuo4V69H=XnqmLrpLA@mail.gmail.com>
  <CAGXu5jKtv=a8qTy1-AfbzNRB=Azb8V7Pt1M4QMVYNKg6+Ci7=Q@mail.gmail.com>
@@ -14,16 +14,20 @@ Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <CA+55aFyRV9KXzeQZpVYsZYVUJm-ASgu_4_1+8Y8-0KH-YT2M8Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
 List-Id: linux-input@vger.kernel.org
 
 On Thu, Mar 15, 2018 at 4:46 PM, Linus Torvalds
 <torvalds@linux-foundation.org> wrote:
->
-> Well, the explicit typing allows that mixing, in that you can just
-> have "const_max_t(5,sizeof(x))"
+> What I'm *not* so much ok with is "const_max(5,sizeof(x))" erroring
+> out, or silently causing insane behavior due to hidden subtle type
+> casts..
 
-I obviously meant "const_max_t(size_t,5,sizeof(x))". Heh.
+Yup! I like it as an explicit argument. Thanks!
 
-                Linus
+-Kees
+
+-- 
+Kees Cook
+Pixel Security

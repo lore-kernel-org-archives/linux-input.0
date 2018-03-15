@@ -1,220 +1,102 @@
-From: Nicolas Boichat <drinkcat@chromium.org>
-Subject: [PATCH] HID: google: add google hammer HID driver
-Date: Thu, 15 Mar 2018 09:28:25 +0800
-Message-ID: <20180315012825.145329-1-drinkcat@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dtor@chromium.org
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH 00/47] arch-removal: device drivers
+Date: Thu, 15 Mar 2018 06:32:38 +0100
+Message-ID: <20180315063238.3303b8d1@bbrezillon>
+References: <20180314153603.3127932-1-arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+In-Reply-To: <20180314153603.3127932-1-arnd@arndb.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
+Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: ulf.hansson@linaro.org, linux-usb@vger.kernel.org, wsa@the-dreams.de, linux-iio@vger.kernel.org, viresh.kumar@linaro.org, linus.walleij@linaro.org, alexandre.belloni@bootlin.com, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org, lars@metafoo.de, herbert@gondor.apana.org.au, corbet@lwn.net, linux-doc@vger.kernel.org, stern@rowland.harvard.edu, linux-serial@vger.kernel.org, jslaby@suse.com, linux-mmc@vger.kernel.org, shli@kernel.org, wg@grandegger.com, linux-crypto@vger.kernel.org, linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org, b.zolnierkie@samsung.com, linux-input@vger.kernel.org, linux-can@vger.kernel.org, linux-raid@vger.kernel.org, linux-gpio@vger.kernel.org, broonie@kernel.org, bp@alien8.de, linux-fbdev@vger.kernel.org, mchehab@kernel.orglin
 List-Id: linux-input@vger.kernel.org
 
-From: Wei-Ning Huang <wnhuang@chromium.org>
+Hi Arnd,
 
-Add Google hammer HID driver. This driver allow us to control hammer
-keyboard backlight and support future features.
+On Wed, 14 Mar 2018 16:35:13 +0100
+Arnd Bergmann <arnd@arndb.de> wrote:
 
-Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
----
+> Hi driver maintainers,
+> 
+> I just posted one series with the removal of eight architectures,
+> see https://lkml.org/lkml/2018/3/14/505 for details, or
+> https://lwn.net/Articles/748074/ for more background.
+> 
+> These are the device drivers that go along with them. I have already
+> picked up the drivers for arch/metag/ into my tree, they were reviewed
+> earlier.
+> 
+> Please let me know if you have any concerns with the patch, or if you
+> prefer to pick up the patches in your respective trees.  I created
+> the patches with 'git format-patch -D', so they will not apply without
+> manually removing those files.
+> 
+> For anything else, I'd keep the removal patches in my asm-generic tree
+> and will send a pull request for 4.17 along with the actual arch removal.
+> 
+>        Arnd
+> 
+> Arnd Bergmann
+>   edac: remove tile driver
+>   net: tile: remove ethernet drivers
+>   net: adi: remove blackfin ethernet drivers
+>   net: 8390: remove m32r specific bits
+>   net: remove cris etrax ethernet driver
+>   net: smsc: remove m32r specific smc91x configuration
+>   raid: remove tile specific raid6 implementation
+>   rtc: remove tile driver
+>   rtc: remove bfin driver
+>   char: remove obsolete ds1302 rtc driver
+>   char: remove tile-srom.c
+>   char: remove blackfin OTP driver
+>   pcmcia: remove m32r drivers
+>   pcmcia: remove blackfin driver
+>   ASoC: remove blackfin drivers
+>   video/logo: remove obsolete logo files
+>   fbdev: remove blackfin drivers
+>   fbdev: s1d13xxxfb: remove m32r specific hacks
+>   crypto: remove blackfin CRC driver
+>   media: platform: remove blackfin capture driver
+>   media: platform: remove m32r specific arv driver
+>   cpufreq: remove blackfin driver
+>   cpufreq: remove cris specific drivers
+>   gpio: remove etraxfs driver
+>   pinctrl: remove adi2/blackfin drivers
+>   ata: remove bf54x driver
+>   input: keyboard: remove bf54x driver
+>   input: misc: remove blackfin rotary driver
+>   mmc: remove bfin_sdh driver
+>   can: remove bfin_can driver
+>   watchdog: remove bfin_wdt driver
+>   mtd: maps: remove bfin-async-flash driver
+>   mtd: nand: remove bf5xx_nand driver
 
-Changes since v4:
- - HID quirk is actually not necessary, as recent kernel always prefers
-   binding specialized drivers over hid-generic.
- - Rework backlight detection, relying only on HID report descriptor. We
-   also make the test a little more specific, to make sure the output
-   descriptor is actually a backlight control.
+If you don't mind, I'd like to take the mtd patches through the MTD
+tree. As you've probably noticed, nand code has been moved around and
+it's easier for me to carry those 2 simple changes in my tree than
+creating an immutable branch.
 
-Changes since v3:
- - Rebase on latest linux-next/master, which moved the quirk list from
-   hid-core.c to hid-quirks.c. Also, completely rework the logic to make
-   it possible to bind google-hammer driver to keyboard interface, and
-   generic multitouch driver to touchpad interface, as it is much simpler
-   to do now that quirks are read early in hid_add_device.
- - Add dynamic backlight detection support (only such devices have an
-   output HID descriptor).
- - Add support for wand (one more USB product ID).
- - Add SPDX-License-Identifier, fix one minor formatting issue.
+Let me know if this is a problem.
 
- drivers/hid/Kconfig             |   6 ++
- drivers/hid/Makefile            |   1 +
- drivers/hid/hid-google-hammer.c | 124 ++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h           |   3 +
- 4 files changed, 134 insertions(+)
- create mode 100644 drivers/hid/hid-google-hammer.c
+Regards,
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 1fce4c94e5ac..60252fd796f6 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -339,6 +339,12 @@ config HOLTEK_FF
- 	  Say Y here if you have a Holtek On Line Grip based game controller
- 	  and want to have force feedback support for it.
- 
-+config HID_GOOGLE_HAMMER
-+	tristate "Google Hammer Keyboard"
-+	depends on USB_HID && LEDS_CLASS
-+	---help---
-+	Say Y here if you have a Google Hammer device.
-+
- config HID_GT683R
- 	tristate "MSI GT68xR LED support"
- 	depends on LEDS_CLASS && USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 713601c7bfa6..17a8bd97da9d 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -45,6 +45,7 @@ obj-$(CONFIG_HID_ELO)		+= hid-elo.o
- obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
- obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
- obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
-+obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
- obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
- obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
- obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-new file mode 100644
-index 000000000000..6486469ce0f6
---- /dev/null
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -0,0 +1,124 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ *  HID driver for Google Hammer device.
-+ *
-+ *  Copyright (c) 2017 Google Inc.
-+ *  Author: Wei-Ning Huang <wnhuang@google.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/leds.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+#define MAX_BRIGHTNESS 100
-+
-+/* HID usage for keyboard backlight (Alphanumeric display brightness) */
-+#define HID_AD_BRIGHTNESS 0x00140046
-+
-+struct hammer_kbd_leds {
-+	struct led_classdev cdev;
-+	struct hid_device *hdev;
-+	u8 buf[2] ____cacheline_aligned;
-+};
-+
-+static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
-+		enum led_brightness br)
-+{
-+	struct hammer_kbd_leds *led = container_of(cdev,
-+						   struct hammer_kbd_leds,
-+						   cdev);
-+	int ret;
-+
-+	led->buf[0] = 0;
-+	led->buf[1] = br;
-+
-+	ret = hid_hw_output_report(led->hdev, led->buf, sizeof(led->buf));
-+	if (ret == -ENOSYS)
-+		ret = hid_hw_raw_request(led->hdev, 0, led->buf,
-+					 sizeof(led->buf),
-+					 HID_OUTPUT_REPORT,
-+					 HID_REQ_SET_REPORT);
-+	if (ret < 0)
-+		hid_err(led->hdev, "failed to set keyboard backlight: %d\n",
-+			ret);
-+	return ret;
-+}
-+
-+static int hammer_register_leds(struct hid_device *hdev)
-+{
-+	struct hammer_kbd_leds *kbd_backlight;
-+
-+	kbd_backlight = devm_kzalloc(&hdev->dev,
-+				     sizeof(*kbd_backlight),
-+				     GFP_KERNEL);
-+	if (!kbd_backlight)
-+		return -ENOMEM;
-+
-+	kbd_backlight->hdev = hdev;
-+	kbd_backlight->cdev.name = "hammer::kbd_backlight";
-+	kbd_backlight->cdev.max_brightness = MAX_BRIGHTNESS;
-+	kbd_backlight->cdev.brightness_set_blocking =
-+		hammer_kbd_brightness_set_blocking;
-+	kbd_backlight->cdev.flags = LED_HW_PLUGGABLE;
-+
-+	/* Set backlight to 0% initially. */
-+	hammer_kbd_brightness_set_blocking(&kbd_backlight->cdev, 0);
-+
-+	return devm_led_classdev_register(&hdev->dev, &kbd_backlight->cdev);
-+}
-+
-+static int hammer_input_configured(struct hid_device *hdev,
-+				   struct hid_input *hi)
-+{
-+	struct list_head *report_list =
-+		&hdev->report_enum[HID_OUTPUT_REPORT].report_list;
-+	struct hid_report *report;
-+
-+	if (list_empty(report_list))
-+		return 0;
-+
-+	report = list_first_entry(report_list, struct hid_report, list);
-+
-+	if (report->maxfield == 1 &&
-+	    report->field[0]->application == HID_GD_KEYBOARD &&
-+	    report->field[0]->maxusage == 1 &&
-+	    report->field[0]->usage[0].hid == HID_AD_BRIGHTNESS) {
-+		int err = hammer_register_leds(hdev);
-+
-+		if (err)
-+			hid_warn(hdev,
-+				"Failed to register keyboard backlight: %d\n",
-+				err);
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id hammer_devices[] = {
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, hammer_devices);
-+
-+static struct hid_driver hammer_driver = {
-+	.name = "hammer",
-+	.id_table = hammer_devices,
-+	.input_configured = hammer_input_configured,
-+};
-+module_hid_driver(hammer_driver);
-+
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 41f227a841fb..5a3a7ead3012 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -448,7 +448,10 @@
- #define USB_DEVICE_ID_GOODTOUCH_000f	0x000f
- 
- #define USB_VENDOR_ID_GOOGLE		0x18d1
-+#define USB_DEVICE_ID_GOOGLE_HAMMER	0x5022
- #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE	0x5028
-+#define USB_DEVICE_ID_GOOGLE_STAFF	0x502b
-+#define USB_DEVICE_ID_GOOGLE_WAND	0x502d
- 
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
+Boris
+
 -- 
-2.16.2.804.g6dcf76e118-goog
+Boris Brezillon, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
+
+______________________________________________________
+Linux MTD discussion mailing list
+http://lists.infradead.org/mailman/listinfo/linux-mtd/

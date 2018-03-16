@@ -1,160 +1,106 @@
-From: Nikolay Borisov <nborisov@suse.com>
-Subject: Re: [PATCH v4 2/2] Remove false-positive VLAs when using max()
-Date: Fri, 16 Mar 2018 09:52:33 +0200
-Message-ID: <1ce21a4c-9dba-516b-943d-0f5ddc939584@suse.com>
-References: <1521143266-31350-1-git-send-email-keescook@chromium.org>
- <1521143266-31350-3-git-send-email-keescook@chromium.org>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3
+ and v6 protocols
+Date: Fri, 16 Mar 2018 11:58:11 +0100
+Message-ID: <20180316105811.t2nkwowqs66f6ji6@pali>
+References: <20180312230915.26050-1-pali.rohar@gmail.com>
+ <20180312231335.fnfxgenu22utr3z6@pali>
+ <TYXPR01MB0719092EDE164BA6C576A1C7C7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+ <20180314225816.634w64kggycj67ec@pali>
+ <TYXPR01MB07191C487C66BA03E5D9AB3DC7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1521143266-31350-3-git-send-email-keescook@chromium.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <TYXPR01MB07191C487C66BA03E5D9AB3DC7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input@vger.kernel.org, linux-btrfs@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-hardening@lists.openwall.com
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+Great, thank you. Enabling that RAW/extended/SP4 mode is done by
+sequence E6, E6, E6, F3, C8, F3, 14 (written in page 35) and it matches
+what function alps_trackstick_enter_extended_mode_v3_v6() in my patch is
+doing. So is correct.
 
+On page 36 I see that there is described Method 1 for reporting stick
+data which prevents cursor jumps. Seems that kernel uses Method 2.
+Method 1 depends on some prioritization.
 
-On 15.03.2018 21:47, Kees Cook wrote:
-> As part of removing VLAs from the kernel[1], we want to build with -Wvla,
-> but it is overly pessimistic and only accepts constant expressions for
-> stack array sizes, instead of also constant values. The max() macro
-> triggers the warning, so this refactors these uses of max() to use the
-> new const_max() instead.
-> 
-> [1] https://lkml.org/lkml/2018/3/7/621
+Do you have some information how to activate Method 1? Sometimes I
+observe that problem with "cursor jumps" and from Method 1 could prevent
+it. So I would like to try experimenting...
 
-For the btrfs portion :
+On Wednesday 14 March 2018 23:56:46 Masaki Ota wrote:
+> Hi, Pali,
+>=20
+> I have added Appendix.
+> According to this spec documents, SP raw mode is SP 4 byte mode.
+> I think Extended mode meaning is almost all the same as Raw mode.
+> The description of how to set is written in Page 35.
+>=20
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Pali Roh=C3=A1r [mailto:pali.rohar@gmail.com]=20
+> Sent: Thursday, March 15, 2018 7:58 AM
+> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alps.=
+com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; linux-input@vger.kernel.=
+org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization fo=
+r v3 and v6 protocols
+>=20
+> Hi! Thank you for information.
+>=20
+> Your PS/2 Aux Port Control description seems to really matches. Just ther=
+e is reverse order of bits. Bit 0 in description is highest, therefore matc=
+hes BIT(7) macro.
+>=20
+> Bit 6 in description (BIT(1) in code) describes SP Extended Mode which al=
+ps.c enabled. And in that description is written:
+>=20
+> "If 1 SP is extended packet format (driver must set SP raw mode and GP ab=
+solute mode)."
+>=20
+> Do you have any idea what "SP raw mode" is? How to set it? For me it look=
+s like it could be that extended mode of trackstick itself.
+>=20
+> "GP absolute mode" I guess is GlidePoint absolute mode, therefore enable
+> 6 byte absolute mode for touchpad.
+>=20
+> And for Bit 7 (BIT(0)) is written:
+>=20
+> This bit is used with the PS/2 Aux port to use the Pass-Thru mode ( see a=
+ppendix A ). Do you have some information about this appendix A?
+>=20
+> On Wednesday 14 March 2018 10:21:43 Masaki Ota wrote:
+> > Hi, Pali,
+> >=20
+> > I just picked up the spec which relates with trackstic.
+> >=20
+> > Best Regards,
+> > Masaki Ota
+> > -----Original Message-----
+> > From: Pali Roh=C3=A1r [mailto:pali.rohar@gmail.com]
+> > Sent: Tuesday, March 13, 2018 8:14 AM
+> > To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alp=
+s.com>; Dmitry Torokhov=20
+> > <dmitry.torokhov@gmail.com>
+> > Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization=
+=20
+> > for v3 and v6 protocols
+> >=20
+> > Masaki, if you have access to the internal ALPS v3 / Rushmore=20
+> > documentation, I would like to have a review of this patch or=20
+> > confirmation of those information :-)
+>=20
+> --
+> Pali Roh=C3=A1r
+> pali.rohar@gmail.com
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-
-> 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->  drivers/input/touchscreen/cyttsp4_core.c |  2 +-
->  fs/btrfs/tree-checker.c                  |  3 ++-
->  lib/vsprintf.c                           |  4 ++--
->  net/ipv4/proc.c                          |  8 ++++----
->  net/ipv6/proc.c                          | 10 ++++------
->  5 files changed, 13 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
-> index 727c3232517c..f89497940051 100644
-> --- a/drivers/input/touchscreen/cyttsp4_core.c
-> +++ b/drivers/input/touchscreen/cyttsp4_core.c
-> @@ -868,7 +868,7 @@ static void cyttsp4_get_mt_touches(struct cyttsp4_mt_data *md, int num_cur_tch)
->  	struct cyttsp4_touch tch;
->  	int sig;
->  	int i, j, t = 0;
-> -	int ids[max(CY_TMA1036_MAX_TCH, CY_TMA4XX_MAX_TCH)];
-> +	int ids[const_max(CY_TMA1036_MAX_TCH, CY_TMA4XX_MAX_TCH)];
->  
->  	memset(ids, 0, si->si_ofs.tch_abs[CY_TCH_T].max * sizeof(int));
->  	for (i = 0; i < num_cur_tch; i++) {
-> diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-> index c3c8d48f6618..1ddd6cc3c4fc 100644
-> --- a/fs/btrfs/tree-checker.c
-> +++ b/fs/btrfs/tree-checker.c
-> @@ -341,7 +341,8 @@ static int check_dir_item(struct btrfs_root *root,
->  		 */
->  		if (key->type == BTRFS_DIR_ITEM_KEY ||
->  		    key->type == BTRFS_XATTR_ITEM_KEY) {
-> -			char namebuf[max(BTRFS_NAME_LEN, XATTR_NAME_MAX)];
-> +			char namebuf[const_max(BTRFS_NAME_LEN,
-> +					       XATTR_NAME_MAX)];
->  
->  			read_extent_buffer(leaf, namebuf,
->  					(unsigned long)(di + 1), name_len);
-> diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-> index d7a708f82559..9d5610b643ce 100644
-> --- a/lib/vsprintf.c
-> +++ b/lib/vsprintf.c
-> @@ -744,8 +744,8 @@ char *resource_string(char *buf, char *end, struct resource *res,
->  #define FLAG_BUF_SIZE		(2 * sizeof(res->flags))
->  #define DECODED_BUF_SIZE	sizeof("[mem - 64bit pref window disabled]")
->  #define RAW_BUF_SIZE		sizeof("[mem - flags 0x]")
-> -	char sym[max(2*RSRC_BUF_SIZE + DECODED_BUF_SIZE,
-> -		     2*RSRC_BUF_SIZE + FLAG_BUF_SIZE + RAW_BUF_SIZE)];
-> +	char sym[const_max(2*RSRC_BUF_SIZE + DECODED_BUF_SIZE,
-> +			   2*RSRC_BUF_SIZE + FLAG_BUF_SIZE + RAW_BUF_SIZE)];
->  
->  	char *p = sym, *pend = sym + sizeof(sym);
->  	int decode = (fmt[0] == 'R') ? 1 : 0;
-> diff --git a/net/ipv4/proc.c b/net/ipv4/proc.c
-> index dc5edc8f7564..fad6f989004e 100644
-> --- a/net/ipv4/proc.c
-> +++ b/net/ipv4/proc.c
-> @@ -46,7 +46,7 @@
->  #include <net/sock.h>
->  #include <net/raw.h>
->  
-> -#define TCPUDP_MIB_MAX max_t(u32, UDP_MIB_MAX, TCP_MIB_MAX)
-> +#define TCPUDP_MIB_MAX const_max(UDP_MIB_MAX, TCP_MIB_MAX)
->  
->  /*
->   *	Report socket allocation statistics [mea@utu.fi]
-> @@ -404,7 +404,7 @@ static int snmp_seq_show_tcp_udp(struct seq_file *seq, void *v)
->  	struct net *net = seq->private;
->  	int i;
->  
-> -	memset(buff, 0, TCPUDP_MIB_MAX * sizeof(unsigned long));
-> +	memset(buff, 0, sizeof(buff));
->  
->  	seq_puts(seq, "\nTcp:");
->  	for (i = 0; snmp4_tcp_list[i].name; i++)
-> @@ -421,7 +421,7 @@ static int snmp_seq_show_tcp_udp(struct seq_file *seq, void *v)
->  			seq_printf(seq, " %lu", buff[i]);
->  	}
->  
-> -	memset(buff, 0, TCPUDP_MIB_MAX * sizeof(unsigned long));
-> +	memset(buff, 0, sizeof(buff));
->  
->  	snmp_get_cpu_field_batch(buff, snmp4_udp_list,
->  				 net->mib.udp_statistics);
-> @@ -432,7 +432,7 @@ static int snmp_seq_show_tcp_udp(struct seq_file *seq, void *v)
->  	for (i = 0; snmp4_udp_list[i].name; i++)
->  		seq_printf(seq, " %lu", buff[i]);
->  
-> -	memset(buff, 0, TCPUDP_MIB_MAX * sizeof(unsigned long));
-> +	memset(buff, 0, sizeof(buff));
->  
->  	/* the UDP and UDP-Lite MIBs are the same */
->  	seq_puts(seq, "\nUdpLite:");
-> diff --git a/net/ipv6/proc.c b/net/ipv6/proc.c
-> index b67814242f78..58bbfc4fa7fa 100644
-> --- a/net/ipv6/proc.c
-> +++ b/net/ipv6/proc.c
-> @@ -30,10 +30,8 @@
->  #include <net/transp_v6.h>
->  #include <net/ipv6.h>
->  
-> -#define MAX4(a, b, c, d) \
-> -	max_t(u32, max_t(u32, a, b), max_t(u32, c, d))
-> -#define SNMP_MIB_MAX MAX4(UDP_MIB_MAX, TCP_MIB_MAX, \
-> -			IPSTATS_MIB_MAX, ICMP_MIB_MAX)
-> +#define SNMP_MIB_MAX const_max(const_max(UDP_MIB_MAX, TCP_MIB_MAX), \
-> +			       const_max(IPSTATS_MIB_MAX, ICMP_MIB_MAX))
->  
->  static int sockstat6_seq_show(struct seq_file *seq, void *v)
->  {
-> @@ -199,7 +197,7 @@ static void snmp6_seq_show_item(struct seq_file *seq, void __percpu *pcpumib,
->  	int i;
->  
->  	if (pcpumib) {
-> -		memset(buff, 0, sizeof(unsigned long) * SNMP_MIB_MAX);
-> +		memset(buff, 0, sizeof(buff));
->  
->  		snmp_get_cpu_field_batch(buff, itemlist, pcpumib);
->  		for (i = 0; itemlist[i].name; i++)
-> @@ -218,7 +216,7 @@ static void snmp6_seq_show_item64(struct seq_file *seq, void __percpu *mib,
->  	u64 buff64[SNMP_MIB_MAX];
->  	int i;
->  
-> -	memset(buff64, 0, sizeof(u64) * SNMP_MIB_MAX);
-> +	memset(buff64, 0, sizeof(buff64));
->  
->  	snmp_get_cpu_field64_batch(buff64, itemlist, mib, syncpoff);
->  	for (i = 0; itemlist[i].name; i++)
-> 
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com

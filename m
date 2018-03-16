@@ -1,40 +1,42 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
-Date: Fri, 16 Mar 2018 13:25:26 -0700
-Message-ID: <CA+55aFwzgO9w8Dj1NoCViz6JTwVLWhWabLq_cvzJ1-woEBfJMg@mail.gmail.com>
-References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
- <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
- <a37f7b0da04f4ede9fac2c88f7079a8a@AcuMS.aculab.com>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH 14/14] Input: atmel_mxt_ts - remove platform data support
+Date: Fri, 16 Mar 2018 20:41:41 +0000
+Message-ID: <20180316204141.GB24333@bm.shmanahar.org>
+References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+ <20180312190907.174301-15-dmitry.torokhov@gmail.com>
+ <20180314205938.GD26353@lava.h.shmanahar.org>
+ <20180316000614.GB60361@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a37f7b0da04f4ede9fac2c88f7079a8a@AcuMS.aculab.com>
+Content-Disposition: inline
+In-Reply-To: <20180316000614.GB60361@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Laight <David.Laight@aculab.com>
-Cc: Florian Weimer <fweimer@redhat.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 16, 2018 at 10:44 AM, David Laight <David.Laight@aculab.com> wrote:
->
-> I looked at the generated code for one of the constant sized VLA that
-> the compiler barfed at.
-> It seemed to subtract constants from %sp separately for the VLA.
-> So it looks like the compiler treats them as VLA even though it
-> knows the size.
-> That is probably missing optimisation.
+On Thu, Mar 15, 2018 at 05:06:14PM -0700, Dmitry Torokhov wrote:
+> On Wed, Mar 14, 2018 at 08:59:38PM +0000, Nick Dyer wrote:
+> > On Mon, Mar 12, 2018 at 12:09:07PM -0700, Dmitry Torokhov wrote:
+> > > -	/*
+> > > -	 * Ignore ACPI devices representing bootloader mode.
+> > > -	 *
+> > > -	 * This is a bit of a hack: Google Chromebook BIOS creates ACPI
+> > > -	 * devices for both application and bootloader modes, but we are
+> > > -	 * interested in application mode only (if device is in bootloader
+> > > -	 * mode we'll end up switching into application anyway). So far
+> > > -	 * application mode addresses were all above 0x40, so we'll use it
+> > > -	 * as a threshold.
+> > > -	 */
+> > > -	if (client->addr < 0x40)
+> > > -		return -ENXIO;
+> > 
+> > Could you use 0x4a, since that's the lowest application mode address,
+> > same in the other place.
+> 
+> OK, this is existing code though, so I'll make a separate patch.
 
-Looking at the code is definitely an option.
+Ah, I see now. In which case it's no big deal.
 
-In fact, instead of depending on -Wvla, we could just make 'objtool'
-warn about real variable-sized stack frames.
-
-That said, if that "sizeof()" trick of Al's actually works with older
-gcc versions too (it *should*, but it's not like
-__builtin_choose_expr() and __builtin_constant_p() have well-defined
-rules in the standard), that may just be the solution.
-
-And if gcc ends up generating bad code for those "constant sized vlas"
-anyway, then -Wvla would effectively warn about that code generation
-problem.
-
-              Linus
+Acked-by: Nick Dyer <nick@shmanahar.org>

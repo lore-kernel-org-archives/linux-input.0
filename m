@@ -1,500 +1,143 @@
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: Re: [RESEND PATCH v5] input: pxrc: new driver for PhoenixRC Flight
- Controller Adapter
-Date: Fri, 16 Mar 2018 14:39:38 +0100
-Message-ID: <20180316133938.GB31029@gmail.com>
-References: <20180218161747.21110-1-marcus.folkesson@gmail.com>
+Subject: Re: Fix deadlocks in autosuspend
+Date: Fri, 16 Mar 2018 14:41:36 +0100
+Message-ID: <20180316134136.GC31029@gmail.com>
+References: <20180228133803.30040-1-marcus.folkesson@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
+        protocol="application/pgp-signature"; boundary="XWOWbaMNXpFDWE00"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180218161747.21110-1-marcus.folkesson@gmail.com>
+In-Reply-To: <20180228133803.30040-1-marcus.folkesson@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
---/WwmFnJnmDyWGHa4
+--XWOWbaMNXpFDWE00
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-ping.
+Ping.
 
-I do not want to nag, but would someone please have a look at this?
+Would someone please have a look?
 
 Thanks,
 Marcus Folkesson
 
-On Sun, Feb 18, 2018 at 05:17:46PM +0100, Marcus Folkesson wrote:
-> This driver let you plug in your RC controller to the adapter and
-> use it as input device in various RC simulators.
+On Wed, Feb 28, 2018 at 02:37:57PM +0100, Marcus Folkesson wrote:
+> Hello,
 >=20
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> ---
+> I have not recieved any feedback on these so I resend them.
 >=20
-> v5:
-> 	- Drop autosuspend support
-> 	- Use pm_mutex instead of input_dev->mutex
-> 	- Use pxrc->is_open instead of input_dev->users
-> v4:
-> 	- Add call to usb_mark_last_busy() in irq
-> 	- Move code from pxrc_resume() to pxrc_reset_resume()
-> v3:
-> 	- Use RUDDER and MISC instead of TILT_X and TILT_Y
-> 	- Drop kref and anchor
-> 	- Rework URB handling
-> 	- Add PM support
-> v2:
-> 	- Change module license to GPLv2 to match SPDX tag
+> I got this deadlock on my own driver (pxrc) when using the same
+> construction.
+>=20
+> Please have a look
+>=20
+> Here is a clip from=20
+> [PATCH v3] input: pxrc: new driver for PhoenixRC Flight Controller Adapte=
+r [1]
+> that describes the problem.
+>=20
+> -------------------------------8<----------------------------------------=
+------
+> Also, I think we have a deadlock in the synaptics_usb driver.
+>=20
+> When the device is suspended and someone is open the device, the input
+> subsystem will call input_open_device() which takes the
+> input_dev->mutex and then call input_dev->open().
+>=20
+> synusb_open() has a call to usb_autopm_get_interface() which will
+> result in a call to the registered resume-function if the device is
+> suspended. (see Documentation/driver-api/usb/power-manaement.rst).
+>=20
+> In the case of snaptics_usb, it will take the input_dev->mutex in the
+> resume function.
+>=20
+> I have no synaptic mouse, but tested to put the same code into my
+> driver just to confirm, and got the following dump:
+>=20
+> [ 9215.626476] INFO: task input-events:8590 blocked for more than 120 sec=
+onds.
+> [ 9215.626495]       Not tainted 4.15.0-rc8-ARCH+ #6
+> [ 9215.626500] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disable=
+s this message.
+> [ 9215.626507] input-events    D    0  8590   4394 0x00000004
+> [ 9215.626520] Call Trace:
+> [ 9215.626546]  ? __schedule+0x236/0x850
+> [ 9215.626559]  schedule+0x2f/0x90
+> [ 9215.626569]  schedule_preempt_disabled+0x11/0x20
+> [ 9215.626579]  __mutex_lock.isra.0+0x1aa/0x520
+> [ 9215.626609]  ? usb_runtime_suspend+0x70/0x70 [usbcore]
+> [ 9215.626622]  ? pxrc_resume+0x37/0x70 [pxrc]
+> [ 9215.626632]  pxrc_resume+0x37/0x70 [pxrc]
+> [ 9215.626655]  usb_resume_interface.isra.2+0x39/0xe0 [usbcore]
+> [ 9215.626676]  usb_resume_both+0xd2/0x120 [usbcore]
+> [ 9215.626688]  __rpm_callback+0xb6/0x1f0
+> [ 9215.626699]  rpm_callback+0x1f/0x70
+> [ 9215.626718]  ? usb_runtime_suspend+0x70/0x70 [usbcore]
+> [ 9215.626726]  rpm_resume+0x4e2/0x7f0
+> [ 9215.626737]  rpm_resume+0x582/0x7f0
+> [ 9215.626749]  __pm_runtime_resume+0x3a/0x50
+> [ 9215.626767]  usb_autopm_get_interface+0x1d/0x50 [usbcore]
+> [ 9215.626780]  pxrc_open+0x17/0x8d [pxrc]
+> [ 9215.626791]  input_open_device+0x70/0xa0
+> [ 9215.626804]  evdev_open+0x183/0x1c0 [evdev]
+> [ 9215.626819]  chrdev_open+0xa0/0x1b0
+> [ 9215.626830]  ? cdev_put.part.1+0x20/0x20
+> [ 9215.626840]  do_dentry_open+0x1ad/0x2c0
+> [ 9215.626855]  path_openat+0x576/0x1300
+> [ 9215.626868]  ? alloc_set_pte+0x22c/0x520
+> [ 9215.626883]  ? filemap_map_pages+0x19b/0x340
+> [ 9215.626893]  do_filp_open+0x9b/0x110
+> [ 9215.626908]  ? __check_object_size+0x9d/0x190
+> [ 9215.626920]  ? __alloc_fd+0xaf/0x160
+> [ 9215.626931]  ? do_sys_open+0x1bd/0x250
+> [ 9215.626942]  do_sys_open+0x1bd/0x250
+> [ 9215.626956]  entry_SYSCALL_64_fastpath+0x20/0x83
+> [ 9215.626967] RIP: 0033:0x7fbf6358f7ae
 >=20
 >=20
->  Documentation/input/devices/pxrc.rst |  57 +++++++
->  drivers/input/joystick/Kconfig       |   9 ++
->  drivers/input/joystick/Makefile      |   1 +
->  drivers/input/joystick/pxrc.c        | 303 +++++++++++++++++++++++++++++=
-++++++
->  4 files changed, 370 insertions(+)
->  create mode 100644 Documentation/input/devices/pxrc.rst
->  create mode 100644 drivers/input/joystick/pxrc.c
+> tablet/pegasus_notetaker.c and touchscreen/usbtouchscreen.c has the same
+> construction (taking input_dev->mutex in resume/suspend and call
+> usb_autopm_get_interface() in open()).
 >=20
-> diff --git a/Documentation/input/devices/pxrc.rst b/Documentation/input/d=
-evices/pxrc.rst
-> new file mode 100644
-> index 000000000000..ca11f646bae8
-> --- /dev/null
-> +++ b/Documentation/input/devices/pxrc.rst
-> @@ -0,0 +1,57 @@
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D
-> +pxrc - PhoenixRC Flight Controller Adapter
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D
-> +
-> +:Author: Marcus Folkesson <marcus.folkesson@gmail.com>
-> +
-> +This driver let you use your own RC controller plugged into the
-> +adapter that comes with PhoenixRC [1]_ or other compatible adapters.
-> +
-> +The adapter supports 7 analog channels and 1 digital input switch.
-> +
-> +Notes
-> +=3D=3D=3D=3D=3D
-> +
-> +Many RC controllers is able to configure which stick goes to which chann=
-el.
-> +This is also configurable in most simulators, so a matching is not neces=
-sary.
-> +
-> +The driver is generating the following input event for analog channels:
-> +
-> ++---------+----------------+
-> +| Channel |      Event     |
-> ++=3D=3D=3D=3D=3D=3D=3D=3D=3D+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D+
-> +|     1   |  ABS_X         |
-> ++---------+----------------+
-> +|     2   |  ABS_Y         |
-> ++---------+----------------+
-> +|     3   |  ABS_RX        |
-> ++---------+----------------+
-> +|     4   |  ABS_RY        |
-> ++---------+----------------+
-> +|     5   |  ABS_RUDDER    |
-> ++---------+----------------+
-> +|     6   |  ABS_THROTTLE  |
-> ++---------+----------------+
-> +|     7   |  ABS_MISC      |
-> ++---------+----------------+
-> +
-> +The digital input switch is generated as an `BTN_A` event.
-> +
-> +Manual Testing
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +To test this driver's functionality you may use `input-event` which is p=
-art of
-> +the `input layer utilities` suite [2]_.
-> +
-> +For example::
-> +
-> +    > modprobe pxrc
-> +    > input-events <devnr>
-> +
-> +To print all input events from input `devnr`.
-> +
-> +References
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> +
-> +.. [1] http://www.phoenix-sim.com/
-> +.. [2] https://www.kraxel.org/cgit/input/
-> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kcon=
-fig
-> index f3c2f6ea8b44..332c0cc1b2ab 100644
-> --- a/drivers/input/joystick/Kconfig
-> +++ b/drivers/input/joystick/Kconfig
-> @@ -351,4 +351,13 @@ config JOYSTICK_PSXPAD_SPI_FF
-> =20
->  	  To drive rumble motor a dedicated power supply is required.
-> =20
-> +config JOYSTICK_PXRC
-> +	tristate "PhoenixRC Flight Controller Adapter"
-> +	depends on USB_ARCH_HAS_HCD
-> +	depends on USB
-> +	help
-> +	  Say Y here if you want to use the PhoenixRC Flight Controller Adapter.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called pxrc.
->  endif
-> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Mak=
-efile
-> index 67651efda2e1..dd0492ebbed7 100644
-> --- a/drivers/input/joystick/Makefile
-> +++ b/drivers/input/joystick/Makefile
-> @@ -23,6 +23,7 @@ obj-$(CONFIG_JOYSTICK_JOYDUMP)		+=3D joydump.o
->  obj-$(CONFIG_JOYSTICK_MAGELLAN)		+=3D magellan.o
->  obj-$(CONFIG_JOYSTICK_MAPLE)		+=3D maplecontrol.o
->  obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+=3D psxpad-spi.o
-> +obj-$(CONFIG_JOYSTICK_PXRC)			+=3D pxrc.o
->  obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+=3D sidewinder.o
->  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+=3D spaceball.o
->  obj-$(CONFIG_JOYSTICK_SPACEORB)		+=3D spaceorb.o
-> diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
-> new file mode 100644
-> index 000000000000..07a0dbd3ced2
-> --- /dev/null
-> +++ b/drivers/input/joystick/pxrc.c
-> @@ -0,0 +1,303 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Driver for Phoenix RC Flight Controller Adapter
-> + *
-> + * Copyright (C) 2018 Marcus Folkesson <marcus.folkesson@gmail.com>
-> + *
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/slab.h>
-> +#include <linux/module.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/usb.h>
-> +#include <linux/usb/input.h>
-> +#include <linux/mutex.h>
-> +#include <linux/input.h>
-> +
-> +#define PXRC_VENDOR_ID	(0x1781)
-> +#define PXRC_PRODUCT_ID	(0x0898)
-> +
-> +static const struct usb_device_id pxrc_table[] =3D {
-> +	{ USB_DEVICE(PXRC_VENDOR_ID, PXRC_PRODUCT_ID) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(usb, pxrc_table);
-> +
-> +struct pxrc {
-> +	struct input_dev	*input;
-> +	struct usb_device	*udev;
-> +	struct usb_interface	*intf;
-> +	struct urb		*urb;
-> +	struct mutex		pm_mutex;
-> +	bool			is_open;
-> +	__u8			epaddr;
-> +	char			phys[64];
-> +	unsigned char           *data;
-> +	size_t			bsize;
-> +};
-> +
-> +static void pxrc_usb_irq(struct urb *urb)
-> +{
-> +	struct pxrc *pxrc =3D urb->context;
-> +	int error;
-> +
-> +	switch (urb->status) {
-> +	case 0:
-> +		/* success */
-> +		break;
-> +	case -ETIME:
-> +		/* this urb is timing out */
-> +		dev_dbg(&pxrc->intf->dev,
-> +			"%s - urb timed out - was the device unplugged?\n",
-> +			__func__);
-> +		return;
-> +	case -ECONNRESET:
-> +	case -ENOENT:
-> +	case -ESHUTDOWN:
-> +	case -EPIPE:
-> +		/* this urb is terminated, clean up */
-> +		dev_dbg(&pxrc->intf->dev, "%s - urb shutting down with status: %d\n",
-> +			__func__, urb->status);
-> +		return;
-> +	default:
-> +		dev_dbg(&pxrc->intf->dev, "%s - nonzero urb status received: %d\n",
-> +			__func__, urb->status);
-> +		goto exit;
-> +	}
-> +
-> +	if (urb->actual_length =3D=3D 8) {
-> +		input_report_abs(pxrc->input, ABS_X, pxrc->data[0]);
-> +		input_report_abs(pxrc->input, ABS_Y, pxrc->data[2]);
-> +		input_report_abs(pxrc->input, ABS_RX, pxrc->data[3]);
-> +		input_report_abs(pxrc->input, ABS_RY, pxrc->data[4]);
-> +		input_report_abs(pxrc->input, ABS_RUDDER, pxrc->data[5]);
-> +		input_report_abs(pxrc->input, ABS_THROTTLE, pxrc->data[6]);
-> +		input_report_abs(pxrc->input, ABS_MISC, pxrc->data[7]);
-> +
-> +		input_report_key(pxrc->input, BTN_A, pxrc->data[1]);
-> +	}
-> +
-> +exit:
-> +	/* Resubmit to fetch new fresh URBs */
-> +	error =3D usb_submit_urb(urb, GFP_ATOMIC);
-> +	if (error && error !=3D -EPERM)
-> +		dev_err(&pxrc->intf->dev,
-> +			"%s - usb_submit_urb failed with result: %d",
-> +			__func__, error);
-> +}
-> +
-> +static int pxrc_open(struct input_dev *input)
-> +{
-> +	struct pxrc *pxrc =3D input_get_drvdata(input);
-> +	int retval;
-> +
-> +	mutex_lock(&pxrc->pm_mutex);
-> +	retval =3D usb_submit_urb(pxrc->urb, GFP_KERNEL);
-> +	if (retval) {
-> +		dev_err(&pxrc->intf->dev,
-> +			"%s - usb_submit_urb failed, error: %d\n",
-> +			__func__, retval);
-> +		retval =3D -EIO;
-> +		goto out;
-> +	}
-> +
-> +	pxrc->is_open =3D true;
-> +
-> +out:
-> +	mutex_unlock(&pxrc->pm_mutex);
-> +	return retval;
-> +}
-> +
-> +static void pxrc_close(struct input_dev *input)
-> +{
-> +	struct pxrc *pxrc =3D input_get_drvdata(input);
-> +
-> +	mutex_lock(&pxrc->pm_mutex);
-> +	usb_kill_urb(pxrc->urb);
-> +	pxrc->is_open =3D false;
-> +	mutex_unlock(&pxrc->pm_mutex);
-> +}
-> +
-> +static int pxrc_usb_init(struct pxrc *pxrc)
-> +{
-> +	struct usb_endpoint_descriptor *epirq;
-> +	unsigned int pipe;
-> +	int retval;
-> +
-> +	/* Set up the endpoint information */
-> +	/* This device only has an interrupt endpoint */
-> +	retval =3D usb_find_common_endpoints(pxrc->intf->cur_altsetting,
-> +			NULL, NULL, &epirq, NULL);
-> +	if (retval) {
-> +		dev_err(&pxrc->intf->dev,
-> +			"Could not find endpoint\n");
-> +		goto error;
-> +	}
-> +
-> +	pxrc->bsize =3D usb_endpoint_maxp(epirq);
-> +	pxrc->epaddr =3D epirq->bEndpointAddress;
-> +	pxrc->data =3D devm_kmalloc(&pxrc->intf->dev, pxrc->bsize, GFP_KERNEL);
-> +	if (!pxrc->data) {
-> +		retval =3D -ENOMEM;
-> +		goto error;
-> +	}
-> +
-> +	usb_set_intfdata(pxrc->intf, pxrc);
-> +	usb_make_path(pxrc->udev, pxrc->phys, sizeof(pxrc->phys));
-> +	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
-> +
-> +	pxrc->urb =3D usb_alloc_urb(0, GFP_KERNEL);
-> +	if (!pxrc->urb) {
-> +		retval =3D -ENOMEM;
-> +		goto error;
-> +	}
-> +
-> +	pipe =3D usb_rcvintpipe(pxrc->udev, pxrc->epaddr),
-> +	usb_fill_int_urb(pxrc->urb, pxrc->udev, pipe, pxrc->data, pxrc->bsize,
-> +						pxrc_usb_irq, pxrc, 1);
-> +
-> +error:
-> +	return retval;
-> +
-> +
-> +}
-> +
-> +static int pxrc_input_init(struct pxrc *pxrc)
-> +{
-> +	pxrc->input =3D devm_input_allocate_device(&pxrc->intf->dev);
-> +	if (pxrc->input =3D=3D NULL) {
-> +		dev_err(&pxrc->intf->dev, "couldn't allocate input device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	pxrc->input->name =3D "PXRC Flight Controller Adapter";
-> +	pxrc->input->phys =3D pxrc->phys;
-> +	usb_to_input_id(pxrc->udev, &pxrc->input->id);
-> +
-> +	pxrc->input->open =3D pxrc_open;
-> +	pxrc->input->close =3D pxrc_close;
-> +
-> +	input_set_capability(pxrc->input, EV_KEY, BTN_A);
-> +	input_set_abs_params(pxrc->input, ABS_X, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_Y, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_RX, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_RY, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_RUDDER, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_THROTTLE, 0, 255, 0, 0);
-> +	input_set_abs_params(pxrc->input, ABS_MISC, 0, 255, 0, 0);
-> +
-> +	input_set_drvdata(pxrc->input, pxrc);
-> +
-> +	return input_register_device(pxrc->input);
-> +}
-> +
-> +static int pxrc_probe(struct usb_interface *intf,
-> +		      const struct usb_device_id *id)
-> +{
-> +	struct pxrc *pxrc;
-> +	int retval;
-> +
-> +	pxrc =3D devm_kzalloc(&intf->dev, sizeof(*pxrc), GFP_KERNEL);
-> +	if (!pxrc)
-> +		return -ENOMEM;
-> +
-> +	mutex_init(&pxrc->pm_mutex);
-> +	pxrc->udev =3D usb_get_dev(interface_to_usbdev(intf));
-> +	pxrc->intf =3D intf;
-> +
-> +	retval =3D pxrc_usb_init(pxrc);
-> +	if (retval)
-> +		goto error;
-> +
-> +	retval =3D pxrc_input_init(pxrc);
-> +	if (retval)
-> +		goto err_free_urb;
-> +
-> +	return 0;
-> +
-> +err_free_urb:
-> +	usb_free_urb(pxrc->urb);
-> +
-> +error:
-> +	return retval;
-> +}
-> +
-> +static void pxrc_disconnect(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
-> +
-> +	usb_free_urb(pxrc->urb);
-> +	usb_set_intfdata(intf, NULL);
-> +}
-> +
-> +static int pxrc_suspend(struct usb_interface *intf, pm_message_t message)
-> +{
-> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
-> +
-> +	mutex_lock(&pxrc->pm_mutex);
-> +	if (pxrc->is_open)
-> +		usb_kill_urb(pxrc->urb);
-> +	mutex_unlock(&pxrc->pm_mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +static int pxrc_resume(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
-> +	int retval =3D 0;
-> +
-> +	mutex_lock(&pxrc->pm_mutex);
-> +	if (pxrc->is_open && usb_submit_urb(pxrc->urb, GFP_KERNEL) < 0)
-> +		retval =3D -EIO;
-> +
-> +	mutex_unlock(&pxrc->pm_mutex);
-> +	return retval;
-> +}
-> +
-> +static int pxrc_pre_reset(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
-> +
-> +	mutex_lock(&pxrc->pm_mutex);
-> +	usb_kill_urb(pxrc->urb);
-> +	return 0;
-> +}
-> +
-> +static int pxrc_post_reset(struct usb_interface *intf)
-> +{
-> +	struct pxrc *pxrc =3D usb_get_intfdata(intf);
-> +	int retval =3D 0;
-> +
-> +	if (pxrc->is_open && usb_submit_urb(pxrc->urb, GFP_KERNEL) < 0)
-> +		retval =3D -EIO;
-> +
-> +	mutex_unlock(&pxrc->pm_mutex);
-> +
-> +	return retval;
-> +}
-> +
-> +static int pxrc_reset_resume(struct usb_interface *intf)
-> +{
-> +	return pxrc_resume(intf);
-> +}
-> +
-> +static struct usb_driver pxrc_driver =3D {
-> +	.name =3D		"pxrc",
-> +	.probe =3D	pxrc_probe,
-> +	.disconnect =3D	pxrc_disconnect,
-> +	.id_table =3D	pxrc_table,
-> +	.suspend	=3D pxrc_suspend,
-> +	.resume		=3D pxrc_resume,
-> +	.pre_reset	=3D pxrc_pre_reset,
-> +	.post_reset	=3D pxrc_post_reset,
-> +	.reset_resume	=3D pxrc_reset_resume,
-> +};
-> +
-> +module_usb_driver(pxrc_driver);
-> +
-> +MODULE_AUTHOR("Marcus Folkesson <marcus.folkesson@gmail.com>");
-> +MODULE_DESCRIPTION("PhoenixRC Flight Controller Adapter");
-> +MODULE_LICENSE("GPL v2");
-> --=20
-> 2.15.1
+> I will create a separate "pm_mutex" to use instead of input_dev->mutex
+> to get rid of the lockups in those drivers=20
+>=20
+> -------------------------------8<----------------------------------------=
+------
+>=20
+>=20
+> [1] https://lkml.org/lkml/2018/1/20/191
+>=20
+> Thanks,
+>=20
+> Best regards
+> Marcus Folkesson
 >=20
 
---/WwmFnJnmDyWGHa4
+--XWOWbaMNXpFDWE00
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlqryRQACgkQiIBOb1ld
-UjLtHxAArdzfUQFHR4ppo09ayayq7AwHuQSb+j2Jv7fJFInN3jHiRlFPgua+v03z
-IXKmArh8QhhJ38WXz+6zPhUBMGk5i9TiIe1pmMgpnxNwsRabKRMLz/7lR1mkANYW
-XISmXAZB4z0Sc2nA+JVkoiuvnoVwITAsM3bKFUoyTrnvlZ2mOPMPKOjoyG6Kf+m3
-hx7ZPA6KOnDlawchlDAb2t+3o9iIUck0TFxri4Li4QDnzieWlWIslOJeafPFYgOW
-sm1Y+vQog96CBtcWbJHxGqIR7YpUR0vUxVKrSI+tK9r8LU8DPgvCChGHDW0RW00E
-FZJ6f/JcntEGz+/scZBT+JKvMEoi5BmuhntxRXs6ko8uyOa2t7H39eZ4OCA30Wxa
-TOxdguRrZYbnp0+8z47MlKy7aJEVxuv7FKaFejNR1Uu9gD/l3d9gq0sKmeoISpwU
-rtuJALuJaAHjVpoo6A1kc1kgGG9FiWhRxXtpS5QCCFGa5vDqwi4Q6pmSQO8k+fOj
-cjU565vpm+dB6yQNIEuESxL7Gcz4VOoZ/hkfhyA0BzSmnB6u7pQLrl2issBFnlJJ
-E70Qgh7A+v0xEPCiVvh5yQeLH4P37groYBBygJHfWkiG6XXUPhPc8FxOH7TcVgCp
-0awvpNd5n64DpKWStCuBedt6mch0+4go6yF/lZHoVYjdx6B7cdA=
-=LSi/
+iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlqryYsACgkQiIBOb1ld
+UjLSRw/8Dz8L0gZjZ5gIAzHmyt5Qb/4dk2J7pMEsQ7haeRPdwQXmmKkT6vDXVFDV
+7qofRlelDJkF8dGWFGJgsA0HJHGzIVfFv8e+sqTJSE5fz3lMfzgctw6BNawlj1si
+mNn+rXId8L7TkhrkjI9+mb5hdXerFZNqPLpi73+DsXPaIMTH/bU2yxJdhIb0W0zJ
+hOBRLFmTvnhxUTqVOtwX4AbfrbpjVYhILQdiGiKhA5aMU5P94VnCt56kH+Gy/ehl
+eCrhArfOF7dMsbXOyTzvClFgWMl9/QCGHodTTdd8jDNiWlUSPkIC6GDS56OdrUw9
+wUnGXgfTAYqoRp1ERowNK8rHn25MwD15PoIHFvMKMZU5uCZL66fLlyQd7ssQShua
+oQ2Pln8t7oAbtyQHTHTn7mkOoueltf5QZKiWU+QF8SmEuxnuW39QZBq9yp81QSs0
+Bi85Q4cYNbUK96rDoXTqjFGNfMa4TyaPmjz7kAb8hpavJba9y6k2yQg/rClktGpy
+n1gBfiUvTFpvP2gHSRcknJf4yeHGvDv0Nk+zfNdwT/288S0WfyMh0gf2AyCFgrsP
+f9vKxFAY+es9Lejr7W02YY+Nu07GG19fT3qmm2E7ZCJeNphv0/cevOgnLvuKpOvc
+8yDkTetaMzZZZsLJVlvQ9Hl9Nuw6+dFAvSNHu3RIOC261LZhVnE=
+=YU7i
 -----END PGP SIGNATURE-----
 
---/WwmFnJnmDyWGHa4--
+--XWOWbaMNXpFDWE00--

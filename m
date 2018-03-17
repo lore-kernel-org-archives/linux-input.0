@@ -1,68 +1,69 @@
-From: Heiko Stuebner <heiko@sntech.de>
-Subject: Re: [PATCH v5 07/36] drm/bridge: analogix_dp: Move enable video into
- config_video()
-Date: Sat, 17 Mar 2018 17:00:21 +0100
-Message-ID: <1685480.Fci6377Q9J@phil>
-References: <20180309222327.18689-1-enric.balletbo@collabora.com>
- <20180309222327.18689-8-enric.balletbo@collabora.com>
- <79009f48-d677-ccc0-4d61-3b379d8448a8@codeaurora.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 01/14] Input: atmel_mxt_ts - do not pass suspend mode in
+ platform data
+Date: Sat, 17 Mar 2018 10:42:40 -0700
+Message-ID: <20180317174240.GC183240@dtor-ws>
+References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+ <20180312190907.174301-2-dmitry.torokhov@gmail.com>
+ <20180314205123.GA26353@lava.h.shmanahar.org>
+ <20180315235621.GA60361@dtor-ws>
+ <20180316204002.GA24333@bm.shmanahar.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <79009f48-d677-ccc0-4d61-3b379d8448a8@codeaurora.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Archit Taneja <architt@codeaurora.org>
-Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, thierry.reding@gmail.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, linux-kernel@vger.kernel.org, jeffy.chen@rock-chips.com, =?ISO-8859-1?Q?St=E9phane?= Marchesin <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, tfiga@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180316204002.GA24333@bm.shmanahar.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>
+Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGkgQXJjaGl0LAoKQW0gTWl0dHdvY2gsIDE0LiBNw6RyeiAyMDE4LCAwNjo1OTo1OSBDRVQgc2No
-cmllYiBBcmNoaXQgVGFuZWphOgo+IE9uIFNhdHVyZGF5IDEwIE1hcmNoIDIwMTggMDM6NTIgQU0s
-IEVucmljIEJhbGxldGJvIGkgU2VycmEgd3JvdGU6Cj4gPiBGcm9tOiBMaW4gSHVhbmcgPGhsQHJv
-Y2stY2hpcHMuY29tPgo+ID4gCj4gPiBXZSBuZWVkIHRvIGVuYWJsZSB2aWRlbyBiZWZvcmUgYW5h
-bG9naXhfZHBfaXNfdmlkZW9fc3RyZWFtX29uKCksIHNvCj4gPiB3ZSBjYW4gZ2V0IHRoZSByaWdo
-dCB2aWRlbyBzdHJlYW0gc3RhdHVzLgo+ID4gCj4gPiBDYzog5b6B5aKeIOeOiyA8d3p6QHJvY2st
-Y2hpcHMuY29tPgo+ID4gQ2M6IFN0w6lwaGFuZSBNYXJjaGVzaW4gPG1hcmNoZXVAY2hyb21pdW0u
-b3JnPgo+ID4gU2lnbmVkLW9mZi1ieTogTGluIEh1YW5nIDxobEByb2NrLWNoaXBzLmNvbT4KPiA+
-IFNpZ25lZC1vZmYtYnk6IFNlYW4gUGF1bCA8c2VhbnBhdWxAY2hyb21pdW0ub3JnPgo+ID4gU2ln
-bmVkLW9mZi1ieTogVGhpZXJyeSBFc2NhbmRlIDx0aGllcnJ5LmVzY2FuZGVAY29sbGFib3JhLmNv
-bT4KPiA+IFJldmlld2VkLWJ5OiBBbmRyemVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPgo+
-ID4gU2lnbmVkLW9mZi1ieTogRW5yaWMgQmFsbGV0Ym8gaSBTZXJyYSA8ZW5yaWMuYmFsbGV0Ym9A
-Y29sbGFib3JhLmNvbT4KPiA+IFRlc3RlZC1ieTogTWFyZWsgU3p5cHJvd3NraSA8bS5zenlwcm93
-c2tpQHNhbXN1bmcuY29tPgo+ID4gLS0tCj4gPiAKPiA+ICAgZHJpdmVycy9ncHUvZHJtL2JyaWRn
-ZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMgfCAxMSArKysrKy0tLS0tLQo+ID4gICAxIGZp
-bGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQo+ID4gCj4gPiBkaWZm
-IC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3Jl
-LmMgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwo+
-ID4gaW5kZXggNWEyZTM1ZGM0MWUzLi5mOTY2MWI0MTBjYjkgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2
-ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwo+ID4gKysrIGIv
-ZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMKPiA+IEBA
-IC04MTksMTEgKzgxOSwxMCBAQCBzdGF0aWMgaW50IGFuYWxvZ2l4X2RwX2NvbmZpZ192aWRlbyhz
-dHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKPiA+ICAgCQlpZiAoYW5hbG9naXhfZHBfaXNf
-c2xhdmVfdmlkZW9fc3RyZWFtX2Nsb2NrX29uKGRwKSA9PSAwKQo+ID4gICAJCQlicmVhazsKPiA+
-ICAgCQlpZiAodGltZW91dF9sb29wID4gRFBfVElNRU9VVF9MT09QX0NPVU5UKSB7Cj4gPiAtCQkJ
-ZGV2X2VycihkcC0+ZGV2LCAiVGltZW91dCBvZiB2aWRlbyBzdHJlYW1jbGsgb2tcbiIpOwo+ID4g
-KwkJCWRldl9lcnIoZHAtPmRldiwgIlRpbWVvdXQgb2Ygc2xhdmUgdmlkZW8gc3RyZWFtY2xrIG9r
-XG4iKTsKPiA+ICAgCQkJcmV0dXJuIC1FVElNRURPVVQ7Cj4gPiAgIAkJfQo+ID4gLQo+ID4gLQkJ
-dXNsZWVwX3JhbmdlKDEsIDIpOwo+ID4gKwkJdXNsZWVwX3JhbmdlKDEwMDAsIDEwMDEpOwo+IAo+
-IENvdWxkIHdlIGJyaWVmbHkgZXhwbGFpbiBpbiB0aGUgY29tbWl0IG1lc3NhZ2Ugd2h5IHdlIG5l
-ZWQgdG8gaW5jcmVhc2UKPiB0aGUgZGVsYXkgaW4gdGhlIHRpbWVvdXQgbG9vcD8gSXMgaXQgYSBj
-b25zZXF1ZW5jZSBvZiBjYWxsaW5nCj4gYW5hbG9naXhfZHBfc3RhcnRfdmlkZW8oKSBlYXJsaWVy
-LCBvciBpcyB0aGlzIHRoZSBwcmVmZXJyZWQgdGltZQo+IG1lbnRpb25lZCBpbiB0aGUgc3BlY3M/
-CgpJIGFza2VkIExpbiwgdGhlIG9yaWdpbmFsIGF1dGhvciBvZiB0aGlzIHBhdGNoLCByZXNwb25z
-ZSBxdW90ZWQgYmVsb3c6CgoiVGhlcmUgaXMgcmFuZG9tICJUaW1lb3V0IG9mIHZpZGVvIHN0cmVh
-bWNsayBvayIgbWVzc2FnZSBoYXBwZW4gd2hlbiAKZGVidWcgZWRwIHBhbmVsLApTbyB3ZSBleHRl
-bmQgdGhpcyB0aW1lLCAgdGhpcyB0aW1lIGRvIG5vdCBkZWZpbmUgaW4gdGhlIHNwZWMuIgoKU28g
-aXQgbG9va3MgbGlrZSBpdCB3YXMgd29ya2luZyBieSBjaGFuY2UgYmVmb3JlIGFuZCB0aGlzIG1v
-dmUgdHJpZ2dlcmVkCnNvbWUgc29ydCBvZiB0aW1pbmcgaXNzdWUuCgoKSGVpa28KX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcg
-bGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
-c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On Fri, Mar 16, 2018 at 08:40:02PM +0000, Nick Dyer wrote:
+> On Thu, Mar 15, 2018 at 04:56:21PM -0700, Dmitry Torokhov wrote:
+> > On Wed, Mar 14, 2018 at 08:51:24PM +0000, Nick Dyer wrote:
+> > > On Mon, Mar 12, 2018 at 12:08:54PM -0700, Dmitry Torokhov wrote:
+> > > > The way we are supposed to put controller to sleep and wake it up does not
+> > > > depend on the platform, but rather on controller itself. Controllers using
+> > > > T9 require manipulating T9 control register, while others, using newer
+> > > > T100, should be put to sleep by adjusting T7 power config.
+> > > 
+> > > I'm afraid this is actually a misconception. If you look at object table
+> > > for the older T9 device, you'll find it has the T7 object and it in fact
+> > > works exactly the same way as the T100-based device.
+> > > 
+> > > The MXT_SUSPEND_T9_CTRL is in there because on your older Pixel devices
+> > > the config saved into NVRAM on the touch controller has a zero byte in
+> > > the T9 CTRL setting, meaning the touch controller will never wake up
+> > > unless the driver knows to write 0x83 into it.
+> > 
+> > Ah, OK, I see. I would really like to drop this pdata->suspend_mode
+> > stuff and I do not want to create "pixel-screwed-up" property either...
+> > I guess for the time being I'll put a DMI quirk for Link to restore T9
+> > control method, and then look into cleaning it all up. We have quite a
+> > bit different code in chromeos kernel trees and I'd like to reconcile
+> > it.
+> 
+> Yes, it would be great to get rid of it. The driver does have the
+> ability to download configuration via the firmware loader interface. So
+> you would be able to grab a copy of the config by saving it with
+> mxt-app, tweak it to ensure that the T9 CTRL byte is set correctly, then
+> ship it somehow (presumably it could be added to linux-firmware). This
+> would override what's currently stored in NVRAM on all those units and
+> mean we could remove the T9_CTRL stuff.
+
+We can't really rely on people fetching updated config. Do you think we
+could see if the device has only T9 and not T100 and if coming out of
+suspend the T9 CTRL byte is 0 we overwrite it with the 0x83?
+
+> 
+> I'm happy to talk you through sorting that out in more detail if you
+> want to give it a go. I don't have any Pixel 1 hardware available at the
+> moment, unfortunately.
+
+Yes, I have several Chromebooks with Atmel so I can try on a few of
+them.
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,43 +1,68 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
-Date: Sat, 17 Mar 2018 00:27:02 -0700
-Message-ID: <CAGXu5jJmAAgaq3VCsUN2yjpHLSc7P-kNrM_4c4cqP=ysFcETXA@mail.gmail.com>
-References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
- <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
- <20180316175502.GE30522@ZenIV.linux.org.uk> <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v5 07/36] drm/bridge: analogix_dp: Move enable video into
+ config_video()
+Date: Sat, 17 Mar 2018 17:00:21 +0100
+Message-ID: <1685480.Fci6377Q9J@phil>
+References: <20180309222327.18689-1-enric.balletbo@collabora.com>
+ <20180309222327.18689-8-enric.balletbo@collabora.com>
+ <79009f48-d677-ccc0-4d61-3b379d8448a8@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <79009f48-d677-ccc0-4d61-3b379d8448a8@codeaurora.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Archit Taneja <architt@codeaurora.org>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, thierry.reding@gmail.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, linux-kernel@vger.kernel.org, jeffy.chen@rock-chips.com, =?ISO-8859-1?Q?St=E9phane?= Marchesin <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, tfiga@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 16, 2018 at 12:27 PM, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> Kees - is there some online "gcc-4.4 checker" somewhere? This does
-> seem to work with my gcc. I actually tested some of those files you
-> pointed at now.
-
-Unfortunately my 4.4 test fails quickly:
-
-./include/linux/jiffies.h: In function =E2=80=98jiffies_delta_to_clock_t=E2=
-=80=99:
-./include/linux/jiffies.h:444: error: first argument to
-=E2=80=98__builtin_choose_expr=E2=80=99 not a constant
-
-static inline clock_t jiffies_delta_to_clock_t(long delta)
-{
-        return jiffies_to_clock_t(max(0L, delta));
-}
-
-I think this is the same problem of using __builtin_constant_p() in
-4.4 that we hit earlier? :(
-
--Kees
-
---=20
-Kees Cook
-Pixel Security
+SGkgQXJjaGl0LAoKQW0gTWl0dHdvY2gsIDE0LiBNw6RyeiAyMDE4LCAwNjo1OTo1OSBDRVQgc2No
+cmllYiBBcmNoaXQgVGFuZWphOgo+IE9uIFNhdHVyZGF5IDEwIE1hcmNoIDIwMTggMDM6NTIgQU0s
+IEVucmljIEJhbGxldGJvIGkgU2VycmEgd3JvdGU6Cj4gPiBGcm9tOiBMaW4gSHVhbmcgPGhsQHJv
+Y2stY2hpcHMuY29tPgo+ID4gCj4gPiBXZSBuZWVkIHRvIGVuYWJsZSB2aWRlbyBiZWZvcmUgYW5h
+bG9naXhfZHBfaXNfdmlkZW9fc3RyZWFtX29uKCksIHNvCj4gPiB3ZSBjYW4gZ2V0IHRoZSByaWdo
+dCB2aWRlbyBzdHJlYW0gc3RhdHVzLgo+ID4gCj4gPiBDYzog5b6B5aKeIOeOiyA8d3p6QHJvY2st
+Y2hpcHMuY29tPgo+ID4gQ2M6IFN0w6lwaGFuZSBNYXJjaGVzaW4gPG1hcmNoZXVAY2hyb21pdW0u
+b3JnPgo+ID4gU2lnbmVkLW9mZi1ieTogTGluIEh1YW5nIDxobEByb2NrLWNoaXBzLmNvbT4KPiA+
+IFNpZ25lZC1vZmYtYnk6IFNlYW4gUGF1bCA8c2VhbnBhdWxAY2hyb21pdW0ub3JnPgo+ID4gU2ln
+bmVkLW9mZi1ieTogVGhpZXJyeSBFc2NhbmRlIDx0aGllcnJ5LmVzY2FuZGVAY29sbGFib3JhLmNv
+bT4KPiA+IFJldmlld2VkLWJ5OiBBbmRyemVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPgo+
+ID4gU2lnbmVkLW9mZi1ieTogRW5yaWMgQmFsbGV0Ym8gaSBTZXJyYSA8ZW5yaWMuYmFsbGV0Ym9A
+Y29sbGFib3JhLmNvbT4KPiA+IFRlc3RlZC1ieTogTWFyZWsgU3p5cHJvd3NraSA8bS5zenlwcm93
+c2tpQHNhbXN1bmcuY29tPgo+ID4gLS0tCj4gPiAKPiA+ICAgZHJpdmVycy9ncHUvZHJtL2JyaWRn
+ZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMgfCAxMSArKysrKy0tLS0tLQo+ID4gICAxIGZp
+bGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQo+ID4gCj4gPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3Jl
+LmMgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwo+
+ID4gaW5kZXggNWEyZTM1ZGM0MWUzLi5mOTY2MWI0MTBjYjkgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2
+ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwo+ID4gKysrIGIv
+ZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmMKPiA+IEBA
+IC04MTksMTEgKzgxOSwxMCBAQCBzdGF0aWMgaW50IGFuYWxvZ2l4X2RwX2NvbmZpZ192aWRlbyhz
+dHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKPiA+ICAgCQlpZiAoYW5hbG9naXhfZHBfaXNf
+c2xhdmVfdmlkZW9fc3RyZWFtX2Nsb2NrX29uKGRwKSA9PSAwKQo+ID4gICAJCQlicmVhazsKPiA+
+ICAgCQlpZiAodGltZW91dF9sb29wID4gRFBfVElNRU9VVF9MT09QX0NPVU5UKSB7Cj4gPiAtCQkJ
+ZGV2X2VycihkcC0+ZGV2LCAiVGltZW91dCBvZiB2aWRlbyBzdHJlYW1jbGsgb2tcbiIpOwo+ID4g
+KwkJCWRldl9lcnIoZHAtPmRldiwgIlRpbWVvdXQgb2Ygc2xhdmUgdmlkZW8gc3RyZWFtY2xrIG9r
+XG4iKTsKPiA+ICAgCQkJcmV0dXJuIC1FVElNRURPVVQ7Cj4gPiAgIAkJfQo+ID4gLQo+ID4gLQkJ
+dXNsZWVwX3JhbmdlKDEsIDIpOwo+ID4gKwkJdXNsZWVwX3JhbmdlKDEwMDAsIDEwMDEpOwo+IAo+
+IENvdWxkIHdlIGJyaWVmbHkgZXhwbGFpbiBpbiB0aGUgY29tbWl0IG1lc3NhZ2Ugd2h5IHdlIG5l
+ZWQgdG8gaW5jcmVhc2UKPiB0aGUgZGVsYXkgaW4gdGhlIHRpbWVvdXQgbG9vcD8gSXMgaXQgYSBj
+b25zZXF1ZW5jZSBvZiBjYWxsaW5nCj4gYW5hbG9naXhfZHBfc3RhcnRfdmlkZW8oKSBlYXJsaWVy
+LCBvciBpcyB0aGlzIHRoZSBwcmVmZXJyZWQgdGltZQo+IG1lbnRpb25lZCBpbiB0aGUgc3BlY3M/
+CgpJIGFza2VkIExpbiwgdGhlIG9yaWdpbmFsIGF1dGhvciBvZiB0aGlzIHBhdGNoLCByZXNwb25z
+ZSBxdW90ZWQgYmVsb3c6CgoiVGhlcmUgaXMgcmFuZG9tICJUaW1lb3V0IG9mIHZpZGVvIHN0cmVh
+bWNsayBvayIgbWVzc2FnZSBoYXBwZW4gd2hlbiAKZGVidWcgZWRwIHBhbmVsLApTbyB3ZSBleHRl
+bmQgdGhpcyB0aW1lLCAgdGhpcyB0aW1lIGRvIG5vdCBkZWZpbmUgaW4gdGhlIHNwZWMuIgoKU28g
+aXQgbG9va3MgbGlrZSBpdCB3YXMgd29ya2luZyBieSBjaGFuY2UgYmVmb3JlIGFuZCB0aGlzIG1v
+dmUgdHJpZ2dlcmVkCnNvbWUgc29ydCBvZiB0aW1pbmcgaXNzdWUuCgoKSGVpa28KX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcg
+bGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
+c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==

@@ -1,50 +1,60 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
-Date: Sat, 17 Mar 2018 13:07:32 -0700
-Message-ID: <CAGXu5jJ=ZYpf=30H6hsWn-R-CEVYAgVMHxjmoLUC00QYq0r17g@mail.gmail.com>
-References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
- <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
- <20180316175502.GE30522@ZenIV.linux.org.uk> <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
- <CAGXu5jJmAAgaq3VCsUN2yjpHLSc7P-kNrM_4c4cqP=ysFcETXA@mail.gmail.com> <CA+55aFwv0VC67cx2W9yrf7qSFKf6ncVRrsVyLGqdmfSBn4yTYw@mail.gmail.com>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH 01/14] Input: atmel_mxt_ts - do not pass suspend mode in
+ platform data
+Date: Sat, 17 Mar 2018 20:42:22 +0000
+Message-ID: <20180317204222.th54qyuajgam7iek@hairyalien>
+References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+ <20180312190907.174301-2-dmitry.torokhov@gmail.com>
+ <20180314205123.GA26353@lava.h.shmanahar.org>
+ <20180315235621.GA60361@dtor-ws>
+ <20180316204002.GA24333@bm.shmanahar.org>
+ <20180317174240.GC183240@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CA+55aFwv0VC67cx2W9yrf7qSFKf6ncVRrsVyLGqdmfSBn4yTYw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180317174240.GC183240@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Mar 17, 2018 at 11:52 AM, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> So the above is completely insane, bit there is actually a chance that
-> using that completely crazy "x -> sizeof(char[x])" conversion actually
-> helps, because it really does have a (very odd) evaluation-time
-> change.  sizeof() has to be evaluated as part of the constant
-> expression evaluation, in ways that "__builtin_constant_p()" isn't
-> specified to be done.
->
-> But it is also definitely me grasping at straws. If that doesn't work
-> for 4.4, there's nothing else I can possibly see.
+On Sat, Mar 17, 2018 at 10:42:40AM -0700, Dmitry Torokhov wrote:
+> On Fri, Mar 16, 2018 at 08:40:02PM +0000, Nick Dyer wrote:
+> > On Thu, Mar 15, 2018 at 04:56:21PM -0700, Dmitry Torokhov wrote:
+> > > Ah, OK, I see. I would really like to drop this
+> > > pdata->suspend_mode stuff and I do not want to create
+> > > "pixel-screwed-up" property either...  I guess for the time being
+> > > I'll put a DMI quirk for Link to restore T9 control method, and
+> > > then look into cleaning it all up. We have quite a bit different
+> > > code in chromeos kernel trees and I'd like to reconcile
+> > > it.
+> > 
+> > Yes, it would be great to get rid of it. The driver does have the
+> > ability to download configuration via the firmware loader interface.
+> > So you would be able to grab a copy of the config by saving it with
+> > mxt-app, tweak it to ensure that the T9 CTRL byte is set correctly,
+> > then ship it somehow (presumably it could be added to
+> > linux-firmware). This would override what's currently stored in
+> > NVRAM on all those units and mean we could remove the T9_CTRL stuff.
+> 
+> We can't really rely on people fetching updated config. Do you think we
+> could see if the device has only T9 and not T100 and if coming out of
+> suspend the T9 CTRL byte is 0 we overwrite it with the 0x83?
 
-No luck! :( gcc 4.4 refuses to play along. And, hilariously, not only
-does it not change the complaint about __builtin_choose_expr(), it
-also thinks that's a VLA now.
+I think that all we need to do is add something to
+mxt_read_t9_resolution (and probably rename it to mxt_init_t9_config)
+that reads the 1st (CTRL) byte, and if it's zero, writes 0x83 (and
+probably a dev_dbg() wouldn't go amiss)
 
-./include/linux/mm.h: In function =E2=80=98get_mm_hiwater_rss=E2=80=99:
-./include/linux/mm.h:1567: warning: variable length array is used
-./include/linux/mm.h:1567: error: first argument to
-=E2=80=98__builtin_choose_expr=E2=80=99 not a constant
+Also call the same logic on reset (look for "Detect reset"), because
+that wipes out the config.
 
-6.8 is happy with it (of course).
+Once we've done that, we can get rid of the MXT_SUSPEND_T9_CTRL and use
+the normal T7 power up/down logic for suspend/resume on all devices.
 
-I do think the earlier version (without the
-sizeof-hiding-builting_constant_p) provides a template for a
-const_max() that both you and Rasmus would be happy with, though!
+FWIW there may be two instances of T9, but I've never seen a device that
+actually had two screens and it's not supported really anyway with this
+driver.
 
--Kees
-
---=20
-Kees Cook
-Pixel Security
+N

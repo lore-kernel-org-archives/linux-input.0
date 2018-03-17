@@ -1,145 +1,88 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RESEND PATCH 3/6] input: pagasus_notetaker: fix deadlock in
- autosuspend
-Date: Sat, 17 Mar 2018 11:10:59 -0700
-Message-ID: <20180317181059.GD188654@dtor-ws>
+Subject: Re: [RESEND PATCH 4/6] input: pegasus_notetaker: do not rely on
+ input_dev->users
+Date: Sat, 17 Mar 2018 11:11:05 -0700
+Message-ID: <20180317181105.GE188654@dtor-ws>
 References: <20180228133803.30040-1-marcus.folkesson@gmail.com>
- <20180228133803.30040-4-marcus.folkesson@gmail.com>
+ <20180228133803.30040-5-marcus.folkesson@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180228133803.30040-4-marcus.folkesson@gmail.com>
+In-Reply-To: <20180228133803.30040-5-marcus.folkesson@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Marcus Folkesson <marcus.folkesson@gmail.com>
 Cc: Arvind Yadav <arvind.yadav.cs@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 28, 2018 at 02:38:00PM +0100, Marcus Folkesson wrote:
-> usb_autopm_get_interface() that is called in pegasus_open() does an
-> autoresume if the device is suspended.
+On Wed, Feb 28, 2018 at 02:38:01PM +0100, Marcus Folkesson wrote:
+> If the device is unused and suspended, a call to open will cause the
+> device to autoresume through the call to usb_autopm_get_interface().
 > 
-> input_dev->mutex used in pegasus_resume() is in this case already
-> taken by the input subsystem and will cause a deadlock.
+> input_dev->users is already incremented by the input subsystem,
+> therefore this expression will always be evaluated to true:
+> 
+> 	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
+> 		retval = -EIO;
+> 
+> The same URB will then be fail when resubmitted in pegasus_open().
+> 
+> Introduce pegasus->is_open to keep track of the state instead.
 > 
 > Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/tablet/pegasus_notetaker.c | 25 +++++++++++++++++++------
->  1 file changed, 19 insertions(+), 6 deletions(-)
+>  drivers/input/tablet/pegasus_notetaker.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-> index 47de5a81172f..9ab1ed5e20e7 100644
+> index 9ab1ed5e20e7..74c93e09c337 100644
 > --- a/drivers/input/tablet/pegasus_notetaker.c
 > +++ b/drivers/input/tablet/pegasus_notetaker.c
-> @@ -41,6 +41,7 @@
->  #include <linux/usb/input.h>
->  #include <linux/slab.h>
->  #include <linux/workqueue.h>
-> +#include <linux/mutex.h>
+> @@ -80,6 +80,7 @@ struct pegasus {
 >  
->  /* USB HID defines */
->  #define USB_REQ_GET_REPORT		0x01
-> @@ -76,6 +77,10 @@ struct pegasus {
->  	struct usb_device *usbdev;
->  	struct usb_interface *intf;
->  	struct urb *irq;
-> +
-> +	/* serialize access to open/suspend */
-> +	struct mutex pm_mutex;
-> +
+>  	/* serialize access to open/suspend */
+>  	struct mutex pm_mutex;
+> +	bool is_open;
+>  
 >  	char name[128];
 >  	char phys[64];
->  	struct work_struct init;
-> @@ -216,6 +221,7 @@ static int pegasus_open(struct input_dev *dev)
->  	if (error)
->  		return error;
->  
-> +	mutex_lock(&pegasus->pm_mutex);
->  	pegasus->irq->dev = pegasus->usbdev;
->  	if (usb_submit_urb(pegasus->irq, GFP_KERNEL)) {
->  		error = -EIO;
-> @@ -226,12 +232,14 @@ static int pegasus_open(struct input_dev *dev)
+> @@ -232,6 +233,7 @@ static int pegasus_open(struct input_dev *dev)
 >  	if (error)
 >  		goto err_kill_urb;
 >  
-> +	mutex_unlock(&pegasus->pm_mutex);
+> +	pegasus->is_open = 1;
+>  	mutex_unlock(&pegasus->pm_mutex);
 >  	return 0;
 >  
->  err_kill_urb:
+> @@ -251,6 +253,7 @@ static void pegasus_close(struct input_dev *dev)
+>  	mutex_lock(&pegasus->pm_mutex);
 >  	usb_kill_urb(pegasus->irq);
 >  	cancel_work_sync(&pegasus->init);
->  err_autopm_put:
-> +	mutex_unlock(&pegasus->pm_mutex);
+> +	pegasus->is_open = 0;
+>  	mutex_unlock(&pegasus->pm_mutex);
+>  
 >  	usb_autopm_put_interface(pegasus->intf);
->  	return error;
->  }
-> @@ -240,8 +248,11 @@ static void pegasus_close(struct input_dev *dev)
->  {
->  	struct pegasus *pegasus = input_get_drvdata(dev);
->  
-> +	mutex_lock(&pegasus->pm_mutex);
->  	usb_kill_urb(pegasus->irq);
->  	cancel_work_sync(&pegasus->init);
-> +	mutex_unlock(&pegasus->pm_mutex);
-> +
->  	usb_autopm_put_interface(pegasus->intf);
->  }
->  
-> @@ -274,6 +285,8 @@ static int pegasus_probe(struct usb_interface *intf,
->  		goto err_free_mem;
->  	}
->  
-> +	mutex_init(&pegasus->pm_mutex);
-> +
->  	pegasus->usbdev = dev;
->  	pegasus->dev = input_dev;
->  	pegasus->intf = intf;
-> @@ -388,10 +401,10 @@ static int pegasus_suspend(struct usb_interface *intf, pm_message_t message)
->  {
->  	struct pegasus *pegasus = usb_get_intfdata(intf);
->  
-> -	mutex_lock(&pegasus->dev->mutex);
-> +	mutex_lock(&pegasus->pm_mutex);
->  	usb_kill_urb(pegasus->irq);
->  	cancel_work_sync(&pegasus->init);
-> -	mutex_unlock(&pegasus->dev->mutex);
-> +	mutex_unlock(&pegasus->pm_mutex);
->  
->  	return 0;
->  }
-> @@ -401,10 +414,10 @@ static int pegasus_resume(struct usb_interface *intf)
->  	struct pegasus *pegasus = usb_get_intfdata(intf);
+> @@ -415,7 +418,7 @@ static int pegasus_resume(struct usb_interface *intf)
 >  	int retval = 0;
 >  
-> -	mutex_lock(&pegasus->dev->mutex);
-> +	mutex_lock(&pegasus->pm_mutex);
->  	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
+>  	mutex_lock(&pegasus->pm_mutex);
+> -	if (pegasus->dev->users && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
+> +	if (pegasus->is_open && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
 >  		retval = -EIO;
-> -	mutex_unlock(&pegasus->dev->mutex);
-> +	mutex_unlock(&pegasus->pm_mutex);
+>  	mutex_unlock(&pegasus->pm_mutex);
 >  
->  	return retval;
->  }
-> @@ -414,14 +427,14 @@ static int pegasus_reset_resume(struct usb_interface *intf)
->  	struct pegasus *pegasus = usb_get_intfdata(intf);
+> @@ -428,7 +431,7 @@ static int pegasus_reset_resume(struct usb_interface *intf)
 >  	int retval = 0;
 >  
-> -	mutex_lock(&pegasus->dev->mutex);
-> +	mutex_lock(&pegasus->pm_mutex);
->  	if (pegasus->dev->users) {
+>  	mutex_lock(&pegasus->pm_mutex);
+> -	if (pegasus->dev->users) {
+> +	if (pegasus->is_open) {
 >  		retval = pegasus_set_mode(pegasus, PEN_MODE_XY,
 >  					  NOTETAKER_LED_MOUSE);
 >  		if (!retval && usb_submit_urb(pegasus->irq, GFP_NOIO) < 0)
->  			retval = -EIO;
->  	}
-> -	mutex_unlock(&pegasus->dev->mutex);
-> +	mutex_unlock(&pegasus->pm_mutex);
->  
->  	return retval;
->  }
 > -- 
 > 2.16.2
 > 

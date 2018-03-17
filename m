@@ -1,56 +1,46 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH 01/14] Input: atmel_mxt_ts - do not pass suspend mode in
- platform data
-Date: Fri, 16 Mar 2018 20:40:02 +0000
-Message-ID: <20180316204002.GA24333@bm.shmanahar.org>
-References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
- <20180312190907.174301-2-dmitry.torokhov@gmail.com>
- <20180314205123.GA26353@lava.h.shmanahar.org>
- <20180315235621.GA60361@dtor-ws>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
+Date: Sat, 17 Mar 2018 01:48:06 +0100
+Message-ID: <CANiq72k0ufFfEqaYFW0EeFcg_N_F6_1z2=88z1M-nce=oTkghQ@mail.gmail.com>
+References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
+ <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
+ <20180316175502.GE30522@ZenIV.linux.org.uk> <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
+ <CANiq72mjDQWsPG60JqfuLSY-6SDzB4goP4n35XZxc8bfFx1NDg@mail.gmail.com> <CA+55aFxLpdfyfTqhkHQoedQuqTcLRw3bYOgyz1s0eRW6cBmFTA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180315235621.GA60361@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <kernel-hardening-return-12680-glkh-kernel-hardening=m.gmane.org@lists.openwall.com>
+List-Post: <mailto:kernel-hardening@lists.openwall.com>
+List-Help: <mailto:kernel-hardening-help@lists.openwall.com>
+List-Unsubscribe: <mailto:kernel-hardening-unsubscribe@lists.openwall.com>
+List-Subscribe: <mailto:kernel-hardening-subscribe@lists.openwall.com>
+In-Reply-To: <CA+55aFxLpdfyfTqhkHQoedQuqTcLRw3bYOgyz1s0eRW6cBmFTA@mail.gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 15, 2018 at 04:56:21PM -0700, Dmitry Torokhov wrote:
-> On Wed, Mar 14, 2018 at 08:51:24PM +0000, Nick Dyer wrote:
-> > On Mon, Mar 12, 2018 at 12:08:54PM -0700, Dmitry Torokhov wrote:
-> > > The way we are supposed to put controller to sleep and wake it up does not
-> > > depend on the platform, but rather on controller itself. Controllers using
-> > > T9 require manipulating T9 control register, while others, using newer
-> > > T100, should be put to sleep by adjusting T7 power config.
-> > 
-> > I'm afraid this is actually a misconception. If you look at object table
-> > for the older T9 device, you'll find it has the T7 object and it in fact
-> > works exactly the same way as the T100-based device.
-> > 
-> > The MXT_SUSPEND_T9_CTRL is in there because on your older Pixel devices
-> > the config saved into NVRAM on the touch controller has a zero byte in
-> > the T9 CTRL setting, meaning the touch controller will never wake up
-> > unless the driver knows to write 0x83 into it.
-> 
-> Ah, OK, I see. I would really like to drop this pdata->suspend_mode
-> stuff and I do not want to create "pixel-screwed-up" property either...
-> I guess for the time being I'll put a DMI quirk for Link to restore T9
-> control method, and then look into cleaning it all up. We have quite a
-> bit different code in chromeos kernel trees and I'd like to reconcile
-> it.
+On Fri, Mar 16, 2018 at 9:14 PM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Fri, Mar 16, 2018 at 1:03 PM, Miguel Ojeda
+> <miguel.ojeda.sandonis@gmail.com> wrote:
+>>>
+>>> Kees - is there some online "gcc-4.4 checker" somewhere? This does
+>>> seem to work with my gcc. I actually tested some of those files you
+>>> pointed at now.
+>>
+>> I use this one:
+>>
+>>   https://godbolt.org/
+>
+> Well, my *test* code works on that one and -Wvla -Werror.
+>
+> It does not work with gcc-4.1.x, but works with gcc-4.4.x.
+>
+> I can't seem to see the errors any way, I wonder if
+> __builtin_choose_expr() simply didn't exist back then.
+>
+> Odd that you can't view warnings/errors with it.
 
-Yes, it would be great to get rid of it. The driver does have the
-ability to download configuration via the firmware loader interface. So
-you would be able to grab a copy of the config by saving it with
-mxt-app, tweak it to ensure that the T9 CTRL byte is set correctly, then
-ship it somehow (presumably it could be added to linux-firmware). This
-would override what's currently stored in NVRAM on all those units and
-mean we could remove the T9_CTRL stuff.
+Just click on the button left/bottom of the compilation window.
 
-I'm happy to talk you through sorting that out in more detail if you
-want to give it a go. I don't have any Pixel 1 hardware available at the
-moment, unfortunately.
-
-N
+Cheers,
+Miguel

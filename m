@@ -1,67 +1,92 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: Re: [PATCH v5 3/4] clk: lpc32xx: Set name of regmap_config
-Date: Sun, 18 Mar 2018 23:57:39 +0200
-Message-ID: <23a9cbf8-9b1d-f7ec-b980-a16c9b2c4d84@mleia.com>
-References: <20180312095142.30854-1-jeffy.chen@rock-chips.com>
- <20180312095142.30854-4-jeffy.chen@rock-chips.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
+Date: Sun, 18 Mar 2018 23:59:21 +0100
+Message-ID: <38b6da49-1138-017e-7307-f39ff067d6d2@rasmusvillemoes.dk>
+References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
+ <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com>
+ <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
+ <20180316175502.GE30522@ZenIV.linux.org.uk>
+ <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
+ <CAGXu5jJmAAgaq3VCsUN2yjpHLSc7P-kNrM_4c4cqP=ysFcETXA@mail.gmail.com>
+ <CA+55aFwv0VC67cx2W9yrf7qSFKf6ncVRrsVyLGqdmfSBn4yTYw@mail.gmail.com>
+ <42b4342b-aefc-a16a-0d43-9f9c0d63ba7a@rasmusvillemoes.dk>
+ <CA+55aFwFoTapX2niPiaET5kg7K85qxhav1_PoDDxY0o_VRA5Ag@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180312095142.30854-4-jeffy.chen@rock-chips.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CA+55aFwFoTapX2niPiaET5kg7K85qxhav1_PoDDxY0o_VRA5Ag@mail.gmail.com>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jeffy Chen <jeffy.chen@rock-chips.com>, linux-kernel@vger.kernel.org, broonie@kernel.org, alexandre.belloni@bootlin.com
-Cc: Kate Stewart <kstewart@linuxfoundation.org>, Mark Rutland <mark.rutland@arm.com>, Emil Renner Berthing <kernel@esmil.dk>, stephen lu <lumotuwe@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Michael Turquette <mturquette@baylibre.com>, Will Deacon <will.deacon@arm.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Joseph Lo <josephl@nvidia.com>, lee.jones@linaro.org, linux-clk@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, linux-rockchip@lists.infradead.org, Matthias Kaehlcke <mka@chromium.org>, linux-input@vger.kernel.org, Arvind Yadav <arvind.yadav.cs@gmail.com>, Jerome Brunet <jbrunet@baylibre.com>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Rob Herring <robh+dt@kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>, Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Kees Cook <keescook@chromium.org>, Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Jeffy,
-
-On 03/12/2018 11:51 AM, Jeffy Chen wrote:
-> We are now allowing to register debugfs without a valid device, and not
-> having a valid name will end up using "dummy*" to create debugfs dir.
+On 2018-03-18 22:33, Linus Torvalds wrote:
+> On Sun, Mar 18, 2018 at 2:13 PM, Rasmus Villemoes
+> <linux@rasmusvillemoes.dk> wrote:
+>> On 2018-03-17 19:52, Linus Torvalds wrote:
+>>>
+>>> Ok, so it really looks like that same "__builtin_constant_p() doesn't
+>>> return a constant".
+>>>
+>>> Which is really odd, but there you have it.
+>>
+>> Not really. We do rely on builtin_constant_p not being folded too
+>> quickly to a 0/1 answer, so that gcc still generates good code even if
+>> the argument is only known to be constant at a late(r) optimization
+>> stage (through inlining and all).
 > 
-> Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
-> ---
+> Hmm. That makes sense. It just doesn't work for our case when we
+> really want to choose the expression based on side effects or not.
 > 
-> Changes in v5: None
-> Changes in v4: None
-> Changes in v3: None
+>> So unlike types_compatible_p, which
+>> can obviously be answered early during parsing, builtin_constant_p is
+>> most of the time a yes/no/maybe/it's complicated thing.
 > 
->  drivers/clk/nxp/clk-lpc32xx.c | 1 +
->  1 file changed, 1 insertion(+)
+> The silly thing is, the thing we *really* want to know _is_ actually
+> easily accessible during the early parsing, exactly like
+> __builtin_compatible_p(): it's not really that we care about the
+> expressions being constant, as much as the "can this have side
+> effects" question.
+
+OK, I missed where this was made about side effects of x and y, but I
+suppose the idea was to use
+
+  no_side_effects(x) && no_side_effects(y) ? trivial_max(x, y) :
+old_max(x, y)
+
+or the same thing spelled with b_c_e? Yes, I think that would work, if
+we indeed had that way of checking an expression.
+
+> We only really use __builtin_constant_p() as a (bad) approximation of
+> that in this case, since it's the best we can do.
+
+I don't think you should parenthesize bad, rather capitalize it. ({x++;
+0;}) is constant in the eyes of __builtin_constant_p, but not
+side-effect free. Sure, that's very contrived, but I can easily imagine
+some max(f(foo), -1) call where f is sometimes an external function, but
+for other .configs it's a static inline that always returns 0, but still
+has some non-trivial side-effect before that. And this would all depend
+on which optimizations gcc applies before it decides to evaluate
+builtin_constant_p, so could be some fun debugging. Good thing that that
+didn't work out...
+
+> So the real use would be to say "can we use the simple direct macro
+> that just happens to also fold into a nice integer constant
+> expression" for __builtin_choose_expr().
 > 
-> diff --git a/drivers/clk/nxp/clk-lpc32xx.c b/drivers/clk/nxp/clk-lpc32xx.c
-> index f5d815f577e0..a2a0a7f3bc57 100644
-> --- a/drivers/clk/nxp/clk-lpc32xx.c
-> +++ b/drivers/clk/nxp/clk-lpc32xx.c
-> @@ -67,6 +67,7 @@
->  #define LPC32XX_USB_CLK_STS		0xF8
->  
->  static struct regmap_config lpc32xx_scb_regmap_config = {
-> +	.name = "lpc32xx-scb",
+> I tried to find something like that, but it really doesn't exist, even
+> though I would actually have expected it to be a somewhat common
+> concern for macro writers: write a macro that works in any arbitrary
+> environment.
 
-please rename it to "scb", LPC32xx SoC name is already known from the context.
+Yeah, I think the closest is a five year old suggestion
+(https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57612) to add a
+__builtin_assert_no_side_effects, that could be used in macros that for
+some reason cannot be implemented without evaluating some argument
+multiple times. It would be more useful to have the predicate version,
+which one could always turn into a build bug version. But we have
+neither, unfortunately.
 
-When it's done, feel free to add to the next version my
-
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-
->  	.reg_bits = 32,
->  	.val_bits = 32,
->  	.reg_stride = 4,
-> 
-
-Thank you for the change.
-
---
-With best wishes,
-Vladimir
+Rasmus

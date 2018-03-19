@@ -1,7 +1,7 @@
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH 1/4] HID: alps: Report an error if we receive invalid data in 't4_read_write_register()'
-Date: Mon, 19 Mar 2018 21:53:26 +0100
-Message-ID: <c59e5f62dd36950a027eb629a7780e714cb8766f.1521492069.git.christophe.jaillet@wanadoo.fr>
+Subject: [PATCH 2/4] HID: alps: Save a memory allocation in 't4_read_write_register()' when writing data
+Date: Mon, 19 Mar 2018 21:53:27 +0100
+Message-ID: <8b54f1506a54fdb1e7ea94c53a3104366e3aaccd.1521492069.git.christophe.jaillet@wanadoo.fr>
 References: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
@@ -12,31 +12,36 @@ To: masaki.ota@jp.alps.com, jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 List-Id: linux-input@vger.kernel.org
 
-If the data received is not what is expected, we should return an error.
+if 'read_flag' is false, there is no need to allocate and free memory.
+We can simply avoid the memory allocation and pass NULL to kfree.
 
-Otherwise, we return 0 or a positive value which will be interpreted as
-success, but '*read_val' has not been updated.
-
-Fixes: 73196ebe134d ("HID: alps: add support for Alps T4 Touchpad device")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 ---
-Untested
----
- drivers/hid/hid-alps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-alps.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index b1eeb4839bfc..925396fdf0d9 100644
+index 925396fdf0d9..fe8a0624d5e4 100644
 --- a/drivers/hid/hid-alps.c
 +++ b/drivers/hid/hid-alps.c
-@@ -219,6 +219,8 @@ static int t4_read_write_register(struct hid_device *hdev, u32 address,
- 			goto exit_readbuf;
- 		}
+@@ -171,7 +171,7 @@ static int t4_read_write_register(struct hid_device *hdev, u32 address,
+ 	int ret;
+ 	u16 check_sum;
+ 	u8 *input;
+-	u8 *readbuf;
++	u8 *readbuf = NULL;
  
-+		ret = -EINVAL;
-+
- 		if (*(u32 *)&readbuf[6] != address) {
- 			dev_err(&hdev->dev, "read register address error (%x,%x)\n",
- 			*(u32 *)&readbuf[6], address);
+ 	input = kzalloc(T4_FEATURE_REPORT_LEN, GFP_KERNEL);
+ 	if (!input)
+@@ -204,8 +204,8 @@ static int t4_read_write_register(struct hid_device *hdev, u32 address,
+ 		goto exit;
+ 	}
+ 
+-	readbuf = kzalloc(T4_FEATURE_REPORT_LEN, GFP_KERNEL);
+ 	if (read_flag) {
++		readbuf = kzalloc(T4_FEATURE_REPORT_LEN, GFP_KERNEL);
+ 		if (!readbuf) {
+ 			ret = -ENOMEM;
+ 			goto exit;
 -- 
 2.14.1

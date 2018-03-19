@@ -1,7 +1,7 @@
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH 4/4] HID: alps: Fix some style in 't4_read_write_register()'
-Date: Mon, 19 Mar 2018 21:53:29 +0100
-Message-ID: <50b54e595830cc86edfb977e045f5a7b2b1b726a.1521492069.git.christophe.jaillet@wanadoo.fr>
+Subject: [PATCH 3/4] HID: alps: Check errors returned by 't4_read_write_register()'
+Date: Mon, 19 Mar 2018 21:53:28 +0100
+Message-ID: <c66533ec775540b7f1da48611a7e45bda28cead5.1521492069.git.christophe.jaillet@wanadoo.fr>
 References: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
@@ -12,40 +12,57 @@ To: masaki.ota@jp.alps.com, jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 List-Id: linux-input@vger.kernel.org
 
-Better indent the code to improve readability.
+If only the first 't4_read_write_register()' call fails, the error code
+will be overwritten and lost.
+Directly report the error instead.
+
+While at it, log some errors if 't4_read_write_register()' fails, as done
+in the rest of the driver.
 
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 ---
- drivers/hid/hid-alps.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-alps.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index 137b963779c6..60d3950692d9 100644
+index fe8a0624d5e4..137b963779c6 100644
 --- a/drivers/hid/hid-alps.c
 +++ b/drivers/hid/hid-alps.c
-@@ -223,20 +223,20 @@ static int t4_read_write_register(struct hid_device *hdev, u32 address,
- 
- 		if (*(u32 *)&readbuf[6] != address) {
- 			dev_err(&hdev->dev, "read register address error (%x,%x)\n",
--			*(u32 *)&readbuf[6], address);
-+				*(u32 *)&readbuf[6], address);
- 			goto exit_readbuf;
- 		}
- 
- 		if (*(u16 *)&readbuf[10] != 1) {
- 			dev_err(&hdev->dev, "read register size error (%x)\n",
--			*(u16 *)&readbuf[10]);
-+				*(u16 *)&readbuf[10]);
- 			goto exit_readbuf;
- 		}
- 
- 		check_sum = t4_calc_check_sum(readbuf, 6, 7);
- 		if (*(u16 *)&readbuf[13] != check_sum) {
- 			dev_err(&hdev->dev, "read register checksum error (%x,%x)\n",
--			*(u16 *)&readbuf[13], check_sum);
-+				*(u16 *)&readbuf[13], check_sum);
- 			goto exit_readbuf;
- 		}
+@@ -460,17 +460,35 @@ static int __maybe_unused alps_post_reset(struct hid_device *hdev)
+ 	case T4:
+ 		ret = t4_read_write_register(hdev, T4_PRM_FEED_CONFIG_1,
+ 			NULL, T4_I2C_ABS, false);
++		if (ret < 0) {
++			dev_err(&hdev->dev, "failed T4_PRM_FEED_CONFIG_1 (%d)\n",
++				ret);
++			goto exit;
++		}
++
+ 		ret = t4_read_write_register(hdev, T4_PRM_FEED_CONFIG_4,
+ 			NULL, T4_FEEDCFG4_ADVANCED_ABS_ENABLE, false);
++		if (ret < 0) {
++			dev_err(&hdev->dev, "failed T4_PRM_FEED_CONFIG_4 (%d)\n",
++				ret);
++			goto exit;
++		}
+ 		break;
+ 	case U1:
+ 		ret = u1_read_write_register(hdev,
+ 			ADDRESS_U1_DEV_CTRL_1, NULL,
+ 			U1_TP_ABS_MODE | U1_SP_ABS_MODE, false);
++		if (ret < 0) {
++			dev_err(&hdev->dev, "failed to change TP mode (%d)\n",
++				ret);
++			goto exit;
++		}
+ 		break;
+ 	default:
+ 		break;
+ 	}
++
++exit:
+ 	return ret;
+ }
  
 -- 
 2.14.1

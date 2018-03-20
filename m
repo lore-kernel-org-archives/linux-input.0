@@ -1,107 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v2 01/14] Input: atmel_mxt_ts - do not pass suspend mode in platform data
-Date: Tue, 20 Mar 2018 15:31:25 -0700
-Message-ID: <20180320223138.234724-2-dmitry.torokhov@gmail.com>
-References: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
+Date: Tue, 20 Mar 2018 16:23:54 -0700
+Message-ID: <CA+55aFwxk=tUECYQkd4cog08qW4ZT=r2K7FQXzGnc-zuMc7JQA@mail.gmail.com>
+References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
+ <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
+ <20180316175502.GE30522@ZenIV.linux.org.uk> <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
+ <CAGXu5jJmAAgaq3VCsUN2yjpHLSc7P-kNrM_4c4cqP=ysFcETXA@mail.gmail.com>
+ <CA+55aFwv0VC67cx2W9yrf7qSFKf6ncVRrsVyLGqdmfSBn4yTYw@mail.gmail.com> <CAGXu5jJ=ZYpf=30H6hsWn-R-CEVYAgVMHxjmoLUC00QYq0r17g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
+In-Reply-To: <CAGXu5jJ=ZYpf=30H6hsWn-R-CEVYAgVMHxjmoLUC00QYq0r17g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
-Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
 List-Id: linux-input@vger.kernel.org
 
-The way we are supposed to put controller to sleep and wake it up does not
-depend on the platform, but rather on controller itself, so we want to get
-rid of suspend mode in platform data (and eventually get rid of platform
-data completely). Unfortunately some early chromebooks (the original Pixel,
-Acer C720) were shipped with config that requires manually re-enabling
-touch reporting in T9. We will sort it out, but in the meantime let's
-switch to a simple DMI quirk.
+On Sat, Mar 17, 2018 at 1:07 PM, Kees Cook <keescook@chromium.org> wrote:
+>
+> No luck! :( gcc 4.4 refuses to play along. And, hilariously, not only
+> does it not change the complaint about __builtin_choose_expr(), it
+> also thinks that's a VLA now.
 
-We'll keep pdata->suspend_mode for now and remove it when we rework
-chromeos-laptop driver.
+Hmm. So thanks to the diseased mind of Martin Uecker, there's a better
+test for "__is_constant()":
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 27 +++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+  /* Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de> */
+  #define __is_constant(a) \
+        (sizeof(int) == sizeof(*(1 ? ((void*)((a) * 0l)) : (int*)1)))
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 7659bc48f1db8..20e1224d1a6db 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -324,6 +324,8 @@ struct mxt_data {
- 
- 	/* for config update handling */
- 	struct completion crc_completion;
-+
-+	enum mxt_suspend_mode suspend_mode;
- };
- 
- struct mxt_vb2_buffer {
-@@ -2868,7 +2870,7 @@ static const struct attribute_group mxt_attr_group = {
- 
- static void mxt_start(struct mxt_data *data)
- {
--	switch (data->pdata->suspend_mode) {
-+	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
- 		mxt_soft_reset(data);
- 
-@@ -2886,12 +2888,11 @@ static void mxt_start(struct mxt_data *data)
- 		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
- 		break;
- 	}
--
- }
- 
- static void mxt_stop(struct mxt_data *data)
- {
--	switch (data->pdata->suspend_mode) {
-+	switch (data->suspend_mode) {
- 	case MXT_SUSPEND_T9_CTRL:
- 		/* Touch disable */
- 		mxt_write_object(data,
-@@ -2954,8 +2955,6 @@ static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
- 		pdata->t19_keymap = keymap;
- 	}
- 
--	pdata->suspend_mode = MXT_SUSPEND_DEEP_SLEEP;
--
- 	return pdata;
- }
- #else
-@@ -3109,6 +3108,21 @@ mxt_get_platform_data(struct i2c_client *client)
- 	return ERR_PTR(-EINVAL);
- }
- 
-+static const struct dmi_system_id chromebook_T9_suspend_dmi[] = {
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Link"),
-+		},
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Peppy"),
-+		},
-+	},
-+	{ }
-+};
-+
- static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- {
- 	struct mxt_data *data;
-@@ -3135,6 +3149,9 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	init_completion(&data->reset_completion);
- 	init_completion(&data->crc_completion);
- 
-+	data->suspend_mode = dmi_check_system(chromebook_T9_suspend_dmi) ?
-+		MXT_SUSPEND_T9_CTRL : MXT_SUSPEND_DEEP_SLEEP;
-+
- 	data->reset_gpio = devm_gpiod_get_optional(&client->dev,
- 						   "reset", GPIOD_OUT_LOW);
- 	if (IS_ERR(data->reset_gpio)) {
--- 
-2.16.2.804.g6dcf76e118-goog
+that is actually *specified* by the C standard to work, and doesn't
+even depend on any gcc extensions.
+
+The reason is some really subtle pointer conversion rules, where the
+type of the ternary operator will depend on whether one of the
+pointers is NULL or not.
+
+And the definition of NULL, in turn, very much depends on "integer
+constant expression that has the value 0".
+
+Are you willing to do one final try on a generic min/max? Same as my
+last patch, but using the above __is_constant() test instead of
+__builtin_constant_p?
+
+               Linus

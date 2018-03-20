@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 6/7] HID: multitouch: do not set HID_QUIRK_NO_INIT_REPORTS
-Date: Tue, 20 Mar 2018 12:04:50 +0100
-Message-ID: <20180320110451.16582-7-benjamin.tissoires@redhat.com>
+Subject: [PATCH 7/7] HID: core: reset the quirks before calling probe again
+Date: Tue, 20 Mar 2018 12:04:51 +0100
+Message-ID: <20180320110451.16582-8-benjamin.tissoires@redhat.com>
 References: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
@@ -10,55 +10,60 @@ To: Jiri Kosina <jikos@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-It is set by default now, so there is no point setting it in the driver
+Given that now the quirk handling is done in hid-quirk.c, we can actually
+reset the quirks before calling .probe(), so that the drivers do not need
+to keep track of initial quirks.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-multitouch.c | 18 +-----------------
- 1 file changed, 1 insertion(+), 17 deletions(-)
+ drivers/hid/hid-core.c       | 2 ++
+ drivers/hid/hid-multitouch.c | 7 -------
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 36af26c2565b..5d7cc6bbbac6 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1966,6 +1966,8 @@ static int hid_device_probe(struct device *dev)
+ 			}
+ 		}
+ 
++		/* reset the quirks that has been previously set */
++		hdev->quirks = hid_lookup_quirk(hdev);
+ 		hdev->driver = hdrv;
+ 		if (hdrv->probe) {
+ 			ret = hdrv->probe(hdev, id);
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 03d00e477d0e..639c44fc0691 100644
+index 639c44fc0691..dad2fbb0e3f8 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -380,7 +380,6 @@ static const struct attribute_group mt_attribute_group = {
- 
- static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- {
--	struct mt_device *td = hid_get_drvdata(hdev);
- 	int ret;
- 	u32 size = hid_report_len(report);
- 	u8 *buf;
-@@ -389,7 +388,7 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- 	 * Do not fetch the feature report if the device has been explicitly
- 	 * marked as non-capable.
- 	 */
--	if (td->initial_quirks & HID_QUIRK_NO_INIT_REPORTS)
-+	if (hdev->quirks & HID_QUIRK_NO_INIT_REPORTS)
- 		return;
- 
- 	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-@@ -1471,21 +1470,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	 */
- 	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+@@ -127,7 +127,6 @@ struct mt_device {
+ 	int left_button_state;	/* left button state */
+ 	unsigned last_slot_field;	/* the last field of a slot */
+ 	unsigned mt_report_id;	/* the report ID of the multitouch device */
+-	unsigned long initial_quirks;	/* initial quirks state */
+ 	__s16 inputmode;	/* InputMode HID feature, -1 if non-existent */
+ 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
+ 	__s16 maxcontact_report_id;	/* Maximum Contact Number HID feature,
+@@ -1453,11 +1452,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
+ 		td->serial_maybe = true;
  
 -	/*
--	 * Some multitouch screens do not like to be polled for input
--	 * reports. Fortunately, the Win8 spec says that all touches
--	 * should be sent during each report, making the initialization
--	 * of input reports unnecessary. For Win7 devices, well, let's hope
--	 * they will still be happy (this is only be a problem if a touch
--	 * was already there while probing the device).
--	 *
--	 * In addition some touchpads do not behave well if we read
--	 * all feature reports from them. Instead we prevent
--	 * initial report fetching and then selectively fetch each
--	 * report we are interested in.
+-	 * Store the initial quirk state
 -	 */
--	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+-	td->initial_quirks = hdev->quirks;
 -
- 	timer_setup(&td->release_timer, mt_expired_timeout, 0);
+ 	/* This allows the driver to correctly support devices
+ 	 * that emit events over several HID messages.
+ 	 */
+@@ -1527,7 +1521,6 @@ static void mt_remove(struct hid_device *hdev)
  
- 	ret = hid_parse(hdev);
+ 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+ 	hid_hw_stop(hdev);
+-	hdev->quirks = td->initial_quirks;
+ }
+ 
+ /*
 -- 
 2.14.3

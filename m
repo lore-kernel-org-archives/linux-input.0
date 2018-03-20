@@ -1,65 +1,55 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH v5 0/4] new driver for Valve Steam Controller
-Date: Tue, 20 Mar 2018 20:18:47 +0100
-Message-ID: <20180320191847.GA23020@casa>
-References: <20180311195842.5551-1-rodrigorivascosta@gmail.com>
- <CAM4jgCq5UT0SBKA1DMfsAKd8R+yn0ViPr0U-iE8-tWjgA9hTTQ@mail.gmail.com>
- <20180312205158.GB21621@casa>
- <CAO-hwJJqDM5Y7t-hpZ_s7EzjVki00ME7fd_7iUWcgaTZ9o906g@mail.gmail.com>
- <20180315210659.GA16037@casa>
- <1c75c511-eada-585e-297f-e90feb17ac8c@valvesoftware.com>
- <20180319200813.GA18746@casa>
- <CAM4jgCpNptQz4nP1u0pcBo5fYXJxpxyR4j2U5YBCY2xiev0wug@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v2 00/14] chrome_laptop: stop being a platform driver
+Date: Tue, 20 Mar 2018 15:31:24 -0700
+Message-ID: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAM4jgCpNptQz4nP1u0pcBo5fYXJxpxyR4j2U5YBCY2xiev0wug@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>
-Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
+Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 19, 2018 at 10:06:09PM +0100, Clément VUCHENER wrote:
-> 2018-03-19 21:08 GMT+01:00 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>:
-> > On Sat, Mar 17, 2018 at 02:54:07PM -0700, Pierre-Loup A. Griffais wrote:
-> >
-> > Now, what I would really want is a review by Valve of my set-lizard function:
-> >
-> > static void steam_set_lizard_mode(struct steam_device *steam, bool enabled)
-> > {
-> >         if (enabled) {
-> >                 steam_send_report_byte(steam, 0x8e); //enable mouse
-> >                 steam_send_report_byte(steam, 0x85); //enable esc, enter and cursor keys
-> >         } else {
-> >                 steam_send_report_byte(steam, 0x81); //disable esc, enter and cursor keys
-> >                 steam_write_register(steam, 0x08, 0x07); //disable mouse (cmd: 0x87)
-> >         }
-> > }
-> >
-> > While it works, I find its asymmetry quite uncanny. I'm afraid that some
-> > of these are there for a side effect, this is not their real purpose.
-> > Could you give me a hint about this?
-> >
-> 
-> If I remember correctly, you can also enable the mouse with "87 03 08
-> 00 00". But that do not explain the asymmetry or why there are two
-> ways of doing it. I always found it weird that the "enable" value was
-> 0x0000 and the "disable" value 0x0007.
+Hi,
 
-This works fine, thanks. IMO, it is better than command 0x8e.
- I also found that register 0x07 controls the cursor keys emulation:
-  * 87 03 07 07 00: disable
-  * 87 03 07 03 00: enable (03 or 03
-  * 87 03 07 00 00: set "joystick mode" (?)
+This series is a combination of Atmel touchscreen driver stopping using
+platform data and moving over to generic device properties, and
+chromeos-laptop switching from being platform driver, which is the wrong
+abstraction for it, and moving to using i2c bis notifier. Switching from
+platform driver to the notifiers allows us to get rid of the ugly code that
+manually tries to handle deferrals in case i2c bus is not ready at the time
+we start initializing the module.
 
-But I cannot find a similar register to disable the enter/esc keys, for
-that I still need commands 0x85 and 0x81. 
+Thanks!
 
-Can you tell me if there is a register to configure the enter/esc
-emulation? That would be nice, because I could enable disable the lizard
-mode with a single report: (87 09 07 07 00 08 07 00 xx 07 00).
+Changes v1->v2:
 
-Thanks.
-Rodrigo
+- switched suspend mode handling to use DMI quirk. We'll clean it up properly
+  in the Atmel driver later, for now we just want to untangle Atmel and
+  chromeos-laptop
+
+- added Nick's Acks.
+
+Dmitry Torokhov (14):
+  Input: atmel_mxt_ts - do not pass suspend mode in platform data
+  Input: atmel_mxt_ts - switch from OF to generic device properties
+  Input: atmel_mxt_ts - switch ChromeOS ACPI devices to generic props
+  platform/chrome: chromeos_laptop - add SPDX identifier
+  platform/chrome: chromeos_laptop - stop setting suspend mode for Atmel devices
+  platform/chrome: chromeos_laptop - introduce pr_fmt()
+  platform/chrome: chromeos_laptop - factor out getting IRQ from DMI
+  platform/chrome: chromeos_laptop - rework i2c peripherals initialization
+  platform/chrome: chromeos_laptop - parse DMI IRQ data once
+  platform/chrome: chromeos_laptop - use I2C notifier to create devices
+  platform/chrome: chromeos_laptop - rely on I2C to set up interrupt trigger
+  platform/chrome: chromeos_laptop - use device properties for Pixel
+  platform/chrome: chromeos_laptop - discard data for unneeded boards
+  Input: atmel_mxt_ts - remove platform data support
+
+ MAINTAINERS                                |   1 -
+ drivers/input/touchscreen/atmel_mxt_ts.c   | 231 +++---
+ drivers/platform/chrome/chromeos_laptop.c  | 896 +++++++++++----------
+ include/linux/platform_data/atmel_mxt_ts.h |  31 -
+ 4 files changed, 579 insertions(+), 580 deletions(-)
+ delete mode 100644 include/linux/platform_data/atmel_mxt_ts.h
+
+-- 
+Dmitry

@@ -1,118 +1,48 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/7] HID: multitouch: export a quirk for the button handling of touchpads
-Date: Tue, 20 Mar 2018 12:04:45 +0100
-Message-ID: <20180320110451.16582-2-benjamin.tissoires@redhat.com>
-References: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Palmer Dabbelt <palmer-SpMDHPYPyPbQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 00/16] remove eight obsolete architectures
+Date: Tue, 20 Mar 2018 10:11:47 -0700 (PDT)
+Message-ID: <mhng-f6731cb9-8394-419d-b14b-c6fcd6c0930d@palmer-si-x1c4>
+References: <CAK8P3a01pfvsdM1mR8raU9dA7p4H-jRJz2Y8-+KEY76W_Mukpg@mail.gmail.com>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAK8P3a01pfvsdM1mR8raU9dA7p4H-jRJz2Y8-+KEY76W_Mukpg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: hare-l3A5Bk7waGM@public.gmane.org, dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-block-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Instead of using the class name, we better have a specific quirk for it
-so other classes can make use of it.
+On Thu, 15 Mar 2018 03:42:25 PDT (-0700), Arnd Bergmann wrote:
+> On Thu, Mar 15, 2018 at 10:59 AM, Hannes Reinecke <hare-l3A5Bk7waGM@public.gmane.org> wrote:
+>> On 03/15/2018 10:42 AM, David Howells wrote:
+>>> Do we have anything left that still implements NOMMU?
+>>>
+>> RISC-V ?
+>> (evil grin :-)
+>
+> Is anyone producing a chip that includes enough of the Privileged ISA spec
+> to have things like system calls, but not the MMU parts?
+>
+> I thought at least initially the kernel only supports hardware that has a rather
+> complete feature set.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+We currently do not have a NOMMU port.  As far as I know, everyone who's
+currently producing RISC-V hardware with enough memory to run Linux has S mode
+with paging support.  The ISA allows for S mode without paging but there's no
+hardware for that -- if you're going to put a DRAM controller on there then
+paging seems pretty cheap.  You could run a NOMMU port on a system with S-mode
+and paging, but With all the superpage stuff I don't think you'll get an
+appreciable performance win for any workload running without an MMU so there's
+nothing to justify the work (and incompatibility) of a NOMMU port there.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index a144d3064829..fc80a9bf3e39 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -74,6 +74,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
- #define MT_QUIRK_STICKY_FINGERS		BIT(16)
- #define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
-+#define MT_QUIRK_WIN8_PTP_BUTTONS	BIT(18)
- 
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -241,7 +242,8 @@ static struct mt_class mt_classes[] = {
- 			MT_QUIRK_IGNORE_DUPLICATES |
- 			MT_QUIRK_HOVERING |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE |
--			MT_QUIRK_STICKY_FINGERS },
-+			MT_QUIRK_STICKY_FINGERS |
-+			MT_QUIRK_WIN8_PTP_BUTTONS },
- 	{ .name = MT_CLS_EXPORT_ALL_INPUTS,
- 		.quirks = MT_QUIRK_ALWAYS_VALID |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE,
-@@ -250,7 +252,8 @@ static struct mt_class mt_classes[] = {
- 		.quirks = MT_QUIRK_ALWAYS_VALID |
- 			MT_QUIRK_IGNORE_DUPLICATES |
- 			MT_QUIRK_HOVERING |
--			MT_QUIRK_CONTACT_CNT_ACCURATE,
-+			MT_QUIRK_CONTACT_CNT_ACCURATE |
-+			MT_QUIRK_WIN8_PTP_BUTTONS,
- 		.export_all_inputs = true },
- 
- 	/*
-@@ -660,8 +663,7 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		 * MS PTP spec says that external buttons left and right have
- 		 * usages 2 and 3.
- 		 */
--		if ((cls->name == MT_CLS_WIN_8 ||
--			cls->name == MT_CLS_WIN_8_DUAL) &&
-+		if ((cls->quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
- 		    field->application == HID_DG_TOUCHPAD &&
- 		    (usage->hid & HID_USAGE) > 1)
- 			code--;
-@@ -773,9 +775,7 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
-  */
- static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
- {
--	__s32 cls = td->mtclass.name;
--
--	if (cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL)
-+	if (td->mtclass.quirks & MT_QUIRK_WIN8_PTP_BUTTONS)
- 		input_event(input, EV_KEY, BTN_LEFT, td->left_button_state);
- 
- 	input_mt_sync_frame(input);
-@@ -827,7 +827,6 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 				bool first_packet)
- {
- 	struct mt_device *td = hid_get_drvdata(hid);
--	__s32 cls = td->mtclass.name;
- 	__s32 quirks = td->mtclass.quirks;
- 	struct input_dev *input = field->hidinput->input;
- 
-@@ -905,7 +904,7 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			 * non finger/touch events in the first_packet of
- 			 * a (possible) multi-packet frame.
- 			 */
--			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
-+			if ((quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
- 			    !first_packet)
- 				return;
- 
-@@ -916,7 +915,7 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			 * BTN_LEFT if either is pressed, so we or all values
- 			 * together and report the result in mt_sync_frame().
- 			 */
--			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
-+			if ((quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
- 			    usage->type == EV_KEY && usage->code == BTN_LEFT) {
- 				td->left_button_state |= value;
- 				return;
-@@ -940,7 +939,6 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- {
- 	struct mt_device *td = hid_get_drvdata(hid);
--	__s32 cls = td->mtclass.name;
- 	struct hid_field *field;
- 	bool first_packet;
- 	unsigned count;
-@@ -969,7 +967,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- 		 * of a possible multi-packet frame be checking that the
- 		 * timestamp has changed.
- 		 */
--		if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
-+		if ((td->mtclass.quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
- 		    td->num_received == 0 && td->prev_scantime != scantime)
- 			td->num_expected = value;
- 		/* A non 0 contact count always indicates a first packet */
--- 
-2.14.3
+While I think you could implement a NOMMU port on a machine with only M and U
+modes (and therefor no address translation at all), I don't know of any MU-only
+machines that have enough memory to run Linux (ours have less than 32KiB).  A
+SBI-free Linux would be a prerequisite for this, but there's some interest in
+that outside of a NOMMU port so it might materialize anyway.
+
+Of course, QEMU could probably be tricked into emulating one of these machines
+with little to no effort :)...  That said, I doubt we'll see a NOMMU port
+materialize without some real hardware as it's a lot of work for a QEMU-only
+target.

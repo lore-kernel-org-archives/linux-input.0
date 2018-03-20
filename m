@@ -1,159 +1,64 @@
-From: Benson Leung <bleung@google.com>
-Subject: Re: [PATCH 07/14] platform/chrome: chromeos_laptop - factor out
- getting IRQ from DMI
-Date: Mon, 19 Mar 2018 19:14:37 -0700
-Message-ID: <b0457b4a-2e0d-41e1-66fe-6fdb7a00f2db@google.com>
-References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
- <20180312190907.174301-8-dmitry.torokhov@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
+Date: Tue, 20 Mar 2018 11:10:12 +0800
+Message-ID: <CAK8P3a23f2SjjNiLXaf83K2-LmQcEz_RT2gqgydJ5-k5TJpUOw@mail.gmail.com>
+References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
+ <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
+ <20180316175502.GE30522@ZenIV.linux.org.uk> <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
+ <CAGXu5jJmAAgaq3VCsUN2yjpHLSc7P-kNrM_4c4cqP=ysFcETXA@mail.gmail.com>
+ <CA+55aFwv0VC67cx2W9yrf7qSFKf6ncVRrsVyLGqdmfSBn4yTYw@mail.gmail.com>
+ <42b4342b-aefc-a16a-0d43-9f9c0d63ba7a@rasmusvillemoes.dk> <CA+55aFwFoTapX2niPiaET5kg7K85qxhav1_PoDDxY0o_VRA5Ag@mail.gmail.com>
+ <38b6da49-1138-017e-7307-f39ff067d6d2@rasmusvillemoes.dk> <CA+55aFw0WC+S3TTE6x_vkLbRV6YLeR4-1S9LsBXhE+E2KZqBuA@mail.gmail.com>
+ <0e94e9582bec4373b5e21c612be179ac@AcuMS.aculab.com> <CA+55aFwZnkR5uA5Oe19Xzox=+Bcab-j6-+a=XGqS8yokDU3Dog@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="dlYvHaRRrc5YvWWytugZMlflSDdlVTHnF"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180312190907.174301-8-dmitry.torokhov@gmail.com>
+In-Reply-To: <CA+55aFwZnkR5uA5Oe19Xzox=+Bcab-j6-+a=XGqS8yokDU3Dog@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
-Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: David Laight <David.Laight@aculab.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Kees Cook <keescook@chromium.org>, Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
 List-Id: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---dlYvHaRRrc5YvWWytugZMlflSDdlVTHnF
-Content-Type: multipart/mixed; boundary="LuTV1qYJ0OIWxQXsPAp0Q2i2uV9IXLSGd";
- protected-headers="v1"
-From: Benson Leung <bleung@google.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
- Benson Leung <bleung@chromium.org>
-Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>,
- linux-kernel@vger.kernel.org
-Message-ID: <b0457b4a-2e0d-41e1-66fe-6fdb7a00f2db@google.com>
-Subject: Re: [PATCH 07/14] platform/chrome: chromeos_laptop - factor out
- getting IRQ from DMI
-References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
- <20180312190907.174301-8-dmitry.torokhov@gmail.com>
-In-Reply-To: <20180312190907.174301-8-dmitry.torokhov@gmail.com>
+On Tue, Mar 20, 2018 at 7:29 AM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Mon, Mar 19, 2018 at 2:43 AM, David Laight <David.Laight@aculab.com> wrote:
+>>
+>> Is it necessary to have the full checks for old versions of gcc?
+>>
+>> Even -Wvla could be predicated on very recent gcc - since we aren't
+>> worried about whether gcc decides to generate a vla, but whether
+>> the source requests one.
+>
+> You are correct. We could just ignore the issue with old gcc versions,
+> and disable -Wvla rather than worry about it.
 
---LuTV1qYJ0OIWxQXsPAp0Q2i2uV9IXLSGd
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: quoted-printable
+This version might also be an option:
 
+diff --git a/Makefile b/Makefile
+index 37fc475a2b92..49dd9f0fb76c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -687,7 +687,8 @@ KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
+ endif
 
+ ifneq ($(CONFIG_FRAME_WARN),0)
+-KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
++KBUILD_CFLAGS += $(call cc-option,-Wstack-usage=${CONFIG_FRAME_WARN}, \
++               -$(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN}))
+ endif
 
-On 03/12/2018 12:09 PM, Dmitry Torokhov wrote:
-> This will make code instantiating I2C device a bit clearer.
->=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+ # This selects the stack protector compiler flag. Testing it is delayed
 
-Applied to my working branch for atmel_mxt_ts + chromeos_laptop.c for
-v4.17. Thanks!
+Wiht -Wstack-usage=, we should get a similar warning to -Wvla for frames that
+contain real VLAs, but not when there is a VLA that ends up being a compile-time
+constant size in the end. Wstack-usage was introduced in gcc-4.7, so
+on older versions
+it turns back into Wframe-larger-than=.
 
-> ---
->  drivers/platform/chrome/chromeos_laptop.c | 35 +++++++++++++++--------=
+An example output would be
 
->  1 file changed, 23 insertions(+), 12 deletions(-)
->=20
-> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platfo=
-rm/chrome/chromeos_laptop.c
-> index 08ce7a105e768..96e962ff38e87 100644
-> --- a/drivers/platform/chrome/chromeos_laptop.c
-> +++ b/drivers/platform/chrome/chromeos_laptop.c
-> @@ -120,36 +120,47 @@ static struct i2c_board_info atmel_1664s_device =3D=
- {
->  	.flags		=3D I2C_CLIENT_WAKE,
->  };
-> =20
-> +static int chromeos_laptop_get_irq_from_dmi(const char *dmi_name)
-> +{
-> +	const struct dmi_device *dmi_dev;
-> +	const struct dmi_dev_onboard *dev_data;
-> +
-> +	dmi_dev =3D dmi_find_device(DMI_DEV_TYPE_DEV_ONBOARD, dmi_name, NULL)=
-;
-> +	if (!dmi_dev) {
-> +		pr_err("failed to find DMI device '%s'\n", dmi_name);
-> +		return -ENOENT;
-> +	}
-> +
-> +	dev_data =3D dmi_dev->device_data;
-> +	if (!dev_data) {
-> +		pr_err("failed to get data from DMI for '%s'\n", dmi_name);
-> +		return -EINVAL;
-> +	}
-> +
-> +	return dev_data->instance;
-> +}
-> +
->  static struct i2c_client *__add_probed_i2c_device(
->  		const char *name,
->  		int bus,
->  		struct i2c_board_info *info,
->  		const unsigned short *alt_addr_list)
->  {
-> -	const struct dmi_device *dmi_dev;
-> -	const struct dmi_dev_onboard *dev_data;
->  	struct i2c_adapter *adapter;
->  	struct i2c_client *client =3D NULL;
->  	const unsigned short addr_list[] =3D { info->addr, I2C_CLIENT_END };
-> =20
->  	if (bus < 0)
->  		return NULL;
-> +
->  	/*
->  	 * If a name is specified, look for irq platform information stashed
->  	 * in DMI_DEV_TYPE_DEV_ONBOARD by the Chrome OS custom system firmwar=
-e.
->  	 */
->  	if (name) {
-> -		dmi_dev =3D dmi_find_device(DMI_DEV_TYPE_DEV_ONBOARD, name, NULL);
-> -		if (!dmi_dev) {
-> -			pr_err("failed to dmi find device %s\n", name);
-> -			return NULL;
-> -		}
-> -		dev_data =3D (struct dmi_dev_onboard *)dmi_dev->device_data;
-> -		if (!dev_data) {
-> -			pr_err("failed to get data from dmi for %s\n", name);
-> +		info->irq =3D chromeos_laptop_get_irq_from_dmi(name);
-> +		if (info->irq < 0)
->  			return NULL;
-> -		}
-> -		info->irq =3D dev_data->instance;
->  	}
-> =20
->  	adapter =3D i2c_get_adapter(bus);
->=20
+security/integrity/ima/ima_crypto.c: In function 'ima_calc_buffer_hash':
+security/integrity/ima/ima_crypto.c:616:5: error: stack usage might be
+unbounded [-Werror=stack-usage=]
 
---=20
-Benson Leung
-Staff Software Engineer
-Chrome OS Kernel
-Google Inc.
-bleung@google.com
-Chromium OS Project
-bleung@chromium.org
-
-
---LuTV1qYJ0OIWxQXsPAp0Q2i2uV9IXLSGd--
-
---dlYvHaRRrc5YvWWytugZMlflSDdlVTHnF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE6gYDF28Li+nEiKLaHwn1ewov5lgFAlqwbo4ACgkQHwn1ewov
-5liAJxAAhK9G+ughWguu1MaoJd81d1qH8MkSyswBd/HwauytNMWhvuFPyT5Pwi3y
-45yzmbiaEX6cD/aaVWbrRb0o+bCIzaZpUlNmGAu48jCOgUipqgNXtS0MJxZrebVr
-qRfitl9d6lzA/2ZTStsLxVsJHRVxzLkP2Y6yanIabQI3HQnaYpBZWDvCe3lr71t+
-93s3cKsuzSFnC7sbL+61nMkKh515oYI1LWTCJuic4iy//j2R/s5dKepqT5PaZmJN
-CaEVJlIRMBEg0YFLci3TCnlyDqdHEJIe5lhNtUISB13cxT8STaKxZyOZ9gmF7zGs
-eGUkroKLEghEDz2K98gF+JVidCkirT2YZB0QK8OYZ7p3RDX26CRnn+HuKTCh8Rk3
-AK7zZ6Vjosyw3qFugosmwb9hRLeM7JX+0qPpCPVgm/5MC40JxYVzmCOx+CkWRSAI
-kID8FO5qjtuvcgw2bd4k6hpaMn5IuENnDy4s+04B1GhFsQxplSxVERuhRs09DX34
-QRPd6h9/1gLGxcvq0jp0HTUCojG9L+kRsSabf95iLPsAtUEiBeYMY6ubiPhHl4Tm
-BVIwTyY7t93+skg2BpUwmCHEcqUr10pyTXU3b20d0AN7Q4Kv7FzN+0Az8Mfrpx1r
-qhQrvGEPA4S3sT8K9Bkb2tJhIwnv0JZW8ngDuk7Nn5ZPBqOHfjw=
-=hfra
------END PGP SIGNATURE-----
-
---dlYvHaRRrc5YvWWytugZMlflSDdlVTHnF--
+        Arnd

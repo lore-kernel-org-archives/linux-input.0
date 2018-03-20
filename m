@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v2 06/14] platform/chrome: chromeos_laptop - introduce pr_fmt()
-Date: Tue, 20 Mar 2018 15:31:30 -0700
-Message-ID: <20180320223138.234724-7-dmitry.torokhov@gmail.com>
+Subject: [PATCH v2 01/14] Input: atmel_mxt_ts - do not pass suspend mode in platform data
+Date: Tue, 20 Mar 2018 15:31:25 -0700
+Message-ID: <20180320223138.234724-2-dmitry.torokhov@gmail.com>
 References: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
@@ -10,114 +10,98 @@ To: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
 Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Define pr_fmt() to standardize driver messages.
+The way we are supposed to put controller to sleep and wake it up does not
+depend on the platform, but rather on controller itself, so we want to get
+rid of suspend mode in platform data (and eventually get rid of platform
+data completely). Unfortunately some early chromebooks (the original Pixel,
+Acer C720) were shipped with config that requires manually re-enabling
+touch reporting in T9. We will sort it out, but in the meantime let's
+switch to a simple DMI quirk.
+
+We'll keep pdata->suspend_mode for now and remove it when we rework
+chromeos-laptop driver.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/platform/chrome/chromeos_laptop.c | 31 ++++++++++-------------
- 1 file changed, 14 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 27 +++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
-index 0a43f1833de3f..08ce7a105e768 100644
---- a/drivers/platform/chrome/chromeos_laptop.c
-+++ b/drivers/platform/chrome/chromeos_laptop.c
-@@ -4,6 +4,8 @@
- // Copyright (C) 2012 Google, Inc.
- // Author: Benson Leung <bleung@chromium.org>
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 7659bc48f1db8..20e1224d1a6db 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -324,6 +324,8 @@ struct mxt_data {
  
-+#define pr_fmt(fmt)		KBUILD_MODNAME ": " fmt
+ 	/* for config update handling */
+ 	struct completion crc_completion;
 +
- #include <linux/dmi.h>
- #include <linux/i2c.h>
- #include <linux/platform_data/atmel_mxt_ts.h>
-@@ -139,15 +141,12 @@ static struct i2c_client *__add_probed_i2c_device(
- 	if (name) {
- 		dmi_dev = dmi_find_device(DMI_DEV_TYPE_DEV_ONBOARD, name, NULL);
- 		if (!dmi_dev) {
--			pr_err("%s failed to dmi find device %s.\n",
--			       __func__,
--			       name);
-+			pr_err("failed to dmi find device %s\n", name);
- 			return NULL;
- 		}
- 		dev_data = (struct dmi_dev_onboard *)dmi_dev->device_data;
- 		if (!dev_data) {
--			pr_err("%s failed to get data from dmi for %s.\n",
--			       __func__, name);
-+			pr_err("failed to get data from dmi for %s\n", name);
- 			return NULL;
- 		}
- 		info->irq = dev_data->instance;
-@@ -155,7 +154,7 @@ static struct i2c_client *__add_probed_i2c_device(
++	enum mxt_suspend_mode suspend_mode;
+ };
  
- 	adapter = i2c_get_adapter(bus);
- 	if (!adapter) {
--		pr_err("%s failed to get i2c adapter %d.\n", __func__, bus);
-+		pr_err("failed to get i2c adapter %d\n", bus);
- 		return NULL;
- 	}
+ struct mxt_vb2_buffer {
+@@ -2868,7 +2870,7 @@ static const struct attribute_group mxt_attr_group = {
  
-@@ -174,19 +173,18 @@ static struct i2c_client *__add_probed_i2c_device(
- 		dummy = i2c_new_probed_device(adapter, &dummy_info,
- 					      alt_addr_list, NULL);
- 		if (dummy) {
--			pr_debug("%s %d-%02x is probed at %02x\n",
--				  __func__, bus, info->addr, dummy->addr);
-+			pr_debug("%d-%02x is probed at %02x\n",
-+				 bus, info->addr, dummy->addr);
- 			i2c_unregister_device(dummy);
- 			client = i2c_new_device(adapter, info);
- 		}
- 	}
- 
- 	if (!client)
--		pr_notice("%s failed to register device %d-%02x\n",
--			  __func__, bus, info->addr);
-+		pr_notice("failed to register device %d-%02x\n",
-+			  bus, info->addr);
- 	else
--		pr_debug("%s added i2c device %d-%02x\n",
--			 __func__, bus, info->addr);
-+		pr_debug("added i2c device %d-%02x\n", bus, info->addr);
- 
- 	i2c_put_adapter(adapter);
- 	return client;
-@@ -227,7 +225,7 @@ static int find_i2c_adapter_num(enum i2c_adapter_type type)
- 	dev = bus_find_device(&i2c_bus_type, NULL, &lookup, __find_i2c_adap);
- 	if (!dev) {
- 		/* Adapters may appear later. Deferred probing will retry */
--		pr_notice("%s: i2c adapter %s not found on system.\n", __func__,
-+		pr_notice("i2c adapter %s not found on system.\n",
- 			  lookup.name);
- 		return -ENODEV;
- 	}
-@@ -349,7 +347,7 @@ static int setup_tsl2563_als(enum i2c_adapter_type type)
- static int __init chromeos_laptop_dmi_matched(const struct dmi_system_id *id)
+ static void mxt_start(struct mxt_data *data)
  {
- 	cros_laptop = (void *)id->driver_data;
--	pr_debug("DMI Matched %s.\n", id->ident);
-+	pr_debug("DMI Matched %s\n", id->ident);
+-	switch (data->pdata->suspend_mode) {
++	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+ 		mxt_soft_reset(data);
  
- 	/* Indicate to dmi_scan that processing is done. */
- 	return 1;
-@@ -392,8 +390,7 @@ static int chromeos_laptop_probe(struct platform_device *pdev)
- 				ret = -EPROBE_DEFER;
- 			} else {
- 				/* Ran out of tries. */
--				pr_notice("%s: Ran out of tries for device.\n",
--					  __func__);
-+				pr_notice("ran out of tries for device.\n");
- 				i2c_dev->state = TIMEDOUT;
- 			}
- 		} else {
-@@ -600,7 +597,7 @@ static int __init chromeos_laptop_init(void)
- 	int ret;
+@@ -2886,12 +2888,11 @@ static void mxt_start(struct mxt_data *data)
+ 		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
+ 		break;
+ 	}
+-
+ }
  
- 	if (!dmi_check_system(chromeos_laptop_dmi_table)) {
--		pr_debug("%s unsupported system.\n", __func__);
-+		pr_debug("unsupported system\n");
- 		return -ENODEV;
+ static void mxt_stop(struct mxt_data *data)
+ {
+-	switch (data->pdata->suspend_mode) {
++	switch (data->suspend_mode) {
+ 	case MXT_SUSPEND_T9_CTRL:
+ 		/* Touch disable */
+ 		mxt_write_object(data,
+@@ -2954,8 +2955,6 @@ static const struct mxt_platform_data *mxt_parse_dt(struct i2c_client *client)
+ 		pdata->t19_keymap = keymap;
  	}
  
+-	pdata->suspend_mode = MXT_SUSPEND_DEEP_SLEEP;
+-
+ 	return pdata;
+ }
+ #else
+@@ -3109,6 +3108,21 @@ mxt_get_platform_data(struct i2c_client *client)
+ 	return ERR_PTR(-EINVAL);
+ }
+ 
++static const struct dmi_system_id chromebook_T9_suspend_dmi[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Link"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_PRODUCT_NAME, "Peppy"),
++		},
++	},
++	{ }
++};
++
+ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ {
+ 	struct mxt_data *data;
+@@ -3135,6 +3149,9 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	init_completion(&data->reset_completion);
+ 	init_completion(&data->crc_completion);
+ 
++	data->suspend_mode = dmi_check_system(chromebook_T9_suspend_dmi) ?
++		MXT_SUSPEND_T9_CTRL : MXT_SUSPEND_DEEP_SLEEP;
++
+ 	data->reset_gpio = devm_gpiod_get_optional(&client->dev,
+ 						   "reset", GPIOD_OUT_LOW);
+ 	if (IS_ERR(data->reset_gpio)) {
 -- 
 2.16.2.804.g6dcf76e118-goog

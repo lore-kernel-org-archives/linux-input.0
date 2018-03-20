@@ -1,37 +1,132 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
-Date: Mon, 19 Mar 2018 16:29:28 -0700
-Message-ID: <CA+55aFwZnkR5uA5Oe19Xzox=+Bcab-j6-+a=XGqS8yokDU3Dog@mail.gmail.com>
-References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
- <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
- <20180316175502.GE30522@ZenIV.linux.org.uk> <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
- <CAGXu5jJmAAgaq3VCsUN2yjpHLSc7P-kNrM_4c4cqP=ysFcETXA@mail.gmail.com>
- <CA+55aFwv0VC67cx2W9yrf7qSFKf6ncVRrsVyLGqdmfSBn4yTYw@mail.gmail.com>
- <42b4342b-aefc-a16a-0d43-9f9c0d63ba7a@rasmusvillemoes.dk> <CA+55aFwFoTapX2niPiaET5kg7K85qxhav1_PoDDxY0o_VRA5Ag@mail.gmail.com>
- <38b6da49-1138-017e-7307-f39ff067d6d2@rasmusvillemoes.dk> <CA+55aFw0WC+S3TTE6x_vkLbRV6YLeR4-1S9LsBXhE+E2KZqBuA@mail.gmail.com>
- <0e94e9582bec4373b5e21c612be179ac@AcuMS.aculab.com>
+From: Benson Leung <bleung@google.com>
+Subject: Re: [PATCH 04/14] platform/chrome: chromeos_laptop - add SPDX
+ identifier
+Date: Mon, 19 Mar 2018 18:53:43 -0700
+Message-ID: <fb93ae08-ba3c-deda-8b56-7dbc0cb2d6af@google.com>
+References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+ <20180312190907.174301-5-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <kernel-hardening-return-12705-glkh-kernel-hardening=m.gmane.org@lists.openwall.com>
-List-Post: <mailto:kernel-hardening@lists.openwall.com>
-List-Help: <mailto:kernel-hardening-help@lists.openwall.com>
-List-Unsubscribe: <mailto:kernel-hardening-unsubscribe@lists.openwall.com>
-List-Subscribe: <mailto:kernel-hardening-subscribe@lists.openwall.com>
-Sender: linus971@gmail.com
-In-Reply-To: <0e94e9582bec4373b5e21c612be179ac@AcuMS.aculab.com>
-To: David Laight <David.Laight@aculab.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, Kees Cook <keescook@chromium.org>, Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="CDD0W7KMiVtBHwigNwtyxHBdQsn2gPdgm"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180312190907.174301-5-dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
+Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org, Benson Leung <bleung@google.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 19, 2018 at 2:43 AM, David Laight <David.Laight@aculab.com> wrote:
->
-> Is it necessary to have the full checks for old versions of gcc?
->
-> Even -Wvla could be predicated on very recent gcc - since we aren't
-> worried about whether gcc decides to generate a vla, but whether
-> the source requests one.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--CDD0W7KMiVtBHwigNwtyxHBdQsn2gPdgm
+Content-Type: multipart/mixed; boundary="a5InQserBIsiHabvug6Z9Ofz1UDUvqG8q";
+ protected-headers="v1"
+From: Benson Leung <bleung@google.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
+ Benson Leung <bleung@chromium.org>
+Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>,
+ linux-kernel@vger.kernel.org, Benson Leung <bleung@google.com>
+Message-ID: <fb93ae08-ba3c-deda-8b56-7dbc0cb2d6af@google.com>
+Subject: Re: [PATCH 04/14] platform/chrome: chromeos_laptop - add SPDX
+ identifier
+References: <20180312190907.174301-1-dmitry.torokhov@gmail.com>
+ <20180312190907.174301-5-dmitry.torokhov@gmail.com>
+In-Reply-To: <20180312190907.174301-5-dmitry.torokhov@gmail.com>
 
-You are correct. We could just ignore the issue with old gcc versions,
-and disable -Wvla rather than worry about it.
+--a5InQserBIsiHabvug6Z9Ofz1UDUvqG8q
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: quoted-printable
 
-                  Linus
+
+
+On 03/12/2018 12:08 PM, Dmitry Torokhov wrote:
+> Replace the original license statement with the SPDX identifier.
+> Add also one line of description as recommended by the COPYING file.
+>=20
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Applied to my working branch for atmel_mxt_ts + chromeos_laptop.c for
+v4.17. Thanks!
+
+> ---
+>  drivers/platform/chrome/chromeos_laptop.c | 27 +++++------------------=
+
+>  1 file changed, 5 insertions(+), 22 deletions(-)
+>=20
+> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platfo=
+rm/chrome/chromeos_laptop.c
+> index d8599736a41a2..54a13c70e1d8f 100644
+> --- a/drivers/platform/chrome/chromeos_laptop.c
+> +++ b/drivers/platform/chrome/chromeos_laptop.c
+> @@ -1,25 +1,8 @@
+> -/*
+> - *  chromeos_laptop.c - Driver to instantiate Chromebook i2c/smbus dev=
+ices.
+> - *
+> - *  Author : Benson Leung <bleung@chromium.org>
+> - *
+> - *  Copyright (C) 2012 Google, Inc.
+> - *
+> - *  This program is free software; you can redistribute it and/or modi=
+fy
+> - *  it under the terms of the GNU General Public License as published =
+by
+> - *  the Free Software Foundation; either version 2 of the License, or
+> - *  (at your option) any later version.
+> - *
+> - *  This program is distributed in the hope that it will be useful,
+> - *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+> - *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> - *  GNU General Public License for more details.
+> - *
+> - *  You should have received a copy of the GNU General Public License
+> - *  along with this program; if not, write to the Free Software
+> - *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-13=
+07  USA
+> - *
+> - */
+> +// SPDX-License-Identifier: GPL-2.0+
+> +// Driver to instantiate Chromebook i2c/smbus devices.
+> +//
+> +// Copyright (C) 2012 Google, Inc.
+> +// Author: Benson Leung <bleung@chromium.org>
+> =20
+>  #include <linux/dmi.h>
+>  #include <linux/i2c.h>
+>=20
+
+--=20
+Benson Leung
+Staff Software Engineer
+Chrome OS Kernel
+Google Inc.
+bleung@google.com
+Chromium OS Project
+bleung@chromium.org
+
+
+--a5InQserBIsiHabvug6Z9Ofz1UDUvqG8q--
+
+--CDD0W7KMiVtBHwigNwtyxHBdQsn2gPdgm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE6gYDF28Li+nEiKLaHwn1ewov5lgFAlqwaacACgkQHwn1ewov
+5ljamw//Z5Mh4PfidpISHfcFw9wI9fSa/x0gIBtXJHMgoY+PoPLhE6ENaZHE/gLg
+wG5b8pTj6rg7xf9/VyWdyQGx8iPZiO/ky8+tE0/wUvKcYVK42ESeOhXDEJNNKWUK
+JlgxcwMazRg4PdaxybJEGFOQAEBKv0LnzOYeOw8KO7ves2+bY+qT/Z0Mk1scZiPV
+3u+X9Htk3ufQ4bONvlJZDqiC0tOR2W4C6mJ5KF3PHU3teIZkGpW/YbrV/4n9EwU1
+9aOHJg7/GonD6TInoXpQBLyP/3Z2PiLcRKg/i+uoLd5ih33/4gxuaINtuIYje1xI
+Tc0D/XMdtC1MX32ame1fa7qqNUhOEBrfAwIC6Q27i+eijbu+Ou5sU6CqKJdjN6cd
+KXr5im3Vjy/Q4NXsS3avtWP5srNm7BVF5JDOuHK6mKNjD5Kz8vpTt/Grj1tC+vII
+zFsOtcugifKG04lqIzxGOV6kjtFmvLJZX5ctR6p8ERU6/ekXbTr+5r70MHWCQXAg
+gkZmPjMj34+roECqfDjmXZ2avw3TKwxzE7MpuSEjihNcI354GfTWy3Q4HagFEd65
+lohnYXw0b23VtbCuli1samZuW0siEwPUqK8vppZWGghDQeuZfOsgHbPsHDp+6uhA
+6XOZ1yySNMgaJyT5W+w71H/LP0DnNe3GRprk2N04Xhi65YpIee4=
+=sMNK
+-----END PGP SIGNATURE-----
+
+--CDD0W7KMiVtBHwigNwtyxHBdQsn2gPdgm--

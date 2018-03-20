@@ -1,55 +1,168 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v2 00/14] chrome_laptop: stop being a platform driver
-Date: Tue, 20 Mar 2018 15:31:24 -0700
-Message-ID: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
+Subject: [PATCH v2 03/14] Input: atmel_mxt_ts - switch ChromeOS ACPI devices to generic props
+Date: Tue, 20 Mar 2018 15:31:27 -0700
+Message-ID: <20180320223138.234724-4-dmitry.torokhov@gmail.com>
+References: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
 Cc: Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Move older ChromeOS devices describing Atmel controllers in ACPI, but not
+providing enough details to configure the controllers properly, from
+platform data over to generic device properties. This will allow us
+remove support for platform data later on, leaving only generic device
+properties in place.
 
-This series is a combination of Atmel touchscreen driver stopping using
-platform data and moving over to generic device properties, and
-chromeos-laptop switching from being platform driver, which is the wrong
-abstraction for it, and moving to using i2c bis notifier. Switching from
-platform driver to the notifiers allows us to get rid of the ugly code that
-manually tries to handle deferrals in case i2c bus is not ready at the time
-we start initializing the module.
+Acked-by: Nick Dyer <nick@shmanahar.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 63 +++++++++++++++---------
+ 1 file changed, 40 insertions(+), 23 deletions(-)
 
-Thanks!
-
-Changes v1->v2:
-
-- switched suspend mode handling to use DMI quirk. We'll clean it up properly
-  in the Atmel driver later, for now we just want to untangle Atmel and
-  chromeos-laptop
-
-- added Nick's Acks.
-
-Dmitry Torokhov (14):
-  Input: atmel_mxt_ts - do not pass suspend mode in platform data
-  Input: atmel_mxt_ts - switch from OF to generic device properties
-  Input: atmel_mxt_ts - switch ChromeOS ACPI devices to generic props
-  platform/chrome: chromeos_laptop - add SPDX identifier
-  platform/chrome: chromeos_laptop - stop setting suspend mode for Atmel devices
-  platform/chrome: chromeos_laptop - introduce pr_fmt()
-  platform/chrome: chromeos_laptop - factor out getting IRQ from DMI
-  platform/chrome: chromeos_laptop - rework i2c peripherals initialization
-  platform/chrome: chromeos_laptop - parse DMI IRQ data once
-  platform/chrome: chromeos_laptop - use I2C notifier to create devices
-  platform/chrome: chromeos_laptop - rely on I2C to set up interrupt trigger
-  platform/chrome: chromeos_laptop - use device properties for Pixel
-  platform/chrome: chromeos_laptop - discard data for unneeded boards
-  Input: atmel_mxt_ts - remove platform data support
-
- MAINTAINERS                                |   1 -
- drivers/input/touchscreen/atmel_mxt_ts.c   | 231 +++---
- drivers/platform/chrome/chromeos_laptop.c  | 896 +++++++++++----------
- include/linux/platform_data/atmel_mxt_ts.h |  31 -
- 4 files changed, 579 insertions(+), 580 deletions(-)
- delete mode 100644 include/linux/platform_data/atmel_mxt_ts.h
-
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 73d9c0254ad76..799d2ac35787b 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -2974,7 +2974,7 @@ mxt_parse_device_properties(struct i2c_client *client)
+ 
+ struct mxt_acpi_platform_data {
+ 	const char *hid;
+-	struct mxt_platform_data pdata;
++	const struct property_entry *props;
+ };
+ 
+ static unsigned int samus_touchpad_buttons[] = {
+@@ -2984,14 +2984,16 @@ static unsigned int samus_touchpad_buttons[] = {
+ 	BTN_LEFT
+ };
+ 
++static const struct property_entry samus_touchpad_props[] = {
++	PROPERTY_ENTRY_U32_ARRAY("linux,gpio-keymap", samus_touchpad_buttons),
++	{ }
++};
++
+ static struct mxt_acpi_platform_data samus_platform_data[] = {
+ 	{
+ 		/* Touchpad */
+ 		.hid	= "ATML0000",
+-		.pdata	= {
+-			.t19_num_keys	= ARRAY_SIZE(samus_touchpad_buttons),
+-			.t19_keymap	= samus_touchpad_buttons,
+-		},
++		.props	= samus_touchpad_props,
+ 	},
+ 	{
+ 		/* Touchscreen */
+@@ -3009,14 +3011,16 @@ static unsigned int chromebook_tp_buttons[] = {
+ 	BTN_LEFT
+ };
+ 
++static const struct property_entry chromebook_tp_props[] = {
++	PROPERTY_ENTRY_U32_ARRAY("linux,gpio-keymap", chromebook_tp_buttons),
++	{ }
++};
++
+ static struct mxt_acpi_platform_data chromebook_platform_data[] = {
+ 	{
+ 		/* Touchpad */
+ 		.hid	= "ATML0000",
+-		.pdata	= {
+-			.t19_num_keys	= ARRAY_SIZE(chromebook_tp_buttons),
+-			.t19_keymap	= chromebook_tp_buttons,
+-		},
++		.props	= chromebook_tp_props,
+ 	},
+ 	{
+ 		/* Touchscreen */
+@@ -3046,7 +3050,7 @@ static const struct dmi_system_id mxt_dmi_table[] = {
+ 	{ }
+ };
+ 
+-static const struct mxt_platform_data *mxt_parse_acpi(struct i2c_client *client)
++static int mxt_acpi_probe(struct i2c_client *client)
+ {
+ 	struct acpi_device *adev;
+ 	const struct dmi_system_id *system_id;
+@@ -3063,33 +3067,46 @@ static const struct mxt_platform_data *mxt_parse_acpi(struct i2c_client *client)
+ 	 * as a threshold.
+ 	 */
+ 	if (client->addr < 0x40)
+-		return ERR_PTR(-ENXIO);
++		return -ENXIO;
+ 
+ 	adev = ACPI_COMPANION(&client->dev);
+ 	if (!adev)
+-		return ERR_PTR(-ENOENT);
++		return -ENOENT;
+ 
+ 	system_id = dmi_first_match(mxt_dmi_table);
+ 	if (!system_id)
+-		return ERR_PTR(-ENOENT);
++		return -ENOENT;
+ 
+ 	acpi_pdata = system_id->driver_data;
+ 	if (!acpi_pdata)
+-		return ERR_PTR(-ENOENT);
++		return -ENOENT;
+ 
+ 	while (acpi_pdata->hid) {
+-		if (!strcmp(acpi_device_hid(adev), acpi_pdata->hid))
+-			return &acpi_pdata->pdata;
++		if (!strcmp(acpi_device_hid(adev), acpi_pdata->hid)) {
++			/*
++			 * Remove previously installed properties if we
++			 * are probing this device not for the very first
++			 * time.
++			 */
++			device_remove_properties(&client->dev);
++
++			/*
++			 * Now install the platform-specific properties
++			 * that are missing from ACPI.
++			 */
++			device_add_properties(&client->dev, acpi_pdata->props);
++			break;
++		}
+ 
+ 		acpi_pdata++;
+ 	}
+ 
+-	return ERR_PTR(-ENOENT);
++	return 0;
+ }
+ #else
+-static const struct mxt_platform_data *mxt_parse_acpi(struct i2c_client *client)
++static int mxt_acpi_probe(struct i2c_client *client)
+ {
+-	return ERR_PTR(-ENOENT);
++	return -ENOENT;
+ }
+ #endif
+ 
+@@ -3102,10 +3119,6 @@ mxt_get_platform_data(struct i2c_client *client)
+ 	if (pdata)
+ 		return pdata;
+ 
+-	pdata = mxt_parse_acpi(client);
+-	if (!IS_ERR(pdata) || PTR_ERR(pdata) != -ENOENT)
+-		return pdata;
+-
+ 	return mxt_parse_device_properties(client);
+ }
+ 
+@@ -3130,6 +3143,10 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	const struct mxt_platform_data *pdata;
+ 	int error;
+ 
++	error = mxt_acpi_probe(client);
++	if (error && error != -ENOENT)
++		return error;
++
+ 	pdata = mxt_get_platform_data(client);
+ 	if (IS_ERR(pdata))
+ 		return PTR_ERR(pdata);
 -- 
-Dmitry
+2.16.2.804.g6dcf76e118-goog

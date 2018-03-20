@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4/7] HID: use BIT() macro for quirks too
-Date: Tue, 20 Mar 2018 12:04:48 +0100
-Message-ID: <20180320110451.16582-5-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/7] HID: multitouch: export a quirk for the button handling of touchpads
+Date: Tue, 20 Mar 2018 12:04:45 +0100
+Message-ID: <20180320110451.16582-2-benjamin.tissoires@redhat.com>
 References: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
@@ -10,83 +10,109 @@ To: Jiri Kosina <jikos@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This should prevent future mess ups fortunately.
+Instead of using the class name, we better have a specific quirk for it
+so other classes can make use of it.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-multitouch.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
---
- include/linux/hid.h | 52 ++++++++++++++++++++++++++--------------------------
- 1 file changed, 26 insertions(+), 26 deletions(-)
-
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index ea78336984d3..3ad758dc285c 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -311,13 +311,13 @@ struct hid_item {
-  * HID connect requests
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index a144d3064829..fc80a9bf3e39 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -74,6 +74,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
+ #define MT_QUIRK_STICKY_FINGERS		BIT(16)
+ #define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
++#define MT_QUIRK_WIN8_PTP_BUTTONS	BIT(18)
+ 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -241,7 +242,8 @@ static struct mt_class mt_classes[] = {
+ 			MT_QUIRK_IGNORE_DUPLICATES |
+ 			MT_QUIRK_HOVERING |
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE |
+-			MT_QUIRK_STICKY_FINGERS },
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS },
+ 	{ .name = MT_CLS_EXPORT_ALL_INPUTS,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE,
+@@ -250,7 +252,8 @@ static struct mt_class mt_classes[] = {
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_IGNORE_DUPLICATES |
+ 			MT_QUIRK_HOVERING |
+-			MT_QUIRK_CONTACT_CNT_ACCURATE,
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_WIN8_PTP_BUTTONS,
+ 		.export_all_inputs = true },
+ 
+ 	/*
+@@ -660,8 +663,7 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		 * MS PTP spec says that external buttons left and right have
+ 		 * usages 2 and 3.
+ 		 */
+-		if ((cls->name == MT_CLS_WIN_8 ||
+-			cls->name == MT_CLS_WIN_8_DUAL) &&
++		if ((cls->quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
+ 		    field->application == HID_DG_TOUCHPAD &&
+ 		    (usage->hid & HID_USAGE) > 1)
+ 			code--;
+@@ -773,9 +775,7 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
   */
+ static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
+ {
+-	__s32 cls = td->mtclass.name;
+-
+-	if (cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL)
++	if (td->mtclass.quirks & MT_QUIRK_WIN8_PTP_BUTTONS)
+ 		input_event(input, EV_KEY, BTN_LEFT, td->left_button_state);
  
--#define HID_CONNECT_HIDINPUT		0x01
--#define HID_CONNECT_HIDINPUT_FORCE	0x02
--#define HID_CONNECT_HIDRAW		0x04
--#define HID_CONNECT_HIDDEV		0x08
--#define HID_CONNECT_HIDDEV_FORCE	0x10
--#define HID_CONNECT_FF			0x20
--#define HID_CONNECT_DRIVER		0x40
-+#define HID_CONNECT_HIDINPUT		BIT(0)
-+#define HID_CONNECT_HIDINPUT_FORCE	BIT(1)
-+#define HID_CONNECT_HIDRAW		BIT(2)
-+#define HID_CONNECT_HIDDEV		BIT(3)
-+#define HID_CONNECT_HIDDEV_FORCE	BIT(4)
-+#define HID_CONNECT_FF			BIT(5)
-+#define HID_CONNECT_DRIVER		BIT(6)
- #define HID_CONNECT_DEFAULT	(HID_CONNECT_HIDINPUT|HID_CONNECT_HIDRAW| \
- 		HID_CONNECT_HIDDEV|HID_CONNECT_FF)
+ 	input_mt_sync_frame(input);
+@@ -827,7 +827,6 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ 				bool first_packet)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hid);
+-	__s32 cls = td->mtclass.name;
+ 	__s32 quirks = td->mtclass.quirks;
+ 	struct input_dev *input = field->hidinput->input;
  
-@@ -330,25 +330,25 @@ struct hid_item {
-  */
- #define MAX_USBHID_BOOT_QUIRKS 4
+@@ -905,7 +904,7 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ 			 * non finger/touch events in the first_packet of
+ 			 * a (possible) multi-packet frame.
+ 			 */
+-			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
++			if ((quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
+ 			    !first_packet)
+ 				return;
  
--#define HID_QUIRK_INVERT			0x00000001
--#define HID_QUIRK_NOTOUCH			0x00000002
--#define HID_QUIRK_IGNORE			0x00000004
--#define HID_QUIRK_NOGET				0x00000008
--#define HID_QUIRK_HIDDEV_FORCE			0x00000010
--#define HID_QUIRK_BADPAD			0x00000020
--#define HID_QUIRK_MULTI_INPUT			0x00000040
--#define HID_QUIRK_HIDINPUT_FORCE		0x00000080
--#define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
--/* 0x00000200 reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
--#define HID_QUIRK_ALWAYS_POLL			0x00000400
--#define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
--#define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
--#define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	0x00040000
--#define HID_QUIRK_HAVE_SPECIAL_DRIVER		0x00080000
--#define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
--#define HID_QUIRK_NO_INIT_REPORTS		0x20000000
--#define HID_QUIRK_NO_IGNORE			0x40000000
--#define HID_QUIRK_NO_INPUT_SYNC			0x80000000
-+#define HID_QUIRK_INVERT			BIT(0)
-+#define HID_QUIRK_NOTOUCH			BIT(1)
-+#define HID_QUIRK_IGNORE			BIT(2)
-+#define HID_QUIRK_NOGET				BIT(3)
-+#define HID_QUIRK_HIDDEV_FORCE			BIT(4)
-+#define HID_QUIRK_BADPAD			BIT(5)
-+#define HID_QUIRK_MULTI_INPUT			BIT(6)
-+#define HID_QUIRK_HIDINPUT_FORCE		BIT(7)
-+#define HID_QUIRK_NO_EMPTY_INPUT		BIT(8)
-+/* BIT(9) reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
-+#define HID_QUIRK_ALWAYS_POLL			BIT(10)
-+#define HID_QUIRK_SKIP_OUTPUT_REPORTS		BIT(16)
-+#define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		BIT(17)
-+#define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	BIT(18)
-+#define HID_QUIRK_HAVE_SPECIAL_DRIVER		BIT(19)
-+#define HID_QUIRK_FULLSPEED_INTERVAL		BIT(28)
-+#define HID_QUIRK_NO_INIT_REPORTS		BIT(29)
-+#define HID_QUIRK_NO_IGNORE			BIT(30)
-+#define HID_QUIRK_NO_INPUT_SYNC			BIT(31)
- 
- /*
-  * HID device groups
+@@ -916,7 +915,7 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ 			 * BTN_LEFT if either is pressed, so we or all values
+ 			 * together and report the result in mt_sync_frame().
+ 			 */
+-			if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
++			if ((quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
+ 			    usage->type == EV_KEY && usage->code == BTN_LEFT) {
+ 				td->left_button_state |= value;
+ 				return;
+@@ -940,7 +939,6 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hid);
+-	__s32 cls = td->mtclass.name;
+ 	struct hid_field *field;
+ 	bool first_packet;
+ 	unsigned count;
+@@ -969,7 +967,7 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 		 * of a possible multi-packet frame be checking that the
+ 		 * timestamp has changed.
+ 		 */
+-		if ((cls == MT_CLS_WIN_8 || cls == MT_CLS_WIN_8_DUAL) &&
++		if ((td->mtclass.quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
+ 		    td->num_received == 0 && td->prev_scantime != scantime)
+ 			td->num_expected = value;
+ 		/* A non 0 contact count always indicates a first packet */
 -- 
 2.14.3

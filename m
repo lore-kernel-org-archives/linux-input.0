@@ -1,42 +1,56 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/7] HID core and multitouch fixups
-Date: Tue, 20 Mar 2018 12:04:44 +0100
-Message-ID: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
+Subject: [PATCH 3/7] HID: use BIT macro instead of plain integers for flags
+Date: Tue, 20 Mar 2018 12:04:47 +0100
+Message-ID: <20180320110451.16582-4-benjamin.tissoires@redhat.com>
+References: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+This can lead to some hairy situation with the developer losing
+a day or two realizing that 4 should be after 2, not 3.
 
-Patches 1 and 2 are related to the Razer Blade Stealth that has some dead zone
-near the edges of the touchpad.
-Patches 3 was previously sent and reviewed by Dmitry and he suggested patch 4
-at the time.
-Patches 5..7 are cleanups I realized while trying to merge hid-multitouch
-into hid-core, so that other drivers could reuse the hid-mt logic (but it's
-not that easy I must confess).
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Cheers,
-Benjamin
+--
+ include/linux/hid.h | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-Benjamin Tissoires (7):
-  HID: multitouch: export a quirk for the button handling of touchpads
-  HID: multitouch: remove dead zones of Razer Blade Stealth
-  HID: use BIT macro instead of plain integers for flags
-  HID: use BIT() macro for quirks too
-  HID: core: remove the need for HID_QUIRK_NO_EMPTY_INPUT
-  HID: multitouch: do not set HID_QUIRK_NO_INIT_REPORTS
-  HID: core: reset the quirks before calling probe again
-
- drivers/hid/hid-asus.c       |  3 +-
- drivers/hid/hid-core.c       |  2 ++
- drivers/hid/hid-input.c      | 10 +++----
- drivers/hid/hid-multitouch.c | 61 ++++++++++++++++-------------------------
- drivers/hid/hid-uclogic.c    |  1 -
- include/linux/hid.h          | 65 ++++++++++++++++++++++----------------------
- 6 files changed, 65 insertions(+), 77 deletions(-)
-
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index dfea5a656a1a..ea78336984d3 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -26,6 +26,7 @@
+ #define __HID_H
+ 
+ 
++#include <linux/bitops.h>
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <linux/list.h>
+@@ -494,13 +495,13 @@ struct hid_output_fifo {
+ 	char *raw_report;
+ };
+ 
+-#define HID_CLAIMED_INPUT	1
+-#define HID_CLAIMED_HIDDEV	2
+-#define HID_CLAIMED_HIDRAW	4
+-#define HID_CLAIMED_DRIVER	8
++#define HID_CLAIMED_INPUT	BIT(0)
++#define HID_CLAIMED_HIDDEV	BIT(1)
++#define HID_CLAIMED_HIDRAW	BIT(2)
++#define HID_CLAIMED_DRIVER	BIT(3)
+ 
+-#define HID_STAT_ADDED		1
+-#define HID_STAT_PARSED		2
++#define HID_STAT_ADDED		BIT(0)
++#define HID_STAT_PARSED		BIT(1)
+ 
+ struct hid_input {
+ 	struct list_head list;
 -- 
 2.14.3

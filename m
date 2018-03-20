@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 7/7] HID: core: reset the quirks before calling probe again
-Date: Tue, 20 Mar 2018 12:04:51 +0100
-Message-ID: <20180320110451.16582-8-benjamin.tissoires@redhat.com>
+Subject: [PATCH 2/7] HID: multitouch: remove dead zones of Razer Blade Stealth
+Date: Tue, 20 Mar 2018 12:04:46 +0100
+Message-ID: <20180320110451.16582-3-benjamin.tissoires@redhat.com>
 References: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
@@ -10,60 +10,56 @@ To: Jiri Kosina <jikos@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Given that now the quirk handling is done in hid-quirk.c, we can actually
-reset the quirks before calling .probe(), so that the drivers do not need
-to keep track of initial quirks.
+The Razer Blade Stealth detects palms too aggressively and this creates
+a dead zone around the touchpad. Users like being able to use their
+entire touchpad, so we should probably not filter out the "palm" events
+from the device and report them as regular touches, leaving the palm
+detection up to the upper stack
+
+Link: https://bugs.freedesktop.org/show_bug.cgi?id=105409
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-core.c       | 2 ++
- drivers/hid/hid-multitouch.c | 7 -------
- 2 files changed, 2 insertions(+), 7 deletions(-)
+ drivers/hid/hid-multitouch.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 36af26c2565b..5d7cc6bbbac6 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1966,6 +1966,8 @@ static int hid_device_probe(struct device *dev)
- 			}
- 		}
- 
-+		/* reset the quirks that has been previously set */
-+		hdev->quirks = hid_lookup_quirk(hdev);
- 		hdev->driver = hdrv;
- 		if (hdrv->probe) {
- 			ret = hdrv->probe(hdev, id);
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 639c44fc0691..dad2fbb0e3f8 100644
+index fc80a9bf3e39..520cb5e2c5c3 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -127,7 +127,6 @@ struct mt_device {
- 	int left_button_state;	/* left button state */
- 	unsigned last_slot_field;	/* the last field of a slot */
- 	unsigned mt_report_id;	/* the report ID of the multitouch device */
--	unsigned long initial_quirks;	/* initial quirks state */
- 	__s16 inputmode;	/* InputMode HID feature, -1 if non-existent */
- 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
- 	__s16 maxcontact_report_id;	/* Maximum Contact Number HID feature,
-@@ -1453,11 +1452,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
- 		td->serial_maybe = true;
+@@ -184,6 +184,7 @@ static void mt_post_parse(struct mt_device *td);
+ #define MT_CLS_ASUS				0x010b
+ #define MT_CLS_VTL				0x0110
+ #define MT_CLS_GOOGLE				0x0111
++#define MT_CLS_RAZER_BLADE_STEALTH		0x0112
  
--	/*
--	 * Store the initial quirk state
--	 */
--	td->initial_quirks = hdev->quirks;
--
- 	/* This allows the driver to correctly support devices
- 	 * that emit events over several HID messages.
- 	 */
-@@ -1527,7 +1521,6 @@ static void mt_remove(struct hid_device *hdev)
+ #define MT_DEFAULT_MAXCONTACT	10
+ #define MT_MAX_MAXCONTACT	250
+@@ -326,6 +327,13 @@ static struct mt_class mt_classes[] = {
+ 			MT_QUIRK_SLOT_IS_CONTACTID |
+ 			MT_QUIRK_HOVERING
+ 	},
++	{ .name = MT_CLS_RAZER_BLADE_STEALTH,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_WIN8_PTP_BUTTONS,
++	},
+ 	{ }
+ };
  
- 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
- 	hid_hw_stop(hdev);
--	hdev->quirks = td->initial_quirks;
- }
+@@ -1792,6 +1800,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
+ 			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001) },
  
- /*
++	/* Razer touchpads */
++	{ .driver_data = MT_CLS_RAZER_BLADE_STEALTH,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_SYNAPTICS, 0x8323) },
++
+ 	/* Stantum panels */
+ 	{ .driver_data = MT_CLS_CONFIDENCE,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
 -- 
 2.14.3

@@ -1,45 +1,81 @@
 From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH] Input: alps - Update documentation for trackstick v3 format
-Date: Wed, 21 Mar 2018 21:03:36 +0100
-Message-ID: <20180321200336.32035-1-pali.rohar@gmail.com>
+Subject: [PATCH] Input: alps - Report pressure of v3 and v7 trackstick
+Date: Wed, 21 Mar 2018 21:07:36 +0100
+Message-ID: <20180321200736.32406-1-pali.rohar@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Masaki Ota <masaki.ota@jp.alps.com>
-Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Bits for M, R and L buttons are already processed in alps. Other newly
-documented bits not yet.
+ALPS v3 and v7 packet formats reports trackstick pressure. This information
+is already parsed in unused "z" variable.
+
+ALPS SS4 S2 devices already reports trackstick pressure as ABS_PRESSURE
+attribute, therefore reports pressure in the same way also for v3 and v7.
+
+This patch also updates parsing v3 pressure information, it is also stored
+in 7 bits.
 
 Signed-off-by: Pali Rohár <pali.rohar@gmail.com>
 ---
-This is based on information which Masaki Ota provided to us.
----
- Documentation/input/devices/alps.rst | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/mouse/alps.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/input/devices/alps.rst b/Documentation/input/devices/alps.rst
-index 6779148e428c..b556d6bde5e1 100644
---- a/Documentation/input/devices/alps.rst
-+++ b/Documentation/input/devices/alps.rst
-@@ -192,10 +192,13 @@ The final v3 packet type is the trackstick packet::
-  byte 0:    1    1   x7   y7    1    1    1    1
-  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
-  byte 2:    0   y6   y5   y4   y3   y2   y1   y0
-- byte 3:    0    1    0    0    1    0    0    0
-- byte 4:    0   z4   z3   z2   z1   z0    ?    ?
-+ byte 3:    0    1   TP   SW    1    M    R    L
-+ byte 4:    0   z6   z5   z4   z3   z2   z1   z0
-  byte 5:    0    0    1    1    1    1    1    1
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 010c1bcdb06d..0a9e6a3a2f9f 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -139,11 +139,11 @@ static const struct alps_model_info alps_model_data[] = {
+ };
  
-+TP means Tap SW status when tap processing is enabled or Press status when press
-+processing is enabled. SW means scroll up when 4 buttons are available.
-+
- ALPS Absolute Mode - Protocol Version 4
- ---------------------------------------
+ static const struct alps_protocol_info alps_v3_protocol_data = {
+-	ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT
++	ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
+ };
  
+ static const struct alps_protocol_info alps_v3_rushmore_data = {
+-	ALPS_PROTO_V3_RUSHMORE, 0x8f, 0x8f, ALPS_DUALPOINT
++	ALPS_PROTO_V3_RUSHMORE, 0x8f, 0x8f, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
+ };
+ 
+ static const struct alps_protocol_info alps_v4_protocol_data = {
+@@ -155,7 +155,7 @@ static const struct alps_protocol_info alps_v5_protocol_data = {
+ };
+ 
+ static const struct alps_protocol_info alps_v7_protocol_data = {
+-	ALPS_PROTO_V7, 0x48, 0x48, ALPS_DUALPOINT
++	ALPS_PROTO_V7, 0x48, 0x48, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
+ };
+ 
+ static const struct alps_protocol_info alps_v8_protocol_data = {
+@@ -583,7 +583,7 @@ static void alps_process_trackstick_packet_v3(struct psmouse *psmouse)
+ 
+ 	x = (s8)(((packet[0] & 0x20) << 2) | (packet[1] & 0x7f));
+ 	y = (s8)(((packet[0] & 0x10) << 3) | (packet[2] & 0x7f));
+-	z = (packet[4] & 0x7c) >> 2;
++	z = packet[4] & 0x7c;
+ 
+ 	/*
+ 	 * The x and y values tend to be quite large, and when used
+@@ -595,6 +595,7 @@ static void alps_process_trackstick_packet_v3(struct psmouse *psmouse)
+ 
+ 	input_report_rel(dev, REL_X, x);
+ 	input_report_rel(dev, REL_Y, -y);
++	input_report_abs(dev, ABS_PRESSURE, z);
+ 
+ 	/*
+ 	 * Most ALPS models report the trackstick buttons in the touchpad
+@@ -1118,6 +1119,7 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
+ 
+ 	input_report_rel(dev2, REL_X, (char)x);
+ 	input_report_rel(dev2, REL_Y, -((char)y));
++	input_report_abs(dev2, ABS_PRESSURE, z);
+ 
+ 	input_report_key(dev2, BTN_LEFT, left);
+ 	input_report_key(dev2, BTN_RIGHT, right);
 -- 
 2.11.0

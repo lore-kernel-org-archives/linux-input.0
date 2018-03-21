@@ -1,81 +1,66 @@
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [PATCH] Input: alps - Report pressure of v3 and v7 trackstick
-Date: Wed, 21 Mar 2018 21:07:36 +0100
-Message-ID: <20180321200736.32406-1-pali.rohar@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: [RFC PATCH v6 0/1] hid-steam driver with user mode client dection
+Date: Wed, 21 Mar 2018 21:49:31 +0100
+Message-ID: <20180321204932.12687-1-rodrigorivascosta@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-ALPS v3 and v7 packet formats reports trackstick pressure. This information
-is already parsed in unused "z" variable.
+This is a RFC for the problem of how to work with the Steam Controller from
+a kernel driver without disturbing the user mode drivers.
 
-ALPS SS4 S2 devices already reports trackstick pressure as ABS_PRESSURE
-attribute, therefore reports pressure in the same way also for v3 and v7.
+The main user mode driver is the Steam Controller itself. From now on I will
+call any user mode driver a "hidraw client" because that is the mode most of
+them use.
 
-This patch also updates parsing v3 pressure information, it is also stored
-in 7 bits.
+Steam Client is able to use a raw libusb user mode driver, but it
+looks like it does so only if hidraw is not available, so I'm not currently
+concerned with those.
 
-Signed-off-by: Pali Rohár <pali.rohar@gmail.com>
----
- drivers/input/mouse/alps.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+This driver, as is, does the following:
+ 1. It keeps the mouse/keyboard emulation (lizard mode) working while the
+    hid-steam input device is not in use.
+ 2. When the hid-steam input device is opened, lizard mode is disabled, but
+    ONLY IF there are no hidraw clients. This is necessary because with the
+    lizard mode on, a gesture in the gamepad can make several unrelated input
+    events and games go crazy.
+ 3. When the hid-steam input device is closed, lizard mode is re-enabled, but
+    ONLY IF there are no hidraw clients.
+ 4. If while the hid-steam input device is opened, a hidraw client starts,
+    then the input events are disabled for this driver, in order to avoid 
+    double inputs in games that read all available game controllers.
+ 4. If a hid-steam input device and a hidraw client are running, and then the
+    hidraw client finishes, then lizard mode is disabled, just like in 2.
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 010c1bcdb06d..0a9e6a3a2f9f 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -139,11 +139,11 @@ static const struct alps_model_info alps_model_data[] = {
- };
- 
- static const struct alps_protocol_info alps_v3_protocol_data = {
--	ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT
-+	ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
- };
- 
- static const struct alps_protocol_info alps_v3_rushmore_data = {
--	ALPS_PROTO_V3_RUSHMORE, 0x8f, 0x8f, ALPS_DUALPOINT
-+	ALPS_PROTO_V3_RUSHMORE, 0x8f, 0x8f, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
- };
- 
- static const struct alps_protocol_info alps_v4_protocol_data = {
-@@ -155,7 +155,7 @@ static const struct alps_protocol_info alps_v5_protocol_data = {
- };
- 
- static const struct alps_protocol_info alps_v7_protocol_data = {
--	ALPS_PROTO_V7, 0x48, 0x48, ALPS_DUALPOINT
-+	ALPS_PROTO_V7, 0x48, 0x48, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
- };
- 
- static const struct alps_protocol_info alps_v8_protocol_data = {
-@@ -583,7 +583,7 @@ static void alps_process_trackstick_packet_v3(struct psmouse *psmouse)
- 
- 	x = (s8)(((packet[0] & 0x20) << 2) | (packet[1] & 0x7f));
- 	y = (s8)(((packet[0] & 0x10) << 3) | (packet[2] & 0x7f));
--	z = (packet[4] & 0x7c) >> 2;
-+	z = packet[4] & 0x7c;
- 
- 	/*
- 	 * The x and y values tend to be quite large, and when used
-@@ -595,6 +595,7 @@ static void alps_process_trackstick_packet_v3(struct psmouse *psmouse)
- 
- 	input_report_rel(dev, REL_X, x);
- 	input_report_rel(dev, REL_Y, -y);
-+	input_report_abs(dev, ABS_PRESSURE, z);
- 
- 	/*
- 	 * Most ALPS models report the trackstick buttons in the touchpad
-@@ -1118,6 +1119,7 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
- 
- 	input_report_rel(dev2, REL_X, (char)x);
- 	input_report_rel(dev2, REL_Y, -((char)y));
-+	input_report_abs(dev2, ABS_PRESSURE, z);
- 
- 	input_report_key(dev2, BTN_LEFT, left);
- 	input_report_key(dev2, BTN_RIGHT, right);
+Other than what to do exactly, IMO, there are three tricky parts that deserve
+the RFC:
+ 1. Is the procedure avobe the right way to do it?
+ 2. How to detect whether a hidraw client is in use. Currently I'm looking at
+    hid_device::ll_open_count and compare with the number of times I called
+    hid_hw_open() - hid_hw_close(). I'm exploring using a custom hid_ll_driver
+    instead...
+ 3. How to disable the lizard mode. Currently I'm sending a few feature
+    reports that prevent the hardware from sending keyboard/mouse events. But
+    maybe they can be disabled at hid level, so we can avoid messing with the
+    hardware configuration, and the possible incompatibilities and races that
+    arise.
+
+PS. I've collapsed the patch-set into a single bigger commit, because my
+original split makes sense no longer. Sorry for the inconvenience.
+
+Thank you in advance for any comment.
+
+Rodrigo Rivas Costa (1):
+  HID: add driver for Valve Steam Controller
+
+ drivers/hid/Kconfig     |   8 +
+ drivers/hid/Makefile    |   1 +
+ drivers/hid/hid-ids.h   |   4 +
+ drivers/hid/hid-steam.c | 874 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 887 insertions(+)
+ create mode 100644 drivers/hid/hid-steam.c
+
 -- 
-2.11.0
+2.16.2

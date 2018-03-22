@@ -1,60 +1,29 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 0/7] HID core and multitouch fixups
-Date: Thu, 22 Mar 2018 14:42:26 +1000
-Message-ID: <20180322044226.GA16269@jelly>
-References: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
+From: Robert Munteanu <rombert@apache.org>
+Subject: Re: [PATCH v3] Fix modifier keys for Redragon Asura Keyboard
+Date: Thu, 22 Mar 2018 09:17:27 +0100
+Message-ID: <1b0047c60fc5dc4be4bbe627ab830e65db1cfae5.camel@apache.org>
+References: <20180321104331.22783-1-rombert@apache.org>
+         <201803211751.04734.linux@rainbow-software.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <201803211751.04734.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Mar 20, 2018 at 12:04:44PM +0100, Benjamin Tissoires wrote:
-> Hi,
+On Wed, 2018-03-21 at 17:51 +0100, Ondrej Zary wrote:
+> On Wednesday 21 March 2018 11:43:31 Robert Munteanu wrote:
+> > +#define USB_VENDOR_ID_MICRODIA          0x0c45
+> > +#define USB_DEVICE_ID_REDRAGON_ASURA    0x760b
 > 
-> Patches 1 and 2 are related to the Razer Blade Stealth that has some dead zone
-> near the edges of the touchpad.
-> Patches 3 was previously sent and reviewed by Dmitry and he suggested patch 4
-> at the time.
-> Patches 5..7 are cleanups I realized while trying to merge hid-multitouch
-> into hid-core, so that other drivers could reuse the hid-mt logic (but it's
-> not that easy I must confess).
+> Microdia is most probably an incorrect name. The 0c45 id probably
+> belongs 
+> to "Sonix Technology Co., Ltd."
 
-Series: Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+Right, I was unsure about that. I'll remove the microdia references and
+use sonix.
 
-Cheers,
-   Peter
-
-> 
-> Cheers,
-> Benjamin
-> 
-> Benjamin Tissoires (7):
->   HID: multitouch: export a quirk for the button handling of touchpads
->   HID: multitouch: remove dead zones of Razer Blade Stealth
->   HID: use BIT macro instead of plain integers for flags
->   HID: use BIT() macro for quirks too
->   HID: core: remove the need for HID_QUIRK_NO_EMPTY_INPUT
->   HID: multitouch: do not set HID_QUIRK_NO_INIT_REPORTS
->   HID: core: reset the quirks before calling probe again
-> 
->  drivers/hid/hid-asus.c       |  3 +-
->  drivers/hid/hid-core.c       |  2 ++
->  drivers/hid/hid-input.c      | 10 +++----
->  drivers/hid/hid-multitouch.c | 61 ++++++++++++++++-------------------------
->  drivers/hid/hid-uclogic.c    |  1 -
->  include/linux/hid.h          | 65 ++++++++++++++++++++++----------------------
->  6 files changed, 65 insertions(+), 77 deletions(-)
-> 
-> -- 
-> 2.14.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Robert

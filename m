@@ -1,36 +1,96 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH v5 0/2] Remove false-positive VLAs when using max()
-Date: Thu, 22 Mar 2018 10:04:14 -0700
-Message-ID: <CA+55aFwG6gzgyDNSGXs+E3HmhPnAXpuZ1tAmFG4QgGeF5m9tAg@mail.gmail.com>
-References: <1521174359-46392-1-git-send-email-keescook@chromium.org>
- <ab2933a2-ca7b-eb3b-744d-bc037b1be688@redhat.com> <CA+55aFx92dXg-qnrjGS2Rsna6TE5HSPBgGpSA3cv4n_n3RqBzA@mail.gmail.com>
- <20180316175502.GE30522@ZenIV.linux.org.uk> <CA+55aFzsrVF7W+YQye=EeF4Wk3yDOTbb_vSiM8s1zkKbE4JV4Q@mail.gmail.com>
- <CAGXu5jJmAAgaq3VCsUN2yjpHLSc7P-kNrM_4c4cqP=ysFcETXA@mail.gmail.com>
- <CA+55aFwv0VC67cx2W9yrf7qSFKf6ncVRrsVyLGqdmfSBn4yTYw@mail.gmail.com>
- <CAGXu5jJ=ZYpf=30H6hsWn-R-CEVYAgVMHxjmoLUC00QYq0r17g@mail.gmail.com>
- <CA+55aFwxk=tUECYQkd4cog08qW4ZT=r2K7FQXzGnc-zuMc7JQA@mail.gmail.com> <CAGXu5j+5i+56R0KDLMDA=+_DRW5w9aUGCEo0dq6PZvHPBWkM1g@mail.gmail.com>
+From: Benson Leung <bleung@google.com>
+Subject: Re: [PATCH v2 05/14] platform/chrome: chromeos_laptop - stop setting
+ suspend mode for Atmel devices
+Date: Thu, 22 Mar 2018 16:34:08 -0700
+Message-ID: <20180322233408.GA29926@decatoncale.mtv.corp.google.com>
+References: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
+ <20180320223138.234724-6-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAGXu5j+5i+56R0KDLMDA=+_DRW5w9aUGCEo0dq6PZvHPBWkM1g@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180320223138.234724-6-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Florian Weimer <fweimer@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Randy Dunlap <rdunlap@infradead.org>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Ingo Molnar <mingo@kernel.org>, David Laight <David.Laight@aculab.com>, Ian Abbott <abbotti@mev.co.uk>, linux-input <linux-input@vger.kernel.org>, linux-btrfs <linux-btrfs@vger.kernel.org>, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kernel Hardening <kernel-hardening@lists.openwall.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 22, 2018 at 8:01 AM, Kees Cook <keescook@chromium.org> wrote:
->
-> Seems like it doesn't like void * arguments:
 
-Yeah, that was discussed separately, I just didn't realize we had any
-such users.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-As David said, just adding a (long) cast to it should be fine, ie
+Hi Dmitry,
 
-  #define __is_constant(a) \
-         (sizeof(int) == sizeof(*(1 ? ((void*)((long)(a) * 0l)) : (int*)1)))
+On Tue, Mar 20, 2018 at 03:31:29PM -0700, Dmitry Torokhov wrote:
+> Atmel touch controller driver no longer respects suspend mode specified in
+> platform data, so let's stop setting it.
+>=20
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-and is probably a good idea even outside of pointers (because "long
-long" constants could cause warnings too due to the cast to (void *)).
+Applied to my working branch for atmel_mxt_ts + chromeos_laptop.c for
+v4.17. Thanks!
 
-                Linus
+> ---
+>  drivers/platform/chrome/chromeos_laptop.c | 2 --
+>  1 file changed, 2 deletions(-)
+>=20
+> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform=
+/chrome/chromeos_laptop.c
+> index 54a13c70e1d8f..0a43f1833de3f 100644
+> --- a/drivers/platform/chrome/chromeos_laptop.c
+> +++ b/drivers/platform/chrome/chromeos_laptop.c
+> @@ -100,7 +100,6 @@ static struct mxt_platform_data atmel_224s_tp_platfor=
+m_data =3D {
+>  	.irqflags		=3D IRQF_TRIGGER_FALLING,
+>  	.t19_num_keys		=3D ARRAY_SIZE(mxt_t19_keys),
+>  	.t19_keymap		=3D mxt_t19_keys,
+> -	.suspend_mode		=3D MXT_SUSPEND_T9_CTRL,
+>  };
+> =20
+>  static struct i2c_board_info atmel_224s_tp_device =3D {
+> @@ -111,7 +110,6 @@ static struct i2c_board_info atmel_224s_tp_device =3D=
+ {
+> =20
+>  static struct mxt_platform_data atmel_1664s_platform_data =3D {
+>  	.irqflags		=3D IRQF_TRIGGER_FALLING,
+> -	.suspend_mode		=3D MXT_SUSPEND_T9_CTRL,
+>  };
+> =20
+>  static struct i2c_board_info atmel_1664s_device =3D {
+> --=20
+> 2.16.2.804.g6dcf76e118-goog
+>=20
+
+--=20
+Benson Leung
+Staff Software Engineer
+Chrome OS Kernel
+Google Inc.
+bleung@google.com
+Chromium OS Project
+bleung@chromium.org
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE6gYDF28Li+nEiKLaHwn1ewov5lgFAlq0PVkACgkQHwn1ewov
+5ljBzQ/+PrDaiWJ3IZp3EYweoviwzp9WehOW0f6bsa5TVlli9qrkNsyPfWhu8hFE
+1FcLd1saP9j67ctaeQVUZnVvx0vPEF5EyxeoqTKG8ouS5cM04UFeCkzX8+iJq4Mz
+PjO1q9NAWANzJgFyskWQVSOq5n4Y41tUI47pk0GyWzD2G77PRx/Y819lvuH0GAvn
+GnP46ZmjBYkjkkwLXJbaewp/Sm5Zf8x5/9uWR1X4g8oQXB8OHvcgo6n7GsZUtgR5
+WDpl4B9Ct7KlWJzQvY2Wesp2/0hyt6XuYNKiMMZrPtgB9XpUKCJNOfDYrRnMftL+
+lZmHVSmiPUAxG8RgiZQKNg3+r/UTjrrUL3PgbjqWJbVCSxae6e4QRf5h872WVBy4
+R9835W6SPODZZWfjGf8tPWXfCFpRh8/Vx2YZPPdY35m2A/8sFcZYP+fsjJrt62pe
+/Mvy0TpQoI/Cma5G9OeJfj1ndCYo/pO93bBoMTJB8+jSd18TOzL3lwo3tO4EEtyG
+DnYlHR8hetucGAwIA1kMPQXwcruZc13YKUYzl/j5LmAvWMxkDuOq+/3NTp4lMFn9
+4ePDtjwX9uGgsf9gVZtBTEwEMNK0nWBSpiywfOJkuZ5nxdcPW3EsbPsFGU9i4Thg
+sK5wET7RfgH102m7UPsiK5ATNvOGNccR/3+i6UKGuVdHUhSQAJM=
+=qWkj
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--

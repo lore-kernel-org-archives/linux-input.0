@@ -1,29 +1,39 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/7] HID core and multitouch fixups
-Date: Fri, 23 Mar 2018 14:55:36 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1803231455220.15778@cbobk.fhfr.pm>
-References: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
+From: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Subject: [PATCH] Input: ALPS - add support for 73 03 28 devices (Thinkpad
+ L570)
+Date: Fri, 23 Mar 2018 15:23:55 +0100
+Message-ID: <7d5077ef-c185-c6b1-d602-df8d9f7dade3@secunet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180320110451.16582-1-benjamin.tissoires@redhat.com>
+Content-Language: de-DE
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, Takashi Iwai <tiwai@suse.de>, Kees Cook <keescook@chromium.org>, Nir Perry <nirperry@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 20 Mar 2018, Benjamin Tissoires wrote:
+The Lenovo Thinkpad L570 uses V8 protocol.
+Add 0x73 0x03 0x28 devices to use V8 protovol which makes
+trackstick and mouse buttons work with Lenovo Thinkpad L570.
 
-> Patches 1 and 2 are related to the Razer Blade Stealth that has some dead zone
-> near the edges of the touchpad.
-> Patches 3 was previously sent and reviewed by Dmitry and he suggested patch 4
-> at the time.
-> Patches 5..7 are cleanups I realized while trying to merge hid-multitouch
-> into hid-core, so that other drivers could reuse the hid-mt logic (but it's
-> not that easy I must confess).
+Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+---
+ drivers/input/mouse/alps.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-I've split this into two logical sets, and applied. Thanks!
-
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index dbe57da..5523d4e 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -136,6 +136,8 @@
+ 	{ { 0x73, 0x02, 0x0a }, { ALPS_PROTO_V2, 0xf8, 0xf8, 0 } },
+ 	{ { 0x73, 0x02, 0x14 }, { ALPS_PROTO_V2, 0xf8, 0xf8, ALPS_FW_BK_2 } },			/* Ahtec Laptop */
+ 	{ { 0x73, 0x02, 0x50 }, { ALPS_PROTO_V2, 0xcf, 0xcf, ALPS_FOUR_BUTTONS } },		/* Dell Vostro 1400 */
++	{ { 0x73, 0x03, 0x28 }, { ALPS_PROTO_V8, 0x18, 0x18,
++		ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE | ALPS_BUTTONPAD } },		/* Lenovo L570 */
+ };
+ 
+ static const struct alps_protocol_info alps_v3_protocol_data = {
 -- 
-Jiri Kosina
-SUSE Labs
+1.9.1

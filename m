@@ -1,78 +1,98 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] Input: add bu21029 touch driver
-Date: Mon, 26 Mar 2018 17:24:26 -0500
-Message-ID: <20180326222426.wbdjlyfy7yyan7fc@rob-hp-laptop>
-References: <1521651874-15379-1-git-send-email-mark.jonas@de.bosch.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: alps - Report pressure of v3 and v7 trackstick
+Date: Mon, 26 Mar 2018 15:37:32 -0700
+Message-ID: <20180326223732.GB204225@dtor-ws>
+References: <20180321200736.32406-1-pali.rohar@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1521651874-15379-1-git-send-email-mark.jonas@de.bosch.com>
+In-Reply-To: <20180321200736.32406-1-pali.rohar@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Jonas <mark.jonas@de.bosch.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, hs@denx.de, Zhu Yi <yi.zhu5@cn.bosch.com>
+To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 21, 2018 at 06:04:34PM +0100, Mark Jonas wrote:
-> From: Zhu Yi <yi.zhu5@cn.bosch.com>
+Hi Pali,
+
+On Wed, Mar 21, 2018 at 09:07:36PM +0100, Pali Rohár wrote:
+> ALPS v3 and v7 packet formats reports trackstick pressure. This information
+> is already parsed in unused "z" variable.
 > 
-> Add the ROHM BU21029 resistive touch panel controller
-> support with i2c interface.
+> ALPS SS4 S2 devices already reports trackstick pressure as ABS_PRESSURE
+> attribute, therefore reports pressure in the same way also for v3 and v7.
 > 
-> Signed-off-by: Zhu Yi <yi.zhu5@cn.bosch.com>
-> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-> Reviewed-by: Heiko Schocher <hs@denx.de>
+> This patch also updates parsing v3 pressure information, it is also stored
+> in 7 bits.
+> 
+> Signed-off-by: Pali Rohár <pali.rohar@gmail.com>
 > ---
->  .../bindings/input/touchscreen/bu21029.txt         |  30 ++
->  drivers/input/touchscreen/Kconfig                  |  12 +
->  drivers/input/touchscreen/Makefile                 |   1 +
->  drivers/input/touchscreen/bu21029_ts.c             | 456 +++++++++++++++++++++
->  4 files changed, 499 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/bu21029.txt
->  create mode 100644 drivers/input/touchscreen/bu21029_ts.c
+>  drivers/input/mouse/alps.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/bu21029.txt b/Documentation/devicetree/bindings/input/touchscreen/bu21029.txt
-> new file mode 100644
-> index 0000000..7b61602
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/bu21029.txt
-> @@ -0,0 +1,30 @@
-> +* Rohm BU21029 Touch Screen Controller
-> +
-> +Required properties:
-> + - compatible              : must be "rohm,bu21029"
-> + - reg                     : i2c device address of the chip
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 010c1bcdb06d..0a9e6a3a2f9f 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -139,11 +139,11 @@ static const struct alps_model_info alps_model_data[] = {
+>  };
+>  
+>  static const struct alps_protocol_info alps_v3_protocol_data = {
+> -	ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT
+> +	ALPS_PROTO_V3, 0x8f, 0x8f, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
 
-What the valid value(s)?
+It seems that with these changes we no longer have trackpoints that do
+not report pressure in ALPS. Should we get rid of
+ALPS_DUALPOINT_WITH_PRESSURE and clean up the code a bit?
 
-> + - interrupt-parent        : the phandle for the gpio controller
-> + - interrupts              : (gpio) interrupt to which the chip is connected
-> + - reset-gpios             : gpio pin to reset the chip
+Thanks.
 
-Active high or low?
+>  };
+>  
+>  static const struct alps_protocol_info alps_v3_rushmore_data = {
+> -	ALPS_PROTO_V3_RUSHMORE, 0x8f, 0x8f, ALPS_DUALPOINT
+> +	ALPS_PROTO_V3_RUSHMORE, 0x8f, 0x8f, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
+>  };
+>  
+>  static const struct alps_protocol_info alps_v4_protocol_data = {
+> @@ -155,7 +155,7 @@ static const struct alps_protocol_info alps_v5_protocol_data = {
+>  };
+>  
+>  static const struct alps_protocol_info alps_v7_protocol_data = {
+> -	ALPS_PROTO_V7, 0x48, 0x48, ALPS_DUALPOINT
+> +	ALPS_PROTO_V7, 0x48, 0x48, ALPS_DUALPOINT | ALPS_DUALPOINT_WITH_PRESSURE
+>  };
+>  
+>  static const struct alps_protocol_info alps_v8_protocol_data = {
+> @@ -583,7 +583,7 @@ static void alps_process_trackstick_packet_v3(struct psmouse *psmouse)
+>  
+>  	x = (s8)(((packet[0] & 0x20) << 2) | (packet[1] & 0x7f));
+>  	y = (s8)(((packet[0] & 0x10) << 3) | (packet[2] & 0x7f));
+> -	z = (packet[4] & 0x7c) >> 2;
+> +	z = packet[4] & 0x7c;
+>  
+>  	/*
+>  	 * The x and y values tend to be quite large, and when used
+> @@ -595,6 +595,7 @@ static void alps_process_trackstick_packet_v3(struct psmouse *psmouse)
+>  
+>  	input_report_rel(dev, REL_X, x);
+>  	input_report_rel(dev, REL_Y, -y);
+> +	input_report_abs(dev, ABS_PRESSURE, z);
+>  
+>  	/*
+>  	 * Most ALPS models report the trackstick buttons in the touchpad
+> @@ -1118,6 +1119,7 @@ static void alps_process_trackstick_packet_v7(struct psmouse *psmouse)
+>  
+>  	input_report_rel(dev2, REL_X, (char)x);
+>  	input_report_rel(dev2, REL_Y, -((char)y));
+> +	input_report_abs(dev2, ABS_PRESSURE, z);
+>  
+>  	input_report_key(dev2, BTN_LEFT, left);
+>  	input_report_key(dev2, BTN_RIGHT, right);
+> -- 
+> 2.11.0
+> 
 
-> + - rohm,x-plate-ohms       : x-plate resistance in ohms
-
-IIRC, we have a standard touchscreen property for this?
-
-> +
-> +Optional properties:
-> + - touchscreen-max-pressure: maximum pressure value
-> +
-> +Example:
-> +
-> +	&i2c1 {
-> +		/* ... */
-> +
-> +		bu21029: bu21029@40 {
-> +			compatible = "rohm,bu21029";
-> +			reg = <0x40>;
-> +			interrupt-parent = <&gpio1>;
-> +			interrupts = <4 IRQ_TYPE_EDGE_FALLING>;
-> +			reset-gpios = <&gpio6 16 GPIO_ACTIVE_LOW>;
-> +			rohm,x-plate-ohms = <600>;
-> +			touchscreen-max-pressure = <4095>;
-> +		};
-> +
-> +		/* ... */
-> +	};
+-- 
+Dmitry

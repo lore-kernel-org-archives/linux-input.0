@@ -1,30 +1,27 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH] Input: alps - Update documentation for trackstick v3
- format
-Date: Mon, 26 Mar 2018 08:41:02 -0600
-Message-ID: <20180326084102.333dc4ef@lwn.net>
-References: <20180321200336.32035-1-pali.rohar@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH V3] Input: pm8941-pwrkey: add resin key capabilities
+Date: Mon, 26 Mar 2018 17:24:46 -0500
+Message-ID: <20180326222446.spjzqqgiujadd3zm@rob-hp-laptop>
+References: <1521786192-19487-1-git-send-email-tirupath@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180321200336.32035-1-pali.rohar@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1521786192-19487-1-git-send-email-tirupath@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?UTF-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Tirupathi Reddy <tirupath@codeaurora.org>
+Cc: dmitry.torokhov@gmail.com, bjorn.andersson@linaro.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 21 Mar 2018 21:03:36 +0100
-Pali Rohár <pali.rohar@gmail.com> wrote:
-
-> Bits for M, R and L buttons are already processed in alps. Other newly
-> documented bits not yet.
+On Fri, Mar 23, 2018 at 11:53:12AM +0530, Tirupathi Reddy wrote:
+> Add resin key support to handle different types of key events
+> defined in different platforms.
 > 
-> Signed-off-by: Pali Rohár <pali.rohar@gmail.com>
+> Signed-off-by: Tirupathi Reddy <tirupath@codeaurora.org>
 > ---
-> This is based on information which Masaki Ota provided to us.
+>  .../bindings/input/qcom,pm8941-pwrkey.txt          | 32 +++++++++
 
-In the absence of screams of agony I'll assume that the change is
-correct.  Applied to the docs tree, thanks.
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-jon
+>  drivers/input/misc/pm8941-pwrkey.c                 | 81 ++++++++++++++++++++++
+>  2 files changed, 113 insertions(+)

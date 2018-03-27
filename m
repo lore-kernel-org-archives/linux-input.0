@@ -1,8 +1,8 @@
 From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH v2 05/10] iio: adc: at91-sama5d2_adc: fix channel
- configuration for differential channels
-Date: Tue, 27 Mar 2018 15:32:38 +0300
-Message-ID: <1522153963-1121-6-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v2 03/10] dt-bindings: input: touchscreen: touch_adc: create
+ bindings
+Date: Tue, 27 Mar 2018 15:32:36 +0300
+Message-ID: <1522153963-1121-4-git-send-email-eugen.hristev@microchip.com>
 References: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,97 +22,56 @@ To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin
 Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-When iterating through the channels, the index in the array is not the
-scan index. Added an xlate function to translate to the proper index.
-This will be used also for devicetree channel xlate
+Added bindings for generic resistive touchscreen ADC.
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- drivers/iio/adc/at91-sama5d2_adc.c | 41 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 37 insertions(+), 4 deletions(-)
+Changes in v2:
+ - modified bindings to have a generic resistive touchscreen adc driver
+instead of specific architecture one.
 
-diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
-index 4eff835..8729d65 100644
---- a/drivers/iio/adc/at91-sama5d2_adc.c
-+++ b/drivers/iio/adc/at91-sama5d2_adc.c
-@@ -333,6 +333,27 @@ static const struct iio_chan_spec at91_adc_channels[] = {
- 				+ AT91_SAMA5D2_DIFF_CHAN_CNT + 1),
- };
- 
-+static int at91_adc_chan_xlate(struct iio_dev *indio_dev, int chan)
-+{
-+	int i;
+ .../bindings/input/touchscreen/touch_adc.txt       | 33 ++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touch_adc.txt
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/touch_adc.txt b/Documentation/devicetree/bindings/input/touchscreen/touch_adc.txt
+new file mode 100644
+index 0000000..27abcdc
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/touch_adc.txt
+@@ -0,0 +1,33 @@
++Generic resistive touchscreen ADC
 +
-+	for (i = 0; i < indio_dev->num_channels; i++) {
-+		if (indio_dev->channels[i].scan_index == chan)
-+			return i;
-+	}
-+	return -EINVAL;
-+}
++Required properties:
 +
-+static inline struct iio_chan_spec const *
-+at91_adc_chan_get(struct iio_dev *indio_dev, int chan)
-+{
-+	int index = at91_adc_chan_xlate(indio_dev, chan);
++ - compatible: must be "generic-resistive-adc-touch"
++The device must be connected to an IIO device that provides channels for
++position measurement and optional pressure.
++Refer to ../iio/iio-bindings.txt for details
++ - iio-channels: must have at least two channels connected to an IIO device.
++These should correspond to the channels exposed by the IIO device and should
++have the right index as the IIO device registers them. These channels
++represent the relative position on the "x" and "y" axes.
++ - iio-channel-names: must have all the channels' names. Mandatory channels
++are "x" and "y".
 +
-+	if (index < 0)
-+		return NULL;
-+	return indio_dev->channels + index;
-+}
++Optional properties:
++ - iio-channels: The third channel named "pressure" is optional and can be
++used if the IIO device also measures pressure besides position.
++If this channel is missing, pressure will be ignored and the touchscreen
++will only report position.
++ - iio-channel-names: optional channel named "pressure".
++ - generic-resistive-adc-touch,pressure-threshold: a pressure threshold for
++the touchscreen, if we are using the "pressure" channel as well.
++Represented by an integer value.
 +
- static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
- {
- 	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
-@@ -350,8 +371,10 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
- 	at91_adc_writel(st, AT91_SAMA5D2_TRGR, status);
- 
- 	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
--		struct iio_chan_spec const *chan = indio->channels + bit;
-+		struct iio_chan_spec const *chan = at91_adc_chan_get(indio, bit);
- 
-+		if (!chan)
-+			continue;
- 		if (state) {
- 			at91_adc_writel(st, AT91_SAMA5D2_CHER,
- 					BIT(chan->channel));
-@@ -448,7 +471,11 @@ static int at91_adc_dma_start(struct iio_dev *indio_dev)
- 
- 	for_each_set_bit(bit, indio_dev->active_scan_mask,
- 			 indio_dev->num_channels) {
--		struct iio_chan_spec const *chan = indio_dev->channels + bit;
-+		struct iio_chan_spec const *chan =
-+					 at91_adc_chan_get(indio_dev, bit);
++Example:
 +
-+		if (!chan)
-+			continue;
- 
- 		st->dma_st.rx_buf_sz += chan->scan_type.storagebits / 8;
- 	}
-@@ -526,8 +553,11 @@ static int at91_adc_buffer_predisable(struct iio_dev *indio_dev)
- 	 */
- 	for_each_set_bit(bit, indio_dev->active_scan_mask,
- 			 indio_dev->num_channels) {
--		struct iio_chan_spec const *chan = indio_dev->channels + bit;
-+		struct iio_chan_spec const *chan =
-+					at91_adc_chan_get(indio_dev, bit);
- 
-+		if (!chan)
-+			continue;
- 		if (st->dma_st.dma_chan)
- 			at91_adc_readl(st, chan->address);
- 	}
-@@ -587,8 +617,11 @@ static void at91_adc_trigger_handler_nodma(struct iio_dev *indio_dev,
- 
- 	for_each_set_bit(bit, indio_dev->active_scan_mask,
- 			 indio_dev->num_channels) {
--		struct iio_chan_spec const *chan = indio_dev->channels + bit;
-+		struct iio_chan_spec const *chan =
-+					at91_adc_chan_get(indio_dev, bit);
- 
-+		if (!chan)
-+			continue;
- 		st->buffer[i] = at91_adc_readl(st, chan->address);
- 		i++;
- 	}
++	resistive_touch: resistive_touch {
++		compatible = "generic-resistive-adc-touch";
++		generic-resistive-adc-touch,pressure-threshold = <10000>;
++		io-channels = <&adc 24>, <&adc 25>, <&adc 26>;
++		io-channel-names = "x", "y", "pressure";
++	};
 -- 
 2.7.4

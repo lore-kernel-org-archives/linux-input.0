@@ -1,43 +1,40 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/4] HID: alps: Fix some bugs and improve code around
- 't4_read_write_register()'
-Date: Tue, 27 Mar 2018 14:05:59 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1803271405420.15778@cbobk.fhfr.pm>
-References: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
+From: Eugen Hristev <eugen.hristev@microchip.com>
+Subject: [PATCH v2 01/10] MAINTAINERS: add generic resistive touchscreen adc
+Date: Tue, 27 Mar 2018 15:32:34 +0300
+Message-ID: <1522153963-1121-2-git-send-email-eugen.hristev@microchip.com>
+References: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: masaki.ota@jp.alps.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com
+Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 19 Mar 2018, Christophe JAILLET wrote:
+Add MAINTAINERS entry for generic resistive touchscreen adc
 
-> All is said in the subject and below.
-> 
-> These patches are untested. Especially, patch 1 slightly changes the behavior
-> of 't4_read_write_register()'.
-> This looks logical to me, but please, review it carefully.
-> 
-> Christophe JAILLET (4):
->   HID: alps: Report an error if we receive invalid data in
->     't4_read_write_register()'
->   HID: alps: Save a memory allocation in 't4_read_write_register()' when
->     writing data
->   HID: alps: Check errors returned by 't4_read_write_register()'
->   HID: alps: Fix some style in 't4_read_write_register()'
-> 
->  drivers/hid/hid-alps.c | 27 ++++++++++++++++++++++-----
->  1 file changed, 22 insertions(+), 5 deletions(-)
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+---
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Masaki-san,
-
-do you have any comments to Christophe's patchset please?
-
-Thanks,
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 36f1442..ba227cc 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -5943,6 +5943,12 @@ F:	drivers/base/power/domain*.c
+ F:	include/linux/pm_domain.h
+ F:	Documentation/devicetree/bindings/power/power_domain.txt
+ 
++GENERIC RESISTIVE TOUCHSCREEN ADC DRIVER
++M:	Eugen Hristev <eugen.hristev@microchip.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/input/touchscreen/touch_adc.c
++
+ GENERIC UIO DRIVER FOR PCI DEVICES
+ M:	"Michael S. Tsirkin" <mst@redhat.com>
+ L:	kvm@vger.kernel.org
 -- 
-Jiri Kosina
-SUSE Labs
+2.7.4

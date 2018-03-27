@@ -1,69 +1,115 @@
 From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
 Subject: Re: [PATCH] Input: add bu21029 touch driver
-Date: Tue, 27 Mar 2018 06:52:31 +0000
-Message-ID: <bf2aff8ab685473c836012bbed96c693@de.bosch.com>
+Date: Tue, 27 Mar 2018 06:57:42 +0000
+Message-ID: <7ab56efbafd34c11968d8cef2369c6a5@de.bosch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Language: de-DE
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello Rob,
+Hello Dmitry,
 
-> > +* Rohm BU21029 Touch Screen Controller
-> > +
-> > +Required properties:
-> > + - compatible              : must be "rohm,bu21029"
-> > + - reg                     : i2c device address of the chip
+> > +++ b/drivers/input/touchscreen/bu21029_ts.c
+> > @@ -0,0 +1,456 @@
 >=20
-> What the valid value(s)?
+> Please add SPDX tag for the driver.
 
-The chip itself can be wired to 0x40 or 0x41. The driver can work with
-any valid I2C address.
+We will do.
 
-Is this what you are looking for?
+> Please use GPIOD API (and include linux/gpio/consumer.h instead of
+> of_gpio.h).
 
-- reg                     : i2c device address of the chip (0x40 or 0x41)
+We will do the change.
 
-> > + - interrupt-parent        : the phandle for the gpio controller
-> > + - interrupts              : (gpio) interrupt to which the chip is con=
-nected
-> > + - reset-gpios             : gpio pin to reset the chip
+> > +/* HW_ID1 Register (PAGE=3D0, ADDR=3D0x0E, Reset value=3D0x02, Read on=
+ly)
 >=20
-> Active high or low?
+> Multi-line comments start with empty comment line:
+>=20
+> /*
+>  * Multi
+>  * line.
+>  */
 
-The chip itself needs an active low reset. But depending on whether
-there is an inverter between the touch screen controller and the CPU or
-not, the CPU's GPIO might need to be active high or active low. This
-shall be configured by the polarity given in the device tree. The
-driver uses this information to drive the reset appropriately.
+Will be fixed.
 
-Are you looking for documenting the required polarity of the touch
-controller itself?
+> > +	/* calculate Rz (pressure resistance value) by equation:
+> > +	 * Rz =3D Rx * (x/Q) * ((z2/z1) - 1), where
+> > +	 * Rx is x-plate resistance,
+> > +	 * Q  is the touch screen resolution (8bit =3D 256, 12bit =3D 4096)
+> > +	 * x, z1, z2 are the measured positions.
+> > +	 */
+> > +	rz  =3D z2 - z1;
+> > +	rz *=3D x;
+> > +	rz *=3D bu21029->x_plate_ohms;
+> > +	rz /=3D z1;
+> > +	rz  =3D DIV_ROUND_CLOSEST(rz, SCALE_12BIT);
+> > +	if (rz <=3D bu21029->max_pressure) {
+> > +		input_report_abs(bu21029->in_dev, ABS_X, x);
+> > +		input_report_abs(bu21029->in_dev, ABS_Y, y);
+> > +		input_report_abs(bu21029->in_dev, ABS_PRESSURE, rz);
+>=20
+> What is the values of pressure reported when finger is touching the
+> surface? IOW is 'rz' pressure or resistance?
 
-- reset-gpios             : gpio pin to reset the chip (active low)
+Rz is pressure measured in Ohms. That is, it is a resistance which
+correlates with finger pressure.
 
-> > +Example:
+I fear that I do not understand your question. Does ABS_PRESSURE have
+to be reported in a specific unit, e.g. milli Newton? We thought that
+it is a device specific scale and that it will be converted into a
+calibrated value (just like the coordinates) in user space.
+
+> > +	if (of_property_read_u32(np, "touchscreen-max-pressure", &val32))
+> > +		bu21029->max_pressure =3D MAX_12BIT;
+> > +	else
+> > +		bu21029->max_pressure =3D val32;
+>=20
+> Please use infrastructure form include/linux/input/touchscreen.h
+> so that you handle different sizes and orientations.
+
+Thank you for this recommendation. We will check it out and send a new
+proposal.
+
+> > +	in_dev->name       =3D DRIVER_NAME;
+> > +	in_dev->id.bustype =3D BUS_I2C;
+> > +	in_dev->dev.parent =3D &client->dev;
+>=20
+> Not needed with devm_input_allocate_device().
+
+We will have a look at the other drivers.
+
+> > +static int bu21029_remove(struct i2c_client *client)
+> > +{
+> > +	struct bu21029_ts_data *bu21029 =3D i2c_get_clientdata(client);
 > > +
-> > +	&i2c1 {
-> > +		/* ... */
+> > +	del_timer_sync(&bu21029->timer);
+>=20
+> If interrupt comes here kernel will be unhappy. You need to either work
+> canceling timer into devm unwid stream (devm_add_action_or_reset()) or
+> somehow make sure that you shut off interrupts before canceling the
+> timer.
+
+We will work on a solution. Thank you for spotting this.
+
+>=20
 > > +
-> > +		bu21029: bu21029@40 {
-> > +			compatible =3D "rohm,bu21029";
-> > +			reg =3D <0x40>;
-> > +			interrupt-parent =3D <&gpio1>;
-> > +			interrupts =3D <4 IRQ_TYPE_EDGE_FALLING>;
-> > +			reset-gpios =3D <&gpio6 16 GPIO_ACTIVE_LOW>;
-> > +			rohm,x-plate-ohms =3D <600>;
-> > +			touchscreen-max-pressure =3D <4095>;
-> > +		};
-> > +
-> > +		/* ... */
-> > +	};
+> > +	return 0;
+> > +}
+
+> > +static struct i2c_driver bu21029_driver =3D {
+> > +	.driver =3D {
+> > +		.name  =3D DRIVER_NAME,
+> > +		.owner =3D THIS_MODULE,
+>=20
+> Not needed.
+
+OK, we will remove the .owner assignment.
 
 Greetings,
 Mark Jonas

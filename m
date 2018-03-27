@@ -1,48 +1,43 @@
-From: Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
-Date: Tue, 27 Mar 2018 12:47:42 +0200
-Message-ID: <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
- <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
- <1521685073.28226.10.camel@mtkswgap22> <20180323185418.GD255819@dtor-ws>
- <20180327080507.pgil6pw2mn4y2f4d@dell>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 0/4] HID: alps: Fix some bugs and improve code around
+ 't4_read_write_register()'
+Date: Tue, 27 Mar 2018 14:05:59 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1803271405420.15778@cbobk.fhfr.pm>
+References: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180327080507.pgil6pw2mn4y2f4d@dell>
-Content-Language: en-US
+In-Reply-To: <cover.1521492069.git.christophe.jaillet@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sean Wang <sean.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it, devicetree@vger.kernel.org, linus.walleij@linaro.org, jcsing.lee@samsung.com, linux-kernel@vger.kernel.org, krzk@kernel.org, javier@osg.samsung.com, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, eddie.huang@mediatek.com, Chen.Zhong@mediatek.com, beomho.seo@samsung.com, linux-rtc@vger.kernel.org
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: masaki.ota@jp.alps.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Mon, 19 Mar 2018, Christophe JAILLET wrote:
 
-
-On 03/27/2018 10:05 AM, Lee Jones wrote:
-> On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
->> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
->>> Hi, Dmitry and Lee
->>>
->>> The series seems not being got merged. Are they good enough to be ready
->>> into the your tree?
->>>
->>> Recently I've tested the series with focusing on pwrkey event generated
->>> through interrupt when push and release the key on bpi-r2 board and then
->>> finally it's working fine. but for homekey it cannot be found on the
->>> board and thus I cannot have more tests more about it.
->>>
->>> Tested-by: Sean Wang <sean.wang@mediatek.com>
->>
->> You have my Ack on the input patch; I expect it go through Lee's tree as
->> there are some dependencies on mfd core piece.
+> All is said in the subject and below.
 > 
-> Are you happy for me to merge the Input dt-bindings without your Ack?
+> These patches are untested. Especially, patch 1 slightly changes the behavior
+> of 't4_read_write_register()'.
+> This looks logical to me, but please, review it carefully.
 > 
+> Christophe JAILLET (4):
+>   HID: alps: Report an error if we receive invalid data in
+>     't4_read_write_register()'
+>   HID: alps: Save a memory allocation in 't4_read_write_register()' when
+>     writing data
+>   HID: alps: Check errors returned by 't4_read_write_register()'
+>   HID: alps: Fix some style in 't4_read_write_register()'
+> 
+>  drivers/hid/hid-alps.c | 27 ++++++++++++++++++++++-----
+>  1 file changed, 22 insertions(+), 5 deletions(-)
 
-They got both Acked in v5, but the commit message was not updated:
-https://patchwork.kernel.org/patch/9973721/
-https://patchwork.kernel.org/patch/9973723/
+Masaki-san,
 
-Regards,
-Matthias
+do you have any comments to Christophe's patchset please?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

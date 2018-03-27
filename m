@@ -1,277 +1,114 @@
 From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH v2 07/10] input: touchscreen: touch_adc: add generic resistive ADC touchscreen
-Date: Tue, 27 Mar 2018 15:32:40 +0300
-Message-ID: <1522153963-1121-8-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v2 02/10] iio: Add channel for Position Relative
+Date: Tue, 27 Mar 2018 15:32:35 +0300
+Message-ID: <1522153963-1121-3-git-send-email-eugen.hristev@microchip.com>
 References: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com
 Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-This adds a generic resistive touchscreen (GRTS) driver, which is based
-on an IIO device (an ADC). It must be connected to the channels of an ADC
-to receive touch data. Then it will feed the data into the input subsystem
-where it registers an input device.
-It uses an IIO callback buffer to register to the IIO device
+Add new channel type for relative position on a pad.
 
-Some parts of this patch are based on initial original work by
-Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
+These type of analog sensor offers the position of a pen
+on a touchpad, and is represented as a voltage, which can be
+converted to a position on X and Y axis on the pad.
+The channel will hand the relative position on the pad in both directions.
+
+The channel can then be consumed by a touchscreen driver or
+read as-is for a raw indication of the touchpen on a touchpad.
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
 Changes in v2:
- - this is now a generic resistive adc touchscreen driver
+ - modified channel name to relative position as suggested.
+ - modified kernel version to 4.18 (presumable)
 
- drivers/input/touchscreen/Kconfig     |  13 +++
- drivers/input/touchscreen/Makefile    |   1 +
- drivers/input/touchscreen/touch_adc.c | 199 ++++++++++++++++++++++++++++++++++
- 3 files changed, 213 insertions(+)
- create mode 100644 drivers/input/touchscreen/touch_adc.c
+ Documentation/ABI/testing/sysfs-bus-iio | 12 ++++++++++++
+ drivers/iio/industrialio-core.c         |  1 +
+ include/uapi/linux/iio/types.h          |  1 +
+ tools/iio/iio_event_monitor.c           |  2 ++
+ 4 files changed, 16 insertions(+)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 4f15496..afd879f 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -92,6 +92,19 @@ config TOUCHSCREEN_AD7879_SPI
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ad7879-spi.
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+index 6a5f34b..42a9287 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio
++++ b/Documentation/ABI/testing/sysfs-bus-iio
+@@ -190,6 +190,18 @@ Description:
+ 		but should match other such assignments on device).
+ 		Units after application of scale and offset are m/s^2.
  
-+config TOUCHSCREEN_ADC
-+	tristate "Generic ADC based resistive touchscreen"
-+	depends on IIO
-+	select IIO_BUFFER_CB
-+	help
-+	  Say Y here if you want to use the generic ADC
-+	  resistive touchscreen driver.
++What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_x_raw
++What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_y_raw
++KernelVersion:	4.18
++Contact:	linux-iio@vger.kernel.org
++Description:
++		Relative position in direction x or y on a pad (may be
++		arbitrarily assigned but should match other such assignments on
++		device).
++		Units after application of scale and offset are milli percents
++		from the pad's size in both directions. Should be calibrated by
++		the consumer.
 +
-+	  If unsure, say N (but it's safe to say "Y").
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called touch_adc.ko.
-+
- config TOUCHSCREEN_AR1021_I2C
- 	tristate "Microchip AR1020/1021 i2c touchscreen"
- 	depends on I2C && OF
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index dddae79..cbe6121 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -13,6 +13,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
- obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
- obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
- obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
-+obj-$(CONFIG_TOUCHSCREEN_ADC)		+= touch_adc.o
- obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
- obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
- obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
-diff --git a/drivers/input/touchscreen/touch_adc.c b/drivers/input/touchscreen/touch_adc.c
-new file mode 100644
-index 0000000..de4b929
---- /dev/null
-+++ b/drivers/input/touchscreen/touch_adc.c
-@@ -0,0 +1,199 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * ADC generic resistive touchscreen (GRTS)
-+ *
-+ * Copyright (C) 2017,2018 Microchip Technology,
-+ * Author: Eugen Hristev <eugen.hristev@microchip.com>
-+ *
-+ */
-+#include <linux/input.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/iio/consumer.h>
-+#include <linux/iio/iio.h>
-+#include <linux/module.h>
-+
-+#define DRIVER_NAME					"touch_adc"
-+#define GRTS_DEFAULT_PRESSURE_THRESHOLD			10000
-+#define MAX_POS_MASK					GENMASK(11, 0)
-+
-+/**
-+ * grts_state - generic resistive touch screen information struct
-+ * @pressure_threshold:	number representing the threshold for the pressure
-+ * @pressure:		are we getting pressure info or not
-+ * @iio_chans:		list of channels acquired
-+ * @iio_cb:		iio_callback buffer for the data
-+ * @input:		the input device structure that we register
-+ */
-+struct grts_state {
-+	u32			pressure_threshold;
-+	bool			pressure;
-+	struct iio_channel	*iio_chans;
-+	struct iio_cb_buffer	*iio_cb;
-+	struct input_dev	*input;
-+};
-+
-+static int grts_cb(const void *data, void *private)
-+{
-+	const u16 *touch_info = data;
-+	struct grts_state *st = private;
-+
-+	unsigned int x, y, press = 0xFFFF;
-+
-+	/* channel data coming in buffer in the order below */
-+	x = touch_info[0];
-+	y = touch_info[1];
-+	if (st->pressure)
-+		press = touch_info[2];
-+
-+	if ((!x && !y) || (st->pressure && (press > st->pressure_threshold))) {
-+		/* report end of touch */
-+		input_report_key(st->input, BTN_TOUCH, 0);
-+		input_sync(st->input);
-+		return 0;
-+	}
-+
-+	/* report proper touch to subsystem*/
-+	input_report_abs(st->input, ABS_X, x);
-+	input_report_abs(st->input, ABS_Y, y);
-+	if (st->pressure)
-+		input_report_abs(st->input, ABS_PRESSURE, press);
-+	input_report_key(st->input, BTN_TOUCH, 1);
-+	input_sync(st->input);
-+	return 0;
-+}
-+
-+static int grts_open(struct input_dev *dev)
-+{
-+	int ret;
-+	struct grts_state *st = input_get_drvdata(dev);
-+
-+	ret = iio_channel_start_all_cb(st->iio_cb);
-+	if (ret) {
-+		dev_err(dev->dev.parent, "failed to start callback buffer.\n");
-+		return ret;
-+	}
-+	return 0;
-+}
-+
-+static void grts_close(struct input_dev *dev)
-+{
-+	struct grts_state *st = input_get_drvdata(dev);
-+
-+	iio_channel_stop_all_cb(st->iio_cb);
-+}
-+
-+static int grts_probe(struct platform_device *pdev)
-+{
-+	struct grts_state *st;
-+	struct input_dev *input;
-+	struct device *dev = &pdev->dev;
-+	struct device_node *node = dev->of_node;
-+	struct iio_channel *chan;
-+	int ret = 0;
-+
-+	st = devm_kzalloc(dev, sizeof(struct grts_state), GFP_KERNEL);
-+	if (!st)
-+		return -ENOMEM;
-+
-+	ret = of_property_read_u32(node,
-+			"generic-adc-resistive-touchscreen,pressure-threshold",
-+			&st->pressure_threshold);
-+	if (ret < 0) {
-+		dev_dbg(dev, "can't get touchscreen pressure threshold property.\n");
-+		st->pressure_threshold = GRTS_DEFAULT_PRESSURE_THRESHOLD;
-+	}
-+
-+	/* get the channels from IIO device */
-+	st->iio_chans = devm_iio_channel_get_all(dev);
-+
-+	if (IS_ERR(st->iio_chans)) {
-+		if (PTR_ERR(st->iio_chans) != -EPROBE_DEFER)
-+			dev_err(dev, "can't get iio channels.\n");
-+		return PTR_ERR(st->iio_chans);
-+	}
-+
-+	chan = &st->iio_chans[0];
-+	st->pressure = false;
-+	while (chan && chan->indio_dev) {
-+		if (!strcmp(chan->channel->datasheet_name, "pressure"))
-+			st->pressure = true;
-+		chan++;
-+	}
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input) {
-+		dev_err(dev, "failed to allocate input device.\n");
-+		return -ENOMEM;
-+	}
-+
-+	input->name = DRIVER_NAME;
-+	input->id.bustype = BUS_HOST;
-+	input->dev.parent = dev;
-+	input->open = grts_open;
-+	input->close = grts_close;
-+
-+	input_set_abs_params(input, ABS_X, 0, MAX_POS_MASK - 1, 0, 0);
-+	input_set_abs_params(input, ABS_Y, 0, MAX_POS_MASK - 1, 0, 0);
-+	if (st->pressure)
-+		input_set_abs_params(input, ABS_PRESSURE, 0, 0xffffff, 0, 0);
-+
-+	input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+
-+	st->input = input;
-+	input_set_drvdata(input, st);
-+
-+	ret = input_register_device(input);
-+	if (ret) {
-+		dev_err(dev, "failed to register input device.");
-+		return ret;
-+	}
-+
-+	st->iio_cb = iio_channel_get_all_cb(&pdev->dev, grts_cb, st);
-+
-+	if (IS_ERR(st->iio_cb)) {
-+		dev_err(dev, "failed to allocate callback buffer.\n");
-+		ret =  PTR_ERR(st->iio_cb);
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, st);
-+
-+	return ret;
-+}
-+
-+static int grts_remove(struct platform_device *pdev)
-+{
-+	struct grts_state *st = platform_get_drvdata(pdev);
-+
-+	iio_channel_release_all_cb(st->iio_cb);
-+	input_unregister_device(st->input);
-+	return 0;
-+}
-+
-+static const struct of_device_id grts_of_match[] = {
-+	{
-+		.compatible = "generic-resistive-adc-touch",
-+	}, {
-+		/* sentinel */
-+	},
-+};
-+
-+MODULE_DEVICE_TABLE(of, grts_of_match);
-+
-+static struct platform_driver grts_driver = {
-+	.probe = grts_probe,
-+	.remove = grts_remove,
-+	.driver = {
-+		   .name = DRIVER_NAME,
-+		   .of_match_table = of_match_ptr(grts_of_match),
-+	},
-+};
-+
-+module_platform_driver(grts_driver);
-+
-+MODULE_AUTHOR("Eugen Hristev <eugen.hristev@microchip.com>");
-+MODULE_DESCRIPTION("Generic ADC Resistive Touch Driver");
-+MODULE_LICENSE("GPL v2");
+ What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_x_raw
+ What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_y_raw
+ What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_z_raw
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index 19bdf3d..14bf3d24 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -85,6 +85,7 @@ static const char * const iio_chan_type_name_spec[] = {
+ 	[IIO_COUNT] = "count",
+ 	[IIO_INDEX] = "index",
+ 	[IIO_GRAVITY]  = "gravity",
++	[IIO_POSITIONRELATIVE]  = "positionrelative",
+ };
+ 
+ static const char * const iio_modifier_names[] = {
+diff --git a/include/uapi/linux/iio/types.h b/include/uapi/linux/iio/types.h
+index 4213cdf..033c7d2 100644
+--- a/include/uapi/linux/iio/types.h
++++ b/include/uapi/linux/iio/types.h
+@@ -44,6 +44,7 @@ enum iio_chan_type {
+ 	IIO_COUNT,
+ 	IIO_INDEX,
+ 	IIO_GRAVITY,
++	IIO_POSITIONRELATIVE,
+ };
+ 
+ enum iio_modifier {
+diff --git a/tools/iio/iio_event_monitor.c b/tools/iio/iio_event_monitor.c
+index b61245e..148f69d 100644
+--- a/tools/iio/iio_event_monitor.c
++++ b/tools/iio/iio_event_monitor.c
+@@ -58,6 +58,7 @@ static const char * const iio_chan_type_name_spec[] = {
+ 	[IIO_PH] = "ph",
+ 	[IIO_UVINDEX] = "uvindex",
+ 	[IIO_GRAVITY] = "gravity",
++	[IIO_POSITIONRELATIVE] = "positionrelative",
+ };
+ 
+ static const char * const iio_ev_type_text[] = {
+@@ -151,6 +152,7 @@ static bool event_is_known(struct iio_event_data *event)
+ 	case IIO_PH:
+ 	case IIO_UVINDEX:
+ 	case IIO_GRAVITY:
++	case IIO_POSITIONRELATIVE:
+ 		break;
+ 	default:
+ 		return false;
 -- 
 2.7.4

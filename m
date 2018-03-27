@@ -1,97 +1,77 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
-Date: Tue, 27 Mar 2018 04:37:19 +0000
-Message-ID: <TYXPR01MB0719F95C7B4E9FD0FF313BEFC7AC0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
-References: <20171115063404.10066-1-aaron.ma@canonical.com>
- <20171115083529.jmlpcj4td4evj3xl@pali>
- <TYXPR01MB07195A0116F835764DE99882C72E0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180129225138.voujq54itw7yblbi@dtor-ws>
- <CAKdAkRRjMrpdjuaivh-5bKCCgYpcySqDCKzbuvso1_x_+Qkp1w@mail.gmail.com>
- <20180325212541.5wzpvlkcbayfktrz@pali>
+From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+Subject: Re: [PATCH] Input: add bu21029 touch driver
+Date: Tue, 27 Mar 2018 06:52:31 +0000
+Message-ID: <bf2aff8ab685473c836012bbed96c693@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180325212541.5wzpvlkcbayfktrz@pali>
-Content-Language: ja-JP
+Content-Language: de-DE
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aaron Ma <aaron.ma@canonical.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-SGksIA0KDQpXZSBjYW4gZ2V0IE9UUCBwYWdlIDAgdmFsdWUgYnkgRUEgRUEgRTkgY29tbWFuZHMs
-IGJ1dCB3ZSBjYW5ub3QgZ2V0IGl0IGJ5IEVBIEVBIEVBIEU5Lg0KQXMgZmFyIGFzIEkgcmVtZW1i
-ZXIsIERldmljZSBpbml0aWFsaXphdGlvbiBmaW5pc2ggYXQgRUEgY29tbWFuZCwgdGhlbiBzZW5k
-cyBFQSBFQSBFOSBjb21tYW5kcy4NCkluIHRoaXMgY2FzZSB3ZSBjYW5ub3QgZ2V0IGNvcnJlY3Qg
-T1RQIHBhZ2UgMCB2YWx1ZS4NClNvIEkgY2hhbmdlZCB0aGlzIG9yZGVyLiAoV2UgY2FuIGdldCBP
-VFAgcGFnZSAxIHZhbHVlIGJ5IGJvdGggb2YgRUEgRjAgRjAgRTkgYW5kIEYwIEYwIEU5LikNCg0K
-QmVzdCBSZWdhcmRzLA0KTWFzYWtpIE90YQ0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZy
-b206IFBhbGkgUm9ow6FyIFttYWlsdG86cGFsaS5yb2hhckBnbWFpbC5jb21dIA0KU2VudDogTW9u
-ZGF5LCBNYXJjaCAyNiwgMjAxOCA2OjI2IEFNDQpUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3Rh
-IDxtYXNha2kub3RhQGpwLmFscHMuY29tPg0KQ2M6IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRv
-cm9raG92QGdtYWlsLmNvbT47IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgta2Vy
-bmVsQHZnZXIua2VybmVsLm9yZzsgQWFyb24gTWEgPGFhcm9uLm1hQGNhbm9uaWNhbC5jb20+DQpT
-dWJqZWN0OiBSZTogW1BBVENIXSBJbnB1dDogQUxQUyAtIGZpeCBEdWFsUG9pbnQgZmxhZyBmb3Ig
-NzQgMDMgMjggZGV2aWNlcw0KDQpPbiBUdWVzZGF5IDIwIE1hcmNoIDIwMTggMTE6NDc6MjYgRG1p
-dHJ5IFRvcm9raG92IHdyb3RlOg0KPiBPbiBNb24sIEphbiAyOSwgMjAxOCBhdCAyOjUxIFBNLCBk
-bWl0cnkudG9yb2tob3ZAZ21haWwuY29tIA0KPiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4g
-d3JvdGU6DQo+ID4gSGksDQo+ID4NCj4gPiBPbiBUaHUsIE5vdiAxNiwgMjAxNyBhdCAwNzoyNzow
-MkFNICswMDAwLCBNYXNha2kgT3RhIHdyb3RlOg0KPiA+PiBIaSwgUGFsaSwgQWFyb24sDQo+ID4+
-DQo+ID4+IEN1cnJlbnQgY29kZSBpcyBjb3JyZWN0IGRldmljZSBzZXR0aW5nLCBwcmV2aW91cyBj
-b2RlIGlzIHdyb25nLg0KPiA+PiBJZiB0aGUgdHJhY2tzdGljayBkb2VzIG5vdCB3b3JrKERVQUxQ
-T0lOVCBmbGFnIGRpc2FibGUpLCBEZXZpY2UgRmlybXdhcmUgc2V0dGluZyBpcyB3cm9uZy4NCj4g
-Pj4NCj4gPj4gQnV0IHJlY2VudGx5IEkgcmVjZWl2ZWQgdGhlIHNhbWUgcmVwb3J0IGZyb20gVGhp
-bmtwYWQgTDU3MCB1c2VyLCBhbmQgSSBjaGVja2VkIHRoaXMgZGV2aWNlIGFuZCBmb3VuZCB0aGlz
-IGRldmljZSBGaXJtd2FyZSBzZXR0aW5nIGlzIHdyb25nLiBTb3JyeSBmb3Igb3VyIG1pc3Rha2Uu
-DQo+ID4+IElzIHlvdXIgbGFwdG9wIEw1NzAgPw0KPiA+Pg0KPiA+PiBJIHdpbGwgYWRkIGNvZGUg
-dGhhdCBzdXBwb3J0cyB0aGUgdHJhY2tzdGljayBmb3IgdGhpcyBkZXZpY2UuDQo+ID4NCj4gPiBT
-b3JyeSBmb3IgcmVzdXJyZWN0aW5nIHRoaXMgb2xkIHRocmVhZCwgSSBhbSBqdXN0IHRyeWluZyB0
-byANCj4gPiB1bmRlcnN0YW5kIHdoYXQgd2VudCB3cm9uZyBoZXJlLiBJcyB0aGUgc2VxdWVuY2Ug
-b2YgImYwIGYwIGU5IiBhbmQgDQo+ID4gImVhIGVhIGU5IiBpcyBpbXBvcnRhbnQgaW4gZ2V0dGlu
-ZyB0aGUgY29ycmVjdCBPVFAgZGF0YSBhbmQgd2UgDQo+ID4gb3JpZ2luYWxseSBnb3QgdGhpcyBv
-cmRlciB3cm9uZz8gSXQgaXMgbm90IGNsZWFyIGZyb20gdGhlIG9yaWdpbmFsIA0KPiA+IHBhdGNo
-IGFuZCBkaXNjdXNzaW9uIHRoYXQgdGhpcyBjaGFuZ2Ugd2FzIGludGVudGlvbmFsLg0KPiANCj4g
-Q291bGQgSSBwbGVhc2UgZ2V0IGFuIGFuc3dlciB0byBteSBxdWVzdGlvbj8NCj4gDQo+IFRoYW5r
-cyENCg0KTWFzYWtpLCB0aGlzIHF1ZXN0aW9uIGlzIGZvciB5b3Ug4oaR4oaR4oaRDQoNCj4gPg0K
-PiA+IFRoYW5rcy4NCj4gPg0KPiA+Pg0KPiA+PiBCZXN0IFJlZ2FyZHMsDQo+ID4+IE1hc2FraSBP
-dGENCj4gPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPj4gRnJvbTogUGFsaSBSb2jD
-oXIgW21haWx0bzpwYWxpLnJvaGFyQGdtYWlsLmNvbV0NCj4gPj4gU2VudDogV2VkbmVzZGF5LCBO
-b3ZlbWJlciAxNSwgMjAxNyA1OjM1IFBNDQo+ID4+IFRvOiDlpKrnlLAg55yf5ZacIE1hc2FraSBP
-dGEgPG1hc2FraS5vdGFAanAuYWxwcy5jb20+DQo+ID4+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtl
-cm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IA0KPiA+PiBkbWl0cnkudG9y
-b2tob3ZAZ21haWwuY29tOyBBYXJvbiBNYSA8YWFyb24ubWFAY2Fub25pY2FsLmNvbT4NCj4gPj4g
-U3ViamVjdDogUmU6IFtQQVRDSF0gSW5wdXQ6IEFMUFMgLSBmaXggRHVhbFBvaW50IGZsYWcgZm9y
-IDc0IDAzIDI4IA0KPiA+PiBkZXZpY2VzDQo+ID4+DQo+ID4+IE9uIFdlZG5lc2RheSAxNSBOb3Zl
-bWJlciAyMDE3IDE0OjM0OjA0IEFhcm9uIE1hIHdyb3RlOg0KPiA+PiA+IFRoZXJlIGlzIGEgcmVn
-cmVzc2lvbiBvZiBjb21taXQgNGE2NDY1ODBmNzkzICgiSW5wdXQ6IEFMUFMgLSBmaXggDQo+ID4+
-ID4gdHdvLWZpbmdlciBzY3JvbGwgYnJlYWthZ2UiKSwgQUxQUyBkZXZpY2UgZmFpbHMgd2l0aCBs
-b2c6DQo+ID4+ID4NCj4gPj4gPiBwc21vdXNlIHNlcmlvMTogYWxwczogUmVqZWN0ZWQgdHJhY2tz
-dGljayBwYWNrZXQgZnJvbSBub24gDQo+ID4+ID4gRHVhbFBvaW50IGRldmljZQ0KPiA+PiA+DQo+
-ID4+ID4gQUxQUyBkZXZpY2Ugd2l0aCBpZCAiNzQgMDMgMjgiIHJlcG9ydCBPVFBbMF0gZGF0YSAw
-eENFIGFmdGVyIA0KPiA+PiA+IGNvbW1pdCA0YTY0NjU4MGY3OTMsIGFmdGVyIHJlc3RvcmUgdGhl
-IE9UUCByZWFkaW5nIG9yZGVyLCBpdCANCj4gPj4gPiBiZWNvbWVzIHRvIDB4MTAgYXMgYmVmb3Jl
-IGFuZCByZXBvcnRzIHRoZSByaWdodCBmbGFnLg0KPiA+PiA+DQo+ID4+ID4gRml4ZXM6IDRhNjQ2
-NTgwZjc5MyAoIklucHV0OiBBTFBTIC0gZml4IHR3by1maW5nZXIgc2Nyb2xsIA0KPiA+PiA+IGJy
-ZWFrYWdlIikNCj4gPj4gPiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+DQo+ID4+ID4gU2ln
-bmVkLW9mZi1ieTogQWFyb24gTWEgPGFhcm9uLm1hQGNhbm9uaWNhbC5jb20+DQo+ID4+ID4gLS0t
-DQo+ID4+ID4gIGRyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jIHwgNCArKy0tDQo+ID4+ID4gIDEg
-ZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pDQo+ID4+ID4NCj4g
-Pj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBzLmMgDQo+ID4+ID4gYi9k
-cml2ZXJzL2lucHV0L21vdXNlL2FscHMuYyBpbmRleCA1NzliODk5YWRkMjYuLmM1OWI4ZjdjYTJm
-YyANCj4gPj4gPiAxMDA2NDQNCj4gPj4gPiAtLS0gYS9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMu
-Yw0KPiA+PiA+ICsrKyBiL2RyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jDQo+ID4+ID4gQEAgLTI1
-NjIsOCArMjU2Miw4IEBAIHN0YXRpYyBpbnQgYWxwc19zZXRfZGVmYXVsdHNfc3M0X3YyKHN0cnVj
-dCANCj4gPj4gPiBwc21vdXNlICpwc21vdXNlLA0KPiA+PiA+DQo+ID4+ID4gICAgIG1lbXNldChv
-dHAsIDAsIHNpemVvZihvdHApKTsNCj4gPj4gPg0KPiA+PiA+IC0gICBpZiAoYWxwc19nZXRfb3Rw
-X3ZhbHVlc19zczRfdjIocHNtb3VzZSwgMSwgJm90cFsxXVswXSkgfHwNCj4gPj4gPiAtICAgICAg
-IGFscHNfZ2V0X290cF92YWx1ZXNfc3M0X3YyKHBzbW91c2UsIDAsICZvdHBbMF1bMF0pKQ0KPiA+
-PiA+ICsgICBpZiAoYWxwc19nZXRfb3RwX3ZhbHVlc19zczRfdjIocHNtb3VzZSwgMCwgJm90cFsw
-XVswXSkgfHwNCj4gPj4gPiArICAgICAgIGFscHNfZ2V0X290cF92YWx1ZXNfc3M0X3YyKHBzbW91
-c2UsIDEsICZvdHBbMV1bMF0pKQ0KPiA+PiA+ICAgICAgICAgICAgIHJldHVybiAtMTsNCj4gPj4g
-Pg0KPiA+PiA+ICAgICBhbHBzX3VwZGF0ZV9kZXZpY2VfYXJlYV9zczRfdjIob3RwLCBwcml2KTsN
-Cj4gPj4NCj4gPj4gTWFzYWtpIE90YSwgcGxlYXNlIGxvb2sgYXQgdGhpcyBwYXRjaCBhcyBpdCBw
-YXJ0aWFsbHkgcmV2ZXJ0IHlvdXIgDQo+ID4+IGNvbW1pdA0KPiA+PiA0YTY0NjU4MGY3OTMgKCJJ
-bnB1dDogQUxQUyAtIGZpeCB0d28tZmluZ2VyIHNjcm9sbCBicmVha2FnZSIpLiBTb21ldGhpbmcg
-c21lbGxzIGhlcmUuDQo+ID4+DQo+ID4+IC0tDQo+ID4+IFBhbGkgUm9ow6FyDQo+ID4+IHBhbGku
-cm9oYXJAZ21haWwuY29tDQo+ID4NCj4gPiAtLQ0KPiA+IERtaXRyeQ0KPiANCj4gDQo+IA0KDQot
-LQ0KUGFsaSBSb2jDoXINCnBhbGkucm9oYXJAZ21haWwuY29tDQo=
+Hello Rob,
+
+> > +* Rohm BU21029 Touch Screen Controller
+> > +
+> > +Required properties:
+> > + - compatible              : must be "rohm,bu21029"
+> > + - reg                     : i2c device address of the chip
+>=20
+> What the valid value(s)?
+
+The chip itself can be wired to 0x40 or 0x41. The driver can work with
+any valid I2C address.
+
+Is this what you are looking for?
+
+- reg                     : i2c device address of the chip (0x40 or 0x41)
+
+> > + - interrupt-parent        : the phandle for the gpio controller
+> > + - interrupts              : (gpio) interrupt to which the chip is con=
+nected
+> > + - reset-gpios             : gpio pin to reset the chip
+>=20
+> Active high or low?
+
+The chip itself needs an active low reset. But depending on whether
+there is an inverter between the touch screen controller and the CPU or
+not, the CPU's GPIO might need to be active high or active low. This
+shall be configured by the polarity given in the device tree. The
+driver uses this information to drive the reset appropriately.
+
+Are you looking for documenting the required polarity of the touch
+controller itself?
+
+- reset-gpios             : gpio pin to reset the chip (active low)
+
+> > +Example:
+> > +
+> > +	&i2c1 {
+> > +		/* ... */
+> > +
+> > +		bu21029: bu21029@40 {
+> > +			compatible =3D "rohm,bu21029";
+> > +			reg =3D <0x40>;
+> > +			interrupt-parent =3D <&gpio1>;
+> > +			interrupts =3D <4 IRQ_TYPE_EDGE_FALLING>;
+> > +			reset-gpios =3D <&gpio6 16 GPIO_ACTIVE_LOW>;
+> > +			rohm,x-plate-ohms =3D <600>;
+> > +			touchscreen-max-pressure =3D <4095>;
+> > +		};
+> > +
+> > +		/* ... */
+> > +	};
+
+Greetings,
+Mark Jonas
+
+Building Technologies, Panel Software Fire (BT-FIR/ENG1)=20
+Bosch Sicherheitssysteme GmbH | Postfach 11 11 | 85626 Grasbrunn | GERMANY =
+| www.boschsecurity.com
+
+Sitz: Stuttgart, Registergericht: Amtsgericht Stuttgart HRB 23118=20
+Aufsichtsratsvorsitzender: Stefan Hartung; Gesch=E4ftsf=FChrung: Gert van I=
+peren, Andreas Bartz, Thomas Quante, Bernhard Schuster

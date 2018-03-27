@@ -1,114 +1,31 @@
-From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH v2 02/10] iio: Add channel for Position Relative
-Date: Tue, 27 Mar 2018 15:32:35 +0300
-Message-ID: <1522153963-1121-3-git-send-email-eugen.hristev@microchip.com>
-References: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: google: add google hammer HID driver
+Date: Tue, 27 Mar 2018 14:48:02 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1803271447410.15778@cbobk.fhfr.pm>
+References: <20180315012825.145329-1-drinkcat@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com
-Cc: Eugen Hristev <eugen.hristev@microchip.com>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180315012825.145329-1-drinkcat@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nicolas Boichat <drinkcat@chromium.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dtor@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-Add new channel type for relative position on a pad.
+On Thu, 15 Mar 2018, Nicolas Boichat wrote:
 
-These type of analog sensor offers the position of a pen
-on a touchpad, and is represented as a voltage, which can be
-converted to a position on X and Y axis on the pad.
-The channel will hand the relative position on the pad in both directions.
+> From: Wei-Ning Huang <wnhuang@chromium.org>
+> 
+> Add Google hammer HID driver. This driver allow us to control hammer
+> keyboard backlight and support future features.
+> 
+> Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
 
-The channel can then be consumed by a touchscreen driver or
-read as-is for a raw indication of the touchpen on a touchpad.
+Applied to for-4.17/google-hammer.
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
----
-Changes in v2:
- - modified channel name to relative position as suggested.
- - modified kernel version to 4.18 (presumable)
+Thanks,
 
- Documentation/ABI/testing/sysfs-bus-iio | 12 ++++++++++++
- drivers/iio/industrialio-core.c         |  1 +
- include/uapi/linux/iio/types.h          |  1 +
- tools/iio/iio_event_monitor.c           |  2 ++
- 4 files changed, 16 insertions(+)
-
-diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
-index 6a5f34b..42a9287 100644
---- a/Documentation/ABI/testing/sysfs-bus-iio
-+++ b/Documentation/ABI/testing/sysfs-bus-iio
-@@ -190,6 +190,18 @@ Description:
- 		but should match other such assignments on device).
- 		Units after application of scale and offset are m/s^2.
- 
-+What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_x_raw
-+What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_y_raw
-+KernelVersion:	4.18
-+Contact:	linux-iio@vger.kernel.org
-+Description:
-+		Relative position in direction x or y on a pad (may be
-+		arbitrarily assigned but should match other such assignments on
-+		device).
-+		Units after application of scale and offset are milli percents
-+		from the pad's size in both directions. Should be calibrated by
-+		the consumer.
-+
- What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_x_raw
- What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_y_raw
- What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_z_raw
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index 19bdf3d..14bf3d24 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -85,6 +85,7 @@ static const char * const iio_chan_type_name_spec[] = {
- 	[IIO_COUNT] = "count",
- 	[IIO_INDEX] = "index",
- 	[IIO_GRAVITY]  = "gravity",
-+	[IIO_POSITIONRELATIVE]  = "positionrelative",
- };
- 
- static const char * const iio_modifier_names[] = {
-diff --git a/include/uapi/linux/iio/types.h b/include/uapi/linux/iio/types.h
-index 4213cdf..033c7d2 100644
---- a/include/uapi/linux/iio/types.h
-+++ b/include/uapi/linux/iio/types.h
-@@ -44,6 +44,7 @@ enum iio_chan_type {
- 	IIO_COUNT,
- 	IIO_INDEX,
- 	IIO_GRAVITY,
-+	IIO_POSITIONRELATIVE,
- };
- 
- enum iio_modifier {
-diff --git a/tools/iio/iio_event_monitor.c b/tools/iio/iio_event_monitor.c
-index b61245e..148f69d 100644
---- a/tools/iio/iio_event_monitor.c
-+++ b/tools/iio/iio_event_monitor.c
-@@ -58,6 +58,7 @@ static const char * const iio_chan_type_name_spec[] = {
- 	[IIO_PH] = "ph",
- 	[IIO_UVINDEX] = "uvindex",
- 	[IIO_GRAVITY] = "gravity",
-+	[IIO_POSITIONRELATIVE] = "positionrelative",
- };
- 
- static const char * const iio_ev_type_text[] = {
-@@ -151,6 +152,7 @@ static bool event_is_known(struct iio_event_data *event)
- 	case IIO_PH:
- 	case IIO_UVINDEX:
- 	case IIO_GRAVITY:
-+	case IIO_POSITIONRELATIVE:
- 		break;
- 	default:
- 		return false;
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs

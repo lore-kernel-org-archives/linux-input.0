@@ -1,581 +1,208 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v3 3/4] hwmon: add Gateworks System Controller support
-Date: Wed, 28 Mar 2018 10:00:18 -0700
-Message-ID: <20180328170018.GC25325@roeck-us.net>
-References: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
- <1522250043-8065-4-git-send-email-tharvey@gateworks.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: Re: [PATCH v7 0/2] hid-steam driver with user mode client dection
+Date: Wed, 28 Mar 2018 20:14:48 +0200
+Message-ID: <20180328181448.GA1674@casa>
+References: <20180325160703.15997-1-rodrigorivascosta@gmail.com>
+ <CAO-hwJ+XxB9QnZSAALPZTWmAMDsrzq-dhjtMDOvdXHWtDv=H7g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1522250043-8065-4-git-send-email-tharvey@gateworks.com>
+In-Reply-To: <CAO-hwJ+XxB9QnZSAALPZTWmAMDsrzq-dhjtMDOvdXHWtDv=H7g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 28, 2018 at 08:14:02AM -0700, Tim Harvey wrote:
-> The Gateworks System Controller has a hwmon sub-component that exposes
-> up to 16 ADC's, some of which are temperature sensors, others which are
-> voltage inputs. The ADC configuration (register mapping and name) is
-> configured via device-tree and varies board to board.
+On Mon, Mar 26, 2018 at 10:12:19AM +0200, Benjamin Tissoires wrote:
+> Hi Rodrigo,
 > 
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> ---
-> v3:
-> - add voltage_raw input type and supporting fields
-> - add channel validation to is_visible function
-> - remove unnecessary channel validation from read/write functions
+> On Sun, Mar 25, 2018 at 6:07 PM, Rodrigo Rivas Costa
+> <rodrigorivascosta@gmail.com> wrote:
+> > This is a reroll of the Steam Controller driver.
+> >
+> > This time the client usage is detected by using exposing a custom hidraw
+> > device (hid_ll_driver) to userland and forwarding that to the real one.
 > 
-> v2:
-> - change license comment style
-> - remove DEBUG
-> - simplify regmap_bulk_read err check
-> - remove break after returns in switch statement
-> - fix fan setpoint buffer address
-> - remove unnecessary parens
-> - consistently use struct device *dev pointer
-> - change license/comment block
-> - add validation for hwmon child node props
-> - move parsing of of to own function
-> - use strlcpy to ensure null termination
-> - fix static array sizes and removed unnecessary initializers
-> - dynamically allocate channels
-> - fix fan input label
-> - support platform data
-> - fixed whitespace issues
+> That is actually more clever than what I had in mind.
+> This way you reliably know if the hidraw node has been opened without
+> touching hid-core.c or hidraw.c, well played :)
+
+8-)
+
+> > About how the lizard-mode/hidraw-client issue is handled, I have added a
+> > module parameter (I don't know if that is the best option, but it helps me
+> > illustrate different approaches to the problem):
+> >
+> > Independently of the lizard_mode parameter value:
 > 
->  drivers/hwmon/Kconfig                   |   9 +
->  drivers/hwmon/Makefile                  |   1 +
->  drivers/hwmon/gsc-hwmon.c               | 368 ++++++++++++++++++++++++++++++++
+> I find the values of the lizard_mode parameter hard to understand. And
+> honestly, I do not think there is much a difference between 0 and 1.
+> AFAICT, the difference between these two values is that in the first
+> case you are disabling the lizard mode whether or not the joystick is
+> in used, and in the latter, you disable it only when the joystick is
+> in use. Does that gives any benefits to users?
 
-This will require a matching Documentation/hwmon/gsc-hwmon to explain supported
-attributes.
+Well, the rules I'm trying to apply are, in order of priority:
+1. Never send a lizard command when hidraw is in use.
+2. Disable the lizard mode when the input node is in use.
 
->  include/linux/platform_data/gsc_hwmon.h |  43 ++++
->  4 files changed, 421 insertions(+)
->  create mode 100644 drivers/hwmon/gsc-hwmon.c
->  create mode 100644 include/linux/platform_data/gsc_hwmon.h
+Now, the freedom is in what to do when the input node and hidraw are
+both unused, hence the parameters. The two easy options are:
+ * lizard_mode=1: lizard mode is on, same experience as without
+   hid-steam, so it is the default.
+ * lizard_mode=0: lizard mode is off. I always use a mouse and
+   keyboard together with the controller, so I like this one.
+
+But that leaves a marginal use case uncovered. What if I want to manage
+the lizard mode using a user mode tool, such as my steamctrl from
+github? This tool opens hidraw and sends a lizard_mode command (enable
+or disable), but it does not matter, because as soon as hidraw is closed
+hid-steam will reset the lizard mode to the value of the lizard_mode
+parameter.
+That is why I added lizard_mode=2: it instructs hid-steam not to send
+any lizard mode command at all. You do not get any magic (I even break
+rule 2 above) but you can use steamctrl freely.
+
+Summing up:
+ * lizard_mode = 0: disabled.
+ * lizard_mode = 1: enabled (except when input is in use).
+ * lizard_mode = 2: no magic (use a user mode tool or expect weirdness).
+
+I don't think anybody is actually using a user-mode tool for that so
+maybe mode 2 can be discarded.
+
+Note that Steam disables the lizard_mode when it starts and restores it
+when it closes, unconditionally, so default option lizard_mode=1 will be
+indistinguishable from hid-generic for the average user... except if
+Steam crashes, then you will have lizard mode reenabled automatically,
+which is nice.
+
+The other two lizard_mode={0,1} I think they are quite useful, and I'd
+like to keep them.
+
+> I would think having a boolean "let the kernel handle the lizard mode
+> with some magic inside" would be simpler to understand. You do not
+> really want to support too many configurations and I think it would be
+> wiser to say either disable the new mode or just enable it.
+
+That would be the lizard_mode={0,1} I talked about? Both of them have
+magic. The magicless option was the 2.
+
+> Also, I think there will be races if a user changes the value of the
+> parameter while running the system. You might want to add an
+> additional patch that would trigger the mode change on module
+> parameter change.
+
+True, but the races should be easy to remove, with a simple local
+variable.  About the trigger, I've never seen a trigger on module
+parameter change. Can you give me a hint or example of how to do that.
+
+> As far as I can tell, I am happy with such hack. There are a few
+> points I'd like to raise in the patch 1, but I'll inline my comments
+> there.
+
+I'll address them promptly.
+
+Thanks.
+Rodrigo
+
+> Cheers,
+> Benjamin
 > 
-> diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-> index 7ad0176..85d9aa3 100644
-> --- a/drivers/hwmon/Kconfig
-> +++ b/drivers/hwmon/Kconfig
-> @@ -475,6 +475,15 @@ config SENSORS_F75375S
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called f75375s.
->  
-> +config SENSORS_GSC
-> +        tristate "Gateworks System Controller ADC"
-> +        depends on MFD_GATEWORKS_GSC
-> +        help
-> +          Support for the Gateworks System Controller A/D converters.
-> +
-> +	  To compile this driver as a module, choose M here:
-> +	  the module will be called gsc-hwmon.
-> +
->  config SENSORS_MC13783_ADC
->          tristate "Freescale MC13783/MC13892 ADC"
->          depends on MFD_MC13XXX
-> diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-> index 0fe489f..835a536 100644
-> --- a/drivers/hwmon/Makefile
-> +++ b/drivers/hwmon/Makefile
-> @@ -69,6 +69,7 @@ obj-$(CONFIG_SENSORS_G760A)	+= g760a.o
->  obj-$(CONFIG_SENSORS_G762)	+= g762.o
->  obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
->  obj-$(CONFIG_SENSORS_GL520SM)	+= gl520sm.o
-> +obj-$(CONFIG_SENSORS_GSC)	+= gsc-hwmon.o
->  obj-$(CONFIG_SENSORS_GPIO_FAN)	+= gpio-fan.o
->  obj-$(CONFIG_SENSORS_HIH6130)	+= hih6130.o
->  obj-$(CONFIG_SENSORS_ULTRA45)	+= ultra45_env.o
-> diff --git a/drivers/hwmon/gsc-hwmon.c b/drivers/hwmon/gsc-hwmon.c
-> new file mode 100644
-> index 0000000..10da46f
-> --- /dev/null
-> +++ b/drivers/hwmon/gsc-hwmon.c
-> @@ -0,0 +1,368 @@
-> +/* SPDX-License-Identifier: GPL-2.0
-> + *
-> + * Copyright (C) 2018 Gateworks Corporation
-> + *
-> + * This driver registers Linux HWMON attributes for GSC ADC's
-> + */
-> +#include <linux/hwmon.h>
-> +#include <linux/hwmon-sysfs.h>
-> +#include <linux/mfd/gsc.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/slab.h>
-> +
-> +#include <linux/platform_data/gsc_hwmon.h>
-> +
-> +#define GSC_HWMON_MAX_TEMP_CH	16
-> +#define GSC_HWMON_MAX_IN_CH	16
-> +#define GSC_HWMON_MAX_FAN_CH	6
-> +
-> +struct gsc_hwmon_data {
-> +	struct gsc_dev *gsc;
-> +	struct device *dev;
-> +	struct gsc_hwmon_platform_data *pdata;
-> +	const struct gsc_hwmon_channel *temp_ch[GSC_HWMON_MAX_TEMP_CH];
-> +	const struct gsc_hwmon_channel *in_ch[GSC_HWMON_MAX_IN_CH];
-> +	const struct gsc_hwmon_channel *fan_ch[GSC_HWMON_MAX_FAN_CH];
-> +	u32 temp_config[GSC_HWMON_MAX_TEMP_CH + 1];
-> +	u32 in_config[GSC_HWMON_MAX_IN_CH + 1];
-> +	u32 fan_config[GSC_HWMON_MAX_FAN_CH + 1];
-> +	struct hwmon_channel_info temp_info;
-> +	struct hwmon_channel_info in_info;
-> +	struct hwmon_channel_info fan_info;
-> +	const struct hwmon_channel_info *info[4];
-> +	struct hwmon_chip_info chip;
-> +	int vreference;
-> +	int resolution;
-> +};
-> +
-> +static int
-> +gsc_hwmon_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
-> +	       int channel, long *val)
-> +{
-> +	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
-> +	struct gsc_hwmon_platform_data *pdata = hwmon->pdata;
-> +	const struct gsc_hwmon_channel *ch;
-> +	int sz, ret;
-> +	u8 buf[3];
-> +
-> +	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
-> +		channel);
-> +	switch (type) {
-> +	case hwmon_in:
-> +		ch = hwmon->in_ch[channel];
-> +		break;
-> +	case hwmon_temp:
-> +		ch = hwmon->temp_ch[channel];
-> +		break;
-> +	case hwmon_fan:
-> +		ch = hwmon->fan_ch[channel];
-> +		break;
-> +	default:
-> +		return -EOPNOTSUPP;
-> +	}
-> +
-> +	sz = (ch->type == type_voltage) ? 3 : 2;
-> +	ret = regmap_bulk_read(hwmon->gsc->regmap_hwmon, ch->reg, buf, sz);
-> +	if (ret)
-> +		return ret;
-> +
-> +	*val = 0;
-> +	while (sz-- > 0)
-> +		*val |= (buf[sz] << (8*sz));
-
-Please use spaces before and after operators.
-
-> +
-> +	switch (ch->type) {
-> +	case type_temperature:
-> +		if ((type == hwmon_temp) && *val > 0x8000)
-
-Please no unnecessary ( ).
-
-Is there ever a situation where ch->type == type_temperature and type !=
-hwmon_temp ? Wouldn't that be a bug ?
-
-> +			*val -= 0xffff;
-> +		break;
-> +	case type_voltage_raw:
-> +		/* scale based on ref voltage and resolution */
-> +		if (pdata->vreference && pdata->resolution) {
-> +			*val *= pdata->vreference;
-> +			*val /= pdata->resolution;
-> +		}
-> +		/* scale based on optional voltage divider */
-> +		if (ch->vdiv[0] && ch->vdiv[1]) {
-> +			*val *= (ch->vdiv[0] + ch->vdiv[1]);
-> +			*val /= ch->vdiv[1];
-> +		}
-
-This accepts both types of scaling. Is that intentional ?
-
-I don't see any protection against overflows. What if pdata->vreference is
-larger than 256 on a system with sizeof(long) == 4 and the raw voltage
-as reported by the chip is 0xffffff ?
-
-> +		/* adjust by offset */
-> +		*val += ch->voffset;
-
-Similar to the above, this can result in an overflow on systems with
-sizeof(long) == 4.
-
-> +		break;
-
-There should be a default case as well as 'case type_voltage:'
-with a break; statement and a comment indicating that no adjustment
-is needed.
-
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int
-> +gsc_hwmon_read_string(struct device *dev, enum hwmon_sensor_types type,
-> +		      u32 attr, int channel, const char **buf)
-> +{
-> +	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
-> +
-> +	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
-> +		channel);
-
-I seriously wonder if all those dev_dbg() statements add value.
-
-> +	switch (type) {
-> +	case hwmon_in:
-> +		*buf = hwmon->in_ch[channel]->name;
-> +		break;
-> +	case hwmon_temp:
-> +		*buf = hwmon->temp_ch[channel]->name;
-> +		break;
-> +	case hwmon_fan:
-> +		*buf = hwmon->fan_ch[channel]->name;
-> +		break;
-> +	default:
-> +		return -ENOTSUPP;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int
-> +gsc_hwmon_write(struct device *dev, enum hwmon_sensor_types type, u32 attr,
-> +		int channel, long val)
-> +{
-> +	struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
-> +	u8 buf[2];
-> +
-> +	dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
-> +		channel);
-> +	switch (type) {
-> +	case hwmon_fan:
-> +		buf[0] = val & 0xff;
-> +		buf[1] = (val >> 8) & 0xff;
-> +		return regmap_bulk_write(hwmon->gsc->regmap_hwmon,
-> +					 hwmon->fan_ch[channel]->reg, buf, 2);
-
-fanX_input reports the fan speed. By its nature, a fan speed is not writeable.
-I have no idea what this is supposed to achieve, but whatever it is, it is wrong.
-
-Please stick with the ABI.
-
-> +	default:
-> +		break;
-> +	}
-> +
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static umode_t
-> +gsc_hwmon_is_visible(const void *_data, enum hwmon_sensor_types type, u32 attr,
-> +		     int ch)
-> +{
-> +	const struct gsc_hwmon_data *hwmon = _data;
-> +	struct device *dev = hwmon->gsc->dev;
-> +	umode_t mode = 0;
-> +
-> +	switch (type) {
-> +	case hwmon_fan:
-> +		if (ch >= GSC_HWMON_MAX_FAN_CH)
-> +			return -EOPNOTSUPP;
-
-Can that ever happen ?
-
-> +		mode = S_IRUGO;
-> +		if (attr == hwmon_fan_input)
-> +			mode |= S_IWUSR;
-
-fanX_input is a read-only attribute per ABI.
-
-> +		break;
-> +	case hwmon_temp:
-> +		if (ch >= GSC_HWMON_MAX_TEMP_CH)
-> +			return -EOPNOTSUPP;
-
-Can that ever happen ?
-
-> +		mode = S_IRUGO;
-> +		break;
-> +	case hwmon_in:
-> +		if (ch >= GSC_HWMON_MAX_IN_CH)
-> +			return -EOPNOTSUPP;
-
-Can that ever happen ?
-
-> +		mode = S_IRUGO;
-> +		break;
-> +	default:
-> +		return -EOPNOTSUPP;
-> +	}
-> +	dev_dbg(dev, "%s type=%d attr=%d ch=%d mode=0x%x\n", __func__, type,
-> +		attr, ch, mode);
-> +
-> +	return mode;
-> +}
-> +
-> +static const struct hwmon_ops gsc_hwmon_ops = {
-> +	.is_visible = gsc_hwmon_is_visible,
-> +	.read = gsc_hwmon_read,
-> +	.read_string = gsc_hwmon_read_string,
-> +	.write = gsc_hwmon_write,
-> +};
-> +
-> +static struct gsc_hwmon_platform_data *
-> +gsc_hwmon_get_devtree_pdata(struct device *dev)
-> +{
-> +	struct gsc_hwmon_platform_data *pdata;
-> +	struct gsc_hwmon_channel *ch;
-> +	struct fwnode_handle *child;
-> +	const char *type;
-> +	int nchannels;
-> +
-> +	nchannels = device_get_child_node_count(dev);
-> +	dev_dbg(dev, "channels=%d\n", nchannels);
-> +	if (nchannels == 0)
-> +		return ERR_PTR(-ENODEV);
-> +
-> +	pdata = devm_kzalloc(dev,
-> +			     sizeof(*pdata) + nchannels * sizeof(*ch),
-> +			     GFP_KERNEL);
-> +	if (!pdata)
-> +		return ERR_PTR(-ENOMEM);
-> +	ch = (struct gsc_hwmon_channel *)(pdata + 1);
-> +	pdata->channels = ch;
-> +	pdata->nchannels = nchannels;
-> +
-> +	device_property_read_u32(dev, "gw,reference-voltage",
-> +				 &pdata->vreference);
-> +	device_property_read_u32(dev, "gw,resolution", &pdata->resolution);
-> +
-> +	/* allocate structures for channels and count instances of each type */
-> +	device_for_each_child_node(dev, child) {
-> +		if (fwnode_property_read_string(child, "label", &ch->name)) {
-> +			dev_err(dev, "channel without label\n");
-> +			fwnode_handle_put(child);
-> +			return ERR_PTR(-EINVAL);
-> +		}
-> +		if (fwnode_property_read_u32(child, "reg", &ch->reg)) {
-> +			dev_err(dev, "channel without reg\n");
-> +			fwnode_handle_put(child);
-> +			return ERR_PTR(-EINVAL);
-> +		}
-> +		if (fwnode_property_read_string(child, "type", &type)) {
-> +			dev_err(dev, "channel without type\n");
-> +			fwnode_handle_put(child);
-> +			return ERR_PTR(-EINVAL);
-> +		}
-> +		if (!strcasecmp(type, "gw,hwmon-temperature"))
-> +			ch->type = type_temperature;
-> +		else if (!strcasecmp(type, "gw,hwmon-voltage"))
-> +			ch->type = type_voltage;
-> +		else if (!strcasecmp(type, "gw,hwmon-voltage-raw"))
-> +			ch->type = type_voltage_raw;
-> +		else if (!strcasecmp(type, "gw,hwmon-fan"))
-> +			ch->type = type_fan;
-> +		else {
-> +			dev_err(dev, "channel without type\n");
-> +			fwnode_handle_put(child);
-> +			return ERR_PTR(-EINVAL);
-> +		}
-> +
-> +		fwnode_property_read_u32(child, "gw,voltage-offset",
-> +			&ch->voffset);
-
-Note that while it is technically ok to keep voltages internally in mV,
-devicetree will likely require specificayion in uV. For accuracy, it might be
-better to perform any calculations on that base and convert to mV for display
-purposes.
-
-> +		fwnode_property_read_u32_array(child, "gw,voltage-divider",
-> +			ch->vdiv, ARRAY_SIZE(ch->vdiv));
-> +		dev_dbg(dev, "of: reg=0x%02x type=%d %s\n", ch->reg, ch->type,
-> +			ch->name);
-> +		ch++;
-> +	}
-> +
-> +	return pdata;
-> +}
-> +
-> +static int gsc_hwmon_probe(struct platform_device *pdev)
-> +{
-> +	struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
-> +	struct device *dev = &pdev->dev;
-> +	struct gsc_hwmon_platform_data *pdata = dev_get_platdata(dev);
-> +	struct gsc_hwmon_data *hwmon;
-> +	int i, i_in, i_temp, i_fan;
-> +
-> +	if (!pdata) {
-> +		pdata = gsc_hwmon_get_devtree_pdata(dev);
-> +		if (IS_ERR(pdata))
-> +			return PTR_ERR(pdata);
-> +	}
-> +
-> +	hwmon = devm_kzalloc(dev, sizeof(*hwmon), GFP_KERNEL);
-> +	if (!hwmon)
-> +		return -ENOMEM;
-> +	hwmon->gsc = gsc;
-> +	hwmon->pdata = pdata;
-> +
-> +	for (i = 0, i_in = 0, i_temp = 0, i_fan = 0;
-> +	     i < hwmon->pdata->nchannels; i++) {
-> +		const struct gsc_hwmon_channel *ch = &pdata->channels[i];
-> +
-> +		if (ch->reg > GSC_HWMON_MAX_REG) {
-> +			dev_err(dev, "invalid reg: 0x%02x\n", ch->reg);
-> +			return -EINVAL;
-> +		}
-> +		switch (ch->type) {
-> +		case type_temperature:
-> +			if (i_temp == GSC_HWMON_MAX_TEMP_CH) {
-> +				dev_err(dev, "too many temp channels\n");
-> +				return -EINVAL;
-> +			}
-> +			hwmon->temp_ch[i_temp] = ch;
-> +			hwmon->temp_config[i_temp] = HWMON_T_INPUT |
-> +						     HWMON_T_LABEL;
-> +			i_temp++;
-> +			break;
-> +		case type_voltage:
-> +		case type_voltage_raw:
-> +			if (i_in == GSC_HWMON_MAX_IN_CH) {
-> +				dev_err(dev, "too many voltage channels\n");
-> +				return -EINVAL;
-> +			}
-> +			hwmon->in_ch[i_in] = ch;
-> +			hwmon->in_config[i_in] =
-> +				HWMON_I_INPUT | HWMON_I_LABEL;
-> +			i_in++;
-> +			break;
-> +		case type_fan:
-> +			if (i_fan == GSC_HWMON_MAX_FAN_CH) {
-> +				dev_err(dev, "too many voltage channels\n");
-> +				return -EINVAL;
-> +			}
-> +			hwmon->fan_ch[i_fan] = ch;
-> +			hwmon->fan_config[i_fan] =
-> +				HWMON_F_INPUT | HWMON_F_LABEL;
-> +			i_fan++;
-> +			break;
-> +		default:
-> +			dev_err(dev, "invalid type: %d\n", ch->type);
-> +			return -EINVAL;
-> +		}
-> +		dev_dbg(dev, "pdata: reg=0x%02x type=%d %s\n", ch->reg,
-> +			ch->type, ch->name);
-> +	}
-> +
-> +	/* terminate channel config lists */
-> +	hwmon->temp_config[i_temp] = 0;
-> +	hwmon->in_config[i_in] = 0;
-> +	hwmon->fan_config[i_fan] = 0;
-
-'hwmon' was alocated with devm_kzalloc(). Initializing any of its members with 0
-is unnecessary.
-
-> +
-> +	/* setup config structures */
-> +	hwmon->chip.ops = &gsc_hwmon_ops;
-> +	hwmon->chip.info = hwmon->info;
-> +	hwmon->info[0] = &hwmon->temp_info;
-> +	hwmon->info[1] = &hwmon->in_info;
-> +	hwmon->info[2] = &hwmon->fan_info;
-> +	hwmon->temp_info.type = hwmon_temp;
-> +	hwmon->temp_info.config = hwmon->temp_config;
-> +	hwmon->in_info.type = hwmon_in;
-> +	hwmon->in_info.config = hwmon->in_config;
-> +	hwmon->fan_info.type = hwmon_fan;
-> +	hwmon->fan_info.config = hwmon->fan_config;
-> +
-> +	hwmon->dev = devm_hwmon_device_register_with_info(dev,
-> +							  KBUILD_MODNAME, hwmon,
-> +							  &hwmon->chip, NULL);
-> +	return PTR_ERR_OR_ZERO(hwmon->dev);
-> +}
-> +
-> +static const struct of_device_id gsc_hwmon_of_match[] = {
-> +	{ .compatible = "gw,gsc-hwmon", },
-> +	{}
-> +};
-> +
-> +static struct platform_driver gsc_hwmon_driver = {
-> +	.driver = {
-> +		.name = KBUILD_MODNAME,
-> +		.of_match_table = gsc_hwmon_of_match,
-> +	},
-> +	.probe = gsc_hwmon_probe,
-> +};
-> +
-> +module_platform_driver(gsc_hwmon_driver);
-> +
-> +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
-> +MODULE_DESCRIPTION("GSC hardware monitor driver");
-> +MODULE_LICENSE("GPL v2");
-> diff --git a/include/linux/platform_data/gsc_hwmon.h b/include/linux/platform_data/gsc_hwmon.h
-> new file mode 100644
-> index 0000000..5e59846
-> --- /dev/null
-> +++ b/include/linux/platform_data/gsc_hwmon.h
-> @@ -0,0 +1,43 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _GSC_HWMON_H
-> +#define _GSC_HWMON_H
-> +
-> +enum gsc_hwmon_type {
-> +	type_temperature,
-> +	type_voltage,
-> +	type_voltage_raw,
-> +	type_fan,
-> +};
-> +
-> +/**
-> + * struct gsc_hwmon_channel - configuration parameters
-> + * @reg:  I2C register offset
-> + * @type: channel type
-> + * @name: channel name
-> + * @voffset: voltage offset (mV)
-> + * @vdiv: voltage divider array (2 resistor values in ohms)
-> + */
-> +struct gsc_hwmon_channel {
-> +	unsigned int reg;
-> +	unsigned int type;
-> +	const char *name;
-> +	unsigned int voffset;
-
-It is interesting that only positive offset values are supported.
-Is that intentional ?
-
-> +	unsigned int vdiv[2];
-> +};
-> +
-> +/**
-> + * struct gsc_hwmon_platform_data - platform data for gsc_hwmon driver
-> + * @channels:	pointer to array of gsc_hwmon_channel structures
-> + *		describing channels
-> + * @nchannels:	number of elements in @channels array
-> + * @vreference: voltage reference (mV)
-> + * @resolution: ADC resolution
-
-Resolution in what ?
-
-> + */
-> +struct gsc_hwmon_platform_data {
-> +	const struct gsc_hwmon_channel *channels;
-> +	int nchannels;
-> +	unsigned int resolution;
-> +	unsigned int vreference;
-> +};
-> +
-> +#endif
-> -- 
-> 2.7.4
-> 
+> >
+> >  1. When a hidraw client is running:
+> >    a. I will not send any lizard-mode command to the device, so the client is
+> >       in full control.
+> >    b. The input device will not send any input message. However it will not
+> >       dissappear nor return any error message. Maybe it could return ENODEV if
+> >       they try to open the input device when hidraw client is running?
+> >
+> > If lizard_mode == 0 ('disabled'):
+> >  2.0. When a hidraw client is not running, lizard_mode is disabled.
+> >
+> > If lizard_mode == 1, ('auto', the default):
+> >  2.1. When a hidraw client is not running:
+> >    a. When the input device is not in use, lizard mode is enabled.
+> >    b. When the input device is in use, lizard mode is disabled.
+> >
+> > If lizard_mode == 2 ('usermode'):
+> >  2.2. This driver does not send any lizard_mode-related command. So it is up
+> >       to user mode to configure it, with steamctrl or whatever.
+> >
+> > Note that when Steam Client opens it always disables lizard-mode (it creates
+> > keyboard/mouse XTest inputs with the same function, though). And when it closed
+> > (but not when it crashes, I think) it always re-enables the lizard mode.
+> >
+> > About the input buttons/axes mapping, as per Clément suggestion, I tried to
+> > conform to Documentation/gamepad.rst, but with a few caveats and doubts:
+> >  * BTN_NORTH/BTN_WEST are alias of BTN_X/BTN_Y, but those buttons in this
+> >    controller have the labels changed (BTN_NORTH is actually Y). I don't know
+> >    the best option, so for now I'm mapping 'Y' to BTN_Y and 'X' to BTN_X.
+> >  * I'm mapping the lpad clicks to BTN_DPAD_{UP,RIGHT,DOWN,LEFT} but I'm not
+> >    sure if that is such a good idea: it cannot do diagonals, for example.
+> >    Maybe we could fake the whole dpad from the touch position?
+> >  * I'm mapping pressing the joystick to BTN_THUMBL and clicking the rpad to
+> >    BTN_THUMBR. Clicking the lpad is unmapped because that is used for the
+> >    dpad, depending on where it is clicked.
+> >  * Currently I'm mapping the lpad-touch to BTN_THUMB and rpad-touch to
+> >    BTN_THUMB2, but I don't know if that is so useful. lpad-touch will overlap
+> >    with any use of the dpad. And rpad-touch will overlap with rpad-click...
+> >
+> > Changes in v7:
+> >  * All the automatic lizard_mode stuff.
+> >  * Added the lizard_mode parameter.
+> >  * The patchset is reduced to 2 commits. The separation of the
+> >    steam_get_serial command no longer makes sense, since I need the
+> >    steam_send_cmd in the first commit to implement the lizard mode.
+> >  * Change the input mapping to conform to Documentation/gamepad.rst.
+> >
+> > (v6 was a RFC, it does not count).
+> >
+> > Changes in v5:
+> >  * Fix license SPDX to GPL-2.0+.
+> >  * Minor stylistic changes (BIT(3) instead 0x08 and so on).
+> >
+> > Changes in v4:
+> >  * Add command to check the wireless connection status on probe, without
+> >    waiting for a message (thanks to Clément Vuchener for the tip).
+> >  * Removed the error code on redundant connection/disconnection messages. That
+> >    was harmless but polluted dmesg.
+> >  * Added buttons for touching the left-pad and right-pad.
+> >  * Fixed a misplaced #include from 2/4 to 1/4.
+> >
+> > Changes in v3:
+> >  * Use RCU to do the dynamic connec/disconnect of wireless devices.
+> >  * Remove entries in hid-quirks.c as they are no longer needed. This allows
+> >    this module to be blacklisted without side effects.
+> >  * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
+> >    existing use cases (lizard mode). A user-space tool to do that is
+> >    linked.
+> >  * Fully separated axes for joystick and left-pad. As it happens.
+> >  * Add fuzz values for left/right pad axes, they are a little wiggly.
+> >
+> > Changes in v2:
+> >  * Remove references to USB. Now the interesting interfaces are selected by
+> >    looking for the ones with feature reports.
+> >  * Feature reports buffers are allocated with hid_alloc_report_buf().
+> >  * Feature report length is checked, to avoid overflows in case of
+> >    corrupt/malicius USB devices.
+> >  * Resolution added to the ABS axes.
+> >  * A lot of minor cleanups.
+> >
+> > Rodrigo Rivas Costa (2):
+> >   HID: add driver for Valve Steam Controller
+> >   HID: steam: add battery device.
+> >
+> >  drivers/hid/Kconfig     |   8 +
+> >  drivers/hid/Makefile    |   1 +
+> >  drivers/hid/hid-ids.h   |   4 +
+> >  drivers/hid/hid-steam.c | 978 ++++++++++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/hid.h     |   1 +
+> >  5 files changed, 992 insertions(+)
+> >  create mode 100644 drivers/hid/hid-steam.c
+> >
+> > --
+> > 2.16.2
+> >

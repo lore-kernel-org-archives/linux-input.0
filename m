@@ -1,563 +1,209 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v3 3/4] hwmon: add Gateworks System Controller support
-Date: Wed, 28 Mar 2018 13:33:04 -0700
-Message-ID: <20180328203304.GA22930@roeck-us.net>
+From: Tim Harvey <tharvey@gateworks.com>
+Subject: Re: [PATCH v3 1/4] dt-bindings: mfd: Add Gateworks System Controller bindings
+Date: Wed, 28 Mar 2018 13:53:53 -0700
+Message-ID: <CAJ+vNU1cJFYTv3N6TZQ3k-VQw=0jxHEntpMxeSAOhWAb_ap81g@mail.gmail.com>
 References: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
- <1522250043-8065-4-git-send-email-tharvey@gateworks.com>
- <20180328170018.GC25325@roeck-us.net>
- <CAJ+vNU02R134uoVAkx2VjD1FpUj+Zt0haj_zYcYT5xNWTgF7Ag@mail.gmail.com>
+ <1522250043-8065-2-git-send-email-tharvey@gateworks.com> <20180328162416.GB25325@roeck-us.net>
+ <CAJ+vNU2aUN4ME3+RA3DNPO75O6vPBcQpuRSfQJ4_Ns_zQAtCCQ@mail.gmail.com> <20180328202321.GA21664@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJ+vNU02R134uoVAkx2VjD1FpUj+Zt0haj_zYcYT5xNWTgF7Ag@mail.gmail.com>
+In-Reply-To: <20180328202321.GA21664@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 28, 2018 at 01:23:59PM -0700, Tim Harvey wrote:
-> On Wed, Mar 28, 2018 at 10:00 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On Wed, Mar 28, 2018 at 08:14:02AM -0700, Tim Harvey wrote:
-> >> The Gateworks System Controller has a hwmon sub-component that exposes
-> >> up to 16 ADC's, some of which are temperature sensors, others which are
-> >> voltage inputs. The ADC configuration (register mapping and name) is
-> >> configured via device-tree and varies board to board.
-> >>
-> >> Cc: Guenter Roeck <linux@roeck-us.net>
-> >> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> >> ---
-> >> v3:
-> >> - add voltage_raw input type and supporting fields
-> >> - add channel validation to is_visible function
-> >> - remove unnecessary channel validation from read/write functions
-> >>
-> >> v2:
-> >> - change license comment style
-> >> - remove DEBUG
-> >> - simplify regmap_bulk_read err check
-> >> - remove break after returns in switch statement
-> >> - fix fan setpoint buffer address
-> >> - remove unnecessary parens
-> >> - consistently use struct device *dev pointer
-> >> - change license/comment block
-> >> - add validation for hwmon child node props
-> >> - move parsing of of to own function
-> >> - use strlcpy to ensure null termination
-> >> - fix static array sizes and removed unnecessary initializers
-> >> - dynamically allocate channels
-> >> - fix fan input label
-> >> - support platform data
-> >> - fixed whitespace issues
-> >>
-> >>  drivers/hwmon/Kconfig                   |   9 +
-> >>  drivers/hwmon/Makefile                  |   1 +
-> >>  drivers/hwmon/gsc-hwmon.c               | 368 ++++++++++++++++++++++++++++++++
-> >
-> > This will require a matching Documentation/hwmon/gsc-hwmon to explain supported
-> > attributes.
-> 
-> ok - will add in next submission
-> 
-> >
-> <snip>
-> >>
-> >> +static int
-> >> +gsc_hwmon_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
-> >> +            int channel, long *val)
-> >> +{
-> >> +     struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
-> >> +     struct gsc_hwmon_platform_data *pdata = hwmon->pdata;
-> >> +     const struct gsc_hwmon_channel *ch;
-> >> +     int sz, ret;
-> >> +     u8 buf[3];
-> >> +
-> >> +     dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
-> >> +             channel);
-> >> +     switch (type) {
-> >> +     case hwmon_in:
-> >> +             ch = hwmon->in_ch[channel];
-> >> +             break;
-> >> +     case hwmon_temp:
-> >> +             ch = hwmon->temp_ch[channel];
-> >> +             break;
-> >> +     case hwmon_fan:
-> >> +             ch = hwmon->fan_ch[channel];
-> >> +             break;
-> >> +     default:
-> >> +             return -EOPNOTSUPP;
-> >> +     }
-> >> +
-> >> +     sz = (ch->type == type_voltage) ? 3 : 2;
-> >> +     ret = regmap_bulk_read(hwmon->gsc->regmap_hwmon, ch->reg, buf, sz);
-> >> +     if (ret)
-> >> +             return ret;
-> >> +
-> >> +     *val = 0;
-> >> +     while (sz-- > 0)
-> >> +             *val |= (buf[sz] << (8*sz));
-> >
-> > Please use spaces before and after operators.
-> 
-> ok
-> 
-> >
-> >> +
-> >> +     switch (ch->type) {
-> >> +     case type_temperature:
-> >> +             if ((type == hwmon_temp) && *val > 0x8000)
-> >
-> > Please no unnecessary ( ).
-> >
-> 
-> ok
-> 
-> > Is there ever a situation where ch->type == type_temperature and type !=
-> > hwmon_temp ? Wouldn't that be a bug ?
-> 
-> I should not have been checking (type == hwmon_temp) there... will remove that.
-> 
-> >
-> >> +                     *val -= 0xffff;
-> >> +             break;
-> >> +     case type_voltage_raw:
-> >> +             /* scale based on ref voltage and resolution */
-> >> +             if (pdata->vreference && pdata->resolution) {
-> >> +                     *val *= pdata->vreference;
-> >> +                     *val /= pdata->resolution;
-> >> +             }
-> >> +             /* scale based on optional voltage divider */
-> >> +             if (ch->vdiv[0] && ch->vdiv[1]) {
-> >> +                     *val *= (ch->vdiv[0] + ch->vdiv[1]);
-> >> +                     *val /= ch->vdiv[1];
-> >> +             }
-> >
-> > This accepts both types of scaling. Is that intentional ?
-> 
-> yes that is intentional. One version of the GSC reports cooked
-> pre-scaled values that won't fall into either of these. Another
-> version of the GSC will report raw ADC values which will need the
-> vref/res scaling and those may have an optional voltage divider.
-> 
-> >
-> > I don't see any protection against overflows. What if pdata->vreference is
-> > larger than 256 on a system with sizeof(long) == 4 and the raw voltage
-> > as reported by the chip is 0xffffff ?
-> >
-> >> +             /* adjust by offset */
-> >> +             *val += ch->voffset;
-> >
-> > Similar to the above, this can result in an overflow on systems with
-> > sizeof(long) == 4.
-> >
-> 
-> true - I will add some overflow checking
-> 
-> >> +             break;
-> >
-> > There should be a default case as well as 'case type_voltage:'
-> > with a break; statement and a comment indicating that no adjustment
-> > is needed.
-> >
-> 
-> ok
-> 
-> >> +     }
-> >> +
-> >> +     return 0;
-> >> +}
-> >> +
-> >> +static int
-> >> +gsc_hwmon_read_string(struct device *dev, enum hwmon_sensor_types type,
-> >> +                   u32 attr, int channel, const char **buf)
-> >> +{
-> >> +     struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
-> >> +
-> >> +     dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
-> >> +             channel);
-> >
-> > I seriously wonder if all those dev_dbg() statements add value.
-> 
-> only to me while I was writing/testing; I will remove them
-> 
-> >
-> >> +     switch (type) {
-> >> +     case hwmon_in:
-> >> +             *buf = hwmon->in_ch[channel]->name;
-> >> +             break;
-> >> +     case hwmon_temp:
-> >> +             *buf = hwmon->temp_ch[channel]->name;
-> >> +             break;
-> >> +     case hwmon_fan:
-> >> +             *buf = hwmon->fan_ch[channel]->name;
-> >> +             break;
-> >> +     default:
-> >> +             return -ENOTSUPP;
-> >> +     }
-> >> +
-> >> +     return 0;
-> >> +}
-> >> +
-> >> +static int
-> >> +gsc_hwmon_write(struct device *dev, enum hwmon_sensor_types type, u32 attr,
-> >> +             int channel, long val)
-> >> +{
-> >> +     struct gsc_hwmon_data *hwmon = dev_get_drvdata(dev);
-> >> +     u8 buf[2];
-> >> +
-> >> +     dev_dbg(dev, "%s type=%d attr=%d channel=%d\n", __func__, type, attr,
-> >> +             channel);
-> >> +     switch (type) {
-> >> +     case hwmon_fan:
-> >> +             buf[0] = val & 0xff;
-> >> +             buf[1] = (val >> 8) & 0xff;
-> >> +             return regmap_bulk_write(hwmon->gsc->regmap_hwmon,
-> >> +                                      hwmon->fan_ch[channel]->reg, buf, 2);
-> >
-> > fanX_input reports the fan speed. By its nature, a fan speed is not writeable.
-> > I have no idea what this is supposed to achieve, but whatever it is, it is wrong.
-> >
-> > Please stick with the ABI.
-> 
-> ok, I see that now. Do you have any recommendation of what I should
-> use for these temperature setpoints that control when the fan pwm is
-> adjusted?
-> 
+On Wed, Mar 28, 2018 at 1:23 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Wed, Mar 28, 2018 at 12:17:34PM -0700, Tim Harvey wrote:
+>> On Wed, Mar 28, 2018 at 9:24 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+>> > On Wed, Mar 28, 2018 at 08:14:00AM -0700, Tim Harvey wrote:
+>> >> This patch adds documentation of device-tree bindings for the
+>> >> Gateworks System Controller (GSC).
+>> >>
+>> >> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+>> >> ---
+>> >> v3:
+>> >>  - replaced _ with -
+>> >>  - remove input bindings
+>> >>  - added full description of hwmon
+>> >>  - fix unit address of hwmon child nodes
+>> >>
+>> >> ---
+>> >>  .../devicetree/bindings/mfd/gateworks-gsc.txt      | 135 +++++++++++++++++++++
+>> >>  1 file changed, 135 insertions(+)
+>> >>  create mode 100644 Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
+>> >>
+>> >> diff --git a/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt b/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
+>> >> new file mode 100644
+>> >> index 0000000..8f530ed
+>> >> --- /dev/null
+>> >> +++ b/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
+>> >> @@ -0,0 +1,135 @@
+>> >> +Gateworks System Controller multi-function device
+>> >> +
+>> >> +The GSC is a Multifunction I2C slave device with the following submodules:
+>> >> +- WDT
+>> >> +- GPIO
+>> >> +- Pushbutton controller
+>> >> +- HWMON
+>> >> +
+>> >> +Required properties:
+>> >> +- compatible : Must be "gw,gsc"
+>> >> +- reg: I2C address of the device
+>> >> +- interrupts: interrupt triggered by GSC_IRQ# signal
+>> >> +- interrupt-parent: Interrupt controller GSC is connected to
+>> >> +- #interrupt-cells: should be <1>, index of the interrupt within the
+>> >> +  controller, in accordance with the "one cell" variant of
+>> >> +  <devicetree/bindings/interrupt-controller/interrupt.txt>
+>> >> +
+>> >> +Optional nodes:
+>> >> +* watchdog:
+>> >> +The GSC provides a Watchdog monitor which can power cycle the board's
+>> >> +primary power supply on most board models when tripped.
+>> >> +
+>> >> +Required watchdog properties:
+>> >> +- compatible: must be "gw,gsc-watchdog"
+>> >> +
+>> >> +* hwmon:
+>> >> +The GSC provides a set of Analog to Digitcal Converter (ADC) pins used for
+>> >> +temperature and/or voltage monitoring.
+>> >> +
+>> >> +Required hwmon properties:
+>> >> +- compatible: must be "gw,gsc-hwmon"
+>> >> +
+>> >
+>> > "hwmon" is a very Linux specific term. It might make sense to find a more
+>> > generic term.
+>>
+>> The 'hwmon' driver supports child nodes that fall into the following category:
+>>  - temperature sensor (GSC internal temperature sensor - i2c registers
+>> returns value in C*10)
+>>  - voltage rails (two types here; cooked: i2c registers return
+>> pre-scaled value in mV), raw: i2c registers return a raw ADC value
+>> that must be scaled based on ADC internal ref voltage and resolution
+>> and adjusted for a voltage divider to convert to mV
+>>  - fan setpoints (I'll explain these below)
+>>
+>> I called the node 'gw,gsc-hwmon' because the driver fits into the
+>> 'hwmon' API. Isn't that appropriate here for the driver compatible
+>> string?
+>>
+>
+> Devicetree properties are supposed to be OS independent.
+>
+>> >
+>> >> +Optional hwmon properties:
+>> >> +- gw,reference-voltage: ADC reference voltage (mV) used in scaling raw ADCs
+>> >
+>> > AFAIK devicetree likes to specify voltages in uV.
+>>
+>> There are currently plenty of dt props specified in mV (grep -r mV
+>> Documentation/devicetree/bindings/).
+>>
+>
+> "But so many others are speeding, why do I get a ticket ?"
+>
+> Please discuss with Rob.
 
-As mentioned in the other thread,
+Yes - hoping for feedback on mV vs uV as well as naming of hwmon mfd child node.
 
-pwm[1-*]_auto_point[1-*]_pwm
-pwm[1-*]_auto_point[1-*]_temp
+>
+>> >
+>> >> +- gw,resolution: ADC resolution (ie 4096) used in scaling raw ADCs
+>> >> +
+>> >
+>> > 4096 what ?
+>>
+>> reference-voltage and resolution are used to scale the values from the
+>> nodes that report a raw ADC value:
+>>
+>> V = Vadc * (reference-voltage / resolution)
+>>
+>> I can provide that in bits if it makes more sense? I can also hard
+>
+> Yes, I think that would make more sense, and please describe what it means.
+>
+>> code both the resolution and the vref in the hwmon driver and remove
+>> it from dt as currently the only GSC that uses raw ADC values is 12bit
+>> with 2.5V ref.
+>>
+>
+> That would be even better.
+>
+>> >
+>> >> +Each hwmon child node defines an ADC input on the chip which the GSC may
+>> >> +report cooked values (ie temperature sensor based on thermister), raw values,
+>> >> +(ie voltage rail with a pre-scaling resistor divider), or a fan controller
+>> >> +setpoint.
+>> >> +
+>> >> +Required hwmon child properties:
+>> >> +- type: one of the following ADC types:
+>> >> +  "gw,hwmon-temperature" - reports temperature in C*10
+>> >> +  "gw,hwmon-voltage" - reports a pre-scaled voltage value
+>> >> +  "gw,hwmon-voltage-raw" - reports a raw ADC that is scaled with
+>> >> +       vreference, resolution, and optional resistor divider
+>> >> +  "gw,hwmon-fan" - a fan temperature setpoint in C*10
+>> >
+>> > What is a "fan temperature setpoint" ?
+>> >
+>>
+>> The GSC supports a fan controller which drives a PWM signal to vary
+>> the speed of a fan based on the GSC internal temperature sensor. The
+>> FAN controller has 6 setpoints each having a fixed PWM duty-cycle but
+>> the temperature at which those setpoints kick in can be varies via
+>> registers at the 0x29 slave address (same slave address as the
+>> temperature sensor and voltage inputs which is why I have it in the
+>> hwmon driver):
+>>
+>> fan0_point - 50% PWM (default 300)
+>> fan1_point - 60% PWM (default 330)
+>> fan2_point - 70% PWM (default 360)
+>> fan3_point - 80% PWM (default 390)
+>> fan4_point - 90% PWM (default 420)
+>> fan5_point - 100% PWM (default 450)
+>>
+>> The values are C/10 thus if the internal GSC temp sensor is below 30C
+>> the fan output will be 0% duty cycle and if it hits 30C it will go to
+>> 50% until it hits 60% at 33C etc.
+>>
+> Please do not define your own scaling factors. pwm values are 0..255,
+> and temperatures are in milli-degrees C.
+>
+>> That is the hardware implementation that I'm trying to abstract and
+>> define here. You pointed out the fact that the fan*_input ABI is
+>> read-only fan PWM and I see that now. What do you suggest I use for
+>
+> No, it isn't. It is the fan speed in RPM.
+>
+>> this feature I'm trying to implement driver support for?
+>>
+>
+> pwm[1-*]_auto_point[1-*]_pwm
+> pwm[1-*]_auto_point[1-*]_temp
+> pwm[1-*]_auto_point[1-*]_temp_hyst
+>
+> may be relevant. From the context, something like
+>
+> pwm1_auto_point1_pwm    read-only, set to 128
+> pwm1_auto_point1_temp   30000
+> pwm1_auto_point2_pwm    read-only, set to 153
+> pwm1_auto_point2_temp   33000
+> pwm1_auto_point3_pwm    read-only, set to 179
+> pwm1_auto_point3_temp   36000
+> pwm1_auto_point4_pwm    read-only, set to 204
+> pwm1_auto_point4_temp   39000
+> pwm1_auto_point5_pwm    read-only, set to 230
+> pwm1_auto_point5_temp   42000
+> pwm1_auto_point6_pwm    read-only, set to 255
+> pwm1_auto_point6_temp   45000
+>
+> might make sense.
 
-seems to be the best fit. Downside is that we don't have those supported in
-the new ABI. You have two options: add the attributes to the ABI and use them,
-or define your own sysfs group for it. Either way is fine with me (I would
-prefer to have it added to the API, though).
+I like that idea! The details of the setpoints do not need to be in
+the dts at all. I will need to add a single property to signify that
+the board has a fan controller as some don't.
 
-> >
-> >> +     default:
-> >> +             break;
-> >> +     }
-> >> +
-> >> +     return -EOPNOTSUPP;
-> >> +}
-> >> +
-> >> +static umode_t
-> >> +gsc_hwmon_is_visible(const void *_data, enum hwmon_sensor_types type, u32 attr,
-> >> +                  int ch)
-> >> +{
-> >> +     const struct gsc_hwmon_data *hwmon = _data;
-> >> +     struct device *dev = hwmon->gsc->dev;
-> >> +     umode_t mode = 0;
-> >> +
-> >> +     switch (type) {
-> >> +     case hwmon_fan:
-> >> +             if (ch >= GSC_HWMON_MAX_FAN_CH)
-> >> +                     return -EOPNOTSUPP;
-> >
-> > Can that ever happen ?
-> 
-> No, I suppose not because the ch input comes from a hwmon node that
-> was created by the driver registering the entities and a check was
-> done there to avoid overflow. I will remove these.
-> 
-> >
-> >> +             mode = S_IRUGO;
-> >> +             if (attr == hwmon_fan_input)
-> >> +                     mode |= S_IWUSR;
-> >
-> > fanX_input is a read-only attribute per ABI.
-> >
-> >> +             break;
-> >> +     case hwmon_temp:
-> >> +             if (ch >= GSC_HWMON_MAX_TEMP_CH)
-> >> +                     return -EOPNOTSUPP;
-> >
-> > Can that ever happen ?
-> >
-> >> +             mode = S_IRUGO;
-> >> +             break;
-> >> +     case hwmon_in:
-> >> +             if (ch >= GSC_HWMON_MAX_IN_CH)
-> >> +                     return -EOPNOTSUPP;
-> >
-> > Can that ever happen ?
-> >
-> >> +             mode = S_IRUGO;
-> >> +             break;
-> >> +     default:
-> >> +             return -EOPNOTSUPP;
-> >> +     }
-> >> +     dev_dbg(dev, "%s type=%d attr=%d ch=%d mode=0x%x\n", __func__, type,
-> >> +             attr, ch, mode);
-> >> +
-> >> +     return mode;
-> >> +}
-> >> +
-> >> +static const struct hwmon_ops gsc_hwmon_ops = {
-> >> +     .is_visible = gsc_hwmon_is_visible,
-> >> +     .read = gsc_hwmon_read,
-> >> +     .read_string = gsc_hwmon_read_string,
-> >> +     .write = gsc_hwmon_write,
-> >> +};
-> >> +
-> >> +static struct gsc_hwmon_platform_data *
-> >> +gsc_hwmon_get_devtree_pdata(struct device *dev)
-> >> +{
-> >> +     struct gsc_hwmon_platform_data *pdata;
-> >> +     struct gsc_hwmon_channel *ch;
-> >> +     struct fwnode_handle *child;
-> >> +     const char *type;
-> >> +     int nchannels;
-> >> +
-> >> +     nchannels = device_get_child_node_count(dev);
-> >> +     dev_dbg(dev, "channels=%d\n", nchannels);
-> >> +     if (nchannels == 0)
-> >> +             return ERR_PTR(-ENODEV);
-> >> +
-> >> +     pdata = devm_kzalloc(dev,
-> >> +                          sizeof(*pdata) + nchannels * sizeof(*ch),
-> >> +                          GFP_KERNEL);
-> >> +     if (!pdata)
-> >> +             return ERR_PTR(-ENOMEM);
-> >> +     ch = (struct gsc_hwmon_channel *)(pdata + 1);
-> >> +     pdata->channels = ch;
-> >> +     pdata->nchannels = nchannels;
-> >> +
-> >> +     device_property_read_u32(dev, "gw,reference-voltage",
-> >> +                              &pdata->vreference);
-> >> +     device_property_read_u32(dev, "gw,resolution", &pdata->resolution);
-> >> +
-> >> +     /* allocate structures for channels and count instances of each type */
-> >> +     device_for_each_child_node(dev, child) {
-> >> +             if (fwnode_property_read_string(child, "label", &ch->name)) {
-> >> +                     dev_err(dev, "channel without label\n");
-> >> +                     fwnode_handle_put(child);
-> >> +                     return ERR_PTR(-EINVAL);
-> >> +             }
-> >> +             if (fwnode_property_read_u32(child, "reg", &ch->reg)) {
-> >> +                     dev_err(dev, "channel without reg\n");
-> >> +                     fwnode_handle_put(child);
-> >> +                     return ERR_PTR(-EINVAL);
-> >> +             }
-> >> +             if (fwnode_property_read_string(child, "type", &type)) {
-> >> +                     dev_err(dev, "channel without type\n");
-> >> +                     fwnode_handle_put(child);
-> >> +                     return ERR_PTR(-EINVAL);
-> >> +             }
-> >> +             if (!strcasecmp(type, "gw,hwmon-temperature"))
-> >> +                     ch->type = type_temperature;
-> >> +             else if (!strcasecmp(type, "gw,hwmon-voltage"))
-> >> +                     ch->type = type_voltage;
-> >> +             else if (!strcasecmp(type, "gw,hwmon-voltage-raw"))
-> >> +                     ch->type = type_voltage_raw;
-> >> +             else if (!strcasecmp(type, "gw,hwmon-fan"))
-> >> +                     ch->type = type_fan;
-> >> +             else {
-> >> +                     dev_err(dev, "channel without type\n");
-> >> +                     fwnode_handle_put(child);
-> >> +                     return ERR_PTR(-EINVAL);
-> >> +             }
-> >> +
-> >> +             fwnode_property_read_u32(child, "gw,voltage-offset",
-> >> +                     &ch->voffset);
-> >
-> > Note that while it is technically ok to keep voltages internally in mV,
-> > devicetree will likely require specificayion in uV. For accuracy, it might be
-> > better to perform any calculations on that base and convert to mV for display
-> > purposes.
-> 
-> I'm happy to change them if that really is the standard but it doesn't
-> look like it is a standard?
-> 
+Thanks,
 
-Again, please discuss with Rob.
-
-> >
-> >> +             fwnode_property_read_u32_array(child, "gw,voltage-divider",
-> >> +                     ch->vdiv, ARRAY_SIZE(ch->vdiv));
-> >> +             dev_dbg(dev, "of: reg=0x%02x type=%d %s\n", ch->reg, ch->type,
-> >> +                     ch->name);
-> >> +             ch++;
-> >> +     }
-> >> +
-> >> +     return pdata;
-> >> +}
-> >> +
-> >> +static int gsc_hwmon_probe(struct platform_device *pdev)
-> >> +{
-> >> +     struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
-> >> +     struct device *dev = &pdev->dev;
-> >> +     struct gsc_hwmon_platform_data *pdata = dev_get_platdata(dev);
-> >> +     struct gsc_hwmon_data *hwmon;
-> >> +     int i, i_in, i_temp, i_fan;
-> >> +
-> >> +     if (!pdata) {
-> >> +             pdata = gsc_hwmon_get_devtree_pdata(dev);
-> >> +             if (IS_ERR(pdata))
-> >> +                     return PTR_ERR(pdata);
-> >> +     }
-> >> +
-> >> +     hwmon = devm_kzalloc(dev, sizeof(*hwmon), GFP_KERNEL);
-> >> +     if (!hwmon)
-> >> +             return -ENOMEM;
-> >> +     hwmon->gsc = gsc;
-> >> +     hwmon->pdata = pdata;
-> >> +
-> >> +     for (i = 0, i_in = 0, i_temp = 0, i_fan = 0;
-> >> +          i < hwmon->pdata->nchannels; i++) {
-> >> +             const struct gsc_hwmon_channel *ch = &pdata->channels[i];
-> >> +
-> >> +             if (ch->reg > GSC_HWMON_MAX_REG) {
-> >> +                     dev_err(dev, "invalid reg: 0x%02x\n", ch->reg);
-> >> +                     return -EINVAL;
-> >> +             }
-> >> +             switch (ch->type) {
-> >> +             case type_temperature:
-> >> +                     if (i_temp == GSC_HWMON_MAX_TEMP_CH) {
-> >> +                             dev_err(dev, "too many temp channels\n");
-> >> +                             return -EINVAL;
-> >> +                     }
-> >> +                     hwmon->temp_ch[i_temp] = ch;
-> >> +                     hwmon->temp_config[i_temp] = HWMON_T_INPUT |
-> >> +                                                  HWMON_T_LABEL;
-> >> +                     i_temp++;
-> >> +                     break;
-> >> +             case type_voltage:
-> >> +             case type_voltage_raw:
-> >> +                     if (i_in == GSC_HWMON_MAX_IN_CH) {
-> >> +                             dev_err(dev, "too many voltage channels\n");
-> >> +                             return -EINVAL;
-> >> +                     }
-> >> +                     hwmon->in_ch[i_in] = ch;
-> >> +                     hwmon->in_config[i_in] =
-> >> +                             HWMON_I_INPUT | HWMON_I_LABEL;
-> >> +                     i_in++;
-> >> +                     break;
-> >> +             case type_fan:
-> >> +                     if (i_fan == GSC_HWMON_MAX_FAN_CH) {
-> >> +                             dev_err(dev, "too many voltage channels\n");
-> >> +                             return -EINVAL;
-> >> +                     }
-> >> +                     hwmon->fan_ch[i_fan] = ch;
-> >> +                     hwmon->fan_config[i_fan] =
-> >> +                             HWMON_F_INPUT | HWMON_F_LABEL;
-> >> +                     i_fan++;
-> >> +                     break;
-> >> +             default:
-> >> +                     dev_err(dev, "invalid type: %d\n", ch->type);
-> >> +                     return -EINVAL;
-> >> +             }
-> >> +             dev_dbg(dev, "pdata: reg=0x%02x type=%d %s\n", ch->reg,
-> >> +                     ch->type, ch->name);
-> >> +     }
-> >> +
-> >> +     /* terminate channel config lists */
-> >> +     hwmon->temp_config[i_temp] = 0;
-> >> +     hwmon->in_config[i_in] = 0;
-> >> +     hwmon->fan_config[i_fan] = 0;
-> >
-> > 'hwmon' was alocated with devm_kzalloc(). Initializing any of its members with 0
-> > is unnecessary.
-> 
-> right - will remove
-> 
-> >
-> >> +
-> >> +     /* setup config structures */
-> >> +     hwmon->chip.ops = &gsc_hwmon_ops;
-> >> +     hwmon->chip.info = hwmon->info;
-> >> +     hwmon->info[0] = &hwmon->temp_info;
-> >> +     hwmon->info[1] = &hwmon->in_info;
-> >> +     hwmon->info[2] = &hwmon->fan_info;
-> >> +     hwmon->temp_info.type = hwmon_temp;
-> >> +     hwmon->temp_info.config = hwmon->temp_config;
-> >> +     hwmon->in_info.type = hwmon_in;
-> >> +     hwmon->in_info.config = hwmon->in_config;
-> >> +     hwmon->fan_info.type = hwmon_fan;
-> >> +     hwmon->fan_info.config = hwmon->fan_config;
-> >> +
-> >> +     hwmon->dev = devm_hwmon_device_register_with_info(dev,
-> >> +                                                       KBUILD_MODNAME, hwmon,
-> >> +                                                       &hwmon->chip, NULL);
-> >> +     return PTR_ERR_OR_ZERO(hwmon->dev);
-> >> +}
-> >> +
-> >> +static const struct of_device_id gsc_hwmon_of_match[] = {
-> >> +     { .compatible = "gw,gsc-hwmon", },
-> >> +     {}
-> >> +};
-> >> +
-> >> +static struct platform_driver gsc_hwmon_driver = {
-> >> +     .driver = {
-> >> +             .name = KBUILD_MODNAME,
-> >> +             .of_match_table = gsc_hwmon_of_match,
-> >> +     },
-> >> +     .probe = gsc_hwmon_probe,
-> >> +};
-> >> +
-> >> +module_platform_driver(gsc_hwmon_driver);
-> >> +
-> >> +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
-> >> +MODULE_DESCRIPTION("GSC hardware monitor driver");
-> >> +MODULE_LICENSE("GPL v2");
-> >> diff --git a/include/linux/platform_data/gsc_hwmon.h b/include/linux/platform_data/gsc_hwmon.h
-> >> new file mode 100644
-> >> index 0000000..5e59846
-> >> --- /dev/null
-> >> +++ b/include/linux/platform_data/gsc_hwmon.h
-> >> @@ -0,0 +1,43 @@
-> >> +/* SPDX-License-Identifier: GPL-2.0 */
-> >> +#ifndef _GSC_HWMON_H
-> >> +#define _GSC_HWMON_H
-> >> +
-> >> +enum gsc_hwmon_type {
-> >> +     type_temperature,
-> >> +     type_voltage,
-> >> +     type_voltage_raw,
-> >> +     type_fan,
-> >> +};
-> >> +
-> >> +/**
-> >> + * struct gsc_hwmon_channel - configuration parameters
-> >> + * @reg:  I2C register offset
-> >> + * @type: channel type
-> >> + * @name: channel name
-> >> + * @voffset: voltage offset (mV)
-> >> + * @vdiv: voltage divider array (2 resistor values in ohms)
-> >> + */
-> >> +struct gsc_hwmon_channel {
-> >> +     unsigned int reg;
-> >> +     unsigned int type;
-> >> +     const char *name;
-> >> +     unsigned int voffset;
-> >
-> > It is interesting that only positive offset values are supported.
-> > Is that intentional ?
-> 
-> yes, they are only used for voltage rails that have a diode drop to
-> adjust for and will only be positive. They are not used to fine tune
-> offsets.
-> 
-> >
-> >> +     unsigned int vdiv[2];
-> >> +};
-> >> +
-> >> +/**
-> >> + * struct gsc_hwmon_platform_data - platform data for gsc_hwmon driver
-> >> + * @channels:        pointer to array of gsc_hwmon_channel structures
-> >> + *           describing channels
-> >> + * @nchannels:       number of elements in @channels array
-> >> + * @vreference: voltage reference (mV)
-> >> + * @resolution: ADC resolution
-> >
-> > Resolution in what ?
-> 
-> That's the bit-resolution of the ADC so I'll switch to that notation
-> and document it as such. I just realized that the vref/resolution can
-> technically change per ADC rail so I'll leave them in but move them
-> down into the child nodes and switch resolution to be in bits.
-> 
-> Thanks for the review!
-> 
-> Tim
+Tim

@@ -1,207 +1,463 @@
 From: Tim Harvey <tharvey@gateworks.com>
-Subject: [PATCH v3 4/4] watchdog: add Gateworks System Controller support
-Date: Wed, 28 Mar 2018 08:14:03 -0700
-Message-ID: <1522250043-8065-5-git-send-email-tharvey@gateworks.com>
+Subject: [PATCH v3 2/4] mfd: add Gateworks System Controller core driver
+Date: Wed, 28 Mar 2018 08:14:01 -0700
+Message-ID: <1522250043-8065-3-git-send-email-tharvey@gateworks.com>
 References: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>
 List-Id: linux-input@vger.kernel.org
 
+The Gateworks System Controller (GSC) is an I2C slave controller
+implemented with an MSP430 micro-controller whose firmware embeds the
+following features:
+ - I/O expander (16 GPIO's) using PCA955x protocol
+ - Real Time Clock using DS1672 protocol
+ - User EEPROM using AT24 protocol
+ - HWMON using custom protocol
+ - Interrupt controller with tamper detect, user pushbotton
+ - Watchdog controller capable of full board power-cycle
+ - Power Control capable of full board power-cycle
+
+see http://trac.gateworks.com/wiki/gsc for more details
+
+Cc: Randy Dunlap <rdunlap@infradead.org>
 Signed-off-by: Tim Harvey <tharvey@gateworks.com>
 ---
- drivers/watchdog/Kconfig   |  10 ++++
- drivers/watchdog/Makefile  |   1 +
- drivers/watchdog/gsc_wdt.c | 146 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 157 insertions(+)
- create mode 100644 drivers/watchdog/gsc_wdt.c
+v3:
+- rename gsc->gateworks-gsc
+- remove uncecessary include for linux/mfd/core.h
+- upercase I2C in comments
+- remove i2c debug
+- remove uncecessary comments
+- don't use KBUILD_MODNAME for name
+- remove unnecessary v1/v2/v3 tracking
+- unregister hwmon i2c adapter on remove
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index ca200d1..c9d4b2e 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -150,6 +150,16 @@ config GPIO_WATCHDOG_ARCH_INITCALL
- 	  arch_initcall.
- 	  If in doubt, say N.
+v2:
+- change license comment block style
+- remove COMPILE_TEST (Randy)
+- fixed whitespace issues
+- replaced a printk with dev_err
+
+---
+ drivers/mfd/Kconfig         |  13 ++
+ drivers/mfd/Makefile        |   1 +
+ drivers/mfd/gateworks-gsc.c | 285 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/mfd/gsc.h     |  75 ++++++++++++
+ 4 files changed, 374 insertions(+)
+ create mode 100644 drivers/mfd/gateworks-gsc.c
+ create mode 100644 include/linux/mfd/gsc.h
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 1d20a80..013df63 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -341,6 +341,19 @@ config MFD_EXYNOS_LPASS
+ 	  Select this option to enable support for Samsung Exynos Low Power
+ 	  Audio Subsystem.
  
-+config GSC_WATCHDOG
-+	tristate "Gateworks System Controller (GSC) Watchdog support"
-+	depends on MFD_GATEWORKS_GSC
-+	select WATCHDOG_CORE
++config MFD_GATEWORKS_GSC
++	tristate "Gateworks System Controller"
++	depends on (I2C && OF)
++	select MFD_CORE
++	select REGMAP_I2C
++	select REGMAP_IRQ
 +	help
-+	  Say Y here to include support for the GSC Watchdog.
++	  Enable support for the Gateworks System Controller found
++	  on Gateworks Single Board Computers.
 +
-+	  This driver can also be built as a module. If so the module
-+	  will be called gsc_wdt.
++	  To compile this driver as a module, choose M here: the
++	  module will be called gsc.
 +
- config MENF21BMC_WATCHDOG
- 	tristate "MEN 14F021P00 BMC Watchdog"
- 	depends on MFD_MENF21BMC || COMPILE_TEST
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index 715a210..499327e 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -215,6 +215,7 @@ obj-$(CONFIG_DA9055_WATCHDOG) += da9055_wdt.o
- obj-$(CONFIG_DA9062_WATCHDOG) += da9062_wdt.o
- obj-$(CONFIG_DA9063_WATCHDOG) += da9063_wdt.o
- obj-$(CONFIG_GPIO_WATCHDOG)	+= gpio_wdt.o
-+obj-$(CONFIG_GSC_WATCHDOG)	+= gsc_wdt.o
- obj-$(CONFIG_TANGOX_WATCHDOG) += tangox_wdt.o
- obj-$(CONFIG_WDAT_WDT) += wdat_wdt.o
- obj-$(CONFIG_WM831X_WATCHDOG) += wm831x_wdt.o
-diff --git a/drivers/watchdog/gsc_wdt.c b/drivers/watchdog/gsc_wdt.c
+ config MFD_MC13XXX
+ 	tristate
+ 	depends on (SPI_MASTER || I2C)
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index d9474ad..da0868ff 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -18,6 +18,7 @@ obj-$(CONFIG_MFD_CROS_EC)	+= cros_ec_core.o
+ obj-$(CONFIG_MFD_CROS_EC_I2C)	+= cros_ec_i2c.o
+ obj-$(CONFIG_MFD_CROS_EC_SPI)	+= cros_ec_spi.o
+ obj-$(CONFIG_MFD_EXYNOS_LPASS)	+= exynos-lpass.o
++obj-$(CONFIG_MFD_GATEWORKS_GSC)	+= gateworks-gsc.o
+ 
+ rtsx_pci-objs			:= rtsx_pcr.o rts5209.o rts5229.o rtl8411.o rts5227.o rts5249.o
+ obj-$(CONFIG_MFD_RTSX_PCI)	+= rtsx_pci.o
+diff --git a/drivers/mfd/gateworks-gsc.c b/drivers/mfd/gateworks-gsc.c
 new file mode 100644
-index 0000000..b43d083
+index 0000000..e081613
 --- /dev/null
-+++ b/drivers/watchdog/gsc_wdt.c
-@@ -0,0 +1,146 @@
++++ b/drivers/mfd/gateworks-gsc.c
+@@ -0,0 +1,285 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * Copyright (C) 2018 Gateworks Corporation
 + *
-+ * This driver registers a Linux Watchdog for the GSC
++ * The Gateworks System Controller (GSC) is a family of a multi-function
++ * "Power Management and System Companion Device" chips originally designed for
++ * use in Gateworks Single Board Computers. The control interface is I2C,
++ * at 100kbps, with an interrupt.
++ *
 + */
++#include <linux/device.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
 +#include <linux/mfd/gsc.h>
 +#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/of.h>
++#include <linux/of_platform.h>
 +#include <linux/platform_device.h>
 +#include <linux/regmap.h>
-+#include <linux/watchdog.h>
 +
-+#define WDT_DEFAULT_TIMEOUT	60
++/*
++ * The GSC suffers from an errata where occasionally during
++ * ADC cycles the chip can NAK I2C transactions. To ensure we have reliable
++ * register access we place retries around register access.
++ */
++#define I2C_RETRIES	3
 +
-+struct gsc_wdt {
-+	struct watchdog_device wdt_dev;
-+	struct gsc_dev *gsc;
-+};
-+
-+static int gsc_wdt_start(struct watchdog_device *wdd)
++static int gsc_regmap_regwrite(void *context, unsigned int reg,
++			       unsigned int val)
 +{
-+	struct gsc_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int reg = (1 << GSC_CTRL_1_WDT_ENABLE);
-+	int ret;
++	struct i2c_client *client = context;
++	int retry, ret;
 +
-+	dev_dbg(wdd->parent, "%s timeout=%d\n", __func__, wdd->timeout);
-+
-+	/* clear first as regmap_update_bits will not write if no change */
-+	ret = regmap_update_bits(wdt->gsc->regmap, GSC_CTRL_1, reg, 0);
-+	if (ret)
-+		return ret;
-+	return regmap_update_bits(wdt->gsc->regmap, GSC_CTRL_1, reg, reg);
-+}
-+
-+static int gsc_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct gsc_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int reg = (1 << GSC_CTRL_1_WDT_ENABLE);
-+
-+	dev_dbg(wdd->parent, "%s\n", __func__);
-+
-+	return regmap_update_bits(wdt->gsc->regmap, GSC_CTRL_1, reg, 0);
-+}
-+
-+static int gsc_wdt_set_timeout(struct watchdog_device *wdd,
-+			       unsigned int timeout)
-+{
-+	struct gsc_wdt *wdt = watchdog_get_drvdata(wdd);
-+	unsigned int long_sel = 0;
-+
-+	dev_dbg(wdd->parent, "%s: %d\n", __func__, timeout);
-+
-+	switch (timeout) {
-+	case 60:
-+		long_sel = (1 << GSC_CTRL_1_WDT_TIME);
-+	case 30:
-+		regmap_update_bits(wdt->gsc->regmap, GSC_CTRL_1,
-+				   (1 << GSC_CTRL_1_WDT_TIME),
-+				   (long_sel << GSC_CTRL_1_WDT_TIME));
-+		wdd->timeout = timeout;
-+		return 0;
++	for (retry = 0; retry < I2C_RETRIES; retry++) {
++		ret = i2c_smbus_write_byte_data(client, reg, val);
++		/*
++		 * -EAGAIN returned when the i2c host controller is busy
++		 * -EIO returned when i2c device is busy
++		 */
++		if (ret != -EAGAIN && ret != -EIO)
++			break;
 +	}
-+
-+	return -EINVAL;
-+}
-+
-+static const struct watchdog_info gsc_wdt_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.identity = "GSC Watchdog"
-+};
-+
-+static const struct watchdog_ops gsc_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= gsc_wdt_start,
-+	.stop		= gsc_wdt_stop,
-+	.set_timeout	= gsc_wdt_set_timeout,
-+};
-+
-+static int gsc_wdt_probe(struct platform_device *pdev)
-+{
-+	struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
-+	struct device *dev = &pdev->dev;
-+	struct gsc_wdt *wdt;
-+	int ret;
-+	unsigned int reg;
-+
-+	wdt = devm_kzalloc(dev, sizeof(*wdt), GFP_KERNEL);
-+	if (!wdt)
-+		return -ENOMEM;
-+
-+	/* ensure GSC fw supports WD functionality */
-+	if (gsc->fwver < 44) {
-+		dev_err(dev, "fw v44 or newer required for wdt function\n");
-+		return -EINVAL;
-+	}
-+
-+	/* ensure WD bit enabled */
-+	if (regmap_read(gsc->regmap, GSC_CTRL_1, &reg))
-+		return -EIO;
-+	if (!(reg & (1 << GSC_CTRL_1_WDT_ENABLE))) {
-+		dev_err(dev, "not enabled - must be manually enabled\n");
-+		return -EINVAL;
-+	}
-+
-+	platform_set_drvdata(pdev, wdt);
-+
-+	wdt->gsc = gsc;
-+	wdt->wdt_dev.info = &gsc_wdt_info;
-+	wdt->wdt_dev.ops = &gsc_wdt_ops;
-+	wdt->wdt_dev.status = 0;
-+	wdt->wdt_dev.min_timeout = 30;
-+	wdt->wdt_dev.max_timeout = 60;
-+	wdt->wdt_dev.parent = dev;
-+
-+	watchdog_set_nowayout(&wdt->wdt_dev, 1);
-+	watchdog_init_timeout(&wdt->wdt_dev, WDT_DEFAULT_TIMEOUT, dev);
-+
-+	watchdog_set_drvdata(&wdt->wdt_dev, wdt);
-+	ret = devm_watchdog_register_device(dev, &wdt->wdt_dev);
-+	if (ret)
-+		return ret;
-+
-+	dev_info(dev, "watchdog driver (timeout=%d sec)\n",
-+		 wdt->wdt_dev.timeout);
 +
 +	return 0;
 +}
 +
-+static const struct of_device_id gsc_wdt_dt_ids[] = {
-+	{ .compatible = "gw,gsc-watchdog", },
-+	{}
++static int gsc_regmap_regread(void *context, unsigned int reg,
++			      unsigned int *val)
++{
++	struct i2c_client *client = context;
++	int retry, ret;
++
++	for (retry = 0; retry < I2C_RETRIES; retry++) {
++		ret = i2c_smbus_read_byte_data(client, reg);
++		/*
++		 * -EAGAIN returned when the i2c host controller is busy
++		 * -EIO returned when i2c device is busy
++		 */
++		if (ret != -EAGAIN && ret != -EIO)
++			break;
++	}
++	*val = ret & 0xff;
++
++	return 0;
++}
++
++static struct regmap_bus regmap_gsc = {
++	.reg_write = gsc_regmap_regwrite,
++	.reg_read = gsc_regmap_regread,
 +};
 +
-+static struct platform_driver gsc_wdt_driver = {
-+	.probe		= gsc_wdt_probe,
-+	.driver		= {
-+		.name	= "gsc-wdt",
-+		.of_match_table = gsc_wdt_dt_ids,
++/*
++ * gsc_powerdown - API to use GSC to power down board for a specific time
++ *
++ * secs - number of seconds to remain powered off
++ */
++static int gsc_powerdown(struct gsc_dev *gsc, unsigned long secs)
++{
++	int ret;
++	unsigned char regs[4];
++
++	dev_info(&gsc->i2c->dev, "GSC powerdown for %ld seconds\n",
++		 secs);
++	regs[0] = secs & 0xff;
++	regs[1] = (secs >> 8) & 0xff;
++	regs[2] = (secs >> 16) & 0xff;
++	regs[3] = (secs >> 24) & 0xff;
++	ret = regmap_bulk_write(gsc->regmap, GSC_TIME_ADD, regs, 4);
++
++	return ret;
++}
++
++static ssize_t gsc_show(struct device *dev, struct device_attribute *attr,
++			char *buf)
++{
++	struct gsc_dev *gsc = dev_get_drvdata(dev);
++	const char *name = attr->attr.name;
++	int rz = 0;
++
++	if (strcasecmp(name, "fw_version") == 0)
++		rz = sprintf(buf, "%d\n", gsc->fwver);
++	else if (strcasecmp(name, "fw_crc") == 0)
++		rz = sprintf(buf, "0x%04x\n", gsc->fwcrc);
++
++	return rz;
++}
++
++static ssize_t gsc_store(struct device *dev, struct device_attribute *attr,
++			 const char *buf, size_t count)
++{
++	struct gsc_dev *gsc = dev_get_drvdata(dev);
++	const char *name = attr->attr.name;
++	int ret;
++
++	if (strcasecmp(name, "powerdown") == 0) {
++		long value;
++
++		ret = kstrtol(buf, 0, &value);
++		if (ret == 0)
++			gsc_powerdown(gsc, value);
++	} else
++		dev_err(dev, "invalid name '%s\n", name);
++
++	return count;
++}
++
++static struct device_attribute attr_fwver =
++	__ATTR(fw_version, 0440, gsc_show, NULL);
++static struct device_attribute attr_fwcrc =
++	__ATTR(fw_crc, 0440, gsc_show, NULL);
++static struct device_attribute attr_pwrdown =
++	__ATTR(powerdown, 0220, NULL, gsc_store);
++
++static struct attribute *gsc_attrs[] = {
++	&attr_fwver.attr,
++	&attr_fwcrc.attr,
++	&attr_pwrdown.attr,
++	NULL,
++};
++
++static struct attribute_group attr_group = {
++	.attrs = gsc_attrs,
++};
++
++static const struct of_device_id gsc_of_match[] = {
++	{ .compatible = "gw,gsc", },
++	{ }
++};
++
++static const struct regmap_config gsc_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.cache_type = REGCACHE_NONE,
++	.max_register = 0xf,
++};
++
++static const struct regmap_config gsc_regmap_hwmon_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.cache_type = REGCACHE_NONE,
++	.max_register = 0x37,
++};
++
++static const struct regmap_irq gsc_irqs[] = {
++	REGMAP_IRQ_REG(GSC_IRQ_PB, 0, BIT(GSC_IRQ_PB)),
++	REGMAP_IRQ_REG(GSC_IRQ_KEY_ERASED, 0, BIT(GSC_IRQ_KEY_ERASED)),
++	REGMAP_IRQ_REG(GSC_IRQ_EEPROM_WP, 0, BIT(GSC_IRQ_EEPROM_WP)),
++	REGMAP_IRQ_REG(GSC_IRQ_RESV, 0, BIT(GSC_IRQ_RESV)),
++	REGMAP_IRQ_REG(GSC_IRQ_GPIO, 0, BIT(GSC_IRQ_GPIO)),
++	REGMAP_IRQ_REG(GSC_IRQ_TAMPER, 0, BIT(GSC_IRQ_TAMPER)),
++	REGMAP_IRQ_REG(GSC_IRQ_WDT_TIMEOUT, 0, BIT(GSC_IRQ_WDT_TIMEOUT)),
++	REGMAP_IRQ_REG(GSC_IRQ_SWITCH_HOLD, 0, BIT(GSC_IRQ_SWITCH_HOLD)),
++};
++
++static const struct regmap_irq_chip gsc_irq_chip = {
++	.name = "gateworks-gsc",
++	.irqs = gsc_irqs,
++	.num_irqs = ARRAY_SIZE(gsc_irqs),
++	.num_regs = 1,
++	.status_base = GSC_IRQ_STATUS,
++	.mask_base = GSC_IRQ_ENABLE,
++	.mask_invert = true,
++	.ack_base = GSC_IRQ_STATUS,
++	.ack_invert = true,
++};
++
++static int
++gsc_probe(struct i2c_client *client, const struct i2c_device_id *id)
++{
++	struct device *dev = &client->dev;
++	struct gsc_dev *gsc;
++	int ret;
++	unsigned int reg;
++
++	gsc = devm_kzalloc(dev, sizeof(*gsc), GFP_KERNEL);
++	if (!gsc)
++		return -ENOMEM;
++
++	gsc->dev = &client->dev;
++	gsc->i2c = client;
++	gsc->irq = client->irq;
++	i2c_set_clientdata(client, gsc);
++
++	gsc->regmap = devm_regmap_init(dev, &regmap_gsc, client,
++				       &gsc_regmap_config);
++	if (IS_ERR(gsc->regmap))
++		return PTR_ERR(gsc->regmap);
++
++	if (regmap_read(gsc->regmap, GSC_FW_VER, &reg))
++		return -EIO;
++	gsc->fwver = reg;
++
++	regmap_read(gsc->regmap, GSC_FW_CRC, &reg);
++	gsc->fwcrc = reg;
++	regmap_read(gsc->regmap, GSC_FW_CRC + 1, &reg);
++	gsc->fwcrc |= reg << 8;
++
++	gsc->i2c_hwmon = i2c_new_dummy(client->adapter, GSC_HWMON);
++	if (!gsc->i2c_hwmon) {
++		dev_err(dev, "Failed to allocate I2C device for HWMON\n");
++		return -ENODEV;
++	}
++	i2c_set_clientdata(gsc->i2c_hwmon, gsc);
++
++	gsc->regmap_hwmon = devm_regmap_init(dev, &regmap_gsc, gsc->i2c_hwmon,
++					     &gsc_regmap_hwmon_config);
++	if (IS_ERR(gsc->regmap_hwmon)) {
++		ret = PTR_ERR(gsc->regmap_hwmon);
++		dev_err(dev, "failed to allocate register map: %d\n", ret);
++		goto err_regmap;
++	}
++
++	ret = devm_regmap_add_irq_chip(dev, gsc->regmap, gsc->irq,
++				       IRQF_ONESHOT | IRQF_SHARED |
++				       IRQF_TRIGGER_FALLING, 0,
++				       &gsc_irq_chip, &gsc->irq_chip_data);
++	if (ret)
++		goto err_regmap;
++
++	dev_info(dev, "Gateworks System Controller v%d: fw 0x%04x\n",
++		 gsc->fwver, gsc->fwcrc);
++
++	ret = sysfs_create_group(&dev->kobj, &attr_group);
++	if (ret)
++		dev_err(dev, "failed to create sysfs attrs\n");
++
++	ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
++	if (ret)
++		goto err_sysfs;
++
++	return 0;
++
++err_sysfs:
++	sysfs_remove_group(&dev->kobj, &attr_group);
++err_regmap:
++	i2c_unregister_device(gsc->i2c_hwmon);
++
++	return ret;
++}
++
++static int gsc_remove(struct i2c_client *client)
++{
++	struct gsc_dev *gsc = i2c_get_clientdata(client);
++
++	sysfs_remove_group(&client->dev.kobj, &attr_group);
++	i2c_unregister_device(gsc->i2c_hwmon);
++
++	return 0;
++}
++
++static struct i2c_driver gsc_driver = {
++	.driver = {
++		.name	= "gateworks-gsc",
++		.of_match_table = of_match_ptr(gsc_of_match),
 +	},
++	.probe		= gsc_probe,
++	.remove		= gsc_remove,
 +};
 +
-+module_platform_driver(gsc_wdt_driver);
++module_i2c_driver(gsc_driver);
 +
 +MODULE_AUTHOR("Tim Harvey <tharvey@gateworks.com>");
-+MODULE_DESCRIPTION("Gateworks System Controller Watchdog driver");
++MODULE_DESCRIPTION("I2C Core interface for GSC");
 +MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/mfd/gsc.h b/include/linux/mfd/gsc.h
+new file mode 100644
+index 0000000..dcae61b
+--- /dev/null
++++ b/include/linux/mfd/gsc.h
+@@ -0,0 +1,75 @@
++/* SPDX-License-Identifier: GPL-2.0
++ *
++ * Copyright (C) 2018 Gateworks Corporation
++ */
++#ifndef __LINUX_MFD_GSC_H_
++#define __LINUX_MFD_GSC_H_
++
++/* Device Addresses */
++#define GSC_MISC	0x20
++#define GSC_UPDATE	0x21
++#define GSC_GPIO	0x23
++#define GSC_HWMON	0x29
++#define GSC_EEPROM0	0x50
++#define GSC_EEPROM1	0x51
++#define GSC_EEPROM2	0x52
++#define GSC_EEPROM3	0x53
++#define GSC_RTC		0x68
++
++/* Register offsets */
++#define GSC_CTRL_0	0x00
++#define GSC_CTRL_1	0x01
++#define GSC_TIME	0x02
++#define GSC_TIME_ADD	0x06
++#define GSC_IRQ_STATUS	0x0A
++#define GSC_IRQ_ENABLE	0x0B
++#define GSC_FW_CRC	0x0C
++#define GSC_FW_VER	0x0E
++#define GSC_WP		0x0F
++
++/* Bit definitions */
++#define GSC_CTRL_0_PB_HARD_RESET	0
++#define GSC_CTRL_0_PB_CLEAR_SECURE_KEY	1
++#define GSC_CTRL_0_PB_SOFT_POWER_DOWN	2
++#define GSC_CTRL_0_PB_BOOT_ALTERNATE	3
++#define GSC_CTRL_0_PERFORM_CRC		4
++#define GSC_CTRL_0_TAMPER_DETECT	5
++#define GSC_CTRL_0_SWITCH_HOLD		6
++
++#define GSC_CTRL_1_SLEEP_ENABLE		0
++#define GSC_CTRL_1_ACTIVATE_SLEEP	1
++#define GSC_CTRL_1_LATCH_SLEEP_ADD	2
++#define GSC_CTRL_1_SLEEP_NOWAKEPB	3
++#define GSC_CTRL_1_WDT_TIME		4
++#define GSC_CTRL_1_WDT_ENABLE		5
++#define GSC_CTRL_1_SWITCH_BOOT_ENABLE	6
++#define GSC_CTRL_1_SWITCH_BOOT_CLEAR	7
++
++#define GSC_IRQ_PB			0
++#define GSC_IRQ_KEY_ERASED		1
++#define GSC_IRQ_EEPROM_WP		2
++#define GSC_IRQ_RESV			3
++#define GSC_IRQ_GPIO			4
++#define GSC_IRQ_TAMPER			5
++#define GSC_IRQ_WDT_TIMEOUT		6
++#define GSC_IRQ_SWITCH_HOLD		7
++
++/* Max registers */
++#define GSC_HWMON_MAX_REG	56
++
++struct gsc_dev {
++	struct device *dev;
++
++	struct i2c_client *i2c;		/* 0x20: interrupt controller, WDT */
++	struct i2c_client *i2c_hwmon;	/* 0x29: hwmon, fan controller */
++
++	struct regmap *regmap;
++	struct regmap *regmap_hwmon;
++	struct regmap_irq_chip_data *irq_chip_data;
++
++	int irq;
++	unsigned int fwver;
++	unsigned short fwcrc;
++};
++
++#endif /* __LINUX_MFD_GSC_H_ */
 -- 
 2.7.4

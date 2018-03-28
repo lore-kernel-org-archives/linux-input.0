@@ -1,59 +1,36 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
-Date: Wed, 28 Mar 2018 11:26:40 +0100
-Message-ID: <20180328102640.yx6nv5abfexmouuf@dell>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
- <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
- <1521685073.28226.10.camel@mtkswgap22>
- <20180323185418.GD255819@dtor-ws>
- <20180327080507.pgil6pw2mn4y2f4d@dell>
- <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: google: Enable PM Full On mode when adjusting
+ backlight
+Date: Wed, 28 Mar 2018 16:13:38 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1803281613260.15778@cbobk.fhfr.pm>
+References: <20180328061610.206090-1-drinkcat@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
+In-Reply-To: <20180328061610.206090-1-drinkcat@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sean Wang <sean.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it, devicetree@vger.kernel.org, linus.walleij@linaro.org, jcsing.lee@samsung.com, linux-kernel@vger.kernel.org, krzk@kernel.org, javier@osg.samsung.com, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, eddie.huang@mediatek.com, Chen.Zhong@mediatek.com, beomho.seo@samsung.com, linux-rtc@vger.kernel.org
+To: Nicolas Boichat <drinkcat@chromium.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dtor@chromium.org, Haridhar Kalvala <haridhar.kalvala@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 27 Mar 2018, Matthias Brugger wrote:
+On Wed, 28 Mar 2018, Nicolas Boichat wrote:
 
+> From: Haridhar Kalvala <haridhar.kalvala@intel.com>
 > 
+> hammer LED backlight brightness is not getting set when USB
+> device is in suspend state.
 > 
-> On 03/27/2018 10:05 AM, Lee Jones wrote:
-> > On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
-> >> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
-> >>> Hi, Dmitry and Lee
-> >>>
-> >>> The series seems not being got merged. Are they good enough to be ready
-> >>> into the your tree?
-> >>>
-> >>> Recently I've tested the series with focusing on pwrkey event generated
-> >>> through interrupt when push and release the key on bpi-r2 board and then
-> >>> finally it's working fine. but for homekey it cannot be found on the
-> >>> board and thus I cannot have more tests more about it.
-> >>>
-> >>> Tested-by: Sean Wang <sean.wang@mediatek.com>
-> >>
-> >> You have my Ack on the input patch; I expect it go through Lee's tree as
-> >> there are some dependencies on mfd core piece.
-> > 
-> > Are you happy for me to merge the Input dt-bindings without your Ack?
-> > 
+> This patch fixes the issue by requesting USB HID device to be
+> in FULLON mode, so that sending hardware output report and
+> hardware raw request won't fail to set brightness, and set
+> device back to NORMAL mode once this call returns.
 > 
-> They got both Acked in v5, but the commit message was not updated:
-> https://patchwork.kernel.org/patch/9973721/
-> https://patchwork.kernel.org/patch/9973723/
+> Signed-off-by: Haridhar Kalvala <haridhar.kalvala@intel.com>
+> Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
+> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
 
-Thanks Matthias.
-
-Chen, can you collect all the Acks and repost as a RESEND please?
+Applied to for-4.17/google-hammer. Thanks,
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Jiri Kosina
+SUSE Labs

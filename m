@@ -1,115 +1,65 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH] Input: ALPS - add support for 73 03 28 devices (Thinkpad
- L570)
-Date: Wed, 28 Mar 2018 00:24:26 +0000
-Message-ID: <TYXPR01MB07194E0C045B134D1788E2C0C7A30@TYXPR01MB0719.jpnprd01.prod.outlook.com>
-References: <7d5077ef-c185-c6b1-d602-df8d9f7dade3@secunet.com>
- <20180323143336.v26rvflt3oq5xppn@pali>
- <bbb6a2ea-c8d1-beae-1f83-c234f03d4d77@secunet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Nicolas Boichat <drinkcat@chromium.org>
+Subject: [PATCH] HID: google: Enable PM Full On mode when adjusting backlight
+Date: Wed, 28 Mar 2018 14:16:10 +0800
+Message-ID: <20180328061610.206090-1-drinkcat@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bbb6a2ea-c8d1-beae-1f83-c234f03d4d77@secunet.com>
-Content-Language: ja-JP
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dennis Wassenberg <dennis.wassenberg@secunet.com>, =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.de>, Kees Cook <keescook@chromium.org>, Nir Perry <nirperry@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dtor@chromium.org, Haridhar Kalvala <haridhar.kalvala@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-SGksIERlbm5pcw0KDQpJIGtub3cgeW91ciBpc3N1ZSwgYW5kIEkgYWRkZWQgdGhlIHNvbHV0aW9u
-IGZvciBUaGlua3BhZCBML0Ugc3lzdGVtIGxhc3QgeWVhci4NCkJUVywgUGFsaSBhbHNvIGtub3dz
-IGFib3V0IGl0Lg0KDQogIE9uIFdlZG5lc2RheSAyOSBOb3ZlbWJlciAyMDE3IDE3OjMzOjU4IE1h
-c2FraSBPdGEgd3JvdGU6DQpGcm9tOiBNYXNha2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29t
-DQotIFRoZSBpc3N1ZSBpcyB0aGF0IFRoaW5rcGFkIEw1NzAgVHJhY2tTdGljayBkb2VzIG5vdCB3
-b3JrLiBCZWNhdXNlIHRoZSBtYWluIGludGVyZmFjZSBvZiBUaGlua3BhZCBMNTcwIGRldmljZSBp
-cyBTTUJ1cywgc28gQUxQUyBvdmVybG9va2VkIFBTMiBpbnRlcmZhY2UgRmlybXdhcmUgc2V0dGlu
-ZyBvZiBUcmFja1N0aWNrLiBUaGUgZGV0YWlsIGlzIHRoYXQgVHJhY2tTdGljayBvdHAgYml0IGlz
-IGRpc2FibGVkLg0KLSBBZGQgdGhlIGNvZGUgdGhhdCBjaGVja3MgMHhENyBhZGRyZXNzIHZhbHVl
-LiBUaGlzIHZhbHVlIGlzIGRldmljZSBudW1iZXIgaW5mb3JtYXRpb24sIHNvIHdlIGNhbiBpZGVu
-dGlmeSB0aGUgZGV2aWNlIGJ5IGNoZWNraW5nIHRoaXMgdmFsdWUuDQotIElmIHdlIGNoZWNrIDB4
-RDcgdmFsdWUsIHdlIG5lZWQgdG8gZW5hYmxlIENvbW1hbmQgbW9kZSBhbmQgYWZ0ZXIgY2hlY2sg
-dGhlIHZhbHVlIHdlIG5lZWQgdG8gZGlzYWJsZSBDb21tYW5kIG1vZGUsIHRoZW4gd2UgaGF2ZSB0
-byBlbmFibGUgdGhlIGRldmljZSgweEY0IGNvbW1hbmQpLg0KLSBUaGlua3BhZCBMNTcwIGRldmlj
-ZSBudW1iZXIgaXMgMHgwQyBvciAweDFELiBJZiBpdCBpcyBUUlVFLCBlbmFibGUgQUxQU19EVUFM
-UE9JTlQgZmxhZy4NCg0KU2lnbmVkLW9mZi1ieTogTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5h
-bHBzLmNvbQ0KLS0tDQogZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBzLmMgfCAyNCArKysrKysrKysr
-KysrKysrKysrKystLS0NCiAxIGZpbGUgY2hhbmdlZCwgMjEgaW5zZXJ0aW9ucygrKSwgMyBkZWxl
-dGlvbnMoLSkNCg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jIA0KYi9k
-cml2ZXJzL2lucHV0L21vdXNlL2FscHMuYyBpbmRleCA4NTBiMDBlM2FkOGUuLjZmMDkyYmRkOWZj
-NQ0KMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMuYw0KKysrIGIvZHJpdmVy
-cy9pbnB1dC9tb3VzZS9hbHBzLmMNCkBAIC0yNTQxLDEzICsyNTQxLDMxIEBAIHN0YXRpYyBpbnQg
-DQphbHBzX3VwZGF0ZV9idG5faW5mb19zczRfdjIodW5zaWduZWQgY2hhciBvdHBbXVs0XSwgIH0N
-CiANCiBzdGF0aWMgaW50IGFscHNfdXBkYXRlX2R1YWxfaW5mb19zczRfdjIodW5zaWduZWQgY2hh
-ciBvdHBbXVs0XSwNCi0JCQkJICAgICAgIHN0cnVjdCBhbHBzX2RhdGEgKnByaXYpDQorCQkJCSAg
-ICAgICBzdHJ1Y3QgYWxwc19kYXRhICpwcml2LA0KKwkJCQkJc3RydWN0IHBzbW91c2UgKnBzbW91
-c2UpDQogew0KDQogCWJvb2wgaXNfZHVhbCA9IGZhbHNlOw0KKwlpbnQgcmVnX3ZhbCA9IDA7DQor
-CXN0cnVjdCBwczJkZXYgKnBzMmRldiA9ICZwc21vdXNlLXBzMmRldjsNCiANCi0JaWYgKElTX1NT
-NFBMVVNfREVWKHByaXYtZGV2X2lkKSkNCisJaWYgKElTX1NTNFBMVVNfREVWKHByaXYtZGV2X2lk
-KSkgew0KIAkJaXNfZHVhbCA9IChvdHBbMF1bMF0gIDQpICYgMHgwMTsNCiANCisJCWlmICghaXNf
-ZHVhbCkgew0KKwkJCS8qIEZvciBzdXBwb3J0IFRyYWNrU3RpY2sgb2YgVGhpbmtwYWQgTC9FIHNl
-cmllcyAqLw0KKwkJCWlmIChhbHBzX2V4aXRfY29tbWFuZF9tb2RlKHBzbW91c2UpID09IDAgJiYN
-CisJCQkJYWxwc19lbnRlcl9jb21tYW5kX21vZGUocHNtb3VzZSkgPT0gMCkgew0KKwkJCQlyZWdf
-dmFsID0gYWxwc19jb21tYW5kX21vZGVfcmVhZF9yZWcocHNtb3VzZSwNCisJCQkJCQkJCQkweEQ3
-KTsNCisJCQl9DQorCQkJYWxwc19leGl0X2NvbW1hbmRfbW9kZShwc21vdXNlKTsNCisJCQlwczJf
-Y29tbWFuZChwczJkZXYsIE5VTEwsIFBTTU9VU0VfQ01EX0VOQUJMRSk7DQorDQorCQkJaWYgKHJl
-Z192YWwgPT0gMHgwQyB8fCByZWdfdmFsID09IDB4MUQpDQorCQkJCWlzX2R1YWwgPSB0cnVlOw0K
-KwkJfQ0KKwl9DQorDQogCWlmIChpc19kdWFsKQ0KIAkJcHJpdi1mbGFncyB8PSBBTFBTX0RVQUxQ
-T0lOVCB8DQogCQkJCQlBTFBTX0RVQUxQT0lOVF9XSVRIX1BSRVNTVVJFOyBAQCAtMjU3MCw3ICsy
-NTg4LDcgQEAgc3RhdGljIA0KaW50IGFscHNfc2V0X2RlZmF1bHRzX3NzNF92MihzdHJ1Y3QgcHNt
-b3VzZSAqcHNtb3VzZSwNCiANCiAJYWxwc191cGRhdGVfYnRuX2luZm9fc3M0X3YyKG90cCwgcHJp
-dik7DQogDQotCWFscHNfdXBkYXRlX2R1YWxfaW5mb19zczRfdjIob3RwLCBwcml2KTsNCisJYWxw
-c191cGRhdGVfZHVhbF9pbmZvX3NzNF92MihvdHAsIHByaXYsIHBzbW91c2UpOw0KDQogCXJldHVy
-biAwOw0KIH0NCkJlc3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tDQpGcm9tOiBEZW5uaXMgV2Fzc2VuYmVyZyBbbWFpbHRvOmRlbm5pcy53YXNzZW5iZXJn
-QHNlY3VuZXQuY29tXSANClNlbnQ6IFR1ZXNkYXksIE1hcmNoIDI3LCAyMDE4IDEwOjU2IFBNDQpU
-bzogUGFsaSBSb2jDoXIgPHBhbGkucm9oYXJAZ21haWwuY29tPg0KQ2M6IERtaXRyeSBUb3Jva2hv
-diA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT47IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8
-bWFzYWtpLm90YUBqcC5hbHBzLmNvbT47IFRha2FzaGkgSXdhaSA8dGl3YWlAc3VzZS5kZT47IEtl
-ZXMgQ29vayA8a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPjsgTmlyIFBlcnJ5IDxuaXJwZXJyeUBnbWFp
-bC5jb20+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtl
-cm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0hdIElucHV0OiBBTFBTIC0gYWRkIHN1cHBvcnQg
-Zm9yIDczIDAzIDI4IGRldmljZXMgKFRoaW5rcGFkIEw1NzApDQoNCkhpLA0KDQpvaCBvaywgdW5k
-ZXJzdG9vZC4gVGhhbmtzIGZvciB0aGlzIGhpbnQuDQoNClNvIG1heWJlIHRoZXJlIGlzIHNvbWV0
-aGluZyB3cm9uZyB3aXRoIHRoZSBhbHBzX3VwZGF0ZV9kdWFsX2luZm9fc3M0X3YyIGZ1bmN0aW9u
-IG9yIHRoZSByZXBvcnRpbmcgb2YgdGhlIGhhcmR3YXJlLg0KDQphbHBzX3VwZGF0ZV9kdWFsX2lu
-Zm9fc3M0X3YyIGRldGVjdHMgdGhlIFRoaW5rUGFkIEw1NzAgYXMgc3M0cGx1cyBkZXZpY2UgYnV0
-IG5vdCBhcyBkdWFscG9pbnQgZGV2aWNlLiBUaGlzIG1lYW5zIHRoYXQgdGhlIEFMUFNfRFVBTFBP
-SU5UIGFuZCB0aGUgQUxQU19EVUFMUE9JTlRfV0lUSF9QUkVTU1VSRSBmbGFnIHdpbGwgbm90IGJl
-IHNldCB3aGljaCByZXN1bHRzIGluIGEgbm9uIGZ1bmN0aW9uIHRyYWNrc3RpY2sgYW5kIGhhcmR3
-YXJlIG1vdXNlIGJ1dHRvbnMuIEVhY2ggdGltZSBJIHRvdWNoIHRoZSB0cmFja3N0aWNrIEkgZ2V0
-IHRoZSBtZXNzYWdlOiAiYWxwczogUmVqZWN0ZWQgdHJhY2tzdGljayBwYWNrZXQgZnJvbSBub24g
-RHVhbFBvaW50IGRldmljZSIuDQoNClRoZSB2YWx1ZSBvZiBvdHBbMF1bMF0gaW5zaWRlIGFscHNf
-dXBkYXRlX2R1YWxfaW5mb19zczRfdjIgaXMgMHhDRS4gQXJlIHRoZXJlIGFueSBpZGVhcyB3aHkg
-aXQgaXMgbm90IGRldGVjdGVkIGFzIGR1YWxwb2ludCBkZXZpY2U/DQoNClRoYW5rIHlvdSAmIGJl
-c3QgcmVnYXJkcywNCg0KRGVubmlzDQoNCk9uIDIzLjAzLjIwMTggMTU6MzMsIFBhbGkgUm9ow6Fy
-IHdyb3RlOg0KPiBPbiBGcmlkYXkgMjMgTWFyY2ggMjAxOCAxNToyMzo1NSBEZW5uaXMgV2Fzc2Vu
-YmVyZyB3cm90ZToNCj4+IFRoZSBMZW5vdm8gVGhpbmtwYWQgTDU3MCB1c2VzIFY4IHByb3RvY29s
-Lg0KPj4gQWRkIDB4NzMgMHgwMyAweDI4IGRldmljZXMgdG8gdXNlIFY4IHByb3Rvdm9sIHdoaWNo
-IG1ha2VzIHRyYWNrc3RpY2sgDQo+PiBhbmQgbW91c2UgYnV0dG9ucyB3b3JrIHdpdGggTGVub3Zv
-IFRoaW5rcGFkIEw1NzAuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTogRGVubmlzIFdhc3NlbmJlcmcg
-PGRlbm5pcy53YXNzZW5iZXJnQHNlY3VuZXQuY29tPg0KPj4gLS0tDQo+PiAgZHJpdmVycy9pbnB1
-dC9tb3VzZS9hbHBzLmMgfCAyICsrDQo+PiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygr
-KQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21vdXNlL2FscHMuYyBiL2RyaXZl
-cnMvaW5wdXQvbW91c2UvYWxwcy5jIA0KPj4gaW5kZXggZGJlNTdkYS4uNTUyM2Q0ZSAxMDA2NDQN
-Cj4+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbW91c2UvYWxwcy5jDQo+PiArKysgYi9kcml2ZXJzL2lu
-cHV0L21vdXNlL2FscHMuYw0KPj4gQEAgLTEzNiw2ICsxMzYsOCBAQA0KPj4gIAl7IHsgMHg3Mywg
-MHgwMiwgMHgwYSB9LCB7IEFMUFNfUFJPVE9fVjIsIDB4ZjgsIDB4ZjgsIDAgfSB9LA0KPj4gIAl7
-IHsgMHg3MywgMHgwMiwgMHgxNCB9LCB7IEFMUFNfUFJPVE9fVjIsIDB4ZjgsIDB4ZjgsIEFMUFNf
-RldfQktfMiB9IH0sCQkJLyogQWh0ZWMgTGFwdG9wICovDQo+PiAgCXsgeyAweDczLCAweDAyLCAw
-eDUwIH0sIHsgQUxQU19QUk9UT19WMiwgMHhjZiwgMHhjZiwgQUxQU19GT1VSX0JVVFRPTlMgfSB9
-LAkJLyogRGVsbCBWb3N0cm8gMTQwMCAqLw0KPj4gKwl7IHsgMHg3MywgMHgwMywgMHgyOCB9LCB7
-IEFMUFNfUFJPVE9fVjgsIDB4MTgsIDB4MTgsDQo+PiArCQlBTFBTX0RVQUxQT0lOVCB8IEFMUFNf
-RFVBTFBPSU5UX1dJVEhfUFJFU1NVUkUgfCBBTFBTX0JVVFRPTlBBRCB9IH0sCQkvKiBMZW5vdm8g
-TDU3MCAqLw0KPj4gIH07DQo+PiAgDQo+PiAgc3RhdGljIGNvbnN0IHN0cnVjdCBhbHBzX3Byb3Rv
-Y29sX2luZm8gYWxwc192M19wcm90b2NvbF9kYXRhID0gew0KPiANCj4gSGkhIGFscHNfbW9kZWxf
-ZGF0YSB0YWJsZSBpcyB1c2VkIGZvciBmaXhlZCBpZGVudGlmaWNhdGlvbiBvZiB2MSBhbmQgDQo+
-IHYyIHByb3RvY29scy4gV2h5IHlvdSBuZWVkIHRvIGFkZCB0aGVyZSB2OCBwcm90b2NvbCB3aGlj
-aCANCj4gYXV0b2RldGVjdGlvbiBpcyBhbHJlYWR5IGRvbmUgaW4gYWxwc19pZGVudGlmeSgpIGZ1
-bmN0aW9uPyBUaGVyZSBpcyBhbHJlYWR5IGNvZGU6DQo+IA0KPiAJCX0gZWxzZSBpZiAoZTdbMF0g
-PT0gMHg3MyAmJiBlN1sxXSA9PSAweDAzICYmDQo+IAkJCSAgIChlN1syXSA9PSAweDE0IHx8IGU3
-WzJdID09IDB4MjgpKSB7DQo+IAkJCXByb3RvY29sID0gJmFscHNfdjhfcHJvdG9jb2xfZGF0YTsN
-Cj4gDQo+IFdoaWNoIG1hdGNoZXMgYWJvdmUgeW91ciBFNyBkZXRlY3Rpb24gMHg3MywgMHgwMywg
-MHgyOC4NCj4gDQo+IEFsc28geW91IHBhdGNoIG1hdGNoZXMgYmFzaWNhbGx5IGFsbCB2OCBkZXZp
-Y2UgYW5kIHRoZXJlZm9yZSBoYXMgDQo+IHBvdGVudGlhbCB0byBicmVhayBwcm9wZXIgdjggYXV0
-b2RldGVjdGlvbiBmb3Igb3RoZXIgdjggZGV2aWNlcy4uLg0KPiANCg==
+From: Haridhar Kalvala <haridhar.kalvala@intel.com>
+
+hammer LED backlight brightness is not getting set when USB
+device is in suspend state.
+
+This patch fixes the issue by requesting USB HID device to be
+in FULLON mode, so that sending hardware output report and
+hardware raw request won't fail to set brightness, and set
+device back to NORMAL mode once this call returns.
+
+Signed-off-by: Haridhar Kalvala <haridhar.kalvala@intel.com>
+Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+---
+ drivers/hid/hid-google-hammer.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+Changes from version on Chromium OS gerrit
+(https://chromium-review.googlesource.com/735259):
+ - Reworded and reflowed commit message, as well as comment in code.
+
+diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+index 6486469ce0f64..7b8e17b03cb86 100644
+--- a/drivers/hid/hid-google-hammer.c
++++ b/drivers/hid/hid-google-hammer.c
+@@ -41,6 +41,16 @@ static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
+ 	led->buf[0] = 0;
+ 	led->buf[1] = br;
+ 
++	/*
++	 * Request USB HID device to be in Full On mode, so that sending
++	 * hardware output report and hardware raw request won't fail.
++	 */
++	ret = hid_hw_power(led->hdev, PM_HINT_FULLON);
++	if (ret < 0) {
++		hid_err(led->hdev, "failed: device not resumed %d\n", ret);
++		return ret;
++	}
++
+ 	ret = hid_hw_output_report(led->hdev, led->buf, sizeof(led->buf));
+ 	if (ret == -ENOSYS)
+ 		ret = hid_hw_raw_request(led->hdev, 0, led->buf,
+@@ -50,6 +60,10 @@ static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
+ 	if (ret < 0)
+ 		hid_err(led->hdev, "failed to set keyboard backlight: %d\n",
+ 			ret);
++
++	/* Request USB HID device back to Normal Mode. */
++	hid_hw_power(led->hdev, PM_HINT_NORMAL);
++
+ 	return ret;
+ }
+ 
+-- 
+2.17.0.rc1.321.gba9d0f2565-goog

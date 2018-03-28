@@ -1,143 +1,59 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
-Date: Wed, 28 Mar 2018 09:38:51 +0200
-Message-ID: <20180328073851.o5lkw24hhr4sxxhz@pali>
-References: <20171115063404.10066-1-aaron.ma@canonical.com>
- <20171115083529.jmlpcj4td4evj3xl@pali>
- <TYXPR01MB07195A0116F835764DE99882C72E0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180129225138.voujq54itw7yblbi@dtor-ws>
- <CAKdAkRRjMrpdjuaivh-5bKCCgYpcySqDCKzbuvso1_x_+Qkp1w@mail.gmail.com>
- <20180325212541.5wzpvlkcbayfktrz@pali>
- <TYXPR01MB0719F95C7B4E9FD0FF313BEFC7AC0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
+Date: Wed, 28 Mar 2018 11:26:40 +0100
+Message-ID: <20180328102640.yx6nv5abfexmouuf@dell>
+References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+ <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
+ <1521685073.28226.10.camel@mtkswgap22>
+ <20180323185418.GD255819@dtor-ws>
+ <20180327080507.pgil6pw2mn4y2f4d@dell>
+ <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <TYXPR01MB0719F95C7B4E9FD0FF313BEFC7AC0@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+In-Reply-To: <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aaron Ma <aaron.ma@canonical.com>
+To: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sean Wang <sean.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it, devicetree@vger.kernel.org, linus.walleij@linaro.org, jcsing.lee@samsung.com, linux-kernel@vger.kernel.org, krzk@kernel.org, javier@osg.samsung.com, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, eddie.huang@mediatek.com, Chen.Zhong@mediatek.com, beomho.seo@samsung.com, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Ideally this information should be put as a comment into the code. It is
-really not obvious.
+On Tue, 27 Mar 2018, Matthias Brugger wrote:
 
-On Tuesday 27 March 2018 04:37:19 Masaki Ota wrote:
-> Hi, 
 > 
-> We can get OTP page 0 value by EA EA E9 commands, but we cannot get it by EA EA EA E9.
-> As far as I remember, Device initialization finish at EA command, then sends EA EA E9 commands.
-> In this case we cannot get correct OTP page 0 value.
-> So I changed this order. (We can get OTP page 1 value by both of EA F0 F0 E9 and F0 F0 E9.)
 > 
-> Best Regards,
-> Masaki Ota
-> -----Original Message-----
-> From: Pali Rohár [mailto:pali.rohar@gmail.com] 
-> Sent: Monday, March 26, 2018 6:26 AM
-> To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Aaron Ma <aaron.ma@canonical.com>
-> Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 devices
-> 
-> On Tuesday 20 March 2018 11:47:26 Dmitry Torokhov wrote:
-> > On Mon, Jan 29, 2018 at 2:51 PM, dmitry.torokhov@gmail.com 
-> > <dmitry.torokhov@gmail.com> wrote:
-> > > Hi,
-> > >
-> > > On Thu, Nov 16, 2017 at 07:27:02AM +0000, Masaki Ota wrote:
-> > >> Hi, Pali, Aaron,
-> > >>
-> > >> Current code is correct device setting, previous code is wrong.
-> > >> If the trackstick does not work(DUALPOINT flag disable), Device Firmware setting is wrong.
-> > >>
-> > >> But recently I received the same report from Thinkpad L570 user, and I checked this device and found this device Firmware setting is wrong. Sorry for our mistake.
-> > >> Is your laptop L570 ?
-> > >>
-> > >> I will add code that supports the trackstick for this device.
-> > >
-> > > Sorry for resurrecting this old thread, I am just trying to 
-> > > understand what went wrong here. Is the sequence of "f0 f0 e9" and 
-> > > "ea ea e9" is important in getting the correct OTP data and we 
-> > > originally got this order wrong? It is not clear from the original 
-> > > patch and discussion that this change was intentional.
+> On 03/27/2018 10:05 AM, Lee Jones wrote:
+> > On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
+> >> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
+> >>> Hi, Dmitry and Lee
+> >>>
+> >>> The series seems not being got merged. Are they good enough to be ready
+> >>> into the your tree?
+> >>>
+> >>> Recently I've tested the series with focusing on pwrkey event generated
+> >>> through interrupt when push and release the key on bpi-r2 board and then
+> >>> finally it's working fine. but for homekey it cannot be found on the
+> >>> board and thus I cannot have more tests more about it.
+> >>>
+> >>> Tested-by: Sean Wang <sean.wang@mediatek.com>
+> >>
+> >> You have my Ack on the input patch; I expect it go through Lee's tree as
+> >> there are some dependencies on mfd core piece.
 > > 
-> > Could I please get an answer to my question?
-> > 
-> > Thanks!
-> 
-> Masaki, this question is for you ↑↑↑
-> 
-> > >
-> > > Thanks.
-> > >
-> > >>
-> > >> Best Regards,
-> > >> Masaki Ota
-> > >> -----Original Message-----
-> > >> From: Pali Rohár [mailto:pali.rohar@gmail.com]
-> > >> Sent: Wednesday, November 15, 2017 5:35 PM
-> > >> To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
-> > >> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; 
-> > >> dmitry.torokhov@gmail.com; Aaron Ma <aaron.ma@canonical.com>
-> > >> Subject: Re: [PATCH] Input: ALPS - fix DualPoint flag for 74 03 28 
-> > >> devices
-> > >>
-> > >> On Wednesday 15 November 2017 14:34:04 Aaron Ma wrote:
-> > >> > There is a regression of commit 4a646580f793 ("Input: ALPS - fix 
-> > >> > two-finger scroll breakage"), ALPS device fails with log:
-> > >> >
-> > >> > psmouse serio1: alps: Rejected trackstick packet from non 
-> > >> > DualPoint device
-> > >> >
-> > >> > ALPS device with id "74 03 28" report OTP[0] data 0xCE after 
-> > >> > commit 4a646580f793, after restore the OTP reading order, it 
-> > >> > becomes to 0x10 as before and reports the right flag.
-> > >> >
-> > >> > Fixes: 4a646580f793 ("Input: ALPS - fix two-finger scroll 
-> > >> > breakage")
-> > >> > Cc: <stable@vger.kernel.org>
-> > >> > Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-> > >> > ---
-> > >> >  drivers/input/mouse/alps.c | 4 ++--
-> > >> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > >> >
-> > >> > diff --git a/drivers/input/mouse/alps.c 
-> > >> > b/drivers/input/mouse/alps.c index 579b899add26..c59b8f7ca2fc 
-> > >> > 100644
-> > >> > --- a/drivers/input/mouse/alps.c
-> > >> > +++ b/drivers/input/mouse/alps.c
-> > >> > @@ -2562,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct 
-> > >> > psmouse *psmouse,
-> > >> >
-> > >> >     memset(otp, 0, sizeof(otp));
-> > >> >
-> > >> > -   if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
-> > >> > -       alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
-> > >> > +   if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
-> > >> > +       alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
-> > >> >             return -1;
-> > >> >
-> > >> >     alps_update_device_area_ss4_v2(otp, priv);
-> > >>
-> > >> Masaki Ota, please look at this patch as it partially revert your 
-> > >> commit
-> > >> 4a646580f793 ("Input: ALPS - fix two-finger scroll breakage"). Something smells here.
-> > >>
-> > >> --
-> > >> Pali Rohár
-> > >> pali.rohar@gmail.com
-> > >
-> > > --
-> > > Dmitry
-> > 
-> > 
+> > Are you happy for me to merge the Input dt-bindings without your Ack?
 > > 
 > 
-> --
-> Pali Rohár
-> pali.rohar@gmail.com
+> They got both Acked in v5, but the commit message was not updated:
+> https://patchwork.kernel.org/patch/9973721/
+> https://patchwork.kernel.org/patch/9973723/
+
+Thanks Matthias.
+
+Chen, can you collect all the Acks and repost as a RESEND please?
 
 -- 
-Pali Rohár
-pali.rohar@gmail.com
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

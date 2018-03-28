@@ -1,208 +1,253 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH v7 0/2] hid-steam driver with user mode client dection
-Date: Wed, 28 Mar 2018 20:14:48 +0200
-Message-ID: <20180328181448.GA1674@casa>
-References: <20180325160703.15997-1-rodrigorivascosta@gmail.com>
- <CAO-hwJ+XxB9QnZSAALPZTWmAMDsrzq-dhjtMDOvdXHWtDv=H7g@mail.gmail.com>
+From: Tim Harvey <tharvey@gateworks.com>
+Subject: Re: [PATCH v3 1/4] dt-bindings: mfd: Add Gateworks System Controller bindings
+Date: Wed, 28 Mar 2018 12:17:34 -0700
+Message-ID: <CAJ+vNU2aUN4ME3+RA3DNPO75O6vPBcQpuRSfQJ4_Ns_zQAtCCQ@mail.gmail.com>
+References: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
+ <1522250043-8065-2-git-send-email-tharvey@gateworks.com> <20180328162416.GB25325@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+XxB9QnZSAALPZTWmAMDsrzq-dhjtMDOvdXHWtDv=H7g@mail.gmail.com>
+In-Reply-To: <20180328162416.GB25325@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 26, 2018 at 10:12:19AM +0200, Benjamin Tissoires wrote:
-> Hi Rodrigo,
-> 
-> On Sun, Mar 25, 2018 at 6:07 PM, Rodrigo Rivas Costa
-> <rodrigorivascosta@gmail.com> wrote:
-> > This is a reroll of the Steam Controller driver.
-> >
-> > This time the client usage is detected by using exposing a custom hidraw
-> > device (hid_ll_driver) to userland and forwarding that to the real one.
-> 
-> That is actually more clever than what I had in mind.
-> This way you reliably know if the hidraw node has been opened without
-> touching hid-core.c or hidraw.c, well played :)
+On Wed, Mar 28, 2018 at 9:24 AM, Guenter Roeck <linux@roeck-us.net> wrote:
+> On Wed, Mar 28, 2018 at 08:14:00AM -0700, Tim Harvey wrote:
+>> This patch adds documentation of device-tree bindings for the
+>> Gateworks System Controller (GSC).
+>>
+>> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+>> ---
+>> v3:
+>>  - replaced _ with -
+>>  - remove input bindings
+>>  - added full description of hwmon
+>>  - fix unit address of hwmon child nodes
+>>
+>> ---
+>>  .../devicetree/bindings/mfd/gateworks-gsc.txt      | 135 +++++++++++++++++++++
+>>  1 file changed, 135 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt b/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
+>> new file mode 100644
+>> index 0000000..8f530ed
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
+>> @@ -0,0 +1,135 @@
+>> +Gateworks System Controller multi-function device
+>> +
+>> +The GSC is a Multifunction I2C slave device with the following submodules:
+>> +- WDT
+>> +- GPIO
+>> +- Pushbutton controller
+>> +- HWMON
+>> +
+>> +Required properties:
+>> +- compatible : Must be "gw,gsc"
+>> +- reg: I2C address of the device
+>> +- interrupts: interrupt triggered by GSC_IRQ# signal
+>> +- interrupt-parent: Interrupt controller GSC is connected to
+>> +- #interrupt-cells: should be <1>, index of the interrupt within the
+>> +  controller, in accordance with the "one cell" variant of
+>> +  <devicetree/bindings/interrupt-controller/interrupt.txt>
+>> +
+>> +Optional nodes:
+>> +* watchdog:
+>> +The GSC provides a Watchdog monitor which can power cycle the board's
+>> +primary power supply on most board models when tripped.
+>> +
+>> +Required watchdog properties:
+>> +- compatible: must be "gw,gsc-watchdog"
+>> +
+>> +* hwmon:
+>> +The GSC provides a set of Analog to Digitcal Converter (ADC) pins used for
+>> +temperature and/or voltage monitoring.
+>> +
+>> +Required hwmon properties:
+>> +- compatible: must be "gw,gsc-hwmon"
+>> +
+>
+> "hwmon" is a very Linux specific term. It might make sense to find a more
+> generic term.
 
-8-)
+The 'hwmon' driver supports child nodes that fall into the following category:
+ - temperature sensor (GSC internal temperature sensor - i2c registers
+returns value in C*10)
+ - voltage rails (two types here; cooked: i2c registers return
+pre-scaled value in mV), raw: i2c registers return a raw ADC value
+that must be scaled based on ADC internal ref voltage and resolution
+and adjusted for a voltage divider to convert to mV
+ - fan setpoints (I'll explain these below)
 
-> > About how the lizard-mode/hidraw-client issue is handled, I have added a
-> > module parameter (I don't know if that is the best option, but it helps me
-> > illustrate different approaches to the problem):
-> >
-> > Independently of the lizard_mode parameter value:
-> 
-> I find the values of the lizard_mode parameter hard to understand. And
-> honestly, I do not think there is much a difference between 0 and 1.
-> AFAICT, the difference between these two values is that in the first
-> case you are disabling the lizard mode whether or not the joystick is
-> in used, and in the latter, you disable it only when the joystick is
-> in use. Does that gives any benefits to users?
+I called the node 'gw,gsc-hwmon' because the driver fits into the
+'hwmon' API. Isn't that appropriate here for the driver compatible
+string?
 
-Well, the rules I'm trying to apply are, in order of priority:
-1. Never send a lizard command when hidraw is in use.
-2. Disable the lizard mode when the input node is in use.
+>
+>> +Optional hwmon properties:
+>> +- gw,reference-voltage: ADC reference voltage (mV) used in scaling raw ADCs
+>
+> AFAIK devicetree likes to specify voltages in uV.
 
-Now, the freedom is in what to do when the input node and hidraw are
-both unused, hence the parameters. The two easy options are:
- * lizard_mode=1: lizard mode is on, same experience as without
-   hid-steam, so it is the default.
- * lizard_mode=0: lizard mode is off. I always use a mouse and
-   keyboard together with the controller, so I like this one.
+There are currently plenty of dt props specified in mV (grep -r mV
+Documentation/devicetree/bindings/).
 
-But that leaves a marginal use case uncovered. What if I want to manage
-the lizard mode using a user mode tool, such as my steamctrl from
-github? This tool opens hidraw and sends a lizard_mode command (enable
-or disable), but it does not matter, because as soon as hidraw is closed
-hid-steam will reset the lizard mode to the value of the lizard_mode
-parameter.
-That is why I added lizard_mode=2: it instructs hid-steam not to send
-any lizard mode command at all. You do not get any magic (I even break
-rule 2 above) but you can use steamctrl freely.
+>
+>> +- gw,resolution: ADC resolution (ie 4096) used in scaling raw ADCs
+>> +
+>
+> 4096 what ?
 
-Summing up:
- * lizard_mode = 0: disabled.
- * lizard_mode = 1: enabled (except when input is in use).
- * lizard_mode = 2: no magic (use a user mode tool or expect weirdness).
+reference-voltage and resolution are used to scale the values from the
+nodes that report a raw ADC value:
 
-I don't think anybody is actually using a user-mode tool for that so
-maybe mode 2 can be discarded.
+V = Vadc * (reference-voltage / resolution)
 
-Note that Steam disables the lizard_mode when it starts and restores it
-when it closes, unconditionally, so default option lizard_mode=1 will be
-indistinguishable from hid-generic for the average user... except if
-Steam crashes, then you will have lizard mode reenabled automatically,
-which is nice.
+I can provide that in bits if it makes more sense? I can also hard
+code both the resolution and the vref in the hwmon driver and remove
+it from dt as currently the only GSC that uses raw ADC values is 12bit
+with 2.5V ref.
 
-The other two lizard_mode={0,1} I think they are quite useful, and I'd
-like to keep them.
+>
+>> +Each hwmon child node defines an ADC input on the chip which the GSC may
+>> +report cooked values (ie temperature sensor based on thermister), raw values,
+>> +(ie voltage rail with a pre-scaling resistor divider), or a fan controller
+>> +setpoint.
+>> +
+>> +Required hwmon child properties:
+>> +- type: one of the following ADC types:
+>> +  "gw,hwmon-temperature" - reports temperature in C*10
+>> +  "gw,hwmon-voltage" - reports a pre-scaled voltage value
+>> +  "gw,hwmon-voltage-raw" - reports a raw ADC that is scaled with
+>> +       vreference, resolution, and optional resistor divider
+>> +  "gw,hwmon-fan" - a fan temperature setpoint in C*10
+>
+> What is a "fan temperature setpoint" ?
+>
 
-> I would think having a boolean "let the kernel handle the lizard mode
-> with some magic inside" would be simpler to understand. You do not
-> really want to support too many configurations and I think it would be
-> wiser to say either disable the new mode or just enable it.
+The GSC supports a fan controller which drives a PWM signal to vary
+the speed of a fan based on the GSC internal temperature sensor. The
+FAN controller has 6 setpoints each having a fixed PWM duty-cycle but
+the temperature at which those setpoints kick in can be varies via
+registers at the 0x29 slave address (same slave address as the
+temperature sensor and voltage inputs which is why I have it in the
+hwmon driver):
 
-That would be the lizard_mode={0,1} I talked about? Both of them have
-magic. The magicless option was the 2.
+fan0_point - 50% PWM (default 300)
+fan1_point - 60% PWM (default 330)
+fan2_point - 70% PWM (default 360)
+fan3_point - 80% PWM (default 390)
+fan4_point - 90% PWM (default 420)
+fan5_point - 100% PWM (default 450)
 
-> Also, I think there will be races if a user changes the value of the
-> parameter while running the system. You might want to add an
-> additional patch that would trigger the mode change on module
-> parameter change.
+The values are C/10 thus if the internal GSC temp sensor is below 30C
+the fan output will be 0% duty cycle and if it hits 30C it will go to
+50% until it hits 60% at 33C etc.
 
-True, but the races should be easy to remove, with a simple local
-variable.  About the trigger, I've never seen a trigger on module
-parameter change. Can you give me a hint or example of how to do that.
+That is the hardware implementation that I'm trying to abstract and
+define here. You pointed out the fact that the fan*_input ABI is
+read-only fan PWM and I see that now. What do you suggest I use for
+this feature I'm trying to implement driver support for?
 
-> As far as I can tell, I am happy with such hack. There are a few
-> points I'd like to raise in the patch 1, but I'll inline my comments
-> there.
+I did notice that nouveau_hwmon.c has a single temperature setpoint
+similar to this that they support with SENSOR_DEVICE_ATTR:
+https://elixir.bootlin.com/linux/latest/source/drivers/gpu/drm/nouveau/nouveau_hwmon.c#L63
 
-I'll address them promptly.
+>> +- reg: offset of the ADC register
+>> +- label: name of the ADC input or FAN setpoint
+>> +
+>> +Optional hwmon child properties:
+>> +- gw,voltage-divider: An array of two integers containing the resistor
+>> +  values R1 and R2 of the optinal resistor divider on a raw ADC
+>> +- gw,voltage-offset: a mV voltage offset to apply to a raw ADC (ie to
+>> +  compensate for a diode drop)
+>> +
+>> +Example:
+>> +
+>> +     gsc: gsc@20 {
+>> +             compatible = "gw,gsc";
+>> +             reg = <0x20>;
+>> +             interrupt-parent = <&gpio1>;
+>> +             interrupts = <4 GPIO_ACTIVE_LOW>;
+>> +             interrupt-controller;
+>> +             #interrupt-cells = <1>;
+>> +
+>> +             watchdog {
+>> +                     compatible = "gw,gsc-watchdog";
+>> +             };
+>> +
+>> +             hwmon {
+>> +                     compatible = "gw,gsc-hwmon";
+>> +                     #address-cells = <1>;
+>> +                     #size-cells = <0>;
+>> +                     gw,reference-voltage = <2500>;
+>> +                     gw,resolution = <4096>;
+>> +
+>> +                     hwmon@0 { /* A0: Board Temperature */
+>> +                             type = "gw,hwmon-temperature";
+>> +                             reg = <0x00>;
+>> +                             label = "temp";
+>> +                     };
+>> +
+>> +                     hwmon@2 { /* A1: Input Voltage (raw ADC) */
+>> +                             type = "gw,hwmon-voltage-raw";
+>> +                             reg = <0x02>;
+>> +                             label = "vdd_vin";
+>> +                             gw,voltage-divider = <22100 1000>;
+>> +                             gw,voltage-offset = <800>;
+>> +                     };
+>> +
+>> +                     hwmon@b { /* A2: Battery voltage */
+>> +                             type = "gw,hwmon-voltage";
+>> +                             reg = <0x0b>;
+>> +                             label = "vdd_bat";
+>> +                     };
+>> +
+>> +                     hwmon@2c { /* fan temperature setpoint for 50% duty */
+>> +                             type = "gw,hwmon-fan";
+>> +                             reg = <0x2c>;
+>> +                             label = "fan_50p";
+>> +                     };
+>> +
+>> +                     hwmon@2e { /* fan1 */
+>> +                             type = "gw,hwmon-fan";
+>> +                             reg = <0x2e>;
+>> +                             label = "fan_60p";
+>> +                     };
+>> +
+>> +                     hwmon@30 { /* fan2 */
+>> +                             type = "gw,hwmon-fan";
+>> +                             reg = <0x30>;
+>> +                             label = "fan_70p";
+>> +                     };
+>> +
+>> +                     hwmon@32 { /* fan3 */
+>> +                             type = "gw,hwmon-fan";
+>> +                             reg = <0x32>;
+>> +                             label = "fan_80p";
+>> +                     };
+>> +
+>> +                     hwmon@34 { /* fan4 */
+>> +                             type = "gw,hwmon-fan";
+>> +                             reg = <0x34>;
+>> +                             label = "fan_90p";
+>> +                     };
+>> +
+>> +                     hwmon@36 { /* fan5 */
+>> +                             type = "gw,hwmon-fan";
+>> +                             reg = <0x36>;
+>> +                             label = "fan_100p";
+>> +                     };
+>
+> No idea what this is supposed to be doing, but whatever it is,
+> it appears to be wrong. I'll comment more on it in the hwmon driver.
+>
 
-Thanks.
-Rodrigo
+ok - I'll respond to that thread.
 
-> Cheers,
-> Benjamin
-> 
-> >
-> >  1. When a hidraw client is running:
-> >    a. I will not send any lizard-mode command to the device, so the client is
-> >       in full control.
-> >    b. The input device will not send any input message. However it will not
-> >       dissappear nor return any error message. Maybe it could return ENODEV if
-> >       they try to open the input device when hidraw client is running?
-> >
-> > If lizard_mode == 0 ('disabled'):
-> >  2.0. When a hidraw client is not running, lizard_mode is disabled.
-> >
-> > If lizard_mode == 1, ('auto', the default):
-> >  2.1. When a hidraw client is not running:
-> >    a. When the input device is not in use, lizard mode is enabled.
-> >    b. When the input device is in use, lizard mode is disabled.
-> >
-> > If lizard_mode == 2 ('usermode'):
-> >  2.2. This driver does not send any lizard_mode-related command. So it is up
-> >       to user mode to configure it, with steamctrl or whatever.
-> >
-> > Note that when Steam Client opens it always disables lizard-mode (it creates
-> > keyboard/mouse XTest inputs with the same function, though). And when it closed
-> > (but not when it crashes, I think) it always re-enables the lizard mode.
-> >
-> > About the input buttons/axes mapping, as per Clément suggestion, I tried to
-> > conform to Documentation/gamepad.rst, but with a few caveats and doubts:
-> >  * BTN_NORTH/BTN_WEST are alias of BTN_X/BTN_Y, but those buttons in this
-> >    controller have the labels changed (BTN_NORTH is actually Y). I don't know
-> >    the best option, so for now I'm mapping 'Y' to BTN_Y and 'X' to BTN_X.
-> >  * I'm mapping the lpad clicks to BTN_DPAD_{UP,RIGHT,DOWN,LEFT} but I'm not
-> >    sure if that is such a good idea: it cannot do diagonals, for example.
-> >    Maybe we could fake the whole dpad from the touch position?
-> >  * I'm mapping pressing the joystick to BTN_THUMBL and clicking the rpad to
-> >    BTN_THUMBR. Clicking the lpad is unmapped because that is used for the
-> >    dpad, depending on where it is clicked.
-> >  * Currently I'm mapping the lpad-touch to BTN_THUMB and rpad-touch to
-> >    BTN_THUMB2, but I don't know if that is so useful. lpad-touch will overlap
-> >    with any use of the dpad. And rpad-touch will overlap with rpad-click...
-> >
-> > Changes in v7:
-> >  * All the automatic lizard_mode stuff.
-> >  * Added the lizard_mode parameter.
-> >  * The patchset is reduced to 2 commits. The separation of the
-> >    steam_get_serial command no longer makes sense, since I need the
-> >    steam_send_cmd in the first commit to implement the lizard mode.
-> >  * Change the input mapping to conform to Documentation/gamepad.rst.
-> >
-> > (v6 was a RFC, it does not count).
-> >
-> > Changes in v5:
-> >  * Fix license SPDX to GPL-2.0+.
-> >  * Minor stylistic changes (BIT(3) instead 0x08 and so on).
-> >
-> > Changes in v4:
-> >  * Add command to check the wireless connection status on probe, without
-> >    waiting for a message (thanks to Clément Vuchener for the tip).
-> >  * Removed the error code on redundant connection/disconnection messages. That
-> >    was harmless but polluted dmesg.
-> >  * Added buttons for touching the left-pad and right-pad.
-> >  * Fixed a misplaced #include from 2/4 to 1/4.
-> >
-> > Changes in v3:
-> >  * Use RCU to do the dynamic connec/disconnect of wireless devices.
-> >  * Remove entries in hid-quirks.c as they are no longer needed. This allows
-> >    this module to be blacklisted without side effects.
-> >  * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
-> >    existing use cases (lizard mode). A user-space tool to do that is
-> >    linked.
-> >  * Fully separated axes for joystick and left-pad. As it happens.
-> >  * Add fuzz values for left/right pad axes, they are a little wiggly.
-> >
-> > Changes in v2:
-> >  * Remove references to USB. Now the interesting interfaces are selected by
-> >    looking for the ones with feature reports.
-> >  * Feature reports buffers are allocated with hid_alloc_report_buf().
-> >  * Feature report length is checked, to avoid overflows in case of
-> >    corrupt/malicius USB devices.
-> >  * Resolution added to the ABS axes.
-> >  * A lot of minor cleanups.
-> >
-> > Rodrigo Rivas Costa (2):
-> >   HID: add driver for Valve Steam Controller
-> >   HID: steam: add battery device.
-> >
-> >  drivers/hid/Kconfig     |   8 +
-> >  drivers/hid/Makefile    |   1 +
-> >  drivers/hid/hid-ids.h   |   4 +
-> >  drivers/hid/hid-steam.c | 978 ++++++++++++++++++++++++++++++++++++++++++++++++
-> >  include/linux/hid.h     |   1 +
-> >  5 files changed, 992 insertions(+)
-> >  create mode 100644 drivers/hid/hid-steam.c
-> >
-> > --
-> > 2.16.2
-> >
+Thanks for the review!
+
+Tim

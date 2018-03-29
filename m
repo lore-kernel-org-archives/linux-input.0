@@ -1,86 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
-Date: Thu, 29 Mar 2018 09:15:27 -0700
-Message-ID: <20180329161527.GA107392@dtor-ws>
+Subject: Re: [PATCH v6 2/6] dt-bindings: input: Add common keyboard document
+ bindings
+Date: Thu, 29 Mar 2018 09:15:51 -0700
+Message-ID: <20180329161551.GB107392@dtor-ws>
 References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
- <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
- <1521685073.28226.10.camel@mtkswgap22>
- <20180323185418.GD255819@dtor-ws>
- <20180327080507.pgil6pw2mn4y2f4d@dell>
- <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
- <20180328102640.yx6nv5abfexmouuf@dell>
- <1522290675.17084.8.camel@mhfsdcap03>
- <20180329130402.6fp7nofyp6iesmbv@dell>
+ <1508937364-30054-3-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180329130402.6fp7nofyp6iesmbv@dell>
+In-Reply-To: <1508937364-30054-3-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Chen Zhong <chen.zhong@mediatek.com>, Matthias Brugger <matthias.bgg@gmail.com>, Sean Wang <sean.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it, devicetree@vger.kernel.org, linus.walleij@linaro.org, jcsing.lee@samsung.com, linux-kernel@vger.kernel.org, krzk@kernel.org, javier@osg.samsung.com, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, eddie.huang@mediatek.com, beomho.seo@samsung.com, linux-rtc@vger.kernel.org
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Linus Walleij <linus.walleij@linaro.org>, Beomho Seo <beomho.seo@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Jaechul Lee <jcsing.lee@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 29, 2018 at 02:04:02PM +0100, Lee Jones wrote:
-> On Thu, 29 Mar 2018, Chen Zhong wrote:
+On Wed, Oct 25, 2017 at 09:16:00PM +0800, Chen Zhong wrote:
+> This patch adds the device tree binding documentation for common
+> keyboard.
 > 
-> > On Wed, 2018-03-28 at 11:26 +0100, Lee Jones wrote:
-> > > On Tue, 27 Mar 2018, Matthias Brugger wrote:
-> > > 
-> > > > 
-> > > > 
-> > > > On 03/27/2018 10:05 AM, Lee Jones wrote:
-> > > > > On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
-> > > > >> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
-> > > > >>> Hi, Dmitry and Lee
-> > > > >>>
-> > > > >>> The series seems not being got merged. Are they good enough to be ready
-> > > > >>> into the your tree?
-> > > > >>>
-> > > > >>> Recently I've tested the series with focusing on pwrkey event generated
-> > > > >>> through interrupt when push and release the key on bpi-r2 board and then
-> > > > >>> finally it's working fine. but for homekey it cannot be found on the
-> > > > >>> board and thus I cannot have more tests more about it.
-> > > > >>>
-> > > > >>> Tested-by: Sean Wang <sean.wang@mediatek.com>
-> > > > >>
-> > > > >> You have my Ack on the input patch; I expect it go through Lee's tree as
-> > > > >> there are some dependencies on mfd core piece.
-> > > > > 
-> > > > > Are you happy for me to merge the Input dt-bindings without your Ack?
-> > > > > 
-> > > > 
-> > > > They got both Acked in v5, but the commit message was not updated:
-> > > > https://patchwork.kernel.org/patch/9973721/
-> > > > https://patchwork.kernel.org/patch/9973723/
-> > > 
-> > > Thanks Matthias.
-> > > 
-> > > Chen, can you collect all the Acks and repost as a RESEND please?
-> > > 
-> > 
-> > Thanks Matthias, Lee, Dmitry and Sean for your comments.
-> > 
-> > Hi Lee,
-> > 
-> > I have collected the Acks by Rob and sent the v6:
-> > https://patchwork.kernel.org/patch/10026705
-> > https://patchwork.kernel.org/patch/10026707
-> > 
-> > Are they enough to be merged?
+> Acked-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+> ---
+>  Documentation/devicetree/bindings/input/keys.txt |    8 ++++++++
+>  1 file changed, 8 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/keys.txt
 > 
-> Oh, I see.
+> diff --git a/Documentation/devicetree/bindings/input/keys.txt b/Documentation/devicetree/bindings/input/keys.txt
+> new file mode 100644
+> index 0000000..a0ea7eb
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/keys.txt
+> @@ -0,0 +1,8 @@
+> +General Keys Properties:
+> +
+> +Optional properties for Keys:
+> +- power-off-time-sec: Duration in seconds which the key should be kept
+> + 	pressed for device to power off automatically. Device with key pressed
+> + 	shutdown feature can specify this property.
+> +- linux,keycodes: Specifies the numeric keycode values to be used for
+> +	reporting key presses.
+> \ No newline at end of file
+> -- 
+> 1.7.9.5
 > 
-> I was asking about Dmitry's Ack.
-
-Oh, sorry, I did not realize you wanted my Ack for bindings. I usually
-leave it to Rob and simply ack the driver itself when I am happy with
-the code.
-
-I'll go and add my ack to the binding post if that will help merging
-the series.
-
-Thanks.
 
 -- 
 Dmitry

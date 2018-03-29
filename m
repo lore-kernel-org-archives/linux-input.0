@@ -1,34 +1,66 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH v7 0/2] hid-steam driver with user mode client dection
-Date: Wed, 28 Mar 2018 23:44:38 +0200
-Message-ID: <20180328214438.GA5740@casa>
-References: <20180325160703.15997-1-rodrigorivascosta@gmail.com>
- <CAO-hwJ+XxB9QnZSAALPZTWmAMDsrzq-dhjtMDOvdXHWtDv=H7g@mail.gmail.com>
- <20180328181448.GA1674@casa>
+From: Chen Zhong <chen.zhong@mediatek.com>
+Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
+Date: Thu, 29 Mar 2018 10:31:15 +0800
+Message-ID: <1522290675.17084.8.camel@mhfsdcap03>
+References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
+         <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
+         <1521685073.28226.10.camel@mtkswgap22> <20180323185418.GD255819@dtor-ws>
+         <20180327080507.pgil6pw2mn4y2f4d@dell>
+         <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
+         <20180328102640.yx6nv5abfexmouuf@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180328181448.GA1674@casa>
+In-Reply-To: <20180328102640.yx6nv5abfexmouuf@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sean Wang <sean.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it, devicetree@vger.kernel.org, linus.walleij@linaro.org, jcsing.lee@samsung.com, linux-kernel@vger.kernel.org, krzk@kernel.org, javier@osg.samsung.com, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, eddie.huang@mediatek.com, beomho.seo@samsung.com, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 28, 2018 at 08:14:48PM +0200, Rodrigo Rivas Costa wrote:
-> On Mon, Mar 26, 2018 at 10:12:19AM +0200, Benjamin Tissoires wrote:
-> > Also, I think there will be races if a user changes the value of the
-> > parameter while running the system. You might want to add an
-> > additional patch that would trigger the mode change on module
-> > parameter change.
+On Wed, 2018-03-28 at 11:26 +0100, Lee Jones wrote:
+> On Tue, 27 Mar 2018, Matthias Brugger wrote:
 > 
-> True, but the races should be easy to remove, with a simple local
-> variable.  About the trigger, I've never seen a trigger on module
-> parameter change. Can you give me a hint or example of how to do that?
+> > 
+> > 
+> > On 03/27/2018 10:05 AM, Lee Jones wrote:
+> > > On Fri, 23 Mar 2018, Dmitry Torokhov wrote:
+> > >> On Thu, Mar 22, 2018 at 10:17:53AM +0800, Sean Wang wrote:
+> > >>> Hi, Dmitry and Lee
+> > >>>
+> > >>> The series seems not being got merged. Are they good enough to be ready
+> > >>> into the your tree?
+> > >>>
+> > >>> Recently I've tested the series with focusing on pwrkey event generated
+> > >>> through interrupt when push and release the key on bpi-r2 board and then
+> > >>> finally it's working fine. but for homekey it cannot be found on the
+> > >>> board and thus I cannot have more tests more about it.
+> > >>>
+> > >>> Tested-by: Sean Wang <sean.wang@mediatek.com>
+> > >>
+> > >> You have my Ack on the input patch; I expect it go through Lee's tree as
+> > >> there are some dependencies on mfd core piece.
+> > > 
+> > > Are you happy for me to merge the Input dt-bindings without your Ack?
+> > > 
+> > 
+> > They got both Acked in v5, but the commit message was not updated:
+> > https://patchwork.kernel.org/patch/9973721/
+> > https://patchwork.kernel.org/patch/9973723/
+> 
+> Thanks Matthias.
+> 
+> Chen, can you collect all the Acks and repost as a RESEND please?
+> 
 
-Never mind, I've found it: module_param_cb().
-Moreover, I'll have to keep a global list of steam_devices, just in case
-the parameter is changed...
+Thanks Matthias, Lee, Dmitry and Sean for your comments.
 
-Regards.
-Rodrigo
+Hi Lee,
+
+I have collected the Acks by Rob and sent the v6:
+https://patchwork.kernel.org/patch/10026705
+https://patchwork.kernel.org/patch/10026707
+
+Are they enough to be merged?
+
+Thank you.

@@ -1,34 +1,124 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] hid: intel-ish-hid: use put_device() instead of kfree()
-Date: Fri, 30 Mar 2018 16:56:10 +0530
-Message-ID: <66bd5f1ab1322081927f657090a04b44da326140.1522408033.git.arvind.yadav.cs@gmail.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v2 05/10] iio: adc: at91-sama5d2_adc: fix channel
+ configuration for differential channels
+Date: Fri, 30 Mar 2018 13:17:07 +0100
+Message-ID: <20180330131707.21bc3845@archlinux>
+References: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
+        <1522153963-1121-6-git-send-email-eugen.hristev@microchip.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1522153963-1121-6-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: srinivas.pandruvada@linux.intel.com, jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Never directly free @dev after calling device_register(), even
-if it returned an error. Always use put_device() to give up the
-reference initialized.
+On Tue, 27 Mar 2018 15:32:38 +0300
+Eugen Hristev <eugen.hristev@microchip.com> wrote:
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/hid/intel-ish-hid/ishtp/bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> When iterating through the channels, the index in the array is not the
+> scan index. Added an xlate function to translate to the proper index.
+> This will be used also for devicetree channel xlate
+> 
+> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+So, this is a fix for an existing bug?
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index f272cdd..2623a56 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -418,7 +418,7 @@ static struct ishtp_cl_device *ishtp_bus_add_device(struct ishtp_device *dev,
- 		list_del(&device->device_link);
- 		spin_unlock_irqrestore(&dev->device_list_lock, flags);
- 		dev_err(dev->devc, "Failed to register ISHTP client device\n");
--		kfree(device);
-+		put_device(&device->dev);
- 		return NULL;
- 	}
- 
--- 
-2.7.4
+Please move this to the front of your set (to make it easier to backport).
+Describe the result of the bug as well.
+
+Fixes tag would be good.
+
+Thanks,
+
+Jonathan
+
+
+> ---
+>  drivers/iio/adc/at91-sama5d2_adc.c | 41 ++++++++++++++++++++++++++++++++++----
+>  1 file changed, 37 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+> index 4eff835..8729d65 100644
+> --- a/drivers/iio/adc/at91-sama5d2_adc.c
+> +++ b/drivers/iio/adc/at91-sama5d2_adc.c
+> @@ -333,6 +333,27 @@ static const struct iio_chan_spec at91_adc_channels[] = {
+>  				+ AT91_SAMA5D2_DIFF_CHAN_CNT + 1),
+>  };
+>  
+> +static int at91_adc_chan_xlate(struct iio_dev *indio_dev, int chan)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < indio_dev->num_channels; i++) {
+> +		if (indio_dev->channels[i].scan_index == chan)
+> +			return i;
+> +	}
+> +	return -EINVAL;
+> +}
+> +
+> +static inline struct iio_chan_spec const *
+> +at91_adc_chan_get(struct iio_dev *indio_dev, int chan)
+> +{
+> +	int index = at91_adc_chan_xlate(indio_dev, chan);
+> +
+> +	if (index < 0)
+> +		return NULL;
+> +	return indio_dev->channels + index;
+> +}
+> +
+>  static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
+>  {
+>  	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
+> @@ -350,8 +371,10 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
+>  	at91_adc_writel(st, AT91_SAMA5D2_TRGR, status);
+>  
+>  	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
+> -		struct iio_chan_spec const *chan = indio->channels + bit;
+> +		struct iio_chan_spec const *chan = at91_adc_chan_get(indio, bit);
+>  
+> +		if (!chan)
+> +			continue;
+>  		if (state) {
+>  			at91_adc_writel(st, AT91_SAMA5D2_CHER,
+>  					BIT(chan->channel));
+> @@ -448,7 +471,11 @@ static int at91_adc_dma_start(struct iio_dev *indio_dev)
+>  
+>  	for_each_set_bit(bit, indio_dev->active_scan_mask,
+>  			 indio_dev->num_channels) {
+> -		struct iio_chan_spec const *chan = indio_dev->channels + bit;
+> +		struct iio_chan_spec const *chan =
+> +					 at91_adc_chan_get(indio_dev, bit);
+> +
+> +		if (!chan)
+> +			continue;
+>  
+>  		st->dma_st.rx_buf_sz += chan->scan_type.storagebits / 8;
+>  	}
+> @@ -526,8 +553,11 @@ static int at91_adc_buffer_predisable(struct iio_dev *indio_dev)
+>  	 */
+>  	for_each_set_bit(bit, indio_dev->active_scan_mask,
+>  			 indio_dev->num_channels) {
+> -		struct iio_chan_spec const *chan = indio_dev->channels + bit;
+> +		struct iio_chan_spec const *chan =
+> +					at91_adc_chan_get(indio_dev, bit);
+>  
+> +		if (!chan)
+> +			continue;
+>  		if (st->dma_st.dma_chan)
+>  			at91_adc_readl(st, chan->address);
+>  	}
+> @@ -587,8 +617,11 @@ static void at91_adc_trigger_handler_nodma(struct iio_dev *indio_dev,
+>  
+>  	for_each_set_bit(bit, indio_dev->active_scan_mask,
+>  			 indio_dev->num_channels) {
+> -		struct iio_chan_spec const *chan = indio_dev->channels + bit;
+> +		struct iio_chan_spec const *chan =
+> +					at91_adc_chan_get(indio_dev, bit);
+>  
+> +		if (!chan)
+> +			continue;
+>  		st->buffer[i] = at91_adc_readl(st, chan->address);
+>  		i++;
+>  	}

@@ -1,130 +1,78 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [v3,4/4] watchdog: add Gateworks System Controller support
-Date: Fri, 30 Mar 2018 11:19:54 -0700
-Message-ID: <20180330181954.GA17580@roeck-us.net>
-References: <1522250043-8065-5-git-send-email-tharvey@gateworks.com>
- <20180330010757.GA12896@roeck-us.net>
- <CAJ+vNU3ARKLK5AcssEP-_P8AmwnAnS8VtAEO1ppwum2jpCqAYQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: [PATCH 1/3] input: xpad: avoid using __set_bit() for capabilities
+Date: Sat, 31 Mar 2018 13:21:40 +0200
+Message-ID: <20180331112143.18768-1-marcus.folkesson@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJ+vNU3ARKLK5AcssEP-_P8AmwnAnS8VtAEO1ppwum2jpCqAYQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 30, 2018 at 10:49:38AM -0700, Tim Harvey wrote:
-> On Thu, Mar 29, 2018 at 6:07 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On Wed, Mar 28, 2018 at 08:14:03AM -0700, Tim Harvey wrote:
-> >> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> >> ---
-> >>  drivers/watchdog/Kconfig   |  10 ++++
-> >>  drivers/watchdog/Makefile  |   1 +
-> >>  drivers/watchdog/gsc_wdt.c | 146 +++++++++++++++++++++++++++++++++++++++++++++
-> >>  3 files changed, 157 insertions(+)
-> >>  create mode 100644 drivers/watchdog/gsc_wdt.c
-> >>
-> <snip>
-> >> +
-> >> +static const struct watchdog_info gsc_wdt_info = {
-> >> +     .options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> >
-> > Please confirm that WDIOF_MAGICCLOSE is not set on purpose.
-> >
-> >> +     .identity = "GSC Watchdog"
-> >> +};
-> >> +
-> <snip>
-> >> +
-> >> +static int gsc_wdt_probe(struct platform_device *pdev)
-> >> +{
-> >> +     struct gsc_dev *gsc = dev_get_drvdata(pdev->dev.parent);
-> >> +     struct device *dev = &pdev->dev;
-> >> +     struct gsc_wdt *wdt;
-> >> +     int ret;
-> >> +     unsigned int reg;
-> >> +
-> <snip>
-> >> +     /* ensure WD bit enabled */
-> >> +     if (regmap_read(gsc->regmap, GSC_CTRL_1, &reg))
-> >> +             return -EIO;
-> >> +     if (!(reg & (1 << GSC_CTRL_1_WDT_ENABLE))) {
-> >
-> > BIT()
-> >
-> >> +             dev_err(dev, "not enabled - must be manually enabled\n");
-> >
-> > This doesn't make sense. Bail out if the watchdog is disabled ? Why ?
-> >
-> >> +             return -EINVAL;
-> >> +     }
-> >> +
-> <snip>
-> >> +
-> >> +     watchdog_set_nowayout(&wdt->wdt_dev, 1);
-> >
-> > WATCHDOG_NOWAYOUT ?
-> >
-> 
-> Guenter,
-> 
-> Thanks for the review!
-> 
-> The watchdog implementation of the GSC is such that it is enabled and
-> reset via a single non-volatile I2C register bit. If this bit is set
-> the watchdog will start ticking down automatically on board power up.
-> The register definitions don't provide a condition where it can be
-> enabled in a volatile way such that after board power-cycle it is
-> disabled again nor do they provide a separate register for enable vs
-> reset.
-> 
-> In the typical case the user boots the board, driver registers
-> watchdog, userspace watchdog daemon enables watchdog and it starts
-> ticking. User now powers down the board and later powers it back up.
-> The watchdog was enabled previously by userspace and the register is
-> non-volatile so the watchdog starts ticking before the kernel driver
-> and watchdog daemon yet the user breaks out into the bootloader or
-> boots a different OS without a watchdog daemon and the board resets
-> without them expecting it. The feature that the watchdog starts
-> ticking at board power-up before the CPU has even fetched code was
-> part of its design and was put there to work around some SoC errata
-> that can cause the CPU to fail to fetch boot code. This has caused me
-> to implement a watchdog driver that never actually 'enables' or
-> 'disables' the watchdog which is why there is no MAGIC CLOSE and why I
+input_set_capability() and input_set_abs_param() will do it for you.
 
-Yet the driver does enable and disable the watchdog in its start and stop
-functions. And I have no idea what that has to do with the MAGICCLOSE
-functionality, which is quite orthogonal to the start/stop functionality.
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-> always set nowayout. Its possible this is a fairly unique case of a
-> watchdog. The probe failure if the watchdog isn't enabled is because I
-> don't want a non-enabled watchdog to get enabled just because the
-> driver/daemon were there.
-> 
-Huh ? The whole purpose of a watchdog is for it to be enabled when
-the watchdog device is opened.
-
-> I agree it's a very strange behavior and I'm not sure how to best
-> document or support it with the Linux watchdog API. I welcome any
-> recomendations!
-> 
-
-Sorry, I fail to understand your logic.
-
-You do not explain why your code bails out if the watchdog is not already
-running. That does not make sense.
-
-You are saying that you don't want the watchdog driver to enable the watchdog.
-Since its whole purpose is to enable the watchdog if/when the watchdog device
-is opened, that doesn't make sense either.
-
-At the same time, you do not tell the watchdog core that the watchdog is
-already running, meaning the system _will_ reboot unless the watchdog
-device is opened within the watchdog timeout period. Again, that does not
-make sense.
-
-Maybe it all makes sense to you, but not to me, sorry.
-
-Guenter
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 9d2688f3f961..cbf54082281d 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1568,7 +1568,6 @@ static void xpad_close(struct input_dev *dev)
+ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
+ {
+ 	struct usb_xpad *xpad = input_get_drvdata(input_dev);
+-	set_bit(abs, input_dev->absbit);
+ 
+ 	switch (abs) {
+ 	case ABS_X:
+@@ -1628,10 +1627,7 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 		input_dev->close = xpad_close;
+ 	}
+ 
+-	__set_bit(EV_KEY, input_dev->evbit);
+-
+ 	if (!(xpad->mapping & MAP_STICKS_TO_NULL)) {
+-		__set_bit(EV_ABS, input_dev->evbit);
+ 		/* set up axes */
+ 		for (i = 0; xpad_abs[i] >= 0; i++)
+ 			xpad_set_up_abs(input_dev, xpad_abs[i]);
+@@ -1639,21 +1635,21 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 
+ 	/* set up standard buttons */
+ 	for (i = 0; xpad_common_btn[i] >= 0; i++)
+-		__set_bit(xpad_common_btn[i], input_dev->keybit);
++		input_set_capability(input_dev, EV_KEY, xpad_common_btn[i]);
+ 
+ 	/* set up model-specific ones */
+ 	if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype == XTYPE_XBOX360W ||
+ 	    xpad->xtype == XTYPE_XBOXONE) {
+ 		for (i = 0; xpad360_btn[i] >= 0; i++)
+-			__set_bit(xpad360_btn[i], input_dev->keybit);
++			input_set_capability(input_dev, EV_KEY, xpad360_btn[i]);
+ 	} else {
+ 		for (i = 0; xpad_btn[i] >= 0; i++)
+-			__set_bit(xpad_btn[i], input_dev->keybit);
++			input_set_capability(input_dev, EV_KEY, xpad_btn[i]);
+ 	}
+ 
+ 	if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
+ 		for (i = 0; xpad_btn_pad[i] >= 0; i++)
+-			__set_bit(xpad_btn_pad[i], input_dev->keybit);
++			input_set_capability(input_dev, EV_KEY, xpad_btn_pad[i]);
+ 	}
+ 
+ 	/*
+@@ -1670,7 +1666,8 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 
+ 	if (xpad->mapping & MAP_TRIGGERS_TO_BUTTONS) {
+ 		for (i = 0; xpad_btn_triggers[i] >= 0; i++)
+-			__set_bit(xpad_btn_triggers[i], input_dev->keybit);
++			input_set_capability(input_dev, EV_KEY,
++					xpad_btn_triggers[i]);
+ 	} else {
+ 		for (i = 0; xpad_abs_triggers[i] >= 0; i++)
+ 			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
+-- 
+2.16.2

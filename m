@@ -1,42 +1,41 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH 2/2] Documentation: devices.txt: remove the mk712 touchscreen device from the list
-Date: Mon,  2 Apr 2018 14:55:51 +0200
-Message-ID: <20180402125551.13641-2-martink@posteo.de>
-References: <20180402125551.13641-1-martink@posteo.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH] Input: synaptics-rmi4 - Fix an unchecked out of memory error path
+Date: Mon,  2 Apr 2018 16:03:27 +0200
+Message-ID: <20180402140327.7715-1-christophe.jaillet@wanadoo.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180402125551.13641-1-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: corbet@lwn.net, dmitry.torokhov@gmail.com
-Cc: gregkh@linuxfoundation.org, logang@deltatee.com, stefanha@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
+To: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, gregkh@linuxfoundation.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 List-Id: linux-input@vger.kernel.org
 
-The input/touchscreen/mk712.c driver has been rewritten for the common
-input event system. in 2005. There shouldn't a special device node be
-created anymore.
+When extending the rmi_spi buffers, we must check that no out of memory
+error occurs, otherwise we may access data above the currently allocated
+memory.
 
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
+Propagate the error code returned by 'rmi_spi_manage_pools()' instead.
+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 ---
+ drivers/input/rmi4/rmi_spi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-Please review this by looking at the driver too. Thanks,
-
-                    martin
-
-
-
- Documentation/admin-guide/devices.txt | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/Documentation/admin-guide/devices.txt b/Documentation/admin-guide/devices.txt
-index 4ec843123cc3..fb39bbf0789a 100644
---- a/Documentation/admin-guide/devices.txt
-+++ b/Documentation/admin-guide/devices.txt
-@@ -259,7 +259,6 @@
- 		 11 = /dev/vrtpanel	Vr41xx embedded touch panel
- 		 13 = /dev/vpcmouse	Connectix Virtual PC Mouse
- 		 14 = /dev/touchscreen/ucb1x00  UCB 1x00 touchscreen
--		 15 = /dev/touchscreen/mk712	MK712 touchscreen
- 		128 = /dev/beep		Fancy beep device
- 		129 =
- 		130 = /dev/watchdog	Watchdog timer port
+diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
+index 76edbf2c1bce..082defc329a8 100644
+--- a/drivers/input/rmi4/rmi_spi.c
++++ b/drivers/input/rmi4/rmi_spi.c
+@@ -147,8 +147,11 @@ static int rmi_spi_xfer(struct rmi_spi_xport *rmi_spi,
+ 	if (len > RMI_SPI_XFER_SIZE_LIMIT)
+ 		return -EINVAL;
+ 
+-	if (rmi_spi->xfer_buf_size < len)
+-		rmi_spi_manage_pools(rmi_spi, len);
++	if (rmi_spi->xfer_buf_size < len) {
++		ret = rmi_spi_manage_pools(rmi_spi, len);
++		if (ret < 0)
++			return ret;
++	}
+ 
+ 	if (addr == 0)
+ 		/*
 -- 
-2.16.2
+2.14.1

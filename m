@@ -1,1080 +1,1033 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH v8 1/2] HID: add driver for Valve Steam Controller
-Date: Mon,  2 Apr 2018 20:28:06 +0200
-Message-ID: <20180402182807.19878-2-rodrigorivascosta@gmail.com>
-References: <20180402182807.19878-1-rodrigorivascosta@gmail.com>
+From: Ondrej Zary <linux@rainbow-software.org>
+Subject: Re: Sony Vaio VGN-CS31S touch sensor buttons breaking touchpad
+Date: Mon, 2 Apr 2018 22:39:59 +0200
+Message-ID: <201804022239.59370.linux@rainbow-software.org>
+References: <201804012321.56423.linux@rainbow-software.org>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180402182807.19878-1-rodrigorivascosta@gmail.com>
+In-Reply-To: <201804012321.56423.linux@rainbow-software.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There are two ways to connect the Steam Controller: directly to the USB
-or with the USB wireless adapter.  Both methods are similar, but the
-wireless adapter can connect up to 4 devices at the same time.
+On Sunday 01 April 2018 23:21:55 Ondrej Zary wrote:
+> Hello,
+> I got a Sony Vaio VGN-CS31S laptop with Synaptics touchpad that exhibits
+> weird behavior. It seems to work until I touch the "Touch Sensor Buttons"
+> bar above the keyboard - then the buttons start to act weirdly: click or
+> remain pressed (sometimes it breaks even without touching the bar).
+>
+> It seems to be a known problem with VGN-CS series:
+> https://bugs.launchpad.net/ubuntu/+source/xserver-xorg-input-synaptics/+bug
+>/774877 https://wiki.freegeekvancouver.org/article/Laptop_Troubleshooting
+> (mentions nasty partial workaround: psmouse.resetafter=1)
+>
+> Many models of the VGN-CS series have the Touch Sensor Buttons:
+> ftp://124.40.41.224/PUB/MANUALS/SWT/Z009/Z009690111.PDF
+>
+> From the hardware side (can be found in MBX-196 Quanta GD2 schematic), the
+> touch bar is a separate PS/2 device connected to third PS/2 port of the EC
+> (Embedded Controller) WPC775L. The touchpad is on the 1st PS/2 port, 2nd
+> port is unused. However, the i8042 does not seem to support multiplexing,
+> the firmware probably combines the data internally somehow.
 
-The wired device will appear as 3 interfaces: a virtual mouse, a virtual
-keyboard and a custom HID device.
+Good news: it supports multiplexing but i8042_nomux is set because of:
+                /*
+                 * Most (all?) VAIOs do not have external PS/2 ports nor
+                 * they implement active multiplexing properly, and
+                 * MUX discovery usually messes up keyboard/touchpad.
+                 */
+                .matches = {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+                        DMI_MATCH(DMI_BOARD_NAME, "VAIO"),
+                },
+in drivers/input/serio/i8042-x86ia64io.h
+(How can this be modified to exclude VGN-CS series?)
 
-The wireless device will appear as 5 interfaces: a virtual keyboard and
-4 custom HID devices, that will remain silent until a device is actually
-connected.
+dmidecode:
+BIOS Information
+        Vendor: INSYDE
+        Version: R2060Q2
+        Release Date: 09/01/2009
+        ROM Size: 1024 kB
+        Characteristics:
+                PCI is supported
+                PNP is supported
+                BIOS is upgradeable
+                BIOS shadowing is allowed
+                Boot from CD is supported
+                Selectable boot is supported
+                EDD is supported
+                8042 keyboard services are supported (int 9h)
+                CGA/mono video services are supported (int 10h)
+                ACPI is supported
+                USB legacy is supported
+                Smart battery is supported
+                BIOS boot specification is supported
+                Function key-initiated network boot is supported
+                Targeted content distribution is supported
+        BIOS Revision: 20.60
+        Firmware Revision: 20.60
 
-The custom HID device has a report descriptor with all vendor specific
-usages, so the hid-generic is not very useful. In a PC/SteamBox Valve
-Steam Client provices a software translation by using hidraw and a
-creates a uinput virtual gamepad and XTest keyboard/mouse.
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+        Manufacturer: Sony Corporation
+        Product Name: VGN-CS31S_P
+        Version: C103LR65
+        Wake-up Type: Power Switch
+        SKU Number: N/A
+        Family: N/A
 
-This driver intercepts the hidraw usage, so it can get out of the way
-when the Steam Client is in use.
+Handle 0x0002, DMI type 2, 10 bytes
+Base Board Information
+        Manufacturer: Sony Corporation
+        Product Name: VAIO
+        Version: N/A
+        Serial Number: N/A
+        Asset Tag: N/A
+        Features:
+                Board is a hosting board
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
----
- drivers/hid/Kconfig     |   8 +
- drivers/hid/Makefile    |   1 +
- drivers/hid/hid-ids.h   |   4 +
- drivers/hid/hid-steam.c | 973 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/hid.h     |   1 +
- 5 files changed, 987 insertions(+)
- create mode 100644 drivers/hid/hid-steam.c
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 779c5ae47f36..de5f4849bfe4 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -811,6 +811,14 @@ config HID_SPEEDLINK
- 	---help---
- 	Support for Speedlink Vicious and Divine Cezanne mouse.
- 
-+config HID_STEAM
-+	tristate "Steam Controller support"
-+	depends on HID
-+	---help---
-+	Say Y here if you have a Steam Controller if you want to use it
-+	without running the Steam Client. It supports both the wired and
-+	the wireless adaptor.
-+
- config HID_STEELSERIES
- 	tristate "Steelseries SRW-S1 steering wheel support"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 235bd2a7b333..e146c257285a 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -94,6 +94,7 @@ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
- obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
- obj-$(CONFIG_HID_SONY)		+= hid-sony.o
- obj-$(CONFIG_HID_SPEEDLINK)	+= hid-speedlink.o
-+obj-$(CONFIG_HID_STEAM)		+= hid-steam.o
- obj-$(CONFIG_HID_STEELSERIES)	+= hid-steelseries.o
- obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
- obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a0baa5ba5b84..3014991e5d4b 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -987,6 +987,10 @@
- #define USB_VENDOR_ID_STANTUM_SITRONIX		0x1403
- #define USB_DEVICE_ID_MTP_SITRONIX		0x5001
- 
-+#define USB_VENDOR_ID_VALVE			0x28de
-+#define USB_DEVICE_ID_STEAM_CONTROLLER		0x1102
-+#define USB_DEVICE_ID_STEAM_CONTROLLER_WIRELESS	0x1142
-+
- #define USB_VENDOR_ID_STEELSERIES	0x1038
- #define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
- 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-new file mode 100644
-index 000000000000..1e496075acbc
---- /dev/null
-+++ b/drivers/hid/hid-steam.c
-@@ -0,0 +1,973 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * HID driver for Valve Steam Controller
-+ *
-+ * Copyright (c) 2018 Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-+ *
-+ * Supports both the wired and wireless interfaces.
-+ *
-+ * This controller has a builtin emulation of mouse and keyboard: the right pad
-+ * can be used as a mouse, the shoulder buttons are mouse buttons, A and B
-+ * buttons are ENTER and ESCAPE, and so on. This is implemented as additional
-+ * HID interfaces.
-+ *
-+ * This is known as the "lizard mode", because apparently lizards like to use
-+ * the computer from the coach, without a proper mouse and keyboard.
-+ *
-+ * This driver will disable the lizard mode when the input device is opened
-+ * and re-enable it when the input device is closed, so as not to break user
-+ * mode behaviour. The lizard_mode parameter can be used to change that.
-+ *
-+ * There are a few user space applications (notably Steam Client) that use
-+ * the hidraw interface directly to create input devices (XTest, uinput...).
-+ * In order to avoid breaking them this driver creates a layered hidraw device,
-+ * so it can detect when the client is running and then:
-+ *  - it will not send any command to the controller.
-+ *  - this input device will be disabled, to avoid double input of the same
-+ *    user action.
-+ *
-+ * For additional functions, such as changing the right-pad margin or switching
-+ * the led, you can use the user-space tool at:
-+ *
-+ *   https://github.com/rodrigorc/steamctrl
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include <linux/workqueue.h>
-+#include <linux/mutex.h>
-+#include <linux/rcupdate.h>
-+#include <linux/delay.h>
-+#include "hid-ids.h"
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>");
-+
-+static bool lizard_mode = true;
-+
-+static DEFINE_MUTEX(steam_devices_lock);
-+static LIST_HEAD(steam_devices);
-+
-+#define STEAM_QUIRK_WIRELESS		BIT(0)
-+
-+/* Touch pads are 40 mm in diameter and 65535 units */
-+#define STEAM_PAD_RESOLUTION 1638
-+/* Trigger runs are about 5 mm and 256 units */
-+#define STEAM_TRIGGER_RESOLUTION 51
-+/* Joystick runs are about 5 mm and 256 units */
-+#define STEAM_JOYSTICK_RESOLUTION 51
-+
-+#define STEAM_PAD_FUZZ 256
-+
-+/* Several commands can be sent in a feature report */
-+#define STEAM_CMD_DISABLE_KEYS_CURSOR	0x81
-+#define STEAM_CMD_GET_VERSION		0x83
-+#define STEAM_CMD_ENABLE_KEYS_CURSOR	0x85
-+#define STEAM_CMD_WRITE_REGISTER	0x87
-+#define STEAM_CMD_ENABLE_MOUSE		0x8e
-+#define STEAM_CMD_FORCEFEEDBAK		0x8f
-+#define STEAM_CMD_REQUEST_COMM_STATUS	0xb4
-+#define STEAM_CMD_GET_SERIAL		0xae
-+
-+/* Registers for command 0x87 */
-+#define STEAM_REG_CURSOR_EMULATION	0x07
-+#define STEAM_REG_MOUSE_EMULATION	0x08
-+#define STEAM_REG_RPAD_MARGIN		0x18
-+#define STEAM_REG_LED			0x2d
-+#define STEAM_REG_GYRO_MODE		0x30
-+
-+/* Raw event identifiers */
-+#define STEAM_EV_INPUT_DATA		0x01
-+#define STEAM_EV_CONNECT		0x03
-+#define STEAM_EV_BATTERY		0x04
-+
-+/* Values for GYRO_MODE (bitmask) */
-+#define STEAM_GYRO_MODE_OFF		0x0000
-+#define STEAM_GYRO_MODE_STEERING	0x0001
-+#define STEAM_GYRO_MODE_TILT		0x0002
-+#define STEAM_GYRO_MODE_SEND_ORIENTATION	0x0004
-+#define STEAM_GYRO_MODE_SEND_RAW_ACCEL		0x0008
-+#define STEAM_GYRO_MODE_SEND_RAW_GYRO		0x0010
-+
-+/* Other random constants */
-+#define STEAM_SERIAL_LEN 10
-+
-+struct steam_device {
-+	struct list_head list;
-+	spinlock_t lock;
-+	struct hid_device *hdev, *client_hdev;
-+	struct mutex mutex;
-+	bool client_opened, input_opened;
-+	struct input_dev __rcu *input;
-+	unsigned long quirks;
-+	struct work_struct work_connect;
-+	bool connected;
-+	char serial_no[STEAM_SERIAL_LEN + 1];
-+};
-+
-+static int steam_recv_report(struct steam_device *steam,
-+		u8 *data, int size)
-+{
-+	struct hid_report *r;
-+	u8 *buf;
-+	int ret;
-+
-+	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-+	if (hid_report_len(r) < 64)
-+		return -EINVAL;
-+
-+	buf = hid_alloc_report_buf(r, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	/*
-+	 * The report ID is always 0, so strip the first byte from the output.
-+	 * hid_report_len() is not counting the report ID, so +1 to the length
-+	 * or else we get a EOVERFLOW. We are safe from a buffer overflow
-+	 * because hid_alloc_report_buf() allocates +7 bytes.
-+	 */
-+	ret = hid_hw_raw_request(steam->hdev, 0x00,
-+			buf, hid_report_len(r) + 1,
-+			HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+	if (ret > 0)
-+		memcpy(data, buf + 1, min(size, ret - 1));
-+	kfree(buf);
-+	return ret;
-+}
-+
-+static int steam_send_report(struct steam_device *steam,
-+		u8 *cmd, int size)
-+{
-+	struct hid_report *r;
-+	u8 *buf;
-+	unsigned int retries = 10;
-+	int ret;
-+
-+	r = steam->hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[0];
-+	if (hid_report_len(r) < 64)
-+		return -EINVAL;
-+
-+	buf = hid_alloc_report_buf(r, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	/* The report ID is always 0 */
-+	memcpy(buf + 1, cmd, size);
-+
-+	/*
-+	 * Sometimes the wireless controller fails with EPIPE
-+	 * when sending a feature report.
-+	 * Doing a HID_REQ_GET_REPORT and waiting for a while
-+	 * seems to fix that.
-+	 */
-+	do {
-+		ret = hid_hw_raw_request(steam->hdev, 0,
-+				buf, size + 1,
-+				HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+		if (ret != -EPIPE)
-+			break;
-+		steam_recv_report(steam, NULL, 0);
-+		msleep(50);
-+	} while (--retries);
-+
-+	kfree(buf);
-+	if (ret < 0)
-+		hid_err(steam->hdev, "%s: error %d (%*ph)\n", __func__,
-+				ret, size, cmd);
-+	return ret;
-+}
-+
-+static inline int steam_send_report_byte(struct steam_device *steam, u8 cmd)
-+{
-+	return steam_send_report(steam, &cmd, 1);
-+}
-+
-+static int steam_write_registers(struct steam_device *steam,
-+		/* u8 reg, u16 val */...)
-+{
-+	/* Send: 0x87 len (reg valLo valHi)* */
-+	u8 reg;
-+	u16 val;
-+	u8 cmd[64] = {STEAM_CMD_WRITE_REGISTER, 0x00};
-+	va_list args;
-+
-+	va_start(args, steam);
-+	for (;;) {
-+		reg = va_arg(args, int);
-+		if (reg == 0)
-+			break;
-+		val = va_arg(args, int);
-+		cmd[cmd[1] + 2] = reg;
-+		cmd[cmd[1] + 3] = val & 0xff;
-+		cmd[cmd[1] + 4] = val >> 8;
-+		cmd[1] += 3;
-+	}
-+	va_end(args);
-+
-+	return steam_send_report(steam, cmd, sizeof(cmd));
-+}
-+
-+static int steam_get_serial(struct steam_device *steam)
-+{
-+	/*
-+	 * Send: 0xae 0x15 0x01
-+	 * Recv: 0xae 0x15 0x01 serialnumber (10 chars)
-+	 */
-+	int ret;
-+	u8 cmd[] = {STEAM_CMD_GET_SERIAL, 0x15, 0x01};
-+	u8 reply[3 + STEAM_SERIAL_LEN + 1];
-+
-+	ret = steam_send_report(steam, cmd, sizeof(cmd));
-+	if (ret < 0)
-+		return ret;
-+	ret = steam_recv_report(steam, reply, sizeof(reply));
-+	if (ret < 0)
-+		return ret;
-+	reply[3 + STEAM_SERIAL_LEN] = 0;
-+	strlcpy(steam->serial_no, reply + 3, sizeof(steam->serial_no));
-+	return 0;
-+}
-+
-+/*
-+ * This command requests the wireless adaptor to post an event
-+ * with the connection status. Useful if this driver is loaded when
-+ * the controller is already connected.
-+ */
-+static inline int steam_request_conn_status(struct steam_device *steam)
-+{
-+	return steam_send_report_byte(steam, STEAM_CMD_REQUEST_COMM_STATUS);
-+}
-+
-+static void steam_set_lizard_mode(struct steam_device *steam, bool enable)
-+{
-+	if (enable) {
-+		/* enable esc, enter, cursors */
-+		steam_send_report_byte(steam, STEAM_CMD_ENABLE_KEYS_CURSOR);
-+		/* enable mouse */
-+		steam_send_report_byte(steam, STEAM_CMD_ENABLE_MOUSE);
-+		steam_write_registers(steam,
-+			STEAM_REG_RPAD_MARGIN, 0x01, /* enable margin */
-+			0);
-+	} else {
-+		/* disable esc, enter, cursor */
-+		steam_send_report_byte(steam, STEAM_CMD_DISABLE_KEYS_CURSOR);
-+		steam_write_registers(steam,
-+			STEAM_REG_MOUSE_EMULATION, 0x07, /* disable mouse */
-+			STEAM_REG_RPAD_MARGIN, 0x00, /* disable margin */
-+			0);
-+	}
-+}
-+
-+static void steam_update_lizard_mode(struct steam_device *steam)
-+{
-+	mutex_lock(&steam->mutex);
-+	if (!steam->client_opened) {
-+		if (steam->input_opened)
-+			steam_set_lizard_mode(steam, false);
-+		else
-+			steam_set_lizard_mode(steam, lizard_mode);
-+	}
-+	mutex_unlock(&steam->mutex);
-+}
-+
-+static int steam_input_open(struct input_dev *dev)
-+{
-+	struct steam_device *steam = input_get_drvdata(dev);
-+	int ret;
-+
-+	ret = hid_hw_open(steam->hdev);
-+	if (ret)
-+		return ret;
-+
-+	mutex_lock(&steam->mutex);
-+	steam->input_opened = true;
-+	if (!steam->client_opened && lizard_mode)
-+		steam_set_lizard_mode(steam, false);
-+	mutex_unlock(&steam->mutex);
-+	return 0;
-+}
-+
-+static void steam_input_close(struct input_dev *dev)
-+{
-+	struct steam_device *steam = input_get_drvdata(dev);
-+
-+	mutex_lock(&steam->mutex);
-+	steam->input_opened = false;
-+	if (!steam->client_opened && lizard_mode)
-+		steam_set_lizard_mode(steam, true);
-+	mutex_unlock(&steam->mutex);
-+
-+	hid_hw_close(steam->hdev);
-+}
-+
-+static int steam_register(struct steam_device *steam)
-+{
-+	struct hid_device *hdev = steam->hdev;
-+	struct input_dev *input;
-+	int ret;
-+
-+	rcu_read_lock();
-+	input = rcu_dereference(steam->input);
-+	rcu_read_unlock();
-+	if (input) {
-+		dbg_hid("%s: already connected\n", __func__);
-+		return 0;
-+	}
-+
-+	ret = steam_get_serial(steam);
-+	if (ret)
-+		return ret;
-+
-+	hid_info(hdev, "Steam Controller '%s' connected",
-+			steam->serial_no);
-+
-+	input = input_allocate_device();
-+	if (!input)
-+		return -ENOMEM;
-+
-+	input_set_drvdata(input, steam);
-+	input->dev.parent = &hdev->dev;
-+	input->open = steam_input_open;
-+	input->close = steam_input_close;
-+
-+	input->name = (steam->quirks & STEAM_QUIRK_WIRELESS) ?
-+		"Wireless Steam Controller" :
-+		"Steam Controller";
-+	input->phys = hdev->phys;
-+	input->uniq = steam->serial_no;
-+	input->id.bustype = hdev->bus;
-+	input->id.vendor = hdev->vendor;
-+	input->id.product = hdev->product;
-+	input->id.version = hdev->version;
-+
-+	input_set_capability(input, EV_KEY, BTN_TR2);
-+	input_set_capability(input, EV_KEY, BTN_TL2);
-+	input_set_capability(input, EV_KEY, BTN_TR);
-+	input_set_capability(input, EV_KEY, BTN_TL);
-+	input_set_capability(input, EV_KEY, BTN_Y);
-+	input_set_capability(input, EV_KEY, BTN_B);
-+	input_set_capability(input, EV_KEY, BTN_X);
-+	input_set_capability(input, EV_KEY, BTN_A);
-+	input_set_capability(input, EV_KEY, BTN_DPAD_UP);
-+	input_set_capability(input, EV_KEY, BTN_DPAD_RIGHT);
-+	input_set_capability(input, EV_KEY, BTN_DPAD_LEFT);
-+	input_set_capability(input, EV_KEY, BTN_DPAD_DOWN);
-+	input_set_capability(input, EV_KEY, BTN_SELECT);
-+	input_set_capability(input, EV_KEY, BTN_MODE);
-+	input_set_capability(input, EV_KEY, BTN_START);
-+	input_set_capability(input, EV_KEY, BTN_GEAR_DOWN);
-+	input_set_capability(input, EV_KEY, BTN_GEAR_UP);
-+	input_set_capability(input, EV_KEY, BTN_THUMBR);
-+	input_set_capability(input, EV_KEY, BTN_THUMBL);
-+	input_set_capability(input, EV_KEY, BTN_THUMB);
-+	input_set_capability(input, EV_KEY, BTN_THUMB2);
-+
-+	input_set_abs_params(input, ABS_HAT2Y, 0, 255, 0, 0);
-+	input_set_abs_params(input, ABS_HAT2X, 0, 255, 0, 0);
-+	input_set_abs_params(input, ABS_X, -32767, 32767, 0, 0);
-+	input_set_abs_params(input, ABS_Y, -32767, 32767, 0, 0);
-+	input_set_abs_params(input, ABS_RX, -32767, 32767,
-+			STEAM_PAD_FUZZ, 0);
-+	input_set_abs_params(input, ABS_RY, -32767, 32767,
-+			STEAM_PAD_FUZZ, 0);
-+	input_set_abs_params(input, ABS_HAT0X, -32767, 32767,
-+			STEAM_PAD_FUZZ, 0);
-+	input_set_abs_params(input, ABS_HAT0Y, -32767, 32767,
-+			STEAM_PAD_FUZZ, 0);
-+	input_abs_set_res(input, ABS_X, STEAM_JOYSTICK_RESOLUTION);
-+	input_abs_set_res(input, ABS_Y, STEAM_JOYSTICK_RESOLUTION);
-+	input_abs_set_res(input, ABS_RX, STEAM_PAD_RESOLUTION);
-+	input_abs_set_res(input, ABS_RY, STEAM_PAD_RESOLUTION);
-+	input_abs_set_res(input, ABS_HAT0X, STEAM_PAD_RESOLUTION);
-+	input_abs_set_res(input, ABS_HAT0Y, STEAM_PAD_RESOLUTION);
-+	input_abs_set_res(input, ABS_HAT2Y, STEAM_TRIGGER_RESOLUTION);
-+	input_abs_set_res(input, ABS_HAT2X, STEAM_TRIGGER_RESOLUTION);
-+
-+	ret = input_register_device(input);
-+	if (ret)
-+		goto input_register_fail;
-+
-+	rcu_assign_pointer(steam->input, input);
-+
-+	return 0;
-+
-+input_register_fail:
-+	input_free_device(input);
-+	return ret;
-+}
-+
-+static void steam_unregister(struct steam_device *steam)
-+{
-+	struct input_dev *input;
-+
-+	rcu_read_lock();
-+	input = rcu_dereference(steam->input);
-+	rcu_read_unlock();
-+
-+	if (input) {
-+		RCU_INIT_POINTER(steam->input, NULL);
-+		synchronize_rcu();
-+		hid_info(steam->hdev, "Steam Controller '%s' disconnected",
-+				steam->serial_no);
-+		input_unregister_device(input);
-+	}
-+}
-+
-+static void steam_work_connect_cb(struct work_struct *work)
-+{
-+	struct steam_device *steam = container_of(work, struct steam_device,
-+							work_connect);
-+	unsigned long flags;
-+	bool connected;
-+	int ret;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	connected = steam->connected;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
-+	if (connected) {
-+		ret = steam_register(steam);
-+		if (ret) {
-+			hid_err(steam->hdev,
-+				"%s:steam_register failed with error %d\n",
-+				__func__, ret);
-+		}
-+	} else {
-+		steam_unregister(steam);
-+	}
-+}
-+
-+static bool steam_is_valve_interface(struct hid_device *hdev)
-+{
-+	struct hid_report_enum *rep_enum;
-+
-+	/*
-+	 * The wired device creates 3 interfaces:
-+	 *  0: emulated mouse.
-+	 *  1: emulated keyboard.
-+	 *  2: the real game pad.
-+	 * The wireless device creates 5 interfaces:
-+	 *  0: emulated keyboard.
-+	 *  1-4: slots where up to 4 real game pads will be connected to.
-+	 * We know which one is the real gamepad interface because they are the
-+	 * only ones with a feature report.
-+	 */
-+	rep_enum = &hdev->report_enum[HID_FEATURE_REPORT];
-+	return !list_empty(&rep_enum->report_list);
-+}
-+
-+static int steam_client_ll_parse(struct hid_device *hdev)
-+{
-+	struct steam_device *steam = hid_get_drvdata(hdev);
-+
-+	return hid_parse_report(hdev, steam->hdev->dev_rdesc,
-+			steam->hdev->dev_rsize);
-+}
-+
-+static int steam_client_ll_start(struct hid_device *hdev)
-+{
-+	return 0;
-+}
-+
-+static void steam_client_ll_stop(struct hid_device *hdev)
-+{
-+}
-+
-+static int steam_client_ll_open(struct hid_device *hdev)
-+{
-+	struct steam_device *steam = hid_get_drvdata(hdev);
-+	int ret;
-+
-+	ret = hid_hw_open(steam->hdev);
-+	if (ret)
-+		return ret;
-+
-+	mutex_lock(&steam->mutex);
-+	steam->client_opened = true;
-+	mutex_unlock(&steam->mutex);
-+	return ret;
-+}
-+
-+static void steam_client_ll_close(struct hid_device *hdev)
-+{
-+	struct steam_device *steam = hid_get_drvdata(hdev);
-+
-+	mutex_lock(&steam->mutex);
-+	steam->client_opened = false;
-+	if (steam->input_opened)
-+		steam_set_lizard_mode(steam, false);
-+	else
-+		steam_set_lizard_mode(steam, lizard_mode);
-+	mutex_unlock(&steam->mutex);
-+
-+	hid_hw_close(steam->hdev);
-+}
-+
-+static int steam_client_ll_raw_request(struct hid_device *hdev,
-+				unsigned char reportnum, u8 *buf,
-+				size_t count, unsigned char report_type,
-+				int reqtype)
-+{
-+	struct steam_device *steam = hid_get_drvdata(hdev);
-+
-+	return hid_hw_raw_request(steam->hdev, reportnum, buf, count,
-+			report_type, reqtype);
-+}
-+
-+static struct hid_ll_driver steam_client_ll_driver = {
-+	.parse = steam_client_ll_parse,
-+	.start = steam_client_ll_start,
-+	.stop = steam_client_ll_stop,
-+	.open = steam_client_ll_open,
-+	.close = steam_client_ll_close,
-+	.raw_request = steam_client_ll_raw_request,
-+};
-+
-+static struct hid_device *steam_create_client_hid(struct hid_device *hdev)
-+{
-+	struct hid_device *client_hdev;
-+
-+	client_hdev = hid_allocate_device();
-+	if (IS_ERR(client_hdev))
-+		return client_hdev;
-+
-+	client_hdev->ll_driver = &steam_client_ll_driver;
-+	client_hdev->dev.parent = hdev->dev.parent;
-+	client_hdev->bus = hdev->bus;
-+	client_hdev->vendor = hdev->vendor;
-+	client_hdev->product = hdev->product;
-+	strlcpy(client_hdev->name, hdev->name,
-+			sizeof(client_hdev->name));
-+	strlcpy(client_hdev->phys, hdev->phys,
-+			sizeof(client_hdev->phys));
-+	/*
-+	 * Since we use the same device info than the real interface to
-+	 * trick userspace, we will be calling steam_probe recursively.
-+	 * We need to recognize the client interface somehow.
-+	 */
-+	client_hdev->group = HID_GROUP_STEAM;
-+	return client_hdev;
-+}
-+
-+static int steam_probe(struct hid_device *hdev,
-+				const struct hid_device_id *id)
-+{
-+	struct steam_device *steam;
-+	int ret;
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev,
-+			"%s:parse of hid interface failed\n", __func__);
-+		return ret;
-+	}
-+
-+	/*
-+	 * The virtual client_dev is only used for hidraw.
-+	 * Also avoid the recursive probe.
-+	 */
-+	if (hdev->group == HID_GROUP_STEAM)
-+		return hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	/*
-+	 * The non-valve interfaces (mouse and keyboard emulation) are
-+	 * connected without changes.
-+	 */
-+	if (!steam_is_valve_interface(hdev))
-+		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+
-+	steam = devm_kzalloc(&hdev->dev, sizeof(*steam), GFP_KERNEL);
-+	if (!steam) {
-+		ret = -ENOMEM;
-+		goto steam_alloc_fail;
-+	}
-+	steam->hdev = hdev;
-+	hid_set_drvdata(hdev, steam);
-+	spin_lock_init(&steam->lock);
-+	mutex_init(&steam->mutex);
-+	steam->quirks = id->driver_data;
-+	INIT_WORK(&steam->work_connect, steam_work_connect_cb);
-+
-+	steam->client_hdev = steam_create_client_hid(hdev);
-+	if (IS_ERR(steam->client_hdev)) {
-+		ret = PTR_ERR(steam->client_hdev);
-+		goto client_hdev_fail;
-+	}
-+	hid_set_drvdata(steam->client_hdev, steam);
-+
-+	/*
-+	 * With the real steam controller interface, do not connect hidraw.
-+	 * Instead, create the client_hid and connect that.
-+	 */
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_HIDRAW);
-+	if (ret)
-+		goto hid_hw_start_fail;
-+
-+	ret = hid_add_device(steam->client_hdev);
-+	if (ret)
-+		goto client_hdev_add_fail;
-+
-+	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
-+		ret = hid_hw_open(hdev);
-+		if (ret) {
-+			hid_err(hdev,
-+				"%s:hid_hw_open for wireless\n",
-+				__func__);
-+			goto hid_hw_open_fail;
-+		}
-+		hid_info(hdev, "Steam wireless receiver connected");
-+		steam_request_conn_status(steam);
-+	} else {
-+		ret = steam_register(steam);
-+		if (ret) {
-+			hid_err(hdev,
-+				"%s:steam_register failed with error %d\n",
-+				__func__, ret);
-+			goto input_register_fail;
-+		}
-+	}
-+
-+	mutex_lock(&steam_devices_lock);
-+	steam_update_lizard_mode(steam);
-+	list_add(&steam->list, &steam_devices);
-+	mutex_unlock(&steam_devices_lock);
-+
-+	return 0;
-+
-+hid_hw_open_fail:
-+input_register_fail:
-+client_hdev_add_fail:
-+	hid_hw_stop(hdev);
-+hid_hw_start_fail:
-+	hid_destroy_device(steam->client_hdev);
-+client_hdev_fail:
-+	cancel_work_sync(&steam->work_connect);
-+steam_alloc_fail:
-+	hid_err(hdev, "%s: failed with error %d\n",
-+			__func__, ret);
-+	return ret;
-+}
-+
-+static void steam_remove(struct hid_device *hdev)
-+{
-+	struct steam_device *steam = hid_get_drvdata(hdev);
-+
-+	if (!steam || hdev->group == HID_GROUP_STEAM) {
-+		hid_hw_stop(hdev);
-+		return;
-+	}
-+
-+	mutex_lock(&steam_devices_lock);
-+	list_del(&steam->list);
-+	mutex_unlock(&steam_devices_lock);
-+
-+	hid_destroy_device(steam->client_hdev);
-+	steam->client_opened = false;
-+	cancel_work_sync(&steam->work_connect);
-+	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
-+		hid_info(hdev, "Steam wireless receiver disconnected");
-+		hid_hw_close(hdev);
-+	}
-+	hid_hw_stop(hdev);
-+	steam_unregister(steam);
-+}
-+
-+static void steam_do_connect_event(struct steam_device *steam, bool connected)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	steam->connected = connected;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
-+	if (schedule_work(&steam->work_connect) == 0)
-+		dbg_hid("%s: connected=%d event already queued\n",
-+				__func__, connected);
-+}
-+
-+/*
-+ * Some input data in the protocol has the opposite sign.
-+ * Clamp the values to 32767..-32767 so that the range is
-+ * symmetrical and can be negated safely.
-+ */
-+static inline s16 steam_le16(u8 *data)
-+{
-+	s16 x = (s16) le16_to_cpup((__le16 *)data);
-+
-+	return x == -32768 ? -32767 : x;
-+}
-+
-+/*
-+ * The size for this message payload is 60.
-+ * The known values are:
-+ *  (* values are not sent through wireless)
-+ *  (* accelerator/gyro is disabled by default)
-+ *  Offset| Type  | Mapped to |Meaning
-+ * -------+-------+-----------+--------------------------
-+ *  4-7   | u32   | --        | sequence number
-+ *  8-10  | 24bit | see below | buttons
-+ *  11    | u8    | ABS_HAT2Y | left trigger
-+ *  12    | u8    | ABS_HAT2X | right trigger
-+ *  13-15 | --    | --        | always 0
-+ *  16-17 | s16   | ABS_X/ABS_HAT0X     | X value
-+ *  18-19 | s16   | ABS_Y/ABS_HAT0Y     | Y value
-+ *  20-21 | s16   | ABS_RX    | right-pad X value
-+ *  22-23 | s16   | ABS_RY    | right-pad Y value
-+ *  24-25 | s16   | --        | * left trigger
-+ *  26-27 | s16   | --        | * right trigger
-+ *  28-29 | s16   | --        | * accelerometer X value
-+ *  30-31 | s16   | --        | * accelerometer Y value
-+ *  32-33 | s16   | --        | * accelerometer Z value
-+ *  34-35 | s16   | --        | gyro X value
-+ *  36-36 | s16   | --        | gyro Y value
-+ *  38-39 | s16   | --        | gyro Z value
-+ *  40-41 | s16   | --        | quaternion W value
-+ *  42-43 | s16   | --        | quaternion X value
-+ *  44-45 | s16   | --        | quaternion Y value
-+ *  46-47 | s16   | --        | quaternion Z value
-+ *  48-49 | --    | --        | always 0
-+ *  50-51 | s16   | --        | * left trigger (uncalibrated)
-+ *  52-53 | s16   | --        | * right trigger (uncalibrated)
-+ *  54-55 | s16   | --        | * joystick X value (uncalibrated)
-+ *  56-57 | s16   | --        | * joystick Y value (uncalibrated)
-+ *  58-59 | s16   | --        | * left-pad X value
-+ *  60-61 | s16   | --        | * left-pad Y value
-+ *  62-63 | u16   | --        | * battery voltage
-+ *
-+ * The buttons are:
-+ *  Bit  | Mapped to  | Description
-+ * ------+------------+--------------------------------
-+ *  8.0  | BTN_TR2    | right trigger fully pressed
-+ *  8.1  | BTN_TL2    | left trigger fully pressed
-+ *  8.2  | BTN_TR     | right shoulder
-+ *  8.3  | BTN_TL     | left shoulder
-+ *  8.4  | BTN_Y      | button Y
-+ *  8.5  | BTN_B      | button B
-+ *  8.6  | BTN_X      | button X
-+ *  8.7  | BTN_A      | button A
-+ *  9.0  | BTN_DPAD_UP    | lef-pad up (but see diagonal issue below)
-+ *  9.1  | BTN_DPAD_RIGHT | lef-pad right (ditto)
-+ *  9.2  | BTN_DPAD_LEFT  | lef-pad left (ditto)
-+ *  9.3  | BTN_DPAD_DOWN  | lef-pad down (ditto)
-+ *  9.4  | BTN_SELECT | menu left
-+ *  9.5  | BTN_MODE   | steam logo
-+ *  9.6  | BTN_START  | menu right
-+ *  9.7  | BTN_GEAR_DOWN | left back lever
-+ * 10.0  | BTN_GEAR_UP   | right back lever
-+ * 10.1  | --         | left-pad clicked
-+ * 10.2  | BTN_THUMBR | right-pad clicked
-+ * 10.3  | BTN_THUMB  | left-pad touched (but see explanation below)
-+ * 10.4  | BTN_THUMB2 | right-pad touched
-+ * 10.5  | --         | unknown
-+ * 10.6  | BTN_THUMBL | joystick clicked
-+ * 10.7  | --         | lpad_and_joy
-+ */
-+
-+static void steam_do_input_event(struct steam_device *steam,
-+		struct input_dev *input, u8 *data)
-+{
-+	/* 24 bits of buttons */
-+	u8 b8, b9, b10;
-+	s16 x, y;
-+	bool lpad_touched, lpad_and_joy;
-+
-+	b8 = data[8];
-+	b9 = data[9];
-+	b10 = data[10];
-+
-+	input_report_abs(input, ABS_HAT2Y, data[11]);
-+	input_report_abs(input, ABS_HAT2X, data[12]);
-+
-+	/*
-+	 * These two bits tells how to interpret the values X and Y.
-+	 * lpad_and_joy tells that the joystick and the lpad are used at the
-+	 * same time.
-+	 * lpad_touched tells whether X/Y are to be read as lpad coord or
-+	 * joystick values.
-+	 * (lpad_touched || lpad_and_joy) tells if the lpad is really touched.
-+	 */
-+	lpad_touched = b10 & BIT(3);
-+	lpad_and_joy = b10 & BIT(7);
-+	x = steam_le16(data + 16);
-+	y = -steam_le16(data + 18);
-+
-+	input_report_abs(input, lpad_touched ? ABS_HAT0X : ABS_X, x);
-+	input_report_abs(input, lpad_touched ? ABS_HAT0Y : ABS_Y, y);
-+	/* Check if joystick is centered */
-+	if (lpad_touched && !lpad_and_joy) {
-+		input_report_abs(input, ABS_X, 0);
-+		input_report_abs(input, ABS_Y, 0);
-+	}
-+	/* Check if lpad is untouched */
-+	if (!(lpad_touched || lpad_and_joy)) {
-+		input_report_abs(input, ABS_HAT0X, 0);
-+		input_report_abs(input, ABS_HAT0Y, 0);
-+	}
-+
-+	input_report_abs(input, ABS_RX, steam_le16(data + 20));
-+	input_report_abs(input, ABS_RY, -steam_le16(data + 22));
-+
-+	input_event(input, EV_KEY, BTN_TR2, !!(b8 & BIT(0)));
-+	input_event(input, EV_KEY, BTN_TL2, !!(b8 & BIT(1)));
-+	input_event(input, EV_KEY, BTN_TR, !!(b8 & BIT(2)));
-+	input_event(input, EV_KEY, BTN_TL, !!(b8 & BIT(3)));
-+	input_event(input, EV_KEY, BTN_Y, !!(b8 & BIT(4)));
-+	input_event(input, EV_KEY, BTN_B, !!(b8 & BIT(5)));
-+	input_event(input, EV_KEY, BTN_X, !!(b8 & BIT(6)));
-+	input_event(input, EV_KEY, BTN_A, !!(b8 & BIT(7)));
-+	input_event(input, EV_KEY, BTN_SELECT, !!(b9 & BIT(4)));
-+	input_event(input, EV_KEY, BTN_MODE, !!(b9 & BIT(5)));
-+	input_event(input, EV_KEY, BTN_START, !!(b9 & BIT(6)));
-+	input_event(input, EV_KEY, BTN_GEAR_DOWN, !!(b9 & BIT(7)));
-+	input_event(input, EV_KEY, BTN_GEAR_UP, !!(b10 & BIT(0)));
-+	input_event(input, EV_KEY, BTN_THUMBR, !!(b10 & BIT(2)));
-+	input_event(input, EV_KEY, BTN_THUMBL, !!(b10 & BIT(6)));
-+	input_event(input, EV_KEY, BTN_THUMB, lpad_touched || lpad_and_joy);
-+	input_event(input, EV_KEY, BTN_THUMB2, !!(b10 & BIT(4)));
-+
-+	/*
-+	 * I would like to map b9.0 to b9.3 to the BTN_DPAD_* but
-+	 * unfortunately they do not generate diagonals, and a DPAD
-+	 * without diagonals is worthless. So we synthesize the DPAD
-+	 * from the lpad coords and lpad_clicked
-+	 */
-+	if (b10 & BIT(1)) {
-+		if (lpad_touched) {
-+			s16 x2 = abs(x / 2), y2 = abs(y / 2);
-+
-+			input_event(input, EV_KEY, BTN_DPAD_UP, y > x2);
-+			input_event(input, EV_KEY, BTN_DPAD_RIGHT, x > y2);
-+			input_event(input, EV_KEY, BTN_DPAD_LEFT, x < -y2);
-+			input_event(input, EV_KEY, BTN_DPAD_DOWN, y < -x2);
-+		}
-+	} else {
-+		input_event(input, EV_KEY, BTN_DPAD_UP, 0);
-+		input_event(input, EV_KEY, BTN_DPAD_RIGHT, 0);
-+		input_event(input, EV_KEY, BTN_DPAD_LEFT, 0);
-+		input_event(input, EV_KEY, BTN_DPAD_DOWN, 0);
-+	}
-+
-+	input_sync(input);
-+}
-+
-+static int steam_raw_event(struct hid_device *hdev,
-+			struct hid_report *report, u8 *data,
-+			int size)
-+{
-+	struct steam_device *steam = hid_get_drvdata(hdev);
-+	struct input_dev *input;
-+
-+	if (!steam)
-+		return 0;
-+
-+	if (steam->client_opened)
-+		hid_input_report(steam->client_hdev, HID_FEATURE_REPORT,
-+				data, size, 0);
-+	/*
-+	 * All messages are size=64, all values little-endian.
-+	 * The format is:
-+	 *  Offset| Meaning
-+	 * -------+--------------------------------------------
-+	 *  0-1   | always 0x01, 0x00, maybe protocol version?
-+	 *  2     | type of message
-+	 *  3     | length of the real payload (not checked)
-+	 *  4-n   | payload data, depends on the type
-+	 *
-+	 * There are these known types of message:
-+	 *  0x01: input data (60 bytes)
-+	 *  0x03: wireless connect/disconnect (1 byte)
-+	 *  0x04: battery status (11 bytes)
-+	 */
-+
-+	if (size != 64 || data[0] != 1 || data[1] != 0)
-+		return 0;
-+
-+	switch (data[2]) {
-+	case STEAM_EV_INPUT_DATA:
-+		if (steam->client_opened)
-+			return 0;
-+		rcu_read_lock();
-+		input = rcu_dereference(steam->input);
-+		if (likely(input)) {
-+			steam_do_input_event(steam, input, data);
-+		} else {
-+			dbg_hid("%s: input data without connect event\n",
-+					__func__);
-+			steam_do_connect_event(steam, true);
-+		}
-+		rcu_read_unlock();
-+		break;
-+	case STEAM_EV_CONNECT:
-+		/*
-+		 * The payload of this event is a single byte:
-+		 *  0x01: disconnected.
-+		 *  0x02: connected.
-+		 */
-+		switch (data[4]) {
-+		case 0x01:
-+			steam_do_connect_event(steam, false);
-+			break;
-+		case 0x02:
-+			steam_do_connect_event(steam, true);
-+			break;
-+		}
-+		break;
-+	case STEAM_EV_BATTERY:
-+		/* TODO: battery info */
-+		break;
-+	}
-+	return 0;
-+}
-+
-+static int steam_param_set_lizard_mode(const char *val,
-+					const struct kernel_param *kp)
-+{
-+	struct steam_device *steam;
-+	int ret;
-+
-+	ret = param_set_bool(val, kp);
-+	if (ret)
-+		return ret;
-+
-+	mutex_lock(&steam_devices_lock);
-+	list_for_each_entry(steam, &steam_devices, list) {
-+		steam_update_lizard_mode(steam);
-+	}
-+	mutex_unlock(&steam_devices_lock);
-+	return 0;
-+}
-+
-+static const struct kernel_param_ops steam_lizard_mode_ops = {
-+	.set	= steam_param_set_lizard_mode,
-+	.get	= param_get_bool,
-+};
-+
-+module_param_cb(lizard_mode, &steam_lizard_mode_ops, &lizard_mode, 0644);
-+MODULE_PARM_DESC(lizard_mode,
-+	"Enable mouse and keyboard emulation (lizard mode) when the gamepad is not in use");
-+
-+static const struct hid_device_id steam_controllers[] = {
-+	{ /* Wired Steam Controller */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
-+		USB_DEVICE_ID_STEAM_CONTROLLER)
-+	},
-+	{ /* Wireless Steam Controller */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
-+		USB_DEVICE_ID_STEAM_CONTROLLER_WIRELESS),
-+	  .driver_data = STEAM_QUIRK_WIRELESS
-+	},
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(hid, steam_controllers);
-+
-+static struct hid_driver steam_controller_driver = {
-+	.name = "hid-steam",
-+	.id_table = steam_controllers,
-+	.probe = steam_probe,
-+	.remove = steam_remove,
-+	.raw_event = steam_raw_event,
-+};
-+
-+module_hid_driver(steam_controller_driver);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index d491027a7c22..5e5d76589954 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -364,6 +364,7 @@ struct hid_item {
- #define HID_GROUP_RMI				0x0100
- #define HID_GROUP_WACOM				0x0101
- #define HID_GROUP_LOGITECH_DJ_DEVICE		0x0102
-+#define HID_GROUP_STEAM				0x0103
- 
- /*
-  * HID protocol status
+Disabling that allows mux to work! Touchpad now works fine no matter how the
+touch bar is touched.
+Now only to write the touchbar driver... (seems to be detected at serio2 as
+PS/2 Generic Mouse)
+
+Apr  2 22:07:02 test kernel: [    0.599056] i8042: PNP: PS/2 Controller [PNP0303:KBC,PNP0f13:MOUE] at 0x60,0x64 irq 1,12
+Apr  2 22:07:02 test kernel: [    0.599233] i8042: [0] d1 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.599290] i8042: [0] df -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.599295] i8042: [0] ff -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.599338] i8042: [0] 20 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.599449] i8042: [0] ef <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.599502] i8042: [0] 20 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.599767] i8042: [0] ef <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.599772] i8042: [0] 60 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.599829] i8042: [0] fe -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.599942] i8042: [0] d3 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.600051] i8042: [0] 5a -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.600163] i8042: [0] 5a <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.600166] i8042: [0] a7 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.600376] i8042: [0] 20 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.600487] i8042: [0] fe <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.600490] i8042: [0] a8 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.600545] i8042: [1] 20 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.600707] i8042: [1] de <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.600710] i8042: [1] 60 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.600767] i8042: [1] fc -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.600979] i8042: [1] d3 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.601036] i8042: [1] f0 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.601149] i8042: [1] f0 <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.601251] i8042: [1] d3 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.601360] i8042: [1] 56 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.601472] i8042: [1] 56 <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.601577] i8042: [1] d3 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.601634] i8042: [1] a4 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.601798] i8042: [1] 11 <- i8042 (return)
+Apr  2 22:07:02 test kernel: [    0.601999] i8042: Detected active multiplexing controller, rev 1.1
+Apr  2 22:07:02 test kernel: [    0.602109] i8042: [1] 60 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.603717] i8042: [1] fc -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.603788] i8042: [1] 90 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.603844] i8042: [1] a8 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.603901] i8042: [1] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.603958] i8042: [1] a8 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.604015] i8042: [1] 92 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.604072] i8042: [1] a8 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.604128] i8042: [1] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.604185] i8042: [1] a8 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.604242] i8042: [1] 60 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.604299] i8042: [1] de -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.604312] i8042: [1] 60 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.604369] i8042: [1] cf -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.604373] serio: i8042 KBD port at 0x60,0x64 irq 1
+Apr  2 22:07:02 test kernel: [    0.604482] serio: i8042 AUX0 port at 0x60,0x64 irq 12
+Apr  2 22:07:02 test kernel: [    0.604629] serio: i8042 AUX1 port at 0x60,0x64 irq 12
+Apr  2 22:07:02 test kernel: [    0.604770] serio: i8042 AUX2 port at 0x60,0x64 irq 12
+Apr  2 22:07:02 test kernel: [    0.604907] serio: i8042 AUX3 port at 0x60,0x64 irq 12
+Apr  2 22:07:02 test kernel: [    0.605171] mousedev: PS/2 mouse device common for all mice
+Apr  2 22:07:02 test kernel: [    0.605483] i8042: [2] f2 -> i8042 (kbd-data)
+Apr  2 22:07:02 test kernel: [    0.608275] i8042: [2] fa <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.614872] i8042: [4] ab <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.616796] i8042: [5] 41 <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.616816] i8042: [5] f5 -> i8042 (kbd-data)
+Apr  2 22:07:02 test kernel: [    0.617258] i8042: [6] fa <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.617277] i8042: [6] ed -> i8042 (kbd-data)
+Apr  2 22:07:02 test kernel: [    0.617731] i8042: [7] fa <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.617750] i8042: [7] 00 -> i8042 (kbd-data)
+Apr  2 22:07:02 test kernel: [    0.618196] i8042: [8] fa <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.618216] i8042: [8] f3 -> i8042 (kbd-data)
+Apr  2 22:07:02 test kernel: [    0.618669] i8042: [9] fa <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.618688] i8042: [9] 00 -> i8042 (kbd-data)
+Apr  2 22:07:02 test kernel: [    0.620031] i8042: [10] fa <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.620068] i8042: [10] f4 -> i8042 (kbd-data)
+Apr  2 22:07:02 test kernel: [    0.620505] i8042: [11] fa <- i8042 (interrupt, 0, 1)
+Apr  2 22:07:02 test kernel: [    0.620614] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input4
+Apr  2 22:07:02 test kernel: [    0.620901] i8042: [11] 90 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.620959] i8042: [11] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.633326] i8042: [16] MUX error, status is 35, data is fe
+Apr  2 22:07:02 test kernel: [    0.633329] i8042: [16] fe <- i8042 (interrupt, 2, 12, timeout)
+Apr  2 22:07:02 test kernel: [    0.633339] i8042: [16] 90 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.635413] i8042: [16] ed -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.647600] i8042: [21] MUX error, status is 35, data is fe
+Apr  2 22:07:02 test kernel: [    0.647603] i8042: [21] fe <- i8042 (interrupt, 2, 12, timeout)
+Apr  2 22:07:02 test kernel: [    0.647633] i8042: [21] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.648984] i8042: [22] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.649042] i8042: [22] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.649663] i8042: [23] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.649690] i8042: [23] 92 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.649750] i8042: [23] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.661243] i8042: [28] MUX error, status is b5, data is fe
+Apr  2 22:07:02 test kernel: [    0.661246] i8042: [28] fe <- i8042 (interrupt, 4, 12, timeout)
+Apr  2 22:07:02 test kernel: [    0.661256] i8042: [28] 92 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.662813] i8042: [29] ed -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.667644] i8042: [34] MUX error, status is b5, data is fe
+Apr  2 22:07:02 test kernel: [    0.667647] i8042: [34] fe <- i8042 (interrupt, 4, 12, timeout)
+Apr  2 22:07:02 test kernel: [    0.667675] i8042: [34] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.669543] i8042: [34] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.669854] i8042: [35] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    0.670231] i8042: [36] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    0.670259] i8042: [36] 90 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.670317] i8042: [36] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.674851] i8042: [40] MUX error, status is 35, data is fe
+Apr  2 22:07:02 test kernel: [    0.674854] i8042: [40] fe <- i8042 (interrupt, 2, 12, timeout)
+Apr  2 22:07:02 test kernel: [    0.674880] i8042: [40] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.676851] i8042: [41] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.677006] i8042: [42] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.677132] i8042: [42] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.677141] i8042: [42] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.678543] i8042: [42] f6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.680912] i8042: [43] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.680926] i8042: [43] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.681036] i8042: [43] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.681259] i8042: [44] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.681273] i8042: [44] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.683192] i8042: [44] 0a -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.683464] i8042: [45] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.683473] i8042: [45] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.683531] i8042: [45] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.683705] i8042: [45] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.683715] i8042: [45] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.685065] i8042: [46] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.685185] i8042: [46] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.685195] i8042: [46] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.685253] i8042: [46] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.685639] i8042: [47] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.685648] i8042: [47] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.687412] i8042: [47] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.687511] i8042: [48] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.687521] i8042: [48] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.687579] i8042: [48] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.687903] i8042: [49] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.687912] i8042: [49] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.689469] i8042: [49] 3c -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.689584] i8042: [50] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.689593] i8042: [50] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.689708] i8042: [50] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.692040] i8042: [50] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.692049] i8042: [50] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.694122] i8042: [51] 28 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.696483] i8042: [51] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.696493] i8042: [51] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.696603] i8042: [51] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.698117] i8042: [52] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.698127] i8042: [52] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.699684] i8042: [52] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.701040] i8042: [53] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.701050] i8042: [53] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.701160] i8042: [53] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.701271] i8042: [54] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.701285] i8042: [54] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.703048] i8042: [54] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.705370] i8042: [55] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.705380] i8042: [55] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.705438] i8042: [55] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.705477] i8042: [55] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.705486] i8042: [55] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.706888] i8042: [56] 3c -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.706969] i8042: [56] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.706978] i8042: [56] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.707036] i8042: [56] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.707413] i8042: [57] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.707423] i8042: [57] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.709342] i8042: [57] 28 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.711047] i8042: [58] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.711057] i8042: [58] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.711167] i8042: [58] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.711389] i8042: [59] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.711399] i8042: [59] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.712955] i8042: [59] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.715305] i8042: [60] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.715311] i8042: [60] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.715419] i8042: [60] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.715463] i8042: [60] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.715472] i8042: [60] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.717236] i8042: [61] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.717282] i8042: [61] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.717292] i8042: [61] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.717349] i8042: [61] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.718361] i8042: [62] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.718807] i8042: [63] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.718825] i8042: [63] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.718934] i8042: [63] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.718978] i8042: [63] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.718988] i8042: [63] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.720958] i8042: [64] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.721006] i8042: [64] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.721016] i8042: [64] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.721074] i8042: [64] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.721453] i8042: [65] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.721463] i8042: [65] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.722813] i8042: [65] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.724573] i8042: [66] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.724583] i8042: [66] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.724692] i8042: [66] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.724997] i8042: [67] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.725003] i8042: [67] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.726973] i8042: [67] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.727518] i8042: [68] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.727527] i8042: [68] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.727637] i8042: [68] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.727753] i8042: [68] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.727763] i8042: [68] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.729113] i8042: [69] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.729159] i8042: [69] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.729169] i8042: [69] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.729227] i8042: [69] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.730171] i8042: [70] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.730619] i8042: [71] 03 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.731070] i8042: [72] 43 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.731521] i8042: [73] 07 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.731532] i8042: [73] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.731589] i8042: [73] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.733065] i8042: [74] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.733074] i8042: [74] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.734631] i8042: [74] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.734897] i8042: [75] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.734906] i8042: [75] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.734964] i8042: [75] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.735122] i8042: [76] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.735136] i8042: [76] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.737055] i8042: [76] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.737404] i8042: [77] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.737414] i8042: [77] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.737472] i8042: [77] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.737514] i8042: [77] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.737524] i8042: [77] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.738874] i8042: [78] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.741276] i8042: [78] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.741287] i8042: [78] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.741345] i8042: [78] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.743733] i8042: [79] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.743743] i8042: [79] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.745712] i8042: [79] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.748060] i8042: [80] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.748070] i8042: [80] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    0.748179] i8042: [80] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    0.750505] i8042: [81] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.753325] i8042: [81] 03 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.754669] i8042: [82] 43 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    0.756016] i8042: [82] 07 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.136249] i8042: [132] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.136308] i8042: [132] f6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.138850] i8042: [132] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.138865] i8042: [132] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.140841] i8042: [132] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.143403] i8042: [133] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.143417] i8042: [133] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.143475] i8042: [133] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.145934] i8042: [134] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.145949] i8042: [134] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.147356] i8042: [134] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.149932] i8042: [135] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.149942] i8042: [135] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.150000] i8042: [135] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.152368] i8042: [136] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.152383] i8042: [136] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.154353] i8042: [136] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.156877] i8042: [137] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.156891] i8042: [137] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.156949] i8042: [137] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.159471] i8042: [137] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.162295] i8042: [138] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.167834] i8042: [139] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.172304] i8042: [141] 64 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.172320] i8042: [141] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.172378] i8042: [141] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.174920] i8042: [141] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.174934] i8042: [141] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.176698] i8042: [141] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.179266] i8042: [142] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.179280] i8042: [142] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.179338] i8042: [142] e7 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.181859] i8042: [143] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.181873] i8042: [143] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.183229] i8042: [143] e7 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.185780] i8042: [144] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.185794] i8042: [144] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.185852] i8042: [144] e7 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.188395] i8042: [145] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.188410] i8042: [145] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.190282] i8042: [145] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.192857] i8042: [146] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.196229] i8042: [147] 10 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.201669] i8042: [148] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.206238] i8042: [149] 64 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.206252] i8042: [149] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.206310] i8042: [149] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.208844] i8042: [150] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.208858] i8042: [150] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.210731] i8042: [150] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.213304] i8042: [151] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.213318] i8042: [151] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.213376] i8042: [151] ec -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.215918] i8042: [151] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.215932] i8042: [151] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.217282] i8042: [152] ec -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.219837] i8042: [152] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.219851] i8042: [152] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.219909] i8042: [152] ec -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.222430] i8042: [153] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.222444] i8042: [153] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.224213] i8042: [153] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.226782] i8042: [154] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.230264] i8042: [155] 10 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.235865] i8042: [156] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.240273] i8042: [158] 64 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.240288] i8042: [158] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.240346] i8042: [158] ea -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.242896] i8042: [158] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.242912] i8042: [158] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.244683] i8042: [158] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.247064] i8042: [159] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.247078] i8042: [159] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.247135] i8042: [159] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.249683] i8042: [160] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.249698] i8042: [160] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.251054] i8042: [160] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.253608] i8042: [161] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.253623] i8042: [161] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.253681] i8042: [161] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.256062] i8042: [162] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.256077] i8042: [162] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.258104] i8042: [162] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.260645] i8042: [163] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.260660] i8042: [163] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.260718] i8042: [163] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.263082] i8042: [163] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.265935] i8042: [164] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.267426] i8042: [164] 03 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.271510] i8042: [165] 64 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.271525] i8042: [165] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.271583] i8042: [165] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.273935] i8042: [166] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.273946] i8042: [166] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.275509] i8042: [166] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.277934] i8042: [167] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.277956] i8042: [167] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.278015] i8042: [167] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.280556] i8042: [168] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.280569] i8042: [168] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.282442] i8042: [168] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.284937] i8042: [169] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.284952] i8042: [169] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.285010] i8042: [169] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.287540] i8042: [169] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.287555] i8042: [169] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.288912] i8042: [170] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.291480] i8042: [170] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.295802] i8042: [171] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.300393] i8042: [173] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.305924] i8042: [174] 64 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.305940] i8042: [174] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.305998] i8042: [174] e1 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.308446] i8042: [175] fe <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.308461] i8042: [175] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.309919] i8042: [175] f5 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.312465] i8042: [176] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.312480] i8042: [176] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.312537] i8042: [176] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.314934] i8042: [176] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.314948] i8042: [176] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.316866] i8042: [176] 66 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.319419] i8042: [177] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.319433] i8042: [177] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.319491] i8042: [177] 88 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.321935] i8042: [178] fe <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.321949] i8042: [178] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.323357] i8042: [178] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.325929] i8042: [179] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.325943] i8042: [179] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.326001] i8042: [179] 66 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.328545] i8042: [180] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.328559] i8042: [180] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.330432] i8042: [180] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.332933] i8042: [181] fe <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.332947] i8042: [181] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.333005] i8042: [181] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.335526] i8042: [181] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.338346] i8042: [182] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.343782] i8042: [183] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.348200] i8042: [185] 66 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.348401] i8042: [185] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.348458] i8042: [185] f4 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.350934] i8042: [185] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.350958] i8042: [185] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.353084] i8042: [186] f6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.355652] i8042: [186] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.355667] i8042: [186] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.355724] i8042: [186] ff -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.358095] i8042: [187] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.741353] i8042: [283] aa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.746884] i8042: [284] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.746900] i8042: [284] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.746958] i8042: [284] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.749355] i8042: [285] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.749369] i8042: [285] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.750880] i8042: [285] c8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.753355] i8042: [286] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.753369] i8042: [286] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.753427] i8042: [286] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.755932] i8042: [286] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.755945] i8042: [286] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.757967] i8042: [286] 64 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.760354] i8042: [288] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.760368] i8042: [288] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.760426] i8042: [288] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.762934] i8042: [288] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.762948] i8042: [288] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.764298] i8042: [288] 50 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.766877] i8042: [289] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.766891] i8042: [289] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.766949] i8042: [289] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.769354] i8042: [290] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.772745] i8042: [291] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.772760] i8042: [291] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.772818] i8042: [291] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.775350] i8042: [291] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.775359] i8042: [291] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.776761] i8042: [292] c8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.779296] i8042: [292] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.779307] i8042: [292] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.779364] i8042: [292] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.781906] i8042: [293] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.781919] i8042: [293] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.783792] i8042: [293] c8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.786338] i8042: [294] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.786353] i8042: [294] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.786411] i8042: [294] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.788937] i8042: [295] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.788951] i8042: [295] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.790307] i8042: [295] 50 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.792879] i8042: [296] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.792893] i8042: [296] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.792951] i8042: [296] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.795352] i8042: [296] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.798750] i8042: [297] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.798765] i8042: [297] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.798823] i8042: [297] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.801352] i8042: [298] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.801366] i8042: [298] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.802722] i8042: [298] c8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.805298] i8042: [299] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.805312] i8042: [299] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.805370] i8042: [299] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.807913] i8042: [299] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.807927] i8042: [299] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.809845] i8042: [299] 64 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.812354] i8042: [301] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.812369] i8042: [301] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.812426] i8042: [301] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.814936] i8042: [301] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.814949] i8042: [301] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.816299] i8042: [301] 50 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.818877] i8042: [302] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.818891] i8042: [302] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.818949] i8042: [302] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.821355] i8042: [303] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.824746] i8042: [304] 00 <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.824762] i8042: [304] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.824820] i8042: [304] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.827351] i8042: [304] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.827364] i8042: [304] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.828714] i8042: [304] 64 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.831297] i8042: [305] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.831311] i8042: [305] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.831369] i8042: [305] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.833912] i8042: [306] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.833926] i8042: [306] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.835850] i8042: [306] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.838354] i8042: [307] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.838369] i8042: [307] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.838427] i8042: [307] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.840934] i8042: [308] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.841022] input: PS/2 Generic Mouse as /devices/platform/i8042/serio2/input/input10
+Apr  2 22:07:02 test kernel: [    1.841293] i8042: [308] 91 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.842332] i8042: [308] f4 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.844874] i8042: [309] fa <- i8042 (interrupt, 3, 12)
+Apr  2 22:07:02 test kernel: [    1.844914] i8042: [309] 92 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.844972] i8042: [309] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.864710] i8042: [314] MUX error, status is b5, data is fe
+Apr  2 22:07:02 test kernel: [    1.864713] i8042: [314] fe <- i8042 (interrupt, 4, 12, timeout)
+Apr  2 22:07:02 test kernel: [    1.864746] i8042: [314] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.866510] i8042: [314] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.868937] i8042: [315] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.872355] i8042: [316] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.872369] i8042: [316] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.872428] i8042: [316] f6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.874893] i8042: [316] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.874910] i8042: [316] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.876833] i8042: [316] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.879255] i8042: [317] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.879268] i8042: [317] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.879326] i8042: [317] 0a -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.881751] i8042: [318] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.881766] i8042: [318] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.883121] i8042: [318] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.885585] i8042: [319] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.885599] i8042: [319] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.885657] i8042: [319] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.887932] i8042: [319] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.887946] i8042: [319] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.889870] i8042: [319] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.892198] i8042: [321] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.892240] i8042: [321] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.892298] i8042: [321] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.894731] i8042: [321] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.894745] i8042: [321] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.896101] i8042: [321] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.898580] i8042: [322] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.898593] i8042: [322] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.898651] i8042: [322] 3c -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.900934] i8042: [323] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.900949] i8042: [323] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.903027] i8042: [323] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.905352] i8042: [324] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.905366] i8042: [324] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.905424] i8042: [324] 28 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.907850] i8042: [324] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.907863] i8042: [324] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.909213] i8042: [324] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.911481] i8042: [325] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.911495] i8042: [325] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.911552] i8042: [325] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.913934] i8042: [326] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.913949] i8042: [326] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.915768] i8042: [326] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.918242] i8042: [327] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.918256] i8042: [327] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.918314] i8042: [327] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.920748] i8042: [328] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.920762] i8042: [328] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.922118] i8042: [328] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.924413] i8042: [329] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.924427] i8042: [329] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.924485] i8042: [329] 3c -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.926882] i8042: [329] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.926896] i8042: [329] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.928763] i8042: [329] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.931251] i8042: [330] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.931265] i8042: [330] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.931323] i8042: [330] 28 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.933733] i8042: [331] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.933748] i8042: [331] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.935103] i8042: [331] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.937414] i8042: [332] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.937428] i8042: [332] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.937486] i8042: [332] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.939898] i8042: [332] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.939912] i8042: [332] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.941727] i8042: [332] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.944177] i8042: [334] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.944191] i8042: [334] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.944249] i8042: [334] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.946658] i8042: [334] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.946672] i8042: [334] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.948021] i8042: [334] f2 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.950350] i8042: [335] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.954936] i8042: [336] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.954952] i8042: [336] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.955009] i8042: [336] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.957354] i8042: [337] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.957368] i8042: [337] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.958827] i8042: [337] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.961289] i8042: [338] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.961303] i8042: [338] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.961361] i8042: [338] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.963796] i8042: [338] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.963810] i8042: [338] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.965626] i8042: [338] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.967935] i8042: [339] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.967949] i8042: [339] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.968007] i8042: [339] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.970352] i8042: [340] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.970366] i8042: [340] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.971819] i8042: [340] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.974266] i8042: [341] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.974280] i8042: [341] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.974338] i8042: [341] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.976774] i8042: [342] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.976788] i8042: [342] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.978661] i8042: [342] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.980971] i8042: [343] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.980985] i8042: [343] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.981043] i8042: [343] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.983352] i8042: [343] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.986231] i8042: [344] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.991658] i8042: [345] 47 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.996250] i8042: [347] 17 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    1.996265] i8042: [347] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    1.996323] i8042: [347] ff -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    1.998774] i8042: [347] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.333313] i8042: [431] aa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.336881] i8042: [432] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.336897] i8042: [432] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.336955] i8042: [432] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.339351] i8042: [432] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.339365] i8042: [432] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.341289] i8042: [432] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.343732] i8042: [433] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.343745] i8042: [433] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.343803] i8042: [433] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.346236] i8042: [434] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.346251] i8042: [434] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.347605] i8042: [434] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.349935] i8042: [435] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.349949] i8042: [435] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.350007] i8042: [435] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.352353] i8042: [436] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.352367] i8042: [436] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.354239] i8042: [436] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.356714] i8042: [437] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.356728] i8042: [437] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.356786] i8042: [437] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.359215] i8042: [437] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.359228] i8042: [437] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.360584] i8042: [437] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.362933] i8042: [438] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.362947] i8042: [438] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.363005] i8042: [438] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.365353] i8042: [439] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.365367] i8042: [439] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.367291] i8042: [439] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.369807] i8042: [440] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.373183] i8042: [441] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.378630] i8042: [442] 47 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.383211] i8042: [443] 17 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.383226] i8042: [443] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.383284] i8042: [443] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.385716] i8042: [444] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.385731] i8042: [444] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.387604] i8042: [444] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.389935] i8042: [445] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.389948] i8042: [445] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.390006] i8042: [445] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.392354] i8042: [446] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.392368] i8042: [446] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.393827] i8042: [446] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.396277] i8042: [447] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.396291] i8042: [447] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.396349] i8042: [447] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.398758] i8042: [447] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.398771] i8042: [447] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.400587] i8042: [447] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.402935] i8042: [448] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.402948] i8042: [448] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.403006] i8042: [448] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.405354] i8042: [449] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.405369] i8042: [449] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.406827] i8042: [449] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.409273] i8042: [450] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.409287] i8042: [450] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.409345] i8042: [450] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.411754] i8042: [450] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.411768] i8042: [450] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.413693] i8042: [450] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.416168] i8042: [452] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.419393] i8042: [452] 01 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.420803] i8042: [453] c0 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.424937] i8042: [454] b1 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.424951] i8042: [454] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.425009] i8042: [454] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.427353] i8042: [454] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.427366] i8042: [454] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.428820] i8042: [454] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.431279] i8042: [455] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.431293] i8042: [455] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.431351] i8042: [455] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.433764] i8042: [456] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.433779] i8042: [456] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.435755] i8042: [456] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.438218] i8042: [457] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.438233] i8042: [457] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.438291] i8042: [457] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.440721] i8042: [458] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.440735] i8042: [458] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.442090] i8042: [458] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.444401] i8042: [459] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.444415] i8042: [459] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.444473] i8042: [459] 02 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.446878] i8042: [459] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.446892] i8042: [459] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.448661] i8042: [459] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.450964] i8042: [460] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.450977] i8042: [460] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.451035] i8042: [460] 02 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.453355] i8042: [461] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.453370] i8042: [461] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.454828] i8042: [461] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.457305] i8042: [462] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.461767] i8042: [463] 08 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.466236] i8042: [464] 4e <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.471679] i8042: [465] 26 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.471694] i8042: [465] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.471752] i8042: [465] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.474207] i8042: [466] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.474222] i8042: [466] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.475578] i8042: [466] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.477935] i8042: [467] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.477949] i8042: [467] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.478007] i8042: [467] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.480353] i8042: [468] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.480367] i8042: [468] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.482343] i8042: [468] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.484807] i8042: [469] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.484821] i8042: [469] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.484879] i8042: [469] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.487299] i8042: [469] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.487313] i8042: [469] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.488669] i8042: [469] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.490949] i8042: [470] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.490963] i8042: [470] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.491021] i8042: [470] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.493353] i8042: [471] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.493367] i8042: [471] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.495291] i8042: [471] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.497738] i8042: [472] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.497752] i8042: [472] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.497810] i8042: [472] 02 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.500221] i8042: [473] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.500236] i8042: [473] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.501591] i8042: [473] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.503934] i8042: [473] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.508348] i8042: [475] d0 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.509781] i8042: [475] 47 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.512936] i8042: [476] 11 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.512950] i8042: [476] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.513008] i8042: [476] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.515351] i8042: [476] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.515365] i8042: [476] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.517284] i8042: [476] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.519736] i8042: [477] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.519750] i8042: [477] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.519807] i8042: [477] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.522229] i8042: [478] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.522243] i8042: [478] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.523599] i8042: [478] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.525936] i8042: [479] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.525950] i8042: [479] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.526008] i8042: [479] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.528354] i8042: [480] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.528368] i8042: [480] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.530344] i8042: [480] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.532804] i8042: [481] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.532818] i8042: [481] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.532876] i8042: [481] 02 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.535285] i8042: [481] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.535299] i8042: [481] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.536655] i8042: [481] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.538940] i8042: [482] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.538953] i8042: [482] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.539011] i8042: [482] 01 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.541354] i8042: [483] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.541369] i8042: [483] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.543240] i8042: [483] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.545717] i8042: [484] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.549215] i8042: [485] a0 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.554827] i8042: [486] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.559223] i8042: [487] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.559238] i8042: [487] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.559296] i8042: [487] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.561741] i8042: [488] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.561755] i8042: [488] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.563525] i8042: [488] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.565934] i8042: [489] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.565948] i8042: [489] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.566006] i8042: [489] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.568355] i8042: [490] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.568370] i8042: [490] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.569776] i8042: [490] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.572239] i8042: [491] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.572253] i8042: [491] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.572311] i8042: [491] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.574743] i8042: [491] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.574757] i8042: [491] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.576682] i8042: [491] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.578948] i8042: [492] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.578958] i8042: [492] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.579016] i8042: [492] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.581353] i8042: [493] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.581367] i8042: [493] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.582827] i8042: [493] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.585289] i8042: [494] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.585303] i8042: [494] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.585361] i8042: [494] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.587794] i8042: [494] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.587808] i8042: [494] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.589578] i8042: [494] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.591932] i8042: [495] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.595418] i8042: [496] 02 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.596833] i8042: [497] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.600940] i8042: [498] 00 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.600955] i8042: [498] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.601013] i8042: [498] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.603350] i8042: [498] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.603363] i8042: [498] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.604817] i8042: [498] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.607276] i8042: [499] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.607290] i8042: [499] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.607348] i8042: [499] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.609781] i8042: [500] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.609795] i8042: [500] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.611616] i8042: [500] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.613935] i8042: [501] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.613949] i8042: [501] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.614007] i8042: [501] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.616231] i8042: [502] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.616291] i8042: [502] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.617796] i8042: [502] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.620264] i8042: [503] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.620278] i8042: [503] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.620336] i8042: [503] 02 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.622768] i8042: [503] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.622781] i8042: [503] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.624654] i8042: [503] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.626941] i8042: [504] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.626955] i8042: [504] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.627013] i8042: [504] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.629352] i8042: [505] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.629367] i8042: [505] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.630774] i8042: [505] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.633290] i8042: [506] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.637619] i8042: [507] 38 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.642210] i8042: [508] 80 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.647730] i8042: [509] 53 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.647745] i8042: [509] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.647803] i8042: [509] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.650236] i8042: [510] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.650250] i8042: [510] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.651606] i8042: [510] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.653934] i8042: [511] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.653948] i8042: [511] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.654006] i8042: [511] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.656354] i8042: [512] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.656368] i8042: [512] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.658241] i8042: [512] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.660703] i8042: [513] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.660718] i8042: [513] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.660776] i8042: [513] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.663185] i8042: [513] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.663198] i8042: [513] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.664554] i8042: [513] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.666934] i8042: [514] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.666948] i8042: [514] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.667006] i8042: [514] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.669354] i8042: [515] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.669368] i8042: [515] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.671396] i8042: [515] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.673846] i8042: [516] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.673860] i8042: [516] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.673918] i8042: [516] 01 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.676337] i8042: [517] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.676351] i8042: [517] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.677707] i8042: [517] e9 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.680225] i8042: [518] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.684405] i8042: [519] a1 <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.685813] i8042: [519] 3f <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.688991] i8042: [520] 8d <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.689005] psmouse serio4: synaptics: queried max coordinates: x [..5182], y [..4518]
+Apr  2 22:07:02 test kernel: [    2.689148] i8042: [520] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.689206] i8042: [520] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.691660] i8042: [520] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.691674] i8042: [520] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.693651] i8042: [520] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.695937] i8042: [521] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.695950] i8042: [521] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.696008] i8042: [521] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.698351] i8042: [522] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.698365] i8042: [522] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.699818] i8042: [522] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.702264] i8042: [523] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.702278] i8042: [523] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.702336] i8042: [523] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.704766] i8042: [524] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.704781] i8042: [524] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.706550] i8042: [524] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.708936] i8042: [525] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.708950] i8042: [525] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.709008] i8042: [525] 01 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.711351] i8042: [525] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.711365] i8042: [525] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.712818] i8042: [525] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.715293] i8042: [526] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.715307] i8042: [526] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.715364] i8042: [526] 01 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.717778] i8042: [527] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.717793] i8042: [527] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.719665] i8042: [527] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.721972] i8042: [528] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.721986] i8042: [528] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.722044] i8042: [528] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.724285] i8042: [529] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.724302] psmouse serio4: synaptics: Touchpad model: 1, fw: 7.0, id: 0x1c0b1, caps: 0xd04711/0xa00000/0x20000/0x0, board id: 0, fw id: 544294
+Apr  2 22:07:02 test kernel: [    2.724456] i8042: [529] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.725805] i8042: [529] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.728284] i8042: [530] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.728299] i8042: [530] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.728357] i8042: [530] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.730768] i8042: [530] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.730782] i8042: [530] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.732545] i8042: [530] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.734934] i8042: [531] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.734948] i8042: [531] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.735006] i8042: [531] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.737354] i8042: [532] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.737368] i8042: [532] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.738827] i8042: [532] 00 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.741268] i8042: [533] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.741283] i8042: [533] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.741341] i8042: [533] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.743753] i8042: [533] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.743767] i8042: [533] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.745686] i8042: [533] 01 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.747978] i8042: [534] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.747992] i8042: [534] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.748050] i8042: [534] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.750352] i8042: [535] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.750365] i8042: [535] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.751870] i8042: [535] 01 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.754296] i8042: [536] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.754310] i8042: [536] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.754368] i8042: [536] f3 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.756791] i8042: [537] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.756805] i8042: [537] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.758574] i8042: [537] 14 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.760935] i8042: [538] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.760949] i8042: [538] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.761007] i8042: [538] e8 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.763351] i8042: [538] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.763365] i8042: [538] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.764819] i8042: [538] 03 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.767267] i8042: [539] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.767281] i8042: [539] 93 -> i8042 (command)
+Apr  2 22:07:02 test kernel: [    2.767339] i8042: [539] e6 -> i8042 (parameter)
+Apr  2 22:07:02 test kernel: [    2.769775] i8042: [540] fa <- i8042 (interrupt, 5, 12)
+Apr  2 22:07:02 test kernel: [    2.769869] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio4/input/input14
+
+
 -- 
-2.16.3
+Ondrej Zary

@@ -1,54 +1,29 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Fix an unchecked out of memory
- error path
-Date: Mon, 2 Apr 2018 17:52:52 -0700
-Message-ID: <a8d419ae-4047-77af-0a1c-683bf1370e6a@synaptics.com>
-References: <20180402140327.7715-1-christophe.jaillet@wanadoo.fr>
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Fix resume issue on Raydium touchscreen
+ device
+Date: Tue, 3 Apr 2018 17:16:55 +0800
+Message-ID: <f9becc3a-516f-7eed-06a9-c9e5610b9fd3@canonical.com>
+References: <20180102173006.506-1-aaron.ma@canonical.com>
+ <20180102173006.506-2-aaron.ma@canonical.com>
+ <CAO-hwJJ3n3YD1+pKvKRRoCX8y-5xZwemKLuLi7aqWSQT=J645A@mail.gmail.com>
+ <7ddae302-a44f-b729-c826-082bdcb38d70@canonical.com>
+ <e8e8a5d2-ee14-54a8-b30b-66d5cc9404b1@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180402140327.7715-1-christophe.jaillet@wanadoo.fr>
+In-Reply-To: <e8e8a5d2-ee14-54a8-b30b-66d5cc9404b1@canonical.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, gregkh@linuxfoundation.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi Jiri:
 
-On 04/02/2018 07:03 AM, Christophe JAILLET wrote:
-> When extending the rmi_spi buffers, we must check that no out of memory
-> error occurs, otherwise we may access data above the currently allocated
-> memory.
->
-> Propagate the error code returned by 'rmi_spi_manage_pools()' instead.
-Yep, that definitely looks like an oversight on my part. Thanks for the fix.
+This patch is pending for long time.
 
-Andrew
+Could you merge this single patch to upstream?
 
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-
-Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
-
-> ---
->   drivers/input/rmi4/rmi_spi.c | 7 +++++--
->   1 file changed, 5 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
-> index 76edbf2c1bce..082defc329a8 100644
-> --- a/drivers/input/rmi4/rmi_spi.c
-> +++ b/drivers/input/rmi4/rmi_spi.c
-> @@ -147,8 +147,11 @@ static int rmi_spi_xfer(struct rmi_spi_xport *rmi_spi,
->   	if (len > RMI_SPI_XFER_SIZE_LIMIT)
->   		return -EINVAL;
->   
-> -	if (rmi_spi->xfer_buf_size < len)
-> -		rmi_spi_manage_pools(rmi_spi, len);
-> +	if (rmi_spi->xfer_buf_size < len) {
-> +		ret = rmi_spi_manage_pools(rmi_spi, len);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
->   
->   	if (addr == 0)
->   		/*
+Regards,
+Aaron

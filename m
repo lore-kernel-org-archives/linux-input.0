@@ -1,52 +1,22 @@
-From: Jiri Kosina <jikos@kernel.org>
+From: Martin van Es <martin@mrvanes.com>
 Subject: Re: [PATCH] HID: input: fix battery level reporting on BT mice
-Date: Wed, 4 Apr 2018 10:33:16 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1804041032560.15778@cbobk.fhfr.pm>
-References: <20180403175220.GA148162@dtor-ws> <10651380.a6EbCRfp8J@minivanes>
+Date: Wed, 04 Apr 2018 10:51:14 +0200
+Message-ID: <1694587.16DWc6HTFx@minivanes>
+References: <20180403175220.GA148162@dtor-ws> <10651380.a6EbCRfp8J@minivanes> <nycvar.YFH.7.76.1804041032560.15778@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <10651380.a6EbCRfp8J@minivanes>
+In-Reply-To: <nycvar.YFH.7.76.1804041032560.15778@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Martin van Es <martin@mrvanes.com>
+To: Jiri Kosina <jikos@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Martin <bugs@mrvanes.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 3 Apr 2018, Martin van Es wrote:
+On Wednesday, April 4, 2018 10:33:16 AM CEST Jiri Kosina wrote:
+> Can I add your Tested-by: while applying the commit?
 
-> Hi Dimitry,
-> 
-> I reapplied the 3 commits I had to revert earlier and applied your patch. Have 
-> correct battery level reading on my BT mouse back!
-> 
-> /sys/class/power_supply/hid-00:1f:20:fd:cb:be-battery# grep "" *
-> capacity:53
-> grep: device: Is a directory
-> model_name:Bluetooth Mouse M336/M337/M535
-> online:1
-> grep: power: Is a directory
-> grep: powers: Is a directory
-> present:1
-> scope:Device
-> status:Discharging
-> grep: subsystem: Is a directory
-> type:Battery
-> uevent:POWER_SUPPLY_NAME=hid-00:1f:20:fd:cb:be-battery
-> uevent:POWER_SUPPLY_PRESENT=1
-> uevent:POWER_SUPPLY_ONLINE=1
-> uevent:POWER_SUPPLY_CAPACITY=53
-> uevent:POWER_SUPPLY_MODEL_NAME=Bluetooth Mouse M336/M337/M535
-> uevent:POWER_SUPPLY_STATUS=Discharging
-> uevent:POWER_SUPPLY_SCOPE=Device
-> 
-> rdesc file is attached
-> 
-> Thx for the effort!
+That's ok.
 
-Can I add your Tested-by: while applying the commit?
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Best regards,
+Martin

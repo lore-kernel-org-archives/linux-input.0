@@ -1,52 +1,46 @@
-From: Sasha Levin <Alexander.Levin@microsoft.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Fix an unchecked out of memory
- error path
-Date: Thu, 5 Apr 2018 01:34:26 +0000
-Message-ID: <DM5PR2101MB103205963461FF9EE6FDC1EDFBBB0@DM5PR2101MB1032.namprd21.prod.outlook.com>
-References: <20180402140327.7715-1-christophe.jaillet@wanadoo.fr>
+From: Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: Re: Linux 4.16 Kernel Boot Crash
+Date: Wed, 4 Apr 2018 15:54:19 -0300
+Message-ID: <20180404155419.0740c805@vento.lan>
+References: <6a0009be-cbf8-671e-9d7d-c78340e93f58@gmail.com>
+ <87in97up15.fsf@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180402140327.7715-1-christophe.jaillet@wanadoo.fr>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sasha Levin <Alexander.Levin@microsoft.com>, Christophe JAILLET <christophe.jaillet@wanadoo.fr>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Jaak Ristioja <jaak@ristioja.ee>, Peter Geis <pgwipeout@gmail.com>
+Cc: intel-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Christophe JAILLET.
-
-[This is an automated email]
-
-This commit has been processed by the -stable helper bot and determined
-to be a high probability candidate for -stable trees. (score: 7.5278)
-
-The bot has tested the following trees: v4.15.15, v4.14.32, v4.9.92, v4.4.1=
-26,=20
-
-v4.15.15: Build OK!
-v4.14.32: Build OK!
-v4.9.92: Build OK!
-v4.4.126: Failed to apply! Possible dependencies:
-    8d99758dee31: ("Input: synaptics-rmi4 - add SPI transport driver")
-    ff8f83708b3e: ("Input: synaptics-rmi4 - add support for 2D sensors and =
-F11")
-    fdf51604f104: ("Input: synaptics-rmi4 - add I2C transport driver")
-    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
-devices")
-    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
-devices")
-    fdf51604f104: ("Input: synaptics-rmi4 - add I2C transport driver")
-    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
-devices")
-    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
-devices")
-
-
-Please let us know if you'd like to have this patch included in a stable tr=
-ee.
-
---
-Thanks.
-Sasha=
+RW0gV2VkLCA0IEFwciAyMDE4IDE2OjI2OjIyICswMzAwCkphYWsgUmlzdGlvamEgPGphYWtAcmlz
+dGlvamEuZWU+IGVzY3JldmV1OgoKPiBIZWxsbywgYWxsIQo+IAo+IEkgZXhwZXJpZW5jZSB0aGUg
+c2FtZSBpc3N1ZSB3aXRoIGEgTGVub3ZvIFRoaW5rUGFkIFQ0NDBwIChMRU5PVk8KPiAyMEFOMDA2
+Vk1TLzIwQU4wMDZWTVMsIEJJT1MgR0xFVDkwV1cgKDIuNDQgKSAwOS8xMy8yMDE3KS4gSSB0cmll
+ZCB0bwo+IGJpc2VjdCB2NC4xNS4udjQuMTYgYnV0IGZhaWxlZC4KCkNvdWxkIHlvdSBwb3N0IHRo
+ZSBjb21wbGV0ZSBkbWVzZz8gSSBhbHNvIG5lZWQgdGhlIC5jb25maWcgdXNlZAp0byBidWlsZCB0
+aGUgS2VybmVsLgoKRnJvbSBpdHMgY2FsbCB0cmFjZToKClsgICA0My4xNzc0OTJdIENhbGwgVHJh
+Y2U6ClsgICA0My4xNzc0OThdICA/IGRldnJlc19hZGQrMHg1Zi8weDcwClsgICA0My4xNzc1MDJd
+ICBybWlfZjU0X3Byb2JlKzB4NDM3LzB4NDcwIFtybWlfY29yZV0KWyAgIDQzLjE3NzUwNV0gIHJt
+aV9mdW5jdGlvbl9wcm9iZSsweDI1LzB4MzAgW3JtaV9jb3JlXQpbICAgNDMuMTc3NTA3XSAgZHJp
+dmVyX3Byb2JlX2RldmljZSsweDMxMC8weDQ4MAoKSXQgbG9va3MgdGhhdCB0aGlzIHdhcyBnZW5l
+cmF0ZWQgYnkgYW4gaW5wdXQgZHJpdmVyIApkcml2ZXJzL2lucHV0L3JtaTQvcm1pX2Y1NC5jLCB3
+aXRoIGNvdWxkIGJlIGRvaW5nIHNvbWV0aGluZyB3cm9uZyB3aGVuCnJlZ2lzdGVyaW5nIGF0IHRo
+ZSBtZWRpYSBjb3JlLgoKRnJvbSB0aGUgbG9ncywgdGhlIHdhcm4gb24gaXMgaGFwcGVuaW5nIGF0
+IApkcml2ZXJzL21lZGlhL3Y0bDItY29yZS92NGwyLWRldi5jOjk0NSwgZS4gZzoKCiAgICAgICAg
+LyogU2hvdWxkIG5vdCBoYXBwZW4gc2luY2Ugd2UgdGhvdWdodCB0aGlzIG1pbm9yIHdhcyBmcmVl
+ICovCiAgICAgICAgV0FSTl9PTih2aWRlb19kZXZpY2VbdmRldi0+bWlub3JdICE9IE5VTEwpOwoK
+VGhhdCB3YXMgcHJvYmFibHkgY2FsbGVkIGhlcmU6CgoJZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9m
+NTQuYzogICByZXQgPSB2aWRlb19yZWdpc3Rlcl9kZXZpY2UoJmY1NC0+dmRldiwgVkZMX1RZUEVf
+VE9VQ0gsIC0xKTsKClRoYW5rcywKTWF1cm8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMu
+ZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlz
+dGluZm8vaW50ZWwtZ2Z4Cg==

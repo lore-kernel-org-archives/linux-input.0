@@ -1,44 +1,29 @@
-From: Tim Harvey <tharvey@gateworks.com>
-Subject: Re: [v3,4/4] watchdog: add Gateworks System Controller support
-Date: Wed, 4 Apr 2018 09:57:42 -0700
-Message-ID: <CAJ+vNU2RxHngXa00=zx84ifJ6wWh=vN84shRsT5sWYG1G74zeA@mail.gmail.com>
-References: <1522250043-8065-5-git-send-email-tharvey@gateworks.com>
- <20180330010757.GA12896@roeck-us.net> <CAJ+vNU3ARKLK5AcssEP-_P8AmwnAnS8VtAEO1ppwum2jpCqAYQ@mail.gmail.com>
- <20180330181954.GA17580@roeck-us.net> <CAJ+vNU1f+SH16hs3heMA_A2KcbzbXXmJtPxi0uiL4+4tNWgYoQ@mail.gmail.com>
- <20180402163242.GC14165@lunn.ch>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: input: fix battery level reporting on BT mice
+Date: Wed, 4 Apr 2018 10:03:39 -0700
+Message-ID: <CAKdAkRTrHsRdRCj6b2dci6WsufQeU09nA0ijZt54t9529uGRLA@mail.gmail.com>
+References: <20180403175220.GA148162@dtor-ws> <10651380.a6EbCRfp8J@minivanes>
+ <nycvar.YFH.7.76.1804041032560.15778@cbobk.fhfr.pm> <1694587.16DWc6HTFx@minivanes>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180402163242.GC14165@lunn.ch>
+In-Reply-To: <1694587.16DWc6HTFx@minivanes>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Guenter Roeck <linux@roeck-us.net>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Mark Brown <broonie@kernel.org>, linux-input@vger.kernel.org, linux-hwmon@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
+To: Martin van Es <martin@mrvanes.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Martin <bugs@mrvanes.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 2, 2018 at 9:32 AM, Andrew Lunn <andrew@lunn.ch> wrote:
->> The 'use case' we have been using this in for a couple years is that
->> users who want to use this watchdog will enable it externally (we have
->> a command in the bootloader) and if enabled the kernel driver (that
->> I'm proposing here which we've been using out-of-tree) will register
->> the watchdog device and the userspace watchdog process can open the
->> device and start tickling it. If the watchdog is never enabled (or
->> disabled via the bootloader command) the kernel driver fails to probe
->> and the SoC's watchdog can be used.
+On Wed, Apr 4, 2018 at 1:51 AM, Martin van Es <martin@mrvanes.com> wrote:
 >
-> Hi Tim
+> On Wednesday, April 4, 2018 10:33:16 AM CEST Jiri Kosina wrote:
+> > Can I add your Tested-by: while applying the commit?
 >
-> Is there any reason not to give the user the choice to use both
-> watchdogs? Normally you write drivers to expose the hardware, and then
-> let the users choice if they want to use it.
->
+> That's ok.
 
-Andrew,
+Martin is also the reporter of the issue, I did not put down his name
+because I wasn't sure if he wanted it there.
 
-I don't know what value the SoC watchdog has if you have the GSC
-watchdog available that can power cycle the board but I would agree
-normally you would expose all of them. I suppose this may be a
-different case because I'm expecting the user to go and manually
-enable the watchdog instead of using the kernel to do it which means
-if its not enabled its not really available to be used.
+Thanks.
 
-Tim
+-- 
+Dmitry

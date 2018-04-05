@@ -1,7 +1,7 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 09/30] drm/bridge: analogix_dp: Fix incorrect usage of enhanced mode
-Date: Thu,  5 Apr 2018 11:49:39 +0200
-Message-ID: <20180405095000.9756-10-enric.balletbo@collabora.com>
+Subject: [PATCH v6 14/30] drm/bridge: analogix_dp: Don't use ANALOGIX_DP_PLL_CTL to control pll
+Date: Thu,  5 Apr 2018 11:49:44 +0200
+Message-ID: <20180405095000.9756-15-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
@@ -12,13 +12,11 @@ List-Id: linux-input@vger.kernel.org
 
 From: zain wang <wzz@rock-chips.com>
 
-Enhanced mode is required by the eDP 1.2 specification, and not doing it
-early could result in a period of time where we have a link transmitting
-idle packets without it. Since there is no reason to disable it, we just
-enable it at the beginning of link training and then keep it on all the
-time.
+There is no register named ANALOGIX_DP_PLL_CTL in Rockchip edp phy reg
+list.  We should use BIT_4 in ANALOGIX_DP_PD to control the pll power
+instead of ANALOGIX_DP_PLL_CTL.
 
-Cc: Tomasz Figa <tfiga@chromium.org>
+Cc: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: zain wang <wzz@rock-chips.com>
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
@@ -28,39 +26,41 @@ Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Reviewed-by: Archit Taneja <architt@codeaurora.org>
 ---
 
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index 1f4f34149019..1e1743b59c77 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -281,6 +281,8 @@ static int analogix_dp_link_start(struct analogix_dp_device *dp)
- 	retval = drm_dp_dpcd_write(&dp->aux, DP_LINK_BW_SET, buf, 2);
- 	if (retval < 0)
- 		return retval;
-+	/* set enhanced mode if available */
-+	analogix_dp_set_enhanced_mode(dp);
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+index 7b7fd227e1f9..02ab1aaa9993 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+@@ -230,16 +230,20 @@ enum pll_status analogix_dp_get_pll_lock_status(struct analogix_dp_device *dp)
+ void analogix_dp_set_pll_power_down(struct analogix_dp_device *dp, bool enable)
+ {
+ 	u32 reg;
++	u32 mask = DP_PLL_PD;
++	u32 pd_addr = ANALOGIX_DP_PLL_CTL;
  
- 	/* Set TX pre-emphasis to minimum */
- 	for (lane = 0; lane < lane_count; lane++)
-@@ -593,8 +595,6 @@ static int analogix_dp_process_equalizer_training(struct analogix_dp_device *dp)
- 		dev_dbg(dp->dev, "fast link training %s\n",
- 			dp->fast_train_enable ? "supported" : "unsupported");
- 
--		/* set enhanced mode if available */
--		analogix_dp_set_enhanced_mode(dp);
- 		dp->link_train.lt_state = FINISHED;
- 
- 		return 0;
-@@ -940,8 +940,6 @@ static int analogix_dp_commit(struct analogix_dp_device *dp)
+-	if (enable) {
+-		reg = readl(dp->reg_base + ANALOGIX_DP_PLL_CTL);
+-		reg |= DP_PLL_PD;
+-		writel(reg, dp->reg_base + ANALOGIX_DP_PLL_CTL);
+-	} else {
+-		reg = readl(dp->reg_base + ANALOGIX_DP_PLL_CTL);
+-		reg &= ~DP_PLL_PD;
+-		writel(reg, dp->reg_base + ANALOGIX_DP_PLL_CTL);
++	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type)) {
++		pd_addr = ANALOGIX_DP_PD;
++		mask = RK_PLL_PD;
  	}
++
++	reg = readl(dp->reg_base + pd_addr);
++	if (enable)
++		reg |= mask;
++	else
++		reg &= ~mask;
++	writel(reg, dp->reg_base + pd_addr);
+ }
  
- 	analogix_dp_enable_scramble(dp, 1);
--	analogix_dp_enable_rx_to_enhanced_mode(dp, 1);
--	analogix_dp_enable_enhanced_mode(dp, 1);
- 
- 	analogix_dp_init_video(dp);
- 	ret = analogix_dp_config_video(dp);
+ void analogix_dp_set_analog_power_down(struct analogix_dp_device *dp,
 -- 
 2.16.3

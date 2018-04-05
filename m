@@ -1,66 +1,114 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 06/30] drm/bridge: analogix_dp: Set PD_INC_BG first when
- powering up edp phy
-Date: Thu,  5 Apr 2018 11:49:36 +0200
-Message-ID: <20180405095000.9756-7-enric.balletbo@collabora.com>
+Subject: [PATCH v6 21/30] drm/rockchip: pre dither down when output bpc is 8bit
+Date: Thu,  5 Apr 2018 11:49:51 +0200
+Message-ID: <20180405095000.9756-22-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+CgpGb2xsb3dpbmcgdGhlIGNvcnJl
-Y3QgcG93ZXIgdXAgc2VxdWVuY2U6CmRwX3BkPWZmID0+IGRwX3BkPTdmID0+IHdhaXQgMTB1cyA9
-PiBkcF9wZD0wMAoKQ2M6IFN0w6lwaGFuZSBNYXJjaGVzaW4gPG1hcmNoZXVAY2hyb21pdW0ub3Jn
-PgpTaWduZWQtb2ZmLWJ5OiB6YWluIHdhbmcgPHd6ekByb2NrLWNoaXBzLmNvbT4KU2lnbmVkLW9m
-Zi1ieTogU2VhbiBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+ClNpZ25lZC1vZmYtYnk6IFRo
-aWVycnkgRXNjYW5kZSA8dGhpZXJyeS5lc2NhbmRlQGNvbGxhYm9yYS5jb20+ClNpZ25lZC1vZmYt
-Ynk6IEVucmljIEJhbGxldGJvIGkgU2VycmEgPGVucmljLmJhbGxldGJvQGNvbGxhYm9yYS5jb20+
-ClRlc3RlZC1ieTogTWFyZWsgU3p5cHJvd3NraSA8bS5zenlwcm93c2tpQHNhbXN1bmcuY29tPgpS
-ZXZpZXdlZC1ieTogQXJjaGl0IFRhbmVqYSA8YXJjaGl0dEBjb2RlYXVyb3JhLm9yZz4KLS0tCgog
-ZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYyB8IDEwICsr
-KysrKysrLS0KIGRyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVn
-LmggfCAgMyArKysKIDIgZmlsZXMgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlv
-bnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxv
-Z2l4X2RwX3JlZy5jIGIvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9k
-cF9yZWcuYwppbmRleCBiNDdjNWFmNDM1NjAuLmJiNzJmOGIwZTYwMyAxMDA2NDQKLS0tIGEvZHJp
-dmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYworKysgYi9kcml2
-ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jCkBAIC0zMjEsMTAg
-KzMyMSwxNiBAQCB2b2lkIGFuYWxvZ2l4X2RwX3NldF9hbmFsb2dfcG93ZXJfZG93bihzdHJ1Y3Qg
-YW5hbG9naXhfZHBfZGV2aWNlICpkcCwKIAkJYnJlYWs7CiAJY2FzZSBQT1dFUl9BTEw6CiAJCWlm
-IChlbmFibGUpIHsKLQkJCXJlZyA9IERQX1BIWV9QRCB8IEFVWF9QRCB8IENIM19QRCB8IENIMl9Q
-RCB8Ci0JCQkJQ0gxX1BEIHwgQ0gwX1BEOworCQkJcmVnID0gRFBfQUxMX1BEOwogCQkJd3JpdGVs
-KHJlZywgZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwogCQl9IGVsc2UgeworCQkJcmVnID0g
-RFBfQUxMX1BEOworCQkJd3JpdGVsKHJlZywgZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwor
-CQkJdXNsZWVwX3JhbmdlKDEwLCAxNSk7CisJCQlyZWcgJj0gfkRQX0lOQ19CRzsKKwkJCXdyaXRl
-bChyZWcsIGRwLT5yZWdfYmFzZSArIHBoeV9wZF9hZGRyKTsKKwkJCXVzbGVlcF9yYW5nZSgxMCwg
-MTUpOworCiAJCQl3cml0ZWwoMHgwMCwgZHAtPnJlZ19iYXNlICsgcGh5X3BkX2FkZHIpOwogCQl9
-CiAJCWJyZWFrOwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9h
-bmFsb2dpeF9kcF9yZWcuaCBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9n
-aXhfZHBfcmVnLmgKaW5kZXggNDAyMDBjNjUyNTMzLi45NjAyNjY4NjY5ZjQgMTAwNjQ0Ci0tLSBh
-L2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfcmVnLmgKKysrIGIv
-ZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuaApAQCAtMzQy
-LDEyICszNDIsMTUgQEAKICNkZWZpbmUgRFBfUExMX1JFRl9CSVRfMV8yNTAwVgkJCSgweDcgPDwg
-MCkKIAogLyogQU5BTE9HSVhfRFBfUEhZX1BEICovCisjZGVmaW5lIERQX0lOQ19CRwkJCQkoMHgx
-IDw8IDcpCisjZGVmaW5lIERQX0VYUF9CRwkJCQkoMHgxIDw8IDYpCiAjZGVmaW5lIERQX1BIWV9Q
-RAkJCQkoMHgxIDw8IDUpCiAjZGVmaW5lIEFVWF9QRAkJCQkJKDB4MSA8PCA0KQogI2RlZmluZSBD
-SDNfUEQJCQkJCSgweDEgPDwgMykKICNkZWZpbmUgQ0gyX1BECQkJCQkoMHgxIDw8IDIpCiAjZGVm
-aW5lIENIMV9QRAkJCQkJKDB4MSA8PCAxKQogI2RlZmluZSBDSDBfUEQJCQkJCSgweDEgPDwgMCkK
-KyNkZWZpbmUgRFBfQUxMX1BECQkJCSgweGZmKQogCiAvKiBBTkFMT0dJWF9EUF9QSFlfVEVTVCAq
-LwogI2RlZmluZSBNQUNST19SU1QJCQkJKDB4MSA8PCA1KQotLSAKMi4xNi4zCgoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBt
-YWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9s
-aXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+From: Mark Yao <mark.yao@rock-chips.com>
+
+Some encoder have a crc verification check, crc check fail if
+input and output data is not equal.
+
+That means encoder input and output need use same color depth,
+vop can output 10bit data to encoder, but some panel only support
+8bit depth, that would make crc check die.
+
+So pre dither down vop data to 8bit if panel's bpc is 8.
+
+Signed-off-by: Mark Yao <mark.yao@rock-chips.com>
+[seanpaul resolved conflict in rockchip_drm_vop.c]
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Archit Taneja <architt@codeaurora.org>
+---
+
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c | 2 ++
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.h     | 1 +
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c     | 6 ++++++
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.h     | 1 +
+ drivers/gpu/drm/rockchip/rockchip_vop_reg.c     | 1 +
+ 5 files changed, 11 insertions(+)
+
+diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+index 8c884f9ce713..b3f46ed24cdc 100644
+--- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
++++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+@@ -218,6 +218,7 @@ rockchip_dp_drm_encoder_atomic_check(struct drm_encoder *encoder,
+ 				      struct drm_connector_state *conn_state)
+ {
+ 	struct rockchip_crtc_state *s = to_rockchip_crtc_state(crtc_state);
++	struct drm_display_info *di = &conn_state->connector->display_info;
+ 
+ 	/*
+ 	 * The hardware IC designed that VOP must output the RGB10 video
+@@ -229,6 +230,7 @@ rockchip_dp_drm_encoder_atomic_check(struct drm_encoder *encoder,
+ 
+ 	s->output_mode = ROCKCHIP_OUT_MODE_AAAA;
+ 	s->output_type = DRM_MODE_CONNECTOR_eDP;
++	s->output_bpc = di->bpc;
+ 
+ 	return 0;
+ }
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.h b/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
+index 9c064a40458b..3a6ebfc26036 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.h
+@@ -36,6 +36,7 @@ struct rockchip_crtc_state {
+ 	struct drm_crtc_state base;
+ 	int output_type;
+ 	int output_mode;
++	int output_bpc;
+ };
+ #define to_rockchip_crtc_state(s) \
+ 		container_of(s, struct rockchip_crtc_state, base)
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+index 53d4afe15278..00f7f3441cf6 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+@@ -925,6 +925,12 @@ static void vop_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	if (s->output_mode == ROCKCHIP_OUT_MODE_AAAA &&
+ 	    !(vop_data->feature & VOP_FEATURE_OUTPUT_RGB10))
+ 		s->output_mode = ROCKCHIP_OUT_MODE_P888;
++
++	if (s->output_mode == ROCKCHIP_OUT_MODE_AAAA && s->output_bpc == 8)
++		VOP_REG_SET(vop, common, pre_dither_down, 1);
++	else
++		VOP_REG_SET(vop, common, pre_dither_down, 0);
++
+ 	VOP_REG_SET(vop, common, out_mode, s->output_mode);
+ 
+ 	VOP_REG_SET(vop, modeset, htotal_pw, (htotal << 16) | hsync_len);
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.h b/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
+index 56bbd2e2a8ef..084acdd0019a 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
+@@ -67,6 +67,7 @@ struct vop_common {
+ 	struct vop_reg cfg_done;
+ 	struct vop_reg dsp_blank;
+ 	struct vop_reg data_blank;
++	struct vop_reg pre_dither_down;
+ 	struct vop_reg dither_down;
+ 	struct vop_reg dither_up;
+ 	struct vop_reg gate_en;
+diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+index 2e4eea3459fe..08023d3ecb76 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
++++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+@@ -264,6 +264,7 @@ static const struct vop_common rk3288_common = {
+ 	.standby = VOP_REG_SYNC(RK3288_SYS_CTRL, 0x1, 22),
+ 	.gate_en = VOP_REG(RK3288_SYS_CTRL, 0x1, 23),
+ 	.mmu_en = VOP_REG(RK3288_SYS_CTRL, 0x1, 20),
++	.pre_dither_down = VOP_REG(RK3288_DSP_CTRL1, 0x1, 1),
+ 	.dither_down = VOP_REG(RK3288_DSP_CTRL1, 0xf, 1),
+ 	.dither_up = VOP_REG(RK3288_DSP_CTRL1, 0x1, 6),
+ 	.data_blank = VOP_REG(RK3288_DSP_CTRL0, 0x1, 19),
+-- 
+2.16.3

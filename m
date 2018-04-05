@@ -1,142 +1,95 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 04/30] drm/bridge: analogix_dp: Retry bridge enable when it
- failed
-Date: Thu,  5 Apr 2018 11:49:34 +0200
-Message-ID: <20180405095000.9756-5-enric.balletbo@collabora.com>
+Subject: [PATCH v6 30/30] drm/rockchip: psr: Remove flush by CRTC
+Date: Thu,  5 Apr 2018 11:50:00 +0200
+Message-ID: <20180405095000.9756-31-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogemFpbiB3YW5nIDx3enpAcm9jay1jaGlwcy5jb20+CgpXaGVuIHdlIGVuYWJsZSBicmlk
-Z2UgZmFpbGVkLCB3ZSBoYXZlIHRvIHJldHJ5IGl0LCBvdGhlcndpc2Ugd2Ugd291bGQgZ2V0CnRo
-ZSBhYm5vcm1hbCBkaXNwbGF5LgoKQ2M6IFN0w6lwaGFuZSBNYXJjaGVzaW4gPG1hcmNoZXVAY2hy
-b21pdW0ub3JnPgpTaWduZWQtb2ZmLWJ5OiB6YWluIHdhbmcgPHd6ekByb2NrLWNoaXBzLmNvbT4K
-U2lnbmVkLW9mZi1ieTogU2VhbiBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+ClNpZ25lZC1v
-ZmYtYnk6IFRoaWVycnkgRXNjYW5kZSA8dGhpZXJyeS5lc2NhbmRlQGNvbGxhYm9yYS5jb20+ClJl
-dmlld2VkLWJ5OiBBbmRyemVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPgpTaWduZWQtb2Zm
-LWJ5OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29t
-PgpUZXN0ZWQtYnk6IE1hcmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNvbT4K
-UmV2aWV3ZWQtYnk6IEFyY2hpdCBUYW5lamEgPGFyY2hpdHRAY29kZWF1cm9yYS5vcmc+Ci0tLQoK
-IGRyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5jIHwgNjUg
-KysrKysrKysrKysrKysrKystLS0tLQogZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9h
-bmFsb2dpeF9kcF9jb3JlLmggfCAgMyArLQogZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dp
-eC9hbmFsb2dpeF9kcF9yZWcuYyAgfCAgNSArLQogMyBmaWxlcyBjaGFuZ2VkLCA1NiBpbnNlcnRp
-b25zKCspLCAxNyBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJp
-ZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2Uv
-YW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5jCmluZGV4IDg1ZGJiMWNhOTg4Ni4uYmY4MDVmMTU2
-MjcyIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4
-X2RwX2NvcmUuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4
-X2RwX2NvcmUuYwpAQCAtNDMsOCArNDMsMTAgQEAgc3RydWN0IGJyaWRnZV9pbml0IHsKIAlzdHJ1
-Y3QgZGV2aWNlX25vZGUgKm5vZGU7CiB9OwogCi1zdGF0aWMgdm9pZCBhbmFsb2dpeF9kcF9pbml0
-X2RwKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQorc3RhdGljIGludCBhbmFsb2dpeF9k
-cF9pbml0X2RwKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQogeworCWludCByZXQ7CisK
-IAlhbmFsb2dpeF9kcF9yZXNldChkcCk7CiAKIAlhbmFsb2dpeF9kcF9zd3Jlc2V0KGRwKTsKQEAg
-LTU2LDEwICs1OCwxMyBAQCBzdGF0aWMgdm9pZCBhbmFsb2dpeF9kcF9pbml0X2RwKHN0cnVjdCBh
-bmFsb2dpeF9kcF9kZXZpY2UgKmRwKQogCWFuYWxvZ2l4X2RwX2VuYWJsZV9zd19mdW5jdGlvbihk
-cCk7CiAKIAlhbmFsb2dpeF9kcF9jb25maWdfaW50ZXJydXB0KGRwKTsKLQlhbmFsb2dpeF9kcF9p
-bml0X2FuYWxvZ19mdW5jKGRwKTsKKwlyZXQgPSBhbmFsb2dpeF9kcF9pbml0X2FuYWxvZ19mdW5j
-KGRwKTsKKwlpZiAocmV0KQorCQlyZXR1cm4gcmV0OwogCiAJYW5hbG9naXhfZHBfaW5pdF9ocGQo
-ZHApOwogCWFuYWxvZ2l4X2RwX2luaXRfYXV4KGRwKTsKKwlyZXR1cm4gMDsKIH0KIAogc3RhdGlj
-IGludCBhbmFsb2dpeF9kcF9kZXRlY3RfaHBkKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRw
-KQpAQCAtOTE4LDcgKzkyMyw3IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBhbmFsb2dpeF9kcF9pcnFf
-dGhyZWFkKGludCBpcnEsIHZvaWQgKmFyZykKIAlyZXR1cm4gSVJRX0hBTkRMRUQ7CiB9CiAKLXN0
-YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2NvbW1pdChzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpk
-cCkKK3N0YXRpYyBpbnQgYW5hbG9naXhfZHBfY29tbWl0KHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZp
-Y2UgKmRwKQogewogCWludCByZXQ7CiAKQEAgLTkyOCwxMSArOTMzLDEwIEBAIHN0YXRpYyB2b2lk
-IGFuYWxvZ2l4X2RwX2NvbW1pdChzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIAkJCURS
-TV9FUlJPUigiZmFpbGVkIHRvIGRpc2FibGUgdGhlIHBhbmVsXG4iKTsKIAl9CiAKLQlyZXQgPSBy
-ZWFkeF9wb2xsX3RpbWVvdXQoYW5hbG9naXhfZHBfdHJhaW5fbGluaywgZHAsIHJldCwgIXJldCwg
-MTAwLAotCQkJCSBEUF9USU1FT1VUX1RSQUlOSU5HX1VTICogNSk7CisJcmV0ID0gYW5hbG9naXhf
-ZHBfdHJhaW5fbGluayhkcCk7CiAJaWYgKHJldCkgewogCQlkZXZfZXJyKGRwLT5kZXYsICJ1bmFi
-bGUgdG8gZG8gbGluayB0cmFpbiwgcmV0PSVkXG4iLCByZXQpOwotCQlyZXR1cm47CisJCXJldHVy
-biByZXQ7CiAJfQogCiAJYW5hbG9naXhfZHBfZW5hYmxlX3NjcmFtYmxlKGRwLCAxKTsKQEAgLTk1
-Myw2ICs5NTcsNyBAQCBzdGF0aWMgdm9pZCBhbmFsb2dpeF9kcF9jb21taXQoc3RydWN0IGFuYWxv
-Z2l4X2RwX2RldmljZSAqZHApCiAJZHAtPnBzcl9lbmFibGUgPSBhbmFsb2dpeF9kcF9kZXRlY3Rf
-c2lua19wc3IoZHApOwogCWlmIChkcC0+cHNyX2VuYWJsZSkKIAkJYW5hbG9naXhfZHBfZW5hYmxl
-X3NpbmtfcHNyKGRwKTsKKwlyZXR1cm4gMDsKIH0KIAogLyoKQEAgLTExNDksMTIgKzExNTQsOSBA
-QCBzdGF0aWMgdm9pZCBhbmFsb2dpeF9kcF9icmlkZ2VfcHJlX2VuYWJsZShzdHJ1Y3QgZHJtX2Jy
-aWRnZSAqYnJpZGdlKQogCQlEUk1fRVJST1IoImZhaWxlZCB0byBzZXR1cCB0aGUgcGFuZWwgcmV0
-ID0gJWRcbiIsIHJldCk7CiB9CiAKLXN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2JyaWRnZV9lbmFi
-bGUoc3RydWN0IGRybV9icmlkZ2UgKmJyaWRnZSkKK3N0YXRpYyBpbnQgYW5hbG9naXhfZHBfc2V0
-X2JyaWRnZShzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIHsKLQlzdHJ1Y3QgYW5hbG9n
-aXhfZHBfZGV2aWNlICpkcCA9IGJyaWRnZS0+ZHJpdmVyX3ByaXZhdGU7Ci0KLQlpZiAoZHAtPmRw
-bXNfbW9kZSA9PSBEUk1fTU9ERV9EUE1TX09OKQotCQlyZXR1cm47CisJaW50IHJldDsKIAogCXBt
-X3J1bnRpbWVfZ2V0X3N5bmMoZHAtPmRldik7CiAKQEAgLTExNjIsMTEgKzExNjQsNDYgQEAgc3Rh
-dGljIHZvaWQgYW5hbG9naXhfZHBfYnJpZGdlX2VuYWJsZShzdHJ1Y3QgZHJtX2JyaWRnZSAqYnJp
-ZGdlKQogCQlkcC0+cGxhdF9kYXRhLT5wb3dlcl9vbihkcC0+cGxhdF9kYXRhKTsKIAogCXBoeV9w
-b3dlcl9vbihkcC0+cGh5KTsKLQlhbmFsb2dpeF9kcF9pbml0X2RwKGRwKTsKKworCXJldCA9IGFu
-YWxvZ2l4X2RwX2luaXRfZHAoZHApOworCWlmIChyZXQpCisJCWdvdG8gb3V0X2RwX2luaXQ7CisK
-KwlyZXQgPSBhbmFsb2dpeF9kcF9jb21taXQoZHApOworCWlmIChyZXQpCisJCWdvdG8gb3V0X2Rw
-X2luaXQ7CisKIAllbmFibGVfaXJxKGRwLT5pcnEpOwotCWFuYWxvZ2l4X2RwX2NvbW1pdChkcCk7
-CisJcmV0dXJuIDA7CiAKLQlkcC0+ZHBtc19tb2RlID0gRFJNX01PREVfRFBNU19PTjsKK291dF9k
-cF9pbml0OgorCXBoeV9wb3dlcl9vZmYoZHAtPnBoeSk7CisJaWYgKGRwLT5wbGF0X2RhdGEtPnBv
-d2VyX29mZikKKwkJZHAtPnBsYXRfZGF0YS0+cG93ZXJfb2ZmKGRwLT5wbGF0X2RhdGEpOworCXBt
-X3J1bnRpbWVfcHV0X3N5bmMoZHAtPmRldik7CisKKwlyZXR1cm4gcmV0OworfQorCitzdGF0aWMg
-dm9pZCBhbmFsb2dpeF9kcF9icmlkZ2VfZW5hYmxlKHN0cnVjdCBkcm1fYnJpZGdlICpicmlkZ2Up
-Cit7CisJc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHAgPSBicmlkZ2UtPmRyaXZlcl9wcml2
-YXRlOworCWludCB0aW1lb3V0X2xvb3AgPSAwOworCisJaWYgKGRwLT5kcG1zX21vZGUgPT0gRFJN
-X01PREVfRFBNU19PTikKKwkJcmV0dXJuOworCisJd2hpbGUgKHRpbWVvdXRfbG9vcCA8IE1BWF9Q
-TExfTE9DS19MT09QKSB7CisJCWlmIChhbmFsb2dpeF9kcF9zZXRfYnJpZGdlKGRwKSA9PSAwKSB7
-CisJCQlkcC0+ZHBtc19tb2RlID0gRFJNX01PREVfRFBNU19PTjsKKwkJCXJldHVybjsKKwkJfQor
-CQlkZXZfZXJyKGRwLT5kZXYsICJmYWlsZWQgdG8gc2V0IGJyaWRnZSwgcmV0cnk6ICVkXG4iLAor
-CQkJdGltZW91dF9sb29wKTsKKwkJdGltZW91dF9sb29wKys7CisJCXVzbGVlcF9yYW5nZSgxMCwg
-MTEpOworCX0KKwlkZXZfZXJyKGRwLT5kZXYsICJ0b28gbWFueSB0aW1lcyByZXRyeSBzZXQgYnJp
-ZGdlLCBnaXZlIGl0IHVwXG4iKTsKIH0KIAogc3RhdGljIHZvaWQgYW5hbG9naXhfZHBfYnJpZGdl
-X2Rpc2FibGUoc3RydWN0IGRybV9icmlkZ2UgKmJyaWRnZSkKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-Z3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5hbG9naXhfZHBfY29yZS5oIGIvZHJpdmVycy9ncHUv
-ZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3JlLmgKaW5kZXggNDAzZmY4NTM0NjRi
-Li43NjkyNTVkYzZlOTkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9n
-aXgvYW5hbG9naXhfZHBfY29yZS5oCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9n
-aXgvYW5hbG9naXhfZHBfY29yZS5oCkBAIC0xOSw2ICsxOSw3IEBACiAjZGVmaW5lIERQX1RJTUVP
-VVRfTE9PUF9DT1VOVCAxMDAKICNkZWZpbmUgTUFYX0NSX0xPT1AgNQogI2RlZmluZSBNQVhfRVFf
-TE9PUCA1CisjZGVmaW5lIE1BWF9QTExfTE9DS19MT09QIDUKIAogLyogVHJhaW5pbmcgdGFrZXMg
-MjJtcyBpZiBBVVggY2hhbm5lbCBjb21tIGZhaWxzLiBVc2UgdGhpcyBhcyByZXRyeSBpbnRlcnZh
-bCAqLwogI2RlZmluZSBEUF9USU1FT1VUX1RSQUlOSU5HX1VTCQkJMjIwMDAKQEAgLTE5Nyw3ICsx
-OTgsNyBAQCB2b2lkIGFuYWxvZ2l4X2RwX3NldF9wbGxfcG93ZXJfZG93bihzdHJ1Y3QgYW5hbG9n
-aXhfZHBfZGV2aWNlICpkcCwgYm9vbCBlbmFibGUpOwogdm9pZCBhbmFsb2dpeF9kcF9zZXRfYW5h
-bG9nX3Bvd2VyX2Rvd24oc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHAsCiAJCQkJICAgICAg
-IGVudW0gYW5hbG9nX3Bvd2VyX2Jsb2NrIGJsb2NrLAogCQkJCSAgICAgICBib29sIGVuYWJsZSk7
-Ci12b2lkIGFuYWxvZ2l4X2RwX2luaXRfYW5hbG9nX2Z1bmMoc3RydWN0IGFuYWxvZ2l4X2RwX2Rl
-dmljZSAqZHApOworaW50IGFuYWxvZ2l4X2RwX2luaXRfYW5hbG9nX2Z1bmMoc3RydWN0IGFuYWxv
-Z2l4X2RwX2RldmljZSAqZHApOwogdm9pZCBhbmFsb2dpeF9kcF9pbml0X2hwZChzdHJ1Y3QgYW5h
-bG9naXhfZHBfZGV2aWNlICpkcCk7CiB2b2lkIGFuYWxvZ2l4X2RwX2ZvcmNlX2hwZChzdHJ1Y3Qg
-YW5hbG9naXhfZHBfZGV2aWNlICpkcCk7CiBlbnVtIGRwX2lycV90eXBlIGFuYWxvZ2l4X2RwX2dl
-dF9pcnFfdHlwZShzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCk7CmRpZmYgLS1naXQgYS9k
-cml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jIGIvZHJpdmVy
-cy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYwppbmRleCBlNzhjODYx
-YjllMDYuLmI0N2M1YWY0MzU2MCAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9h
-bmFsb2dpeC9hbmFsb2dpeF9kcF9yZWcuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2Fu
-YWxvZ2l4L2FuYWxvZ2l4X2RwX3JlZy5jCkBAIC0zMzMsNyArMzMzLDcgQEAgdm9pZCBhbmFsb2dp
-eF9kcF9zZXRfYW5hbG9nX3Bvd2VyX2Rvd24oc3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHAs
-CiAJfQogfQogCi12b2lkIGFuYWxvZ2l4X2RwX2luaXRfYW5hbG9nX2Z1bmMoc3RydWN0IGFuYWxv
-Z2l4X2RwX2RldmljZSAqZHApCitpbnQgYW5hbG9naXhfZHBfaW5pdF9hbmFsb2dfZnVuYyhzdHJ1
-Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIHsKIAl1MzIgcmVnOwogCWludCB0aW1lb3V0X2xv
-b3AgPSAwOwpAQCAtMzU1LDcgKzM1NSw3IEBAIHZvaWQgYW5hbG9naXhfZHBfaW5pdF9hbmFsb2df
-ZnVuYyhzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIAkJCXRpbWVvdXRfbG9vcCsrOwog
-CQkJaWYgKERQX1RJTUVPVVRfTE9PUF9DT1VOVCA8IHRpbWVvdXRfbG9vcCkgewogCQkJCWRldl9l
-cnIoZHAtPmRldiwgImZhaWxlZCB0byBnZXQgcGxsIGxvY2sgc3RhdHVzXG4iKTsKLQkJCQlyZXR1
-cm47CisJCQkJcmV0dXJuIC1FVElNRURPVVQ7CiAJCQl9CiAJCQl1c2xlZXBfcmFuZ2UoMTAsIDIw
-KTsKIAkJfQpAQCAtMzY2LDYgKzM2Niw3IEBAIHZvaWQgYW5hbG9naXhfZHBfaW5pdF9hbmFsb2df
-ZnVuYyhzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNlICpkcCkKIAlyZWcgJj0gfihTRVJERVNfRklG
-T19GVU5DX0VOX04gfCBMU19DTEtfRE9NQUlOX0ZVTkNfRU5fTgogCQl8IEFVWF9GVU5DX0VOX04p
-OwogCXdyaXRlbChyZWcsIGRwLT5yZWdfYmFzZSArIEFOQUxPR0lYX0RQX0ZVTkNfRU5fMik7CisJ
-cmV0dXJuIDA7CiB9CiAKIHZvaWQgYW5hbG9naXhfZHBfY2xlYXJfaG90cGx1Z19pbnRlcnJ1cHRz
-KHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQotLSAKMi4xNi4zCgoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWls
-aW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0
-cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+From: Tomasz Figa <tfiga@chromium.org>
+
+It is not used anymore after last changes and it was not even correct to
+begin with as it assumed a 1:1 relation between a CRTC and encoder,
+while in fact a CRTC can be attached to multiple encoders.
+
+Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+---
+
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 35 -----------------------------
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.h |  1 -
+ 2 files changed, 36 deletions(-)
+
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+index 1bf5cba9a64d..b1988ac758d5 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
+@@ -40,23 +40,6 @@ struct psr_drv {
+ 	int (*set)(struct drm_encoder *encoder, bool enable);
+ };
+ 
+-static struct psr_drv *find_psr_by_crtc(struct drm_crtc *crtc)
+-{
+-	struct rockchip_drm_private *drm_drv = crtc->dev->dev_private;
+-	struct psr_drv *psr;
+-
+-	mutex_lock(&drm_drv->psr_list_lock);
+-	list_for_each_entry(psr, &drm_drv->psr_list, list) {
+-		if (psr->encoder->crtc == crtc)
+-			goto out;
+-	}
+-	psr = ERR_PTR(-ENODEV);
+-
+-out:
+-	mutex_unlock(&drm_drv->psr_list_lock);
+-	return psr;
+-}
+-
+ static struct psr_drv *find_psr_by_encoder(struct drm_encoder *encoder)
+ {
+ 	struct rockchip_drm_private *drm_drv = encoder->dev->dev_private;
+@@ -173,24 +156,6 @@ static void rockchip_drm_do_flush(struct psr_drv *psr)
+ 	mutex_unlock(&psr->lock);
+ }
+ 
+-/**
+- * rockchip_drm_psr_flush - flush a single pipe
+- * @crtc: CRTC of the pipe to flush
+- *
+- * Returns:
+- * 0 on success, -errno on fail
+- */
+-int rockchip_drm_psr_flush(struct drm_crtc *crtc)
+-{
+-	struct psr_drv *psr = find_psr_by_crtc(crtc);
+-	if (IS_ERR(psr))
+-		return PTR_ERR(psr);
+-
+-	rockchip_drm_do_flush(psr);
+-	return 0;
+-}
+-EXPORT_SYMBOL(rockchip_drm_psr_flush);
+-
+ /**
+  * rockchip_drm_psr_flush_all - force to flush all registered PSR encoders
+  * @dev: drm device
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
+index 40e026c14168..860c62494496 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
+@@ -16,7 +16,6 @@
+ #define __ROCKCHIP_DRM_PSR___
+ 
+ void rockchip_drm_psr_flush_all(struct drm_device *dev);
+-int rockchip_drm_psr_flush(struct drm_crtc *crtc);
+ 
+ int rockchip_drm_psr_inhibit_put(struct drm_encoder *encoder);
+ int rockchip_drm_psr_inhibit_get(struct drm_encoder *encoder);
+-- 
+2.16.3

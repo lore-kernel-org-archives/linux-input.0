@@ -1,41 +1,32 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH] hidraw: Fix crash on HIDIOCGFEATURE with a destroyed device
-Date: Fri,  6 Apr 2018 01:09:36 +0200
-Message-ID: <20180405230936.4572-1-rodrigorivascosta@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/8] Input: elan_i2c - add trackstick report
+Date: Thu, 5 Apr 2018 16:46:32 -0700
+Message-ID: <20180405234632.GA57189@dtor-ws>
+References: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
+ <20180405132537.3218-4-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180405132537.3218-4-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: kt.liao@emc.com.tw, Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Doing `ioctl(HIDIOCGFEATURE)` in a tight loop on a hidraw device
-and then disconnecting the device, or unloading the driver, can
-cause a NULL pointer dereference.
+Hi Benjamin,
 
-When a hidraw device is destroyed it sets 0 to `dev->exist`.
-Most functions check 'dev->exist' before doing its work, but
-`hidraw_get_report()` was missing that check.
+On Thu, Apr 05, 2018 at 03:25:32PM +0200, Benjamin Tissoires wrote:
+> The Elan touchpads over I2C/SMBus also can handle a
+> trackstick. Unfortunately, nothing tells us if the
+> device supports trackstick (the information lies in
+> the PS/2 node), so rely on a platform data to enable
+> or not the trackstick node.
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
----
- drivers/hid/hidraw.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Hmm, I'd prefer if we did not add more platform data but rather user
+generic device properties.
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 5fbe0f81ab2e..01b5a9f01814 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -192,6 +192,11 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
- 	int ret = 0, len;
- 	unsigned char report_number;
- 
-+	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+
- 	dev = hidraw_table[minor]->hid;
- 
- 	if (!dev->ll_driver->raw_request) {
+Thanks.
+
 -- 
-2.16.3
+Dmitry

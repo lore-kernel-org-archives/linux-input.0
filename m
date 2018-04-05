@@ -1,30 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/8] Input: elan_i2c - add trackstick report
-Date: Thu, 5 Apr 2018 16:46:32 -0700
-Message-ID: <20180405234632.GA57189@dtor-ws>
+Subject: Re: [PATCH 0/8] Input: support for latest Lenovo thinkpads (series
+ 80)
+Date: Thu, 5 Apr 2018 16:51:26 -0700
+Message-ID: <20180405235126.GB57189@dtor-ws>
 References: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
- <20180405132537.3218-4-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180405132537.3218-4-benjamin.tissoires@redhat.com>
+In-Reply-To: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: kt.liao@emc.com.tw, Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, kt.liao@emc.com.tw
+Cc: Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 Hi Benjamin,
 
-On Thu, Apr 05, 2018 at 03:25:32PM +0200, Benjamin Tissoires wrote:
-> The Elan touchpads over I2C/SMBus also can handle a
-> trackstick. Unfortunately, nothing tells us if the
-> device supports trackstick (the information lies in
-> the PS/2 node), so rely on a platform data to enable
-> or not the trackstick node.
+On Thu, Apr 05, 2018 at 03:25:29PM +0200, Benjamin Tissoires wrote:
+> Hi Dmitry,
+> 
+> well, this year, Lenovo gave us a surprise and decided to not use
+> the same touchpad/trackstick in all its model. And by default, the
+> support under Linux is less than ideal.
+> 
+> Please find a series that should fix those issues. Compared to the 60
+> series, there do not seem to e BIOS table issues this time, and suspend/resume
+> works fine thanks to your latest trackstick fixes.
+> 
+> The T480s is a different beast, as it uses an Elan touchpad.
+> I have been carrying the patches 3-6 for a while and tested previous
+> versions on various Elan PS/2 hardware without an issue as far as I
+> could tell. I was lacking tests from users with SMBus as all the laptops
+> I tried where puer PS/2.
+> 
+> Anyway, it would be cool if you could have a look at the series.
 
-Hmm, I'd prefer if we did not add more platform data but rather user
-generic device properties.
+I am mostly happy with the series, but I would love to hear KT's take on
+it.
 
 Thanks.
 

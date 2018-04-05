@@ -1,124 +1,52 @@
-From: Aaron Armstrong Skomra <skomra@gmail.com>
-Subject: [PATCH] HID: wacom: bluetooth: send exit report for recent Bluetooth devices
-Date: Wed,  4 Apr 2018 14:24:11 -0700
-Message-ID: <1522877051-3943-1-git-send-email-skomra@gmail.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, pinglinux@gmail.com, killertofu@gmail.com, jkosina@suse.cz
-Cc: Aaron Armstrong Skomra <skomra@gmail.com>, "# 4 . 11" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+From: Sasha Levin <Alexander.Levin@microsoft.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - Fix an unchecked out of memory
+ error path
+Date: Thu, 5 Apr 2018 01:34:26 +0000
+Message-ID: <DM5PR2101MB103205963461FF9EE6FDC1EDFBBB0@DM5PR2101MB1032.namprd21.prod.outlook.com>
+References: <20180402140327.7715-1-christophe.jaillet@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180402140327.7715-1-christophe.jaillet@wanadoo.fr>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sasha Levin <Alexander.Levin@microsoft.com>, Christophe JAILLET <christophe.jaillet@wanadoo.fr>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The code path for recent Bluetooth devices omits an exit report which
-resets all the values of the device.
+Hi Christophe JAILLET.
 
-Fixes: 4922cd26f0 ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
-Cc: <stable@vger.kernel.org> # 4.11
-Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
----
- drivers/hid/wacom_wac.c | 76 ++++++++++++++++++++++++++++++-------------------
- 1 file changed, 46 insertions(+), 30 deletions(-)
+[This is an automated email]
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 6da16a879c9f..5f947ec20dcb 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -689,6 +689,45 @@ static int wacom_intuos_get_tool_type(int tool_id)
- 	return tool_type;
- }
- 
-+static void wacom_exit_report(struct wacom_wac *wacom)
-+{
-+	struct input_dev *input = wacom->pen_input;
-+	struct wacom_features *features = &wacom->features;
-+	unsigned char *data = wacom->data;
-+	int idx = (features->type == INTUOS) ? (data[1] & 0x01) : 0;
-+
-+	/*
-+	 * Reset all states otherwise we lose the initial states
-+	 * when in-prox next time
-+	 */
-+	input_report_abs(input, ABS_X, 0);
-+	input_report_abs(input, ABS_Y, 0);
-+	input_report_abs(input, ABS_DISTANCE, 0);
-+	input_report_abs(input, ABS_TILT_X, 0);
-+	input_report_abs(input, ABS_TILT_Y, 0);
-+	if (wacom->tool[idx] >= BTN_TOOL_MOUSE) {
-+		input_report_key(input, BTN_LEFT, 0);
-+		input_report_key(input, BTN_MIDDLE, 0);
-+		input_report_key(input, BTN_RIGHT, 0);
-+		input_report_key(input, BTN_SIDE, 0);
-+		input_report_key(input, BTN_EXTRA, 0);
-+		input_report_abs(input, ABS_THROTTLE, 0);
-+		input_report_abs(input, ABS_RZ, 0);
-+	} else {
-+		input_report_abs(input, ABS_PRESSURE, 0);
-+		input_report_key(input, BTN_STYLUS, 0);
-+		input_report_key(input, BTN_STYLUS2, 0);
-+		input_report_key(input, BTN_TOUCH, 0);
-+		input_report_abs(input, ABS_WHEEL, 0);
-+		if (features->type >= INTUOS3S)
-+			input_report_abs(input, ABS_Z, 0);
-+	}
-+	input_report_key(input, wacom->tool[idx], 0);
-+	input_report_abs(input, ABS_MISC, 0); /* reset tool id */
-+	input_event(input, EV_MSC, MSC_SERIAL, wacom->serial[idx]);
-+	wacom->id[idx] = 0;
-+}
-+
- static int wacom_intuos_inout(struct wacom_wac *wacom)
- {
- 	struct wacom_features *features = &wacom->features;
-@@ -741,36 +780,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 		if (!wacom->id[idx])
- 			return 1;
- 
--		/*
--		 * Reset all states otherwise we lose the initial states
--		 * when in-prox next time
--		 */
--		input_report_abs(input, ABS_X, 0);
--		input_report_abs(input, ABS_Y, 0);
--		input_report_abs(input, ABS_DISTANCE, 0);
--		input_report_abs(input, ABS_TILT_X, 0);
--		input_report_abs(input, ABS_TILT_Y, 0);
--		if (wacom->tool[idx] >= BTN_TOOL_MOUSE) {
--			input_report_key(input, BTN_LEFT, 0);
--			input_report_key(input, BTN_MIDDLE, 0);
--			input_report_key(input, BTN_RIGHT, 0);
--			input_report_key(input, BTN_SIDE, 0);
--			input_report_key(input, BTN_EXTRA, 0);
--			input_report_abs(input, ABS_THROTTLE, 0);
--			input_report_abs(input, ABS_RZ, 0);
--		} else {
--			input_report_abs(input, ABS_PRESSURE, 0);
--			input_report_key(input, BTN_STYLUS, 0);
--			input_report_key(input, BTN_STYLUS2, 0);
--			input_report_key(input, BTN_TOUCH, 0);
--			input_report_abs(input, ABS_WHEEL, 0);
--			if (features->type >= INTUOS3S)
--				input_report_abs(input, ABS_Z, 0);
--		}
--		input_report_key(input, wacom->tool[idx], 0);
--		input_report_abs(input, ABS_MISC, 0); /* reset tool id */
--		input_event(input, EV_MSC, MSC_SERIAL, wacom->serial[idx]);
--		wacom->id[idx] = 0;
-+		wacom_exit_report(wacom);
- 		return 2;
- 	}
- 
-@@ -1235,6 +1245,12 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
- 		if (!valid)
- 			continue;
- 
-+		if (!prox) {
-+			wacom->shared->stylus_in_proximity = false;
-+			wacom_exit_report(wacom);
-+			input_sync(pen_input);
-+			return;
-+		}
- 		if (range) {
- 			input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
- 			input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
--- 
-2.7.4
+This commit has been processed by the -stable helper bot and determined
+to be a high probability candidate for -stable trees. (score: 7.5278)
+
+The bot has tested the following trees: v4.15.15, v4.14.32, v4.9.92, v4.4.1=
+26,=20
+
+v4.15.15: Build OK!
+v4.14.32: Build OK!
+v4.9.92: Build OK!
+v4.4.126: Failed to apply! Possible dependencies:
+    8d99758dee31: ("Input: synaptics-rmi4 - add SPI transport driver")
+    ff8f83708b3e: ("Input: synaptics-rmi4 - add support for 2D sensors and =
+F11")
+    fdf51604f104: ("Input: synaptics-rmi4 - add I2C transport driver")
+    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
+devices")
+    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
+devices")
+    fdf51604f104: ("Input: synaptics-rmi4 - add I2C transport driver")
+    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
+devices")
+    2b6a321da9a2: ("Input: synaptics-rmi4 - add support for Synaptics RMI4 =
+devices")
+
+
+Please let us know if you'd like to have this patch included in a stable tr=
+ee.
+
+--
+Thanks.
+Sasha=

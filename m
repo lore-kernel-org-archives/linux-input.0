@@ -1,11 +1,8 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 19/30] drm/bridge: analogix_dp: Properly log AUX CH errors
-Date: Thu,  5 Apr 2018 11:49:49 +0200
-Message-ID: <20180405095000.9756-20-enric.balletbo@collabora.com>
+Subject: [PATCH v6 23/30] drm/rockchip: analogix_dp: Do not call Analogix code before bind
+Date: Thu,  5 Apr 2018 11:49:53 +0200
+Message-ID: <20180405095000.9756-24-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -13,65 +10,62 @@ To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@
 Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Tomasz Figa <tfiga@chromium.org>
 
-The code in analogix_dp_transfer() that was supposed to print out:
-  AUX CH error happened
+Driver callbacks, such as system suspend or resume can be called any
+time, specifically they can be called before the component bind
+callback. Let's use dp->adp pointer as a safeguard and skip calling
+Analogix entry points if it is an ERR_PTR().
 
-Was actually dead code. That's because the previous check (whether
-the interrupt status indicated any errors) would have hit for all
-errors anyway.
-
-Let's combine the two error checks so we can actually see AUX CH
-errors.  We'll also downgrade the message to a warning since some of
-these types of errors might be expected for some displays.  If this
-gets too noisy we can downgrade again to debug.
-
-Cc: 征增 王 <wzz@rock-chips.com>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Tomasz Figa <tfiga@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
 Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Archit Taneja <architt@codeaurora.org>
 ---
 
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-index 4eae206ec31b..58e8a28e99aa 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-@@ -1105,6 +1105,7 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
- 			     struct drm_dp_aux_msg *msg)
+diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+index 23317a2269e1..6d45d62466b3 100644
+--- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
++++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
+@@ -368,6 +368,8 @@ static void rockchip_dp_unbind(struct device *dev, struct device *master,
+ 	analogix_dp_unbind(dp->adp);
+ 	rockchip_drm_psr_unregister(&dp->encoder);
+ 	dp->encoder.funcs->destroy(&dp->encoder);
++
++	dp->adp = ERR_PTR(-ENODEV);
+ }
+ 
+ static const struct component_ops rockchip_dp_component_ops = {
+@@ -391,6 +393,7 @@ static int rockchip_dp_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	dp->dev = dev;
++	dp->adp = ERR_PTR(-ENODEV);
+ 	dp->plat_data.panel = panel;
+ 
+ 	ret = rockchip_dp_of_probe(dp);
+@@ -414,6 +417,9 @@ static int rockchip_dp_suspend(struct device *dev)
  {
- 	u32 reg;
-+	u32 status_reg;
- 	u8 *buffer = msg->buffer;
- 	unsigned int i;
- 	int num_transferred = 0;
-@@ -1193,16 +1194,12 @@ ssize_t analogix_dp_transfer(struct analogix_dp_device *dp,
+ 	struct rockchip_dp_device *dp = dev_get_drvdata(dev);
  
- 	/* Clear interrupt source for AUX CH access error */
- 	reg = readl(dp->reg_base + ANALOGIX_DP_INT_STA);
--	if (reg & AUX_ERR) {
-+	status_reg = readl(dp->reg_base + ANALOGIX_DP_AUX_CH_STA);
-+	if ((reg & AUX_ERR) || (status_reg & AUX_STATUS_MASK)) {
- 		writel(AUX_ERR, dp->reg_base + ANALOGIX_DP_INT_STA);
--		goto aux_error;
--	}
++	if (IS_ERR(dp->adp))
++		return 0;
++
+ 	return analogix_dp_suspend(dp->adp);
+ }
  
--	/* Check AUX CH error access status */
--	reg = readl(dp->reg_base + ANALOGIX_DP_AUX_CH_STA);
--	if ((reg & AUX_STATUS_MASK)) {
--		dev_err(dp->dev, "AUX CH error happened: %d\n\n",
--			reg & AUX_STATUS_MASK);
-+		dev_warn(dp->dev, "AUX CH error happened: %#x (%d)\n",
-+			 status_reg & AUX_STATUS_MASK, !!(reg & AUX_ERR));
- 		goto aux_error;
- 	}
+@@ -421,6 +427,9 @@ static int rockchip_dp_resume(struct device *dev)
+ {
+ 	struct rockchip_dp_device *dp = dev_get_drvdata(dev);
  
++	if (IS_ERR(dp->adp))
++		return 0;
++
+ 	return analogix_dp_resume(dp->adp);
+ }
+ #endif
 -- 
 2.16.3

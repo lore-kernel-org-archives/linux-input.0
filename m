@@ -1,66 +1,66 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 01/30] drm/bridge: analogix_dp: Move enable video into
- config_video()
-Date: Thu,  5 Apr 2018 11:49:31 +0200
-Message-ID: <20180405095000.9756-2-enric.balletbo@collabora.com>
+Subject: [PATCH v6 09/30] drm/bridge: analogix_dp: Fix incorrect usage of enhanced mode
+Date: Thu,  5 Apr 2018 11:49:39 +0200
+Message-ID: <20180405095000.9756-10-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, =?UTF-8?q?St=C3=A9phane=20Marchesin?= <marcheu@chromium.org>, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogTGluIEh1YW5nIDxobEByb2NrLWNoaXBzLmNvbT4KCldlIG5lZWQgdG8gZW5hYmxlIHZp
-ZGVvIGJlZm9yZSBhbmFsb2dpeF9kcF9pc192aWRlb19zdHJlYW1fb24oKSwgc28Kd2UgY2FuIGdl
-dCB0aGUgcmlnaHQgdmlkZW8gc3RyZWFtIHN0YXR1cy4KCldlIG5lZWRlZCB0byBpbmNyZWFzZSB0
-aGUgZGVsYXkgaW4gdGhlIHRpbWVvdXQgbG9vcCBiZWNhdXNlIHRoZXJlIGlzCnJhbmRvbSAiVGlt
-ZW91dCBvZiB2aWRlbyBzdHJlYW1jbGsgb2siIG1lc3NhZ2UgaGFwcGVuIHdoZW4gZGVidWcgZWRw
-CnBhbmVsLCB0aGlzIHRpbWUgZG8gbm90IGRlZmluZSBpbiB0aGUgc3BlYy4KCkNjOiDlvoHlop4g
-546LIDx3enpAcm9jay1jaGlwcy5jb20+CkNjOiBTdMOpcGhhbmUgTWFyY2hlc2luIDxtYXJjaGV1
-QGNocm9taXVtLm9yZz4KU2lnbmVkLW9mZi1ieTogTGluIEh1YW5nIDxobEByb2NrLWNoaXBzLmNv
-bT4KU2lnbmVkLW9mZi1ieTogU2VhbiBQYXVsIDxzZWFucGF1bEBjaHJvbWl1bS5vcmc+ClNpZ25l
-ZC1vZmYtYnk6IFRoaWVycnkgRXNjYW5kZSA8dGhpZXJyeS5lc2NhbmRlQGNvbGxhYm9yYS5jb20+
-ClJldmlld2VkLWJ5OiBBbmRyemVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPgpTaWduZWQt
-b2ZmLWJ5OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEu
-Y29tPgpUZXN0ZWQtYnk6IE1hcmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNv
-bT4KLS0tCgogZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9hbmFsb2dpeC9hbmFsb2dpeF9kcF9jb3Jl
-LmMgfCAxMSArKysrKy0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgNiBk
-ZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4
-L2FuYWxvZ2l4X2RwX2NvcmUuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2UvYW5hbG9naXgvYW5h
-bG9naXhfZHBfY29yZS5jCmluZGV4IDVjNTIzMDcxNDZjNy4uMDVhMGNhNGFmMDU3IDEwMDY0NAot
-LS0gYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwor
-KysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL2FuYWxvZ2l4L2FuYWxvZ2l4X2RwX2NvcmUuYwpA
-QCAtODE5LDExICs4MTksMTAgQEAgc3RhdGljIGludCBhbmFsb2dpeF9kcF9jb25maWdfdmlkZW8o
-c3RydWN0IGFuYWxvZ2l4X2RwX2RldmljZSAqZHApCiAJCWlmIChhbmFsb2dpeF9kcF9pc19zbGF2
-ZV92aWRlb19zdHJlYW1fY2xvY2tfb24oZHApID09IDApCiAJCQlicmVhazsKIAkJaWYgKHRpbWVv
-dXRfbG9vcCA+IERQX1RJTUVPVVRfTE9PUF9DT1VOVCkgewotCQkJZGV2X2VycihkcC0+ZGV2LCAi
-VGltZW91dCBvZiB2aWRlbyBzdHJlYW1jbGsgb2tcbiIpOworCQkJZGV2X2VycihkcC0+ZGV2LCAi
-VGltZW91dCBvZiBzbGF2ZSB2aWRlbyBzdHJlYW1jbGsgb2tcbiIpOwogCQkJcmV0dXJuIC1FVElN
-RURPVVQ7CiAJCX0KLQotCQl1c2xlZXBfcmFuZ2UoMSwgMik7CisJCXVzbGVlcF9yYW5nZSgxMDAw
-LCAxMDAxKTsKIAl9CiAKIAkvKiBTZXQgdG8gdXNlIHRoZSByZWdpc3RlciBjYWxjdWxhdGVkIE0v
-TiB2aWRlbyAqLwpAQCAtODM4LDYgKzgzNyw5IEBAIHN0YXRpYyBpbnQgYW5hbG9naXhfZHBfY29u
-ZmlnX3ZpZGVvKHN0cnVjdCBhbmFsb2dpeF9kcF9kZXZpY2UgKmRwKQogCS8qIENvbmZpZ3VyZSB2
-aWRlbyBzbGF2ZSBtb2RlICovCiAJYW5hbG9naXhfZHBfZW5hYmxlX3ZpZGVvX21hc3RlcihkcCwg
-MCk7CiAKKwkvKiBFbmFibGUgdmlkZW8gKi8KKwlhbmFsb2dpeF9kcF9zdGFydF92aWRlbyhkcCk7
-CisKIAl0aW1lb3V0X2xvb3AgPSAwOwogCiAJZm9yICg7OykgewpAQCAtOTQ4LDkgKzk1MCw2IEBA
-IHN0YXRpYyB2b2lkIGFuYWxvZ2l4X2RwX2NvbW1pdChzdHJ1Y3QgYW5hbG9naXhfZHBfZGV2aWNl
-ICpkcCkKIAkJCURSTV9FUlJPUigiZmFpbGVkIHRvIGVuYWJsZSB0aGUgcGFuZWxcbiIpOwogCX0K
-IAotCS8qIEVuYWJsZSB2aWRlbyAqLwotCWFuYWxvZ2l4X2RwX3N0YXJ0X3ZpZGVvKGRwKTsKLQog
-CWRwLT5wc3JfZW5hYmxlID0gYW5hbG9naXhfZHBfZGV0ZWN0X3NpbmtfcHNyKGRwKTsKIAlpZiAo
-ZHAtPnBzcl9lbmFibGUpCiAJCWFuYWxvZ2l4X2RwX2VuYWJsZV9zaW5rX3BzcihkcCk7Ci0tIAoy
-LjE2LjMKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwps
-aW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJh
-ZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51
-eC1hcm0ta2VybmVsCg==
+From: zain wang <wzz@rock-chips.com>
+
+Enhanced mode is required by the eDP 1.2 specification, and not doing it
+early could result in a period of time where we have a link transmitting
+idle packets without it. Since there is no reason to disable it, we just
+enable it at the beginning of link training and then keep it on all the
+time.
+
+Cc: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: zain wang <wzz@rock-chips.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Archit Taneja <architt@codeaurora.org>
+---
+
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+index 1f4f34149019..1e1743b59c77 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -281,6 +281,8 @@ static int analogix_dp_link_start(struct analogix_dp_device *dp)
+ 	retval = drm_dp_dpcd_write(&dp->aux, DP_LINK_BW_SET, buf, 2);
+ 	if (retval < 0)
+ 		return retval;
++	/* set enhanced mode if available */
++	analogix_dp_set_enhanced_mode(dp);
+ 
+ 	/* Set TX pre-emphasis to minimum */
+ 	for (lane = 0; lane < lane_count; lane++)
+@@ -593,8 +595,6 @@ static int analogix_dp_process_equalizer_training(struct analogix_dp_device *dp)
+ 		dev_dbg(dp->dev, "fast link training %s\n",
+ 			dp->fast_train_enable ? "supported" : "unsupported");
+ 
+-		/* set enhanced mode if available */
+-		analogix_dp_set_enhanced_mode(dp);
+ 		dp->link_train.lt_state = FINISHED;
+ 
+ 		return 0;
+@@ -940,8 +940,6 @@ static int analogix_dp_commit(struct analogix_dp_device *dp)
+ 	}
+ 
+ 	analogix_dp_enable_scramble(dp, 1);
+-	analogix_dp_enable_rx_to_enhanced_mode(dp, 1);
+-	analogix_dp_enable_enhanced_mode(dp, 1);
+ 
+ 	analogix_dp_init_video(dp);
+ 	ret = analogix_dp_config_video(dp);
+-- 
+2.16.3

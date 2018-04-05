@@ -1,183 +1,241 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 26/30] drm/rockchip: psr: Avoid redundant calls to .set() callback
-Date: Thu,  5 Apr 2018 11:49:56 +0200
-Message-ID: <20180405095000.9756-27-enric.balletbo@collabora.com>
+Subject: [PATCH v6 24/30] drm/rockchip: Disable PSR on input events
+Date: Thu,  5 Apr 2018 11:49:54 +0200
+Message-ID: <20180405095000.9756-25-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, "Kristian H. Kristensen" <hoegsberg@google.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Tomasz Figa <tfiga@chromium.org>
+From: "Kristian H. Kristensen" <hoegsberg@google.com>
 
-The first time after we call rockchip_drm_do_flush() after
-rockchip_drm_psr_register(), we go from PSR_DISABLE to PSR_FLUSH. The
-difference between PSR_DISABLE and PSR_FLUSH is whether or not we have a
-delayed work pending - PSR is off in either state.  However
-psr_set_state() only catches the transition from PSR_FLUSH to
-PSR_DISABLE (which never happens), while going from PSR_DISABLE to
-PSR_FLUSH triggers a call to psr->set() to disable PSR while it's
-already disabled. This triggers the eDP PHY power-on sequence without
-being shut down first and this seems to occasionally leave the encoder
-unable to later enable PSR. Let's just simplify the state machine and
-simply consider PSR_DISABLE and PSR_FLUSH the same state. This lets us
-represent the hardware state by a simple boolean called "enabled" and,
-while at it, rename the misleading "active" boolean to "inhibit", which
-represents the purpose much better.
+To improve PSR exit latency, we speculatively start exiting when we
+receive input events. Occasionally, this may lead to false positives,
+but most of the time we get a head start on coming out of PSR. Depending
+on how userspace takes to produce a new frame in response to the event,
+this can completely hide the exit latency. In case of Chrome OS, we
+typically get the input notifier 50ms or more before the dirty_fb
+triggered exit.
 
-Also, userspace can (and does) trigger the rockchip_drm_do_flush() path
-from drmModeDirtyFB() at any time, whether or the encoder is active. If
-no mode is set, we call into analogix_dp_psr_set() which returns -EINVAL
-because encoder->crtc is NULL. Avoid this by starting out with
-psr->allowed set to false.
-
-Signed-off-by: Kristian H. Kristensen <hoegsberg@chromium.org>
-Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Kristian H. Kristensen <hoegsberg@google.com>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
 Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 ---
 
- drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 79 +++++++++--------------------
- 1 file changed, 23 insertions(+), 56 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 134 ++++++++++++++++++++++++++++
+ 1 file changed, 134 insertions(+)
 
 diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-index c8655e625ba2..448c5fde241c 100644
+index 9376f4396b6b..a107845ba97c 100644
 --- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
 +++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-@@ -22,19 +22,13 @@
+@@ -12,6 +12,8 @@
+  * GNU General Public License for more details.
+  */
  
- #define PSR_FLUSH_TIMEOUT_MS	100
++#include <linux/input.h>
++
+ #include <drm/drmP.h>
+ #include <drm/drm_crtc_helper.h>
  
--enum psr_state {
--	PSR_FLUSH,
--	PSR_ENABLE,
--	PSR_DISABLE,
--};
--
- struct psr_drv {
- 	struct list_head	list;
- 	struct drm_encoder	*encoder;
- 
- 	struct mutex		lock;
- 	bool			active;
--	enum psr_state		state;
-+	bool			enabled;
+@@ -35,6 +37,9 @@ struct psr_drv {
+ 	enum psr_state		state;
  
  	struct delayed_work	flush_work;
- 	struct work_struct	disable_work;
-@@ -78,52 +72,22 @@ static struct psr_drv *find_psr_by_encoder(struct drm_encoder *encoder)
- 	return psr;
- }
- 
--static void psr_set_state_locked(struct psr_drv *psr, enum psr_state state)
-+static int psr_set_state_locked(struct psr_drv *psr, bool enable)
- {
--	/*
--	 * Allowed finite state machine:
--	 *
--	 *   PSR_ENABLE  < = = = = = >  PSR_FLUSH
--	 *       | ^                        |
--	 *       | |                        |
--	 *       v |                        |
--	 *   PSR_DISABLE < - - - - - - - - -
--	 */
--	if (state == psr->state || !psr->active)
--		return;
--
--	/* Already disabled in flush, change the state, but not the hardware */
--	if (state == PSR_DISABLE && psr->state == PSR_FLUSH) {
--		psr->state = state;
--		return;
--	}
-+	int ret;
- 
--	/* Actually commit the state change to hardware */
--	switch (state) {
--	case PSR_ENABLE:
--		if (psr->set(psr->encoder, true))
--			return;
--		break;
--
--	case PSR_DISABLE:
--	case PSR_FLUSH:
--		if (psr->set(psr->encoder, false))
--			return;
--		break;
--
--	default:
--		pr_err("%s: Unknown state %d\n", __func__, state);
--		return;
--	}
-+	if (!psr->active)
-+		return -EINVAL;
- 
--	psr->state = state;
--}
-+	if (enable == psr->enabled)
-+		return 0;
- 
--static void psr_set_state(struct psr_drv *psr, enum psr_state state)
--{
--	mutex_lock(&psr->lock);
--	psr_set_state_locked(psr, state);
--	mutex_unlock(&psr->lock);
-+	ret = psr->set(psr->encoder, enable);
-+	if (ret)
-+		return ret;
++	struct work_struct	disable_work;
 +
-+	psr->enabled = enable;
-+	return 0;
- }
++	struct input_handler    input_handler;
  
- static void psr_flush_handler(struct work_struct *work)
-@@ -131,10 +95,8 @@ static void psr_flush_handler(struct work_struct *work)
- 	struct psr_drv *psr = container_of(to_delayed_work(work),
- 					   struct psr_drv, flush_work);
- 
--	/* If the state has changed since we initiated the flush, do nothing */
- 	mutex_lock(&psr->lock);
--	if (psr->state == PSR_FLUSH)
--		psr_set_state_locked(psr, PSR_ENABLE);
-+	psr_set_state_locked(psr, true);
+ 	int (*set)(struct drm_encoder *encoder, bool enable);
+ };
+@@ -133,6 +138,18 @@ static void psr_flush_handler(struct work_struct *work)
  	mutex_unlock(&psr->lock);
  }
  
-@@ -176,6 +138,7 @@ int rockchip_drm_psr_deactivate(struct drm_encoder *encoder)
- 
- 	mutex_lock(&psr->lock);
- 	psr->active = false;
-+	psr->enabled = false;
- 	mutex_unlock(&psr->lock);
- 	cancel_delayed_work_sync(&psr->flush_work);
- 	cancel_work_sync(&psr->disable_work);
-@@ -187,8 +150,12 @@ EXPORT_SYMBOL(rockchip_drm_psr_deactivate);
- static void rockchip_drm_do_flush(struct psr_drv *psr)
- {
- 	cancel_delayed_work_sync(&psr->flush_work);
--	psr_set_state(psr, PSR_FLUSH);
--	mod_delayed_work(system_wq, &psr->flush_work, PSR_FLUSH_TIMEOUT_MS);
++static void psr_disable_handler(struct work_struct *work)
++{
++	struct psr_drv *psr = container_of(work, struct psr_drv, disable_work);
 +
++	/* If the state has changed since we initiated the flush, do nothing */
 +	mutex_lock(&psr->lock);
-+	if (!psr_set_state_locked(psr, false))
-+		mod_delayed_work(system_wq, &psr->flush_work,
-+				 PSR_FLUSH_TIMEOUT_MS);
++	if (psr->state == PSR_ENABLE)
++		psr_set_state_locked(psr, PSR_FLUSH);
 +	mutex_unlock(&psr->lock);
- }
- 
++	mod_delayed_work(system_wq, &psr->flush_work, PSR_FLUSH_TIMEOUT_MS);
++}
++
  /**
-@@ -355,8 +322,8 @@ int rockchip_drm_psr_register(struct drm_encoder *encoder,
- 	INIT_WORK(&psr->disable_work, psr_disable_handler);
+  * rockchip_drm_psr_activate - activate PSR on the given pipe
+  * @encoder: encoder to obtain the PSR encoder
+@@ -173,6 +190,7 @@ int rockchip_drm_psr_deactivate(struct drm_encoder *encoder)
+ 	psr->active = false;
+ 	mutex_unlock(&psr->lock);
+ 	cancel_delayed_work_sync(&psr->flush_work);
++	cancel_work_sync(&psr->disable_work);
+ 
+ 	return 0;
+ }
+@@ -226,6 +244,95 @@ void rockchip_drm_psr_flush_all(struct drm_device *dev)
+ }
+ EXPORT_SYMBOL(rockchip_drm_psr_flush_all);
+ 
++static void psr_input_event(struct input_handle *handle,
++			    unsigned int type, unsigned int code,
++			    int value)
++{
++	struct psr_drv *psr = handle->handler->private;
++
++	schedule_work(&psr->disable_work);
++}
++
++static int psr_input_connect(struct input_handler *handler,
++			     struct input_dev *dev,
++			     const struct input_device_id *id)
++{
++	struct input_handle *handle;
++	int error;
++
++	handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
++	if (!handle)
++		return -ENOMEM;
++
++	handle->dev = dev;
++	handle->handler = handler;
++	handle->name = "rockchip-psr";
++
++	error = input_register_handle(handle);
++	if (error)
++		goto err2;
++
++	error = input_open_device(handle);
++	if (error)
++		goto err1;
++
++	return 0;
++
++err1:
++	input_unregister_handle(handle);
++err2:
++	kfree(handle);
++	return error;
++}
++
++static void psr_input_disconnect(struct input_handle *handle)
++{
++	input_close_device(handle);
++	input_unregister_handle(handle);
++	kfree(handle);
++}
++
++/* Same device ids as cpu-boost */
++static const struct input_device_id psr_ids[] = {
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
++			 INPUT_DEVICE_ID_MATCH_ABSBIT,
++		.evbit = { BIT_MASK(EV_ABS) },
++		.absbit = { [BIT_WORD(ABS_MT_POSITION_X)] =
++			    BIT_MASK(ABS_MT_POSITION_X) |
++			    BIT_MASK(ABS_MT_POSITION_Y) },
++	}, /* multi-touch touchscreen */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
++		.evbit = { BIT_MASK(EV_ABS) },
++		.absbit = { [BIT_WORD(ABS_X)] = BIT_MASK(ABS_X) }
++
++	}, /* stylus or joystick device */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
++		.evbit = { BIT_MASK(EV_KEY) },
++		.keybit = { [BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) },
++	}, /* pointer (e.g. trackpad, mouse) */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
++		.evbit = { BIT_MASK(EV_KEY) },
++		.keybit = { [BIT_WORD(KEY_ESC)] = BIT_MASK(KEY_ESC) },
++	}, /* keyboard */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
++				INPUT_DEVICE_ID_MATCH_KEYBIT,
++		.evbit = { BIT_MASK(EV_KEY) },
++		.keybit = {[BIT_WORD(BTN_JOYSTICK)] = BIT_MASK(BTN_JOYSTICK) },
++	}, /* joysticks not caught by ABS_X above */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
++				INPUT_DEVICE_ID_MATCH_KEYBIT,
++		.evbit = { BIT_MASK(EV_KEY) },
++		.keybit = { [BIT_WORD(BTN_GAMEPAD)] = BIT_MASK(BTN_GAMEPAD) },
++	}, /* gamepad */
++	{ },
++};
++
+ /**
+  * rockchip_drm_psr_register - register encoder to psr driver
+  * @encoder: encoder that obtain the PSR function
+@@ -239,6 +346,7 @@ int rockchip_drm_psr_register(struct drm_encoder *encoder,
+ {
+ 	struct rockchip_drm_private *drm_drv = encoder->dev->dev_private;
+ 	struct psr_drv *psr;
++	int error;
+ 
+ 	if (!encoder || !psr_set)
+ 		return -EINVAL;
+@@ -248,6 +356,7 @@ int rockchip_drm_psr_register(struct drm_encoder *encoder,
+ 		return -ENOMEM;
+ 
+ 	INIT_DELAYED_WORK(&psr->flush_work, psr_flush_handler);
++	INIT_WORK(&psr->disable_work, psr_disable_handler);
  	mutex_init(&psr->lock);
  
--	psr->active = true;
--	psr->state = PSR_DISABLE;
-+	psr->active = false;
-+	psr->enabled = false;
+ 	psr->active = true;
+@@ -255,11 +364,33 @@ int rockchip_drm_psr_register(struct drm_encoder *encoder,
  	psr->encoder = encoder;
  	psr->set = psr_set;
  
++	psr->input_handler.event = psr_input_event;
++	psr->input_handler.connect = psr_input_connect;
++	psr->input_handler.disconnect = psr_input_disconnect;
++	psr->input_handler.name =
++		kasprintf(GFP_KERNEL, "rockchip-psr-%s", encoder->name);
++	if (!psr->input_handler.name) {
++		error = -ENOMEM;
++		goto err2;
++	}
++	psr->input_handler.id_table = psr_ids;
++	psr->input_handler.private = psr;
++
++	error = input_register_handler(&psr->input_handler);
++	if (error)
++		goto err1;
++
+ 	mutex_lock(&drm_drv->psr_list_lock);
+ 	list_add_tail(&psr->list, &drm_drv->psr_list);
+ 	mutex_unlock(&drm_drv->psr_list_lock);
+ 
+ 	return 0;
++
++ err1:
++	kfree(psr->input_handler.name);
++ err2:
++	kfree(psr);
++	return error;
+ }
+ EXPORT_SYMBOL(rockchip_drm_psr_register);
+ 
+@@ -279,8 +410,11 @@ void rockchip_drm_psr_unregister(struct drm_encoder *encoder)
+ 	mutex_lock(&drm_drv->psr_list_lock);
+ 	list_for_each_entry_safe(psr, n, &drm_drv->psr_list, list) {
+ 		if (psr->encoder == encoder) {
++			input_unregister_handler(&psr->input_handler);
+ 			cancel_delayed_work_sync(&psr->flush_work);
++			cancel_work_sync(&psr->disable_work);
+ 			list_del(&psr->list);
++			kfree(psr->input_handler.name);
+ 			kfree(psr);
+ 		}
+ 	}
 -- 
 2.16.3

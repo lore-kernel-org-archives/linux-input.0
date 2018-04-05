@@ -1,7 +1,7 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 08/30] drm/bridge: analogix_dp: Extend hpd check time to 100ms
-Date: Thu,  5 Apr 2018 11:49:38 +0200
-Message-ID: <20180405095000.9756-9-enric.balletbo@collabora.com>
+Subject: [PATCH v6 07/30] drm/bridge: analogix_dp: Ensure edp is disabled when shutting down the panel
+Date: Thu,  5 Apr 2018 11:49:37 +0200
+Message-ID: <20180405095000.9756-8-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,12 +15,12 @@ List-Id: linux-input@vger.kernel.org
 
 From: Lin Huang <hl@rock-chips.com>
 
-There was a 1ms delay to detect the hpd signal, which is too short to
-detect a short pulse. This patch extends this delay to 100ms.
+When panel is shut down, we should make sure edp can be disabled to avoid
+undefined behavior.
 
 Cc: Stéphane Marchesin <marcheu@chromium.org>
-Cc: 征增 王 <wzz@rock-chips.com>
 Signed-off-by: Lin Huang <hl@rock-chips.com>
+Signed-off-by: zain wang <wzz@rock-chips.com>
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
 Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
@@ -29,21 +29,49 @@ Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Reviewed-by: Archit Taneja <architt@codeaurora.org>
 ---
 
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index 5957e2338071..1f4f34149019 100644
+index 3269deec739d..5957e2338071 100644
 --- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
 +++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -76,7 +76,7 @@ static int analogix_dp_detect_hpd(struct analogix_dp_device *dp)
- 			return 0;
+@@ -1160,6 +1160,12 @@ static int analogix_dp_set_bridge(struct analogix_dp_device *dp)
  
- 		timeout_loop++;
--		usleep_range(10, 11);
-+		usleep_range(1000, 1100);
+ 	pm_runtime_get_sync(dp->dev);
+ 
++	ret = clk_prepare_enable(dp->clock);
++	if (ret < 0) {
++		DRM_ERROR("Failed to prepare_enable the clock clk [%d]\n", ret);
++		goto out_dp_clk_pre;
++	}
++
+ 	if (dp->plat_data->power_on)
+ 		dp->plat_data->power_on(dp->plat_data);
+ 
+@@ -1191,6 +1197,8 @@ static int analogix_dp_set_bridge(struct analogix_dp_device *dp)
+ 	phy_power_off(dp->phy);
+ 	if (dp->plat_data->power_off)
+ 		dp->plat_data->power_off(dp->plat_data);
++	clk_disable_unprepare(dp->clock);
++out_dp_clk_pre:
+ 	pm_runtime_put_sync(dp->dev);
+ 
+ 	return ret;
+@@ -1233,11 +1241,14 @@ static void analogix_dp_bridge_disable(struct drm_bridge *bridge)
  	}
  
- 	/*
+ 	disable_irq(dp->irq);
++	analogix_dp_set_analog_power_down(dp, POWER_ALL, 1);
+ 	phy_power_off(dp->phy);
+ 
+ 	if (dp->plat_data->power_off)
+ 		dp->plat_data->power_off(dp->plat_data);
+ 
++	clk_disable_unprepare(dp->clock);
++
+ 	pm_runtime_put_sync(dp->dev);
+ 
+ 	ret = analogix_dp_prepare_panel(dp, false, true);
 -- 
 2.16.3

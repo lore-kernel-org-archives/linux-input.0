@@ -1,55 +1,49 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 0/8] Input: support for latest Lenovo thinkpads (series 80)
-Date: Thu,  5 Apr 2018 15:25:29 +0200
-Message-ID: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/8] Input: synaptics - add Lenovo 80 series ids to SMBus
+Date: Thu,  5 Apr 2018 15:25:30 +0200
+Message-ID: <20180405132537.3218-2-benjamin.tissoires@redhat.com>
+References: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: kt.liao@emc.com.tw, Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+This time, Lenovo decided to go with different pieces in its latest series
+of Thinkpads.
 
-well, this year, Lenovo gave us a surprise and decided to not use
-the same touchpad/trackstick in all its model. And by default, the
-support under Linux is less than ideal.
+For those we have been able to test:
+- the T480 is using Synaptics with an IBM trackpoint
+   -> it behaves properly with or without intertouch, there is no point
+      not using RMI4
+- the X1 Carbon 6th gen is using Synaptics with an IBM trackpoint
+   -> the touchpad doesn't behave properly under PS/2 so we have to
+      switch it to RMI4 if we do not want to have disappointed users
+- the X280 is using Synaptics with an ALPS trackpoint
+   -> the recent fixes in the trackpoint handling fixed it so upstream
+      now works fine with or without RMI4, and there is no point not
+      using RMI4
+- the T480s is using an Elan touchpad, so that's a different story
 
-Please find a series that should fix those issues. Compared to the 60
-series, there do not seem to e BIOS table issues this time, and suspend/resume
-works fine thanks to your latest trackstick fixes.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/input/mouse/synaptics.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-The T480s is a different beast, as it uses an Elan touchpad.
-I have been carrying the patches 3-6 for a while and tested previous
-versions on various Elan PS/2 hardware without an issue as far as I
-could tell. I was lacking tests from users with SMBus as all the laptops
-I tried where puer PS/2.
-
-Anyway, it would be cool if you could have a look at the series.
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (8):
-  Input: synaptics - add Lenovo 80 series ids to SMBus
-  input: elan_i2c_smbus - fix corrupted stack
-  Input: elan_i2c - add trackstick report
-  Input: elantech - split device info into a separate structure
-  Input: elantech - query the resolution in query_info
-  Input: elantech - add support for SMBus devices
-  Input: elantech - detect new ICs and setup Host Notify for them
-  input: psmouse-smbus: allow to control psmouse_deactivate
-
- drivers/input/mouse/Kconfig          |  12 +
- drivers/input/mouse/elan_i2c.h       |  10 +
- drivers/input/mouse/elan_i2c_core.c  |  91 ++++++-
- drivers/input/mouse/elan_i2c_smbus.c |  22 +-
- drivers/input/mouse/elantech.c       | 475 ++++++++++++++++++++++++++---------
- drivers/input/mouse/elantech.h       |  69 ++++-
- drivers/input/mouse/psmouse-base.c   |  21 +-
- drivers/input/mouse/psmouse-smbus.c  |  13 +-
- drivers/input/mouse/psmouse.h        |   2 +
- drivers/input/mouse/synaptics.c      |   5 +-
- 10 files changed, 564 insertions(+), 156 deletions(-)
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 60f2c463d1cc..14a1188561aa 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -173,6 +173,9 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0046", /* X250 */
+ 	"LEN004a", /* W541 */
+ 	"LEN200f", /* T450s */
++	"LEN0071", /* T480 */
++	"LEN0092", /* X1 Carbon 6th gen */
++	"LEN0097", /* X280 -> ALPS trackpoint */
+ 	NULL
+ };
+ 
 -- 
 2.14.3

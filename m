@@ -1,132 +1,153 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/8] input: elan_i2c_smbus - fix corrupted stack
-Date: Thu,  5 Apr 2018 15:25:31 +0200
-Message-ID: <20180405132537.3218-3-benjamin.tissoires@redhat.com>
-References: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v4.17-rc0
+Date: Thu, 5 Apr 2018 12:43:35 -0700
+Message-ID: <20180405194335.GA176669@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180405132537.3218-1-benjamin.tissoires@redhat.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kt.liao@emc.com.tw, Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-New ICs (like the one on the Lenovo T480s) answer to
-ETP_SMBUS_IAP_VERSION_CMD 4 bytes instead of 3. This corrupts the stack
-as i2c_smbus_read_block_data() uses the values returned by the i2c
-device to know how many data it need to return.
+Hi Linus,
 
-i2c_smbus_read_block_data() can read up to 32 bytes (I2C_SMBUS_BLOCK_MAX)
-and there is no safeguard on how many bytes are provided in the return
-value. Ensure we always have enough space for any future firmware.
-Also 0-initialize the values to prevent any access to uninitialized memory.
+Please pull from:
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/input/mouse/elan_i2c_smbus.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index 29f99529b187..cfcb32559925 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -130,7 +130,7 @@ static int elan_smbus_get_baseline_data(struct i2c_client *client,
- 					bool max_baseline, u8 *value)
- {
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	error = i2c_smbus_read_block_data(client,
- 					  max_baseline ?
-@@ -149,7 +149,7 @@ static int elan_smbus_get_version(struct i2c_client *client,
- 				  bool iap, u8 *version)
- {
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	error = i2c_smbus_read_block_data(client,
- 					  iap ? ETP_SMBUS_IAP_VERSION_CMD :
-@@ -170,7 +170,7 @@ static int elan_smbus_get_sm_version(struct i2c_client *client,
- 				     u8 *clickpad)
- {
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	error = i2c_smbus_read_block_data(client,
- 					  ETP_SMBUS_SM_VERSION_CMD, val);
-@@ -188,7 +188,7 @@ static int elan_smbus_get_sm_version(struct i2c_client *client,
- static int elan_smbus_get_product_id(struct i2c_client *client, u16 *id)
- {
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	error = i2c_smbus_read_block_data(client,
- 					  ETP_SMBUS_UNIQUEID_CMD, val);
-@@ -205,7 +205,7 @@ static int elan_smbus_get_checksum(struct i2c_client *client,
- 				   bool iap, u16 *csum)
- {
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	error = i2c_smbus_read_block_data(client,
- 					  iap ? ETP_SMBUS_FW_CHECKSUM_CMD :
-@@ -226,7 +226,7 @@ static int elan_smbus_get_max(struct i2c_client *client,
- {
- 	int ret;
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	ret = i2c_smbus_read_block_data(client, ETP_SMBUS_RANGE_CMD, val);
- 	if (ret != 3) {
-@@ -246,7 +246,7 @@ static int elan_smbus_get_resolution(struct i2c_client *client,
- {
- 	int ret;
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	ret = i2c_smbus_read_block_data(client, ETP_SMBUS_RESOLUTION_CMD, val);
- 	if (ret != 3) {
-@@ -267,7 +267,7 @@ static int elan_smbus_get_num_traces(struct i2c_client *client,
- {
- 	int ret;
- 	int error;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	ret = i2c_smbus_read_block_data(client, ETP_SMBUS_XY_TRACENUM_CMD, val);
- 	if (ret != 3) {
-@@ -294,7 +294,7 @@ static int elan_smbus_iap_get_mode(struct i2c_client *client,
- {
- 	int error;
- 	u16 constant;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	error = i2c_smbus_read_block_data(client, ETP_SMBUS_IAP_CTRL_CMD, val);
- 	if (error < 0) {
-@@ -345,7 +345,7 @@ static int elan_smbus_prepare_fw_update(struct i2c_client *client)
- 	int len;
- 	int error;
- 	enum tp_mode mode;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 	u8 cmd[4] = {0x0F, 0x78, 0x00, 0x06};
- 	u16 password;
- 
-@@ -419,7 +419,7 @@ static int elan_smbus_write_fw_block(struct i2c_client *client,
- 	struct device *dev = &client->dev;
- 	int error;
- 	u16 result;
--	u8 val[3];
-+	u8 val[I2C_SMBUS_BLOCK_MAX] = {0};
- 
- 	/*
- 	 * Due to the limitation of smbus protocol limiting
+to receive updates for the input subsystem. You will get:
+
+- a new driver for PhoenixRC Flight Controller Adapter 
+- a new driver for RAVE SP Power button
+- fixes for autosuspend-related deadlocks in a few unput USB dirvers
+- support for 2nd wheel in ATech PS/2 mouse 
+- fix for ALPS trackpoint detection on Thinkpad L570 and Latitude 7370
+- bunch of cleanups in various in PS/2 protocols
+- other assorted changes and fixes
+
+There will be a conflict in drivers/input/joystick/analog.c, please
+resolve so the line reads:
+
+#elif defined(__alpha__) || defined(CONFIG_ARM) || defined(CONFIG_ARM64) || defined(CONFIG_PPC) || defined(CONFIG_RISCV)
+
+Thanks!
+
+Changelog:
+---------
+
+Andi Shyti (1):
+      Input: stmfts, s6sy761 - update my e-mail
+
+Andrey Smirnov (1):
+      Input: add RAVE SP Powerbutton driver
+
+Dennis Wassenberg (1):
+      Input: i8042 - add Lenovo ThinkPad L460 to i8042 reset list
+
+Dmitry Torokhov (14):
+      Input: psmouse - create helper for reporting standard buttons/motion
+      Input: psmouse - clean up code
+      Input: logips2pp - clean up code
+      Input: lifebook - clean up code
+      Input: libps2 - fix switch statement formatting
+      Input: libps2 - use u8 for byte data
+      Input: libps2 - use BIT() for bitmask constants
+      Input: psmouse - move sliced command implementation to libps2
+      Input: libps2 - add debugging statements
+      Input: libps2 - support retransmission of command data
+      Input: libps2 - relax command byte ACK handling
+      Input: trackpoint - combine calls to ps2_command()
+      Input: synaptics - switch to using input_set_capability
+      Input: synaptics - handle errors from input_mt_init_slots()
+
+Francis Therien (1):
+      Input: xpad - add PDP device id 0x02a4
+
+Gustavo A. R. Silva (2):
+      Input: stmpe-keypad - remove VLA usage
+      Input: appletouch - use true and false for boolean values
+
+Jeffy Chen (1):
+      Input: gpio-keys - add support for wakeup event action
+
+Marcus Folkesson (7):
+      Input: synaptics_usb - fix deadlock in autosuspend
+      Input: synaptics_usb - do not rely on input_dev->users
+      Input: pagasus_notetaker - fix deadlock in autosuspend
+      Input: pegasus_notetaker - do not rely on input_dev->users
+      Input: usbtouchscreen - fix deadlock in autosuspend
+      Input: usbtouchscreen - do not rely on input_dev->users
+      Input: pxrc - new driver for PhoenixRC Flight Controller Adapter
+
+Marek Szyprowski (1):
+      Input: stmfts - use async probe & suspend/resume to avoid 2s delay
+
+Maruyama Shohei (1):
+      Input: silead - add Chuwi Hi8 support
+
+Masaki Ota (1):
+      Input: ALPS - fix TrackStick detection on Thinkpad L570 and Latitude 7370
+
+Michael Ellerman (1):
+      Input: analog - use get_cycles() on PPC
+
+Ondrej Zary (1):
+      Input: i8042 - enable MUX on Sony VAIO VGN-CS series to fix touchpad
+
+Pali Rohár (1):
+      Input: alps - report pressure of v3 and v7 trackstick
+
+Stephen Lyons (1):
+      Input: psmouse - add support for 2nd wheel on A4Tech Dual-Scroll wheel mice
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/gpio-keys.txt        |   8 +
+ .../bindings/input/zii,rave-sp-pwrbutton.txt       |  22 ++
+ Documentation/input/devices/pxrc.rst               |  57 ++++
+ drivers/input/joystick/Kconfig                     |  10 +
+ drivers/input/joystick/Makefile                    |   1 +
+ drivers/input/joystick/analog.c                    |   2 +-
+ drivers/input/joystick/pxrc.c                      | 303 +++++++++++++++++++
+ drivers/input/joystick/xpad.c                      |   9 +-
+ drivers/input/keyboard/gpio_keys.c                 | 145 +++++++++-
+ drivers/input/keyboard/stmpe-keypad.c              |  16 +-
+ drivers/input/misc/Kconfig                         |   9 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/rave-sp-pwrbutton.c             |  94 ++++++
+ drivers/input/mouse/alps.c                         |  64 ++--
+ drivers/input/mouse/appletouch.c                   |   6 +-
+ drivers/input/mouse/elantech.c                     |  40 +--
+ drivers/input/mouse/lifebook.c                     |  62 ++--
+ drivers/input/mouse/logips2pp.c                    | 152 +++++-----
+ drivers/input/mouse/psmouse-base.c                 | 189 ++++++------
+ drivers/input/mouse/psmouse.h                      |   5 +-
+ drivers/input/mouse/sentelic.c                     |  11 +-
+ drivers/input/mouse/synaptics.c                    |  90 +++---
+ drivers/input/mouse/synaptics_usb.c                |  31 +-
+ drivers/input/mouse/trackpoint.c                   |  60 ++--
+ drivers/input/serio/i8042-x86ia64io.h              |  24 ++
+ drivers/input/serio/libps2.c                       | 322 ++++++++++++++-------
+ drivers/input/tablet/pegasus_notetaker.c           |  32 +-
+ drivers/input/touchscreen/s6sy761.c                |   2 +-
+ drivers/input/touchscreen/silead.c                 |   1 +
+ drivers/input/touchscreen/stmfts.c                 |   4 +-
+ drivers/input/touchscreen/usbtouchscreen.c         |  24 +-
+ include/dt-bindings/input/gpio-keys.h              |  13 +
+ include/linux/gpio_keys.h                          |   2 +
+ include/linux/libps2.h                             |  38 ++-
+ 34 files changed, 1358 insertions(+), 491 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/zii,rave-sp-pwrbutton.txt
+ create mode 100644 Documentation/input/devices/pxrc.rst
+ create mode 100644 drivers/input/joystick/pxrc.c
+ create mode 100644 drivers/input/misc/rave-sp-pwrbutton.c
+ create mode 100644 include/dt-bindings/input/gpio-keys.h
+
+Thanks.
+
 -- 
-2.14.3
+Dmitry

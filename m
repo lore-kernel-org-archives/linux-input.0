@@ -1,7 +1,7 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 13/30] drm/rockchip: Restore psr->state when enable/disable psr failed
-Date: Thu,  5 Apr 2018 11:49:43 +0200
-Message-ID: <20180405095000.9756-14-enric.balletbo@collabora.com>
+Subject: [PATCH v6 16/30] drm/bridge: analogix_dp: Fix incorrect operations with register ANALOGIX_DP_FUNC_EN_1
+Date: Thu,  5 Apr 2018 11:49:46 +0200
+Message-ID: <20180405095000.9756-17-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
@@ -12,144 +12,85 @@ List-Id: linux-input@vger.kernel.org
 
 From: zain wang <wzz@rock-chips.com>
 
-If we failed disable psr, it would hang the display until next psr
-cycle coming. So we should restore psr->state when it failed.
+Register ANALOGIX_DP_FUNC_EN_1(offset 0x18), Rockchip is different to
+Exynos:
+
+on Exynos edp phy,
+BIT 7		MASTER_VID_FUNC_EN_N
+BIT 6		reserved
+BIT 5		SLAVE_VID_FUNC_EN_N
+
+on Rockchip edp phy,
+BIT 7		reserved
+BIT 6		RK_VID_CAP_FUNC_EN_N
+BIT 5		RK_VID_FIFO_FUNC_EN_N
+
+So, we should do some private operations to Rockchip.
 
 Cc: Tomasz Figa <tfiga@chromium.org>
 Signed-off-by: zain wang <wzz@rock-chips.com>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
 Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
 Reviewed-by: Archit Taneja <architt@codeaurora.org>
 ---
 
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |  4 +++-
- drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    | 10 +++++-----
- drivers/gpu/drm/rockchip/rockchip_drm_psr.c        | 20 +++++++++++++-------
- drivers/gpu/drm/rockchip/rockchip_drm_psr.h        |  2 +-
- 4 files changed, 22 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 19 ++++++++++++++-----
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h |  2 ++
+ 2 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-index 75e61ebf6722..5540e2dfc2ec 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
-@@ -153,8 +153,10 @@ int analogix_dp_disable_psr(struct analogix_dp_device *dp)
- 	psr_vsc.DB1 = 0;
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+index 02ab1aaa9993..4eae206ec31b 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
+@@ -126,9 +126,14 @@ void analogix_dp_reset(struct analogix_dp_device *dp)
+ 	analogix_dp_stop_video(dp);
+ 	analogix_dp_enable_video_mute(dp, 0);
  
- 	ret = drm_dp_dpcd_writeb(&dp->aux, DP_SET_POWER, DP_SET_POWER_D0);
--	if (ret != 1)
-+	if (ret != 1) {
- 		dev_err(dp->dev, "Failed to set DP Power0 %d\n", ret);
-+		return ret;
+-	reg = MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N |
+-		AUD_FIFO_FUNC_EN_N | AUD_FUNC_EN_N |
+-		HDCP_FUNC_EN_N | SW_FUNC_EN_N;
++	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
++		reg = RK_VID_CAP_FUNC_EN_N | RK_VID_FIFO_FUNC_EN_N |
++			SW_FUNC_EN_N;
++	else
++		reg = MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N |
++			AUD_FIFO_FUNC_EN_N | AUD_FUNC_EN_N |
++			HDCP_FUNC_EN_N | SW_FUNC_EN_N;
++
+ 	writel(reg, dp->reg_base + ANALOGIX_DP_FUNC_EN_1);
+ 
+ 	reg = SSC_FUNC_EN_N | AUX_FUNC_EN_N |
+@@ -971,8 +976,12 @@ void analogix_dp_config_video_slave_mode(struct analogix_dp_device *dp)
+ 	u32 reg;
+ 
+ 	reg = readl(dp->reg_base + ANALOGIX_DP_FUNC_EN_1);
+-	reg &= ~(MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N);
+-	reg |= MASTER_VID_FUNC_EN_N;
++	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type)) {
++		reg &= ~(RK_VID_CAP_FUNC_EN_N | RK_VID_FIFO_FUNC_EN_N);
++	} else {
++		reg &= ~(MASTER_VID_FUNC_EN_N | SLAVE_VID_FUNC_EN_N);
++		reg |= MASTER_VID_FUNC_EN_N;
 +	}
+ 	writel(reg, dp->reg_base + ANALOGIX_DP_FUNC_EN_1);
  
- 	return analogix_dp_send_psr_spd(dp, &psr_vsc, false);
- }
-diff --git a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-index 3e8bf79bea58..8c884f9ce713 100644
---- a/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/analogix_dp-rockchip.c
-@@ -77,13 +77,13 @@ struct rockchip_dp_device {
- 	struct analogix_dp_plat_data plat_data;
- };
+ 	reg = readl(dp->reg_base + ANALOGIX_DP_VIDEO_CTL_10);
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
+index b633a4a5082a..0cf27c731727 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
+@@ -127,7 +127,9 @@
  
--static void analogix_dp_psr_set(struct drm_encoder *encoder, bool enabled)
-+static int analogix_dp_psr_set(struct drm_encoder *encoder, bool enabled)
- {
- 	struct rockchip_dp_device *dp = to_dp(encoder);
- 	int ret;
- 
- 	if (!analogix_dp_psr_enabled(dp->adp))
--		return;
-+		return 0;
- 
- 	DRM_DEV_DEBUG(dp->dev, "%s PSR...\n", enabled ? "Entry" : "Exit");
- 
-@@ -91,13 +91,13 @@ static void analogix_dp_psr_set(struct drm_encoder *encoder, bool enabled)
- 					 PSR_WAIT_LINE_FLAG_TIMEOUT_MS);
- 	if (ret) {
- 		DRM_DEV_ERROR(dp->dev, "line flag interrupt did not arrive\n");
--		return;
-+		return -ETIMEDOUT;
- 	}
- 
- 	if (enabled)
--		analogix_dp_enable_psr(dp->adp);
-+		return analogix_dp_enable_psr(dp->adp);
- 	else
--		analogix_dp_disable_psr(dp->adp);
-+		return analogix_dp_disable_psr(dp->adp);
- }
- 
- static int rockchip_dp_pre_init(struct rockchip_dp_device *dp)
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-index b339ca943139..9376f4396b6b 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-@@ -36,7 +36,7 @@ struct psr_drv {
- 
- 	struct delayed_work	flush_work;
- 
--	void (*set)(struct drm_encoder *encoder, bool enable);
-+	int (*set)(struct drm_encoder *encoder, bool enable);
- };
- 
- static struct psr_drv *find_psr_by_crtc(struct drm_crtc *crtc)
-@@ -93,19 +93,25 @@ static void psr_set_state_locked(struct psr_drv *psr, enum psr_state state)
- 		return;
- 	}
- 
--	psr->state = state;
--
- 	/* Actually commit the state change to hardware */
--	switch (psr->state) {
-+	switch (state) {
- 	case PSR_ENABLE:
--		psr->set(psr->encoder, true);
-+		if (psr->set(psr->encoder, true))
-+			return;
- 		break;
- 
- 	case PSR_DISABLE:
- 	case PSR_FLUSH:
--		psr->set(psr->encoder, false);
-+		if (psr->set(psr->encoder, false))
-+			return;
- 		break;
-+
-+	default:
-+		pr_err("%s: Unknown state %d\n", __func__, state);
-+		return;
- 	}
-+
-+	psr->state = state;
- }
- 
- static void psr_set_state(struct psr_drv *psr, enum psr_state state)
-@@ -229,7 +235,7 @@ EXPORT_SYMBOL(rockchip_drm_psr_flush_all);
-  * Zero on success, negative errno on failure.
-  */
- int rockchip_drm_psr_register(struct drm_encoder *encoder,
--			void (*psr_set)(struct drm_encoder *, bool enable))
-+			int (*psr_set)(struct drm_encoder *, bool enable))
- {
- 	struct rockchip_drm_private *drm_drv = encoder->dev->dev_private;
- 	struct psr_drv *psr;
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
-index b1ea0155e57c..06537ee27565 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.h
-@@ -22,7 +22,7 @@ int rockchip_drm_psr_activate(struct drm_encoder *encoder);
- int rockchip_drm_psr_deactivate(struct drm_encoder *encoder);
- 
- int rockchip_drm_psr_register(struct drm_encoder *encoder,
--			void (*psr_set)(struct drm_encoder *, bool enable));
-+			int (*psr_set)(struct drm_encoder *, bool enable));
- void rockchip_drm_psr_unregister(struct drm_encoder *encoder);
- 
- #endif /* __ROCKCHIP_DRM_PSR__ */
+ /* ANALOGIX_DP_FUNC_EN_1 */
+ #define MASTER_VID_FUNC_EN_N			(0x1 << 7)
++#define RK_VID_CAP_FUNC_EN_N			(0x1 << 6)
+ #define SLAVE_VID_FUNC_EN_N			(0x1 << 5)
++#define RK_VID_FIFO_FUNC_EN_N			(0x1 << 5)
+ #define AUD_FIFO_FUNC_EN_N			(0x1 << 4)
+ #define AUD_FUNC_EN_N				(0x1 << 3)
+ #define HDCP_FUNC_EN_N				(0x1 << 2)
 -- 
 2.16.3

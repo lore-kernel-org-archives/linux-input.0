@@ -1,33 +1,27 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v6 11/30] drm/bridge: analogix_dp: Fix AUX_PD bit for Rockchip
-Date: Thu,  5 Apr 2018 11:49:41 +0200
-Message-ID: <20180405095000.9756-12-enric.balletbo@collabora.com>
+Subject: [PATCH v6 17/30] drm/bridge: analogix_dp: Move fast link training detect to set_bridge
+Date: Thu,  5 Apr 2018 11:49:47 +0200
+Message-ID: <20180405095000.9756-18-enric.balletbo@collabora.com>
 References: <20180405095000.9756-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180405095000.9756-1-enric.balletbo@collabora.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, a.hajda@samsung.com, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, dianders@chromium.org, kyungmin.park@samsung.com, Enric Balletbo i Serra <enric.balletbo@collabora.com>, kuankuan.y@gmail.com, hshi@chromium.org
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
 From: zain wang <wzz@rock-chips.com>
 
-There are some different bits between Rockchip and Exynos in register
-"AUX_PD". This patch fixes the incorrect operations about it.
+It's too early to detect fast link training, if other step after it
+failed, we will set fast_link flag to 1, and retry set_bridge again. In
+this case we will power down and power up panel power supply, and we
+will do fast link training since we have set fast_link flag to 1. In
+fact, we should do full link training now, not the fast link training.
+So we should move the fast link detection at the end of set_bridge.
 
-Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Tomasz Figa <tfiga@chromium.org>
 Signed-off-by: zain wang <wzz@rock-chips.com>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
 Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
@@ -36,167 +30,83 @@ Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Reviewed-by: Archit Taneja <architt@codeaurora.org>
 ---
 
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c | 117 ++++++++++++----------
- drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h |   2 +
- 2 files changed, 65 insertions(+), 54 deletions(-)
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 42 +++++++++++++---------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-index bb72f8b0e603..dee1ba109b5f 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c
-@@ -248,76 +248,85 @@ void analogix_dp_set_analog_power_down(struct analogix_dp_device *dp,
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+index a72e454a7292..69b2c16e5776 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -601,7 +601,7 @@ static int analogix_dp_process_equalizer_training(struct analogix_dp_device *dp)
  {
+ 	int lane, lane_count, retval;
  	u32 reg;
- 	u32 phy_pd_addr = ANALOGIX_DP_PHY_PD;
-+	u32 mask;
+-	u8 link_align, link_status[2], adjust_request[2], spread;
++	u8 link_align, link_status[2], adjust_request[2];
  
- 	if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
- 		phy_pd_addr = ANALOGIX_DP_PD;
+ 	usleep_range(400, 401);
  
- 	switch (block) {
- 	case AUX_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= AUX_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
+@@ -645,20 +645,6 @@ static int analogix_dp_process_equalizer_training(struct analogix_dp_device *dp)
+ 		dev_dbg(dp->dev, "final lane count = %.2x\n",
+ 			dp->link_train.lane_count);
+ 
+-		retval = drm_dp_dpcd_readb(&dp->aux, DP_MAX_DOWNSPREAD,
+-					   &spread);
+-		if (retval != 1) {
+-			dev_err(dp->dev, "failed to read downspread %d\n",
+-				retval);
+-			dp->fast_train_enable = false;
 -		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~AUX_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
+-			dp->fast_train_enable =
+-				(spread & DP_NO_AUX_HANDSHAKE_LINK_TRAINING) ?
+-					true : false;
 -		}
-+		if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
-+			mask = RK_AUX_PD;
-+		else
-+			mask = AUX_PD;
+-		dev_dbg(dp->dev, "fast link training %s\n",
+-			dp->fast_train_enable ? "supported" : "unsupported");
+-
+ 		dp->link_train.lt_state = FINISHED;
+ 
+ 		return 0;
+@@ -996,6 +982,22 @@ static irqreturn_t analogix_dp_irq_thread(int irq, void *arg)
+ 	return IRQ_HANDLED;
+ }
+ 
++static int analogix_dp_fast_link_train_detection(struct analogix_dp_device *dp)
++{
++	int ret;
++	u8 spread;
 +
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH0_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH0_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH0_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH0_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
++	ret = drm_dp_dpcd_readb(&dp->aux, DP_MAX_DOWNSPREAD, &spread);
++	if (ret != 1) {
++		dev_err(dp->dev, "failed to read downspread %d\n", ret);
++		return ret;
++	}
++	dp->fast_train_enable = !!(spread & DP_NO_AUX_HANDSHAKE_LINK_TRAINING);
++	dev_dbg(dp->dev, "fast link training %s\n",
++		dp->fast_train_enable ? "supported" : "unsupported");
++	return 0;
++}
 +
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH1_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH1_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH1_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH1_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
+ static int analogix_dp_commit(struct analogix_dp_device *dp)
+ {
+ 	int ret;
+@@ -1038,8 +1040,16 @@ static int analogix_dp_commit(struct analogix_dp_device *dp)
+ 	if (ret)
+ 		return ret;
+ 
+-	if (dp->psr_enable)
++	if (dp->psr_enable) {
+ 		ret = analogix_dp_enable_sink_psr(dp);
++		if (ret)
++			return ret;
++	}
 +
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH2_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH2_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH2_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH2_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case CH3_BLOCK:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= CH3_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~CH3_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		mask = CH3_PD;
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+		writel(reg, dp->reg_base + phy_pd_addr);
- 		break;
- 	case ANALOG_TOTAL:
--		if (enable) {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg |= DP_PHY_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		} else {
--			reg = readl(dp->reg_base + phy_pd_addr);
--			reg &= ~DP_PHY_PD;
--			writel(reg, dp->reg_base + phy_pd_addr);
--		}
-+		/*
-+		 * There is no bit named DP_PHY_PD, so We used DP_INC_BG
-+		 * to power off everything instead of DP_PHY_PD in
-+		 * Rockchip
-+		 */
-+		if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
-+			mask = DP_INC_BG;
-+		else
-+			mask = DP_PHY_PD;
-+
-+		reg = readl(dp->reg_base + phy_pd_addr);
-+		if (enable)
-+			reg |= mask;
-+		else
-+			reg &= ~mask;
-+
-+		writel(reg, dp->reg_base + phy_pd_addr);
-+		if (dp->plat_data && is_rockchip(dp->plat_data->dev_type))
-+			usleep_range(10, 15);
- 		break;
- 	case POWER_ALL:
- 		if (enable) {
-diff --git a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
-index 9602668669f4..b633a4a5082a 100644
---- a/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
-+++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h
-@@ -345,7 +345,9 @@
- #define DP_INC_BG				(0x1 << 7)
- #define DP_EXP_BG				(0x1 << 6)
- #define DP_PHY_PD				(0x1 << 5)
-+#define RK_AUX_PD				(0x1 << 5)
- #define AUX_PD					(0x1 << 4)
-+#define RK_PLL_PD				(0x1 << 4)
- #define CH3_PD					(0x1 << 3)
- #define CH2_PD					(0x1 << 2)
- #define CH1_PD					(0x1 << 1)
++	/* Check whether panel supports fast training */
++	ret =  analogix_dp_fast_link_train_detection(dp);
++	if (ret)
++		dp->psr_enable = false;
+ 
+ 	return ret;
+ }
 -- 
 2.16.3

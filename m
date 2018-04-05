@@ -1,46 +1,137 @@
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: Re: Linux 4.16 Kernel Boot Crash
-Date: Wed, 4 Apr 2018 15:54:19 -0300
-Message-ID: <20180404155419.0740c805@vento.lan>
-References: <6a0009be-cbf8-671e-9d7d-c78340e93f58@gmail.com>
- <87in97up15.fsf@intel.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH v6 00/30] DRM Rockchip rk3399 (Kevin)
+Date: Thu,  5 Apr 2018 11:49:30 +0200
+Message-ID: <20180405095000.9756-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Jaak Ristioja <jaak@ristioja.ee>, Peter Geis <pgwipeout@gmail.com>
-Cc: intel-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 List-Id: linux-input@vger.kernel.org
 
-RW0gV2VkLCA0IEFwciAyMDE4IDE2OjI2OjIyICswMzAwCkphYWsgUmlzdGlvamEgPGphYWtAcmlz
-dGlvamEuZWU+IGVzY3JldmV1OgoKPiBIZWxsbywgYWxsIQo+IAo+IEkgZXhwZXJpZW5jZSB0aGUg
-c2FtZSBpc3N1ZSB3aXRoIGEgTGVub3ZvIFRoaW5rUGFkIFQ0NDBwIChMRU5PVk8KPiAyMEFOMDA2
-Vk1TLzIwQU4wMDZWTVMsIEJJT1MgR0xFVDkwV1cgKDIuNDQgKSAwOS8xMy8yMDE3KS4gSSB0cmll
-ZCB0bwo+IGJpc2VjdCB2NC4xNS4udjQuMTYgYnV0IGZhaWxlZC4KCkNvdWxkIHlvdSBwb3N0IHRo
-ZSBjb21wbGV0ZSBkbWVzZz8gSSBhbHNvIG5lZWQgdGhlIC5jb25maWcgdXNlZAp0byBidWlsZCB0
-aGUgS2VybmVsLgoKRnJvbSBpdHMgY2FsbCB0cmFjZToKClsgICA0My4xNzc0OTJdIENhbGwgVHJh
-Y2U6ClsgICA0My4xNzc0OThdICA/IGRldnJlc19hZGQrMHg1Zi8weDcwClsgICA0My4xNzc1MDJd
-ICBybWlfZjU0X3Byb2JlKzB4NDM3LzB4NDcwIFtybWlfY29yZV0KWyAgIDQzLjE3NzUwNV0gIHJt
-aV9mdW5jdGlvbl9wcm9iZSsweDI1LzB4MzAgW3JtaV9jb3JlXQpbICAgNDMuMTc3NTA3XSAgZHJp
-dmVyX3Byb2JlX2RldmljZSsweDMxMC8weDQ4MAoKSXQgbG9va3MgdGhhdCB0aGlzIHdhcyBnZW5l
-cmF0ZWQgYnkgYW4gaW5wdXQgZHJpdmVyIApkcml2ZXJzL2lucHV0L3JtaTQvcm1pX2Y1NC5jLCB3
-aXRoIGNvdWxkIGJlIGRvaW5nIHNvbWV0aGluZyB3cm9uZyB3aGVuCnJlZ2lzdGVyaW5nIGF0IHRo
-ZSBtZWRpYSBjb3JlLgoKRnJvbSB0aGUgbG9ncywgdGhlIHdhcm4gb24gaXMgaGFwcGVuaW5nIGF0
-IApkcml2ZXJzL21lZGlhL3Y0bDItY29yZS92NGwyLWRldi5jOjk0NSwgZS4gZzoKCiAgICAgICAg
-LyogU2hvdWxkIG5vdCBoYXBwZW4gc2luY2Ugd2UgdGhvdWdodCB0aGlzIG1pbm9yIHdhcyBmcmVl
-ICovCiAgICAgICAgV0FSTl9PTih2aWRlb19kZXZpY2VbdmRldi0+bWlub3JdICE9IE5VTEwpOwoK
-VGhhdCB3YXMgcHJvYmFibHkgY2FsbGVkIGhlcmU6CgoJZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9m
-NTQuYzogICByZXQgPSB2aWRlb19yZWdpc3Rlcl9kZXZpY2UoJmY1NC0+dmRldiwgVkZMX1RZUEVf
-VE9VQ0gsIC0xKTsKClRoYW5rcywKTWF1cm8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMu
-ZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlz
-dGluZm8vaW50ZWwtZ2Z4Cg==
+Hi,
+
+This patchset includes cleanups, improvements, and bug fixes for
+Rockchip DRM driver and PSR support.
+
+This new version is the same as before removing some of the patches
+already applied and fixing the Exynos issue due patch '[v4 15/38]
+drm/bridge: analogix_dp: Ensure edp is disabled when shutting down
+the panel' reported by Marek.
+
+Regards,
+Enric
+
+Changes in v6:
+- Removed the following patches as are already applied.
+  [PATCH v5 01/36] drm/bridge: analogix_dp: detect Sink PSR state after
+  configuring the PSR
+  [PATCH v5 02/36] drm/rockchip: Remove analogix psr worker
+  [PATCH v5 03/36] drm/bridge: analogix_dp: Don't change psr while
+  bridge is disabled
+- Explain in the commit message why we need to increase
+  the delay in the timeout loop in
+  [PATCH v5 07/36] drm/bridge: analogix_dp: Move enable video into
+  config_video()
+- Add Reviewed-by: Archit Taneja <architt@codeaurora.org> for the
+  drm/bridge parts
+- Add Reviewed-by: Heiko Stuebner <heiko@sntech.de> for
+  [PATCH v5 19/36] drm/rockchip: Restore psr->state when enable/disable
+  psr failed
+
+Changes in v5:
+- Removed the following patches as are already applied.
+  [PATCH v4 01/38] drm/bridge: analogix_dp: set psr activate/deactivate
+  when enable/disable bridge
+  [PATCH v4 02/38] drm/rockchip: Don't use atomic constructs for psr
+- Add Mareks tested-tag and including the missing people.
+- [PATCH v4 15/38] move analogix_dp_set_analog_power_down() before
+  phy_power_off() to fix Exynos issue.
+
+Changes in v4:
+- Rebased all on top of drm-misc-next
+- Removed the following patches as are already applied.
+  [PATCH v3 01/43] drm/rockchip: Get rid of unnecessary struct fields
+  [PATCH v3 02/43] drm/rockchip: support prime import sg table
+  [PATCH v3 03/43] drm/rockchip: Respect page offset for PRIME mmap
+  calls
+- Removed the following patches as now are part of another patchset
+  [PATCH v3 05/43] drm/bridge: analogix_dp: Don't power bridge in
+  analogix_dp_bind
+  [PATCH v3 33/43] drm/panel: simple: Change mode for Sharp lq123p1jx31
+
+Changes in v3:
+- Addressed some of the comments from Sean on the v2
+
+Changes in v2:
+- A few patches have been replaced by newer and cleaner versions from
+  the ChromeOS kernel gerrit, especially about disallowing PSR for the
+  whole atomic commit.
+
+
+Douglas Anderson (4):
+  drm/bridge: analogix_dp: Reorder plat_data->power_off to happen sooner
+  drm/bridge: analogix_dp: Properly log AUX CH errors
+  drm/bridge: analogix_dp: Properly disable aux chan retries on rockchip
+  drm/bridge: analogix_dp: Split the platform-specific poweron in two
+    parts
+
+Kristian H. Kristensen (1):
+  drm/rockchip: Disable PSR on input events
+
+Lin Huang (6):
+  drm/bridge: analogix_dp: Move enable video into config_video()
+  drm/bridge: analogix_dp: Check AUX_EN status when doing AUX transfer
+  drm/bridge: analogix_dp: Ensure edp is disabled when shutting down the
+    panel
+  drm/bridge: analogix_dp: Extend hpd check time to 100ms
+  drm/bridge: analogix_dp: Check dpcd write/read status
+  drm/bridge: analogix_dp: Reset aux channel if an error occurred
+
+Mark Yao (1):
+  drm/rockchip: pre dither down when output bpc is 8bit
+
+Tomasz Figa (7):
+  drm/rockchip: analogix_dp: Do not call Analogix code before bind
+  drm/rockchip: Cancel PSR enable work before changing the state
+  drm/rockchip: psr: Avoid redundant calls to .set() callback
+  drm/rockchip: psr: Sanitize semantics of allow/disallow API
+  drm/rockchip: Disable PSR from reboot notifier
+  drm/rockchip: Disallow PSR for the whole atomic commit
+  drm/rockchip: psr: Remove flush by CRTC
+
+zain wang (11):
+  drm/bridge: analogix_dp: Don't use fast link training when panel just
+    powered up
+  drm/bridge: analogix_dp: Retry bridge enable when it failed
+  drm/bridge: analogix_dp: Wait for HPD signal before configuring link
+  drm/bridge: analogix_dp: Set PD_INC_BG first when powering up edp phy
+  drm/bridge: analogix_dp: Fix incorrect usage of enhanced mode
+  drm/bridge: analogix_dp: Fix AUX_PD bit for Rockchip
+  drm/rockchip: Restore psr->state when enable/disable psr failed
+  drm/bridge: analogix_dp: Don't use ANALOGIX_DP_PLL_CTL to control pll
+  drm/bridge: analogix_dp: Fix timeout of video streamclk config
+  drm/bridge: analogix_dp: Fix incorrect operations with register
+    ANALOGIX_DP_FUNC_EN_1
+  drm/bridge: analogix_dp: Move fast link training detect to set_bridge
+
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.c | 331 +++++++++++++++------
+ drivers/gpu/drm/bridge/analogix/analogix_dp_core.h |   5 +-
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.c  | 236 +++++++++------
+ drivers/gpu/drm/bridge/analogix/analogix_dp_reg.h  |   7 +
+ drivers/gpu/drm/exynos/exynos_dp.c                 |   2 +-
+ drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    |  37 ++-
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.h        |   1 +
+ drivers/gpu/drm/rockchip/rockchip_drm_fb.c         |  61 +++-
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.c        | 309 +++++++++++++------
+ drivers/gpu/drm/rockchip/rockchip_drm_psr.h        |   7 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.c        |  13 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_vop.h        |   1 +
+ drivers/gpu/drm/rockchip/rockchip_vop_reg.c        |   1 +
+ include/drm/bridge/analogix_dp.h                   |   3 +-
+ 14 files changed, 710 insertions(+), 304 deletions(-)
+
+-- 
+2.16.3

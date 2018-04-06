@@ -1,66 +1,65 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: leds - fix out of bound access
-Date: Fri, 6 Apr 2018 11:12:42 -0700
-Message-ID: <20180406181242.GA225849@dtor-ws>
+Subject: Re: Commit *driver core: emit uevents when device is bound to a
+ driver* causes regression
+Date: Fri, 6 Apr 2018 11:26:00 -0700
+Message-ID: <CAKdAkRRufjoF9Wp5haCv=5rF52UhFe5u-yXsd7DRuDz8LLjaUQ@mail.gmail.com>
+References: <8d22cfe6-90b6-eb86-d82e-0e037bfbed4e@molgen.mpg.de>
+ <20180406131820.GA4555@kroah.com> <22ee8cb0-5793-6ad6-d8e0-3e83a8c1361c@molgen.mpg.de>
+ <20180406132720.GA16189@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20180406132720.GA16189@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>, Michael Tokarev <mjt@tls.msk.ru>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Ben Caradoc-Davies <ben@transient.nz>, it+linux-input@molgen.mpg.de
 List-Id: linux-input@vger.kernel.org
 
-UI_SET_LEDBIT ioctl() causes the following KASAN splat when used with
-led > LED_CHARGING:
+On Fri, Apr 6, 2018 at 6:27 AM, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> On Fri, Apr 06, 2018 at 03:24:39PM +0200, Paul Menzel wrote:
+>> Dear Greg,
+>>
+>>
+>> On 04/06/18 15:18, Greg Kroah-Hartman wrote:
+>> > On Fri, Apr 06, 2018 at 02:20:40PM +0200, Paul Menzel wrote:
+>>
+>> > > Commit 1455cf8 (driver core: emit uevents when device is bound to a
+>> > > driver) [1], introduced in Linux 4.14-rc1, causes a regression in user
+>> > > space.
+>> > >
+>> > > After disconnecting USB devices, they are still shown as plugged in [2][3].
+>> > >
+>> > > > I seem to be having a similar issue, but with an iPhone X using USB
+>> > > > to provide internet access. Even after the phone is disconnected, it
+>> > > > still shows up as "loaded active plugged". The only way to fix this
+>> > > > is to reboot or use a different USB port.
+>> > >
+>> > > `git bisect` shows that commit 1455cf8 (driver core: emit uevents when
+>> > > device is bound to a driver) is at fault [4].
+>> > >
+>> > > As user space should not break with newer Linux kernels, do you know what to
+>> > > do about that or can you think of a fix?
+>> >
+>> > I thought we fixed this with follow-on patches, are you sure you are
+>> > using the latest 4.14.y kernel that has been released?
+>>
+>> Here we are using Linux 4.14.30. We can try newer versions next week.
+>
+> Ah, no, 4.14.30 should be fine.
+>
+> I saw the patch listed in the debian bug report, so this only happens
+> for the MTP type devices?  That was a really odd "filter" that it was
+> trying to use before.
+>
+> So this is only for userspace programs, and one specifically?  And for
+> only one type of device?  What device, MTP devices?
 
-[ 1274.663418] BUG: KASAN: slab-out-of-bounds in input_leds_connect+0x611/0x730 [input_leds]
-[ 1274.663426] Write of size 8 at addr ffff88003377b2c0 by task ckb-next-daemon/5128
+So looking at reports, gvfs is fixed, upowerd simply uses g_warning()
+for actions it does nto understand and I'll send a patch lowering this
+to g_debug(); what else is having trouble with the new actions?
 
-This happens because we were writing to the led structure before making
-sure that it exists.
-
-Reported-by: Tasos Sahanidis <tasos@tasossah.com>
-Tested-by: Tasos Sahanidis <tasos@tasossah.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/input-leds.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
-index 766bf26601163..5f04b2d946350 100644
---- a/drivers/input/input-leds.c
-+++ b/drivers/input/input-leds.c
-@@ -88,6 +88,7 @@ static int input_leds_connect(struct input_handler *handler,
- 			      const struct input_device_id *id)
- {
- 	struct input_leds *leds;
-+	struct input_led *led;
- 	unsigned int num_leds;
- 	unsigned int led_code;
- 	int led_no;
-@@ -119,14 +120,13 @@ static int input_leds_connect(struct input_handler *handler,
- 
- 	led_no = 0;
- 	for_each_set_bit(led_code, dev->ledbit, LED_CNT) {
--		struct input_led *led = &leds->leds[led_no];
-+		if (!input_led_info[led_code].name)
-+			continue;
- 
-+		led = &leds->leds[led_no];
- 		led->handle = &leds->handle;
- 		led->code = led_code;
- 
--		if (!input_led_info[led_code].name)
--			continue;
--
- 		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
- 					   dev_name(&dev->dev),
- 					   input_led_info[led_code].name);
--- 
-2.17.0.484.g0c8726318c-goog
-
+Thanks.
 
 -- 
 Dmitry

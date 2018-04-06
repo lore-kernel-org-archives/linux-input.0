@@ -1,38 +1,66 @@
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v2 07/10] input: touchscreen: touch_adc: add generic
- resistive ADC touchscreen
-Date: Fri, 6 Apr 2018 16:13:22 +0100
-Message-ID: <20180406161322.00006190@huawei.com>
-References: <1522153963-1121-1-git-send-email-eugen.hristev@microchip.com>
-        <1522153963-1121-8-git-send-email-eugen.hristev@microchip.com>
-        <20180330135835.6a8f57f1@archlinux>
-        <20180330180911.GA143703@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: leds - fix out of bound access
+Date: Fri, 6 Apr 2018 11:12:42 -0700
+Message-ID: <20180406181242.GA225849@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180330180911.GA143703@dtor-ws>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, Eugen Hristev <eugen.hristev@microchip.com>, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>
 List-Id: linux-input@vger.kernel.org
 
-> > > +
-> > > +	input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> > > +	input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> > > +
-> > > +	st->input = input;
-> > > +	input_set_drvdata(input, st);
-> > > +
-> > > +	ret = input_register_device(input);
-> > > +	if (ret) {
-> > > +		dev_err(dev, "failed to register input device.");
-> > > +		return ret;
-> > > +	}
-> > > +
-> > > +	st->iio_cb = iio_channel_get_all_cb(&pdev->dev, grts_cb, st);  
-> 
-> Hmm, we don't have devm-variant for this? Then you could use
-> devm_add_action_or_reset() to add cleanup action and completely remove
-> grts_remove().
-Not yet, but I'm not adverse to having one...
+UI_SET_LEDBIT ioctl() causes the following KASAN splat when used with
+led > LED_CHARGING:
+
+[ 1274.663418] BUG: KASAN: slab-out-of-bounds in input_leds_connect+0x611/0x730 [input_leds]
+[ 1274.663426] Write of size 8 at addr ffff88003377b2c0 by task ckb-next-daemon/5128
+
+This happens because we were writing to the led structure before making
+sure that it exists.
+
+Reported-by: Tasos Sahanidis <tasos@tasossah.com>
+Tested-by: Tasos Sahanidis <tasos@tasossah.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/input-leds.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
+index 766bf26601163..5f04b2d946350 100644
+--- a/drivers/input/input-leds.c
++++ b/drivers/input/input-leds.c
+@@ -88,6 +88,7 @@ static int input_leds_connect(struct input_handler *handler,
+ 			      const struct input_device_id *id)
+ {
+ 	struct input_leds *leds;
++	struct input_led *led;
+ 	unsigned int num_leds;
+ 	unsigned int led_code;
+ 	int led_no;
+@@ -119,14 +120,13 @@ static int input_leds_connect(struct input_handler *handler,
+ 
+ 	led_no = 0;
+ 	for_each_set_bit(led_code, dev->ledbit, LED_CNT) {
+-		struct input_led *led = &leds->leds[led_no];
++		if (!input_led_info[led_code].name)
++			continue;
+ 
++		led = &leds->leds[led_no];
+ 		led->handle = &leds->handle;
+ 		led->code = led_code;
+ 
+-		if (!input_led_info[led_code].name)
+-			continue;
+-
+ 		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
+ 					   dev_name(&dev->dev),
+ 					   input_led_info[led_code].name);
+-- 
+2.17.0.484.g0c8726318c-goog
+
+
+-- 
+Dmitry

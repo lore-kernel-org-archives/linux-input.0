@@ -1,67 +1,59 @@
-From: Ben Caradoc-Davies <ben@transient.nz>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Subject: Re: Commit *driver core: emit uevents when device is bound to a
  driver* causes regression
-Date: Sat, 7 Apr 2018 00:47:33 +1200
-Message-ID: <f097066f-8880-fb89-44ae-01ede7c0a06a@transient.nz>
+Date: Fri, 6 Apr 2018 15:27:20 +0200
+Message-ID: <20180406132720.GA16189@kroah.com>
 References: <8d22cfe6-90b6-eb86-d82e-0e037bfbed4e@molgen.mpg.de>
+ <20180406131820.GA4555@kroah.com>
+ <22ee8cb0-5793-6ad6-d8e0-3e83a8c1361c@molgen.mpg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8d22cfe6-90b6-eb86-d82e-0e037bfbed4e@molgen.mpg.de>
-Content-Language: en-GB
+Content-Disposition: inline
+In-Reply-To: <22ee8cb0-5793-6ad6-d8e0-3e83a8c1361c@molgen.mpg.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>, Michael Tokarev <mjt@tls.msk.ru>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Paul Menzel <pmenzel+linux-input@molgen.mpg.de>
+Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ben Caradoc-Davies <ben@transient.nz>, it+linux-input@molgen.mpg.de
 List-Id: linux-input@vger.kernel.org
 
-Paul,
+On Fri, Apr 06, 2018 at 03:24:39PM +0200, Paul Menzel wrote:
+> Dear Greg,
+> 
+> 
+> On 04/06/18 15:18, Greg Kroah-Hartman wrote:
+> > On Fri, Apr 06, 2018 at 02:20:40PM +0200, Paul Menzel wrote:
+> 
+> > > Commit 1455cf8 (driver core: emit uevents when device is bound to a
+> > > driver) [1], introduced in Linux 4.14-rc1, causes a regression in user
+> > > space.
+> > > 
+> > > After disconnecting USB devices, they are still shown as plugged in [2][3].
+> > > 
+> > > > I seem to be having a similar issue, but with an iPhone X using USB
+> > > > to provide internet access. Even after the phone is disconnected, it
+> > > > still shows up as "loaded active plugged". The only way to fix this
+> > > > is to reboot or use a different USB port.
+> > > 
+> > > `git bisect` shows that commit 1455cf8 (driver core: emit uevents when
+> > > device is bound to a driver) is at fault [4].
+> > > 
+> > > As user space should not break with newer Linux kernels, do you know what to
+> > > do about that or can you think of a fix?
+> > 
+> > I thought we fixed this with follow-on patches, are you sure you are
+> > using the latest 4.14.y kernel that has been released?
+> 
+> Here we are using Linux 4.14.30. We can try newer versions next week.
 
-I agree that this is a regression in user space, but I would also like 
-to note that, as I reported in Debian Bug#883425 ([3] and [4] below), I 
-was able to restore user space functionality by upgrading to gvfs 
-1.35.90-1. This later gvfs appears to support (i.e. survive) these uevents.
+Ah, no, 4.14.30 should be fine.
 
-Kind regards,
-Ben.
+I saw the patch listed in the debian bug report, so this only happens
+for the MTP type devices?  That was a really odd "filter" that it was
+trying to use before.
 
-On 07/04/18 00:20, Paul Menzel wrote:
-> Dear Linux folks,
-> 
-> 
-> Commit 1455cf8 (driver core: emit uevents when device is bound to a
-> driver) [1], introduced in Linux 4.14-rc1, causes a regression in user 
-> space.
-> 
-> After disconnecting USB devices, they are still shown as plugged in [2][3].
-> 
->> I seem to be having a similar issue, but with an iPhone X using USB
->> to provide internet access. Even after the phone is disconnected, it
->> still shows up as "loaded active plugged". The only way to fix this
->> is to reboot or use a different USB port.
-> 
-> `git bisect` shows that commit 1455cf8 (driver core: emit uevents when 
-> device is bound to a driver) is at fault [4].
-> 
-> As user space should not break with newer Linux kernels, do you know 
-> what to do about that or can you think of a fix?
-> 
-> 
-> Kind regards,
-> 
-> Paul
-> 
-> 
-> [1] 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1455cf8dbfd06aa7651dcfccbadb7a093944ca65 
-> 
-> [2] https://github.com/systemd/systemd/issues/7587
-> [3] https://bugs.debian.org/883425
-> [4] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=883425#68
-> 
+So this is only for userspace programs, and one specifically?  And for
+only one type of device?  What device, MTP devices?
 
--- 
-Ben Caradoc-Davies <ben@transient.nz>
-Director
-Transient Software Limited <https://transient.nz/>
-New Zealand
+thanks,
+
+greg k-h

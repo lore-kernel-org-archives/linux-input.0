@@ -1,28 +1,31 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Fix resume issue on Raydium touchscreen
+Subject: Re: [PATCH] hidraw: Fix crash on HIDIOCGFEATURE with a destroyed
  device
-Date: Mon, 9 Apr 2018 09:29:11 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1804090928550.28129@cbobk.fhfr.pm>
-References: <20180102173006.506-1-aaron.ma@canonical.com> <20180102173006.506-2-aaron.ma@canonical.com> <CAO-hwJJ3n3YD1+pKvKRRoCX8y-5xZwemKLuLi7aqWSQT=J645A@mail.gmail.com> <7ddae302-a44f-b729-c826-082bdcb38d70@canonical.com> <e8e8a5d2-ee14-54a8-b30b-66d5cc9404b1@canonical.com>
- <f9becc3a-516f-7eed-06a9-c9e5610b9fd3@canonical.com>
+Date: Mon, 9 Apr 2018 09:30:48 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1804090930390.28129@cbobk.fhfr.pm>
+References: <20180405230936.4572-1-rodrigorivascosta@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f9becc3a-516f-7eed-06a9-c9e5610b9fd3@canonical.com>
+In-Reply-To: <20180405230936.4572-1-rodrigorivascosta@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 3 Apr 2018, Aaron Ma wrote:
+On Fri, 6 Apr 2018, Rodrigo Rivas Costa wrote:
 
-> Hi Jiri:
+> Doing `ioctl(HIDIOCGFEATURE)` in a tight loop on a hidraw device
+> and then disconnecting the device, or unloading the driver, can
+> cause a NULL pointer dereference.
 > 
-> This patch is pending for long time.
+> When a hidraw device is destroyed it sets 0 to `dev->exist`.
+> Most functions check 'dev->exist' before doing its work, but
+> `hidraw_get_report()` was missing that check.
 > 
-> Could you merge this single patch to upstream?
+> Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 
-I don't this I am seeing it in my inbox. Could you please resend? Thanks,
+Applied, thank you.
 
 -- 
 Jiri Kosina

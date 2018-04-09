@@ -1,85 +1,63 @@
-From: Nicolas Pitre <nicolas.pitre@linaro.org>
-Subject: Re: [PATCH v3 1/3] resource: Use list_head to link resource
- sibling
-Date: Mon, 9 Apr 2018 12:05:20 -0400 (EDT)
-Message-ID: <nycvar.YSQ.7.76.1804091133330.28462@knanqh.ubzr>
-References: <20180408024724.16812-1-bhe@redhat.com>
- <20180408024724.16812-2-bhe@redhat.com>
- <20180409090853.GJ19345@localhost.localdomain>
- <CAL_Jsq+xxa9ep2LK3H6YWhwrZtc-T73Y84ry6Hs-JJ3XEXoGsw@mail.gmail.com>
+From: Sasha Levin <Alexander.Levin@microsoft.com>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Silently fail probe for CHPN0001
+ touchscreen
+Date: Mon, 9 Apr 2018 17:07:15 +0000
+Message-ID: <20180409170713.GE2341@sasha-vm>
+References: <20180403131634.13187-2-hdegoede@redhat.com>
+ <MW2PR2101MB1034700D2EE61E78EA6C13E7FBBA0@MW2PR2101MB1034.namprd21.prod.outlook.com>
+ <585b5f34-8b00-bf84-5b99-fa204a3e3e75@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <CAL_Jsq+xxa9ep2LK3H6YWhwrZtc-T73Y84ry6Hs-JJ3XEXoGsw@mail.gmail.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Brijesh Singh <brijesh.singh@amd.com>, devicetree@vger.kernel.org, David Airlie <airlied@linux.ie>, linux-pci@vger.kernel.org, Wei Yang <richard.weiyang@gmail.com>, Keith Busch <keith.busch@intel.com>, Yaowei Bai <baiyaowei@cmss.chinamobile.com>, Frank Rowand <frowand.list@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Stephen Hemminger <sthemmin@microsoft.com>, Baoquan He <bhe@redhat.com>, linux-nvdimm@lists.01.org, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, linux-input@vger.kernel.org, Borislav Petkov <bp@suse.de>, Tom Lendacky <thomas.lendacky@amd.com>, Haiyang Zhang <haiyangz@microsoft.com>, =?ISO-8859-15?Q?J=E9r=F4me_Glisse?= <jglisse@redhat.com>, Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>, Jonathan Derrick <jonathan.derrick@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundatio>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <585b5f34-8b00-bf84-5b99-fa204a3e3e75@redhat.com>
+Content-Language: en-US
+Content-ID: <AA5CA3B780C61A4A914CA581183930CB@namprd21.prod.outlook.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 9 Apr 2018, Rob Herring wrote:
+On Sat, Apr 07, 2018 at 11:42:03AM +0200, Hans de Goede wrote:
+>Hi,
+>
+>On 06-04-18 22:05, Sasha Levin wrote:
+>>Hi,
+>>
+>>[This is an automated email]
+>>
+>>This commit has been processed by the -stable helper bot and determined
+>>to be a high probability candidate for -stable trees. (score: 20.8863)
+>>
+>>The bot has tested the following trees: v4.16, v4.15.15, v4.14.32, v4.9.9=
+2, v4.4.126.
+>>
+>>v4.16: Build OK!
+>>v4.15.15: Build OK!
+>>v4.14.32: Build OK!
+>>v4.9.92: Failed to apply! Possible dependencies:
+>>     94116f8126de ("ACPI: Switch to use generic guid_t in acpi_evaluate_d=
+sm()")
+>>
+>>v4.4.126: Failed to apply! Possible dependencies:
+>>     94116f8126de ("ACPI: Switch to use generic guid_t in acpi_evaluate_d=
+sm()")
+>
+>Cool, first time I see this bot in action, nice work.
 
-> +Nico who has been working on tinification of the kernel.
-> 
-> On Mon, Apr 9, 2018 at 4:08 AM, Baoquan He <bhe@redhat.com> wrote:
-> > The struct resource uses singly linked list to link siblings. It's not
-> > easy to do reverse iteration on sibling list. So replace it with list_head.
-> 
-> Why is reverse iteration needed?
-> 
-> > And code refactoring makes codes in kernel/resource.c more readable than
-> > pointer operation.
-> 
-> resource_for_each_* helpers could solve that without the size increase.
-> 
-> > Besides, type of member variables of struct resource, sibling and child, are
-> > changed from 'struct resource *' to 'struct list_head'. Kernel size will
-> > increase because of those statically defined struct resource instances.
-> 
-> The DT struct device_node also has the same tree structure with
-> parent, child, sibling pointers and converting to list_head had been
-> on the todo list for a while. ACPI also has some tree walking
-> functions (drivers/acpi/acpica/pstree.c). Perhaps there should be a
-> common tree struct and helpers defined either on top of list_head or a
-> new struct if that saves some size.
-> 
-> >
-> > Signed-off-by: Baoquan He <bhe@redhat.com>
-> > ---
-> > v2->v3:
-> >   Make sibling() and first_child() global so that they can be called
-> >   out of kernel/resource.c to simplify code.
-> 
-> These should probably be inline functions. Or exported if not.
-> 
-> >
-> >   Fix several code bugs found by kbuild test robot.
-> >
-> >   Got report from lkp that kernel size increased. It's on purpose since
-> >   the type change of sibling and child inside struct resource{}. For
-> >   each struct resource variable, it will cost another 16 bytes on x86 64.
-> 
-> The size increase should be mentioned in the commit log. More
-> generally, the size increase is 2 pointers.
+I'll leave it out, thanks!
 
-Tiny kernels have much fewer resources anyway, and usually run on 
-platforms with 32-bit pointers, so this probably won't matter much in 
-the end.
+>>Please let us know if you'd like to have this patch included in a stable =
+tree.
+>
+>So FWIW this commit is NOT stable material (it cannot hurt, but it is not
+>necessary). This commit really only makes sense together with a new touchs=
+creen
+>driver which does actually know how to handle the CHPN0001 touchscreen.
+>
+>For future mails like this, do I understand the mail correctly that if I
+>do NOT want a patch picked up by the -stable helper bot to go to stable
+>I do not have to do anything?
 
-This is if reverse iteration is actually needed as you say though.
-Unless I'm mistaken, resource iteration doesn't happen that often, and 
-not in critical paths either.
-
-Making the code clearer while keeping the same structure size could be 
-considered with the help of llist.h instead.
-
-
-Nicolas
+I would probably try and pick it up without an ack. If possible, even a
+brief "no" reply if you don't want it in stable would be great. Thanks!=

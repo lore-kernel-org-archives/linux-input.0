@@ -1,75 +1,66 @@
-From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH v3 06/11] iio: inkern: add module put/get on iio dev module when requesting channels
-Date: Tue, 10 Apr 2018 11:57:52 +0300
-Message-ID: <1523350677-27106-7-git-send-email-eugen.hristev@microchip.com>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Javier Martinez Canillas <javierm@redhat.com>
+Subject: [PATCH] Input: atmel_mxt_ts - add missing compatible strings to OF device table
+Date: Tue, 10 Apr 2018 11:53:40 +0200
+Message-ID: <20180410095340.24074-1-javierm@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
-Cc: Eugen Hristev <eugen.hristev@microchip.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javierm@redhat.com>, devicetree@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>, Nick Dyer <nick@shmanahar.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-When requesting channels for a particular consumer device,
-besides requesting the device (incrementing the reference counter), also
-do it for the driver module of the iio dev. This will avoid the situation
-where the producer IIO device can be removed and the consumer is still
-present in the kernel.
+Commit af503716ac14 ("i2c: core: report OF style module alias for devices
+registered via OF") fixed how the I2C core reports the module alias when
+devices are registered via OF.
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+But the atmel_mxt_ts driver only has an "atmel,maxtouch" compatible in its
+OF device ID table, so if a Device Tree is using a different one, autoload
+won't be working for the module (the matching works because the I2C device
+ID table is used as a fallback).
+
+So add compatible strings for each of the entries in the I2C device table.
+
+Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
+Reported-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/iio/inkern.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-index ec98790..68d9b87 100644
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -11,6 +11,7 @@
- #include <linux/slab.h>
- #include <linux/mutex.h>
- #include <linux/of.h>
-+#include <linux/module.h>
+ Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 6 +++++-
+ drivers/input/touchscreen/atmel_mxt_ts.c                   | 4 ++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+index 23e3abc3fdef..cd43fb8bc2ce 100644
+--- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
++++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+@@ -1,8 +1,12 @@
+ Atmel maXTouch touchscreen/touchpad
  
- #include <linux/iio/iio.h>
- #include "iio_core.h"
-@@ -152,6 +153,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
- 	if (index < 0)
- 		goto err_put;
- 	channel->channel = &indio_dev->channels[index];
-+	try_module_get(channel->indio_dev->driver_module);
+ Required properties:
+-- compatible:
++- compatible: Must be one of the following
++    atmel,qt602240_ts
++    atmel,atmel_mxt_ts
++    atmel,atmel_mxt_tp
+     atmel,maxtouch
++    atmel,mXT224
  
- 	return 0;
+ - reg: The I2C address of the device
  
-@@ -256,8 +258,10 @@ static struct iio_channel *of_iio_channel_get_all(struct device *dev)
- 	return chans;
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 7659bc48f1db..e8ef83f168d6 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3238,7 +3238,11 @@ static int __maybe_unused mxt_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(mxt_pm_ops, mxt_suspend, mxt_resume);
  
- error_free_chans:
--	for (i = 0; i < mapind; i++)
-+	for (i = 0; i < mapind; i++) {
-+		module_put(chans[i].indio_dev->driver_module);
- 		iio_device_put(chans[i].indio_dev);
-+	}
- 	kfree(chans);
- 	return ERR_PTR(ret);
- }
-@@ -351,6 +355,7 @@ void iio_channel_release(struct iio_channel *channel)
- {
- 	if (!channel)
- 		return;
-+	module_put(channel->indio_dev->driver_module);
- 	iio_device_put(channel->indio_dev);
- 	kfree(channel);
- }
-@@ -482,6 +487,7 @@ void iio_channel_release_all(struct iio_channel *channels)
- 	struct iio_channel *chan = &channels[0];
- 
- 	while (chan->indio_dev) {
-+		module_put(chan->indio_dev->driver_module);
- 		iio_device_put(chan->indio_dev);
- 		chan++;
- 	}
+ static const struct of_device_id mxt_of_match[] = {
++	{ .compatible = "atmel,qt602240_ts", },
++	{ .compatible = "atmel,atmel_mxt_ts", },
++	{ .compatible = "atmel,atmel_mxt_tp", },
+ 	{ .compatible = "atmel,maxtouch", },
++	{ .compatible = "atmel,mXT224", },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, mxt_of_match);
 -- 
-2.7.4
+2.14.3

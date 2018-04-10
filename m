@@ -1,40 +1,77 @@
-From: Chen Zhong <chen.zhong@mediatek.com>
-Subject: Re: [PATCH v6 0/6] Add MediaTek PMIC keys support
-Date: Tue, 10 Apr 2018 13:46:27 +0800
-Message-ID: <1523339187.12445.1.camel@mhfsdcap03>
-References: <1508937364-30054-1-git-send-email-chen.zhong@mediatek.com>
-         <808b2029da224ab687fb0553cbc1c68e@mtkmbs08n1.mediatek.inc>
-         <1521685073.28226.10.camel@mtkswgap22> <20180323185418.GD255819@dtor-ws>
-         <20180327080507.pgil6pw2mn4y2f4d@dell>
-         <3ece050c-7573-ef4e-2c89-61645a243a33@gmail.com>
-         <20180328102640.yx6nv5abfexmouuf@dell>
-         <1522290675.17084.8.camel@mhfsdcap03>
-         <20180329130402.6fp7nofyp6iesmbv@dell> <20180329161527.GA107392@dtor-ws>
+From: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Subject: RE: [PATCH 0/8] Input: support for latest Lenovo thinkpads (series 80)
+Date: Tue, 10 Apr 2018 13:45:33 +0800
+Message-ID: <000301d3d08f$24b356b0$6e1a0410$@emc.com.tw>
+References: <20180405132537.3218-1-benjamin.tissoires@redhat.com> <20180405235126.GB57189@dtor-ws> <CAO-hwJLY=OR1bk2y9c-6MZzoAYzorH9MEKf70=dnhqz8s-dCQg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180329161527.GA107392@dtor-ws>
+In-Reply-To: <CAO-hwJLY=OR1bk2y9c-6MZzoAYzorH9MEKf70=dnhqz8s-dCQg@mail.gmail.com>
+Content-Language: zh-tw
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, Sean Wang <sean.wang@mediatek.com>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, a.zummo@towertech.it, devicetree@vger.kernel.org, linus.walleij@linaro.org, jcsing.lee@samsung.com, linux-kernel@vger.kernel.org, krzk@kernel.org, javier@osg.samsung.com, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, eddie.huang@mediatek.com, beomho.seo@samsung.com, linux-rtc@vger.kernel.org
+To: 'Benjamin Tissoires' <benjamin.tissoires@redhat.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Cc: 'Oliver Haessler' <oliver@redhat.com>, 'Benjamin Berg' <bberg@redhat.com>, "'open list:HID CORE LAYER'" <linux-input@vger.kernel.org>, 'lkml' <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2018-03-29 at 09:15 -0700, Dmitry Torokhov wrote:
-> 
-> 
-> Oh, sorry, I did not realize you wanted my Ack for bindings. I usually
-> leave it to Rob and simply ack the driver itself when I am happy with
-> the code.
-> 
-> I'll go and add my ack to the binding post if that will help merging
-> the series.
-> 
-> Thanks. 
+Hi Benjamin,
 
-Hi Lee,
+Thanks so much for your patch.
 
-May I know if I need to collect Dmitry's comments and send a new version
-for the merging?
+I have tested them for Elan Gen5/Gen6(new) touchpad with SMbus/PS2.
+It works fine in my thinkpad so far but I find an issue today after lid-close/open.
 
-Thank you.
+I am not sure if you can see it in T480S , I "guess" it may be relative to i2c_i801.
+
+The lid-close will enter deep sleep and cut touchpad power. 
+I can see the resume flow after lid-open and SMbus-initial try to request hello package but fail.
+Strangely, I can't see any SMbus host signal on LA scope after power-on.
+
+I can't switch to SMbus after rmmod/modprobe psmouse because error happen in elantech_create_smbus.
+It will be recovered only if I rmmod/modprobe i2c_i801 first.
+
+Do you have any idea about it?
+
+Thanks
+KT
+-----Original Message-----
+From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com] 
+Sent: Friday, April 06, 2018 2:51 PM
+To: Dmitry Torokhov
+Cc: 廖崇榮; Oliver Haessler; Benjamin Berg; open list:HID CORE LAYER; lkml
+Subject: Re: [PATCH 0/8] Input: support for latest Lenovo thinkpads (series 80)
+
+Hi Dmitry,
+
+On Fri, Apr 6, 2018 at 1:51 AM, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> Hi Benjamin,
+>
+> On Thu, Apr 05, 2018 at 03:25:29PM +0200, Benjamin Tissoires wrote:
+>> Hi Dmitry,
+>>
+>> well, this year, Lenovo gave us a surprise and decided to not use the 
+>> same touchpad/trackstick in all its model. And by default, the 
+>> support under Linux is less than ideal.
+>>
+>> Please find a series that should fix those issues. Compared to the 60 
+>> series, there do not seem to e BIOS table issues this time, and 
+>> suspend/resume works fine thanks to your latest trackstick fixes.
+>>
+>> The T480s is a different beast, as it uses an Elan touchpad.
+>> I have been carrying the patches 3-6 for a while and tested previous 
+>> versions on various Elan PS/2 hardware without an issue as far as I 
+>> could tell. I was lacking tests from users with SMBus as all the 
+>> laptops I tried where puer PS/2.
+>>
+>> Anyway, it would be cool if you could have a look at the series.
+>
+> I am mostly happy with the series, but I would love to hear KT's take 
+> on it.
+
+thanks for the quick review.
+I worked closely with KT for this series. He helped me a lot for the tiny firmware changes that were required. However, quoting his email from Tuesday:
+"There will be a spring vacation in Taiwan from tomorrow." I guess we won't hear from him until the end of next week as we always have a backlog of urgent things to do after holidays...
+
+Cheers,
+Benjamin

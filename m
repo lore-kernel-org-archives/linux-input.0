@@ -1,99 +1,161 @@
-From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v3 1/3] resource: Use list_head to link resource sibling
-Date: Tue, 10 Apr 2018 10:49:20 +0800
-Message-ID: <20180410024920.GL19345@localhost.localdomain>
-References: <20180408024724.16812-1-bhe@redhat.com>
- <20180408024724.16812-2-bhe@redhat.com>
- <20180409090853.GJ19345@localhost.localdomain>
- <CAPcyv4huU32+oMeoF8-HmmctafZ_uOZN-v85O5M8Ka8pBXP+Lg@mail.gmail.com>
- <20180410021043.GC25724@localhost.localdomain>
- <CAPcyv4gLrfq87FWP2f9n8YbP-XZ-uxuoc0nZu3LEW_bDxEAH_w@mail.gmail.com>
+From: Benson Leung <bleung@google.com>
+Subject: Re: [PATCH v2 01/14] Input: atmel_mxt_ts - do not pass suspend mode
+ in platform data
+Date: Mon, 9 Apr 2018 22:44:10 -0700
+Message-ID: <20180410054410.GA22032@decatoncale.mtv.corp.google.com>
+References: <20180320223138.234724-1-dmitry.torokhov@gmail.com>
+ <20180320223138.234724-2-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4gLrfq87FWP2f9n8YbP-XZ-uxuoc0nZu3LEW_bDxEAH_w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Brijesh Singh <brijesh.singh-5C7GfCeVMHo@public.gmane.org>, Device Tree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yang <richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Keith Busch <keith.busch-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Yaowei Bai <baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org>, "K. Y. Srinivasan" <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, linux-nvdimm <linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Jonathan Derrick <jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Greg
+In-Reply-To: <20180320223138.234724-2-dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>, Nick Dyer <nick@shmanahar.org>, Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 04/09/18 at 07:34pm, Dan Williams wrote:
-> On Mon, Apr 9, 2018 at 7:10 PM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
-> > On 04/09/18 at 08:38am, Dan Williams wrote:
-> >> On Mon, Apr 9, 2018 at 2:08 AM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
-> >> > The struct resource uses singly linked list to link siblings. It's not
-> >> > easy to do reverse iteration on sibling list. So replace it with list_head.
-> >> >
-> >> > And code refactoring makes codes in kernel/resource.c more readable than
-> >> > pointer operation.
-> >> >
-> >> > Besides, type of member variables of struct resource, sibling and child, are
-> >> > changed from 'struct resource *' to 'struct list_head'. Kernel size will
-> >> > increase because of those statically defined struct resource instances.
-> >> >
-> >> > Signed-off-by: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> >> > ---
-> >> [..]
-> >> > diff --git a/kernel/resource.c b/kernel/resource.c
-> >> > index e270b5048988..473c624606f9 100644
-> >> > --- a/kernel/resource.c
-> >> > +++ b/kernel/resource.c
-> >> > @@ -31,6 +31,8 @@ struct resource ioport_resource = {
-> >> >         .start  = 0,
-> >> >         .end    = IO_SPACE_LIMIT,
-> >> >         .flags  = IORESOURCE_IO,
-> >> > +       .sibling = LIST_HEAD_INIT(ioport_resource.sibling),
-> >> > +       .child  = LIST_HEAD_INIT(ioport_resource.child),
-> >> >  };
-> >> >  EXPORT_SYMBOL(ioport_resource);
-> >> >
-> >> > @@ -39,6 +41,8 @@ struct resource iomem_resource = {
-> >> >         .start  = 0,
-> >> >         .end    = -1,
-> >> >         .flags  = IORESOURCE_MEM,
-> >> > +       .sibling = LIST_HEAD_INIT(iomem_resource.sibling),
-> >> > +       .child  = LIST_HEAD_INIT(iomem_resource.child),
-> >> >  };
-> >> >  EXPORT_SYMBOL(iomem_resource);
-> >> >
-> >> > @@ -57,20 +61,32 @@ static DEFINE_RWLOCK(resource_lock);
-> >> >   * by boot mem after the system is up. So for reusing the resource entry
-> >> >   * we need to remember the resource.
-> >> >   */
-> >> > -static struct resource *bootmem_resource_free;
-> >> > +static struct list_head bootmem_resource_free = LIST_HEAD_INIT(bootmem_resource_free);
-> >> >  static DEFINE_SPINLOCK(bootmem_resource_lock);
-> >> >
-> >> > +struct resource *sibling(struct resource *res)
-> >> > +{
-> >> > +       if (res->parent && !list_is_last(&res->sibling, &res->parent->child))
-> >> > +               return list_next_entry(res, sibling);
-> >> > +       return NULL;
-> >> > +}
-> >> > +
-> >> > +struct resource *first_child(struct list_head *head)
-> >> > +{
-> >> > +       return list_first_entry_or_null(head, struct resource, sibling);
-> >> > +}
-> >> > +
-> >>
-> >> These names are too generic for new global symbols. A "resource_"
-> >> prefix is warranted.
-> >
-> > Thanks, sounds reasonable, will change them as resource_sibling() and
-> > resource_first_child(). Or res_sibling()/res_1st_child()?
-> >
-> 
-> resource_sibling() and resource_first_child()
 
-OK, will change, thanks.
+--k1lZvvs/B4yU6o8G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Mar 20, 2018 at 03:31:25PM -0700, Dmitry Torokhov wrote:
+> The way we are supposed to put controller to sleep and wake it up does not
+> depend on the platform, but rather on controller itself, so we want to get
+> rid of suspend mode in platform data (and eventually get rid of platform
+> data completely). Unfortunately some early chromebooks (the original Pixe=
+l,
+> Acer C720) were shipped with config that requires manually re-enabling
+> touch reporting in T9. We will sort it out, but in the meantime let's
+> switch to a simple DMI quirk.
+>=20
+> We'll keep pdata->suspend_mode for now and remove it when we rework
+> chromeos-laptop driver.
+>=20
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Applied, thanks.
+
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 27 +++++++++++++++++++-----
+>  1 file changed, 22 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/tou=
+chscreen/atmel_mxt_ts.c
+> index 7659bc48f1db8..20e1224d1a6db 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -324,6 +324,8 @@ struct mxt_data {
+> =20
+>  	/* for config update handling */
+>  	struct completion crc_completion;
+> +
+> +	enum mxt_suspend_mode suspend_mode;
+>  };
+> =20
+>  struct mxt_vb2_buffer {
+> @@ -2868,7 +2870,7 @@ static const struct attribute_group mxt_attr_group =
+=3D {
+> =20
+>  static void mxt_start(struct mxt_data *data)
+>  {
+> -	switch (data->pdata->suspend_mode) {
+> +	switch (data->suspend_mode) {
+>  	case MXT_SUSPEND_T9_CTRL:
+>  		mxt_soft_reset(data);
+> =20
+> @@ -2886,12 +2888,11 @@ static void mxt_start(struct mxt_data *data)
+>  		mxt_t6_command(data, MXT_COMMAND_CALIBRATE, 1, false);
+>  		break;
+>  	}
+> -
+>  }
+> =20
+>  static void mxt_stop(struct mxt_data *data)
+>  {
+> -	switch (data->pdata->suspend_mode) {
+> +	switch (data->suspend_mode) {
+>  	case MXT_SUSPEND_T9_CTRL:
+>  		/* Touch disable */
+>  		mxt_write_object(data,
+> @@ -2954,8 +2955,6 @@ static const struct mxt_platform_data *mxt_parse_dt=
+(struct i2c_client *client)
+>  		pdata->t19_keymap =3D keymap;
+>  	}
+> =20
+> -	pdata->suspend_mode =3D MXT_SUSPEND_DEEP_SLEEP;
+> -
+>  	return pdata;
+>  }
+>  #else
+> @@ -3109,6 +3108,21 @@ mxt_get_platform_data(struct i2c_client *client)
+>  	return ERR_PTR(-EINVAL);
+>  }
+> =20
+> +static const struct dmi_system_id chromebook_T9_suspend_dmi[] =3D {
+> +	{
+> +		.matches =3D {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "Link"),
+> +		},
+> +	},
+> +	{
+> +		.matches =3D {
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "Peppy"),
+> +		},
+> +	},
+> +	{ }
+> +};
+> +
+>  static int mxt_probe(struct i2c_client *client, const struct i2c_device_=
+id *id)
+>  {
+>  	struct mxt_data *data;
+> @@ -3135,6 +3149,9 @@ static int mxt_probe(struct i2c_client *client, con=
+st struct i2c_device_id *id)
+>  	init_completion(&data->reset_completion);
+>  	init_completion(&data->crc_completion);
+> =20
+> +	data->suspend_mode =3D dmi_check_system(chromebook_T9_suspend_dmi) ?
+> +		MXT_SUSPEND_T9_CTRL : MXT_SUSPEND_DEEP_SLEEP;
+> +
+>  	data->reset_gpio =3D devm_gpiod_get_optional(&client->dev,
+>  						   "reset", GPIOD_OUT_LOW);
+>  	if (IS_ERR(data->reset_gpio)) {
+> --=20
+> 2.16.2.804.g6dcf76e118-goog
+>=20
+
+--=20
+Benson Leung
+Staff Software Engineer
+Chrome OS Kernel
+Google Inc.
+bleung@google.com
+Chromium OS Project
+bleung@chromium.org
+
+--k1lZvvs/B4yU6o8G
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE6gYDF28Li+nEiKLaHwn1ewov5lgFAlrMTyoACgkQHwn1ewov
+5lhXbw/9G7OUulc7ZrGcBq+qmQuqMCcCeQ2j6IqdUnlQaHjt7FBiRy6DNeiaGD9u
+MtiwMNswYgaAr1Ql4Yut8XNLfO/LZ60DKXKo3oREQtWDYytRBRE8IVV73X9Gtfdz
+TfNYj7Oyj4r0BulYjjhy0ctDlz/wK5bP/AeD6lCK4vIoRixHu/Mt+WKHMbWyx60M
+uq5oFplVW30AIp+d1YOE55ed7c8zp9EB8V0C68TLIEwEI3XffpYYC8LWaW90EgYx
+x6njkOK8Iu5ZZrRlUYj6cW0ODVlSKJPom68OwJmWyZDGChYQzcbunLRg5vG4pBAO
+QrMCo1sgK+h3ZVxcwFnUlFBz0za8zcQtggmaOkx7ji3TK3MhnnsysBgnF9pNXgHQ
+q/UZmNi8sJVAluElA0EGxv7g4EYa6fRNqQz8vv0nrDZ+pUe+0joo4IOw2OdWULZl
+nLBy04JLlR87ZG4LU1mGd7XrE+RZYhWThsbbVhwjaErcobDdT/4729BLZ4d3zw2f
+ijBtwqzu8WD/6YHarJUSgdRd7JMEEXGzowAnh/nhYPWl2fbJwp/c3JMIEY7/9KNo
+al/K2ywX87UWBjnRbKsUsDubsNUDPNcvUDeu0S6enKn4HRaWKMdzegcY4gX850vi
+7et5O8uD2GUeHU0sWzL9ngbkFijVSNLY0ieL7PKN74cg53LxKJE=
+=P3be
+-----END PGP SIGNATURE-----
+
+--k1lZvvs/B4yU6o8G--

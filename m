@@ -1,125 +1,90 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/4] dt-bindings: mfd: Add Gateworks System Controller
- bindings
-Date: Mon, 9 Apr 2018 14:24:56 -0500
-Message-ID: <20180409192456.ne4zgdqozucquk42@rob-hp-laptop>
-References: <1522250043-8065-1-git-send-email-tharvey@gateworks.com>
- <1522250043-8065-2-git-send-email-tharvey@gateworks.com>
- <20180328162416.GB25325@roeck-us.net>
- <CAJ+vNU2aUN4ME3+RA3DNPO75O6vPBcQpuRSfQJ4_Ns_zQAtCCQ@mail.gmail.com>
- <20180328202321.GA21664@roeck-us.net>
- <CAJ+vNU1cJFYTv3N6TZQ3k-VQw=0jxHEntpMxeSAOhWAb_ap81g@mail.gmail.com>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v3 1/3] resource: Use list_head to link resource sibling
+Date: Tue, 10 Apr 2018 10:10:43 +0800
+Message-ID: <20180410021043.GC25724@localhost.localdomain>
+References: <20180408024724.16812-1-bhe@redhat.com>
+ <20180408024724.16812-2-bhe@redhat.com>
+ <20180409090853.GJ19345@localhost.localdomain>
+ <CAPcyv4huU32+oMeoF8-HmmctafZ_uOZN-v85O5M8Ka8pBXP+Lg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAJ+vNU1cJFYTv3N6TZQ3k-VQw=0jxHEntpMxeSAOhWAb_ap81g@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Harvey <tharvey@gateworks.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wim Van Sebroeck <wim@iguana.be>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-watchdog@vger.kernel.org
+In-Reply-To: <CAPcyv4huU32+oMeoF8-HmmctafZ_uOZN-v85O5M8Ka8pBXP+Lg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Brijesh Singh <brijesh.singh-5C7GfCeVMHo@public.gmane.org>, Device Tree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yang <richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Keith Busch <keith.busch-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Yaowei Bai <baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org>, "K. Y. Srinivasan" <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, linux-nvdimm <linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Jonathan Derrick <jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Greg
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 28, 2018 at 01:53:53PM -0700, Tim Harvey wrote:
-> On Wed, Mar 28, 2018 at 1:23 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On Wed, Mar 28, 2018 at 12:17:34PM -0700, Tim Harvey wrote:
-> >> On Wed, Mar 28, 2018 at 9:24 AM, Guenter Roeck <linux@roeck-us.net> wrote:
-> >> > On Wed, Mar 28, 2018 at 08:14:00AM -0700, Tim Harvey wrote:
-> >> >> This patch adds documentation of device-tree bindings for the
-> >> >> Gateworks System Controller (GSC).
-> >> >>
-> >> >> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> >> >> ---
-> >> >> v3:
-> >> >>  - replaced _ with -
-> >> >>  - remove input bindings
-> >> >>  - added full description of hwmon
-> >> >>  - fix unit address of hwmon child nodes
-> >> >>
-> >> >> ---
-> >> >>  .../devicetree/bindings/mfd/gateworks-gsc.txt      | 135 +++++++++++++++++++++
-> >> >>  1 file changed, 135 insertions(+)
-> >> >>  create mode 100644 Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
-> >> >>
-> >> >> diff --git a/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt b/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
-> >> >> new file mode 100644
-> >> >> index 0000000..8f530ed
-> >> >> --- /dev/null
-> >> >> +++ b/Documentation/devicetree/bindings/mfd/gateworks-gsc.txt
-> >> >> @@ -0,0 +1,135 @@
-> >> >> +Gateworks System Controller multi-function device
-> >> >> +
-> >> >> +The GSC is a Multifunction I2C slave device with the following submodules:
-> >> >> +- WDT
-> >> >> +- GPIO
-> >> >> +- Pushbutton controller
-> >> >> +- HWMON
-> >> >> +
-> >> >> +Required properties:
-> >> >> +- compatible : Must be "gw,gsc"
-> >> >> +- reg: I2C address of the device
-> >> >> +- interrupts: interrupt triggered by GSC_IRQ# signal
-> >> >> +- interrupt-parent: Interrupt controller GSC is connected to
-> >> >> +- #interrupt-cells: should be <1>, index of the interrupt within the
-> >> >> +  controller, in accordance with the "one cell" variant of
-> >> >> +  <devicetree/bindings/interrupt-controller/interrupt.txt>
-> >> >> +
-> >> >> +Optional nodes:
-> >> >> +* watchdog:
-> >> >> +The GSC provides a Watchdog monitor which can power cycle the board's
-> >> >> +primary power supply on most board models when tripped.
-> >> >> +
-> >> >> +Required watchdog properties:
-> >> >> +- compatible: must be "gw,gsc-watchdog"
-> >> >> +
-> >> >> +* hwmon:
-> >> >> +The GSC provides a set of Analog to Digitcal Converter (ADC) pins used for
-> >> >> +temperature and/or voltage monitoring.
-> >> >> +
-> >> >> +Required hwmon properties:
-> >> >> +- compatible: must be "gw,gsc-hwmon"
-> >> >> +
-> >> >
-> >> > "hwmon" is a very Linux specific term. It might make sense to find a more
-> >> > generic term.
-> >>
-> >> The 'hwmon' driver supports child nodes that fall into the following category:
-> >>  - temperature sensor (GSC internal temperature sensor - i2c registers
-> >> returns value in C*10)
-> >>  - voltage rails (two types here; cooked: i2c registers return
-> >> pre-scaled value in mV), raw: i2c registers return a raw ADC value
-> >> that must be scaled based on ADC internal ref voltage and resolution
-> >> and adjusted for a voltage divider to convert to mV
-> >>  - fan setpoints (I'll explain these below)
-> >>
-> >> I called the node 'gw,gsc-hwmon' because the driver fits into the
-> >> 'hwmon' API. Isn't that appropriate here for the driver compatible
-> >> string?
-> >>
+On 04/09/18 at 08:38am, Dan Williams wrote:
+> On Mon, Apr 9, 2018 at 2:08 AM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+> > The struct resource uses singly linked list to link siblings. It's not
+> > easy to do reverse iteration on sibling list. So replace it with list_head.
 > >
-> > Devicetree properties are supposed to be OS independent.
-
-+1
-
+> > And code refactoring makes codes in kernel/resource.c more readable than
+> > pointer operation.
 > >
-> >> >
-> >> >> +Optional hwmon properties:
-> >> >> +- gw,reference-voltage: ADC reference voltage (mV) used in scaling raw ADCs
-> >> >
-> >> > AFAIK devicetree likes to specify voltages in uV.
-> >>
-> >> There are currently plenty of dt props specified in mV (grep -r mV
-> >> Documentation/devicetree/bindings/).
-> >>
+> > Besides, type of member variables of struct resource, sibling and child, are
+> > changed from 'struct resource *' to 'struct list_head'. Kernel size will
+> > increase because of those statically defined struct resource instances.
 > >
-> > "But so many others are speeding, why do I get a ticket ?"
+> > Signed-off-by: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> > ---
+> [..]
+> > diff --git a/kernel/resource.c b/kernel/resource.c
+> > index e270b5048988..473c624606f9 100644
+> > --- a/kernel/resource.c
+> > +++ b/kernel/resource.c
+> > @@ -31,6 +31,8 @@ struct resource ioport_resource = {
+> >         .start  = 0,
+> >         .end    = IO_SPACE_LIMIT,
+> >         .flags  = IORESOURCE_IO,
+> > +       .sibling = LIST_HEAD_INIT(ioport_resource.sibling),
+> > +       .child  = LIST_HEAD_INIT(ioport_resource.child),
+> >  };
+> >  EXPORT_SYMBOL(ioport_resource);
 > >
-> > Please discuss with Rob.
+> > @@ -39,6 +41,8 @@ struct resource iomem_resource = {
+> >         .start  = 0,
+> >         .end    = -1,
+> >         .flags  = IORESOURCE_MEM,
+> > +       .sibling = LIST_HEAD_INIT(iomem_resource.sibling),
+> > +       .child  = LIST_HEAD_INIT(iomem_resource.child),
+> >  };
+> >  EXPORT_SYMBOL(iomem_resource);
+> >
+> > @@ -57,20 +61,32 @@ static DEFINE_RWLOCK(resource_lock);
+> >   * by boot mem after the system is up. So for reusing the resource entry
+> >   * we need to remember the resource.
+> >   */
+> > -static struct resource *bootmem_resource_free;
+> > +static struct list_head bootmem_resource_free = LIST_HEAD_INIT(bootmem_resource_free);
+> >  static DEFINE_SPINLOCK(bootmem_resource_lock);
+> >
+> > +struct resource *sibling(struct resource *res)
+> > +{
+> > +       if (res->parent && !list_is_last(&res->sibling, &res->parent->child))
+> > +               return list_next_entry(res, sibling);
+> > +       return NULL;
+> > +}
+> > +
+> > +struct resource *first_child(struct list_head *head)
+> > +{
+> > +       return list_first_entry_or_null(head, struct resource, sibling);
+> > +}
+> > +
 > 
-> Yes - hoping for feedback on mV vs uV as well as naming of hwmon mfd child node.
+> These names are too generic for new global symbols. A "resource_"
+> prefix is warranted.
 
-Use what is defined in 
-Documentation/devicetree/bindings/property-units.txt. If you don't like 
-what is there, then add to it first. But generally you should have some 
-reason why what's there doesn't work for you.
-
-Rob
+Thanks, sounds reasonable, will change them as resource_sibling() and
+resource_first_child(). Or res_sibling()/res_1st_child()?

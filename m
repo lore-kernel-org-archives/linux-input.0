@@ -1,65 +1,184 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH] Input: i8042 - Fix KBD port cannot wake up system from suspend-to-idle
-Date: Wed, 11 Apr 2018 16:59:05 +0800
-Message-ID: <20180411085905.22272-1-kai.heng.feng@canonical.com>
+From: Robert Munteanu <rombert@apache.org>
+Subject: [PATCH v5] Fix modifier keys for Redragon Asura Keyboard
+Date: Wed, 11 Apr 2018 12:49:53 +0300
+Message-ID: <20180411094953.12053-1-rombert@apache.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Robert Munteanu <rombert@apache.org>
 List-Id: linux-input@vger.kernel.org
 
-Commit f13b2065de81 ("Input: i8042 - allow KBD and AUX ports to wake up
-from suspend-to-idle") make system in s2idle can be woken up by i8042
-keyboard, but it's disabled by default.
+Changelog:
 
-In commit 3e6e15a862a0 ("Input: enable remote wakeup for PNP i8042
-keyboard ports") states that "Keyboard ports are always supposed to be
-wakeup-enabled", it should be enabled by default. Keyboard wakeup from
-s2idles is also the default behavior for other OSes.
+- v2: modifier keys work, some combinations are still troublesome
+- v3: style cleanup, rebase on top of 4.14
+- v4: remove most debugging calls, make init info useful for user,
+  rebased on top of 4.15
+- v5: fix the HID descriptor as suggested by Benjamin Tissoires,
+  use existing USB vendor id, update comment style, add SPDX
+  license identifier, rename to hid-redragon, stop registering
+  two input devices, rebased on top of 4.16
 
-But right now we can't wake up the system by keyboard, from s2idle.
-
-In i8042_probe(), device_set_wakeup_enable(), which gets called by
-i8042_pnp_kbd_probe(), runs before device_set_wakeup_capable(), which
-gets called by i8042_register_ports(). So device_set_wakeup_enable()
-doesn't really enable wakeup for keyboard.
-
-We can enable keyboard wakeup in i8042_register_ports() directly.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Robert Munteanu <rombert@apache.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 3 ---
- drivers/input/serio/i8042.c           | 4 ++++
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/hid/Kconfig        |  7 ++++
+ drivers/hid/Makefile       |  1 +
+ drivers/hid/hid-ids.h      |  1 +
+ drivers/hid/hid-quirks.c   |  3 ++
+ drivers/hid/hid-redragon.c | 89 ++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 101 insertions(+)
+ create mode 100644 drivers/hid/hid-redragon.c
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index b353d494ad40..e3def9195c2a 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -925,9 +925,6 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *
- 	i8042_pnp_id_to_string(dev->id, i8042_kbd_firmware_id,
- 			       sizeof(i8042_kbd_firmware_id));
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 19c499f5623d..1125e4813716 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -560,6 +560,13 @@ config HID_MAYFLASH
+ 	Say Y here if you have HJZ Mayflash PS3 game controller adapters
+ 	and want to enable force feedback support.
  
--	/* Keyboard ports are always supposed to be wakeup-enabled */
--	device_set_wakeup_enable(&dev->dev, true);
--
- 	i8042_pnp_kbd_devices++;
- 	return 0;
- }
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 824f4c1c1f31..21a16b757931 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1400,6 +1400,10 @@ static void __init i8042_register_ports(void)
- 				i8042_ports[i].irq);
- 			serio_register_port(serio);
- 			device_set_wakeup_capable(&serio->dev, true);
++config HID_REDRAGON
++	tristate "Redragon keyboards"
++	depends on HID
++	default !EXPERT
++	---help---
++    Support for Redragon keyboards that need fix-ups to work properly.
 +
-+			/* Keyboard ports are always supposed to be wakeup-enabled */
-+			if (i == I8042_KBD_PORT_NO)
-+				device_wakeup_enable(&serio->dev);
- 		}
- 	}
- }
+ config HID_MICROSOFT
+ 	tristate "Microsoft non-fully HID-compliant devices"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index eb13b9e92d85..a36f3f40ba63 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -84,6 +84,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
+ 
+ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
++obj-$(CONFIG_HID_REDRAGON)	+= hid-redragon.o
+ obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
+ obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
+ 	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9454ac134ce2..41a64d0e91f9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -599,6 +599,7 @@
+ #define USB_VENDOR_ID_JESS		0x0c45
+ #define USB_DEVICE_ID_JESS_YUREX	0x1010
+ #define USB_DEVICE_ID_ASUS_MD_5112	0x5112
++#define USB_DEVICE_ID_REDRAGON_ASURA	0x760b
+ 
+ #define USB_VENDOR_ID_JESS2		0x0f30
+ #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index e92b77fa574a..5f1253f1739a 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -557,6 +557,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #if IS_ENABLED(CONFIG_HID_PRODIKEYS)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
+ #endif
++#if IS_ENABLED(CONFIG_HID_REDRAGON)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS,  USB_DEVICE_ID_REDRAGON_ASURA) },
++#endif
+ #if IS_ENABLED(CONFIG_HID_RETRODE)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
+ #endif
+diff --git a/drivers/hid/hid-redragon.c b/drivers/hid/hid-redragon.c
+new file mode 100644
+index 000000000000..ff98a5dbb8e2
+--- /dev/null
++++ b/drivers/hid/hid-redragon.c
+@@ -0,0 +1,89 @@
++/*
++ *  HID driver for Redragon keyboards
++ *
++ *  Copyright (c) 2017 Robert Munteanu
++ *  SPDX-License-Identifier: GPL-2.0
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/log2.h>
++#include <linux/input-event-codes.h>
++
++#include "hid-ids.h"
++
++
++/*
++ * The Redragon Asura keyboard sends an incorrect HID descriptor.
++ * At byte 100 it contains
++ *
++ *   0x81, 0x00
++ *
++ * which is Input (Data, Arr, Abs), but it should be
++ *
++ *   0x81, 0x02
++ *
++ * which is Input (Data, Var, Abs), which is consistent with the way
++ * key codes are generated.
++ */
++
++static __u8 *redragon_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++	unsigned int *rsize)
++{
++	if (*rsize >= 102 && rdesc[100] == 0x81 && rdesc[101] == 0x00) {
++		dev_info(&hdev->dev, "Fixing Redragon ASURA report descriptor.\n");
++		rdesc[101] = 0x02;
++	}
++
++	return rdesc;
++}
++
++static int redragon_probe(struct hid_device *dev,
++	const struct hid_device_id *id)
++{
++	int ret;
++
++	ret = hid_parse(dev);
++	if (ret) {
++		hid_err(dev, "parse failed\n");
++		return ret;
++	}
++
++	/* do not register unused input device */
++	if (dev->maxapplication == 1)
++		return 0;
++
++	ret = hid_hw_start(dev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(dev, "hw start failed\n");
++		return ret;
++	}
++
++	return 0;
++}
++static const struct hid_device_id redragon_devices[] = {
++	{HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_REDRAGON_ASURA)},
++	{}
++};
++
++MODULE_DEVICE_TABLE(hid, redragon_devices);
++
++static struct hid_driver redragon_driver = {
++	.name = "redragon",
++	.id_table = redragon_devices,
++	.report_fixup = redragon_report_fixup,
++	.probe = redragon_probe
++};
++
++module_hid_driver(redragon_driver);
++
++MODULE_LICENSE("GPL");
 -- 
-2.17.0
+2.16.3

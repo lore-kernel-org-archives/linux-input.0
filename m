@@ -1,69 +1,30 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH v6 23/30] drm/rockchip: analogix_dp: Do not call
- Analogix code before bind
-Date: Thu, 12 Apr 2018 11:54:00 +0200
-Message-ID: <2fde5d53-0e8d-6a15-7962-0e76532d0926@samsung.com>
-References: <20180405095000.9756-1-enric.balletbo@collabora.com>
- <CGME20180405095337epcas3p1a8750649c8032d844991db91595da8e5@epcas3p1.samsung.com>
- <20180405095000.9756-24-enric.balletbo@collabora.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: wacom: bluetooth: send exit report for recent
+ Bluetooth devices
+Date: Thu, 12 Apr 2018 14:05:21 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1804121405130.28129@cbobk.fhfr.pm>
+References: <1522877051-3943-1-git-send-email-skomra@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180405095000.9756-24-enric.balletbo@collabora.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1522877051-3943-1-git-send-email-skomra@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Aaron Armstrong Skomra <skomra@gmail.com>
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, killertofu@gmail.com, "# 4 . 11" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 List-Id: linux-input@vger.kernel.org
 
-T24gMDUuMDQuMjAxOCAxMTo0OSwgRW5yaWMgQmFsbGV0Ym8gaSBTZXJyYSB3cm90ZToKPiBGcm9t
-OiBUb21hc3ogRmlnYSA8dGZpZ2FAY2hyb21pdW0ub3JnPgo+Cj4gRHJpdmVyIGNhbGxiYWNrcywg
-c3VjaCBhcyBzeXN0ZW0gc3VzcGVuZCBvciByZXN1bWUgY2FuIGJlIGNhbGxlZCBhbnkKPiB0aW1l
-LCBzcGVjaWZpY2FsbHkgdGhleSBjYW4gYmUgY2FsbGVkIGJlZm9yZSB0aGUgY29tcG9uZW50IGJp
-bmQKPiBjYWxsYmFjay4gTGV0J3MgdXNlIGRwLT5hZHAgcG9pbnRlciBhcyBhIHNhZmVndWFyZCBh
-bmQgc2tpcCBjYWxsaW5nCj4gQW5hbG9naXggZW50cnkgcG9pbnRzIGlmIGl0IGlzIGFuIEVSUl9Q
-VFIoKS4KCkZyb20gcHVyaXR5IFBvViBJIHdvdWxkIHN0b3JlIGVpdGhlciAwIGVpdGhlciB2YWxp
-ZCBwb2ludGVyIGluIGRwLT5hZHAsCmJ1dCBmdW5jdGlvbmFsbHkgaXQgc2hvdWxkIGJlIHRoZSBz
-YW1lLgoKUmV2aWV3ZWQtYnk6IEFuZHJ6ZWogSGFqZGEgPGEuaGFqZGFAc2Ftc3VuZy5jb20+CgrC
-oC0tClJlZ2FyZHMKQW5kcnplagoKCj4KPiBTaWduZWQtb2ZmLWJ5OiBUb21hc3ogRmlnYSA8dGZp
-Z2FAY2hyb21pdW0ub3JnPgo+IFNpZ25lZC1vZmYtYnk6IFRoaWVycnkgRXNjYW5kZSA8dGhpZXJy
-eS5lc2NhbmRlQGNvbGxhYm9yYS5jb20+Cj4gU2lnbmVkLW9mZi1ieTogRW5yaWMgQmFsbGV0Ym8g
-aSBTZXJyYSA8ZW5yaWMuYmFsbGV0Ym9AY29sbGFib3JhLmNvbT4KPiBUZXN0ZWQtYnk6IE1hcmVr
-IFN6eXByb3dza2kgPG0uc3p5cHJvd3NraUBzYW1zdW5nLmNvbT4KPiAtLS0KPgo+ICBkcml2ZXJz
-L2dwdS9kcm0vcm9ja2NoaXAvYW5hbG9naXhfZHAtcm9ja2NoaXAuYyB8IDkgKysrKysrKysrCj4g
-IDEgZmlsZSBjaGFuZ2VkLCA5IGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L2dwdS9kcm0vcm9ja2NoaXAvYW5hbG9naXhfZHAtcm9ja2NoaXAuYyBiL2RyaXZlcnMvZ3B1L2Ry
-bS9yb2NrY2hpcC9hbmFsb2dpeF9kcC1yb2NrY2hpcC5jCj4gaW5kZXggMjMzMTdhMjI2OWUxLi42
-ZDQ1ZDYyNDY2YjMgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL2FuYWxv
-Z2l4X2RwLXJvY2tjaGlwLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvYW5hbG9n
-aXhfZHAtcm9ja2NoaXAuYwo+IEBAIC0zNjgsNiArMzY4LDggQEAgc3RhdGljIHZvaWQgcm9ja2No
-aXBfZHBfdW5iaW5kKHN0cnVjdCBkZXZpY2UgKmRldiwgc3RydWN0IGRldmljZSAqbWFzdGVyLAo+
-ICAJYW5hbG9naXhfZHBfdW5iaW5kKGRwLT5hZHApOwo+ICAJcm9ja2NoaXBfZHJtX3Bzcl91bnJl
-Z2lzdGVyKCZkcC0+ZW5jb2Rlcik7Cj4gIAlkcC0+ZW5jb2Rlci5mdW5jcy0+ZGVzdHJveSgmZHAt
-PmVuY29kZXIpOwo+ICsKPiArCWRwLT5hZHAgPSBFUlJfUFRSKC1FTk9ERVYpOwo+ICB9Cj4gIAo+
-ICBzdGF0aWMgY29uc3Qgc3RydWN0IGNvbXBvbmVudF9vcHMgcm9ja2NoaXBfZHBfY29tcG9uZW50
-X29wcyA9IHsKPiBAQCAtMzkxLDYgKzM5Myw3IEBAIHN0YXRpYyBpbnQgcm9ja2NoaXBfZHBfcHJv
-YmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikKPiAgCQlyZXR1cm4gLUVOT01FTTsKPiAg
-Cj4gIAlkcC0+ZGV2ID0gZGV2Owo+ICsJZHAtPmFkcCA9IEVSUl9QVFIoLUVOT0RFVik7Cj4gIAlk
-cC0+cGxhdF9kYXRhLnBhbmVsID0gcGFuZWw7Cj4gIAo+ICAJcmV0ID0gcm9ja2NoaXBfZHBfb2Zf
-cHJvYmUoZHApOwo+IEBAIC00MTQsNiArNDE3LDkgQEAgc3RhdGljIGludCByb2NrY2hpcF9kcF9z
-dXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikKPiAgewo+ICAJc3RydWN0IHJvY2tjaGlwX2RwX2Rl
-dmljZSAqZHAgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsKPiAgCj4gKwlpZiAoSVNfRVJSKGRwLT5h
-ZHApKQo+ICsJCXJldHVybiAwOwo+ICsKPiAgCXJldHVybiBhbmFsb2dpeF9kcF9zdXNwZW5kKGRw
-LT5hZHApOwo+ICB9Cj4gIAo+IEBAIC00MjEsNiArNDI3LDkgQEAgc3RhdGljIGludCByb2NrY2hp
-cF9kcF9yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQo+ICB7Cj4gIAlzdHJ1Y3Qgcm9ja2NoaXBf
-ZHBfZGV2aWNlICpkcCA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOwo+ICAKPiArCWlmIChJU19FUlIo
-ZHAtPmFkcCkpCj4gKwkJcmV0dXJuIDA7Cj4gKwo+ICAJcmV0dXJuIGFuYWxvZ2l4X2RwX3Jlc3Vt
-ZShkcC0+YWRwKTsKPiAgfQo+ICAjZW5kaWYKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0
-cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby9kcmktZGV2ZWwK
+On Wed, 4 Apr 2018, Aaron Armstrong Skomra wrote:
+
+> The code path for recent Bluetooth devices omits an exit report which
+> resets all the values of the device.
+> 
+> Fixes: 4922cd26f0 ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+> Cc: <stable@vger.kernel.org> # 4.11
+> Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,43 +1,92 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/4] HID: alps: Fix some bugs and improve code around
- 't4_read_write_register()'
-Date: Thu, 12 Apr 2018 15:11:02 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1804121510340.28129@cbobk.fhfr.pm>
-References: <cover.1521492069.git.christophe.jaillet@wanadoo.fr> <nycvar.YFH.7.76.1803271405420.15778@cbobk.fhfr.pm>
+From: Lukasz Majewski <lukma@denx.de>
+Subject: Re: [PATCH 2/2] input: touchscreen mc13xxx: Add mc34708 support
+Date: Thu, 12 Apr 2018 16:45:35 +0200
+Message-ID: <20180412164535.324a218a@jawa>
+References: <20180411141340.30939-1-lukma@denx.de>
+        <20180411141340.30939-2-lukma@denx.de>
+        <4690e30b3c4b97847123295f1994c6eafe4e0cbb.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/ahDu70l8WIhCE2XFKRzQbVD"; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1803271405420.15778@cbobk.fhfr.pm>
+In-Reply-To: <4690e30b3c4b97847123295f1994c6eafe4e0cbb.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: masaki.ota@jp.alps.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 27 Mar 2018, Jiri Kosina wrote:
+--Sig_/ahDu70l8WIhCE2XFKRzQbVD
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-> > These patches are untested. Especially, patch 1 slightly changes the behavior
-> > of 't4_read_write_register()'.
-> > This looks logical to me, but please, review it carefully.
-> > 
-> > Christophe JAILLET (4):
-> >   HID: alps: Report an error if we receive invalid data in
-> >     't4_read_write_register()'
-> >   HID: alps: Save a memory allocation in 't4_read_write_register()' when
-> >     writing data
-> >   HID: alps: Check errors returned by 't4_read_write_register()'
-> >   HID: alps: Fix some style in 't4_read_write_register()'
-> > 
-> >  drivers/hid/hid-alps.c | 27 ++++++++++++++++++++++-----
-> >  1 file changed, 22 insertions(+), 5 deletions(-)
-> 
-> Masaki-san,
-> 
-> do you have any comments to Christophe's patchset please?
+On Wed, 11 Apr 2018 09:01:01 -0700
+Joe Perches <joe@perches.com> wrote:
 
-If there is no feedback, I'll queue the set for 4.18.
+> On Wed, 2018-04-11 at 16:13 +0200, Lukasz Majewski wrote:
+> > From: Sascha Hauer <s.hauer@pengutronix.de>
+> >=20
+> > The mc34708 has a different bit to enable pen detection. This
+> > adds the driver data and devtype necessary to probe the device
+> > and to distinguish between the mc13783 and the mc34708. =20
+>=20
+> style trivia:
+>=20
+> > diff --git a/drivers/input/touchscreen/mc13783_ts.c
+> > b/drivers/input/touchscreen/mc13783_ts.c =20
+> []
+> > @@ -96,6 +135,10 @@ static void mc13783_ts_report_sample(struct
+> > mc13783_ts_priv *priv)=20
+> >  	cr0 =3D (cr0 + cr1) / 2;
+> > =20
+> > +	if (priv->drvdata->type =3D=3D MC13XXX_TYPE_MC34708)
+> > +		if (cr0 > 4080)
+> > +			cr0 =3D 0; =20
+>=20
+> For easy of reading, this multiple if block should either
+> use braces around the first if like:
+>=20
+> 	if (foo) {
+> 		if (bar)
+> 			single_statement;
+> 	}
+>=20
+> or be written
+>=20
+> 	if (foo && bar)
+> 		single_statement;
+>=20
+> I generally prefer the latter style.
+>=20
 
-Thanks,
++1.
 
--- 
-Jiri Kosina
-SUSE Labs
+I will fix it in v2.
+
+
+Best regards,
+
+Lukasz Majewski
+
+--
+
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Phone: (+49)-8142-66989-10 Fax: (+49)-8142-66989-80 Email: wd@denx.de
+
+--Sig_/ahDu70l8WIhCE2XFKRzQbVD
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEgAyFJ+N6uu6+XupJAR8vZIA0zr0FAlrPcQ8ACgkQAR8vZIA0
+zr0w3wf+LFFcRxd7PeY+xB7Eya/OhCLtq/DwUCVi688nQObrhsUn0yvpfoR93LOo
+xyE2WP+08T3dj2Jl/3yhxVATuE92kcf1cXaBbgDnxf7ceiRV1OOPwHRUAHnowKfd
+EiO6FsRsEGDyd4dm6/ZF8upyJIj2l6+HsPabJAzpEYpS8NZAjnsilDW9ohH55FNb
+Cx6f5VD8Wk8JWfkroyKgBTZZWJVDDGzsaLzLysnRHZWJDHg35xRLV46E5q4vV3hI
+2a4TWtltRzz03cf2taTvlBS1S8H7bmx84pNw0PTBIjTHkBT6xOIO8eenMiGkyn4S
+Yf/7IlFPi6zvesEKdMmF4v/3bSZEfw==
+=xOTR
+-----END PGP SIGNATURE-----
+
+--Sig_/ahDu70l8WIhCE2XFKRzQbVD--

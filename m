@@ -1,49 +1,71 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 2/2] input: touchscreen mc13xxx: Add mc34708 support
-Date: Wed, 11 Apr 2018 09:01:01 -0700
-Message-ID: <4690e30b3c4b97847123295f1994c6eafe4e0cbb.camel@perches.com>
-References: <20180411141340.30939-1-lukma@denx.de>
-         <20180411141340.30939-2-lukma@denx.de>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] Input: leds - fix out of bound access
+Date: Thu, 12 Apr 2018 16:20:01 +1000
+Message-ID: <20180412062001.GA5560@jelly>
+References: <20180406181242.GA225849@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180411141340.30939-2-lukma@denx.de>
+Content-Disposition: inline
+In-Reply-To: <20180406181242.GA225849@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lukasz Majewski <lukma@denx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>, Samuel Thibault <samuel.thibault@ens-lyon.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 2018-04-11 at 16:13 +0200, Lukasz Majewski wrote:
-> From: Sascha Hauer <s.hauer@pengutronix.de>
+On Fri, Apr 06, 2018 at 11:12:42AM -0700, Dmitry Torokhov wrote:
+> UI_SET_LEDBIT ioctl() causes the following KASAN splat when used with
+> led > LED_CHARGING:
 > 
-> The mc34708 has a different bit to enable pen detection. This
-> adds the driver data and devtype necessary to probe the device
-> and to distinguish between the mc13783 and the mc34708.
+> [ 1274.663418] BUG: KASAN: slab-out-of-bounds in input_leds_connect+0x611/0x730 [input_leds]
+> [ 1274.663426] Write of size 8 at addr ffff88003377b2c0 by task ckb-next-daemon/5128
+> 
+> This happens because we were writing to the led structure before making
+> sure that it exists.
+> 
+> Reported-by: Tasos Sahanidis <tasos@tasossah.com>
+> Tested-by: Tasos Sahanidis <tasos@tasossah.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-style trivia:
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-> diff --git a/drivers/input/touchscreen/mc13783_ts.c b/drivers/input/touchscreen/mc13783_ts.c
-[]
-> @@ -96,6 +135,10 @@ static void mc13783_ts_report_sample(struct mc13783_ts_priv *priv)
+Cheers,
+   Peter
+
+> ---
+>  drivers/input/input-leds.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
+> index 766bf26601163..5f04b2d946350 100644
+> --- a/drivers/input/input-leds.c
+> +++ b/drivers/input/input-leds.c
+> @@ -88,6 +88,7 @@ static int input_leds_connect(struct input_handler *handler,
+>  			      const struct input_device_id *id)
+>  {
+>  	struct input_leds *leds;
+> +	struct input_led *led;
+>  	unsigned int num_leds;
+>  	unsigned int led_code;
+>  	int led_no;
+> @@ -119,14 +120,13 @@ static int input_leds_connect(struct input_handler *handler,
 >  
->  	cr0 = (cr0 + cr1) / 2;
+>  	led_no = 0;
+>  	for_each_set_bit(led_code, dev->ledbit, LED_CNT) {
+> -		struct input_led *led = &leds->leds[led_no];
+> +		if (!input_led_info[led_code].name)
+> +			continue;
 >  
-> +	if (priv->drvdata->type == MC13XXX_TYPE_MC34708)
-> +		if (cr0 > 4080)
-> +			cr0 = 0;
-
-For easy of reading, this multiple if block should either
-use braces around the first if like:
-
-	if (foo) {
-		if (bar)
-			single_statement;
-	}
-
-or be written
-
-	if (foo && bar)
-		single_statement;
-
-I generally prefer the latter style.
+> +		led = &leds->leds[led_no];
+>  		led->handle = &leds->handle;
+>  		led->code = led_code;
+>  
+> -		if (!input_led_info[led_code].name)
+> -			continue;
+> -
+>  		led->cdev.name = kasprintf(GFP_KERNEL, "%s::%s",
+>  					   dev_name(&dev->dev),
+>  					   input_led_info[led_code].name);
+> -- 
+> 2.17.0.484.g0c8726318c-goog

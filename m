@@ -1,32 +1,42 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: i2c-hid: Fix resume issue on Raydium touchscreen
- device
-Date: Thu, 12 Apr 2018 15:06:44 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1804121506360.28129@cbobk.fhfr.pm>
-References: <1523259691-7672-1-git-send-email-aaron.ma@canonical.com>
+Subject: Re: [PATCH 0/4] HID: alps: Fix some bugs and improve code around
+ 't4_read_write_register()'
+Date: Thu, 12 Apr 2018 15:11:02 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1804121510340.28129@cbobk.fhfr.pm>
+References: <cover.1521492069.git.christophe.jaillet@wanadoo.fr> <nycvar.YFH.7.76.1803271405420.15778@cbobk.fhfr.pm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1523259691-7672-1-git-send-email-aaron.ma@canonical.com>
+In-Reply-To: <nycvar.YFH.7.76.1803271405420.15778@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: masaki.ota@jp.alps.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 9 Apr 2018, Aaron Ma wrote:
+On Tue, 27 Mar 2018, Jiri Kosina wrote:
 
-> When Rayd touchscreen resumed from S3, it issues too many errors like:
-> i2c_hid i2c-RAYD0001:00: i2c_hid_get_input: incomplete report (58/5442)
+> > These patches are untested. Especially, patch 1 slightly changes the behavior
+> > of 't4_read_write_register()'.
+> > This looks logical to me, but please, review it carefully.
+> > 
+> > Christophe JAILLET (4):
+> >   HID: alps: Report an error if we receive invalid data in
+> >     't4_read_write_register()'
+> >   HID: alps: Save a memory allocation in 't4_read_write_register()' when
+> >     writing data
+> >   HID: alps: Check errors returned by 't4_read_write_register()'
+> >   HID: alps: Fix some style in 't4_read_write_register()'
+> > 
+> >  drivers/hid/hid-alps.c | 27 ++++++++++++++++++++++-----
+> >  1 file changed, 22 insertions(+), 5 deletions(-)
 > 
-> And all the report data are corrupted, touchscreen is unresponsive.
+> Masaki-san,
 > 
-> Fix this by re-sending report description command after resume.
-> Add device ID as a quirk.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+> do you have any comments to Christophe's patchset please?
 
-Applied, thanks.
+If there is no feedback, I'll queue the set for 4.18.
+
+Thanks,
 
 -- 
 Jiri Kosina

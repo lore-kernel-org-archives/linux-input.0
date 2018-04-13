@@ -1,39 +1,28 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 3/9] Input: elan_i2c - add trackstick report
-Date: Fri, 13 Apr 2018 12:36:52 -0500
-Message-ID: <20180413173652.d5errnzdoz3elaes@rob-hp-laptop>
-References: <20180409091051.2944-1-benjamin.tissoires@redhat.com>
- <20180409091051.2944-4-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3 04/11] dt-bindings: input: touchscreen: add pressure
+ threshold touchscreen property
+Date: Fri, 13 Apr 2018 13:33:07 -0500
+Message-ID: <20180413183307.vqadfoxvwyzyrjti@rob-hp-laptop>
+References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
+ <1523350677-27106-5-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180409091051.2944-4-benjamin.tissoires@redhat.com>
+In-Reply-To: <1523350677-27106-5-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kt.liao@emc.com.tw, Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 09, 2018 at 11:10:45AM +0200, Benjamin Tissoires wrote:
-> The Elan touchpads over I2C/SMBus also can handle a
-> trackstick. Unfortunately, nothing tells us if the
-> device supports trackstick (the information lies in
-> the PS/2 node), so rely on a platform data to enable
-> or not the trackstick node.
+On Tue, Apr 10, 2018 at 11:57:50AM +0300, Eugen Hristev wrote:
+> Add a common touchscreen optional property that will specify
+> the minimum pressure applied to the screen that is needed
+> such that the driver will report the touch event.
 > 
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=1313939
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
+> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 > ---
-> 
-> changes in v2:
-> - use of generic device property instead of platform data so
->   device tree can also make use of it
-> ---
->  .../devicetree/bindings/input/elan_i2c.txt         |  1 +
+>  Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt | 3 +++
+>  1 file changed, 3 insertions(+)
 
-Acked-by: Rob Herring <robh@kernel.org>
-
->  drivers/input/mouse/elan_i2c_core.c                | 90 +++++++++++++++++++++-
->  2 files changed, 88 insertions(+), 3 deletions(-)
+Reviewed-by: Rob Herring <robh@kernel.org>

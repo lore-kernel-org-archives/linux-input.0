@@ -1,37 +1,38 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 05/11] dt-bindings: input: touchscreen:
- resistive-adc-touch: create bindings
-Date: Fri, 13 Apr 2018 13:34:04 -0500
-Message-ID: <20180413183404.2bt6wmjbozwvkyck@rob-hp-laptop>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
- <1523350677-27106-6-git-send-email-eugen.hristev@microchip.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - add missing compatible strings to
+ OF device table
+Date: Fri, 13 Apr 2018 16:11:09 -0500
+Message-ID: <20180413211109.scyuwx7gptutvon4@rob-hp-laptop>
+References: <20180410095340.24074-1-javierm@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1523350677-27106-6-git-send-email-eugen.hristev@microchip.com>
+In-Reply-To: <20180410095340.24074-1-javierm@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com
+To: Javier Martinez Canillas <javierm@redhat.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>, Nick Dyer <nick@shmanahar.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Apr 10, 2018 at 11:57:51AM +0300, Eugen Hristev wrote:
-> Added bindings for generic resistive touchscreen ADC.
+On Tue, Apr 10, 2018 at 11:53:40AM +0200, Javier Martinez Canillas wrote:
+> Commit af503716ac14 ("i2c: core: report OF style module alias for devices
+> registered via OF") fixed how the I2C core reports the module alias when
+> devices are registered via OF.
 > 
-> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+> But the atmel_mxt_ts driver only has an "atmel,maxtouch" compatible in its
+> OF device ID table, so if a Device Tree is using a different one, autoload
+> won't be working for the module (the matching works because the I2C device
+> ID table is used as a fallback).
+> 
+> So add compatible strings for each of the entries in the I2C device table.
+> 
+> Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
+> Reported-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
 > ---
-> Changes in v3:
->  - renamed file and compatible to exclude "generic" keyword
->  - removed the pressure threshold property, added it as a common
-> touchscreen property in the touchscreen common bindings in a separate
-> commit.
 > 
-> Changes in v2:
->  - modified bindings to have a generic resistive touchscreen adc driver
-> instead of specific architecture one.
-> 
->  .../input/touchscreen/resistive-adc-touch.txt      | 30 ++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/resistive-adc-touch.txt
+>  Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 6 +++++-
+>  drivers/input/touchscreen/atmel_mxt_ts.c                   | 4 ++++
+>  2 files changed, 9 insertions(+), 1 deletion(-)
 
 Reviewed-by: Rob Herring <robh@kernel.org>

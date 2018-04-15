@@ -1,69 +1,131 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH v2 1/3] Input: ti_am335x_tsc - Mark IRQ as wakeup capable
-Date: Sat, 14 Apr 2018 15:21:51 +0530
-Message-ID: <20180414095153.32060-2-vigneshr@ti.com>
-References: <20180414095153.32060-1-vigneshr@ti.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v3 01/11] iio: adc: at91-sama5d2_adc: fix channel
+ configuration for differential channels
+Date: Sun, 15 Apr 2018 20:23:11 +0100
+Message-ID: <20180415202311.148463be@archlinux>
+References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
+        <1523350677-27106-2-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180414095153.32060-1-vigneshr@ti.com>
+In-Reply-To: <1523350677-27106-2-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Vignesh R <vigneshr@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On AM335x, ti_am335x_tsc can wake up the system from suspend, mark the
-IRQ as wakeup capable, so that device irq is not disabled during system
-suspend.
+On Tue, 10 Apr 2018 11:57:47 +0300
+Eugen Hristev <eugen.hristev@microchip.com> wrote:
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
----
+> When iterating through the channels, the index in the array is not the
+> scan index. Added an xlate function to translate to the proper index.
+> The result of the bug is that the channel array is indexed with a wrong index,
+> thus instead of the proper channel, we access invalid memory, which may
+> lead to invalid results and/or corruption.
+> This will be used also for devicetree channel xlate.
+> 
+> Fixes: 5e1a1da0f ("iio: adc: at91-sama5d2_adc: add hw trigger and buffer support")
+> Fixes: 073c66201 ("iio: adc: at91-sama5d2_adc: add support for DMA")
+> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+This fix obviously stands on it's own so I have applied it to the
+fixes-togreg branch of iio.git and will send out a pull request with it in
+after the merge window is closed and rc1 is out.
 
-v2: No changes
+Marked for stable.
 
- drivers/input/touchscreen/ti_am335x_tsc.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Note this will delay the rest of the series being applied but that is no
+bad thing as I would like a little more time for people to consider it anyway
+and we are obviously in no rush given the time in the cycle!
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index f1043ae71dcc..810e05c9c4f5 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -27,6 +27,7 @@
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/sort.h>
-+#include <linux/pm_wakeirq.h>
- 
- #include <linux/mfd/ti_am335x_tscadc.h>
- 
-@@ -432,6 +433,12 @@ static int titsc_probe(struct platform_device *pdev)
- 		goto err_free_mem;
- 	}
- 
-+	if (device_may_wakeup(tscadc_dev->dev)) {
-+		err = dev_pm_set_wake_irq(tscadc_dev->dev, ts_dev->irq);
-+		if (err)
-+			dev_err(&pdev->dev, "irq wake enable failed.\n");
-+	}
-+
- 	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
- 	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
- 	err = titsc_config_wires(ts_dev);
-@@ -462,6 +469,7 @@ static int titsc_probe(struct platform_device *pdev)
- 	return 0;
- 
- err_free_irq:
-+	dev_pm_clear_wake_irq(tscadc_dev->dev);
- 	free_irq(ts_dev->irq, ts_dev);
- err_free_mem:
- 	input_free_device(input_dev);
-@@ -474,6 +482,7 @@ static int titsc_remove(struct platform_device *pdev)
- 	struct titsc *ts_dev = platform_get_drvdata(pdev);
- 	u32 steps;
- 
-+	dev_pm_clear_wake_irq(ts_dev->mfd_tscadc->dev);
- 	free_irq(ts_dev->irq, ts_dev);
- 
- 	/* total steps followed by the enable mask */
--- 
-2.17.0
+Thanks,
+
+Jonathan
+
+> ---
+>  drivers/iio/adc/at91-sama5d2_adc.c | 41 ++++++++++++++++++++++++++++++++++----
+>  1 file changed, 37 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+> index 4eff835..8729d65 100644
+> --- a/drivers/iio/adc/at91-sama5d2_adc.c
+> +++ b/drivers/iio/adc/at91-sama5d2_adc.c
+> @@ -333,6 +333,27 @@ static const struct iio_chan_spec at91_adc_channels[] = {
+>  				+ AT91_SAMA5D2_DIFF_CHAN_CNT + 1),
+>  };
+>  
+> +static int at91_adc_chan_xlate(struct iio_dev *indio_dev, int chan)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < indio_dev->num_channels; i++) {
+> +		if (indio_dev->channels[i].scan_index == chan)
+> +			return i;
+> +	}
+> +	return -EINVAL;
+> +}
+> +
+> +static inline struct iio_chan_spec const *
+> +at91_adc_chan_get(struct iio_dev *indio_dev, int chan)
+> +{
+> +	int index = at91_adc_chan_xlate(indio_dev, chan);
+> +
+> +	if (index < 0)
+> +		return NULL;
+> +	return indio_dev->channels + index;
+> +}
+> +
+>  static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
+>  {
+>  	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
+> @@ -350,8 +371,10 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
+>  	at91_adc_writel(st, AT91_SAMA5D2_TRGR, status);
+>  
+>  	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
+> -		struct iio_chan_spec const *chan = indio->channels + bit;
+> +		struct iio_chan_spec const *chan = at91_adc_chan_get(indio, bit);
+>  
+> +		if (!chan)
+> +			continue;
+>  		if (state) {
+>  			at91_adc_writel(st, AT91_SAMA5D2_CHER,
+>  					BIT(chan->channel));
+> @@ -448,7 +471,11 @@ static int at91_adc_dma_start(struct iio_dev *indio_dev)
+>  
+>  	for_each_set_bit(bit, indio_dev->active_scan_mask,
+>  			 indio_dev->num_channels) {
+> -		struct iio_chan_spec const *chan = indio_dev->channels + bit;
+> +		struct iio_chan_spec const *chan =
+> +					 at91_adc_chan_get(indio_dev, bit);
+> +
+> +		if (!chan)
+> +			continue;
+>  
+>  		st->dma_st.rx_buf_sz += chan->scan_type.storagebits / 8;
+>  	}
+> @@ -526,8 +553,11 @@ static int at91_adc_buffer_predisable(struct iio_dev *indio_dev)
+>  	 */
+>  	for_each_set_bit(bit, indio_dev->active_scan_mask,
+>  			 indio_dev->num_channels) {
+> -		struct iio_chan_spec const *chan = indio_dev->channels + bit;
+> +		struct iio_chan_spec const *chan =
+> +					at91_adc_chan_get(indio_dev, bit);
+>  
+> +		if (!chan)
+> +			continue;
+>  		if (st->dma_st.dma_chan)
+>  			at91_adc_readl(st, chan->address);
+>  	}
+> @@ -587,8 +617,11 @@ static void at91_adc_trigger_handler_nodma(struct iio_dev *indio_dev,
+>  
+>  	for_each_set_bit(bit, indio_dev->active_scan_mask,
+>  			 indio_dev->num_channels) {
+> -		struct iio_chan_spec const *chan = indio_dev->channels + bit;
+> +		struct iio_chan_spec const *chan =
+> +					at91_adc_chan_get(indio_dev, bit);
+>  
+> +		if (!chan)
+> +			continue;
+>  		st->buffer[i] = at91_adc_readl(st, chan->address);
+>  		i++;
+>  	}

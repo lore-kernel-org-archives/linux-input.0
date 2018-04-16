@@ -1,47 +1,86 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v5] Fix modifier keys for Redragon Asura Keyboard
-Date: Mon, 16 Apr 2018 11:56:03 +0200
-Message-ID: <CAO-hwJK9+C-9oucz4QdHp-51rTaTHQVp-KB3ORRFQ0oXXQ8ksA@mail.gmail.com>
-References: <20180411094953.12053-1-rombert@apache.org> <nycvar.YFH.7.76.1804161148370.28129@cbobk.fhfr.pm>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH v6 28/30] drm/rockchip: Disable PSR from reboot notifier
+Date: Mon, 16 Apr 2018 11:57:15 +0200
+Message-ID: <a9e436f8-34ec-123a-9c69-efabb4576bea@samsung.com>
+References: <20180405095000.9756-1-enric.balletbo@collabora.com>
+ <CGME20180405095117epcas2p2093448b49aab2abd6684bf689f8888d5@epcas2p2.samsung.com>
+ <20180405095000.9756-29-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1804161148370.28129@cbobk.fhfr.pm>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Robert Munteanu <rombert@apache.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180405095000.9756-29-enric.balletbo@collabora.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 16, 2018 at 11:49 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Wed, 11 Apr 2018, Robert Munteanu wrote:
->
->> Changelog:
->>
->> - v2: modifier keys work, some combinations are still troublesome
->> - v3: style cleanup, rebase on top of 4.14
->> - v4: remove most debugging calls, make init info useful for user,
->>   rebased on top of 4.15
->> - v5: fix the HID descriptor as suggested by Benjamin Tissoires,
->>   use existing USB vendor id, update comment style, add SPDX
->>   license identifier, rename to hid-redragon, stop registering
->>   two input devices, rebased on top of 4.16
->
-> This should contain the text that goes directly into the git commit
-> changelog, therefore should instead contain something like "This adds a
-> news driver for HW XX, that needs a specialized driver bacuse .... and
-> things to specifically point out in implementation are ....".
->
-> Could you please provide that, so that I can commit it?
-
-Jiri, please hold off, I have a few comments while quickly reviewing the patch.
-
-Cheers,
-Benjamin
-
->
-> Thanks.
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+T24gMDUuMDQuMjAxOCAxMTo0OSwgRW5yaWMgQmFsbGV0Ym8gaSBTZXJyYSB3cm90ZToKPiBGcm9t
+OiBUb21hc3ogRmlnYSA8dGZpZ2FAY2hyb21pdW0ub3JnPgo+Cj4gSXQgbG9va3MgbGlrZSB0aGUg
+ZHJpdmVyIHN1YnN5c3RlbSBkZXRhY2hlcyBkZXZpY2VzIGZyb20gcG93ZXIgZG9tYWlucwo+IGF0
+IHNodXRkb3duIHdpdGhvdXQgY29uc2VudCBvZiB0aGUgZHJpdmVycy4KCkl0IGxvb2tzIGJpdCBz
+dHJhbmdlLiBDb3VsZCB5b3UgZWxhYm9yYXRlIG1vcmUgb24gaXQuIENvdWxkIHlvdSBzaG93IHRo
+ZQpjb2RlIHBlcmZvcm1pbmcgdGhlIGRldGFjaD8KCgpSZWdhcmRzCkFuZHJ6ZWoKCgo+ICBUaGlz
+IG1lYW5zIHRoYXQgd2UgbWlnaHQgaGF2ZQo+IG91ciBwb3dlciBkb21haW4gdHVybmVkIG9mZiBi
+ZWhpbmQgb3VyIGJhY2sgYW5kIHRoZSBvbmx5IHdheSB0byBhdm9pZAo+IHByb2JsZW1zIGlzIHRv
+IHN0b3AgZG9pbmcgYW55IGhhcmR3YXJlIHByb2dyYW1taW5nIGF0IHNvbWUgcG9pbnQgYmVmb3Jl
+Cj4gdGhlIHBvd2VyIGlzIGN1dC4gQSByZWJvb3Qgbm90aWZpZXIsIGRlc3BpdGUgYmVpbmcgYSBt
+aXNub21lciBhbmQKPiBoYW5kbGluZyBzaHV0ZG93bnMgYXMgd2VsbCwgaXMgYSBnb29kIHBsYWNl
+IHRvIGRvIGl0Lgo+IFNpZ25lZC1vZmYtYnk6IFRvbWFzeiBGaWdhIDx0ZmlnYUBjaHJvbWl1bS5v
+cmc+Cj4gU2lnbmVkLW9mZi1ieTogVGhpZXJyeSBFc2NhbmRlIDx0aGllcnJ5LmVzY2FuZGVAY29s
+bGFib3JhLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIDxlbnJp
+Yy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgo+IFRlc3RlZC1ieTogTWFyZWsgU3p5cHJvd3NraSA8
+bS5zenlwcm93c2tpQHNhbXN1bmcuY29tPgo+IC0tLQo+Cj4gIGRyaXZlcnMvZ3B1L2RybS9yb2Nr
+Y2hpcC9yb2NrY2hpcF9kcm1fcHNyLmMgfCAyNCArKysrKysrKysrKysrKysrKysrKysrKysKPiAg
+MSBmaWxlIGNoYW5nZWQsIDI0IGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5jIGIvZHJpdmVycy9ncHUvZHJtL3Jv
+Y2tjaGlwL3JvY2tjaGlwX2RybV9wc3IuYwo+IGluZGV4IGU3ZTE2ZDkyZDVhMS4uMWJmNWNiYTlh
+NjRkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9yb2NrY2hpcF9kcm1f
+cHNyLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5j
+Cj4gQEAgLTEzLDYgKzEzLDcgQEAKPiAgICovCj4gIAo+ICAjaW5jbHVkZSA8bGludXgvaW5wdXQu
+aD4KPiArI2luY2x1ZGUgPGxpbnV4L3JlYm9vdC5oPgo+ICAKPiAgI2luY2x1ZGUgPGRybS9kcm1Q
+Lmg+Cj4gICNpbmNsdWRlIDxkcm0vZHJtX2NydGNfaGVscGVyLmg+Cj4gQEAgLTMzLDYgKzM0LDcg
+QEAgc3RydWN0IHBzcl9kcnYgewo+ICAJc3RydWN0IGRlbGF5ZWRfd29yawlmbHVzaF93b3JrOwo+
+ICAJc3RydWN0IHdvcmtfc3RydWN0CWRpc2FibGVfd29yazsKPiAgCj4gKwlzdHJ1Y3Qgbm90aWZp
+ZXJfYmxvY2sJcmVib290X25iOwo+ICAJc3RydWN0IGlucHV0X2hhbmRsZXIgICAgaW5wdXRfaGFu
+ZGxlcjsKPiAgCj4gIAlpbnQgKCpzZXQpKHN0cnVjdCBkcm1fZW5jb2RlciAqZW5jb2RlciwgYm9v
+bCBlbmFibGUpOwo+IEBAIC0zMDksNiArMzExLDI0IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaW5w
+dXRfZGV2aWNlX2lkIHBzcl9pZHNbXSA9IHsKPiAgCXsgfSwKPiAgfTsKPiAgCj4gK3N0YXRpYyBp
+bnQgcm9ja2NoaXBfZHJtX3Bzcl9yZWJvb3Rfbm90aWZpZXIoc3RydWN0IG5vdGlmaWVyX2Jsb2Nr
+ICpuYiwKPiArCQkJCQkgICAgdW5zaWduZWQgbG9uZyBhY3Rpb24sIHZvaWQgKmRhdGEpCj4gK3sK
+PiArCXN0cnVjdCBwc3JfZHJ2ICpwc3IgPSBjb250YWluZXJfb2YobmIsIHN0cnVjdCBwc3JfZHJ2
+LCByZWJvb3RfbmIpOwo+ICsKPiArCS8qCj4gKwkgKiBJdCBsb29rcyBsaWtlIHRoZSBkcml2ZXIg
+c3Vic3lzdGVtIGRldGFjaGVzIGRldmljZXMgZnJvbSBwb3dlcgo+ICsJICogZG9tYWlucyBhdCBz
+aHV0ZG93biB3aXRob3V0IGNvbnNlbnQgb2YgdGhlIGRyaXZlcnMuIFRoaXMgbWVhbnMKPiArCSAq
+IHRoYXQgd2UgbWlnaHQgaGF2ZSBvdXIgcG93ZXIgZG9tYWluIHR1cm5lZCBvZmYgYmVoaW5kIG91
+ciBiYWNrCj4gKwkgKiBhbmQgdGhlIG9ubHkgd2F5IHRvIGF2b2lkIHByb2JsZW1zIGlzIHRvIHN0
+b3AgZG9pbmcgYW55IGhhcmR3YXJlCj4gKwkgKiBwcm9ncmFtbWluZyBhZnRlciB0aGlzIHBvaW50
+LCB3aGljaCBpcyBhY2hpZXZlZCBieSB0aGUgdW5iYWxhbmNlZAo+ICsJICogY2FsbCBiZWxvdy4K
+PiArCSAqLwo+ICsJcm9ja2NoaXBfZHJtX3Bzcl9pbmhpYml0X2dldChwc3ItPmVuY29kZXIpOwo+
+ICsKPiArCXJldHVybiAwOwo+ICt9Cj4gKwo+ICAvKioKPiAgICogcm9ja2NoaXBfZHJtX3Bzcl9y
+ZWdpc3RlciAtIHJlZ2lzdGVyIGVuY29kZXIgdG8gcHNyIGRyaXZlcgo+ICAgKiBAZW5jb2Rlcjog
+ZW5jb2RlciB0aGF0IG9idGFpbiB0aGUgUFNSIGZ1bmN0aW9uCj4gQEAgLTM2MSw2ICszODEsOSBA
+QCBpbnQgcm9ja2NoaXBfZHJtX3Bzcl9yZWdpc3RlcihzdHJ1Y3QgZHJtX2VuY29kZXIgKmVuY29k
+ZXIsCj4gIAlpZiAoZXJyb3IpCj4gIAkJZ290byBlcnIxOwo+ICAKPiArCXBzci0+cmVib290X25i
+Lm5vdGlmaWVyX2NhbGwgPSByb2NrY2hpcF9kcm1fcHNyX3JlYm9vdF9ub3RpZmllcjsKPiArCXJl
+Z2lzdGVyX3JlYm9vdF9ub3RpZmllcigmcHNyLT5yZWJvb3RfbmIpOwo+ICsKPiAgCW11dGV4X2xv
+Y2soJmRybV9kcnYtPnBzcl9saXN0X2xvY2spOwo+ICAJbGlzdF9hZGRfdGFpbCgmcHNyLT5saXN0
+LCAmZHJtX2Rydi0+cHNyX2xpc3QpOwo+ICAJbXV0ZXhfdW5sb2NrKCZkcm1fZHJ2LT5wc3JfbGlz
+dF9sb2NrKTsKPiBAQCAtNDAzLDYgKzQyNiw3IEBAIHZvaWQgcm9ja2NoaXBfZHJtX3Bzcl91bnJl
+Z2lzdGVyKHN0cnVjdCBkcm1fZW5jb2RlciAqZW5jb2RlcikKPiAgCQkJV0FSTl9PTihwc3ItPmlu
+aGliaXRfY291bnQgIT0gMSk7Cj4gIAo+ICAJCQlsaXN0X2RlbCgmcHNyLT5saXN0KTsKPiArCQkJ
+dW5yZWdpc3Rlcl9yZWJvb3Rfbm90aWZpZXIoJnBzci0+cmVib290X25iKTsKPiAgCQkJaW5wdXRf
+dW5yZWdpc3Rlcl9oYW5kbGVyKCZwc3ItPmlucHV0X2hhbmRsZXIpOwo+ICAJCQlrZnJlZShwc3It
+PmlucHV0X2hhbmRsZXIubmFtZSk7Cj4gIAkJCWtmcmVlKHBzcik7CgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApk
+cmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==

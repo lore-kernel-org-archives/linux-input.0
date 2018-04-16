@@ -1,35 +1,45 @@
-From: Ezequiel Garcia <ezequiel@collabora.com>
-Subject: Re: [PATCH v6 24/30] drm/rockchip: Disable PSR on input events
-Date: Mon, 16 Apr 2018 16:42:29 -0300
-Message-ID: <aec7e2d36b4599f77bc419b8fe7c415815529c2f.camel@collabora.com>
-References: <20180405095000.9756-1-enric.balletbo@collabora.com>
-         <20180405095000.9756-25-enric.balletbo@collabora.com>
+From: Robert Munteanu <rombert@apache.org>
+Subject: Re: [PATCH v5] Fix modifier keys for Redragon Asura Keyboard
+Date: Tue, 17 Apr 2018 00:35:29 +0300
+Message-ID: <544367d71f0a89a3c2517d82462e283368eb9f89.camel@apache.org>
+References: <20180411094953.12053-1-rombert@apache.org>
+         <CAO-hwJKbYyZdtq=zg_ZeJOiL=5cTbD4oKuWmpF-P_7TgBkqVYA@mail.gmail.com>
+         <149a44d0456b2f0b48be13ba51aeaccc33651073.camel@apache.org>
+         <CAO-hwJKF-=5jXN__csRJRTLBHt3cbwHWM+eTm4i8UXknuZzfHA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180405095000.9756-25-enric.balletbo@collabora.com>
+In-Reply-To: <CAO-hwJKF-=5jXN__csRJRTLBHt3cbwHWM+eTm4i8UXknuZzfHA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, a.hajda@samsung.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, Laurent.pinchart@ideasonboard.com, kuankuan.y@gmail.com, hshi@chromium.org, "Kristian H. Kristensen" <hoegsberg@google.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2018-04-05 at 11:49 +0200, Enric Balletbo i Serra wrote:
-> From: "Kristian H. Kristensen" <hoegsberg@google.com>
+On Mon, 2018-04-16 at 15:36 +0200, Benjamin Tissoires wrote:
+> > > > +MODULE_LICENSE("GPL");
+> > > 
+> > > The SPDX header says GPL-v2. And IIRC if there is the SPDX header
+> > > you
+> > > can drop the MODULE_LICENSE (not entirely sure though).
+> > 
+> > Ack, will adjust and re-test.
 > 
-> To improve PSR exit latency, we speculatively start exiting when we
-> receive input events. Occasionally, this may lead to false positives,
-> but most of the time we get a head start on coming out of PSR.
-> Depending
-> on how userspace takes to produce a new frame in response to the
-> event,
-> this can completely hide the exit latency. In case of Chrome OS, we
-> typically get the input notifier 50ms or more before the dirty_fb
-> triggered exit.
-> 
+> Actually, you might be correct. I just read Mauro's blog:
+> https://blogs.s-osg.org/linux-kernel-license-practices-revisited-spdx
+> /
+> and it says "Types of licenses for MODULE_LICENSE() macro -> 'GPL' ->
+> GNU Public License v2 or later" (in the second table).
 
-Why is this rockchip-specific? It sounds more like something
-we'd want to integrate generically for drivers to leverage.
+Currently the header says 'SPDX-License-Identifier: GPL-2.0', which is
+'GNU General Public License v2.0 only' according to 
 
-Regards,
-Eze
+  https://spdx.org/licenses/
+
+So we can't use that with MODULE_LICENSE("GPL") which means 'GNU
+General Public License v2.0 or later' . I don't have a strong
+preference for either, but I'll go with the 'or later' part since that
+seems to be more in favour ( shorter argument for the MODULE_LICENSE
+macro ).
+
+Robert

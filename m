@@ -1,81 +1,47 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH v6 30/30] drm/rockchip: psr: Remove flush by CRTC
-Date: Mon, 16 Apr 2018 11:53:43 +0200
-Message-ID: <d88a9b84-f39f-7d12-8397-0eb1cca56d92@samsung.com>
-References: <20180405095000.9756-1-enric.balletbo@collabora.com>
- <CGME20180405095121epcas3p36dd90bcde69f6502ed09d9eb96545744@epcas3p3.samsung.com>
- <20180405095000.9756-31-enric.balletbo@collabora.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v5] Fix modifier keys for Redragon Asura Keyboard
+Date: Mon, 16 Apr 2018 11:56:03 +0200
+Message-ID: <CAO-hwJK9+C-9oucz4QdHp-51rTaTHQVp-KB3ORRFQ0oXXQ8ksA@mail.gmail.com>
+References: <20180411094953.12053-1-rombert@apache.org> <nycvar.YFH.7.76.1804161148370.28129@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180405095000.9756-31-enric.balletbo@collabora.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <nycvar.YFH.7.76.1804161148370.28129@cbobk.fhfr.pm>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Robert Munteanu <rombert@apache.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gMDUuMDQuMjAxOCAxMTo1MCwgRW5yaWMgQmFsbGV0Ym8gaSBTZXJyYSB3cm90ZToKPiBGcm9t
-OiBUb21hc3ogRmlnYSA8dGZpZ2FAY2hyb21pdW0ub3JnPgo+Cj4gSXQgaXMgbm90IHVzZWQgYW55
-bW9yZSBhZnRlciBsYXN0IGNoYW5nZXMgYW5kIGl0IHdhcyBub3QgZXZlbiBjb3JyZWN0IHRvCj4g
-YmVnaW4gd2l0aCBhcyBpdCBhc3N1bWVkIGEgMToxIHJlbGF0aW9uIGJldHdlZW4gYSBDUlRDIGFu
-ZCBlbmNvZGVyLAo+IHdoaWxlIGluIGZhY3QgYSBDUlRDIGNhbiBiZSBhdHRhY2hlZCB0byBtdWx0
-aXBsZSBlbmNvZGVycy4KPgo+IFNpZ25lZC1vZmYtYnk6IFRvbWFzeiBGaWdhIDx0ZmlnYUBjaHJv
-bWl1bS5vcmc+Cj4gU2lnbmVkLW9mZi1ieTogVGhpZXJyeSBFc2NhbmRlIDx0aGllcnJ5LmVzY2Fu
-ZGVAY29sbGFib3JhLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJh
-IDxlbnJpYy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgo+IFRlc3RlZC1ieTogTWFyZWsgU3p5cHJv
-d3NraSA8bS5zenlwcm93c2tpQHNhbXN1bmcuY29tPgoKUmV2aWV3ZWQtYnk6IEFuZHJ6ZWogSGFq
-ZGEgPGEuaGFqZGFAc2Ftc3VuZy5jb20+CgrCoC0tClJlZ2FyZHMKQW5kcnplagoKPiAtLS0KPgo+
-ICBkcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5jIHwgMzUgLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiAgZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL3JvY2tj
-aGlwX2RybV9wc3IuaCB8ICAxIC0KPiAgMiBmaWxlcyBjaGFuZ2VkLCAzNiBkZWxldGlvbnMoLSkK
-Pgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bz
-ci5jIGIvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL3JvY2tjaGlwX2RybV9wc3IuYwo+IGluZGV4
-IDFiZjVjYmE5YTY0ZC4uYjE5ODhhYzc1OGQ1IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2Ry
-bS9yb2NrY2hpcC9yb2NrY2hpcF9kcm1fcHNyLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vcm9j
-a2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5jCj4gQEAgLTQwLDIzICs0MCw2IEBAIHN0cnVjdCBwc3Jf
-ZHJ2IHsKPiAgCWludCAoKnNldCkoc3RydWN0IGRybV9lbmNvZGVyICplbmNvZGVyLCBib29sIGVu
-YWJsZSk7Cj4gIH07Cj4gIAo+IC1zdGF0aWMgc3RydWN0IHBzcl9kcnYgKmZpbmRfcHNyX2J5X2Ny
-dGMoc3RydWN0IGRybV9jcnRjICpjcnRjKQo+IC17Cj4gLQlzdHJ1Y3Qgcm9ja2NoaXBfZHJtX3By
-aXZhdGUgKmRybV9kcnYgPSBjcnRjLT5kZXYtPmRldl9wcml2YXRlOwo+IC0Jc3RydWN0IHBzcl9k
-cnYgKnBzcjsKPiAtCj4gLQltdXRleF9sb2NrKCZkcm1fZHJ2LT5wc3JfbGlzdF9sb2NrKTsKPiAt
-CWxpc3RfZm9yX2VhY2hfZW50cnkocHNyLCAmZHJtX2Rydi0+cHNyX2xpc3QsIGxpc3QpIHsKPiAt
-CQlpZiAocHNyLT5lbmNvZGVyLT5jcnRjID09IGNydGMpCj4gLQkJCWdvdG8gb3V0Owo+IC0JfQo+
-IC0JcHNyID0gRVJSX1BUUigtRU5PREVWKTsKPiAtCj4gLW91dDoKPiAtCW11dGV4X3VubG9jaygm
-ZHJtX2Rydi0+cHNyX2xpc3RfbG9jayk7Cj4gLQlyZXR1cm4gcHNyOwo+IC19Cj4gLQo+ICBzdGF0
-aWMgc3RydWN0IHBzcl9kcnYgKmZpbmRfcHNyX2J5X2VuY29kZXIoc3RydWN0IGRybV9lbmNvZGVy
-ICplbmNvZGVyKQo+ICB7Cj4gIAlzdHJ1Y3Qgcm9ja2NoaXBfZHJtX3ByaXZhdGUgKmRybV9kcnYg
-PSBlbmNvZGVyLT5kZXYtPmRldl9wcml2YXRlOwo+IEBAIC0xNzMsMjQgKzE1Niw2IEBAIHN0YXRp
-YyB2b2lkIHJvY2tjaGlwX2RybV9kb19mbHVzaChzdHJ1Y3QgcHNyX2RydiAqcHNyKQo+ICAJbXV0
-ZXhfdW5sb2NrKCZwc3ItPmxvY2spOwo+ICB9Cj4gIAo+IC0vKioKPiAtICogcm9ja2NoaXBfZHJt
-X3Bzcl9mbHVzaCAtIGZsdXNoIGEgc2luZ2xlIHBpcGUKPiAtICogQGNydGM6IENSVEMgb2YgdGhl
-IHBpcGUgdG8gZmx1c2gKPiAtICoKPiAtICogUmV0dXJuczoKPiAtICogMCBvbiBzdWNjZXNzLCAt
-ZXJybm8gb24gZmFpbAo+IC0gKi8KPiAtaW50IHJvY2tjaGlwX2RybV9wc3JfZmx1c2goc3RydWN0
-IGRybV9jcnRjICpjcnRjKQo+IC17Cj4gLQlzdHJ1Y3QgcHNyX2RydiAqcHNyID0gZmluZF9wc3Jf
-YnlfY3J0YyhjcnRjKTsKPiAtCWlmIChJU19FUlIocHNyKSkKPiAtCQlyZXR1cm4gUFRSX0VSUihw
-c3IpOwo+IC0KPiAtCXJvY2tjaGlwX2RybV9kb19mbHVzaChwc3IpOwo+IC0JcmV0dXJuIDA7Cj4g
-LX0KPiAtRVhQT1JUX1NZTUJPTChyb2NrY2hpcF9kcm1fcHNyX2ZsdXNoKTsKPiAtCj4gIC8qKgo+
-ICAgKiByb2NrY2hpcF9kcm1fcHNyX2ZsdXNoX2FsbCAtIGZvcmNlIHRvIGZsdXNoIGFsbCByZWdp
-c3RlcmVkIFBTUiBlbmNvZGVycwo+ICAgKiBAZGV2OiBkcm0gZGV2aWNlCj4gZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9yb2NrY2hpcF9kcm1fcHNyLmggYi9kcml2ZXJzL2dw
-dS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5oCj4gaW5kZXggNDBlMDI2YzE0MTY4Li44
-NjBjNjI0OTQ0OTYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL3JvY2tj
-aGlwX2RybV9wc3IuaAo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9yb2NrY2hpcF9k
-cm1fcHNyLmgKPiBAQCAtMTYsNyArMTYsNiBAQAo+ICAjZGVmaW5lIF9fUk9DS0NISVBfRFJNX1BT
-Ul9fXwo+ICAKPiAgdm9pZCByb2NrY2hpcF9kcm1fcHNyX2ZsdXNoX2FsbChzdHJ1Y3QgZHJtX2Rl
-dmljZSAqZGV2KTsKPiAtaW50IHJvY2tjaGlwX2RybV9wc3JfZmx1c2goc3RydWN0IGRybV9jcnRj
-ICpjcnRjKTsKPiAgCj4gIGludCByb2NrY2hpcF9kcm1fcHNyX2luaGliaXRfcHV0KHN0cnVjdCBk
-cm1fZW5jb2RlciAqZW5jb2Rlcik7Cj4gIGludCByb2NrY2hpcF9kcm1fcHNyX2luaGliaXRfZ2V0
-KHN0cnVjdCBkcm1fZW5jb2RlciAqZW5jb2Rlcik7CgoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxA
-bGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxt
-YW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On Mon, Apr 16, 2018 at 11:49 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Wed, 11 Apr 2018, Robert Munteanu wrote:
+>
+>> Changelog:
+>>
+>> - v2: modifier keys work, some combinations are still troublesome
+>> - v3: style cleanup, rebase on top of 4.14
+>> - v4: remove most debugging calls, make init info useful for user,
+>>   rebased on top of 4.15
+>> - v5: fix the HID descriptor as suggested by Benjamin Tissoires,
+>>   use existing USB vendor id, update comment style, add SPDX
+>>   license identifier, rename to hid-redragon, stop registering
+>>   two input devices, rebased on top of 4.16
+>
+> This should contain the text that goes directly into the git commit
+> changelog, therefore should instead contain something like "This adds a
+> news driver for HW XX, that needs a specialized driver bacuse .... and
+> things to specifically point out in implementation are ....".
+>
+> Could you please provide that, so that I can commit it?
+
+Jiri, please hold off, I have a few comments while quickly reviewing the patch.
+
+Cheers,
+Benjamin
+
+>
+> Thanks.
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

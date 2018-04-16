@@ -1,86 +1,219 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH v6 28/30] drm/rockchip: Disable PSR from reboot notifier
-Date: Mon, 16 Apr 2018 11:57:15 +0200
-Message-ID: <a9e436f8-34ec-123a-9c69-efabb4576bea@samsung.com>
-References: <20180405095000.9756-1-enric.balletbo@collabora.com>
- <CGME20180405095117epcas2p2093448b49aab2abd6684bf689f8888d5@epcas2p2.samsung.com>
- <20180405095000.9756-29-enric.balletbo@collabora.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v5] Fix modifier keys for Redragon Asura Keyboard
+Date: Mon, 16 Apr 2018 12:02:01 +0200
+Message-ID: <CAO-hwJKbYyZdtq=zg_ZeJOiL=5cTbD4oKuWmpF-P_7TgBkqVYA@mail.gmail.com>
+References: <20180411094953.12053-1-rombert@apache.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180405095000.9756-29-enric.balletbo@collabora.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
-Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, kuankuan.y@gmail.com, hshi@chromium.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180411094953.12053-1-rombert@apache.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Robert Munteanu <rombert@apache.org>
+Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gMDUuMDQuMjAxOCAxMTo0OSwgRW5yaWMgQmFsbGV0Ym8gaSBTZXJyYSB3cm90ZToKPiBGcm9t
-OiBUb21hc3ogRmlnYSA8dGZpZ2FAY2hyb21pdW0ub3JnPgo+Cj4gSXQgbG9va3MgbGlrZSB0aGUg
-ZHJpdmVyIHN1YnN5c3RlbSBkZXRhY2hlcyBkZXZpY2VzIGZyb20gcG93ZXIgZG9tYWlucwo+IGF0
-IHNodXRkb3duIHdpdGhvdXQgY29uc2VudCBvZiB0aGUgZHJpdmVycy4KCkl0IGxvb2tzIGJpdCBz
-dHJhbmdlLiBDb3VsZCB5b3UgZWxhYm9yYXRlIG1vcmUgb24gaXQuIENvdWxkIHlvdSBzaG93IHRo
-ZQpjb2RlIHBlcmZvcm1pbmcgdGhlIGRldGFjaD8KCgpSZWdhcmRzCkFuZHJ6ZWoKCgo+ICBUaGlz
-IG1lYW5zIHRoYXQgd2UgbWlnaHQgaGF2ZQo+IG91ciBwb3dlciBkb21haW4gdHVybmVkIG9mZiBi
-ZWhpbmQgb3VyIGJhY2sgYW5kIHRoZSBvbmx5IHdheSB0byBhdm9pZAo+IHByb2JsZW1zIGlzIHRv
-IHN0b3AgZG9pbmcgYW55IGhhcmR3YXJlIHByb2dyYW1taW5nIGF0IHNvbWUgcG9pbnQgYmVmb3Jl
-Cj4gdGhlIHBvd2VyIGlzIGN1dC4gQSByZWJvb3Qgbm90aWZpZXIsIGRlc3BpdGUgYmVpbmcgYSBt
-aXNub21lciBhbmQKPiBoYW5kbGluZyBzaHV0ZG93bnMgYXMgd2VsbCwgaXMgYSBnb29kIHBsYWNl
-IHRvIGRvIGl0Lgo+IFNpZ25lZC1vZmYtYnk6IFRvbWFzeiBGaWdhIDx0ZmlnYUBjaHJvbWl1bS5v
-cmc+Cj4gU2lnbmVkLW9mZi1ieTogVGhpZXJyeSBFc2NhbmRlIDx0aGllcnJ5LmVzY2FuZGVAY29s
-bGFib3JhLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIDxlbnJp
-Yy5iYWxsZXRib0Bjb2xsYWJvcmEuY29tPgo+IFRlc3RlZC1ieTogTWFyZWsgU3p5cHJvd3NraSA8
-bS5zenlwcm93c2tpQHNhbXN1bmcuY29tPgo+IC0tLQo+Cj4gIGRyaXZlcnMvZ3B1L2RybS9yb2Nr
-Y2hpcC9yb2NrY2hpcF9kcm1fcHNyLmMgfCAyNCArKysrKysrKysrKysrKysrKysrKysrKysKPiAg
-MSBmaWxlIGNoYW5nZWQsIDI0IGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5jIGIvZHJpdmVycy9ncHUvZHJtL3Jv
-Y2tjaGlwL3JvY2tjaGlwX2RybV9wc3IuYwo+IGluZGV4IGU3ZTE2ZDkyZDVhMS4uMWJmNWNiYTlh
-NjRkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hpcC9yb2NrY2hpcF9kcm1f
-cHNyLmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5j
-Cj4gQEAgLTEzLDYgKzEzLDcgQEAKPiAgICovCj4gIAo+ICAjaW5jbHVkZSA8bGludXgvaW5wdXQu
-aD4KPiArI2luY2x1ZGUgPGxpbnV4L3JlYm9vdC5oPgo+ICAKPiAgI2luY2x1ZGUgPGRybS9kcm1Q
-Lmg+Cj4gICNpbmNsdWRlIDxkcm0vZHJtX2NydGNfaGVscGVyLmg+Cj4gQEAgLTMzLDYgKzM0LDcg
-QEAgc3RydWN0IHBzcl9kcnYgewo+ICAJc3RydWN0IGRlbGF5ZWRfd29yawlmbHVzaF93b3JrOwo+
-ICAJc3RydWN0IHdvcmtfc3RydWN0CWRpc2FibGVfd29yazsKPiAgCj4gKwlzdHJ1Y3Qgbm90aWZp
-ZXJfYmxvY2sJcmVib290X25iOwo+ICAJc3RydWN0IGlucHV0X2hhbmRsZXIgICAgaW5wdXRfaGFu
-ZGxlcjsKPiAgCj4gIAlpbnQgKCpzZXQpKHN0cnVjdCBkcm1fZW5jb2RlciAqZW5jb2RlciwgYm9v
-bCBlbmFibGUpOwo+IEBAIC0zMDksNiArMzExLDI0IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaW5w
-dXRfZGV2aWNlX2lkIHBzcl9pZHNbXSA9IHsKPiAgCXsgfSwKPiAgfTsKPiAgCj4gK3N0YXRpYyBp
-bnQgcm9ja2NoaXBfZHJtX3Bzcl9yZWJvb3Rfbm90aWZpZXIoc3RydWN0IG5vdGlmaWVyX2Jsb2Nr
-ICpuYiwKPiArCQkJCQkgICAgdW5zaWduZWQgbG9uZyBhY3Rpb24sIHZvaWQgKmRhdGEpCj4gK3sK
-PiArCXN0cnVjdCBwc3JfZHJ2ICpwc3IgPSBjb250YWluZXJfb2YobmIsIHN0cnVjdCBwc3JfZHJ2
-LCByZWJvb3RfbmIpOwo+ICsKPiArCS8qCj4gKwkgKiBJdCBsb29rcyBsaWtlIHRoZSBkcml2ZXIg
-c3Vic3lzdGVtIGRldGFjaGVzIGRldmljZXMgZnJvbSBwb3dlcgo+ICsJICogZG9tYWlucyBhdCBz
-aHV0ZG93biB3aXRob3V0IGNvbnNlbnQgb2YgdGhlIGRyaXZlcnMuIFRoaXMgbWVhbnMKPiArCSAq
-IHRoYXQgd2UgbWlnaHQgaGF2ZSBvdXIgcG93ZXIgZG9tYWluIHR1cm5lZCBvZmYgYmVoaW5kIG91
-ciBiYWNrCj4gKwkgKiBhbmQgdGhlIG9ubHkgd2F5IHRvIGF2b2lkIHByb2JsZW1zIGlzIHRvIHN0
-b3AgZG9pbmcgYW55IGhhcmR3YXJlCj4gKwkgKiBwcm9ncmFtbWluZyBhZnRlciB0aGlzIHBvaW50
-LCB3aGljaCBpcyBhY2hpZXZlZCBieSB0aGUgdW5iYWxhbmNlZAo+ICsJICogY2FsbCBiZWxvdy4K
-PiArCSAqLwo+ICsJcm9ja2NoaXBfZHJtX3Bzcl9pbmhpYml0X2dldChwc3ItPmVuY29kZXIpOwo+
-ICsKPiArCXJldHVybiAwOwo+ICt9Cj4gKwo+ICAvKioKPiAgICogcm9ja2NoaXBfZHJtX3Bzcl9y
-ZWdpc3RlciAtIHJlZ2lzdGVyIGVuY29kZXIgdG8gcHNyIGRyaXZlcgo+ICAgKiBAZW5jb2Rlcjog
-ZW5jb2RlciB0aGF0IG9idGFpbiB0aGUgUFNSIGZ1bmN0aW9uCj4gQEAgLTM2MSw2ICszODEsOSBA
-QCBpbnQgcm9ja2NoaXBfZHJtX3Bzcl9yZWdpc3RlcihzdHJ1Y3QgZHJtX2VuY29kZXIgKmVuY29k
-ZXIsCj4gIAlpZiAoZXJyb3IpCj4gIAkJZ290byBlcnIxOwo+ICAKPiArCXBzci0+cmVib290X25i
-Lm5vdGlmaWVyX2NhbGwgPSByb2NrY2hpcF9kcm1fcHNyX3JlYm9vdF9ub3RpZmllcjsKPiArCXJl
-Z2lzdGVyX3JlYm9vdF9ub3RpZmllcigmcHNyLT5yZWJvb3RfbmIpOwo+ICsKPiAgCW11dGV4X2xv
-Y2soJmRybV9kcnYtPnBzcl9saXN0X2xvY2spOwo+ICAJbGlzdF9hZGRfdGFpbCgmcHNyLT5saXN0
-LCAmZHJtX2Rydi0+cHNyX2xpc3QpOwo+ICAJbXV0ZXhfdW5sb2NrKCZkcm1fZHJ2LT5wc3JfbGlz
-dF9sb2NrKTsKPiBAQCAtNDAzLDYgKzQyNiw3IEBAIHZvaWQgcm9ja2NoaXBfZHJtX3Bzcl91bnJl
-Z2lzdGVyKHN0cnVjdCBkcm1fZW5jb2RlciAqZW5jb2RlcikKPiAgCQkJV0FSTl9PTihwc3ItPmlu
-aGliaXRfY291bnQgIT0gMSk7Cj4gIAo+ICAJCQlsaXN0X2RlbCgmcHNyLT5saXN0KTsKPiArCQkJ
-dW5yZWdpc3Rlcl9yZWJvb3Rfbm90aWZpZXIoJnBzci0+cmVib290X25iKTsKPiAgCQkJaW5wdXRf
-dW5yZWdpc3Rlcl9oYW5kbGVyKCZwc3ItPmlucHV0X2hhbmRsZXIpOwo+ICAJCQlrZnJlZShwc3It
-PmlucHV0X2hhbmRsZXIubmFtZSk7Cj4gIAkJCWtmcmVlKHBzcik7CgoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApk
-cmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Au
-b3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+Hi Robert,
+
+On Wed, Apr 11, 2018 at 11:49 AM, Robert Munteanu <rombert@apache.org> wrote:
+> Changelog:
+>
+> - v2: modifier keys work, some combinations are still troublesome
+> - v3: style cleanup, rebase on top of 4.14
+> - v4: remove most debugging calls, make init info useful for user,
+>   rebased on top of 4.15
+> - v5: fix the HID descriptor as suggested by Benjamin Tissoires,
+>   use existing USB vendor id, update comment style, add SPDX
+>   license identifier, rename to hid-redragon, stop registering
+>   two input devices, rebased on top of 4.16
+
+As Jiri said, please provide a correct commit message.
+
+I have a few nitpicks in the driver, v6 should be fine:
+
+>
+> Signed-off-by: Robert Munteanu <rombert@apache.org>
+> ---
+>  drivers/hid/Kconfig        |  7 ++++
+>  drivers/hid/Makefile       |  1 +
+>  drivers/hid/hid-ids.h      |  1 +
+>  drivers/hid/hid-quirks.c   |  3 ++
+>  drivers/hid/hid-redragon.c | 89 ++++++++++++++++++++++++++++++++++++++++++++++
+>  5 files changed, 101 insertions(+)
+>  create mode 100644 drivers/hid/hid-redragon.c
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 19c499f5623d..1125e4813716 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -560,6 +560,13 @@ config HID_MAYFLASH
+>         Say Y here if you have HJZ Mayflash PS3 game controller adapters
+>         and want to enable force feedback support.
+>
+> +config HID_REDRAGON
+> +       tristate "Redragon keyboards"
+> +       depends on HID
+> +       default !EXPERT
+> +       ---help---
+> +    Support for Redragon keyboards that need fix-ups to work properly.
+> +
+>  config HID_MICROSOFT
+>         tristate "Microsoft non-fully HID-compliant devices"
+>         depends on HID
+> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> index eb13b9e92d85..a36f3f40ba63 100644
+> --- a/drivers/hid/Makefile
+> +++ b/drivers/hid/Makefile
+> @@ -84,6 +84,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)                += hid-picolcd_debugfs.o
+>
+>  obj-$(CONFIG_HID_PLANTRONICS)  += hid-plantronics.o
+>  obj-$(CONFIG_HID_PRIMAX)       += hid-primax.o
+> +obj-$(CONFIG_HID_REDRAGON)     += hid-redragon.o
+>  obj-$(CONFIG_HID_RETRODE)      += hid-retrode.o
+>  obj-$(CONFIG_HID_ROCCAT)       += hid-roccat.o hid-roccat-common.o \
+>         hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 9454ac134ce2..41a64d0e91f9 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -599,6 +599,7 @@
+>  #define USB_VENDOR_ID_JESS             0x0c45
+>  #define USB_DEVICE_ID_JESS_YUREX       0x1010
+>  #define USB_DEVICE_ID_ASUS_MD_5112     0x5112
+> +#define USB_DEVICE_ID_REDRAGON_ASURA   0x760b
+>
+>  #define USB_VENDOR_ID_JESS2            0x0f30
+>  #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index e92b77fa574a..5f1253f1739a 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -557,6 +557,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  #if IS_ENABLED(CONFIG_HID_PRODIKEYS)
+>         { HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
+>  #endif
+> +#if IS_ENABLED(CONFIG_HID_REDRAGON)
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_JESS,  USB_DEVICE_ID_REDRAGON_ASURA) },
+> +#endif
+
+Please drop this hunk. v4.16 should work without changing
+hid_have_special_driver. This way, you will be sure that an initramfs
+that doesn't include hid-redragon.ko will allo people to type their
+LUKS password.
+
+>  #if IS_ENABLED(CONFIG_HID_RETRODE)
+>         { HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
+>  #endif
+> diff --git a/drivers/hid/hid-redragon.c b/drivers/hid/hid-redragon.c
+> new file mode 100644
+> index 000000000000..ff98a5dbb8e2
+> --- /dev/null
+> +++ b/drivers/hid/hid-redragon.c
+> @@ -0,0 +1,89 @@
+> +/*
+> + *  HID driver for Redragon keyboards
+> + *
+> + *  Copyright (c) 2017 Robert Munteanu
+> + *  SPDX-License-Identifier: GPL-2.0
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/input.h>
+
+you probably don't need input.h
+
+> +#include <linux/hid.h>
+> +#include <linux/module.h>
+> +#include <linux/log2.h>
+
+log2.h? I am not sure you need it either
+
+> +#include <linux/input-event-codes.h>
+
+probably drop this one too.
+
+> +
+> +#include "hid-ids.h"
+> +
+> +
+> +/*
+> + * The Redragon Asura keyboard sends an incorrect HID descriptor.
+> + * At byte 100 it contains
+> + *
+> + *   0x81, 0x00
+> + *
+> + * which is Input (Data, Arr, Abs), but it should be
+> + *
+> + *   0x81, 0x02
+> + *
+> + * which is Input (Data, Var, Abs), which is consistent with the way
+> + * key codes are generated.
+> + */
+> +
+> +static __u8 *redragon_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +       unsigned int *rsize)
+> +{
+> +       if (*rsize >= 102 && rdesc[100] == 0x81 && rdesc[101] == 0x00) {
+> +               dev_info(&hdev->dev, "Fixing Redragon ASURA report descriptor.\n");
+> +               rdesc[101] = 0x02;
+> +       }
+> +
+> +       return rdesc;
+> +}
+> +
+> +static int redragon_probe(struct hid_device *dev,
+> +       const struct hid_device_id *id)
+> +{
+> +       int ret;
+> +
+> +       ret = hid_parse(dev);
+> +       if (ret) {
+> +               hid_err(dev, "parse failed\n");
+> +               return ret;
+> +       }
+> +
+> +       /* do not register unused input device */
+> +       if (dev->maxapplication == 1)
+> +               return 0;
+> +
+> +       ret = hid_hw_start(dev, HID_CONNECT_DEFAULT);
+> +       if (ret) {
+> +               hid_err(dev, "hw start failed\n");
+> +               return ret;
+> +       }
+> +
+> +       return 0;
+> +}
+> +static const struct hid_device_id redragon_devices[] = {
+> +       {HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_REDRAGON_ASURA)},
+> +       {}
+> +};
+> +
+> +MODULE_DEVICE_TABLE(hid, redragon_devices);
+> +
+> +static struct hid_driver redragon_driver = {
+> +       .name = "redragon",
+> +       .id_table = redragon_devices,
+> +       .report_fixup = redragon_report_fixup,
+> +       .probe = redragon_probe
+> +};
+> +
+> +module_hid_driver(redragon_driver);
+> +
+> +MODULE_LICENSE("GPL");
+
+The SPDX header says GPL-v2. And IIRC if there is the SPDX header you
+can drop the MODULE_LICENSE (not entirely sure though).
+
+Cheers,
+Benjamin
+
+> --
+> 2.16.3
+>

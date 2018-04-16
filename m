@@ -1,899 +1,162 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v3 07/11] iio: adc: at91-sama5d2_adc: add support for
- position and pressure channels
-Date: Sun, 15 Apr 2018 20:45:57 +0100
-Message-ID: <20180415204557.5078b9a6@archlinux>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
-        <1523350677-27106-8-git-send-email-eugen.hristev@microchip.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH v6 24/30] drm/rockchip: Disable PSR on input events
+Date: Mon, 16 Apr 2018 09:19:21 +0200
+Message-ID: <20d2aa03-63e3-0072-5ca7-5f3ca42c3c9e@samsung.com>
+References: <20180405095000.9756-1-enric.balletbo@collabora.com>
+ <CGME20180405095330epcas1p33487d73838f08a65ce7935f0d3e8b9e4@epcas1p3.samsung.com>
+ <20180405095000.9756-25-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1523350677-27106-8-git-send-email-eugen.hristev@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180405095000.9756-25-enric.balletbo@collabora.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de
+Cc: dri-devel@lists.freedesktop.org, dianders@chromium.org, Laurent.pinchart@ideasonboard.com, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.park@samsung.com, "Kristian H. Kristensen" <hoegsberg@google.com>, kuankuan.y@gmail.com, hshi@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 10 Apr 2018 11:57:53 +0300
-Eugen Hristev <eugen.hristev@microchip.com> wrote:
-
-> This implements the support for position and pressure for the included
-> touchscreen support in the SAMA5D2 SOC ADC block.
-> Two position channels are added and one for pressure.
-> They can be read in raw format, or through a buffer.
-> A normal use case is for a consumer driver to register a callback buffer
-> for these channels.
-> When the touchscreen channels are in the active scan mask,
-> the driver will start the touchscreen sampling and push the data to the
-> buffer.
-> 
-> Some parts of this patch are based on initial original work by
-> Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
-> 
-> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-
-A few additional minor things I picked up on in this read.
-Just trivial tidy ups or things I think could make the code
-a little easier to read.
-
-Looks good in general.
-
-Jonathan
-
-> ---
-> Changes in v3:
->  - prefix macros with AT91_SAMA5D2
->  - reworked the x_pos and y_pos functions into a single one with two
-> additional wrappers
->  - reworked pressure report to have it grow naturally and not top down
->  - fixed some checks regarding IIO_VOLTAGE as suggested
->  - added a comment explaining some code in trigger handling
->  - reworked the frequency get handler to use the saved value instead of
-> reading it from the hardware.
->  - added comment on deffered work queueing
->  - pulled out INFO_RAW function into a separate utility function as suggested
->  - added iio_dev ops structure at all times . The functions are needed in
-> case we do not have a hardware trigger attached, but we want to use the
-> consumer touchscreen driver, thus a callback buffer is attached. Then we still
-> need to have buffer preenable and postdisable to configure the touch IRQs (etc.)
-> 
-> Changes in v2:
->  - the support is now based on callback buffer.
->  drivers/iio/adc/at91-sama5d2_adc.c | 601 +++++++++++++++++++++++++++++++++----
->  1 file changed, 539 insertions(+), 62 deletions(-)
-> 
-> diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
-> index 8729d65..5368464 100644
-> --- a/drivers/iio/adc/at91-sama5d2_adc.c
-> +++ b/drivers/iio/adc/at91-sama5d2_adc.c
-> @@ -102,14 +102,26 @@
->  #define AT91_SAMA5D2_LCDR	0x20
->  /* Interrupt Enable Register */
->  #define AT91_SAMA5D2_IER	0x24
-> +/* Interrupt Enable Register - TS X measurement ready */
-> +#define AT91_SAMA5D2_IER_XRDY   BIT(20)
-> +/* Interrupt Enable Register - TS Y measurement ready */
-> +#define AT91_SAMA5D2_IER_YRDY   BIT(21)
-> +/* Interrupt Enable Register - TS pressure measurement ready */
-> +#define AT91_SAMA5D2_IER_PRDY   BIT(22)
->  /* Interrupt Enable Register - general overrun error */
->  #define AT91_SAMA5D2_IER_GOVRE BIT(25)
-> +/* Interrupt Enable Register - Pen detect */
-> +#define AT91_SAMA5D2_IER_PEN    BIT(29)
-> +/* Interrupt Enable Register - No pen detect */
-> +#define AT91_SAMA5D2_IER_NOPEN  BIT(30)
->  /* Interrupt Disable Register */
->  #define AT91_SAMA5D2_IDR	0x28
->  /* Interrupt Mask Register */
->  #define AT91_SAMA5D2_IMR	0x2c
->  /* Interrupt Status Register */
->  #define AT91_SAMA5D2_ISR	0x30
-> +/* Interrupt Status Register - Pen touching sense status */
-> +#define AT91_SAMA5D2_ISR_PENS   BIT(31)
->  /* Last Channel Trigger Mode Register */
->  #define AT91_SAMA5D2_LCTMR	0x34
->  /* Last Channel Compare Window Register */
-> @@ -131,8 +143,38 @@
->  #define AT91_SAMA5D2_CDR0	0x50
->  /* Analog Control Register */
->  #define AT91_SAMA5D2_ACR	0x94
-> +/* Analog Control Register - Pen detect sensitivity mask */
-> +#define AT91_SAMA5D2_ACR_PENDETSENS_MASK        GENMASK(1, 0)
-> +
->  /* Touchscreen Mode Register */
->  #define AT91_SAMA5D2_TSMR	0xb0
-> +/* Touchscreen Mode Register - No touch mode */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_NONE           0
-> +/* Touchscreen Mode Register - 4 wire screen, no pressure measurement */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_4WIRE_NO_PRESS 1
-> +/* Touchscreen Mode Register - 4 wire screen, pressure measurement */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_4WIRE_PRESS    2
-> +/* Touchscreen Mode Register - 5 wire screen */
-> +#define AT91_SAMA5D2_TSMR_TSMODE_5WIRE          3
-> +/* Touchscreen Mode Register - Average samples mask */
-> +#define AT91_SAMA5D2_TSMR_TSAV_MASK             GENMASK(5, 4)
-> +/* Touchscreen Mode Register - Average samples */
-> +#define AT91_SAMA5D2_TSMR_TSAV(x)               ((x) << 4)
-> +/* Touchscreen Mode Register - Touch/trigger frequency ratio mask */
-> +#define AT91_SAMA5D2_TSMR_TSFREQ_MASK           GENMASK(11, 8)
-> +/* Touchscreen Mode Register - Touch/trigger frequency ratio */
-> +#define AT91_SAMA5D2_TSMR_TSFREQ(x)             ((x) << 8)
-> +/* Touchscreen Mode Register - Pen Debounce Time mask */
-> +#define AT91_SAMA5D2_TSMR_PENDBC_MASK           GENMASK(31, 28)
-> +/* Touchscreen Mode Register - Pen Debounce Time */
-> +#define AT91_SAMA5D2_TSMR_PENDBC(x)            ((x) << 28)
-> +/* Touchscreen Mode Register - No DMA for touch measurements */
-> +#define AT91_SAMA5D2_TSMR_NOTSDMA               BIT(22)
-> +/* Touchscreen Mode Register - Disable pen detection */
-> +#define AT91_SAMA5D2_TSMR_PENDET_DIS            (0 << 24)
-> +/* Touchscreen Mode Register - Enable pen detection */
-> +#define AT91_SAMA5D2_TSMR_PENDET_ENA            BIT(24)
-> +
->  /* Touchscreen X Position Register */
->  #define AT91_SAMA5D2_XPOSR	0xb4
->  /* Touchscreen Y Position Register */
-> @@ -151,6 +193,12 @@
->  #define AT91_SAMA5D2_TRGR_TRGMOD_EXT_TRIG_FALL 2
->  /* Trigger Mode external trigger any edge */
->  #define AT91_SAMA5D2_TRGR_TRGMOD_EXT_TRIG_ANY 3
-> +/* Trigger Mode internal periodic */
-> +#define AT91_SAMA5D2_TRGR_TRGMOD_PERIODIC 5
-> +/* Trigger Mode - trigger period mask */
-> +#define AT91_SAMA5D2_TRGR_TRGPER_MASK           GENMASK(31, 16)
-> +/* Trigger Mode - trigger period */
-> +#define AT91_SAMA5D2_TRGR_TRGPER(x)             ((x) << 16)
->  
->  /* Correction Select Register */
->  #define AT91_SAMA5D2_COSR	0xd0
-> @@ -169,6 +217,22 @@
->  #define AT91_SAMA5D2_SINGLE_CHAN_CNT 12
->  #define AT91_SAMA5D2_DIFF_CHAN_CNT 6
->  
-> +#define AT91_SAMA5D2_TIMESTAMP_CHAN_IDX (AT91_SAMA5D2_SINGLE_CHAN_CNT + \
-> +					 AT91_SAMA5D2_DIFF_CHAN_CNT + 1)
-> +
-> +#define AT91_SAMA5D2_TOUCH_X_CHAN_IDX (AT91_SAMA5D2_SINGLE_CHAN_CNT + \
-> +					 AT91_SAMA5D2_DIFF_CHAN_CNT * 2)
-> +#define AT91_SAMA5D2_TOUCH_Y_CHAN_IDX   (AT91_SAMA5D2_TOUCH_X_CHAN_IDX + 1)
-> +#define AT91_SAMA5D2_TOUCH_P_CHAN_IDX   (AT91_SAMA5D2_TOUCH_Y_CHAN_IDX + 1)
-> +#define AT91_SAMA5D2_MAX_CHAN_IDX	AT91_SAMA5D2_TOUCH_P_CHAN_IDX
-> +
-> +#define AT91_SAMA5D2_TOUCH_SAMPLE_PERIOD_US          2000    /* 2ms */
-> +#define AT91_SAMA5D2_TOUCH_PEN_DETECT_DEBOUNCE_US    200
-> +
-> +#define AT91_SAMA5D2_XYZ_MASK		GENMASK(11, 0)
-> +
-> +#define AT91_SAMA5D2_MAX_POS_BITS			12
-> +
->  /*
->   * Maximum number of bytes to hold conversion from all channels
->   * without the timestamp.
-> @@ -222,6 +286,37 @@
->  		.indexed = 1,						\
->  	}
->  
-> +#define AT91_SAMA5D2_CHAN_TOUCH(num, name, mod)				\
-> +	{								\
-> +		.type = IIO_POSITIONRELATIVE,				\
-> +		.modified = 1,						\
-> +		.channel = num,						\
-> +		.channel2 = mod,					\
-> +		.scan_index = num,					\
-> +		.scan_type = {						\
-> +			.sign = 'u',					\
-> +			.realbits = 12,					\
-> +			.storagebits = 16,				\
-> +		},							\
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
-> +		.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_SAMP_FREQ),\
-> +		.datasheet_name = name,					\
-> +	}
-> +#define AT91_SAMA5D2_CHAN_PRESSURE(num, name)				\
-> +	{								\
-> +		.type = IIO_PRESSURE,					\
-> +		.channel = num,						\
-> +		.scan_index = num,					\
-> +		.scan_type = {						\
-> +			.sign = 'u',					\
-> +			.realbits = 12,					\
-> +			.storagebits = 16,				\
-> +		},							\
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
-> +		.info_mask_shared_by_all = BIT(IIO_CHAN_INFO_SAMP_FREQ),\
-> +		.datasheet_name = name,					\
-> +	}
-> +
->  #define at91_adc_readl(st, reg)		readl_relaxed(st->base + reg)
->  #define at91_adc_writel(st, reg, val)	writel_relaxed(val, st->base + reg)
->  
-> @@ -260,6 +355,22 @@ struct at91_adc_dma {
->  	s64				dma_ts;
->  };
->  
-> +/**
-> + * at91_adc_touch - at91-sama5d2 touchscreen information struct
-> + * @sample_period_val:		the value for periodic trigger interval
-> + * @touching:			is the pen touching the screen or not
-> + * @x_pos:			temporary placeholder for pressure computation
-> + * @channels_bitmask:		bitmask with the touchscreen channels enabled
-> + * @workq:			workqueue for buffer data pushing
-> + */
-> +struct at91_adc_touch {
-> +	u16				sample_period_val;
-> +	bool				touching;
-> +	u16				x_pos;
-> +	unsigned long			channels_bitmask;
-> +	struct work_struct		workq;
-> +};
-> +
->  struct at91_adc_state {
->  	void __iomem			*base;
->  	int				irq;
-> @@ -267,6 +378,7 @@ struct at91_adc_state {
->  	struct regulator		*reg;
->  	struct regulator		*vref;
->  	int				vref_uv;
-> +	unsigned int			current_sample_rate;
->  	struct iio_trigger		*trig;
->  	const struct at91_adc_trigger	*selected_trig;
->  	const struct iio_chan_spec	*chan;
-> @@ -275,6 +387,7 @@ struct at91_adc_state {
->  	struct at91_adc_soc_info	soc_info;
->  	wait_queue_head_t		wq_data_available;
->  	struct at91_adc_dma		dma_st;
-> +	struct at91_adc_touch		touch_st;
->  	u16				buffer[AT91_BUFFER_MAX_HWORDS];
->  	/*
->  	 * lock to prevent concurrent 'single conversion' requests through
-> @@ -329,8 +442,10 @@ static const struct iio_chan_spec at91_adc_channels[] = {
->  	AT91_SAMA5D2_CHAN_DIFF(6, 7, 0x68),
->  	AT91_SAMA5D2_CHAN_DIFF(8, 9, 0x70),
->  	AT91_SAMA5D2_CHAN_DIFF(10, 11, 0x78),
-> -	IIO_CHAN_SOFT_TIMESTAMP(AT91_SAMA5D2_SINGLE_CHAN_CNT
-> -				+ AT91_SAMA5D2_DIFF_CHAN_CNT + 1),
-> +	IIO_CHAN_SOFT_TIMESTAMP(AT91_SAMA5D2_TIMESTAMP_CHAN_IDX),
-> +	AT91_SAMA5D2_CHAN_TOUCH(AT91_SAMA5D2_TOUCH_X_CHAN_IDX, "x", IIO_MOD_X),
-> +	AT91_SAMA5D2_CHAN_TOUCH(AT91_SAMA5D2_TOUCH_Y_CHAN_IDX, "y", IIO_MOD_Y),
-> +	AT91_SAMA5D2_CHAN_PRESSURE(AT91_SAMA5D2_TOUCH_P_CHAN_IDX, "pressure"),
->  };
->  
->  static int at91_adc_chan_xlate(struct iio_dev *indio_dev, int chan)
-> @@ -354,6 +469,160 @@ at91_adc_chan_get(struct iio_dev *indio_dev, int chan)
->  	return indio_dev->channels + index;
->  }
->  
-> +static inline int at91_adc_of_xlate(struct iio_dev *indio_dev,
-> +				    const struct of_phandle_args *iiospec)
-> +{
-> +	return at91_adc_chan_xlate(indio_dev, iiospec->args[0]);
-> +}
-> +
-> +static int at91_adc_configure_touch(struct at91_adc_state *st, bool state)
-> +{
-> +	u32 clk_khz = st->current_sample_rate / 1000;
-> +	int i = 0;
-> +	u16 pendbc;
-> +	u32 tsmr, acr;
-> +
-> +	if (!state) {
-> +		/* disabling touch IRQs and setting mode to no touch enabled */
-> +		at91_adc_writel(st, AT91_SAMA5D2_IDR,
-> +				AT91_SAMA5D2_IER_PEN | AT91_SAMA5D2_IER_NOPEN);
-> +		at91_adc_writel(st, AT91_SAMA5D2_TSMR, 0);
-> +		return 0;
-> +	}
-> +	/*
-> +	 * debounce time is in microseconds, we need it in milliseconds to
-> +	 * multiply with kilohertz, so, divide by 1000, but after the multiply.
-> +	 * round up to make sure pendbc is at least 1
-> +	 */
-> +	pendbc = round_up(AT91_SAMA5D2_TOUCH_PEN_DETECT_DEBOUNCE_US *
-> +			  clk_khz / 1000, 1);
-> +
-> +	/* get the required exponent */
-> +	while (pendbc >> i++)
-> +		;
-> +
-> +	pendbc = i;
-> +
-> +	tsmr = AT91_SAMA5D2_TSMR_TSMODE_4WIRE_PRESS;
-> +
-> +	tsmr |= AT91_SAMA5D2_TSMR_TSAV(2) & AT91_SAMA5D2_TSMR_TSAV_MASK;
-> +	tsmr |= AT91_SAMA5D2_TSMR_PENDBC(pendbc) &
-> +		AT91_SAMA5D2_TSMR_PENDBC_MASK;
-> +	tsmr |= AT91_SAMA5D2_TSMR_NOTSDMA;
-> +	tsmr |= AT91_SAMA5D2_TSMR_PENDET_ENA;
-> +	tsmr |= AT91_SAMA5D2_TSMR_TSFREQ(2) & AT91_SAMA5D2_TSMR_TSFREQ_MASK;
-> +
-> +	at91_adc_writel(st, AT91_SAMA5D2_TSMR, tsmr);
-> +
-> +	acr =  at91_adc_readl(st, AT91_SAMA5D2_ACR);
-> +	acr &= ~AT91_SAMA5D2_ACR_PENDETSENS_MASK;
-> +	acr |= 0x02 & AT91_SAMA5D2_ACR_PENDETSENS_MASK;
-> +	at91_adc_writel(st, AT91_SAMA5D2_ACR, acr);
-> +
-> +	/* Sample Period Time = (TRGPER + 1) / ADCClock */
-> +	st->touch_st.sample_period_val =
-> +				 round_up((AT91_SAMA5D2_TOUCH_SAMPLE_PERIOD_US *
-> +				 clk_khz / 1000) - 1, 1);
-> +	/* enable pen detect IRQ */
-> +	at91_adc_writel(st, AT91_SAMA5D2_IER, AT91_SAMA5D2_IER_PEN);
-> +
-> +	return 0;
-> +}
-> +
-> +static u16 at91_adc_touch_pos(struct at91_adc_state *st, int reg)
-> +{
-> +	u32 val;
-> +	u32 scale, result, pos;
-> +
-> +	/*
-> +	 * to obtain the actual position we must divide by scale
-> +	 * and multiply with max, where
-> +	 * max = 2^AT91_SAMA5D2_MAX_POS_BITS - 1
-> +	 */
-> +	/* first half of register is the x or y, second half is the scale */
-> +	val = at91_adc_readl(st, reg);
-> +	if (!val)
-> +		dev_dbg(&iio_priv_to_dev(st)->dev, "pos is 0\n");
-> +
-> +	pos = val & AT91_SAMA5D2_XYZ_MASK;
-> +	result = (pos << AT91_SAMA5D2_MAX_POS_BITS) - pos;
-> +	scale = (val >> 16) & AT91_SAMA5D2_XYZ_MASK;
-> +	if (scale == 0) {
-> +		dev_err(&iio_priv_to_dev(st)->dev, "scale is 0\n");
-> +		return 0;
-> +	}
-> +	result /= scale;
-> +
-> +	return result;
-> +}
-> +
-> +static u16 at91_adc_touch_x_pos(struct at91_adc_state *st)
-> +{
-> +	st->touch_st.x_pos = at91_adc_touch_pos(st, AT91_SAMA5D2_XPOSR);
-> +	return st->touch_st.x_pos;
-> +}
-> +
-> +static u16 at91_adc_touch_y_pos(struct at91_adc_state *st)
-> +{
-> +	return at91_adc_touch_pos(st, AT91_SAMA5D2_YPOSR);
-> +}
-> +
-> +static u16 at91_adc_touch_pressure(struct at91_adc_state *st)
-> +{
-> +	u32 val;
-> +	u32 z1, z2;
-> +	u32 pres;
-> +	u32 rxp = 1;
-> +	u32 factor = 1000;
-> +
-> +	/* calculate the pressure */
-> +	val = at91_adc_readl(st, AT91_SAMA5D2_PRESSR);
-> +	z1 = val & AT91_SAMA5D2_XYZ_MASK;
-> +	z2 = (val >> 16) & AT91_SAMA5D2_XYZ_MASK;
-> +
-> +	if (z1 != 0)
-> +		pres = rxp * (st->touch_st.x_pos * factor / 1024) *
-> +			(z2 * factor / z1 - factor) /
-> +			factor;
-> +	else
-> +		pres = 0xFFFF;       /* no pen contact */
-> +
-> +	/*
-> +	 * The pressure from device grows down, minimum is 0xFFFF, maximum 0x0.
-> +	 * We compute it this way, but let's return it in the expected way,
-> +	 * growing from 0 to 0xFFFF.
-> +	 */
-> +	return 0xFFFF - pres;
-> +}
-> +
-> +static int at91_adc_read_position(struct at91_adc_state *st, int chan, u16 *val)
-> +{
-> +	*val = 0;
-> +	if (!st->touch_st.touching)
-> +		return -ENODATA;
-> +	if (chan == AT91_SAMA5D2_TOUCH_X_CHAN_IDX)
-> +		*val = at91_adc_touch_x_pos(st);
-> +	else if (chan == AT91_SAMA5D2_TOUCH_Y_CHAN_IDX)
-> +		*val = at91_adc_touch_y_pos(st);
-> +	else
-> +		return -ENODATA;
-> +
-> +	return IIO_VAL_INT;
-> +}
-> +
-> +static int at91_adc_read_pressure(struct at91_adc_state *st, int chan, u16 *val)
-> +{
-> +	*val = 0;
-> +	if (!st->touch_st.touching)
-> +		return -ENODATA;
-> +	if (chan == AT91_SAMA5D2_TOUCH_P_CHAN_IDX)
-> +		*val = at91_adc_touch_pressure(st);
-> +	else
-> +		return -ENODATA;
-> +
-> +	return IIO_VAL_INT;
-> +}
-> +
->  static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
->  {
->  	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
-> @@ -375,6 +644,10 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
->  
->  		if (!chan)
->  			continue;
-> +		/* these channel types cannot be handled by this trigger */
-> +		if (chan->type == IIO_POSITIONRELATIVE ||
-> +		    chan->type == IIO_PRESSURE)
-> +			continue;
-
-A blank line here might help readability.
-
->  		if (state) {
->  			at91_adc_writel(st, AT91_SAMA5D2_CHER,
->  					BIT(chan->channel));
-> @@ -520,7 +793,21 @@ static int at91_adc_dma_start(struct iio_dev *indio_dev)
->  static int at91_adc_buffer_postenable(struct iio_dev *indio_dev)
->  {
->  	int ret;
-> +	struct at91_adc_state *st = iio_priv(indio_dev);
->  
-> +	/* check if we are enabling triggered buffer or the touchscreen */
-> +	if (bitmap_subset(indio_dev->active_scan_mask,
-> +			  &st->touch_st.channels_bitmask,
-> +			  AT91_SAMA5D2_MAX_CHAN_IDX + 1)) {
-> +		/* touchscreen enabling */
-> +		at91_adc_configure_touch(st, true);
-> +		return 0;
-> +	}
-> +	/* if trigger is not hardware, nothing to do here */
-> +	if (!st->selected_trig->hw_trig)
-> +		return 0;
-> +
-> +	/* we continue with the triggered buffer */
->  	ret = at91_adc_dma_start(indio_dev);
->  	if (ret) {
->  		dev_err(&indio_dev->dev, "buffer postenable failed\n");
-> @@ -536,6 +823,19 @@ static int at91_adc_buffer_predisable(struct iio_dev *indio_dev)
->  	int ret;
->  	u8 bit;
->  
-> +	/* check if we are disabling triggered buffer or the touchscreen */
-> +	if (bitmap_subset(indio_dev->active_scan_mask,
-> +			  &st->touch_st.channels_bitmask,
-> +			  AT91_SAMA5D2_MAX_CHAN_IDX + 1)) {
-> +		/* touchscreen disable */
-> +		at91_adc_configure_touch(st, false);
-> +		return 0;
-> +	}
-> +	/* if trigger is not hardware, nothing to do here */
-> +	if (!st->selected_trig->hw_trig)
-> +		return 0;
-> +
-> +	/* continue with the triggered buffer */
->  	ret = iio_triggered_buffer_predisable(indio_dev);
->  	if (ret < 0)
->  		dev_err(&indio_dev->dev, "buffer predisable failed\n");
-> @@ -558,6 +858,10 @@ static int at91_adc_buffer_predisable(struct iio_dev *indio_dev)
->  
->  		if (!chan)
->  			continue;
-> +		/* these channel types are virtual, no need to do anything */
-> +		if (chan->type == IIO_POSITIONRELATIVE ||
-> +		    chan->type == IIO_PRESSURE)
-> +			continue;
->  		if (st->dma_st.dma_chan)
->  			at91_adc_readl(st, chan->address);
->  	}
-> @@ -622,7 +926,22 @@ static void at91_adc_trigger_handler_nodma(struct iio_dev *indio_dev,
->  
->  		if (!chan)
->  			continue;
-> -		st->buffer[i] = at91_adc_readl(st, chan->address);
-> +		/*
-> +		 * Our external trigger only supports the voltage channels.
-> +		 * In case someone requested a different type of channel
-> +		 * just put zeroes to buffer.
-> +		 * This should not happen because we check the scan mode
-> +		 * and scan mask when we enable the buffer, and we don't allow
-> +		 * the buffer to start with a mixed mask (voltage and something
-> +		 * else).
-> +		 * Thus, emit a warning.
-> +		 */
-> +		if (chan->type == IIO_VOLTAGE) {
-> +			st->buffer[i] = at91_adc_readl(st, chan->address);
-> +		} else {
-> +			st->buffer[i] = 0;
-> +			WARN(true, "This trigger cannot handle this type of channel");
-> +		}
->  		i++;
->  	}
->  	iio_push_to_buffers_with_timestamp(indio_dev, st->buffer,
-> @@ -688,9 +1007,20 @@ static irqreturn_t at91_adc_trigger_handler(int irq, void *p)
->  
->  static int at91_adc_buffer_init(struct iio_dev *indio)
->  {
-> -	return devm_iio_triggered_buffer_setup(&indio->dev, indio,
-> +	struct at91_adc_state *st = iio_priv(indio);
-> +
-> +	if (st->selected_trig->hw_trig) {
-> +		return devm_iio_triggered_buffer_setup(&indio->dev, indio,
->  			&iio_pollfunc_store_time,
->  			&at91_adc_trigger_handler, &at91_buffer_setup_ops);
-> +	}
-> +	/*
-> +	 * we need to prepare the buffer ops in case we will get
-> +	 * another buffer attached (like a callback buffer for the touchscreen)
-> +	 */
-> +	indio->setup_ops = &at91_buffer_setup_ops;
-> +
-> +	return 0;
->  }
->  
->  static unsigned at91_adc_startup_time(unsigned startup_time_min,
-> @@ -736,19 +1066,83 @@ static void at91_adc_setup_samp_freq(struct at91_adc_state *st, unsigned freq)
->  
->  	dev_dbg(&indio_dev->dev, "freq: %u, startup: %u, prescal: %u\n",
->  		freq, startup, prescal);
-> +	st->current_sample_rate = freq;
->  }
->  
-> -static unsigned at91_adc_get_sample_freq(struct at91_adc_state *st)
-> +static inline unsigned at91_adc_get_sample_freq(struct at91_adc_state *st)
->  {
-> -	unsigned f_adc, f_per = clk_get_rate(st->per_clk);
-> -	unsigned mr, prescal;
-> +	return st->current_sample_rate;
-> +}
->  
-> -	mr = at91_adc_readl(st, AT91_SAMA5D2_MR);
-> -	prescal = (mr >> AT91_SAMA5D2_MR_PRESCAL_OFFSET)
-> -		  & AT91_SAMA5D2_MR_PRESCAL_MAX;
-> -	f_adc = f_per / (2 * (prescal + 1));
-> +static void at91_adc_touch_data_handler(struct iio_dev *indio_dev)
-> +{
-> +	struct at91_adc_state *st = iio_priv(indio_dev);
-> +	u8 bit;
-> +	u16 val;
-> +	int i = 0;
-> +
-> +	for_each_set_bit(bit, indio_dev->active_scan_mask,
-> +			 AT91_SAMA5D2_MAX_CHAN_IDX + 1) {
-> +		struct iio_chan_spec const *chan =
-> +					 at91_adc_chan_get(indio_dev, bit);
->  
-> -	return f_adc;
-> +		if (chan->type == IIO_POSITIONRELATIVE)
-> +			at91_adc_read_position(st, chan->channel, &val);
-> +		else if (chan->type == IIO_PRESSURE)
-> +			at91_adc_read_pressure(st, chan->channel, &val);
-> +		else
-> +			continue;
-> +		st->buffer[i] = val;
-> +		i++;
-> +	}
-> +	/*
-> +	 * Schedule work to push to buffers.
-> +	 * This is intended to push to the callback buffer that another driver
-> +	 * registered. We are still in a handler from our IRQ. If we push
-> +	 * directly, it means the other driver has it's callback called
-> +	 * from our IRQ context. Which is something we better avoid.
-> +	 * Let's schedule it after our IRQ is completed.
-> +	 */
-> +	schedule_work(&st->touch_st.workq);
-> +}
-> +
-> +static void at91_adc_pen_detect_interrupt(struct at91_adc_state *st)
-> +{
-> +	at91_adc_writel(st, AT91_SAMA5D2_IDR, AT91_SAMA5D2_IER_PEN);
-> +	at91_adc_writel(st, AT91_SAMA5D2_IER, AT91_SAMA5D2_IER_NOPEN |
-> +			AT91_SAMA5D2_IER_XRDY | AT91_SAMA5D2_IER_YRDY |
-> +			AT91_SAMA5D2_IER_PRDY);
-> +	at91_adc_writel(st, AT91_SAMA5D2_TRGR,
-> +			AT91_SAMA5D2_TRGR_TRGMOD_PERIODIC |
-> +			AT91_SAMA5D2_TRGR_TRGPER(st->touch_st.sample_period_val));
-> +	st->touch_st.touching = true;
-> +}
-> +
-> +static void at91_adc_no_pen_detect_interrupt(struct at91_adc_state *st)
-> +{
-> +	struct iio_dev *indio_dev = iio_priv_to_dev(st);
-> +
-> +	at91_adc_writel(st, AT91_SAMA5D2_TRGR,
-> +			AT91_SAMA5D2_TRGR_TRGMOD_NO_TRIGGER);
-> +	at91_adc_writel(st, AT91_SAMA5D2_IDR, AT91_SAMA5D2_IER_NOPEN |
-> +			AT91_SAMA5D2_IER_XRDY | AT91_SAMA5D2_IER_YRDY |
-> +			AT91_SAMA5D2_IER_PRDY);
-> +	st->touch_st.touching = false;
-> +
-> +	at91_adc_touch_data_handler(indio_dev);
-> +
-> +	at91_adc_writel(st, AT91_SAMA5D2_IER, AT91_SAMA5D2_IER_PEN);
-> +}
-> +
-> +static void at91_adc_workq_handler(struct work_struct *workq)
-> +{
-> +	struct at91_adc_touch *touch_st = container_of(workq,
-> +					struct at91_adc_touch, workq);
-> +	struct at91_adc_state *st = container_of(touch_st,
-> +					struct at91_adc_state, touch_st);
-> +	struct iio_dev *indio_dev = iio_priv_to_dev(st);
-> +
-> +	iio_push_to_buffers(indio_dev, st->buffer);
->  }
->  
->  static irqreturn_t at91_adc_interrupt(int irq, void *private)
-> @@ -757,17 +1151,39 @@ static irqreturn_t at91_adc_interrupt(int irq, void *private)
->  	struct at91_adc_state *st = iio_priv(indio);
->  	u32 status = at91_adc_readl(st, AT91_SAMA5D2_ISR);
->  	u32 imr = at91_adc_readl(st, AT91_SAMA5D2_IMR);
-> +	u32 rdy_mask = AT91_SAMA5D2_IER_XRDY | AT91_SAMA5D2_IER_YRDY |
-> +			AT91_SAMA5D2_IER_PRDY;
->  
->  	if (!(status & imr))
->  		return IRQ_NONE;
-> -
-> -	if (iio_buffer_enabled(indio) && !st->dma_st.dma_chan) {
-> +	if (status & AT91_SAMA5D2_IER_PEN) {
-> +		/* pen detected IRQ */
-> +		at91_adc_pen_detect_interrupt(st);
-> +	} else if ((status & AT91_SAMA5D2_IER_NOPEN)) {
-> +		/* nopen detected IRQ */
-> +		at91_adc_no_pen_detect_interrupt(st);
-> +	} else if ((status & AT91_SAMA5D2_ISR_PENS) &&
-> +		   ((status & rdy_mask) == rdy_mask)) {
-> +		/* periodic trigger IRQ - during pen sense */
-> +		at91_adc_touch_data_handler(indio);
-> +	} else if (status & AT91_SAMA5D2_ISR_PENS) {
-> +		/*
-> +		 * touching, but the measurements are not ready yet.
-> +		 * read and ignore.
-> +		 */
-> +		status = at91_adc_readl(st, AT91_SAMA5D2_XPOSR);
-> +		status = at91_adc_readl(st, AT91_SAMA5D2_YPOSR);
-> +		status = at91_adc_readl(st, AT91_SAMA5D2_PRESSR);
-> +	} else if (iio_buffer_enabled(indio) && !st->dma_st.dma_chan) {
-> +		/* triggered buffer without DMA */
->  		disable_irq_nosync(irq);
->  		iio_trigger_poll(indio->trig);
->  	} else if (iio_buffer_enabled(indio) && st->dma_st.dma_chan) {
-> +		/* triggered buffer with DMA - should not happen */
->  		disable_irq_nosync(irq);
->  		WARN(true, "Unexpected irq occurred\n");
->  	} else if (!iio_buffer_enabled(indio)) {
-> +		/* software requested conversion */
->  		st->conversion_value = at91_adc_readl(st, st->chan->address);
->  		st->conversion_done = true;
->  		wake_up_interruptible(&st->wq_data_available);
-> @@ -775,58 +1191,81 @@ static irqreturn_t at91_adc_interrupt(int irq, void *private)
->  	return IRQ_HANDLED;
->  }
->  
-> -static int at91_adc_read_raw(struct iio_dev *indio_dev,
-> -			     struct iio_chan_spec const *chan,
-> -			     int *val, int *val2, long mask)
-> +static int at91_adc_read_info_raw(struct iio_dev *indio_dev,
-> +				  struct iio_chan_spec const *chan, int *val)
->  {
->  	struct at91_adc_state *st = iio_priv(indio_dev);
->  	u32 cor = 0;
->  	int ret;
->  
-> -	switch (mask) {
-> -	case IIO_CHAN_INFO_RAW:
-> -		/* we cannot use software trigger if hw trigger enabled */
-> -		ret = iio_device_claim_direct_mode(indio_dev);
-> -		if (ret)
-> -			return ret;
-> -		mutex_lock(&st->lock);
-> +	/*
-> +	 * we cannot use software trigger or touchscreen
-> +	 * if external trigger is enabled
-> +	 */
-> +	ret = iio_device_claim_direct_mode(indio_dev);
-> +	if (ret)
-> +		return ret;
-> +	mutex_lock(&st->lock);
->  
-> -		st->chan = chan;
-> +	if (chan->type == IIO_POSITIONRELATIVE) {
-> +		ret = at91_adc_read_position(st, chan->channel,
-> +					     (u16 *)val);
-> +		goto at91_adc_read_info_raw_exit;
-I know it is more lines of code, but I think I'd prefer to
-get rid of this long goto as it's not an error case.
-
-I would suggest moving the mutex inside this if statement
-(and the next one) and do the lock / unlock / return all
-within the if.  For the other path, take the mutex after
-these if statements.
-
-> +	}
-> +	if (chan->type == IIO_PRESSURE) {
-> +		ret = at91_adc_read_pressure(st, chan->channel,
-> +					     (u16 *)val);
-> +		goto at91_adc_read_info_raw_exit;
-> +	}
->  
-> -		if (chan->differential)
-> -			cor = (BIT(chan->channel) | BIT(chan->channel2)) <<
-> -			      AT91_SAMA5D2_COR_DIFF_OFFSET;
-> -
-> -		at91_adc_writel(st, AT91_SAMA5D2_COR, cor);
-> -		at91_adc_writel(st, AT91_SAMA5D2_CHER, BIT(chan->channel));
-> -		at91_adc_writel(st, AT91_SAMA5D2_IER, BIT(chan->channel));
-> -		at91_adc_writel(st, AT91_SAMA5D2_CR, AT91_SAMA5D2_CR_START);
-> -
-> -		ret = wait_event_interruptible_timeout(st->wq_data_available,
-> -						       st->conversion_done,
-> -						       msecs_to_jiffies(1000));
-> -		if (ret == 0)
-> -			ret = -ETIMEDOUT;
-> -
-> -		if (ret > 0) {
-> -			*val = st->conversion_value;
-> -			if (chan->scan_type.sign == 's')
-> -				*val = sign_extend32(*val, 11);
-> -			ret = IIO_VAL_INT;
-> -			st->conversion_done = false;
-> -		}
-> +	st->chan = chan;
-> +
-> +	if (chan->differential)
-> +		cor = (BIT(chan->channel) | BIT(chan->channel2)) <<
-> +		      AT91_SAMA5D2_COR_DIFF_OFFSET;
-> +
-> +	at91_adc_writel(st, AT91_SAMA5D2_COR, cor);
-> +	at91_adc_writel(st, AT91_SAMA5D2_CHER, BIT(chan->channel));
-> +	at91_adc_writel(st, AT91_SAMA5D2_IER, BIT(chan->channel));
-> +	at91_adc_writel(st, AT91_SAMA5D2_CR, AT91_SAMA5D2_CR_START);
-> +
-> +	ret = wait_event_interruptible_timeout(st->wq_data_available,
-> +					       st->conversion_done,
-> +					       msecs_to_jiffies(1000));
-> +	if (ret == 0)
-> +		ret = -ETIMEDOUT;
-> +
-> +	if (ret > 0) {
-> +		*val = st->conversion_value;
-> +		if (chan->scan_type.sign == 's')
-> +			*val = sign_extend32(*val, 11);
-> +		ret = IIO_VAL_INT;
-> +		st->conversion_done = false;
-> +	}
-> +
-> +	at91_adc_writel(st, AT91_SAMA5D2_IDR, BIT(chan->channel));
-> +	at91_adc_writel(st, AT91_SAMA5D2_CHDR, BIT(chan->channel));
->  
-> -		at91_adc_writel(st, AT91_SAMA5D2_IDR, BIT(chan->channel));
-> -		at91_adc_writel(st, AT91_SAMA5D2_CHDR, BIT(chan->channel));
-> +	/* Needed to ACK the DRDY interruption */
-> +	at91_adc_readl(st, AT91_SAMA5D2_LCDR);
->  
-> -		/* Needed to ACK the DRDY interruption */
-> -		at91_adc_readl(st, AT91_SAMA5D2_LCDR);
-> +at91_adc_read_info_raw_exit:
->  
-> -		mutex_unlock(&st->lock);
-> +	mutex_unlock(&st->lock);
->  
-> -		iio_device_release_direct_mode(indio_dev);
-> -		return ret;
-> +	iio_device_release_direct_mode(indio_dev);
-> +	return ret;
-> +}
->  
-> +static int at91_adc_read_raw(struct iio_dev *indio_dev,
-> +			     struct iio_chan_spec const *chan,
-> +			     int *val, int *val2, long mask)
-> +{
-> +	struct at91_adc_state *st = iio_priv(indio_dev);
-> +
-> +	switch (mask) {
-> +	case IIO_CHAN_INFO_RAW:
-> +		return at91_adc_read_info_raw(indio_dev, chan, val);
->  	case IIO_CHAN_INFO_SCALE:
->  		*val = st->vref_uv / 1000;
->  		if (chan->differential)
-> @@ -974,9 +1413,29 @@ static int at91_adc_set_watermark(struct iio_dev *indio_dev, unsigned int val)
->  	return 0;
->  }
->  
-> +static int at91_adc_update_scan_mode(struct iio_dev *indio_dev,
-> +				     const unsigned long *scan_mask)
-> +{
-> +	struct at91_adc_state *st = iio_priv(indio_dev);
-> +
-> +	if (bitmap_subset(scan_mask, &st->touch_st.channels_bitmask,
-> +			  AT91_SAMA5D2_MAX_CHAN_IDX + 1))
-> +		return 0;
-> +	/*
-> +	 * if the new bitmap is a combination of touchscreen and regular
-> +	 * channels, then we are not fine
-> +	 */
-> +	if (bitmap_intersects(&st->touch_st.channels_bitmask, scan_mask,
-> +			      AT91_SAMA5D2_MAX_CHAN_IDX + 1))
-> +		return -EBUSY;
-> +	return 0;
-> +}
-> +
->  static const struct iio_info at91_adc_info = {
->  	.read_raw = &at91_adc_read_raw,
->  	.write_raw = &at91_adc_write_raw,
-> +	.update_scan_mode = &at91_adc_update_scan_mode,
-> +	.of_xlate = &at91_adc_of_xlate,
->  	.hwfifo_set_watermark = &at91_adc_set_watermark,
->  };
->  
-> @@ -1044,13 +1503,20 @@ static int at91_adc_probe(struct platform_device *pdev)
->  
->  	indio_dev->dev.parent = &pdev->dev;
->  	indio_dev->name = dev_name(&pdev->dev);
-> -	indio_dev->modes = INDIO_DIRECT_MODE;
-> +	indio_dev->modes = INDIO_DIRECT_MODE | INDIO_BUFFER_SOFTWARE;
->  	indio_dev->info = &at91_adc_info;
->  	indio_dev->channels = at91_adc_channels;
->  	indio_dev->num_channels = ARRAY_SIZE(at91_adc_channels);
->  
->  	st = iio_priv(indio_dev);
->  
-> +	bitmap_set(&st->touch_st.channels_bitmask,
-> +		   AT91_SAMA5D2_TOUCH_X_CHAN_IDX, 1);
-> +	bitmap_set(&st->touch_st.channels_bitmask,
-> +		   AT91_SAMA5D2_TOUCH_Y_CHAN_IDX, 1);
-> +	bitmap_set(&st->touch_st.channels_bitmask,
-> +		   AT91_SAMA5D2_TOUCH_P_CHAN_IDX, 1);
-> +
->  	ret = of_property_read_u32(pdev->dev.of_node,
->  				   "atmel,min-sample-rate-hz",
->  				   &st->soc_info.min_sample_rate);
-> @@ -1100,6 +1566,7 @@ static int at91_adc_probe(struct platform_device *pdev)
->  
->  	init_waitqueue_head(&st->wq_data_available);
->  	mutex_init(&st->lock);
-> +	INIT_WORK(&st->touch_st.workq, at91_adc_workq_handler);
->  
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	if (!res)
-> @@ -1159,13 +1626,13 @@ static int at91_adc_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, indio_dev);
->  
-> -	if (st->selected_trig->hw_trig) {
-> -		ret = at91_adc_buffer_init(indio_dev);
-> -		if (ret < 0) {
-> -			dev_err(&pdev->dev, "couldn't initialize the buffer.\n");
-> -			goto per_clk_disable_unprepare;
-> -		}
-> +	ret = at91_adc_buffer_init(indio_dev);
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "couldn't initialize the buffer.\n");
-> +		goto per_clk_disable_unprepare;
-> +	}
->  
-> +	if (st->selected_trig->hw_trig) {
->  		ret = at91_adc_trigger_init(indio_dev);
->  		if (ret < 0) {
->  			dev_err(&pdev->dev, "couldn't setup the triggers.\n");
-> @@ -1272,8 +1739,18 @@ static __maybe_unused int at91_adc_resume(struct device *dev)
->  	at91_adc_hw_init(st);
->  
->  	/* reconfiguring trigger hardware state */
-> -	if (iio_buffer_enabled(indio_dev))
-> +	if (!iio_buffer_enabled(indio_dev))
-> +		return 0;
-> +
-> +	/* check if we are enabling triggered buffer or the touchscreen */
-> +	if (bitmap_subset(indio_dev->active_scan_mask,
-> +			  &st->touch_st.channels_bitmask,
-> +			  AT91_SAMA5D2_MAX_CHAN_IDX + 1)) {
-> +		/* touchscreen enabling */
-> +		at91_adc_configure_touch(st, true);
-> +	} else {
->  		at91_adc_configure_trigger(st->trig, true);
-> +	}
->  
->  	return 0;
->  
+CitDQzogbGludXgtaW5wdXQgbGlzdCBhbmQgbWFpbnRhaW5lcgoKCk9uIDA1LjA0LjIwMTggMTE6
+NDksIEVucmljIEJhbGxldGJvIGkgU2VycmEgd3JvdGU6Cj4gRnJvbTogIktyaXN0aWFuIEguIEty
+aXN0ZW5zZW4iIDxob2Vnc2JlcmdAZ29vZ2xlLmNvbT4KPgo+IFRvIGltcHJvdmUgUFNSIGV4aXQg
+bGF0ZW5jeSwgd2Ugc3BlY3VsYXRpdmVseSBzdGFydCBleGl0aW5nIHdoZW4gd2UKPiByZWNlaXZl
+IGlucHV0IGV2ZW50cy4gT2NjYXNpb25hbGx5LCB0aGlzIG1heSBsZWFkIHRvIGZhbHNlIHBvc2l0
+aXZlcywKPiBidXQgbW9zdCBvZiB0aGUgdGltZSB3ZSBnZXQgYSBoZWFkIHN0YXJ0IG9uIGNvbWlu
+ZyBvdXQgb2YgUFNSLiBEZXBlbmRpbmcKPiBvbiBob3cgdXNlcnNwYWNlIHRha2VzIHRvIHByb2R1
+Y2UgYSBuZXcgZnJhbWUgaW4gcmVzcG9uc2UgdG8gdGhlIGV2ZW50LAo+IHRoaXMgY2FuIGNvbXBs
+ZXRlbHkgaGlkZSB0aGUgZXhpdCBsYXRlbmN5LiBJbiBjYXNlIG9mIENocm9tZSBPUywgd2UKPiB0
+eXBpY2FsbHkgZ2V0IHRoZSBpbnB1dCBub3RpZmllciA1MG1zIG9yIG1vcmUgYmVmb3JlIHRoZSBk
+aXJ0eV9mYgo+IHRyaWdnZXJlZCBleGl0LgoKQXMgSSBzZWUgZnJvbSB0aGUgY29kZSBiZWxvdywg
+eW91IGp1c3QgbmVlZCBub3RpZmljYXRpb24gZnJvbSBpbnB1dApzdWJzeXN0ZW0gb24gdXNlciBh
+Y3Rpdml0eS4KTWF5YmUgdGhlcmUgaXMgc29tZSBzaW1wbGVyIG5vdGlmaWNhdGlvbiBtZWNoYW5p
+c20gZm9yIHN1Y2ggdGhpbmdzPwpJZiBub3QsIG1heWJlIHN1Y2ggaGVscGVyIHNob3VsZCBiZSBj
+cmVhdGVkIGluIGlucHV0IHN1YnN5c3RlbSwgSQpzdXBwb3NlIGl0IGNvdWxkIGJlIHJldXNlZCBp
+biBvdGhlciBwbGFjZXMgYXMgd2VsbC4KClJlZ2FyZHMKQW5kcnplagoKPgo+IFNpZ25lZC1vZmYt
+Ynk6IEtyaXN0aWFuIEguIEtyaXN0ZW5zZW4gPGhvZWdzYmVyZ0Bnb29nbGUuY29tPgo+IFNpZ25l
+ZC1vZmYtYnk6IFRoaWVycnkgRXNjYW5kZSA8dGhpZXJyeS5lc2NhbmRlQGNvbGxhYm9yYS5jb20+
+Cj4gU2lnbmVkLW9mZi1ieTogRW5yaWMgQmFsbGV0Ym8gaSBTZXJyYSA8ZW5yaWMuYmFsbGV0Ym9A
+Y29sbGFib3JhLmNvbT4KPiBUZXN0ZWQtYnk6IE1hcmVrIFN6eXByb3dza2kgPG0uc3p5cHJvd3Nr
+aUBzYW1zdW5nLmNvbT4KPiAtLS0KPgo+ICBkcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9ja2No
+aXBfZHJtX3Bzci5jIHwgMTM0ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysKPiAgMSBmaWxl
+IGNoYW5nZWQsIDEzNCBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
+ZHJtL3JvY2tjaGlwL3JvY2tjaGlwX2RybV9wc3IuYyBiL2RyaXZlcnMvZ3B1L2RybS9yb2NrY2hp
+cC9yb2NrY2hpcF9kcm1fcHNyLmMKPiBpbmRleCA5Mzc2ZjQzOTZiNmIuLmExMDc4NDViYTk3YyAx
+MDA2NDQKPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vcm9ja2NoaXAvcm9ja2NoaXBfZHJtX3Bzci5j
+Cj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL3JvY2tjaGlwX2RybV9wc3IuYwo+IEBA
+IC0xMiw2ICsxMiw4IEBACj4gICAqIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3Jl
+IGRldGFpbHMuCj4gICAqLwo+ICAKPiArI2luY2x1ZGUgPGxpbnV4L2lucHV0Lmg+Cj4gKwo+ICAj
+aW5jbHVkZSA8ZHJtL2RybVAuaD4KPiAgI2luY2x1ZGUgPGRybS9kcm1fY3J0Y19oZWxwZXIuaD4K
+PiAgCj4gQEAgLTM1LDYgKzM3LDkgQEAgc3RydWN0IHBzcl9kcnYgewo+ICAJZW51bSBwc3Jfc3Rh
+dGUJCXN0YXRlOwo+ICAKPiAgCXN0cnVjdCBkZWxheWVkX3dvcmsJZmx1c2hfd29yazsKPiArCXN0
+cnVjdCB3b3JrX3N0cnVjdAlkaXNhYmxlX3dvcms7Cj4gKwo+ICsJc3RydWN0IGlucHV0X2hhbmRs
+ZXIgICAgaW5wdXRfaGFuZGxlcjsKPiAgCj4gIAlpbnQgKCpzZXQpKHN0cnVjdCBkcm1fZW5jb2Rl
+ciAqZW5jb2RlciwgYm9vbCBlbmFibGUpOwo+ICB9Owo+IEBAIC0xMzMsNiArMTM4LDE4IEBAIHN0
+YXRpYyB2b2lkIHBzcl9mbHVzaF9oYW5kbGVyKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKPiAg
+CW11dGV4X3VubG9jaygmcHNyLT5sb2NrKTsKPiAgfQo+ICAKPiArc3RhdGljIHZvaWQgcHNyX2Rp
+c2FibGVfaGFuZGxlcihzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCj4gK3sKPiArCXN0cnVjdCBw
+c3JfZHJ2ICpwc3IgPSBjb250YWluZXJfb2Yod29yaywgc3RydWN0IHBzcl9kcnYsIGRpc2FibGVf
+d29yayk7Cj4gKwo+ICsJLyogSWYgdGhlIHN0YXRlIGhhcyBjaGFuZ2VkIHNpbmNlIHdlIGluaXRp
+YXRlZCB0aGUgZmx1c2gsIGRvIG5vdGhpbmcgKi8KPiArCW11dGV4X2xvY2soJnBzci0+bG9jayk7
+Cj4gKwlpZiAocHNyLT5zdGF0ZSA9PSBQU1JfRU5BQkxFKQo+ICsJCXBzcl9zZXRfc3RhdGVfbG9j
+a2VkKHBzciwgUFNSX0ZMVVNIKTsKPiArCW11dGV4X3VubG9jaygmcHNyLT5sb2NrKTsKPiArCW1v
+ZF9kZWxheWVkX3dvcmsoc3lzdGVtX3dxLCAmcHNyLT5mbHVzaF93b3JrLCBQU1JfRkxVU0hfVElN
+RU9VVF9NUyk7Cj4gK30KPiArCj4gIC8qKgo+ICAgKiByb2NrY2hpcF9kcm1fcHNyX2FjdGl2YXRl
+IC0gYWN0aXZhdGUgUFNSIG9uIHRoZSBnaXZlbiBwaXBlCj4gICAqIEBlbmNvZGVyOiBlbmNvZGVy
+IHRvIG9idGFpbiB0aGUgUFNSIGVuY29kZXIKPiBAQCAtMTczLDYgKzE5MCw3IEBAIGludCByb2Nr
+Y2hpcF9kcm1fcHNyX2RlYWN0aXZhdGUoc3RydWN0IGRybV9lbmNvZGVyICplbmNvZGVyKQo+ICAJ
+cHNyLT5hY3RpdmUgPSBmYWxzZTsKPiAgCW11dGV4X3VubG9jaygmcHNyLT5sb2NrKTsKPiAgCWNh
+bmNlbF9kZWxheWVkX3dvcmtfc3luYygmcHNyLT5mbHVzaF93b3JrKTsKPiArCWNhbmNlbF93b3Jr
+X3N5bmMoJnBzci0+ZGlzYWJsZV93b3JrKTsKPiAgCj4gIAlyZXR1cm4gMDsKPiAgfQo+IEBAIC0y
+MjYsNiArMjQ0LDk1IEBAIHZvaWQgcm9ja2NoaXBfZHJtX3Bzcl9mbHVzaF9hbGwoc3RydWN0IGRy
+bV9kZXZpY2UgKmRldikKPiAgfQo+ICBFWFBPUlRfU1lNQk9MKHJvY2tjaGlwX2RybV9wc3JfZmx1
+c2hfYWxsKTsKPiAgCj4gK3N0YXRpYyB2b2lkIHBzcl9pbnB1dF9ldmVudChzdHJ1Y3QgaW5wdXRf
+aGFuZGxlICpoYW5kbGUsCj4gKwkJCSAgICB1bnNpZ25lZCBpbnQgdHlwZSwgdW5zaWduZWQgaW50
+IGNvZGUsCj4gKwkJCSAgICBpbnQgdmFsdWUpCj4gK3sKPiArCXN0cnVjdCBwc3JfZHJ2ICpwc3Ig
+PSBoYW5kbGUtPmhhbmRsZXItPnByaXZhdGU7Cj4gKwo+ICsJc2NoZWR1bGVfd29yaygmcHNyLT5k
+aXNhYmxlX3dvcmspOwo+ICt9Cj4gKwo+ICtzdGF0aWMgaW50IHBzcl9pbnB1dF9jb25uZWN0KHN0
+cnVjdCBpbnB1dF9oYW5kbGVyICpoYW5kbGVyLAo+ICsJCQkgICAgIHN0cnVjdCBpbnB1dF9kZXYg
+KmRldiwKPiArCQkJICAgICBjb25zdCBzdHJ1Y3QgaW5wdXRfZGV2aWNlX2lkICppZCkKPiArewo+
+ICsJc3RydWN0IGlucHV0X2hhbmRsZSAqaGFuZGxlOwo+ICsJaW50IGVycm9yOwo+ICsKPiArCWhh
+bmRsZSA9IGt6YWxsb2Moc2l6ZW9mKHN0cnVjdCBpbnB1dF9oYW5kbGUpLCBHRlBfS0VSTkVMKTsK
+PiArCWlmICghaGFuZGxlKQo+ICsJCXJldHVybiAtRU5PTUVNOwo+ICsKPiArCWhhbmRsZS0+ZGV2
+ID0gZGV2Owo+ICsJaGFuZGxlLT5oYW5kbGVyID0gaGFuZGxlcjsKPiArCWhhbmRsZS0+bmFtZSA9
+ICJyb2NrY2hpcC1wc3IiOwo+ICsKPiArCWVycm9yID0gaW5wdXRfcmVnaXN0ZXJfaGFuZGxlKGhh
+bmRsZSk7Cj4gKwlpZiAoZXJyb3IpCj4gKwkJZ290byBlcnIyOwo+ICsKPiArCWVycm9yID0gaW5w
+dXRfb3Blbl9kZXZpY2UoaGFuZGxlKTsKPiArCWlmIChlcnJvcikKPiArCQlnb3RvIGVycjE7Cj4g
+Kwo+ICsJcmV0dXJuIDA7Cj4gKwo+ICtlcnIxOgo+ICsJaW5wdXRfdW5yZWdpc3Rlcl9oYW5kbGUo
+aGFuZGxlKTsKPiArZXJyMjoKPiArCWtmcmVlKGhhbmRsZSk7Cj4gKwlyZXR1cm4gZXJyb3I7Cj4g
+K30KPiArCj4gK3N0YXRpYyB2b2lkIHBzcl9pbnB1dF9kaXNjb25uZWN0KHN0cnVjdCBpbnB1dF9o
+YW5kbGUgKmhhbmRsZSkKPiArewo+ICsJaW5wdXRfY2xvc2VfZGV2aWNlKGhhbmRsZSk7Cj4gKwlp
+bnB1dF91bnJlZ2lzdGVyX2hhbmRsZShoYW5kbGUpOwo+ICsJa2ZyZWUoaGFuZGxlKTsKPiArfQo+
+ICsKPiArLyogU2FtZSBkZXZpY2UgaWRzIGFzIGNwdS1ib29zdCAqLwo+ICtzdGF0aWMgY29uc3Qg
+c3RydWN0IGlucHV0X2RldmljZV9pZCBwc3JfaWRzW10gPSB7Cj4gKwl7Cj4gKwkJLmZsYWdzID0g
+SU5QVVRfREVWSUNFX0lEX01BVENIX0VWQklUIHwKPiArCQkJIElOUFVUX0RFVklDRV9JRF9NQVRD
+SF9BQlNCSVQsCj4gKwkJLmV2Yml0ID0geyBCSVRfTUFTSyhFVl9BQlMpIH0sCj4gKwkJLmFic2Jp
+dCA9IHsgW0JJVF9XT1JEKEFCU19NVF9QT1NJVElPTl9YKV0gPQo+ICsJCQkgICAgQklUX01BU0so
+QUJTX01UX1BPU0lUSU9OX1gpIHwKPiArCQkJICAgIEJJVF9NQVNLKEFCU19NVF9QT1NJVElPTl9Z
+KSB9LAo+ICsJfSwgLyogbXVsdGktdG91Y2ggdG91Y2hzY3JlZW4gKi8KPiArCXsKPiArCQkuZmxh
+Z3MgPSBJTlBVVF9ERVZJQ0VfSURfTUFUQ0hfRVZCSVQsCj4gKwkJLmV2Yml0ID0geyBCSVRfTUFT
+SyhFVl9BQlMpIH0sCj4gKwkJLmFic2JpdCA9IHsgW0JJVF9XT1JEKEFCU19YKV0gPSBCSVRfTUFT
+SyhBQlNfWCkgfQo+ICsKPiArCX0sIC8qIHN0eWx1cyBvciBqb3lzdGljayBkZXZpY2UgKi8KPiAr
+CXsKPiArCQkuZmxhZ3MgPSBJTlBVVF9ERVZJQ0VfSURfTUFUQ0hfRVZCSVQsCj4gKwkJLmV2Yml0
+ID0geyBCSVRfTUFTSyhFVl9LRVkpIH0sCj4gKwkJLmtleWJpdCA9IHsgW0JJVF9XT1JEKEJUTl9M
+RUZUKV0gPSBCSVRfTUFTSyhCVE5fTEVGVCkgfSwKPiArCX0sIC8qIHBvaW50ZXIgKGUuZy4gdHJh
+Y2twYWQsIG1vdXNlKSAqLwo+ICsJewo+ICsJCS5mbGFncyA9IElOUFVUX0RFVklDRV9JRF9NQVRD
+SF9FVkJJVCwKPiArCQkuZXZiaXQgPSB7IEJJVF9NQVNLKEVWX0tFWSkgfSwKPiArCQkua2V5Yml0
+ID0geyBbQklUX1dPUkQoS0VZX0VTQyldID0gQklUX01BU0soS0VZX0VTQykgfSwKPiArCX0sIC8q
+IGtleWJvYXJkICovCj4gKwl7Cj4gKwkJLmZsYWdzID0gSU5QVVRfREVWSUNFX0lEX01BVENIX0VW
+QklUIHwKPiArCQkJCUlOUFVUX0RFVklDRV9JRF9NQVRDSF9LRVlCSVQsCj4gKwkJLmV2Yml0ID0g
+eyBCSVRfTUFTSyhFVl9LRVkpIH0sCj4gKwkJLmtleWJpdCA9IHtbQklUX1dPUkQoQlROX0pPWVNU
+SUNLKV0gPSBCSVRfTUFTSyhCVE5fSk9ZU1RJQ0spIH0sCj4gKwl9LCAvKiBqb3lzdGlja3Mgbm90
+IGNhdWdodCBieSBBQlNfWCBhYm92ZSAqLwo+ICsJewo+ICsJCS5mbGFncyA9IElOUFVUX0RFVklD
+RV9JRF9NQVRDSF9FVkJJVCB8Cj4gKwkJCQlJTlBVVF9ERVZJQ0VfSURfTUFUQ0hfS0VZQklULAo+
+ICsJCS5ldmJpdCA9IHsgQklUX01BU0soRVZfS0VZKSB9LAo+ICsJCS5rZXliaXQgPSB7IFtCSVRf
+V09SRChCVE5fR0FNRVBBRCldID0gQklUX01BU0soQlROX0dBTUVQQUQpIH0sCj4gKwl9LCAvKiBn
+YW1lcGFkICovCj4gKwl7IH0sCj4gK307Cj4gKwo+ICAvKioKPiAgICogcm9ja2NoaXBfZHJtX3Bz
+cl9yZWdpc3RlciAtIHJlZ2lzdGVyIGVuY29kZXIgdG8gcHNyIGRyaXZlcgo+ICAgKiBAZW5jb2Rl
+cjogZW5jb2RlciB0aGF0IG9idGFpbiB0aGUgUFNSIGZ1bmN0aW9uCj4gQEAgLTIzOSw2ICszNDYs
+NyBAQCBpbnQgcm9ja2NoaXBfZHJtX3Bzcl9yZWdpc3RlcihzdHJ1Y3QgZHJtX2VuY29kZXIgKmVu
+Y29kZXIsCj4gIHsKPiAgCXN0cnVjdCByb2NrY2hpcF9kcm1fcHJpdmF0ZSAqZHJtX2RydiA9IGVu
+Y29kZXItPmRldi0+ZGV2X3ByaXZhdGU7Cj4gIAlzdHJ1Y3QgcHNyX2RydiAqcHNyOwo+ICsJaW50
+IGVycm9yOwo+ICAKPiAgCWlmICghZW5jb2RlciB8fCAhcHNyX3NldCkKPiAgCQlyZXR1cm4gLUVJ
+TlZBTDsKPiBAQCAtMjQ4LDYgKzM1Niw3IEBAIGludCByb2NrY2hpcF9kcm1fcHNyX3JlZ2lzdGVy
+KHN0cnVjdCBkcm1fZW5jb2RlciAqZW5jb2RlciwKPiAgCQlyZXR1cm4gLUVOT01FTTsKPiAgCj4g
+IAlJTklUX0RFTEFZRURfV09SSygmcHNyLT5mbHVzaF93b3JrLCBwc3JfZmx1c2hfaGFuZGxlcik7
+Cj4gKwlJTklUX1dPUksoJnBzci0+ZGlzYWJsZV93b3JrLCBwc3JfZGlzYWJsZV9oYW5kbGVyKTsK
+PiAgCW11dGV4X2luaXQoJnBzci0+bG9jayk7Cj4gIAo+ICAJcHNyLT5hY3RpdmUgPSB0cnVlOwo+
+IEBAIC0yNTUsMTEgKzM2NCwzMyBAQCBpbnQgcm9ja2NoaXBfZHJtX3Bzcl9yZWdpc3RlcihzdHJ1
+Y3QgZHJtX2VuY29kZXIgKmVuY29kZXIsCj4gIAlwc3ItPmVuY29kZXIgPSBlbmNvZGVyOwo+ICAJ
+cHNyLT5zZXQgPSBwc3Jfc2V0Owo+ICAKPiArCXBzci0+aW5wdXRfaGFuZGxlci5ldmVudCA9IHBz
+cl9pbnB1dF9ldmVudDsKPiArCXBzci0+aW5wdXRfaGFuZGxlci5jb25uZWN0ID0gcHNyX2lucHV0
+X2Nvbm5lY3Q7Cj4gKwlwc3ItPmlucHV0X2hhbmRsZXIuZGlzY29ubmVjdCA9IHBzcl9pbnB1dF9k
+aXNjb25uZWN0Owo+ICsJcHNyLT5pbnB1dF9oYW5kbGVyLm5hbWUgPQo+ICsJCWthc3ByaW50ZihH
+RlBfS0VSTkVMLCAicm9ja2NoaXAtcHNyLSVzIiwgZW5jb2Rlci0+bmFtZSk7Cj4gKwlpZiAoIXBz
+ci0+aW5wdXRfaGFuZGxlci5uYW1lKSB7Cj4gKwkJZXJyb3IgPSAtRU5PTUVNOwo+ICsJCWdvdG8g
+ZXJyMjsKPiArCX0KPiArCXBzci0+aW5wdXRfaGFuZGxlci5pZF90YWJsZSA9IHBzcl9pZHM7Cj4g
+Kwlwc3ItPmlucHV0X2hhbmRsZXIucHJpdmF0ZSA9IHBzcjsKPiArCj4gKwllcnJvciA9IGlucHV0
+X3JlZ2lzdGVyX2hhbmRsZXIoJnBzci0+aW5wdXRfaGFuZGxlcik7Cj4gKwlpZiAoZXJyb3IpCj4g
+KwkJZ290byBlcnIxOwo+ICsKPiAgCW11dGV4X2xvY2soJmRybV9kcnYtPnBzcl9saXN0X2xvY2sp
+Owo+ICAJbGlzdF9hZGRfdGFpbCgmcHNyLT5saXN0LCAmZHJtX2Rydi0+cHNyX2xpc3QpOwo+ICAJ
+bXV0ZXhfdW5sb2NrKCZkcm1fZHJ2LT5wc3JfbGlzdF9sb2NrKTsKPiAgCj4gIAlyZXR1cm4gMDsK
+PiArCj4gKyBlcnIxOgo+ICsJa2ZyZWUocHNyLT5pbnB1dF9oYW5kbGVyLm5hbWUpOwo+ICsgZXJy
+MjoKPiArCWtmcmVlKHBzcik7Cj4gKwlyZXR1cm4gZXJyb3I7Cj4gIH0KPiAgRVhQT1JUX1NZTUJP
+TChyb2NrY2hpcF9kcm1fcHNyX3JlZ2lzdGVyKTsKPiAgCj4gQEAgLTI3OSw4ICs0MTAsMTEgQEAg
+dm9pZCByb2NrY2hpcF9kcm1fcHNyX3VucmVnaXN0ZXIoc3RydWN0IGRybV9lbmNvZGVyICplbmNv
+ZGVyKQo+ICAJbXV0ZXhfbG9jaygmZHJtX2Rydi0+cHNyX2xpc3RfbG9jayk7Cj4gIAlsaXN0X2Zv
+cl9lYWNoX2VudHJ5X3NhZmUocHNyLCBuLCAmZHJtX2Rydi0+cHNyX2xpc3QsIGxpc3QpIHsKPiAg
+CQlpZiAocHNyLT5lbmNvZGVyID09IGVuY29kZXIpIHsKPiArCQkJaW5wdXRfdW5yZWdpc3Rlcl9o
+YW5kbGVyKCZwc3ItPmlucHV0X2hhbmRsZXIpOwo+ICAJCQljYW5jZWxfZGVsYXllZF93b3JrX3N5
+bmMoJnBzci0+Zmx1c2hfd29yayk7Cj4gKwkJCWNhbmNlbF93b3JrX3N5bmMoJnBzci0+ZGlzYWJs
+ZV93b3JrKTsKPiAgCQkJbGlzdF9kZWwoJnBzci0+bGlzdCk7Cj4gKwkJCWtmcmVlKHBzci0+aW5w
+dXRfaGFuZGxlci5uYW1lKTsKPiAgCQkJa2ZyZWUocHNyKTsKPiAgCQl9Cj4gIAl9CgoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxp
+bmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==

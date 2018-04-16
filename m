@@ -1,279 +1,83 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 24/30] drm/rockchip: Disable PSR on input events
-Date: Mon, 16 Apr 2018 10:41:17 -0700
-Message-ID: <20180416174117.GA77055@dtor-ws>
-References: <20180405095000.9756-1-enric.balletbo@collabora.com>
- <CGME20180405095330epcas1p33487d73838f08a65ce7935f0d3e8b9e4@epcas1p3.samsung.com>
- <20180405095000.9756-25-enric.balletbo@collabora.com>
- <20d2aa03-63e3-0072-5ca7-5f3ca42c3c9e@samsung.com>
+Subject: Re: [PATCH v2 1/3] Input: ti_am335x_tsc - Mark IRQ as wakeup capable
+Date: Mon, 16 Apr 2018 10:45:42 -0700
+Message-ID: <20180416174542.GB77055@dtor-ws>
+References: <20180414095153.32060-1-vigneshr@ti.com>
+ <20180414095153.32060-2-vigneshr@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20d2aa03-63e3-0072-5ca7-5f3ca42c3c9e@samsung.com>
+In-Reply-To: <20180414095153.32060-2-vigneshr@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>, architt@codeaurora.org, inki.dae@samsung.com, thierry.reding@gmail.com, hjc@rock-chips.com, seanpaul@chromium.org, airlied@linux.ie, tfiga@chromium.org, heiko@sntech.de, dri-devel@lists.freedesktop.org, dianders@chromium.org, ykk@rock-chips.com, kernel@collabora.com, m.szyprowski@samsung.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, rydberg@bitmath.org, krzk@kernel.org, linux-rockchip@lists.infradead.org, kgene@kernel.org, linux-input@vger.kernel.org, orjan.eide@arm.com, wxt@rock-chips.com, jeffy.chen@rock-chips.com, linux-arm-kernel@lists.infradead.org, mark.yao@rock-chips.com, wzz@rock-chips.com, hl@rock-chips.com, jingoohan1@gmail.com, sw0312.kim@samsung.com, linux-kernel@vger.kernel.org, kyungmin.
+To: Vignesh R <vigneshr@ti.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 16, 2018 at 09:19:21AM +0200, Andrzej Hajda wrote:
+On Sat, Apr 14, 2018 at 03:21:51PM +0530, Vignesh R wrote:
+> On AM335x, ti_am335x_tsc can wake up the system from suspend, mark the
+> IRQ as wakeup capable, so that device irq is not disabled during system
+> suspend.
 > 
-> +CC: linux-input list and maintainer
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> ---
 > 
+> v2: No changes
 > 
-> On 05.04.2018 11:49, Enric Balletbo i Serra wrote:
-> > From: "Kristian H. Kristensen" <hoegsberg@google.com>
-> >
-> > To improve PSR exit latency, we speculatively start exiting when we
-> > receive input events. Occasionally, this may lead to false positives,
-> > but most of the time we get a head start on coming out of PSR. Depending
-> > on how userspace takes to produce a new frame in response to the event,
-> > this can completely hide the exit latency. In case of Chrome OS, we
-> > typically get the input notifier 50ms or more before the dirty_fb
-> > triggered exit.
+>  drivers/input/touchscreen/ti_am335x_tsc.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 > 
-> As I see from the code below, you just need notification from input
-> subsystem on user activity.
-> Maybe there is some simpler notification mechanism for such things?
-> If not, maybe such helper should be created in input subsystem, I
-> suppose it could be reused in other places as well.
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index f1043ae71dcc..810e05c9c4f5 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+>  #include <linux/sort.h>
+> +#include <linux/pm_wakeirq.h>
+>  
+>  #include <linux/mfd/ti_am335x_tscadc.h>
+>  
+> @@ -432,6 +433,12 @@ static int titsc_probe(struct platform_device *pdev)
+>  		goto err_free_mem;
+>  	}
+>  
+> +	if (device_may_wakeup(tscadc_dev->dev)) {
+> +		err = dev_pm_set_wake_irq(tscadc_dev->dev, ts_dev->irq);
 
-Creating an input_handler is how you get user activity. It allows you to
-decide what devices you are interested in and you get events so you
-decide what to do with them.
-
-I am pretty sure using something like atomic notifier is not that much
-simpler, but much less flexible.
-
-I wonder though we we really need to open devices when we connect to
-them, or if we can leave it as is and only receive events if someone
-else opened the device and is consuming events.
+Hmm, most of the drivers simply use enable_irq_wake()/disable_irq_wake()
+in suspend/resume paths and use dev_pm_set_wake_irq() only for dedicated
+and distinct wake interrupts. Why do we not follow the same pattern
+here?
 
 Thanks.
 
-> 
-> Regards
-> Andrzej
-> 
-> >
-> > Signed-off-by: Kristian H. Kristensen <hoegsberg@google.com>
-> > Signed-off-by: Thierry Escande <thierry.escande@collabora.com>
-> > Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> > Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> > ---
-> >
-> >  drivers/gpu/drm/rockchip/rockchip_drm_psr.c | 134 ++++++++++++++++++++++++++++
-> >  1 file changed, 134 insertions(+)
-> >
-> > diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-> > index 9376f4396b6b..a107845ba97c 100644
-> > --- a/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-> > +++ b/drivers/gpu/drm/rockchip/rockchip_drm_psr.c
-> > @@ -12,6 +12,8 @@
-> >   * GNU General Public License for more details.
-> >   */
-> >  
-> > +#include <linux/input.h>
-> > +
-> >  #include <drm/drmP.h>
-> >  #include <drm/drm_crtc_helper.h>
-> >  
-> > @@ -35,6 +37,9 @@ struct psr_drv {
-> >  	enum psr_state		state;
-> >  
-> >  	struct delayed_work	flush_work;
-> > +	struct work_struct	disable_work;
-> > +
-> > +	struct input_handler    input_handler;
-> >  
-> >  	int (*set)(struct drm_encoder *encoder, bool enable);
-> >  };
-> > @@ -133,6 +138,18 @@ static void psr_flush_handler(struct work_struct *work)
-> >  	mutex_unlock(&psr->lock);
-> >  }
-> >  
-> > +static void psr_disable_handler(struct work_struct *work)
-> > +{
-> > +	struct psr_drv *psr = container_of(work, struct psr_drv, disable_work);
-> > +
-> > +	/* If the state has changed since we initiated the flush, do nothing */
-> > +	mutex_lock(&psr->lock);
-> > +	if (psr->state == PSR_ENABLE)
-> > +		psr_set_state_locked(psr, PSR_FLUSH);
-> > +	mutex_unlock(&psr->lock);
-> > +	mod_delayed_work(system_wq, &psr->flush_work, PSR_FLUSH_TIMEOUT_MS);
-> > +}
-> > +
-> >  /**
-> >   * rockchip_drm_psr_activate - activate PSR on the given pipe
-> >   * @encoder: encoder to obtain the PSR encoder
-> > @@ -173,6 +190,7 @@ int rockchip_drm_psr_deactivate(struct drm_encoder *encoder)
-> >  	psr->active = false;
-> >  	mutex_unlock(&psr->lock);
-> >  	cancel_delayed_work_sync(&psr->flush_work);
-> > +	cancel_work_sync(&psr->disable_work);
-> >  
-> >  	return 0;
-> >  }
-> > @@ -226,6 +244,95 @@ void rockchip_drm_psr_flush_all(struct drm_device *dev)
-> >  }
-> >  EXPORT_SYMBOL(rockchip_drm_psr_flush_all);
-> >  
-> > +static void psr_input_event(struct input_handle *handle,
-> > +			    unsigned int type, unsigned int code,
-> > +			    int value)
-> > +{
-> > +	struct psr_drv *psr = handle->handler->private;
-> > +
-> > +	schedule_work(&psr->disable_work);
-> > +}
-> > +
-> > +static int psr_input_connect(struct input_handler *handler,
-> > +			     struct input_dev *dev,
-> > +			     const struct input_device_id *id)
-> > +{
-> > +	struct input_handle *handle;
-> > +	int error;
-> > +
-> > +	handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
-> > +	if (!handle)
-> > +		return -ENOMEM;
-> > +
-> > +	handle->dev = dev;
-> > +	handle->handler = handler;
-> > +	handle->name = "rockchip-psr";
-> > +
-> > +	error = input_register_handle(handle);
-> > +	if (error)
-> > +		goto err2;
-> > +
-> > +	error = input_open_device(handle);
-> > +	if (error)
-> > +		goto err1;
-> > +
-> > +	return 0;
-> > +
-> > +err1:
-> > +	input_unregister_handle(handle);
-> > +err2:
-> > +	kfree(handle);
-> > +	return error;
-> > +}
-> > +
-> > +static void psr_input_disconnect(struct input_handle *handle)
-> > +{
-> > +	input_close_device(handle);
-> > +	input_unregister_handle(handle);
-> > +	kfree(handle);
-> > +}
-> > +
-> > +/* Same device ids as cpu-boost */
-> > +static const struct input_device_id psr_ids[] = {
-> > +	{
-> > +		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
-> > +			 INPUT_DEVICE_ID_MATCH_ABSBIT,
-> > +		.evbit = { BIT_MASK(EV_ABS) },
-> > +		.absbit = { [BIT_WORD(ABS_MT_POSITION_X)] =
-> > +			    BIT_MASK(ABS_MT_POSITION_X) |
-> > +			    BIT_MASK(ABS_MT_POSITION_Y) },
-> > +	}, /* multi-touch touchscreen */
-> > +	{
-> > +		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-> > +		.evbit = { BIT_MASK(EV_ABS) },
-> > +		.absbit = { [BIT_WORD(ABS_X)] = BIT_MASK(ABS_X) }
-> > +
-> > +	}, /* stylus or joystick device */
-> > +	{
-> > +		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-> > +		.evbit = { BIT_MASK(EV_KEY) },
-> > +		.keybit = { [BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) },
-> > +	}, /* pointer (e.g. trackpad, mouse) */
-> > +	{
-> > +		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-> > +		.evbit = { BIT_MASK(EV_KEY) },
-> > +		.keybit = { [BIT_WORD(KEY_ESC)] = BIT_MASK(KEY_ESC) },
-> > +	}, /* keyboard */
-> > +	{
-> > +		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
-> > +				INPUT_DEVICE_ID_MATCH_KEYBIT,
-> > +		.evbit = { BIT_MASK(EV_KEY) },
-> > +		.keybit = {[BIT_WORD(BTN_JOYSTICK)] = BIT_MASK(BTN_JOYSTICK) },
-> > +	}, /* joysticks not caught by ABS_X above */
-> > +	{
-> > +		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
-> > +				INPUT_DEVICE_ID_MATCH_KEYBIT,
-> > +		.evbit = { BIT_MASK(EV_KEY) },
-> > +		.keybit = { [BIT_WORD(BTN_GAMEPAD)] = BIT_MASK(BTN_GAMEPAD) },
-> > +	}, /* gamepad */
-> > +	{ },
-> > +};
-> > +
-> >  /**
-> >   * rockchip_drm_psr_register - register encoder to psr driver
-> >   * @encoder: encoder that obtain the PSR function
-> > @@ -239,6 +346,7 @@ int rockchip_drm_psr_register(struct drm_encoder *encoder,
-> >  {
-> >  	struct rockchip_drm_private *drm_drv = encoder->dev->dev_private;
-> >  	struct psr_drv *psr;
-> > +	int error;
-> >  
-> >  	if (!encoder || !psr_set)
-> >  		return -EINVAL;
-> > @@ -248,6 +356,7 @@ int rockchip_drm_psr_register(struct drm_encoder *encoder,
-> >  		return -ENOMEM;
-> >  
-> >  	INIT_DELAYED_WORK(&psr->flush_work, psr_flush_handler);
-> > +	INIT_WORK(&psr->disable_work, psr_disable_handler);
-> >  	mutex_init(&psr->lock);
-> >  
-> >  	psr->active = true;
-> > @@ -255,11 +364,33 @@ int rockchip_drm_psr_register(struct drm_encoder *encoder,
-> >  	psr->encoder = encoder;
-> >  	psr->set = psr_set;
-> >  
-> > +	psr->input_handler.event = psr_input_event;
-> > +	psr->input_handler.connect = psr_input_connect;
-> > +	psr->input_handler.disconnect = psr_input_disconnect;
-> > +	psr->input_handler.name =
-> > +		kasprintf(GFP_KERNEL, "rockchip-psr-%s", encoder->name);
-> > +	if (!psr->input_handler.name) {
-> > +		error = -ENOMEM;
-> > +		goto err2;
-> > +	}
-> > +	psr->input_handler.id_table = psr_ids;
-> > +	psr->input_handler.private = psr;
-> > +
-> > +	error = input_register_handler(&psr->input_handler);
-> > +	if (error)
-> > +		goto err1;
-> > +
-> >  	mutex_lock(&drm_drv->psr_list_lock);
-> >  	list_add_tail(&psr->list, &drm_drv->psr_list);
-> >  	mutex_unlock(&drm_drv->psr_list_lock);
-> >  
-> >  	return 0;
-> > +
-> > + err1:
-> > +	kfree(psr->input_handler.name);
-> > + err2:
-> > +	kfree(psr);
-> > +	return error;
-> >  }
-> >  EXPORT_SYMBOL(rockchip_drm_psr_register);
-> >  
-> > @@ -279,8 +410,11 @@ void rockchip_drm_psr_unregister(struct drm_encoder *encoder)
-> >  	mutex_lock(&drm_drv->psr_list_lock);
-> >  	list_for_each_entry_safe(psr, n, &drm_drv->psr_list, list) {
-> >  		if (psr->encoder == encoder) {
-> > +			input_unregister_handler(&psr->input_handler);
-> >  			cancel_delayed_work_sync(&psr->flush_work);
-> > +			cancel_work_sync(&psr->disable_work);
-> >  			list_del(&psr->list);
-> > +			kfree(psr->input_handler.name);
-> >  			kfree(psr);
-> >  		}
-> >  	}
-> 
+> +		if (err)
+> +			dev_err(&pdev->dev, "irq wake enable failed.\n");
+> +	}
+> +
+>  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+>  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
+>  	err = titsc_config_wires(ts_dev);
+> @@ -462,6 +469,7 @@ static int titsc_probe(struct platform_device *pdev)
+>  	return 0;
+>  
+>  err_free_irq:
+> +	dev_pm_clear_wake_irq(tscadc_dev->dev);
+>  	free_irq(ts_dev->irq, ts_dev);
+>  err_free_mem:
+>  	input_free_device(input_dev);
+> @@ -474,6 +482,7 @@ static int titsc_remove(struct platform_device *pdev)
+>  	struct titsc *ts_dev = platform_get_drvdata(pdev);
+>  	u32 steps;
+>  
+> +	dev_pm_clear_wake_irq(ts_dev->mfd_tscadc->dev);
+>  	free_irq(ts_dev->irq, ts_dev);
+>  
+>  	/* total steps followed by the enable mask */
+> -- 
+> 2.17.0
 > 
 
 -- 

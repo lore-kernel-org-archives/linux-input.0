@@ -1,256 +1,112 @@
-From: Robert Munteanu <rombert@apache.org>
-Subject: Re: [PATCH v5] Fix modifier keys for Redragon Asura Keyboard
-Date: Mon, 16 Apr 2018 13:14:18 +0300
-Message-ID: <149a44d0456b2f0b48be13ba51aeaccc33651073.camel@apache.org>
-References: <20180411094953.12053-1-rombert@apache.org>
-         <CAO-hwJKbYyZdtq=zg_ZeJOiL=5cTbD4oKuWmpF-P_7TgBkqVYA@mail.gmail.com>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: [PATCH v9 0/2] hid-steam driver with user mode client dection
+Date: Mon, 16 Apr 2018 14:27:01 +0200
+Message-ID: <20180416122703.22306-1-rodrigorivascosta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKbYyZdtq=zg_ZeJOiL=5cTbD4oKuWmpF-P_7TgBkqVYA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin and Jiri,
+Hello! This is reroll v9 of the Steam Controller driver.
 
-On Mon, 2018-04-16 at 12:02 +0200, Benjamin Tissoires wrote:
-> Hi Robert,
-> 
-> On Wed, Apr 11, 2018 at 11:49 AM, Robert Munteanu <rombert@apache.org
-> > wrote:
-> > Changelog:
-> > 
-> > - v2: modifier keys work, some combinations are still troublesome
-> > - v3: style cleanup, rebase on top of 4.14
-> > - v4: remove most debugging calls, make init info useful for user,
-> >   rebased on top of 4.15
-> > - v5: fix the HID descriptor as suggested by Benjamin Tissoires,
-> >   use existing USB vendor id, update comment style, add SPDX
-> >   license identifier, rename to hid-redragon, stop registering
-> >   two input devices, rebased on top of 4.16
-> 
-> As Jiri said, please provide a correct commit message.
+@Pierre-Loup, @Clément, could you please check if this driver is acceptable by
+Valve? I think this could be the one ;-).
 
-Will do.
+I've rolled back the synthetic LPAD diagonals. It happens that the actual
+coordinates of the pads are rotated about 15 degrees to the center, but the
+marks in the pad are aligned to 0/90 degrees. That, and my poor's man
+trigonometry, makes clicking the diagonals quite unreliable.
+Sorry for the noise, but now I think that we are better limiting ourselves to
+the events emitted by the hardware, as is.
 
-> 
-> I have a few nitpicks in the driver, v6 should be fine:
-> 
-> > 
-> > Signed-off-by: Robert Munteanu <rombert@apache.org>
-> > ---
-> >  drivers/hid/Kconfig        |  7 ++++
-> >  drivers/hid/Makefile       |  1 +
-> >  drivers/hid/hid-ids.h      |  1 +
-> >  drivers/hid/hid-quirks.c   |  3 ++
-> >  drivers/hid/hid-redragon.c | 89
-> > ++++++++++++++++++++++++++++++++++++++++++++++
-> >  5 files changed, 101 insertions(+)
-> >  create mode 100644 drivers/hid/hid-redragon.c
-> > 
-> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > index 19c499f5623d..1125e4813716 100644
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -560,6 +560,13 @@ config HID_MAYFLASH
-> >         Say Y here if you have HJZ Mayflash PS3 game controller
-> > adapters
-> >         and want to enable force feedback support.
-> > 
-> > +config HID_REDRAGON
-> > +       tristate "Redragon keyboards"
-> > +       depends on HID
-> > +       default !EXPERT
-> > +       ---help---
-> > +    Support for Redragon keyboards that need fix-ups to work
-> > properly.
-> > +
-> >  config HID_MICROSOFT
-> >         tristate "Microsoft non-fully HID-compliant devices"
-> >         depends on HID
-> > diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> > index eb13b9e92d85..a36f3f40ba63 100644
-> > --- a/drivers/hid/Makefile
-> > +++ b/drivers/hid/Makefile
-> > @@ -84,6 +84,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)                +=
-> > hid-picolcd_debugfs.o
-> > 
-> >  obj-$(CONFIG_HID_PLANTRONICS)  += hid-plantronics.o
-> >  obj-$(CONFIG_HID_PRIMAX)       += hid-primax.o
-> > +obj-$(CONFIG_HID_REDRAGON)     += hid-redragon.o
-> >  obj-$(CONFIG_HID_RETRODE)      += hid-retrode.o
-> >  obj-$(CONFIG_HID_ROCCAT)       += hid-roccat.o hid-roccat-common.o 
-> > \
-> >         hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
-> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > index 9454ac134ce2..41a64d0e91f9 100644
-> > --- a/drivers/hid/hid-ids.h
-> > +++ b/drivers/hid/hid-ids.h
-> > @@ -599,6 +599,7 @@
-> >  #define USB_VENDOR_ID_JESS             0x0c45
-> >  #define USB_DEVICE_ID_JESS_YUREX       0x1010
-> >  #define USB_DEVICE_ID_ASUS_MD_5112     0x5112
-> > +#define USB_DEVICE_ID_REDRAGON_ASURA   0x760b
-> > 
-> >  #define USB_VENDOR_ID_JESS2            0x0f30
-> >  #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
-> > diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> > index e92b77fa574a..5f1253f1739a 100644
-> > --- a/drivers/hid/hid-quirks.c
-> > +++ b/drivers/hid/hid-quirks.c
-> > @@ -557,6 +557,9 @@ static const struct hid_device_id
-> > hid_have_special_driver[] = {
-> >  #if IS_ENABLED(CONFIG_HID_PRODIKEYS)
-> >         { HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS,
-> > USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
-> >  #endif
-> > +#if IS_ENABLED(CONFIG_HID_REDRAGON)
-> > +       {
-> > HID_USB_DEVICE(USB_VENDOR_ID_JESS,  USB_DEVICE_ID_REDRAGON_ASURA)
-> > },
-> > +#endif
-> 
-> Please drop this hunk. v4.16 should work without changing
-> hid_have_special_driver. This way, you will be sure that an initramfs
-> that doesn't include hid-redragon.ko will allo people to type their
-> LUKS password.
+Other than that, I've doing some torture testing, with and without the Steam
+Client running. I've changed:
+ 1. The way EPIPE is handled when sending a report: I've noticed that Steam
+    Client retries up to 50 times, with little or no delay between them, so I do
+    the same.
+ 2. I've added a fallback in case this driver is unable to get the serial number
+    of the controller. Failures on any other report can be ignored safely. But
+    failing to get the serial number was preventing the creating of the hidraw
+    node (wired controller only), and that could prevent Steam Client from
+    working. 
+ 3. I've received a mail from Valve with a bunch of constants for the
+    protocol. Most are related to the setting of new mappings (that we do not
+    need) and a few of the rest are deprecated. Anyway, I've renamed the
+    constants STEAM_CMD_* to align them with the official names, and added a
+    few more that were unknown to me, just for future reference. Still, commands
+    used for enabling/disabling lizard mode are the same.
 
-I recall testing without this change resulted in the driver not being
-picked up. I will retest ( running 4.16.0 here, can update to 4.16.1
-soon ). In case the driver is not picked up, where should I start
-looking?
+Best regards.
 
-> 
-> >  #if IS_ENABLED(CONFIG_HID_RETRODE)
-> >         { HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY,
-> > USB_DEVICE_ID_RETRODE2) },
-> >  #endif
-> > diff --git a/drivers/hid/hid-redragon.c b/drivers/hid/hid-
-> > redragon.c
-> > new file mode 100644
-> > index 000000000000..ff98a5dbb8e2
-> > --- /dev/null
-> > +++ b/drivers/hid/hid-redragon.c
-> > @@ -0,0 +1,89 @@
-> > +/*
-> > + *  HID driver for Redragon keyboards
-> > + *
-> > + *  Copyright (c) 2017 Robert Munteanu
-> > + *  SPDX-License-Identifier: GPL-2.0
-> > + */
-> > +
-> > +/*
-> > + * This program is free software; you can redistribute it and/or
-> > modify it
-> > + * under the terms of the GNU General Public License as published
-> > by the Free
-> > + * Software Foundation; either version 2 of the License, or (at
-> > your option)
-> > + * any later version.
-> > + */
-> > +
-> > +#include <linux/device.h>
-> > +#include <linux/input.h>
-> 
-> you probably don't need input.h
-> 
-> > +#include <linux/hid.h>
-> > +#include <linux/module.h>
-> > +#include <linux/log2.h>
-> 
-> log2.h? I am not sure you need it either
-> 
-> > +#include <linux/input-event-codes.h>
-> 
-> probably drop this one too.
+Changes in v9:
+ * Remove synthetic diagonals for the DPAD (bad idea).
+ * Rename protocol constants to follow Valve names.
+ * Rewrite the retry fo steam_send_report() when EPIPE.
+ * Add a fallback for failure getting the serial number.
 
-I'll drop the missing imports, those are leftovers from my initial
-work.
+Changes in v8:
+ * Add constants for the protocol major magic numbers.
+ * Disable/Enable margin of the rpad, together with the lizard-mode.
+ * Synthesize diagonals for the DPAD.
+ * Fix overflow with Y=-32768.
+ * Make lizard_mode parameter a bool, dynamically updatable.
 
-> 
-> > +
-> > +#include "hid-ids.h"
-> > +
-> > +
-> > +/*
-> > + * The Redragon Asura keyboard sends an incorrect HID descriptor.
-> > + * At byte 100 it contains
-> > + *
-> > + *   0x81, 0x00
-> > + *
-> > + * which is Input (Data, Arr, Abs), but it should be
-> > + *
-> > + *   0x81, 0x02
-> > + *
-> > + * which is Input (Data, Var, Abs), which is consistent with the
-> > way
-> > + * key codes are generated.
-> > + */
-> > +
-> > +static __u8 *redragon_report_fixup(struct hid_device *hdev, __u8
-> > *rdesc,
-> > +       unsigned int *rsize)
-> > +{
-> > +       if (*rsize >= 102 && rdesc[100] == 0x81 && rdesc[101] ==
-> > 0x00) {
-> > +               dev_info(&hdev->dev, "Fixing Redragon ASURA report
-> > descriptor.\n");
-> > +               rdesc[101] = 0x02;
-> > +       }
-> > +
-> > +       return rdesc;
-> > +}
-> > +
-> > +static int redragon_probe(struct hid_device *dev,
-> > +       const struct hid_device_id *id)
-> > +{
-> > +       int ret;
-> > +
-> > +       ret = hid_parse(dev);
-> > +       if (ret) {
-> > +               hid_err(dev, "parse failed\n");
-> > +               return ret;
-> > +       }
-> > +
-> > +       /* do not register unused input device */
-> > +       if (dev->maxapplication == 1)
-> > +               return 0;
-> > +
-> > +       ret = hid_hw_start(dev, HID_CONNECT_DEFAULT);
-> > +       if (ret) {
-> > +               hid_err(dev, "hw start failed\n");
-> > +               return ret;
-> > +       }
-> > +
-> > +       return 0;
-> > +}
-> > +static const struct hid_device_id redragon_devices[] = {
-> > +       {HID_USB_DEVICE(USB_VENDOR_ID_JESS,
-> > USB_DEVICE_ID_REDRAGON_ASURA)},
-> > +       {}
-> > +};
-> > +
-> > +MODULE_DEVICE_TABLE(hid, redragon_devices);
-> > +
-> > +static struct hid_driver redragon_driver = {
-> > +       .name = "redragon",
-> > +       .id_table = redragon_devices,
-> > +       .report_fixup = redragon_report_fixup,
-> > +       .probe = redragon_probe
-> > +};
-> > +
-> > +module_hid_driver(redragon_driver);
-> > +
-> > +MODULE_LICENSE("GPL");
-> 
-> The SPDX header says GPL-v2. And IIRC if there is the SPDX header you
-> can drop the MODULE_LICENSE (not entirely sure though).
+Changes in v7:
+ * All the automatic lizard_mode stuff.
+ * Added the lizard_mode parameter.
+ * The patchset is reduced to 2 commits. The separation of the
+   steam_get_serial command no longer makes sense, since I need the
+   steam_send_cmd in the first commit to implement the lizard mode.
+ * Change the input mapping to conform to Documentation/gamepad.rst.
 
-Ack, will adjust and re-test.
+(v6 was a RFC, it does not count).
 
-Thanks for the review,
+Changes in v5:
+ * Fix license SPDX to GPL-2.0+.
+ * Minor stylistic changes (BIT(3) instead 0x08 and so on).
 
-Robert
+Changes in v4:
+ * Add command to check the wireless connection status on probe, without
+   waiting for a message (thanks to Clément Vuchener for the tip).
+ * Removed the error code on redundant connection/disconnection messages. That
+   was harmless but polluted dmesg.
+ * Added buttons for touching the left-pad and right-pad.
+ * Fixed a misplaced #include from 2/4 to 1/4.
+
+Changes in v3:
+ * Use RCU to do the dynamic connec/disconnect of wireless devices.
+ * Remove entries in hid-quirks.c as they are no longer needed. This allows
+   this module to be blacklisted without side effects.
+ * Do not bypass the virtual keyboard/mouse HID devices to avoid breaking
+   existing use cases (lizard mode). A user-space tool to do that is
+   linked.
+ * Fully separated axes for joystick and left-pad. As it happens.
+ * Add fuzz values for left/right pad axes, they are a little wiggly.
+
+Changes in v2:
+ * Remove references to USB. Now the interesting interfaces are selected by
+   looking for the ones with feature reports.
+ * Feature reports buffers are allocated with hid_alloc_report_buf().
+ * Feature report length is checked, to avoid overflows in case of
+   corrupt/malicius USB devices.
+ * Resolution added to the ABS axes.
+ * A lot of minor cleanups.
+
+Rodrigo Rivas Costa (2):
+  HID: add driver for Valve Steam Controller
+  HID: steam: add battery device.
+
+ drivers/hid/Kconfig     |    8 +
+ drivers/hid/Makefile    |    1 +
+ drivers/hid/hid-ids.h   |    4 +
+ drivers/hid/hid-steam.c | 1112 +++++++++++++++++++++++++++++++++++++++
+ include/linux/hid.h     |    1 +
+ 5 files changed, 1126 insertions(+)
+ create mode 100644 drivers/hid/hid-steam.c
+
+-- 
+2.17.0

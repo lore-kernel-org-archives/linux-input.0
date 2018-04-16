@@ -1,160 +1,44 @@
-From: Robert Munteanu <rombert@apache.org>
-Subject: [PATCH v6] Fix modifier keys for Redragon Asura Keyboard
-Date: Tue, 17 Apr 2018 00:38:24 +0300
-Message-ID: <20180416213824.14688-1-rombert@apache.org>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2] Input: add bu21029 touch driver
+Date: Mon, 16 Apr 2018 16:44:56 -0500
+Message-ID: <20180416214456.je4nfuk6riw4xdjd@rob-hp-laptop>
+References: <1521651874-15379-1-git-send-email-mark.jonas@de.bosch.com>
+ <1523897378-23207-1-git-send-email-mark.jonas@de.bosch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1523897378-23207-1-git-send-email-mark.jonas@de.bosch.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Robert Munteanu <rombert@apache.org>
+To: Mark Jonas <mark.jonas@de.bosch.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, hs@denx.de, Zhu Yi <yi.zhu5@cn.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-This adds a new driver for the Redragon Asura keyboard. The Asura
-keyboard contains an error in the HID descriptor which causes all
-modifier keys to be mapped to left shift. Additionally, we suppress
-the creation of a second, not working, keyboard device.
+On Mon, Apr 16, 2018 at 06:49:38PM +0200, Mark Jonas wrote:
+> From: Zhu Yi <yi.zhu5@cn.bosch.com>
+> 
+> Add Rohm BU21029 resistive touch panel controller support with I2C
+> interface.
+> 
+> Signed-off-by: Zhu Yi <yi.zhu5@cn.bosch.com>
+> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+> Reviewed-by: Heiko Schocher <hs@denx.de>
+> ---
+> Changes in v2:
+>  - make ABS_PRESSURE proportionally rising with finger pressure
+>  - fix race between interrupt and timer during shutdown
+>  - use infrastructure from include/linux/input/touchscreen.h
+>  - add SPDX tag for the driver
+>  - improve binding documentation
+>  - fix multi-line comments
+> ---
+>  .../bindings/input/touchscreen/bu21029.txt         |  34 ++
 
-Signed-off-by: Robert Munteanu <rombert@apache.org>
----
- drivers/hid/Kconfig        |  7 ++++
- drivers/hid/Makefile       |  1 +
- drivers/hid/hid-ids.h      |  1 +
- drivers/hid/hid-redragon.c | 86 ++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 95 insertions(+)
- create mode 100644 drivers/hid/hid-redragon.c
+Reviewed-by: Rob Herring <robh@kernel.org>
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 19c499f5623d..1125e4813716 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -560,6 +560,13 @@ config HID_MAYFLASH
- 	Say Y here if you have HJZ Mayflash PS3 game controller adapters
- 	and want to enable force feedback support.
- 
-+config HID_REDRAGON
-+	tristate "Redragon keyboards"
-+	depends on HID
-+	default !EXPERT
-+	---help---
-+    Support for Redragon keyboards that need fix-ups to work properly.
-+
- config HID_MICROSOFT
- 	tristate "Microsoft non-fully HID-compliant devices"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index eb13b9e92d85..a36f3f40ba63 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -84,6 +84,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
- 
- obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
- obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
-+obj-$(CONFIG_HID_REDRAGON)	+= hid-redragon.o
- obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
- obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
- 	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9454ac134ce2..41a64d0e91f9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -599,6 +599,7 @@
- #define USB_VENDOR_ID_JESS		0x0c45
- #define USB_DEVICE_ID_JESS_YUREX	0x1010
- #define USB_DEVICE_ID_ASUS_MD_5112	0x5112
-+#define USB_DEVICE_ID_REDRAGON_ASURA	0x760b
- 
- #define USB_VENDOR_ID_JESS2		0x0f30
- #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
-diff --git a/drivers/hid/hid-redragon.c b/drivers/hid/hid-redragon.c
-new file mode 100644
-index 000000000000..daf59578bf93
---- /dev/null
-+++ b/drivers/hid/hid-redragon.c
-@@ -0,0 +1,86 @@
-+/*
-+ *  HID driver for Redragon keyboards
-+ *
-+ *  Copyright (c) 2017 Robert Munteanu
-+ *  SPDX-License-Identifier: GPL-2.0+
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+
-+/*
-+ * The Redragon Asura keyboard sends an incorrect HID descriptor.
-+ * At byte 100 it contains
-+ *
-+ *   0x81, 0x00
-+ *
-+ * which is Input (Data, Arr, Abs), but it should be
-+ *
-+ *   0x81, 0x02
-+ *
-+ * which is Input (Data, Var, Abs), which is consistent with the way
-+ * key codes are generated.
-+ */
-+
-+static __u8 *redragon_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+	unsigned int *rsize)
-+{
-+	if (*rsize >= 102 && rdesc[100] == 0x81 && rdesc[101] == 0x00) {
-+		dev_info(&hdev->dev, "Fixing Redragon ASURA report descriptor.\n");
-+		rdesc[101] = 0x02;
-+	}
-+
-+	return rdesc;
-+}
-+
-+static int redragon_probe(struct hid_device *dev,
-+	const struct hid_device_id *id)
-+{
-+	int ret;
-+
-+	ret = hid_parse(dev);
-+	if (ret) {
-+		hid_err(dev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	/* do not register unused input device */
-+	if (dev->maxapplication == 1)
-+		return 0;
-+
-+	ret = hid_hw_start(dev, HID_CONNECT_DEFAULT);
-+	if (ret) {
-+		hid_err(dev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+static const struct hid_device_id redragon_devices[] = {
-+	{HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_REDRAGON_ASURA)},
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(hid, redragon_devices);
-+
-+static struct hid_driver redragon_driver = {
-+	.name = "redragon",
-+	.id_table = redragon_devices,
-+	.report_fixup = redragon_report_fixup,
-+	.probe = redragon_probe
-+};
-+
-+module_hid_driver(redragon_driver);
-+
-+MODULE_LICENSE("GPL");
--- 
-2.16.3
+>  drivers/input/touchscreen/Kconfig                  |  12 +
+>  drivers/input/touchscreen/Makefile                 |   1 +
+>  drivers/input/touchscreen/bu21029_ts.c             | 485 +++++++++++++++++++++
+>  4 files changed, 532 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/bu21029.txt
+>  create mode 100644 drivers/input/touchscreen/bu21029_ts.c

@@ -1,226 +1,108 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [PATCH 2/2] input: misc: Add Spreadtrum vibrator driver
-Date: Tue, 17 Apr 2018 11:18:24 +0800
-Message-ID: <b5580f22aaed9845af9b981319d6cefa04fddd35.1523934640.git.baolin.wang@linaro.org>
-References: <0bfdc811c2b3da3aa1cde2feef278a86503e3804.1523934640.git.baolin.wang@linaro.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] Input: i8042 - Fix KBD port cannot wake up system from
+ suspend-to-idle
+Date: Tue, 17 Apr 2018 14:48:56 +0800
+Message-ID: <9F493625-24C6-4FBD-9179-5C74C8CE441D@canonical.com>
+References: <20180411085905.22272-1-kai.heng.feng@canonical.com>
+ <20180413215746.GA27465@dtor-ws>
+Mime-Version: 1.0 (Mac OS X Mail 11.3 \(3445.6.18\))
+Content-Type: text/plain;
+        charset=us-ascii;
+        delsp=yes;
+        format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0bfdc811c2b3da3aa1cde2feef278a86503e3804.1523934640.git.baolin.wang@linaro.org>
-In-Reply-To: <0bfdc811c2b3da3aa1cde2feef278a86503e3804.1523934640.git.baolin.wang@linaro.org>
-References: <0bfdc811c2b3da3aa1cde2feef278a86503e3804.1523934640.git.baolin.wang@linaro.org>
+In-Reply-To: <20180413215746.GA27465@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, orsonzhai@gmail.com, zhang.lyra@gmail.com
-Cc: baolin.wang@linaro.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xiaotong.lu@spreadtrum.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+at 5:57 AM, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-This patch adds the Spreadtrum vibrator driver, which embedded in the
-Spreadtrum SC27xx series PMICs.
+> On Wed, Apr 11, 2018 at 04:59:05PM +0800, Kai-Heng Feng wrote:
+>> Commit f13b2065de81 ("Input: i8042 - allow KBD and AUX ports to wake up
+>> from suspend-to-idle") make system in s2idle can be woken up by i8042
+>> keyboard, but it's disabled by default.
+>>
+>> In commit 3e6e15a862a0 ("Input: enable remote wakeup for PNP i8042
+>> keyboard ports") states that "Keyboard ports are always supposed to be
+>> wakeup-enabled", it should be enabled by default. Keyboard wakeup from
+>> s2idles is also the default behavior for other OSes.
+>>
+>> But right now we can't wake up the system by keyboard, from s2idle.
+>>
+>> In i8042_probe(), device_set_wakeup_enable(), which gets called by
+>> i8042_pnp_kbd_probe(), runs before device_set_wakeup_capable(), which
+>> gets called by i8042_register_ports(). So device_set_wakeup_enable()
+>> doesn't really enable wakeup for keyboard.
+>
+> You are talking about 2 different devices here, one representing PNP and
+> another KBD serio port. Unfortunately there is not really a link between
+> the 2.
 
-Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- drivers/input/misc/Kconfig        |   10 +++
- drivers/input/misc/Makefile       |    1 +
- drivers/input/misc/sc27xx-vibra.c |  159 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 170 insertions(+)
- create mode 100644 drivers/input/misc/sc27xx-vibra.c
+Thanks for the clarification. I can see the difference now.
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 572b15f..c761c0c 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -841,4 +841,14 @@ config INPUT_RAVE_SP_PWRBUTTON
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called rave-sp-pwrbutton.
- 
-+config INPUT_SC27XX_VIBRA
-+	tristate "Spreadtrum sc27xx vibrator support"
-+	depends on MFD_SC27XX_PMIC || COMPILE_TEST
-+	select INPUT_FF_MEMLESS
-+	help
-+	  This option enables support for Spreadtrum sc27xx vibrator driver.
-+
-+	  To compile this driver as a module, choose M here. The module will
-+	  be called sc27xx_vibra.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 72cde28..9d0f9d1 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -66,6 +66,7 @@ obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
- obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
- obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
- obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
-+obj-$(CONFIG_INPUT_SC27XX_VIBRA)	+= sc27xx-vibra.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
- obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
- obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
-diff --git a/drivers/input/misc/sc27xx-vibra.c b/drivers/input/misc/sc27xx-vibra.c
-new file mode 100644
-index 0000000..a34a315
---- /dev/null
-+++ b/drivers/input/misc/sc27xx-vibra.c
-@@ -0,0 +1,159 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) 2018 Spreadtrum Communications Inc.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/of_address.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/input.h>
-+#include <linux/workqueue.h>
-+
-+#define CUR_DRV_CAL_SEL		GENMASK(13, 12)
-+#define SLP_LDOVIBR_PD_EN	BIT(9)
-+#define LDO_VIBR_PD		BIT(8)
-+
-+struct vibra_info {
-+	struct input_dev	*input_dev;
-+	struct work_struct	play_work;
-+	struct regmap		*regmap;
-+	u32			base;
-+	u32			strength;
-+	bool			enabled;
-+};
-+
-+static void sc27xx_vibra_set(struct vibra_info *info, bool on)
-+{
-+	if (on) {
-+		regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD, 0);
-+		regmap_update_bits(info->regmap, info->base,
-+				   SLP_LDOVIBR_PD_EN, 0);
-+		info->enabled = true;
-+	} else {
-+		regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD,
-+				   LDO_VIBR_PD);
-+		regmap_update_bits(info->regmap, info->base,
-+				   SLP_LDOVIBR_PD_EN, SLP_LDOVIBR_PD_EN);
-+		info->enabled = false;
-+	}
-+}
-+
-+static int sc27xx_vibra_hw_init(struct vibra_info *info)
-+{
-+	return regmap_update_bits(info->regmap, info->base, CUR_DRV_CAL_SEL, 0);
-+}
-+
-+static void sc27xx_vibra_play_work(struct work_struct *work)
-+{
-+	struct vibra_info *info = container_of(work, struct vibra_info,
-+					       play_work);
-+
-+	if (info->strength && !info->enabled)
-+		sc27xx_vibra_set(info, true);
-+	else if (info->enabled)
-+		sc27xx_vibra_set(info, false);
-+}
-+
-+static int sc27xx_vibra_play(struct input_dev *input, void *data,
-+			     struct ff_effect *effect)
-+{
-+	struct vibra_info *info = input_get_drvdata(input);
-+
-+	info->strength = effect->u.rumble.weak_magnitude;
-+	schedule_work(&info->play_work);
-+
-+	return 0;
-+}
-+
-+static void sc27xx_vibra_close(struct input_dev *input)
-+{
-+	struct vibra_info *info = input_get_drvdata(input);
-+
-+	cancel_work_sync(&info->play_work);
-+	if (info->enabled)
-+		sc27xx_vibra_set(info, false);
-+}
-+
-+static int sc27xx_vibra_probe(struct platform_device *pdev)
-+{
-+	struct device_node *node = pdev->dev.of_node;
-+	struct vibra_info *info;
-+	int ret;
-+
-+	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	info->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	if (!info->regmap) {
-+		dev_err(&pdev->dev, "failed to get vibrator regmap.\n");
-+		return -ENODEV;
-+	}
-+
-+	ret = of_property_read_u32(node, "reg", &info->base);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to get vibrator base address.\n");
-+		return ret;
-+	}
-+
-+	info->input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!info->input_dev) {
-+		dev_err(&pdev->dev, "failed to allocate input device.\n");
-+		return -ENOMEM;
-+	}
-+
-+	info->input_dev->name = "sc27xx:vibrator";
-+	info->input_dev->id.version = 0;
-+	info->input_dev->dev.parent = pdev->dev.parent;
-+	info->input_dev->close = sc27xx_vibra_close;
-+
-+	input_set_drvdata(info->input_dev, info);
-+	input_set_capability(info->input_dev, EV_FF, FF_RUMBLE);
-+	INIT_WORK(&info->play_work, sc27xx_vibra_play_work);
-+	info->enabled = false;
-+
-+	ret = input_ff_create_memless(info->input_dev, NULL, sc27xx_vibra_play);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to register vibrator to FF.\n");
-+		return ret;
-+	}
-+
-+	ret = input_register_device(info->input_dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to register input device.\n");
-+		input_ff_destroy(info->input_dev);
-+		return ret;
-+	}
-+
-+	ret = sc27xx_vibra_hw_init(info);
-+	if (ret) {
-+		dev_err(&pdev->dev, "failed to initialize the vibrator.\n");
-+		input_ff_destroy(info->input_dev);
-+		input_unregister_device(info->input_dev);
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, info);
-+	return 0;
-+}
-+
-+static const struct of_device_id sc27xx_vibra_of_match[] = {
-+	{ .compatible = "sprd,sc27xx-vibrator", },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, sc27xx_vibra_of_match);
-+
-+static struct platform_driver sc27xx_vibra_driver = {
-+	.driver = {
-+		.name = "sc27xx-vibrator",
-+		.of_match_table = sc27xx_vibra_of_match,
-+	},
-+	.probe = sc27xx_vibra_probe,
-+};
-+
-+module_platform_driver(sc27xx_vibra_driver);
-+
-+MODULE_DESCRIPTION("Spreadtrum SC27xx Vibrator Driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Xiaotong Lu <xiaotong.lu@spreadtrum.com>");
--- 
-1.7.9.5
+Enable wakeup for the serio device is what we want here.
+
+So does the device_set_wakeup_enable() in i8042_pnp_kbd_probe() need  
+another device_set_wakeup_capable()?
+Otherwise I think device_set_wakeup_enable() here never works.
+
+>
+>> We can enable keyboard wakeup in i8042_register_ports() directly.
+>
+> No, the world is not all x86, what makes sense for x86 does not
+> necessarily work for other architectures. We need to come up with a way
+> for tying PNP devices and i8042 ports for x86 case.
+
+Maybe wrap it around with "#ifdef CONFIG_X86"? I can see there are several  
+occurrences in the i8042.c.
+
+Kai-Heng
+
+>
+>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>> ---
+>>  drivers/input/serio/i8042-x86ia64io.h | 3 ---
+>>  drivers/input/serio/i8042.c           | 4 ++++
+>>  2 files changed, 4 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/input/serio/i8042-x86ia64io.h  
+>> b/drivers/input/serio/i8042-x86ia64io.h
+>> index b353d494ad40..e3def9195c2a 100644
+>> --- a/drivers/input/serio/i8042-x86ia64io.h
+>> +++ b/drivers/input/serio/i8042-x86ia64io.h
+>> @@ -925,9 +925,6 @@ static int i8042_pnp_kbd_probe(struct pnp_dev *dev,  
+>> const struct pnp_device_id *
+>>  	i8042_pnp_id_to_string(dev->id, i8042_kbd_firmware_id,
+>>  			       sizeof(i8042_kbd_firmware_id));
+>>
+>> -	/* Keyboard ports are always supposed to be wakeup-enabled */
+>> -	device_set_wakeup_enable(&dev->dev, true);
+>> -
+>>  	i8042_pnp_kbd_devices++;
+>>  	return 0;
+>>  }
+>> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+>> index 824f4c1c1f31..21a16b757931 100644
+>> --- a/drivers/input/serio/i8042.c
+>> +++ b/drivers/input/serio/i8042.c
+>> @@ -1400,6 +1400,10 @@ static void __init i8042_register_ports(void)
+>>  				i8042_ports[i].irq);
+>>  			serio_register_port(serio);
+>>  			device_set_wakeup_capable(&serio->dev, true);
+>> +
+>> +			/* Keyboard ports are always supposed to be wakeup-enabled */
+>> +			if (i == I8042_KBD_PORT_NO)
+>> +				device_wakeup_enable(&serio->dev);
+>>  		}
+>>  	}
+>>  }
+>> -- 
+>> 2.17.0
+>
+> Thanks.
+>
+> -- 
+> Dmitry

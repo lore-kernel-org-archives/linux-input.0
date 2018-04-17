@@ -1,85 +1,100 @@
-From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: Re: [PATCH v3 06/11] iio: inkern: add module put/get on iio dev
- module when requesting channels
-Date: Tue, 17 Apr 2018 10:39:24 +0300
-Message-ID: <67771f4c-d30c-4a28-2a9b-d5585186d60a@microchip.com>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
- <1523350677-27106-7-git-send-email-eugen.hristev@microchip.com>
- <20180415203321.1aaaf91e@archlinux> <20180416235821.GF77055@dtor-ws>
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: Re: [PATCH 2/2] input: misc: Add Spreadtrum vibrator driver
+Date: Tue, 17 Apr 2018 15:49:55 +0800
+Message-ID: <CAMz4ku+HLt3cmYcTKSuoqmLp-65feqiz2kjuoTN+tWJHa_NvuA@mail.gmail.com>
+References: <0bfdc811c2b3da3aa1cde2feef278a86503e3804.1523934640.git.baolin.wang@linaro.org>
+ <b5580f22aaed9845af9b981319d6cefa04fddd35.1523934640.git.baolin.wang@linaro.org>
+ <20180417072530.GA4629@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180416235821.GF77055@dtor-ws>
-Content-Language: en-US
+In-Reply-To: <20180417072530.GA4629@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>
-Cc: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, robh@kernel.org
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Orson Zhai <orsonzhai@gmail.com>, Chunyan Zhang <zhang.lyra@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, xiaotong.lu@spreadtrum.com
 List-Id: linux-input@vger.kernel.org
 
+Hi Marcus,
 
+On 17 April 2018 at 15:25, Marcus Folkesson <marcus.folkesson@gmail.com> wrote:
+> Hi Xiaotong,
+>
+> On Tue, Apr 17, 2018 at 11:18:24AM +0800, Baolin Wang wrote:
+>> From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+>
+> [snip]
+>
+>> +static int sc27xx_vibra_probe(struct platform_device *pdev)
+>> +{
+>> +     struct device_node *node = pdev->dev.of_node;
+>> +     struct vibra_info *info;
+>> +     int ret;
+>> +
+>> +     info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+>> +     if (!info)
+>> +             return -ENOMEM;
+>> +
+>> +     info->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+>> +     if (!info->regmap) {
+>> +             dev_err(&pdev->dev, "failed to get vibrator regmap.\n");
+>> +             return -ENODEV;
+>> +     }
+>> +
+>> +     ret = of_property_read_u32(node, "reg", &info->base);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to get vibrator base address.\n");
+>> +             return ret;
+>> +     }
+>> +
+>> +     info->input_dev = devm_input_allocate_device(&pdev->dev);
+>> +     if (!info->input_dev) {
+>> +             dev_err(&pdev->dev, "failed to allocate input device.\n");
+>> +             return -ENOMEM;
+>> +     }
+>> +
+>> +     info->input_dev->name = "sc27xx:vibrator";
+>> +     info->input_dev->id.version = 0;
+>> +     info->input_dev->dev.parent = pdev->dev.parent;
+>> +     info->input_dev->close = sc27xx_vibra_close;
+>> +
+>> +     input_set_drvdata(info->input_dev, info);
+>> +     input_set_capability(info->input_dev, EV_FF, FF_RUMBLE);
+>> +     INIT_WORK(&info->play_work, sc27xx_vibra_play_work);
+>> +     info->enabled = false;
+>> +
+>> +     ret = input_ff_create_memless(info->input_dev, NULL, sc27xx_vibra_play);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to register vibrator to FF.\n");
+>> +             return ret;
+>> +     }
+>> +
+>> +     ret = input_register_device(info->input_dev);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to register input device.\n");
+>> +             input_ff_destroy(info->input_dev);
+>
+> I'm not sure how the input_ff is freed for managed devices.
+>
+> Either you don't have to destroy it here, or you also need to destroy it
+> in a release() function.
 
-On 17.04.2018 02:58, Dmitry Torokhov wrote:
-> On Sun, Apr 15, 2018 at 08:33:21PM +0100, Jonathan Cameron wrote:
->> On Tue, 10 Apr 2018 11:57:52 +0300
->> Eugen Hristev <eugen.hristev@microchip.com> wrote:
->>
->>> When requesting channels for a particular consumer device,
->>> besides requesting the device (incrementing the reference counter), also
->>> do it for the driver module of the iio dev. This will avoid the situation
->>> where the producer IIO device can be removed and the consumer is still
->>> present in the kernel.
->>>
->>> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
->>> ---
->>>   drivers/iio/inkern.c | 8 +++++++-
->>>   1 file changed, 7 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
->>> index ec98790..68d9b87 100644
->>> --- a/drivers/iio/inkern.c
->>> +++ b/drivers/iio/inkern.c
->>> @@ -11,6 +11,7 @@
->>>   #include <linux/slab.h>
->>>   #include <linux/mutex.h>
->>>   #include <linux/of.h>
->>> +#include <linux/module.h>
->>>   
->>>   #include <linux/iio/iio.h>
->>>   #include "iio_core.h"
->>> @@ -152,6 +153,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
->>>   	if (index < 0)
->>>   		goto err_put;
->>>   	channel->channel = &indio_dev->channels[index];
->>> +	try_module_get(channel->indio_dev->driver_module);
->>
->> And if it fails? (the module we are trying to get is going away...)
->>
->> We should try and handle it I think. Be it by just erroring out of here.
-> 
-> Even more, this has nothing to do with modules. A device can go away for
-> any number of reasons (we unbind it manually via sysfs, we pull the USB
-> plug from the host in case it is USB-connected device, we unload I2C
-> adapter for the bus device resides on, we kick underlying PCI device)
-> and we should be able to handle this in some fashion. Handling errors
-> from reads and ignoring garbage is one of methods.
-> 
-> FWIW this is a NACK from me.
-> 
-> Thanks.
-Hello,
+I checked again, we do not need to destroy it manually. Will remove in
+next version.
 
-This patch is actually a "best effort attempt" for the consumer driver 
-(touch driver) to get a reference to the producer of the data (the IIO 
-device), when it requests the specific channels.
-As of this moment, there is no attempt whatsoever for the consumer to 
-have a reference on the producer driver. Thus, the producer can be 
-removed at any time, and the consumer will fail ungraciously.
-I can change the perspective from "best effort" to "mandatory" to get a 
-reference to the producer, or you wish to stop trying to get any 
-reference at all (remove this patch completely) ?
+>
+>> +             return ret;
+>> +     }
+>> +
+>> +     ret = sc27xx_vibra_hw_init(info);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to initialize the vibrator.\n");
+>> +             input_ff_destroy(info->input_dev);
+>> +             input_unregister_device(info->input_dev);
+>
+> No need to unregister managed input devices.
 
-Thanks,
-Eugen
+You are correct. Will remove these in next version. Thanks for your comments.
 
-> 
+-- 
+Baolin.wang
+Best Regards

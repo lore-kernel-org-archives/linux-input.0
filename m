@@ -1,99 +1,53 @@
-From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: Re: [PATCH v3 03/11] iio: Add channel for Position Relative
-Date: Tue, 17 Apr 2018 10:30:46 +0300
-Message-ID: <02533699-a2bc-7c0c-4d8a-c10bb0102667@microchip.com>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
- <1523350677-27106-4-git-send-email-eugen.hristev@microchip.com>
- <20180415202942.5c7d50a8@archlinux>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: atmel_mxt_ts on droid4: powersave seems to break the driver
+Date: Tue, 17 Apr 2018 09:38:11 +0200
+Message-ID: <20180417073811.GA9450@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180415202942.5c7d50a8@archlinux>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
+To: mutt@amd.karlin.mff.cuni.cz, kernel list <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-omap@vger.kernel.org, tony@atomide.com, sre@kernel.org, nekit1000@gmail.com, mpartap@gmx.net, merlijn@wizzup.org, nick@shmanahar.org, dmitry.torokhov@gmail.com, rydberg@bitmath.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 15.04.2018 22:29, Jonathan Cameron wrote:
-> On Tue, 10 Apr 2018 11:57:49 +0300
-> Eugen Hristev <eugen.hristev@microchip.com> wrote:
-> 
->> Add new channel type for relative position on a pad.
->>
->> These type of analog sensor offers the position of a pen
->> on a touchpad, and is represented as a voltage, which can be
->> converted to a position on X and Y axis on the pad.
->> The channel will hand the relative position on the pad in both directions.
->>
->> The channel can then be consumed by a touchscreen driver or
->> read as-is for a raw indication of the touchpen on a touchpad.
->>
->> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
->> ---
->> Changes in v2:
->>   - modified channel name to relative position as suggested.
->>   - modified kernel version to 4.18 (presumable)
->>
->>   Documentation/ABI/testing/sysfs-bus-iio | 12 ++++++++++++
->>   drivers/iio/industrialio-core.c         |  1 +
->>   include/uapi/linux/iio/types.h          |  1 +
->>   tools/iio/iio_event_monitor.c           |  2 ++
->>   4 files changed, 16 insertions(+)
->>
->> diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
->> index 6a5f34b..42a9287 100644
->> --- a/Documentation/ABI/testing/sysfs-bus-iio
->> +++ b/Documentation/ABI/testing/sysfs-bus-iio
->> @@ -190,6 +190,18 @@ Description:
->>   		but should match other such assignments on device).
->>   		Units after application of scale and offset are m/s^2.
->>   
->> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_x_raw
->> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_y_raw
->> +KernelVersion:	4.18
->> +Contact:	linux-iio@vger.kernel.org
->> +Description:
->> +		Relative position in direction x or y on a pad (may be
->> +		arbitrarily assigned but should match other such assignments on
->> +		device).
->> +		Units after application of scale and offset are milli percents
->> +		from the pad's size in both directions. Should be calibrated by
->> +		the consumer.
-> I know the milli percent comes form the humidity equivalent, but I wonder
-> if we are right to follow that.  10^-5 is a pretty random base unit (though
-> I got argued into it being a standard choice for humidity sensors IIRC...
-> 
-> What do people think?  We could go with 1 for full range or just percent perhaps?
-> 
-> I'm not that fussed about staying consistent with humidity - we are unlikely
-> to end up with sensors doing both anytime soon so there shouldn't be
-> any confusion...
-> 
-> Jonathan
-Hello Jonathan,
+HI!
 
-For my specific use case, percents are not enough, as this would mean 
-the resolution will be pretty low. If we have a touchpanel of a higher 
-resolution, having the position only ranged 0 to 100 is pretty bad.
-Having millipercents means we can have a resolution up to 100,000 points 
-in range, which is fine for the hardware as of this moment.
-Of course, specific drivers reporting these channels can define a 
-specific range if they desire (report just in the first percent if you 
-wish (0-1000) or so, which would mean a lower resolution.
-Centi-percent would work fine as well I believe (0-10,000 range), but to 
-keep consistent with your suggestion regarding relative humidity, I 
-picked this larger scale.
-In my specific case, since we have a 12 bit ADC, range is 0-4096 for 
-this value.
-Calibrating these values to the actual size of the touchpanel is left 
-for the consumer to do (map 4096x4096 to the actual resolution)
+v4.17-rc1 on motorola droid 4.
 
-If you have a better idea than milli-percents I can change it, no problem.
+If I disable/reenable touschreen with xinput, it fails, with this in
+the logs:
 
-Eugen
->> +
->>   [...]
+[ 1633.749450] cpcap-usb-phy cpcap-usb-phy.0: connected to USB host
+[ 1655.938751] atmel_mxt_ts 1-004a: __mxt_read_reg: i2c transfer
+failed (-121)
+[ 1655.945800] atmel_mxt_ts 1-004a: Failed to read T44 and T5 (-121)
+[ 1663.829498] cpcap-usb-phy cpcap-usb-phy.0: connected to USB host
+
+Unfortunately, xscreensaver seems to break it in a similar way.
+
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlrVpGMACgkQMOfwapXb+vLhzwCgnnaXi77vp+AXvDtspVtoqAoc
+1igAoJsCXQGyDClCDFDJ6+oqyOf3cSZ5
+=zQue
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--

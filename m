@@ -1,93 +1,99 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: Re: [PATCH 2/2] input: misc: Add Spreadtrum vibrator driver
-Date: Tue, 17 Apr 2018 09:25:30 +0200
-Message-ID: <20180417072530.GA4629@gmail.com>
-References: <0bfdc811c2b3da3aa1cde2feef278a86503e3804.1523934640.git.baolin.wang@linaro.org>
- <b5580f22aaed9845af9b981319d6cefa04fddd35.1523934640.git.baolin.wang@linaro.org>
+From: Eugen Hristev <eugen.hristev@microchip.com>
+Subject: Re: [PATCH v3 03/11] iio: Add channel for Position Relative
+Date: Tue, 17 Apr 2018 10:30:46 +0300
+Message-ID: <02533699-a2bc-7c0c-4d8a-c10bb0102667@microchip.com>
+References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
+ <1523350677-27106-4-git-send-email-eugen.hristev@microchip.com>
+ <20180415202942.5c7d50a8@archlinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <b5580f22aaed9845af9b981319d6cefa04fddd35.1523934640.git.baolin.wang@linaro.org>
+In-Reply-To: <20180415202942.5c7d50a8@archlinux>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, orsonzhai@gmail.com, zhang.lyra@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xiaotong.lu@spreadtrum.com
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Xiaotong,
 
-On Tue, Apr 17, 2018 at 11:18:24AM +0800, Baolin Wang wrote:
-> From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
 
-[snip]
+On 15.04.2018 22:29, Jonathan Cameron wrote:
+> On Tue, 10 Apr 2018 11:57:49 +0300
+> Eugen Hristev <eugen.hristev@microchip.com> wrote:
+> 
+>> Add new channel type for relative position on a pad.
+>>
+>> These type of analog sensor offers the position of a pen
+>> on a touchpad, and is represented as a voltage, which can be
+>> converted to a position on X and Y axis on the pad.
+>> The channel will hand the relative position on the pad in both directions.
+>>
+>> The channel can then be consumed by a touchscreen driver or
+>> read as-is for a raw indication of the touchpen on a touchpad.
+>>
+>> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+>> ---
+>> Changes in v2:
+>>   - modified channel name to relative position as suggested.
+>>   - modified kernel version to 4.18 (presumable)
+>>
+>>   Documentation/ABI/testing/sysfs-bus-iio | 12 ++++++++++++
+>>   drivers/iio/industrialio-core.c         |  1 +
+>>   include/uapi/linux/iio/types.h          |  1 +
+>>   tools/iio/iio_event_monitor.c           |  2 ++
+>>   4 files changed, 16 insertions(+)
+>>
+>> diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+>> index 6a5f34b..42a9287 100644
+>> --- a/Documentation/ABI/testing/sysfs-bus-iio
+>> +++ b/Documentation/ABI/testing/sysfs-bus-iio
+>> @@ -190,6 +190,18 @@ Description:
+>>   		but should match other such assignments on device).
+>>   		Units after application of scale and offset are m/s^2.
+>>   
+>> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_x_raw
+>> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_y_raw
+>> +KernelVersion:	4.18
+>> +Contact:	linux-iio@vger.kernel.org
+>> +Description:
+>> +		Relative position in direction x or y on a pad (may be
+>> +		arbitrarily assigned but should match other such assignments on
+>> +		device).
+>> +		Units after application of scale and offset are milli percents
+>> +		from the pad's size in both directions. Should be calibrated by
+>> +		the consumer.
+> I know the milli percent comes form the humidity equivalent, but I wonder
+> if we are right to follow that.  10^-5 is a pretty random base unit (though
+> I got argued into it being a standard choice for humidity sensors IIRC...
+> 
+> What do people think?  We could go with 1 for full range or just percent perhaps?
+> 
+> I'm not that fussed about staying consistent with humidity - we are unlikely
+> to end up with sensors doing both anytime soon so there shouldn't be
+> any confusion...
+> 
+> Jonathan
+Hello Jonathan,
 
-> +static int sc27xx_vibra_probe(struct platform_device *pdev)
-> +{
-> +	struct device_node *node = pdev->dev.of_node;
-> +	struct vibra_info *info;
-> +	int ret;
-> +
-> +	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
-> +	if (!info)
-> +		return -ENOMEM;
-> +
-> +	info->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!info->regmap) {
-> +		dev_err(&pdev->dev, "failed to get vibrator regmap.\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	ret = of_property_read_u32(node, "reg", &info->base);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to get vibrator base address.\n");
-> +		return ret;
-> +	}
-> +
-> +	info->input_dev = devm_input_allocate_device(&pdev->dev);
-> +	if (!info->input_dev) {
-> +		dev_err(&pdev->dev, "failed to allocate input device.\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	info->input_dev->name = "sc27xx:vibrator";
-> +	info->input_dev->id.version = 0;
-> +	info->input_dev->dev.parent = pdev->dev.parent;
-> +	info->input_dev->close = sc27xx_vibra_close;
-> +
-> +	input_set_drvdata(info->input_dev, info);
-> +	input_set_capability(info->input_dev, EV_FF, FF_RUMBLE);
-> +	INIT_WORK(&info->play_work, sc27xx_vibra_play_work);
-> +	info->enabled = false;
-> +
-> +	ret = input_ff_create_memless(info->input_dev, NULL, sc27xx_vibra_play);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to register vibrator to FF.\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = input_register_device(info->input_dev);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to register input device.\n");
-> +		input_ff_destroy(info->input_dev);
+For my specific use case, percents are not enough, as this would mean 
+the resolution will be pretty low. If we have a touchpanel of a higher 
+resolution, having the position only ranged 0 to 100 is pretty bad.
+Having millipercents means we can have a resolution up to 100,000 points 
+in range, which is fine for the hardware as of this moment.
+Of course, specific drivers reporting these channels can define a 
+specific range if they desire (report just in the first percent if you 
+wish (0-1000) or so, which would mean a lower resolution.
+Centi-percent would work fine as well I believe (0-10,000 range), but to 
+keep consistent with your suggestion regarding relative humidity, I 
+picked this larger scale.
+In my specific case, since we have a 12 bit ADC, range is 0-4096 for 
+this value.
+Calibrating these values to the actual size of the touchpanel is left 
+for the consumer to do (map 4096x4096 to the actual resolution)
 
-I'm not sure how the input_ff is freed for managed devices.
+If you have a better idea than milli-percents I can change it, no problem.
 
-Either you don't have to destroy it here, or you also need to destroy it
-in a release() function.
-
-> +		return ret;
-> +	}
-> +
-> +	ret = sc27xx_vibra_hw_init(info);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "failed to initialize the vibrator.\n");
-> +		input_ff_destroy(info->input_dev);
-> +		input_unregister_device(info->input_dev);
-
-No need to unregister managed input devices.
-
-> +		return ret;
-> +	}
-
-Cheers,
-Marcus Folkesson
+Eugen
+>> +
+>>   [...]

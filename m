@@ -1,49 +1,71 @@
-From: Nandor Han <nandor.han@ge.com>
-Subject: Re: EXT: Re: [PATCHv1] Input: atmel_mxt_ts - fix the firmware update
-Date: Tue, 17 Apr 2018 09:37:54 +0300
-Message-ID: <18fcfdcc-d43a-6ee3-07d5-af618b600e12@ge.com>
-References: <20180322164330.24809-1-sebastian.reichel@collabora.co.uk>
- <20180323194736.7fhgb6qjkwbivsvx@hairyalien>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/9] Input: support for latest Lenovo thinkpads (series 80)
+Date: Tue, 17 Apr 2018 10:34:11 +0200
+Message-ID: <CAO-hwJJnHPEQ+R+8qWb1Dn+otqgmbcKgiNDOyNkVBD+xdzY_zw@mail.gmail.com>
+References: <20180409091051.2944-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180323194736.7fhgb6qjkwbivsvx@hairyalien>
-Content-Language: en-US
+In-Reply-To: <20180409091051.2944-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org, kernel@collabora.com
+To: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Cc: Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaron Ma <aaron.ma@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-On 23/03/18 21:47, Nick Dyer wrote:
-> On Thu, Mar 22, 2018 at 05:43:30PM +0100, Sebastian Reichel wrote:
->> The automatic update mechanism will trigger an update if the
->> info block CRCs are different between maxtouch configuration
->> file (maxtouch.cfg) and chip.
->>
->> The driver compared the CRCs without retrieving the chip CRC,
->> resulting always in a failure and firmware flashing action
->> triggered. The patch will fix this issue by retrieving the
->> chip info block CRC before the check.
-> 
-> Thanks for raising this, I agree it's definitely something we want to
-> fix.
-> 
-> However, I'm not convinced you're solving the problem in the best way.
-> You've attached it to the read_t9_resolution() code path, whereas the
-> info block is common between T9 and T100 and works in the same way.
-> 
-> Would you mind trying the below patch? I've dusted it off from some
-> work that I did back in 2012 and it should solve your issue.
-> 
-> It also has the benefit that by reading the information block and the
-> object table into a contiguous region of memory, we can verify the
-> checksum at probe time. This means we make sure that we are indeed
-> talking to a chip that supports object protocol correctly.
-> 
+Hi KT,
 
-Thanks Nick. This looks like a better solution.
-Sebastian will test this and we can see the results.
+gentle ping :)
 
+Could you ACK/NACK this series?
 
-Nandor
+Dmitry, the first patch could go without KT's approval. Also I
+realized that Aaron submitted a similar patch for the X1 Carbon last
+October: https://patchwork.kernel.org/patch/10008513/
+So I think the first one should go ASAP now that the laptops are
+shipping from Lenovo.
+
+Cheers,
+Benjamin
+
+On Mon, Apr 9, 2018 at 11:10 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Hi Dmitry,
+>
+> Here is the v2 of the Lenovo 80 series.
+> Changes from v1:
+> - included patch to convert a function to static from build bot
+> - use of device property instead of platform data (thus the new device tree
+>   binding)
+>
+> BTW, KT, if you want to add your Signed-off-by on the patches, feel free to
+> do so. You were of tremendous help :)
+>
+> Cheers,
+> Benjamin
+>
+> Benjamin Tissoires (9):
+>   Input: synaptics - add Lenovo 80 series ids to SMBus
+>   input: elan_i2c_smbus - fix corrupted stack
+>   Input: elan_i2c - add trackstick report
+>   Input: elantech - split device info into a separate structure
+>   Input: elantech_query_info() can be static
+>   Input: elantech - query the resolution in query_info
+>   Input: elantech - add support for SMBus devices
+>   Input: elantech - detect new ICs and setup Host Notify for them
+>   input: psmouse-smbus: allow to control psmouse_deactivate
+>
+>  .../devicetree/bindings/input/elan_i2c.txt         |   1 +
+>  drivers/input/mouse/Kconfig                        |  12 +
+>  drivers/input/mouse/elan_i2c_core.c                |  90 +++-
+>  drivers/input/mouse/elan_i2c_smbus.c               |  22 +-
+>  drivers/input/mouse/elantech.c                     | 479 +++++++++++++++------
+>  drivers/input/mouse/elantech.h                     |  69 ++-
+>  drivers/input/mouse/psmouse-base.c                 |  21 +-
+>  drivers/input/mouse/psmouse-smbus.c                |  24 +-
+>  drivers/input/mouse/psmouse.h                      |   2 +
+>  drivers/input/mouse/synaptics.c                    |   5 +-
+>  10 files changed, 565 insertions(+), 160 deletions(-)
+>
+> --
+> 2.14.3
+>

@@ -1,45 +1,37 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 2/2] HID: input: do not increment usages when a
- duplicate is found
-Date: Tue, 17 Apr 2018 14:56:03 +0200
-Message-ID: <CAO-hwJKQRFBP8g_o5rZ68k1XGG3DPHoeaM64gNoDeF9ngYE9rg@mail.gmail.com>
-References: <20171208142818.15156-1-benjamin.tissoires@redhat.com>
- <20171208142818.15156-3-benjamin.tissoires@redhat.com> <20171210222926.GB11027@jelly>
- <20180416235156.GE77055@dtor-ws> <nycvar.YFH.7.76.1804171410360.28129@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v2 2/2] HID: input: do not increment usages when a duplicate is found
+Date: Tue, 17 Apr 2018 15:18:31 +0200
+Message-ID: <20180417131833.8551-1-benjamin.tissoires@redhat.com>
+References: <CAO-hwJKQRFBP8g_o5rZ68k1XGG3DPHoeaM64gNoDeF9ngYE9rg@mail.gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1804171410360.28129@cbobk.fhfr.pm>
+In-Reply-To: <CAO-hwJKQRFBP8g_o5rZ68k1XGG3DPHoeaM64gNoDeF9ngYE9rg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Apr 17, 2018 at 2:11 PM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Mon, 16 Apr 2018, Dmitry Torokhov wrote:
->
->> So what is happening with this series? I think we should get it them
->> in; there is really no reason for bumping ABS_MISC till it gets into
->> ABS_MT_* range on some devices that are out there.
->>
->> FWIW
->>
->> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> Sorry, I somehow lost this one. Now queued for 4.18.
+FYI, these are the two patches I mentioned earlier.
 
-Thanks Jiri, and thanks Dmitry for the reminder.
-
-Jiri, BTW, I have 2 patch locally that should mitigate the negative
-impact from this patch if there is any,
-
-While trying to merging hid-multitouch into hid-core, I came to
-realize that hid-generic should probably split the HID collections by
-applications. If a device has a joystick and a mouse collection, there
-is no point merging these two collections together. This is the most
-common use case for reusing the same ABS_X value in one device.
-
-I'll try to post the patches today, though I have some internal deadline :(
+checkpatch.pl still complains about them so do not merge them right away, but
+this should give you a better idea.
+Also, this is the tip of my local tree, so there is a high chance it doesn't
+apply cleanly on your for-next branch.
 
 Cheers,
 Benjamin
+
+Benjamin Tissoires (2):
+  HID: generic: create one input report per application type
+  HID: input: append a suffix matching the application
+
+ drivers/hid/hid-core.c       | 10 ++++--
+ drivers/hid/hid-generic.c    | 15 ++++++++
+ drivers/hid/hid-gfrm.c       |  2 +-
+ drivers/hid/hid-input.c      | 84 +++++++++++++++++++++++++++++++++++++++-----
+ drivers/hid/hid-magicmouse.c |  6 ++--
+ drivers/hid/hid-multitouch.c | 34 ++++++------------
+ include/linux/hid.h          |  6 +++-
+ 7 files changed, 117 insertions(+), 40 deletions(-)
+
+-- 
+2.14.3

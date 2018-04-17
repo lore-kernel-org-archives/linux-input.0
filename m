@@ -1,85 +1,175 @@
-From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH v2 0/9] Input: support for latest Lenovo thinkpads (series 80)
-Date: Tue, 17 Apr 2018 16:40:28 +0800
-Message-ID: <00f701d3d627$bcf41de0$36dc59a0$@emc.com.tw>
-References: <20180409091051.2944-1-benjamin.tissoires@redhat.com> <CAO-hwJJnHPEQ+R+8qWb1Dn+otqgmbcKgiNDOyNkVBD+xdzY_zw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v6] Fix modifier keys for Redragon Asura Keyboard
+Date: Tue, 17 Apr 2018 10:50:50 +0200
+Message-ID: <CAO-hwJKAizQMMPT2=jSK+LTr_pdX_04BzPkgZK98rFHmXG7+0Q@mail.gmail.com>
+References: <20180416213824.14688-1-rombert@apache.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJJnHPEQ+R+8qWb1Dn+otqgmbcKgiNDOyNkVBD+xdzY_zw@mail.gmail.com>
-Content-Language: zh-tw
+In-Reply-To: <20180416213824.14688-1-rombert@apache.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: 'Benjamin Tissoires' <benjamin.tissoires@redhat.com>
-Cc: 'Oliver Haessler' <oliver@redhat.com>, 'Benjamin Berg' <bberg@redhat.com>, 'Rob Herring' <robh+dt@kernel.org>, devicetree@vger.kernel.org, "'open list:HID CORE LAYER'" <linux-input@vger.kernel.org>, 'lkml' <linux-kernel@vger.kernel.org>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Aaron Ma' <aaron.ma@canonical.com>
+To: Robert Munteanu <rombert@apache.org>
+Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
+On Mon, Apr 16, 2018 at 11:38 PM, Robert Munteanu <rombert@apache.org> wrote:
+> This adds a new driver for the Redragon Asura keyboard. The Asura
+> keyboard contains an error in the HID descriptor which causes all
+> modifier keys to be mapped to left shift. Additionally, we suppress
+> the creation of a second, not working, keyboard device.
+>
+> Signed-off-by: Robert Munteanu <rombert@apache.org>
+> ---
 
-I agree this series.
+Looks good to me now:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Thanks
-KT
-
------Original Message-----
-From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com] 
-Sent: Tuesday, April 17, 2018 4:34 PM
-To: 廖崇榮
-Cc: Oliver Haessler; Benjamin Berg; Rob Herring; devicetree@vger.kernel.org; open list:HID CORE LAYER; lkml; Dmitry Torokhov; Aaron Ma
-Subject: Re: [PATCH v2 0/9] Input: support for latest Lenovo thinkpads (series 80)
-
-Hi KT,
-
-gentle ping :)
-
-Could you ACK/NACK this series?
-
-Dmitry, the first patch could go without KT's approval. Also I realized that Aaron submitted a similar patch for the X1 Carbon last
-October: https://patchwork.kernel.org/patch/10008513/
-So I think the first one should go ASAP now that the laptops are shipping from Lenovo.
+Thanks Robert for respinning the series!
 
 Cheers,
 Benjamin
 
-On Mon, Apr 9, 2018 at 11:10 AM, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> Hi Dmitry,
+>  drivers/hid/Kconfig        |  7 ++++
+>  drivers/hid/Makefile       |  1 +
+>  drivers/hid/hid-ids.h      |  1 +
+>  drivers/hid/hid-redragon.c | 86 ++++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 95 insertions(+)
+>  create mode 100644 drivers/hid/hid-redragon.c
 >
-> Here is the v2 of the Lenovo 80 series.
-> Changes from v1:
-> - included patch to convert a function to static from build bot
-> - use of device property instead of platform data (thus the new device tree
->   binding)
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 19c499f5623d..1125e4813716 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -560,6 +560,13 @@ config HID_MAYFLASH
+>         Say Y here if you have HJZ Mayflash PS3 game controller adapters
+>         and want to enable force feedback support.
 >
-> BTW, KT, if you want to add your Signed-off-by on the patches, feel 
-> free to do so. You were of tremendous help :)
+> +config HID_REDRAGON
+> +       tristate "Redragon keyboards"
+> +       depends on HID
+> +       default !EXPERT
+> +       ---help---
+> +    Support for Redragon keyboards that need fix-ups to work properly.
+> +
+>  config HID_MICROSOFT
+>         tristate "Microsoft non-fully HID-compliant devices"
+>         depends on HID
+> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> index eb13b9e92d85..a36f3f40ba63 100644
+> --- a/drivers/hid/Makefile
+> +++ b/drivers/hid/Makefile
+> @@ -84,6 +84,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)                += hid-picolcd_debugfs.o
 >
-> Cheers,
-> Benjamin
+>  obj-$(CONFIG_HID_PLANTRONICS)  += hid-plantronics.o
+>  obj-$(CONFIG_HID_PRIMAX)       += hid-primax.o
+> +obj-$(CONFIG_HID_REDRAGON)     += hid-redragon.o
+>  obj-$(CONFIG_HID_RETRODE)      += hid-retrode.o
+>  obj-$(CONFIG_HID_ROCCAT)       += hid-roccat.o hid-roccat-common.o \
+>         hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 9454ac134ce2..41a64d0e91f9 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -599,6 +599,7 @@
+>  #define USB_VENDOR_ID_JESS             0x0c45
+>  #define USB_DEVICE_ID_JESS_YUREX       0x1010
+>  #define USB_DEVICE_ID_ASUS_MD_5112     0x5112
+> +#define USB_DEVICE_ID_REDRAGON_ASURA   0x760b
 >
-> Benjamin Tissoires (9):
->   Input: synaptics - add Lenovo 80 series ids to SMBus
->   input: elan_i2c_smbus - fix corrupted stack
->   Input: elan_i2c - add trackstick report
->   Input: elantech - split device info into a separate structure
->   Input: elantech_query_info() can be static
->   Input: elantech - query the resolution in query_info
->   Input: elantech - add support for SMBus devices
->   Input: elantech - detect new ICs and setup Host Notify for them
->   input: psmouse-smbus: allow to control psmouse_deactivate
->
->  .../devicetree/bindings/input/elan_i2c.txt         |   1 +
->  drivers/input/mouse/Kconfig                        |  12 +
->  drivers/input/mouse/elan_i2c_core.c                |  90 +++-
->  drivers/input/mouse/elan_i2c_smbus.c               |  22 +-
->  drivers/input/mouse/elantech.c                     | 479 +++++++++++++++------
->  drivers/input/mouse/elantech.h                     |  69 ++-
->  drivers/input/mouse/psmouse-base.c                 |  21 +-
->  drivers/input/mouse/psmouse-smbus.c                |  24 +-
->  drivers/input/mouse/psmouse.h                      |   2 +
->  drivers/input/mouse/synaptics.c                    |   5 +-
->  10 files changed, 565 insertions(+), 160 deletions(-)
->
+>  #define USB_VENDOR_ID_JESS2            0x0f30
+>  #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
+> diff --git a/drivers/hid/hid-redragon.c b/drivers/hid/hid-redragon.c
+> new file mode 100644
+> index 000000000000..daf59578bf93
+> --- /dev/null
+> +++ b/drivers/hid/hid-redragon.c
+> @@ -0,0 +1,86 @@
+> +/*
+> + *  HID driver for Redragon keyboards
+> + *
+> + *  Copyright (c) 2017 Robert Munteanu
+> + *  SPDX-License-Identifier: GPL-2.0+
+> + */
+> +
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/hid.h>
+> +#include <linux/module.h>
+> +
+> +#include "hid-ids.h"
+> +
+> +
+> +/*
+> + * The Redragon Asura keyboard sends an incorrect HID descriptor.
+> + * At byte 100 it contains
+> + *
+> + *   0x81, 0x00
+> + *
+> + * which is Input (Data, Arr, Abs), but it should be
+> + *
+> + *   0x81, 0x02
+> + *
+> + * which is Input (Data, Var, Abs), which is consistent with the way
+> + * key codes are generated.
+> + */
+> +
+> +static __u8 *redragon_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +       unsigned int *rsize)
+> +{
+> +       if (*rsize >= 102 && rdesc[100] == 0x81 && rdesc[101] == 0x00) {
+> +               dev_info(&hdev->dev, "Fixing Redragon ASURA report descriptor.\n");
+> +               rdesc[101] = 0x02;
+> +       }
+> +
+> +       return rdesc;
+> +}
+> +
+> +static int redragon_probe(struct hid_device *dev,
+> +       const struct hid_device_id *id)
+> +{
+> +       int ret;
+> +
+> +       ret = hid_parse(dev);
+> +       if (ret) {
+> +               hid_err(dev, "parse failed\n");
+> +               return ret;
+> +       }
+> +
+> +       /* do not register unused input device */
+> +       if (dev->maxapplication == 1)
+> +               return 0;
+> +
+> +       ret = hid_hw_start(dev, HID_CONNECT_DEFAULT);
+> +       if (ret) {
+> +               hid_err(dev, "hw start failed\n");
+> +               return ret;
+> +       }
+> +
+> +       return 0;
+> +}
+> +static const struct hid_device_id redragon_devices[] = {
+> +       {HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_REDRAGON_ASURA)},
+> +       {}
+> +};
+> +
+> +MODULE_DEVICE_TABLE(hid, redragon_devices);
+> +
+> +static struct hid_driver redragon_driver = {
+> +       .name = "redragon",
+> +       .id_table = redragon_devices,
+> +       .report_fixup = redragon_report_fixup,
+> +       .probe = redragon_probe
+> +};
+> +
+> +module_hid_driver(redragon_driver);
+> +
+> +MODULE_LICENSE("GPL");
 > --
-> 2.14.3
+> 2.16.3
 >

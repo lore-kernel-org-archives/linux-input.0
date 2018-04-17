@@ -1,103 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 06/11] iio: inkern: add module put/get on iio dev
- module when requesting channels
-Date: Tue, 17 Apr 2018 12:19:06 -0700
-Message-ID: <20180417191906.GB67621@dtor-ws>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
- <1523350677-27106-7-git-send-email-eugen.hristev@microchip.com>
- <20180415203321.1aaaf91e@archlinux>
- <20180416235821.GF77055@dtor-ws>
- <67771f4c-d30c-4a28-2a9b-d5585186d60a@microchip.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: atmel_mxt_ts on droid4: powersave seems to break the driver
+Date: Tue, 17 Apr 2018 21:39:03 +0200
+Message-ID: <20180417193903.GA11082@amd>
+References: <20180417073811.GA9450@amd>
+ <20180417182021.GA67621@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <67771f4c-d30c-4a28-2a9b-d5585186d60a@microchip.com>
+In-Reply-To: <20180417182021.GA67621@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, robh@kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: mutt@amd.karlin.mff.cuni.cz, kernel list <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-omap@vger.kernel.org, tony@atomide.com, sre@kernel.org, nekit1000@gmail.com, mpartap@gmx.net, merlijn@wizzup.org, nick@shmanahar.org, rydberg@bitmath.org, linux-input@vger.kernel.org, bleung@google.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Eugen,
 
-On Tue, Apr 17, 2018 at 10:39:24AM +0300, Eugen Hristev wrote:
-> 
-> 
-> On 17.04.2018 02:58, Dmitry Torokhov wrote:
-> > On Sun, Apr 15, 2018 at 08:33:21PM +0100, Jonathan Cameron wrote:
-> > > On Tue, 10 Apr 2018 11:57:52 +0300
-> > > Eugen Hristev <eugen.hristev@microchip.com> wrote:
-> > > 
-> > > > When requesting channels for a particular consumer device,
-> > > > besides requesting the device (incrementing the reference counter), also
-> > > > do it for the driver module of the iio dev. This will avoid the situation
-> > > > where the producer IIO device can be removed and the consumer is still
-> > > > present in the kernel.
-> > > > 
-> > > > Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-> > > > ---
-> > > >   drivers/iio/inkern.c | 8 +++++++-
-> > > >   1 file changed, 7 insertions(+), 1 deletion(-)
-> > > > 
-> > > > diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-> > > > index ec98790..68d9b87 100644
-> > > > --- a/drivers/iio/inkern.c
-> > > > +++ b/drivers/iio/inkern.c
-> > > > @@ -11,6 +11,7 @@
-> > > >   #include <linux/slab.h>
-> > > >   #include <linux/mutex.h>
-> > > >   #include <linux/of.h>
-> > > > +#include <linux/module.h>
-> > > >   #include <linux/iio/iio.h>
-> > > >   #include "iio_core.h"
-> > > > @@ -152,6 +153,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
-> > > >   	if (index < 0)
-> > > >   		goto err_put;
-> > > >   	channel->channel = &indio_dev->channels[index];
-> > > > +	try_module_get(channel->indio_dev->driver_module);
-> > > 
-> > > And if it fails? (the module we are trying to get is going away...)
-> > > 
-> > > We should try and handle it I think. Be it by just erroring out of here.
-> > 
-> > Even more, this has nothing to do with modules. A device can go away for
-> > any number of reasons (we unbind it manually via sysfs, we pull the USB
-> > plug from the host in case it is USB-connected device, we unload I2C
-> > adapter for the bus device resides on, we kick underlying PCI device)
-> > and we should be able to handle this in some fashion. Handling errors
-> > from reads and ignoring garbage is one of methods.
-> > 
-> > FWIW this is a NACK from me.
-> > 
-> > Thanks.
-> Hello,
-> 
-> This patch is actually a "best effort attempt" for the consumer driver
-> (touch driver) to get a reference to the producer of the data (the IIO
-> device), when it requests the specific channels.
-> As of this moment, there is no attempt whatsoever for the consumer to have a
-> reference on the producer driver. Thus, the producer can be removed at any
-> time, and the consumer will fail ungraciously.
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is the root of the issue. The consumer should be prepared to handle
-errors from producer.
+Hi!
 
-> I can change the perspective from "best effort" to "mandatory" to get a
-> reference to the producer, or you wish to stop trying to get any reference
-> at all (remove this patch completely) ?
+> > v4.17-rc1 on motorola droid 4.
+> >=20
+> > If I disable/reenable touschreen with xinput, it fails, with this in
+> > the logs:
+> >=20
+> > [ 1633.749450] cpcap-usb-phy cpcap-usb-phy.0: connected to USB host
+> > [ 1655.938751] atmel_mxt_ts 1-004a: __mxt_read_reg: i2c transfer
+> > failed (-121)
+> > [ 1655.945800] atmel_mxt_ts 1-004a: Failed to read T44 and T5 (-121)
+> > [ 1663.829498] cpcap-usb-phy cpcap-usb-phy.0: connected to USB host
+> >=20
+> > Unfortunately, xscreensaver seems to break it in a similar way.
+> >=20
+>=20
+> There were a few changes to the Atmel driver, ending with commit
+> 96a938aa214e965d5b4a2f10443b29cad14289b9, but they mostly dealt with
+> removal of platform data and moving to generic device properties...
+> Can you try bisecting this series:
+>=20
+> git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git =
+ib-chrome-platform-input-atmel-mx-ts-platform-removal
+>=20
 
-You should take reference to the device itself (if it is not taken
-already), so it does not disappear completely and you can continue using
-IIO API to access it, and IIO API should be prepared to deal with "dead"
-devices, but as I pointed in my other email, trying to pin the driver
-is quite pointless as there are myriad other ways of device stopping
-working besides module unloading.
+To avoid any misunderstanding, I'm not saying this is
+regression from v4.16. I did some testing on v4.16 (and it was first
+kernel to work there at all), but I did not have good enough userland
+to play with touchscreen disable/enable.
 
-In any case, I think this problem is outside of the scope of this
-patchset that adds a generic resistive touchscreen, so if you want to
-continue working on this I'd recommend moving it into a separate series.
+Plus, I'm not sure this is 100% reproducible, let me play some more.
 
-Thanks.
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
--- 
-Dmitry
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlrWTVcACgkQMOfwapXb+vKTxgCgq0rxKWXiC87HW2s2MJXqhYQS
+bz0AoLlFWDVReOz1D9TW7cjj0YbgZRAa
+=rMmw
+-----END PGP SIGNATURE-----
+
+--9amGYk9869ThD9tj--

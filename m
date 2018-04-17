@@ -1,68 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 06/11] iio: inkern: add module put/get on iio dev
- module when requesting channels
-Date: Mon, 16 Apr 2018 16:58:21 -0700
-Message-ID: <20180416235821.GF77055@dtor-ws>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
- <1523350677-27106-7-git-send-email-eugen.hristev@microchip.com>
- <20180415203321.1aaaf91e@archlinux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: [PATCH 1/2] dt-bindings: input: Add Add Spreadtrum SC27xx vibrator documentation
+Date: Tue, 17 Apr 2018 11:18:23 +0800
+Message-ID: <0bfdc811c2b3da3aa1cde2feef278a86503e3804.1523934640.git.baolin.wang@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180415203321.1aaaf91e@archlinux>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Eugen Hristev <eugen.hristev@microchip.com>, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, robh@kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, orsonzhai@gmail.com, zhang.lyra@gmail.com
+Cc: baolin.wang@linaro.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xiaotong.lu@spreadtrum.com
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Apr 15, 2018 at 08:33:21PM +0100, Jonathan Cameron wrote:
-> On Tue, 10 Apr 2018 11:57:52 +0300
-> Eugen Hristev <eugen.hristev@microchip.com> wrote:
-> 
-> > When requesting channels for a particular consumer device,
-> > besides requesting the device (incrementing the reference counter), also
-> > do it for the driver module of the iio dev. This will avoid the situation
-> > where the producer IIO device can be removed and the consumer is still
-> > present in the kernel.
-> > 
-> > Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-> > ---
-> >  drivers/iio/inkern.c | 8 +++++++-
-> >  1 file changed, 7 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-> > index ec98790..68d9b87 100644
-> > --- a/drivers/iio/inkern.c
-> > +++ b/drivers/iio/inkern.c
-> > @@ -11,6 +11,7 @@
-> >  #include <linux/slab.h>
-> >  #include <linux/mutex.h>
-> >  #include <linux/of.h>
-> > +#include <linux/module.h>
-> >  
-> >  #include <linux/iio/iio.h>
-> >  #include "iio_core.h"
-> > @@ -152,6 +153,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
-> >  	if (index < 0)
-> >  		goto err_put;
-> >  	channel->channel = &indio_dev->channels[index];
-> > +	try_module_get(channel->indio_dev->driver_module);
-> 
-> And if it fails? (the module we are trying to get is going away...)
-> 
-> We should try and handle it I think. Be it by just erroring out of here.
+From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
 
-Even more, this has nothing to do with modules. A device can go away for
-any number of reasons (we unbind it manually via sysfs, we pull the USB
-plug from the host in case it is USB-connected device, we unload I2C
-adapter for the bus device resides on, we kick underlying PCI device)
-and we should be able to handle this in some fashion. Handling errors
-from reads and ignoring garbage is one of methods.
+This patch adds the binding documentation for Spreadtrum SC27xx series
+vibrator device.
 
-FWIW this is a NACK from me.
+Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+---
+ .../bindings/input/sprd,sc27xx-vibra.txt           |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
 
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
+new file mode 100644
+index 0000000..92ead29
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
+@@ -0,0 +1,12 @@
++Spreadtrum SC27xx PMIC Vibrator
++
++Required properties:
++- compatible: should be "sprd,sc27xx-vibrator".
++- reg: address of vibrator control register.
++
++Example :
++
++vibrator@eb4 {
++	compatible = "sprd,sc27xx-vibrator";
++	reg = <0xeb4>;
++};
 -- 
-Dmitry
+1.7.9.5

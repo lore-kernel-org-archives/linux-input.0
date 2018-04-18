@@ -1,90 +1,54 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: [PATCH v2] HID: i2c-hid: Fix resume issue on Raydium touchscreen device
-Date: Wed, 18 Apr 2018 16:27:57 +0800
-Message-ID: <1524040077-6162-1-git-send-email-aaron.ma@canonical.com>
-References: <nycvar.YFH.7.76.1804121506360.28129@cbobk.fhfr.pm>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1804121506360.28129@cbobk.fhfr.pm>
-Sender: linux-kernel-owner@vger.kernel.org
-To: aaron.ma@canonical.com, dan.carpenter@oracle.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Subject: Re: [PATCH v6 28/30] drm/rockchip: Disable PSR from reboot notifier
+Date: Wed, 18 Apr 2018 11:18:30 +0200
+Message-ID: <CAFqH_51tQ66=oKb0ZhiicRicMd4_zN415tzhHc7X6SUTgg9mFA@mail.gmail.com>
+References: <20180405095000.9756-1-enric.balletbo@collabora.com>
+ <CGME20180405095117epcas2p2093448b49aab2abd6684bf689f8888d5@epcas2p2.samsung.com>
+ <20180405095000.9756-29-enric.balletbo@collabora.com>
+ <a9e436f8-34ec-123a-9c69-efabb4576bea@samsung.com>
+ <CAAFQd5C_RhqSCfEXNPQ0zH-O1PGk6xGEdvzsSxnfz9kJ5G4Ceg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <CAAFQd5C_RhqSCfEXNPQ0zH-O1PGk6xGEdvzsSxnfz9kJ5G4Ceg@mail.gmail.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Tomasz Figa <tfiga@chromium.org>
+Cc: David Airlie <airlied@linux.ie>, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Yakir Yang <ykk@rock-chips.com>, kernel@collabora.com, Marek Szyprowski <m.szyprowski@samsung.com>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, rydberg@bitmath.org, Krzysztof Kozlowski <krzk@kernel.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Kukjin Kim <kgene@kernel.org>, linux-input@vger.kernel.org, =?UTF-8?Q?=C3=98rjan_Eide?= <orjan.eide@arm.com>, Caesar Wang <wxt@rock-chips.com>, Jeffy <jeffy.chen@rock-chips.com>, "list@263.net:IOMMU DRIVERS <iommu@lists.linux-foundation.org>,
+ Joerg Roedel <joro@8bytes.org>, " <linux-arm-kernel@lists.infradead.org>, Mark yao <mark.yao@rock-chips.com>, =?UTF-8?B
 List-Id: linux-input@vger.kernel.org
 
-When Rayd touchscreen resumed from S3, it issues too many errors like:
-i2c_hid i2c-RAYD0001:00: i2c_hid_get_input: incomplete report (58/5442)
-
-And all the report data are corrupted, touchscreen is unresponsive.
-
-Fix this by re-sending report description command after resume.
-Add device ID as a quirk.
-
-V2:
-The V1 patch leads to the following static checker warning:
-
-	drivers/hid/i2c-hid/i2c-hid.c:1244 i2c_hid_resume()
-	info: return a literal instead of 'ret'
-
-This test was inverted in V1 patch.
-Change the condition of condition.
-
-Cc: stable@vger.kernel.org
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
----
- drivers/hid/hid-ids.h         |  3 +++
- drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++++++++
- 2 files changed, 16 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5a3a7ead3012..0b5cc910f62e 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -525,6 +525,9 @@
- #define I2C_VENDOR_ID_HANTICK		0x0911
- #define I2C_PRODUCT_ID_HANTICK_5288	0x5288
- 
-+#define I2C_VENDOR_ID_RAYD		0x2386
-+#define I2C_PRODUCT_ID_RAYD_3118	0x3118
-+
- #define USB_VENDOR_ID_HANWANG		0x0b57
- #define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
- #define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 97689e98e53f..963328674e93 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -47,6 +47,7 @@
- /* quirks to control the device */
- #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
- #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
-+#define I2C_HID_QUIRK_RESEND_REPORT_DESCR	BIT(2)
- 
- /* flags */
- #define I2C_HID_STARTED		0
-@@ -171,6 +172,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
- 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-+	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
-+		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
- 	{ 0, 0 }
- };
- 
-@@ -1220,6 +1223,16 @@ static int i2c_hid_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
-+	/* RAYDIUM device (2386:3118) need to re-send report descr cmd
-+	 * after resume, after this it will be back normal.
-+	 * otherwise it issues too many incomplete reports.
-+	 */
-+	if (ihid->quirks & I2C_HID_QUIRK_RESEND_REPORT_DESCR) {
-+		ret = i2c_hid_command(client, &hid_report_descr_cmd, NULL, 0);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	if (hid->driver && hid->driver->reset_resume) {
- 		ret = hid->driver->reset_resume(hid);
- 		return ret;
--- 
-2.14.3
+SGkgQW5kcnplaiwgVG9tYXN6CgoyMDE4LTA0LTE2IDE1OjEyIEdNVCswMjowMCBUb21hc3ogRmln
+YSA8dGZpZ2FAY2hyb21pdW0ub3JnPjoKPiBIaSBBbmRyemVqLAo+Cj4gT24gTW9uLCBBcHIgMTYs
+IDIwMTggYXQgNjo1NyBQTSBBbmRyemVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPiB3cm90
+ZToKPgo+PiBPbiAwNS4wNC4yMDE4IDExOjQ5LCBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIHdyb3Rl
+Ogo+PiA+IEZyb206IFRvbWFzeiBGaWdhIDx0ZmlnYUBjaHJvbWl1bS5vcmc+Cj4+ID4KPj4gPiBJ
+dCBsb29rcyBsaWtlIHRoZSBkcml2ZXIgc3Vic3lzdGVtIGRldGFjaGVzIGRldmljZXMgZnJvbSBw
+b3dlciBkb21haW5zCj4+ID4gYXQgc2h1dGRvd24gd2l0aG91dCBjb25zZW50IG9mIHRoZSBkcml2
+ZXJzLgo+Cj4+IEl0IGxvb2tzIGJpdCBzdHJhbmdlLiBDb3VsZCB5b3UgZWxhYm9yYXRlIG1vcmUg
+b24gaXQuIENvdWxkIHlvdSBzaG93IHRoZQo+PiBjb2RlIHBlcmZvcm1pbmcgdGhlIGRldGFjaD8K
+Pgo+IEl0IG5vdCBvbmx5IGxvb2tzIHN0cmFuZ2UsIGJ1dCBpdCBpcyBzdHJhbmdlLiBUaGUgY29k
+ZSB3YXMgcHJlc2VudCBpbiA0LjQ6Cj4KPiBodHRwczovL2VsaXhpci5ib290bGluLmNvbS9saW51
+eC92NC40LjEyOC9zb3VyY2UvZHJpdmVycy9iYXNlL3BsYXRmb3JtLmMjTDU1Mwo+Cj4gYnV0IHdh
+cyBhcHBhcmVudGx5IHJlbW92ZWQgaW4gNC41Ogo+Cj4gaHR0cHM6Ly9naXQua2VybmVsLm9yZy9w
+dWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbmV4dC9saW51eC1uZXh0LmdpdC9jb21taXQvZHJpdmVy
+cy9iYXNlL3BsYXRmb3JtLmM/aD1uZXh0LTIwMTgwNDE2JmlkPTJkMzBiYjBiMzg4OWFkZjA5YjM0
+MjcyMmIyY2U1OTZjMDc2M2JjOTMKPgo+IFNvIHdlIG1pZ2h0IG5vdCBuZWVkIHRoaXMgcGF0Y2gg
+YW55bW9yZS4KPgoKUmlnaHQsIHNlZW1zIHRoYXQgd2UgZG9uJ3QgbmVlZCB0aGlzIHBhdGNoIGFu
+eW1vcmUsIEknbGwgZG8gbW9yZSBmZXcKdGVzdHMgYW5kIGxpa2VseSByZW1vdmUgdGhpcyBwYXRj
+aCBmcm9tIHRoaXMgc2VyaWVzLiBUaGFua3MgZm9yCmNhdGNoaW5nIHRoaXMuCgpCZXN0IHJlZ2Fy
+ZHMsCiAgRW5yaWMKCj4gQmVzdCByZWdhcmRzLAo+IFRvbWFzego+IF9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCj4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+
+IGRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKPiBodHRwczovL2xpc3RzLmZyZWVkZXNr
+dG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbApfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZl
+bEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFp
+bG1hbi9saXN0aW5mby9kcmktZGV2ZWwK

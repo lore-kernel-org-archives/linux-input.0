@@ -1,116 +1,253 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH v3 06/11] iio: inkern: add module put/get on iio dev
- module when requesting channels
-Date: Wed, 18 Apr 2018 14:37:01 +0200
-Message-ID: <79d51d4e-eea7-7295-7e32-26149d6aeadd@metafoo.de>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
- <1523350677-27106-7-git-send-email-eugen.hristev@microchip.com>
- <20180415203321.1aaaf91e@archlinux> <20180416235821.GF77055@dtor-ws>
- <67771f4c-d30c-4a28-2a9b-d5585186d60a@microchip.com>
- <20180417191906.GB67621@dtor-ws> <20180418103548.000078b7@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: [PATCH] Input: xen-kbdfront - allow better run-time configuration
+Date: Wed, 18 Apr 2018 18:04:45 +0300
+Message-ID: <20180418150445.9805-1-andr2000@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180418103548.000078b7@huawei.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <Jonathan.Cameron@huawei.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Eugen Hristev <eugen.hristev@microchip.com>, Jonathan Cameron <jic23@kernel.org>, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, robh@kernel.org
+To: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com
+Cc: andr2000@gmail.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-On 04/18/2018 11:35 AM, Jonathan Cameron wrote:
-> On Tue, 17 Apr 2018 12:19:06 -0700
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
->> Hi Eugen,
->>
->> On Tue, Apr 17, 2018 at 10:39:24AM +0300, Eugen Hristev wrote:
->>>
->>>
->>> On 17.04.2018 02:58, Dmitry Torokhov wrote:  
->>>> On Sun, Apr 15, 2018 at 08:33:21PM +0100, Jonathan Cameron wrote:  
->>>>> On Tue, 10 Apr 2018 11:57:52 +0300
->>>>> Eugen Hristev <eugen.hristev@microchip.com> wrote:
->>>>>   
->>>>>> When requesting channels for a particular consumer device,
->>>>>> besides requesting the device (incrementing the reference counter), also
->>>>>> do it for the driver module of the iio dev. This will avoid the situation
->>>>>> where the producer IIO device can be removed and the consumer is still
->>>>>> present in the kernel.
->>>>>>
->>>>>> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
->>>>>> ---
->>>>>>   drivers/iio/inkern.c | 8 +++++++-
->>>>>>   1 file changed, 7 insertions(+), 1 deletion(-)
->>>>>>
->>>>>> diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
->>>>>> index ec98790..68d9b87 100644
->>>>>> --- a/drivers/iio/inkern.c
->>>>>> +++ b/drivers/iio/inkern.c
->>>>>> @@ -11,6 +11,7 @@
->>>>>>   #include <linux/slab.h>
->>>>>>   #include <linux/mutex.h>
->>>>>>   #include <linux/of.h>
->>>>>> +#include <linux/module.h>
->>>>>>   #include <linux/iio/iio.h>
->>>>>>   #include "iio_core.h"
->>>>>> @@ -152,6 +153,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
->>>>>>   	if (index < 0)
->>>>>>   		goto err_put;
->>>>>>   	channel->channel = &indio_dev->channels[index];
->>>>>> +	try_module_get(channel->indio_dev->driver_module);  
->>>>>
->>>>> And if it fails? (the module we are trying to get is going away...)
->>>>>
->>>>> We should try and handle it I think. Be it by just erroring out of here.  
->>>>
->>>> Even more, this has nothing to do with modules. A device can go away for
->>>> any number of reasons (we unbind it manually via sysfs, we pull the USB
->>>> plug from the host in case it is USB-connected device, we unload I2C
->>>> adapter for the bus device resides on, we kick underlying PCI device)
->>>> and we should be able to handle this in some fashion. Handling errors
->>>> from reads and ignoring garbage is one of methods.
->>>>
->>>> FWIW this is a NACK from me.
->>>>
->>>> Thanks.  
->>> Hello,
->>>
->>> This patch is actually a "best effort attempt" for the consumer driver
->>> (touch driver) to get a reference to the producer of the data (the IIO
->>> device), when it requests the specific channels.
->>> As of this moment, there is no attempt whatsoever for the consumer to have a
->>> reference on the producer driver. Thus, the producer can be removed at any
->>> time, and the consumer will fail ungraciously.  
->>
->> This is the root of the issue. The consumer should be prepared to handle
->> errors from producer.
->>
->>> I can change the perspective from "best effort" to "mandatory" to get a
->>> reference to the producer, or you wish to stop trying to get any reference
->>> at all (remove this patch completely) ?  
->>
->> You should take reference to the device itself (if it is not taken
->> already), so it does not disappear completely and you can continue using
->> IIO API to access it, and IIO API should be prepared to deal with "dead"
->> devices, but as I pointed in my other email, trying to pin the driver
->> is quite pointless as there are myriad other ways of device stopping
->> working besides module unloading.
->>
->> In any case, I think this problem is outside of the scope of this
->> patchset that adds a generic resistive touchscreen, so if you want to
->> continue working on this I'd recommend moving it into a separate series.
->>
->> Thanks.
->>
-> Agreed, this one has come up a number of times before.  Quite a lot of
-> work got done by (IIRC) Lars Peter Clausen to stabilize things in various
-> unexpected 'going away' events.  Of course there may be paths we have
-> added since that (it was years ago) that can cause trouble...
-> 
-> Anyhow, separate issue as Dmitry says, let's deal with it separately.
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-We do properly get a ref to the device. Not getting a ref to the module is
-on purpose. Cause as Dmitry said it does nothing the device can disappear at
-any point either way. I second the NACK.
+It is now only possible to control if multi-touch virtual device
+is created or not (via the corresponding XenStore entries),
+but keyboard and pointer devices are always created.
+In some cases this is not desirable. For example, if virtual
+keyboard device is exposed to Android then the latter won't
+automatically show on-screen keyboard as it expects that a
+physical keyboard device can be used for typing.
+
+Make it possible to configure which virtual devices are created
+with module parameters:
+  - no_ptr_dev=1 if no pointer device needs to be created
+  - no_kbd_dev=1 if no keyboard device needs to be created
+Keep old behavior by default.
+
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Suggested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+Tested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 159 +++++++++++++++++-------------
+ 1 file changed, 92 insertions(+), 67 deletions(-)
+
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index d91f3b1c5375..a3306aad40b0 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -51,6 +51,16 @@ module_param_array(ptr_size, int, NULL, 0444);
+ MODULE_PARM_DESC(ptr_size,
+ 	"Pointing device width, height in pixels (default 800,600)");
+ 
++static unsigned int no_ptr_dev;
++module_param(no_ptr_dev, uint, 0);
++MODULE_PARM_DESC(no_ptr_dev,
++	"If set then no virtual pointing device exposed to the guest");
++
++static unsigned int no_kbd_dev;
++module_param(no_kbd_dev, uint, 0);
++MODULE_PARM_DESC(no_kbd_dev,
++	"If set then no virtual keyboard device exposed to the guest");
++
+ static int xenkbd_remove(struct xenbus_device *);
+ static int xenkbd_connect_backend(struct xenbus_device *, struct xenkbd_info *);
+ static void xenkbd_disconnect_backend(struct xenkbd_info *);
+@@ -63,6 +73,9 @@ static void xenkbd_disconnect_backend(struct xenkbd_info *);
+ static void xenkbd_handle_motion_event(struct xenkbd_info *info,
+ 				       struct xenkbd_motion *motion)
+ {
++	if (unlikely(!info->ptr))
++		return;
++
+ 	input_report_rel(info->ptr, REL_X, motion->rel_x);
+ 	input_report_rel(info->ptr, REL_Y, motion->rel_y);
+ 	if (motion->rel_z)
+@@ -73,6 +86,9 @@ static void xenkbd_handle_motion_event(struct xenkbd_info *info,
+ static void xenkbd_handle_position_event(struct xenkbd_info *info,
+ 					 struct xenkbd_position *pos)
+ {
++	if (unlikely(!info->ptr))
++		return;
++
+ 	input_report_abs(info->ptr, ABS_X, pos->abs_x);
+ 	input_report_abs(info->ptr, ABS_Y, pos->abs_y);
+ 	if (pos->rel_z)
+@@ -97,6 +113,9 @@ static void xenkbd_handle_key_event(struct xenkbd_info *info,
+ 		return;
+ 	}
+ 
++	if (unlikely(!dev))
++		return;
++
+ 	input_event(dev, EV_KEY, key->keycode, value);
+ 	input_sync(dev);
+ }
+@@ -192,7 +211,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 				  const struct xenbus_device_id *id)
+ {
+ 	int ret, i;
+-	unsigned int abs, touch;
++	unsigned int touch;
+ 	struct xenkbd_info *info;
+ 	struct input_dev *kbd, *ptr, *mtouch;
+ 
+@@ -211,24 +230,6 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 	if (!info->page)
+ 		goto error_nomem;
+ 
+-	/* Set input abs params to match backend screen res */
+-	abs = xenbus_read_unsigned(dev->otherend,
+-				   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
+-	ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
+-						  XENKBD_FIELD_WIDTH,
+-						  ptr_size[KPARAM_X]);
+-	ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
+-						  XENKBD_FIELD_HEIGHT,
+-						  ptr_size[KPARAM_Y]);
+-	if (abs) {
+-		ret = xenbus_write(XBT_NIL, dev->nodename,
+-				   XENKBD_FIELD_REQ_ABS_POINTER, "1");
+-		if (ret) {
+-			pr_warn("xenkbd: can't request abs-pointer\n");
+-			abs = 0;
+-		}
+-	}
+-
+ 	touch = xenbus_read_unsigned(dev->nodename,
+ 				     XENKBD_FIELD_FEAT_MTOUCH, 0);
+ 	if (touch) {
+@@ -241,60 +242,84 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 	}
+ 
+ 	/* keyboard */
+-	kbd = input_allocate_device();
+-	if (!kbd)
+-		goto error_nomem;
+-	kbd->name = "Xen Virtual Keyboard";
+-	kbd->phys = info->phys;
+-	kbd->id.bustype = BUS_PCI;
+-	kbd->id.vendor = 0x5853;
+-	kbd->id.product = 0xffff;
+-
+-	__set_bit(EV_KEY, kbd->evbit);
+-	for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
+-		__set_bit(i, kbd->keybit);
+-	for (i = KEY_OK; i < KEY_MAX; i++)
+-		__set_bit(i, kbd->keybit);
+-
+-	ret = input_register_device(kbd);
+-	if (ret) {
+-		input_free_device(kbd);
+-		xenbus_dev_fatal(dev, ret, "input_register_device(kbd)");
+-		goto error;
++	if (!no_kbd_dev) {
++		kbd = input_allocate_device();
++		if (!kbd)
++			goto error_nomem;
++		kbd->name = "Xen Virtual Keyboard";
++		kbd->phys = info->phys;
++		kbd->id.bustype = BUS_PCI;
++		kbd->id.vendor = 0x5853;
++		kbd->id.product = 0xffff;
++
++		__set_bit(EV_KEY, kbd->evbit);
++		for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
++			__set_bit(i, kbd->keybit);
++		for (i = KEY_OK; i < KEY_MAX; i++)
++			__set_bit(i, kbd->keybit);
++
++		ret = input_register_device(kbd);
++		if (ret) {
++			input_free_device(kbd);
++			xenbus_dev_fatal(dev, ret, "input_register_device(kbd)");
++			goto error;
++		}
++		info->kbd = kbd;
+ 	}
+-	info->kbd = kbd;
+ 
+ 	/* pointing device */
+-	ptr = input_allocate_device();
+-	if (!ptr)
+-		goto error_nomem;
+-	ptr->name = "Xen Virtual Pointer";
+-	ptr->phys = info->phys;
+-	ptr->id.bustype = BUS_PCI;
+-	ptr->id.vendor = 0x5853;
+-	ptr->id.product = 0xfffe;
+-
+-	if (abs) {
+-		__set_bit(EV_ABS, ptr->evbit);
+-		input_set_abs_params(ptr, ABS_X, 0, ptr_size[KPARAM_X], 0, 0);
+-		input_set_abs_params(ptr, ABS_Y, 0, ptr_size[KPARAM_Y], 0, 0);
+-	} else {
+-		input_set_capability(ptr, EV_REL, REL_X);
+-		input_set_capability(ptr, EV_REL, REL_Y);
+-	}
+-	input_set_capability(ptr, EV_REL, REL_WHEEL);
++	if (!no_ptr_dev) {
++		unsigned int abs;
++
++		/* Set input abs params to match backend screen res */
++		abs = xenbus_read_unsigned(dev->otherend,
++					   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
++		ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
++							  XENKBD_FIELD_WIDTH,
++							  ptr_size[KPARAM_X]);
++		ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
++							  XENKBD_FIELD_HEIGHT,
++							  ptr_size[KPARAM_Y]);
++		if (abs) {
++			ret = xenbus_write(XBT_NIL, dev->nodename,
++					   XENKBD_FIELD_REQ_ABS_POINTER, "1");
++			if (ret) {
++				pr_warn("xenkbd: can't request abs-pointer\n");
++				abs = 0;
++			}
++		}
+ 
+-	__set_bit(EV_KEY, ptr->evbit);
+-	for (i = BTN_LEFT; i <= BTN_TASK; i++)
+-		__set_bit(i, ptr->keybit);
++		ptr = input_allocate_device();
++		if (!ptr)
++			goto error_nomem;
++		ptr->name = "Xen Virtual Pointer";
++		ptr->phys = info->phys;
++		ptr->id.bustype = BUS_PCI;
++		ptr->id.vendor = 0x5853;
++		ptr->id.product = 0xfffe;
++
++		if (abs) {
++			__set_bit(EV_ABS, ptr->evbit);
++			input_set_abs_params(ptr, ABS_X, 0, ptr_size[KPARAM_X], 0, 0);
++			input_set_abs_params(ptr, ABS_Y, 0, ptr_size[KPARAM_Y], 0, 0);
++		} else {
++			input_set_capability(ptr, EV_REL, REL_X);
++			input_set_capability(ptr, EV_REL, REL_Y);
++		}
++		input_set_capability(ptr, EV_REL, REL_WHEEL);
+ 
+-	ret = input_register_device(ptr);
+-	if (ret) {
+-		input_free_device(ptr);
+-		xenbus_dev_fatal(dev, ret, "input_register_device(ptr)");
+-		goto error;
++		__set_bit(EV_KEY, ptr->evbit);
++		for (i = BTN_LEFT; i <= BTN_TASK; i++)
++			__set_bit(i, ptr->keybit);
++
++		ret = input_register_device(ptr);
++		if (ret) {
++			input_free_device(ptr);
++			xenbus_dev_fatal(dev, ret, "input_register_device(ptr)");
++			goto error;
++		}
++		info->ptr = ptr;
+ 	}
+-	info->ptr = ptr;
+ 
+ 	/* multi-touch device */
+ 	if (touch) {
+-- 
+2.17.0

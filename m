@@ -1,113 +1,121 @@
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v3 03/11] iio: Add channel for Position Relative
-Date: Wed, 18 Apr 2018 10:32:27 +0100
-Message-ID: <20180418103227.00003a2e@huawei.com>
+Subject: Re: [PATCH v3 06/11] iio: inkern: add module put/get on iio dev
+ module when requesting channels
+Date: Wed, 18 Apr 2018 10:35:48 +0100
+Message-ID: <20180418103548.000078b7@huawei.com>
 References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
-        <1523350677-27106-4-git-send-email-eugen.hristev@microchip.com>
-        <20180415202942.5c7d50a8@archlinux>
-        <02533699-a2bc-7c0c-4d8a-c10bb0102667@microchip.com>
+ <1523350677-27106-7-git-send-email-eugen.hristev@microchip.com>
+ <20180415203321.1aaaf91e@archlinux>
+ <20180416235821.GF77055@dtor-ws>
+ <67771f4c-d30c-4a28-2a9b-d5585186d60a@microchip.com>
+ <20180417191906.GB67621@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <02533699-a2bc-7c0c-4d8a-c10bb0102667@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: Jonathan Cameron <jic23@kernel.org>, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180417191906.GB67621@dtor-ws>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, alexandre.belloni@bootlin.com, lars@metafoo.de, robh@kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, ludovic.desroches@microchip.com, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org, Eugen Hristev <eugen.hristev@microchip.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 17 Apr 2018 10:30:46 +0300
-Eugen Hristev <eugen.hristev@microchip.com> wrote:
+On Tue, 17 Apr 2018 12:19:06 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-> On 15.04.2018 22:29, Jonathan Cameron wrote:
-> > On Tue, 10 Apr 2018 11:57:49 +0300
-> > Eugen Hristev <eugen.hristev@microchip.com> wrote:
-> >   
-> >> Add new channel type for relative position on a pad.
-> >>
-> >> These type of analog sensor offers the position of a pen
-> >> on a touchpad, and is represented as a voltage, which can be
-> >> converted to a position on X and Y axis on the pad.
-> >> The channel will hand the relative position on the pad in both directions.
-> >>
-> >> The channel can then be consumed by a touchscreen driver or
-> >> read as-is for a raw indication of the touchpen on a touchpad.
-> >>
-> >> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-> >> ---
-> >> Changes in v2:
-> >>   - modified channel name to relative position as suggested.
-> >>   - modified kernel version to 4.18 (presumable)
-> >>
-> >>   Documentation/ABI/testing/sysfs-bus-iio | 12 ++++++++++++
-> >>   drivers/iio/industrialio-core.c         |  1 +
-> >>   include/uapi/linux/iio/types.h          |  1 +
-> >>   tools/iio/iio_event_monitor.c           |  2 ++
-> >>   4 files changed, 16 insertions(+)
-> >>
-> >> diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
-> >> index 6a5f34b..42a9287 100644
-> >> --- a/Documentation/ABI/testing/sysfs-bus-iio
-> >> +++ b/Documentation/ABI/testing/sysfs-bus-iio
-> >> @@ -190,6 +190,18 @@ Description:
-> >>   		but should match other such assignments on device).
-> >>   		Units after application of scale and offset are m/s^2.
-> >>   
-> >> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_x_raw
-> >> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_y_raw
-> >> +KernelVersion:	4.18
-> >> +Contact:	linux-iio@vger.kernel.org
-> >> +Description:
-> >> +		Relative position in direction x or y on a pad (may be
-> >> +		arbitrarily assigned but should match other such assignments on
-> >> +		device).
-> >> +		Units after application of scale and offset are milli percents
-> >> +		from the pad's size in both directions. Should be calibrated by
-> >> +		the consumer.  
-> > I know the milli percent comes form the humidity equivalent, but I wonder
-> > if we are right to follow that.  10^-5 is a pretty random base unit (though
-> > I got argued into it being a standard choice for humidity sensors IIRC...
-> > 
-> > What do people think?  We could go with 1 for full range or just percent perhaps?
-> > 
-> > I'm not that fussed about staying consistent with humidity - we are unlikely
-> > to end up with sensors doing both anytime soon so there shouldn't be
-> > any confusion...
-> > 
-> > Jonathan  
-> Hello Jonathan,
+> Hi Eugen,
 > 
-> For my specific use case, percents are not enough, as this would mean 
-> the resolution will be pretty low. If we have a touchpanel of a higher 
-> resolution, having the position only ranged 0 to 100 is pretty bad.
-> Having millipercents means we can have a resolution up to 100,000 points 
-> in range, which is fine for the hardware as of this moment.
-> Of course, specific drivers reporting these channels can define a 
-> specific range if they desire (report just in the first percent if you 
-> wish (0-1000) or so, which would mean a lower resolution.
-> Centi-percent would work fine as well I believe (0-10,000 range), but to 
-> keep consistent with your suggestion regarding relative humidity, I 
-> picked this larger scale.
-> In my specific case, since we have a 12 bit ADC, range is 0-4096 for 
-> this value.
-> Calibrating these values to the actual size of the touchpanel is left 
-> for the consumer to do (map 4096x4096 to the actual resolution)
+> On Tue, Apr 17, 2018 at 10:39:24AM +0300, Eugen Hristev wrote:
+> > 
+> > 
+> > On 17.04.2018 02:58, Dmitry Torokhov wrote:  
+> > > On Sun, Apr 15, 2018 at 08:33:21PM +0100, Jonathan Cameron wrote:  
+> > > > On Tue, 10 Apr 2018 11:57:52 +0300
+> > > > Eugen Hristev <eugen.hristev@microchip.com> wrote:
+> > > >   
+> > > > > When requesting channels for a particular consumer device,
+> > > > > besides requesting the device (incrementing the reference counter), also
+> > > > > do it for the driver module of the iio dev. This will avoid the situation
+> > > > > where the producer IIO device can be removed and the consumer is still
+> > > > > present in the kernel.
+> > > > > 
+> > > > > Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+> > > > > ---
+> > > > >   drivers/iio/inkern.c | 8 +++++++-
+> > > > >   1 file changed, 7 insertions(+), 1 deletion(-)
+> > > > > 
+> > > > > diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
+> > > > > index ec98790..68d9b87 100644
+> > > > > --- a/drivers/iio/inkern.c
+> > > > > +++ b/drivers/iio/inkern.c
+> > > > > @@ -11,6 +11,7 @@
+> > > > >   #include <linux/slab.h>
+> > > > >   #include <linux/mutex.h>
+> > > > >   #include <linux/of.h>
+> > > > > +#include <linux/module.h>
+> > > > >   #include <linux/iio/iio.h>
+> > > > >   #include "iio_core.h"
+> > > > > @@ -152,6 +153,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
+> > > > >   	if (index < 0)
+> > > > >   		goto err_put;
+> > > > >   	channel->channel = &indio_dev->channels[index];
+> > > > > +	try_module_get(channel->indio_dev->driver_module);  
+> > > > 
+> > > > And if it fails? (the module we are trying to get is going away...)
+> > > > 
+> > > > We should try and handle it I think. Be it by just erroring out of here.  
+> > > 
+> > > Even more, this has nothing to do with modules. A device can go away for
+> > > any number of reasons (we unbind it manually via sysfs, we pull the USB
+> > > plug from the host in case it is USB-connected device, we unload I2C
+> > > adapter for the bus device resides on, we kick underlying PCI device)
+> > > and we should be able to handle this in some fashion. Handling errors
+> > > from reads and ignoring garbage is one of methods.
+> > > 
+> > > FWIW this is a NACK from me.
+> > > 
+> > > Thanks.  
+> > Hello,
+> > 
+> > This patch is actually a "best effort attempt" for the consumer driver
+> > (touch driver) to get a reference to the producer of the data (the IIO
+> > device), when it requests the specific channels.
+> > As of this moment, there is no attempt whatsoever for the consumer to have a
+> > reference on the producer driver. Thus, the producer can be removed at any
+> > time, and the consumer will fail ungraciously.  
 > 
-> If you have a better idea than milli-percents I can change it, no problem.
+> This is the root of the issue. The consumer should be prepared to handle
+> errors from producer.
 > 
+> > I can change the perspective from "best effort" to "mandatory" to get a
+> > reference to the producer, or you wish to stop trying to get any reference
+> > at all (remove this patch completely) ?  
+> 
+> You should take reference to the device itself (if it is not taken
+> already), so it does not disappear completely and you can continue using
+> IIO API to access it, and IIO API should be prepared to deal with "dead"
+> devices, but as I pointed in my other email, trying to pin the driver
+> is quite pointless as there are myriad other ways of device stopping
+> working besides module unloading.
+> 
+> In any case, I think this problem is outside of the scope of this
+> patchset that adds a generic resistive touchscreen, so if you want to
+> continue working on this I'd recommend moving it into a separate series.
+> 
+> Thanks.
+> 
+Agreed, this one has come up a number of times before.  Quite a lot of
+work got done by (IIRC) Lars Peter Clausen to stabilize things in various
+unexpected 'going away' events.  Of course there may be paths we have
+added since that (it was years ago) that can cause trouble...
 
-It doesn't actually matter what the defined 'base units' are from a question
-of what we can represent.  That is just handled by suppling an appropriate
-SCALE for the channel.  All this is about is trying to provide something
-consistent rather than having any effect on the actual range.  Will let
-this sit a while longer...
+Anyhow, separate issue as Dmitry says, let's deal with it separately.
 
 Jonathan
-
-> Eugen
-> >> +
-> >>   [...]  
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

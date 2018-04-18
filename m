@@ -1,74 +1,90 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: atmel_mxt_ts on droid4: powersave seems to break the driver
-Date: Tue, 17 Apr 2018 21:39:03 +0200
-Message-ID: <20180417193903.GA11082@amd>
-References: <20180417073811.GA9450@amd>
- <20180417182021.GA67621@dtor-ws>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: [PATCH v2] HID: i2c-hid: Fix resume issue on Raydium touchscreen device
+Date: Wed, 18 Apr 2018 16:27:57 +0800
+Message-ID: <1524040077-6162-1-git-send-email-aaron.ma@canonical.com>
+References: <nycvar.YFH.7.76.1804121506360.28129@cbobk.fhfr.pm>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180417182021.GA67621@dtor-ws>
+In-Reply-To: <nycvar.YFH.7.76.1804121506360.28129@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: mutt@amd.karlin.mff.cuni.cz, kernel list <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-omap@vger.kernel.org, tony@atomide.com, sre@kernel.org, nekit1000@gmail.com, mpartap@gmx.net, merlijn@wizzup.org, nick@shmanahar.org, rydberg@bitmath.org, linux-input@vger.kernel.org, bleung@google.com
+To: aaron.ma@canonical.com, dan.carpenter@oracle.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+When Rayd touchscreen resumed from S3, it issues too many errors like:
+i2c_hid i2c-RAYD0001:00: i2c_hid_get_input: incomplete report (58/5442)
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+And all the report data are corrupted, touchscreen is unresponsive.
 
-Hi!
+Fix this by re-sending report description command after resume.
+Add device ID as a quirk.
 
-> > v4.17-rc1 on motorola droid 4.
-> >=20
-> > If I disable/reenable touschreen with xinput, it fails, with this in
-> > the logs:
-> >=20
-> > [ 1633.749450] cpcap-usb-phy cpcap-usb-phy.0: connected to USB host
-> > [ 1655.938751] atmel_mxt_ts 1-004a: __mxt_read_reg: i2c transfer
-> > failed (-121)
-> > [ 1655.945800] atmel_mxt_ts 1-004a: Failed to read T44 and T5 (-121)
-> > [ 1663.829498] cpcap-usb-phy cpcap-usb-phy.0: connected to USB host
-> >=20
-> > Unfortunately, xscreensaver seems to break it in a similar way.
-> >=20
->=20
-> There were a few changes to the Atmel driver, ending with commit
-> 96a938aa214e965d5b4a2f10443b29cad14289b9, but they mostly dealt with
-> removal of platform data and moving to generic device properties...
-> Can you try bisecting this series:
->=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git =
-ib-chrome-platform-input-atmel-mx-ts-platform-removal
->=20
+V2:
+The V1 patch leads to the following static checker warning:
 
-To avoid any misunderstanding, I'm not saying this is
-regression from v4.16. I did some testing on v4.16 (and it was first
-kernel to work there at all), but I did not have good enough userland
-to play with touchscreen disable/enable.
+	drivers/hid/i2c-hid/i2c-hid.c:1244 i2c_hid_resume()
+	info: return a literal instead of 'ret'
 
-Plus, I'm not sure this is 100% reproducible, let me play some more.
+This test was inverted in V1 patch.
+Change the condition of condition.
 
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+Cc: stable@vger.kernel.org
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+---
+ drivers/hid/hid-ids.h         |  3 +++
+ drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++++++++
+ 2 files changed, 16 insertions(+)
 
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlrWTVcACgkQMOfwapXb+vKTxgCgq0rxKWXiC87HW2s2MJXqhYQS
-bz0AoLlFWDVReOz1D9TW7cjj0YbgZRAa
-=rMmw
------END PGP SIGNATURE-----
-
---9amGYk9869ThD9tj--
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 5a3a7ead3012..0b5cc910f62e 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -525,6 +525,9 @@
+ #define I2C_VENDOR_ID_HANTICK		0x0911
+ #define I2C_PRODUCT_ID_HANTICK_5288	0x5288
+ 
++#define I2C_VENDOR_ID_RAYD		0x2386
++#define I2C_PRODUCT_ID_RAYD_3118	0x3118
++
+ #define USB_VENDOR_ID_HANWANG		0x0b57
+ #define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
+ #define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 97689e98e53f..963328674e93 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -47,6 +47,7 @@
+ /* quirks to control the device */
+ #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
+ #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
++#define I2C_HID_QUIRK_RESEND_REPORT_DESCR	BIT(2)
+ 
+ /* flags */
+ #define I2C_HID_STARTED		0
+@@ -171,6 +172,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+ 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+ 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
++	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
++		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+ 	{ 0, 0 }
+ };
+ 
+@@ -1220,6 +1223,16 @@ static int i2c_hid_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	/* RAYDIUM device (2386:3118) need to re-send report descr cmd
++	 * after resume, after this it will be back normal.
++	 * otherwise it issues too many incomplete reports.
++	 */
++	if (ihid->quirks & I2C_HID_QUIRK_RESEND_REPORT_DESCR) {
++		ret = i2c_hid_command(client, &hid_report_descr_cmd, NULL, 0);
++		if (ret)
++			return ret;
++	}
++
+ 	if (hid->driver && hid->driver->reset_resume) {
+ 		ret = hid->driver->reset_resume(hid);
+ 		return ret;
+-- 
+2.14.3

@@ -1,54 +1,113 @@
-From: Enric Balletbo Serra <eballetbo@gmail.com>
-Subject: Re: [PATCH v6 28/30] drm/rockchip: Disable PSR from reboot notifier
-Date: Wed, 18 Apr 2018 11:18:30 +0200
-Message-ID: <CAFqH_51tQ66=oKb0ZhiicRicMd4_zN415tzhHc7X6SUTgg9mFA@mail.gmail.com>
-References: <20180405095000.9756-1-enric.balletbo@collabora.com>
- <CGME20180405095117epcas2p2093448b49aab2abd6684bf689f8888d5@epcas2p2.samsung.com>
- <20180405095000.9756-29-enric.balletbo@collabora.com>
- <a9e436f8-34ec-123a-9c69-efabb4576bea@samsung.com>
- <CAAFQd5C_RhqSCfEXNPQ0zH-O1PGk6xGEdvzsSxnfz9kJ5G4Ceg@mail.gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: Re: [PATCH v3 03/11] iio: Add channel for Position Relative
+Date: Wed, 18 Apr 2018 10:32:27 +0100
+Message-ID: <20180418103227.00003a2e@huawei.com>
+References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
+        <1523350677-27106-4-git-send-email-eugen.hristev@microchip.com>
+        <20180415202942.5c7d50a8@archlinux>
+        <02533699-a2bc-7c0c-4d8a-c10bb0102667@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <CAAFQd5C_RhqSCfEXNPQ0zH-O1PGk6xGEdvzsSxnfz9kJ5G4Ceg@mail.gmail.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Tomasz Figa <tfiga@chromium.org>
-Cc: David Airlie <airlied@linux.ie>, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Yakir Yang <ykk@rock-chips.com>, kernel@collabora.com, Marek Szyprowski <m.szyprowski@samsung.com>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, rydberg@bitmath.org, Krzysztof Kozlowski <krzk@kernel.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, Kukjin Kim <kgene@kernel.org>, linux-input@vger.kernel.org, =?UTF-8?Q?=C3=98rjan_Eide?= <orjan.eide@arm.com>, Caesar Wang <wxt@rock-chips.com>, Jeffy <jeffy.chen@rock-chips.com>, "list@263.net:IOMMU DRIVERS <iommu@lists.linux-foundation.org>,
- Joerg Roedel <joro@8bytes.org>, " <linux-arm-kernel@lists.infradead.org>, Mark yao <mark.yao@rock-chips.com>, =?UTF-8?B
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <02533699-a2bc-7c0c-4d8a-c10bb0102667@microchip.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGkgQW5kcnplaiwgVG9tYXN6CgoyMDE4LTA0LTE2IDE1OjEyIEdNVCswMjowMCBUb21hc3ogRmln
-YSA8dGZpZ2FAY2hyb21pdW0ub3JnPjoKPiBIaSBBbmRyemVqLAo+Cj4gT24gTW9uLCBBcHIgMTYs
-IDIwMTggYXQgNjo1NyBQTSBBbmRyemVqIEhhamRhIDxhLmhhamRhQHNhbXN1bmcuY29tPiB3cm90
-ZToKPgo+PiBPbiAwNS4wNC4yMDE4IDExOjQ5LCBFbnJpYyBCYWxsZXRibyBpIFNlcnJhIHdyb3Rl
-Ogo+PiA+IEZyb206IFRvbWFzeiBGaWdhIDx0ZmlnYUBjaHJvbWl1bS5vcmc+Cj4+ID4KPj4gPiBJ
-dCBsb29rcyBsaWtlIHRoZSBkcml2ZXIgc3Vic3lzdGVtIGRldGFjaGVzIGRldmljZXMgZnJvbSBw
-b3dlciBkb21haW5zCj4+ID4gYXQgc2h1dGRvd24gd2l0aG91dCBjb25zZW50IG9mIHRoZSBkcml2
-ZXJzLgo+Cj4+IEl0IGxvb2tzIGJpdCBzdHJhbmdlLiBDb3VsZCB5b3UgZWxhYm9yYXRlIG1vcmUg
-b24gaXQuIENvdWxkIHlvdSBzaG93IHRoZQo+PiBjb2RlIHBlcmZvcm1pbmcgdGhlIGRldGFjaD8K
-Pgo+IEl0IG5vdCBvbmx5IGxvb2tzIHN0cmFuZ2UsIGJ1dCBpdCBpcyBzdHJhbmdlLiBUaGUgY29k
-ZSB3YXMgcHJlc2VudCBpbiA0LjQ6Cj4KPiBodHRwczovL2VsaXhpci5ib290bGluLmNvbS9saW51
-eC92NC40LjEyOC9zb3VyY2UvZHJpdmVycy9iYXNlL3BsYXRmb3JtLmMjTDU1Mwo+Cj4gYnV0IHdh
-cyBhcHBhcmVudGx5IHJlbW92ZWQgaW4gNC41Ogo+Cj4gaHR0cHM6Ly9naXQua2VybmVsLm9yZy9w
-dWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbmV4dC9saW51eC1uZXh0LmdpdC9jb21taXQvZHJpdmVy
-cy9iYXNlL3BsYXRmb3JtLmM/aD1uZXh0LTIwMTgwNDE2JmlkPTJkMzBiYjBiMzg4OWFkZjA5YjM0
-MjcyMmIyY2U1OTZjMDc2M2JjOTMKPgo+IFNvIHdlIG1pZ2h0IG5vdCBuZWVkIHRoaXMgcGF0Y2gg
-YW55bW9yZS4KPgoKUmlnaHQsIHNlZW1zIHRoYXQgd2UgZG9uJ3QgbmVlZCB0aGlzIHBhdGNoIGFu
-eW1vcmUsIEknbGwgZG8gbW9yZSBmZXcKdGVzdHMgYW5kIGxpa2VseSByZW1vdmUgdGhpcyBwYXRj
-aCBmcm9tIHRoaXMgc2VyaWVzLiBUaGFua3MgZm9yCmNhdGNoaW5nIHRoaXMuCgpCZXN0IHJlZ2Fy
-ZHMsCiAgRW5yaWMKCj4gQmVzdCByZWdhcmRzLAo+IFRvbWFzego+IF9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCj4gZHJpLWRldmVsIG1haWxpbmcgbGlzdAo+
-IGRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKPiBodHRwczovL2xpc3RzLmZyZWVkZXNr
-dG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbApfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZl
-bEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFp
-bG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+On Tue, 17 Apr 2018 10:30:46 +0300
+Eugen Hristev <eugen.hristev@microchip.com> wrote:
+
+> On 15.04.2018 22:29, Jonathan Cameron wrote:
+> > On Tue, 10 Apr 2018 11:57:49 +0300
+> > Eugen Hristev <eugen.hristev@microchip.com> wrote:
+> >   
+> >> Add new channel type for relative position on a pad.
+> >>
+> >> These type of analog sensor offers the position of a pen
+> >> on a touchpad, and is represented as a voltage, which can be
+> >> converted to a position on X and Y axis on the pad.
+> >> The channel will hand the relative position on the pad in both directions.
+> >>
+> >> The channel can then be consumed by a touchscreen driver or
+> >> read as-is for a raw indication of the touchpen on a touchpad.
+> >>
+> >> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+> >> ---
+> >> Changes in v2:
+> >>   - modified channel name to relative position as suggested.
+> >>   - modified kernel version to 4.18 (presumable)
+> >>
+> >>   Documentation/ABI/testing/sysfs-bus-iio | 12 ++++++++++++
+> >>   drivers/iio/industrialio-core.c         |  1 +
+> >>   include/uapi/linux/iio/types.h          |  1 +
+> >>   tools/iio/iio_event_monitor.c           |  2 ++
+> >>   4 files changed, 16 insertions(+)
+> >>
+> >> diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+> >> index 6a5f34b..42a9287 100644
+> >> --- a/Documentation/ABI/testing/sysfs-bus-iio
+> >> +++ b/Documentation/ABI/testing/sysfs-bus-iio
+> >> @@ -190,6 +190,18 @@ Description:
+> >>   		but should match other such assignments on device).
+> >>   		Units after application of scale and offset are m/s^2.
+> >>   
+> >> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_x_raw
+> >> +What:		/sys/bus/iio/devices/iio:deviceX/in_positionrelative_y_raw
+> >> +KernelVersion:	4.18
+> >> +Contact:	linux-iio@vger.kernel.org
+> >> +Description:
+> >> +		Relative position in direction x or y on a pad (may be
+> >> +		arbitrarily assigned but should match other such assignments on
+> >> +		device).
+> >> +		Units after application of scale and offset are milli percents
+> >> +		from the pad's size in both directions. Should be calibrated by
+> >> +		the consumer.  
+> > I know the milli percent comes form the humidity equivalent, but I wonder
+> > if we are right to follow that.  10^-5 is a pretty random base unit (though
+> > I got argued into it being a standard choice for humidity sensors IIRC...
+> > 
+> > What do people think?  We could go with 1 for full range or just percent perhaps?
+> > 
+> > I'm not that fussed about staying consistent with humidity - we are unlikely
+> > to end up with sensors doing both anytime soon so there shouldn't be
+> > any confusion...
+> > 
+> > Jonathan  
+> Hello Jonathan,
+> 
+> For my specific use case, percents are not enough, as this would mean 
+> the resolution will be pretty low. If we have a touchpanel of a higher 
+> resolution, having the position only ranged 0 to 100 is pretty bad.
+> Having millipercents means we can have a resolution up to 100,000 points 
+> in range, which is fine for the hardware as of this moment.
+> Of course, specific drivers reporting these channels can define a 
+> specific range if they desire (report just in the first percent if you 
+> wish (0-1000) or so, which would mean a lower resolution.
+> Centi-percent would work fine as well I believe (0-10,000 range), but to 
+> keep consistent with your suggestion regarding relative humidity, I 
+> picked this larger scale.
+> In my specific case, since we have a 12 bit ADC, range is 0-4096 for 
+> this value.
+> Calibrating these values to the actual size of the touchpanel is left 
+> for the consumer to do (map 4096x4096 to the actual resolution)
+> 
+> If you have a better idea than milli-percents I can change it, no problem.
+> 
+
+It doesn't actually matter what the defined 'base units' are from a question
+of what we can represent.  That is just handled by suppling an appropriate
+SCALE for the channel.  All this is about is trying to provide something
+consistent rather than having any effect on the actual range.  Will let
+this sit a while longer...
+
+Jonathan
+
+> Eugen
+> >> +
+> >>   [...]  
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

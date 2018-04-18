@@ -1,121 +1,126 @@
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v3 06/11] iio: inkern: add module put/get on iio dev
- module when requesting channels
-Date: Wed, 18 Apr 2018 10:35:48 +0100
-Message-ID: <20180418103548.000078b7@huawei.com>
-References: <1523350677-27106-1-git-send-email-eugen.hristev@microchip.com>
- <1523350677-27106-7-git-send-email-eugen.hristev@microchip.com>
- <20180415203321.1aaaf91e@archlinux>
- <20180416235821.GF77055@dtor-ws>
- <67771f4c-d30c-4a28-2a9b-d5585186d60a@microchip.com>
- <20180417191906.GB67621@dtor-ws>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3
+ and v6 protocols
+Date: Wed, 18 Apr 2018 13:40:30 +0200
+Message-ID: <20180418114030.5xkvynzeqf63ir7j@pali>
+References: <20180312230915.26050-1-pali.rohar@gmail.com>
+ <20180312231335.fnfxgenu22utr3z6@pali>
+ <TYXPR01MB0719092EDE164BA6C576A1C7C7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+ <20180314225816.634w64kggycj67ec@pali>
+ <TYXPR01MB07191C487C66BA03E5D9AB3DC7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+ <20180316105811.t2nkwowqs66f6ji6@pali>
+ <TYXPR01MB0719CA528857480EC046DEF6C7D40@TYXPR01MB0719.jpnprd01.prod.outlook.com>
+ <20180321164126.fr4srexf5pxz4pud@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180417191906.GB67621@dtor-ws>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180321164126.fr4srexf5pxz4pud@pali>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree@vger.kernel.org, alexandre.belloni@bootlin.com, lars@metafoo.de, robh@kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, ludovic.desroches@microchip.com, Jonathan Cameron <jic23@kernel.org>, linux-input@vger.kernel.org, Eugen Hristev <eugen.hristev@microchip.com>, linux-arm-kernel@lists.infradead.org
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Masaki Ota <masaki.ota@jp.alps.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 17 Apr 2018 12:19:06 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Dmitry, ping
 
-> Hi Eugen,
+On Wednesday 21 March 2018 17:41:26 Pali Rohár wrote:
+> That is pity, but OK.
 > 
-> On Tue, Apr 17, 2018 at 10:39:24AM +0300, Eugen Hristev wrote:
+> Anyway, as wrote patch which I sent in the first email matches this
+> documentation.
+> 
+> Dmitry, can you review/comment/accept/reject this patch?
+> 
+> On Monday 19 March 2018 08:41:19 Masaki Ota wrote:
+> > Hi, Pali,
 > > 
+> > v3/v6 devices are T3 type, and it can use only Method 2.
+> > P36 (At this time GLIDEPOINT_T3 uses the Method 2 ....)
+> > T3 has the potential that uses Method2, but I think it needs to change Firmware.
 > > 
-> > On 17.04.2018 02:58, Dmitry Torokhov wrote:  
-> > > On Sun, Apr 15, 2018 at 08:33:21PM +0100, Jonathan Cameron wrote:  
-> > > > On Tue, 10 Apr 2018 11:57:52 +0300
-> > > > Eugen Hristev <eugen.hristev@microchip.com> wrote:
-> > > >   
-> > > > > When requesting channels for a particular consumer device,
-> > > > > besides requesting the device (incrementing the reference counter), also
-> > > > > do it for the driver module of the iio dev. This will avoid the situation
-> > > > > where the producer IIO device can be removed and the consumer is still
-> > > > > present in the kernel.
-> > > > > 
-> > > > > Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-> > > > > ---
-> > > > >   drivers/iio/inkern.c | 8 +++++++-
-> > > > >   1 file changed, 7 insertions(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/drivers/iio/inkern.c b/drivers/iio/inkern.c
-> > > > > index ec98790..68d9b87 100644
-> > > > > --- a/drivers/iio/inkern.c
-> > > > > +++ b/drivers/iio/inkern.c
-> > > > > @@ -11,6 +11,7 @@
-> > > > >   #include <linux/slab.h>
-> > > > >   #include <linux/mutex.h>
-> > > > >   #include <linux/of.h>
-> > > > > +#include <linux/module.h>
-> > > > >   #include <linux/iio/iio.h>
-> > > > >   #include "iio_core.h"
-> > > > > @@ -152,6 +153,7 @@ static int __of_iio_channel_get(struct iio_channel *channel,
-> > > > >   	if (index < 0)
-> > > > >   		goto err_put;
-> > > > >   	channel->channel = &indio_dev->channels[index];
-> > > > > +	try_module_get(channel->indio_dev->driver_module);  
+> > Best Regards,
+> > Masaki Ota
+> > -----Original Message-----
+> > From: Pali Rohár [mailto:pali.rohar@gmail.com] 
+> > Sent: Friday, March 16, 2018 7:58 PM
+> > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3 and v6 protocols
+> > 
+> > Great, thank you. Enabling that RAW/extended/SP4 mode is done by sequence E6, E6, E6, F3, C8, F3, 14 (written in page 35) and it matches what function alps_trackstick_enter_extended_mode_v3_v6() in my patch is doing. So is correct.
+> > 
+> > On page 36 I see that there is described Method 1 for reporting stick data which prevents cursor jumps. Seems that kernel uses Method 2.
+> > Method 1 depends on some prioritization.
+> > 
+> > Do you have some information how to activate Method 1? Sometimes I observe that problem with "cursor jumps" and from Method 1 could prevent it. So I would like to try experimenting...
+> > 
+> > On Wednesday 14 March 2018 23:56:46 Masaki Ota wrote:
+> > > Hi, Pali,
+> > > 
+> > > I have added Appendix.
+> > > According to this spec documents, SP raw mode is SP 4 byte mode.
+> > > I think Extended mode meaning is almost all the same as Raw mode.
+> > > The description of how to set is written in Page 35.
+> > > 
+> > > Best Regards,
+> > > Masaki Ota
+> > > -----Original Message-----
+> > > From: Pali Rohár [mailto:pali.rohar@gmail.com]
+> > > Sent: Thursday, March 15, 2018 7:58 AM
+> > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
+> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; 
+> > > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization 
+> > > for v3 and v6 protocols
+> > > 
+> > > Hi! Thank you for information.
+> > > 
+> > > Your PS/2 Aux Port Control description seems to really matches. Just there is reverse order of bits. Bit 0 in description is highest, therefore matches BIT(7) macro.
+> > > 
+> > > Bit 6 in description (BIT(1) in code) describes SP Extended Mode which alps.c enabled. And in that description is written:
+> > > 
+> > > "If 1 SP is extended packet format (driver must set SP raw mode and GP absolute mode)."
+> > > 
+> > > Do you have any idea what "SP raw mode" is? How to set it? For me it looks like it could be that extended mode of trackstick itself.
+> > > 
+> > > "GP absolute mode" I guess is GlidePoint absolute mode, therefore 
+> > > enable
+> > > 6 byte absolute mode for touchpad.
+> > > 
+> > > And for Bit 7 (BIT(0)) is written:
+> > > 
+> > > This bit is used with the PS/2 Aux port to use the Pass-Thru mode ( see appendix A ). Do you have some information about this appendix A?
+> > > 
+> > > On Wednesday 14 March 2018 10:21:43 Masaki Ota wrote:
+> > > > Hi, Pali,
 > > > > 
-> > > > And if it fails? (the module we are trying to get is going away...)
+> > > > I just picked up the spec which relates with trackstic.
 > > > > 
-> > > > We should try and handle it I think. Be it by just erroring out of here.  
+> > > > Best Regards,
+> > > > Masaki Ota
+> > > > -----Original Message-----
+> > > > From: Pali Rohár [mailto:pali.rohar@gmail.com]
+> > > > Sent: Tuesday, March 13, 2018 8:14 AM
+> > > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>; Dmitry Torokhov 
+> > > > <dmitry.torokhov@gmail.com>
+> > > > Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > > Subject: Re: [PATCH] Input: alps - Demystify trackstick 
+> > > > initialization for v3 and v6 protocols
+> > > > 
+> > > > Masaki, if you have access to the internal ALPS v3 / Rushmore 
+> > > > documentation, I would like to have a review of this patch or 
+> > > > confirmation of those information :-)
 > > > 
-> > > Even more, this has nothing to do with modules. A device can go away for
-> > > any number of reasons (we unbind it manually via sysfs, we pull the USB
-> > > plug from the host in case it is USB-connected device, we unload I2C
-> > > adapter for the bus device resides on, we kick underlying PCI device)
-> > > and we should be able to handle this in some fashion. Handling errors
-> > > from reads and ignoring garbage is one of methods.
-> > > 
-> > > FWIW this is a NACK from me.
-> > > 
-> > > Thanks.  
-> > Hello,
+> > > --
+> > > Pali Rohár
+> > > pali.rohar@gmail.com
 > > 
-> > This patch is actually a "best effort attempt" for the consumer driver
-> > (touch driver) to get a reference to the producer of the data (the IIO
-> > device), when it requests the specific channels.
-> > As of this moment, there is no attempt whatsoever for the consumer to have a
-> > reference on the producer driver. Thus, the producer can be removed at any
-> > time, and the consumer will fail ungraciously.  
+> > --
+> > Pali Rohár
+> > pali.rohar@gmail.com
 > 
-> This is the root of the issue. The consumer should be prepared to handle
-> errors from producer.
-> 
-> > I can change the perspective from "best effort" to "mandatory" to get a
-> > reference to the producer, or you wish to stop trying to get any reference
-> > at all (remove this patch completely) ?  
-> 
-> You should take reference to the device itself (if it is not taken
-> already), so it does not disappear completely and you can continue using
-> IIO API to access it, and IIO API should be prepared to deal with "dead"
-> devices, but as I pointed in my other email, trying to pin the driver
-> is quite pointless as there are myriad other ways of device stopping
-> working besides module unloading.
-> 
-> In any case, I think this problem is outside of the scope of this
-> patchset that adds a generic resistive touchscreen, so if you want to
-> continue working on this I'd recommend moving it into a separate series.
-> 
-> Thanks.
-> 
-Agreed, this one has come up a number of times before.  Quite a lot of
-work got done by (IIRC) Lars Peter Clausen to stabilize things in various
-unexpected 'going away' events.  Of course there may be paths we have
-added since that (it was years ago) that can cause trouble...
 
-Anyhow, separate issue as Dmitry says, let's deal with it separately.
-
-Jonathan
+-- 
+Pali Rohár
+pali.rohar@gmail.com

@@ -1,66 +1,256 @@
 From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [Xen-devel] [PATCH] Input: xen-kbdfront - allow better run-time
- configuration
-Date: Thu, 19 Apr 2018 16:22:53 +0300
-Message-ID: <1d737998-6b90-ba33-bafa-8a8d4dc568d8@gmail.com>
-References: <20180418150445.9805-1-andr2000@gmail.com>
- <ccb7a33b-7862-9803-fb24-67861d5ecab9@suse.com>
- <2bff035e-303e-d644-5f51-5e64150c097c@gmail.com>
- <c833ab0d-746c-c734-3dbe-e02ae7951d1d@suse.com>
- <d935e7d9-090f-a8b1-7f12-5e0a7f0adf1b@gmail.com>
- <CAKf6xpsM03AB-mHaYdpVfipRdtx9uO1rS=bHZdEi3fkfTo6b4g@mail.gmail.com>
- <5ed20b99-263d-d906-9349-d064eead36ad@gmail.com>
- <d4075815-2b41-781d-3541-6a17a181512d@suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH v2] Input: xen-kbdfront - allow better run-time configuration
+Date: Thu, 19 Apr 2018 16:39:34 +0300
+Message-ID: <20180419133934.31306-1-andr2000@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d4075815-2b41-781d-3541-6a17a181512d@suse.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Juergen Gross <jgross@suse.com>, Jason Andryuk <jandryuk@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com, lyan@suse.com, Boris Ostrovsky <boris.ostrovsky@oracle.com>, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+To: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com
+Cc: andr2000@gmail.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-On 04/19/2018 04:19 PM, Juergen Gross wrote:
-> On 19/04/18 15:12, Oleksandr Andrushchenko wrote:
->> On 04/19/2018 04:10 PM, Jason Andryuk wrote:
->>> On Thu, Apr 19, 2018 at 9:01 AM, Oleksandr Andrushchenko
->>> <andr2000@gmail.com> wrote:
->>>> Ok, so I'll send v2 with the following changes:
->>>>
->>>> diff --git a/drivers/input/misc/xen-kbdfront.c
->>>> b/drivers/input/misc/xen-kbdfront.c
->>>> index a3306aad40b0..d8cca212f737 100644
->>>> --- a/drivers/input/misc/xen-kbdfront.c
->>>> +++ b/drivers/input/misc/xen-kbdfront.c
->>>> @@ -51,13 +51,13 @@ module_param_array(ptr_size, int, NULL, 0444);
->>>>    MODULE_PARM_DESC(ptr_size,
->>>>           "Pointing device width, height in pixels (default 800,600)");
->>>>
->>>> -static unsigned int no_ptr_dev;
->>>> -module_param(no_ptr_dev, uint, 0);
->>>> +static bool no_ptr_dev;
->>>> +module_param(no_ptr_dev, bool, 0);
->>>>    MODULE_PARM_DESC(no_ptr_dev,
->>>>           "If set then no virtual pointing device exposed to the guest");
->>>>
->>>> -static unsigned int no_kbd_dev;
->>>> -module_param(no_kbd_dev, uint, 0);
->>>> +static bool no_kbd_dev;
->>>> +module_param(no_kbd_dev, bool, 0);
->>>>    MODULE_PARM_DESC(no_kbd_dev,
->>>>           "If set then no virtual keyboard device exposed to the guest");
->>> I prefer direct logic over inverse logic.  Maybe just use kbd_dev,
->>> default to true, but allow it to be set off?
->>>
->>> static bool kbd_dev = true;
->>> module_param(kbd_dev, bool, 0);
->> I have no preference here, either way works for me
->> Juergen, what do you think about the above?
-> I really have no preference here. What should be taken into account is
-> that boolean parameters don't need a value, meaning "true" in that case.
-> This would make no sense for "kbd_dev" as it wouldn't change the
-> default.
-Then I'll go with the diff above, e.g. boolean no_{kbd|ptr})dev
-> Juergen
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+
+It is now only possible to control if multi-touch virtual device
+is created or not (via the corresponding XenStore entries),
+but keyboard and pointer devices are always created.
+In some cases this is not desirable. For example, if virtual
+keyboard device is exposed to Android then the latter won't
+automatically show on-screen keyboard as it expects that a
+physical keyboard device can be used for typing.
+
+Make it possible to configure which virtual devices are created
+with module parameters:
+  - provide no_ptr_dev if no pointer device needs to be created
+  - provide no_kbd_dev if no keyboard device needs to be created
+Keep old behavior by default.
+
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Suggested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+Tested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+---
+Changes since v1:
+  - changed module parameters from uint to bool
+
+ drivers/input/misc/xen-kbdfront.c | 159 +++++++++++++++++-------------
+ 1 file changed, 92 insertions(+), 67 deletions(-)
+
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index d91f3b1c5375..d8cca212f737 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -51,6 +51,16 @@ module_param_array(ptr_size, int, NULL, 0444);
+ MODULE_PARM_DESC(ptr_size,
+ 	"Pointing device width, height in pixels (default 800,600)");
+ 
++static bool no_ptr_dev;
++module_param(no_ptr_dev, bool, 0);
++MODULE_PARM_DESC(no_ptr_dev,
++	"If set then no virtual pointing device exposed to the guest");
++
++static bool no_kbd_dev;
++module_param(no_kbd_dev, bool, 0);
++MODULE_PARM_DESC(no_kbd_dev,
++	"If set then no virtual keyboard device exposed to the guest");
++
+ static int xenkbd_remove(struct xenbus_device *);
+ static int xenkbd_connect_backend(struct xenbus_device *, struct xenkbd_info *);
+ static void xenkbd_disconnect_backend(struct xenkbd_info *);
+@@ -63,6 +73,9 @@ static void xenkbd_disconnect_backend(struct xenkbd_info *);
+ static void xenkbd_handle_motion_event(struct xenkbd_info *info,
+ 				       struct xenkbd_motion *motion)
+ {
++	if (unlikely(!info->ptr))
++		return;
++
+ 	input_report_rel(info->ptr, REL_X, motion->rel_x);
+ 	input_report_rel(info->ptr, REL_Y, motion->rel_y);
+ 	if (motion->rel_z)
+@@ -73,6 +86,9 @@ static void xenkbd_handle_motion_event(struct xenkbd_info *info,
+ static void xenkbd_handle_position_event(struct xenkbd_info *info,
+ 					 struct xenkbd_position *pos)
+ {
++	if (unlikely(!info->ptr))
++		return;
++
+ 	input_report_abs(info->ptr, ABS_X, pos->abs_x);
+ 	input_report_abs(info->ptr, ABS_Y, pos->abs_y);
+ 	if (pos->rel_z)
+@@ -97,6 +113,9 @@ static void xenkbd_handle_key_event(struct xenkbd_info *info,
+ 		return;
+ 	}
+ 
++	if (unlikely(!dev))
++		return;
++
+ 	input_event(dev, EV_KEY, key->keycode, value);
+ 	input_sync(dev);
+ }
+@@ -192,7 +211,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 				  const struct xenbus_device_id *id)
+ {
+ 	int ret, i;
+-	unsigned int abs, touch;
++	unsigned int touch;
+ 	struct xenkbd_info *info;
+ 	struct input_dev *kbd, *ptr, *mtouch;
+ 
+@@ -211,24 +230,6 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 	if (!info->page)
+ 		goto error_nomem;
+ 
+-	/* Set input abs params to match backend screen res */
+-	abs = xenbus_read_unsigned(dev->otherend,
+-				   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
+-	ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
+-						  XENKBD_FIELD_WIDTH,
+-						  ptr_size[KPARAM_X]);
+-	ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
+-						  XENKBD_FIELD_HEIGHT,
+-						  ptr_size[KPARAM_Y]);
+-	if (abs) {
+-		ret = xenbus_write(XBT_NIL, dev->nodename,
+-				   XENKBD_FIELD_REQ_ABS_POINTER, "1");
+-		if (ret) {
+-			pr_warn("xenkbd: can't request abs-pointer\n");
+-			abs = 0;
+-		}
+-	}
+-
+ 	touch = xenbus_read_unsigned(dev->nodename,
+ 				     XENKBD_FIELD_FEAT_MTOUCH, 0);
+ 	if (touch) {
+@@ -241,60 +242,84 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 	}
+ 
+ 	/* keyboard */
+-	kbd = input_allocate_device();
+-	if (!kbd)
+-		goto error_nomem;
+-	kbd->name = "Xen Virtual Keyboard";
+-	kbd->phys = info->phys;
+-	kbd->id.bustype = BUS_PCI;
+-	kbd->id.vendor = 0x5853;
+-	kbd->id.product = 0xffff;
+-
+-	__set_bit(EV_KEY, kbd->evbit);
+-	for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
+-		__set_bit(i, kbd->keybit);
+-	for (i = KEY_OK; i < KEY_MAX; i++)
+-		__set_bit(i, kbd->keybit);
+-
+-	ret = input_register_device(kbd);
+-	if (ret) {
+-		input_free_device(kbd);
+-		xenbus_dev_fatal(dev, ret, "input_register_device(kbd)");
+-		goto error;
++	if (!no_kbd_dev) {
++		kbd = input_allocate_device();
++		if (!kbd)
++			goto error_nomem;
++		kbd->name = "Xen Virtual Keyboard";
++		kbd->phys = info->phys;
++		kbd->id.bustype = BUS_PCI;
++		kbd->id.vendor = 0x5853;
++		kbd->id.product = 0xffff;
++
++		__set_bit(EV_KEY, kbd->evbit);
++		for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
++			__set_bit(i, kbd->keybit);
++		for (i = KEY_OK; i < KEY_MAX; i++)
++			__set_bit(i, kbd->keybit);
++
++		ret = input_register_device(kbd);
++		if (ret) {
++			input_free_device(kbd);
++			xenbus_dev_fatal(dev, ret, "input_register_device(kbd)");
++			goto error;
++		}
++		info->kbd = kbd;
+ 	}
+-	info->kbd = kbd;
+ 
+ 	/* pointing device */
+-	ptr = input_allocate_device();
+-	if (!ptr)
+-		goto error_nomem;
+-	ptr->name = "Xen Virtual Pointer";
+-	ptr->phys = info->phys;
+-	ptr->id.bustype = BUS_PCI;
+-	ptr->id.vendor = 0x5853;
+-	ptr->id.product = 0xfffe;
+-
+-	if (abs) {
+-		__set_bit(EV_ABS, ptr->evbit);
+-		input_set_abs_params(ptr, ABS_X, 0, ptr_size[KPARAM_X], 0, 0);
+-		input_set_abs_params(ptr, ABS_Y, 0, ptr_size[KPARAM_Y], 0, 0);
+-	} else {
+-		input_set_capability(ptr, EV_REL, REL_X);
+-		input_set_capability(ptr, EV_REL, REL_Y);
+-	}
+-	input_set_capability(ptr, EV_REL, REL_WHEEL);
++	if (!no_ptr_dev) {
++		unsigned int abs;
++
++		/* Set input abs params to match backend screen res */
++		abs = xenbus_read_unsigned(dev->otherend,
++					   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
++		ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
++							  XENKBD_FIELD_WIDTH,
++							  ptr_size[KPARAM_X]);
++		ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
++							  XENKBD_FIELD_HEIGHT,
++							  ptr_size[KPARAM_Y]);
++		if (abs) {
++			ret = xenbus_write(XBT_NIL, dev->nodename,
++					   XENKBD_FIELD_REQ_ABS_POINTER, "1");
++			if (ret) {
++				pr_warn("xenkbd: can't request abs-pointer\n");
++				abs = 0;
++			}
++		}
+ 
+-	__set_bit(EV_KEY, ptr->evbit);
+-	for (i = BTN_LEFT; i <= BTN_TASK; i++)
+-		__set_bit(i, ptr->keybit);
++		ptr = input_allocate_device();
++		if (!ptr)
++			goto error_nomem;
++		ptr->name = "Xen Virtual Pointer";
++		ptr->phys = info->phys;
++		ptr->id.bustype = BUS_PCI;
++		ptr->id.vendor = 0x5853;
++		ptr->id.product = 0xfffe;
++
++		if (abs) {
++			__set_bit(EV_ABS, ptr->evbit);
++			input_set_abs_params(ptr, ABS_X, 0, ptr_size[KPARAM_X], 0, 0);
++			input_set_abs_params(ptr, ABS_Y, 0, ptr_size[KPARAM_Y], 0, 0);
++		} else {
++			input_set_capability(ptr, EV_REL, REL_X);
++			input_set_capability(ptr, EV_REL, REL_Y);
++		}
++		input_set_capability(ptr, EV_REL, REL_WHEEL);
+ 
+-	ret = input_register_device(ptr);
+-	if (ret) {
+-		input_free_device(ptr);
+-		xenbus_dev_fatal(dev, ret, "input_register_device(ptr)");
+-		goto error;
++		__set_bit(EV_KEY, ptr->evbit);
++		for (i = BTN_LEFT; i <= BTN_TASK; i++)
++			__set_bit(i, ptr->keybit);
++
++		ret = input_register_device(ptr);
++		if (ret) {
++			input_free_device(ptr);
++			xenbus_dev_fatal(dev, ret, "input_register_device(ptr)");
++			goto error;
++		}
++		info->ptr = ptr;
+ 	}
+-	info->ptr = ptr;
+ 
+ 	/* multi-touch device */
+ 	if (touch) {
+-- 
+2.17.0

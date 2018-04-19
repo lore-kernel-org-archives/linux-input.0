@@ -1,53 +1,67 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH v2] Input: i8042 - Fix KBD port cannot wake up system from suspend-to-idle
-Date: Thu, 19 Apr 2018 16:49:51 +0800
-Message-ID: <20180419084951.25130-1-kai.heng.feng@canonical.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH] Input: xen-kbdfront - allow better run-time configuration
+Date: Thu, 19 Apr 2018 13:25:25 +0200
+Message-ID: <ccb7a33b-7862-9803-fb24-67861d5ecab9@suse.com>
+References: <20180418150445.9805-1-andr2000@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180418150445.9805-1-andr2000@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+To: Oleksandr Andrushchenko <andr2000@gmail.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, lyan@suse.com, boris.ostrovsky@oracle.com
+Cc: andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Kai Heng Feng <kai.heng.feng@canonical.com>
+On 18/04/18 17:04, Oleksandr Andrushchenko wrote:
+> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> 
+> It is now only possible to control if multi-touch virtual device
+> is created or not (via the corresponding XenStore entries),
+> but keyboard and pointer devices are always created.
 
-Commit f13b2065de81 ("Input: i8042 - allow KBD and AUX ports to wake up
-from suspend-to-idle") make system in s2idle can be woken up by i8042
-keyboard, but it's disabled by default.
+Why don't you want to go that route for keyboard and mouse, too?
+Or does this really make no sense?
 
-In commit 3e6e15a862a0 ("Input: enable remote wakeup for PNP i8042
-keyboard ports") states that "Keyboard ports are always supposed to be
-wakeup-enabled", it should be enabled by default. Keyboard wakeup from
-s2idles is also the default behavior for other x86 OSes.
+> In some cases this is not desirable. For example, if virtual
+> keyboard device is exposed to Android then the latter won't
+> automatically show on-screen keyboard as it expects that a
+> physical keyboard device can be used for typing.
+> 
+> Make it possible to configure which virtual devices are created
+> with module parameters:
+>   - no_ptr_dev=1 if no pointer device needs to be created
+>   - no_kbd_dev=1 if no keyboard device needs to be created
+> Keep old behavior by default.
+> 
+> Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> Suggested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+> Tested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+> ---
+>  drivers/input/misc/xen-kbdfront.c | 159 +++++++++++++++++-------------
+>  1 file changed, 92 insertions(+), 67 deletions(-)
+> 
+> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+> index d91f3b1c5375..a3306aad40b0 100644
+> --- a/drivers/input/misc/xen-kbdfront.c
+> +++ b/drivers/input/misc/xen-kbdfront.c
+> @@ -51,6 +51,16 @@ module_param_array(ptr_size, int, NULL, 0444);
+>  MODULE_PARM_DESC(ptr_size,
+>  	"Pointing device width, height in pixels (default 800,600)");
+>  
+> +static unsigned int no_ptr_dev;
+> +module_param(no_ptr_dev, uint, 0);
 
-In addition to PNP port, enable keyboard wakeup from serio port by
-default for x86 systems.
+Use type invbool instead?
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
----
-v2:
-Keep the PNP wakeup part.
-Only enable for x86 systems.
-Update commit message.
+> +MODULE_PARM_DESC(no_ptr_dev,
+> +	"If set then no virtual pointing device exposed to the guest");
+> +
+> +static unsigned int no_kbd_dev;
+> +module_param(no_kbd_dev, uint, 0);
 
- drivers/input/serio/i8042.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+invbool?
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 824f4c1c1f31..0b6878e8037b 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -1400,6 +1400,12 @@ static void __init i8042_register_ports(void)
- 				i8042_ports[i].irq);
- 			serio_register_port(serio);
- 			device_set_wakeup_capable(&serio->dev, true);
-+
-+#ifdef CONFIG_X86
-+			/* Keyboard ports are always supposed to be wakeup-enabled */
-+			if (i == I8042_KBD_PORT_NO)
-+				device_wakeup_enable(&serio->dev);
-+#endif
- 		}
- 	}
- }
--- 
-2.17.0
+
+Juergen

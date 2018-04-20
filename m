@@ -1,32 +1,47 @@
-From: Masanari Iida <standby24x7@gmail.com>
-Subject: [PATCH] Input: touchscreen: Fix a typo in Kconfig
-Date: Fri, 20 Apr 2018 03:45:14 +0900
-Message-ID: <20180419184514.9668-1-standby24x7@gmail.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: Re: [PATCH] MAINTAINERS: Rakesh Iyer can't be reached anymore
+Date: Fri, 20 Apr 2018 08:03:26 +0100
+Message-ID: <1f70f124-53e9-9cca-c045-ff919a577e4e@nvidia.com>
+References: <20180419174211.2532-1-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180419174211.2532-1-wsa@the-dreams.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, trivial@kernel.org, linux-input@vger.kernel.org
-Cc: Masanari Iida <standby24x7@gmail.com>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch fix a spelling typo found in Kconfig.
 
-Signed-off-by: Masanari Iida <standby24x7@gmail.com>
----
- drivers/input/touchscreen/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 19/04/18 18:42, Wolfram Sang wrote:
+> The current mail address is rejected, last activity (with a different
+> address) in git-history is from 2012. Remove this.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+> 
+> If somebody knows a recent address, then we can simply update, of course.
+> 
+>  MAINTAINERS | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index c4b6d379423e..0307426c2564 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -13833,7 +13833,6 @@ S:	Supported
+>  F:	drivers/iommu/tegra*
+>  
+>  TEGRA KBC DRIVER
+> -M:	Rakesh Iyer <riyer@nvidia.com>
+>  M:	Laxman Dewangan <ldewangan@nvidia.com>
+>  S:	Supported
+>  F:	drivers/input/keyboard/tegra-kbc.c
+> 
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 4f15496fec8b..3e613afa10b4 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -362,7 +362,7 @@ config TOUCHSCREEN_HIDEEP
- 
- 	  If unsure, say N.
- 
--	  To compile this driver as a moudle, choose M here : the
-+	  To compile this driver as a module, choose M here : the
- 	  module will be called hideep_ts.
- 
- config TOUCHSCREEN_ILI210X
--- 
-2.17.0.140.g0b0cc9f86731
+Acked-by: Jon Hunter <jonathanh@nvidia.com>
+
+Cheers!
+Jon

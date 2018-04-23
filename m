@@ -1,86 +1,272 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv2] Input: atmel_mxt_ts - fix reset-gpio for level based irqs
-Date: Mon, 23 Apr 2018 13:58:44 +0200
-Message-ID: <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
-References: <20180420172408.26164-1-sebastian.reichel@collabora.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 2/2] input: misc: Add Spreadtrum vibrator driver
+Date: Mon, 23 Apr 2018 10:29:37 -0700
+Message-ID: <20180423172937.GA66646@dtor-ws>
+References: <e2f85ec0b1fb66baa41dd85bb31e8113e23c704b.1524450536.git.baolin.wang@linaro.org>
+ <dc7af2705ab659a7cf579145b7e1eda9697b0ef2.1524450536.git.baolin.wang@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180420172408.26164-1-sebastian.reichel@collabora.co.uk>
+Content-Disposition: inline
+In-Reply-To: <dc7af2705ab659a7cf579145b7e1eda9697b0ef2.1524450536.git.baolin.wang@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>, kernel@collabora.com, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, orsonzhai@gmail.com, zhang.lyra@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xiaotong.lu@spreadtrum.com
 List-Id: linux-input@vger.kernel.org
 
-The current reset-gpio support triggers an interrupt storm on platforms
-using the maxtouch with level based interrupt. The Motorola Droid 4,
-which I used for some of the tests is not affected, since it uses a edge
-based interrupt.
+Hi Xiaotong,
 
-This change avoids the interrupt storm by enabling the device while its
-interrupt is disabled. Afterwards we wait 100ms. This is important for
-two reasons: The device is unresponsive for some time (~22ms for
-mxt224E) and the CHG (interrupt) line is not working properly for 100ms.
-We don't need to wait for any following interrupts, since the following
-mxt_initialize() checks for bootloader mode anyways.
+On Mon, Apr 23, 2018 at 10:33:36AM +0800, Baolin Wang wrote:
+> From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+> 
+> This patch adds the Spreadtrum vibrator driver, which embedded in the
+> Spreadtrum SC27xx series PMICs.
+> 
+> Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> ---
+> Changes since v1:
+>  - Remove input_ff_destroy() and input_unregister_device()
+> ---
+>  drivers/input/misc/Kconfig        |   10 +++
+>  drivers/input/misc/Makefile       |    1 +
+>  drivers/input/misc/sc27xx-vibra.c |  156 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 167 insertions(+)
+>  create mode 100644 drivers/input/misc/sc27xx-vibra.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 572b15f..c761c0c 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -841,4 +841,14 @@ config INPUT_RAVE_SP_PWRBUTTON
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called rave-sp-pwrbutton.
+>  
+> +config INPUT_SC27XX_VIBRA
+> +	tristate "Spreadtrum sc27xx vibrator support"
+> +	depends on MFD_SC27XX_PMIC || COMPILE_TEST
+> +	select INPUT_FF_MEMLESS
+> +	help
+> +	  This option enables support for Spreadtrum sc27xx vibrator driver.
+> +
+> +	  To compile this driver as a module, choose M here. The module will
+> +	  be called sc27xx_vibra.
+> +
+>  endif
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index 72cde28..9d0f9d1 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -66,6 +66,7 @@ obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
+>  obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
+>  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+>  obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
+> +obj-$(CONFIG_INPUT_SC27XX_VIBRA)	+= sc27xx-vibra.o
+>  obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+>  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
+>  obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
+> diff --git a/drivers/input/misc/sc27xx-vibra.c b/drivers/input/misc/sc27xx-vibra.c
+> new file mode 100644
+> index 0000000..f78e70f
+> --- /dev/null
+> +++ b/drivers/input/misc/sc27xx-vibra.c
+> @@ -0,0 +1,156 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) 2018 Spreadtrum Communications Inc.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/of_address.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/regmap.h>
+> +#include <linux/input.h>
+> +#include <linux/workqueue.h>
+> +
+> +#define CUR_DRV_CAL_SEL		GENMASK(13, 12)
+> +#define SLP_LDOVIBR_PD_EN	BIT(9)
+> +#define LDO_VIBR_PD		BIT(8)
+> +
+> +struct vibra_info {
+> +	struct input_dev	*input_dev;
+> +	struct work_struct	play_work;
+> +	struct regmap		*regmap;
+> +	u32			base;
+> +	u32			strength;
+> +	bool			enabled;
+> +};
+> +
+> +static void sc27xx_vibra_set(struct vibra_info *info, bool on)
+> +{
+> +	if (on) {
+> +		regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD, 0);
+> +		regmap_update_bits(info->regmap, info->base,
+> +				   SLP_LDOVIBR_PD_EN, 0);
+> +		info->enabled = true;
+> +	} else {
+> +		regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD,
+> +				   LDO_VIBR_PD);
+> +		regmap_update_bits(info->regmap, info->base,
+> +				   SLP_LDOVIBR_PD_EN, SLP_LDOVIBR_PD_EN);
+> +		info->enabled = false;
+> +	}
+> +}
+> +
+> +static int sc27xx_vibra_hw_init(struct vibra_info *info)
+> +{
+> +	return regmap_update_bits(info->regmap, info->base, CUR_DRV_CAL_SEL, 0);
+> +}
+> +
+> +static void sc27xx_vibra_play_work(struct work_struct *work)
+> +{
+> +	struct vibra_info *info = container_of(work, struct vibra_info,
+> +					       play_work);
+> +
+> +	if (info->strength && !info->enabled)
+> +		sc27xx_vibra_set(info, true);
+> +	else if (info->enabled)
+> +		sc27xx_vibra_set(info, false);
 
-This fixes a boot issue on GE PPD (watchdog kills device due to
-interrupt storm) and does not cause regression on Motorola Droid 4.
+I do not think this is correct. If you issue 2 play requests with
+info->strength that is not 0 then you'll end up disabling the vibrator.
 
-Fixes: f657b00df22e ("Input: atmel_mxt_ts - add support for reset line")
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
----
-Changes since PATCHv2:
- * fix patch description
- * use same timeout value for soft and gpio-reset
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+I think you want the 2nd condition to be:
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 5d9699fe1b55..f97fbb0af020 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -194,6 +194,8 @@ enum t100_type {
- 
- /* Delay times */
- #define MXT_BACKUP_TIME		50	/* msec */
-+#define MXT_RESET_GPIO_TIME	20	/* msec */
-+#define MXT_RESET_INVALID_CHG	100	/* msec */
- #define MXT_RESET_TIME		200	/* msec */
- #define MXT_RESET_TIMEOUT	3000	/* msec */
- #define MXT_CRC_TIMEOUT		1000	/* msec */
-@@ -1206,7 +1208,7 @@ static int mxt_soft_reset(struct mxt_data *data)
- 		return ret;
- 
- 	/* Ignore CHG line for 100ms after reset */
--	msleep(100);
-+	msleep(MXT_RESET_INVALID_CHG);
- 
- 	mxt_acquire_irq(data);
- 
-@@ -3167,20 +3169,14 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return error;
- 	}
- 
-+	disable_irq(client->irq);
-+
- 	if (data->reset_gpio) {
--		data->in_bootloader = true;
--		msleep(MXT_RESET_TIME);
--		reinit_completion(&data->bl_completion);
-+		msleep(MXT_RESET_GPIO_TIME);
- 		gpiod_set_value(data->reset_gpio, 1);
--		error = mxt_wait_for_completion(data, &data->bl_completion,
--						MXT_RESET_TIMEOUT);
--		if (error)
--			return error;
--		data->in_bootloader = false;
-+		msleep(MXT_RESET_INVALID_CHG);
- 	}
- 
--	disable_irq(client->irq);
--
- 	error = mxt_initialize(data);
- 	if (error)
- 		return error;
+	else if (info->strength == 0 && info->enabled)
+		sc27xx_vibra_set(info, false);
+
+
+> +}
+> +
+> +static int sc27xx_vibra_play(struct input_dev *input, void *data,
+> +			     struct ff_effect *effect)
+> +{
+> +	struct vibra_info *info = input_get_drvdata(input);
+> +
+> +	info->strength = effect->u.rumble.weak_magnitude;
+> +	schedule_work(&info->play_work);
+> +
+> +	return 0;
+> +}
+> +
+> +static void sc27xx_vibra_close(struct input_dev *input)
+> +{
+> +	struct vibra_info *info = input_get_drvdata(input);
+> +
+> +	cancel_work_sync(&info->play_work);
+> +	if (info->enabled)
+> +		sc27xx_vibra_set(info, false);
+> +}
+> +
+> +static int sc27xx_vibra_probe(struct platform_device *pdev)
+> +{
+> +	struct device_node *node = pdev->dev.of_node;
+> +	struct vibra_info *info;
+> +	int ret;
+
+Can we please call this variable "error"?
+
+> +
+> +	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+> +	if (!info)
+> +		return -ENOMEM;
+> +
+> +	info->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+> +	if (!info->regmap) {
+> +		dev_err(&pdev->dev, "failed to get vibrator regmap.\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	ret = of_property_read_u32(node, "reg", &info->base);
+
+I am fan of generic device properties, please change to
+device_property_read_u32().
+
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to get vibrator base address.\n");
+> +		return ret;
+> +	}
+> +
+> +	info->input_dev = devm_input_allocate_device(&pdev->dev);
+> +	if (!info->input_dev) {
+> +		dev_err(&pdev->dev, "failed to allocate input device.\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	info->input_dev->name = "sc27xx:vibrator";
+> +	info->input_dev->id.version = 0;
+> +	info->input_dev->dev.parent = pdev->dev.parent;
+
+Why is device reparented to the parent of platform device? This breaks
+devm implementation for the input device. If you really need this,
+you'll have to switch to unmanaged API.
+
+> +	info->input_dev->close = sc27xx_vibra_close;
+> +
+> +	input_set_drvdata(info->input_dev, info);
+> +	input_set_capability(info->input_dev, EV_FF, FF_RUMBLE);
+> +	INIT_WORK(&info->play_work, sc27xx_vibra_play_work);
+> +	info->enabled = false;
+> +
+> +	ret = input_ff_create_memless(info->input_dev, NULL, sc27xx_vibra_play);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register vibrator to FF.\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = input_register_device(info->input_dev);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to register input device.\n");
+> +		return ret;
+> +	}
+> +
+> +	ret = sc27xx_vibra_hw_init(info);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "failed to initialize the vibrator.\n");
+> +		return ret;
+> +	}
+
+It is too late to initialize hardware after registering the input
+device, as once registered it should be fully functional. I'd recommend
+calling this before calling input_register_device(), or (maybe even
+better) doing this as part of open() method.
+
+> +
+> +	platform_set_drvdata(pdev, info);
+
+I do not think you are using platform device's driver data anywhere.
+
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id sc27xx_vibra_of_match[] = {
+> +	{ .compatible = "sprd,sc27xx-vibrator", },
+> +	{}
+> +};
+> +MODULE_DEVICE_TABLE(of, sc27xx_vibra_of_match);
+> +
+> +static struct platform_driver sc27xx_vibra_driver = {
+> +	.driver = {
+> +		.name = "sc27xx-vibrator",
+> +		.of_match_table = sc27xx_vibra_of_match,
+
+Do you need suspend support by chance? To shut off the vibrator when
+system transitions to sleep?
+
+> +	},
+> +	.probe = sc27xx_vibra_probe,
+> +};
+> +
+> +module_platform_driver(sc27xx_vibra_driver);
+> +
+> +MODULE_DESCRIPTION("Spreadtrum SC27xx Vibrator Driver");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_AUTHOR("Xiaotong Lu <xiaotong.lu@spreadtrum.com>");
+> -- 
+> 1.7.9.5
+> 
+
+Thanks.
+
 -- 
-2.17.0
+Dmitry

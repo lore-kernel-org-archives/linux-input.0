@@ -1,47 +1,45 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: xen-kbdfront - allow better run-time
- configuration
-Date: Mon, 23 Apr 2018 11:55:30 -0700
-Message-ID: <20180423185530.GC66646@dtor-ws>
-References: <20180419133934.31306-1-andr2000@gmail.com>
- <998533bb-8042-b07e-cb79-661750e035d9@gmail.com>
- <a2189ec9-ef4d-2c23-28c6-a6ff8525e8e5@suse.com>
- <7b4c1f8a-6317-1f17-5950-64a1b7183dba@gmail.com>
+Subject: Re: [PATCH] Input: touchscreen: Fix a typo in Kconfig
+Date: Mon, 23 Apr 2018 12:02:20 -0700
+Message-ID: <20180423190220.GD66646@dtor-ws>
+References: <20180419184514.9668-1-standby24x7@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <7b4c1f8a-6317-1f17-5950-64a1b7183dba@gmail.com>
+In-Reply-To: <20180419184514.9668-1-standby24x7@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Oleksandr Andrushchenko <andr2000@gmail.com>
-Cc: Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+To: Masanari Iida <standby24x7@gmail.com>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 23, 2018 at 11:29:45AM +0300, Oleksandr Andrushchenko wrote:
-> On 04/23/2018 11:23 AM, Juergen Gross wrote:
-> > On 23/04/18 10:02, Oleksandr Andrushchenko wrote:
-> > > Juergen, Jason, Dmitry
-> > > any comment on this?
-> > Oleksandr, please give us some time. I can't speak for others, but I am
-> > not sitting here idling and hoping that some work (e.g. patches to
-> > review) might appear.
-> > 
-> > I have a lot of other stuff to do and will respond when I find some time
-> > to look at your patches.
-> > 
-> > Pinging others on Monday when having sent out the patch only on Thursday
-> > is rather unfriendly.
-> Really sorry about this, my bad.
-> I had an impression that the only change we need to
-> discuss was uint -> bool change which seemed rather trivial
+On Fri, Apr 20, 2018 at 03:45:14AM +0900, Masanari Iida wrote:
+> This patch fix a spelling typo found in Kconfig.
+> 
+> Signed-off-by: Masanari Iida <standby24x7@gmail.com>
 
-I am sorry I did not respond to the previous version until today, but I
-do not think that we should be extending module parameters for this.
-Protocol features are already there for absolute pointers and
-multi-touch, keyboard and relative pointers should use the same
-mechanism.
+Applied, thank you.
 
-Thanks.
+> ---
+>  drivers/input/touchscreen/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 4f15496fec8b..3e613afa10b4 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -362,7 +362,7 @@ config TOUCHSCREEN_HIDEEP
+>  
+>  	  If unsure, say N.
+>  
+> -	  To compile this driver as a moudle, choose M here : the
+> +	  To compile this driver as a module, choose M here : the
+>  	  module will be called hideep_ts.
+>  
+>  config TOUCHSCREEN_ILI210X
+> -- 
+> 2.17.0.140.g0b0cc9f86731
+> 
 
 -- 
 Dmitry

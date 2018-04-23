@@ -1,80 +1,44 @@
-From: Jason Andryuk <jandryuk@gmail.com>
-Subject: Re: [Xen-devel] [PATCH v2] Input: xen-kbdfront - allow better
- run-time configuration
-Date: Mon, 23 Apr 2018 14:40:08 -0400
-Message-ID: <CAKf6xpuogcR96nq1OLmfk2=7URC_+d8aFZ-cWTWEYPNeQh=oWg@mail.gmail.com>
-References: <20180419133934.31306-1-andr2000@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: xen-kbdfront - allow better run-time configuration
+Date: Mon, 23 Apr 2018 11:53:25 -0700
+Message-ID: <20180423185325.GB66646@dtor-ws>
+References: <20180418150445.9805-1-andr2000@gmail.com>
+ <ccb7a33b-7862-9803-fb24-67861d5ecab9@suse.com>
+ <2bff035e-303e-d644-5f51-5e64150c097c@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180419133934.31306-1-andr2000@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <2bff035e-303e-d644-5f51-5e64150c097c@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Oleksandr Andrushchenko <andr2000@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Juergen Gross <jgross@suse.com>, lyan@suse.com, Boris Ostrovsky <boris.ostrovsky@oracle.com>, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Cc: Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi, Oleksandr.
+On Thu, Apr 19, 2018 at 02:44:19PM +0300, Oleksandr Andrushchenko wrote:
+> On 04/19/2018 02:25 PM, Juergen Gross wrote:
+> > On 18/04/18 17:04, Oleksandr Andrushchenko wrote:
+> > > From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> > > 
+> > > It is now only possible to control if multi-touch virtual device
+> > > is created or not (via the corresponding XenStore entries),
+> > > but keyboard and pointer devices are always created.
+> > Why don't you want to go that route for keyboard and mouse, too?
+> > Or does this really make no sense?
+> Well, I would prefer not to touch anything outside Linux and
+> this driver. And these settings seem to be implementation specific.
+> So, this is why introduce Linux module parameters and don't extend
+> the kbdif protocol.
 
-On Thu, Apr 19, 2018 at 9:39 AM, Oleksandr Andrushchenko
-<andr2000@gmail.com> wrote:
+Why do you consider this implementation specific? How other guests
+decide to forego creation of relative pointer device or keyboard-like
+device?
 
-<snip>
+You already have "features" for absolute pointing device and multitouch,
+so please extend the protocol properly so you indeed do not code
+something implementation-specific (i.e. module parameters).
 
-> @@ -241,60 +242,84 @@ static int xenkbd_probe(struct xenbus_device *dev,
->         }
->
->         /* keyboard */
-> -       kbd = input_allocate_device();
-> -       if (!kbd)
-> -               goto error_nomem;
-> -       kbd->name = "Xen Virtual Keyboard";
-> -       kbd->phys = info->phys;
-> -       kbd->id.bustype = BUS_PCI;
-> -       kbd->id.vendor = 0x5853;
-> -       kbd->id.product = 0xffff;
-> -
-> -       __set_bit(EV_KEY, kbd->evbit);
-> -       for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
-> -               __set_bit(i, kbd->keybit);
-> -       for (i = KEY_OK; i < KEY_MAX; i++)
-> -               __set_bit(i, kbd->keybit);
-> -
-> -       ret = input_register_device(kbd);
-> -       if (ret) {
-> -               input_free_device(kbd);
-> -               xenbus_dev_fatal(dev, ret, "input_register_device(kbd)");
-> -               goto error;
-> +       if (!no_kbd_dev) {
+Thanks.
 
-My earlier suggestion on the option name was aimed at replacing the above with:
-   if (kbd_dev) {
-
-I find it easier to read then the double negative !no_kbd_dev.  But
-it's only used once, so it's not a big deal either way.
-
-<snip>
-
->
-> -       __set_bit(EV_KEY, ptr->evbit);
-> -       for (i = BTN_LEFT; i <= BTN_TASK; i++)
-> -               __set_bit(i, ptr->keybit);
-> +               ptr = input_allocate_device();
-> +               if (!ptr)
-> +                       goto error_nomem;
-> +               ptr->name = "Xen Virtual Pointer";
-> +               ptr->phys = info->phys;
-> +               ptr->id.bustype = BUS_PCI;
-> +               ptr->id.vendor = 0x5853;
-> +               ptr->id.product = 0xfffe;
-> +
-> +               if (abs) {
-> +                       __set_bit(EV_ABS, ptr->evbit);
-> +                       input_set_abs_params(ptr, ABS_X, 0, ptr_size[KPARAM_X], 0, 0);
-> +                       input_set_abs_params(ptr, ABS_Y, 0, ptr_size[KPARAM_Y], 0, 0);
-
-Just noticed these lines now exceed 80 columns.
-
-Otherwise it's just code motion and fine by me.
-
-Regards,
-Jason
+-- 
+Dmitry

@@ -1,42 +1,45 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: xen-kbdfront - allow better run-time configuration
-Date: Mon, 23 Apr 2018 11:53:25 -0700
-Message-ID: <20180423185325.GB66646@dtor-ws>
-References: <20180418150445.9805-1-andr2000@gmail.com>
- <ccb7a33b-7862-9803-fb24-67861d5ecab9@suse.com>
- <2bff035e-303e-d644-5f51-5e64150c097c@gmail.com>
+Subject: Re: [PATCH v2] Input: xen-kbdfront - allow better run-time
+ configuration
+Date: Mon, 23 Apr 2018 11:55:30 -0700
+Message-ID: <20180423185530.GC66646@dtor-ws>
+References: <20180419133934.31306-1-andr2000@gmail.com>
+ <998533bb-8042-b07e-cb79-661750e035d9@gmail.com>
+ <a2189ec9-ef4d-2c23-28c6-a6ff8525e8e5@suse.com>
+ <7b4c1f8a-6317-1f17-5950-64a1b7183dba@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <2bff035e-303e-d644-5f51-5e64150c097c@gmail.com>
+In-Reply-To: <7b4c1f8a-6317-1f17-5950-64a1b7183dba@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Oleksandr Andrushchenko <andr2000@gmail.com>
 Cc: Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Apr 19, 2018 at 02:44:19PM +0300, Oleksandr Andrushchenko wrote:
-> On 04/19/2018 02:25 PM, Juergen Gross wrote:
-> > On 18/04/18 17:04, Oleksandr Andrushchenko wrote:
-> > > From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> > > 
-> > > It is now only possible to control if multi-touch virtual device
-> > > is created or not (via the corresponding XenStore entries),
-> > > but keyboard and pointer devices are always created.
-> > Why don't you want to go that route for keyboard and mouse, too?
-> > Or does this really make no sense?
-> Well, I would prefer not to touch anything outside Linux and
-> this driver. And these settings seem to be implementation specific.
-> So, this is why introduce Linux module parameters and don't extend
-> the kbdif protocol.
+On Mon, Apr 23, 2018 at 11:29:45AM +0300, Oleksandr Andrushchenko wrote:
+> On 04/23/2018 11:23 AM, Juergen Gross wrote:
+> > On 23/04/18 10:02, Oleksandr Andrushchenko wrote:
+> > > Juergen, Jason, Dmitry
+> > > any comment on this?
+> > Oleksandr, please give us some time. I can't speak for others, but I am
+> > not sitting here idling and hoping that some work (e.g. patches to
+> > review) might appear.
+> > 
+> > I have a lot of other stuff to do and will respond when I find some time
+> > to look at your patches.
+> > 
+> > Pinging others on Monday when having sent out the patch only on Thursday
+> > is rather unfriendly.
+> Really sorry about this, my bad.
+> I had an impression that the only change we need to
+> discuss was uint -> bool change which seemed rather trivial
 
-Why do you consider this implementation specific? How other guests
-decide to forego creation of relative pointer device or keyboard-like
-device?
-
-You already have "features" for absolute pointing device and multitouch,
-so please extend the protocol properly so you indeed do not code
-something implementation-specific (i.e. module parameters).
+I am sorry I did not respond to the previous version until today, but I
+do not think that we should be extending module parameters for this.
+Protocol features are already there for absolute pointers and
+multi-touch, keyboard and relative pointers should use the same
+mechanism.
 
 Thanks.
 

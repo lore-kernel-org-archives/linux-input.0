@@ -1,137 +1,282 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3
- and v6 protocols
-Date: Mon, 23 Apr 2018 16:40:26 -0700
-Message-ID: <20180423234026.GI66646@dtor-ws>
-References: <20180312230915.26050-1-pali.rohar@gmail.com>
- <20180312231335.fnfxgenu22utr3z6@pali>
- <TYXPR01MB0719092EDE164BA6C576A1C7C7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180314225816.634w64kggycj67ec@pali>
- <TYXPR01MB07191C487C66BA03E5D9AB3DC7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180316105811.t2nkwowqs66f6ji6@pali>
- <TYXPR01MB0719CA528857480EC046DEF6C7D40@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180321164126.fr4srexf5pxz4pud@pali>
- <20180418114030.5xkvynzeqf63ir7j@pali>
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: Re: [PATCH v2 2/2] input: misc: Add Spreadtrum vibrator driver
+Date: Tue, 24 Apr 2018 10:44:23 +0800
+Message-ID: <CAMz4kuL8qsbQPfSE9vKkCuq41zK_RKq8KmnjaZ00Tga3zXHHKw@mail.gmail.com>
+References: <e2f85ec0b1fb66baa41dd85bb31e8113e23c704b.1524450536.git.baolin.wang@linaro.org>
+ <dc7af2705ab659a7cf579145b7e1eda9697b0ef2.1524450536.git.baolin.wang@linaro.org>
+ <20180423172937.GA66646@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180418114030.5xkvynzeqf63ir7j@pali>
+In-Reply-To: <20180423172937.GA66646@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Masaki Ota <masaki.ota@jp.alps.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Orson Zhai <orsonzhai@gmail.com>, Chunyan Zhang <zhang.lyra@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, xiaotong.lu@spreadtrum.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Apr 18, 2018 at 01:40:30PM +0200, Pali Rohár wrote:
-> Dmitry, ping
+Hi Dmitry,
 
-Applied, thank you. Can you tell me if I am missing anything else for
-ALPS?
+On 24 April 2018 at 01:29, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> Hi Xiaotong,
+>
+> On Mon, Apr 23, 2018 at 10:33:36AM +0800, Baolin Wang wrote:
+>> From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+>>
+>> This patch adds the Spreadtrum vibrator driver, which embedded in the
+>> Spreadtrum SC27xx series PMICs.
+>>
+>> Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+>> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+>> ---
+>> Changes since v1:
+>>  - Remove input_ff_destroy() and input_unregister_device()
+>> ---
+>>  drivers/input/misc/Kconfig        |   10 +++
+>>  drivers/input/misc/Makefile       |    1 +
+>>  drivers/input/misc/sc27xx-vibra.c |  156 +++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 167 insertions(+)
+>>  create mode 100644 drivers/input/misc/sc27xx-vibra.c
+>>
+>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>> index 572b15f..c761c0c 100644
+>> --- a/drivers/input/misc/Kconfig
+>> +++ b/drivers/input/misc/Kconfig
+>> @@ -841,4 +841,14 @@ config INPUT_RAVE_SP_PWRBUTTON
+>>         To compile this driver as a module, choose M here: the
+>>         module will be called rave-sp-pwrbutton.
+>>
+>> +config INPUT_SC27XX_VIBRA
+>> +     tristate "Spreadtrum sc27xx vibrator support"
+>> +     depends on MFD_SC27XX_PMIC || COMPILE_TEST
+>> +     select INPUT_FF_MEMLESS
+>> +     help
+>> +       This option enables support for Spreadtrum sc27xx vibrator driver.
+>> +
+>> +       To compile this driver as a module, choose M here. The module will
+>> +       be called sc27xx_vibra.
+>> +
+>>  endif
+>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+>> index 72cde28..9d0f9d1 100644
+>> --- a/drivers/input/misc/Makefile
+>> +++ b/drivers/input/misc/Makefile
+>> @@ -66,6 +66,7 @@ obj-$(CONFIG_INPUT_RETU_PWRBUTTON)  += retu-pwrbutton.o
+>>  obj-$(CONFIG_INPUT_AXP20X_PEK)               += axp20x-pek.o
+>>  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)      += rotary_encoder.o
+>>  obj-$(CONFIG_INPUT_RK805_PWRKEY)     += rk805-pwrkey.o
+>> +obj-$(CONFIG_INPUT_SC27XX_VIBRA)     += sc27xx-vibra.o
+>>  obj-$(CONFIG_INPUT_SGI_BTNS)         += sgi_btns.o
+>>  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)    += sirfsoc-onkey.o
+>>  obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY) += soc_button_array.o
+>> diff --git a/drivers/input/misc/sc27xx-vibra.c b/drivers/input/misc/sc27xx-vibra.c
+>> new file mode 100644
+>> index 0000000..f78e70f
+>> --- /dev/null
+>> +++ b/drivers/input/misc/sc27xx-vibra.c
+>> @@ -0,0 +1,156 @@
+>> +// SPDX-License-Identifier: GPL-2.0
+>> +/*
+>> + * Copyright (C) 2018 Spreadtrum Communications Inc.
+>> + */
+>> +
+>> +#include <linux/module.h>
+>> +#include <linux/of_address.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/regmap.h>
+>> +#include <linux/input.h>
+>> +#include <linux/workqueue.h>
+>> +
+>> +#define CUR_DRV_CAL_SEL              GENMASK(13, 12)
+>> +#define SLP_LDOVIBR_PD_EN    BIT(9)
+>> +#define LDO_VIBR_PD          BIT(8)
+>> +
+>> +struct vibra_info {
+>> +     struct input_dev        *input_dev;
+>> +     struct work_struct      play_work;
+>> +     struct regmap           *regmap;
+>> +     u32                     base;
+>> +     u32                     strength;
+>> +     bool                    enabled;
+>> +};
+>> +
+>> +static void sc27xx_vibra_set(struct vibra_info *info, bool on)
+>> +{
+>> +     if (on) {
+>> +             regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD, 0);
+>> +             regmap_update_bits(info->regmap, info->base,
+>> +                                SLP_LDOVIBR_PD_EN, 0);
+>> +             info->enabled = true;
+>> +     } else {
+>> +             regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD,
+>> +                                LDO_VIBR_PD);
+>> +             regmap_update_bits(info->regmap, info->base,
+>> +                                SLP_LDOVIBR_PD_EN, SLP_LDOVIBR_PD_EN);
+>> +             info->enabled = false;
+>> +     }
+>> +}
+>> +
+>> +static int sc27xx_vibra_hw_init(struct vibra_info *info)
+>> +{
+>> +     return regmap_update_bits(info->regmap, info->base, CUR_DRV_CAL_SEL, 0);
+>> +}
+>> +
+>> +static void sc27xx_vibra_play_work(struct work_struct *work)
+>> +{
+>> +     struct vibra_info *info = container_of(work, struct vibra_info,
+>> +                                            play_work);
+>> +
+>> +     if (info->strength && !info->enabled)
+>> +             sc27xx_vibra_set(info, true);
+>> +     else if (info->enabled)
+>> +             sc27xx_vibra_set(info, false);
+>
+> I do not think this is correct. If you issue 2 play requests with
+> info->strength that is not 0 then you'll end up disabling the vibrator.
+>
+> I think you want the 2nd condition to be:
+>
+>         else if (info->strength == 0 && info->enabled)
+>                 sc27xx_vibra_set(info, false);
+>
 
-Thanks!
+Yes, you are right. Will fix in next patch.
 
-> 
-> On Wednesday 21 March 2018 17:41:26 Pali Rohár wrote:
-> > That is pity, but OK.
-> > 
-> > Anyway, as wrote patch which I sent in the first email matches this
-> > documentation.
-> > 
-> > Dmitry, can you review/comment/accept/reject this patch?
-> > 
-> > On Monday 19 March 2018 08:41:19 Masaki Ota wrote:
-> > > Hi, Pali,
-> > > 
-> > > v3/v6 devices are T3 type, and it can use only Method 2.
-> > > P36 (At this time GLIDEPOINT_T3 uses the Method 2 ....)
-> > > T3 has the potential that uses Method2, but I think it needs to change Firmware.
-> > > 
-> > > Best Regards,
-> > > Masaki Ota
-> > > -----Original Message-----
-> > > From: Pali Rohár [mailto:pali.rohar@gmail.com] 
-> > > Sent: Friday, March 16, 2018 7:58 PM
-> > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
-> > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3 and v6 protocols
-> > > 
-> > > Great, thank you. Enabling that RAW/extended/SP4 mode is done by sequence E6, E6, E6, F3, C8, F3, 14 (written in page 35) and it matches what function alps_trackstick_enter_extended_mode_v3_v6() in my patch is doing. So is correct.
-> > > 
-> > > On page 36 I see that there is described Method 1 for reporting stick data which prevents cursor jumps. Seems that kernel uses Method 2.
-> > > Method 1 depends on some prioritization.
-> > > 
-> > > Do you have some information how to activate Method 1? Sometimes I observe that problem with "cursor jumps" and from Method 1 could prevent it. So I would like to try experimenting...
-> > > 
-> > > On Wednesday 14 March 2018 23:56:46 Masaki Ota wrote:
-> > > > Hi, Pali,
-> > > > 
-> > > > I have added Appendix.
-> > > > According to this spec documents, SP raw mode is SP 4 byte mode.
-> > > > I think Extended mode meaning is almost all the same as Raw mode.
-> > > > The description of how to set is written in Page 35.
-> > > > 
-> > > > Best Regards,
-> > > > Masaki Ota
-> > > > -----Original Message-----
-> > > > From: Pali Rohár [mailto:pali.rohar@gmail.com]
-> > > > Sent: Thursday, March 15, 2018 7:58 AM
-> > > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
-> > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; 
-> > > > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > > Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization 
-> > > > for v3 and v6 protocols
-> > > > 
-> > > > Hi! Thank you for information.
-> > > > 
-> > > > Your PS/2 Aux Port Control description seems to really matches. Just there is reverse order of bits. Bit 0 in description is highest, therefore matches BIT(7) macro.
-> > > > 
-> > > > Bit 6 in description (BIT(1) in code) describes SP Extended Mode which alps.c enabled. And in that description is written:
-> > > > 
-> > > > "If 1 SP is extended packet format (driver must set SP raw mode and GP absolute mode)."
-> > > > 
-> > > > Do you have any idea what "SP raw mode" is? How to set it? For me it looks like it could be that extended mode of trackstick itself.
-> > > > 
-> > > > "GP absolute mode" I guess is GlidePoint absolute mode, therefore 
-> > > > enable
-> > > > 6 byte absolute mode for touchpad.
-> > > > 
-> > > > And for Bit 7 (BIT(0)) is written:
-> > > > 
-> > > > This bit is used with the PS/2 Aux port to use the Pass-Thru mode ( see appendix A ). Do you have some information about this appendix A?
-> > > > 
-> > > > On Wednesday 14 March 2018 10:21:43 Masaki Ota wrote:
-> > > > > Hi, Pali,
-> > > > > 
-> > > > > I just picked up the spec which relates with trackstic.
-> > > > > 
-> > > > > Best Regards,
-> > > > > Masaki Ota
-> > > > > -----Original Message-----
-> > > > > From: Pali Rohár [mailto:pali.rohar@gmail.com]
-> > > > > Sent: Tuesday, March 13, 2018 8:14 AM
-> > > > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>; Dmitry Torokhov 
-> > > > > <dmitry.torokhov@gmail.com>
-> > > > > Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > > > Subject: Re: [PATCH] Input: alps - Demystify trackstick 
-> > > > > initialization for v3 and v6 protocols
-> > > > > 
-> > > > > Masaki, if you have access to the internal ALPS v3 / Rushmore 
-> > > > > documentation, I would like to have a review of this patch or 
-> > > > > confirmation of those information :-)
-> > > > 
-> > > > --
-> > > > Pali Rohár
-> > > > pali.rohar@gmail.com
-> > > 
-> > > --
-> > > Pali Rohár
-> > > pali.rohar@gmail.com
-> > 
-> 
-> -- 
-> Pali Rohár
-> pali.rohar@gmail.com
+>
+>> +}
+>> +
+>> +static int sc27xx_vibra_play(struct input_dev *input, void *data,
+>> +                          struct ff_effect *effect)
+>> +{
+>> +     struct vibra_info *info = input_get_drvdata(input);
+>> +
+>> +     info->strength = effect->u.rumble.weak_magnitude;
+>> +     schedule_work(&info->play_work);
+>> +
+>> +     return 0;
+>> +}
+>> +
+>> +static void sc27xx_vibra_close(struct input_dev *input)
+>> +{
+>> +     struct vibra_info *info = input_get_drvdata(input);
+>> +
+>> +     cancel_work_sync(&info->play_work);
+>> +     if (info->enabled)
+>> +             sc27xx_vibra_set(info, false);
+>> +}
+>> +
+>> +static int sc27xx_vibra_probe(struct platform_device *pdev)
+>> +{
+>> +     struct device_node *node = pdev->dev.of_node;
+>> +     struct vibra_info *info;
+>> +     int ret;
+>
+> Can we please call this variable "error"?
+
+Sure.
+
+>
+>> +
+>> +     info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
+>> +     if (!info)
+>> +             return -ENOMEM;
+>> +
+>> +     info->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+>> +     if (!info->regmap) {
+>> +             dev_err(&pdev->dev, "failed to get vibrator regmap.\n");
+>> +             return -ENODEV;
+>> +     }
+>> +
+>> +     ret = of_property_read_u32(node, "reg", &info->base);
+>
+> I am fan of generic device properties, please change to
+> device_property_read_u32().
+
+OK.
+
+>
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to get vibrator base address.\n");
+>> +             return ret;
+>> +     }
+>> +
+>> +     info->input_dev = devm_input_allocate_device(&pdev->dev);
+>> +     if (!info->input_dev) {
+>> +             dev_err(&pdev->dev, "failed to allocate input device.\n");
+>> +             return -ENOMEM;
+>> +     }
+>> +
+>> +     info->input_dev->name = "sc27xx:vibrator";
+>> +     info->input_dev->id.version = 0;
+>> +     info->input_dev->dev.parent = pdev->dev.parent;
+>
+> Why is device reparented to the parent of platform device? This breaks
+> devm implementation for the input device. If you really need this,
+> you'll have to switch to unmanaged API.
+
+Sorry, this is one mistake and will fix it in next version.
+
+>
+>> +     info->input_dev->close = sc27xx_vibra_close;
+>> +
+>> +     input_set_drvdata(info->input_dev, info);
+>> +     input_set_capability(info->input_dev, EV_FF, FF_RUMBLE);
+>> +     INIT_WORK(&info->play_work, sc27xx_vibra_play_work);
+>> +     info->enabled = false;
+>> +
+>> +     ret = input_ff_create_memless(info->input_dev, NULL, sc27xx_vibra_play);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to register vibrator to FF.\n");
+>> +             return ret;
+>> +     }
+>> +
+>> +     ret = input_register_device(info->input_dev);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to register input device.\n");
+>> +             return ret;
+>> +     }
+>> +
+>> +     ret = sc27xx_vibra_hw_init(info);
+>> +     if (ret) {
+>> +             dev_err(&pdev->dev, "failed to initialize the vibrator.\n");
+>> +             return ret;
+>> +     }
+>
+> It is too late to initialize hardware after registering the input
+> device, as once registered it should be fully functional. I'd recommend
+> calling this before calling input_register_device(), or (maybe even
+> better) doing this as part of open() method.
+
+OK.
+
+>
+>> +
+>> +     platform_set_drvdata(pdev, info);
+>
+> I do not think you are using platform device's driver data anywhere.
+
+We can remove it.
+
+>
+>> +     return 0;
+>> +}
+>> +
+>> +static const struct of_device_id sc27xx_vibra_of_match[] = {
+>> +     { .compatible = "sprd,sc27xx-vibrator", },
+>> +     {}
+>> +};
+>> +MODULE_DEVICE_TABLE(of, sc27xx_vibra_of_match);
+>> +
+>> +static struct platform_driver sc27xx_vibra_driver = {
+>> +     .driver = {
+>> +             .name = "sc27xx-vibrator",
+>> +             .of_match_table = sc27xx_vibra_of_match,
+>
+> Do you need suspend support by chance? To shut off the vibrator when
+> system transitions to sleep?
+
+We do not need the suspend support, disabling the vibrator is enough.
+Thanks for your comments.
 
 -- 
-Dmitry
+Baolin.wang
+Best Regards

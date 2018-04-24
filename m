@@ -1,69 +1,36 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: [PATCH] xen/kbdif: Add frontend's virtual device options
-Date: Tue, 24 Apr 2018 10:31:38 +0300
-Message-ID: <20180424073138.19866-1-andr2000@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, konrad.wilk@oracle.com, dmitry.torokhov@gmail.com
-Cc: andr2000@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, jandryuk@gmail.com
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH] HID: wacom: Release device resource data obtained by devres_alloc()
+Date: Tue, 24 Apr 2018 13:33:03 +0530
+Message-ID: <9b8c9c6134cb27ee8ac37224098e382ab9189d62.1524556744.git.arvind.yadav.cs@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVw
-YW0uY29tPgoKSXQgaXMgbm93IG5vdCBwb3NzaWJsZSB0byBjb250cm9sIGlmIGFuZCB3aGljaCB2
-aXJ0dWFsIGRldmljZXMKYXJlIGNyZWF0ZWQgYnkgdGhlIGZyb250ZW5kLCBlLmcuIGtleWJvYXJk
-IGFuZCBwb2ludGVyIGRldmljZXMKYXJlIGFsd2F5cyBjcmVhdGVkIGFuZCBtdWx0aS10b3VjaCBk
-ZXZpY2UgaXMgY3JlYXRlZCBpZiB0aGUKYmFja2VuZCBhZHZlcnRpc2VzIG11bHRpLXRvdWNoIHN1
-cHBvcnQuIEluIHNvbWUgY2FzZXMgdGhpcwpiZWhhdmlvciBpcyBub3QgZGVzaXJhYmxlIGFuZCBi
-ZXR0ZXIgY29udHJvbCBvdmVyIHRoZSBmcm9udGVuZCdzCmNvbmZpZ3VyYXRpb24gaXMgcmVxdWly
-ZWQuCgpBZGQgbmV3IGZyb250ZW5kIG9wdGlvbnMsIHNvIGl0IGlzIHBvc3NpYmxlIHRvIGluZGl2
-aWR1YWxseQpjb250cm9sIHNldCBvZiBleHBvc2VkIHZpcnR1YWwgZGV2aWNlcyBmb3IgZWFjaCBn
-dWVzdCBPUzoKIC0gc2V0IG9wdC1uby1wb2ludGVyIGlmIG5vIHBvaW50ZXIgZGV2aWNlIG5lZWRz
-IHRvIGJlIGNyZWF0ZWQKIC0gc2V0IG9wdC1uby1rZXlib2FyZCBpZiBubyBrZXlib2FyZCBkZXZp
-Y2UgbmVlZHMgdG8gYmUgY3JlYXRlZAogLSBzZXQgb3B0LW5vLW11bHRpLXRvdWNoIGlmIG5vIG11
-bHRpLXRvdWNoIGRldmljZSBuZWVkcyB0byBiZSBjcmVhdGVkCgpLZWVwIG9sZCBiZWhhdmlvciBi
-eSBkZWZhdWx0LgoKU2lnbmVkLW9mZi1ieTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtz
-YW5kcl9hbmRydXNoY2hlbmtvQGVwYW0uY29tPgotLS0KIHhlbi9pbmNsdWRlL3B1YmxpYy9pby9r
-YmRpZi5oIHwgMjYgKysrKysrKysrKysrKysrKysrKysrKysrKysKIDEgZmlsZSBjaGFuZ2VkLCAy
-NiBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlm
-LmggYi94ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2JkaWYuaAppbmRleCAzY2U1NGU5YTQ0YzEuLjcw
-MzQzMzE1NmMxZiAxMDA2NDQKLS0tIGEveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgKKysr
-IGIveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgKQEAgLTEzMiw2ICsxMzIsMjkgQEAKICAq
-ICAgICAgT0JTT0xFVEUsIG5vdCByZWNvbW1lbmRlZCBmb3IgdXNlLgogICogICAgICBQRk4gb2Yg
-dGhlIHNoYXJlZCBwYWdlLgogICoKKyAqLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIEZyb250
-ZW5kIE9wdGlvbnMgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQorICoKKyAqIEZvciB0
-aGUgYmVsb3cgb3B0aW9ucyBpZiBjb3JyZXNwb25kaW5nIFhlblN0b3JlIGVudHJ5IG9taXR0ZWQs
-CisgKiB0aGVuIHRoZSB2YWx1ZSBtdXN0IGJlIHRyZWF0ZWQgYXMgc2V0IHRvIDAuCisgKgorICog
-b3B0LW5vLXBvaW50ZXIKKyAqICAgICAgVmFsdWVzOiAgICAgICAgIDx1aW50PgorICoKKyAqICAg
-ICAgSWYgbm8gdmlydHVhbCBwb2ludGVyIGRldmljZSB0byBiZSBleHBvc2VkIGJ5IHRoZSBmcm9u
-dGVuZCB0aGVuCisgKiAgICAgIHRoaXMgbXVzdCBiZSBzZXQgdG8gMS4KKyAqCisgKiBvcHQtbm8t
-a2V5Ym9hcmQKKyAqICAgICAgVmFsdWVzOiAgICAgICAgIDx1aW50PgorICoKKyAqICAgICAgSWYg
-bm8gdmlydHVhbCBrZXlib2FyZCBkZXZpY2UgdG8gYmUgZXhwb3NlZCBieSB0aGUgZnJvbnRlbmQg
-dGhlbgorICogICAgICB0aGlzIG11c3QgYmUgc2V0IHRvIDEuCisgKgorICogb3B0LW5vLW11bHRp
-LXRvdWNoCisgKiAgICAgIFZhbHVlczogICAgICAgICA8dWludD4KKyAqCisgKiAgICAgIElmIG5v
-IHZpcnR1YWwgbXVsdGktdG91Y2ggZGV2aWNlIHRvIGJlIGV4cG9zZWQgYnkgdGhlIGZyb250ZW5k
-IHRoZW4KKyAqICAgICAgdGhpcyBtdXN0IGJlIHNldCB0byAxLgorICoKICAqLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0gTXVsdGktdG91Y2ggRGV2aWNlIFBhcmFtZXRlcnMgLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0KICAqCiAgKiBtdWx0aS10b3VjaC1udW0tY29udGFjdHMKQEAgLTE4MSw2ICsyMDQs
-OSBAQAogI2RlZmluZSBYRU5LQkRfRklFTERfRkVBVF9NVE9VQ0ggICAgICAgImZlYXR1cmUtbXVs
-dGktdG91Y2giCiAjZGVmaW5lIFhFTktCRF9GSUVMRF9SRVFfQUJTX1BPSU5URVIgICAicmVxdWVz
-dC1hYnMtcG9pbnRlciIKICNkZWZpbmUgWEVOS0JEX0ZJRUxEX1JFUV9NVE9VQ0ggICAgICAgICJy
-ZXF1ZXN0LW11bHRpLXRvdWNoIgorI2RlZmluZSBYRU5LQkRfRklFTERfT1BUX05PX1BUUiAgICAg
-ICAgIm9wdC1uby1wb2ludGVyIgorI2RlZmluZSBYRU5LQkRfRklFTERfT1BUX05PX0tCRCAgICAg
-ICAgIm9wdC1uby1rZXlib2FyZCIKKyNkZWZpbmUgWEVOS0JEX0ZJRUxEX09QVF9OT19NVE9VQ0gg
-ICAgICJvcHQtbm8tbXVsdGktdG91Y2giCiAjZGVmaW5lIFhFTktCRF9GSUVMRF9SSU5HX0dSRUYg
-ICAgICAgICAicGFnZS1ncmVmIgogI2RlZmluZSBYRU5LQkRfRklFTERfRVZUX0NIQU5ORUwgICAg
-ICAgImV2ZW50LWNoYW5uZWwiCiAjZGVmaW5lIFhFTktCRF9GSUVMRF9XSURUSCAgICAgICAgICAg
-ICAid2lkdGgiCi0tIAoyLjE3LjAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW5w
-cm9qZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8v
-eGVuLWRldmVs
+Free device resource data, if __wacom_devm_sysfs_create_group
+is not successful.
+
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ drivers/hid/wacom_sys.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index b54ef1f..ee7a37e 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1213,8 +1213,10 @@ static int __wacom_devm_sysfs_create_group(struct wacom *wacom,
+ 	devres->root = root;
+ 
+ 	error = sysfs_create_group(devres->root, group);
+-	if (error)
++	if (error) {
++		devres_free(devres);
+ 		return error;
++	}
+ 
+ 	devres_add(&wacom->hdev->dev, devres);
+ 
+-- 
+1.9.1

@@ -1,144 +1,39 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3
- and v6 protocols
-Date: Tue, 24 Apr 2018 13:14:22 +0200
-Message-ID: <20180424111422.pys2aijiock3cfvt@pali>
-References: <20180312230915.26050-1-pali.rohar@gmail.com>
- <20180312231335.fnfxgenu22utr3z6@pali>
- <TYXPR01MB0719092EDE164BA6C576A1C7C7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180314225816.634w64kggycj67ec@pali>
- <TYXPR01MB07191C487C66BA03E5D9AB3DC7D10@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180316105811.t2nkwowqs66f6ji6@pali>
- <TYXPR01MB0719CA528857480EC046DEF6C7D40@TYXPR01MB0719.jpnprd01.prod.outlook.com>
- <20180321164126.fr4srexf5pxz4pud@pali>
- <20180418114030.5xkvynzeqf63ir7j@pali>
- <20180423234026.GI66646@dtor-ws>
+From: "Theodore Y. Ts'o" <tytso@mit.edu>
+Subject: Re: WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
+Date: Tue, 24 Apr 2018 08:55:41 -0400
+Message-ID: <20180424125541.GB4189@thunk.org>
+References: <0000000000008bce26056a7a6c23@google.com>
+ <CAKdAkRRyRPEnghR6YqE++-H=HJbFL0ejK73Z_vMp_TMyNTT4ew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180423234026.GI66646@dtor-ws>
+In-Reply-To: <CAKdAkRRyRPEnghR6YqE++-H=HJbFL0ejK73Z_vMp_TMyNTT4ew@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: syzbot <syzbot+e1670f554caa60fb147b@syzkaller.appspotmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-On Monday 23 April 2018 16:40:26 Dmitry Torokhov wrote:
-> On Wed, Apr 18, 2018 at 01:40:30PM +0200, Pali Rohár wrote:
-> > Dmitry, ping
+On Mon, Apr 23, 2018 at 10:49:12AM -0700, Dmitry Torokhov wrote:
+> On Sun, Apr 22, 2018 at 7:02 PM, syzbot
+> <syzbot+e1670f554caa60fb147b@syzkaller.appspotmail.com> wrote:
+> >
+> > Hello,
+> >
+> > syzbot hit the following crash on upstream commit
+> > 285848b0f4074f04ab606f1e5dca296482033d54 (Sun Apr 22 04:20:48 2018 +0000)
+> > Merge tag 'random_for_linus_stable' of git://git.kernel.org/pub/scm/linux/kernel/git/tytso/random
+> > syzbot dashboard link: https://syzkaller.appspot.com/bug?extid=e1670f554caa60fb147b
 > 
-> Applied, thank you. Can you tell me if I am missing anything else for
-> ALPS?
+> Ted,
+> 
+> input_add_randomness() (that ends up calling crng_reseed() and the new
+> numa_crng_init()) is called (and has been called ever since inception)
+> from an interrupt context and thus may not sleep. The following commit
+> breaks this:
 
-Hi! All remaining ALPS patches should be already processed.
+Fixed by: https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1672186.html
 
-> 
-> Thanks!
-> 
-> > 
-> > On Wednesday 21 March 2018 17:41:26 Pali Rohár wrote:
-> > > That is pity, but OK.
-> > > 
-> > > Anyway, as wrote patch which I sent in the first email matches this
-> > > documentation.
-> > > 
-> > > Dmitry, can you review/comment/accept/reject this patch?
-> > > 
-> > > On Monday 19 March 2018 08:41:19 Masaki Ota wrote:
-> > > > Hi, Pali,
-> > > > 
-> > > > v3/v6 devices are T3 type, and it can use only Method 2.
-> > > > P36 (At this time GLIDEPOINT_T3 uses the Method 2 ....)
-> > > > T3 has the potential that uses Method2, but I think it needs to change Firmware.
-> > > > 
-> > > > Best Regards,
-> > > > Masaki Ota
-> > > > -----Original Message-----
-> > > > From: Pali Rohár [mailto:pali.rohar@gmail.com] 
-> > > > Sent: Friday, March 16, 2018 7:58 PM
-> > > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
-> > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > > Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization for v3 and v6 protocols
-> > > > 
-> > > > Great, thank you. Enabling that RAW/extended/SP4 mode is done by sequence E6, E6, E6, F3, C8, F3, 14 (written in page 35) and it matches what function alps_trackstick_enter_extended_mode_v3_v6() in my patch is doing. So is correct.
-> > > > 
-> > > > On page 36 I see that there is described Method 1 for reporting stick data which prevents cursor jumps. Seems that kernel uses Method 2.
-> > > > Method 1 depends on some prioritization.
-> > > > 
-> > > > Do you have some information how to activate Method 1? Sometimes I observe that problem with "cursor jumps" and from Method 1 could prevent it. So I would like to try experimenting...
-> > > > 
-> > > > On Wednesday 14 March 2018 23:56:46 Masaki Ota wrote:
-> > > > > Hi, Pali,
-> > > > > 
-> > > > > I have added Appendix.
-> > > > > According to this spec documents, SP raw mode is SP 4 byte mode.
-> > > > > I think Extended mode meaning is almost all the same as Raw mode.
-> > > > > The description of how to set is written in Page 35.
-> > > > > 
-> > > > > Best Regards,
-> > > > > Masaki Ota
-> > > > > -----Original Message-----
-> > > > > From: Pali Rohár [mailto:pali.rohar@gmail.com]
-> > > > > Sent: Thursday, March 15, 2018 7:58 AM
-> > > > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
-> > > > > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>; 
-> > > > > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > > > Subject: Re: [PATCH] Input: alps - Demystify trackstick initialization 
-> > > > > for v3 and v6 protocols
-> > > > > 
-> > > > > Hi! Thank you for information.
-> > > > > 
-> > > > > Your PS/2 Aux Port Control description seems to really matches. Just there is reverse order of bits. Bit 0 in description is highest, therefore matches BIT(7) macro.
-> > > > > 
-> > > > > Bit 6 in description (BIT(1) in code) describes SP Extended Mode which alps.c enabled. And in that description is written:
-> > > > > 
-> > > > > "If 1 SP is extended packet format (driver must set SP raw mode and GP absolute mode)."
-> > > > > 
-> > > > > Do you have any idea what "SP raw mode" is? How to set it? For me it looks like it could be that extended mode of trackstick itself.
-> > > > > 
-> > > > > "GP absolute mode" I guess is GlidePoint absolute mode, therefore 
-> > > > > enable
-> > > > > 6 byte absolute mode for touchpad.
-> > > > > 
-> > > > > And for Bit 7 (BIT(0)) is written:
-> > > > > 
-> > > > > This bit is used with the PS/2 Aux port to use the Pass-Thru mode ( see appendix A ). Do you have some information about this appendix A?
-> > > > > 
-> > > > > On Wednesday 14 March 2018 10:21:43 Masaki Ota wrote:
-> > > > > > Hi, Pali,
-> > > > > > 
-> > > > > > I just picked up the spec which relates with trackstic.
-> > > > > > 
-> > > > > > Best Regards,
-> > > > > > Masaki Ota
-> > > > > > -----Original Message-----
-> > > > > > From: Pali Rohár [mailto:pali.rohar@gmail.com]
-> > > > > > Sent: Tuesday, March 13, 2018 8:14 AM
-> > > > > > To: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>; Dmitry Torokhov 
-> > > > > > <dmitry.torokhov@gmail.com>
-> > > > > > Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
-> > > > > > Subject: Re: [PATCH] Input: alps - Demystify trackstick 
-> > > > > > initialization for v3 and v6 protocols
-> > > > > > 
-> > > > > > Masaki, if you have access to the internal ALPS v3 / Rushmore 
-> > > > > > documentation, I would like to have a review of this patch or 
-> > > > > > confirmation of those information :-)
-> > > > > 
-> > > > > --
-> > > > > Pali Rohár
-> > > > > pali.rohar@gmail.com
-> > > > 
-> > > > --
-> > > > Pali Rohár
-> > > > pali.rohar@gmail.com
-> > > 
-> > 
-> > -- 
-> > Pali Rohár
-> > pali.rohar@gmail.com
-> 
+Will be pushed to Linux shortly.
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+						- Ted

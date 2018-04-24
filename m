@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 6/6] HID: multitouch: implement precision touchpad latency and switches
-Date: Tue, 24 Apr 2018 10:04:37 +0200
-Message-ID: <20180424080437.21367-7-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 3/6] HID: input: append a suffix matching the application
+Date: Tue, 24 Apr 2018 10:04:34 +0200
+Message-ID: <20180424080437.21367-4-benjamin.tissoires@redhat.com>
 References: <20180424080437.21367-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180424080437.21367-1-benjamin.tissoires@redhat.com>
@@ -10,121 +10,149 @@ To: Jiri Kosina <jikos@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Mario.Limonciello@dell.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-The Win 8.1 precision touchpad spec introduce new modes for touchpads
-that can come in handy[1].
-
-Implement the settings of these modes, so we are not taken off-guard if
-a firmware decides to enforce them.
-
-[1] https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/windows-precision-touchpad-required-hid-top-level-collections
+Given that we create one input node per application, we should name
+the input node accordingly to not lose userspace.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-multitouch.c | 34 +++++++++++++++++++++++++++++-----
- include/linux/hid.h          |  3 +++
- 2 files changed, 32 insertions(+), 5 deletions(-)
+ drivers/hid/hid-input.c | 67 +++++++++++++++++++++++++++++++++++++++++++------
+ include/linux/hid.h     |  1 +
+ 2 files changed, 60 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 8878de9eedba..82c98bf14d60 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -81,6 +81,11 @@ MODULE_LICENSE("GPL");
- 
- #define MT_BUTTONTYPE_CLICKPAD		0
- 
-+enum latency_mode {
-+	HID_LATENCY_NORMAL = 0,
-+	HID_LATENCY_HIGH = 1,
-+};
-+
- #define MT_IO_FLAGS_RUNNING		0
- #define MT_IO_FLAGS_ACTIVE_SLOTS	1
- #define MT_IO_FLAGS_PENDING_SLOTS	2
-@@ -1156,7 +1161,10 @@ static void mt_report(struct hid_device *hid, struct hid_report *report)
- 
- static bool mt_need_to_apply_feature(struct hid_device *hdev,
- 				     struct hid_field *field,
--				     struct hid_usage *usage)
-+				     struct hid_usage *usage,
-+				     enum latency_mode latency,
-+				     bool surface_switch,
-+				     bool button_switch)
- {
- 	struct mt_device *td = hid_get_drvdata(hdev);
- 	struct mt_class *cls = &td->mtclass;
-@@ -1195,12 +1203,25 @@ static bool mt_need_to_apply_feature(struct hid_device *hdev,
- 			}
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 361643683c08..ab93dd5927c3 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1510,15 +1510,56 @@ static void report_features(struct hid_device *hid)
  		}
- 		break;
+ }
+ 
+-static struct hid_input *hidinput_allocate(struct hid_device *hid)
++static struct hid_input *hidinput_allocate(struct hid_device *hid,
++					   unsigned int application)
+ {
+ 	struct hid_input *hidinput = kzalloc(sizeof(*hidinput), GFP_KERNEL);
+ 	struct input_dev *input_dev = input_allocate_device();
+-	if (!hidinput || !input_dev) {
+-		kfree(hidinput);
+-		input_free_device(input_dev);
+-		hid_err(hid, "Out of memory during hid input probe\n");
+-		return NULL;
++	const char *suffix = NULL;
 +
-+	case HID_DG_LATENCYMODE:
-+		field->value[index] = latency;
-+		return 1;
++	if (!hidinput || !input_dev)
++		goto fail;
 +
-+	case HID_DG_SURFACESWITCH:
-+		field->value[index] = surface_switch;
-+		return 1;
++	if ((hid->quirks & HID_QUIRK_INPUT_PER_APP) &&
++	    hid->maxapplication > 1) {
++		switch (application) {
++		case HID_GD_KEYBOARD:
++			suffix = "Keyboard";
++			break;
++		case HID_GD_KEYPAD:
++			suffix = "Keypad";
++			break;
++		case HID_GD_MOUSE:
++			suffix = "Mouse";
++			break;
++		case HID_DG_STYLUS:
++			suffix = "Pen";
++			break;
++		case HID_DG_TOUCHSCREEN:
++			suffix = "Touchscreen";
++			break;
++		case HID_DG_TOUCHPAD:
++			suffix = "Touchpad";
++			break;
++		case HID_GD_SYSTEM_CONTROL:
++			suffix = "System Control";
++			break;
++		case HID_CP_CONSUMER_CONTROL:
++			suffix = "Consumer Control";
++			break;
++		case HID_GD_WIRELESS_RADIO_CTLS:
++			suffix = "Wireless Radio Control";
++			break;
++		default:
++			break;
++		}
++	}
 +
-+	case HID_DG_BUTTONSWITCH:
-+		field->value[index] = button_switch;
-+		return 1;
++	if (suffix) {
++		hidinput->name = kasprintf(GFP_KERNEL, "%s %s",
++					   hid->name, suffix);
++		if (!hidinput->name)
++			goto fail;
  	}
  
- 	return false; /* no need to update the report */
+ 	input_set_drvdata(input_dev, hid);
+@@ -1528,7 +1569,7 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
+ 	input_dev->setkeycode = hidinput_setkeycode;
+ 	input_dev->getkeycode = hidinput_getkeycode;
+ 
+-	input_dev->name = hid->name;
++	input_dev->name = hidinput->name ? hidinput->name : hid->name;
+ 	input_dev->phys = hid->phys;
+ 	input_dev->uniq = hid->uniq;
+ 	input_dev->id.bustype = hid->bus;
+@@ -1543,6 +1584,12 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
+ 	INIT_LIST_HEAD(&hidinput->reports);
+ 
+ 	return hidinput;
++
++fail:
++	kfree(hidinput);
++	input_free_device(input_dev);
++	hid_err(hid, "Out of memory during hid input probe\n");
++	return NULL;
  }
  
--static void mt_set_modes(struct hid_device *hdev)
-+static void mt_set_modes(struct hid_device *hdev, enum latency_mode latency,
-+			 bool surface_switch, bool button_switch)
- {
- 	struct hid_report_enum *rep_enum;
- 	struct hid_report *rep;
-@@ -1222,7 +1243,10 @@ static void mt_set_modes(struct hid_device *hdev)
+ static bool hidinput_has_been_populated(struct hid_input *hidinput)
+@@ -1588,6 +1635,7 @@ static void hidinput_cleanup_hidinput(struct hid_device *hid,
  
- 				if (mt_need_to_apply_feature(hdev,
- 							     rep->field[i],
--							     usage))
-+							     usage,
-+							     latency,
-+							     surface_switch,
-+							     button_switch))
- 					update_report = true;
+ 	list_del(&hidinput->list);
+ 	input_free_device(hidinput->input);
++	kfree(hidinput->name);
+ 
+ 	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
+ 		if (k == HID_OUTPUT_REPORT &&
+@@ -1656,6 +1704,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 	struct hid_driver *drv = hid->driver;
+ 	struct hid_report *report;
+ 	struct hid_input *next, *hidinput = NULL;
++	unsigned int application;
+ 	int i, k;
+ 
+ 	INIT_LIST_HEAD(&hid->inputs);
+@@ -1688,6 +1737,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 			if (!report->maxfield)
+ 				continue;
+ 
++			application = report->application;
++
+ 			/*
+ 			 * Find the previous hidinput report attached
+ 			 * to this report id.
+@@ -1699,7 +1750,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 				hidinput = hidinput_match_application(report);
+ 
+ 			if (!hidinput) {
+-				hidinput = hidinput_allocate(hid);
++				hidinput = hidinput_allocate(hid, application);
+ 				if (!hidinput)
+ 					goto out_unwind;
  			}
- 		}
-@@ -1467,7 +1491,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		dev_warn(&hdev->dev, "Cannot allocate sysfs group for %s\n",
- 				hdev->name);
- 
--	mt_set_modes(hdev);
-+	mt_set_modes(hdev, HID_LATENCY_NORMAL, true, true);
- 
- 	/* release .fields memory as it is not used anymore */
- 	devm_kfree(&hdev->dev, td->fields);
-@@ -1480,7 +1504,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- static int mt_reset_resume(struct hid_device *hdev)
- {
- 	mt_release_contacts(hdev);
--	mt_set_modes(hdev);
-+	mt_set_modes(hdev, HID_LATENCY_NORMAL, true, true);
- 	return 0;
- }
- 
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index d3bd83d9127f..d65ce4ab82d6 100644
+index d5ebeacc3b57..d3bd83d9127f 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -292,9 +292,12 @@ struct hid_item {
- #define HID_DG_CONTACTCOUNT	0x000d0054
- #define HID_DG_CONTACTMAX	0x000d0055
- #define HID_DG_SCANTIME		0x000d0056
-+#define HID_DG_SURFACESWITCH	0x000d0057
-+#define HID_DG_BUTTONSWITCH	0x000d0058
- #define HID_DG_BUTTONTYPE	0x000d0059
- #define HID_DG_BARRELSWITCH2	0x000d005a
- #define HID_DG_TOOLSERIALNUMBER	0x000d005b
-+#define HID_DG_LATENCYMODE	0x000d0060
- 
- #define HID_VD_ASUS_CUSTOM_MEDIA_KEYS	0xff310076
- /*
+@@ -512,6 +512,7 @@ struct hid_input {
+ 	struct list_head list;
+ 	struct hid_report *report;
+ 	struct input_dev *input;
++	const char *name;
+ 	bool registered;
+ 	struct list_head reports;	/* the list of reports */
+ };
 -- 
 2.14.3

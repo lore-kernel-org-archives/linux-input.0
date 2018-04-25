@@ -1,39 +1,25 @@
-From: "Theodore Y. Ts'o" <tytso@mit.edu>
-Subject: Re: WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
-Date: Tue, 24 Apr 2018 08:55:41 -0400
-Message-ID: <20180424125541.GB4189@thunk.org>
-References: <0000000000008bce26056a7a6c23@google.com>
- <CAKdAkRRyRPEnghR6YqE++-H=HJbFL0ejK73Z_vMp_TMyNTT4ew@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: wacom: Release device resource data obtained by
+ devres_alloc()
+Date: Wed, 25 Apr 2018 10:51:27 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1804251051200.28129@cbobk.fhfr.pm>
+References: <9b8c9c6134cb27ee8ac37224098e382ab9189d62.1524556744.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKdAkRRyRPEnghR6YqE++-H=HJbFL0ejK73Z_vMp_TMyNTT4ew@mail.gmail.com>
+In-Reply-To: <9b8c9c6134cb27ee8ac37224098e382ab9189d62.1524556744.git.arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: syzbot <syzbot+e1670f554caa60fb147b@syzkaller.appspotmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs@googlegroups.com
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 23, 2018 at 10:49:12AM -0700, Dmitry Torokhov wrote:
-> On Sun, Apr 22, 2018 at 7:02 PM, syzbot
-> <syzbot+e1670f554caa60fb147b@syzkaller.appspotmail.com> wrote:
-> >
-> > Hello,
-> >
-> > syzbot hit the following crash on upstream commit
-> > 285848b0f4074f04ab606f1e5dca296482033d54 (Sun Apr 22 04:20:48 2018 +0000)
-> > Merge tag 'random_for_linus_stable' of git://git.kernel.org/pub/scm/linux/kernel/git/tytso/random
-> > syzbot dashboard link: https://syzkaller.appspot.com/bug?extid=e1670f554caa60fb147b
-> 
-> Ted,
-> 
-> input_add_randomness() (that ends up calling crng_reseed() and the new
-> numa_crng_init()) is called (and has been called ever since inception)
-> from an interrupt context and thus may not sleep. The following commit
-> breaks this:
+On Tue, 24 Apr 2018, Arvind Yadav wrote:
 
-Fixed by: https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1672186.html
+> Free device resource data, if __wacom_devm_sysfs_create_group
+> is not successful.
 
-Will be pushed to Linux shortly.
+Applied, thanks.
 
-						- Ted
+-- 
+Jiri Kosina
+SUSE Labs

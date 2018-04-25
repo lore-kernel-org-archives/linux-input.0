@@ -1,25 +1,43 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Release device resource data obtained by
- devres_alloc()
-Date: Wed, 25 Apr 2018 10:51:27 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1804251051200.28129@cbobk.fhfr.pm>
-References: <9b8c9c6134cb27ee8ac37224098e382ab9189d62.1524556744.git.arvind.yadav.cs@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9b8c9c6134cb27ee8ac37224098e382ab9189d62.1524556744.git.arvind.yadav.cs@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: "Vittorio Gambaletta (VittGam)" <linuxbugs@vittgam.net>
+Subject: [PATCH v2] input/touchscreen: atmel_mxt_ts: Add correct touchpad button mapping for the Caroline Chromebook.
+Date: Wed, 25 Apr 2018 14:32:58 +0200
+Message-ID: <201804251232.w3PCWweA028076@mail.vittgam.net>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org, nick@shmanahar.org, dmitry.torokhov@gmail.com, bleung@chromium.org
+Cc: Salvatore Bellizzi <lkml@seppia.net>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 24 Apr 2018, Arvind Yadav wrote:
+This patch adds the correct platform data information for the Caroline
+Chromebook, so that the mouse button does not get stuck in pressed state
+after the first click.
 
-> Free device resource data, if __wacom_devm_sysfs_create_group
-> is not successful.
+The Samus button keymap and platform data definition are the correct
+ones for Caroline, so they have been reused here.
 
-Applied, thanks.
+v2: updated patch offset after 20180409 changes.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cc: stable@vger.kernel.org
+Signed-off-by: Vittorio Gambaletta <linuxbugs@vittgam.net>
+Signed-off-by: Salvatore Bellizzi <lkml@seppia.net>
+
+---
+
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3035,6 +3035,15 @@
+ 		.driver_data = samus_platform_data,
+ 	},
+ 	{
++		/* Samsung Chromebook Pro */
++		.ident = "Samsung Chromebook Pro",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Caroline"),
++		},
++		.driver_data = samus_platform_data,
++	},
++	{
+ 		/* Other Google Chromebooks */
+ 		.ident = "Chromebook",
+ 		.matches = {

@@ -1,69 +1,68 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH] Input: xen-kbdfront - allow better run-time configuration
-Date: Thu, 26 Apr 2018 22:27:42 +0300
-Message-ID: <dfc69232-5fe0-e834-199d-f9259a3e8835@gmail.com>
-References: <20180418150445.9805-1-andr2000@gmail.com>
- <ccb7a33b-7862-9803-fb24-67861d5ecab9@suse.com>
- <2bff035e-303e-d644-5f51-5e64150c097c@gmail.com>
- <20180423185325.GB66646@dtor-ws>
- <8ef84389-4659-d4bb-271f-53155062b7b6@gmail.com>
- <20180426191624.GB162443@dtor-ws>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 20/61] input: keyboard: simplify getting .drvdata
+Date: Thu, 26 Apr 2018 22:04:01 +0200
+Message-ID: <20180426200401.lvqiy4gnchkwr4qw@ninjato>
+References: <20180419140641.27926-1-wsa+renesas@sang-engineering.com>
+ <20180419140641.27926-21-wsa+renesas@sang-engineering.com>
+ <20180426191947.GC162443@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ue3i4hheqebajblj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180426191624.GB162443@dtor-ws>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180426191947.GC162443@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, kernel-janitors@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Rakesh Iyer <riyer@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 04/26/2018 10:16 PM, Dmitry Torokhov wrote:
-> On Tue, Apr 24, 2018 at 08:55:19AM +0300, Oleksandr Andrushchenko wrote:
->> On 04/23/2018 09:53 PM, Dmitry Torokhov wrote:
->>> On Thu, Apr 19, 2018 at 02:44:19PM +0300, Oleksandr Andrushchenko wrote:
->>>> On 04/19/2018 02:25 PM, Juergen Gross wrote:
->>>>> On 18/04/18 17:04, Oleksandr Andrushchenko wrote:
->>>>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
->>>>>>
->>>>>> It is now only possible to control if multi-touch virtual device
->>>>>> is created or not (via the corresponding XenStore entries),
->>>>>> but keyboard and pointer devices are always created.
->>>>> Why don't you want to go that route for keyboard and mouse, too?
->>>>> Or does this really make no sense?
->>>> Well, I would prefer not to touch anything outside Linux and
->>>> this driver. And these settings seem to be implementation specific.
->>>> So, this is why introduce Linux module parameters and don't extend
->>>> the kbdif protocol.
->>> Why do you consider this implementation specific? How other guests
->>> decide to forego creation of relative pointer device or keyboard-like
->>> device?
->>>
->>> You already have "features" for absolute pointing device and multitouch,
->>> so please extend the protocol properly so you indeed do not code
->>> something implementation-specific (i.e. module parameters).
->> Ok, but in order to preserve the default behavior, e.g.
->> pointer and keyboard devices are always created now, I'll have
->> to have reverse features in the protocol:
->>   - feature-no-pointer
->>   - feature-no-keyboard
->> The above may be set as a part of frontend's configuration and
->> if missed are considered to be set to false.
-> I think you can have them as "feature-pointer" and "feature-keyboard"
-> (no negation), but assume not present considered enabled. I.e.
->
-> 	kbd = xenbus_read_unsigned(..., XENKBD_FIELD_FEAT_KEYBOARD, 1);
-> 	if (kbd) {
-> 		...
-Thank you for your comments,
-could you please take a look at the patch [1] where I am trying
-to change the corresponding Xen protocol to fit the requirements?
-As we agreed I have to change the protocol first, so this patch is no 
-longer valid
-> 	}
->
-> Thanks.
-Thank you,
-Oleksandr
-[1] https://www.spinics.net/lists/linux-input/msg56094.html
+
+--ue3i4hheqebajblj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Dmitry,
+
+> > We should get drvdata from struct device directly. Going via
+> > platform_device is an unneeded step back and forth.
+>=20
+> I consider the fact that platform device's driver data is accessible via
+> device driver data being implementation detail that may or may not change
+
+Isn't it actually the other way around? platform_get_drvdata() is a
+convenience function to access driver_data which is embedded in struct
+device?
+
+> in the future, so I'd prefer keep using the proper accessors for the
+> objects we are dealing with.
+
+Exactly. I'd just argue, the object we are dealing with, declared in the
+PM functions, is a struct device.
+
+Thanks for the comment,
+
+   Wolfram
+
+
+--ue3i4hheqebajblj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlriMK0ACgkQFA3kzBSg
+KbaSAQ/+J0GQoNKASnC4aHI+yQlS055LEKJU1zAt79xAcepud8GupA7hLnkfweqc
+hPzTjzNvV6KzpHM/kqp2nORkTr9alb0bhWjeSp52J3ihawsHC37FHgZy51yjdabo
+HNcrOwmz/NuZqQVUwk+SYwUy+amKbuZSqjG71qqUKV6cOUyp2FLiKyWMZPviVv3R
+MpXzvF9upPhqA/z/Ls6I7D3f2Jraun/NWFGnE4IpWhngjrBtCQ7aQZb93YKy5r4/
+MxDpQZ5xHdJjy/QLSZJjajnP1J13DcyAspriE8jdhwEi2QSgJB7dz50Q0zYxU9bZ
+N8nPnrTrIg2Zapwp8EISovruTrC8rjry4G0Ace5QkWi9JSXnL1DyfHUejyeRpUw5
+bP/XW0RPsoDg4jEvVlbEYOZSQGriO+CWK2IxayJq1HVVyKrE3syTZWJYqOVVBX8Z
+40y+Hsug2fDtmSlKM8jErlFjXYhdcb9XYVlBSioTPeMRmBVr6O7PInm2nVNZm+wQ
+333O2th9GH84FaPxYzTlCFb8p65BqnYJZjCpvUw+eUbNANiFi9B6dRPhDpltCW6G
+/3s5yTsRoNbMNxUZlq7GFuHWnGxRM0agaZhYZoSf5Lxd4RTFjxJH0rUJAP59r84E
+rJnCM3PzZFzqzQE+y56fyhE1nZRTM+D1l3VtbFDE2tJB1DEAWmE=
+=aN5S
+-----END PGP SIGNATURE-----
+
+--ue3i4hheqebajblj--

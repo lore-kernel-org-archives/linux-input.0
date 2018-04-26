@@ -1,76 +1,88 @@
-From: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 1/3] resource: Use list_head to link sibling resource
-Date: Thu, 26 Apr 2018 11:23:50 +0800
-Message-ID: <201804261137.HPgv5SSG%fengguang.wu@intel.com>
-References: <20180419001848.3041-2-bhe@redhat.com>
+From: "Vittorio Gambaletta (VittGam)" <linuxbugs@vittgam.net>
+Subject: Re: [PATCH v2] input/touchscreen: =?UTF-8?Q?atmel=5Fmxt=5Fts=3A?=
+ =?UTF-8?Q?=20Add=20correct=20touchpad=20button=20mapping=20for=20the=20Ca?=
+ =?UTF-8?Q?roline=20Chromebook=2E?=
+Date: Thu, 26 Apr 2018 07:37:10 +0200
+Message-ID: <ff623f6afb4e7910f3bb6d211f0f187f@vittgam.net>
+References: <201804251232.w3PCWweA028076@mail.vittgam.net>
+ <20180425222650.GC200812@dtor-ws> <20180425225734.GD200812@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-In-Reply-To: <20180419001848.3041-2-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Brijesh Singh <brijesh.singh-5C7GfCeVMHo@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wei Yang <richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Keith Busch <keith.busch-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Yaowei Bai <baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Jonathan Derrick <jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Greg
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180425225734.GD200812@dtor-ws>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org, nick@shmanahar.org, bleung@chromium.org, Salvatore Bellizzi <lkml@seppia.net>, groeck@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Baoquan,
+Hello,
 
-I love your patch! Yet something to improve:
+On 26/04/2018 00:57:34 CEST, Dmitry Torokhov wrote:
+> On Wed, Apr 25, 2018 at 03:26:50PM -0700, Dmitry Torokhov wrote:
+>> On Wed, Apr 25, 2018 at 02:32:58PM +0200, Vittorio Gambaletta (VittGam) wrote:
+>> > This patch adds the correct platform data information for the Caroline
+>> > Chromebook, so that the mouse button does not get stuck in pressed state
+>> > after the first click.
+>> >
+>> > The Samus button keymap and platform data definition are the correct
+>> > ones for Caroline, so they have been reused here.
+>> >
+>> > v2: updated patch offset after 20180409 changes.
+>> >
+>> > Cc: stable@vger.kernel.org
+>> > Signed-off-by: Vittorio Gambaletta <linuxbugs@vittgam.net>
+>> > Signed-off-by: Salvatore Bellizzi <lkml@seppia.net>
+>> >
+>>
+>> Applied, thank you.
+>>
+>> > ---
+>> >
+>> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+>> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> > @@ -3035,6 +3035,15 @@
+>> >  		.driver_data = samus_platform_data,
+>> >  	},
+>> >  	{
+>> > +		/* Samsung Chromebook Pro */
+>> > +		.ident = "Samsung Chromebook Pro",
+>> > +		.matches = {
+>> > +			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
+> 
+> I've been alerted that shipping BIOS has vendor not capitalized; where
+> did you get the firmware that has vendor all capitals?
 
-[auto build test ERROR on linus/master]
-[also build test ERROR on v4.17-rc2 next-20180424]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+Upstream coreboot and mrchromebox's coreboot, which do support loading Linux
+natively or with UEFI, both use capitalized GOOGLE as DMI System Vendor
+as far as I know.
 
-url:    https://github.com/0day-ci/linux/commits/Baoquan-He/resource-Use-list_head-to-link-sibling-resource/20180419-223752
-config: xtensa-common_defconfig (attached as .config)
-compiler: xtensa-linux-gcc (GCC) 7.2.0
-reproduce:
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # save the attached .config to linux build tree
-        make.cross ARCH=xtensa 
+By the way, the shipping BIOS (coreboot customized by Google) does not support
+mainline Linux natively (eg. without seabios and nasty tricks), but only
+Chromium OS, which for Caroline is an old 3.something fork of Linux, so this
+patch does not really apply to Chromium OS or to Linux running on shipping BIOS.
 
-All errors (new ones prefixed by >>):
+Anyway if I recall correctly, the DMI System Vendor should be GOOGLE in
+Google's coreboot for Caroline too, but I'm not 100% sure and cannot check
+right now.
 
-   In file included from arch/xtensa/lib/pci-auto.c:22:0:
-   arch/xtensa/include/asm/pci-bridge.h: In function 'pcibios_init_resource':
->> arch/xtensa/include/asm/pci-bridge.h:74:15: error: incompatible types when assigning to type 'struct list_head' from type 'void *'
-     res->sibling = NULL;
-                  ^
-   arch/xtensa/include/asm/pci-bridge.h:75:13: error: incompatible types when assigning to type 'struct list_head' from type 'void *'
-     res->child = NULL;
-                ^
+By the way please note that this is the DMI System Vendor and not the DMI
+BIOS version string, which indeed starts with "Google_" in the shipping BIOS
+(but not in coreboot, see f56db262e46d3368ee4e5c9e19797853cab382cd).
 
-vim +74 arch/xtensa/include/asm/pci-bridge.h
+> Thanks.
 
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  65  
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  66  static inline void pcibios_init_resource(struct resource *res,
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  67  		unsigned long start, unsigned long end, int flags, char *name)
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  68  {
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  69  	res->start = start;
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  70  	res->end = end;
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  71  	res->flags = flags;
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  72  	res->name = name;
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  73  	res->parent = NULL;
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23 @74  	res->sibling = NULL;
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  75  	res->child = NULL;
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  76  }
-9a8fd558 include/asm-xtensa/pci-bridge.h Chris Zankel 2005-06-23  77  
+Cheers,
+Vittorio G
 
-:::::: The code at line 74 was first introduced by commit
-:::::: 9a8fd5589902153a134111ed7a40f9cca1f83254 [PATCH] xtensa: Architecture support for Tensilica Xtensa Part 6
-
-:::::: TO: Chris Zankel <czankel-66fqrpuXKgGB+jHODAdFcQ@public.gmane.org>
-:::::: CC: Linus Torvalds <torvalds-gWtpgVMusWVb5UGfqNBoRg@public.gmane.org>
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+>> > +			DMI_MATCH(DMI_PRODUCT_NAME, "Caroline"),
+>> > +		},
+>> > +		.driver_data = samus_platform_data,
+>> > +	},
+>> > +	{
+>> >  		/* Other Google Chromebooks */
+>> >  		.ident = "Chromebook",
+>> >  		.matches = {
+>>
+>> --
+>> Dmitry

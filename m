@@ -1,83 +1,52 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] xen/kbdif: Add frontend's virtual device
- options
-Date: Thu, 26 Apr 2018 14:14:39 -0700
-Message-ID: <20180426211439.GA210716@dtor-ws>
-References: <20180424073138.19866-1-andr2000@gmail.com>
+Subject: Re: [PATCH 20/61] input: keyboard: simplify getting .drvdata
+Date: Thu, 26 Apr 2018 14:23:27 -0700
+Message-ID: <20180426212327.GB210716@dtor-ws>
+References: <20180419140641.27926-1-wsa+renesas@sang-engineering.com>
+ <20180419140641.27926-21-wsa+renesas@sang-engineering.com>
+ <20180426191947.GC162443@dtor-ws>
+ <20180426200401.lvqiy4gnchkwr4qw@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180424073138.19866-1-andr2000@gmail.com>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: Oleksandr Andrushchenko <andr2000@gmail.com>
-Cc: xen-devel@lists.xenproject.org, jandryuk@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, linux-input@vger.kernel.org
+In-Reply-To: <20180426200401.lvqiy4gnchkwr4qw@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, kernel-janitors@vger.kernel.org, Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Rakesh Iyer <riyer@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-tegra@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGkgT2xla3NhbmRyLAoKT24gVHVlLCBBcHIgMjQsIDIwMTggYXQgMTA6MzE6MzhBTSArMDMwMCwg
-T2xla3NhbmRyIEFuZHJ1c2hjaGVua28gd3JvdGU6Cj4gRnJvbTogT2xla3NhbmRyIEFuZHJ1c2hj
-aGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVwYW0uY29tPgo+IAo+IEl0IGlzIG5vdyBu
-b3QgcG9zc2libGUgdG8gY29udHJvbCBpZiBhbmQgd2hpY2ggdmlydHVhbCBkZXZpY2VzCj4gYXJl
-IGNyZWF0ZWQgYnkgdGhlIGZyb250ZW5kLCBlLmcuIGtleWJvYXJkIGFuZCBwb2ludGVyIGRldmlj
-ZXMKPiBhcmUgYWx3YXlzIGNyZWF0ZWQgYW5kIG11bHRpLXRvdWNoIGRldmljZSBpcyBjcmVhdGVk
-IGlmIHRoZQo+IGJhY2tlbmQgYWR2ZXJ0aXNlcyBtdWx0aS10b3VjaCBzdXBwb3J0LiBJbiBzb21l
-IGNhc2VzIHRoaXMKPiBiZWhhdmlvciBpcyBub3QgZGVzaXJhYmxlIGFuZCBiZXR0ZXIgY29udHJv
-bCBvdmVyIHRoZSBmcm9udGVuZCdzCj4gY29uZmlndXJhdGlvbiBpcyByZXF1aXJlZC4KPiAKPiBB
-ZGQgbmV3IGZyb250ZW5kIG9wdGlvbnMsIHNvIGl0IGlzIHBvc3NpYmxlIHRvIGluZGl2aWR1YWxs
-eQo+IGNvbnRyb2wgc2V0IG9mIGV4cG9zZWQgdmlydHVhbCBkZXZpY2VzIGZvciBlYWNoIGd1ZXN0
-IE9TOgo+ICAtIHNldCBvcHQtbm8tcG9pbnRlciBpZiBubyBwb2ludGVyIGRldmljZSBuZWVkcyB0
-byBiZSBjcmVhdGVkCj4gIC0gc2V0IG9wdC1uby1rZXlib2FyZCBpZiBubyBrZXlib2FyZCBkZXZp
-Y2UgbmVlZHMgdG8gYmUgY3JlYXRlZAo+ICAtIHNldCBvcHQtbm8tbXVsdGktdG91Y2ggaWYgbm8g
-bXVsdGktdG91Y2ggZGV2aWNlIG5lZWRzIHRvIGJlIGNyZWF0ZWQKPiAKPiBLZWVwIG9sZCBiZWhh
-dmlvciBieSBkZWZhdWx0Lgo+IAo+IFNpZ25lZC1vZmYtYnk6IE9sZWtzYW5kciBBbmRydXNoY2hl
-bmtvIDxvbGVrc2FuZHJfYW5kcnVzaGNoZW5rb0BlcGFtLmNvbT4KPiAtLS0KPiAgeGVuL2luY2x1
-ZGUvcHVibGljL2lvL2tiZGlmLmggfCAyNiArKysrKysrKysrKysrKysrKysrKysrKysrKwo+ICAx
-IGZpbGUgY2hhbmdlZCwgMjYgaW5zZXJ0aW9ucygrKQo+IAo+IGRpZmYgLS1naXQgYS94ZW4vaW5j
-bHVkZS9wdWJsaWMvaW8va2JkaWYuaCBiL3hlbi9pbmNsdWRlL3B1YmxpYy9pby9rYmRpZi5oCj4g
-aW5kZXggM2NlNTRlOWE0NGMxLi43MDM0MzMxNTZjMWYgMTAwNjQ0Cj4gLS0tIGEveGVuL2luY2x1
-ZGUvcHVibGljL2lvL2tiZGlmLmgKPiArKysgYi94ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2JkaWYu
-aAo+IEBAIC0xMzIsNiArMTMyLDI5IEBACj4gICAqICAgICAgT0JTT0xFVEUsIG5vdCByZWNvbW1l
-bmRlZCBmb3IgdXNlLgo+ICAgKiAgICAgIFBGTiBvZiB0aGUgc2hhcmVkIHBhZ2UuCj4gICAqCj4g
-KyAqLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIEZyb250ZW5kIE9wdGlvbnMgLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICsgKgo+ICsgKiBGb3IgdGhlIGJlbG93IG9wdGlvbnMg
-aWYgY29ycmVzcG9uZGluZyBYZW5TdG9yZSBlbnRyeSBvbWl0dGVkLAo+ICsgKiB0aGVuIHRoZSB2
-YWx1ZSBtdXN0IGJlIHRyZWF0ZWQgYXMgc2V0IHRvIDAuCj4gKyAqCj4gKyAqIG9wdC1uby1wb2lu
-dGVyCj4gKyAqICAgICAgVmFsdWVzOiAgICAgICAgIDx1aW50Pgo+ICsgKgo+ICsgKiAgICAgIElm
-IG5vIHZpcnR1YWwgcG9pbnRlciBkZXZpY2UgdG8gYmUgZXhwb3NlZCBieSB0aGUgZnJvbnRlbmQg
-dGhlbgo+ICsgKiAgICAgIHRoaXMgbXVzdCBiZSBzZXQgdG8gMS4KPiArICoKPiArICogb3B0LW5v
-LWtleWJvYXJkCj4gKyAqICAgICAgVmFsdWVzOiAgICAgICAgIDx1aW50Pgo+ICsgKgo+ICsgKiAg
-ICAgIElmIG5vIHZpcnR1YWwga2V5Ym9hcmQgZGV2aWNlIHRvIGJlIGV4cG9zZWQgYnkgdGhlIGZy
-b250ZW5kIHRoZW4KPiArICogICAgICB0aGlzIG11c3QgYmUgc2V0IHRvIDEuCj4gKyAqCj4gKyAq
-IG9wdC1uby1tdWx0aS10b3VjaAo+ICsgKiAgICAgIFZhbHVlczogICAgICAgICA8dWludD4KPiAr
-ICoKPiArICogICAgICBJZiBubyB2aXJ0dWFsIG11bHRpLXRvdWNoIGRldmljZSB0byBiZSBleHBv
-c2VkIGJ5IHRoZSBmcm9udGVuZCB0aGVuCj4gKyAqICAgICAgdGhpcyBtdXN0IGJlIHNldCB0byAx
-Lgo+ICsgKgo+ICAgKi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tIE11bHRpLXRvdWNoIERldmljZSBQ
-YXJhbWV0ZXJzIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCj4gICAqCj4gICAqIG11bHRpLXRvdWNo
-LW51bS1jb250YWN0cwo+IEBAIC0xODEsNiArMjA0LDkgQEAKPiAgI2RlZmluZSBYRU5LQkRfRklF
-TERfRkVBVF9NVE9VQ0ggICAgICAgImZlYXR1cmUtbXVsdGktdG91Y2giCj4gICNkZWZpbmUgWEVO
-S0JEX0ZJRUxEX1JFUV9BQlNfUE9JTlRFUiAgICJyZXF1ZXN0LWFicy1wb2ludGVyIgo+ICAjZGVm
-aW5lIFhFTktCRF9GSUVMRF9SRVFfTVRPVUNIICAgICAgICAicmVxdWVzdC1tdWx0aS10b3VjaCIK
-PiArI2RlZmluZSBYRU5LQkRfRklFTERfT1BUX05PX1BUUiAgICAgICAgIm9wdC1uby1wb2ludGVy
-Igo+ICsjZGVmaW5lIFhFTktCRF9GSUVMRF9PUFRfTk9fS0JEICAgICAgICAib3B0LW5vLWtleWJv
-YXJkIgo+ICsjZGVmaW5lIFhFTktCRF9GSUVMRF9PUFRfTk9fTVRPVUNIICAgICAib3B0LW5vLW11
-bHRpLXRvdWNoIgoKU28gd2UgaGF2ZSAiZmVhdHVyZS1tdWx0aS10b3VjaCIgYW5kICJvcHQtbm8t
-bXVsdGktdG91Y2giLiBXaGF0IGlzIHRoZQpkaWZmZXJlbmNlIGJldHdlZW4gZmVhdHVyZSBhbmQg
-b3B0aW9uPwoKQWxzbywgZm9yIHRoZSBwb2ludGVyIGFuZCBrZXlib2FyZCwgaWYgd2UgZGVjaWRl
-IHRoYXQgZmVhdHVyZXMgYW5kCm9wdGlvbnMgY2FuIGJlIG1lcmdlZCwgY2FuIHdlIGtlZXAgdGhl
-bSBwb3NpdGl2ZSAoaS5lLgoiZmVhdHVyZS1rZXlib2FyZCIgb3IgImZlYXR1cmUtcmVsLXBvaW50
-ZXIiKSBhbmQgbWVudGlvbiBpbiB0aGUgcHJvdG9jb2wKc3BlYyB0aGF0IHRoZXkgYXJlIGFzc3Vt
-ZWQgdG8gYmUgcHJlc2VudCBieSBkZWZhdWx0PwoKCj4gICNkZWZpbmUgWEVOS0JEX0ZJRUxEX1JJ
-TkdfR1JFRiAgICAgICAgICJwYWdlLWdyZWYiCj4gICNkZWZpbmUgWEVOS0JEX0ZJRUxEX0VWVF9D
-SEFOTkVMICAgICAgICJldmVudC1jaGFubmVsIgo+ICAjZGVmaW5lIFhFTktCRF9GSUVMRF9XSURU
-SCAgICAgICAgICAgICAid2lkdGgiCj4gLS0gCj4gMi4xNy4wCj4gCgpUaGFua3MuCgotLSAKRG1p
-dHJ5CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4t
-ZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczov
-L2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8veGVuLWRldmVs
+On Thu, Apr 26, 2018 at 10:04:01PM +0200, Wolfram Sang wrote:
+> Hi Dmitry,
+> 
+> > > We should get drvdata from struct device directly. Going via
+> > > platform_device is an unneeded step back and forth.
+> > 
+> > I consider the fact that platform device's driver data is accessible via
+> > device driver data being implementation detail that may or may not change
+> 
+> Isn't it actually the other way around? platform_get_drvdata() is a
+> convenience function to access driver_data which is embedded in struct
+> device?
+
+I guess it depends on how you read it. I always considered it separate
+because none (?) of the bus implementation assert this in comments to
+XXX_get_drvdata().
+
+> 
+> > in the future, so I'd prefer keep using the proper accessors for the
+> > objects we are dealing with.
+> 
+> Exactly. I'd just argue, the object we are dealing with, declared in the
+> PM functions, is a struct device.
+
+No, the driver does not create a generic device, it actually creates a
+platform device, or i2c client, or spi, or something else. The fact that
+suspend and resume routines have generic device as their argument has
+more to do with the language limitation rather than reflection of true
+type of the objects we are dealing with.
+
+Thanks.
+
+-- 
+Dmitry

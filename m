@@ -1,57 +1,82 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/2] dt-bindings: input: Add Add Spreadtrum SC27xx
- vibrator documentation
-Date: Fri, 27 Apr 2018 09:51:16 -0500
-Message-ID: <20180427145116.rhjs5vqg6czdexee@rob-hp-laptop>
-References: <e2f85ec0b1fb66baa41dd85bb31e8113e23c704b.1524733425.git.baolin.wang@linaro.org>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH v2] xen/kbdif: Add features to control
+ keyboard and pointer
+Date: Fri, 27 Apr 2018 11:11:28 -0400
+Message-ID: <20180427151128.GC29734@char.us.oracle.com>
+References: <20180427065811.23950-1-andr2000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
 Content-Disposition: inline
-In-Reply-To: <e2f85ec0b1fb66baa41dd85bb31e8113e23c704b.1524733425.git.baolin.wang@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: dmitry.torokhov@gmail.com, mark.rutland@arm.com, orsonzhai@gmail.com, zhang.lyra@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, xiaotong.lu@spreadtrum.com
+In-Reply-To: <20180427065811.23950-1-andr2000@gmail.com>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Oleksandr Andrushchenko <andr2000@gmail.com>
+Cc: xen-devel@lists.xenproject.org, dmitry.torokhov@gmail.com, jandryuk@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Apr 26, 2018 at 05:12:33PM +0800, Baolin Wang wrote:
-> From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
-> 
-> This patch adds the binding documentation for Spreadtrum SC27xx series
-> vibrator device.
-> 
-> Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-> ---
-> Changes since v2:
->  - No updates.
-> 
-> Changes since v1:
->  - No updates.
-> ---
->  .../bindings/input/sprd,sc27xx-vibra.txt           |   12 ++++++++++++
->  1 file changed, 12 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
-> new file mode 100644
-> index 0000000..92ead29
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
-> @@ -0,0 +1,12 @@
-> +Spreadtrum SC27xx PMIC Vibrator
-> +
-> +Required properties:
-> +- compatible: should be "sprd,sc27xx-vibrator".
-> +- reg: address of vibrator control register.
-> +
-> +Example :
-> +
-> +vibrator@eb4 {
-> +	compatible = "sprd,sc27xx-vibrator";
-> +	reg = <0xeb4>;
-
-What bus is this on? A mmio bus needs a length. Is this part of some 
-other block?
-
-Rob
+T24gRnJpLCBBcHIgMjcsIDIwMTggYXQgMDk6NTg6MTFBTSArMDMwMCwgT2xla3NhbmRyIEFuZHJ1
+c2hjaGVua28gd3JvdGU6Cj4gRnJvbTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5k
+cl9hbmRydXNoY2hlbmtvQGVwYW0uY29tPgo+IAo+IEl0IGlzIG5vdyBub3QgZnVsbHkgcG9zc2li
+bGUgdG8gY29udHJvbCBpZiBhbmQgd2hpY2ggdmlydHVhbCBkZXZpY2VzCj4gYXJlIGNyZWF0ZWQg
+YnkgdGhlIGZyb250ZW5kLCBlLmcuIGtleWJvYXJkIGFuZCBwb2ludGVyIGRldmljZXMKPiBhcmUg
+YWx3YXlzIGNyZWF0ZWQgYW5kIG11bHRpLXRvdWNoIGRldmljZSBpcyBjcmVhdGVkIGlmIHRoZQoK
+cy9pcy9hcmUvCj4gYmFja2VuZCBhZHZlcnRpc2VzIG11bHRpLXRvdWNoIHN1cHBvcnQuIEluIHNv
+bWUgY2FzZXMgdGhpcwoKQ2FuIHlvdSBtZW50aW9uIHVuZGVyIHdoaWNoIGJhY2tlbmQgbm9kZSB0
+aG9zZSBkZXZpY2VzIGFwcGVhcj8KCj4gYmVoYXZpb3IgaXMgbm90IGRlc2lyYWJsZSBhbmQgYmV0
+dGVyIGNvbnRyb2wgb3ZlciB0aGUgZnJvbnRlbmQncwo+IGNvbmZpZ3VyYXRpb24gaXMgcmVxdWly
+ZWQuCgo+IAo+IEFkZCBuZXcgWGVuU3RvcmUgZmVhdHVyZSBmaWVsZHMsIHNvIGl0IGlzIHBvc3Np
+YmxlIHRvIGluZGl2aWR1YWxseQo+IGNvbnRyb2wgc2V0IG9mIGV4cG9zZWQgdmlydHVhbCBkZXZp
+Y2VzIGZvciBlYWNoIGd1ZXN0IE9TOgo+ICAtIHNldCBmZWF0dXJlLWtleWJvYXJkIHRvIDAgaWYg
+bm8ga2V5Ym9hcmQgZGV2aWNlIG5lZWRzIHRvIGJlIGNyZWF0ZWQKPiAgLSBzZXQgZmVhdHVyZS1w
+b2ludGVyIHRvIDAgaWYgbm8gcG9pbnRlciBkZXZpY2UgbmVlZHMgdG8gYmUgY3JlYXRlZAoKSSBh
+bSB0aGlua2luZyB0aGF0IHRoaXMgc2hvdWxkIGJlIGp1c3QgY2FsbGVkICdmZWF0dXJlLWRpc2Fi
+bGUta2V5Ym9hcmQnCm9yIHN1Y2guIEFuZCBpdCBiZWluZyB0aGVyZSBpbiB0aGUgZmlyc3QgcGxh
+Y2Ugd291bGQgc2lnbmlmeSAnMScgYnkgZGVmYXVsdD8KCj4gCj4gS2VlcCBvbGQgYmVoYXZpb3Ig
+YnkgZGVmYXVsdC4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8
+b2xla3NhbmRyX2FuZHJ1c2hjaGVua29AZXBhbS5jb20+Cj4gLS0tCj4gIHhlbi9pbmNsdWRlL3B1
+YmxpYy9pby9rYmRpZi5oIHwgMTkgKysrKysrKysrKysrKysrKysrLQo+ICAxIGZpbGUgY2hhbmdl
+ZCwgMTggaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS94ZW4v
+aW5jbHVkZS9wdWJsaWMvaW8va2JkaWYuaCBiL3hlbi9pbmNsdWRlL3B1YmxpYy9pby9rYmRpZi5o
+Cj4gaW5kZXggM2NlNTRlOWE0NGMxLi5hYzkyZTQ2NmZkOWMgMTAwNjQ0Cj4gLS0tIGEveGVuL2lu
+Y2x1ZGUvcHVibGljL2lvL2tiZGlmLmgKPiArKysgYi94ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2Jk
+aWYuaAo+IEBAIC00OSw3ICs0OSwyMiBAQAo+ICAgKgo+ICAgKiBDYXBhYmxlIGJhY2tlbmQgYWR2
+ZXJ0aXNlcyBzdXBwb3J0ZWQgZmVhdHVyZXMgYnkgcHVibGlzaGluZwo+ICAgKiBjb3JyZXNwb25k
+aW5nIGVudHJpZXMgaW4gWGVuU3RvcmUgYW5kIHB1dHMgMSBhcyB0aGUgdmFsdWUgb2YgdGhlIGVu
+dHJ5Lgo+IC0gKiBJZiBhIGZlYXR1cmUgaXMgbm90IHN1cHBvcnRlZCB0aGVuIDAgbXVzdCBiZSBz
+ZXQgb3IgZmVhdHVyZSBlbnRyeSBvbWl0dGVkLgo+ICsgKiBJZiBub3Qgb3RoZXJ3aXNlIG5vdGVk
+IGlmIGEgZmVhdHVyZSBpcyBub3Qgc3VwcG9ydGVkIHRoZW4gMCBtdXN0IGJlIHNldAo+ICsgKiBv
+ciBmZWF0dXJlIGVudHJ5IG9taXR0ZWQuCgpIdWg/IEkgYW0gbm90IHN1cmUgd2hhdCB5b3UgYXJl
+IHNheWluZyB0aGVyZS4KPiArICoKPiArICogZmVhdHVyZS1rZXlib2FyZAo+ICsgKiAgICAgIFZh
+bHVlczogICAgICAgICA8dWludD4KPiArICoKPiArICogICAgICBJZiBubyB2aXJ0dWFsIGtleWJv
+YXJkIGRldmljZSB0byBiZSBleHBvc2VkIGJ5IHRoZSBmcm9udGVuZCB0aGVuCj4gKyAqICAgICAg
+dGhpcyBtdXN0IGJlIHNldCB0byAwLiBJZiBmZWF0dXJlIGVudHJ5IG9taXR0ZWQgb3Igbm90IHNl
+dCBpdHMKPiArICogICAgICB2YWx1ZSBkZWZhdWx0cyB0byAxLgoKQXJlIHlvdSBzYXlpbmc6CiJJ
+ZiB0aGVyZSBpcyBubyBuZWVkIHRvIGV4cG9zZSBhIHZpcnR1YWwga2V5Ym9hcmQgZGV2aWNlIHRo
+ZW4gdGhpcyBtdXN0IGJlCnNldCB0byAwLiBCeSBkZWZhdWx0IGl0IGlzIDEgYW5kIGl0IGlzIGFz
+c3VtZWQgdGhhdCBhbnkgZnJvbnRlbmQgdGhhdCBkb2VzCm5vdCBwcm9iZSB0aGlzIGZsYWcgd2ls
+bCBhc3N1bWUgdGhlIHZhbHVlIG9mIDEuICI/Cgo+ICsgKgo+ICsgKiBmZWF0dXJlLXBvaW50ZXIK
+PiArICogICAgICBWYWx1ZXM6ICAgICAgICAgPHVpbnQ+Cj4gKyAqCj4gKyAqICAgICAgSWYgbm8g
+dmlydHVhbCBwb2ludGVyIGRldmljZSB0byBiZSBleHBvc2VkIGJ5IHRoZSBmcm9udGVuZCB0aGVu
+Cj4gKyAqICAgICAgdGhpcyBtdXN0IGJlIHNldCB0byAwLiBJZiBmZWF0dXJlIGVudHJ5IG9taXR0
+ZWQgb3Igbm90IHNldCBpdHMKPiArICogICAgICB2YWx1ZSBkZWZhdWx0cyB0byAxLgoKRGl0dG8/
+Cj4gICAqCj4gICAqIGZlYXR1cmUtYWJzLXBvaW50ZXIKPiAgICogICAgICBWYWx1ZXM6ICAgICAg
+ICAgPHVpbnQ+Cj4gQEAgLTE3Nyw2ICsxOTIsOCBAQAo+ICAKPiAgI2RlZmluZSBYRU5LQkRfRFJJ
+VkVSX05BTUUgICAgICAgICAgICAgInZrYmQiCj4gIAo+ICsjZGVmaW5lIFhFTktCRF9GSUVMRF9G
+RUFUX0tFWUJPQVJEICAgICAiZmVhdHVyZS1rZXlib2FyZCIKPiArI2RlZmluZSBYRU5LQkRfRklF
+TERfRkVBVF9QT0lOVEVSICAgICAgImZlYXR1cmUtcG9pbnRlciIKCkhvdyBhYm91dCBqdXN0IGNh
+bGwgaXQgJwoKZmVhdHVyZS1kaXNhYmxlLWtleWJvYXJkCmZlYXR1cmUtZGlzYWJsZS1rZXlib2Fy
+ZAo+ICAjZGVmaW5lIFhFTktCRF9GSUVMRF9GRUFUX0FCU19QT0lOVEVSICAiZmVhdHVyZS1hYnMt
+cG9pbnRlciIKPiAgI2RlZmluZSBYRU5LQkRfRklFTERfRkVBVF9NVE9VQ0ggICAgICAgImZlYXR1
+cmUtbXVsdGktdG91Y2giCj4gICNkZWZpbmUgWEVOS0JEX0ZJRUxEX1JFUV9BQlNfUE9JTlRFUiAg
+ICJyZXF1ZXN0LWFicy1wb2ludGVyIgo+IC0tIAo+IDIuMTcuMAo+IAoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlzdApY
+ZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0Lm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZlbA==

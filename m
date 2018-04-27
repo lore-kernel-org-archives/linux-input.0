@@ -1,15 +1,15 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 2/3] ASoC: tpa6130a2: Use gpio_is_valid()
-Date: Fri, 27 Apr 2018 14:26:10 +0530
-Message-ID: <195792a282b569037357ca17e4baad19893f0609.1524819052.git.arvind.yadav.cs@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: Re: [PATCH 1/3] ASoC: tlv320dac33: Use gpio_is_valid()
+Date: Fri, 27 Apr 2018 12:33:29 +0300
+Message-ID: <c96ee82d-6b8f-2836-bbdc-57191f894056@ti.com>
 References: <cover.1524819051.git.arvind.yadav.cs@gmail.com>
+ <b61f3ee038bc0f577e60256c71a68bea783d0a13.1524819052.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <cover.1524819051.git.arvind.yadav.cs@gmail.com>
-In-Reply-To: <cover.1524819051.git.arvind.yadav.cs@gmail.com>
-References: <cover.1524819051.git.arvind.yadav.cs@gmail.com>
+In-Reply-To: <b61f3ee038bc0f577e60256c71a68bea783d0a13.1524819052.git.arvind.yadav.cs@gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
  <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
 List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
@@ -19,57 +19,47 @@ List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
  <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
 Errors-To: alsa-devel-bounces@alsa-project.org
 Sender: alsa-devel-bounces@alsa-project.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>, jikos@kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
 Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Replace the manual validity checks for the GPIO with the
-gpio_is_valid().
-
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- sound/soc/codecs/tpa6130a2.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/sound/soc/codecs/tpa6130a2.c b/sound/soc/codecs/tpa6130a2.c
-index 616cd4b..18f32b9 100644
---- a/sound/soc/codecs/tpa6130a2.c
-+++ b/sound/soc/codecs/tpa6130a2.c
-@@ -62,7 +62,7 @@ static int tpa6130a2_power(struct tpa6130a2_data *data, bool enable)
- 			return ret;
- 		}
- 		/* Power on */
--		if (data->power_gpio >= 0)
-+		if (gpio_is_valid(data->power_gpio))
- 			gpio_set_value(data->power_gpio, 1);
- 
- 		/* Sync registers */
-@@ -72,7 +72,7 @@ static int tpa6130a2_power(struct tpa6130a2_data *data, bool enable)
- 			dev_err(data->dev,
- 				"Failed to sync registers: %d\n", ret);
- 			regcache_cache_only(data->regmap, true);
--			if (data->power_gpio >= 0)
-+			if (gpio_is_valid(data->power_gpio))
- 				gpio_set_value(data->power_gpio, 0);
- 			ret2 = regulator_disable(data->supply);
- 			if (ret2 != 0)
-@@ -89,7 +89,7 @@ static int tpa6130a2_power(struct tpa6130a2_data *data, bool enable)
- 		regcache_cache_only(data->regmap, true);
- 
- 		/* Power off */
--		if (data->power_gpio >= 0)
-+		if (gpio_is_valid(data->power_gpio))
- 			gpio_set_value(data->power_gpio, 0);
- 
- 		ret = regulator_disable(data->supply);
-@@ -259,7 +259,7 @@ static int tpa6130a2_probe(struct i2c_client *client,
- 
- 	data->id = id->driver_data;
- 
--	if (data->power_gpio >= 0) {
-+	if (gpio_is_valid(data->power_gpio)) {
- 		ret = devm_gpio_request(dev, data->power_gpio,
- 					"tpa6130a2 enable");
- 		if (ret < 0) {
--- 
-1.9.1
+CgpPbiAyMDE4LTA0LTI3IDExOjU2LCBBcnZpbmQgWWFkYXYgd3JvdGU6Cj4gUmVwbGFjZSB0aGUg
+bWFudWFsIHZhbGlkaXR5IGNoZWNrcyBmb3IgdGhlIEdQSU8gd2l0aCB0aGUKPiBncGlvX2lzX3Zh
+bGlkKCkuCgpBY2tlZC1ieTogUGV0ZXIgVWpmYWx1c2kgPHBldGVyLnVqZmFsdXNpQHRpLmNvbT4K
+Cj4gU2lnbmVkLW9mZi1ieTogQXJ2aW5kIFlhZGF2IDxhcnZpbmQueWFkYXYuY3NAZ21haWwuY29t
+Pgo+IC0tLQo+ICBzb3VuZC9zb2MvY29kZWNzL3RsdjMyMGRhYzMzLmMgfCAxMCArKysrKy0tLS0t
+Cj4gIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4gCj4g
+ZGlmZiAtLWdpdCBhL3NvdW5kL3NvYy9jb2RlY3MvdGx2MzIwZGFjMzMuYyBiL3NvdW5kL3NvYy9j
+b2RlY3MvdGx2MzIwZGFjMzMuYwo+IGluZGV4IGE5NTdlYWUuLmMyM2I5ZGIgMTAwNjQ0Cj4gLS0t
+IGEvc291bmQvc29jL2NvZGVjcy90bHYzMjBkYWMzMy5jCj4gKysrIGIvc291bmQvc29jL2NvZGVj
+cy90bHYzMjBkYWMzMy5jCj4gQEAgLTM5NywxMyArMzk3LDEzIEBAIHN0YXRpYyBpbnQgZGFjMzNf
+aGFyZF9wb3dlcihzdHJ1Y3Qgc25kX3NvY19jb21wb25lbnQgKmNvbXBvbmVudCwgaW50IHBvd2Vy
+KQo+ICAJCQkJZ290byBleGl0Owo+ICAJCX0KPiAgCj4gLQkJaWYgKGRhYzMzLT5wb3dlcl9ncGlv
+ID49IDApCj4gKwkJaWYgKGdwaW9faXNfdmFsaWQoZGFjMzMtPnBvd2VyX2dwaW8pKQo+ICAJCQln
+cGlvX3NldF92YWx1ZShkYWMzMy0+cG93ZXJfZ3BpbywgMSk7Cj4gIAo+ICAJCWRhYzMzLT5jaGlw
+X3Bvd2VyID0gMTsKPiAgCX0gZWxzZSB7Cj4gIAkJZGFjMzNfc29mdF9wb3dlcihjb21wb25lbnQs
+IDApOwo+IC0JCWlmIChkYWMzMy0+cG93ZXJfZ3BpbyA+PSAwKQo+ICsJCWlmIChncGlvX2lzX3Zh
+bGlkKGRhYzMzLT5wb3dlcl9ncGlvKSkKPiAgCQkJZ3Bpb19zZXRfdmFsdWUoZGFjMzMtPnBvd2Vy
+X2dwaW8sIDApOwo+ICAKPiAgCQlyZXQgPSByZWd1bGF0b3JfYnVsa19kaXNhYmxlKEFSUkFZX1NJ
+WkUoZGFjMzMtPnN1cHBsaWVzKSwKPiBAQCAtMTUxOSw3ICsxNTE5LDcgQEAgc3RhdGljIGludCBk
+YWMzM19pMmNfcHJvYmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwKPiAgCWRhYzMzLT5maWZv
+X21vZGUgPSBEQUMzM19GSUZPX0JZUEFTUzsKPiAgCj4gIAkvKiBDaGVjayBpZiB0aGUgcmVzZXQg
+R1BJTyBudW1iZXIgaXMgdmFsaWQgYW5kIHJlcXVlc3QgaXQgKi8KPiAtCWlmIChkYWMzMy0+cG93
+ZXJfZ3BpbyA+PSAwKSB7Cj4gKwlpZiAoZ3Bpb19pc192YWxpZChkYWMzMy0+cG93ZXJfZ3Bpbykp
+IHsKPiAgCQlyZXQgPSBncGlvX3JlcXVlc3QoZGFjMzMtPnBvd2VyX2dwaW8sICJ0bHYzMjBkYWMz
+MyByZXNldCIpOwo+ICAJCWlmIChyZXQgPCAwKSB7Cj4gIAkJCWRldl9lcnIoJmNsaWVudC0+ZGV2
+LAo+IEBAIC0xNTQ4LDcgKzE1NDgsNyBAQCBzdGF0aWMgaW50IGRhYzMzX2kyY19wcm9iZShzdHJ1
+Y3QgaTJjX2NsaWVudCAqY2xpZW50LAo+ICAKPiAgCXJldHVybiByZXQ7Cj4gIGVycl9nZXQ6Cj4g
+LQlpZiAoZGFjMzMtPnBvd2VyX2dwaW8gPj0gMCkKPiArCWlmIChncGlvX2lzX3ZhbGlkKGRhYzMz
+LT5wb3dlcl9ncGlvKSkKPiAgCQlncGlvX2ZyZWUoZGFjMzMtPnBvd2VyX2dwaW8pOwo+ICBlcnJf
+Z3BpbzoKPiAgCXJldHVybiByZXQ7Cj4gQEAgLTE1NjEsNyArMTU2MSw3IEBAIHN0YXRpYyBpbnQg
+ZGFjMzNfaTJjX3JlbW92ZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQo+ICAJaWYgKHVubGlr
+ZWx5KGRhYzMzLT5jaGlwX3Bvd2VyKSkKPiAgCQlkYWMzM19oYXJkX3Bvd2VyKGRhYzMzLT5jb21w
+b25lbnQsIDApOwo+ICAKPiAtCWlmIChkYWMzMy0+cG93ZXJfZ3BpbyA+PSAwKQo+ICsJaWYgKGdw
+aW9faXNfdmFsaWQoZGFjMzMtPnBvd2VyX2dwaW8pKQo+ICAJCWdwaW9fZnJlZShkYWMzMy0+cG93
+ZXJfZ3Bpbyk7Cj4gIAo+ICAJcmV0dXJuIDA7Cj4gCgotIFDDqXRlcgoKVGV4YXMgSW5zdHJ1bWVu
+dHMgRmlubGFuZCBPeSwgUG9ya2thbGFua2F0dSAyMiwgMDAxODAgSGVsc2lua2kuClktdHVubnVz
+L0J1c2luZXNzIElEOiAwNjE1NTIxLTQuIEtvdGlwYWlra2EvRG9taWNpbGU6IEhlbHNpbmtpCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkFsc2EtZGV2ZWwg
+bWFpbGluZyBsaXN0CkFsc2EtZGV2ZWxAYWxzYS1wcm9qZWN0Lm9yZwpodHRwOi8vbWFpbG1hbi5h
+bHNhLXByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8vYWxzYS1kZXZlbAo=

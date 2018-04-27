@@ -1,15 +1,16 @@
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Subject: Re: [PATCH 2/3] ASoC: tpa6130a2: Use gpio_is_valid()
-Date: Fri, 27 Apr 2018 12:33:43 +0300
-Message-ID: <2ed0acde-c4da-0e1d-a62a-433c858e14a6@ti.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Subject: Re: [PATCH 3/3] ASoC: samsung: Use gpio_is_valid()
+Date: Fri, 27 Apr 2018 11:34:40 +0200
+Message-ID: <5f7a27fc-27ae-c1ed-73cc-497f46d2668b@samsung.com>
 References: <cover.1524819051.git.arvind.yadav.cs@gmail.com>
- <195792a282b569037357ca17e4baad19893f0609.1524819052.git.arvind.yadav.cs@gmail.com>
+ <f7e9ff7d5d7c559967e9d63f3caff478e05017e8.1524819053.git.arvind.yadav.cs@gmail.com>
+ <CGME20180427093444epcas2p185dbba85e2d37bde95ce3929a57c1f01@epcas2p1.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <195792a282b569037357ca17e4baad19893f0609.1524819052.git.arvind.yadav.cs@gmail.com>
-Content-Language: en-US
+In-reply-to: <f7e9ff7d5d7c559967e9d63f3caff478e05017e8.1524819053.git.arvind.yadav.cs@gmail.com>
+Content-language: en-GB
 List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
  <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
 List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
@@ -19,45 +20,21 @@ List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
  <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
 Errors-To: alsa-devel-bounces@alsa-project.org
 Sender: alsa-devel-bounces@alsa-project.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>, jikos@kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: alsa-devel@alsa-project.org, jkosina@suse.cz, jikos@kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-CgpPbiAyMDE4LTA0LTI3IDExOjU2LCBBcnZpbmQgWWFkYXYgd3JvdGU6Cj4gUmVwbGFjZSB0aGUg
-bWFudWFsIHZhbGlkaXR5IGNoZWNrcyBmb3IgdGhlIEdQSU8gd2l0aCB0aGUKPiBncGlvX2lzX3Zh
-bGlkKCkuCgpBY2tlZC1ieTogUGV0ZXIgVWpmYWx1c2kgPHBldGVyLnVqZmFsdXNpQHRpLmNvbT4K
-Cj4gU2lnbmVkLW9mZi1ieTogQXJ2aW5kIFlhZGF2IDxhcnZpbmQueWFkYXYuY3NAZ21haWwuY29t
-Pgo+IC0tLQo+ICBzb3VuZC9zb2MvY29kZWNzL3RwYTYxMzBhMi5jIHwgOCArKysrLS0tLQo+ICAx
-IGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQo+IAo+IGRpZmYg
-LS1naXQgYS9zb3VuZC9zb2MvY29kZWNzL3RwYTYxMzBhMi5jIGIvc291bmQvc29jL2NvZGVjcy90
-cGE2MTMwYTIuYwo+IGluZGV4IDYxNmNkNGIuLjE4ZjMyYjkgMTAwNjQ0Cj4gLS0tIGEvc291bmQv
-c29jL2NvZGVjcy90cGE2MTMwYTIuYwo+ICsrKyBiL3NvdW5kL3NvYy9jb2RlY3MvdHBhNjEzMGEy
-LmMKPiBAQCAtNjIsNyArNjIsNyBAQCBzdGF0aWMgaW50IHRwYTYxMzBhMl9wb3dlcihzdHJ1Y3Qg
-dHBhNjEzMGEyX2RhdGEgKmRhdGEsIGJvb2wgZW5hYmxlKQo+ICAJCQlyZXR1cm4gcmV0Owo+ICAJ
-CX0KPiAgCQkvKiBQb3dlciBvbiAqLwo+IC0JCWlmIChkYXRhLT5wb3dlcl9ncGlvID49IDApCj4g
-KwkJaWYgKGdwaW9faXNfdmFsaWQoZGF0YS0+cG93ZXJfZ3BpbykpCj4gIAkJCWdwaW9fc2V0X3Zh
-bHVlKGRhdGEtPnBvd2VyX2dwaW8sIDEpOwo+ICAKPiAgCQkvKiBTeW5jIHJlZ2lzdGVycyAqLwo+
-IEBAIC03Miw3ICs3Miw3IEBAIHN0YXRpYyBpbnQgdHBhNjEzMGEyX3Bvd2VyKHN0cnVjdCB0cGE2
-MTMwYTJfZGF0YSAqZGF0YSwgYm9vbCBlbmFibGUpCj4gIAkJCWRldl9lcnIoZGF0YS0+ZGV2LAo+
-ICAJCQkJIkZhaWxlZCB0byBzeW5jIHJlZ2lzdGVyczogJWRcbiIsIHJldCk7Cj4gIAkJCXJlZ2Nh
-Y2hlX2NhY2hlX29ubHkoZGF0YS0+cmVnbWFwLCB0cnVlKTsKPiAtCQkJaWYgKGRhdGEtPnBvd2Vy
-X2dwaW8gPj0gMCkKPiArCQkJaWYgKGdwaW9faXNfdmFsaWQoZGF0YS0+cG93ZXJfZ3BpbykpCj4g
-IAkJCQlncGlvX3NldF92YWx1ZShkYXRhLT5wb3dlcl9ncGlvLCAwKTsKPiAgCQkJcmV0MiA9IHJl
-Z3VsYXRvcl9kaXNhYmxlKGRhdGEtPnN1cHBseSk7Cj4gIAkJCWlmIChyZXQyICE9IDApCj4gQEAg
-LTg5LDcgKzg5LDcgQEAgc3RhdGljIGludCB0cGE2MTMwYTJfcG93ZXIoc3RydWN0IHRwYTYxMzBh
-Ml9kYXRhICpkYXRhLCBib29sIGVuYWJsZSkKPiAgCQlyZWdjYWNoZV9jYWNoZV9vbmx5KGRhdGEt
-PnJlZ21hcCwgdHJ1ZSk7Cj4gIAo+ICAJCS8qIFBvd2VyIG9mZiAqLwo+IC0JCWlmIChkYXRhLT5w
-b3dlcl9ncGlvID49IDApCj4gKwkJaWYgKGdwaW9faXNfdmFsaWQoZGF0YS0+cG93ZXJfZ3Bpbykp
-Cj4gIAkJCWdwaW9fc2V0X3ZhbHVlKGRhdGEtPnBvd2VyX2dwaW8sIDApOwo+ICAKPiAgCQlyZXQg
-PSByZWd1bGF0b3JfZGlzYWJsZShkYXRhLT5zdXBwbHkpOwo+IEBAIC0yNTksNyArMjU5LDcgQEAg
-c3RhdGljIGludCB0cGE2MTMwYTJfcHJvYmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwKPiAg
-Cj4gIAlkYXRhLT5pZCA9IGlkLT5kcml2ZXJfZGF0YTsKPiAgCj4gLQlpZiAoZGF0YS0+cG93ZXJf
-Z3BpbyA+PSAwKSB7Cj4gKwlpZiAoZ3Bpb19pc192YWxpZChkYXRhLT5wb3dlcl9ncGlvKSkgewo+
-ICAJCXJldCA9IGRldm1fZ3Bpb19yZXF1ZXN0KGRldiwgZGF0YS0+cG93ZXJfZ3BpbywKPiAgCQkJ
-CQkidHBhNjEzMGEyIGVuYWJsZSIpOwo+ICAJCWlmIChyZXQgPCAwKSB7Cj4gCgotIFDDqXRlcgoK
-VGV4YXMgSW5zdHJ1bWVudHMgRmlubGFuZCBPeSwgUG9ya2thbGFua2F0dSAyMiwgMDAxODAgSGVs
-c2lua2kuClktdHVubnVzL0J1c2luZXNzIElEOiAwNjE1NTIxLTQuIEtvdGlwYWlra2EvRG9taWNp
-bGU6IEhlbHNpbmtpCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fCkFsc2EtZGV2ZWwgbWFpbGluZyBsaXN0CkFsc2EtZGV2ZWxAYWxzYS1wcm9qZWN0Lm9yZwpo
-dHRwOi8vbWFpbG1hbi5hbHNhLXByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8vYWxzYS1kZXZl
-bAo=
+Hi Arvind,
+
+On 04/27/2018 10:56 AM, Arvind Yadav wrote:
+> Replace the manual validity checks for the GPIO with the
+> gpio_is_valid().
+> 
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+
+The patch looks good to me but you need to send it directly
+to the ASoC maintainers to have it applied.
+
+-- 
+Regards,
+Sylwester

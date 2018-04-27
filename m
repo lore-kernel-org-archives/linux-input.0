@@ -1,65 +1,25 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: [PATCH v2] xen/kbdif: Add features to control keyboard
- and pointer
-Date: Fri, 27 Apr 2018 09:58:11 +0300
-Message-ID: <20180427065811.23950-1-andr2000@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, konrad.wilk@oracle.com, dmitry.torokhov@gmail.com
-Cc: andr2000@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, jandryuk@gmail.com
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH 0/3] ASoC: Use gpio_is_valid()
+Date: Fri, 27 Apr 2018 14:26:08 +0530
+Message-ID: <cover.1524819051.git.arvind.yadav.cs@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, jkosina@suse.cz
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVw
-YW0uY29tPgoKSXQgaXMgbm93IG5vdCBmdWxseSBwb3NzaWJsZSB0byBjb250cm9sIGlmIGFuZCB3
-aGljaCB2aXJ0dWFsIGRldmljZXMKYXJlIGNyZWF0ZWQgYnkgdGhlIGZyb250ZW5kLCBlLmcuIGtl
-eWJvYXJkIGFuZCBwb2ludGVyIGRldmljZXMKYXJlIGFsd2F5cyBjcmVhdGVkIGFuZCBtdWx0aS10
-b3VjaCBkZXZpY2UgaXMgY3JlYXRlZCBpZiB0aGUKYmFja2VuZCBhZHZlcnRpc2VzIG11bHRpLXRv
-dWNoIHN1cHBvcnQuIEluIHNvbWUgY2FzZXMgdGhpcwpiZWhhdmlvciBpcyBub3QgZGVzaXJhYmxl
-IGFuZCBiZXR0ZXIgY29udHJvbCBvdmVyIHRoZSBmcm9udGVuZCdzCmNvbmZpZ3VyYXRpb24gaXMg
-cmVxdWlyZWQuCgpBZGQgbmV3IFhlblN0b3JlIGZlYXR1cmUgZmllbGRzLCBzbyBpdCBpcyBwb3Nz
-aWJsZSB0byBpbmRpdmlkdWFsbHkKY29udHJvbCBzZXQgb2YgZXhwb3NlZCB2aXJ0dWFsIGRldmlj
-ZXMgZm9yIGVhY2ggZ3Vlc3QgT1M6CiAtIHNldCBmZWF0dXJlLWtleWJvYXJkIHRvIDAgaWYgbm8g
-a2V5Ym9hcmQgZGV2aWNlIG5lZWRzIHRvIGJlIGNyZWF0ZWQKIC0gc2V0IGZlYXR1cmUtcG9pbnRl
-ciB0byAwIGlmIG5vIHBvaW50ZXIgZGV2aWNlIG5lZWRzIHRvIGJlIGNyZWF0ZWQKCktlZXAgb2xk
-IGJlaGF2aW9yIGJ5IGRlZmF1bHQuCgpTaWduZWQtb2ZmLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNo
-ZW5rbyA8b2xla3NhbmRyX2FuZHJ1c2hjaGVua29AZXBhbS5jb20+Ci0tLQogeGVuL2luY2x1ZGUv
-cHVibGljL2lvL2tiZGlmLmggfCAxOSArKysrKysrKysrKysrKysrKystCiAxIGZpbGUgY2hhbmdl
-ZCwgMTggaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL3hlbi9pbmNs
-dWRlL3B1YmxpYy9pby9rYmRpZi5oIGIveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgKaW5k
-ZXggM2NlNTRlOWE0NGMxLi5hYzkyZTQ2NmZkOWMgMTAwNjQ0Ci0tLSBhL3hlbi9pbmNsdWRlL3B1
-YmxpYy9pby9rYmRpZi5oCisrKyBiL3hlbi9pbmNsdWRlL3B1YmxpYy9pby9rYmRpZi5oCkBAIC00
-OSw3ICs0OSwyMiBAQAogICoKICAqIENhcGFibGUgYmFja2VuZCBhZHZlcnRpc2VzIHN1cHBvcnRl
-ZCBmZWF0dXJlcyBieSBwdWJsaXNoaW5nCiAgKiBjb3JyZXNwb25kaW5nIGVudHJpZXMgaW4gWGVu
-U3RvcmUgYW5kIHB1dHMgMSBhcyB0aGUgdmFsdWUgb2YgdGhlIGVudHJ5LgotICogSWYgYSBmZWF0
-dXJlIGlzIG5vdCBzdXBwb3J0ZWQgdGhlbiAwIG11c3QgYmUgc2V0IG9yIGZlYXR1cmUgZW50cnkg
-b21pdHRlZC4KKyAqIElmIG5vdCBvdGhlcndpc2Ugbm90ZWQgaWYgYSBmZWF0dXJlIGlzIG5vdCBz
-dXBwb3J0ZWQgdGhlbiAwIG11c3QgYmUgc2V0CisgKiBvciBmZWF0dXJlIGVudHJ5IG9taXR0ZWQu
-CisgKgorICogZmVhdHVyZS1rZXlib2FyZAorICogICAgICBWYWx1ZXM6ICAgICAgICAgPHVpbnQ+
-CisgKgorICogICAgICBJZiBubyB2aXJ0dWFsIGtleWJvYXJkIGRldmljZSB0byBiZSBleHBvc2Vk
-IGJ5IHRoZSBmcm9udGVuZCB0aGVuCisgKiAgICAgIHRoaXMgbXVzdCBiZSBzZXQgdG8gMC4gSWYg
-ZmVhdHVyZSBlbnRyeSBvbWl0dGVkIG9yIG5vdCBzZXQgaXRzCisgKiAgICAgIHZhbHVlIGRlZmF1
-bHRzIHRvIDEuCisgKgorICogZmVhdHVyZS1wb2ludGVyCisgKiAgICAgIFZhbHVlczogICAgICAg
-ICA8dWludD4KKyAqCisgKiAgICAgIElmIG5vIHZpcnR1YWwgcG9pbnRlciBkZXZpY2UgdG8gYmUg
-ZXhwb3NlZCBieSB0aGUgZnJvbnRlbmQgdGhlbgorICogICAgICB0aGlzIG11c3QgYmUgc2V0IHRv
-IDAuIElmIGZlYXR1cmUgZW50cnkgb21pdHRlZCBvciBub3Qgc2V0IGl0cworICogICAgICB2YWx1
-ZSBkZWZhdWx0cyB0byAxLgogICoKICAqIGZlYXR1cmUtYWJzLXBvaW50ZXIKICAqICAgICAgVmFs
-dWVzOiAgICAgICAgIDx1aW50PgpAQCAtMTc3LDYgKzE5Miw4IEBACiAKICNkZWZpbmUgWEVOS0JE
-X0RSSVZFUl9OQU1FICAgICAgICAgICAgICJ2a2JkIgogCisjZGVmaW5lIFhFTktCRF9GSUVMRF9G
-RUFUX0tFWUJPQVJEICAgICAiZmVhdHVyZS1rZXlib2FyZCIKKyNkZWZpbmUgWEVOS0JEX0ZJRUxE
-X0ZFQVRfUE9JTlRFUiAgICAgICJmZWF0dXJlLXBvaW50ZXIiCiAjZGVmaW5lIFhFTktCRF9GSUVM
-RF9GRUFUX0FCU19QT0lOVEVSICAiZmVhdHVyZS1hYnMtcG9pbnRlciIKICNkZWZpbmUgWEVOS0JE
-X0ZJRUxEX0ZFQVRfTVRPVUNIICAgICAgICJmZWF0dXJlLW11bHRpLXRvdWNoIgogI2RlZmluZSBY
-RU5LQkRfRklFTERfUkVRX0FCU19QT0lOVEVSICAgInJlcXVlc3QtYWJzLXBvaW50ZXIiCi0tIAoy
-LjE3LjAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpY
-ZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRw
-czovL2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8veGVuLWRldmVs
+Replace the manual validity checks for the GPIO with the
+gpio_is_valid().
+
+Arvind Yadav (3):
+  [PATCH 1/3] ASoC: tlv320dac33: Use gpio_is_valid()
+  [PATCH 2/3] ASoC: tpa6130a2: Use gpio_is_valid()
+  [PATCH 3/3] ASoC: samsung: Use gpio_is_valid()
+
+ sound/soc/codecs/tlv320dac33.c     | 10 +++++-----
+ sound/soc/codecs/tpa6130a2.c       |  8 ++++----
+ sound/soc/samsung/s3c24xx_simtec.c | 10 +++++-----
+ 3 files changed, 14 insertions(+), 14 deletions(-)
+
+-- 
+1.9.1

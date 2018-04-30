@@ -1,208 +1,104 @@
-From: "Vittorio Gambaletta (VittGam)" <linuxbugs@vittgam.net>
-Subject: Re: [PATCH v2] input/touchscreen: =?UTF-8?Q?atmel=5Fmxt=5Fts=3A?=
- =?UTF-8?Q?=20Add=20correct=20touchpad=20button=20mapping=20for=20the=20Ca?=
- =?UTF-8?Q?roline=20Chromebook=2E?=
-Date: Mon, 30 Apr 2018 20:43:47 +0200
-Message-ID: <e3fa9a479fd513eaabfda3c011f7342c@vittgam.net>
-References: <201804251232.w3PCWweA028076@mail.vittgam.net>
- <20180425222650.GC200812@dtor-ws> <20180425225734.GD200812@dtor-ws>
- <ff623f6afb4e7910f3bb6d211f0f187f@vittgam.net>
- <CABXOdTeh3yLtsWxUCWFdpQNQReAmVDnuJh+T07X=YB3dq=uG1Q@mail.gmail.com>
- <20180426164218.GA162443@dtor-ws>
- <843bf017fd211cd97ffab30e0d5a4e73@vittgam.net>
- <20180430173859.GA54182@dtor-ws>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH] input/psmouse: Don't hold the mutex while
+ calling ->disconnect
+Date: Mon, 30 Apr 2018 21:56:49 +0200
+Message-ID: <20180430195649.17445-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180430173859.GA54182@dtor-ws>
-Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: mrchromebox@gmail.com, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, "# v4 . 10+" <stable@vger.kernel.org>, nick@shmanahar.org, Benson Leung <bleung@chromium.org>, Salvatore Bellizzi <lkml@seppia.net>, Guenter Roeck <groeck@chromium.org>, Guenter Roeck <groeck@google.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>
+Cc: linux-input@vger.kernel.org, Stephen Lyons <slysven@virginmedia.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello,
-
-On 30/04/2018 19:38:59 CEST, Dmitry Torokhov wrote:
-> On Mon, Apr 30, 2018 at 01:44:07AM +0200, Vittorio Gambaletta (VittGam) wrote:
->> Hello,
->>
->> On 26/04/2018 18:42:18 CEST, Dmitry Torokhov wrote:
->> > On Thu, Apr 26, 2018 at 06:45:32AM -0700, Guenter Roeck wrote:
->> >> On Wed, Apr 25, 2018 at 10:37 PM, Vittorio Gambaletta (VittGam) <
->> >> linuxbugs@vittgam.net> wrote:
->> >>
->> >> > Hello,
->> >> >
->> >> > On 26/04/2018 00:57:34 CEST, Dmitry Torokhov wrote:
->> >> > > On Wed, Apr 25, 2018 at 03:26:50PM -0700, Dmitry Torokhov wrote:
->> >> > >> On Wed, Apr 25, 2018 at 02:32:58PM +0200, Vittorio Gambaletta (VittGam)
->> >> > wrote:
->> >> > >> > This patch adds the correct platform data information for the Caroline
->> >> > >> > Chromebook, so that the mouse button does not get stuck in pressed
->> >> > state
->> >> > >> > after the first click.
->> >> > >> >
->> >> > >> > The Samus button keymap and platform data definition are the correct
->> >> > >> > ones for Caroline, so they have been reused here.
->> >> > >> >
->> >> > >> > v2: updated patch offset after 20180409 changes.
->> >> > >> >
->> >> > >> > Cc: stable@vger.kernel.org
->> >> > >> > Signed-off-by: Vittorio Gambaletta <linuxbugs@vittgam.net>
->> >> > >> > Signed-off-by: Salvatore Bellizzi <lkml@seppia.net>
->> >> > >> >
->> >> > >>
->> >> > >> Applied, thank you.
->> >> > >>
->> >> > >> > ---
->> >> > >> >
->> >> > >> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
->> >> > >> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
->> >> > >> > @@ -3035,6 +3035,15 @@
->> >> > >> >            .driver_data = samus_platform_data,
->> >> > >> >    },
->> >> > >> >    {
->> >> > >> > +          /* Samsung Chromebook Pro */
->> >> > >> > +          .ident = "Samsung Chromebook Pro",
->> >> > >> > +          .matches = {
->> >> > >> > +                  DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
->> >> > >
->> >> > > I've been alerted that shipping BIOS has vendor not capitalized; where
->> >> > > did you get the firmware that has vendor all capitals?
->> >> >
->> >> > Upstream coreboot and mrchromebox's coreboot, which do support loading
->> >> > Linux
->> >> > natively or with UEFI, both use capitalized GOOGLE as DMI System Vendor
->> >> > as far as I know.
->> >> >
->> >> > By the way, the shipping BIOS (coreboot customized by Google) does not
->> >> > support
->> >> > mainline Linux natively (eg. without seabios and nasty tricks), but only
->> >> > Chromium OS, which for Caroline is an old 3.something fork of Linux, so
->> >> > this
->> >> > patch does not really apply to Chromium OS or to Linux running on shipping
->> >> > BIOS.
->> >> >
->> >> Can you provide details or a pointer to it ? The mainline kernel boots
->> >> fine for me (with a ChromeOS distribution), with the exception of the
->> >> Google/GOOGLE problem.
->>
->> Hmmm, did you change the kernel on your ChromeOS system, or did Google update it?
->>
->> My Chromebook was on 3.18 when I was still having stock Google Chrome OS on it.
->>
->> This should be the relevant tree:
->> https://chromium.googlesource.com/chromiumos/third_party/kernel/+/release-R58-9334.B-caroline-chromeos-3.18
-> 
-> We normally just pull in a newer kernel into ChromeOS build for testing.
-> This usually works OK with x86 devices.
-
-Ok, nice to know!
-
->> >> > Anyway if I recall correctly, the DMI System Vendor should be GOOGLE in
->> >> > Google's coreboot for Caroline too, but I'm not 100% sure and cannot check
->> >> > right now.
->> >> >
->> >> >
->> >> FWIW, the DMI system vendor is "Google"  in my Caroline. I'll dig up
->> >> configuration files later today - maybe it was changed to "GOOGLE" at some
->> >> point and I have an old Bios in my system.
->> >
->> > I believe all shipping BIOSes use "Google" as vendor, as it is what is
->> > specified in src/mainboard/google/Kconfig::MAINBOARD_VENDOR and our
->> > configs/build scripts do not override it.
->> >
->> > I do not know why we have this difference.
->>
->> Okay, so first of all sorry for the confusion.
->>
->> The upstream coreboot still does not have Caroline support as far as I can tell.
->>
->> Instead, I'm using coreboot by Matt aka Mr. Chromebox, who is working towards
->> upstreaming all of Google Skylake boards, such as Caroline, into coreboot.
->>
->> His default configs were overriding the CONFIG_MAINBOARD_SMBIOS_MANUFACTURER
->> option as "GOOGLE" for every board, including recent ones which started to
->> use "Google". I've contacted him about this, and at the end he will change
->> the string back to "Google".
-> 
-> It appears that we have not been consistent with Google/GOOGLE ourselves
-> (across different products, not between different versions fir the same
-> product), but it would be great if 3rd party firmware matched the
-> shipping firmware in this regard, otherwise we'll have issues with DMI
-> matches.
-> 
->>
->> >> Thanks,
->> >> Guenter
->> >>
->> >> By the way please note that this is the DMI System Vendor and not the DMI
->> >> > BIOS version string, which indeed starts with "Google_" in the shipping
->> >> > BIOS
->> >> > (but not in coreboot, see f56db262e46d3368ee4e5c9e19797853cab382cd).
->> >
->> > Hmm, I just tried checking out tree from
->> > https://review.coreboot.org/coreboot.git and do not see this commit:
->> >
->> > dtor@dtor-ws:~/coreboot $ git show f56db262e46d3368ee4e5c9e19797853cab382cd
->> > fatal: bad object f56db262e46d3368ee4e5c9e19797853cab382cd
->> > dtor@dtor-ws:~/coreboot $ git log --oneline -1 HEAD
->> > 82d0f91420 (HEAD -> master, origin/master, origin/HEAD) soc/intel/apollolake: enable exception handling in every stage for glk
->>
->> Sorry, this was a Linux commit hash:
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f56db262e46d3368ee4e5c9e19797853cab382cd
-> 
-> OK, I see. I'd say we should not have taken this in.
-
-At least on Caroline, when booting with SeaBIOS on shipping BIOS then the
-DMI BIOS version string will be empty.
-
-So the lowercase is needed for Caroline even for shipping BIOS (and I'm
-going to send a new patch adding the lowercase match there), but the
-uppercase match might still be needed for other products that exhibit the
-same behavior with SeaBIOS.
-
-Do you have any data about this perhaps?
-
->> > Anyway, if you are overriding the shipping BIOS, then please adjust
->> > coreboot to use device-tree compatible bindings (via PRP0001 HID and
->> > _DSD properties - you can check out bindings for PENH device in Caroline
->> > to see how they can be used). This way we would not need to breed DMI
->> > quirks.
->>
->> This should be the correct fix, at least for custom firmware.
->>
->> As I said, the string in custom firmware will be changed to "Google", so it
->> won't match the wrong quirk anymore.
->>
->> Then the ACPI table in custom firmware (and upstream coreboot in the future)
->> can be fixed too.
->>
->> But with stock firmware the situation is unchanged: the touchpad would
->> still not work correctly because it would be recognized as a touchscreen,
->> since it wouldn't match any quirk and it wouldn't have the correct ACPI
->> properties.
->>
->> Because of this, should I still resend a touchpad patch v3 matching "Google"?
-> 
-> I can fix it up here, no need to resubmit.
-
-Ok, perfect, thanks.
-
->> Or will maybe Google integrate the ACPI fix into their stock version of
->> coreboot too?
-> 
-> The PRP0001? No, as we do not currently have plans to move Caroline to a
-> newer kernel and 3.18 does not have infrastructure for generic device
-> properties. The pen binding was done when we were considering pulling in
-> generic device properties into 3.18, but later decided against it.
-
-Oh, ok. So with the atmel_mxt_ts quirk now in place I'm not sure if it's
-still worth it adding the PRP0001 to custom (future upstream) coreboot...
-
-> Thanks.
-
-Cheers,
-Vittorio
+QXQgbGVhc3QgdHJhY2twb2ludF9kaXNjb25uZWN0IHdhbnRzIHRvIHJlbW92ZSBzb21lIHN5c2Zz
+IGZpbGVzLCBhbmQKd2UgY2FuJ3QgcmVtb3ZlIHN5c2ZzIGZpbGVzIHdoaWxlIGhvbGRpbmcgcHNt
+b3VzZV9tdXRleDoKCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PQpXQVJOSU5HOiBwb3NzaWJsZSBjaXJjdWxhciBsb2NraW5nIGRlcGVuZGVuY3kg
+ZGV0ZWN0ZWQKNC4xNi4wLXJjNS1nNjEzZWI4ODViNjllLWRybXRpcF8xKyAjMSBUYWludGVkOiBH
+ICAgICBVCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLQprd29ya2VyLzA6My8xMDIgaXMgdHJ5aW5nIHRvIGFjcXVpcmUgbG9jazoKIChrbi0+Y291
+bnQjMTMwKXsrKysrfSwgYXQ6IFs8MDAwMDAwMDA5Njc5NzQ4Yj5dIGtlcm5mc19yZW1vdmVfYnlf
+bmFtZV9ucysweDNiLzB4ODAKCmJ1dCB0YXNrIGlzIGFscmVhZHkgaG9sZGluZyBsb2NrOgogKHBz
+bW91c2VfbXV0ZXgpeysuKy59LCBhdDogWzwwMDAwMDAwMDE0ZjQ0YmNjPl0gcHNtb3VzZV9kaXNj
+b25uZWN0KzB4NjIvMHgxNjAKCndoaWNoIGxvY2sgYWxyZWFkeSBkZXBlbmRzIG9uIHRoZSBuZXcg
+bG9jay4KCnRoZSBleGlzdGluZyBkZXBlbmRlbmN5IGNoYWluIChpbiByZXZlcnNlIG9yZGVyKSBp
+czoKCi0+ICMxIChwc21vdXNlX211dGV4KXsrLisufToKICAgICAgIHBzbW91c2VfYXR0cl9zZXRf
+aGVscGVyKzB4MjgvMHgxNDAKICAgICAgIGtlcm5mc19mb3Bfd3JpdGUrMHhmZS8weDE4MAogICAg
+ICAgX192ZnNfd3JpdGUrMHgxZS8weDEzMAogICAgICAgdmZzX3dyaXRlKzB4YmQvMHgxYjAKICAg
+ICAgIFN5U193cml0ZSsweDQwLzB4YTAKICAgICAgIGRvX3N5c2NhbGxfNjQrMHg2NS8weDFhMAog
+ICAgICAgZW50cnlfU1lTQ0FMTF82NF9hZnRlcl9od2ZyYW1lKzB4NDIvMHhiNwoKLT4gIzAgKGtu
+LT5jb3VudCMxMzApeysrKyt9OgogICAgICAgX19rZXJuZnNfcmVtb3ZlKzB4MjQzLzB4MmIwCiAg
+ICAgICBrZXJuZnNfcmVtb3ZlX2J5X25hbWVfbnMrMHgzYi8weDgwCiAgICAgICByZW1vdmVfZmls
+ZXMuaXNyYS4wKzB4MmIvMHg2MAogICAgICAgc3lzZnNfcmVtb3ZlX2dyb3VwKzB4MzgvMHg4MAog
+ICAgICAgc3lzZnNfcmVtb3ZlX2dyb3VwcysweDI0LzB4NDAKICAgICAgIHRyYWNrcG9pbnRfZGlz
+Y29ubmVjdCsweDJjLzB4NTAKICAgICAgIHBzbW91c2VfZGlzY29ubmVjdCsweDhmLzB4MTYwCiAg
+ICAgICBzZXJpb19kaXNjb25uZWN0X2RyaXZlcisweDI4LzB4NDAKICAgICAgIHNlcmlvX2RyaXZl
+cl9yZW1vdmUrMHhjLzB4MTAKICAgICAgIGRldmljZV9yZWxlYXNlX2RyaXZlcl9pbnRlcm5hbCsw
+eDE1Yi8weDIzMAogICAgICAgc2VyaW9faGFuZGxlX2V2ZW50KzB4MWM4LzB4MjYwCiAgICAgICBw
+cm9jZXNzX29uZV93b3JrKzB4MjE1LzB4NjIwCiAgICAgICB3b3JrZXJfdGhyZWFkKzB4NDgvMHgz
+YTAKICAgICAgIGt0aHJlYWQrMHhmYi8weDEzMAogICAgICAgcmV0X2Zyb21fZm9yaysweDNhLzB4
+NTAKCm90aGVyIGluZm8gdGhhdCBtaWdodCBoZWxwIHVzIGRlYnVnIHRoaXM6CgogUG9zc2libGUg
+dW5zYWZlIGxvY2tpbmcgc2NlbmFyaW86CgogICAgICAgQ1BVMCAgICAgICAgICAgICAgICAgICAg
+Q1BVMQogICAgICAgLS0tLSAgICAgICAgICAgICAgICAgICAgLS0tLQogIGxvY2socHNtb3VzZV9t
+dXRleCk7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb2NrKGtuLT5jb3VudCMxMzAp
+OwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9jayhwc21vdXNlX211dGV4KTsKICBs
+b2NrKGtuLT5jb3VudCMxMzApOwoKICoqKiBERUFETE9DSyAqKioKCjYgbG9ja3MgaGVsZCBieSBr
+d29ya2VyLzA6My8xMDI6CiAjMDogICgod3FfY29tcGxldGlvbikiZXZlbnRzX2xvbmciKXsrLisu
+fSwgYXQ6IFs8MDAwMDAwMDAyZTQwOGJmYT5dIHByb2Nlc3Nfb25lX3dvcmsrMHgxOTEvMHg2MjAK
+ICMxOiAgKHNlcmlvX2V2ZW50X3dvcmspeysuKy59LCBhdDogWzwwMDAwMDAwMDJlNDA4YmZhPl0g
+cHJvY2Vzc19vbmVfd29yaysweDE5MS8weDYyMAogIzI6ICAoc2VyaW9fbXV0ZXgpeysuKy59LCBh
+dDogWzwwMDAwMDAwMGM4YTQ5ODQ3Pl0gc2VyaW9faGFuZGxlX2V2ZW50KzB4MjMvMHgyNjAKICMz
+OiAgKCZkZXYtPm11dGV4KXsuLi4ufSwgYXQ6IFs8MDAwMDAwMDBiNTVlZWU3NT5dIGRldmljZV9y
+ZWxlYXNlX2RyaXZlcl9pbnRlcm5hbCsweDJmLzB4MjMwCiAjNDogICgmc2VyaW8tPmRydl9tdXRl
+eCl7Ky4rLn0sIGF0OiBbPDAwMDAwMDAwOTcxOWY5OTc+XSBzZXJpb19kaXNjb25uZWN0X2RyaXZl
+cisweDE2LzB4NDAKICM1OiAgKHBzbW91c2VfbXV0ZXgpeysuKy59LCBhdDogWzwwMDAwMDAwMDE0
+ZjQ0YmNjPl0gcHNtb3VzZV9kaXNjb25uZWN0KzB4NjIvMHgxNjAKCnN0YWNrIGJhY2t0cmFjZToK
+Q1BVOiAwIFBJRDogMTAyIENvbW06IGt3b3JrZXIvMDozIFRhaW50ZWQ6IEcgICAgIFUgICAgICAg
+ICAgIDQuMTYuMC1yYzUtZzYxM2ViODg1YjY5ZS1kcm10aXBfMSsgIzEKSGFyZHdhcmUgbmFtZTog
+TEVOT1ZPIDc0NTkxUDAvNzQ1OTFQMCwgQklPUyA2REVUMjhXVyAoMS4wNSApIDA3LzMwLzIwMDgK
+V29ya3F1ZXVlOiBldmVudHNfbG9uZyBzZXJpb19oYW5kbGVfZXZlbnQKQ2FsbCBUcmFjZToKIGR1
+bXBfc3RhY2srMHg1Zi8weDg2CiBwcmludF9jaXJjdWxhcl9idWcuaXNyYS4xOCsweDFkMC8weDJj
+MAogX19sb2NrX2FjcXVpcmUrMHgxNGFlLzB4MWI2MAogPyBrZXJuZnNfcmVtb3ZlX2J5X25hbWVf
+bnMrMHgyMC8weDgwCiA/IGxvY2tfYWNxdWlyZSsweGFmLzB4MjAwCiBsb2NrX2FjcXVpcmUrMHhh
+Zi8weDIwMAogPyBrZXJuZnNfcmVtb3ZlX2J5X25hbWVfbnMrMHgzYi8weDgwCiBfX2tlcm5mc19y
+ZW1vdmUrMHgyNDMvMHgyYjAKID8ga2VybmZzX3JlbW92ZV9ieV9uYW1lX25zKzB4M2IvMHg4MAog
+PyBrZXJuZnNfbmFtZV9oYXNoKzB4ZC8weDcwCiA/IGtlcm5mc19maW5kX25zKzB4N2UvMHgxMDAK
+IGtlcm5mc19yZW1vdmVfYnlfbmFtZV9ucysweDNiLzB4ODAKIHJlbW92ZV9maWxlcy5pc3JhLjAr
+MHgyYi8weDYwCiBzeXNmc19yZW1vdmVfZ3JvdXArMHgzOC8weDgwCiBzeXNmc19yZW1vdmVfZ3Jv
+dXBzKzB4MjQvMHg0MAogdHJhY2twb2ludF9kaXNjb25uZWN0KzB4MmMvMHg1MAogcHNtb3VzZV9k
+aXNjb25uZWN0KzB4OGYvMHgxNjAKIHNlcmlvX2Rpc2Nvbm5lY3RfZHJpdmVyKzB4MjgvMHg0MAog
+c2VyaW9fZHJpdmVyX3JlbW92ZSsweGMvMHgxMAogZGV2aWNlX3JlbGVhc2VfZHJpdmVyX2ludGVy
+bmFsKzB4MTViLzB4MjMwCiBzZXJpb19oYW5kbGVfZXZlbnQrMHgxYzgvMHgyNjAKIHByb2Nlc3Nf
+b25lX3dvcmsrMHgyMTUvMHg2MjAKIHdvcmtlcl90aHJlYWQrMHg0OC8weDNhMAogPyBfcmF3X3Nw
+aW5fdW5sb2NrX2lycXJlc3RvcmUrMHg0Yy8weDYwCiBrdGhyZWFkKzB4ZmIvMHgxMzAKID8gcHJv
+Y2Vzc19vbmVfd29yaysweDYyMC8weDYyMAogPyBfa3RocmVhZF9jcmVhdGVfb25fbm9kZSsweDMw
+LzB4MzAKIHJldF9mcm9tX2ZvcmsrMHgzYS8weDUwCgpTaWduZWQtb2ZmLWJ5OiBEYW5pZWwgVmV0
+dGVyIDxkYW5pZWwudmV0dGVyQGludGVsLmNvbT4KQ2M6IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5
+LnRvcm9raG92QGdtYWlsLmNvbT4KQ2M6IEJlbmphbWluIFRpc3NvaXJlcyA8YmVuamFtaW4udGlz
+c29pcmVzQHJlZGhhdC5jb20+CkNjOiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVyQGZmd2xs
+LmNoPgpDYzogQXJ2aW5kIFlhZGF2IDxhcnZpbmQueWFkYXYuY3NAZ21haWwuY29tPgpDYzogU3Rl
+cGhlbiBMeW9ucyA8c2x5c3ZlbkB2aXJnaW5tZWRpYS5jb20+CkNjOiBsaW51eC1pbnB1dEB2Z2Vy
+Lmtlcm5lbC5vcmcKLS0tCiBkcml2ZXJzL2lucHV0L21vdXNlL3BzbW91c2UtYmFzZS5jIHwgMiAr
+KwogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+aW5wdXQvbW91c2UvcHNtb3VzZS1iYXNlLmMgYi9kcml2ZXJzL2lucHV0L21vdXNlL3BzbW91c2Ut
+YmFzZS5jCmluZGV4IDg5MDBjMzE2NmViZi4uMDZjY2Q4ZTIyZjNjIDEwMDY0NAotLS0gYS9kcml2
+ZXJzL2lucHV0L21vdXNlL3BzbW91c2UtYmFzZS5jCisrKyBiL2RyaXZlcnMvaW5wdXQvbW91c2Uv
+cHNtb3VzZS1iYXNlLmMKQEAgLTE0ODQsOCArMTQ4NCwxMCBAQCBzdGF0aWMgdm9pZCBwc21vdXNl
+X2Rpc2Nvbm5lY3Qoc3RydWN0IHNlcmlvICpzZXJpbykKIAkJcHNtb3VzZV9kZWFjdGl2YXRlKHBh
+cmVudCk7CiAJfQogCisJbXV0ZXhfdW5sb2NrKCZwc21vdXNlX211dGV4KTsKIAlpZiAocHNtb3Vz
+ZS0+ZGlzY29ubmVjdCkKIAkJcHNtb3VzZS0+ZGlzY29ubmVjdChwc21vdXNlKTsKKwltdXRleF9s
+b2NrKCZwc21vdXNlX211dGV4KTsKIAogCWlmIChwYXJlbnQgJiYgcGFyZW50LT5wdF9kZWFjdGl2
+YXRlKQogCQlwYXJlbnQtPnB0X2RlYWN0aXZhdGUocGFyZW50KTsKLS0gCjIuMTcuMAoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50ZWwtZ2Z4IG1haWxp
+bmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==

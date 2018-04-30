@@ -1,84 +1,88 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: Re: [PATCH v3 1/2] dt-bindings: input: Add Add Spreadtrum SC27xx
- vibrator documentation
-Date: Mon, 30 Apr 2018 16:06:18 +0800
-Message-ID: <CAMz4kuJfjMkGSOU_E6eO0TV3mK7UZhfA0yQPqYa6Ffa0K+xp8Q@mail.gmail.com>
-References: <e2f85ec0b1fb66baa41dd85bb31e8113e23c704b.1524733425.git.baolin.wang@linaro.org>
- <20180427145116.rhjs5vqg6czdexee@rob-hp-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: David Engraf <david.engraf@sysgo.com>
+Subject: [PATCH] Input: serio - add writing multiple bytes at once
+Date: Mon, 30 Apr 2018 11:03:24 +0200
+Message-ID: <20180430090324.30845-1-david.engraf@sysgo.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180427145116.rhjs5vqg6czdexee@rob-hp-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Orson Zhai <orsonzhai@gmail.com>, Chunyan Zhang <zhang.lyra@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, xiaotong.lu@spreadtrum.com
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Engraf <david.engraf@sysgo.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Rob,
+The current version only supports forwarding a single byte to the tty
+layer.
 
-On 27 April 2018 at 22:51, Rob Herring <robh@kernel.org> wrote:
-> On Thu, Apr 26, 2018 at 05:12:33PM +0800, Baolin Wang wrote:
->> From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
->>
->> This patch adds the binding documentation for Spreadtrum SC27xx series
->> vibrator device.
->>
->> Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
->> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
->> ---
->> Changes since v2:
->>  - No updates.
->>
->> Changes since v1:
->>  - No updates.
->> ---
->>  .../bindings/input/sprd,sc27xx-vibra.txt           |   12 ++++++++++++
->>  1 file changed, 12 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
->>
->> diff --git a/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
->> new file mode 100644
->> index 0000000..92ead29
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
->> @@ -0,0 +1,12 @@
->> +Spreadtrum SC27xx PMIC Vibrator
->> +
->> +Required properties:
->> +- compatible: should be "sprd,sc27xx-vibrator".
->> +- reg: address of vibrator control register.
->> +
->> +Example :
->> +
->> +vibrator@eb4 {
->> +     compatible = "sprd,sc27xx-vibrator";
->> +     reg = <0xeb4>;
->
-> What bus is this on? A mmio bus needs a length. Is this part of some
-> other block?
->
+This patch adds serio_write_length() to allow a serport driver writing
+multiple bytes at once. The patch also includes a fallback to
+serio_write_length() when a driver did not register a single byte function.
 
-It's on one PMIC bus mapped by regmap-spi. Will add the PMIC part in
-next version:
+Signed-off-by: David Engraf <david.engraf@sysgo.com>
+---
+ drivers/input/serio/serport.c |  7 ++++---
+ include/linux/serio.h         | 13 ++++++++++++-
+ 2 files changed, 16 insertions(+), 4 deletions(-)
 
-sc2731_pmic: pmic@0 {
-        compatible = "sprd,sc2731";
-        reg = <0>;
-        spi-max-frequency = <26000000>;
-        interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-        interrupt-controller;
-        #interrupt-cells = <2>;
-        #address-cells = <1>;
-        #size-cells = <0>;
-
-        vibrator@eb4 {
-                compatible = "sprd,sc27xx-vibrator";
-                reg = <0xeb4>;
-        };
-};
-
-Is that OK for you? Thanks.
-
+diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+index f8ead9f9c77e..209343f636a3 100644
+--- a/drivers/input/serio/serport.c
++++ b/drivers/input/serio/serport.c
+@@ -45,10 +45,11 @@ struct serport {
+  * Callback functions from the serio code.
+  */
+ 
+-static int serport_serio_write(struct serio *serio, unsigned char data)
++static int serport_serio_write_length(struct serio *serio,
++				      const unsigned char *data, int count)
+ {
+ 	struct serport *serport = serio->port_data;
+-	return -(serport->tty->ops->write(serport->tty, &data, 1) != 1);
++	return -(serport->tty->ops->write(serport->tty, data, count) != count);
+ }
+ 
+ static int serport_serio_open(struct serio *serio)
+@@ -176,7 +177,7 @@ static ssize_t serport_ldisc_read(struct tty_struct * tty, struct file * file, u
+ 	snprintf(serio->phys, sizeof(serio->phys), "%s/serio0", tty_name(tty));
+ 	serio->id = serport->id;
+ 	serio->id.type = SERIO_RS232;
+-	serio->write = serport_serio_write;
++	serio->write_length = serport_serio_write_length;
+ 	serio->open = serport_serio_open;
+ 	serio->close = serport_serio_close;
+ 	serio->port_data = serport;
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index 138a5efe863a..6f5cb92d0f22 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -35,6 +35,8 @@ struct serio {
+ 	spinlock_t lock;
+ 
+ 	int (*write)(struct serio *, unsigned char);
++	int (*write_length)(struct serio *serio, const unsigned char *data,
++			    int count);
+ 	int (*open)(struct serio *);
+ 	void (*close)(struct serio *);
+ 	int (*start)(struct serio *);
+@@ -122,12 +124,21 @@ void serio_unregister_driver(struct serio_driver *drv);
+ 	module_driver(__serio_driver, serio_register_driver, \
+ 		       serio_unregister_driver)
+ 
++static inline int serio_write_length(struct serio *serio,
++				     const unsigned char *data, int count)
++{
++	if (serio->write_length)
++		return serio->write_length(serio, data, count);
++	else
++		return -1;
++}
++
+ static inline int serio_write(struct serio *serio, unsigned char data)
+ {
+ 	if (serio->write)
+ 		return serio->write(serio, data);
+ 	else
+-		return -1;
++		return serio_write_length(serio, &data, 1);
+ }
+ 
+ static inline void serio_drv_write_wakeup(struct serio *serio)
 -- 
-Baolin.wang
-Best Regards
+2.14.1

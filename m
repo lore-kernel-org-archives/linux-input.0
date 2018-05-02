@@ -1,66 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.17-rc3
-Date: Wed, 2 May 2018 11:09:14 -0700
-Message-ID: <20180502180914.GA67132@dtor-ws>
+From: Javier Martinez Canillas <javierm@redhat.com>
+Subject: Re: [PATCH v2] Input: atmel_mxt_ts - add missing compatible strings
+ to OF device table
+Date: Wed, 2 May 2018 20:36:43 +0200
+Message-ID: <79d51c87-65c8-8cb6-039c-933b114e86cb@redhat.com>
+References: <20180410095340.24074-1-javierm@redhat.com>
+ <20180501184853.GB52077@dtor-ws>
+ <CAL_JsqJ-UTGrPm2tiS1yVFweWB_LH2JSBpOpMtogTYFi7pCsGA@mail.gmail.com>
+ <20180501205713.GA130399@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20180501205713.GA130399@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, devicetree@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-input@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>, Nick Dyer <nick@shmanahar.org>, Mark Rutland <mark.rutland@arm.com>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+Hi Dmitry,
 
-Please pull from:
+On 05/01/2018 10:57 PM, Dmitry Torokhov wrote:
+> From: Javier Martinez Canillas <javierm@redhat.com>
+> 
+> Commit af503716ac14 ("i2c: core: report OF style module alias for devices
+> registered via OF") fixed how the I2C core reports the module alias when
+> devices are registered via OF.
+> 
+> But the atmel_mxt_ts driver only has an "atmel,maxtouch" compatible in its
+> OF device ID table, so if a Device Tree is using a different one, autoload
+> won't be working for the module (the matching works because the I2C device
+> ID table is used as a fallback).
+> 
+> So add compatible strings for each of the entries in the I2C device table.
+> 
+> Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
+> Reported-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+> Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> [dtor: document which compatibles are deprecated and should not be used]
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Thanks for taking care of this. Yes, I should had added as deprecated indeed.
 
-to receive updates for the input subsystem: just a few driver fixes.
-
-Changelog:
----------
-
-Christophe JAILLET (1):
-      Input: synaptics-rmi4 - fix an unchecked out of memory error path
-
-Dmitry Torokhov (1):
-      Input: leds - fix out of bound access
-
-Javier Martinez Canillas (1):
-      Input: atmel_mxt_ts - add missing compatible strings to OF device table
-
-Masanari Iida (1):
-      Input: hideep_ts - fix a typo in Kconfig
-
-Nick Dyer (1):
-      Input: atmel_mxt_ts - fix the firmware update
-
-Pali Rohár (1):
-      Input: alps - fix reporting pressure of v3 trackstick
-
-Vittorio Gambaletta (VittGam) (1):
-      Input: atmel_mxt_ts - add touchpad button mapping for Samsung Chromebook Pro
-
-Wolfram Sang (1):
-      MAINTAINERS: Rakesh Iyer can't be reached anymore
-
-Diffstat:
---------
-
- .../devicetree/bindings/input/atmel,maxtouch.txt   |   7 +
- MAINTAINERS                                        |   1 -
- drivers/input/input-leds.c                         |   8 +-
- drivers/input/mouse/alps.c                         |   2 +-
- drivers/input/rmi4/rmi_spi.c                       |   7 +-
- drivers/input/touchscreen/Kconfig                  |   2 +-
- drivers/input/touchscreen/atmel_mxt_ts.c           | 200 +++++++++++++--------
- 7 files changed, 142 insertions(+), 85 deletions(-)
-
-Thanks.
-
-
--- 
-Dmitry
+Best regards,
+Javier

@@ -1,64 +1,66 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: [PATCH v4 2/2] xen/kbdif: Add features to disable
- keyboard and pointer
-Date: Wed,  2 May 2018 17:49:19 +0300
-Message-ID: <20180502144919.16780-2-andr2000@gmail.com>
-References: <20180502144919.16780-1-andr2000@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v4.17-rc3
+Date: Wed, 2 May 2018 11:09:14 -0700
+Message-ID: <20180502180914.GA67132@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-In-Reply-To: <20180502144919.16780-1-andr2000@gmail.com>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, konrad.wilk@oracle.com, dmitry.torokhov@gmail.com
-Cc: andr2000@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, jandryuk@gmail.com
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-RnJvbTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVw
-YW0uY29tPgoKSXQgaXMgbm93IG5vdCBmdWxseSBwb3NzaWJsZSB0byBjb250cm9sIGlmIGFuZCB3
-aGljaCB2aXJ0dWFsIGRldmljZXMKYXJlIGNyZWF0ZWQgYnkgdGhlIGZyb250ZW5kLCBlLmcuIGtl
-eWJvYXJkIGFuZCBwb2ludGVyIGRldmljZXMKYXJlIGFsd2F5cyBjcmVhdGVkIGFuZCBtdWx0aS10
-b3VjaCBkZXZpY2UgaXMgY3JlYXRlZCBpZiB0aGUKYmFja2VuZCBhZHZlcnRpc2VzIG11bHRpLXRv
-dWNoIHN1cHBvcnQuIEluIHNvbWUgY2FzZXMgdGhpcwpiZWhhdmlvciBpcyBub3QgZGVzaXJhYmxl
-IGFuZCBiZXR0ZXIgY29udHJvbCBvdmVyIHRoZSBmcm9udGVuZCdzCmNvbmZpZ3VyYXRpb24gaXMg
-cmVxdWlyZWQuCgpBZGQgbmV3IFhlblN0b3JlIGZlYXR1cmUgZmllbGRzLCBzbyBpdCBpcyBwb3Nz
-aWJsZSB0byBpbmRpdmlkdWFsbHkKY29udHJvbCBzZXQgb2YgZXhwb3NlZCB2aXJ0dWFsIGRldmlj
-ZXMgZm9yIGVhY2ggZ3Vlc3QgT1M6CiAtIHNldCBmZWF0dXJlLWRpc2FibGUta2V5Ym9hcmQgdG8g
-MSBpZiBubyBrZXlib2FyZCBkZXZpY2UgbmVlZHMKICAgdG8gYmUgY3JlYXRlZAogLSBzZXQgZmVh
-dHVyZS1kaXNhYmxlLXBvaW50ZXIgdG8gMSBpZiBubyBwb2ludGVyIGRldmljZSBuZWVkcwogICB0
-byBiZSBjcmVhdGVkCgpLZWVwIG9sZCBiZWhhdmlvciBieSBkZWZhdWx0LgoKU2lnbmVkLW9mZi1i
-eTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVwYW0u
-Y29tPgpSZXZpZXdlZC1ieTogS29ucmFkIFJ6ZXN6dXRlayBXaWxrIDxrb25yYWQud2lsa0BvcmFj
-bGUuY29tPgotLS0KIHhlbi9pbmNsdWRlL3B1YmxpYy9pby9rYmRpZi5oIHwgMTQgKysrKysrKysr
-KysrKysKIDEgZmlsZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEveGVu
-L2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmggYi94ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2JkaWYu
-aAppbmRleCBkYWY0YmMyMDYzYzkuLjIzZDFmNzBkNTIxMCAxMDA2NDQKLS0tIGEveGVuL2luY2x1
-ZGUvcHVibGljL2lvL2tiZGlmLmgKKysrIGIveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgK
-QEAgLTUxLDYgKzUxLDE4IEBACiAgKiBjb3JyZXNwb25kaW5nIGVudHJpZXMgaW4gWGVuU3RvcmUg
-YW5kIHB1dHMgMSBhcyB0aGUgdmFsdWUgb2YgdGhlIGVudHJ5LgogICogSWYgYSBmZWF0dXJlIGlz
-IG5vdCBzdXBwb3J0ZWQgdGhlbiAwIG11c3QgYmUgc2V0IG9yIGZlYXR1cmUgZW50cnkgb21pdHRl
-ZC4KICAqCisgKiBmZWF0dXJlLWRpc2FibGUta2V5Ym9hcmQKKyAqICAgICAgVmFsdWVzOiAgICAg
-ICAgIDx1aW50PgorICoKKyAqICAgICAgSWYgdGhlcmUgaXMgbm8gbmVlZCB0byBleHBvc2UgYSB2
-aXJ0dWFsIGtleWJvYXJkIGRldmljZSBieSB0aGUKKyAqICAgICAgZnJvbnRlbmQgdGhlbiB0aGlz
-IG11c3QgYmUgc2V0IHRvIDEuCisgKgorICogZmVhdHVyZS1kaXNhYmxlLXBvaW50ZXIKKyAqICAg
-ICAgVmFsdWVzOiAgICAgICAgIDx1aW50PgorICoKKyAqICAgICAgSWYgdGhlcmUgaXMgbm8gbmVl
-ZCB0byBleHBvc2UgYSB2aXJ0dWFsIHBvaW50ZXIgZGV2aWNlIGJ5IHRoZQorICogICAgICBmcm9u
-dGVuZCB0aGVuIHRoaXMgbXVzdCBiZSBzZXQgdG8gMS4KKyAqCiAgKiBmZWF0dXJlLWFicy1wb2lu
-dGVyCiAgKiAgICAgIFZhbHVlczogICAgICAgICA8dWludD4KICAqCkBAIC0xNzcsNiArMTg5LDgg
-QEAKIAogI2RlZmluZSBYRU5LQkRfRFJJVkVSX05BTUUgICAgICAgICAgICAgInZrYmQiCiAKKyNk
-ZWZpbmUgWEVOS0JEX0ZJRUxEX0ZFQVRfRFNCTF9LRVlCUkQgICJmZWF0dXJlLWRpc2FibGUta2V5
-Ym9hcmQiCisjZGVmaW5lIFhFTktCRF9GSUVMRF9GRUFUX0RTQkxfUE9JTlRFUiAiZmVhdHVyZS1k
-aXNhYmxlLXBvaW50ZXIiCiAjZGVmaW5lIFhFTktCRF9GSUVMRF9GRUFUX0FCU19QT0lOVEVSICAi
-ZmVhdHVyZS1hYnMtcG9pbnRlciIKICNkZWZpbmUgWEVOS0JEX0ZJRUxEX0ZFQVRfUkFXX1BPSU5U
-RVIgICJmZWF0dXJlLXJhdy1wb2ludGVyIgogI2RlZmluZSBYRU5LQkRfRklFTERfRkVBVF9NVE9V
-Q0ggICAgICAgImZlYXR1cmUtbXVsdGktdG91Y2giCi0tIAoyLjE3LjAKCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0
-Clhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qu
-b3JnL21haWxtYW4vbGlzdGluZm8veGVuLWRldmVs
+Hi Linus,
+
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem: just a few driver fixes.
+
+Changelog:
+---------
+
+Christophe JAILLET (1):
+      Input: synaptics-rmi4 - fix an unchecked out of memory error path
+
+Dmitry Torokhov (1):
+      Input: leds - fix out of bound access
+
+Javier Martinez Canillas (1):
+      Input: atmel_mxt_ts - add missing compatible strings to OF device table
+
+Masanari Iida (1):
+      Input: hideep_ts - fix a typo in Kconfig
+
+Nick Dyer (1):
+      Input: atmel_mxt_ts - fix the firmware update
+
+Pali Rohár (1):
+      Input: alps - fix reporting pressure of v3 trackstick
+
+Vittorio Gambaletta (VittGam) (1):
+      Input: atmel_mxt_ts - add touchpad button mapping for Samsung Chromebook Pro
+
+Wolfram Sang (1):
+      MAINTAINERS: Rakesh Iyer can't be reached anymore
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/atmel,maxtouch.txt   |   7 +
+ MAINTAINERS                                        |   1 -
+ drivers/input/input-leds.c                         |   8 +-
+ drivers/input/mouse/alps.c                         |   2 +-
+ drivers/input/rmi4/rmi_spi.c                       |   7 +-
+ drivers/input/touchscreen/Kconfig                  |   2 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c           | 200 +++++++++++++--------
+ 7 files changed, 142 insertions(+), 85 deletions(-)
+
+Thanks.
+
+
+-- 
+Dmitry

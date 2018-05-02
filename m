@@ -1,43 +1,61 @@
-From: David Engraf <david.engraf@sysgo.com>
-Subject: Re: [PATCH] Input: serio - add writing multiple bytes at once
-Date: Wed, 2 May 2018 09:07:59 +0200
-Message-ID: <c7ae7509-a29d-85e1-a8da-41e275e98779@sysgo.com>
-References: <20180430090324.30845-1-david.engraf@sysgo.com>
- <20180430212007.GC54182@dtor-ws>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: [PATCH v3] xen/kbdif: Add features to disable keyboard
+ and pointer
+Date: Wed,  2 May 2018 10:16:08 +0300
+Message-ID: <20180502071608.26864-1-andr2000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180430212007.GC54182@dtor-ws>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, konrad.wilk@oracle.com, dmitry.torokhov@gmail.com
+Cc: andr2000@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, jandryuk@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-
-On 30.04.2018 at 23:20, Dmitry Torokhov wrote:
-> Hi David,
-> 
-> On Mon, Apr 30, 2018 at 11:03:24AM +0200, David Engraf wrote:
->> The current version only supports forwarding a single byte to the tty
->> layer.
->>
->> This patch adds serio_write_length() to allow a serport driver writing
->> multiple bytes at once. The patch also includes a fallback to
->> serio_write_length() when a driver did not register a single byte function.
-> 
-> Without users I do not see point for this API.
-
-Here is an incomplete list of drivers calling serio_write() in a loop:
-
-- drivers/media/usb/rainshadow-cec/rainshadow-cec.c
-- drivers/input/serio/serio_raw.c
-- drivers/input/touchscreen/elo.c
-
-I can simplify these drivers by using serio_write_length() if you want 
-to have some users for the new API.
-
-Best regards
-- David
+RnJvbTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVw
+YW0uY29tPgoKSXQgaXMgbm93IG5vdCBmdWxseSBwb3NzaWJsZSB0byBjb250cm9sIGlmIGFuZCB3
+aGljaCB2aXJ0dWFsIGRldmljZXMKYXJlIGNyZWF0ZWQgYnkgdGhlIGZyb250ZW5kLCBlLmcuIGtl
+eWJvYXJkIGFuZCBwb2ludGVyIGRldmljZXMKYXJlIGFsd2F5cyBjcmVhdGVkIGFuZCBtdWx0aS10
+b3VjaCBkZXZpY2UgaXMgY3JlYXRlZCBpZiB0aGUKYmFja2VuZCBhZHZlcnRpc2VzIG11bHRpLXRv
+dWNoIHN1cHBvcnQuIEluIHNvbWUgY2FzZXMgdGhpcwpiZWhhdmlvciBpcyBub3QgZGVzaXJhYmxl
+IGFuZCBiZXR0ZXIgY29udHJvbCBvdmVyIHRoZSBmcm9udGVuZCdzCmNvbmZpZ3VyYXRpb24gaXMg
+cmVxdWlyZWQuCgpBZGQgbmV3IFhlblN0b3JlIGZlYXR1cmUgZmllbGRzLCBzbyBpdCBpcyBwb3Nz
+aWJsZSB0byBpbmRpdmlkdWFsbHkKY29udHJvbCBzZXQgb2YgZXhwb3NlZCB2aXJ0dWFsIGRldmlj
+ZXMgZm9yIGVhY2ggZ3Vlc3QgT1M6CiAtIHNldCBmZWF0dXJlLWRpc2FibGUta2V5Ym9hcmQgdG8g
+MSBpZiBubyBrZXlib2FyZCBkZXZpY2UgbmVlZHMKICAgdG8gYmUgY3JlYXRlZAogLSBzZXQgZmVh
+dHVyZS1kaXNhYmxlLXBvaW50ZXIgdG8gMSBpZiBubyBwb2ludGVyIGRldmljZSBuZWVkcwogICB0
+byBiZSBjcmVhdGVkCgpLZWVwIG9sZCBiZWhhdmlvciBieSBkZWZhdWx0LgoKU2lnbmVkLW9mZi1i
+eTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNoY2hlbmtvQGVwYW0u
+Y29tPgotLS0KIHhlbi9pbmNsdWRlL3B1YmxpYy9pby9rYmRpZi5oIHwgMTQgKysrKysrKysrKysr
+KysKIDEgZmlsZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEveGVuL2lu
+Y2x1ZGUvcHVibGljL2lvL2tiZGlmLmggYi94ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2JkaWYuaApp
+bmRleCAzY2U1NGU5YTQ0YzEuLjlhMDY0OGJkY2VkOSAxMDA2NDQKLS0tIGEveGVuL2luY2x1ZGUv
+cHVibGljL2lvL2tiZGlmLmgKKysrIGIveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgKQEAg
+LTUxLDYgKzUxLDE4IEBACiAgKiBjb3JyZXNwb25kaW5nIGVudHJpZXMgaW4gWGVuU3RvcmUgYW5k
+IHB1dHMgMSBhcyB0aGUgdmFsdWUgb2YgdGhlIGVudHJ5LgogICogSWYgYSBmZWF0dXJlIGlzIG5v
+dCBzdXBwb3J0ZWQgdGhlbiAwIG11c3QgYmUgc2V0IG9yIGZlYXR1cmUgZW50cnkgb21pdHRlZC4K
+ICAqCisgKiBmZWF0dXJlLWRpc2FibGUta2V5Ym9hcmQKKyAqICAgICAgVmFsdWVzOiAgICAgICAg
+IDx1aW50PgorICoKKyAqICAgICAgSWYgdGhlcmUgaXMgbm8gbmVlZCB0byBleHBvc2UgYSB2aXJ0
+dWFsIGtleWJvYXJkIGRldmljZSBieSB0aGUKKyAqICAgICAgZnJvbnRlbmQgdGhlbiB0aGlzIG11
+c3QgYmUgc2V0IHRvIDEuCisgKgorICogZmVhdHVyZS1kaXNhYmxlLXBvaW50ZXIKKyAqICAgICAg
+VmFsdWVzOiAgICAgICAgIDx1aW50PgorICoKKyAqICAgICAgSWYgdGhlcmUgaXMgbm8gbmVlZCB0
+byBleHBvc2UgYSB2aXJ0dWFsIHBvaW50ZXIgZGV2aWNlIGJ5IHRoZQorICogICAgICBmcm9udGVu
+ZCB0aGVuIHRoaXMgbXVzdCBiZSBzZXQgdG8gMS4KKyAqCiAgKiBmZWF0dXJlLWFicy1wb2ludGVy
+CiAgKiAgICAgIFZhbHVlczogICAgICAgICA8dWludD4KICAqCkBAIC0xNzcsNiArMTg5LDggQEAK
+IAogI2RlZmluZSBYRU5LQkRfRFJJVkVSX05BTUUgICAgICAgICAgICAgInZrYmQiCiAKKyNkZWZp
+bmUgWEVOS0JEX0ZJRUxEX0ZFQVRfRFNCTF9LRVlCUkQgICJmZWF0dXJlLWRpc2FibGUta2V5Ym9h
+cmQiCisjZGVmaW5lIFhFTktCRF9GSUVMRF9GRUFUX0RTQkxfUE9JTlRFUiAiZmVhdHVyZS1kaXNh
+YmxlLXBvaW50ZXIiCiAjZGVmaW5lIFhFTktCRF9GSUVMRF9GRUFUX0FCU19QT0lOVEVSICAiZmVh
+dHVyZS1hYnMtcG9pbnRlciIKICNkZWZpbmUgWEVOS0JEX0ZJRUxEX0ZFQVRfTVRPVUNIICAgICAg
+ICJmZWF0dXJlLW11bHRpLXRvdWNoIgogI2RlZmluZSBYRU5LQkRfRklFTERfUkVRX0FCU19QT0lO
+VEVSICAgInJlcXVlc3QtYWJzLXBvaW50ZXIiCi0tIAoyLjE3LjAKCgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhl
+bi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qub3Jn
+L21haWxtYW4vbGlzdGluZm8veGVuLWRldmVs

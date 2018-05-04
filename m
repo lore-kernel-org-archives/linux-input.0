@@ -1,131 +1,208 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: Re: [PATCHv2] Input: atmel_mxt_ts - fix reset-gpio for level based
- irqs
-Date: Thu, 3 May 2018 11:15:55 +0200
-Message-ID: <20180503091555.wqxlhp7hjnjmzqnj@earth.universe>
-References: <20180420172408.26164-1-sebastian.reichel@collabora.co.uk>
- <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="gmussu533gbjwhdm"
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/2] Input: atmel_mxt_ts - require device properties present when probing
+Date: Thu,  3 May 2018 17:41:35 -0700
+Message-ID: <20180504004135.67554-2-dmitry.torokhov@gmail.com>
+References: <20180504004135.67554-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
+In-Reply-To: <20180504004135.67554-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>, kernel@collabora.com
+To: linux-input@vger.kernel.org, Benson Leung <bleung@chromium.org>
+Cc: Nick Dyer <nick@shmanahar.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+The driver needs help determining whether it is dealing with a touchscreen
+or a touchpad, and with button mapping. Previously we supported passing
+this data via device properties, and also had DMI lists for Chromebooks
+that specified Atmel devices in ACPI, but did not provide enough data
+there. Now that chromeos_laptop driver is adjusted to supply necessary
+device properties even for ACPI devices, we can drop the DMI tables and
+refuse to probe if device properties are not attached to the device.
 
---gmussu533gbjwhdm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We use presence of "compatible" property to determine if device properties
+are attached to the device or not and rely on chromeos_laptop to re-probe
+the device after attaching missing device properties to it.
 
-Hi,
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 152 ++---------------------
+ 1 file changed, 12 insertions(+), 140 deletions(-)
 
-On Mon, Apr 23, 2018 at 01:58:44PM +0200, Sebastian Reichel wrote:
-> The current reset-gpio support triggers an interrupt storm on platforms
-> using the maxtouch with level based interrupt. The Motorola Droid 4,
-> which I used for some of the tests is not affected, since it uses a edge
-> based interrupt.
->=20
-> This change avoids the interrupt storm by enabling the device while its
-> interrupt is disabled. Afterwards we wait 100ms. This is important for
-> two reasons: The device is unresponsive for some time (~22ms for
-> mxt224E) and the CHG (interrupt) line is not working properly for 100ms.
-> We don't need to wait for any following interrupts, since the following
-> mxt_initialize() checks for bootloader mode anyways.
->=20
-> This fixes a boot issue on GE PPD (watchdog kills device due to
-> interrupt storm) and does not cause regression on Motorola Droid 4.
->=20
-> Fixes: f657b00df22e ("Input: atmel_mxt_ts - add support for reset line")
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> ---
-> Changes since PATCHv2:
->  * fix patch description
->  * use same timeout value for soft and gpio-reset
-> ---
-
-ping.
-
--- Sebastian
-
->  drivers/input/touchscreen/atmel_mxt_ts.c | 18 +++++++-----------
->  1 file changed, 7 insertions(+), 11 deletions(-)
->=20
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/tou=
-chscreen/atmel_mxt_ts.c
-> index 5d9699fe1b55..f97fbb0af020 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -194,6 +194,8 @@ enum t100_type {
-> =20
->  /* Delay times */
->  #define MXT_BACKUP_TIME		50	/* msec */
-> +#define MXT_RESET_GPIO_TIME	20	/* msec */
-> +#define MXT_RESET_INVALID_CHG	100	/* msec */
->  #define MXT_RESET_TIME		200	/* msec */
->  #define MXT_RESET_TIMEOUT	3000	/* msec */
->  #define MXT_CRC_TIMEOUT		1000	/* msec */
-> @@ -1206,7 +1208,7 @@ static int mxt_soft_reset(struct mxt_data *data)
->  		return ret;
-> =20
->  	/* Ignore CHG line for 100ms after reset */
-> -	msleep(100);
-> +	msleep(MXT_RESET_INVALID_CHG);
-> =20
->  	mxt_acquire_irq(data);
-> =20
-> @@ -3167,20 +3169,14 @@ static int mxt_probe(struct i2c_client *client, c=
-onst struct i2c_device_id *id)
->  		return error;
->  	}
-> =20
-> +	disable_irq(client->irq);
-> +
->  	if (data->reset_gpio) {
-> -		data->in_bootloader =3D true;
-> -		msleep(MXT_RESET_TIME);
-> -		reinit_completion(&data->bl_completion);
-> +		msleep(MXT_RESET_GPIO_TIME);
->  		gpiod_set_value(data->reset_gpio, 1);
-> -		error =3D mxt_wait_for_completion(data, &data->bl_completion,
-> -						MXT_RESET_TIMEOUT);
-> -		if (error)
-> -			return error;
-> -		data->in_bootloader =3D false;
-> +		msleep(MXT_RESET_INVALID_CHG);
->  	}
-> =20
-> -	disable_irq(client->irq);
-> -
->  	error =3D mxt_initialize(data);
->  	if (error)
->  		return error;
-> --=20
-> 2.17.0
->=20
-
---gmussu533gbjwhdm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlrq00gACgkQ2O7X88g7
-+prp6A//V7922DFL4pcW34WU1oxe4cnnl1vPdWXyW5rh0nOHbrzqwIpiSzRnCtGi
-xkp296Rt5Kx80bC+LLhiNwwvtTTvuzwv5ChlRXV05TRscHlN3zRHLQmV9LzePzrw
-Zh6+MLmgzmb6eIdOPYrSte/2bgkJe2XJRpC1V3E4p45OLhXMhVnkwCqfPWS0Id4H
-Vx/8xLUwSSM4v0HTX/rdQBWKrzwNMxUW1dmS4JYLGtKyqsInPLwT/sB0BtD1StHY
-6kR86WXDZQGr65ikGSAvJshur/tqcBya3LXa7FBzbhvAHvdR0mYZiHOZ4fGrEI5D
-TH8Roeni01i9PCuGkhseLGZ/BSQZVAWBdpG9jGeB1a2DV9PftkJSMudaV4N8B78Q
-qKqVra2OjN3yHpVRt+tMs9RL0DStPxBNE2Bu4I0Ur0nBOsIymMMPrGlnXsgRcjbu
-ZbLiAYE07T4xNp7skexFEmA0A+g1qYbRh2ONs538EKKBFPyJATuj+4G8178RvzKv
-OiG6UFJsqEPz9+4q+Dq8OQNcEaOeTSTrNdOwFq53gXZST8O37eeQtsQbyciZjpWL
-jOAH9q16M/2wCdaM23Kw6HJipRFEgRY3Z7c+sw0gdh7ENJhE/gJWEZACQGOEfHhm
-347Ns6tdyPXUKNM2U9AWlG7HD7e9P/fLQuIt16MTD6rUdxuezc8=
-=twGv
------END PGP SIGNATURE-----
-
---gmussu533gbjwhdm--
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 09194721aed2d..4ac49c6c00060 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -2999,142 +2999,6 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_ACPI
+-
+-struct mxt_acpi_platform_data {
+-	const char *hid;
+-	const struct property_entry *props;
+-};
+-
+-static unsigned int samus_touchpad_buttons[] = {
+-	KEY_RESERVED,
+-	KEY_RESERVED,
+-	KEY_RESERVED,
+-	BTN_LEFT
+-};
+-
+-static const struct property_entry samus_touchpad_props[] = {
+-	PROPERTY_ENTRY_U32_ARRAY("linux,gpio-keymap", samus_touchpad_buttons),
+-	{ }
+-};
+-
+-static struct mxt_acpi_platform_data samus_platform_data[] = {
+-	{
+-		/* Touchpad */
+-		.hid	= "ATML0000",
+-		.props	= samus_touchpad_props,
+-	},
+-	{
+-		/* Touchscreen */
+-		.hid	= "ATML0001",
+-	},
+-	{ }
+-};
+-
+-static unsigned int chromebook_tp_buttons[] = {
+-	KEY_RESERVED,
+-	KEY_RESERVED,
+-	KEY_RESERVED,
+-	KEY_RESERVED,
+-	KEY_RESERVED,
+-	BTN_LEFT
+-};
+-
+-static const struct property_entry chromebook_tp_props[] = {
+-	PROPERTY_ENTRY_U32_ARRAY("linux,gpio-keymap", chromebook_tp_buttons),
+-	{ }
+-};
+-
+-static struct mxt_acpi_platform_data chromebook_platform_data[] = {
+-	{
+-		/* Touchpad */
+-		.hid	= "ATML0000",
+-		.props	= chromebook_tp_props,
+-	},
+-	{
+-		/* Touchscreen */
+-		.hid	= "ATML0001",
+-	},
+-	{ }
+-};
+-
+-static const struct dmi_system_id mxt_dmi_table[] = {
+-	{
+-		/* 2015 Google Pixel */
+-		.ident = "Chromebook Pixel 2",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Samus"),
+-		},
+-		.driver_data = samus_platform_data,
+-	},
+-	{
+-		/* Samsung Chromebook Pro */
+-		.ident = "Samsung Chromebook Pro",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Caroline"),
+-		},
+-		.driver_data = samus_platform_data,
+-	},
+-	{
+-		/* Other Google Chromebooks */
+-		.ident = "Chromebook",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
+-		},
+-		.driver_data = chromebook_platform_data,
+-	},
+-	{ }
+-};
+-
+-static int mxt_prepare_acpi_properties(struct i2c_client *client)
+-{
+-	struct acpi_device *adev;
+-	const struct dmi_system_id *system_id;
+-	const struct mxt_acpi_platform_data *acpi_pdata;
+-
+-	adev = ACPI_COMPANION(&client->dev);
+-	if (!adev)
+-		return -ENOENT;
+-
+-	system_id = dmi_first_match(mxt_dmi_table);
+-	if (!system_id)
+-		return -ENOENT;
+-
+-	acpi_pdata = system_id->driver_data;
+-	if (!acpi_pdata)
+-		return -ENOENT;
+-
+-	while (acpi_pdata->hid) {
+-		if (!strcmp(acpi_device_hid(adev), acpi_pdata->hid)) {
+-			/*
+-			 * Remove previously installed properties if we
+-			 * are probing this device not for the very first
+-			 * time.
+-			 */
+-			device_remove_properties(&client->dev);
+-
+-			/*
+-			 * Now install the platform-specific properties
+-			 * that are missing from ACPI.
+-			 */
+-			device_add_properties(&client->dev, acpi_pdata->props);
+-			break;
+-		}
+-
+-		acpi_pdata++;
+-	}
+-
+-	return 0;
+-}
+-#else
+-static int mxt_prepare_acpi_properties(struct i2c_client *client)
+-{
+-	return -ENOENT;
+-}
+-#endif
+-
+ static const struct dmi_system_id chromebook_T9_suspend_dmi[] = {
+ 	{
+ 		.matches = {
+@@ -3155,6 +3019,18 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct mxt_data *data;
+ 	int error;
+ 
++	/*
++	 * Ignore devices that do not have device properties attached to
++	 * them, as we need help determining whether we are dealing with
++	 * touch screen or touchpad.
++	 *
++	 * So far on x86 the only users of Atmel touch controllers are
++	 * Chromebooks, and chromeos_laptop driver will ensure that
++	 * necessary properties are provided (if firmware does not do that).
++	 */
++	if (!device_property_present(&client->dev, "compatible"))
++		return -ENXIO;
++
+ 	/*
+ 	 * Ignore ACPI devices representing bootloader mode.
+ 	 *
+@@ -3186,10 +3062,6 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	data->suspend_mode = dmi_check_system(chromebook_T9_suspend_dmi) ?
+ 		MXT_SUSPEND_T9_CTRL : MXT_SUSPEND_DEEP_SLEEP;
+ 
+-	error = mxt_prepare_acpi_properties(client);
+-	if (error && error != -ENOENT)
+-		return error;
+-
+ 	error = mxt_parse_device_properties(data);
+ 	if (error)
+ 		return error;
+-- 
+2.17.0.441.gb46fe60e1d-goog

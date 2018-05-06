@@ -1,43 +1,32 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/9] tree-wide: fix typo 'can by' to 'can be'
-Date: Sun,  6 May 2018 13:23:44 +0200
-Message-ID: <20180506112404.24872-1-wsa+renesas@sang-engineering.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
+Subject: [PATCH 5/9] input: ati_remote2: fix typo 'can by' to 'can be'
+Date: Sun,  6 May 2018 13:23:49 +0200
+Message-ID: <20180506112404.24872-6-wsa+renesas@sang-engineering.com>
+References: <20180506112404.24872-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180506112404.24872-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: trivial@kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-ntb@googlegroups.com, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, reiserfs-devel@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Ville Syrjala <syrjala@sci.fi>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-I found this kind of typo when reading the documentation for device_remove().
-So, I checked the tree for it.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/input/misc/ati_remote2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-CCing all the subsystems directly, and I'd think the leftover ones could be
-picked up by the trivial tree. Or would it be more convenient if trivial would
-pick up all? I don't mind.
-
-Based on v4.17-rc3.
-
-Wolfram Sang (9):
-  dt-bindings: i2c: fix typo 'can by' to 'can be'
-  powerpc/watchdog: fix typo 'can by' to 'can be'
-  base: core: fix typo 'can by' to 'can be'
-  hwmon: fschmd: fix typo 'can by' to 'can be'
-  input: ati_remote2: fix typo 'can by' to 'can be'
-  NTB: ntb_hw_idt: fix typo 'can by' to 'can be'
-  reiserfs: journal: fix typo 'can by' to 'can be'
-  net: flow_dissector: fix typo 'can by' to 'can be'
-  objtool: fix typo 'can by' to 'can be'
-
- Documentation/devicetree/bindings/i2c/i2c-davinci.txt | 2 +-
- arch/powerpc/kernel/watchdog.c                        | 2 +-
- drivers/base/core.c                                   | 2 +-
- drivers/hwmon/fschmd.c                                | 2 +-
- drivers/input/misc/ati_remote2.c                      | 2 +-
- drivers/ntb/hw/idt/ntb_hw_idt.c                       | 2 +-
- fs/reiserfs/journal.c                                 | 2 +-
- include/net/flow_dissector.h                          | 2 +-
- tools/objtool/Documentation/stack-validation.txt      | 2 +-
- 9 files changed, 9 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
+index ded5b84e336dae..d8fd58fdf05086 100644
+--- a/drivers/input/misc/ati_remote2.c
++++ b/drivers/input/misc/ati_remote2.c
+@@ -22,7 +22,7 @@ MODULE_LICENSE("GPL");
+ /*
+  * ATI Remote Wonder II Channel Configuration
+  *
+- * The remote control can by assigned one of sixteen "channels" in order to facilitate
++ * The remote control can be assigned one of sixteen "channels" in order to facilitate
+  * the use of multiple remote controls within range of each other.
+  * A remote's "channel" may be altered by pressing and holding the "PC" button for
+  * approximately 3 seconds, after which the button will slowly flash the count of the
 -- 
 2.11.0

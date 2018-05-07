@@ -1,74 +1,54 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 devices
-Date: Mon, 7 May 2018 22:48:51 +0200
-Message-ID: <20180507204851.6y4rplcka4inzhsl@pali>
-References: <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
- <20180506134733.zttaitnf6ej4tith@pali>
- <20180507084431.r2dipv32wt3vbx3k@pali>
- <20180507193306.GA31301@dtor-ws>
- <147aa25ad2d14bad975731a6c9cf9281@ausx13mpc124.AMER.DELL.COM>
- <20180507200733.s43zd2hfzw4f4wr2@pali>
- <6825f48ea6da41799979d83ed37adf73@ausx13mpc124.AMER.DELL.COM>
- <20180507202822.usgjneo7m35bsait@pali>
- <c4668ded2ef1432b94f8668220b1232f@ausx13mpc124.AMER.DELL.COM>
- <05cd71987d8f4a8e99cb1994218a8485@ausx13mpc124.AMER.DELL.COM>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 3/9] dt-bindings: input: touchscreen: add pressure
+ threshold touchscreen property
+Date: Mon, 7 May 2018 15:38:32 -0700
+Message-ID: <20180507223832.GB31301@dtor-ws>
+References: <1525084335-11276-1-git-send-email-eugen.hristev@microchip.com>
+ <1525084335-11276-4-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="rwptzylf2q3wlqyj"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <05cd71987d8f4a8e99cb1994218a8485@ausx13mpc124.AMER.DELL.COM>
+In-Reply-To: <1525084335-11276-4-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mario.Limonciello@dell.com
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, robh@kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Mon, Apr 30, 2018 at 01:32:09PM +0300, Eugen Hristev wrote:
+> Add a common touchscreen optional property that will specify
+> the minimum pressure applied to the screen that is needed
+> such that the driver will report the touch event.
+> 
+> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> ---
+>  Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> index 537643e..c84047a 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> @@ -7,6 +7,9 @@ Optional properties for Touchscreens:
+>  				  (in pixels)
+>   - touchscreen-max-pressure	: maximum reported pressure (arbitrary range
+>  				  dependent on the controller)
+> + - touchscreen-threshold-pressure: minimum pressure on the touchscreen to be
+> +				  achieved in order for the touchscreen
+> +				  driver to report a touch event.
 
---rwptzylf2q3wlqyj
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Why do we move from the pattern and call it trheshold and not
+touchscreen-min-pressure?
 
-On Monday 07 May 2018 20:32:16 Mario.Limonciello@dell.com wrote:
-> > The items that show up in this structure are supposed to be dynamic
-> > values but static addresses.  I was asking to check before bootup in
-> > case this was a problem of Linux caching SMBIOS table information once.
-> > The values I was referring to might be for older generation dock though,
-> > I'll see if I can find anything else you can check.
->=20
-> Can you check if structure type 08 or structure type 09 change based on
-> dock being plugged in?  Again you might have to do it across a boot
-> with/without dock in case of Linux kernel caches values.
+>   - touchscreen-fuzz-x		: horizontal noise value of the absolute input
+>  				  device (in pixels)
+>   - touchscreen-fuzz-y		: vertical noise value of the absolute input
+> -- 
+> 2.7.4
+> 
 
-The only difference is:
+Thanks.
 
---- dmidecode_laptop_docked	2018-05-07 22:34:02.650325758 +0200
-+++ dmidecode_laptop_undocked	2018-05-07 22:39:27.580306838 +0200
-@@ -913,7 +913,7 @@ System Power Supply
- 	Asset Tag: To Be Filled By O.E.M.
- 	Model Part Number: To Be Filled By O.E.M.
- 	Revision: To Be Filled By O.E.M.
--	Max Power Capacity: 90 W
-+	Max Power Capacity: Unknown
- 	Status: Present, OK
- 	Type: Switching
- 	Input Voltage Range Switching: Auto-switch
-
-And this is in block Handle 0x003E, DMI type 39, 22 bytes - System Power
-Supply. So looks like that DMI data are same.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---rwptzylf2q3wlqyj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWvC7qgAKCRCL8Mk9A+RD
-UkgWAKCUg5BxwnxCFwzsCdnXGSE3hTCGCQCfVgQk+5BsztLyqAf0ytTKBMsh+5Q=
-=Uj7j
------END PGP SIGNATURE-----
-
---rwptzylf2q3wlqyj--
+-- 
+Dmitry

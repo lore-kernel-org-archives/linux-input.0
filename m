@@ -1,209 +1,71 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 devices
-Date: Mon, 7 May 2018 10:44:31 +0200
-Message-ID: <20180507084431.r2dipv32wt3vbx3k@pali>
-References: <20180124104121.7g3zfay5smc5v2tc@pali>
- <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
- <20180506134733.zttaitnf6ej4tith@pali>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH v4 5/9] iio: adc: at91-sama5d2_adc: add support for
+ position and pressure channels
+Date: Mon, 7 May 2018 12:28:10 +0200
+Message-ID: <20180507102810.GO10960@piout.net>
+References: <1525084335-11276-1-git-send-email-eugen.hristev@microchip.com>
+ <1525084335-11276-6-git-send-email-eugen.hristev@microchip.com>
+ <20180506182953.6adad5b5@archlinux>
+ <20180506175914.GL10960@piout.net>
+ <eaeced9e-390f-0eea-0466-66c789bacdd6@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="asjchmkbtcxqj7g7"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180506134733.zttaitnf6ej4tith@pali>
+In-Reply-To: <eaeced9e-390f-0eea-0466-66c789bacdd6@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mario.Limonciello@dell.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, ludovic.desroches@microchip.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On 07/05/2018 09:18:39+0300, Eugen Hristev wrote:
+> On 06.05.2018 20:59, Alexandre Belloni wrote:
+> > Hi,
+> > 
+> > On 06/05/2018 18:29:53+0100, Jonathan Cameron wrote:
+> > > On Mon, 30 Apr 2018 13:32:11 +0300
+> > > Eugen Hristev <eugen.hristev@microchip.com> wrote:
+> > > 
+> > > > This implements the support for position and pressure for the included
+> > > > touchscreen support in the SAMA5D2 SOC ADC block.
+> > > > Two position channels are added and one for pressure.
+> > > > They can be read in raw format, or through a buffer.
+> > > > A normal use case is for a consumer driver to register a callback buffer
+> > > > for these channels.
+> > > > When the touchscreen channels are in the active scan mask,
+> > > > the driver will start the touchscreen sampling and push the data to the
+> > > > buffer.
+> > > > 
+> > > > Some parts of this patch are based on initial original work by
+> > > > Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
+> > > > 
+> > > > Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+> > > Looks good to me now.
+> > > 
+> > > I'm assuming that once Dmitry and others are happy, I'll take the
+> > > series through the IIO tree. Will reply to the cover letter if the
+> > > rest of the patches look good to me to let everyone know that without
+> > > having to catch this comment down in here!
+> > > 
+> > 
+> > I'm planning to take both DT patches through the at91 tree once you take
+> > the DT bindings patches.
+> 
+> Please take into consideration that those DT patches do not build
+> stand-alone, they depend on
+> [PATCH v4 7/9] dt-bindings: iio: adc: at91-sama5d2_adc: add channel specific
+> consumer info
+> 
+> (the DT patches add an include statement of a file which is created in this
+> patch).
+> 
 
---asjchmkbtcxqj7g7
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+So the proper way is to actually have the values in the dt instead of
+the define and then patch it on the next version of the kernel.
 
-On Sunday 06 May 2018 15:47:33 Pali Roh=C3=A1r wrote:
-> On Thursday 01 February 2018 11:29:45 Dmitry Torokhov wrote:
-> > Hi Pali,
-> >=20
-> > On Wed, Jan 24, 2018 at 11:41:21AM +0100, Pali Roh=C3=A1r wrote:
-> > > Hi Dmitry!
-> > >=20
-> > > I'm observing a problem with internal touchpad (handled by psmouse.ko)
-> > > on Dell laptops connected to Dell E docking station. When I connect
-> > > external PS/2 keyboard to docking station then internal laptop touchp=
-ad
-> > > switch from multitouch absolute mode to relative bare PS/2 mode.
-> > >=20
-> > > And because ALPS driver in psmouse.ko is capable to process interleav=
-ed
-> > > bare 3-byte PS/2 packets with 6-byte ALPS packets (which handles
-> > > trackstick data on some ALPS models), ALPS driver does not show any
-> > > message about this "downgrade" from multitouch to bare mode. And
-> > > continue working in bare mode.
-> > >=20
-> > > When I rmmod psmouse and modprobe it again, then touchpad switch back=
- to
-> > > multitouch mode.
-> > >=20
-> > > Mario told me that Dell Embedded Controller, which handle internal
-> > > keyboard, internal touchpad and external PS/2 keyboard, automatically
-> > > send RESET command to *all* those devices when external PS/2 keyboard=
- is
-> > > connected. Therefore this is reason why touchpad downgrade to to bare
-> > > mode. And according to Mario, host system should issue vendor specific
-> > > PS/2 commands to re-initialize all PS/2 devices when this situation
-> > > happen. Mario also told me that Windows is doing this action.
-> >=20
-> > Yeah, I remember fun with Inspiron 8100 - when you dock it it woudl
-> > silently switch Synaptics touchpad into standard mode and it would not
-> > come back as Synaptics until you disconnect. And there was no
-> > notification to the kernel as far as I could tell.
-> >=20
-> > It could be that we need to monitor dock events and then kick reconnect
-> > of serio port, either from userspace via udev (I think that would be
-> > preferred), or in kernel.
-> >=20
-> > >=20
-> > > Every time when I connect external PS/2 keyboard to dock I see this
-> > > message in dmesg:
-> > >=20
-> > > Spurious ACK... Some program might be trying to access hardware direc=
-tly.
-> > >=20
-> > > I see it also every time when I dock laptop into docking station (to
-> > > which is keyboard already connected). And it happens also when I conn=
-ect
-> > > external PS/2 mouse to dock.
-> > >=20
-> > > Dmitry, how to handle this situation to re-initialize psmouse.ko when
-> > > external PS/2 device is connected to Dell E docking station? According
-> > > to Mario, this is how Dell Embedded Controller is designed and suppose
-> > > how OS should work with it.
-> > >=20
-> > > Manually rmmoding and modprobing for every docking/undocking laptop is
-> > > not ideal solution.
-> > >=20
-> > > Could it be possible to use that Spurious ATKBD_RET_ACK from atkbd.c =
-be
-> > > handled on Dell systems (probably via DMI) as an event to reset and
-> > > reinitialize all PS/2 devices?
-> >=20
-> > So we need to figure out what exactly we are getting from the docking
-> > station in this case. We do try to handle the new device 0xaa 0x00
-> > announcements:
-> >=20
-> > 	/* Check if this is a new device announcement (0xAA 0x00) */
-> > 	if (unlikely(psmouse->packet[0] =3D=3D PSMOUSE_RET_BAT && psmouse->pkt=
-cnt <=3D 2)) {
-> > 		if (psmouse->pktcnt =3D=3D 1) {
-> > 			psmouse->last =3D jiffies;
-> > 			goto out;
-> > 		}
-> >=20
-> > 		if (psmouse->packet[1] =3D=3D PSMOUSE_RET_ID ||
-> > 		    (psmouse->protocol->type =3D=3D PSMOUSE_HGPK &&
-> > 		     psmouse->packet[1] =3D=3D PSMOUSE_RET_BAT)) {
-> > 			__psmouse_set_state(psmouse, PSMOUSE_IGNORE);
-> > 			serio_reconnect(serio);
-> > 			goto out;
-> > 		}
-> >=20
-> > ...
-> >=20
-> > I am not sure where the "spurious ACK comes from". Can you enable i8042
-> > debug before trying to dock and capture the data stream from the mouse?
-> >=20
-> > Thanks.
-> >=20
->=20
-> Hi Dmitry!
->=20
-> I enabled unmask_kbd_data and debug and here is output from dmesg.
->=20
-> echo Y >=C2=A0/sys/module/i8042/parameters/debug
-> echo Y > /sys/module/i8042/parameters/unmask_kbd_data
->=20
-> PS/2 keyboard is already connected in dock and laptop was just docked:
->=20
-> [25461.552314] i8042: [6365474] fa <- i8042 (interrupt, 0, 1)
-> [25461.552319] atkbd serio0: Spurious ACK on isa0060/serio0. Some program=
- might be trying to access hardware directly.
-> [25462.707296] i8042: [6365763] ed -> i8042 (kbd-data)
-> [25462.851289] i8042: [6365799] fa <- i8042 (interrupt, 0, 1)
-> [25462.851303] i8042: [6365799] 00 -> i8042 (kbd-data)
-> [25462.858437] i8042: [6365801] fa <- i8042 (interrupt, 0, 1)
-> [25462.869512] i8042: [6365804] fa <- i8042 (interrupt, 0, 1)
-> [25462.869517] atkbd serio0: Spurious ACK on isa0060/serio0. Some program=
- might be trying to access hardware directly.
-> [25463.670515] i8042: [6366004] ed -> i8042 (kbd-data)
-> [25463.670647] i8042: [6366004] fa <- i8042 (interrupt, 0, 1)
-> [25463.670655] i8042: [6366004] 02 -> i8042 (kbd-data)
-> [25463.676769] i8042: [6366005] fa <- i8042 (interrupt, 0, 1)
->=20
->=20
-> Laptop is docked and PS/2 keyboard was just connected:
->=20
-> [26571.014368] i8042: [6642848] fa <- i8042 (interrupt, 0, 1)
-> [26571.014380] atkbd serio0: Spurious ACK on isa0060/serio0. Some program=
- might be trying to access hardware directly.
->=20
->=20
-> In both cases there is no events from touchpad, only from keyboard. So
-> Dell EC silently reset PS/2 touchpad when PS/2 keyboard is attached.
->=20
-> So I think we should capture 0xFA and on Dell machines we should
-> reinitialize PS/2 drivers. As there is really nothing more then 0xFA.
+Or we take the dts patches on the next version.
 
-Info about PS/2 mouse:
-
-In case I have laptop already docked and just connect PS/2 mouse there
-is absolutely no i8042 event.
-
-To check that mouse is worked I clicked button and then in dmesg
-appeared:
-
-[ 3945.481403] i8042: [986322] 09 <- i8042 (interrupt, 1, 12)
-[ 3945.482486] i8042: [986323] 00 <- i8042 (interrupt, 1, 12)
-[ 3945.483667] i8042: [986323] 00 <- i8042 (interrupt, 1, 12)
-[ 3945.483917] input: PS/2 ALPS Mouse as /devices/platform/i8042/serio1/inp=
-ut/input36
-[ 3945.594926] i8042: [986351] 08 <- i8042 (interrupt, 1, 12)
-[ 3945.596062] i8042: [986351] 00 <- i8042 (interrupt, 1, 12)
-[ 3945.597203] i8042: [986351] 00 <- i8042 (interrupt, 1, 12)
-
-So we have no way to detect when external PS/2 mouse was connected to
-dock. But ALPS driver can deal with it and process these mouse events.
-
-And when I have already connected PS/2 mouse to the dock and I'm just
-putting laptop into dock, then I get following events:
-
-[ 4336.481381] i8042: [1084079] fa <- i8042 (interrupt, 0, 1)
-[ 4336.481388] atkbd serio0: Spurious ACK on isa0060/serio0. Some program m=
-ight be trying to access hardware directly.
-[ 4337.653275] i8042: [1084372] ed -> i8042 (kbd-data)
-[ 4337.949198] i8042: [1084446] fa <- i8042 (interrupt, 0, 1)
-[ 4337.949202] atkbd serio0: Spurious ACK on isa0060/serio0. Some program m=
-ight be trying to access hardware directly.
-[ 4338.623167] i8042: [1084615] ed -> i8042 (kbd-data)
-
-So again, no event from mouse, just from keyboard.
-
-Note that in these tests I have disconnected my PS/2 keyboard from
-dock.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---asjchmkbtcxqj7g7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWvAR7AAKCRCL8Mk9A+RD
-UiG0AJ93cVO2sfNuf4i7YemVhGAnZA4a7ACfeAdvJjQYi/frKm/NZQ0KzKq7tp8=
-=024B
------END PGP SIGNATURE-----
-
---asjchmkbtcxqj7g7--
+-- 
+Alexandre Belloni, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com

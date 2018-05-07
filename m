@@ -1,107 +1,80 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 devices
-Date: Mon, 7 May 2018 22:28:22 +0200
-Message-ID: <20180507202822.usgjneo7m35bsait@pali>
+From: <Mario.Limonciello@dell.com>
+Subject: RE: Dell docking station & Dell Embedded Controller & PS/2 devices
+Date: Mon, 7 May 2018 20:30:28 +0000
+Message-ID: <c4668ded2ef1432b94f8668220b1232f@ausx13mpc124.AMER.DELL.COM>
 References: <20180124104121.7g3zfay5smc5v2tc@pali>
  <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
- <20180506134733.zttaitnf6ej4tith@pali>
- <20180507084431.r2dipv32wt3vbx3k@pali>
+ <20180506134733.zttaitnf6ej4tith@pali> <20180507084431.r2dipv32wt3vbx3k@pali>
  <20180507193306.GA31301@dtor-ws>
  <147aa25ad2d14bad975731a6c9cf9281@ausx13mpc124.AMER.DELL.COM>
  <20180507200733.s43zd2hfzw4f4wr2@pali>
  <6825f48ea6da41799979d83ed37adf73@ausx13mpc124.AMER.DELL.COM>
+ <20180507202822.usgjneo7m35bsait@pali>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="nuccfinepqjjvuie"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6825f48ea6da41799979d83ed37adf73@ausx13mpc124.AMER.DELL.COM>
+In-Reply-To: <20180507202822.usgjneo7m35bsait@pali>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mario.Limonciello@dell.com
+To: pali.rohar@gmail.com
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
---nuccfinepqjjvuie
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Monday 07 May 2018 20:18:30 Mario.Limonciello@dell.com wrote:
-> > > > So I guess you could write a platform driver that would install i80=
-42
-> > > > filter on Dell laptops/portables, monitor keyboard data stream and =
-kick
-> > > > of rescans on serio ports. The problem is filter gets "serio" so yo=
-u do
-> > > > not really know whether ACK is spurious or not. And I would really
-> > > > prefer keeping this crap out of atkbd proper... And all of this is =
-racy
-> > > > as hell. What happens if we get keyboard reconnected as we reinitia=
-lize
-> > > > it?
-> > >
-> > > If it's done as a platform driver I would suspect it's possible to te=
-ll whether
-> > > a dock is connected to at least give you some heuristic here to have =
-a better
-> > > guess whether it's spurious.
-> >=20
-> > Apparently checking for docking station is not enough. There are also
-> > Dell Legacy Extenders (or how it is called) which exports internal PS/2,
-> > Parallel and Serial Ports. It is also connecting to bottom of laptop.
-> > But currently I do not have them for testing.
-> >=20
-> > > Pali on your system that supports this dock, check and see how many
-> > > System Enclosure SMBIOS tables (structure type 03) are present.
-> >=20
-> > Do you mean DMI type 3 structure? Here is something from dmidecode:
-> >=20
-> > Handle 0x0003, DMI type 3, 22 bytes
-> > Chassis Information
-> >         Manufacturer: Dell Inc.
-> >         Type: Laptop
-> >         Lock: Not Present
-> >         Version: Not Specified
-> >         Serial Number: --REMOVED--
-> >         Asset Tag: Not Specified
-> >         Boot-up State: Safe
-> >         Power Supply State: Safe
-> >         Thermal State: Safe
-> >         Security Status: None
-> >         OEM Information: 0x00000000
-> >         Height: Unspecified
-> >         Number Of Power Cords: 1
-> >         Contained Elements: 0
-> >         SKU Number: To be filled by O.E.M.
-> >=20
-> > But probably you mean something different?
->=20
-> Plug in your dock before you boot up and see if you have a second structu=
-re like
-> that type produced.
-
-I already started docked laptop via dock power button. And in dmidecode
-output is only one DMI type 3 block.
-
-> If not, then I guess this isn't a reliable way to find the dock
-> on that system and I'll have to see if there is another.
-
-Seems not. Also detection of dock should work also when you connect
-laptop at system runtime, not only when connected prior to booting.
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nuccfinepqjjvuie
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWvC25AAKCRCL8Mk9A+RD
-UvuUAJ9lDC5yCUZrFXWXvOwFmW9h0q2UFgCgnJMVQVz2xux8mGavOauF9Q8Vlcs=
-=NAGw
------END PGP SIGNATURE-----
-
---nuccfinepqjjvuie--
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBQYWxpIFJvaMOhciBbbWFpbHRv
+OnBhbGkucm9oYXJAZ21haWwuY29tXQ0KPiBTZW50OiBNb25kYXksIE1heSA3LCAyMDE4IDM6Mjgg
+UE0NCj4gVG86IExpbW9uY2llbGxvLCBNYXJpbw0KPiBDYzogZG1pdHJ5LnRvcm9raG92QGdtYWls
+LmNvbTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4ga2VybmVsQHZnZXIu
+a2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTogRGVsbCBkb2NraW5nIHN0YXRpb24gJiBEZWxsIEVt
+YmVkZGVkIENvbnRyb2xsZXIgJiBQUy8yIGRldmljZXMNCj4gDQo+IE9uIE1vbmRheSAwNyBNYXkg
+MjAxOCAyMDoxODozMCBNYXJpby5MaW1vbmNpZWxsb0BkZWxsLmNvbSB3cm90ZToNCj4gPiA+ID4g
+PiBTbyBJIGd1ZXNzIHlvdSBjb3VsZCB3cml0ZSBhIHBsYXRmb3JtIGRyaXZlciB0aGF0IHdvdWxk
+IGluc3RhbGwgaTgwNDINCj4gPiA+ID4gPiBmaWx0ZXIgb24gRGVsbCBsYXB0b3BzL3BvcnRhYmxl
+cywgbW9uaXRvciBrZXlib2FyZCBkYXRhIHN0cmVhbSBhbmQga2ljaw0KPiA+ID4gPiA+IG9mIHJl
+c2NhbnMgb24gc2VyaW8gcG9ydHMuIFRoZSBwcm9ibGVtIGlzIGZpbHRlciBnZXRzICJzZXJpbyIg
+c28geW91IGRvDQo+ID4gPiA+ID4gbm90IHJlYWxseSBrbm93IHdoZXRoZXIgQUNLIGlzIHNwdXJp
+b3VzIG9yIG5vdC4gQW5kIEkgd291bGQgcmVhbGx5DQo+ID4gPiA+ID4gcHJlZmVyIGtlZXBpbmcg
+dGhpcyBjcmFwIG91dCBvZiBhdGtiZCBwcm9wZXIuLi4gQW5kIGFsbCBvZiB0aGlzIGlzIHJhY3kN
+Cj4gPiA+ID4gPiBhcyBoZWxsLiBXaGF0IGhhcHBlbnMgaWYgd2UgZ2V0IGtleWJvYXJkIHJlY29u
+bmVjdGVkIGFzIHdlIHJlaW5pdGlhbGl6ZQ0KPiA+ID4gPiA+IGl0Pw0KPiA+ID4gPg0KPiA+ID4g
+PiBJZiBpdCdzIGRvbmUgYXMgYSBwbGF0Zm9ybSBkcml2ZXIgSSB3b3VsZCBzdXNwZWN0IGl0J3Mg
+cG9zc2libGUgdG8gdGVsbCB3aGV0aGVyDQo+ID4gPiA+IGEgZG9jayBpcyBjb25uZWN0ZWQgdG8g
+YXQgbGVhc3QgZ2l2ZSB5b3Ugc29tZSBoZXVyaXN0aWMgaGVyZSB0byBoYXZlIGEgYmV0dGVyDQo+
+ID4gPiA+IGd1ZXNzIHdoZXRoZXIgaXQncyBzcHVyaW91cy4NCj4gPiA+DQo+ID4gPiBBcHBhcmVu
+dGx5IGNoZWNraW5nIGZvciBkb2NraW5nIHN0YXRpb24gaXMgbm90IGVub3VnaC4gVGhlcmUgYXJl
+IGFsc28NCj4gPiA+IERlbGwgTGVnYWN5IEV4dGVuZGVycyAob3IgaG93IGl0IGlzIGNhbGxlZCkg
+d2hpY2ggZXhwb3J0cyBpbnRlcm5hbCBQUy8yLA0KPiA+ID4gUGFyYWxsZWwgYW5kIFNlcmlhbCBQ
+b3J0cy4gSXQgaXMgYWxzbyBjb25uZWN0aW5nIHRvIGJvdHRvbSBvZiBsYXB0b3AuDQo+ID4gPiBC
+dXQgY3VycmVudGx5IEkgZG8gbm90IGhhdmUgdGhlbSBmb3IgdGVzdGluZy4NCj4gPiA+DQo+ID4g
+PiA+IFBhbGkgb24geW91ciBzeXN0ZW0gdGhhdCBzdXBwb3J0cyB0aGlzIGRvY2ssIGNoZWNrIGFu
+ZCBzZWUgaG93IG1hbnkNCj4gPiA+ID4gU3lzdGVtIEVuY2xvc3VyZSBTTUJJT1MgdGFibGVzIChz
+dHJ1Y3R1cmUgdHlwZSAwMykgYXJlIHByZXNlbnQuDQo+ID4gPg0KPiA+ID4gRG8geW91IG1lYW4g
+RE1JIHR5cGUgMyBzdHJ1Y3R1cmU/IEhlcmUgaXMgc29tZXRoaW5nIGZyb20gZG1pZGVjb2RlOg0K
+PiA+ID4NCj4gPiA+IEhhbmRsZSAweDAwMDMsIERNSSB0eXBlIDMsIDIyIGJ5dGVzDQo+ID4gPiBD
+aGFzc2lzIEluZm9ybWF0aW9uDQo+ID4gPiAgICAgICAgIE1hbnVmYWN0dXJlcjogRGVsbCBJbmMu
+DQo+ID4gPiAgICAgICAgIFR5cGU6IExhcHRvcA0KPiA+ID4gICAgICAgICBMb2NrOiBOb3QgUHJl
+c2VudA0KPiA+ID4gICAgICAgICBWZXJzaW9uOiBOb3QgU3BlY2lmaWVkDQo+ID4gPiAgICAgICAg
+IFNlcmlhbCBOdW1iZXI6IC0tUkVNT1ZFRC0tDQo+ID4gPiAgICAgICAgIEFzc2V0IFRhZzogTm90
+IFNwZWNpZmllZA0KPiA+ID4gICAgICAgICBCb290LXVwIFN0YXRlOiBTYWZlDQo+ID4gPiAgICAg
+ICAgIFBvd2VyIFN1cHBseSBTdGF0ZTogU2FmZQ0KPiA+ID4gICAgICAgICBUaGVybWFsIFN0YXRl
+OiBTYWZlDQo+ID4gPiAgICAgICAgIFNlY3VyaXR5IFN0YXR1czogTm9uZQ0KPiA+ID4gICAgICAg
+ICBPRU0gSW5mb3JtYXRpb246IDB4MDAwMDAwMDANCj4gPiA+ICAgICAgICAgSGVpZ2h0OiBVbnNw
+ZWNpZmllZA0KPiA+ID4gICAgICAgICBOdW1iZXIgT2YgUG93ZXIgQ29yZHM6IDENCj4gPiA+ICAg
+ICAgICAgQ29udGFpbmVkIEVsZW1lbnRzOiAwDQo+ID4gPiAgICAgICAgIFNLVSBOdW1iZXI6IFRv
+IGJlIGZpbGxlZCBieSBPLkUuTS4NCj4gPiA+DQo+ID4gPiBCdXQgcHJvYmFibHkgeW91IG1lYW4g
+c29tZXRoaW5nIGRpZmZlcmVudD8NCj4gPg0KPiA+IFBsdWcgaW4geW91ciBkb2NrIGJlZm9yZSB5
+b3UgYm9vdCB1cCBhbmQgc2VlIGlmIHlvdSBoYXZlIGEgc2Vjb25kIHN0cnVjdHVyZSBsaWtlDQo+
+ID4gdGhhdCB0eXBlIHByb2R1Y2VkLg0KPiANCj4gSSBhbHJlYWR5IHN0YXJ0ZWQgZG9ja2VkIGxh
+cHRvcCB2aWEgZG9jayBwb3dlciBidXR0b24uIEFuZCBpbiBkbWlkZWNvZGUNCj4gb3V0cHV0IGlz
+IG9ubHkgb25lIERNSSB0eXBlIDMgYmxvY2suDQo+IA0KPiA+IElmIG5vdCwgdGhlbiBJIGd1ZXNz
+IHRoaXMgaXNuJ3QgYSByZWxpYWJsZSB3YXkgdG8gZmluZCB0aGUgZG9jaw0KPiA+IG9uIHRoYXQg
+c3lzdGVtIGFuZCBJJ2xsIGhhdmUgdG8gc2VlIGlmIHRoZXJlIGlzIGFub3RoZXIuDQo+IA0KPiBT
+ZWVtcyBub3QuIEFsc28gZGV0ZWN0aW9uIG9mIGRvY2sgc2hvdWxkIHdvcmsgYWxzbyB3aGVuIHlv
+dSBjb25uZWN0DQo+IGxhcHRvcCBhdCBzeXN0ZW0gcnVudGltZSwgbm90IG9ubHkgd2hlbiBjb25u
+ZWN0ZWQgcHJpb3IgdG8gYm9vdGluZy4NCj4gDQoNClRoZSBpdGVtcyB0aGF0IHNob3cgdXAgaW4g
+dGhpcyBzdHJ1Y3R1cmUgYXJlIHN1cHBvc2VkIHRvIGJlIGR5bmFtaWMNCnZhbHVlcyBidXQgc3Rh
+dGljIGFkZHJlc3Nlcy4gIEkgd2FzIGFza2luZyB0byBjaGVjayBiZWZvcmUgYm9vdHVwIGluIA0K
+Y2FzZSB0aGlzIHdhcyBhIHByb2JsZW0gb2YgTGludXggY2FjaGluZyBTTUJJT1MgdGFibGUgaW5m
+b3JtYXRpb24gb25jZS4NClRoZSB2YWx1ZXMgSSB3YXMgcmVmZXJyaW5nIHRvIG1pZ2h0IGJlIGZv
+ciBvbGRlciBnZW5lcmF0aW9uIGRvY2sgdGhvdWdoLA0KSSdsbCBzZWUgaWYgSSBjYW4gZmluZCBh
+bnl0aGluZyBlbHNlIHlvdSBjYW4gY2hlY2suDQo=

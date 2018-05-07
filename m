@@ -1,92 +1,74 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: Dell docking station & Dell Embedded Controller & PS/2 devices
-Date: Mon, 7 May 2018 20:32:16 +0000
-Message-ID: <05cd71987d8f4a8e99cb1994218a8485@ausx13mpc124.AMER.DELL.COM>
-References: <20180124104121.7g3zfay5smc5v2tc@pali>
- <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
- <20180506134733.zttaitnf6ej4tith@pali> <20180507084431.r2dipv32wt3vbx3k@pali>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: Dell docking station & Dell Embedded Controller & PS/2 devices
+Date: Mon, 7 May 2018 22:48:51 +0200
+Message-ID: <20180507204851.6y4rplcka4inzhsl@pali>
+References: <20180201192945.wrsqjq7f5ejhqj6m@dtor-ws>
+ <20180506134733.zttaitnf6ej4tith@pali>
+ <20180507084431.r2dipv32wt3vbx3k@pali>
  <20180507193306.GA31301@dtor-ws>
  <147aa25ad2d14bad975731a6c9cf9281@ausx13mpc124.AMER.DELL.COM>
  <20180507200733.s43zd2hfzw4f4wr2@pali>
  <6825f48ea6da41799979d83ed37adf73@ausx13mpc124.AMER.DELL.COM>
  <20180507202822.usgjneo7m35bsait@pali>
  <c4668ded2ef1432b94f8668220b1232f@ausx13mpc124.AMER.DELL.COM>
+ <05cd71987d8f4a8e99cb1994218a8485@ausx13mpc124.AMER.DELL.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="rwptzylf2q3wlqyj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c4668ded2ef1432b94f8668220b1232f@ausx13mpc124.AMER.DELL.COM>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <05cd71987d8f4a8e99cb1994218a8485@ausx13mpc124.AMER.DELL.COM>
 Sender: linux-kernel-owner@vger.kernel.org
-To: pali.rohar@gmail.com
+To: Mario.Limonciello@dell.com
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBMaW1vbmNpZWxsbywgTWFyaW8N
-Cj4gU2VudDogTW9uZGF5LCBNYXkgNywgMjAxOCAzOjMwIFBNDQo+IFRvOiAnUGFsaSBSb2jDoXIn
-DQo+IENjOiBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5l
-bC5vcmc7IGxpbnV4LQ0KPiBrZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJFOiBE
-ZWxsIGRvY2tpbmcgc3RhdGlvbiAmIERlbGwgRW1iZWRkZWQgQ29udHJvbGxlciAmIFBTLzIgZGV2
-aWNlcw0KPiANCj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+IEZyb206IFBhbGkg
-Um9ow6FyIFttYWlsdG86cGFsaS5yb2hhckBnbWFpbC5jb21dDQo+ID4gU2VudDogTW9uZGF5LCBN
-YXkgNywgMjAxOCAzOjI4IFBNDQo+ID4gVG86IExpbW9uY2llbGxvLCBNYXJpbw0KPiA+IENjOiBk
-bWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxp
-bnV4LQ0KPiA+IGtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCj4gPiBTdWJqZWN0OiBSZTogRGVsbCBk
-b2NraW5nIHN0YXRpb24gJiBEZWxsIEVtYmVkZGVkIENvbnRyb2xsZXIgJiBQUy8yIGRldmljZXMN
-Cj4gPg0KPiA+IE9uIE1vbmRheSAwNyBNYXkgMjAxOCAyMDoxODozMCBNYXJpby5MaW1vbmNpZWxs
-b0BkZWxsLmNvbSB3cm90ZToNCj4gPiA+ID4gPiA+IFNvIEkgZ3Vlc3MgeW91IGNvdWxkIHdyaXRl
-IGEgcGxhdGZvcm0gZHJpdmVyIHRoYXQgd291bGQgaW5zdGFsbCBpODA0Mg0KPiA+ID4gPiA+ID4g
-ZmlsdGVyIG9uIERlbGwgbGFwdG9wcy9wb3J0YWJsZXMsIG1vbml0b3Iga2V5Ym9hcmQgZGF0YSBz
-dHJlYW0gYW5kIGtpY2sNCj4gPiA+ID4gPiA+IG9mIHJlc2NhbnMgb24gc2VyaW8gcG9ydHMuIFRo
-ZSBwcm9ibGVtIGlzIGZpbHRlciBnZXRzICJzZXJpbyIgc28geW91IGRvDQo+ID4gPiA+ID4gPiBu
-b3QgcmVhbGx5IGtub3cgd2hldGhlciBBQ0sgaXMgc3B1cmlvdXMgb3Igbm90LiBBbmQgSSB3b3Vs
-ZCByZWFsbHkNCj4gPiA+ID4gPiA+IHByZWZlciBrZWVwaW5nIHRoaXMgY3JhcCBvdXQgb2YgYXRr
-YmQgcHJvcGVyLi4uIEFuZCBhbGwgb2YgdGhpcyBpcyByYWN5DQo+ID4gPiA+ID4gPiBhcyBoZWxs
-LiBXaGF0IGhhcHBlbnMgaWYgd2UgZ2V0IGtleWJvYXJkIHJlY29ubmVjdGVkIGFzIHdlIHJlaW5p
-dGlhbGl6ZQ0KPiA+ID4gPiA+ID4gaXQ/DQo+ID4gPiA+ID4NCj4gPiA+ID4gPiBJZiBpdCdzIGRv
-bmUgYXMgYSBwbGF0Zm9ybSBkcml2ZXIgSSB3b3VsZCBzdXNwZWN0IGl0J3MgcG9zc2libGUgdG8g
-dGVsbCB3aGV0aGVyDQo+ID4gPiA+ID4gYSBkb2NrIGlzIGNvbm5lY3RlZCB0byBhdCBsZWFzdCBn
-aXZlIHlvdSBzb21lIGhldXJpc3RpYyBoZXJlIHRvIGhhdmUgYSBiZXR0ZXINCj4gPiA+ID4gPiBn
-dWVzcyB3aGV0aGVyIGl0J3Mgc3B1cmlvdXMuDQo+ID4gPiA+DQo+ID4gPiA+IEFwcGFyZW50bHkg
-Y2hlY2tpbmcgZm9yIGRvY2tpbmcgc3RhdGlvbiBpcyBub3QgZW5vdWdoLiBUaGVyZSBhcmUgYWxz
-bw0KPiA+ID4gPiBEZWxsIExlZ2FjeSBFeHRlbmRlcnMgKG9yIGhvdyBpdCBpcyBjYWxsZWQpIHdo
-aWNoIGV4cG9ydHMgaW50ZXJuYWwgUFMvMiwNCj4gPiA+ID4gUGFyYWxsZWwgYW5kIFNlcmlhbCBQ
-b3J0cy4gSXQgaXMgYWxzbyBjb25uZWN0aW5nIHRvIGJvdHRvbSBvZiBsYXB0b3AuDQo+ID4gPiA+
-IEJ1dCBjdXJyZW50bHkgSSBkbyBub3QgaGF2ZSB0aGVtIGZvciB0ZXN0aW5nLg0KPiA+ID4gPg0K
-PiA+ID4gPiA+IFBhbGkgb24geW91ciBzeXN0ZW0gdGhhdCBzdXBwb3J0cyB0aGlzIGRvY2ssIGNo
-ZWNrIGFuZCBzZWUgaG93IG1hbnkNCj4gPiA+ID4gPiBTeXN0ZW0gRW5jbG9zdXJlIFNNQklPUyB0
-YWJsZXMgKHN0cnVjdHVyZSB0eXBlIDAzKSBhcmUgcHJlc2VudC4NCj4gPiA+ID4NCj4gPiA+ID4g
-RG8geW91IG1lYW4gRE1JIHR5cGUgMyBzdHJ1Y3R1cmU/IEhlcmUgaXMgc29tZXRoaW5nIGZyb20g
-ZG1pZGVjb2RlOg0KPiA+ID4gPg0KPiA+ID4gPiBIYW5kbGUgMHgwMDAzLCBETUkgdHlwZSAzLCAy
-MiBieXRlcw0KPiA+ID4gPiBDaGFzc2lzIEluZm9ybWF0aW9uDQo+ID4gPiA+ICAgICAgICAgTWFu
-dWZhY3R1cmVyOiBEZWxsIEluYy4NCj4gPiA+ID4gICAgICAgICBUeXBlOiBMYXB0b3ANCj4gPiA+
-ID4gICAgICAgICBMb2NrOiBOb3QgUHJlc2VudA0KPiA+ID4gPiAgICAgICAgIFZlcnNpb246IE5v
-dCBTcGVjaWZpZWQNCj4gPiA+ID4gICAgICAgICBTZXJpYWwgTnVtYmVyOiAtLVJFTU9WRUQtLQ0K
-PiA+ID4gPiAgICAgICAgIEFzc2V0IFRhZzogTm90IFNwZWNpZmllZA0KPiA+ID4gPiAgICAgICAg
-IEJvb3QtdXAgU3RhdGU6IFNhZmUNCj4gPiA+ID4gICAgICAgICBQb3dlciBTdXBwbHkgU3RhdGU6
-IFNhZmUNCj4gPiA+ID4gICAgICAgICBUaGVybWFsIFN0YXRlOiBTYWZlDQo+ID4gPiA+ICAgICAg
-ICAgU2VjdXJpdHkgU3RhdHVzOiBOb25lDQo+ID4gPiA+ICAgICAgICAgT0VNIEluZm9ybWF0aW9u
-OiAweDAwMDAwMDAwDQo+ID4gPiA+ICAgICAgICAgSGVpZ2h0OiBVbnNwZWNpZmllZA0KPiA+ID4g
-PiAgICAgICAgIE51bWJlciBPZiBQb3dlciBDb3JkczogMQ0KPiA+ID4gPiAgICAgICAgIENvbnRh
-aW5lZCBFbGVtZW50czogMA0KPiA+ID4gPiAgICAgICAgIFNLVSBOdW1iZXI6IFRvIGJlIGZpbGxl
-ZCBieSBPLkUuTS4NCj4gPiA+ID4NCj4gPiA+ID4gQnV0IHByb2JhYmx5IHlvdSBtZWFuIHNvbWV0
-aGluZyBkaWZmZXJlbnQ/DQo+ID4gPg0KPiA+ID4gUGx1ZyBpbiB5b3VyIGRvY2sgYmVmb3JlIHlv
-dSBib290IHVwIGFuZCBzZWUgaWYgeW91IGhhdmUgYSBzZWNvbmQgc3RydWN0dXJlIGxpa2UNCj4g
-PiA+IHRoYXQgdHlwZSBwcm9kdWNlZC4NCj4gPg0KPiA+IEkgYWxyZWFkeSBzdGFydGVkIGRvY2tl
-ZCBsYXB0b3AgdmlhIGRvY2sgcG93ZXIgYnV0dG9uLiBBbmQgaW4gZG1pZGVjb2RlDQo+ID4gb3V0
-cHV0IGlzIG9ubHkgb25lIERNSSB0eXBlIDMgYmxvY2suDQo+ID4NCj4gPiA+IElmIG5vdCwgdGhl
-biBJIGd1ZXNzIHRoaXMgaXNuJ3QgYSByZWxpYWJsZSB3YXkgdG8gZmluZCB0aGUgZG9jaw0KPiA+
-ID4gb24gdGhhdCBzeXN0ZW0gYW5kIEknbGwgaGF2ZSB0byBzZWUgaWYgdGhlcmUgaXMgYW5vdGhl
-ci4NCj4gPg0KPiA+IFNlZW1zIG5vdC4gQWxzbyBkZXRlY3Rpb24gb2YgZG9jayBzaG91bGQgd29y
-ayBhbHNvIHdoZW4geW91IGNvbm5lY3QNCj4gPiBsYXB0b3AgYXQgc3lzdGVtIHJ1bnRpbWUsIG5v
-dCBvbmx5IHdoZW4gY29ubmVjdGVkIHByaW9yIHRvIGJvb3RpbmcuDQo+ID4NCj4gDQo+IFRoZSBp
-dGVtcyB0aGF0IHNob3cgdXAgaW4gdGhpcyBzdHJ1Y3R1cmUgYXJlIHN1cHBvc2VkIHRvIGJlIGR5
-bmFtaWMNCj4gdmFsdWVzIGJ1dCBzdGF0aWMgYWRkcmVzc2VzLiAgSSB3YXMgYXNraW5nIHRvIGNo
-ZWNrIGJlZm9yZSBib290dXAgaW4NCj4gY2FzZSB0aGlzIHdhcyBhIHByb2JsZW0gb2YgTGludXgg
-Y2FjaGluZyBTTUJJT1MgdGFibGUgaW5mb3JtYXRpb24gb25jZS4NCj4gVGhlIHZhbHVlcyBJIHdh
-cyByZWZlcnJpbmcgdG8gbWlnaHQgYmUgZm9yIG9sZGVyIGdlbmVyYXRpb24gZG9jayB0aG91Z2gs
-DQo+IEknbGwgc2VlIGlmIEkgY2FuIGZpbmQgYW55dGhpbmcgZWxzZSB5b3UgY2FuIGNoZWNrLg0K
-DQpDYW4geW91IGNoZWNrIGlmIHN0cnVjdHVyZSB0eXBlIDA4IG9yIHN0cnVjdHVyZSB0eXBlIDA5
-IGNoYW5nZSBiYXNlZCBvbg0KZG9jayBiZWluZyBwbHVnZ2VkIGluPyAgQWdhaW4geW91IG1pZ2h0
-IGhhdmUgdG8gZG8gaXQgYWNyb3NzIGEgYm9vdA0Kd2l0aC93aXRob3V0IGRvY2sgaW4gY2FzZSBv
-ZiBMaW51eCBrZXJuZWwgY2FjaGVzIHZhbHVlcy4NCg==
+
+--rwptzylf2q3wlqyj
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Monday 07 May 2018 20:32:16 Mario.Limonciello@dell.com wrote:
+> > The items that show up in this structure are supposed to be dynamic
+> > values but static addresses.  I was asking to check before bootup in
+> > case this was a problem of Linux caching SMBIOS table information once.
+> > The values I was referring to might be for older generation dock though,
+> > I'll see if I can find anything else you can check.
+>=20
+> Can you check if structure type 08 or structure type 09 change based on
+> dock being plugged in?  Again you might have to do it across a boot
+> with/without dock in case of Linux kernel caches values.
+
+The only difference is:
+
+--- dmidecode_laptop_docked	2018-05-07 22:34:02.650325758 +0200
++++ dmidecode_laptop_undocked	2018-05-07 22:39:27.580306838 +0200
+@@ -913,7 +913,7 @@ System Power Supply
+ 	Asset Tag: To Be Filled By O.E.M.
+ 	Model Part Number: To Be Filled By O.E.M.
+ 	Revision: To Be Filled By O.E.M.
+-	Max Power Capacity: 90 W
++	Max Power Capacity: Unknown
+ 	Status: Present, OK
+ 	Type: Switching
+ 	Input Voltage Range Switching: Auto-switch
+
+And this is in block Handle 0x003E, DMI type 39, 22 bytes - System Power
+Supply. So looks like that DMI data are same.
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--rwptzylf2q3wlqyj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCWvC7qgAKCRCL8Mk9A+RD
+UkgWAKCUg5BxwnxCFwzsCdnXGSE3hTCGCQCfVgQk+5BsztLyqAf0ytTKBMsh+5Q=
+=Uj7j
+-----END PGP SIGNATURE-----
+
+--rwptzylf2q3wlqyj--

@@ -1,65 +1,84 @@
-From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: Re: [PATCH v4 5/9] iio: adc: at91-sama5d2_adc: add support for
- position and pressure channels
-Date: Mon, 7 May 2018 09:18:39 +0300
-Message-ID: <eaeced9e-390f-0eea-0466-66c789bacdd6@microchip.com>
-References: <1525084335-11276-1-git-send-email-eugen.hristev@microchip.com>
- <1525084335-11276-6-git-send-email-eugen.hristev@microchip.com>
- <20180506182953.6adad5b5@archlinux> <20180506175914.GL10960@piout.net>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH] HID: uhid: fix a missing-check bug
+Date: Mon, 7 May 2018 08:27:27 +0200
+Message-ID: <CANq1E4RuTszxgVzhYAvh9K=zD-QQ=ixUoefi+rusB8OEph33QA@mail.gmail.com>
+References: <1525493850-6952-1-git-send-email-wang6495@umn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180506175914.GL10960@piout.net>
-Content-Language: en-US
+In-Reply-To: <1525493850-6952-1-git-send-email-wang6495@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>, Jonathan Cameron <jic23@kernel.org>
-Cc: ludovic.desroches@microchip.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
+To: Wenwen Wang <wang6495@umn.edu>
+Cc: Kangjie Lu <kjlu@umn.edu>, David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:UHID USERSPACE HID IO DRIVER:" <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
+Hey
 
+On Sat, May 5, 2018 at 6:17 AM, Wenwen Wang <wang6495@umn.edu> wrote:
+> In uhid_event_from_user(), if it is in_compat_syscall(), the 'type' of the
+> event is first fetched from the 'buffer' in userspace and checked. If the
+> 'type' is UHID_CREATE, it is a messed up request with compat pointer, which
+> could be more than 256 bytes, so it is better allocated from the heap, as
+> mentioned in the comment. Its fields are then prepared one by one instead
+> of using a whole copy. For all other cases, the event object is copied
+> directly from user space. In other words, based on the 'type', the memory
+> size and structure of the event object vary.
+>
+> Given that the 'buffer' resides in userspace, a malicious userspace process
+> can race to change the 'type' between the two copies, which will cause
+> inconsistency issues, potentially security issues. Plus, various operations
+> such as uhid_dev_destroy() and uhid_dev_input() are performed based on
+> 'type' in function uhid_char_write(). If 'type' is modified by user, there
+> could be some issues such as uninitialized uses.
+>
+> To fix this problem, we need to recheck the type after the second fetch to
+> make sure it is not UHID_CREATE.
+>
+> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+> ---
+>  drivers/hid/uhid.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> index 3c55073..0220385 100644
+> --- a/drivers/hid/uhid.c
+> +++ b/drivers/hid/uhid.c
+> @@ -447,11 +447,17 @@ static int uhid_event_from_user(const char __user *buffer, size_t len,
+>                         event->u.create.country = compat->country;
+>
+>                         kfree(compat);
+> -                       return 0;
+> +               } else {
+> +                       if (copy_from_user(event, buffer,
+> +                                       min(len, sizeof(*event))))
+> +                               return -EFAULT;
+> +                       if (event->type == UHID_CREATE)
+> +                               return -EINVAL;
 
-On 06.05.2018 20:59, Alexandre Belloni wrote:
-> Hi,
-> 
-> On 06/05/2018 18:29:53+0100, Jonathan Cameron wrote:
->> On Mon, 30 Apr 2018 13:32:11 +0300
->> Eugen Hristev <eugen.hristev@microchip.com> wrote:
->>
->>> This implements the support for position and pressure for the included
->>> touchscreen support in the SAMA5D2 SOC ADC block.
->>> Two position channels are added and one for pressure.
->>> They can be read in raw format, or through a buffer.
->>> A normal use case is for a consumer driver to register a callback buffer
->>> for these channels.
->>> When the touchscreen channels are in the active scan mask,
->>> the driver will start the touchscreen sampling and push the data to the
->>> buffer.
->>>
->>> Some parts of this patch are based on initial original work by
->>> Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
->>>
->>> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
->> Looks good to me now.
->>
->> I'm assuming that once Dmitry and others are happy, I'll take the
->> series through the IIO tree. Will reply to the cover letter if the
->> rest of the patches look good to me to let everyone know that without
->> having to catch this comment down in here!
->>
-> 
-> I'm planning to take both DT patches through the at91 tree once you take
-> the DT bindings patches.
+You are correct, the race against malicious/buggy user-space exists.
+However, it is harmless. Lets assume user-space rewrites the input,
+all that happens is that we end up with garbage in the kernel.
+However, input-validation is done *after* this function, hence
+everything will work just fine. If user-space rewrites input-buffers,
+they better be aware that this might mean random garbage is pushed
+into the kernel.
 
-Please take into consideration that those DT patches do not build 
-stand-alone, they depend on
-[PATCH v4 7/9] dt-bindings: iio: adc: at91-sama5d2_adc: add channel 
-specific consumer info
+IOW, this race simply allows user-space to circumvent the "compat
+conversion". But if user-space wants that... let them. No point in
+protecting them from doing something stupid.
 
-(the DT patches add an include statement of a file which is created in 
-this patch).
+Thanks
+David
 
-Thanks !
-Eugen
-> 
-> 
+>                 }
+> -               /* All others can be copied directly */
+> +               return 0;
+>         }
+>
+> +       /* Others can be copied directly */
+>         if (copy_from_user(event, buffer, min(len, sizeof(*event))))
+>                 return -EFAULT;
+>
+> --
+> 2.7.4
+>

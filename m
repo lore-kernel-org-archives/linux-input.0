@@ -1,54 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 3/9] dt-bindings: input: touchscreen: add pressure
- threshold touchscreen property
-Date: Mon, 7 May 2018 15:38:32 -0700
-Message-ID: <20180507223832.GB31301@dtor-ws>
-References: <1525084335-11276-1-git-send-email-eugen.hristev@microchip.com>
- <1525084335-11276-4-git-send-email-eugen.hristev@microchip.com>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: Re: [PATCH v4 1/2] xen/kbdif: Add string constants for
+ raw pointer
+Date: Tue, 8 May 2018 08:41:46 +0300
+Message-ID: <ca63d42c-a545-5762-4748-fe3d1187f455@gmail.com>
+References: <20180502144919.16780-1-andr2000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1525084335-11276-4-git-send-email-eugen.hristev@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, robh@kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+In-Reply-To: <20180502144919.16780-1-andr2000@gmail.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, konrad.wilk@oracle.com, dmitry.torokhov@gmail.com
+Cc: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, jandryuk@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 30, 2018 at 01:32:09PM +0300, Eugen Hristev wrote:
-> Add a common touchscreen optional property that will specify
-> the minimum pressure applied to the screen that is needed
-> such that the driver will report the touch event.
-> 
-> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> ---
->  Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> index 537643e..c84047a 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> @@ -7,6 +7,9 @@ Optional properties for Touchscreens:
->  				  (in pixels)
->   - touchscreen-max-pressure	: maximum reported pressure (arbitrary range
->  				  dependent on the controller)
-> + - touchscreen-threshold-pressure: minimum pressure on the touchscreen to be
-> +				  achieved in order for the touchscreen
-> +				  driver to report a touch event.
-
-Why do we move from the pattern and call it trheshold and not
-touchscreen-min-pressure?
-
->   - touchscreen-fuzz-x		: horizontal noise value of the absolute input
->  				  device (in pixels)
->   - touchscreen-fuzz-y		: vertical noise value of the absolute input
-> -- 
-> 2.7.4
-> 
-
-Thanks.
-
--- 
-Dmitry
+S29ucmFkPwoKT24gMDUvMDIvMjAxOCAwNTo0OSBQTSwgT2xla3NhbmRyIEFuZHJ1c2hjaGVua28g
+d3JvdGU6Cj4gRnJvbTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5kcl9hbmRydXNo
+Y2hlbmtvQGVwYW0uY29tPgo+Cj4gQWRkIG1pc3Npbmcgc3RyaW5nIGNvbnN0YW50cyBmb3Ige2Zl
+YXR1cmV8cmVxdWVzdH0tcmF3LXBvaW50ZXIKPiB0byBhbGlnbiB3aXRoIHRoZSByZXN0IG9mIHRo
+ZSBpbnRlcmZhY2UgZmlsZS4KPgo+IEZpeGVzIDc4Njg2NTRmZjdmZSAoImtiZGlmOiBEZWZpbmUg
+ImZlYXR1cmUtcmF3LXBvaW50ZXIiIGFuZCAicmVxdWVzdC1yYXctcG9pbnRlciIpCj4KPiBTaWdu
+ZWQtb2ZmLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8b2xla3NhbmRyX2FuZHJ1c2hjaGVu
+a29AZXBhbS5jb20+Cj4gLS0tCj4gICB4ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2JkaWYuaCB8IDIg
+KysKPiAgIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykKPgo+IGRpZmYgLS1naXQgYS94
+ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2JkaWYuaCBiL3hlbi9pbmNsdWRlL3B1YmxpYy9pby9rYmRp
+Zi5oCj4gaW5kZXggM2NlNTRlOWE0NGMxLi5kYWY0YmMyMDYzYzkgMTAwNjQ0Cj4gLS0tIGEveGVu
+L2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgKPiArKysgYi94ZW4vaW5jbHVkZS9wdWJsaWMvaW8v
+a2JkaWYuaAo+IEBAIC0xNzgsOCArMTc4LDEwIEBACj4gICAjZGVmaW5lIFhFTktCRF9EUklWRVJf
+TkFNRSAgICAgICAgICAgICAidmtiZCIKPiAgIAo+ICAgI2RlZmluZSBYRU5LQkRfRklFTERfRkVB
+VF9BQlNfUE9JTlRFUiAgImZlYXR1cmUtYWJzLXBvaW50ZXIiCj4gKyNkZWZpbmUgWEVOS0JEX0ZJ
+RUxEX0ZFQVRfUkFXX1BPSU5URVIgICJmZWF0dXJlLXJhdy1wb2ludGVyIgo+ICAgI2RlZmluZSBY
+RU5LQkRfRklFTERfRkVBVF9NVE9VQ0ggICAgICAgImZlYXR1cmUtbXVsdGktdG91Y2giCj4gICAj
+ZGVmaW5lIFhFTktCRF9GSUVMRF9SRVFfQUJTX1BPSU5URVIgICAicmVxdWVzdC1hYnMtcG9pbnRl
+ciIKPiArI2RlZmluZSBYRU5LQkRfRklFTERfUkVRX1JBV19QT0lOVEVSICAgInJlcXVlc3QtcmF3
+LXBvaW50ZXIiCj4gICAjZGVmaW5lIFhFTktCRF9GSUVMRF9SRVFfTVRPVUNIICAgICAgICAicmVx
+dWVzdC1tdWx0aS10b3VjaCIKPiAgICNkZWZpbmUgWEVOS0JEX0ZJRUxEX1JJTkdfR1JFRiAgICAg
+ICAgICJwYWdlLWdyZWYiCj4gICAjZGVmaW5lIFhFTktCRF9GSUVMRF9FVlRfQ0hBTk5FTCAgICAg
+ICAiZXZlbnQtY2hhbm5lbCIKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW5wcm9q
+ZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8veGVu
+LWRldmVs

@@ -1,119 +1,38 @@
-From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v4 1/3] resource: Use list_head to link sibling resource
-Date: Tue, 8 May 2018 20:12:26 +0800
-Message-ID: <20180508121226.GJ30581@MiWiFi-R3L-srv>
-References: <20180507063224.24229-2-bhe@redhat.com>
- <201805072210.H1bsHs9Y%fengguang.wu@intel.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
+Date: Tue, 8 May 2018 17:31:16 +0300
+Message-ID: <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
+ <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201805072210.H1bsHs9Y%fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, keith.busch-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Chiu <chiu@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Daniel Drake <drake@endlessm.com>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-On 05/07/18 at 11:50pm, kbuild test robot wrote:
-> Hi Baoquan,
-> 
-> I love your patch! Yet something to improve:
-> 
-> [auto build test ERROR on linus/master]
-> [also build test ERROR on v4.17-rc4 next-20180504]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Baoquan-He/resource-Use-list_head-to-link-sibling-resource/20180507-144345
-> config: arm-allmodconfig (attached as .config)
-> compiler: arm-linux-gnueabi-gcc (Debian 7.2.0-11) 7.2.0
-> reproduce:
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # save the attached .config to linux build tree
->         make.cross ARCH=arm 
-> 
-> All errors (new ones prefixed by >>):
+Hi
 
-Thanks, below patch can fix it:
+On 05/07/2018 11:07 AM, Chris Chiu wrote:
 
+>> Besides, according to ASUS's input, they observed that after entering
+>> the OS, the frequency of SCL is too fast (about 600kHz) and the SCL High
+>> time is around 450ns, not following I2C spec which is 0.6us.
+>> https://pasteboard.co/HjzSWXd.png
+>>
+> Some update, we can make the touchpad work by simply modifying the
+> clk_rate of spt_i2c_info from 120000000 to 133000000 in intel-lpss-pci.c for
+> specific PCI ID 8086:a368 ~ a36a (CoffeeLake). Is the clock setting different
+> for the CoffeeLake series?
+> 
+Hmm.. at quick look it looks like to be 133 MHz but I want to double 
+check first from other specs. I'm also wondering why it results 600 kHz 
+instead of expected 133/120 * 400 kHz = 443 kHz. Need to check timing 
+parameters too.
 
-diff --git a/arch/arm/plat-samsung/pm-check.c b/arch/arm/plat-samsung/pm-check.c
-index cd2c02c68bc3..5494355b1c49 100644
---- a/arch/arm/plat-samsung/pm-check.c
-+++ b/arch/arm/plat-samsung/pm-check.c
-@@ -46,8 +46,8 @@ typedef u32 *(run_fn_t)(struct resource *ptr, u32 *arg);
- static void s3c_pm_run_res(struct resource *ptr, run_fn_t fn, u32 *arg)
- {
- 	while (ptr != NULL) {
--		if (ptr->child != NULL)
--			s3c_pm_run_res(ptr->child, fn, arg);
-+		if (!list_empty(&ptr->child))
-+			s3c_pm_run_res(resource_first_child(&ptr->child), fn, arg);
- 
- 		if ((ptr->flags & IORESOURCE_SYSTEM_RAM)
- 				== IORESOURCE_SYSTEM_RAM) {
-@@ -57,7 +57,7 @@ static void s3c_pm_run_res(struct resource *ptr, run_fn_t fn, u32 *arg)
- 			arg = (fn)(ptr, arg);
- 		}
- 
--		ptr = ptr->sibling;
-+		ptr = resource_sibling(ptr);
- 	}
- }
- 
-
-> 
->    arch/arm/plat-samsung/pm-check.c: In function 's3c_pm_run_res':
-> >> arch/arm/plat-samsung/pm-check.c:49:18: error: invalid operands to binary != (have 'struct list_head' and 'void *')
->       if (ptr->child != NULL)
->           ~~~~~~~~~~ ^~
-> >> arch/arm/plat-samsung/pm-check.c:50:19: error: incompatible type for argument 1 of 's3c_pm_run_res'
->        s3c_pm_run_res(ptr->child, fn, arg);
->                       ^~~
->    arch/arm/plat-samsung/pm-check.c:46:13: note: expected 'struct resource *' but argument is of type 'struct list_head'
->     static void s3c_pm_run_res(struct resource *ptr, run_fn_t fn, u32 *arg)
->                 ^~~~~~~~~~~~~~
-> >> arch/arm/plat-samsung/pm-check.c:60:7: error: incompatible types when assigning to type 'struct resource *' from type 'struct list_head'
->       ptr = ptr->sibling;
->           ^
-> 
-> vim +49 arch/arm/plat-samsung/pm-check.c
-> 
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  45  
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  46  static void s3c_pm_run_res(struct resource *ptr, run_fn_t fn, u32 *arg)
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  47  {
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  48  	while (ptr != NULL) {
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12 @49  		if (ptr->child != NULL)
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12 @50  			s3c_pm_run_res(ptr->child, fn, arg);
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  51  
-> 05fee7cf arch/arm/plat-samsung/pm-check.c Toshi Kani 2016-01-26  52  		if ((ptr->flags & IORESOURCE_SYSTEM_RAM)
-> 05fee7cf arch/arm/plat-samsung/pm-check.c Toshi Kani 2016-01-26  53  				== IORESOURCE_SYSTEM_RAM) {
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  54  			S3C_PMDBG("Found system RAM at %08lx..%08lx\n",
-> 840eeeb8 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  55  				  (unsigned long)ptr->start,
-> 840eeeb8 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  56  				  (unsigned long)ptr->end);
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  57  			arg = (fn)(ptr, arg);
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  58  		}
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  59  
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12 @60  		ptr = ptr->sibling;
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  61  	}
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  62  }
-> 549c7e33 arch/arm/plat-s3c/pm-check.c     Ben Dooks  2008-12-12  63  
-> 
-> :::::: The code at line 49 was first introduced by commit
-> :::::: 549c7e33aeb9bfe441ecf68639d2227bb90978e7 [ARM] S3C: Split the resume memory check code from pm.c
-> 
-> :::::: TO: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> :::::: CC: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+-- 
+Jarkko

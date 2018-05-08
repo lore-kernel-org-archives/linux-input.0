@@ -1,49 +1,99 @@
-From: Daniel Drake <drake@endlessm.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Tue, 8 May 2018 09:47:01 -0600
-Message-ID: <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com> <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] Input: ili251x - add support for Ilitek ILI251x
+ touchscreens
+Date: Tue, 8 May 2018 12:51:36 -0500
+Message-ID: <20180508175136.GA26802@rob-hp-laptop>
+References: <20180507131823.28800-1-pp@emlix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20180507131823.28800-1-pp@emlix.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Chris Chiu <chiu@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: Philipp Puschmann <pp@emlix.com>
+Cc: dmitry.torokhov@gmail.com, mark.rutland@arm.com, rydberg@bitmath.org, andi@etezian.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 8, 2018 at 8:31 AM, Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
->> Some update, we can make the touchpad work by simply modifying the
->> clk_rate of spt_i2c_info from 120000000 to 133000000 in intel-lpss-pci.c for
->> specific PCI ID 8086:a368 ~ a36a (CoffeeLake). Is the clock setting different
->> for the CoffeeLake series?
->>
-> Hmm.. at quick look it looks like to be 133 MHz but I want to double check first from other specs. I'm also wondering why it results 600 kHz instead of expected 133/120 * 400 kHz = 443 kHz. Need to check timing parameters too.
+On Mon, May 07, 2018 at 03:18:23PM +0200, Philipp Puschmann wrote:
+> The driver supports at least the ili2511 chipset but may support other
+> Ilitek chipsets using Ilitek i2c protocol v3.x.
+> 
+> The tested ili2511-based touchscreen delivers garbage for more than 6
+> fingers while it should support up to 10 fingers. The reason is still
+> unclear and this remains a FIXME in the driver for now.
+> 
+> The usage of pressure is optional. Touchscreens may deliver constant
+> and so useless pressure data.
+> 
+> Signed-off-by: Philipp Puschmann <pp@emlix.com>
+> ---
+>  .../bindings/input/touchscreen/ili251x.txt    |  35 ++
 
-Thanks for looking at this. I believe we tried 133MHz just because
-some other platforms in the file have the clock at that speed.
+Please make the binding a separate patch.
 
-In the original/shipped setup, the scope shows the SDA clock is
-running at ~635kHz (rather than the intended 400kHz) and the debug
-logs from the kernel producing that waveform shows that HCNT=105 and
-LCNT=191
+>  drivers/input/touchscreen/Kconfig             |  12 +
+>  drivers/input/touchscreen/Makefile            |   1 +
+>  drivers/input/touchscreen/ili251x.c           | 350 ++++++++++++++++++
+>  4 files changed, 398 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ili251x.txt
+>  create mode 100644 drivers/input/touchscreen/ili251x.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ili251x.txt b/Documentation/devicetree/bindings/input/touchscreen/ili251x.txt
+> new file mode 100644
+> index 000000000000..f21ad93d3bdd
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ili251x.txt
+> @@ -0,0 +1,35 @@
+> +Ilitek ili251x touchscreen driver
 
-105+191=296 parent clock ticks per cycle
+Bindings are not drivers.
+> +
+> +This driver uses protocol version 3 and should be compatible with other
+> +Ilitek touch controllers that use protocol 3.x
+> +
+> +Required properties:
+> + - compatible:  "ili251x"
 
-At 635kHz, a single clock cycle is 1575ns. What is the speed of the
-parent clock if it ticks 296 times in 1575ns? I calculate this to be
-187960000Hz and further experiments indicate that clk_rate=187960000
-also makes the touchpad work. Unfortunately we don't have easy access
-to the scope to measure the effect on the waveform.
+Needs a vendor prefix.
 
-Also through experimentation we tried i2c-sda-falling-time-ns=400ns
-(increasing from the default of 300ns) in order to make the HCNT
-increase to 117. This also makes the touchpad work.
+Don't use wildcards in compatible strings. Maybe you want to incorporate 
+the protocol version into the compatible string.
 
-Please let us know if we can help further in finding an upstream fix
-for this issue.
+> + - reg:         I2C slave address of the chip (0x41)
+> + - interrupt-parent: a phandle pointing to the interrupt controller
+> +                     serving the interrupt for this chip
+> + - interrupts:       interrupt specification for the touchdetect
+> +                     interrupt
+> +
+> +Optional properties:
+> + - reset-gpios: GPIO specification for the RESET input
+> +
+> + - pinctrl-names: should be "default"
+> + - pinctrl-0:   a phandle pointing to the pin settings for the
+> +                control gpios
+> + - max-fingers: the maximum number of fingers to handle
 
-Thanks
-Daniel
+We already have 'silead,max-fingers', so probably time for a common 
+property.
+
+> + - pressure: support pressure data
+
+This should be implied by the compatible string.
+
+> + - generic options	   : See touchscreen.txt
+> +
+> +Example:
+> +
+> +	ili251x@41 {
+
+touchscreen@41
+
+> +		compatible = "ili251x";
+> +		reg = <0x41>;
+> +		pinctrl-names = "default";
+> +		pinctrl-0 = <&pinctrl_touchpanel>;
+> +		interrupt-parent = <&gpio5>;
+> +		interrupts = <20 IRQ_TYPE_EDGE_FALLING>;
+> +		reset-gpios = <&gpio5 18 GPIO_ACTIVE_HIGH>;
+> +		max-fingers = <6>;
+> +	};

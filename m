@@ -1,80 +1,112 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: Re: [PATCHv2] Input: atmel_mxt_ts - fix reset-gpio for level based
- irqs
-Date: Wed, 9 May 2018 16:40:32 +0200
-Message-ID: <20180509144032.kirx5rz4cbz6cl4l@earth.universe>
-References: <20180420172408.26164-1-sebastian.reichel@collabora.co.uk>
- <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
- <20180509142545.GC25131@amd>
+From: Andrea Parri <parri.andrea@gmail.com>
+Subject: Re: [PATCH v2 09/11] docs: Fix some broken references
+Date: Wed, 9 May 2018 19:15:01 +0200
+Message-ID: <20180509171501.GA17405@andrea>
+References: <cover.1525870886.git.mchehab+samsung@kernel.org>
+ <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="dxewti5y2ddcf3wa"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
 Content-Disposition: inline
-In-Reply-To: <20180509142545.GC25131@amd>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>, kernel@collabora.com
+In-Reply-To: <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, dri-devel@lists.freedesktop.org, Jaroslav Kysela <perex@perex.cz>, Eric Paris <eparis@parisplace.org>, linux-clk@vger.kernel.org, James Morris <jmorris@namei.org>, Alan Stern <stern@rowland.harvard.edu>, xen-devel@lists.xenproject.org, Boqun Feng <boqun.feng@gmail.com>, Nicholas Piggin <npiggin@gmail.com>, Sean Paul <seanpaul@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Antoine Jacquet <royale@zerezo.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Li Zefan <lizefan@huawei.com>, linux-crypto@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, alsa-devel@alsa-project.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, David Airlie <airlied@linux.ie>, Gustavo Padovan <gustavo@pa>
 List-Id: linux-input@vger.kernel.org
 
-
---dxewti5y2ddcf3wa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-On Wed, May 09, 2018 at 04:25:45PM +0200, Pavel Machek wrote:
-> On Mon 2018-04-23 13:58:44, Sebastian Reichel wrote:
-> > The current reset-gpio support triggers an interrupt storm on platforms
-> > using the maxtouch with level based interrupt. The Motorola Droid 4,
-> > which I used for some of the tests is not affected, since it uses a edge
-> > based interrupt.
-> >=20
-> > This change avoids the interrupt storm by enabling the device while its
-> > interrupt is disabled. Afterwards we wait 100ms. This is important for
-> > two reasons: The device is unresponsive for some time (~22ms for
-> > mxt224E) and the CHG (interrupt) line is not working properly for 100ms.
-> > We don't need to wait for any following interrupts, since the following
-> > mxt_initialize() checks for bootloader mode anyways.
-> >=20
-> > This fixes a boot issue on GE PPD (watchdog kills device due to
-> > interrupt storm) and does not cause regression on Motorola Droid 4.
->=20
-> Out of curiosity, what is "GE PPD"?
-
-PPD is a product from GE Healthcare to monitor vital biometric signals:
-
-arch/arm/boot/dts/imx53-ppd.dts
-
-> > Fixes: f657b00df22e ("Input: atmel_mxt_ts - add support for reset line")
-> > Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
->=20
-> Reviewed-by: Pavel Machek <pavel@ucw.cz>
-
-Thanks,
-
--- Sebastian
-
---dxewti5y2ddcf3wa
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlrzCF0ACgkQ2O7X88g7
-+ppdYA//SiNyLginSyY1gtjGqHxRFljwB59QXKJXel4+Dni4CIRQj6zSQAn3DV3i
-raDjqkDJ0hmrmlhofgwMIG07MGDFasHDpsfoc9Be9mLMgpFn7LZhZ7ePfu7Gu6A/
-P+O2yOprL8v3j1fM0t/0AIUtZRXo/nu1CCmb21Kj+Nic0fbKc2HPJs8troI9GaBY
-OQhuSv5oFAiadlAA3Yt9owPyhJTPSZybShhqFiZeqcF86o+bCtwPLx0OcBoF71iR
-VT6ttCZogn+GLr2DarnsYZxBC1Qv0PWEK9noDfo8eQZGxcvv/V6CYIDXkmHzlipu
-jTdYRNt0LTWfotlnv02NnCM4yU0k9Dm7fCASgPfDG9dZNX0IAAv0rmDK8fRkfYth
-tqSvBjOWlwtRtudCVFt1FZrIXbK25els/nZdlWIHnxmIFbsjgCZbvkMhJBIXRn3A
-ItIgft2jysHZt1LhRsrPrtondF//v2sdcLgCTmUAn2EbwLkGJKbhDiTQMCLSpbn/
-ns5pasYDlVKuSf9JlBZ9kLfnOJBilsGTHc2ADQR8AnulkcIx+ql/UYf2BFJ2lItY
-/iH66gVJqZE0VRyw1TM/ErX0MhxTZwF97jX5Dqy/mcaQp7rZDJuELYTH5ao31AkF
-qi0uQKsgZd7gGCWvXhQj+3P7D0jvTbmEJnf679TxDRX3ZrBYX/8=
-=ZL8Z
------END PGP SIGNATURE-----
-
---dxewti5y2ddcf3wa--
+T24gV2VkLCBNYXkgMDksIDIwMTggYXQgMTA6MTg6NTJBTSAtMDMwMCwgTWF1cm8gQ2FydmFsaG8g
+Q2hlaGFiIHdyb3RlOgo+IEFzIHdlIG1vdmUgc3R1ZmYgYXJvdW5kLCBzb21lIGRvYyByZWZlcmVu
+Y2VzIGFyZSBicm9rZW4uIEZpeCBzb21lIG9mCj4gdGhlbSB2aWEgdGhpcyBzY3JpcHQ6Cj4gCS4v
+c2NyaXB0cy9kb2N1bWVudGF0aW9uLWZpbGUtcmVmLWNoZWNrIC0tZml4LXJzdAo+IAo+IE1hbnVh
+bGx5IGNoZWNrZWQgaWYgdGhlIHByb2R1Y2VkIHJlc3VsdCBpcyB2YWxpZCwgcmVtb3ZpbmcgYSBm
+ZXcKPiBmYWxzZS1wb3NpdGl2ZXMuCj4gCj4gU2lnbmVkLW9mZi1ieTogTWF1cm8gQ2FydmFsaG8g
+Q2hlaGFiIDxtY2hlaGFiK3NhbXN1bmdAa2VybmVsLm9yZz4KClRoYW5rIHlvdSBhZ2FpbiBmb3Ig
+ZG9pbmcgdGhpcywKCgo+IC0tLQo+ICAuLi4vYWRtaW4tZ3VpZGUva2VybmVsLXBhcmFtZXRlcnMu
+dHh0ICAgICAgICAgfCAgNCArKy0tCj4gIC4uLi9iaW5kaW5ncy9pbnB1dC9yb3RhcnktZW5jb2Rl
+ci50eHQgICAgICAgICB8ICAyICstCj4gIERvY3VtZW50YXRpb24vZHJpdmVyLWFwaS9ncGlvL2Nv
+bnN1bWVyLnJzdCAgICB8ICAyICstCj4gIERvY3VtZW50YXRpb24va3Byb2Jlcy50eHQgICAgICAg
+ICAgICAgICAgICAgICB8ICA0ICsrLS0KPiAgRG9jdW1lbnRhdGlvbi90cmFjZS9jb3Jlc2lnaHQu
+dHh0ICAgICAgICAgICAgIHwgIDIgKy0KPiAgRG9jdW1lbnRhdGlvbi90cmFjZS9ldmVudHMucnN0
+ICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgRG9jdW1lbnRhdGlvbi90cmFjZS9mdHJhY2UtdXNl
+cy5yc3QgICAgICAgICAgIHwgIDIgKy0KPiAgRG9jdW1lbnRhdGlvbi90cmFjZS9oaXN0b2dyYW0u
+dHh0ICAgICAgICAgICAgIHwgIDIgKy0KPiAgRG9jdW1lbnRhdGlvbi90cmFjZS9pbnRlbF90aC5y
+c3QgICAgICAgICAgICAgIHwgIDIgKy0KPiAgRG9jdW1lbnRhdGlvbi90cmFjZS90cmFjZXBvaW50
+LWFuYWx5c2lzLnJzdCAgIHwgIDYgKysrLS0tCj4gIERvY3VtZW50YXRpb24vdHJhbnNsYXRpb25z
+L2phX0pQL2hvd3RvLnJzdCAgICB8ICA0ICsrLS0KPiAgLi4uL3RyYW5zbGF0aW9ucy96aF9DTi9t
+YWdpYy1udW1iZXIudHh0ICAgICAgIHwgIDQgKystLQo+ICAuLi4vemhfQ04vdmlkZW80bGludXgv
+b21hcDNpc3AudHh0ICAgICAgICAgICAgfCAgNCArKy0tCj4gIE1BSU5UQUlORVJTICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8IDIwICsrKysrKysrKy0tLS0tLS0tLS0KPiAgYXJj
+aC9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgYXJj
+aC9hcm0vaW5jbHVkZS9hc20vY2FjaGVmbHVzaC5oICAgICAgICAgICAgIHwgIDIgKy0KPiAgYXJj
+aC9hcm02NC9pbmNsdWRlL2FzbS9jYWNoZWZsdXNoLmggICAgICAgICAgIHwgIDIgKy0KPiAgYXJj
+aC9taWNyb2JsYXplL2luY2x1ZGUvYXNtL2NhY2hlZmx1c2guaCAgICAgIHwgIDIgKy0KPiAgYXJj
+aC91bS9LY29uZmlnLnVtICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgYXJj
+aC91bmljb3JlMzIvaW5jbHVkZS9hc20vY2FjaGVmbHVzaC5oICAgICAgIHwgIDIgKy0KPiAgYXJj
+aC94ODYvZW50cnkvdnN5c2NhbGwvdnN5c2NhbGxfNjQuYyAgICAgICAgIHwgIDIgKy0KPiAgYXJj
+aC94dGVuc2EvaW5jbHVkZS9hc20vY2FjaGVmbHVzaC5oICAgICAgICAgIHwgIDQgKystLQo+ICBi
+bG9jay9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICBj
+ZXJ0cy9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICBj
+cnlwdG8vYXN5bW1ldHJpY19rZXlzL2FzeW1tZXRyaWNfdHlwZS5jICAgICAgfCAgMiArLQo+ICBj
+cnlwdG8vYXN5bW1ldHJpY19rZXlzL3NpZ25hdHVyZS5jICAgICAgICAgICAgfCAgMiArLQo+ICBk
+cml2ZXJzL2NoYXIvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICBk
+cml2ZXJzL2Nsay9jbGsuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNCArKy0tCj4g
+IGRyaXZlcnMvY2xrL2luZ2VuaWMvY2d1LmggICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4g
+IGRyaXZlcnMvZ3B1L3ZnYS9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4g
+IGRyaXZlcnMvZ3B1L3ZnYS92Z2FhcmIuYyAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4g
+IGRyaXZlcnMvaW5wdXQvam95c3RpY2svS2NvbmZpZyAgICAgICAgICAgICAgICB8IDEwICsrKysr
+LS0tLS0KPiAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9pZm9yY2UvS2NvbmZpZyAgICAgICAgIHwg
+IDIgKy0KPiAgZHJpdmVycy9pbnB1dC9qb3lzdGljay93YWxrZXJhMDcwMS5jICAgICAgICAgIHwg
+IDIgKy0KPiAgZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcgICAgICAgICAgICAgICAgICAgIHwg
+IDQgKystLQo+ICBkcml2ZXJzL2lucHV0L21pc2Mvcm90YXJ5X2VuY29kZXIuYyAgICAgICAgICAg
+fCAgMiArLQo+ICBkcml2ZXJzL2lucHV0L21vdXNlL0tjb25maWcgICAgICAgICAgICAgICAgICAg
+fCAgNiArKystLS0KPiAgZHJpdmVycy9pbnB1dC9tb3VzZS9hbHBzLmMgICAgICAgICAgICAgICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi93bTk3eHgtY29yZS5jICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9saWdodG52bS9wYmxrLXJiLmMgICAgICAgICAgICAgICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9tZC9iY2FjaGUvS2NvbmZpZyAgICAgICAgICAgICAgICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9tZC9iY2FjaGUvYnRyZWUuYyAgICAgICAgICAgICAgICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9tZC9iY2FjaGUvZXh0ZW50cy5jICAgICAgICAgICAgICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9tZWRpYS9kdmItY29yZS9kdmJfcmluZ2J1ZmZlci5jICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9tZWRpYS9wY2kvbWV5ZS9LY29uZmlnICAgICAgICAgICAg
+ICAgIHwgIDIgKy0KPiAgZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS9weGFfY2FtZXJhLmMgICAgICAg
+ICAgIHwgIDQgKystLQo+ICAuLi4vc29jX2NhbWVyYS9zaF9tb2JpbGVfY2V1X2NhbWVyYS5jICAg
+ICAgICAgfCAgMiArLQo+ICBkcml2ZXJzL21lZGlhL3JhZGlvL0tjb25maWcgICAgICAgICAgICAg
+ICAgICAgfCAgMiArLQo+ICBkcml2ZXJzL21lZGlhL3JhZGlvL3NpNDcweC9LY29uZmlnICAgICAg
+ICAgICAgfCAgMiArLQo+ICBkcml2ZXJzL21lZGlhL3VzYi9kdmItdXNiLXYyL2xtZWRtMDQuYyAg
+ICAgICAgfCAgMiArLQo+ICBkcml2ZXJzL21lZGlhL3VzYi96cjM2NHh4L0tjb25maWcgICAgICAg
+ICAgICAgfCAgMiArLQo+ICBkcml2ZXJzL3BhcnBvcnQvS2NvbmZpZyAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgNiArKystLS0KPiAgZHJpdmVycy9zdGFnaW5nL21lZGlhL2JjbTIwNDgvVE9ETyAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS9rZXlzL2FzeW1tZXRyaWMtc3VidHlwZS5oICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS9rZXlzL2FzeW1tZXRyaWMtdHlwZS5oICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS9saW51eC9hc3NvY19hcnJheS5oICAgICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS9saW51eC9hc3NvY19hcnJheV9wcml2LmggICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS9saW51eC9jaXJjX2J1Zi5oICAgICAgICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS9saW51eC9mdHJhY2UuaCAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS9saW51eC9yY3VsaXN0X251bGxzLmggICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS91YXBpL2xpbnV4L3ByY3RsLmggICAgICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgaW5jbHVkZS94ZW4vaW50ZXJmYWNlL2lvL2tiZGlmLmggICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAga2VybmVsL2Nncm91cC9jcHVzZXQuYyAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAga2VybmVsL3RyYWNlL0tjb25maWcgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgMTYgKysrKysrKy0tLS0tLS0tCj4gIGxpYi9LY29uZmlnICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gIHNlY3VyaXR5L3NlbGludXgvaG9va3Mu
+YyAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gIHNvdW5kL2NvcmUvS2NvbmZpZyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8ICA0ICsrLS0KPiAgc291bmQvZHJpdmVycy9LY29uZmln
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDQgKystLQo+ICBzb3VuZC9wY2kvS2NvbmZpZyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAxMCArKysrKy0tLS0tCj4gIHRvb2xzL2luY2x1
+ZGUvdWFwaS9saW51eC9wcmN0bC5oICAgICAgICAgICAgICB8ICAyICstCj4gIHRvb2xzL2xpYi9h
+cGkvZnMvZnMuYyAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gIHRvb2xzL21lbW9y
+eS1tb2RlbC9SRUFETUUgICAgICAgICAgICAgICAgICAgICB8IDEwICsrKysrLS0tLS0KCkFzIG1l
+bnRpb25lZCBpbiB0aGUgcHJldmlvdXMgdGhyZWFkLCBJIGFtIGZvciBrZWVwaW5nIHRoZSBjdXJy
+ZW50CnJlZmVyZW5jZXM6IHRoZSBSRUFNREUgaXMgbGlzdGluZyB0aGUgZG9jIGZpbGVzLCBhcyB3
+ZWxsIGFzIG90aGVyCmZpbGVzIGluIHRvb2xzL21lbW9yeS1tb2RlbC8sIHJlbGF0aXZlbHkgdG8g
+dGhhdCBkaXJlY3RvcnkuCgogIEFuZHJlYQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMu
+eGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3hlbi1kZXZlbA==

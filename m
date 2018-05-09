@@ -1,68 +1,518 @@
-From: Andrea Parri <parri.andrea@gmail.com>
-Subject: Re: [PATCH v2 09/11] docs: Fix some broken references
-Date: Wed, 9 May 2018 23:27:28 +0200
-Message-ID: <20180509212728.GA4178@andrea>
-References: <20180509152045.722f0c51@vento.lan>
- <Pine.LNX.4.44L0.1805091509100.1391-100000@iolanthe.rowland.org>
- <20180509164153.5b9ab9db@vento.lan>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: ili251x - add support for Ilitek ILI251x
+ touchscreens
+Date: Wed, 9 May 2018 15:41:52 -0700
+Message-ID: <20180509224152.GB91762@dtor-ws>
+References: <20180507131823.28800-1-pp@emlix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180509164153.5b9ab9db@vento.lan>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, dri-devel@lists.freedesktop.org, Jaroslav Kysela <perex@perex.cz>, Eric Paris <eparis@parisplace.org>, linux-clk@vger.kernel.org, James Morris <jmorris@namei.org>, Alan Stern <stern@rowland.harvard.edu>, xen-devel@lists.xenproject.org, Boqun Feng <boqun.feng@gmail.com>, Nicholas Piggin <npiggin@gmail.com>, Sean Paul <seanpaul@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Antoine Jacquet <royale@zerezo.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Li Zefan <lizefan@huawei.com>, linux-crypto@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, alsa-devel@alsa-project.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, David Airlie <airlied@linux.ie>, Gustavo Padovan <gustavo@pa>
+In-Reply-To: <20180507131823.28800-1-pp@emlix.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Philipp Puschmann <pp@emlix.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, rydberg@bitmath.org, andi@etezian.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-T24gV2VkLCBNYXkgMDksIDIwMTggYXQgMDQ6NDE6NTNQTSAtMDMwMCwgTWF1cm8gQ2FydmFsaG8g
-Q2hlaGFiIHdyb3RlOgo+IEVtIFdlZCwgOSBNYXkgMjAxOCAxNToxMTowNyAtMDQwMCAoRURUKQo+
-IEFsYW4gU3Rlcm4gPHN0ZXJuQHJvd2xhbmQuaGFydmFyZC5lZHU+IGVzY3JldmV1Ogo+IAo+ID4g
-T24gV2VkLCA5IE1heSAyMDE4LCBNYXVybyBDYXJ2YWxobyBDaGVoYWIgd3JvdGU6Cj4gPiAKPiA+
-ID4gRW0gV2VkLCA5IE1heSAyMDE4IDE5OjE1OjAxICswMjAwCj4gPiA+IEFuZHJlYSBQYXJyaSA8
-cGFycmkuYW5kcmVhQGdtYWlsLmNvbT4gZXNjcmV2ZXU6ICAKPiA+IAo+ID4gPiA+ID4gIHRvb2xz
-L21lbW9yeS1tb2RlbC9SRUFETUUgICAgICAgICAgICAgICAgICAgICB8IDEwICsrKysrLS0tLS0g
-ICAgCj4gPiA+ID4gCj4gPiA+ID4gQXMgbWVudGlvbmVkIGluIHRoZSBwcmV2aW91cyB0aHJlYWQs
-IEkgYW0gZm9yIGtlZXBpbmcgdGhlIGN1cnJlbnQKPiA+ID4gPiByZWZlcmVuY2VzOiB0aGUgUkVB
-TURFIGlzIGxpc3RpbmcgdGhlIGRvYyBmaWxlcywgYXMgd2VsbCBhcyBvdGhlcgo+ID4gPiA+IGZp
-bGVzIGluIHRvb2xzL21lbW9yeS1tb2RlbC8sIHJlbGF0aXZlbHkgdG8gdGhhdCBkaXJlY3Rvcnku
-ICAKPiA+ID4gCj4gPiA+IFllYWgsIGF0IGxlYXN0IHRoaXMgaHVuayBkZXNlcnZlcyBzb21lIHJl
-d29yaywgYXMgbm93IHNvbWUKPiA+ID4gcmVmZXJlbmNlcyBhcmUgRG9jdW1lbnRhdGlvbi8uLi4v
-Zm9vLCB3aGlsZSBvdGhlcnMgYXJlIGp1c3QKPiA+ID4gYmFyLgo+ID4gPiAKPiA+ID4gQXMgb24g
-KGFsbW9zdCkgYWxsIG90aGVyIHBsYWNlcyAoZXhjZXB0IGZvciB0b29scy9tZW1vcnktbW9kZWwv
-UkVBRE1FKSwKPiA+ID4gdGhlIHJlZmVyZW5jZXMgYXJlIGFsd2F5cyBmcm9tIHRoZSBtYWluIGRp
-cmVjdG9yeSwgSSB3b3VsZCBtYWtlIGFsbAo+ID4gPiBwYXRjaGVzIHRoZXJlIGFsc28gcmVsYXRp
-dmUgdG8gbWFpbiBkaXIuIElmIHlvdSdyZSBhZnJhaWQgb2YKPiA+ID4gbm90IGJlaW5nIHRvbyBj
-bGVhcmVyLCB3ZSBjb3VsZCBwcmVmaXggYWxsIG9mIHRoZW0gd2l0aCBzb21ldGhpbmcKPiA+ID4g
-bGlrZToKPiA+ID4gCj4gPiA+IAkke0xJTlVYfS90b29scy9tZW1vcnktbW9kZWwvLi4uCj4gPiA+
-IAo+ID4gPiBqdXN0IGxpa2Ugc29tZSBEVCBiaW5kaW5nIGZpbGVzIGRvOgo+ID4gPiAKPiA+ID4g
-CURvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9zb3VuZC9hdWRpby1ncmFwaC1jYXJk
-LnR4dDpzZWUgJHtMSU5VWH0vRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2dyYXBo
-LnR4dAo+ID4gPiAKPiA+ID4gQSBib251cyBvZiBkb2luZyB0aGF0IGlzIHRoYXQgdGhlIGJyb2tl
-biByZWZlcmVuY2UgZGV0ZWN0IHNjcmlwdCBjYW4KPiA+ID4ga2VlcCBwYXJzaW5nIGl0IHdpdGhv
-dXQgY2hhbmdlcyAod2VsbCwgaXQgd291bGRuJ3QgYmUgaGFyZCB0byBtYWtlCj4gPiA+IGl0IGFs
-c28gYWNjZXB0IGEgcmVsYXRpdmUgZmlsZSwgYnV0IGRvaW5nIHRoYXQganVzdCBkdWUgdG8gCj4g
-PiA+IHRvb2xzL21lbW9yeS1tb2RlbC9SRUFETUUgc2VlbXMgb3ZlcmtpbGwpLgo+ID4gPiAKPiA+
-ID4gQW5vdGhlciBhZHZhbnRhZ2UgaXMgdGhhdCBpdCB3b3VsZCBhbGxvdyB0byBlYXNpbHkgYWRk
-IHJlZmVyZW5jZXMKPiA+ID4gdGhlcmUgZnJvbSB0aGUgbWFpbiBrZXJuZWwgRG9jdW1lbnRhdGlv
-biwgaWYgbmVlZGVkIGluIHRoZSBmdXR1cmUsCj4gPiA+IHdpdGhvdXQgbWVzc2luZyB3aXRoIGxv
-Y2FsIHggbm9uLWxvY2FsIHJlbGF0aXZlIG5hbWVzcGFjZS4gIAo+ID4gCj4gPiBIb3cgYWJvdXQg
-Y2hhbmdpbmcgdGhlIHJlbGF0aXZlIHJlZmVyZW5jZXMgc28gdGhhdCBzb21ldGhpbmcgbGlrZQo+
-ID4gRG9jdW1lbnRhdGlvbi9yZWNpcGVzLnR4dCBiZWNvbWVzIC4vRG9jdW1lbnRhdGlvbi9yZWNp
-cGVzLnR4dD8KPiAKPiBTb3VuZHMgYSBnb29kIGlkZWEgdG8gbWUuIEFuZHJlYT8KCkNvdW50ZXJp
-bnR1aXRpdmUgOy0pICBEb2N1bWVudGF0aW9uL2FiYy50eHQgdnMuIC4vRG9jdW1lbnRhdGlvbi9h
-YmMudHh0CkJ1dCBsZXQgbWUgc2xlZXAgb3ZlciB0aGlzIDstKSAgZm9yIHRoZSB0aW1lIGJlaW5n
-LCBJIHJlbmV3IG15IHZvdGUgZm9yCiJqdXN0IGRvbid0IGNvbW1pdCB0aGVzZSBjaGFuZ2VzIChh
-bmQga2VlcCBjaGVja2luZyBhdXRvbWF0ZWQgY2hhbmdlcykiLgoKICBBbmRyZWEKCgo+IAo+IFRo
-YW5rcywKPiBNYXVybwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5v
-cmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZl
-bA==
+Hi Philipp,
+
+On Mon, May 07, 2018 at 03:18:23PM +0200, Philipp Puschmann wrote:
+> The driver supports at least the ili2511 chipset but may support other
+> Ilitek chipsets using Ilitek i2c protocol v3.x.
+> 
+> The tested ili2511-based touchscreen delivers garbage for more than 6
+> fingers while it should support up to 10 fingers. The reason is still
+> unclear and this remains a FIXME in the driver for now.
+> 
+> The usage of pressure is optional. Touchscreens may deliver constant
+> and so useless pressure data.
+
+Is it dependent on model or what? I would much rather we did not have DT
+property for this.
+
+> 
+> Signed-off-by: Philipp Puschmann <pp@emlix.com>
+> ---
+>  .../bindings/input/touchscreen/ili251x.txt    |  35 ++
+>  drivers/input/touchscreen/Kconfig             |  12 +
+>  drivers/input/touchscreen/Makefile            |   1 +
+>  drivers/input/touchscreen/ili251x.c           | 350 ++++++++++++++++++
+>  4 files changed, 398 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ili251x.txt
+>  create mode 100644 drivers/input/touchscreen/ili251x.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ili251x.txt b/Documentation/devicetree/bindings/input/touchscreen/ili251x.txt
+> new file mode 100644
+> index 000000000000..f21ad93d3bdd
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ili251x.txt
+> @@ -0,0 +1,35 @@
+> +Ilitek ili251x touchscreen driver
+> +
+> +This driver uses protocol version 3 and should be compatible with other
+> +Ilitek touch controllers that use protocol 3.x
+> +
+> +Required properties:
+> + - compatible:  "ili251x"
+> + - reg:         I2C slave address of the chip (0x41)
+> + - interrupt-parent: a phandle pointing to the interrupt controller
+> +                     serving the interrupt for this chip
+> + - interrupts:       interrupt specification for the touchdetect
+> +                     interrupt
+> +
+> +Optional properties:
+> + - reset-gpios: GPIO specification for the RESET input
+> +
+> + - pinctrl-names: should be "default"
+> + - pinctrl-0:   a phandle pointing to the pin settings for the
+> +                control gpios
+> + - max-fingers: the maximum number of fingers to handle
+> + - pressure: support pressure data
+> + - generic options	   : See touchscreen.txt
+> +
+> +Example:
+> +
+> +	ili251x@41 {
+> +		compatible = "ili251x";
+> +		reg = <0x41>;
+> +		pinctrl-names = "default";
+> +		pinctrl-0 = <&pinctrl_touchpanel>;
+> +		interrupt-parent = <&gpio5>;
+> +		interrupts = <20 IRQ_TYPE_EDGE_FALLING>;
+> +		reset-gpios = <&gpio5 18 GPIO_ACTIVE_HIGH>;
+> +		max-fingers = <6>;
+> +	};
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 4f15496fec8b..569528834d48 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -380,6 +380,18 @@ config TOUCHSCREEN_ILI210X
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called ili210x.
+>  
+> +config TOUCHSCREEN_ILI251X
+> +	tristate "Ilitek ILI251X based touchscreen"
+> +	depends on I2C
+> +	help
+> +	  Say Y here if you have a ILI251X based touchscreen
+> +	  controller. This driver supports ILI2511.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called ili251x.
+> +
+>  config TOUCHSCREEN_IPROC
+>  	tristate "IPROC touch panel driver support"
+>  	depends on ARCH_BCM_IPROC || COMPILE_TEST
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index dddae7973436..e795b62e5f64 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -43,6 +43,7 @@ obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
+>  obj-$(CONFIG_TOUCHSCREEN_HIDEEP)	+= hideep.o
+>  obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+> +obj-$(CONFIG_TOUCHSCREEN_ILI251X)	+= ili251x.o
+>  obj-$(CONFIG_TOUCHSCREEN_IMX6UL_TSC)	+= imx6ul_tsc.o
+>  obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
+>  obj-$(CONFIG_TOUCHSCREEN_IPROC)		+= bcm_iproc_tsc.o
+> diff --git a/drivers/input/touchscreen/ili251x.c b/drivers/input/touchscreen/ili251x.c
+> new file mode 100644
+> index 000000000000..203367b59902
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/ili251x.c
+> @@ -0,0 +1,350 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/* Copyright (c) 2018, emlix GmbH. All rights reserved. */
+> +
+> +#include <linux/module.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/delay.h>
+> +#include <linux/gpio/consumer.h>
+> +#include <linux/slab.h>
+> +#include <linux/input.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/irq.h>
+> +
+> +#define MAX_FINGERS		10
+> +#define REG_TOUCHDATA		0x10
+> +#define TOUCHDATA_FINGERS	6
+> +#define REG_TOUCHDATA2		0x14
+> +#define TOUCHDATA2_FINGERS	4
+> +#define REG_PANEL_INFO		0x20
+> +#define REG_FIRMWARE_VERSION	0x40
+> +#define REG_PROTO_VERSION	0x42
+> +#define REG_CALIBRATE		0xcc
+> +
+> +struct finger {
+> +	u8 x_high:6;
+> +	u8 dummy:1;
+> +	u8 status:1;
+
+This does not work on BE as the order of bits will be reversed. Please
+use masks, shifts, etc instead.
+
+> +	u8 x_low;
+> +	u8 y_high;
+> +	u8 y_low;
+> +	u8 pressure;
+> +} __packed;
+> +
+> +struct touchdata {
+> +	u8 status;
+> +	struct finger fingers[MAX_FINGERS];
+> +} __packed;
+> +
+> +struct panel_info {
+> +	u8 x_low;
+> +	u8 x_high;
+
+__le16?
+
+> +	u8 y_low;
+> +	u8 y_high;
+
+__le16
+
+> +	u8 xchannel_num;
+> +	u8 ychannel_num;
+> +	u8 max_fingers;
+> +} __packed;
+
+This does not need to be packed.
+
+> +
+> +struct firmware_version {
+> +	u8 id;
+> +	u8 major;
+> +	u8 minor;
+> +} __packed;
+> +
+> +struct protocol_version {
+> +	u8 major;
+> +	u8 minor;
+> +} __packed;
+> +
+> +struct ili251x_data {
+> +	struct i2c_client *client;
+> +	struct input_dev *input;
+> +	unsigned int max_fingers;
+> +	bool use_pressure;
+> +	struct gpio_desc *reset_gpio;
+> +};
+> +
+> +static int ili251x_read_reg(struct i2c_client *client, u8 reg, void *buf,
+> +			    size_t len)
+> +{
+> +	struct i2c_msg msg[2] = {
+> +		{
+> +			.addr	= client->addr,
+> +			.flags	= 0,
+> +			.len	= 1,
+> +			.buf	= &reg,
+> +		},
+> +		{
+> +			.addr	= client->addr,
+> +			.flags	= I2C_M_RD,
+> +			.len	= len,
+> +			.buf	= buf,
+> +		}
+> +	};
+> +
+> +	if (i2c_transfer(client->adapter, msg, 2) != 2) {
+> +		dev_err(&client->dev, "i2c transfer failed\n");
+> +		return -EIO;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void ili251x_report_events(struct ili251x_data *data,
+> +				  const struct touchdata *touchdata)
+> +{
+> +	struct input_dev *input = data->input;
+> +	unsigned int i;
+> +	bool touch;
+> +	unsigned int x, y;
+> +	const struct finger *finger;
+> +	unsigned int reported_fingers = 0;
+> +
+> +	/* the touch chip does not count the real fingers but switches between
+> +	 * 0, 6 and 10 reported fingers *
+> +	 *
+> +	 * FIXME: With a tested ili2511 we received only garbage for fingers
+> +	 *        6-9. As workaround we add a device tree option to limit the
+> +	 *        handled number of fingers
+> +	 */
+> +	if (touchdata->status == 1)
+> +		reported_fingers = 6;
+> +	else if (touchdata->status == 2)
+> +		reported_fingers = 10;
+> +
+> +	for (i = 0; i < reported_fingers && i < data->max_fingers; i++) {
+> +		input_mt_slot(input, i);
+> +
+> +		finger = &touchdata->fingers[i];
+> +
+> +		touch = finger->status;
+> +		input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
+> +		x = finger->x_low | (finger->x_high << 8);
+> +		y = finger->y_low | (finger->y_high << 8);
+> +
+> +		if (touch) {
+> +			input_report_abs(input, ABS_MT_POSITION_X, x);
+> +			input_report_abs(input, ABS_MT_POSITION_Y, y);
+> +			if (data->use_pressure)
+> +				input_report_abs(input, ABS_MT_PRESSURE,
+> +						 finger->pressure);
+> +
+> +		}
+> +	}
+> +
+> +	input_mt_report_pointer_emulation(input, false);
+> +	input_sync(input);
+> +}
+> +
+> +static irqreturn_t ili251x_irq(int irq, void *irq_data)
+> +{
+> +	struct ili251x_data *data = irq_data;
+> +	struct i2c_client *client = data->client;
+> +	struct touchdata touchdata;
+> +	int error;
+> +
+> +	error = ili251x_read_reg(client, REG_TOUCHDATA,
+> +				 &touchdata,
+> +				 sizeof(touchdata) -
+> +					sizeof(struct finger)*TOUCHDATA2_FINGERS);
+> +
+> +	if (!error && touchdata.status == 2 && data->max_fingers > 6)
+> +		error = ili251x_read_reg(client, REG_TOUCHDATA2,
+> +					 &touchdata.fingers[TOUCHDATA_FINGERS],
+> +					 sizeof(struct finger)*TOUCHDATA2_FINGERS);
+> +
+> +	if (!error)
+> +		ili251x_report_events(data, &touchdata);
+> +	else
+> +		dev_err(&client->dev,
+> +			"Unable to get touchdata, err = %d\n", error);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static void ili251x_reset(struct ili251x_data *data)
+> +{
+> +	if (data->reset_gpio) {
+> +		gpiod_set_value(data->reset_gpio, 1);
+> +		usleep_range(50, 100);
+> +		gpiod_set_value(data->reset_gpio, 0);
+> +		msleep(100);
+> +	}
+> +}
+> +
+> +static int ili251x_i2c_probe(struct i2c_client *client,
+> +				       const struct i2c_device_id *id)
+> +{
+> +	struct device *dev = &client->dev;
+> +	struct ili251x_data *data;
+> +	struct input_dev *input;
+> +	struct panel_info panel;
+> +	struct device_node *np = dev->of_node;
+> +	struct firmware_version firmware;
+> +	struct protocol_version protocol;
+> +	int xmax, ymax;
+> +	int error;
+> +
+> +	dev_dbg(dev, "Probing for ili251x I2C Touschreen driver");
+> +
+> +	if (client->irq <= 0) {
+> +		dev_err(dev, "No IRQ!\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+> +	input = devm_input_allocate_device(dev);
+> +	if (!data || !input)
+
+Please use separate tests here.
+
+> +		return -ENOMEM;
+> +
+> +	data->client = client;
+> +	data->input = input;
+> +	data->use_pressure = false;
+> +
+> +	data->reset_gpio = devm_gpiod_get_optional(dev, "reset",
+> +						   GPIOD_OUT_HIGH);
+> +	if (IS_ERR(data->reset_gpio)) {
+> +		error = PTR_ERR(data->reset_gpio);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_err(dev,
+> +				"Failed to get reset GPIO: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	ili251x_reset(data);
+> +
+> +	error = ili251x_read_reg(client, REG_FIRMWARE_VERSION,
+> +				 &firmware, sizeof(firmware));
+> +	if (error) {
+> +		dev_err(dev, "Failed to get firmware version, err: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	error = ili251x_read_reg(client, REG_PROTO_VERSION,
+> +				 &protocol, sizeof(protocol));
+> +	if (error) {
+> +		dev_err(dev, "Failed to get protocol version, err: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +	if (protocol.major != 3) {
+> +		dev_err(dev, "This driver expects protocol version 3.x, Chip uses: %d\n",
+> +				protocol.major);
+> +		return -EINVAL;
+> +	}
+> +
+> +	error = ili251x_read_reg(client, REG_PANEL_INFO, &panel, sizeof(panel));
+> +	if (error) {
+> +		dev_err(dev, "Failed to get panel information, err: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	data->max_fingers = panel.max_fingers;
+> +	if (np) {
+> +		int max_fingers;
+> +
+> +		error = of_property_read_u32(np, "max-fingers", &max_fingers);
+> +		if (!error && max_fingers < data->max_fingers)
+> +			data->max_fingers = max_fingers;
+> +
+> +		if (of_property_read_bool(np, "pressure"))
+> +			data->use_pressure = true;
+> +	}
+> +
+> +	xmax = panel.x_low | (panel.x_high << 8);
+> +	ymax = panel.y_low | (panel.y_high << 8);
+> +
+> +	/* Setup input device */
+> +	input->name = "ili251x Touchscreen";
+> +	input->id.bustype = BUS_I2C;
+> +	input->dev.parent = dev;
+
+This is done by devm_input_allocate_device(), please drop.
+
+> +
+> +	__set_bit(EV_SYN, input->evbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(EV_ABS, input->evbit);
+> +	__set_bit(BTN_TOUCH, input->keybit);
+> +
+> +	/* Single touch */
+> +	input_set_abs_params(input, ABS_X, 0, xmax, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, ymax, 0, 0);
+> +
+> +	/* Multi touch */
+> +	input_mt_init_slots(input, data->max_fingers, 0);
+
+Error handling please.
+
+The touchscreens should be marked as INPUT_MT_DIRECT.
+
+> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, xmax, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, ymax, 0, 0);
+> +	if (data->use_pressure)
+> +		input_set_abs_params(input, ABS_MT_PRESSURE, 0, U8_MAX, 0, 0);
+
+You want to set up absolute axes before you call input_mt_init_slots()
+so that single-touch emulation is set up properly.
+
+> +
+> +	i2c_set_clientdata(client, data);
+> +
+> +	error = devm_request_threaded_irq(dev, client->irq, NULL, ili251x_irq,
+> +				 IRQF_ONESHOT, client->name, data);
+> +
+> +	if (error) {
+> +		dev_err(dev, "Unable to request touchscreen IRQ, err: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	error = input_register_device(data->input);
+> +	if (error) {
+> +		dev_err(dev, "Cannot register input device, err: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	device_init_wakeup(dev, 1);
+> +
+> +	dev_info(dev,
+> +		"ili251x initialized (IRQ: %d), firmware version %d.%d.%d fingers %d",
+> +		client->irq, firmware.id, firmware.major, firmware.minor,
+> +		data->max_fingers);
+
+dve_dbg() if you really need this, but I would rather drop.
+
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused ili251x_i2c_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	if (device_may_wakeup(&client->dev))
+> +		enable_irq_wake(client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused ili251x_i2c_resume(struct device *dev)
+> +{
+> +	struct i2c_client *client = to_i2c_client(dev);
+> +
+> +	if (device_may_wakeup(&client->dev))
+> +		disable_irq_wake(client->irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(ili251x_i2c_pm,
+> +			 ili251x_i2c_suspend, ili251x_i2c_resume);
+
+All this boilerplate can be removed if you use dev_pm_set_wake_irq() in
+probe().
+
+> +
+> +static const struct i2c_device_id ili251x_i2c_id[] = {
+> +	{ "ili251x", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, ili251x_i2c_id);
+> +
+> +static struct i2c_driver ili251x_ts_driver = {
+> +	.driver = {
+> +		.name = "ili251x_i2c",
+> +		.pm = &ili251x_i2c_pm,
+> +	},
+> +	.id_table = ili251x_i2c_id,
+> +	.probe = ili251x_i2c_probe,
+> +};
+> +
+> +module_i2c_driver(ili251x_ts_driver);
+> +
+> +MODULE_AUTHOR("Philipp Puschmann <pp@emlix.com>");
+> +MODULE_DESCRIPTION("ili251x I2C Touchscreen Driver");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 2.17.0
+> 
+
+Thanks.
+
+-- 
+Dmitry

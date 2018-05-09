@@ -1,65 +1,80 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 Subject: Re: [PATCHv2] Input: atmel_mxt_ts - fix reset-gpio for level based
  irqs
-Date: Wed, 9 May 2018 16:25:45 +0200
-Message-ID: <20180509142545.GC25131@amd>
+Date: Wed, 9 May 2018 16:40:32 +0200
+Message-ID: <20180509144032.kirx5rz4cbz6cl4l@earth.universe>
 References: <20180420172408.26164-1-sebastian.reichel@collabora.co.uk>
  <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
+ <20180509142545.GC25131@amd>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Bu8it7iiRSEf40bY"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="dxewti5y2ddcf3wa"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
+In-Reply-To: <20180509142545.GC25131@amd>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+To: Pavel Machek <pavel@ucw.cz>
 Cc: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>, kernel@collabora.com
 List-Id: linux-input@vger.kernel.org
 
 
---Bu8it7iiRSEf40bY
+--dxewti5y2ddcf3wa
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon 2018-04-23 13:58:44, Sebastian Reichel wrote:
-> The current reset-gpio support triggers an interrupt storm on platforms
-> using the maxtouch with level based interrupt. The Motorola Droid 4,
-> which I used for some of the tests is not affected, since it uses a edge
-> based interrupt.
+Hi,
+
+On Wed, May 09, 2018 at 04:25:45PM +0200, Pavel Machek wrote:
+> On Mon 2018-04-23 13:58:44, Sebastian Reichel wrote:
+> > The current reset-gpio support triggers an interrupt storm on platforms
+> > using the maxtouch with level based interrupt. The Motorola Droid 4,
+> > which I used for some of the tests is not affected, since it uses a edge
+> > based interrupt.
+> >=20
+> > This change avoids the interrupt storm by enabling the device while its
+> > interrupt is disabled. Afterwards we wait 100ms. This is important for
+> > two reasons: The device is unresponsive for some time (~22ms for
+> > mxt224E) and the CHG (interrupt) line is not working properly for 100ms.
+> > We don't need to wait for any following interrupts, since the following
+> > mxt_initialize() checks for bootloader mode anyways.
+> >=20
+> > This fixes a boot issue on GE PPD (watchdog kills device due to
+> > interrupt storm) and does not cause regression on Motorola Droid 4.
 >=20
-> This change avoids the interrupt storm by enabling the device while its
-> interrupt is disabled. Afterwards we wait 100ms. This is important for
-> two reasons: The device is unresponsive for some time (~22ms for
-> mxt224E) and the CHG (interrupt) line is not working properly for 100ms.
-> We don't need to wait for any following interrupts, since the following
-> mxt_initialize() checks for bootloader mode anyways.
+> Out of curiosity, what is "GE PPD"?
+
+PPD is a product from GE Healthcare to monitor vital biometric signals:
+
+arch/arm/boot/dts/imx53-ppd.dts
+
+> > Fixes: f657b00df22e ("Input: atmel_mxt_ts - add support for reset line")
+> > Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 >=20
-> This fixes a boot issue on GE PPD (watchdog kills device due to
-> interrupt storm) and does not cause regression on Motorola Droid 4.
+> Reviewed-by: Pavel Machek <pavel@ucw.cz>
 
-Out of curiosity, what is "GE PPD"?
+Thanks,
 
-> Fixes: f657b00df22e ("Input: atmel_mxt_ts - add support for reset line")
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+-- Sebastian
 
-Reviewed-by: Pavel Machek <pavel@ucw.cz>
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---Bu8it7iiRSEf40bY
+--dxewti5y2ddcf3wa
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
 
-iEYEARECAAYFAlrzBOkACgkQMOfwapXb+vIXWACfVtXLAzqzOfQ6qc7egfLguSG4
-6SkAn05YpM1JDPfHM3vPhPg4CMw8vbqr
-=9fji
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlrzCF0ACgkQ2O7X88g7
++ppdYA//SiNyLginSyY1gtjGqHxRFljwB59QXKJXel4+Dni4CIRQj6zSQAn3DV3i
+raDjqkDJ0hmrmlhofgwMIG07MGDFasHDpsfoc9Be9mLMgpFn7LZhZ7ePfu7Gu6A/
+P+O2yOprL8v3j1fM0t/0AIUtZRXo/nu1CCmb21Kj+Nic0fbKc2HPJs8troI9GaBY
+OQhuSv5oFAiadlAA3Yt9owPyhJTPSZybShhqFiZeqcF86o+bCtwPLx0OcBoF71iR
+VT6ttCZogn+GLr2DarnsYZxBC1Qv0PWEK9noDfo8eQZGxcvv/V6CYIDXkmHzlipu
+jTdYRNt0LTWfotlnv02NnCM4yU0k9Dm7fCASgPfDG9dZNX0IAAv0rmDK8fRkfYth
+tqSvBjOWlwtRtudCVFt1FZrIXbK25els/nZdlWIHnxmIFbsjgCZbvkMhJBIXRn3A
+ItIgft2jysHZt1LhRsrPrtondF//v2sdcLgCTmUAn2EbwLkGJKbhDiTQMCLSpbn/
+ns5pasYDlVKuSf9JlBZ9kLfnOJBilsGTHc2ADQR8AnulkcIx+ql/UYf2BFJ2lItY
+/iH66gVJqZE0VRyw1TM/ErX0MhxTZwF97jX5Dqy/mcaQp7rZDJuELYTH5ao31AkF
+qi0uQKsgZd7gGCWvXhQj+3P7D0jvTbmEJnf679TxDRX3ZrBYX/8=
+=ZL8Z
 -----END PGP SIGNATURE-----
 
---Bu8it7iiRSEf40bY--
+--dxewti5y2ddcf3wa--

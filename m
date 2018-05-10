@@ -1,7 +1,7 @@
 From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH v5 9/9] ARM: dts: at91: sama5d2: Add resistive touch device
-Date: Thu, 10 May 2018 13:45:14 +0300
-Message-ID: <1525949114-29263-10-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v5 7/9] dt-bindings: iio: adc: at91-sama5d2_adc: add channel specific consumer info
+Date: Thu, 10 May 2018 13:45:12 +0300
+Message-ID: <1525949114-29263-8-git-send-email-eugen.hristev@microchip.com>
 References: <1525949114-29263-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,37 +12,62 @@ To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin
 Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-Add generic resistive touch device which is connected to ADC block
-inside the SAMA5D2 SoC
+Added defines for channel consumer device-tree binding
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
-Changes in v5:
- - renamed touchscreen-threshold-pressure to touchscreen-min-pressure
+ .../devicetree/bindings/iio/adc/at91-sama5d2_adc.txt     |  9 +++++++++
+ include/dt-bindings/iio/adc/at91-sama5d2_adc.h           | 16 ++++++++++++++++
+ 2 files changed, 25 insertions(+)
+ create mode 100644 include/dt-bindings/iio/adc/at91-sama5d2_adc.h
 
- arch/arm/boot/dts/sama5d2.dtsi | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
-index f06ba99..a44f325 100644
---- a/arch/arm/boot/dts/sama5d2.dtsi
-+++ b/arch/arm/boot/dts/sama5d2.dtsi
-@@ -1442,6 +1442,16 @@
- 				status = "disabled";
- 			};
- 
-+			resistive_touch: resistive-touch {
-+				compatible = "resistive-adc-touch";
-+				io-channels = <&adc AT91_SAMA5D2_ADC_X_CHANNEL>,
-+					      <&adc AT91_SAMA5D2_ADC_Y_CHANNEL>,
-+					      <&adc AT91_SAMA5D2_ADC_P_CHANNEL>;
-+				io-channel-names = "x", "y", "pressure";
-+				touchscreen-min-pressure = <50000>;
-+				status = "disabled";
-+			};
+diff --git a/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt b/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt
+index 6469a4c..4a3c1d4 100644
+--- a/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt
++++ b/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt
+@@ -21,6 +21,14 @@ Optional properties:
+   - dmas: Phandle to dma channel for the ADC.
+   - dma-names: Must be "rx" when dmas property is being used.
+   See ../../dma/dma.txt for details.
++  - #io-channel-cells: in case consumer drivers are attached, this must be 1.
++  See <Documentation/devicetree/bindings/iio/iio-bindings.txt> for details.
 +
- 			pioA: pinctrl@fc038000 {
- 				compatible = "atmel,sama5d2-pinctrl";
- 				reg = <0xfc038000 0x600>;
++Properties for consumer drivers:
++  - Consumer drivers can be connected to this producer device, as specified
++  in <Documentation/devicetree/bindings/iio/iio-bindings.txt>
++  - Channels exposed are specified in:
++  <dt-bindings/iio/adc/at91-sama5d2_adc.txt>
+ 
+ Example:
+ 
+@@ -38,4 +46,5 @@ adc: adc@fc030000 {
+ 	atmel,trigger-edge-type = <IRQ_TYPE_EDGE_BOTH>;
+ 	dmas = <&dma0 (AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1) | AT91_XDMAC_DT_PERID(25))>;
+ 	dma-names = "rx";
++	#io-channel-cells = <1>;
+ }
+diff --git a/include/dt-bindings/iio/adc/at91-sama5d2_adc.h b/include/dt-bindings/iio/adc/at91-sama5d2_adc.h
+new file mode 100644
+index 0000000..70f99db
+--- /dev/null
++++ b/include/dt-bindings/iio/adc/at91-sama5d2_adc.h
+@@ -0,0 +1,16 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * This header provides constants for configuring the AT91 SAMA5D2 ADC
++ */
++
++#ifndef _DT_BINDINGS_IIO_ADC_AT91_SAMA5D2_ADC_H
++#define _DT_BINDINGS_IIO_ADC_AT91_SAMA5D2_ADC_H
++
++/* X relative position channel index */
++#define AT91_SAMA5D2_ADC_X_CHANNEL		24
++/* Y relative position channel index */
++#define AT91_SAMA5D2_ADC_Y_CHANNEL		25
++/* pressure channel index */
++#define AT91_SAMA5D2_ADC_P_CHANNEL		26
++
++#endif
 -- 
 2.7.4

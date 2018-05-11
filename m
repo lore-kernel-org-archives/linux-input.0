@@ -1,62 +1,51 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Thu, 10 May 2018 20:03:05 +0800
-Message-ID: <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
- <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com> <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH v4 1/2] xen/kbdif: Add string constants for
+ raw pointer
+Date: Fri, 11 May 2018 09:37:57 -0400
+Message-ID: <20180511133757.GG19972@char.us.oracle.com>
+References: <20180502144919.16780-1-andr2000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Drake <drake@endlessm.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+Content-Disposition: inline
+In-Reply-To: <20180502144919.16780-1-andr2000@gmail.com>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Oleksandr Andrushchenko <andr2000@gmail.com>
+Cc: xen-devel@lists.xenproject.org, dmitry.torokhov@gmail.com, jandryuk@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 8, 2018 at 11:47 PM, Daniel Drake <drake@endlessm.com> wrote:
-> On Tue, May 8, 2018 at 8:31 AM, Jarkko Nikula
-> <jarkko.nikula@linux.intel.com> wrote:
->>> Some update, we can make the touchpad work by simply modifying the
->>> clk_rate of spt_i2c_info from 120000000 to 133000000 in intel-lpss-pci.c for
->>> specific PCI ID 8086:a368 ~ a36a (CoffeeLake). Is the clock setting different
->>> for the CoffeeLake series?
->>>
->> Hmm.. at quick look it looks like to be 133 MHz but I want to double check first from other specs. I'm also wondering why it results 600 kHz instead of expected 133/120 * 400 kHz = 443 kHz. Need to check timing parameters too.
->
-> Thanks for looking at this. I believe we tried 133MHz just because
-> some other platforms in the file have the clock at that speed.
->
-> In the original/shipped setup, the scope shows the SDA clock is
-> running at ~635kHz (rather than the intended 400kHz) and the debug
-> logs from the kernel producing that waveform shows that HCNT=105 and
-> LCNT=191
->
-> 105+191=296 parent clock ticks per cycle
->
-> At 635kHz, a single clock cycle is 1575ns. What is the speed of the
-> parent clock if it ticks 296 times in 1575ns? I calculate this to be
-> 187960000Hz and further experiments indicate that clk_rate=187960000
-> also makes the touchpad work. Unfortunately we don't have easy access
-> to the scope to measure the effect on the waveform.
->
-> Also through experimentation we tried i2c-sda-falling-time-ns=400ns
-> (increasing from the default of 300ns) in order to make the HCNT
-> increase to 117. This also makes the touchpad work.
->
-
-Report from guys who can access scope. If i2c-sda-falling-time-ns=400ns
-, HCNT increase to 117, the SCL high duration is 576ns as follows
-https://pasteboard.co/HkwERvP.png
-
-The original SCL high duration (HCNT = 105, 120MHz) is as follows
-https://pasteboard.co/HkwFxgY.png
-
-So the HCNT does affect but per this HCNT/LCNT value, just not 400kHz
-as expected. Any suggestion?
-
-> Please let us know if we can help further in finding an upstream fix
-> for this issue.
->
-> Thanks
-> Daniel
+T24gV2VkLCBNYXkgMDIsIDIwMTggYXQgMDU6NDk6MThQTSArMDMwMCwgT2xla3NhbmRyIEFuZHJ1
+c2hjaGVua28gd3JvdGU6Cj4gRnJvbTogT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gPG9sZWtzYW5k
+cl9hbmRydXNoY2hlbmtvQGVwYW0uY29tPgo+IAo+IEFkZCBtaXNzaW5nIHN0cmluZyBjb25zdGFu
+dHMgZm9yIHtmZWF0dXJlfHJlcXVlc3R9LXJhdy1wb2ludGVyCj4gdG8gYWxpZ24gd2l0aCB0aGUg
+cmVzdCBvZiB0aGUgaW50ZXJmYWNlIGZpbGUuCj4gCj4gRml4ZXMgNzg2ODY1NGZmN2ZlICgia2Jk
+aWY6IERlZmluZSAiZmVhdHVyZS1yYXctcG9pbnRlciIgYW5kICJyZXF1ZXN0LXJhdy1wb2ludGVy
+IikKPiAKPiBTaWduZWQtb2ZmLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8b2xla3NhbmRy
+X2FuZHJ1c2hjaGVua29AZXBhbS5jb20+CgoKUmV2aWV3ZWQtYnk6IEtvbnJhZCBSemVzenV0ZWsg
+V2lsayA8a29ucmFkLndpbGtAb3JhY2xlLmNvbT4KClRoYW5rIHlvdSEKPiAtLS0KPiAgeGVuL2lu
+Y2x1ZGUvcHVibGljL2lvL2tiZGlmLmggfCAyICsrCj4gIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2Vy
+dGlvbnMoKykKPiAKPiBkaWZmIC0tZ2l0IGEveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgg
+Yi94ZW4vaW5jbHVkZS9wdWJsaWMvaW8va2JkaWYuaAo+IGluZGV4IDNjZTU0ZTlhNDRjMS4uZGFm
+NGJjMjA2M2M5IDEwMDY0NAo+IC0tLSBhL3hlbi9pbmNsdWRlL3B1YmxpYy9pby9rYmRpZi5oCj4g
+KysrIGIveGVuL2luY2x1ZGUvcHVibGljL2lvL2tiZGlmLmgKPiBAQCAtMTc4LDggKzE3OCwxMCBA
+QAo+ICAjZGVmaW5lIFhFTktCRF9EUklWRVJfTkFNRSAgICAgICAgICAgICAidmtiZCIKPiAgCj4g
+ICNkZWZpbmUgWEVOS0JEX0ZJRUxEX0ZFQVRfQUJTX1BPSU5URVIgICJmZWF0dXJlLWFicy1wb2lu
+dGVyIgo+ICsjZGVmaW5lIFhFTktCRF9GSUVMRF9GRUFUX1JBV19QT0lOVEVSICAiZmVhdHVyZS1y
+YXctcG9pbnRlciIKPiAgI2RlZmluZSBYRU5LQkRfRklFTERfRkVBVF9NVE9VQ0ggICAgICAgImZl
+YXR1cmUtbXVsdGktdG91Y2giCj4gICNkZWZpbmUgWEVOS0JEX0ZJRUxEX1JFUV9BQlNfUE9JTlRF
+UiAgICJyZXF1ZXN0LWFicy1wb2ludGVyIgo+ICsjZGVmaW5lIFhFTktCRF9GSUVMRF9SRVFfUkFX
+X1BPSU5URVIgICAicmVxdWVzdC1yYXctcG9pbnRlciIKPiAgI2RlZmluZSBYRU5LQkRfRklFTERf
+UkVRX01UT1VDSCAgICAgICAgInJlcXVlc3QtbXVsdGktdG91Y2giCj4gICNkZWZpbmUgWEVOS0JE
+X0ZJRUxEX1JJTkdfR1JFRiAgICAgICAgICJwYWdlLWdyZWYiCj4gICNkZWZpbmUgWEVOS0JEX0ZJ
+RUxEX0VWVF9DSEFOTkVMICAgICAgICJldmVudC1jaGFubmVsIgo+IC0tIAo+IDIuMTcuMAo+IAoK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVs
+IG1haWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0
+cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3hlbi1kZXZlbA==

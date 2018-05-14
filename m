@@ -1,35 +1,59 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 0/9] Input: support for latest Lenovo thinkpads (series 80)
-Date: Mon, 14 May 2018 10:19:29 +0200
-Message-ID: <CAO-hwJ+2NoqZWLMzThJWZm55PAJ41ZxpCU3-pEHOxyWzqrLSDQ@mail.gmail.com>
-References: <20180409091051.2944-1-benjamin.tissoires@redhat.com>
- <CAO-hwJJnHPEQ+R+8qWb1Dn+otqgmbcKgiNDOyNkVBD+xdzY_zw@mail.gmail.com>
- <00f701d3d627$bcf41de0$36dc59a0$@emc.com.tw> <ca40347e-44cd-aa93-75ba-1bf0a63705be@canonical.com>
+Subject: Re: [PATCH] HID: i2c-hid: check if device is there before really probing
+Date: Mon, 14 May 2018 10:29:56 +0200
+Message-ID: <CAO-hwJKp74oC5M1EWf5YS42G7fM2disWrW0mfOSnVi-PGH_ryA@mail.gmail.com>
+References: <20180509191215.77406-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ca40347e-44cd-aa93-75ba-1bf0a63705be@canonical.com>
+In-Reply-To: <20180509191215.77406-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Aaron Ma <aaron.ma@canonical.com>
+To: Dmitry Torokhov <dtor@google.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Brian Norris <briannorris@chromium.org>, Douglas Anderson <dianders@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Wed, May 9, 2018 at 9:12 PM, Dmitry Torokhov <dtor@google.com> wrote:
+> From: Dmitry Torokhov <dtor@chromium.org>
+>
+> On many Chromebooks touch devices are multi-sourced; the components are
+> electrically compatible and one can be freely swapped for another without
+> changing the OS image or firmware.
+>
+> To avoid bunch of scary messages when device is not actually present in the
+> system let's try testing basic communication with it and if there is no
+> response terminate probe early with -ENXIO.
+>
+> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
+> ---
 
-This is your monthly reminder of the Lenov 80 pending series :)
-Could you consider taking this series and Aaron's patch?
+Looks good. Tested on a Dell XPS with an i2c-hid touchpad:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
-On Tue, Apr 17, 2018 at 1:42 PM, Aaron Ma <aaron.ma@canonical.com> wrote:
-> Hi Dmitry and Benjamin:
+>  drivers/hid/i2c-hid/i2c-hid.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 >
-> Could you apply my patch too?
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 7230243b94d30..a59d483ff316a 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -1048,6 +1048,14 @@ static int i2c_hid_probe(struct i2c_client *client,
+>         pm_runtime_enable(&client->dev);
+>         device_enable_async_suspend(&client->dev);
 >
-> It add LEN0096 that Benjamin's patch doesn't include.
+> +       /* Make sure there is something at this address */
+> +       ret = i2c_smbus_read_byte(client);
+> +       if (ret < 0) {
+> +               dev_dbg(&client->dev, "nothing at this address: %d\n", ret);
+> +               ret = -ENXIO;
+> +               goto err_pm;
+> +       }
+> +
+>         ret = i2c_hid_fetch_hid_descriptor(ihid);
+>         if (ret < 0)
+>                 goto err_pm;
+> --
+> 2.17.0.441.gb46fe60e1d-goog
 >
-> +       "LEN0096", /* X280 */
->
-> Regards,
-> Aaron

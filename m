@@ -1,161 +1,35 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v3] Input: add bu21029 touch driver
-Date: Sun, 13 May 2018 17:56:43 +0300
-Message-ID: <CAHp75Vf=eJbJPv5=y3fDKZapAnmABD0=v+WRhrBhMv+RSoBnKg@mail.gmail.com>
-References: <1521651874-15379-1-git-send-email-mark.jonas@de.bosch.com> <1526048528-3613-1-git-send-email-mark.jonas@de.bosch.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/9] Input: support for latest Lenovo thinkpads (series 80)
+Date: Mon, 14 May 2018 10:19:29 +0200
+Message-ID: <CAO-hwJ+2NoqZWLMzThJWZm55PAJ41ZxpCU3-pEHOxyWzqrLSDQ@mail.gmail.com>
+References: <20180409091051.2944-1-benjamin.tissoires@redhat.com>
+ <CAO-hwJJnHPEQ+R+8qWb1Dn+otqgmbcKgiNDOyNkVBD+xdzY_zw@mail.gmail.com>
+ <00f701d3d627$bcf41de0$36dc59a0$@emc.com.tw> <ca40347e-44cd-aa93-75ba-1bf0a63705be@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1526048528-3613-1-git-send-email-mark.jonas@de.bosch.com>
+In-Reply-To: <ca40347e-44cd-aa93-75ba-1bf0a63705be@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Jonas <mark.jonas@de.bosch.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input <linux-input@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heiko Schocher <hs@denx.de>, Zhu Yi <yi.zhu5@cn.bosch.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, Oliver Haessler <oliver@redhat.com>, Benjamin Berg <bberg@redhat.com>, Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Aaron Ma <aaron.ma@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, May 11, 2018 at 5:22 PM, Mark Jonas <mark.jonas@de.bosch.com> wrote:
+Hi Dmitry,
 
-> Add Rohm BU21029 resistive touch panel controller support with I2C
-> interface.
+This is your monthly reminder of the Lenov 80 pending series :)
+Could you consider taking this series and Aaron's patch?
 
-> +#include <linux/of.h>
+Cheers,
+Benjamin
 
-This becomes redundant (see below).
-
-> +#define STOP_DELAY_US  50L
-> +#define START_DELAY_MS 2L
-> +#define BUF_LEN        8L
-
-No need to use L for such small numbers. Integer promotion is a part
-of C standard.
-
-> +#define SCALE_12BIT    (1 << 12)
-> +#define MAX_12BIT      ((1 << 12) - 1)
-
-BIT(12)
-GENMASK(11, 0)
-
-> +static int bu21029_touch_report(struct bu21029_ts_data *bu21029)
-> +{
-> +       struct i2c_client *i2c = bu21029->client;
-> +       u8 buf[BUF_LEN];
-> +       int error = bu21029_touch_report(bu21029);
-
-> +
-
-Redundant empty line.
-
-> +       if (error) {
-
-> +               dev_err(&i2c->dev, "failed to report (error: %d)\n", error);
-
-Potential spamming case.
-
-> +               return IRQ_NONE;
-> +       }
-
-> +static void bu21029_stop_chip(struct input_dev *dev)
-> +{
-> +       struct bu21029_ts_data *bu21029 = input_get_drvdata(dev);
-> +
-> +       disable_irq(bu21029->client->irq);
-> +       del_timer_sync(&bu21029->timer);
-> +
-> +       /* put chip into reset */
-> +       gpiod_set_value_cansleep(bu21029->reset_gpios, 1);
-
-> +       udelay(STOP_DELAY_US);
-
-udelay() ?!
-
-> +}
-> +
-
-> +static int bu21029_start_chip(struct input_dev *dev)
-> +{
-
-> +       u16 hwid;
-> +
-> +       /* take chip out of reset */
-> +       gpiod_set_value_cansleep(bu21029->reset_gpios, 0);
-
-> +       mdelay(START_DELAY_MS);
-
-mdelay()?!
-
-> +
-> +       error = i2c_smbus_read_i2c_block_data(i2c,
-> +                                             BU21029_HWID_REG,
-> +                                             2,
-> +                                             (u8 *)&hwid);
-> +       if (error < 0) {
-> +               dev_err(&i2c->dev, "failed to read HW ID\n");
-> +               goto out;
-> +       }
-> +
-
-> +       if (cpu_to_be16(hwid) != SUPPORTED_HWID) {
-
-Hmm... Why cpu_to_be16() is required?
-
-> +               dev_err(&i2c->dev, "unsupported HW ID 0x%x\n", hwid);
-> +               error = -ENODEV;
-> +               goto out;
-> +       }
-> +}
-
-> +static int bu21029_parse_dt(struct bu21029_ts_data *bu21029)
-
-You can get rid of DT requirement by...
-
-> +{
-> +       struct device *dev = &bu21029->client->dev;
-> +       struct device_node *np = dev->of_node;
-> +       u32 val32;
-> +       int error;
-
-> +       if (!np) {
-> +               dev_err(dev, "no device tree data\n");
-> +               return -EINVAL;
-> +       }
-
-(this becomes redundant)
-
-> +
-> +       bu21029->reset_gpios = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
-> +       if (IS_ERR(bu21029->reset_gpios)) {
-> +               error = PTR_ERR(bu21029->reset_gpios);
-> +               if (error != -EPROBE_DEFER)
-> +                       dev_err(dev, "invalid 'reset-gpios':%d\n", error);
-> +               return error;
-> +       }
-> +
-
-> +       if (of_property_read_u32(np, "rohm,x-plate-ohms", &val32)) {
-
-...simple calling device_property_read_u32() instead.
-
-> +               dev_err(dev, "invalid 'x-plate-ohms' supplied\n");
-> +               return -EINVAL;
-> +       }
-> +       bu21029->x_plate_ohms = val32;
-> +
-> +       touchscreen_parse_properties(bu21029->in_dev, false, &bu21029->prop);
-> +
-> +       return 0;
-> +}
-
-> +#ifdef CONFIG_PM_SLEEP
-
-Instead...
-
-> +static int bu21029_suspend(struct device *dev)
-
-...use __maby_unused annotation.
-
-> +static int bu21029_resume(struct device *dev)
-
-Ditto.
-
--- 
-With Best Regards,
-Andy Shevchenko
+On Tue, Apr 17, 2018 at 1:42 PM, Aaron Ma <aaron.ma@canonical.com> wrote:
+> Hi Dmitry and Benjamin:
+>
+> Could you apply my patch too?
+>
+> It add LEN0096 that Benjamin's patch doesn't include.
+>
+> +       "LEN0096", /* X280 */
+>
+> Regards,
+> Aaron

@@ -1,37 +1,56 @@
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: Re: [PATCH v2 11/11] docs: fix broken references with multiple hints
-Date: Tue, 15 May 2018 12:28:46 +0200
-Message-ID: <9091975.Ce87WTtYpq@amdc3058>
-References: <cover.1525870886.git.mchehab+samsung@kernel.org>
- <CGME20180509131942epcas2p3b11ff686acaa5e3d9afedef1a2a03aa7@epcas2p3.samsung.com>
- <63a4f8a93f9115475bc184d0f37d076c9b9c75ff.1525870886.git.mchehab+samsung@kernel.org>
+From: Philipp Puschmann <pp@emlix.com>
+Subject: Re: [PATCH] Input: ili251x - add support for Ilitek ILI251x
+ touchscreens
+Date: Tue, 15 May 2018 16:31:02 +0200
+Message-ID: <ea37e29e-5cf4-5135-041d-b8be20cc17f2@emlix.com>
+References: <20180507131823.28800-1-pp@emlix.com>
+ <20180509224152.GB91762@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-reply-to: <63a4f8a93f9115475bc184d0f37d076c9b9c75ff.1525870886.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-fbdev@vger.kernel.org, linux-usb@vger.kernel.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Harry Wei <harryxiyou@gmail.com>, devel@driverdev.osuosl.org, Jonathan Corbet <corbet@lwn.net>, James Morris <jmorris@namei.org>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Roy Pledge <Roy.Pledge@nxp.com>, "Serge E. Hallyn" <serge@hallyn.com>, devicetree@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180509224152.GB91762@dtor-ws>
+Content-Language: de-DE
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: robh@kernel.org, mark.rutland@arm.com, rydberg@bitmath.org, andi@etezian.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-T24gV2VkbmVzZGF5LCBNYXkgMDksIDIwMTggMTA6MTg6NTQgQU0gTWF1cm8gQ2FydmFsaG8gQ2hl
-aGFiIHdyb3RlOgo+IFRoZSBzY3JpcHQ6Cj4gCS4vc2NyaXB0cy9kb2N1bWVudGF0aW9uLWZpbGUt
-cmVmLWNoZWNrIC0tZml4LXJzdAo+IAo+IEdpdmVzIG11bHRpcGxlIGhpbnRzIGZvciBicm9rZW4g
-cmVmZXJlbmNlcyBvbiBzb21lIGZpbGVzLgo+IE1hbnVhbGx5IHVzZSB0aGUgb25lIHRoYXQgYXBw
-bGllcyBmb3Igc29tZSBmaWxlcy4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBNYXVybyBDYXJ2YWxobyBD
-aGVoYWIgPG1jaGVoYWIrc2Ftc3VuZ0BrZXJuZWwub3JnPgoKQWNrZWQtYnk6IEJhcnRsb21pZWog
-Wm9sbmllcmtpZXdpY3ogPGIuem9sbmllcmtpZUBzYW1zdW5nLmNvbT4gIyBmb3IgZmJkZXYgcGFy
-dAoKQmVzdCByZWdhcmRzLAotLQpCYXJ0bG9taWVqIFpvbG5pZXJraWV3aWN6ClNhbXN1bmcgUiZE
-IEluc3RpdHV0ZSBQb2xhbmQKU2Ftc3VuZyBFbGVjdHJvbmljcwoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmkt
-ZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
-L21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+Hi Dmitry,
+hi Rob,
+hi Andi,
+
+thank you for your replies and your helpful hints. I will take care of them and
+send a V2 of this driver + dt-bindings soon. As i have a working version of this
+driver working on it has not a very priority so it may need some time.
+
+Most of your points are correct and don't need further discussion. For the pressure
+data i'm unsure, see below.
+
+Am 10.05.2018 um 00:41 schrieb Dmitry Torokhov:
+>> The usage of pressure is optional. Touchscreens may deliver constant
+>> and so useless pressure data.
+> 
+> Is it dependent on model or what? I would much rather we did not have DT
+> property for this.
+I don't know. My touchscreen here delivers a constant (useless) pressure of
+10. So my chip delivers "something". I'm not sure if the chip always delivers
+no real pressure data or if this is dependent from the wiring.
+This was the reason i put it in the dt.
+
+
+Thanks
+Philipp
+
+-- 
+Bitte beachten Sie unsere neue Adresse am Göttinger Standort:
+emlix GmbH, Gothaer Platz 3, 37083 Göttingen
+
+Philipp Puschmann, emlix GmbH, http://www.emlix.com
+Fon +49 551 30664-0, Fax +49 551 30664-11
+Gothaer Platz 3, 37083 Göttingen, Germany
+Sitz der Gesellschaft: Göttingen, Amtsgericht Goettingen HR B 3160
+Geschaeftsführung: Heike Jordan, Dr. Uwe Kracke
+Ust-IdNr.: DE 205 198 055
+
+emlix - smart embedded open source

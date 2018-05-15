@@ -1,72 +1,82 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH v2 11/11] docs: fix broken references with multiple hints
-Date: Tue, 15 May 2018 10:52:28 -0400
-Message-ID: <20180515105228.4ac2df94@gandalf.local.home>
-References: <cover.1525870886.git.mchehab+samsung@kernel.org>
- <63a4f8a93f9115475bc184d0f37d076c9b9c75ff.1525870886.git.mchehab+samsung@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH V3] Input: pm8941-pwrkey: add resin key capabilities
+Date: Tue, 15 May 2018 10:20:55 -0700
+Message-ID: <20180515172055.GB205769@dtor-ws>
+References: <1521786192-19487-1-git-send-email-tirupath@codeaurora.org>
+ <20180505001039.GA112416@dtor-ws>
+ <20180507184659.GG2259@tuxbook-pro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <63a4f8a93f9115475bc184d0f37d076c9b9c75ff.1525870886.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-fbdev@vger.kernel.org, linux-usb@vger.kernel.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, David Airlie <airlied@linux.ie>, Linus Walleij <linus.walleij@linaro.org>, dri-devel@lists.freedesktop.org, Harry Wei <harryxiyou@gmail.com>, devel@driverdev.osuosl.org, Jonathan Corbet <corbet@lwn.net>, James Morris <jmorris@namei.org>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Roy Pledge <Roy.Pledge@nxp.com>, devicetree@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Jiri Kosina <jikos@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, Benjamin
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180507184659.GG2259@tuxbook-pro>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Tirupathi Reddy <tirupath@codeaurora.org>, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed,  9 May 2018 10:18:54 -0300
-Mauro Carvalho Chehab <mchehab+samsung@kernel.org> wrote:
+On Mon, May 07, 2018 at 11:46:59AM -0700, Bjorn Andersson wrote:
+> On Fri 04 May 17:10 PDT 2018, Dmitry Torokhov wrote:
+> 
+> > Hi Tirupathi,
+> > 
+> > On Fri, Mar 23, 2018 at 11:53:12AM +0530, Tirupathi Reddy wrote:
+> > > Add resin key support to handle different types of key events
+> > > defined in different platforms.
+> > > 
+> > > Signed-off-by: Tirupathi Reddy <tirupath@codeaurora.org>
+> > > ---
+> > >  .../bindings/input/qcom,pm8941-pwrkey.txt          | 32 +++++++++
+> > >  drivers/input/misc/pm8941-pwrkey.c                 | 81 ++++++++++++++++++++++
+> > >  2 files changed, 113 insertions(+)
+> > > 
+> > > diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+> [..]
+> > >  EXAMPLE
+> > >  
+> > >  	pwrkey@800 {
+> > > @@ -40,4 +66,10 @@ EXAMPLE
+> > >  		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
+> > >  		debounce = <15625>;
+> > >  		bias-pull-up;
+> > > +
+> > > +		resin {
+> > > +			interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
+> > > +			linux,code = <KEY_VOLUMEDOWN>;
+> > > +			bias-pull-up;
+> > > +		};
+> > >  	};
+> > 
+> > The new key and power key bindings are very similar, I would prefer if
+> > we shared the parsing code and our new DTS looked like:
+> > 
+> > 		power {
+> > 			...
+> > 		};
+> >  
+> > 		resin {
+> > 			...
+> > 		};
+> > 
+> > (we can easily keep backward compatibility with power properties being
+> > in device node).
+> > 
+> 
+> As discussed here https://patchwork.kernel.org/patch/9751627/ the PON
+> block does, in addition to providing power and resin key support also
+> handle the restart reason ("reboot bootloader" in Android).
+> 
+> My interpretation of our conclusion was to come up with a new binding
+> for the "pon" and a driver for this block that instantiates the power
+> key device.
+> 
+> It seems reasonable for such binding to describe the two keys, as you
+> propose here Dmitry, and instantiates the two input devices based on
+> this.
 
+OK, I'll wait for the new driver and binding then.
 
-> diff --git a/Documentation/trace/events.rst b/Documentation/trace/events.rst
-> index 7b6b1236ec2e..c292117b83a9 100644
-> --- a/Documentation/trace/events.rst
-> +++ b/Documentation/trace/events.rst
-> @@ -8,7 +8,7 @@ Event Tracing
->  1. Introduction
->  ===============
->  
-> -Tracepoints (see Documentation/trace/tracepoints.txt) can be used
-> +Tracepoints (see Documentation/trace/tracepoints.rst) can be used
->  without creating custom kernel modules to register probe functions
->  using the event tracing infrastructure.
->  
-> diff --git a/Documentation/trace/tracepoint-analysis.rst b/Documentation/trace/tracepoint-analysis.rst
-> index b0c9c21f129d..716326b9f152 100644
-> --- a/Documentation/trace/tracepoint-analysis.rst
-> +++ b/Documentation/trace/tracepoint-analysis.rst
-> @@ -6,7 +6,7 @@ Notes on Analysing Behaviour Using Events and Tracepoints
->  1. Introduction
->  ===============
->  
-> -Tracepoints (see Documentation/trace/tracepoints.txt) can be used without
-> +Tracepoints (see Documentation/trace/tracepoints.rst) can be used without
->  creating custom kernel modules to register probe functions using the event
->  tracing infrastructure.
->  
+Thanks.
 
-> diff --git a/include/linux/tracepoint.h b/include/linux/tracepoint.h
-> index c94f466d57ef..19a690b559ca 100644
-> --- a/include/linux/tracepoint.h
-> +++ b/include/linux/tracepoint.h
-> @@ -4,7 +4,7 @@
->  /*
->   * Kernel Tracepoint API.
->   *
-> - * See Documentation/trace/tracepoints.txt.
-> + * See Documentation/trace/tracepoints.rst.
->   *
->   * Copyright (C) 2008-2014 Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
->   *
-
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-
--- Steve
+-- 
+Dmitry

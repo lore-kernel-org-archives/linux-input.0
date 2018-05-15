@@ -1,82 +1,106 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3] Input: pm8941-pwrkey: add resin key capabilities
-Date: Tue, 15 May 2018 10:20:55 -0700
-Message-ID: <20180515172055.GB205769@dtor-ws>
-References: <1521786192-19487-1-git-send-email-tirupath@codeaurora.org>
- <20180505001039.GA112416@dtor-ws>
- <20180507184659.GG2259@tuxbook-pro>
+Subject: Re: [PATCH] input: fix coding style issues in input.c
+Date: Tue, 15 May 2018 10:34:37 -0700
+Message-ID: <20180515173437.GC205769@dtor-ws>
+References: <1525874834-20432-1-git-send-email-nicksimonovv@gmail.com>
+ <20180510003313.GD91762@dtor-ws>
+ <20180511230120.GA23354@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180507184659.GG2259@tuxbook-pro>
+In-Reply-To: <20180511230120.GA23354@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Tirupathi Reddy <tirupath@codeaurora.org>, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nick Simonov <nicksimonovv@gmail.com>
+Cc: rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, May 07, 2018 at 11:46:59AM -0700, Bjorn Andersson wrote:
-> On Fri 04 May 17:10 PDT 2018, Dmitry Torokhov wrote:
-> 
-> > Hi Tirupathi,
+On Sat, May 12, 2018 at 02:01:20AM +0300, Nick Simonov wrote:
+>  Wed, May 09, 2018 at 05:33:13PM -0700, Dmitry Torokhov wrote:
+> > Hi NIck,
 > > 
-> > On Fri, Mar 23, 2018 at 11:53:12AM +0530, Tirupathi Reddy wrote:
-> > > Add resin key support to handle different types of key events
-> > > defined in different platforms.
+> > On Wed, May 09, 2018 at 05:07:14PM +0300, Nick Simonov wrote:
+> > > This is a patch to the input.c file that fixes
+> > > up warning found by checkpatch.pl tool
 > > > 
-> > > Signed-off-by: Tirupathi Reddy <tirupath@codeaurora.org>
+> > > Signed-off-by: Nick Simonov <nicksimonovv@gmail.com>
 > > > ---
-> > >  .../bindings/input/qcom,pm8941-pwrkey.txt          | 32 +++++++++
-> > >  drivers/input/misc/pm8941-pwrkey.c                 | 81 ++++++++++++++++++++++
-> > >  2 files changed, 113 insertions(+)
+> > >  drivers/input/input.c | 52 ++++++++++++++++++++++++++++++++-------------------
+> > >  1 file changed, 33 insertions(+), 19 deletions(-)
 > > > 
-> > > diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> [..]
-> > >  EXAMPLE
+> > > diff --git a/drivers/input/input.c b/drivers/input/input.c
+> > > index 9785546..e18fdae 100644
+> > > --- a/drivers/input/input.c
+> > > +++ b/drivers/input/input.c
+> > > @@ -1,3 +1,4 @@
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > >  /*
+> > >   * The input core
+> > >   *
+> > > @@ -252,7 +253,8 @@ static int input_handle_abs_event(struct input_dev *dev,
+> > >  	}
 > > >  
-> > >  	pwrkey@800 {
-> > > @@ -40,4 +66,10 @@ EXAMPLE
-> > >  		interrupts = <0x0 0x8 0 IRQ_TYPE_EDGE_BOTH>;
-> > >  		debounce = <15625>;
-> > >  		bias-pull-up;
-> > > +
-> > > +		resin {
-> > > +			interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
-> > > +			linux,code = <KEY_VOLUMEDOWN>;
-> > > +			bias-pull-up;
-> > > +		};
-> > >  	};
+> > >  	/* Flush pending "slot" event */
+> > > -	if (is_mt_event && mt && mt->slot != input_abs_get_val(dev, ABS_MT_SLOT)) {
+> > > +	if (is_mt_event && mt && mt->slot !=
+> > > +		input_abs_get_val(dev, ABS_MT_SLOT)) {
+> > >  		input_abs_set_val(dev, ABS_MT_SLOT, mt->slot);
 > > 
-> > The new key and power key bindings are very similar, I would prefer if
-> > we shared the parsing code and our new DTS looked like:
+> > So now it is not immediately clear what is part of condition and what is
+> > part of body.
 > > 
-> > 		power {
-> > 			...
-> > 		};
-> >  
-> > 		resin {
-> > 			...
-> > 		};
+> > I am sorry to say, but with most of these changes the cure is worse than
+> > the disease. If you were fixing the code and adjusted the affected lines
+> > so they are under 80 columns limit that would be one thing, but just
+> > reformatting for the sake of it is not really helpful.
 > > 
-> > (we can easily keep backward compatibility with power properties being
-> > in device node).
+> > Thanks.
 > > 
+> > -- 
+> > Dmitry
 > 
-> As discussed here https://patchwork.kernel.org/patch/9751627/ the PON
-> block does, in addition to providing power and resin key support also
-> handle the restart reason ("reboot bootloader" in Android).
+> Dmitry thanks for your comment. I deleted all my changes except one
+> and prepare a new patch for it. 
 > 
-> My interpretation of our conclusion was to come up with a new binding
-> for the "pon" and a driver for this block that instantiates the power
-> key device.
-> 
-> It seems reasonable for such binding to describe the two keys, as you
-> propose here Dmitry, and instantiates the two input devices based on
-> this.
+> In function input_set_capability when it go through default statment 
+> it is use hard coded function name "input_set_capability" in pr_err() call.
+> I replace it using "%s" __func__ instead.
 
-OK, I'll wait for the new driver and binding then.
+> From 2aef27ca4896b8d9e64fd1417965793acfba3653 Mon Sep 17 00:00:00 2001
+> From: Nick Simonov <nicksimonovv@gmail.com>
+> Date: Sat, 12 May 2018 01:24:47 +0300
+> Subject: [PATCH] input: replace hard coded string with __func__ in pr_err()
+> 
+> Change hardcoded string "input_set_capability"
+> in pr_err() function call, replace it with
+> "%s" __func__ instead.
+> 
+> Signed-off-by: Nick Simonov <nicksimonovv@gmail.com>
 
-Thanks.
+Applied, thank you.
+
+> ---
+>  drivers/input/input.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index 9785546..6365c19 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -1943,8 +1943,7 @@ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int
+>  		break;
+>  
+>  	default:
+> -		pr_err("input_set_capability: unknown type %u (code %u)\n",
+> -		       type, code);
+> +		pr_err("%s: unknown type %u (code %u)\n", __func__, type, code);
+>  		dump_stack();
+>  		return;
+>  	}
+> -- 
+> 2.7.4
+> 
+
 
 -- 
 Dmitry

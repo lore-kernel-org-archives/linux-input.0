@@ -1,36 +1,33 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v9 0/2] hid-steam driver with user mode client dection
-Date: Tue, 15 May 2018 11:11:08 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1805151110100.27054@cbobk.fhfr.pm>
-References: <20180416122703.22306-1-rodrigorivascosta@gmail.com> <nycvar.YFH.7.76.1805041008100.27054@cbobk.fhfr.pm> <20180504101631.GA7496@casa>
+Subject: Re: [PATCH] HID: i2c-hid: check if device is there before really
+ probing
+Date: Tue, 15 May 2018 11:16:03 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1805151115540.27054@cbobk.fhfr.pm>
+References: <20180509191215.77406-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180504101631.GA7496@casa>
+In-Reply-To: <20180509191215.77406-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?ISO-8859-15?Q?Cl=E9ment_VUCHENER?= <clement.vuchener@gmail.com>, Cameron Gutman <aicommander@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dtor@google.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Brian Norris <briannorris@chromium.org>, Douglas Anderson <dianders@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 4 May 2018, Rodrigo Rivas Costa wrote:
+On Wed, 9 May 2018, Dmitry Torokhov wrote:
 
-> > If noone has any objections (last chance to raise them), I'll be 
-> > queuing this for 4.18.
+> From: Dmitry Torokhov <dtor@chromium.org>
 > 
-> That would be great, thanks!
+> On many Chromebooks touch devices are multi-sourced; the components are
+> electrically compatible and one can be freely swapped for another without
+> changing the OS image or firmware.
 > 
-> Now that my distro upgraded to 4.16, without the hid-quirks array, I've been
-> testing it a bit more. 
+> To avoid bunch of scary messages when device is not actually present in the
+> system let's try testing basic communication with it and if there is no
+> response terminate probe early with -ENXIO.
 > 
-> It works great, but I've noticed that I've missed a couple of lines when
-> creating the client hdev.  It doesn't seem to cause any harm, and anyway 'type'
-> and 'country' are currently both 0 in my controller; only 'version' is visibly
-> different but who uses that?
-> 
-> Anyway, this would be the change, I don't know if it is worth a whole reroll...
+> Signed-off-by: Dmitry Torokhov <dtor@chromium.org>
 
-I've put this on top of your patches and queued in for-4.18/hid-steam. 
-Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

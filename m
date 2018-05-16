@@ -1,68 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] input: touchscreen: edt-ft5x06: assert reset during
- suspend
-Date: Wed, 16 May 2018 10:05:16 -0700
-Message-ID: <20180516170516.GB21971@dtor-ws>
-References: <20180516122829.23694-1-daniel@zonque.org>
- <20180516122829.23694-3-daniel@zonque.org>
+Subject: Re: [PATCH v3 2/2] Input: xen-kbdfront - allow better run-time
+ configuration
+Date: Wed, 16 May 2018 10:15:28 -0700
+Message-ID: <20180516171528.GD21971@dtor-ws>
+References: <20180514144029.16019-1-andr2000@gmail.com>
+ <20180514144029.16019-2-andr2000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180516122829.23694-3-daniel@zonque.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Daniel Mack <daniel@zonque.org>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, robh+dt@kernel.org, kernel@pengutronix.de, linux-input@vger.kernel.org, fabio.estevam@nxp.com, shawnguo@kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20180514144029.16019-2-andr2000@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oleksandr Andrushchenko <andr2000@gmail.com>
+Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, May 16, 2018 at 02:28:28PM +0200, Daniel Mack wrote:
-> If the device is not configured as wakeup source, it can be put in reset
-> during suspend to save some power.
-> 
-> Signed-off-by: Daniel Mack <daniel@zonque.org>
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index 955f085627fa..c34a0b23f90a 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -1036,9 +1036,12 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
->  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
->  
->  	if (device_may_wakeup(dev))
->  		enable_irq_wake(client->irq);
-> +	else if (tsdata->reset_gpio)
-> +		gpiod_set_value_cansleep(tsdata->reset_gpio, 1);
->  
->  	return 0;
->  }
-> @@ -1046,9 +1049,12 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
->  static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
->  
->  	if (device_may_wakeup(dev))
->  		disable_irq_wake(client->irq);
-> +	else if (tsdata->reset_gpio)
-> +		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
+Hi Oleksandr,
 
-I think you need msleep() here as the chip needs a bit to get out of
-reset before it is ready. FWIW we have 300 ms delay in probe().
+On Mon, May 14, 2018 at 05:40:29PM +0300, Oleksandr Andrushchenko wrote:
+> @@ -211,93 +220,114 @@ static int xenkbd_probe(struct xenbus_device *dev,
+>  	if (!info->page)
+>  		goto error_nomem;
+>  
+> -	/* Set input abs params to match backend screen res */
+> -	abs = xenbus_read_unsigned(dev->otherend,
+> -				   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
+> -	ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
+> -						  XENKBD_FIELD_WIDTH,
+> -						  ptr_size[KPARAM_X]);
+> -	ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
+> -						  XENKBD_FIELD_HEIGHT,
+> -						  ptr_size[KPARAM_Y]);
+> -	if (abs) {
+> -		ret = xenbus_write(XBT_NIL, dev->nodename,
+> -				   XENKBD_FIELD_REQ_ABS_POINTER, "1");
+> -		if (ret) {
+> -			pr_warn("xenkbd: can't request abs-pointer\n");
+> -			abs = 0;
+> -		}
+> -	}
+> +	/*
+> +	 * The below are reverse logic, e.g. if the feature is set, then
+> +	 * do not expose the corresponding virtual device.
+> +	 */
+> +	with_kbd = !xenbus_read_unsigned(dev->nodename,
+> +					 XENKBD_FIELD_FEAT_DSBL_KEYBRD, 0);
+>  
+> -	touch = xenbus_read_unsigned(dev->nodename,
+> -				     XENKBD_FIELD_FEAT_MTOUCH, 0);
+> -	if (touch) {
+> +	with_ptr = !xenbus_read_unsigned(dev->nodename,
+> +					 XENKBD_FIELD_FEAT_DSBL_POINTER, 0);
+> +
+> +	/* Direct logic: if set, then create multi-touch device. */
+> +	with_mtouch = xenbus_read_unsigned(dev->nodename,
+> +					   XENKBD_FIELD_FEAT_MTOUCH, 0);
+> +	if (with_mtouch) {
+>  		ret = xenbus_write(XBT_NIL, dev->nodename,
+>  				   XENKBD_FIELD_REQ_MTOUCH, "1");
+>  		if (ret) {
+>  			pr_warn("xenkbd: can't request multi-touch");
+> -			touch = 0;
+> +			with_mtouch = 0;
+>  		}
+>  	}
+
+Does it make sense to still end up calling xenkbd_connect_backend() when
+all interfaces (keyboard, pointer, and multitouch) are disabled? Should
+we do:
+
+	if (!(with_kbd || || with_ptr || with_mtouch))
+		return -ENXIO;
+
+?
 
 Thanks.
 

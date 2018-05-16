@@ -1,78 +1,225 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/2] Input: xen-kbdfront - allow better run-time
- configuration
-Date: Wed, 16 May 2018 10:15:28 -0700
-Message-ID: <20180516171528.GD21971@dtor-ws>
-References: <20180514144029.16019-1-andr2000@gmail.com>
- <20180514144029.16019-2-andr2000@gmail.com>
+Subject: Re: [PATCH v3] Input: add bu21029 touch driver
+Date: Wed, 16 May 2018 10:43:57 -0700
+Message-ID: <20180516174357.GE21971@dtor-ws>
+References: <1521651874-15379-1-git-send-email-mark.jonas@de.bosch.com>
+ <1526048528-3613-1-git-send-email-mark.jonas@de.bosch.com>
+ <CAHp75Vf=eJbJPv5=y3fDKZapAnmABD0=v+WRhrBhMv+RSoBnKg@mail.gmail.com>
+ <e514418e94bc4e0492512f7ba24170af@de.bosch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180514144029.16019-2-andr2000@gmail.com>
+In-Reply-To: <e514418e94bc4e0492512f7ba24170af@de.bosch.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Oleksandr Andrushchenko <andr2000@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+To: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input <linux-input@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heiko Schocher <hs@denx.de>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Oleksandr,
+On Wed, May 16, 2018 at 01:24:24PM +0000, Jonas Mark (BT-FIR/ENG1) wrote:
+> Hello Andy,
+> 
+> > > Add Rohm BU21029 resistive touch panel controller support with I2C
+> > > interface.
+> > 
+> > > +#include <linux/of.h>
+> > 
+> > This becomes redundant (see below).
+> 
+> Removed.
+> 
+> > > +#define STOP_DELAY_US  50L
+> > > +#define START_DELAY_MS 2L
+> > > +#define BUF_LEN        8L
+> > 
+> > No need to use L for such small numbers. Integer promotion is a part
+> > of C standard.
+> 
+> OK.
+> 
+> > > +#define SCALE_12BIT    (1 << 12)
+> > > +#define MAX_12BIT      ((1 << 12) - 1)
+> > 
+> > BIT(12)
+> > GENMASK(11, 0)
+> 
+> We are not convinced that we should use BIT() and GENMASK() here.
+> 
+> The reason is that SCALE_12BIT is actually not used as a bit but as an
+> input value for DIV_ROUND_CLOSEST. We think that the BIT() macro will
+> hide the meaning of the value.
+> 
+> MAX_12BIT is also a value and not a bit mask. Thus, we also think that
+> using the GENMASK() macro will hide its purpose. Also, the
+> documentation of GENMASK() says that it is a mask and not a value.
 
-On Mon, May 14, 2018 at 05:40:29PM +0300, Oleksandr Andrushchenko wrote:
-> @@ -211,93 +220,114 @@ static int xenkbd_probe(struct xenbus_device *dev,
->  	if (!info->page)
->  		goto error_nomem;
->  
-> -	/* Set input abs params to match backend screen res */
-> -	abs = xenbus_read_unsigned(dev->otherend,
-> -				   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
-> -	ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
-> -						  XENKBD_FIELD_WIDTH,
-> -						  ptr_size[KPARAM_X]);
-> -	ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
-> -						  XENKBD_FIELD_HEIGHT,
-> -						  ptr_size[KPARAM_Y]);
-> -	if (abs) {
-> -		ret = xenbus_write(XBT_NIL, dev->nodename,
-> -				   XENKBD_FIELD_REQ_ABS_POINTER, "1");
-> -		if (ret) {
-> -			pr_warn("xenkbd: can't request abs-pointer\n");
-> -			abs = 0;
-> -		}
-> -	}
-> +	/*
-> +	 * The below are reverse logic, e.g. if the feature is set, then
-> +	 * do not expose the corresponding virtual device.
-> +	 */
-> +	with_kbd = !xenbus_read_unsigned(dev->nodename,
-> +					 XENKBD_FIELD_FEAT_DSBL_KEYBRD, 0);
->  
-> -	touch = xenbus_read_unsigned(dev->nodename,
-> -				     XENKBD_FIELD_FEAT_MTOUCH, 0);
-> -	if (touch) {
-> +	with_ptr = !xenbus_read_unsigned(dev->nodename,
-> +					 XENKBD_FIELD_FEAT_DSBL_POINTER, 0);
-> +
-> +	/* Direct logic: if set, then create multi-touch device. */
-> +	with_mtouch = xenbus_read_unsigned(dev->nodename,
-> +					   XENKBD_FIELD_FEAT_MTOUCH, 0);
-> +	if (with_mtouch) {
->  		ret = xenbus_write(XBT_NIL, dev->nodename,
->  				   XENKBD_FIELD_REQ_MTOUCH, "1");
->  		if (ret) {
->  			pr_warn("xenkbd: can't request multi-touch");
-> -			touch = 0;
-> +			with_mtouch = 0;
->  		}
->  	}
+I agree.
 
-Does it make sense to still end up calling xenkbd_connect_backend() when
-all interfaces (keyboard, pointer, and multitouch) are disabled? Should
-we do:
+> 
+> > > +static int bu21029_touch_report(struct bu21029_ts_data *bu21029)
+> > > +{
+> > > +       struct i2c_client *i2c = bu21029->client;
+> > > +       u8 buf[BUF_LEN];
+> > > +       int error = bu21029_touch_report(bu21029);
+> > 
+> > > +
+> > 
+> > Redundant empty line.
+> 
+> Removed.
+> 
+> > > +       if (error) {
+> > 
+> > > +               dev_err(&i2c->dev, "failed to report (error: %d)\n", error);
+> > 
+> > Potential spamming case.
+> > 
+> > > +               return IRQ_NONE;
+> > > +       }
+> 
+> You are right, we will remove the error message.
+> 
+> > > +static void bu21029_stop_chip(struct input_dev *dev)
+> > > +{
+> > > +       struct bu21029_ts_data *bu21029 = input_get_drvdata(dev);
+> > > +
+> > > +       disable_irq(bu21029->client->irq);
+> > > +       del_timer_sync(&bu21029->timer);
+> > > +
+> > > +       /* put chip into reset */
+> > > +       gpiod_set_value_cansleep(bu21029->reset_gpios, 1);
+> > 
+> > > +       udelay(STOP_DELAY_US);
+> > 
+> > udelay() ?!
+> > 
+> > > +}
+> 
+> According to the datasheet disabling the chip will take 30 microseconds.
+> In the defines we added a buffer of 20 microseconds and thus
+> STOP_DELAY_US is 50. The function guarantees that the chip is stopped
+> before it returns.
+> 
+> We think that it is ok to use udelay() here because in normal operation
+> the chip is not stopped. It is only stopped when loading or unloading
+> the driver, or when the system suspends.
+> 
+> We would like to keep it like it is.
 
-	if (!(with_kbd || || with_ptr || with_mtouch))
-		return -ENXIO;
+The issue is not with having delay here, but the kind of delay you are
+using: udelay makes CPU spin for given amount of time; you really want
+msleep() or usleep_range() here.
 
-?
+> 
+> > > +static int bu21029_start_chip(struct input_dev *dev)
+> > > +{
+> > 
+> > > +       u16 hwid;
+> > > +
+> > > +       /* take chip out of reset */
+> > > +       gpiod_set_value_cansleep(bu21029->reset_gpios, 0);
+> > 
+> > > +       mdelay(START_DELAY_MS);
+> > 
+> > mdelay()?!
+
+Same here - replace with msleep().
+
+> > 
+> > > +
+> > > +       error = i2c_smbus_read_i2c_block_data(i2c,
+> > > +                                             BU21029_HWID_REG,
+> > > +                                             2,
+> > > +                                             (u8 *)&hwid);
+> > > +       if (error < 0) {
+> > > +               dev_err(&i2c->dev, "failed to read HW ID\n");
+> > > +               goto out;
+> > > +       }
+> 
+> After de-asserting the reset chip takes 1 millisecond until it is
+> operational. We added a 1 millisecond buffer to it. Thus,
+> START_DELAY_MS is 2.
+> 
+> The following I2C read will not succeed without waiting for the chip
+> being ready.
+> 
+> > > +       if (cpu_to_be16(hwid) != SUPPORTED_HWID) {
+> > 
+> > Hmm... Why cpu_to_be16() is required?
+> > 
+> > > +               dev_err(&i2c->dev, "unsupported HW ID 0x%x\n", hwid);
+> > > +               error = -ENODEV;
+> > > +               goto out;
+> > > +       }
+> > > +}
+> 
+> You are right, it works but what we meant to do here is to convert the
+> chip's value (big endian) into the CPU endianness. We will change it to
+> be16_to_cpu().
+> 
+> > > +static int bu21029_parse_dt(struct bu21029_ts_data *bu21029)
+> > 
+> > You can get rid of DT requirement by...
+> > 
+> > > +{
+> > > +       struct device *dev = &bu21029->client->dev;
+> > > +       struct device_node *np = dev->of_node;
+> > > +       u32 val32;
+> > > +       int error;
+> > 
+> > > +       if (!np) {
+> > > +               dev_err(dev, "no device tree data\n");
+> > > +               return -EINVAL;
+> > > +       }
+> > 
+> > (this becomes redundant)
+> > 
+> > > +
+> > > +       bu21029->reset_gpios = devm_gpiod_get(dev, "reset",
+> > GPIOD_OUT_HIGH);
+> > > +       if (IS_ERR(bu21029->reset_gpios)) {
+> > > +               error = PTR_ERR(bu21029->reset_gpios);
+> > > +               if (error != -EPROBE_DEFER)
+> > > +                       dev_err(dev, "invalid 'reset-gpios':%d\n", error);
+> > > +               return error;
+> > > +       }
+> > > +
+> > 
+> > > +       if (of_property_read_u32(np, "rohm,x-plate-ohms", &val32)) {
+> > 
+> > ...simple calling device_property_read_u32() instead.
+> > 
+> > > +               dev_err(dev, "invalid 'x-plate-ohms' supplied\n");
+> > > +               return -EINVAL;
+> > > +       }
+> > > +       bu21029->x_plate_ohms = val32;
+> > > +
+> > > +       touchscreen_parse_properties(bu21029->in_dev, false, &bu21029->prop);
+> > > +
+> > > +       return 0;
+> > > +}
+> 
+> Thank you, changed.
+> 
+> > > +#ifdef CONFIG_PM_SLEEP
+> > 
+> > Instead...
+> > 
+> > > +static int bu21029_suspend(struct device *dev)
+> > 
+> > ...use __maby_unused annotation.
+> > 
+> > > +static int bu21029_resume(struct device *dev)
+> > 
+> > Ditto.
+> 
+> OK, added.
+
+You also need to drop #ifdef CONFIG_SLEEP. That's the point: we want to
+reduce amount of conditionally compiled code and use __maybe_unused to
+shut off compiler warning about some functions not used in certain
+configurations. We rely on linker to eliminate dead functions from
+executable.
 
 Thanks.
 

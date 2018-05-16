@@ -1,12 +1,13 @@
 From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH 0/3] input: touchscreen: edt-ft5x06: make wakeup source
- behavior configurable
-Date: Wed, 16 May 2018 14:28:26 +0200
-Message-ID: <20180516122829.23694-1-daniel@zonque.org>
+Subject: [PATCH 3/3] ARM: dts: imx28/imx53: enable edt-ft5x06 wakeup source
+Date: Wed, 16 May 2018 14:28:29 +0200
+Message-ID: <20180516122829.23694-4-daniel@zonque.org>
+References: <20180516122829.23694-1-daniel@zonque.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180516122829.23694-1-daniel@zonque.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,37 +21,41 @@ To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, shawngu
 Cc: devicetree@vger.kernel.org, Daniel Mack <daniel@zonque.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+The touchscreen driver no longer configures the device as wakeup source by
+default. A "wakeup-source" property is needed.
 
-I have a platform that features an edt-ft5x06 touch panel and that
-doesn't want to wake on touch screen activity.
+To avoid regressions, this patch changes the DTS files for the only two
+users of this driver that didn't have this property yet.
 
-Here's a trivial series of patches that make the edt-ft5x06 driver only
-act as wakeup source when requested through device properties or DTS.
+Signed-off-by: Daniel Mack <daniel@zonque.org>
+---
+ arch/arm/boot/dts/imx28-tx28.dts      | 1 +
+ arch/arm/boot/dts/imx53-tx53-x03x.dts | 1 +
+ 2 files changed, 2 insertions(+)
 
-The third patch changes the default in two DTS files that use this
-driver.
-
-I guess the first two patches should go through the input tree, while
-the third can be picked by the IMX people. There are no compile-time
-dependencies, so the order doesn't matter.
-
-
-Thanks,
-Daniel
-
-
-Daniel Mack (3):
-  input: touchscreen: edt-ft5x06: make wakeup source behavior
-    configurable
-  input: touchscreen: edt-ft5x06: assert reset during suspend
-  ARM: dts: imx28/imx53: enable edt-ft5x06 wakeup source
-
- .../devicetree/bindings/input/touchscreen/edt-ft5x06.txt         | 3 +++
- arch/arm/boot/dts/imx28-tx28.dts                                 | 1 +
- arch/arm/boot/dts/imx53-tx53-x03x.dts                            | 1 +
- drivers/input/touchscreen/edt-ft5x06.c                           | 9 ++++++++-
- 4 files changed, 13 insertions(+), 1 deletion(-)
-
+diff --git a/arch/arm/boot/dts/imx28-tx28.dts b/arch/arm/boot/dts/imx28-tx28.dts
+index 0ebbc83852d0..094a39a67ec8 100644
+--- a/arch/arm/boot/dts/imx28-tx28.dts
++++ b/arch/arm/boot/dts/imx28-tx28.dts
+@@ -328,6 +328,7 @@
+ 		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
+ 		reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
+ 		wake-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH>;
++		wakeup-source;
+ 	};
+ 
+ 	touchscreen: tsc2007@48 {
+diff --git a/arch/arm/boot/dts/imx53-tx53-x03x.dts b/arch/arm/boot/dts/imx53-tx53-x03x.dts
+index 0ecb43d88522..dbf0d73dc7b9 100644
+--- a/arch/arm/boot/dts/imx53-tx53-x03x.dts
++++ b/arch/arm/boot/dts/imx53-tx53-x03x.dts
+@@ -220,6 +220,7 @@
+ 		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
+ 		reset-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
+ 		wake-gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
++		wakeup-source;
+ 	};
+ 
+ 	touchscreen: tsc2007@48 {
 -- 
 2.14.3

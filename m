@@ -1,37 +1,48 @@
-From: Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH v2 09/11] docs: Fix some broken references
-Date: Tue, 15 May 2018 13:26:04 -0700
-Message-ID: <152641596420.237094.12177504626636253047@swboyd.mtv.corp.google.com>
-References: <cover.1525870886.git.mchehab+samsung@kernel.org>
- <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: Re: [PATCH v4 1/2] xen/kbdif: Add string constants for
+ raw pointer
+Date: Wed, 16 May 2018 07:59:15 +0300
+Message-ID: <6cd29db8-e931-fe8a-7857-8d9d8cdace9a@gmail.com>
+References: <20180502144919.16780-1-andr2000@gmail.com>
+ <20180511133757.GG19972@char.us.oracle.com>
+ <20180511133848.GA20566@char.us.oracle.com>
+ <86b7b3be-6e49-46b7-beb4-759ee05f90fb@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, dri-devel@lists.freedesktop.org, Jaroslav Kysela <perex@perex.cz>, Eric Paris <eparis@parisplace.org>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, linux-clk@vger.kernel.org, James Morris <jmorris@namei.org>, Alan Stern <stern@rowland.harvard.edu>, xen-devel@lists.xenproject.org, Boqun Feng <boqun.feng@gmail.com>, Nicholas Piggin <npiggin@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Antoine Jacquet <royale@zerezo.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Li Zefan <lizefan@huawei.com>, linux-crypto@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, alsa-devel@alsa-project.org, David Airlie <airlied@linux.ie>, Max Filippov <jcmvbkbc@gmail.com>, Harry Wei <harryxiyou@gmail.com>, selinux@tycho.nsa.gov
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+In-Reply-To: <86b7b3be-6e49-46b7-beb4-759ee05f90fb@suse.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xenproject.org, dmitry.torokhov@gmail.com, jandryuk@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-UXVvdGluZyBNYXVybyBDYXJ2YWxobyBDaGVoYWIgKDIwMTgtMDUtMDkgMDY6MTg6NTIpCj4gQXMg
-d2UgbW92ZSBzdHVmZiBhcm91bmQsIHNvbWUgZG9jIHJlZmVyZW5jZXMgYXJlIGJyb2tlbi4gRml4
-IHNvbWUgb2YKPiB0aGVtIHZpYSB0aGlzIHNjcmlwdDoKPiAgICAgICAgIC4vc2NyaXB0cy9kb2N1
-bWVudGF0aW9uLWZpbGUtcmVmLWNoZWNrIC0tZml4LXJzdAo+IAo+IE1hbnVhbGx5IGNoZWNrZWQg
-aWYgdGhlIHByb2R1Y2VkIHJlc3VsdCBpcyB2YWxpZCwgcmVtb3ZpbmcgYSBmZXcKPiBmYWxzZS1w
-b3NpdGl2ZXMuCj4gCj4gU2lnbmVkLW9mZi1ieTogTWF1cm8gQ2FydmFsaG8gQ2hlaGFiIDxtY2hl
-aGFiK3NhbXN1bmdAa2VybmVsLm9yZz4KPiAtLS0KCj4gIGRyaXZlcnMvY2xrL2Nsay5jICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB8ICA0ICsrLS0KPiAgZHJpdmVycy9jbGsvaW5nZW5pYy9j
-Z3UuaCAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KCkFja2VkLWJ5OiBTdGVwaGVuIEJveWQg
-PHNib3lkQGtlcm5lbC5vcmc+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNr
-dG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2Ry
-aS1kZXZlbAo=
+T24gMDUvMTEvMjAxOCAwNjoxNSBQTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBPbiAxMS8wNS8x
+OCAxNTozOCwgS29ucmFkIFJ6ZXN6dXRlayBXaWxrIHdyb3RlOgo+PiBPbiBGcmksIE1heSAxMSwg
+MjAxOCBhdCAwOTozNzo1N0FNIC0wNDAwLCBLb25yYWQgUnplc3p1dGVrIFdpbGsgd3JvdGU6Cj4+
+PiBPbiBXZWQsIE1heSAwMiwgMjAxOCBhdCAwNTo0OToxOFBNICswMzAwLCBPbGVrc2FuZHIgQW5k
+cnVzaGNoZW5rbyB3cm90ZToKPj4+PiBGcm9tOiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8b2xl
+a3NhbmRyX2FuZHJ1c2hjaGVua29AZXBhbS5jb20+Cj4+Pj4KPj4+PiBBZGQgbWlzc2luZyBzdHJp
+bmcgY29uc3RhbnRzIGZvciB7ZmVhdHVyZXxyZXF1ZXN0fS1yYXctcG9pbnRlcgo+Pj4+IHRvIGFs
+aWduIHdpdGggdGhlIHJlc3Qgb2YgdGhlIGludGVyZmFjZSBmaWxlLgo+Pj4+Cj4+Pj4gRml4ZXMg
+Nzg2ODY1NGZmN2ZlICgia2JkaWY6IERlZmluZSAiZmVhdHVyZS1yYXctcG9pbnRlciIgYW5kICJy
+ZXF1ZXN0LXJhdy1wb2ludGVyIikKPj4+Pgo+Pj4+IFNpZ25lZC1vZmYtYnk6IE9sZWtzYW5kciBB
+bmRydXNoY2hlbmtvIDxvbGVrc2FuZHJfYW5kcnVzaGNoZW5rb0BlcGFtLmNvbT4KPj4+Cj4+PiBS
+ZXZpZXdlZC1ieTogS29ucmFkIFJ6ZXN6dXRlayBXaWxrIDxrb25yYWQud2lsa0BvcmFjbGUuY29t
+Pgo+PiBKdWVyZ2VuLCB5b3UgT0sgd2l0aCBhbiByZWxlYXNlLWFjaz8KPiBZZXM6Cj4KPiBSZWxl
+YXNlLWFja2VkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+CklzIHRoaXMgYWNr
+IGZvciBib3RoIHBhdGNoZXMgb3IgdGhpcyBvbmUgb25seT8KSSBzZWUgS29ucmFkIGhhcyBhcHBs
+aWVkIHRoaXMgcGF0Y2gsIGJ1dAoiW1hlbi1kZXZlbF1bUEFUQ0ggdjQgMi8yXSB4ZW4va2JkaWY6
+IEFkZCBmZWF0dXJlcyB0byBkaXNhYmxlIGtleWJvYXJkIAphbmQgcG9pbnRlciIKaXMgc3RpbGwg
+ZmxvYXRpbmcuCj4KPiBKdWVyZ2VuClRoYW5rIHlvdSwKT2xla3NhbmRyCgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0
+Clhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qu
+b3JnL21haWxtYW4vbGlzdGluZm8veGVuLWRldmVs

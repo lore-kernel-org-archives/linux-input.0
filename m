@@ -1,110 +1,70 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH v3 2/2] Input: xen-kbdfront - allow better run-time
- configuration
-Date: Thu, 17 May 2018 08:31:54 +0300
-Message-ID: <7cecb5d1-5cd3-b63d-d6eb-d1e2dfba9ca6@gmail.com>
-References: <20180514144029.16019-1-andr2000@gmail.com>
- <20180514144029.16019-2-andr2000@gmail.com> <20180516171528.GD21971@dtor-ws>
- <e9882c52-3641-7c32-1f64-dd9c4f35de5f@gmail.com>
- <20180516210817.GF21971@dtor-ws>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v4 1/2] xen/kbdif: Add string constants for
+ raw pointer
+Date: Thu, 17 May 2018 07:42:43 +0200
+Message-ID: <58830234-a6a1-fba0-e994-34df03f5cdae@suse.com>
+References: <20180502144919.16780-1-andr2000@gmail.com>
+ <20180511133757.GG19972@char.us.oracle.com>
+ <20180511133848.GA20566@char.us.oracle.com>
+ <86b7b3be-6e49-46b7-beb4-759ee05f90fb@suse.com>
+ <6cd29db8-e931-fe8a-7857-8d9d8cdace9a@gmail.com>
+ <2f77fa72-c0bd-7086-1197-23007ce91cb7@suse.com>
+ <66fe661f-8d1a-aefe-de50-02f37f756d94@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180516210817.GF21971@dtor-ws>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+In-Reply-To: <66fe661f-8d1a-aefe-de50-02f37f756d94@gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Oleksandr Andrushchenko <andr2000@gmail.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: xen-devel@lists.xenproject.org, dmitry.torokhov@gmail.com, jandryuk@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 05/17/2018 12:08 AM, Dmitry Torokhov wrote:
-> On Wed, May 16, 2018 at 08:47:30PM +0300, Oleksandr Andrushchenko wrote:
->> On 05/16/2018 08:15 PM, Dmitry Torokhov wrote:
->>> Hi Oleksandr,
->>>
->>> On Mon, May 14, 2018 at 05:40:29PM +0300, Oleksandr Andrushchenko wrote:
->>>> @@ -211,93 +220,114 @@ static int xenkbd_probe(struct xenbus_device *dev,
->>>>    	if (!info->page)
->>>>    		goto error_nomem;
->>>> -	/* Set input abs params to match backend screen res */
->>>> -	abs = xenbus_read_unsigned(dev->otherend,
->>>> -				   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
->>>> -	ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
->>>> -						  XENKBD_FIELD_WIDTH,
->>>> -						  ptr_size[KPARAM_X]);
->>>> -	ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
->>>> -						  XENKBD_FIELD_HEIGHT,
->>>> -						  ptr_size[KPARAM_Y]);
->>>> -	if (abs) {
->>>> -		ret = xenbus_write(XBT_NIL, dev->nodename,
->>>> -				   XENKBD_FIELD_REQ_ABS_POINTER, "1");
->>>> -		if (ret) {
->>>> -			pr_warn("xenkbd: can't request abs-pointer\n");
->>>> -			abs = 0;
->>>> -		}
->>>> -	}
->>>> +	/*
->>>> +	 * The below are reverse logic, e.g. if the feature is set, then
->>>> +	 * do not expose the corresponding virtual device.
->>>> +	 */
->>>> +	with_kbd = !xenbus_read_unsigned(dev->nodename,
->>>> +					 XENKBD_FIELD_FEAT_DSBL_KEYBRD, 0);
->>>> -	touch = xenbus_read_unsigned(dev->nodename,
->>>> -				     XENKBD_FIELD_FEAT_MTOUCH, 0);
->>>> -	if (touch) {
->>>> +	with_ptr = !xenbus_read_unsigned(dev->nodename,
->>>> +					 XENKBD_FIELD_FEAT_DSBL_POINTER, 0);
->>>> +
->>>> +	/* Direct logic: if set, then create multi-touch device. */
->>>> +	with_mtouch = xenbus_read_unsigned(dev->nodename,
->>>> +					   XENKBD_FIELD_FEAT_MTOUCH, 0);
->>>> +	if (with_mtouch) {
->>>>    		ret = xenbus_write(XBT_NIL, dev->nodename,
->>>>    				   XENKBD_FIELD_REQ_MTOUCH, "1");
->>>>    		if (ret) {
->>>>    			pr_warn("xenkbd: can't request multi-touch");
->>>> -			touch = 0;
->>>> +			with_mtouch = 0;
->>>>    		}
->>>>    	}
->>> Does it make sense to still end up calling xenkbd_connect_backend() when
->>> all interfaces (keyboard, pointer, and multitouch) are disabled? Should
->>> we do:
->>>
->>> 	if (!(with_kbd || || with_ptr || with_mtouch))
->>> 		return -ENXIO;
->>>
->>> ?
->> It does make sense. Then we probably need to move all xenbus_read_unsigned
->> calls to the very beginning of the .probe, so no memory allocations are made
->> which will be useless if we return -ENXIO, e.g. something like
->>
->> static int xenkbd_probe(struct xenbus_device *dev,
->>                    const struct xenbus_device_id *id)
->> {
->>      int ret, i;
->>      bool with_mtouch, with_kbd, with_ptr;
->>      struct xenkbd_info *info;
->>      struct input_dev *kbd, *ptr, *mtouch;
->>
->> <read with_mtouch, with_kbd, with_ptr here>
->>
->> if (!(with_kbd | with_ptr | with_mtouch))
->>          return -ENXIO;
->>
->> Does the above looks ok?
-> Yes. Another option is to keep the check where I suggested and do
->
-> 	if (...) {
-> 		ret = -ENXIO;
-> 		goto error;
-> 	}
->
-> Whichever you prefer is fine with me.
-I will go with the change you suggested and
-I'll send v4 tomorrow then.
-> Thanks.
->
-Thank you,
-Oleksandr
+T24gMTcvMDUvMTggMDc6MjksIE9sZWtzYW5kciBBbmRydXNoY2hlbmtvIHdyb3RlOgo+IE9uIDA1
+LzE3LzIwMTggMDc6MjggQU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+IE9uIDE2LzA1LzE4IDA2
+OjU5LCBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyB3cm90ZToKPj4+IE9uIDA1LzExLzIwMTggMDY6
+MTUgUE0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+Pj4gT24gMTEvMDUvMTggMTU6MzgsIEtvbnJh
+ZCBSemVzenV0ZWsgV2lsayB3cm90ZToKPj4+Pj4gT24gRnJpLCBNYXkgMTEsIDIwMTggYXQgMDk6
+Mzc6NTdBTSAtMDQwMCwgS29ucmFkIFJ6ZXN6dXRlayBXaWxrIHdyb3RlOgo+Pj4+Pj4gT24gV2Vk
+LCBNYXkgMDIsIDIwMTggYXQgMDU6NDk6MThQTSArMDMwMCwgT2xla3NhbmRyIEFuZHJ1c2hjaGVu
+a28KPj4+Pj4+IHdyb3RlOgo+Pj4+Pj4+IEZyb206IE9sZWtzYW5kciBBbmRydXNoY2hlbmtvIDxv
+bGVrc2FuZHJfYW5kcnVzaGNoZW5rb0BlcGFtLmNvbT4KPj4+Pj4+Pgo+Pj4+Pj4+IEFkZCBtaXNz
+aW5nIHN0cmluZyBjb25zdGFudHMgZm9yIHtmZWF0dXJlfHJlcXVlc3R9LXJhdy1wb2ludGVyCj4+
+Pj4+Pj4gdG8gYWxpZ24gd2l0aCB0aGUgcmVzdCBvZiB0aGUgaW50ZXJmYWNlIGZpbGUuCj4+Pj4+
+Pj4KPj4+Pj4+PiBGaXhlcyA3ODY4NjU0ZmY3ZmUgKCJrYmRpZjogRGVmaW5lICJmZWF0dXJlLXJh
+dy1wb2ludGVyIiBhbmQKPj4+Pj4+PiAicmVxdWVzdC1yYXctcG9pbnRlciIpCj4+Pj4+Pj4KPj4+
+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbwo+Pj4+Pj4+IDxvbGVr
+c2FuZHJfYW5kcnVzaGNoZW5rb0BlcGFtLmNvbT4KPj4+Pj4+IFJldmlld2VkLWJ5OiBLb25yYWQg
+Unplc3p1dGVrIFdpbGsgPGtvbnJhZC53aWxrQG9yYWNsZS5jb20+Cj4+Pj4+IEp1ZXJnZW4sIHlv
+dSBPSyB3aXRoIGFuIHJlbGVhc2UtYWNrPwo+Pj4+IFllczoKPj4+Pgo+Pj4+IFJlbGVhc2UtYWNr
+ZWQtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4KPj4+IElzIHRoaXMgYWNrIGZv
+ciBib3RoIHBhdGNoZXMgb3IgdGhpcyBvbmUgb25seT8KPj4gSXQgd2FzIG1lYW50IGZvciBwYXRj
+aCAxIG9ubHkuCj4gQ2xlYXIKPj4+IEkgc2VlIEtvbnJhZCBoYXMgYXBwbGllZCB0aGlzIHBhdGNo
+LCBidXQKPj4+ICJbWGVuLWRldmVsXVtQQVRDSCB2NCAyLzJdIHhlbi9rYmRpZjogQWRkIGZlYXR1
+cmVzIHRvIGRpc2FibGUga2V5Ym9hcmQKPj4+IGFuZCBwb2ludGVyIgo+Pj4gaXMgc3RpbGwgZmxv
+YXRpbmcuCj4+IEluIHByaW5jaXBsZSBJJ20gZmluZSB3aXRoIHRha2luZyBpdCBmb3IgNC4xMSwg
+YnV0IEkgdGhpbmsgYXQgdGhpcyBzdGFnZQo+PiBvZiB0aGUgcmVsZWFzZSB0aGVyZSBzaG91bGQg
+YmUgYSBmb3JtYWwgcmVxdWVzdCB0byBpbmNsdWRlIGl0Lgo+IC4uLmFuZCB0aGUgcmVxdWVzdCBz
+aG91bGQgY29tZSBmcm9tIEtvbnJhZD8KPiBPciB3aG8gZWxzZSBtYXkgcmVxdWVzdCB0aGF0PwoK
+Tm9ybWFsbHkgdGhlIHNlbmRlciBvZiB0aGUgcGF0Y2ggd291bGQgbWFrZSB0aGlzIHJlcXVlc3Qg
+YmVsb3cgdGhlIC0tLQpvZiB0aGUgY29tbWl0IG1lc3NhZ2UsIGUuZy46CiAgLS0tCiAgVGhpcyBw
+YXRjaCBzaG91bGQgZ28gaW50byA0LjExIGFzIGl0IGlzIG5lZWRlZCBmb3IgYSByZWxhdGVkIExp
+bnV4CiAga2VybmVsIHBhdGNoIGFuZCB0aGUgcmlzayBpcyBuZXh0IHRvIHplcm8gZm9yIFhlbiBk
+dWUgdG8gb25seSBhZGRpbmcKICBzb21lIG1hY3JvcyBub3QgaW4gdXNlIG9uIFhlbiBzaWRlLgoK
+VGhlIHJlcXVlc3QgY2FuIGJlIG1hZGUgYnkgYW55b25lLCBvZiBjb3Vyc2UsIGUuZy4gYnkgcmVw
+bHlpbmcgdG8gdGhlCnBhdGNoIG1haWwgYW5kIGluY2x1ZGluZyB0aGUgcmVsZWFzZSBtYW5hZ2Vy
+IGFzIGEgcmVjaXBpZW50LgoKPiBBbmQsIGFzIEkgaGF2ZSByLWIncyBmcm9tIEtvbnJhZCBmb3Ig
+Ym90aCBwYXRjaGVzLAo+IHdpbGwgaXQgYmUgb2sgaWYgd2UgYXBwbHkgdGhlIGNvcnJlc3BvbmRp
+bmcgY2hhbmdlcyB0byB0aGUKPiBrZXJuZWwgbm93LCBzbyBteSBjaGFuZ2UgdG8geGVuLWtiZGZy
+b250IGlzIHVuYmxvY2tlZD8KCk5vLCBwbGVhc2UgZG9uJ3QgZG8gdGhhdC4KCgpKdWVyZ2VuCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwg
+bWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9yZwpodHRwczovL2xpc3Rz
+LnhlbnByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8veGVuLWRldmVs

@@ -1,12 +1,14 @@
 From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH v2 0/3] input: touchscreen: edt-ft5x06: make wakeup source
- behavior configurable
-Date: Thu, 17 May 2018 11:05:49 +0200
-Message-ID: <20180517090552.5704-1-daniel@zonque.org>
+Subject: [PATCH v2 2/3] input: touchscreen: edt-ft5x06: assert reset during
+ suspend
+Date: Thu, 17 May 2018 11:05:51 +0200
+Message-ID: <20180517090552.5704-3-daniel@zonque.org>
+References: <20180517090552.5704-1-daniel@zonque.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180517090552.5704-1-daniel@zonque.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,29 +22,77 @@ To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, shawngu
 Cc: devicetree@vger.kernel.org, Daniel Mack <daniel@zonque.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGksCgpJIGhhdmUgYSBwbGF0Zm9ybSB0aGF0IGZlYXR1cmVzIGFuIGVkdC1mdDV4MDYgdG91Y2gg
-cGFuZWwgYW5kIHRoYXQKZG9lc24ndCB3YW50IHRvIHdha2Ugb24gdG91Y2ggc2NyZWVuIGFjdGl2
-aXR5LgoKSGVyZSdzIGEgdHJpdmlhbCBzZXJpZXMgb2YgcGF0Y2hlcyB0aGF0IG1ha2UgdGhlIGVk
-dC1mdDV4MDYgZHJpdmVyIG9ubHkKYWN0IGFzIHdha2V1cCBzb3VyY2Ugd2hlbiByZXF1ZXN0ZWQg
-dGhyb3VnaCBkZXZpY2UgcHJvcGVydGllcyBvciBEVFMuCgpUaGUgdGhpcmQgcGF0Y2ggY2hhbmdl
-cyB0aGUgZGVmYXVsdCBpbiB0d28gRFRTIGZpbGVzIHRoYXQgdXNlIHRoaXMKZHJpdmVyLgoKSSBn
-dWVzcyB0aGUgZmlyc3QgdHdvIHBhdGNoZXMgc2hvdWxkIGdvIHRocm91Z2ggdGhlIGlucHV0IHRy
-ZWUsIHdoaWxlCnRoZSB0aGlyZCBjYW4gYmUgcGlja2VkIGJ5IHRoZSBJTVggcGVvcGxlLiBUaGVy
-ZSBhcmUgbm8gY29tcGlsZS10aW1lCmRlcGVuZGVuY2llcywgc28gdGhlIG9yZGVyIGRvZXNuJ3Qg
-bWF0dGVyLgoKClRoYW5rcywKRGFuaWVsCgp2MSDihpIgdjI6CgkqIHNpbXBseSBkcm9wIGRldmlj
-ZV9pbml0X3dha2V1cCgpIGFzIHRoZSBJMkMgY29yZSBkb2VzIGhhbmRsZXMKCSAgdGhlIHdha2V1
-cC1zb3VyY2UgcHJvcGVydHkgYWxyZWFkeSAoMS8zKQoJKiBhZGQgYSBkZWxheSBhZnRlciByZXNl
-dCBkZWFzc2VydGlvbiBhdCByZXN1bWUgdGltZSAoMi8zKQoJKiBubyBjaGFuZ2VzIGluIHRoZSBE
-VFMgcGF0Y2ggKDMvMykKCgpEYW5pZWwgTWFjayAoMyk6CiAgaW5wdXQ6IHRvdWNoc2NyZWVuOiBl
-ZHQtZnQ1eDA2OiBkb24ndCBtYWtlIGRldmljZSBhIHdha2V1cCBzb3VyY2UgYnkKICAgIGRlZmF1
-bHQKICBpbnB1dDogdG91Y2hzY3JlZW46IGVkdC1mdDV4MDY6IGFzc2VydCByZXNldCBkdXJpbmcg
-c3VzcGVuZAogIEFSTTogZHRzOiBpbXgyOC9pbXg1MzogZW5hYmxlIGVkdC1mdDV4MDYgd2FrZXVw
-IHNvdXJjZQoKIC4uLi9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LnR4dCAg
-ICAgIHwgIDMgKysrCiBhcmNoL2FybS9ib290L2R0cy9pbXgyOC10eDI4LmR0cyAgICAgICAgICAg
-ICAgICAgICB8ICAxICsKIGFyY2gvYXJtL2Jvb3QvZHRzL2lteDUzLXR4NTMteDAzeC5kdHMgICAg
-ICAgICAgICAgIHwgIDEgKwogZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMg
-ICAgICAgICAgICAgfCAyNyArKysrKysrKysrKysrKysrKy0tLS0tCiA0IGZpbGVzIGNoYW5nZWQs
-IDI2IGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCgotLSAKMi4xNC4zCgoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBt
-YWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9s
-aXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+If the device is not configured as wakeup source, it can be put in reset
+during suspend to save some power.
+
+Signed-off-by: Daniel Mack <daniel@zonque.org>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index e18a2f215500..145499022e1c 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -883,6 +883,20 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+ 	}
+ }
+ 
++static void edt_ft5x06_reset(struct edt_ft5x06_ts_data *tsdata, bool reset)
++{
++	if (!tsdata->reset_gpio)
++		return;
++
++	if (reset) {
++		gpiod_set_value_cansleep(tsdata->reset_gpio, 1);
++	} else {
++		usleep_range(5000, 6000);
++		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
++		msleep(300);
++	}
++}
++
+ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 					 const struct i2c_device_id *id)
+ {
+@@ -934,11 +948,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		gpiod_set_value_cansleep(tsdata->wake_gpio, 1);
+ 	}
+ 
+-	if (tsdata->reset_gpio) {
+-		usleep_range(5000, 6000);
+-		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
+-		msleep(300);
+-	}
++	edt_ft5x06_reset(tsdata, false);
+ 
+ 	input = devm_input_allocate_device(&client->dev);
+ 	if (!input) {
+@@ -1034,9 +1044,12 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
+ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+ 
+ 	if (device_may_wakeup(dev))
+ 		enable_irq_wake(client->irq);
++	else
++		edt_ft5x06_reset(tsdata, true);
+ 
+ 	return 0;
+ }
+@@ -1044,9 +1057,12 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+ static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+ 
+ 	if (device_may_wakeup(dev))
+ 		disable_irq_wake(client->irq);
++	else
++		edt_ft5x06_reset(tsdata, false);
+ 
+ 	return 0;
+ }
+-- 
+2.14.3

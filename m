@@ -1,7 +1,8 @@
 From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH v2 3/3] ARM: dts: imx28/imx53: enable edt-ft5x06 wakeup source
-Date: Thu, 17 May 2018 11:05:52 +0200
-Message-ID: <20180517090552.5704-4-daniel@zonque.org>
+Subject: [PATCH v2 1/3] input: touchscreen: edt-ft5x06: don't make device a
+ wakeup source by default
+Date: Thu, 17 May 2018 11:05:50 +0200
+Message-ID: <20180517090552.5704-2-daniel@zonque.org>
 References: <20180517090552.5704-1-daniel@zonque.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,45 +22,49 @@ To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, shawngu
 Cc: devicetree@vger.kernel.org, Daniel Mack <daniel@zonque.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The touchscreen driver no longer configures the device as wakeup source by
-default. A "wakeup-source" property is needed.
+Allow configuring the device as wakeup source through device properties, as
+not all platforms want to wake up on touch screen activity.
 
-To avoid regressions, this patch changes the DTS files for the only two
-users of this driver that didn't have this property yet.
+The I2C core automatically reads the "wakeup-source" DT property to
+configure a device's wakeup capability, and board supports files can set
+I2C_CLIENT_WAKE in the flags.
 
 Signed-off-by: Daniel Mack <daniel@zonque.org>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <kernel@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Rob Herring <robh+dt@kernel.org>
 ---
- arch/arm/boot/dts/imx28-tx28.dts      | 1 +
- arch/arm/boot/dts/imx53-tx53-x03x.dts | 1 +
- 2 files changed, 2 insertions(+)
+ Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 3 +++
+ drivers/input/touchscreen/edt-ft5x06.c                             | 1 -
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx28-tx28.dts b/arch/arm/boot/dts/imx28-tx28.dts
-index 0ebbc83852d0..094a39a67ec8 100644
---- a/arch/arm/boot/dts/imx28-tx28.dts
-+++ b/arch/arm/boot/dts/imx28-tx28.dts
-@@ -328,6 +328,7 @@
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+index 025cf8c9324a..83f792d4d88c 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+@@ -52,6 +52,8 @@ Optional properties:
+  - touchscreen-inverted-y  : See touchscreen.txt
+  - touchscreen-swapped-x-y : See touchscreen.txt
+ 
++ - wakeup-source: touchscreen acts as wakeup source
++
+ Example:
+ 	polytouch: edt-ft5x06@38 {
+ 		compatible = "edt,edt-ft5406", "edt,edt-ft5x06";
+@@ -62,4 +64,5 @@ Example:
  		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
  		reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
  		wake-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH>;
 +		wakeup-source;
  	};
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 5bf63f76ddda..e18a2f215500 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -1007,7 +1007,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 		goto err_remove_attrs;
  
- 	touchscreen: tsc2007@48 {
-diff --git a/arch/arm/boot/dts/imx53-tx53-x03x.dts b/arch/arm/boot/dts/imx53-tx53-x03x.dts
-index 0ecb43d88522..dbf0d73dc7b9 100644
---- a/arch/arm/boot/dts/imx53-tx53-x03x.dts
-+++ b/arch/arm/boot/dts/imx53-tx53-x03x.dts
-@@ -220,6 +220,7 @@
- 		interrupts = <15 IRQ_TYPE_EDGE_FALLING>;
- 		reset-gpios = <&gpio2 22 GPIO_ACTIVE_LOW>;
- 		wake-gpios = <&gpio2 21 GPIO_ACTIVE_HIGH>;
-+		wakeup-source;
- 	};
+ 	edt_ft5x06_ts_prepare_debugfs(tsdata, dev_driver_string(&client->dev));
+-	device_init_wakeup(&client->dev, 1);
  
- 	touchscreen: tsc2007@48 {
+ 	dev_dbg(&client->dev,
+ 		"EDT FT5x06 initialized: IRQ %d, WAKE pin %d, Reset pin %d.\n",
 -- 
 2.14.3

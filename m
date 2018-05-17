@@ -1,14 +1,12 @@
 From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH v2 1/3] input: touchscreen: edt-ft5x06: don't make device a
- wakeup source by default
-Date: Thu, 17 May 2018 11:05:50 +0200
-Message-ID: <20180517090552.5704-2-daniel@zonque.org>
-References: <20180517090552.5704-1-daniel@zonque.org>
+Subject: [PATCH v2 0/3] input: touchscreen: edt-ft5x06: make wakeup source
+ behavior configurable
+Date: Thu, 17 May 2018 11:05:49 +0200
+Message-ID: <20180517090552.5704-1-daniel@zonque.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180517090552.5704-1-daniel@zonque.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,49 +20,29 @@ To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, shawngu
 Cc: devicetree@vger.kernel.org, Daniel Mack <daniel@zonque.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Allow configuring the device as wakeup source through device properties, as
-not all platforms want to wake up on touch screen activity.
-
-The I2C core automatically reads the "wakeup-source" DT property to
-configure a device's wakeup capability, and board supports files can set
-I2C_CLIENT_WAKE in the flags.
-
-Signed-off-by: Daniel Mack <daniel@zonque.org>
----
- Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 3 +++
- drivers/input/touchscreen/edt-ft5x06.c                             | 1 -
- 2 files changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-index 025cf8c9324a..83f792d4d88c 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-@@ -52,6 +52,8 @@ Optional properties:
-  - touchscreen-inverted-y  : See touchscreen.txt
-  - touchscreen-swapped-x-y : See touchscreen.txt
- 
-+ - wakeup-source: touchscreen acts as wakeup source
-+
- Example:
- 	polytouch: edt-ft5x06@38 {
- 		compatible = "edt,edt-ft5406", "edt,edt-ft5x06";
-@@ -62,4 +64,5 @@ Example:
- 		interrupts = <5 IRQ_TYPE_EDGE_FALLING>;
- 		reset-gpios = <&gpio2 6 GPIO_ACTIVE_LOW>;
- 		wake-gpios = <&gpio4 9 GPIO_ACTIVE_HIGH>;
-+		wakeup-source;
- 	};
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 5bf63f76ddda..e18a2f215500 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1007,7 +1007,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 		goto err_remove_attrs;
- 
- 	edt_ft5x06_ts_prepare_debugfs(tsdata, dev_driver_string(&client->dev));
--	device_init_wakeup(&client->dev, 1);
- 
- 	dev_dbg(&client->dev,
- 		"EDT FT5x06 initialized: IRQ %d, WAKE pin %d, Reset pin %d.\n",
--- 
-2.14.3
+SGksCgpJIGhhdmUgYSBwbGF0Zm9ybSB0aGF0IGZlYXR1cmVzIGFuIGVkdC1mdDV4MDYgdG91Y2gg
+cGFuZWwgYW5kIHRoYXQKZG9lc24ndCB3YW50IHRvIHdha2Ugb24gdG91Y2ggc2NyZWVuIGFjdGl2
+aXR5LgoKSGVyZSdzIGEgdHJpdmlhbCBzZXJpZXMgb2YgcGF0Y2hlcyB0aGF0IG1ha2UgdGhlIGVk
+dC1mdDV4MDYgZHJpdmVyIG9ubHkKYWN0IGFzIHdha2V1cCBzb3VyY2Ugd2hlbiByZXF1ZXN0ZWQg
+dGhyb3VnaCBkZXZpY2UgcHJvcGVydGllcyBvciBEVFMuCgpUaGUgdGhpcmQgcGF0Y2ggY2hhbmdl
+cyB0aGUgZGVmYXVsdCBpbiB0d28gRFRTIGZpbGVzIHRoYXQgdXNlIHRoaXMKZHJpdmVyLgoKSSBn
+dWVzcyB0aGUgZmlyc3QgdHdvIHBhdGNoZXMgc2hvdWxkIGdvIHRocm91Z2ggdGhlIGlucHV0IHRy
+ZWUsIHdoaWxlCnRoZSB0aGlyZCBjYW4gYmUgcGlja2VkIGJ5IHRoZSBJTVggcGVvcGxlLiBUaGVy
+ZSBhcmUgbm8gY29tcGlsZS10aW1lCmRlcGVuZGVuY2llcywgc28gdGhlIG9yZGVyIGRvZXNuJ3Qg
+bWF0dGVyLgoKClRoYW5rcywKRGFuaWVsCgp2MSDihpIgdjI6CgkqIHNpbXBseSBkcm9wIGRldmlj
+ZV9pbml0X3dha2V1cCgpIGFzIHRoZSBJMkMgY29yZSBkb2VzIGhhbmRsZXMKCSAgdGhlIHdha2V1
+cC1zb3VyY2UgcHJvcGVydHkgYWxyZWFkeSAoMS8zKQoJKiBhZGQgYSBkZWxheSBhZnRlciByZXNl
+dCBkZWFzc2VydGlvbiBhdCByZXN1bWUgdGltZSAoMi8zKQoJKiBubyBjaGFuZ2VzIGluIHRoZSBE
+VFMgcGF0Y2ggKDMvMykKCgpEYW5pZWwgTWFjayAoMyk6CiAgaW5wdXQ6IHRvdWNoc2NyZWVuOiBl
+ZHQtZnQ1eDA2OiBkb24ndCBtYWtlIGRldmljZSBhIHdha2V1cCBzb3VyY2UgYnkKICAgIGRlZmF1
+bHQKICBpbnB1dDogdG91Y2hzY3JlZW46IGVkdC1mdDV4MDY6IGFzc2VydCByZXNldCBkdXJpbmcg
+c3VzcGVuZAogIEFSTTogZHRzOiBpbXgyOC9pbXg1MzogZW5hYmxlIGVkdC1mdDV4MDYgd2FrZXVw
+IHNvdXJjZQoKIC4uLi9iaW5kaW5ncy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LnR4dCAg
+ICAgIHwgIDMgKysrCiBhcmNoL2FybS9ib290L2R0cy9pbXgyOC10eDI4LmR0cyAgICAgICAgICAg
+ICAgICAgICB8ICAxICsKIGFyY2gvYXJtL2Jvb3QvZHRzL2lteDUzLXR4NTMteDAzeC5kdHMgICAg
+ICAgICAgICAgIHwgIDEgKwogZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMg
+ICAgICAgICAgICAgfCAyNyArKysrKysrKysrKysrKysrKy0tLS0tCiA0IGZpbGVzIGNoYW5nZWQs
+IDI2IGluc2VydGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCgotLSAKMi4xNC4zCgoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBt
+YWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9s
+aXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=

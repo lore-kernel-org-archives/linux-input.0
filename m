@@ -1,107 +1,31 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v4] Input: add bu21029 touch driver
-Date: Thu, 17 May 2018 18:03:41 +0800
-Message-ID: <201805171546.tV4UnTVC%fengguang.wu@intel.com>
-References: <1526477123-18208-1-git-send-email-mark.jonas@de.bosch.com>
+From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: Re: [PATCH v3 2/2] Input: xen-kbdfront - allow better run-time
+ configuration
+Date: Thu, 17 May 2018 09:08:59 -0400
+Message-ID: <d35b6720-62e3-e9d4-dbe5-a04d75dde0b7@oracle.com>
+References: <20180514144029.16019-1-andr2000@gmail.com>
+ <20180514144029.16019-2-andr2000@gmail.com> <20180516171528.GD21971@dtor-ws>
+ <e9882c52-3641-7c32-1f64-dd9c4f35de5f@gmail.com>
+ <20180516210817.GF21971@dtor-ws>
+ <7cecb5d1-5cd3-b63d-d6eb-d1e2dfba9ca6@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1526477123-18208-1-git-send-email-mark.jonas@de.bosch.com>
+In-Reply-To: <7cecb5d1-5cd3-b63d-d6eb-d1e2dfba9ca6@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, hs@denx.de, andy.shevchenko@gmail.com, Zhu Yi <yi.zhu5@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>
+To: Oleksandr Andrushchenko <andr2000@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jgross@suse.com, lyan@suse.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Zhu,
-
-Thank you for the patch! Perhaps something to improve:
-
-[auto build test WARNING on v4.17-rc5]
-[also build test WARNING on next-20180516]
-[cannot apply to input/next]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-
-url:    https://github.com/0day-ci/linux/commits/Mark-Jonas/Input-add-bu21029-touch-driver/20180517-133332
-reproduce:
-        # apt-get install sparse
-        make ARCH=x86_64 allmodconfig
-        make C=1 CF=-D__CHECK_ENDIAN__
+On 05/17/2018 01:31 AM, Oleksandr Andrushchenko wrote:
+> I will go with the change you suggested and
+> I'll send v4 tomorrow then.
 
 
-sparse warnings: (new ones prefixed by >>)
 
->> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
->> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
->> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
->> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
+Please make sure your changes to kbdif.h are in Xen first. I believe you
+submitted a patch there but I don't see it in the staging tree yet.
 
-vim +289 drivers/input/touchscreen/bu21029_ts.c
-
-   258	
-   259	static int bu21029_start_chip(struct input_dev *dev)
-   260	{
-   261		struct bu21029_ts_data *bu21029 = input_get_drvdata(dev);
-   262		struct i2c_client *i2c = bu21029->client;
-   263		struct {
-   264			u8 reg;
-   265			u8 value;
-   266		} init_table[] = {
-   267			{BU21029_CFR0_REG, CFR0_VALUE},
-   268			{BU21029_CFR1_REG, CFR1_VALUE},
-   269			{BU21029_CFR2_REG, CFR2_VALUE},
-   270			{BU21029_CFR3_REG, CFR3_VALUE},
-   271			{BU21029_LDO_REG,  LDO_VALUE}
-   272		};
-   273		int error, i;
-   274		u16 hwid;
-   275	
-   276		/* take chip out of reset */
-   277		gpiod_set_value_cansleep(bu21029->reset_gpios, 0);
-   278		mdelay(START_DELAY_MS);
-   279	
-   280		error = i2c_smbus_read_i2c_block_data(i2c,
-   281						      BU21029_HWID_REG,
-   282						      2,
-   283						      (u8 *)&hwid);
-   284		if (error < 0) {
-   285			dev_err(&i2c->dev, "failed to read HW ID\n");
-   286			goto out;
-   287		}
-   288	
- > 289		if (be16_to_cpu(hwid) != SUPPORTED_HWID) {
-   290			dev_err(&i2c->dev, "unsupported HW ID 0x%x\n", hwid);
-   291			error = -ENODEV;
-   292			goto out;
-   293		}
-   294	
-   295		for (i = 0; i < ARRAY_SIZE(init_table); ++i) {
-   296			error = i2c_smbus_write_byte_data(i2c,
-   297							  init_table[i].reg,
-   298							  init_table[i].value);
-   299			if (error < 0) {
-   300				dev_err(&i2c->dev,
-   301					"failed to write 0x%x to register 0x%x\n",
-   302					init_table[i].value,
-   303					init_table[i].reg);
-   304				goto out;
-   305			}
-   306		}
-   307	
-   308		error = i2c_smbus_write_byte(i2c, BU21029_AUTOSCAN);
-   309		if (error < 0) {
-   310			dev_err(&i2c->dev, "failed to start autoscan\n");
-   311			goto out;
-   312		}
-   313	
-   314		enable_irq(bu21029->client->irq);
-   315		return 0;
-   316	
-   317	out:
-   318		bu21029_stop_chip(dev);
-   319		return error;
-   320	}
-   321	
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+-boris

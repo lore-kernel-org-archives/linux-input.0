@@ -1,22 +1,17 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH v4 1/2] xen/kbdif: Add string constants for
- raw pointer
-Date: Thu, 17 May 2018 08:47:05 +0300
-Message-ID: <dd17837a-70be-f155-c612-4d744bceff7f@gmail.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v4 2/2] xen/kbdif: Add features to disable
+ keyboard and pointer
+Date: Thu, 17 May 2018 07:50:16 +0200
+Message-ID: <38c3d8b3-a30b-a82a-341f-18b884b992f7@suse.com>
 References: <20180502144919.16780-1-andr2000@gmail.com>
- <20180511133757.GG19972@char.us.oracle.com>
- <20180511133848.GA20566@char.us.oracle.com>
- <86b7b3be-6e49-46b7-beb4-759ee05f90fb@suse.com>
- <6cd29db8-e931-fe8a-7857-8d9d8cdace9a@gmail.com>
- <2f77fa72-c0bd-7086-1197-23007ce91cb7@suse.com>
- <66fe661f-8d1a-aefe-de50-02f37f756d94@gmail.com>
- <58830234-a6a1-fba0-e994-34df03f5cdae@suse.com>
+ <20180502144919.16780-2-andr2000@gmail.com>
+ <ac3b57d0-2df0-561d-36d9-f00cd9273185@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <xen-devel-bounces@lists.xenproject.org>
-In-Reply-To: <58830234-a6a1-fba0-e994-34df03f5cdae@suse.com>
-Content-Language: en-US
+In-Reply-To: <ac3b57d0-2df0-561d-36d9-f00cd9273185@gmail.com>
+Content-Language: de-DE
 List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
  <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
 List-Post: <mailto:xen-devel@lists.xenproject.org>
@@ -25,50 +20,17 @@ List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
  <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
 Errors-To: xen-devel-bounces@lists.xenproject.org
 Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: Juergen Gross <jgross@suse.com>, "Oleksandr_Andrushchenko@epam.com" <Oleksandr_Andrushchenko@epam.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xenproject.org, dmitry.torokhov@gmail.com, jandryuk@gmail.com, linux-input@vger.kernel.org
+To: Oleksandr Andrushchenko <andr2000@gmail.com>
+Cc: "Oleksandr_Andrushchenko@epam.com" <Oleksandr_Andrushchenko@epam.com>, dmitry.torokhov@gmail.com, jandryuk@gmail.com, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
 List-Id: linux-input@vger.kernel.org
 
-T24gMDUvMTcvMjAxOCAwODo0MiBBTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBPbiAxNy8wNS8x
-OCAwNzoyOSwgT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gd3JvdGU6Cj4+IE9uIDA1LzE3LzIwMTgg
-MDc6MjggQU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+PiBPbiAxNi8wNS8xOCAwNjo1OSwgT2xl
-a3NhbmRyIEFuZHJ1c2hjaGVua28gd3JvdGU6Cj4+Pj4gT24gMDUvMTEvMjAxOCAwNjoxNSBQTSwg
-SnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+Pj4gT24gMTEvMDUvMTggMTU6MzgsIEtvbnJhZCBSemVz
-enV0ZWsgV2lsayB3cm90ZToKPj4+Pj4+IE9uIEZyaSwgTWF5IDExLCAyMDE4IGF0IDA5OjM3OjU3
-QU0gLTA0MDAsIEtvbnJhZCBSemVzenV0ZWsgV2lsayB3cm90ZToKPj4+Pj4+PiBPbiBXZWQsIE1h
-eSAwMiwgMjAxOCBhdCAwNTo0OToxOFBNICswMzAwLCBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbwo+
-Pj4+Pj4+IHdyb3RlOgo+Pj4+Pj4+PiBGcm9tOiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8b2xl
-a3NhbmRyX2FuZHJ1c2hjaGVua29AZXBhbS5jb20+Cj4+Pj4+Pj4+Cj4+Pj4+Pj4+IEFkZCBtaXNz
-aW5nIHN0cmluZyBjb25zdGFudHMgZm9yIHtmZWF0dXJlfHJlcXVlc3R9LXJhdy1wb2ludGVyCj4+
-Pj4+Pj4+IHRvIGFsaWduIHdpdGggdGhlIHJlc3Qgb2YgdGhlIGludGVyZmFjZSBmaWxlLgo+Pj4+
-Pj4+Pgo+Pj4+Pj4+PiBGaXhlcyA3ODY4NjU0ZmY3ZmUgKCJrYmRpZjogRGVmaW5lICJmZWF0dXJl
-LXJhdy1wb2ludGVyIiBhbmQKPj4+Pj4+Pj4gInJlcXVlc3QtcmF3LXBvaW50ZXIiKQo+Pj4+Pj4+
-Pgo+Pj4+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbwo+Pj4+Pj4+
-PiA8b2xla3NhbmRyX2FuZHJ1c2hjaGVua29AZXBhbS5jb20+Cj4+Pj4+Pj4gUmV2aWV3ZWQtYnk6
-IEtvbnJhZCBSemVzenV0ZWsgV2lsayA8a29ucmFkLndpbGtAb3JhY2xlLmNvbT4KPj4+Pj4+IEp1
-ZXJnZW4sIHlvdSBPSyB3aXRoIGFuIHJlbGVhc2UtYWNrPwo+Pj4+PiBZZXM6Cj4+Pj4+Cj4+Pj4+
-IFJlbGVhc2UtYWNrZWQtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4KPj4+PiBJ
-cyB0aGlzIGFjayBmb3IgYm90aCBwYXRjaGVzIG9yIHRoaXMgb25lIG9ubHk/Cj4+PiBJdCB3YXMg
-bWVhbnQgZm9yIHBhdGNoIDEgb25seS4KPj4gQ2xlYXIKPj4+PiBJIHNlZSBLb25yYWQgaGFzIGFw
-cGxpZWQgdGhpcyBwYXRjaCwgYnV0Cj4+Pj4gIltYZW4tZGV2ZWxdW1BBVENIIHY0IDIvMl0geGVu
-L2tiZGlmOiBBZGQgZmVhdHVyZXMgdG8gZGlzYWJsZSBrZXlib2FyZAo+Pj4+IGFuZCBwb2ludGVy
-Igo+Pj4+IGlzIHN0aWxsIGZsb2F0aW5nLgo+Pj4gSW4gcHJpbmNpcGxlIEknbSBmaW5lIHdpdGgg
-dGFraW5nIGl0IGZvciA0LjExLCBidXQgSSB0aGluayBhdCB0aGlzIHN0YWdlCj4+PiBvZiB0aGUg
-cmVsZWFzZSB0aGVyZSBzaG91bGQgYmUgYSBmb3JtYWwgcmVxdWVzdCB0byBpbmNsdWRlIGl0Lgo+
-PiAuLi5hbmQgdGhlIHJlcXVlc3Qgc2hvdWxkIGNvbWUgZnJvbSBLb25yYWQ/Cj4+IE9yIHdobyBl
-bHNlIG1heSByZXF1ZXN0IHRoYXQ/Cj4gTm9ybWFsbHkgdGhlIHNlbmRlciBvZiB0aGUgcGF0Y2gg
-d291bGQgbWFrZSB0aGlzIHJlcXVlc3QgYmVsb3cgdGhlIC0tLQo+IG9mIHRoZSBjb21taXQgbWVz
-c2FnZSwgZS5nLjoKPiAgICAtLS0KPiAgICBUaGlzIHBhdGNoIHNob3VsZCBnbyBpbnRvIDQuMTEg
-YXMgaXQgaXMgbmVlZGVkIGZvciBhIHJlbGF0ZWQgTGludXgKPiAgICBrZXJuZWwgcGF0Y2ggYW5k
-IHRoZSByaXNrIGlzIG5leHQgdG8gemVybyBmb3IgWGVuIGR1ZSB0byBvbmx5IGFkZGluZwo+ICAg
-IHNvbWUgbWFjcm9zIG5vdCBpbiB1c2Ugb24gWGVuIHNpZGUuCj4KPiBUaGUgcmVxdWVzdCBjYW4g
-YmUgbWFkZSBieSBhbnlvbmUsIG9mIGNvdXJzZSwgZS5nLiBieSByZXBseWluZyB0byB0aGUKPiBw
-YXRjaCBtYWlsIGFuZCBpbmNsdWRpbmcgdGhlIHJlbGVhc2UgbWFuYWdlciBhcyBhIHJlY2lwaWVu
-dC4KR3JlYXQsIHRoYW5rIHlvdQo+PiBBbmQsIGFzIEkgaGF2ZSByLWIncyBmcm9tIEtvbnJhZCBm
-b3IgYm90aCBwYXRjaGVzLAo+PiB3aWxsIGl0IGJlIG9rIGlmIHdlIGFwcGx5IHRoZSBjb3JyZXNw
-b25kaW5nIGNoYW5nZXMgdG8gdGhlCj4+IGtlcm5lbCBub3csIHNvIG15IGNoYW5nZSB0byB4ZW4t
-a2JkZnJvbnQgaXMgdW5ibG9ja2VkPwo+IE5vLCBwbGVhc2UgZG9uJ3QgZG8gdGhhdC4KU3VyZQo+
-Cj4gSnVlcmdlbgpUaGFuayB5b3UsCk9sZWtzYW5kcgoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcgbGlzdApYZW4tZGV2ZWxA
-bGlzdHMueGVucHJvamVjdC5vcmcKaHR0cHM6Ly9saXN0cy54ZW5wcm9qZWN0Lm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3hlbi1kZXZlbA==
+T24gMTcvMDUvMTggMDc6NDUsIE9sZWtzYW5kciBBbmRydXNoY2hlbmtvIHdyb3RlOgo+IEhpLCBK
+dWVyZ2VuIQo+IAo+IFRoaXMgcGF0Y2ggc2hvdWxkIGdvIGludG8gNC4xMSBhcyBpdCBpcyBuZWVk
+ZWQgZm9yIGEgcmVsYXRlZCBMaW51eAo+IGtlcm5lbCBwYXRjaCBhbmQgdGhlIHJpc2sgaXMgbmV4
+dCB0byB6ZXJvIGZvciBYZW4gZHVlIHRvIG9ubHkgYWRkaW5nCj4gc29tZSBtYWNyb3Mgbm90IGlu
+IHVzZSBvbiBYZW4gc2lkZS4KPiAKPiBDb3VsZCB5b3UgcGxlYXNlIHJlbGVhc2UgYWNrIHRoaXMK
+ClJlbGVhc2UtYWNrZWQtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4KCj4gYW5k
+IGFwcGx5PwoKVGhpcyBoYXMgdG8gYmUgZG9uZSBieSBhIGNvbW1pdHRlciwgd2hpY2ggSSdtIG5v
+dC4KCgpKdWVyZ2VuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpYZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW5wcm9qZWN0Lm9y
+ZwpodHRwczovL2xpc3RzLnhlbnByb2plY3Qub3JnL21haWxtYW4vbGlzdGluZm8veGVuLWRldmVs

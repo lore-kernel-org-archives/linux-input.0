@@ -1,60 +1,110 @@
 From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH v4 1/2] xen/kbdif: Add string constants for
- raw pointer
-Date: Thu, 17 May 2018 08:29:57 +0300
-Message-ID: <66fe661f-8d1a-aefe-de50-02f37f756d94@gmail.com>
-References: <20180502144919.16780-1-andr2000@gmail.com>
- <20180511133757.GG19972@char.us.oracle.com>
- <20180511133848.GA20566@char.us.oracle.com>
- <86b7b3be-6e49-46b7-beb4-759ee05f90fb@suse.com>
- <6cd29db8-e931-fe8a-7857-8d9d8cdace9a@gmail.com>
- <2f77fa72-c0bd-7086-1197-23007ce91cb7@suse.com>
+Subject: Re: [PATCH v3 2/2] Input: xen-kbdfront - allow better run-time
+ configuration
+Date: Thu, 17 May 2018 08:31:54 +0300
+Message-ID: <7cecb5d1-5cd3-b63d-d6eb-d1e2dfba9ca6@gmail.com>
+References: <20180514144029.16019-1-andr2000@gmail.com>
+ <20180514144029.16019-2-andr2000@gmail.com> <20180516171528.GD21971@dtor-ws>
+ <e9882c52-3641-7c32-1f64-dd9c4f35de5f@gmail.com>
+ <20180516210817.GF21971@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xenproject.org>
-In-Reply-To: <2f77fa72-c0bd-7086-1197-23007ce91cb7@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180516210817.GF21971@dtor-ws>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
-To: Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xenproject.org, dmitry.torokhov@gmail.com, jandryuk@gmail.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-T24gMDUvMTcvMjAxOCAwNzoyOCBBTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBPbiAxNi8wNS8x
-OCAwNjo1OSwgT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gd3JvdGU6Cj4+IE9uIDA1LzExLzIwMTgg
-MDY6MTUgUE0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+PiBPbiAxMS8wNS8xOCAxNTozOCwgS29u
-cmFkIFJ6ZXN6dXRlayBXaWxrIHdyb3RlOgo+Pj4+IE9uIEZyaSwgTWF5IDExLCAyMDE4IGF0IDA5
-OjM3OjU3QU0gLTA0MDAsIEtvbnJhZCBSemVzenV0ZWsgV2lsayB3cm90ZToKPj4+Pj4gT24gV2Vk
-LCBNYXkgMDIsIDIwMTggYXQgMDU6NDk6MThQTSArMDMwMCwgT2xla3NhbmRyIEFuZHJ1c2hjaGVu
-a28KPj4+Pj4gd3JvdGU6Cj4+Pj4+PiBGcm9tOiBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyA8b2xl
-a3NhbmRyX2FuZHJ1c2hjaGVua29AZXBhbS5jb20+Cj4+Pj4+Pgo+Pj4+Pj4gQWRkIG1pc3Npbmcg
-c3RyaW5nIGNvbnN0YW50cyBmb3Ige2ZlYXR1cmV8cmVxdWVzdH0tcmF3LXBvaW50ZXIKPj4+Pj4+
-IHRvIGFsaWduIHdpdGggdGhlIHJlc3Qgb2YgdGhlIGludGVyZmFjZSBmaWxlLgo+Pj4+Pj4KPj4+
-Pj4+IEZpeGVzIDc4Njg2NTRmZjdmZSAoImtiZGlmOiBEZWZpbmUgImZlYXR1cmUtcmF3LXBvaW50
-ZXIiIGFuZAo+Pj4+Pj4gInJlcXVlc3QtcmF3LXBvaW50ZXIiKQo+Pj4+Pj4KPj4+Pj4+IFNpZ25l
-ZC1vZmYtYnk6IE9sZWtzYW5kciBBbmRydXNoY2hlbmtvCj4+Pj4+PiA8b2xla3NhbmRyX2FuZHJ1
-c2hjaGVua29AZXBhbS5jb20+Cj4+Pj4+IFJldmlld2VkLWJ5OiBLb25yYWQgUnplc3p1dGVrIFdp
-bGsgPGtvbnJhZC53aWxrQG9yYWNsZS5jb20+Cj4+Pj4gSnVlcmdlbiwgeW91IE9LIHdpdGggYW4g
-cmVsZWFzZS1hY2s/Cj4+PiBZZXM6Cj4+Pgo+Pj4gUmVsZWFzZS1hY2tlZC1ieTogSnVlcmdlbiBH
-cm9zcyA8amdyb3NzQHN1c2UuY29tPgo+PiBJcyB0aGlzIGFjayBmb3IgYm90aCBwYXRjaGVzIG9y
-IHRoaXMgb25lIG9ubHk/Cj4gSXQgd2FzIG1lYW50IGZvciBwYXRjaCAxIG9ubHkuCkNsZWFyCj4+
-IEkgc2VlIEtvbnJhZCBoYXMgYXBwbGllZCB0aGlzIHBhdGNoLCBidXQKPj4gIltYZW4tZGV2ZWxd
-W1BBVENIIHY0IDIvMl0geGVuL2tiZGlmOiBBZGQgZmVhdHVyZXMgdG8gZGlzYWJsZSBrZXlib2Fy
-ZAo+PiBhbmQgcG9pbnRlciIKPj4gaXMgc3RpbGwgZmxvYXRpbmcuCj4gSW4gcHJpbmNpcGxlIEkn
-bSBmaW5lIHdpdGggdGFraW5nIGl0IGZvciA0LjExLCBidXQgSSB0aGluayBhdCB0aGlzIHN0YWdl
-Cj4gb2YgdGhlIHJlbGVhc2UgdGhlcmUgc2hvdWxkIGJlIGEgZm9ybWFsIHJlcXVlc3QgdG8gaW5j
-bHVkZSBpdC4KLi4uYW5kIHRoZSByZXF1ZXN0IHNob3VsZCBjb21lIGZyb20gS29ucmFkPwpPciB3
-aG8gZWxzZSBtYXkgcmVxdWVzdCB0aGF0PwoKQW5kLCBhcyBJIGhhdmUgci1iJ3MgZnJvbSBLb25y
-YWQgZm9yIGJvdGggcGF0Y2hlcywKd2lsbCBpdCBiZSBvayBpZiB3ZSBhcHBseSB0aGUgY29ycmVz
-cG9uZGluZyBjaGFuZ2VzIHRvIHRoZQprZXJuZWwgbm93LCBzbyBteSBjaGFuZ2UgdG8geGVuLWti
-ZGZyb250IGlzIHVuYmxvY2tlZD8KPgo+IEp1ZXJnZW4KVGhhbmsgeW91LApPbGVrc2FuZHIKCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClhlbi1kZXZlbCBt
-YWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbnByb2plY3Qub3JnCmh0dHBzOi8vbGlzdHMu
-eGVucHJvamVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby94ZW4tZGV2ZWw=
+On 05/17/2018 12:08 AM, Dmitry Torokhov wrote:
+> On Wed, May 16, 2018 at 08:47:30PM +0300, Oleksandr Andrushchenko wrote:
+>> On 05/16/2018 08:15 PM, Dmitry Torokhov wrote:
+>>> Hi Oleksandr,
+>>>
+>>> On Mon, May 14, 2018 at 05:40:29PM +0300, Oleksandr Andrushchenko wrote:
+>>>> @@ -211,93 +220,114 @@ static int xenkbd_probe(struct xenbus_device *dev,
+>>>>    	if (!info->page)
+>>>>    		goto error_nomem;
+>>>> -	/* Set input abs params to match backend screen res */
+>>>> -	abs = xenbus_read_unsigned(dev->otherend,
+>>>> -				   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
+>>>> -	ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
+>>>> -						  XENKBD_FIELD_WIDTH,
+>>>> -						  ptr_size[KPARAM_X]);
+>>>> -	ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
+>>>> -						  XENKBD_FIELD_HEIGHT,
+>>>> -						  ptr_size[KPARAM_Y]);
+>>>> -	if (abs) {
+>>>> -		ret = xenbus_write(XBT_NIL, dev->nodename,
+>>>> -				   XENKBD_FIELD_REQ_ABS_POINTER, "1");
+>>>> -		if (ret) {
+>>>> -			pr_warn("xenkbd: can't request abs-pointer\n");
+>>>> -			abs = 0;
+>>>> -		}
+>>>> -	}
+>>>> +	/*
+>>>> +	 * The below are reverse logic, e.g. if the feature is set, then
+>>>> +	 * do not expose the corresponding virtual device.
+>>>> +	 */
+>>>> +	with_kbd = !xenbus_read_unsigned(dev->nodename,
+>>>> +					 XENKBD_FIELD_FEAT_DSBL_KEYBRD, 0);
+>>>> -	touch = xenbus_read_unsigned(dev->nodename,
+>>>> -				     XENKBD_FIELD_FEAT_MTOUCH, 0);
+>>>> -	if (touch) {
+>>>> +	with_ptr = !xenbus_read_unsigned(dev->nodename,
+>>>> +					 XENKBD_FIELD_FEAT_DSBL_POINTER, 0);
+>>>> +
+>>>> +	/* Direct logic: if set, then create multi-touch device. */
+>>>> +	with_mtouch = xenbus_read_unsigned(dev->nodename,
+>>>> +					   XENKBD_FIELD_FEAT_MTOUCH, 0);
+>>>> +	if (with_mtouch) {
+>>>>    		ret = xenbus_write(XBT_NIL, dev->nodename,
+>>>>    				   XENKBD_FIELD_REQ_MTOUCH, "1");
+>>>>    		if (ret) {
+>>>>    			pr_warn("xenkbd: can't request multi-touch");
+>>>> -			touch = 0;
+>>>> +			with_mtouch = 0;
+>>>>    		}
+>>>>    	}
+>>> Does it make sense to still end up calling xenkbd_connect_backend() when
+>>> all interfaces (keyboard, pointer, and multitouch) are disabled? Should
+>>> we do:
+>>>
+>>> 	if (!(with_kbd || || with_ptr || with_mtouch))
+>>> 		return -ENXIO;
+>>>
+>>> ?
+>> It does make sense. Then we probably need to move all xenbus_read_unsigned
+>> calls to the very beginning of the .probe, so no memory allocations are made
+>> which will be useless if we return -ENXIO, e.g. something like
+>>
+>> static int xenkbd_probe(struct xenbus_device *dev,
+>>                    const struct xenbus_device_id *id)
+>> {
+>>      int ret, i;
+>>      bool with_mtouch, with_kbd, with_ptr;
+>>      struct xenkbd_info *info;
+>>      struct input_dev *kbd, *ptr, *mtouch;
+>>
+>> <read with_mtouch, with_kbd, with_ptr here>
+>>
+>> if (!(with_kbd | with_ptr | with_mtouch))
+>>          return -ENXIO;
+>>
+>> Does the above looks ok?
+> Yes. Another option is to keep the check where I suggested and do
+>
+> 	if (...) {
+> 		ret = -ENXIO;
+> 		goto error;
+> 	}
+>
+> Whichever you prefer is fine with me.
+I will go with the change you suggested and
+I'll send v4 tomorrow then.
+> Thanks.
+>
+Thank you,
+Oleksandr

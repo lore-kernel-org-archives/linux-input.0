@@ -1,98 +1,107 @@
-From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH v2 2/3] input: touchscreen: edt-ft5x06: assert reset during
- suspend
-Date: Thu, 17 May 2018 11:05:51 +0200
-Message-ID: <20180517090552.5704-3-daniel@zonque.org>
-References: <20180517090552.5704-1-daniel@zonque.org>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH v4] Input: add bu21029 touch driver
+Date: Thu, 17 May 2018 18:03:41 +0800
+Message-ID: <201805171546.tV4UnTVC%fengguang.wu@intel.com>
+References: <1526477123-18208-1-git-send-email-mark.jonas@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180517090552.5704-1-daniel@zonque.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, kernel@pengutronix.de, fabio.estevam@nxp.com
-Cc: devicetree@vger.kernel.org, Daniel Mack <daniel@zonque.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1526477123-18208-1-git-send-email-mark.jonas@de.bosch.com>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, hs@denx.de, andy.shevchenko@gmail.com, Zhu Yi <yi.zhu5@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-If the device is not configured as wakeup source, it can be put in reset
-during suspend to save some power.
+Hi Zhu,
 
-Signed-off-by: Daniel Mack <daniel@zonque.org>
+Thank you for the patch! Perhaps something to improve:
+
+[auto build test WARNING on v4.17-rc5]
+[also build test WARNING on next-20180516]
+[cannot apply to input/next]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/Mark-Jonas/Input-add-bu21029-touch-driver/20180517-133332
+reproduce:
+        # apt-get install sparse
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
+
+
+sparse warnings: (new ones prefixed by >>)
+
+>> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
+>> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
+>> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
+>> drivers/input/touchscreen/bu21029_ts.c:289:13: sparse: cast to restricted __be16
+
+vim +289 drivers/input/touchscreen/bu21029_ts.c
+
+   258	
+   259	static int bu21029_start_chip(struct input_dev *dev)
+   260	{
+   261		struct bu21029_ts_data *bu21029 = input_get_drvdata(dev);
+   262		struct i2c_client *i2c = bu21029->client;
+   263		struct {
+   264			u8 reg;
+   265			u8 value;
+   266		} init_table[] = {
+   267			{BU21029_CFR0_REG, CFR0_VALUE},
+   268			{BU21029_CFR1_REG, CFR1_VALUE},
+   269			{BU21029_CFR2_REG, CFR2_VALUE},
+   270			{BU21029_CFR3_REG, CFR3_VALUE},
+   271			{BU21029_LDO_REG,  LDO_VALUE}
+   272		};
+   273		int error, i;
+   274		u16 hwid;
+   275	
+   276		/* take chip out of reset */
+   277		gpiod_set_value_cansleep(bu21029->reset_gpios, 0);
+   278		mdelay(START_DELAY_MS);
+   279	
+   280		error = i2c_smbus_read_i2c_block_data(i2c,
+   281						      BU21029_HWID_REG,
+   282						      2,
+   283						      (u8 *)&hwid);
+   284		if (error < 0) {
+   285			dev_err(&i2c->dev, "failed to read HW ID\n");
+   286			goto out;
+   287		}
+   288	
+ > 289		if (be16_to_cpu(hwid) != SUPPORTED_HWID) {
+   290			dev_err(&i2c->dev, "unsupported HW ID 0x%x\n", hwid);
+   291			error = -ENODEV;
+   292			goto out;
+   293		}
+   294	
+   295		for (i = 0; i < ARRAY_SIZE(init_table); ++i) {
+   296			error = i2c_smbus_write_byte_data(i2c,
+   297							  init_table[i].reg,
+   298							  init_table[i].value);
+   299			if (error < 0) {
+   300				dev_err(&i2c->dev,
+   301					"failed to write 0x%x to register 0x%x\n",
+   302					init_table[i].value,
+   303					init_table[i].reg);
+   304				goto out;
+   305			}
+   306		}
+   307	
+   308		error = i2c_smbus_write_byte(i2c, BU21029_AUTOSCAN);
+   309		if (error < 0) {
+   310			dev_err(&i2c->dev, "failed to start autoscan\n");
+   311			goto out;
+   312		}
+   313	
+   314		enable_irq(bu21029->client->irq);
+   315		return 0;
+   316	
+   317	out:
+   318		bu21029_stop_chip(dev);
+   319		return error;
+   320	}
+   321	
+
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index e18a2f215500..145499022e1c 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -883,6 +883,20 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
- 	}
- }
- 
-+static void edt_ft5x06_reset(struct edt_ft5x06_ts_data *tsdata, bool reset)
-+{
-+	if (!tsdata->reset_gpio)
-+		return;
-+
-+	if (reset) {
-+		gpiod_set_value_cansleep(tsdata->reset_gpio, 1);
-+	} else {
-+		usleep_range(5000, 6000);
-+		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
-+		msleep(300);
-+	}
-+}
-+
- static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 					 const struct i2c_device_id *id)
- {
-@@ -934,11 +948,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 		gpiod_set_value_cansleep(tsdata->wake_gpio, 1);
- 	}
- 
--	if (tsdata->reset_gpio) {
--		usleep_range(5000, 6000);
--		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
--		msleep(300);
--	}
-+	edt_ft5x06_reset(tsdata, false);
- 
- 	input = devm_input_allocate_device(&client->dev);
- 	if (!input) {
-@@ -1034,9 +1044,12 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
- static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
- 
- 	if (device_may_wakeup(dev))
- 		enable_irq_wake(client->irq);
-+	else
-+		edt_ft5x06_reset(tsdata, true);
- 
- 	return 0;
- }
-@@ -1044,9 +1057,12 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
- static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
- 
- 	if (device_may_wakeup(dev))
- 		disable_irq_wake(client->irq);
-+	else
-+		edt_ft5x06_reset(tsdata, false);
- 
- 	return 0;
- }
--- 
-2.14.3
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation

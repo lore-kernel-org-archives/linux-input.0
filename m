@@ -1,88 +1,97 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input clock
-Date: Fri, 18 May 2018 11:38:27 +0300
-Message-ID: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: [PATCH v4 1/2] xen/kbdif: Sync up with the canonical definition in Xen
+Date: Fri, 18 May 2018 12:59:34 +0300
+Message-ID: <20180518095935.26740-1-andr2000@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Lee Jones <lee.jones@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, stable@vger.kernel.org
+To: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com
+Cc: konrad.wilk@oracle.com, andr2000@gmail.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
-than Sunrisepoint which uses 120 MHz. Preliminary information was that
-both share the same clock rate but actual silicon implements elevated
-rate for better support for 3.4 MHz high-speed I2C.
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-This incorrect input clock rate results too high I2C bus clock in case
-ACPI doesn't provide tuned I2C timing parameters since I2C host
-controller driver calculates them from input clock rate.
+This is the sync up with the canonical definition of the keyboard
+protocol in Xen:
+1. Add missing string constants for {feature|request}-raw-pointer
+   to align with the rest of the interface file.
 
-Fix this by using the correct rate. We still share the same 230 ns SDA
-hold time value than Sunrisepoint.
+2. Add new XenStore feature fields, so it is possible to individually
+   control set of exposed virtual devices for each guest OS:
+     - set feature-disable-keyboard to 1 if no keyboard device needs
+       to be created
+     - set feature-disable-pointer to 1 if no pointer device needs
+       to be created
 
-Cc: stable@vger.kernel.org
-Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
-Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Reported-by: Chris Chiu <chiu@endlessm.com>
-Reported-by: Daniel Drake <drake@endlessm.com>
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 ---
-Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
-touchpad issue?
----
- drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ include/xen/interface/io/kbdif.h | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index d1c46de89eb4..d9ae983095c5 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -124,6 +124,11 @@ static const struct intel_lpss_platform_info apl_i2c_info = {
- 	.properties = apl_i2c_properties,
- };
+diff --git a/include/xen/interface/io/kbdif.h b/include/xen/interface/io/kbdif.h
+index 2a9510ade701..808ef7d02a65 100644
+--- a/include/xen/interface/io/kbdif.h
++++ b/include/xen/interface/io/kbdif.h
+@@ -51,6 +51,18 @@
+  * corresponding entries in XenStore and puts 1 as the value of the entry.
+  * If a feature is not supported then 0 must be set or feature entry omitted.
+  *
++ * feature-disable-keyboard
++ *      Values:         <uint>
++ *
++ *      If there is no need to expose a virtual keyboard device by the
++ *      frontend then this must be set to 1.
++ *
++ * feature-disable-pointer
++ *      Values:         <uint>
++ *
++ *      If there is no need to expose a virtual pointer device by the
++ *      frontend then this must be set to 1.
++ *
+  * feature-abs-pointer
+  *      Values:         <uint>
+  *
+@@ -63,6 +75,13 @@
+  *      Backends, which support reporting of multi-touch events
+  *      should set this to 1.
+  *
++ * feature-raw-pointer
++ *      Values:        <uint>
++ *
++ *      Backends, which support reporting raw (unscaled) absolute coordinates
++ *      for pointer devices should set this to 1. Raw (unscaled) values have
++ *      a range of [0, 0x7fff].
++ *
+  *------------------------- Pointer Device Parameters ------------------------
+  *
+  * width
+@@ -98,6 +117,13 @@
+  *
+  *      Request backend to report multi-touch events.
+  *
++ * request-raw-pointer
++ *      Values:         <uint>
++ *
++ *      Request backend to report raw unscaled absolute pointer coordinates.
++ *      This option is only valid if request-abs-pointer is also set.
++ *      Raw unscaled coordinates have the range [0, 0x7fff]
++ *
+  *----------------------- Request Transport Parameters -----------------------
+  *
+  * event-channel
+@@ -163,9 +189,13 @@
  
-+static const struct intel_lpss_platform_info cnl_i2c_info = {
-+	.clk_rate = 216000000,
-+	.properties = spt_i2c_properties,
-+};
-+
- static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	/* BXT A-Step */
- 	{ PCI_VDEVICE(INTEL, 0x0aac), (kernel_ulong_t)&bxt_i2c_info },
-@@ -207,13 +212,13 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0x9daa), (kernel_ulong_t)&spt_info },
- 	{ PCI_VDEVICE(INTEL, 0x9dab), (kernel_ulong_t)&spt_info },
- 	{ PCI_VDEVICE(INTEL, 0x9dfb), (kernel_ulong_t)&spt_info },
--	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&spt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&cnl_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&cnl_i2c_info },
- 	{ PCI_VDEVICE(INTEL, 0x9dc7), (kernel_ulong_t)&spt_uart_info },
--	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&spt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&spt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&spt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&cnl_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&cnl_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&cnl_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&cnl_i2c_info },
- 	/* SPT-H */
- 	{ PCI_VDEVICE(INTEL, 0xa127), (kernel_ulong_t)&spt_uart_info },
- 	{ PCI_VDEVICE(INTEL, 0xa128), (kernel_ulong_t)&spt_uart_info },
-@@ -240,10 +245,10 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
- 	{ PCI_VDEVICE(INTEL, 0xa32b), (kernel_ulong_t)&spt_info },
- 	{ PCI_VDEVICE(INTEL, 0xa37b), (kernel_ulong_t)&spt_info },
- 	{ PCI_VDEVICE(INTEL, 0xa347), (kernel_ulong_t)&spt_uart_info },
--	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&spt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&spt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&spt_i2c_info },
--	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&spt_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&cnl_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&cnl_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&cnl_i2c_info },
-+	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&cnl_i2c_info },
- 	{ }
- };
- MODULE_DEVICE_TABLE(pci, intel_lpss_pci_ids);
+ #define XENKBD_DRIVER_NAME		"vkbd"
+ 
++#define XENKBD_FIELD_FEAT_DSBL_KEYBRD	"feature-disable-keyboard"
++#define XENKBD_FIELD_FEAT_DSBL_POINTER	"feature-disable-pointer"
+ #define XENKBD_FIELD_FEAT_ABS_POINTER	"feature-abs-pointer"
++#define XENKBD_FIELD_FEAT_RAW_POINTER	"feature-raw-pointer"
+ #define XENKBD_FIELD_FEAT_MTOUCH	"feature-multi-touch"
+ #define XENKBD_FIELD_REQ_ABS_POINTER	"request-abs-pointer"
++#define XENKBD_FIELD_REQ_RAW_POINTER	"request-raw-pointer"
+ #define XENKBD_FIELD_REQ_MTOUCH		"request-multi-touch"
+ #define XENKBD_FIELD_RING_GREF		"page-gref"
+ #define XENKBD_FIELD_EVT_CHANNEL	"event-channel"
 -- 
 2.17.0

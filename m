@@ -1,240 +1,210 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Sometimes unusable i2c-hid devices in 4.17-rcX
-Date: Fri, 18 May 2018 20:18:23 +0200
-Message-ID: <CAN+gG=HPLAVb5kR6a8+vho5NBhkoY6oKU8P=pUt0qiPOZRvBbw@mail.gmail.com>
-References: <33968d382800467bb71d1733f2f2fd58@ausx13mpc120.AMER.DELL.COM>
- <CAN+gG=HXeNCJJjhTbz-4MoZW_0QgO9DOwBP1NBgZ_2Hycm+4qw@mail.gmail.com> <82124c4909834ef0bd61b3472ed6af66@ausx13mpc120.AMER.DELL.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Subject: [PATCH 1/6] ARM: OMAP1: ams-delta: add GPIO lookup tables
+Date: Fri, 18 May 2018 23:09:49 +0200
+Message-ID: <20180518210954.29044-1-jmkrzyszt@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <82124c4909834ef0bd61b3472ed6af66@ausx13mpc120.AMER.DELL.COM>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mario.Limonciello@dell.com
-Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Mark Brown <broonie@kernel.org>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>, Richard Weinberger <richard@nod.at>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Jarkko Nikula <jarkko.nikula@bitmer.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-mtd@lists.infradead.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, May 17, 2018 at 4:44 PM,  <Mario.Limonciello@dell.com> wrote:
->> -----Original Message-----
->> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
->> Sent: Thursday, May 17, 2018 9:28 AM
->> To: Limonciello, Mario
->> Cc: linux-input; linux-kernel@vger.kernel.org
->> Subject: Re: Sometimes unusable i2c-hid devices in 4.17-rcX
->>
->> Hi Mario,
->>
->> On Wed, May 16, 2018 at 10:00 PM,  <Mario.Limonciello@dell.com> wrote:
->> > Hi All,
->> >
->> > I've been running 4.16-rc7 on an XPS 9365 for some time and recently moved up
->> to 4.17-rc5.
->> > Immediately I noticed that i2c-hid devices (both touchscreen and touchpad) were
->> not working.
->> > Also when shutting the system down or rebooting it would just hang. (magic sysrq
->> still worked).
->> >
->> > I figured it was an easy to identify regression so I started a bisect but it came up
->> with garbage
->> > that ended in selftests shortly after 4.17-rc2.  I realized that's because is still will
->> fail on 4.17-rc2
->> > occasionally, seemingly after trying something newer and warm rebooting.
->> > So it seems like it's "worse" after 4.17-rc2 (doesn't work at all) but semi
->> reproducible on 4.17-rc2.
->> >
->> > Not sure if I'm chasing some initialization race, but wanted to see if anyone else
->> was running into this
->> > or has some ideas?
->>
->> I am reliably running a v4.17-rc3 with a merge on Jiri's tree on the 9360.
->>
->> I doubt it's related to the event processing as I am not encountering
->> those issues.
->>
->> It *could* be related to the interrupts not being properly raised.
->>
->> Could you monitor /proc/interrupts and check if the ones associated
->> with your i2c-hid devices are increasing when you are using them?
->> Also, does the device emits raw HID events? (you can use hid-recorder
->> to check on the hidraw nodes.)
->
+Scope of the change is limited to GPIO pins used by board specific
+device drivers which will be updated by follow-up patches of the
+series. Those are some OMAP GPIO (gpio-0-15) and most of Amstrad Delta
+latch2 GPIO bank pins. Remaining pins of those banks, as well as
+Amstrad Delta latch1 pins, will be addressed later.
 
-Sorry, I couldn't get to it today. Monday is a public holiday here, so
-I'll check on this Tuesday.
+Assign a label ("latch2") to the bank, enumerate its pins and put that
+information, together with OMAP GPIO bank pins, in GPIO lookup tables.
+Assign lookup tables to devices as soon as those devices are registered
+and their names can be obtained.
 
-> I checked both, /proc/interrupts isn't incrementing at all with the DLL077A:01 device.
-> Hid-recorder is showing output from the raw HID node.
+A step froward in:
+- removal of hard-coded GPIO numbers from drivers,
+- removal of board mach includes from drivers,
+- switching to dynamically assigned GPIO numbers.
 
-I don't really understand how the hidraw node can send data while the
-interrupts are not raised.
+Created and compile tested agains linux-4.17-rc3
 
-Could you share the output of hid-recorder?
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+---
+ arch/arm/mach-omap1/board-ams-delta.c | 102 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 102 insertions(+)
 
->
-> Same thing for the touchscreen, no incrementing for it on the i2c_designware.0 device.
->
-> Something notable however;
-> When in this bad state hid-recorder didn't show /dev/hidraw1 for the touchscreen (which
-> Happens to be a Wacom touch screen).
-> It only showed /dev/hidraw0 for the touchpad.
-
-This explains why the touchscreen doesn't increment the interrupts.
-Something I missed in the first email is that the hidraw0 node
-disappear for the wacom device as the touchpad gets the hidraw0 name.
-
-Could you provide the output  of a working kernel configuration of:
-sudo hid-recorder /dev/hidraw*
-
-This should provide me the whole logs at the same time of all the
-hidraw nodes, and will allow me to reproduce the combination of
-wacom/hid-multitouch you are experiencing.
-
-Cheers,
-Benjamin
-
->
->
->>
->> Cheers,
->> Benjamin
->>
->> >
->> > #dmesg | grep 'i2c\|hid' doesn't show any obvious errors when in this state of
->> non functional hid stuff.
->> > [    2.398649] i2c /dev entries driver
->> > [    2.881651] hidraw: raw HID events driver (C) Jiri Kosina
->> > [    3.683583] ish-hid {33AECD58-B679-4E54-9BD9-A04D34F0C226}: [hid-ish]:
->> enum_devices_done OK, num_hid_devices=5
->> > [    3.701259] hid-generic 001F:8086:22D8.0001: hidraw0: <UNKNOWN> HID
->> v2.00 Device [hid-ishtp 8086:22D8] on
->> > [    3.702204] hid-generic 001F:8086:22D8.0002: hidraw1: <UNKNOWN> HID
->> v2.00 Device [hid-ishtp 8086:22D8] on
->> > [    3.703063] hid-generic 001F:8086:22D8.0003: hidraw2: <UNKNOWN> HID
->> v2.00 Device [hid-ishtp 8086:22D8] on
->> > [    3.704276] hid-generic 001F:8086:22D8.0004: hidraw3: <UNKNOWN> HID
->> v2.00 Device [hid-ishtp 8086:22D8] on
->> > [    3.704557] hid-generic 001F:8086:22D8.0005: hidraw4: <UNKNOWN> HID
->> v2.00 Device [hid-ishtp 8086:22D8] on
->> > [    3.750710] psmouse serio1: synaptics: Your touchpad (PNP: DLL077a PNP0f13)
->> says it can support a different bus. If i2c-hid and hid-rmi are not used, you might
->> want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-
->> input@vger.kernel.org.
->> > [    7.030446] acpi INT33D5:00: intel-hid: created platform device
->> > [    7.199178] i2c_hid i2c-WCOM482F:00: i2c-WCOM482F:00 supply vdd not
->> found, using dummy regulator
->> > [    7.246638] input: WCOM482F:00 056A:482F as
->> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-
->> WCOM482F:00/0018:056A:482F.0006/input/input11
->> > [    7.246873] hid-generic 0018:056A:482F.0006: input,hidraw0: I2C HID v1.00
->> Mouse [WCOM482F:00 056A:482F] on i2c-WCOM482F:00
->> > [    7.275279] i2c_hid i2c-DLL077A:01: i2c-DLL077A:01 supply vdd not found,
->> using dummy regulator
->> > [    7.304107] input: DLL077A:01 06CB:76AF as
->> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-
->> DLL077A:01/0018:06CB:76AF.0007/input/input14
->> > [    7.304212] hid-generic 0018:06CB:76AF.0007: input,hidraw1: I2C HID v1.00
->> Mouse [DLL077A:01 06CB:76AF] on i2c-DLL077A:01
->> > [    7.657123] usbcore: registered new interface driver usbhid
->> > [    7.657124] usbhid: USB HID core driver
->> > [    7.722876] input: Wacom HID 482F Pen as
->> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-
->> WCOM482F:00/0018:056A:482F.0006/input/input15
->> > [    7.723148] input: Wacom HID 482F Finger as
->> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-
->> WCOM482F:00/0018:056A:482F.0006/input/input16
->> > [    7.723611] wacom 0018:056A:482F.0006: hidraw0: I2C HID v1.00 Mouse
->> [WCOM482F:00 056A:482F] on i2c-WCOM482F:00
->> > [    7.768275] input: DLL077A:01 06CB:76AF Touchpad as
->> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-
->> DLL077A:01/0018:06CB:76AF.0007/input/input19
->> > [    7.864201] hid-multitouch 0018:06CB:76AF.0007: input,hidraw0: I2C HID v1.00
->> Mouse [DLL077A:01 06CB:76AF] on i2c-DLL077A:01
->> >
->> > However in this state, I can't rmmod i2c-hid.  It just hangs the system with this
->> trace:
->> > [  243.033779] INFO: task kworker/u8:0:6 blocked for more than 120 seconds.
->> > [  243.033793]       Not tainted 4.17.0-rc1+ #37
->> > [  243.033798] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this
->> message.
->> > [  243.033804] kworker/u8:0    D    0     6      2 0x80000000
->> > [  243.033826] Workqueue: events_power_efficient
->> power_supply_deferred_register_work
->> > [  243.033832] Call Trace:
->> > [  243.033850]  __schedule+0x3c2/0x890
->> > [  243.033861]  ? __switch_to_asm+0x40/0x70
->> > [  243.033868]  schedule+0x36/0x80
->> > [  243.033875]  schedule_preempt_disabled+0xe/0x10
->> > [  243.033882]  __mutex_lock.isra.4+0x2ae/0x4e0
->> > [  243.033890]  ? __switch_to_asm+0x34/0x70
->> > [  243.033899]  ? __switch_to_asm+0x40/0x70
->> > [  243.033906]  ? __switch_to_asm+0x40/0x70
->> > [  243.033914]  __mutex_lock_slowpath+0x13/0x20
->> > [  243.033920]  ? __mutex_lock_slowpath+0x13/0x20
->> > [  243.033927]  mutex_lock+0x2f/0x40
->> > [  243.033933]  power_supply_deferred_register_work+0x2b/0x50
->> > [  243.033944]  process_one_work+0x148/0x3d0
->> > [  243.033952]  worker_thread+0x4b/0x460
->> > [  243.033960]  kthread+0x102/0x140
->> > [  243.033967]  ? rescuer_thread+0x380/0x380
->> > [  243.033973]  ? kthread_associate_blkcg+0xa0/0xa0
->> > [  243.033982]  ret_from_fork+0x35/0x40
->> > [  243.034012] INFO: task systemd-udevd:308 blocked for more than 120 seconds.
->> > [  243.034018]       Not tainted 4.17.0-rc1+ #37
->> > [  243.034022] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this
->> message.
->> > [  243.034027] systemd-udevd   D    0   308    279 0x80000104
->> > [  243.034033] Call Trace:
->> > [  243.034041]  __schedule+0x3c2/0x890
->> > [  243.034049]  schedule+0x36/0x80
->> > [  243.034056]  schedule_timeout+0x1e7/0x360
->> > [  243.034066]  ? ttwu_do_activate+0x77/0x80
->> > [  243.034074]  wait_for_completion+0xb4/0x140
->> > [  243.034082]  ? wake_up_q+0x70/0x70
->> > [  243.034090]  flush_work+0x12a/0x1e0
->> > [  243.034097]  ? worker_detach_from_pool+0xb0/0xb0
->> > [  243.034107]  __cancel_work_timer+0x112/0x190
->> > [  243.034116]  cancel_delayed_work_sync+0x13/0x20
->> > [  243.034122]  power_supply_unregister+0x37/0xb0
->> > [  243.034127]  devm_power_supply_release+0x11/0x20
->> > [  243.034135]  release_nodes+0x107/0x1f0
->> > [  243.034147]  devres_release_group+0x7c/0xb0
->> > [  243.034162]  wacom_remove+0xce/0x120 [wacom]
->> > [  243.034178]  hid_device_remove+0x4d/0xa0 [hid]
->> > [  243.034187]  device_release_driver_internal+0x155/0x220
->> > [  243.034198]  ? __hid_bus_driver_added+0x40/0x40 [hid]
->> > [  243.034208]  ? hid_destroy_device+0x60/0x60 [hid]
->> > [  243.034215]  device_release_driver+0x12/0x20
->> > [  243.034221]  device_reprobe+0x30/0x50
->> > [  243.034231]  __hid_bus_reprobe_drivers+0x45/0x50 [hid]
->> > [  243.034239]  bus_for_each_dev+0x64/0xb0
->> > [  243.034250]  __hid_bus_driver_added+0x2c/0x40 [hid]
->> > [  243.034256]  bus_for_each_drv+0x67/0xb0
->> > [  243.034267]  __hid_register_driver+0x6f/0x80 [hid]
->> > [  243.034275]  ? 0xffffffffc07f5000
->> > [  243.034287]  mt_driver_init+0x23/0x1000 [hid_multitouch]
->> > [  243.034296]  do_one_initcall+0x4f/0x1ce
->> > [  243.034303]  ? _cond_resched+0x1a/0x50
->> > [  243.034315]  ? kmem_cache_alloc_trace+0xb8/0x1f0
->> > [  243.034327]  do_init_module+0x5f/0x219
->> > [  243.034335]  load_module+0x24c7/0x2be0
->> > [  243.034348]  __do_sys_finit_module+0xe5/0x120
->> > [  243.034354]  ? __do_sys_finit_module+0xe5/0x120
->> > [  243.034363]  __x64_sys_finit_module+0x1a/0x20
->> > [  243.034370]  do_syscall_64+0x54/0x110
->> > [  243.034380]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
->> > [  243.034386] RIP: 0033:0x7f2ec539c839
->> > [  243.034390] RSP: 002b:00007ffcfc620298 EFLAGS: 00000246 ORIG_RAX:
->> 0000000000000139
->> > [  243.034396] RAX: ffffffffffffffda RBX: 000055d6a0147ec0 RCX:
->> 00007f2ec539c839
->> > [  243.034399] RDX: 0000000000000000 RSI: 00007f2ec507b0e5 RDI:
->> 000000000000000f
->> > [  243.034402] RBP: 00007f2ec507b0e5 R08: 0000000000000000 R09:
->> 00007ffcfc6203b0
->> > [  243.034405] R10: 000000000000000f R11: 0000000000000246 R12:
->> 0000000000000000
->> > [  243.034408] R13: 000055d6a017b3a0 R14: 0000000000020000 R15:
->> 000055d6a0147ec0
->> > --
->> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> > the body of a message to majordomo@vger.kernel.org
->> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/arch/arm/mach-omap1/board-ams-delta.c b/arch/arm/mach-omap1/board-ams-delta.c
+index 52e8e53ca154..4b78e73f8bf7 100644
+--- a/arch/arm/mach-omap1/board-ams-delta.c
++++ b/arch/arm/mach-omap1/board-ams-delta.c
+@@ -12,6 +12,7 @@
+  * published by the Free Software Foundation.
+  */
+ #include <linux/gpio/driver.h>
++#include <linux/gpio/machine.h>
+ #include <linux/gpio.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+@@ -202,7 +203,10 @@ static struct resource latch2_resources[] = {
+ 	},
+ };
+ 
++#define LATCH2_LABEL	"latch2"
++
+ static struct bgpio_pdata latch2_pdata = {
++	.label	= LATCH2_LABEL,
+ 	.base	= AMS_DELTA_LATCH2_GPIO_BASE,
+ 	.ngpio	= AMS_DELTA_LATCH2_NGPIO,
+ };
+@@ -217,6 +221,23 @@ static struct platform_device latch2_gpio_device = {
+ 	},
+ };
+ 
++#define LATCH2_PIN_LCD_VBLEN		0
++#define LATCH2_PIN_LCD_NDISP		1
++#define LATCH2_PIN_NAND_NCE		2
++#define LATCH2_PIN_NAND_NRE		3
++#define LATCH2_PIN_NAND_NWP		4
++#define LATCH2_PIN_NAND_NWE		5
++#define LATCH2_PIN_NAND_ALE		6
++#define LATCH2_PIN_NAND_CLE		7
++#define LATCH2_PIN_KEYBRD_PWR		8
++#define LATCH2_PIN_KEYBRD_DATAOUT	9
++#define LATCH2_PIN_SCARD_RSTIN		10
++#define LATCH2_PIN_SCARD_CMDVCC		11
++#define LATCH2_PIN_MODEM_NRESET		12
++#define LATCH2_PIN_MODEM_CODEC		13
++#define LATCH2_PIN_HOOKFLASH1		14
++#define LATCH2_PIN_HOOKFLASH2		15
++
+ static const struct gpio latch_gpios[] __initconst = {
+ 	{
+ 		.gpio	= LATCH1_GPIO_BASE + 6,
+@@ -323,6 +344,22 @@ static struct platform_device ams_delta_nand_device = {
+ 	.resource	= ams_delta_nand_resources,
+ };
+ 
++#define OMAP_GPIO_LABEL	"gpio-0-15"
++
++static struct gpiod_lookup_table ams_delta_nand_gpio_table = {
++	.table = {
++		GPIO_LOOKUP(OMAP_GPIO_LABEL, AMS_DELTA_GPIO_PIN_NAND_RB, "rdy",
++			    0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_NAND_NCE, "nce", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_NAND_NRE, "nre", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_NAND_NWP, "nwp", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_NAND_NWE, "nwe", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_NAND_ALE, "ale", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_NAND_CLE, "cle", 0),
++		{ },
++	},
++};
++
+ static struct resource ams_delta_kp_resources[] = {
+ 	[0] = {
+ 		.start	= INT_KEYBOARD,
+@@ -358,6 +395,14 @@ static struct platform_device ams_delta_lcd_device = {
+ 	.id	= -1,
+ };
+ 
++static struct gpiod_lookup_table ams_delta_lcd_gpio_table = {
++	.table = {
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_LCD_VBLEN, "vblen", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_LCD_NDISP, "ndisp", 0),
++		{ },
++	},
++};
++
+ static const struct gpio_led gpio_leds[] __initconst = {
+ 	{
+ 		.name		 = "camera",
+@@ -449,11 +494,35 @@ static struct platform_device ams_delta_audio_device = {
+ 	.id     = -1,
+ };
+ 
++static struct gpiod_lookup_table ams_delta_audio_gpio_table = {
++	.table = {
++		GPIO_LOOKUP(OMAP_GPIO_LABEL, AMS_DELTA_GPIO_PIN_HOOK_SWITCH,
++			    "hook_switch", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_MODEM_CODEC,
++			    "modem_codec", 0),
++		{ },
++	},
++};
++
+ static struct platform_device cx20442_codec_device = {
+ 	.name   = "cx20442-codec",
+ 	.id     = -1,
+ };
+ 
++static struct gpiod_lookup_table ams_delta_serio_gpio_table = {
++	.table = {
++		GPIO_LOOKUP(OMAP_GPIO_LABEL, AMS_DELTA_GPIO_PIN_KEYBRD_DATA,
++			    "data", 0),
++		GPIO_LOOKUP(OMAP_GPIO_LABEL, AMS_DELTA_GPIO_PIN_KEYBRD_CLK,
++			    "clock", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_KEYBRD_PWR,
++			    "power", 0),
++		GPIO_LOOKUP(LATCH2_LABEL, LATCH2_PIN_KEYBRD_DATAOUT,
++			    "dataout", 0),
++		{ },
++	},
++};
++
+ static struct platform_device *ams_delta_devices[] __initdata = {
+ 	&latch1_gpio_device,
+ 	&latch2_gpio_device,
+@@ -468,6 +537,16 @@ static struct platform_device *late_devices[] __initdata = {
+ 	&cx20442_codec_device,
+ };
+ 
++static struct gpiod_lookup_table *ams_delta_gpio_tables[] __initdata = {
++	&ams_delta_audio_gpio_table,
++	&ams_delta_serio_gpio_table,
++};
++
++static struct gpiod_lookup_table *late_gpio_tables[] __initdata = {
++	&ams_delta_lcd_gpio_table,
++	&ams_delta_nand_gpio_table,
++};
++
+ static void __init ams_delta_init(void)
+ {
+ 	/* mux pins for uarts */
+@@ -500,6 +579,20 @@ static void __init ams_delta_init(void)
+ 	gpio_led_register_device(-1, &leds_pdata);
+ 	platform_add_devices(ams_delta_devices, ARRAY_SIZE(ams_delta_devices));
+ 
++	/*
++	 * As soon as devices have been registered, assign their dev_names
++	 * to respective GPIO lookup tables before they are added.
++	 */
++	ams_delta_audio_gpio_table.dev_id =
++			dev_name(&ams_delta_audio_device.dev);
++	/*
++	 * No device name is assigned to GPIO lookup table for serio device
++	 * as long as serio driver is not converted to platform device driver.
++	 */
++
++	gpiod_add_lookup_tables(ams_delta_gpio_tables,
++				ARRAY_SIZE(ams_delta_gpio_tables));
++
+ 	ams_delta_init_fiq();
+ 
+ 	omap_writew(omap_readw(ARM_RSTCT1) | 0x0004, ARM_RSTCT1);
+@@ -570,6 +663,15 @@ static int __init late_init(void)
+ 
+ 	platform_add_devices(late_devices, ARRAY_SIZE(late_devices));
+ 
++	/*
++	 * As soon as devices have been registered, assign their dev_names
++	 * to respective GPIO lookup tables before they are added.
++	 */
++	ams_delta_lcd_gpio_table.dev_id = dev_name(&ams_delta_lcd_device.dev);
++	ams_delta_nand_gpio_table.dev_id = dev_name(&ams_delta_nand_device.dev);
++
++	gpiod_add_lookup_tables(late_gpio_tables, ARRAY_SIZE(late_gpio_tables));
++
+ 	err = platform_device_register(&modem_nreset_device);
+ 	if (err) {
+ 		pr_err("Couldn't register the modem regulator device\n");
+-- 
+2.16.1

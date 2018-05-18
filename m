@@ -1,47 +1,42 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Fri, 18 May 2018 15:26:13 +0200
-Message-ID: <62b6f02c-d619-6e51-a107-331f0648e832@redhat.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
- <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
- <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
- <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
- <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
- <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
- <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
- <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
- <ba99be8e-8e8b-87c1-8607-24ace8a01c64@redhat.com>
- <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v5 4/9] dt-bindings: input: touchscreen:
+ resistive-adc-touch: create bindings
+Date: Fri, 18 May 2018 09:20:33 -0500
+Message-ID: <20180518142033.GA28077@rob-hp-laptop>
+References: <1525949114-29263-1-git-send-email-eugen.hristev@microchip.com>
+ <1525949114-29263-5-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1525949114-29263-5-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Chris Chiu <chiu@endlessm.com>
-Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Thu, May 10, 2018 at 01:45:09PM +0300, Eugen Hristev wrote:
+> Added bindings for generic resistive touchscreen ADC.
+> 
+> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+> ---
+> Changes in v5:
+>  - changed property name touchscreen-threshold-pressure to
+> touchscreen-min-pressure
+> 
+> Changes in v3:
+>  - renamed file and compatible to exclude "generic" keyword
+>  - removed the pressure threshold property, added it as a common
+> touchscreen property in the touchscreen common bindings in a separate
+> commit.
+> 
+> Changes in v2:
+>  - modified bindings to have a generic resistive touchscreen adc driver
+> instead of specific architecture one.
+> 
+> 
+>  .../input/touchscreen/resistive-adc-touch.txt      | 30 ++++++++++++++++++++++
+>  1 file changed, 30 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/resistive-adc-touch.txt
 
-On 18-05-18 15:15, Jarkko Nikula wrote:
-> On 05/18/2018 10:48 AM, Hans de Goede wrote:
->> Could it be the i2c input clock definition in drivers/mfd/intel-lpss-pci.c
->> is also wrong for Apollo Lake (N3450) ?  There are lots of people having
->> various issues with i2c attached touchpads on Apollo Lake devices, this bug:
->> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1728244
->>
->> Is sort of a collection bug for these. Various models laptops, lots of
->> reporters. Note not sure thie is an i2c-designware issue, but it would
->> be good to double check the input clock on Apollo Lake.
->>
-> Does i2c_designware_core.dyndbg=+p and i2c-hid.debug=1 command line arguments give any useful debug information from those machines?
-
-I've asked people in the bug to collect debug output with this
-added.
-
-Regards,
-
-Hans
+Reviewed-by: Rob Herring <robh@kernel.org>

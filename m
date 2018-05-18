@@ -1,104 +1,61 @@
-From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
-Subject: AW: [PATCH v3] Input: add bu21029 touch driver
-Date: Thu, 17 May 2018 20:10:27 +0000
-Message-ID: <7f0a4cb041354801b732c744ad695495@de.bosch.com>
-References: <1521651874-15379-1-git-send-email-mark.jonas@de.bosch.com>
- <1526048528-3613-1-git-send-email-mark.jonas@de.bosch.com>
- <CAHp75Vf=eJbJPv5=y3fDKZapAnmABD0=v+WRhrBhMv+RSoBnKg@mail.gmail.com>
- <e514418e94bc4e0492512f7ba24170af@de.bosch.com>
- <20180516174357.GE21971@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
+Date: Fri, 18 May 2018 09:48:22 +0200
+Message-ID: <ba99be8e-8e8b-87c1-8607-24ace8a01c64@redhat.com>
+References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
+ <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
+ <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+ <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
+ <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
+ <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
+ <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
+ <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
+ <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180516174357.GE21971@dtor-ws>
-Content-Language: de-DE
+In-Reply-To: <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input <linux-input@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heiko Schocher <hs@denx.de>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Chris Chiu <chiu@endlessm.com>
+Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello Dmitry,
+Hi Jarkko, et.al.,
 
-> > > > +static void bu21029_stop_chip(struct input_dev *dev)
-> > > > +{
-> > > > +       struct bu21029_ts_data *bu21029 =3D input_get_drvdata(dev);
-> > > > +
-> > > > +       disable_irq(bu21029->client->irq);
-> > > > +       del_timer_sync(&bu21029->timer);
-> > > > +
-> > > > +       /* put chip into reset */
-> > > > +       gpiod_set_value_cansleep(bu21029->reset_gpios, 1);
-> > >
-> > > > +       udelay(STOP_DELAY_US);
-> > >
-> > > udelay() ?!
-> > >
-> > > > +}
-> >
-> > According to the datasheet disabling the chip will take 30 microseconds=
-.
-> > In the defines we added a buffer of 20 microseconds and thus
-> > STOP_DELAY_US is 50. The function guarantees that the chip is stopped
-> > before it returns.
-> >
-> > We think that it is ok to use udelay() here because in normal operation
-> > the chip is not stopped. It is only stopped when loading or unloading
-> > the driver, or when the system suspends.
-> >
-> > We would like to keep it like it is.
->=20
-> The issue is not with having delay here, but the kind of delay you are
-> using: udelay makes CPU spin for given amount of time; you really want
-> msleep() or usleep_range() here.
+On 17-05-18 09:48, Jarkko Nikula wrote:
+> Hi
+> 
+> On 05/15/2018 01:20 PM, Jarkko Nikula wrote:
+>> On 05/15/2018 06:22 AM, Chris Chiu wrote:
+>>> What if I change the 120MHz to 180MHz and then make sure that the I2C operates
+>>> in target FS mode frequency 400kHz via scope? Would there be any side effect?
+>>> Maybe some other busses frequency could be also affected and causing some other
+>>> component malfunction?
+>>>
+>> Should be safe. It is only clock rate information when registering a fixed clock with known rate in intel-lpss.c and i2c-designware uses that info when calculating the timing parameters. I.e. it doesn't change any internal clocks.
+>>
+>> I'm trying to find a contact who can confirm what is the expected rate of I2C input clock and is it common to all Cannon Lake HW.
+>>
+> I got confirmation that input clock is actually even higher 216 Mhz.
+> 
+> While checking does it cover all of those CNL CNL-LP and CNL-H PCI IDs may I add your Jian-Hong, Chris and Daniel email addresses to Repored-by tags in a fix patch?
 
-Understood and changed.
+Could it be the i2c input clock definition in drivers/mfd/intel-lpss-pci.c
+is also wrong for Apollo Lake (N3450) ?  There are lots of people having
+various issues with i2c attached touchpads on Apollo Lake devices, this bug:
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1728244
 
-> > > > +static int bu21029_start_chip(struct input_dev *dev)
-> > > > +{
-> > >
-> > > > +       u16 hwid;
-> > > > +
-> > > > +       /* take chip out of reset */
-> > > > +       gpiod_set_value_cansleep(bu21029->reset_gpios, 0);
-> > >
-> > > > +       mdelay(START_DELAY_MS);
-> > >
-> > > mdelay()?!
->=20
-> Same here - replace with msleep().
+Is sort of a collection bug for these. Various models laptops, lots of
+reporters. Note not sure thie is an i2c-designware issue, but it would
+be good to double check the input clock on Apollo Lake.
 
-Replaced.
+I've checked the datasheet and the datasheet mentions 133MHz as
+"serial input clk" in the lpio_bxt_regs Registers Summary, which is
+also part of the LPSS, no clk is mentioned in the "Summary of
+DW_apb_i2c_mem_map_DW_apb_i2c_addr_block1 Registers".
 
-> > > Instead...
-> > >
-> > > > +static int bu21029_suspend(struct device *dev)
-> > >
-> > > ...use __maby_unused annotation.
-> > >
-> > > > +static int bu21029_resume(struct device *dev)
-> > >
-> > > Ditto.
-> >
-> > OK, added.
->=20
-> You also need to drop #ifdef CONFIG_SLEEP. That's the point: we want to
-> reduce amount of conditionally compiled code and use __maybe_unused to
-> shut off compiler warning about some functions not used in certain
-> configurations. We rely on linker to eliminate dead functions from
-> executable.
+Regards,
 
-Done.
-
-Greetings,
-Mark
-
- Mark Jonas
-
-Building Technologies, Panel Software Fire (BT-FIR/ENG1)=20
-Bosch Sicherheitssysteme GmbH | Postfach 11 11 | 85626 Grasbrunn | GERMANY =
-| www.boschsecurity.com
-
-Sitz: Stuttgart, Registergericht: Amtsgericht Stuttgart HRB 23118=20
-Aufsichtsratsvorsitzender: Stefan Hartung; Gesch=E4ftsf=FChrung: Gert van I=
-peren, Andreas Bartz, Thomas Quante, Bernhard Schuster
+Hans

@@ -1,80 +1,47 @@
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Subject: Re: [PATCH 5/6] mtd: rawnand: ams-delta: use GPIO
-	lookup table
-Date: Sat, 19 May 2018 01:15:30 +0200
-Message-ID: <3427199.r4OBoDP6Xz@z50>
-References: <20180518210954.29044-1-jmkrzyszt@gmail.com>
- <20180518210954.29044-5-jmkrzyszt@gmail.com>
- <CAHp75VdNUW6KoM6oupyQ80A1WVRk7vewwDt6WEZOyjrAUifqRg@mail.gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
+Date: Sat, 19 May 2018 13:58:55 +0200
+Message-ID: <f52aa2eb-0af4-dac5-11d4-40b1379b5f89@redhat.com>
+References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
+ <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
+ <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+ <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
+ <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
+ <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
+ <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
+ <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
+ <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
+ <ba99be8e-8e8b-87c1-8607-24ace8a01c64@redhat.com>
+ <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <CAHp75VdNUW6KoM6oupyQ80A1WVRk7vewwDt6WEZOyjrAUifqRg@mail.gmail.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: linux-fbdev@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, Richard Weinberger <richard@nod.at>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-input <linux-input@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@bitmer.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Chris Chiu <chiu@endlessm.com>
+Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Friday, May 18, 2018 11:21:14 PM CEST Andy Shevchenko wrote:
-> On Sat, May 19, 2018 at 12:09 AM, Janusz Krzysztofik
-> 
-> <jmkrzyszt@gmail.com> wrote:
-> > +       gpiod_rdy = devm_gpiod_get_optional(&pdev->dev, "rdy", GPIOD_IN);
-> > +       if (!IS_ERR_OR_NULL(gpiod_rdy)) {
-> 
-> So, is it optional or not at the end?
-> If it is, why do we check for NULL?
+Hi,
 
-As far as I can understand, nand_chip->dev_ready() callback is optional. 
-That's why I decided to use the _optional variant of devm_gpiod_get(). In case 
-of ams-delta, the dev_ready() callback depends on availability of the 'rdy' 
-GPIO pin. As a consequence, I'm checking for both NULL and ERR in order to 
-decide if dev_ready() will be supported.
+On 18-05-18 15:15, Jarkko Nikula wrote:
+> On 05/18/2018 10:48 AM, Hans de Goede wrote:
+>> Could it be the i2c input clock definition in drivers/mfd/intel-lpss-pci.c
+>> is also wrong for Apollo Lake (N3450) ?  There are lots of people having
+>> various issues with i2c attached touchpads on Apollo Lake devices, this bug:
+>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1728244
+>>
+>> Is sort of a collection bug for these. Various models laptops, lots of
+>> reporters. Note not sure thie is an i2c-designware issue, but it would
+>> be good to double check the input clock on Apollo Lake.
+>>
+> Does i2c_designware_core.dyndbg=+p and i2c-hid.debug=1 command line arguments give any useful debug information from those machines?
 
-I can pretty well replace it with the standard form and check for ERR only if 
-the purpose of the _optional form is different.
+A first dmesg with these flags has been provided:
+https://launchpadlibrarian.net/370884912/dmesg.log
 
-> >                 this->dev_ready = ams_delta_nand_ready;
-> >         
-> >         } else {
-> >         
-> >                 this->dev_ready = NULL;
-> >                 pr_notice("Couldn't request gpio for Delta NAND
-> >                 ready.\n");
-> 
-> dev_notice() ?
+Regards,
 
-Sure, but maybe in a separate patch? That's not a new code just being added 
-but an existing one, not the merit of the change.
-
-> >         }
-> > 
-> > +err_gpiod:
-> > +       if (err == -ENODEV || err == -ENOENT)
-> > +               err = -EPROBE_DEFER;
-> 
-> Hmm...
-
-Amstrad Delta uses gpio-mmio driver. Unfortunatelty that driver is not 
-availble before device init phase, unlike other crucial GPIO drivers which are 
-initialized earlier, e.g. during the postcore or at latetst the subsys phase. 
-Hence, devices which depend on GPIO pins provided by gpio-mmio must either be 
-declared late or fail softly so they get another chance of being probed 
-succesfully.
-
-I thought of replacing the gpio-mmio platform driver with bgpio functions it 
-exports but for now I haven't implemented it, not even shared the idea.
-
-Does it really hurt to return -EPROBE_DEFER if a GPIO pin can't be obtained?
-
-Thanks,
-Janusz
+Hans

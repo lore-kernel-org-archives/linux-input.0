@@ -1,52 +1,73 @@
 From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH v6 1/9] MAINTAINERS: add generic resistive touchscreen adc
-Date: Mon, 21 May 2018 13:27:49 +0300
-Message-ID: <1526898477-9952-2-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v6 7/9] dt-bindings: iio: adc: at91-sama5d2_adc: add channel specific consumer info
+Date: Mon, 21 May 2018 13:27:55 +0300
+Message-ID: <1526898477-9952-8-git-send-email-eugen.hristev@microchip.com>
 References: <1526898477-9952-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1526898477-9952-1-git-send-email-eugen.hristev@microchip.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
 Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-Add MAINTAINERS entry for generic resistive touchscreen adc
+Added defines for channel consumer device-tree binding
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
-Changes in v3:
- - Changed source file name
+ .../devicetree/bindings/iio/adc/at91-sama5d2_adc.txt     |  9 +++++++++
+ include/dt-bindings/iio/adc/at91-sama5d2_adc.h           | 16 ++++++++++++++++
+ 2 files changed, 25 insertions(+)
+ create mode 100644 include/dt-bindings/iio/adc/at91-sama5d2_adc.h
 
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3bdc260..ce9720f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5943,6 +5943,12 @@ F:	drivers/base/power/domain*.c
- F:	include/linux/pm_domain.h
- F:	Documentation/devicetree/bindings/power/power_domain.txt
- 
-+GENERIC RESISTIVE TOUCHSCREEN ADC DRIVER
-+M:	Eugen Hristev <eugen.hristev@microchip.com>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/input/touchscreen/resistive-adc-touch.c
+diff --git a/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt b/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt
+index 6469a4c..4a3c1d4 100644
+--- a/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt
++++ b/Documentation/devicetree/bindings/iio/adc/at91-sama5d2_adc.txt
+@@ -21,6 +21,14 @@ Optional properties:
+   - dmas: Phandle to dma channel for the ADC.
+   - dma-names: Must be "rx" when dmas property is being used.
+   See ../../dma/dma.txt for details.
++  - #io-channel-cells: in case consumer drivers are attached, this must be 1.
++  See <Documentation/devicetree/bindings/iio/iio-bindings.txt> for details.
 +
- GENERIC UIO DRIVER FOR PCI DEVICES
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- L:	kvm@vger.kernel.org
++Properties for consumer drivers:
++  - Consumer drivers can be connected to this producer device, as specified
++  in <Documentation/devicetree/bindings/iio/iio-bindings.txt>
++  - Channels exposed are specified in:
++  <dt-bindings/iio/adc/at91-sama5d2_adc.txt>
+ 
+ Example:
+ 
+@@ -38,4 +46,5 @@ adc: adc@fc030000 {
+ 	atmel,trigger-edge-type = <IRQ_TYPE_EDGE_BOTH>;
+ 	dmas = <&dma0 (AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1) | AT91_XDMAC_DT_PERID(25))>;
+ 	dma-names = "rx";
++	#io-channel-cells = <1>;
+ }
+diff --git a/include/dt-bindings/iio/adc/at91-sama5d2_adc.h b/include/dt-bindings/iio/adc/at91-sama5d2_adc.h
+new file mode 100644
+index 0000000..70f99db
+--- /dev/null
++++ b/include/dt-bindings/iio/adc/at91-sama5d2_adc.h
+@@ -0,0 +1,16 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * This header provides constants for configuring the AT91 SAMA5D2 ADC
++ */
++
++#ifndef _DT_BINDINGS_IIO_ADC_AT91_SAMA5D2_ADC_H
++#define _DT_BINDINGS_IIO_ADC_AT91_SAMA5D2_ADC_H
++
++/* X relative position channel index */
++#define AT91_SAMA5D2_ADC_X_CHANNEL		24
++/* Y relative position channel index */
++#define AT91_SAMA5D2_ADC_Y_CHANNEL		25
++/* pressure channel index */
++#define AT91_SAMA5D2_ADC_P_CHANNEL		26
++
++#endif
 -- 
 2.7.4

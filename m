@@ -1,78 +1,45 @@
-From: Jian-Hong Pan <jian-hong@endlessm.com>
-Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input clock
-Date: Mon, 21 May 2018 15:06:07 +0800
-Message-ID: <CAPpJ_eenULHGQOSG7xOpdTh8gCuVpFW8V3u=gp1OfnXQY8Yw=A@mail.gmail.com>
-References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com> <20180518104638.GF15419@lahna.fi.intel.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 3/6] ASoC: ams_delta: use GPIO lookup table
+Date: Mon, 21 May 2018 11:05:03 +0100
+Message-ID: <20180521100503.GA24638@sirena.org.uk>
+References: <20180518210954.29044-1-jmkrzyszt@gmail.com>
+ <20180518210954.29044-3-jmkrzyszt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180518104638.GF15419@lahna.fi.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180518210954.29044-3-jmkrzyszt@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, Richard Weinberger <richard@nod.at>, Peter Ujfalusi <peter.ujfalusi@ti.com>, Jarkko Nikula <jarkko.nikula@bitmer.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-mtd@lists.infradead.org, linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Jarkko,
 
-We have tried this patch on the two laptops we have now:
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-ASUS X580GD
+On Fri, May 18, 2018 at 11:09:51PM +0200, Janusz Krzysztofik wrote:
+> Now as the Amstrad Delta board provides GPIO lookup tables, switch from
+> GPIO numbers to GPIO descriptors and use the table to locate required
+> GPIO pins.
 
-dev@endless:~$ lscpu | grep "Model name"
-Model name:          Intel(R) Core(TM) i5-8300H CPU @ 2.30GHz
-dev@endless:~$ lspci | grep -E '(a36[89ab]|97c[56])'
-00:15.0 Serial bus controller [0c80]: Intel Corporation Device a368 (rev 10)
-00:15.1 Serial bus controller [0c80]: Intel Corporation Device a369 (rev 10)
-dev@endless:~$ dmesg | grep -E 'lpss|i2c'
-[    9.692511] intel-lpss 0000:00:15.0: enabling device (0000 -> 0002)
-[    9.697702] intel-lpss 0000:00:15.1: enabling device (0000 -> 0002)
-[    9.920034] input: ELAN1200:00 04F3:303E Touchpad as
-/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-ELAN1200:00/0018:04F3:303E.0001/input/input18
-[    9.920204] hid-multitouch 0018:04F3:303E.0001: input,hidraw0: I2C
-HID v1.00 Mouse [ELAN1200:00 04F3:303E] on i2c-ELAN1200:00
-[    9.923873] intel-lpss 0000:00:1e.0: enabling device (0000 -> 0002)
-[    9.924806] intel-lpss 0000:00:1e.2: enabling device (0000 -> 0002)
+Acked-by: Mark Brown <broonie@kernel.org>
 
-ASUS UX550GE
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature; name="signature.asc"
 
-dev@endless:~$ lscpu | grep "Model name"
-Model name:          Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
-dev@endless:~$ lspci | grep -E '(a36[89ab]|97c[56])'
-00:15.0 Serial bus controller [0c80]: Intel Corporation Device a368 (rev 10)
-00:15.1 Serial bus controller [0c80]: Intel Corporation Device a369 (rev 10)
-dev@endless:~$ dmesg | grep -E 'lpss|i2c'
-[    6.926801] intel-lpss 0000:00:15.0: enabling device (0000 -> 0002)
-[    6.940907] intel-lpss 0000:00:15.1: enabling device (0000 -> 0002)
-[    6.971915] input: FTE1200:00 0B05:0201 Touchpad as
-/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-9/i2c-FTE1200:00/0018:0B05:0201.0002/input/input21
-[    6.971961] hid-multitouch 0018:0B05:0201.0002: input,hidraw1: I2C
-HID v1.00 Mouse [FTE1200:00 0B05:0201] on i2c-FTE1200:00
-[    6.973930] intel-lpss 0000:00:1e.0: enabling device (0000 -> 0002)
-[    6.974700] intel-lpss 0000:00:1e.2: enabling device (0000 -> 0002)
+-----BEGIN PGP SIGNATURE-----
 
-The patch works on both of the laptops with the touchpads.
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlsCmc4ACgkQJNaLcl1U
+h9DG0Af/UE7Z72qRF50Yg/UqUfLu60IQ6PX2zlv8XLEh1YdSXf0sIPdW4xsjUYKI
+B5eF5/fXlrjYYiIxMe9kNZT8jfPW7QP+lkpD07CIf2Io3+AGNHU+NuflzyEOqODX
+uJia7Umel8v7868BkFoyBpmEUVcHl8Gpo4k3e3T79PcBXvSmQusoupFWC/apcdT/
+xSKEmqpHYV5gdeiSIBBGVsb48oQ+GKlwEpsdPCGXkl63WuSg+QH5miaTIIiQyRZ8
+3q3PD70Jxv2QUvoZ6bRTStoZRk2D8PcnNauk4hJ/gKnw1FceWNNVtmAYVG7xOZwW
+bazFSdj285WRNlhe7N/Qw7x0JGBztg==
+=PRAh
+-----END PGP SIGNATURE-----
 
-2018-05-18 18:46 GMT+08:00 Mika Westerberg <mika.westerberg@linux.intel.com>:
-> On Fri, May 18, 2018 at 11:38:27AM +0300, Jarkko Nikula wrote:
->> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
->> than Sunrisepoint which uses 120 MHz. Preliminary information was that
->> both share the same clock rate but actual silicon implements elevated
->> rate for better support for 3.4 MHz high-speed I2C.
->>
->> This incorrect input clock rate results too high I2C bus clock in case
->> ACPI doesn't provide tuned I2C timing parameters since I2C host
->> controller driver calculates them from input clock rate.
->>
->> Fix this by using the correct rate. We still share the same 230 ns SDA
->> hold time value than Sunrisepoint.
->>
->> Cc: stable@vger.kernel.org
->> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
->> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
->> Reported-by: Chris Chiu <chiu@endlessm.com>
->> Reported-by: Daniel Drake <drake@endlessm.com>
->> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
->
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-Tested-by: Jian-Hong Pan <jian-hong@endlessm.com>
+--envbJBWh7q8WU6mo--

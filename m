@@ -1,7 +1,7 @@
 From: Eugen Hristev <eugen.hristev@microchip.com>
-Subject: [PATCH v7 9/9] ARM: dts: at91: sama5d2: Add resistive touch device
-Date: Tue, 22 May 2018 10:52:39 +0300
-Message-ID: <1526975559-18966-10-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v7 8/9] ARM: dts: at91: sama5d2: add channel cells for ADC device
+Date: Tue, 22 May 2018 10:52:38 +0300
+Message-ID: <1526975559-18966-9-git-send-email-eugen.hristev@microchip.com>
 References: <1526975559-18966-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,37 +12,32 @@ To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin
 Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-Add generic resistive touch device which is connected to ADC block
-inside the SAMA5D2 SoC
+Preparing the ADC device to connect channel consumer drivers
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
-Changes in v5:
- - renamed touchscreen-threshold-pressure to touchscreen-min-pressure
-
- arch/arm/boot/dts/sama5d2.dtsi | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm/boot/dts/sama5d2.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
-index f06ba99..a44f325 100644
+index 61f68e5..f06ba99 100644
 --- a/arch/arm/boot/dts/sama5d2.dtsi
 +++ b/arch/arm/boot/dts/sama5d2.dtsi
-@@ -1442,6 +1442,16 @@
+@@ -47,6 +47,7 @@
+ #include <dt-bindings/dma/at91.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/clock/at91.h>
++#include <dt-bindings/iio/adc/at91-sama5d2_adc.h>
+ 
+ / {
+ 	model = "Atmel SAMA5D2 family SoC";
+@@ -1437,6 +1438,7 @@
+ 				atmel,max-sample-rate-hz = <20000000>;
+ 				atmel,startup-time-ms = <4>;
+ 				atmel,trigger-edge-type = <IRQ_TYPE_EDGE_RISING>;
++				#io-channel-cells = <1>;
  				status = "disabled";
  			};
  
-+			resistive_touch: resistive-touch {
-+				compatible = "resistive-adc-touch";
-+				io-channels = <&adc AT91_SAMA5D2_ADC_X_CHANNEL>,
-+					      <&adc AT91_SAMA5D2_ADC_Y_CHANNEL>,
-+					      <&adc AT91_SAMA5D2_ADC_P_CHANNEL>;
-+				io-channel-names = "x", "y", "pressure";
-+				touchscreen-min-pressure = <50000>;
-+				status = "disabled";
-+			};
-+
- 			pioA: pinctrl@fc038000 {
- 				compatible = "atmel,sama5d2-pinctrl";
- 				reg = <0xfc038000 0x600>;
 -- 
 2.7.4

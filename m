@@ -1,340 +1,161 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 6/9] input: touchscreen: resistive-adc-touch: add
- generic resistive ADC touchscreen
-Date: Mon, 21 May 2018 14:06:11 -0700
-Message-ID: <20180521210611.GB74396@dtor-ws>
-References: <1526898477-9952-1-git-send-email-eugen.hristev@microchip.com>
- <1526898477-9952-7-git-send-email-eugen.hristev@microchip.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
+Subject: [PATCH v7 0/9] Add support for SAMA5D2 touchscreen
+Date: Tue, 22 May 2018 10:52:30 +0300
+Message-ID: <1526975559-18966-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1526898477-9952-7-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, robh@kernel.org
+To: jic23@kernel.org, ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
+Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, May 21, 2018 at 01:27:54PM +0300, Eugen Hristev wrote:
-> This adds a generic resistive touchscreen (GRTS) driver, which is based
-> on an IIO device (an ADC). It must be connected to the channels of an ADC
-> to receive touch data. Then it will feed the data into the input subsystem
-> where it registers an input device.
-> It uses an IIO callback buffer to register to the IIO device
-> 
-> Some parts of this patch are based on initial original work by
-> Mohamed Jamsheeth Hajanajubudeen and Bandaru Venkateswara Swamy
-> 
-> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Hello,
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This patch series is a rework of my previous series named:
+[PATCH 00/14] iio: triggers: add consumer support
 
-I assume this will go through IIO tree? Just a couple of comsmetic
-comments below, feel free to ignore.
+This is the version 7 of the series, and addresses the received feedback
+on the v2 series named:
+[PATCH v2 00/10]  Add support for SAMA5D2 touchscreen
+and the v3 series named
+[PATCH v3 00/11]  Add support for SAMA5D2 touchscreen
+and the v4 series named
+[PATCH v4 0/9]  Add support for SAMA5D2 touchscreen
+and fixes one bug found in series named
+[PATCH v5 0/9]  Add support for SAMA5D2 touchscreen
+and addresses comments in series named
+[PATCH v6 0/9]  Add support for SAMA5D2 touchscreen
 
-> ---
-> Changes in v6:
->  -  changed a dev_err to dev_dbg which was forgotten in v5.
-> 
-> Changes in v5:
->  - return error on probe if failed add_action_or_reset
->  - renamed property touchscreen-threshold-pressure to
-> touchscreen-min-pressure, changed variables accordingly
-> 
-> Changes in v4:
->  - added a small description in file header
->  - changed MAX_POS_MASK to GRTS_MAX_POS_MASK
->  - initialized press with 0, as this value means no touch.
-> press has to be initialized because compiler/checkpatch complains
-> that can be used uninitialized.
->  - changed of_property_read_u32 to device_*
->  - set_abs_params for pressure will have range according to threshold
->  - changed evbit and keybit with set_capability call
->  - changed variable names to error instead of ret
->  - checked errors for add_action_or_reset
->  - cosmetic cleaning
-> 
-> Changes in v3:
->  - pressure now reported naturally growing down-up
->  - using helpers from touchscreen.h to parse DT properties
->  - added devm_add_action_or_reset to handle callback buffer clean on exit
->  - changed compatible and threshold property to adapt to changed bindings
-> 
-> Changes in v2:
->  - this is now a generic resistive adc touchscreen driver
-> 
-> 
->  drivers/input/touchscreen/Kconfig               |  13 ++
->  drivers/input/touchscreen/Makefile              |   1 +
->  drivers/input/touchscreen/resistive-adc-touch.c | 201 ++++++++++++++++++++++++
->  3 files changed, 215 insertions(+)
->  create mode 100644 drivers/input/touchscreen/resistive-adc-touch.c
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 4f15496..8f85d3a 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -92,6 +92,19 @@ config TOUCHSCREEN_AD7879_SPI
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called ad7879-spi.
->  
-> +config TOUCHSCREEN_ADC
-> +	tristate "Generic ADC based resistive touchscreen"
-> +	depends on IIO
-> +	select IIO_BUFFER_CB
-> +	help
-> +	  Say Y here if you want to use the generic ADC
-> +	  resistive touchscreen driver.
-> +
-> +	  If unsure, say N (but it's safe to say "Y").
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called resistive-adc-touch.ko.
-> +
->  config TOUCHSCREEN_AR1021_I2C
->  	tristate "Microchip AR1020/1021 i2c touchscreen"
->  	depends on I2C && OF
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index dddae79..843c7f9 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -13,6 +13,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
->  obj-$(CONFIG_TOUCHSCREEN_AD7879)	+= ad7879.o
->  obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
->  obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
-> +obj-$(CONFIG_TOUCHSCREEN_ADC)		+= resistive-adc-touch.o
->  obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
->  obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
->  obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
-> diff --git a/drivers/input/touchscreen/resistive-adc-touch.c b/drivers/input/touchscreen/resistive-adc-touch.c
-> new file mode 100644
-> index 0000000..05d629b
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/resistive-adc-touch.c
-> @@ -0,0 +1,201 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * ADC generic resistive touchscreen (GRTS)
-> + * This is a generic input driver that connects to an ADC
-> + * given the channels in device tree, and reports events to the input
-> + * subsystem.
-> + *
-> + * Copyright (C) 2017,2018 Microchip Technology,
-> + * Author: Eugen Hristev <eugen.hristev@microchip.com>
-> + *
-> + */
-> +#include <linux/input.h>
-> +#include <linux/input/touchscreen.h>
-> +#include <linux/iio/consumer.h>
-> +#include <linux/iio/iio.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/platform_device.h>
-> +
-> +#define DRIVER_NAME					"resistive-adc-touch"
-> +#define GRTS_DEFAULT_PRESSURE_MIN			50000
-> +#define GRTS_MAX_POS_MASK				GENMASK(11, 0)
-> +
-> +/**
-> + * grts_state - generic resistive touch screen information struct
-> + * @pressure_min:	number representing the minimum for the pressure
-> + * @pressure:		are we getting pressure info or not
-> + * @iio_chans:		list of channels acquired
-> + * @iio_cb:		iio_callback buffer for the data
-> + * @input:		the input device structure that we register
-> + * @prop:		touchscreen properties struct
-> + */
-> +struct grts_state {
-> +	u32				pressure_min;
-> +	bool				pressure;
-> +	struct iio_channel		*iio_chans;
-> +	struct iio_cb_buffer		*iio_cb;
-> +	struct input_dev		*input;
-> +	struct touchscreen_properties	prop;
-> +};
-> +
-> +static int grts_cb(const void *data, void *private)
-> +{
-> +	const u16 *touch_info = data;
-> +	struct grts_state *st = private;
-> +	unsigned int x, y, press = 0x0;
-> +
-> +	/* channel data coming in buffer in the order below */
-> +	x = touch_info[0];
-> +	y = touch_info[1];
-> +	if (st->pressure)
-> +		press = touch_info[2];
-> +
-> +	if ((!x && !y) || (st->pressure && (press < st->pressure_min))) {
-> +		/* report end of touch */
-> +		input_report_key(st->input, BTN_TOUCH, 0);
-> +		input_sync(st->input);
-> +		return 0;
-> +	}
-> +
-> +	/* report proper touch to subsystem*/
-> +	touchscreen_report_pos(st->input, &st->prop, x, y, false);
-> +	if (st->pressure)
-> +		input_report_abs(st->input, ABS_PRESSURE, press);
-> +	input_report_key(st->input, BTN_TOUCH, 1);
-> +	input_sync(st->input);
-> +
-> +	return 0;
-> +}
-> +
-> +static int grts_open(struct input_dev *dev)
-> +{
-> +	int error;
-> +	struct grts_state *st = input_get_drvdata(dev);
-> +
-> +	error = iio_channel_start_all_cb(st->iio_cb);
-> +	if (error) {
-> +		dev_err(dev->dev.parent, "failed to start callback buffer.\n");
-> +		return error;
-> +	}
-> +	return 0;
-> +}
-> +
-> +static void grts_close(struct input_dev *dev)
-> +{
-> +	struct grts_state *st = input_get_drvdata(dev);
-> +
-> +	iio_channel_stop_all_cb(st->iio_cb);
-> +}
-> +
-> +static void grts_disable(void *data)
-> +{
-> +	iio_channel_release_all_cb(data);
-> +}
-> +
-> +static int grts_probe(struct platform_device *pdev)
-> +{
-> +	struct grts_state *st;
-> +	struct input_dev *input;
-> +	struct device *dev = &pdev->dev;
-> +	struct iio_channel *chan;
-> +	int error;
-> +
-> +	st = devm_kzalloc(dev, sizeof(struct grts_state), GFP_KERNEL);
-> +	if (!st)
-> +		return -ENOMEM;
-> +
-> +	error = device_property_read_u32(dev, "touchscreen-min-pressure",
-> +					 &st->pressure_min);
-> +	if (error) {
-> +		dev_dbg(dev, "can't get touchscreen-min-pressure property.\n");
-> +		st->pressure_min = GRTS_DEFAULT_PRESSURE_MIN;
-> +	}
+This series applies on top of fixes-togreg branch of iio.git,
+specifically on top of commit:
+"f0c8d1f" : iio: adc: at91-sama5d2_adc:
+ fix channel configuration for differential channels
 
-I do not think it makes sense to complain about missing property if
-there is no "pressure" channel. Probably move down?
+Jonathan, if you need me to rebase this on top of testing, let me know.
 
-> +
-> +	/* get the channels from IIO device */
-> +	st->iio_chans = devm_iio_channel_get_all(dev);
-> +	if (IS_ERR(st->iio_chans)) {
-> +		if (PTR_ERR(st->iio_chans) != -EPROBE_DEFER)
-> +			dev_err(dev, "can't get iio channels.\n");
-> +		return PTR_ERR(st->iio_chans);
+Changes in previous versions are presented at the end of the cover letter below.
+Thanks everyone for the feedback. Below is the original v2 cover letter:
 
-		error = PTR_ERR(st->iio_chans);
-		if (error != -EPROBE_DEFER)
-			dev_err(dev, "can't get iio channels.\n");
-		return error;
+In few words, this is the implementation of splitting the functionality
+of the IP block ADC device in SAMA5D2 SoC from ADC with touchscreen
+support. In order to avoid having a MFD device, two separate
+drivers that would work on same register base and split the IRQ,etc,
+as advised on the mailing list, I created a consumer driver for the
+channels, that will connect to the ADC as described in the device tree.
 
-> +	}
-> +
-> +	chan = &st->iio_chans[0];
-> +	st->pressure = false;
-> +	while (chan && chan->indio_dev) {
-> +		if (!strcmp(chan->channel->datasheet_name, "pressure"))
-> +			st->pressure = true;
-> +		chan++;
-> +	}
-> +
-> +	input = devm_input_allocate_device(dev);
-> +	if (!input) {
-> +		dev_err(dev, "failed to allocate input device.\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	input->name = DRIVER_NAME;
-> +	input->id.bustype = BUS_HOST;
-> +	input->open = grts_open;
-> +	input->close = grts_close;
-> +
-> +	input_set_abs_params(input, ABS_X, 0, GRTS_MAX_POS_MASK - 1, 0, 0);
-> +	input_set_abs_params(input, ABS_Y, 0, GRTS_MAX_POS_MASK - 1, 0, 0);
-> +	if (st->pressure)
-> +		input_set_abs_params(input, ABS_PRESSURE, st->pressure_min,
-> +				     0xffff, 0, 0);
-> +
-> +	input_set_capability(input, EV_KEY, BTN_TOUCH);
-> +
-> +	/* parse optional device tree properties */
-> +	touchscreen_parse_properties(input, false, &st->prop);
-> +
-> +	st->input = input;
-> +	input_set_drvdata(input, st);
-> +
-> +	error = input_register_device(input);
-> +	if (error) {
-> +		dev_err(dev, "failed to register input device.");
-> +		return error;
-> +	}
-> +
-> +	st->iio_cb = iio_channel_get_all_cb(dev, grts_cb, st);
-> +	if (IS_ERR(st->iio_cb)) {
-> +		dev_err(dev, "failed to allocate callback buffer.\n");
-> +		error =  PTR_ERR(st->iio_cb);
-> +		return error;
+I have collected feedback from everyone and here is the result:
+I have added a new generic resistive touchscreen driver, which acts
+as a iio consumer for the given channels and will create an input
+device and report the events. It uses a callback buffer to register
+to the IIO device and waits for data to be pushed.
+Inside the IIO device, I have kept a similar approach with the first version
+of the series, except that now the driver can take multiple buffers, and
+will configure the touchscreen part of the hardware device if the specific
+channels are requested.
 
-Simply:
+The SAMA5D2 ADC driver registers three new channels: two for the
+position on the X and Y axis, and one for the touch pressure.
+When channels are requested, it will check if the touchscreen channel mask
+includes the requested channels (it is possible that the consumer driver
+will not request pressure for example). If it's the case, it will work
+in touchscreen mode, and will refuse to do usual analog-digital conversion,
+because we have a single trigger and the touchscreen needs it.
+When the scan mask will include only old channels, the driver will function
+in the same way as before. If the scan mask somehow is a mix of the two (the
+masks intersect), the driver will refuse to work whatsoever (cannot have both
+in the same time).
+The driver allows reading raw data for the new channels, if claim direct
+mode works: no touchscreen driver requested anything. The new channels can
+act like the old ones. However, when requesting these channels, the usual
+trigger will not work and will not be enabled. The touchscreen channels
+require special trigger and irq configuration: pen detect, no pen detect
+and a periodic trigger to sample the touchscreen position and pressure.
+If the user attempts to use another trigger while there is a buffer
+that already requested the touchscreen channels (thus the trigger), the
+driver will refuse to comply.
 
-		return PTR_ERR(st->iio_cb);
+In order to have defines for the channel numbers, I added a bindings include
+file that goes on a separate commit :
+dt-bindings: iio: adc: at91-sama5d2_adc: add channel specific consumer info
+This should go in the same tree with the following commits :
+  ARM: dts: at91: sama5d2: add channel cells for ADC device
+  ARM: dts: at91: sama5d2: Add resistive touch device
 
-since you opted out of printing error codes in error messages.
+as build will break because these commits depend on the binding one
+which creates the included header file.
+V5 update: After discussing with Alexandre Belloni on Mailing list, the two
+DTS patches are to be taken in the next version after bindings reach mainline.
 
-> +	}
-> +
-> +	error = devm_add_action_or_reset(dev, grts_disable, st->iio_cb);
-> +	if (error) {
-> +		dev_err(dev, "failed to add disable action.\n");
-> +		return error;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id grts_of_match[] = {
-> +	{
-> +		.compatible = "resistive-adc-touch",
-> +	}, {
-> +		/* sentinel */
-> +	},
-> +};
-> +
-> +MODULE_DEVICE_TABLE(of, grts_of_match);
-> +
-> +static struct platform_driver grts_driver = {
-> +	.probe = grts_probe,
-> +	.driver = {
-> +		.name = DRIVER_NAME,
-> +		.of_match_table = of_match_ptr(grts_of_match),
-> +	},
-> +};
-> +
-> +module_platform_driver(grts_driver);
-> +
-> +MODULE_AUTHOR("Eugen Hristev <eugen.hristev@microchip.com>");
-> +MODULE_DESCRIPTION("Generic ADC Resistive Touch Driver");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 2.7.4
-> 
+Changes in v7:
+ - Addressed some feedback from Dmitry, explained in input driver patch
+changelog.
+ - Added Acked-by Dmitry.
 
-Thanks.
+Changes in v6:
+ - Fixed a crash in ADC driver , explained in driver patch changelog.
+ - changed a dev_err to dev_dbg in input driver.
+ - added Reviewed-by Rob Herring.
+
+Changes in v5:
+ - renamed property touchscreen-threshold-pressure to touchscreen-min-pressure
+ - added one return in touchscreen driver
+
+Changes in v4:
+ - removed patch for inkern module get/set kref
+ - addressed feedback on both the ADC and the touchscreen driver. each
+patch has a history inside the patch file for the specific changes.
+ - patch that fixes the channel fix
+[PATCH v3 01/11] iio: adc: at91-sama5d2_adc:
+ fix channel configuration for differential channels
+was accepted in fixes-togreg branch thus removed from this series.
+ - added Reviewed-by for the bindings by Rob Herring
+
+Changes in v3:
+ - changed input driver name according to feedback and reworked in commits
+to adapt to binding changes and new name.
+ - moved channel index fix in at91-sama5d2_adc at the beginning of the series
+(PATCH 01/11)
+ - created a new optional binding for the touchscreen as a separate commit
+and added it to the series :
+ [PATCH v3 04/11] dt-bindings: input: touchscreen: add pressure
+ threshold touchscreen property
+ - changed at91-sama5d2_adc driver patch to address the comments. Exact changes
+are in the patch file for the driver source file.
+
+Eugen Hristev (9):
+  MAINTAINERS: add generic resistive touchscreen adc
+  iio: Add channel for Position Relative
+  dt-bindings: input: touchscreen: add minimum pressure touchscreen
+    property
+  dt-bindings: input: touchscreen: resistive-adc-touch: create bindings
+  iio: adc: at91-sama5d2_adc: add support for position and pressure
+    channels
+  input: touchscreen: resistive-adc-touch: add generic resistive ADC
+    touchscreen
+  dt-bindings: iio: adc: at91-sama5d2_adc: add channel specific consumer
+    info
+  ARM: dts: at91: sama5d2: add channel cells for ADC device
+  ARM: dts: at91: sama5d2: Add resistive touch device
+
+ Documentation/ABI/testing/sysfs-bus-iio            |  12 +
+ .../bindings/iio/adc/at91-sama5d2_adc.txt          |   9 +
+ .../input/touchscreen/resistive-adc-touch.txt      |  30 +
+ .../bindings/input/touchscreen/touchscreen.txt     |   3 +
+ MAINTAINERS                                        |   6 +
+ arch/arm/boot/dts/sama5d2.dtsi                     |  12 +
+ drivers/iio/adc/at91-sama5d2_adc.c                 | 609 +++++++++++++++++++--
+ drivers/iio/industrialio-core.c                    |   1 +
+ drivers/input/touchscreen/Kconfig                  |  13 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/resistive-adc-touch.c    | 204 +++++++
+ include/dt-bindings/iio/adc/at91-sama5d2_adc.h     |  16 +
+ include/uapi/linux/iio/types.h                     |   1 +
+ tools/iio/iio_event_monitor.c                      |   2 +
+ 14 files changed, 861 insertions(+), 58 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/resistive-adc-touch.txt
+ create mode 100644 drivers/input/touchscreen/resistive-adc-touch.c
+ create mode 100644 include/dt-bindings/iio/adc/at91-sama5d2_adc.h
 
 -- 
-Dmitry
+2.7.4

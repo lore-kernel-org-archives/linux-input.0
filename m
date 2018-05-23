@@ -1,86 +1,58 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH] HID: steam: use hid_device.driver_data instead of hid_set_drvdata()
-Date: Tue, 22 May 2018 22:10:06 +0200
-Message-ID: <20180522201006.14003-1-rodrigorivascosta@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+From: Daniel Mack <daniel@zonque.org>
+Subject: Re: [PATCH v2 3/3] ARM: dts: imx28/imx53: enable edt-ft5x06 wakeup
+ source
+Date: Wed, 23 May 2018 10:26:50 +0200
+Message-ID: <6385bf3e-d372-89f4-f3c4-a0a6dca8d8ad@zonque.org>
+References: <20180517090552.5704-1-daniel@zonque.org>
+ <20180517090552.5704-4-daniel@zonque.org> <20180520130528.GC26863@dragon>
+ <20180522182043.GA123708@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180522182043.GA123708@dtor-ws>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Shawn Guo <shawnguo@kernel.org>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, robh+dt@kernel.org, kernel@pengutronix.de, linux-input@vger.kernel.org, fabio.estevam@nxp.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-When creating the low-level hidraw device, the reference to steam_device
-was stored using hid_set_drvdata(). But this value is not guaranteed to
-be kept when set before calling probe. If this pointer is reset, it
-crashes when opening the emulated hidraw device.
+On Tuesday, May 22, 2018 08:20 PM, Dmitry Torokhov wrote:
+> On Sun, May 20, 2018 at 09:05:30PM +0800, Shawn Guo wrote:
+>> On Thu, May 17, 2018 at 11:05:52AM +0200, Daniel Mack wrote:
+>>> The touchscreen driver no longer configures the device as wakeup source by
+>>> default. A "wakeup-source" property is needed.
+>>>
+>>> To avoid regressions, this patch changes the DTS files for the only two
+>>> users of this driver that didn't have this property yet.
+>>>
+>>> Signed-off-by: Daniel Mack <daniel@zonque.org>
+>>> Cc: Shawn Guo <shawnguo@kernel.org>
+>>> Cc: Sascha Hauer <kernel@pengutronix.de>
+>>> Cc: Fabio Estevam <fabio.estevam@nxp.com>
+>>> Cc: Rob Herring <robh+dt@kernel.org>
+>>
+>> Applied this one, thanks.
+> 
+> I think there are few more that need "wakeup-source" added:
+> 
+> arch/arm/boot/dts/am437x-sk-evm.dts
+> arch/arm/boot/dts/imx6q-var-dt6customboard.dts
+> arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
+> arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
+> arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
+> arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
 
-It looks like hid_set_drvdata() is for users "avobe" this hid_device,
-while hid_device.driver_data it for users "below" this one.
+Oh, sorry for having missed them. Will send patches.
 
-In this case, we are creating a virtual hidraw device, so we must use
-hid_device.driver_data.
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
----
-
-This patch is to be applied over hid/for-4.18/hid-steam. Is this the
-proper way to signal it?
-
-I don't know exactly when the problem started. I am pretty sure that it
-worked with 4.16.2, but it failed with 4.16.9. Or maybe it is caused by
-upgrading the firmware of the controller, although the protocol seems
-identical.
-
- drivers/hid/hid-steam.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index cb86cc834201..0422ec2b13d2 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -573,7 +573,7 @@ static bool steam_is_valve_interface(struct hid_device *hdev)
- 
- static int steam_client_ll_parse(struct hid_device *hdev)
- {
--	struct steam_device *steam = hid_get_drvdata(hdev);
-+	struct steam_device *steam = hdev->driver_data;
- 
- 	return hid_parse_report(hdev, steam->hdev->dev_rdesc,
- 			steam->hdev->dev_rsize);
-@@ -590,7 +590,7 @@ static void steam_client_ll_stop(struct hid_device *hdev)
- 
- static int steam_client_ll_open(struct hid_device *hdev)
- {
--	struct steam_device *steam = hid_get_drvdata(hdev);
-+	struct steam_device *steam = hdev->driver_data;
- 	int ret;
- 
- 	ret = hid_hw_open(steam->hdev);
-@@ -605,7 +605,7 @@ static int steam_client_ll_open(struct hid_device *hdev)
- 
- static void steam_client_ll_close(struct hid_device *hdev)
- {
--	struct steam_device *steam = hid_get_drvdata(hdev);
-+	struct steam_device *steam = hdev->driver_data;
- 
- 	mutex_lock(&steam->mutex);
- 	steam->client_opened = false;
-@@ -623,7 +623,7 @@ static int steam_client_ll_raw_request(struct hid_device *hdev,
- 				size_t count, unsigned char report_type,
- 				int reqtype)
- {
--	struct steam_device *steam = hid_get_drvdata(hdev);
-+	struct steam_device *steam = hdev->driver_data;
- 
- 	return hid_hw_raw_request(steam->hdev, reportnum, buf, count,
- 			report_type, reqtype);
-@@ -710,7 +710,7 @@ static int steam_probe(struct hid_device *hdev,
- 		ret = PTR_ERR(steam->client_hdev);
- 		goto client_hdev_fail;
- 	}
--	hid_set_drvdata(steam->client_hdev, steam);
-+	steam->client_hdev->driver_data = steam;
- 
- 	/*
- 	 * With the real steam controller interface, do not connect hidraw.
--- 
-2.17.0
+Thanks,
+Daniel

@@ -1,12 +1,17 @@
-From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH 1/2] ARM: dts: imx6: make edt-ft5x06 a wakeup source for imx6
- boards
-Date: Wed, 23 May 2018 10:30:12 +0200
-Message-ID: <20180523083013.7570-1-daniel@zonque.org>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 1/3] input: touchscreen: edt-ft5x06: don't make device
+ a wakeup source by default
+Date: Wed, 23 May 2018 09:45:05 -0500
+Message-ID: <CAL_JsqJQt6vFqH-KzNvjW+FZXCgzNAwXj_nSYow2Uz2Vcmi_Cg@mail.gmail.com>
+References: <20180517090552.5704-1-daniel@zonque.org>
+ <20180517090552.5704-2-daniel@zonque.org>
+ <20180522175413.GA24850@rob-hp-laptop>
+ <52c1cd13-3386-8f70-aaf2-e5f4b19fd1e6@zonque.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <52c1cd13-3386-8f70-aaf2-e5f4b19fd1e6@zonque.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -16,81 +21,34 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, kernel@pengutronix.de, fabio.estevam@nxp.com
-Cc: devicetree@vger.kernel.org, Daniel Mack <daniel@zonque.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Daniel Mack <daniel@zonque.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-The touchscreen driver no longer configures the device as wakeup source by
-default. A "wakeup-source" property is needed.
+On Wed, May 23, 2018 at 3:27 AM, Daniel Mack <daniel@zonque.org> wrote:
+> On Tuesday, May 22, 2018 07:54 PM, Rob Herring wrote:
+>>
+>> On Thu, May 17, 2018 at 11:05:50AM +0200, Daniel Mack wrote:
+>>>
+>>> Allow configuring the device as wakeup source through device properties,
+>>> as
+>>> not all platforms want to wake up on touch screen activity.
+>>>
+>>> The I2C core automatically reads the "wakeup-source" DT property to
+>>> configure a device's wakeup capability, and board supports files can set
+>>> I2C_CLIENT_WAKE in the flags.
+>>
+>>
+>> This will break wake-up on working systems. Looks like mostly i.MX, but
+>> there's one AM437x board. If that board doesn't care, then it is up to
+>> Shawn.
+>
+>
+> I added the property to the dts files, but as Dmitry pointed out, I missed
+> some. Sorry for that.
 
-Signed-off-by: Daniel Mack <daniel@zonque.org>
----
- arch/arm/boot/dts/imx6q-var-dt6customboard.dts | 1 +
- arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi       | 1 +
- arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi   | 1 +
- arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi  | 1 +
- arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi      | 1 +
- 5 files changed, 5 insertions(+)
+Just adding the property to dts files doesn't fix the compatibility
+problem. If a user uses an existing dtb (before this change) with a
+new kernel (after this change), then wakeup will stop working.
 
-diff --git a/arch/arm/boot/dts/imx6q-var-dt6customboard.dts b/arch/arm/boot/dts/imx6q-var-dt6customboard.dts
-index e0728d475f6f..7537d77b3415 100644
---- a/arch/arm/boot/dts/imx6q-var-dt6customboard.dts
-+++ b/arch/arm/boot/dts/imx6q-var-dt6customboard.dts
-@@ -179,6 +179,7 @@
- 		touchscreen-size-y = <480>;
- 		touchscreen-inverted-x;
- 		touchscreen-inverted-y;
-+		wakeup-source;
- 	};
- 
- 	rtc@68 {
-diff --git a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
-index aab088f318e8..aef4a756ca81 100644
---- a/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nit6xlite.dtsi
-@@ -292,6 +292,7 @@
- 		reg = <0x38>;
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
-+		wakeup-source;
- 	};
- 
- 	rtc@6f {
-diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
-index 87ca6ead4098..9cb464b65be1 100644
---- a/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nitrogen6_max.dtsi
-@@ -442,6 +442,7 @@
- 		reg = <0x38>;
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
-+		wakeup-source;
- 	};
- };
- 
-diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
-index f5b763d39285..5e4da6d6fcff 100644
---- a/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nitrogen6_som2.dtsi
-@@ -360,6 +360,7 @@
- 		reg = <0x38>;
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
-+		wakeup-source;
- 	};
- };
- 
-diff --git a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
-index 596866b0a0d2..a14872436c5e 100644
---- a/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-nitrogen6x.dtsi
-@@ -370,6 +370,7 @@
- 		reg = <0x38>;
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
-+		wakeup-source;
- 	};
- };
- 
--- 
-2.14.3
+Rob

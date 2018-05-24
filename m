@@ -1,61 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/3] input: touchscreen: edt-ft5x06: don't make device
- a wakeup source by default
-Date: Thu, 24 May 2018 16:17:32 -0700
-Message-ID: <20180524231732.GC177107@dtor-ws>
-References: <20180517090552.5704-1-daniel@zonque.org>
- <20180517090552.5704-2-daniel@zonque.org>
- <20180522175413.GA24850@rob-hp-laptop>
- <52c1cd13-3386-8f70-aaf2-e5f4b19fd1e6@zonque.org>
- <CAL_JsqJQt6vFqH-KzNvjW+FZXCgzNAwXj_nSYow2Uz2Vcmi_Cg@mail.gmail.com>
+Subject: Re: [GIT PULL] IB chrome-platform/input for atmel_mxt_ts &
+ chromeos_laptop for device properties
+Date: Thu, 24 May 2018 16:18:40 -0700
+Message-ID: <20180524231840.GD177107@dtor-ws>
+References: <20180523195645.GA92470@decatoncale.mtv.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAL_JsqJQt6vFqH-KzNvjW+FZXCgzNAwXj_nSYow2Uz2Vcmi_Cg@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Rob Herring <robh@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, Sascha Hauer <kernel@pengutronix.de>, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, Daniel Mack <daniel@zonque.org>
+In-Reply-To: <20180523195645.GA92470@decatoncale.mtv.corp.google.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benson Leung <bleung@google.com>
+Cc: bleung@chromium.org, linux-input@vger.kernel.org, dtor@chromium.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, May 23, 2018 at 09:45:05AM -0500, Rob Herring wrote:
-> On Wed, May 23, 2018 at 3:27 AM, Daniel Mack <daniel@zonque.org> wrote:
-> > On Tuesday, May 22, 2018 07:54 PM, Rob Herring wrote:
-> >>
-> >> On Thu, May 17, 2018 at 11:05:50AM +0200, Daniel Mack wrote:
-> >>>
-> >>> Allow configuring the device as wakeup source through device properties,
-> >>> as
-> >>> not all platforms want to wake up on touch screen activity.
-> >>>
-> >>> The I2C core automatically reads the "wakeup-source" DT property to
-> >>> configure a device's wakeup capability, and board supports files can set
-> >>> I2C_CLIENT_WAKE in the flags.
-> >>
-> >>
-> >> This will break wake-up on working systems. Looks like mostly i.MX, but
-> >> there's one AM437x board. If that board doesn't care, then it is up to
-> >> Shawn.
-> >
-> >
-> > I added the property to the dts files, but as Dmitry pointed out, I missed
-> > some. Sorry for that.
+On Wed, May 23, 2018 at 12:56:45PM -0700, Benson Leung wrote:
+> Hi Dmitry,
 > 
-> Just adding the property to dts files doesn't fix the compatibility
-> problem. If a user uses an existing dtb (before this change) with a
-> new kernel (after this change), then wakeup will stop working.
+> The following changes since commit 96a938aa214e965d5b4a2f10443b29cad14289b9:
+> 
+>   Input: atmel_mxt_ts - remove platform data support (2018-04-09 22:55:16 -0700)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git ib-chrome-platform-atmel-mxt-ts-device-properties
+> 
+> for you to fetch changes up to 5020cd29d8bfcb3f3add43ea7d58b07011ab96d8:
+> 
+>   platform/chrome: chromeos_laptop - supply properties for ACPI devices (2018-05-23 12:48:31 -0700)
+> 
+> ----------------------------------------------------------------
+> Dmitry Torokhov (1):
+>       platform/chrome: chromeos_laptop - supply properties for ACPI devices
+> 
+>  drivers/platform/chrome/chromeos_laptop.c | 307 +++++++++++++++++++++++++++---
+>  1 file changed, 278 insertions(+), 29 deletions(-)
 
-Is this a practical problem though? Do we know of any products with
-this touch panel that use DTS not distributed with the kernel?
+Thanks Benson!
 
 -- 
 Dmitry

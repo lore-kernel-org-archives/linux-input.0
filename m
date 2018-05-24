@@ -1,99 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv2] Input: atmel_mxt_ts - fix reset-gpio for level based
- irqs
-Date: Thu, 24 May 2018 09:35:07 -0700
-Message-ID: <20180524163507.GB177107@dtor-ws>
-References: <20180420172408.26164-1-sebastian.reichel@collabora.co.uk>
- <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Subject: Re: [PATCH 3/6] ASoC: ams_delta: use GPIO lookup table
+Date: Thu, 24 May 2018 22:35:04 +0200
+Message-ID: <1875447.uBIO10iqcO@z50>
+References: <20180518210954.29044-1-jmkrzyszt@gmail.com>
+ <20180521100503.GA24638@sirena.org.uk> <20180523185244.GT98604@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180423115844.26281-1-sebastian.reichel@collabora.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>, kernel@collabora.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20180523185244.GT98604@atomide.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org, Aaro Koskinen <aaro.koskinen@iki.fi>, Richard Weinberger <richard@nod.at>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-mtd@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Jarkko Nikula <jarkko.nikula@bitmer.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 23, 2018 at 01:58:44PM +0200, Sebastian Reichel wrote:
-> The current reset-gpio support triggers an interrupt storm on platforms
-> using the maxtouch with level based interrupt. The Motorola Droid 4,
-> which I used for some of the tests is not affected, since it uses a edge
-> based interrupt.
-> 
-> This change avoids the interrupt storm by enabling the device while its
-> interrupt is disabled. Afterwards we wait 100ms. This is important for
-> two reasons: The device is unresponsive for some time (~22ms for
-> mxt224E) and the CHG (interrupt) line is not working properly for 100ms.
-> We don't need to wait for any following interrupts, since the following
-> mxt_initialize() checks for bootloader mode anyways.
-> 
-> This fixes a boot issue on GE PPD (watchdog kills device due to
-> interrupt storm) and does not cause regression on Motorola Droid 4.
-> 
-> Fixes: f657b00df22e ("Input: atmel_mxt_ts - add support for reset line")
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-
-Applied, thank you.
-
-> ---
-> Changes since PATCHv2:
->  * fix patch description
->  * use same timeout value for soft and gpio-reset
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 18 +++++++-----------
->  1 file changed, 7 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 5d9699fe1b55..f97fbb0af020 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -194,6 +194,8 @@ enum t100_type {
->  
->  /* Delay times */
->  #define MXT_BACKUP_TIME		50	/* msec */
-> +#define MXT_RESET_GPIO_TIME	20	/* msec */
-> +#define MXT_RESET_INVALID_CHG	100	/* msec */
->  #define MXT_RESET_TIME		200	/* msec */
->  #define MXT_RESET_TIMEOUT	3000	/* msec */
->  #define MXT_CRC_TIMEOUT		1000	/* msec */
-> @@ -1206,7 +1208,7 @@ static int mxt_soft_reset(struct mxt_data *data)
->  		return ret;
->  
->  	/* Ignore CHG line for 100ms after reset */
-> -	msleep(100);
-> +	msleep(MXT_RESET_INVALID_CHG);
->  
->  	mxt_acquire_irq(data);
->  
-> @@ -3167,20 +3169,14 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  		return error;
->  	}
->  
-> +	disable_irq(client->irq);
-> +
->  	if (data->reset_gpio) {
-> -		data->in_bootloader = true;
-> -		msleep(MXT_RESET_TIME);
-> -		reinit_completion(&data->bl_completion);
-> +		msleep(MXT_RESET_GPIO_TIME);
->  		gpiod_set_value(data->reset_gpio, 1);
-> -		error = mxt_wait_for_completion(data, &data->bl_completion,
-> -						MXT_RESET_TIMEOUT);
-> -		if (error)
-> -			return error;
-> -		data->in_bootloader = false;
-> +		msleep(MXT_RESET_INVALID_CHG);
->  	}
->  
-> -	disable_irq(client->irq);
-> -
->  	error = mxt_initialize(data);
->  	if (error)
->  		return error;
-> -- 
-> 2.17.0
+On Wednesday, May 23, 2018 8:52:44 PM CEST Tony Lindgren wrote:
+> * Mark Brown <broonie@kernel.org> [180521 10:07]:
+> > On Fri, May 18, 2018 at 11:09:51PM +0200, Janusz Krzysztofik wrote:
+> > > Now as the Amstrad Delta board provides GPIO lookup tables, switch from
+> > > GPIO numbers to GPIO descriptors and use the table to locate required
+> > > GPIO pins.
+> > 
+> > Acked-by: Mark Brown <broonie@kernel.org>
 > 
 
--- 
-Dmitry
+Hi Tony,
+
+> Thanks applying patches 1 and 3 of this series into omap-for-v4.18/soc.
+> It's kind of getting late for v4.18, but let's see if we can still make
+> it.
+
+Thank you.
+
+> Seems the others can be applied to the driver trees after no more
+> comments, then once all that is done we can apply the last patch
+> in this series.
+
+I'll be submitting v2 of 5/6 (nand) very soon. 4/6 (lcd) is still waiting for 
+Tomi to respond. I hope there will be no issues with it. Howevver, regarding 
+2/6 - serio - I have to work more on that to satisfy Dmitry's comments. So 
+let's forget about 6/6 for now and I'll resubmit it again when we are ready 
+for that. Meanwhile, I'm going to submit a few more patches against the board 
+init file to complete migration to GPIO descriptors so dynamic allocation of 
+GPIO numbers to ams-delta latches will be possible.
+
+Thanks,
+Janusz

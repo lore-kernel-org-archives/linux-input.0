@@ -1,51 +1,81 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: Re: [PATCH v4 1/2] dt-bindings: input: Add Add Spreadtrum SC27xx
- vibrator documentation
-Date: Fri, 25 May 2018 16:54:37 +0800
-Message-ID: <CAMz4kuKsJkMNm0MJQ5_7STU8h-Mr0wGHtHFL8HPU3Mmhkqh1yQ@mail.gmail.com>
-References: <44b17778d8f0bf897a316a39516ba2cafecf43c9.1525928437.git.baolin.wang@linaro.org>
- <20180518165408.GA31804@rob-hp-laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: rmi: use HID_QUIRK_NO_INPUT_SYNC
+Date: Fri, 25 May 2018 14:51:06 +0200
+Message-ID: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180518165408.GA31804@rob-hp-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Orson Zhai <orsonzhai@gmail.com>, Chunyan Zhang <zhang.lyra@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, xiaotong.lu@spreadtrum.com
+To: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>
+Cc: Oscar Morante <spacepluk@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On 19 May 2018 at 00:54, Rob Herring <robh@kernel.org> wrote:
-> On Thu, May 10, 2018 at 01:08:33PM +0800, Baolin Wang wrote:
->> From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
->>
->> This patch adds the binding documentation for Spreadtrum SC27xx series
->> vibrator device.
->>
->> Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
->> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
->> ---
->> Changes since v3:
->>  - Change compatible string to explicit Soc name.
->>  - Add parent MFD node.
->>
->> Changes since v2:
->>  - No updates.
->>
->> Changes since v1:
->>   - No updates.
->> ---
->>  .../bindings/input/sprd,sc27xx-vibra.txt           |   23 ++++++++++++++++++++
->>  1 file changed, 23 insertions(+)
->>  create mode 100644 Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
->
-> Reviewed-by: Rob Herring <robh@kernel.org>
+When we receive a RMI4 report, we should not unconditionally send an
+input_sync event. Instead, we should let the rmi4 transport layer do it
+for us.
 
-Thanks Rob.
+This fixes a situation where we might receive X in a report and the rest
+in a subsequent one. And this messes up user space.
 
-Hi Dmitry,
+Link: https://bugs.freedesktop.org/show_bug.cgi?id=100436
 
-Could you apply this patch set if there are no other issues? Thanks.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
 
+Hi,
+
+Oscar, do you mind if we add your "Tested-by: Oscar Morante <your@email>"?
+
+Andrew, can you check for any sides effects please?
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-rmi.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 9c9362149641..9e33165250a3 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -413,6 +413,24 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
+ 	return 0;
+ }
+ 
++static void rmi_report(struct hid_device *hid, struct hid_report *report)
++{
++	struct hid_field *field = report->field[0];
++
++	if (!(hid->claimed & HID_CLAIMED_INPUT))
++		return;
++
++	switch (report->id) {
++	case RMI_READ_DATA_REPORT_ID:
++		/* fall-through */
++	case RMI_ATTN_REPORT_ID:
++		return;
++	}
++
++	if (field && field->hidinput && field->hidinput->input)
++		input_sync(field->hidinput->input);
++}
++
+ #ifdef CONFIG_PM
+ static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
+ {
+@@ -637,6 +655,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	hid_set_drvdata(hdev, data);
+ 
+ 	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
++	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+@@ -744,6 +763,7 @@ static struct hid_driver rmi_driver = {
+ 	.remove			= rmi_remove,
+ 	.event			= rmi_event,
+ 	.raw_event		= rmi_raw_event,
++	.report			= rmi_report,
+ 	.input_mapping		= rmi_input_mapping,
+ 	.input_configured	= rmi_input_configured,
+ #ifdef CONFIG_PM
 -- 
-Baolin.wang
-Best Regards
+2.14.3

@@ -1,81 +1,43 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: rmi: use HID_QUIRK_NO_INPUT_SYNC
-Date: Fri, 25 May 2018 14:51:06 +0200
-Message-ID: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] HID: steam: select CONFIG_POWER_SUPPLY
+Date: Fri, 25 May 2018 17:30:51 +0200
+Message-ID: <20180525153118.3015806-1-arnd@arndb.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>
-Cc: Oscar Morante <spacepluk@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-When we receive a RMI4 report, we should not unconditionally send an
-input_sync event. Instead, we should let the rmi4 transport layer do it
-for us.
+Using the power supply APIs requires selecting the appropriate
+Kconfig symbol, otherwise we get this build failure:
 
-This fixes a situation where we might receive X in a report and the rest
-in a subsequent one. And this messes up user space.
+drivers/hid/hid-steam.o: In function `steam_unregister':
+hid-steam.c:(.text+0x1cc): undefined reference to `power_supply_unregister'
+drivers/hid/hid-steam.o: In function `steam_battery_get_property':
+hid-steam.c:(.text+0x2d2): undefined reference to `power_supply_get_drvdata'
+drivers/hid/hid-steam.o: In function `steam_raw_event':
+hid-steam.c:(.text+0xcba): undefined reference to `power_supply_changed'
+drivers/hid/hid-steam.o: In function `steam_register':
+hid-steam.c:(.text+0x13e3): undefined reference to `power_supply_register'
+hid-steam.c:(.text+0x13fe): undefined reference to `power_supply_powers'
 
-Link: https://bugs.freedesktop.org/show_bug.cgi?id=100436
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Fixes: f82719790751 ("HID: steam: add battery device.")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
+ drivers/hid/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-Hi,
-
-Oscar, do you mind if we add your "Tested-by: Oscar Morante <your@email>"?
-
-Andrew, can you check for any sides effects please?
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-rmi.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 9c9362149641..9e33165250a3 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -413,6 +413,24 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
- 	return 0;
- }
- 
-+static void rmi_report(struct hid_device *hid, struct hid_report *report)
-+{
-+	struct hid_field *field = report->field[0];
-+
-+	if (!(hid->claimed & HID_CLAIMED_INPUT))
-+		return;
-+
-+	switch (report->id) {
-+	case RMI_READ_DATA_REPORT_ID:
-+		/* fall-through */
-+	case RMI_ATTN_REPORT_ID:
-+		return;
-+	}
-+
-+	if (field && field->hidinput && field->hidinput->input)
-+		input_sync(field->hidinput->input);
-+}
-+
- #ifdef CONFIG_PM
- static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
- {
-@@ -637,6 +655,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	hid_set_drvdata(hdev, data);
- 
- 	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-+	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
- 
- 	ret = hid_parse(hdev);
- 	if (ret) {
-@@ -744,6 +763,7 @@ static struct hid_driver rmi_driver = {
- 	.remove			= rmi_remove,
- 	.event			= rmi_event,
- 	.raw_event		= rmi_raw_event,
-+	.report			= rmi_report,
- 	.input_mapping		= rmi_input_mapping,
- 	.input_configured	= rmi_input_configured,
- #ifdef CONFIG_PM
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 8a865e3ccea6..a49a10437c40 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -848,6 +848,7 @@ config HID_SPEEDLINK
+ config HID_STEAM
+ 	tristate "Steam Controller support"
+ 	depends on HID
++	select POWER_SUPPLY
+ 	---help---
+ 	Say Y here if you have a Steam Controller if you want to use it
+ 	without running the Steam Client. It supports both the wired and
 -- 
-2.14.3
+2.9.0

@@ -1,127 +1,96 @@
-From: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Subject: [PATCH V2] cros_ec_keyb: Mark cros_ec_keyb driver as wake enabled device.
-Date: Fri, 25 May 2018 18:14:40 -0700
-Message-ID: <20180526011440.102417-1-ravisadineni@chromium.org>
-References: <20180524234213.GE177107@dtor-ws>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] HID: rmi: use HID_QUIRK_NO_INPUT_SYNC
+Date: Mon, 28 May 2018 09:12:00 +1000
+Message-ID: <20180527231200.GA13676@jelly>
+References: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180524234213.GE177107@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, lee.jones@linaro.org, ravisadineni@chromium.org, ravisadineni@google.com, dtor@google.com, briannorris@chromium.org
-Cc: tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rajatja@google.com, bleung@google.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Oscar Morante <spacepluk@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Mark cros_ec_keyb has wake enabled by default. If we see a MKBP event
-related to keyboard,  call pm_wakeup_event() to make sure wakeup
-triggers are accounted to keyb during suspend resume path.
+On Fri, May 25, 2018 at 02:51:06PM +0200, Benjamin Tissoires wrote:
+> When we receive a RMI4 report, we should not unconditionally send an
+> input_sync event. Instead, we should let the rmi4 transport layer do it
+> for us.
+> 
+> This fixes a situation where we might receive X in a report and the rest
+> in a subsequent one. And this messes up user space.
+> 
+> Link: https://bugs.freedesktop.org/show_bug.cgi?id=100436
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
 
-Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
----
-V2: Marked the ckdev as wake enabled instead of input devices.
+yes please! 
 
- drivers/input/keyboard/cros_ec_keyb.c | 21 +++++++++++++++++----
- drivers/mfd/cros_ec.c                 | 19 +++++++------------
- 2 files changed, 24 insertions(+), 16 deletions(-)
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 79eb29550c348..a7c96f0317123 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -245,12 +245,17 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 	switch (ckdev->ec->event_data.event_type) {
- 	case EC_MKBP_EVENT_KEY_MATRIX:
- 		/*
--		 * If EC is not the wake source, discard key state changes
-+		 * If Keyb is not wake enabled, discard key state changes
- 		 * during suspend.
- 		 */
--		if (queued_during_suspend)
-+		if (queued_during_suspend
-+		    && !device_may_wakeup(ckdev->dev))
- 			return NOTIFY_OK;
- 
-+		if (device_may_wakeup(ckdev->dev))
-+			pm_wakeup_event(ckdev->dev, 0);
-+
-+
- 		if (ckdev->ec->event_size != ckdev->cols) {
- 			dev_err(ckdev->dev,
- 				"Discarded incomplete key matrix event.\n");
-@@ -265,18 +270,25 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 		val = get_unaligned_le32(&ckdev->ec->event_data.data.sysrq);
- 		dev_dbg(ckdev->dev, "sysrq code from EC: %#x\n", val);
- 		handle_sysrq(val);
-+
-+		if (device_may_wakeup(ckdev->dev))
-+			pm_wakeup_event(ckdev->dev, 0);
- 		break;
- 
- 	case EC_MKBP_EVENT_BUTTON:
- 	case EC_MKBP_EVENT_SWITCH:
- 		/*
--		 * If EC is not the wake source, discard key state
-+		 * If keyb is not wake enabled, discard key state
- 		 * changes during suspend. Switches will be re-checked in
- 		 * cros_ec_keyb_resume() to be sure nothing is lost.
- 		 */
--		if (queued_during_suspend)
-+		if (queued_during_suspend
-+		    && !device_may_wakeup(ckdev->dev))
- 			return NOTIFY_OK;
- 
-+		if (device_may_wakeup(ckdev->dev))
-+			pm_wakeup_event(ckdev->dev, 0);
-+
- 		if (ckdev->ec->event_data.event_type == EC_MKBP_EVENT_BUTTON) {
- 			val = get_unaligned_le32(
- 					&ckdev->ec->event_data.data.buttons);
-@@ -639,6 +651,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
-+	device_init_wakeup(ckdev->dev, true);
- 	return 0;
- }
- 
-diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-index d61024141e2b6..36156a41499c9 100644
---- a/drivers/mfd/cros_ec.c
-+++ b/drivers/mfd/cros_ec.c
-@@ -229,7 +229,7 @@ int cros_ec_suspend(struct cros_ec_device *ec_dev)
- }
- EXPORT_SYMBOL(cros_ec_suspend);
- 
--static void cros_ec_drain_events(struct cros_ec_device *ec_dev)
-+static void cros_ec_report_events_during_suspend(struct cros_ec_device *ec_dev)
- {
- 	while (cros_ec_get_next_event(ec_dev, NULL) > 0)
- 		blocking_notifier_call_chain(&ec_dev->event_notifier,
-@@ -253,21 +253,16 @@ int cros_ec_resume(struct cros_ec_device *ec_dev)
- 		dev_dbg(ec_dev->dev, "Error %d sending resume event to ec",
- 			ret);
- 
--	/*
--	 * In some cases, we need to distinguish between events that occur
--	 * during suspend if the EC is not a wake source. For example,
--	 * keypresses during suspend should be discarded if it does not wake
--	 * the system.
--	 *
--	 * If the EC is not a wake source, drain the event queue and mark them
--	 * as "queued during suspend".
--	 */
- 	if (ec_dev->wake_enabled) {
- 		disable_irq_wake(ec_dev->irq);
- 		ec_dev->wake_enabled = 0;
--	} else {
--		cros_ec_drain_events(ec_dev);
- 	}
-+	/*
-+	 * Let the mfd devices know about events that occur during
-+	 * suspend. This way the clients know what to do with them.
-+	 */
-+	cros_ec_report_events_during_suspend(ec_dev);
-+
- 
- 	return 0;
- }
--- 
-2.17.0.921.gf22659ad46-goog
+Cheers,
+   Peter
+
+> 
+> Hi,
+> 
+> Oscar, do you mind if we add your "Tested-by: Oscar Morante <your@email>"?
+> 
+> Andrew, can you check for any sides effects please?
+> 
+> Cheers,
+> Benjamin
+> 
+>  drivers/hid/hid-rmi.c | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index 9c9362149641..9e33165250a3 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -413,6 +413,24 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
+>  	return 0;
+>  }
+>  
+> +static void rmi_report(struct hid_device *hid, struct hid_report *report)
+> +{
+> +	struct hid_field *field = report->field[0];
+> +
+> +	if (!(hid->claimed & HID_CLAIMED_INPUT))
+> +		return;
+> +
+> +	switch (report->id) {
+> +	case RMI_READ_DATA_REPORT_ID:
+> +		/* fall-through */
+> +	case RMI_ATTN_REPORT_ID:
+> +		return;
+> +	}
+> +
+> +	if (field && field->hidinput && field->hidinput->input)
+> +		input_sync(field->hidinput->input);
+> +}
+> +
+>  #ifdef CONFIG_PM
+>  static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
+>  {
+> @@ -637,6 +655,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	hid_set_drvdata(hdev, data);
+>  
+>  	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+> +	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
+>  
+>  	ret = hid_parse(hdev);
+>  	if (ret) {
+> @@ -744,6 +763,7 @@ static struct hid_driver rmi_driver = {
+>  	.remove			= rmi_remove,
+>  	.event			= rmi_event,
+>  	.raw_event		= rmi_raw_event,
+> +	.report			= rmi_report,
+>  	.input_mapping		= rmi_input_mapping,
+>  	.input_configured	= rmi_input_configured,
+>  #ifdef CONFIG_PM
+> -- 
+> 2.14.3
+> 

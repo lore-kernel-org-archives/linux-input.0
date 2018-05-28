@@ -1,96 +1,33 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] HID: rmi: use HID_QUIRK_NO_INPUT_SYNC
-Date: Mon, 28 May 2018 09:12:00 +1000
-Message-ID: <20180527231200.GA13676@jelly>
-References: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: KT Liao <kt.liao@emc.com.tw>
+Subject: [PATCH] Input: elantech - Fix V4 report decoding for module with middle key
+Date: Mon, 28 May 2018 19:33:02 +0800
+Message-ID: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Oscar Morante <spacepluk@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ulrik.debie-os@e2big.org
+Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
 List-Id: linux-input@vger.kernel.org
 
-On Fri, May 25, 2018 at 02:51:06PM +0200, Benjamin Tissoires wrote:
-> When we receive a RMI4 report, we should not unconditionally send an
-> input_sync event. Instead, we should let the rmi4 transport layer do it
-> for us.
-> 
-> This fixes a situation where we might receive X in a report and the rest
-> in a subsequent one. And this messes up user space.
-> 
-> Link: https://bugs.freedesktop.org/show_bug.cgi?id=100436
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
+Some touchpad has middle key and it will be indicated in bit 2 of packet[0].
+We need to fix V4 formation's byte mask to prevent error decoding.
 
-yes please! 
+Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+---
+ drivers/input/mouse/elantech.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-
-Cheers,
-   Peter
-
-> 
-> Hi,
-> 
-> Oscar, do you mind if we add your "Tested-by: Oscar Morante <your@email>"?
-> 
-> Andrew, can you check for any sides effects please?
-> 
-> Cheers,
-> Benjamin
-> 
->  drivers/hid/hid-rmi.c | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 9c9362149641..9e33165250a3 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -413,6 +413,24 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
->  	return 0;
->  }
->  
-> +static void rmi_report(struct hid_device *hid, struct hid_report *report)
-> +{
-> +	struct hid_field *field = report->field[0];
-> +
-> +	if (!(hid->claimed & HID_CLAIMED_INPUT))
-> +		return;
-> +
-> +	switch (report->id) {
-> +	case RMI_READ_DATA_REPORT_ID:
-> +		/* fall-through */
-> +	case RMI_ATTN_REPORT_ID:
-> +		return;
-> +	}
-> +
-> +	if (field && field->hidinput && field->hidinput->input)
-> +		input_sync(field->hidinput->input);
-> +}
-> +
->  #ifdef CONFIG_PM
->  static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
->  {
-> @@ -637,6 +655,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	hid_set_drvdata(hdev, data);
->  
->  	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-> +	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
->  
->  	ret = hid_parse(hdev);
->  	if (ret) {
-> @@ -744,6 +763,7 @@ static struct hid_driver rmi_driver = {
->  	.remove			= rmi_remove,
->  	.event			= rmi_event,
->  	.raw_event		= rmi_raw_event,
-> +	.report			= rmi_report,
->  	.input_mapping		= rmi_input_mapping,
->  	.input_configured	= rmi_input_configured,
->  #ifdef CONFIG_PM
-> -- 
-> 2.14.3
-> 
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index fb4d902..f39dc66 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -799,7 +799,7 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
+ 	else if (ic_version == 7 && etd->info.samples[1] == 0x2A)
+ 		sanity_check = ((packet[3] & 0x1c) == 0x10);
+ 	else
+-		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
++		sanity_check = ((packet[0] & 0x08) == 0x00 &&
+ 				(packet[3] & 0x1c) == 0x10);
+ 
+ 	if (!sanity_check)
+-- 
+2.7.4

@@ -1,133 +1,96 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input
- clock
-Date: Mon, 28 May 2018 18:36:27 +0300
-Message-ID: <0641e04f2d9f4fb0a24201856f4024a8b7a2b29f.camel@linux.intel.com>
-References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: rmi: use HID_QUIRK_NO_INPUT_SYNC
+Date: Mon, 28 May 2018 18:38:00 +0200
+Message-ID: <CAO-hwJJYwuWdXu6zJ38KKez9bG7zzbtgxusGuLWj5f8JGZKi_w@mail.gmail.com>
+References: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+In-Reply-To: <20180525125106.18008-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-kernel@vger.kernel.org
-Cc: Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>
+Cc: Oscar Morante <spacepluk@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2018-05-18 at 11:38 +0300, Jarkko Nikula wrote:
-> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
-> than Sunrisepoint which uses 120 MHz. Preliminary information was that
-> both share the same clock rate but actual silicon implements elevated
-> rate for better support for 3.4 MHz high-speed I2C.
-> 
-> This incorrect input clock rate results too high I2C bus clock in case
-> ACPI doesn't provide tuned I2C timing parameters since I2C host
-> controller driver calculates them from input clock rate.
-> 
-> Fix this by using the correct rate. We still share the same 230 ns SDA
-> hold time value than Sunrisepoint.
-> 
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-P.S. Documentation we have is not perfect, that's why previously I
-though about Broxton/Cannonlake case as single, which is wrong, they are
-different in terms of i2c clock organization.
-
-> Cc: stable@vger.kernel.org
-> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
-> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
-> Reported-by: Chris Chiu <chiu@endlessm.com>
-> Reported-by: Daniel Drake <drake@endlessm.com>
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+On Fri, May 25, 2018 at 2:51 PM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> When we receive a RMI4 report, we should not unconditionally send an
+> input_sync event. Instead, we should let the rmi4 transport layer do it
+> for us.
+>
+> This fixes a situation where we might receive X in a report and the rest
+> in a subsequent one. And this messes up user space.
+>
+> Link: https://bugs.freedesktop.org/show_bug.cgi?id=100436
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
-> Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
-> touchpad issue?
-> ---
->  drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
->  1 file changed, 15 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-
-> pci.c
-> index d1c46de89eb4..d9ae983095c5 100644
-> --- a/drivers/mfd/intel-lpss-pci.c
-> +++ b/drivers/mfd/intel-lpss-pci.c
-> @@ -124,6 +124,11 @@ static const struct intel_lpss_platform_info
-> apl_i2c_info = {
->  	.properties = apl_i2c_properties,
->  };
->  
-> +static const struct intel_lpss_platform_info cnl_i2c_info = {
-> +	.clk_rate = 216000000,
-> +	.properties = spt_i2c_properties,
-> +};
+>
+> Hi,
+>
+> Oscar, do you mind if we add your "Tested-by: Oscar Morante <your@email>"?
+
+As mentioned in comment 25 of the bug above
+(https://bugs.freedesktop.org/show_bug.cgi?id=100436#c25), oscar is
+fine adding his tested-by line.
+
+Cheers,
+Benjamin
+
+>
+> Andrew, can you check for any sides effects please?
+>
+> Cheers,
+> Benjamin
+>
+>  drivers/hid/hid-rmi.c | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index 9c9362149641..9e33165250a3 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -413,6 +413,24 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
+>         return 0;
+>  }
+>
+> +static void rmi_report(struct hid_device *hid, struct hid_report *report)
+> +{
+> +       struct hid_field *field = report->field[0];
 > +
->  static const struct pci_device_id intel_lpss_pci_ids[] = {
->  	/* BXT A-Step */
->  	{ PCI_VDEVICE(INTEL, 0x0aac), (kernel_ulong_t)&bxt_i2c_info
-> },
-> @@ -207,13 +212,13 @@ static const struct pci_device_id
-> intel_lpss_pci_ids[] = {
->  	{ PCI_VDEVICE(INTEL, 0x9daa), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0x9dab), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0x9dfb), (kernel_ulong_t)&spt_info },
-> -	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&spt_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&cnl_i2c_info
-> },
->  	{ PCI_VDEVICE(INTEL, 0x9dc7), (kernel_ulong_t)&spt_uart_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&spt_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&cnl_i2c_info
-> },
->  	/* SPT-H */
->  	{ PCI_VDEVICE(INTEL, 0xa127), (kernel_ulong_t)&spt_uart_info
-> },
->  	{ PCI_VDEVICE(INTEL, 0xa128), (kernel_ulong_t)&spt_uart_info
-> },
-> @@ -240,10 +245,10 @@ static const struct pci_device_id
-> intel_lpss_pci_ids[] = {
->  	{ PCI_VDEVICE(INTEL, 0xa32b), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0xa37b), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0xa347), (kernel_ulong_t)&spt_uart_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&spt_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&cnl_i2c_info
-> },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(pci, intel_lpss_pci_ids);
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+> +       if (!(hid->claimed & HID_CLAIMED_INPUT))
+> +               return;
+> +
+> +       switch (report->id) {
+> +       case RMI_READ_DATA_REPORT_ID:
+> +               /* fall-through */
+> +       case RMI_ATTN_REPORT_ID:
+> +               return;
+> +       }
+> +
+> +       if (field && field->hidinput && field->hidinput->input)
+> +               input_sync(field->hidinput->input);
+> +}
+> +
+>  #ifdef CONFIG_PM
+>  static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
+>  {
+> @@ -637,6 +655,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>         hid_set_drvdata(hdev, data);
+>
+>         hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+> +       hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
+>
+>         ret = hid_parse(hdev);
+>         if (ret) {
+> @@ -744,6 +763,7 @@ static struct hid_driver rmi_driver = {
+>         .remove                 = rmi_remove,
+>         .event                  = rmi_event,
+>         .raw_event              = rmi_raw_event,
+> +       .report                 = rmi_report,
+>         .input_mapping          = rmi_input_mapping,
+>         .input_configured       = rmi_input_configured,
+>  #ifdef CONFIG_PM
+> --
+> 2.14.3
+>

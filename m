@@ -1,33 +1,133 @@
-From: KT Liao <kt.liao@emc.com.tw>
-Subject: [PATCH] Input: elantech - Fix V4 report decoding for module with middle key
-Date: Mon, 28 May 2018 19:33:02 +0800
-Message-ID: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input
+ clock
+Date: Mon, 28 May 2018 18:36:27 +0300
+Message-ID: <0641e04f2d9f4fb0a24201856f4024a8b7a2b29f.camel@linux.intel.com>
+References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ulrik.debie-os@e2big.org
-Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-kernel@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Some touchpad has middle key and it will be indicated in bit 2 of packet[0].
-We need to fix V4 formation's byte mask to prevent error decoding.
+On Fri, 2018-05-18 at 11:38 +0300, Jarkko Nikula wrote:
+> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
+> than Sunrisepoint which uses 120 MHz. Preliminary information was that
+> both share the same clock rate but actual silicon implements elevated
+> rate for better support for 3.4 MHz high-speed I2C.
+> 
+> This incorrect input clock rate results too high I2C bus clock in case
+> ACPI doesn't provide tuned I2C timing parameters since I2C host
+> controller driver calculates them from input clock rate.
+> 
+> Fix this by using the correct rate. We still share the same 230 ns SDA
+> hold time value than Sunrisepoint.
+> 
 
-Signed-off-by: KT Liao <kt.liao@emc.com.tw>
----
- drivers/input/mouse/elantech.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index fb4d902..f39dc66 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -799,7 +799,7 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
- 	else if (ic_version == 7 && etd->info.samples[1] == 0x2A)
- 		sanity_check = ((packet[3] & 0x1c) == 0x10);
- 	else
--		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-+		sanity_check = ((packet[0] & 0x08) == 0x00 &&
- 				(packet[3] & 0x1c) == 0x10);
- 
- 	if (!sanity_check)
+P.S. Documentation we have is not perfect, that's why previously I
+though about Broxton/Cannonlake case as single, which is wrong, they are
+different in terms of i2c clock organization.
+
+> Cc: stable@vger.kernel.org
+> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
+> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
+> Reported-by: Chris Chiu <chiu@endlessm.com>
+> Reported-by: Daniel Drake <drake@endlessm.com>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+> Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
+> touchpad issue?
+> ---
+>  drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
+>  1 file changed, 15 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-
+> pci.c
+> index d1c46de89eb4..d9ae983095c5 100644
+> --- a/drivers/mfd/intel-lpss-pci.c
+> +++ b/drivers/mfd/intel-lpss-pci.c
+> @@ -124,6 +124,11 @@ static const struct intel_lpss_platform_info
+> apl_i2c_info = {
+>  	.properties = apl_i2c_properties,
+>  };
+>  
+> +static const struct intel_lpss_platform_info cnl_i2c_info = {
+> +	.clk_rate = 216000000,
+> +	.properties = spt_i2c_properties,
+> +};
+> +
+>  static const struct pci_device_id intel_lpss_pci_ids[] = {
+>  	/* BXT A-Step */
+>  	{ PCI_VDEVICE(INTEL, 0x0aac), (kernel_ulong_t)&bxt_i2c_info
+> },
+> @@ -207,13 +212,13 @@ static const struct pci_device_id
+> intel_lpss_pci_ids[] = {
+>  	{ PCI_VDEVICE(INTEL, 0x9daa), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0x9dab), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0x9dfb), (kernel_ulong_t)&spt_info },
+> -	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&spt_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&cnl_i2c_info
+> },
+>  	{ PCI_VDEVICE(INTEL, 0x9dc7), (kernel_ulong_t)&spt_uart_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&spt_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&cnl_i2c_info
+> },
+>  	/* SPT-H */
+>  	{ PCI_VDEVICE(INTEL, 0xa127), (kernel_ulong_t)&spt_uart_info
+> },
+>  	{ PCI_VDEVICE(INTEL, 0xa128), (kernel_ulong_t)&spt_uart_info
+> },
+> @@ -240,10 +245,10 @@ static const struct pci_device_id
+> intel_lpss_pci_ids[] = {
+>  	{ PCI_VDEVICE(INTEL, 0xa32b), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0xa37b), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0xa347), (kernel_ulong_t)&spt_uart_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&spt_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&cnl_i2c_info
+> },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(pci, intel_lpss_pci_ids);
+
 -- 
-2.7.4
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

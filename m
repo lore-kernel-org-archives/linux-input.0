@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 9/9] HID: microsoft: support the Surface Dial
-Date: Tue, 29 May 2018 11:58:00 +0200
-Message-ID: <20180529095800.13504-10-benjamin.tissoires@redhat.com>
+Subject: [PATCH 5/9] HID: multitouch: ditch mt_report_id
+Date: Tue, 29 May 2018 11:57:56 +0200
+Message-ID: <20180529095800.13504-6-benjamin.tissoires@redhat.com>
 References: <20180529095800.13504-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180529095800.13504-1-benjamin.tissoires@redhat.com>
@@ -10,109 +10,252 @@ To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-The tool works nicely with hid-generic, but it ends up creating 9
-different input nodes with most of them only having ABS_MISC set.
-
-Filter the axis out, which reduces the amount of devices to 2. One is
-the proper System Multi-axis collection, the other exported device
-seems to provide SLEEP and POWER Key, not sure how one can trigger
-those events though.
-
-Filtering the ABS_X and ABS_Y axes also prevents udev to detect this as
-a touchscreen.
+Now that the driver can handle more than one multitouch collection in
+a single HID device, ditch the last bit that contains us to use only
+one mt collection.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-microsoft.c | 49 +++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 43 insertions(+), 6 deletions(-)
+ drivers/hid/hid-multitouch.c | 126 ++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 94 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 96e7d3231d2f..72d983626afd 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -22,12 +22,13 @@
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 9356e4ba4e01..ff763c0b936a 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -147,6 +147,13 @@ struct mt_fields {
+ 	unsigned int length;
+ };
  
- #include "hid-ids.h"
++struct mt_report_data {
++	struct list_head list;
++	struct hid_report *report;
++	struct mt_application *application;
++	bool is_mt_collection;
++};
++
+ struct mt_device {
+ 	struct mt_class mtclass;	/* our mt device class */
+ 	struct timer_list release_timer;	/* to release sticky fingers */
+@@ -154,13 +161,13 @@ struct mt_device {
+ 	struct mt_fields *fields;	/* temporary placeholder for storing the
+ 					   multitouch fields */
+ 	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
+-	unsigned mt_report_id;	/* the report ID of the multitouch device */
+ 	__u8 inputmode_value;	/* InputMode HID feature value */
+ 	__u8 maxcontacts;
+ 	bool is_buttonpad;	/* is this device a button pad? */
+ 	bool serial_maybe;	/* need to check for serial protocol */
  
--#define MS_HIDINPUT		0x01
--#define MS_ERGONOMY		0x02
--#define MS_PRESENTER		0x04
--#define MS_RDESC		0x08
--#define MS_NOGET		0x10
--#define MS_DUPLICATE_USAGES	0x20
-+#define MS_HIDINPUT		BIT(0)
-+#define MS_ERGONOMY		BIT(1)
-+#define MS_PRESENTER		BIT(2)
-+#define MS_RDESC		BIT(3)
-+#define MS_NOGET		BIT(4)
-+#define MS_DUPLICATE_USAGES	BIT(5)
-+#define MS_SURFACE_DIAL		BIT(6)
+ 	struct list_head applications;
++	struct list_head reports;
+ };
  
- static __u8 *ms_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
-@@ -130,6 +131,30 @@ static int ms_presenter_8k_quirk(struct hid_input *hi, struct hid_usage *usage,
- 	return 1;
+ static void mt_post_parse_default_settings(struct mt_device *td,
+@@ -526,6 +533,60 @@ static struct mt_application *mt_find_application(struct mt_device *td,
+ 	return mt_application;
  }
  
-+static int ms_surface_dial_quirk(struct hid_input *hi, struct hid_field *field,
-+		struct hid_usage *usage, unsigned long **bit, int *max)
++static struct mt_report_data *mt_allocate_report_data(struct mt_device *td,
++						      struct hid_report *report)
 +{
-+	switch (usage->hid & HID_USAGE_PAGE) {
-+	case 0xff070000:
-+		/* fall-through */
-+	case HID_UP_DIGITIZER:
-+		/* ignore those axis */
-+		return -1;
-+	case HID_UP_GENDESK:
-+		switch (usage->hid) {
-+		case HID_GD_X:
-+			/* fall-through */
-+		case HID_GD_Y:
-+			/* fall-through */
-+		case HID_GD_RFKILL_BTN:
-+			/* ignore those axis */
-+			return -1;
++	struct mt_report_data *rdata;
++	struct hid_field *field;
++	int r, n;
++
++	rdata = devm_kzalloc(&td->hdev->dev, sizeof(*rdata), GFP_KERNEL);
++	if (!rdata)
++		return NULL;
++
++	rdata->report = report;
++	rdata->application = mt_find_application(td, report->application);
++
++	if (!rdata->application) {
++		devm_kfree(&td->hdev->dev, rdata);
++		return NULL;
++	}
++
++	for (r = 0; r < report->maxfield; r++) {
++		field = report->field[r];
++
++		if (!(HID_MAIN_ITEM_VARIABLE & field->flags))
++			continue;
++
++		for (n = 0; n < field->report_count; n++) {
++			if (field->usage[n].hid == HID_DG_CONTACTID)
++				rdata->is_mt_collection = true;
 +		}
 +	}
 +
-+	return 0;
++	list_add_tail(&rdata->list, &td->reports);
++
++	return rdata;
 +}
 +
- static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -146,6 +171,13 @@ static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			ms_presenter_8k_quirk(hi, usage, bit, max))
- 		return 1;
- 
-+	if (quirks & MS_SURFACE_DIAL) {
-+		int ret = ms_surface_dial_quirk(hi, field, usage, bit, max);
++static struct mt_report_data *mt_find_report_data(struct mt_device *td,
++						  struct hid_report *report)
++{
++	struct mt_report_data *tmp, *rdata = NULL;
 +
-+		if (ret)
-+			return ret;
++	list_for_each_entry(tmp, &td->reports, list) {
++		if (report == tmp->report) {
++			rdata = tmp;
++			break;
++		}
 +	}
 +
- 	return 0;
++	if (!rdata)
++		rdata = mt_allocate_report_data(td, report);
++
++	return rdata;
++}
++
+ static void mt_store_field(struct hid_usage *usage, struct mt_device *td,
+ 		struct hid_input *hi)
+ {
+@@ -614,7 +675,6 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONTACTID:
+ 			mt_store_field(usage, td, hi);
+ 			app->touches_by_report++;
+-			td->mt_report_id = field->report->id;
+ 			return 1;
+ 		case HID_DG_WIDTH:
+ 			hid_map_usage(hi, usage, bit, max,
+@@ -980,10 +1040,12 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ 	}
  }
  
-@@ -229,6 +261,9 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (quirks & MS_NOGET)
- 		hdev->quirks |= HID_QUIRK_NOGET;
+-static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
++static void mt_touch_report(struct hid_device *hid,
++			    struct mt_report_data *rdata)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hid);
+-	struct mt_application *app;
++	struct hid_report *report = rdata->report;
++	struct mt_application *app = rdata->application;
+ 	struct hid_field *field;
+ 	bool first_packet;
+ 	unsigned count;
+@@ -995,11 +1057,6 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
+ 		return;
  
-+	if (quirks & MS_SURFACE_DIAL)
-+		hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
+-	app = mt_find_application(td, report->application);
+-
+-	if (!app)
+-		return;
+-
+ 	/*
+ 	 * Includes multi-packet support where subsequent
+ 	 * packets are sent with zero contactcount.
+@@ -1120,8 +1177,15 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 	struct mt_application *application;
++	struct mt_report_data *rdata;
 +
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "parse failed\n");
-@@ -281,6 +316,8 @@ static const struct hid_device_id ms_devices[] = {
++	rdata = mt_find_report_data(td, field->report);
++	if (!rdata) {
++		hid_err(hdev, "failed to allocate data for report\n");
++		return 0;
++	}
  
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
- 		.driver_data = MS_PRESENTER },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, 0x091B),
-+		.driver_data = MS_SURFACE_DIAL },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ms_devices);
+-	application = mt_find_application(td, field->application);
++	application = rdata->application;
+ 
+ 	/*
+ 	 * If mtclass.export_all_inputs is not set, only map fields from
+@@ -1164,22 +1228,9 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		return 1;
+ 	}
+ 
+-	/*
+-	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
+-	 * for the stylus.
+-	 * The check for mt_report_id ensures we don't process
+-	 * HID_DG_CONTACTCOUNT from the pen report as it is outside the physical
+-	 * collection, but within the report ID.
+-	 */
+-	if (field->physical == HID_DG_STYLUS)
+-		return 0;
+-	else if ((field->physical == 0) &&
+-		 (field->report->id != td->mt_report_id) &&
+-		 (td->mt_report_id != -1))
+-		return 0;
+-
+-	if (field->application == HID_DG_TOUCHSCREEN ||
+-	    field->application == HID_DG_TOUCHPAD)
++	if (rdata->is_mt_collection &&
++	    (field->application == HID_DG_TOUCHSCREEN ||
++	     field->application == HID_DG_TOUCHPAD))
+ 		return mt_touch_input_mapping(hdev, hi, field, usage, bit, max,
+ 					      application);
+ 
+@@ -1212,8 +1263,10 @@ static int mt_event(struct hid_device *hid, struct hid_field *field,
+ 				struct hid_usage *usage, __s32 value)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hid);
++	struct mt_report_data *rdata;
+ 
+-	if (field->report->id == td->mt_report_id)
++	rdata = mt_find_report_data(td, field->report);
++	if (rdata && rdata->is_mt_collection)
+ 		return mt_touch_event(hid, field, usage, value);
+ 
+ 	return 0;
+@@ -1223,12 +1276,14 @@ static void mt_report(struct hid_device *hid, struct hid_report *report)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hid);
+ 	struct hid_field *field = report->field[0];
++	struct mt_report_data *rdata;
+ 
+ 	if (!(hid->claimed & HID_CLAIMED_INPUT))
+ 		return;
+ 
+-	if (report->id == td->mt_report_id)
+-		return mt_touch_report(hid, report);
++	rdata = mt_find_report_data(td, report);
++	if (rdata && rdata->is_mt_collection)
++		return mt_touch_report(hid, rdata);
+ 
+ 	if (field && field->hidinput && field->hidinput->input)
+ 		input_sync(field->hidinput->input);
+@@ -1369,15 +1424,22 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	char *name;
+ 	const char *suffix = NULL;
+ 	unsigned int application = 0;
++	struct mt_report_data *rdata;
+ 	struct mt_application *mt_application = NULL;
+ 	struct hid_report *report;
+ 	int ret;
+ 
+ 	list_for_each_entry(report, &hi->reports, hidinput_list) {
+ 		application = report->application;
+-		mt_application = mt_find_application(td, application);
++		rdata = mt_find_report_data(td, report);
++		if (!rdata) {
++			hid_err(hdev, "failed to allocate data for report\n");
++			return -ENOMEM;
++		}
++
++		mt_application = rdata->application;
+ 
+-		if (report->id == td->mt_report_id) {
++		if (rdata->is_mt_collection) {
+ 			ret = mt_touch_input_configured(hdev, hi,
+ 							mt_application);
+ 			if (ret)
+@@ -1530,10 +1592,10 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	td->hdev = hdev;
+ 	td->mtclass = *mtclass;
+ 	td->inputmode_value = MT_INPUTMODE_TOUCHSCREEN;
+-	td->mt_report_id = -1;
+ 	hid_set_drvdata(hdev, td);
+ 
+ 	INIT_LIST_HEAD(&td->applications);
++	INIT_LIST_HEAD(&td->reports);
+ 
+ 	td->fields = devm_kzalloc(&hdev->dev, sizeof(struct mt_fields),
+ 				  GFP_KERNEL);
 -- 
 2.14.3

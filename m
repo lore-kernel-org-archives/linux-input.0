@@ -1,120 +1,52 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/9] Hid multitouch rewrite, support os system multi-axis devices
-Date: Tue, 29 May 2018 17:06:34 +0200
-Message-ID: <CAO-hwJJb54s14htqbaX-+LdPQpuFNa+Vf-fmw+ZJWkrTDZMN+g@mail.gmail.com>
-References: <20180529095800.13504-1-benjamin.tissoires@redhat.com> <a6f0601c-fd8b-2a16-6f66-77f350f114b5@butterbrot.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: elantech - Fix V4 report decoding for module with
+ middle key
+Date: Tue, 29 May 2018 11:05:06 -0700
+Message-ID: <20180529180506.GB167092@dtor-ws>
+References: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a6f0601c-fd8b-2a16-6f66-77f350f114b5@butterbrot.org>
+Content-Disposition: inline
+In-Reply-To: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: KT Liao <kt.liao@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ulrik.debie-os@e2big.org, phoenix@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
 List-Id: linux-input@vger.kernel.org
 
-Hi Florian,
+Hi KT,
 
-On Tue, May 29, 2018 at 12:38 PM, Florian Echtler <floe@butterbrot.org> wrote:
-> Hello Benjamin,
->
-> I have a side question about your patchset: for the SUR40 touchscreen, we had a
-> discussion a while ago about how to support the different object types which the
-> firmware can detect (plain touch contact, printed token with ID, generic blob
-> outline).
+On Mon, May 28, 2018 at 07:33:02PM +0800, KT Liao wrote:
+> Some touchpad has middle key and it will be indicated in bit 2 of packet[0].
+> We need to fix V4 formation's byte mask to prevent error decoding.
 
-Plain touch contact should already be reported by MT_TOOL_FINGER.
-Printed token with ID seems challenging as even if it is a different
-tool (not a finger) I am not sure we can convey which ID is which.
-And generic blob is even worse because we need a tracking ID that
-would regroup the various touch points, and it doesn't reflect a
-particular tool.
+Could you please let me know what devices this patch fixes? Are they
+released or new hardware?
 
-> Would the pass-through for the tool type allow us to differentiate
-> those, once we define suitable tool types for each object class?
+> 
+> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+> ---
+>  drivers/input/mouse/elantech.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index fb4d902..f39dc66 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -799,7 +799,7 @@ static int elantech_packet_check_v4(struct psmouse *psmouse)
+>  	else if (ic_version == 7 && etd->info.samples[1] == 0x2A)
+>  		sanity_check = ((packet[3] & 0x1c) == 0x10);
+>  	else
+> -		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
+> +		sanity_check = ((packet[0] & 0x08) == 0x00 &&
+>  				(packet[3] & 0x1c) == 0x10);
+>  
+>  	if (!sanity_check)
+> -- 
+> 2.7.4
+> 
 
-I am honestly puzzled by this and can't do much for you here. Could
-you please re-tell us the specific use cases, so we can think about
-the solutions?
+Thanks.
 
-Cheers,
-Benjamin
-
->
-> Thanks & best regards, Florian
->
-> On 29.05.2018 11:57, Benjamin Tissoires wrote:
->> Hi Jiri,
->>
->> this heavy rewrite of hid-multitouch serves two main purposes:
->> - the first point is to enable the support of the Totem on the Dell Canvas 27.
->>   This new type of devices (System Multi Axis) is used by Microsoft to show
->>   a new circular menu that is used by the second hand while you interact with
->>   your preferred hand with your tool.
->>   I couldn't enable it before because hid-multitouch expected to have only one
->>   multitouch collection, and this device is exported as a separate multitouch
->>   collextion in the same HID device than the one containing the touch sensor.
->>
->> - the second point is to streamline the process of the multitouch events. We
->>   used to temporary store the events in a struct as they come in, and then do
->>   the processing on the cache we just made. When doing the processing was also
->>   not very clear. This made that even if hid-multitouch should IMO be merged in
->>   hid-core, we couldn't.
->>
->>   The new processing of the events here adds a preparsing of the report in
->>   one HID collection (application usage), and from now on, the processing
->>   of the report is cleaner IMO. I still haven't merged hid-mt into hid-core,
->>   because even if I wrote a bunch of unit tests trying to not break any devices,
->>   we are not protected from a weird thing that magically happened before but is
->>   now broken.
->>
->> I must say that when I worked on the tests, I came to realise that some legacy
->> Win7 devices were better handled now. Initially I thought my new code broke them
->> but comparing the outputs from https://github.com/bentiss/hid-devices before
->> and after the changes, the new changes are closer to what I would expect by
->> looking at the raw HID events.
->>
->> I also included 2 patches to enable the Surface Dial. It's a BLE device similar
->> to the Totem from Dell, except that you can buy it for roughly $80 instead of
->> $1800 for the Canvas.
->>
->>
->> Dmitry, 2 patches are of interest for you:
->> - 1/9 Input: mt - export MT_TOOL in input_mt_init_slot()
->> - 7/9 HID: input: enable Totem on the Dell Canvas 27
->>
->> The second one exports a new MT_TOOL. In theory, I think patch 1/9 could be
->> carried through your tree but it'll be better to have the full series applied
->> at once.
->>
->> Cheers,
->> Benjamin
->>
->> Benjamin Tissoires (9):
->>   Input: mt - export MT_TOOL in input_mt_init_slot()
->>   HID: multitouch: make sure the static list of class is not changed
->>   HID: multitouch: Store per collection multitouch data
->>   HID: multitouch: store a per application quirks value
->>   HID: multitouch: ditch mt_report_id
->>   HID: multitouch: remove one copy of values
->>   HID: input: enable Totem on the Dell Canvas 27
->>   HID: core: do not upper bound the collection stack
->>   HID: microsoft: support the Surface Dial
->>
->>  drivers/hid/hid-core.c                   |  17 +-
->>  drivers/hid/hid-input.c                  |   3 +
->>  drivers/hid/hid-microsoft.c              |  49 +-
->>  drivers/hid/hid-multitouch.c             | 941 ++++++++++++++++++-------------
->>  drivers/input/input-mt.c                 |   1 +
->>  drivers/input/rmi4/rmi_2d_sensor.c       |   2 -
->>  drivers/input/touchscreen/atmel_mxt_ts.c |   2 -
->>  drivers/input/touchscreen/hideep.c       |   2 -
->>  drivers/input/touchscreen/wacom_w8001.c  |   2 -
->>  include/linux/hid.h                      |  15 +-
->>  include/uapi/linux/input.h               |   3 +-
->>  11 files changed, 616 insertions(+), 421 deletions(-)
->>
->
->
-> --
-> SENT FROM MY DEC VT50 TERMINAL
->
+-- 
+Dmitry

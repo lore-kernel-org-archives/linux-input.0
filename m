@@ -1,56 +1,57 @@
-From: Ben Chan <benchan@chromium.org>
-Subject: [PATCH] HID: multitouch: fix calculation of last slot field in multi-touch reports
-Date: Tue, 29 May 2018 15:56:55 -0700
-Message-ID: <20180529225655.214380-1-benchan@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Documentation: devices.txt: remove the mk712
+ touchscreen device from the list
+Date: Tue, 29 May 2018 15:58:56 -0700
+Message-ID: <20180529225856.GE167092@dtor-ws>
+References: <20180402125551.13641-1-martink@posteo.de>
+ <20180402125551.13641-2-martink@posteo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180402125551.13641-2-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, dtor@chromium.org, drinkcat@chromium.org
+To: Martin Kepplinger <martink@posteo.de>
+Cc: corbet@lwn.net, gregkh@linuxfoundation.org, logang@deltatee.com, stefanha@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-According to [1] and also seemingly agreed by [2], the Scan Time usage
-(0x0D 0x56) is a report level usage, not a contact level usage.
+On Mon, Apr 02, 2018 at 02:55:51PM +0200, Martin Kepplinger wrote:
+> The input/touchscreen/mk712.c driver has been rewritten for the common
+> input event system. in 2005. There shouldn't a special device node be
+> created anymore.
+> 
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
 
-However, the hid-multitouch driver currently includes HID_DG_SCANTIME
-when calculating `td->last_slot_field', which may lead to
-mt_complete_slot() being prematurely called in certain cases (e.g. when
-each touch input report includes more than one contact and the Scan Time
-usage appears before any contact logical collection).
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This patch fixes the issue by skipping mt_store_field() on
-HID_DG_SCANTIME, similar to how HID_DG_CONTACTCOUNT and
-HID_DG_CONTACTMAX are handled.
+Jon, can you please pick it up?
 
-[1] https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/windows-precision-touchpad-required-hid-top-level-collections#windows-precision-touchpad-input-reports
-[2] https://patchwork.kernel.org/patch/1742181/
+> ---
+> 
+> Please review this by looking at the driver too. Thanks,
+> 
+>                     martin
+> 
+> 
+> 
+>  Documentation/admin-guide/devices.txt | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/Documentation/admin-guide/devices.txt b/Documentation/admin-guide/devices.txt
+> index 4ec843123cc3..fb39bbf0789a 100644
+> --- a/Documentation/admin-guide/devices.txt
+> +++ b/Documentation/admin-guide/devices.txt
+> @@ -259,7 +259,6 @@
+>  		 11 = /dev/vrtpanel	Vr41xx embedded touch panel
+>  		 13 = /dev/vpcmouse	Connectix Virtual PC Mouse
+>  		 14 = /dev/touchscreen/ucb1x00  UCB 1x00 touchscreen
+> -		 15 = /dev/touchscreen/mk712	MK712 touchscreen
+>  		128 = /dev/beep		Fancy beep device
+>  		129 =
+>  		130 = /dev/watchdog	Watchdog timer port
+> -- 
+> 2.16.2
+> 
 
-Fixes: 29cc309d8bf19 ("HID: hid-multitouch: forward MSC_TIMESTAMP")
-Signed-off-by: Ben Chan <benchan@chromium.org>
----
- drivers/hid/hid-multitouch.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index dad2fbb0e3f8..161551aab496 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -620,13 +620,16 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			hid_map_usage(hi, usage, bit, max,
- 				EV_MSC, MSC_TIMESTAMP);
- 			input_set_capability(hi->input, EV_MSC, MSC_TIMESTAMP);
--			mt_store_field(usage, td, hi);
- 			/* Ignore if indexes are out of bounds. */
- 			if (field->index >= field->report->maxfield ||
- 			    usage->usage_index >= field->report_count)
- 				return 1;
- 			td->scantime_index = field->index;
- 			td->scantime_val_index = usage->usage_index;
-+			/*
-+			 * We don't set td->last_slot_field as scan time is
-+			 * global to the report.
-+			 */
- 			return 1;
- 		case HID_DG_CONTACTCOUNT:
- 			/* Ignore if indexes are out of bounds. */
 -- 
-2.17.0.921.gf22659ad46-goog
+Dmitry

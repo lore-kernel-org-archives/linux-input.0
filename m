@@ -1,78 +1,127 @@
-From: =?big5?B?ufmxUrph?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: elantech - Fix V4 report decoding for module with middle key
-Date: Wed, 30 May 2018 15:03:50 +0800
-Message-ID: <000301d3f7e4$5c9e51c0$15daf540$@emc.com.tw>
-References: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw> <20180529180506.GB167092@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/9] Input: mt - export MT_TOOL in input_mt_init_slot()
+Date: Wed, 30 May 2018 10:53:24 +0200
+Message-ID: <CAO-hwJ+5U3ZNacYvcbUKqs0sqzM51cjB5EOWMcVwYnrT838tFg@mail.gmail.com>
+References: <20180529095800.13504-1-benjamin.tissoires@redhat.com>
+ <20180529095800.13504-2-benjamin.tissoires@redhat.com> <20180529182107.GC167092@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="big5"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180529180506.GB167092@dtor-ws>
-Content-Language: zh-tw
+In-Reply-To: <20180529182107.GC167092@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ulrik.debie-os@e2big.org, phoenix@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
 Hi Dmitry,
 
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-Sent: Wednesday, May 30, 2018 2:05 AM
-To: KT Liao
-Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org;
-ulrik.debie-os@e2big.org; phoenix@emc.com.tw; aaron.ma@canonical.com;
-josh.chen@emc.com.tw
-Subject: Re: [PATCH] Input: elantech - Fix V4 report decoding for module
-with middle key
+On Tue, May 29, 2018 at 8:21 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Benjamin,
+>
+> On Tue, May 29, 2018 at 11:57:52AM +0200, Benjamin Tissoires wrote:
+>> Looks like we require users to set a tool but input_mt_init_slots() never
+>> set the tool bit for us. Meaning that this is a useless information the
+>> driver tries to forward.
+>
+> I am not sure if I agree with this patch: up until now drivers could
+> decide if they export presence of the tool type to userspace and
+> userspace could distinguish between "pure" touchscreens and touchscreens
+> that support additional tools, such as stylus. Now we unconditionally
+> claim that all multi-touch devices support multiple tools.
+>
+> The fact that we were dropping MT_TOOL_TYPE for devices that do not
+> support anything but finger I'd consider a "feature".
 
-Hi KT,
+OK. I was not sure to agree with this, but I had a quick chat with
+Peter and he also agrees. There is no real point in forwarding an
+event that will never be updated, so let's just skip that patch then.
 
-On Mon, May 28, 2018 at 07:33:02PM +0800, KT Liao wrote:
-> Some touchpad has middle key and it will be indicated in bit 2 of
-packet[0].
-> We need to fix V4 formation's byte mask to prevent error decoding.
+Expect this to be removed in v2 then.
 
-Could you please let me know what devices this patch fixes? Are they
-released or new hardware?
+Cheers,
+Benjamin
 
-
-The primary target is Lenovo thinkpad P52 and it will be released in 6/M.
-
-force_crc_enabled will fix the issue too because less bit-check in the
-specific byte. 
-I guess Fujitsu H730/H760 in elantech_dmi_force_crc_enabled may have the
-same issue.
-I leave them in DMI table because I am not sure of it.
-
-Thanks
-KT
-> 
-> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-> ---
->  drivers/input/mouse/elantech.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c 
-> b/drivers/input/mouse/elantech.c index fb4d902..f39dc66 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -799,7 +799,7 @@ static int elantech_packet_check_v4(struct psmouse
-*psmouse)
->  	else if (ic_version == 7 && etd->info.samples[1] == 0x2A)
->  		sanity_check = ((packet[3] & 0x1c) == 0x10);
->  	else
-> -		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-> +		sanity_check = ((packet[0] & 0x08) == 0x00 &&
->  				(packet[3] & 0x1c) == 0x10);
->  
->  	if (!sanity_check)
+>
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> ---
+>>  drivers/input/input-mt.c                 | 1 +
+>>  drivers/input/rmi4/rmi_2d_sensor.c       | 2 --
+>>  drivers/input/touchscreen/atmel_mxt_ts.c | 2 --
+>>  drivers/input/touchscreen/hideep.c       | 2 --
+>>  drivers/input/touchscreen/wacom_w8001.c  | 2 --
+>>  5 files changed, 1 insertion(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/input/input-mt.c b/drivers/input/input-mt.c
+>> index a1bbec9cda8d..3900686c5d0f 100644
+>> --- a/drivers/input/input-mt.c
+>> +++ b/drivers/input/input-mt.c
+>> @@ -57,6 +57,7 @@ int input_mt_init_slots(struct input_dev *dev, unsigned int num_slots,
+>>       mt->flags = flags;
+>>       input_set_abs_params(dev, ABS_MT_SLOT, 0, num_slots - 1, 0, 0);
+>>       input_set_abs_params(dev, ABS_MT_TRACKING_ID, 0, TRKID_MAX, 0, 0);
+>> +     input_set_abs_params(dev, ABS_MT_TOOL_TYPE, 0, MT_TOOL_MAX, 0, 0);
+>>
+>>       if (flags & (INPUT_MT_POINTER | INPUT_MT_DIRECT)) {
+>>               __set_bit(EV_KEY, dev->evbit);
+>> diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
+>> index 8bb866c7b985..23e666bd2539 100644
+>> --- a/drivers/input/rmi4/rmi_2d_sensor.c
+>> +++ b/drivers/input/rmi4/rmi_2d_sensor.c
+>> @@ -186,8 +186,6 @@ static void rmi_2d_sensor_set_input_params(struct rmi_2d_sensor *sensor)
+>>               input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 0x0f, 0, 0);
+>>               input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 0x0f, 0, 0);
+>>               input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+>> -             input_set_abs_params(input, ABS_MT_TOOL_TYPE,
+>> -                                  0, MT_TOOL_MAX, 0, 0);
+>>
+>>               if (sensor->sensor_type == rmi_sensor_touchpad)
+>>                       input_flags = INPUT_MT_POINTER;
+>> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> index 54fe190fd4bc..0dcf48100dc1 100644
+>> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+>> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+>> @@ -2021,8 +2021,6 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+>>       }
+>>
+>>       if (data->multitouch == MXT_TOUCH_MULTITOUCHSCREEN_T100) {
+>> -             input_set_abs_params(input_dev, ABS_MT_TOOL_TYPE,
+>> -                                  0, MT_TOOL_MAX, 0, 0);
+>>               input_set_abs_params(input_dev, ABS_MT_DISTANCE,
+>>                                    MXT_DISTANCE_ACTIVE_TOUCH,
+>>                                    MXT_DISTANCE_HOVERING,
+>> diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
+>> index f1cd4dd9a4a3..980539d8d551 100644
+>> --- a/drivers/input/touchscreen/hideep.c
+>> +++ b/drivers/input/touchscreen/hideep.c
+>> @@ -799,8 +799,6 @@ static int hideep_init_input(struct hideep_ts *ts)
+>>       input_set_capability(ts->input_dev, EV_ABS, ABS_MT_POSITION_Y);
+>>       input_set_abs_params(ts->input_dev, ABS_MT_PRESSURE, 0, 65535, 0, 0);
+>>       input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+>> -     input_set_abs_params(ts->input_dev, ABS_MT_TOOL_TYPE,
+>> -                          0, MT_TOOL_MAX, 0, 0);
+>>       touchscreen_parse_properties(ts->input_dev, true, &ts->prop);
+>>
+>>       if (ts->prop.max_x == 0 || ts->prop.max_y == 0) {
+>> diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
+>> index 3715d1eace92..946dca30560b 100644
+>> --- a/drivers/input/touchscreen/wacom_w8001.c
+>> +++ b/drivers/input/touchscreen/wacom_w8001.c
+>> @@ -529,8 +529,6 @@ static int w8001_setup_touch(struct w8001 *w8001, char *basename,
+>>                                       0, touch.x, 0, 0);
+>>               input_set_abs_params(dev, ABS_MT_POSITION_Y,
+>>                                       0, touch.y, 0, 0);
+>> -             input_set_abs_params(dev, ABS_MT_TOOL_TYPE,
+>> -                                     0, MT_TOOL_MAX, 0, 0);
+>>               input_abs_set_res(dev, ABS_MT_POSITION_X, touch.panel_res);
+>>               input_abs_set_res(dev, ABS_MT_POSITION_Y, touch.panel_res);
+>>
+>> --
+>> 2.14.3
+>>
+>
+> Thanks.
+>
 > --
-> 2.7.4
-> 
-
-Thanks.
-
--- 
-Dmitry
+> Dmitry

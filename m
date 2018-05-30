@@ -1,76 +1,28 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HID: multitouch: fix calculation of last slot field in
- multi-touch reports
-Date: Tue, 29 May 2018 16:45:34 -0700
-Message-ID: <20180529234534.GG167092@dtor-ws>
-References: <20180529225655.214380-1-benchan@chromium.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [git pull] Input updates for v4.17-rc7
+Date: Tue, 29 May 2018 22:21:53 -0500
+Message-ID: <CA+55aFzc_gZ15Qg3BAoSgALbgTepnQmAnzNb+1w9U8OUxjjVvQ@mail.gmail.com>
+References: <20180529233834.GA50727@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180529225655.214380-1-benchan@chromium.org>
+In-Reply-To: <20180529233834.GA50727@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ben Chan <benchan@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, dtor@chromium.org, drinkcat@chromium.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 29, 2018 at 03:56:55PM -0700, Ben Chan wrote:
-> According to [1] and also seemingly agreed by [2], the Scan Time usage
-> (0x0D 0x56) is a report level usage, not a contact level usage.
-> 
-> However, the hid-multitouch driver currently includes HID_DG_SCANTIME
-> when calculating `td->last_slot_field', which may lead to
-> mt_complete_slot() being prematurely called in certain cases (e.g. when
-> each touch input report includes more than one contact and the Scan Time
-> usage appears before any contact logical collection).
-> 
-> This patch fixes the issue by skipping mt_store_field() on
-> HID_DG_SCANTIME, similar to how HID_DG_CONTACTCOUNT and
-> HID_DG_CONTACTMAX are handled.
-> 
-> [1] https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/windows-precision-touchpad-required-hid-top-level-collections#windows-precision-touchpad-input-reports
-> [2] https://patchwork.kernel.org/patch/1742181/
-> 
-> Fixes: 29cc309d8bf19 ("HID: hid-multitouch: forward MSC_TIMESTAMP")
-> Signed-off-by: Ben Chan <benchan@chromium.org>
+On Tue, May 29, 2018 at 6:38 PM Dmitry Torokhov <dmitry.torokhov@gmail.com>
+wrote:
 
-This looks reasonable to me.
+>     We are switching a bunch of
+> Lenovo devices with Synaptics touchpads from PS/2 emulation over to
+> native RMI/SMbus.
 
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Given that all commits are marked for stable there is no point delaying
+> them till next release.
 
-> ---
->  drivers/hid/hid-multitouch.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index dad2fbb0e3f8..161551aab496 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -620,13 +620,16 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			hid_map_usage(hi, usage, bit, max,
->  				EV_MSC, MSC_TIMESTAMP);
->  			input_set_capability(hi->input, EV_MSC, MSC_TIMESTAMP);
-> -			mt_store_field(usage, td, hi);
->  			/* Ignore if indexes are out of bounds. */
->  			if (field->index >= field->report->maxfield ||
->  			    usage->usage_index >= field->report_count)
->  				return 1;
->  			td->scantime_index = field->index;
->  			td->scantime_val_index = usage->usage_index;
-> +			/*
-> +			 * We don't set td->last_slot_field as scan time is
-> +			 * global to the report.
-> +			 */
->  			return 1;
->  		case HID_DG_CONTACTCOUNT:
->  			/* Ignore if indexes are out of bounds. */
-> -- 
-> 2.17.0.921.gf22659ad46-goog
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hmm. The elan driver stack overrun isn't mentioned, but seems more
+fundamental fix than the other changes that just add a few new PnP ID's...
 
--- 
-Dmitry
+            Linus

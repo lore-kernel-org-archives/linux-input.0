@@ -1,89 +1,212 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/3] Input: ti_am335x_tsc - Mark IRQ as wakeup capable
-Date: Wed, 30 May 2018 14:47:50 -0700
-Message-ID: <20180530214750.GD203327@dtor-ws>
-References: <20180424062741.7891-1-vigneshr@ti.com>
- <20180424062741.7891-2-vigneshr@ti.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
+ non-confident touches
+Date: Thu, 31 May 2018 09:12:08 +1000
+Message-ID: <20180530231208.GA19976@jelly>
+References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180424062741.7891-2-vigneshr@ti.com>
+In-Reply-To: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Vignesh,
+Hi Dmitry,
 
-On Tue, Apr 24, 2018 at 11:57:39AM +0530, Vignesh R wrote:
-> On AM335x, ti_am335x_tsc can wake up the system from suspend, mark the
-> IRQ as wakeup capable, so that device irq is not disabled during system
-> suspend.
+On Thu, Aug 10, 2017 at 05:44:59PM -0700, Dmitry Torokhov wrote:
+> According to Microsoft specification [1] for Precision Touchpads (and
+> Touchscreens) the devices use "confidence" reports to signal accidental
+> touches, or contacts that are "too large to be a finger". Instead of
+> simply marking contact inactive in this case (which causes issues if
+> contact was originally proper and we lost confidence in it later, as
+> this results in accidental clicks, drags, etc), let's report such
+> contacts as MT_TOOL_PALM and let userspace decide what to do.
+> Additionally, let's report contact size for such touches as maximum
+> allowed for major/minor, which should help userspace that is not yet
+> aware of MT_TOOL_PALM to still perform palm rejection.
 > 
-> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> An additional complication, is that some firmwares do not report
+> non-confident touches as active. To cope with this we delay release of
+> such contact (i.e. if contact was active we first report it as still
+> active MT+TOOL_PALM and then synthesize the release event in a separate
+> frame).
+> 
+> [1] https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+This one popped up again in a bug report [1] and it looks like it never
+got merged. fwiw, libinput does support ABS_MT_TOOL_PALM for touchpads as of
+1.8.0 and just releasing the touch causes fake taps. So you have the green
+light from me to merge this :)
+
+Cheers,
+   Peter
+
+[1] https://bugs.freedesktop.org/show_bug.cgi?id=106716
+
 > ---
-> v3: Drop unneeded device_may_wakeup() check
+>  drivers/hid/hid-multitouch.c | 86 +++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 77 insertions(+), 9 deletions(-)
 > 
->  drivers/input/touchscreen/ti_am335x_tsc.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> index f1043ae71dcc..3908c21862c7 100644
-> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> @@ -27,6 +27,7 @@
->  #include <linux/of.h>
->  #include <linux/of_device.h>
->  #include <linux/sort.h>
-> +#include <linux/pm_wakeirq.h>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 440b999304a5..c28defe50a10 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -114,6 +114,8 @@ struct mt_device {
+>  	struct timer_list release_timer;	/* to release sticky fingers */
+>  	struct mt_fields *fields;	/* temporary placeholder for storing the
+>  					   multitouch fields */
+> +	unsigned long *pending_palm_slots; /* slots where we reported palm
+> +						and need to release */
+>  	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
+>  	int cc_index;	/* contact count field index in the report */
+>  	int cc_value_index;	/* contact count value index in the field */
+> @@ -543,8 +545,12 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  		case HID_DG_CONFIDENCE:
+>  			if ((cls->name == MT_CLS_WIN_8 ||
+>  				cls->name == MT_CLS_WIN_8_DUAL) &&
+> -				field->application == HID_DG_TOUCHPAD)
+> +			    field->application == HID_DG_TOUCHPAD) {
+>  				cls->quirks |= MT_QUIRK_CONFIDENCE;
+> +				input_set_abs_params(hi->input,
+> +					ABS_MT_TOOL_TYPE,
+> +					MT_TOOL_FINGER, MT_TOOL_PALM, 0, 0);
+> +			}
+>  			mt_store_field(usage, td, hi);
+>  			return 1;
+>  		case HID_DG_TIPSWITCH:
+> @@ -657,6 +663,7 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
 >  
->  #include <linux/mfd/ti_am335x_tscadc.h>
+>  	if (td->curvalid || (td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID)) {
+>  		int active;
+> +		int tool;
+>  		int slotnum = mt_compute_slot(td, input);
+>  		struct mt_slot *s = &td->curdata;
+>  		struct input_mt *mt = input->mt;
+> @@ -671,24 +678,56 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  				return;
+>  		}
 >  
-> @@ -432,6 +433,10 @@ static int titsc_probe(struct platform_device *pdev)
->  		goto err_free_mem;
->  	}
->  
-> +	err = dev_pm_set_wake_irq(tscadc_dev->dev, ts_dev->irq);
-> +	if (err)
-> +		dev_err(&pdev->dev, "irq wake enable failed.\n");
+> +		active = s->touch_state || s->inrange_state;
 > +
-
-Looking at this driver some more: why do we have the parent MFD device
-as wakeup source? It seems we have 2 independent interrupt lines, one in
-IIO and one in input and we could actually have the touchscreen itself
-to be one of the wakeup devices? I.e. i'd expect
-
-	err = dev_pm_set_wake_irq(&pdev->dev, ts_dev->irq);
-
-here and we should be checking the touchscreen pdev in suspend/resume
-when checking whether to program the controller for wakeups.
-
-
->  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
->  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
->  	err = titsc_config_wires(ts_dev);
-> @@ -462,6 +467,7 @@ static int titsc_probe(struct platform_device *pdev)
->  	return 0;
+>  		if (!(td->mtclass.quirks & MT_QUIRK_CONFIDENCE))
+>  			s->confidence_state = 1;
+> -		active = (s->touch_state || s->inrange_state) &&
+> -							s->confidence_state;
+> +
+> +		if (likely(s->confidence_state)) {
+> +			tool = MT_TOOL_FINGER;
+> +		} else {
+> +			tool = MT_TOOL_PALM;
+> +			if (!active &&
+> +			    input_mt_is_active(&mt->slots[slotnum])) {
+> +				/*
+> +				 * The non-confidence was reported for
+> +				 * previously valid contact that is also no
+> +				 * longer valid. We can't simply report
+> +				 * lift-off as userspace will not be aware
+> +				 * of non-confidence, so we need to split
+> +				 * it into 2 events: active MT_TOOL_PALM
+> +				 * and a separate liftoff.
+> +				 */
+> +				active = true;
+> +				set_bit(slotnum, td->pending_palm_slots);
+> +			}
+> +		}
 >  
->  err_free_irq:
-> +	dev_pm_clear_wake_irq(tscadc_dev->dev);
->  	free_irq(ts_dev->irq, ts_dev);
->  err_free_mem:
->  	input_free_device(input_dev);
-> @@ -474,6 +480,7 @@ static int titsc_remove(struct platform_device *pdev)
->  	struct titsc *ts_dev = platform_get_drvdata(pdev);
->  	u32 steps;
+>  		input_mt_slot(input, slotnum);
+> -		input_mt_report_slot_state(input, MT_TOOL_FINGER, active);
+> +		input_mt_report_slot_state(input, tool, active);
+>  		if (active) {
+>  			/* this finger is in proximity of the sensor */
+>  			int wide = (s->w > s->h);
+>  			int major = max(s->w, s->h);
+>  			int minor = min(s->w, s->h);
 >  
-> +	dev_pm_clear_wake_irq(ts_dev->mfd_tscadc->dev);
->  	free_irq(ts_dev->irq, ts_dev);
+> -			/*
+> -			 * divided by two to match visual scale of touch
+> -			 * for devices with this quirk
+> -			 */
+> -			if (td->mtclass.quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
+> +			if (unlikely(!s->confidence_state)) {
+> +				/*
+> +				 * When reporting palm, set contact to maximum
+> +				 * size to help userspace that does not
+> +				 * recognize MT_TOOL_PALM to reject contacts
+> +				 * that are too large.
+> +				 */
+> +				major = input_abs_get_max(input,
+> +							  ABS_MT_TOUCH_MAJOR);
+> +				minor = input_abs_get_max(input,
+> +							  ABS_MT_TOUCH_MINOR);
+> +			} else if (td->mtclass.quirks &
+> +					MT_QUIRK_TOUCH_SIZE_SCALING) {
+> +				/*
+> +				 * divided by two to match visual scale of touch
+> +				 * for devices with this quirk
+> +				 */
+>  				major = major >> 1;
+>  				minor = minor >> 1;
+>  			}
+> @@ -711,6 +750,25 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  	td->num_received++;
+>  }
 >  
->  	/* total steps followed by the enable mask */
+> +static void mt_release_pending_palms(struct mt_device *td,
+> +				     struct input_dev *input)
+> +{
+> +	int slotnum;
+> +	bool need_sync = false;
+> +
+> +	for_each_set_bit(slotnum, td->pending_palm_slots, td->maxcontacts) {
+> +		clear_bit(slotnum, td->pending_palm_slots);
+> +
+> +		input_mt_slot(input, slotnum);
+> +		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
+> +
+> +		need_sync = true;
+> +	}
+> +
+> +	if (need_sync)
+> +		input_sync(input);
+> +}
+> +
+>  /*
+>   * this function is called when a whole packet has been received and processed,
+>   * so that it can decide what to send to the input layer.
+> @@ -719,6 +777,9 @@ static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
+>  {
+>  	input_mt_sync_frame(input);
+>  	input_sync(input);
+> +
+> +	mt_release_pending_palms(td, input);
+> +
+>  	td->num_received = 0;
+>  	if (test_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags))
+>  		set_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
+> @@ -903,6 +964,13 @@ static int mt_touch_input_configured(struct hid_device *hdev,
+>  	if (td->is_buttonpad)
+>  		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+>  
+> +	td->pending_palm_slots = devm_kcalloc(&hi->input->dev,
+> +					      BITS_TO_LONGS(td->maxcontacts),
+> +					      sizeof(long),
+> +					      GFP_KERNEL);
+> +	if (!td->pending_palm_slots)
+> +		return -ENOMEM;
+> +
+>  	ret = input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
+>  	if (ret)
+>  		return ret;
 > -- 
-> 2.17.0
+> 2.14.0.434.g98096fd7a8-goog
 > 
-
-Thanks.
-
--- 
-Dmitry
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

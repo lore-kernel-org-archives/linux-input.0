@@ -1,28 +1,37 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [git pull] Input updates for v4.17-rc7
-Date: Tue, 29 May 2018 22:21:53 -0500
-Message-ID: <CA+55aFzc_gZ15Qg3BAoSgALbgTepnQmAnzNb+1w9U8OUxjjVvQ@mail.gmail.com>
-References: <20180529233834.GA50727@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: steam: select CONFIG_POWER_SUPPLY
+Date: Wed, 30 May 2018 08:50:43 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1805300850320.27054@cbobk.fhfr.pm>
+References: <20180525153118.3015806-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180529233834.GA50727@dtor-ws>
+In-Reply-To: <20180525153118.3015806-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 29, 2018 at 6:38 PM Dmitry Torokhov <dmitry.torokhov@gmail.com>
-wrote:
+On Fri, 25 May 2018, Arnd Bergmann wrote:
 
->     We are switching a bunch of
-> Lenovo devices with Synaptics touchpads from PS/2 emulation over to
-> native RMI/SMbus.
+> Using the power supply APIs requires selecting the appropriate
+> Kconfig symbol, otherwise we get this build failure:
+> 
+> drivers/hid/hid-steam.o: In function `steam_unregister':
+> hid-steam.c:(.text+0x1cc): undefined reference to `power_supply_unregister'
+> drivers/hid/hid-steam.o: In function `steam_battery_get_property':
+> hid-steam.c:(.text+0x2d2): undefined reference to `power_supply_get_drvdata'
+> drivers/hid/hid-steam.o: In function `steam_raw_event':
+> hid-steam.c:(.text+0xcba): undefined reference to `power_supply_changed'
+> drivers/hid/hid-steam.o: In function `steam_register':
+> hid-steam.c:(.text+0x13e3): undefined reference to `power_supply_register'
+> hid-steam.c:(.text+0x13fe): undefined reference to `power_supply_powers'
+> 
+> Fixes: f82719790751 ("HID: steam: add battery device.")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-> Given that all commits are marked for stable there is no point delaying
-> them till next release.
+Applied, thanks.
 
-Hmm. The elan driver stack overrun isn't mentioned, but seems more
-fundamental fix than the other changes that just add a few new PnP ID's...
-
-            Linus
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,36 +1,42 @@
-From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
-Subject: Re: [PATCH v5] Input: add bu21029 touch driver
-Date: Wed, 30 May 2018 09:42:26 +0000
-Message-ID: <a2306fd2b9d943379967ca9f0ab58063@de.bosch.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [git pull] Input updates for v4.17-rc7
+Date: Wed, 30 May 2018 11:24:58 -0700
+Message-ID: <20180530182458.GA203327@dtor-ws>
+References: <20180529233834.GA50727@dtor-ws>
+ <CA+55aFzc_gZ15Qg3BAoSgALbgTepnQmAnzNb+1w9U8OUxjjVvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: de-DE
+Content-Disposition: inline
+In-Reply-To: <CA+55aFzc_gZ15Qg3BAoSgALbgTepnQmAnzNb+1w9U8OUxjjVvQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Tue, May 29, 2018 at 10:21:53PM -0500, Linus Torvalds wrote:
+> On Tue, May 29, 2018 at 6:38 PM Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> wrote:
+> 
+> >     We are switching a bunch of
+> > Lenovo devices with Synaptics touchpads from PS/2 emulation over to
+> > native RMI/SMbus.
+> 
+> > Given that all commits are marked for stable there is no point delaying
+> > them till next release.
+> 
+> Hmm. The elan driver stack overrun isn't mentioned, but seems more
+> fundamental fix than the other changes that just add a few new PnP ID's...
 
-> [PATCH v5] Input: add bu21029 touch driver
->=20
-> Add Rohm BU21029 resistive touch panel controller support with I2C
-> interface.
+I do not think that the Elan problem is actually observable on any
+hardware with 4.17 at the moment, as it only shows up when switching
+some Elan devices from PS/2 to SMBus and the patches that do that are
+slated for the next merge window. I included it in the pull as a
+precaution. Switching Synaptics to RMI is much more user-visible...
 
-Is the patch ready to be pushed upstream? Is there anything I still need to=
- do?
+Still should have mentioned Elan corruption fix though.
 
-Regards,
-Mark
+Thanks.
 
-Mark Jonas
-
-Building Technologies, Panel Software Fire (BT-FIR/ENG1)=20
-Bosch Sicherheitssysteme GmbH | Postfach 11 11 | 85626 Grasbrunn | GERMANY =
-| www.boschsecurity.com=20
-
-Sitz: Stuttgart, Registergericht: Amtsgericht Stuttgart HRB 23118
-Aufsichtsratsvorsitzender: Stefan Hartung; Gesch=E4ftsf=FChrung: Gert van I=
-peren, Andreas Bartz, Thomas Quante, Bernhard Schuster
+-- 
+Dmitry

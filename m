@@ -1,42 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for v4.17-rc7
-Date: Wed, 30 May 2018 11:24:58 -0700
-Message-ID: <20180530182458.GA203327@dtor-ws>
-References: <20180529233834.GA50727@dtor-ws>
- <CA+55aFzc_gZ15Qg3BAoSgALbgTepnQmAnzNb+1w9U8OUxjjVvQ@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] Input: ti_am335x_tsc - Ack pending IRQs at probe
+ and before suspend
+Date: Wed, 30 May 2018 14:44:30 -0700
+Message-ID: <20180530214430.GB203327@dtor-ws>
+References: <20180424062741.7891-1-vigneshr@ti.com>
+ <20180424062741.7891-3-vigneshr@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CA+55aFzc_gZ15Qg3BAoSgALbgTepnQmAnzNb+1w9U8OUxjjVvQ@mail.gmail.com>
+In-Reply-To: <20180424062741.7891-3-vigneshr@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Vignesh R <vigneshr@ti.com>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 29, 2018 at 10:21:53PM -0500, Linus Torvalds wrote:
-> On Tue, May 29, 2018 at 6:38 PM Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> wrote:
+On Tue, Apr 24, 2018 at 11:57:40AM +0530, Vignesh R wrote:
+> From: Grygorii Strashko <grygorii.strashko@ti.com>
 > 
-> >     We are switching a bunch of
-> > Lenovo devices with Synaptics touchpads from PS/2 emulation over to
-> > native RMI/SMbus.
+> It is seen that just enabling the TSC module triggers a HW_PEN IRQ
+> without any interaction with touchscreen by user. This results in first
+> suspend/resume sequence to fail as system immediately wakes up from
+> suspend as soon as HW_PEN IRQ is enabled in suspend handler due to the
+> pending IRQ. Therefore clear all IRQs at probe and also in suspend
+> callback for sanity.
 > 
-> > Given that all commits are marked for stable there is no point delaying
-> > them till next release.
+> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
+
+Applied, thank you.
+
+> ---
 > 
-> Hmm. The elan driver stack overrun isn't mentioned, but seems more
-> fundamental fix than the other changes that just add a few new PnP ID's...
-
-I do not think that the Elan problem is actually observable on any
-hardware with 4.17 at the moment, as it only shows up when switching
-some Elan devices from PS/2 to SMBus and the patches that do that are
-slated for the next merge window. I included it in the pull as a
-precaution. Switching Synaptics to RMI is much more user-visible...
-
-Still should have mentioned Elan corruption fix though.
-
-Thanks.
+> v3: Clear IRQs related to TSC module only
+> 
+>  drivers/input/touchscreen/ti_am335x_tsc.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index 3908c21862c7..a548b0dbe320 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -35,6 +35,8 @@
+>  #define SEQ_SETTLE		275
+>  #define MAX_12BIT		((1 << 12) - 1)
+>  
+> +#define TSC_IRQENB_MASK		(IRQENB_FIFO0THRES | IRQENB_EOS | IRQENB_HW_PEN)
+> +
+>  static const int config_pins[] = {
+>  	STEPCONFIG_XPP,
+>  	STEPCONFIG_XNN,
+> @@ -437,6 +439,7 @@ static int titsc_probe(struct platform_device *pdev)
+>  	if (err)
+>  		dev_err(&pdev->dev, "irq wake enable failed.\n");
+>  
+> +	titsc_writel(ts_dev, REG_IRQSTATUS, TSC_IRQENB_MASK);
+>  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+>  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_EOS);
+>  	err = titsc_config_wires(ts_dev);
+> @@ -502,6 +505,7 @@ static int __maybe_unused titsc_suspend(struct device *dev)
+>  
+>  	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
+>  	if (device_may_wakeup(tscadc_dev->dev)) {
+> +		titsc_writel(ts_dev, REG_IRQSTATUS, TSC_IRQENB_MASK);
+>  		idle = titsc_readl(ts_dev, REG_IRQENABLE);
+>  		titsc_writel(ts_dev, REG_IRQENABLE,
+>  				(idle | IRQENB_HW_PEN));
+> -- 
+> 2.17.0
+> 
 
 -- 
 Dmitry

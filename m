@@ -1,355 +1,234 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Sometimes unusable i2c-hid devices in 4.17-rcX
-Date: Thu, 31 May 2018 12:00:58 +0200
-Message-ID: <CAN+gG=HZQdANHx6pUE9Agm7zVqTALMRNNoo=zca-H98HDVvB_A@mail.gmail.com>
-References: <33968d382800467bb71d1733f2f2fd58@ausx13mpc120.AMER.DELL.COM>
- <CAN+gG=HXeNCJJjhTbz-4MoZW_0QgO9DOwBP1NBgZ_2Hycm+4qw@mail.gmail.com>
- <82124c4909834ef0bd61b3472ed6af66@ausx13mpc120.AMER.DELL.COM>
- <CAN+gG=HPLAVb5kR6a8+vho5NBhkoY6oKU8P=pUt0qiPOZRvBbw@mail.gmail.com>
- <99e6ee5dcc47487f8d4463a1457fe74f@ausx13mpc120.AMER.DELL.COM>
- <CAN+gG=FMLDu8sS3+oUr6VAq3f3JfQz2+DsCE2SXwc4zAXcEjOQ@mail.gmail.com> <619ac9afa8dc40cca9ea490d88cf1232@ausx13mpc120.AMER.DELL.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: [RESEND PATCH v4 2/2] input: misc: Add Spreadtrum vibrator driver
+Date: Thu, 31 May 2018 18:34:41 +0800
+Message-ID: <d3b1c4e1bd800932e7e1761bbb8ec07501e08aca.1527762429.git.baolin.wang@linaro.org>
+References: <c315312e53fe50ab8da95bc00037a8f8b92f8d78.1527762429.git.baolin.wang@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <619ac9afa8dc40cca9ea490d88cf1232@ausx13mpc120.AMER.DELL.COM>
+In-Reply-To: <c315312e53fe50ab8da95bc00037a8f8b92f8d78.1527762429.git.baolin.wang@linaro.org>
+In-Reply-To: <c315312e53fe50ab8da95bc00037a8f8b92f8d78.1527762429.git.baolin.wang@linaro.org>
+References: <c315312e53fe50ab8da95bc00037a8f8b92f8d78.1527762429.git.baolin.wang@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mario.Limonciello@dell.com
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, baolin.wang@linaro.org, xiaotong.lu@spreadtrum.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 29, 2018 at 10:56 PM <Mario.Limonciello@dell.com> wrote:
->
-> > -----Original Message-----
-> > From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
-> > Sent: Thursday, May 24, 2018 8:57 AM
-> > To: Limonciello, Mario; Jason Gerecke
-> > Cc: linux-input; linux-kernel@vger.kernel.org
-> > Subject: Re: Sometimes unusable i2c-hid devices in 4.17-rcX
-> >
-> > Hi Mario,
-> >
-> > On Tue, May 22, 2018 at 6:15 PM,  <Mario.Limonciello@dell.com> wrote:
-> > > Benjamin,
-> > >
-> > >> -----Original Message-----
-> > >> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
-> > >> Sent: Friday, May 18, 2018 1:18 PM
-> > >> To: Limonciello, Mario
-> > >> Cc: linux-input; linux-kernel@vger.kernel.org
-> > >> Subject: Re: Sometimes unusable i2c-hid devices in 4.17-rcX
-> > >>
-> > >> On Thu, May 17, 2018 at 4:44 PM,  <Mario.Limonciello@dell.com> wrote:
-> > >> >> -----Original Message-----
-> > >> >> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
-> > >> >> Sent: Thursday, May 17, 2018 9:28 AM
-> > >> >> To: Limonciello, Mario
-> > >> >> Cc: linux-input; linux-kernel@vger.kernel.org
-> > >> >> Subject: Re: Sometimes unusable i2c-hid devices in 4.17-rcX
-> > >> >>
-> > >> >> Hi Mario,
-> > >> >>
-> > >> >> On Wed, May 16, 2018 at 10:00 PM,  <Mario.Limonciello@dell.com> wrote:
-> > >> >> > Hi All,
-> > >> >> >
-> > >> >> > I've been running 4.16-rc7 on an XPS 9365 for some time and recently
-> > moved
-> > >> up
-> > >> >> to 4.17-rc5.
-> > >> >> > Immediately I noticed that i2c-hid devices (both touchscreen and touchpad)
-> > >> were
-> > >> >> not working.
-> > >> >> > Also when shutting the system down or rebooting it would just hang. (magic
-> > >> sysrq
-> > >> >> still worked).
-> > >> >> >
-> > >> >> > I figured it was an easy to identify regression so I started a bisect but it
-> > came
-> > >> up
-> > >> >> with garbage
-> > >> >> > that ended in selftests shortly after 4.17-rc2.  I realized that's because is still
-> > >> will
-> > >> >> fail on 4.17-rc2
-> > >> >> > occasionally, seemingly after trying something newer and warm rebooting.
-> > >> >> > So it seems like it's "worse" after 4.17-rc2 (doesn't work at all) but semi
-> > >> >> reproducible on 4.17-rc2.
-> > >> >> >
-> > >> >> > Not sure if I'm chasing some initialization race, but wanted to see if anyone
-> > >> else
-> > >> >> was running into this
-> > >> >> > or has some ideas?
-> > >> >>
-> > >> >> I am reliably running a v4.17-rc3 with a merge on Jiri's tree on the 9360.
-> > >> >>
-> > >> >> I doubt it's related to the event processing as I am not encountering
-> > >> >> those issues.
-> > >> >>
-> > >> >> It *could* be related to the interrupts not being properly raised.
-> > >> >>
-> > >> >> Could you monitor /proc/interrupts and check if the ones associated
-> > >> >> with your i2c-hid devices are increasing when you are using them?
-> > >> >> Also, does the device emits raw HID events? (you can use hid-recorder
-> > >> >> to check on the hidraw nodes.)
-> > >> >
-> > >>
-> > >> Sorry, I couldn't get to it today. Monday is a public holiday here, so
-> > >> I'll check on this Tuesday.
-> > >>
-> > >> > I checked both, /proc/interrupts isn't incrementing at all with the DLL077A:01
-> > >> device.
-> > >> > Hid-recorder is showing output from the raw HID node.
-> > >>
-> > >> I don't really understand how the hidraw node can send data while the
-> > >> interrupts are not raised.
-> > >>
-> > >> Could you share the output of hid-recorder?
-> > > Sure attached.
-> > > Note that I had a dock connected at the same time since I needed power.  This
-> > was
-> > > different than my previous tests.
-> > > That dock has 2 HID endpoints (so that might muddy this, I can re-capture if you
-> > need me to)
-> >
-> > According to the file, this is the touchpad, and you draw a quick
-> > circle on it. It's surprising the interrupts are not incrementing
-> > because it clearly works fine.
-> >
-> > >
-> > >>
-> > >> >
-> > >> > Same thing for the touchscreen, no incrementing for it on the
-> > i2c_designware.0
-> > >> device.
-> > >> >
-> > >> > Something notable however;
-> > >> > When in this bad state hid-recorder didn't show /dev/hidraw1 for the
-> > >> touchscreen (which
-> > >> > Happens to be a Wacom touch screen).
-> > >> > It only showed /dev/hidraw0 for the touchpad.
-> > >>
-> > >> This explains why the touchscreen doesn't increment the interrupts.
-> > >> Something I missed in the first email is that the hidraw0 node
-> > >> disappear for the wacom device as the touchpad gets the hidraw0 name.
-> > >>
-> > >> Could you provide the output  of a working kernel configuration of:
-> > >> sudo hid-recorder /dev/hidraw*
-> > >>
-> > >> This should provide me the whole logs at the same time of all the
-> > >> hidraw nodes, and will allow me to reproduce the combination of
-> > >> wacom/hid-multitouch you are experiencing.
-> > >>
-> > > I was having a hard time getting it to work again with 4.17-rcX while trying
-> > > to capture this.
-> > > The only thing I got it to work with was when I turned off the touchscreen
-> > > In FW setup.
-> >
-> > Yeah. Sorry I should have been more precise. Ideally, could you try to
-> > capture all the hidraw nodes at once on a working kernel (4.16 or
-> > 4.15)?
-> > I shouldn't need the current broken behavior, just a description (with
-> > some events) of the devices as they are supposed to be working.
-> >
->
-> Yes, here you go.  This is with me touching both touchscreen and touchpad.
-> It's on Ubuntu's 4.15.
+From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
 
-Thanks a lot for the logs.
+This patch adds the Spreadtrum vibrator driver, which embedded in the
+Spreadtrum SC27xx series PMICs.
 
-I think I found it. It's a combination of two bugs actually:
-- the first one is a race when we load hid-multitouch and wacom in
-parallel. Both drivers will call __hid_bus_driver_added() which will
-reprobe the devices if they are still marked as handled by
-hid-generic. However, the test appears to not be concurrent safe so we
-are rebinding twice the wacom device (one after loading wacom.ko, and
-one after loading hid-multitouch.ko)
-- the second issue is one we came to realize a few days ago with
-Richard Hughes. The wacom driver suffers from a bug in power_supply
-where you can not unbind it right after having bound it, because
-power_supply_unregister() wait for the completion of its init work
-which takes teh lock on the device. However, when you unbind a driver,
-the lock is already help, so you have a dead lock.
+Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+---
+Changes since v3:
+ - No updates.
 
-I am not sure I'll found a solution for the second issue right now. I
-can't reproduce it locally with my test kernel :(
-For the first solution, it should be easy enough to add a locking
-mechanism to be sure we are not unibinding twice the device.
+Changes since v2:
+ - Fix the condition when disabling the vibrator.
+ - Change of_property_read_u32() to device_property_read_u32().
+ - Correct the device parent relationship.
+ - Call sc27xx_vibra_hw_init() before calling input_register_device().
+ - Remove platform_set_drvdata().
 
-Note that if we hadn't the second issue, the first one would only show
-dmesg logs, but the device would be working :/
+Changes since v1:
+ - Remove input_ff_destroy() and input_unregister_device()
+---
+ drivers/input/misc/Kconfig        |   10 +++
+ drivers/input/misc/Makefile       |    1 +
+ drivers/input/misc/sc27xx-vibra.c |  154 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 165 insertions(+)
+ create mode 100644 drivers/input/misc/sc27xx-vibra.c
 
-Cheers,
-Benjamin
-
->
-> > >
-> > > So I guess that means it's probably something Wacom race condition on
-> > > initialization since you noted the hidraw endpoint getting clobbered.
-> >
-> > Still, it's curious the wacom module disappear without any message.
-> > Jason, did you experienced such issues with some of the integrated
-> > wacom panels on v4.17-rc3 and later?
-> >
-> > Cheers,
-> > Benjamin
-> >
-> > >> >> >
-> > >> >> > #dmesg | grep 'i2c\|hid' doesn't show any obvious errors when in this state
-> > of
-> > >> >> non functional hid stuff.
-> > >> >> > [    2.398649] i2c /dev entries driver
-> > >> >> > [    2.881651] hidraw: raw HID events driver (C) Jiri Kosina
-> > >> >> > [    3.683583] ish-hid {33AECD58-B679-4E54-9BD9-A04D34F0C226}: [hid-
-> > ish]:
-> > >> >> enum_devices_done OK, num_hid_devices=5
-> > >> >> > [    3.701259] hid-generic 001F:8086:22D8.0001: hidraw0: <UNKNOWN>
-> > HID
-> > >> >> v2.00 Device [hid-ishtp 8086:22D8] on
-> > >> >> > [    3.702204] hid-generic 001F:8086:22D8.0002: hidraw1: <UNKNOWN>
-> > HID
-> > >> >> v2.00 Device [hid-ishtp 8086:22D8] on
-> > >> >> > [    3.703063] hid-generic 001F:8086:22D8.0003: hidraw2: <UNKNOWN>
-> > HID
-> > >> >> v2.00 Device [hid-ishtp 8086:22D8] on
-> > >> >> > [    3.704276] hid-generic 001F:8086:22D8.0004: hidraw3: <UNKNOWN>
-> > HID
-> > >> >> v2.00 Device [hid-ishtp 8086:22D8] on
-> > >> >> > [    3.704557] hid-generic 001F:8086:22D8.0005: hidraw4: <UNKNOWN>
-> > HID
-> > >> >> v2.00 Device [hid-ishtp 8086:22D8] on
-> > >> >> > [    3.750710] psmouse serio1: synaptics: Your touchpad (PNP: DLL077a
-> > >> PNP0f13)
-> > >> >> says it can support a different bus. If i2c-hid and hid-rmi are not used, you
-> > might
-> > >> >> want to try setting psmouse.synaptics_intertouch to 1 and report this to
-> > linux-
-> > >> >> input@vger.kernel.org.
-> > >> >> > [    7.030446] acpi INT33D5:00: intel-hid: created platform device
-> > >> >> > [    7.199178] i2c_hid i2c-WCOM482F:00: i2c-WCOM482F:00 supply vdd not
-> > >> >> found, using dummy regulator
-> > >> >> > [    7.246638] input: WCOM482F:00 056A:482F as
-> > >> >> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-
-> > >> >> WCOM482F:00/0018:056A:482F.0006/input/input11
-> > >> >> > [    7.246873] hid-generic 0018:056A:482F.0006: input,hidraw0: I2C HID
-> > v1.00
-> > >> >> Mouse [WCOM482F:00 056A:482F] on i2c-WCOM482F:00
-> > >> >> > [    7.275279] i2c_hid i2c-DLL077A:01: i2c-DLL077A:01 supply vdd not
-> > found,
-> > >> >> using dummy regulator
-> > >> >> > [    7.304107] input: DLL077A:01 06CB:76AF as
-> > >> >> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-
-> > >> >> DLL077A:01/0018:06CB:76AF.0007/input/input14
-> > >> >> > [    7.304212] hid-generic 0018:06CB:76AF.0007: input,hidraw1: I2C HID
-> > v1.00
-> > >> >> Mouse [DLL077A:01 06CB:76AF] on i2c-DLL077A:01
-> > >> >> > [    7.657123] usbcore: registered new interface driver usbhid
-> > >> >> > [    7.657124] usbhid: USB HID core driver
-> > >> >> > [    7.722876] input: Wacom HID 482F Pen as
-> > >> >> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-
-> > >> >> WCOM482F:00/0018:056A:482F.0006/input/input15
-> > >> >> > [    7.723148] input: Wacom HID 482F Finger as
-> > >> >> /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-6/i2c-
-> > >> >> WCOM482F:00/0018:056A:482F.0006/input/input16
-> > >> >> > [    7.723611] wacom 0018:056A:482F.0006: hidraw0: I2C HID v1.00 Mouse
-> > >> >> [WCOM482F:00 056A:482F] on i2c-WCOM482F:00
-> > >> >> > [    7.768275] input: DLL077A:01 06CB:76AF Touchpad as
-> > >> >> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/i2c-
-> > >> >> DLL077A:01/0018:06CB:76AF.0007/input/input19
-> > >> >> > [    7.864201] hid-multitouch 0018:06CB:76AF.0007: input,hidraw0: I2C HID
-> > >> v1.00
-> > >> >> Mouse [DLL077A:01 06CB:76AF] on i2c-DLL077A:01
-> > >> >> >
-> > >> >> > However in this state, I can't rmmod i2c-hid.  It just hangs the system with
-> > this
-> > >> >> trace:
-> > >> >> > [  243.033779] INFO: task kworker/u8:0:6 blocked for more than 120
-> > seconds.
-> > >> >> > [  243.033793]       Not tainted 4.17.0-rc1+ #37
-> > >> >> > [  243.033798] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs"
-> > disables
-> > >> this
-> > >> >> message.
-> > >> >> > [  243.033804] kworker/u8:0    D    0     6      2 0x80000000
-> > >> >> > [  243.033826] Workqueue: events_power_efficient
-> > >> >> power_supply_deferred_register_work
-> > >> >> > [  243.033832] Call Trace:
-> > >> >> > [  243.033850]  __schedule+0x3c2/0x890
-> > >> >> > [  243.033861]  ? __switch_to_asm+0x40/0x70
-> > >> >> > [  243.033868]  schedule+0x36/0x80
-> > >> >> > [  243.033875]  schedule_preempt_disabled+0xe/0x10
-> > >> >> > [  243.033882]  __mutex_lock.isra.4+0x2ae/0x4e0
-> > >> >> > [  243.033890]  ? __switch_to_asm+0x34/0x70
-> > >> >> > [  243.033899]  ? __switch_to_asm+0x40/0x70
-> > >> >> > [  243.033906]  ? __switch_to_asm+0x40/0x70
-> > >> >> > [  243.033914]  __mutex_lock_slowpath+0x13/0x20
-> > >> >> > [  243.033920]  ? __mutex_lock_slowpath+0x13/0x20
-> > >> >> > [  243.033927]  mutex_lock+0x2f/0x40
-> > >> >> > [  243.033933]  power_supply_deferred_register_work+0x2b/0x50
-> > >> >> > [  243.033944]  process_one_work+0x148/0x3d0
-> > >> >> > [  243.033952]  worker_thread+0x4b/0x460
-> > >> >> > [  243.033960]  kthread+0x102/0x140
-> > >> >> > [  243.033967]  ? rescuer_thread+0x380/0x380
-> > >> >> > [  243.033973]  ? kthread_associate_blkcg+0xa0/0xa0
-> > >> >> > [  243.033982]  ret_from_fork+0x35/0x40
-> > >> >> > [  243.034012] INFO: task systemd-udevd:308 blocked for more than 120
-> > >> seconds.
-> > >> >> > [  243.034018]       Not tainted 4.17.0-rc1+ #37
-> > >> >> > [  243.034022] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs"
-> > disables
-> > >> this
-> > >> >> message.
-> > >> >> > [  243.034027] systemd-udevd   D    0   308    279 0x80000104
-> > >> >> > [  243.034033] Call Trace:
-> > >> >> > [  243.034041]  __schedule+0x3c2/0x890
-> > >> >> > [  243.034049]  schedule+0x36/0x80
-> > >> >> > [  243.034056]  schedule_timeout+0x1e7/0x360
-> > >> >> > [  243.034066]  ? ttwu_do_activate+0x77/0x80
-> > >> >> > [  243.034074]  wait_for_completion+0xb4/0x140
-> > >> >> > [  243.034082]  ? wake_up_q+0x70/0x70
-> > >> >> > [  243.034090]  flush_work+0x12a/0x1e0
-> > >> >> > [  243.034097]  ? worker_detach_from_pool+0xb0/0xb0
-> > >> >> > [  243.034107]  __cancel_work_timer+0x112/0x190
-> > >> >> > [  243.034116]  cancel_delayed_work_sync+0x13/0x20
-> > >> >> > [  243.034122]  power_supply_unregister+0x37/0xb0
-> > >> >> > [  243.034127]  devm_power_supply_release+0x11/0x20
-> > >> >> > [  243.034135]  release_nodes+0x107/0x1f0
-> > >> >> > [  243.034147]  devres_release_group+0x7c/0xb0
-> > >> >> > [  243.034162]  wacom_remove+0xce/0x120 [wacom]
-> > >> >> > [  243.034178]  hid_device_remove+0x4d/0xa0 [hid]
-> > >> >> > [  243.034187]  device_release_driver_internal+0x155/0x220
-> > >> >> > [  243.034198]  ? __hid_bus_driver_added+0x40/0x40 [hid]
-> > >> >> > [  243.034208]  ? hid_destroy_device+0x60/0x60 [hid]
-> > >> >> > [  243.034215]  device_release_driver+0x12/0x20
-> > >> >> > [  243.034221]  device_reprobe+0x30/0x50
-> > >> >> > [  243.034231]  __hid_bus_reprobe_drivers+0x45/0x50 [hid]
-> > >> >> > [  243.034239]  bus_for_each_dev+0x64/0xb0
-> > >> >> > [  243.034250]  __hid_bus_driver_added+0x2c/0x40 [hid]
-> > >> >> > [  243.034256]  bus_for_each_drv+0x67/0xb0
-> > >> >> > [  243.034267]  __hid_register_driver+0x6f/0x80 [hid]
-> > >> >> > [  243.034275]  ? 0xffffffffc07f5000
-> > >> >> > [  243.034287]  mt_driver_init+0x23/0x1000 [hid_multitouch]
-> > >> >> > [  243.034296]  do_one_initcall+0x4f/0x1ce
-> > >> >> > [  243.034303]  ? _cond_resched+0x1a/0x50
-> > >> >> > [  243.034315]  ? kmem_cache_alloc_trace+0xb8/0x1f0
-> > >> >> > [  243.034327]  do_init_module+0x5f/0x219
-> > >> >> > [  243.034335]  load_module+0x24c7/0x2be0
-> > >> >> > [  243.034348]  __do_sys_finit_module+0xe5/0x120
-> > >> >> > [  243.034354]  ? __do_sys_finit_module+0xe5/0x120
-> > >> >> > [  243.034363]  __x64_sys_finit_module+0x1a/0x20
-> > >> >> > [  243.034370]  do_syscall_64+0x54/0x110
-> > >> >> > [  243.034380]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> > >> >> > [  243.034386] RIP: 0033:0x7f2ec539c839
-> > >> >> > [  243.034390] RSP: 002b:00007ffcfc620298 EFLAGS: 00000246 ORIG_RAX:
-> > >> >> 0000000000000139
-> > >> >> > [  243.034396] RAX: ffffffffffffffda RBX: 000055d6a0147ec0 RCX:
-> > >> >> 00007f2ec539c839
-> > >> >> > [  243.034399] RDX: 0000000000000000 RSI: 00007f2ec507b0e5 RDI:
-> > >> >> 000000000000000f
-> > >> >> > [  243.034402] RBP: 00007f2ec507b0e5 R08: 0000000000000000 R09:
-> > >> >> 00007ffcfc6203b0
-> > >> >> > [  243.034405] R10: 000000000000000f R11: 0000000000000246 R12:
-> > >> >> 0000000000000000
-> > >> >> > [  243.034408] R13: 000055d6a017b3a0 R14: 0000000000020000 R15:
-> > >> >> 000055d6a0147ec0
-> > >> >> > --
-> > >> >> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> > >> >> > the body of a message to majordomo@vger.kernel.org
-> > >> >> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 572b15f..c761c0c 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -841,4 +841,14 @@ config INPUT_RAVE_SP_PWRBUTTON
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called rave-sp-pwrbutton.
+ 
++config INPUT_SC27XX_VIBRA
++	tristate "Spreadtrum sc27xx vibrator support"
++	depends on MFD_SC27XX_PMIC || COMPILE_TEST
++	select INPUT_FF_MEMLESS
++	help
++	  This option enables support for Spreadtrum sc27xx vibrator driver.
++
++	  To compile this driver as a module, choose M here. The module will
++	  be called sc27xx_vibra.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 72cde28..9d0f9d1 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -66,6 +66,7 @@ obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
+ obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
+ obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+ obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
++obj-$(CONFIG_INPUT_SC27XX_VIBRA)	+= sc27xx-vibra.o
+ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+ obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
+ obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
+diff --git a/drivers/input/misc/sc27xx-vibra.c b/drivers/input/misc/sc27xx-vibra.c
+new file mode 100644
+index 0000000..295251a
+--- /dev/null
++++ b/drivers/input/misc/sc27xx-vibra.c
+@@ -0,0 +1,154 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2018 Spreadtrum Communications Inc.
++ */
++
++#include <linux/module.h>
++#include <linux/of_address.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/input.h>
++#include <linux/workqueue.h>
++
++#define CUR_DRV_CAL_SEL		GENMASK(13, 12)
++#define SLP_LDOVIBR_PD_EN	BIT(9)
++#define LDO_VIBR_PD		BIT(8)
++
++struct vibra_info {
++	struct input_dev	*input_dev;
++	struct work_struct	play_work;
++	struct regmap		*regmap;
++	u32			base;
++	u32			strength;
++	bool			enabled;
++};
++
++static void sc27xx_vibra_set(struct vibra_info *info, bool on)
++{
++	if (on) {
++		regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD, 0);
++		regmap_update_bits(info->regmap, info->base,
++				   SLP_LDOVIBR_PD_EN, 0);
++		info->enabled = true;
++	} else {
++		regmap_update_bits(info->regmap, info->base, LDO_VIBR_PD,
++				   LDO_VIBR_PD);
++		regmap_update_bits(info->regmap, info->base,
++				   SLP_LDOVIBR_PD_EN, SLP_LDOVIBR_PD_EN);
++		info->enabled = false;
++	}
++}
++
++static int sc27xx_vibra_hw_init(struct vibra_info *info)
++{
++	return regmap_update_bits(info->regmap, info->base, CUR_DRV_CAL_SEL, 0);
++}
++
++static void sc27xx_vibra_play_work(struct work_struct *work)
++{
++	struct vibra_info *info = container_of(work, struct vibra_info,
++					       play_work);
++
++	if (info->strength && !info->enabled)
++		sc27xx_vibra_set(info, true);
++	else if (info->strength == 0 && info->enabled)
++		sc27xx_vibra_set(info, false);
++}
++
++static int sc27xx_vibra_play(struct input_dev *input, void *data,
++			     struct ff_effect *effect)
++{
++	struct vibra_info *info = input_get_drvdata(input);
++
++	info->strength = effect->u.rumble.weak_magnitude;
++	schedule_work(&info->play_work);
++
++	return 0;
++}
++
++static void sc27xx_vibra_close(struct input_dev *input)
++{
++	struct vibra_info *info = input_get_drvdata(input);
++
++	cancel_work_sync(&info->play_work);
++	if (info->enabled)
++		sc27xx_vibra_set(info, false);
++}
++
++static int sc27xx_vibra_probe(struct platform_device *pdev)
++{
++	struct vibra_info *info;
++	int error;
++
++	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
++	if (!info)
++		return -ENOMEM;
++
++	info->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!info->regmap) {
++		dev_err(&pdev->dev, "failed to get vibrator regmap.\n");
++		return -ENODEV;
++	}
++
++	error = device_property_read_u32(&pdev->dev, "reg", &info->base);
++	if (error) {
++		dev_err(&pdev->dev, "failed to get vibrator base address.\n");
++		return error;
++	}
++
++	info->input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!info->input_dev) {
++		dev_err(&pdev->dev, "failed to allocate input device.\n");
++		return -ENOMEM;
++	}
++
++	info->input_dev->name = "sc27xx:vibrator";
++	info->input_dev->id.version = 0;
++	info->input_dev->close = sc27xx_vibra_close;
++
++	input_set_drvdata(info->input_dev, info);
++	input_set_capability(info->input_dev, EV_FF, FF_RUMBLE);
++	INIT_WORK(&info->play_work, sc27xx_vibra_play_work);
++	info->enabled = false;
++
++	error = sc27xx_vibra_hw_init(info);
++	if (error) {
++		dev_err(&pdev->dev, "failed to initialize the vibrator.\n");
++		return error;
++	}
++
++	error = input_ff_create_memless(info->input_dev, NULL,
++					sc27xx_vibra_play);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register vibrator to FF.\n");
++		return error;
++	}
++
++	error = input_register_device(info->input_dev);
++	if (error) {
++		dev_err(&pdev->dev, "failed to register input device.\n");
++		return error;
++	}
++
++	return 0;
++}
++
++static const struct of_device_id sc27xx_vibra_of_match[] = {
++	{ .compatible = "sprd,sc2731-vibrator", },
++	{}
++};
++MODULE_DEVICE_TABLE(of, sc27xx_vibra_of_match);
++
++static struct platform_driver sc27xx_vibra_driver = {
++	.driver = {
++		.name = "sc27xx-vibrator",
++		.of_match_table = sc27xx_vibra_of_match,
++	},
++	.probe = sc27xx_vibra_probe,
++};
++
++module_platform_driver(sc27xx_vibra_driver);
++
++MODULE_DESCRIPTION("Spreadtrum SC27xx Vibrator Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Xiaotong Lu <xiaotong.lu@spreadtrum.com>");
+-- 
+1.7.9.5

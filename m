@@ -1,64 +1,90 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [RESEND PATCH v4 1/2] dt-bindings: input: Add Add Spreadtrum SC27xx vibrator documentation
-Date: Thu, 31 May 2018 18:34:40 +0800
-Message-ID: <c315312e53fe50ab8da95bc00037a8f8b92f8d78.1527762429.git.baolin.wang@linaro.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: core: allow concurrent registration of drivers
+Date: Thu, 31 May 2018 13:49:29 +0200
+Message-ID: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, baolin.wang@linaro.org, xiaotong.lu@spreadtrum.com
+To: Jiri Kosina <jikos@kernel.org>, Mario.Limonciello@dell.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
+Detected on the Dell XPS 9365.
+The laptop has 2 devices that benefit from the hid-generic auto-unbinding.
+When those 2 devices are presented to the userspace, udev loads both
+wacom and hid-multitouch. When this happens, the code in
+__hid_bus_reprobe_drivers() is called concurrently and the second device
+gets reprobed twice.
+An other bug in the power_supply subsystem prevent to remove the wacom
+driver if it just finished its initialization, which basically kills
+the wacom node.
 
-This patch adds the binding documentation for Spreadtrum SC27xx series
-vibrator device.
+Fixes c17a7476e4c4 ("HID: core: rewrite the hid-generic automatic unbind")
 
-Signed-off-by: Xiaotong Lu <xiaotong.lu@spreadtrum.com>
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Cc: stable@vger.kernel.org # v4.17
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
-Changes since v3:
- - Change compatible string to explicit Soc name.
- - Add parent MFD node.
 
-Changes since v2:
- - No updates.
+Hi Mario,
 
-Changes since v1:
-  - No updates.
----
- .../bindings/input/sprd,sc27xx-vibra.txt           |   23 ++++++++++++++++++++
- 1 file changed, 23 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
+can you please test this on your faulty XPS?
+I think it'll fix the issue, but I can not reproduce, so better wait for
+your confirmation.
 
-diff --git a/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
-new file mode 100644
-index 0000000..f2ec0d4
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
-@@ -0,0 +1,23 @@
-+Spreadtrum SC27xx PMIC Vibrator
+Jiri, ideally I would love to see this in v4.17 final, but Mario seems
+to be on PTO until next week. I guess we'll just push this in v4.17.1
+then. Also, if you can double check that it makes sense, that would be
+nice :)
+
+Cheers,
+Benjamin
+
+ drivers/hid/hid-core.c | 5 ++++-
+ include/linux/hid.h    | 3 ++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 2f7367b1de00..7afed0c0f9e5 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1960,6 +1960,8 @@ static int hid_device_probe(struct device *dev)
+ 	}
+ 	hdev->io_started = false;
+ 
++	clear_bit(ffs(HID_STAT_REPROBED), &hdev->status);
 +
-+Required properties:
-+- compatible: should be "sprd,sc2731-vibrator".
-+- reg: address of vibrator control register.
-+
-+Example :
-+
-+	sc2731_pmic: pmic@0 {
-+		compatible = "sprd,sc2731";
-+		reg = <0>;
-+		spi-max-frequency = <26000000>;
-+		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		vibrator@eb4 {
-+			compatible = "sprd,sc2731-vibrator";
-+			reg = <0xeb4>;
-+		};
-+	};
+ 	if (!hdev->driver) {
+ 		id = hid_match_device(hdev, hdrv);
+ 		if (id == NULL) {
+@@ -2223,7 +2225,8 @@ static int __hid_bus_reprobe_drivers(struct device *dev, void *data)
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 
+ 	if (hdev->driver == hdrv &&
+-	    !hdrv->match(hdev, hid_ignore_special_drivers))
++	    !hdrv->match(hdev, hid_ignore_special_drivers) &&
++	    !test_and_set_bit(ffs(HID_STAT_REPROBED), &hdev->status))
+ 		return device_reprobe(dev);
+ 
+ 	return 0;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index ee2510019033..aee281522c6d 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -517,6 +517,7 @@ struct hid_output_fifo {
+ #define HID_STAT_ADDED		BIT(0)
+ #define HID_STAT_PARSED		BIT(1)
+ #define HID_STAT_DUP_DETECTED	BIT(2)
++#define HID_STAT_REPROBED	BIT(3)
+ 
+ struct hid_input {
+ 	struct list_head list;
+@@ -585,7 +586,7 @@ struct hid_device {							/* device report descriptor */
+ 	bool battery_avoid_query;
+ #endif
+ 
+-	unsigned int status;						/* see STAT flags above */
++	unsigned long status;						/* see STAT flags above */
+ 	unsigned claimed;						/* Claimed by hidinput, hiddev? */
+ 	unsigned quirks;						/* Various quirks the device can pull on us */
+ 	bool io_started;						/* If IO has started */
 -- 
-1.7.9.5
+2.14.3

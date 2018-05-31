@@ -1,90 +1,44 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: core: allow concurrent registration of drivers
-Date: Thu, 31 May 2018 13:49:29 +0200
-Message-ID: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Mario.Limonciello@dell.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: flibitijibibo@gmail.com
+Subject: [PATCH v4] xpad: Add GPD Win 2 Controller USB IDs
+Date: Thu, 31 May 2018 08:10:19 -0400
+Message-ID: <20180531121019.18228-1-flibitijibibo@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: hadess@hadess.net, aicommander@gmail.com, Ethan Lee <flibitijibibo@gmail.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Detected on the Dell XPS 9365.
-The laptop has 2 devices that benefit from the hid-generic auto-unbinding.
-When those 2 devices are presented to the userspace, udev loads both
-wacom and hid-multitouch. When this happens, the code in
-__hid_bus_reprobe_drivers() is called concurrently and the second device
-gets reprobed twice.
-An other bug in the power_supply subsystem prevent to remove the wacom
-driver if it just finished its initialization, which basically kills
-the wacom node.
+From: Ethan Lee <flibitijibibo@gmail.com>
 
-Fixes c17a7476e4c4 ("HID: core: rewrite the hid-generic automatic unbind")
+GPD Win 2 Website: http://www.gpd.hk/gpdwin2.asp
 
-Cc: stable@vger.kernel.org # v4.17
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Tested on a unit from the first production run sent to Indiegogo backers
+
+Signed-off-by: Ethan Lee <flibitijibibo@gmail.com>
+Cc: stable@vger.kernel.org
 ---
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Hi Mario,
-
-can you please test this on your faulty XPS?
-I think it'll fix the issue, but I can not reproduce, so better wait for
-your confirmation.
-
-Jiri, ideally I would love to see this in v4.17 final, but Mario seems
-to be on PTO until next week. I guess we'll just push this in v4.17.1
-then. Also, if you can double check that it makes sense, that would be
-nice :)
-
-Cheers,
-Benjamin
-
- drivers/hid/hid-core.c | 5 ++++-
- include/linux/hid.h    | 3 ++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2f7367b1de00..7afed0c0f9e5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1960,6 +1960,8 @@ static int hid_device_probe(struct device *dev)
- 	}
- 	hdev->io_started = false;
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 06e9650b3b30..a89b81b35932 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -123,6 +123,7 @@ static const struct xpad_device {
+ 	u8 mapping;
+ 	u8 xtype;
+ } xpad_device[] = {
++	{ 0x0079, 0x18d4, "GPD Win 2 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
+@@ -409,6 +410,7 @@ static const signed short xpad_abs_triggers[] = {
  
-+	clear_bit(ffs(HID_STAT_REPROBED), &hdev->status);
-+
- 	if (!hdev->driver) {
- 		id = hid_match_device(hdev, hdrv);
- 		if (id == NULL) {
-@@ -2223,7 +2225,8 @@ static int __hid_bus_reprobe_drivers(struct device *dev, void *data)
- 	struct hid_device *hdev = to_hid_device(dev);
- 
- 	if (hdev->driver == hdrv &&
--	    !hdrv->match(hdev, hid_ignore_special_drivers))
-+	    !hdrv->match(hdev, hid_ignore_special_drivers) &&
-+	    !test_and_set_bit(ffs(HID_STAT_REPROBED), &hdev->status))
- 		return device_reprobe(dev);
- 
- 	return 0;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index ee2510019033..aee281522c6d 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -517,6 +517,7 @@ struct hid_output_fifo {
- #define HID_STAT_ADDED		BIT(0)
- #define HID_STAT_PARSED		BIT(1)
- #define HID_STAT_DUP_DETECTED	BIT(2)
-+#define HID_STAT_REPROBED	BIT(3)
- 
- struct hid_input {
- 	struct list_head list;
-@@ -585,7 +586,7 @@ struct hid_device {							/* device report descriptor */
- 	bool battery_avoid_query;
- #endif
- 
--	unsigned int status;						/* see STAT flags above */
-+	unsigned long status;						/* see STAT flags above */
- 	unsigned claimed;						/* Claimed by hidinput, hiddev? */
- 	unsigned quirks;						/* Various quirks the device can pull on us */
- 	bool io_started;						/* If IO has started */
+ static const struct usb_device_id xpad_table[] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
++	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
+ 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
 -- 
-2.14.3
+2.13.6

@@ -1,212 +1,43 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
- non-confident touches
-Date: Thu, 31 May 2018 09:12:08 +1000
-Message-ID: <20180530231208.GA19976@jelly>
-References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: flibitijibibo@gmail.com
+Subject: [PATCH v3] xpad: Add GPD Win 2 Controller USB IDs
+Date: Wed, 30 May 2018 21:14:59 -0400
+Message-ID: <20180531011459.2911-1-flibitijibibo@gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org, hadess@hadess.net, aicommander@gmail.com, Ethan Lee <flibitijibibo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+From: Ethan Lee <flibitijibibo@gmail.com>
 
-On Thu, Aug 10, 2017 at 05:44:59PM -0700, Dmitry Torokhov wrote:
-> According to Microsoft specification [1] for Precision Touchpads (and
-> Touchscreens) the devices use "confidence" reports to signal accidental
-> touches, or contacts that are "too large to be a finger". Instead of
-> simply marking contact inactive in this case (which causes issues if
-> contact was originally proper and we lost confidence in it later, as
-> this results in accidental clicks, drags, etc), let's report such
-> contacts as MT_TOOL_PALM and let userspace decide what to do.
-> Additionally, let's report contact size for such touches as maximum
-> allowed for major/minor, which should help userspace that is not yet
-> aware of MT_TOOL_PALM to still perform palm rejection.
-> 
-> An additional complication, is that some firmwares do not report
-> non-confident touches as active. To cope with this we delay release of
-> such contact (i.e. if contact was active we first report it as still
-> active MT+TOOL_PALM and then synthesize the release event in a separate
-> frame).
-> 
-> [1] https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+GPD Win 2 Website: http://www.gpd.hk/gpdwin2.asp
 
-This one popped up again in a bug report [1] and it looks like it never
-got merged. fwiw, libinput does support ABS_MT_TOOL_PALM for touchpads as of
-1.8.0 and just releasing the touch causes fake taps. So you have the green
-light from me to merge this :)
+Tested on a unit from the first production run sent to Indiegogo backers
 
-Cheers,
-   Peter
+Signed-off-by: Ethan Lee <flibitijibibo@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-[1] https://bugs.freedesktop.org/show_bug.cgi?id=106716
-
-> ---
->  drivers/hid/hid-multitouch.c | 86 +++++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 77 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 440b999304a5..c28defe50a10 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -114,6 +114,8 @@ struct mt_device {
->  	struct timer_list release_timer;	/* to release sticky fingers */
->  	struct mt_fields *fields;	/* temporary placeholder for storing the
->  					   multitouch fields */
-> +	unsigned long *pending_palm_slots; /* slots where we reported palm
-> +						and need to release */
->  	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_*) */
->  	int cc_index;	/* contact count field index in the report */
->  	int cc_value_index;	/* contact count value index in the field */
-> @@ -543,8 +545,12 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  		case HID_DG_CONFIDENCE:
->  			if ((cls->name == MT_CLS_WIN_8 ||
->  				cls->name == MT_CLS_WIN_8_DUAL) &&
-> -				field->application == HID_DG_TOUCHPAD)
-> +			    field->application == HID_DG_TOUCHPAD) {
->  				cls->quirks |= MT_QUIRK_CONFIDENCE;
-> +				input_set_abs_params(hi->input,
-> +					ABS_MT_TOOL_TYPE,
-> +					MT_TOOL_FINGER, MT_TOOL_PALM, 0, 0);
-> +			}
->  			mt_store_field(usage, td, hi);
->  			return 1;
->  		case HID_DG_TIPSWITCH:
-> @@ -657,6 +663,7 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  
->  	if (td->curvalid || (td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID)) {
->  		int active;
-> +		int tool;
->  		int slotnum = mt_compute_slot(td, input);
->  		struct mt_slot *s = &td->curdata;
->  		struct input_mt *mt = input->mt;
-> @@ -671,24 +678,56 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  				return;
->  		}
->  
-> +		active = s->touch_state || s->inrange_state;
-> +
->  		if (!(td->mtclass.quirks & MT_QUIRK_CONFIDENCE))
->  			s->confidence_state = 1;
-> -		active = (s->touch_state || s->inrange_state) &&
-> -							s->confidence_state;
-> +
-> +		if (likely(s->confidence_state)) {
-> +			tool = MT_TOOL_FINGER;
-> +		} else {
-> +			tool = MT_TOOL_PALM;
-> +			if (!active &&
-> +			    input_mt_is_active(&mt->slots[slotnum])) {
-> +				/*
-> +				 * The non-confidence was reported for
-> +				 * previously valid contact that is also no
-> +				 * longer valid. We can't simply report
-> +				 * lift-off as userspace will not be aware
-> +				 * of non-confidence, so we need to split
-> +				 * it into 2 events: active MT_TOOL_PALM
-> +				 * and a separate liftoff.
-> +				 */
-> +				active = true;
-> +				set_bit(slotnum, td->pending_palm_slots);
-> +			}
-> +		}
->  
->  		input_mt_slot(input, slotnum);
-> -		input_mt_report_slot_state(input, MT_TOOL_FINGER, active);
-> +		input_mt_report_slot_state(input, tool, active);
->  		if (active) {
->  			/* this finger is in proximity of the sensor */
->  			int wide = (s->w > s->h);
->  			int major = max(s->w, s->h);
->  			int minor = min(s->w, s->h);
->  
-> -			/*
-> -			 * divided by two to match visual scale of touch
-> -			 * for devices with this quirk
-> -			 */
-> -			if (td->mtclass.quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
-> +			if (unlikely(!s->confidence_state)) {
-> +				/*
-> +				 * When reporting palm, set contact to maximum
-> +				 * size to help userspace that does not
-> +				 * recognize MT_TOOL_PALM to reject contacts
-> +				 * that are too large.
-> +				 */
-> +				major = input_abs_get_max(input,
-> +							  ABS_MT_TOUCH_MAJOR);
-> +				minor = input_abs_get_max(input,
-> +							  ABS_MT_TOUCH_MINOR);
-> +			} else if (td->mtclass.quirks &
-> +					MT_QUIRK_TOUCH_SIZE_SCALING) {
-> +				/*
-> +				 * divided by two to match visual scale of touch
-> +				 * for devices with this quirk
-> +				 */
->  				major = major >> 1;
->  				minor = minor >> 1;
->  			}
-> @@ -711,6 +750,25 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  	td->num_received++;
->  }
->  
-> +static void mt_release_pending_palms(struct mt_device *td,
-> +				     struct input_dev *input)
-> +{
-> +	int slotnum;
-> +	bool need_sync = false;
-> +
-> +	for_each_set_bit(slotnum, td->pending_palm_slots, td->maxcontacts) {
-> +		clear_bit(slotnum, td->pending_palm_slots);
-> +
-> +		input_mt_slot(input, slotnum);
-> +		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
-> +
-> +		need_sync = true;
-> +	}
-> +
-> +	if (need_sync)
-> +		input_sync(input);
-> +}
-> +
->  /*
->   * this function is called when a whole packet has been received and processed,
->   * so that it can decide what to send to the input layer.
-> @@ -719,6 +777,9 @@ static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
->  {
->  	input_mt_sync_frame(input);
->  	input_sync(input);
-> +
-> +	mt_release_pending_palms(td, input);
-> +
->  	td->num_received = 0;
->  	if (test_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags))
->  		set_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
-> @@ -903,6 +964,13 @@ static int mt_touch_input_configured(struct hid_device *hdev,
->  	if (td->is_buttonpad)
->  		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->  
-> +	td->pending_palm_slots = devm_kcalloc(&hi->input->dev,
-> +					      BITS_TO_LONGS(td->maxcontacts),
-> +					      sizeof(long),
-> +					      GFP_KERNEL);
-> +	if (!td->pending_palm_slots)
-> +		return -ENOMEM;
-> +
->  	ret = input_mt_init_slots(input, td->maxcontacts, td->mt_flags);
->  	if (ret)
->  		return ret;
-> -- 
-> 2.14.0.434.g98096fd7a8-goog
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 06e9650b3b30..a89b81b35932 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -123,6 +123,7 @@ static const struct xpad_device {
+ 	u8 mapping;
+ 	u8 xtype;
+ } xpad_device[] = {
++	{ 0x0079, 0x18d4, "GPD Win 2 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
+@@ -409,6 +410,7 @@ static const signed short xpad_abs_triggers[] = {
+ 
+ static const struct usb_device_id xpad_table[] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
++	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 Controller */
+ 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+-- 
+2.13.6

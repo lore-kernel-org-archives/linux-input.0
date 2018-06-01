@@ -1,34 +1,104 @@
-From: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Subject: [PATCH] i8042: Increment wakeup_count for the respective port.
-Date: Fri,  1 Jun 2018 11:00:53 -0700
-Message-ID: <20180601180053.120202-1-ravisadineni@chromium.org>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: Re: [PATCH] HID: steam: use hid_device.driver_data instead of
+ hid_set_drvdata()
+Date: Fri, 1 Jun 2018 20:27:50 +0200
+Message-ID: <20180601182750.GA23501@casa>
+References: <20180522201006.14003-1-rodrigorivascosta@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180522201006.14003-1-rodrigorivascosta@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, chenhong3@huawei.com, ravisadineni@chromium.org, ravisadineni@google.com, dtor@google.com
-Cc: tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rajatja@google.com, bleung@google.com
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Call pm_wakeup_event on every irq. This should help us in identifying if
-i8042 port was a potential wake reason for the last resume.
+Hi, all!
 
-Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
----
- drivers/input/serio/i8042.c | 3 +++
- 1 file changed, 3 insertions(+)
+Could you check my previous patch to see if it makes any sense?
+My machine currently crashes without it, but I'm not sure why. If you
+think it is worth it I can try and bisect it.
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 824f4c1c1f310..96e27766d553d 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -573,6 +573,9 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
- 	port = &i8042_ports[port_no];
- 	serio = port->exists ? port->serio : NULL;
- 
-+	if (serio && device_may_wakeup(&serio->dev))
-+		pm_wakeup_event(&serio->dev, 0);
-+
- 	filter_dbg(port->driver_bound, data, "<- i8042 (interrupt, %d, %d%s%s)\n",
- 		   port_no, irq,
- 		   dfl & SERIO_PARITY ? ", bad parity" : "",
--- 
-2.17.0.921.gf22659ad46-goog
+Regards
+--
+Rodrigo Rivas Costa.
+
+
+On Tue, May 22, 2018 at 10:10:06PM +0200, Rodrigo Rivas Costa wrote:
+> When creating the low-level hidraw device, the reference to steam_device
+> was stored using hid_set_drvdata(). But this value is not guaranteed to
+> be kept when set before calling probe. If this pointer is reset, it
+> crashes when opening the emulated hidraw device.
+> 
+> It looks like hid_set_drvdata() is for users "avobe" this hid_device,
+> while hid_device.driver_data it for users "below" this one.
+> 
+> In this case, we are creating a virtual hidraw device, so we must use
+> hid_device.driver_data.
+> 
+> Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+> ---
+> 
+> This patch is to be applied over hid/for-4.18/hid-steam. Is this the
+> proper way to signal it?
+> 
+> I don't know exactly when the problem started. I am pretty sure that it
+> worked with 4.16.2, but it failed with 4.16.9. Or maybe it is caused by
+> upgrading the firmware of the controller, although the protocol seems
+> identical.
+> 
+>  drivers/hid/hid-steam.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
+> index cb86cc834201..0422ec2b13d2 100644
+> --- a/drivers/hid/hid-steam.c
+> +++ b/drivers/hid/hid-steam.c
+> @@ -573,7 +573,7 @@ static bool steam_is_valve_interface(struct hid_device *hdev)
+>  
+>  static int steam_client_ll_parse(struct hid_device *hdev)
+>  {
+> -	struct steam_device *steam = hid_get_drvdata(hdev);
+> +	struct steam_device *steam = hdev->driver_data;
+>  
+>  	return hid_parse_report(hdev, steam->hdev->dev_rdesc,
+>  			steam->hdev->dev_rsize);
+> @@ -590,7 +590,7 @@ static void steam_client_ll_stop(struct hid_device *hdev)
+>  
+>  static int steam_client_ll_open(struct hid_device *hdev)
+>  {
+> -	struct steam_device *steam = hid_get_drvdata(hdev);
+> +	struct steam_device *steam = hdev->driver_data;
+>  	int ret;
+>  
+>  	ret = hid_hw_open(steam->hdev);
+> @@ -605,7 +605,7 @@ static int steam_client_ll_open(struct hid_device *hdev)
+>  
+>  static void steam_client_ll_close(struct hid_device *hdev)
+>  {
+> -	struct steam_device *steam = hid_get_drvdata(hdev);
+> +	struct steam_device *steam = hdev->driver_data;
+>  
+>  	mutex_lock(&steam->mutex);
+>  	steam->client_opened = false;
+> @@ -623,7 +623,7 @@ static int steam_client_ll_raw_request(struct hid_device *hdev,
+>  				size_t count, unsigned char report_type,
+>  				int reqtype)
+>  {
+> -	struct steam_device *steam = hid_get_drvdata(hdev);
+> +	struct steam_device *steam = hdev->driver_data;
+>  
+>  	return hid_hw_raw_request(steam->hdev, reportnum, buf, count,
+>  			report_type, reqtype);
+> @@ -710,7 +710,7 @@ static int steam_probe(struct hid_device *hdev,
+>  		ret = PTR_ERR(steam->client_hdev);
+>  		goto client_hdev_fail;
+>  	}
+> -	hid_set_drvdata(steam->client_hdev, steam);
+> +	steam->client_hdev->driver_data = steam;
+>  
+>  	/*
+>  	 * With the real steam controller interface, do not connect hidraw.
+> -- 
+> 2.17.0
+> 

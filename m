@@ -1,104 +1,80 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: Re: [PATCH] HID: steam: use hid_device.driver_data instead of
- hid_set_drvdata()
-Date: Fri, 1 Jun 2018 20:27:50 +0200
-Message-ID: <20180601182750.GA23501@casa>
-References: <20180522201006.14003-1-rodrigorivascosta@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v1 1/3] bitmap: Add bitmap_alloc(), bitmap_zalloc() and
+ bitmap_free()
+Date: Fri, 1 Jun 2018 11:33:43 -0700
+Message-ID: <20180601183343.GA222005@dtor-ws>
+References: <20180601083120.40352-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180522201006.14003-1-rodrigorivascosta@gmail.com>
+In-Reply-To: <20180601083120.40352-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, =?iso-8859-1?Q?Cl=E9ment?= VUCHENER <clement.vuchener@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jeffy Chen <jeffy.chen@rock-chips.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi, all!
+Hi Andy,
 
-Could you check my previous patch to see if it makes any sense?
-My machine currently crashes without it, but I'm not sure why. If you
-think it is worth it I can try and bisect it.
-
-Regards
---
-Rodrigo Rivas Costa.
-
-
-On Tue, May 22, 2018 at 10:10:06PM +0200, Rodrigo Rivas Costa wrote:
-> When creating the low-level hidraw device, the reference to steam_device
-> was stored using hid_set_drvdata(). But this value is not guaranteed to
-> be kept when set before calling probe. If this pointer is reset, it
-> crashes when opening the emulated hidraw device.
+On Fri, Jun 01, 2018 at 11:31:18AM +0300, Andy Shevchenko wrote:
+> A lot of code become ugly because of open coding allocations for bitmaps.
 > 
-> It looks like hid_set_drvdata() is for users "avobe" this hid_device,
-> while hid_device.driver_data it for users "below" this one.
+> Introduce three helpers to allow users be more clear of intention
+> and keep their code neat.
 > 
-> In this case, we are creating a virtual hidraw device, so we must use
-> hid_device.driver_data.
-> 
-> Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+This looks nice and I like how it simplifies drivers. How do we merge
+this? 
+
 > ---
+>  include/linux/bitmap.h | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
 > 
-> This patch is to be applied over hid/for-4.18/hid-steam. Is this the
-> proper way to signal it?
-> 
-> I don't know exactly when the problem started. I am pretty sure that it
-> worked with 4.16.2, but it failed with 4.16.9. Or maybe it is caused by
-> upgrading the firmware of the controller, although the protocol seems
-> identical.
-> 
->  drivers/hid/hid-steam.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index cb86cc834201..0422ec2b13d2 100644
-> --- a/drivers/hid/hid-steam.c
-> +++ b/drivers/hid/hid-steam.c
-> @@ -573,7 +573,7 @@ static bool steam_is_valve_interface(struct hid_device *hdev)
+> diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+> index 1ee46f492267..845822425393 100644
+> --- a/include/linux/bitmap.h
+> +++ b/include/linux/bitmap.h
+> @@ -6,6 +6,7 @@
 >  
->  static int steam_client_ll_parse(struct hid_device *hdev)
->  {
-> -	struct steam_device *steam = hid_get_drvdata(hdev);
-> +	struct steam_device *steam = hdev->driver_data;
+>  #include <linux/types.h>
+>  #include <linux/bitops.h>
+> +#include <linux/slab.h>
+>  #include <linux/string.h>
+>  #include <linux/kernel.h>
 >  
->  	return hid_parse_report(hdev, steam->hdev->dev_rdesc,
->  			steam->hdev->dev_rsize);
-> @@ -590,7 +590,7 @@ static void steam_client_ll_stop(struct hid_device *hdev)
+> @@ -104,6 +105,21 @@
+>   * contain all bit positions from 0 to 'bits' - 1.
+>   */
 >  
->  static int steam_client_ll_open(struct hid_device *hdev)
->  {
-> -	struct steam_device *steam = hid_get_drvdata(hdev);
-> +	struct steam_device *steam = hdev->driver_data;
->  	int ret;
->  
->  	ret = hid_hw_open(steam->hdev);
-> @@ -605,7 +605,7 @@ static int steam_client_ll_open(struct hid_device *hdev)
->  
->  static void steam_client_ll_close(struct hid_device *hdev)
->  {
-> -	struct steam_device *steam = hid_get_drvdata(hdev);
-> +	struct steam_device *steam = hdev->driver_data;
->  
->  	mutex_lock(&steam->mutex);
->  	steam->client_opened = false;
-> @@ -623,7 +623,7 @@ static int steam_client_ll_raw_request(struct hid_device *hdev,
->  				size_t count, unsigned char report_type,
->  				int reqtype)
->  {
-> -	struct steam_device *steam = hid_get_drvdata(hdev);
-> +	struct steam_device *steam = hdev->driver_data;
->  
->  	return hid_hw_raw_request(steam->hdev, reportnum, buf, count,
->  			report_type, reqtype);
-> @@ -710,7 +710,7 @@ static int steam_probe(struct hid_device *hdev,
->  		ret = PTR_ERR(steam->client_hdev);
->  		goto client_hdev_fail;
->  	}
-> -	hid_set_drvdata(steam->client_hdev, steam);
-> +	steam->client_hdev->driver_data = steam;
->  
->  	/*
->  	 * With the real steam controller interface, do not connect hidraw.
+> +static inline unsigned long *bitmap_alloc(unsigned int nbits, gfp_t flags)
+> +{
+> +	return kmalloc_array(BITS_TO_LONGS(nbits), sizeof(unsigned long), flags);
+> +}
+> +
+> +static inline unsigned long *bitmap_zalloc(unsigned int nbits, gfp_t flags)
+> +{
+> +	return kcalloc(BITS_TO_LONGS(nbits), sizeof(unsigned long), flags);
+
+	retrun bitmap_alloc(nbits, flags | __GFP_ZERO);
+
+?
+
+> +}
+> +
+> +static inline void bitmap_free(const unsigned long *bitmap)
+> +{
+> +	kfree(bitmap);
+> +}
+> +
+>  /*
+>   * lib/bitmap.c provides these functions:
+>   */
 > -- 
 > 2.17.0
 > 
+
+Thanks.
+
+-- 
+Dmitry

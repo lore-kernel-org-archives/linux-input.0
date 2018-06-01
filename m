@@ -1,68 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Henrik Rydberg <rydberg@bitmath.org>
 Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
  non-confident touches
-Date: Fri, 1 Jun 2018 11:43:30 -0700
-Message-ID: <20180601184330.GD222005@dtor-ws>
+Date: Fri, 1 Jun 2018 21:03:21 +0200
+Message-ID: <72b7120a-d304-0b2f-d04a-473631623f72@bitmath.org>
 References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
  <CAO-hwJJ8E4mQqu0RYaZrmawud4wbSVE4GHEvg7oxUzEc-B5nvQ@mail.gmail.com>
+ <20180601184330.GD222005@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAO-hwJJ8E4mQqu0RYaZrmawud4wbSVE4GHEvg7oxUzEc-B5nvQ@mail.gmail.com>
+In-Reply-To: <20180601184330.GD222005@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 01, 2018 at 04:16:09PM +0200, Benjamin Tissoires wrote:
-> On Fri, Aug 11, 2017 at 2:44 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > According to Microsoft specification [1] for Precision Touchpads (and
-> > Touchscreens) the devices use "confidence" reports to signal accidental
-> > touches, or contacts that are "too large to be a finger". Instead of
-> > simply marking contact inactive in this case (which causes issues if
-> > contact was originally proper and we lost confidence in it later, as
-> > this results in accidental clicks, drags, etc), let's report such
-> > contacts as MT_TOOL_PALM and let userspace decide what to do.
-> > Additionally, let's report contact size for such touches as maximum
-> > allowed for major/minor, which should help userspace that is not yet
-> > aware of MT_TOOL_PALM to still perform palm rejection.
-> >
-> > An additional complication, is that some firmwares do not report
-> > non-confident touches as active. To cope with this we delay release of
-> > such contact (i.e. if contact was active we first report it as still
-> > active MT+TOOL_PALM and then synthesize the release event in a separate
-> > frame).
-> 
-> I am not sure I agree with this part. The spec says that "Once a
-> device has determined that a contact is unintentional, it should clear
-> the confidence bit for that contact report and all subsequent
-> reports."
-> So in theory the spec says that if a touch has been detected as a
-> palm, the flow of events should not stop (tested on the PTP of the
-> Dell XPS 9360).
-> 
-> However, I interpret a firmware that send (confidence 1, tip switch 1)
-> and then (confidence 0, tip switch 0) a simple release, and the
-> confidence bit should not be relayed.
 
-This unfortunately leads to false clicks: you start with finger, so
-confidence is 1, then you transition the same touch to palm (use your
-thumb and "roll" your hand until heel of it comes into contact with the
-screen). The firmware reports "no-confidence" and "release" in the same
-report and userspace seeing release does not pay attention to confidence
-(i.e. it does exactly "simple release" logic) and this results in UI
-interpreting this as a click. With splitting no-confidence
-(MT_TOOL_PALM) and release event into separate frames we help userspace
-to recognize that the contact should be discarded.
+>> However, I interpret a firmware that send (confidence 1, tip switch 1)
+>> and then (confidence 0, tip switch 0) a simple release, and the
+>> confidence bit should not be relayed.
+> This unfortunately leads to false clicks: you start with finger, so
+> confidence is 1, then you transition the same touch to palm (use your
+> thumb and "roll" your hand until heel of it comes into contact with the
+> screen). The firmware reports "no-confidence" and "release" in the same
+> report and userspace seeing release does not pay attention to confidence
+> (i.e. it does exactly "simple release" logic) and this results in UI
+> interpreting this as a click. With splitting no-confidence
+> (MT_TOOL_PALM) and release event into separate frames we help userspace
+> to recognize that the contact should be discarded.
+This is in part why I objected to this patch on August 11th, 2017. 
+Logically, the confidence state is a property of a contact, not a new 
+type of contact. Trying to use it in any other way is bound to lead to 
+confusion.
 
-> 
-> Do you have any precise example of reports where you need that feature?
-
-It was observed on Pixelbooks which use Wacom digitizers IIRC.
-
-Thanks.
-
--- 
-Dmitry
+Henrik

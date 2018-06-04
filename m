@@ -1,37 +1,48 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V2] cros_ec_keyb: Mark cros_ec_keyb driver as wake
- enabled device.
-Date: Mon, 4 Jun 2018 07:18:56 +0100
-Message-ID: <20180604061856.GF25455@dell>
-References: <20180524234213.GE177107@dtor-ws>
- <20180526011440.102417-1-ravisadineni@chromium.org>
+Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input
+ clock
+Date: Mon, 4 Jun 2018 08:39:46 +0100
+Message-ID: <20180604073946.GI25455@dell>
+References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180526011440.102417-1-ravisadineni@chromium.org>
+In-Reply-To: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Cc: dmitry.torokhov@gmail.com, ravisadineni@google.com, dtor@google.com, briannorris@chromium.org, tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rajatja@google.com, bleung@google.com
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 25 May 2018, Ravi Chandra Sadineni wrote:
+On Fri, 18 May 2018, Jarkko Nikula wrote:
 
-> Mark cros_ec_keyb has wake enabled by default. If we see a MKBP event
-> related to keyboard,  call pm_wakeup_event() to make sure wakeup
-> triggers are accounted to keyb during suspend resume path.
+> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
+> than Sunrisepoint which uses 120 MHz. Preliminary information was that
+> both share the same clock rate but actual silicon implements elevated
+> rate for better support for 3.4 MHz high-speed I2C.
 > 
-> Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
+> This incorrect input clock rate results too high I2C bus clock in case
+> ACPI doesn't provide tuned I2C timing parameters since I2C host
+> controller driver calculates them from input clock rate.
+> 
+> Fix this by using the correct rate. We still share the same 230 ns SDA
+> hold time value than Sunrisepoint.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
+> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
+> Reported-by: Chris Chiu <chiu@endlessm.com>
+> Reported-by: Daniel Drake <drake@endlessm.com>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 > ---
-> V2: Marked the ckdev as wake enabled instead of input devices.
-> 
->  drivers/input/keyboard/cros_ec_keyb.c | 21 +++++++++++++++++----
+> Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
+> touchpad issue?
+> ---
+>  drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
+>  1 file changed, 15 insertions(+), 10 deletions(-)
 
->  drivers/mfd/cros_ec.c                 | 19 +++++++------------
-
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Applied, thanks.
 
 -- 
 Lee Jones [李琼斯]

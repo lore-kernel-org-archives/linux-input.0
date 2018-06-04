@@ -1,81 +1,128 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
- non-confident touches
-Date: Mon, 4 Jun 2018 11:26:58 -0700
-Message-ID: <20180604182658.GC164893@dtor-ws>
-References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
- <CAO-hwJJ8E4mQqu0RYaZrmawud4wbSVE4GHEvg7oxUzEc-B5nvQ@mail.gmail.com>
- <20180601184330.GD222005@dtor-ws>
- <72b7120a-d304-0b2f-d04a-473631623f72@bitmath.org>
- <CAO-hwJKibKvqviLZ5SSYR_X3yLTzJrr0G4d6svM3FtgJ6AfvQQ@mail.gmail.com>
- <20180604172759.GA164893@dtor-ws>
- <994e5698-fbdf-05c8-b0b6-3df6af1b3dbc@bitmath.org>
+From: <Mario.Limonciello@dell.com>
+Subject: RE: [PATCH] HID: core: allow concurrent registration of drivers
+Date: Mon, 4 Jun 2018 20:37:30 +0000
+Message-ID: <4635b69c79704cc3beee5f97d9e739f2@ausx13mpc120.AMER.DELL.COM>
+References: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <994e5698-fbdf-05c8-b0b6-3df6af1b3dbc@bitmath.org>
+In-Reply-To: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: benjamin.tissoires@redhat.com, jikos@kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 04, 2018 at 07:55:57PM +0200, Henrik Rydberg wrote:
-> Hi Dmitry,
-> 
-> > > > Logically, the confidence state is a property of a contact, not a new type
-> > > > of contact. Trying to use it in any other way is bound to lead to confusion.
-> > > > 
-> > > > Problem is that MT_TOOL_PALM has been introduced in the kernel since
-> > > > v4.0 (late 2015 by a736775db683 "Input: add MT_TOOL_PALM").
-> > > > It's been used in the Synaptics RMI4 driver since and by hid-asus in late 2016.
-> > > > I can't find any other users in the current upstream tree, but those
-> > > > two are already making a precedent and changing the semantic is a
-> > > > little bit late :/
-> > I am sorry I did not respond and lost track of this issue back then, but
-> > I disagree with Henrik here. While confidence is a property of contact,
-> > so is the type of contact and it can and will change throughout life of
-> > a contact, especially if we will continue adding new types, such as, for
-> > example, thumb. In this case the firmware can transition through
-> > finger->thumb or finger->thumb->palm or finger->palm as the nature of
-> > contact becomes better understood. Still it is the same contact and we
-> > should not attempt to signal userspace differently.
-> We agree that the contact should stay the same, but the fear, and I think
-> somewhere along the blurry history of this thread, the problem was that
-> userspace interpreted the property change as a new contact (lift up/double
-> click/etc). Finger/thumb/palm is one set of hand properties, but what about
-> Pen? It would be hard for an application to consider a switch from finger to
-> pen as the same contact, which is where the natural implementation starts to
-> diverge from the intention.
+Benjamin,
 
-I think the userspace has to trust our tracking ID to decide whether it
-is a same contact or not. The current issue is that kernel is forcing
-tracking ID change on tool type change, and one of the 2 patches that I
-posted fixed that, allowing us to keep the tracking ID for finger->palm
-transitions.
+I had to make a minor change since I didn't see
+>  #define HID_STAT_DUP_DETECTED	BIT(2)
+In Linus's tree.
 
-I think it is kernel task to not signal transitions that do not make
-sense, such as finger->pen or palm->pen etc.
+I tested with master today though and it seems to be working now with your =
+patch across
+several boot attempts.
 
-> 
-> > We could introduce the ABS_MT_CONFIDENCE (0/1 or even 0..n range), to
-> > complement ABS_MT_TOOL, but that would not really solve the issue with
-> > Wacom firmware (declaring contact non-confident and releasing it right
-> > away) and given MS explanation of the confidence as "contact is too big"
-> > MT_TOOL_PALM fits it perfectly.
-> Indeed, the Wacom firmware seems to need some special handling, which should
-> be fine by everyone. I do think it would make sense to add
-> ABS_MT_TOOL_TOO_BIG, or something, and use it if it exists. This would apply
-> also to a pen lying down on a touchpad, for instance.
+Tested-by: Mario Limonciello <mario.limonciello@dell.com>
 
-OK, I can see that for Pens, if we have firmware that would recognize
-such condition, it would be weird to report PALM. We could indeed have
-ABS_MT_TOOL_TOO_BIG, but on the other hand it is still a pen (as long as
-the hardware can recognize it as such). Maybe we'd be better off just
-having userspace going by contact size for pens. Peter, any suggestions
-here?
+Thanks,
 
-Thanks.
-
--- 
-Dmitry
+> -----Original Message-----
+> From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
+> Sent: Thursday, May 31, 2018 6:49 AM
+> To: Jiri Kosina; Limonciello, Mario
+> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Benjamin T=
+issoires
+> Subject: [PATCH] HID: core: allow concurrent registration of drivers
+>=20
+> Detected on the Dell XPS 9365.
+> The laptop has 2 devices that benefit from the hid-generic auto-unbinding=
+.
+> When those 2 devices are presented to the userspace, udev loads both
+> wacom and hid-multitouch. When this happens, the code in
+> __hid_bus_reprobe_drivers() is called concurrently and the second device
+> gets reprobed twice.
+> An other bug in the power_supply subsystem prevent to remove the wacom
+> driver if it just finished its initialization, which basically kills
+> the wacom node.
+>=20
+> Fixes c17a7476e4c4 ("HID: core: rewrite the hid-generic automatic unbind"=
+)
+>=20
+> Cc: stable@vger.kernel.org # v4.17
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>=20
+> Hi Mario,
+>=20
+> can you please test this on your faulty XPS?
+> I think it'll fix the issue, but I can not reproduce, so better wait for
+> your confirmation.
+>=20
+> Jiri, ideally I would love to see this in v4.17 final, but Mario seems
+> to be on PTO until next week. I guess we'll just push this in v4.17.1
+> then. Also, if you can double check that it makes sense, that would be
+> nice :)
+>=20
+> Cheers,
+> Benjamin
+>=20
+>  drivers/hid/hid-core.c | 5 ++++-
+>  include/linux/hid.h    | 3 ++-
+>  2 files changed, 6 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 2f7367b1de00..7afed0c0f9e5 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1960,6 +1960,8 @@ static int hid_device_probe(struct device *dev)
+>  	}
+>  	hdev->io_started =3D false;
+>=20
+> +	clear_bit(ffs(HID_STAT_REPROBED), &hdev->status);
+> +
+>  	if (!hdev->driver) {
+>  		id =3D hid_match_device(hdev, hdrv);
+>  		if (id =3D=3D NULL) {
+> @@ -2223,7 +2225,8 @@ static int __hid_bus_reprobe_drivers(struct device =
+*dev,
+> void *data)
+>  	struct hid_device *hdev =3D to_hid_device(dev);
+>=20
+>  	if (hdev->driver =3D=3D hdrv &&
+> -	    !hdrv->match(hdev, hid_ignore_special_drivers))
+> +	    !hdrv->match(hdev, hid_ignore_special_drivers) &&
+> +	    !test_and_set_bit(ffs(HID_STAT_REPROBED), &hdev->status))
+>  		return device_reprobe(dev);
+>=20
+>  	return 0;
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index ee2510019033..aee281522c6d 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -517,6 +517,7 @@ struct hid_output_fifo {
+>  #define HID_STAT_ADDED		BIT(0)
+>  #define HID_STAT_PARSED		BIT(1)
+>  #define HID_STAT_DUP_DETECTED	BIT(2)
+> +#define HID_STAT_REPROBED	BIT(3)
+>=20
+>  struct hid_input {
+>  	struct list_head list;
+> @@ -585,7 +586,7 @@ struct hid_device {
+> 		/* device report descriptor */
+>  	bool battery_avoid_query;
+>  #endif
+>=20
+> -	unsigned int status;						/* see
+> STAT flags above */
+> +	unsigned long status;						/* see
+> STAT flags above */
+>  	unsigned claimed;						/*
+> Claimed by hidinput, hiddev? */
+>  	unsigned quirks;						/* Various
+> quirks the device can pull on us */
+>  	bool io_started;						/* If IO has started
+> */
+> --
+> 2.14.3

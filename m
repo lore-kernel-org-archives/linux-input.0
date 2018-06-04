@@ -1,128 +1,134 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1 1/3] bitmap: Add bitmap_alloc(), bitmap_zalloc() and
- bitmap_free()
-Date: Mon, 4 Jun 2018 15:14:46 -0700
-Message-ID: <20180604221446.GI164893@dtor-ws>
-References: <20180601083120.40352-1-andriy.shevchenko@linux.intel.com>
- <20180601183343.GA222005@dtor-ws>
- <cfe3fa909edd73ba84dd367a11a570866647a3f4.camel@linux.intel.com>
- <20180604215723.GH164893@dtor-ws>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
+ non-confident touches
+Date: Tue, 5 Jun 2018 08:55:39 +1000
+Message-ID: <20180604225539.GA13447@jelly>
+References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
+ <CAO-hwJJ8E4mQqu0RYaZrmawud4wbSVE4GHEvg7oxUzEc-B5nvQ@mail.gmail.com>
+ <20180601184330.GD222005@dtor-ws>
+ <CAO-hwJJPGJzgX+7H1nnpd=OkLZu0q0TuKhvroJ1K3jtnv7t6dg@mail.gmail.com>
+ <20180604173339.GB164893@dtor-ws>
+ <CAO-hwJ+nzC=i1Jv_yu4vLL6Quw=850HJkOZBKCjFaZaw0-GWOQ@mail.gmail.com>
+ <20180604211944.GE164893@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180604215723.GH164893@dtor-ws>
+In-Reply-To: <20180604211944.GE164893@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jeffy Chen <jeffy.chen@rock-chips.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 04, 2018 at 02:57:23PM -0700, Dmitry Torokhov wrote:
-> On Mon, Jun 04, 2018 at 12:59:54PM +0300, Andy Shevchenko wrote:
-> > On Fri, 2018-06-01 at 11:33 -0700, Dmitry Torokhov wrote:
-> > > Hi Andy,
-> > > 
-> > > On Fri, Jun 01, 2018 at 11:31:18AM +0300, Andy Shevchenko wrote:
-> > > > A lot of code become ugly because of open coding allocations for
-> > > > bitmaps.
-> > > > 
-> > > > Introduce three helpers to allow users be more clear of intention
-> > > > and keep their code neat.
-> > > > 
-> > > > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > > 
-> > > This looks nice and I like how it simplifies drivers.
+On Mon, Jun 04, 2018 at 02:19:44PM -0700, Dmitry Torokhov wrote:
+> On Mon, Jun 04, 2018 at 10:42:31PM +0200, Benjamin Tissoires wrote:
+> > On Mon, Jun 4, 2018 at 7:33 PM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > On Mon, Jun 04, 2018 at 03:18:12PM +0200, Benjamin Tissoires wrote:
+> > >> On Fri, Jun 1, 2018 at 8:43 PM, Dmitry Torokhov
+> > >> <dmitry.torokhov@gmail.com> wrote:
+> > >> > On Fri, Jun 01, 2018 at 04:16:09PM +0200, Benjamin Tissoires wrote:
+> > >> >> On Fri, Aug 11, 2017 at 2:44 AM, Dmitry Torokhov
+> > >> >> <dmitry.torokhov@gmail.com> wrote:
+> > >> >> > According to Microsoft specification [1] for Precision Touchpads (and
+> > >> >> > Touchscreens) the devices use "confidence" reports to signal accidental
+> > >> >> > touches, or contacts that are "too large to be a finger". Instead of
+> > >> >> > simply marking contact inactive in this case (which causes issues if
+> > >> >> > contact was originally proper and we lost confidence in it later, as
+> > >> >> > this results in accidental clicks, drags, etc), let's report such
+> > >> >> > contacts as MT_TOOL_PALM and let userspace decide what to do.
+> > >> >> > Additionally, let's report contact size for such touches as maximum
+> > >> >> > allowed for major/minor, which should help userspace that is not yet
+> > >> >> > aware of MT_TOOL_PALM to still perform palm rejection.
+> > >> >> >
+> > >> >> > An additional complication, is that some firmwares do not report
+> > >> >> > non-confident touches as active. To cope with this we delay release of
+> > >> >> > such contact (i.e. if contact was active we first report it as still
+> > >> >> > active MT+TOOL_PALM and then synthesize the release event in a separate
+> > >> >> > frame).
+> > >> >>
+> > >> >> I am not sure I agree with this part. The spec says that "Once a
+> > >> >> device has determined that a contact is unintentional, it should clear
+> > >> >> the confidence bit for that contact report and all subsequent
+> > >> >> reports."
+> > >> >> So in theory the spec says that if a touch has been detected as a
+> > >> >> palm, the flow of events should not stop (tested on the PTP of the
+> > >> >> Dell XPS 9360).
+> > >> >>
+> > >> >> However, I interpret a firmware that send (confidence 1, tip switch 1)
+> > >> >> and then (confidence 0, tip switch 0) a simple release, and the
+> > >> >> confidence bit should not be relayed.
+> > >> >
+> > >> > This unfortunately leads to false clicks: you start with finger, so
+> > >> > confidence is 1, then you transition the same touch to palm (use your
+> > >> > thumb and "roll" your hand until heel of it comes into contact with the
+> > >> > screen). The firmware reports "no-confidence" and "release" in the same
+> > >> > report and userspace seeing release does not pay attention to confidence
+> > >> > (i.e. it does exactly "simple release" logic) and this results in UI
+> > >> > interpreting this as a click. With splitting no-confidence
+> > >> > (MT_TOOL_PALM) and release event into separate frames we help userspace
+> > >> > to recognize that the contact should be discarded.
+> > >>
+> > >> After further thoughts, I would consider this to be a firmware bug,
+> > >> and not how the firmware is supposed to be reporting palm.
+> > >> For the precision touchpads, the spec says that the device "should
+> > >> clear the confidence bit for that contact report and all subsequent
+> > >> reports.". And it is how the Dell device I have here reports palms.
+> > >> The firmware is not supposed to cut the event stream.
+> > >>
+> > >> There is a test for that:
+> > >> https://docs.microsoft.com/en-us/previous-versions/windows/hardware/hck/dn456905%28v%3dvs.85%29
+> > >> which tells me that I am right here for PTP.
+> > >>
+> > >> The touchscreen spec is blurrier however.
+> > >
+> > > OK, that is great to know.
+> > >
+> > >>
+> > >> >
+> > >> >>
+> > >> >> Do you have any precise example of reports where you need that feature?
+> > >> >
+> > >> > It was observed on Pixelbooks which use Wacom digitizers IIRC.
+> > >>
+> > >> Pixelbooks + Wacom means that it was likely a touchscreen. I am right
+> > >> guessing the device did not went through Microsoft certification
+> > >> process?
+> > >
+> > > That would be correct ;) At least the firmware that is shipping with
+> > > Pixlebooks hasn't, I do now if anyone else sourced these Wacom parts for
+> > > their MSWin devices.
+> > >
+> > >>
+> > >> I am in favor of splitting the patch in 2. One for the generic
+> > >> processing of confidence bit, and one for this spurious release. For
+> > >> the spurious release, I'm more in favor of explicitly quirking the
+> > >> devices in need of such quirk.
+> > >
+> > > Hmm, I am not sure about having specific quirk. It will be hard for
+> > > users to accurately diagnose the issue if firmware is broken in this way
+> > > so we could add a new quirk for a new device.
 > > 
-> > Thanks!
+> > One thing we can do is keep the quirked mechanism as default in
+> > hid-multitouch, but remove it in hid-core. If people need the quirk,
+> > they can just use hid-multitouch instead (talking about the long run
+> > here).
+> 
+> Hmm, I am confused. My patch did not touch hid-core or hid-input, only
+> hid-multitouch... So we are already doing what you are proposing?..
+> 
 > > 
-> > >  How do we merge
-> > > this? 
-> > 
-> > I suppose through 'input' tree if there is no objections.
+> > However, I really believe this might only be required for a handful of
+> > devices, and probably only touchscreens. So I would be tempted to not
+> > make it default and see how many bug reports we have.
 > 
-> OK, let's wait for objections for a few days.
-> 
-> > 
-> > > > ---
-> > > >  include/linux/bitmap.h | 16 ++++++++++++++++
-> > > >  1 file changed, 16 insertions(+)
-> > > > 
-> > > > diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-> > > > index 1ee46f492267..845822425393 100644
-> > > > --- a/include/linux/bitmap.h
-> > > > +++ b/include/linux/bitmap.h
-> > > > @@ -6,6 +6,7 @@
-> > > >  
-> > > >  #include <linux/types.h>
-> > > >  #include <linux/bitops.h>
-> > > > +#include <linux/slab.h>
-> > > >  #include <linux/string.h>
-> > > >  #include <linux/kernel.h>
-> > > >  
-> > > > @@ -104,6 +105,21 @@
-> > > >   * contain all bit positions from 0 to 'bits' - 1.
-> > > >   */
-> > > >  
-> > > > +static inline unsigned long *bitmap_alloc(unsigned int nbits, gfp_t
-> > > > flags)
-> > > > +{
-> > > > +	return kmalloc_array(BITS_TO_LONGS(nbits), sizeof(unsigned
-> > > > long), flags);
-> > > > +}
-> > > > +
-> > > > +static inline unsigned long *bitmap_zalloc(unsigned int nbits,
-> > > > gfp_t flags)
-> > > > +{
-> > > > +	return kcalloc(BITS_TO_LONGS(nbits), sizeof(unsigned long),
-> > > > flags);
-> > > 
-> > > 	retrun bitmap_alloc(nbits, flags | __GFP_ZERO);
-> > > 
-> > > ?
-> > 
-> > I though about this, but decide not to rely on linux/gfp.h.
-> > If you think explicit __GFP_ZERO is better, I can replace in v2, or if
-> 
-> I like it ;) and we already do it for kcalloc done via kmalloc_array
-> with __GFP_ZERO or kzalloc (kmalloc with __GFP_ZERO).
-> 
-> > you have a chance to do that when applying it would be appreciated.
-> 
-> Yeah, I can do that, no problem.
+> Up to you but it is hard to detect for users. If just sometimes there
+> are stray clicks...
 
-Ugh, there is circular dependency:
+fwiw, from my POV, if you give me MT_TOOL_PALM in the same frame as the
+ABS_MT_TRACKING_ID -1 I can work that into libinput to do the right thing.
+Not 100% whether that already works anyway but probably not. I'd prefer it
+being fixed in the kernel though, less work for me :)
 
-  CC      arch/x86/kernel/asm-offsets.s
-In file included from ./include/linux/cpumask.h:12:0,
-                 from ./arch/x86/include/asm/cpumask.h:5,
-                 from ./arch/x86/include/asm/msr.h:11,
-                 from ./arch/x86/include/asm/processor.h:21,
-                 from ./arch/x86/include/asm/cpufeature.h:5,
-                 from ./arch/x86/include/asm/thread_info.h:53,
-                 from ./include/linux/thread_info.h:38,
-                 from ./arch/x86/include/asm/preempt.h:7,
-                 from ./include/linux/preempt.h:81,
-                 from ./include/linux/spinlock.h:51,
-                 from ./include/linux/mmzone.h:8,
-                 from ./include/linux/gfp.h:6,
-                 from ./include/linux/slab.h:15,
-                 from ./include/linux/crypto.h:24,
-                 from arch/x86/kernel/asm-offsets.c:9:
-./include/linux/bitmap.h: In function ‘bitmap_alloc’:
-./include/linux/bitmap.h:110:9: error: implicit declaration of function ‘kmalloc_array’ [-Werror=implicit-function-declaration]
-  return kmalloc_array(BITS_TO_LONGS(nbits), sizeof(unsigned long), flags);
-         ^~~~~~~~~~~~~
-./include/linux/bitmap.h:110:9: warning: return makes pointer from integer without a cast [-Wint-conversion]
-  return kmalloc_array(BITS_TO_LONGS(nbits), sizeof(unsigned long), flags);
-         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-So we have slab.h ... -> cpumask.h -> bitmap.h -> slab.h -> BOOM
-
-We will probably have to move implementation into lib/bitmap.h. I think
-that should be OK. Can you make the change?
-
-Thanks.
-
--- 
-Dmitry
+Cheers,
+   Peter

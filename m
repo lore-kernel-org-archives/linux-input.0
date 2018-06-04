@@ -1,122 +1,129 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
  non-confident touches
-Date: Mon, 4 Jun 2018 22:59:16 +0200
-Message-ID: <CAO-hwJK3h8xjuO=GQRT0prdbXURCTinkQg4i7N8ScPOig1KTYw@mail.gmail.com>
+Date: Mon, 4 Jun 2018 14:19:44 -0700
+Message-ID: <20180604211944.GE164893@dtor-ws>
 References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
  <CAO-hwJJ8E4mQqu0RYaZrmawud4wbSVE4GHEvg7oxUzEc-B5nvQ@mail.gmail.com>
- <20180601184330.GD222005@dtor-ws> <72b7120a-d304-0b2f-d04a-473631623f72@bitmath.org>
- <CAO-hwJKibKvqviLZ5SSYR_X3yLTzJrr0G4d6svM3FtgJ6AfvQQ@mail.gmail.com>
- <20180604172759.GA164893@dtor-ws> <994e5698-fbdf-05c8-b0b6-3df6af1b3dbc@bitmath.org>
- <20180604182658.GC164893@dtor-ws>
+ <20180601184330.GD222005@dtor-ws>
+ <CAO-hwJJPGJzgX+7H1nnpd=OkLZu0q0TuKhvroJ1K3jtnv7t6dg@mail.gmail.com>
+ <20180604173339.GB164893@dtor-ws>
+ <CAO-hwJ+nzC=i1Jv_yu4vLL6Quw=850HJkOZBKCjFaZaw0-GWOQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180604182658.GC164893@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJ+nzC=i1Jv_yu4vLL6Quw=850HJkOZBKCjFaZaw0-GWOQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Jiri Kosina <jikos@kernel.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 4, 2018 at 8:26 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Jun 04, 2018 at 07:55:57PM +0200, Henrik Rydberg wrote:
->> Hi Dmitry,
->>
->> > > > Logically, the confidence state is a property of a contact, not a new type
->> > > > of contact. Trying to use it in any other way is bound to lead to confusion.
->> > > >
->> > > > Problem is that MT_TOOL_PALM has been introduced in the kernel since
->> > > > v4.0 (late 2015 by a736775db683 "Input: add MT_TOOL_PALM").
->> > > > It's been used in the Synaptics RMI4 driver since and by hid-asus in late 2016.
->> > > > I can't find any other users in the current upstream tree, but those
->> > > > two are already making a precedent and changing the semantic is a
->> > > > little bit late :/
->> > I am sorry I did not respond and lost track of this issue back then, but
->> > I disagree with Henrik here. While confidence is a property of contact,
->> > so is the type of contact and it can and will change throughout life of
->> > a contact, especially if we will continue adding new types, such as, for
->> > example, thumb. In this case the firmware can transition through
->> > finger->thumb or finger->thumb->palm or finger->palm as the nature of
->> > contact becomes better understood. Still it is the same contact and we
->> > should not attempt to signal userspace differently.
->> We agree that the contact should stay the same, but the fear, and I think
->> somewhere along the blurry history of this thread, the problem was that
->> userspace interpreted the property change as a new contact (lift up/double
->> click/etc). Finger/thumb/palm is one set of hand properties, but what about
->> Pen? It would be hard for an application to consider a switch from finger to
->> pen as the same contact, which is where the natural implementation starts to
->> diverge from the intention.
->
-> I think the userspace has to trust our tracking ID to decide whether it
-> is a same contact or not. The current issue is that kernel is forcing
-> tracking ID change on tool type change, and one of the 2 patches that I
-> posted fixed that, allowing us to keep the tracking ID for finger->palm
-> transitions.
+On Mon, Jun 04, 2018 at 10:42:31PM +0200, Benjamin Tissoires wrote:
+> On Mon, Jun 4, 2018 at 7:33 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Mon, Jun 04, 2018 at 03:18:12PM +0200, Benjamin Tissoires wrote:
+> >> On Fri, Jun 1, 2018 at 8:43 PM, Dmitry Torokhov
+> >> <dmitry.torokhov@gmail.com> wrote:
+> >> > On Fri, Jun 01, 2018 at 04:16:09PM +0200, Benjamin Tissoires wrote:
+> >> >> On Fri, Aug 11, 2017 at 2:44 AM, Dmitry Torokhov
+> >> >> <dmitry.torokhov@gmail.com> wrote:
+> >> >> > According to Microsoft specification [1] for Precision Touchpads (and
+> >> >> > Touchscreens) the devices use "confidence" reports to signal accidental
+> >> >> > touches, or contacts that are "too large to be a finger". Instead of
+> >> >> > simply marking contact inactive in this case (which causes issues if
+> >> >> > contact was originally proper and we lost confidence in it later, as
+> >> >> > this results in accidental clicks, drags, etc), let's report such
+> >> >> > contacts as MT_TOOL_PALM and let userspace decide what to do.
+> >> >> > Additionally, let's report contact size for such touches as maximum
+> >> >> > allowed for major/minor, which should help userspace that is not yet
+> >> >> > aware of MT_TOOL_PALM to still perform palm rejection.
+> >> >> >
+> >> >> > An additional complication, is that some firmwares do not report
+> >> >> > non-confident touches as active. To cope with this we delay release of
+> >> >> > such contact (i.e. if contact was active we first report it as still
+> >> >> > active MT+TOOL_PALM and then synthesize the release event in a separate
+> >> >> > frame).
+> >> >>
+> >> >> I am not sure I agree with this part. The spec says that "Once a
+> >> >> device has determined that a contact is unintentional, it should clear
+> >> >> the confidence bit for that contact report and all subsequent
+> >> >> reports."
+> >> >> So in theory the spec says that if a touch has been detected as a
+> >> >> palm, the flow of events should not stop (tested on the PTP of the
+> >> >> Dell XPS 9360).
+> >> >>
+> >> >> However, I interpret a firmware that send (confidence 1, tip switch 1)
+> >> >> and then (confidence 0, tip switch 0) a simple release, and the
+> >> >> confidence bit should not be relayed.
+> >> >
+> >> > This unfortunately leads to false clicks: you start with finger, so
+> >> > confidence is 1, then you transition the same touch to palm (use your
+> >> > thumb and "roll" your hand until heel of it comes into contact with the
+> >> > screen). The firmware reports "no-confidence" and "release" in the same
+> >> > report and userspace seeing release does not pay attention to confidence
+> >> > (i.e. it does exactly "simple release" logic) and this results in UI
+> >> > interpreting this as a click. With splitting no-confidence
+> >> > (MT_TOOL_PALM) and release event into separate frames we help userspace
+> >> > to recognize that the contact should be discarded.
+> >>
+> >> After further thoughts, I would consider this to be a firmware bug,
+> >> and not how the firmware is supposed to be reporting palm.
+> >> For the precision touchpads, the spec says that the device "should
+> >> clear the confidence bit for that contact report and all subsequent
+> >> reports.". And it is how the Dell device I have here reports palms.
+> >> The firmware is not supposed to cut the event stream.
+> >>
+> >> There is a test for that:
+> >> https://docs.microsoft.com/en-us/previous-versions/windows/hardware/hck/dn456905%28v%3dvs.85%29
+> >> which tells me that I am right here for PTP.
+> >>
+> >> The touchscreen spec is blurrier however.
+> >
+> > OK, that is great to know.
+> >
+> >>
+> >> >
+> >> >>
+> >> >> Do you have any precise example of reports where you need that feature?
+> >> >
+> >> > It was observed on Pixelbooks which use Wacom digitizers IIRC.
+> >>
+> >> Pixelbooks + Wacom means that it was likely a touchscreen. I am right
+> >> guessing the device did not went through Microsoft certification
+> >> process?
+> >
+> > That would be correct ;) At least the firmware that is shipping with
+> > Pixlebooks hasn't, I do now if anyone else sourced these Wacom parts for
+> > their MSWin devices.
+> >
+> >>
+> >> I am in favor of splitting the patch in 2. One for the generic
+> >> processing of confidence bit, and one for this spurious release. For
+> >> the spurious release, I'm more in favor of explicitly quirking the
+> >> devices in need of such quirk.
+> >
+> > Hmm, I am not sure about having specific quirk. It will be hard for
+> > users to accurately diagnose the issue if firmware is broken in this way
+> > so we could add a new quirk for a new device.
+> 
+> One thing we can do is keep the quirked mechanism as default in
+> hid-multitouch, but remove it in hid-core. If people need the quirk,
+> they can just use hid-multitouch instead (talking about the long run
+> here).
 
-I think I missed those 2 patches, can you point a LKML link?
-Also, note that libevdev discards the tracking ID change now (it
-shouts at the user in the logs). So that means that it will now be
-hard to force libevdev to trust the kernel again for the tracking ID.
-The current rule is:
-- tracking ID >= 0 -> new touch
-- any subsequent tracking ID >= 0 -> discarded
-- tracking ID == -1 -> end of touch
+Hmm, I am confused. My patch did not touch hid-core or hid-input, only
+hid-multitouch... So we are already doing what you are proposing?..
 
->
-> I think it is kernel task to not signal transitions that do not make
-> sense, such as finger->pen or palm->pen etc.
+> 
+> However, I really believe this might only be required for a handful of
+> devices, and probably only touchscreens. So I would be tempted to not
+> make it default and see how many bug reports we have.
 
-I fully agree, though there is currently no such guard in the kernel
-(maybe it's part of your series). I am worried about the RMI4 F12
-driver that automatically forward the info from the firmware, so if
-the firmware does something crazy, it will be exported to user space.
-But I guess it might be better to treat that on a per driver basis.
+Up to you but it is hard to detect for users. If just sometimes there
+are stray clicks...
 
->
->>
->> > We could introduce the ABS_MT_CONFIDENCE (0/1 or even 0..n range), to
->> > complement ABS_MT_TOOL, but that would not really solve the issue with
->> > Wacom firmware (declaring contact non-confident and releasing it right
->> > away) and given MS explanation of the confidence as "contact is too big"
->> > MT_TOOL_PALM fits it perfectly.
->> Indeed, the Wacom firmware seems to need some special handling, which should
->> be fine by everyone. I do think it would make sense to add
->> ABS_MT_TOOL_TOO_BIG, or something, and use it if it exists. This would apply
+Thanks.
 
-Except we are already running out of ABS_* axes.
-
->> also to a pen lying down on a touchpad, for instance.
->
-> OK, I can see that for Pens, if we have firmware that would recognize
-> such condition, it would be weird to report PALM. We could indeed have
-> ABS_MT_TOOL_TOO_BIG, but on the other hand it is still a pen (as long as
-> the hardware can recognize it as such). Maybe we'd be better off just
-> having userspace going by contact size for pens. Peter, any suggestions
-> here?
-
-I don't think we have size handling in the tablet implementation in
-libinput. I do not see it as a big issue to add such axes from a
-libinput point of view. However, there is no existing hardware that
-would provide such information, so I guess this will be a 'no' until
-actual hardware comes in.
-
-Also note that the MT_TOOL_PEN implementation is limited (even
-non-existant if I remember correctly). Peter and I do not have access
-to any device that support such multi pen, so AFAICT, there is no code
-to handle this in libinput.
-
-One last point from libinput, the pen device would need to be on its
-separate kernel node for the protocol to be smoothly handled. So
-basically, even the transition from MT_TOOL_FINGER to MT_TOOL_PEN
-would not be handled properly right now. The Pen event will be treated
-as a touch.
-
-Cheers,
-Benjamin
-
->
-> Thanks.
->
-> --
-> Dmitry
+-- 
+Dmitry

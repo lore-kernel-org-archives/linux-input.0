@@ -1,51 +1,100 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input
- clock
-Date: Mon, 4 Jun 2018 08:39:46 +0100
-Message-ID: <20180604073946.GI25455@dell>
-References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 1/3] bitmap: Add bitmap_alloc(), bitmap_zalloc() and
+ bitmap_free()
+Date: Mon, 04 Jun 2018 12:59:54 +0300
+Message-ID: <cfe3fa909edd73ba84dd367a11a570866647a3f4.camel@linux.intel.com>
+References: <20180601083120.40352-1-andriy.shevchenko@linux.intel.com>
+         <20180601183343.GA222005@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+In-Reply-To: <20180601183343.GA222005@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jeffy Chen <jeffy.chen@rock-chips.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 18 May 2018, Jarkko Nikula wrote:
+On Fri, 2018-06-01 at 11:33 -0700, Dmitry Torokhov wrote:
+> Hi Andy,
+> 
+> On Fri, Jun 01, 2018 at 11:31:18AM +0300, Andy Shevchenko wrote:
+> > A lot of code become ugly because of open coding allocations for
+> > bitmaps.
+> > 
+> > Introduce three helpers to allow users be more clear of intention
+> > and keep their code neat.
+> > 
+> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> 
+> This looks nice and I like how it simplifies drivers.
 
-> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
-> than Sunrisepoint which uses 120 MHz. Preliminary information was that
-> both share the same clock rate but actual silicon implements elevated
-> rate for better support for 3.4 MHz high-speed I2C.
-> 
-> This incorrect input clock rate results too high I2C bus clock in case
-> ACPI doesn't provide tuned I2C timing parameters since I2C host
-> controller driver calculates them from input clock rate.
-> 
-> Fix this by using the correct rate. We still share the same 230 ns SDA
-> hold time value than Sunrisepoint.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
-> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
-> Reported-by: Chris Chiu <chiu@endlessm.com>
-> Reported-by: Daniel Drake <drake@endlessm.com>
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
-> touchpad issue?
-> ---
->  drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
->  1 file changed, 15 insertions(+), 10 deletions(-)
+Thanks!
 
-Applied, thanks.
+>  How do we merge
+> this? 
+
+I suppose through 'input' tree if there is no objections.
+
+> > ---
+> >  include/linux/bitmap.h | 16 ++++++++++++++++
+> >  1 file changed, 16 insertions(+)
+> > 
+> > diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+> > index 1ee46f492267..845822425393 100644
+> > --- a/include/linux/bitmap.h
+> > +++ b/include/linux/bitmap.h
+> > @@ -6,6 +6,7 @@
+> >  
+> >  #include <linux/types.h>
+> >  #include <linux/bitops.h>
+> > +#include <linux/slab.h>
+> >  #include <linux/string.h>
+> >  #include <linux/kernel.h>
+> >  
+> > @@ -104,6 +105,21 @@
+> >   * contain all bit positions from 0 to 'bits' - 1.
+> >   */
+> >  
+> > +static inline unsigned long *bitmap_alloc(unsigned int nbits, gfp_t
+> > flags)
+> > +{
+> > +	return kmalloc_array(BITS_TO_LONGS(nbits), sizeof(unsigned
+> > long), flags);
+> > +}
+> > +
+> > +static inline unsigned long *bitmap_zalloc(unsigned int nbits,
+> > gfp_t flags)
+> > +{
+> > +	return kcalloc(BITS_TO_LONGS(nbits), sizeof(unsigned long),
+> > flags);
+> 
+> 	retrun bitmap_alloc(nbits, flags | __GFP_ZERO);
+> 
+> ?
+
+I though about this, but decide not to rely on linux/gfp.h.
+If you think explicit __GFP_ZERO is better, I can replace in v2, or if
+you have a chance to do that when applying it would be appreciated.
+
+> 
+> > +}
+> > +
+> > +static inline void bitmap_free(const unsigned long *bitmap)
+> > +{
+> > +	kfree(bitmap);
+> > +}
+> > +
+> >  /*
+> >   * lib/bitmap.c provides these functions:
+> >   */
+> > -- 
+> > 2.17.0
+> > 
+> 
+> Thanks.
+> 
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

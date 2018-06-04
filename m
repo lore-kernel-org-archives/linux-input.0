@@ -1,128 +1,145 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: [PATCH] HID: core: allow concurrent registration of drivers
-Date: Mon, 4 Jun 2018 20:37:30 +0000
-Message-ID: <4635b69c79704cc3beee5f97d9e739f2@ausx13mpc120.AMER.DELL.COM>
-References: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
+ non-confident touches
+Date: Mon, 4 Jun 2018 22:42:31 +0200
+Message-ID: <CAO-hwJ+nzC=i1Jv_yu4vLL6Quw=850HJkOZBKCjFaZaw0-GWOQ@mail.gmail.com>
+References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
+ <CAO-hwJJ8E4mQqu0RYaZrmawud4wbSVE4GHEvg7oxUzEc-B5nvQ@mail.gmail.com>
+ <20180601184330.GD222005@dtor-ws> <CAO-hwJJPGJzgX+7H1nnpd=OkLZu0q0TuKhvroJ1K3jtnv7t6dg@mail.gmail.com>
+ <20180604173339.GB164893@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
-Content-Language: en-US
+In-Reply-To: <20180604173339.GB164893@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: benjamin.tissoires@redhat.com, jikos@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Benjamin,
+On Mon, Jun 4, 2018 at 7:33 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, Jun 04, 2018 at 03:18:12PM +0200, Benjamin Tissoires wrote:
+>> On Fri, Jun 1, 2018 at 8:43 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>> > On Fri, Jun 01, 2018 at 04:16:09PM +0200, Benjamin Tissoires wrote:
+>> >> On Fri, Aug 11, 2017 at 2:44 AM, Dmitry Torokhov
+>> >> <dmitry.torokhov@gmail.com> wrote:
+>> >> > According to Microsoft specification [1] for Precision Touchpads (and
+>> >> > Touchscreens) the devices use "confidence" reports to signal accidental
+>> >> > touches, or contacts that are "too large to be a finger". Instead of
+>> >> > simply marking contact inactive in this case (which causes issues if
+>> >> > contact was originally proper and we lost confidence in it later, as
+>> >> > this results in accidental clicks, drags, etc), let's report such
+>> >> > contacts as MT_TOOL_PALM and let userspace decide what to do.
+>> >> > Additionally, let's report contact size for such touches as maximum
+>> >> > allowed for major/minor, which should help userspace that is not yet
+>> >> > aware of MT_TOOL_PALM to still perform palm rejection.
+>> >> >
+>> >> > An additional complication, is that some firmwares do not report
+>> >> > non-confident touches as active. To cope with this we delay release of
+>> >> > such contact (i.e. if contact was active we first report it as still
+>> >> > active MT+TOOL_PALM and then synthesize the release event in a separate
+>> >> > frame).
+>> >>
+>> >> I am not sure I agree with this part. The spec says that "Once a
+>> >> device has determined that a contact is unintentional, it should clear
+>> >> the confidence bit for that contact report and all subsequent
+>> >> reports."
+>> >> So in theory the spec says that if a touch has been detected as a
+>> >> palm, the flow of events should not stop (tested on the PTP of the
+>> >> Dell XPS 9360).
+>> >>
+>> >> However, I interpret a firmware that send (confidence 1, tip switch 1)
+>> >> and then (confidence 0, tip switch 0) a simple release, and the
+>> >> confidence bit should not be relayed.
+>> >
+>> > This unfortunately leads to false clicks: you start with finger, so
+>> > confidence is 1, then you transition the same touch to palm (use your
+>> > thumb and "roll" your hand until heel of it comes into contact with the
+>> > screen). The firmware reports "no-confidence" and "release" in the same
+>> > report and userspace seeing release does not pay attention to confidence
+>> > (i.e. it does exactly "simple release" logic) and this results in UI
+>> > interpreting this as a click. With splitting no-confidence
+>> > (MT_TOOL_PALM) and release event into separate frames we help userspace
+>> > to recognize that the contact should be discarded.
+>>
+>> After further thoughts, I would consider this to be a firmware bug,
+>> and not how the firmware is supposed to be reporting palm.
+>> For the precision touchpads, the spec says that the device "should
+>> clear the confidence bit for that contact report and all subsequent
+>> reports.". And it is how the Dell device I have here reports palms.
+>> The firmware is not supposed to cut the event stream.
+>>
+>> There is a test for that:
+>> https://docs.microsoft.com/en-us/previous-versions/windows/hardware/hck/dn456905%28v%3dvs.85%29
+>> which tells me that I am right here for PTP.
+>>
+>> The touchscreen spec is blurrier however.
+>
+> OK, that is great to know.
+>
+>>
+>> >
+>> >>
+>> >> Do you have any precise example of reports where you need that feature?
+>> >
+>> > It was observed on Pixelbooks which use Wacom digitizers IIRC.
+>>
+>> Pixelbooks + Wacom means that it was likely a touchscreen. I am right
+>> guessing the device did not went through Microsoft certification
+>> process?
+>
+> That would be correct ;) At least the firmware that is shipping with
+> Pixlebooks hasn't, I do now if anyone else sourced these Wacom parts for
+> their MSWin devices.
+>
+>>
+>> I am in favor of splitting the patch in 2. One for the generic
+>> processing of confidence bit, and one for this spurious release. For
+>> the spurious release, I'm more in favor of explicitly quirking the
+>> devices in need of such quirk.
+>
+> Hmm, I am not sure about having specific quirk. It will be hard for
+> users to accurately diagnose the issue if firmware is broken in this way
+> so we could add a new quirk for a new device.
 
-I had to make a minor change since I didn't see
->  #define HID_STAT_DUP_DETECTED	BIT(2)
-In Linus's tree.
+One thing we can do is keep the quirked mechanism as default in
+hid-multitouch, but remove it in hid-core. If people need the quirk,
+they can just use hid-multitouch instead (talking about the long run
+here).
 
-I tested with master today though and it seems to be working now with your =
-patch across
-several boot attempts.
+However, I really believe this might only be required for a handful of
+devices, and probably only touchscreens. So I would be tempted to not
+make it default and see how many bug reports we have.
 
-Tested-by: Mario Limonciello <mario.limonciello@dell.com>
+>
+>>
+>> If you agree, I'll rebase your patch on top of my series as rebasing
+>> my series on top of yours will take more effort.
+>
+> That would be great.
 
-Thanks,
+\o/
 
-> -----Original Message-----
-> From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
-> Sent: Thursday, May 31, 2018 6:49 AM
-> To: Jiri Kosina; Limonciello, Mario
-> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Benjamin T=
-issoires
-> Subject: [PATCH] HID: core: allow concurrent registration of drivers
->=20
-> Detected on the Dell XPS 9365.
-> The laptop has 2 devices that benefit from the hid-generic auto-unbinding=
-.
-> When those 2 devices are presented to the userspace, udev loads both
-> wacom and hid-multitouch. When this happens, the code in
-> __hid_bus_reprobe_drivers() is called concurrently and the second device
-> gets reprobed twice.
-> An other bug in the power_supply subsystem prevent to remove the wacom
-> driver if it just finished its initialization, which basically kills
-> the wacom node.
->=20
-> Fixes c17a7476e4c4 ("HID: core: rewrite the hid-generic automatic unbind"=
-)
->=20
-> Cc: stable@vger.kernel.org # v4.17
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->=20
-> Hi Mario,
->=20
-> can you please test this on your faulty XPS?
-> I think it'll fix the issue, but I can not reproduce, so better wait for
-> your confirmation.
->=20
-> Jiri, ideally I would love to see this in v4.17 final, but Mario seems
-> to be on PTO until next week. I guess we'll just push this in v4.17.1
-> then. Also, if you can double check that it makes sense, that would be
-> nice :)
->=20
-> Cheers,
-> Benjamin
->=20
->  drivers/hid/hid-core.c | 5 ++++-
->  include/linux/hid.h    | 3 ++-
->  2 files changed, 6 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 2f7367b1de00..7afed0c0f9e5 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1960,6 +1960,8 @@ static int hid_device_probe(struct device *dev)
->  	}
->  	hdev->io_started =3D false;
->=20
-> +	clear_bit(ffs(HID_STAT_REPROBED), &hdev->status);
-> +
->  	if (!hdev->driver) {
->  		id =3D hid_match_device(hdev, hdrv);
->  		if (id =3D=3D NULL) {
-> @@ -2223,7 +2225,8 @@ static int __hid_bus_reprobe_drivers(struct device =
-*dev,
-> void *data)
->  	struct hid_device *hdev =3D to_hid_device(dev);
->=20
->  	if (hdev->driver =3D=3D hdrv &&
-> -	    !hdrv->match(hdev, hid_ignore_special_drivers))
-> +	    !hdrv->match(hdev, hid_ignore_special_drivers) &&
-> +	    !test_and_set_bit(ffs(HID_STAT_REPROBED), &hdev->status))
->  		return device_reprobe(dev);
->=20
->  	return 0;
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index ee2510019033..aee281522c6d 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -517,6 +517,7 @@ struct hid_output_fifo {
->  #define HID_STAT_ADDED		BIT(0)
->  #define HID_STAT_PARSED		BIT(1)
->  #define HID_STAT_DUP_DETECTED	BIT(2)
-> +#define HID_STAT_REPROBED	BIT(3)
->=20
->  struct hid_input {
->  	struct list_head list;
-> @@ -585,7 +586,7 @@ struct hid_device {
-> 		/* device report descriptor */
->  	bool battery_avoid_query;
->  #endif
->=20
-> -	unsigned int status;						/* see
-> STAT flags above */
-> +	unsigned long status;						/* see
-> STAT flags above */
->  	unsigned claimed;						/*
-> Claimed by hidinput, hiddev? */
->  	unsigned quirks;						/* Various
-> quirks the device can pull on us */
->  	bool io_started;						/* If IO has started
-> */
+Cheers,
+Benjamin
+
+>
+>>
+>> I am trying to be cautious in the generic path because I want to merge
+>> the cleanest multitouch implementation in hid-core/hid-input, and
+>> leave all the quirks in hid-multitouch for the devices in need.
+>>
+>> Cheers,
+>> Benjamin
+>>
+>> >
+>> > Thanks.
+>> >
+>> > --
+>> > Dmitry
+>
+> Thanks.
+>
 > --
-> 2.14.3
+> Dmitry

@@ -1,69 +1,57 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH V2] i8042: Increment wakeup_count for the respective port.
-Date: Tue, 5 Jun 2018 11:14:07 +0200
-Message-ID: <CAJZ5v0iu23LqdKUJA5OQGF3Yqq3=k+nfNUVn-LFpYgkDrgokCg@mail.gmail.com>
-References: <20180601180053.120202-1-ravisadineni@chromium.org>
- <20180602010708.152025-1-ravisadineni@chromium.org> <20180604215339.GG164893@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH 6/9] Input: cros_ec_keyb - Switch to SPDX identifier.
+Date: Tue,  5 Jun 2018 11:22:06 +0200
+Message-ID: <20180605092209.22887-7-enric.balletbo@collabora.com>
+References: <20180605092209.22887-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180604215339.GG164893@dtor-ws>
+In-Reply-To: <20180605092209.22887-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ravi Chandra Sadineni <ravisadineni@chromium.org>, "Rafael J. Wysocki" <rafael@kernel.org>, chenhong3@huawei.com, Ravi Chandra Sadineni <ravisadineni@google.com>, Dmitry Torokhov <dtor@google.com>, Todd Broch <tbroch@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Rajat Jain <rajatja@google.com>, Benson Leung <bleung@google.com>
+To: linux-kernel@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 4, 2018 at 11:53 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Fri, Jun 01, 2018 at 06:07:08PM -0700, Ravi Chandra Sadineni wrote:
->> Call pm_wakeup_event on every irq. This should help us in identifying if
->> keyboard was a potential wake reason for the last resume.
->>
->> Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
->> ---
->> V2: Increment the wakeup count only when there is a irq and not when the
->> method is called internally.
->>
->> drivers/input/serio/i8042.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
->> index 824f4c1c1f310..2bd6f2633e29a 100644
->> --- a/drivers/input/serio/i8042.c
->> +++ b/drivers/input/serio/i8042.c
->> @@ -573,6 +573,9 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
->>       port = &i8042_ports[port_no];
->>       serio = port->exists ? port->serio : NULL;
->>
->> +     if (irq && serio && device_may_wakeup(&serio->dev))
->> +             pm_wakeup_event(&serio->dev, 0);
->
-> The constant checks for device_may_wakeup() before calling
-> pm_wakeup_event()needed to avoid warnings in wakeup_source_activate()
-> (?) are annoying.
+Adopt the SPDX license identifier headers to ease license compliance
+management.
 
-I'm not following you here.
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
 
-pm_wakeup_event() ->
-    pm_wakeup_dev_event() ->
-        pm_wakeup_ws_event(dev->power.wakeup, ...)
-            Checks if the first arg is NULL and returns quietly if so.
+ drivers/input/keyboard/cros_ec_keyb.c | 26 ++++----------------------
+ 1 file changed, 4 insertions(+), 22 deletions(-)
 
-I don't see why you need the device_may_wakeup() check.
-
-> Rafael, can we move the check into pm_wakeup_dev_event()?
-
-That would be redundant, wouldn't it?
-
-> I am also confused when pm_wakeup_event() vs pm_wakeup_hard_event() vs
-> pm_wakeup_dev_event() should be used, if any. Is there any guidance?
-
-First off, the "hard" variant is for when you want to abort suspends
-in progress or wake up from suspend to idle regardless of whether or
-not wakeup source tracking is enabled.
-
-Second, use pm_wakeup_dev_event() if the decision on "hard" vs "soft"
-needs to be made at run time.
-
-Thanks,
-Rafael
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 79eb29550c34..342513ec0ede 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -1,25 +1,7 @@
+-/*
+- * ChromeOS EC keyboard driver
+- *
+- * Copyright (C) 2012 Google, Inc
+- *
+- * This software is licensed under the terms of the GNU General Public
+- * License version 2, as published by the Free Software Foundation, and
+- * may be copied, distributed, and modified under those terms.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * This driver uses the Chrome OS EC byte-level message-based protocol for
+- * communicating the keyboard state (which keys are pressed) from a keyboard EC
+- * to the AP over some bus (such as i2c, lpc, spi).  The EC does debouncing,
+- * but everything else (including deghosting) is done here.  The main
+- * motivation for this is to keep the EC firmware as simple as possible, since
+- * it cannot be easily upgraded and EC flash/IRAM space is relatively
+- * expensive.
+- */
++// SPDX-License-Identifier: GPL-2.0+
++// ChromeOS EC keyboard driver
++//
++// Copyright (C) 2012 Google, Inc.
+ 
+ #include <linux/module.h>
+ #include <linux/bitops.h>
+-- 
+2.17.1

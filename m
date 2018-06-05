@@ -1,65 +1,143 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH 0/9] croc_ec: Switch to SPDX identifier
-Date: Tue,  5 Jun 2018 11:22:00 +0200
-Message-ID: <20180605092209.22887-1-enric.balletbo@collabora.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
+ non-confident touches
+Date: Tue, 5 Jun 2018 15:50:15 +0200
+Message-ID: <CAO-hwJLzc_bVDLKTExTZLSEYON3zu54Q0COe57xGGQ5AS6OPRw@mail.gmail.com>
+References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
+ <CAO-hwJJ8E4mQqu0RYaZrmawud4wbSVE4GHEvg7oxUzEc-B5nvQ@mail.gmail.com>
+ <20180601184330.GD222005@dtor-ws> <CAO-hwJJPGJzgX+7H1nnpd=OkLZu0q0TuKhvroJ1K3jtnv7t6dg@mail.gmail.com>
+ <20180604173339.GB164893@dtor-ws> <CAO-hwJ+nzC=i1Jv_yu4vLL6Quw=850HJkOZBKCjFaZaw0-GWOQ@mail.gmail.com>
+ <20180604211944.GE164893@dtor-ws> <20180604225539.GA13447@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180604225539.GA13447@jelly>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Tony Luck <tony.luck@intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Paolo Cretaro <paolocretaro@gmail.com>, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>, linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-pwm@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>H
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Dear all,
+On Tue, Jun 5, 2018 at 12:55 AM, Peter Hutterer
+<peter.hutterer@who-t.net> wrote:
+> On Mon, Jun 04, 2018 at 02:19:44PM -0700, Dmitry Torokhov wrote:
+>> On Mon, Jun 04, 2018 at 10:42:31PM +0200, Benjamin Tissoires wrote:
+>> > On Mon, Jun 4, 2018 at 7:33 PM, Dmitry Torokhov
+>> > <dmitry.torokhov@gmail.com> wrote:
+>> > > On Mon, Jun 04, 2018 at 03:18:12PM +0200, Benjamin Tissoires wrote:
+>> > >> On Fri, Jun 1, 2018 at 8:43 PM, Dmitry Torokhov
+>> > >> <dmitry.torokhov@gmail.com> wrote:
+>> > >> > On Fri, Jun 01, 2018 at 04:16:09PM +0200, Benjamin Tissoires wrote:
+>> > >> >> On Fri, Aug 11, 2017 at 2:44 AM, Dmitry Torokhov
+>> > >> >> <dmitry.torokhov@gmail.com> wrote:
+>> > >> >> > According to Microsoft specification [1] for Precision Touchpads (and
+>> > >> >> > Touchscreens) the devices use "confidence" reports to signal accidental
+>> > >> >> > touches, or contacts that are "too large to be a finger". Instead of
+>> > >> >> > simply marking contact inactive in this case (which causes issues if
+>> > >> >> > contact was originally proper and we lost confidence in it later, as
+>> > >> >> > this results in accidental clicks, drags, etc), let's report such
+>> > >> >> > contacts as MT_TOOL_PALM and let userspace decide what to do.
+>> > >> >> > Additionally, let's report contact size for such touches as maximum
+>> > >> >> > allowed for major/minor, which should help userspace that is not yet
+>> > >> >> > aware of MT_TOOL_PALM to still perform palm rejection.
+>> > >> >> >
+>> > >> >> > An additional complication, is that some firmwares do not report
+>> > >> >> > non-confident touches as active. To cope with this we delay release of
+>> > >> >> > such contact (i.e. if contact was active we first report it as still
+>> > >> >> > active MT+TOOL_PALM and then synthesize the release event in a separate
+>> > >> >> > frame).
+>> > >> >>
+>> > >> >> I am not sure I agree with this part. The spec says that "Once a
+>> > >> >> device has determined that a contact is unintentional, it should clear
+>> > >> >> the confidence bit for that contact report and all subsequent
+>> > >> >> reports."
+>> > >> >> So in theory the spec says that if a touch has been detected as a
+>> > >> >> palm, the flow of events should not stop (tested on the PTP of the
+>> > >> >> Dell XPS 9360).
+>> > >> >>
+>> > >> >> However, I interpret a firmware that send (confidence 1, tip switch 1)
+>> > >> >> and then (confidence 0, tip switch 0) a simple release, and the
+>> > >> >> confidence bit should not be relayed.
+>> > >> >
+>> > >> > This unfortunately leads to false clicks: you start with finger, so
+>> > >> > confidence is 1, then you transition the same touch to palm (use your
+>> > >> > thumb and "roll" your hand until heel of it comes into contact with the
+>> > >> > screen). The firmware reports "no-confidence" and "release" in the same
+>> > >> > report and userspace seeing release does not pay attention to confidence
+>> > >> > (i.e. it does exactly "simple release" logic) and this results in UI
+>> > >> > interpreting this as a click. With splitting no-confidence
+>> > >> > (MT_TOOL_PALM) and release event into separate frames we help userspace
+>> > >> > to recognize that the contact should be discarded.
+>> > >>
+>> > >> After further thoughts, I would consider this to be a firmware bug,
+>> > >> and not how the firmware is supposed to be reporting palm.
+>> > >> For the precision touchpads, the spec says that the device "should
+>> > >> clear the confidence bit for that contact report and all subsequent
+>> > >> reports.". And it is how the Dell device I have here reports palms.
+>> > >> The firmware is not supposed to cut the event stream.
+>> > >>
+>> > >> There is a test for that:
+>> > >> https://docs.microsoft.com/en-us/previous-versions/windows/hardware/hck/dn456905%28v%3dvs.85%29
+>> > >> which tells me that I am right here for PTP.
+>> > >>
+>> > >> The touchscreen spec is blurrier however.
+>> > >
+>> > > OK, that is great to know.
+>> > >
+>> > >>
+>> > >> >
+>> > >> >>
+>> > >> >> Do you have any precise example of reports where you need that feature?
+>> > >> >
+>> > >> > It was observed on Pixelbooks which use Wacom digitizers IIRC.
+>> > >>
+>> > >> Pixelbooks + Wacom means that it was likely a touchscreen. I am right
+>> > >> guessing the device did not went through Microsoft certification
+>> > >> process?
+>> > >
+>> > > That would be correct ;) At least the firmware that is shipping with
+>> > > Pixlebooks hasn't, I do now if anyone else sourced these Wacom parts for
+>> > > their MSWin devices.
+>> > >
+>> > >>
+>> > >> I am in favor of splitting the patch in 2. One for the generic
+>> > >> processing of confidence bit, and one for this spurious release. For
+>> > >> the spurious release, I'm more in favor of explicitly quirking the
+>> > >> devices in need of such quirk.
+>> > >
+>> > > Hmm, I am not sure about having specific quirk. It will be hard for
+>> > > users to accurately diagnose the issue if firmware is broken in this way
+>> > > so we could add a new quirk for a new device.
+>> >
+>> > One thing we can do is keep the quirked mechanism as default in
+>> > hid-multitouch, but remove it in hid-core. If people need the quirk,
+>> > they can just use hid-multitouch instead (talking about the long run
+>> > here).
+>>
+>> Hmm, I am confused. My patch did not touch hid-core or hid-input, only
+>> hid-multitouch... So we are already doing what you are proposing?..
+>>
+>> >
+>> > However, I really believe this might only be required for a handful of
+>> > devices, and probably only touchscreens. So I would be tempted to not
+>> > make it default and see how many bug reports we have.
+>>
+>> Up to you but it is hard to detect for users. If just sometimes there
+>> are stray clicks...
+>
+> fwiw, from my POV, if you give me MT_TOOL_PALM in the same frame as the
+> ABS_MT_TRACKING_ID -1 I can work that into libinput to do the right thing.
 
-This patchset is just to adopt the SPDX license identifier for all
-ChromeOS Embedded Controller related drivers. The patches touches
-different subsystems but every patch can be picked from their respective
-maintainer independently.
+This would be a one line change in the kernel, so you got my attention :)
 
-Thanks,
- Enric
+> Not 100% whether that already works anyway but probably not. I'd prefer it
+> being fixed in the kernel though, less work for me :)
 
-Enric Balletbo i Serra (9):
-  platform/chrome: cros_ec: Switch to SPDX identifier.
-  platform/chrome: pstore: Switch to SPDX identifier.
-  mfd: cros_ec: Add or fix SPDX-License-Identifier in all files.
-  iio: cros_ec: Switch to SPDX identifier.
-  rtc: cros-ec: Switch to SPDX identifier.
-  Input: cros_ec_keyb - Switch to SPDX identifier.
-  pwm: cros-ec: Switch to SPDX identifier.
-  extcon: usbc-cros-ec: Switch to SPDX identifier.
-  i2c: i2c-cros-ec-tunnel: Switch to SPDX identifier.
+What do you mean by "fixed"?
+Is it incorrect to send a tool while tracking ID is set to -1?
+>From what I read on multi-touch-protocol.rst this shouldn't be
+violating the protocol, and this would save quite a mess in the kernel
+in which we need to add an artificial event in the queue for the
+release.
 
- drivers/extcon/extcon-usbc-cros-ec.c          | 20 ++++----------
- drivers/i2c/busses/i2c-cros-ec-tunnel.c       | 14 +++-------
- drivers/iio/accel/cros_ec_accel_legacy.c      | 23 ++++------------
- .../common/cros_ec_sensors/cros_ec_sensors.c  | 24 +++++------------
- .../cros_ec_sensors/cros_ec_sensors_core.c    | 18 +++----------
- .../cros_ec_sensors/cros_ec_sensors_core.h    | 12 ++-------
- drivers/iio/light/cros_ec_light_prox.c        | 18 +++----------
- drivers/iio/pressure/cros_ec_baro.c           | 18 +++----------
- drivers/input/keyboard/cros_ec_keyb.c         | 26 +++---------------
- drivers/mfd/cros_ec.c                         | 27 +++++++------------
- drivers/mfd/cros_ec_dev.c                     | 24 +++++------------
- drivers/mfd/cros_ec_dev.h                     | 16 ++---------
- drivers/mfd/cros_ec_i2c.c                     | 19 ++++---------
- drivers/mfd/cros_ec_spi.c                     | 21 +++++----------
- drivers/platform/chrome/chromeos_pstore.c     | 13 +++------
- drivers/platform/chrome/cros_ec_debugfs.c     | 22 +++------------
- drivers/platform/chrome/cros_ec_lightbar.c    | 22 +++------------
- drivers/platform/chrome/cros_ec_lpc.c         | 26 +++---------------
- drivers/platform/chrome/cros_ec_lpc_mec.c     | 26 +++---------------
- drivers/platform/chrome/cros_ec_lpc_reg.c     | 26 +++---------------
- drivers/platform/chrome/cros_ec_proto.c       | 19 +++----------
- drivers/platform/chrome/cros_ec_sysfs.c       | 22 +++------------
- drivers/platform/chrome/cros_ec_vbc.c         | 24 ++++-------------
- .../platform/chrome/cros_kbd_led_backlight.c  | 19 +++----------
- drivers/pwm/pwm-cros-ec.c                     | 13 +++------
- drivers/rtc/rtc-cros-ec.c                     | 21 ++++-----------
- include/linux/mfd/cros_ec.h                   | 10 +------
- include/linux/mfd/cros_ec_commands.h          | 10 +------
- include/linux/mfd/cros_ec_lpc_mec.h           | 12 ++-------
- include/linux/mfd/cros_ec_lpc_reg.h           | 12 ++-------
- 30 files changed, 123 insertions(+), 454 deletions(-)
-
--- 
-2.17.1
+Cheers,
+Benjamin

@@ -1,68 +1,88 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v3 10/12] Input: cros_ec_keyb - Switch to SPDX identifier.
-Date: Wed,  6 Jun 2018 17:08:58 +0200
-Message-ID: <20180606150900.8342-11-enric.balletbo@collabora.com>
-References: <20180606150900.8342-1-enric.balletbo@collabora.com>
+Subject: [PATCH v3 00/12] cros_ec: Match licenses and switch to SPDX identifier.
+Date: Wed,  6 Jun 2018 17:08:48 +0200
+Message-ID: <20180606150900.8342-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180606150900.8342-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Luck <tony.luck@intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Paolo Cretaro <paolocretaro@gmail.com>, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>, linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Colin
 List-Id: linux-input@vger.kernel.org
 
-Adopt the SPDX license identifier headers to ease license compliance
-management.
+Dear all,
 
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
----
+This patchset is just to adopt the SPDX license identifier for all
+ChromeOS Embedded Controller related drivers. The patches touches
+different subsystems but every patch can be picked from their respective
+maintainer independently.
 
-Changes in v3: None
-Changes in v2: None
+This third version takes the license note as the valid license (I did
+the contrary in the second version) so apart from add the SPDX tags it
+also introduces new patches to match the license.
 
- drivers/input/keyboard/cros_ec_keyb.c | 34 ++++++++++-----------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
+Best regards,
+    Enric
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 9dd8c146699f..dd1b356d0004 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -1,25 +1,15 @@
--/*
-- * ChromeOS EC keyboard driver
-- *
-- * Copyright (C) 2012 Google, Inc
-- *
-- * This software is licensed under the terms of the GNU General Public
-- * License version 2, as published by the Free Software Foundation, and
-- * may be copied, distributed, and modified under those terms.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * This driver uses the Chrome OS EC byte-level message-based protocol for
-- * communicating the keyboard state (which keys are pressed) from a keyboard EC
-- * to the AP over some bus (such as i2c, lpc, spi).  The EC does debouncing,
-- * but everything else (including deghosting) is done here.  The main
-- * motivation for this is to keep the EC firmware as simple as possible, since
-- * it cannot be easily upgraded and EC flash/IRAM space is relatively
-- * expensive.
-- */
-+// SPDX-License-Identifier: GPL-2.0
-+// ChromeOS EC keyboard driver
-+//
-+// Copyright (C) 2012 Google, Inc.
-+//
-+// This driver uses the ChromeOS EC byte-level message-based protocol for
-+// communicating the keyboard state (which keys are pressed) from a keyboard EC
-+// to the AP over some bus (such as i2c, lpc, spi).  The EC does debouncing,
-+// but everything else (including deghosting) is done here.  The main
-+// motivation for this is to keep the EC firmware as simple as possible, since
-+// it cannot be easily upgraded and EC flash/IRAM space is relatively
-+// expensive.
- 
- #include <linux/module.h>
- #include <linux/bitops.h>
+Changes in v3:
+- Add new patches to match license text with MODULE_LICENSE (Dmitry)
+- If there is a conflict between the license notice and MODULE_LICENSE
+  go by license notice not MODULE_LICENSE. (Dmitry)
+- Reintroduced again the patch for the rtc-cros-ec driver as license
+  should be GPL v2-only.
+- Removed '[PATCH 7/9] pwm: cros-ec: Switch to SPDX identifier.' as
+  maintainer told me that I don't need to resend.
+
+Changes in v2:
+- Removed '[PATCH 5/9] rtc: cros-ec: Switch to SPDX identifier' from
+  series as it was applied.
+- s/Chrome OS/ChromeOS/
+- [1/9] Fixed wrong copyright year.
+- [6/9] Do not remove last paragraph.
+- [8/9] Fixed wrong copyright year.
+
+Enric Balletbo i Serra (12):
+  platform/chrome: Make license text and module license match.
+  platform/chrome: Switch to SPDX identifier.
+  mfd: cros_ec: Make license text and module license match.
+  mfd: cros_ec: Switch to SPDX identifier.
+  rtc: cros-ec: Make license text and module license match.
+  rtc: cros-ec: Switch to SPDX identifier.
+  extcon: usbc-cros-ec: Make license text and module license match.
+  extcon: usbc-cros-ec: Switch to SPDX identifier.
+  Input: cros_ec_keyb - Make license text and module license match.
+  Input: cros_ec_keyb - Switch to SPDX identifier.
+  iio: cros_ec: Switch to SPDX identifier.
+  i2c: i2c-cros-ec-tunnel: Switch to SPDX identifier.
+
+ drivers/extcon/extcon-usbc-cros-ec.c          | 22 ++++--------
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c       | 14 +++-----
+ drivers/iio/accel/cros_ec_accel_legacy.c      | 27 +++++---------
+ .../common/cros_ec_sensors/cros_ec_sensors.c  | 24 ++++---------
+ .../cros_ec_sensors/cros_ec_sensors_core.c    | 18 +++-------
+ .../cros_ec_sensors/cros_ec_sensors_core.h    | 12 ++-----
+ drivers/iio/light/cros_ec_light_prox.c        | 18 +++-------
+ drivers/iio/pressure/cros_ec_baro.c           | 18 +++-------
+ drivers/input/keyboard/cros_ec_keyb.c         | 36 +++++++------------
+ drivers/mfd/cros_ec.c                         | 28 +++++----------
+ drivers/mfd/cros_ec_dev.c                     | 23 +++---------
+ drivers/mfd/cros_ec_dev.h                     | 16 ++-------
+ drivers/mfd/cros_ec_i2c.c                     | 20 +++--------
+ drivers/mfd/cros_ec_spi.c                     | 18 +++-------
+ drivers/platform/chrome/chromeos_pstore.c     | 15 +++-----
+ drivers/platform/chrome/cros_ec_debugfs.c     | 22 +++---------
+ drivers/platform/chrome/cros_ec_lightbar.c    | 22 +++---------
+ drivers/platform/chrome/cros_ec_lpc.c         | 36 +++++++------------
+ drivers/platform/chrome/cros_ec_lpc_mec.c     | 34 +++++++-----------
+ drivers/platform/chrome/cros_ec_lpc_reg.c     | 34 +++++++-----------
+ drivers/platform/chrome/cros_ec_proto.c       | 19 +++-------
+ drivers/platform/chrome/cros_ec_sysfs.c       | 22 +++---------
+ drivers/platform/chrome/cros_ec_vbc.c         | 24 +++----------
+ .../platform/chrome/cros_kbd_led_backlight.c  | 19 +++-------
+ drivers/rtc/rtc-cros-ec.c                     | 23 ++++--------
+ include/linux/mfd/cros_ec.h                   | 10 +-----
+ include/linux/mfd/cros_ec_commands.h          | 10 +-----
+ include/linux/mfd/cros_ec_lpc_mec.h           | 14 ++------
+ include/linux/mfd/cros_ec_lpc_reg.h           | 14 ++------
+ 29 files changed, 159 insertions(+), 453 deletions(-)
+
 -- 
 2.17.1

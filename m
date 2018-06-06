@@ -1,7 +1,7 @@
 From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v3 09/12] Input: cros_ec_keyb - Make license text and module license match.
-Date: Wed,  6 Jun 2018 17:08:57 +0200
-Message-ID: <20180606150900.8342-10-enric.balletbo@collabora.com>
+Subject: [PATCH v3 10/12] Input: cros_ec_keyb - Switch to SPDX identifier.
+Date: Wed,  6 Jun 2018 17:08:58 +0200
+Message-ID: <20180606150900.8342-11-enric.balletbo@collabora.com>
 References: <20180606150900.8342-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180606150900.8342-1-enric.balletbo@collabora.com>
@@ -10,9 +10,8 @@ To: linux-kernel@vger.kernel.org
 Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The license text is specifying "GPLv2" but the MODULE_LICENSE is set to
-GPL which means GNU Public License v2 or later. When MODULE_LICENSE and
-boiler plate does not match, go for boiler plate license.
+Adopt the SPDX license identifier headers to ease license compliance
+management.
 
 Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 ---
@@ -20,20 +19,50 @@ Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Changes in v3: None
 Changes in v2: None
 
- drivers/input/keyboard/cros_ec_keyb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/cros_ec_keyb.c | 34 ++++++++++-----------------
+ 1 file changed, 12 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 79eb29550c34..9dd8c146699f 100644
+index 9dd8c146699f..dd1b356d0004 100644
 --- a/drivers/input/keyboard/cros_ec_keyb.c
 +++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -674,6 +674,6 @@ static struct platform_driver cros_ec_keyb_driver = {
+@@ -1,25 +1,15 @@
+-/*
+- * ChromeOS EC keyboard driver
+- *
+- * Copyright (C) 2012 Google, Inc
+- *
+- * This software is licensed under the terms of the GNU General Public
+- * License version 2, as published by the Free Software Foundation, and
+- * may be copied, distributed, and modified under those terms.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * This driver uses the Chrome OS EC byte-level message-based protocol for
+- * communicating the keyboard state (which keys are pressed) from a keyboard EC
+- * to the AP over some bus (such as i2c, lpc, spi).  The EC does debouncing,
+- * but everything else (including deghosting) is done here.  The main
+- * motivation for this is to keep the EC firmware as simple as possible, since
+- * it cannot be easily upgraded and EC flash/IRAM space is relatively
+- * expensive.
+- */
++// SPDX-License-Identifier: GPL-2.0
++// ChromeOS EC keyboard driver
++//
++// Copyright (C) 2012 Google, Inc.
++//
++// This driver uses the ChromeOS EC byte-level message-based protocol for
++// communicating the keyboard state (which keys are pressed) from a keyboard EC
++// to the AP over some bus (such as i2c, lpc, spi).  The EC does debouncing,
++// but everything else (including deghosting) is done here.  The main
++// motivation for this is to keep the EC firmware as simple as possible, since
++// it cannot be easily upgraded and EC flash/IRAM space is relatively
++// expensive.
  
- module_platform_driver(cros_ec_keyb_driver);
- 
--MODULE_LICENSE("GPL");
-+MODULE_LICENSE("GPL v2");
- MODULE_DESCRIPTION("ChromeOS EC keyboard driver");
- MODULE_ALIAS("platform:cros-ec-keyb");
+ #include <linux/module.h>
+ #include <linux/bitops.h>
 -- 
 2.17.1

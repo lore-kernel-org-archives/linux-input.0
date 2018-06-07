@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 09/13] HID: core: do not upper bound the collection stack
-Date: Thu,  7 Jun 2018 09:54:44 +0200
-Message-ID: <20180607075448.5706-10-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 13/13] HID: multitouch: handle palm for touchscreens
+Date: Thu,  7 Jun 2018 09:54:48 +0200
+Message-ID: <20180607075448.5706-14-benjamin.tissoires@redhat.com>
 References: <20180607075448.5706-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180607075448.5706-1-benjamin.tissoires@redhat.com>
@@ -10,80 +10,127 @@ To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Looks like 4 was sufficient until now. However, the Surface Dial needs
-a stack of 5 and simply fails at probing.
-Dynamically add HID_COLLECTION_STACK_SIZE to the size of the stack if
-we hit the upper bound.
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Checkpatch complains about bare unsigned, so converting those to
-'unsigned int' in struct hid_parser
+Usually, there is no palm rejection for touchscreens. You don't rest
+your palm on the touchscreen while interacting with it.
+However, some wacom devices do so because you can rest your palm while
+interacting with the stylus.
 
+Unfortunately, the spec for touchscreens[1] is less precise than the one
+for touchpads[2]. This leads to a situation where it's 'legitimate'
+for a touchscreen to provide both tipswitch off and confidence off in the
+same report.
+
+Work around that by keeping the slot active for one frame where we report
+MT_TOOL_PALM, and then synthesizing the release event in a separate frame.
+frame
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+[rebased and new commit message]
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
-
-no changes in v2
+changes in v2 (compared to Dmitry's initial submission):
+- extracted from the initial submission in a separate patch
+- rebased on top of my current series
+- add an extra input_mt_sync_frame(input); to release the single touch
+  emulation
 ---
- drivers/hid/hid-core.c | 17 ++++++++++++++---
- include/linux/hid.h    |  9 +++++----
- 2 files changed, 19 insertions(+), 7 deletions(-)
+ drivers/hid/hid-multitouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 51 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index a460ec147aee..7afed0c0f9e5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -128,9 +128,19 @@ static int open_collection(struct hid_parser *parser, unsigned type)
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 9c708aa261ee..3a1c2d80729b 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -118,6 +118,9 @@ struct mt_application {
+ 	int left_button_state;		/* left button state */
+ 	unsigned int mt_flags;		/* flags to pass to input-mt */
  
- 	usage = parser->local.usage[0];
- 
--	if (parser->collection_stack_ptr == HID_COLLECTION_STACK_SIZE) {
--		hid_err(parser->device, "collection stack overflow\n");
--		return -EINVAL;
-+	if (parser->collection_stack_ptr == parser->collection_stack_size) {
-+		unsigned int *collection_stack;
-+		unsigned int new_size = parser->collection_stack_size +
-+					HID_COLLECTION_STACK_SIZE;
++	unsigned long *pending_palm_slots;	/* slots where we reported palm
++						 * and need to release */
 +
-+		collection_stack = krealloc(parser->collection_stack,
-+					    new_size * sizeof(unsigned int),
-+					    GFP_KERNEL);
-+		if (!collection_stack)
-+			return -ENOMEM;
-+
-+		parser->collection_stack = collection_stack;
-+		parser->collection_stack_size = new_size;
- 	}
- 
- 	if (parser->device->maxcollection == parser->device->collection_size) {
-@@ -837,6 +847,7 @@ static int hid_scan_report(struct hid_device *hid)
- 		break;
- 	}
- 
-+	kfree(parser->collection_stack);
- 	vfree(parser);
- 	return 0;
+ 	__u8 num_received;	/* how many contacts we received */
+ 	__u8 num_expected;	/* expected last contact index */
+ 	__u8 buttons_count;	/* number of physical buttons per touchpad */
+@@ -863,6 +866,28 @@ static int mt_compute_slot(struct mt_device *td, struct mt_application *app,
+ 	return input_mt_get_slot_by_key(input, *slot->contactid);
  }
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 2e4498d52a2f..aee281522c6d 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -644,12 +644,13 @@ static inline void hid_set_drvdata(struct hid_device *hdev, void *data)
- struct hid_parser {
- 	struct hid_global     global;
- 	struct hid_global     global_stack[HID_GLOBAL_STACK_SIZE];
--	unsigned              global_stack_ptr;
-+	unsigned int          global_stack_ptr;
- 	struct hid_local      local;
--	unsigned              collection_stack[HID_COLLECTION_STACK_SIZE];
--	unsigned              collection_stack_ptr;
-+	unsigned int         *collection_stack;
-+	unsigned int          collection_stack_ptr;
-+	unsigned int          collection_stack_size;
- 	struct hid_device    *device;
--	unsigned              scan_flags;
-+	unsigned int          scan_flags;
- };
  
- struct hid_class_descriptor {
++static void mt_release_pending_palms(struct mt_device *td,
++				     struct mt_application *app,
++				     struct input_dev *input)
++{
++	int slotnum;
++	bool need_sync = false;
++
++	for_each_set_bit(slotnum, app->pending_palm_slots, td->maxcontacts) {
++		clear_bit(slotnum, app->pending_palm_slots);
++
++		input_mt_slot(input, slotnum);
++		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
++
++		need_sync = true;
++	}
++
++	if (need_sync) {
++		input_mt_sync_frame(input);
++		input_sync(input);
++	}
++}
++
+ /*
+  * this function is called when a whole packet has been received and processed,
+  * so that it can decide what to send to the input layer.
+@@ -876,6 +901,9 @@ static void mt_sync_frame(struct mt_device *td, struct mt_application *app,
+ 	input_mt_sync_frame(input);
+ 	input_event(input, EV_MSC, MSC_TIMESTAMP, app->timestamp);
+ 	input_sync(input);
++
++	mt_release_pending_palms(td, app, input);
++
+ 	app->num_received = 0;
+ 	app->left_button_state = 0;
+ 
+@@ -970,8 +998,23 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 
+ 	if (app->application == HID_GD_SYSTEM_MULTIAXIS)
+ 		tool = MT_TOOL_DIAL;
+-	else if (unlikely(!confidence_state))
++	else if (unlikely(!confidence_state)) {
+ 		tool = MT_TOOL_PALM;
++		if (!active &&
++		    input_mt_is_active(&mt->slots[slotnum])) {
++			/*
++			 * The non-confidence was reported for
++			 * previously valid contact that is also no
++			 * longer valid. We can't simply report
++			 * lift-off as userspace will not be aware
++			 * of non-confidence, so we need to split
++			 * it into 2 events: active MT_TOOL_PALM
++			 * and a separate liftoff.
++			 */
++			active = true;
++			set_bit(slotnum, app->pending_palm_slots);
++		}
++	}
+ 
+ 	input_mt_slot(input, slotnum);
+ 	input_mt_report_slot_state(input, tool, active);
+@@ -1206,6 +1249,13 @@ static int mt_touch_input_configured(struct hid_device *hdev,
+ 	if (td->is_buttonpad)
+ 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+ 
++	app->pending_palm_slots = devm_kcalloc(&hi->input->dev,
++					       BITS_TO_LONGS(td->maxcontacts),
++					       sizeof(long),
++					       GFP_KERNEL);
++	if (!app->pending_palm_slots)
++		return -ENOMEM;
++
+ 	ret = input_mt_init_slots(input, td->maxcontacts, app->mt_flags);
+ 	if (ret)
+ 		return ret;
 -- 
 2.14.3

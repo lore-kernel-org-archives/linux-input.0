@@ -1,38 +1,28 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] Input: goodix - Add "GDIX1002" ACPI HID
-Date: Thu,  7 Jun 2018 11:36:40 +0200
-Message-ID: <20180607093640.8103-1-hdegoede@redhat.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] Input: goodix - Add "GDIX1002" ACPI HID
+Date: Thu, 07 Jun 2018 11:55:22 +0200
+Message-ID: <bf3b59ab09673826005faf87db1df81d30dba209.camel@hadess.net>
+References: <20180607093640.8103-1-hdegoede@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180607093640.8103-1-hdegoede@redhat.com>
 Sender: stable-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, stable@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Some newer devices with a goodix touchscreen use GDIX1002 as ACPI HID
-rather then GDIX1001. These devices work fine with the goodix driver
-as is.
+On Thu, 2018-06-07 at 11:36 +0200, Hans de Goede wrote:
+> Some newer devices with a goodix touchscreen use GDIX1002 as ACPI HID
+> rather then GDIX1001. These devices work fine with the goodix driver
+> as is.
+> 
+> This commit adds the new "GDIX1002" ACPI HID to make the touchscreen
+> work on these devices.
 
-This commit adds the new "GDIX1002" ACPI HID to make the touchscreen
-work on these devices.
+Ethan Lee sent this one about a week ago, along with a fix for the
+joysticks.
 
-Buglink: https://www.reddit.com/r/gpdwin/comments/8lwy8n/gpd_win_2_linux_touchscreen_fix/
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/touchscreen/goodix.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 9736c83dd418..f2d9c2c41885 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -933,6 +933,7 @@ MODULE_DEVICE_TABLE(i2c, goodix_ts_id);
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id goodix_acpi_match[] = {
- 	{ "GDIX1001", 0 },
-+	{ "GDIX1002", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
--- 
-2.17.1
+If you want, you can however follow-up on that patch to remove the i2c
+struct above the acpi match tablet, that'd be appreciated :)

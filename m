@@ -1,57 +1,79 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: google: Add support for whiskers
-Date: Fri, 8 Jun 2018 08:48:57 +0200
-Message-ID: <CAO-hwJ+-h8r2x4ZRRwSEh_=PDphBhJML7v3FXJfjPYD0V4CcSA@mail.gmail.com>
-References: <20180608001450.76836-1-drinkcat@chromium.org>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: Re: [PATCH v3 00/12] cros_ec: Match licenses and switch to SPDX
+ identifier.
+Date: Fri, 8 Jun 2018 10:58:31 +0200
+Message-ID: <aee6f480-28e0-4b9f-0e90-35a2b7a37419@collabora.com>
+References: <20180606150900.8342-1-enric.balletbo@collabora.com>
+ <517d33d8219f22126ec8caaf41072c14b5ebf407.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180608001450.76836-1-drinkcat@chromium.org>
+In-Reply-To: <517d33d8219f22126ec8caaf41072c14b5ebf407.camel@perches.com>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Luck <tony.luck@intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Paolo Cretaro <paolocretaro@gmail.com>, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>, linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Colin
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 8, 2018 at 2:14 AM, Nicolas Boichat <drinkcat@chromium.org> wrote:
-> Another device in the hammer class, with USB id 0x5030.
->
-> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-> ---
+Hi Joe,
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On 06/06/18 17:42, Joe Perches wrote:
+> On Wed, 2018-06-06 at 17:08 +0200, Enric Balletbo i Serra wrote:
+>> Dear all,
+>>
+>> This patchset is just to adopt the SPDX license identifier for all
+>> ChromeOS Embedded Controller related drivers.
+> 
+> This bit is fine,
+> 
+>>  The patches touches
+>> different subsystems but every patch can be picked from their respective
+>> maintainer independently.
+>>
+>> This third version takes the license note as the valid license (I did
+>> the contrary in the second version) so apart from add the SPDX tags it
+>> also introduces new patches to match the license.
+> 
+> But why change any MODULE_LICENSE text?
+> 
 
-Cheers,
-Benjamin
+Because in some cases there is a mismatch between the license note and the
+MODULE_LICENSE text.
 
->  drivers/hid/hid-google-hammer.c | 2 ++
->  drivers/hid/hid-ids.h           | 1 +
->  2 files changed, 3 insertions(+)
->
-> diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-> index 7b8e17b03cb86..6bf4da7ad63a5 100644
-> --- a/drivers/hid/hid-google-hammer.c
-> +++ b/drivers/hid/hid-google-hammer.c
-> @@ -124,6 +124,8 @@ static const struct hid_device_id hammer_devices[] = {
->                      USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
->         { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
->                      USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND) },
-> +       { HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-> +                    USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WHISKERS) },
->         { }
->  };
->  MODULE_DEVICE_TABLE(hid, hammer_devices);
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index a85634fe033f0..c7981ddd87763 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -452,6 +452,7 @@
->  #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE        0x5028
->  #define USB_DEVICE_ID_GOOGLE_STAFF     0x502b
->  #define USB_DEVICE_ID_GOOGLE_WAND      0x502d
-> +#define USB_DEVICE_ID_GOOGLE_WHISKERS  0x5030
->
->  #define USB_VENDOR_ID_GOTOP            0x08f2
->  #define USB_DEVICE_ID_SUPER_Q2         0x007f
-> --
-> 2.18.0.rc1.242.g61856ae69a-goog
->
+According to the documentation setting MODULE_LICENSE("GPL") means GNU Public
+License v2 or later [1], in the cases where the license note tells explicitly
+that is GPL v2 only I think that the MODULE_LICENSE should match and be changed
+to "GPL v2".
+
+[1] https://elixir.bootlin.com/linux/v4.17/source/include/linux/module.h#L172
+
+> There are uses of MODULE_LICENSE("GPL") where
+> the SPDX license identifier is some GPL variant
+> 
+
+Right, but I suppose in such cases is wrong and should be changed too?
+
+> For instance:
+> $ git grep -P --name-only
+> 'MODULE_LICENSE\s*\("GPL"\s*\)\s*;'| \
+>   xargs grep "SPDX-License-
+> Identifier:" | \
+>   cut -f3- -d: | \
+>   sed -r 's@\s*\*/\s*$@@' | \
+>   sort |
+> uniq -c | sort -rn
+>     551  GPL-2.0+
+>     281  GPL-2.0
+>      13  GPL-1.0+
+>     
+>   9  GPL-2.0-only
+>       2  GPL-2.0 OR MIT
+>       1  (GPL-2.0 OR MPL-1.1)
+>    
+>    1  (GPL-2.0+ OR BSD-3-Clause)
+>       1  (GPL-2.0 OR BSD-3-Clause)
+> 
+> And if you were to do this, please do it tree-wide,
+> and ideally via a script
+> 

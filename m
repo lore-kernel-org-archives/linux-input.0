@@ -1,22 +1,45 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: xpad - Add usb-ids for the XBOX360 controller
- built into the GPD win 2
-Date: Thu, 07 Jun 2018 12:22:57 +0200
-Message-ID: <254ed45c204cdfc52df165b33c1b00e23f51107a.camel@hadess.net>
-References: <20180607101517.11630-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180607101517.11630-1-hdegoede@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
+From: Nicolas Boichat <drinkcat@chromium.org>
+Subject: [PATCH] HID: google: Add support for whiskers
+Date: Fri,  8 Jun 2018 08:14:50 +0800
+Message-ID: <20180608001450.76836-1-drinkcat@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2018-06-07 at 12:15 +0200, Hans de Goede wrote:
-> The GPD win 2 x86 portable game computer comes with a builtin XBOX360
-> controller with a vid:pid of 0079:18d4. Add support for this
-> controller.
+Another device in the hammer class, with USB id 0x5030.
 
-Already sent by Ethan last week...
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+---
+ drivers/hid/hid-google-hammer.c | 2 ++
+ drivers/hid/hid-ids.h           | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+index 7b8e17b03cb86..6bf4da7ad63a5 100644
+--- a/drivers/hid/hid-google-hammer.c
++++ b/drivers/hid/hid-google-hammer.c
+@@ -124,6 +124,8 @@ static const struct hid_device_id hammer_devices[] = {
+ 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WAND) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_WHISKERS) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, hammer_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index a85634fe033f0..c7981ddd87763 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -452,6 +452,7 @@
+ #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE	0x5028
+ #define USB_DEVICE_ID_GOOGLE_STAFF	0x502b
+ #define USB_DEVICE_ID_GOOGLE_WAND	0x502d
++#define USB_DEVICE_ID_GOOGLE_WHISKERS	0x5030
+ 
+ #define USB_VENDOR_ID_GOTOP		0x08f2
+ #define USB_DEVICE_ID_SUPER_Q2		0x007f
+-- 
+2.18.0.rc1.242.g61856ae69a-goog

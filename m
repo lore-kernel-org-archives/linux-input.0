@@ -1,49 +1,81 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-ntrig: add error handling for
- sysfs_create_group
-Date: Mon, 11 Jun 2018 14:20:30 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1806111419480.6203@cbobk.fhfr.pm>
-References: <1528707296-35785-1-git-send-email-jiazhouyang09@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 01/13] input: move MT_TOOL_* to input-event-codes.h
+Date: Mon, 11 Jun 2018 10:16:16 -0700
+Message-ID: <20180611171616.GB251078@dtor-ws>
+References: <20180607075448.5706-1-benjamin.tissoires@redhat.com>
+ <20180607075448.5706-2-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1528707296-35785-1-git-send-email-jiazhouyang09@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180607075448.5706-2-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Zhouyang Jia <jiazhouyang09@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 11 Jun 2018, Zhouyang Jia wrote:
+Hi Benjamin,
 
-> When sysfs_create_group fails, the lack of error-handling code may
-> cause unexpected results.
+On Thu, Jun 07, 2018 at 09:54:36AM +0200, Benjamin Tissoires wrote:
+> This is evdev API and should be in this file.
+
+This is a weak argument. include/uapi/linux/input.h is exclusively evdev
+API as well. input-event-codes.h is simply evdev API that is usable in
+device tree files, and I do not think that at this time we need to
+expose tool types to device tree...
+
+Thanks.
+
 > 
-> This patch adds error-handling code after calling sysfs_create_group.
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > 
-> Signed-off-by: Zhouyang Jia <jiazhouyang09@gmail.com>
 > ---
->  drivers/hid/hid-ntrig.c | 4 ++++
->  1 file changed, 4 insertions(+)
 > 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 43b1c72..1e70dae 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -955,6 +955,10 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> new in v2
+> ---
+>  include/uapi/linux/input-event-codes.h | 8 ++++++++
+>  include/uapi/linux/input.h             | 8 --------
+>  2 files changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 6cba8a21ea19..e8841cdb1ebd 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -848,4 +848,12 @@
+>  #define SND_MAX			0x07
+>  #define SND_CNT			(SND_MAX+1)
 >  
->  	ret = sysfs_create_group(&hdev->dev.kobj,
->  			&ntrig_attribute_group);
-> +	if (ret) {
-> +		hid_err(hdev, "cannot create sysfs group\n");
-> +		goto err_free;
-> +	}
-
-Is it really necessarily to bail out completely here and render the device 
-dysfunctional? Issuing a warning about sysfs knobs being unavailable might 
-be more appropriate.
-
-Thanks,
+> +/*
+> + * MT_TOOL types
+> + */
+> +#define MT_TOOL_FINGER		0
+> +#define MT_TOOL_PEN		1
+> +#define MT_TOOL_PALM		2
+> +#define MT_TOOL_MAX		2
+> +
+>  #endif
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 7288a7c573cc..cc55c140dfef 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -267,14 +267,6 @@ struct input_mask {
+>  #define BUS_CEC			0x1E
+>  #define BUS_INTEL_ISHTP		0x1F
+>  
+> -/*
+> - * MT_TOOL types
+> - */
+> -#define MT_TOOL_FINGER		0
+> -#define MT_TOOL_PEN		1
+> -#define MT_TOOL_PALM		2
+> -#define MT_TOOL_MAX		2
+> -
+>  /*
+>   * Values describing the status of a force-feedback effect
+>   */
+> -- 
+> 2.14.3
+> 
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

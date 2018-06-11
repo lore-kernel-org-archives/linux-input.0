@@ -1,60 +1,105 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v7 9/9] ARM: dts: at91: sama5d2: Add resistive touch
- device
-Date: Sun, 10 Jun 2018 13:36:04 +0100
-Message-ID: <20180610133604.71421803@archlinux>
-References: <1526975559-18966-1-git-send-email-eugen.hristev@microchip.com>
-        <1526975559-18966-10-git-send-email-eugen.hristev@microchip.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to support hibernation
+Date: Sun, 10 Jun 2018 18:56:50 -0700
+Message-ID: <20180611015650.51385-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1526975559-18966-10-git-send-email-eugen.hristev@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com, dmitry.torokhov@gmail.com, robh@kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Even Xu <even.xu@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 22 May 2018 10:52:39 +0300
-Eugen Hristev <eugen.hristev@microchip.com> wrote:
+From: Even Xu <even.xu@intel.com>
 
-> Add generic resistive touch device which is connected to ADC block
-> inside the SAMA5D2 SoC
-> 
-> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-As with the previous patch, the driver side of things is working it's
-way through the IIO tree, but will be the next merge window, not the
-current one.
+Current ish driver only register resume/suspend PM callbacks which
+don't support hibernation (suspend to disk). Now use the
+SIMPLE_DEV_PM_OPS() MACRO instead of struct dev_pm_ops directly.
+The suspend and resume functions will now be used for both suspend
+to RAM and hibernation.
 
-Thanks,
+If power management is disable, SIMPLE_DEV_PM_OPS will do nothing,
+the suspend and resume related functions won't be used, so mark them
+as __maybe_unused to clarify that this is intended behavior, and
+remove #ifdefs for power management.
 
-Jonathan
+Signed-off-by: Even Xu <even.xu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
-> ---
-> Changes in v5:
->  - renamed touchscreen-threshold-pressure to touchscreen-min-pressure
-> 
->  arch/arm/boot/dts/sama5d2.dtsi | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
-> index f06ba99..a44f325 100644
-> --- a/arch/arm/boot/dts/sama5d2.dtsi
-> +++ b/arch/arm/boot/dts/sama5d2.dtsi
-> @@ -1442,6 +1442,16 @@
->  				status = "disabled";
->  			};
->  
-> +			resistive_touch: resistive-touch {
-> +				compatible = "resistive-adc-touch";
-> +				io-channels = <&adc AT91_SAMA5D2_ADC_X_CHANNEL>,
-> +					      <&adc AT91_SAMA5D2_ADC_Y_CHANNEL>,
-> +					      <&adc AT91_SAMA5D2_ADC_P_CHANNEL>;
-> +				io-channel-names = "x", "y", "pressure";
-> +				touchscreen-min-pressure = <50000>;
-> +				status = "disabled";
-> +			};
-> +
->  			pioA: pinctrl@fc038000 {
->  				compatible = "atmel,sama5d2-pinctrl";
->  				reg = <0xfc038000 0x600>;
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index 582e449be9fe..a2c53ea3b5ed 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -205,8 +205,7 @@ static void ish_remove(struct pci_dev *pdev)
+ 	kfree(ishtp_dev);
+ }
+ 
+-#ifdef CONFIG_PM
+-static struct device *ish_resume_device;
++static struct device __maybe_unused *ish_resume_device;
+ 
+ /* 50ms to get resume response */
+ #define WAIT_FOR_RESUME_ACK_MS		50
+@@ -220,7 +219,7 @@ static struct device *ish_resume_device;
+  * in that case a simple resume message is enough, others we need
+  * a reset sequence.
+  */
+-static void ish_resume_handler(struct work_struct *work)
++static void __maybe_unused ish_resume_handler(struct work_struct *work)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(ish_resume_device);
+ 	struct ishtp_device *dev = pci_get_drvdata(pdev);
+@@ -262,7 +261,7 @@ static void ish_resume_handler(struct work_struct *work)
+  *
+  * Return: 0 to the pm core
+  */
+-static int ish_suspend(struct device *device)
++static int __maybe_unused ish_suspend(struct device *device)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(device);
+ 	struct ishtp_device *dev = pci_get_drvdata(pdev);
+@@ -288,7 +287,7 @@ static int ish_suspend(struct device *device)
+ 	return 0;
+ }
+ 
+-static DECLARE_WORK(resume_work, ish_resume_handler);
++static __maybe_unused DECLARE_WORK(resume_work, ish_resume_handler);
+ /**
+  * ish_resume() - ISH resume callback
+  * @device:	device pointer
+@@ -297,7 +296,7 @@ static DECLARE_WORK(resume_work, ish_resume_handler);
+  *
+  * Return: 0 to the pm core
+  */
+-static int ish_resume(struct device *device)
++static int __maybe_unused ish_resume(struct device *device)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(device);
+ 	struct ishtp_device *dev = pci_get_drvdata(pdev);
+@@ -311,21 +310,14 @@ static int ish_resume(struct device *device)
+ 	return 0;
+ }
+ 
+-static const struct dev_pm_ops ish_pm_ops = {
+-	.suspend = ish_suspend,
+-	.resume = ish_resume,
+-};
+-#define ISHTP_ISH_PM_OPS	(&ish_pm_ops)
+-#else
+-#define ISHTP_ISH_PM_OPS	NULL
+-#endif /* CONFIG_PM */
++static SIMPLE_DEV_PM_OPS(ish_pm_ops, ish_suspend, ish_resume);
+ 
+ static struct pci_driver ish_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = ish_pci_tbl,
+ 	.probe = ish_probe,
+ 	.remove = ish_remove,
+-	.driver.pm = ISHTP_ISH_PM_OPS,
++	.driver.pm = &ish_pm_ops,
+ };
+ 
+ module_pci_driver(ish_driver);
+-- 
+2.13.6

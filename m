@@ -1,52 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V3] i8042: Increment wakeup_count for the respective port.
-Date: Tue, 12 Jun 2018 16:33:30 -0700
-Message-ID: <20180612233330.GH38773@dtor-ws>
-References: <CAJZ5v0iu23LqdKUJA5OQGF3Yqq3=k+nfNUVn-LFpYgkDrgokCg@mail.gmail.com>
- <20180605190124.191827-1-ravisadineni@chromium.org>
+Subject: Re: [PATCH v5 1/3] xen: Sync up with the canonical protocol
+ definitions in Xen
+Date: Tue, 12 Jun 2018 16:40:20 -0700
+Message-ID: <20180612234020.GI38773@dtor-ws>
+References: <20180612074856.28451-1-andr2000@gmail.com>
+ <20180612074856.28451-2-andr2000@gmail.com>
+ <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180605190124.191827-1-ravisadineni@chromium.org>
+In-Reply-To: <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Cc: rafael@kernel.org, chenhong3@huawei.com, ravisadineni@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rajatja@google.com, bleung@google.com, furquan@chromium.org
+To: Juergen Gross <jgross@suse.com>
+Cc: Oleksandr Andrushchenko <andr2000@gmail.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jun 05, 2018 at 12:01:24PM -0700, Ravi Chandra Sadineni wrote:
-> Call pm_wakeup_event on every irq. This should help us in identifying if
-> keyboard was a potential wake reason for the last resume.
+On Tue, Jun 12, 2018 at 03:46:10PM +0200, Juergen Gross wrote:
+> On 12/06/18 09:48, Oleksandr Andrushchenko wrote:
+> > From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> > 
+> > This is the sync up with the canonical definitions of the input,
+> > sound and display protocols in Xen.
+> > 
+> > Changes to kbdif:
+> > 1. Add missing string constants for {feature|request}-raw-pointer
+> >    to align with the rest of the interface file.
+> > 
+> > 2. Add new XenStore feature fields, so it is possible to individually
+> >    control set of exposed virtual devices for each guest OS:
+> >      - set feature-disable-keyboard to 1 if no keyboard device needs
+> >        to be created
+> >      - set feature-disable-pointer to 1 if no pointer device needs
+> >        to be created
+> > 
+> > 3. Move multi-touch device parameters to backend nodes: these are
+> >     described as a part of frontend's XenBus configuration nodes
+> >     while they belong to backend's configuration. Fix this by moving
+> >     the parameters to the proper section.
+> > 
+> > Unique-id field:
+> > 1. Add unique-id XenBus entry for virtual input and display.
+> > 
+> > 2. Change type of unique-id field to string for sndif to align with
+> > display and input protocols.
+> > 
+> > Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> > Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 > 
-> Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
+> Reviewed-by: Juergen Gross <jgross@suse.com>
+> 
+> I'm fine with this patch being added via the input tree with the other
+> patches. In case I should take it via the Xen tree, please send me a
+> note.
 
-Applied, thank you.
+Juergen,
 
-> ---
-> V3: Remove the unnecessary device_may_wakeup check.
-> V2: Increment the wakeup count only when there is a irq and not when the
-> method is called internally.
-> 
->  drivers/input/serio/i8042.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index 824f4c1c1f310..b8bc71569349d 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -573,6 +573,9 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
->  	port = &i8042_ports[port_no];
->  	serio = port->exists ? port->serio : NULL;
->  
-> +	if (irq && serio)
-> +		pm_wakeup_event(&serio->dev, 0);
-> +
->  	filter_dbg(port->driver_bound, data, "<- i8042 (interrupt, %d, %d%s%s)\n",
->  		   port_no, irq,
->  		   dfl & SERIO_PARITY ? ", bad parity" : "",
-> -- 
-> 2.17.1.1185.g55be947832-goog
-> 
+I created an immutable branch off v4.17 with these 3 patches in case you
+would want to merge them into your tree without waiting for them to
+appear in mainline:
+
+git pull git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git ib/4.17-xen-kbdfront-runtime-config
+
+Thanks.
 
 -- 
 Dmitry

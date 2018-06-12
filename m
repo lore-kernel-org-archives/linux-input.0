@@ -1,129 +1,65 @@
-From: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5 2/4] resource: Use list_head to link sibling resource
-Date: Tue, 12 Jun 2018 12:49:55 +0800
-Message-ID: <201806121251.hDRqpKgN%fengguang.wu@intel.com>
-References: <20180612032831.29747-3-bhe@redhat.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH] Input: add error handling for da9052_reg_write
+Date: Tue, 12 Jun 2018 05:37:08 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB701941AFADA@SW-EX-MBX02.diasemi.com>
+References: <1528694619-31889-1-git-send-email-jiazhouyang09@gmail.com>
+ <20180611173017.GD251078@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-In-Reply-To: <20180612032831.29747-3-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brijesh.singh-5C7GfCeVMHo@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, keith.busch-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWMP3drIcvDWNA@public.gmane.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180611173017.GD251078@dtor-ws>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Support Opensource <Support.Opensource@diasemi.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Baoquan,
+On 11 June 2018 18:30 wrote Dmitry Torokhov 
 
-I love your patch! Perhaps something to improve:
+> Subject: Re: [PATCH] Input: add error handling for da9052_reg_write
+> 
+> Hi Zhouyang,
+> 
+> On Mon, Jun 11, 2018 at 01:23:39PM +0800, Zhouyang Jia wrote:
+> > When da9052_reg_write fails, the lack of error-handling code may
+> > cause unexpected results.
+> >
+> > This patch adds error-handling code after calling da9052_reg_write.
+> >
+> > Signed-off-by: Zhouyang Jia <jiazhouyang09@gmail.com>
+> > ---
+> >  drivers/input/touchscreen/da9052_tsi.c | 5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/input/touchscreen/da9052_tsi.c
+> b/drivers/input/touchscreen/da9052_tsi.c
+> > index b5dfd594..60c82a0 100644
+> > --- a/drivers/input/touchscreen/da9052_tsi.c
+> > +++ b/drivers/input/touchscreen/da9052_tsi.c
+> > @@ -319,8 +319,11 @@ static int da9052_ts_probe(struct platform_device *pdev)
+> >  static int  da9052_ts_remove(struct platform_device *pdev)
+> >  {
+> >  	struct da9052_tsi *tsi = platform_get_drvdata(pdev);
+> > +	int error;
+> >
+> > -	da9052_reg_write(tsi->da9052, DA9052_LDO9_REG, 0x19);
+> > +	error = da9052_reg_write(tsi->da9052, DA9052_LDO9_REG, 0x19);
+> > +	if (error < 0)
+> > +		return error;
+> 
+> No, this does not help anything. The remove() action must not fail
+> (really, having it return an int and not void was an API mistake made
+> long time ago), and thus returning early in and event of error failing
+> to communicate with the device is a mistake. You really want to release
+> the interrupts and memory and unregister input device before returning.
+> 
+> >
+> >  	da9052_free_irq(tsi->da9052, DA9052_IRQ_TSIREADY, tsi);
+> >  	da9052_free_irq(tsi->da9052, DA9052_IRQ_PENDOWN, tsi);
+> > --
+> > 2.7.4
+> >
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v4.17 next-20180608]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-
-url:    https://github.com/0day-ci/linux/commits/Baoquan-He/resource-Use-list_head-to-link-sibling-resource/20180612-113600
-config: x86_64-randconfig-x011-201823 (attached as .config)
-compiler: gcc-7 (Debian 7.3.0-16) 7.3.0
-reproduce:
-        # save the attached .config to linux build tree
-        make ARCH=x86_64 
-
-All warnings (new ones prefixed by >>):
-
-   kernel/resource.c: In function 'reparent_resources':
-   kernel/resource.c:1005:26: error: passing argument 2 of 'list_add' from incompatible pointer type [-Werror=incompatible-pointer-types]
-     list_add(&res->sibling, &p->sibling.prev);
-                             ^
-   In file included from include/linux/ioport.h:15:0,
-                    from kernel/resource.c:14:
-   include/linux/list.h:77:20: note: expected 'struct list_head *' but argument is of type 'struct list_head **'
-    static inline void list_add(struct list_head *new, struct list_head *head)
-                       ^~~~~~~~
-   In file included from include/linux/list.h:9:0,
-                    from include/linux/ioport.h:15,
-                    from kernel/resource.c:14:
-   kernel/resource.c:1013:26: error: 'new' undeclared (first use in this function); did you mean 'net'?
-     list_for_each_entry(p, &new->child, sibling) {
-                             ^
-   include/linux/kernel.h:963:26: note: in definition of macro 'container_of'
-     void *__mptr = (void *)(ptr);     \
-                             ^~~
-   include/linux/list.h:377:2: note: in expansion of macro 'list_entry'
-     list_entry((ptr)->next, type, member)
-     ^~~~~~~~~~
-   include/linux/list.h:464:13: note: in expansion of macro 'list_first_entry'
-     for (pos = list_first_entry(head, typeof(*pos), member); \
-                ^~~~~~~~~~~~~~~~
->> kernel/resource.c:1013:2: note: in expansion of macro 'list_for_each_entry'
-     list_for_each_entry(p, &new->child, sibling) {
-     ^~~~~~~~~~~~~~~~~~~
-   kernel/resource.c:1013:26: note: each undeclared identifier is reported only once for each function it appears in
-     list_for_each_entry(p, &new->child, sibling) {
-                             ^
-   include/linux/kernel.h:963:26: note: in definition of macro 'container_of'
-     void *__mptr = (void *)(ptr);     \
-                             ^~~
-   include/linux/list.h:377:2: note: in expansion of macro 'list_entry'
-     list_entry((ptr)->next, type, member)
-     ^~~~~~~~~~
-   include/linux/list.h:464:13: note: in expansion of macro 'list_first_entry'
-     for (pos = list_first_entry(head, typeof(*pos), member); \
-                ^~~~~~~~~~~~~~~~
->> kernel/resource.c:1013:2: note: in expansion of macro 'list_for_each_entry'
-     list_for_each_entry(p, &new->child, sibling) {
-     ^~~~~~~~~~~~~~~~~~~
-   cc1: some warnings being treated as errors
-
-vim +/list_for_each_entry +1013 kernel/resource.c
-
-   983	
-   984	/*
-   985	 * Reparent resource children of pr that conflict with res
-   986	 * under res, and make res replace those children.
-   987	 */
-   988	int reparent_resources(struct resource *parent, struct resource *res)
-   989	{
-   990		struct resource *p, *first = NULL;
-   991	
-   992		list_for_each_entry(p, &parent->child, sibling) {
-   993			if (p->end < res->start)
-   994				continue;
-   995			if (res->end < p->start)
-   996				break;
-   997			if (p->start < res->start || p->end > res->end)
-   998				return -1;	/* not completely contained */
-   999			if (first == NULL)
-  1000				first = p;
-  1001		}
-  1002		if (first == NULL)
-  1003			return -1;	/* didn't find any conflicting entries? */
-  1004		res->parent = parent;
-  1005		list_add(&res->sibling, &p->sibling.prev);
-  1006		INIT_LIST_HEAD(&res->child);
-  1007	
-  1008		/*
-  1009		 * From first to p's previous sibling, they all fall into
-  1010		 * res's region, change them as res's children.
-  1011		 */
-  1012		list_cut_position(&res->child, first->sibling.prev, res->sibling.prev);
-> 1013		list_for_each_entry(p, &new->child, sibling) {
-  1014	                p->parent = new;
-  1015			pr_debug("PCI: Reparented %s %pR under %s\n",
-  1016				 p->name, p, res->name);
-  1017		}
-  1018		return 0;
-  1019	}
-  1020	EXPORT_SYMBOL(reparent_resources);
-  1021	
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+script?
+https://patchwork.kernel.org/project/LKML/list/?submitter=181001

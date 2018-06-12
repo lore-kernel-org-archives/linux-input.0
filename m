@@ -1,48 +1,52 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: [PATCH] Input: elan: enable middle button of touchpads on ThinkPad P52
-Date: Tue, 12 Jun 2018 15:09:06 +0800
-Message-ID: <20180612070906.5305-1-aaron.ma@canonical.com>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: [PATCH v5 0/3] Input: xen-kbdfront - allow better run-time configuration
+Date: Tue, 12 Jun 2018 10:48:53 +0300
+Message-ID: <20180612074856.28451-1-andr2000@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, aaron.ma@canonical.com, kt.liao@emc.com.tw, dmitry.torokhov@gmail.com
+To: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com
+Cc: konrad.wilk@oracle.com, andr2000@gmail.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-PNPID is better way to identify the type of touchpads.
-Enable middle button support on 2 types of touchpads on Lenovo P52.
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-Cc: stable@vger.kernel.org
-Cc: KT Liao <kt.liao@emc.com.tw>
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
----
- drivers/input/mouse/elantech.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Hi, all!
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index fb4d902c4403..67b061dd4494 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1175,6 +1175,12 @@ static const struct dmi_system_id elantech_dmi_has_middle_button[] = {
- 	{ }
- };
- 
-+static const char * const middle_button_pnp_ids[] = {
-+	"LEN2131", /* ThinkPad P52 w/ NFC */
-+	"LEN2132", /* ThinkPad P52 */
-+	NULL
-+};
-+
- /*
-  * Set the appropriate event bits for the input subsystem
-  */
-@@ -1194,7 +1200,8 @@ static int elantech_set_input_params(struct psmouse *psmouse)
- 	__clear_bit(EV_REL, dev->evbit);
- 
- 	__set_bit(BTN_LEFT, dev->keybit);
--	if (dmi_check_system(elantech_dmi_has_middle_button))
-+	if (dmi_check_system(elantech_dmi_has_middle_button) ||
-+		psmouse_matches_pnp_id(psmouse, middle_button_pnp_ids))
- 		__set_bit(BTN_MIDDLE, dev->keybit);
- 	__set_bit(BTN_RIGHT, dev->keybit);
- 
+This patch series synchronizes Xen canonical protocol definitions
+which allow the last two patches in the series to update Xen
+kbdfront driver with a fix and v5 of the patch to allow better
+run-time configuration for xen-kbdfront.
+
+As xen-kbdfront patches rely on protocol changes from patch 1 I am
+sending these all together: Boris, Juergen, if you and Dmitry do not
+mind, can we have patch 1 applied through Dmitry's tree?
+
+Thank you,
+Oleksandr
+
+Changes since v4:
+- Added required changes to Xen protocols
+- Added a fix for multi-touch XenStore node's locations
+- No changes to "Input: xen-kbdfront - allow better run-time
+  configuration"
+
+Changes since v3:
+- do not connect backend if all virtual devices are disabled (Dmitry)
+
+Changes since v2:
+- based on XenStore kbdif features to control which devices are
+  exposed instead of module parameters.
+
+Oleksandr Andrushchenko (3):
+  xen: Sync up with the canonical protocol definitions in Xen
+  Input: xen-kbdfront - fix multi-touch XenStore node's locations
+  Input: xen-kbdfront - allow better run-time configuration
+
+ drivers/input/misc/xen-kbdfront.c  | 183 +++++++++++++++++------------
+ include/xen/interface/io/displif.h |   8 ++
+ include/xen/interface/io/kbdif.h   |  78 +++++++++---
+ include/xen/interface/io/sndif.h   |  10 +-
+ 4 files changed, 180 insertions(+), 99 deletions(-)
+
 -- 
 2.17.1

@@ -1,8 +1,10 @@
 From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: [PATCH v5 0/3] Input: xen-kbdfront - allow better run-time configuration
-Date: Tue, 12 Jun 2018 10:48:53 +0300
-Message-ID: <20180612074856.28451-1-andr2000@gmail.com>
+Subject: [PATCH v5 2/3] Input: xen-kbdfront - fix multi-touch XenStore node's locations
+Date: Tue, 12 Jun 2018 10:48:55 +0300
+Message-ID: <20180612074856.28451-3-andr2000@gmail.com>
+References: <20180612074856.28451-1-andr2000@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180612074856.28451-1-andr2000@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jgross@suse.com, lyan@suse.com, boris.ostrovsky@oracle.com
 Cc: konrad.wilk@oracle.com, andr2000@gmail.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
@@ -10,43 +12,47 @@ List-Id: linux-input@vger.kernel.org
 
 From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-Hi, all!
+kbdif protocol describes multi-touch device parameters as a
+part of frontend's XenBus configuration nodes while they
+belong to backend's configuration. Fix this by reading the
+parameters as defined by the protocol.
 
-This patch series synchronizes Xen canonical protocol definitions
-which allow the last two patches in the series to update Xen
-kbdfront driver with a fix and v5 of the patch to allow better
-run-time configuration for xen-kbdfront.
+Fixes: 49aac8204da5 ("Input: xen-kbdfront - add multi-touch support")
 
-As xen-kbdfront patches rely on protocol changes from patch 1 I am
-sending these all together: Boris, Juergen, if you and Dmitry do not
-mind, can we have patch 1 applied through Dmitry's tree?
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Thank you,
-Oleksandr
-
-Changes since v4:
-- Added required changes to Xen protocols
-- Added a fix for multi-touch XenStore node's locations
-- No changes to "Input: xen-kbdfront - allow better run-time
-  configuration"
-
-Changes since v3:
-- do not connect backend if all virtual devices are disabled (Dmitry)
-
-Changes since v2:
-- based on XenStore kbdif features to control which devices are
-  exposed instead of module parameters.
-
-Oleksandr Andrushchenko (3):
-  xen: Sync up with the canonical protocol definitions in Xen
-  Input: xen-kbdfront - fix multi-touch XenStore node's locations
-  Input: xen-kbdfront - allow better run-time configuration
-
- drivers/input/misc/xen-kbdfront.c  | 183 +++++++++++++++++------------
- include/xen/interface/io/displif.h |   8 ++
- include/xen/interface/io/kbdif.h   |  78 +++++++++---
- include/xen/interface/io/sndif.h   |  10 +-
- 4 files changed, 180 insertions(+), 99 deletions(-)
-
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index d91f3b1c5375..92d739649022 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -229,7 +229,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 		}
+ 	}
+ 
+-	touch = xenbus_read_unsigned(dev->nodename,
++	touch = xenbus_read_unsigned(dev->otherend,
+ 				     XENKBD_FIELD_FEAT_MTOUCH, 0);
+ 	if (touch) {
+ 		ret = xenbus_write(XBT_NIL, dev->nodename,
+@@ -304,13 +304,13 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 		if (!mtouch)
+ 			goto error_nomem;
+ 
+-		num_cont = xenbus_read_unsigned(info->xbdev->nodename,
++		num_cont = xenbus_read_unsigned(info->xbdev->otherend,
+ 						XENKBD_FIELD_MT_NUM_CONTACTS,
+ 						1);
+-		width = xenbus_read_unsigned(info->xbdev->nodename,
++		width = xenbus_read_unsigned(info->xbdev->otherend,
+ 					     XENKBD_FIELD_MT_WIDTH,
+ 					     XENFB_WIDTH);
+-		height = xenbus_read_unsigned(info->xbdev->nodename,
++		height = xenbus_read_unsigned(info->xbdev->otherend,
+ 					      XENKBD_FIELD_MT_HEIGHT,
+ 					      XENFB_HEIGHT);
+ 
 -- 
 2.17.1

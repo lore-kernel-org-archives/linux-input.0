@@ -1,90 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: cros_ec_keyb: Remove check before calling
- pm_wakeup_event.
-Date: Tue, 12 Jun 2018 16:32:16 -0700
-Message-ID: <20180612233216.GG38773@dtor-ws>
-References: <20180605224458.62692-1-ravisadineni@chromium.org>
+Subject: Re: [PATCH V3] i8042: Increment wakeup_count for the respective port.
+Date: Tue, 12 Jun 2018 16:33:30 -0700
+Message-ID: <20180612233330.GH38773@dtor-ws>
+References: <CAJZ5v0iu23LqdKUJA5OQGF3Yqq3=k+nfNUVn-LFpYgkDrgokCg@mail.gmail.com>
+ <20180605190124.191827-1-ravisadineni@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180605224458.62692-1-ravisadineni@chromium.org>
+In-Reply-To: <20180605190124.191827-1-ravisadineni@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Cc: ravisadineni@google.com, dtor@google.com, tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: rafael@kernel.org, chenhong3@huawei.com, ravisadineni@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, rajatja@google.com, bleung@google.com, furquan@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jun 05, 2018 at 03:44:57PM -0700, Ravi Chandra Sadineni wrote:
-> Remove the unnecessary check before calling pm_wakeup_event. If the
-> device is not wake enabled, this call is no-op anyway.
+On Tue, Jun 05, 2018 at 12:01:24PM -0700, Ravi Chandra Sadineni wrote:
+> Call pm_wakeup_event on every irq. This should help us in identifying if
+> keyboard was a potential wake reason for the last resume.
 > 
 > Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
 
 Applied, thank you.
 
 > ---
->  drivers/input/keyboard/cros_ec_keyb.c | 30 ++++++++++-----------------
->  1 file changed, 11 insertions(+), 19 deletions(-)
+> V3: Remove the unnecessary device_may_wakeup check.
+> V2: Increment the wakeup count only when there is a irq and not when the
+> method is called internally.
 > 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index 489ddd37bd4ee..c5e32544130dc 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -242,19 +242,17 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
->  	u32 val;
->  	unsigned int ev_type;
+>  drivers/input/serio/i8042.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+> index 824f4c1c1f310..b8bc71569349d 100644
+> --- a/drivers/input/serio/i8042.c
+> +++ b/drivers/input/serio/i8042.c
+> @@ -573,6 +573,9 @@ static irqreturn_t i8042_interrupt(int irq, void *dev_id)
+>  	port = &i8042_ports[port_no];
+>  	serio = port->exists ? port->serio : NULL;
 >  
-> +	/*
-> +	 * If not wake enabled, discard key state changes during
-> +	 * suspend. Switches will be re-checked in
-> +	 * cros_ec_keyb_resume() to be sure nothing is lost.
-> +	 */
-> +	if (queued_during_suspend && !device_may_wakeup(ckdev->dev))
-> +		return NOTIFY_OK;
+> +	if (irq && serio)
+> +		pm_wakeup_event(&serio->dev, 0);
 > +
->  	switch (ckdev->ec->event_data.event_type) {
->  	case EC_MKBP_EVENT_KEY_MATRIX:
-> -		if (device_may_wakeup(ckdev->dev)) {
-> -			pm_wakeup_event(ckdev->dev, 0);
-> -		} else {
-> -			/*
-> -			 * If keyboard is not wake enabled, discard key state
-> -			 * changes during suspend. Switches will be re-checked
-> -			 * in cros_ec_keyb_resume() to be sure nothing is lost.
-> -			 */
-> -			if (queued_during_suspend)
-> -				return NOTIFY_OK;
-> -		}
-> +		pm_wakeup_event(ckdev->dev, 0);
->  
->  		if (ckdev->ec->event_size != ckdev->cols) {
->  			dev_err(ckdev->dev,
-> @@ -268,10 +266,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
->  		break;
->  
->  	case EC_MKBP_EVENT_SYSRQ:
-> -		if (device_may_wakeup(ckdev->dev))
-> -			pm_wakeup_event(ckdev->dev, 0);
-> -		else if (queued_during_suspend)
-> -			return NOTIFY_OK;
-> +		pm_wakeup_event(ckdev->dev, 0);
->  
->  		val = get_unaligned_le32(&ckdev->ec->event_data.data.sysrq);
->  		dev_dbg(ckdev->dev, "sysrq code from EC: %#x\n", val);
-> @@ -280,10 +275,7 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
->  
->  	case EC_MKBP_EVENT_BUTTON:
->  	case EC_MKBP_EVENT_SWITCH:
-> -		if (device_may_wakeup(ckdev->dev))
-> -			pm_wakeup_event(ckdev->dev, 0);
-> -		else if (queued_during_suspend)
-> -			return NOTIFY_OK;
-> +		pm_wakeup_event(ckdev->dev, 0);
->  
->  		if (ckdev->ec->event_data.event_type == EC_MKBP_EVENT_BUTTON) {
->  			val = get_unaligned_le32(
+>  	filter_dbg(port->driver_bound, data, "<- i8042 (interrupt, %d, %d%s%s)\n",
+>  		   port_no, irq,
+>  		   dfl & SERIO_PARITY ? ", bad parity" : "",
 > -- 
-> 2.18.0.rc1.242.g61856ae69a-goog
+> 2.17.1.1185.g55be947832-goog
 > 
 
 -- 

@@ -1,45 +1,77 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v5 3/3] Input: xen-kbdfront - allow better run-time
- configuration
-Date: Tue, 12 Jun 2018 15:50:08 +0200
-Message-ID: <5fbac8d0-a3cf-af8a-690e-947752a53ab6@suse.com>
-References: <20180612074856.28451-1-andr2000@gmail.com>
- <20180612074856.28451-4-andr2000@gmail.com>
+From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 1/4] resource: Move reparent_resources() to
+ kernel/resource.c and make it public
+Date: Tue, 12 Jun 2018 17:20:07 +0300
+Message-ID: <CAHp75Vf_kBLkE6v=JyOdfNoWktWEfKs7JzRP1XEc4TeuT5xqfw@mail.gmail.com>
+References: <20180612032831.29747-1-bhe@redhat.com>
+ <20180612032831.29747-2-bhe@redhat.com>
+ <CAHp75Vd6v4+RTq-5uw_BJpT6=w2KGjTfU+rEst6+8igs2cyntw@mail.gmail.com>
+ <20180612093812.GC1820@MiWiFi-R3L-srv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180612074856.28451-4-andr2000@gmail.com>
-Content-Language: de-DE
-Sender: linux-kernel-owner@vger.kernel.org
-To: Oleksandr Andrushchenko <andr2000@gmail.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, lyan@suse.com, boris.ostrovsky@oracle.com
-Cc: konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <20180612093812.GC1820@MiWiFi-R3L-srv>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Nicolas Pitre <nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Keith Busch <keith.busch-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, KY Srinivasan <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Dave Young <dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Maarten Lankhorst <maarten.lankhorst-VuQAYsv1561eoWH0uzbU5w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 12/06/18 09:48, Oleksandr Andrushchenko wrote:
-> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> 
-> It is now only possible to control if multi-touch virtual device
-> is created or not (via the corresponding XenStore entries),
-> but keyboard and pointer devices are always created.
-> In some cases this is not desirable. For example, if virtual
-> keyboard device is exposed to Android then the latter won't
-> automatically show on-screen keyboard as it expects that a
-> physical keyboard device can be used for typing.
-> 
-> Utilize keyboard and pointer device XenStore feature fields to
-> configure which virtual devices are created:
->  - set "feature-disable-keyboard" to 1 if no keyboard device
->    needs to be created
->  - set "feature-disable-pointer" to 1 if no pointer device
->    needs to be created
-> Keep old behavior by default.
-> 
-> Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> Suggested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
-> Tested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+On Tue, Jun 12, 2018 at 12:38 PM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+> On 06/12/18 at 11:29am, Andy Shevchenko wrote:
+>> On Tue, Jun 12, 2018 at 6:28 AM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
 
-Reviewed-by: Juergen Gross <jgross@suse.com>
+>> > +{
+>>
+>> > +       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
+>> > +               if (p->end < res->start)
+>> > +                       continue;
+>> > +               if (res->end < p->start)
+>> > +                       break;
+>>
+>> > +               if (p->start < res->start || p->end > res->end)
+>> > +                       return -1;      /* not completely contained */
+>>
+>> Usually we are expecting real eeror codes.
+>
+> Hmm, I just copied it from arch/powerpc/kernel/pci-common.c. The
+> function interface expects an integer returned value, not sure what a
+> real error codes look like, could you give more hints? Will change
+> accordingly.
+
+I briefly looked at the code and error codes we have, so, my proposal
+is one of the following
+ - use -ECANCELED (not the best choice for first occurrence here,
+though I can't find better)
+ - use positive integers (or enum), like
+  #define RES_REPARENTED 0
+  #define RES_OVERLAPPED 1
+  #define RES_NOCONFLICT 2
 
 
-Juergen
+>> > +               if (firstpp == NULL)
+>> > +                       firstpp = pp;
+>> > +       }
+>>
+>> > +       if (firstpp == NULL)
+>> > +               return -1;      /* didn't find any conflicting entries? */
+>>
+>> Ditto.
+
+Ditto.
+
+>>
+>> > +}
+>> > +EXPORT_SYMBOL(reparent_resources);
+
+-- 
+With Best Regards,
+Andy Shevchenko

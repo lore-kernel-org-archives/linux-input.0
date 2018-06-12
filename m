@@ -1,58 +1,45 @@
-From: Oleksandr Andrushchenko <Oleksandr_Andrushchenko@epam.com>
-Subject: Re: [PATCH v5 1/3] xen: Sync up with the canonical protocol
- definitions in Xen
-Date: Tue, 12 Jun 2018 16:47:40 +0300
-Message-ID: <fbc66cfa-f750-7810-1a0e-537c5c98d9e5@epam.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v5 3/3] Input: xen-kbdfront - allow better run-time
+ configuration
+Date: Tue, 12 Jun 2018 15:50:08 +0200
+Message-ID: <5fbac8d0-a3cf-af8a-690e-947752a53ab6@suse.com>
 References: <20180612074856.28451-1-andr2000@gmail.com>
- <20180612074856.28451-2-andr2000@gmail.com>
- <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com>
+ <20180612074856.28451-4-andr2000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com>
-Content-Language: en-US
+In-Reply-To: <20180612074856.28451-4-andr2000@gmail.com>
+Content-Language: de-DE
 Sender: linux-kernel-owner@vger.kernel.org
-To: Juergen Gross <jgross@suse.com>, Oleksandr Andrushchenko <andr2000@gmail.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, lyan@suse.com, boris.ostrovsky@oracle.com
-Cc: konrad.wilk@oracle.com, andrii_chepurnyi@epam.com
+To: Oleksandr Andrushchenko <andr2000@gmail.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, lyan@suse.com, boris.ostrovsky@oracle.com
+Cc: konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-On 06/12/2018 04:46 PM, Juergen Gross wrote:
-> On 12/06/18 09:48, Oleksandr Andrushchenko wrote:
->> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
->>
->> This is the sync up with the canonical definitions of the input,
->> sound and display protocols in Xen.
->>
->> Changes to kbdif:
->> 1. Add missing string constants for {feature|request}-raw-pointer
->>     to align with the rest of the interface file.
->>
->> 2. Add new XenStore feature fields, so it is possible to individually
->>     control set of exposed virtual devices for each guest OS:
->>       - set feature-disable-keyboard to 1 if no keyboard device needs
->>         to be created
->>       - set feature-disable-pointer to 1 if no pointer device needs
->>         to be created
->>
->> 3. Move multi-touch device parameters to backend nodes: these are
->>      described as a part of frontend's XenBus configuration nodes
->>      while they belong to backend's configuration. Fix this by moving
->>      the parameters to the proper section.
->>
->> Unique-id field:
->> 1. Add unique-id XenBus entry for virtual input and display.
->>
->> 2. Change type of unique-id field to string for sndif to align with
->> display and input protocols.
->>
->> Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
->> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Reviewed-by: Juergen Gross <jgross@suse.com>
->
-> I'm fine with this patch being added via the input tree with the other
-> patches. In case I should take it via the Xen tree, please send me a
-> note.
-Thank you
->
-> Juergen
+On 12/06/18 09:48, Oleksandr Andrushchenko wrote:
+> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> 
+> It is now only possible to control if multi-touch virtual device
+> is created or not (via the corresponding XenStore entries),
+> but keyboard and pointer devices are always created.
+> In some cases this is not desirable. For example, if virtual
+> keyboard device is exposed to Android then the latter won't
+> automatically show on-screen keyboard as it expects that a
+> physical keyboard device can be used for typing.
+> 
+> Utilize keyboard and pointer device XenStore feature fields to
+> configure which virtual devices are created:
+>  - set "feature-disable-keyboard" to 1 if no keyboard device
+>    needs to be created
+>  - set "feature-disable-pointer" to 1 if no pointer device
+>    needs to be created
+> Keep old behavior by default.
+> 
+> Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+> Suggested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+> Tested-by: Andrii Chepurnyi <andrii_chepurnyi@epam.com>
+
+Reviewed-by: Juergen Gross <jgross@suse.com>
+
+
+Juergen

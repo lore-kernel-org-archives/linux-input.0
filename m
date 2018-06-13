@@ -1,94 +1,54 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to
- support hibernation
-Date: Tue, 12 Jun 2018 17:14:59 -0700
-Message-ID: <e40e926c35ae036c4b6f9ebc33223a2dc5c3eff2.camel@linux.intel.com>
-References: <20180611015650.51385-1-srinivas.pandruvada@linux.intel.com>
-         <nycvar.YFH.7.76.1806121651460.6203@cbobk.fhfr.pm>
-         <634cd945beca786dc77876f71e39459cef6fbd75.camel@linux.intel.com>
-         <9577C59DB499174B9340876B077C2E9569DF11EC@SHSMSX101.ccr.corp.intel.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Subject: Re: [PATCH 04/10] Input: ams_delta_serio: Replace power GPIO with regulator
+Date: Wed, 13 Jun 2018 03:01:05 +0200
+Message-ID: <2655614.ErW8VuCT6r@z50>
+References: <20180609140224.32606-1-jmkrzyszt@gmail.com> <20180609140224.32606-4-jmkrzyszt@gmail.com> <20180612221724.GB38773@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9577C59DB499174B9340876B077C2E9569DF11EC@SHSMSX101.ccr.corp.intel.com>
+In-Reply-To: <20180612221724.GB38773@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Xu, Even" <even.xu@intel.com>, Jiri Kosina <jikos@kernel.org>
-Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, "David S . Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 2018-06-13 at 00:05 +0000, Xu, Even wrote:
-> Ok, sure, I will update patch comments and resubmit.
-Can you also add in the sign-off area
+On Wednesday, June 13, 2018 12:17:24 AM CEST Dmitry Torokhov wrote:
+> On Sat, Jun 09, 2018 at 04:02:18PM +0200, Janusz Krzysztofik wrote:
+> > ...
+> > +	priv->vcc = devm_regulator_get(&pdev->dev, "vcc");
+> > +	if (IS_ERR(priv->vcc)) {
+> > +		err = PTR_ERR(priv->vcc);
+> > +		dev_err(&pdev->dev, "regulator request failed (%d)\n", err);
+> > +		/* Fail softly if the regulator is not available yet */
+> > +		if (err == -ENODEV)
+> > +			err = -EPROBE_DEFER;
+> 
+> Hmm, if regulator is not ready yet, devm_regulator_get() should be
+> returning -EPROBE_DEFER already, we should not have to convert -ENODEV
+> to -EPROBE_DEFER...
 
+Regulator is not ready because its initialization at subsys_initcall is 
+deferred by not ready GPIO pin, that in turn is caused by gpio-mmio driver, 
+unlike many other GPIO drivers, registered as late as at device_initcall.
 
-Cc: stable@vger.kernel.org
+I agree devm_regulator_get() could return -EPROBE_DEFER in this case, but I 
+can see it does that only when of_get_regulator() indicates the regulator 
+should exist. In non-dt case there is apparently no way to justify if it 
+should unless its consumer supply table was already in place. For that,  
+registration of that table would have to be independent of successful 
+registration of the regulator itself while it's not. Maybe it should, but 
+that's a separate topic for a separate discussion, I think.
+
+> Is it because we have_full_constraints() returns false? You might need
+> to add call to regulator_has_full_constraints() to your board file.
+
+If have_full_constraints() returned true before the regulator or its consumer 
+supply table is ready, devm_regulator_get() would happily return a dummy 
+regulator and our keyboard would never get its power.
+
+I'm afraid we have to live with that return code conversion as long as the 
+only user of this driver is not migrated to dt.
 
 Thanks,
-Srinivas
-
-> Thanks Srinivas!
-> 
-> Best Regards,
-> Even Xu
-> 
-> 
-> 
-> -----Original Message-----
-> From: Srinivas Pandruvada [mailto:srinivas.pandruvada@linux.intel.com
-> ] 
-> Sent: Tuesday, June 12, 2018 11:31 PM
-> To: Jiri Kosina <jikos@kernel.org>; Xu, Even <even.xu@intel.com>
-> Cc: benjamin.tissoires@redhat.com; linux-input@vger.kernel.org; linux
-> -kernel@vger.kernel.org; Xu, Even <even.xu@intel.com>
-> Subject: Re: [PATCH] hid: intel_ish-hid: ipc: register more pm
-> callbacks to support hibernation
-> 
-> On Tue, 2018-06-12 at 16:53 +0200, Jiri Kosina wrote:
-> > On Sun, 10 Jun 2018, Srinivas Pandruvada wrote:
-> > 
-> > > From: Even Xu <even.xu@intel.com>
-> > > 
-> > > Current ish driver only register resume/suspend PM callbacks
-> > > which 
-> > > don't support hibernation (suspend to disk). Now use the
-> > > SIMPLE_DEV_PM_OPS() MACRO instead of struct dev_pm_ops directly.
-> > > The suspend and resume functions will now be used for both
-> > > suspend 
-> > > to RAM and hibernation.
-> > > 
-> > > If power management is disable, SIMPLE_DEV_PM_OPS will do
-> > > nothing, 
-> > > the suspend and resume related functions won't be used, so mark
-> > > them 
-> > > as __maybe_unused to clarify that this is intended behavior, and 
-> > > remove #ifdefs for power management.
-> > 
-> > This describes details the patch does on code level, but what are
-> > the 
-> > user observable effects? Hibernation resume doesn't fail any more?
-> > Hibernation
-> > is possible (and wasn't before)? Did kernel crash while trying to 
-> > hibernate and this is the fix? Or ... ?
-> 
-> Even,
-> Can you add more details and resubmit ASAP?
-> 
-> Basically after hiberation, the ISH can't resume properly and user
-> may not see sensor events (for example: screen rotation may not
-> work).
-> User will not see a crash or panic or anything except the following
-> message in log:
-> hid-sensor-hub 001F:8086:22D8.0001: timeout waiting for response from
-> ISHTP device 
-> 
-> So this is adding support for S4/hiberbation to ISH.
-> 
-> 
-> 
-> Thanks,
-> Srinivas
-> 
-> > 
-> > Thanks,
-> > 
+Janusz

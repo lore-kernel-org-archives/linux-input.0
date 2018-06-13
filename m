@@ -1,98 +1,73 @@
-From: Oleksandr Andrushchenko <Oleksandr_Andrushchenko@epam.com>
-Subject: Re: [PATCH v5 1/3] xen: Sync up with the canonical protocol
- definitions in Xen
-Date: Wed, 13 Jun 2018 09:43:09 +0300
-Message-ID: <67842f2d-2aaa-58c3-63f5-3aa0439457d2@epam.com>
-References: <20180612074856.28451-1-andr2000@gmail.com>
- <20180612074856.28451-2-andr2000@gmail.com>
- <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com>
- <20180612234020.GI38773@dtor-ws>
- <3605901d-4a72-3f5a-6d74-cb13d2414a0b@gmail.com>
- <D53587A2-5B1B-4D8F-8772-04D453B93D38@gmail.com>
- <e1d62036-708d-5087-83f2-0ea32f3a6e74@gmail.com>
- <e038df38-95be-b985-a2f8-2532f51736bd@suse.com>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v5 2/4] resource: Use list_head to link sibling resource
+Date: Wed, 13 Jun 2018 14:55:47 +0800
+Message-ID: <20180613065547.GH1820@MiWiFi-R3L-srv>
+References: <alpine.DEB.2.20.1806121708070.3334@hadrien>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e038df38-95be-b985-a2f8-2532f51736bd@suse.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Juergen Gross <jgross@suse.com>, Oleksandr Andrushchenko <andr2000@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.20.1806121708070.3334@hadrien>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
+Cc: brijesh.singh-5C7GfCeVMHo@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, keith.busch-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, kbuild-all-JC7UmRfGjtg@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org, devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, davem-fT/PcQaiUtJq0hI55+XSNA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 06/13/2018 09:40 AM, Juergen Gross wrote:
-> On 13/06/18 08:13, Oleksandr Andrushchenko wrote:
->> On 06/13/2018 09:11 AM, Dmitry Torokhov wrote:
->>> On June 12, 2018 10:49:31 PM PDT, Oleksandr Andrushchenko
->>> <andr2000@gmail.com> wrote:
->>>> On 06/13/2018 02:40 AM, Dmitry Torokhov wrote:
->>>>> On Tue, Jun 12, 2018 at 03:46:10PM +0200, Juergen Gross wrote:
->>>>>> On 12/06/18 09:48, Oleksandr Andrushchenko wrote:
->>>>>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
->>>>>>>
->>>>>>> This is the sync up with the canonical definitions of the input,
->>>>>>> sound and display protocols in Xen.
->>>>>>>
->>>>>>> Changes to kbdif:
->>>>>>> 1. Add missing string constants for {feature|request}-raw-pointer
->>>>>>>       to align with the rest of the interface file.
->>>>>>>
->>>>>>> 2. Add new XenStore feature fields, so it is possible to
->>>> individually
->>>>>>>       control set of exposed virtual devices for each guest OS:
->>>>>>>         - set feature-disable-keyboard to 1 if no keyboard device
->>>> needs
->>>>>>>           to be created
->>>>>>>         - set feature-disable-pointer to 1 if no pointer device needs
->>>>>>>           to be created
->>>>>>>
->>>>>>> 3. Move multi-touch device parameters to backend nodes: these are
->>>>>>>        described as a part of frontend's XenBus configuration nodes
->>>>>>>        while they belong to backend's configuration. Fix this by
->>>> moving
->>>>>>>        the parameters to the proper section.
->>>>>>>
->>>>>>> Unique-id field:
->>>>>>> 1. Add unique-id XenBus entry for virtual input and display.
->>>>>>>
->>>>>>> 2. Change type of unique-id field to string for sndif to align with
->>>>>>> display and input protocols.
->>>>>>>
->>>>>>> Signed-off-by: Oleksandr Andrushchenko
->>>> <oleksandr_andrushchenko@epam.com>
->>>>>>> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
->>>>>> Reviewed-by: Juergen Gross <jgross@suse.com>
->>>>>>
->>>>>> I'm fine with this patch being added via the input tree with the
->>>> other
->>>>>> patches. In case I should take it via the Xen tree, please send me a
->>>>>> note.
->>>>> Juergen,
->>>>>
->>>>> I created an immutable branch off v4.17 with these 3 patches in case
->>>> you
->>>>> would want to merge them into your tree without waiting for them to
->>>>> appear in mainline:
->>>>>
->>>>> git pull git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
->>>> ib/4.17-xen-kbdfront-runtime-config
->>>>> Thanks.
->>>>>
->>>> Thank you,
->>>> I would prefer the fastest path of course
->>> It will be part of 4.19 pull request; the immutable branch is for
->>> Juergen if he does not want to wait till 4.19 merge window to get the
->>> changes.
->> Ah, I see. Juergen, can we please merge this via Xen tree then which
->> I assume will be faster?
-> As Dmitry has it already queued in the input tree I think this is fine.
-> I trust him to take the right decision for which kernel version those
-> patches are to be queued. They belong to the input tree after all.
-Of course, no doubt here
->
-> Juergen
->
-Thank you,
-Oleksandr
+On 06/12/18 at 05:10pm, Julia Lawall wrote:
+> This looks wrong.  After a list iterator, the index variable points to a
+> dummy structure.
+> 
+> julia
+> 
+> url:    https://github.com/0day-ci/linux/commits/Baoquan-He/resource-Use-list_head-to-link-sibling-resource/20180612-113600
+> :::::: branch date: 7 hours ago
+> :::::: commit date: 7 hours ago
+> 
+> >> kernel/resource.c:265:17-20: ERROR: invalid reference to the index variable of the iterator on line 253
+> 
+> # https://github.com/0day-ci/linux/commit/e906f15906750a86913ba2b1f08bad99129d3dfc
+> git remote add linux-review https://github.com/0day-ci/linux
+> git remote update linux-review
+> git checkout e906f15906750a86913ba2b1f08bad99129d3dfc
+> vim +265 kernel/resource.c
+> 
+> ^1da177e4 Linus Torvalds 2005-04-16  247
+> 5eeec0ec9 Yinghai Lu     2009-12-22  248  static void __release_child_resources(struct resource *r)
+> 5eeec0ec9 Yinghai Lu     2009-12-22  249  {
+> e906f1590 Baoquan He     2018-06-12  250  	struct resource *tmp, *next;
+> 5eeec0ec9 Yinghai Lu     2009-12-22  251  	resource_size_t size;
+> 5eeec0ec9 Yinghai Lu     2009-12-22  252
+> e906f1590 Baoquan He     2018-06-12 @253  	list_for_each_entry_safe(tmp, next, &r->child, sibling) {
+> 5eeec0ec9 Yinghai Lu     2009-12-22  254  		tmp->parent = NULL;
+> e906f1590 Baoquan He     2018-06-12  255  		INIT_LIST_HEAD(&tmp->sibling);
+
+							list_del_init(&tmp->sibling);
+
+Thanks, Julia. Here I should use list_del_init(&op->list) to
+replace INIT_LIST_HEAD(&tmp->sibling). 
+
+> 5eeec0ec9 Yinghai Lu     2009-12-22  256  		__release_child_resources(tmp);
+> 5eeec0ec9 Yinghai Lu     2009-12-22  257
+> 5eeec0ec9 Yinghai Lu     2009-12-22  258  		printk(KERN_DEBUG "release child resource %pR\n", tmp);
+> 5eeec0ec9 Yinghai Lu     2009-12-22  259  		/* need to restore size, and keep flags */
+> 5eeec0ec9 Yinghai Lu     2009-12-22  260  		size = resource_size(tmp);
+> 5eeec0ec9 Yinghai Lu     2009-12-22  261  		tmp->start = 0;
+> 5eeec0ec9 Yinghai Lu     2009-12-22  262  		tmp->end = size - 1;
+> 5eeec0ec9 Yinghai Lu     2009-12-22  263  	}
+> e906f1590 Baoquan He     2018-06-12  264
+> e906f1590 Baoquan He     2018-06-12 @265  	INIT_LIST_HEAD(&tmp->child);
+> 5eeec0ec9 Yinghai Lu     2009-12-22  266  }
+> 5eeec0ec9 Yinghai Lu     2009-12-22  267
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation

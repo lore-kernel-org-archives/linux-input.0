@@ -1,56 +1,55 @@
 From: "Xu, Even" <even.xu@intel.com>
 Subject: RE: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to
  support hibernation
-Date: Wed, 13 Jun 2018 00:04:08 +0000
-Message-ID: <9577C59DB499174B9340876B077C2E9569DF11D7@SHSMSX101.ccr.corp.intel.com>
+Date: Wed, 13 Jun 2018 00:05:55 +0000
+Message-ID: <9577C59DB499174B9340876B077C2E9569DF11EC@SHSMSX101.ccr.corp.intel.com>
 References: <20180611015650.51385-1-srinivas.pandruvada@linux.intel.com>
- <nycvar.YFH.7.76.1806121651460.6203@cbobk.fhfr.pm>
+         <nycvar.YFH.7.76.1806121651460.6203@cbobk.fhfr.pm>
+ <634cd945beca786dc77876f71e39459cef6fbd75.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1806121651460.6203@cbobk.fhfr.pm>
+In-Reply-To: <634cd945beca786dc77876f71e39459cef6fbd75.camel@linux.intel.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
 Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi, Jiri Kosina,
-
-If without this patch, the platform with ISH, its hibernation resume will take more than 10s because of ISH resume failure, it will also cause ISH not functional.
-With this patch, everything will go will.
-
-Best Regards,
-Even Xu
-
-
------Original Message-----
-From: Jiri Kosina [mailto:jikos@kernel.org] 
-Sent: Tuesday, June 12, 2018 10:53 PM
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: benjamin.tissoires@redhat.com; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Xu, Even <even.xu@intel.com>
-Subject: Re: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to support hibernation
-
-On Sun, 10 Jun 2018, Srinivas Pandruvada wrote:
-
-> From: Even Xu <even.xu@intel.com>
-> 
-> Current ish driver only register resume/suspend PM callbacks which 
-> don't support hibernation (suspend to disk). Now use the
-> SIMPLE_DEV_PM_OPS() MACRO instead of struct dev_pm_ops directly.
-> The suspend and resume functions will now be used for both suspend to 
-> RAM and hibernation.
-> 
-> If power management is disable, SIMPLE_DEV_PM_OPS will do nothing, the 
-> suspend and resume related functions won't be used, so mark them as 
-> __maybe_unused to clarify that this is intended behavior, and remove 
-> #ifdefs for power management.
-
-This describes details the patch does on code level, but what are the user observable effects? Hibernation resume doesn't fail any more? Hibernation is possible (and wasn't before)? Did kernel crash while trying to hibernate and this is the fix? Or ... ?
-
-Thanks,
-
---
-Jiri Kosina
-SUSE Labs
+T2ssIHN1cmUsIEkgd2lsbCB1cGRhdGUgcGF0Y2ggY29tbWVudHMgYW5kIHJlc3VibWl0Lg0KVGhh
+bmtzIFNyaW5pdmFzIQ0KDQpCZXN0IFJlZ2FyZHMsDQpFdmVuIFh1DQoNCg0KDQotLS0tLU9yaWdp
+bmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogU3Jpbml2YXMgUGFuZHJ1dmFkYSBbbWFpbHRvOnNyaW5p
+dmFzLnBhbmRydXZhZGFAbGludXguaW50ZWwuY29tXSANClNlbnQ6IFR1ZXNkYXksIEp1bmUgMTIs
+IDIwMTggMTE6MzEgUE0NClRvOiBKaXJpIEtvc2luYSA8amlrb3NAa2VybmVsLm9yZz47IFh1LCBF
+dmVuIDxldmVuLnh1QGludGVsLmNvbT4NCkNjOiBiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNv
+bTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwu
+b3JnOyBYdSwgRXZlbiA8ZXZlbi54dUBpbnRlbC5jb20+DQpTdWJqZWN0OiBSZTogW1BBVENIXSBo
+aWQ6IGludGVsX2lzaC1oaWQ6IGlwYzogcmVnaXN0ZXIgbW9yZSBwbSBjYWxsYmFja3MgdG8gc3Vw
+cG9ydCBoaWJlcm5hdGlvbg0KDQpPbiBUdWUsIDIwMTgtMDYtMTIgYXQgMTY6NTMgKzAyMDAsIEpp
+cmkgS29zaW5hIHdyb3RlOg0KPiBPbiBTdW4sIDEwIEp1biAyMDE4LCBTcmluaXZhcyBQYW5kcnV2
+YWRhIHdyb3RlOg0KPiANCj4gPiBGcm9tOiBFdmVuIFh1IDxldmVuLnh1QGludGVsLmNvbT4NCj4g
+PiANCj4gPiBDdXJyZW50IGlzaCBkcml2ZXIgb25seSByZWdpc3RlciByZXN1bWUvc3VzcGVuZCBQ
+TSBjYWxsYmFja3Mgd2hpY2ggDQo+ID4gZG9uJ3Qgc3VwcG9ydCBoaWJlcm5hdGlvbiAoc3VzcGVu
+ZCB0byBkaXNrKS4gTm93IHVzZSB0aGUNCj4gPiBTSU1QTEVfREVWX1BNX09QUygpIE1BQ1JPIGlu
+c3RlYWQgb2Ygc3RydWN0IGRldl9wbV9vcHMgZGlyZWN0bHkuDQo+ID4gVGhlIHN1c3BlbmQgYW5k
+IHJlc3VtZSBmdW5jdGlvbnMgd2lsbCBub3cgYmUgdXNlZCBmb3IgYm90aCBzdXNwZW5kIA0KPiA+
+IHRvIFJBTSBhbmQgaGliZXJuYXRpb24uDQo+ID4gDQo+ID4gSWYgcG93ZXIgbWFuYWdlbWVudCBp
+cyBkaXNhYmxlLCBTSU1QTEVfREVWX1BNX09QUyB3aWxsIGRvIG5vdGhpbmcsIA0KPiA+IHRoZSBz
+dXNwZW5kIGFuZCByZXN1bWUgcmVsYXRlZCBmdW5jdGlvbnMgd29uJ3QgYmUgdXNlZCwgc28gbWFy
+ayB0aGVtIA0KPiA+IGFzIF9fbWF5YmVfdW51c2VkIHRvIGNsYXJpZnkgdGhhdCB0aGlzIGlzIGlu
+dGVuZGVkIGJlaGF2aW9yLCBhbmQgDQo+ID4gcmVtb3ZlICNpZmRlZnMgZm9yIHBvd2VyIG1hbmFn
+ZW1lbnQuDQo+IA0KPiBUaGlzIGRlc2NyaWJlcyBkZXRhaWxzIHRoZSBwYXRjaCBkb2VzIG9uIGNv
+ZGUgbGV2ZWwsIGJ1dCB3aGF0IGFyZSB0aGUgDQo+IHVzZXIgb2JzZXJ2YWJsZSBlZmZlY3RzPyBI
+aWJlcm5hdGlvbiByZXN1bWUgZG9lc24ndCBmYWlsIGFueSBtb3JlPw0KPiBIaWJlcm5hdGlvbg0K
+PiBpcyBwb3NzaWJsZSAoYW5kIHdhc24ndCBiZWZvcmUpPyBEaWQga2VybmVsIGNyYXNoIHdoaWxl
+IHRyeWluZyB0byANCj4gaGliZXJuYXRlIGFuZCB0aGlzIGlzIHRoZSBmaXg/IE9yIC4uLiA/DQpF
+dmVuLA0KQ2FuIHlvdSBhZGQgbW9yZSBkZXRhaWxzIGFuZCByZXN1Ym1pdCBBU0FQPw0KDQpCYXNp
+Y2FsbHkgYWZ0ZXIgaGliZXJhdGlvbiwgdGhlIElTSCBjYW4ndCByZXN1bWUgcHJvcGVybHkgYW5k
+IHVzZXIgbWF5IG5vdCBzZWUgc2Vuc29yIGV2ZW50cyAoZm9yIGV4YW1wbGU6IHNjcmVlbiByb3Rh
+dGlvbiBtYXkgbm90IHdvcmspLg0KVXNlciB3aWxsIG5vdCBzZWUgYSBjcmFzaCBvciBwYW5pYyBv
+ciBhbnl0aGluZyBleGNlcHQgdGhlIGZvbGxvd2luZyBtZXNzYWdlIGluIGxvZzoNCmhpZC1zZW5z
+b3ItaHViIDAwMUY6ODA4NjoyMkQ4LjAwMDE6IHRpbWVvdXQgd2FpdGluZyBmb3IgcmVzcG9uc2Ug
+ZnJvbSBJU0hUUCBkZXZpY2UgDQoNClNvIHRoaXMgaXMgYWRkaW5nIHN1cHBvcnQgZm9yIFM0L2hp
+YmVyYmF0aW9uIHRvIElTSC4NCg0KDQoNClRoYW5rcywNClNyaW5pdmFzDQoNCj4gDQo+IFRoYW5r
+cywNCj4gDQo=

@@ -1,43 +1,34 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to
- support hibernation
-Date: Wed, 13 Jun 2018 13:34:12 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1806131333500.6203@cbobk.fhfr.pm>
-References: <1455221494-2915-1-git-send-email-even.xu@intel.com>
+Subject: Re: [PATCH] HID: wacom: Correct logical maximum Y for 2nd-gen Intuos
+ Pro large
+Date: Wed, 13 Jun 2018 15:44:15 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1806131544050.6203@cbobk.fhfr.pm>
+References: <20180612204246.6623-1-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1455221494-2915-1-git-send-email-even.xu@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Even Xu <even.xu@intel.com>
-Cc: srinivas.pandruvada@linux.intel.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180612204246.6623-1-killertofu@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 12 Feb 2016, Even Xu wrote:
+On Tue, 12 Jun 2018, Jason Gerecke wrote:
 
-> Current ISH driver only registers suspend/resume PM callbacks which don't
-> support hibernation (suspend to disk). Basically after hiberation, the ISH
-> can't resume properly and user may not see sensor events
-> (for example: screen rotation may not work).
+> The HID descriptor for the 2nd-gen Intuos Pro large (PTH-860) contains
+> a typo which defines an incorrect logical maximum Y value. This causes
+> a small portion of the bottom of the tablet to become unusable (both
+> because the area is below the "bottom" of the tablet and because
+> 'wacom_wac_event' ignores out-of-range values). It also results in a
+> skewed aspect ratio.
 > 
-> User will not see a crash or panic or anything except the following message
-> in log:
-> hid-sensor-hub 001F:8086:22D8.0001: timeout waiting for response from ISHTP device
+> To fix this, we add a quirk to 'wacom_usage_mapping' which overwrites
+> the data with the correct value.
 > 
-> So this patch adds support for S4/hiberbation to ISH by using the
-> SIMPLE_DEV_PM_OPS() MACRO instead of struct dev_pm_ops directly. The suspend
-> and resume functions will now be used for both suspend to RAM and hibernation.
-> 
-> If power management is disabled, SIMPLE_DEV_PM_OPS will do nothing, the suspend
-> and resume related functions won't be used, so mark them as __maybe_unused to
-> clarify that this is the intended behavior, and remove #ifdefs for power
-> management.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Even Xu <even.xu@intel.com>
-> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> CC: stable@vger.kernel.org # v4.10+
 
-Applied to hid.git#for-4.18/upstream-fixes. Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

@@ -1,68 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 1/3] xen: Sync up with the canonical protocol
- definitions in Xen
-Date: Tue, 12 Jun 2018 16:40:20 -0700
-Message-ID: <20180612234020.GI38773@dtor-ws>
-References: <20180612074856.28451-1-andr2000@gmail.com>
- <20180612074856.28451-2-andr2000@gmail.com>
- <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com>
+From: "Xu, Even" <even.xu@intel.com>
+Subject: RE: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to
+ support hibernation
+Date: Wed, 13 Jun 2018 00:04:08 +0000
+Message-ID: <9577C59DB499174B9340876B077C2E9569DF11D7@SHSMSX101.ccr.corp.intel.com>
+References: <20180611015650.51385-1-srinivas.pandruvada@linux.intel.com>
+ <nycvar.YFH.7.76.1806121651460.6203@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com>
+In-Reply-To: <nycvar.YFH.7.76.1806121651460.6203@cbobk.fhfr.pm>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Juergen Gross <jgross@suse.com>
-Cc: Oleksandr Andrushchenko <andr2000@gmail.com>, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+To: Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jun 12, 2018 at 03:46:10PM +0200, Juergen Gross wrote:
-> On 12/06/18 09:48, Oleksandr Andrushchenko wrote:
-> > From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> > 
-> > This is the sync up with the canonical definitions of the input,
-> > sound and display protocols in Xen.
-> > 
-> > Changes to kbdif:
-> > 1. Add missing string constants for {feature|request}-raw-pointer
-> >    to align with the rest of the interface file.
-> > 
-> > 2. Add new XenStore feature fields, so it is possible to individually
-> >    control set of exposed virtual devices for each guest OS:
-> >      - set feature-disable-keyboard to 1 if no keyboard device needs
-> >        to be created
-> >      - set feature-disable-pointer to 1 if no pointer device needs
-> >        to be created
-> > 
-> > 3. Move multi-touch device parameters to backend nodes: these are
-> >     described as a part of frontend's XenBus configuration nodes
-> >     while they belong to backend's configuration. Fix this by moving
-> >     the parameters to the proper section.
-> > 
-> > Unique-id field:
-> > 1. Add unique-id XenBus entry for virtual input and display.
-> > 
-> > 2. Change type of unique-id field to string for sndif to align with
-> > display and input protocols.
-> > 
-> > Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
-> > Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Hi, Jiri Kosina,
+
+If without this patch, the platform with ISH, its hibernation resume will take more than 10s because of ISH resume failure, it will also cause ISH not functional.
+With this patch, everything will go will.
+
+Best Regards,
+Even Xu
+
+
+-----Original Message-----
+From: Jiri Kosina [mailto:jikos@kernel.org] 
+Sent: Tuesday, June 12, 2018 10:53 PM
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: benjamin.tissoires@redhat.com; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Xu, Even <even.xu@intel.com>
+Subject: Re: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to support hibernation
+
+On Sun, 10 Jun 2018, Srinivas Pandruvada wrote:
+
+> From: Even Xu <even.xu@intel.com>
 > 
-> Reviewed-by: Juergen Gross <jgross@suse.com>
+> Current ish driver only register resume/suspend PM callbacks which 
+> don't support hibernation (suspend to disk). Now use the
+> SIMPLE_DEV_PM_OPS() MACRO instead of struct dev_pm_ops directly.
+> The suspend and resume functions will now be used for both suspend to 
+> RAM and hibernation.
 > 
-> I'm fine with this patch being added via the input tree with the other
-> patches. In case I should take it via the Xen tree, please send me a
-> note.
+> If power management is disable, SIMPLE_DEV_PM_OPS will do nothing, the 
+> suspend and resume related functions won't be used, so mark them as 
+> __maybe_unused to clarify that this is intended behavior, and remove 
+> #ifdefs for power management.
 
-Juergen,
+This describes details the patch does on code level, but what are the user observable effects? Hibernation resume doesn't fail any more? Hibernation is possible (and wasn't before)? Did kernel crash while trying to hibernate and this is the fix? Or ... ?
 
-I created an immutable branch off v4.17 with these 3 patches in case you
-would want to merge them into your tree without waiting for them to
-appear in mainline:
+Thanks,
 
-git pull git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git ib/4.17-xen-kbdfront-runtime-config
-
-Thanks.
-
--- 
-Dmitry
+--
+Jiri Kosina
+SUSE Labs

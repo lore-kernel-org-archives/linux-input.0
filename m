@@ -1,111 +1,85 @@
-From: Even Xu <even.xu@intel.com>
-Subject: [PATCH] hid: intel_ish-hid: ipc: register more pm callbacks to support hibernation
-Date: Fri, 12 Feb 2016 04:11:34 +0800
-Message-ID: <1455221494-2915-1-git-send-email-even.xu@intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v5 1/3] xen: Sync up with the canonical protocol definitions in Xen
+Date: Tue, 12 Jun 2018 23:11:50 -0700
+Message-ID: <D53587A2-5B1B-4D8F-8772-04D453B93D38@gmail.com>
+References: <20180612074856.28451-1-andr2000@gmail.com> <20180612074856.28451-2-andr2000@gmail.com> <9c579567-ebe2-f465-5443-b3a3e71d34a5@suse.com> <20180612234020.GI38773@dtor-ws> <3605901d-4a72-3f5a-6d74-cb13d2414a0b@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3605901d-4a72-3f5a-6d74-cb13d2414a0b@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: srinivas.pandruvada@linux.intel.com, jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Even Xu <even.xu@intel.com>, stable@vger.kernel.org
+To: Oleksandr Andrushchenko <andr2000@gmail.com>, Juergen Gross <jgross@suse.com>
+Cc: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, lyan@suse.com, boris.ostrovsky@oracle.com, konrad.wilk@oracle.com, andrii_chepurnyi@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-Current ISH driver only registers suspend/resume PM callbacks which don't
-support hibernation (suspend to disk). Basically after hiberation, the ISH
-can't resume properly and user may not see sensor events
-(for example: screen rotation may not work).
+On June 12, 2018 10:49:31 PM PDT, Oleksandr Andrushchenko <andr2000@gmail=
+=2Ecom> wrote:
+>On 06/13/2018 02:40 AM, Dmitry Torokhov wrote:
+>> On Tue, Jun 12, 2018 at 03:46:10PM +0200, Juergen Gross wrote:
+>>> On 12/06/18 09:48, Oleksandr Andrushchenko wrote:
+>>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam=2Ecom>
+>>>>
+>>>> This is the sync up with the canonical definitions of the input,
+>>>> sound and display protocols in Xen=2E
+>>>>
+>>>> Changes to kbdif:
+>>>> 1=2E Add missing string constants for {feature|request}-raw-pointer
+>>>>     to align with the rest of the interface file=2E
+>>>>
+>>>> 2=2E Add new XenStore feature fields, so it is possible to
+>individually
+>>>>     control set of exposed virtual devices for each guest OS:
+>>>>       - set feature-disable-keyboard to 1 if no keyboard device
+>needs
+>>>>         to be created
+>>>>       - set feature-disable-pointer to 1 if no pointer device needs
+>>>>         to be created
+>>>>
+>>>> 3=2E Move multi-touch device parameters to backend nodes: these are
+>>>>      described as a part of frontend's XenBus configuration nodes
+>>>>      while they belong to backend's configuration=2E Fix this by
+>moving
+>>>>      the parameters to the proper section=2E
+>>>>
+>>>> Unique-id field:
+>>>> 1=2E Add unique-id XenBus entry for virtual input and display=2E
+>>>>
+>>>> 2=2E Change type of unique-id field to string for sndif to align with
+>>>> display and input protocols=2E
+>>>>
+>>>> Signed-off-by: Oleksandr Andrushchenko
+><oleksandr_andrushchenko@epam=2Ecom>
+>>>> Cc: Konrad Rzeszutek Wilk <konrad=2Ewilk@oracle=2Ecom>
+>>> Reviewed-by: Juergen Gross <jgross@suse=2Ecom>
+>>>
+>>> I'm fine with this patch being added via the input tree with the
+>other
+>>> patches=2E In case I should take it via the Xen tree, please send me a
+>>> note=2E
+>> Juergen,
+>>
+>> I created an immutable branch off v4=2E17 with these 3 patches in case
+>you
+>> would want to merge them into your tree without waiting for them to
+>> appear in mainline:
+>>
+>> git pull git://git=2Ekernel=2Eorg/pub/scm/linux/kernel/git/dtor/input=
+=2Egit
+>ib/4=2E17-xen-kbdfront-runtime-config
+>>
+>> Thanks=2E
+>>
+>Thank you,
+>I would prefer the fastest path of course
 
-User will not see a crash or panic or anything except the following message
-in log:
-hid-sensor-hub 001F:8086:22D8.0001: timeout waiting for response from ISHTP device
+It will be part of 4=2E19 pull request; the immutable branch is for Juerge=
+n if he does not want to wait till 4=2E19 merge window to get the changes=
+=2E
 
-So this patch adds support for S4/hiberbation to ISH by using the
-SIMPLE_DEV_PM_OPS() MACRO instead of struct dev_pm_ops directly. The suspend
-and resume functions will now be used for both suspend to RAM and hibernation.
 
-If power management is disabled, SIMPLE_DEV_PM_OPS will do nothing, the suspend
-and resume related functions won't be used, so mark them as __maybe_unused to
-clarify that this is the intended behavior, and remove #ifdefs for power
-management.
+Thanks=2E
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Even Xu <even.xu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 582e449..a2c53ea 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -205,8 +205,7 @@ static void ish_remove(struct pci_dev *pdev)
- 	kfree(ishtp_dev);
- }
- 
--#ifdef CONFIG_PM
--static struct device *ish_resume_device;
-+static struct device __maybe_unused *ish_resume_device;
- 
- /* 50ms to get resume response */
- #define WAIT_FOR_RESUME_ACK_MS		50
-@@ -220,7 +219,7 @@ static struct device *ish_resume_device;
-  * in that case a simple resume message is enough, others we need
-  * a reset sequence.
-  */
--static void ish_resume_handler(struct work_struct *work)
-+static void __maybe_unused ish_resume_handler(struct work_struct *work)
- {
- 	struct pci_dev *pdev = to_pci_dev(ish_resume_device);
- 	struct ishtp_device *dev = pci_get_drvdata(pdev);
-@@ -262,7 +261,7 @@ static void ish_resume_handler(struct work_struct *work)
-  *
-  * Return: 0 to the pm core
-  */
--static int ish_suspend(struct device *device)
-+static int __maybe_unused ish_suspend(struct device *device)
- {
- 	struct pci_dev *pdev = to_pci_dev(device);
- 	struct ishtp_device *dev = pci_get_drvdata(pdev);
-@@ -288,7 +287,7 @@ static int ish_suspend(struct device *device)
- 	return 0;
- }
- 
--static DECLARE_WORK(resume_work, ish_resume_handler);
-+static __maybe_unused DECLARE_WORK(resume_work, ish_resume_handler);
- /**
-  * ish_resume() - ISH resume callback
-  * @device:	device pointer
-@@ -297,7 +296,7 @@ static DECLARE_WORK(resume_work, ish_resume_handler);
-  *
-  * Return: 0 to the pm core
-  */
--static int ish_resume(struct device *device)
-+static int __maybe_unused ish_resume(struct device *device)
- {
- 	struct pci_dev *pdev = to_pci_dev(device);
- 	struct ishtp_device *dev = pci_get_drvdata(pdev);
-@@ -311,21 +310,14 @@ static int ish_resume(struct device *device)
- 	return 0;
- }
- 
--static const struct dev_pm_ops ish_pm_ops = {
--	.suspend = ish_suspend,
--	.resume = ish_resume,
--};
--#define ISHTP_ISH_PM_OPS	(&ish_pm_ops)
--#else
--#define ISHTP_ISH_PM_OPS	NULL
--#endif /* CONFIG_PM */
-+static SIMPLE_DEV_PM_OPS(ish_pm_ops, ish_suspend, ish_resume);
- 
- static struct pci_driver ish_driver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = ish_pci_tbl,
- 	.probe = ish_probe,
- 	.remove = ish_remove,
--	.driver.pm = ISHTP_ISH_PM_OPS,
-+	.driver.pm = &ish_pm_ops,
- };
- 
- module_pci_driver(ish_driver);
--- 
-2.7.4
+--=20
+Dmitry

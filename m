@@ -1,35 +1,39 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Correct logical maximum Y for 2nd-gen Intuos
- Pro large
-Date: Wed, 13 Jun 2018 15:44:15 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1806131544050.6203@cbobk.fhfr.pm>
-References: <20180612204246.6623-1-killertofu@gmail.com>
+From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+Subject: Re: [PATCH v5] Input: add bu21029 touch driver
+Date: Wed, 13 Jun 2018 15:27:16 +0000
+Message-ID: <73b4ea3ce1aa453681fae87b7bad5cab@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180612204246.6623-1-killertofu@gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: de-DE
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 12 Jun 2018, Jason Gerecke wrote:
+Hello Dmitry,
 
-> The HID descriptor for the 2nd-gen Intuos Pro large (PTH-860) contains
-> a typo which defines an incorrect logical maximum Y value. This causes
-> a small portion of the bottom of the tablet to become unusable (both
-> because the area is below the "bottom" of the tablet and because
-> 'wacom_wac_event' ignores out-of-range values). It also results in a
-> skewed aspect ratio.
-> 
-> To fix this, we add a quirk to 'wacom_usage_mapping' which overwrites
-> the data with the correct value.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> CC: stable@vger.kernel.org # v4.10+
+> > [PATCH v5] Input: add bu21029 touch driver
+> >
+> > Add Rohm BU21029 resistive touch panel controller support with I2C
+> > interface.
+>=20
+> Is the patch ready to be pushed upstream? Is there anything I still need =
+to do?
 
-Applied, thanks.
+I would like to kindly remind you of the BU21029 touch screen driver.
+Could you please forward it to the mainline kernel?
 
--- 
-Jiri Kosina
-SUSE Labs
+Greetings,
+Mark
+
+ Mark Jonas
+
+Building Technologies, Panel Software Fire (BT-FIR/ENG1)=20
+Bosch Sicherheitssysteme GmbH | Postfach 11 11 | 85626 Grasbrunn | GERMANY =
+| www.boschsecurity.com
+
+Sitz: Stuttgart, Registergericht: Amtsgericht Stuttgart HRB 23118=20
+Aufsichtsratsvorsitzender: Stefan Hartung; Gesch=E4ftsf=FChrung: Gert van I=
+peren, Andreas Bartz, Thomas Quante, Bernhard Schuster

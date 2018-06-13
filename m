@@ -1,39 +1,63 @@
-From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
-Subject: Re: [PATCH v5] Input: add bu21029 touch driver
-Date: Wed, 13 Jun 2018 15:27:16 +0000
-Message-ID: <73b4ea3ce1aa453681fae87b7bad5cab@de.bosch.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 04/10] Input: ams_delta_serio: Replace power GPIO with
+ regulator
+Date: Wed, 13 Jun 2018 13:51:44 -0700
+Message-ID: <20180613205144.GB62746@dtor-ws>
+References: <20180609140224.32606-1-jmkrzyszt@gmail.com>
+ <20180609140224.32606-4-jmkrzyszt@gmail.com>
+ <20180612221724.GB38773@dtor-ws>
+ <2655614.ErW8VuCT6r@z50>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: de-DE
+Content-Disposition: inline
+In-Reply-To: <2655614.ErW8VuCT6r@z50>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>, "ZHU Yi (BT-FIR/ENG1-Zhu)" <Yi.Zhu5@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, "David S . Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello Dmitry,
+On Wed, Jun 13, 2018 at 03:01:05AM +0200, Janusz Krzysztofik wrote:
+> On Wednesday, June 13, 2018 12:17:24 AM CEST Dmitry Torokhov wrote:
+> > On Sat, Jun 09, 2018 at 04:02:18PM +0200, Janusz Krzysztofik wrote:
+> > > ...
+> > > +	priv->vcc = devm_regulator_get(&pdev->dev, "vcc");
+> > > +	if (IS_ERR(priv->vcc)) {
+> > > +		err = PTR_ERR(priv->vcc);
+> > > +		dev_err(&pdev->dev, "regulator request failed (%d)\n", err);
+> > > +		/* Fail softly if the regulator is not available yet */
+> > > +		if (err == -ENODEV)
+> > > +			err = -EPROBE_DEFER;
+> > 
+> > Hmm, if regulator is not ready yet, devm_regulator_get() should be
+> > returning -EPROBE_DEFER already, we should not have to convert -ENODEV
+> > to -EPROBE_DEFER...
+> 
+> Regulator is not ready because its initialization at subsys_initcall is 
+> deferred by not ready GPIO pin, that in turn is caused by gpio-mmio driver, 
+> unlike many other GPIO drivers, registered as late as at device_initcall.
+> 
+> I agree devm_regulator_get() could return -EPROBE_DEFER in this case, but I 
+> can see it does that only when of_get_regulator() indicates the regulator 
+> should exist. In non-dt case there is apparently no way to justify if it 
+> should unless its consumer supply table was already in place. For that,  
+> registration of that table would have to be independent of successful 
+> registration of the regulator itself while it's not. Maybe it should, but 
+> that's a separate topic for a separate discussion, I think.
+> 
+> > Is it because we have_full_constraints() returns false? You might need
+> > to add call to regulator_has_full_constraints() to your board file.
+> 
+> If have_full_constraints() returned true before the regulator or its consumer 
+> supply table is ready, devm_regulator_get() would happily return a dummy 
+> regulator and our keyboard would never get its power.
+> 
+> I'm afraid we have to live with that return code conversion as long as the 
+> only user of this driver is not migrated to dt.
 
-> > [PATCH v5] Input: add bu21029 touch driver
-> >
-> > Add Rohm BU21029 resistive touch panel controller support with I2C
-> > interface.
->=20
-> Is the patch ready to be pushed upstream? Is there anything I still need =
-to do?
+OK, fair enough. Can you please add a comment to that effect?
 
-I would like to kindly remind you of the BU21029 touch screen driver.
-Could you please forward it to the mainline kernel?
+Thanks.
 
-Greetings,
-Mark
-
- Mark Jonas
-
-Building Technologies, Panel Software Fire (BT-FIR/ENG1)=20
-Bosch Sicherheitssysteme GmbH | Postfach 11 11 | 85626 Grasbrunn | GERMANY =
-| www.boschsecurity.com
-
-Sitz: Stuttgart, Registergericht: Amtsgericht Stuttgart HRB 23118=20
-Aufsichtsratsvorsitzender: Stefan Hartung; Gesch=E4ftsf=FChrung: Gert van I=
-peren, Andreas Bartz, Thomas Quante, Bernhard Schuster
+-- 
+Dmitry

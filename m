@@ -1,79 +1,88 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 06/10] ARM: OMAP1: ams-delta FIQ: don't use static GPIO numbers
-Date: Thu, 14 Jun 2018 10:45:57 +0200
-Message-ID: <CACRpkdZj0c+pY7u63SDcUK_i7pPQDkgCgsm2cc37H2uHjZjDFw@mail.gmail.com>
-References: <20180609140224.32606-1-jmkrzyszt@gmail.com> <20180609140224.32606-6-jmkrzyszt@gmail.com>
+From: syzbot <syzbot+c382812c78d98ecd9fb8@syzkaller.appspotmail.com>
+Subject: WARNING in input_alloc_absinfo
+Date: Thu, 14 Jun 2018 05:47:03 -0700
+Message-ID: <000000000000fe1d2b056e997e1f@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180609140224.32606-6-jmkrzyszt@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, "David S . Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Linux Input <linux-input@vger.kernel.org>, Linux-OMAP <linux-omap@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rydberg@bitmath.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jun 9, 2018 at 4:02 PM, Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
+Hello,
 
-> With introduction of GPIO lookup tables to Amstrad Delta board init
-> file, semantics of symbols representing OMAP GPIO pins defined in
-> <mach/board-ams-delta.h> changed from statically assigned global GPIO
-> numbers to hardware pin numbers local to OMAP "gpio-0-15" chip.
->
-> This patch modifies deferred FIQ interrupt handler so it no longer uses
-> static GPIO numbers in favour of IRQ data descriptors obtained at FIQ
-> initialization time from descriptor of the GPIO chip with use of its
-> hardware pin numbers.  The chip descriptor is passed from the board
-> init file.
->
-> As a benefit, the deferred FIQ handler should work faster.
->
-> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+syzbot found the following crash on:
 
-Making the kernel a better place, so:
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+HEAD commit:    d2d741e5d189 kmsan: add initialization for shmem pages
+git tree:       https://github.com/google/kmsan.git/master
+console output: https://syzkaller.appspot.com/x/log.txt?x=1775bae7800000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=48f9de3384bcd0f
+dashboard link: https://syzkaller.appspot.com/bug?extid=c382812c78d98ecd9fb8
+compiler:       clang version 7.0.0 (trunk 329391)
+syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=13b31ae7800000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1733255b800000
 
-> +/*
-> + * Some drivers may not use GPIO lookup tables but need to be provided
-> + * with GPIO numbers.  The same applies to GPIO based IRQ lines - some
-> + * drivers may even not use GPIO layer but expect just IRQ numbers.
-> + * We could either define GPIO lookup tables then use them on behalf
-> + * of those devices, or we can use GPIO driver level methods for
-> + * identification of GPIO and IRQ numbers. For the purpose of the latter,
-> + * defina a helper function which identifies GPIO chips by their labels.
-> + */
-> +static int gpiochip_match_by_label(struct gpio_chip *chip, void *data)
-> +{
-> +       char *label = data;
-> +
-> +       return !strcmp(label, chip->label);
-> +}
-> +
-> +/*
-> + * The purpose of this function is to take care of proper initialization of
-> + * devices and data structures which depend on GPIO lines provided by OMAP GPIO
-> + * banks but their drivers don't use GPIO lookup tables or GPIO layer at all.
-> + * The function may be called as soon as OMAP GPIO devices are probed.
-> + * Since that happens at postcore_initcall, it can be called successfully
-> + * from init_machine or later.
-> + * Dependent devices may be registered from within this function or later.
-> + */
-> +static void __init omap_gpio_deps_init(void)
-> +{
-> +       struct gpio_chip *chip;
-> +
-> +       chip = gpiochip_find(OMAP_GPIO_LABEL, gpiochip_match_by_label);
-> +       if (!chip) {
-> +               pr_err("%s: OMAP GPIO chip not found\n", __func__);
-> +               return;
-> +       }
-> +
-> +       ams_delta_init_fiq(chip);
-> +}
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+c382812c78d98ecd9fb8@syzkaller.appspotmail.com
 
-This is some real stunt work isn't it.
+RBP: 00000000006cb018 R08: 0000000000000001 R09: 00007ffe93080031
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
+R13: ffffffffffffffff R14: 0000000000000000 R15: 0000000000000000
+------------[ cut here ]------------
+input_alloc_absinfo(): kcalloc() failed?
+WARNING: CPU: 1 PID: 4498 at drivers/input/input.c:487  
+input_alloc_absinfo+0x183/0x190 drivers/input/input.c:487
+Kernel panic - not syncing: panic_on_warn set ...
 
-We should really think about ways to get gpiolib more helpful for board
-setups like this, but it seems complex.
+CPU: 1 PID: 4498 Comm: syz-executor465 Not tainted 4.16.0+ #87
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:17 [inline]
+  dump_stack+0x185/0x1d0 lib/dump_stack.c:53
+  panic+0x39d/0x940 kernel/panic.c:183
+  __warn+0x40f/0x580 kernel/panic.c:547
+  report_bug+0x72a/0x880 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:179 [inline]
+  do_error_trap+0x1aa/0x600 arch/x86/kernel/traps.c:297
+  do_invalid_op+0x46/0x50 arch/x86/kernel/traps.c:316
+  invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:986
+RIP: 0010:input_alloc_absinfo+0x183/0x190 drivers/input/input.c:487
+RSP: 0018:ffff88019651faa8 EFLAGS: 00010282
+RAX: 0000000000000028 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: aaaaaaaaaaaab000 RDI: ffffea0000000000
+RBP: ffff88019651fae0 R08: 0000000001080020 R09: 0000000000000002
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff8801a19ec140 R14: ffff88019796e198 R15: 0000000000000000
+  uinput_abs_setup drivers/input/misc/uinput.c:507 [inline]
+  uinput_ioctl_handler+0x38a2/0x39f0 drivers/input/misc/uinput.c:1035
+  uinput_ioctl+0x9a/0xb0 drivers/input/misc/uinput.c:1047
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  do_vfs_ioctl+0xaf0/0x2440 fs/ioctl.c:686
+  SYSC_ioctl+0x1d2/0x260 fs/ioctl.c:701
+  SyS_ioctl+0x54/0x80 fs/ioctl.c:692
+  do_syscall_64+0x309/0x430 arch/x86/entry/common.c:287
+  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+RIP: 0033:0x440429
+RSP: 002b:00007ffe9308d2b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000440429
+RDX: 0000000000000000 RSI: 0000000040005504 RDI: 0000000000000003
+RBP: 00000000006cb018 R08: 0000000000000001 R09: 00007ffe93080031
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
+R13: ffffffffffffffff R14: 0000000000000000 R15: 0000000000000000
+Dumping ftrace buffer:
+    (ftrace buffer empty)
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
 
-Yours,
-Linus Walleij
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
+syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

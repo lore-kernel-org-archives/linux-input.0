@@ -1,48 +1,78 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH v3 04/27] docs: fix broken references with multiple hints
-Date: Thu, 14 Jun 2018 12:27:37 -0400
-Message-ID: <20180614122737.4044a2b7@gandalf.local.home>
-References: <cover.1528990947.git.mchehab+samsung@kernel.org>
- <8e28c30c9d0ba8c4f37d57adac7e12e18296a385.1528990947.git.mchehab+samsung@kernel.org>
+From: vereecke.jan@skynet.be
+Subject: [PATCH] Patch enabling Fn function keys for Laptop Asus G730 (keyboard
+ 0x1869)
+Date: Thu, 14 Jun 2018 22:44:07 +0200 (CEST)
+Message-ID: <alpine.LNX.2.21.1806141112440.11126@Hermes.vereecke.mooo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <8e28c30c9d0ba8c4f37d57adac7e12e18296a385.1528990947.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-fbdev@vger.kernel.org, linux-usb@vger.kernel.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Harry Wei <harryxiyou@gmail.com>, devel@driverdev.osuosl.org, Jonathan Corbet <corbet@lwn.net>, James Morris <jmorris@namei.org>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, Roy Pledge <Roy.Pledge@nxp.com>, "Serge E. Hallyn" <serge@hallyn.com>, devicetree@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Jiri Kosina <jikos@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, Benjamin Tissoires <ben>
+Content-Type: text/plain; format=flowed; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-T24gVGh1LCAxNCBKdW4gMjAxOCAxMzowODo0OSAtMDMwMApNYXVybyBDYXJ2YWxobyBDaGVoYWIg
-PG1jaGVoYWIrc2Ftc3VuZ0BrZXJuZWwub3JnPiB3cm90ZToKCj4gKysrIGIvRG9jdW1lbnRhdGlv
-bi90cmFjZS9ldmVudHMucnN0Cj4gQEAgLTgsNyArOCw3IEBAIEV2ZW50IFRyYWNpbmcKPiAgMS4g
-SW50cm9kdWN0aW9uCj4gID09PT09PT09PT09PT09PQo+ICAKPiAtVHJhY2Vwb2ludHMgKHNlZSBE
-b2N1bWVudGF0aW9uL3RyYWNlL3RyYWNlcG9pbnRzLnR4dCkgY2FuIGJlIHVzZWQKPiArVHJhY2Vw
-b2ludHMgKHNlZSBEb2N1bWVudGF0aW9uL3RyYWNlL3RyYWNlcG9pbnRzLnJzdCkgY2FuIGJlIHVz
-ZWQKPiAgd2l0aG91dCBjcmVhdGluZyBjdXN0b20ga2VybmVsIG1vZHVsZXMgdG8gcmVnaXN0ZXIg
-cHJvYmUgZnVuY3Rpb25zCj4gIHVzaW5nIHRoZSBldmVudCB0cmFjaW5nIGluZnJhc3RydWN0dXJl
-Lgo+ICAKPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi90cmFjZS90cmFjZXBvaW50LWFuYWx5
-c2lzLnJzdCBiL0RvY3VtZW50YXRpb24vdHJhY2UvdHJhY2Vwb2ludC1hbmFseXNpcy5yc3QKPiBp
-bmRleCBhNGQzZmYyZTVlZmIuLmJlZjM3YWJmNGFkMyAxMDA2NDQKPiAtLS0gYS9Eb2N1bWVudGF0
-aW9uL3RyYWNlL3RyYWNlcG9pbnQtYW5hbHlzaXMucnN0Cj4gKysrIGIvRG9jdW1lbnRhdGlvbi90
-cmFjZS90cmFjZXBvaW50LWFuYWx5c2lzLnJzdAo+IEBAIC02LDcgKzYsNyBAQCBOb3RlcyBvbiBB
-bmFseXNpbmcgQmVoYXZpb3VyIFVzaW5nIEV2ZW50cyBhbmQgVHJhY2Vwb2ludHMKPiAgMS4gSW50
-cm9kdWN0aW9uCj4gID09PT09PT09PT09PT09PQo+ICAKPiAtVHJhY2Vwb2ludHMgKHNlZSBEb2N1
-bWVudGF0aW9uL3RyYWNlL3RyYWNlcG9pbnRzLnR4dCkgY2FuIGJlIHVzZWQgd2l0aG91dAo+ICtU
-cmFjZXBvaW50cyAoc2VlIERvY3VtZW50YXRpb24vdHJhY2UvdHJhY2Vwb2ludHMucnN0KSBjYW4g
-YmUgdXNlZCB3aXRob3V0Cj4gIGNyZWF0aW5nIGN1c3RvbSBrZXJuZWwgbW9kdWxlcyB0byByZWdp
-c3RlciBwcm9iZSBmdW5jdGlvbnMgdXNpbmcgdGhlIGV2ZW50Cj4gIHRyYWNpbmcgaW5mcmFzdHJ1
-Y3R1cmUuCj4gIAoKQWNrZWQtYnk6IFN0ZXZlbiBSb3N0ZWR0IChWTXdhcmUpIDxyb3N0ZWR0QGdv
-b2RtaXMub3JnPgoKLS0gU3RldmUKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRl
-c2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8v
-ZHJpLWRldmVsCg==
+Attached is a patch enabling (most of) the Fn function keys for the Asus 
+ROG Strix GL730 Laptop. The keyboard identifies as a USB device 0x1869.
+
+This patch enables:
+     volume/mute keys, ROG key, rew/play/ff,
+     monitor and keyboard brightness keys,
+     Touchpad toggle key,
+     Calculator key
+
+'Touchpad on/off' Key returns keycode 33, which is mapped to the 'p' key.
+'Display on/off' returns keycode 253, which is mapped in X11 to NoSymbol
+'Airplane Key' returns keycode 255, which is mapped in X11 to NoSymbol
+
+The following keys are not activated yet:
+        Microphone Mute key, Fan key, Display Switch key
+
+This patch is against the 4.17-rc7 kernel, for the x86 architecture
+
+diffstat for this patch is:
+  hid-asus.c   |    2 ++
+  hid-ids.h    |    1 +
+  hid-quirks.c |    1 +
+  3 files changed, 4 insertions(+)
+
+To apply the patch, in the root of the kernel tree use:
+patch -p1 < AsusGL703-Keyboard-Fn-keys.patch
+
+----------------------------------------------------------------------------------------------
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 88a5672..8f4f3c1 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -781,6 +781,8 @@ static const struct hid_device_id asus_devices[] = {
+                 USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
+         { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+                 USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
++       { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
++               USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD4), QUIRK_USE_KBD_BACKLIGHT },
+         { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+                 USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD),
+           QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 46f5ecd..93b958f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -187,6 +187,7 @@
+  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
+  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
+  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3 0x1822
++#define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD4 0x1869
+
+  #define USB_VENDOR_ID_ATEN             0x0557
+  #define USB_DEVICE_ID_ATEN_UC100KM     0x2004
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 587e268..ebb1353 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -286,6 +286,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+         { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+         { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+         { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
++       { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD4) },
+         { HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+         { HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD) },

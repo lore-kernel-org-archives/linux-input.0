@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 06/11] media: drxk_hard: switch to i2c_lock_segment
-Date: Fri, 15 Jun 2018 12:15:01 +0200
-Message-ID: <20180615101506.8012-7-peda@axentia.se>
+Subject: [PATCH 09/11] media: tda18271: switch to i2c_lock_segment
+Date: Fri, 15 Jun 2018 12:15:04 +0200
+Message-ID: <20180615101506.8012-10-peda@axentia.se>
 References: <20180615101506.8012-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -19,30 +19,48 @@ the two locking variants are equivalent.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/dvb-frontends/drxk_hard.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/tuners/tda18271-common.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/drxk_hard.c b/drivers/media/dvb-frontends/drxk_hard.c
-index 5a26ad93be10..10e6bb158712 100644
---- a/drivers/media/dvb-frontends/drxk_hard.c
-+++ b/drivers/media/dvb-frontends/drxk_hard.c
-@@ -213,7 +213,7 @@ static inline u32 log10times100(u32 value)
+diff --git a/drivers/media/tuners/tda18271-common.c b/drivers/media/tuners/tda18271-common.c
+index 7e81cd887c13..93cce2bcd601 100644
+--- a/drivers/media/tuners/tda18271-common.c
++++ b/drivers/media/tuners/tda18271-common.c
+@@ -225,7 +225,7 @@ static int __tda18271_write_regs(struct dvb_frontend *fe, int idx, int len,
+ 	 */
+ 	if (lock_i2c) {
+ 		tda18271_i2c_gate_ctrl(fe, 1);
+-		i2c_lock_adapter(priv->i2c_props.adap);
++		i2c_lock_segment(priv->i2c_props.adap);
+ 	}
+ 	while (len) {
+ 		if (max > len)
+@@ -246,7 +246,7 @@ static int __tda18271_write_regs(struct dvb_frontend *fe, int idx, int len,
+ 		len -= max;
+ 	}
+ 	if (lock_i2c) {
+-		i2c_unlock_adapter(priv->i2c_props.adap);
++		i2c_unlock_segment(priv->i2c_props.adap);
+ 		tda18271_i2c_gate_ctrl(fe, 0);
+ 	}
  
- static int drxk_i2c_lock(struct drxk_state *state)
- {
--	i2c_lock_adapter(state->i2c);
-+	i2c_lock_segment(state->i2c);
- 	state->drxk_i2c_exclusive_lock = true;
+@@ -300,7 +300,7 @@ int tda18271_init_regs(struct dvb_frontend *fe)
+ 	 * as those could cause bad things
+ 	 */
+ 	tda18271_i2c_gate_ctrl(fe, 1);
+-	i2c_lock_adapter(priv->i2c_props.adap);
++	i2c_lock_segment(priv->i2c_props.adap);
+ 
+ 	/* initialize registers */
+ 	switch (priv->id) {
+@@ -516,7 +516,7 @@ int tda18271_init_regs(struct dvb_frontend *fe)
+ 	/* synchronize */
+ 	__tda18271_write_regs(fe, R_EP1, 1, false);
+ 
+-	i2c_unlock_adapter(priv->i2c_props.adap);
++	i2c_unlock_segment(priv->i2c_props.adap);
+ 	tda18271_i2c_gate_ctrl(fe, 0);
  
  	return 0;
-@@ -224,7 +224,7 @@ static void drxk_i2c_unlock(struct drxk_state *state)
- 	if (!state->drxk_i2c_exclusive_lock)
- 		return;
- 
--	i2c_unlock_adapter(state->i2c);
-+	i2c_unlock_segment(state->i2c);
- 	state->drxk_i2c_exclusive_lock = false;
- }
- 
 -- 
 2.11.0

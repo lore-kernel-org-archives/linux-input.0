@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 01/11] i2c: add helpers for locking the I2C segment
-Date: Fri, 15 Jun 2018 12:14:56 +0200
-Message-ID: <20180615101506.8012-2-peda@axentia.se>
+Subject: [PATCH 05/11] media: af9013: switch to i2c_lock_segment
+Date: Fri, 15 Jun 2018 12:15:00 +0200
+Message-ID: <20180615101506.8012-6-peda@axentia.se>
 References: <20180615101506.8012-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,93 +12,45 @@ To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-This is what almost all drivers want to do. By only advertising
-i2c_lock_adapter, they are tricked into locking the root adapter
-which is too big of a hammer in most cases.
-
-While at it, convert all open-coded locking of the I2C segment.
+Locking the root adapter for __i2c_transfer will deadlock if the
+device sits behind a mux-locked I2C mux. Switch to the finer-grained
+i2c_lock_segment. If the device does not sit behind a mux-locked mux,
+the two locking variants are equivalent.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/i2c-core-base.c  |  6 +++---
- drivers/i2c/i2c-core-smbus.c |  4 ++--
- include/linux/i2c.h          | 18 ++++++++++++++++++
- 3 files changed, 23 insertions(+), 5 deletions(-)
+ drivers/media/dvb-frontends/af9013.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 1ba40bb2b966..3eb09dc20573 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1932,16 +1932,16 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- #endif
+diff --git a/drivers/media/dvb-frontends/af9013.c b/drivers/media/dvb-frontends/af9013.c
+index 482bce49819a..a504697ff557 100644
+--- a/drivers/media/dvb-frontends/af9013.c
++++ b/drivers/media/dvb-frontends/af9013.c
+@@ -1312,10 +1312,10 @@ static int af9013_wregs(struct i2c_client *client, u8 cmd, u16 reg,
+ 	memcpy(&buf[3], val, len);
  
- 		if (in_atomic() || irqs_disabled()) {
--			ret = i2c_trylock_bus(adap, I2C_LOCK_SEGMENT);
-+			ret = i2c_trylock_segment(adap);
- 			if (!ret)
- 				/* I2C activity is ongoing. */
- 				return -EAGAIN;
- 		} else {
--			i2c_lock_bus(adap, I2C_LOCK_SEGMENT);
-+			i2c_lock_segment(adap);
- 		}
+ 	if (lock)
+-		i2c_lock_adapter(client->adapter);
++		i2c_lock_segment(client->adapter);
+ 	ret = __i2c_transfer(client->adapter, msg, 1);
+ 	if (lock)
+-		i2c_unlock_adapter(client->adapter);
++		i2c_unlock_segment(client->adapter);
+ 	if (ret < 0) {
+ 		goto err;
+ 	} else if (ret != 1) {
+@@ -1353,10 +1353,10 @@ static int af9013_rregs(struct i2c_client *client, u8 cmd, u16 reg,
+ 	buf[2] = cmd;
  
- 		ret = __i2c_transfer(adap, msgs, num);
--		i2c_unlock_bus(adap, I2C_LOCK_SEGMENT);
-+		i2c_unlock_segment(adap);
- 
- 		return ret;
- 	} else {
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index b5aec33002c3..8a820fdef3e0 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -537,7 +537,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
- 
- 	if (adapter->algo->smbus_xfer) {
--		i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
-+		i2c_lock_segment(adapter);
- 
- 		/* Retry automatically on arbitration loss */
- 		orig_jiffies = jiffies;
-@@ -551,7 +551,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 				       orig_jiffies + adapter->timeout))
- 				break;
- 		}
--		i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
-+		i2c_unlock_segment(adapter);
- 
- 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
- 			goto trace;
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 44ad14e016b5..c9080d49e988 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -768,6 +768,24 @@ i2c_unlock_adapter(struct i2c_adapter *adapter)
- 	i2c_unlock_bus(adapter, I2C_LOCK_ROOT_ADAPTER);
- }
- 
-+static inline void
-+i2c_lock_segment(struct i2c_adapter *adapter)
-+{
-+	i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
-+}
-+
-+static inline int
-+i2c_trylock_segment(struct i2c_adapter *adapter)
-+{
-+	return i2c_trylock_bus(adapter, I2C_LOCK_SEGMENT);
-+}
-+
-+static inline void
-+i2c_unlock_segment(struct i2c_adapter *adapter)
-+{
-+	i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
-+}
-+
- /*flags for the client struct: */
- #define I2C_CLIENT_PEC		0x04	/* Use Packet Error Checking */
- #define I2C_CLIENT_TEN		0x10	/* we have a ten bit chip address */
+ 	if (lock)
+-		i2c_lock_adapter(client->adapter);
++		i2c_lock_segment(client->adapter);
+ 	ret = __i2c_transfer(client->adapter, msg, 2);
+ 	if (lock)
+-		i2c_unlock_adapter(client->adapter);
++		i2c_unlock_segment(client->adapter);
+ 	if (ret < 0) {
+ 		goto err;
+ 	} else if (ret != 2) {
 -- 
 2.11.0

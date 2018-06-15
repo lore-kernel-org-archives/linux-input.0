@@ -1,12 +1,10 @@
 From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Subject: [PATCH v6 2/4] mfd: bd71837: Devicetree bindings for ROHM BD71837
- PMIC
-Date: Fri, 15 Jun 2018 16:30:03 +0300
-Message-ID: <baedcf46084db730e4db94e714632399a568b255.1529067662.git.matti.vaittinen@fi.rohmeurope.com>
+Subject: [PATCH v6 3/4] clk: bd71837: Add driver for BD71837 PMIC clock
+Date: Fri, 15 Jun 2018 16:30:51 +0300
+Message-ID: <69915265bbff5c729bcd4ffd4ffdba8d24582068.1529067662.git.matti.vaittinen@fi.rohmeurope.com>
 References: <cover.1529067662.git.matti.vaittinen@fi.rohmeurope.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <cover.1529067662.git.matti.vaittinen@fi.rohmeurope.com>
@@ -15,86 +13,195 @@ To: mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, mark.rutland@
 Cc: linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-Document devicetree bindings for ROHM BD71837 PMIC MFD.
+Support BD71837 gateable 32768 Hz clock.
 
 Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 ---
- .../devicetree/bindings/mfd/rohm,bd71837-pmic.txt  | 67 ++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
+ drivers/clk/Kconfig       |   6 ++
+ drivers/clk/Makefile      |   1 +
+ drivers/clk/clk-bd71837.c | 145 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 152 insertions(+)
+ create mode 100644 drivers/clk/clk-bd71837.c
 
-diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
+diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+index 41492e980ef4..065421a9eb22 100644
+--- a/drivers/clk/Kconfig
++++ b/drivers/clk/Kconfig
+@@ -279,6 +279,12 @@ config COMMON_CLK_STM32H7
+ 	---help---
+ 	  Support for stm32h7 SoC family clocks
+ 
++config COMMON_CLK_BD71837
++	tristate "Clock driver for ROHM BD71837 PMIC MFD"
++	depends on MFD_BD71837
++	help
++	  This driver supports ROHM BD71837 PMIC clock.
++
+ source "drivers/clk/bcm/Kconfig"
+ source "drivers/clk/hisilicon/Kconfig"
+ source "drivers/clk/imgtec/Kconfig"
+diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
+index de6d06ac790b..8393c4af7d5a 100644
+--- a/drivers/clk/Makefile
++++ b/drivers/clk/Makefile
+@@ -21,6 +21,7 @@ endif
+ obj-$(CONFIG_MACH_ASM9260)		+= clk-asm9260.o
+ obj-$(CONFIG_COMMON_CLK_AXI_CLKGEN)	+= clk-axi-clkgen.o
+ obj-$(CONFIG_ARCH_AXXIA)		+= clk-axm5516.o
++obj-$(CONFIG_COMMON_CLK_BD71837)	+= clk-bd71837.o
+ obj-$(CONFIG_COMMON_CLK_CDCE706)	+= clk-cdce706.o
+ obj-$(CONFIG_COMMON_CLK_CDCE925)	+= clk-cdce925.o
+ obj-$(CONFIG_ARCH_CLPS711X)		+= clk-clps711x.o
+diff --git a/drivers/clk/clk-bd71837.c b/drivers/clk/clk-bd71837.c
 new file mode 100644
-index 000000000000..67f2616288d9
+index 000000000000..8b9aae33eade
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
-@@ -0,0 +1,67 @@
-+* ROHM BD71837 Power Management Integrated Circuit bindings
++++ b/drivers/clk/clk-bd71837.c
+@@ -0,0 +1,145 @@
++// SPDX-License-Identifier: GPL-2.0
++// Copyright (C) 2018 ROHM Semiconductors
++// bd71837.c  -- ROHM BD71837MWV clock driver
 +
-+BD71837MWV is a programmable Power Management IC for powering single-core,
-+dual-core, and quad-core SoC’s such as NXP-i.MX 8M. It is optimized for
-+low BOM cost and compact solution footprint. It integrates 8 Buck
-+egulators and 7 LDO’s to provide all the power rails required by the SoC and
-+the commonly used peripherals.
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/err.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/mfd/bd71837.h>
++#include <linux/clk-provider.h>
 +
-+Datasheet for PMIC is available at:
-+https://www.rohm.com/datasheet/BD71837MWV/bd71837mwv-e
++struct bd71837_clk {
++	struct clk_hw hw;
++	u8 reg;
++	u8 mask;
++	unsigned long rate;
++	struct platform_device *pdev;
++	struct bd71837 *mfd;
++};
 +
-+Required properties:
-+ - compatible		: Should be "rohm,bd71837".
-+ - reg			: I2C slave address.
-+ - interrupt-parent	: Phandle to the parent interrupt controller.
-+ - interrupts		: The interrupt line the device is connected to.
-+ - clocks		: The parent clock connected to PMIC. If this is missng
-+			  32768 KHz clock is assumed.
-+ - #clock-cells		: Should be 0
-+ - regulators:		: List of child nodes that specify the regulators
-+			  Please see ../regulator/rohm,bd71837-regulator.txt
++static int bd71837_clk_set(struct clk_hw *hw, int status)
++{
++	struct bd71837_clk *c = container_of(hw, struct bd71837_clk, hw);
 +
-+Optional properties:
-+- clock-output-names	: Should contain name for output clock.
++	return bd71837_update_bits(c->mfd, c->reg, c->mask, status);
++}
 +
-+Example:
++static void bd71837_clk_disable(struct clk_hw *hw)
++{
++	int rv;
++	struct bd71837_clk *c = container_of(hw, struct bd71837_clk, hw);
 +
-+	/* external oscillator node */
-+	osc: oscillator {
-+		compatible = "fixed-clock";
-+		#clock-cells = <1>;
-+		clock-frequency  = <32768>;
-+		clock-output-names = "osc";
++	rv = bd71837_clk_set(hw, 0);
++	if (rv)
++		dev_dbg(&c->pdev->dev, "Failed to disable 32K clk (%d)\n", rv);
++}
++
++static int bd71837_clk_enable(struct clk_hw *hw)
++{
++	return bd71837_clk_set(hw, 1);
++}
++
++static int bd71837_clk_is_enabled(struct clk_hw *hw)
++{
++	int enabled;
++	struct bd71837_clk *c = container_of(hw, struct bd71837_clk, hw);
++
++	enabled = c->mask;
++	enabled &= bd71837_reg_read(c->mfd, c->reg);
++
++	return enabled;
++}
++static unsigned long bd71837_clk_recalc_rate(struct clk_hw *hw,
++					     unsigned long parent_rate)
++{
++	struct bd71837_clk *c = container_of(hw, struct bd71837_clk, hw);
++
++	return c->rate;
++}
++
++static struct clk_ops bd71837_clk_ops = {
++	.prepare = &bd71837_clk_enable,
++	.unprepare = &bd71837_clk_disable,
++	.is_prepared = &bd71837_clk_is_enabled,
++};
++
++static int bd71837_clk_probe(struct platform_device *pdev)
++{
++	struct bd71837_clk *c;
++	int rval = -ENOMEM;
++	const char *parent_clk;
++	struct device *parent = pdev->dev.parent;
++	struct bd71837 *mfd = dev_get_drvdata(parent);
++	struct clk_init_data init = {
++		.name = "bd71837-32k-out",
++		.ops = &bd71837_clk_ops,
 +	};
 +
-+	/* PMIC node */
++	c = devm_kzalloc(&pdev->dev, sizeof(*c), GFP_KERNEL);
++		return -ENOMEM;
 +
-+	pmic: pmic@4b {
-+		compatible = "rohm,bd71837";
-+		reg = <0x4b>;
-+		interrupt-parent = <&gpio1>;
-+		interrupts = <29 GPIO_ACTIVE_LOW>;
-+		interrupt-names = "irq";
-+		#clock-cells = <0>;
-+		clocks = <&osc 0>;
-+		clock-output-names = "bd71837-32k-out";
++	parent_clk = of_clk_get_parent_name(parent->of_node, 0);
 +
-+		regulators {
-+			buck1: BUCK1 {
-+				regulator-name = "buck1";
-+				regulator-min-microvolt = <700000>;
-+				regulator-max-microvolt = <1300000>;
-+				regulator-boot-on;
-+				regulator-ramp-delay = <1250>;
-+			};
-+			/* ... */
-+		};
-+	};
++	init.parent_names = &parent_clk;
++	if (parent_clk) {
++		init.num_parents = 1;
++	} else {
++		/* If parent is not given from DT we assume the typical
++		 * use-case with 32.768 KHz oscillator for RTC (Maybe we
++		 * should just error out here and require parent?)
++		 */
++		c->rate = BD71837_CLK_RATE;
++		bd71837_clk_ops.recalc_rate = &bd71837_clk_recalc_rate;
++		dev_warn(&pdev->dev, "No parent clk found - assuming 32,768 KHz\n");
++	}
 +
-+	/* Clock consumer node */
++	c->reg = BD71837_REG_OUT32K;
++	c->mask = BD71837_OUT32K_EN;
++	c->mfd = mfd;
++	c->pdev = pdev;
++	c->hw.init = &init;
 +
-+	foo@0 {
-+		compatible = "bar,foo";
-+		/* ... */
-+		clock-names = "my-clock";
-+		clocks = <&pmic>;
-+	};
++	of_property_read_string_index(parent->of_node,
++					      "clock-output-names", 0,
++					      &init.name);
++
++	rval = devm_clk_hw_register(&pdev->dev, &c->hw);
++	if (!rval) {
++		if (parent->of_node) {
++			rval = of_clk_add_hw_provider(parent->of_node,
++					     of_clk_hw_simple_get,
++					     &c->hw);
++			if (rval)
++				dev_err(&pdev->dev,
++					"adding clk provider failed\n");
++		}
++	} else {
++		dev_err(&pdev->dev, "failed to register 32K clk");
++	}
++
++	return rval;
++}
++
++static int bd71837_clk_remove(struct platform_device *pdev)
++{
++	if (pdev->dev.parent->of_node)
++		of_clk_del_provider(pdev->dev.parent->of_node);
++	return 0;
++}
++
++static struct platform_driver bd71837_clk = {
++	.driver = {
++		.name = "bd71837-clk",
++	},
++	.probe = bd71837_clk_probe,
++	.remove = bd71837_clk_remove,
++};
++
++module_platform_driver(bd71837_clk);
++
++MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
++MODULE_DESCRIPTION("BD71837 chip clk driver");
++MODULE_LICENSE("GPL");
 -- 
 2.14.3

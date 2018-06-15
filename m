@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 10/11] mfd: 88pm860x-i2c: switch to i2c_lock_segment
-Date: Fri, 15 Jun 2018 12:15:05 +0200
-Message-ID: <20180615101506.8012-11-peda@axentia.se>
+Subject: [PATCH 06/11] media: drxk_hard: switch to i2c_lock_segment
+Date: Fri, 15 Jun 2018 12:15:01 +0200
+Message-ID: <20180615101506.8012-7-peda@axentia.se>
 References: <20180615101506.8012-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -19,46 +19,30 @@ the two locking variants are equivalent.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/mfd/88pm860x-i2c.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/dvb-frontends/drxk_hard.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/88pm860x-i2c.c b/drivers/mfd/88pm860x-i2c.c
-index 84e313107233..8e54fc2dc29c 100644
---- a/drivers/mfd/88pm860x-i2c.c
-+++ b/drivers/mfd/88pm860x-i2c.c
-@@ -146,14 +146,14 @@ int pm860x_page_reg_write(struct i2c_client *i2c, int reg,
- 	unsigned char zero;
- 	int ret;
+diff --git a/drivers/media/dvb-frontends/drxk_hard.c b/drivers/media/dvb-frontends/drxk_hard.c
+index 5a26ad93be10..10e6bb158712 100644
+--- a/drivers/media/dvb-frontends/drxk_hard.c
++++ b/drivers/media/dvb-frontends/drxk_hard.c
+@@ -213,7 +213,7 @@ static inline u32 log10times100(u32 value)
  
--	i2c_lock_adapter(i2c->adapter);
-+	i2c_lock_segment(i2c->adapter);
- 	read_device(i2c, 0xFA, 0, &zero);
- 	read_device(i2c, 0xFB, 0, &zero);
- 	read_device(i2c, 0xFF, 0, &zero);
- 	ret = write_device(i2c, reg, 1, &data);
- 	read_device(i2c, 0xFE, 0, &zero);
- 	read_device(i2c, 0xFC, 0, &zero);
--	i2c_unlock_adapter(i2c->adapter);
-+	i2c_unlock_segment(i2c->adapter);
- 	return ret;
- }
- EXPORT_SYMBOL(pm860x_page_reg_write);
-@@ -164,14 +164,14 @@ int pm860x_page_bulk_read(struct i2c_client *i2c, int reg,
- 	unsigned char zero = 0;
- 	int ret;
+ static int drxk_i2c_lock(struct drxk_state *state)
+ {
+-	i2c_lock_adapter(state->i2c);
++	i2c_lock_segment(state->i2c);
+ 	state->drxk_i2c_exclusive_lock = true;
  
--	i2c_lock_adapter(i2c->adapter);
-+	i2c_lock_segment(i2c->adapter);
- 	read_device(i2c, 0xfa, 0, &zero);
- 	read_device(i2c, 0xfb, 0, &zero);
- 	read_device(i2c, 0xff, 0, &zero);
- 	ret = read_device(i2c, reg, count, buf);
- 	read_device(i2c, 0xFE, 0, &zero);
- 	read_device(i2c, 0xFC, 0, &zero);
--	i2c_unlock_adapter(i2c->adapter);
-+	i2c_unlock_segment(i2c->adapter);
- 	return ret;
+ 	return 0;
+@@ -224,7 +224,7 @@ static void drxk_i2c_unlock(struct drxk_state *state)
+ 	if (!state->drxk_i2c_exclusive_lock)
+ 		return;
+ 
+-	i2c_unlock_adapter(state->i2c);
++	i2c_unlock_segment(state->i2c);
+ 	state->drxk_i2c_exclusive_lock = false;
  }
- EXPORT_SYMBOL(pm860x_page_bulk_read);
+ 
 -- 
 2.11.0

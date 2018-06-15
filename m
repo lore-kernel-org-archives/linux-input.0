@@ -1,266 +1,60 @@
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Subject: [PATCH v6 4/4] input/power: Add driver for BD71837/BD71847 PMIC
- power button
-Date: Fri, 15 Jun 2018 16:31:33 +0300
-Message-ID: <6bf288c2b6aa13b10f3861b0ae621ffd95aaf9c2.1529067662.git.matti.vaittinen@fi.rohmeurope.com>
-References: <cover.1529067662.git.matti.vaittinen@fi.rohmeurope.com>
+From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+Subject: Re: [PATCH v5] Input: add bu21029 touch driver
+Date: Fri, 15 Jun 2018 14:26:19 +0000
+Message-ID: <df1d4c275c554533944cc17cec7e93ed@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1529067662.git.matti.vaittinen@fi.rohmeurope.com>
+Content-Language: de-DE
 Sender: linux-kernel-owner@vger.kernel.org
-To: mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org
-Cc: linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>, "D_ZHU Yi (BT-FIR/ENG1-Zhu)" <D_Yi.Zhu5@cn.bosch.com>, "ZHANG Kevin (BT-FIR/ENG1-Zhu)" <Kevin.Zhang3@cn.bosch.com>, Zhu Yi <zhuyi882004@126.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>, "RUAN Tingquan (BT-FIR/ENG1-Zhu)" <Tingquan.Ruan@cn.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-ROHM BD71837 PMIC power button driver providing power-key press
-information to user-space.
+Hi Dmitry,
 
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
----
- drivers/input/misc/Kconfig          | 10 +++++
- drivers/input/misc/Makefile         |  1 +
- drivers/input/misc/bd718xx-pwrkey.c | 90 +++++++++++++++++++++++++++++++++++++
- include/linux/mfd/bd71837.h         | 82 +++++++++++++++++++++++++++++++++
- 4 files changed, 183 insertions(+)
- create mode 100644 drivers/input/misc/bd718xx-pwrkey.c
+> > > > [PATCH v5] Input: add bu21029 touch driver
+> > > >
+> > > > Add Rohm BU21029 resistive touch panel controller support with I2C
+> > > > interface.
+> > >
+> > > Is the patch ready to be pushed upstream? Is there anything I still n=
+eed to do?
+> >
+> > I would like to kindly remind you of the BU21029 touch screen driver.
+> > Could you please forward it to the mainline kernel?
+>=20
+> Sorry for the delay. Could you please tell me if the patch below (shoudl
+> apply on top of your v5 version) works?
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 572b15fa18c2..694c05d3f9fb 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -96,6 +96,16 @@ config INPUT_ATMEL_CAPTOUCH
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called atmel_captouch.
- 
-+config INPUT_BD718XX_PWRKEY
-+	tristate "ROHM BD71837/BD71847 power key support"
-+	depends on MFD_BD71837
-+	help
-+	  Say Y here if you want support for the power key usually found
-+	  on boards using a ROHM BD71837/BD71847 compatible PMIC.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called bd718xx-pwrkey.
-+
- config INPUT_BMA150
- 	tristate "BMA150/SMB380 acceleration sensor support"
- 	depends on I2C
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 72cde28649e2..ea5b81cbf2bf 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -20,6 +20,7 @@ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
- obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
- obj-$(CONFIG_INPUT_ATMEL_CAPTOUCH)	+= atmel_captouch.o
- obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
-+obj-$(CONFIG_INPUT_BD718XX_PWRKEY)	+= bd718xx-pwrkey.o
- obj-$(CONFIG_INPUT_CM109)		+= cm109.o
- obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
- obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
-diff --git a/drivers/input/misc/bd718xx-pwrkey.c b/drivers/input/misc/bd718xx-pwrkey.c
-new file mode 100644
-index 000000000000..e8ac9475c3cf
---- /dev/null
-+++ b/drivers/input/misc/bd718xx-pwrkey.c
-@@ -0,0 +1,90 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (C) 2018 ROHM Semiconductors
-+// bd718xx-pwrkey.c -- ROHM BD71837MWV and BD71847 power button driver
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/of.h>
-+#include <linux/mfd/bd71837.h>
-+
-+struct bd718xx_pwrkey {
-+	struct input_dev *idev;
-+	struct bd71837 *mfd;
-+	int irq;
-+};
-+
-+static irqreturn_t button_irq(int irq, void *_priv)
-+{
-+	struct input_dev *idev = (struct input_dev *)_priv;
-+
-+	input_report_key(idev, KEY_POWER, 1);
-+	input_sync(idev);
-+	input_report_key(idev, KEY_POWER, 0);
-+	input_sync(idev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int bd718xx_pwr_btn_probe(struct platform_device *pdev)
-+{
-+	int err = -ENOMEM;
-+	struct bd718xx_pwrkey *pk;
-+
-+	pk = devm_kzalloc(&pdev->dev, sizeof(*pk), GFP_KERNEL);
-+	if (!pk)
-+		goto err_out;
-+
-+	pk->mfd = dev_get_drvdata(pdev->dev.parent);
-+
-+	pk->idev = devm_input_allocate_device(&pdev->dev);
-+	if (!pk->idev)
-+		goto err_out;
-+
-+	pk->idev->name = "bd718xx-pwrkey";
-+	pk->idev->phys = "bd718xx-pwrkey/input0";
-+	pk->idev->dev.parent = &pdev->dev;
-+
-+	input_set_capability(pk->idev, EV_KEY, KEY_POWER);
-+
-+	err = platform_get_irq_byname(pdev, "pwr-btn-s");
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "could not get power key interrupt\n");
-+		goto err_out;
-+	}
-+
-+	pk->irq = err;
-+	err = devm_request_threaded_irq(&pdev->dev, pk->irq, NULL, &button_irq,
-+					0, "bd718xx-pwrkey", pk);
-+	if (err)
-+		goto err_out;
-+
-+	platform_set_drvdata(pdev, pk);
-+	err = regmap_update_bits(pk->mfd->regmap,
-+				 BD71837_REG_PWRONCONFIG0,
-+				 BD718XX_PWRBTN_SHORT_PRESS_MASK,
-+				 BD718XX_PWRBTN_SHORT_PRESS_10MS);
-+	if (err)
-+		goto err_out;
-+
-+	err = input_register_device(pk->idev);
-+
-+err_out:
-+
-+	return err;
-+}
-+
-+static struct platform_driver bd718xx_pwr_btn_driver = {
-+	.probe	= bd718xx_pwr_btn_probe,
-+	.driver = {
-+		.name	= "bd718xx-pwrkey",
-+	},
-+};
-+module_platform_driver(bd718xx_pwr_btn_driver);
-+MODULE_DESCRIPTION("Power button driver for buttons connected to ROHM bd71837/bd71847 PMIC");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-+
-diff --git a/include/linux/mfd/bd71837.h b/include/linux/mfd/bd71837.h
-index 641b7dba3076..410c0afa0452 100644
---- a/include/linux/mfd/bd71837.h
-+++ b/include/linux/mfd/bd71837.h
-@@ -100,6 +100,86 @@ enum {
- 	BD71837_MAX_REGISTER           = 0x100,
- };
- 
-+/* register write induced reset settings */
-+
-+/* even though the bit zero is not SWRESET type we still want to write zero
-+ * to it when changing type. Biz zero is 'SWRESET' trigger bit and if we
-+ * write 1 to it we will trigger the action. So always write 0 to it when
-+ * changning SWRESET action - no matter what we read from it.
-+ */
-+#define BD71837_SWRESET_TYPE_MASK 7
-+#define BD71837_SWRESET_TYPE_DISABLED 0
-+#define BD71837_SWRESET_TYPE_COLD 4
-+#define BD71837_SWRESET_TYPE_WARM 6
-+
-+#define BD71837_SWRESET_RESET_MASK 1
-+#define BD71837_SWRESET_RESET 1
-+
-+/* Poweroff state transition conditions */
-+
-+#define BD718XX_ON_REQ_POWEROFF_MASK 1
-+#define BD718XX_SWRESET_POWEROFF_MASK 2
-+#define BD718XX_WDOG_POWEROFF_MASK 4
-+#define BD718XX_KEY_L_POWEROFF_MASK 8
-+
-+#define BD718XX_POWOFF_TO_SNVS 0
-+#define BD718XX_POWOFF_TO_RDY 0xF
-+
-+#define BD718XX_POWOFF_TIME_MASK 0xF0
-+enum {
-+	BD718XX_POWOFF_TIME_5MS = 0,
-+	BD718XX_POWOFF_TIME_10MS,
-+	BD718XX_POWOFF_TIME_15MS,
-+	BD718XX_POWOFF_TIME_20MS,
-+	BD718XX_POWOFF_TIME_25MS,
-+	BD718XX_POWOFF_TIME_30MS,
-+	BD718XX_POWOFF_TIME_35MS,
-+	BD718XX_POWOFF_TIME_40MS,
-+	BD718XX_POWOFF_TIME_45MS,
-+	BD718XX_POWOFF_TIME_50MS,
-+	BD718XX_POWOFF_TIME_75MS,
-+	BD718XX_POWOFF_TIME_100MS,
-+	BD718XX_POWOFF_TIME_250MS,
-+	BD718XX_POWOFF_TIME_500MS,
-+	BD718XX_POWOFF_TIME_750MS,
-+	BD718XX_POWOFF_TIME_1500MS
-+};
-+
-+/* Poweron sequence state transition conditions */
-+
-+#define BD718XX_RDY_TO_SNVS_MASK 0xF
-+#define BD718XX_SNVS_TO_RUN_MASK 0xF0
-+
-+#define BD718XX_PWR_TRIG_KEY_L 1
-+#define BD718XX_PWR_TRIG_KEY_S 2
-+#define BD718XX_PWR_TRIG_PMIC_ON 4
-+#define BD718XX_PWR_TRIG_VSYS_UVLO 8
-+#define BD718XX_RDY_TO_SNVS_SIFT 0
-+#define BD718XX_SNVS_TO_RUN_SIFT 4
-+
-+/* Timeout value for detecting short press */
-+
-+#define BD718XX_PWRBTN_SHORT_PRESS_MASK 0xF
-+
-+enum {
-+	BD718XX_PWRBTN_SHORT_PRESS_10MS = 0,
-+	BD718XX_PWRBTN_SHORT_PRESS_500MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_1000MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_1500MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_2000MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_2500MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_3000MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_3500MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_4000MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_4500MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_5000MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_5500MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_6000MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_6500MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_7000MS,
-+	BD718XX_PWRBTN_SHORT_PRESS_7500MS
-+};
-+
- #define REGLOCK_PWRSEQ	0x1
- #define REGLOCK_VREG	0x10
- 
-@@ -222,6 +302,7 @@ enum {
- struct bd71837;
- struct bd71837_pmic;
- struct bd71837_clk;
-+struct bd718xx_pwrkey;
- 
- /*
-  * Board platform data may be used to initialize regulators.
-@@ -244,6 +325,7 @@ struct bd71837 {
- 
- 	struct bd71837_pmic *pmic;
- 	struct bd71837_clk *clk;
-+	struct bd718xx_pwrkey *pwrkey;
- 
- 	struct bd71837_board *of_plat_data;
- };
--- 
-2.14.3
+Yes, the patch works. We applied and compiled it with 4.14 and
+4.17-rc3. We tested on our hardware with 4.14.
+
+Only for 4.14 an #include <linux/regulator/consumer.h> was missing. I
+Guess the API changed here a little in the meantime.
+
+Because we do not have a controllable power supply on our board we see
+the following complaint. But I think it is intentional and ok, right?
+
+	[    1.715963] bu21029 0-0040: 0-0040 supply vdd not found, using dummy re=
+gulator
+	[    1.723806] input: bu21029 as /devices/soc0/soc/2100000.aips-bus/21a000=
+0.i2c/i2c-0/0-0040/input/input0=20
+
+> + - vdd-supply              : power supply for the controoler
+
+There is a typo in controller.
+
+What's the next step?
+
+Greetings,
+Mark
+
+Building Technologies, Panel Software Fire (BT-FIR/ENG1)=20
+Bosch Sicherheitssysteme GmbH | Postfach 11 11 | 85626 Grasbrunn | GERMANY =
+| www.boschsecurity.com
+
+Sitz: Stuttgart, Registergericht: Amtsgericht Stuttgart HRB 23118=20
+Aufsichtsratsvorsitzender: Stefan Hartung; Gesch=E4ftsf=FChrung: Gert van I=
+peren, Andreas Bartz, Thomas Quante, Bernhard Schuster

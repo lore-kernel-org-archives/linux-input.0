@@ -1,42 +1,106 @@
-From: James Morris <jmorris@namei.org>
-Subject: Re: [PATCH v4 04/26] docs: fix broken references with multiple hints
-Date: Sat, 16 Jun 2018 04:22:10 +1000 (AEST)
-Message-ID: <alpine.LRH.2.21.1806160420260.22474@namei.org>
-References: <cover.1529079119.git.mchehab+samsung@kernel.org>
- <75c14f6d84eef8c10787e85ddc172afebee116d6.1529079119.git.mchehab+samsung@kernel.org>
+From: Yury Norov <ynorov@caviumnetworks.com>
+Subject: Re: [PATCH v2 5/5] Input: evdev - Switch to bitmap_zalloc()
+Date: Sat, 16 Jun 2018 00:42:31 +0300
+Message-ID: <20180615214231.GA371@yury-thinkpad>
+References: <20180615132017.23889-1-andriy.shevchenko@linux.intel.com>
+ <20180615132017.23889-6-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <75c14f6d84eef8c10787e85ddc172afebee116d6.1529079119.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-fbdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, David Airlie <airlied@linux.ie>, Roy Pledge <Roy.Pledge@nxp.com>, dri-devel@lists.freedesktop.org, Harry Wei <harryxiyou@gmail.com>, devel@driverdev.osuosl.org, Jonathan Corbet <corbet@lwn.net>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Jiri Kosina <jikos@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-gpio@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>linux
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180615132017.23889-6-andriy.shevchenko@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 15 Jun 2018, Mauro Carvalho Chehab wrote:
+Hi Andy,
 
-> The script:
-> 	./scripts/documentation-file-ref-check --fix
+On Fri, Jun 15, 2018 at 04:20:17PM +0300, Andy Shevchenko wrote:
+> Switch to bitmap_zalloc() to show clearly what we are allocating.
+> Besides that it returns pointer of bitmap type instead of opaque void *.
 > 
-> Gives multiple hints for broken references on some files.
-> Manually use the one that applies for some files.
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/input/evdev.c | 16 +++++++---------
+>  1 file changed, 7 insertions(+), 9 deletions(-)
 > 
-> Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index c81c79d01d93..370206f987f9 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -481,7 +481,7 @@ static int evdev_release(struct inode *inode, struct file *file)
+>         evdev_detach_client(evdev, client);
+> 
+>         for (i = 0; i < EV_CNT; ++i)
+> -               kfree(client->evmasks[i]);
+> +               bitmap_free(client->evmasks[i]);
+> 
+>         kvfree(client);
+> 
+> @@ -925,17 +925,15 @@ static int evdev_handle_get_val(struct evdev_client *client,
+>  {
+>         int ret;
+>         unsigned long *mem;
+> -       size_t len;
+> 
+> -       len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
+> -       mem = kmalloc(len, GFP_KERNEL);
+> +       mem = bitmap_alloc(maxbit, GFP_KERNEL);
+>         if (!mem)
+>                 return -ENOMEM;
 
+But in commit message you say you switch to bitmap_zalloc(). IIUC
+bitmap_alloc() is OK here. But could you please update comment to
+avoid confusing.
 
-Acked-by: James Morris <james.morris@microsoft.com>
+> 
+>         spin_lock_irq(&dev->event_lock);
+>         spin_lock(&client->buffer_lock);
+> 
+> -       memcpy(mem, bits, len);
+> +       bitmap_copy(mem, bits, maxbit);
+> 
+>         spin_unlock(&dev->event_lock);
+> 
+> @@ -947,7 +945,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
+>         if (ret < 0)
+>                 evdev_queue_syn_dropped(client);
+> 
+> -       kfree(mem);
+> +       bitmap_free(mem);
+> 
+>         return ret;
+>  }
+> @@ -1003,13 +1001,13 @@ static int evdev_set_mask(struct evdev_client *client,
+>         if (!cnt)
+>                 return 0;
+> 
+> -       mask = kcalloc(sizeof(unsigned long), BITS_TO_LONGS(cnt), GFP_KERNEL);
+> +       mask = bitmap_zalloc(cnt, GFP_KERNEL);
+>         if (!mask)
+>                 return -ENOMEM;
+> 
+>         error = bits_from_user(mask, cnt - 1, codes_size, codes, compat);
 
+If my understanding of bits_from_user() correct, here you can also use
+bitmap_alloc(), true?
 
--- 
-James Morris
-<jmorris@namei.org>
+>         if (error < 0) {
+> -               kfree(mask);
+> +               bitmap_free(mask);
+>                 return error;
+>         }
+> 
+> @@ -1018,7 +1016,7 @@ static int evdev_set_mask(struct evdev_client *client,
+>         client->evmasks[type] = mask;
+>         spin_unlock_irqrestore(&client->buffer_lock, flags);
+> 
+> -       kfree(oldmask);
+> +       bitmap_free(oldmask);
+> 
+>         return 0;
+>  }
+> --
+> 2.17.1

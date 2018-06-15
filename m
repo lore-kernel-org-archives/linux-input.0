@@ -1,66 +1,58 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 02/11] tpm/tpm_i2c_infineon: switch to i2c_lock_segment
-Date: Fri, 15 Jun 2018 12:14:57 +0200
-Message-ID: <20180615101506.8012-3-peda@axentia.se>
-References: <20180615101506.8012-1-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 0/5] bitmap: Introduce alloc/free helpers
+Date: Fri, 15 Jun 2018 16:20:12 +0300
+Message-ID: <20180615132017.23889-1-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180615101506.8012-1-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
+To: Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <ynorov@caviumnetworks.com>, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Locking the root adapter for __i2c_transfer will deadlock if the
-device sits behind a mux-locked I2C mux. Switch to the finer-grained
-i2c_lock_segment. If the device does not sit behind a mux-locked mux,
-the two locking variants are equivalent.
+A lot of code is using allocation of bitmaps using BITS_PER_LONG() macro and
+sizeof(unsigned long) operator. The readability suffers because of this.
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/char/tpm/tpm_i2c_infineon.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+The series introduces three helpers, i.e. bitmap_alloc(), bitmap_zalloc() and
+bitmap_free(), to make it more cleaner.
 
-diff --git a/drivers/char/tpm/tpm_i2c_infineon.c b/drivers/char/tpm/tpm_i2c_infineon.c
-index 6116cd05e228..b2889405b4fa 100644
---- a/drivers/char/tpm/tpm_i2c_infineon.c
-+++ b/drivers/char/tpm/tpm_i2c_infineon.c
-@@ -117,7 +117,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
- 	/* Lock the adapter for the duration of the whole sequence. */
- 	if (!tpm_dev.client->adapter->algo->master_xfer)
- 		return -EOPNOTSUPP;
--	i2c_lock_adapter(tpm_dev.client->adapter);
-+	i2c_lock_segment(tpm_dev.client->adapter);
- 
- 	if (tpm_dev.chip_type == SLB9645) {
- 		/* use a combined read for newer chips
-@@ -192,7 +192,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
- 	}
- 
- out:
--	i2c_unlock_adapter(tpm_dev.client->adapter);
-+	i2c_unlock_segment(tpm_dev.client->adapter);
- 	/* take care of 'guard time' */
- 	usleep_range(SLEEP_DURATION_LOW, SLEEP_DURATION_HI);
- 
-@@ -224,7 +224,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
- 
- 	if (!tpm_dev.client->adapter->algo->master_xfer)
- 		return -EOPNOTSUPP;
--	i2c_lock_adapter(tpm_dev.client->adapter);
-+	i2c_lock_segment(tpm_dev.client->adapter);
- 
- 	/* prepend the 'register address' to the buffer */
- 	tpm_dev.buf[0] = addr;
-@@ -243,7 +243,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
- 		usleep_range(sleep_low, sleep_hi);
- 	}
- 
--	i2c_unlock_adapter(tpm_dev.client->adapter);
-+	i2c_unlock_segment(tpm_dev.client->adapter);
- 	/* take care of 'guard time' */
- 	usleep_range(SLEEP_DURATION_LOW, SLEEP_DURATION_HI);
- 
+Patch 1 is a preparatory to avoid namespace collisions between bitmap API and
+MD bitmap. No functional changes intended.
+
+Patch 2 is just orphaned from previous release cycle.
+
+Patch 3 introduces new helpers.
+
+Patches 4 and 5 is just an example how to use new helpers. Locally I have like
+dozen of them against different subsystems and drivers.
+
+Ideally it would go through Input subsystem, thus, needs an Ack from MD maintainer(s).
+
+Since v2:
+ - added namespace fix patch against MD bitmap API
+ - moved functions to lib/bitmap.c to avoid circular dependencies
+ - appended Dmitry's tags
+
+Andy Shevchenko (5):
+  md: Avoid namespace collision with bitmap API
+  bitmap: Drop unnecessary 0 check for u32 array operations
+  bitmap: Add bitmap_alloc(), bitmap_zalloc() and bitmap_free()
+  Input: gpio-keys - Switch to bitmap_zalloc()
+  Input: evdev - Switch to bitmap_zalloc()
+
+ drivers/input/evdev.c                         |  16 +-
+ drivers/input/keyboard/gpio_keys.c            |   8 +-
+ drivers/md/dm-raid.c                          |   6 +-
+ drivers/md/md-bitmap.c                        | 301 +++++++++---------
+ drivers/md/md-bitmap.h                        |  46 +--
+ drivers/md/md-cluster.c                       |  16 +-
+ drivers/md/md.c                               |  44 +--
+ .../md/persistent-data/dm-space-map-common.c  |   8 +-
+ drivers/md/raid1.c                            |  20 +-
+ drivers/md/raid10.c                           |  26 +-
+ drivers/md/raid5-cache.c                      |   2 +-
+ drivers/md/raid5.c                            |  24 +-
+ include/linux/bitmap.h                        |   8 +
+ lib/bitmap.c                                  |  28 +-
+ 14 files changed, 281 insertions(+), 272 deletions(-)
+
 -- 
-2.11.0
+2.17.1

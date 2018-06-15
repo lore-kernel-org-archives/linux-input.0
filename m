@@ -1,24 +1,15 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 03/11] i2c: mux: pca9541: switch to i2c_lock_segment
-Date: Fri, 15 Jun 2018 12:14:58 +0200
-Message-ID: <20180615101506.8012-4-peda@axentia.se>
+Subject: [PATCH 02/11] tpm/tpm_i2c_infineon: switch to i2c_lock_segment
+Date: Fri, 15 Jun 2018 12:14:57 +0200
+Message-ID: <20180615101506.8012-3-peda@axentia.se>
 References: <20180615101506.8012-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180615101506.8012-1-peda@axentia.se>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Crt Mori <cmo@melexis.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Peter Huewe <peterhuewe@gmx.de>, Michael Krufky <mkrufky@linuxtv.org>, Lee Jones <lee.jones@linaro.org>, Antti Palosaari <crope@iki.fi>, linux-samsung-soc@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Kevin Hilman <khilman@kernel.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kukjin Kim <kgene@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Orson Zhai <orsonzhai@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Haavard Skinnemoen <hskinnemoen@gm>
+Cc: Peter Rosin <peda@axentia.se>, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
 Locking the root adapter for __i2c_transfer will deadlock if the
@@ -28,27 +19,48 @@ the two locking variants are equivalent.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pca9541.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/tpm/tpm_i2c_infineon.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
-index 6a39adaf433f..74c560ed44cc 100644
---- a/drivers/i2c/muxes/i2c-mux-pca9541.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
-@@ -345,11 +345,11 @@ static int pca9541_probe(struct i2c_client *client,
+diff --git a/drivers/char/tpm/tpm_i2c_infineon.c b/drivers/char/tpm/tpm_i2c_infineon.c
+index 6116cd05e228..b2889405b4fa 100644
+--- a/drivers/char/tpm/tpm_i2c_infineon.c
++++ b/drivers/char/tpm/tpm_i2c_infineon.c
+@@ -117,7 +117,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
+ 	/* Lock the adapter for the duration of the whole sequence. */
+ 	if (!tpm_dev.client->adapter->algo->master_xfer)
+ 		return -EOPNOTSUPP;
+-	i2c_lock_adapter(tpm_dev.client->adapter);
++	i2c_lock_segment(tpm_dev.client->adapter);
  
- 	/*
- 	 * I2C accesses are unprotected here.
--	 * We have to lock the adapter before releasing the bus.
-+	 * We have to lock the I2C segment before releasing the bus.
- 	 */
--	i2c_lock_adapter(adap);
-+	i2c_lock_segment(adap);
- 	pca9541_release_bus(client);
--	i2c_unlock_adapter(adap);
-+	i2c_unlock_segment(adap);
+ 	if (tpm_dev.chip_type == SLB9645) {
+ 		/* use a combined read for newer chips
+@@ -192,7 +192,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
+ 	}
  
- 	/* Create mux adapter */
+ out:
+-	i2c_unlock_adapter(tpm_dev.client->adapter);
++	i2c_unlock_segment(tpm_dev.client->adapter);
+ 	/* take care of 'guard time' */
+ 	usleep_range(SLEEP_DURATION_LOW, SLEEP_DURATION_HI);
+ 
+@@ -224,7 +224,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
+ 
+ 	if (!tpm_dev.client->adapter->algo->master_xfer)
+ 		return -EOPNOTSUPP;
+-	i2c_lock_adapter(tpm_dev.client->adapter);
++	i2c_lock_segment(tpm_dev.client->adapter);
+ 
+ 	/* prepend the 'register address' to the buffer */
+ 	tpm_dev.buf[0] = addr;
+@@ -243,7 +243,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
+ 		usleep_range(sleep_low, sleep_hi);
+ 	}
+ 
+-	i2c_unlock_adapter(tpm_dev.client->adapter);
++	i2c_unlock_segment(tpm_dev.client->adapter);
+ 	/* take care of 'guard time' */
+ 	usleep_range(SLEEP_DURATION_LOW, SLEEP_DURATION_HI);
  
 -- 
 2.11.0

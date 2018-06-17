@@ -1,87 +1,104 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v3] platform/x86: touchscreen_dmi: Add info for the ONDA
- V891W Dual OS
-Date: Sun, 17 Jun 2018 19:47:44 +0300
-Message-ID: <CAHp75VeBWw1VOJiSHTdKpnrOFiCoKDmxt6HS1ctoWjhKHBiN7Q@mail.gmail.com>
-References: <20180617140326.12854-1-youling257@gmail.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH v3] Input: add bu21029 touch driver
+Date: Mon, 18 Jun 2018 03:19:26 +0800
+Message-ID: <201806180153.010oE5tw%fengguang.wu@intel.com>
+References: <1526048528-3613-1-git-send-email-mark.jonas@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180617140326.12854-1-youling257@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1526048528-3613-1-git-send-email-mark.jonas@de.bosch.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: youling 257 <youling257@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andy@infradead.org>, Darren Hart <dvhart@infradead.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, hs@denx.de, Zhu Yi <yi.zhu5@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>
 List-Id: linux-input@vger.kernel.org
 
-Thanks for the patch, my comments below.
+Hi Zhu,
 
-On Sun, Jun 17, 2018 at 5:03 PM youling257 <youling257@gmail.com> wrote:
->
-> Add touchscreen info for the ONDA V891W Dual OS
+Thank you for the patch! Perhaps something to improve:
 
-It would be nice to end sentences with period.
+[auto build test WARNING on v4.17-rc4]
+[also build test WARNING on next-20180615]
+[cannot apply to input/next]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
->
-> Signed-off-by: youling257 <youling257@gmail.com>
-
-There is still couple of things that prevents me to apply:
- - please use your real name in SoB
- - you forget to add Hans' tag
-
-> ---
->  drivers/platform/x86/touchscreen_dmi.c | 27 ++++++++++++++++++++++++++
->  1 file changed, 27 insertions(+)
->
-> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-> index 6284946cb0d1..2ad9327c8c0f 100644
-> --- a/drivers/platform/x86/touchscreen_dmi.c
-> +++ b/drivers/platform/x86/touchscreen_dmi.c
-> @@ -221,6 +221,24 @@ static const struct ts_dmi_data onda_v891w_v1_data = {
->         .properties     = onda_v891w_v1_props,
->  };
->
-> +static const struct property_entry onda_v891w_v3_props[] = {
-> +       PROPERTY_ENTRY_U32("touchscreen-min-x", 35),
-> +       PROPERTY_ENTRY_U32("touchscreen-min-y", 15),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1625),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1135),
-> +       PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
-> +       PROPERTY_ENTRY_STRING("firmware-name",
-> +                             "gsl3676-onda-v891w-v3.fw"),
-> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
-> +       { }
-> +};
-> +
-> +static const struct ts_dmi_data onda_v891w_v3_data = {
-> +       .acpi_name      = "MSSL1680:00",
-> +       .properties     = onda_v891w_v3_props,
-> +};
-> +
->  static const struct property_entry pipo_w2s_props[] = {
->         PROPERTY_ENTRY_U32("touchscreen-size-x", 1660),
->         PROPERTY_ENTRY_U32("touchscreen-size-y", 880),
-> @@ -481,6 +499,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
->                         DMI_EXACT_MATCH(DMI_BIOS_VERSION, "ONDA.W89EBBN08"),
->                 },
->         },
-> +       {
-> +               /* ONDA V891w Dual OS P891DCF2V1A01274 64GB */
-> +               .driver_data = (void *)&onda_v891w_v3_data,
-> +               .matches = {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
-> +                       DMI_MATCH(DMI_PRODUCT_NAME, "ONDA Tablet"),
-> +                       DMI_MATCH(DMI_BIOS_VERSION, "ONDA.D890HBBNR0A"),
-> +               },
-> +       },
->         {
->                 /* Pipo W2S */
->                 .driver_data = (void *)&pipo_w2s_data,
-> --
-> 2.17.1
->
+url:    https://github.com/0day-ci/linux/commits/Mark-Jonas/Input-add-bu21029-touch-driver/20180512-091305
+reproduce:
+        # apt-get install sparse
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF=-D__CHECK_ENDIAN__
 
 
--- 
-With Best Regards,
-Andy Shevchenko
+sparse warnings: (new ones prefixed by >>)
+
+>> drivers/input/touchscreen/bu21029_ts.c:293:13: sparse: restricted __be16 degrades to integer
+
+vim +293 drivers/input/touchscreen/bu21029_ts.c
+
+   262	
+   263	static int bu21029_start_chip(struct input_dev *dev)
+   264	{
+   265		struct bu21029_ts_data *bu21029 = input_get_drvdata(dev);
+   266		struct i2c_client *i2c = bu21029->client;
+   267		struct {
+   268			u8 reg;
+   269			u8 value;
+   270		} init_table[] = {
+   271			{BU21029_CFR0_REG, CFR0_VALUE},
+   272			{BU21029_CFR1_REG, CFR1_VALUE},
+   273			{BU21029_CFR2_REG, CFR2_VALUE},
+   274			{BU21029_CFR3_REG, CFR3_VALUE},
+   275			{BU21029_LDO_REG,  LDO_VALUE}
+   276		};
+   277		int error, i;
+   278		u16 hwid;
+   279	
+   280		/* take chip out of reset */
+   281		gpiod_set_value_cansleep(bu21029->reset_gpios, 0);
+   282		mdelay(START_DELAY_MS);
+   283	
+   284		error = i2c_smbus_read_i2c_block_data(i2c,
+   285						      BU21029_HWID_REG,
+   286						      2,
+   287						      (u8 *)&hwid);
+   288		if (error < 0) {
+   289			dev_err(&i2c->dev, "failed to read HW ID\n");
+   290			goto out;
+   291		}
+   292	
+ > 293		if (cpu_to_be16(hwid) != SUPPORTED_HWID) {
+   294			dev_err(&i2c->dev, "unsupported HW ID 0x%x\n", hwid);
+   295			error = -ENODEV;
+   296			goto out;
+   297		}
+   298	
+   299		for (i = 0; i < ARRAY_SIZE(init_table); ++i) {
+   300			error = i2c_smbus_write_byte_data(i2c,
+   301							  init_table[i].reg,
+   302							  init_table[i].value);
+   303			if (error < 0) {
+   304				dev_err(&i2c->dev,
+   305					"failed to write 0x%x to register 0x%x\n",
+   306					init_table[i].value,
+   307					init_table[i].reg);
+   308				goto out;
+   309			}
+   310		}
+   311	
+   312		error = i2c_smbus_write_byte(i2c, BU21029_AUTOSCAN);
+   313		if (error < 0) {
+   314			dev_err(&i2c->dev, "failed to start autoscan\n");
+   315			goto out;
+   316		}
+   317	
+   318		enable_irq(bu21029->client->irq);
+   319		return 0;
+   320	
+   321	out:
+   322		bu21029_stop_chip(dev);
+   323		return error;
+   324	}
+   325	
+
+---
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation

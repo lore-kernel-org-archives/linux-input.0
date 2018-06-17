@@ -1,47 +1,70 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH v2 5/5] Input: evdev - Switch to bitmap_zalloc()
-Date: Sat, 16 Jun 2018 12:16:28 -0700
-Message-ID: <0a3d86d7746792a2f848cef386941fc182653515.camel@perches.com>
-References: <20180615132017.23889-1-andriy.shevchenko@linux.intel.com>
-         <20180615132017.23889-6-andriy.shevchenko@linux.intel.com>
-         <20180615214231.GA371@yury-thinkpad>
-         <CAHp75VcxYPCLYq1J8qqjPdgDdQnWDgZKkavmyEWD8GNxcW2mWg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+From: youling257 <youling257@gmail.com>
+Subject: [PATCH v1] platform/x86: silead_dmi: Add touchscreen info for the Onda V891w V3 tablet
+Date: Sun, 17 Jun 2018 18:37:36 +0800
+Message-ID: <20180617103736.1162-1-youling257@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VcxYPCLYq1J8qqjPdgDdQnWDgZKkavmyEWD8GNxcW2mWg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Yury Norov <ynorov@caviumnetworks.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, agk@redhat.com, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, shli@kernel.org, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, andy@infradead.org, dvhart@infradead.org, hdegoede@redhat.com, youling257 <youling257@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 2018-06-16 at 21:45 +0300, Andy Shevchenko wrote:
-> On Sat, Jun 16, 2018 at 12:46 AM Yury Norov <ynorov@caviumnetworks.com> wrote:
-> > On Fri, Jun 15, 2018 at 04:20:17PM +0300, Andy Shevchenko wrote:
-> > > Switch to bitmap_zalloc() to show clearly what we are allocating.
-> > > Besides that it returns pointer of bitmap type instead of opaque void *.
-> 
-> 
-> > > +       mem = bitmap_alloc(maxbit, GFP_KERNEL);
-> > >         if (!mem)
-> > >                 return -ENOMEM;
-> > 
-> > But in commit message you say you switch to bitmap_zalloc(). IIUC
-> > bitmap_alloc() is OK here. But could you please update comment to
-> > avoid confusing.
-> 
-> There are two places, one with alloc, another with zalloc.
-> I will clarify this in commit message of next version.
-> 
-> > > +       mask = bitmap_zalloc(cnt, GFP_KERNEL);
-> > >         if (!mask)
-> > >                 return -ENOMEM;
-> > > 
-> > >         error = bits_from_user(mask, cnt - 1, codes_size, codes, compat);
-> > 
-> > If my understanding of bits_from_user() correct, here you can also use
-> > bitmap_alloc(), true?
+Signed-off-by: youling257 <youling257@gmail.com>
+---
+ drivers/platform/x86/silead_dmi.c | 35 +++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-Also it might be useful to have a separate bitmap_from_user
-to alloc and copy.
+diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
+index 853a7ce4601c..9e61182c8aff 100644
+--- a/drivers/platform/x86/silead_dmi.c
++++ b/drivers/platform/x86/silead_dmi.c
+@@ -326,6 +326,23 @@ static const struct silead_ts_dmi_data onda_v891w_v1_data = {
+ 	.properties	= onda_v891w_v1_props,
+ };
+ 
++static const struct property_entry onda_v891w_v3_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 35),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 15),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1625),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1135),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "FW_I89_GSL3676B_19201200_.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct silead_ts_dmi_data onda_v891w_v3_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= onda_v891w_v3_props,
++};
++
+ static const struct dmi_system_id silead_ts_dmi_table[] = {
+ 	{
+ 		/* CUBE iwork8 Air */
+@@ -554,6 +571,24 @@ static const struct dmi_system_id silead_ts_dmi_table[] = {
+ 			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "ONDA.W89EBBN08"),
+ 		},
+ 	},
++	{
++		/* ONDA V891w Dual OS P891DCF2V1A01274 64GB */
++		.driver_data = (void *)&onda_v891w_v3_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ONDA Tablet"),
++			DMI_MATCH(DMI_BIOS_VERSION, "ONDA.D890HBBNR0A"),
++		},
++	},
++	{
++		/* ONDA V891w P891WBECV3A02121 32GB */
++		.driver_data = (void *)&onda_v891w_v3_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ONDA Tablet"),
++			DMI_MATCH(DMI_BIOS_VERSION, "ONDA.W89EBBN08"),
++		},
++	},
+ 	{ },
+ };
+ 
+-- 
+2.17.1

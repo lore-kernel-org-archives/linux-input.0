@@ -1,68 +1,75 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 1/5] md: Avoid namespace collision with bitmap API
-Date: Mon, 18 Jun 2018 16:57:41 +0300
-Message-ID: <49e96a4ecb3566139bef0b36093143077ceafd3f.camel@linux.intel.com>
-References: <20180618131003.88110-1-andriy.shevchenko@linux.intel.com>
-         <20180618131003.88110-2-andriy.shevchenko@linux.intel.com>
-         <20180618134454.GA25547@redhat.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v4] platform/x86: touchscreen_dmi: Add info for the ONDA
+ V891W Dual OS tablet
+Date: Mon, 18 Jun 2018 16:59:30 +0300
+Message-ID: <CAHp75VfPPnqgsHFwfLaUZSYa3i2tUmvWpwgxEAz45q61aU9OGA@mail.gmail.com>
+References: <20180617235812.18596-1-youling257@gmail.com> <342c314e-6e9f-aefc-3ec0-300b53071089@redhat.com>
+ <32076294-07ac-7801-2220-7468e71c275e@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180618134454.GA25547@redhat.com>
+In-Reply-To: <32076294-07ac-7801-2220-7468e71c275e@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Snitzer <snitzer@redhat.com>
-Cc: Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <ynorov@caviumnetworks.com>, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, Joe Perches <joe@perches.com>
+To: Hans de Goede <hdegoede@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: youling257 <youling257@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andy@infradead.org>, Darren Hart <dvhart@infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2018-06-18 at 09:44 -0400, Mike Snitzer wrote:
-> On Mon, Jun 18 2018 at  9:09am -0400,
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
-> 
-> > bitmap API (include/linux/bitmap.h) has 'bitmap' prefix for its
-> > methods.
-> > 
-> > On the other hand MD bitmap API is special case.
-> > Adding 'md' prefix to it to avoid name space collision.
-> > 
-> > No functional changes intended.
-> > 
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > ---
-> >  drivers/md/dm-raid.c                          |   6 +-
-> >  drivers/md/md-bitmap.c                        | 301 +++++++++----
-> > -----
-> >  drivers/md/md-bitmap.h                        |  46 +--
-> >  drivers/md/md-cluster.c                       |  16 +-
-> >  drivers/md/md.c                               |  44 +--
-> >  .../md/persistent-data/dm-space-map-common.c  |  12 +-
-> >  drivers/md/raid1.c                            |  20 +-
-> >  drivers/md/raid10.c                           |  26 +-
-> >  drivers/md/raid5-cache.c                      |   2 +-
-> >  drivers/md/raid5.c                            |  24 +-
-> >  10 files changed, 244 insertions(+), 253 deletions(-)
-> 
-> Seems my previous mail just missed your v3 cutoff but...
-> 
-> <snip>
-> 
-> All of these drivers/md/persistent-data/dm-space-map-common.c renames
-> are wrong.
++Cc: Stephen
 
-So, let me understand this clear, the naming problem appears in one file
-only. The rest is fine. Correct?
+On Mon, Jun 18, 2018 at 3:54 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Hi,
+>
+> On 18-06-18 10:43, Hans de Goede wrote:
+>>
+>> Hi,
+>>
+>> On 18-06-18 01:58, youling257 wrote:
+>>>
+>>> Add touchscreen info for the ONDA V891W Dual OS tablet
+>>
+>>
+>> Nitpick: still missing a period '.' at the end, this should be:
+>>
+>> Add touchscreen info for the ONDA V891W Dual OS tablet.
+>>
+>>> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+>>> Signed-off-by: youling257 <youling257@gmail.com>
+>>
+>>
+>> As Andy indicated you need to use your real name when submitting
+>> kernel patches, not an internet alias (or a nick).
+>>
+>> So you need to re-submit this with something like this:
+>>
+>> Signed-off-by: FirstName LastName <youling257@gmail.com>
+>
+>
+> youling has indicated to me (off-list) that he does not
+> want to use his real name.
+>
+> He has already provided me with the touchscreen details
+> and dmi strings for this tablet a while ago and I had
+> writing the exact same quirk on my TODO list already.
+>
+> As such I've no doubt that he created this patch and
+> has the rights to Submit it under the GPL license.
+>
+> So I'm going to resubmit this with his S-o-b removed
+> and replaced with mine. Where the intent of my
+> S-o-b is to certify point c. of the certificate
+> of origin, quoting from:
+>
+> https://www.kernel.org/doc/html/latest/process/submitting-patches.html#developer-s-certificate-of-origin-1-1
+>
+> "c. The contribution was provided directly to me by some other person who
+> certified (a), (b) or (c) and I have not modified it."
+>
+> This seems better then me re-creating the exact
+> same patch from scratch.
 
->   DM is the only consumer (it is confusing because all DM and
-> MD code lives in drivers/md/ despite only sharing a bit of MD code).
-> 
-> Anyway, please rename bitmap methods in this file to have a
-> "dm_bitmap"
-> prefix instead.  Thanks.
-
-Ah, okay, will do this in v4 later this week.
-
-Thanks for review!
+I guess this will not pass checks Stephen has.
+So, Stephen, how should we proceed?
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+With Best Regards,
+Andy Shevchenko

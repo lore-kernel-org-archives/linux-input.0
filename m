@@ -1,65 +1,44 @@
-From: youling257 <youling257@gmail.com>
-Subject: [PATCH v4] platform/x86: touchscreen_dmi: Add info for the ONDA V891W Dual OS tablet
-Date: Mon, 18 Jun 2018 07:58:12 +0800
-Message-ID: <20180617235812.18596-1-youling257@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 23/26] devicetree: fix a series of wrong file
+ references
+Date: Mon, 18 Jun 2018 06:49:10 +0100
+Message-ID: <20180618054910.GB31141@dell>
+References: <cover.1529079119.git.mchehab+samsung@kernel.org>
+ <266e5f874b36aa83f3327879d85921fab52d5461.1529079120.git.mchehab+samsung@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <266e5f874b36aa83f3327879d85921fab52d5461.1529079120.git.mchehab+samsung@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, andy@infradead.org, dvhart@infradead.org, hdegoede@redhat.com, youling257 <youling257@gmail.com>
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Zhou Wang <wangzhou1@hisilicon.com>, Bjorn Helgaas <bhelgaas@google.com>, Xiaowei Song <songxiaowei@hisilicon.com>, Binghui Wang <wangbinghui@hisilicon.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.inf
 List-Id: linux-input@vger.kernel.org
 
-Add touchscreen info for the ONDA V891W Dual OS tablet
+On Fri, 15 Jun 2018, Mauro Carvalho Chehab wrote:
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: youling257 <youling257@gmail.com>
----
- drivers/platform/x86/touchscreen_dmi.c | 27 ++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+> As files got renamed, their references broke.
+> 
+> Manually fix a series of broken refs at the DT bindings.
+> 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> ---
+>  .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt |  2 +-
+>  Documentation/devicetree/bindings/mfd/sun6i-prcm.txt |  2 +-
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 6284946cb0d1..2ad9327c8c0f 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -221,6 +221,24 @@ static const struct ts_dmi_data onda_v891w_v1_data = {
- 	.properties	= onda_v891w_v1_props,
- };
- 
-+static const struct property_entry onda_v891w_v3_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 35),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 15),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1625),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1135),
-+	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name",
-+			      "gsl3676-onda-v891w-v3.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data onda_v891w_v3_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= onda_v891w_v3_props,
-+};
-+
- static const struct property_entry pipo_w2s_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1660),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 880),
-@@ -481,6 +499,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "ONDA.W89EBBN08"),
- 		},
- 	},
-+	{
-+		/* ONDA V891w Dual OS P891DCF2V1A01274 64GB */
-+		.driver_data = (void *)&onda_v891w_v3_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ONDA Tablet"),
-+			DMI_MATCH(DMI_BIOS_VERSION, "ONDA.D890HBBNR0A"),
-+		},
-+	},
- 	{
- 		/* Pipo W2S */
- 		.driver_data = (void *)&pipo_w2s_data,
+Acked-by: Lee Jones <lee.jones@linaro.org>
+
+>  .../devicetree/bindings/pci/hisilicon-pcie.txt       |  2 +-
+>  Documentation/devicetree/bindings/pci/kirin-pcie.txt |  2 +-
+>  .../devicetree/bindings/pci/pci-keystone.txt         |  4 ++--
+>  .../devicetree/bindings/sound/st,stm32-i2s.txt       |  2 +-
+>  .../devicetree/bindings/sound/st,stm32-sai.txt       |  2 +-
+>  MAINTAINERS                                          | 12 ++++++------
+>  8 files changed, 14 insertions(+), 14 deletions(-)
+
 -- 
-2.17.1
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

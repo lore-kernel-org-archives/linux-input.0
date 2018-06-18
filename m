@@ -1,66 +1,70 @@
-From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
-Subject: Re: [PATCH v3] Input: add bu21029 touch driver
-Date: Mon, 18 Jun 2018 09:35:40 +0000
-Message-ID: <d790eaf934274cc6a489c177d1f42674@de.bosch.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 01/11] i2c: add helpers for locking the I2C segment
+Date: Mon, 18 Jun 2018 20:05:03 +0900
+Message-ID: <20180618110502.cb5s24srp4frahm6@ninjato>
+References: <20180615101506.8012-1-peda@axentia.se>
+ <20180615101506.8012-2-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kyrdsz3663p2mr6a"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: de-DE
+Content-Disposition: inline
+In-Reply-To: <20180615101506.8012-2-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: "kbuild-all@01.org" <kbuild-all@01.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hs@denx.de" <hs@denx.de>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>, "ZHANG Kevin (BT-FIR/ENG1-Zhu)" <Kevin.Zhang3@cn.bosch.com>, "RUAN Tingquan (BT-FIR/ENG1-Zhu)" <Tingquan.Ruan@cn.bosch.com>, "zhuyi882004@126.com" <zhuyi882004@126.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi kbuild test robot,
 
-> Thank you for the patch! Perhaps something to improve:
->=20
-> [auto build test WARNING on v4.17-rc4]
-> [also build test WARNING on next-20180615]
-> [cannot apply to input/next]
-> [if your patch is applied to the wrong git tree, please drop us a note to=
- help
-> improve the system]
->=20
-> url:    https://github.com/0day-ci/linux/commits/Mark-Jonas/Input-add-bu2=
-1029-
-> touch-driver/20180512-091305
-> reproduce:
->         # apt-get install sparse
->         make ARCH=3Dx86_64 allmodconfig
->         make C=3D1 CF=3D-D__CHECK_ENDIAN__
->=20
->=20
-> sparse warnings: (new ones prefixed by >>)
->=20
-> >> drivers/input/touchscreen/bu21029_ts.c:293:13: sparse: restricted __be=
-16
-> degrades to integer
-[..]
->    288		if (error < 0) {
->    289			dev_err(&i2c->dev, "failed to read HW ID\n");
->    290			goto out;
->    291		}
->    292
->  > 293		if (cpu_to_be16(hwid) !=3D SUPPORTED_HWID) {
->    294			dev_err(&i2c->dev, "unsupported HW ID 0x%x\n", hwid);
->    295			error =3D -ENODEV;
->    296			goto out;
->    297		}
+--kyrdsz3663p2mr6a
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your effort. The reported problem was already fixed.
-Please have a look at the most recent v5 patch posted on this list.
 
-Greetings,
-Mark
+> +static inline void
+> +i2c_lock_segment(struct i2c_adapter *adapter)
+> +{
+> +	i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
+> +}
+> +
+> +static inline int
+> +i2c_trylock_segment(struct i2c_adapter *adapter)
+> +{
+> +	return i2c_trylock_bus(adapter, I2C_LOCK_SEGMENT);
+> +}
+> +
+> +static inline void
+> +i2c_unlock_segment(struct i2c_adapter *adapter)
+> +{
+> +	i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
+> +}
 
- Mark Jonas
+I wonder if i2c_lock_segment() and i2c_lock_root_adapter() are really
+more readable and convenient than i2c_lock_bus() with the flag. I think
+the flags have speaking names, too.
 
-Building Technologies, Panel Software Fire (BT-FIR/ENG1)=20
-Bosch Sicherheitssysteme GmbH | Postfach 11 11 | 85626 Grasbrunn | GERMANY =
-| www.boschsecurity.com
+Is that an idea to remove these functions altogether and start using
+i2c_lock_bus()?
 
-Sitz: Stuttgart, Registergericht: Amtsgericht Stuttgart HRB 23118=20
-Aufsichtsratsvorsitzender: Stefan Hartung; Gesch=E4ftsf=FChrung: Gert van I=
-peren, Andreas Bartz, Thomas Quante, Bernhard Schuster=20
+
+--kyrdsz3663p2mr6a
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsnkdkACgkQFA3kzBSg
+KbYHrxAAq5XQSNo6hQGYuXMRkA7MybJvlJqw3Pp8w2csvX2JO0CFIq3RA1WcHkav
+nQZKZTByfrB/oCh+La6HhIy59XgmyetlSLo3u+VQ5YinF3XK6JBKfeImWuLUS706
+vRiptpAMjjaW2SbGJ3NOalr3mgcZ9ru1j4lhN9yq3iBMvWv7uzDAUMmMRtaNNqWx
+aWtIdaWozAyGdKiRh7fhaP0uZXGGC4JDxurrgNE1tGPqkNAMSTD+rGvgEux+A/z3
+nO2UTLmQf/UYDv50FJAFsrl6magReFxyLV7WrJz+wj3l3UyzMEYmGEW3i/j0MZ6A
+WkfLGPpYHEXeX6HRbDE2p6gCuTpWyXBbLBV3fyvSJ6/2qqGnEIxk08Si0XmGwHJi
+Y+t63nhtVzVE2HmU0KssJBKa4C86/bROyDEgkTsq3fijA8ec3i3RtMAgB0DmQat3
+WiACufPjP+n36+IgtKn7UzzaqfuRwUVB788O+E4CI+AVHNTN7maHyBjyTB8Sx/cX
+k5p2FzxEVlVnsANHTL6Mhw4GfZLMP6ofU5MrIEiKIAX53QSOwvg7EoXXu4skUbgv
+JjPqOsqSQOR755iXJ/al/sJCQYnMvpWmTqTgFnqq19jHkLO4bczEa6AoTZlD1XRN
+b2aWYQrXXSKySuOB/X1BqGdfw5Kals3WHGOB7/bVf9LKhSaLUsc=
+=uT/j
+-----END PGP SIGNATURE-----
+
+--kyrdsz3663p2mr6a--

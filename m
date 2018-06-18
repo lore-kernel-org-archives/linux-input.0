@@ -1,71 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 01/11] i2c: add helpers for locking the I2C segment
-Date: Mon, 18 Jun 2018 20:54:46 +0900
-Message-ID: <20180618115444.pgjmfntp767zuvmw@ninjato>
-References: <20180615101506.8012-1-peda@axentia.se>
- <20180615101506.8012-2-peda@axentia.se>
- <20180618110502.cb5s24srp4frahm6@ninjato>
- <b860025e-3d4b-f333-80b4-3831dd969757@axentia.se>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 5/5] Input: evdev - Switch to bitmap_zalloc()
+Date: Mon, 18 Jun 2018 15:02:20 +0300
+Message-ID: <8cfbdf809f531f8aa315fe1679c3273858038f41.camel@linux.intel.com>
+References: <20180615132017.23889-1-andriy.shevchenko@linux.intel.com>
+         <20180615132017.23889-6-andriy.shevchenko@linux.intel.com>
+         <20180615214231.GA371@yury-thinkpad>
+         <CAHp75VcxYPCLYq1J8qqjPdgDdQnWDgZKkavmyEWD8GNxcW2mWg@mail.gmail.com>
+         <0a3d86d7746792a2f848cef386941fc182653515.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="odyilowjkqhfymya"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <b860025e-3d4b-f333-80b4-3831dd969757@axentia.se>
+In-Reply-To: <0a3d86d7746792a2f848cef386941fc182653515.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
+To: Joe Perches <joe@perches.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Yury Norov <ynorov@caviumnetworks.com>
+Cc: agk@redhat.com, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, shli@kernel.org, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
+On Sat, 2018-06-16 at 12:16 -0700, Joe Perches wrote:
+> On Sat, 2018-06-16 at 21:45 +0300, Andy Shevchenko wrote:
+> > On Sat, Jun 16, 2018 at 12:46 AM Yury Norov <ynorov@caviumnetworks.c
+> > om> wrote:
+> > > On Fri, Jun 15, 2018 at 04:20:17PM +0300, Andy Shevchenko wrote:
+> > > > Switch to bitmap_zalloc() to show clearly what we are
+> > > > allocating.
+> > > > Besides that it returns pointer of bitmap type instead of opaque
+> > > > void *.
+> > 
+> > 
+> > > > +       mem = bitmap_alloc(maxbit, GFP_KERNEL);
+> > > >         if (!mem)
+> > > >                 return -ENOMEM;
+> > > 
+> > > But in commit message you say you switch to bitmap_zalloc(). IIUC
+> > > bitmap_alloc() is OK here. But could you please update comment to
+> > > avoid confusing.
+> > 
+> > There are two places, one with alloc, another with zalloc.
+> > I will clarify this in commit message of next version.
+> > 
+> > > > +       mask = bitmap_zalloc(cnt, GFP_KERNEL);
+> > > >         if (!mask)
+> > > >                 return -ENOMEM;
+> > > > 
+> > > >         error = bits_from_user(mask, cnt - 1, codes_size, codes,
+> > > > compat);
+> > > 
+> > > If my understanding of bits_from_user() correct, here you can also
+> > > use
+> > > bitmap_alloc(), true?
+> 
+> Also it might be useful to have a separate bitmap_from_user
+> to alloc and copy.
 
---odyilowjkqhfymya
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Maybe. I didn't check if there are such users except this driver.
 
+Anyway, it's out of scope of the series.
 
-> > I wonder if i2c_lock_segment() and i2c_lock_root_adapter() are really
-> > more readable and convenient than i2c_lock_bus() with the flag. I think
-> > the flags have speaking names, too.
-> >=20
-> > Is that an idea to remove these functions altogether and start using
-> > i2c_lock_bus()?
->=20
-> That would be fine with me. I don't have a strong opinion and agree that
-> both are readable enough...
->=20
-> It would make for a reduction of the number of lines so that's nice, but
-> the macro in drivers/i2c/busses/i2c-gpio.c (patch 11) would not fit in
-> the current \-width (or whatever you'd call that line of backslashes to
-> the right in a multi-line macro).
->=20
-> Does anyone have a strong opinion?
-
-I have a strong opinion on making i2c.h less bloated. And yes, less
-number of lines is nice, too. I think that surely pays off the
-whitespace exception.
-
-Thanks!
-
-
---odyilowjkqhfymya
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsnnXsACgkQFA3kzBSg
-KbanHg//QoW7vYFlzaQmn4GWdT8DHxpMggaefmiIzNdCezeBGZf+7umVKJ9JwScH
-L7tMU76PFrWS8PRJv678TUzIgCamMUepR8AX99kR79q2VKTucHnprWc68WEelO71
-j5C9y/Vc7Oa+AnD6DlnV5JySSjcHTNH1beivLlpU/AATcT1qJf6acYkJfV8h4JCP
-F+wOu6gt2SjsjPY/Naj8NiCXzW1n1be46vOKuwvTcxEcIvs1qSkoMr52S34y/VUP
-DuXFqwsySm0Yb/Z+lF7nOKwEgJ8PV2Y5IPvsnK+KAt86d5X4ivnLgr5Lw6DCGShX
-VhUGaYI9amhtSVT77mpiz+TvUoi3vvUccVKvVUMicGFvNG0b+45wHQwJiGRYxuzn
-57/Fdm+7Dr5/IhqP0HRNc7rWorrT2NcDCJp+Pea5xcSXpsKkoMdLaCW994T1aT0g
-78utxNnqS21O3GCdITN/IO4xbCN1dNX9+x/6sl5Ks9xO0WA3Fvl1fOlslvVknSAp
-4cJRMWOlxqK6NCU4dHy762yptyVrpzp/01jcofLJhpkLRxQjXSiJpk/C6BxZsipa
-a1uyKean7DC8imJX2StUVaKCA9ava33fJau+HBC3TPLXzh54mU8FI+FZTrxB89Aj
-g+8WH14/n0PrTsvFDkLcgGRVY4uQwPkWkM3HYkauUmyyPFs+wYE=
-=CA/X
------END PGP SIGNATURE-----
-
---odyilowjkqhfymya--
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

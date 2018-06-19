@@ -1,97 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 5/5] Input: evdev - Switch to bitmap_zalloc()
-Date: Tue, 19 Jun 2018 11:33:16 -0700
-Message-ID: <20180619183316.GI71788@dtor-ws>
-References: <20180615132017.23889-1-andriy.shevchenko@linux.intel.com>
- <20180615132017.23889-6-andriy.shevchenko@linux.intel.com>
- <20180615214231.GA371@yury-thinkpad>
+Subject: Re: [PATCH 04/11] input: rohm_bu21023: switch to i2c_lock_segment
+Date: Tue, 19 Jun 2018 11:40:00 -0700
+Message-ID: <20180619184000.GJ71788@dtor-ws>
+References: <20180615101506.8012-1-peda@axentia.se>
+ <20180615101506.8012-5-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180615214231.GA371@yury-thinkpad>
+In-Reply-To: <20180615101506.8012-5-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yury Norov <ynorov@caviumnetworks.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jun 16, 2018 at 12:42:31AM +0300, Yury Norov wrote:
-> Hi Andy,
+On Fri, Jun 15, 2018 at 12:14:59PM +0200, Peter Rosin wrote:
+> Locking the root adapter for __i2c_transfer will deadlock if the
+> device sits behind a mux-locked I2C mux. Switch to the finer-grained
+> i2c_lock_segment. If the device does not sit behind a mux-locked mux,
+> the two locking variants are equivalent.
 > 
-> On Fri, Jun 15, 2018 at 04:20:17PM +0300, Andy Shevchenko wrote:
-> > Switch to bitmap_zalloc() to show clearly what we are allocating.
-> > Besides that it returns pointer of bitmap type instead of opaque void *.
-> > 
-> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > ---
-> >  drivers/input/evdev.c | 16 +++++++---------
-> >  1 file changed, 7 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> > index c81c79d01d93..370206f987f9 100644
-> > --- a/drivers/input/evdev.c
-> > +++ b/drivers/input/evdev.c
-> > @@ -481,7 +481,7 @@ static int evdev_release(struct inode *inode, struct file *file)
-> >         evdev_detach_client(evdev, client);
-> > 
-> >         for (i = 0; i < EV_CNT; ++i)
-> > -               kfree(client->evmasks[i]);
-> > +               bitmap_free(client->evmasks[i]);
-> > 
-> >         kvfree(client);
-> > 
-> > @@ -925,17 +925,15 @@ static int evdev_handle_get_val(struct evdev_client *client,
-> >  {
-> >         int ret;
-> >         unsigned long *mem;
-> > -       size_t len;
-> > 
-> > -       len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
-> > -       mem = kmalloc(len, GFP_KERNEL);
-> > +       mem = bitmap_alloc(maxbit, GFP_KERNEL);
-> >         if (!mem)
-> >                 return -ENOMEM;
-> 
-> But in commit message you say you switch to bitmap_zalloc(). IIUC
-> bitmap_alloc() is OK here. But could you please update comment to
-> avoid confusing.
-> 
-> > 
-> >         spin_lock_irq(&dev->event_lock);
-> >         spin_lock(&client->buffer_lock);
-> > 
-> > -       memcpy(mem, bits, len);
-> > +       bitmap_copy(mem, bits, maxbit);
-> > 
-> >         spin_unlock(&dev->event_lock);
-> > 
-> > @@ -947,7 +945,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
-> >         if (ret < 0)
-> >                 evdev_queue_syn_dropped(client);
-> > 
-> > -       kfree(mem);
-> > +       bitmap_free(mem);
-> > 
-> >         return ret;
-> >  }
-> > @@ -1003,13 +1001,13 @@ static int evdev_set_mask(struct evdev_client *client,
-> >         if (!cnt)
-> >                 return 0;
-> > 
-> > -       mask = kcalloc(sizeof(unsigned long), BITS_TO_LONGS(cnt), GFP_KERNEL);
-> > +       mask = bitmap_zalloc(cnt, GFP_KERNEL);
-> >         if (!mask)
-> >                 return -ENOMEM;
-> > 
-> >         error = bits_from_user(mask, cnt - 1, codes_size, codes, compat);
-> 
-> If my understanding of bits_from_user() correct, here you can also use
-> bitmap_alloc(), true?
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-bits_from_user() copies as much as user supplied, we want to zero out
-the tail to make sure there is no garbage, so we want to use
-kcalloc/kzalloc/bitmap_zalloc here.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+I'm OK with it going through Wolfram's tree; I do not think I'd need an
+immutable branch for this even...
+
+> ---
+>  drivers/input/touchscreen/rohm_bu21023.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
+> index bda0500c9b57..22d79db07234 100644
+> --- a/drivers/input/touchscreen/rohm_bu21023.c
+> +++ b/drivers/input/touchscreen/rohm_bu21023.c
+> @@ -304,7 +304,7 @@ static int rohm_i2c_burst_read(struct i2c_client *client, u8 start, void *buf,
+>  	msg[1].len = len;
+>  	msg[1].buf = buf;
+>  
+> -	i2c_lock_adapter(adap);
+> +	i2c_lock_segment(adap);
+>  
+>  	for (i = 0; i < 2; i++) {
+>  		if (__i2c_transfer(adap, &msg[i], 1) < 0) {
+> @@ -313,7 +313,7 @@ static int rohm_i2c_burst_read(struct i2c_client *client, u8 start, void *buf,
+>  		}
+>  	}
+>  
+> -	i2c_unlock_adapter(adap);
+> +	i2c_unlock_segment(adap);
+>  
+>  	return ret;
+>  }
+> -- 
+> 2.11.0
+> 
 
 Thanks.
 

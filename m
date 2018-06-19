@@ -1,125 +1,74 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input elan_i2c_smbus - Fix more potential stack buffer overflows
-Date: Tue, 19 Jun 2018 14:05:14 +0200
-Message-ID: <CAO-hwJLVjR2Av5HC1U+gstGM3DOy9z2KvACivuPDF2tgVX02ig@mail.gmail.com>
-References: <20180618175117.yj6zxpir6whtvisb@xylophone.i.decadent.org.uk>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] Input: elan: enable middle button of touchpads on
+ ThinkPad P52
+Date: Tue, 19 Jun 2018 14:21:39 +0200
+Message-ID: <CAN+gG=EDc8WsC3MjbY1VnYyo7G1ZBUboM2_T-Zd8r322dOvwTA@mail.gmail.com>
+References: <20180612070906.5305-1-aaron.ma@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180618175117.yj6zxpir6whtvisb@xylophone.i.decadent.org.uk>
-Sender: stable-owner@vger.kernel.org
-To: Ben Hutchings <ben.hutchings@codethink.co.uk>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180612070906.5305-1-aaron.ma@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: aaron.ma@canonical.com
+Cc: linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, KT Liao <kt.liao@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 18, 2018 at 7:56 PM, Ben Hutchings
-<ben.hutchings@codethink.co.uk> wrote:
-> Commit 40f7090bb1b4 ("Input: elan_i2c_smbus - fix corrupted stack")
-> fixed most of the functions using i2c_smbus_read_block_data() to
-> allocate a buffer with the maximum block size.  However three
-> functions were left unchanged:
+On Tue, Jun 12, 2018 at 9:10 AM Aaron Ma <aaron.ma@canonical.com> wrote:
 >
-> * In elan_smbus_initialize(), increase the buffer size in the same
->   way.
-> * In elan_smbus_calibrate_result(), the buffer is provided by the
->   caller (calibrate_store()), so introduce a bounce buffer.  Also
->   name the result buffer size.
-> * In elan_smbus_get_report(), the buffer is provided by the caller
->   but happens to be the right length.  Add a compile-time assertion
->   to ensure this remains the case.
+> PNPID is better way to identify the type of touchpads.
+> Enable middle button support on 2 types of touchpads on Lenovo P52.
 >
-> Cc: <stable@vger.kernel.org> # 3.19+
-> Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+> Cc: stable@vger.kernel.org
+> Cc: KT Liao <kt.liao@emc.com.tw>
+> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
 > ---
-> This is compile-tested only.
+>  drivers/input/mouse/elantech.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 
-[adding KT in Cc]
-
-We are currently testing the Lenovo P52, and this patch seems to
-behave well. We have other issues with the P52, but unrelated to this
-patch.
-
+Looks good to me:
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Aaron, our internal tests show that the P52 shows a lot of lost
+synchronization in pre-v4.18 kernels. Do you have a fix for that too?
+
+In v4.18 we need to fix the elan_i2c module as right now the touchpad
+is muted when booted with such a kernel.
 
 Cheers,
 Benjamin
 
 >
-> Ben.
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index fb4d902c4403..67b061dd4494 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1175,6 +1175,12 @@ static const struct dmi_system_id elantech_dmi_has_middle_button[] = {
+>         { }
+>  };
 >
->  drivers/input/mouse/elan_i2c.h       |  2 ++
->  drivers/input/mouse/elan_i2c_core.c  |  2 +-
->  drivers/input/mouse/elan_i2c_smbus.c | 10 ++++++++--
->  3 files changed, 11 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
-> index 599544c1a91c..243e0fa6e3e3 100644
-> --- a/drivers/input/mouse/elan_i2c.h
-> +++ b/drivers/input/mouse/elan_i2c.h
-> @@ -27,6 +27,8 @@
->  #define ETP_DISABLE_POWER      0x0001
->  #define ETP_PRESSURE_OFFSET    25
->
-> +#define ETP_CALIBRATE_MAX_LEN  3
+> +static const char * const middle_button_pnp_ids[] = {
+> +       "LEN2131", /* ThinkPad P52 w/ NFC */
+> +       "LEN2132", /* ThinkPad P52 */
+> +       NULL
+> +};
 > +
->  /* IAP Firmware handling */
->  #define ETP_PRODUCT_ID_FORMAT_STRING   "%d.0"
->  #define ETP_FW_NAME            "elan_i2c_" ETP_PRODUCT_ID_FORMAT_STRING ".bin"
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 75e757520ef0..d5f74dd7e23b 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -610,7 +610,7 @@ static ssize_t calibrate_store(struct device *dev,
->         int tries = 20;
->         int retval;
->         int error;
-> -       u8 val[3];
-> +       u8 val[ETP_CALIBRATE_MAX_LEN];
+>  /*
+>   * Set the appropriate event bits for the input subsystem
+>   */
+> @@ -1194,7 +1200,8 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+>         __clear_bit(EV_REL, dev->evbit);
 >
->         retval = mutex_lock_interruptible(&data->sysfs_mutex);
->         if (retval)
-> diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-> index cfcb32559925..c060d270bc4d 100644
-> --- a/drivers/input/mouse/elan_i2c_smbus.c
-> +++ b/drivers/input/mouse/elan_i2c_smbus.c
-> @@ -56,7 +56,7 @@
->  static int elan_smbus_initialize(struct i2c_client *client)
->  {
->         u8 check[ETP_SMBUS_HELLOPACKET_LEN] = { 0x55, 0x55, 0x55, 0x55, 0x55 };
-> -       u8 values[ETP_SMBUS_HELLOPACKET_LEN] = { 0, 0, 0, 0, 0 };
-> +       u8 values[I2C_SMBUS_BLOCK_MAX] = {0};
->         int len, error;
+>         __set_bit(BTN_LEFT, dev->keybit);
+> -       if (dmi_check_system(elantech_dmi_has_middle_button))
+> +       if (dmi_check_system(elantech_dmi_has_middle_button) ||
+> +               psmouse_matches_pnp_id(psmouse, middle_button_pnp_ids))
+>                 __set_bit(BTN_MIDDLE, dev->keybit);
+>         __set_bit(BTN_RIGHT, dev->keybit);
 >
->         /* Get hello packet */
-> @@ -117,12 +117,16 @@ static int elan_smbus_calibrate(struct i2c_client *client)
->  static int elan_smbus_calibrate_result(struct i2c_client *client, u8 *val)
->  {
->         int error;
-> +       u8 buf[I2C_SMBUS_BLOCK_MAX] = {0};
-> +
-> +       BUILD_BUG_ON(ETP_CALIBRATE_MAX_LEN > sizeof(buf));
->
->         error = i2c_smbus_read_block_data(client,
-> -                                         ETP_SMBUS_CALIBRATE_QUERY, val);
-> +                                         ETP_SMBUS_CALIBRATE_QUERY, buf);
->         if (error < 0)
->                 return error;
->
-> +       memcpy(val, buf, ETP_CALIBRATE_MAX_LEN);
->         return 0;
->  }
->
-> @@ -472,6 +476,8 @@ static int elan_smbus_get_report(struct i2c_client *client, u8 *report)
->  {
->         int len;
->
-> +       BUILD_BUG_ON(I2C_SMBUS_BLOCK_MAX > ETP_SMBUS_REPORT_LEN);
-> +
->         len = i2c_smbus_read_block_data(client,
->                                         ETP_SMBUS_PACKET_QUERY,
->                                         &report[ETP_SMBUS_REPORT_OFFSET]);
 > --
-> Ben Hutchings, Software Developer                         Codethink Ltd
-> https://www.codethink.co.uk/                 Dale House, 35 Dale Street
->                                      Manchester, M1 2HF, United Kingdom
+> 2.17.1
 >
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

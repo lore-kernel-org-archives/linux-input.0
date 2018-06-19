@@ -1,104 +1,30 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: WARNING in input_alloc_absinfo
-Date: Tue, 19 Jun 2018 11:51:11 -0700
-Message-ID: <20180619185111.GK71788@dtor-ws>
-References: <000000000000fe1d2b056e997e1f@google.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH] dt-bindings: Fix unbalanced quotation marks
+Date: Tue, 19 Jun 2018 12:49:32 -0700
+Message-ID: <f5ffdbd1-d357-fa8d-9fdb-461cf2b9ad89@gmail.com>
+References: <20180617143127.11421-1-j.neuschaefer@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <000000000000fe1d2b056e997e1f@google.com>
+In-Reply-To: <20180617143127.11421-1-j.neuschaefer@gmx.net>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot <syzbot+c382812c78d98ecd9fb8@syzkaller.appspotmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rydberg@bitmath.org, syzkaller-bugs@googlegroups.com
+To: =?UTF-8?Q?Jonathan_Neusch=c3=a4fer?= <j.neuschaefer@gmx.net>, devicetree@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, linux-mips@linux-mips.org, Ulf Hansson <ulf.hansson@linaro.org>, Madalin Bucur <madalin.bucur@nxp.com>, James Hogan <jhogan@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-samsung-soc@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, Kukjin Kim <kgene@kernel.org>, linux-input@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>, Jason Cooper <jason@lakedaemon.net>, linux-pm@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jun 14, 2018 at 05:47:03AM -0700, syzbot wrote:
-> Hello,
+On 06/17/2018 07:31 AM, Jonathan Neuschäfer wrote:
+> Multiple binding documents have various forms of unbalanced quotation
+> marks. Fix them.
 > 
-> syzbot found the following crash on:
-> 
-> HEAD commit:    d2d741e5d189 kmsan: add initialization for shmem pages
-> git tree:       https://github.com/google/kmsan.git/master
-> console output: https://syzkaller.appspot.com/x/log.txt?x=1775bae7800000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=48f9de3384bcd0f
-> dashboard link: https://syzkaller.appspot.com/bug?extid=c382812c78d98ecd9fb8
-> compiler:       clang version 7.0.0 (trunk 329391)
-> syzkaller repro:https://syzkaller.appspot.com/x/repro.syz?x=13b31ae7800000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1733255b800000
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+c382812c78d98ecd9fb8@syzkaller.appspotmail.com
-> 
-> RBP: 00000000006cb018 R08: 0000000000000001 R09: 00007ffe93080031
-> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
-> R13: ffffffffffffffff R14: 0000000000000000 R15: 0000000000000000
-> ------------[ cut here ]------------
-> input_alloc_absinfo(): kcalloc() failed?
-> WARNING: CPU: 1 PID: 4498 at drivers/input/input.c:487
-> input_alloc_absinfo+0x183/0x190 drivers/input/input.c:487
-> Kernel panic - not syncing: panic_on_warn set ...
-
-Hmm, so there is not really a problem as far as I am concerned. We do
-generate a warning if we can't allocate memory for absinfo,  as this is
-really unexpected, but the case is handled properly by the callers so
-there is no reason for us to go belly up here.
-
-> 
-> CPU: 1 PID: 4498 Comm: syz-executor465 Not tainted 4.16.0+ #87
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-> Google 01/01/2011
-> Call Trace:
->  __dump_stack lib/dump_stack.c:17 [inline]
->  dump_stack+0x185/0x1d0 lib/dump_stack.c:53
->  panic+0x39d/0x940 kernel/panic.c:183
->  __warn+0x40f/0x580 kernel/panic.c:547
->  report_bug+0x72a/0x880 lib/bug.c:186
->  fixup_bug arch/x86/kernel/traps.c:179 [inline]
->  do_error_trap+0x1aa/0x600 arch/x86/kernel/traps.c:297
->  do_invalid_op+0x46/0x50 arch/x86/kernel/traps.c:316
->  invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:986
-> RIP: 0010:input_alloc_absinfo+0x183/0x190 drivers/input/input.c:487
-> RSP: 0018:ffff88019651faa8 EFLAGS: 00010282
-> RAX: 0000000000000028 RBX: 0000000000000000 RCX: 0000000000000000
-> RDX: 0000000000000000 RSI: aaaaaaaaaaaab000 RDI: ffffea0000000000
-> RBP: ffff88019651fae0 R08: 0000000001080020 R09: 0000000000000002
-> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-> R13: ffff8801a19ec140 R14: ffff88019796e198 R15: 0000000000000000
->  uinput_abs_setup drivers/input/misc/uinput.c:507 [inline]
->  uinput_ioctl_handler+0x38a2/0x39f0 drivers/input/misc/uinput.c:1035
->  uinput_ioctl+0x9a/0xb0 drivers/input/misc/uinput.c:1047
->  vfs_ioctl fs/ioctl.c:46 [inline]
->  do_vfs_ioctl+0xaf0/0x2440 fs/ioctl.c:686
->  SYSC_ioctl+0x1d2/0x260 fs/ioctl.c:701
->  SyS_ioctl+0x54/0x80 fs/ioctl.c:692
->  do_syscall_64+0x309/0x430 arch/x86/entry/common.c:287
->  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
-> RIP: 0033:0x440429
-> RSP: 002b:00007ffe9308d2b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-> RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000440429
-> RDX: 0000000000000000 RSI: 0000000040005504 RDI: 0000000000000003
-> RBP: 00000000006cb018 R08: 0000000000000001 R09: 00007ffe93080031
-> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
-> R13: ffffffffffffffff R14: 0000000000000000 R15: 0000000000000000
-> Dumping ftrace buffer:
->    (ftrace buffer empty)
-> Kernel Offset: disabled
-> Rebooting in 86400 seconds..
-> 
-> 
+> Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 > ---
-> This bug is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this bug report. See:
-> https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with
-> syzbot.
-> syzbot can test patches for this bug, for details see:
-> https://goo.gl/tpsmEJ#testing-patches
 
-Thanks.
+[snip]
 
+>  Documentation/devicetree/bindings/mips/brcm/soc.txt             | 2 +-
+
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Dmitry
+Florian

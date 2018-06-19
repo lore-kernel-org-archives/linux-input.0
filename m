@@ -1,173 +1,135 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v7 4/4] input/power: Add driver for BD71837/BD71847 PMIC
- power button
-Date: Tue, 19 Jun 2018 10:50:28 -0700
-Message-ID: <20180619175028.GA71788@dtor-ws>
-References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
- <af60857c6db5fcf14fbf0112f74719d898952459.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+Subject: Re: [PATCH] Input elan_i2c_smbus - Fix more potential stack buffer
+ overflows
+Date: Tue, 19 Jun 2018 11:18:40 -0700
+Message-ID: <20180619181840.GB71788@dtor-ws>
+References: <20180618175117.yj6zxpir6whtvisb@xylophone.i.decadent.org.uk>
+ <CAO-hwJLVjR2Av5HC1U+gstGM3DOy9z2KvACivuPDF2tgVX02ig@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <af60857c6db5fcf14fbf0112f74719d898952459.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+In-Reply-To: <CAO-hwJLVjR2Av5HC1U+gstGM3DOy9z2KvACivuPDF2tgVX02ig@mail.gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>, =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Matti,
-
-On Tue, Jun 19, 2018 at 01:57:09PM +0300, Matti Vaittinen wrote:
-> ROHM BD71837 PMIC power button driver providing power-key press
-> information to user-space.
+On Tue, Jun 19, 2018 at 02:05:14PM +0200, Benjamin Tissoires wrote:
+> On Mon, Jun 18, 2018 at 7:56 PM, Ben Hutchings
+> <ben.hutchings@codethink.co.uk> wrote:
+> > Commit 40f7090bb1b4 ("Input: elan_i2c_smbus - fix corrupted stack")
+> > fixed most of the functions using i2c_smbus_read_block_data() to
+> > allocate a buffer with the maximum block size.  However three
+> > functions were left unchanged:
+> >
+> > * In elan_smbus_initialize(), increase the buffer size in the same
+> >   way.
+> > * In elan_smbus_calibrate_result(), the buffer is provided by the
+> >   caller (calibrate_store()), so introduce a bounce buffer.  Also
+> >   name the result buffer size.
+> > * In elan_smbus_get_report(), the buffer is provided by the caller
+> >   but happens to be the right length.  Add a compile-time assertion
+> >   to ensure this remains the case.
+> >
+> > Cc: <stable@vger.kernel.org> # 3.19+
+> > Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+> > ---
+> > This is compile-tested only.
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> ---
->  drivers/input/misc/Kconfig          | 10 +++++
->  drivers/input/misc/Makefile         |  1 +
->  drivers/input/misc/bd718xx-pwrkey.c | 90 +++++++++++++++++++++++++++++++++++++
->  3 files changed, 101 insertions(+)
->  create mode 100644 drivers/input/misc/bd718xx-pwrkey.c
+> [adding KT in Cc]
 > 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 572b15fa18c2..694c05d3f9fb 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -96,6 +96,16 @@ config INPUT_ATMEL_CAPTOUCH
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called atmel_captouch.
->  
-> +config INPUT_BD718XX_PWRKEY
-> +	tristate "ROHM BD71837/BD71847 power key support"
-> +	depends on MFD_BD71837
-> +	help
-> +	  Say Y here if you want support for the power key usually found
-> +	  on boards using a ROHM BD71837/BD71847 compatible PMIC.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called bd718xx-pwrkey.
-> +
->  config INPUT_BMA150
->  	tristate "BMA150/SMB380 acceleration sensor support"
->  	depends on I2C
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 72cde28649e2..ea5b81cbf2bf 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -20,6 +20,7 @@ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
->  obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
->  obj-$(CONFIG_INPUT_ATMEL_CAPTOUCH)	+= atmel_captouch.o
->  obj-$(CONFIG_INPUT_BMA150)		+= bma150.o
-> +obj-$(CONFIG_INPUT_BD718XX_PWRKEY)	+= bd718xx-pwrkey.o
->  obj-$(CONFIG_INPUT_CM109)		+= cm109.o
->  obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
->  obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
-> diff --git a/drivers/input/misc/bd718xx-pwrkey.c b/drivers/input/misc/bd718xx-pwrkey.c
-> new file mode 100644
-> index 000000000000..e8ac9475c3cf
-> --- /dev/null
-> +++ b/drivers/input/misc/bd718xx-pwrkey.c
-> @@ -0,0 +1,90 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (C) 2018 ROHM Semiconductors
-> +// bd718xx-pwrkey.c -- ROHM BD71837MWV and BD71847 power button driver
-> +
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/of.h>
-> +#include <linux/mfd/bd71837.h>
-> +
-> +struct bd718xx_pwrkey {
-> +	struct input_dev *idev;
-> +	struct bd71837 *mfd;
-> +	int irq;
-> +};
-> +
-> +static irqreturn_t button_irq(int irq, void *_priv)
-> +{
-> +	struct input_dev *idev = (struct input_dev *)_priv;
-> +
-> +	input_report_key(idev, KEY_POWER, 1);
-> +	input_sync(idev);
-> +	input_report_key(idev, KEY_POWER, 0);
-> +	input_sync(idev);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int bd718xx_pwr_btn_probe(struct platform_device *pdev)
-> +{
-> +	int err = -ENOMEM;
-> +	struct bd718xx_pwrkey *pk;
-> +
-> +	pk = devm_kzalloc(&pdev->dev, sizeof(*pk), GFP_KERNEL);
-> +	if (!pk)
-> +		goto err_out;
-> +
-> +	pk->mfd = dev_get_drvdata(pdev->dev.parent);
-> +
-> +	pk->idev = devm_input_allocate_device(&pdev->dev);
-> +	if (!pk->idev)
-> +		goto err_out;
-> +
-> +	pk->idev->name = "bd718xx-pwrkey";
-> +	pk->idev->phys = "bd718xx-pwrkey/input0";
-> +	pk->idev->dev.parent = &pdev->dev;
-> +
-> +	input_set_capability(pk->idev, EV_KEY, KEY_POWER);
-> +
-> +	err = platform_get_irq_byname(pdev, "pwr-btn-s");
-> +	if (err < 0) {
-> +		dev_err(&pdev->dev, "could not get power key interrupt\n");
-> +		goto err_out;
-> +	}
-> +
-> +	pk->irq = err;
-> +	err = devm_request_threaded_irq(&pdev->dev, pk->irq, NULL, &button_irq,
-> +					0, "bd718xx-pwrkey", pk);
-> +	if (err)
-> +		goto err_out;
-> +
-> +	platform_set_drvdata(pdev, pk);
-> +	err = regmap_update_bits(pk->mfd->regmap,
-> +				 BD71837_REG_PWRONCONFIG0,
-> +				 BD718XX_PWRBTN_SHORT_PRESS_MASK,
-> +				 BD718XX_PWRBTN_SHORT_PRESS_10MS);
-
-This seems to be the only custom bit of set up in the driver, the rest I
-think can easily be handled by gpio-keys.c in interrupt-only mode. Maybe
-we could move this into MFD piece and drop this driver?
-
-> +	if (err)
-> +		goto err_out;
-> +
-> +	err = input_register_device(pk->idev);
-> +
-> +err_out:
-> +
-> +	return err;
-> +}
-> +
-> +static struct platform_driver bd718xx_pwr_btn_driver = {
-> +	.probe	= bd718xx_pwr_btn_probe,
-> +	.driver = {
-> +		.name	= "bd718xx-pwrkey",
-> +	},
-> +};
-> +module_platform_driver(bd718xx_pwr_btn_driver);
-> +MODULE_DESCRIPTION("Power button driver for buttons connected to ROHM bd71837/bd71847 PMIC");
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>");
-> +
-> -- 
-> 2.14.3
+> We are currently testing the Lenovo P52, and this patch seems to
+> behave well. We have other issues with the P52, but unrelated to this
+> patch.
 > 
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Thanks.
+Applied, thank you.
+
+> 
+> Cheers,
+> Benjamin
+> 
+> >
+> > Ben.
+> >
+> >  drivers/input/mouse/elan_i2c.h       |  2 ++
+> >  drivers/input/mouse/elan_i2c_core.c  |  2 +-
+> >  drivers/input/mouse/elan_i2c_smbus.c | 10 ++++++++--
+> >  3 files changed, 11 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
+> > index 599544c1a91c..243e0fa6e3e3 100644
+> > --- a/drivers/input/mouse/elan_i2c.h
+> > +++ b/drivers/input/mouse/elan_i2c.h
+> > @@ -27,6 +27,8 @@
+> >  #define ETP_DISABLE_POWER      0x0001
+> >  #define ETP_PRESSURE_OFFSET    25
+> >
+> > +#define ETP_CALIBRATE_MAX_LEN  3
+> > +
+> >  /* IAP Firmware handling */
+> >  #define ETP_PRODUCT_ID_FORMAT_STRING   "%d.0"
+> >  #define ETP_FW_NAME            "elan_i2c_" ETP_PRODUCT_ID_FORMAT_STRING ".bin"
+> > diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> > index 75e757520ef0..d5f74dd7e23b 100644
+> > --- a/drivers/input/mouse/elan_i2c_core.c
+> > +++ b/drivers/input/mouse/elan_i2c_core.c
+> > @@ -610,7 +610,7 @@ static ssize_t calibrate_store(struct device *dev,
+> >         int tries = 20;
+> >         int retval;
+> >         int error;
+> > -       u8 val[3];
+> > +       u8 val[ETP_CALIBRATE_MAX_LEN];
+> >
+> >         retval = mutex_lock_interruptible(&data->sysfs_mutex);
+> >         if (retval)
+> > diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
+> > index cfcb32559925..c060d270bc4d 100644
+> > --- a/drivers/input/mouse/elan_i2c_smbus.c
+> > +++ b/drivers/input/mouse/elan_i2c_smbus.c
+> > @@ -56,7 +56,7 @@
+> >  static int elan_smbus_initialize(struct i2c_client *client)
+> >  {
+> >         u8 check[ETP_SMBUS_HELLOPACKET_LEN] = { 0x55, 0x55, 0x55, 0x55, 0x55 };
+> > -       u8 values[ETP_SMBUS_HELLOPACKET_LEN] = { 0, 0, 0, 0, 0 };
+> > +       u8 values[I2C_SMBUS_BLOCK_MAX] = {0};
+> >         int len, error;
+> >
+> >         /* Get hello packet */
+> > @@ -117,12 +117,16 @@ static int elan_smbus_calibrate(struct i2c_client *client)
+> >  static int elan_smbus_calibrate_result(struct i2c_client *client, u8 *val)
+> >  {
+> >         int error;
+> > +       u8 buf[I2C_SMBUS_BLOCK_MAX] = {0};
+> > +
+> > +       BUILD_BUG_ON(ETP_CALIBRATE_MAX_LEN > sizeof(buf));
+> >
+> >         error = i2c_smbus_read_block_data(client,
+> > -                                         ETP_SMBUS_CALIBRATE_QUERY, val);
+> > +                                         ETP_SMBUS_CALIBRATE_QUERY, buf);
+> >         if (error < 0)
+> >                 return error;
+> >
+> > +       memcpy(val, buf, ETP_CALIBRATE_MAX_LEN);
+> >         return 0;
+> >  }
+> >
+> > @@ -472,6 +476,8 @@ static int elan_smbus_get_report(struct i2c_client *client, u8 *report)
+> >  {
+> >         int len;
+> >
+> > +       BUILD_BUG_ON(I2C_SMBUS_BLOCK_MAX > ETP_SMBUS_REPORT_LEN);
+> > +
+> >         len = i2c_smbus_read_block_data(client,
+> >                                         ETP_SMBUS_PACKET_QUERY,
+> >                                         &report[ETP_SMBUS_REPORT_OFFSET]);
+> > --
+> > Ben Hutchings, Software Developer                         Codethink Ltd
+> > https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+> >                                      Manchester, M1 2HF, United Kingdom
+> >
 
 -- 
 Dmitry

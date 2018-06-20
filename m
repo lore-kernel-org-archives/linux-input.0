@@ -1,56 +1,135 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 04/26] docs: fix broken references with multiple hints
-Date: Wed, 20 Jun 2018 09:26:52 -0600
-Message-ID: <20180620152652.GA12591@rob-hp-laptop>
-References: <cover.1529079119.git.mchehab+samsung@kernel.org>
- <75c14f6d84eef8c10787e85ddc172afebee116d6.1529079119.git.mchehab+samsung@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 5/5] Input: evdev - Switch to bitmap_zalloc()
+Date: Wed, 20 Jun 2018 13:26:53 -0700
+Message-ID: <20180620202653.GA75925@dtor-ws>
+References: <20180615132017.23889-1-andriy.shevchenko@linux.intel.com>
+ <20180615132017.23889-6-andriy.shevchenko@linux.intel.com>
+ <20180615214231.GA371@yury-thinkpad>
+ <20180619183316.GI71788@dtor-ws>
+ <20180620081321.GB19364@yury-thinkpad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <75c14f6d84eef8c10787e85ddc172afebee116d6.1529079119.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, linux-fbdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, David Airlie <airlied@linux.ie>, Roy Pledge <Roy.Pledge@nxp.com>, dri-devel@lists.freedesktop.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, devel@driverdev.osuosl.org, Jonathan Corbet <corbet@lwn.net>, James Morris <jmorris@namei.org>, Ingo Molnar <mingo@redhat.com>, linux-input@vger.kernel.org, "Serge E. Hallyn" <serge@hallyn.com>, devicetree@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Jiri Kosina <jikos@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-gpio@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.orgH
+In-Reply-To: <20180620081321.GB19364@yury-thinkpad>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Yury Norov <ynorov@caviumnetworks.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCBKdW4gMTUsIDIwMTggYXQgMDE6MzA6MzJQTSAtMDMwMCwgTWF1cm8gQ2FydmFsaG8g
-Q2hlaGFiIHdyb3RlOgo+IFRoZSBzY3JpcHQ6Cj4gCS4vc2NyaXB0cy9kb2N1bWVudGF0aW9uLWZp
-bGUtcmVmLWNoZWNrIC0tZml4Cj4gCj4gR2l2ZXMgbXVsdGlwbGUgaGludHMgZm9yIGJyb2tlbiBy
-ZWZlcmVuY2VzIG9uIHNvbWUgZmlsZXMuCj4gTWFudWFsbHkgdXNlIHRoZSBvbmUgdGhhdCBhcHBs
-aWVzIGZvciBzb21lIGZpbGVzLgo+IAo+IEFja2VkLWJ5OiBTdGV2ZW4gUm9zdGVkdCAoVk13YXJl
-KSA8cm9zdGVkdEBnb29kbWlzLm9yZz4KPiBTaWduZWQtb2ZmLWJ5OiBNYXVybyBDYXJ2YWxobyBD
-aGVoYWIgPG1jaGVoYWIrc2Ftc3VuZ0BrZXJuZWwub3JnPgo+IC0tLQo+ICBEb2N1bWVudGF0aW9u
-L0FCSS9vYnNvbGV0ZS9zeXNmcy1ncGlvICAgICAgICAgICAgICAgICAgICAgfCAyICstCj4gIC4u
-Li9kZXZpY2V0cmVlL2JpbmRpbmdzL2Rpc3BsYXkvYnJpZGdlL3RkYTk5OHgudHh0ICAgICAgICB8
-IDIgKy0KCkFja2VkLWJ5OiBSb2IgSGVycmluZyA8cm9iaEBrZXJuZWwub3JnPgoKPiAgRG9jdW1l
-bnRhdGlvbi90cmFjZS9ldmVudHMucnN0ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMiAr
-LQo+ICBEb2N1bWVudGF0aW9uL3RyYWNlL3RyYWNlcG9pbnQtYW5hbHlzaXMucnN0ICAgICAgICAg
-ICAgICAgfCAyICstCj4gIERvY3VtZW50YXRpb24vdHJhbnNsYXRpb25zL3poX0NOL1N1Ym1pdHRp
-bmdEcml2ZXJzICAgICAgICB8IDIgKy0KPiAgRG9jdW1lbnRhdGlvbi90cmFuc2xhdGlvbnMvemhf
-Q04vZ3Bpby50eHQgICAgICAgICAgICAgICAgIHwgNCArKy0tCj4gIE1BSU5UQUlORVJTICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8IDIgKy0KPiAgZHJpdmVy
-cy9oaWQvdXNiaGlkL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMiAr
-LQo+ICBkcml2ZXJzL2lucHV0L0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfCA0ICsrLS0KPiAgZHJpdmVycy9pbnB1dC9qb3lzdGljay9LY29uZmlnICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIHwgNCArKy0tCj4gIGRyaXZlcnMvaW5wdXQvam95c3RpY2svaWZv
-cmNlL0tjb25maWcgICAgICAgICAgICAgICAgICAgICB8IDQgKystLQo+ICBkcml2ZXJzL2lucHV0
-L3NlcmlvL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCA0ICsrLS0KPiAg
-ZHJpdmVycy9zdGFnaW5nL2ZzbC1tYy9idXMvZHBpby9kcGlvLWRyaXZlci50eHQgICAgICAgICAg
-IHwgMiArLQo+ICBkcml2ZXJzL3ZpZGVvL2ZiZGV2L3NrZWxldG9uZmIuYyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgfCA4ICsrKystLS0tCj4gIGluY2x1ZGUvbGludXgvdHJhY2Vwb2ludC5oICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8IDIgKy0KPiAgc2VjdXJpdHkvZGV2aWNlX2Nn
-cm91cC5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMiArLQo+ICAxNiBmaWxl
-cyBjaGFuZ2VkLCAyNCBpbnNlcnRpb25zKCspLCAyNCBkZWxldGlvbnMoLSkKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlz
-dApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0
-b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On Wed, Jun 20, 2018 at 11:13:21AM +0300, Yury Norov wrote:
+> On Tue, Jun 19, 2018 at 11:33:16AM -0700, Dmitry Torokhov wrote:
+> > External Email
+> > 
+> > On Sat, Jun 16, 2018 at 12:42:31AM +0300, Yury Norov wrote:
+> > > Hi Andy,
+> > >
+> > > On Fri, Jun 15, 2018 at 04:20:17PM +0300, Andy Shevchenko wrote:
+> > > > Switch to bitmap_zalloc() to show clearly what we are allocating.
+> > > > Besides that it returns pointer of bitmap type instead of opaque void *.
+> > > >
+> > > > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > > > ---
+> > > >  drivers/input/evdev.c | 16 +++++++---------
+> > > >  1 file changed, 7 insertions(+), 9 deletions(-)
+> > > >
+> > > > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> > > > index c81c79d01d93..370206f987f9 100644
+> > > > --- a/drivers/input/evdev.c
+> > > > +++ b/drivers/input/evdev.c
+> > > > @@ -481,7 +481,7 @@ static int evdev_release(struct inode *inode, struct file *file)
+> > > >         evdev_detach_client(evdev, client);
+> > > >
+> > > >         for (i = 0; i < EV_CNT; ++i)
+> > > > -               kfree(client->evmasks[i]);
+> > > > +               bitmap_free(client->evmasks[i]);
+> > > >
+> > > >         kvfree(client);
+> > > >
+> > > > @@ -925,17 +925,15 @@ static int evdev_handle_get_val(struct evdev_client *client,
+> > > >  {
+> > > >         int ret;
+> > > >         unsigned long *mem;
+> > > > -       size_t len;
+> > > >
+> > > > -       len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
+> > > > -       mem = kmalloc(len, GFP_KERNEL);
+> > > > +       mem = bitmap_alloc(maxbit, GFP_KERNEL);
+> > > >         if (!mem)
+> > > >                 return -ENOMEM;
+> > >
+> > > But in commit message you say you switch to bitmap_zalloc(). IIUC
+> > > bitmap_alloc() is OK here. But could you please update comment to
+> > > avoid confusing.
+> > >
+> > > >
+> > > >         spin_lock_irq(&dev->event_lock);
+> > > >         spin_lock(&client->buffer_lock);
+> > > >
+> > > > -       memcpy(mem, bits, len);
+> > > > +       bitmap_copy(mem, bits, maxbit);
+> > > >
+> > > >         spin_unlock(&dev->event_lock);
+> > > >
+> > > > @@ -947,7 +945,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
+> > > >         if (ret < 0)
+> > > >                 evdev_queue_syn_dropped(client);
+> > > >
+> > > > -       kfree(mem);
+> > > > +       bitmap_free(mem);
+> > > >
+> > > >         return ret;
+> > > >  }
+> > > > @@ -1003,13 +1001,13 @@ static int evdev_set_mask(struct evdev_client *client,
+> > > >         if (!cnt)
+> > > >                 return 0;
+> > > >
+> > > > -       mask = kcalloc(sizeof(unsigned long), BITS_TO_LONGS(cnt), GFP_KERNEL);
+> > > > +       mask = bitmap_zalloc(cnt, GFP_KERNEL);
+> > > >         if (!mask)
+> > > >                 return -ENOMEM;
+> > > >
+> > > >         error = bits_from_user(mask, cnt - 1, codes_size, codes, compat);
+> > >
+> > > If my understanding of bits_from_user() correct, here you can also use
+> > > bitmap_alloc(), true?
+> > 
+> > bits_from_user() copies as much as user supplied, we want to zero out
+> > the tail to make sure there is no garbage, so we want to use
+> > kcalloc/kzalloc/bitmap_zalloc here.
+> 
+> I don't understand that. Tail bits of bitmap (i.e. after last used bit
+> till the end of last word) are always ignored by kernel code and there's
+> no matter what was stored in that bits.
+
+Users can supply as little as one long word worth of data (codes_size =
+maxlen = 4). You really do not want the rest of the mask you will be
+applying to contain random heap garbage.
+
+> 
+> (With the exception of copying bitmap from kernel to userspace. For this
+> case we have bitmap_copy_clear_tail() to avoid unintended exposing kernel
+> data to user.)
+> 
+> If you know any bitmap function that don't ignore tail bits, this is a
+> bug and should be fixed.
+> 
+> By the way, bits_from_user() is bad-designed because it takes 2 size
+> arguments - maxbit and maxlen, and should be reworked. There's a
+> single user of this function, and I suspect, it can be switched to
+> existing core API, like bitmap_from_arr32().
+
+I'm afraid you suspect wrong, as (unfortunately, but it is ABI now) we
+are not dealing with masks consisting of u32 or u64 elements, but
+"unsigned long" elements, which change size depending on 32/64 bit
+architecture and whether we are dealing with compat or native userspace.
+
+It also needs both maxbit and maxlen, because one is kernel's limit
+while the other is limit from userspace POV and you need to reconcile
+both to make sure you do not overrun buffers on either side.
+
+Thanks.
+
+-- 
+Dmitry

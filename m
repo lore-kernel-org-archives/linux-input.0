@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v2 08/10] media: tda18271: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
-Date: Wed, 20 Jun 2018 07:18:01 +0200
-Message-ID: <20180620051803.12206-9-peda@axentia.se>
+Subject: [PATCH v2 06/10] media: rtl2830: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+Date: Wed, 20 Jun 2018 07:17:59 +0200
+Message-ID: <20180620051803.12206-7-peda@axentia.se>
 References: <20180620051803.12206-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -19,48 +19,48 @@ sit behind a mux-locked mux, the two locking variants are equivalent.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/tuners/tda18271-common.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/dvb-frontends/rtl2830.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/tuners/tda18271-common.c b/drivers/media/tuners/tda18271-common.c
-index 7e81cd887c13..054b3b747dae 100644
---- a/drivers/media/tuners/tda18271-common.c
-+++ b/drivers/media/tuners/tda18271-common.c
-@@ -225,7 +225,7 @@ static int __tda18271_write_regs(struct dvb_frontend *fe, int idx, int len,
- 	 */
- 	if (lock_i2c) {
- 		tda18271_i2c_gate_ctrl(fe, 1);
--		i2c_lock_adapter(priv->i2c_props.adap);
-+		i2c_lock_bus(priv->i2c_props.adap, I2C_LOCK_SEGMENT);
- 	}
- 	while (len) {
- 		if (max > len)
-@@ -246,7 +246,7 @@ static int __tda18271_write_regs(struct dvb_frontend *fe, int idx, int len,
- 		len -= max;
- 	}
- 	if (lock_i2c) {
--		i2c_unlock_adapter(priv->i2c_props.adap);
-+		i2c_unlock_bus(priv->i2c_props.adap, I2C_LOCK_SEGMENT);
- 		tda18271_i2c_gate_ctrl(fe, 0);
- 	}
+diff --git a/drivers/media/dvb-frontends/rtl2830.c b/drivers/media/dvb-frontends/rtl2830.c
+index 7bbfe11d11ed..91d12e6a03d5 100644
+--- a/drivers/media/dvb-frontends/rtl2830.c
++++ b/drivers/media/dvb-frontends/rtl2830.c
+@@ -24,9 +24,9 @@ static int rtl2830_bulk_write(struct i2c_client *client, unsigned int reg,
+ 	struct rtl2830_dev *dev = i2c_get_clientdata(client);
+ 	int ret;
  
-@@ -300,7 +300,7 @@ int tda18271_init_regs(struct dvb_frontend *fe)
- 	 * as those could cause bad things
- 	 */
- 	tda18271_i2c_gate_ctrl(fe, 1);
--	i2c_lock_adapter(priv->i2c_props.adap);
-+	i2c_lock_bus(priv->i2c_props.adap, I2C_LOCK_SEGMENT);
+-	i2c_lock_adapter(client->adapter);
++	i2c_lock_bus(client->adapter, I2C_LOCK_SEGMENT);
+ 	ret = regmap_bulk_write(dev->regmap, reg, val, val_count);
+-	i2c_unlock_adapter(client->adapter);
++	i2c_unlock_bus(client->adapter, I2C_LOCK_SEGMENT);
+ 	return ret;
+ }
  
- 	/* initialize registers */
- 	switch (priv->id) {
-@@ -516,7 +516,7 @@ int tda18271_init_regs(struct dvb_frontend *fe)
- 	/* synchronize */
- 	__tda18271_write_regs(fe, R_EP1, 1, false);
+@@ -36,9 +36,9 @@ static int rtl2830_update_bits(struct i2c_client *client, unsigned int reg,
+ 	struct rtl2830_dev *dev = i2c_get_clientdata(client);
+ 	int ret;
  
--	i2c_unlock_adapter(priv->i2c_props.adap);
-+	i2c_unlock_bus(priv->i2c_props.adap, I2C_LOCK_SEGMENT);
- 	tda18271_i2c_gate_ctrl(fe, 0);
+-	i2c_lock_adapter(client->adapter);
++	i2c_lock_bus(client->adapter, I2C_LOCK_SEGMENT);
+ 	ret = regmap_update_bits(dev->regmap, reg, mask, val);
+-	i2c_unlock_adapter(client->adapter);
++	i2c_unlock_bus(client->adapter, I2C_LOCK_SEGMENT);
+ 	return ret;
+ }
  
- 	return 0;
+@@ -48,9 +48,9 @@ static int rtl2830_bulk_read(struct i2c_client *client, unsigned int reg,
+ 	struct rtl2830_dev *dev = i2c_get_clientdata(client);
+ 	int ret;
+ 
+-	i2c_lock_adapter(client->adapter);
++	i2c_lock_bus(client->adapter, I2C_LOCK_SEGMENT);
+ 	ret = regmap_bulk_read(dev->regmap, reg, val, val_count);
+-	i2c_unlock_adapter(client->adapter);
++	i2c_unlock_bus(client->adapter, I2C_LOCK_SEGMENT);
+ 	return ret;
+ }
+ 
 -- 
 2.11.0

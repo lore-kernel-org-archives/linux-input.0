@@ -1,52 +1,37 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 01/11] i2c: add helpers for locking the I2C segment
-Date: Tue, 19 Jun 2018 23:29:51 +0200
-Message-ID: <4a721b58-d718-68c0-cca5-23b5b21ef100@axentia.se>
-References: <20180615101506.8012-1-peda@axentia.se>
- <20180615101506.8012-2-peda@axentia.se>
- <20180618110502.cb5s24srp4frahm6@ninjato>
- <b860025e-3d4b-f333-80b4-3831dd969757@axentia.se>
- <20180618115444.pgjmfntp767zuvmw@ninjato>
+From: Chen-Yu Tsai <wens@csie.org>
+Subject: Re: [PATCH v3 24/27] devicetree: fix a series of wrong
+	file references
+Date: Wed, 20 Jun 2018 08:42:23 +0800
+Message-ID: <CAGb2v67s29mYa+hcYFWCokmzLwi7aYyeBwDnQiTJQYxT0GxPNA@mail.gmail.com>
+References: <cover.1528990947.git.mchehab+samsung@kernel.org>
+ <bce1b59268ac2d659fd7cb37f89285ef2acc8316.1528990947.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180618115444.pgjmfntp767zuvmw@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <bce1b59268ac2d659fd7cb37f89285ef2acc8316.1528990947.git.mchehab+samsung@kernel.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Linux-ALSA <alsa-devel@alsa-project.org>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Maxime Ripard <maxime.ripard@bootlin.com>, linux-pci@vger.kernel.org, Binghui Wang <wangbinghui@hisilicon.com>, linux-kernel <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Jonathan Corbet <corbet@lwn.net>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Alexandre Torgue <alexandre.torgue@st.com>, Xiaowei Song <songxiaowei@hisilicon.com>, Mauro Carvalho Chehab <mchehab@infradead.org>, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Zhou Wang <wangzhou1@hisilicon.com>, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On 2018-06-18 13:54, Wolfram Sang wrote:
-> 
->>> I wonder if i2c_lock_segment() and i2c_lock_root_adapter() are really
->>> more readable and convenient than i2c_lock_bus() with the flag. I think
->>> the flags have speaking names, too.
->>>
->>> Is that an idea to remove these functions altogether and start using
->>> i2c_lock_bus()?
->>
->> That would be fine with me. I don't have a strong opinion and agree that
->> both are readable enough...
->>
->> It would make for a reduction of the number of lines so that's nice, but
->> the macro in drivers/i2c/busses/i2c-gpio.c (patch 11) would not fit in
->> the current \-width (or whatever you'd call that line of backslashes to
->> the right in a multi-line macro).
->>
->> Does anyone have a strong opinion?
-> 
-> I have a strong opinion on making i2c.h less bloated. And yes, less
-> number of lines is nice, too. I think that surely pays off the
-> whitespace exception.
+On Fri, Jun 15, 2018 at 12:09 AM, Mauro Carvalho Chehab
+<mchehab+samsung@kernel.org> wrote:
+> As files got renamed, their references broke.
+>
+> Manually fix a series of broken refs at the DT bindings.
+>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> ---
 
-Ok, I have rebased onto v4.18-rc1, killed the i2c-tegra hunk and converted
-i2c_lock_root(foo) over to i2c_lock_bus(foo, I2C_LOCK_ROOT_ADAPTER) and
-i2c_lock_segment(foo) over to i2c_lock_bus(foo, I2C_LOCK_SEGMENT). And I
-of course killed a bunch of locking helpers in i2c.h.
+>  Documentation/devicetree/bindings/mfd/sun6i-prcm.txt |  2 +-
 
-I doing build tests now, will post a v2 in the morning.
-
-Cheers,
-Peter
+Acked-by: Chen-Yu Tsai <wens@csie.org>

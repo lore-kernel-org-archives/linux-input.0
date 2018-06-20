@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v2 04/10] media: af9013: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
-Date: Wed, 20 Jun 2018 07:17:57 +0200
-Message-ID: <20180620051803.12206-5-peda@axentia.se>
+Subject: [PATCH v2 07/10] media: tda1004x: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+Date: Wed, 20 Jun 2018 07:18:00 +0200
+Message-ID: <20180620051803.12206-8-peda@axentia.se>
 References: <20180620051803.12206-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -19,38 +19,38 @@ sit behind a mux-locked mux, the two locking variants are equivalent.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/media/dvb-frontends/af9013.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/dvb-frontends/tda1004x.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/af9013.c b/drivers/media/dvb-frontends/af9013.c
-index 482bce49819a..99361c113bca 100644
---- a/drivers/media/dvb-frontends/af9013.c
-+++ b/drivers/media/dvb-frontends/af9013.c
-@@ -1312,10 +1312,10 @@ static int af9013_wregs(struct i2c_client *client, u8 cmd, u16 reg,
- 	memcpy(&buf[3], val, len);
+diff --git a/drivers/media/dvb-frontends/tda1004x.c b/drivers/media/dvb-frontends/tda1004x.c
+index 7dcfb4a4b2d0..9d3261bf5090 100644
+--- a/drivers/media/dvb-frontends/tda1004x.c
++++ b/drivers/media/dvb-frontends/tda1004x.c
+@@ -329,7 +329,7 @@ static int tda1004x_do_upload(struct tda1004x_state *state,
+ 	tda1004x_write_byteI(state, dspCodeCounterReg, 0);
+ 	fw_msg.addr = state->config->demod_address;
  
- 	if (lock)
--		i2c_lock_adapter(client->adapter);
-+		i2c_lock_bus(client->adapter, I2C_LOCK_SEGMENT);
- 	ret = __i2c_transfer(client->adapter, msg, 1);
- 	if (lock)
--		i2c_unlock_adapter(client->adapter);
-+		i2c_unlock_bus(client->adapter, I2C_LOCK_SEGMENT);
- 	if (ret < 0) {
- 		goto err;
- 	} else if (ret != 1) {
-@@ -1353,10 +1353,10 @@ static int af9013_rregs(struct i2c_client *client, u8 cmd, u16 reg,
- 	buf[2] = cmd;
+-	i2c_lock_adapter(state->i2c);
++	i2c_lock_bus(state->i2c, I2C_LOCK_SEGMENT);
+ 	buf[0] = dspCodeInReg;
+ 	while (pos != len) {
+ 		// work out how much to send this time
+@@ -342,14 +342,14 @@ static int tda1004x_do_upload(struct tda1004x_state *state,
+ 		fw_msg.len = tx_size + 1;
+ 		if (__i2c_transfer(state->i2c, &fw_msg, 1) != 1) {
+ 			printk(KERN_ERR "tda1004x: Error during firmware upload\n");
+-			i2c_unlock_adapter(state->i2c);
++			i2c_unlock_bus(state->i2c, I2C_LOCK_SEGMENT);
+ 			return -EIO;
+ 		}
+ 		pos += tx_size;
  
- 	if (lock)
--		i2c_lock_adapter(client->adapter);
-+		i2c_lock_bus(client->adapter, I2C_LOCK_SEGMENT);
- 	ret = __i2c_transfer(client->adapter, msg, 2);
- 	if (lock)
--		i2c_unlock_adapter(client->adapter);
-+		i2c_unlock_bus(client->adapter, I2C_LOCK_SEGMENT);
- 	if (ret < 0) {
- 		goto err;
- 	} else if (ret != 2) {
+ 		dprintk("%s: fw_pos=0x%x\n", __func__, pos);
+ 	}
+-	i2c_unlock_adapter(state->i2c);
++	i2c_unlock_bus(state->i2c, I2C_LOCK_SEGMENT);
+ 
+ 	/* give the DSP a chance to settle 03/10/05 Hac */
+ 	msleep(100);
 -- 
 2.11.0

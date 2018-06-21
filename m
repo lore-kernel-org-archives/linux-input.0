@@ -1,65 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 03/10] input: rohm_bu21023: switch to
- i2c_lock_bus(..., I2C_LOCK_SEGMENT)
-Date: Wed, 20 Jun 2018 13:28:05 -0700
-Message-ID: <20180620202805.GB75925@dtor-ws>
-References: <20180620051803.12206-1-peda@axentia.se>
- <20180620051803.12206-4-peda@axentia.se>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v3 3/5] bitmap: Add bitmap_alloc(), bitmap_zalloc() and bitmap_free()
+Date: Thu, 21 Jun 2018 05:13:39 +0300
+Message-ID: <CAHp75Vei2_V7h4oKAU+uoCG2gUJH6uXtg9zVqQ_vnyr5KEmNYw@mail.gmail.com>
+References: <20180618131003.88110-1-andriy.shevchenko@linux.intel.com>
+ <20180618131003.88110-4-andriy.shevchenko@linux.intel.com>
+ <20180618141404.68124daab97bd0f3a3051544@linux-foundation.org>
+ <CAKdAkRTHOORds7aEauv4rp3_=PnGi=Nv-VS3-nAb9MztJPKG=Q@mail.gmail.com> <20180618161056.e52efd0e8bd36211e60705a2@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180620051803.12206-4-peda@axentia.se>
+In-Reply-To: <20180618161056.e52efd0e8bd36211e60705a2@linux-foundation.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>Crt Mori <cm>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, agk@redhat.com, Mike Snitzer <snitzer@redhat.com>, device-mapper development <dm-devel@redhat.com>, shli@kernel.org, linux-raid@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Yury Norov <ynorov@caviumnetworks.com>, lkml <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Joe Perches <joe@perches.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 20, 2018 at 07:17:56AM +0200, Peter Rosin wrote:
-> Locking the root adapter for __i2c_transfer will deadlock if the
-> device sits behind a mux-locked I2C mux. Switch to the finer-grained
-> i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
-> sit behind a mux-locked mux, the two locking variants are equivalent.
-> 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+On Tue, Jun 19, 2018 at 2:10 AM, Andrew Morton
+<akpm@linux-foundation.org> wrote:
+> On Mon, 18 Jun 2018 15:01:43 -0700 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Still
+>> We can't as we end up including bitmap.h (by the way of cpumask.h)
+>> form slab.h, so we gen circular dependency.
+>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+It's not just so easy. See below.
 
-Feel free to merge through I2C tree.
+> That info should have been in the changelog, and probably a code
+> comment.
+>
+>> Maybe if we removed memcg
+>> stuff from slab.h so we do not need to include workqueue.h...
+>
+> Or move the basic slab API stuff out of slab.h into a new header.  Or
+> create a new, standalone work_struct.h - that looks pretty simple.
 
-> ---
->  drivers/input/touchscreen/rohm_bu21023.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
-> index bda0500c9b57..714affdd742f 100644
-> --- a/drivers/input/touchscreen/rohm_bu21023.c
-> +++ b/drivers/input/touchscreen/rohm_bu21023.c
-> @@ -304,7 +304,7 @@ static int rohm_i2c_burst_read(struct i2c_client *client, u8 start, void *buf,
->  	msg[1].len = len;
->  	msg[1].buf = buf;
->  
-> -	i2c_lock_adapter(adap);
-> +	i2c_lock_bus(adap, I2C_LOCK_SEGMENT);
->  
->  	for (i = 0; i < 2; i++) {
->  		if (__i2c_transfer(adap, &msg[i], 1) < 0) {
-> @@ -313,7 +313,7 @@ static int rohm_i2c_burst_read(struct i2c_client *client, u8 start, void *buf,
->  		}
->  	}
->  
-> -	i2c_unlock_adapter(adap);
-> +	i2c_unlock_bus(adap, I2C_LOCK_SEGMENT);
->  
->  	return ret;
->  }
-> -- 
-> 2.11.0
-> 
+I tried to move out work_struct, it didn't help. There are actually
+several circular dependencies that ends in bitmap.h either way or
+another.
 
-Thanks.
+First one is
+
+slab.h -> gfp.h -> mmzone.h -> nodemask.h -> bitmap.h
+
+And so on...
+
+Splitting out kXalloc stuff to a separate header won't help, I think,
+because of the above.
+Splitting out struct work_struct is just a tip of an iceberg.
+Splitting out memcg stuff won't help in the similar way.
+
+I'm all ears for (a better) solution.
 
 -- 
-Dmitry
+With Best Regards,
+Andy Shevchenko

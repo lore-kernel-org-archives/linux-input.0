@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 08/12] HID: core: do not upper bound the collection stack
-Date: Thu, 21 Jun 2018 14:09:04 +0200
-Message-ID: <20180621120908.16706-9-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 10/12] HID: multitouch: report MT_TOOL_PALM for non-confident touches
+Date: Thu, 21 Jun 2018 14:09:06 +0200
+Message-ID: <20180621120908.16706-11-benjamin.tissoires@redhat.com>
 References: <20180621120908.16706-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180621120908.16706-1-benjamin.tissoires@redhat.com>
@@ -10,81 +10,96 @@ To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Looks like 4 was sufficient until now. However, the Surface Dial needs
-a stack of 5 and simply fails at probing.
-Dynamically add HID_COLLECTION_STACK_SIZE to the size of the stack if
-we hit the upper bound.
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Checkpatch complains about bare unsigned, so converting those to
-'unsigned int' in struct hid_parser
+According to Microsoft specification [1] for Precision Touchpads (and
+Touchscreens) the devices use "confidence" reports to signal accidental
+touches, or contacts that are "too large to be a finger". Instead of
+simply marking contact inactive in this case (which causes issues if
+contact was originally proper and we lost confidence in it later, as
+this results in accidental clicks, drags, etc), let's report such
+contacts as MT_TOOL_PALM and let userspace decide what to do.
+Additionally, let's report contact size for such touches as maximum
+allowed for major/minor, which should help userspace that is not yet
+aware of MT_TOOL_PALM to still perform palm rejection.
 
+[1] https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+[splitted and rebased]
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v2
+changes in v2:
+- dropped the delayed release in case of palm detection. This is
+  a FW bug for PTP devices, and should only happen with touchscreens
+- move input_set_abs_params(hi->input, ABS_MT_TOOL_TYPE,...) into
+  its own test so other devices can add MT_QUIRK_CONFIDENCE to their
+  quirks.
+
 no changes in v3
 ---
- drivers/hid/hid-core.c | 17 ++++++++++++++---
- include/linux/hid.h    |  9 +++++----
- 2 files changed, 19 insertions(+), 7 deletions(-)
+ drivers/hid/hid-multitouch.c | 30 ++++++++++++++++++++++++------
+ 1 file changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index a460ec147aee..7afed0c0f9e5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -128,9 +128,19 @@ static int open_collection(struct hid_parser *parser, unsigned type)
- 
- 	usage = parser->local.usage[0];
- 
--	if (parser->collection_stack_ptr == HID_COLLECTION_STACK_SIZE) {
--		hid_err(parser->device, "collection stack overflow\n");
--		return -EINVAL;
-+	if (parser->collection_stack_ptr == parser->collection_stack_size) {
-+		unsigned int *collection_stack;
-+		unsigned int new_size = parser->collection_stack_size +
-+					HID_COLLECTION_STACK_SIZE;
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index a4a274ebfbef..36c8b67bb032 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -736,6 +736,13 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 				cls->name == MT_CLS_WIN_8_DUAL) &&
+ 				field->application == HID_DG_TOUCHPAD)
+ 				app->quirks |= MT_QUIRK_CONFIDENCE;
 +
-+		collection_stack = krealloc(parser->collection_stack,
-+					    new_size * sizeof(unsigned int),
-+					    GFP_KERNEL);
-+		if (!collection_stack)
-+			return -ENOMEM;
++			if (app->quirks & MT_QUIRK_CONFIDENCE)
++				input_set_abs_params(hi->input,
++						     ABS_MT_TOOL_TYPE,
++						     MT_TOOL_FINGER,
++						     MT_TOOL_PALM, 0, 0);
 +
-+		parser->collection_stack = collection_stack;
-+		parser->collection_stack_size = new_size;
- 	}
+ 			MT_STORE_FIELD(confidence_state);
+ 			return 1;
+ 		case HID_DG_TIPSWITCH:
+@@ -958,10 +965,12 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 	if (quirks & MT_QUIRK_HOVERING)
+ 		inrange_state = *slot->inrange_state;
  
- 	if (parser->device->maxcollection == parser->device->collection_size) {
-@@ -837,6 +847,7 @@ static int hid_scan_report(struct hid_device *hid)
- 		break;
- 	}
+-	active = (*slot->tip_state || inrange_state) && confidence_state;
++	active = *slot->tip_state || inrange_state;
  
-+	kfree(parser->collection_stack);
- 	vfree(parser);
- 	return 0;
- }
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 2e4498d52a2f..aee281522c6d 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -644,12 +644,13 @@ static inline void hid_set_drvdata(struct hid_device *hdev, void *data)
- struct hid_parser {
- 	struct hid_global     global;
- 	struct hid_global     global_stack[HID_GLOBAL_STACK_SIZE];
--	unsigned              global_stack_ptr;
-+	unsigned int          global_stack_ptr;
- 	struct hid_local      local;
--	unsigned              collection_stack[HID_COLLECTION_STACK_SIZE];
--	unsigned              collection_stack_ptr;
-+	unsigned int         *collection_stack;
-+	unsigned int          collection_stack_ptr;
-+	unsigned int          collection_stack_size;
- 	struct hid_device    *device;
--	unsigned              scan_flags;
-+	unsigned int          scan_flags;
- };
+ 	if (app->application == HID_GD_SYSTEM_MULTIAXIS)
+ 		tool = MT_TOOL_DIAL;
++	else if (unlikely(!confidence_state))
++		tool = MT_TOOL_PALM;
  
- struct hid_class_descriptor {
+ 	input_mt_slot(input, slotnum);
+ 	input_mt_report_slot_state(input, tool, active);
+@@ -993,11 +1002,20 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 			orientation = -azimuth;
+ 		}
+ 
+-		/*
+-		 * divided by two to match visual scale of touch
+-		 * for devices with this quirk
+-		 */
+-		if (quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
++		if (unlikely(!confidence_state)) {
++			/*
++			 * When reporting palm, set contact to maximum
++			 * size to help userspace that does not
++			 * recognize MT_TOOL_PALM to reject contacts
++			 * that are too large.
++			 */
++			major = input_abs_get_max(input, ABS_MT_TOUCH_MAJOR);
++			minor = input_abs_get_max(input, ABS_MT_TOUCH_MINOR);
++		} else if (quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
++			/*
++			 * divided by two to match visual scale of touch
++			 * for devices with this quirk
++			 */
+ 			major = major >> 1;
+ 			minor = minor >> 1;
+ 		}
 -- 
 2.14.3

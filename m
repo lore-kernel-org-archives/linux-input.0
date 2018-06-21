@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 12/12] HID: multitouch: handle palm for touchscreens
-Date: Thu, 21 Jun 2018 14:09:08 +0200
-Message-ID: <20180621120908.16706-13-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 09/12] HID: microsoft: support the Surface Dial
+Date: Thu, 21 Jun 2018 14:09:05 +0200
+Message-ID: <20180621120908.16706-10-benjamin.tissoires@redhat.com>
 References: <20180621120908.16706-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180621120908.16706-1-benjamin.tissoires@redhat.com>
@@ -10,129 +10,114 @@ To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The tool works nicely with hid-generic, but it ends up creating 9
+different input nodes with most of them only having ABS_MISC set.
 
-Usually, there is no palm rejection for touchscreens. You don't rest
-your palm on the touchscreen while interacting with it.
-However, some wacom devices do so because you can rest your palm while
-interacting with the stylus.
+Filter the axis out, which reduces the amount of devices to 2. One is
+the proper System Multi-axis collection, the other exported device
+seems to provide SLEEP and POWER Key, not sure how one can trigger
+those events though.
 
-Unfortunately, the spec for touchscreens[1] is less precise than the one
-for touchpads[2]. This leads to a situation where it's 'legitimate'
-for a touchscreen to provide both tipswitch off and confidence off in the
-same report.
+Filtering the ABS_X and ABS_Y axes also prevents udev to detect this as
+a touchscreen.
 
-Work around that by keeping the slot active for one frame where we report
-MT_TOOL_PALM, and then synthesizing the release event in a separate frame.
-frame
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-[rebased and new commit message]
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
-changes in v2 (compared to Dmitry's initial submission):
-- extracted from the initial submission in a separate patch
-- rebased on top of my current series
-- add an extra input_mt_sync_frame(input); to release the single touch
-  emulation
 
+no changes in v2
 no changes in v3
 ---
- drivers/hid/hid-multitouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 51 insertions(+), 1 deletion(-)
+ drivers/hid/hid-microsoft.c | 49 +++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 43 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 9c708aa261ee..3a1c2d80729b 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -118,6 +118,9 @@ struct mt_application {
- 	int left_button_state;		/* left button state */
- 	unsigned int mt_flags;		/* flags to pass to input-mt */
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 96e7d3231d2f..72d983626afd 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -22,12 +22,13 @@
  
-+	unsigned long *pending_palm_slots;	/* slots where we reported palm
-+						 * and need to release */
-+
- 	__u8 num_received;	/* how many contacts we received */
- 	__u8 num_expected;	/* expected last contact index */
- 	__u8 buttons_count;	/* number of physical buttons per touchpad */
-@@ -863,6 +866,28 @@ static int mt_compute_slot(struct mt_device *td, struct mt_application *app,
- 	return input_mt_get_slot_by_key(input, *slot->contactid);
+ #include "hid-ids.h"
+ 
+-#define MS_HIDINPUT		0x01
+-#define MS_ERGONOMY		0x02
+-#define MS_PRESENTER		0x04
+-#define MS_RDESC		0x08
+-#define MS_NOGET		0x10
+-#define MS_DUPLICATE_USAGES	0x20
++#define MS_HIDINPUT		BIT(0)
++#define MS_ERGONOMY		BIT(1)
++#define MS_PRESENTER		BIT(2)
++#define MS_RDESC		BIT(3)
++#define MS_NOGET		BIT(4)
++#define MS_DUPLICATE_USAGES	BIT(5)
++#define MS_SURFACE_DIAL		BIT(6)
+ 
+ static __u8 *ms_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+@@ -130,6 +131,30 @@ static int ms_presenter_8k_quirk(struct hid_input *hi, struct hid_usage *usage,
+ 	return 1;
  }
  
-+static void mt_release_pending_palms(struct mt_device *td,
-+				     struct mt_application *app,
-+				     struct input_dev *input)
++static int ms_surface_dial_quirk(struct hid_input *hi, struct hid_field *field,
++		struct hid_usage *usage, unsigned long **bit, int *max)
 +{
-+	int slotnum;
-+	bool need_sync = false;
-+
-+	for_each_set_bit(slotnum, app->pending_palm_slots, td->maxcontacts) {
-+		clear_bit(slotnum, app->pending_palm_slots);
-+
-+		input_mt_slot(input, slotnum);
-+		input_mt_report_slot_state(input, MT_TOOL_PALM, false);
-+
-+		need_sync = true;
-+	}
-+
-+	if (need_sync) {
-+		input_mt_sync_frame(input);
-+		input_sync(input);
-+	}
-+}
-+
- /*
-  * this function is called when a whole packet has been received and processed,
-  * so that it can decide what to send to the input layer.
-@@ -876,6 +901,9 @@ static void mt_sync_frame(struct mt_device *td, struct mt_application *app,
- 	input_mt_sync_frame(input);
- 	input_event(input, EV_MSC, MSC_TIMESTAMP, app->timestamp);
- 	input_sync(input);
-+
-+	mt_release_pending_palms(td, app, input);
-+
- 	app->num_received = 0;
- 	app->left_button_state = 0;
- 
-@@ -970,8 +998,23 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 
- 	if (app->application == HID_GD_SYSTEM_MULTIAXIS)
- 		tool = MT_TOOL_DIAL;
--	else if (unlikely(!confidence_state))
-+	else if (unlikely(!confidence_state)) {
- 		tool = MT_TOOL_PALM;
-+		if (!active &&
-+		    input_mt_is_active(&mt->slots[slotnum])) {
-+			/*
-+			 * The non-confidence was reported for
-+			 * previously valid contact that is also no
-+			 * longer valid. We can't simply report
-+			 * lift-off as userspace will not be aware
-+			 * of non-confidence, so we need to split
-+			 * it into 2 events: active MT_TOOL_PALM
-+			 * and a separate liftoff.
-+			 */
-+			active = true;
-+			set_bit(slotnum, app->pending_palm_slots);
++	switch (usage->hid & HID_USAGE_PAGE) {
++	case 0xff070000:
++		/* fall-through */
++	case HID_UP_DIGITIZER:
++		/* ignore those axis */
++		return -1;
++	case HID_UP_GENDESK:
++		switch (usage->hid) {
++		case HID_GD_X:
++			/* fall-through */
++		case HID_GD_Y:
++			/* fall-through */
++		case HID_GD_RFKILL_BTN:
++			/* ignore those axis */
++			return -1;
 +		}
 +	}
- 
- 	input_mt_slot(input, slotnum);
- 	input_mt_report_slot_state(input, tool, active);
-@@ -1206,6 +1249,13 @@ static int mt_touch_input_configured(struct hid_device *hdev,
- 	if (td->is_buttonpad)
- 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
- 
-+	app->pending_palm_slots = devm_kcalloc(&hi->input->dev,
-+					       BITS_TO_LONGS(td->maxcontacts),
-+					       sizeof(long),
-+					       GFP_KERNEL);
-+	if (!app->pending_palm_slots)
-+		return -ENOMEM;
 +
- 	ret = input_mt_init_slots(input, td->maxcontacts, app->mt_flags);
- 	if (ret)
- 		return ret;
++	return 0;
++}
++
+ static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+@@ -146,6 +171,13 @@ static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			ms_presenter_8k_quirk(hi, usage, bit, max))
+ 		return 1;
+ 
++	if (quirks & MS_SURFACE_DIAL) {
++		int ret = ms_surface_dial_quirk(hi, field, usage, bit, max);
++
++		if (ret)
++			return ret;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -229,6 +261,9 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (quirks & MS_NOGET)
+ 		hdev->quirks |= HID_QUIRK_NOGET;
+ 
++	if (quirks & MS_SURFACE_DIAL)
++		hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
++
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "parse failed\n");
+@@ -281,6 +316,8 @@ static const struct hid_device_id ms_devices[] = {
+ 
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
+ 		.driver_data = MS_PRESENTER },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, 0x091B),
++		.driver_data = MS_SURFACE_DIAL },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ms_devices);
 -- 
 2.14.3

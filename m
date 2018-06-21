@@ -1,219 +1,198 @@
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Subject: [PATCH v2 06/10] ARM: OMAP1: ams-delta FIQ: don't use static GPIO numbers
-Date: Fri, 22 Jun 2018 00:41:24 +0200
-Message-ID: <20180621224128.17623-6-jmkrzyszt@gmail.com>
-References: <20180609140224.32606-1-jmkrzyszt@gmail.com>
- <20180621224128.17623-1-jmkrzyszt@gmail.com>
+From: Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH v2] HID: i2c-hid: Add vddl regulator control
+Date: Thu, 21 Jun 2018 16:41:38 -0700
+Message-ID: <20180621234138.30537-1-swboyd@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180621224128.17623-1-jmkrzyszt@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: "David S . Miller " <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Dmitry Torokhov <dtor@chromium.org>, Doug Anderson <dianders@chromium.org>, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-With introduction of GPIO lookup tables to Amstrad Delta board init
-file, semantics of symbols representing OMAP GPIO pins defined in
-<mach/board-ams-delta.h> changed from statically assigned global GPIO
-numbers to hardware pin numbers local to OMAP "gpio-0-15" chip.
+Some wacom w9013 devices have a vddl supply for "low valtage"
+requirements. Add support in this driver to turn on this low voltage
+supply. We can also drop a handful of error messages because the
+regulator core is already printing an error when bulk regulators fail to
+enable or disable.
 
-This patch modifies deferred FIQ interrupt handler so it no longer uses
-static GPIO numbers in favour of IRQ data descriptors obtained at FIQ
-initialization time from descriptor of the GPIO chip with use of its
-hardware pin numbers.  The chip descriptor is passed from the board
-init file.
-
-As a benefit, the deferred FIQ handler should work faster.
-
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Dmitry Torokhov <dtor@chromium.org>
+Cc: Doug Anderson <dianders@chromium.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Cc: <devicetree@vger.kernel.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 ---
-Changelog:
-v2: rebased on v4.18-rc1, no conflicts
 
- arch/arm/mach-omap1/ams-delta-fiq.c              | 48 +++++++++++++++++-------
- arch/arm/mach-omap1/board-ams-delta.c            | 41 +++++++++++++++++++-
- arch/arm/mach-omap1/include/mach/ams-delta-fiq.h |  2 +-
- 3 files changed, 74 insertions(+), 17 deletions(-)
+Changes from v1:
+ * Use the bulk regulator APIs instead of open coding it (Dmitry)
 
-diff --git a/arch/arm/mach-omap1/ams-delta-fiq.c b/arch/arm/mach-omap1/ams-delta-fiq.c
-index d7ca9e2b40d2..1d54a6177f14 100644
---- a/arch/arm/mach-omap1/ams-delta-fiq.c
-+++ b/arch/arm/mach-omap1/ams-delta-fiq.c
-@@ -13,7 +13,8 @@
-  * under the terms of the GNU General Public License version 2 as published by
-  * the Free Software Foundation.
-  */
--#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/gpio/driver.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/module.h>
-@@ -40,14 +41,14 @@ static struct fiq_handler fh = {
- unsigned int fiq_buffer[1024];
- EXPORT_SYMBOL(fiq_buffer);
+ .../bindings/input/hid-over-i2c.txt           |  3 +-
+ drivers/hid/i2c-hid/i2c-hid.c                 | 62 +++++++++----------
+ include/linux/platform_data/i2c-hid.h         |  7 +--
+ 3 files changed, 36 insertions(+), 36 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+index 4d3da9d91de4..89e6ab89ba38 100644
+--- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
++++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+@@ -26,7 +26,8 @@ device-specific compatible properties, which should be used in addition to the
  
-+static struct irq_chip *irq_chip;
-+static struct irq_data *irq_data[16];
- static unsigned int irq_counter[16];
+ - compatible:
+   * "wacom,w9013" (Wacom W9013 digitizer). Supports:
+-    - vdd-supply
++    - vdd-supply (3.3V)
++    - vddl-supply (1.8V)
+     - post-power-on-delay-ms
  
- static irqreturn_t deferred_fiq(int irq, void *dev_id)
- {
-+	struct irq_data *d;
- 	int gpio, irq_num, fiq_count;
--	struct irq_chip *irq_chip;
+ - vdd-supply: phandle of the regulator that provides the supply voltage.
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index c1652bb7bd15..1d83531454c5 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -1002,18 +1002,21 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 		return client->irq;
+ 	}
+ 
+-	ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
++	ihid = devm_kzalloc(&client->dev, sizeof(*ihid), GFP_KERNEL);
+ 	if (!ihid)
+ 		return -ENOMEM;
+ 
+ 	if (client->dev.of_node) {
+ 		ret = i2c_hid_of_probe(client, &ihid->pdata);
+ 		if (ret)
+-			goto err;
++			return ret;
+ 	} else if (!platform_data) {
+ 		ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
+-		if (ret)
+-			goto err;
++		if (ret) {
++			dev_err(&client->dev,
++				"HID register address not provided\n");
++			return ret;
++		}
+ 	} else {
+ 		ihid->pdata = *platform_data;
+ 	}
+@@ -1021,21 +1024,20 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 	/* Parse platform agnostic common properties from ACPI / device tree */
+ 	i2c_hid_fwnode_probe(client, &ihid->pdata);
+ 
+-	ihid->pdata.supply = devm_regulator_get(&client->dev, "vdd");
+-	if (IS_ERR(ihid->pdata.supply)) {
+-		ret = PTR_ERR(ihid->pdata.supply);
+-		if (ret != -EPROBE_DEFER)
+-			dev_err(&client->dev, "Failed to get regulator: %d\n",
+-				ret);
+-		goto err;
+-	}
++	ihid->pdata.supplies[0].supply = "vdd";
++	ihid->pdata.supplies[1].supply = "vddl";
++
++	ret = devm_regulator_bulk_get(&client->dev,
++				      ARRAY_SIZE(ihid->pdata.supplies),
++				      ihid->pdata.supplies);
++	if (ret)
++		return ret;
++
++	ret = regulator_bulk_enable(ARRAY_SIZE(ihid->pdata.supplies),
++				    ihid->pdata.supplies);
++	if (ret < 0)
++		return ret;
+ 
+-	ret = regulator_enable(ihid->pdata.supply);
+-	if (ret < 0) {
+-		dev_err(&client->dev, "Failed to enable regulator: %d\n",
+-			ret);
+-		goto err;
+-	}
+ 	if (ihid->pdata.post_power_delay_ms)
+ 		msleep(ihid->pdata.post_power_delay_ms);
+ 
+@@ -1122,11 +1124,9 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 	pm_runtime_disable(&client->dev);
+ 
+ err_regulator:
+-	regulator_disable(ihid->pdata.supply);
 -
--	irq_chip = irq_get_chip(gpio_to_irq(AMS_DELTA_GPIO_PIN_KEYBRD_CLK));
- 
- 	/*
- 	 * For each handled GPIO interrupt, keep calling its interrupt handler
-@@ -55,24 +56,21 @@ static irqreturn_t deferred_fiq(int irq, void *dev_id)
- 	 */
- 	for (gpio = AMS_DELTA_GPIO_PIN_KEYBRD_CLK;
- 			gpio <= AMS_DELTA_GPIO_PIN_HOOK_SWITCH; gpio++) {
--		irq_num = gpio_to_irq(gpio);
-+		d = irq_data[gpio];
-+		irq_num = d->irq;
- 		fiq_count = fiq_buffer[FIQ_CNT_INT_00 + gpio];
- 
- 		if (irq_counter[gpio] < fiq_count &&
- 				gpio != AMS_DELTA_GPIO_PIN_KEYBRD_CLK) {
--			struct irq_data *d = irq_get_irq_data(irq_num);
--
- 			/*
- 			 * handle_simple_irq() that OMAP GPIO edge
- 			 * interrupts default to since commit 80ac93c27441
- 			 * requires interrupt already acked and unmasked.
- 			 */
--			if (irq_chip) {
--				if (irq_chip->irq_ack)
--					irq_chip->irq_ack(d);
--				if (irq_chip->irq_unmask)
--					irq_chip->irq_unmask(d);
--			}
-+			if (irq_chip->irq_ack)
-+				irq_chip->irq_ack(d);
-+			if (irq_chip->irq_unmask)
-+				irq_chip->irq_unmask(d);
- 		}
- 		for (; irq_counter[gpio] < fiq_count; irq_counter[gpio]++)
- 			generic_handle_irq(irq_num);
-@@ -80,14 +78,36 @@ static irqreturn_t deferred_fiq(int irq, void *dev_id)
- 	return IRQ_HANDLED;
+-err:
++	regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
++			       ihid->pdata.supplies);
+ 	i2c_hid_free_buffers(ihid);
+-	kfree(ihid);
+ 	return ret;
  }
  
--void __init ams_delta_init_fiq(void)
-+void __init ams_delta_init_fiq(struct gpio_chip *chip)
- {
-+	struct gpio_desc *gpiod;
- 	void *fiqhandler_start;
- 	unsigned int fiqhandler_length;
- 	struct pt_regs FIQ_regs;
- 	unsigned long val, offset;
- 	int i, retval;
+@@ -1148,9 +1148,8 @@ static int i2c_hid_remove(struct i2c_client *client)
+ 	if (ihid->bufsize)
+ 		i2c_hid_free_buffers(ihid);
  
-+	/* Store irq_chip location for IRQ handler use */
-+	irq_chip = chip->irq.chip;
-+	if (!irq_chip) {
-+		pr_err("%s: GPIO chip %s is missing IRQ function\n", __func__,
-+		       chip->label);
-+		return;
-+	}
+-	regulator_disable(ihid->pdata.supply);
+-
+-	kfree(ihid);
++	regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
++			       ihid->pdata.supplies);
+ 
+ 	return 0;
+ }
+@@ -1201,9 +1200,8 @@ static int i2c_hid_suspend(struct device *dev)
+ 			hid_warn(hid, "Failed to enable irq wake: %d\n",
+ 				wake_status);
+ 	} else {
+-		ret = regulator_disable(ihid->pdata.supply);
+-		if (ret < 0)
+-			hid_warn(hid, "Failed to disable supply: %d\n", ret);
++		regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
++				       ihid->pdata.supplies);
+ 	}
+ 
+ 	return 0;
+@@ -1218,9 +1216,11 @@ static int i2c_hid_resume(struct device *dev)
+ 	int wake_status;
+ 
+ 	if (!device_may_wakeup(&client->dev)) {
+-		ret = regulator_enable(ihid->pdata.supply);
+-		if (ret < 0)
+-			hid_warn(hid, "Failed to enable supply: %d\n", ret);
++		ret = regulator_bulk_enable(ARRAY_SIZE(ihid->pdata.supplies),
++					    ihid->pdata.supplies);
++		if (ret)
++			hid_warn(hid, "Failed to enable supplies: %d\n", ret);
 +
-+	for (i = 0; i < ARRAY_SIZE(irq_data); i++) {
-+		gpiod = gpiochip_request_own_desc(chip, i, NULL);
-+		if (IS_ERR(gpiod)) {
-+			pr_err("%s: failed to get GPIO pin %d (%ld)\n",
-+			       __func__, i, PTR_ERR(gpiod));
-+			return;
-+		}
-+		/* Store irq_data location for IRQ handler use */
-+		irq_data[i] = irq_get_irq_data(gpiod_to_irq(gpiod));
-+
-+		gpiochip_free_own_desc(gpiod);
-+	}
-+
- 	fiqhandler_start = &qwerty_fiqin_start;
- 	fiqhandler_length = &qwerty_fiqin_end - &qwerty_fiqin_start;
- 	pr_info("Installing fiq handler from %p, length 0x%x\n",
-diff --git a/arch/arm/mach-omap1/board-ams-delta.c b/arch/arm/mach-omap1/board-ams-delta.c
-index 2821284aa0c9..f15c0793c34b 100644
---- a/arch/arm/mach-omap1/board-ams-delta.c
-+++ b/arch/arm/mach-omap1/board-ams-delta.c
-@@ -580,6 +580,44 @@ static struct gpiod_hog ams_delta_gpio_hogs[] = {
- 	{},
+ 		if (ihid->pdata.post_power_delay_ms)
+ 			msleep(ihid->pdata.post_power_delay_ms);
+ 	} else if (ihid->irq_wake_enabled) {
+diff --git a/include/linux/platform_data/i2c-hid.h b/include/linux/platform_data/i2c-hid.h
+index 1fb088239d12..c628bb5e1061 100644
+--- a/include/linux/platform_data/i2c-hid.h
++++ b/include/linux/platform_data/i2c-hid.h
+@@ -12,14 +12,13 @@
+ #ifndef __LINUX_I2C_HID_H
+ #define __LINUX_I2C_HID_H
+ 
++#include <linux/regulator/consumer.h>
+ #include <linux/types.h>
+ 
+-struct regulator;
+-
+ /**
+  * struct i2chid_platform_data - used by hid over i2c implementation.
+  * @hid_descriptor_address: i2c register where the HID descriptor is stored.
+- * @supply: regulator for powering on the device.
++ * @supplies: regulators for powering on the device.
+  * @post_power_delay_ms: delay after powering on before device is usable.
+  *
+  * Note that it is the responsibility of the platform driver (or the acpi 5.0
+@@ -35,7 +34,7 @@ struct regulator;
+  */
+ struct i2c_hid_platform_data {
+ 	u16 hid_descriptor_address;
+-	struct regulator *supply;
++	struct regulator_bulk_data supplies[2];
+ 	int post_power_delay_ms;
  };
  
-+/*
-+ * Some drivers may not use GPIO lookup tables but need to be provided
-+ * with GPIO numbers.  The same applies to GPIO based IRQ lines - some
-+ * drivers may even not use GPIO layer but expect just IRQ numbers.
-+ * We could either define GPIO lookup tables then use them on behalf
-+ * of those devices, or we can use GPIO driver level methods for
-+ * identification of GPIO and IRQ numbers. For the purpose of the latter,
-+ * defina a helper function which identifies GPIO chips by their labels.
-+ */
-+static int gpiochip_match_by_label(struct gpio_chip *chip, void *data)
-+{
-+	char *label = data;
-+
-+	return !strcmp(label, chip->label);
-+}
-+
-+/*
-+ * The purpose of this function is to take care of proper initialization of
-+ * devices and data structures which depend on GPIO lines provided by OMAP GPIO
-+ * banks but their drivers don't use GPIO lookup tables or GPIO layer at all.
-+ * The function may be called as soon as OMAP GPIO devices are probed.
-+ * Since that happens at postcore_initcall, it can be called successfully
-+ * from init_machine or later.
-+ * Dependent devices may be registered from within this function or later.
-+ */
-+static void __init omap_gpio_deps_init(void)
-+{
-+	struct gpio_chip *chip;
-+
-+	chip = gpiochip_find(OMAP_GPIO_LABEL, gpiochip_match_by_label);
-+	if (!chip) {
-+		pr_err("%s: OMAP GPIO chip not found\n", __func__);
-+		return;
-+	}
-+
-+	ams_delta_init_fiq(chip);
-+}
-+
- static void __init ams_delta_init(void)
- {
- 	/* mux pins for uarts */
-@@ -600,6 +638,7 @@ static void __init ams_delta_init(void)
- 	omap_cfg_reg(J19_1610_CAM_D6);
- 	omap_cfg_reg(J18_1610_CAM_D7);
- 
-+	omap_gpio_deps_init();
- 	gpiod_add_hogs(ams_delta_gpio_hogs);
- 
- 	omap_serial_init();
-@@ -642,8 +681,6 @@ static void __init ams_delta_init(void)
- 	gpiod_add_lookup_tables(ams_delta_gpio_tables,
- 				ARRAY_SIZE(ams_delta_gpio_tables));
- 
--	ams_delta_init_fiq();
--
- 	omap_writew(omap_readw(ARM_RSTCT1) | 0x0004, ARM_RSTCT1);
- 
- 	omapfb_set_lcd_config(&ams_delta_lcd_config);
-diff --git a/arch/arm/mach-omap1/include/mach/ams-delta-fiq.h b/arch/arm/mach-omap1/include/mach/ams-delta-fiq.h
-index 6dfc3e1210a3..a9769ff396bc 100644
---- a/arch/arm/mach-omap1/include/mach/ams-delta-fiq.h
-+++ b/arch/arm/mach-omap1/include/mach/ams-delta-fiq.h
-@@ -73,7 +73,7 @@
- extern unsigned int fiq_buffer[];
- extern unsigned char qwerty_fiqin_start, qwerty_fiqin_end;
- 
--extern void __init ams_delta_init_fiq(void);
-+extern void __init ams_delta_init_fiq(struct gpio_chip *chip);
- #endif
- 
- #endif
 -- 
-2.16.4
+Sent by a computer through tubes

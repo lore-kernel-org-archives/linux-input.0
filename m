@@ -1,104 +1,66 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: mtk-pmic-keys: Fix probe when no DT node present
-Date: Fri, 22 Jun 2018 11:31:14 -0700
-Message-ID: <20180622183114.GA92912@dtor-ws>
-References: <20180622114228.8619-1-matthias.bgg@gmail.com>
+Subject: Re: [PATCH v3 3/5] bitmap: Add bitmap_alloc(), bitmap_zalloc() and
+ bitmap_free()
+Date: Fri, 22 Jun 2018 11:46:13 -0700
+Message-ID: <20180622184613.GC92912@dtor-ws>
+References: <20180618131003.88110-1-andriy.shevchenko@linux.intel.com>
+ <20180618131003.88110-4-andriy.shevchenko@linux.intel.com>
+ <20180618141404.68124daab97bd0f3a3051544@linux-foundation.org>
+ <CAKdAkRTHOORds7aEauv4rp3_=PnGi=Nv-VS3-nAb9MztJPKG=Q@mail.gmail.com>
+ <20180618161056.e52efd0e8bd36211e60705a2@linux-foundation.org>
+ <CAHp75Vei2_V7h4oKAU+uoCG2gUJH6uXtg9zVqQ_vnyr5KEmNYw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180622114228.8619-1-matthias.bgg@gmail.com>
+In-Reply-To: <CAHp75Vei2_V7h4oKAU+uoCG2gUJH6uXtg9zVqQ_vnyr5KEmNYw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: chen.zhong@mediatek.com, lee.jones@linaro.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, Matthias Brugger <mbrugger@suse.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, agk@redhat.com, Mike Snitzer <snitzer@redhat.com>, device-mapper development <dm-devel@redhat.com>, shli@kernel.org, linux-raid@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Yury Norov <ynorov@caviumnetworks.com>, lkml <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Joe Perches <joe@perches.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 22, 2018 at 01:42:28PM +0200, Matthias Brugger wrote:
-> The drivers gets probed from a mfd devices. So the driver runs
-> probe although no DT node exists. This leads to a NULL pointer
-> dereference in the probe function. Check if a node exists and
-> error out in case none is present.
-
-Hmm, if a cell specifies of_compatible and no such node is present in DT
-maybe we should bail out in mfd_add_device() instead of pushing the
-check into individual drivers? Something like:
-
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index 94e3f32ce935..36a5fd98000d 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -137,6 +137,18 @@ static inline void mfd_acpi_add_device(const struct mfd_cell *cell,
- }
- #endif
- 
-+static struct device_node *mfd_get_node_for_cell(struct device *parent,
-+						 const struct mfd_cell *cell)
-+{
-+	struct device_node *np;
-+
-+	for_each_child_of_node(parent->of_node, np)
-+		if (of_device_is_compatible(np, cell->of_compatible))
-+			return np;
-+
-+	return NULL;
-+}
-+
- static int mfd_add_device(struct device *parent, int id,
- 			  const struct mfd_cell *cell, atomic_t *usage_count,
- 			  struct resource *mem_base,
-@@ -144,7 +156,6 @@ static int mfd_add_device(struct device *parent, int id,
- {
- 	struct resource *res;
- 	struct platform_device *pdev;
--	struct device_node *np = NULL;
- 	int ret = -ENOMEM;
- 	int platform_id;
- 	int r;
-@@ -176,11 +187,11 @@ static int mfd_add_device(struct device *parent, int id,
- 		goto fail_res;
- 
- 	if (parent->of_node && cell->of_compatible) {
--		for_each_child_of_node(parent->of_node, np) {
--			if (of_device_is_compatible(np, cell->of_compatible)) {
--				pdev->dev.of_node = np;
--				break;
--			}
-+		pdev->dev.of_node = mfd_get_node_for_cell(parent, cell);
-+		if (!pdev->dev.of_node) {
-+			dev_err(parent, "unable to locate node for %s (%s)\n",
-+				cell->name, cell->of_compatible);
-+			goto fail_res;
- 		}
- 	}
- 
-Lee?
-
+On Thu, Jun 21, 2018 at 05:13:39AM +0300, Andy Shevchenko wrote:
+> On Tue, Jun 19, 2018 at 2:10 AM, Andrew Morton
+> <akpm@linux-foundation.org> wrote:
+> > On Mon, 18 Jun 2018 15:01:43 -0700 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> Fixes: 3e9f0b3e2b27 ("input: Add MediaTek PMIC keys support")
-> Signed-off-by: Matthias Brugger <mbrugger@suse.com>
-> ---
->  drivers/input/keyboard/mtk-pmic-keys.c | 3 +++
->  1 file changed, 3 insertions(+)
+> >> We can't as we end up including bitmap.h (by the way of cpumask.h)
+> >> form slab.h, so we gen circular dependency.
+> >
 > 
-> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-> index 02c67a1749fc..388043e1939c 100644
-> --- a/drivers/input/keyboard/mtk-pmic-keys.c
-> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-> @@ -257,6 +257,9 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
->  	const struct of_device_id *of_id =
->  		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
->  
-> +	if (of_id == NULL)
-> +		return -ENODEV;
-> +
->  	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
->  	if (!keys)
->  		return -ENOMEM;
-> -- 
-> 2.17.1
+> It's not just so easy. See below.
 > 
+> > That info should have been in the changelog, and probably a code
+> > comment.
+> >
+> >> Maybe if we removed memcg
+> >> stuff from slab.h so we do not need to include workqueue.h...
+> >
+> > Or move the basic slab API stuff out of slab.h into a new header.  Or
+> > create a new, standalone work_struct.h - that looks pretty simple.
+> 
+> I tried to move out work_struct, it didn't help. There are actually
+> several circular dependencies that ends in bitmap.h either way or
+> another.
+> 
+> First one is
+> 
+> slab.h -> gfp.h -> mmzone.h -> nodemask.h -> bitmap.h
+> 
+> And so on...
+> 
+> Splitting out kXalloc stuff to a separate header won't help, I think,
+> because of the above.
+> Splitting out struct work_struct is just a tip of an iceberg.
+> Splitting out memcg stuff won't help in the similar way.
+> 
+> I'm all ears for (a better) solution.
 
-Thanks.
+I think ultimately we'd want to untangle this, but allocating bitmaps is
+not in any hot paths so having them as non-inlined functions should not
+hurt us that much for time being.
+
+Just my 2 cents...
 
 -- 
 Dmitry

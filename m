@@ -1,114 +1,54 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v3 1/2] HID: i2c-hid: Use devm to allocate i2c_hid struct
-Date: Fri, 22 Jun 2018 11:13:07 +0200
-Message-ID: <095738e5-eb31-905b-b496-0d78489e253d@redhat.com>
-References: <20180622022717.134300-1-swboyd@chromium.org>
- <20180622022717.134300-2-swboyd@chromium.org>
- <CAO-hwJJxSHqwEcypc-PVSDUoOSM4OHcOP18QJpoxq6OqKcbq-w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH v4] MAINTAINERS: Add file patterns for serio device tree bindings
+Date: Fri, 22 Jun 2018 12:08:18 +0200
+Message-ID: <20180622100818.29420-1-geert@linux-m68k.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJJxSHqwEcypc-PVSDUoOSM4OHcOP18QJpoxq6OqKcbq-w@mail.gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Stephen Boyd <swboyd@chromium.org>
-Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Dmitry Torokhov <dtor@chromium.org>, Doug Anderson <dianders@chromium.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Submitters of device tree binding documentation may forget to CC
+the subsystem maintainer if this is missing.
 
-On 22-06-18 09:16, Benjamin Tissoires wrote:
-> On Fri, Jun 22, 2018 at 4:27 AM, Stephen Boyd <swboyd@chromium.org> wrote:
->> Use devm here to save some lines and prepare for bulk regulator usage in
->> this driver. Otherwise, when we devm bulk get regulators we'll free the
->> containing i2c_hid structure and try to put regulator pointers from
->> freed memory.
->>
->> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> Cc: Hans de Goede <hdegoede@redhat.com>
->> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> Cc: Dmitry Torokhov <dtor@chromium.org>
->> Cc: Doug Anderson <dianders@chromium.org>
->> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
->> ---
->>   drivers/hid/i2c-hid/i2c-hid.c | 9 +++------
->>   1 file changed, 3 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
->> index c1652bb7bd15..c7d6738dc524 100644
->> --- a/drivers/hid/i2c-hid/i2c-hid.c
->> +++ b/drivers/hid/i2c-hid/i2c-hid.c
->> @@ -1002,18 +1002,18 @@ static int i2c_hid_probe(struct i2c_client *client,
->>                  return client->irq;
->>          }
->>
->> -       ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
->> +       ihid = devm_kzalloc(&client->dev, sizeof(*ihid), GFP_KERNEL);
-> 
-> IIRC, I never made the switch towards devm for i2c_hid because at the
-> time there was a "all or nothing" rule regarding devm.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+v3:
+  - Update for next-20180622,
 
-I'm not aware of any such rule. Sure ideally everything should use
-devm, because it makes life just so much easier. But I've seen mixed
-use in plenty of cases.
+v2:
+  - Add Acked-by.
 
-With that said converting fully to devm is not necessarily a bad
-idea.
+Impact on "scripts/get_maintainer.pl -f Documentation/devicetree/bindings/serio/":
 
-Regards,
+-Rob Herring <robh+dt@kernel.org> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS,commit_signer:3/3=100%,authored:1/3=33%)
+-Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS,commit_signer:1/3=33%)
+-Dmitry Torokhov <dmitry.torokhov@gmail.com> (commit_signer:1/3=33%)
+-Danilo Krummrich <danilokrummrich@dk-develop.de> (commit_signer:1/3=33%,authored:1/3=33%)
+-Linus Walleij <linus.walleij@linaro.org> (commit_signer:1/3=33%)
+-Mathieu Malaterre <malat@debian.org> (authored:1/3=33%)
++Dmitry Torokhov <dmitry.torokhov@gmail.com> (maintainer:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)...)
++Rob Herring <robh+dt@kernel.org> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
++Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
++linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)...)
+ devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
+ linux-kernel@vger.kernel.org (open list)
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-Hans
-
-
-> But given that the regulator already has a devm inside, I think we are
-> screwed here and we should probably try to devm-ize the module.
-> 
-> I seem to remember that someone posted a devm version of
-> hid_allocate_device/hid-add_device, but I don't think this ever went
-> upstream (because no use).
-> 
-> Otherwise, for the series:
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> Cheers,
-> Benjamin
-> 
-> 
-> 
->>          if (!ihid)
->>                  return -ENOMEM;
->>
->>          if (client->dev.of_node) {
->>                  ret = i2c_hid_of_probe(client, &ihid->pdata);
->>                  if (ret)
->> -                       goto err;
->> +                       return ret;
->>          } else if (!platform_data) {
->>                  ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
->>                  if (ret)
->> -                       goto err;
->> +                       return ret;
->>          } else {
->>                  ihid->pdata = *platform_data;
->>          }
->> @@ -1126,7 +1126,6 @@ static int i2c_hid_probe(struct i2c_client *client,
->>
->>   err:
->>          i2c_hid_free_buffers(ihid);
->> -       kfree(ihid);
->>          return ret;
->>   }
->>
->> @@ -1150,8 +1149,6 @@ static int i2c_hid_remove(struct i2c_client *client)
->>
->>          regulator_disable(ihid->pdata.supply);
->>
->> -       kfree(ihid);
->> -
->>          return 0;
->>   }
->>
->> --
->> Sent by a computer through tubes
->>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 464d91879df89fce..df246daab5a27af2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7100,6 +7100,7 @@ F:	include/uapi/linux/input.h
+ F:	include/uapi/linux/input-event-codes.h
+ F:	include/linux/input/
+ F:	Documentation/devicetree/bindings/input/
++F:	Documentation/devicetree/bindings/serio/
+ F:	Documentation/input/
+ 
+ INPUT MULTITOUCH (MT) PROTOCOL
+-- 
+2.17.1

@@ -1,88 +1,80 @@
-From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elantech - Fix V4 report decoding for module with
- middle key
-Date: Thu, 21 Jun 2018 17:16:32 -0700
-Message-ID: <20180622001632.GI79890@dtor-ws>
-References: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
- <20180529180506.GB167092@dtor-ws>
- <000301d3f7e4$5c9e51c0$15daf540$@emc.com.tw>
+From: Stephen Boyd <swboyd@chromium.org>
+Subject: Re: [PATCH v2] HID: i2c-hid: Add vddl regulator control
+Date: Thu, 21 Jun 2018 18:33:26 -0700
+Message-ID: <152963120631.16708.8144626801244854977@swboyd.mtv.corp.google.com>
+References: <20180621234138.30537-1-swboyd@chromium.org>
+ <CAE_wzQ8YKUF1U4MKBfi9GQpFz=971j57w-1n-ggZHidMA4HEzQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <000301d3f7e4$5c9e51c0$15daf540$@emc.com.tw>
+In-Reply-To: <CAE_wzQ8YKUF1U4MKBfi9GQpFz=971j57w-1n-ggZHidMA4HEzQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ulrik.debie-os@e2big.org, phoenix@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
+To: Dmitry Torokhov <dtor@chromium.org>
+Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, andriy.shevchenko@linux.intel.com, Doug Anderson <dianders@chromium.org>, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, May 30, 2018 at 03:03:50PM +0800, 廖崇榮 wrote:
-> Hi Dmitry,
-> 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-> Sent: Wednesday, May 30, 2018 2:05 AM
-> To: KT Liao
-> Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org;
-> ulrik.debie-os@e2big.org; phoenix@emc.com.tw; aaron.ma@canonical.com;
-> josh.chen@emc.com.tw
-> Subject: Re: [PATCH] Input: elantech - Fix V4 report decoding for module
-> with middle key
-> 
-> Hi KT,
-> 
-> On Mon, May 28, 2018 at 07:33:02PM +0800, KT Liao wrote:
-> > Some touchpad has middle key and it will be indicated in bit 2 of
-> packet[0].
-> > We need to fix V4 formation's byte mask to prevent error decoding.
-> 
-> Could you please let me know what devices this patch fixes? Are they
-> released or new hardware?
-> 
-> 
-> The primary target is Lenovo thinkpad P52 and it will be released in 6/M.
-> 
-> force_crc_enabled will fix the issue too because less bit-check in the
-> specific byte. 
-> I guess Fujitsu H730/H760 in elantech_dmi_force_crc_enabled may have the
-> same issue.
-> I leave them in DMI table because I am not sure of it.
-
-OK, thank you for the info. Applied.
-
-> 
-> Thanks
-> KT
-> > 
-> > Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+Quoting Dmitry Torokhov (2018-06-21 16:58:31)
+> On Thu, Jun 21, 2018 at 4:41 PM Stephen Boyd <swboyd@chromium.org> wrote:
+> >
+> > Some wacom w9013 devices have a vddl supply for "low valtage"
+> > requirements. Add support in this driver to turn on this low voltage
+> > supply. We can also drop a handful of error messages because the
+> > regulator core is already printing an error when bulk regulators fail to
+> > enable or disable.
+> >
+> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Cc: Hans de Goede <hdegoede@redhat.com>
+> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Cc: Dmitry Torokhov <dtor@chromium.org>
+> > Cc: Doug Anderson <dianders@chromium.org>
+> > Acked-by: Rob Herring <robh@kernel.org>
+> > Cc: <devicetree@vger.kernel.org>
+> > Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 > > ---
-> >  drivers/input/mouse/elantech.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/mouse/elantech.c 
-> > b/drivers/input/mouse/elantech.c index fb4d902..f39dc66 100644
-> > --- a/drivers/input/mouse/elantech.c
-> > +++ b/drivers/input/mouse/elantech.c
-> > @@ -799,7 +799,7 @@ static int elantech_packet_check_v4(struct psmouse
-> *psmouse)
-> >  	else if (ic_version == 7 && etd->info.samples[1] == 0x2A)
-> >  		sanity_check = ((packet[3] & 0x1c) == 0x10);
-> >  	else
-> > -		sanity_check = ((packet[0] & 0x0c) == 0x04 &&
-> > +		sanity_check = ((packet[0] & 0x08) == 0x00 &&
-> >  				(packet[3] & 0x1c) == 0x10);
-> >  
-> >  	if (!sanity_check)
-> > --
-> > 2.7.4
-> > 
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> 
+> >
+> > Changes from v1:
+> >  * Use the bulk regulator APIs instead of open coding it (Dmitry)
+> >
+> >  .../bindings/input/hid-over-i2c.txt           |  3 +-
+> >  drivers/hid/i2c-hid/i2c-hid.c                 | 62 +++++++++----------
+> >  include/linux/platform_data/i2c-hid.h         |  7 +--
+> >  3 files changed, 36 insertions(+), 36 deletions(-)
+> >
+> > diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b=
+/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> > index 4d3da9d91de4..89e6ab89ba38 100644
+> > --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> > +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> > @@ -26,7 +26,8 @@ device-specific compatible properties, which should b=
+e used in addition to the
+> >
+> >  - compatible:
+> >    * "wacom,w9013" (Wacom W9013 digitizer). Supports:
+> > -    - vdd-supply
+> > +    - vdd-supply (3.3V)
+> > +    - vddl-supply (1.8V)
+> >      - post-power-on-delay-ms
+> >
+> >  - vdd-supply: phandle of the regulator that provides the supply voltag=
+e.
+> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hi=
+d.c
+> > index c1652bb7bd15..1d83531454c5 100644
+> > --- a/drivers/hid/i2c-hid/i2c-hid.c
+> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > @@ -1002,18 +1002,21 @@ static int i2c_hid_probe(struct i2c_client *cli=
+ent,
+> >                 return client->irq;
+> >         }
+> >
+> > -       ihid =3D kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
+> > +       ihid =3D devm_kzalloc(&client->dev, sizeof(*ihid), GFP_KERNEL);
+> =
 
--- 
-Dmitry
+> The patch looks good, but I think this chunk needs to be split out.
+> =
+
+
+Ok. It needs to be done otherwise the regulator put with devm blows up
+when the containing structure is freed underneath it.

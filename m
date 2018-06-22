@@ -1,69 +1,158 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH v2] HID: i2c-hid: Add vddl regulator control
-Date: Thu, 21 Jun 2018 16:58:31 -0700
-Message-ID: <CAE_wzQ8YKUF1U4MKBfi9GQpFz=971j57w-1n-ggZHidMA4HEzQ@mail.gmail.com>
-References: <20180621234138.30537-1-swboyd@chromium.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 02/10] Input: ams_delta_serio: convert to platform
+ driver
+Date: Thu, 21 Jun 2018 17:05:02 -0700
+Message-ID: <20180622000502.GA79890@dtor-ws>
+References: <20180609140224.32606-1-jmkrzyszt@gmail.com>
+ <20180621224128.17623-1-jmkrzyszt@gmail.com>
+ <20180621224128.17623-2-jmkrzyszt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180621234138.30537-1-swboyd@chromium.org>
+Content-Disposition: inline
+In-Reply-To: <20180621224128.17623-2-jmkrzyszt@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: swboyd@chromium.org
-Cc: Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, andriy.shevchenko@linux.intel.com, Doug Anderson <dianders@chromium.org>, devicetree@vger.kernel.org
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, "David S . Miller " <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jun 21, 2018 at 4:41 PM Stephen Boyd <swboyd@chromium.org> wrote:
->
-> Some wacom w9013 devices have a vddl supply for "low valtage"
-> requirements. Add support in this driver to turn on this low voltage
-> supply. We can also drop a handful of error messages because the
-> regulator core is already printing an error when bulk regulators fail to
-> enable or disable.
->
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: Hans de Goede <hdegoede@redhat.com>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Dmitry Torokhov <dtor@chromium.org>
-> Cc: Doug Anderson <dianders@chromium.org>
-> Acked-by: Rob Herring <robh@kernel.org>
-> Cc: <devicetree@vger.kernel.org>
-> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+On Fri, Jun 22, 2018 at 12:41:20AM +0200, Janusz Krzysztofik wrote:
+> Convert the driver to an "ams-delta-serio" platform driver.  For it to
+> be used with Amstrad Delta, register an "ams-delta-serio" platform
+> device from the board init file.
+> 
+> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 > ---
->
-> Changes from v1:
->  * Use the bulk regulator APIs instead of open coding it (Dmitry)
->
->  .../bindings/input/hid-over-i2c.txt           |  3 +-
->  drivers/hid/i2c-hid/i2c-hid.c                 | 62 +++++++++----------
->  include/linux/platform_data/i2c-hid.h         |  7 +--
->  3 files changed, 36 insertions(+), 36 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> index 4d3da9d91de4..89e6ab89ba38 100644
-> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> @@ -26,7 +26,8 @@ device-specific compatible properties, which should be used in addition to the
->
->  - compatible:
->    * "wacom,w9013" (Wacom W9013 digitizer). Supports:
-> -    - vdd-supply
-> +    - vdd-supply (3.3V)
-> +    - vddl-supply (1.8V)
->      - post-power-on-delay-ms
->
->  - vdd-supply: phandle of the regulator that provides the supply voltage.
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index c1652bb7bd15..1d83531454c5 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -1002,18 +1002,21 @@ static int i2c_hid_probe(struct i2c_client *client,
->                 return client->irq;
->         }
->
-> -       ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
-> +       ihid = devm_kzalloc(&client->dev, sizeof(*ihid), GFP_KERNEL);
+> Changelog:
+> v2: rebased on v4.18-rc1, no conflicts
 
-The patch looks good, but I think this chunk needs to be split out.
+Input bits look good to me.
 
-Thanks,
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+> 
+>  arch/arm/mach-omap1/board-ams-delta.c |  6 ++++++
+>  drivers/input/serio/ams_delta_serio.c | 34 +++++++++++++++++++++-------------
+>  2 files changed, 27 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/arm/mach-omap1/board-ams-delta.c b/arch/arm/mach-omap1/board-ams-delta.c
+> index 18e0ff437b27..2119d2d3ba84 100644
+> --- a/arch/arm/mach-omap1/board-ams-delta.c
+> +++ b/arch/arm/mach-omap1/board-ams-delta.c
+> @@ -504,12 +504,18 @@ static struct platform_device cx20442_codec_device = {
+>  	.id     = -1,
+>  };
+>  
+> +static struct platform_device ams_delta_serio_device = {
+> +	.name		= "ams-delta-serio",
+> +	.id		= PLATFORM_DEVID_NONE,
+> +};
+> +
+>  static struct platform_device *ams_delta_devices[] __initdata = {
+>  	&latch1_gpio_device,
+>  	&latch2_gpio_device,
+>  	&ams_delta_kp_device,
+>  	&ams_delta_camera_device,
+>  	&ams_delta_audio_device,
+> +	&ams_delta_serio_device,
+>  };
+>  
+>  static struct platform_device *late_devices[] __initdata = {
+> diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
+> index 3df501c3421b..a2a7fa19bf49 100644
+> --- a/drivers/input/serio/ams_delta_serio.c
+> +++ b/drivers/input/serio/ams_delta_serio.c
+> @@ -22,15 +22,17 @@
+>   */
+>  #include <linux/gpio.h>
+>  #include <linux/irq.h>
+> +#include <linux/platform_device.h>
+>  #include <linux/serio.h>
+>  #include <linux/slab.h>
+>  #include <linux/module.h>
+>  
+> -#include <asm/mach-types.h>
+>  #include <mach/board-ams-delta.h>
+>  
+>  #include <mach/ams-delta-fiq.h>
+>  
+> +#define DRIVER_NAME	"ams-delta-serio"
+> +
+>  MODULE_AUTHOR("Matt Callow");
+>  MODULE_DESCRIPTION("AMS Delta (E3) keyboard port driver");
+>  MODULE_LICENSE("GPL");
+> @@ -126,13 +128,10 @@ static const struct gpio ams_delta_gpios[] __initconst_or_module = {
+>  	},
+>  };
+>  
+> -static int __init ams_delta_serio_init(void)
+> +static int ams_delta_serio_init(struct platform_device *pdev)
+>  {
+>  	int err;
+>  
+> -	if (!machine_is_ams_delta())
+> -		return -ENODEV;
+> -
+>  	ams_delta_serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
+>  	if (!ams_delta_serio)
+>  		return -ENOMEM;
+> @@ -142,22 +141,22 @@ static int __init ams_delta_serio_init(void)
+>  	ams_delta_serio->close = ams_delta_serio_close;
+>  	strlcpy(ams_delta_serio->name, "AMS DELTA keyboard adapter",
+>  			sizeof(ams_delta_serio->name));
+> -	strlcpy(ams_delta_serio->phys, "GPIO/serio0",
+> +	strlcpy(ams_delta_serio->phys, dev_name(&pdev->dev),
+>  			sizeof(ams_delta_serio->phys));
+> +	ams_delta_serio->dev.parent = &pdev->dev;
+>  
+>  	err = gpio_request_array(ams_delta_gpios,
+>  				ARRAY_SIZE(ams_delta_gpios));
+>  	if (err) {
+> -		pr_err("ams_delta_serio: Couldn't request gpio pins\n");
+> +		dev_err(&pdev->dev, "Couldn't request gpio pins\n");
+>  		goto serio;
+>  	}
+>  
+>  	err = request_irq(gpio_to_irq(AMS_DELTA_GPIO_PIN_KEYBRD_CLK),
+>  			ams_delta_serio_interrupt, IRQ_TYPE_EDGE_RISING,
+> -			"ams-delta-serio", 0);
+> +			DRIVER_NAME, 0);
+>  	if (err < 0) {
+> -		pr_err("ams_delta_serio: couldn't request gpio interrupt %d\n",
+> -				gpio_to_irq(AMS_DELTA_GPIO_PIN_KEYBRD_CLK));
+> +		dev_err(&pdev->dev, "IRQ request failed (%d)\n", err);
+>  		goto gpio;
+>  	}
+>  	/*
+> @@ -179,13 +178,22 @@ static int __init ams_delta_serio_init(void)
+>  	kfree(ams_delta_serio);
+>  	return err;
+>  }
+> -module_init(ams_delta_serio_init);
+>  
+> -static void __exit ams_delta_serio_exit(void)
+> +static int ams_delta_serio_exit(struct platform_device *pdev)
+>  {
+>  	serio_unregister_port(ams_delta_serio);
+>  	free_irq(gpio_to_irq(AMS_DELTA_GPIO_PIN_KEYBRD_CLK), 0);
+>  	gpio_free_array(ams_delta_gpios,
+>  			ARRAY_SIZE(ams_delta_gpios));
+> +
+> +	return 0;
+>  }
+> -module_exit(ams_delta_serio_exit);
+> +
+> +static struct platform_driver ams_delta_serio_driver = {
+> +	.probe	= ams_delta_serio_init,
+> +	.remove	= ams_delta_serio_exit,
+> +	.driver	= {
+> +		.name	= DRIVER_NAME
+> +	},
+> +};
+> +module_platform_driver(ams_delta_serio_driver);
+> -- 
+> 2.16.4
+> 
+
+-- 
 Dmitry

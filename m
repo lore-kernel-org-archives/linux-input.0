@@ -1,66 +1,128 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 3/5] bitmap: Add bitmap_alloc(), bitmap_zalloc() and
- bitmap_free()
-Date: Fri, 22 Jun 2018 11:46:13 -0700
-Message-ID: <20180622184613.GC92912@dtor-ws>
-References: <20180618131003.88110-1-andriy.shevchenko@linux.intel.com>
- <20180618131003.88110-4-andriy.shevchenko@linux.intel.com>
- <20180618141404.68124daab97bd0f3a3051544@linux-foundation.org>
- <CAKdAkRTHOORds7aEauv4rp3_=PnGi=Nv-VS3-nAb9MztJPKG=Q@mail.gmail.com>
- <20180618161056.e52efd0e8bd36211e60705a2@linux-foundation.org>
- <CAHp75Vei2_V7h4oKAU+uoCG2gUJH6uXtg9zVqQ_vnyr5KEmNYw@mail.gmail.com>
+From: Dmitry Torokhov <dtor@chromium.org>
+Subject: Re: [PATCH v3 1/2] HID: i2c-hid: Use devm to allocate i2c_hid struct
+Date: Fri, 22 Jun 2018 15:39:46 -0700
+Message-ID: <CAE_wzQ9bOd4Ee06UbBY8NePRdtsF5wX7awmJqozn0FBhRBfkdA@mail.gmail.com>
+References: <20180622022717.134300-1-swboyd@chromium.org> <20180622022717.134300-2-swboyd@chromium.org>
+ <CAO-hwJJxSHqwEcypc-PVSDUoOSM4OHcOP18QJpoxq6OqKcbq-w@mail.gmail.com> <095738e5-eb31-905b-b496-0d78489e253d@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAHp75Vei2_V7h4oKAU+uoCG2gUJH6uXtg9zVqQ_vnyr5KEmNYw@mail.gmail.com>
+In-Reply-To: <095738e5-eb31-905b-b496-0d78489e253d@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, agk@redhat.com, Mike Snitzer <snitzer@redhat.com>, device-mapper development <dm-devel@redhat.com>, shli@kernel.org, linux-raid@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Yury Norov <ynorov@caviumnetworks.com>, lkml <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Joe Perches <joe@perches.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, swboyd@chromium.org, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, andriy.shevchenko@linux.intel.com, Doug Anderson <dianders@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jun 21, 2018 at 05:13:39AM +0300, Andy Shevchenko wrote:
-> On Tue, Jun 19, 2018 at 2:10 AM, Andrew Morton
-> <akpm@linux-foundation.org> wrote:
-> > On Mon, 18 Jun 2018 15:01:43 -0700 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> >> We can't as we end up including bitmap.h (by the way of cpumask.h)
-> >> form slab.h, so we gen circular dependency.
+On Fri, Jun 22, 2018 at 2:13 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi,
+>
+> On 22-06-18 09:16, Benjamin Tissoires wrote:
+> > On Fri, Jun 22, 2018 at 4:27 AM, Stephen Boyd <swboyd@chromium.org> wrote:
+> >> Use devm here to save some lines and prepare for bulk regulator usage in
+> >> this driver. Otherwise, when we devm bulk get regulators we'll free the
+> >> containing i2c_hid structure and try to put regulator pointers from
+> >> freed memory.
+> >>
+> >> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >> Cc: Hans de Goede <hdegoede@redhat.com>
+> >> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> >> Cc: Dmitry Torokhov <dtor@chromium.org>
+> >> Cc: Doug Anderson <dianders@chromium.org>
+> >> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+> >> ---
+> >>   drivers/hid/i2c-hid/i2c-hid.c | 9 +++------
+> >>   1 file changed, 3 insertions(+), 6 deletions(-)
+> >>
+> >> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> >> index c1652bb7bd15..c7d6738dc524 100644
+> >> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> >> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> >> @@ -1002,18 +1002,18 @@ static int i2c_hid_probe(struct i2c_client *client,
+> >>                  return client->irq;
+> >>          }
+> >>
+> >> -       ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
+> >> +       ihid = devm_kzalloc(&client->dev, sizeof(*ihid), GFP_KERNEL);
 > >
-> 
-> It's not just so easy. See below.
-> 
-> > That info should have been in the changelog, and probably a code
-> > comment.
+> > IIRC, I never made the switch towards devm for i2c_hid because at the
+> > time there was a "all or nothing" rule regarding devm.
+>
+> I'm not aware of any such rule. Sure ideally everything should use
+> devm, because it makes life just so much easier. But I've seen mixed
+> use in plenty of cases.
+
+When mixing managed and unmanaged resources you need to be extremely
+careful to make sure they are released in proper order. There were
+many naive conversions that would convert just part of resources to
+devm and end up, let's say, powering down rails of a device or turning
+off clocks while interrupts are still registered, which causes errors
+if interrupt fires, and so on. I usually request people to do either
+full conversion or leave the driver alone.
+
+That said, using devm to allocate the "main" driver structure is usually safe.
+
+>
+> With that said converting fully to devm is not necessarily a bad
+> idea.
+>
+> Regards,
+>
+> Hans
+>
+>
+> > But given that the regulator already has a devm inside, I think we are
+> > screwed here and we should probably try to devm-ize the module.
 > >
-> >> Maybe if we removed memcg
-> >> stuff from slab.h so we do not need to include workqueue.h...
+> > I seem to remember that someone posted a devm version of
+> > hid_allocate_device/hid-add_device, but I don't think this ever went
+> > upstream (because no use).
+
+There is always devm_add_action_or_reset() to inject custom actions
+into devm stack to work around lacking devm APIs.
+
 > >
-> > Or move the basic slab API stuff out of slab.h into a new header.  Or
-> > create a new, standalone work_struct.h - that looks pretty simple.
-> 
-> I tried to move out work_struct, it didn't help. There are actually
-> several circular dependencies that ends in bitmap.h either way or
-> another.
-> 
-> First one is
-> 
-> slab.h -> gfp.h -> mmzone.h -> nodemask.h -> bitmap.h
-> 
-> And so on...
-> 
-> Splitting out kXalloc stuff to a separate header won't help, I think,
-> because of the above.
-> Splitting out struct work_struct is just a tip of an iceberg.
-> Splitting out memcg stuff won't help in the similar way.
-> 
-> I'm all ears for (a better) solution.
-
-I think ultimately we'd want to untangle this, but allocating bitmaps is
-not in any hot paths so having them as non-inlined functions should not
-hurt us that much for time being.
-
-Just my 2 cents...
-
--- 
-Dmitry
+> > Otherwise, for the series:
+> > Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >
+> > Cheers,
+> > Benjamin
+> >
+> >
+> >
+> >>          if (!ihid)
+> >>                  return -ENOMEM;
+> >>
+> >>          if (client->dev.of_node) {
+> >>                  ret = i2c_hid_of_probe(client, &ihid->pdata);
+> >>                  if (ret)
+> >> -                       goto err;
+> >> +                       return ret;
+> >>          } else if (!platform_data) {
+> >>                  ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
+> >>                  if (ret)
+> >> -                       goto err;
+> >> +                       return ret;
+> >>          } else {
+> >>                  ihid->pdata = *platform_data;
+> >>          }
+> >> @@ -1126,7 +1126,6 @@ static int i2c_hid_probe(struct i2c_client *client,
+> >>
+> >>   err:
+> >>          i2c_hid_free_buffers(ihid);
+> >> -       kfree(ihid);
+> >>          return ret;
+> >>   }
+> >>
+> >> @@ -1150,8 +1149,6 @@ static int i2c_hid_remove(struct i2c_client *client)
+> >>
+> >>          regulator_disable(ihid->pdata.supply);
+> >>
+> >> -       kfree(ihid);
+> >> -
+> >>          return 0;
+> >>   }
+> >>
+> >> --
+> >> Sent by a computer through tubes
+> >>

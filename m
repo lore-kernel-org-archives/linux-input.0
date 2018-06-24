@@ -1,128 +1,83 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH v3 1/2] HID: i2c-hid: Use devm to allocate i2c_hid struct
-Date: Fri, 22 Jun 2018 15:39:46 -0700
-Message-ID: <CAE_wzQ9bOd4Ee06UbBY8NePRdtsF5wX7awmJqozn0FBhRBfkdA@mail.gmail.com>
-References: <20180622022717.134300-1-swboyd@chromium.org> <20180622022717.134300-2-swboyd@chromium.org>
- <CAO-hwJJxSHqwEcypc-PVSDUoOSM4OHcOP18QJpoxq6OqKcbq-w@mail.gmail.com> <095738e5-eb31-905b-b496-0d78489e253d@redhat.com>
+From: Teika Kazura <teika@gmx.com>
+Subject: Re: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
+Date: Sun, 24 Jun 2018 15:04:45 +0900 (JST)
+Message-ID: <20180624.150445.1006140718276550233.teika@gmx.com>
+References: <20180617014216.4043-1-rosenp@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <095738e5-eb31-905b-b496-0d78489e253d@redhat.com>
+In-Reply-To: <20180617014216.4043-1-rosenp@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, swboyd@chromium.org, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, andriy.shevchenko@linux.intel.com, Doug Anderson <dianders@chromium.org>
+To: Rosen Penev <rosenp@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jan.steffens@gmail.com, Pablo Cholaky <waltercool@slash.cl>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 22, 2018 at 2:13 AM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Hi,
->
-> On 22-06-18 09:16, Benjamin Tissoires wrote:
-> > On Fri, Jun 22, 2018 at 4:27 AM, Stephen Boyd <swboyd@chromium.org> wrote:
-> >> Use devm here to save some lines and prepare for bulk regulator usage in
-> >> this driver. Otherwise, when we devm bulk get regulators we'll free the
-> >> containing i2c_hid structure and try to put regulator pointers from
-> >> freed memory.
-> >>
-> >> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >> Cc: Hans de Goede <hdegoede@redhat.com>
-> >> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> >> Cc: Dmitry Torokhov <dtor@chromium.org>
-> >> Cc: Doug Anderson <dianders@chromium.org>
-> >> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-> >> ---
-> >>   drivers/hid/i2c-hid/i2c-hid.c | 9 +++------
-> >>   1 file changed, 3 insertions(+), 6 deletions(-)
-> >>
-> >> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> >> index c1652bb7bd15..c7d6738dc524 100644
-> >> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> >> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> >> @@ -1002,18 +1002,18 @@ static int i2c_hid_probe(struct i2c_client *client,
-> >>                  return client->irq;
-> >>          }
-> >>
-> >> -       ihid = kzalloc(sizeof(struct i2c_hid), GFP_KERNEL);
-> >> +       ihid = devm_kzalloc(&client->dev, sizeof(*ihid), GFP_KERNEL);
-> >
-> > IIRC, I never made the switch towards devm for i2c_hid because at the
-> > time there was a "all or nothing" rule regarding devm.
->
-> I'm not aware of any such rule. Sure ideally everything should use
-> devm, because it makes life just so much easier. But I've seen mixed
-> use in plenty of cases.
+Hi, Rosen. Thank you for your patch. (@Jan Steffens and @Pablo Cholaky: Thanks for your reports.) But I'm afraid some more work is necessary. Let me propose some points.
 
-When mixing managed and unmanaged resources you need to be extremely
-careful to make sure they are released in proper order. There were
-many naive conversions that would convert just part of resources to
-devm and end up, let's say, powering down rails of a device or turning
-off clocks while interrupts are still registered, which causes errors
-if interrupt fires, and so on. I usually request people to do either
-full conversion or leave the driver alone.
+I'm not a kernel developer, but have been working on this issue to help them. (See https://www.spinics.net/lists/linux-input/msg55950.html )
 
-That said, using devm to allocate the "main" driver structure is usually safe.
+0.
+Could you resend it, cc-ing to the relevant developers. (Use the one of my reply here. You can use <kernel src tree>/scripts/get_maintainer.pl next time.) Otherwise, it is unlikely to be noticed by them.
 
->
-> With that said converting fully to devm is not necessarily a bad
-> idea.
->
-> Regards,
->
-> Hans
->
->
-> > But given that the regulator already has a devm inside, I think we are
-> > screwed here and we should probably try to devm-ize the module.
-> >
-> > I seem to remember that someone posted a devm version of
-> > hid_allocate_device/hid-add_device, but I don't think this ever went
-> > upstream (because no use).
+1.
+You added your device to forcepad_pnp_ids[], but I guess it should be smbus_pnp_ids[].
 
-There is always devm_add_action_or_reset() to inject custom actions
-into devm stack to work around lacking devm APIs.
+When making the patch again, please use the kernel 4.17 or newer, because smbus_pnp_ids was changed recently.
 
-> >
-> > Otherwise, for the series:
-> > Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >
-> > Cheers,
-> > Benjamin
-> >
-> >
-> >
-> >>          if (!ihid)
-> >>                  return -ENOMEM;
-> >>
-> >>          if (client->dev.of_node) {
-> >>                  ret = i2c_hid_of_probe(client, &ihid->pdata);
-> >>                  if (ret)
-> >> -                       goto err;
-> >> +                       return ret;
-> >>          } else if (!platform_data) {
-> >>                  ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
-> >>                  if (ret)
-> >> -                       goto err;
-> >> +                       return ret;
-> >>          } else {
-> >>                  ihid->pdata = *platform_data;
-> >>          }
-> >> @@ -1126,7 +1126,6 @@ static int i2c_hid_probe(struct i2c_client *client,
-> >>
-> >>   err:
-> >>          i2c_hid_free_buffers(ihid);
-> >> -       kfree(ihid);
-> >>          return ret;
-> >>   }
-> >>
-> >> @@ -1150,8 +1149,6 @@ static int i2c_hid_remove(struct i2c_client *client)
-> >>
-> >>          regulator_disable(ihid->pdata.supply);
-> >>
-> >> -       kfree(ihid);
-> >> -
-> >>          return 0;
-> >>   }
-> >>
-> >> --
-> >> Sent by a computer through tubes
-> >>
+If it works by using smbus_pnp_ids, please test it for a week or so, especially making sure that suspend/resume works without any problem.
+
+2.
+Though it's my personal impression, the change description looked somewhat personal. At the same time, it's important, guaranteeing the stability of the patch.- I know you originally reported it last August [1]. Furthermore, there have been two other users [2] who reported SMBus worked for the same device, namely SYN1219. (They two are cc-ed to in this reply.)
+
+You can use "$ git format-patch --cover-letter"; it will generate a "cover-letter", the introductory part of the patch, explaining the acceptability of the patch to kernel developers. (For an example, see https://www.spinics.net/lists/linux-input/msg57041.html)
+
+So the full description can be given in the cover letter, and the real patch description can be something like "This enables SMBus for xxx", being almost identical to the email subject.
+
+3. This is not essential, but the style of the email subject that the device maintainer prefers might be:
+------------------------------------------------------------------------
+[PATCH v2] Input: synaptics - Enable RMI4 for Clevo P870DM laptops
+------------------------------------------------------------------------
+after looking at this tree [3]. ("v2" meaning version 2, due to the above change.) You can feed "--subject-prefix='PATCH v2'" to "$ git format-patch".
+
+4. If you want to give the credit for my reply, you can add
+------------------------------------------------------------------------
+Suggested-by: Teika Kazura <teika@gmx.com>
+------------------------------------------------------------------------
+after Signed-off-by. It's completely ok without it. :-)
+
+[1] https://marc.info/?l=linux-input&m=150284057602358&w=2
+[2] https://marc.info/?l=linux-input&m=150049625613055&w=2
+    https://marc.info/?l=linux-input&m=150094561111026&w=2
+[3] https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/log/
+
+Best regards,
+Teika (Teika kazura)
+
+
+From: Rosen Penev <rosenp@gmail.com>
+Subject: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
+Date: Sat, 16 Jun 2018 18:42:16 -0700
+
+> I have been testing this for half a year with no issues to report.
+> 
+> Signed-off-by: Rosen Penev <rosenp@gmail.com>
+> ---
+>  drivers/input/mouse/synaptics.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 55d33500d55e..23f5bb2cf9da 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -183,6 +183,7 @@ static const char * const smbus_pnp_ids[] = {
+>  };
+>  
+>  static const char * const forcepad_pnp_ids[] = {
+> +	"SYN1219",
+>  	"SYN300D",
+>  	"SYN3014",
+>  	NULL
+> -- 
+> 2.17.1
+> 

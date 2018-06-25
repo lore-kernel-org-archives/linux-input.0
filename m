@@ -1,61 +1,26 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] Patch enabling Fn function keys for Laptop Asus G730
- (keyboard 0x1869)
-Date: Mon, 25 Jun 2018 15:20:48 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1806251519190.6203@cbobk.fhfr.pm>
-References: <alpine.LNX.2.21.1806141112440.11126@Hermes.vereecke.mooo.com>
+Subject: Re: [PATCH] HID: redragon: fix num lock and caps lock LEDs
+Date: Mon, 25 Jun 2018 15:23:59 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1806251523050.6203@cbobk.fhfr.pm>
+References: <20180619082040.30825-1-rombert@apache.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.21.1806141112440.11126@Hermes.vereecke.mooo.com>
+In-Reply-To: <20180619082040.30825-1-rombert@apache.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: vereecke.jan@skynet.be
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Robert Munteanu <rombert@apache.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 14 Jun 2018, vereecke.jan@skynet.be wrote:
+On Tue, 19 Jun 2018, Robert@suse.de wrote:
 
-> Attached is a patch enabling (most of) the Fn function keys for the Asus ROG
-> Strix GL730 Laptop. The keyboard identifies as a USB device 0x1869.
+> From: Robert Munteanu <rombert@apache.org>
 > 
-> This patch enables:
->     volume/mute keys, ROG key, rew/play/ff,
->     monitor and keyboard brightness keys,
->     Touchpad toggle key,
->     Calculator key
-> 
-> 'Touchpad on/off' Key returns keycode 33, which is mapped to the 'p' key.
-> 'Display on/off' returns keycode 253, which is mapped in X11 to NoSymbol
-> 'Airplane Key' returns keycode 255, which is mapped in X11 to NoSymbol
-> 
-> The following keys are not activated yet:
->        Microphone Mute key, Fan key, Display Switch key
+> The redragon asura keyboard registers two input devices. The initial
+> commit d44e2fadf940 ("HID: redragon: Fix modifier keys for Redragon Asura Keyboard")
 
-Thanks a lot for the patch.
+This should actually have been 85455dd906d.
 
-> This patch is against the 4.17-rc7 kernel, for the x86 architecture
-
-This usually doesn't go to the changelog, it'd be unnecessary polution of 
-the set-in-stone git changelog.
-
-> diffstat for this patch is:
->  hid-asus.c   |    2 ++
->  hid-ids.h    |    1 +
->  hid-quirks.c |    1 +
->  3 files changed, 4 insertions(+)
-> 
-> To apply the patch, in the root of the kernel tree use:
-> patch -p1 < AsusGL703-Keyboard-Fn-keys.patch
-
-Neither does any of this.
-
-What is OTOH missing is your signoff.
-
-Could you please fix these up and resubmit (ideally with Subject: line 
-also tailored to fit the subsystem customs, IOW something like "HID: asus: 
-add support for ....").
-
-Thanks,
+I have fixed that, added Fixes: tag, and applied.
 
 -- 
 Jiri Kosina

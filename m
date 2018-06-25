@@ -1,31 +1,61 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: hid-ntrig: add error handling for
- sysfs_create_group
-Date: Mon, 25 Jun 2018 15:16:44 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1806251516350.6203@cbobk.fhfr.pm>
-References: <1528707296-35785-1-git-send-email-jiazhouyang09@gmail.com> <1528983437-52903-1-git-send-email-jiazhouyang09@gmail.com>
+Subject: Re: [PATCH] Patch enabling Fn function keys for Laptop Asus G730
+ (keyboard 0x1869)
+Date: Mon, 25 Jun 2018 15:20:48 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1806251519190.6203@cbobk.fhfr.pm>
+References: <alpine.LNX.2.21.1806141112440.11126@Hermes.vereecke.mooo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1528983437-52903-1-git-send-email-jiazhouyang09@gmail.com>
+In-Reply-To: <alpine.LNX.2.21.1806141112440.11126@Hermes.vereecke.mooo.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Zhouyang Jia <jiazhouyang09@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: vereecke.jan@skynet.be
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 14 Jun 2018, Zhouyang Jia wrote:
+On Thu, 14 Jun 2018, vereecke.jan@skynet.be wrote:
 
-> When sysfs_create_group fails, the lack of error-handling code may
-> cause unexpected results.
+> Attached is a patch enabling (most of) the Fn function keys for the Asus ROG
+> Strix GL730 Laptop. The keyboard identifies as a USB device 0x1869.
 > 
-> This patch adds error-handling code after calling sysfs_create_group.
+> This patch enables:
+>     volume/mute keys, ROG key, rew/play/ff,
+>     monitor and keyboard brightness keys,
+>     Touchpad toggle key,
+>     Calculator key
 > 
-> Signed-off-by: Zhouyang Jia <jiazhouyang09@gmail.com>
-> ---
-> v1->v2:
-> - Remove goto statement.
+> 'Touchpad on/off' Key returns keycode 33, which is mapped to the 'p' key.
+> 'Display on/off' returns keycode 253, which is mapped in X11 to NoSymbol
+> 'Airplane Key' returns keycode 255, which is mapped in X11 to NoSymbol
+> 
+> The following keys are not activated yet:
+>        Microphone Mute key, Fan key, Display Switch key
 
-Applied, thanks.
+Thanks a lot for the patch.
+
+> This patch is against the 4.17-rc7 kernel, for the x86 architecture
+
+This usually doesn't go to the changelog, it'd be unnecessary polution of 
+the set-in-stone git changelog.
+
+> diffstat for this patch is:
+>  hid-asus.c   |    2 ++
+>  hid-ids.h    |    1 +
+>  hid-quirks.c |    1 +
+>  3 files changed, 4 insertions(+)
+> 
+> To apply the patch, in the root of the kernel tree use:
+> patch -p1 < AsusGL703-Keyboard-Fn-keys.patch
+
+Neither does any of this.
+
+What is OTOH missing is your signoff.
+
+Could you please fix these up and resubmit (ideally with Subject: line 
+also tailored to fit the subsystem customs, IOW something like "HID: asus: 
+add support for ....").
+
+Thanks,
 
 -- 
 Jiri Kosina

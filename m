@@ -1,83 +1,92 @@
-From: Teika Kazura <teika@gmx.com>
-Subject: Re: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
-Date: Sun, 24 Jun 2018 15:04:45 +0900 (JST)
-Message-ID: <20180624.150445.1006140718276550233.teika@gmx.com>
-References: <20180617014216.4043-1-rosenp@gmail.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 5/8] Input: cros_ec_keyb - Switch to SPDX identifier.
+Date: Mon, 25 Jun 2018 09:57:17 +0800
+Message-ID: <20180625015717.GA30408@kroah.com>
+References: <20180605175429.9072-1-enric.balletbo@collabora.com>
+ <20180605175429.9072-6-enric.balletbo@collabora.com>
+ <CAOMZO5ByhMV9_gRHLmGiSNJtCvKEOk==ZMz2O2=tokZh2ps4xg@mail.gmail.com>
+ <7085d0bb-557c-0796-d3ae-756e000a7950@collabora.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180617014216.4043-1-rosenp@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <7085d0bb-557c-0796-d3ae-756e000a7950@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jan.steffens@gmail.com, Pablo Cholaky <waltercool@slash.cl>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Fabio Estevam <festevam@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi, Rosen. Thank you for your patch. (@Jan Steffens and @Pablo Cholaky: Thanks for your reports.) But I'm afraid some more work is necessary. Let me propose some points.
-
-I'm not a kernel developer, but have been working on this issue to help them. (See https://www.spinics.net/lists/linux-input/msg55950.html )
-
-0.
-Could you resend it, cc-ing to the relevant developers. (Use the one of my reply here. You can use <kernel src tree>/scripts/get_maintainer.pl next time.) Otherwise, it is unlikely to be noticed by them.
-
-1.
-You added your device to forcepad_pnp_ids[], but I guess it should be smbus_pnp_ids[].
-
-When making the patch again, please use the kernel 4.17 or newer, because smbus_pnp_ids was changed recently.
-
-If it works by using smbus_pnp_ids, please test it for a week or so, especially making sure that suspend/resume works without any problem.
-
-2.
-Though it's my personal impression, the change description looked somewhat personal. At the same time, it's important, guaranteeing the stability of the patch.- I know you originally reported it last August [1]. Furthermore, there have been two other users [2] who reported SMBus worked for the same device, namely SYN1219. (They two are cc-ed to in this reply.)
-
-You can use "$ git format-patch --cover-letter"; it will generate a "cover-letter", the introductory part of the patch, explaining the acceptability of the patch to kernel developers. (For an example, see https://www.spinics.net/lists/linux-input/msg57041.html)
-
-So the full description can be given in the cover letter, and the real patch description can be something like "This enables SMBus for xxx", being almost identical to the email subject.
-
-3. This is not essential, but the style of the email subject that the device maintainer prefers might be:
-------------------------------------------------------------------------
-[PATCH v2] Input: synaptics - Enable RMI4 for Clevo P870DM laptops
-------------------------------------------------------------------------
-after looking at this tree [3]. ("v2" meaning version 2, due to the above change.) You can feed "--subject-prefix='PATCH v2'" to "$ git format-patch".
-
-4. If you want to give the credit for my reply, you can add
-------------------------------------------------------------------------
-Suggested-by: Teika Kazura <teika@gmx.com>
-------------------------------------------------------------------------
-after Signed-off-by. It's completely ok without it. :-)
-
-[1] https://marc.info/?l=linux-input&m=150284057602358&w=2
-[2] https://marc.info/?l=linux-input&m=150049625613055&w=2
-    https://marc.info/?l=linux-input&m=150094561111026&w=2
-[3] https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/log/
-
-Best regards,
-Teika (Teika kazura)
-
-
-From: Rosen Penev <rosenp@gmail.com>
-Subject: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
-Date: Sat, 16 Jun 2018 18:42:16 -0700
-
-> I have been testing this for half a year with no issues to report.
+On Tue, Jun 05, 2018 at 08:14:24PM +0200, Enric Balletbo i Serra wrote:
+> Hi Fabio,
 > 
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> ---
->  drivers/input/mouse/synaptics.c | 1 +
->  1 file changed, 1 insertion(+)
+> On 05/06/18 20:04, Fabio Estevam wrote:
+> > Hi Enric,
+> > 
+> > On Tue, Jun 5, 2018 at 2:54 PM, Enric Balletbo i Serra
+> > <enric.balletbo@collabora.com> wrote:
+> >> Adopt the SPDX license identifier headers to ease license compliance
+> >> management.
+> >>
+> >> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> >> ---
+> >>
+> >> Changes in v2:
+> >> - [6/9] Do not remove last paragraph.
+> >>
+> >>  drivers/input/keyboard/cros_ec_keyb.c | 34 ++++++++++-----------------
+> >>  1 file changed, 12 insertions(+), 22 deletions(-)
+> >>
+> >> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+> >> index 79eb29550c34..91b2839c12df 100644
+> >> --- a/drivers/input/keyboard/cros_ec_keyb.c
+> >> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> >> @@ -1,25 +1,15 @@
+> >> -/*
+> >> - * ChromeOS EC keyboard driver
+> >> - *
+> >> - * Copyright (C) 2012 Google, Inc
+> >> - *
+> >> - * This software is licensed under the terms of the GNU General Public
+> >> - * License version 2, as published by the Free Software Foundation, and
+> > 
+> > Original text says GPL-2.0...
+> > 
+> >> - * may be copied, distributed, and modified under those terms.
+> >> - *
+> >> - * This program is distributed in the hope that it will be useful,
+> >> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> >> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> >> - * GNU General Public License for more details.
+> >> - *
+> >> - * This driver uses the Chrome OS EC byte-level message-based protocol for
+> >> - * communicating the keyboard state (which keys are pressed) from a keyboard EC
+> >> - * to the AP over some bus (such as i2c, lpc, spi).  The EC does debouncing,
+> >> - * but everything else (including deghosting) is done here.  The main
+> >> - * motivation for this is to keep the EC firmware as simple as possible, since
+> >> - * it cannot be easily upgraded and EC flash/IRAM space is relatively
+> >> - * expensive.
+> >> - */
+> >> +// SPDX-License-Identifier: GPL-2.0+
+> > 
+> > but here you add a GPL-2.0+ type.
+> > 
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 55d33500d55e..23f5bb2cf9da 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -183,6 +183,7 @@ static const char * const smbus_pnp_ids[] = {
->  };
->  
->  static const char * const forcepad_pnp_ids[] = {
-> +	"SYN1219",
->  	"SYN300D",
->  	"SYN3014",
->  	NULL
-> -- 
-> 2.17.1
-> 
+> Right, but the module license is set to GPL which means GNU Public License v2 or
+> later, see [1]. So, there is a mismatch. In such cases I assumed GPL-2.0+ as the
+> default. These mismatches are common so I think that should be fine for the
+> authors, if someone is disagree just let me know and I will change.
+
+NO!
+
+The license text is what you need to follow as almost everyone gets the
+MODULE_LICENSE() stuff wrong.  You can not follow the MODULE_LICENSE
+marking for determining GPLv2 vs. GPLv2+ at this point in time.  After
+we get the SPDX stuff all cleaned up then we can go and fix up the
+MODULE_LICENSE mismatch.
+
+So again, always defer to the license text in the file, NOT the
+MODULE_LICENSE() marking.
+
+thanks,
+
+greg k-h

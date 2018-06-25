@@ -1,39 +1,77 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: core: allow concurrent registration of drivers
-Date: Mon, 25 Jun 2018 15:30:12 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1806251529480.6203@cbobk.fhfr.pm>
-References: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: Re: [PATCH 2/7] Input: psmouse - clean up code
+Date: Mon, 25 Jun 2018 20:35:14 +0200
+Message-ID: <e8ad7e61-342a-8d53-7de1-f30a58c91975@suse.cz>
+References: <20180119230629.49428-1-dmitry.torokhov@gmail.com>
+ <20180119230629.49428-3-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180531114929.30545-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <20180119230629.49428-3-dmitry.torokhov@gmail.com>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Mario.Limonciello@dell.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Lyude Paul <lyude@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 31 May 2018, Benjamin Tissoires wrote:
+On 01/20/2018, 12:06 AM, Dmitry Torokhov wrote:
+> - switch to using BIT() macros
+> - use u8 instead of unsigned char for byte data
+> - use input_set_capability() instead of manipulating capabilities bits
+>   directly
+> - use sign_extend32() when extracting wheel data.
+> - do not abuse -1 as error code, propagate errors from various calls.
+…
+> --- a/drivers/input/mouse/psmouse-base.c
+> +++ b/drivers/input/mouse/psmouse-base.c
+…
+> @@ -157,39 +159,42 @@ psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
+…
+>  		case 0x00:
+>  		case 0xC0:
+> -			input_report_rel(dev, REL_WHEEL, (int) (packet[3] & 8) - (int) (packet[3] & 7));
+> -			input_report_key(dev, BTN_SIDE, (packet[3] >> 4) & 1);
+> -			input_report_key(dev, BTN_EXTRA, (packet[3] >> 5) & 1);
+> +			input_report_rel(dev, REL_WHEEL,
+> +					 -sign_extend32(packet[3], 3));
+> +			input_report_key(dev, BTN_SIDE,  BIT(4));
+> +			input_report_key(dev, BTN_EXTRA, BIT(5));
+>  			break;
+>  		}
+>  		break;
+>  
+>  	case PSMOUSE_GENPS:
+>  		/* Report scroll buttons on NetMice */
+> -		input_report_rel(dev, REL_WHEEL, -(signed char) packet[3]);
+> +		input_report_rel(dev, REL_WHEEL, -(s8) packet[3]);
+>  
+>  		/* Extra buttons on Genius NewNet 3D */
+> -		input_report_key(dev, BTN_SIDE, (packet[0] >> 6) & 1);
+> -		input_report_key(dev, BTN_EXTRA, (packet[0] >> 7) & 1);
+> +		input_report_key(dev, BTN_SIDE,  BIT(6));
+> +		input_report_key(dev, BTN_EXTRA, BIT(7));
+>  		break;
+>  
+>  	case PSMOUSE_THINKPS:
+>  		/* Extra button on ThinkingMouse */
+> -		input_report_key(dev, BTN_EXTRA, (packet[0] >> 3) & 1);
+> +		input_report_key(dev, BTN_EXTRA, BIT(3));
 
-> Detected on the Dell XPS 9365.
-> The laptop has 2 devices that benefit from the hid-generic auto-unbinding.
-> When those 2 devices are presented to the userspace, udev loads both
-> wacom and hid-multitouch. When this happens, the code in
-> __hid_bus_reprobe_drivers() is called concurrently and the second device
-> gets reprobed twice.
-> An other bug in the power_supply subsystem prevent to remove the wacom
-> driver if it just finished its initialization, which basically kills
-> the wacom node.
-> 
-> Fixes c17a7476e4c4 ("HID: core: rewrite the hid-generic automatic unbind")
-> 
-> Cc: stable@vger.kernel.org # v4.17
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+While hunting a 4.17 bug where some openSUSE users lost their ability to
+mouse-click, I came across this commit. Putting aside it's a total mess
+of multiple changes, were these changes above intentional at all? I mean
+changing
+  (packet[0] >> 3) & 1
+to hardwired
+  BIT(3)
+does not look quite right. And if it is for some to me unknown reason,
+it should have been properly documented in the commit log. I believe
+your intent was:
+  packet[0] & BIT(3)
+?
 
-Now staged in for-4.18/upstream-fixes_v2, with the plan to send it to 
-Linus this week.
-
-Thanks,
-
+thanks,
 -- 
-Jiri Kosina
-SUSE Labs
+js
+suse labs

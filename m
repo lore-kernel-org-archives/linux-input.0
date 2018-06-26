@@ -1,94 +1,48 @@
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 0/9] Fix references for some missing documentation files
-Date: Tue, 26 Jun 2018 06:49:02 -0300
-Message-ID: <cover.1530005114.git.mchehab+samsung@kernel.org>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, devicetree@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, linux-kernel@zh-kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-leds@vger.kernel.org, intel-wired-lan@lists.osuosl.org, Mark Rutland <mark.rutland@arm.com>, linux-gpio@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, James Morris <james.morris@microsoft.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, Changbin Du <changbin.du@intel.com>, Masami Hiramatsu <mhiramat@kernel.org>, netdev@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, linux-input@vger.kernel.orglinu
+From: Alexander Steffen <Alexander.Steffen@infineon.com>
+Subject: Re: [PATCH v2 01/10] tpm/tpm_i2c_infineon: switch to
+ i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+Date: Tue, 26 Jun 2018 12:07:21 +0200
+Message-ID: <7703d6a2-b22c-104c-7390-b5143a504725@infineon.com>
+References: <20180620051803.12206-1-peda@axentia.se>
+ <20180620051803.12206-2-peda@axentia.se>
+ <20180625102454.GA3845@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180625102454.GA3845@linux.intel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Peter Rosin <peda@axentia.se>
+Cc: Crt Mori <cmo@melexis.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Peter Huewe <peterhuewe@gmx.de>, Michael Krufky <mkrufky@linuxtv.org>, Lee Jones <lee.jones@linaro.org>, Antti Palosaari <crope@iki.fi>, linux-samsung-soc@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Kevin Hilman <khilman@kernel.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, Kukjin Kim <kgene@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Orson Zhai <orsonzhai@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-media@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Gregory Fong <gregory.0xf0>
 List-Id: linux-input@vger.kernel.org
 
-Having nothing to do while waiting for my plane to arrive while
-returning back from Japan, I ended by writing a small series of 
-patches meant to reduce the number of bad Documentation/* 
-links that are detected by:
-	./scripts/documentation-file-ref-check
+On 25.06.2018 12:24, Jarkko Sakkinen wrote:
+> On Wed, Jun 20, 2018 at 07:17:54AM +0200, Peter Rosin wrote:
+>> Locking the root adapter for __i2c_transfer will deadlock if the
+>> device sits behind a mux-locked I2C mux. Switch to the finer-grained
+>> i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
+>> sit behind a mux-locked mux, the two locking variants are equivalent.
+>>
+>> Signed-off-by: Peter Rosin <peda@axentia.se>
+> 
+> Studied enough so that I can give
+> 
+> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> 
+> Do not have hardware to test this, however.
 
-I ended by rebasing this patch series against linux-next, because
-of those two patches:
-	3b0c3ebe2a42 Documentation: e100: Fix docs build error
-	805f16a5f12f Documentation: e1000: Fix docs build error
+I don't have a mux-locked I2C mux either, but at least I can confirm 
+that this change did not break my existing test setup (SLB9635/SLB9645 
+on Raspberry Pi 2B).
 
-They basically fix documentation builds with upstream Kernel. Both
-got merged on -rc2.
+Tested-by: Alexander Steffen <Alexander.Steffen@infineon.com>
 
-The first two patches in this series makes the script to ignore some
-false positives.
-
-Patches 3 to 6 corrects the location of some documentation files.
-
-Patches 7 and 8 were actually two patches meant to fix the build
-error. I ended by rebasing them over linux-next, as they fix some
-troubles with the ReST syntax with causes warnings.
-
-Patch 9 converts Documentation/trace/histogram.txt to ReST
-syntax. It also had to be rebased against linux-next, due to some minor
-conflicts with:
-    064f35a95224 ("tracing: Fix some errors in histogram documentation")
-
-After this series, the script still produces 16 warnings:
-
-Documentation/devicetree/bindings/input/mtk-pmic-keys.txt: Documentation/devicetree/bindings/input/keys.txt
-Documentation/devicetree/bindings/input/mtk-pmic-keys.txt: Documentation/devicetree/bindings/input/keys.txt
-Documentation/devicetree/bindings/regulator/rohm,bd71837-regulator.txt: Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
-Documentation/devicetree/dynamic-resolution-notes.txt: Documentation/devicetree/dt-object-internal.txt
-Documentation/scsi/scsi_mid_low_api.txt: Documentation/Configure.help
-Documentation/translations/zh_CN/HOWTO: Documentation/DocBook/
-Documentation/translations/zh_CN/basic_profiling.txt: Documentation/basic_profiling
-Documentation/translations/zh_CN/basic_profiling.txt: Documentation/basic_profiling
-MAINTAINERS: Documentation/fpga/
-MAINTAINERS: Documentation/devicetree/bindings/rng/samsung,exynos5250-trng.txt
-arch/powerpc/Kconfig: Documentation/vm/protection-keys.rst
-drivers/isdn/mISDN/dsp_core.c: Documentation/isdn/mISDN.cert
-drivers/scsi/Kconfig: file:Documentation/scsi/tmscsim.txt
-drivers/vhost/vhost.c: Documentation/virtual/lguest/lguest.c
-include/linux/fs_context.h: Documentation/filesystems/mounting.txt
-include/linux/lsm_hooks.h: Documentation/filesystems/mounting.txt
-
-IMHO, the above should be fixed by the corresponding maintainers.
-
-The ones that scarry me most are the DT binding documentation, as
-the binding documentation for some stuff are likely broken.
-
-Btw, two of the above are new on linux-next (include/linux/fs_context.h
-and include/linux/lsm_hooks.h) . That makes me wander that we should
-likely add some logic (or run the detect script) at checkpatch.pl or make
-it to call ./scripts/documentation-file-ref-check.
-
-Mauro Carvalho Chehab (9):
-  scripts/documentation-file-ref-check: remove some false positives
-  scripts/documentation-file-ref-check: ignore sched-pelt false positive
-  docs: zh_CN: fix location of oops-tracing.txt
-  devicectree: bindings: fix location of leds common file
-  MAINTAINERS: fix location of ina2xx.txt device tree file
-  gpio.h: fix location of gpio legacy documentation
-  networking: e100.rst: Get rid of Sphinx warnings
-  networking: e1000.rst: Get rid of Sphinx warnings
-  docs: histogram.txt: convert it to ReST file format
-
- .../devicetree/bindings/leds/common.txt       |    2 +-
- Documentation/networking/e100.rst             |   27 +-
- Documentation/networking/e1000.rst            |  187 ++-
- Documentation/trace/events.rst                |    2 +-
- .../trace/{histogram.txt => histogram.rst}    | 1242 +++++++++--------
- Documentation/trace/index.rst                 |    1 +
- .../translations/zh_CN/oops-tracing.txt       |    4 +-
- MAINTAINERS                                   |    2 +-
- include/linux/gpio.h                          |    2 +-
- kernel/trace/Kconfig                          |    2 +-
- scripts/documentation-file-ref-check          |    6 +
- 11 files changed, 767 insertions(+), 710 deletions(-)
- rename Documentation/trace/{histogram.txt => histogram.rst} (73%)
-
--- 
-2.17.1
+Alexander

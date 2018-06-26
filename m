@@ -1,62 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 00/10] Split i2c_lock_adapter into i2c_lock_root and
- i2c_lock_segment
-Date: Tue, 26 Jun 2018 11:37:36 +0900
-Message-ID: <20180626023735.xj7aqhvw7ta2lq6s@ninjato>
-References: <20180620051803.12206-1-peda@axentia.se>
+From: Julia Lawall <julia.lawall@lip6.fr>
+Subject: Re: [PATCH v2 net] nfp: cast sizeof() to int when comparing with
+ error code
+Date: Tue, 26 Jun 2018 09:21:52 +0200 (CEST)
+Message-ID: <alpine.DEB.2.20.1806260920570.4512@hadrien>
+References: <20180626011631.22717-1-cgxu519@gmx.com> <ff0b2834b771a467246b9f7c1b4600c38f5bb463.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180620051803.12206-1-peda@axentia.se>
+In-Reply-To: <ff0b2834b771a467246b9f7c1b4600c38f5bb463.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Crt Mori <cmo@melexis.com>
+To: Joe Perches <joe@perches.com>
+Cc: Chengguang Xu <cgxu519@gmx.com>, jakub.kicinski@netronome.com, davem@davemloft.net, LKML <linux-kernel@vger.kernel.org>, cocci <cocci@systeme.lip6.fr>, oss-drivers@netronome.com, netdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 20, 2018 at 07:17:53AM +0200, Peter Rosin wrote:
-> Hi!
-> 
-> With the introduction of mux-locked I2C muxes, the concept of
-> locking only a segment of the I2C adapter tree was added. At the
-> time, I did not want to cause a lot of extra churn, so left most
-> users of i2c_lock_adapter alone and apparently didn't think enough
-> about it; they simply continued to lock the whole adapter tree.
-> However, i2c_lock_adapter is in fact wrong for almost every caller
-> (there is naturally an exception) that is itself not a driver for
-> a root adapter. What normal drivers generally want is to only
-> lock the segment of the adapter tree that their device sits on.
-> 
-> In fact, if a device sits behind a mux-locked I2C mux, and its
-> driver calls i2c_lock_adapter followed by an unlocked I2C transfer,
-> things will deadlock (since even a mux-locked I2C adapter will lock
-> its parent at some point). If the device is not sitting behind a
-> mux-locked I2C mux (i.e. either directly on the root adapter or
-> behind a (chain of) parent-locked I2C muxes) the root/segment
-> distinction is of no consequence; the root adapter is locked either
-> way.
-> 
-> Mux-locked I2C muxes are probably not that common, and putting any
-> of the affected devices behind one is probably even rarer, which
-> is why we have not seen any deadlocks. At least not that I know
-> of...
-> 
-> Since silently changing the semantics of i2c_lock_adapter might
-> be quite a surprise, especially for out-of-tree users, this series
-> instead removes the function and forces all users to explicitly
-> name I2C_LOCK_SEGMENT or I2C_LOCK_ROOT_ADAPTER in a call to
-> i2c_lock_bus, as suggested by Wolfram. Yes, users will be a teensy
-> bit more wordy, but open-coding I2C locking from random drivers
-> should be avoided, so it's perhaps a good thing if it doesn't look
-> too neat?
-> 
-> I suggest that Wolfram takes this series through the I2C tree and
-> creates an immutable branch for the other subsystems. The series
-> is based on v4.18-r1.
 
-Applied to a seperate branch named "i2c/precise-locking-names" which I
-will merge into for-next, so it will get proper testing already. Once we
-get the missing acks from media, MFD, and IIO maintainers, I will merge
-it into for-4.19.
 
-Thank you, Peter!
+On Mon, 25 Jun 2018, Joe Perches wrote:
+
+> On Tue, 2018-06-26 at 09:16 +0800, Chengguang Xu wrote:
+> > sizeof() will return unsigned value so in the error check
+> > negative error code will be always larger than sizeof().
+>
+> This looks like a general class of error in the kernel
+> where a signed result that could be returning a -errno
+> is tested against < or <= sizeof()
+>
+> A couple examples:
+>
+> drivers/input/mouse/elan_i2c_smbus.c:
+>
+> 		len = i2c_smbus_read_block_data(client,
+> 						ETP_SMBUS_IAP_PASSWORD_READ,
+> 						val);
+> 		if (len < sizeof(u16)) {
+>
+> i2c_smbus_read_block_data can return a negative errno
+>
+>
+> net/smc/smc_clc.c:
+>
+> 	len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
+> 			     sizeof(struct smc_clc_msg_decline));
+> 	if (len < sizeof(struct smc_clc_msg_decline))
+>
+> where kernel_sendmsg can return a negative errno
+>
+> There are probably others, I didn't look hard.
+>
+> Perhaps a cocci script to find these could be generated?
+
+Currently there is a rule for comparison of unsigneds to 0.  It would be
+reasonable to extend it for sizes.  I will see what it gives.
+
+julia

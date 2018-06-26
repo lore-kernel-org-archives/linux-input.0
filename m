@@ -1,55 +1,78 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH v2 10/10] i2c: remove i2c_lock_adapter and use
- i2c_lock_bus directly
-Date: Tue, 26 Jun 2018 19:39:43 +0530
-Message-ID: <4e0545e3-fee9-cf29-bae1-e442347e3cb8@ti.com>
-References: <20180620051803.12206-1-peda@axentia.se>
- <20180620051803.12206-11-peda@axentia.se>
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Subject: Re: [PATCH v7 1/4] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Tue, 26 Jun 2018 16:24:37 +0200
+Message-ID: <CAFqH_52v3-L1xLL12hzyGCbuooX5T52Lm7BXHM3sBX1ERWmhiQ@mail.gmail.com>
+References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <7e1888375c979accc402e9ddd7316e528b2ac52c.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com>
+ <20180626112455.GC2118@localhost.localdomain> <CAFqH_52NERfORwSkBh0stW+mvzRpw0to9CiWPwLB9mFo_TsW_w@mail.gmail.com>
+ <20180626120306.GD2118@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180620051803.12206-11-peda@axentia.se>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-Cc: Crt Mori <cmo@melexis.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Peter Huewe <peterhuewe@gmx.de>, Michael Krufky <mkrufky@linuxtv.org>, Lee Jones <lee.jones@linaro.org>, Antti Palosaari <crope@iki.fi>, linux-samsung-soc@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Kevin Hilman <khilman@kernel.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, Kukjin Kim <kgene@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Orson Zhai <orsonzhai@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-media@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Grego
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180626120306.GD2118@localhost.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: matti.vaittinen@fi.rohmeurope.com
+Cc: Michael Turquette <mturquette@baylibre.com>, sboyd@kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, Andrey Smirnov <andrew.smirnov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-kernel <linux-kernel@v>
 List-Id: linux-input@vger.kernel.org
 
-On Wednesday 20 June 2018 10:48 AM, Peter Rosin wrote:
-> The i2c_lock_adapter name is ambiguous since it is unclear if it
-> refers to the root adapter or the adapter you name in the argument.
-> The natural interpretation is the adapter you name in the argument,
-> but there are historical reasons for that not being the case; it
-> in fact locks the root adapter. Just remove the function and force
-> users to spell out the I2C_LOCK_ROOT_ADAPTER name to indicate what
-> is really going on. Also remove i2c_unlock_adapter, of course.
-> 
-> This patch was generated with
-> 
-> git grep -l 'i2c_\(un\)\?lock_adapter' \
-> | xargs sed -i 's/i2c_\(un\)\?lock_adapter(\([^)]*\))/'\
-> 'i2c_\1lock_bus(\2, I2C_LOCK_ROOT_ADAPTER)/g'
-> 
-> followed by white-space touch-up.
-> 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
-> ---
->  drivers/i2c/busses/i2c-brcmstb.c   |  8 ++++----
->  drivers/i2c/busses/i2c-davinci.c   |  4 ++--
+Hi Matti,
 
-On DM644x and DA850 EVMs applying this series does not seem to break I2C
-functionality. So:
+Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+dia dt., 26 de juny 2018 a les 14:03:
+>
+> Hello Again Eric,
+>
+> On Tue, Jun 26, 2018 at 01:40:40PM +0200, Enric Balletbo Serra wrote:
+> > Hi Matti,
+> > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+> > dia dt., 26 de juny 2018 a les 13:25:
+> > > On Tue, Jun 26, 2018 at 11:06:33AM +0200, Enric Balletbo Serra wrote:
+> > > > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+> > > > dia dt., 19 de juny 2018 a les 12:57:
+> > >
+> > > > > +static const struct of_device_id bd71837_of_match[] = {
+> > > > > +       { .compatible = "rohm,bd71837", .data = (void *)0},
+> > > > > +       { },
+> > > >
+> > > > nit: { /* sentinel */ }
+> > >
+> > > I am sorry but I didn't quite get the point here. Could you please
+> > > explain what did you expect to be added here?
+> > >
+> >
+> > It's a nit but It is a good practice to specify that the last entry is
+> > a sentinel. Just this.
+> >
+> > +static const struct of_device_id bd71837_of_match[] = {
+> > +       { .compatible = "rohm,bd71837", .data = (void *)0},
+> > +       { /* sentinel */ }
+> > +};
+>
+> Oh, I see. Finally something I can disagree =) I quickly opened few
+> random drivers which declare match table. None of them practiced this
+> good practice. So I guess it is not such a standard after all. And I
+> guess the meaning of last entry in match table should be quite obvious.
+> Adding the comment /* sentinel */ sounds like stating the obvious at
+> best - at worst it gets one just to wonder what the "sentinel" means =)
+>
 
-Tested-by: Sekhar Nori <nsekhar@ti.com>
+git grep "/\* sentinel \*/"
 
-Thanks,
-Sekhar
+Anyway, I marked this change as a nit, so you don't need to change. I
+just commented because at some point I received a "complain" when I
+didn't add it. But this is up to the maintainer and I am not sure if
+the "complain" was received in this subsystem :)
+
+Cheers,
+ Enric
+
+> >
+> > And just noticed, is .data = (void *)0 really required?
+>
+> As static structs should be initialized to zero I'd say it is not
+> required. Will remove this. Thanks for pointing this out.
+>
+> Br,
+>         Matti Vaittinen
+>

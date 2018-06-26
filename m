@@ -1,62 +1,47 @@
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Subject: Re: [PATCH v7 1/4] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
-Date: Tue, 26 Jun 2018 15:03:06 +0300
-Message-ID: <20180626120306.GD2118@localhost.localdomain>
-References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
- <7e1888375c979accc402e9ddd7316e528b2ac52c.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
- <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com>
- <20180626112455.GC2118@localhost.localdomain>
- <CAFqH_52NERfORwSkBh0stW+mvzRpw0to9CiWPwLB9mFo_TsW_w@mail.gmail.com>
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: Re: [PATCH v2 01/10] tpm/tpm_i2c_infineon: switch to
+ i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+Date: Tue, 26 Jun 2018 15:05:16 +0300
+Message-ID: <6169da633eab7e68d645e6b933b605dcc9ae09f1.camel@linux.intel.com>
+References: <20180620051803.12206-1-peda@axentia.se>
+         <20180620051803.12206-2-peda@axentia.se>
+         <20180625102454.GA3845@linux.intel.com>
+         <7703d6a2-b22c-104c-7390-b5143a504725@infineon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAFqH_52NERfORwSkBh0stW+mvzRpw0to9CiWPwLB9mFo_TsW_w@mail.gmail.com>
+In-Reply-To: <7703d6a2-b22c-104c-7390-b5143a504725@infineon.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo Serra <eballetbo@gmail.com>
-Cc: Michael Turquette <mturquette@baylibre.com>, sboyd@kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, mazziesaccount@gmail.com, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, andrew.smirnov@gmail.com, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.
+To: Alexander Steffen <Alexander.Steffen@infineon.com>, Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Crt Mori <cmo@melexis.com>, Jonathan Cameron <jic23@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hello Again Eric,
-
-On Tue, Jun 26, 2018 at 01:40:40PM +0200, Enric Balletbo Serra wrote:
-> Hi Matti,
-> Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
-> dia dt., 26 de juny 2018 a les 13:25:
-> > On Tue, Jun 26, 2018 at 11:06:33AM +0200, Enric Balletbo Serra wrote:
-> > > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
-> > > dia dt., 19 de juny 2018 a les 12:57:
-> >
-> > > > +static const struct of_device_id bd71837_of_match[] = {
-> > > > +       { .compatible = "rohm,bd71837", .data = (void *)0},
-> > > > +       { },
-> > >
-> > > nit: { /* sentinel */ }
-> >
-> > I am sorry but I didn't quite get the point here. Could you please
-> > explain what did you expect to be added here?
-> >
+On Tue, 2018-06-26 at 12:07 +0200, Alexander Steffen wrote:
+> On 25.06.2018 12:24, Jarkko Sakkinen wrote:
+> > On Wed, Jun 20, 2018 at 07:17:54AM +0200, Peter Rosin wrote:
+> > > Locking the root adapter for __i2c_transfer will deadlock if the
+> > > device sits behind a mux-locked I2C mux. Switch to the finer-grained
+> > > i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
+> > > sit behind a mux-locked mux, the two locking variants are equivalent.
+> > > 
+> > > Signed-off-by: Peter Rosin <peda@axentia.se>
+> > 
+> > Studied enough so that I can give
+> > 
+> > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > 
+> > Do not have hardware to test this, however.
 > 
-> It's a nit but It is a good practice to specify that the last entry is
-> a sentinel. Just this.
+> I don't have a mux-locked I2C mux either, but at least I can confirm 
+> that this change did not break my existing test setup (SLB9635/SLB9645 
+> on Raspberry Pi 2B).
 > 
-> +static const struct of_device_id bd71837_of_match[] = {
-> +       { .compatible = "rohm,bd71837", .data = (void *)0},
-> +       { /* sentinel */ }
-> +};
-
-Oh, I see. Finally something I can disagree =) I quickly opened few
-random drivers which declare match table. None of them practiced this
-good practice. So I guess it is not such a standard after all. And I
-guess the meaning of last entry in match table should be quite obvious.
-Adding the comment /* sentinel */ sounds like stating the obvious at
-best - at worst it gets one just to wonder what the "sentinel" means =)
-
+> Tested-by: Alexander Steffen <Alexander.Steffen@infineon.com>
 > 
-> And just noticed, is .data = (void *)0 really required?
- 
-As static structs should be initialized to zero I'd say it is not
-required. Will remove this. Thanks for pointing this out.
+> Alexander
 
-Br,
-	Matti Vaittinen
+Given the scope of the change and since analogous change works for
+every other subsystem, this should be enough! Thank you.
+
+/Jarkko

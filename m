@@ -1,73 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: psmouse - fix button reporting for basic protocols
-Date: Mon, 25 Jun 2018 12:09:57 -0700
-Message-ID: <20180625190957.GA187975@dtor-ws>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v2 net] nfp: cast sizeof() to int when comparing with
+ error code
+Date: Mon, 25 Jun 2018 19:10:59 -0700
+Message-ID: <ff0b2834b771a467246b9f7c1b4600c38f5bb463.camel@perches.com>
+References: <20180626011631.22717-1-cgxu519@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20180626011631.22717-1-cgxu519@gmx.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: Chengguang Xu <cgxu519@gmx.com>, jakub.kicinski@netronome.com, davem@davemloft.net, LKML <linux-kernel@vger.kernel.org>, Julia Lawall <julia.lawall@lip6.fr>, cocci <cocci@systeme.lip6.fr>
+Cc: oss-drivers@netronome.com, netdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The commit ba667650c568 ("Input: psmouse - clean up code") was pretty
-brain-dead and broke extra buttons reporting for variety of PS/2 mice:
-Genius, Thinkmouse and Intellimouse Explorer. We need to actually inspect
-the data coming from the device when reporting events.
+On Tue, 2018-06-26 at 09:16 +0800, Chengguang Xu wrote:
+> sizeof() will return unsigned value so in the error check
+> negative error code will be always larger than sizeof().
 
-Fixes: ba667650c568 ("Input: psmouse - clean up code")
-Reported-by: Jiri Slaby <jslaby@suse.cz>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/psmouse-base.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+This looks like a general class of error in the kernel
+where a signed result that could be returning a -errno
+is tested against < or <= sizeof()
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 5ff5b1952be0c..d3ff1fc09af71 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -192,8 +192,8 @@ psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
- 			else
- 				input_report_rel(dev, REL_WHEEL, -wheel);
- 
--			input_report_key(dev, BTN_SIDE,  BIT(4));
--			input_report_key(dev, BTN_EXTRA, BIT(5));
-+			input_report_key(dev, BTN_SIDE,  packet[3] & BIT(4));
-+			input_report_key(dev, BTN_EXTRA, packet[3] & BIT(5));
- 			break;
- 		}
- 		break;
-@@ -203,13 +203,13 @@ psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
- 		input_report_rel(dev, REL_WHEEL, -(s8) packet[3]);
- 
- 		/* Extra buttons on Genius NewNet 3D */
--		input_report_key(dev, BTN_SIDE,  BIT(6));
--		input_report_key(dev, BTN_EXTRA, BIT(7));
-+		input_report_key(dev, BTN_SIDE,  packet[0] & BIT(6));
-+		input_report_key(dev, BTN_EXTRA, packet[0] & BIT(7));
- 		break;
- 
- 	case PSMOUSE_THINKPS:
- 		/* Extra button on ThinkingMouse */
--		input_report_key(dev, BTN_EXTRA, BIT(3));
-+		input_report_key(dev, BTN_EXTRA, packet[0] & BIT(3));
- 
- 		/*
- 		 * Without this bit of weirdness moving up gives wildly
-@@ -223,7 +223,7 @@ psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
- 		 * Cortron PS2 Trackball reports SIDE button in the
- 		 * 4th bit of the first byte.
- 		 */
--		input_report_key(dev, BTN_SIDE, BIT(3));
-+		input_report_key(dev, BTN_SIDE, packet[0] & BIT(3));
- 		packet[0] |= BIT(3);
- 		break;
- 
--- 
-2.18.0.rc2.346.g013aa6912e-goog
+A couple examples:
+
+drivers/input/mouse/elan_i2c_smbus.c:
+
+		len = i2c_smbus_read_block_data(client,
+						ETP_SMBUS_IAP_PASSWORD_READ,
+						val);
+		if (len < sizeof(u16)) {
+
+i2c_smbus_read_block_data can return a negative errno
 
 
--- 
-Dmitry
+net/smc/smc_clc.c:
+
+	len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
+			     sizeof(struct smc_clc_msg_decline));
+	if (len < sizeof(struct smc_clc_msg_decline))
+
+where kernel_sendmsg can return a negative errno
+
+There are probably others, I didn't look hard.
+
+Perhaps a cocci script to find these could be generated?

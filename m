@@ -1,48 +1,75 @@
-From: Alexander Steffen <Alexander.Steffen@infineon.com>
-Subject: Re: [PATCH v2 01/10] tpm/tpm_i2c_infineon: switch to
- i2c_lock_bus(..., I2C_LOCK_SEGMENT)
-Date: Tue, 26 Jun 2018 12:07:21 +0200
-Message-ID: <7703d6a2-b22c-104c-7390-b5143a504725@infineon.com>
-References: <20180620051803.12206-1-peda@axentia.se>
- <20180620051803.12206-2-peda@axentia.se>
- <20180625102454.GA3845@linux.intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3 3/5] bitmap: Add bitmap_alloc(), bitmap_zalloc() and
+ bitmap_free()
+Date: Tue, 26 Jun 2018 14:13:42 +0300
+Message-ID: <c5756465375e091a528b8c68fae3d8f3061454bf.camel@linux.intel.com>
+References: <20180618131003.88110-1-andriy.shevchenko@linux.intel.com>
+         <20180618131003.88110-4-andriy.shevchenko@linux.intel.com>
+         <20180618141404.68124daab97bd0f3a3051544@linux-foundation.org>
+         <CAKdAkRTHOORds7aEauv4rp3_=PnGi=Nv-VS3-nAb9MztJPKG=Q@mail.gmail.com>
+         <20180618161056.e52efd0e8bd36211e60705a2@linux-foundation.org>
+         <CAHp75Vei2_V7h4oKAU+uoCG2gUJH6uXtg9zVqQ_vnyr5KEmNYw@mail.gmail.com>
+         <20180622184613.GC92912@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180625102454.GA3845@linux.intel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Peter Rosin <peda@axentia.se>
-Cc: Crt Mori <cmo@melexis.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Peter Huewe <peterhuewe@gmx.de>, Michael Krufky <mkrufky@linuxtv.org>, Lee Jones <lee.jones@linaro.org>, Antti Palosaari <crope@iki.fi>, linux-samsung-soc@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Kevin Hilman <khilman@kernel.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, Kukjin Kim <kgene@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Orson Zhai <orsonzhai@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-media@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Gregory Fong <gregory.0xf0>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180622184613.GC92912@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, agk@redhat.com, Mike Snitzer <snitzer@redhat.com>, device-mapper development <dm-devel@redhat.com>, shli@kernel.org, linux-raid@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Yury Norov <ynorov@caviumnetworks.com>, lkml <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Joe Perches <joe@perches.com>
 List-Id: linux-input@vger.kernel.org
 
-On 25.06.2018 12:24, Jarkko Sakkinen wrote:
-> On Wed, Jun 20, 2018 at 07:17:54AM +0200, Peter Rosin wrote:
->> Locking the root adapter for __i2c_transfer will deadlock if the
->> device sits behind a mux-locked I2C mux. Switch to the finer-grained
->> i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
->> sit behind a mux-locked mux, the two locking variants are equivalent.
->>
->> Signed-off-by: Peter Rosin <peda@axentia.se>
+On Fri, 2018-06-22 at 11:46 -0700, Dmitry Torokhov wrote:
+> On Thu, Jun 21, 2018 at 05:13:39AM +0300, Andy Shevchenko wrote:
+> > On Tue, Jun 19, 2018 at 2:10 AM, Andrew Morton
+> > <akpm@linux-foundation.org> wrote:
+> > > On Mon, 18 Jun 2018 15:01:43 -0700 Dmitry Torokhov <dmitry.torokho
+> > > v@gmail.com> wrote:
+> > > > We can't as we end up including bitmap.h (by the way of
+> > > > cpumask.h)
+> > > > form slab.h, so we gen circular dependency.
+> > 
+> > It's not just so easy. See below.
+> > 
+> > > That info should have been in the changelog, and probably a code
+> > > comment.
+> > > 
+> > > > Maybe if we removed memcg
+> > > > stuff from slab.h so we do not need to include workqueue.h...
+> > > 
+> > > Or move the basic slab API stuff out of slab.h into a new
+> > > header.  Or
+> > > create a new, standalone work_struct.h - that looks pretty simple.
+> > 
+> > I tried to move out work_struct, it didn't help. There are actually
+> > several circular dependencies that ends in bitmap.h either way or
+> > another.
+> > 
+> > First one is
+> > 
+> > slab.h -> gfp.h -> mmzone.h -> nodemask.h -> bitmap.h
+> > 
+> > And so on...
+> > 
+> > Splitting out kXalloc stuff to a separate header won't help, I
+> > think,
+> > because of the above.
+> > Splitting out struct work_struct is just a tip of an iceberg.
+> > Splitting out memcg stuff won't help in the similar way.
+> > 
+> > I'm all ears for (a better) solution.
 > 
-> Studied enough so that I can give
-> 
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> 
-> Do not have hardware to test this, however.
+> I think ultimately we'd want to untangle this, but allocating bitmaps
+> is
+> not in any hot paths so having them as non-inlined functions should
+> not
+> hurt us that much for time being.
 
-I don't have a mux-locked I2C mux either, but at least I can confirm 
-that this change did not break my existing test setup (SLB9635/SLB9645 
-on Raspberry Pi 2B).
+Perhaps I can elaborate a bit in a commit message.
 
-Tested-by: Alexander Steffen <Alexander.Steffen@infineon.com>
+Thanks for review!
 
-Alexander
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

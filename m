@@ -1,128 +1,279 @@
-From: cgxu519 <cgxu519@gmx.com>
-Subject: Re: [PATCH v2 net] nfp: cast sizeof() to int when comparing with
- error code
-Date: Tue, 26 Jun 2018 16:21:10 +0800
-Message-ID: <a119eba4-aeb5-c8ee-ff48-07ee566d8431@gmx.com>
-References: <20180626011631.22717-1-cgxu519@gmx.com>
- <ff0b2834b771a467246b9f7c1b4600c38f5bb463.camel@perches.com>
- <alpine.DEB.2.20.1806261005190.4512@hadrien>
+From: Jonathan Cameron <jonathan.cameron@huawei.com>
+Subject: Re: [PATCH v2 10/10] i2c: remove i2c_lock_adapter and use
+ i2c_lock_bus directly
+Date: Tue, 26 Jun 2018 09:28:41 +0100
+Message-ID: <20180626092841.00003277@huawei.com>
+References: <20180620051803.12206-1-peda@axentia.se>
+        <20180620051803.12206-11-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <alpine.DEB.2.20.1806261005190.4512@hadrien>
-Content-Language: en-US
+In-Reply-To: <20180620051803.12206-11-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Julia Lawall <julia.lawall@lip6.fr>
-Cc: Joe Perches <joe@perches.com>, jakub.kicinski@netronome.com, davem@davemloft.net, LKML <linux-kernel@vger.kernel.org>, cocci <cocci@systeme.lip6.fr>, oss-drivers@netronome.com, netdev@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Crt
 List-Id: linux-input@vger.kernel.org
 
-On 06/26/2018 04:06 PM, Julia Lawall wrote:
->
-> On Mon, 25 Jun 2018, Joe Perches wrote:
->
->> On Tue, 2018-06-26 at 09:16 +0800, Chengguang Xu wrote:
->>> sizeof() will return unsigned value so in the error check
->>> negative error code will be always larger than sizeof().
->> This looks like a general class of error in the kernel
->> where a signed result that could be returning a -errno
->> is tested against < or <= sizeof()
->>
->> A couple examples:
->>
->> drivers/input/mouse/elan_i2c_smbus.c:
->>
->> 		len = i2c_smbus_read_block_data(client,
->> 						ETP_SMBUS_IAP_PASSWORD_READ,
->> 						val);
->> 		if (len < sizeof(u16)) {
->>
->> i2c_smbus_read_block_data can return a negative errno
->>
->>
->> net/smc/smc_clc.c:
->>
->> 	len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
->> 			     sizeof(struct smc_clc_msg_decline));
->> 	if (len < sizeof(struct smc_clc_msg_decline))
->>
->> where kernel_sendmsg can return a negative errno
->>
->> There are probably others, I didn't look hard.
->>
->> Perhaps a cocci script to find these could be generated?
-> Here's another one:
->
-> drivers/usb/serial/ir-usb.c
-> @@ -126,13 +126,8 @@ irda_usb_find_class_desc(struct usb_seri
->   	if (!desc)
->   		return NULL;
->
-> -	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-> -			USB_REQ_CS_IRDA_GET_CLASS_DESC,
-> -			USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-> -			0, ifnum, desc, sizeof(*desc), 1000);
->
->   	dev_dbg(&serial->dev->dev, "%s -  ret=%d\n", __func__, ret);
-> -	if (ret < sizeof(*desc)) {
->   		dev_dbg(&serial->dev->dev,
->   			"%s - class descriptor read %s (%d)\n", __func__,
->   			(ret < 0) ? "failed" : "too short", ret);
->
-> There are other results, but I haven't checked all of them.
+On Wed, 20 Jun 2018 07:18:03 +0200
+Peter Rosin <peda@axentia.se> wrote:
 
-Hi Julia,
+> The i2c_lock_adapter name is ambiguous since it is unclear if it
+> refers to the root adapter or the adapter you name in the argument.
+> The natural interpretation is the adapter you name in the argument,
+> but there are historical reasons for that not being the case; it
+> in fact locks the root adapter. Just remove the function and force
+> users to spell out the I2C_LOCK_ROOT_ADAPTER name to indicate what
+> is really going on. Also remove i2c_unlock_adapter, of course.
+> 
+> This patch was generated with
+> 
+> git grep -l 'i2c_\(un\)\?lock_adapter' \
+> | xargs sed -i 's/i2c_\(un\)\?lock_adapter(\([^)]*\))/'\
+> 'i2c_\1lock_bus(\2, I2C_LOCK_ROOT_ADAPTER)/g'
+> 
+> followed by white-space touch-up.
+> 
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-Thanks for your check. I posted a patch yesterday to fix three places in 
-usb subsystem
-and the patch is just in queue now, so you can skip these places.
+For IIO: Acked-by: Jonathan Cameron <jonathan.cameron@huawei.com>
 
-The detail of patch.
----
-
-diff --git a/drivers/usb/serial/ir-usb.c b/drivers/usb/serial/ir-usb.c
-index 24b06c7e5e2d..7643716b5299 100644
---- a/drivers/usb/serial/ir-usb.c
-+++ b/drivers/usb/serial/ir-usb.c
-@@ -132,7 +132,7 @@ irda_usb_find_class_desc(struct usb_serial *serial, unsigned int ifnum)
-  			0, ifnum, desc, sizeof(*desc), 1000);
-  
-  	dev_dbg(&serial->dev->dev, "%s -  ret=%d\n", __func__, ret);
--	if (ret < sizeof(*desc)) {
-+	if (ret < (int)sizeof(*desc)) {
-  		dev_dbg(&serial->dev->dev,
-  			"%s - class descriptor read %s (%d)\n", __func__,
-  			(ret < 0) ? "failed" : "too short", ret);
-diff --git a/drivers/usb/serial/quatech2.c b/drivers/usb/serial/quatech2.c
-index 958e12e1e7c7..ff2322ea5e14 100644
---- a/drivers/usb/serial/quatech2.c
-+++ b/drivers/usb/serial/quatech2.c
-@@ -194,7 +194,7 @@ static inline int qt2_getregister(struct usb_device *dev,
-  	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-  			      QT_SET_GET_REGISTER, 0xc0, reg,
-  			      uart, data, sizeof(*data), QT2_USB_TIMEOUT);
--	if (ret < sizeof(*data)) {
-+	if (ret < (int)sizeof(*data)) {
-  		if (ret >= 0)
-  			ret = -EIO;
-  	}
-diff --git a/drivers/usb/serial/ssu100.c b/drivers/usb/serial/ssu100.c
-index 2083c267787b..0900b47b5f57 100644
---- a/drivers/usb/serial/ssu100.c
-+++ b/drivers/usb/serial/ssu100.c
-@@ -104,7 +104,7 @@ static inline int ssu100_getregister(struct usb_device *dev,
-  	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-  			      QT_SET_GET_REGISTER, 0xc0, reg,
-  			      uart, data, sizeof(*data), 300);
--	if (ret < sizeof(*data)) {
-+	if (ret < (int)sizeof(*data)) {
-  		if (ret >= 0)
-  			ret = -EIO;
-  	}
----
-
-
-
-
-Thanks,
-Chengguang.
+> ---
+>  drivers/i2c/busses/i2c-brcmstb.c   |  8 ++++----
+>  drivers/i2c/busses/i2c-davinci.c   |  4 ++--
+>  drivers/i2c/busses/i2c-gpio.c      | 40 +++++++++++++++++++-------------------
+>  drivers/i2c/busses/i2c-s3c2410.c   |  4 ++--
+>  drivers/i2c/busses/i2c-sprd.c      |  8 ++++----
+>  drivers/i2c/i2c-core-slave.c       |  8 ++++----
+>  drivers/iio/temperature/mlx90614.c |  4 ++--
+>  include/linux/i2c.h                | 12 ------------
+>  8 files changed, 38 insertions(+), 50 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+> index 78792b4d6437..826d32049996 100644
+> --- a/drivers/i2c/busses/i2c-brcmstb.c
+> +++ b/drivers/i2c/busses/i2c-brcmstb.c
+> @@ -689,9 +689,9 @@ static int brcmstb_i2c_suspend(struct device *dev)
+>  {
+>  	struct brcmstb_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+>  
+> -	i2c_lock_adapter(&i2c_dev->adapter);
+> +	i2c_lock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  	i2c_dev->is_suspended = true;
+> -	i2c_unlock_adapter(&i2c_dev->adapter);
+> +	i2c_unlock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	return 0;
+>  }
+> @@ -700,10 +700,10 @@ static int brcmstb_i2c_resume(struct device *dev)
+>  {
+>  	struct brcmstb_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+>  
+> -	i2c_lock_adapter(&i2c_dev->adapter);
+> +	i2c_lock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  	brcmstb_i2c_set_bsc_reg_defaults(i2c_dev);
+>  	i2c_dev->is_suspended = false;
+> -	i2c_unlock_adapter(&i2c_dev->adapter);
+> +	i2c_unlock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	return 0;
+>  }
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 75d6ab177055..d945a2654c2f 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -714,14 +714,14 @@ static int i2c_davinci_cpufreq_transition(struct notifier_block *nb,
+>  
+>  	dev = container_of(nb, struct davinci_i2c_dev, freq_transition);
+>  
+> -	i2c_lock_adapter(&dev->adapter);
+> +	i2c_lock_bus(&dev->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  	if (val == CPUFREQ_PRECHANGE) {
+>  		davinci_i2c_reset_ctrl(dev, 0);
+>  	} else if (val == CPUFREQ_POSTCHANGE) {
+>  		i2c_davinci_calc_clk_dividers(dev);
+>  		davinci_i2c_reset_ctrl(dev, 1);
+>  	}
+> -	i2c_unlock_adapter(&dev->adapter);
+> +	i2c_unlock_bus(&dev->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	return 0;
+>  }
+> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+> index 005e6e0330c2..9d63337efa82 100644
+> --- a/drivers/i2c/busses/i2c-gpio.c
+> +++ b/drivers/i2c/busses/i2c-gpio.c
+> @@ -78,24 +78,24 @@ static struct dentry *i2c_gpio_debug_dir;
+>  #define getscl(bd)	((bd)->getscl((bd)->data))
+>  
+>  #define WIRE_ATTRIBUTE(wire) \
+> -static int fops_##wire##_get(void *data, u64 *val)	\
+> -{							\
+> -	struct i2c_gpio_private_data *priv = data;	\
+> -							\
+> -	i2c_lock_adapter(&priv->adap);			\
+> -	*val = get##wire(&priv->bit_data);		\
+> -	i2c_unlock_adapter(&priv->adap);		\
+> -	return 0;					\
+> -}							\
+> -static int fops_##wire##_set(void *data, u64 val)	\
+> -{							\
+> -	struct i2c_gpio_private_data *priv = data;	\
+> -							\
+> -	i2c_lock_adapter(&priv->adap);			\
+> -	set##wire(&priv->bit_data, val);		\
+> -	i2c_unlock_adapter(&priv->adap);		\
+> -	return 0;					\
+> -}							\
+> +static int fops_##wire##_get(void *data, u64 *val)		\
+> +{								\
+> +	struct i2c_gpio_private_data *priv = data;		\
+> +								\
+> +	i2c_lock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);	\
+> +	*val = get##wire(&priv->bit_data);			\
+> +	i2c_unlock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);	\
+> +	return 0;						\
+> +}								\
+> +static int fops_##wire##_set(void *data, u64 val)		\
+> +{								\
+> +	struct i2c_gpio_private_data *priv = data;		\
+> +								\
+> +	i2c_lock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);	\
+> +	set##wire(&priv->bit_data, val);			\
+> +	i2c_unlock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);	\
+> +	return 0;						\
+> +}								\
+>  DEFINE_DEBUGFS_ATTRIBUTE(fops_##wire, fops_##wire##_get, fops_##wire##_set, "%llu\n")
+>  
+>  WIRE_ATTRIBUTE(scl);
+> @@ -113,7 +113,7 @@ static int fops_incomplete_transfer_set(void *data, u64 addr)
+>  	/* ADDR (7 bit) + RD (1 bit) + SDA hi (1 bit) */
+>  	pattern = (addr << 2) | 3;
+>  
+> -	i2c_lock_adapter(&priv->adap);
+> +	i2c_lock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	/* START condition */
+>  	setsda(bit_data, 0);
+> @@ -129,7 +129,7 @@ static int fops_incomplete_transfer_set(void *data, u64 addr)
+>  		udelay(bit_data->udelay);
+>  	}
+>  
+> -	i2c_unlock_adapter(&priv->adap);
+> +	i2c_unlock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	return 0;
+>  }
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 9fe2b6951895..2f2e28d60ef5 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -919,9 +919,9 @@ static int s3c24xx_i2c_cpufreq_transition(struct notifier_block *nb,
+>  
+>  	if ((val == CPUFREQ_POSTCHANGE && delta_f < 0) ||
+>  	    (val == CPUFREQ_PRECHANGE && delta_f > 0)) {
+> -		i2c_lock_adapter(&i2c->adap);
+> +		i2c_lock_bus(&i2c->adap, I2C_LOCK_ROOT_ADAPTER);
+>  		ret = s3c24xx_i2c_clockrate(i2c, &got);
+> -		i2c_unlock_adapter(&i2c->adap);
+> +		i2c_unlock_bus(&i2c->adap, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  		if (ret < 0)
+>  			dev_err(i2c->dev, "cannot find frequency (%d)\n", ret);
+> diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
+> index 4053259bccb8..a94e724f51dc 100644
+> --- a/drivers/i2c/busses/i2c-sprd.c
+> +++ b/drivers/i2c/busses/i2c-sprd.c
+> @@ -590,9 +590,9 @@ static int __maybe_unused sprd_i2c_suspend_noirq(struct device *pdev)
+>  {
+>  	struct sprd_i2c *i2c_dev = dev_get_drvdata(pdev);
+>  
+> -	i2c_lock_adapter(&i2c_dev->adap);
+> +	i2c_lock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
+>  	i2c_dev->is_suspended = true;
+> -	i2c_unlock_adapter(&i2c_dev->adap);
+> +	i2c_unlock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	return pm_runtime_force_suspend(pdev);
+>  }
+> @@ -601,9 +601,9 @@ static int __maybe_unused sprd_i2c_resume_noirq(struct device *pdev)
+>  {
+>  	struct sprd_i2c *i2c_dev = dev_get_drvdata(pdev);
+>  
+> -	i2c_lock_adapter(&i2c_dev->adap);
+> +	i2c_lock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
+>  	i2c_dev->is_suspended = false;
+> -	i2c_unlock_adapter(&i2c_dev->adap);
+> +	i2c_unlock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	return pm_runtime_force_resume(pdev);
+>  }
+> diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
+> index 4a78c65e9971..47a9f70a24a9 100644
+> --- a/drivers/i2c/i2c-core-slave.c
+> +++ b/drivers/i2c/i2c-core-slave.c
+> @@ -47,9 +47,9 @@ int i2c_slave_register(struct i2c_client *client, i2c_slave_cb_t slave_cb)
+>  
+>  	client->slave_cb = slave_cb;
+>  
+> -	i2c_lock_adapter(client->adapter);
+> +	i2c_lock_bus(client->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  	ret = client->adapter->algo->reg_slave(client);
+> -	i2c_unlock_adapter(client->adapter);
+> +	i2c_unlock_bus(client->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	if (ret) {
+>  		client->slave_cb = NULL;
+> @@ -69,9 +69,9 @@ int i2c_slave_unregister(struct i2c_client *client)
+>  		return -EOPNOTSUPP;
+>  	}
+>  
+> -	i2c_lock_adapter(client->adapter);
+> +	i2c_lock_bus(client->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  	ret = client->adapter->algo->unreg_slave(client);
+> -	i2c_unlock_adapter(client->adapter);
+> +	i2c_unlock_bus(client->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	if (ret == 0)
+>  		client->slave_cb = NULL;
+> diff --git a/drivers/iio/temperature/mlx90614.c b/drivers/iio/temperature/mlx90614.c
+> index d619e8634a00..13a4cec64ea8 100644
+> --- a/drivers/iio/temperature/mlx90614.c
+> +++ b/drivers/iio/temperature/mlx90614.c
+> @@ -433,11 +433,11 @@ static int mlx90614_wakeup(struct mlx90614_data *data)
+>  
+>  	dev_dbg(&data->client->dev, "Requesting wake-up");
+>  
+> -	i2c_lock_adapter(data->client->adapter);
+> +	i2c_lock_bus(data->client->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  	gpiod_direction_output(data->wakeup_gpio, 0);
+>  	msleep(MLX90614_TIMING_WAKEUP);
+>  	gpiod_direction_input(data->wakeup_gpio);
+> -	i2c_unlock_adapter(data->client->adapter);
+> +	i2c_unlock_bus(data->client->adapter, I2C_LOCK_ROOT_ADAPTER);
+>  
+>  	data->ready_timestamp = jiffies +
+>  			msecs_to_jiffies(MLX90614_TIMING_STARTUP);
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 254cd34eeae2..795e3a860afe 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -754,18 +754,6 @@ i2c_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
+>  	adapter->lock_ops->unlock_bus(adapter, flags);
+>  }
+>  
+> -static inline void
+> -i2c_lock_adapter(struct i2c_adapter *adapter)
+> -{
+> -	i2c_lock_bus(adapter, I2C_LOCK_ROOT_ADAPTER);
+> -}
+> -
+> -static inline void
+> -i2c_unlock_adapter(struct i2c_adapter *adapter)
+> -{
+> -	i2c_unlock_bus(adapter, I2C_LOCK_ROOT_ADAPTER);
+> -}
+> -
+>  /*flags for the client struct: */
+>  #define I2C_CLIENT_PEC		0x04	/* Use Packet Error Checking */
+>  #define I2C_CLIENT_TEN		0x10	/* we have a ten bit chip address */

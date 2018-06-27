@@ -1,118 +1,158 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.18-rc2
-Date: Tue, 26 Jun 2018 16:32:26 -0700
-Message-ID: <20180626233226.GA170294@dtor-ws>
+Subject: Re: [PATCH v7 4/4] input/power: Add driver for BD71837/BD71847 PMIC
+ power button
+Date: Tue, 26 Jun 2018 17:21:47 -0700
+Message-ID: <20180627002147.GA179416@dtor-ws>
+References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <af60857c6db5fcf14fbf0112f74719d898952459.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <20180619175028.GA71788@dtor-ws>
+ <20180620064316.GB28784@localhost.localdomain>
+ <20180621102547.GA6076@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20180621102547.GA6076@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc: mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+Hi Matti,
 
-Please pull from:
+On Thu, Jun 21, 2018 at 01:25:47PM +0300, Matti Vaittinen wrote:
+> On Wed, Jun 20, 2018 at 09:43:16AM +0300, Matti Vaittinen wrote:
+> > On Tue, Jun 19, 2018 at 10:50:28AM -0700, Dmitry Torokhov wrote:
+> > > Hi Matti,
+> > > 
+> > > On Tue, Jun 19, 2018 at 01:57:09PM +0300, Matti Vaittinen wrote:
+> > > > ROHM BD71837 PMIC power button driver providing power-key press
+> > > > information to user-space.
+> > > > 
+> > > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> > > > ---
+> > > >  drivers/input/misc/Kconfig          | 10 +++++
+> > > >  drivers/input/misc/Makefile         |  1 +
+> > > >  drivers/input/misc/bd718xx-pwrkey.c | 90 +++++++++++++++++++++++++++++++++++++
+> > > >  3 files changed, 101 insertions(+)
+> > > >  create mode 100644 drivers/input/misc/bd718xx-pwrkey.c
+> > > > 
+> > > > +	platform_set_drvdata(pdev, pk);
+> > > > +	err = regmap_update_bits(pk->mfd->regmap,
+> > > > +				 BD71837_REG_PWRONCONFIG0,
+> > > > +				 BD718XX_PWRBTN_SHORT_PRESS_MASK,
+> > > > +				 BD718XX_PWRBTN_SHORT_PRESS_10MS);
+> > > 
+> > > This seems to be the only custom bit of set up in the driver, the rest I
+> > > think can easily be handled by gpio-keys.c in interrupt-only mode. Maybe
+> > > we could move this into MFD piece and drop this driver?
+> 
+> I did following in MFD driver - is this what you suggested:
+> +static struct gpio_keys_button btns[] = {
+> +       {
+> +               .code = KEY_POWER,
+> +               .gpio = -1,
+> +               .type = EV_KEY,
+> +       },
+> +};
+> +
+> +static struct gpio_keys_platform_data bd718xx_powerkey_data = {
+> +       .buttons = &btns[0],
+> +       .nbuttons = ARRAY_SIZE(btns),
+> +       .name = "bd718xx-pwrkey",
+> +};
+> +
+> +/* bd71837 multi function cells */
+> +
+> +static struct mfd_cell bd71837_mfd_cells[] = {
+> +       {
+> +               .name = "bd71837-clk",
+> +       }, {
+> +               .name = "gpio-keys",
+> +               .platform_data = &bd718xx_powerkey_data,
+> +               .pdata_size = sizeof(bd718xx_powerkey_data),
+> +       }, {
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Yes, something like this should work. It will not expose the internal
+kernel structure (the fact that we are using gpio-keys dirver) to handle
+power button of this PMIC, which Rob would appreciate. And we can change
+it later if you want to create a fancier driver.
 
-to receive updates for the input subsystem:
+> 
+> //snip
+> 
+> +static int bd71837_i2c_probe(struct i2c_client *i2c,
+> +                           const struct i2c_device_id *id)
+> +{
+> 
+> // snip
+> 
+> +       ret = regmap_add_irq_chip(bd71837->regmap, bd71837->chip_irq,
+> +               IRQF_ONESHOT, 0,
+> +               &bd71837_irq_chip, &bd71837->irq_data);
+> +       if (ret < 0) {
+> +               dev_err(bd71837->dev, "Failed to add irq_chip %d\n", ret);
+> +               goto err_out;
+> +       }
+> +       /* I think this should be done conditionally and only when pwrkey is used
+> +        * What would be the correct way to decide if we want to touch rhw button
+> +        * press detection times?
+> +        */
+> +       ret = regmap_update_bits(bd71837->regmap,
+> +                                BD71837_REG_PWRONCONFIG0,
+> +                                BD718XX_PWRBTN_PRESS_DURATION_MASK,
+> +                                BD718XX_PWRBTN_SHORT_PRESS_10MS);
+> +       if (ret < 0) {
+> +               dev_err(bd71837->dev, "Failed to configure button short press timeout %d\n", ret);
+> +               goto err_out;
+> +       }
+> +       /* According to BD71847 datasheet the HW default for long press detection
+> +        * is 10ms. So letch change it to 10 sec so we can actually get the short
+> +        * push and allow gracefull shut down
+> +        */
+> +       ret = regmap_update_bits(bd71837->regmap,
+> +                                BD71837_REG_PWRONCONFIG1,
+> +                                BD718XX_PWRBTN_PRESS_DURATION_MASK,
+> +                                BD718XX_PWRBTN_LONG_PRESS_10S);
+> +       if (ret < 0) {
+> +               dev_err(bd71837->dev, "Failed to configure button long press timeout %d\n", ret);
+> +               goto err_out;
+> +       }
+> +       btns[0].irq = regmap_irq_get_virq(bd71837->irq_data,
+> +                                         BD71837_INT_PWRBTN_S);
+> +
+> +       if (btns[0].irq < 0) {
+> +               ret = btns[0].irq;
+> +               goto err_out;
+> +       }
+> +
+> +       ret = mfd_add_devices(bd71837->dev, PLATFORM_DEVID_AUTO,
+> +                             bd71837_mfd_cells, ARRAY_SIZE(bd71837_mfd_cells),
+> +                             NULL, 0,
+> +                             regmap_irq_get_domain(bd71837->irq_data));
+> 
+> If looks is Ok I will send new patch with this approach at next week -
+> unless I get lost during the traditional midsummer festival here in
+> Finland.
+> 
+> > Finally, there may be cases when power button is not attached to PMIC
+> > or is needing different configuration for 'short push'. This is why I
+> > would prefer having own Kconfig option for this power-key driver. I am
+> > not sure if it is easily doable if we use gpio_keys?
+> 
+> What would be the preferred mechanism for skipping the button push duration
+> configurations (time it takes for PMIC to detect short or long push)? Or
+> setting the durations to values user(s) would prefer? To me this sounds again
+> something we could configure from DT. Would adding propereties
+> rohm,short-press-ms and rohm,long-press-ms sound reasonable? I will send
+> the first version with no option to skip/specify the configuration
+> (fixed 10ms for short press, 10 sec for long press) but I would like to add
+> support for specifying the duration as next step.
 
-- the main change is a fix for my brain-dead patch to PS/2 button
-  reporting for some protocols that made it in 4.17
-
-- there is a new driver for Spreadtum vibrator that I intended to send
-  during merge window but ended up not sending the 2nd pull request.
-  Given that this is a brand new driver we should not see regressions
-  here
-
-- a fixup to Elantech PS/2 driver to avoid decoding errors on Thinkpad
-  P52
-
-- addition of few more ACPI IDs for Silead and Elan drivers
-
-- RMI4 is switched to using IRQ domain code instead of rolling its own
-  implementation
-
-
-Changelog:
----------
-
-??? (1):
-      Input: elantech - fix V4 report decoding for module with middle key
-
-Aaron Ma (1):
-      Input: elantech - enable middle button of touchpads on ThinkPad P52
-
-Alexandr Savca (1):
-      Input: elan_i2c - add ELAN0618 (Lenovo v330 15IKB) ACPI ID
-
-Ben Hutchings (1):
-      Input: elan_i2c_smbus - fix more potential stack buffer overflows
-
-Dmitry Torokhov (3):
-      Input: make input_report_slot_state() return boolean
-      Input: do not assign new tracking ID when changing tool type
-      Input: psmouse - fix button reporting for basic protocols
-
-Enno Boland (1):
-      Input: xpad - fix GPD Win 2 controller name
-
-Hans de Goede (1):
-      Input: silead - add MSSL0002 ACPI HID
-
-Lucas Stach (1):
-      Input: synaptics-rmi4 - fix axis-swap behavior
-
-Nick Dyer (1):
-      Input: synaptics-rmi4 - convert irq distribution to irq_domain
-
-Roman Kiryanov (1):
-      Input: goldfish_events - fix checkpatch warnings
-
-Wei Yongjun (1):
-      Input: synaptics-rmi4 - fix the error return code in rmi_probe_interrupts()
-
-Xiaotong Lu (1):
-      Input: add Spreadtrum vibrator driver
-
-Diffstat:
---------
-
- .../bindings/input/sprd,sc27xx-vibra.txt           |  23 +++
- drivers/input/input-mt.c                           |  12 +-
- drivers/input/joystick/xpad.c                      |   2 +-
- drivers/input/keyboard/goldfish_events.c           |   9 +-
- drivers/input/misc/Kconfig                         |  10 ++
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/sc27xx-vibra.c                  | 154 +++++++++++++++++++++
- drivers/input/mouse/elan_i2c.h                     |   2 +
- drivers/input/mouse/elan_i2c_core.c                |   3 +-
- drivers/input/mouse/elan_i2c_smbus.c               |  10 +-
- drivers/input/mouse/elantech.c                     |  11 +-
- drivers/input/mouse/psmouse-base.c                 |  12 +-
- drivers/input/rmi4/Kconfig                         |   1 +
- drivers/input/rmi4/rmi_2d_sensor.c                 |  34 +++--
- drivers/input/rmi4/rmi_bus.c                       |  50 ++++++-
- drivers/input/rmi4/rmi_bus.h                       |  10 +-
- drivers/input/rmi4/rmi_driver.c                    |  52 +++----
- drivers/input/rmi4/rmi_f01.c                       |  10 +-
- drivers/input/rmi4/rmi_f03.c                       |   9 +-
- drivers/input/rmi4/rmi_f11.c                       |  42 +++---
- drivers/input/rmi4/rmi_f12.c                       |   8 +-
- drivers/input/rmi4/rmi_f30.c                       |   9 +-
- drivers/input/rmi4/rmi_f34.c                       |   5 +-
- drivers/input/rmi4/rmi_f54.c                       |   6 -
- drivers/input/touchscreen/silead.c                 |   1 +
- include/linux/input/mt.h                           |   2 +-
- include/linux/rmi.h                                |   2 +
- 27 files changed, 366 insertions(+), 124 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/sprd,sc27xx-vibra.txt
- create mode 100644 drivers/input/misc/sc27xx-vibra.c
+This sounds OK to be but you'd need to get Rob's buy in here. The
+properties should probably be in a sub-node of the PMIC device node.
 
 Thanks.
-
 
 -- 
 Dmitry

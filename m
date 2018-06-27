@@ -1,158 +1,99 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v7 4/4] input/power: Add driver for BD71837/BD71847 PMIC
- power button
-Date: Tue, 26 Jun 2018 17:21:47 -0700
-Message-ID: <20180627002147.GA179416@dtor-ws>
-References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
- <af60857c6db5fcf14fbf0112f74719d898952459.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
- <20180619175028.GA71788@dtor-ws>
- <20180620064316.GB28784@localhost.localdomain>
- <20180621102547.GA6076@localhost.localdomain>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH v3 01/12] input: add MT_TOOL_DIAL
+Date: Wed, 27 Jun 2018 10:54:08 +1000
+Message-ID: <20180627005408.GA25847@jelly>
+References: <20180621120908.16706-1-benjamin.tissoires@redhat.com>
+ <20180621120908.16706-2-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180621102547.GA6076@localhost.localdomain>
+In-Reply-To: <20180621120908.16706-2-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mario.Limonciello@dell.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Matti,
+On Thu, Jun 21, 2018 at 02:08:57PM +0200, Benjamin Tissoires wrote:
+> A dial is a tool you place on a multitouch surface which reports its
+> orientation or a relative angle of rotation when rotating its knob.
+> 
+> Some examples are the Dell Totem (on the Canvas 27"), the Microsoft Dial,
+> or the Griffin Powermate, though the later can't be put on a touch surface.
+> 
+> We give some extra space to account for other types of fingers if we need
+> (MT_TOOL_THUMB)
+> 
+> Slightly change the documentation to not make it mandatory to update each
+> MT_TOOL we add.
+> 
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> ---
+> 
+> new in v2 (extracted from previous series in its own patch)
+> 
+> changes in v3:
+> - re-insert the change in include/uapi/linux/input.h
+> ---
+>  Documentation/input/multi-touch-protocol.rst | 12 ++++++------
+>  include/uapi/linux/input.h                   |  3 ++-
+>  2 files changed, 8 insertions(+), 7 deletions(-)
+> 
+> diff --git a/Documentation/input/multi-touch-protocol.rst b/Documentation/input/multi-touch-protocol.rst
+> index b51751a0cd5d..6be70342e709 100644
+> --- a/Documentation/input/multi-touch-protocol.rst
+> +++ b/Documentation/input/multi-touch-protocol.rst
+> @@ -310,12 +310,12 @@ ABS_MT_TOOL_Y
+>  ABS_MT_TOOL_TYPE
+>      The type of approaching tool. A lot of kernel drivers cannot distinguish
+>      between different tool types, such as a finger or a pen. In such cases, the
+> -    event should be omitted. The protocol currently supports MT_TOOL_FINGER,
+> -    MT_TOOL_PEN, and MT_TOOL_PALM [#f2]_. For type B devices, this event is
+> -    handled by input core; drivers should instead use
+> -    input_mt_report_slot_state(). A contact's ABS_MT_TOOL_TYPE may change over
+> -    time while still touching the device, because the firmware may not be able
+> -    to determine which tool is being used when it first appears.
+> +    event should be omitted. The protocol currently mainly supports
+> +    MT_TOOL_FINGER, MT_TOOL_PEN, and MT_TOOL_PALM [#f2]_.
+> +    For type B devices, this event is handled by input core; drivers should
+> +    instead use input_mt_report_slot_state(). A contact's ABS_MT_TOOL_TYPE may
+> +    change over time while still touching the device, because the firmware may
+> +    not be able to determine which tool is being used when it first appears.
+>  
+>  ABS_MT_BLOB_ID
+>      The BLOB_ID groups several packets together into one arbitrarily shaped
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index 7288a7c573cc..e931b0468b6d 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -273,7 +273,8 @@ struct input_mask {
+>  #define MT_TOOL_FINGER		0
+>  #define MT_TOOL_PEN		1
+>  #define MT_TOOL_PALM		2
+> -#define MT_TOOL_MAX		2
+> +#define MT_TOOL_DIAL		10
+> +#define MT_TOOL_MAX		10
 
-On Thu, Jun 21, 2018 at 01:25:47PM +0300, Matti Vaittinen wrote:
-> On Wed, Jun 20, 2018 at 09:43:16AM +0300, Matti Vaittinen wrote:
-> > On Tue, Jun 19, 2018 at 10:50:28AM -0700, Dmitry Torokhov wrote:
-> > > Hi Matti,
-> > > 
-> > > On Tue, Jun 19, 2018 at 01:57:09PM +0300, Matti Vaittinen wrote:
-> > > > ROHM BD71837 PMIC power button driver providing power-key press
-> > > > information to user-space.
-> > > > 
-> > > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> > > > ---
-> > > >  drivers/input/misc/Kconfig          | 10 +++++
-> > > >  drivers/input/misc/Makefile         |  1 +
-> > > >  drivers/input/misc/bd718xx-pwrkey.c | 90 +++++++++++++++++++++++++++++++++++++
-> > > >  3 files changed, 101 insertions(+)
-> > > >  create mode 100644 drivers/input/misc/bd718xx-pwrkey.c
-> > > > 
-> > > > +	platform_set_drvdata(pdev, pk);
-> > > > +	err = regmap_update_bits(pk->mfd->regmap,
-> > > > +				 BD71837_REG_PWRONCONFIG0,
-> > > > +				 BD718XX_PWRBTN_SHORT_PRESS_MASK,
-> > > > +				 BD718XX_PWRBTN_SHORT_PRESS_10MS);
-> > > 
-> > > This seems to be the only custom bit of set up in the driver, the rest I
-> > > think can easily be handled by gpio-keys.c in interrupt-only mode. Maybe
-> > > we could move this into MFD piece and drop this driver?
-> 
-> I did following in MFD driver - is this what you suggested:
-> +static struct gpio_keys_button btns[] = {
-> +       {
-> +               .code = KEY_POWER,
-> +               .gpio = -1,
-> +               .type = EV_KEY,
-> +       },
-> +};
-> +
-> +static struct gpio_keys_platform_data bd718xx_powerkey_data = {
-> +       .buttons = &btns[0],
-> +       .nbuttons = ARRAY_SIZE(btns),
-> +       .name = "bd718xx-pwrkey",
-> +};
-> +
-> +/* bd71837 multi function cells */
-> +
-> +static struct mfd_cell bd71837_mfd_cells[] = {
-> +       {
-> +               .name = "bd71837-clk",
-> +       }, {
-> +               .name = "gpio-keys",
-> +               .platform_data = &bd718xx_powerkey_data,
-> +               .pdata_size = sizeof(bd718xx_powerkey_data),
-> +       }, {
+sorry for the late comment here: I'd prefer MAX to be greater than the 
+actually used highest value. This isn't strictly technically necessary
+because tools *should* be able to deal with FOO == MAX but there are some
+corner-cases that get more quirky. e.g. converting the string "SW_MAX" to
+value is 0xf, but 0xf to name is "SW_PEN_INSERTED". Compare that to
+"REL_MAX" -> 0xf -> "REL_MAX".
 
-Yes, something like this should work. It will not expose the internal
-kernel structure (the fact that we are using gpio-keys dirver) to handle
-power button of this PMIC, which Rob would appreciate. And we can change
-it later if you want to create a fancier driver.
+I know this case needs to be handled etc but not having max as an already
+used value papers over some of the quirks needed.
 
-> 
-> //snip
-> 
-> +static int bd71837_i2c_probe(struct i2c_client *i2c,
-> +                           const struct i2c_device_id *id)
-> +{
-> 
-> // snip
-> 
-> +       ret = regmap_add_irq_chip(bd71837->regmap, bd71837->chip_irq,
-> +               IRQF_ONESHOT, 0,
-> +               &bd71837_irq_chip, &bd71837->irq_data);
-> +       if (ret < 0) {
-> +               dev_err(bd71837->dev, "Failed to add irq_chip %d\n", ret);
-> +               goto err_out;
-> +       }
-> +       /* I think this should be done conditionally and only when pwrkey is used
-> +        * What would be the correct way to decide if we want to touch rhw button
-> +        * press detection times?
-> +        */
-> +       ret = regmap_update_bits(bd71837->regmap,
-> +                                BD71837_REG_PWRONCONFIG0,
-> +                                BD718XX_PWRBTN_PRESS_DURATION_MASK,
-> +                                BD718XX_PWRBTN_SHORT_PRESS_10MS);
-> +       if (ret < 0) {
-> +               dev_err(bd71837->dev, "Failed to configure button short press timeout %d\n", ret);
-> +               goto err_out;
-> +       }
-> +       /* According to BD71847 datasheet the HW default for long press detection
-> +        * is 10ms. So letch change it to 10 sec so we can actually get the short
-> +        * push and allow gracefull shut down
-> +        */
-> +       ret = regmap_update_bits(bd71837->regmap,
-> +                                BD71837_REG_PWRONCONFIG1,
-> +                                BD718XX_PWRBTN_PRESS_DURATION_MASK,
-> +                                BD718XX_PWRBTN_LONG_PRESS_10S);
-> +       if (ret < 0) {
-> +               dev_err(bd71837->dev, "Failed to configure button long press timeout %d\n", ret);
-> +               goto err_out;
-> +       }
-> +       btns[0].irq = regmap_irq_get_virq(bd71837->irq_data,
-> +                                         BD71837_INT_PWRBTN_S);
-> +
-> +       if (btns[0].irq < 0) {
-> +               ret = btns[0].irq;
-> +               goto err_out;
-> +       }
-> +
-> +       ret = mfd_add_devices(bd71837->dev, PLATFORM_DEVID_AUTO,
-> +                             bd71837_mfd_cells, ARRAY_SIZE(bd71837_mfd_cells),
-> +                             NULL, 0,
-> +                             regmap_irq_get_domain(bd71837->irq_data));
-> 
-> If looks is Ok I will send new patch with this approach at next week -
-> unless I get lost during the traditional midsummer festival here in
-> Finland.
-> 
-> > Finally, there may be cases when power button is not attached to PMIC
-> > or is needing different configuration for 'short push'. This is why I
-> > would prefer having own Kconfig option for this power-key driver. I am
-> > not sure if it is easily doable if we use gpio_keys?
-> 
-> What would be the preferred mechanism for skipping the button push duration
-> configurations (time it takes for PMIC to detect short or long push)? Or
-> setting the durations to values user(s) would prefer? To me this sounds again
-> something we could configure from DT. Would adding propereties
-> rohm,short-press-ms and rohm,long-press-ms sound reasonable? I will send
-> the first version with no option to skip/specify the configuration
-> (fixed 10ms for short press, 10 sec for long press) but I would like to add
-> support for specifying the duration as next step.
+Either way, Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-This sounds OK to be but you'd need to get Rob's buy in here. The
-properties should probably be in a sub-node of the PMIC device node.
+Cheers,
+   Peter
 
-Thanks.
-
--- 
-Dmitry
+>  
+>  /*
+>   * Values describing the status of a force-feedback effect
+> -- 
+> 2.14.3
+> 

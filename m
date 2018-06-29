@@ -1,29 +1,100 @@
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Subject: Re: [PATCH v8 2/2] mfd: bd71837: Devicetree bindings for ROHM
- BD71837 PMIC
-Date: Fri, 29 Jun 2018 11:26:05 +0300
-Message-ID: <20180629082605.GF2118@localhost.localdomain>
-References: <cover.1530259815.git.matti.vaittinen@fi.rohmeurope.com>
- <a7904544d51270f4d2230ceb1a336b57a06652c1.1530259815.git.matti.vaittinen@fi.rohmeurope.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] HID: hiddev: fix potential Spectre v1
+Date: Fri, 29 Jun 2018 17:08:44 -0500
+Message-ID: <20180629220844.GA13823@embeddedor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <a7904544d51270f4d2230ceb1a336b57a06652c1.1530259815.git.matti.vaittinen@fi.rohmeurope.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mturquette@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org
-Cc: sboyd@kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 29, 2018 at 11:23:42AM +0300, Matti Vaittinen wrote:
-> Document devicetree bindings for ROHM BD71837 PMIC MFD.
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
+uref->field_index, uref->usage_index, finfo.field_index and
+cinfo.index can be indirectly controlled by user-space, hence
+leading to a potential exploitation of the Spectre variant 1
+vulnerability.
 
-I kept the Reviewed-by: tag here as there is no changes from patch v6
-which was reviewed by Rob - hopefully this was not a violation of any
-sort...
+This issue was detected with the help of Smatch:
 
-Best Regards
-    Matti Vaittinen
+drivers/hid/usbhid/hiddev.c:473 hiddev_ioctl_usage() warn: potential
+spectre issue 'report->field' (local cap)
+drivers/hid/usbhid/hiddev.c:477 hiddev_ioctl_usage() warn: potential
+spectre issue 'field->usage' (local cap)
+drivers/hid/usbhid/hiddev.c:757 hiddev_ioctl() warn: potential spectre
+issue 'report->field' (local cap)
+drivers/hid/usbhid/hiddev.c:801 hiddev_ioctl() warn: potential spectre
+issue 'hid->collection' (local cap)
+
+Fix this by sanitizing such structure fields before using them to index
+report->field, field->usage and hid->collection
+
+Notice that given that speculation windows are large, the policy is
+to kill the speculation on the first load and not worry if it can be
+completed with a dependent load/store [1].
+
+[1] https://marc.info/?l=linux-kernel&m=152449131114778&w=2
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/hid/usbhid/hiddev.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index e3ce233..23872d0 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -36,6 +36,7 @@
+ #include <linux/hiddev.h>
+ #include <linux/compat.h>
+ #include <linux/vmalloc.h>
++#include <linux/nospec.h>
+ #include "usbhid.h"
+ 
+ #ifdef CONFIG_USB_DYNAMIC_MINORS
+@@ -469,10 +470,14 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
+ 
+ 		if (uref->field_index >= report->maxfield)
+ 			goto inval;
++		uref->field_index = array_index_nospec(uref->field_index,
++						       report->maxfield);
+ 
+ 		field = report->field[uref->field_index];
+ 		if (uref->usage_index >= field->maxusage)
+ 			goto inval;
++		uref->usage_index = array_index_nospec(uref->usage_index,
++						       field->maxusage);
+ 
+ 		uref->usage_code = field->usage[uref->usage_index].hid;
+ 
+@@ -499,6 +504,8 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
+ 
+ 			if (uref->field_index >= report->maxfield)
+ 				goto inval;
++			uref->field_index = array_index_nospec(uref->field_index,
++							       report->maxfield);
+ 
+ 			field = report->field[uref->field_index];
+ 
+@@ -753,6 +760,8 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 
+ 		if (finfo.field_index >= report->maxfield)
+ 			break;
++		finfo.field_index = array_index_nospec(finfo.field_index,
++						       report->maxfield);
+ 
+ 		field = report->field[finfo.field_index];
+ 		memset(&finfo, 0, sizeof(finfo));
+@@ -797,6 +806,8 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 
+ 		if (cinfo.index >= hid->maxcollection)
+ 			break;
++		cinfo.index = array_index_nospec(cinfo.index,
++						 hid->maxcollection);
+ 
+ 		cinfo.type = hid->collection[cinfo.index].type;
+ 		cinfo.usage = hid->collection[cinfo.index].usage;
+-- 
+2.7.4

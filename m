@@ -1,107 +1,86 @@
-From: Rosen Penev <rosenp@gmail.com>
-Subject: Re: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
-Date: Sat, 30 Jun 2018 11:57:32 -0700
-Message-ID: <CAKxU2N8HGcJer5v3vDHMnHH1gAeAhHDdNDZS-yL+a2Ung_PiNg@mail.gmail.com>
-References: <20180617014216.4043-1-rosenp@gmail.com> <20180624.150445.1006140718276550233.teika@gmx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 1/5] dm: Avoid namespace collision with bitmap API
+Date: Sat, 30 Jun 2018 23:17:46 +0300
+Message-ID: <20180630201750.2588-2-andriy.shevchenko@linux.intel.com>
+References: <20180630201750.2588-1-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180624.150445.1006140718276550233.teika@gmx.com>
+In-Reply-To: <20180630201750.2588-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: teika@gmx.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jan.steffens@gmail.com, waltercool@slash.cl
+To: Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <ynorov@caviumnetworks.com>, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, Joe Perches <joe@perches.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jun 23, 2018 at 11:05 PM Teika Kazura <teika@gmx.com> wrote:
->
-> Hi, Rosen. Thank you for your patch. (@Jan Steffens and @Pablo Cholaky: T=
-hanks for your reports.) But I'm afraid some more work is necessary. Let me=
- propose some points.
-Too much work for me. I'll just use the kernel pareameter.
->
-> I'm not a kernel developer, but have been working on this issue to help t=
-hem. (See https://www.spinics.net/lists/linux-input/msg55950.html )
->
-> 0.
-> Could you resend it, cc-ing to the relevant developers. (Use the one of m=
-y reply here. You can use <kernel src tree>/scripts/get_maintainer.pl next =
-time.) Otherwise, it is unlikely to be noticed by them.
->
-> 1.
-> You added your device to forcepad_pnp_ids[], but I guess it should be smb=
-us_pnp_ids[].
->
-> When making the patch again, please use the kernel 4.17 or newer, because=
- smbus_pnp_ids was changed recently.
->
-> If it works by using smbus_pnp_ids, please test it for a week or so, espe=
-cially making sure that suspend/resume works without any problem.
->
-> 2.
-> Though it's my personal impression, the change description looked somewha=
-t personal. At the same time, it's important, guaranteeing the stability of=
- the patch.- I know you originally reported it last August [1]. Furthermore=
-, there have been two other users [2] who reported SMBus worked for the sam=
-e device, namely SYN1219. (They two are cc-ed to in this reply.)
->
-> You can use "$ git format-patch --cover-letter"; it will generate a "cove=
-r-letter", the introductory part of the patch, explaining the acceptability=
- of the patch to kernel developers. (For an example, see https://www.spinic=
-s.net/lists/linux-input/msg57041.html)
->
-> So the full description can be given in the cover letter, and the real pa=
-tch description can be something like "This enables SMBus for xxx", being a=
-lmost identical to the email subject.
->
-> 3. This is not essential, but the style of the email subject that the dev=
-ice maintainer prefers might be:
-> ------------------------------------------------------------------------
-> [PATCH v2] Input: synaptics - Enable RMI4 for Clevo P870DM laptops
-> ------------------------------------------------------------------------
-> after looking at this tree [3]. ("v2" meaning version 2, due to the above=
- change.) You can feed "--subject-prefix=3D'PATCH v2'" to "$ git format-pat=
-ch".
->
-> 4. If you want to give the credit for my reply, you can add
-> ------------------------------------------------------------------------
-> Suggested-by: Teika Kazura <teika@gmx.com>
-> ------------------------------------------------------------------------
-> after Signed-off-by. It's completely ok without it. :-)
->
-> [1] https://marc.info/?l=3Dlinux-input&m=3D150284057602358&w=3D2
-> [2] https://marc.info/?l=3Dlinux-input&m=3D150049625613055&w=3D2
->     https://marc.info/?l=3Dlinux-input&m=3D150094561111026&w=3D2
-> [3] https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/log/
->
-> Best regards,
-> Teika (Teika kazura)
->
->
-> From: Rosen Penev <rosenp@gmail.com>
-> Subject: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
-> Date: Sat, 16 Jun 2018 18:42:16 -0700
->
-> > I have been testing this for half a year with no issues to report.
-> >
-> > Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> > ---
-> >  drivers/input/mouse/synaptics.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/syna=
-ptics.c
-> > index 55d33500d55e..23f5bb2cf9da 100644
-> > --- a/drivers/input/mouse/synaptics.c
-> > +++ b/drivers/input/mouse/synaptics.c
-> > @@ -183,6 +183,7 @@ static const char * const smbus_pnp_ids[] =3D {
-> >  };
-> >
-> >  static const char * const forcepad_pnp_ids[] =3D {
-> > +     "SYN1219",
-> >       "SYN300D",
-> >       "SYN3014",
-> >       NULL
-> > --
-> > 2.17.1
-> >
+bitmap API (include/linux/bitmap.h) has 'bitmap' prefix for its methods.
+
+On the other hand DM bitmap API is special case.
+Adding 'dm' prefix to it to avoid potential name space collision.
+
+No functional changes intended.
+
+Suggested-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ .../md/persistent-data/dm-space-map-common.c  | 20 +++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/md/persistent-data/dm-space-map-common.c b/drivers/md/persistent-data/dm-space-map-common.c
+index 829b4ce057d8..0a3b8ae4a29c 100644
+--- a/drivers/md/persistent-data/dm-space-map-common.c
++++ b/drivers/md/persistent-data/dm-space-map-common.c
+@@ -69,9 +69,9 @@ static struct dm_block_validator index_validator = {
+  */
+ #define BITMAP_CSUM_XOR 240779
+ 
+-static void bitmap_prepare_for_write(struct dm_block_validator *v,
+-				     struct dm_block *b,
+-				     size_t block_size)
++static void dm_bitmap_prepare_for_write(struct dm_block_validator *v,
++					struct dm_block *b,
++					size_t block_size)
+ {
+ 	struct disk_bitmap_header *disk_header = dm_block_data(b);
+ 
+@@ -81,9 +81,9 @@ static void bitmap_prepare_for_write(struct dm_block_validator *v,
+ 						       BITMAP_CSUM_XOR));
+ }
+ 
+-static int bitmap_check(struct dm_block_validator *v,
+-			struct dm_block *b,
+-			size_t block_size)
++static int dm_bitmap_check(struct dm_block_validator *v,
++			   struct dm_block *b,
++			   size_t block_size)
+ {
+ 	struct disk_bitmap_header *disk_header = dm_block_data(b);
+ 	__le32 csum_disk;
+@@ -108,8 +108,8 @@ static int bitmap_check(struct dm_block_validator *v,
+ 
+ static struct dm_block_validator dm_sm_bitmap_validator = {
+ 	.name = "sm_bitmap",
+-	.prepare_for_write = bitmap_prepare_for_write,
+-	.check = bitmap_check
++	.prepare_for_write = dm_bitmap_prepare_for_write,
++	.check = dm_bitmap_check,
+ };
+ 
+ /*----------------------------------------------------------------*/
+@@ -124,7 +124,7 @@ static void *dm_bitmap_data(struct dm_block *b)
+ 
+ #define WORD_MASK_HIGH 0xAAAAAAAAAAAAAAAAULL
+ 
+-static unsigned bitmap_word_used(void *addr, unsigned b)
++static unsigned dm_bitmap_word_used(void *addr, unsigned b)
+ {
+ 	__le64 *words_le = addr;
+ 	__le64 *w_le = words_le + (b >> ENTRIES_SHIFT);
+@@ -170,7 +170,7 @@ static int sm_find_free(void *addr, unsigned begin, unsigned end,
+ {
+ 	while (begin < end) {
+ 		if (!(begin & (ENTRIES_PER_WORD - 1)) &&
+-		    bitmap_word_used(addr, begin)) {
++		    dm_bitmap_word_used(addr, begin)) {
+ 			begin += ENTRIES_PER_WORD;
+ 			continue;
+ 		}
+-- 
+2.18.0

@@ -1,63 +1,27 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v4 4/5] Input: gpio-keys - Switch to bitmap_zalloc()
-Date: Sat, 30 Jun 2018 23:17:49 +0300
-Message-ID: <20180630201750.2588-5-andriy.shevchenko@linux.intel.com>
-References: <20180630201750.2588-1-andriy.shevchenko@linux.intel.com>
+From: Teika Kazura <teika@gmx.com>
+Subject: Re: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
+Date: Sun, 01 Jul 2018 07:50:41 +0900 (JST)
+Message-ID: <20180701.075041.1838978756168630725.teika@gmx.com>
+References: <20180617014216.4043-1-rosenp@gmail.com>
+        <20180624.150445.1006140718276550233.teika@gmx.com>
+        <CAKxU2N8HGcJer5v3vDHMnHH1gAeAhHDdNDZS-yL+a2Ung_PiNg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180630201750.2588-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <CAKxU2N8HGcJer5v3vDHMnHH1gAeAhHDdNDZS-yL+a2Ung_PiNg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <ynorov@caviumnetworks.com>, linux-kernel@vger.kernel.org, mika.westerberg@linux.intel.com, Joe Perches <joe@perches.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: rosenp@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jan.steffens@gmail.com, waltercool@slash.cl
 List-Id: linux-input@vger.kernel.org
 
-Switch to bitmap_zalloc() to show clearly what we are allocating.
-Besides that it returns pointer of bitmap type instead of opaque void *.
+@Rosen: Ok, then I'll make a patch, and will ask you to test it. Wait for a moment. Thanks for your reply. (It's a burden for me, too. ;-)
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/input/keyboard/gpio_keys.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+From: Rosen Penev <rosenp@gmail.com>
+Subject: Re: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
+Date: Sat, 30 Jun 2018 11:57:32 -0700
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 052e37675086..492a971b95b5 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -196,7 +196,7 @@ static ssize_t gpio_keys_attr_show_helper(struct gpio_keys_drvdata *ddata,
- 	ssize_t ret;
- 	int i;
- 
--	bits = kcalloc(BITS_TO_LONGS(n_events), sizeof(*bits), GFP_KERNEL);
-+	bits = bitmap_zalloc(n_events, GFP_KERNEL);
- 	if (!bits)
- 		return -ENOMEM;
- 
-@@ -216,7 +216,7 @@ static ssize_t gpio_keys_attr_show_helper(struct gpio_keys_drvdata *ddata,
- 	buf[ret++] = '\n';
- 	buf[ret] = '\0';
- 
--	kfree(bits);
-+	bitmap_free(bits);
- 
- 	return ret;
- }
-@@ -240,7 +240,7 @@ static ssize_t gpio_keys_attr_store_helper(struct gpio_keys_drvdata *ddata,
- 	ssize_t error;
- 	int i;
- 
--	bits = kcalloc(BITS_TO_LONGS(n_events), sizeof(*bits), GFP_KERNEL);
-+	bits = bitmap_zalloc(n_events, GFP_KERNEL);
- 	if (!bits)
- 		return -ENOMEM;
- 
-@@ -284,7 +284,7 @@ static ssize_t gpio_keys_attr_store_helper(struct gpio_keys_drvdata *ddata,
- 	mutex_unlock(&ddata->disable_lock);
- 
- out:
--	kfree(bits);
-+	bitmap_free(bits);
- 	return error;
- }
- 
--- 
-2.18.0
+>> Hi, Rosen. Thank you for your patch. (@Jan Steffens and @Pablo Cholaky: Thanks for your reports.) But I'm afraid some more work is necessary. Let me propose some points.
+> Too much work for me. I'll just use the kernel pareameter.
+
+Teika (Teika kazura)

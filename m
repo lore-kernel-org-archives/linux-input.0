@@ -1,59 +1,33 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 0/3] cast sizeof to int for comparison
-Date: Sun,  1 Jul 2018 19:32:02 +0200
-Message-ID: <1530466325-1678-1-git-send-email-Julia.Lawall@lip6.fr>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 0/3] cast sizeof to int for comparison
+Date: Sun, 01 Jul 2018 11:26:32 -0700
+Message-ID: <653914f26dc8433a3f682b5e7eb850ab94bd431d.camel@perches.com>
+References: <1530466325-1678-1-git-send-email-Julia.Lawall@lip6.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1530466325-1678-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-usb@vger.kernel.org, joe@perches.com, Chengguang Xu <cgxu519@gmx.com>
+To: Julia Lawall <Julia.Lawall@lip6.fr>, linux-usb@vger.kernel.org, Chengguang Xu <cgxu519@gmx.com>
 Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Comparing an int to a size, which is unsigned, causes the int to become
-unsigned, giving the wrong result.
+On Sun, 2018-07-01 at 19:32 +0200, Julia Lawall wrote:
+> Comparing an int to a size, which is unsigned, causes the int to become
+> unsigned, giving the wrong result.
+> 
+> The semantic match that finds this problem is as follows:
+> (http://coccinelle.lip6.fr/)
 
-The semantic match that finds this problem is as follows:
-(http://coccinelle.lip6.fr/)
+Great, thanks.
 
-// <smpl>
-@safe disable not_int2@
-int x;
-position p;
-binary operator op = {<,<=};
-expression e;
-@@
+But what about the ones in net/smc like:
 
-(
-x < 0 || (x@p op e)
-|
-x <= 0 || (x@p op e)
-|
-x > 0 && (x@p op e)
-|
-x >= 0 && (x@p op e)
-)
+> net/smc/smc_clc.c:	
+> 
+>         len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
+>                              sizeof(struct smc_clc_msg_decline));
+>         if (len < sizeof(struct smc_clc_msg_decline))
 
-@@
-int x;
-type t;
-expression e,e1;
-identifier f != {strlen,resource_size};
-position p != safe.p;
-binary operator op = {<,<=};
-@@
-
-*x = f(...);
-... when != x = e1
-    when != if (x < 0 || ...) { ... return ...; }
-(
-*x@p op sizeof(e)
-|
-*x@p op sizeof(t)
-)
-// </smpl>
-
----
-
- drivers/input/mouse/elan_i2c_smbus.c |    2 +-
- drivers/media/usb/gspca/kinect.c     |    2 +-
- drivers/usb/wusbcore/security.c      |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+Are those detected by the semantic match and ignored?

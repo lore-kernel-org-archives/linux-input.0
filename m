@@ -1,27 +1,28 @@
-From: Teika Kazura <teika@gmx.com>
-Subject: Re: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
-Date: Sun, 01 Jul 2018 07:50:41 +0900 (JST)
-Message-ID: <20180701.075041.1838978756168630725.teika@gmx.com>
-References: <20180617014216.4043-1-rosenp@gmail.com>
-        <20180624.150445.1006140718276550233.teika@gmx.com>
-        <CAKxU2N8HGcJer5v3vDHMnHH1gAeAhHDdNDZS-yL+a2Ung_PiNg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Joey Pabalinas <joeypabalinas@gmail.com>
+Subject: [PATCH 0/4] reduce Surface Pro 3 multitouch jitter
+Date: Sat, 30 Jun 2018 14:19:49 -1000
+Message-ID: <cover.1530402641.git.joeypabalinas@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKxU2N8HGcJer5v3vDHMnHH1gAeAhHDdNDZS-yL+a2Ung_PiNg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: rosenp@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, jan.steffens@gmail.com, waltercool@slash.cl
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Daniel Martin <consume.noise@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-@Rosen: Ok, then I'll make a patch, and will ask you to test it. Wait for a moment. Thanks for your reply. (It's a burden for me, too. ;-)
+The Surface Pro 3 firmware doesn't reliably send contact lift off
+reports nor handle invalid report values gracefully.
 
-From: Rosen Penev <rosenp@gmail.com>
-Subject: Re: [PATCH] synaptics: Enable RMI4 for Clevo P870DM laptops
-Date: Sat, 30 Jun 2018 11:57:32 -0700
+To reduce touchscreen input jitter:
+  - add MT_QUIRK_NOT_SEEN_MEANS_UP to the MT_CLS_WIN_8
+  - drop invalid report values
 
->> Hi, Rosen. Thank you for your patch. (@Jan Steffens and @Pablo Cholaky: Thanks for your reports.) But I'm afraid some more work is necessary. Let me propose some points.
-> Too much work for me. I'll just use the kernel pareameter.
+Joey Pabalinas (4):
+  HID: multitouch: add MT_QUIRK_NOT_SEEN_MEANS_UP to MT_CLS_WIN_8 quirks
+  HID: multitouch: don't check HID_GROUP_MULTITOUCH_WIN_8 for serial protocol
+  HID: multitouch: drop reports containing invalid values
+  HID: multitouch: remove unneeded else conditional cases
 
-Teika (Teika kazura)
+ drivers/hid/hid-multitouch.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
+
+-- 
+2.18.0

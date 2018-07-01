@@ -1,45 +1,51 @@
-From: Joey Pabalinas <joeypabalinas@gmail.com>
-Subject: [PATCH 3/4] HID: multitouch: drop reports containing invalid values
-Date: Sat, 30 Jun 2018 14:19:52 -1000
-Message-ID: <29ad484c1b357fd7fd670a6f252d097677b808f8.1530402641.git.joeypabalinas@gmail.com>
-References: <cover.1530402641.git.joeypabalinas@gmail.com>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 1/3] Input: elan_i2c_smbus - cast sizeof to int for comparison
+Date: Sun,  1 Jul 2018 19:32:03 +0200
+Message-ID: <1530466325-1678-2-git-send-email-Julia.Lawall@lip6.fr>
+References: <1530466325-1678-1-git-send-email-Julia.Lawall@lip6.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1530402641.git.joeypabalinas@gmail.com>
+In-Reply-To: <1530466325-1678-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Daniel Martin <consume.noise@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, joe@perches.com, Chengguang Xu <cgxu519@gmx.com>
+Cc: kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Avoid processing reports containing invalid values to reduce
-multitouch input stutter.
+Comparing an int to a size, which is unsigned, causes the int to become
+unsigned, giving the wrong result.  i2c_smbus_read_block_data can return the
+result of i2c_smbus_xfer, whih can return a negative error code.
 
-Signed-off-by: Joey Pabalinas <joeypabalinas@gmail.com>
+A simplified version of the semantic match that finds this problem is as
+follows: (http://coccinelle.lip6.fr/)
 
- 1 file changed, 9 insertions(+)
+// <smpl>
+@@
+int x;
+expression e,e1;
+identifier f;
+@@
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c0654db0b736543ca0..08b50e5908cecdda66 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -694,10 +694,19 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
- {
- 	if ((td->mtclass.quirks & MT_QUIRK_CONTACT_CNT_ACCURATE) &&
- 	    td->num_received >= td->num_expected)
- 		return;
- 
-+	/* drop invalid values after counting them */
-+	if (td->curdata.x == 0xffff &&
-+			td->curdata.y == 0xffff &&
-+			td->curdata.w == 0xffff &&
-+			td->curdata.h == 0xffff) {
-+		td->num_received++;
-+		return;
-+	}
-+
- 	if (td->curvalid || (td->mtclass.quirks & MT_QUIRK_ALWAYS_VALID)) {
- 		int active;
- 		int slotnum = mt_compute_slot(td, input);
- 		struct mt_slot *s = &td->curdata;
- 		struct input_mt *mt = input->mt;
--- 
-2.18.0
+*x = f(...);
+... when != x = e1
+    when != if (x < 0 || ...) { ... return ...; }
+*x < sizeof(e)
+// </smpl>
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+
+---
+ drivers/input/mouse/elan_i2c_smbus.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
+index c060d27..88e315d 100644
+--- a/drivers/input/mouse/elan_i2c_smbus.c
++++ b/drivers/input/mouse/elan_i2c_smbus.c
+@@ -387,7 +387,7 @@ static int elan_smbus_prepare_fw_update(struct i2c_client *client)
+ 		len = i2c_smbus_read_block_data(client,
+ 						ETP_SMBUS_IAP_PASSWORD_READ,
+ 						val);
+-		if (len < sizeof(u16)) {
++		if (len < (int)sizeof(u16)) {
+ 			error = len < 0 ? len : -EIO;
+ 			dev_err(dev, "failed to read iap password: %d\n",
+ 				error);

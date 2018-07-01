@@ -1,42 +1,61 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 0/3] cast sizeof to int for comparison
-Date: Sun, 1 Jul 2018 20:51:55 +0200 (CEST)
-Message-ID: <alpine.DEB.2.20.1807012050530.2494@hadrien>
-References: <1530466325-1678-1-git-send-email-Julia.Lawall@lip6.fr> <653914f26dc8433a3f682b5e7eb850ab94bd431d.camel@perches.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Jun Bo Bi <jambonmcyeah@gmail.com>
+Subject: [PATCH] platform/x86: touchscreen_dmi: Add touchscreen platform data for the Onda V820w tablet
+Date: Sun,  1 Jul 2018 17:47:14 -0400
+Message-ID: <20180701214714.2522-1-jambonmcyeah@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <653914f26dc8433a3f682b5e7eb850ab94bd431d.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: linux-usb@vger.kernel.org, Chengguang Xu <cgxu519@gmx.com>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jambonmcyeah@gmail.com, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, hdegoede@redhat.com, dvhart@infradead.org, andy@infradead.org
 List-Id: linux-input@vger.kernel.org
 
+Add touchscreen platform data for the Onda V820w tablet
 
+Signed-off-by: Jun Bo Bi <jambonmcyeah@gmail.com>
+---
+ drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-On Sun, 1 Jul 2018, Joe Perches wrote:
-
-> On Sun, 2018-07-01 at 19:32 +0200, Julia Lawall wrote:
-> > Comparing an int to a size, which is unsigned, causes the int to become
-> > unsigned, giving the wrong result.
-> >
-> > The semantic match that finds this problem is as follows:
-> > (http://coccinelle.lip6.fr/)
->
-> Great, thanks.
->
-> But what about the ones in net/smc like:
->
-> > net/smc/smc_clc.c:
-> >
-> >         len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
-> >                              sizeof(struct smc_clc_msg_decline));
-> >         if (len < sizeof(struct smc_clc_msg_decline))
->
-> Are those detected by the semantic match and ignored?
-
-I wasn't sure how to justify that kernel_sendmsg returns a negative value.
-If it is the case, I can send the patch.  I only found this in one file,
-but there were multiple occurrences.
-
-julia
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 6284946cb0d1..a8e083db0369 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -204,6 +204,22 @@ static const struct ts_dmi_data onda_obook_20_plus_data = {
+ 	.properties	= onda_obook_20_plus_props,
+ };
+ 
++static const struct property_entry onda_v820w_32g_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1665),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name",
++			      "gsl1680-onda-v820w-32g.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct silead_ts_dmi_data onda_v820w_32g_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= onda_v820w_32g_props,
++};
++
+ static const struct property_entry onda_v891w_v1_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 46),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y",  8),
+@@ -470,6 +486,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "OBOOK 20 PLUS"),
+ 		},
+ 	},
++	{
++		/* ONDA V820w DualOS */
++		.driver_data = (void *)&onda_v820w_32g_data,
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "ONDA"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "V820w DualOS")
++		},
++	},
+ 	{
+ 		/* ONDA V891w revision P891WBEBV1B00 aka v1 */
+ 		.driver_data = (void *)&onda_v891w_v1_data,
+-- 
+2.18.0

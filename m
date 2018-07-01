@@ -1,7 +1,7 @@
 From: Joey Pabalinas <joeypabalinas@gmail.com>
-Subject: [PATCH 4/4] HID: multitouch: remove unneeded else conditional cases
-Date: Sat, 30 Jun 2018 14:19:53 -1000
-Message-ID: <d35643165a1d1972fd91e547922697a3c785a413.1530402641.git.joeypabalinas@gmail.com>
+Subject: [PATCH 1/4] HID: multitouch: add MT_QUIRK_NOT_SEEN_MEANS_UP to MT_CLS_WIN_8 quirks
+Date: Sat, 30 Jun 2018 14:19:50 -1000
+Message-ID: <958e450a066289c94ba03429166c972c54be6fb3.1530402641.git.joeypabalinas@gmail.com>
 References: <cover.1530402641.git.joeypabalinas@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <cover.1530402641.git.joeypabalinas@gmail.com>
@@ -10,61 +10,32 @@ To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Daniel Martin <consume.noise@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Elide lone `else` cases and replace `else if` clauses
-with plain `if` conditionals when they occur immediately
-after return statements.
+The firmware found in the touch screen of the Surface Pro 3 is slightly
+buggy and occasionally doesn't send lift off reports for contacts; add
+MT_QUIRK_NOT_SEEN_MEANS_UP to .quirks to compensate for the missed
+reports.
 
 Signed-off-by: Joey Pabalinas <joeypabalinas@gmail.com>
 
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 08b50e5908cecdda66..30b1a2c67f39a41325 100644
+index 45968f7970f87775fa..a793076139d7d0db9b 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -205,12 +205,12 @@ static void mt_post_parse(struct mt_device *td);
- 
- static int cypress_compute_slot(struct mt_device *td)
- {
- 	if (td->curdata.contactid != 0 || td->num_received == 0)
- 		return td->curdata.contactid;
--	else
--		return -1;
-+
-+	return -1;
- }
- 
- static struct mt_class mt_classes[] = {
- 	{ .name = MT_CLS_DEFAULT,
+@@ -242,11 +242,12 @@ static struct mt_class mt_classes[] = {
  		.quirks = MT_QUIRK_ALWAYS_VALID |
-@@ -803,12 +803,12 @@ static int mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
- 	delta *= 100;
- 
- 	if (jdelta > MAX_TIMESTAMP_INTERVAL)
- 		/* No data received for a while, resync the timestamp. */
- 		return 0;
--	else
--		return td->timestamp + delta;
-+
-+	return td->timestamp + delta;
- }
- 
- static int mt_touch_event(struct hid_device *hid, struct hid_field *field,
- 				struct hid_usage *usage, __s32 value)
- {
-@@ -1110,11 +1110,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	 * HID_DG_CONTACTCOUNT from the pen report as it is outside the physical
- 	 * collection, but within the report ID.
- 	 */
- 	if (field->physical == HID_DG_STYLUS)
- 		return 0;
--	else if ((field->physical == 0) &&
-+
-+	if ((field->physical == 0) &&
- 		 (field->report->id != td->mt_report_id) &&
- 		 (td->mt_report_id != -1))
- 		return 0;
- 
- 	if (field->application == HID_DG_TOUCHSCREEN ||
+ 			MT_QUIRK_IGNORE_DUPLICATES |
+ 			MT_QUIRK_HOVERING |
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE |
+ 			MT_QUIRK_STICKY_FINGERS |
+-			MT_QUIRK_WIN8_PTP_BUTTONS },
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_NOT_SEEN_MEANS_UP },
+ 	{ .name = MT_CLS_EXPORT_ALL_INPUTS,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE,
+ 		.export_all_inputs = true },
+ 	{ .name = MT_CLS_WIN_8_DUAL,
 -- 
 2.18.0

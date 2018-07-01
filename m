@@ -1,61 +1,39 @@
-From: Jun Bo Bi <jambonmcyeah@gmail.com>
-Subject: [PATCH] platform/x86: touchscreen_dmi: Add touchscreen platform data for the Onda V820w tablet
-Date: Sun,  1 Jul 2018 17:47:14 -0400
-Message-ID: <20180701214714.2522-1-jambonmcyeah@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] Input: elantech - Fix V4 report decoding for module with
+ middle key
+Date: Sun, 1 Jul 2018 16:30:44 -0700
+Message-ID: <CA+55aFzLMkyAGdfaeDLUXeRE0MJUckRDsrbVy2yonT6R=wf-Og@mail.gmail.com>
+References: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
+ <20180529180506.GB167092@dtor-ws> <000301d3f7e4$5c9e51c0$15daf540$@emc.com.tw>
+ <20180622001632.GI79890@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180622001632.GI79890@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jambonmcyeah@gmail.com, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, hdegoede@redhat.com, dvhart@infradead.org, andy@infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: kt.liao@emc.com.tw, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, ulrik.debie-os@e2big.org, phoenix@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
 List-Id: linux-input@vger.kernel.org
 
-Add touchscreen platform data for the Onda V820w tablet
+On Thu, Jun 21, 2018 at 5:16 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> OK, thank you for the info. Applied.
 
-Signed-off-by: Jun Bo Bi <jambonmcyeah@gmail.com>
----
- drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+Ugh. Dmitry, please be more careful with author names.
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 6284946cb0d1..a8e083db0369 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -204,6 +204,22 @@ static const struct ts_dmi_data onda_obook_20_plus_data = {
- 	.properties	= onda_obook_20_plus_props,
- };
- 
-+static const struct property_entry onda_v820w_32g_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1665),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name",
-+			      "gsl1680-onda-v820w-32g.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
-+	{ }
-+};
-+
-+static const struct silead_ts_dmi_data onda_v820w_32g_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= onda_v820w_32g_props,
-+};
-+
- static const struct property_entry onda_v891w_v1_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-x", 46),
- 	PROPERTY_ENTRY_U32("touchscreen-min-y",  8),
-@@ -470,6 +486,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "OBOOK 20 PLUS"),
- 		},
- 	},
-+	{
-+		/* ONDA V820w DualOS */
-+		.driver_data = (void *)&onda_v820w_32g_data,
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "ONDA"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "V820w DualOS")
-+		},
-+	},
- 	{
- 		/* ONDA V891w revision P891WBEBV1B00 aka v1 */
- 		.driver_data = (void *)&onda_v891w_v1_data,
--- 
-2.18.0
+Apparently you aren't in a proper utf-8 locale, and you messed up the
+name in the git repository. So yoiu apparently tried to take KT Liao's
+Chinese name: =E5=BB=96=E5=B4=87=E6=A6=AE, but did so in some wrong locale,=
+ and it ended up
+being just '???' in the git repo.
+
+And I only noticed when I did my shortlog for doing my 4.18-rc3 release not=
+es.
+
+I don't know what locale or tools you have, but please try to make
+sure everything is utf-8 aware so that these kinds of name corruptions
+don't happen..
+
+                 Linus

@@ -1,28 +1,41 @@
 From: Joey Pabalinas <joeypabalinas@gmail.com>
-Subject: [PATCH 0/4] reduce Surface Pro 3 multitouch jitter
-Date: Sat, 30 Jun 2018 14:19:49 -1000
-Message-ID: <cover.1530402641.git.joeypabalinas@gmail.com>
+Subject: [PATCH 2/4] HID: multitouch: don't check HID_GROUP_MULTITOUCH_WIN_8 for serial protocol
+Date: Sat, 30 Jun 2018 14:19:51 -1000
+Message-ID: <0aaacf083be5b68a830f9e174f9abee3b00c5a51.1530402641.git.joeypabalinas@gmail.com>
+References: <cover.1530402641.git.joeypabalinas@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1530402641.git.joeypabalinas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Daniel Martin <consume.noise@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The Surface Pro 3 firmware doesn't reliably send contact lift off
-reports nor handle invalid report values gracefully.
+The HID_GROUP_MULTITOUCH_WIN_8 group never needs to check for the serial
+protocol, so avoid setting `td->serial_maybe = true;` in order to avoid
+an unnecessary mt_post_parse_default_settings() call
 
-To reduce touchscreen input jitter:
-  - add MT_QUIRK_NOT_SEEN_MEANS_UP to the MT_CLS_WIN_8
-  - drop invalid report values
+Signed-off-by: Joey Pabalinas <joeypabalinas@gmail.com>
 
-Joey Pabalinas (4):
-  HID: multitouch: add MT_QUIRK_NOT_SEEN_MEANS_UP to MT_CLS_WIN_8 quirks
-  HID: multitouch: don't check HID_GROUP_MULTITOUCH_WIN_8 for serial protocol
-  HID: multitouch: drop reports containing invalid values
-  HID: multitouch: remove unneeded else conditional cases
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- drivers/hid/hid-multitouch.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
-
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index a793076139d7d0db9b..c0654db0b736543ca0 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1460,11 +1460,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (!td->fields) {
+ 		dev_err(&hdev->dev, "cannot allocate multitouch fields data\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
++	if (id->vendor == HID_ANY_ID
++			&& id->product == HID_ANY_ID
++			&& id->group != HID_GROUP_MULTITOUCH_WIN_8)
+ 		td->serial_maybe = true;
+ 
+ 	/* This allows the driver to correctly support devices
+ 	 * that emit events over several HID messages.
+ 	 */
 -- 
 2.18.0

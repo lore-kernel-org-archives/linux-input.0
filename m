@@ -1,34 +1,47 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 2/5] net: mac8390: Use standard memcpy_{from,to}io()
-Date: Mon, 02 Jul 2018 22:39:05 +0900 (KST)
-Message-ID: <20180702.223905.294108944941067854.davem@davemloft.net>
-References: <20180702133532.5412-1-geert@linux-m68k.org>
-        <20180702133532.5412-3-geert@linux-m68k.org>
+From: Guenter Roeck <groeck@google.com>
+Subject: Re: [PATCH 3/3] Input: keyboard: Fix ChromeOS EC keyboard help message.
+Date: Mon, 2 Jul 2018 07:43:30 -0700
+Message-ID: <CABXOdTfLS-x_sPWBi2mmjkUTtN0Spd9ObEy5fYtEB-hoLJTPEg@mail.gmail.com>
+References: <20180702102201.13461-1-enric.balletbo@collabora.com> <20180702102201.13461-4-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180702133532.5412-3-geert@linux-m68k.org>
+In-Reply-To: <20180702102201.13461-4-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: geert@linux-m68k.org
-Cc: gerg@linux-m68k.org, dmitry.torokhov@gmail.com, deller@gmx.de, linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Russell King - ARM Linux <linux@armlinux.org.uk>, kgene@kernel.org, krzk@kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Lee Jones <lee.jones@linaro.org>, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, Gwendal Grignou <gwendal@chromium.org>, linux-samsung-soc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kernel@collabora.com, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, chen.zhong@mediatek.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon,  2 Jul 2018 15:35:29 +0200
+On Mon, Jul 2, 2018 at 3:22 AM Enric Balletbo i Serra
+<enric.balletbo@collabora.com> wrote:
+>
+> The cros-ec I2C and SPI transport drivers have been moved from MFD
+> subsystem to platform/chrome, at the same time, the config symbol
+> has been renamed and lost the MFD_ prefix So, update the help message
+> accordingly.
+>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-> The mac8390 driver defines its own variants of memcpy_fromio() and
-> memcpy_toio(), using similar implementations, but different function
-> signatures.
-> 
-> Remove the custom definitions of memcpy_fromio() and memcpy_toio(), and
-> adjust all callers to the standard signatures.
-> 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+
 > ---
-> This is a dependency for "m68k: Move mem*io define guards to
-> <asm/kmap.h>".
-> 
-> Untested on real hardware, assembler output compared.
-
-Acked-by: David S. Miller <davem@davemloft.net>
+>
+>  drivers/input/keyboard/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index 6bd97ffee761..4713957b0cbb 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -721,7 +721,7 @@ config KEYBOARD_CROS_EC
+>         help
+>           Say Y here to enable the matrix keyboard used by ChromeOS devices
+>           and implemented on the ChromeOS EC. You must enable one bus option
+> -         (MFD_CROS_EC_I2C or MFD_CROS_EC_SPI) to use this.
+> +         (CROS_EC_I2C or CROS_EC_SPI) to use this.
+>
+>           To compile this driver as a module, choose M here: the
+>           module will be called cros_ec_keyb.
+> --
+> 2.18.0
+>

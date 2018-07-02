@@ -1,77 +1,49 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add touchscreen platform
- data for the Onda V820w tablet
-Date: Mon, 2 Jul 2018 15:24:37 +0300
-Message-ID: <CAHp75Ve6GAWFdAU9DNzvjiH6mM00M9Q7V4qZiEOf_Ng3Q=QErA@mail.gmail.com>
-References: <20180701214714.2522-1-jambonmcyeah@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH v2 06/10] ARM: OMAP1: ams-delta FIQ: don't use static
+ GPIO numbers
+Date: Mon, 2 Jul 2018 05:56:23 -0700
+Message-ID: <20180702125623.GX112168@atomide.com>
+References: <20180609140224.32606-1-jmkrzyszt@gmail.com>
+ <20180621224128.17623-1-jmkrzyszt@gmail.com>
+ <20180621224128.17623-6-jmkrzyszt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180701214714.2522-1-jambonmcyeah@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180621224128.17623-6-jmkrzyszt@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jun Bo Bi <jambonmcyeah@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, "David S . Miller " <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Randy Dunlap <rdunlap@infradead.org>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 2, 2018 at 12:47 AM, Jun Bo Bi <jambonmcyeah@gmail.com> wrote:
-> Add touchscreen platform data for the Onda V820w tablet
->
-
-Pushed to my review and testing queue, thanks!
-
-> Signed-off-by: Jun Bo Bi <jambonmcyeah@gmail.com>
-> ---
->  drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
->
-> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-> index 6284946cb0d1..a8e083db0369 100644
-> --- a/drivers/platform/x86/touchscreen_dmi.c
-> +++ b/drivers/platform/x86/touchscreen_dmi.c
-> @@ -204,6 +204,22 @@ static const struct ts_dmi_data onda_obook_20_plus_data = {
->         .properties     = onda_obook_20_plus_props,
+* Janusz Krzysztofik <jmkrzyszt@gmail.com> [180621 22:45]:
+> --- a/arch/arm/mach-omap1/board-ams-delta.c
+> +++ b/arch/arm/mach-omap1/board-ams-delta.c
+> @@ -580,6 +580,44 @@ static struct gpiod_hog ams_delta_gpio_hogs[] = {
+>  	{},
 >  };
->
-> +static const struct property_entry onda_v820w_32g_props[] = {
-> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1665),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
-> +       PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-> +       PROPERTY_ENTRY_STRING("firmware-name",
-> +                             "gsl1680-onda-v820w-32g.fw"),
-> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
-> +       { }
-> +};
+>  
+> +/*
+> + * Some drivers may not use GPIO lookup tables but need to be provided
+> + * with GPIO numbers.  The same applies to GPIO based IRQ lines - some
+> + * drivers may even not use GPIO layer but expect just IRQ numbers.
+> + * We could either define GPIO lookup tables then use them on behalf
+> + * of those devices, or we can use GPIO driver level methods for
+> + * identification of GPIO and IRQ numbers. For the purpose of the latter,
+> + * defina a helper function which identifies GPIO chips by their labels.
+> + */
+> +static int gpiochip_match_by_label(struct gpio_chip *chip, void *data)
+> +{
+> +	char *label = data;
 > +
-> +static const struct silead_ts_dmi_data onda_v820w_32g_data = {
-> +       .acpi_name      = "MSSL1680:00",
-> +       .properties     = onda_v820w_32g_props,
-> +};
-> +
->  static const struct property_entry onda_v891w_v1_props[] = {
->         PROPERTY_ENTRY_U32("touchscreen-min-x", 46),
->         PROPERTY_ENTRY_U32("touchscreen-min-y",  8),
-> @@ -470,6 +486,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
->                         DMI_MATCH(DMI_PRODUCT_NAME, "OBOOK 20 PLUS"),
->                 },
->         },
-> +       {
-> +               /* ONDA V820w DualOS */
-> +               .driver_data = (void *)&onda_v820w_32g_data,
-> +               .matches = {
-> +                       DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "ONDA"),
-> +                       DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "V820w DualOS")
-> +               },
-> +       },
->         {
->                 /* ONDA V891w revision P891WBEBV1B00 aka v1 */
->                 .driver_data = (void *)&onda_v891w_v1_data,
-> --
-> 2.18.0
->
+> +	return !strcmp(label, chip->label);
+> +}
 
+I left out the duplicate gpiochip_match_by_label() above as it's already
+there from an earlier "ARM: OMAP1: ams-delta: assign LED GPIO numbers
+from descriptors". The whole series is now pushed out to
+omap-for-v4.19/omap1 and I'll merge it into my for-next soon.
 
+Thanks,
 
--- 
-With Best Regards,
-Andy Shevchenko
+Tony

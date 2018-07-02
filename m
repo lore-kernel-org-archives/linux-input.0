@@ -1,47 +1,70 @@
-From: Guenter Roeck <groeck@google.com>
-Subject: Re: [PATCH 3/3] Input: keyboard: Fix ChromeOS EC keyboard help message.
-Date: Mon, 2 Jul 2018 07:43:30 -0700
-Message-ID: <CABXOdTfLS-x_sPWBi2mmjkUTtN0Spd9ObEy5fYtEB-hoLJTPEg@mail.gmail.com>
-References: <20180702102201.13461-1-enric.balletbo@collabora.com> <20180702102201.13461-4-enric.balletbo@collabora.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH] Input: elantech - Fix V4 report decoding for module with
+ middle key
+Date: Mon, 2 Jul 2018 08:32:56 -0700
+Message-ID: <57436c8d-c188-500d-5764-5df4208d53b0@infradead.org>
+References: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
+ <20180529180506.GB167092@dtor-ws>
+ <000301d3f7e4$5c9e51c0$15daf540$@emc.com.tw> <20180622001632.GI79890@dtor-ws>
+ <CA+55aFzLMkyAGdfaeDLUXeRE0MJUckRDsrbVy2yonT6R=wf-Og@mail.gmail.com>
+ <20180701234419.GA250349@dtor-ws>
+ <CA+55aFwCdAuw+GuKTCzACWpQBDFAx_DsMM0uTCx2fZKBBU7X0w@mail.gmail.com>
+ <A5DA555C-6131-4F7B-82F2-A06C12E23CAF@gmail.com>
+ <87sh5196pk.fsf@purkki.adurom.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180702102201.13461-4-enric.balletbo@collabora.com>
+In-Reply-To: <87sh5196pk.fsf@purkki.adurom.net>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Russell King - ARM Linux <linux@armlinux.org.uk>, kgene@kernel.org, krzk@kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Lee Jones <lee.jones@linaro.org>, Benson Leung <bleung@chromium.org>, Olof Johansson <olof@lixom.net>, Gwendal Grignou <gwendal@chromium.org>, linux-samsung-soc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kernel@collabora.com, linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, chen.zhong@mediatek.com, linux-input@vger.kernel.org
+To: Kalle Valo <kvalo@codeaurora.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kt.liao@emc.com.tw, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, ulrik.debie-os@e2big.org, phoenix@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 2, 2018 at 3:22 AM Enric Balletbo i Serra
-<enric.balletbo@collabora.com> wrote:
->
-> The cros-ec I2C and SPI transport drivers have been moved from MFD
-> subsystem to platform/chrome, at the same time, the config symbol
-> has been renamed and lost the MFD_ prefix So, update the help message
-> accordingly.
->
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+On 07/02/2018 05:12 AM, Kalle Valo wrote:
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+> 
+>> On July 1, 2018 5:00:03 PM PDT, Linus Torvalds <torvalds@linux-foundation.org> wrote:
+>>> On Sun, Jul 1, 2018 at 4:44 PM Dmitry Torokhov
+>>> <dmitry.torokhov@gmail.com> wrote:
+>>>>
+>>>> The reason it got messed up is I switched to pulling patches from
+>>>> patchwork.kernel.org as it collects Acked-by and Reviewed-by tags so
+>>> I
+>>>> do not have to add them manually, but unfortunately it does not do
+>>>> proper UTF-8:
+>>>
+>>> Ugh.
+>>>
+>>> I made an 'issue' of it for patchwork:
+>>>
+>>>  https://github.com/getpatchwork/patchwork/issues/194
+>>>
+>>> and hopefully that can be fixed. It's sad when we corrupt names like
+>>> this.
+>>
+>> Might not even be an issue with recent patchwork, but unfortunately
+>> the version that is running on kernel.org is ancient as far as I know.
+> 
+> FWIW I use patchwork.kernel.org and I don't have any issues with UTF-8
+> characters in the From header. For example, here's one patch which I
+> recently applied:
+> 
+> https://git.kernel.org/linus/88001968245c
+> 
+> But of course it depends on what tools you use (I have my own patchwork
+> script which downloads and applies the patch) or what characters there
+> were etc. 
+> 
+> Also I heard that we should get an upgrade to patchwork.kernel.org in
+> the near future, which is great. The current version has some quirks
+> which are quite annoying.
+> 
 
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
+I don't know if it's better or different, but there is also
+https://lore.kernel.org/patchwork/
 
-> ---
->
->  drivers/input/keyboard/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 6bd97ffee761..4713957b0cbb 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -721,7 +721,7 @@ config KEYBOARD_CROS_EC
->         help
->           Say Y here to enable the matrix keyboard used by ChromeOS devices
->           and implemented on the ChromeOS EC. You must enable one bus option
-> -         (MFD_CROS_EC_I2C or MFD_CROS_EC_SPI) to use this.
-> +         (CROS_EC_I2C or CROS_EC_SPI) to use this.
->
->           To compile this driver as a module, choose M here: the
->           module will be called cros_ec_keyb.
-> --
-> 2.18.0
->
+
+-- 
+~Randy

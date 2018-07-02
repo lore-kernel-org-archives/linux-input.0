@@ -1,56 +1,76 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v4] platform/x86: touchscreen_dmi: Add info for the ONDA
- V891W Dual OS tablet
-Date: Mon, 2 Jul 2018 15:22:50 +0300
-Message-ID: <CAHp75VeO-3AAvYXP3=bShpec4YzDRXwEKCAP_HwfQpzoLCcZ1A@mail.gmail.com>
-References: <20180617235812.18596-1-youling257@gmail.com> <342c314e-6e9f-aefc-3ec0-300b53071089@redhat.com>
- <32076294-07ac-7801-2220-7468e71c275e@redhat.com> <CAHp75VfPPnqgsHFwfLaUZSYa3i2tUmvWpwgxEAz45q61aU9OGA@mail.gmail.com>
- <20180619080522.40a20951@canb.auug.org.au>
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add touchscreen platform
+ data for the Onda V820w tablet
+Date: Mon, 2 Jul 2018 15:24:37 +0300
+Message-ID: <CAHp75Ve6GAWFdAU9DNzvjiH6mM00M9Q7V4qZiEOf_Ng3Q=QErA@mail.gmail.com>
+References: <20180701214714.2522-1-jambonmcyeah@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180619080522.40a20951@canb.auug.org.au>
+In-Reply-To: <20180701214714.2522-1-jambonmcyeah@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Hans de Goede <hdegoede@redhat.com>, youling257 <youling257@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andy@infradead.org>, Darren Hart <dvhart@infradead.org>
+To: Jun Bo Bi <jambonmcyeah@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jun 19, 2018 at 1:05 AM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> On Mon, 18 Jun 2018 16:59:30 +0300 Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
-
->> > youling has indicated to me (off-list) that he does not
->> > want to use his real name.
->> >
->> > He has already provided me with the touchscreen details
->> > and dmi strings for this tablet a while ago and I had
->> > writing the exact same quirk on my TODO list already.
->> >
->> > As such I've no doubt that he created this patch and
->> > has the rights to Submit it under the GPL license.
->> >
->> > So I'm going to resubmit this with his S-o-b removed
->> > and replaced with mine. Where the intent of my
->> > S-o-b is to certify point c. of the certificate
->> > of origin, quoting from:
->> >
->> > https://www.kernel.org/doc/html/latest/process/submitting-patches.html#developer-s-certificate-of-origin-1-1
->> >
->> > "c. The contribution was provided directly to me by some other person who
->> > certified (a), (b) or (c) and I have not modified it."
->> >
->> > This seems better then me re-creating the exact
->> > same patch from scratch.
->>
->> I guess this will not pass checks Stephen has.
->> So, Stephen, how should we proceed?
+On Mon, Jul 2, 2018 at 12:47 AM, Jun Bo Bi <jambonmcyeah@gmail.com> wrote:
+> Add touchscreen platform data for the Onda V820w tablet
 >
-> That's fine.  I amy report it (If I forget this email), but you can
-> just ignore the report.  My scripted checks obviously can't take this
-> case into account.
 
-Thanks!
+Pushed to my review and testing queue, thanks!
 
-I have pushed to my review and testing queue as is.
+> Signed-off-by: Jun Bo Bi <jambonmcyeah@gmail.com>
+> ---
+>  drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+>
+> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> index 6284946cb0d1..a8e083db0369 100644
+> --- a/drivers/platform/x86/touchscreen_dmi.c
+> +++ b/drivers/platform/x86/touchscreen_dmi.c
+> @@ -204,6 +204,22 @@ static const struct ts_dmi_data onda_obook_20_plus_data = {
+>         .properties     = onda_obook_20_plus_props,
+>  };
+>
+> +static const struct property_entry onda_v820w_32g_props[] = {
+> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1665),
+> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
+> +       PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
+> +       PROPERTY_ENTRY_STRING("firmware-name",
+> +                             "gsl1680-onda-v820w-32g.fw"),
+> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+> +       { }
+> +};
+> +
+> +static const struct silead_ts_dmi_data onda_v820w_32g_data = {
+> +       .acpi_name      = "MSSL1680:00",
+> +       .properties     = onda_v820w_32g_props,
+> +};
+> +
+>  static const struct property_entry onda_v891w_v1_props[] = {
+>         PROPERTY_ENTRY_U32("touchscreen-min-x", 46),
+>         PROPERTY_ENTRY_U32("touchscreen-min-y",  8),
+> @@ -470,6 +486,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+>                         DMI_MATCH(DMI_PRODUCT_NAME, "OBOOK 20 PLUS"),
+>                 },
+>         },
+> +       {
+> +               /* ONDA V820w DualOS */
+> +               .driver_data = (void *)&onda_v820w_32g_data,
+> +               .matches = {
+> +                       DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "ONDA"),
+> +                       DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "V820w DualOS")
+> +               },
+> +       },
+>         {
+>                 /* ONDA V891w revision P891WBEBV1B00 aka v1 */
+>                 .driver_data = (void *)&onda_v891w_v1_data,
+> --
+> 2.18.0
+>
+
+
 
 -- 
 With Best Regards,

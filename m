@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 4/5] m68k/io: Move mem*io define guards to <asm/kmap.h>
-Date: Mon,  2 Jul 2018 15:35:31 +0200
-Message-ID: <20180702133532.5412-5-geert@linux-m68k.org>
+Subject: [PATCH 2/5] net: mac8390: Use standard memcpy_{from,to}io()
+Date: Mon,  2 Jul 2018 15:35:29 +0200
+Message-ID: <20180702133532.5412-3-geert@linux-m68k.org>
 References: <20180702133532.5412-1-geert@linux-m68k.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180702133532.5412-1-geert@linux-m68k.org>
@@ -10,65 +10,84 @@ To: Greg Ungerer <gerg@linux-m68k.org>, "David S . Miller" <davem@davemloft.net>
 Cc: linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
 
-The mem*io define guards are applicable to all users of <asm/kmap.h>.
-Hence move them, and drop the #ifdef.
+The mac8390 driver defines its own variants of memcpy_fromio() and
+memcpy_toio(), using similar implementations, but different function
+signatures.
+
+Remove the custom definitions of memcpy_fromio() and memcpy_toio(), and
+adjust all callers to the standard signatures.
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
-To avoid redefined warnings, this depends on "net: mac8390: Use standard
-memcpy_{from,to}io()".
----
- arch/m68k/include/asm/io_no.h | 11 -----------
- arch/m68k/include/asm/kmap.h  |  3 +++
- 2 files changed, 3 insertions(+), 11 deletions(-)
+This is a dependency for "m68k: Move mem*io define guards to
+<asm/kmap.h>".
 
-diff --git a/arch/m68k/include/asm/io_no.h b/arch/m68k/include/asm/io_no.h
-index 83a0a6d449f44bdd..c207428fae5953e7 100644
---- a/arch/m68k/include/asm/io_no.h
-+++ b/arch/m68k/include/asm/io_no.h
-@@ -131,17 +131,6 @@ static inline void writel(u32 value, volatile void __iomem *addr)
- #define PCI_SPACE_LIMIT	PCI_IO_MASK
- #endif /* CONFIG_PCI */
+Untested on real hardware, assembler output compared.
+---
+ drivers/net/ethernet/8390/mac8390.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/ethernet/8390/mac8390.c b/drivers/net/ethernet/8390/mac8390.c
+index b6d735bf80117e27..342ae08ec3c29832 100644
+--- a/drivers/net/ethernet/8390/mac8390.c
++++ b/drivers/net/ethernet/8390/mac8390.c
+@@ -153,9 +153,6 @@ static void dayna_block_input(struct net_device *dev, int count,
+ static void dayna_block_output(struct net_device *dev, int count,
+ 			       const unsigned char *buf, int start_page);
  
--/*
-- * These are defined in kmap.h as static inline functions. To maintain
-- * previous behavior we put these define guards here so io_mm.h doesn't
-- * see them.
-- */
--#ifdef CONFIG_MMU
--#define memset_io memset_io
--#define memcpy_fromio memcpy_fromio
--#define memcpy_toio memcpy_toio
--#endif
+-#define memcpy_fromio(a, b, c)	memcpy((a), (void *)(b), (c))
+-#define memcpy_toio(a, b, c)	memcpy((void *)(a), (b), (c))
 -
- #include <asm/kmap.h>
- #include <asm/virtconvert.h>
- #include <asm-generic/io.h>
-diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
-index bf1026def698f21f..dd4a365bf463d3cf 100644
---- a/arch/m68k/include/asm/kmap.h
-+++ b/arch/m68k/include/asm/kmap.h
-@@ -48,18 +48,21 @@ static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
- 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+ #define memcmp_withio(a, b, c)	memcmp((a), (void *)(b), (c))
+ 
+ /* Slow Sane (16-bit chunk memory read/write) Cabletron uses this */
+@@ -239,7 +236,7 @@ static enum mac8390_access mac8390_testio(unsigned long membase)
+ 	unsigned long outdata = 0xA5A0B5B0;
+ 	unsigned long indata =  0x00000000;
+ 	/* Try writing 32 bits */
+-	memcpy_toio(membase, &outdata, 4);
++	memcpy_toio((void __iomem *)membase, &outdata, 4);
+ 	/* Now compare them */
+ 	if (memcmp_withio(&outdata, membase, 4) == 0)
+ 		return ACCESS_32;
+@@ -711,7 +708,7 @@ static void sane_get_8390_hdr(struct net_device *dev,
+ 			      struct e8390_pkt_hdr *hdr, int ring_page)
+ {
+ 	unsigned long hdr_start = (ring_page - WD_START_PG)<<8;
+-	memcpy_fromio(hdr, dev->mem_start + hdr_start, 4);
++	memcpy_fromio(hdr, (void __iomem *)dev->mem_start + hdr_start, 4);
+ 	/* Fix endianness */
+ 	hdr->count = swab16(hdr->count);
+ }
+@@ -725,13 +722,16 @@ static void sane_block_input(struct net_device *dev, int count,
+ 	if (xfer_start + count > ei_status.rmem_end) {
+ 		/* We must wrap the input move. */
+ 		int semi_count = ei_status.rmem_end - xfer_start;
+-		memcpy_fromio(skb->data, dev->mem_start + xfer_base,
++		memcpy_fromio(skb->data,
++			      (void __iomem *)dev->mem_start + xfer_base,
+ 			      semi_count);
+ 		count -= semi_count;
+-		memcpy_fromio(skb->data + semi_count, ei_status.rmem_start,
+-			      count);
++		memcpy_fromio(skb->data + semi_count,
++			      (void __iomem *)ei_status.rmem_start, count);
+ 	} else {
+-		memcpy_fromio(skb->data, dev->mem_start + xfer_base, count);
++		memcpy_fromio(skb->data,
++			      (void __iomem *)dev->mem_start + xfer_base,
++			      count);
+ 	}
  }
  
-+#define memset_io memset_io
- static inline void memset_io(volatile void __iomem *addr, unsigned char val,
- 			     int count)
+@@ -740,7 +740,7 @@ static void sane_block_output(struct net_device *dev, int count,
  {
- 	__builtin_memset((void __force *) addr, val, count);
+ 	long shmem = (start_page - WD_START_PG)<<8;
+ 
+-	memcpy_toio(dev->mem_start + shmem, buf, count);
++	memcpy_toio((void __iomem *)dev->mem_start + shmem, buf, count);
  }
  
-+#define memcpy_fromio memcpy_fromio
- static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
- 				 int count)
- {
- 	__builtin_memcpy(dst, (void __force *) src, count);
- }
- 
-+#define memcpy_toio memcpy_toio
- static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
- 			       int count)
- {
+ /* dayna block input/output */
 -- 
 2.17.1

@@ -1,62 +1,57 @@
-From: Kalle Valo <kvalo@codeaurora.org>
-Subject: Re: [PATCH] Input: elantech - Fix V4 report decoding for module with middle key
-Date: Mon, 02 Jul 2018 15:12:55 +0300
-Message-ID: <87sh5196pk.fsf@purkki.adurom.net>
-References: <1527507182-3858-1-git-send-email-kt.liao@emc.com.tw>
-        <20180529180506.GB167092@dtor-ws>
-        <000301d3f7e4$5c9e51c0$15daf540$@emc.com.tw>
-        <20180622001632.GI79890@dtor-ws>
-        <CA+55aFzLMkyAGdfaeDLUXeRE0MJUckRDsrbVy2yonT6R=wf-Og@mail.gmail.com>
-        <20180701234419.GA250349@dtor-ws>
-        <CA+55aFwCdAuw+GuKTCzACWpQBDFAx_DsMM0uTCx2fZKBBU7X0w@mail.gmail.com>
-        <A5DA555C-6131-4F7B-82F2-A06C12E23CAF@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v4] platform/x86: touchscreen_dmi: Add info for the ONDA
+ V891W Dual OS tablet
+Date: Mon, 2 Jul 2018 15:22:50 +0300
+Message-ID: <CAHp75VeO-3AAvYXP3=bShpec4YzDRXwEKCAP_HwfQpzoLCcZ1A@mail.gmail.com>
+References: <20180617235812.18596-1-youling257@gmail.com> <342c314e-6e9f-aefc-3ec0-300b53071089@redhat.com>
+ <32076294-07ac-7801-2220-7468e71c275e@redhat.com> <CAHp75VfPPnqgsHFwfLaUZSYa3i2tUmvWpwgxEAz45q61aU9OGA@mail.gmail.com>
+ <20180619080522.40a20951@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <A5DA555C-6131-4F7B-82F2-A06C12E23CAF@gmail.com> (Dmitry
-        Torokhov's message of "Sun, 01 Jul 2018 17:12:37 -0700")
+In-Reply-To: <20180619080522.40a20951@canb.auug.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kt.liao@emc.com.tw, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, ulrik.debie-os@e2big.org, phoenix@emc.com.tw, aaron.ma@canonical.com, josh.chen@emc.com.tw
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Hans de Goede <hdegoede@redhat.com>, youling257 <youling257@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andy@infradead.org>, Darren Hart <dvhart@infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+On Tue, Jun 19, 2018 at 1:05 AM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> On Mon, 18 Jun 2018 16:59:30 +0300 Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
 
-> On July 1, 2018 5:00:03 PM PDT, Linus Torvalds <torvalds@linux-foundation.org> wrote:
->>On Sun, Jul 1, 2018 at 4:44 PM Dmitry Torokhov
->><dmitry.torokhov@gmail.com> wrote:
->>>
->>> The reason it got messed up is I switched to pulling patches from
->>> patchwork.kernel.org as it collects Acked-by and Reviewed-by tags so
->>I
->>> do not have to add them manually, but unfortunately it does not do
->>> proper UTF-8:
+>> > youling has indicated to me (off-list) that he does not
+>> > want to use his real name.
+>> >
+>> > He has already provided me with the touchscreen details
+>> > and dmi strings for this tablet a while ago and I had
+>> > writing the exact same quirk on my TODO list already.
+>> >
+>> > As such I've no doubt that he created this patch and
+>> > has the rights to Submit it under the GPL license.
+>> >
+>> > So I'm going to resubmit this with his S-o-b removed
+>> > and replaced with mine. Where the intent of my
+>> > S-o-b is to certify point c. of the certificate
+>> > of origin, quoting from:
+>> >
+>> > https://www.kernel.org/doc/html/latest/process/submitting-patches.html#developer-s-certificate-of-origin-1-1
+>> >
+>> > "c. The contribution was provided directly to me by some other person who
+>> > certified (a), (b) or (c) and I have not modified it."
+>> >
+>> > This seems better then me re-creating the exact
+>> > same patch from scratch.
 >>
->>Ugh.
->>
->>I made an 'issue' of it for patchwork:
->>
->>  https://github.com/getpatchwork/patchwork/issues/194
->>
->>and hopefully that can be fixed. It's sad when we corrupt names like
->>this.
+>> I guess this will not pass checks Stephen has.
+>> So, Stephen, how should we proceed?
 >
-> Might not even be an issue with recent patchwork, but unfortunately
-> the version that is running on kernel.org is ancient as far as I know.
+> That's fine.  I amy report it (If I forget this email), but you can
+> just ignore the report.  My scripted checks obviously can't take this
+> case into account.
 
-FWIW I use patchwork.kernel.org and I don't have any issues with UTF-8
-characters in the From header. For example, here's one patch which I
-recently applied:
+Thanks!
 
-https://git.kernel.org/linus/88001968245c
-
-But of course it depends on what tools you use (I have my own patchwork
-script which downloads and applies the patch) or what characters there
-were etc. 
-
-Also I heard that we should get an upgrade to patchwork.kernel.org in
-the near future, which is great. The current version has some quirks
-which are quite annoying.
+I have pushed to my review and testing queue as is.
 
 -- 
-Kalle Valo
+With Best Regards,
+Andy Shevchenko

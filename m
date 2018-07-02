@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 3/5] Input: hilkbd - Add casts to HP9000/300 I/O accessors
-Date: Mon,  2 Jul 2018 15:35:30 +0200
-Message-ID: <20180702133532.5412-4-geert@linux-m68k.org>
+Subject: [PATCH 1/5] m68k/io: Add missing ioremap define guards, fix typo
+Date: Mon,  2 Jul 2018 15:35:28 +0200
+Message-ID: <20180702133532.5412-2-geert@linux-m68k.org>
 References: <20180702133532.5412-1-geert@linux-m68k.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180702133532.5412-1-geert@linux-m68k.org>
@@ -10,40 +10,44 @@ To: Greg Ungerer <gerg@linux-m68k.org>, "David S . Miller" <davem@davemloft.net>
 Cc: linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
 
-Internally, hilkbd uses "unsigned long" I/O addresses everywhere.
-This works fine as:
-  - On PA-RISC, hilkbd uses the gsc_{read,write}b() I/O accessors, which
-    take "unsigned long" addresses,
-  - On m68k, hilkbd uses {read,write}b(), which are currently mapped to
-    {in,out}_8(), and convert the passed addresses to pointers
-    internally.
+  - Add missing define guard for ioremap_wt(),
+  - Fix typo s/ioremap_fillcache/ioremap_fullcache/,
+  - Add define guard for iounmap() for consistency with other
+    architectures.
 
-However, the asm-generic version of {read,write}b() does not perform
-such conversions, and requires passing pointers instead.  Hence add
-casts to prepare for switching m68k to the asm-generic version.
-
+Fixes: 9746882f547d2f00 ("m68k: group io mapping definitions and functions")
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
-This is a dependency for "m68k/io: Switch mmu variant to
-<asm-generic/io.h>".
----
- drivers/input/keyboard/hilkbd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/m68k/include/asm/kmap.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/hilkbd.c b/drivers/input/keyboard/hilkbd.c
-index a4e404aaf64bdb82..5c7afdec192c139b 100644
---- a/drivers/input/keyboard/hilkbd.c
-+++ b/drivers/input/keyboard/hilkbd.c
-@@ -57,8 +57,8 @@ MODULE_LICENSE("GPL v2");
-  #define HIL_DATA		0x1
-  #define HIL_CMD		0x3
-  #define HIL_IRQ		2
-- #define hil_readb(p)		readb(p)
-- #define hil_writeb(v,p)	writeb((v),(p))
-+ #define hil_readb(p)		readb((const volatile void __iomem *)(p))
-+ #define hil_writeb(v, p)	writeb((v), (volatile void __iomem *)(p))
+diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
+index 84b8333db8ad1987..bf1026def698f21f 100644
+--- a/arch/m68k/include/asm/kmap.h
++++ b/arch/m68k/include/asm/kmap.h
+@@ -16,6 +16,7 @@
+  */
+ extern void __iomem *__ioremap(unsigned long physaddr, unsigned long size,
+ 			       int cacheflag);
++#define iounmap iounmap
+ extern void iounmap(void __iomem *addr);
+ extern void __iounmap(void *addr, unsigned long size);
  
- #else
- #error "HIL is not supported on this platform"
+@@ -33,13 +34,14 @@ static inline void __iomem *ioremap_nocache(unsigned long physaddr,
+ }
+ 
+ #define ioremap_uc ioremap_nocache
++#define ioremap_wt ioremap_wt
+ static inline void __iomem *ioremap_wt(unsigned long physaddr,
+ 				       unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
+ }
+ 
+-#define ioremap_fillcache ioremap_fullcache
++#define ioremap_fullcache ioremap_fullcache
+ static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
+ 					      unsigned long size)
+ {
 -- 
 2.17.1

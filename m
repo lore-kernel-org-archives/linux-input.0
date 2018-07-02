@@ -1,92 +1,48 @@
-From: Dmitry Vyukov <dvyukov@google.com>
-Subject: Re: WARNING in input_alloc_absinfo
-Date: Mon, 2 Jul 2018 11:30:31 +0200
-Message-ID: <CACT4Y+b-=gPGQsbeFf44NTxhBJTAGwu+mUsAZDsquiUvpR9ROg@mail.gmail.com>
-References: <000000000000fe1d2b056e997e1f@google.com> <20180619185111.GK71788@dtor-ws>
- <CACT4Y+bnzXgUT39h9PNdGDpOq8W-R-oaYtKEgN-ru2ZnVfAHBA@mail.gmail.com> <f1874631-5681-47d0-b9ae-e48632cdd4ce@googlegroups.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] HID: intel-ish-hid: remove redundant variable num_frags
+Date: Mon,  2 Jul 2018 10:40:28 +0100
+Message-ID: <20180702094028.15428-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f1874631-5681-47d0-b9ae-e48632cdd4ce@googlegroups.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, rydberg@bitmath.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 29, 2018 at 11:59 PM,  <dmitry.torokhov@gmail.com> wrote:
-> On Monday, June 25, 2018 at 5:43:02 AM UTC-7, Dmitry Vyukov wrote:
->>
->> On Tue, Jun 19, 2018 at 8:51 PM, Dmitry Torokhov
->> <dmitry....@gmail.com> wrote:
->> > On Thu, Jun 14, 2018 at 05:47:03AM -0700, syzbot wrote:
->> >> Hello,
->> >>
->> >> syzbot found the following crash on:
->> >>
->> >> HEAD commit:    d2d741e5d189 kmsan: add initialization for shmem pages
->> >> git tree:       https://github.com/google/kmsan.git/master
->> >> console output:
->> >> https://syzkaller.appspot.com/x/log.txt?x=1775bae7800000
->> >> kernel config:
->> >> https://syzkaller.appspot.com/x/.config?x=48f9de3384bcd0f
->> >> dashboard link:
->> >> https://syzkaller.appspot.com/bug?extid=c382812c78d98ecd9fb8
->> >> compiler:       clang version 7.0.0 (trunk 329391)
->> >> syzkaller
->> >> repro:https://syzkaller.appspot.com/x/repro.syz?x=13b31ae7800000
->> >> C reproducer:
->> >> https://syzkaller.appspot.com/x/repro.c?x=1733255b800000
->> >>
->> >> IMPORTANT: if you fix the bug, please add the following tag to the
->> >> commit:
->> >> Reported-by: syzbot+c38281...@syzkaller.appspotmail.com
->> >>
->> >> RBP: 00000000006cb018 R08: 0000000000000001 R09: 00007ffe93080031
->> >> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
->> >> R13: ffffffffffffffff R14: 0000000000000000 R15: 0000000000000000
->> >> ------------[ cut here ]------------
->> >> input_alloc_absinfo(): kcalloc() failed?
->> >> WARNING: CPU: 1 PID: 4498 at drivers/input/input.c:487
->> >> input_alloc_absinfo+0x183/0x190 drivers/input/input.c:487
->> >> Kernel panic - not syncing: panic_on_warn set ...
->> >
->> > Hmm, so there is not really a problem as far as I am concerned. We do
->> > generate a warning if we can't allocate memory for absinfo,  as this is
->> > really unexpected, but the case is handled properly by the callers so
->> > there is no reason for us to go belly up here.
->>
->> Note to myself: ping this bug when "include/asm-generic/bug.h: clarify
->> valid uses of WARN()" is fully merged.
->
->
-> No, this warning will still be there even after the "clarifying" patch is
-> merged. It does not check user inputs, it warns that the system is so low on
-> memory that we could not allocate measly amount needed for absinfo. Treat it
-> as you treat OOM warnings from kmalloc() itself.
+From: Colin Ian King <colin.king@canonical.com>
 
-Hi Dmitry,
+Variable num_frags is being assigned but is never used hence it is
+redundant and can be removed.
 
-kmalloc does not produce WARNING on OOM. The rule is not only about
-invalid inputs, it's also about any transient conditions and "WARNING
-only for kernel bugs".
+Cleans up clang warning:
+warning: variable 'num_frags' set but not used [-Wunused-but-set-variable]
 
-To put this in larger context, being able to distinguish kernel bugs
-from non-bugs is a very important and practically useful capability,
-which in particular enables systematic testing, but also makes things
-simpler for all kernel users. There must be a very significant reason
-to abandon this capability. What is that reason in this case?
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/hid/intel-ish-hid/ishtp/hbm.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-I also don't understand what is so special about this case. If we want
-user message for kmalloc failures, kmalloc is the right place for such
-warning, rather than a random call site out of thousands. Consider,
-the allocation failure can happen on the very next or previous kmalloc
-call, and user won't be warned. The rest of the kernel (including the
-rest of input sybsystem) does not warn on allocation failures, so that
-looks like what we need to do here as well. Or, if there is something
-very special about this particular kmalloc call site, something that
-makes it different from thousands of other call sites, why don't you
-want to replace it with pr_err which would both give the diagnostics
-but also not block systematic testing? Which looks like a win-win to
-me.
-
-Thanks
+diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.c b/drivers/hid/intel-ish-hid/ishtp/hbm.c
+index ae4a69f7f2f4..8b5dd580ceec 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/hbm.c
++++ b/drivers/hid/intel-ish-hid/ishtp/hbm.c
+@@ -298,7 +298,6 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
+ 	struct ishtp_msg_hdr *ishtp_hdr = &hdr;
+ 	const size_t len = sizeof(struct hbm_flow_control);
+ 	int	rv;
+-	unsigned int	num_frags;
+ 	unsigned long	flags;
+ 
+ 	spin_lock_irqsave(&cl->fc_spinlock, flags);
+@@ -314,7 +313,6 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
+ 		return	0;
+ 	}
+ 
+-	num_frags = cl->recv_msg_num_frags;
+ 	cl->recv_msg_num_frags = 0;
+ 
+ 	rv = ishtp_write_message(dev, ishtp_hdr, data);
+-- 
+2.17.1

@@ -1,57 +1,88 @@
-From: Greg Ungerer <gerg@linux-m68k.org>
-Subject: Re: [PATCH 0/5] m68k: IO Fixes and Cleanups
-Date: Tue, 3 Jul 2018 12:15:50 +1000
-Message-ID: <53ec59b8-0483-6b02-6dae-9f1d44bc2c69@linux-m68k.org>
-References: <20180702133532.5412-1-geert@linux-m68k.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v7 1/4] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Tue, 3 Jul 2018 07:53:29 +0100
+Message-ID: <20180703065329.GA20176@dell>
+References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <7e1888375c979accc402e9ddd7316e528b2ac52c.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com>
+ <20180626112455.GC2118@localhost.localdomain>
+ <CAFqH_52NERfORwSkBh0stW+mvzRpw0to9CiWPwLB9mFo_TsW_w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180702133532.5412-1-geert@linux-m68k.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAFqH_52NERfORwSkBh0stW+mvzRpw0to9CiWPwLB9mFo_TsW_w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>, "David S . Miller" <davem@davemloft.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Helge Deller <deller@gmx.de>
-Cc: linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: matti.vaittinen@fi.rohmeurope.com, Michael Turquette <mturquette@baylibre.com>, sboyd@kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, mazziesaccount@gmail.com, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, andrew.smirnov@gmail.com, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel
 List-Id: linux-input@vger.kernel.org
 
-Hi Geert,
+On Tue, 26 Jun 2018, Enric Balletbo Serra wrote:
 
-On 02/07/18 23:35, Geert Uytterhoeven wrote:
-> 	Hi all,
-> 
-> This patch series contains fixes and cleanups for I/O accessors on m68k
-> platforms (with MMU).
-> 
-> The first patch contains small fixes without any dependencies.
-> Patches 2 and 3 make small adjustments to drivers that are dependencies
-> for further cleanup.
-> Patch 4 and 5 complete the cleanup.
-> 
-> Given the dependencies, I think it's easiest if the respective
-> maintainers would provide their Acked-by, so all patches can go in
-> through the m68k tree.
-> 
-> Thanks for your comments!
+> Hi Matti,
+> Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+> dia dt., 26 de juny 2018 a les 13:25:
+> >
+> > Hello Eric,
+> >
+> > Thanks for the comments! I'll be addressing these in patch series v8
+> > - except the regmap wrapper one which will be taken care of by another
+> > patch set.
+> >
+> > On Tue, Jun 26, 2018 at 11:06:33AM +0200, Enric Balletbo Serra wrote:
+> > > Hi Matti,
+> > >
+> > > Thanks for the patch, a few comments below, some are feedback I
+> > > received when I sent some patches to this subsystem.
+> > >
+> > > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+> > > dia dt., 19 de juny 2018 a les 12:57:
+> > > >
+> > > > ROHM BD71837 PMIC MFD driver providing interrupts and support
+> > > > for two subsystems:
+> > > > - clk
+> > > > - Regulators
+> > > >
+> > > > Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> > > > ---
+> > > >  drivers/mfd/Kconfig         |  13 ++
+> > > >  drivers/mfd/Makefile        |   1 +
+> > > >  drivers/mfd/bd71837.c       | 221 ++++++++++++++++++++++++++
+> > > >  include/linux/mfd/bd71837.h | 367 ++++++++++++++++++++++++++++++++++++++++++++
+> > > >  4 files changed, 602 insertions(+)
+> > > >  create mode 100644 drivers/mfd/bd71837.c
+> > > >  create mode 100644 include/linux/mfd/bd71837.h
 
-I like it alot. If we can just fix up the warnings caused by patch
-number 1 I am more than happy to ack.
+[...]
 
-Regards
-Greg
-
-
-> Geert Uytterhoeven (5):
->    m68k/io: Add missing ioremap define guards, fix typo
->    net: mac8390: Use standard memcpy_{from,to}io()
->    Input: hilkbd - Add casts to HP9000/300 I/O accessors
->    m68k/io: Move mem*io define guards to <asm/kmap.h>
->    m68k/io: Switch mmu variant to <asm-generic/io.h>
+> > > > +static const struct of_device_id bd71837_of_match[] = {
+> > > > +       { .compatible = "rohm,bd71837", .data = (void *)0},
+> > > > +       { },
+> > >
+> > > nit: { /* sentinel */ }
+> >
+> > I am sorry but I didn't quite get the point here. Could you please
+> > explain what did you expect to be added here?
+> >
 > 
->   arch/m68k/include/asm/io.h          |  7 +++++
->   arch/m68k/include/asm/io_mm.h       | 40 +++--------------------------
->   arch/m68k/include/asm/io_no.h       | 12 ---------
->   arch/m68k/include/asm/kmap.h        |  7 ++++-
->   drivers/input/keyboard/hilkbd.c     |  4 +--
->   drivers/net/ethernet/8390/mac8390.c | 20 +++++++--------
->   6 files changed, 28 insertions(+), 62 deletions(-)
+> It's a nit but It is a good practice to specify that the last entry is
+> a sentinel. Just this.
 > 
+> +static const struct of_device_id bd71837_of_match[] = {
+> +       { .compatible = "rohm,bd71837", .data = (void *)0},
+> +       { /* sentinel */ }
+> +};
+
+I would not say this is "good practice" at all.
+
+We all know what empty brackets mean.  No need for obvious comments.
+
+When authors put this, I let it go because "sentinel" is a cool word -
+and nothing more! ;)
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

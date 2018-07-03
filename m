@@ -1,78 +1,44 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v7 1/4] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
-Date: Tue, 3 Jul 2018 07:56:48 +0100
-Message-ID: <20180703065648.GB20176@dell>
+Subject: Re: [PATCH v7 0/4] mfd/regulator/clk/input: bd71837: ROHM BD71837
+ PMIC driver
+Date: Tue, 3 Jul 2018 08:02:00 +0100
+Message-ID: <20180703070200.GC20176@dell>
 References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
- <7e1888375c979accc402e9ddd7316e528b2ac52c.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
- <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com>
- <20180626112455.GC2118@localhost.localdomain>
- <CAFqH_52NERfORwSkBh0stW+mvzRpw0to9CiWPwLB9mFo_TsW_w@mail.gmail.com>
- <20180626120306.GD2118@localhost.localdomain>
- <CAFqH_52v3-L1xLL12hzyGCbuooX5T52Lm7BXHM3sBX1ERWmhiQ@mail.gmail.com>
+ <20180621103400.GB6076@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAFqH_52v3-L1xLL12hzyGCbuooX5T52Lm7BXHM3sBX1ERWmhiQ@mail.gmail.com>
+In-Reply-To: <20180621103400.GB6076@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo Serra <eballetbo@gmail.com>
-Cc: matti.vaittinen@fi.rohmeurope.com, Michael Turquette <mturquette@baylibre.com>, sboyd@kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, Andrey Smirnov <andrew.smirnov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-kernel <linux-kerne>
+To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc: mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 26 Jun 2018, Enric Balletbo Serra wrote:
+On Thu, 21 Jun 2018, Matti Vaittinen wrote:
 
-> Hi Matti,
+> On Tue, Jun 19, 2018 at 01:55:31PM +0300, Matti Vaittinen wrote:
+> > Patch series adding support for ROHM BD71837 PMIC.
+> > 
+> What is the preferred way when I send updated patches:
 > 
-> Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
-> dia dt., 26 de juny 2018 a les 14:03:
-> >
-> > Hello Again Eric,
-> >
-> > On Tue, Jun 26, 2018 at 01:40:40PM +0200, Enric Balletbo Serra wrote:
-> > > Hi Matti,
-> > > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
-> > > dia dt., 26 de juny 2018 a les 13:25:
-> > > > On Tue, Jun 26, 2018 at 11:06:33AM +0200, Enric Balletbo Serra wrote:
-> > > > > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
-> > > > > dia dt., 19 de juny 2018 a les 12:57:
-> > > >
-> > > > > > +static const struct of_device_id bd71837_of_match[] = {
-> > > > > > +       { .compatible = "rohm,bd71837", .data = (void *)0},
-> > > > > > +       { },
-> > > > >
-> > > > > nit: { /* sentinel */ }
-> > > >
-> > > > I am sorry but I didn't quite get the point here. Could you please
-> > > > explain what did you expect to be added here?
-> > > >
-> > >
-> > > It's a nit but It is a good practice to specify that the last entry is
-> > > a sentinel. Just this.
-> > >
-> > > +static const struct of_device_id bd71837_of_match[] = {
-> > > +       { .compatible = "rohm,bd71837", .data = (void *)0},
-> > > +       { /* sentinel */ }
-> > > +};
-> >
-> > Oh, I see. Finally something I can disagree =) I quickly opened few
-> > random drivers which declare match table. None of them practiced this
-> > good practice. So I guess it is not such a standard after all. And I
-> > guess the meaning of last entry in match table should be quite obvious.
-> > Adding the comment /* sentinel */ sounds like stating the obvious at
-> > best - at worst it gets one just to wonder what the "sentinel" means =)
-> >
+> 1. always resend _all_ unapplied patches even if there is no changes to
+>    some of them. (patch-vN mail thread contains _all_ unapplied patches)
+> 2. only resend changed patches (patch-vN mail thread contains only
+>    patches that were changed from patch-vN-1)
 > 
-> git grep "/\* sentinel \*/"
-> 
-> Anyway, I marked this change as a nit, so you don't need to change. I
-> just commented because at some point I received a "complain" when I
-> didn't add it. But this is up to the maintainer and I am not sure if
-> the "complain" was received in this subsystem :)
+> I have currently used approach 1 - so that no patches would be
+> accidentally forgotten - but downside is that people need to check if
+> they have already reviewed some of the patches. I'd rather not caused
+> any extra work. What is the most convenient way for you guys?
 
-Certainly not from me.  I don't agree with the practice.
+Option 1 is preferred.
 
-I'd like to know who is enforcing this!
+Just ensure you apply any tags you have collected so reviewers can see
+which patches are pending a review.  It's also a good idea to keep a
+succinct change log between the "--" marker and the diff stat where
+you can state "v4: No change" or the like.
 
 -- 
 Lee Jones [李琼斯]

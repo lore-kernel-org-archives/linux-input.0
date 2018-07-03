@@ -1,44 +1,70 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 24/27] devicetree: fix a series of wrong file
- references
-Date: Tue, 3 Jul 2018 08:34:28 +0100
-Message-ID: <20180703073428.GH20176@dell>
-References: <cover.1528990947.git.mchehab+samsung@kernel.org>
- <bce1b59268ac2d659fd7cb37f89285ef2acc8316.1528990947.git.mchehab+samsung@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/5] m68k/io: Add missing ioremap define guards, fix typo
+Date: Tue, 3 Jul 2018 09:41:38 +0200
+Message-ID: <CAMuHMdUHmWiZOofGRFz6Qqphi4iChHa+TY-me_hKEN-xnrrvnA@mail.gmail.com>
+References: <20180702133532.5412-1-geert@linux-m68k.org> <20180702133532.5412-2-geert@linux-m68k.org>
+ <1349f685-e4a2-5e04-8227-dd55e11153f6@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <bce1b59268ac2d659fd7cb37f89285ef2acc8316.1528990947.git.mchehab+samsung@kernel.org>
+In-Reply-To: <1349f685-e4a2-5e04-8227-dd55e11153f6@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Zhou Wang <wangzhou1@hisilicon.com>, Bjorn Helgaas <bhelgaas@google.com>, Xiaowei Song <songxiaowei@hisilicon.com>, Binghui Wang <wangbinghui@hisilicon.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.o
+To: Greg Ungerer <gerg@linux-m68k.org>
+Cc: "David S. Miller" <davem@davemloft.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Helge Deller <deller@gmx.de>, linux-m68k <linux-m68k@lists.linux-m68k.org>, netdev <netdev@vger.kernel.org>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 14 Jun 2018, Mauro Carvalho Chehab wrote:
+Hi Greg,
 
-> As files got renamed, their references broke.
-> 
-> Manually fix a series of broken refs at the DT bindings.
-> 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> ---
->  .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt |  2 +-
->  Documentation/devicetree/bindings/mfd/sun6i-prcm.txt |  2 +-
+On Tue, Jul 3, 2018 at 4:13 AM Greg Ungerer <gerg@linux-m68k.org> wrote:
+> On 02/07/18 23:35, Geert Uytterhoeven wrote:
+> >    - Add missing define guard for ioremap_wt(),
+> >    - Fix typo s/ioremap_fillcache/ioremap_fullcache/,
+> >    - Add define guard for iounmap() for consistency with other
+> >      architectures.
+> >
+> > Fixes: 9746882f547d2f00 ("m68k: group io mapping definitions and functions")
+> > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> If I build for the m5475evb defconfig then I get warnings like this:
+>
+>    CC      init/main.o
+> In file included from ./include/asm-generic/io.h:19:0,
+>                   from ./arch/m68k/include/asm/io_no.h:147,
+>                   from ./arch/m68k/include/asm/io.h:3,
+>                   from ./include/linux/bio.h:28,
+>                   from ./include/linux/blkdev.h:21,
+>                   from init/main.c:80:
+> ./include/asm-generic/iomap.h:79:0: warning: "ioremap_wt" redefined
+>   #define ioremap_wt ioremap_nocache
+>   ^
+> In file included from ./arch/m68k/include/asm/io_no.h:145:0,
+>                   from ./arch/m68k/include/asm/io.h:3,
+>                   from ./include/linux/bio.h:28,
+>                   from ./include/linux/blkdev.h:21,
+>                   from init/main.c:80:
+> ./arch/m68k/include/asm/kmap.h:37:0: note: this is the location of the previous definition
+>   #define ioremap_wt ioremap_wt
+>   ^
 
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Thanks, I did some m68knommu compile tests, but didn't see this warning, which
+happens for Coldfire+MMU only.
 
->  .../devicetree/bindings/pci/hisilicon-pcie.txt       |  2 +-
->  Documentation/devicetree/bindings/pci/kirin-pcie.txt |  2 +-
->  .../devicetree/bindings/pci/pci-keystone.txt         |  4 ++--
->  .../devicetree/bindings/sound/st,stm32-i2s.txt       |  2 +-
->  .../devicetree/bindings/sound/st,stm32-sai.txt       |  2 +-
->  MAINTAINERS                                          | 12 ++++++------
->  8 files changed, 14 insertions(+), 14 deletions(-)
+The issue is that there are two ways to declare an architecture has
+ioremap_wt():
+  1. By defining ioremap_wt,
+  2. By defining ARCH_HAS_IOREMAP_WT.
+
+1 is done in arch/m68k/include/asm/kmap.h.
+2 is done in arch/m68k/include/asm/io_mm.h. Moving that to kmap.h fixes
+the warning. Will send an update shortly.
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

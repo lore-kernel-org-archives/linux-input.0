@@ -1,86 +1,117 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 4/4] HID: multitouch: remove unneeded else conditional cases
-Date: Tue, 3 Jul 2018 10:17:58 +0200
-Message-ID: <CAO-hwJ+ZHb8xyr=1RgVROvP2=yzmepccVOqZM5qP3hbOEYEo9g@mail.gmail.com>
-References: <cover.1530402641.git.joeypabalinas@gmail.com> <d35643165a1d1972fd91e547922697a3c785a413.1530402641.git.joeypabalinas@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH] input: mtk-pmic-keys: Fix probe when no DT node present
+Date: Tue, 3 Jul 2018 10:17:26 +0100
+Message-ID: <20180703091726.GM20176@dell>
+References: <20180622114228.8619-1-matthias.bgg@gmail.com>
+ <20180622183114.GA92912@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d35643165a1d1972fd91e547922697a3c785a413.1530402641.git.joeypabalinas@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180622183114.GA92912@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joey Pabalinas <joeypabalinas@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Daniel Martin <consume.noise@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, chen.zhong@mediatek.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, Matthias Brugger <mbrugger@suse.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jul 1, 2018 at 2:19 AM, Joey Pabalinas <joeypabalinas@gmail.com> wrote:
-> Elide lone `else` cases and replace `else if` clauses
-> with plain `if` conditionals when they occur immediately
-> after return statements.
->
-> Signed-off-by: Joey Pabalinas <joeypabalinas@gmail.com>
->
+On Fri, 22 Jun 2018, Dmitry Torokhov wrote:
 
-This one looks good.
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Just FYI, I sent out a big refactor of the hid-multitouch code. Jiri
-should be still reviewing it, so I am not so sure who will have to
-rebase which series on top of the other, but someone between us will
-have to do it :)
-
-Cheers,
-Benjamin
-
->  1 file changed, 6 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 08b50e5908cecdda66..30b1a2c67f39a41325 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -205,12 +205,12 @@ static void mt_post_parse(struct mt_device *td);
->
->  static int cypress_compute_slot(struct mt_device *td)
->  {
->         if (td->curdata.contactid != 0 || td->num_received == 0)
->                 return td->curdata.contactid;
-> -       else
-> -               return -1;
-> +
-> +       return -1;
+> On Fri, Jun 22, 2018 at 01:42:28PM +0200, Matthias Brugger wrote:
+> > The drivers gets probed from a mfd devices. So the driver runs
+> > probe although no DT node exists. This leads to a NULL pointer
+> > dereference in the probe function. Check if a node exists and
+> > error out in case none is present.
+> 
+> Hmm, if a cell specifies of_compatible and no such node is present in DT
+> maybe we should bail out in mfd_add_device() instead of pushing the
+> check into individual drivers? Something like:
+> 
+> diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+> index 94e3f32ce935..36a5fd98000d 100644
+> --- a/drivers/mfd/mfd-core.c
+> +++ b/drivers/mfd/mfd-core.c
+> @@ -137,6 +137,18 @@ static inline void mfd_acpi_add_device(const struct mfd_cell *cell,
 >  }
->
->  static struct mt_class mt_classes[] = {
->         { .name = MT_CLS_DEFAULT,
->                 .quirks = MT_QUIRK_ALWAYS_VALID |
-> @@ -803,12 +803,12 @@ static int mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
->         delta *= 100;
->
->         if (jdelta > MAX_TIMESTAMP_INTERVAL)
->                 /* No data received for a while, resync the timestamp. */
->                 return 0;
-> -       else
-> -               return td->timestamp + delta;
+>  #endif
+>  
+> +static struct device_node *mfd_get_node_for_cell(struct device *parent,
+> +						 const struct mfd_cell *cell)
+> +{
+> +	struct device_node *np;
 > +
-> +       return td->timestamp + delta;
->  }
->
->  static int mt_touch_event(struct hid_device *hid, struct hid_field *field,
->                                 struct hid_usage *usage, __s32 value)
+> +	for_each_child_of_node(parent->of_node, np)
+> +		if (of_device_is_compatible(np, cell->of_compatible))
+> +			return np;
+> +
+> +	return NULL;
+> +}
+> +
+>  static int mfd_add_device(struct device *parent, int id,
+>  			  const struct mfd_cell *cell, atomic_t *usage_count,
+>  			  struct resource *mem_base,
+> @@ -144,7 +156,6 @@ static int mfd_add_device(struct device *parent, int id,
 >  {
-> @@ -1110,11 +1110,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->          * HID_DG_CONTACTCOUNT from the pen report as it is outside the physical
->          * collection, but within the report ID.
->          */
->         if (field->physical == HID_DG_STYLUS)
->                 return 0;
-> -       else if ((field->physical == 0) &&
-> +
-> +       if ((field->physical == 0) &&
->                  (field->report->id != td->mt_report_id) &&
->                  (td->mt_report_id != -1))
->                 return 0;
->
->         if (field->application == HID_DG_TOUCHSCREEN ||
-> --
-> 2.18.0
->
+>  	struct resource *res;
+>  	struct platform_device *pdev;
+> -	struct device_node *np = NULL;
+>  	int ret = -ENOMEM;
+>  	int platform_id;
+>  	int r;
+> @@ -176,11 +187,11 @@ static int mfd_add_device(struct device *parent, int id,
+>  		goto fail_res;
+>  
+>  	if (parent->of_node && cell->of_compatible) {
+> -		for_each_child_of_node(parent->of_node, np) {
+> -			if (of_device_is_compatible(np, cell->of_compatible)) {
+> -				pdev->dev.of_node = np;
+> -				break;
+> -			}
+> +		pdev->dev.of_node = mfd_get_node_for_cell(parent, cell);
+> +		if (!pdev->dev.of_node) {
+> +			dev_err(parent, "unable to locate node for %s (%s)\n",
+> +				cell->name, cell->of_compatible);
+> +			goto fail_res;
+>  		}
+>  	}
+>  
+> Lee?
+
+This change results the wrong semantics.  MFD overrides Device Tree,
+such that if a device is supplied and registered using
+mfd_add_device(s) it should be probed.  The only reason we provide a
+pointer to the of_node is for the child device to pull properties
+from.
+
+If a device should only be probed if an OF node exists, then it should
+not be registered at the MFD level.
+
+> > Fixes: 3e9f0b3e2b27 ("input: Add MediaTek PMIC keys support")
+> > Signed-off-by: Matthias Brugger <mbrugger@suse.com>
+> > ---
+> >  drivers/input/keyboard/mtk-pmic-keys.c | 3 +++
+> >  1 file changed, 3 insertions(+)
+> > 
+> > diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+> > index 02c67a1749fc..388043e1939c 100644
+> > --- a/drivers/input/keyboard/mtk-pmic-keys.c
+> > +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+> > @@ -257,6 +257,9 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
+> >  	const struct of_device_id *of_id =
+> >  		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
+> >  
+> > +	if (of_id == NULL)
+> > +		return -ENODEV;
+> > +
+> >  	keys = devm_kzalloc(&pdev->dev, sizeof(*keys), GFP_KERNEL);
+> >  	if (!keys)
+> >  		return -ENOMEM;
+> 
+> Thanks.
+> 
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

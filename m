@@ -1,90 +1,96 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [PATCH 0/3] cast sizeof to int for comparison
-Date: Tue, 3 Jul 2018 16:00:24 +0300
-Message-ID: <20180702091834.etunideivmb6p2sf@mwanda>
-References: <1530466325-1678-1-git-send-email-Julia.Lawall@lip6.fr>
- <653914f26dc8433a3f682b5e7eb850ab94bd431d.camel@perches.com>
- <alpine.DEB.2.20.1807012050530.2494@hadrien>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v5 1/4] resource: Move reparent_resources() to
+ kernel/resource.c and make it public
+Date: Tue, 3 Jul 2018 22:55:03 +0800
+Message-ID: <20180703145503.GA1225@MiWiFi-R3L-srv>
+References: <20180612032831.29747-1-bhe@redhat.com>
+ <20180612032831.29747-2-bhe@redhat.com>
+ <CAHp75Vd6v4+RTq-5uw_BJpT6=w2KGjTfU+rEst6+8igs2cyntw@mail.gmail.com>
+ <20180612093812.GC1820@MiWiFi-R3L-srv>
+ <CAHp75Vf_kBLkE6v=JyOdfNoWktWEfKs7JzRP1XEc4TeuT5xqfw@mail.gmail.com>
+ <CAHp75Vdaqj+n=F7wSB9PFGpf9Ok2XZzKcq_H0DzmtjmN-4UUfw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.20.1807012050530.2494@hadrien>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Julia Lawall <julia.lawall@lip6.fr>
-Cc: Joe Perches <joe@perches.com>, linux-usb@vger.kernel.org, Chengguang Xu <cgxu519@gmx.com>, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+In-Reply-To: <CAHp75Vdaqj+n=F7wSB9PFGpf9Ok2XZzKcq_H0DzmtjmN-4UUfw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Nicolas Pitre <nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, KY Srinivasan <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, Michael Ellerman <mpe-Gsx/Oe8HsFggBc27wqDAHg@public.gmane.org>, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Dave Young <dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Maarten Lankhorst <maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Josh Triplett <josh@joshtri>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jul 01, 2018 at 08:51:55PM +0200, Julia Lawall wrote:
-> 
-> 
-> On Sun, 1 Jul 2018, Joe Perches wrote:
-> 
-> > On Sun, 2018-07-01 at 19:32 +0200, Julia Lawall wrote:
-> > > Comparing an int to a size, which is unsigned, causes the int to become
-> > > unsigned, giving the wrong result.
-> > >
-> > > The semantic match that finds this problem is as follows:
-> > > (http://coccinelle.lip6.fr/)
+Hi Andy,
+
+On 06/12/18 at 05:24pm, Andy Shevchenko wrote:
+> On Tue, Jun 12, 2018 at 5:20 PM, Andy Shevchenko
+> <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> >> Hmm, I just copied it from arch/powerpc/kernel/pci-common.c. The
+> >> function interface expects an integer returned value, not sure what a
+> >> real error codes look like, could you give more hints? Will change
+> >> accordingly.
 > >
-> > Great, thanks.
-> >
-> > But what about the ones in net/smc like:
-> >
-> > > net/smc/smc_clc.c:
-> > >
-> > >         len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
-> > >                              sizeof(struct smc_clc_msg_decline));
-> > >         if (len < sizeof(struct smc_clc_msg_decline))
-> >
-> > Are those detected by the semantic match and ignored?
+> > I briefly looked at the code and error codes we have, so, my proposal
+> > is one of the following
 > 
-> I wasn't sure how to justify that kernel_sendmsg returns a negative value.
-> If it is the case, I can send the patch.  I only found this in one file,
-> but there were multiple occurrences.
+> >  - use -ECANCELED (not the best choice for first occurrence here,
+> > though I can't find better)
 > 
+> Actually -ENOTSUPP might suit the first case (although the actual
+> would be something like -EOVERLAP, which we don't have)
 
-In theory, Smatch is supposed to know return values but kernel_sendmsg()
-is too complicated for Smatch.  It's a tricky thing...  That particular
-check is correct and deliberate, but there is another check which is
-wrong.
+Sorry for late reply, and many thanks for your great suggestion.
 
-net/smc/smc_clc.c
-   369          len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
-   370                               sizeof(struct smc_clc_msg_decline));
-   371          if (len < sizeof(struct smc_clc_msg_decline))
-   372                  smc->sk.sk_err = EPROTO;
-   373          if (len < 0)
-   374                  smc->sk.sk_err = -len;
+I am fine to use -ENOTSUPP as the first returned value, and -ECANCELED
+for the 2nd one. Or define an enum as you suggested inside the function
+or in header file.
 
-If it's invalid we set an error code, if it's already an error we
-preserve the error code.
+Or use -EBUSY for the first case because existing resource is
+overlapping but not fully contained by 'res'; and -EINVAL for
+the 2nd case since didn't find any one resources which is contained by
+'res', means we passed in a invalid resource. 
 
-   375          return sock_error(&smc->sk);
+All is fine to me, I can repost with each of them.
 
-[ snip ]
+Thanks
+Baoquan
 
-   442          /* due to the few bytes needed for clc-handshake this cannot block */
-   443          len = kernel_sendmsg(smc->clcsock, &msg, vec, i, plen);
-   444          if (len < sizeof(pclc)) {
-   445                  if (len >= 0) {
-                            ^^^^^^^^
-This is always true.
-
-   446                          reason_code = -ENETUNREACH;
-   447                          smc->sk.sk_err = -reason_code;
-   448                  } else {
-   449                          smc->sk.sk_err = smc->clcsock->sk->sk_err;
-   450                          reason_code = -smc->sk.sk_err;
-   451                  }
-   452          }
-
-The other two checks are not type promoted so they also work as
-intended.
-
-This is an interesting sort of bug I've written a Smatch script inspired
-by your work here.  One for the type promotion and one for the
-impossible condition.  I'll let you know how it goes.
-
-regards,
-dan carpenter
+> 
+> >  - use positive integers (or enum), like
+> >   #define RES_REPARENTED 0
+> >   #define RES_OVERLAPPED 1
+> >   #define RES_NOCONFLICT 2
+> >
+> >
+> >>> > +               if (firstpp == NULL)
+> >>> > +                       firstpp = pp;
+> >>> > +       }
+> >>>
+> >>> > +       if (firstpp == NULL)
+> >>> > +               return -1;      /* didn't find any conflicting entries? */
+> >>>
+> >>> Ditto.
+> >
+> > Ditto.
+> >
+> >>>
+> >>> > +}
+> >>> > +EXPORT_SYMBOL(reparent_resources);
+> >
+> > --
+> > With Best Regards,
+> > Andy Shevchenko
+> 
+> 
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko

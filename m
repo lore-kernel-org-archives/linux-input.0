@@ -1,59 +1,86 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/4] HID: multitouch: don't check HID_GROUP_MULTITOUCH_WIN_8
- for serial protocol
-Date: Tue, 3 Jul 2018 10:16:01 +0200
-Message-ID: <CAO-hwJJpAfvvP+s9Cqmi8v7pHsEw3tKTrySQaEg8TUzPTFcQfA@mail.gmail.com>
-References: <cover.1530402641.git.joeypabalinas@gmail.com> <0aaacf083be5b68a830f9e174f9abee3b00c5a51.1530402641.git.joeypabalinas@gmail.com>
+Subject: Re: [PATCH 4/4] HID: multitouch: remove unneeded else conditional cases
+Date: Tue, 3 Jul 2018 10:17:58 +0200
+Message-ID: <CAO-hwJ+ZHb8xyr=1RgVROvP2=yzmepccVOqZM5qP3hbOEYEo9g@mail.gmail.com>
+References: <cover.1530402641.git.joeypabalinas@gmail.com> <d35643165a1d1972fd91e547922697a3c785a413.1530402641.git.joeypabalinas@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0aaacf083be5b68a830f9e174f9abee3b00c5a51.1530402641.git.joeypabalinas@gmail.com>
+In-Reply-To: <d35643165a1d1972fd91e547922697a3c785a413.1530402641.git.joeypabalinas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Joey Pabalinas <joeypabalinas@gmail.com>
 Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Daniel Martin <consume.noise@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
 On Sun, Jul 1, 2018 at 2:19 AM, Joey Pabalinas <joeypabalinas@gmail.com> wrote:
-> The HID_GROUP_MULTITOUCH_WIN_8 group never needs to check for the serial
-> protocol, so avoid setting `td->serial_maybe = true;` in order to avoid
-> an unnecessary mt_post_parse_default_settings() call
+> Elide lone `else` cases and replace `else if` clauses
+> with plain `if` conditionals when they occur immediately
+> after return statements.
 >
 > Signed-off-by: Joey Pabalinas <joeypabalinas@gmail.com>
 >
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index a793076139d7d0db9b..c0654db0b736543ca0 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1460,11 +1460,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
->         if (!td->fields) {
->                 dev_err(&hdev->dev, "cannot allocate multitouch fields data\n");
->                 return -ENOMEM;
->         }
->
-> -       if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
-> +       if (id->vendor == HID_ANY_ID
-> +                       && id->product == HID_ANY_ID
-> +                       && id->group != HID_GROUP_MULTITOUCH_WIN_8)
 
-There is a tiny difference between the HID group (this device looks
-like it is used as a Win 8 device) and the device class (this is
-effectively a Win8 device)
+This one looks good.
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-It makes sense to remove this check for Win8 devices, but I don't
-think it should be done for all devices.
-
-All in all, it won't change much.
+Just FYI, I sent out a big refactor of the hid-multitouch code. Jiri
+should be still reviewing it, so I am not so sure who will have to
+rebase which series on top of the other, but someone between us will
+have to do it :)
 
 Cheers,
 Benjamin
 
->                 td->serial_maybe = true;
+>  1 file changed, 6 insertions(+), 5 deletions(-)
 >
->         /* This allows the driver to correctly support devices
->          * that emit events over several HID messages.
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 08b50e5908cecdda66..30b1a2c67f39a41325 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -205,12 +205,12 @@ static void mt_post_parse(struct mt_device *td);
+>
+>  static int cypress_compute_slot(struct mt_device *td)
+>  {
+>         if (td->curdata.contactid != 0 || td->num_received == 0)
+>                 return td->curdata.contactid;
+> -       else
+> -               return -1;
+> +
+> +       return -1;
+>  }
+>
+>  static struct mt_class mt_classes[] = {
+>         { .name = MT_CLS_DEFAULT,
+>                 .quirks = MT_QUIRK_ALWAYS_VALID |
+> @@ -803,12 +803,12 @@ static int mt_compute_timestamp(struct mt_device *td, struct hid_field *field,
+>         delta *= 100;
+>
+>         if (jdelta > MAX_TIMESTAMP_INTERVAL)
+>                 /* No data received for a while, resync the timestamp. */
+>                 return 0;
+> -       else
+> -               return td->timestamp + delta;
+> +
+> +       return td->timestamp + delta;
+>  }
+>
+>  static int mt_touch_event(struct hid_device *hid, struct hid_field *field,
+>                                 struct hid_usage *usage, __s32 value)
+>  {
+> @@ -1110,11 +1110,12 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>          * HID_DG_CONTACTCOUNT from the pen report as it is outside the physical
+>          * collection, but within the report ID.
 >          */
+>         if (field->physical == HID_DG_STYLUS)
+>                 return 0;
+> -       else if ((field->physical == 0) &&
+> +
+> +       if ((field->physical == 0) &&
+>                  (field->report->id != td->mt_report_id) &&
+>                  (td->mt_report_id != -1))
+>                 return 0;
+>
+>         if (field->application == HID_DG_TOUCHSCREEN ||
 > --
 > 2.18.0
 >

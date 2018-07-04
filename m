@@ -1,38 +1,36 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 09/10] mfd: 88pm860x-i2c: switch to i2c_lock_bus(...,
- I2C_LOCK_SEGMENT)
-Date: Wed, 4 Jul 2018 08:04:32 +0100
-Message-ID: <20180704070432.GF20176@dell>
-References: <20180620051803.12206-1-peda@axentia.se>
- <20180620051803.12206-10-peda@axentia.se>
+Subject: Re: [PATCH 1/5] mfd: ti_am335x_tscadc: Don't mark TSCADC MFD as
+ wakeup capable
+Date: Wed, 4 Jul 2018 08:38:10 +0100
+Message-ID: <20180704073810.GL20176@dell>
+References: <20180630103318.25355-1-vigneshr@ti.com>
+ <20180630103318.25355-2-vigneshr@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180620051803.12206-10-peda@axentia.se>
+In-Reply-To: <20180630103318.25355-2-vigneshr@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>Crt Mori <cm>
+To: Vignesh R <vigneshr@ti.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-iio@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 20 Jun 2018, Peter Rosin wrote:
+On Sat, 30 Jun 2018, Vignesh R wrote:
 
-> Locking the root adapter for __i2c_transfer will deadlock if the
-> device sits behind a mux-locked I2C mux. Switch to the finer-grained
-> i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
-> sit behind a mux-locked mux, the two locking variants are equivalent.
+> Currently tscadc MFD is marked as wakeup capable which incorrect
+> because, its actually touch event by child TSC device that wakes up the
+> system. Therefore, remove device_init_wakeup() call that marks TSCADC
+> device as wakeup capable in favor of moving to mark TSC input device as
+> wakeup capable later.
 > 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
 > ---
->  drivers/mfd/88pm860x-i2c.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  drivers/mfd/ti_am335x_tscadc.c | 1 -
+>  1 file changed, 1 deletion(-)
 
-If Wolfram is happy with this, then I am.
-
-Since this file sees few changes - please merge through the I2C tree.
-
-Acked-by: Lee Jones <lee.jones@linaro.org>
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
 -- 
 Lee Jones [李琼斯]

@@ -1,162 +1,124 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] Input: mark expected switch fall-throughs
-Date: Tue, 3 Jul 2018 15:35:44 -0500
-Message-ID: <20180703203544.GA1015@embeddedor.com>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v6 0/4] resource: Use list_head to link sibling resource
+Date: Wed,  4 Jul 2018 12:10:34 +0800
+Message-ID: <20180704041038.8190-1-bhe@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org, devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, davem@davem
 List-Id: linux-input@vger.kernel.org
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch cases
-where we are expecting to fall through.
+This patchset is doing:
+1) Replace struct resource's sibling list from singly linked list to
+list_head. Clearing out those pointer operation within singly linked
+list for better code readability.
+2) Based on list_head replacement, add a new function
+walk_system_ram_res_rev() which can does reversed iteration on
+iomem_resource's siblings.
+3) Change kexec_file loading to search system RAM top down for kernel
+loadin, using walk_system_ram_res_rev().
 
-Warning level 2 was used: -Wimplicit-fallthrough=2
+Note:
+This patchset only passed testing on  x86_64 arch with network
+enabling. The thing we need pay attetion to is that a root resource's
+child member need be initialized specifically with LIST_HEAD_INIT() if
+statically defined or INIT_LIST_HEAD() for dynamically definition. Here
+Just like we do for iomem_resource/ioport_resource, or the change in
+get_pci_domain_busn_res().
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/input/joystick/db9.c          | 5 +++++
- drivers/input/keyboard/adp5589-keys.c | 1 +
- drivers/input/mouse/appletouch.c      | 1 +
- drivers/input/mouse/cyapa_gen5.c      | 1 +
- drivers/input/mouse/cyapa_gen6.c      | 1 +
- drivers/input/mouse/elantech.c        | 2 +-
- drivers/input/mouse/sermouse.c        | 4 +++-
- drivers/input/touchscreen/elo.c       | 1 +
- 8 files changed, 14 insertions(+), 2 deletions(-)
+v5:
+http://lkml.kernel.org/r/20180612032831.29747-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 
-diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
-index de0dd47..0006da5 100644
---- a/drivers/input/joystick/db9.c
-+++ b/drivers/input/joystick/db9.c
-@@ -263,6 +263,7 @@ static unsigned char db9_saturn_read_packet(struct parport *port, unsigned char
- 			db9_saturn_write_sub(port, type, 3, powered, 0);
- 			return data[0] = 0xe3;
- 		}
-+		/* else: fall through */
- 	default:
- 		return data[0];
- 	}
-@@ -282,11 +283,14 @@ static int db9_saturn_report(unsigned char id, unsigned char data[60], struct in
- 		switch (data[j]) {
- 		case 0x16: /* multi controller (analog 4 axis) */
- 			input_report_abs(dev, db9_abs[5], data[j + 6]);
-+			/* fall through */
- 		case 0x15: /* mission stick (analog 3 axis) */
- 			input_report_abs(dev, db9_abs[3], data[j + 4]);
- 			input_report_abs(dev, db9_abs[4], data[j + 5]);
-+			/* fall through */
- 		case 0x13: /* racing controller (analog 1 axis) */
- 			input_report_abs(dev, db9_abs[2], data[j + 3]);
-+			/* fall through */
- 		case 0x34: /* saturn keyboard (udlr ZXC ASD QE Esc) */
- 		case 0x02: /* digital pad (digital 2 axis + buttons) */
- 			input_report_abs(dev, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
-@@ -380,6 +384,7 @@ static void db9_timer(struct timer_list *t)
- 			input_report_abs(dev2, ABS_X, (data & DB9_RIGHT ? 0 : 1) - (data & DB9_LEFT ? 0 : 1));
- 			input_report_abs(dev2, ABS_Y, (data & DB9_DOWN  ? 0 : 1) - (data & DB9_UP   ? 0 : 1));
- 			input_report_key(dev2, BTN_TRIGGER, ~data & DB9_FIRE1);
-+			/* fall through */
- 
- 		case DB9_MULTI_0802:
- 
-diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
-index 32d94c6..2835fba 100644
---- a/drivers/input/keyboard/adp5589-keys.c
-+++ b/drivers/input/keyboard/adp5589-keys.c
-@@ -885,6 +885,7 @@ static int adp5589_probe(struct i2c_client *client,
- 	switch (id->driver_data) {
- 	case ADP5585_02:
- 		kpad->support_row5 = true;
-+		/* fall through */
- 	case ADP5585_01:
- 		kpad->is_adp5585 = true;
- 		kpad->var = &const_adp5585;
-diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index 032d279..0aeed28e8 100644
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -472,6 +472,7 @@ static int atp_status_check(struct urb *urb)
- 				dev->info->datalen, dev->urb->actual_length);
- 			dev->overflow_warned = true;
- 		}
-+		/* fall through */
- 	case -ECONNRESET:
- 	case -ENOENT:
- 	case -ESHUTDOWN:
-diff --git a/drivers/input/mouse/cyapa_gen5.c b/drivers/input/mouse/cyapa_gen5.c
-index 5775d40..14239fb 100644
---- a/drivers/input/mouse/cyapa_gen5.c
-+++ b/drivers/input/mouse/cyapa_gen5.c
-@@ -2554,6 +2554,7 @@ static int cyapa_gen5_do_operational_check(struct cyapa *cyapa)
- 		}
- 
- 		cyapa->state = CYAPA_STATE_GEN5_APP;
-+		/* fall through */
- 
- 	case CYAPA_STATE_GEN5_APP:
- 		/*
-diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
-index 0163978..c1b524a 100644
---- a/drivers/input/mouse/cyapa_gen6.c
-+++ b/drivers/input/mouse/cyapa_gen6.c
-@@ -680,6 +680,7 @@ static int cyapa_gen6_operational_check(struct cyapa *cyapa)
- 		}
- 
- 		cyapa->state = CYAPA_STATE_GEN6_APP;
-+		/* fall through */
- 
- 	case CYAPA_STATE_GEN6_APP:
- 		/*
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index dd85b16..44f57cf 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -340,7 +340,7 @@ static void elantech_report_absolute_v2(struct psmouse *psmouse)
- 		 */
- 		if (packet[3] & 0x80)
- 			fingers = 4;
--		/* pass through... */
-+		/* fall through */
- 	case 1:
- 		/*
- 		 * byte 1:  .   .   .   .  x11 x10 x9  x8
-diff --git a/drivers/input/mouse/sermouse.c b/drivers/input/mouse/sermouse.c
-index 8df5266..4431057 100644
---- a/drivers/input/mouse/sermouse.c
-+++ b/drivers/input/mouse/sermouse.c
-@@ -143,7 +143,8 @@ static void sermouse_process_ms(struct sermouse *sermouse, signed char data)
- 			switch (sermouse->type) {
- 
- 				case SERIO_MS:
--					 sermouse->type = SERIO_MP;
-+					sermouse->type = SERIO_MP;
-+					/* fall through */
- 
- 				case SERIO_MP:
- 					if ((data >> 2) & 3) break;	/* M++ Wireless Extension packet. */
-@@ -154,6 +155,7 @@ static void sermouse_process_ms(struct sermouse *sermouse, signed char data)
- 				case SERIO_MZP:
- 				case SERIO_MZPP:
- 					input_report_key(dev, BTN_SIDE,   (data >> 5) & 1);
-+					/* fall through */
- 
- 				case SERIO_MZ:
- 					input_report_key(dev, BTN_MIDDLE, (data >> 4) & 1);
-diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
-index 83433e8..7f2942f 100644
---- a/drivers/input/touchscreen/elo.c
-+++ b/drivers/input/touchscreen/elo.c
-@@ -352,6 +352,7 @@ static int elo_connect(struct serio *serio, struct serio_driver *drv)
- 
- 	case 1: /* 6-byte protocol */
- 		input_set_abs_params(input_dev, ABS_PRESSURE, 0, 15, 0, 0);
-+		/* fall through */
- 
- 	case 2: /* 4-byte protocol */
- 		input_set_abs_params(input_dev, ABS_X, 96, 4000, 0, 0);
+v4:
+http://lkml.kernel.org/r/20180507063224.24229-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+
+v3:
+http://lkml.kernel.org/r/20180419001848.3041-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+
+v2:
+http://lkml.kernel.org/r/20180408024724.16812-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+
+v1:
+http://lkml.kernel.org/r/20180322033722.9279-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+
+Changelog:
+v5->v6:
+  Fix code style problems in reparent_resources() and use existing
+  error codes, according to Andy's suggestion.
+
+  Fix bugs test robot reported.
+  
+v4->v5:
+  Add new patch 0001 to move duplicated reparent_resources() to
+  kernel/resource.c to make it be shared by different ARCH-es.
+
+  Fix several code bugs reported by test robot on ARCH powerpc and
+  microblaze.
+v3->v4:
+  Fix several bugs test robot reported. Rewrite cover letter and patch
+  log according to reviewer's comment.
+
+v2->v3:
+  Rename resource functions first_child() and sibling() to
+  resource_first_chils() and resource_sibling(). Dan suggested this.
+
+  Move resource_first_chils() and resource_sibling() to linux/ioport.h
+  and make them as inline function. Rob suggested this. Accordingly add
+  linux/list.h including in linux/ioport.h, please help review if this
+  bring efficiency degradation or code redundancy.
+
+  The change on struct resource {} bring two pointers of size increase,
+  mention this in git log to make it more specifically, Rob suggested
+  this.
+
+v1->v2:
+  Use list_head instead to link resource siblings. This is suggested by
+  Andrew.
+
+  Rewrite walk_system_ram_res_rev() after list_head is taken to link
+  resouce siblings.
+
+
+
+Baoquan He (4):
+  resource: Move reparent_resources() to kernel/resource.c and make it
+    public
+  resource: Use list_head to link sibling resource
+  resource: add walk_system_ram_res_rev()
+  kexec_file: Load kernel at top of system RAM if required
+
+ arch/arm/plat-samsung/pm-check.c            |   6 +-
+ arch/microblaze/pci/pci-common.c            |  41 +----
+ arch/powerpc/kernel/pci-common.c            |  39 +----
+ arch/sparc/kernel/ioport.c                  |   2 +-
+ arch/xtensa/include/asm/pci-bridge.h        |   4 +-
+ drivers/eisa/eisa-bus.c                     |   2 +
+ drivers/gpu/drm/drm_memory.c                |   3 +-
+ drivers/gpu/drm/gma500/gtt.c                |   5 +-
+ drivers/hv/vmbus_drv.c                      |  52 +++---
+ drivers/input/joystick/iforce/iforce-main.c |   4 +-
+ drivers/nvdimm/namespace_devs.c             |   6 +-
+ drivers/nvdimm/nd.h                         |   5 +-
+ drivers/of/address.c                        |   4 +-
+ drivers/parisc/lba_pci.c                    |   4 +-
+ drivers/pci/controller/vmd.c                |   8 +-
+ drivers/pci/probe.c                         |   2 +
+ drivers/pci/setup-bus.c                     |   2 +-
+ include/linux/ioport.h                      |  21 ++-
+ kernel/kexec_file.c                         |   2 +
+ kernel/resource.c                           | 263 ++++++++++++++++++----------
+ 20 files changed, 248 insertions(+), 227 deletions(-)
+
 -- 
-2.7.4
+2.13.6

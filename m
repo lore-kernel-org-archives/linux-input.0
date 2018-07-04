@@ -1,65 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] MAINTAINERS: Add file patterns for serio device tree
- bindings
-Date: Wed, 4 Jul 2018 15:27:26 +0000
-Message-ID: <20180704152726.uastaefdyzhlbhau@penguin>
-References: <20180622100818.29420-1-geert@linux-m68k.org>
+Subject: Re: [PATCH] Input: cros_ec_keyb: remove redundant variable num_cols
+Date: Wed, 4 Jul 2018 15:55:10 +0000
+Message-ID: <20180704155510.b7q2zy4zehwumngc@penguin>
+References: <20180702162841.12553-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180622100818.29420-1-geert@linux-m68k.org>
+In-Reply-To: <20180702162841.12553-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Ravi Chandra Sadineni <ravisadineni@chromium.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 22, 2018 at 12:08:18PM +0200, Geert Uytterhoeven wrote:
-> Submitters of device tree binding documentation may forget to CC
-> the subsystem maintainer if this is missing.
+On Mon, Jul 02, 2018 at 05:28:41PM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Variable num_cols is being assigned but is never used hence it is
+> redundant and can be removed.
+> 
+> Cleans up clang warning:
+> warning: variable ‘num_cols’ set but not used [-Wunused-but-set-variable]
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-Since nobody else did I'll pick it up, thank you Geert.
+Applied, thank you.
 
 > ---
-> v3:
->   - Update for next-20180622,
+>  drivers/input/keyboard/cros_ec_keyb.c | 3 ---
+>  1 file changed, 3 deletions(-)
 > 
-> v2:
->   - Add Acked-by.
-> 
-> Impact on "scripts/get_maintainer.pl -f Documentation/devicetree/bindings/serio/":
-> 
-> -Rob Herring <robh+dt@kernel.org> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS,commit_signer:3/3=100%,authored:1/3=33%)
-> -Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS,commit_signer:1/3=33%)
-> -Dmitry Torokhov <dmitry.torokhov@gmail.com> (commit_signer:1/3=33%)
-> -Danilo Krummrich <danilokrummrich@dk-develop.de> (commit_signer:1/3=33%,authored:1/3=33%)
-> -Linus Walleij <linus.walleij@linaro.org> (commit_signer:1/3=33%)
-> -Mathieu Malaterre <malat@debian.org> (authored:1/3=33%)
-> +Dmitry Torokhov <dmitry.torokhov@gmail.com> (maintainer:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)...)
-> +Rob Herring <robh+dt@kernel.org> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-> +Mark Rutland <mark.rutland@arm.com> (maintainer:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
-> +linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)...)
->  devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS)
->  linux-kernel@vger.kernel.org (open list)
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 464d91879df89fce..df246daab5a27af2 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -7100,6 +7100,7 @@ F:	include/uapi/linux/input.h
->  F:	include/uapi/linux/input-event-codes.h
->  F:	include/linux/input/
->  F:	Documentation/devicetree/bindings/input/
-> +F:	Documentation/devicetree/bindings/serio/
->  F:	Documentation/input/
+> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+> index 820bebad519a..81be6f781f0b 100644
+> --- a/drivers/input/keyboard/cros_ec_keyb.c
+> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> @@ -160,9 +160,6 @@ static void cros_ec_keyb_process(struct cros_ec_keyb *ckdev,
+>  	int col, row;
+>  	int new_state;
+>  	int old_state;
+> -	int num_cols;
+> -
+> -	num_cols = len;
 >  
->  INPUT MULTITOUCH (MT) PROTOCOL
+>  	if (ckdev->ghost_filter && cros_ec_keyb_has_ghosting(ckdev, kb_state)) {
+>  		/*
 > -- 
 > 2.17.1
 > 

@@ -1,93 +1,86 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v8 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
-Date: Wed, 4 Jul 2018 11:53:06 +0100
-Message-ID: <20180704105002.GD496@dell>
-References: <cover.1530259815.git.matti.vaittinen@fi.rohmeurope.com>
- <18a04e42debb2a23aec855cac3bcf3d6ab6c55fd.1530259815.git.matti.vaittinen@fi.rohmeurope.com>
- <CAFqH_533te3UuY9V9U+Z0yxTkW==3wsK22uzB4G=aWGour7Quw@mail.gmail.com>
- <20180704083911.GH2118@localhost.localdomain>
- <20180704095257.GJ2118@localhost.localdomain>
- <20180704101102.GA496@dell>
- <20180704103430.GA13087@localhost.localdomain>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH 4/5] iio: adc: ti_am335x_adc: Disable ADC during suspend
+ unconditionally
+Date: Wed, 4 Jul 2018 20:10:46 +0530
+Message-ID: <f639cd3f-ff67-c748-8768-cff05eb11305@ti.com>
+References: <20180630103318.25355-1-vigneshr@ti.com>
+ <20180630103318.25355-5-vigneshr@ti.com> <20180630161848.1e72deea@archlinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180704103430.GA13087@localhost.localdomain>
+In-Reply-To: <20180630161848.1e72deea@archlinux>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: Enric Balletbo Serra <eballetbo@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, Andrey Smirnov <andrew.smirnov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, sboyd@kernel.org, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>linux-kernel <li>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 04 Jul 2018, Matti Vaittinen wrote:
 
-> On Wed, Jul 04, 2018 at 11:11:02AM +0100, Lee Jones wrote:
-> > On Wed, 04 Jul 2018, Matti Vaittinen wrote:
-> > 
-> > > On Wed, Jul 04, 2018 at 11:39:11AM +0300, Matti Vaittinen wrote:
-> > > > On Tue, Jul 03, 2018 at 11:26:00AM +0200, Enric Balletbo Serra wrote:
-> > > > > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
-> > > > > dia dv., 29 de juny 2018 a les 11:47:
-> > > > > 
-> > > > > Now that you use devm calls and you don't need to unwind things I
-> > > > > think is better to use plain returns. So,
-> > > > > 
-> > > > > return -ENOMEM;
-> > > > 
-> > > > I have never really understood why use of gotos in error handling is
-> > > > discouraged.
-> > 
-> > They're not.
-> > 
-> > > > Personally I would always choose single point of exit from
-> > > > a function when it is simple enough to achieve (like in this case). I've
-> > > > written and fixed way too many functions which leak resources or
-> > > > accidentally keep a lock when exiting from error branches. But I know
-> > > > many colleagues like you who prefer not to have gotos but  in place returns
-> > > > instead. So I guess I'll leave the final call on this to the one who is
-> > > > maintainer for this code. And it is true there is no things to unwind
-> > > > now - which does not mean that next updater won't add such. But as I
-> > > > said, I know plenty of people share your view - and even though I rather
-> > > > maintain code with only one exit the final call is on subsystem maintainer
-> > > > here.
-> > 
-> > Please use gotos in the error path.
-> > 
-> > IMO, it's the nicest way to unwind (as you call it).
+
+On Saturday 30 June 2018 08:48 PM, Jonathan Cameron wrote:
+> On Sat, 30 Jun 2018 16:03:17 +0530
+> Vignesh R <vigneshr@ti.com> wrote:
 > 
-> I'll keep the gotos but clean other stuff for patch v9 then.
-
-Sounds good.
-
-> > > Actually, If it was completely my call the probe would look something
-> > > like this:
-> > > 
-> > > +static int bd71837_i2c_probe(struct i2c_client *i2c,
-> > > +                           const struct i2c_device_id *id)
-> > > +{
-
-[...]
-
-> > > +}
-> > > 
-> > > What do you think of this? To my eye it is nice. It keeps single point of
-> > > exit and introduces only simple if-statements without the need of curly
-> > > brackets. And finally the error prints string works as a comment too.
-> > > I've seen bunch of constructs like this on the networking side but I
-> > > have no idea if this is frowned on this subsystem =) Oh, and probe abowe
-> > > is just to illustrate the idea, I did not even try compiling it yet.
-> > 
-> > That is horrible.  I nearly vomited on my keyboard. 
+>> Parent MFD device takes care of enabling ADC interface whenever
+>> touchscreen is marked wakeup capable. Therefore, unconditionally disable
+>> ADC interface during system suspend to save power in case of system with
+>> just ADC and no TSC.
+>>
+>> Signed-off-by: Vignesh R <vigneshr@ti.com>
 > 
-> Note to self: Never to buy second hand keyboard from Lee =)
+> This sounds like a sensible change to me.   Is it applicable without the
+> rest of the series?  If so I'll take it through IIO.  If the answer
+> is that it needs to go with the rest then
+> 
 
-That is sound advice.
+This patch as such does not have any compile time dependencies on other
+patches, but I would like Dmitry's opinion on the series before being
+merged.
 
-Not sure I would buy 2nd-hand keyboard from anyone - ewe! :\
+> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> 
+
+Thanks!
+
+
+Regards
+Vignesh
+
+> Thanks,
+> 
+> Jonathan
+>> ---
+>>  drivers/iio/adc/ti_am335x_adc.c | 12 ++++--------
+>>  1 file changed, 4 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
+>> index 80df5a377d30..cafb1dcadc48 100644
+>> --- a/drivers/iio/adc/ti_am335x_adc.c
+>> +++ b/drivers/iio/adc/ti_am335x_adc.c
+>> @@ -693,16 +693,12 @@ static int __maybe_unused tiadc_suspend(struct device *dev)
+>>  {
+>>  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
+>>  	struct tiadc_device *adc_dev = iio_priv(indio_dev);
+>> -	struct ti_tscadc_dev *tscadc_dev;
+>>  	unsigned int idle;
+>>  
+>> -	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
+>> -	if (!device_may_wakeup(tscadc_dev->dev)) {
+>> -		idle = tiadc_readl(adc_dev, REG_CTRL);
+>> -		idle &= ~(CNTRLREG_TSCSSENB);
+>> -		tiadc_writel(adc_dev, REG_CTRL, (idle |
+>> -				CNTRLREG_POWERDOWN));
+>> -	}
+>> +	idle = tiadc_readl(adc_dev, REG_CTRL);
+>> +	idle &= ~(CNTRLREG_TSCSSENB);
+>> +	tiadc_writel(adc_dev, REG_CTRL, (idle |
+>> +			CNTRLREG_POWERDOWN));
+>>  
+>>  	return 0;
+>>  }
+> 
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Regards
+Vignesh

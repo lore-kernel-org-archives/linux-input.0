@@ -1,86 +1,51 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: Re: [PATCH 4/5] iio: adc: ti_am335x_adc: Disable ADC during suspend
- unconditionally
-Date: Wed, 4 Jul 2018 20:10:46 +0530
-Message-ID: <f639cd3f-ff67-c748-8768-cff05eb11305@ti.com>
-References: <20180630103318.25355-1-vigneshr@ti.com>
- <20180630103318.25355-5-vigneshr@ti.com> <20180630161848.1e72deea@archlinux>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v7 1/4] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Wed, 4 Jul 2018 14:56:23 +0000
+Message-ID: <20180704145623.zgei3ehrwdpcu26r@penguin>
+References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <7e1888375c979accc402e9ddd7316e528b2ac52c.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180630161848.1e72deea@archlinux>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: matti.vaittinen@fi.rohmeurope.com, Michael Turquette <mturquette@baylibre.com>, sboyd@kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, mazziesaccount@gmail.com, Arnd Bergmann <arnd@arndb.de>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, andrew.smirnov@gmail.com, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, mikko
 List-Id: linux-input@vger.kernel.org
 
+Hi Enric,
 
-
-On Saturday 30 June 2018 08:48 PM, Jonathan Cameron wrote:
-> On Sat, 30 Jun 2018 16:03:17 +0530
-> Vignesh R <vigneshr@ti.com> wrote:
+On Tue, Jun 26, 2018 at 11:06:33AM +0200, Enric Balletbo Serra wrote:
+> Hi Matti,
 > 
->> Parent MFD device takes care of enabling ADC interface whenever
->> touchscreen is marked wakeup capable. Therefore, unconditionally disable
->> ADC interface during system suspend to save power in case of system with
->> just ADC and no TSC.
->>
->> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> Thanks for the patch, a few comments below, some are feedback I
+> received when I sent some patches to this subsystem.
 > 
-> This sounds like a sensible change to me.   Is it applicable without the
-> rest of the series?  If so I'll take it through IIO.  If the answer
-> is that it needs to go with the rest then
-> 
+> Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+> dia dt., 19 de juny 2018 a les 12:57:
+> > +};
+> > +
+> > +/* bd71837 multi function cells */
+> > +static struct mfd_cell bd71837_mfd_cells[] = {
+> > +       {
+> > +               .name = "bd71837-clk",
+> > +       }, {
+> > +               .name = "bd718xx-pwrkey",
+> > +               .resources = &irqs[0],
+> > +               .num_resources = ARRAY_SIZE(irqs),
+> > +       }, {
+> > +               .name = "bd71837-pmic",
+> > +       },
+> nit: no comma at the end
 
-This patch as such does not have any compile time dependencies on other
-patches, but I would like Dmitry's opinion on the series before being
-merged.
+Actually, trailing comma is preferred on structures/arrays without
+sentinels, because if one needs to add a new entry/new member, then in
+the diff there will have only one new line added, instead of one line
+being changed (adding now necessary comma) and one added.
 
-> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> 
-
-Thanks!
-
-
-Regards
-Vignesh
-
-> Thanks,
-> 
-> Jonathan
->> ---
->>  drivers/iio/adc/ti_am335x_adc.c | 12 ++++--------
->>  1 file changed, 4 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
->> index 80df5a377d30..cafb1dcadc48 100644
->> --- a/drivers/iio/adc/ti_am335x_adc.c
->> +++ b/drivers/iio/adc/ti_am335x_adc.c
->> @@ -693,16 +693,12 @@ static int __maybe_unused tiadc_suspend(struct device *dev)
->>  {
->>  	struct iio_dev *indio_dev = dev_get_drvdata(dev);
->>  	struct tiadc_device *adc_dev = iio_priv(indio_dev);
->> -	struct ti_tscadc_dev *tscadc_dev;
->>  	unsigned int idle;
->>  
->> -	tscadc_dev = ti_tscadc_dev_get(to_platform_device(dev));
->> -	if (!device_may_wakeup(tscadc_dev->dev)) {
->> -		idle = tiadc_readl(adc_dev, REG_CTRL);
->> -		idle &= ~(CNTRLREG_TSCSSENB);
->> -		tiadc_writel(adc_dev, REG_CTRL, (idle |
->> -				CNTRLREG_POWERDOWN));
->> -	}
->> +	idle = tiadc_readl(adc_dev, REG_CTRL);
->> +	idle &= ~(CNTRLREG_TSCSSENB);
->> +	tiadc_writel(adc_dev, REG_CTRL, (idle |
->> +			CNTRLREG_POWERDOWN));
->>  
->>  	return 0;
->>  }
-> 
+Thanks.
 
 -- 
-Regards
-Vignesh
+Dmitry

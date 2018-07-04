@@ -1,216 +1,71 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v6 1/4] resource: Move reparent_resources() to
- kernel/resource.c and make it public
-Date: Wed, 4 Jul 2018 19:46:41 +0300
-Message-ID: <CAHp75VfWLcQq4XGM3RyfO_ENx=3=WrCEhtOw+a0Sfwz_OpQ0UQ@mail.gmail.com>
-References: <20180704041038.8190-1-bhe@redhat.com>
- <20180704041038.8190-2-bhe@redhat.com>
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Subject: Re: [PATCH v7 1/4] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Wed, 4 Jul 2018 18:57:39 +0200
+Message-ID: <CAFqH_50UshTTc0Cv0wBhUoPdm0jZVgcvRKr3qzb=M-jCcMhdtA@mail.gmail.com>
+References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <7e1888375c979accc402e9ddd7316e528b2ac52c.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com> <20180704145623.zgei3ehrwdpcu26r@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-In-Reply-To: <20180704041038.8190-2-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Nicolas Pitre <nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, KY Srinivasan <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Dave Young <dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Maarten Lankhorst <maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Josh Triplett <josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180704145623.zgei3ehrwdpcu26r@penguin>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: matti.vaittinen@fi.rohmeurope.com, Michael Turquette <mturquette@baylibre.com>, sboyd@kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, Andrey Smirnov <andrew.smirnov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 4, 2018 at 7:10 AM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
-> reparent_resources() is duplicated in arch/microblaze/pci/pci-common.c
-> and arch/powerpc/kernel/pci-common.c, so move it to kernel/resource.c
-> so that it's shared.
-
-With couple of comments below,
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-P.S. In some commit message in this series you used 'likt' instead of 'like'.
-
+Missatge de Dmitry Torokhov <dmitry.torokhov@gmail.com> del dia dc., 4
+de jul. 2018 a les 17:10:
 >
-> Signed-off-by: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> ---
->  arch/microblaze/pci/pci-common.c | 37 -------------------------------------
->  arch/powerpc/kernel/pci-common.c | 35 -----------------------------------
->  include/linux/ioport.h           |  1 +
->  kernel/resource.c                | 39 +++++++++++++++++++++++++++++++++++++++
->  4 files changed, 40 insertions(+), 72 deletions(-)
+> Hi Enric,
 >
-> diff --git a/arch/microblaze/pci/pci-common.c b/arch/microblaze/pci/pci-common.c
-> index f34346d56095..7899bafab064 100644
-> --- a/arch/microblaze/pci/pci-common.c
-> +++ b/arch/microblaze/pci/pci-common.c
-> @@ -619,43 +619,6 @@ int pcibios_add_device(struct pci_dev *dev)
->  EXPORT_SYMBOL(pcibios_add_device);
+> On Tue, Jun 26, 2018 at 11:06:33AM +0200, Enric Balletbo Serra wrote:
+> > Hi Matti,
+> >
+> > Thanks for the patch, a few comments below, some are feedback I
+> > received when I sent some patches to this subsystem.
+> >
+> > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+> > dia dt., 19 de juny 2018 a les 12:57:
+> > > +};
+> > > +
+> > > +/* bd71837 multi function cells */
+> > > +static struct mfd_cell bd71837_mfd_cells[] = {
+> > > +       {
+> > > +               .name = "bd71837-clk",
+> > > +       }, {
+> > > +               .name = "bd718xx-pwrkey",
+> > > +               .resources = &irqs[0],
+> > > +               .num_resources = ARRAY_SIZE(irqs),
+> > > +       }, {
+> > > +               .name = "bd71837-pmic",
+> > > +       },
+> > nit: no comma at the end
 >
->  /*
-> - * Reparent resource children of pr that conflict with res
-> - * under res, and make res replace those children.
-> - */
-> -static int __init reparent_resources(struct resource *parent,
-> -                                    struct resource *res)
-> -{
-> -       struct resource *p, **pp;
-> -       struct resource **firstpp = NULL;
-> -
-> -       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
-> -               if (p->end < res->start)
-> -                       continue;
-> -               if (res->end < p->start)
-> -                       break;
-> -               if (p->start < res->start || p->end > res->end)
-> -                       return -1;      /* not completely contained */
-> -               if (firstpp == NULL)
-> -                       firstpp = pp;
-> -       }
-> -       if (firstpp == NULL)
-> -               return -1;      /* didn't find any conflicting entries? */
-> -       res->parent = parent;
-> -       res->child = *firstpp;
-> -       res->sibling = *pp;
-> -       *firstpp = res;
-> -       *pp = NULL;
-> -       for (p = res->child; p != NULL; p = p->sibling) {
-> -               p->parent = res;
-> -               pr_debug("PCI: Reparented %s [%llx..%llx] under %s\n",
-> -                        p->name,
-> -                        (unsigned long long)p->start,
-> -                        (unsigned long long)p->end, res->name);
-> -       }
-> -       return 0;
-> -}
-> -
-> -/*
->   *  Handle resources of PCI devices.  If the world were perfect, we could
->   *  just allocate all the resource regions and do nothing more.  It isn't.
->   *  On the other hand, we cannot just re-allocate all devices, as it would
-> diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-> index fe9733ffffaa..926035bb378d 100644
-> --- a/arch/powerpc/kernel/pci-common.c
-> +++ b/arch/powerpc/kernel/pci-common.c
-> @@ -1088,41 +1088,6 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
->  EXPORT_SYMBOL(pcibios_align_resource);
+> Actually, trailing comma is preferred on structures/arrays without
+> sentinels, because if one needs to add a new entry/new member, then in
+> the diff there will have only one new line added, instead of one line
+> being changed (adding now necessary comma) and one added.
 >
->  /*
-> - * Reparent resource children of pr that conflict with res
-> - * under res, and make res replace those children.
-> - */
-> -static int reparent_resources(struct resource *parent,
-> -                                    struct resource *res)
-> -{
-> -       struct resource *p, **pp;
-> -       struct resource **firstpp = NULL;
-> -
-> -       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
-> -               if (p->end < res->start)
-> -                       continue;
-> -               if (res->end < p->start)
-> -                       break;
-> -               if (p->start < res->start || p->end > res->end)
-> -                       return -1;      /* not completely contained */
-> -               if (firstpp == NULL)
-> -                       firstpp = pp;
-> -       }
-> -       if (firstpp == NULL)
-> -               return -1;      /* didn't find any conflicting entries? */
-> -       res->parent = parent;
-> -       res->child = *firstpp;
-> -       res->sibling = *pp;
-> -       *firstpp = res;
-> -       *pp = NULL;
-> -       for (p = res->child; p != NULL; p = p->sibling) {
-> -               p->parent = res;
-> -               pr_debug("PCI: Reparented %s %pR under %s\n",
-> -                        p->name, p, res->name);
-> -       }
-> -       return 0;
-> -}
-> -
-> -/*
->   *  Handle resources of PCI devices.  If the world were perfect, we could
->   *  just allocate all the resource regions and do nothing more.  It isn't.
->   *  On the other hand, we cannot just re-allocate all devices, as it would
-> diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-> index da0ebaec25f0..dfdcd0bfe54e 100644
-> --- a/include/linux/ioport.h
-> +++ b/include/linux/ioport.h
-> @@ -192,6 +192,7 @@ extern int allocate_resource(struct resource *root, struct resource *new,
->  struct resource *lookup_resource(struct resource *root, resource_size_t start);
->  int adjust_resource(struct resource *res, resource_size_t start,
->                     resource_size_t size);
-> +int reparent_resources(struct resource *parent, struct resource *res);
->  resource_size_t resource_alignment(struct resource *res);
->  static inline resource_size_t resource_size(const struct resource *res)
->  {
-> diff --git a/kernel/resource.c b/kernel/resource.c
-> index 30e1bc68503b..d1cbf4b50e17 100644
-> --- a/kernel/resource.c
-> +++ b/kernel/resource.c
-> @@ -983,6 +983,45 @@ int adjust_resource(struct resource *res, resource_size_t start,
->  }
->  EXPORT_SYMBOL(adjust_resource);
+
+Many thanks for sharing your knowledge! That looks to me a good
+reason. I did this comment because at some point I received this
+comment. I try to mark this kind of things as nitpicks because
+sometimes there are differences between maintainers. E.g: some
+maintainers prefer 'if (something == NULL)', others 'if (!something)';
+others are fine using goto even there is nothing to unwind, other
+prefer plain returns, etc.
+
+Matti, I don't want to beat about the bush with these nitpicks. It is
+not my intention. So I'd say, do what the maintainer wants :)
+
+Dmitry, I really appreciate this kind of comments, especially when
+there is a justification, so I can learn more and more to do better
+patches.
+
+Thanks,
+  Enric
+> Thanks.
 >
-> +/*
-
-/** ?
-
-> + * reparent_resources - reparent resource children of parent that res covers
-> + * @parent: parent resource descriptor
-> + * @res: resource descriptor desired by caller
-> + *
-> + * Reparent resource children of 'parent' that conflict with 'res'
-> + * under 'res', and make 'res' replace those children.
-
-Describe error codes, please.
-
-> + */
-> +int reparent_resources(struct resource *parent, struct resource *res)
-> +{
-> +       struct resource *p, **pp;
-> +       struct resource **firstpp = NULL;
-> +
-> +       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
-> +               if (p->end < res->start)
-> +                       continue;
-> +               if (res->end < p->start)
-> +                       break;
-> +               if (p->start < res->start || p->end > res->end)
-> +                       return -ENOTSUPP;       /* not completely contained */
-> +               if (firstpp == NULL)
-> +                       firstpp = pp;
-> +       }
-> +       if (firstpp == NULL)
-> +               return -ECANCELED; /* didn't find any conflicting entries? */
-> +       res->parent = parent;
-> +       res->child = *firstpp;
-> +       res->sibling = *pp;
-> +       *firstpp = res;
-> +       *pp = NULL;
-> +       for (p = res->child; p != NULL; p = p->sibling) {
-> +               p->parent = res;
-> +               pr_debug("PCI: Reparented %s %pR under %s\n",
-> +                        p->name, p, res->name);
-> +       }
-> +       return 0;
-> +}
-> +EXPORT_SYMBOL(reparent_resources);
-> +
->  static void __init __reserve_region_with_split(struct resource *root,
->                 resource_size_t start, resource_size_t end,
->                 const char *name)
 > --
-> 2.13.6
->
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+> Dmitry

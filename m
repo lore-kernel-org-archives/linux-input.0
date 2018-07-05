@@ -1,88 +1,39 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v4 0/5] bitmap: Introduce alloc/free helpers
-Date: Thu, 5 Jul 2018 00:30:06 +0300
-Message-ID: <CAHp75Vd9RSxVsYrbiAFJKLPL4wNzAtS9qAPjCNJJ4E=QbeTP8A@mail.gmail.com>
-References: <20180630201750.2588-1-andriy.shevchenko@linux.intel.com>
+From: Al Viro <viro@ZenIV.linux.org.uk>
+Subject: Re: [PATCH] HID: debug: check length before copy_to_user()
+Date: Thu, 5 Jul 2018 01:47:01 +0100
+Message-ID: <20180705004700.GB30522@ZenIV.linux.org.uk>
+References: <20180702235937.111619-1-drosen@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180630201750.2588-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, device-mapper development <dm-devel@redhat.com>, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <ynorov@caviumnetworks.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Joe Perches <joe@perches.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180702235937.111619-1-drosen@google.com>
+Sender: stable-owner@vger.kernel.org
+To: Daniel Rosenberg <drosen@google.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@android.com, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jun 30, 2018 at 11:17 PM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> A lot of code is using allocation of bitmaps using BITS_PER_LONG() macro and
-> sizeof(unsigned long) operator. The readability suffers because of this.
->
-> The series introduces three helpers, i.e. bitmap_alloc(), bitmap_zalloc() and
-> bitmap_free(), to make it more cleaner.
->
+On Mon, Jul 02, 2018 at 04:59:37PM -0700, Daniel Rosenberg wrote:
+> If our length is greater than the size of the buffer, we
+> overflow the buffer
 
-Dmitry, it seems we are all set now and if you have no objections
-against this version, it would be nice to see it in your tree followed
-by upstream.
+Hmm...
 
-> Patches 1 and 2 are preparatory to avoid namespace collisions between
-> bitmap API and DM / MD bitmap. No functional changes intended.
->
-> Patch 3 introduces new helpers.
->
-> Patches 4 and 5 is just an example how to use new helpers. Locally I have
-> like dozen of them against different subsystems and drivers.
->
-> Taking above into consideration it might make sense to have
-> an immutable branch for this cycle.
->
-> Ideally it would go through Input subsystem, thus, needs an Ack
-> from MD / DM maintainer(s).
->
-> Since v3:
-> - split DM part and do rename accordingly (Mike)
-> - explain better in the commit message why we can't make helpers as
->   inliners (Dmitry, Andrew)
-> - drop applied orphaned patch
->
-> Since v2:
-> - fix compilation issue in MD bitmap code
-> - elaborate changes in commit message of patch 5
->
-> Since v1:
-> - added namespace fix patch against MD bitmap API
-> - moved functions to lib/bitmap.c to avoid circular dependencies
-> - appended Dmitry's tags
->
-> Andy Shevchenko (5):
->   dm: Avoid namespace collision with bitmap API
->   md: Avoid namespace collision with bitmap API
->   bitmap: Add bitmap_alloc(), bitmap_zalloc() and bitmap_free()
->   Input: gpio-keys - Switch to bitmap_zalloc()
->   Input: evdev - Switch to bitmap API
->
->  drivers/input/evdev.c                         |  16 +-
->  drivers/input/keyboard/gpio_keys.c            |   8 +-
->  drivers/md/dm-raid.c                          |   6 +-
->  drivers/md/md-bitmap.c                        | 305 +++++++++---------
->  drivers/md/md-bitmap.h                        |  60 ++--
->  drivers/md/md-cluster.c                       |  18 +-
->  drivers/md/md.c                               |  44 +--
->  .../md/persistent-data/dm-space-map-common.c  |  20 +-
->  drivers/md/raid1.c                            |  35 +-
->  drivers/md/raid10.c                           |  52 ++-
->  drivers/md/raid5-cache.c                      |   8 +-
->  drivers/md/raid5.c                            |  44 +--
->  include/linux/bitmap.h                        |   8 +
->  lib/bitmap.c                                  |  19 ++
->  14 files changed, 326 insertions(+), 317 deletions(-)
->
-> --
-> 2.18.0
->
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+How about this:
+	buf = list->hid_debug_buf;
+	if (list->tail < list->head) {
+		ret = simple_read_from_buffer(buffer, count, &list->head,
+					buf, HID_DEBUG_BUFSIZE);
+		if (ret < 0)
+			break;
+		if (list->head != buf + HID_DEBUG_BUFSIZE)
+			break;
+		list->head = 0;
+	}
+	n = simple_read_from_buffer(buffer + ret, count - ret, &list->head,
+					buf, list->tail);
+	if (n >= 0)
+		ret += n;
+	if (list->head == buf + HID_DEBUG_BUFSIZE)
+		list->head = 0;
+instead?

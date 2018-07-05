@@ -1,39 +1,38 @@
-From: Al Viro <viro@ZenIV.linux.org.uk>
-Subject: Re: [PATCH] HID: debug: check length before copy_to_user()
-Date: Thu, 5 Jul 2018 01:47:01 +0100
-Message-ID: <20180705004700.GB30522@ZenIV.linux.org.uk>
-References: <20180702235937.111619-1-drosen@google.com>
+From: Chen Zhong <chen.zhong@mediatek.com>
+Subject: Re: [RESEND PATCH] dt-bindings: input: Add common keyboard document
+ bindings
+Date: Thu, 5 Jul 2018 09:27:14 +0800
+Message-ID: <1530754034.14396.19.camel@mhfsdcap03>
+References: <1529648198-14231-1-git-send-email-chen.zhong@mediatek.com>
+         <1529649595.14396.18.camel@mhfsdcap03>
+         <20180704152514.33h52ujqp34hpj2o@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180702235937.111619-1-drosen@google.com>
-Sender: stable-owner@vger.kernel.org
-To: Daniel Rosenberg <drosen@google.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@android.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180704152514.33h52ujqp34hpj2o@penguin>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 02, 2018 at 04:59:37PM -0700, Daniel Rosenberg wrote:
-> If our length is greater than the size of the buffer, we
-> overflow the buffer
+On Wed, 2018-07-04 at 15:25 +0000, Dmitry Torokhov wrote:
+> On Fri, Jun 22, 2018 at 02:39:55PM +0800, Chen Zhong wrote:
+> > Hi Dmitry,
+> > 
+> > The other patches in the series to add mediatek pmic keys support are
+> > now available in 4.18-rc1, but this patch seems not being merged.
+> > 
+> >   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
+> > ib-mfd-input-rtc-v4.18
+> > 
+> > I have resend the patch, and rebase to 4.18-rc1.
+> > Could you help to see if it is good enough to be merged into your tree?
+> 
+> I thought Rob would pick it up, but since he hasn't I'll do it.
+> 
+> Thanks.
+> 
 
-Hmm...
-
-How about this:
-	buf = list->hid_debug_buf;
-	if (list->tail < list->head) {
-		ret = simple_read_from_buffer(buffer, count, &list->head,
-					buf, HID_DEBUG_BUFSIZE);
-		if (ret < 0)
-			break;
-		if (list->head != buf + HID_DEBUG_BUFSIZE)
-			break;
-		list->head = 0;
-	}
-	n = simple_read_from_buffer(buffer + ret, count - ret, &list->head,
-					buf, list->tail);
-	if (n >= 0)
-		ret += n;
-	if (list->head == buf + HID_DEBUG_BUFSIZE)
-		list->head = 0;
-instead?
+That would be great helpful.
+Thank you.

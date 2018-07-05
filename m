@@ -1,72 +1,27 @@
-From: jan <vereecke.jan@skynet.be>
-Subject: Re: [PATCH] Patch enabling Fn function keys for Laptop Asus G730
- (keyboard 0x1869)
-Date: Thu, 5 Jul 2018 21:02:27 +0200
-Message-ID: <dc860e3a-c837-5571-95f4-e62065f1a7f4@vereecke.mooo.com>
-References: <alpine.LNX.2.21.1806141112440.11126@Hermes.vereecke.mooo.com>
- <nycvar.YFH.7.76.1806251519190.6203@cbobk.fhfr.pm>
-Reply-To: vereecke.jan@skynet.be
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v10 2/2] mfd: bd71837: Devicetree bindings for ROHM
+ BD71837 PMIC
+Date: Thu, 5 Jul 2018 14:39:21 -0600
+Message-ID: <20180705203921.GA28410@rob-hp-laptop>
+References: <cover.1530800707.git.matti.vaittinen@fi.rohmeurope.com>
+ <8ef84806b7152a4da2bffa0456052e98f4c6e1c6.1530800707.git.matti.vaittinen@fi.rohmeurope.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1806251519190.6203@cbobk.fhfr.pm>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <8ef84806b7152a4da2bffa0456052e98f4c6e1c6.1530800707.git.matti.vaittinen@fi.rohmeurope.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, vereecke.jan@skynet.be
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
+To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc: mturquette@baylibre.com, sboyd@kernel.org, mark.rutland@arm.com, lee.jones@linaro.org, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, eballetbo@gmail.com, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-On 25/06/2018 15:20, Jiri Kosina wrote:
-> On Thu, 14 Jun 2018, vereecke.jan@skynet.be wrote:
->
->> Attached is a patch enabling (most of) the Fn function keys for the Asus ROG
->> Strix GL730 Laptop. The keyboard identifies as a USB device 0x1869.
->>
->> This patch enables:
->>      volume/mute keys, ROG key, rew/play/ff,
->>      monitor and keyboard brightness keys,
->>      Touchpad toggle key,
->>      Calculator key
->>
->> 'Touchpad on/off' Key returns keycode 33, which is mapped to the 'p' key.
->> 'Display on/off' returns keycode 253, which is mapped in X11 to NoSymbol
->> 'Airplane Key' returns keycode 255, which is mapped in X11 to NoSymbol
->>
->> The following keys are not activated yet:
->>         Microphone Mute key, Fan key, Display Switch key
-> Thanks a lot for the patch.
->
->> This patch is against the 4.17-rc7 kernel, for the x86 architecture
-> This usually doesn't go to the changelog, it'd be unnecessary polution of
-> the set-in-stone git changelog.
->
->> diffstat for this patch is:
->>   hid-asus.c   |    2 ++
->>   hid-ids.h    |    1 +
->>   hid-quirks.c |    1 +
->>   3 files changed, 4 insertions(+)
->>
->> To apply the patch, in the root of the kernel tree use:
->> patch -p1 < AsusGL703-Keyboard-Fn-keys.patch
-> Neither does any of this.
->
-> What is OTOH missing is your signoff.
->
-> Could you please fix these up and resubmit (ideally with Subject: line
-> also tailored to fit the subsystem customs, IOW something like "HID: asus:
-> add support for ....").
->
-> Thanks,
->
-Thanks for your reply. However, I am confused. Pleas bear with me as 
-this is the very first time that I submit a patch and I followed some 
-guidance that I found on the internet (obviously not the correct one).
+On Thu, Jul 05, 2018 at 05:32:58PM +0300, Matti Vaittinen wrote:
+> Document devicetree bindings for ROHM BD71837 PMIC MFD.
+> 
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> ---
+>  .../devicetree/bindings/mfd/rohm,bd71837-pmic.txt  | 62 ++++++++++++++++++++++
+>  1 file changed, 62 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
 
-I suppose I just need to delete the parts of the email where you write 
-"this doesn't go in the changelog".
-
-I am not sure what my signoff should contain. Could you point me to a 
-correct guide for this ?
-
-Thanks.
+Reviewed-by: Rob Herring <robh@kernel.org>

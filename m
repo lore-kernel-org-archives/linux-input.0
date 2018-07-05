@@ -1,223 +1,439 @@
-From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v6 1/4] resource: Move reparent_resources() to
- kernel/resource.c and make it public
-Date: Thu, 5 Jul 2018 18:09:39 +0800
-Message-ID: <20180705100939.GD1225@MiWiFi-R3L-srv>
-References: <20180704041038.8190-1-bhe@redhat.com>
- <20180704041038.8190-2-bhe@redhat.com>
- <CAHp75VfWLcQq4XGM3RyfO_ENx=3=WrCEhtOw+a0Sfwz_OpQ0UQ@mail.gmail.com>
+From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Subject: Re: [PATCH v9 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Thu, 5 Jul 2018 13:34:42 +0300
+Message-ID: <20180705103442.GA8426@localhost.localdomain>
+References: <cover.1530776326.git.matti.vaittinen@fi.rohmeurope.com>
+ <a304164cc3c1b31c7c6b62f8e233ce321a82cdd6.1530776326.git.matti.vaittinen@fi.rohmeurope.com>
+ <20180705091813.GK496@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75VfWLcQq4XGM3RyfO_ENx=3=WrCEhtOw+a0Sfwz_OpQ0UQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Nicolas Pitre <nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, KY Srinivasan <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Dave Young <dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Maarten Lankhorst <maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Josh Triplett <josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob
+In-Reply-To: <20180705091813.GK496@dell>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: mturquette@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, eballetbo@gmail.com, sboyd@kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-On 07/04/18 at 07:46pm, Andy Shevchenko wrote:
-> On Wed, Jul 4, 2018 at 7:10 AM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
-> > reparent_resources() is duplicated in arch/microblaze/pci/pci-common.c
-> > and arch/powerpc/kernel/pci-common.c, so move it to kernel/resource.c
-> > so that it's shared.
-> 
-> With couple of comments below,
+Thanks for taking the time to check this =)
 
-Sure, will fix these and repost with your reviewed-by, thanks. Should be
-after I reproduce and fix those issues reported by test robot.
+On Thu, Jul 05, 2018 at 10:18:13AM +0100, Lee Jones wrote:
+> On Thu, 05 Jul 2018, Matti Vaittinen wrote:
+> 
+> > --- a/drivers/mfd/Kconfig
+> > +++ b/drivers/mfd/Kconfig
+> > @@ -1787,6 +1787,19 @@ config MFD_STW481X
+> >  	  in various ST Microelectronics and ST-Ericsson embedded
+> >  	  Nomadik series.
+> >  
+> > +config MFD_BD71837
+> 
+> It's be nice if you prefix this with the manufacturer.  Rohm?
 
+Like MFD_ROHM_BD71837, right? How important this is? The already applied
+regulator part has depends_on for MFD_BD71837 in Kconfig so changing
+this will require change in regulator tree too. I guess it's doable if
+this is important though =)
 > 
-> Reviewed-by: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > +	tristate "BD71837 Power Management chip"
 > 
-> P.S. In some commit message in this series you used 'likt' instead of 'like'.
+> Again, missing manufacturer.
 > 
-> >
-> > Signed-off-by: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> > ---
-> >  arch/microblaze/pci/pci-common.c | 37 -------------------------------------
-> >  arch/powerpc/kernel/pci-common.c | 35 -----------------------------------
-> >  include/linux/ioport.h           |  1 +
-> >  kernel/resource.c                | 39 +++++++++++++++++++++++++++++++++++++++
-> >  4 files changed, 40 insertions(+), 72 deletions(-)
-> >
-> > diff --git a/arch/microblaze/pci/pci-common.c b/arch/microblaze/pci/pci-common.c
-> > index f34346d56095..7899bafab064 100644
-> > --- a/arch/microblaze/pci/pci-common.c
-> > +++ b/arch/microblaze/pci/pci-common.c
-> > @@ -619,43 +619,6 @@ int pcibios_add_device(struct pci_dev *dev)
-> >  EXPORT_SYMBOL(pcibios_add_device);
-> >
-> >  /*
-> > - * Reparent resource children of pr that conflict with res
-> > - * under res, and make res replace those children.
-> > - */
-> > -static int __init reparent_resources(struct resource *parent,
-> > -                                    struct resource *res)
-> > -{
-> > -       struct resource *p, **pp;
-> > -       struct resource **firstpp = NULL;
-> > -
-> > -       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
-> > -               if (p->end < res->start)
-> > -                       continue;
-> > -               if (res->end < p->start)
-> > -                       break;
-> > -               if (p->start < res->start || p->end > res->end)
-> > -                       return -1;      /* not completely contained */
-> > -               if (firstpp == NULL)
-> > -                       firstpp = pp;
-> > -       }
-> > -       if (firstpp == NULL)
-> > -               return -1;      /* didn't find any conflicting entries? */
-> > -       res->parent = parent;
-> > -       res->child = *firstpp;
-> > -       res->sibling = *pp;
-> > -       *firstpp = res;
-> > -       *pp = NULL;
-> > -       for (p = res->child; p != NULL; p = p->sibling) {
-> > -               p->parent = res;
-> > -               pr_debug("PCI: Reparented %s [%llx..%llx] under %s\n",
-> > -                        p->name,
-> > -                        (unsigned long long)p->start,
-> > -                        (unsigned long long)p->end, res->name);
-> > -       }
-> > -       return 0;
-> > -}
-> > -
-> > -/*
-> >   *  Handle resources of PCI devices.  If the world were perfect, we could
-> >   *  just allocate all the resource regions and do nothing more.  It isn't.
-> >   *  On the other hand, we cannot just re-allocate all devices, as it would
-> > diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-> > index fe9733ffffaa..926035bb378d 100644
-> > --- a/arch/powerpc/kernel/pci-common.c
-> > +++ b/arch/powerpc/kernel/pci-common.c
-> > @@ -1088,41 +1088,6 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
-> >  EXPORT_SYMBOL(pcibios_align_resource);
-> >
-> >  /*
-> > - * Reparent resource children of pr that conflict with res
-> > - * under res, and make res replace those children.
-> > - */
-> > -static int reparent_resources(struct resource *parent,
-> > -                                    struct resource *res)
-> > -{
-> > -       struct resource *p, **pp;
-> > -       struct resource **firstpp = NULL;
-> > -
-> > -       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
-> > -               if (p->end < res->start)
-> > -                       continue;
-> > -               if (res->end < p->start)
-> > -                       break;
-> > -               if (p->start < res->start || p->end > res->end)
-> > -                       return -1;      /* not completely contained */
-> > -               if (firstpp == NULL)
-> > -                       firstpp = pp;
-> > -       }
-> > -       if (firstpp == NULL)
-> > -               return -1;      /* didn't find any conflicting entries? */
-> > -       res->parent = parent;
-> > -       res->child = *firstpp;
-> > -       res->sibling = *pp;
-> > -       *firstpp = res;
-> > -       *pp = NULL;
-> > -       for (p = res->child; p != NULL; p = p->sibling) {
-> > -               p->parent = res;
-> > -               pr_debug("PCI: Reparented %s %pR under %s\n",
-> > -                        p->name, p, res->name);
-> > -       }
-> > -       return 0;
-> > -}
-> > -
-> > -/*
-> >   *  Handle resources of PCI devices.  If the world were perfect, we could
-> >   *  just allocate all the resource regions and do nothing more.  It isn't.
-> >   *  On the other hand, we cannot just re-allocate all devices, as it would
-> > diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-> > index da0ebaec25f0..dfdcd0bfe54e 100644
-> > --- a/include/linux/ioport.h
-> > +++ b/include/linux/ioport.h
-> > @@ -192,6 +192,7 @@ extern int allocate_resource(struct resource *root, struct resource *new,
-> >  struct resource *lookup_resource(struct resource *root, resource_size_t start);
-> >  int adjust_resource(struct resource *res, resource_size_t start,
-> >                     resource_size_t size);
-> > +int reparent_resources(struct resource *parent, struct resource *res);
-> >  resource_size_t resource_alignment(struct resource *res);
-> >  static inline resource_size_t resource_size(const struct resource *res)
-> >  {
-> > diff --git a/kernel/resource.c b/kernel/resource.c
-> > index 30e1bc68503b..d1cbf4b50e17 100644
-> > --- a/kernel/resource.c
-> > +++ b/kernel/resource.c
-> > @@ -983,6 +983,45 @@ int adjust_resource(struct resource *res, resource_size_t start,
-> >  }
-> >  EXPORT_SYMBOL(adjust_resource);
-> >
-> > +/*
+> This should also be "Power Management IC"
+
+I'll fix this
+
+> > +	select MFD_CORE
+> > +	help
+> > +	  Select this option to get support for the ROHM BD71837
+> > +	  Power Management chips. BD71837 is designed to power processors like
 > 
-> /** ?
+> "chips" is slang.  Should be "ICs".
+
+I'll fix this
+ 
+> > +obj-$(CONFIG_MFD_BD71837)	+= bd71837.o
+> >  
+> > diff --git a/drivers/mfd/bd71837.c b/drivers/mfd/bd71837.c
 > 
-> > + * reparent_resources - reparent resource children of parent that res covers
-> > + * @parent: parent resource descriptor
-> > + * @res: resource descriptor desired by caller
-> > + *
-> > + * Reparent resource children of 'parent' that conflict with 'res'
-> > + * under 'res', and make 'res' replace those children.
+> rohm-bd71837.c would be nicer.
+
+I'll fix this
+
+> > new file mode 100644
+> > index 000000000000..677097bcea17
+> > --- /dev/null
+> > +++ b/drivers/mfd/bd71837.c
+> > @@ -0,0 +1,215 @@
+> > +// SPDX-License-Identifier: GPL-2.0-or-later
 > 
-> Describe error codes, please.
+> '\n' here please.
+> > +// Copyright (C) 2018 ROHM Semiconductors
 > 
-> > + */
-> > +int reparent_resources(struct resource *parent, struct resource *res)
+> '\n' here please.
+
+As an empty line after licence line? Ok.
+
+> > +// bd71837.c -- ROHM BD71837MWV mfd driver
+> 
+> Remove the filename -- they have a habit of becoming incorrect.
+> 
+> Also, and 'MFD driver' isn't a thing -- this is a PMIC driver. 
+
+I'll fix this
+
+> > +// Datasheet available from
+> > +// https://www.rohm.com/datasheet/BD71837MWV/bd71837mwv-e
+> > +
+> > +#include <linux/i2c.h>
+> > +#include <linux/input.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/mfd/bd71837.h>
+> > +#include <linux/mfd/core.h>
+> > +#include <linux/module.h>
+> > +#include <linux/regmap.h>
+> > +#include <linux/gpio_keys.h>
+> 
+> Alphabetical please.
+> 
+
+There is a problem with gpio_key.h - it uses bool but does not include
+the header defining this type. So I get comple error when compiling this
+using my GCC arm cross-compiler. I've submitted a patch to fix this but
+as it is not yet accepted.
+https://lore.kernel.org/lkml/20180627073458.GA27800@localhost.localdomain/
+ Hence the gpio_keys.h is last one.
+
+> > +static struct gpio_keys_button btns[] = {
+> > +	{
+> > +		.code = KEY_POWER,
+> > +		.gpio = -1,
+> > +		.type = EV_KEY,
+> > +	},
+> > +};
+> 
+> Does this need to be an array?
+
+https://elixir.bootlin.com/linux/v4.17-rc1/source/include/linux/gpio_keys.h#L39
+gpio_keys_platform_data documentation states the buttons to be a pointer
+to an array. Thus I did an array. Do you think I should change this to
+single struct?
+
+> > +static struct gpio_keys_platform_data bd718xx_powerkey_data = {
+> > +	.buttons = &btns[0],
+> 
+> Why not just "btns"?
+> 
+> Also, I don't see any reason not to just call this 'buttons'.
+> 
+> Or even, 'button' if there will only ever be one of them.
+> 
+
+I can rename this - and if I make the array to not be an array - well,
+then the &foo[0] gets cleared too =)
+
+> > +static struct mfd_cell bd71837_mfd_cells[] = {
+> > +	{
+> > +		.name = "bd71837-clk",
+> > +	}, {
+> > +		.name = "gpio-keys",
+> > +		.platform_data = &bd718xx_powerkey_data,
+> > +		.pdata_size = sizeof(bd718xx_powerkey_data),
+> > +	}, {
+> > +		.name = "bd71837-pmic",
+> > +	},
+> > +};
+> 
+> Place the one line entries on one line, like this:
+> 
+> 	{ .name = "bd71837-pmic", },
+> 
+> ... and if ordering is not important, place them at the bottom.
+
+I'll fix this
+
+> > +static int bd71837_i2c_probe(struct i2c_client *i2c,
+> > +			    const struct i2c_device_id *id)
 > > +{
-> > +       struct resource *p, **pp;
-> > +       struct resource **firstpp = NULL;
-> > +
-> > +       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
-> > +               if (p->end < res->start)
-> > +                       continue;
-> > +               if (res->end < p->start)
-> > +                       break;
-> > +               if (p->start < res->start || p->end > res->end)
-> > +                       return -ENOTSUPP;       /* not completely contained */
-> > +               if (firstpp == NULL)
-> > +                       firstpp = pp;
-> > +       }
-> > +       if (firstpp == NULL)
-> > +               return -ECANCELED; /* didn't find any conflicting entries? */
-> > +       res->parent = parent;
-> > +       res->child = *firstpp;
-> > +       res->sibling = *pp;
-> > +       *firstpp = res;
-> > +       *pp = NULL;
-> > +       for (p = res->child; p != NULL; p = p->sibling) {
-> > +               p->parent = res;
-> > +               pr_debug("PCI: Reparented %s %pR under %s\n",
-> > +                        p->name, p, res->name);
-> > +       }
-> > +       return 0;
-> > +}
-> > +EXPORT_SYMBOL(reparent_resources);
-> > +
-> >  static void __init __reserve_region_with_split(struct resource *root,
-> >                 resource_size_t start, resource_size_t end,
-> >                 const char *name)
-> > --
-> > 2.13.6
-> >
+> > +	struct bd71837 *bd71837;
+> > +	struct bd71837_board *board_info;
+> > +	int ret = -EINVAL;
 > 
+> I'd prefer it if you set the error at the location it happened for
+> readability.
+
+I'll fix this
+
+> > +	bd71837 = devm_kzalloc(&i2c->dev, sizeof(struct bd71837), GFP_KERNEL);
+> > +
 > 
+> Drop this line.
+
+I'll fix this
+
+> > +	ret = bd71837_reg_read(bd71837, BD71837_REG_REV);
+> > +	if (ret < 0) {
+> 
+> Is 0 return a successful read?  I suggest that it isn't.
+> 
+> > +	ret = devm_regmap_add_irq_chip(&i2c->dev, bd71837->regmap,
+> > +				       bd71837->chip_irq, IRQF_ONESHOT, 0,
+> > +				       &bd71837_irq_chip, &bd71837->irq_data);
+> > +	if (ret < 0) {
+> 
+> Is a >0 return valid?  If not, perhaps "if (ret)" would be better.
+> 
+> > +	ret = regmap_update_bits(bd71837->regmap,
+> > +				 BD71837_REG_PWRONCONFIG0,
+> > +				 BD718XX_PWRBTN_PRESS_DURATION_MASK,
+> > +				 BD718XX_PWRBTN_SHORT_PRESS_10MS);
+> > +	if (ret < 0) {
+> 
+> As above.
+> 
+
+I will check these. Thanks.
+
+> > +
+> > +	/*
+> > +	 * According to BD71847 datasheet the HW default for long press
+> > +	 * detection is 10ms. So lets change it to 10 sec so we can actually
+> > +	 * get the short push and allow gracefull shut down
+> > +	 */
+> 
+> I don't think this comment is necessary.
+> 
+> If anything it only needs to say "Configure long press to 10 seconds".
+> 
+> And if you do that, please add one for short press too.
+Difference between short and long push is that if PMIC detects log push
+it will kill the power without any gracefull handling. And the chip I am
+supporting right now is BD71837 - which has more sane default value (10
+seconds). But I am going to add support for BD71847 - which was shipped
+to me yesterday - and according the draft data-sheet the default on it
+is 10ms - which makes short push unusable. So comment is intended to
+point out _why_ I configure the long push here. Also someone might want
+to use the HW default (I guess such default was selected for some
+specific reason) so comment helps on removing this configuration for
+specific use-cases. But I guess I can reduce the comment to "Configure
+long press to 10 seconds" as you suggested - or do you think I should
+make difference between ICs BD71837 and BD71847 more visible here?
+> 
+> > +	ret = regmap_update_bits(bd71837->regmap,
+> > +				 BD71837_REG_PWRONCONFIG1,
+> > +				 BD718XX_PWRBTN_PRESS_DURATION_MASK,
+> > +				 BD718XX_PWRBTN_LONG_PRESS_10S);
+> > +
+> > +	if (ret < 0) {
+> > +		dev_err(&i2c->dev, "Failed to configure button long press timeout\n");
+> > +		goto err_out;
+> > +	}
+> > +
+> > +	btns[0].irq = regmap_irq_get_virq(bd71837->irq_data,
+> > +					  BD71837_INT_PWRBTN_S);
+> > +
+> > +	if (btns[0].irq < 0) {
+> > +		ret = btns[0].irq;
+> > +		dev_err(&i2c->dev, "Failed to get the IRQ\n");
+> > +		goto err_out;
+> 
+> No unwinding to be done, just return directly and save yourself an
+> superflouous goto.
+
+So should I replace _all_ the gotos by in-place returns as Enric suggested
+yesterday? As I explained yesterday, my preference is to have only one
+point of exit but I can change gotos to returns if needed.
+
+> > +static const struct i2c_device_id bd71837_i2c_id[] = {
+> > +	{ .name = "bd71837", },
+> > +	{ }
+> > +};
+> > +MODULE_DEVICE_TABLE(i2c, bd71837_i2c_id);
+> 
+> You shouldn't need this table anymore.
+> 
+> See da10c06a044b ("i2c: Make I2C ID tables non-mandatory for DT'ed devices")
+
+So if I read this correctly the 
+> > +		.of_match_table = bd71837_of_match,
+is now sufficient. Thanks.
+
+> > +static struct i2c_driver bd71837_i2c_driver = {
+> > +	.driver = {
+> > +		.name = "bd71837-mfd",
+> 
+> And "MFD" isn't really a thing.  It's more common to just mention the
+> board name, or something like 'rohm-bd7183'.
+
+I'll fix this
+
+> > +/*
+> > + * init early so consumer devices can complete system boot
+> > + */
+> 
+> This is a single line commit.  Please use the correct format.
+> 
+>   /* Single line comment */
+
+I'll fix this. I misinterpreted your comment yesterday.
+
+> > +MODULE_DESCRIPTION("BD71837 chip multi-function driver");
+> 
+> 'PMIC' or 'Power Management IC' rather than MFD.
+
+I'll fix this
+
+> > +MODULE_LICENSE("GPL");
+> > diff --git a/include/linux/mfd/bd71837.h b/include/linux/mfd/bd71837.h
+> > new file mode 100644
+> > index 000000000000..10b0dfe90f27
+> > --- /dev/null
+> > +++ b/include/linux/mfd/bd71837.h
+> > @@ -0,0 +1,391 @@
+> > +/* SPDX-License-Identifier: GPL-2.0-or-later */
+> 
+> I thought these were meant to use C++ (//) comments?
+
+The checkpatch.pl did complain if I used // comment on SPDX line for
+header file. OTOH for c-file it required // comments and complained
+about /* */ - version. So I did as it suggested and used 
+
+> > +/* Copyright (C) 2018 ROHM Semiconductors */
+> > +
+> > +/*
+> > + * ROHM BD71837MWV header file
+> > + */
+> 
+> If you prefix the mentions of (BD,bd)71837 with (ROHM,rohm) then this
+> comment becomes redundant and you can remove it.
+
+I am sorry but I am not sure what you suggest here. Do you mean I should
+add ROHM or rohm to all definitions here? I think that would make
+definitions pretty long so I would certinly need to split more lines.
+Such cange would also impact already applied patches. So maybe I
+misinterpreted your comment? And in case I did not - can this prefixing of
+types - be done as a separate patch set as it impacts to regulators and
+clk too? (clk is not yet applied so that is easy to change though).
+
+> > +/* Even though the bit zero is not SWRESET type we still want to write zero
+> > + * to it when changing type. Bit zero is 'SWRESET' trigger bit and if we
+> > + * write 1 to it we will trigger the action. So always write 0 to it when
+> > + * changning SWRESET action - no matter what we read from it.
+> > + */
+> 
+> Please use the correct format for multi-line comments.
+> 
+> Hint: The first line should be empty.
+
+I'll fix this
+
+> > +#define BD71837_SWRESET_TYPE_MASK 7
+> > +#define BD71837_SWRESET_TYPE_DISABLED 0
+> > +#define BD71837_SWRESET_TYPE_COLD 4
+> > +#define BD71837_SWRESET_TYPE_WARM 6
+> > +
+> > +#define BD71837_SWRESET_RESET_MASK 1
+> > +#define BD71837_SWRESET_RESET 1
+> > +
+> > +/* Poweroff state transition conditions */
+> > +
+> > +#define BD718XX_ON_REQ_POWEROFF_MASK 1
+> > +#define BD718XX_SWRESET_POWEROFF_MASK 2
+> > +#define BD718XX_WDOG_POWEROFF_MASK 4
+> > +#define BD718XX_KEY_L_POWEROFF_MASK 8
+> > +
+> > +#define BD718XX_POWOFF_TO_SNVS 0
+> > +#define BD718XX_POWOFF_TO_RDY 0xF
+> 
+> Please align each of the values with tabs.
+
+I'll fix this
+
+> > +#define BD718XX_PWR_TRIG_KEY_L 1
+> > +#define BD718XX_PWR_TRIG_KEY_S 2
+> > +#define BD718XX_PWR_TRIG_PMIC_ON 4
+> > +#define BD718XX_PWR_TRIG_VSYS_UVLO 8
+> > +#define BD718XX_RDY_TO_SNVS_SIFT 0
+> > +#define BD718XX_SNVS_TO_RUN_SIFT 4
+> 
+> As above.
+
+I'll fix this
+
+> > +
+> > +
+> 
+> No need for 2 '\n'.
+
+I'll fix this
+
+> > +	BD718XX_PWRBTN_LONG_PRESS_15S
+> > +};
+> > +
+> > +
+> > +
+> 
+> Certainly no need for 3 '\n'.
+
+I'll fix this
+
+> > +struct bd71837;
+> 
+> Why is this necessary?
+> 
+
+I think it's not. I'll remove it.
+
+> > +struct bd71837_pmic;
+> > +struct bd71837_clk;
+> > +struct bd718xx_pwrkey;
+> 
+> Where are these forward declared from?
+
+bd71837_pmic is in drivers/regulator/bd71837-regulator.c
+clk will be in clk subdevice patch that is not yet applied.
+It is pending some fixes. Pwrkey must be dropped as the power-key driver
+I originally wrote was replaced using gpio_keys instead. Should there be
+some comment explaining this? Suggestions on how to do this without
+referring to file names which are subject to change... Should I just say
+they are defined in subdevice drivers? 
+
+> > +/*
+> > + * Board platform data may be used to initialize regulators.
+> > + */
+> > +
+> > +struct bd71837_board {
+> > +	struct regulator_init_data *init_data[BD71837_REGULATOR_CNT];
+> > +	int	gpio_intr;
+> > +};
+> 
+> Where is this populated?
+> 
+Currently nowhere as I use device-tree for getting the regulator/irq
+config. This is for architectures which do not use DT - but as I don't
+have one for testing I did leave the depends_on OF. If it was populated
+I would expect it to be done in some setup code.
+
+> > +/*
+> > + * bd71837 sub-driver chip access routines
+> > + */
+> > +
+> 
+> Please don't abstract APIs for no reason.
+> 
+> Use the regmap_* API directly instead.
+> 
+
+Yes. This was already pointed out by Stephen Boyd. But again, as part of
+the patches (reguators) were already applied using the wrappers - I asked
+if I can remove these in separate patch set after getting this initial
+version out.
+
+> > +#endif /* __LINUX_MFD_BD71837_H__ */
 > 
 > -- 
-> With Best Regards,
-> Andy Shevchenko
+> Lee Jones [李琼斯]
+> Linaro Services Technical Lead
+> Linaro.org │ Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog

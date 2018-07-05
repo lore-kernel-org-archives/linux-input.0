@@ -1,173 +1,202 @@
-From: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH 1/8] dt-bindings: mfd: document stpmu1 pmic
-Date: Thu, 5 Jul 2018 15:14:22 +0000
-Message-ID: <1530803657-17684-2-git-send-email-p.paillet@st.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 4/8] regulator: stpmu1: add stpmu1 regulator driver
+Date: Thu, 5 Jul 2018 17:48:20 +0100
+Message-ID: <20180705164820.GB6227@sirena.org.uk>
 References: <1530803657-17684-1-git-send-email-p.paillet@st.com>
+ <1530803657-17684-5-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530803657-17684-1-git-send-email-p.paillet@st.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1530803657-17684-5-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>
-Cc: Pascal PAILLET-LME <p.paillet@st.com>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-From: pascal paillet <p.paillet@st.com>
 
-stpmu1 is a pmic from STMicroelectronics. The stpmu1 integrates 10
-regulators and 3 switches with various capabilities.
+--NDin8bjvE/0mNLFQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: pascal paillet <p.paillet@st.com>
----
- .../devicetree/bindings/mfd/st,stpmu1.txt          | 138 +++++++++++++++++++++
- 1 file changed, 138 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmu1.txt
+On Thu, Jul 05, 2018 at 03:14:23PM +0000, Pascal PAILLET-LME wrote:
 
-diff --git a/Documentation/devicetree/bindings/mfd/st,stpmu1.txt b/Documentation/devicetree/bindings/mfd/st,stpmu1.txt
-new file mode 100644
-index 0000000..53bdab4
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/st,stpmu1.txt
-@@ -0,0 +1,138 @@
-+* STMicroelectronics STPMU1 Power Management IC
-+
-+Required parent device properties:
-+- compatible: "st,stpmu1"
-+- reg: the I2C slave address for the stpmu1 chip
-+- interrupts-extended: interrupt lines to use: second irq is for wakeup.
-+- #interrupt-cells: should be 2.
-+- interrupt-controller: describes the STPMU1 as an interrupt
-+  controller (has its own domain). interrupt number are the following:
-+	/* Interrupt Register 1 (0x50 for latch) */
-+	IT_SWOUT_R=0
-+	IT_SWOUT_F=1
-+	IT_VBUS_OTG_R=2
-+	IT_VBUS_OTG_F=3
-+	IT_WAKEUP_R=4
-+	IT_WAKEUP_F=5
-+	IT_PONKEY_R=6
-+	IT_PONKEY_F=7
-+	/* Interrupt Register 2 (0x51 for latch) */
-+	IT_OVP_BOOST=8
-+	IT_OCP_BOOST=9
-+	IT_OCP_SWOUT=10
-+	IT_OCP_OTG=11
-+	IT_CURLIM_BUCK4=12
-+	IT_CURLIM_BUCK3=13
-+	IT_CURLIM_BUCK2=14
-+	IT_CURLIM_BUCK1=15
-+	/* Interrupt Register 3 (0x52 for latch) */
-+	IT_SHORT_SWOUT=16
-+	IT_SHORT_SWOTG=17
-+	IT_CURLIM_LDO6=18
-+	IT_CURLIM_LDO5=19
-+	IT_CURLIM_LDO4=20
-+	IT_CURLIM_LDO3=21
-+	IT_CURLIM_LDO2=22
-+	IT_CURLIM_LDO1=23
-+	/* Interrupt Register 3 (0x52 for latch) */
-+	IT_SWIN_R=24
-+	IT_SWIN_F=25
-+	IT_RESERVED_1=26
-+	IT_RESERVED_2=27
-+	IT_VINLOW_R=28
-+	IT_VINLOW_F=29
-+	IT_TWARN_R=30
-+	IT_TWARN_F=31
-+
-+Optional parent device properties:
-+- st,main_control_register:
-+	-bit 1: Power cycling will be performed on turn OFF condition
-+	-bit 2: PWRCTRL is functional
-+	-bit 3: PWRCTRL active high
-+- st,pads_pull_register:
-+	-bit 1: WAKEUP pull down is not active
-+	-bit 2: PWRCTRL pull up is active
-+	-bit 3: PWRCTRL pull down is active
-+	-bit 4: WAKEUP detector is disabled
-+- st,vin_control_register:
-+	-bit 0: VINLOW monitoring is enabled
-+	-bit [1...3]: VINLOW rising threshold
-+		000 VINOK_f + 50mV
-+		001 VINOK_f + 100mV
-+		010 VINOK_f + 150mV
-+		011 VINOK_f + 200mV
-+		100 VINOK_f + 250mV
-+		101 VINOK_f + 300mV
-+		110 VINOK_f + 350mV
-+		111 VINOK_f + 400mV
-+	-bit [4...5]: VINLOW hyst
-+		00 100mV
-+		01 200mV
-+		10 300mV
-+		11 400mV
-+	-bit 6: SW_OUT detector is disabled
-+	-bit 7: SW_IN detector is enabled.
-+- st,usb_control_register:
-+	-bit 3: SW_OUT current limit
-+		0: 600mA
-+		1: 1.1A
-+	-bit 4: VBUS_OTG discharge is enabled
-+	-bit 5: SW_OUT discharge is enabled
-+	-bit 6: VBUS_OTG detection is enabled
-+	-bit 7: BOOST_OVP is disabled
-+
-+
-+stpmu1 consists is a varied group of sub-devices:
-+
-+Device			 Description
-+------			------------
-+stpmu1-onkey		: On key
-+stpmu1-regulators	: Regulators
-+stpmu1-wdt		: Watchdog
-+
-+each sub-device bindings is be described in associated driver
-+documentation section.
-+
-+Example:
-+
-+pmic: stpmu1@33 {
-+	compatible = "st,stpmu1";
-+	reg = <0x33>;
-+	interrupts = <0 2>;
-+	interrupts-extended = <&intc GIC_SPI 149 IRQ_TYPE_NONE>,
-+			      <&exti 55 1>;
-+	st,version_status = <0x10>;
-+	st,main_control_register=<0x0c>;
-+	interrupt-controller;
-+	#interrupt-cells = <2>;
-+	onkey {
-+		compatible = "st,stpmu1-onkey";
-+		interrupt-parent = <&pmic>;
-+		interrupts = <7 0>,<6 1>;
-+		st,onkey-pwroff-enabled;
-+		st,onkey-press-seconds = <10>;
-+	};
-+
-+	watchdog {
-+		compatible = "st,stpmu1-wdt";
-+	};
-+
-+	regulators {
-+		compatible = "st,stpmu1-regulators";
-+
-+		vdd_core: regulator@0 {
-+			regulator-compatible = "buck1";
-+			regulator-name = "vdd_core";
-+			regulator-boot-on;
-+			regulator-min-microvolt = <700000>;
-+			regulator-max-microvolt = <1200000>;
-+		};
-+		vdd: regulator@1 {
-+			regulator-compatible = "buck3";
-+			regulator-name = "vdd";
-+			regulator-min-microvolt = <3300000>;
-+			regulator-max-microvolt = <3300000>;
-+			regulator-boot-on;
-+			regulator-pull-down;
-+		};
-+	};
--- 
-1.9.1
+>  obj-$(CONFIG_REGULATOR_FIXED_VOLTAGE) +=3D fixed.o
+>  obj-$(CONFIG_REGULATOR_VIRTUAL_CONSUMER) +=3D virtual.o
+>  obj-$(CONFIG_REGULATOR_USERSPACE_CONSUMER) +=3D userspace-consumer.o
+> +obj-$(CONFIG_PROTECTION_CONSUMER) +=3D protection-consumer.o
+> =20
+>  obj-$(CONFIG_REGULATOR_88PG86X) +=3D 88pg86x.o
+>  obj-$(CONFIG_REGULATOR_88PM800) +=3D 88pm800.o
+
+Looks like this got included by mistake...
+
+> --- /dev/null
+> +++ b/drivers/regulator/stpmu1_regulator.c
+> @@ -0,0 +1,919 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright (C) STMicroelectronics 2018 - All Rights Reserved
+
+All rights reserved and GPL :)
+
+Please also make the entire comment a C++ one so the block looks more
+intentional.
+
+> +static unsigned int stpmu1_map_mode(unsigned int mode)
+> +{
+> +	return mode =3D=3D REGULATOR_MODE_STANDBY ?
+> +		REGULATOR_MODE_STANDBY : REGULATOR_MODE_NORMAL;
+> +}
+
+This looks confused - what's going on here?  Normally a map_mode()
+operation would be translating values in DT but this translates
+everything that isn't standby into normal which suggests there's an
+error checking problem.
+
+> +static int stpmu1_ldo3_list_voltage(struct regulator_dev *rdev,
+> +				    unsigned int sel)
+> +{
+> +	struct stpmu1_regulator *regul =3D rdev_get_drvdata(rdev);
+> +
+> +	if (sel =3D=3D 0)
+> +		return regulator_list_voltage_linear_range(rdev, 1);
+> +
+> +	if (sel < 31)
+> +		return regulator_list_voltage_linear_range(rdev, sel);
+> +
+> +	if (sel =3D=3D 31)
+> +		return stpmu1_get_voltage_regmap(regul->voltage_ref_reg) / 2;
+> +
+> +	return -EINVAL;
+> +}
+
+The only thing that's going on here that's odd and that couldn't be
+represented with a helper is selector 31 which looks to be some sort of
+divided bypass mode - can you explain what this represents in hardware
+terms please?
+
+> +static int stpmu1_ldo3_get_voltage(struct regulator_dev *rdev)
+> +{
+> +	int sel =3D regulator_get_voltage_sel_regmap(rdev);
+> +
+> +	if (sel < 0)
+> +		return -EINVAL;
+> +
+> +	return stpmu1_ldo3_list_voltage(rdev, (unsigned int)sel);
+> +}
+
+This is just the standard core behaviour, no need for this.
+
+> +static int stpmu1_fixed_regul_get_voltage(struct regulator_dev *rdev)
+> +{
+> +	struct stpmu1_regulator *regul =3D rdev_get_drvdata(rdev);
+> +	int id =3D rdev_get_id(rdev);
+> +
+> +	/* VREF_DDR voltage is equal to Buck2/2 */
+> +	if (id =3D=3D STPMU1_VREF_DDR)
+> +		return stpmu1_get_voltage_regmap(regul->voltage_ref_reg) / 2;
+> +
+> +	/* For all other case , rely on fixed value defined by Hw settings */
+> +	return regul->cfg->desc.fixed_uV;
+> +}
+
+It'd be better to just use a separate set of operations for the DDR
+regulator rather than have a conditional here, less code and makes it
+clearer that this one is a special case.
+
+> +static void update_regulator_constraints(int index,
+> +					 struct regulator_init_data *init_data)
+> +{
+> +	struct stpmu1_regulator_cfg *cfg =3D &stpmu1_regulator_cfgs[index];
+> +	struct regulator_desc *desc =3D &cfg->desc;
+> +
+> +	init_data->constraints.valid_ops_mask |=3D
+> +		cfg->valid_ops_mask;
+> +	init_data->constraints.valid_modes_mask |=3D
+> +		cfg->valid_modes_mask;
+
+Drivers should never be modifying their constraints, this is a no no.
+
+> +	/*
+> +	 * if all constraints are not specified in DT , ensure Hw
+> +	 * constraints are met
+> +	 */
+> +	if (desc->n_voltages > 1) {
+
+Drivers shouldn't be doing this either.  The API will not allow any
+modifications of hardware state without constraints so unless the
+bootloader is leaving things in a broken state we should be fine.
+
+> +	if (!init_data->constraints.ramp_delay)
+> +		init_data->constraints.ramp_delay =3D PMIC_RAMP_SLOPE_UV_PER_US;
+> +
+> +	if (!init_data->constraints.enable_time)
+> +		init_data->constraints.enable_time =3D PMIC_ENABLE_TIME_US;
+
+If these are hard constraints we know from the chip design they should
+be being set in the descriptor.  The constraints are there to override
+if either they're board dependent or the board needs something longer
+than the chip default.
+
+> +	/* LDO3 and VREF_DDR can use buck2 as reference voltage */
+> +	if (regul->regul_id =3D=3D STPMU1_LDO3 ||
+> +	    regul->regul_id =3D=3D STPMU1_VREF_DDR) {
+> +		if (!buck2) {
+> +			dev_err(&pdev->dev,
+> +				"Error in PMIC regulator settings: Buck2 is not defined prior to LDO=
+3 or VREF_DDR regulators\n"
+> +				);
+> +			return ERR_PTR(-EINVAL);
+> +		}
+> +		regul->voltage_ref_reg =3D buck2;
+> +	}
+
+Can or do?  Usually this would be hooked up in the DT (with the
+regulator specifying a supply name in the desc).
+
+> +	np =3D pdev->dev.of_node;
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "regulators node not found\n");
+> +		return -EINVAL;
+> +	}
+> +
+
+May as well let the driver probe?
+
+> +	/* Register all defined (from DT) regulators to Regulator Framework */
+> +	for (i =3D 0; i < ARRAY_SIZE(stpmu1_regulator_cfgs); i++) {
+> +		/* Parse DT & find regulators to register */
+> +		init_data =3D stpmu1_regulators_matches[i].init_data;
+
+You should register everything that's physically there unconditionally,
+there's no harm in having a regulator registered that's not used and it
+might be useful for debugging purposes.
+
+> +static const struct of_device_id of_pmic_regulator_match[] =3D {
+> +	{ .compatible =3D "st,stpmu1-regulators" },
+> +	{ },
+> +};
+
+This is part of a MFD for a single chip, why do we need a specific
+compatible string here rather than just enumerating from the base
+registration of the device?
+
+--NDin8bjvE/0mNLFQ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAls+S9QACgkQJNaLcl1U
+h9Ah8Af/WM+VknAiFcVbiVarONpM4bnMEejAs5ViUkRjTy5YO3N+PrZqEWwwSQFe
+adumgdEpd3G/tYrJOqQmFxUFdJrY6OEMIL0G0Gi/VNjhFadUGs6wWC9KBEG/NNcC
+ei0ExN18lyXSm/jE6k+1VX6Ty0pQt2R6ZE8pxd6aUqK1oZnnPl8wdgoinNmgZViq
+6Ju9T048e1lL8OfRt9jtveEBc+6M+yRuCaLpKQvtX7zDZlA6j+LI+EpZRBQIoyUK
+jFQcHIVzRHPqEq3UvYgmwJ0sHkvH7l27h0sUr3mc/LY5fTB/xY2BPK5MxzLyz9wM
+mdoOqdgADZ+7MqlrzbtkOgA7zvJaOA==
+=wg+l
+-----END PGP SIGNATURE-----
+
+--NDin8bjvE/0mNLFQ--

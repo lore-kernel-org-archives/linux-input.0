@@ -1,140 +1,42 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v9 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
-Date: Thu, 5 Jul 2018 13:51:24 +0100
-Message-ID: <20180705125124.GQ496@dell>
-References: <cover.1530776326.git.matti.vaittinen@fi.rohmeurope.com>
- <a304164cc3c1b31c7c6b62f8e233ce321a82cdd6.1530776326.git.matti.vaittinen@fi.rohmeurope.com>
- <20180705091813.GK496@dell>
- <20180705103442.GA8426@localhost.localdomain>
- <20180705111705.GN496@dell>
- <20180705122923.GD8426@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180705122923.GD8426@localhost.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: mturquette@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, eballetbo@gmail.com, sboyd@kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+From: Chen-Yu Tsai <wens@csie.org>
+Subject: [PATCH] Input: i8042 - add Lenovo LaVie Z to the i8042 reset list
+Date: Thu,  5 Jul 2018 21:08:49 +0800
+Message-ID: <20180705130849.10479-1-wens@csie.org>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-> > > > > +++ b/include/linux/mfd/bd71837.h
-> > > > > @@ -0,0 +1,391 @@
-> > > > > +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> > > > 
-> > > > I thought these were meant to use C++ (//) comments?
-> > > 
-> > > The checkpatch.pl did complain if I used // comment on SPDX line for
-> > > header file. OTOH for c-file it required // comments and complained
-> > > about /* */ - version. So I did as it suggested and used 
-> > 
-> > Well that's just dandy -- who comes up with this stuff?
-> 
-> Engineers I bet =)
+The Lenovo LaVie Z laptop requires i8042 to be reset in order to
+consistently detect its Elantech touchpad. The nomux and kbdreset
+quirks are not sufficient.
 
-Ones who do not suffer from OCD, clearly!
+It's possible the other LaVie Z models from NEC require this as well.
 
-> > > > > +/* Copyright (C) 2018 ROHM Semiconductors */
-> > > > > +
-> > > > > +/*
-> > > > > + * ROHM BD71837MWV header file
-> > > > > + */
-> > > > 
-> > > > If you prefix the mentions of (BD,bd)71837 with (ROHM,rohm) then this
-> > > > comment becomes redundant and you can remove it.
-> > > 
-> > > I am sorry but I am not sure what you suggest here. Do you mean I should
-> > > add ROHM or rohm to all definitions here? I think that would make
-> > > definitions pretty long so I would certinly need to split more lines.
-> > > Such cange would also impact already applied patches. So maybe I
-> > > misinterpreted your comment? And in case I did not - can this prefixing of
-> > > types - be done as a separate patch set as it impacts to regulators and
-> > > clk too? (clk is not yet applied so that is easy to change though).
-> > 
-> > Any lines which are already long, you can justify as not having to do
-> > this, however I think for the filenames and function names it would
-> > be nice if they were prefixed.
-> 
-> Right. For file names this should be easily doable. And when the regmap
-> wrappers are removed there are no public functions left. And I think the
-> name of file containing the functions is sufficient for grouping
-> functions under "Rohm", right? 
+Cc: stable@vger.kernel.org
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+---
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-That's fine.
-
-> > Filenames are particularly important.  That way all of the Rohm
-> > drivers will be grouped.  Unless you can be assured that all Rohm
-> > devices will be prefixed by 'bd', then the point is slightly mooted,
-> > however since 'bd' doesn't really correlate with 'rohm' it's still
-> > difficult to assume that bd* drivers are associated with Rohm -- if
-> > you catch my drift.
-> 
-> I guess I do catch it. And no, all ROHM stuff will definitely not be
-> prefixed with bd - which is the name of the power chip
-
-> I mean power IC series.
-
-Now you're getting it! ;)
-
-> > > > > +struct bd71837_board {
-> > > > > +	struct regulator_init_data *init_data[BD71837_REGULATOR_CNT];
-> > > > > +	int	gpio_intr;
-> > > > > +};
-> > > > 
-> > > > Where is this populated?
-> > > > 
-> > > Currently nowhere as I use device-tree for getting the regulator/irq
-> > > config. This is for architectures which do not use DT - but as I don't
-> > > have one for testing I did leave the depends_on OF. If it was populated
-> > > I would expect it to be done in some setup code.
-> > 
-> > Please don't add code for 'what ifs'.
-> > 
-> > Please remove it and add it back when you need it.
-> 
-> Allright. Although this will also break the regulator part then...
-
-Well, it's broken anyway ...
-
-> > > > > +/*
-> > > > > + * bd71837 sub-driver chip access routines
-> > > > > + */
-> > > > > +
-> > > > 
-> > > > Please don't abstract APIs for no reason.
-> > > > 
-> > > > Use the regmap_* API directly instead.
-> > > > 
-> > > 
-> > > Yes. This was already pointed out by Stephen Boyd. But again, as part of
-> > > the patches (reguators) were already applied using the wrappers - I asked
-> > > if I can remove these in separate patch set after getting this initial
-> > > version out.
-> > 
-> > That is one of the issues with applying related patches without each
-> > of them being reviewed first.  Applying unsuitable code is not the
-> > correct thing to do, sorry.
-> 
-> So I assume you are not Ok with adding the wrappers and removing them
-> with later set of patches? I'll do following workaround then:
-
-No, I'm not okay with that at all. :|
-
-> 1. Change MFD Kconfig option name => current regulator code will not be
-> compiled even if the MFD would be applied.
-> 2. Change MFD according to this discussion (and break the compatibility
-> with applied regulator code)
-> 3. Fix the regulator code with further patches to Mark
-> 4. Fix the depends_on Kconfig option in regulator tree to match the new
-> one suggested here.
-> 
-> Does this sound reasonable?
-
-That's how I would do it.
-
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index b353d494ad40..136f6e7bf797 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -527,6 +527,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "N24_25BU"),
+ 		},
+ 	},
++	{
++		/* Lenovo LaVie Z */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo LaVie Z"),
++		},
++	},
+ 	{ }
+ };
+ 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.18.0

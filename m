@@ -1,38 +1,68 @@
-From: Chen Zhong <chen.zhong@mediatek.com>
-Subject: Re: [RESEND PATCH] dt-bindings: input: Add common keyboard document
- bindings
-Date: Thu, 5 Jul 2018 09:27:14 +0800
-Message-ID: <1530754034.14396.19.camel@mhfsdcap03>
-References: <1529648198-14231-1-git-send-email-chen.zhong@mediatek.com>
-         <1529649595.14396.18.camel@mhfsdcap03>
-         <20180704152514.33h52ujqp34hpj2o@penguin>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v7 1/4] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Thu, 5 Jul 2018 06:52:26 +0100
+Message-ID: <20180705055226.GJ496@dell>
+References: <cover.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <7e1888375c979accc402e9ddd7316e528b2ac52c.1529404894.git.matti.vaittinen@fi.rohmeurope.com>
+ <CAFqH_51izuVgHukAORvwjZqGhxy85tdNdaHL9mOUnPnbCQmQjA@mail.gmail.com>
+ <20180704145623.zgei3ehrwdpcu26r@penguin>
+ <CAFqH_50UshTTc0Cv0wBhUoPdm0jZVgcvRKr3qzb=M-jCcMhdtA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180704152514.33h52ujqp34hpj2o@penguin>
+Content-Disposition: inline
+In-Reply-To: <CAFqH_50UshTTc0Cv0wBhUoPdm0jZVgcvRKr3qzb=M-jCcMhdtA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+To: Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, matti.vaittinen@fi.rohmeurope.com, Michael Turquette <mturquette@baylibre.com>, sboyd@kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Matti Vaittinen <mazziesaccount@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sebastian Reichel <sre@kernel.org>, chenjh@rock-chips.com, Andrey Smirnov <andrew.smirnov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Kate Stewart <kstewart@linuxfoundation.org>, Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-clk@vger.kernel.org, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, linux-kernel <linux-kerne>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 2018-07-04 at 15:25 +0000, Dmitry Torokhov wrote:
-> On Fri, Jun 22, 2018 at 02:39:55PM +0800, Chen Zhong wrote:
-> > Hi Dmitry,
-> > 
-> > The other patches in the series to add mediatek pmic keys support are
-> > now available in 4.18-rc1, but this patch seems not being merged.
-> > 
-> >   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git
-> > ib-mfd-input-rtc-v4.18
-> > 
-> > I have resend the patch, and rebase to 4.18-rc1.
-> > Could you help to see if it is good enough to be merged into your tree?
-> 
-> I thought Rob would pick it up, but since he hasn't I'll do it.
-> 
-> Thanks.
-> 
+On Wed, 04 Jul 2018, Enric Balletbo Serra wrote:
 
-That would be great helpful.
-Thank you.
+> Missatge de Dmitry Torokhov <dmitry.torokhov@gmail.com> del dia dc., 4
+> de jul. 2018 a les 17:10:
+> >
+> > Hi Enric,
+> >
+> > On Tue, Jun 26, 2018 at 11:06:33AM +0200, Enric Balletbo Serra wrote:
+> > > Hi Matti,
+> > >
+> > > Thanks for the patch, a few comments below, some are feedback I
+> > > received when I sent some patches to this subsystem.
+> > >
+> > > Missatge de Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com> del
+> > > dia dt., 19 de juny 2018 a les 12:57:
+> > > > +};
+> > > > +
+> > > > +/* bd71837 multi function cells */
+> > > > +static struct mfd_cell bd71837_mfd_cells[] = {
+> > > > +       {
+> > > > +               .name = "bd71837-clk",
+> > > > +       }, {
+> > > > +               .name = "bd718xx-pwrkey",
+> > > > +               .resources = &irqs[0],
+> > > > +               .num_resources = ARRAY_SIZE(irqs),
+> > > > +       }, {
+> > > > +               .name = "bd71837-pmic",
+> > > > +       },
+> > > nit: no comma at the end
+> >
+> > Actually, trailing comma is preferred on structures/arrays without
+> > sentinels, because if one needs to add a new entry/new member, then in
+> > the diff there will have only one new line added, instead of one line
+> > being changed (adding now necessary comma) and one added.
+
+[...]
+
+> Dmitry, I really appreciate this kind of comments, especially when
+> there is a justification, so I can learn more and more to do better
+> patches.
+
++1
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

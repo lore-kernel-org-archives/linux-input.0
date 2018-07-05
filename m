@@ -1,130 +1,223 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v9 2/2] mfd: bd71837: Devicetree bindings for ROHM
- BD71837 PMIC
-Date: Thu, 5 Jul 2018 10:24:44 +0100
-Message-ID: <20180705092444.GL496@dell>
-References: <cover.1530776326.git.matti.vaittinen@fi.rohmeurope.com>
- <87cc68c82c3c95e82797e0ce3d401a4f1d6daf25.1530776326.git.matti.vaittinen@fi.rohmeurope.com>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v6 1/4] resource: Move reparent_resources() to
+ kernel/resource.c and make it public
+Date: Thu, 5 Jul 2018 18:09:39 +0800
+Message-ID: <20180705100939.GD1225@MiWiFi-R3L-srv>
+References: <20180704041038.8190-1-bhe@redhat.com>
+ <20180704041038.8190-2-bhe@redhat.com>
+ <CAHp75VfWLcQq4XGM3RyfO_ENx=3=WrCEhtOw+a0Sfwz_OpQ0UQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <87cc68c82c3c95e82797e0ce3d401a4f1d6daf25.1530776326.git.matti.vaittinen@fi.rohmeurope.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: mturquette@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, eballetbo@gmail.com, sboyd@kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+In-Reply-To: <CAHp75VfWLcQq4XGM3RyfO_ENx=3=WrCEhtOw+a0Sfwz_OpQ0UQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Nicolas Pitre <nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Max Filippov <jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, KY Srinivasan <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Frank Rowand <frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lorenzo Pieralisi <lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org>, Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, Patrik Jakobsson <patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Gustavo Padovan <gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org>, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Dave Young <dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Tom Lendacky <thomas.lendacky-5C7GfCeVMHo@public.gmane.org>, Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, Maarten Lankhorst <maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Josh Triplett <josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 05 Jul 2018, Matti Vaittinen wrote:
-
-> Document devicetree bindings for ROHM BD71837 PMIC MFD.
+On 07/04/18 at 07:46pm, Andy Shevchenko wrote:
+> On Wed, Jul 4, 2018 at 7:10 AM, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+> > reparent_resources() is duplicated in arch/microblaze/pci/pci-common.c
+> > and arch/powerpc/kernel/pci-common.c, so move it to kernel/resource.c
+> > so that it's shared.
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> ---
->  .../devicetree/bindings/mfd/rohm,bd71837-pmic.txt  | 67 ++++++++++++++++++++++
->  1 file changed, 67 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
+> With couple of comments below,
+
+Sure, will fix these and repost with your reviewed-by, thanks. Should be
+after I reproduce and fix those issues reported by test robot.
+
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt b/Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
-> new file mode 100644
-> index 000000000000..67f2616288d9
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/rohm,bd71837-pmic.txt
-> @@ -0,0 +1,67 @@
-> +* ROHM BD71837 Power Management Integrated Circuit bindings
-> +
-> +BD71837MWV is a programmable Power Management IC for powering single-core,
-> +dual-core, and quad-core SoC’s such as NXP-i.MX 8M. It is optimized for
-
-Nit: s/SOC's/SOCs/
-
-> +low BOM cost and compact solution footprint. It integrates 8 Buck
-> +egulators and 7 LDO’s to provide all the power rails required by the SoC and
-
-Nit: s/LDO's/LDOs/
-
-> +the commonly used peripherals.
-> +
-> +Datasheet for PMIC is available at:
-> +https://www.rohm.com/datasheet/BD71837MWV/bd71837mwv-e
-> +
-> +Required properties:
-> + - compatible		: Should be "rohm,bd71837".
-> + - reg			: I2C slave address.
-> + - interrupt-parent	: Phandle to the parent interrupt controller.
-> + - interrupts		: The interrupt line the device is connected to.
-> + - clocks		: The parent clock connected to PMIC. If this is missng
-
-s/missng/missing/
-
-> +			  32768 KHz clock is assumed.
-> + - #clock-cells		: Should be 0
-> + - regulators:		: List of child nodes that specify the regulators
-
-By your convention, the bottom two entries are missing '.'s.
-
-> +			  Please see ../regulator/rohm,bd71837-regulator.txt
-> +
-> +Optional properties:
-> +- clock-output-names	: Should contain name for output clock.
-> +
-> +Example:
-> +
-> +	/* external oscillator node */
-
-Uppercase character to start a sentence.
-
-> +	osc: oscillator {
-> +		compatible = "fixed-clock";
-> +		#clock-cells = <1>;
-> +		clock-frequency  = <32768>;
-> +		clock-output-names = "osc";
-> +	};
-> +
-> +	/* PMIC node */
-
-Is this comment really necessary?  The node is called "pmic".
-
-> +	pmic: pmic@4b {
-> +		compatible = "rohm,bd71837";
-> +		reg = <0x4b>;
-> +		interrupt-parent = <&gpio1>;
-> +		interrupts = <29 GPIO_ACTIVE_LOW>;
-> +		interrupt-names = "irq";
-> +		#clock-cells = <0>;
-> +		clocks = <&osc 0>;
-> +		clock-output-names = "bd71837-32k-out";
-> +
-> +		regulators {
-> +			buck1: BUCK1 {
-> +				regulator-name = "buck1";
-> +				regulator-min-microvolt = <700000>;
-> +				regulator-max-microvolt = <1300000>;
-> +				regulator-boot-on;
-> +				regulator-ramp-delay = <1250>;
-> +			};
-> +			/* ... */
-> +		};
-> +	};
-> +
-> +	/* Clock consumer node */
-> +
-> +	foo@0 {
-> +		compatible = "bar,foo";
-> +		/* ... */
-
-No need for this line.  Additional properties are always expected.
-
-> +		clock-names = "my-clock";
-> +		clocks = <&pmic>;
-> +	};
-
-Do you have a real example to give?
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> Reviewed-by: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> 
+> P.S. In some commit message in this series you used 'likt' instead of 'like'.
+> 
+> >
+> > Signed-off-by: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> > ---
+> >  arch/microblaze/pci/pci-common.c | 37 -------------------------------------
+> >  arch/powerpc/kernel/pci-common.c | 35 -----------------------------------
+> >  include/linux/ioport.h           |  1 +
+> >  kernel/resource.c                | 39 +++++++++++++++++++++++++++++++++++++++
+> >  4 files changed, 40 insertions(+), 72 deletions(-)
+> >
+> > diff --git a/arch/microblaze/pci/pci-common.c b/arch/microblaze/pci/pci-common.c
+> > index f34346d56095..7899bafab064 100644
+> > --- a/arch/microblaze/pci/pci-common.c
+> > +++ b/arch/microblaze/pci/pci-common.c
+> > @@ -619,43 +619,6 @@ int pcibios_add_device(struct pci_dev *dev)
+> >  EXPORT_SYMBOL(pcibios_add_device);
+> >
+> >  /*
+> > - * Reparent resource children of pr that conflict with res
+> > - * under res, and make res replace those children.
+> > - */
+> > -static int __init reparent_resources(struct resource *parent,
+> > -                                    struct resource *res)
+> > -{
+> > -       struct resource *p, **pp;
+> > -       struct resource **firstpp = NULL;
+> > -
+> > -       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
+> > -               if (p->end < res->start)
+> > -                       continue;
+> > -               if (res->end < p->start)
+> > -                       break;
+> > -               if (p->start < res->start || p->end > res->end)
+> > -                       return -1;      /* not completely contained */
+> > -               if (firstpp == NULL)
+> > -                       firstpp = pp;
+> > -       }
+> > -       if (firstpp == NULL)
+> > -               return -1;      /* didn't find any conflicting entries? */
+> > -       res->parent = parent;
+> > -       res->child = *firstpp;
+> > -       res->sibling = *pp;
+> > -       *firstpp = res;
+> > -       *pp = NULL;
+> > -       for (p = res->child; p != NULL; p = p->sibling) {
+> > -               p->parent = res;
+> > -               pr_debug("PCI: Reparented %s [%llx..%llx] under %s\n",
+> > -                        p->name,
+> > -                        (unsigned long long)p->start,
+> > -                        (unsigned long long)p->end, res->name);
+> > -       }
+> > -       return 0;
+> > -}
+> > -
+> > -/*
+> >   *  Handle resources of PCI devices.  If the world were perfect, we could
+> >   *  just allocate all the resource regions and do nothing more.  It isn't.
+> >   *  On the other hand, we cannot just re-allocate all devices, as it would
+> > diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
+> > index fe9733ffffaa..926035bb378d 100644
+> > --- a/arch/powerpc/kernel/pci-common.c
+> > +++ b/arch/powerpc/kernel/pci-common.c
+> > @@ -1088,41 +1088,6 @@ resource_size_t pcibios_align_resource(void *data, const struct resource *res,
+> >  EXPORT_SYMBOL(pcibios_align_resource);
+> >
+> >  /*
+> > - * Reparent resource children of pr that conflict with res
+> > - * under res, and make res replace those children.
+> > - */
+> > -static int reparent_resources(struct resource *parent,
+> > -                                    struct resource *res)
+> > -{
+> > -       struct resource *p, **pp;
+> > -       struct resource **firstpp = NULL;
+> > -
+> > -       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
+> > -               if (p->end < res->start)
+> > -                       continue;
+> > -               if (res->end < p->start)
+> > -                       break;
+> > -               if (p->start < res->start || p->end > res->end)
+> > -                       return -1;      /* not completely contained */
+> > -               if (firstpp == NULL)
+> > -                       firstpp = pp;
+> > -       }
+> > -       if (firstpp == NULL)
+> > -               return -1;      /* didn't find any conflicting entries? */
+> > -       res->parent = parent;
+> > -       res->child = *firstpp;
+> > -       res->sibling = *pp;
+> > -       *firstpp = res;
+> > -       *pp = NULL;
+> > -       for (p = res->child; p != NULL; p = p->sibling) {
+> > -               p->parent = res;
+> > -               pr_debug("PCI: Reparented %s %pR under %s\n",
+> > -                        p->name, p, res->name);
+> > -       }
+> > -       return 0;
+> > -}
+> > -
+> > -/*
+> >   *  Handle resources of PCI devices.  If the world were perfect, we could
+> >   *  just allocate all the resource regions and do nothing more.  It isn't.
+> >   *  On the other hand, we cannot just re-allocate all devices, as it would
+> > diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+> > index da0ebaec25f0..dfdcd0bfe54e 100644
+> > --- a/include/linux/ioport.h
+> > +++ b/include/linux/ioport.h
+> > @@ -192,6 +192,7 @@ extern int allocate_resource(struct resource *root, struct resource *new,
+> >  struct resource *lookup_resource(struct resource *root, resource_size_t start);
+> >  int adjust_resource(struct resource *res, resource_size_t start,
+> >                     resource_size_t size);
+> > +int reparent_resources(struct resource *parent, struct resource *res);
+> >  resource_size_t resource_alignment(struct resource *res);
+> >  static inline resource_size_t resource_size(const struct resource *res)
+> >  {
+> > diff --git a/kernel/resource.c b/kernel/resource.c
+> > index 30e1bc68503b..d1cbf4b50e17 100644
+> > --- a/kernel/resource.c
+> > +++ b/kernel/resource.c
+> > @@ -983,6 +983,45 @@ int adjust_resource(struct resource *res, resource_size_t start,
+> >  }
+> >  EXPORT_SYMBOL(adjust_resource);
+> >
+> > +/*
+> 
+> /** ?
+> 
+> > + * reparent_resources - reparent resource children of parent that res covers
+> > + * @parent: parent resource descriptor
+> > + * @res: resource descriptor desired by caller
+> > + *
+> > + * Reparent resource children of 'parent' that conflict with 'res'
+> > + * under 'res', and make 'res' replace those children.
+> 
+> Describe error codes, please.
+> 
+> > + */
+> > +int reparent_resources(struct resource *parent, struct resource *res)
+> > +{
+> > +       struct resource *p, **pp;
+> > +       struct resource **firstpp = NULL;
+> > +
+> > +       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
+> > +               if (p->end < res->start)
+> > +                       continue;
+> > +               if (res->end < p->start)
+> > +                       break;
+> > +               if (p->start < res->start || p->end > res->end)
+> > +                       return -ENOTSUPP;       /* not completely contained */
+> > +               if (firstpp == NULL)
+> > +                       firstpp = pp;
+> > +       }
+> > +       if (firstpp == NULL)
+> > +               return -ECANCELED; /* didn't find any conflicting entries? */
+> > +       res->parent = parent;
+> > +       res->child = *firstpp;
+> > +       res->sibling = *pp;
+> > +       *firstpp = res;
+> > +       *pp = NULL;
+> > +       for (p = res->child; p != NULL; p = p->sibling) {
+> > +               p->parent = res;
+> > +               pr_debug("PCI: Reparented %s %pR under %s\n",
+> > +                        p->name, p, res->name);
+> > +       }
+> > +       return 0;
+> > +}
+> > +EXPORT_SYMBOL(reparent_resources);
+> > +
+> >  static void __init __reserve_region_with_split(struct resource *root,
+> >                 resource_size_t start, resource_size_t end,
+> >                 const char *name)
+> > --
+> > 2.13.6
+> >
+> 
+> 
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko

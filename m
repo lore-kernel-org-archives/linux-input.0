@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 4/5] m68k/io: Move mem*io define guards to <asm/kmap.h>
-Date: Mon,  9 Jul 2018 11:30:39 +0200
-Message-ID: <20180709093040.23597-5-geert@linux-m68k.org>
+Subject: [PATCH 1/5] m68k/io: Add missing ioremap define guards, fix typo
+Date: Mon,  9 Jul 2018 11:30:36 +0200
+Message-ID: <20180709093040.23597-2-geert@linux-m68k.org>
 References: <20180709093040.23597-1-geert@linux-m68k.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180709093040.23597-1-geert@linux-m68k.org>
@@ -10,68 +10,73 @@ To: Greg Ungerer <gerg@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.c
 Cc: linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
 
-The mem*io define guards are applicable to all users of <asm/kmap.h>.
-Hence move them, and drop the #ifdef.
+  - Add missing define guard for ioremap_wt(),
+  - Move ARCH_HAS_IOREMAP_WT from <asm/io_mm.h> to <asm/kmap.h>, as it
+    is applicable to Coldfire with MMU, too,
+  - Fix typo s/ioremap_fillcache/ioremap_fullcache/,
+  - Add define guard for iounmap() for consistency with other
+    architectures.
 
+Fixes: 9746882f547d2f00 ("m68k: group io mapping definitions and functions")
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
-To avoid redefined warnings, this depends on "net: mac8390: Use standard
-memcpy_{from,to}io()".
-
 v2:
-  - No changes.
+  - Move ARCH_HAS_IOREMAP_WT to fix "ioremap_wt redefined" warnings with
+    m5475evb defconfig.
 ---
- arch/m68k/include/asm/io_no.h | 11 -----------
- arch/m68k/include/asm/kmap.h  |  3 +++
- 2 files changed, 3 insertions(+), 11 deletions(-)
+ arch/m68k/include/asm/io_mm.h | 2 --
+ arch/m68k/include/asm/kmap.h  | 6 +++++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/m68k/include/asm/io_no.h b/arch/m68k/include/asm/io_no.h
-index 83a0a6d449f44bdd..c207428fae5953e7 100644
---- a/arch/m68k/include/asm/io_no.h
-+++ b/arch/m68k/include/asm/io_no.h
-@@ -131,17 +131,6 @@ static inline void writel(u32 value, volatile void __iomem *addr)
- #define PCI_SPACE_LIMIT	PCI_IO_MASK
- #endif /* CONFIG_PCI */
+diff --git a/arch/m68k/include/asm/io_mm.h b/arch/m68k/include/asm/io_mm.h
+index fe485f4f5fac4d92..7e518303786c2d65 100644
+--- a/arch/m68k/include/asm/io_mm.h
++++ b/arch/m68k/include/asm/io_mm.h
+@@ -21,8 +21,6 @@
  
--/*
-- * These are defined in kmap.h as static inline functions. To maintain
-- * previous behavior we put these define guards here so io_mm.h doesn't
-- * see them.
-- */
--#ifdef CONFIG_MMU
--#define memset_io memset_io
--#define memcpy_fromio memcpy_fromio
--#define memcpy_toio memcpy_toio
--#endif
+ #ifdef __KERNEL__
+ 
+-#define ARCH_HAS_IOREMAP_WT
 -
- #include <asm/kmap.h>
+ #include <linux/compiler.h>
+ #include <asm/raw_io.h>
  #include <asm/virtconvert.h>
- #include <asm-generic/io.h>
 diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
-index 608e12f058a7cd7d..aac7f045f7f0aa85 100644
+index 84b8333db8ad1987..608e12f058a7cd7d 100644
 --- a/arch/m68k/include/asm/kmap.h
 +++ b/arch/m68k/include/asm/kmap.h
-@@ -50,18 +50,21 @@ static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
- 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+@@ -4,6 +4,8 @@
+ 
+ #ifdef CONFIG_MMU
+ 
++#define ARCH_HAS_IOREMAP_WT
++
+ /* Values for nocacheflag and cmode */
+ #define IOMAP_FULL_CACHING		0
+ #define IOMAP_NOCACHE_SER		1
+@@ -16,6 +18,7 @@
+  */
+ extern void __iomem *__ioremap(unsigned long physaddr, unsigned long size,
+ 			       int cacheflag);
++#define iounmap iounmap
+ extern void iounmap(void __iomem *addr);
+ extern void __iounmap(void *addr, unsigned long size);
+ 
+@@ -33,13 +36,14 @@ static inline void __iomem *ioremap_nocache(unsigned long physaddr,
  }
  
-+#define memset_io memset_io
- static inline void memset_io(volatile void __iomem *addr, unsigned char val,
- 			     int count)
+ #define ioremap_uc ioremap_nocache
++#define ioremap_wt ioremap_wt
+ static inline void __iomem *ioremap_wt(unsigned long physaddr,
+ 				       unsigned long size)
  {
- 	__builtin_memset((void __force *) addr, val, count);
+ 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
  }
  
-+#define memcpy_fromio memcpy_fromio
- static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
- 				 int count)
- {
- 	__builtin_memcpy(dst, (void __force *) src, count);
- }
- 
-+#define memcpy_toio memcpy_toio
- static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
- 			       int count)
+-#define ioremap_fillcache ioremap_fullcache
++#define ioremap_fullcache ioremap_fullcache
+ static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
+ 					      unsigned long size)
  {
 -- 
 2.17.1

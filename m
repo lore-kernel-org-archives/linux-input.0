@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 3/5] Input: hilkbd - Add casts to HP9000/300 I/O accessors
-Date: Mon,  9 Jul 2018 11:30:38 +0200
-Message-ID: <20180709093040.23597-4-geert@linux-m68k.org>
+Subject: [PATCH 4/5] m68k/io: Move mem*io define guards to <asm/kmap.h>
+Date: Mon,  9 Jul 2018 11:30:39 +0200
+Message-ID: <20180709093040.23597-5-geert@linux-m68k.org>
 References: <20180709093040.23597-1-geert@linux-m68k.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180709093040.23597-1-geert@linux-m68k.org>
@@ -10,43 +10,68 @@ To: Greg Ungerer <gerg@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.c
 Cc: linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-input@vger.kernel.org
 
-Internally, hilkbd uses "unsigned long" I/O addresses everywhere.
-This works fine as:
-  - On PA-RISC, hilkbd uses the gsc_{read,write}b() I/O accessors, which
-    take "unsigned long" addresses,
-  - On m68k, hilkbd uses {read,write}b(), which are currently mapped to
-    {in,out}_8(), and convert the passed addresses to pointers
-    internally.
-
-However, the asm-generic version of {read,write}b() does not perform
-such conversions, and requires passing pointers instead.  Hence add
-casts to prepare for switching m68k to the asm-generic version.
+The mem*io define guards are applicable to all users of <asm/kmap.h>.
+Hence move them, and drop the #ifdef.
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
-This is a dependency for "m68k/io: Switch mmu variant to
-<asm-generic/io.h>".
+To avoid redefined warnings, this depends on "net: mac8390: Use standard
+memcpy_{from,to}io()".
 
 v2:
   - No changes.
 ---
- drivers/input/keyboard/hilkbd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/m68k/include/asm/io_no.h | 11 -----------
+ arch/m68k/include/asm/kmap.h  |  3 +++
+ 2 files changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/keyboard/hilkbd.c b/drivers/input/keyboard/hilkbd.c
-index a4e404aaf64bdb82..5c7afdec192c139b 100644
---- a/drivers/input/keyboard/hilkbd.c
-+++ b/drivers/input/keyboard/hilkbd.c
-@@ -57,8 +57,8 @@ MODULE_LICENSE("GPL v2");
-  #define HIL_DATA		0x1
-  #define HIL_CMD		0x3
-  #define HIL_IRQ		2
-- #define hil_readb(p)		readb(p)
-- #define hil_writeb(v,p)	writeb((v),(p))
-+ #define hil_readb(p)		readb((const volatile void __iomem *)(p))
-+ #define hil_writeb(v, p)	writeb((v), (volatile void __iomem *)(p))
+diff --git a/arch/m68k/include/asm/io_no.h b/arch/m68k/include/asm/io_no.h
+index 83a0a6d449f44bdd..c207428fae5953e7 100644
+--- a/arch/m68k/include/asm/io_no.h
++++ b/arch/m68k/include/asm/io_no.h
+@@ -131,17 +131,6 @@ static inline void writel(u32 value, volatile void __iomem *addr)
+ #define PCI_SPACE_LIMIT	PCI_IO_MASK
+ #endif /* CONFIG_PCI */
  
- #else
- #error "HIL is not supported on this platform"
+-/*
+- * These are defined in kmap.h as static inline functions. To maintain
+- * previous behavior we put these define guards here so io_mm.h doesn't
+- * see them.
+- */
+-#ifdef CONFIG_MMU
+-#define memset_io memset_io
+-#define memcpy_fromio memcpy_fromio
+-#define memcpy_toio memcpy_toio
+-#endif
+-
+ #include <asm/kmap.h>
+ #include <asm/virtconvert.h>
+ #include <asm-generic/io.h>
+diff --git a/arch/m68k/include/asm/kmap.h b/arch/m68k/include/asm/kmap.h
+index 608e12f058a7cd7d..aac7f045f7f0aa85 100644
+--- a/arch/m68k/include/asm/kmap.h
++++ b/arch/m68k/include/asm/kmap.h
+@@ -50,18 +50,21 @@ static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
+ 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+ }
+ 
++#define memset_io memset_io
+ static inline void memset_io(volatile void __iomem *addr, unsigned char val,
+ 			     int count)
+ {
+ 	__builtin_memset((void __force *) addr, val, count);
+ }
+ 
++#define memcpy_fromio memcpy_fromio
+ static inline void memcpy_fromio(void *dst, const volatile void __iomem *src,
+ 				 int count)
+ {
+ 	__builtin_memcpy(dst, (void __force *) src, count);
+ }
+ 
++#define memcpy_toio memcpy_toio
+ static inline void memcpy_toio(volatile void __iomem *dst, const void *src,
+ 			       int count)
+ {
 -- 
 2.17.1

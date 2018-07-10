@@ -1,65 +1,126 @@
-From: Greg Ungerer <gerg@linux-m68k.org>
-Subject: Re: [PATCH 0/5] m68k: IO Fixes and Cleanups
-Date: Tue, 10 Jul 2018 11:48:14 +1000
-Message-ID: <0f38c6fd-82f1-7211-3b2e-425bbd44b157@linux-m68k.org>
-References: <20180709093040.23597-1-geert@linux-m68k.org>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [kbuild-all] [PATCH v6 2/4] resource: Use list_head to link
+ sibling resource
+Date: Tue, 10 Jul 2018 11:10:55 +0800
+Message-ID: <20180710031055.GC1969@MiWiFi-R3L-srv>
+References: <20180704041038.8190-3-bhe@redhat.com>
+ <201807042347.hfDcKxmG%fengguang.wu@intel.com>
+ <20180708025946.GI3047@MiWiFi-R3L-srv>
+ <20180710005927.GG10005@yexl-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180709093040.23597-1-geert@linux-m68k.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Helge Deller <deller@gmx.de>
-Cc: linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20180710005927.GG10005@yexl-desktop>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Ye Xiaolong <xiaolong.ye-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, kbuild-all-JC7UmRfGjtg@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec@li
 List-Id: linux-input@vger.kernel.org
 
-Hi Geert,
-
-On 09/07/18 19:30, Geert Uytterhoeven wrote:
-> 	Hi all,
+On 07/10/18 at 08:59am, Ye Xiaolong wrote:
+> Hi,
 > 
-> This patch series contains fixes and cleanups for I/O accessors on m68k
-> platforms (with MMU).
+> On 07/08, Baoquan He wrote:
+> >Hi,
+> >
+> >On 07/05/18 at 01:00am, kbuild test robot wrote:
+> >> Hi Baoquan,
+> >> 
+> >> I love your patch! Yet something to improve:
+> >> 
+> >> [auto build test ERROR on linus/master]
+> >> [also build test ERROR on v4.18-rc3 next-20180704]
+> >> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+> >
+> >Thanks for telling. 
+> >
+> >I cloned 0day-ci/linut to my local pc.
+> >https://github.com/0day-ci/linux.git
+> >
+> >However, I didn't find below branch. And tried to open it in web
+> >broswer, also failed.
+> >
 > 
-> The first patch contains small fixes without any dependencies.
-> Patches 2 and 3 make small adjustments to drivers that are dependencies
-> for further cleanup.
-> Patch 4 and 5 complete the cleanup.
+> Sorry for the inconvenience, 0day bot didn't push the branch to github successfully,
+> Just push it manually, you can have a try again.
+
+Thanks, Xiaolong, I have applied them on top of linux-next/master, and
+copy the config file attached, and run the command to reproduce as
+suggested. Now I have fixed all those issues reported, will repost.
+
 > 
-> Changes compared to v1:
->    - Move ARCH_HAS_IOREMAP_WT to fix "ioremap_wt redefined" warnings with
->      m5475evb defconfig,
->    - Add Acked-by.
-> 
-> Given the dependencies, I think it's easiest if the respective
-> maintainers would provide their Acked-by, so all patches can go in
-> through the m68k tree.
-
-Retested on ColdFire 5475, looks good.
-For the whole series:
-
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
-
-Regards
-Greg
-
-
-
-> Thanks!
-> 
-> Geert Uytterhoeven (5):
->    m68k/io: Add missing ioremap define guards, fix typo
->    net: mac8390: Use standard memcpy_{from,to}io()
->    Input: hilkbd - Add casts to HP9000/300 I/O accessors
->    m68k/io: Move mem*io define guards to <asm/kmap.h>
->    m68k/io: Switch mmu variant to <asm-generic/io.h>
-> 
->   arch/m68k/include/asm/io.h          |  7 +++++
->   arch/m68k/include/asm/io_mm.h       | 42 +++--------------------------
->   arch/m68k/include/asm/io_no.h       | 12 ---------
->   arch/m68k/include/asm/kmap.h        |  9 ++++++-
->   drivers/input/keyboard/hilkbd.c     |  4 +--
->   drivers/net/ethernet/8390/mac8390.c | 20 +++++++-------
->   6 files changed, 30 insertions(+), 64 deletions(-)
-> 
+> >
+> >> url:    https://github.com/0day-ci/linux/commits/Baoquan-He/resource-Use-list_head-to-link-sibling-resource/20180704-121402
+> >> config: mips-rb532_defconfig (attached as .config)
+> >> compiler: mipsel-linux-gnu-gcc (Debian 7.2.0-11) 7.2.0
+> >> reproduce:
+> >>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+> >>         chmod +x ~/bin/make.cross
+> >>         # save the attached .config to linux build tree
+> >>         GCC_VERSION=7.2.0 make.cross ARCH=mips 
+> >
+> >I did find a old one which is for the old version 5 post.
+> >
+> >[bhe@linux]$ git remote -v
+> >0day-ci	https://github.com/0day-ci/linux.git (fetch)
+> >0day-ci	https://github.com/0day-ci/linux.git (push)
+> >[bhe@dhcp-128-28 linux]$ git branch -a| grep Baoquan| grep resource
+> >  remotes/0day-ci/Baoquan-He/resource-Use-list_head-to-link-sibling-resource/20180612-113600
+> >
+> >Could you help have a look at this?
+> >
+> >Thanks
+> >Baoquan
+> >
+> >> 
+> >> All error/warnings (new ones prefixed by >>):
+> >> 
+> >> >> arch/mips/pci/pci-rc32434.c:57:11: error: initialization from incompatible pointer type [-Werror=incompatible-pointer-types]
+> >>      .child = &rc32434_res_pci_mem2
+> >>               ^
+> >>    arch/mips/pci/pci-rc32434.c:57:11: note: (near initialization for 'rc32434_res_pci_mem1.child.next')
+> >> >> arch/mips/pci/pci-rc32434.c:51:47: warning: missing braces around initializer [-Wmissing-braces]
+> >>     static struct resource rc32434_res_pci_mem1 = {
+> >>                                                   ^
+> >>    arch/mips/pci/pci-rc32434.c:60:47: warning: missing braces around initializer [-Wmissing-braces]
+> >>     static struct resource rc32434_res_pci_mem2 = {
+> >>                                                   ^
+> >>    cc1: some warnings being treated as errors
+> >> 
+> >> vim +57 arch/mips/pci/pci-rc32434.c
+> >> 
+> >> 73b4390f Ralf Baechle 2008-07-16  50  
+> >> 73b4390f Ralf Baechle 2008-07-16 @51  static struct resource rc32434_res_pci_mem1 = {
+> >> 73b4390f Ralf Baechle 2008-07-16  52  	.name = "PCI MEM1",
+> >> 73b4390f Ralf Baechle 2008-07-16  53  	.start = 0x50000000,
+> >> 73b4390f Ralf Baechle 2008-07-16  54  	.end = 0x5FFFFFFF,
+> >> 73b4390f Ralf Baechle 2008-07-16  55  	.flags = IORESOURCE_MEM,
+> >> 73b4390f Ralf Baechle 2008-07-16  56  	.sibling = NULL,
+> >> 73b4390f Ralf Baechle 2008-07-16 @57  	.child = &rc32434_res_pci_mem2
+> >> 73b4390f Ralf Baechle 2008-07-16  58  };
+> >> 73b4390f Ralf Baechle 2008-07-16  59  
+> >> 
+> >> :::::: The code at line 57 was first introduced by commit
+> >> :::::: 73b4390fb23456964201abda79f1210fe337d01a [MIPS] Routerboard 532: Support for base system
+> >> 
+> >> :::::: TO: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+> >> :::::: CC: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+> >> 
+> >> ---
+> >> 0-DAY kernel test infrastructure                Open Source Technology Center
+> >> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> >
+> >
+> >_______________________________________________
+> >kbuild-all mailing list
+> >kbuild-all-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+> >https://lists.01.org/mailman/listinfo/kbuild-all

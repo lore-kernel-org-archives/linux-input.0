@@ -1,97 +1,88 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 00/10] Split i2c_lock_adapter into i2c_lock_root and
- i2c_lock_segment
-Date: Fri, 13 Jul 2018 00:11:37 +0200
-Message-ID: <20180712221137.i3osg6viuz4lwvnd@ninjato>
-References: <20180620051803.12206-1-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qm72oajvd5nwh2m6"
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v4 01/12] input: add MT_TOOL_DIAL
+Date: Fri, 13 Jul 2018 16:13:43 +0200
+Message-ID: <20180713141354.7286-2-benjamin.tissoires@redhat.com>
+References: <20180713141354.7286-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180620051803.12206-1-peda@axentia.se>
+In-Reply-To: <20180713141354.7286-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Crt Mori <cmo@melexis.com>
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mario.Limonciello@dell.com, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
+A dial is a tool you place on a multitouch surface which reports its
+orientation or a relative angle of rotation when rotating its knob.
 
---qm72oajvd5nwh2m6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Some examples are the Dell Totem (on the Canvas 27"), the Microsoft Dial,
+or the Griffin Powermate, though the later can't be put on a touch surface.
 
-On Wed, Jun 20, 2018 at 07:17:53AM +0200, Peter Rosin wrote:
-> Hi!
->=20
-> With the introduction of mux-locked I2C muxes, the concept of
-> locking only a segment of the I2C adapter tree was added. At the
-> time, I did not want to cause a lot of extra churn, so left most
-> users of i2c_lock_adapter alone and apparently didn't think enough
-> about it; they simply continued to lock the whole adapter tree.
-> However, i2c_lock_adapter is in fact wrong for almost every caller
-> (there is naturally an exception) that is itself not a driver for
-> a root adapter. What normal drivers generally want is to only
-> lock the segment of the adapter tree that their device sits on.
->=20
-> In fact, if a device sits behind a mux-locked I2C mux, and its
-> driver calls i2c_lock_adapter followed by an unlocked I2C transfer,
-> things will deadlock (since even a mux-locked I2C adapter will lock
-> its parent at some point). If the device is not sitting behind a
-> mux-locked I2C mux (i.e. either directly on the root adapter or
-> behind a (chain of) parent-locked I2C muxes) the root/segment
-> distinction is of no consequence; the root adapter is locked either
-> way.
->=20
-> Mux-locked I2C muxes are probably not that common, and putting any
-> of the affected devices behind one is probably even rarer, which
-> is why we have not seen any deadlocks. At least not that I know
-> of...
->=20
-> Since silently changing the semantics of i2c_lock_adapter might
-> be quite a surprise, especially for out-of-tree users, this series
-> instead removes the function and forces all users to explicitly
-> name I2C_LOCK_SEGMENT or I2C_LOCK_ROOT_ADAPTER in a call to
-> i2c_lock_bus, as suggested by Wolfram. Yes, users will be a teensy
-> bit more wordy, but open-coding I2C locking from random drivers
-> should be avoided, so it's perhaps a good thing if it doesn't look
-> too neat?
->=20
-> I suggest that Wolfram takes this series through the I2C tree and
-> creates an immutable branch for the other subsystems. The series
-> is based on v4.18-r1.
->=20
-> I do not have *any* of the affected devices, and have thus only
-> done build tests.
->=20
-> Cheers,
-> Peter
+We give some extra space to account for other types of fingers if we need
+(MT_TOOL_THUMB)
 
-Applied to for-next, thanks! And thanks for all the acks. An immutable
-branch can be found here:
+Slightly change the documentation to not make it mandatory to update each
+MT_TOOL we add.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/precise-loc=
-king-names_immutable
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
+---
 
---qm72oajvd5nwh2m6
-Content-Type: application/pgp-signature; name="signature.asc"
+changes in v4:
+- replace the values with hex
+- make MT_TOOL_MAX > MT_TOOL_DIAL
 
------BEGIN PGP SIGNATURE-----
+changes in v3:
+- re-insert the change in include/uapi/linux/input.h
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltH0hkACgkQFA3kzBSg
-KbZDYg//UGVwnuphbOMKhmwxqf3WAAQyKPV28EuVpX8NIevvAgiCFBuCKmH1aZjk
-1z+4AYTgfiefQoJ1hZKoIRv0AGAmQ/jwNtJYhQdDfrVLx/BMUouL9JtZubWosatD
-gIcaSKx1fGsvxgYPTfBk5sEnLwlG52g5lWJnSXlMeA5wyKzBBS/zpa6eHGyBiMq6
-2zUHEJa09BydQDfZ3yXNY3KU3Y/tlaK2sexiM6y2tt4uzoqV4eExKO1jvVwVZhvK
-HSK3RSnWaTQzeim8OVmyWUj/AgnH6rTRvGw9/LijXmKmBdTvqAvqPJpIQRIaklFs
-bHyHMB/jcw2QJw5N/6g1myg/8unfkP7Iq0MkA7/K2SckdAdSYGbAudDqhWwOBqPK
-p7RWS9Si5LqR2d7hFgzXNZDKdmERzG24/JQOi5vw4IOdaXTZ5FBzPg1V0xHpf7uy
-dIzmaN4TeNdS0CFvr0c4gyex+7TD6ejC2CqgtTnX5AGiXqONRDlg/K+K66tMGZyB
-n6TzknvGLgWreNKZfnLjs/ZoT0J9joUj2v9DEhGUT4pJIN+j6MjKGwNKvrwfRpmb
-V2uL5mNSEJdc5+IpIngTuHLnjtQnbqbq3UlIkEc1iR/iuKZqrNHCUJib9fHErV81
-25/XJBC+188GB/Ifm1sMRf40z7GMmpOkpvs70pT8eZCqBtRvNvM=
-=3VaW
------END PGP SIGNATURE-----
+new in v2 (extracted from previous series in its own patch)
+---
+ Documentation/input/multi-touch-protocol.rst | 12 ++++++------
+ include/uapi/linux/input.h                   |  9 +++++----
+ 2 files changed, 11 insertions(+), 10 deletions(-)
 
---qm72oajvd5nwh2m6--
+diff --git a/Documentation/input/multi-touch-protocol.rst b/Documentation/input/multi-touch-protocol.rst
+index b51751a0cd5d..6be70342e709 100644
+--- a/Documentation/input/multi-touch-protocol.rst
++++ b/Documentation/input/multi-touch-protocol.rst
+@@ -310,12 +310,12 @@ ABS_MT_TOOL_Y
+ ABS_MT_TOOL_TYPE
+     The type of approaching tool. A lot of kernel drivers cannot distinguish
+     between different tool types, such as a finger or a pen. In such cases, the
+-    event should be omitted. The protocol currently supports MT_TOOL_FINGER,
+-    MT_TOOL_PEN, and MT_TOOL_PALM [#f2]_. For type B devices, this event is
+-    handled by input core; drivers should instead use
+-    input_mt_report_slot_state(). A contact's ABS_MT_TOOL_TYPE may change over
+-    time while still touching the device, because the firmware may not be able
+-    to determine which tool is being used when it first appears.
++    event should be omitted. The protocol currently mainly supports
++    MT_TOOL_FINGER, MT_TOOL_PEN, and MT_TOOL_PALM [#f2]_.
++    For type B devices, this event is handled by input core; drivers should
++    instead use input_mt_report_slot_state(). A contact's ABS_MT_TOOL_TYPE may
++    change over time while still touching the device, because the firmware may
++    not be able to determine which tool is being used when it first appears.
+ 
+ ABS_MT_BLOB_ID
+     The BLOB_ID groups several packets together into one arbitrarily shaped
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index 7288a7c573cc..fb78f6f500f3 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -270,10 +270,11 @@ struct input_mask {
+ /*
+  * MT_TOOL types
+  */
+-#define MT_TOOL_FINGER		0
+-#define MT_TOOL_PEN		1
+-#define MT_TOOL_PALM		2
+-#define MT_TOOL_MAX		2
++#define MT_TOOL_FINGER		0x00
++#define MT_TOOL_PEN		0x01
++#define MT_TOOL_PALM		0x02
++#define MT_TOOL_DIAL		0x0a
++#define MT_TOOL_MAX		0x0f
+ 
+ /*
+  * Values describing the status of a force-feedback effect
+-- 
+2.14.3

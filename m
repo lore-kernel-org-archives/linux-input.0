@@ -1,44 +1,43 @@
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH] Input: pxrc - fix leak of usb_device
-Date: Fri, 13 Jul 2018 23:07:57 +0300
-Message-ID: <1531512477-31981-1-git-send-email-khoroshilov@ispras.ru>
+From: Teika Kazura <teika@gmx.com>
+Subject: Re: [PATCH] Input: synaptics - Lenovo ThinkPad T25 and T480
+ devices should use RMI
+Date: Sat, 14 Jul 2018 15:35:01 +0900 (JST)
+Message-ID: <20180714.153501.1002564188152837590.teika@gmx.com>
+References: <20180707051913.24035-1-kitsunyan@inbox.ru>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180707051913.24035-1-kitsunyan@inbox.ru>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+To: kitsunyan@inbox.ru
+Cc: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-pxrc_probe() calls usb_get_dev(), but there is no usb_put_dev()
-anywhere in the driver.
-
-The patch adds one to error handling code and to pxrc_disconnect().
-
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
----
- drivers/input/joystick/pxrc.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
-index 07a0dbd3ced2..0a31de63ac8e 100644
---- a/drivers/input/joystick/pxrc.c
-+++ b/drivers/input/joystick/pxrc.c
-@@ -221,6 +221,7 @@ static int pxrc_probe(struct usb_interface *intf,
- 	usb_free_urb(pxrc->urb);
- 
- error:
-+	usb_put_dev(pxrc->udev);
- 	return retval;
- }
- 
-@@ -229,6 +230,7 @@ static void pxrc_disconnect(struct usb_interface *intf)
- 	struct pxrc *pxrc = usb_get_intfdata(intf);
- 
- 	usb_free_urb(pxrc->urb);
-+	usb_put_dev(pxrc->udev);
- 	usb_set_intfdata(intf, NULL);
- }
- 
--- 
-2.7.4
+SGksIGtpdHN1bnlhbi4gKNCf0YDQuNCy0LXRgiwgcGVyaGFwcz8pIFRoYW5rcyBmb3IgeW91IHBh
+dGNoLCBidXQgdGhlICJzaWduZWQtb2ZmIiB0YWcgbmVlZHMgeW91ciByZWFsIG5hbWUuIFlvdSBj
+YW4gcmUtc3VibWl0IHlvdXIgcGF0Y2ggY29uZm9ybWluZyB0byB0aGF0IHJ1bGUuIE9yIGlmIHlv
+dSdyZSBvaywgdGhlIGtlcm5lbCBtYWludGFpbmVyIGNhbiBpbnN0ZWFkIHNpZ24gaXQgb2ZmLCBh
+ZGRpbmcgInJlcG9ydGVkLWJ5OiBraXRzdW55YW4gPGtpdHN1bnlhbkBpbmJveC5ydT4iLiAoSSdt
+IG5vdCBzdXJlIGFib3V0IHRoZSBsYXR0ZXIgY2FzZS4gU29ycnkgaWYgSSdtIHdyb25nLikNCg0K
+WW91IGNhbiBmaW5kIHRoZSBpbnN0cnVjdGlvbiBpbiA8a2VybmVsbCBzb3VyY2UgdHJlZT4vRG9j
+dW1lbnRhdGlvbi9wcm9jZXNzL3N1Ym1pdHRpbmctcGF0Y2hlcy5yc3QgLg0KDQpCZXN0IHJlZ2Fy
+ZHMgLyDQn9C+0LrQsCwgDQpUZWlrYSAoVGVpa2Ega2F6dXJhKQ0KDQoNCkZyb206IGtpdHN1bnlh
+biA8a2l0c3VueWFuQGluYm94LnJ1Pg0KU3ViamVjdDogW1BBVENIXSBJbnB1dDogc3luYXB0aWNz
+IC0gTGVub3ZvIFRoaW5rUGFkIFQyNSBhbmQgVDQ4MCBkZXZpY2VzIHNob3VsZCB1c2UgUk1JDQpE
+YXRlOiBTYXQsICA3IEp1bCAyMDE4IDA4OjE5OjEyICswMzAwDQoNCj4gVGhlIHRvdWNocGFkcyBv
+biBib3RoIFQyNSBhbmQgVDQ4MCBhcmUgYWNjZXNzaWJsZSBvdmVyIFNNQlVTL1JNSS4NCj4gDQo+
+IFNpZ25lZC1vZmYtYnk6IGtpdHN1bnlhbiA8a2l0c3VueWFuQGluYm94LnJ1Pg0KPiAtLS0NCj4g
+IGRyaXZlcnMvaW5wdXQvbW91c2Uvc3luYXB0aWNzLmMgfCAyICsrDQo+ICAxIGZpbGUgY2hhbmdl
+ZCwgMiBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9tb3Vz
+ZS9zeW5hcHRpY3MuYyBiL2RyaXZlcnMvaW5wdXQvbW91c2Uvc3luYXB0aWNzLmMNCj4gaW5kZXgg
+NTVkMzM1MDBkNTVlLi5iZTkzNGEwODI0MjQgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQv
+bW91c2Uvc3luYXB0aWNzLmMNCj4gKysrIGIvZHJpdmVycy9pbnB1dC9tb3VzZS9zeW5hcHRpY3Mu
+Yw0KPiBAQCAtMTc1LDcgKzE3NSw5IEBAIHN0YXRpYyBjb25zdCBjaGFyICogY29uc3Qgc21idXNf
+cG5wX2lkc1tdID0gew0KPiAgCSJMRU4wMDcxIiwgLyogVDQ4MCAqLw0KPiAgCSJMRU4wMDcyIiwg
+LyogWDEgQ2FyYm9uIEdlbiA1ICgyMDE3KSAtIEVsYW4vQUxQUyB0cmFja3BvaW50ICovDQo+ICAJ
+IkxFTjAwNzMiLCAvKiBYMSBDYXJib24gRzUgKEVsYW50ZWNoKSAqLw0KPiArCSJMRU4wMDhlIiwg
+LyogVDI1ICovDQo+ICAJIkxFTjAwOTIiLCAvKiBYMSBDYXJib24gNiAqLw0KPiArCSJMRU4wMDkz
+IiwgLyogVDQ4MCAqLw0KPiAgCSJMRU4wMDk2IiwgLyogWDI4MCAqLw0KPiAgCSJMRU4wMDk3Iiwg
+LyogWDI4MCAtPiBBTFBTIHRyYWNrcG9pbnQgKi8NCj4gIAkiTEVOMjAwZiIsIC8qIFQ0NTBzICov
+DQo+IC0tIA0KPiAyLjE4LjANCg==

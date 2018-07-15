@@ -1,61 +1,67 @@
-From: kitsunyan <kitsunyan@inbox.ru>
-Subject: Re: [PATCH] Input: synaptics - Lenovo ThinkPad T25 and T480 devices
- should use RMI
-Date: Sat, 14 Jul 2018 16:20:23 +0300
-Message-ID: <16d5f040-cb2d-9984-53a4-5ae127bf7d6f@inbox.ru>
-References: <20180707051913.24035-1-kitsunyan@inbox.ru>
- <20180714.153501.1002564188152837590.teika@gmx.com>
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Subject: Re: [PATCH] Input: pxrc - fix leak of usb_device
+Date: Sun, 15 Jul 2018 09:42:25 +0200
+Message-ID: <20180715074225.GB15123@gmail.com>
+References: <1531512477-31981-1-git-send-email-khoroshilov@ispras.ru>
+ <20180714080920.GA15123@gmail.com>
+ <20180714085109.mbhk6aybpjsbuq6l@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180714.153501.1002564188152837590.teika@gmx.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180714085109.mbhk6aybpjsbuq6l@penguin>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Teika Kazura <teika@gmx.com>
-Cc: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 List-Id: linux-input@vger.kernel.org
 
-Hi, Teika. (Yes, you are right.)
+On Sat, Jul 14, 2018 at 08:51:09AM +0000, Dmitry Torokhov wrote:
+> On Sat, Jul 14, 2018 at 10:09:20AM +0200, Marcus Folkesson wrote:
+> > Hi Alexey,
+> > 
+> > Good catch!
+> > 
+> > On Fri, Jul 13, 2018 at 11:07:57PM +0300, Alexey Khoroshilov wrote:
+> > > pxrc_probe() calls usb_get_dev(), but there is no usb_put_dev()
+> > > anywhere in the driver.
+> > > 
+> > > The patch adds one to error handling code and to pxrc_disconnect().
+> > > 
+> > > Found by Linux Driver Verification project (linuxtesting.org).
+> > > 
+> > > Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+> > 
+> > Reviewed-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> 
+> Hmm, the biggest question however if we need to "take" the device, as I
+> do not think interface can outlive the device, and whether we actually
+> need to store it in pxrc, as we only need it during set up, as far as I
+> can see.
 
-I should've worried about real name earlier since I already sent the patch from pseudonym. I don't mind if the patch will be authored by maintainer, replacing my sign with "reported-by". (Hope it's possible.)
+Yep, the device is only used during setup.
+I interpret the comments for usb_get_dev() as you should take a
+reference count on the device even if you only use the interface, but I
+could be wrong.
 
-Regards,
-kitsunyan
+>From usb_get_dev()::
 
-On 14/07/18 09:35, Teika Kazura wrote:
-> Hi, kitsunyan. (Привет, perhaps?) Thanks for you patch, but the "signed-off" tag needs your real name. You can re-submit your patch conforming to that rule. Or if you're ok, the kernel maintainer can instead sign it off, adding "reported-by: kitsunyan <kitsunyan@inbox.ru>". (I'm not sure about the latter case. Sorry if I'm wrong.)
->
-> You can find the instruction in <kernell source tree>/Documentation/process/submitting-patches.rst .
->
-> Best regards / Пока, 
-> Teika (Teika kazura)
->
->
-> From: kitsunyan <kitsunyan@inbox.ru>
-> Subject: [PATCH] Input: synaptics - Lenovo ThinkPad T25 and T480 devices should use RMI
-> Date: Sat,  7 Jul 2018 08:19:12 +0300
->
->> The touchpads on both T25 and T480 are accessible over SMBUS/RMI.
->>
->> Signed-off-by: kitsunyan <kitsunyan@inbox.ru>
->> ---
->>  drivers/input/mouse/synaptics.c | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
->> index 55d33500d55e..be934a082424 100644
->> --- a/drivers/input/mouse/synaptics.c
->> +++ b/drivers/input/mouse/synaptics.c
->> @@ -175,7 +175,9 @@ static const char * const smbus_pnp_ids[] = {
->>  	"LEN0071", /* T480 */
->>  	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
->>  	"LEN0073", /* X1 Carbon G5 (Elantech) */
->> +	"LEN008e", /* T25 */
->>  	"LEN0092", /* X1 Carbon 6 */
->> +	"LEN0093", /* T480 */
->>  	"LEN0096", /* X280 */
->>  	"LEN0097", /* X280 -> ALPS trackpoint */
->>  	"LEN200f", /* T450s */
->> -- 
->> 2.18.0
+	 * usb_get_dev - increments the reference count of the usb device structure
+	 * @dev: the device being referenced
+	 *
+	 * Each live reference to a device should be refcounted.
+	 *
+	 * Drivers for USB interfaces should normally record such references in
+	 * their probe() methods, when they bind to an interface, and release
+	 * them by calling usb_put_dev(), in their disconnect() methods.
+
+I can fix the driver to not take the device if that is what we want.
+If not Alexey want to fix it of course, it is his catch :-)
+
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+
+Best regards
+Marcus Folkesson

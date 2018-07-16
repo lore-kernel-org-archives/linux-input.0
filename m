@@ -1,45 +1,63 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - Add antoher ACPI ID for Lenovo Ideapad
- 330-15AST
-Date: Mon, 16 Jul 2018 12:20:05 +0000
-Message-ID: <20180716122005.5c5p3sitbfilt4hs@penguin>
-References: <1531740389-4040-1-git-send-email-kt.liao@emc.com.tw>
+Subject: Re: [PATCH 3/5] Input: hilkbd - Add casts to HP9000/300 I/O accessors
+Date: Mon, 16 Jul 2018 12:21:25 +0000
+Message-ID: <20180716122125.m5ycmj7xh2mmufnf@penguin>
+References: <20180709093040.23597-1-geert@linux-m68k.org>
+ <20180709093040.23597-4-geert@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1531740389-4040-1-git-send-email-kt.liao@emc.com.tw>
+In-Reply-To: <20180709093040.23597-4-geert@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: KT Liao <kt.liao@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ulrik.debie-os@e2big.org, anantshende@gmail.com
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Ungerer <gerg@linux-m68k.org>, Helge Deller <deller@gmx.de>, linux-m68k@lists.linux-m68k.org, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 16, 2018 at 07:26:29PM +0800, KT Liao wrote:
-> Add ELAN0622 in ACPI mapping table to support Ideapad 330-15AST ELAN touchpad
+On Mon, Jul 09, 2018 at 11:30:38AM +0200, Geert Uytterhoeven wrote:
+> Internally, hilkbd uses "unsigned long" I/O addresses everywhere.
+> This works fine as:
+>   - On PA-RISC, hilkbd uses the gsc_{read,write}b() I/O accessors, which
+>     take "unsigned long" addresses,
+>   - On m68k, hilkbd uses {read,write}b(), which are currently mapped to
+>     {in,out}_8(), and convert the passed addresses to pointers
+>     internally.
 > 
-> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-> Reported-by: Anant Shende <anantshende@gmail.com>
+> However, the asm-generic version of {read,write}b() does not perform
+> such conversions, and requires passing pointers instead.  Hence add
+> casts to prepare for switching m68k to the asm-generic version.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Applied, thank you.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 > ---
->  drivers/input/mouse/elan_i2c_core.c | 1 +
->  1 file changed, 1 insertion(+)
+> This is a dependency for "m68k/io: Switch mmu variant to
+> <asm-generic/io.h>".
 > 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 2690a4b..f7e75f0 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -1344,6 +1344,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
->  	{ "ELAN060B", 0 },
->  	{ "ELAN060C", 0 },
->  	{ "ELAN0611", 0 },
-> +	{ "ELAN0622", 0 },
->  	{ "ELAN1000", 0 },
->  	{ }
->  };
+> v2:
+>   - No changes.
+> ---
+>  drivers/input/keyboard/hilkbd.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/hilkbd.c b/drivers/input/keyboard/hilkbd.c
+> index a4e404aaf64bdb82..5c7afdec192c139b 100644
+> --- a/drivers/input/keyboard/hilkbd.c
+> +++ b/drivers/input/keyboard/hilkbd.c
+> @@ -57,8 +57,8 @@ MODULE_LICENSE("GPL v2");
+>   #define HIL_DATA		0x1
+>   #define HIL_CMD		0x3
+>   #define HIL_IRQ		2
+> - #define hil_readb(p)		readb(p)
+> - #define hil_writeb(v,p)	writeb((v),(p))
+> + #define hil_readb(p)		readb((const volatile void __iomem *)(p))
+> + #define hil_writeb(v, p)	writeb((v), (volatile void __iomem *)(p))
+>  
+>  #else
+>  #error "HIL is not supported on this platform"
 > -- 
-> 2.7.4
+> 2.17.1
 > 
 
 -- 

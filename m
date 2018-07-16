@@ -1,122 +1,192 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH] input: pxrc - do not store USB device in private struct
-Date: Mon, 16 Jul 2018 16:40:14 +0200
-Message-ID: <20180716144014.6331-1-marcus.folkesson@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/8] dt-bindings: mfd: document stpmu1 pmic
+Date: Mon, 16 Jul 2018 16:14:27 -0600
+Message-ID: <20180716221427.GA25139@rob-hp-laptop>
+References: <1530803657-17684-1-git-send-email-p.paillet@st.com>
+ <1530803657-17684-2-git-send-email-p.paillet@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1530803657-17684-2-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marcus Folkesson <marcus.folkesson@gmail.com>, Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-The USB device is only needed during setup, so put it back after
-initialization and do not store it in our private struct.
+On Thu, Jul 05, 2018 at 03:14:22PM +0000, Pascal PAILLET-LME wrote:
+> From: pascal paillet <p.paillet@st.com>
+> 
+> stpmu1 is a pmic from STMicroelectronics. The stpmu1 integrates 10
+> regulators and 3 switches with various capabilities.
+> 
+> Signed-off-by: pascal paillet <p.paillet@st.com>
+> ---
+>  .../devicetree/bindings/mfd/st,stpmu1.txt          | 138 +++++++++++++++++++++
+>  1 file changed, 138 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmu1.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/st,stpmu1.txt b/Documentation/devicetree/bindings/mfd/st,stpmu1.txt
+> new file mode 100644
+> index 0000000..53bdab4
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/st,stpmu1.txt
+> @@ -0,0 +1,138 @@
+> +* STMicroelectronics STPMU1 Power Management IC
+> +
+> +Required parent device properties:
+> +- compatible: "st,stpmu1"
+> +- reg: the I2C slave address for the stpmu1 chip
+> +- interrupts-extended: interrupt lines to use: second irq is for wakeup.
+> +- #interrupt-cells: should be 2.
+> +- interrupt-controller: describes the STPMU1 as an interrupt
+> +  controller (has its own domain). interrupt number are the following:
+> +	/* Interrupt Register 1 (0x50 for latch) */
+> +	IT_SWOUT_R=0
+> +	IT_SWOUT_F=1
+> +	IT_VBUS_OTG_R=2
+> +	IT_VBUS_OTG_F=3
+> +	IT_WAKEUP_R=4
+> +	IT_WAKEUP_F=5
+> +	IT_PONKEY_R=6
+> +	IT_PONKEY_F=7
+> +	/* Interrupt Register 2 (0x51 for latch) */
+> +	IT_OVP_BOOST=8
+> +	IT_OCP_BOOST=9
+> +	IT_OCP_SWOUT=10
+> +	IT_OCP_OTG=11
+> +	IT_CURLIM_BUCK4=12
+> +	IT_CURLIM_BUCK3=13
+> +	IT_CURLIM_BUCK2=14
+> +	IT_CURLIM_BUCK1=15
+> +	/* Interrupt Register 3 (0x52 for latch) */
+> +	IT_SHORT_SWOUT=16
+> +	IT_SHORT_SWOTG=17
+> +	IT_CURLIM_LDO6=18
+> +	IT_CURLIM_LDO5=19
+> +	IT_CURLIM_LDO4=20
+> +	IT_CURLIM_LDO3=21
+> +	IT_CURLIM_LDO2=22
+> +	IT_CURLIM_LDO1=23
+> +	/* Interrupt Register 3 (0x52 for latch) */
+> +	IT_SWIN_R=24
+> +	IT_SWIN_F=25
+> +	IT_RESERVED_1=26
+> +	IT_RESERVED_2=27
+> +	IT_VINLOW_R=28
+> +	IT_VINLOW_F=29
+> +	IT_TWARN_R=30
+> +	IT_TWARN_F=31
+> +
+> +Optional parent device properties:
+> +- st,main_control_register:
 
-Also, the USB device is a parent of USB interface so our driver
-model rules ensure that USB device should not disappear while
-interface device is still there.
-So not keep a refcount on the device is safe.
+s/_/-/
 
-Reported-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- drivers/input/joystick/pxrc.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+And elsewhere...
 
-diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
-index 07a0dbd3ced2..46a7acb747bf 100644
---- a/drivers/input/joystick/pxrc.c
-+++ b/drivers/input/joystick/pxrc.c
-@@ -27,7 +27,6 @@ MODULE_DEVICE_TABLE(usb, pxrc_table);
- 
- struct pxrc {
- 	struct input_dev	*input;
--	struct usb_device	*udev;
- 	struct usb_interface	*intf;
- 	struct urb		*urb;
- 	struct mutex		pm_mutex;
-@@ -120,7 +119,7 @@ static void pxrc_close(struct input_dev *input)
- 	mutex_unlock(&pxrc->pm_mutex);
- }
- 
--static int pxrc_usb_init(struct pxrc *pxrc)
-+static int pxrc_usb_init(struct pxrc *pxrc, struct usb_device *udev)
- {
- 	struct usb_endpoint_descriptor *epirq;
- 	unsigned int pipe;
-@@ -145,7 +144,7 @@ static int pxrc_usb_init(struct pxrc *pxrc)
- 	}
- 
- 	usb_set_intfdata(pxrc->intf, pxrc);
--	usb_make_path(pxrc->udev, pxrc->phys, sizeof(pxrc->phys));
-+	usb_make_path(udev, pxrc->phys, sizeof(pxrc->phys));
- 	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
- 
- 	pxrc->urb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -154,8 +153,8 @@ static int pxrc_usb_init(struct pxrc *pxrc)
- 		goto error;
- 	}
- 
--	pipe = usb_rcvintpipe(pxrc->udev, pxrc->epaddr),
--	usb_fill_int_urb(pxrc->urb, pxrc->udev, pipe, pxrc->data, pxrc->bsize,
-+	pipe = usb_rcvintpipe(udev, pxrc->epaddr),
-+	usb_fill_int_urb(pxrc->urb, udev, pipe, pxrc->data, pxrc->bsize,
- 						pxrc_usb_irq, pxrc, 1);
- 
- error:
-@@ -164,7 +163,7 @@ static int pxrc_usb_init(struct pxrc *pxrc)
- 
- }
- 
--static int pxrc_input_init(struct pxrc *pxrc)
-+static int pxrc_input_init(struct pxrc *pxrc, struct usb_device *udev)
- {
- 	pxrc->input = devm_input_allocate_device(&pxrc->intf->dev);
- 	if (pxrc->input == NULL) {
-@@ -174,7 +173,7 @@ static int pxrc_input_init(struct pxrc *pxrc)
- 
- 	pxrc->input->name = "PXRC Flight Controller Adapter";
- 	pxrc->input->phys = pxrc->phys;
--	usb_to_input_id(pxrc->udev, &pxrc->input->id);
-+	usb_to_input_id(udev, &pxrc->input->id);
- 
- 	pxrc->input->open = pxrc_open;
- 	pxrc->input->close = pxrc_close;
-@@ -197,6 +196,7 @@ static int pxrc_probe(struct usb_interface *intf,
- 		      const struct usb_device_id *id)
- {
- 	struct pxrc *pxrc;
-+	struct usb_device *udev;
- 	int retval;
- 
- 	pxrc = devm_kzalloc(&intf->dev, sizeof(*pxrc), GFP_KERNEL);
-@@ -204,23 +204,25 @@ static int pxrc_probe(struct usb_interface *intf,
- 		return -ENOMEM;
- 
- 	mutex_init(&pxrc->pm_mutex);
--	pxrc->udev = usb_get_dev(interface_to_usbdev(intf));
-+	udev = usb_get_dev(interface_to_usbdev(intf));
- 	pxrc->intf = intf;
- 
--	retval = pxrc_usb_init(pxrc);
-+	retval = pxrc_usb_init(pxrc, udev);
- 	if (retval)
- 		goto error;
- 
--	retval = pxrc_input_init(pxrc);
-+	retval = pxrc_input_init(pxrc, udev);
- 	if (retval)
- 		goto err_free_urb;
- 
-+	usb_put_dev(udev);
- 	return 0;
- 
- err_free_urb:
- 	usb_free_urb(pxrc->urb);
- 
- error:
-+	usb_put_dev(udev);
- 	return retval;
- }
- 
--- 
-2.18.0
+> +	-bit 1: Power cycling will be performed on turn OFF condition
+> +	-bit 2: PWRCTRL is functional
+> +	-bit 3: PWRCTRL active high
+> +- st,pads_pull_register:
+> +	-bit 1: WAKEUP pull down is not active
+> +	-bit 2: PWRCTRL pull up is active
+> +	-bit 3: PWRCTRL pull down is active
+> +	-bit 4: WAKEUP detector is disabled
+> +- st,vin_control_register:
+> +	-bit 0: VINLOW monitoring is enabled
+> +	-bit [1...3]: VINLOW rising threshold
+> +		000 VINOK_f + 50mV
+> +		001 VINOK_f + 100mV
+> +		010 VINOK_f + 150mV
+> +		011 VINOK_f + 200mV
+> +		100 VINOK_f + 250mV
+> +		101 VINOK_f + 300mV
+> +		110 VINOK_f + 350mV
+> +		111 VINOK_f + 400mV
+> +	-bit [4...5]: VINLOW hyst
+> +		00 100mV
+> +		01 200mV
+> +		10 300mV
+> +		11 400mV
+> +	-bit 6: SW_OUT detector is disabled
+> +	-bit 7: SW_IN detector is enabled.
+> +- st,usb_control_register:
+> +	-bit 3: SW_OUT current limit
+> +		0: 600mA
+> +		1: 1.1A
+> +	-bit 4: VBUS_OTG discharge is enabled
+> +	-bit 5: SW_OUT discharge is enabled
+> +	-bit 6: VBUS_OTG detection is enabled
+> +	-bit 7: BOOST_OVP is disabled
+
+Just dumping register values into DT is not the greatest design.
+
+> +
+> +
+> +stpmu1 consists is a varied group of sub-devices:
+> +
+> +Device			 Description
+> +------			------------
+> +stpmu1-onkey		: On key
+> +stpmu1-regulators	: Regulators
+> +stpmu1-wdt		: Watchdog
+
+These should match the node name below.
+
+> +
+> +each sub-device bindings is be described in associated driver
+> +documentation section.
+> +
+> +Example:
+> +
+> +pmic: stpmu1@33 {
+> +	compatible = "st,stpmu1";
+> +	reg = <0x33>;
+> +	interrupts = <0 2>;
+> +	interrupts-extended = <&intc GIC_SPI 149 IRQ_TYPE_NONE>,
+> +			      <&exti 55 1>;
+> +	st,version_status = <0x10>;
+> +	st,main_control_register=<0x0c>;
+> +	interrupt-controller;
+> +	#interrupt-cells = <2>;
+> +	onkey {
+> +		compatible = "st,stpmu1-onkey";
+> +		interrupt-parent = <&pmic>;
+> +		interrupts = <7 0>,<6 1>;
+
+> +		st,onkey-pwroff-enabled;
+> +		st,onkey-press-seconds = <10>;
+
+IIRC, we have some standard properties for these.
+
+> +	};
+> +
+> +	watchdog {
+> +		compatible = "st,stpmu1-wdt";
+> +	};
+> +
+> +	regulators {
+> +		compatible = "st,stpmu1-regulators";
+> +
+> +		vdd_core: regulator@0 {
+
+unit-address without reg is not valid. regulator-buck1, etc. instead.
+
+> +			regulator-compatible = "buck1";
+> +			regulator-name = "vdd_core";
+> +			regulator-boot-on;
+> +			regulator-min-microvolt = <700000>;
+> +			regulator-max-microvolt = <1200000>;
+> +		};
+> +		vdd: regulator@1 {
+> +			regulator-compatible = "buck3";
+> +			regulator-name = "vdd";
+> +			regulator-min-microvolt = <3300000>;
+> +			regulator-max-microvolt = <3300000>;
+> +			regulator-boot-on;
+> +			regulator-pull-down;
+> +		};
+> +	};
+> -- 
+> 1.9.1

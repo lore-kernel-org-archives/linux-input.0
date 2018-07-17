@@ -1,49 +1,79 @@
-From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v2 2/2] Input: atmel_mxt_ts: Document optional voltage regulators
-Date: Tue, 17 Jul 2018 20:16:26 +0200
-Message-ID: <1531851386-17840-3-git-send-email-pawel.mikolaj.chmiel@gmail.com>
-References: <1531851386-17840-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH] HID: intel-ish-hid: Prevent loading of driver on Mehlow
+Date: Tue, 17 Jul 2018 13:05:57 -0700
+Message-ID: <20180717200557.39925-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1531851386-17840-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: nick@shmanahar.org
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+To: jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Document new optional voltage regulators, which can be used
-to power down/up touchscreen.
+On Mehlow Xeon-E workstation, ISH PCI device is enabled but without ISH
+firmware. Here the ISH device PCI device id was reused for some non Linux
+storage drivers. So this was not done for enabling ISH. But this has a
+undesirable side effect for Linux.
 
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Here the ISH driver will be loaded via PCI enumeration and will try to do
+reset sequence. But reset sequence will wait till timeout as there is no
+real ISH firmware is present to take action. This delay will add to boot
+time of Linux (This platform will still continue to boot after this
+timeout).
+
+To avoid this boot delay we need to prevent loading of ISH drivers on
+this platform. So we need to have hack to avoid treating this device as
+ISH on this platform. To identify this workstation, we need some runtime
+method. Luckily there are special PCI id on this workstation to
+distinguish from the client version of this platform. On client version,
+the ISH is supported using same PCI device id. So this change look for
+the presence of PCI device IDs A309 and A30A and exit.
+
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 8 ++++++++
- 1 file changed, 8 insertions(+)
+This is not a change for 4.18-rc.
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index c88919480d37..17930ecadad3 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -31,6 +31,12 @@ Optional properties for main touchpad device:
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index a2c53ea3b5ed..d6e7156c36d9 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -95,6 +95,26 @@ static int ish_init(struct ishtp_device *dev)
+ 	return 0;
+ }
  
- - reset-gpios: GPIO specifier for the touchscreen's reset pin (active low)
- 
-+- avdd-supply: Analog power supply. It powers up the analog channel block
-+    of the controller to detect the touches.
 +
-+- vdd-supply: Digital power supply. It powers up the digital block
-+    of the controller to enable i2c communication.
++static bool ish_invalid_firmware(void)
++{
++	struct pci_dev *pdev;
 +
- Example:
++	pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0xA309, NULL);
++	if (pdev) {
++		pci_dev_put(pdev);
++		return true;
++	}
++
++	pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0xA30A, NULL);
++	if (pdev) {
++		pci_dev_put(pdev);
++		return true;
++	}
++
++	return false;
++}
++
+ /**
+  * ish_probe() - PCI driver probe callback
+  * @pdev:	pci device
+@@ -110,6 +130,9 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	struct ish_hw *hw;
+ 	int	ret;
  
- 	touch@4b {
-@@ -38,4 +44,6 @@ Example:
- 		reg = <0x4b>;
- 		interrupt-parent = <&gpio>;
- 		interrupts = <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_LOW>;
-+		avdd-supply = <&atsp_reg>;
-+		vdd-supply = <&tsp_reg>;
- 	};
++	if (ish_invalid_firmware())
++		return -ENODEV;
++
+ 	/* enable pci dev */
+ 	ret = pci_enable_device(pdev);
+ 	if (ret) {
 -- 
-2.7.4
+2.17.1

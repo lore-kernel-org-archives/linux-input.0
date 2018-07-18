@@ -1,173 +1,99 @@
-From: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: atmel_mxt_ts: Add support for  optional regulators.
-Date: Wed, 18 Jul 2018 18:21:30 +0200
-Message-ID: <2353752.vfvcsHJLR6@acerlaptop>
-References: <1531851386-17840-1-git-send-email-pawel.mikolaj.chmiel@gmail.com> <1531851386-17840-2-git-send-email-pawel.mikolaj.chmiel@gmail.com> <20180717210005.GA21416@hairyalien>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v7 1/4] resource: Move reparent_resources() to
+ kernel/resource.c and make it public
+Date: Wed, 18 Jul 2018 19:36:17 +0300
+Message-ID: <CAHp75VdO88ydJQ9GHdaDUmAmzL6QHR=US6JiXZ1R_EEA-xWR1Q@mail.gmail.com>
+References: <20180718024944.577-1-bhe@redhat.com>
+ <20180718024944.577-2-bhe@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180717210005.GA21416@hairyalien>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20180718024944.577-2-bhe@redhat.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Baoquan He <bhe@redhat.com>
+Cc: Nicolas Pitre <nicolas.pitre@linaro.org>, brijesh.singh@amd.com, devicetree <devicetree@vger.kernel.org>, David Airlie <airlied@linux.ie>, linux-pci@vger.kernel.org, richard.weiyang@gmail.com, Keith Busch <keith.busch@intel.com>, Max Filippov <jcmvbkbc@gmail.com>, Paul Mackerras <paulus@samba.org>, baiyaowei@cmss.chinamobile.com, Frank Rowand <frowand.list@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Stephen Hemminger <sthemmin@microsoft.com>, linux-nvdimm@lists.01.org, Michael Ellerman <mpe@ellerman.id.au>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, linux-input <linux-input@vger.kernel.org>, Gustavo Padovan <gustavo@padovan.org>, Borislav Petkov <bp@suse.de>, Dave Young <dyoung@redhat.com>, Vivek Goyal <vgoyal@redhat.com>, Tom Lendacky <thomas.lendacky@amd.com>, Haiyang Zhang <haiyangz@microsoft.com>, Maarten
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday, July 17, 2018 10:00:05 PM CEST Nick Dyer wrote:
-> On Tue, Jul 17, 2018 at 08:16:25PM +0200, Pawe=C5=82 Chmiel wrote:
-> > This patch adds optional regulators, which can be used to power
-> > up touchscreen. After enabling regulators, we need to wait 150msec.
-> > This value is taken from official driver.
-> >=20
-> > It was tested on Samsung Galaxy i9000 (based on Samsung S5PV210 SOC).
-> >=20
-> > Signed-off-by: Pawe=C5=82 Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> > ---
-> > Changes from v1:
-> >   - Enable regulators only if reset_gpio is present.
-> >   - Switch from devm_regulator_get_optional to devm_regulator_get
-> > ---
-> >  drivers/input/touchscreen/atmel_mxt_ts.c | 46 ++++++++++++++++++++++++=
-++++++--
-> >  1 file changed, 44 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/t=
-ouchscreen/atmel_mxt_ts.c
-> > index 54fe190fd4bc..005f0fee9fc8 100644
-> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > @@ -27,6 +27,7 @@
-> >  #include <linux/interrupt.h>
-> >  #include <linux/of.h>
-> >  #include <linux/property.h>
-> > +#include <linux/regulator/consumer.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/gpio/consumer.h>
-> >  #include <linux/property.h>
-> > @@ -194,10 +195,10 @@ enum t100_type {
-> > =20
-> >  /* Delay times */
-> >  #define MXT_BACKUP_TIME		50	/* msec */
-> > -#define MXT_RESET_GPIO_TIME	20	/* msec */
-> >  #define MXT_RESET_INVALID_CHG	100	/* msec */
-> >  #define MXT_RESET_TIME		200	/* msec */
-> >  #define MXT_RESET_TIMEOUT	3000	/* msec */
-> > +#define MXT_REGULATOR_DELAY	150	/* msec */
-> >  #define MXT_CRC_TIMEOUT		1000	/* msec */
-> >  #define MXT_FW_RESET_TIME	3000	/* msec */
-> >  #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-> > @@ -310,6 +311,8 @@ struct mxt_data {
-> >  	struct t7_config t7_cfg;
-> >  	struct mxt_dbg dbg;
-> >  	struct gpio_desc *reset_gpio;
-> > +	struct regulator *vdd_reg;
-> > +	struct regulator *avdd_reg;
-> > =20
-> >  	/* Cached parameters from object table */
-> >  	u16 T5_address;
-> > @@ -3076,6 +3079,22 @@ static int mxt_probe(struct i2c_client *client, =
-const struct i2c_device_id *id)
-> >  		return error;
-> >  	}
-> > =20
-> > +	data->vdd_reg =3D devm_regulator_get(&client->dev, "vdd");
-> > +	if (IS_ERR(data->vdd_reg)) {
-> > +		error =3D PTR_ERR(data->vdd_reg);
-> > +		dev_err(&client->dev, "Failed to get vdd regulator: %d\n",
-> > +			error);
-> > +		return error;
-> > +	}
-> > +
-> > +	data->avdd_reg =3D devm_regulator_get(&client->dev, "avdd");
-> > +	if (IS_ERR(data->avdd_reg)) {
-> > +		error =3D PTR_ERR(data->avdd_reg);
-> > +		dev_err(&client->dev, "Failed to get avdd regulator: %d\n",
-> > +			error);
-> > +		return error;
-> > +	}
-> > +
-> >  	error =3D devm_request_threaded_irq(&client->dev, client->irq,
-> >  					  NULL, mxt_interrupt, IRQF_ONESHOT,
-> >  					  client->name, data);
-> > @@ -3087,7 +3106,26 @@ static int mxt_probe(struct i2c_client *client, =
-const struct i2c_device_id *id)
-> >  	disable_irq(client->irq);
-> > =20
-> >  	if (data->reset_gpio) {
-> > -		msleep(MXT_RESET_GPIO_TIME);
-> > +		error =3D regulator_enable(data->vdd_reg);
-> > +		if (error) {
-> > +			dev_err(&client->dev, "Failed to enable vdd regulator: %d\n",
-> > +				error);
-> > +			return error;
-> > +		}
-> > +
-> > +		error =3D regulator_enable(data->avdd_reg);
-> > +		if (error) {
-> > +			dev_err(&client->dev, "Failed to enable avdd regulator: %d\n",
-> > +				error);
-> > +			return error;
-> > +		}
-> > +
-> > +		/*
-> > +		 * According to maXTouch power sequencing specification, RESET line
-> > +		 * must be kept low until some time after regulators come up to
-> > +		 * voltage
-> > +		 */
-> > +		msleep(MXT_REGULATOR_DELAY);
-> >  		gpiod_set_value(data->reset_gpio, 1);
-> >  		msleep(MXT_RESET_INVALID_CHG);
->=20
-> Hi Pawel-
->=20
-> I see you've borrowed some of the logic from the patch I wrote a while
-> back (see https://github.com/ndyer/linux/commit/8e9687e41ed062 )
-Actually, i was looking at https://github.com/atmel-maxtouch/linux/blob/max=
-touch-v3.14/drivers/input/touchscreen/atmel_mxt_ts.c (and didn't saw Your p=
-atch till now).
-Are You going to submit it? (it has more functionalities - for example susp=
-end mode read from device tree).
->=20
-> The correct behaviour according to Atmel should be:
->=20
-> * Make RESET zero
-> * Bring up regulators
-> * Wait for a period to settle (150 msec)
-> * Release RESET
-> * Wait for 100 msec whilst device gets through bootloader
-> * Wait for CHG line assert before reading info block
->=20
-> I can't see the first and last steps in your patch at present.
-About first step - reset_gpio is readed by using devm_gpiod_get_optional wi=
-th GPIOD_OUT_LOW flag, so i think (but might be wrong)  that we don't need =
-to set this gpio value again to 0 before enabling regulators,
-since currently only place where reset_gpio is used is in driver probe (in =
-Your patch it is used in other cases/places - for example in mxt_start/stop=
-, when we enable regulators).
-About missing wait after releasing reset, shouldn't this be separate patch =
-(since currently driver is not doing it)? I can prepare it and send with ot=
-her in next version.
+On Wed, Jul 18, 2018 at 5:49 AM, Baoquan He <bhe@redhat.com> wrote:
+> reparent_resources() is duplicated in arch/microblaze/pci/pci-common.c
+> and arch/powerpc/kernel/pci-common.c, so move it to kernel/resource.c
+> so that it's shared.
 
-Thanks for feedback
->=20
-> The only downside with this approach is that there are a lot of
-> delays during driver probe, but I believe the asynchronous probe stuff
-> that's landed since I wrote the original patch should address that.
->=20
-> cheers
->=20
-> Nick
->=20
-> >  	}
-> > @@ -3116,6 +3154,10 @@ static int mxt_remove(struct i2c_client *client)
-> >  	struct mxt_data *data =3D i2c_get_clientdata(client);
-> > =20
-> >  	disable_irq(data->irq);
-> > +	if (data->reset_gpio) {
-> > +		regulator_disable(data->avdd_reg);
-> > +		regulator_disable(data->vdd_reg);
-> > +	}
-> >  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
-> >  	mxt_free_input_device(data);
-> >  	mxt_free_object_table(data);
->=20
+Some minor stuff.
+
+> +/**
+> + * reparent_resources - reparent resource children of parent that res covers
+> + * @parent: parent resource descriptor
+> + * @res: resource descriptor desired by caller
+> + *
+> + * Returns 0 on success, -ENOTSUPP if child resource is not completely
+> + * contained by 'res', -ECANCELED if no any conflicting entry found.
+
+'res' -> @res
+
+> + *
+> + * Reparent resource children of 'parent' that conflict with 'res'
+
+Ditto + 'parent' -> @parent
+
+> + * under 'res', and make 'res' replace those children.
+
+Ditto.
+
+> + */
+> +int reparent_resources(struct resource *parent, struct resource *res)
+> +{
+> +       struct resource *p, **pp;
+> +       struct resource **firstpp = NULL;
+> +
+> +       for (pp = &parent->child; (p = *pp) != NULL; pp = &p->sibling) {
+> +               if (p->end < res->start)
+> +                       continue;
+> +               if (res->end < p->start)
+> +                       break;
+> +               if (p->start < res->start || p->end > res->end)
+> +                       return -ENOTSUPP;       /* not completely contained */
+> +               if (firstpp == NULL)
+> +                       firstpp = pp;
+> +       }
+> +       if (firstpp == NULL)
+> +               return -ECANCELED; /* didn't find any conflicting entries? */
+> +       res->parent = parent;
+> +       res->child = *firstpp;
+> +       res->sibling = *pp;
+> +       *firstpp = res;
+> +       *pp = NULL;
+> +       for (p = res->child; p != NULL; p = p->sibling) {
+> +               p->parent = res;
+
+> +               pr_debug("PCI: Reparented %s %pR under %s\n",
+> +                        p->name, p, res->name);
+
+Now, PCI is a bit confusing here.
+
+> +       }
+> +       return 0;
+> +}
+> +EXPORT_SYMBOL(reparent_resources);
+> +
+>  static void __init __reserve_region_with_split(struct resource *root,
+>                 resource_size_t start, resource_size_t end,
+>                 const char *name)
+> --
+> 2.13.6
+>
+
+
+
+-- 
+With Best Regards,
+Andy Shevchenko

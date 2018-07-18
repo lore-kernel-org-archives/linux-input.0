@@ -1,55 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - add Lenovo LaVie Z to the i8042 reset list
-Date: Wed, 18 Jul 2018 17:28:49 +0000
-Message-ID: <20180718172849.qvfv3s3jyzf3jf6o@penguin>
-References: <20180705130849.10479-1-wens@csie.org>
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@bootlin.com>
+Subject: [PATCH v3 0/3] sun8i-a83t: Add touchscreen support on TBS A711
+Date: Wed, 18 Jul 2018 20:27:16 +0200
+Message-ID: <20180718182719.29663-1-mylene.josserand@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180705130849.10479-1-wens@csie.org>
-Sender: stable-owner@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, mylene.josserand@bootlin.com, thomas.petazzoni@bootlin.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 05, 2018 at 09:08:49PM +0800, Chen-Yu Tsai wrote:
-> The Lenovo LaVie Z laptop requires i8042 to be reset in order to
-> consistently detect its Elantech touchpad. The nomux and kbdreset
-> quirks are not sufficient.
-> 
-> It's possible the other LaVie Z models from NEC require this as well.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Hello everyone,
 
-Applied, thank you.
+This is a V3 of the patch series that adds touchscreen support
+(FocalTech EDT-FT5x06 Polytouch) for TBS A711 (Allwinner sun8i-a83t SoC).
+Based on last master of linux-input tree.
 
-> ---
->  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index b353d494ad40..136f6e7bf797 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -527,6 +527,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
->  			DMI_MATCH(DMI_PRODUCT_NAME, "N24_25BU"),
->  		},
->  	},
-> +	{
-> +		/* Lenovo LaVie Z */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo LaVie Z"),
-> +		},
-> +	},
->  	{ }
->  };
->  
-> -- 
-> 2.18.0
-> 
+Since I can't test the suspend/resume functions there is no updates in
+this series about factory/normal mode.
+
+Changes since v2:
+   - Remove the check if regulator is NULL (Dmitry Torokhov's review)
+   - Add EPROBE_DEFER error not to print a error message (Lothar Waßmann's review)
+   - Add set wake/reset on suspend/resume.
+Changes since v1:
+   - Remove patches 01 and 02 as Chen-Yu Tsai sent a similar patch:
+   https://patchwork.kernel.org/patch/10111431/
+   and it is merged on last next-20171222.
+   (See commit f066f46ce5a5 "ARM: dts: sun8i: a83t: Add I2C device nodes and pinmux settings")
+   - Update regulator according to Dmitry Torokhov's review: remove "optional"
+   suffix while retrieving the regulator, rename it into "vcc" instead of
+   "power" and add bindings documentation.
+   - Update device tree according to Maxime Ripard's review: remove the
+   label and rename the node.
+   - Squash patch 03 with patch 05 to add I2C0 and touchscreen's node
+   in one patch (see patch 02).
+
+Patch 01: Add support for regulator in the FocalTech touchscreen driver
+because A711 tablet is using a regulator to power-up the touchscreen.
+Patch 02: Add a set wake/reset values on resume and suspend.
+Patch 03: Add i2c0 and touchscreen's node for A711 TBS tablet.
+
+Thank you in advance for any review.
+Best regards,
+Mylène
+
+Mylène Josserand (3):
+  Input: edt-ft5x06 - Add support for regulator
+  Input: edt-ft5x06 - Set wake/reset values on resume/suspend
+  arm: dts: sun8i: a83t: a711: Add touchscreen node
+
+ .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
+ arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts          | 16 +++++++++
+ drivers/input/touchscreen/edt-ft5x06.c             | 41 ++++++++++++++++++++++
+ 3 files changed, 58 insertions(+)
 
 -- 
-Dmitry
+2.11.0

@@ -1,60 +1,112 @@
 From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@bootlin.com>
-Subject: [PATCH v3 0/3] sun8i-a83t: Add touchscreen support on TBS A711
-Date: Wed, 18 Jul 2018 20:27:16 +0200
-Message-ID: <20180718182719.29663-1-mylene.josserand@bootlin.com>
+Subject: [PATCH v3 1/3] Input: edt-ft5x06 - Add support for regulator
+Date: Wed, 18 Jul 2018 20:27:17 +0200
+Message-ID: <20180718182719.29663-2-mylene.josserand@bootlin.com>
+References: <20180718182719.29663-1-mylene.josserand@bootlin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180718182719.29663-1-mylene.josserand@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, mylene.josserand@bootlin.com, thomas.petazzoni@bootlin.com
 List-Id: linux-input@vger.kernel.org
 
-Hello everyone,
+Add the support of regulator to use it as VCC source.
 
-This is a V3 of the patch series that adds touchscreen support
-(FocalTech EDT-FT5x06 Polytouch) for TBS A711 (Allwinner sun8i-a83t SoC).
-Based on last master of linux-input tree.
-
-Since I can't test the suspend/resume functions there is no updates in
-this series about factory/normal mode.
-
-Changes since v2:
-   - Remove the check if regulator is NULL (Dmitry Torokhov's review)
-   - Add EPROBE_DEFER error not to print a error message (Lothar Waßmann's review)
-   - Add set wake/reset on suspend/resume.
-Changes since v1:
-   - Remove patches 01 and 02 as Chen-Yu Tsai sent a similar patch:
-   https://patchwork.kernel.org/patch/10111431/
-   and it is merged on last next-20171222.
-   (See commit f066f46ce5a5 "ARM: dts: sun8i: a83t: Add I2C device nodes and pinmux settings")
-   - Update regulator according to Dmitry Torokhov's review: remove "optional"
-   suffix while retrieving the regulator, rename it into "vcc" instead of
-   "power" and add bindings documentation.
-   - Update device tree according to Maxime Ripard's review: remove the
-   label and rename the node.
-   - Squash patch 03 with patch 05 to add I2C0 and touchscreen's node
-   in one patch (see patch 02).
-
-Patch 01: Add support for regulator in the FocalTech touchscreen driver
-because A711 tablet is using a regulator to power-up the touchscreen.
-Patch 02: Add a set wake/reset values on resume and suspend.
-Patch 03: Add i2c0 and touchscreen's node for A711 TBS tablet.
-
-Thank you in advance for any review.
-Best regards,
-Mylène
-
-Mylène Josserand (3):
-  Input: edt-ft5x06 - Add support for regulator
-  Input: edt-ft5x06 - Set wake/reset values on resume/suspend
-  arm: dts: sun8i: a83t: a711: Add touchscreen node
-
+Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
+---
  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
- arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts          | 16 +++++++++
- drivers/input/touchscreen/edt-ft5x06.c             | 41 ++++++++++++++++++++++
- 3 files changed, 58 insertions(+)
+ drivers/input/touchscreen/edt-ft5x06.c             | 29 ++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+index 025cf8c9324a..48e975b9c1aa 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+@@ -30,6 +30,7 @@ Required properties:
+ Optional properties:
+  - reset-gpios: GPIO specification for the RESET input
+  - wake-gpios:  GPIO specification for the WAKE input
++ - vcc-supply:  Regulator that supplies the touchscreen
+ 
+  - pinctrl-names: should be "default"
+  - pinctrl-0:   a phandle pointing to the pin settings for the
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 1e18ca0d1b4e..aa94494b06b5 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -39,6 +39,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+ #include <linux/of_device.h>
++#include <linux/regulator/consumer.h>
+ 
+ #define WORK_REGISTER_THRESHOLD		0x00
+ #define WORK_REGISTER_REPORT_RATE	0x08
+@@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
+ 	struct touchscreen_properties prop;
+ 	u16 num_x;
+ 	u16 num_y;
++	struct regulator *vcc;
+ 
+ 	struct gpio_desc *reset_gpio;
+ 	struct gpio_desc *wake_gpio;
+@@ -991,6 +993,22 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 
+ 	tsdata->max_support_points = chip_data->max_support_points;
+ 
++	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
++	if (IS_ERR(tsdata->vcc)) {
++		error = PTR_ERR(tsdata->vcc);
++		if (error != -EPROBE_DEFER)
++			dev_err(&client->dev, "failed to request regulator: %d\n",
++				error);
++		return error;
++	}
++
++	error = regulator_enable(tsdata->vcc);
++	if (error < 0) {
++		dev_err(&client->dev, "failed to enable vcc: %d\n",
++			error);
++		return error;
++	}
++
+ 	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
+ 						     "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(tsdata->reset_gpio)) {
+@@ -1120,20 +1138,31 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
+ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+ 
+ 	if (device_may_wakeup(dev))
+ 		enable_irq_wake(client->irq);
+ 
++	regulator_disable(tsdata->vcc);
++
+ 	return 0;
+ }
+ 
+ static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
++	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
++	int ret;
+ 
+ 	if (device_may_wakeup(dev))
+ 		disable_irq_wake(client->irq);
+ 
++	ret = regulator_enable(tsdata->vcc);
++	if (ret < 0) {
++		dev_err(dev, "failed to enable vcc: %d\n", ret);
++		return ret;
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.11.0

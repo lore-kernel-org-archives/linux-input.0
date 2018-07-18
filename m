@@ -1,69 +1,47 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2] HID: intel-ish-hid: Prevent loading of driver on Mehlow
-Date: Wed, 18 Jul 2018 12:32:00 -0700
-Message-ID: <20180718193200.17944-1-srinivas.pandruvada@linux.intel.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v7 4/4] kexec_file: Load kernel at top of system RAM if
+ required
+Date: Wed, 18 Jul 2018 15:33:26 -0700
+Message-ID: <20180718153326.b795e9ea7835432a56cd7011@linux-foundation.org>
+References: <20180718024944.577-1-bhe@redhat.com>
+        <20180718024944.577-5-bhe@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180718024944.577-5-bhe@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Baoquan He <bhe@redhat.com>
+Cc: linux-kernel@vger.kernel.org, robh+dt@kernel.org, dan.j.williams@intel.com, nicolas.pitre@linaro.org, josh@joshtriplett.org, fengguang.wu@intel.com, bp@suse.de, andy.shevchenko@gmail.com, patrik.r.jakobsson@gmail.com, airlied@linux.ie, kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com, dmitry.torokhov@gmail.com, frowand.list@gmail.com, keith.busch@intel.com, jonathan.derrick@intel.com, lorenzo.pieralisi@arm.com, bhelgaas@google.com, tglx@linutronix.de, brijesh.singh@amd.com, jglisse@redhat.com, thomas.lendacky@amd.com, gregkh@linuxfoundation.org, baiyaowei@cmss.chinamobile.com, richard.weiyang@gmail.com, devel@linuxdriverproject.org, linux-input@vger.kernel.org, linux-nvdimm@lists.01.org, devicetree@vger.kernel.org, linux-pci@vger.kernel.org, ebiederm@xmissi
 List-Id: linux-input@vger.kernel.org
 
-On Mehlow Xeon-E workstation, ISH PCI device is enabled but without ISH
-firmware. Here the ISH device PCI device id was reused for some non Linux
-storage drivers. So this was not done for enabling ISH. But this has a
-undesirable side effect for Linux.
+On Wed, 18 Jul 2018 10:49:44 +0800 Baoquan He <bhe@redhat.com> wrote:
 
-Here the ISH driver will be loaded via PCI enumeration and will try to do
-reset sequence. But reset sequence will wait till timeout as there is no
-real ISH firmware is present to take action. This delay will add to boot
-time of Linux (This platform will still continue to boot after this
-timeout).
+> For kexec_file loading, if kexec_buf.top_down is 'true', the memory which
+> is used to load kernel/initrd/purgatory is supposed to be allocated from
+> top to down. This is what we have been doing all along in the old kexec
+> loading interface and the kexec loading is still default setting in some
+> distributions. However, the current kexec_file loading interface doesn't
+> do like this. The function arch_kexec_walk_mem() it calls ignores checking
+> kexec_buf.top_down, but calls walk_system_ram_res() directly to go through
+> all resources of System RAM from bottom to up, to try to find memory region
+> which can contain the specific kexec buffer, then call locate_mem_hole_callback()
+> to allocate memory in that found memory region from top to down. This brings
+> confusion especially when KASLR is widely supported , users have to make clear
+> why kexec/kdump kernel loading position is different between these two
+> interfaces in order to exclude unnecessary noises. Hence these two interfaces
+> need be unified on behaviour.
 
-To avoid this boot delay we need to prevent loading of ISH drivers on
-this platform. So we need to have hack to avoid treating this device as
-ISH on this platform. To identify this workstation, we need some runtime
-method. Luckily there are special PCI id on this workstation to
-distinguish from the client version of this platform. On client version,
-the ISH is supported using same PCI device id. So this change look for
-the presence of PCI device IDs A309 and A30A and exit.
+As far as I can tell, the above is the whole reason for the patchset,
+yes?  To avoid confusing users.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
-v2
- Replaced pci_get_device with pci_dev_present to check in a loop as
-suggested by Benjamin.
+Is that sufficient?  Can we instead simplify their lives by providing
+better documentation or informative printks or better Kconfig text,
+etc?
 
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+And who *are* the people who are performing this configuration?  Random
+system administrators?  Linux distro engineers?  If the latter then
+they presumably aren't easily confused!
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index a2c53ea3b5ed..4a55eab39b88 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -95,6 +95,13 @@ static int ish_init(struct ishtp_device *dev)
- 	return 0;
- }
- 
-+static const struct pci_device_id ish_invalid_pci_ids[] = {
-+	/* Mehlow platform special pci ids */
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xA309)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xA30A)},
-+	{}
-+};
-+
- /**
-  * ish_probe() - PCI driver probe callback
-  * @pdev:	pci device
-@@ -110,6 +117,10 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	struct ish_hw *hw;
- 	int	ret;
- 
-+	/* Check for invalid platforms for ISH support */
-+	if (pci_dev_present(ish_invalid_pci_ids))
-+		return -ENODEV;
-+
- 	/* enable pci dev */
- 	ret = pci_enable_device(pdev);
- 	if (ret) {
--- 
-2.17.1
+In other words, I'm trying to understand how much benefit this patchset
+will provide to our users as a whole.

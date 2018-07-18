@@ -1,45 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: gpio_keys: add missing include to gpio_keys.h
-Date: Wed, 18 Jul 2018 16:48:27 +0000
-Message-ID: <20180718164827.yq2j3e5gt3jkjuyl@penguin>
-References: <20180627073458.GA27800@localhost.localdomain>
+Subject: Re: [PATCH 5/5] Input: ti_am335x_tsc: Mark IRQ as wakeup capable
+Date: Wed, 18 Jul 2018 17:06:22 +0000
+Message-ID: <20180718170622.qms254nlvnavfk7q@penguin>
+References: <20180630103318.25355-1-vigneshr@ti.com>
+ <20180630103318.25355-6-vigneshr@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180627073458.GA27800@localhost.localdomain>
+In-Reply-To: <20180630103318.25355-6-vigneshr@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: robh@kernel.org, gregkh@linuxfoundation.org, tglx@linutronix.de, jeffy.chen@rock-chips.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Vignesh R <vigneshr@ti.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Lee Jones <lee.jones@linaro.org>, linux-iio@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 27, 2018 at 10:34:58AM +0300, Matti Vaittinen wrote:
-> gpio_keys.h uses 'bool' - type which is defined in linux/types.h.
-> Include this header.
+On Sat, Jun 30, 2018 at 04:03:18PM +0530, Vignesh R wrote:
+> On AM335x, ti_am335x_tsc can wake up the system from suspend, mark the
+> IRQ as wakeup capable, so that device irq is not disabled during system
+> suspend.
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
 
-Applied, thank you.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 > ---
->  include/linux/gpio_keys.h | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/input/touchscreen/ti_am335x_tsc.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 > 
-> diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-> index 7160df54a6fe..3f84aeb81e48 100644
-> --- a/include/linux/gpio_keys.h
-> +++ b/include/linux/gpio_keys.h
-> @@ -2,6 +2,8 @@
->  #ifndef _GPIO_KEYS_H
->  #define _GPIO_KEYS_H
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index a4f25a915ffc..9e8684ab48f4 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+>  #include <linux/sort.h>
+> +#include <linux/pm_wakeirq.h>
 >  
-> +#include <linux/types.h>
-> +
->  struct device;
+>  #include <linux/mfd/ti_am335x_tscadc.h>
 >  
->  /**
+> @@ -439,6 +440,9 @@ static int titsc_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	device_init_wakeup(&pdev->dev, true);
+> +	err = dev_pm_set_wake_irq(&pdev->dev, ts_dev->irq);
+> +	if (err)
+> +		dev_err(&pdev->dev, "irq wake enable failed.\n");
+>  
+>  	titsc_writel(ts_dev, REG_IRQSTATUS, TSC_IRQENB_MASK);
+>  	titsc_writel(ts_dev, REG_IRQENABLE, IRQENB_FIFO0THRES);
+> @@ -471,6 +475,7 @@ static int titsc_probe(struct platform_device *pdev)
+>  	return 0;
+>  
+>  err_free_irq:
+> +	dev_pm_clear_wake_irq(&pdev->dev);
+>  	device_init_wakeup(&pdev->dev, false);
+>  	free_irq(ts_dev->irq, ts_dev);
+>  err_free_mem:
+> @@ -484,6 +489,7 @@ static int titsc_remove(struct platform_device *pdev)
+>  	struct titsc *ts_dev = platform_get_drvdata(pdev);
+>  	u32 steps;
+>  
+> +	dev_pm_clear_wake_irq(&pdev->dev);
+>  	device_init_wakeup(&pdev->dev, false);
+>  	free_irq(ts_dev->irq, ts_dev);
+>  
 > -- 
-> 2.14.3
+> 2.18.0
 > 
 
 -- 

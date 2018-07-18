@@ -1,157 +1,135 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH v2 1/2] Input: atmel_mxt_ts: Add support for  optional
- regulators.
-Date: Tue, 17 Jul 2018 22:00:05 +0100
-Message-ID: <20180717210005.GA21416@hairyalien>
-References: <1531851386-17840-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
- <1531851386-17840-2-git-send-email-pawel.mikolaj.chmiel@gmail.com>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v7 0/4] resource: Use list_head to link sibling resource
+Date: Wed, 18 Jul 2018 10:49:40 +0800
+Message-ID: <20180718024944.577-1-bhe@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1531851386-17840-2-git-send-email-pawel.mikolaj.chmiel@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org, devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 17, 2018 at 08:16:25PM +0200, Paweł Chmiel wrote:
-> This patch adds optional regulators, which can be used to power
-> up touchscreen. After enabling regulators, we need to wait 150msec.
-> This value is taken from official driver.
-> 
-> It was tested on Samsung Galaxy i9000 (based on Samsung S5PV210 SOC).
-> 
-> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> ---
-> Changes from v1:
->   - Enable regulators only if reset_gpio is present.
->   - Switch from devm_regulator_get_optional to devm_regulator_get
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 46 ++++++++++++++++++++++++++++++--
->  1 file changed, 44 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 54fe190fd4bc..005f0fee9fc8 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -27,6 +27,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/of.h>
->  #include <linux/property.h>
-> +#include <linux/regulator/consumer.h>
->  #include <linux/slab.h>
->  #include <linux/gpio/consumer.h>
->  #include <linux/property.h>
-> @@ -194,10 +195,10 @@ enum t100_type {
->  
->  /* Delay times */
->  #define MXT_BACKUP_TIME		50	/* msec */
-> -#define MXT_RESET_GPIO_TIME	20	/* msec */
->  #define MXT_RESET_INVALID_CHG	100	/* msec */
->  #define MXT_RESET_TIME		200	/* msec */
->  #define MXT_RESET_TIMEOUT	3000	/* msec */
-> +#define MXT_REGULATOR_DELAY	150	/* msec */
->  #define MXT_CRC_TIMEOUT		1000	/* msec */
->  #define MXT_FW_RESET_TIME	3000	/* msec */
->  #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-> @@ -310,6 +311,8 @@ struct mxt_data {
->  	struct t7_config t7_cfg;
->  	struct mxt_dbg dbg;
->  	struct gpio_desc *reset_gpio;
-> +	struct regulator *vdd_reg;
-> +	struct regulator *avdd_reg;
->  
->  	/* Cached parameters from object table */
->  	u16 T5_address;
-> @@ -3076,6 +3079,22 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  		return error;
->  	}
->  
-> +	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
-> +	if (IS_ERR(data->vdd_reg)) {
-> +		error = PTR_ERR(data->vdd_reg);
-> +		dev_err(&client->dev, "Failed to get vdd regulator: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
-> +	data->avdd_reg = devm_regulator_get(&client->dev, "avdd");
-> +	if (IS_ERR(data->avdd_reg)) {
-> +		error = PTR_ERR(data->avdd_reg);
-> +		dev_err(&client->dev, "Failed to get avdd regulator: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
->  	error = devm_request_threaded_irq(&client->dev, client->irq,
->  					  NULL, mxt_interrupt, IRQF_ONESHOT,
->  					  client->name, data);
-> @@ -3087,7 +3106,26 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	disable_irq(client->irq);
->  
->  	if (data->reset_gpio) {
-> -		msleep(MXT_RESET_GPIO_TIME);
-> +		error = regulator_enable(data->vdd_reg);
-> +		if (error) {
-> +			dev_err(&client->dev, "Failed to enable vdd regulator: %d\n",
-> +				error);
-> +			return error;
-> +		}
-> +
-> +		error = regulator_enable(data->avdd_reg);
-> +		if (error) {
-> +			dev_err(&client->dev, "Failed to enable avdd regulator: %d\n",
-> +				error);
-> +			return error;
-> +		}
-> +
-> +		/*
-> +		 * According to maXTouch power sequencing specification, RESET line
-> +		 * must be kept low until some time after regulators come up to
-> +		 * voltage
-> +		 */
-> +		msleep(MXT_REGULATOR_DELAY);
->  		gpiod_set_value(data->reset_gpio, 1);
->  		msleep(MXT_RESET_INVALID_CHG);
+This patchset is doing:
+1) Move reparent_resources() to kernel/resource.c to clean up duplicated
+   code in arch/microblaze/pci/pci-common.c and
+   arch/powerpc/kernel/pci-common.c .
+2) Replace struct resource's sibling list from singly linked list to
+   list_head. Clearing out those pointer operation within singly linked
+   list for better code readability.
+2) Based on list_head replacement, add a new function
+   walk_system_ram_res_rev() which can does reversed iteration on
+   iomem_resource's siblings.
+3) Change kexec_file loading to search system RAM top down for kernel
+   loadin, using walk_system_ram_res_rev().
 
-Hi Pawel-
+Note:
+This patchset only passed testing on  x86_64 arch with network
+enabling. The thing we need pay attetion to is that a root resource's
+child member need be initialized specifically with LIST_HEAD_INIT() if
+statically defined or INIT_LIST_HEAD() for dynamically definition. Here
+Just like we do for iomem_resource/ioport_resource, or the change in
+get_pci_domain_busn_res().
 
-I see you've borrowed some of the logic from the patch I wrote a while
-back (see https://github.com/ndyer/linux/commit/8e9687e41ed062 )
+v6:
+http://lkml.kernel.org/r/20180704041038.8190-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 
-The correct behaviour according to Atmel should be:
+v5:
+http://lkml.kernel.org/r/20180612032831.29747-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 
-* Make RESET zero
-* Bring up regulators
-* Wait for a period to settle (150 msec)
-* Release RESET
-* Wait for 100 msec whilst device gets through bootloader
-* Wait for CHG line assert before reading info block
+v4:
+http://lkml.kernel.org/r/20180507063224.24229-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 
-I can't see the first and last steps in your patch at present.
+v3:
+http://lkml.kernel.org/r/20180419001848.3041-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 
-The only downside with this approach is that there are a lot of
-delays during driver probe, but I believe the asynchronous probe stuff
-that's landed since I wrote the original patch should address that.
+v2:
+http://lkml.kernel.org/r/20180408024724.16812-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 
-cheers
+v1:
+http://lkml.kernel.org/r/20180322033722.9279-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 
-Nick
+Changelog:
+v6->v7:
+  Fix code bugs that test robot reported on mips and ia64.
 
->  	}
-> @@ -3116,6 +3154,10 @@ static int mxt_remove(struct i2c_client *client)
->  	struct mxt_data *data = i2c_get_clientdata(client);
->  
->  	disable_irq(data->irq);
-> +	if (data->reset_gpio) {
-> +		regulator_disable(data->avdd_reg);
-> +		regulator_disable(data->vdd_reg);
-> +	}
->  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
->  	mxt_free_input_device(data);
->  	mxt_free_object_table(data);
-> -- 
-> 2.7.4
-> 
+  Add error code description in reparent_resources() according to
+  Andy's comment, and fix minor log typo.
+v5->v6:
+  Fix code style problems in reparent_resources() and use existing
+  error codes, according to Andy's suggestion.
+
+  Fix bugs test robot reported.
+
+v4->v5:
+  Add new patch 0001 to move duplicated reparent_resources() to
+  kernel/resource.c to make it be shared by different ARCH-es.
+
+  Fix several code bugs reported by test robot on ARCH powerpc and
+  microblaze.
+v3->v4:
+  Fix several bugs test robot reported. Rewrite cover letter and patch
+  log according to reviewer's comment.
+
+v2->v3:
+  Rename resource functions first_child() and sibling() to
+  resource_first_chils() and resource_sibling(). Dan suggested this.
+
+  Move resource_first_chils() and resource_sibling() to linux/ioport.h
+  and make them as inline function. Rob suggested this. Accordingly add
+  linux/list.h including in linux/ioport.h, please help review if this
+  bring efficiency degradation or code redundancy.
+
+  The change on struct resource {} bring two pointers of size increase,
+  mention this in git log to make it more specifically, Rob suggested
+  this.
+
+v1->v2:
+  Use list_head instead to link resource siblings. This is suggested by
+  Andrew.
+
+  Rewrite walk_system_ram_res_rev() after list_head is taken to link
+  resouce siblings.
+
+Baoquan He (4):
+  resource: Move reparent_resources() to kernel/resource.c and make it
+    public
+  resource: Use list_head to link sibling resource
+  resource: add walk_system_ram_res_rev()
+  kexec_file: Load kernel at top of system RAM if required
+
+ arch/arm/plat-samsung/pm-check.c            |   6 +-
+ arch/ia64/sn/kernel/io_init.c               |   2 +-
+ arch/microblaze/pci/pci-common.c            |  41 +----
+ arch/mips/pci/pci-rc32434.c                 |  12 +-
+ arch/powerpc/kernel/pci-common.c            |  39 +---
+ arch/sparc/kernel/ioport.c                  |   2 +-
+ arch/xtensa/include/asm/pci-bridge.h        |   4 +-
+ drivers/eisa/eisa-bus.c                     |   2 +
+ drivers/gpu/drm/drm_memory.c                |   3 +-
+ drivers/gpu/drm/gma500/gtt.c                |   5 +-
+ drivers/hv/vmbus_drv.c                      |  52 +++---
+ drivers/input/joystick/iforce/iforce-main.c |   4 +-
+ drivers/nvdimm/namespace_devs.c             |   6 +-
+ drivers/nvdimm/nd.h                         |   5 +-
+ drivers/of/address.c                        |   4 +-
+ drivers/parisc/lba_pci.c                    |   4 +-
+ drivers/pci/controller/vmd.c                |   8 +-
+ drivers/pci/probe.c                         |   2 +
+ drivers/pci/setup-bus.c                     |   2 +-
+ include/linux/ioport.h                      |  21 ++-
+ kernel/kexec_file.c                         |   2 +
+ kernel/resource.c                           | 266 ++++++++++++++++++----------
+ 22 files changed, 260 insertions(+), 232 deletions(-)
+
+-- 
+2.13.6

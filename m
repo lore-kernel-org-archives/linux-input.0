@@ -1,118 +1,112 @@
-From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Subject: Re: [PATCH v7 4/4] kexec_file: Load kernel at top of system RAM if
- required
-Date: Thu, 19 Jul 2018 12:44:44 -0700
-Message-ID: <20180719124444.c893712cca2e6f2649d1bc0d@linux-foundation.org>
-References: <20180718024944.577-1-bhe@redhat.com>
- <20180718024944.577-5-bhe@redhat.com>
- <20180718153326.b795e9ea7835432a56cd7011@linux-foundation.org>
- <20180719151753.GB7147@localhost.localdomain>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH v2 1/2] Input: atmel_mxt_ts: Add support for  optional
+ regulators.
+Date: Thu, 19 Jul 2018 21:54:04 +0100
+Message-ID: <20180719205403.GA29273@hairyalien>
+References: <1531851386-17840-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
+ <1531851386-17840-2-git-send-email-pawel.mikolaj.chmiel@gmail.com>
+ <20180717210005.GA21416@hairyalien>
+ <2353752.vfvcsHJLR6@acerlaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-In-Reply-To: <20180719151753.GB7147-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel@vge
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <2353752.vfvcsHJLR6@acerlaptop>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 19 Jul 2018 23:17:53 +0800 Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+On Wed, Jul 18, 2018 at 06:21:30PM +0200, Paweł Chmiel wrote:
+> On Tuesday, July 17, 2018 10:00:05 PM CEST Nick Dyer wrote:
+> > On Tue, Jul 17, 2018 at 08:16:25PM +0200, Paweł Chmiel wrote:
+> > > This patch adds optional regulators, which can be used to power
+> > > up touchscreen. After enabling regulators, we need to wait 150msec.
+> > > This value is taken from official driver.
+> > > 
+> > > It was tested on Samsung Galaxy i9000 (based on Samsung S5PV210 SOC).
+> > > 
+> > > Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+> > > ---
+> > > Changes from v1:
+> > >   - Enable regulators only if reset_gpio is present.
+> > >   - Switch from devm_regulator_get_optional to devm_regulator_get
+> > > ---
+> > >  drivers/input/touchscreen/atmel_mxt_ts.c | 46 ++++++++++++++++++++++++++++++--
+> > >  1 file changed, 44 insertions(+), 2 deletions(-)
+> > 
+> > Hi Pawel-
+> > 
+> > I see you've borrowed some of the logic from the patch I wrote a while
+> > back (see https://github.com/ndyer/linux/commit/8e9687e41ed062 )
+> Actually, i was looking at https://github.com/atmel-maxtouch/linux/blob/maxtouch-v3.14/drivers/input/touchscreen/atmel_mxt_ts.c (and didn't saw Your patch till now).
+> Are You going to submit it? (it has more functionalities - for example
+> suspend mode read from device tree).
 
-> Hi Andrew,
-> 
-> On 07/18/18 at 03:33pm, Andrew Morton wrote:
-> > On Wed, 18 Jul 2018 10:49:44 +0800 Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
-> > 
-> > > For kexec_file loading, if kexec_buf.top_down is 'true', the memory which
-> > > is used to load kernel/initrd/purgatory is supposed to be allocated from
-> > > top to down. This is what we have been doing all along in the old kexec
-> > > loading interface and the kexec loading is still default setting in some
-> > > distributions. However, the current kexec_file loading interface doesn't
-> > > do like this. The function arch_kexec_walk_mem() it calls ignores checking
-> > > kexec_buf.top_down, but calls walk_system_ram_res() directly to go through
-> > > all resources of System RAM from bottom to up, to try to find memory region
-> > > which can contain the specific kexec buffer, then call locate_mem_hole_callback()
-> > > to allocate memory in that found memory region from top to down. This brings
-> > > confusion especially when KASLR is widely supported , users have to make clear
-> > > why kexec/kdump kernel loading position is different between these two
-> > > interfaces in order to exclude unnecessary noises. Hence these two interfaces
-> > > need be unified on behaviour.
-> > 
-> > As far as I can tell, the above is the whole reason for the patchset,
-> > yes?  To avoid confusing users.
-> 
-> 
-> In fact, it's not just trying to avoid confusing users. Kexec loading
-> and kexec_file loading are just do the same thing in essence. Just we
-> need do kernel image verification on uefi system, have to port kexec
-> loading code to kernel. 
-> 
-> Kexec has been a formal feature in our distro, and customers owning
-> those kind of very large machine can make use of this feature to speed
-> up the reboot process. On uefi machine, the kexec_file loading will
-> search place to put kernel under 4G from top to down. As we know, the
-> 1st 4G space is DMA32 ZONE, dma, pci mmcfg, bios etc all try to consume
-> it. It may have possibility to not be able to find a usable space for
-> kernel/initrd. From the top down of the whole memory space, we don't
-> have this worry. 
-> 
-> And at the first post, I just posted below with AKASHI's
-> walk_system_ram_res_rev() version. Later you suggested to use
-> list_head to link child sibling of resource, see what the code change
-> looks like.
-> http://lkml.kernel.org/r/20180322033722.9279-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
-> 
-> Then I posted v2
-> http://lkml.kernel.org/r/20180408024724.16812-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
-> Rob Herring mentioned that other components which has this tree struct
-> have planned to do the same thing, replacing the singly linked list with
-> list_head to link resource child sibling. Just quote Rob's words as
-> below. I think this could be another reason.
-> 
-> ~~~~~ From Rob
-> The DT struct device_node also has the same tree structure with
-> parent, child, sibling pointers and converting to list_head had been
-> on the todo list for a while. ACPI also has some tree walking
-> functions (drivers/acpi/acpica/pstree.c). Perhaps there should be a
-> common tree struct and helpers defined either on top of list_head or a
-> ~~~~~
-> new struct if that saves some size.
+Getting that work upstream has stalled for a couple of years because I
+changed jobs. I have actually started recently to dust it off again, it
+was later on in my queue but if you have the time to work on it that is
+great.
 
-Please let's get all this into the changelogs?
+> > The correct behaviour according to Atmel should be:
+> > 
+> > * Make RESET zero
+> > * Bring up regulators
+> > * Wait for a period to settle (150 msec)
+> > * Release RESET
+> > * Wait for 100 msec whilst device gets through bootloader
+> > * Wait for CHG line assert before reading info block
+> > 
+> > I can't see the first and last steps in your patch at present.
+> About first step - reset_gpio is readed by using
+> devm_gpiod_get_optional with GPIOD_OUT_LOW flag, so i think (but might
+> be wrong)  that we don't need to set this gpio value again to 0 before
+> enabling regulators,
 
-> > 
-> > Is that sufficient?  Can we instead simplify their lives by providing
-> > better documentation or informative printks or better Kconfig text,
-> > etc?
-> > 
-> > And who *are* the people who are performing this configuration?  Random
-> > system administrators?  Linux distro engineers?  If the latter then
-> > they presumably aren't easily confused!
-> 
-> Kexec was invented for kernel developer to speed up their kernel
-> rebooting. Now high end sever admin, kernel developer and QE are also
-> keen to use it to reboot large box for faster feature testing, bug
-> debugging. Kernel dev could know this well, about kernel loading
-> position, admin or QE might not be aware of it very well. 
-> 
-> > 
-> > In other words, I'm trying to understand how much benefit this patchset
-> > will provide to our users as a whole.
-> 
-> Understood. The list_head replacing patch truly involes too many code
-> changes, it's risky. I am willing to try any idea from reviewers, won't
-> persuit they have to be accepted finally. If don't have a try, we don't
-> know what it looks like, and what impact it may have. I am fine to take
-> AKASHI's simple version of walk_system_ram_res_rev() to lower risk, even
-> though it could be a little bit low efficient.
+I see what you mean - that is fair enough.
 
-The larger patch produces a better result.  We can handle it ;)
+> since currently only place where reset_gpio is used is in driver probe
+> (in Your patch it is used in other cases/places - for example in
+> mxt_start/stop, when we enable regulators).
+> About missing wait after releasing reset, shouldn't this be separate
+> patch (since currently driver is not doing it)? I can prepare it and
+> send with other in next version.
+
+According to the maxtouch documentation, it isn't ready for comms until
+the firmware asserts the CHG line. I've seen a bunch of devices that get
+by without an explicit wait because the board file does the power on,
+and by the time the driver gets to probe it's a few hundred ms later
+anyway, so it doesn't matter. But if we put it all in the driver, it
+will attempt to read the info block straight after the 100 msec delay
+without waiting for CHG, and I suspect we'll end up with occasional
+probe failures. It'll depend on the maxtouch device, though: they have a
+range of different power on timings.
+
+Which platform are you doing this for? Is it a Chromebook?
+
+> Thanks for feedback
+> > 
+> > The only downside with this approach is that there are a lot of
+> > delays during driver probe, but I believe the asynchronous probe stuff
+> > that's landed since I wrote the original patch should address that.
+> > 
+> > cheers
+> > 
+> > Nick
+> > 
+> > >  	}
+> > > @@ -3116,6 +3154,10 @@ static int mxt_remove(struct i2c_client *client)
+> > >  	struct mxt_data *data = i2c_get_clientdata(client);
+> > >  
+> > >  	disable_irq(data->irq);
+> > > +	if (data->reset_gpio) {
+> > > +		regulator_disable(data->avdd_reg);
+> > > +		regulator_disable(data->vdd_reg);
+> > > +	}
+> > >  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+> > >  	mxt_free_input_device(data);
+> > >  	mxt_free_object_table(data);
+> > 
+> 
+> 

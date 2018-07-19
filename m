@@ -1,85 +1,115 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID: intel-ish-hid: Prevent loading of driver on Mehlow
-Date: Thu, 19 Jul 2018 11:39:51 +0200
-Message-ID: <CAO-hwJJ=hsdu7AapAaWbB-JQUk9+24Lcx6i31bF5xaVwXdNQpQ@mail.gmail.com>
-References: <20180718193200.17944-1-srinivas.pandruvada@linux.intel.com>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v7 4/4] kexec_file: Load kernel at top of system RAM if
+ required
+Date: Thu, 19 Jul 2018 23:17:53 +0800
+Message-ID: <20180719151753.GB7147@localhost.localdomain>
+References: <20180718024944.577-1-bhe@redhat.com>
+ <20180718024944.577-5-bhe@redhat.com>
+ <20180718153326.b795e9ea7835432a56cd7011@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180718193200.17944-1-srinivas.pandruvada@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20180718153326.b795e9ea7835432a56cd7011-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel@vge
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 18, 2018 at 9:32 PM Srinivas Pandruvada
-<srinivas.pandruvada@linux.intel.com> wrote:
->
-> On Mehlow Xeon-E workstation, ISH PCI device is enabled but without ISH
-> firmware. Here the ISH device PCI device id was reused for some non Linux
-> storage drivers. So this was not done for enabling ISH. But this has a
-> undesirable side effect for Linux.
->
-> Here the ISH driver will be loaded via PCI enumeration and will try to do
-> reset sequence. But reset sequence will wait till timeout as there is no
-> real ISH firmware is present to take action. This delay will add to boot
-> time of Linux (This platform will still continue to boot after this
-> timeout).
->
-> To avoid this boot delay we need to prevent loading of ISH drivers on
-> this platform. So we need to have hack to avoid treating this device as
-> ISH on this platform. To identify this workstation, we need some runtime
-> method. Luckily there are special PCI id on this workstation to
-> distinguish from the client version of this platform. On client version,
-> the ISH is supported using same PCI device id. So this change look for
-> the presence of PCI device IDs A309 and A30A and exit.
->
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> ---
-> v2
->  Replaced pci_get_device with pci_dev_present to check in a loop as
-> suggested by Benjamin.
+Hi Andrew,
 
-That's even better than what I suggested :)
+On 07/18/18 at 03:33pm, Andrew Morton wrote:
+> On Wed, 18 Jul 2018 10:49:44 +0800 Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+> 
+> > For kexec_file loading, if kexec_buf.top_down is 'true', the memory which
+> > is used to load kernel/initrd/purgatory is supposed to be allocated from
+> > top to down. This is what we have been doing all along in the old kexec
+> > loading interface and the kexec loading is still default setting in some
+> > distributions. However, the current kexec_file loading interface doesn't
+> > do like this. The function arch_kexec_walk_mem() it calls ignores checking
+> > kexec_buf.top_down, but calls walk_system_ram_res() directly to go through
+> > all resources of System RAM from bottom to up, to try to find memory region
+> > which can contain the specific kexec buffer, then call locate_mem_hole_callback()
+> > to allocate memory in that found memory region from top to down. This brings
+> > confusion especially when KASLR is widely supported , users have to make clear
+> > why kexec/kdump kernel loading position is different between these two
+> > interfaces in order to exclude unnecessary noises. Hence these two interfaces
+> > need be unified on behaviour.
+> 
+> As far as I can tell, the above is the whole reason for the patchset,
+> yes?  To avoid confusing users.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Cheers,
-Benjamin
+In fact, it's not just trying to avoid confusing users. Kexec loading
+and kexec_file loading are just do the same thing in essence. Just we
+need do kernel image verification on uefi system, have to port kexec
+loading code to kernel. 
 
->
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index a2c53ea3b5ed..4a55eab39b88 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -95,6 +95,13 @@ static int ish_init(struct ishtp_device *dev)
->         return 0;
->  }
->
-> +static const struct pci_device_id ish_invalid_pci_ids[] = {
-> +       /* Mehlow platform special pci ids */
-> +       {PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xA309)},
-> +       {PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xA30A)},
-> +       {}
-> +};
-> +
->  /**
->   * ish_probe() - PCI driver probe callback
->   * @pdev:      pci device
-> @@ -110,6 +117,10 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
->         struct ish_hw *hw;
->         int     ret;
->
-> +       /* Check for invalid platforms for ISH support */
-> +       if (pci_dev_present(ish_invalid_pci_ids))
-> +               return -ENODEV;
-> +
->         /* enable pci dev */
->         ret = pci_enable_device(pdev);
->         if (ret) {
-> --
-> 2.17.1
->
+Kexec has been a formal feature in our distro, and customers owning
+those kind of very large machine can make use of this feature to speed
+up the reboot process. On uefi machine, the kexec_file loading will
+search place to put kernel under 4G from top to down. As we know, the
+1st 4G space is DMA32 ZONE, dma, pci mmcfg, bios etc all try to consume
+it. It may have possibility to not be able to find a usable space for
+kernel/initrd. From the top down of the whole memory space, we don't
+have this worry. 
+
+And at the first post, I just posted below with AKASHI's
+walk_system_ram_res_rev() version. Later you suggested to use
+list_head to link child sibling of resource, see what the code change
+looks like.
+http://lkml.kernel.org/r/20180322033722.9279-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+
+Then I posted v2
+http://lkml.kernel.org/r/20180408024724.16812-1-bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+Rob Herring mentioned that other components which has this tree struct
+have planned to do the same thing, replacing the singly linked list with
+list_head to link resource child sibling. Just quote Rob's words as
+below. I think this could be another reason.
+
+~~~~~ From Rob
+The DT struct device_node also has the same tree structure with
+parent, child, sibling pointers and converting to list_head had been
+on the todo list for a while. ACPI also has some tree walking
+functions (drivers/acpi/acpica/pstree.c). Perhaps there should be a
+common tree struct and helpers defined either on top of list_head or a
+~~~~~
+new struct if that saves some size.
+
+> 
+> Is that sufficient?  Can we instead simplify their lives by providing
+> better documentation or informative printks or better Kconfig text,
+> etc?
+> 
+> And who *are* the people who are performing this configuration?  Random
+> system administrators?  Linux distro engineers?  If the latter then
+> they presumably aren't easily confused!
+
+Kexec was invented for kernel developer to speed up their kernel
+rebooting. Now high end sever admin, kernel developer and QE are also
+keen to use it to reboot large box for faster feature testing, bug
+debugging. Kernel dev could know this well, about kernel loading
+position, admin or QE might not be aware of it very well. 
+
+> 
+> In other words, I'm trying to understand how much benefit this patchset
+> will provide to our users as a whole.
+
+Understood. The list_head replacing patch truly involes too many code
+changes, it's risky. I am willing to try any idea from reviewers, won't
+persuit they have to be accepted finally. If don't have a try, we don't
+know what it looks like, and what impact it may have. I am fine to take
+AKASHI's simple version of walk_system_ram_res_rev() to lower risk, even
+though it could be a little bit low efficient.
+
+Thanks
+Baoquan

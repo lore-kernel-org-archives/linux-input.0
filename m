@@ -1,133 +1,85 @@
-From: =?utf-8?Q?Ond=C5=99ej?= Jirman <megous@megous.com>
-Subject: Re: [PATCH v3 1/3] Input: edt-ft5x06 - Add support for regulator
-Date: Thu, 19 Jul 2018 00:46:45 +0200
-Message-ID: <20180718224645.ns7nvqxvqc6huxcz@core>
-References: <20180718182719.29663-1-mylene.josserand@bootlin.com>
- <20180718182719.29663-2-mylene.josserand@bootlin.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: Prevent loading of driver on Mehlow
+Date: Thu, 19 Jul 2018 11:39:51 +0200
+Message-ID: <CAO-hwJJ=hsdu7AapAaWbB-JQUk9+24Lcx6i31bF5xaVwXdNQpQ@mail.gmail.com>
+References: <20180718193200.17944-1-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180718182719.29663-2-mylene.josserand@bootlin.com>
+In-Reply-To: <20180718193200.17944-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?Q?Myl=C3=A8ne?= Josserand <mylene.josserand@bootlin.com>
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@bootlin.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hello Mylène,
-
-On Wed, Jul 18, 2018 at 08:27:17PM +0200, Mylène Josserand wrote:
-> Add the support of regulator to use it as VCC source.
-> 
-> Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
+On Wed, Jul 18, 2018 at 9:32 PM Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> On Mehlow Xeon-E workstation, ISH PCI device is enabled but without ISH
+> firmware. Here the ISH device PCI device id was reused for some non Linux
+> storage drivers. So this was not done for enabling ISH. But this has a
+> undesirable side effect for Linux.
+>
+> Here the ISH driver will be loaded via PCI enumeration and will try to do
+> reset sequence. But reset sequence will wait till timeout as there is no
+> real ISH firmware is present to take action. This delay will add to boot
+> time of Linux (This platform will still continue to boot after this
+> timeout).
+>
+> To avoid this boot delay we need to prevent loading of ISH drivers on
+> this platform. So we need to have hack to avoid treating this device as
+> ISH on this platform. To identify this workstation, we need some runtime
+> method. Luckily there are special PCI id on this workstation to
+> distinguish from the client version of this platform. On client version,
+> the ISH is supported using same PCI device id. So this change look for
+> the presence of PCI device IDs A309 and A30A and exit.
+>
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 > ---
->  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
->  drivers/input/touchscreen/edt-ft5x06.c             | 29 ++++++++++++++++++++++
->  2 files changed, 30 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> index 025cf8c9324a..48e975b9c1aa 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> @@ -30,6 +30,7 @@ Required properties:
->  Optional properties:
->   - reset-gpios: GPIO specification for the RESET input
->   - wake-gpios:  GPIO specification for the WAKE input
-> + - vcc-supply:  Regulator that supplies the touchscreen
->  
->   - pinctrl-names: should be "default"
->   - pinctrl-0:   a phandle pointing to the pin settings for the
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index 1e18ca0d1b4e..aa94494b06b5 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -39,6 +39,7 @@
->  #include <linux/input/mt.h>
->  #include <linux/input/touchscreen.h>
->  #include <linux/of_device.h>
-> +#include <linux/regulator/consumer.h>
->  
->  #define WORK_REGISTER_THRESHOLD		0x00
->  #define WORK_REGISTER_REPORT_RATE	0x08
-> @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
->  	struct touchscreen_properties prop;
->  	u16 num_x;
->  	u16 num_y;
-> +	struct regulator *vcc;
->  
->  	struct gpio_desc *reset_gpio;
->  	struct gpio_desc *wake_gpio;
-> @@ -991,6 +993,22 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
->  
->  	tsdata->max_support_points = chip_data->max_support_points;
->  
-> +	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
-> +	if (IS_ERR(tsdata->vcc)) {
-> +		error = PTR_ERR(tsdata->vcc);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(&client->dev, "failed to request regulator: %d\n",
-> +				error);
-> +		return error;
-> +	}
-> +
-> +	error = regulator_enable(tsdata->vcc);
-> +	if (error < 0) {
-> +		dev_err(&client->dev, "failed to enable vcc: %d\n",
-> +			error);
-> +		return error;
-> +	}
-> +
->  	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
->  						     "reset", GPIOD_OUT_HIGH);
->  	if (IS_ERR(tsdata->reset_gpio)) {
-> @@ -1120,20 +1138,31 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
->  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
->  
->  	if (device_may_wakeup(dev))
->  		enable_irq_wake(client->irq);
->  
-> +	regulator_disable(tsdata->vcc);
-> +
+> v2
+>  Replaced pci_get_device with pci_dev_present to check in a loop as
+> suggested by Benjamin.
 
-How will the touchscreen wakeup the system with interrupt if you power it off
-on suspend? Perhaps guard this with device_may_wakeup() too? 
+That's even better than what I suggested :)
 
->  	return 0;
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>
+>  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
+>
+> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> index a2c53ea3b5ed..4a55eab39b88 100644
+> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> @@ -95,6 +95,13 @@ static int ish_init(struct ishtp_device *dev)
+>         return 0;
 >  }
->  
->  static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-> +	int ret;
->  
->  	if (device_may_wakeup(dev))
->  		disable_irq_wake(client->irq);
->  
-> +	ret = regulator_enable(tsdata->vcc);
-> +	if (ret < 0) {
-> +		dev_err(dev, "failed to enable vcc: %d\n", ret);
-> +		return ret;
-> +	}
+>
+> +static const struct pci_device_id ish_invalid_pci_ids[] = {
+> +       /* Mehlow platform special pci ids */
+> +       {PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xA309)},
+> +       {PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xA30A)},
+> +       {}
+> +};
 > +
-
-Ditto.
-
-Regards,
-  o.
-
->  	return 0;
->  }
->  
-> -- 
-> 2.11.0
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>  /**
+>   * ish_probe() - PCI driver probe callback
+>   * @pdev:      pci device
+> @@ -110,6 +117,10 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+>         struct ish_hw *hw;
+>         int     ret;
+>
+> +       /* Check for invalid platforms for ISH support */
+> +       if (pci_dev_present(ish_invalid_pci_ids))
+> +               return -ENODEV;
+> +
+>         /* enable pci dev */
+>         ret = pci_enable_device(pdev);
+>         if (ret) {
+> --
+> 2.17.1
+>

@@ -1,7 +1,7 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v1 05/10] Input: atmel_mxt_ts - config CRC may start at T71
-Date: Fri, 20 Jul 2018 22:51:17 +0100
-Message-ID: <20180720215122.23558-5-nick@shmanahar.org>
+Subject: [PATCH v1 07/10] Input: atmel_mxt_ts - zero terminate config firmware file
+Date: Fri, 20 Jul 2018 22:51:19 +0100
+Message-ID: <20180720215122.23558-7-nick@shmanahar.org>
 References: <20180720215122.23558-1-nick@shmanahar.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180720215122.23558-1-nick@shmanahar.org>
@@ -12,102 +12,118 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-On devices with the T71 object, the config CRC will start there, rather
-than at T7.
+We use sscanf to parse the configuration file, so it's necessary to zero
+terminate the configuration otherwise a truncated file can cause the
+parser to run off into uninitialised memory.
 
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 34 +++++++++++++++---------
- 1 file changed, 22 insertions(+), 12 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 36 +++++++++++++++++-------
+ 1 file changed, 26 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 92661aa910ae..560d4997ef8c 100644
+index 0ce126e918f1..2d1fddafb7f9 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -75,6 +75,7 @@
- #define MXT_SPT_DIGITIZER_T43		43
- #define MXT_SPT_MESSAGECOUNT_T44	44
- #define MXT_SPT_CTECONFIG_T46		46
-+#define MXT_SPT_DYNAMICCONFIGURATIONCONTAINER_T71 71
- #define MXT_TOUCH_MULTITOUCHSCREEN_T100 100
+@@ -279,7 +279,7 @@ enum mxt_suspend_mode {
  
- /* MXT_GEN_MESSAGE_T5 object */
-@@ -317,6 +318,7 @@ struct mxt_data {
- 	u8 T6_reportid;
- 	u16 T6_address;
- 	u16 T7_address;
-+	u16 T71_address;
- 	u8 T9_reportid_min;
- 	u8 T9_reportid_max;
- 	u8 T19_reportid;
-@@ -382,6 +384,7 @@ static bool mxt_object_readable(unsigned int type)
- 	case MXT_SPT_USERDATA_T38:
- 	case MXT_SPT_DIGITIZER_T43:
- 	case MXT_SPT_CTECONFIG_T46:
-+	case MXT_SPT_DYNAMICCONFIGURATIONCONTAINER_T71:
- 		return true;
- 	default:
- 		return false;
-@@ -1443,6 +1446,7 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *cfg)
+ /* Config update context */
+ struct mxt_cfg {
+-	const u8 *raw;
++	u8 *raw;
+ 	size_t raw_size;
+ 	off_t raw_pos;
+ 
+@@ -1451,14 +1451,21 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
  	u32 info_crc, config_crc, calculated_crc;
- 	u8 *config_mem;
- 	size_t config_mem_size;
-+	u16 crc_start = 0;
+ 	u16 crc_start = 0;
+ 
+-	cfg.raw = fw->data;
++	/* Make zero terminated copy of the OBP_RAW file */
++	cfg.raw = kzalloc(fw->size + 1, GFP_KERNEL);
++	if (!cfg.raw)
++		return -ENOMEM;
++
++	memcpy(cfg.raw, fw->data, fw->size);
++	cfg.raw[fw->size] = '\0';
+ 	cfg.raw_size = fw->size;
  
  	mxt_update_crc(data, MXT_COMMAND_REPORTALL, 1);
  
-@@ -1529,20 +1533,22 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *cfg)
- 		goto release_mem;
+ 	if (strncmp(cfg.raw, MXT_CFG_MAGIC, strlen(MXT_CFG_MAGIC))) {
+ 		dev_err(dev, "Unrecognised config file\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto release_raw;
+ 	}
  
- 	/* Calculate crc of the received configs (not the raw config file) */
--	if (data->T7_address < cfg_start_ofs) {
--		dev_err(dev, "Bad T7 address, T7addr = %x, config offset %x\n",
--			data->T7_address, cfg_start_ofs);
--		ret = 0;
--		goto release_mem;
--	}
-+	if (data->T71_address)
-+		crc_start = data->T71_address;
-+	else if (data->T7_address)
-+		crc_start = data->T7_address;
-+	else
-+		dev_warn(dev, "Could not find CRC start\n");
+ 	cfg.raw_pos = strlen(MXT_CFG_MAGIC);
+@@ -1470,7 +1477,8 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 			     &offset);
+ 		if (ret != 1) {
+ 			dev_err(dev, "Bad format\n");
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto release_raw;
+ 		}
  
--	calculated_crc = mxt_calculate_crc(config_mem,
--					   data->T7_address - cfg_start_ofs,
--					   config_mem_size);
-+	if (crc_start > cfg_start_ofs) {
-+		calculated_crc = mxt_calculate_crc(config_mem,
-+						   crc_start - cfg_start_ofs,
-+						   config_mem_size);
+ 		cfg.raw_pos += offset;
+@@ -1478,26 +1486,30 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
  
--	if (config_crc > 0 && config_crc != calculated_crc)
--		dev_warn(dev, "Config CRC error, calculated=%06X, file=%06X\n",
--			 calculated_crc, config_crc);
-+		if (config_crc > 0 && config_crc != calculated_crc)
-+			dev_warn(dev, "Config CRC in file inconsistent, calculated=%06X, file=%06X\n",
-+				 calculated_crc, config_crc);
+ 	if (cfg.info.family_id != data->info->family_id) {
+ 		dev_err(dev, "Family ID mismatch!\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto release_raw;
+ 	}
+ 
+ 	if (cfg.info.variant_id != data->info->variant_id) {
+ 		dev_err(dev, "Variant ID mismatch!\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto release_raw;
+ 	}
+ 
+ 	/* Read CRCs */
+ 	ret = sscanf(cfg.raw + cfg.raw_pos, "%x%n", &info_crc, &offset);
+ 	if (ret != 1) {
+ 		dev_err(dev, "Bad format: failed to parse Info CRC\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto release_raw;
+ 	}
+ 	cfg.raw_pos += offset;
+ 
+ 	ret = sscanf(cfg.raw + cfg.raw_pos, "%x%n", &config_crc, &offset);
+ 	if (ret != 1) {
+ 		dev_err(dev, "Bad format: failed to parse Config CRC\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto release_raw;
+ 	}
+ 	cfg.raw_pos += offset;
+ 
+@@ -1530,8 +1542,10 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 			MXT_INFO_CHECKSUM_SIZE;
+ 	cfg.mem_size = data->mem_size - cfg.start_ofs;
+ 	cfg.mem = kzalloc(cfg.mem_size, GFP_KERNEL);
+-	if (!cfg.mem)
+-		return -ENOMEM;
++	if (!cfg.mem) {
++		ret = -ENOMEM;
++		goto release_raw;
 +	}
  
- 	ret = mxt_upload_cfg_mem(data, cfg_start_ofs,
- 				 config_mem, config_mem_size);
-@@ -1589,6 +1595,7 @@ static void mxt_free_object_table(struct mxt_data *data)
- 	data->T5_msg_size = 0;
- 	data->T6_reportid = 0;
- 	data->T7_address = 0;
-+	data->T71_address = 0;
- 	data->T9_reportid_min = 0;
- 	data->T9_reportid_max = 0;
- 	data->T19_reportid = 0;
-@@ -1654,6 +1661,9 @@ static int mxt_parse_object_table(struct mxt_data *data,
- 		case MXT_GEN_POWER_T7:
- 			data->T7_address = object->start_address;
- 			break;
-+		case MXT_SPT_DYNAMICCONFIGURATIONCONTAINER_T71:
-+			data->T71_address = object->start_address;
-+			break;
- 		case MXT_TOUCH_MULTI_T9:
- 			data->multitouch = MXT_TOUCH_MULTI_T9;
- 			/* Only handle messages from first T9 instance */
+ 	ret = mxt_prepare_cfg_mem(data, &cfg);
+ 	if (ret)
+@@ -1570,6 +1584,8 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
+ 	/* T7 config may have changed */
+ 	mxt_init_t7_power_cfg(data);
+ 
++release_raw:
++	kfree(cfg.raw);
+ release_mem:
+ 	kfree(cfg.mem);
+ 	return ret;
 -- 
 2.17.1

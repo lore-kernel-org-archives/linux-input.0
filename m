@@ -1,28 +1,53 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/3] Input: edt-ft5x06 - Add support for regulator
-Date: Fri, 20 Jul 2018 07:43:55 -0600
-Message-ID: <20180720134355.GA24750@rob-hp-laptop>
-References: <20180718182719.29663-1-mylene.josserand@bootlin.com>
- <20180718182719.29663-2-mylene.josserand@bootlin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH v1 01/10] Input: atmel_mxt_ts - only use first T9 instance
+Date: Fri, 20 Jul 2018 22:51:13 +0100
+Message-ID: <20180720215122.23558-1-nick@shmanahar.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180718182719.29663-2-mylene.josserand@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@bootlin.com>
-Cc: dmitry.torokhov@gmail.com, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@bootlin.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Healy <cphealy@gmail.com>, Nikita Yushchenko <nikita.yoush@cogentembedded.com>, Lucas Stach <l.stach@pengutronix.de>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 18, 2018 at 08:27:17PM +0200, Mylène Josserand wrote:
-> Add the support of regulator to use it as VCC source.
-> 
-> Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
-> ---
->  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
+From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-Please add acks when posting new versions.
+The driver only registers one input device, which uses the screen
+parameters from the first T9 instance. The first T63 instance also uses
+those parameters.
 
->  drivers/input/touchscreen/edt-ft5x06.c             | 29 ++++++++++++++++++++++
->  2 files changed, 30 insertions(+)
+It is incorrect to send input reports from the second instances of these
+objects if they are enabled: the input scaling will be wrong and the
+positions will be mashed together.
+
+This also causes problems on Android if the number of slots exceeds 32.
+
+In the future, this could be handled by looking for enabled touch object
+instances and creating an input device for each one.
+
+Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+Acked-by: Benson Leung <bleung@chromium.org>
+Acked-by: Yufeng Shen <miletus@chromium.org>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 54fe190fd4bc..48c5ccab00a0 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1658,10 +1658,11 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 			break;
+ 		case MXT_TOUCH_MULTI_T9:
+ 			data->multitouch = MXT_TOUCH_MULTI_T9;
++			/* Only handle messages from first T9 instance */
+ 			data->T9_reportid_min = min_id;
+-			data->T9_reportid_max = max_id;
+-			data->num_touchids = object->num_report_ids
+-						* mxt_obj_instances(object);
++			data->T9_reportid_max = min_id +
++						object->num_report_ids - 1;
++			data->num_touchids = object->num_report_ids;
+ 			break;
+ 		case MXT_SPT_MESSAGECOUNT_T44:
+ 			data->T44_address = object->start_address;
+-- 
+2.17.1

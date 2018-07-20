@@ -1,7 +1,7 @@
 From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v1 09/10] Input: atmel_mxt_ts - tool type is ignored when slot is closed
-Date: Fri, 20 Jul 2018 22:51:21 +0100
-Message-ID: <20180720215122.23558-9-nick@shmanahar.org>
+Subject: [PATCH v1 10/10] Input: atmel_mxt_ts - move completion to after config crc is updated
+Date: Fri, 20 Jul 2018 22:51:22 +0100
+Message-ID: <20180720215122.23558-10-nick@shmanahar.org>
 References: <20180720215122.23558-1-nick@shmanahar.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180720215122.23558-1-nick@shmanahar.org>
@@ -12,37 +12,30 @@ List-Id: linux-input@vger.kernel.org
 
 From: Nick Dyer <nick.dyer@itdev.co.uk>
 
-input_mt_report_slot_state() ignores the tool when the slot is closed.
-Remove the tool type from these function calls, which has caused a bit of
-confusion.
-
 Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index d7023d261458..c31af790ef84 100644
+index c31af790ef84..9f296a66c94e 100644
 --- a/drivers/input/touchscreen/atmel_mxt_ts.c
 +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -838,8 +838,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 		 * have happened.
- 		 */
- 		if (status & MXT_T9_RELEASE) {
--			input_mt_report_slot_state(input_dev,
--						   MT_TOOL_FINGER, 0);
-+			input_mt_report_slot_state(input_dev, 0, 0);
- 			mxt_input_sync(data);
- 		}
+@@ -728,13 +728,13 @@ static void mxt_proc_t6_messages(struct mxt_data *data, u8 *msg)
+ 	u8 status = msg[1];
+ 	u32 crc = msg[2] | (msg[3] << 8) | (msg[4] << 16);
  
-@@ -855,7 +854,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
- 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
- 	} else {
- 		/* Touch no longer active, close out slot */
--		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
-+		input_mt_report_slot_state(input_dev, 0, 0);
+-	complete(&data->crc_completion);
+-
+ 	if (crc != data->config_crc) {
+ 		data->config_crc = crc;
+ 		dev_dbg(dev, "T6 Config Checksum: 0x%06X\n", crc);
  	}
  
- 	data->update_input = true;
++	complete(&data->crc_completion);
++
+ 	/* Detect reset */
+ 	if (status & MXT_T6_STATUS_RESET)
+ 		complete(&data->reset_completion);
 -- 
 2.17.1

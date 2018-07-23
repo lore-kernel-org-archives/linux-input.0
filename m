@@ -1,35 +1,36 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 05/11] touchscreen: elants: Use octal permissions
-Date: Mon, 23 Jul 2018 15:32:00 +0200
-Message-ID: <20180723133200.GA1167@kroah.com>
-References: <20180723131954.30739-1-harshitjain6751@gmail.com>
- <20180723131954.30739-4-harshitjain6751@gmail.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v7 4/4] kexec_file: Load kernel at top of system RAM if
+ required
+Date: Mon, 23 Jul 2018 16:34:43 +0200
+Message-ID: <20180723143443.GD18181@dhcp22.suse.cz>
+References: <20180718024944.577-1-bhe@redhat.com>
+ <20180718024944.577-5-bhe@redhat.com>
+ <20180718153326.b795e9ea7835432a56cd7011@linux-foundation.org>
+ <20180719151753.GB7147@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180723131954.30739-4-harshitjain6751@gmail.com>
+In-Reply-To: <20180719151753.GB7147@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dev-harsh1998 <harshitjain6751@gmail.com>
-Cc: trivial@kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Budig <simon.budig@kernelconcepts.de>, Andi Shyti <andi@etezian.org>, Luca Ceresoli <luca@lucaceresoli.net>, Joe Perches <joe@perches.com>, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Baoquan He <bhe@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, robh+dt@kernel.org, dan.j.williams@intel.com, nicolas.pitre@linaro.org, josh@joshtriplett.org, fengguang.wu@intel.com, bp@suse.de, andy.shevchenko@gmail.com, patrik.r.jakobsson@gmail.com, airlied@linux.ie, kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com, dmitry.torokhov@gmail.com, frowand.list@gmail.com, keith.busch@intel.com, jonathan.derrick@intel.com, lorenzo.pieralisi@arm.com, bhelgaas@google.com, tglx@linutronix.de, brijesh.singh@amd.com, jglisse@redhat.com, thomas.lendacky@amd.com, gregkh@linuxfoundation.org, baiyaowei@cmss.chinamobile.com, richard.weiyang@gmail.com, devel@linuxdriverproject.org, linux-input@vger.kernel.org, linux-nvdimm@lists.01.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 23, 2018 at 06:49:20PM +0530, dev-harsh1998 wrote:
-> WARNING: Symbolic permissions 'S_IRUGO' are not preferred. Consider using octal permissions '0444'.
-> +static DEVICE_ATTR(iap_mode, S_IRUGO, show_iap_mode, NULL);
-> 
-> WARNING: Symbolic permissions 'S_IWUSR' are not preferred. Consider using octal permissions '0200'.
-> +static DEVICE_ATTR(update_fw, S_IWUSR, NULL, write_update_fw)
-> 
-> WARNING: Symbolic permissions 'S_IRUGO' are not preferred. Consider using octal permissions '0444'.
-> +		.dattr = __ATTR(_field, S_IRUGO,			\
-> 
-> Signed-off-by: Harshit Jain <harshitjain6751@gmail.com>
+On Thu 19-07-18 23:17:53, Baoquan He wrote:
+> Kexec has been a formal feature in our distro, and customers owning
+> those kind of very large machine can make use of this feature to speed
+> up the reboot process. On uefi machine, the kexec_file loading will
+> search place to put kernel under 4G from top to down. As we know, the
+> 1st 4G space is DMA32 ZONE, dma, pci mmcfg, bios etc all try to consume
+> it. It may have possibility to not be able to find a usable space for
+> kernel/initrd. From the top down of the whole memory space, we don't
+> have this worry. 
 
-This name doesn't match up with the From: line above :(
-
-Please fix up and try again.
-
-thanks,
-
-greg k-h
+I do not have the full context here but let me note that you should be
+careful when doing top-down reservation because you can easily get into
+hotplugable memory and break the hotremove usecase. We even warn when
+this is done. See memblock_find_in_range_node
+-- 
+Michal Hocko
+SUSE Labs

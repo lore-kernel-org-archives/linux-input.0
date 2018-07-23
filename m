@@ -1,33 +1,47 @@
 From: dev-harsh1998 <harshitjain6751@gmail.com>
-Subject: [PATCH 02/11] touchscreen: ad7877: Use octal permissions
-Date: Mon, 23 Jul 2018 18:49:17 +0530
-Message-ID: <20180723131954.30739-1-harshitjain6751@gmail.com>
+Subject: [PATCH 03/11] touchscreen: ad7846: Use octal permissions
+Date: Mon, 23 Jul 2018 18:49:18 +0530
+Message-ID: <20180723131954.30739-2-harshitjain6751@gmail.com>
+References: <20180723131954.30739-1-harshitjain6751@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180723131954.30739-1-harshitjain6751@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: trivial@kernel.org
-Cc: Harshit Jain <harshitjain6751@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Budig <simon.budig@kernelconcepts.de>, Andi Shyti <andi@etezian.org>, Luca Ceresoli <luca@lucaceresoli.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Harshit Jain <harshitjain6751@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Simon Budig <simon.budig@kernelconcepts.de>, Andi Shyti <andi@etezian.org>, Luca Ceresoli <luca@lucaceresoli.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 WARNING: Symbolic permissions 'S_IRUGO' are not preferred. Consider using octal permissions '0444'.
 +static DEVICE_ATTR(name, S_IRUGO, name ## _show, NULL);
 
+WARNING: Symbolic permissions 'S_IRUGO' are not preferred. Consider using octal permissions '0444'.
++static DEVICE_ATTR(pen_down, S_IRUGO, ads7846_pen_down_show, NULL);
+
 Signed-off-by: Harshit Jain <harshitjain6751@gmail.com>
 ---
- drivers/input/touchscreen/ad7877.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/ads7846.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index 5cfe477ec992..4b4a9d84195e 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -461,7 +461,7 @@ name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index a2f45aefce08..7c07de0802de 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -431,7 +431,7 @@ name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
  		return v; \
- 	return sprintf(buf, "%u\n", (unsigned) v); \
+ 	return sprintf(buf, "%u\n", adjust(ts, v)); \
  } \
 -static DEVICE_ATTR(name, S_IRUGO, name ## _show, NULL);
 +static DEVICE_ATTR(name, 0444, name ## _show, NULL);
  
- SHOW(aux1)
- SHOW(aux2)
+ 
+ /* Sysfs conventions report temperatures in millidegrees Celsius.
+@@ -561,7 +561,7 @@ static ssize_t ads7846_pen_down_show(struct device *dev,
+ 	return sprintf(buf, "%u\n", ts->pendown);
+ }
+ 
+-static DEVICE_ATTR(pen_down, S_IRUGO, ads7846_pen_down_show, NULL);
++static DEVICE_ATTR(pen_down, 0444, ads7846_pen_down_show, NULL);
+ 
+ static ssize_t ads7846_disable_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf)
 -- 
 2.17.1

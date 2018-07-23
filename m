@@ -1,67 +1,46 @@
-From: Harshit Jain <harshitjain6751@gmail.com>
-Subject: Re: [PATCH 05/11] touchscreen: elants: Use octal permissions
-Date: Tue, 24 Jul 2018 01:47:14 +0530
-Message-ID: <CAA47fTLQFiSFiDksiNMJjnFg6rO1xS1ceE=bvhQz7o6WNa3_CA@mail.gmail.com>
-References: <20180723131954.30739-1-harshitjain6751@gmail.com>
- <20180723131954.30739-4-harshitjain6751@gmail.com> <20180723133200.GA1167@kroah.com>
- <20180723171831.GC100814@dtor-ws> <e257bc89eb082e9fdc342d6f794c15a2805c98a9.camel@perches.com>
- <20180723182412.GA2964@roeck-us.net> <5ac390c1cdf14656624dcc1f2816ab4d694d0d4f.camel@perches.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: HID: intel_ish-hid: tx_buf memory leak on probe/remove
+Date: Mon, 23 Jul 2018 14:55:41 -0700
+Message-ID: <fbac7919db6874c76ef3ac628c8356968bb55d7a.camel@linux.intel.com>
+References: <a0faf8a7-17ea-0ed3-5bb5-f1e8fb5debf6@ispras.ru>
 Mime-Version: 1.0
-Content-Type: multipart/alternative; boundary="000000000000da98bc0571b0542b"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5ac390c1cdf14656624dcc1f2816ab4d694d0d4f.camel@perches.com>
+In-Reply-To: <a0faf8a7-17ea-0ed3-5bb5-f1e8fb5debf6@ispras.ru>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, trivial@kernel.org, Simon Budig <simon.budig@kernelconcepts.de>, Andi Shyti <andi@etezian.org>, Luca Ceresoli <luca@lucaceresoli.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anton Vasilyev <vasilyev@ispras.ru>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 List-Id: linux-input@vger.kernel.org
 
---000000000000da98bc0571b0542b
-Content-Type: text/plain; charset="UTF-8"
+On Mon, 2018-07-23 at 20:56 +0300, Anton Vasilyev wrote:
+> ish_dev_init() allocates 512*176 bytes memory for tx_buf and stores
+> it at
+> &dev->wr_free_list_head.link list on ish_probe().
+> But there is no deallocation of this memory in ish_remove() and in 
+> ish_probe()
+> error path.
+> So current intel-ish-ipc provides 88 KB memory leak for each
+> probe/release.
+> 
+> I have two ideas 1) to replace kzalloc allocation by devm_kzalloc,
+Thanks for finding this. We can replace both alloc in this function
+with devm_ calls. Once you have a patch I can test.
 
-I ran a treewide script and changed them all to octal and built a kernel
-which i am currently running on my machine, I have used DEVICE_ATTR_RO()
-for 0444's where possible if i dont find any regressions I will post a
-patch for review. I think i will be testing it at least for a week.
+Thanks,
+Srinivas 
 
-On Tue, Jul 24, 2018 at 12:00 AM, Joe Perches <joe@perches.com> wrote:
-
-> On Mon, 2018-07-23 at 11:24 -0700, Guenter Roeck wrote:
-> > There are much more urgent issues to fix there (such as, for example,
-> > converting the "offending" drivers to the latest API, which would
-> > magically cause most of the offenders to disappear).
->
-> Perhaps posting a list of desired hwmon changes could help.
->
-> Documentation/hwmon/submitting-patches does not seem to specify
-> what the "latest API" is nor describe what changes would be
-> required in older drivers.
->
-
---000000000000da98bc0571b0542b
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">I ran a treewide script and changed them all to octal and =
-built a kernel which i am currently running on my machine, I have used DEVI=
-CE_ATTR_RO() for 0444&#39;s where possible if i dont find any regressions I=
- will post a patch for review. I think i will be testing it at least for a =
-week.</div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Tue=
-, Jul 24, 2018 at 12:00 AM, Joe Perches <span dir=3D"ltr">&lt;<a href=3D"ma=
-ilto:joe@perches.com" target=3D"_blank">joe@perches.com</a>&gt;</span> wrot=
-e:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-l=
-eft:1px #ccc solid;padding-left:1ex"><span class=3D"">On Mon, 2018-07-23 at=
- 11:24 -0700, Guenter Roeck wrote:<br>
-&gt; There are much more urgent issues to fix there (such as, for example,<=
-br>
-&gt; converting the &quot;offending&quot; drivers to the latest API, which =
-would<br>
-&gt; magically cause most of the offenders to disappear).<br>
-<br>
-</span>Perhaps posting a list of desired hwmon changes could help.<br>
-<br>
-Documentation/hwmon/<wbr>submitting-patches does not seem to specify<br>
-what the &quot;latest API&quot; is nor describe what changes would be<br>
-required in older drivers.<br>
-</blockquote></div><br></div>
-
---000000000000da98bc0571b0542b--
+> or 2) release memory stored at &dev->wr_free_list_head.link list
+> (and 
+> may be at
+> &dev->wr_processing_list_head.link) in all driver exits.
+> 
+> But I do not know which way is preferable for this case.
+> 
+> Found by Linux Driver Verification project (linuxtesting.org).
+> 
+> --
+> Anton Vasilyev
+> Linux Verification Center, ISPRAS
+> web: http://linuxtesting.org
+> e-mail: vasilyev@ispras.ru

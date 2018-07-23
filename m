@@ -1,40 +1,35 @@
 From: dev-harsh1998 <harshitjain6751@gmail.com>
-Subject: [PATCH 10/11] touchscreen: sun4i_ts: Use octal permissions
-Date: Mon, 23 Jul 2018 18:49:25 +0530
-Message-ID: <20180723131954.30739-9-harshitjain6751@gmail.com>
+Subject: [PATCH 11/11] touchscreen: tsc200x: Use octal permissions
+Date: Mon, 23 Jul 2018 18:49:26 +0530
+Message-ID: <20180723131954.30739-10-harshitjain6751@gmail.com>
 References: <20180723131954.30739-1-harshitjain6751@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180723131954.30739-1-harshitjain6751@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: trivial@kernel.org
-Cc: Harshit Jain <harshitjain6751@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Simon Budig <simon.budig@kernelconcepts.de>, Andi Shyti <andi@etezian.org>, Luca Ceresoli <luca@lucaceresoli.net>, Julia Lawall <Julia.Lawall@lip6.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Harshit Jain <harshitjain6751@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andi Shyti <andi@etezian.org>, Simon Budig <simon.budig@kernelconcepts.de>, Luca Ceresoli <luca@lucaceresoli.net>, Martin Kepplinger <martink@posteo.de>, Kees Cook <keescook@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 WARNING: Symbolic permissions 'S_IRUGO' are not preferred. Consider using octal permissions '0444'.
-+static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
-
-WARNING: Symbolic permissions 'S_IRUGO' are not preferred. Consider using octal permissions '0444'.
-+static DEVICE_ATTR(temp1_label, S_IRUGO, show_temp_label, NULL);
++static DEVICE_ATTR(selftest, S_IRUGO, tsc200x_selftest_show, NULL);
 
 Signed-off-by: Harshit Jain <harshitjain6751@gmail.com>
 ---
- drivers/input/touchscreen/sun4i-ts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/tsc200x-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
-index d2e14d9e5975..78960961a524 100644
---- a/drivers/input/touchscreen/sun4i-ts.c
-+++ b/drivers/input/touchscreen/sun4i-ts.c
-@@ -230,8 +230,8 @@ static ssize_t show_temp_label(struct device *dev,
- 	return sprintf(buf, "SoC temperature\n");
+diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
+index e0fde590df8e..daefeca101ff 100644
+--- a/drivers/input/touchscreen/tsc200x-core.c
++++ b/drivers/input/touchscreen/tsc200x-core.c
+@@ -336,7 +336,7 @@ static ssize_t tsc200x_selftest_show(struct device *dev,
+ 	return sprintf(buf, "%d\n", success);
  }
  
--static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
--static DEVICE_ATTR(temp1_label, S_IRUGO, show_temp_label, NULL);
-+static DEVICE_ATTR(temp1_input, 0444, show_temp, NULL);
-+static DEVICE_ATTR(temp1_label, 0444, show_temp_label, NULL);
+-static DEVICE_ATTR(selftest, S_IRUGO, tsc200x_selftest_show, NULL);
++static DEVICE_ATTR(selftest, 0444, tsc200x_selftest_show, NULL);
  
- static struct attribute *sun4i_ts_attrs[] = {
- 	&dev_attr_temp1_input.attr,
+ static struct attribute *tsc200x_attrs[] = {
+ 	&dev_attr_selftest.attr,
 -- 
 2.17.1

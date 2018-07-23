@@ -1,46 +1,63 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: HID: intel_ish-hid: tx_buf memory leak on probe/remove
-Date: Mon, 23 Jul 2018 14:55:41 -0700
-Message-ID: <fbac7919db6874c76ef3ac628c8356968bb55d7a.camel@linux.intel.com>
-References: <a0faf8a7-17ea-0ed3-5bb5-f1e8fb5debf6@ispras.ru>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v1 09/10] Input: atmel_mxt_ts - tool type is ignored when
+ slot is closed
+Date: Mon, 23 Jul 2018 15:33:47 -0700
+Message-ID: <20180723223347.GJ100814@dtor-ws>
+References: <20180720215122.23558-1-nick@shmanahar.org>
+ <20180720215122.23558-9-nick@shmanahar.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a0faf8a7-17ea-0ed3-5bb5-f1e8fb5debf6@ispras.ru>
+Content-Disposition: inline
+In-Reply-To: <20180720215122.23558-9-nick@shmanahar.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anton Vasilyev <vasilyev@ispras.ru>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+To: Nick Dyer <nick@shmanahar.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Healy <cphealy@gmail.com>, Nikita Yushchenko <nikita.yoush@cogentembedded.com>, Lucas Stach <l.stach@pengutronix.de>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2018-07-23 at 20:56 +0300, Anton Vasilyev wrote:
-> ish_dev_init() allocates 512*176 bytes memory for tx_buf and stores
-> it at
-> &dev->wr_free_list_head.link list on ish_probe().
-> But there is no deallocation of this memory in ish_remove() and in 
-> ish_probe()
-> error path.
-> So current intel-ish-ipc provides 88 KB memory leak for each
-> probe/release.
+On Fri, Jul 20, 2018 at 10:51:21PM +0100, Nick Dyer wrote:
+> From: Nick Dyer <nick.dyer@itdev.co.uk>
 > 
-> I have two ideas 1) to replace kzalloc allocation by devm_kzalloc,
-Thanks for finding this. We can replace both alloc in this function
-with devm_ calls. Once you have a patch I can test.
+> input_mt_report_slot_state() ignores the tool when the slot is closed.
+> Remove the tool type from these function calls, which has caused a bit of
+> confusion.
 
-Thanks,
-Srinivas 
+Hmm, maybe we could introduce MT_TOOL_NONE or MT_TOOL_INACTIVE and get
+rid of the 3rd parameter? It will require a bit of macro trickery for a
+release or 2...
 
-> or 2) release memory stored at &dev->wr_free_list_head.link list
-> (and 
-> may be at
-> &dev->wr_processing_list_head.link) in all driver exits.
 > 
-> But I do not know which way is preferable for this case.
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> ---
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 > 
-> Found by Linux Driver Verification project (linuxtesting.org).
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index d7023d261458..c31af790ef84 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -838,8 +838,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+>  		 * have happened.
+>  		 */
+>  		if (status & MXT_T9_RELEASE) {
+> -			input_mt_report_slot_state(input_dev,
+> -						   MT_TOOL_FINGER, 0);
+> +			input_mt_report_slot_state(input_dev, 0, 0);
+>  			mxt_input_sync(data);
+>  		}
+>  
+> @@ -855,7 +854,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+>  		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
+>  	} else {
+>  		/* Touch no longer active, close out slot */
+> -		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
+> +		input_mt_report_slot_state(input_dev, 0, 0);
+>  	}
+>  
+>  	data->update_input = true;
+> -- 
+> 2.17.1
 > 
-> --
-> Anton Vasilyev
-> Linux Verification Center, ISPRAS
-> web: http://linuxtesting.org
-> e-mail: vasilyev@ispras.ru
+
+-- 
+Dmitry

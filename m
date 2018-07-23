@@ -1,143 +1,112 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1 07/10] Input: atmel_mxt_ts - zero terminate config
- firmware file
-Date: Mon, 23 Jul 2018 15:35:34 -0700
-Message-ID: <20180723223534.GK100814@dtor-ws>
-References: <20180720215122.23558-1-nick@shmanahar.org>
- <20180720215122.23558-7-nick@shmanahar.org>
+Subject: Re: [PATCH v3 1/3] Input: edt-ft5x06 - Add support for regulator
+Date: Mon, 23 Jul 2018 15:39:26 -0700
+Message-ID: <20180723223926.GL100814@dtor-ws>
+References: <20180718182719.29663-1-mylene.josserand@bootlin.com>
+ <20180718182719.29663-2-mylene.josserand@bootlin.com>
+ <20180718224645.ns7nvqxvqc6huxcz@core>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180720215122.23558-7-nick@shmanahar.org>
+In-Reply-To: <20180718224645.ns7nvqxvqc6huxcz@core>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Healy <cphealy@gmail.com>, Nikita Yushchenko <nikita.yoush@cogentembedded.com>, Lucas Stach <l.stach@pengutronix.de>, Nick Dyer <nick.dyer@itdev.co.uk>
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@bootlin.com>, robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@bootlin.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 20, 2018 at 10:51:19PM +0100, Nick Dyer wrote:
-> From: Nick Dyer <nick.dyer@itdev.co.uk>
+On Thu, Jul 19, 2018 at 12:46:45AM +0200, Ondřej Jirman wrote:
+> Hello Mylène,
 > 
-> We use sscanf to parse the configuration file, so it's necessary to zero
-> terminate the configuration otherwise a truncated file can cause the
-> parser to run off into uninitialised memory.
-> 
-> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 36 +++++++++++++++++-------
->  1 file changed, 26 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 0ce126e918f1..2d1fddafb7f9 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -279,7 +279,7 @@ enum mxt_suspend_mode {
->  
->  /* Config update context */
->  struct mxt_cfg {
-> -	const u8 *raw;
-> +	u8 *raw;
->  	size_t raw_size;
->  	off_t raw_pos;
->  
-> @@ -1451,14 +1451,21 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
->  	u32 info_crc, config_crc, calculated_crc;
->  	u16 crc_start = 0;
->  
-> -	cfg.raw = fw->data;
-> +	/* Make zero terminated copy of the OBP_RAW file */
-> +	cfg.raw = kzalloc(fw->size + 1, GFP_KERNEL);
+> On Wed, Jul 18, 2018 at 08:27:17PM +0200, Mylène Josserand wrote:
+> > Add the support of regulator to use it as VCC source.
+> > 
+> > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
+> > ---
+> >  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
+> >  drivers/input/touchscreen/edt-ft5x06.c             | 29 ++++++++++++++++++++++
+> >  2 files changed, 30 insertions(+)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > index 025cf8c9324a..48e975b9c1aa 100644
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > @@ -30,6 +30,7 @@ Required properties:
+> >  Optional properties:
+> >   - reset-gpios: GPIO specification for the RESET input
+> >   - wake-gpios:  GPIO specification for the WAKE input
+> > + - vcc-supply:  Regulator that supplies the touchscreen
+> >  
+> >   - pinctrl-names: should be "default"
+> >   - pinctrl-0:   a phandle pointing to the pin settings for the
+> > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> > index 1e18ca0d1b4e..aa94494b06b5 100644
+> > --- a/drivers/input/touchscreen/edt-ft5x06.c
+> > +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> > @@ -39,6 +39,7 @@
+> >  #include <linux/input/mt.h>
+> >  #include <linux/input/touchscreen.h>
+> >  #include <linux/of_device.h>
+> > +#include <linux/regulator/consumer.h>
+> >  
+> >  #define WORK_REGISTER_THRESHOLD		0x00
+> >  #define WORK_REGISTER_REPORT_RATE	0x08
+> > @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
+> >  	struct touchscreen_properties prop;
+> >  	u16 num_x;
+> >  	u16 num_y;
+> > +	struct regulator *vcc;
+> >  
+> >  	struct gpio_desc *reset_gpio;
+> >  	struct gpio_desc *wake_gpio;
+> > @@ -991,6 +993,22 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+> >  
+> >  	tsdata->max_support_points = chip_data->max_support_points;
+> >  
+> > +	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
+> > +	if (IS_ERR(tsdata->vcc)) {
+> > +		error = PTR_ERR(tsdata->vcc);
+> > +		if (error != -EPROBE_DEFER)
+> > +			dev_err(&client->dev, "failed to request regulator: %d\n",
+> > +				error);
+> > +		return error;
+> > +	}
+> > +
+> > +	error = regulator_enable(tsdata->vcc);
+> > +	if (error < 0) {
+> > +		dev_err(&client->dev, "failed to enable vcc: %d\n",
+> > +			error);
+> > +		return error;
+> > +	}
+> > +
+> >  	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
+> >  						     "reset", GPIOD_OUT_HIGH);
+> >  	if (IS_ERR(tsdata->reset_gpio)) {
 
-kmemdup_nul()? I guess config it not that big to be concerned with
-kmalloc() vs vmalloc() and allocation failures...
+You need to disable regulator here. We do not have
+devm_regulator_enable() (and Mark had some concerns about mixing managed
+and unmanaged APIs for regulators so we can't simply introduce it),
+so I'd recommend using devm_add_action_or_reset() and iunstall custom
+action to turn off regulator.
 
-> +	if (!cfg.raw)
-> +		return -ENOMEM;
-> +
-> +	memcpy(cfg.raw, fw->data, fw->size);
-> +	cfg.raw[fw->size] = '\0';
->  	cfg.raw_size = fw->size;
->  
->  	mxt_update_crc(data, MXT_COMMAND_REPORTALL, 1);
->  
->  	if (strncmp(cfg.raw, MXT_CFG_MAGIC, strlen(MXT_CFG_MAGIC))) {
->  		dev_err(dev, "Unrecognised config file\n");
-> -		return -EINVAL;
-> +		ret = -EINVAL;
-> +		goto release_raw;
->  	}
->  
->  	cfg.raw_pos = strlen(MXT_CFG_MAGIC);
-> @@ -1470,7 +1477,8 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
->  			     &offset);
->  		if (ret != 1) {
->  			dev_err(dev, "Bad format\n");
-> -			return -EINVAL;
-> +			ret = -EINVAL;
-> +			goto release_raw;
->  		}
->  
->  		cfg.raw_pos += offset;
-> @@ -1478,26 +1486,30 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
->  
->  	if (cfg.info.family_id != data->info->family_id) {
->  		dev_err(dev, "Family ID mismatch!\n");
-> -		return -EINVAL;
-> +		ret = -EINVAL;
-> +		goto release_raw;
->  	}
->  
->  	if (cfg.info.variant_id != data->info->variant_id) {
->  		dev_err(dev, "Variant ID mismatch!\n");
-> -		return -EINVAL;
-> +		ret = -EINVAL;
-> +		goto release_raw;
->  	}
->  
->  	/* Read CRCs */
->  	ret = sscanf(cfg.raw + cfg.raw_pos, "%x%n", &info_crc, &offset);
->  	if (ret != 1) {
->  		dev_err(dev, "Bad format: failed to parse Info CRC\n");
-> -		return -EINVAL;
-> +		ret = -EINVAL;
-> +		goto release_raw;
->  	}
->  	cfg.raw_pos += offset;
->  
->  	ret = sscanf(cfg.raw + cfg.raw_pos, "%x%n", &config_crc, &offset);
->  	if (ret != 1) {
->  		dev_err(dev, "Bad format: failed to parse Config CRC\n");
-> -		return -EINVAL;
-> +		ret = -EINVAL;
-> +		goto release_raw;
->  	}
->  	cfg.raw_pos += offset;
->  
-> @@ -1530,8 +1542,10 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
->  			MXT_INFO_CHECKSUM_SIZE;
->  	cfg.mem_size = data->mem_size - cfg.start_ofs;
->  	cfg.mem = kzalloc(cfg.mem_size, GFP_KERNEL);
-> -	if (!cfg.mem)
-> -		return -ENOMEM;
-> +	if (!cfg.mem) {
-> +		ret = -ENOMEM;
-> +		goto release_raw;
-> +	}
->  
->  	ret = mxt_prepare_cfg_mem(data, &cfg);
->  	if (ret)
-> @@ -1570,6 +1584,8 @@ static int mxt_update_cfg(struct mxt_data *data, const struct firmware *fw)
->  	/* T7 config may have changed */
->  	mxt_init_t7_power_cfg(data);
->  
-> +release_raw:
-> +	kfree(cfg.raw);
->  release_mem:
->  	kfree(cfg.mem);
->  	return ret;
-> -- 
-> 2.17.1
+> > @@ -1120,20 +1138,31 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
+> >  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+> >  {
+> >  	struct i2c_client *client = to_i2c_client(dev);
+> > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+> >  
+> >  	if (device_may_wakeup(dev))
+> >  		enable_irq_wake(client->irq);
+> >  
+> > +	regulator_disable(tsdata->vcc);
+> > +
 > 
+> How will the touchscreen wakeup the system with interrupt if you power it off
+> on suspend? Perhaps guard this with device_may_wakeup() too? 
+
+Exactly, it should be in an "else" branch.
+
+Thanks.
 
 -- 
 Dmitry

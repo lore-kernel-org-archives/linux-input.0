@@ -1,131 +1,78 @@
-From: =?UTF-8?B?TXlsw6huZQ==?= Josserand <mylene.josserand@bootlin.com>
-Subject: Re: [PATCH v3 1/3] Input: edt-ft5x06 - Add support for regulator
-Date: Tue, 24 Jul 2018 15:40:37 +0200
-Message-ID: <20180724154037.25174c07@dell-desktop.home>
-References: <20180718182719.29663-1-mylene.josserand@bootlin.com>
-        <20180718182719.29663-2-mylene.josserand@bootlin.com>
-        <20180718224645.ns7nvqxvqc6huxcz@core>
-        <20180723223926.GL100814@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+From: Anton Vasilyev <vasilyev@ispras.ru>
+Subject: [PATCH] HID: intel_ish-hid: tx_buf memory leak on probe/remove
+Date: Tue, 24 Jul 2018 17:34:55 +0300
+Message-ID: <20180724143455.13770-1-vasilyev@ispras.ru>
+References: <fbac7919db6874c76ef3ac628c8356968bb55d7a.camel@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180723223926.GL100814@dtor-ws>
+In-Reply-To: <fbac7919db6874c76ef3ac628c8356968bb55d7a.camel@linux.intel.com>
+References: 
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@bootlin.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Anton Vasilyev <vasilyev@ispras.ru>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 List-Id: linux-input@vger.kernel.org
 
-Hello Dmitry,
+ish_dev_init() allocates 512*176 bytes memory for tx_buf and stores it at
+&dev->wr_free_list_head.link list on ish_probe().
+But there is no deallocation of this memory in ish_remove() and in
+ish_probe() error path.
+So current intel-ish-ipc provides 88 KB memory leak for each
+probe/release.
 
-Thank you for your review!
+The patch replaces kzalloc allocation by devm_kzalloc and removes
+ishtp_device *dev deallocation by kfree.
 
-On Mon, 23 Jul 2018 15:39:26 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Found by Linux Driver Verification project (linuxtesting.org).
 
-> On Thu, Jul 19, 2018 at 12:46:45AM +0200, Ondřej Jirman wrote:
-> > Hello Mylène,
-> > 
-> > On Wed, Jul 18, 2018 at 08:27:17PM +0200, Mylène Josserand wrote:  
-> > > Add the support of regulator to use it as VCC source.
-> > > 
-> > > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
-> > > ---
-> > >  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
-> > >  drivers/input/touchscreen/edt-ft5x06.c             | 29 ++++++++++++++++++++++
-> > >  2 files changed, 30 insertions(+)
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > > index 025cf8c9324a..48e975b9c1aa 100644
-> > > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > > @@ -30,6 +30,7 @@ Required properties:
-> > >  Optional properties:
-> > >   - reset-gpios: GPIO specification for the RESET input
-> > >   - wake-gpios:  GPIO specification for the WAKE input
-> > > + - vcc-supply:  Regulator that supplies the touchscreen
-> > >  
-> > >   - pinctrl-names: should be "default"
-> > >   - pinctrl-0:   a phandle pointing to the pin settings for the
-> > > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> > > index 1e18ca0d1b4e..aa94494b06b5 100644
-> > > --- a/drivers/input/touchscreen/edt-ft5x06.c
-> > > +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> > > @@ -39,6 +39,7 @@
-> > >  #include <linux/input/mt.h>
-> > >  #include <linux/input/touchscreen.h>
-> > >  #include <linux/of_device.h>
-> > > +#include <linux/regulator/consumer.h>
-> > >  
-> > >  #define WORK_REGISTER_THRESHOLD		0x00
-> > >  #define WORK_REGISTER_REPORT_RATE	0x08
-> > > @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
-> > >  	struct touchscreen_properties prop;
-> > >  	u16 num_x;
-> > >  	u16 num_y;
-> > > +	struct regulator *vcc;
-> > >  
-> > >  	struct gpio_desc *reset_gpio;
-> > >  	struct gpio_desc *wake_gpio;
-> > > @@ -991,6 +993,22 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
-> > >  
-> > >  	tsdata->max_support_points = chip_data->max_support_points;
-> > >  
-> > > +	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
-> > > +	if (IS_ERR(tsdata->vcc)) {
-> > > +		error = PTR_ERR(tsdata->vcc);
-> > > +		if (error != -EPROBE_DEFER)
-> > > +			dev_err(&client->dev, "failed to request regulator: %d\n",
-> > > +				error);
-> > > +		return error;
-> > > +	}
-> > > +
-> > > +	error = regulator_enable(tsdata->vcc);
-> > > +	if (error < 0) {
-> > > +		dev_err(&client->dev, "failed to enable vcc: %d\n",
-> > > +			error);
-> > > +		return error;
-> > > +	}
-> > > +
-> > >  	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
-> > >  						     "reset", GPIOD_OUT_HIGH);
-> > >  	if (IS_ERR(tsdata->reset_gpio)) {  
-> 
-> You need to disable regulator here. We do not have
-> devm_regulator_enable() (and Mark had some concerns about mixing managed
-> and unmanaged APIs for regulators so we can't simply introduce it),
-> so I'd recommend using devm_add_action_or_reset() and iunstall custom
-> action to turn off regulator.
+Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+---
+ drivers/hid/intel-ish-hid/ipc/ipc.c     | 7 +++++--
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 2 --
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-Yep, I see. Thank you about "devm_add_action_or_reset", I did not know
-this function. I will add it in next version.
-
-> 
-> > > @@ -1120,20 +1138,31 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
-> > >  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
-> > >  {
-> > >  	struct i2c_client *client = to_i2c_client(dev);
-> > > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-> > >  
-> > >  	if (device_may_wakeup(dev))
-> > >  		enable_irq_wake(client->irq);
-> > >  
-> > > +	regulator_disable(tsdata->vcc);
-> > > +  
-> > 
-> > How will the touchscreen wakeup the system with interrupt if you power it off
-> > on suspend? Perhaps guard this with device_may_wakeup() too?   
-> 
-> Exactly, it should be in an "else" branch.
-> 
-> Thanks.
-> 
-
-I see, I will add it in v4.
-
-Best regards,
-
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 9a60ec13cb10..2f8e5402b450 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -907,7 +907,8 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 	struct ishtp_device *dev;
+ 	int	i;
+ 
+-	dev = kzalloc(sizeof(struct ishtp_device) + sizeof(struct ish_hw),
++	dev = devm_kzalloc(&pdev->dev,
++		sizeof(struct ishtp_device) + sizeof(struct ish_hw),
+ 		GFP_KERNEL);
+ 	if (!dev)
+ 		return NULL;
+@@ -925,7 +926,9 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
+ 		struct wr_msg_ctl_info	*tx_buf;
+ 
+-		tx_buf = kzalloc(sizeof(struct wr_msg_ctl_info), GFP_KERNEL);
++		tx_buf = devm_kzalloc(&pdev->dev,
++			sizeof(struct wr_msg_ctl_info),
++			GFP_KERNEL);
+ 		if (!tx_buf) {
+ 			/*
+ 			 * IPC buffers may be limited or not available
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index a2c53ea3b5ed..81d035a480bc 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -172,7 +172,6 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	free_irq(pdev->irq, dev);
+ free_device:
+ 	pci_iounmap(pdev, hw->mem_addr);
+-	kfree(dev);
+ release_regions:
+ 	pci_release_regions(pdev);
+ disable_device:
+@@ -202,7 +201,6 @@ static void ish_remove(struct pci_dev *pdev)
+ 	pci_release_regions(pdev);
+ 	pci_clear_master(pdev);
+ 	pci_disable_device(pdev);
+-	kfree(ishtp_dev);
+ }
+ 
+ static struct device __maybe_unused *ish_resume_device;
 -- 
-Mylène Josserand, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.18.0

@@ -1,96 +1,85 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v1 09/10] Input: atmel_mxt_ts - tool type is ignored when
- slot is closed
-Date: Wed, 25 Jul 2018 15:26:41 +1000
-Message-ID: <20180725052641.GA7072@jelly>
-References: <20180720215122.23558-1-nick@shmanahar.org>
- <20180720215122.23558-9-nick@shmanahar.org>
- <20180723223347.GJ100814@dtor-ws>
- <CAO-hwJ+BoWdXbH1sbde2+qb_sgFBMarM0156a1VrRSQdhNf3xQ@mail.gmail.com>
+From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v7 4/4] kexec_file: Load kernel at top of system RAM if
+ required
+Date: Wed, 25 Jul 2018 14:48:13 +0800
+Message-ID: <20180725064813.GI6480@MiWiFi-R3L-srv>
+References: <20180718024944.577-1-bhe@redhat.com>
+ <20180718024944.577-5-bhe@redhat.com>
+ <20180718153326.b795e9ea7835432a56cd7011@linux-foundation.org>
+ <20180719151753.GB7147@localhost.localdomain>
+ <20180723143443.GD18181@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+BoWdXbH1sbde2+qb_sgFBMarM0156a1VrRSQdhNf3xQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, cphealy@gmail.com, nikita.yoush@cogentembedded.com, l.stach@pengutronix.de, nick.dyer@itdev.co.uk
+In-Reply-To: <20180723143443.GD18181-2MMpYkNvuYDjFM9bn6wA6Q@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel@vger
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 24, 2018 at 10:23:27AM +0200, Benjamin Tissoires wrote:
-> On Tue, Jul 24, 2018 at 12:34 AM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > On Fri, Jul 20, 2018 at 10:51:21PM +0100, Nick Dyer wrote:
-> > > From: Nick Dyer <nick.dyer@itdev.co.uk>
-> > >
-> > > input_mt_report_slot_state() ignores the tool when the slot is closed.
-> > > Remove the tool type from these function calls, which has caused a bit of
-> > > confusion.
-> >
-> > Hmm, maybe we could introduce MT_TOOL_NONE or MT_TOOL_INACTIVE and get
-> > rid of the 3rd parameter? It will require a bit of macro trickery for a
-> > release or 2...
+On 07/23/18 at 04:34pm, Michal Hocko wrote:
+> On Thu 19-07-18 23:17:53, Baoquan He wrote:
+> > Kexec has been a formal feature in our distro, and customers owning
+> > those kind of very large machine can make use of this feature to speed
+> > up the reboot process. On uefi machine, the kexec_file loading will
+> > search place to put kernel under 4G from top to down. As we know, the
+> > 1st 4G space is DMA32 ZONE, dma, pci mmcfg, bios etc all try to consume
+> > it. It may have possibility to not be able to find a usable space for
+> > kernel/initrd. From the top down of the whole memory space, we don't
+> > have this worry. 
 > 
-> I am not sure what would be the benefit of adding those new tools, if
-> the input_mt code discards them. Do you want to forward them to the
-> userspace with the release?
-> This reminds me the discussion we had recently with the touchscreens
-> releasing the slots with a MT_TOOL_PALM.
-> 
-> Anyway, better include Peter as he will be using this new MT_TOOL.
+> I do not have the full context here but let me note that you should be
+> careful when doing top-down reservation because you can easily get into
+> hotplugable memory and break the hotremove usecase. We even warn when
+> this is done. See memblock_find_in_range_node
 
-thanks for the CC, would've missed this.
+Kexec read kernel/initrd file into buffer, just search usable positions
+for them to do the later copying. You can see below struct kexec_segment, 
+for the old kexec_load, kernel/initrd are read into user space buffer,
+the @buf stores the user space buffer address, @mem stores the position
+where kernel/initrd will be put. In kernel, it calls
+kimage_load_normal_segment() to copy user space buffer to intermediate
+pages which are allocated with flag GFP_KERNEL. These intermediate pages
+are recorded as entries, later when user execute "kexec -e" to trigger
+kexec jumping, it will do the final copying from the intermediate pages
+to the real destination pages which @mem pointed. Because we can't touch
+the existed data in 1st kernel when do kexec kernel loading. With my
+understanding, GFP_KERNEL will make those intermediate pages be
+allocated inside immovable area, it won't impact hotplugging. But the
+@mem we searched in the whole system RAM might be lost along with
+hotplug. Hence we need do kexec kernel again when hotplug event is
+detected.
 
->From what I read this would be a helper for internal changes only, not
-exposed to userspace? If so maybe it's better/easier/more readable to break
-it into two functions
-  input_mt_open_slot(dev, MT_TOOL_FINGER)
-  input_mt_close_slot(dev)
-  
-This removes any ambiguity about the handling of the tool and should be a
-fairly trivial search/replace. Replace the 'open/close' terminology with
-whatever suits better.
+#define KEXEC_CONTROL_MEMORY_GFP (GFP_KERNEL | __GFP_NORETRY)
 
-Cheers,
-   Peter
 
-> > > Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
-> > > ---
-> > >  drivers/input/touchscreen/atmel_mxt_ts.c | 5 ++---
-> > >  1 file changed, 2 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > > index d7023d261458..c31af790ef84 100644
-> > > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> > > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > > @@ -838,8 +838,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
-> > >                * have happened.
-> > >                */
-> > >               if (status & MXT_T9_RELEASE) {
-> > > -                     input_mt_report_slot_state(input_dev,
-> > > -                                                MT_TOOL_FINGER, 0);
-> > > +                     input_mt_report_slot_state(input_dev, 0, 0);
-> > >                       mxt_input_sync(data);
-> > >               }
-> > >
-> > > @@ -855,7 +854,7 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
-> > >               input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, area);
-> > >       } else {
-> > >               /* Touch no longer active, close out slot */
-> > > -             input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, 0);
-> > > +             input_mt_report_slot_state(input_dev, 0, 0);
-> > >       }
-> > >
-> > >       data->update_input = true;
-> > > --
-> > > 2.17.1
-> > >
-> >
-> > --
-> > Dmitry
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+struct kexec_segment {
+        /*
+         * This pointer can point to user memory if kexec_load() system
+         * call is used or will point to kernel memory if
+         * kexec_file_load() system call is used.
+         *
+         * Use ->buf when expecting to deal with user memory and use ->kbuf
+         * when expecting to deal with kernel memory.
+         */
+        union {
+                void __user *buf;
+                void *kbuf;
+        };
+        size_t bufsz;                                                                                                                             
+        unsigned long mem;
+        size_t memsz;
+};
+
+Thanks
+Baoquan

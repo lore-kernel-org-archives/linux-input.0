@@ -1,85 +1,64 @@
-From: Baoquan He <bhe-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v7 4/4] kexec_file: Load kernel at top of system RAM if
- required
-Date: Wed, 25 Jul 2018 14:48:13 +0800
-Message-ID: <20180725064813.GI6480@MiWiFi-R3L-srv>
-References: <20180718024944.577-1-bhe@redhat.com>
- <20180718024944.577-5-bhe@redhat.com>
- <20180718153326.b795e9ea7835432a56cd7011@linux-foundation.org>
- <20180719151753.GB7147@localhost.localdomain>
- <20180723143443.GD18181@dhcp22.suse.cz>
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@bootlin.com>
+Subject: [PATCH v4 0/3] sun8i-a83t: Add touchscreen support on TBS A711
+Date: Wed, 25 Jul 2018 09:34:07 +0200
+Message-ID: <20180725073410.730-1-mylene.josserand@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20180723143443.GD18181-2MMpYkNvuYDjFM9bn6wA6Q@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: nicolas.pitre-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brijesh.singh-5C7GfCeVMHo@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, richard.weiyang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jcmvbkbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, baiyaowei-0p4V/sDNsUmm0O/7XYngnFaTQe2KTcn/@public.gmane.org, kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, frowand.list-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lorenzo.pieralisi-5wv7dgnIgG8@public.gmane.org, sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gustavo-THi1TnShQwVAfugRpC6u6w@public.gmane.org, bp-l3A5Bk7waGM@public.gmane.org, dyoung-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, thomas.lendacky-5C7GfCeVMHo@public.gmane.org, haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, josh-iaAMLnmF4UmaiuxdJuQwMA@public.gmane.org, jglisse-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, seanpaul-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, yinghai-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, chris-YvXeqwSYzG2sTnJN9+BGXg@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, linux-parisc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kexec-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel@vger
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@bootlin.com, mylene.josserand@bootlin.com
 List-Id: linux-input@vger.kernel.org
 
-On 07/23/18 at 04:34pm, Michal Hocko wrote:
-> On Thu 19-07-18 23:17:53, Baoquan He wrote:
-> > Kexec has been a formal feature in our distro, and customers owning
-> > those kind of very large machine can make use of this feature to speed
-> > up the reboot process. On uefi machine, the kexec_file loading will
-> > search place to put kernel under 4G from top to down. As we know, the
-> > 1st 4G space is DMA32 ZONE, dma, pci mmcfg, bios etc all try to consume
-> > it. It may have possibility to not be able to find a usable space for
-> > kernel/initrd. From the top down of the whole memory space, we don't
-> > have this worry. 
-> 
-> I do not have the full context here but let me note that you should be
-> careful when doing top-down reservation because you can easily get into
-> hotplugable memory and break the hotremove usecase. We even warn when
-> this is done. See memblock_find_in_range_node
+Hello everyone,
 
-Kexec read kernel/initrd file into buffer, just search usable positions
-for them to do the later copying. You can see below struct kexec_segment, 
-for the old kexec_load, kernel/initrd are read into user space buffer,
-the @buf stores the user space buffer address, @mem stores the position
-where kernel/initrd will be put. In kernel, it calls
-kimage_load_normal_segment() to copy user space buffer to intermediate
-pages which are allocated with flag GFP_KERNEL. These intermediate pages
-are recorded as entries, later when user execute "kexec -e" to trigger
-kexec jumping, it will do the final copying from the intermediate pages
-to the real destination pages which @mem pointed. Because we can't touch
-the existed data in 1st kernel when do kexec kernel loading. With my
-understanding, GFP_KERNEL will make those intermediate pages be
-allocated inside immovable area, it won't impact hotplugging. But the
-@mem we searched in the whole system RAM might be lost along with
-hotplug. Hence we need do kexec kernel again when hotplug event is
-detected.
+This is a V4 of the patch series that adds touchscreen support
+(FocalTech EDT-FT5x06 Polytouch) for TBS A711 (Allwinner sun8i-a83t SoC)
+and add regulator support for this touchscreen.
+Based on last master of linux-input tree.
 
-#define KEXEC_CONTROL_MEMORY_GFP (GFP_KERNEL | __GFP_NORETRY)
+Changes since v3:
+   - Created a new function to disable regulator via
+   devm_add_action_or_reset (Dmitry Torokhov's review)
+   - Moved regulator_enable/disable functions in device_may_wakeup
+   guard (Ondřej Jirman and Dmitry Torokhov's reviews)
+   - Added Rob Herring Reviewed-by on patch 01 (sorry again)
+Changes since v2:
+   - Removed the check if regulator is NULL (Dmitry Torokhov's review)
+   - Added EPROBE_DEFER error not to print a error message (Lothar Waßmann's review)
+   - Added set wake/reset on suspend/resume.
+Changes since v1:
+   - Removed patches 01 and 02 as Chen-Yu Tsai sent a similar patch:
+   https://patchwork.kernel.org/patch/10111431/
+   and it is merged on last next-20171222.
+   (See commit f066f46ce5a5 "ARM: dts: sun8i: a83t: Add I2C device nodes and pinmux settings")
+   - Updated regulator according to Dmitry Torokhov's review: removed "optional"
+   suffix while retrieving the regulator, renamed it into "vcc" instead of
+   "power" and added bindings documentation.
+   - Updated device tree according to Maxime Ripard's review: remove the
+   label and rename the node.
+   - Squashed patch 03 with patch 05 to add I2C0 and touchscreen's node
+   in one patch (see patch 02).
 
+Patch 01: Add support for regulator in the FocalTech touchscreen driver
+because A711 tablet is using a regulator to power-up the touchscreen.
+Patch 02: Add a set wake/reset values on resume and suspend.
+Patch 03: Add i2c0 and touchscreen's node for A711 TBS tablet.
 
-struct kexec_segment {
-        /*
-         * This pointer can point to user memory if kexec_load() system
-         * call is used or will point to kernel memory if
-         * kexec_file_load() system call is used.
-         *
-         * Use ->buf when expecting to deal with user memory and use ->kbuf
-         * when expecting to deal with kernel memory.
-         */
-        union {
-                void __user *buf;
-                void *kbuf;
-        };
-        size_t bufsz;                                                                                                                             
-        unsigned long mem;
-        size_t memsz;
-};
+Thank you in advance for any review.
+Best regards,
+Mylène
 
-Thanks
-Baoquan
+Mylène Josserand (3):
+  Input: edt-ft5x06 - Add support for regulator
+  Input: edt-ft5x06 - Set wake/reset values on resume/suspend
+  arm: dts: sun8i: a83t: a711: Add touchscreen node
+
+ .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
+ arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts          | 16 +++++++
+ drivers/input/touchscreen/edt-ft5x06.c             | 55 ++++++++++++++++++++++
+ 3 files changed, 72 insertions(+)
+
+-- 
+2.11.0

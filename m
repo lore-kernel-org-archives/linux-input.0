@@ -1,23 +1,23 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: wdt87xx_i2c: Replace mdelay() with
- msleep() in wdt87xx_resume()
-Date: Fri, 27 Jul 2018 11:30:41 -0700
-Message-ID: <20180727183041.GA72640@dtor-ws>
-References: <20180727023216.1467-1-baijiaju1990@gmail.com>
+Subject: Re: [PATCH] input: misc: keyspan_remote: Replace GFP_ATOMIC with
+ GFP_KERNEL in keyspan_probe()
+Date: Fri, 27 Jul 2018 11:33:17 -0700
+Message-ID: <20180727183317.GB72640@dtor-ws>
+References: <20180727021258.29675-1-baijiaju1990@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180727023216.1467-1-baijiaju1990@gmail.com>
+In-Reply-To: <20180727021258.29675-1-baijiaju1990@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: rydberg@bitmath.org, gregkh@linuxfoundation.org, andi@etezian.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: arvind.yadav.cs@gmail.com, gregkh@linuxfoundation.org, pombredanne@nexb.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 27, 2018 at 10:32:16AM +0800, Jia-Ju Bai wrote:
-> wdt87xx_resume() is never called in atomic context.
-> It calls mdelay() to busily wait, which is not necessary.
-> mdelay() can be replaced with msleep().
+On Fri, Jul 27, 2018 at 10:12:58AM +0800, Jia-Ju Bai wrote:
+> keyspan_probe() is never called in atomic context.
+> It calls usb_alloc_coherent() with GFP_ATOMIC, which is not necessary.
+> GFP_ATOMIC can be replace with GFP_KERNEL.
 > 
 > This is found by a static analysis tool named DCNS written by myself.
 > 
@@ -26,22 +26,22 @@ On Fri, Jul 27, 2018 at 10:32:16AM +0800, Jia-Ju Bai wrote:
 Applied, thank you.
 
 > ---
->  drivers/input/touchscreen/wdt87xx_i2c.c | 2 +-
+>  drivers/input/misc/keyspan_remote.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/touchscreen/wdt87xx_i2c.c b/drivers/input/touchscreen/wdt87xx_i2c.c
-> index 20f7f3902757..166edeb77776 100644
-> --- a/drivers/input/touchscreen/wdt87xx_i2c.c
-> +++ b/drivers/input/touchscreen/wdt87xx_i2c.c
-> @@ -1142,7 +1142,7 @@ static int __maybe_unused wdt87xx_resume(struct device *dev)
->  	 * The chip may have been reset while system is resuming,
->  	 * give it some time to settle.
->  	 */
-> -	mdelay(100);
-> +	msleep(100);
+> diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
+> index 67482b248b2d..a8937ceac66a 100644
+> --- a/drivers/input/misc/keyspan_remote.c
+> +++ b/drivers/input/misc/keyspan_remote.c
+> @@ -466,7 +466,7 @@ static int keyspan_probe(struct usb_interface *interface, const struct usb_devic
+>  	remote->in_endpoint = endpoint;
+>  	remote->toggle = -1;	/* Set to -1 so we will always not match the toggle from the first remote message. */
 >  
->  	error = wdt87xx_send_command(client, VND_CMD_START, 0);
->  	if (error)
+> -	remote->in_buffer = usb_alloc_coherent(udev, RECV_SIZE, GFP_ATOMIC, &remote->in_dma);
+> +	remote->in_buffer = usb_alloc_coherent(udev, RECV_SIZE, GFP_KERNEL, &remote->in_dma);
+>  	if (!remote->in_buffer) {
+>  		error = -ENOMEM;
+>  		goto fail1;
 > -- 
 > 2.17.0
 > 

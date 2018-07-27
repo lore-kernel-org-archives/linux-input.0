@@ -1,54 +1,36 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.18-rc6
-Date: Thu, 26 Jul 2018 17:11:05 -0700
-Message-ID: <20180727001105.GA93787@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+Subject: [PATCH] input: misc: keyspan_remote: Replace GFP_ATOMIC with GFP_KERNEL in keyspan_probe()
+Date: Fri, 27 Jul 2018 10:12:58 +0800
+Message-ID: <20180727021258.29675-1-baijiaju1990@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, arvind.yadav.cs@gmail.com, gregkh@linuxfoundation.org, pombredanne@nexb.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+keyspan_probe() is never called in atomic context.
+It calls usb_alloc_coherent() with GFP_ATOMIC, which is not necessary.
+GFP_ATOMIC can be replace with GFP_KERNEL.
 
-Please pull from:
+This is found by a static analysis tool named DCNS written by myself.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+---
+ drivers/input/misc/keyspan_remote.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-to receive updates for the input subsystem:
-
-- a couple of new device IDs added to Elan i2c touchpad controller
-  driver
-
-- another entry in i8042 reset quirk list.
-
-Changelog:
----------
-
-Chen-Yu Tsai (1):
-      Input: i8042 - add Lenovo LaVie Z to the i8042 reset list
-
-Donald Shanty III (1):
-      Input: elan_i2c - add ACPI ID for lenovo ideapad 330
-
-Geert Uytterhoeven (1):
-      MAINTAINERS: Add file patterns for serio device tree bindings
-
-KT Liao (1):
-      Input: elan_i2c - add another ACPI ID for Lenovo Ideapad 330-15AST
-
-Diffstat:
---------
-
- MAINTAINERS                           | 1 +
- drivers/input/mouse/elan_i2c_core.c   | 2 ++
- drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
- 3 files changed, 10 insertions(+)
-
-Thanks.
-
-
+diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
+index 67482b248b2d..a8937ceac66a 100644
+--- a/drivers/input/misc/keyspan_remote.c
++++ b/drivers/input/misc/keyspan_remote.c
+@@ -466,7 +466,7 @@ static int keyspan_probe(struct usb_interface *interface, const struct usb_devic
+ 	remote->in_endpoint = endpoint;
+ 	remote->toggle = -1;	/* Set to -1 so we will always not match the toggle from the first remote message. */
+ 
+-	remote->in_buffer = usb_alloc_coherent(udev, RECV_SIZE, GFP_ATOMIC, &remote->in_dma);
++	remote->in_buffer = usb_alloc_coherent(udev, RECV_SIZE, GFP_KERNEL, &remote->in_dma);
+ 	if (!remote->in_buffer) {
+ 		error = -ENOMEM;
+ 		goto fail1;
 -- 
-Dmitry
+2.17.0

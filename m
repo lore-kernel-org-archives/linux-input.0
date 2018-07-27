@@ -1,68 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: mouse: appletouch: Replace GFP_ATOMIC with
- GFP_KERNEL
-Date: Fri, 27 Jul 2018 11:36:03 -0700
-Message-ID: <20180727183603.GF72640@dtor-ws>
-References: <20180727022618.1007-1-baijiaju1990@gmail.com>
+Subject: Re: [PATCH v1 01/10] Input: atmel_mxt_ts - only use first T9 instance
+Date: Fri, 27 Jul 2018 11:54:18 -0700
+Message-ID: <20180727185418.GG72640@dtor-ws>
+References: <20180720215122.23558-1-nick@shmanahar.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180727022618.1007-1-baijiaju1990@gmail.com>
+In-Reply-To: <20180720215122.23558-1-nick@shmanahar.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: gustavo@embeddedor.com, arvind.yadav.cs@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Chris Healy <cphealy@gmail.com>, Nikita Yushchenko <nikita.yoush@cogentembedded.com>, Lucas Stach <l.stach@pengutronix.de>, Nick Dyer <nick.dyer@itdev.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 27, 2018 at 10:26:18AM +0800, Jia-Ju Bai wrote:
-> atp_open(), atp_recover() and atp_resume() are never 
-> called in atomic context.
-> They call usb_submit_urb() with GFP_ATOMIC, which is not necessary.
-> GFP_ATOMIC can be replaced with GFP_KERNEL.
+On Fri, Jul 20, 2018 at 10:51:13PM +0100, Nick Dyer wrote:
+> From: Nick Dyer <nick.dyer@itdev.co.uk>
 > 
-> This is found by a static analysis tool named DCNS written by myself.
+> The driver only registers one input device, which uses the screen
+> parameters from the first T9 instance. The first T63 instance also uses
+> those parameters.
 > 
-> Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-
-Applied, thank you.
-
+> It is incorrect to send input reports from the second instances of these
+> objects if they are enabled: the input scaling will be wrong and the
+> positions will be mashed together.
+> 
+> This also causes problems on Android if the number of slots exceeds 32.
+> 
+> In the future, this could be handled by looking for enabled touch object
+> instances and creating an input device for each one.
+> 
+> Signed-off-by: Nick Dyer <nick.dyer@itdev.co.uk>
+> Acked-by: Benson Leung <bleung@chromium.org>
+> Acked-by: Yufeng Shen <miletus@chromium.org>
 > ---
->  drivers/input/mouse/appletouch.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+
+OK, I adjusted patch #7 to use kmemdup_nul() as we discussed, and
+skipped #9, applied the rest.
+
+Thanks!
+
+>  drivers/input/touchscreen/atmel_mxt_ts.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-> index 032d27983b6c..f593ec96c95f 100644
-> --- a/drivers/input/mouse/appletouch.c
-> +++ b/drivers/input/mouse/appletouch.c
-> @@ -810,7 +810,7 @@ static int atp_open(struct input_dev *input)
->  {
->  	struct atp *dev = input_get_drvdata(input);
->  
-> -	if (usb_submit_urb(dev->urb, GFP_ATOMIC))
-> +	if (usb_submit_urb(dev->urb, GFP_KERNEL))
->  		return -EIO;
->  
->  	dev->open = true;
-> @@ -976,7 +976,7 @@ static int atp_recover(struct atp *dev)
->  	if (error)
->  		return error;
->  
-> -	if (dev->open && usb_submit_urb(dev->urb, GFP_ATOMIC))
-> +	if (dev->open && usb_submit_urb(dev->urb, GFP_KERNEL))
->  		return -EIO;
->  
->  	return 0;
-> @@ -994,7 +994,7 @@ static int atp_resume(struct usb_interface *iface)
->  {
->  	struct atp *dev = usb_get_intfdata(iface);
->  
-> -	if (dev->open && usb_submit_urb(dev->urb, GFP_ATOMIC))
-> +	if (dev->open && usb_submit_urb(dev->urb, GFP_KERNEL))
->  		return -EIO;
->  
->  	return 0;
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index 54fe190fd4bc..48c5ccab00a0 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -1658,10 +1658,11 @@ static int mxt_parse_object_table(struct mxt_data *data,
+>  			break;
+>  		case MXT_TOUCH_MULTI_T9:
+>  			data->multitouch = MXT_TOUCH_MULTI_T9;
+> +			/* Only handle messages from first T9 instance */
+>  			data->T9_reportid_min = min_id;
+> -			data->T9_reportid_max = max_id;
+> -			data->num_touchids = object->num_report_ids
+> -						* mxt_obj_instances(object);
+> +			data->T9_reportid_max = min_id +
+> +						object->num_report_ids - 1;
+> +			data->num_touchids = object->num_report_ids;
+>  			break;
+>  		case MXT_SPT_MESSAGECOUNT_T44:
+>  			data->T44_address = object->start_address;
 > -- 
-> 2.17.0
+> 2.17.1
 > 
 
 -- 

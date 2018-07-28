@@ -1,104 +1,80 @@
-From: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: atmel_mxt_ts: Add support for optional
- regulators.
-Date: Sat, 28 Jul 2018 15:16:02 +0200
-Message-ID: <2009318.0y2T04Zz3n@acerlaptop>
-References: <1531851386-17840-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
- <2353752.vfvcsHJLR6@acerlaptop> <20180719205403.GA29273@hairyalien>
+From: John S Gruber <JohnSGruber@gmail.com>
+Subject: [PATCH 0/2] "HID: redragon: Fix modifier keys for Redragon Asura
+ Keyboard" causes regression for Acer keyboard
+Date: Sat, 28 Jul 2018 15:53:45 -0400
+Message-ID: <CAPotdmS6dv0YkqX4QBt-DaYsO77Hza2bgMLJuzHi+cjNn27fYw@mail.gmail.com>
+References: <CAPotdmQtXmfHJfcgrXZ02NrPgS3Az=SpZnBsRZ_8dGvPfdi+Mw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180719205403.GA29273@hairyalien>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, alexandre.belloni@bootlin.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAPotdmQtXmfHJfcgrXZ02NrPgS3Az=SpZnBsRZ_8dGvPfdi+Mw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Robert Munteanu <rombert@apache.org>, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, JohnSGruber@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-T24gVGh1cnNkYXksIEp1bHkgMTksIDIwMTggOTo1NDowNCBQTSBDRVNUIE5pY2sgRHllciB3cm90
-ZToKPiBPbiBXZWQsIEp1bCAxOCwgMjAxOCBhdCAwNjoyMTozMFBNICswMjAwLCBQYXdlxYIgQ2ht
-aWVsIHdyb3RlOgo+ID4gT24gVHVlc2RheSwgSnVseSAxNywgMjAxOCAxMDowMDowNSBQTSBDRVNU
-IE5pY2sgRHllciB3cm90ZToKPiA+ID4gT24gVHVlLCBKdWwgMTcsIDIwMTggYXQgMDg6MTY6MjVQ
-TSArMDIwMCwgUGF3ZcWCIENobWllbCB3cm90ZToKPiA+ID4gPiBUaGlzIHBhdGNoIGFkZHMgb3B0
-aW9uYWwgcmVndWxhdG9ycywgd2hpY2ggY2FuIGJlIHVzZWQgdG8gcG93ZXIKPiA+ID4gPiB1cCB0
-b3VjaHNjcmVlbi4gQWZ0ZXIgZW5hYmxpbmcgcmVndWxhdG9ycywgd2UgbmVlZCB0byB3YWl0IDE1
-MG1zZWMuCj4gPiA+ID4gVGhpcyB2YWx1ZSBpcyB0YWtlbiBmcm9tIG9mZmljaWFsIGRyaXZlci4K
-PiA+ID4gPiAKPiA+ID4gPiBJdCB3YXMgdGVzdGVkIG9uIFNhbXN1bmcgR2FsYXh5IGk5MDAwIChi
-YXNlZCBvbiBTYW1zdW5nIFM1UFYyMTAgU09DKS4KPiA+ID4gPiAKPiA+ID4gPiBTaWduZWQtb2Zm
-LWJ5OiBQYXdlxYIgQ2htaWVsIDxwYXdlbC5taWtvbGFqLmNobWllbEBnbWFpbC5jb20+Cj4gPiA+
-ID4gLS0tCj4gPiA+ID4gQ2hhbmdlcyBmcm9tIHYxOgo+ID4gPiA+ICAgLSBFbmFibGUgcmVndWxh
-dG9ycyBvbmx5IGlmIHJlc2V0X2dwaW8gaXMgcHJlc2VudC4KPiA+ID4gPiAgIC0gU3dpdGNoIGZy
-b20gZGV2bV9yZWd1bGF0b3JfZ2V0X29wdGlvbmFsIHRvIGRldm1fcmVndWxhdG9yX2dldAo+ID4g
-PiA+IC0tLQo+ID4gPiA+ICBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2F0bWVsX214dF90cy5j
-IHwgNDYgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0KPiA+ID4gPiAgMSBmaWxlIGNo
-YW5nZWQsIDQ0IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4gPiA+IAo+ID4gPiBIaSBQ
-YXdlbC0KPiA+ID4gCj4gPiA+IEkgc2VlIHlvdSd2ZSBib3Jyb3dlZCBzb21lIG9mIHRoZSBsb2dp
-YyBmcm9tIHRoZSBwYXRjaCBJIHdyb3RlIGEgd2hpbGUKPiA+ID4gYmFjayAoc2VlIGh0dHBzOi8v
-Z2l0aHViLmNvbS9uZHllci9saW51eC9jb21taXQvOGU5Njg3ZTQxZWQwNjIgKQo+ID4gQWN0dWFs
-bHksIGkgd2FzIGxvb2tpbmcgYXQgaHR0cHM6Ly9naXRodWIuY29tL2F0bWVsLW1heHRvdWNoL2xp
-bnV4L2Jsb2IvbWF4dG91Y2gtdjMuMTQvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hdG1lbF9t
-eHRfdHMuYyAoYW5kIGRpZG4ndCBzYXcgWW91ciBwYXRjaCB0aWxsIG5vdykuCj4gPiBBcmUgWW91
-IGdvaW5nIHRvIHN1Ym1pdCBpdD8gKGl0IGhhcyBtb3JlIGZ1bmN0aW9uYWxpdGllcyAtIGZvciBl
-eGFtcGxlCj4gPiBzdXNwZW5kIG1vZGUgcmVhZCBmcm9tIGRldmljZSB0cmVlKS4KPiAKPiBHZXR0
-aW5nIHRoYXQgd29yayB1cHN0cmVhbSBoYXMgc3RhbGxlZCBmb3IgYSBjb3VwbGUgb2YgeWVhcnMg
-YmVjYXVzZSBJCj4gY2hhbmdlZCBqb2JzLiBJIGhhdmUgYWN0dWFsbHkgc3RhcnRlZCByZWNlbnRs
-eSB0byBkdXN0IGl0IG9mZiBhZ2FpbiwgaXQKPiB3YXMgbGF0ZXIgb24gaW4gbXkgcXVldWUgYnV0
-IGlmIHlvdSBoYXZlIHRoZSB0aW1lIHRvIHdvcmsgb24gaXQgdGhhdCBpcwo+IGdyZWF0Lgo+IAo+
-ID4gPiBUaGUgY29ycmVjdCBiZWhhdmlvdXIgYWNjb3JkaW5nIHRvIEF0bWVsIHNob3VsZCBiZToK
-PiA+ID4gCj4gPiA+ICogTWFrZSBSRVNFVCB6ZXJvCj4gPiA+ICogQnJpbmcgdXAgcmVndWxhdG9y
-cwo+ID4gPiAqIFdhaXQgZm9yIGEgcGVyaW9kIHRvIHNldHRsZSAoMTUwIG1zZWMpCj4gPiA+ICog
-UmVsZWFzZSBSRVNFVAo+ID4gPiAqIFdhaXQgZm9yIDEwMCBtc2VjIHdoaWxzdCBkZXZpY2UgZ2V0
-cyB0aHJvdWdoIGJvb3Rsb2FkZXIKPiA+ID4gKiBXYWl0IGZvciBDSEcgbGluZSBhc3NlcnQgYmVm
-b3JlIHJlYWRpbmcgaW5mbyBibG9jawo+ID4gPiAKPiA+ID4gSSBjYW4ndCBzZWUgdGhlIGZpcnN0
-IGFuZCBsYXN0IHN0ZXBzIGluIHlvdXIgcGF0Y2ggYXQgcHJlc2VudC4KPiA+IEFib3V0IGZpcnN0
-IHN0ZXAgLSByZXNldF9ncGlvIGlzIHJlYWRlZCBieSB1c2luZwo+ID4gZGV2bV9ncGlvZF9nZXRf
-b3B0aW9uYWwgd2l0aCBHUElPRF9PVVRfTE9XIGZsYWcsIHNvIGkgdGhpbmsgKGJ1dCBtaWdodAo+
-ID4gYmUgd3JvbmcpICB0aGF0IHdlIGRvbid0IG5lZWQgdG8gc2V0IHRoaXMgZ3BpbyB2YWx1ZSBh
-Z2FpbiB0byAwIGJlZm9yZQo+ID4gZW5hYmxpbmcgcmVndWxhdG9ycywKPiAKPiBJIHNlZSB3aGF0
-IHlvdSBtZWFuIC0gdGhhdCBpcyBmYWlyIGVub3VnaC4KPiAKPiA+IHNpbmNlIGN1cnJlbnRseSBv
-bmx5IHBsYWNlIHdoZXJlIHJlc2V0X2dwaW8gaXMgdXNlZCBpcyBpbiBkcml2ZXIgcHJvYmUKPiA+
-IChpbiBZb3VyIHBhdGNoIGl0IGlzIHVzZWQgaW4gb3RoZXIgY2FzZXMvcGxhY2VzIC0gZm9yIGV4
-YW1wbGUgaW4KPiA+IG14dF9zdGFydC9zdG9wLCB3aGVuIHdlIGVuYWJsZSByZWd1bGF0b3JzKS4K
-PiA+IEFib3V0IG1pc3Npbmcgd2FpdCBhZnRlciByZWxlYXNpbmcgcmVzZXQsIHNob3VsZG4ndCB0
-aGlzIGJlIHNlcGFyYXRlCj4gPiBwYXRjaCAoc2luY2UgY3VycmVudGx5IGRyaXZlciBpcyBub3Qg
-ZG9pbmcgaXQpPyBJIGNhbiBwcmVwYXJlIGl0IGFuZAo+ID4gc2VuZCB3aXRoIG90aGVyIGluIG5l
-eHQgdmVyc2lvbi4KPiAKPiBBY2NvcmRpbmcgdG8gdGhlIG1heHRvdWNoIGRvY3VtZW50YXRpb24s
-IGl0IGlzbid0IHJlYWR5IGZvciBjb21tcyB1bnRpbAo+IHRoZSBmaXJtd2FyZSBhc3NlcnRzIHRo
-ZSBDSEcgbGluZS4gSSd2ZSBzZWVuIGEgYnVuY2ggb2YgZGV2aWNlcyB0aGF0IGdldAo+IGJ5IHdp
-dGhvdXQgYW4gZXhwbGljaXQgd2FpdCBiZWNhdXNlIHRoZSBib2FyZCBmaWxlIGRvZXMgdGhlIHBv
-d2VyIG9uLAo+IGFuZCBieSB0aGUgdGltZSB0aGUgZHJpdmVyIGdldHMgdG8gcHJvYmUgaXQncyBh
-IGZldyBodW5kcmVkIG1zIGxhdGVyCj4gYW55d2F5LCBzbyBpdCBkb2Vzbid0IG1hdHRlci4gQnV0
-IGlmIHdlIHB1dCBpdCBhbGwgaW4gdGhlIGRyaXZlciwgaXQKPiB3aWxsIGF0dGVtcHQgdG8gcmVh
-ZCB0aGUgaW5mbyBibG9jayBzdHJhaWdodCBhZnRlciB0aGUgMTAwIG1zZWMgZGVsYXkKPiB3aXRo
-b3V0IHdhaXRpbmcgZm9yIENIRywgYW5kIEkgc3VzcGVjdCB3ZSdsbCBlbmQgdXAgd2l0aCBvY2Nh
-c2lvbmFsCj4gcHJvYmUgZmFpbHVyZXMuIEl0J2xsIGRlcGVuZCBvbiB0aGUgbWF4dG91Y2ggZGV2
-aWNlLCB0aG91Z2g6IHRoZXkgaGF2ZSBhCj4gcmFuZ2Ugb2YgZGlmZmVyZW50IHBvd2VyIG9uIHRp
-bWluZ3MuCj4gCj4gV2hpY2ggcGxhdGZvcm0gYXJlIHlvdSBkb2luZyB0aGlzIGZvcj8gSXMgaXQg
-YSBDaHJvbWVib29rPwpObywgaXQncyBTYW1zdW5nIEdhbGF4eSBTIChpOTAwMCkgcGhvbmUgd2l0
-aCBTNVBWMjEwIFNhbXN1bmcgU29jLgpJJ20gcHJlcGFyaW5nIHYzIHZlcnNpb24gd2l0aCBzZXBh
-cmF0ZSBwYXRjaCBhZGRpbmcgdGhpcyB3YWl0L2RlbGF5Lgo+IAo+ID4gVGhhbmtzIGZvciBmZWVk
-YmFjawo+ID4gPiAKPiA+ID4gVGhlIG9ubHkgZG93bnNpZGUgd2l0aCB0aGlzIGFwcHJvYWNoIGlz
-IHRoYXQgdGhlcmUgYXJlIGEgbG90IG9mCj4gPiA+IGRlbGF5cyBkdXJpbmcgZHJpdmVyIHByb2Jl
-LCBidXQgSSBiZWxpZXZlIHRoZSBhc3luY2hyb25vdXMgcHJvYmUgc3R1ZmYKPiA+ID4gdGhhdCdz
-IGxhbmRlZCBzaW5jZSBJIHdyb3RlIHRoZSBvcmlnaW5hbCBwYXRjaCBzaG91bGQgYWRkcmVzcyB0
-aGF0Lgo+ID4gPiAKPiA+ID4gY2hlZXJzCj4gPiA+IAo+ID4gPiBOaWNrCj4gPiA+IAo+ID4gPiA+
-ICAJfQo+ID4gPiA+IEBAIC0zMTE2LDYgKzMxNTQsMTAgQEAgc3RhdGljIGludCBteHRfcmVtb3Zl
-KHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQpCj4gPiA+ID4gIAlzdHJ1Y3QgbXh0X2RhdGEgKmRh
-dGEgPSBpMmNfZ2V0X2NsaWVudGRhdGEoY2xpZW50KTsKPiA+ID4gPiAgCj4gPiA+ID4gIAlkaXNh
-YmxlX2lycShkYXRhLT5pcnEpOwo+ID4gPiA+ICsJaWYgKGRhdGEtPnJlc2V0X2dwaW8pIHsKPiA+
-ID4gPiArCQlyZWd1bGF0b3JfZGlzYWJsZShkYXRhLT5hdmRkX3JlZyk7Cj4gPiA+ID4gKwkJcmVn
-dWxhdG9yX2Rpc2FibGUoZGF0YS0+dmRkX3JlZyk7Cj4gPiA+ID4gKwl9Cj4gPiA+ID4gIAlzeXNm
-c19yZW1vdmVfZ3JvdXAoJmNsaWVudC0+ZGV2LmtvYmosICZteHRfYXR0cl9ncm91cCk7Cj4gPiA+
-ID4gIAlteHRfZnJlZV9pbnB1dF9kZXZpY2UoZGF0YSk7Cj4gPiA+ID4gIAlteHRfZnJlZV9vYmpl
-Y3RfdGFibGUoZGF0YSk7Cj4gPiA+IAo+ID4gCj4gPiAKPiAKCgoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxp
-c3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZy
-YWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+Please cc me in any replies.
+
+The Acer branded keyboard that came with my Acer ATC-605-UB11 computer system
+fails completely due to:
+
+85455dd906d5 ("HID: redragon: Fix modifier keys for Redragon Asura Keyboard.")
+
+That commit was merged to 4.18 on June 8.
+
+The redragon vendor_id device_id combination 0c45:760b is shared by that
+keyboard, as well as many others, it appears.
+See https://linux-hardware.org/index.php?id=usb:0c45-760b
+for other SONiX keyboards that don't appear to be Redragon devices.
+
+First patch:
+
+While the Redragon keyboard uses the second device created and not the first,
+the Acer, and perhaps many others, use that first device
+(the one with dev->maxapplication==1).
+
+The hid-redragon.c driver should not cause this device to be ignored and
+should not interfere with its being cleared up when disconnected.
+It appears to me that this problematic change was made late in the
+patch's revisions as a clean up.
+
+I recently tried to connect another usb keyboard after the redragon driver
+was activated by my Acer keyboard. It is blocked from working too
+until the kernel is rebooted without my keyboard being plugged in. I
+also understand that the interference with the first device stops
+the keyboard LEDs from working correctly.
+
+
+
+I'm resending this set as I haven't heard from the hid people in the two
+weeks since I first sent this. Before 3.18 is released I believe either
+this patch should be quickly finalized and applied, Robert's patch in the
+linux-next tree should be applied instead, dc9b8e85ed9, or, as a last option,
+the problematic commit should be reverted. I've tested all three
+possibilities.
+
+Second Patch:
+
+As there are potentially many different devices being intercepted by the new
+hid-redragon driver, and as the bytes x81 x00 are not rare in this context,
+I also think it's advisable to improve the verification condition before
+performing the report-description patch only meant for the Redragon Asura
+Keyboard.
+
+
+
+These two patches will follow. The first restores the function of my keyboard
+sucessfully.
+
+I don't have the Redragon Asura Keyboard necessary to test the second patch.
+Its rdesc data come from Robert as posted to pastebin.
+
+John S Gruber (2):
+  HID: redragon: Fix regression in non-Redragon keyboard due to this new
+    driver
+  HID: redragon Add additional verification to rdesc modification quirk
+
+ drivers/hid/hid-redragon.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
+
+-- 
+1.9.1

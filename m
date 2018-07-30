@@ -1,74 +1,94 @@
-From: John S Gruber <JohnSGruber@gmail.com>
-Subject: [PATCH 2/2] HID: redragon Add additional verification to rdesc
- modification quirk
-Date: Sat, 28 Jul 2018 15:53:51 -0400
-Message-ID: <CAPotdmQh_sWqPmiQ=_+fJ27AT7GA5hcne=wsXcmKhNnUpUs3wQ@mail.gmail.com>
-References: <CAPotdmQtXmfHJfcgrXZ02NrPgS3Az=SpZnBsRZ_8dGvPfdi+Mw@mail.gmail.com>
- <1532807605-26023-1-git-send-email-JohnSGruber@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH] HID: intel_ish-hid: tx_buf memory leak on probe/remove
+Date: Sun, 29 Jul 2018 18:36:12 -0700
+Message-ID: <a43b252b84196087d523c97a162461e6883be1ab.camel@linux.intel.com>
+References: <20180724143455.13770-1-vasilyev@ispras.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1532807605-26023-1-git-send-email-JohnSGruber@gmail.com>
+In-Reply-To: <20180724143455.13770-1-vasilyev@ispras.ru>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Robert Munteanu <rombert@apache.org>, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, JohnSGruber@gmail.com
+To: Anton Vasilyev <vasilyev@ispras.ru>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 List-Id: linux-input@vger.kernel.org
 
-There are many devices using the vendor_id 0c45 and device_id of 760b
-combination. Also the two bytes 0x81 0x00 aren't rare for a report
-description. For these reasons the report description being altered
-by the quirk should be verified more completely
+On Tue, 2018-07-24 at 17:34 +0300, Anton Vasilyev wrote:
+> ish_dev_init() allocates 512*176 bytes memory for tx_buf and stores
+> it at
+> &dev->wr_free_list_head.link list on ish_probe().
+> But there is no deallocation of this memory in ish_remove() and in
+> ish_probe() error path.
+> So current intel-ish-ipc provides 88 KB memory leak for each
+> probe/release.
+> 
+> The patch replaces kzalloc allocation by devm_kzalloc and removes
+> ishtp_device *dev deallocation by kfree.
+> 
+> Found by Linux Driver Verification project (linuxtesting.org).
+> 
+I prefer align with "(" for the next line for multi line statements
+even if character /line > slightly over 80. If you can do that resubmit
+ with my ACK below.
 
-If I'm understanding this correctly, I believe for an array field the
-report_size should be greater or equal to
-ceil(log2(usage_maximum - usage_minimum + 1)). That's 3 bits for these 8
-shift keys, 0xe0-0xe7. Therefore the incorrect report description can't
-be valid for any device.
+> Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-Check the actual count of the rdesc and compare the entire field
-description to reduce the chance of patching the wrong thing by
-inadvertence.
-
-Signed-off-by: John S Gruber <JohnSGruber@gmail.com>
----
- drivers/hid/hid-redragon.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-redragon.c b/drivers/hid/hid-redragon.c
-index 85a5fbb..6e506cb 100644
---- a/drivers/hid/hid-redragon.c
-+++ b/drivers/hid/hid-redragon.c
-@@ -18,6 +18,21 @@
-
- #include "hid-ids.h"
-
-+static __u8 asura_redragon_badfield[] = {
-+	0x05, 0x01,	/* Usage Page (GenericDesktop)		*/
-+	0x09, 0x06,	/* Usage (Keyboard)			*/
-+	0xa1, 0x01,	/* Collection (Application)		*/
-+	0x85, 0x04,	/* Report ID (4)			*/
-+	0x05, 0x07,	/* Usage Page (Keyboard)		*/
-+	0x19, 0xe0,	/* Usage Minimum (0xe0) Left Control	*/
-+	0x29, 0xe7,	/* Usage Maximum (0xe7) Right GUI	*/
-+	0x15, 0x00,	/* Logical Minimum (0)			*/
-+	0x25, 0x01,	/* Logical Maximum (1)			*/
-+	0x75, 0x01,	/* Report Size (1)			*/
-+	0x95, 0x08,	/* Report Count(8)			*/
-+	0x81, 0x00	/* Input Array [Should be Input Var]	*/
-+};
-+
-
- /*
-  * The Redragon Asura keyboard sends an incorrect HID descriptor.
-@@ -36,7 +51,9 @@
- static __u8 *redragon_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	unsigned int *rsize)
- {
--	if (*rsize >= 102 && rdesc[100] == 0x81 && rdesc[101] == 0x00) {
-+	if (*rsize == 169 &&
-+			memcmp(&rdesc[78], asura_redragon_badfield,
-+			sizeof(asura_redragon_badfield)) == 0) {
- 		dev_info(&hdev->dev, "Fixing Redragon ASURA report descriptor.\n");
- 		rdesc[101] = 0x02;
- 	}
--- 
-1.9.1
+> ---
+>  drivers/hid/intel-ish-hid/ipc/ipc.c     | 7 +++++--
+>  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 2 --
+>  2 files changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-
+> ish-hid/ipc/ipc.c
+> index 9a60ec13cb10..2f8e5402b450 100644
+> --- a/drivers/hid/intel-ish-hid/ipc/ipc.c
+> +++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+> @@ -907,7 +907,8 @@ struct ishtp_device *ish_dev_init(struct pci_dev
+> *pdev)
+>  	struct ishtp_device *dev;
+>  	int	i;
+>  
+> -	dev = kzalloc(sizeof(struct ishtp_device) + sizeof(struct
+> ish_hw),
+> +	dev = devm_kzalloc(&pdev->dev,
+> +		sizeof(struct ishtp_device) + sizeof(struct ish_hw),
+>  		GFP_KERNEL);
+>  	if (!dev)
+>  		return NULL;
+> @@ -925,7 +926,9 @@ struct ishtp_device *ish_dev_init(struct pci_dev
+> *pdev)
+>  	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
+>  		struct wr_msg_ctl_info	*tx_buf;
+>  
+> -		tx_buf = kzalloc(sizeof(struct wr_msg_ctl_info),
+> GFP_KERNEL);
+> +		tx_buf = devm_kzalloc(&pdev->dev,
+> +			sizeof(struct wr_msg_ctl_info),
+> +			GFP_KERNEL);
+>  		if (!tx_buf) {
+>  			/*
+>  			 * IPC buffers may be limited or not
+> available
+> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> index a2c53ea3b5ed..81d035a480bc 100644
+> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> @@ -172,7 +172,6 @@ static int ish_probe(struct pci_dev *pdev, const
+> struct pci_device_id *ent)
+>  	free_irq(pdev->irq, dev);
+>  free_device:
+>  	pci_iounmap(pdev, hw->mem_addr);
+> -	kfree(dev);
+>  release_regions:
+>  	pci_release_regions(pdev);
+>  disable_device:
+> @@ -202,7 +201,6 @@ static void ish_remove(struct pci_dev *pdev)
+>  	pci_release_regions(pdev);
+>  	pci_clear_master(pdev);
+>  	pci_disable_device(pdev);
+> -	kfree(ishtp_dev);
+>  }
+>  
+>  static struct device __maybe_unused *ish_resume_device;

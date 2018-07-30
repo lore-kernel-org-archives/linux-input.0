@@ -1,33 +1,44 @@
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Subject: Re: [PATCH v11 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
-Date: Mon, 30 Jul 2018 13:51:52 +0300
-Message-ID: <20180730105152.GC8862@localhost.localdomain>
-References: <cover.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
- <77184f651e5cefb112f1061bc682b759f88144c6.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
+From: Teika Kazura <teika@gmx.com>
+Subject: [PATCH v2 0/1] Input: synaptics - Enable RMI4 for Clevo P870DM
+ laptops.
+Date: Mon, 30 Jul 2018 20:35:19 +0900 (JST)
+Message-ID: <20180730.203519.1216400263695142421.teika@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <77184f651e5cefb112f1061bc682b759f88144c6.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, eballetbo@gmail.com, linus.walleij@linaro.org, mazziesaccount@gmail.com, dmitry.torokhov@gmail.com
-Cc: linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sboyd@kernel.org, broonie@kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+To: Rosen Penev <rosenp@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jan.steffens@gmail.com, Pablo Cholaky <waltercool@slash.cl>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jul 30, 2018 at 01:43:34PM +0300, Matti Vaittinen wrote:
-> ROHM BD71837 PMIC MFD driver providing interrupts and support
-> for three subsystems:
-> - clk
-> - Regulators
-> - input/power-key
-> 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+@Rosen Penev: Could you please test this patch for kernel >= 4.17, for a week or so? At least suspend/resume should not cause any problem.
+------------------------------------------------------------------------
+This patch enables SMBus/RMI4 for PCs with SYN1219, e.g. Clevo P870DM etc.
 
-Please note that I maintained the acked-by line from Enric because the
-patch version 11 mostly contains only trivial changes - and is not
-touching the points Enric was originally concerned. Enric, please
-let us know if this is not Ok for you.
+Three users have reported SYN1219 supports SMBus, in Jul and Aug 2017:
+https://marc.info/?l=linux-input&m=150049625613055&w=2
+https://marc.info/?l=linux-input&m=150284057602358&w=2
+https://marc.info/?l=linux-input&m=150094561111026&w=2
 
-Br,
-	Matti Vaittinen
+No problem has been reported since then.
+
+---
+v2
+  This patch was originally submitted by Rosen Penev in Jun 2018 [1], which modified the list forcepad_pnp_ids[]. The current version instead changes smbus_pnp_ids[].
+
+  This version is yet to be tested.
+
+[1] https://www.spinics.net/lists/linux-input/msg56884.html
+
+Teika Kazura (1):
+  Input: synaptics - Enable RMI4 for Clevo P870DM laptops.
+
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+Co-Developed-by: Teika Kazura <teika@gmx.com>
+Signed-off-by: Teika Kazura <teika@gmx.com>
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--
+2.16.1

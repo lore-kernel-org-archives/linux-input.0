@@ -1,94 +1,81 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: intel_ish-hid: tx_buf memory leak on probe/remove
-Date: Sun, 29 Jul 2018 18:36:12 -0700
-Message-ID: <a43b252b84196087d523c97a162461e6883be1ab.camel@linux.intel.com>
-References: <20180724143455.13770-1-vasilyev@ispras.ru>
+From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Subject: Re: [PATCH v10 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Mon, 30 Jul 2018 09:52:00 +0300
+Message-ID: <20180730065200.GA8862@localhost.localdomain>
+References: <cover.1530800707.git.matti.vaittinen@fi.rohmeurope.com>
+ <e737bb13d17b75ea5e55f59005ef3181d428e704.1530800707.git.matti.vaittinen@fi.rohmeurope.com>
+ <20180712130013.GJ4641@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180724143455.13770-1-vasilyev@ispras.ru>
+Content-Disposition: inline
+In-Reply-To: <20180712130013.GJ4641@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anton Vasilyev <vasilyev@ispras.ru>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: mturquette@baylibre.com, robh+dt@kernel.org, sboyd@kernel.org, mark.rutland@arm.com, lgirdwood@gmail.com, broonie@kernel.org, mazziesaccount@gmail.com, arnd@arndb.de, dmitry.torokhov@gmail.com, sre@kernel.org, chenjh@rock-chips.com, andrew.smirnov@gmail.com, linus.walleij@linaro.org, kstewart@linuxfoundation.org, heiko@sntech.de, gregkh@linuxfoundation.org, eballetbo@gmail.com, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2018-07-24 at 17:34 +0300, Anton Vasilyev wrote:
-> ish_dev_init() allocates 512*176 bytes memory for tx_buf and stores
-> it at
-> &dev->wr_free_list_head.link list on ish_probe().
-> But there is no deallocation of this memory in ish_remove() and in
-> ish_probe() error path.
-> So current intel-ish-ipc provides 88 KB memory leak for each
-> probe/release.
-> 
-> The patch replaces kzalloc allocation by devm_kzalloc and removes
-> ishtp_device *dev deallocation by kfree.
-> 
-> Found by Linux Driver Verification project (linuxtesting.org).
-> 
-I prefer align with "(" for the next line for multi line statements
-even if character /line > slightly over 80. If you can do that resubmit
- with my ACK below.
+Hello Lee & All others,
 
-> Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+I'm physically back from my vacations so I can once again reach the
+keyboard. So it's time to try address these issues =)
 
-> ---
->  drivers/hid/intel-ish-hid/ipc/ipc.c     | 7 +++++--
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 2 --
->  2 files changed, 5 insertions(+), 4 deletions(-)
+On Thu, Jul 12, 2018 at 02:00:13PM +0100, Lee Jones wrote:
+> On Thu, 05 Jul 2018, Matti Vaittinen wrote:
 > 
-> diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-
-> ish-hid/ipc/ipc.c
-> index 9a60ec13cb10..2f8e5402b450 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-> @@ -907,7 +907,8 @@ struct ishtp_device *ish_dev_init(struct pci_dev
-> *pdev)
->  	struct ishtp_device *dev;
->  	int	i;
->  
-> -	dev = kzalloc(sizeof(struct ishtp_device) + sizeof(struct
-> ish_hw),
-> +	dev = devm_kzalloc(&pdev->dev,
-> +		sizeof(struct ishtp_device) + sizeof(struct ish_hw),
->  		GFP_KERNEL);
->  	if (!dev)
->  		return NULL;
-> @@ -925,7 +926,9 @@ struct ishtp_device *ish_dev_init(struct pci_dev
-> *pdev)
->  	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
->  		struct wr_msg_ctl_info	*tx_buf;
->  
-> -		tx_buf = kzalloc(sizeof(struct wr_msg_ctl_info),
-> GFP_KERNEL);
-> +		tx_buf = devm_kzalloc(&pdev->dev,
-> +			sizeof(struct wr_msg_ctl_info),
-> +			GFP_KERNEL);
->  		if (!tx_buf) {
->  			/*
->  			 * IPC buffers may be limited or not
-> available
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index a2c53ea3b5ed..81d035a480bc 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -172,7 +172,6 @@ static int ish_probe(struct pci_dev *pdev, const
-> struct pci_device_id *ent)
->  	free_irq(pdev->irq, dev);
->  free_device:
->  	pci_iounmap(pdev, hw->mem_addr);
-> -	kfree(dev);
->  release_regions:
->  	pci_release_regions(pdev);
->  disable_device:
-> @@ -202,7 +201,6 @@ static void ish_remove(struct pci_dev *pdev)
->  	pci_release_regions(pdev);
->  	pci_clear_master(pdev);
->  	pci_disable_device(pdev);
-> -	kfree(ishtp_dev);
->  }
->  
->  static struct device __maybe_unused *ish_resume_device;
+> > +	ret = regmap_read(bd71837->regmap, BD71837_REG_REV, &val);
+> > +	if (ret) {
+> > +		dev_err(&i2c->dev, "Read BD71837_REG_DEVICE failed\n");
+> > +		return ret;
+> > +	}
+> 
+> You never do anything with the value here.
+> 
+> Please either utilise it, read something useful or remove it.
+
+Right. I'll add check that the chip revision is known and supported by
+driver. Later I'll also use this value to distinguish between BD71837
+and BD71847.
+
+> > +struct bd71837_pmic;
+> > +struct bd71837_clk;
+> > +
+> > +struct bd71837 {
+> > +	struct device *dev;
+> > +	struct i2c_client *i2c_client;
+> 
+> Are these both being used?
+> 
+> If you save one, you tend not to need the other.
+> 
+
+That's what I would call experience. I indeed only use the dev pointer
+in subdevices - and what's even more ugly is that I use
+dev_get_drvdata(pdev->dev.parent) - in regulator while I use
+i2c_set_clientdata(i2c, bd71837); in MFD. This works because
+i2c_set_clientdata actually calls dev_set_drvdata - buit that's not
+pretty.
+
+I think it would be more appropriate to drop the i2c_client because
+subdevices need not to know the chip is connected via i2c. I'll do that
+and also replace the call to i2c_set_clientdata with direct use of
+dev_set_drvdata. Thanks!
+
+> > +	struct regmap *regmap;
+> > +	unsigned long int id;
+> > +
+> > +	int chip_irq;
+> > +	struct regmap_irq_chip_data *irq_data;
+> > +
+> > +	struct bd71837_pmic *pmic;
+> > +	struct bd71837_clk *clk;
+> > +};
+> > +
+> > +#endif /* __LINUX_MFD_BD71837_H__ */
+> 
+> -- 
+> Lee Jones [李琼斯]
+> Linaro Services Technical Lead
+> Linaro.org │ Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog

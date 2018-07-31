@@ -1,60 +1,63 @@
-From: Robert Munteanu <rombert@apache.org>
-Subject: Re: [PATCH 1/2] HID: redragon: Fix regression in non-Redragon
- keyboard due to this new driver
-Date: Mon, 30 Jul 2018 16:05:09 +0200
-Message-ID: <6330995a9313ade9196cadb2e3696d53d4ef9aa8.camel@apache.org>
-References: <CAPotdmQtXmfHJfcgrXZ02NrPgS3Az=SpZnBsRZ_8dGvPfdi+Mw@mail.gmail.com>
-         <1532807605-26023-1-git-send-email-JohnSGruber@gmail.com>
-         <CAPotdmT-zCVL=hoV0y83bbksTQ3AWsCybzisL8B6n-OB-M645g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: youling257 <youling257@gmail.com>
+Subject: [PATCH] platform/x86: touchscreen_dmi: Add info for the Cube KNote i1101 tablet
+Date: Tue, 31 Jul 2018 17:32:56 +0800
+Message-ID: <20180731093256.30533-1-youling257@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAPotdmT-zCVL=hoV0y83bbksTQ3AWsCybzisL8B6n-OB-M645g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: John S Gruber <JohnSGruber@gmail.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, andy@infradead.org, dvhart@infradead.org, hdegoede@redhat.com, youling257 <youling257@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi John,
+Add touchscreen info for the Cube KNote i1101 tablet.
 
-On Sat, 2018-07-28 at 15:53 -0400, John S Gruber wrote:
-> The Redragon keyboard uses the second device being presented, but
-> other
-> devices with the same vendor_id/device_id pair (0x0c45:760b) use the
-> first.
-> Don't cause its deletion. Problem introduced in commit 85455dd906d5
-> ("HID: redragon: Fix modifier keys for Redragon Asura Keyboard")
-> 
-> Fixes: 85455dd906d5
-> Signed-off-by: John S Gruber <JohnSGruber@gmail.com>
-> ---
->  drivers/hid/hid-redragon.c | 4 ----
->  1 file changed, 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-redragon.c b/drivers/hid/hid-redragon.c
-> index daf5957..85a5fbb 100644
-> --- a/drivers/hid/hid-redragon.c
-> +++ b/drivers/hid/hid-redragon.c
-> @@ -55,10 +55,6 @@ static int redragon_probe(struct hid_device *dev,
->  		return ret;
->  	}
-> 
-> -	/* do not register unused input device */
-> -	if (dev->maxapplication == 1)
-> -		return 0;
-> -
->  	ret = hid_hw_start(dev, HID_CONNECT_DEFAULT);
->  	if (ret) {
->  		hid_err(dev, "hw start failed\n");
+Reported-and-tested-by: lkongl <lkongl@163.com>
+---
+ drivers/platform/x86/touchscreen_dmi.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-As I mentioned, this is already fixed by
-dc9b8e85ed95cbe7e3ad0eabb5b48d617bbc365e, scheduled for 4.19, and I
-suggest that we instead add that one to 4.18.
-
-The explanation is that the block you deleted was the whole reason for
-adding the redragon_probe function, so the changes are largely
-equivalent.
-
-Thanks,
-
-Robert
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 85e425420da2..cb204f973491 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -117,6 +117,22 @@ static const struct ts_dmi_data cube_iwork8_air_data = {
+ 	.properties	= cube_iwork8_air_props,
+ };
+ 
++static const struct property_entry cube_knote_i1101_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 20),
++	PROPERTY_ENTRY_U32("touchscreen-min-y",  22),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1961),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1513),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl3692-cube-knote-i1101.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct ts_dmi_data cube_knote_i1101_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= cube_knote_i1101_props,
++};
++
+ static const struct property_entry dexp_ursus_7w_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 890),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-y", 630),
+@@ -458,6 +474,16 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+ 		},
+ 	},
++	{
++		/* Cube KNote i1101 */
++		.driver_data = (void *)&cube_knote_i1101_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_BOARD_NAME, "L1W6_I1101"),
++			DMI_MATCH(DMI_SYS_VENDOR, "ALLDOCUBE"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "i1101"),
++		},
++	},
+ 	{
+ 		/* DEXP Ursus 7W */
+ 		.driver_data = (void *)&dexp_ursus_7w_data,
+-- 
+2.18.0

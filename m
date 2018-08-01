@@ -1,157 +1,83 @@
-From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v3 1/3] Input: atmel_mxt_ts: Add support for  optional regulators.
-Date: Tue, 31 Jul 2018 17:18:09 +0200
-Message-ID: <1533050291-11502-2-git-send-email-pawel.mikolaj.chmiel@gmail.com>
-References: <1533050291-11502-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Anton Vasilyev <vasilyev@ispras.ru>
+Subject: [PATCH v2] HID: intel_ish-hid: tx_buf memory leak on probe/remove
+Date: Wed,  1 Aug 2018 14:26:51 +0300
+Message-ID: <20180801112651.6032-1-vasilyev@ispras.ru>
+References: <a43b252b84196087d523c97a162461e6883be1ab.camel@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1533050291-11502-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <a43b252b84196087d523c97a162461e6883be1ab.camel@linux.intel.com>
+References: 
 Sender: linux-kernel-owner@vger.kernel.org
-To: nick@shmanahar.org
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Anton Vasilyev <vasilyev@ispras.ru>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds optional regulators, which can be used to power
-up touchscreen. After enabling regulators, we need to wait 150msec.
-This value is taken from official driver.
+ish_dev_init() allocates 512*176 bytes memory for tx_buf and stores it at
+&dev->wr_free_list_head.link list on ish_probe().
+But there is no deallocation of this memory in ish_remove() and in
+ish_probe() error path.
+So current intel-ish-ipc provides 88 KB memory leak for each
+probe/release.
 
-It was tested on Samsung Galaxy i9000 (based on Samsung S5PV210 SOC).
+The patch replaces kzalloc allocation by devm_kzalloc and removes
+ishtp_device *dev deallocation by kfree.
 
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
-Changes from v2:
-  - Move code enabling regulators into separate method,
-    to make code more readable.
-
-Changes from v1:
-  - Enable regulators only if reset_gpio is present.
-  - Switch from devm_regulator_get_optional to devm_regulator_get
+v2: Fix align for multi line statements
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c | 65 +++++++++++++++++++++++++++++---
- 1 file changed, 59 insertions(+), 6 deletions(-)
+ drivers/hid/intel-ish-hid/ipc/ipc.c     | 9 ++++++---
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c | 2 --
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 54fe190fd4bc..2cd7f6db6ba9 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -27,6 +27,7 @@
- #include <linux/interrupt.h>
- #include <linux/of.h>
- #include <linux/property.h>
-+#include <linux/regulator/consumer.h>
- #include <linux/slab.h>
- #include <linux/gpio/consumer.h>
- #include <linux/property.h>
-@@ -194,10 +195,10 @@ enum t100_type {
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 9a60ec13cb10..bfbca7ec54ce 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -907,8 +907,9 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 	struct ishtp_device *dev;
+ 	int	i;
  
- /* Delay times */
- #define MXT_BACKUP_TIME		50	/* msec */
--#define MXT_RESET_GPIO_TIME	20	/* msec */
- #define MXT_RESET_INVALID_CHG	100	/* msec */
- #define MXT_RESET_TIME		200	/* msec */
- #define MXT_RESET_TIMEOUT	3000	/* msec */
-+#define MXT_REGULATOR_DELAY	150	/* msec */
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-@@ -310,6 +311,8 @@ struct mxt_data {
- 	struct t7_config t7_cfg;
- 	struct mxt_dbg dbg;
- 	struct gpio_desc *reset_gpio;
-+	struct regulator *vdd_reg;
-+	struct regulator *avdd_reg;
+-	dev = kzalloc(sizeof(struct ishtp_device) + sizeof(struct ish_hw),
+-		GFP_KERNEL);
++	dev = devm_kzalloc(&pdev->dev,
++			   sizeof(struct ishtp_device) + sizeof(struct ish_hw),
++			   GFP_KERNEL);
+ 	if (!dev)
+ 		return NULL;
  
- 	/* Cached parameters from object table */
- 	u16 T5_address;
-@@ -3016,6 +3019,38 @@ static const struct dmi_system_id chromebook_T9_suspend_dmi[] = {
- 	{ }
- };
+@@ -925,7 +926,9 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
+ 		struct wr_msg_ctl_info	*tx_buf;
  
-+static int mxt_regulator_enable(struct mxt_data *data)
-+{
-+	int error;
-+
-+	if (data->reset_gpio) {
-+		error = regulator_enable(data->vdd_reg);
-+		if (error) {
-+			dev_err(&data->client->dev, "Failed to enable vdd regulator: %d\n",
-+				error);
-+			return error;
-+		}
-+
-+		error = regulator_enable(data->avdd_reg);
-+		if (error) {
-+			dev_err(&data->client->dev, "Failed to enable avdd regulator: %d\n",
-+				error);
-+			return error;
-+		}
-+
-+		/*
-+		 * According to maXTouch power sequencing specification, RESET line
-+		 * must be kept low until some time after regulators come up to
-+		 * voltage
-+		 */
-+		msleep(MXT_REGULATOR_DELAY);
-+		gpiod_set_value(data->reset_gpio, 1);
-+		msleep(MXT_RESET_INVALID_CHG);
-+	}
-+
-+	return 0;
-+}
-+
- static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- {
- 	struct mxt_data *data;
-@@ -3076,6 +3111,22 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		return error;
- 	}
+-		tx_buf = kzalloc(sizeof(struct wr_msg_ctl_info), GFP_KERNEL);
++		tx_buf = devm_kzalloc(&pdev->dev,
++				      sizeof(struct wr_msg_ctl_info),
++				      GFP_KERNEL);
+ 		if (!tx_buf) {
+ 			/*
+ 			 * IPC buffers may be limited or not available
+diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+index a2c53ea3b5ed..81d035a480bc 100644
+--- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
++++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+@@ -172,7 +172,6 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	free_irq(pdev->irq, dev);
+ free_device:
+ 	pci_iounmap(pdev, hw->mem_addr);
+-	kfree(dev);
+ release_regions:
+ 	pci_release_regions(pdev);
+ disable_device:
+@@ -202,7 +201,6 @@ static void ish_remove(struct pci_dev *pdev)
+ 	pci_release_regions(pdev);
+ 	pci_clear_master(pdev);
+ 	pci_disable_device(pdev);
+-	kfree(ishtp_dev);
+ }
  
-+	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
-+	if (IS_ERR(data->vdd_reg)) {
-+		error = PTR_ERR(data->vdd_reg);
-+		dev_err(&client->dev, "Failed to get vdd regulator: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	data->avdd_reg = devm_regulator_get(&client->dev, "avdd");
-+	if (IS_ERR(data->avdd_reg)) {
-+		error = PTR_ERR(data->avdd_reg);
-+		dev_err(&client->dev, "Failed to get avdd regulator: %d\n",
-+			error);
-+		return error;
-+	}
-+
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, mxt_interrupt, IRQF_ONESHOT,
- 					  client->name, data);
-@@ -3086,11 +3137,9 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	disable_irq(client->irq);
- 
--	if (data->reset_gpio) {
--		msleep(MXT_RESET_GPIO_TIME);
--		gpiod_set_value(data->reset_gpio, 1);
--		msleep(MXT_RESET_INVALID_CHG);
--	}
-+	error = mxt_regulator_enable(data);
-+	if (error)
-+		return error;
- 
- 	error = mxt_initialize(data);
- 	if (error)
-@@ -3116,6 +3165,10 @@ static int mxt_remove(struct i2c_client *client)
- 	struct mxt_data *data = i2c_get_clientdata(client);
- 
- 	disable_irq(data->irq);
-+	if (data->reset_gpio) {
-+		regulator_disable(data->avdd_reg);
-+		regulator_disable(data->vdd_reg);
-+	}
- 	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
- 	mxt_free_input_device(data);
- 	mxt_free_object_table(data);
+ static struct device __maybe_unused *ish_resume_device;
 -- 
-2.7.4
+2.18.0

@@ -1,47 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 0/5] bitmap: Introduce alloc/free helpers
-Date: Wed, 1 Aug 2018 18:03:25 -0700
-Message-ID: <20180802010325.GB184797@dtor-ws>
-References: <20180630201750.2588-1-andriy.shevchenko@linux.intel.com>
- <CAHp75Vd9RSxVsYrbiAFJKLPL4wNzAtS9qAPjCNJJ4E=QbeTP8A@mail.gmail.com>
- <2310fa540b9e5db3b94f4917ecae76dce2a2ca65.camel@linux.intel.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v11 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Thu, 2 Aug 2018 09:35:06 +0100
+Message-ID: <20180802083506.GO4662@dell>
+References: <cover.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
+ <77184f651e5cefb112f1061bc682b759f88144c6.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <2310fa540b9e5db3b94f4917ecae76dce2a2ca65.camel@linux.intel.com>
+In-Reply-To: <77184f651e5cefb112f1061bc682b759f88144c6.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>, device-mapper development <dm-devel@redhat.com>, Shaohua Li <shli@kernel.org>, linux-raid@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <ynorov@caviumnetworks.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Joe Perches <joe@perches.com>
+To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, eballetbo@gmail.com, linus.walleij@linaro.org, mazziesaccount@gmail.com, dmitry.torokhov@gmail.com, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sboyd@kernel.org, broonie@kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jul 24, 2018 at 02:35:53PM +0300, Andy Shevchenko wrote:
-> On Thu, 2018-07-05 at 00:30 +0300, Andy Shevchenko wrote:
-> > On Sat, Jun 30, 2018 at 11:17 PM, Andy Shevchenko
-> > <andriy.shevchenko@linux.intel.com> wrote:
-> > > A lot of code is using allocation of bitmaps using BITS_PER_LONG()
-> > > macro and
-> > > sizeof(unsigned long) operator. The readability suffers because of
-> > > this.
-> > > 
-> > > The series introduces three helpers, i.e. bitmap_alloc(),
-> > > bitmap_zalloc() and
-> > > bitmap_free(), to make it more cleaner.
-> > > 
-> > 
-> > Dmitry, it seems we are all set now and if you have no objections
-> > against this version, it would be nice to see it in your tree followed
-> > by upstream.
+On Mon, 30 Jul 2018, Matti Vaittinen wrote:
+
+> ROHM BD71837 PMIC MFD driver providing interrupts and support
+> for three subsystems:
+> - clk
+> - Regulators
+> - input/power-key
 > 
-> Gentle ping!
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>  drivers/mfd/Kconfig              |  13 ++
+>  drivers/mfd/Makefile             |   1 +
+>  drivers/mfd/rohm-bd718x7.c       | 208 ++++++++++++++++++++++++
+>  include/linux/mfd/rohm-bd718x7.h | 332 +++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 554 insertions(+)
+>  create mode 100644 drivers/mfd/rohm-bd718x7.c
+>  create mode 100644 include/linux/mfd/rohm-bd718x7.h
 
-I put the first 3 patches into an immutable branch off 4.17:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git ib/4.17-bitmap
-
-and queued it and the other 2 patches for the next merge window.
-
-Thanks.
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
 -- 
-Dmitry
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

@@ -1,44 +1,47 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v11 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
-Date: Thu, 2 Aug 2018 09:35:06 +0100
-Message-ID: <20180802083506.GO4662@dell>
-References: <cover.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
- <77184f651e5cefb112f1061bc682b759f88144c6.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: Prevent loading of driver on
+ Mehlow
+Date: Thu, 2 Aug 2018 13:27:33 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1808021327240.25787@cbobk.fhfr.pm>
+References: <20180718193200.17944-1-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <77184f651e5cefb112f1061bc682b759f88144c6.1532946848.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <20180718193200.17944-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, eballetbo@gmail.com, linus.walleij@linaro.org, mazziesaccount@gmail.com, dmitry.torokhov@gmail.com, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sboyd@kernel.org, broonie@kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 30 Jul 2018, Matti Vaittinen wrote:
+On Wed, 18 Jul 2018, Srinivas Pandruvada wrote:
 
-> ROHM BD71837 PMIC MFD driver providing interrupts and support
-> for three subsystems:
-> - clk
-> - Regulators
-> - input/power-key
+> On Mehlow Xeon-E workstation, ISH PCI device is enabled but without ISH
+> firmware. Here the ISH device PCI device id was reused for some non Linux
+> storage drivers. So this was not done for enabling ISH. But this has a
+> undesirable side effect for Linux.
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Here the ISH driver will be loaded via PCI enumeration and will try to do
+> reset sequence. But reset sequence will wait till timeout as there is no
+> real ISH firmware is present to take action. This delay will add to boot
+> time of Linux (This platform will still continue to boot after this
+> timeout).
+> 
+> To avoid this boot delay we need to prevent loading of ISH drivers on
+> this platform. So we need to have hack to avoid treating this device as
+> ISH on this platform. To identify this workstation, we need some runtime
+> method. Luckily there are special PCI id on this workstation to
+> distinguish from the client version of this platform. On client version,
+> the ISH is supported using same PCI device id. So this change look for
+> the presence of PCI device IDs A309 and A30A and exit.
+> 
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 > ---
->  drivers/mfd/Kconfig              |  13 ++
->  drivers/mfd/Makefile             |   1 +
->  drivers/mfd/rohm-bd718x7.c       | 208 ++++++++++++++++++++++++
->  include/linux/mfd/rohm-bd718x7.h | 332 +++++++++++++++++++++++++++++++++++++++
->  4 files changed, 554 insertions(+)
->  create mode 100644 drivers/mfd/rohm-bd718x7.c
->  create mode 100644 include/linux/mfd/rohm-bd718x7.h
+> v2
+>  Replaced pci_get_device with pci_dev_present to check in a loop as
+> suggested by Benjamin.
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Applied, thanks.
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Jiri Kosina
+SUSE Labs

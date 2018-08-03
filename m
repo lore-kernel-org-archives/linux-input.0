@@ -1,27 +1,47 @@
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Subject: Re: [PATCH v12 2/2] mfd: bd71837: Devicetree bindings for ROHM
- BD71837 PMIC
-Date: Fri, 3 Aug 2018 14:14:25 +0300
-Message-ID: <20180803111425.GD20907@localhost.localdomain>
-References: <cover.1533292711.git.matti.vaittinen@fi.rohmeurope.com>
- <d053f54e5ce726ffaa95fbd9c20962a49dd1ee07.1533292711.git.matti.vaittinen@fi.rohmeurope.com>
+From: Robert Munteanu <rombert@apache.org>
+Subject: Re: [PATCH 2/2] HID: redragon Add additional verification to rdesc
+ modification quirk
+Date: Fri, 03 Aug 2018 16:21:56 +0300
+Message-ID: <393a529f40e7d61493178a1baeee5e2679c7da11.camel@apache.org>
+References: <CAPotdmQtXmfHJfcgrXZ02NrPgS3Az=SpZnBsRZ_8dGvPfdi+Mw@mail.gmail.com>
+         <1532807605-26023-1-git-send-email-JohnSGruber@gmail.com>
+         <CAPotdmQh_sWqPmiQ=_+fJ27AT7GA5hcne=wsXcmKhNnUpUs3wQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <d053f54e5ce726ffaa95fbd9c20962a49dd1ee07.1533292711.git.matti.vaittinen@fi.rohmeurope.com>
+In-Reply-To: <CAPotdmQh_sWqPmiQ=_+fJ27AT7GA5hcne=wsXcmKhNnUpUs3wQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, eballetbo@gmail.com, linus.walleij@linaro.org, mazziesaccount@gmail.com, dmitry.torokhov@gmail.com
-Cc: linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sboyd@kernel.org, broonie@kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
+To: John S Gruber <JohnSGruber@gmail.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 03, 2018 at 02:09:12PM +0300, Matti Vaittinen wrote:
-> Document devicetree bindings for ROHM BD71837 PMIC MFD.
+On Sat, 2018-07-28 at 15:53 -0400, John S Gruber wrote:
+> There are many devices using the vendor_id 0c45 and device_id of 760b
+> combination. Also the two bytes 0x81 0x00 aren't rare for a report
+> description. For these reasons the report description being altered
+> by the quirk should be verified more completely
 > 
-> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-> ---
+> If I'm understanding this correctly, I believe for an array field the
+> report_size should be greater or equal to
+> ceil(log2(usage_maximum - usage_minimum + 1)). That's 3 bits for
+> these 8
+> shift keys, 0xe0-0xe7. Therefore the incorrect report description
+> can't
+> be valid for any device.
+> 
+> Check the actual count of the rdesc and compare the entire field
+> description to reduce the chance of patching the wrong thing by
+> inadvertence.
+> 
+> Signed-off-by: John S Gruber <JohnSGruber@gmail.com>
 
-I kept the Reviewed-by and Acked-by as this patch is unchanged once
-again... Sorry for the spam.
+I tested this on 4.17.11 with 85455dd906d5 and cbe7e3ad0eab from Jiri's
+for-4.19/upstream tree and it works just fine.
+
+Feel free to add
+
+  Acked-By: Robert Munteanu <rombert@apache.org>
+
+Thanks for looking into this.
+
+Robert

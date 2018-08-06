@@ -1,74 +1,43 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [PATCH] Input: cros_ec_keyb: Remove check before calling
- pm_wakeup_event.
-Date: Mon, 6 Aug 2018 09:15:42 +0200
-Message-ID: <20180806071543eucas1p233ac5016e1a586594cf8ecd1fe3214b0~IOkV1Zt7j2129321293eucas1p20@eucas1p2.samsung.com>
-References: <CGME20180803072628eucas1p26abe0cb121b974401759502f8807bb96@eucas1p2.samsung.com>
-        <20180605224458.62692-1-ravisadineni@chromium.org>
-        <20180803072628eucas1p26abe0cb121b974401759502f8807bb96~HTx4BGQjl1119311193eucas1p2U@eucas1p2.samsung.com>
-        <CAEZbON7qLheHFuU6zwArCz=CG03JvnFjcehBGjE4RqROYrMLhQ@mail.gmail.com>
-        <CAKdAkRQG08d_duPiKFi_=xUNO93c0Rcw9kpaYFFJahjJM-NdGw@mail.gmail.com>
-        <CAEZbON4O0X8Fo6eAbmPOSiB1_Tw7x+Ox3ROoGfZQn72uQGQLkg@mail.gmail.com>
-        <20180806052949eucas1p2483800c02730febd03d4a661a25fa405~INH40XvCx2719627196eucas1p2X@eucas1p2.samsung.com>
-        <CAKdAkRSvLq-L3FrODUqxXqDs2FymM9k5dZRxnOpc44rFiHaWAQ@mail.gmail.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: Built in PS2 keyboard in new ASUS/acer laptops can not wake up system after s2idle
+Date: Mon, 06 Aug 2018 11:37:05 +0200
+Message-ID: <73029405.6ZXyByzer1@aspire.rjw.lan>
+References: <CAB4CAwfQ0mPMqCLp95TVjw4J0r5zKPWkSvvkK4cpZUGE--w8bQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKdAkRSvLq-L3FrODUqxXqDs2FymM9k5dZRxnOpc44rFiHaWAQ@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <CAB4CAwfQ0mPMqCLp95TVjw4J0r5zKPWkSvvkK4cpZUGE--w8bQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ravi Chandra Sadineni <ravisadineni@chromium.org>, Ravi Chandra Sadineni <ravisadineni@google.com>, Todd Broch <tbroch@google.com>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-samsung-soc@vger.kernel.org
+To: Chris Chiu <chiu@endlessm.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-pm@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry
+On Friday, August 3, 2018 10:04:09 AM CEST Chris Chiu wrote:
+> Hi guys,
+>     We have some new laptops with Intel new Intel WiskyLake CPU come
+> in and they all have the same problem. They all have the so-called
+> "Modern Standby" feature which is s2idle in Linux.
+> 
+>     The problem is the built-in keyboard no longer wake up the system
+> after it goes to s2idle. Only the power button can wake up. It's
+> different from the other laptops with old Intel CPUs (CoffeeLake,
+> KaybeLake...etc). We found the difference is that the EC (embedded
+> controller) no longer signals SCI event when in s2idle.
+> 
+>     Confirmed with ASUS EC engineer, he also admits that the EC code
+> for signaling SCI event in modern standby has been removed on
+> WiskyLake models. Because the built-in PS2 keyboard can still wake up
+> the system on WisksyLake+Windows10 RS4 combination without EC
+> intervention.
+> 
+>     Based on this information, we suspect that maybe the built-in
+> keyboard wakeup on Windows 10 RS4 in enabled by default (although we
+> don't know how to prove that). It's easy to simply do
+> 'device_set_wakeup_enable' and 'enable_irq_wake' for the i8042
+> keyboard port to wake up the system without EC, but it's nasty.
+> 
+>     Any suggestion about how to achieve the keyboard wake up function
+> on these new laptops in a generic way? Thanks
 
-On 2018-08-06 08:16, Dmitry Torokhov wrote:
-> On Sun, Aug 5, 2018 at 10:29 PM Marek Szyprowski
-> <m.szyprowski@samsung.com> wrote:
->> Hi Ravi,
->>
->> On 2018-08-03 18:53, Ravi Chandra Sadineni wrote:
->>> Understood. I am trying to reproduce this issue locally. Wanted to
->>> know the version of the kernel so I can give a try. Marek, can you
->>> please confirm the kernel version.
->>>
->> Yes, sorry for the missing context, I was in hurry writing the report and
->> I wanted to send it before leaving the office. I'm testing mainline on Snow
->> with exynos_defconfig.
->>
->> Suspend/resume is partially broken already with mainline, but if you disable
->> CPUfreq support, it works fine on Linux v4.17.
->>
->> I've posted CPUfreq related fixes here if you are interested:
->> https://patchwork.kernel.org/patch/10554607/
->> https://patchwork.kernel.org/patch/10554603/
->>
->> The issue with cros_ec_keyb patch appears first on Linux v4.18-rc1, which is
->> the first release with that patch.
-> Marek, this patch should only be in -next, I do not believe I sent it
-> to Linus just yet. If mainline is broken for you it can't be caused by
-> this patch.
-
-Aaahh. My fault then. The suspend/resume issue is cause by commit
-38ba34a43dbc ("Input: cros_ec_keyb - mark cros_ec_keyb driver as wake
-enabled device."), which has been merged to v4.18-rc1.
-
-It looks that I've downloaded wrong patch from the patchwork to reply it
-with a a bug report. :( I'm really sorry for the noise in the wrong thread.
-
-Ravi: please let me know how can I help you to debug this issue.
-
->
->> Linux -next from 20180803, which has a few
->> more patches for cros_ec_keyb suffers from the same issue.
-> Just to confirm, if you revert only this patch from -next you get
-> suspend/resume back?
->
-> Thanks.
-
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+What about echoing "enabled" to the keyboard's power/wakeup file in sysfs?

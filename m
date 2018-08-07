@@ -1,163 +1,28 @@
-From: =?UTF-8?B?TXlsw6huZQ==?= Josserand <mylene.josserand@bootlin.com>
-Subject: Re: [PATCH v4 1/3] Input: edt-ft5x06 - Add support for regulator
-Date: Tue, 7 Aug 2018 08:59:44 +0200
-Message-ID: <20180807085944.337bf20b@dell-desktop.home>
-References: <20180725073410.730-1-mylene.josserand@bootlin.com>
-        <20180725073410.730-2-mylene.josserand@bootlin.com>
-        <20180726004732.GD80336@dtor-ws>
+From: Chen-Yu Tsai <wens@csie.org>
+Subject: Re: [PATCH v4 23/26] devicetree: fix a series of wrong file references
+Date: Tue, 7 Aug 2018 15:04:35 +0800
+Message-ID: <CAGb2v65+6zV1E--KvD3Si=XNmDE3oaZ2hBxvm86KjTwUv9BnSw@mail.gmail.com>
+References: <cover.1529079119.git.mchehab+samsung@kernel.org> <266e5f874b36aa83f3327879d85921fab52d5461.1529079120.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180726004732.GD80336@dtor-ws>
+In-Reply-To: <266e5f874b36aa83f3327879d85921fab52d5461.1529079120.git.mchehab+samsung@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@bootlin.com
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Zhou Wang <wangzhou1@hisilicon.com>, Bjorn Helgaas <bhelgaas@google.com>, Xiaowei Song <songxiaowei@hisilicon.com>, Binghui Wang <wangbinghui@hisilicon.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.>
 List-Id: linux-input@vger.kernel.org
 
-Hello Dmitry,
+On Sat, Jun 16, 2018 at 12:30 AM, Mauro Carvalho Chehab
+<mchehab+samsung@kernel.org> wrote:
+> As files got renamed, their references broke.
+>
+> Manually fix a series of broken refs at the DT bindings.
+>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> ---
+>  .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt |  2 +-
+>  Documentation/devicetree/bindings/mfd/sun6i-prcm.txt |  2 +-
 
-Thank you again for the review.
+If still applicable,
 
-On Wed, 25 Jul 2018 17:47:32 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> Hi Mylène,
-> 
-> On Wed, Jul 25, 2018 at 09:34:08AM +0200, Mylène Josserand wrote:
-> > Add the support of regulator to use it as VCC source.
-> > 
-> > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
-> > Reviewed-by: Rob Herring <robh@kernel.org>
-> > ---
-> >  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
-> >  drivers/input/touchscreen/edt-ft5x06.c             | 43 ++++++++++++++++++++++
-> >  2 files changed, 44 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > index 025cf8c9324a..48e975b9c1aa 100644
-> > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > @@ -30,6 +30,7 @@ Required properties:
-> >  Optional properties:
-> >   - reset-gpios: GPIO specification for the RESET input
-> >   - wake-gpios:  GPIO specification for the WAKE input
-> > + - vcc-supply:  Regulator that supplies the touchscreen
-> >  
-> >   - pinctrl-names: should be "default"
-> >   - pinctrl-0:   a phandle pointing to the pin settings for the
-> > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> > index 1e18ca0d1b4e..dcde719094f7 100644
-> > --- a/drivers/input/touchscreen/edt-ft5x06.c
-> > +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> > @@ -39,6 +39,7 @@
-> >  #include <linux/input/mt.h>
-> >  #include <linux/input/touchscreen.h>
-> >  #include <linux/of_device.h>
-> > +#include <linux/regulator/consumer.h>
-> >  
-> >  #define WORK_REGISTER_THRESHOLD		0x00
-> >  #define WORK_REGISTER_REPORT_RATE	0x08
-> > @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
-> >  	struct touchscreen_properties prop;
-> >  	u16 num_x;
-> >  	u16 num_y;
-> > +	struct regulator *vcc;
-> >  
-> >  	struct gpio_desc *reset_gpio;
-> >  	struct gpio_desc *wake_gpio;
-> > @@ -963,6 +965,13 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
-> >  	}
-> >  }
-> >  
-> > +static void edt_ft5x06_disable_regulator(void *arg)
-> > +{
-> > +	struct edt_ft5x06_ts_data *data = arg;
-> > +
-> > +	regulator_disable(data->vcc);
-> > +}
-> > +
-> >  static int edt_ft5x06_ts_probe(struct i2c_client *client,
-> >  					 const struct i2c_device_id *id)
-> >  {
-> > @@ -991,6 +1000,28 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
-> >  
-> >  	tsdata->max_support_points = chip_data->max_support_points;
-> >  
-> > +	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
-> > +	if (IS_ERR(tsdata->vcc)) {
-> > +		error = PTR_ERR(tsdata->vcc);
-> > +		if (error != -EPROBE_DEFER)
-> > +			dev_err(&client->dev, "failed to request regulator: %d\n",
-> > +				error);
-> > +		return error;
-> > +	}
-> > +
-> > +	error = regulator_enable(tsdata->vcc);
-> > +	if (error < 0) {
-> > +		dev_err(&client->dev, "failed to enable vcc: %d\n",
-> > +			error);
-> > +		return error;
-> > +	}  
-> 
-> It is better to put the chip into reset and then power up the regulatori
-> and take it out of the reset, rather than power up and then toggle reset
-> on and off.
-
-okay, thanks, I will update it.
-
-> 
-> > +
-> > +	error = devm_add_action_or_reset(&client->dev,
-> > +					 edt_ft5x06_disable_regulator,
-> > +					 tsdata);
-> > +	if (error)
-> > +		return error;
-> > +
-> >  	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
-> >  						     "reset", GPIOD_OUT_HIGH);
-> >  	if (IS_ERR(tsdata->reset_gpio)) {
-> > @@ -1120,9 +1151,12 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
-> >  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
-> >  {
-> >  	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-> >  
-> >  	if (device_may_wakeup(dev))
-> >  		enable_irq_wake(client->irq);
-> > +	else
-> > +		regulator_disable(tsdata->vcc);
-> >  
-> >  	return 0;
-> >  }
-> > @@ -1130,9 +1164,18 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
-> >  static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
-> >  {
-> >  	struct i2c_client *client = to_i2c_client(dev);
-> > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-> > +	int ret;
-> >  
-> >  	if (device_may_wakeup(dev))
-> >  		disable_irq_wake(client->irq);
-> > +	else {
-> > +		ret = regulator_enable(tsdata->vcc);
-> > +		if (ret < 0) {
-> > +			dev_err(dev, "failed to enable vcc: %d\n", ret);
-> > +			return ret;
-> > +		}
-> > +	}  
-> 
-> I believe I mentioned in other review that once you powered up the
-> device, you need to restore its settings, include switching to factory
-> mode, if it was in factory mode, and restoring threshold/gain/offset
-> settings.
-
-Yes, I will update the driver with that but as I told you in a previous
-mail, I can't test the suspend/resume :(
-
-Best regards,
-
--- 
-Mylène Josserand, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Acked-by: Chen-Yu Tsai <wens@csie.org>

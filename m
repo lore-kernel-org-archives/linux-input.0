@@ -1,81 +1,163 @@
-From: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Subject: Re: [PATCH] Input: cros_ec_keyb: Remove check before calling pm_wakeup_event.
-Date: Mon, 6 Aug 2018 16:05:46 -0700
-Message-ID: <CAEZbON72eVUCNT3ePEZKrB5B6+6YYgO7=X0TY0eBqUb3ws0sLA@mail.gmail.com>
-References: <CGME20180803072628eucas1p26abe0cb121b974401759502f8807bb96@eucas1p2.samsung.com>
- <20180605224458.62692-1-ravisadineni@chromium.org> <20180803072628eucas1p26abe0cb121b974401759502f8807bb96~HTx4BGQjl1119311193eucas1p2U@eucas1p2.samsung.com>
- <CAEZbON7qLheHFuU6zwArCz=CG03JvnFjcehBGjE4RqROYrMLhQ@mail.gmail.com>
- <CAKdAkRQG08d_duPiKFi_=xUNO93c0Rcw9kpaYFFJahjJM-NdGw@mail.gmail.com>
- <CAEZbON4O0X8Fo6eAbmPOSiB1_Tw7x+Ox3ROoGfZQn72uQGQLkg@mail.gmail.com>
- <20180806052949eucas1p2483800c02730febd03d4a661a25fa405~INH40XvCx2719627196eucas1p2X@eucas1p2.samsung.com>
- <CAKdAkRSvLq-L3FrODUqxXqDs2FymM9k5dZRxnOpc44rFiHaWAQ@mail.gmail.com> <20180806071543eucas1p233ac5016e1a586594cf8ecd1fe3214b0~IOkV1Zt7j2129321293eucas1p20@eucas1p2.samsung.com>
+From: =?UTF-8?B?TXlsw6huZQ==?= Josserand <mylene.josserand@bootlin.com>
+Subject: Re: [PATCH v4 1/3] Input: edt-ft5x06 - Add support for regulator
+Date: Tue, 7 Aug 2018 08:59:44 +0200
+Message-ID: <20180807085944.337bf20b@dell-desktop.home>
+References: <20180725073410.730-1-mylene.josserand@bootlin.com>
+        <20180725073410.730-2-mylene.josserand@bootlin.com>
+        <20180726004732.GD80336@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180806071543eucas1p233ac5016e1a586594cf8ecd1fe3214b0~IOkV1Zt7j2129321293eucas1p20@eucas1p2.samsung.com>
+In-Reply-To: <20180726004732.GD80336@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ravi Chandra Sadineni <ravisadineni@google.com>, Todd Broch <tbroch@google.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@bootlin.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Merek,
+Hello Dmitry,
 
-Thanks for the info. Lemme understand what's going on. Will update the
-thread once I have more info.
+Thank you again for the review.
 
-Thanks,
-Ravi
-On Mon, Aug 6, 2018 at 12:15 AM Marek Szyprowski
-<m.szyprowski@samsung.com> wrote:
->
-> Hi Dmitry
->
-> On 2018-08-06 08:16, Dmitry Torokhov wrote:
-> > On Sun, Aug 5, 2018 at 10:29 PM Marek Szyprowski
-> > <m.szyprowski@samsung.com> wrote:
-> >> Hi Ravi,
-> >>
-> >> On 2018-08-03 18:53, Ravi Chandra Sadineni wrote:
-> >>> Understood. I am trying to reproduce this issue locally. Wanted to
-> >>> know the version of the kernel so I can give a try. Marek, can you
-> >>> please confirm the kernel version.
-> >>>
-> >> Yes, sorry for the missing context, I was in hurry writing the report and
-> >> I wanted to send it before leaving the office. I'm testing mainline on Snow
-> >> with exynos_defconfig.
-> >>
-> >> Suspend/resume is partially broken already with mainline, but if you disable
-> >> CPUfreq support, it works fine on Linux v4.17.
-> >>
-> >> I've posted CPUfreq related fixes here if you are interested:
-> >> https://patchwork.kernel.org/patch/10554607/
-> >> https://patchwork.kernel.org/patch/10554603/
-> >>
-> >> The issue with cros_ec_keyb patch appears first on Linux v4.18-rc1, which is
-> >> the first release with that patch.
-> > Marek, this patch should only be in -next, I do not believe I sent it
-> > to Linus just yet. If mainline is broken for you it can't be caused by
-> > this patch.
->
-> Aaahh. My fault then. The suspend/resume issue is cause by commit
-> 38ba34a43dbc ("Input: cros_ec_keyb - mark cros_ec_keyb driver as wake
-> enabled device."), which has been merged to v4.18-rc1.
->
-> It looks that I've downloaded wrong patch from the patchwork to reply it
-> with a a bug report. :( I'm really sorry for the noise in the wrong thread.
->
-> Ravi: please let me know how can I help you to debug this issue.
->
-> >
-> >> Linux -next from 20180803, which has a few
-> >> more patches for cros_ec_keyb suffers from the same issue.
-> > Just to confirm, if you revert only this patch from -next you get
-> > suspend/resume back?
-> >
-> > Thanks.
->
-> Best regards
-> --
-> Marek Szyprowski, PhD
-> Samsung R&D Institute Poland
->
+On Wed, 25 Jul 2018 17:47:32 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+> Hi Mylène,
+> 
+> On Wed, Jul 25, 2018 at 09:34:08AM +0200, Mylène Josserand wrote:
+> > Add the support of regulator to use it as VCC source.
+> > 
+> > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> > ---
+> >  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
+> >  drivers/input/touchscreen/edt-ft5x06.c             | 43 ++++++++++++++++++++++
+> >  2 files changed, 44 insertions(+)
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > index 025cf8c9324a..48e975b9c1aa 100644
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > @@ -30,6 +30,7 @@ Required properties:
+> >  Optional properties:
+> >   - reset-gpios: GPIO specification for the RESET input
+> >   - wake-gpios:  GPIO specification for the WAKE input
+> > + - vcc-supply:  Regulator that supplies the touchscreen
+> >  
+> >   - pinctrl-names: should be "default"
+> >   - pinctrl-0:   a phandle pointing to the pin settings for the
+> > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> > index 1e18ca0d1b4e..dcde719094f7 100644
+> > --- a/drivers/input/touchscreen/edt-ft5x06.c
+> > +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> > @@ -39,6 +39,7 @@
+> >  #include <linux/input/mt.h>
+> >  #include <linux/input/touchscreen.h>
+> >  #include <linux/of_device.h>
+> > +#include <linux/regulator/consumer.h>
+> >  
+> >  #define WORK_REGISTER_THRESHOLD		0x00
+> >  #define WORK_REGISTER_REPORT_RATE	0x08
+> > @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
+> >  	struct touchscreen_properties prop;
+> >  	u16 num_x;
+> >  	u16 num_y;
+> > +	struct regulator *vcc;
+> >  
+> >  	struct gpio_desc *reset_gpio;
+> >  	struct gpio_desc *wake_gpio;
+> > @@ -963,6 +965,13 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+> >  	}
+> >  }
+> >  
+> > +static void edt_ft5x06_disable_regulator(void *arg)
+> > +{
+> > +	struct edt_ft5x06_ts_data *data = arg;
+> > +
+> > +	regulator_disable(data->vcc);
+> > +}
+> > +
+> >  static int edt_ft5x06_ts_probe(struct i2c_client *client,
+> >  					 const struct i2c_device_id *id)
+> >  {
+> > @@ -991,6 +1000,28 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+> >  
+> >  	tsdata->max_support_points = chip_data->max_support_points;
+> >  
+> > +	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
+> > +	if (IS_ERR(tsdata->vcc)) {
+> > +		error = PTR_ERR(tsdata->vcc);
+> > +		if (error != -EPROBE_DEFER)
+> > +			dev_err(&client->dev, "failed to request regulator: %d\n",
+> > +				error);
+> > +		return error;
+> > +	}
+> > +
+> > +	error = regulator_enable(tsdata->vcc);
+> > +	if (error < 0) {
+> > +		dev_err(&client->dev, "failed to enable vcc: %d\n",
+> > +			error);
+> > +		return error;
+> > +	}  
+> 
+> It is better to put the chip into reset and then power up the regulatori
+> and take it out of the reset, rather than power up and then toggle reset
+> on and off.
+
+okay, thanks, I will update it.
+
+> 
+> > +
+> > +	error = devm_add_action_or_reset(&client->dev,
+> > +					 edt_ft5x06_disable_regulator,
+> > +					 tsdata);
+> > +	if (error)
+> > +		return error;
+> > +
+> >  	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
+> >  						     "reset", GPIOD_OUT_HIGH);
+> >  	if (IS_ERR(tsdata->reset_gpio)) {
+> > @@ -1120,9 +1151,12 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
+> >  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+> >  {
+> >  	struct i2c_client *client = to_i2c_client(dev);
+> > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+> >  
+> >  	if (device_may_wakeup(dev))
+> >  		enable_irq_wake(client->irq);
+> > +	else
+> > +		regulator_disable(tsdata->vcc);
+> >  
+> >  	return 0;
+> >  }
+> > @@ -1130,9 +1164,18 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+> >  static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
+> >  {
+> >  	struct i2c_client *client = to_i2c_client(dev);
+> > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+> > +	int ret;
+> >  
+> >  	if (device_may_wakeup(dev))
+> >  		disable_irq_wake(client->irq);
+> > +	else {
+> > +		ret = regulator_enable(tsdata->vcc);
+> > +		if (ret < 0) {
+> > +			dev_err(dev, "failed to enable vcc: %d\n", ret);
+> > +			return ret;
+> > +		}
+> > +	}  
+> 
+> I believe I mentioned in other review that once you powered up the
+> device, you need to restore its settings, include switching to factory
+> mode, if it was in factory mode, and restoring threshold/gain/offset
+> settings.
+
+Yes, I will update the driver with that but as I told you in a previous
+mail, I can't test the suspend/resume :(
+
+Best regards,
+
+-- 
+Mylène Josserand, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com

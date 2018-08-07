@@ -1,135 +1,93 @@
-From: Dmitry Vyukov <dvyukov@google.com>
-Subject: Re: Re: WARNING in input_alloc_absinfo
-Date: Tue, 7 Aug 2018 16:47:33 +0200
-Message-ID: <CACT4Y+YAhkymQQAfdMUQnWpQVp6WN=gG1u5Fvgz79eWiw79ZHQ@mail.gmail.com>
-References: <CACT4Y+a+c6skSwS8WfY9GUs9mnjmf_aa7C5crW-m2Jb54ZbyuA@mail.gmail.com>
- <000000000000271b760572d934fe@google.com>
+From: Ravi Chandra Sadineni <ravisadineni@chromium.org>
+Subject: Re: [PATCH] Input: cros_ec_keyb: Remove check before calling pm_wakeup_event.
+Date: Tue, 7 Aug 2018 14:59:41 -0700
+Message-ID: <CAEZbON5vMOiYRsnN1MyuSov3URByeAp-z3EEsEH6tqY23U32wQ@mail.gmail.com>
+References: <CGME20180803072628eucas1p26abe0cb121b974401759502f8807bb96@eucas1p2.samsung.com>
+ <20180605224458.62692-1-ravisadineni@chromium.org> <20180803072628eucas1p26abe0cb121b974401759502f8807bb96~HTx4BGQjl1119311193eucas1p2U@eucas1p2.samsung.com>
+ <CAEZbON7qLheHFuU6zwArCz=CG03JvnFjcehBGjE4RqROYrMLhQ@mail.gmail.com>
+ <CAKdAkRQG08d_duPiKFi_=xUNO93c0Rcw9kpaYFFJahjJM-NdGw@mail.gmail.com>
+ <CAEZbON4O0X8Fo6eAbmPOSiB1_Tw7x+Ox3ROoGfZQn72uQGQLkg@mail.gmail.com>
+ <20180806052949eucas1p2483800c02730febd03d4a661a25fa405~INH40XvCx2719627196eucas1p2X@eucas1p2.samsung.com>
+ <CAKdAkRSvLq-L3FrODUqxXqDs2FymM9k5dZRxnOpc44rFiHaWAQ@mail.gmail.com>
+ <20180806071543eucas1p233ac5016e1a586594cf8ecd1fe3214b0~IOkV1Zt7j2129321293eucas1p20@eucas1p2.samsung.com>
+ <CAEZbON72eVUCNT3ePEZKrB5B6+6YYgO7=X0TY0eBqUb3ws0sLA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <000000000000271b760572d934fe@google.com>
+In-Reply-To: <CAEZbON72eVUCNT3ePEZKrB5B6+6YYgO7=X0TY0eBqUb3ws0sLA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot <syzbot+@syzkaller.appspotmail.com>, syzbot <syzbot+c382812c78d98ecd9fb8@syzkaller.appspotmail.com>
-Cc: 'Dmitry Vyukov' via syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ravi Chandra Sadineni <ravisadineni@google.com>, Todd Broch <tbroch@google.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 7, 2018 at 4:28 PM, syzbot
-<syzbot+@syzkaller.appspotmail.com> wrote:
->> On Thu, Jul 26, 2018 at 11:40 AM, Dmitry Vyukov <dvyukov@google.com>
->> wrote:
->>>
->>> On Mon, Jul 2, 2018 at 11:30 AM, Dmitry Vyukov <dvyukov@google.com>
->>> wrote:
->>>>
->>>> On Fri, Jun 29, 2018 at 11:59 PM,  <dmitry.torokhov@gmail.com> wrote:
->>>>>
->>>>> On Monday, June 25, 2018 at 5:43:02 AM UTC-7, Dmitry Vyukov wrote:
->
->
->>>>>> On Tue, Jun 19, 2018 at 8:51 PM, Dmitry Torokhov
->>>>>> <dmitry....@gmail.com> wrote:
->>>>>> > On Thu, Jun 14, 2018 at 05:47:03AM -0700, syzbot wrote:
->>>>>> >> Hello,
->>>>>> >>
->>>>>> >> syzbot found the following crash on:
->>>>>> >>
->>>>>> >> HEAD commit:    d2d741e5d189 kmsan: add initialization for shmem
->>>>>> >> pages
->>>>>> >> git tree:       https://github.com/google/kmsan.git/master
->>>>>> >> console output:
->>>>>> >> https://syzkaller.appspot.com/x/log.txt?x=1775bae7800000
->>>>>> >> kernel config:
->>>>>> >> https://syzkaller.appspot.com/x/.config?x=48f9de3384bcd0f
->>>>>> >> dashboard link:
->>>>>> >> https://syzkaller.appspot.com/bug?extid=c382812c78d98ecd9fb8
->>>>>> >> compiler:       clang version 7.0.0 (trunk 329391)
->>>>>> >> syzkaller
->>>>>> >> repro:https://syzkaller.appspot.com/x/repro.syz?x=13b31ae7800000
->>>>>> >> C reproducer:
->>>>>> >> https://syzkaller.appspot.com/x/repro.c?x=1733255b800000
->>>>>> >>
->>>>>> >> IMPORTANT: if you fix the bug, please add the following tag to the
->>>>>> >> commit:
->>>>>> >> Reported-by: syzbot+c38281...@syzkaller.appspotmail.com
->>>>>> >>
->>>>>> >> RBP: 00000000006cb018 R08: 0000000000000001 R09: 00007ffe93080031
->>>>>> >> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
->>>>>> >> R13: ffffffffffffffff R14: 0000000000000000 R15: 0000000000000000
->>>>>> >> ------------[ cut here ]------------
->>>>>> >> input_alloc_absinfo(): kcalloc() failed?
->>>>>> >> WARNING: CPU: 1 PID: 4498 at drivers/input/input.c:487
->>>>>> >> input_alloc_absinfo+0x183/0x190 drivers/input/input.c:487
->>>>>> >> Kernel panic - not syncing: panic_on_warn set ...
->>>>>> >
->>>>>> > Hmm, so there is not really a problem as far as I am concerned. We
->>>>>> > do
->>>>>> > generate a warning if we can't allocate memory for absinfo,  as this
->>>>>> > is
->>>>>> > really unexpected, but the case is handled properly by the callers
->>>>>> > so
->>>>>> > there is no reason for us to go belly up here.
->
->
->>>>>> Note to myself: ping this bug when "include/asm-generic/bug.h: clarify
->>>>>> valid uses of WARN()" is fully merged.
->
->
->
->>>>> No, this warning will still be there even after the "clarifying" patch
->>>>> is
->>>>> merged. It does not check user inputs, it warns that the system is so
->>>>> low on
->>>>> memory that we could not allocate measly amount needed for absinfo.
->>>>> Treat it
->>>>> as you treat OOM warnings from kmalloc() itself.
->
->
->>>> Hi Dmitry,
->
->
->>>> kmalloc does not produce WARNING on OOM. The rule is not only about
->>>> invalid inputs, it's also about any transient conditions and "WARNING
->>>> only for kernel bugs".
->
->
->>>> To put this in larger context, being able to distinguish kernel bugs
->>>> from non-bugs is a very important and practically useful capability,
->>>> which in particular enables systematic testing, but also makes things
->>>> simpler for all kernel users. There must be a very significant reason
->>>> to abandon this capability. What is that reason in this case?
->
->
->>>> I also don't understand what is so special about this case. If we want
->>>> user message for kmalloc failures, kmalloc is the right place for such
->>>> warning, rather than a random call site out of thousands. Consider,
->>>> the allocation failure can happen on the very next or previous kmalloc
->>>> call, and user won't be warned. The rest of the kernel (including the
->>>> rest of input sybsystem) does not warn on allocation failures, so that
->>>> looks like what we need to do here as well. Or, if there is something
->>>> very special about this particular kmalloc call site, something that
->>>> makes it different from thousands of other call sites, why don't you
->>>> want to replace it with pr_err which would both give the diagnostics
->>>> but also not block systematic testing? Which looks like a win-win to
->>>> me.
->
->
->>>> Thanks
->
->
->
->>> So, Dmitry, do you mind fixing this in the name of unblocking kernel
->>> testing?
->
->
->
->> Let's tell syzbot about the pending fix:
->
->
->> #syz fix: Input: do not use WARN() in input_alloc_absinfo()
->
->
-> Can't find the corresponding bug.
+hi Merek,
 
-Now with syzbot email in CC:
+I tried booting a snow device and could not get it to boot it to the
+console. I assume i don't have right kernel config. Can you share your
+config if possible.
 
-#syz fix: Input: do not use WARN() in input_alloc_absinfo()
+Thanks,
+RaviOn Mon, Aug 6, 2018 at 4:05 PM Ravi Chandra Sadineni
+<ravisadineni@chromium.org> wrote:
+>
+> Hi Merek,
+>
+> Thanks for the info. Lemme understand what's going on. Will update the
+> thread once I have more info.
+>
+> Thanks,
+> Ravi
+> On Mon, Aug 6, 2018 at 12:15 AM Marek Szyprowski
+> <m.szyprowski@samsung.com> wrote:
+> >
+> > Hi Dmitry
+> >
+> > On 2018-08-06 08:16, Dmitry Torokhov wrote:
+> > > On Sun, Aug 5, 2018 at 10:29 PM Marek Szyprowski
+> > > <m.szyprowski@samsung.com> wrote:
+> > >> Hi Ravi,
+> > >>
+> > >> On 2018-08-03 18:53, Ravi Chandra Sadineni wrote:
+> > >>> Understood. I am trying to reproduce this issue locally. Wanted to
+> > >>> know the version of the kernel so I can give a try. Marek, can you
+> > >>> please confirm the kernel version.
+> > >>>
+> > >> Yes, sorry for the missing context, I was in hurry writing the report and
+> > >> I wanted to send it before leaving the office. I'm testing mainline on Snow
+> > >> with exynos_defconfig.
+> > >>
+> > >> Suspend/resume is partially broken already with mainline, but if you disable
+> > >> CPUfreq support, it works fine on Linux v4.17.
+> > >>
+> > >> I've posted CPUfreq related fixes here if you are interested:
+> > >> https://patchwork.kernel.org/patch/10554607/
+> > >> https://patchwork.kernel.org/patch/10554603/
+> > >>
+> > >> The issue with cros_ec_keyb patch appears first on Linux v4.18-rc1, which is
+> > >> the first release with that patch.
+> > > Marek, this patch should only be in -next, I do not believe I sent it
+> > > to Linus just yet. If mainline is broken for you it can't be caused by
+> > > this patch.
+> >
+> > Aaahh. My fault then. The suspend/resume issue is cause by commit
+> > 38ba34a43dbc ("Input: cros_ec_keyb - mark cros_ec_keyb driver as wake
+> > enabled device."), which has been merged to v4.18-rc1.
+> >
+> > It looks that I've downloaded wrong patch from the patchwork to reply it
+> > with a a bug report. :( I'm really sorry for the noise in the wrong thread.
+> >
+> > Ravi: please let me know how can I help you to debug this issue.
+> >
+> > >
+> > >> Linux -next from 20180803, which has a few
+> > >> more patches for cros_ec_keyb suffers from the same issue.
+> > > Just to confirm, if you revert only this patch from -next you get
+> > > suspend/resume back?
+> > >
+> > > Thanks.
+> >
+> > Best regards
+> > --
+> > Marek Szyprowski, PhD
+> > Samsung R&D Institute Poland
+> >

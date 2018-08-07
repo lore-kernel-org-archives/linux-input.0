@@ -1,28 +1,65 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCH v4 23/26] devicetree: fix a series of wrong file references
-Date: Tue, 7 Aug 2018 15:04:35 +0800
-Message-ID: <CAGb2v65+6zV1E--KvD3Si=XNmDE3oaZ2hBxvm86KjTwUv9BnSw@mail.gmail.com>
-References: <cover.1529079119.git.mchehab+samsung@kernel.org> <266e5f874b36aa83f3327879d85921fab52d5461.1529079120.git.mchehab+samsung@kernel.org>
+From: Dmitry Vyukov <dvyukov@google.com>
+Subject: Re: [PATCH] Input: do not use WARN() in input_alloc_absinfo()
+Date: Tue, 7 Aug 2018 16:26:54 +0200
+Message-ID: <CACT4Y+a0=RxugZyD_HZN7nOjxOY2zkKugHfUfnDBkVv3k_WdKQ@mail.gmail.com>
+References: <20180806221834.GA140172@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <266e5f874b36aa83f3327879d85921fab52d5461.1529079120.git.mchehab+samsung@kernel.org>
+In-Reply-To: <20180806221834.GA140172@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Zhou Wang <wangzhou1@hisilicon.com>, Bjorn Helgaas <bhelgaas@google.com>, Xiaowei Song <songxiaowei@hisilicon.com>, Binghui Wang <wangbinghui@hisilicon.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jun 16, 2018 at 12:30 AM, Mauro Carvalho Chehab
-<mchehab+samsung@kernel.org> wrote:
-> As files got renamed, their references broke.
+On Tue, Aug 7, 2018 at 12:18 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Some of fuzzers set panic_on_warn=1 so that they can handle WARN()ings
+> the same way they handle full-blown kernel crashes. We used WARN() in
+> input_alloc_absinfo() to get a better idea where memory allocation
+> failed, but since then kmalloc() and friends started dumping call stack
+> on memory allocation failures anyway, so we are not getting anything
+> extra from WARN().
 >
-> Manually fix a series of broken refs at the DT bindings.
+> Because of the above, let's replace WARN with dev_err(). We use dev_err()
+> instead of simply removing message and relying on kcalloc() to give us
+> stack dump so that we'd know the instance of hardware device to which we
+> were trying to attach input device.
 >
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> Reported-by: Dmitry Vyukov <dvyukov@google.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  .../devicetree/bindings/input/rmi4/rmi_2d_sensor.txt |  2 +-
->  Documentation/devicetree/bindings/mfd/sun6i-prcm.txt |  2 +-
+>  drivers/input/input.c | 16 ++++++++++++----
+>  1 file changed, 12 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index 90453e2ab6cf..260f00ebe34d 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -481,11 +481,19 @@ EXPORT_SYMBOL(input_inject_event);
+>   */
+>  void input_alloc_absinfo(struct input_dev *dev)
+>  {
+> -       if (!dev->absinfo)
+> -               dev->absinfo = kcalloc(ABS_CNT, sizeof(*dev->absinfo),
+> -                                       GFP_KERNEL);
+> +       if (dev->absinfo)
+> +               return;
+>
+> -       WARN(!dev->absinfo, "%s(): kcalloc() failed?\n", __func__);
+> +       dev->absinfo = kcalloc(ABS_CNT, sizeof(*dev->absinfo), GFP_KERNEL);
+> +       if (!dev->absinfo) {
+> +               dev_err(dev->dev.parent ?: &dev->dev,
+> +                       "%s: unable to allocate memory\n", __func__);
+> +               /*
+> +                * We will handle this allocation failure in
+> +                * input_register_device() when we refuse to register input
+> +                * device with ABS bits but without absinfo.
+> +                */
+> +       }
+>  }
+>  EXPORT_SYMBOL(input_alloc_absinfo);
 
-If still applicable,
+Thanks!
 
-Acked-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Dmitry Vyukov <dvyukov@google.com>

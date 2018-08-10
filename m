@@ -1,75 +1,63 @@
 From: Joey Pabalinas <joeypabalinas@gmail.com>
-Subject: Re: [PATCH 1/4] HID: multitouch: add MT_QUIRK_NOT_SEEN_MEANS_UP to
- MT_CLS_WIN_8 quirks
-Date: Thu, 9 Aug 2018 13:57:33 -1000
-Message-ID: <20180809235732.oecx4jfyzerjgsvu@gmail.com>
+Subject: Re: [PATCH 4/4] HID: multitouch: remove unneeded else conditional
+ cases
+Date: Thu, 9 Aug 2018 14:03:22 -1000
+Message-ID: <20180810000322.my7n5fdzq4f2o6fa@gmail.com>
 References: <cover.1530402641.git.joeypabalinas@gmail.com>
- <958e450a066289c94ba03429166c972c54be6fb3.1530402641.git.joeypabalinas@gmail.com>
- <CAO-hwJ+1PEH7VJjQThoihqBUK0yVNvak78GEiAZ7VpDEQ5EFiQ@mail.gmail.com>
+ <d35643165a1d1972fd91e547922697a3c785a413.1530402641.git.joeypabalinas@gmail.com>
+ <CAO-hwJ+ZHb8xyr=1RgVROvP2=yzmepccVOqZM5qP3hbOEYEo9g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yhxhrwftljtjapwv"
+        protocol="application/pgp-signature"; boundary="xgk3gjfxx6yyurj6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+1PEH7VJjQThoihqBUK0yVNvak78GEiAZ7VpDEQ5EFiQ@mail.gmail.com>
+In-Reply-To: <CAO-hwJ+ZHb8xyr=1RgVROvP2=yzmepccVOqZM5qP3hbOEYEo9g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Joey Pabalinas <joeypabalinas@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Daniel Martin <consume.noise@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
 
---yhxhrwftljtjapwv
+--xgk3gjfxx6yyurj6
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 03, 2018 at 09:53:19AM +0200, Benjamin Tissoires wrote:
-> NACK on this.
-> If the Surface has a buggy firmware, we should handle it as a special
-> case, not as a common failure.
-> Also, I am not sure this quirk is compatible with Win 8 specification.
-> Last, we now have a timeout for unreleased touches, so I really don't
-> think you need that in recent kernels.
+On Tue, Jul 03, 2018 at 10:17:58AM +0200, Benjamin Tissoires wrote:
+> This one looks good.
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 >=20
-> Cheers,
-> Benjamin
->=20
-> >         { .name =3D MT_CLS_EXPORT_ALL_INPUTS,
-> >                 .quirks =3D MT_QUIRK_ALWAYS_VALID |
-> >                         MT_QUIRK_CONTACT_CNT_ACCURATE,
-> >                 .export_all_inputs =3D true },
-> >         { .name =3D MT_CLS_WIN_8_DUAL,
-> > --
-> > 2.18.0
-> >
-Ah shoot, I had completely missed this reply to my earlier patchset, I
-apologize. Now that you mention it, I think handling it as a special
-case would be a better way to handle it, so I'll do a bit more research
-on the quirk thing and then revise my patches (assuming they end up
-as something still worth sending). Appreciate the comments, thanks.
+> Just FYI, I sent out a big refactor of the hid-multitouch code. Jiri
+> should be still reviewing it, so I am not so sure who will have to
+> rebase which series on top of the other, but someone between us will
+> have to do it :)
+
+Somehow also missed this reply... I guess I messed up my LKML
+filters somewhere. Noted, thanks for the review; I'll check
+your trees for the refactor when (if) I do my v2.
 
 --=20
 Cheers,
 Joey Pabalinas
 
---yhxhrwftljtjapwv
+--xgk3gjfxx6yyurj6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEKlZXrihdNOcUPZTNruvLfWhyVBkFAlts1OoACgkQruvLfWhy
-VBmoMQ//ZIPrFEFUd828MQXkNcaoq89nPWA2T8BYlTs6MHI0wcPoiCGUrXEp5Goi
-FUpbPb9hB1Emq4sdhNbcKRf/g5S2uGcaHfIeJESCX/VWumODzf6pIKIjFyZTly/Z
-loKL83bFWC+k3b/gnf0mShRGVmlbWzQsL/A4l0UaUuCkVDbMkKW7l45iUMOCGU4W
-so9BkC2L3+1KRqjDUmizsvz/bUC6uGzL+LO0YFDtlHwxHCV9bp+9XfVhXbpOum1P
-nepAkRYK41240P8Dtbg0GJ1RrHIdKdEkApkwjeqlUIZ4uAoDyiEGb2+NCpKKQ5Pp
-OrE/OKkHgYbtw0FVK+y03koLP/Q+xWE5MrRnfgYHgnynOJRDEN3beknetf9MbcCP
-OAigw5ufbWsn5MW5yjJ7CeAO9nnpMj0FbTMV+NZ1xyJRNBbBYMoG1vGKak8Z5D7c
-h21Z115DW/Z1GwK3sJc7Zwllm4an+V6pKCmNz4W7JZCyxNt7NSUf1MbWy4T5sQhn
-YNSKYI9jPbywXlOfvoE5USHOKRdQEep5oQKb7rXA6lxKCye60Em916U3AXpsH6bC
-hfFeisrlM2l+Eg1yFCsX/CzxpChP1nF1OUk/wVG4lIlYYDLIQW/RAkHRJrMtXov/
-Uq7dNSBK9CCS9H3pRn7eqq9abeAVxskRO+TFn3pupUkUm4ps9xI=
-=g4uC
+iQIzBAEBCAAdFiEEKlZXrihdNOcUPZTNruvLfWhyVBkFAlts1kkACgkQruvLfWhy
+VBkIjA//c1VMxyu78bYExhBC9NID+s3iORVYfHduxuSEtjn1NJqcKeDYatnV1av/
+xqkBdvj8UJ4EH3anEKTXxG64K8Y/xukNgUyzCs42AH0cdLR9rL7CiW/po//Kk/n1
+qMaFPxzCDFH+Ae7Na2VIlTTYZKv/t2NYcevkMqBvOIN8FrPR3wSbfmnaZxCxZtVM
+ftLBXkSX2Wrx5LLZklpXHiGRJCAqHa7wpf/lnf9xbQ7NfOoaQ4cRN+3zZoYdnzIZ
+LRJFfGcSVWWdW8zLVfS+8IVNqnNcrtNzokDjkP0DyI2fdfEQkLbRKAi2XRbjRAlA
+WRlv5YjDr9MQjMdfBUdIMNIWbZPhaxKxtncYbe26pu1nvklT6NzK+rv98rnzpmpK
+6ODaWbU5824DjoRhhljXXSmo4n68FuqUxOiIH4XXkEeFdmuBYf6E8tat4m8x50hx
+hGtx2y1NcqhnnZRLeZixYH8zs418SBVU7SGYZnGw8Uz/IxUf7BTqgWsxg3Qasj8/
+MXSeqstEuljmAl/QE8klREJiy2wvCNCuzxBhxBfvaRZV25uTtgJ4BjWSiMFUAkLn
+lfxQoHKynykSerhR64fi6MT29l5MzwZbTtMyZ3OTtb+kR9HctNQUfJv9Z4PcVdHI
+Cd1KsVTbWGPYsPJDW4pqxhprkOObdAxA41r7s1I5eoiE4nN9gNQ=
+=A/21
 -----END PGP SIGNATURE-----
 
---yhxhrwftljtjapwv--
+--xgk3gjfxx6yyurj6--

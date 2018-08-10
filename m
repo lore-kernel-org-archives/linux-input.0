@@ -1,130 +1,334 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [PATCH] Input: cros_ec_keyb: Remove check before calling
- pm_wakeup_event.
-Date: Fri, 10 Aug 2018 10:23:43 +0200
-Message-ID: <20180810082344eucas1p2c525a61cb176b4ab1dab22347afd539b~JeE3uTBkU1731217312eucas1p2T@eucas1p2.samsung.com>
-References: <CGME20180803072628eucas1p26abe0cb121b974401759502f8807bb96@eucas1p2.samsung.com>
-        <20180605224458.62692-1-ravisadineni@chromium.org>
-        <20180803072628eucas1p26abe0cb121b974401759502f8807bb96~HTx4BGQjl1119311193eucas1p2U@eucas1p2.samsung.com>
-        <CAEZbON7qLheHFuU6zwArCz=CG03JvnFjcehBGjE4RqROYrMLhQ@mail.gmail.com>
-        <CAKdAkRQG08d_duPiKFi_=xUNO93c0Rcw9kpaYFFJahjJM-NdGw@mail.gmail.com>
-        <CAEZbON4O0X8Fo6eAbmPOSiB1_Tw7x+Ox3ROoGfZQn72uQGQLkg@mail.gmail.com>
-        <20180806052949eucas1p2483800c02730febd03d4a661a25fa405~INH40XvCx2719627196eucas1p2X@eucas1p2.samsung.com>
-        <CAKdAkRSvLq-L3FrODUqxXqDs2FymM9k5dZRxnOpc44rFiHaWAQ@mail.gmail.com>
-        <20180806071543eucas1p233ac5016e1a586594cf8ecd1fe3214b0~IOkV1Zt7j2129321293eucas1p20@eucas1p2.samsung.com>
-        <CAEZbON72eVUCNT3ePEZKrB5B6+6YYgO7=X0TY0eBqUb3ws0sLA@mail.gmail.com>
-        <CAEZbON5vMOiYRsnN1MyuSov3URByeAp-z3EEsEH6tqY23U32wQ@mail.gmail.com>
-        <85a59afc-9dc0-b9fb-7e8f-32731337884c@samsung.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] hid: microsoft: Add rumble support for Xbox One S controller
+Date: Fri, 10 Aug 2018 11:36:50 +0200
+Message-ID: <CAO-hwJ+HOmVT5=D5h8Rv6Cuhi=S+tJu3vMKidjNB=_pGCK8jPw@mail.gmail.com>
+References: <20180810001714.14659-1-andrew.smirnov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <85a59afc-9dc0-b9fb-7e8f-32731337884c@samsung.com>
-Content-Language: en-US
+In-Reply-To: <20180810001714.14659-1-andrew.smirnov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ravi Chandra Sadineni <ravisadineni@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ravi Chandra Sadineni <ravisadineni@google.com>, Todd Broch <tbroch@google.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>
+To: andrew.smirnov@gmail.com
+Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, juha.kuikka@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Ravi,
+Hi Andrew,
 
-Just to let you know - I hope I've finally bisected all the issues related
-to suspend/resume on Samsung Chromebooks with mainline kernel. I did my
-tests on Linux next-20180809. The mentioned commit 38ba34a43dbc ("Input:
-cros_ec_keyb - mark cros_ec_keyb driver as wake enabled device.") breaks
-suspend/resume operation also on Samsung Exynos5420-based Peach-Pit
-Chromebook. Here is some more information how to get suspend/resume
-working with mainline on that board:
-https://patchwork.kernel.org/patch/10562419/
+On Fri, Aug 10, 2018 at 2:17 AM Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
+>
+> Add HID quirk driver for Xbox One S controller over bluetooth.
+>
+> This driver only adds support for rumble. Standard controller
+> functionality is exposed by default HID driver.
+>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> Signed-off-by: Juha Kuikka <juha.kuikka@gmail.com>
+> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> ---
+>  drivers/hid/Kconfig         |   8 ++
+>  drivers/hid/hid-ids.h       |   1 +
+>  drivers/hid/hid-microsoft.c | 142 ++++++++++++++++++++++++++++++++++--
+>  drivers/hid/hid-quirks.c    |   1 +
+>  4 files changed, 147 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index a49a10437c40..b2e983cb32f0 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -589,6 +589,14 @@ config HID_MICROSOFT
+>         ---help---
+>         Support for Microsoft devices that are not fully compliant with HID standard.
+>
+> +config MICROSOFT_FF
+> +       bool "Microsoft Xbox One S controller force feedback support"
+> +       depends on HID_MICROSOFT
+> +       select INPUT_FF_MEMLESS
+> +       ---help---
+> +       Say Y here if you have a Microsoft Xbox One S controller and want to enable
+> +       force feedback support for it.
+> +
 
-Best regards
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Is there really a need to have a kernel that doesn't enable FF on
+those particular devices?
+It adds a lot of #ifdefs in the code and I would think users want it
+enabled by default.
 
-On 2018-08-08 07:03, Marek Szyprowski wrote:
-> Hi Ravi,
+>  config HID_MONTEREY
+>         tristate "Monterey Genius KB29E keyboard"
+>         depends on HID
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index c7981ddd8776..c8b4bc7fe053 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -798,6 +798,7 @@
+>  #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
+>  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+> +#define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER 0x02fd
 >
-> On 2018-08-07 23:59, Ravi Chandra Sadineni wrote:
->> hi Merek,
->>
->> I tried booting a snow device and could not get it to boot it to the
->> console. I assume i don't have right kernel config. Can you share your
->> config if possible.
+>  #define USB_VENDOR_ID_MOJO             0x8282
+>  #define USB_DEVICE_ID_RETRO_ADAPTER    0x3201
+> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+> index 96e7d3231d2f..e2bd31d54e62 100644
+> --- a/drivers/hid/hid-microsoft.c
+> +++ b/drivers/hid/hid-microsoft.c
+> @@ -29,10 +29,29 @@
+>  #define MS_NOGET               0x10
+>  #define MS_DUPLICATE_USAGES    0x20
 >
-> I use standard exynos_defconfig bundled with Linux kernel. I've followed
-> this instruction to boot in on Snow:
+> +struct ms_data {
+> +       unsigned long quirks;
+> +       struct hid_device *hdev;
+> +       struct work_struct ff_worker;
+> +       __u8 strong;
+> +       __u8 weak;
+> +       __u8 *output_report_dmabuf;
+> +};
+> +
+> +struct xb1s_ff_report {
+> +       __u8    report_id;
+> +       __u8    enable;
+> +       __u8    magnitude[4];
+> +       __u8    duration_10ms;
+> +       __u8    start_delay_10ms;
+> +       __u8    loop_count;
+> +};
+> +
+>  static __u8 *ms_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>                 unsigned int *rsize)
+>  {
+> -       unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+> +       struct ms_data *ms = hid_get_drvdata(hdev);
+> +       unsigned long quirks = ms->quirks;
 >
-> https://s-opensource.org/2016/03/24/use-mainline-u-boot-non-signed-kernels-exynos-chromebooks/ 
+>         /*
+>          * Microsoft Wireless Desktop Receiver (Model 1028) has
+> @@ -134,7 +153,8 @@ static int ms_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>                 struct hid_field *field, struct hid_usage *usage,
+>                 unsigned long **bit, int *max)
+>  {
+> -       unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+> +       struct ms_data *ms = hid_get_drvdata(hdev);
+> +       unsigned long quirks = ms->quirks;
+
+Could you split the change of the quirks mechanism in its own patch.
+This will make the whole code easier to review and spot errors if
+there are.
+
 >
+>         if (quirks & MS_ERGONOMY) {
+>                 int ret = ms_ergonomy_kb_quirk(hi, usage, bit, max);
+> @@ -153,7 +173,8 @@ static int ms_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>                 struct hid_field *field, struct hid_usage *usage,
+>                 unsigned long **bit, int *max)
+>  {
+> -       unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+> +       struct ms_data *ms = hid_get_drvdata(hdev);
+> +       unsigned long quirks = ms->quirks;
 >
->>
->> Thanks,
->> RaviOn Mon, Aug 6, 2018 at 4:05 PM Ravi Chandra Sadineni
->> <ravisadineni@chromium.org> wrote:
->>> Hi Merek,
->>>
->>> Thanks for the info. Lemme understand what's going on. Will update the
->>> thread once I have more info.
->>>
->>> Thanks,
->>> Ravi
->>> On Mon, Aug 6, 2018 at 12:15 AM Marek Szyprowski
->>> <m.szyprowski@samsung.com> wrote:
->>>> Hi Dmitry
->>>>
->>>> On 2018-08-06 08:16, Dmitry Torokhov wrote:
->>>>> On Sun, Aug 5, 2018 at 10:29 PM Marek Szyprowski
->>>>> <m.szyprowski@samsung.com> wrote:
->>>>>> Hi Ravi,
->>>>>>
->>>>>> On 2018-08-03 18:53, Ravi Chandra Sadineni wrote:
->>>>>>> Understood. I am trying to reproduce this issue locally. Wanted to
->>>>>>> know the version of the kernel so I can give a try. Marek, can you
->>>>>>> please confirm the kernel version.
->>>>>>>
->>>>>> Yes, sorry for the missing context, I was in hurry writing the 
->>>>>> report and
->>>>>> I wanted to send it before leaving the office. I'm testing 
->>>>>> mainline on Snow
->>>>>> with exynos_defconfig.
->>>>>>
->>>>>> Suspend/resume is partially broken already with mainline, but if 
->>>>>> you disable
->>>>>> CPUfreq support, it works fine on Linux v4.17.
->>>>>>
->>>>>> I've posted CPUfreq related fixes here if you are interested:
->>>>>> https://patchwork.kernel.org/patch/10554607/
->>>>>> https://patchwork.kernel.org/patch/10554603/
->>>>>>
->>>>>> The issue with cros_ec_keyb patch appears first on Linux 
->>>>>> v4.18-rc1, which is
->>>>>> the first release with that patch.
->>>>> Marek, this patch should only be in -next, I do not believe I sent it
->>>>> to Linus just yet. If mainline is broken for you it can't be 
->>>>> caused by
->>>>> this patch.
->>>> Aaahh. My fault then. The suspend/resume issue is cause by commit
->>>> 38ba34a43dbc ("Input: cros_ec_keyb - mark cros_ec_keyb driver as wake
->>>> enabled device."), which has been merged to v4.18-rc1.
->>>>
->>>> It looks that I've downloaded wrong patch from the patchwork to 
->>>> reply it
->>>> with a a bug report. :( I'm really sorry for the noise in the wrong 
->>>> thread.
->>>>
->>>> Ravi: please let me know how can I help you to debug this issue.
->>>>
->>>>>> Linux -next from 20180803, which has a few
->>>>>> more patches for cros_ec_keyb suffers from the same issue.
->>>>> Just to confirm, if you revert only this patch from -next you get
->>>>> suspend/resume back?
->>>>>
->>>>> Thanks.
->>>> Best regards
->>>> -- 
->>>> Marek Szyprowski, PhD
->>>> Samsung R&D Institute Poland
->>>>
->>
+>         if (quirks & MS_DUPLICATE_USAGES)
+>                 clear_bit(usage->code, *bit);
+> @@ -164,7 +185,8 @@ static int ms_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+>  static int ms_event(struct hid_device *hdev, struct hid_field *field,
+>                 struct hid_usage *usage, __s32 value)
+>  {
+> -       unsigned long quirks = (unsigned long)hid_get_drvdata(hdev);
+> +       struct ms_data *ms = hid_get_drvdata(hdev);
+> +       unsigned long quirks = ms->quirks;
+>         struct input_dev *input;
 >
-> Best regards
+>         if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput ||
+> @@ -219,12 +241,96 @@ static int ms_event(struct hid_device *hdev, struct hid_field *field,
+>         return 0;
+>  }
+>
+> +#ifdef CONFIG_MICROSOFT_FF
+> +
+> +#define XB1S_FF_REPORT         3
+> +#define ENABLE_WEAK            BIT(0)
+> +#define ENABLE_STRONG          BIT(1)
+> +#define MAGNITUDE_WEAK         3
+> +#define MAGNITUDE_STRONG       2
+> +
+> +static void ms_ff_worker(struct work_struct *work)
+> +{
+> +       struct ms_data *ms = container_of(work, struct ms_data, ff_worker);
+> +       struct hid_device *hdev = ms->hdev;
+> +       struct xb1s_ff_report *r =
+> +               (struct xb1s_ff_report *) ms->output_report_dmabuf;
+> +       int ret;
+> +
+> +       memset(r, 0, sizeof(*r));
+> +
+> +       r->report_id = XB1S_FF_REPORT;
+> +       r->enable = ENABLE_WEAK | ENABLE_STRONG;
+> +       /*
+> +        * Specifying maximum duration and maximum loop count should
+> +        * cover maximum duration of a single effect: 65536 ms
+> +        */
+> +       r->duration_10ms = U8_MAX;
+> +       r->loop_count = U8_MAX;
+> +       r->magnitude[MAGNITUDE_STRONG] = ms->strong; /* left actuator */
+> +       r->magnitude[MAGNITUDE_WEAK] = ms->weak;     /* right actuator */
+> +
+> +       ret = hid_hw_output_report(hdev, (__u8 *)r, sizeof(*r));
+> +       if (ret)
+> +               hid_warn(hdev, "failed to send FF report\n");
+> +}
+> +
+> +static int ms_play_effect(struct input_dev *dev, void *data,
+> +                         struct ff_effect *effect)
+> +{
+> +       struct hid_device *hid = input_get_drvdata(dev);
+> +       struct ms_data *ms = hid_get_drvdata(hid);
+> +
+> +       if (effect->type != FF_RUMBLE)
+> +               return 0;
+> +
+> +       /* Magnitude is 0..100 so scale the 16-bit input here */
+> +       ms->strong = ((u32) effect->u.rumble.strong_magnitude * 100) / U16_MAX;
+> +       ms->weak = ((u32) effect->u.rumble.weak_magnitude * 100) / U16_MAX;
+> +
+> +       schedule_work(&ms->ff_worker);
+> +       return 0;
+> +}
+> +
+> +static int ms_init_ff(struct hid_device *hdev, struct ms_data *ms)
+> +{
+> +       struct hid_input *hidinput = list_entry(hdev->inputs.next,
+> +                                               struct hid_input, list);
+> +       struct input_dev *input_dev = hidinput->input;
+> +
+> +       ms->hdev = hdev;
+> +       INIT_WORK(&ms->ff_worker, ms_ff_worker);
+> +
+> +       ms->output_report_dmabuf = devm_kzalloc(&hdev->dev,
+> +                                               sizeof(struct xb1s_ff_report),
+> +                                               GFP_KERNEL);
+> +       if (ms->output_report_dmabuf == NULL)
+> +               return -ENOMEM;
+> +
+> +       input_set_capability(input_dev, EV_FF, FF_RUMBLE);
+> +       return input_ff_create_memless(input_dev, NULL, ms_play_effect);
+> +}
+> +
+> +#else
+> +static int ms_init_ff(struct hid_device *hdev, struct ms_data *ms)
+> +{
+> +       return 0;
+> +}
+> +#endif
+> +
+>  static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  {
+>         unsigned long quirks = id->driver_data;
+> +       struct ms_data *ms;
+>         int ret;
+>
+> -       hid_set_drvdata(hdev, (void *)quirks);
+> +       ms = devm_kzalloc(&hdev->dev, sizeof(*ms), GFP_KERNEL);
+> +       if (ms == NULL)
+> +               return -ENOMEM;
+> +
+> +       ms->quirks = quirks;
+> +
+> +       hid_set_drvdata(hdev, ms);
+>
+>         if (quirks & MS_NOGET)
+>                 hdev->quirks |= HID_QUIRK_NOGET;
+> @@ -242,11 +348,32 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>                 goto err_free;
+>         }
+>
+> +       if (IS_ENABLED(CONFIG_MICROSOFT_FF) &&
+> +           hdev->product == USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER) {
+
+nitpick:
+I'd rather have this test (against the PID) in ms_init_ff. In the long
+run, we might want to add more devices and it would be better to have
+the test where it should be.
+An even better solution would be to add a new MS_QUIRK_FF and test
+this here (or in ms_init_ff()).
+
+> +               ret = ms_init_ff(hdev, ms);
+> +               if (ret) {
+> +                       hid_err(hdev,
+> +                               "could not initialize ff, continuing anyway");
+> +               }
+> +       }
+> +
+>         return 0;
+>  err_free:
+>         return ret;
+>  }
+>
+> +static void ms_remove(struct hid_device *hdev)
+> +{
+> +       hid_hw_stop(hdev);
+> +
+> +       if (IS_ENABLED(CONFIG_MICROSOFT_FF) &&
+> +           hdev->product == USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER) {
+
+A quirk would be better (see my previous comment)
+
+> +               struct ms_data *ms = hid_get_drvdata(hdev);
+> +
+> +               cancel_work_sync(&ms->ff_worker);
+> +       }
+> +}
+> +
+>  static const struct hid_device_id ms_devices[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV),
+>                 .driver_data = MS_HIDINPUT },
+> @@ -281,6 +408,10 @@ static const struct hid_device_id ms_devices[] = {
+>
+>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT),
+>                 .driver_data = MS_PRESENTER },
+> +#ifdef CONFIG_MICROSOFT_FF
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER),
+> +               .driver_data = 0 },
+> +#endif
+
+That seems fragile. Also even if we keep the Kconfig option, is there
+any point at conditioning the handling of this device from
+hid-microsoft?
+If it works with or without the Kconfig, I'd just drop the #ifdef.
+
+>         { }
+>  };
+>  MODULE_DEVICE_TABLE(hid, ms_devices);
+> @@ -293,6 +424,7 @@ static struct hid_driver ms_driver = {
+>         .input_mapped = ms_input_mapped,
+>         .event = ms_event,
+>         .probe = ms_probe,
+> +       .remove = ms_remove,
+>  };
+>  module_hid_driver(ms_driver);
+>
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index 249d49b6b16c..10fefd0ed43c 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -496,6 +496,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER) },
+>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER) },
+
+You don't need to add your device to hid_have_special_driver since
+v4.15 or v4.16. So please drop this :)
+
+Cheers,
+Benjamin
+
+>  #endif
+>  #if IS_ENABLED(CONFIG_HID_MONTEREY)
+>         { HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+> --
+> 2.17.1
+>

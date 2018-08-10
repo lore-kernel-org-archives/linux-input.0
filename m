@@ -1,63 +1,63 @@
 From: Joey Pabalinas <joeypabalinas@gmail.com>
-Subject: Re: [PATCH 2/4] HID: multitouch: don't check
- HID_GROUP_MULTITOUCH_WIN_8 for serial protocol
-Date: Thu, 9 Aug 2018 17:50:03 -1000
-Message-ID: <20180810035003.hga4n72rl5e2c4hg@gmail.com>
+Subject: Re: [PATCH RESEND 1/4] HID: multitouch: add
+ MT_QUIRK_NOT_SEEN_MEANS_UP to MT_CLS_WIN_8 quirks
+Date: Thu, 9 Aug 2018 17:54:02 -1000
+Message-ID: <20180810035402.eb4ljwfdw45jwj5t@gmail.com>
 References: <cover.1530402641.git.joeypabalinas@gmail.com>
- <0aaacf083be5b68a830f9e174f9abee3b00c5a51.1530402641.git.joeypabalinas@gmail.com>
- <CAO-hwJJpAfvvP+s9Cqmi8v7pHsEw3tKTrySQaEg8TUzPTFcQfA@mail.gmail.com>
+ <958e450a066289c94ba03429166c972c54be6fb3.1530402641.git.joeypabalinas@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7stbl6j5qdp3x27t"
+        protocol="application/pgp-signature"; boundary="dmdg6ru22etdixj3"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAO-hwJJpAfvvP+s9Cqmi8v7pHsEw3tKTrySQaEg8TUzPTFcQfA@mail.gmail.com>
+In-Reply-To: <958e450a066289c94ba03429166c972c54be6fb3.1530402641.git.joeypabalinas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Joey Pabalinas <joeypabalinas@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Daniel Martin <consume.noise@gmail.com>
+To: Joey Pabalinas <joeypabalinas@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Daniel Martin <consume.noise@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
 
---7stbl6j5qdp3x27t
+--dmdg6ru22etdixj3
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 03, 2018 at 10:16:01AM +0200, Benjamin Tissoires wrote:
-> There is a tiny difference between the HID group (this device looks
-> like it is used as a Win 8 device) and the device class (this is
-> effectively a Win8 device)
+On Thu, Aug 09, 2018 at 01:39:16PM -1000, Joey Pabalinas wrote:
+> The firmware found in the touch screen of the Surface Pro 3 is slightly
+> buggy and occasionally doesn't send lift off reports for contacts; add
+> MT_QUIRK_NOT_SEEN_MEANS_UP to .quirks to compensate for the missed
+> reports.
 >=20
-> It makes sense to remove this check for Win8 devices, but I don't
-> think it should be done for all devices.
->=20
-> All in all, it won't change much.
+> Signed-off-by: Joey Pabalinas <joeypabalinas@gmail.com>
 
-Hm, that sounds sane. I'll do a bit more research on this and see if
-restricting it to just Win8 devices is simple enough to be worthwhile.
+Sorry, my mail filters are in need of some adjusting; I completely missed
+the review of the first send of this patchset :(
+
+Please disregard this resend, as I am going to revise it and submit a
+v2, thanks.
 
 --=20
 Cheers,
 Joey Pabalinas
 
---7stbl6j5qdp3x27t
+--dmdg6ru22etdixj3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEKlZXrihdNOcUPZTNruvLfWhyVBkFAlttC2oACgkQruvLfWhy
-VBkbEBAAqsuBA3i2LN1qeeT8ZvjBOfJVUG+MK/wEOkRrtHas3VVc2LoYQM4MGKY2
-/gcFjQQWqRJ4VCQ/YrahVMSV83xmVOTMVmmPQXsstJCZPPjUWNa2TFNF7iiafToa
-n6UBzT6un5Y6Bqy2HTXN9v1rzoHGb0nw8f2LfW63hnWY1x5LWrb4AmrFVa+XfzLa
-+sqM4x/NBnM7nZ12LEaygoiI7xlCxrFdeeFi3XpI7LZAN3CRFGHqJY7K3CfMle1X
-k7YCS1wCigEK6Ep68pVKjY6F5xrIB18kYOBZfoH3ykzG01XZq3iFwRQwl4qrNOAE
-7kgozmF76kT96e8i7T7aE/Xpf4KC+d2wmtLbx+yNKrptEWKRZKubTpLv5EtHpbhA
-Ij5ODdpO3/Gr4efN/EDh+UgxMR3qbMQnC0Dg93BvUbMW+4I9JXJX/ADPQzvSbout
-EfU2H/11UMkW/h0OihBhhHc463tHD075ugGyc46zhTet6LjG4DEWMKXG9bOS9sov
-/nqJ8laNdvyY1Thk6zJnlDMfLbPIDSjZed/sJQ8Oi44gAJKUxtFiPQsSbh2C84eb
-SL14d04vIgA30+Edj6P6PgjTVRaacwv5kyh82s1VogS5B1MXC/Q3yLD4+k8P/acQ
-tDyUls1Y0PCUmRKpcJEDWUZgfAI0IiGVgHgv6CN3sRPFFT6HM7Q=
-=TYpt
+iQIzBAEBCAAdFiEEKlZXrihdNOcUPZTNruvLfWhyVBkFAlttDFkACgkQruvLfWhy
+VBmmOBAAh1q4iN7U17bzBTD0s9+oSqAWnHacb3BHggUCmCLQEB/eCalXvRB+69YX
+phzqynXD7Ti3A6mrD3KPgJrTVeMqOv5bHarTL4AUvfsYocQIJ5MDgoJfLQpm6j90
+FQfiOIor2V8j4UixPRwfbGV3ArDT5dmwsJB5U2CC7TCg71alYuC2g19FYL+lc+1J
+XkJTYUUuJBClVK9ufe/C/wRBGv0HkqX91g+yafB1S9Wsst+WbwItWPb+1k3JWNV4
+MkFC89MlbwrvIejNpCR73gm3zfjsoTz8sshJWY/jA0jz+Cn+l46o6bKraWSsjD8S
+Wg05WX5uYXEZndMlcdwjvWql0ttCaRlwFxAVIvM/fYt6tq4aiJ8bvqPlx3aKD5bl
+GElpQ+iGSMKG1yYyukjthKWI1N4rLTeKz+88oqLNZfwtFuoZousoEc92i+rikpXc
+AbDNCjf4xYsPMrDAyoqkROD+Rv+inJ956sbebT2eyuHbhZEdOlvplcpEjlnDa1T4
+SDRYiLQ8rXJSmecIL+Z76InOzox35OBa052mjsRQ3oyt/fJ6JBJ95kAp6UmIGhnG
+62HQrVL9nlUpEKz5T3tQas4pFz21TEfgPk07pxM3v0Y8K2WNWNJlQWlMCMkcxv6R
+lfppJG7jc/HkDXNwEid3euQsBZrhrr0DQayCYxu9t86PKjfTq+k=
+=/rvP
 -----END PGP SIGNATURE-----
 
---7stbl6j5qdp3x27t--
+--dmdg6ru22etdixj3--

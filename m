@@ -1,38 +1,43 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH V1 3/3] Input: new da7280 haptic driver
-Date: Thu, 16 Aug 2018 14:46:01 +0800
-Message-ID: <201808161448.n4U6oBQU%fengguang.wu@intel.com>
-References: <662cd241e04a1e033c87d1a94c594740b594b0b6.1534384964.git.Roy.Im@diasemi.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v12 1/2] mfd: bd71837: mfd driver for ROHM BD71837 PMIC
+Date: Thu, 16 Aug 2018 10:06:10 +0100
+Message-ID: <20180816090610.GC10054@dell>
+References: <cover.1533292711.git.matti.vaittinen@fi.rohmeurope.com>
+ <4f49022ed8e4fa357bf5d213c57ad57752e72aa4.1533292711.git.matti.vaittinen@fi.rohmeurope.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <662cd241e04a1e033c87d1a94c594740b594b0b6.1534384964.git.Roy.Im@diasemi.com>
+In-Reply-To: <4f49022ed8e4fa357bf5d213c57ad57752e72aa4.1533292711.git.matti.vaittinen@fi.rohmeurope.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Roy Im <roy.im.opensource@diasemi.com>
-Cc: kbuild-all@01.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, eballetbo@gmail.com, linus.walleij@linaro.org, mazziesaccount@gmail.com, dmitry.torokhov@gmail.com, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sboyd@kernel.org, broonie@kernel.org, linux-input@vger.kernel.org, mikko.mutanen@fi.rohmeurope.com, heikki.haikola@fi.rohmeurope.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Roy,
+On Fri, 03 Aug 2018, Matti Vaittinen wrote:
 
-Thank you for the patch! Perhaps something to improve:
+> ROHM BD71837 PMIC MFD driver providing interrupts and support
+> for three subsystems:
+> - clk
+> - Regulators
+> - input/power-key
+> 
+> Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+> Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>  drivers/mfd/Kconfig              |  13 ++
+>  drivers/mfd/Makefile             |   1 +
+>  drivers/mfd/rohm-bd718x7.c       | 211 +++++++++++++++++++++++++
+>  include/linux/mfd/rohm-bd718x7.h | 332 +++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 557 insertions(+)
+>  create mode 100644 drivers/mfd/rohm-bd718x7.c
+>  create mode 100644 include/linux/mfd/rohm-bd718x7.h
 
-[auto build test WARNING on input/next]
-[also build test WARNING on v4.18 next-20180815]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+Applied, thanks.
 
-url:    https://github.com/0day-ci/linux/commits/Roy-Im/da7280-haptic-driver-submission/20180816-133626
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-
-
-coccinelle warnings: (new ones prefixed by >>)
-
->> drivers/input/misc/da7280.c:116:9-10: WARNING: return of 0/1 in function 'da7280_volatile_register' with return type bool
---
->> drivers/input/misc/da7280.c:1335:7-32: ERROR: Threaded IRQ with no primary handler requested without IRQF_ONESHOT
-
-Please review and possibly fold the followup patch.
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

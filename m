@@ -1,51 +1,45 @@
 From: Roy Im <roy.im.opensource@diasemi.com>
-Subject: [PATCH V2 1/3] MAINTAINERS: da7280 updates to the Dialog
- Semiconductor search terms
-Date: Fri, 17 Aug 2018 10:07:04 +0900
-Message-ID: <20726178ea918c9361e531fefdb4fa8a8dc2de34.1534468025.git.Roy.Im@diasemi.com>
-References: <cover.1534468025.git.Roy.Im@diasemi.com>
+Subject: [PATCH V2 0/3]  da7280: haptic driver submission
+Date: Fri, 17 Aug 2018 10:07:05 +0900
+Message-ID: <cover.1534468025.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1534468025.git.Roy.Im@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
 Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
 From: Roy Im <roy.im.opensource@diasemi.com>
 
-This patch adds the da7280 bindings doc and driver to the Dialog
-Semiconductor support list.
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
+In this patch set the following is provided:
 
----
-v2: No changes
+[PATCH V2 1/3] MAINTAINERS file update for DA7280
+[PATCH V2 2/3] DA7280 DT Binding
+[PATCH V2 3/3] DA7280 Driver
 
- MAINTAINERS |    2 ++
- 1 file changed, 2 insertions(+)
+This patch applies against linux-next and v4.18
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 544cac8..720f9fe 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4221,6 +4221,7 @@ S:	Supported
- F:	Documentation/hwmon/da90??
- F:	Documentation/devicetree/bindings/mfd/da90*.txt
- F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
-+F:	Documentation/devicetree/bindings/input/dlg,da72??.txt
- F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
- F:	Documentation/devicetree/bindings/regulator/da92*.txt
- F:	Documentation/devicetree/bindings/watchdog/da90??-wdt.txt
-@@ -4229,6 +4230,7 @@ F:	drivers/gpio/gpio-da90??.c
- F:	drivers/hwmon/da90??-hwmon.c
- F:	drivers/iio/adc/da91??-*.c
- F:	drivers/input/misc/da90??_onkey.c
-+F:	drivers/input/misc/da72??.[ch]
- F:	drivers/input/touchscreen/da9052_tsi.c
- F:	drivers/leds/leds-da90??.c
- F:	drivers/mfd/da903x.c
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  Documentation: devicetree: input: new binding for da7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |   91 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   12 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1451 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1969 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
+
 -- 
 end-of-patch for PATCH V2

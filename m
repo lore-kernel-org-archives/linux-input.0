@@ -1,55 +1,47 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: intel-ish-hid: Enable Sunrise Point-H ish driver
-Date: Fri, 17 Aug 2018 13:37:59 -0700
-Message-ID: <bc6683f383ac4dd120e413f62fce68f0f170d5d8.camel@linux.intel.com>
-References: <23171b1a3740407eac5d5c22548ce107d8edde59.camel@linux.intel.com>
-         <20180817201614.11971-1-linux@progandy.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: RaviChandra Sadineni <ravisadineni@chromium.org>
+Subject: Input: cros_ec_keyb: Remove check before calling pm_wakeup_event.
+Date: Fri, 17 Aug 2018 14:21:35 -0700
+Message-ID: <20180817212135.222689-1-ravisadineni@chromium.org>
+References: <20180810082344eucas1p2c525a61cb176b4ab1dab22347afd539b~JeE3uTBkU1731217312eucas1p2T@eucas1p2.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180817201614.11971-1-linux@progandy.de>
+In-Reply-To: <20180810082344eucas1p2c525a61cb176b4ab1dab22347afd539b~JeE3uTBkU1731217312eucas1p2T@eucas1p2.samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andreas Bosch <linux@progandy.de>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, ravisadineni@chromium.org, ravisadineni@google.com, dtor@google.com, linux-samsung-soc@vger.kernel.org, tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, tfiga@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2018-08-17 at 22:16 +0200, Andreas Bosch wrote:
-> Added PCI ID for Sunrise Point-H ISH.
-> 
-> Signed-off-by: Andreas Bosch <linux@progandy.de>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: RaviChandra Sadineni <ravisadineni@google.com>
 
-> ---
-> I hope this patch arrives correctly.
-> ---
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
->  2 files changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> index 97869b7410eb..da133716bed0 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> @@ -29,6 +29,7 @@
->  #define CNL_Ax_DEVICE_ID	0x9DFC
->  #define GLK_Ax_DEVICE_ID	0x31A2
->  #define CNL_H_DEVICE_ID		0xA37C
-> +#define SPT_H_DEVICE_ID		0xA135
->  
->  #define	REVISION_ID_CHT_A0	0x6
->  #define	REVISION_ID_CHT_Ax_SI	0x0
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index a2c53ea3b5ed..c7b8eb32b1ea 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -38,6 +38,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CNL_Ax_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, GLK_Ax_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CNL_H_DEVICE_ID)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, SPT_H_DEVICE_ID)},
->  	{0, }
->  };
->  MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
+hi Merek,
+
+Unfortunately I could not get the device to boot even after using the exynos_defconfig. 
+Can you please try this patch and see if this fixes the issue. If not can you enable the
+debug logs and send me the logs.
+
+
+Currently on every resume we check for mkbp events and notify the
+clients. This helps in identifying the wakeup sources. But on devices
+that do not support mkbp protocol, we might end up getting key state of
+the keyboard in a loop and block the resume. Instead check for events only
+if  mkbp is supported.
+
+Signed-off-by: RaviChandra Sadineni <ravisadineni@chromium.org>
+---
+ drivers/mfd/cros_ec.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+index 65a9757a6d21..fe6f83766144 100644
+--- a/drivers/mfd/cros_ec.c
++++ b/drivers/mfd/cros_ec.c
+@@ -218,7 +218,8 @@ EXPORT_SYMBOL(cros_ec_suspend);
+ 
+ static void cros_ec_report_events_during_suspend(struct cros_ec_device *ec_dev)
+ {
+-	while (cros_ec_get_next_event(ec_dev, NULL) > 0)
++	while (ec_dev->mkbp_event_supported &&
++	       cros_ec_get_next_event(ec_dev, NULL) > 0)
+ 		blocking_notifier_call_chain(&ec_dev->event_notifier,
+ 					     1, ec_dev);
+ }
+-- 
+2.16.4

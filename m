@@ -1,36 +1,36 @@
-From: Faisal Mehmood <f.m3hm00d@gmail.com>
-Subject: [PATCH] hid: hid-logitech-hidpp: Fix spelling of 'length'
-Date: Sat, 18 Aug 2018 23:21:59 +0500
-Message-ID: <20180818182159.GA10389@Fulcrum>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Brian Masney <masneyb@onstation.org>
+Subject: [PATCH] dt-bindings: input: pwm-vibrator: correct pwm-names in example
+Date: Sat, 18 Aug 2018 15:58:55 -0400
+Message-ID: <20180818195855.13429-1-masneyb@onstation.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sebastian.reichel@collabora.co.uk, robh@kernel.org, mark.rutland@arm.com, masneyb@onstation.org
 List-Id: linux-input@vger.kernel.org
 
-'length' was misspelled as 'lenth'. Fixed it. It is a coding style
-change which should have no impact on runtime execution of code.
+In the example for the pwm-vibrator bindings, pwm8 is the direction pin,
+and pwm9 is the enable pin. The pwm-names on the vibrator node has these
+two values swapped. This patch corrects the values for pwm-names.
 
-Signed-off-by: Faisal Mehmood <f.m3hm00d@gmail.com>
+Signed-off-by: Brian Masney <masneyb@onstation.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 2 +-
+arch/arm/boot/dts/omap4-droid4-xt894.dts is actual implementation for
+the example and it is correct.
+
+ Documentation/devicetree/bindings/input/pwm-vibrator.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 19cc980eebce..b89c0f5b8895 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -81,7 +81,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
-  * where as most newer devices use the FAP protocol. Both protocols are
-  * compatible with the underlying transport, which could be usb, Unifiying, or
-  * bluetooth. The message lengths are defined by the hid vendor specific report
-- * descriptor for the HIDPP_SHORT report type (total message lenth 7 bytes) and
-+ * descriptor for the HIDPP_SHORT report type (total message length 7 bytes) and
-  * the HIDPP_LONG report type (total message length 20 bytes)
-  *
-  * The RAP protocol uses both report types, whereas the FAP only uses HIDPP_LONG
+diff --git a/Documentation/devicetree/bindings/input/pwm-vibrator.txt b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
+index 09145d18491d..2731cbb7e8d7 100644
+--- a/Documentation/devicetree/bindings/input/pwm-vibrator.txt
++++ b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
+@@ -60,7 +60,7 @@ Example from Motorola Droid 4:
+ 		compatible = "pwm-vibrator";
+ 		pwms = <&pwm8 0 1000000000 0>,
+ 		       <&pwm9 0 1000000000 0>;
+-		pwm-names = "enable", "direction";
++		pwm-names = "direction", "enable";
+ 		direction-duty-cycle-ns = <1000000000>;
+ 	};
+ };
 -- 
-2.18.0
+2.17.1

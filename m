@@ -1,36 +1,45 @@
-From: Brian Masney <masneyb@onstation.org>
-Subject: [PATCH] dt-bindings: input: pwm-vibrator: correct pwm-names in example
-Date: Sat, 18 Aug 2018 15:58:55 -0400
-Message-ID: <20180818195855.13429-1-masneyb@onstation.org>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: [PATCH V3 0/3]  da7280: haptic driver submission
+Date: Mon, 20 Aug 2018 14:36:20 +0900
+Message-ID: <cover.1534743380.git.Roy.Im@diasemi.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sebastian.reichel@collabora.co.uk, robh@kernel.org, mark.rutland@arm.com, masneyb@onstation.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In the example for the pwm-vibrator bindings, pwm8 is the direction pin,
-and pwm9 is the enable pin. The pwm-names on the vibrator node has these
-two values swapped. This patch corrects the values for pwm-names.
+From: Roy Im <roy.im.opensource@diasemi.com>
 
-Signed-off-by: Brian Masney <masneyb@onstation.org>
----
-arch/arm/boot/dts/omap4-droid4-xt894.dts is actual implementation for
-the example and it is correct.
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
- Documentation/devicetree/bindings/input/pwm-vibrator.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+In this patch set the following is provided:
 
-diff --git a/Documentation/devicetree/bindings/input/pwm-vibrator.txt b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-index 09145d18491d..2731cbb7e8d7 100644
---- a/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-+++ b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-@@ -60,7 +60,7 @@ Example from Motorola Droid 4:
- 		compatible = "pwm-vibrator";
- 		pwms = <&pwm8 0 1000000000 0>,
- 		       <&pwm9 0 1000000000 0>;
--		pwm-names = "enable", "direction";
-+		pwm-names = "direction", "enable";
- 		direction-duty-cycle-ns = <1000000000>;
- 	};
- };
+[PATCH V2 1/3] MAINTAINERS file update for DA7280
+[PATCH V2 2/3] DA7280 DT Binding
+[PATCH V2 3/3] DA7280 Driver
+
+This patch applies against linux-next and v4.18
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |   91 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   12 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1451 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1969 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
+
 -- 
-2.17.1
+end-of-patch for PATCH V3

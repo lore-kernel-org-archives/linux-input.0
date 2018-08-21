@@ -1,59 +1,54 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: mfd: cros_ec: Check for mkbp events on resume only if
- supported.
-Date: Tue, 21 Aug 2018 09:28:17 +0200
-Message-ID: <20180821072819eucas1p24b9038a7a2a1b1eae0d7c91bc31fe1b2~M1an4a6Av2511925119eucas1p2u@eucas1p2.samsung.com>
-References: <CGME20180820153427epcas3p366f998ada5f2f37f1198a1321e9e10be@epcas3p3.samsung.com>
-        <20180820153419.32098-1-ravisadineni@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: AceLan Kao <acelan.kao@canonical.com>
+Subject: [PATCH] HID: i2c-hid: Fix flooded incomplete report after S3 on Rayd touchscreen
+Date: Tue, 21 Aug 2018 16:55:13 +0800
+Message-ID: <20180821085513.13739-1-acelan.kao@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180820153419.32098-1-ravisadineni@google.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: RaviChandra Sadineni <ravisadineni@chromium.org>, lee.jones@linaro.org, dmitry.torokhov@gmail.com, ravisadineni@google.com, dtor@google.com, linux-samsung-soc@vger.kernel.org, tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, tfiga@chromium.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dtor@chromium.org>, Aaron Ma <aaron.ma@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Ravi,
+The incomplete report flooded after S3 and touchscreen becomes
+malfunctioned.
+[ 1367.646244] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/18785)
+[ 1367.649471] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/28743)
+[ 1367.651092] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/26757)
+[ 1367.652658] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/52280)
+[ 1367.654287] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/56059)
 
-On 2018-08-20 17:34, RaviChandra Sadineni wrote:
-> Currently on every resume we check for mkbp events and notify the
-> clients. This helps in identifying the wakeup sources. But on devices
-> that do not support mkbp protocol, we might end up querying key state of
-> the keyboard in a loop which blocks the resume. Instead check for events
-> only if mkbp is supported.
->
-> Signed-off-by: RaviChandra Sadineni <ravisadineni@chromium.org>
+Adding device ID, 04F3:30CC, to the quirk to re-send report description
+after resume.
 
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
+---
+ drivers/hid/hid-ids.h         | 1 +
+ drivers/hid/i2c-hid/i2c-hid.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-> ---
->
->   Note: This patch fixes the suspend/resume issue on Snow and Peach-Pit
->   Chromebooks, both on vanilla v4.18 as well as linux-next from 20 August
->   2018. Further info at: https://lkml.org/lkml/2018/6/5/1076
->   
->   drivers/mfd/cros_ec.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
-> index 65a9757a6d21..fe6f83766144 100644
-> --- a/drivers/mfd/cros_ec.c
-> +++ b/drivers/mfd/cros_ec.c
-> @@ -218,7 +218,8 @@ EXPORT_SYMBOL(cros_ec_suspend);
->   
->   static void cros_ec_report_events_during_suspend(struct cros_ec_device *ec_dev)
->   {
-> -	while (cros_ec_get_next_event(ec_dev, NULL) > 0)
-> +	while (ec_dev->mkbp_event_supported &&
-> +	       cros_ec_get_next_event(ec_dev, NULL) > 0)
->   		blocking_notifier_call_chain(&ec_dev->event_notifier,
->   					     1, ec_dev);
->   }
-
-Best regards
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c7981ddd8776..e80bcd71fe1e 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -528,6 +528,7 @@
+ 
+ #define I2C_VENDOR_ID_RAYD		0x2386
+ #define I2C_PRODUCT_ID_RAYD_3118	0x3118
++#define I2C_PRODUCT_ID_RAYD_4B33	0x4B33
+ 
+ #define USB_VENDOR_ID_HANWANG		0x0b57
+ #define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index eae0cb3ddec6..5fd1159fc095 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -174,6 +174,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+ 	{ USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS10FB_TOUCH,
+ 		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
++	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_4B33,
++		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+ 	{ 0, 0 }
+ };
+ 
 -- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+2.17.1

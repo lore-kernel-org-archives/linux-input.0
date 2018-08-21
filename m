@@ -1,50 +1,59 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] dt-bindings: input: pwm-vibrator: correct pwm-names in
- example
-Date: Mon, 20 Aug 2018 17:38:10 -0500
-Message-ID: <20180820223810.GA1780@bogus>
-References: <20180818195855.13429-1-masneyb@onstation.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: mfd: cros_ec: Check for mkbp events on resume only if
+ supported.
+Date: Tue, 21 Aug 2018 09:28:17 +0200
+Message-ID: <20180821072819eucas1p24b9038a7a2a1b1eae0d7c91bc31fe1b2~M1an4a6Av2511925119eucas1p2u@eucas1p2.samsung.com>
+References: <CGME20180820153427epcas3p366f998ada5f2f37f1198a1321e9e10be@epcas3p3.samsung.com>
+        <20180820153419.32098-1-ravisadineni@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180818195855.13429-1-masneyb@onstation.org>
+In-Reply-To: <20180820153419.32098-1-ravisadineni@google.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Masney <masneyb@onstation.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, sebastian.reichel@collabora.co.uk, mark.rutland@arm.com
+To: RaviChandra Sadineni <ravisadineni@chromium.org>, lee.jones@linaro.org, dmitry.torokhov@gmail.com, ravisadineni@google.com, dtor@google.com, linux-samsung-soc@vger.kernel.org, tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, tfiga@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Aug 18, 2018 at 03:58:55PM -0400, Brian Masney wrote:
-> In the example for the pwm-vibrator bindings, pwm8 is the direction pin,
-> and pwm9 is the enable pin. The pwm-names on the vibrator node has these
-> two values swapped. This patch corrects the values for pwm-names.
-> 
-> Signed-off-by: Brian Masney <masneyb@onstation.org>
+Hi Ravi,
+
+On 2018-08-20 17:34, RaviChandra Sadineni wrote:
+> Currently on every resume we check for mkbp events and notify the
+> clients. This helps in identifying the wakeup sources. But on devices
+> that do not support mkbp protocol, we might end up querying key state of
+> the keyboard in a loop which blocks the resume. Instead check for events
+> only if mkbp is supported.
+>
+> Signed-off-by: RaviChandra Sadineni <ravisadineni@chromium.org>
+
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+
 > ---
-> arch/arm/boot/dts/omap4-droid4-xt894.dts is actual implementation for
-> the example and it is correct.
-> 
->  Documentation/devicetree/bindings/input/pwm-vibrator.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/pwm-vibrator.txt b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-> index 09145d18491d..2731cbb7e8d7 100644
-> --- a/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-> +++ b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-> @@ -60,7 +60,7 @@ Example from Motorola Droid 4:
->  		compatible = "pwm-vibrator";
->  		pwms = <&pwm8 0 1000000000 0>,
->  		       <&pwm9 0 1000000000 0>;
-> -		pwm-names = "enable", "direction";
-> +		pwm-names = "direction", "enable";
+>
+>   Note: This patch fixes the suspend/resume issue on Snow and Peach-Pit
+>   Chromebooks, both on vanilla v4.18 as well as linux-next from 20 August
+>   2018. Further info at: https://lkml.org/lkml/2018/6/5/1076
+>   
+>   drivers/mfd/cros_ec.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/mfd/cros_ec.c b/drivers/mfd/cros_ec.c
+> index 65a9757a6d21..fe6f83766144 100644
+> --- a/drivers/mfd/cros_ec.c
+> +++ b/drivers/mfd/cros_ec.c
+> @@ -218,7 +218,8 @@ EXPORT_SYMBOL(cros_ec_suspend);
+>   
+>   static void cros_ec_report_events_during_suspend(struct cros_ec_device *ec_dev)
+>   {
+> -	while (cros_ec_get_next_event(ec_dev, NULL) > 0)
+> +	while (ec_dev->mkbp_event_supported &&
+> +	       cros_ec_get_next_event(ec_dev, NULL) > 0)
+>   		blocking_notifier_call_chain(&ec_dev->event_notifier,
+>   					     1, ec_dev);
+>   }
 
-As enable is required and direction is optional, enable should come 
-first. So fix the pwms property instead. (And perhaps make the binding 
-more explicit as to what the order should be.
-
->  		direction-duty-cycle-ns = <1000000000>;
->  	};
->  };
-> -- 
-> 2.17.1
-> 
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland

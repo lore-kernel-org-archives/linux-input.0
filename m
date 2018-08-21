@@ -1,167 +1,141 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4 1/3] Input: edt-ft5x06 - Add support for regulator
-Date: Wed, 22 Aug 2018 17:48:48 -0700
-Message-ID: <20180823004848.GA200828@dtor-ws>
-References: <20180725073410.730-1-mylene.josserand@bootlin.com>
- <20180725073410.730-2-mylene.josserand@bootlin.com>
- <20180726004732.GD80336@dtor-ws>
- <20180807085944.337bf20b@dell-desktop.home>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: [PATCH V4 2/3] dt-bindings: input: Add document bindings for DA7280
+Date: Tue, 21 Aug 2018 14:44:31 +0900
+Message-ID: <0d2a3c034a567d3a3ccd2e965f40e9af28f7e4d3.1534830272.git.Roy.Im@diasemi.com>
+References: <cover.1534830272.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180807085944.337bf20b@dell-desktop.home>
+In-Reply-To: <cover.1534830272.git.Roy.Im@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@bootlin.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@bootlin.com, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Simon Budig <simon.budig@kernelconcepts.de>, Franklin S Cooper Jr <fcooper@ti.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 07, 2018 at 08:59:44AM +0200, Mylène Josserand wrote:
-> Hello Dmitry,
-> 
-> Thank you again for the review.
-> 
-> On Wed, 25 Jul 2018 17:47:32 -0700
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > Hi Mylène,
-> > 
-> > On Wed, Jul 25, 2018 at 09:34:08AM +0200, Mylène Josserand wrote:
-> > > Add the support of regulator to use it as VCC source.
-> > > 
-> > > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
-> > > Reviewed-by: Rob Herring <robh@kernel.org>
-> > > ---
-> > >  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
-> > >  drivers/input/touchscreen/edt-ft5x06.c             | 43 ++++++++++++++++++++++
-> > >  2 files changed, 44 insertions(+)
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > > index 025cf8c9324a..48e975b9c1aa 100644
-> > > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-> > > @@ -30,6 +30,7 @@ Required properties:
-> > >  Optional properties:
-> > >   - reset-gpios: GPIO specification for the RESET input
-> > >   - wake-gpios:  GPIO specification for the WAKE input
-> > > + - vcc-supply:  Regulator that supplies the touchscreen
-> > >  
-> > >   - pinctrl-names: should be "default"
-> > >   - pinctrl-0:   a phandle pointing to the pin settings for the
-> > > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> > > index 1e18ca0d1b4e..dcde719094f7 100644
-> > > --- a/drivers/input/touchscreen/edt-ft5x06.c
-> > > +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> > > @@ -39,6 +39,7 @@
-> > >  #include <linux/input/mt.h>
-> > >  #include <linux/input/touchscreen.h>
-> > >  #include <linux/of_device.h>
-> > > +#include <linux/regulator/consumer.h>
-> > >  
-> > >  #define WORK_REGISTER_THRESHOLD		0x00
-> > >  #define WORK_REGISTER_REPORT_RATE	0x08
-> > > @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
-> > >  	struct touchscreen_properties prop;
-> > >  	u16 num_x;
-> > >  	u16 num_y;
-> > > +	struct regulator *vcc;
-> > >  
-> > >  	struct gpio_desc *reset_gpio;
-> > >  	struct gpio_desc *wake_gpio;
-> > > @@ -963,6 +965,13 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
-> > >  	}
-> > >  }
-> > >  
-> > > +static void edt_ft5x06_disable_regulator(void *arg)
-> > > +{
-> > > +	struct edt_ft5x06_ts_data *data = arg;
-> > > +
-> > > +	regulator_disable(data->vcc);
-> > > +}
-> > > +
-> > >  static int edt_ft5x06_ts_probe(struct i2c_client *client,
-> > >  					 const struct i2c_device_id *id)
-> > >  {
-> > > @@ -991,6 +1000,28 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
-> > >  
-> > >  	tsdata->max_support_points = chip_data->max_support_points;
-> > >  
-> > > +	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
-> > > +	if (IS_ERR(tsdata->vcc)) {
-> > > +		error = PTR_ERR(tsdata->vcc);
-> > > +		if (error != -EPROBE_DEFER)
-> > > +			dev_err(&client->dev, "failed to request regulator: %d\n",
-> > > +				error);
-> > > +		return error;
-> > > +	}
-> > > +
-> > > +	error = regulator_enable(tsdata->vcc);
-> > > +	if (error < 0) {
-> > > +		dev_err(&client->dev, "failed to enable vcc: %d\n",
-> > > +			error);
-> > > +		return error;
-> > > +	}  
-> > 
-> > It is better to put the chip into reset and then power up the regulatori
-> > and take it out of the reset, rather than power up and then toggle reset
-> > on and off.
-> 
-> okay, thanks, I will update it.
-> 
-> > 
-> > > +
-> > > +	error = devm_add_action_or_reset(&client->dev,
-> > > +					 edt_ft5x06_disable_regulator,
-> > > +					 tsdata);
-> > > +	if (error)
-> > > +		return error;
-> > > +
-> > >  	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
-> > >  						     "reset", GPIOD_OUT_HIGH);
-> > >  	if (IS_ERR(tsdata->reset_gpio)) {
-> > > @@ -1120,9 +1151,12 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
-> > >  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
-> > >  {
-> > >  	struct i2c_client *client = to_i2c_client(dev);
-> > > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-> > >  
-> > >  	if (device_may_wakeup(dev))
-> > >  		enable_irq_wake(client->irq);
-> > > +	else
-> > > +		regulator_disable(tsdata->vcc);
-> > >  
-> > >  	return 0;
-> > >  }
-> > > @@ -1130,9 +1164,18 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
-> > >  static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
-> > >  {
-> > >  	struct i2c_client *client = to_i2c_client(dev);
-> > > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-> > > +	int ret;
-> > >  
-> > >  	if (device_may_wakeup(dev))
-> > >  		disable_irq_wake(client->irq);
-> > > +	else {
-> > > +		ret = regulator_enable(tsdata->vcc);
-> > > +		if (ret < 0) {
-> > > +			dev_err(dev, "failed to enable vcc: %d\n", ret);
-> > > +			return ret;
-> > > +		}
-> > > +	}  
-> > 
-> > I believe I mentioned in other review that once you powered up the
-> > device, you need to restore its settings, include switching to factory
-> > mode, if it was in factory mode, and restoring threshold/gain/offset
-> > settings.
-> 
-> Yes, I will update the driver with that but as I told you in a previous
-> mail, I can't test the suspend/resume :(
 
-I wonder if Simon or Lothar or Franklin could help us with it (CCed). If
-not, then we'll have to go by review only.
+Add device tree binding information for DA7280 haptic driver.
+Example bindings for DA7280 are added.
 
-Thanks.
+Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
 
+---
+v4: Fixed commit message, properties.
+
+v3: Fixed subject format.
+
+v2: No changes
+
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  101 ++++++++++++++++++++
+ 1 file changed, 101 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+
+diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.txt b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+new file mode 100644
+index 0000000..a61e9f0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+@@ -0,0 +1,101 @@
++Dialog Semiconductor DA7280 Haptics bindings
++
++Required properties:
++- compatible: Should be "dlg,da7280".
++- reg: Specifies the I2C slave address.
++
++- interrupt-parent : Specifies the phandle of the interrupt controller to
++  which the IRQs from DA7280 are delivered to.
++
++- dlg,vib-mode:
++  "LRA-MODE" - Linear Resonance Actuator mode.
++  "ERM-BAR" - Bar type Eccentric Rotating Mass mode.
++  "ERM-COIN" - Coin type Eccentric Rotating Mass mode.
++
++- dlg,op-mode: Haptic operation mode.
++  Possible values:
++	1 - Direct register override mode triggered by i2c(default),
++	2 - PWM data source mode setting duty to 0 - 0xffff(0% - 100%),
++	3 - Register triggered waveform memory mode, the pattern assigned
++	    to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
++	4 - Edge triggered waveform memory mode, external GPI(N) condtrol
++	    are required to enable/disable and it needs to keep
++	    device enabled by sending magnitude (X > 0),
++	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below
++	    For more details, please see the datasheet.
++
++- dlg,nom-microvolt: Nominal actuator voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,abs-max-microvolt: Absolute actuator maximum voltage rating.
++  Valid values: 0 - 6000000.
++- dlg,imax-microamp: Actuator max current rating.
++  Valid values: 0 - 252000.
++  Default: 130000.
++- dlg,impd-micro-ohms: the impedance of the actuator in micro ohm,
++  as read from its datasheet.
++  Valid values: 0 - 1500000000.
++
++Optional properties:
++- pwms : phandle to the physical PWM(Pulse Width Modulation) device.
++  PWM properties should be named "pwms". And number of cell is different
++  for each pwm device.
++  (See Documentation/devicetree/bindings/pwm/pwm.txt
++   for further information relating to pwm properties)
++
++- dlg,ps-seq-id: the PS_SEQ_ID(pattern ID in waveform memory inside chip)
++  to play back when RTWM-MODE is enabled.
++  Valid range: 0 - 15.
++- dlg,ps-seq-loop: the PS_SEQ_LOOP, Number of times the pre-stored sequence
++  pointed to by PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated.
++  Valid range: 0 - 15.
++- dlg,gpiN-seq-id: the GPI(N)_SEQUENCE_ID, pattern to play
++  when gpi0 is triggered, 'N' must be 0 - 2.
++  Valid range: 0 - 15.
++- dlg,gpiN-mode: the pattern mode which can select either
++  "Single-pattern" or "Multi-pattern", 'N' must be 0 - 2.
++- dlg,gpiN-polarity: gpiN polarity which can be chosen among
++  "Rising-edge", "Falling-edge" and "Both-edge",
++  'N' must be 0 - 2
++  Haptic will work by this edge option in case of ETWM-MODE.
++
++- dlg,resonant-freq-hz: use in case of LRA-MODE.
++  the frequency range: 50 - 300.
++  Default: 205.
++
++- dlg,bemf-sens-enable: Enable for internal loop computations.
++- dlg,freq-track-enable: Enable for resonant frequency tracking.
++- dlg,acc-enable: Enable for active acceleration.
++- dlg,rapid-stop-enable: Enable for rapid stop.
++- dlg,amp-pid-enable: Enable for the amplitude PID.
++- dlg,mem-array: use in case that memory registers should be updated,
++  Please fill the whole buffers(100 bytes) to avoid any error in driver.
++  For example,
++	dlg,mem-array = <
++		0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08 0x09 0x0A
++		...
++		0x71 0x72 0x73 0x74 0x75 0x76 0x77 0x78 0x79 0x7A
++		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
++	>;
++
++For further information, see device datasheet.
++
++======
++
++Example:
++
++	haptics: da7280-haptics@4a {
++		compatible = "dlg,da7280";
++		reg = <0x4a>;
++		interrupt-parent = <&gpio6>;
++		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
++		dlg,vib-mode = "LRA-MODE";
++		dlg,op-mode = <1>;
++		dlg,nom-microvolt = <2000000>;
++		dlg,abs-max-microvolt = <2000000>;
++		dlg,imax-microamp = <170000>;
++		dlg,resonant-freq-hz = <180>;
++		dlg,impd-micro-ohms = <10500000>;
++		dlg,freq-track-enable;
++		dlg,rapid-stop-enable;
++	};
 -- 
-Dmitry
+end-of-patch for PATCH V4

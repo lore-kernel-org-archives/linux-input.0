@@ -1,52 +1,102 @@
-From: Roy Im <roy.im.opensource@diasemi.com>
-Subject: [PATCH V4 1/3] MAINTAINERS: da7280 updates to the Dialog
- Semiconductor search terms
-Date: Tue, 21 Aug 2018 14:44:31 +0900
-Message-ID: <97d54f27fac799f6f58f274e83c981b99238ca65.1534830272.git.Roy.Im@diasemi.com>
-References: <cover.1534830272.git.Roy.Im@diasemi.com>
+From: syzbot <syzbot+9436b02171ac0894d33e@syzkaller.appspotmail.com>
+Subject: INFO: rcu detected stall in mousedev_write
+Date: Thu, 23 Aug 2018 07:35:03 -0700
+Message-ID: <0000000000002414d905741b2a38@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1534830272.git.Roy.Im@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
+Hello,
 
-This patch adds the da7280 bindings doc and driver to the Dialog
-Semiconductor support list.
+syzbot found the following crash on:
 
-Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
+HEAD commit:    899fbc33fd77 Merge tag 'platform-drivers-x86-v4.19-1' of g..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=11a98c0a400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=e408e8a7bf8306cb
+dashboard link: https://syzkaller.appspot.com/bug?extid=9436b02171ac0894d33e
+compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+
+Unfortunately, I don't have any reproducer for this crash yet.
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+9436b02171ac0894d33e@syzkaller.appspotmail.com
+
+rcu: INFO: rcu_sched self-detected stall on CPU
+rcu: 	1-....: (104999 ticks this GP) idle=19e/1/0x4000000000000002  
+softirq=112269/112269 fqs=19579
+rcu: 	 (t=105000 jiffies g=225813 q=1973)
+NMI backtrace for cpu 1
+CPU: 1 PID: 21558 Comm: syz-executor5 Not tainted 4.18.0+ #203
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  <IRQ>
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1c9/0x2b4 lib/dump_stack.c:113
+  nmi_cpu_backtrace.cold.3+0x48/0x88 lib/nmi_backtrace.c:101
+  nmi_trigger_cpumask_backtrace+0x151/0x192 lib/nmi_backtrace.c:62
+  arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
+  trigger_single_cpu_backtrace include/linux/nmi.h:162 [inline]
+  rcu_dump_cpu_stacks+0x175/0x1c2 kernel/rcu/tree.c:1340
+  print_cpu_stall.cold.78+0x2fb/0x59c kernel/rcu/tree.c:1478
+  check_cpu_stall kernel/rcu/tree.c:1550 [inline]
+  __rcu_pending kernel/rcu/tree.c:3276 [inline]
+  rcu_pending kernel/rcu/tree.c:3319 [inline]
+  rcu_check_callbacks+0xd4a/0x15a0 kernel/rcu/tree.c:2665
+  update_process_times+0x2d/0x70 kernel/time/timer.c:1636
+  tick_sched_handle+0x9f/0x180 kernel/time/tick-sched.c:164
+  tick_sched_timer+0x45/0x130 kernel/time/tick-sched.c:1274
+  __run_hrtimer kernel/time/hrtimer.c:1398 [inline]
+  __hrtimer_run_queues+0x3eb/0xff0 kernel/time/hrtimer.c:1460
+  hrtimer_interrupt+0x2f3/0x750 kernel/time/hrtimer.c:1518
+  local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1029 [inline]
+  smp_apic_timer_interrupt+0x16d/0x6a0 arch/x86/kernel/apic/apic.c:1054
+  apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:864
+  </IRQ>
+RIP: 0010:arch_local_irq_enable arch/x86/include/asm/paravirt.h:793 [inline]
+RIP: 0010:__raw_spin_unlock_irq include/linux/spinlock_api_smp.h:168  
+[inline]
+RIP: 0010:_raw_spin_unlock_irq+0x56/0x70 kernel/locking/spinlock.c:192
+Code: f1 87 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00  
+75 1d 48 83 3d db 98 3d 01 00 74 11 fb 66 0f 1f 44 00 00 <65> ff 0d a3 c9  
+4d 79 5b 5d c3 0f 0b e8 09 8f 07 fb eb dc 0f 1f 80
+RSP: 0018:ffff88018eb8faf8 EFLAGS: 00000286 ORIG_RAX: ffffffffffffff13
+RAX: dffffc0000000000 RBX: ffff8801bff42be8 RCX: 0000000000000000
+RDX: 1ffffffff0fe379f RSI: 0000000000000001 RDI: ffffffff87f1bcf8
+RBP: ffff88018eb8fb00 R08: ffff88018d902000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000c6c5ef
+R13: dffffc0000000000 R14: 0000000000c6c5ef R15: ffff8801bff42be8
+  spin_unlock_irq include/linux/spinlock.h:379 [inline]
+  mousedev_write+0x19d/0x840 drivers/input/mousedev.c:709
+  __vfs_write+0x117/0x9d0 fs/read_write.c:485
+  vfs_write+0x1fc/0x560 fs/read_write.c:549
+  ksys_write+0x101/0x260 fs/read_write.c:598
+  __do_sys_write fs/read_write.c:610 [inline]
+  __se_sys_write fs/read_write.c:607 [inline]
+  __x64_sys_write+0x73/0xb0 fs/read_write.c:607
+  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x457089
+Code: fd b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 cb b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f0d92208c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00007f0d922096d4 RCX: 0000000000457089
+RDX: 00000000ffffffd1 RSI: 00000000200001c0 RDI: 0000000000000005
+RBP: 00000000009300a0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 00000000004d7088 R14: 00000000004ca379 R15: 0000000000000000
+
 
 ---
-v4: No changes.
-v3: No changes.
-v2: No changes.
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-
- MAINTAINERS |    2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 544cac8..720f9fe 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4221,6 +4221,7 @@ S:	Supported
- F:	Documentation/hwmon/da90??
- F:	Documentation/devicetree/bindings/mfd/da90*.txt
- F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
-+F:	Documentation/devicetree/bindings/input/dlg,da72??.txt
- F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
- F:	Documentation/devicetree/bindings/regulator/da92*.txt
- F:	Documentation/devicetree/bindings/watchdog/da90??-wdt.txt
-@@ -4229,6 +4230,7 @@ F:	drivers/gpio/gpio-da90??.c
- F:	drivers/hwmon/da90??-hwmon.c
- F:	drivers/iio/adc/da91??-*.c
- F:	drivers/input/misc/da90??_onkey.c
-+F:	drivers/input/misc/da72??.[ch]
- F:	drivers/input/touchscreen/da9052_tsi.c
- F:	drivers/leds/leds-da90??.c
- F:	drivers/mfd/da903x.c
--- 
-end-of-patch for PATCH V4
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
+syzbot.

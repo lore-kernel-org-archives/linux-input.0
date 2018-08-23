@@ -1,175 +1,167 @@
-From: "George G. Davis" <ggdavisiv@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: atmel_mxt_ts: Add support for  optional
- regulators.
-Date: Wed, 22 Aug 2018 18:53:21 -0400
-Message-ID: <20180822225321.GA1364@gandalf.middle.earth.net>
-References: <1531851386-17840-1-git-send-email-pawel.mikolaj.chmiel@gmail.com>
- <1531851386-17840-2-git-send-email-pawel.mikolaj.chmiel@gmail.com>
- <20180717210005.GA21416@hairyalien>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4 1/3] Input: edt-ft5x06 - Add support for regulator
+Date: Wed, 22 Aug 2018 17:48:48 -0700
+Message-ID: <20180823004848.GA200828@dtor-ws>
+References: <20180725073410.730-1-mylene.josserand@bootlin.com>
+ <20180725073410.730-2-mylene.josserand@bootlin.com>
+ <20180726004732.GD80336@dtor-ws>
+ <20180807085944.337bf20b@dell-desktop.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180717210005.GA21416@hairyalien>
+In-Reply-To: <20180807085944.337bf20b@dell-desktop.home>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>, mark.rutland@arm.com, devicetree@vger.kernel.org, alexandre.belloni@bootlin.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@bootlin.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@bootlin.com, wens@csie.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, thomas.petazzoni@bootlin.com, Lothar =?iso-8859-1?Q?Wa=DFmann?= <LW@KARO-electronics.de>, Simon Budig <simon.budig@kernelconcepts.de>, Franklin S Cooper Jr <fcooper@ti.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello Nick,
-
-On Tue, Jul 17, 2018 at 10:00:05PM +0100, Nick Dyer wrote:
-> On Tue, Jul 17, 2018 at 08:16:25PM +0200, PaweÅ‚ Chmiel wrote:
-> > This patch adds optional regulators, which can be used to power
-> > up touchscreen. After enabling regulators, we need to wait 150msec.
-> > This value is taken from official driver.
+On Tue, Aug 07, 2018 at 08:59:44AM +0200, Mylène Josserand wrote:
+> Hello Dmitry,
+> 
+> Thank you again for the review.
+> 
+> On Wed, 25 Jul 2018 17:47:32 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > Hi Mylène,
 > > 
-> > It was tested on Samsung Galaxy i9000 (based on Samsung S5PV210 SOC).
+> > On Wed, Jul 25, 2018 at 09:34:08AM +0200, Mylène Josserand wrote:
+> > > Add the support of regulator to use it as VCC source.
+> > > 
+> > > Signed-off-by: Mylène Josserand <mylene.josserand@bootlin.com>
+> > > Reviewed-by: Rob Herring <robh@kernel.org>
+> > > ---
+> > >  .../bindings/input/touchscreen/edt-ft5x06.txt      |  1 +
+> > >  drivers/input/touchscreen/edt-ft5x06.c             | 43 ++++++++++++++++++++++
+> > >  2 files changed, 44 insertions(+)
+> > > 
+> > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > > index 025cf8c9324a..48e975b9c1aa 100644
+> > > --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > > +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+> > > @@ -30,6 +30,7 @@ Required properties:
+> > >  Optional properties:
+> > >   - reset-gpios: GPIO specification for the RESET input
+> > >   - wake-gpios:  GPIO specification for the WAKE input
+> > > + - vcc-supply:  Regulator that supplies the touchscreen
+> > >  
+> > >   - pinctrl-names: should be "default"
+> > >   - pinctrl-0:   a phandle pointing to the pin settings for the
+> > > diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> > > index 1e18ca0d1b4e..dcde719094f7 100644
+> > > --- a/drivers/input/touchscreen/edt-ft5x06.c
+> > > +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> > > @@ -39,6 +39,7 @@
+> > >  #include <linux/input/mt.h>
+> > >  #include <linux/input/touchscreen.h>
+> > >  #include <linux/of_device.h>
+> > > +#include <linux/regulator/consumer.h>
+> > >  
+> > >  #define WORK_REGISTER_THRESHOLD		0x00
+> > >  #define WORK_REGISTER_REPORT_RATE	0x08
+> > > @@ -91,6 +92,7 @@ struct edt_ft5x06_ts_data {
+> > >  	struct touchscreen_properties prop;
+> > >  	u16 num_x;
+> > >  	u16 num_y;
+> > > +	struct regulator *vcc;
+> > >  
+> > >  	struct gpio_desc *reset_gpio;
+> > >  	struct gpio_desc *wake_gpio;
+> > > @@ -963,6 +965,13 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+> > >  	}
+> > >  }
+> > >  
+> > > +static void edt_ft5x06_disable_regulator(void *arg)
+> > > +{
+> > > +	struct edt_ft5x06_ts_data *data = arg;
+> > > +
+> > > +	regulator_disable(data->vcc);
+> > > +}
+> > > +
+> > >  static int edt_ft5x06_ts_probe(struct i2c_client *client,
+> > >  					 const struct i2c_device_id *id)
+> > >  {
+> > > @@ -991,6 +1000,28 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+> > >  
+> > >  	tsdata->max_support_points = chip_data->max_support_points;
+> > >  
+> > > +	tsdata->vcc = devm_regulator_get(&client->dev, "vcc");
+> > > +	if (IS_ERR(tsdata->vcc)) {
+> > > +		error = PTR_ERR(tsdata->vcc);
+> > > +		if (error != -EPROBE_DEFER)
+> > > +			dev_err(&client->dev, "failed to request regulator: %d\n",
+> > > +				error);
+> > > +		return error;
+> > > +	}
+> > > +
+> > > +	error = regulator_enable(tsdata->vcc);
+> > > +	if (error < 0) {
+> > > +		dev_err(&client->dev, "failed to enable vcc: %d\n",
+> > > +			error);
+> > > +		return error;
+> > > +	}  
 > > 
-> > Signed-off-by: PaweÅ‚ Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> > ---
-> > Changes from v1:
-> >   - Enable regulators only if reset_gpio is present.
-> >   - Switch from devm_regulator_get_optional to devm_regulator_get
-> > ---
-> >  drivers/input/touchscreen/atmel_mxt_ts.c | 46 ++++++++++++++++++++++++++++++--
-> >  1 file changed, 44 insertions(+), 2 deletions(-)
+> > It is better to put the chip into reset and then power up the regulatori
+> > and take it out of the reset, rather than power up and then toggle reset
+> > on and off.
+> 
+> okay, thanks, I will update it.
+> 
 > > 
-> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > index 54fe190fd4bc..005f0fee9fc8 100644
-> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> > @@ -27,6 +27,7 @@
-> >  #include <linux/interrupt.h>
-> >  #include <linux/of.h>
-> >  #include <linux/property.h>
-> > +#include <linux/regulator/consumer.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/gpio/consumer.h>
-> >  #include <linux/property.h>
-> > @@ -194,10 +195,10 @@ enum t100_type {
-> >  
-> >  /* Delay times */
-> >  #define MXT_BACKUP_TIME		50	/* msec */
-> > -#define MXT_RESET_GPIO_TIME	20	/* msec */
-> >  #define MXT_RESET_INVALID_CHG	100	/* msec */
-> >  #define MXT_RESET_TIME		200	/* msec */
-> >  #define MXT_RESET_TIMEOUT	3000	/* msec */
-> > +#define MXT_REGULATOR_DELAY	150	/* msec */
-> >  #define MXT_CRC_TIMEOUT		1000	/* msec */
-> >  #define MXT_FW_RESET_TIME	3000	/* msec */
-> >  #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-> > @@ -310,6 +311,8 @@ struct mxt_data {
-> >  	struct t7_config t7_cfg;
-> >  	struct mxt_dbg dbg;
-> >  	struct gpio_desc *reset_gpio;
-> > +	struct regulator *vdd_reg;
-> > +	struct regulator *avdd_reg;
-> >  
-> >  	/* Cached parameters from object table */
-> >  	u16 T5_address;
-> > @@ -3076,6 +3079,22 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
-> >  		return error;
-> >  	}
-> >  
-> > +	data->vdd_reg = devm_regulator_get(&client->dev, "vdd");
-> > +	if (IS_ERR(data->vdd_reg)) {
-> > +		error = PTR_ERR(data->vdd_reg);
-> > +		dev_err(&client->dev, "Failed to get vdd regulator: %d\n",
-> > +			error);
-> > +		return error;
-> > +	}
-> > +
-> > +	data->avdd_reg = devm_regulator_get(&client->dev, "avdd");
-> > +	if (IS_ERR(data->avdd_reg)) {
-> > +		error = PTR_ERR(data->avdd_reg);
-> > +		dev_err(&client->dev, "Failed to get avdd regulator: %d\n",
-> > +			error);
-> > +		return error;
-> > +	}
-> > +
-> >  	error = devm_request_threaded_irq(&client->dev, client->irq,
-> >  					  NULL, mxt_interrupt, IRQF_ONESHOT,
-> >  					  client->name, data);
-> > @@ -3087,7 +3106,26 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
-> >  	disable_irq(client->irq);
-> >  
-> >  	if (data->reset_gpio) {
-> > -		msleep(MXT_RESET_GPIO_TIME);
-> > +		error = regulator_enable(data->vdd_reg);
-> > +		if (error) {
-> > +			dev_err(&client->dev, "Failed to enable vdd regulator: %d\n",
-> > +				error);
-> > +			return error;
-> > +		}
-> > +
-> > +		error = regulator_enable(data->avdd_reg);
-> > +		if (error) {
-> > +			dev_err(&client->dev, "Failed to enable avdd regulator: %d\n",
-> > +				error);
-> > +			return error;
-> > +		}
-> > +
-> > +		/*
-> > +		 * According to maXTouch power sequencing specification, RESET line
-> > +		 * must be kept low until some time after regulators come up to
-> > +		 * voltage
-> > +		 */
-> > +		msleep(MXT_REGULATOR_DELAY);
-> >  		gpiod_set_value(data->reset_gpio, 1);
-> >  		msleep(MXT_RESET_INVALID_CHG);
-> 
-> Hi Pawel-
-> 
-> I see you've borrowed some of the logic from the patch I wrote a while
-> back (see https://github.com/ndyer/linux/commit/8e9687e41ed062 )
-
-I'm actually quite interested in your work and notice that it has
-languished for some time now. If you have rebased any of your earlier
-work to more recent kernel versions, I'd be happy to assist with testing
-and review.
-
---
-Regards,
-George
-
-> The correct behaviour according to Atmel should be:
-> 
-> * Make RESET zero
-> * Bring up regulators
-> * Wait for a period to settle (150 msec)
-> * Release RESET
-> * Wait for 100 msec whilst device gets through bootloader
-> * Wait for CHG line assert before reading info block
-> 
-> I can't see the first and last steps in your patch at present.
-> 
-> The only downside with this approach is that there are a lot of
-> delays during driver probe, but I believe the asynchronous probe stuff
-> that's landed since I wrote the original patch should address that.
-> 
-> cheers
-> 
-> Nick
-> 
-> >  	}
-> > @@ -3116,6 +3154,10 @@ static int mxt_remove(struct i2c_client *client)
-> >  	struct mxt_data *data = i2c_get_clientdata(client);
-> >  
-> >  	disable_irq(data->irq);
-> > +	if (data->reset_gpio) {
-> > +		regulator_disable(data->avdd_reg);
-> > +		regulator_disable(data->vdd_reg);
-> > +	}
-> >  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
-> >  	mxt_free_input_device(data);
-> >  	mxt_free_object_table(data);
-> > -- 
-> > 2.7.4
+> > > +
+> > > +	error = devm_add_action_or_reset(&client->dev,
+> > > +					 edt_ft5x06_disable_regulator,
+> > > +					 tsdata);
+> > > +	if (error)
+> > > +		return error;
+> > > +
+> > >  	tsdata->reset_gpio = devm_gpiod_get_optional(&client->dev,
+> > >  						     "reset", GPIOD_OUT_HIGH);
+> > >  	if (IS_ERR(tsdata->reset_gpio)) {
+> > > @@ -1120,9 +1151,12 @@ static int edt_ft5x06_ts_remove(struct i2c_client *client)
+> > >  static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+> > >  {
+> > >  	struct i2c_client *client = to_i2c_client(dev);
+> > > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+> > >  
+> > >  	if (device_may_wakeup(dev))
+> > >  		enable_irq_wake(client->irq);
+> > > +	else
+> > > +		regulator_disable(tsdata->vcc);
+> > >  
+> > >  	return 0;
+> > >  }
+> > > @@ -1130,9 +1164,18 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+> > >  static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
+> > >  {
+> > >  	struct i2c_client *client = to_i2c_client(dev);
+> > > +	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
+> > > +	int ret;
+> > >  
+> > >  	if (device_may_wakeup(dev))
+> > >  		disable_irq_wake(client->irq);
+> > > +	else {
+> > > +		ret = regulator_enable(tsdata->vcc);
+> > > +		if (ret < 0) {
+> > > +			dev_err(dev, "failed to enable vcc: %d\n", ret);
+> > > +			return ret;
+> > > +		}
+> > > +	}  
 > > 
+> > I believe I mentioned in other review that once you powered up the
+> > device, you need to restore its settings, include switching to factory
+> > mode, if it was in factory mode, and restoring threshold/gain/offset
+> > settings.
 > 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> Yes, I will update the driver with that but as I told you in a previous
+> mail, I can't test the suspend/resume :(
+
+I wonder if Simon or Lothar or Franklin could help us with it (CCed). If
+not, then we'll have to go by review only.
+
+Thanks.
+
+-- 
+Dmitry

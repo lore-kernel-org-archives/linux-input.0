@@ -1,53 +1,68 @@
-From: Roy Im <roy.im.opensource@diasemi.com>
-Subject: RE: [PATCH V4 3/3] Input: new da7280 haptic driver
-Date: Fri, 24 Aug 2018 05:35:54 +0000
-Message-ID: <DB7PR10MB216980706A65A8E913A1BE7285360@DB7PR10MB2169.EURPRD10.PROD.OUTLOOK.COM>
-References: <cover.1534830272.git.Roy.Im@diasemi.com>
- <2c28a93093c075e0145b70e7bc999f2654d0431d.1534830272.git.Roy.Im@diasemi.com>
- <6115d6ca-8df6-1830-3c61-681610d8f2b0@infradead.org>
+From: Andi Shyti <andi@etezian.org>
+Subject: Re: [PATCH] Input: elants_i2c - Fix sw reset delays
+Date: Fri, 24 Aug 2018 11:49:33 +0300
+Message-ID: <20180824084933.GA29856@jack.zhora.eu>
+References: <20180823231013.254037-1-dbasehore@chromium.org>
+ <20180823233028.GC53155@dtor-ws>
+ <20180823233211.GD53155@dtor-ws>
+ <20180823233424.GE53155@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6115d6ca-8df6-1830-3c61-681610d8f2b0@infradead.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180823233424.GE53155@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>, Roy Im <roy.im.opensource@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <Support.Opensource@diasemi.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Derek Basehore <dbasehore@chromium.org>, Johnny Chuang <johnny.chuang@emc.com.tw>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, joe@perches.com, andi@etezian.org, gregkh@linuxfoundation.org, James Chen <james.chen@emc.com.tw>, KT Liao <kt.liao@emc.com.tw>
 List-Id: linux-input@vger.kernel.org
 
-SGkgUmFuZHksDQoNCk9uIDA4LzI0LzIwMTggMTI6MjggQU0sIFJhbmR5IER1bmxhcCB3cm90ZToN
-Cg0KPiBPbiAwOC8yMC8yMDE4IDEwOjQ0IFBNLCBSb3kgSW0gd3JvdGU6DQo+ID4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvaW5wdXQvbWlzYy9LY29uZmlnIGIvZHJpdmVycy9pbnB1dC9taXNjL0tjb25m
-aWcNCj4gPiBpbmRleCBjYTU5YTJiLi42ZTBkZTY5IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMv
-aW5wdXQvbWlzYy9LY29uZmlnDQo+ID4gKysrIGIvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcN
-Cj4gPiBAQCAtODUxLDQgKzg1MSwxNiBAQCBjb25maWcgSU5QVVRfU0MyN1hYX1ZJQlJBDQo+ID4g
-IAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmUuIFRo
-ZSBtb2R1bGUNCj4gd2lsbA0KPiA+ICAJICBiZSBjYWxsZWQgc2MyN3h4X3ZpYnJhLg0KPiA+DQo+
-IA0KPiBIaSwNCj4gQ2FuIHlvdSBleHBsYWluIHRoZSAiZGVwZW5kcyBvbiIgYmVsb3csIHBsZWFz
-ZS4NCj4gDQo+ID4gK2NvbmZpZyBJTlBVVF9EQTcyODBfSEFQVElDUw0KPiA+ICsJdHJpc3RhdGUg
-IkRpYWxvZyBTZW1pY29uZHVjdG9yIERBNzI4MCBoYXB0aWNzIHN1cHBvcnQiDQo+ID4gKwlkZXBl
-bmRzIG9uIChJTlBVVCAmJiBJMkMgJiYgU1lTRlMpIHx8IFBXTQ0KPiA+ICsJc2VsZWN0IElOUFVU
-X0ZGX01FTUxFU1MNCj4gPiArCXNlbGVjdCBSRUdNQVBfSTJDDQo+IA0KPiBJZiBJTlBVVCBpcyBk
-aXNhYmxlZCwgYW5kIEkyQyBpcyBkaXNhYmxlZCwgYW5kIFNZU0ZTIGlzIGRpc2FibGVkLCBidXQN
-Cj4gUFdNPXksDQo+IHRoZW4gdGhlICJzZWxlY3QicyB3aWxsIGhhdmUgcHJvYmxlbXMgd2l0aCB1
-bm1ldCBkZXBlbmRlbmNpZXMuDQoNCkkgd2lsbCBmaXggdGhpcyBpbiB2NS4NCg0KPiANCj4gPiAr
-CWhlbHANCj4gPiArCSAgU2F5IFkgdG8gZW5hYmxlIHN1cHBvcnQgZm9yIHRoZSBoYXB0aWNzIGNv
-bnRyb2xsZXIgb24NCj4gPiArCSAgRGlhbG9nIERBNzI4MCBjaGlwLg0KPiA+ICsNCj4gPiArCSAg
-VG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlDQo+
-ID4gKwkgIG1vZHVsZSB3aWxsIGJlIGNhbGxlZCBkYTcyODAtaGFwdGljLg0KPiANCj4gVGhhdCBt
-b2R1bGUgbmFtZSBkb2Vzbid0IG1hdGNoIHdoYXQncyBpbiB0aGUgTWFrZWZpbGUgKGJlbG93KS4N
-Cg0KSSB3aWxsIGZpeCB0aGlzIGFzIHdlbGwgaW4gdjUuDQoNCj4gDQo+ID4gKw0KPiA+ICBlbmRp
-Zg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21pc2MvTWFrZWZpbGUgYi9kcml2ZXJz
-L2lucHV0L21pc2MvTWFrZWZpbGUNCj4gPiBpbmRleCA5ZDBmOWQxLi5kOTQxMzQ4IDEwMDY0NA0K
-PiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbWlzYy9NYWtlZmlsZQ0KPiA+ICsrKyBiL2RyaXZlcnMv
-aW5wdXQvbWlzYy9NYWtlZmlsZQ0KPiA+IEBAIC0yNSw2ICsyNSw3IEBAIG9iai0kKENPTkZJR19J
-TlBVVF9DTUEzMDAwKQkJKz0NCj4gY21hMzAwMF9kMHgubw0KPiA+ICBvYmotJChDT05GSUdfSU5Q
-VVRfQ01BMzAwMF9JMkMpCQkrPSBjbWEzMDAwX2QweF9pMmMubw0KPiA+ICBvYmotJChDT05GSUdf
-SU5QVVRfQ09CQUxUX0JUTlMpCQkrPSBjb2JhbHRfYnRucy5vDQo+ID4gIG9iai0kKENPTkZJR19J
-TlBVVF9DUENBUF9QV1JCVVRUT04pCSs9IGNwY2FwLXB3cmJ1dHRvbi5vDQo+ID4gK29iai0kKENP
-TkZJR19JTlBVVF9EQTcyODBfSEFQVElDUykJKz0gZGE3MjgwLm8NCj4gPiAgb2JqLSQoQ09ORklH
-X0lOUFVUX0RBOTA1Ml9PTktFWSkJKz0gZGE5MDUyX29ua2V5Lm8NCj4gPiAgb2JqLSQoQ09ORklH
-X0lOUFVUX0RBOTA1NV9PTktFWSkJKz0gZGE5MDU1X29ua2V5Lm8NCj4gPiAgb2JqLSQoQ09ORklH
-X0lOUFVUX0RBOTA2M19PTktFWSkJKz0gZGE5MDYzX29ua2V5Lm8NCj4gDQo+IA0KPiAtLQ0KPiB+
-UmFuZHkNCg0KUmVnYXJkcywNClJveQ0K
+Hi Derek,
+
+> > > On Thu, Aug 23, 2018 at 04:10:13PM -0700, Derek Basehore wrote:
+> > > > We only need to wait 10ms instead of 30ms before starting fastboot or
+> > > > sending IAP on the touchscreen. Also, instead of delaying everytime
+> > > > sw_reset is called, this delays 10ms in the function that starts
+> > > > fastboot. There's also an explicit 20ms delay before sending IAP when
+> > > > updating the firmware, so no additional delay is needed there. This
+> > > > change also has the benefit of not delaying when wakeup is enabled
+> > > > during suspend. This is because sw_reset is called, yet fastboot
+> > > > isn't.
+
+...
+
+> > > > -	/*
+> > > > -	 * We should wait at least 10 msec (but no more than 40) before
+> > > > -	 * sending fastboot or IAP command to the device.
+> > > > -	 */
+> > > > -	msleep(30);
+> > > > -
+
+moving from 30 to 0 is a bit alarming... what does the datasheet
+say?
+
+Sometimes delays are implicit in the system where you are testing
+the driver, so that without any msleep it might work in your
+system but it might not on others.
+
+> +             /*
+> +              * We should wait at least 10 msec (but no more than 40) before
+> +              * sending IAP command to the device.
+> +              */
+>               msleep(20);
+
+I agree though that it's not nice to wait twice here (even though
+as Dmitry says it doesn't hurt so much). Wouldn't it make more
+sense to remove this msleep instead?
+This way...
+
+> +     /*
+> +      * We should wait at least 10 msec (but no more than 40) before sending
+> +      * fastboot command to the device.
+> +      */
+> +     usleep_range(10 * 1000, 11 * 1000);
+> +
+>       error = elants_i2c_send(client, boot_cmd, sizeof(boot_cmd));
+
+... you do not need to add an extra sleep here.
+
+Andi

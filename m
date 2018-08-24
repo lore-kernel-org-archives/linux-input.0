@@ -1,46 +1,53 @@
-From: Teika Kazura <teika@gmx.com>
-Subject: [PATCH v2] Input: synaptics - Lenovo ThinkPad T25 and T480 devices
- should use RMI
-Date: Fri, 24 Aug 2018 14:07:56 +0900 (JST)
-Message-ID: <20180824.140756.2287821275533434713.teika@gmx.com>
-References: <20180707051913.24035-1-kitsunyan@inbox.ru>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: RE: [PATCH V4 3/3] Input: new da7280 haptic driver
+Date: Fri, 24 Aug 2018 05:35:54 +0000
+Message-ID: <DB7PR10MB216980706A65A8E913A1BE7285360@DB7PR10MB2169.EURPRD10.PROD.OUTLOOK.COM>
+References: <cover.1534830272.git.Roy.Im@diasemi.com>
+ <2c28a93093c075e0145b70e7bc999f2654d0431d.1534830272.git.Roy.Im@diasemi.com>
+ <6115d6ca-8df6-1830-3c61-681610d8f2b0@infradead.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180707051913.24035-1-kitsunyan@inbox.ru>
+In-Reply-To: <6115d6ca-8df6-1830-3c61-681610d8f2b0@infradead.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: kitsunyan@inbox.ru, benjamin.tissoires@redhat.com
+To: Randy Dunlap <rdunlap@infradead.org>, Roy Im <roy.im.opensource@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <Support.Opensource@diasemi.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The touchpads on both T25 and T480 are accessible over SMBUS/RMI.
-
----
-v2
-
-Only a tag change.
-The original author wants to use a pseudonym, and agrees with the usurpation of the signed-off-by tag. See https://patchwork.kernel.org/patch/10512751/
-
-Reported-by: kitsunyan <kitsunyan@inbox.ru>
-Signed-off-by: Teika Kazura <teika@gmx.com>
----
- drivers/input/mouse/synaptics.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 55d33500d55e..be934a082424 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -175,7 +175,9 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN0071", /* T480 */
- 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
- 	"LEN0073", /* X1 Carbon G5 (Elantech) */
-+	"LEN008e", /* T25 */
- 	"LEN0092", /* X1 Carbon 6 */
-+	"LEN0093", /* T480 */
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
- 	"LEN200f", /* T450s */
--- 
-2.18.0
+SGkgUmFuZHksDQoNCk9uIDA4LzI0LzIwMTggMTI6MjggQU0sIFJhbmR5IER1bmxhcCB3cm90ZToN
+Cg0KPiBPbiAwOC8yMC8yMDE4IDEwOjQ0IFBNLCBSb3kgSW0gd3JvdGU6DQo+ID4gZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvaW5wdXQvbWlzYy9LY29uZmlnIGIvZHJpdmVycy9pbnB1dC9taXNjL0tjb25m
+aWcNCj4gPiBpbmRleCBjYTU5YTJiLi42ZTBkZTY5IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMv
+aW5wdXQvbWlzYy9LY29uZmlnDQo+ID4gKysrIGIvZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcN
+Cj4gPiBAQCAtODUxLDQgKzg1MSwxNiBAQCBjb25maWcgSU5QVVRfU0MyN1hYX1ZJQlJBDQo+ID4g
+IAkgIFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmUuIFRo
+ZSBtb2R1bGUNCj4gd2lsbA0KPiA+ICAJICBiZSBjYWxsZWQgc2MyN3h4X3ZpYnJhLg0KPiA+DQo+
+IA0KPiBIaSwNCj4gQ2FuIHlvdSBleHBsYWluIHRoZSAiZGVwZW5kcyBvbiIgYmVsb3csIHBsZWFz
+ZS4NCj4gDQo+ID4gK2NvbmZpZyBJTlBVVF9EQTcyODBfSEFQVElDUw0KPiA+ICsJdHJpc3RhdGUg
+IkRpYWxvZyBTZW1pY29uZHVjdG9yIERBNzI4MCBoYXB0aWNzIHN1cHBvcnQiDQo+ID4gKwlkZXBl
+bmRzIG9uIChJTlBVVCAmJiBJMkMgJiYgU1lTRlMpIHx8IFBXTQ0KPiA+ICsJc2VsZWN0IElOUFVU
+X0ZGX01FTUxFU1MNCj4gPiArCXNlbGVjdCBSRUdNQVBfSTJDDQo+IA0KPiBJZiBJTlBVVCBpcyBk
+aXNhYmxlZCwgYW5kIEkyQyBpcyBkaXNhYmxlZCwgYW5kIFNZU0ZTIGlzIGRpc2FibGVkLCBidXQN
+Cj4gUFdNPXksDQo+IHRoZW4gdGhlICJzZWxlY3QicyB3aWxsIGhhdmUgcHJvYmxlbXMgd2l0aCB1
+bm1ldCBkZXBlbmRlbmNpZXMuDQoNCkkgd2lsbCBmaXggdGhpcyBpbiB2NS4NCg0KPiANCj4gPiAr
+CWhlbHANCj4gPiArCSAgU2F5IFkgdG8gZW5hYmxlIHN1cHBvcnQgZm9yIHRoZSBoYXB0aWNzIGNv
+bnRyb2xsZXIgb24NCj4gPiArCSAgRGlhbG9nIERBNzI4MCBjaGlwLg0KPiA+ICsNCj4gPiArCSAg
+VG8gY29tcGlsZSB0aGlzIGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlDQo+
+ID4gKwkgIG1vZHVsZSB3aWxsIGJlIGNhbGxlZCBkYTcyODAtaGFwdGljLg0KPiANCj4gVGhhdCBt
+b2R1bGUgbmFtZSBkb2Vzbid0IG1hdGNoIHdoYXQncyBpbiB0aGUgTWFrZWZpbGUgKGJlbG93KS4N
+Cg0KSSB3aWxsIGZpeCB0aGlzIGFzIHdlbGwgaW4gdjUuDQoNCj4gDQo+ID4gKw0KPiA+ICBlbmRp
+Zg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21pc2MvTWFrZWZpbGUgYi9kcml2ZXJz
+L2lucHV0L21pc2MvTWFrZWZpbGUNCj4gPiBpbmRleCA5ZDBmOWQxLi5kOTQxMzQ4IDEwMDY0NA0K
+PiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbWlzYy9NYWtlZmlsZQ0KPiA+ICsrKyBiL2RyaXZlcnMv
+aW5wdXQvbWlzYy9NYWtlZmlsZQ0KPiA+IEBAIC0yNSw2ICsyNSw3IEBAIG9iai0kKENPTkZJR19J
+TlBVVF9DTUEzMDAwKQkJKz0NCj4gY21hMzAwMF9kMHgubw0KPiA+ICBvYmotJChDT05GSUdfSU5Q
+VVRfQ01BMzAwMF9JMkMpCQkrPSBjbWEzMDAwX2QweF9pMmMubw0KPiA+ICBvYmotJChDT05GSUdf
+SU5QVVRfQ09CQUxUX0JUTlMpCQkrPSBjb2JhbHRfYnRucy5vDQo+ID4gIG9iai0kKENPTkZJR19J
+TlBVVF9DUENBUF9QV1JCVVRUT04pCSs9IGNwY2FwLXB3cmJ1dHRvbi5vDQo+ID4gK29iai0kKENP
+TkZJR19JTlBVVF9EQTcyODBfSEFQVElDUykJKz0gZGE3MjgwLm8NCj4gPiAgb2JqLSQoQ09ORklH
+X0lOUFVUX0RBOTA1Ml9PTktFWSkJKz0gZGE5MDUyX29ua2V5Lm8NCj4gPiAgb2JqLSQoQ09ORklH
+X0lOUFVUX0RBOTA1NV9PTktFWSkJKz0gZGE5MDU1X29ua2V5Lm8NCj4gPiAgb2JqLSQoQ09ORklH
+X0lOUFVUX0RBOTA2M19PTktFWSkJKz0gZGE5MDYzX29ua2V5Lm8NCj4gDQo+IA0KPiAtLQ0KPiB+
+UmFuZHkNCg0KUmVnYXJkcywNClJveQ0K

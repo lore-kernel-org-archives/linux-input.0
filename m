@@ -1,105 +1,129 @@
-From: "dbasehore ." <dbasehore@chromium.org>
-Subject: Re: [PATCH] Input: elants_i2c - Fix sw reset delays
-Date: Fri, 24 Aug 2018 16:10:17 -0700
-Message-ID: <CAGAzgsoxZBxFsy7_yhb_VCDXzsseRr6eU8wuUB91JFYdCSh49A@mail.gmail.com>
-References: <20180823231013.254037-1-dbasehore@chromium.org>
- <20180823233028.GC53155@dtor-ws> <20180823233211.GD53155@dtor-ws>
- <20180823233424.GE53155@dtor-ws> <20180824084933.GA29856@jack.zhora.eu> <CAGAzgsqhTbgB2vAYDLMUFvuJ7F4pqHxRp+Xo+iny8g9ghTYM6g@mail.gmail.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH V4 2/3] dt-bindings: input: Add document bindings for
+ DA7280
+Date: Sun, 26 Aug 2018 08:51:57 +0200
+Message-ID: <20180826065157.GA25309@amd>
+References: <cover.1534830272.git.Roy.Im@diasemi.com>
+ <0d2a3c034a567d3a3ccd2e965f40e9af28f7e4d3.1534830272.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAGAzgsqhTbgB2vAYDLMUFvuJ7F4pqHxRp+Xo+iny8g9ghTYM6g@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <0d2a3c034a567d3a3ccd2e965f40e9af28f7e4d3.1534830272.git.Roy.Im@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andi@etezian.org
-Cc: dmitry.torokhov@gmail.com, johnny.chuang@emc.com.tw, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, joe@perches.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, james.chen@emc.com.tw, kt.liao@emc.com.tw
+To: Roy Im <roy.im.opensource@diasemi.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 24, 2018 at 4:07 PM dbasehore . <dbasehore@chromium.org> wrote:
->
->
->
-> On Fri, Aug 24, 2018 at 1:49 AM Andi Shyti <andi@etezian.org> wrote:
->>
->> Hi Derek,
->>
->> > > > On Thu, Aug 23, 2018 at 04:10:13PM -0700, Derek Basehore wrote:
->> > > > > We only need to wait 10ms instead of 30ms before starting fastbo=
-ot or
->> > > > > sending IAP on the touchscreen. Also, instead of delaying everyt=
-ime
->> > > > > sw_reset is called, this delays 10ms in the function that starts
->> > > > > fastboot. There's also an explicit 20ms delay before sending IAP=
- when
->> > > > > updating the firmware, so no additional delay is needed there. T=
-his
->> > > > > change also has the benefit of not delaying when wakeup is enabl=
-ed
->> > > > > during suspend. This is because sw_reset is called, yet fastboot
->> > > > > isn't.
->>
->> ...
->>
->> > > > > -       /*
->> > > > > -        * We should wait at least 10 msec (but no more than 40)=
- before
->> > > > > -        * sending fastboot or IAP command to the device.
->> > > > > -        */
->> > > > > -       msleep(30);
->> > > > > -
->>
->> moving from 30 to 0 is a bit alarming... what does the datasheet
->> say?
->
->
-> We're moving from 30msec to 10msec. We used to do this in an older kernel=
-.
->
->>
->>
->> Sometimes delays are implicit in the system where you are testing
->> the driver, so that without any msleep it might work in your
->> system but it might not on others.
->>
->> > +             /*
->> > +              * We should wait at least 10 msec (but no more than 40)=
- before
->> > +              * sending IAP command to the device.
->> > +              */
->> >               msleep(20);
->>
->> I agree though that it's not nice to wait twice here (even though
->> as Dmitry says it doesn't hurt so much). Wouldn't it make more
->> sense to remove this msleep instead?
->> This way...
->
->
-> We still need this if the delay is removed from the sw_reset function. We=
- have a total of 20msecs delayed between sw_reset and sending IAP in our ol=
-d kernel which should be well tested. There seems to be no reason why the d=
-elays increased.
->
->>
->>
->> > +     /*
->> > +      * We should wait at least 10 msec (but no more than 40) before =
-sending
->> > +      * fastboot command to the device.
->> > +      */
->> > +     usleep_range(10 * 1000, 11 * 1000);
->> > +
->> >       error =3D elants_i2c_send(client, boot_cmd, sizeof(boot_cmd));
->>
->> ... you do not need to add an extra sleep here.
->
->
-> I added it here since I removed the 30msec sleep in sw_reset. This preven=
-ts us from sleeping on resume when the touch controller is already on for w=
-ake up capabilities. This is the same delay that we have in our old 3.8 ker=
-nel, so it's pretty well tested and shipped in production.
->
->>
->>
->> Andi
 
-Resending since it seems my plain text setting was removed...
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> +++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
+> @@ -0,0 +1,101 @@
+> +Dialog Semiconductor DA7280 Haptics bindings
+> +
+> +Required properties:
+> +- compatible: Should be "dlg,da7280".
+> +- reg: Specifies the I2C slave address.
+> +
+> +- interrupt-parent : Specifies the phandle of the interrupt controller to
+> +  which the IRQs from DA7280 are delivered to.
+> +
+> +- dlg,vib-mode:
+> +  "LRA-MODE" - Linear Resonance Actuator mode.
+> +  "ERM-BAR" - Bar type Eccentric Rotating Mass mode.
+> +  "ERM-COIN" - Coin type Eccentric Rotating Mass mode.
+
+So this is some kind of "vibration motor" on steroids)?
+
+> +- dlg,op-mode: Haptic operation mode.
+> +  Possible values:
+> +	1 - Direct register override mode triggered by i2c(default),
+> +	2 - PWM data source mode setting duty to 0 - 0xffff(0% - 100%),
+
+Space after 0xffff?
+
+> +	3 - Register triggered waveform memory mode, the pattern assigned
+> +	    to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
+> +	4 - Edge triggered waveform memory mode, external GPI(N) condtrol
+
+"control"
+
+> +	    are required to enable/disable and it needs to keep
+> +	    device enabled by sending magnitude (X > 0),
+> +	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below
+
+"below."
+
+> +- dlg,imax-microamp: Actuator max current rating.
+> +  Valid values: 0 - 252000.
+> +  Default: 130000.
+> +- dlg,impd-micro-ohms: the impedance of the actuator in micro ohm,
+
+"ohms"
+
+> +  as read from its datasheet.
+
+"as read" does not sound english.
+
+> +- dlg,mem-array: use in case that memory registers should be updated,
+> +  Please fill the whole buffers(100 bytes) to avoid any error in driver.
+> +  For example,
+> +	dlg,mem-array =3D <
+> +		0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08 0x09 0x0A
+> +		...
+> +		0x71 0x72 0x73 0x74 0x75 0x76 0x77 0x78 0x79 0x7A
+> +		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+> +		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+> +	>;
+
+I'd not understand what this is from this description. (And I'd put
+example below... in the exampls section).
+
+
+> +For further information, see device datasheet.
+> +
+> +=3D=3D=3D=3D=3D=3D
+> +
+> +Example:
+> +
+> +	haptics: da7280-haptics@4a {
+> +		compatible =3D "dlg,da7280";
+> +		reg =3D <0x4a>;
+> +		interrupt-parent =3D <&gpio6>;
+> +		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
+> +		dlg,vib-mode =3D "LRA-MODE";
+> +		dlg,op-mode =3D <1>;
+> +		dlg,nom-microvolt =3D <2000000>;
+> +		dlg,abs-max-microvolt =3D <2000000>;
+> +		dlg,imax-microamp =3D <170000>;
+> +		dlg,resonant-freq-hz =3D <180>;
+> +		dlg,impd-micro-ohms =3D <10500000>;
+> +		dlg,freq-track-enable;
+> +		dlg,rapid-stop-enable;
+> +	};
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAluCTg0ACgkQMOfwapXb+vLEugCePH2QGVdcJ3n9Xwb6xqiURfDY
+vUYAn3QgIbvCp/GnbX2ikcazMuOSFvtB
+=o7Xp
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--

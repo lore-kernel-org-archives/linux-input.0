@@ -1,54 +1,118 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 2/6] HID: generic: create one input report per
- application type
-Date: Mon, 27 Aug 2018 17:27:28 +0200
-Message-ID: <CAO-hwJ+pWUwh+enYt=GcJcyJ3rZME6DhrZ3EaY0T7iceHz=Qeg@mail.gmail.com>
-References: <20180424080437.21367-1-benjamin.tissoires@redhat.com>
- <20180424080437.21367-3-benjamin.tissoires@redhat.com> <CAKdAkRRsca1Q2Ltqr=yyZ-rr7vxkty1cGVYjFB5bcC87UtWDSw@mail.gmail.com>
+From: "Sean O'Brien" <seobrien@google.com>
+Subject: Re: [PATCH] HID: add support for Apple Magic Keyboards
+Date: Mon, 27 Aug 2018 12:39:15 -0700
+Message-ID: <CABBVx+CnSzemH5+o1XMq+aHfymBwh3QEm5mCV3TRTvL0mpxCKQ@mail.gmail.com>
+References: <20180823164005.201582-1-seobrien@chromium.org> <CAO-hwJLegX7Uuw8WSErg8W7L0jXj7v2RGiABnrujLonHBYRrog@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKdAkRRsca1Q2Ltqr=yyZ-rr7vxkty1cGVYjFB5bcC87UtWDSw@mail.gmail.com>
+In-Reply-To: <CAO-hwJLegX7Uuw8WSErg8W7L0jXj7v2RGiABnrujLonHBYRrog@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Mario Limonciello <Mario.Limonciello@dell.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: benjamin.tissoires@redhat.com
+Cc: seobrien@chromium.org, jikos@kernel.org, dtor@chromium.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 24, 2018 at 5:45 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On Mon, Aug 27, 2018 at 5:19 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
 >
-> Hi Benjamin, Jiri,
+> Hi Sean,
 >
-> On Tue, Apr 24, 2018 at 1:04 AM Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
+> On Thu, Aug 23, 2018 at 6:40 PM Sean O'Brien <seobrien@chromium.org> wrote:
 > >
-> > It is not a good idea to try to fit all types of applications in the
-> > same input report. There are a lot of devices that are needing
-> > the quirk HID_MULTI_INPUT but this quirk doesn't match the actual HID
-> > description as it is based on the report ID.
+> > USB device
+> >         Vendor 05ac (Apple)
+> >         Device 026c (Magic Keyboard with Numeric Keypad)
 > >
-> > Given that most devices with MULTI_INPUT I can think of split nicely
-> > the devices inputs into application, it is a good thing to split the
-> > devices by default based on this assumption.
+> > Bluetooth devices
+> >         Vendor 004c (Apple)
+> >         Device 0267 (Magic Keyboard)
+> >         Device 026c (Magic Keyboard with Numeric Keypad)
 > >
-> > Also make hid-multitouch following this rule, to not have to deal
-> > with too many input created.
+> > Support already exists for the Magic Keyboard over USB connection.
+> > This patch adds support for the Magic Keyboard over Bluetooth
+> > connection, and for the Magic Keyboard with Numeric Keypad over
+> > Bluetooth and USB connection.
 > >
-> > While we are at it, fix some checkpatch complaints about converting
-> > 'unsigned' to 'unsigned int'.
-> >
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Signed-off-by: Sean O'Brien <seobrien@chromium.org>
 > > ---
+> >
+> >  drivers/hid/hid-apple.c  | 9 ++++++++-
+> >  drivers/hid/hid-ids.h    | 2 ++
+> >  drivers/hid/hid-quirks.c | 3 +++
+> >  3 files changed, 13 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> > index 25b7bd56ae11..1cb41992aaa1 100644
+> > --- a/drivers/hid/hid-apple.c
+> > +++ b/drivers/hid/hid-apple.c
+> > @@ -335,7 +335,8 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+> >                 struct hid_field *field, struct hid_usage *usage,
+> >                 unsigned long **bit, int *max)
+> >  {
+> > -       if (usage->hid == (HID_UP_CUSTOM | 0x0003)) {
+> > +       if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
+> > +                       usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
+> >                 /* The fn key on Apple USB keyboards */
+> >                 set_bit(EV_REP, hi->input->evbit);
+> >                 hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
+> > @@ -472,6 +473,12 @@ static const struct hid_device_id apple_devices[] = {
+> >                 .driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
+> >                 .driver_data = APPLE_HAS_FN },
+> > +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
+> > +               .driver_data = APPLE_HAS_FN },
+> > +       { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI),
+> > +               .driver_data = APPLE_HAS_FN },
+> > +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI),
+> > +               .driver_data = APPLE_HAS_FN },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
+> >                 .driver_data = APPLE_HAS_FN },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index 79bdf0c7e351..5dbe3fb82690 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -88,6 +88,7 @@
+> >  #define USB_DEVICE_ID_ANTON_TOUCH_PAD  0x3101
+> >
+> >  #define USB_VENDOR_ID_APPLE            0x05ac
+> > +#define BT_VENDOR_ID_APPLE             0x004c
+> >  #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE        0x0304
+> >  #define USB_DEVICE_ID_APPLE_MAGICMOUSE 0x030d
+> >  #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD      0x030e
+> > @@ -157,6 +158,7 @@
+> >  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
+> >  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS   0x0257
+> >  #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI   0x0267
+> > +#define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI   0x026c
+> >  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI   0x0290
+> >  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO    0x0291
+> >  #define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS    0x0292
+> > diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> > index 249d49b6b16c..a3b3aecf8628 100644
+> > --- a/drivers/hid/hid-quirks.c
+> > +++ b/drivers/hid/hid-quirks.c
+> > @@ -270,6 +270,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+> >         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO) },
+> >         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS) },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
+> > +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
+> > +       { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI) },
+> > +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI) },
 >
-> I see a spike of user reports on Bugzilla with HID devices being
-> broken on 4.18 that seem to point to this commit. For example:
-> https://bugzilla.kernel.org/show_bug.cgi?id=200849
+> Unless the device doesn't work without this hunk, please drop this
+> from the submission. Since v4.16 this is not required anymore and is
+> doomed to be removed.
+>
 
-Thanks Dmitry. I have requested logs from the reporters. It is
-possible that the device will get split in 2: one for the pointer and
-one for the buttons, and systemd would have no clue on how to handle
-those cases. Depending on the logs, I'll see how we can fix that in a
-clean way.
+I'll do that.  Thank you.
 
-Cheers,
-Benjamin
+> Cheers,
+> Benjamin
+>
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+> >         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+> >  #endif
+> > --
+> > 2.18.0.1017.ga543ac7ca45-goog
+> >

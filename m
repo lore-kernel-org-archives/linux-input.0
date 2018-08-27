@@ -1,154 +1,44 @@
-From: "dbasehore ." <dbasehore@chromium.org>
-Subject: Re: [PATCH] Input: elants_i2c - Fix sw reset delays
-Date: Mon, 27 Aug 2018 06:23:03 -0700
-Message-ID: <CAGAzgsqmYWUoCoi=uVr6Ygt+61H+BD-KZYP70vZjk969eRLz2g@mail.gmail.com>
-References: <20180823231013.254037-1-dbasehore@chromium.org>
- <20180823233028.GC53155@dtor-ws> <20180823233211.GD53155@dtor-ws>
- <20180823233424.GE53155@dtor-ws> <20180824084933.GA29856@jack.zhora.eu>
- <CAGAzgsqhTbgB2vAYDLMUFvuJ7F4pqHxRp+Xo+iny8g9ghTYM6g@mail.gmail.com> <20180827115145.GA1567@jack.zhora.eu>
+From: Eugen Hristev <eugen.hristev@microchip.com>
+Subject: [PATCH v7 RESEND 1/2] ARM: dts: at91: sama5d2: add channel cells for ADC device
+Date: Mon, 27 Aug 2018 16:57:12 +0300
+Message-ID: <1535378233-10901-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180827115145.GA1567@jack.zhora.eu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: andi@etezian.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, johnny.chuang@emc.com.tw, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, joe@perches.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, James Chen <james.chen@emc.com.tw>, kt.liao@emc.com.tw
+To: ludovic.desroches@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com
+Cc: Eugen Hristev <eugen.hristev@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Aug 27, 2018 at 4:52 AM Andi Shyti <andi@etezian.org> wrote:
->
-> Hi Derek,
->
-> next time, could you please avoid using html mails when replying
-> to the mailing list? They are not clear.
+Preparing the ADC device to connect channel consumer drivers
 
-Sorry, my plain text setting was reset for some reason.
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+---
+Resending after merge window that includes the bindings was closed.
+Rebased on 4.19-rc1 : no changes
 
->
-> On Fri, Aug 24, 2018 at 04:07:41PM -0700, dbasehore . wrote:
-> >
-> >
-> > On Fri, Aug 24, 2018 at 1:49 AM Andi Shyti <andi@etezian.org> wrote:
-> >
-> >     Hi Derek,
-> >
-> >     > > > On Thu, Aug 23, 2018 at 04:10:13PM -0700, Derek Basehore wrote:
-> >     > > > > We only need to wait 10ms instead of 30ms before starting fastboot
-> >     or
-> >     > > > > sending IAP on the touchscreen. Also, instead of delaying everytime
-> >     > > > > sw_reset is called, this delays 10ms in the function that starts
-> >     > > > > fastboot. There's also an explicit 20ms delay before sending IAP
-> >     when
-> >     > > > > updating the firmware, so no additional delay is needed there. This
-> >     > > > > change also has the benefit of not delaying when wakeup is enabled
-> >     > > > > during suspend. This is because sw_reset is called, yet fastboot
-> >     > > > > isn't.
-> >
-> >     ...
-> >
-> >     > > > > -       /*
-> >     > > > > -        * We should wait at least 10 msec (but no more than 40)
-> >     before
-> >     > > > > -        * sending fastboot or IAP command to the device.
-> >     > > > > -        */
-> >     > > > > -       msleep(30);
-> >     > > > > -
-> >
-> >     moving from 30 to 0 is a bit alarming... what does the datasheet
-> >     say?
-> >
-> >
-> > We're moving from 30msec to 10msec. We used to do this in an older kernel.
->
-> That's not what you are saying in your commit message:
+ arch/arm/boot/dts/sama5d2.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-We still delay 10ms before fastboot. That's what this is referring to.
-In the change, 3 delays are addressed: fastboot, IAP, and wakeup
-enabled. The fastboot delay is changed to 10ms. The IAP delay is
-changed to 20ms, and the delay when wakeup is enabled is removed.
-
->
->   "... This change also has the benefit of not delaying when
->   wakeup is enabled during suspend... "
->
-> and indeed, in resume the "elants_i2c_sw_reset()" function would
-> be called without any msleep. Or am I missing something? Would
-> it be correct based on the datasheet?
-
-I was told it was correct to do this, but I wonder if something can
-race if we don't delay? I don't doubt that nothing in the resume
-callback needs that delay since we just enable the irq then leave the
-function. There might be something like calibration that does need the
-msleep after sw_reset. I'll need to check if we only need to delay
-after sw reset for just fastboot and IAP (as the code comment
-indicated) or for any i2c write.
-
->
-> >
-> >
-> >
-> >     Sometimes delays are implicit in the system where you are testing
-> >     the driver, so that without any msleep it might work in your
-> >     system but it might not on others.
-> >
-> >     > +             /*
-> >     > +              * We should wait at least 10 msec (but no more than 40)
-> >     before
-> >     > +              * sending IAP command to the device.
-> >     > +              */
-> >     >               msleep(20);
-> >
-> >     I agree though that it's not nice to wait twice here (even though
-> >     as Dmitry says it doesn't hurt so much). Wouldn't it make more
-> >     sense to remove this msleep instead?
-> >     This way...
-> >
-> >
-> > We still need this if the delay is removed from the sw_reset function. We have
-> > a total of 20msecs delayed between sw_reset and sending IAP in our old kernel
-> > which should be well tested. There seems to be no reason why the delays
-> > increased.
->
-> Yes, that's what I'm saying, removing this msleep to me looks
-> more correct than removing it from sw_reset().
->
-> >     > +     /*
-> >     > +      * We should wait at least 10 msec (but no more than 40) before
-> >     sending
-> >     > +      * fastboot command to the device.
-> >     > +      */
-> >     > +     usleep_range(10 * 1000, 11 * 1000);
-> >     > +
-> >     >       error = elants_i2c_send(client, boot_cmd, sizeof(boot_cmd));
-> >
-> >     ... you do not need to add an extra sleep here.
-> >
-> >
-> > I added it here since I removed the 30msec sleep in sw_reset. This prevents us
-> > from sleeping on resume when the touch controller is already on for wake up
-> > capabilities. This is the same delay that we have in our old 3.8 kernel, so
-> > it's pretty well tested and shipped in production.
->
-> And here we fall in my first question (and also Dmitry's
-> concern), Are we sure we don't need to sleep after resume? Again,
-> what does the datasheet say?
->
-> I don't know the answer, you might be right, but I need to know
-> why you are removing the sleep after resume and why, instead,
-> the original developer added it there.
->
-> Two more nitpicks on this patch:
->
-> 1. by adding the usleep_range() outside from the
-> elants_i2c_sw_reset() function, to another developer reading the
-> code, might not really look clear why we are waiting. The
-> comment you copy pasted does not, indeed, refer that we are
-> waiting because a reset has been performed and we need to wait
-> for the _reset time_ before sending IAP commands.
->
-> 2. this is a matter of taste: to me "10000" looks more clear than
-> "10 * 1000", which doesn't add any better readability of the
-> number itself.
->
-> Thanks,
-> Andi
+diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
+index 61f68e5..f06ba99 100644
+--- a/arch/arm/boot/dts/sama5d2.dtsi
++++ b/arch/arm/boot/dts/sama5d2.dtsi
+@@ -47,6 +47,7 @@
+ #include <dt-bindings/dma/at91.h>
+ #include <dt-bindings/interrupt-controller/irq.h>
+ #include <dt-bindings/clock/at91.h>
++#include <dt-bindings/iio/adc/at91-sama5d2_adc.h>
+ 
+ / {
+ 	model = "Atmel SAMA5D2 family SoC";
+@@ -1437,6 +1438,7 @@
+ 				atmel,max-sample-rate-hz = <20000000>;
+ 				atmel,startup-time-ms = <4>;
+ 				atmel,trigger-edge-type = <IRQ_TYPE_EDGE_RISING>;
++				#io-channel-cells = <1>;
+ 				status = "disabled";
+ 			};
+ 
+-- 
+2.7.4

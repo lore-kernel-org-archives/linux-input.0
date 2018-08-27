@@ -1,137 +1,43 @@
 From: Roy Im <roy.im.opensource@diasemi.com>
-Subject: RE: [PATCH V4 2/3] dt-bindings: input: Add document bindings for
- DA7280
-Date: Mon, 27 Aug 2018 05:02:24 +0000
-Message-ID: <DB7PR10MB2169FA41DB1196ACCDFEE333850B0@DB7PR10MB2169.EURPRD10.PROD.OUTLOOK.COM>
-References: <cover.1534830272.git.Roy.Im@diasemi.com>
- <0d2a3c034a567d3a3ccd2e965f40e9af28f7e4d3.1534830272.git.Roy.Im@diasemi.com>
- <20180826065157.GA25309@amd>
+Subject: [PATCH V5 0/3]  da7280: haptic driver submission
+Date: Mon, 27 Aug 2018 17:21:35 +0900
+Message-ID: <cover.1535358095.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180826065157.GA25309@amd>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>, Roy Im <roy.im.opensource@diasemi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Support Opensource <Support.Opensource@diasemi.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Pavel,
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-On Sunday, August 26, 2018 3:52 PM, Pavel Machek wrote:
->
-> > +++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
-> > @@ -0,0 +1,101 @@
-> > +Dialog Semiconductor DA7280 Haptics bindings
-> > +
-> > +Required properties:
-> > +- compatible: Should be "dlg,da7280".
-> > +- reg: Specifies the I2C slave address.
-> > +
-> > +- interrupt-parent : Specifies the phandle of the interrupt
-> > +controller to
-> > +  which the IRQs from DA7280 are delivered to.
-> > +
-> > +- dlg,vib-mode:
-> > +  "LRA-MODE" - Linear Resonance Actuator mode.
-> > +  "ERM-BAR" - Bar type Eccentric Rotating Mass mode.
-> > +  "ERM-COIN" - Coin type Eccentric Rotating Mass mode.
->=20
-> So this is some kind of "vibration motor" on steroids)?
+In this patch set the following is provided:
 
-I will add some descriptions more here in v5.
+[PATCH V2 1/3] MAINTAINERS file update for DA7280
+[PATCH V2 2/3] DA7280 DT Binding
+[PATCH V2 3/3] DA7280 Driver
 
-> > +- dlg,op-mode: Haptic operation mode.
-> > +  Possible values:
-> > +	1 - Direct register override mode triggered by i2c(default),
-> > +	2 - PWM data source mode setting duty to 0 - 0xffff(0% - 100%),
->=20
-> Space after 0xffff?
+This patch applies against linux-next and v4.18
 
-I will remove this in v5.
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
 
->=20
-> > +	3 - Register triggered waveform memory mode, the pattern assigned
-> > +	    to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
-> > +	4 - Edge triggered waveform memory mode, external GPI(N) condtrol
->=20
-> "control"
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
 
-I will fix this in v5
+ .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1438 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1971 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
 
->
-> > +	    are required to enable/disable and it needs to keep
-> > +	    device enabled by sending magnitude (X > 0),
-> > +	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below
->=20
-> "below."
-
-I will fix this in v5
-
->=20
-> > +- dlg,imax-microamp: Actuator max current rating.
-> > +  Valid values: 0 - 252000.
-> > +  Default: 130000.
-> > +- dlg,impd-micro-ohms: the impedance of the actuator in micro ohm,
->=20
-> "ohms"
-
-I will fix this in v5.
-
->=20
-> > +  as read from its datasheet.
->=20
-> "as read" does not sound english.
-
-I will correct this in v5.
-
->=20
-> > +- dlg,mem-array: use in case that memory registers should be updated,
-> > +  Please fill the whole buffers(100 bytes) to avoid any error in drive=
-r.
-> > +  For example,
-> > +	dlg,mem-array =3D <
-> > +		0x01 0x02 0x03 0x04 0x05 0x06 0x07 0x08 0x09 0x0A
-> > +		...
-> > +		0x71 0x72 0x73 0x74 0x75 0x76 0x77 0x78 0x79 0x7A
-> > +		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-> > +		0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-> > +	>;
->=20
-> I'd not understand what this is from this description. (And I'd put
-> example below... in the exampls section).
-
-I will improve and update the description including the example section in =
-v5.
-
-Regards,
-Roy
-
->=20
-> > +For further information, see device datasheet.
-> > +
-> > +=3D=3D=3D=3D=3D=3D
-> > +
-> > +Example:
-> > +
-> > +	haptics: da7280-haptics@4a {
-> > +		compatible =3D "dlg,da7280";
-> > +		reg =3D <0x4a>;
-> > +		interrupt-parent =3D <&gpio6>;
-> > +		interrupts =3D <11 IRQ_TYPE_LEVEL_LOW>;
-> > +		dlg,vib-mode =3D "LRA-MODE";
-> > +		dlg,op-mode =3D <1>;
-> > +		dlg,nom-microvolt =3D <2000000>;
-> > +		dlg,abs-max-microvolt =3D <2000000>;
-> > +		dlg,imax-microamp =3D <170000>;
-> > +		dlg,resonant-freq-hz =3D <180>;
-> > +		dlg,impd-micro-ohms =3D <10500000>;
-> > +		dlg,freq-track-enable;
-> > +		dlg,rapid-stop-enable;
-> > +	};
->=20
-> --
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures)
-> http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+-- 
+end-of-patch for PATCH V5

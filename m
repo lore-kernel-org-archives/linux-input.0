@@ -1,58 +1,54 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v7 RESEND 1/2] ARM: dts: at91: sama5d2: add channel cells
- for ADC device
-Date: Mon, 27 Aug 2018 16:36:55 +0200
-Message-ID: <20180827143655.GB23428@piout.net>
-References: <1535378233-10901-1-git-send-email-eugen.hristev@microchip.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 2/6] HID: generic: create one input report per
+ application type
+Date: Mon, 27 Aug 2018 17:27:28 +0200
+Message-ID: <CAO-hwJ+pWUwh+enYt=GcJcyJ3rZME6DhrZ3EaY0T7iceHz=Qeg@mail.gmail.com>
+References: <20180424080437.21367-1-benjamin.tissoires@redhat.com>
+ <20180424080437.21367-3-benjamin.tissoires@redhat.com> <CAKdAkRRsca1Q2Ltqr=yyZ-rr7vxkty1cGVYjFB5bcC87UtWDSw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1535378233-10901-1-git-send-email-eugen.hristev@microchip.com>
+In-Reply-To: <CAKdAkRRsca1Q2Ltqr=yyZ-rr7vxkty1cGVYjFB5bcC87UtWDSw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: ludovic.desroches@microchip.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, nicolas.ferre@microchip.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Mario Limonciello <Mario.Limonciello@dell.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On 27/08/2018 16:57:12+0300, Eugen Hristev wrote:
-> Preparing the ADC device to connect channel consumer drivers
-> 
-> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-> ---
-> Resending after merge window that includes the bindings was closed.
-> Rebased on 4.19-rc1 : no changes
-> 
->  arch/arm/boot/dts/sama5d2.dtsi | 2 ++
->  1 file changed, 2 insertions(+)
-> 
+On Fri, Aug 24, 2018 at 5:45 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Benjamin, Jiri,
+>
+> On Tue, Apr 24, 2018 at 1:04 AM Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> >
+> > It is not a good idea to try to fit all types of applications in the
+> > same input report. There are a lot of devices that are needing
+> > the quirk HID_MULTI_INPUT but this quirk doesn't match the actual HID
+> > description as it is based on the report ID.
+> >
+> > Given that most devices with MULTI_INPUT I can think of split nicely
+> > the devices inputs into application, it is a good thing to split the
+> > devices by default based on this assumption.
+> >
+> > Also make hid-multitouch following this rule, to not have to deal
+> > with too many input created.
+> >
+> > While we are at it, fix some checkpatch complaints about converting
+> > 'unsigned' to 'unsigned int'.
+> >
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+>
+> I see a spike of user reports on Bugzilla with HID devices being
+> broken on 4.18 that seem to point to this commit. For example:
+> https://bugzilla.kernel.org/show_bug.cgi?id=200849
 
-I was going to dig those up, applied now, thanks!
+Thanks Dmitry. I have requested logs from the reporters. It is
+possible that the device will get split in 2: one for the pointer and
+one for the buttons, and systemd would have no clue on how to handle
+those cases. Depending on the logs, I'll see how we can fix that in a
+clean way.
 
-> diff --git a/arch/arm/boot/dts/sama5d2.dtsi b/arch/arm/boot/dts/sama5d2.dtsi
-> index 61f68e5..f06ba99 100644
-> --- a/arch/arm/boot/dts/sama5d2.dtsi
-> +++ b/arch/arm/boot/dts/sama5d2.dtsi
-> @@ -47,6 +47,7 @@
->  #include <dt-bindings/dma/at91.h>
->  #include <dt-bindings/interrupt-controller/irq.h>
->  #include <dt-bindings/clock/at91.h>
-> +#include <dt-bindings/iio/adc/at91-sama5d2_adc.h>
->  
->  / {
->  	model = "Atmel SAMA5D2 family SoC";
-> @@ -1437,6 +1438,7 @@
->  				atmel,max-sample-rate-hz = <20000000>;
->  				atmel,startup-time-ms = <4>;
->  				atmel,trigger-edge-type = <IRQ_TYPE_EDGE_RISING>;
-> +				#io-channel-cells = <1>;
->  				status = "disabled";
->  			};
->  
-> -- 
-> 2.7.4
-> 
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Cheers,
+Benjamin

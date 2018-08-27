@@ -1,138 +1,112 @@
-From: Andi Shyti <andi@etezian.org>
-Subject: Re: [PATCH] Input: elants_i2c - Fix sw reset delays
-Date: Mon, 27 Aug 2018 14:51:45 +0300
-Message-ID: <20180827115145.GA1567@jack.zhora.eu>
-References: <20180823231013.254037-1-dbasehore@chromium.org>
- <20180823233028.GC53155@dtor-ws>
- <20180823233211.GD53155@dtor-ws>
- <20180823233424.GE53155@dtor-ws>
- <20180824084933.GA29856@jack.zhora.eu>
- <CAGAzgsqhTbgB2vAYDLMUFvuJ7F4pqHxRp+Xo+iny8g9ghTYM6g@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: add support for Apple Magic Keyboards
+Date: Mon, 27 Aug 2018 14:19:25 +0200
+Message-ID: <CAO-hwJLegX7Uuw8WSErg8W7L0jXj7v2RGiABnrujLonHBYRrog@mail.gmail.com>
+References: <20180823164005.201582-1-seobrien@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAGAzgsqhTbgB2vAYDLMUFvuJ7F4pqHxRp+Xo+iny8g9ghTYM6g@mail.gmail.com>
+In-Reply-To: <20180823164005.201582-1-seobrien@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dbasehore ." <dbasehore@chromium.org>
-Cc: andi@etezian.org, dmitry.torokhov@gmail.com, johnny.chuang@emc.com.tw, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, joe@perches.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, james.chen@emc.com.tw, kt.liao@emc.com.tw
+To: seobrien@chromium.org
+Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dtor@chromium.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Derek,
+Hi Sean,
 
-next time, could you please avoid using html mails when replying
-to the mailing list? They are not clear.
+On Thu, Aug 23, 2018 at 6:40 PM Sean O'Brien <seobrien@chromium.org> wrote:
+>
+> USB device
+>         Vendor 05ac (Apple)
+>         Device 026c (Magic Keyboard with Numeric Keypad)
+>
+> Bluetooth devices
+>         Vendor 004c (Apple)
+>         Device 0267 (Magic Keyboard)
+>         Device 026c (Magic Keyboard with Numeric Keypad)
+>
+> Support already exists for the Magic Keyboard over USB connection.
+> This patch adds support for the Magic Keyboard over Bluetooth
+> connection, and for the Magic Keyboard with Numeric Keypad over
+> Bluetooth and USB connection.
+>
+> Signed-off-by: Sean O'Brien <seobrien@chromium.org>
+> ---
+>
+>  drivers/hid/hid-apple.c  | 9 ++++++++-
+>  drivers/hid/hid-ids.h    | 2 ++
+>  drivers/hid/hid-quirks.c | 3 +++
+>  3 files changed, 13 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> index 25b7bd56ae11..1cb41992aaa1 100644
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
+> @@ -335,7 +335,8 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>                 struct hid_field *field, struct hid_usage *usage,
+>                 unsigned long **bit, int *max)
+>  {
+> -       if (usage->hid == (HID_UP_CUSTOM | 0x0003)) {
+> +       if (usage->hid == (HID_UP_CUSTOM | 0x0003) ||
+> +                       usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
+>                 /* The fn key on Apple USB keyboards */
+>                 set_bit(EV_REP, hi->input->evbit);
+>                 hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
+> @@ -472,6 +473,12 @@ static const struct hid_device_id apple_devices[] = {
+>                 .driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
+>                 .driver_data = APPLE_HAS_FN },
+> +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
+> +               .driver_data = APPLE_HAS_FN },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI),
+> +               .driver_data = APPLE_HAS_FN },
+> +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI),
+> +               .driver_data = APPLE_HAS_FN },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
+>                 .driver_data = APPLE_HAS_FN },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 79bdf0c7e351..5dbe3fb82690 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -88,6 +88,7 @@
+>  #define USB_DEVICE_ID_ANTON_TOUCH_PAD  0x3101
+>
+>  #define USB_VENDOR_ID_APPLE            0x05ac
+> +#define BT_VENDOR_ID_APPLE             0x004c
+>  #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE        0x0304
+>  #define USB_DEVICE_ID_APPLE_MAGICMOUSE 0x030d
+>  #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD      0x030e
+> @@ -157,6 +158,7 @@
+>  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO   0x0256
+>  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS   0x0257
+>  #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI   0x0267
+> +#define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI   0x026c
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI   0x0290
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING8_ISO    0x0291
+>  #define USB_DEVICE_ID_APPLE_WELLSPRING8_JIS    0x0292
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index 249d49b6b16c..a3b3aecf8628 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -270,6 +270,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO) },
+>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
+> +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI) },
+> +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI) },
 
-On Fri, Aug 24, 2018 at 04:07:41PM -0700, dbasehore . wrote:
-> 
-> 
-> On Fri, Aug 24, 2018 at 1:49 AM Andi Shyti <andi@etezian.org> wrote:
-> 
->     Hi Derek,
-> 
->     > > > On Thu, Aug 23, 2018 at 04:10:13PM -0700, Derek Basehore wrote:
->     > > > > We only need to wait 10ms instead of 30ms before starting fastboot
->     or
->     > > > > sending IAP on the touchscreen. Also, instead of delaying everytime
->     > > > > sw_reset is called, this delays 10ms in the function that starts
->     > > > > fastboot. There's also an explicit 20ms delay before sending IAP
->     when
->     > > > > updating the firmware, so no additional delay is needed there. This
->     > > > > change also has the benefit of not delaying when wakeup is enabled
->     > > > > during suspend. This is because sw_reset is called, yet fastboot
->     > > > > isn't.
-> 
->     ...
-> 
->     > > > > -       /*
->     > > > > -        * We should wait at least 10 msec (but no more than 40)
->     before
->     > > > > -        * sending fastboot or IAP command to the device.
->     > > > > -        */
->     > > > > -       msleep(30);
->     > > > > -
-> 
->     moving from 30 to 0 is a bit alarming... what does the datasheet
->     say?
-> 
-> 
-> We're moving from 30msec to 10msec. We used to do this in an older kernel.
+Unless the device doesn't work without this hunk, please drop this
+from the submission. Since v4.16 this is not required anymore and is
+doomed to be removed.
 
-That's not what you are saying in your commit message:
+Cheers,
+Benjamin
 
-  "... This change also has the benefit of not delaying when
-  wakeup is enabled during suspend... "
-
-and indeed, in resume the "elants_i2c_sw_reset()" function would
-be called without any msleep. Or am I missing something? Would
-it be correct based on the datasheet?
-
->  
-> 
-> 
->     Sometimes delays are implicit in the system where you are testing
->     the driver, so that without any msleep it might work in your
->     system but it might not on others.
-> 
->     > +             /*
->     > +              * We should wait at least 10 msec (but no more than 40)
->     before
->     > +              * sending IAP command to the device.
->     > +              */
->     >               msleep(20);
-> 
->     I agree though that it's not nice to wait twice here (even though
->     as Dmitry says it doesn't hurt so much). Wouldn't it make more
->     sense to remove this msleep instead?
->     This way...
-> 
-> 
-> We still need this if the delay is removed from the sw_reset function. We have
-> a total of 20msecs delayed between sw_reset and sending IAP in our old kernel
-> which should be well tested. There seems to be no reason why the delays
-> increased.
-
-Yes, that's what I'm saying, removing this msleep to me looks
-more correct than removing it from sw_reset().
-
->     > +     /*
->     > +      * We should wait at least 10 msec (but no more than 40) before
->     sending
->     > +      * fastboot command to the device.
->     > +      */
->     > +     usleep_range(10 * 1000, 11 * 1000);
->     > +
->     >       error = elants_i2c_send(client, boot_cmd, sizeof(boot_cmd));
-> 
->     ... you do not need to add an extra sleep here.
-> 
-> 
-> I added it here since I removed the 30msec sleep in sw_reset. This prevents us
-> from sleeping on resume when the touch controller is already on for wake up
-> capabilities. This is the same delay that we have in our old 3.8 kernel, so
-> it's pretty well tested and shipped in production.
-
-And here we fall in my first question (and also Dmitry's
-concern), Are we sure we don't need to sleep after resume? Again,
-what does the datasheet say?
-
-I don't know the answer, you might be right, but I need to know
-why you are removing the sleep after resume and why, instead,
-the original developer added it there.
-
-Two more nitpicks on this patch:
-
-1. by adding the usleep_range() outside from the
-elants_i2c_sw_reset() function, to another developer reading the
-code, might not really look clear why we are waiting. The
-comment you copy pasted does not, indeed, refer that we are
-waiting because a reset has been performed and we need to wait
-for the _reset time_ before sending IAP commands.
-
-2. this is a matter of taste: to me "10000" looks more clear than
-"10 * 1000", which doesn't add any better readability of the
-number itself.
-
-Thanks,
-Andi
+>         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+>  #endif
+> --
+> 2.18.0.1017.ga543ac7ca45-goog
+>

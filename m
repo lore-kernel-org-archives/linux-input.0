@@ -1,144 +1,138 @@
-From: Roy Im <roy.im.opensource@diasemi.com>
-Subject: [PATCH V5 2/3] dt-bindings: input: Add document bindings for DA7280
-Date: Mon, 27 Aug 2018 17:21:35 +0900
-Message-ID: <a0aba6fe0b63f5a685743c88e192701731e289ab.1535358095.git.Roy.Im@diasemi.com>
-References: <cover.1535358095.git.Roy.Im@diasemi.com>
+From: Andi Shyti <andi@etezian.org>
+Subject: Re: [PATCH] Input: elants_i2c - Fix sw reset delays
+Date: Mon, 27 Aug 2018 14:51:45 +0300
+Message-ID: <20180827115145.GA1567@jack.zhora.eu>
+References: <20180823231013.254037-1-dbasehore@chromium.org>
+ <20180823233028.GC53155@dtor-ws>
+ <20180823233211.GD53155@dtor-ws>
+ <20180823233424.GE53155@dtor-ws>
+ <20180824084933.GA29856@jack.zhora.eu>
+ <CAGAzgsqhTbgB2vAYDLMUFvuJ7F4pqHxRp+Xo+iny8g9ghTYM6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1535358095.git.Roy.Im@diasemi.com>
+Content-Disposition: inline
+In-Reply-To: <CAGAzgsqhTbgB2vAYDLMUFvuJ7F4pqHxRp+Xo+iny8g9ghTYM6g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "dbasehore ." <dbasehore@chromium.org>
+Cc: andi@etezian.org, dmitry.torokhov@gmail.com, johnny.chuang@emc.com.tw, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, joe@perches.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, james.chen@emc.com.tw, kt.liao@emc.com.tw
 List-Id: linux-input@vger.kernel.org
 
+Hi Derek,
 
-Add device tree binding information for DA7280 haptic driver.
-Example bindings for DA7280 are added.
+next time, could you please avoid using html mails when replying
+to the mailing list? They are not clear.
 
-Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
+On Fri, Aug 24, 2018 at 04:07:41PM -0700, dbasehore . wrote:
+> 
+> 
+> On Fri, Aug 24, 2018 at 1:49 AM Andi Shyti <andi@etezian.org> wrote:
+> 
+>     Hi Derek,
+> 
+>     > > > On Thu, Aug 23, 2018 at 04:10:13PM -0700, Derek Basehore wrote:
+>     > > > > We only need to wait 10ms instead of 30ms before starting fastboot
+>     or
+>     > > > > sending IAP on the touchscreen. Also, instead of delaying everytime
+>     > > > > sw_reset is called, this delays 10ms in the function that starts
+>     > > > > fastboot. There's also an explicit 20ms delay before sending IAP
+>     when
+>     > > > > updating the firmware, so no additional delay is needed there. This
+>     > > > > change also has the benefit of not delaying when wakeup is enabled
+>     > > > > during suspend. This is because sw_reset is called, yet fastboot
+>     > > > > isn't.
+> 
+>     ...
+> 
+>     > > > > -       /*
+>     > > > > -        * We should wait at least 10 msec (but no more than 40)
+>     before
+>     > > > > -        * sending fastboot or IAP command to the device.
+>     > > > > -        */
+>     > > > > -       msleep(30);
+>     > > > > -
+> 
+>     moving from 30 to 0 is a bit alarming... what does the datasheet
+>     say?
+> 
+> 
+> We're moving from 30msec to 10msec. We used to do this in an older kernel.
 
----
-v5: Updated descriptions and fixed errors.
-v4: Fixed commit message, properties.
-v3: Fixed subject format.
-v2: No changes
+That's not what you are saying in your commit message:
 
+  "... This change also has the benefit of not delaying when
+  wakeup is enabled during suspend... "
 
- .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++++++++++++++++++++
- 1 file changed, 105 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+and indeed, in resume the "elants_i2c_sw_reset()" function would
+be called without any msleep. Or am I missing something? Would
+it be correct based on the datasheet?
 
-diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.txt b/Documentation/devicetree/bindings/input/dlg,da7280.txt
-new file mode 100644
-index 0000000..a25a12f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/dlg,da7280.txt
-@@ -0,0 +1,105 @@
-+Dialog Semiconductor DA7280 Haptics bindings
-+
-+Required properties:
-+- compatible: Should be "dlg,da7280".
-+- reg: Specifies the I2C slave address.
-+
-+- interrupt-parent : Specifies the phandle of the interrupt controller to
-+  which the IRQs from DA7280 are delivered to.
-+
-+- dlg,actuator-type: Set Actuator type. it should be one of:
-+  "LRA" - Linear Resonance Actuator type.
-+  "ERM-bar" - Bar type Eccentric Rotating Mass.
-+  "ERM-coin" - Coin type Eccentric Rotating Mass.
-+
-+- dlg,op-mode: Haptic operation mode.
-+  Possible values:
-+	1 - Direct register override(DRO) mode triggered by i2c(default),
-+	2 - PWM data source mode controlled by PWM duty,
-+	3 - Register triggered waveform memory(RTWM) mode, the pattern
-+	    assigned to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
-+	4 - Edge triggered waveform memory(ETWM) mode, external GPI(N)
-+	    control are required to enable/disable and it needs to keep
-+	    device enabled by sending magnitude (X > 0),
-+	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below.
-+	For more details, please see the datasheet.
-+
-+- dlg,nom-microvolt: Nominal actuator voltage rating.
-+  Valid values: 0 - 6000000.
-+- dlg,abs-max-microvolt: Absolute actuator maximum voltage rating.
-+  Valid values: 0 - 6000000.
-+- dlg,imax-microamp: Actuator max current rating.
-+  Valid values: 0 - 252000.
-+  Default: 130000.
-+- dlg,impd-micro-ohms: the impedance of the actuator in micro ohms.
-+  Valid values: 0 - 1500000000.
-+
-+Optional properties:
-+- pwms : phandle to the physical PWM(Pulse Width Modulation) device.
-+  PWM properties should be named "pwms". And number of cell is different
-+  for each pwm device.
-+  (See Documentation/devicetree/bindings/pwm/pwm.txt
-+   for further information relating to pwm properties)
-+
-+- dlg,ps-seq-id: the PS_SEQ_ID(pattern ID in waveform memory inside chip)
-+  to play back when RTWM-MODE is enabled.
-+  Valid range: 0 - 15.
-+- dlg,ps-seq-loop: the PS_SEQ_LOOP, Number of times the pre-stored sequence
-+  pointed to by PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated.
-+  Valid range: 0 - 15.
-+- dlg,gpiN-seq-id: the GPI(N)_SEQUENCE_ID, pattern to play
-+  when gpi0 is triggered, 'N' must be 0 - 2.
-+  Valid range: 0 - 15.
-+- dlg,gpiN-mode: the pattern mode which can select either
-+  "Single-pattern" or "Multi-pattern", 'N' must be 0 - 2.
-+- dlg,gpiN-polarity: gpiN polarity which can be chosen among
-+  "Rising-edge", "Falling-edge" and "Both-edge",
-+  'N' must be 0 - 2
-+  Haptic will work by this edge option in case of ETWM mode.
-+
-+- dlg,resonant-freq-hz: use in case of LRA.
-+  the frequency range: 50 - 300.
-+  Default: 205.
-+
-+- dlg,bemf-sens-enable: Enable for internal loop computations.
-+- dlg,freq-track-enable: Enable for resonant frequency tracking.
-+- dlg,acc-enable: Enable for active acceleration.
-+- dlg,rapid-stop-enable: Enable for rapid stop.
-+- dlg,amp-pid-enable: Enable for the amplitude PID.
-+- dlg,mem-array: Customized waveform memory(patterns) data downloaded to
-+  the device during initialization. This is an array of 100 values(u8).
-+
-+For further information, see device datasheet.
-+
-+======
-+
-+Example:
-+
-+	haptics: da7280-haptics@4a {
-+		compatible = "dlg,da7280";
-+		reg = <0x4a>;
-+		interrupt-parent = <&gpio6>;
-+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+		dlg,actuator-type = "LRA";
-+		dlg,op-mode = <1>;
-+		dlg,nom-microvolt = <2000000>;
-+		dlg,abs-max-microvolt = <2000000>;
-+		dlg,imax-microamp = <170000>;
-+		dlg,resonant-freq-hz = <180>;
-+		dlg,impd-micro-ohms = <10500000>;
-+		dlg,freq-track-enable;
-+		dlg,rapid-stop-enable;
-+		dlg,mem-array = <
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+ 		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+		>;
-+
-+	};
--- 
-end-of-patch for PATCH V5
+>  
+> 
+> 
+>     Sometimes delays are implicit in the system where you are testing
+>     the driver, so that without any msleep it might work in your
+>     system but it might not on others.
+> 
+>     > +             /*
+>     > +              * We should wait at least 10 msec (but no more than 40)
+>     before
+>     > +              * sending IAP command to the device.
+>     > +              */
+>     >               msleep(20);
+> 
+>     I agree though that it's not nice to wait twice here (even though
+>     as Dmitry says it doesn't hurt so much). Wouldn't it make more
+>     sense to remove this msleep instead?
+>     This way...
+> 
+> 
+> We still need this if the delay is removed from the sw_reset function. We have
+> a total of 20msecs delayed between sw_reset and sending IAP in our old kernel
+> which should be well tested. There seems to be no reason why the delays
+> increased.
+
+Yes, that's what I'm saying, removing this msleep to me looks
+more correct than removing it from sw_reset().
+
+>     > +     /*
+>     > +      * We should wait at least 10 msec (but no more than 40) before
+>     sending
+>     > +      * fastboot command to the device.
+>     > +      */
+>     > +     usleep_range(10 * 1000, 11 * 1000);
+>     > +
+>     >       error = elants_i2c_send(client, boot_cmd, sizeof(boot_cmd));
+> 
+>     ... you do not need to add an extra sleep here.
+> 
+> 
+> I added it here since I removed the 30msec sleep in sw_reset. This prevents us
+> from sleeping on resume when the touch controller is already on for wake up
+> capabilities. This is the same delay that we have in our old 3.8 kernel, so
+> it's pretty well tested and shipped in production.
+
+And here we fall in my first question (and also Dmitry's
+concern), Are we sure we don't need to sleep after resume? Again,
+what does the datasheet say?
+
+I don't know the answer, you might be right, but I need to know
+why you are removing the sleep after resume and why, instead,
+the original developer added it there.
+
+Two more nitpicks on this patch:
+
+1. by adding the usleep_range() outside from the
+elants_i2c_sw_reset() function, to another developer reading the
+code, might not really look clear why we are waiting. The
+comment you copy pasted does not, indeed, refer that we are
+waiting because a reset has been performed and we need to wait
+for the _reset time_ before sending IAP commands.
+
+2. this is a matter of taste: to me "10000" looks more clear than
+"10 * 1000", which doesn't add any better readability of the
+number itself.
+
+Thanks,
+Andi

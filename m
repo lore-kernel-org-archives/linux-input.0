@@ -1,479 +1,584 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: add support for Apple Magic Trackpad 2
-Date: Tue, 28 Aug 2018 10:05:56 +0200
-Message-ID: <CAO-hwJLdWNhSiy0bbpAW8SuCHK7gDFMmj=zzAfjte10S9agrPw@mail.gmail.com>
-References: <20180828012925.11863-1-seobrien@chromium.org>
+Subject: Re: [PATCH 3/3] Enable high-resolution scrolling on Logitech mice
+Date: Tue, 28 Aug 2018 10:47:02 +0200
+Message-ID: <CAO-hwJ+rR8ft96AGjoEApr1ZkythKfcxjVzdULzgpRy-aRv_vg@mail.gmail.com>
+References: <20180823183057.247630-1-hcutts@chromium.org> <20180823183057.247630-4-hcutts@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180828012925.11863-1-seobrien@chromium.org>
+In-Reply-To: <20180823183057.247630-4-hcutts@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: seobrien@chromium.org
-Cc: marek.wyborski@emwesoft.com, lkml <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Jiri Kosina <jikos@kernel.org>, claudio@ponyfleisch.ch
+To: hcutts@chromium.org
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, jiri.kosina@suse.cz, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Sean,
+Hi Harry,
 
-On Tue, Aug 28, 2018 at 3:29 AM Sean O'Brien <seobrien@chromium.org> wrote:
+On Thu, Aug 23, 2018 at 8:31 PM Harry Cutts <hcutts@chromium.org> wrote:
 >
-> USB device
->         Vendor 05ac (Apple)
->         Device 0265 (Magic Trackpad 2)
-> Bluetooth device
->         Vendor 004c (Apple)
->         Device 0265 (Magic Trackpad 2)
+> There are three features used by various Logitech mice for
+> high-resolution scrolling: the fast scrolling bit in HID++ 1.0, and the
+> x2120 and x2121 features in HID++ 2.0 and above. This patch supports
+> all three, and uses the multiplier reported by the mouse for the HID++
+> 2.0+ features.
 >
-> Add support for Apple Magic Trackpad 2 over USB and bluetooth, putting
-> the device in multi-touch mode.
+> The full list of product IDs of mice which support high-resolution
+> scrolling was provided by Logitech, but the patch was tested using the
+> following mice (over both Bluetooth and Unifying where applicable):
 >
-> Signed-off-by: Claudio Mettler <claudio@ponyfleisch.ch>
-> Signed-off-by: Marek Wyborski <marek.wyborski@emwesoft.com>
-> Signed-off-by: Sean O'Brien <seobrien@chromium.org>
+> * HID++ 1.0: Anywhere MX, Performance MX
+> * x2120: M560
+> * x2121: MX Anywhere 2, MX Master 2S
+>
+> Signed-off-by: Harry Cutts <hcutts@chromium.org>
+
+Patches 1 and 2 look fine (I'd rather have the micrometers too).
+I have more concerns about this one.
+My main issue is that this patch both reshuffle existing parts and add
+new features, which makes it hard to review.
+
 > ---
-
-A few nitpicks, otherwise looks good. I must confess this driver is
-depressing and we could surely simplify it a lot by rewriting their
-report descriptors.
-
 >
->  drivers/hid/hid-ids.h        |   2 +
->  drivers/hid/hid-magicmouse.c | 187 ++++++++++++++++++++++++++++-------
->  2 files changed, 152 insertions(+), 37 deletions(-)
+>  drivers/hid/hid-ids.h            |  15 ++
+>  drivers/hid/hid-logitech-hidpp.c | 341 ++++++++++++++++++++++++++++---
+>  drivers/hid/hid-quirks.c         |  11 +
+>  3 files changed, 340 insertions(+), 27 deletions(-)
 >
 > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 79bdf0c7e351..d6d0b20cc015 100644
+> index 79bdf0c7e351..64fbe6174189 100644
 > --- a/drivers/hid/hid-ids.h
 > +++ b/drivers/hid/hid-ids.h
-> @@ -88,9 +88,11 @@
->  #define USB_DEVICE_ID_ANTON_TOUCH_PAD  0x3101
->
->  #define USB_VENDOR_ID_APPLE            0x05ac
-> +#define BT_VENDOR_ID_APPLE             0x004c
->  #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE        0x0304
->  #define USB_DEVICE_ID_APPLE_MAGICMOUSE 0x030d
->  #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD      0x030e
-> +#define USB_DEVICE_ID_APPLE_MAGICTRACKPAD2     0x0265
->  #define USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI      0x020e
->  #define USB_DEVICE_ID_APPLE_FOUNTAIN_ISO       0x020f
->  #define USB_DEVICE_ID_APPLE_GEYSER_ANSI        0x0214
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index b454c4386157..34152d2d2221 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -19,6 +19,7 @@
->  #include <linux/input/mt.h>
->  #include <linux/module.h>
->  #include <linux/slab.h>
-> +#include <linux/usb/input.h>
-
-Please don't. HID should not directly use the transport layer as it
-will break any attempt to replay the devices through uhid.
-
->
->  #include "hid-ids.h"
->
-> @@ -54,6 +55,8 @@ module_param(report_undeciphered, bool, 0644);
->  MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
->
->  #define TRACKPAD_REPORT_ID 0x28
-> +#define TRACKPAD2_USB_REPORT_ID 0x02
-> +#define TRACKPAD2_BT_REPORT_ID 0x31
->  #define MOUSE_REPORT_ID    0x29
->  #define DOUBLE_REPORT_ID   0xf7
->  /* These definitions are not precise, but they're close enough.  (Bits
-> @@ -91,6 +94,19 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
->  #define TRACKPAD_RES_Y \
->         ((TRACKPAD_MAX_Y - TRACKPAD_MIN_Y) / (TRACKPAD_DIMENSION_Y / 100))
->
-> +#define TRACKPAD2_DIMENSION_X (float)16000
-> +#define TRACKPAD2_MIN_X -3678
-> +#define TRACKPAD2_MAX_X 3934
-> +#define TRACKPAD2_RES_X \
-> +       ((TRACKPAD2_MAX_X - TRACKPAD2_MIN_X) / (TRACKPAD2_DIMENSION_X / 100))
-> +#define TRACKPAD2_DIMENSION_Y (float)11490
-> +#define TRACKPAD2_MIN_Y -2478
-> +#define TRACKPAD2_MAX_Y 2587
-> +#define TRACKPAD2_RES_Y \
-> +       ((TRACKPAD2_MAX_Y - TRACKPAD2_MIN_Y) / (TRACKPAD2_DIMENSION_Y / 100))
+> @@ -717,6 +717,21 @@
+>  #define USB_DEVICE_ID_LOGITECH_MOUSE_C01A      0xc01a
+>  #define USB_DEVICE_ID_LOGITECH_MOUSE_C05A      0xc05a
+>  #define USB_DEVICE_ID_LOGITECH_MOUSE_C06A      0xc06a
+> +/*
+> + * The following mice have different IDs over Bluetooth than Logitech Unifying
+> + * protocol, hence the _BT suffix.
+> + */
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_M336_337_535_BT1  0xb014
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_M336_337_535_BT2  0xb016
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_M720_BT           0xb015
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT1 0xb013
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT2 0xb018
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT3 0xb01f
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2S_BT 0xb01a
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT1     0xb012
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT2     0xb017
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT3     0xb01e
+> +#define USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_2S_BT   0xb019
+>  #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD  0xc20a
+>  #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD       0xc211
+>  #define USB_DEVICE_ID_LOGITECH_EXTREME_3D      0xc215
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 19cc980eebce..17598b87f1b7 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -64,6 +64,14 @@ MODULE_PARM_DESC(disable_tap_to_click,
+>  #define HIDPP_QUIRK_NO_HIDINPUT                        BIT(23)
+>  #define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS       BIT(24)
+>  #define HIDPP_QUIRK_UNIFYING                   BIT(25)
+> +#define HIDPP_QUIRK_HI_RES_SCROLL_1P0          BIT(26)
+> +#define HIDPP_QUIRK_HI_RES_SCROLL_X2120                BIT(27)
+> +#define HIDPP_QUIRK_HI_RES_SCROLL_X2121                BIT(28)
 > +
-> +#define MAX_TOUCHES            16
-> +
->  /**
->   * struct magicmouse_sc - Tracks Magic Mouse-specific data.
->   * @input: Input device through which we report events.
-> @@ -115,8 +131,8 @@ struct magicmouse_sc {
->                 short scroll_x;
->                 short scroll_y;
->                 u8 size;
-> -       } touches[16];
-> -       int tracking_ids[16];
-> +       } touches[MAX_TOUCHES];
-> +       int tracking_ids[MAX_TOUCHES];
+> +/* Convenience constant to check for any high-res support. */
+> +#define HIDPP_QUIRK_HI_RES_SCROLL      (HIDPP_QUIRK_HI_RES_SCROLL_1P0 | \
+> +                                        HIDPP_QUIRK_HI_RES_SCROLL_X2120 | \
+> +                                        HIDPP_QUIRK_HI_RES_SCROLL_X2121)
+>
+>  #define HIDPP_QUIRK_DELAYED_INIT               HIDPP_QUIRK_NO_HIDINPUT
+>
+> @@ -149,6 +157,7 @@ struct hidpp_device {
+>         unsigned long capabilities;
+>
+>         struct hidpp_battery battery;
+> +       struct hid_scroll_counter vertical_wheel_counter;
 >  };
 >
->  static int magicmouse_firm_touch(struct magicmouse_sc *msc)
-> @@ -183,6 +199,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->  {
->         struct input_dev *input = msc->input;
->         int id, x, y, size, orientation, touch_major, touch_minor, state, down;
-> +       int pressure = 0;
+>  /* HID++ 1.0 error codes */
+> @@ -400,32 +409,53 @@ static void hidpp_prefix_name(char **name, int name_length)
+>  #define HIDPP_SET_LONG_REGISTER                                0x82
+>  #define HIDPP_GET_LONG_REGISTER                                0x83
 >
->         if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
->                 id = (tdata[6] << 2 | tdata[5] >> 6) & 0xf;
-> @@ -194,7 +211,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->                 touch_minor = tdata[4];
->                 state = tdata[7] & TOUCH_STATE_MASK;
->                 down = state != TOUCH_STATE_NONE;
-> -       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +       } else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD) {
->                 id = (tdata[7] << 2 | tdata[6] >> 6) & 0xf;
->                 x = (tdata[1] << 27 | tdata[0] << 19) >> 19;
->                 y = -((tdata[3] << 30 | tdata[2] << 22 | tdata[1] << 14) >> 19);
-> @@ -204,6 +221,17 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->                 touch_minor = tdata[5];
->                 state = tdata[8] & TOUCH_STATE_MASK;
->                 down = state != TOUCH_STATE_NONE;
-> +       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 */
-> +               id = tdata[8] & 0xf;
-> +               x = (tdata[1] << 27 | tdata[0] << 19) >> 19;
-> +               y = -((tdata[3] << 30 | tdata[2] << 22 | tdata[1] << 14) >> 19);
-> +               size = tdata[6];
-> +               orientation = (tdata[8] >> 5) - 4;
-> +               touch_major = tdata[4];
-> +               touch_minor = tdata[5];
-> +               pressure = tdata[7];
-> +               state = tdata[3] & 0xC0;
-> +               down = state == 0x80;
->         }
->
->         /* Store tracking ID and other fields. */
-> @@ -215,7 +243,8 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->         /* If requested, emulate a scroll wheel by detecting small
->          * vertical touch motions.
->          */
-> -       if (emulate_scroll_wheel) {
-> +       if (emulate_scroll_wheel &&
-> +                       (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE)) {
->                 unsigned long now = jiffies;
->                 int step_x = msc->touches[id].scroll_x - x;
->                 int step_y = msc->touches[id].scroll_y - y;
-> @@ -258,7 +287,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->         if (down)
->                 msc->ntouches++;
->
-> -       input_mt_slot(input, id);
-> +       input_mt_slot(input, input_mt_get_slot_by_key(input, id));
->         input_mt_report_slot_state(input, MT_TOOL_FINGER, down);
->
->         /* Generate the input events for this touch. */
-> @@ -269,10 +298,14 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->                 input_report_abs(input, ABS_MT_POSITION_X, x);
->                 input_report_abs(input, ABS_MT_POSITION_Y, y);
->
-> +               if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2)
-> +                       input_report_abs(input, ABS_MT_PRESSURE, pressure + 30);
-
-I'd rather not have the magic '+ 30' here. Please add it when
-processing USB_DEVICE_ID_APPLE_MAGICTRACKPAD2, and also explain where
-this constant comes from.
-
-> +
->                 if (report_undeciphered) {
->                         if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
->                                 input_event(input, EV_MSC, MSC_RAW, tdata[7]);
-> -                       else /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +                       else if (input->id.product ==
-> +                                       USB_DEVICE_ID_APPLE_MAGICTRACKPAD)
->                                 input_event(input, EV_MSC, MSC_RAW, tdata[8]);
->                 }
->         }
-> @@ -283,14 +316,23 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->  {
->         struct magicmouse_sc *msc = hid_get_drvdata(hdev);
->         struct input_dev *input = msc->input;
-> -       int x = 0, y = 0, ii, clicks = 0, npoints;
-> +       int x = 0, y = 0, ii, clicks = 0, npoints, prefix_size;
->
->         switch (data[0]) {
->         case TRACKPAD_REPORT_ID:
-> -               /* Expect four bytes of prefix, and N*9 bytes of touch data. */
-> -               if (size < 4 || ((size - 4) % 9) != 0)
-> +       case TRACKPAD2_BT_REPORT_ID:
-> +       case TRACKPAD2_USB_REPORT_ID:
-> +               /* Expect four or twelve bytes of prefix, and N*9 bytes of
-> +                * touch data.
-> +                */
-> +               if (data[0] == TRACKPAD_REPORT_ID ||
-> +                               data[0] == TRACKPAD2_BT_REPORT_ID)
-> +                       prefix_size = 4;
-> +               else /*TRACKPAD2_USB_REPORT_ID*/
-> +                       prefix_size = 12;
-> +               if (size < prefix_size || ((size - prefix_size) % 9) != 0)
->                         return 0;
-> -               npoints = (size - 4) / 9;
-> +               npoints = (size - prefix_size) / 9;
->                 if (npoints > 15) {
->                         hid_warn(hdev, "invalid size value (%d) for TRACKPAD_REPORT_ID\n",
->                                         size);
-> @@ -298,15 +340,10 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->                 }
->                 msc->ntouches = 0;
->                 for (ii = 0; ii < npoints; ii++)
-> -                       magicmouse_emit_touch(msc, ii, data + ii * 9 + 4);
-> +                       magicmouse_emit_touch(msc, ii,
-> +                                       data + ii * 9 + prefix_size);
->
->                 clicks = data[1];
+> -#define HIDPP_REG_GENERAL                              0x00
 > -
-> -               /* The following bits provide a device specific timestamp. They
-> -                * are unused here.
-> -                *
-> -                * ts = data[1] >> 6 | data[2] << 2 | data[3] << 10;
-> -                */
->                 break;
->         case MOUSE_REPORT_ID:
->                 /* Expect six bytes of prefix, and N*8 bytes of touch data. */
-> @@ -352,9 +389,12 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->                 magicmouse_emit_buttons(msc, clicks & 3);
->                 input_report_rel(input, REL_X, x);
->                 input_report_rel(input, REL_Y, y);
-> -       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +       } else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD) {
->                 input_report_key(input, BTN_MOUSE, clicks & 1);
->                 input_mt_report_pointer_emulation(input, true);
-> +       } else /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 */ {
-> +               input_mt_sync_frame(input);
-> +               input_report_key(input, BTN_MOUSE, clicks & 1);
->         }
->
->         input_sync(input);
-> @@ -364,6 +404,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->  static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hdev)
+> -static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
+> +/**
+> + * hidpp10_set_register_bit() - Sets a single bit in a HID++ 1.0 register.
+> + * @hidpp_dev: the device to set the register on.
+> + * @register_address: the address of the register to modify.
+> + * @byte: the byte of the register to modify. Should be less than 3.
+> + * Return: 0 if successful, otherwise a negative error code.
+> + */
+> +static int hidpp10_set_register_bit(struct hidpp_device *hidpp_dev,
+> +       u8 register_address, u8 byte, u8 bit)
 >  {
->         int error;
-> +       int mt_flags = 0;
->
->         __set_bit(EV_KEY, input->evbit);
->
-> @@ -380,7 +421,7 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->                         __set_bit(REL_WHEEL, input->relbit);
->                         __set_bit(REL_HWHEEL, input->relbit);
->                 }
-> -       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +       } else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD) {
->                 /* input->keybit is initialized with incorrect button info
->                  * for Magic Trackpad. There really is only one physical
->                  * button (BTN_LEFT == BTN_MOUSE). Make sure we don't
-> @@ -397,19 +438,35 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->                 __set_bit(BTN_TOUCH, input->keybit);
->                 __set_bit(INPUT_PROP_POINTER, input->propbit);
->                 __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> +       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) */
-> +
-> +               /* setting the device name to ensure the same driver settings
-> +                * get loaded, whether connected through bluetooth or USB
-> +                */
-> +               input->name = "Apple Inc. Magic Trackpad 2";
-> +
-> +               __clear_bit(EV_MSC, input->evbit);
-> +               __clear_bit(BTN_0, input->keybit);
-> +               __clear_bit(BTN_RIGHT, input->keybit);
-> +               __clear_bit(BTN_MIDDLE, input->keybit);
-> +               __set_bit(BTN_MOUSE, input->keybit);
-> +               __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> +               __set_bit(BTN_TOOL_FINGER, input->keybit);
-> +
-> +               mt_flags = INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED |
-> +                               INPUT_MT_TRACK;
->         }
->
->
->         __set_bit(EV_ABS, input->evbit);
->
-> -       error = input_mt_init_slots(input, 16, 0);
-> +       error = input_mt_init_slots(input, MAX_TOUCHES, mt_flags);
->         if (error)
->                 return error;
->         input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
->                              4, 0);
->         input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
->                              4, 0);
-> -       input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
->
->         /* Note: Touch Y position from the device is inverted relative
->          * to how pointer motion is reported (and relative to how USB
-> @@ -418,6 +475,7 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->          * inverse of the reported Y.
->          */
->         if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
-> +               input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
->                 input_set_abs_params(input, ABS_MT_POSITION_X,
->                                      MOUSE_MIN_X, MOUSE_MAX_X, 4, 0);
->                 input_set_abs_params(input, ABS_MT_POSITION_Y,
-> @@ -427,7 +485,8 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->                                   MOUSE_RES_X);
->                 input_abs_set_res(input, ABS_MT_POSITION_Y,
->                                   MOUSE_RES_Y);
-> -       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +       } else if (input->id.product ==  USB_DEVICE_ID_APPLE_MAGICTRACKPAD) {
-> +               input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
->                 input_set_abs_params(input, ABS_X, TRACKPAD_MIN_X,
->                                      TRACKPAD_MAX_X, 4, 0);
->                 input_set_abs_params(input, ABS_Y, TRACKPAD_MIN_Y,
-> @@ -443,11 +502,29 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->                                   TRACKPAD_RES_X);
->                 input_abs_set_res(input, ABS_MT_POSITION_Y,
->                                   TRACKPAD_RES_Y);
-> +       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 */
-> +               input_set_abs_params(input, ABS_MT_PRESSURE, 0, 283, 0, 0);
-> +               input_set_abs_params(input, ABS_PRESSURE, 0, 283, 0, 0);
-> +               input_set_abs_params(input, ABS_MT_ORIENTATION, -3, 4, 0, 0);
-> +               input_set_abs_params(input, ABS_X, TRACKPAD2_MIN_X,
-> +                                    TRACKPAD2_MAX_X, 0, 0);
-> +               input_set_abs_params(input, ABS_Y, TRACKPAD2_MIN_Y,
-> +                                    TRACKPAD2_MAX_Y, 0, 0);
-> +               input_set_abs_params(input, ABS_MT_POSITION_X,
-> +                                    TRACKPAD2_MIN_X, TRACKPAD2_MAX_X, 0, 0);
-> +               input_set_abs_params(input, ABS_MT_POSITION_Y,
-> +                                    TRACKPAD2_MIN_Y, TRACKPAD2_MAX_Y, 0, 0);
-> +
-> +               input_abs_set_res(input, ABS_X, TRACKPAD2_RES_X);
-> +               input_abs_set_res(input, ABS_Y, TRACKPAD2_RES_Y);
-> +               input_abs_set_res(input, ABS_MT_POSITION_X, TRACKPAD2_RES_X);
-> +               input_abs_set_res(input, ABS_MT_POSITION_Y, TRACKPAD2_RES_Y);
->         }
->
->         input_set_events_per_packet(input, 60);
->
-> -       if (report_undeciphered) {
-> +       if (report_undeciphered &&
-> +           input->id.product != USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
->                 __set_bit(EV_MSC, input->evbit);
->                 __set_bit(MSC_RAW, input->mscbit);
->         }
-> @@ -465,7 +542,8 @@ static int magicmouse_input_mapping(struct hid_device *hdev,
->                 msc->input = hi->input;
->
->         /* Magic Trackpad does not give relative data after switching to MT */
-> -       if (hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD &&
-> +       if ((hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD ||
-> +            hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) &&
->             field->flags & HID_MAIN_ITEM_RELATIVE)
->                 return -1;
->
-> @@ -494,11 +572,22 @@ static int magicmouse_input_configured(struct hid_device *hdev,
->  static int magicmouse_probe(struct hid_device *hdev,
->         const struct hid_device_id *id)
->  {
-> -       const u8 feature[] = { 0xd7, 0x01 };
-> -       u8 *buf;
-> +       __u8 feature_mt[] = { 0xD7, 0x01 };
-> +       __u8 feature_mt_trackpad2_usb[] = { 0x02, 0x01 };
-> +       __u8 feature_mt_trackpad2_bt[] = { 0xF1, 0x02, 0x01 };
-> +       __u8 *feature;
->         struct magicmouse_sc *msc;
->         struct hid_report *report;
+>         struct hidpp_report response;
 >         int ret;
-> +       int feature_size;
-> +       struct usb_interface *intf;
+>         u8 params[3] = { 0 };
+>
+>         ret = hidpp_send_rap_command_sync(hidpp_dev,
+> -                                       REPORT_ID_HIDPP_SHORT,
+> -                                       HIDPP_GET_REGISTER,
+> -                                       HIDPP_REG_GENERAL,
+> -                                       NULL, 0, &response);
+> +                                         REPORT_ID_HIDPP_SHORT,
+> +                                         HIDPP_GET_REGISTER,
+> +                                         register_address,
+> +                                         NULL, 0, &response);
+>         if (ret)
+>                 return ret;
+>
+>         memcpy(params, response.rap.params, 3);
+>
+> -       /* Set the battery bit */
+> -       params[0] |= BIT(4);
+> +       params[byte] |= BIT(bit);
+>
+>         return hidpp_send_rap_command_sync(hidpp_dev,
+> -                                       REPORT_ID_HIDPP_SHORT,
+> -                                       HIDPP_SET_REGISTER,
+> -                                       HIDPP_REG_GENERAL,
+> -                                       params, 3, &response);
+> +                                          REPORT_ID_HIDPP_SHORT,
+> +                                          HIDPP_SET_REGISTER,
+> +                                          register_address,
+> +                                          params, 3, &response);
+> +}
 > +
-> +       if (id->vendor == USB_VENDOR_ID_APPLE &&
-> +           id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-> +               intf = to_usb_interface(hdev->dev.parent);
-> +               if (intf->cur_altsetting->desc.bInterfaceNumber != 1)
+> +
+> +#define HIDPP_REG_GENERAL                              0x00
+> +
+> +static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
+> +{
+> +       return hidpp10_set_register_bit(hidpp_dev, HIDPP_REG_GENERAL, 0, 4);
+> +}
 
-As mentioned at the beginning, can you detect this based on the
-application of the HID device, or the usage? It would allow to replay
-the device without crashing the entire system. Worth case, if the
-application can't help you here, looking at the report descriptor
-should provide the information.
+This hunk should be dealt in a separate patch (including the one function below)
 
-> +                       return 0;
-> +       }
+> +
+> +#define HIDPP_REG_FEATURES                             0x01
+> +
+> +/* On HID++ 1.0 devices, high-res scrolling was called "fast scrolling". */
+> +static int hidpp10_enable_fast_scrolling(struct hidpp_device *hidpp_dev)
+> +{
+> +       return hidpp10_set_register_bit(hidpp_dev, HIDPP_REG_FEATURES, 0, 6);
+>  }
 >
->         msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
->         if (msc == NULL) {
-> @@ -532,11 +621,18 @@ static int magicmouse_probe(struct hid_device *hdev,
->         if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
->                 report = hid_register_report(hdev, HID_INPUT_REPORT,
->                         MOUSE_REPORT_ID, 0);
-> -       else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +       else if (id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD) {
->                 report = hid_register_report(hdev, HID_INPUT_REPORT,
->                         TRACKPAD_REPORT_ID, 0);
->                 report = hid_register_report(hdev, HID_INPUT_REPORT,
->                         DOUBLE_REPORT_ID, 0);
-> +       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 */
-> +               if (id->vendor == BT_VENDOR_ID_APPLE)
-> +                       report = hid_register_report(hdev, HID_INPUT_REPORT,
-> +                               TRACKPAD2_BT_REPORT_ID, 0);
-> +               else /* USB_VENDOR_ID_APPLE */
-> +                       report = hid_register_report(hdev, HID_INPUT_REPORT,
-> +                               TRACKPAD2_USB_REPORT_ID, 0);
+>  #define HIDPP_REG_BATTERY_STATUS                       0x07
+> @@ -1136,6 +1166,101 @@ static int hidpp_battery_get_property(struct power_supply *psy,
+>         return ret;
+>  }
+>
+> +/* -------------------------------------------------------------------------- */
+> +/* 0x2120: Hi-resolution scrolling                                            */
+> +/* -------------------------------------------------------------------------- */
+> +
+> +#define HIDPP_PAGE_HI_RESOLUTION_SCROLLING                     0x2120
+> +
+> +#define CMD_HI_RESOLUTION_SCROLLING_SET_HIGHRES_SCROLLING_MODE 0x10
+> +
+> +static int hidpp_hrs_set_highres_scrolling_mode(struct hidpp_device *hidpp,
+> +       bool enabled, u8 *multiplier)
+> +{
+> +       u8 feature_index;
+> +       u8 feature_type;
+> +       int ret;
+> +       u8 params[1];
+> +       struct hidpp_report response;
+> +
+> +       ret = hidpp_root_get_feature(hidpp,
+> +                                    HIDPP_PAGE_HI_RESOLUTION_SCROLLING,
+> +                                    &feature_index,
+> +                                    &feature_type);
+> +       if (ret)
+> +               return ret;
+> +
+> +       params[0] = enabled ? BIT(0) : 0;
+> +       ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+> +                                         CMD_HI_RESOLUTION_SCROLLING_SET_HIGHRES_SCROLLING_MODE,
+> +                                         params, sizeof(params), &response);
+> +       if (ret)
+> +               return ret;
+> +       *multiplier = response.fap.params[1];
+> +       return 0;
+> +}
+> +
+> +/* -------------------------------------------------------------------------- */
+> +/* 0x2121: HiRes Wheel                                                        */
+> +/* -------------------------------------------------------------------------- */
+> +
+> +#define HIDPP_PAGE_HIRES_WHEEL         0x2121
+> +
+> +#define CMD_HIRES_WHEEL_GET_WHEEL_CAPABILITY   0x00
+> +#define CMD_HIRES_WHEEL_SET_WHEEL_MODE         0x20
+> +
+> +static int hidpp_hrw_get_wheel_capability(struct hidpp_device *hidpp,
+> +       u8 *multiplier)
+> +{
+> +       u8 feature_index;
+> +       u8 feature_type;
+> +       int ret;
+> +       struct hidpp_report response;
+> +
+> +       ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_HIRES_WHEEL,
+> +                                    &feature_index, &feature_type);
+> +       if (ret)
+> +               goto return_default;
+> +
+> +       ret = hidpp_send_fap_command_sync(hidpp, feature_index,
+> +                                         CMD_HIRES_WHEEL_GET_WHEEL_CAPABILITY,
+> +                                         NULL, 0, &response);
+> +       if (ret)
+> +               goto return_default;
+> +
+> +       *multiplier = response.fap.params[0];
+> +       return 0;
+> +return_default:
+> +       *multiplier = 8;
+> +       hid_warn(hidpp->hid_dev,
+> +                "Couldn't get wheel multiplier (error %d), assuming %d.\n",
+> +                ret, *multiplier);
+> +       return ret;
+> +}
+> +
+> +static int hidpp_hrw_set_wheel_mode(struct hidpp_device *hidpp, bool invert,
+> +       bool high_resolution, bool use_hidpp)
+> +{
+> +       u8 feature_index;
+> +       u8 feature_type;
+> +       int ret;
+> +       u8 params[1];
+> +       struct hidpp_report response;
+> +
+> +       ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_HIRES_WHEEL,
+> +                                    &feature_index, &feature_type);
+> +       if (ret)
+> +               return ret;
+> +
+> +       params[0] = (invert          ? BIT(2) : 0) |
+> +                   (high_resolution ? BIT(1) : 0) |
+> +                   (use_hidpp       ? BIT(0) : 0);
+> +
+> +       return hidpp_send_fap_command_sync(hidpp, feature_index,
+> +                                          CMD_HIRES_WHEEL_SET_WHEEL_MODE,
+> +                                          params, sizeof(params), &response);
+> +}
+> +
+>  /* -------------------------------------------------------------------------- */
+>  /* 0x4301: Solar Keyboard                                                     */
+>  /* -------------------------------------------------------------------------- */
+> @@ -2399,7 +2524,8 @@ static int m560_raw_event(struct hid_device *hdev, u8 *data, int size)
+>                 input_report_rel(mydata->input, REL_Y, v);
+>
+>                 v = hid_snto32(data[6], 8);
+> -               input_report_rel(mydata->input, REL_WHEEL, v);
+> +               hid_scroll_counter_handle_scroll(
+> +                               &hidpp->vertical_wheel_counter, v);
+
+The conversion input_report_rel(... REL_WHEEL,...) to
+hid_scroll_counter_handle_scroll() should be dealt in a separate
+patch.
+
+>
+>                 input_sync(mydata->input);
 >         }
+> @@ -2527,6 +2653,71 @@ static int g920_get_config(struct hidpp_device *hidpp)
+>         return 0;
+>  }
 >
->         if (!report) {
-> @@ -546,12 +642,6 @@ static int magicmouse_probe(struct hid_device *hdev,
->         }
->         report->size = 6;
->
-> -       buf = kmemdup(feature, sizeof(feature), GFP_KERNEL);
-> -       if (!buf) {
-> -               ret = -ENOMEM;
-> -               goto err_stop_hw;
-> -       }
-> -
->         /*
->          * Some devices repond with 'invalid report id' when feature
->          * report switching it into multitouch mode is sent to it.
-> @@ -560,10 +650,29 @@ static int magicmouse_probe(struct hid_device *hdev,
->          * but there seems to be no other way of switching the mode.
->          * Thus the super-ugly hacky success check below.
->          */
-> -       ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(feature),
-> -                               HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> -       kfree(buf);
-> -       if (ret != -EIO && ret != sizeof(feature)) {
-> +       if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE ||
-> +           id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD) {
-> +               feature_size = sizeof(feature_mt);
-> +               feature = kmemdup(feature_mt, feature_size, GFP_KERNEL);
-> +       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 */
-> +               if (id->vendor == BT_VENDOR_ID_APPLE) {
-> +                       feature_size = sizeof(feature_mt_trackpad2_bt);
-> +                       feature = kmemdup(feature_mt_trackpad2_bt,
-> +                                         feature_size, GFP_KERNEL);
-> +               } else { /* USB_VENDOR_ID_APPLE */
-> +                       feature_size = sizeof(feature_mt_trackpad2_usb);
-> +                       feature = kmemdup(feature_mt_trackpad2_usb,
-> +                                         feature_size, GFP_KERNEL);
-> +               }
+> +/* -------------------------------------------------------------------------- */
+> +/* High-resolution scroll wheels                                              */
+> +/* -------------------------------------------------------------------------- */
+> +
+> +/**
+> + * struct hi_res_scroll_info - Stores info on a device's high-res scroll wheel.
+> + * @product_id: the HID product ID of the device being described.
+> + * @mm256_per_hi_res_unit: the distance moved by the user's finger for each
+> + *                         high-resolution unit reported by the device, in
+> + *                         256ths of a millimetre.
+> + */
+> +struct hi_res_scroll_info {
+> +       __u32 product_id;
+> +       int mm256_per_hi_res_unit;
+> +};
+> +
+> +static struct hi_res_scroll_info hi_res_scroll_devices[] = {
+> +       { /* Anywhere MX */
+> +         .product_id = 0x1017, .mm256_per_hi_res_unit = 114 },
+> +       { /* Performance MX */
+> +         .product_id = 0x101a, .mm256_per_hi_res_unit = 104 },
+> +       { /* M560 */
+> +         .product_id = 0x402d, .mm256_per_hi_res_unit = 111 },
+> +       { /* MX Master 2S */
+> +         .product_id = 0x4069, .mm256_per_hi_res_unit = 104 },
+> +       { .product_id = USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_2S_BT,
+> +         .mm256_per_hi_res_unit = 104 },
+> +};
+> +
+> +static int hi_res_scroll_look_up_mm256(__u32 product_id)
+> +{
+> +       int i;
+> +       int num_devices = sizeof(hi_res_scroll_devices)
+> +                         / sizeof(hi_res_scroll_devices[0]);
+> +       for (i = 0; i < num_devices; i++) {
+> +               if (hi_res_scroll_devices[i].product_id == product_id)
+> +                       return hi_res_scroll_devices[i].mm256_per_hi_res_unit;
 > +       }
-> +       if (!feature) {
-> +               ret = -ENOMEM;
-> +               goto err_stop_hw;
+> +       return 104;
+
+104?
+
+> +}
+> +
+> +static int hi_res_scroll_enable(struct hidpp_device *hidpp)
+> +{
+> +       int ret;
+> +       u8 multiplier;
+> +
+> +       if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2121) {
+> +               ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
+> +               hidpp_hrw_get_wheel_capability(hidpp, &multiplier);
+> +       } else if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2120) {
+> +               ret = hidpp_hrs_set_highres_scrolling_mode(hidpp, true,
+> +                                                          &multiplier);
+> +       } else /* if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_1P0) */ {
+> +               ret = hidpp10_enable_fast_scrolling(hidpp);
+> +               multiplier = 8;
 > +       }
-> +       ret = hid_hw_raw_request(hdev, feature[0], feature, feature_size,
-> +                                HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-> +       kfree(feature);
-> +       if (ret != -EIO && ret != feature_size) {
->                 hid_err(hdev, "unable to request touch data (%d)\n", ret);
->                 goto err_stop_hw;
->         }
-> @@ -579,6 +688,10 @@ static const struct hid_device_id magic_mice[] = {
->                 USB_DEVICE_ID_APPLE_MAGICMOUSE), .driver_data = 0 },
->         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
->                 USB_DEVICE_ID_APPLE_MAGICTRACKPAD), .driver_data = 0 },
-> +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
-> +               USB_DEVICE_ID_APPLE_MAGICTRACKPAD2), .driver_data = 0 },
-> +       { HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
-> +               USB_DEVICE_ID_APPLE_MAGICTRACKPAD2), .driver_data = 0 },
->         { }
->  };
->  MODULE_DEVICE_TABLE(hid, magic_mice);
-> --
-> 2.19.0.rc0.228.g281dcd1b4d0-goog
+> +       if (ret)
+> +               return ret;
+> +
+> +       hidpp->vertical_wheel_counter.resolution_multiplier = multiplier;
+> +       hidpp->vertical_wheel_counter.mm256_per_hi_res_unit =
+> +               hi_res_scroll_look_up_mm256(hidpp->hid_dev->product);
+> +       return 0;
+> +}
+> +
+>  /* -------------------------------------------------------------------------- */
+>  /* Generic HID++ devices                                                      */
+>  /* -------------------------------------------------------------------------- */
+> @@ -2572,6 +2763,11 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
+>                 wtp_populate_input(hidpp, input, origin_is_hid_core);
+>         else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+>                 m560_populate_input(hidpp, input, origin_is_hid_core);
+> +
+> +       if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL) {
+> +               input_set_capability(input, EV_REL, REL_WHEEL_HI_RES);
+> +               hidpp->vertical_wheel_counter.dev = input;
+> +       }
+>  }
 >
+>  static int hidpp_input_configured(struct hid_device *hdev,
+> @@ -2690,6 +2886,25 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+>         return 0;
+>  }
+>
+> +static int hidpp_event(struct hid_device *hdev, struct hid_field *field,
+> +       struct hid_usage *usage, __s32 value)
+> +{
+> +       struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> +       struct hid_scroll_counter *counter = &hidpp->vertical_wheel_counter;
+> +
+> +       /* A scroll event may occur before the multiplier has been retrieved or
+> +        * the input device set, or high-res scroll enabling may fail. In such
+> +        * cases we must return early (falling back to default behaviour) to
+> +        * avoid a crash in hid_scroll_counter_handle_scroll.
+> +        */
+> +       if (!(hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL) || value == 0
+> +           || counter->dev == NULL || counter->resolution_multiplier == 0)
+> +               return 0;
+
+You are using usage_table to force the .event function to be called
+only on the WHEEL events. This is correct, but I have a feeling this
+will be harder to understand when we are going to extend the .event()
+function for other events.
+If you rather keep the cde that way, please add a comment at the
+beginning of the function stating that we are only called against
+WHEEL events because of usage_table.
+
+> +
+> +       hid_scroll_counter_handle_scroll(counter, value);
+> +       return 1;
+> +}
+> +
+>  static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+>  {
+>         static atomic_t battery_no = ATOMIC_INIT(0);
+> @@ -2901,6 +3116,9 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+>         if (hidpp->battery.ps)
+>                 power_supply_changed(hidpp->battery.ps);
+>
+> +       if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL)
+> +               hi_res_scroll_enable(hidpp);
+> +
+>         if (!(hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT) || hidpp->delayed_input)
+>                 /* if the input nodes are already created, we can stop now */
+>                 return;
+> @@ -3086,35 +3304,97 @@ static void hidpp_remove(struct hid_device *hdev)
+>         mutex_destroy(&hidpp->send_mutex);
+>  }
+>
+> +#define LDJ_DEVICE(product) \
+> +       HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE, \
+> +                  USB_VENDOR_ID_LOGITECH, (product))
+> +
+>  static const struct hid_device_id hidpp_devices[] = {
+>         { /* wireless touchpad */
+> -         HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> -               USB_VENDOR_ID_LOGITECH, 0x4011),
+> +         LDJ_DEVICE(0x4011),
+>           .driver_data = HIDPP_QUIRK_CLASS_WTP | HIDPP_QUIRK_DELAYED_INIT |
+>                          HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS },
+>         { /* wireless touchpad T650 */
+> -         HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> -               USB_VENDOR_ID_LOGITECH, 0x4101),
+> +         LDJ_DEVICE(0x4101),
+
+The rewrite of the existing supported devices should be in a separate patch too.
+
+>           .driver_data = HIDPP_QUIRK_CLASS_WTP | HIDPP_QUIRK_DELAYED_INIT },
+>         { /* wireless touchpad T651 */
+>           HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+>                 USB_DEVICE_ID_LOGITECH_T651),
+>           .driver_data = HIDPP_QUIRK_CLASS_WTP },
+> +       { /* Mouse Logitech Anywhere MX */
+> +         LDJ_DEVICE(0x1017), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_1P0 },
+> +       { /* Mouse Logitech Cube */
+> +         LDJ_DEVICE(0x4010), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2120 },
+> +       { /* Mouse Logitech M335 */
+> +         LDJ_DEVICE(0x4050), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech M336, M337, and M535 */
+> +         HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_M336_337_535_BT1),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_M336_337_535_BT2),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech M515 */
+> +         LDJ_DEVICE(0x4007), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2120 },
+>         { /* Mouse logitech M560 */
+> -         HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> -               USB_VENDOR_ID_LOGITECH, 0x402d),
+> -         .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560 },
+> +         LDJ_DEVICE(0x402d),
+> +         .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560
+> +               | HIDPP_QUIRK_HI_RES_SCROLL_X2120 },
+> +       { /* Mouse Logitech M705 (firmware RQM17) */
+> +         LDJ_DEVICE(0x101b), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_1P0 },
+> +       { /* Mouse Logitech M705 (firmware RQM67) */
+> +         LDJ_DEVICE(0x406d), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech M720 */
+> +         LDJ_DEVICE(0x405e), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_M720_BT),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech MX Anywhere 2 */
+> +         LDJ_DEVICE(0x404a), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { LDJ_DEVICE(0xb013), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { LDJ_DEVICE(0xb018), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { LDJ_DEVICE(0xb01f), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT1),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT2),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT3),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech MX Anywhere 2S */
+> +         LDJ_DEVICE(0x406a), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2S_BT),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech MX Master */
+> +         LDJ_DEVICE(0x4041), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { LDJ_DEVICE(0x4060), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { LDJ_DEVICE(0x4071), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT1),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT2),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT3),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech MX Master 2S */
+> +         LDJ_DEVICE(0x4069), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
+> +               USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_2S_BT),
+> +         .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +       { /* Mouse Logitech Performance MX */
+> +         LDJ_DEVICE(0x101a), .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_1P0 },
+>         { /* Keyboard logitech K400 */
+> -         HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> -               USB_VENDOR_ID_LOGITECH, 0x4024),
+> +         LDJ_DEVICE(0x4024),
+>           .driver_data = HIDPP_QUIRK_CLASS_K400 },
+>         { /* Solar Keyboard Logitech K750 */
+> -         HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> -               USB_VENDOR_ID_LOGITECH, 0x4002),
+> +         LDJ_DEVICE(0x4002),
+>           .driver_data = HIDPP_QUIRK_CLASS_K750 },
+>
+> -       { HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+> -               USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
+> +       { LDJ_DEVICE(HID_ANY_ID) },
+>
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL),
+>                 .driver_data = HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
+> @@ -3123,12 +3403,19 @@ static const struct hid_device_id hidpp_devices[] = {
+>
+>  MODULE_DEVICE_TABLE(hid, hidpp_devices);
+>
+> +static const struct hid_usage_id hidpp_usages[] = {
+> +       { HID_GD_WHEEL, EV_REL, REL_WHEEL },
+> +       { HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
+> +};
+> +
+>  static struct hid_driver hidpp_driver = {
+>         .name = "logitech-hidpp-device",
+>         .id_table = hidpp_devices,
+>         .probe = hidpp_probe,
+>         .remove = hidpp_remove,
+>         .raw_event = hidpp_raw_event,
+> +       .usage_table = hidpp_usages,
+> +       .event = hidpp_event,
+>         .input_configured = hidpp_input_configured,
+>         .input_mapping = hidpp_input_mapping,
+>         .input_mapped = hidpp_input_mapped,
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index 249d49b6b16c..7926c275f258 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -463,6 +463,17 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  #endif
+>  #if IS_ENABLED(CONFIG_HID_LOGITECH_HIDPP)
+>         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_T651) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_M336_337_535_BT1) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_M336_337_535_BT2) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_M720_BT) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT1) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT2) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2_BT3) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_ANYWHERE_2S_BT) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT1) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT2) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_BT3) },
+> +       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_MX_MASTER_2S_BT) },
+
+Since v4.16, this should not be required anymore. Please drop the hunk
+if I am correct.
 
 Cheers,
 Benjamin
+
+>         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL) },
+>  #endif
+>  #if IS_ENABLED(CONFIG_HID_LOGITECH_DJ)
+> --
+> 2.18.0.1017.ga543ac7ca45-goog
+>

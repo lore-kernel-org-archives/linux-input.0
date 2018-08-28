@@ -1,51 +1,48 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: i2c-hid: Fix flooded incomplete report after S3 on
- Rayd touchscreen
-Date: Tue, 28 Aug 2018 14:38:18 +0200
-Message-ID: <CAO-hwJLfpYr6bmTH=rcSfET61599VoZp4uEJ7uY62R2dSSfn6A@mail.gmail.com>
-References: <20180821085513.13739-1-acelan.kao@canonical.com> <nycvar.YFH.7.76.1808281346150.25787@cbobk.fhfr.pm>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] input: olpc_apsp: remove unused pointer 'np'
+Date: Tue, 28 Aug 2018 15:56:48 +0100
+Message-ID: <20180828145648.11619-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1808281346150.25787@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: acelan.kao@canonical.com, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dtor@chromium.org>, Aaron Ma <aaron.ma@canonical.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 28, 2018 at 1:46 PM Jiri Kosina <jikos@kernel.org> wrote:
->
-> On Tue, 21 Aug 2018, AceLan Kao wrote:
->
-> > The incomplete report flooded after S3 and touchscreen becomes
-> > malfunctioned.
-> > [ 1367.646244] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/18785)
-> > [ 1367.649471] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/28743)
-> > [ 1367.651092] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/26757)
-> > [ 1367.652658] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/52280)
-> > [ 1367.654287] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/56059)
-> >
-> > Adding device ID, 04F3:30CC, to the quirk to re-send report description
-> > after resume.
-> >
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
->
-> Applied, thanks.
+From: Colin Ian King <colin.king@canonical.com>
 
-Just a quick note Jiri. Hans pointed me this morning to
-https://bugzilla.redhat.com/show_bug.cgi?id=1622695
+Pointer 'nb' is being assigned but is never used hence it is
+redundant and can be removed.
 
-And I think we should apply the quirk unconditionally as it should be
-safe to retrieve the HID descriptor at all times. I am planning on
-working on that tomorrow or Thursday when I have access to the XPS
-with i2c_hid devices attached to it.
+Cleans up clang warning:
+warning: variable 'np' set but not used [-Wunused-but-set-variable]
 
-Cheers,
-Benjamin
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/input/serio/olpc_apsp.c | 2 --
+ 1 file changed, 2 deletions(-)
 
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_apsp.c
+index 8e9a4209fcad..8bd8ed25946f 100644
+--- a/drivers/input/serio/olpc_apsp.c
++++ b/drivers/input/serio/olpc_apsp.c
+@@ -172,7 +172,6 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+ 	struct serio *kb_serio, *pad_serio;
+ 	struct olpc_apsp *priv;
+ 	struct resource *res;
+-	struct device_node *np;
+ 	unsigned long l;
+ 	int error;
+ 
+@@ -180,7 +179,6 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	np = pdev->dev.of_node;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	priv->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->base)) {
+-- 
+2.17.1

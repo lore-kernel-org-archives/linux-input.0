@@ -1,51 +1,33 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: intel-ish-hid: Enable Sunrise Point-H ish driver
-Date: Tue, 28 Aug 2018 13:41:03 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1808281340580.25787@cbobk.fhfr.pm>
-References: <23171b1a3740407eac5d5c22548ce107d8edde59.camel@linux.intel.com> <20180817201614.11971-1-linux@progandy.de>
+Subject: Re: [PATCH] HID: i2c-hid: Fix flooded incomplete report after S3 on
+ Rayd touchscreen
+Date: Tue, 28 Aug 2018 13:46:23 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1808281346150.25787@cbobk.fhfr.pm>
+References: <20180821085513.13739-1-acelan.kao@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180817201614.11971-1-linux@progandy.de>
+In-Reply-To: <20180821085513.13739-1-acelan.kao@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andreas Bosch <linux@progandy.de>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Even Xu <even.xu@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: AceLan Kao <acelan.kao@canonical.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dtor@chromium.org>, Aaron Ma <aaron.ma@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 17 Aug 2018, Andreas Bosch wrote:
+On Tue, 21 Aug 2018, AceLan Kao wrote:
 
-> Added PCI ID for Sunrise Point-H ISH.
+> The incomplete report flooded after S3 and touchscreen becomes
+> malfunctioned.
+> [ 1367.646244] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/18785)
+> [ 1367.649471] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/28743)
+> [ 1367.651092] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/26757)
+> [ 1367.652658] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/52280)
+> [ 1367.654287] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/56059)
 > 
-> Signed-off-by: Andreas Bosch <linux@progandy.de>
-> ---
-> I hope this patch arrives correctly.
-> ---
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
->  2 files changed, 2 insertions(+)
+> Adding device ID, 04F3:30CC, to the quirk to re-send report description
+> after resume.
 > 
-> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> index 97869b7410eb..da133716bed0 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> @@ -29,6 +29,7 @@
->  #define CNL_Ax_DEVICE_ID	0x9DFC
->  #define GLK_Ax_DEVICE_ID	0x31A2
->  #define CNL_H_DEVICE_ID		0xA37C
-> +#define SPT_H_DEVICE_ID		0xA135
->  
->  #define	REVISION_ID_CHT_A0	0x6
->  #define	REVISION_ID_CHT_Ax_SI	0x0
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index a2c53ea3b5ed..c7b8eb32b1ea 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -38,6 +38,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CNL_Ax_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, GLK_Ax_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CNL_H_DEVICE_ID)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, SPT_H_DEVICE_ID)},
->  	{0, }
+> Cc: stable@vger.kernel.org
+> Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
 
 Applied, thanks.
 

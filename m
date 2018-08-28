@@ -1,60 +1,67 @@
 From: Stefan Agner <stefan@agner.ch>
-Subject: [PATCH] HID: input: fix leaking custom input node name
-Date: Tue, 28 Aug 2018 13:29:55 +0200
-Message-ID: <20180828112955.11318-2-stefan@agner.ch>
-References: <20180828112955.11318-1-stefan@agner.ch>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180828112955.11318-1-stefan@agner.ch>
-Sender: stable-owner@vger.kernel.org
+Subject: [PATCH] HID: core: fix memory leak on probe
+Date: Tue, 28 Aug 2018 13:29:54 +0200
+Message-ID: <20180828112955.11318-1-stefan@agner.ch>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stefan Agner <stefan@agner.ch>, stable@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stefan Agner <stefan@agner.ch>
 List-Id: linux-input@vger.kernel.org
 
-Make sure to free the custom input node name on disconnect.
+The dynamically allocted collection stack does not get freed in
+all situations. Make sure to also free the collection stack when
+using the parser in hid_open_report().
 
-Cc: stable@vger.kernel.org # v4.18+
-Fixes: c554bb045511 ("HID: input: append a suffix matching the application")
+Fixes: 08a8a7cf1459 ("HID: core: do not upper bound the collection stack")
 Signed-off-by: Stefan Agner <stefan@agner.ch>
 ---
-Found with kmemleak, after unplugging a Logitech Unifying receiver:
+Found with kmemleak:
 
-unreferenced object 0xc2345b80 (size 64):
-  comm "kworker/0:1", pid 20, jiffies 4294955181 (age 320.740s)
+unreferenced object 0xc57f0700 (size 64):
+  comm "kworker/0:1", pid 20, jiffies 131383 (age 28.750s)
   hex dump (first 32 bytes):
-    4c 6f 67 69 74 65 63 68 20 55 53 42 20 52 65 63  Logitech USB Rec
-    65 69 76 65 72 20 53 79 73 74 65 6d 20 43 6f 6e  eiver System Con
+    02 00 00 00 00 02 00 00 00 00 00 00 00 68 80 c5  .............h..
+    80 07 7f c5 01 00 00 00 08 48 80 c5 08 48 80 c5  .........H...H..
   backtrace:
-    [<8fec5a71>] __kmalloc_track_caller+0x1dc/0x300
-    [<5b926275>] kvasprintf+0x60/0xcc
-    [<21fc360f>] kasprintf+0x38/0x54
-    [<3b6ce9f0>] hidinput_connect+0x23a8/0x4c60
-    [<deaab707>] hid_connect+0x30c/0x38c
-    [<5a28f7c9>] hid_hw_start+0x44/0x64
-    [<267d70e8>] hid_generic_probe+0x34/0x38
-    [<d68c31b1>] hid_device_probe+0xdc/0x13c
-    [<09414e91>] really_probe+0x1d8/0x2c4
-    [<f9d7157f>] driver_probe_device+0x68/0x184
-    [<1def17c8>] __device_attach_driver+0xa0/0xd4
-    [<d3b2081b>] bus_for_each_drv+0x60/0xc0
-    [<379d02f8>] __device_attach+0xdc/0x144
-    [<7026ace5>] device_initial_probe+0x14/0x18
-    [<44527d01>] bus_probe_device+0x90/0x98
-    [<cf58bf2f>] device_add+0x424/0x62c
+    [<1b437483>] __kmalloc_track_caller+0x1dc/0x300
+    [<ecd3baad>] krealloc+0x54/0xc0
+    [<c565bd75>] hid_parser_main+0x258/0x2c8
+    [<210b9aaa>] hid_open_report+0x134/0x2ac
+    [<61cd8964>] hid_generic_probe+0x20/0x38
+    [<e02107d6>] hid_device_probe+0xdc/0x13c
+    [<334f035e>] really_probe+0x1d8/0x2c4
+    [<351dc2c0>] driver_probe_device+0x68/0x184
+    [<7e3e3d3c>] __device_attach_driver+0xa0/0xd4
+    [<1b053a89>] bus_for_each_drv+0x60/0xc0
+    [<732716d8>] __device_attach+0xdc/0x144
+    [<dd3a0e76>] device_initial_probe+0x14/0x18
+    [<f3a47b76>] bus_probe_device+0x90/0x98
+    [<d5a1f0b4>] device_add+0x424/0x62c
+    [<46595a15>] hid_add_device+0x108/0x2b8
+    [<a0e2824c>] usbhid_probe+0x2d4/0x3bc
 
- drivers/hid/hid-input.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 4e94ea3e280a..ac201817a2dd 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1815,6 +1815,7 @@ void hidinput_disconnect(struct hid_device *hid)
- 			input_unregister_device(hidinput->input);
- 		else
- 			input_free_device(hidinput->input);
-+		kfree(hidinput->name);
- 		kfree(hidinput);
- 	}
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 3da354af7a0a..44a465db3f96 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1039,6 +1039,7 @@ int hid_open_report(struct hid_device *device)
+ 				hid_err(device, "unbalanced delimiter at end of report description\n");
+ 				goto err;
+ 			}
++			kfree(parser->collection_stack);
+ 			vfree(parser);
+ 			device->status |= HID_STAT_PARSED;
+ 			return 0;
+@@ -1047,6 +1048,7 @@ int hid_open_report(struct hid_device *device)
  
+ 	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
+ err:
++	kfree(parser->collection_stack);
+ 	vfree(parser);
+ 	hid_close_report(device);
+ 	return ret;
 -- 
 2.18.0

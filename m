@@ -1,47 +1,60 @@
-From: Harry Cutts <hcutts@chromium.org>
-Subject: Re: [PATCH 1/3] Add the `REL_WHEEL_HI_RES` event code
-Date: Tue, 28 Aug 2018 10:49:32 -0700
-Message-ID: <CA+jURcua9vc_L0AJG5cDuPYY=LH3TcHB+QA_J1+74b97QXXkFw@mail.gmail.com>
-References: <20180823183057.247630-1-hcutts@chromium.org> <20180823183057.247630-2-hcutts@chromium.org>
- <20180823185722.GA24777@bombadil.infradead.org> <20180823190124.GB53155@dtor-ws>
- <nycvar.YFH.7.76.1808281101500.25787@cbobk.fhfr.pm>
+From: Andi Shyti <andi@smida.it>
+Subject: Re: [PATCH] input: olpc_apsp: remove unused pointer 'np'
+Date: Tue, 28 Aug 2018 18:14:38 +0300
+Message-ID: <20180828151438.GA10857@jack.zhora.eu>
+References: <20180828145648.11619-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1808281101500.25787@cbobk.fhfr.pm>
+Content-Disposition: inline
+In-Reply-To: <20180828145648.11619-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org
-Cc: dmitry.torokhov@gmail.com, willy@infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jiri.kosina@suse.cz, benjamin.tissoires@redhat.com, linux-doc@vger.kernel.org, corbet@lwn.net
+To: Colin King <colin.king@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Benjamin says he prefers micrometres, and I think I do to now that I
-think about it (sticking with SI seems like a good idea), so I'll
-update it in a V2.
+Hi Colin,
 
-Harry Cutts
-Chrome OS Touch/Input team
-Harry Cutts
-Chrome OS Touch/Input team
+On Tue, Aug 28, 2018 at 03:56:48PM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> Pointer 'nb' is being assigned but is never used hence it is
 
+'np' here. Other than that,
 
-On Tue, 28 Aug 2018 at 02:02, Jiri Kosina <jikos@kernel.org> wrote:
->
-> On Thu, 23 Aug 2018, Dmitry Torokhov wrote:
->
-> > > > +  - If a vertical scroll wheel supports high-resolution scrolling, this code
-> > > > +    will be emitted in addition to REL_WHEEL. The value is the (approximate)
-> > > > +    distance travelled by the user's finger, in 256ths of a millimeter.
-> > >
-> > > Is it too late to change this to an actual unit like micrometres?
-> >
-> > No love for imperial roots? Sure, micrometers would work too I think.
->
-> I don't really care strongly :) Is either of you going to update the
-> patch? Otherwise I'll just apply as-is.
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+Reviewed-by: Andi Shyti <andi@etezian.org>
+
+Andi
+
+> redundant and can be removed.
+> 
+> Cleans up clang warning:
+> warning: variable 'np' set but not used [-Wunused-but-set-variable]
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/input/serio/olpc_apsp.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_apsp.c
+> index 8e9a4209fcad..8bd8ed25946f 100644
+> --- a/drivers/input/serio/olpc_apsp.c
+> +++ b/drivers/input/serio/olpc_apsp.c
+> @@ -172,7 +172,6 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+>  	struct serio *kb_serio, *pad_serio;
+>  	struct olpc_apsp *priv;
+>  	struct resource *res;
+> -	struct device_node *np;
+>  	unsigned long l;
+>  	int error;
+>  
+> @@ -180,7 +179,6 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+>  	if (!priv)
+>  		return -ENOMEM;
+>  
+> -	np = pdev->dev.of_node;
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	priv->base = devm_ioremap_resource(&pdev->dev, res);
+>  	if (IS_ERR(priv->base)) {
+> -- 
+> 2.17.1

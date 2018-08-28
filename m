@@ -1,53 +1,46 @@
-From: Rob Herring <robh@kernel.org>
-Subject: [PATCH] input: sun4i-lradc: Convert to using %pOFn instead of device_node.name
-Date: Mon, 27 Aug 2018 20:52:24 -0500
-Message-ID: <20180828015252.28511-23-robh@kernel.org>
-References: <20180828015252.28511-1-robh@kernel.org>
+From: =?UTF-8?q?Ramses=20Ram=C3=ADrez?= <ramzeto@gmail.com>
+Subject: [PATCH] Input: Support for Xbox1 PDP Camo series gamepad
+Date: Tue, 28 Aug 2018 00:48:11 -0500
+Message-ID: <20180828054812.14428-1-ramzeto@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180828015252.28511-1-robh@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Ripard <maxime.ripard@bootlin.com>, linux-input@vger.kernel.org
+Cc: ramzeto@gmail.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Cameron Gutman <aicommander@gmail.com>, Mark Furneaux <mark@furneaux.ca>, Leo Sperling <leosperling97@gmail.com>, Enno Boland <gottox@voidlinux.eu>, Marcus Folkesson <marcus.folkesson@gmail.com>, Francis Therien <frtherien@gmail.com>, Julia Lawall <Julia.Lawall@lip6.fr>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In preparation to remove the node name pointer from struct device_node,
-convert printf users to use the %pOFn format specifier.
+The "Xbox One PDP Wired Controller - Camo series" has a different
+product-id than the regular PDP controller and the PDP stealth series,
+but it uses the same initialization sequence. This patch adds the
+product-id of the camo series to the structures that handle the other
+PDP Xbox One controllers.
 
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Ramses Ramírez <ramzeto@gmail.com>
 ---
- drivers/input/keyboard/sun4i-lradc-keys.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/joystick/xpad.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
-index a37c172452e6..57272df34cd5 100644
---- a/drivers/input/keyboard/sun4i-lradc-keys.c
-+++ b/drivers/input/keyboard/sun4i-lradc-keys.c
-@@ -185,19 +185,19 @@ static int sun4i_lradc_load_dt_keymap(struct device *dev,
- 
- 		error = of_property_read_u32(pp, "channel", &channel);
- 		if (error || channel != 0) {
--			dev_err(dev, "%s: Inval channel prop\n", pp->name);
-+			dev_err(dev, "%pOFn: Inval channel prop\n", pp);
- 			return -EINVAL;
- 		}
- 
- 		error = of_property_read_u32(pp, "voltage", &map->voltage);
- 		if (error) {
--			dev_err(dev, "%s: Inval voltage prop\n", pp->name);
-+			dev_err(dev, "%pOFn: Inval voltage prop\n", pp);
- 			return -EINVAL;
- 		}
- 
- 		error = of_property_read_u32(pp, "linux,code", &map->keycode);
- 		if (error) {
--			dev_err(dev, "%s: Inval linux,code prop\n", pp->name);
-+			dev_err(dev, "%pOFn: Inval linux,code prop\n", pp);
- 			return -EINVAL;
- 		}
- 
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index cd620e009bad..d4b9db487b16 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -231,6 +231,7 @@ static const struct xpad_device {
+ 	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
++	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
+ 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
+@@ -530,6 +531,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x02ab, xboxone_pdp_init2),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x02a4, xboxone_pdp_init1),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x02a4, xboxone_pdp_init2),
++	XBOXONE_INIT_PKT(0x0e6f, 0x02a6, xboxone_pdp_init1),
++	XBOXONE_INIT_PKT(0x0e6f, 0x02a6, xboxone_pdp_init2),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
 -- 
 2.17.1

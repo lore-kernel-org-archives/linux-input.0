@@ -1,33 +1,34 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: i2c-hid: Fix flooded incomplete report after S3 on
- Rayd touchscreen
-Date: Tue, 28 Aug 2018 13:46:23 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1808281346150.25787@cbobk.fhfr.pm>
-References: <20180821085513.13739-1-acelan.kao@canonical.com>
+Subject: Re: [PATCH] [v2] HID: add support for Apple Magic Keyboards
+Date: Tue, 28 Aug 2018 13:53:08 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1808281352550.25787@cbobk.fhfr.pm>
+References: <20180827200215.172838-1-seobrien@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180821085513.13739-1-acelan.kao@canonical.com>
+In-Reply-To: <20180827200215.172838-1-seobrien@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: AceLan Kao <acelan.kao@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dtor@chromium.org>, Aaron Ma <aaron.ma@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sean O'Brien <seobrien@chromium.org>
+Cc: Dmitry Torokhov <dtor@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 21 Aug 2018, AceLan Kao wrote:
+On Mon, 27 Aug 2018, Sean O'Brien wrote:
 
-> The incomplete report flooded after S3 and touchscreen becomes
-> malfunctioned.
-> [ 1367.646244] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/18785)
-> [ 1367.649471] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/28743)
-> [ 1367.651092] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/26757)
-> [ 1367.652658] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/52280)
-> [ 1367.654287] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete report (58/56059)
+> USB device
+> 	Vendor 05ac (Apple)
+> 	Device 026c (Magic Keyboard with Numeric Keypad)
 > 
-> Adding device ID, 04F3:30CC, to the quirk to re-send report description
-> after resume.
+> Bluetooth devices
+> 	Vendor 004c (Apple)
+> 	Device 0267 (Magic Keyboard)
+> 	Device 026c (Magic Keyboard with Numeric Keypad)
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
+> Support already exists for the Magic Keyboard over USB connection.
+> Add support for the Magic Keyboard over Bluetooth connection, and for
+> the Magic Keyboard with Numeric Keypad over Bluetooth and USB
+> connection.
+> 
+> Signed-off-by: Sean O'Brien <seobrien@chromium.org>
 
 Applied, thanks.
 

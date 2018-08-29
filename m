@@ -1,37 +1,49 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH V5 2/3] dt-bindings: input: Add document bindings for
- DA7280
-Date: Tue, 28 Aug 2018 17:20:15 -0500
-Message-ID: <20180828222015.GA26211@bogus>
-References: <cover.1535358095.git.Roy.Im@diasemi.com>
- <a0aba6fe0b63f5a685743c88e192701731e289ab.1535358095.git.Roy.Im@diasemi.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] HID: core: fix NULL pointer dereference
+Date: Wed, 29 Aug 2018 10:22:09 -0500
+Message-ID: <20180829152209.GA29831@embeddedor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <a0aba6fe0b63f5a685743c88e192701731e289ab.1535358095.git.Roy.Im@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Roy Im <roy.im.opensource@diasemi.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Stefan Agner <stefan@agner.ch>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 27 Aug 2018 17:21:35 +0900, Roy Im wrote:
-> 
-> Add device tree binding information for DA7280 haptic driver.
-> Example bindings for DA7280 are added.
-> 
-> Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
-> 
-> ---
-> v5: Updated descriptions and fixed errors.
-> v4: Fixed commit message, properties.
-> v3: Fixed subject format.
-> v2: No changes
-> 
-> 
->  .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++++++++++++++++++++
->  1 file changed, 105 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
-> 
+There is a NULL pointer dereference in case memory resources
+for *parse* are not successfully allocated.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Fix this by adding a new goto label and make the execution
+path jump to it in case vzalloc() fails.
+
+Addresses-Coverity-ID: 1473081 ("Dereference after null check")
+Fixes: b2dd9f2e5a8a ("HID: core: fix memory leak on probe")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/hid/hid-core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 4548dae..5bec924 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1000,7 +1000,7 @@ int hid_open_report(struct hid_device *device)
+ 	parser = vzalloc(sizeof(struct hid_parser));
+ 	if (!parser) {
+ 		ret = -ENOMEM;
+-		goto err;
++		goto alloc_err;
+ 	}
+ 
+ 	parser->device = device;
+@@ -1049,6 +1049,7 @@ int hid_open_report(struct hid_device *device)
+ 	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
+ err:
+ 	kfree(parser->collection_stack);
++alloc_err:
+ 	vfree(parser);
+ 	hid_close_report(device);
+ 	return ret;
+-- 
+2.7.4

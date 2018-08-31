@@ -1,107 +1,72 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] Partially revert "HID: generic: create one input report per application type"
-Date: Fri, 31 Aug 2018 11:36:04 +0200
-Message-ID: <20180831093604.5915-1-benjamin.tissoires@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] HID: i2c-hid: enforce I2C_HID_QUIRK_RESEND_REPORT_DESCR
+Date: Fri, 31 Aug 2018 11:54:17 +0200
+Message-ID: <20180831095417.8541-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This partially reverts commit f07b3c1da92db108662f99417a212fc1eddc44d1.
+The spec states that the HID devices should allow
+the host to query the HID descriptor at any time.
 
-It looks like some mice are not correctly treated by
-HID_QUIRK_INPUT_PER_APP. Those mice have the following
-report descriptor:
+Some devices require the HID descriptor to be set
+on resume, or they will fail.
 
-0x05, 0x01,                    // Usage Page (Generic Desktop)        0
-0x09, 0x02,                    // Usage (Mouse)                       2
-0xa1, 0x01,                    // Collection (Application)            4
-0x85, 0x01,                    //  Report ID (1)                      6
-0x09, 0x01,                    //  Usage (Pointer)                    8
-0xa1, 0x00,                    //  Collection (Physical)              10
-0x95, 0x05,                    //   Report Count (5)                  12
-0x75, 0x01,                    //   Report Size (1)                   14
-0x05, 0x09,                    //   Usage Page (Button)               16
-0x19, 0x01,                    //   Usage Minimum (1)                 18
-0x29, 0x05,                    //   Usage Maximum (5)                 20
-0x15, 0x00,                    //   Logical Minimum (0)               22
-0x25, 0x01,                    //   Logical Maximum (1)               24
-0x81, 0x02,                    //   Input (Data,Var,Abs)              26
-...
-0xc0,                          //  End Collection                     57
-0x85, 0x02,                    //  Report ID (2)                      58
-0x09, 0x01,                    //  Usage (Consumer Control)           60
-0xa1, 0x00,                    //  Collection (Physical)              62
-0x75, 0x0c,                    //   Report Size (12)                  64
-0x95, 0x02,                    //   Report Count (2)                  66
-0x05, 0x01,                    //   Usage Page (Generic Desktop)      68
-0x09, 0x30,                    //   Usage (X)                         70
-0x09, 0x31,                    //   Usage (Y)                         72
-0x16, 0x01, 0xf8,              //   Logical Minimum (-2047)           74
-0x26, 0xff, 0x07,              //   Logical Maximum (2047)            77
-0x81, 0x06,                    //   Input (Data,Var,Rel)              80
-0xc0,                          //  End Collection                     82
-0xc0,                          // End Collection                      83
-...
+Instead of having a growing list of blacklisted devices
+make the call part of the general resume process
+so we can remove this list.
 
-Both the cursor position and the buttons are located in the
-same application collection (Mouse) and the kernel should
-only create one input device for those.
+Tested on a Dell XPS 9360 and a Surface 3.
 
-However, for an undetermined reason, the kernel splits the
-device in 2, making systemd not tagging the second mouse
-with the coordinates only as a mouse. And then userspace
-ignores it which leads to a mouse where only the buttons
-are working.
+link: https://bugzilla.redhat.com/show_bug.cgi?id=1622695
 
-Until the quirk gets properly fixed, we should probably
-revert applying it to all of the generic devices and
-re-enable it when the root reason has been found.
-
-link: https://bugzilla.kernel.org/show_bug.cgi?id=200847
-link: https://bugzilla.kernel.org/show_bug.cgi?id=200849
-link: https://bugs.archlinux.org/task/59699
-link: https://github.com/NixOS/nixpkgs/issues/45165
-
-Cc: stable@vger.kernel.org # v4.18+
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-generic.c | 15 ---------------
- 1 file changed, 15 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/hid/hid-generic.c b/drivers/hid/hid-generic.c
-index 3b6eccbc2519..c25b4718de44 100644
---- a/drivers/hid/hid-generic.c
-+++ b/drivers/hid/hid-generic.c
-@@ -56,20 +56,6 @@ static bool hid_generic_match(struct hid_device *hdev,
- 	return true;
- }
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 57126f6837bb..17ec57c62a0b 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -47,7 +47,7 @@
+ /* quirks to control the device */
+ #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
+ #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
+-#define I2C_HID_QUIRK_RESEND_REPORT_DESCR	BIT(2)
++/* reserved: I2C_HID_QUIRK_RESEND_REPORT_DESCR	BIT(2) */
  
--static int hid_generic_probe(struct hid_device *hdev,
--			     const struct hid_device_id *id)
--{
--	int ret;
--
--	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
--
--	ret = hid_parse(hdev);
--	if (ret)
--		return ret;
--
--	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
--}
--
- static const struct hid_device_id hid_table[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, HID_ANY_ID, HID_ANY_ID) },
- 	{ }
-@@ -80,7 +66,6 @@ static struct hid_driver hid_generic = {
- 	.name = "hid-generic",
- 	.id_table = hid_table,
- 	.match = hid_generic_match,
--	.probe = hid_generic_probe,
+ /* flags */
+ #define I2C_HID_STARTED		0
+@@ -170,12 +170,6 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+ 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+ 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+-	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
+-		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+-	{ USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS10FB_TOUCH,
+-		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+-	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_4B33,
+-		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+ 	{ 0, 0 }
  };
- module_hid_driver(hid_generic);
  
+@@ -1245,11 +1239,9 @@ static int i2c_hid_resume(struct device *dev)
+ 	 * after resume, after this it will be back normal.
+ 	 * otherwise it issues too many incomplete reports.
+ 	 */
+-	if (ihid->quirks & I2C_HID_QUIRK_RESEND_REPORT_DESCR) {
+-		ret = i2c_hid_command(client, &hid_report_descr_cmd, NULL, 0);
+-		if (ret)
+-			return ret;
+-	}
++	ret = i2c_hid_command(client, &hid_report_descr_cmd, NULL, 0);
++	if (ret)
++		return ret;
+ 
+ 	if (hid->driver && hid->driver->reset_resume) {
+ 		ret = hid->driver->reset_resume(hid);
 -- 
 2.14.3

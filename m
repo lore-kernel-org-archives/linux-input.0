@@ -1,90 +1,107 @@
-From: Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: Re: [PATCH 3/3] Enable high-resolution scrolling on Logitech mice
-Date: Fri, 31 Aug 2018 11:14:26 +0200
-Message-ID: <CAE7qMrqoioqPSMem3rLs1OEZPFNLzen7TcCWeANC6svvHwbxeg@mail.gmail.com>
-References: <20180823183057.247630-1-hcutts@chromium.org> <20180823183057.247630-4-hcutts@chromium.org>
- <CAO-hwJ+rR8ft96AGjoEApr1ZkythKfcxjVzdULzgpRy-aRv_vg@mail.gmail.com>
- <CA+jURcvguwXAVnpQ9+84QQOaJG74oeV8U4zzM1X0UabaY5DJBQ@mail.gmail.com>
- <CAO-hwJ+tb6XdEM76r0jxBfCx2r_PqQp9T5=A2ALociyHOKUeMg@mail.gmail.com>
- <CA+jURcsDJbL_3aF7wE0MQ_6ZSVV3Aba-tUDX-f=1+y+LBhqmng@mail.gmail.com> <CAE7qMrrBdZSg1P+JTr9SA5a1ui-zdAmsg6pE-B1N5La_1WwvHw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAE7qMrrBdZSg1P+JTr9SA5a1ui-zdAmsg6pE-B1N5La_1WwvHw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: hcutts@chromium.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] Partially revert "HID: generic: create one input report per application type"
+Date: Fri, 31 Aug 2018 11:36:04 +0200
+Message-ID: <20180831093604.5915-1-benjamin.tissoires@redhat.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 31, 2018 at 11:11 AM Nestor Lopez Casado
-<nlopezcasad@logitech.com> wrote:
->
->
->
-> On Thu, Aug 30, 2018 at 10:38 PM Harry Cutts <hcutts@chromium.org> wrote:
->>
->> Hi Benjamin,
->>
->> On Thu, 30 Aug 2018 at 00:18, Benjamin Tissoires
->> <benjamin.tissoires@redhat.com> wrote:
->> >> On Thu, Aug 30, 2018 at 1:06 AM Harry Cutts <hcutts@chromium.org> wrote:
->> > > > The conversion input_report_rel(... REL_WHEEL,...) to
->> > > > hid_scroll_counter_handle_scroll() should be dealt in a separate
->> > > > patch.
->> > >
->> > > OK, I'll do that in v2, but might I ask why? I don't see how this
->> > > particular hunk is special.
->> >
->> > I tend to consider that existing code rewrite need to be in their
->> > special commit, especially if the change isn't supposed to change the
->> > behaviour. This is my personal taste in case something goes wrong and
->> > (in this case) a m560 suddenly starts complaining about an issue with
->> > this mouse.
->> > I wouldn't mind too much if you rather keep the
->> > hid_scroll_counter_handle_scroll() introduction to this commit though.
->>
->> Yes, I see the reasoning for that, but this hunk is pretty tied to the
->> main change in that scrolling on the M560 would be 8x too fast without
->> it. I'll keep it in the same one, if you don't mind.
->>
->> > > [snip]
->> > > Yes, it seems to work fine without it (at least for the MX Master 2S).
->> > > Unfortunately, while testing this I encountered a bug with high-res
->> > > scrolling over Bluetooth. (It seems that if you turn off the MX Master
->> > > 2S while it's connected over Bluetooth, we don't detect that and
->> > > remove the input device, meaning that when it reconnects the driver
->> > > thinks it's in high-res mode but the mouse is in low-res.) I'm
->> > > investigating, but in the meantime I'll remove the Bluetooth support
->> > > from v2 and add it back in later.
->> >
->> > As far as I can see, the MX Master 2S is connected over BLE. Bluez
->> > keeps the uhid node opened (and thus the existing bluetooth HID
->> > device) to be able to reconnect faster.
->> > I would suppose you should get notified in the connect event of a
->> > reconnection, but it doesn't seem to be the case.
->> >
->> > Nestor, is there any event emitted by the mouse when it gets
->> > reconnected over BLE or is that a bluez issue?
->>
->> Ah, interesting. The MX Master 2S is indeed using BLE, and testing
->> with another Logitech BLE mouse (the M585) also leaves the input
->> device around. I think this is something Logitech-specific, though, as
->> the Microsoft Surface Precision mouse (also BLE) does have its input
->> device removed when it turns off. I notice that btmon does show
->> "device disconnected" and "device connected" events when I turn the
->> M585 on and off; maybe we need to plumb those through to the driver.
->> We've decided to delay Bluetooth support for high-res scrolling until
->> the Chrome OS Bluetooth stack is more stable.
+This partially reverts commit f07b3c1da92db108662f99417a212fc1eddc44d1.
 
------Ooops, no html now...
-This might be related to how the device disconnects from the host.
-Sometimes a disconnection comes from the device not responding anymore
-and it is the BT supervision timeout that kicks in (host side). In
-some cases (hw support required on the device side) a device will send
-a disconnect request when switched off. Maybe these different
-disconnect flavors are the root cause behind the input device being
-removed or not.
---nestor
->>
->> Harry Cutts
->> Chrome OS Touch/Input team
+It looks like some mice are not correctly treated by
+HID_QUIRK_INPUT_PER_APP. Those mice have the following
+report descriptor:
+
+0x05, 0x01,                    // Usage Page (Generic Desktop)        0
+0x09, 0x02,                    // Usage (Mouse)                       2
+0xa1, 0x01,                    // Collection (Application)            4
+0x85, 0x01,                    //  Report ID (1)                      6
+0x09, 0x01,                    //  Usage (Pointer)                    8
+0xa1, 0x00,                    //  Collection (Physical)              10
+0x95, 0x05,                    //   Report Count (5)                  12
+0x75, 0x01,                    //   Report Size (1)                   14
+0x05, 0x09,                    //   Usage Page (Button)               16
+0x19, 0x01,                    //   Usage Minimum (1)                 18
+0x29, 0x05,                    //   Usage Maximum (5)                 20
+0x15, 0x00,                    //   Logical Minimum (0)               22
+0x25, 0x01,                    //   Logical Maximum (1)               24
+0x81, 0x02,                    //   Input (Data,Var,Abs)              26
+...
+0xc0,                          //  End Collection                     57
+0x85, 0x02,                    //  Report ID (2)                      58
+0x09, 0x01,                    //  Usage (Consumer Control)           60
+0xa1, 0x00,                    //  Collection (Physical)              62
+0x75, 0x0c,                    //   Report Size (12)                  64
+0x95, 0x02,                    //   Report Count (2)                  66
+0x05, 0x01,                    //   Usage Page (Generic Desktop)      68
+0x09, 0x30,                    //   Usage (X)                         70
+0x09, 0x31,                    //   Usage (Y)                         72
+0x16, 0x01, 0xf8,              //   Logical Minimum (-2047)           74
+0x26, 0xff, 0x07,              //   Logical Maximum (2047)            77
+0x81, 0x06,                    //   Input (Data,Var,Rel)              80
+0xc0,                          //  End Collection                     82
+0xc0,                          // End Collection                      83
+...
+
+Both the cursor position and the buttons are located in the
+same application collection (Mouse) and the kernel should
+only create one input device for those.
+
+However, for an undetermined reason, the kernel splits the
+device in 2, making systemd not tagging the second mouse
+with the coordinates only as a mouse. And then userspace
+ignores it which leads to a mouse where only the buttons
+are working.
+
+Until the quirk gets properly fixed, we should probably
+revert applying it to all of the generic devices and
+re-enable it when the root reason has been found.
+
+link: https://bugzilla.kernel.org/show_bug.cgi?id=200847
+link: https://bugzilla.kernel.org/show_bug.cgi?id=200849
+link: https://bugs.archlinux.org/task/59699
+link: https://github.com/NixOS/nixpkgs/issues/45165
+
+Cc: stable@vger.kernel.org # v4.18+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-generic.c | 15 ---------------
+ 1 file changed, 15 deletions(-)
+
+diff --git a/drivers/hid/hid-generic.c b/drivers/hid/hid-generic.c
+index 3b6eccbc2519..c25b4718de44 100644
+--- a/drivers/hid/hid-generic.c
++++ b/drivers/hid/hid-generic.c
+@@ -56,20 +56,6 @@ static bool hid_generic_match(struct hid_device *hdev,
+ 	return true;
+ }
+ 
+-static int hid_generic_probe(struct hid_device *hdev,
+-			     const struct hid_device_id *id)
+-{
+-	int ret;
+-
+-	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
+-
+-	ret = hid_parse(hdev);
+-	if (ret)
+-		return ret;
+-
+-	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+-}
+-
+ static const struct hid_device_id hid_table[] = {
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, HID_ANY_ID, HID_ANY_ID) },
+ 	{ }
+@@ -80,7 +66,6 @@ static struct hid_driver hid_generic = {
+ 	.name = "hid-generic",
+ 	.id_table = hid_table,
+ 	.match = hid_generic_match,
+-	.probe = hid_generic_probe,
+ };
+ module_hid_driver(hid_generic);
+ 
+-- 
+2.14.3

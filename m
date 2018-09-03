@@ -1,47 +1,69 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: i2c-hid: enforce
- I2C_HID_QUIRK_RESEND_REPORT_DESCR
-Date: Mon, 3 Sep 2018 15:13:21 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1809031512420.25787@cbobk.fhfr.pm>
-References: <20180831095417.8541-1-benjamin.tissoires@redhat.com> <4687e76a-d9a8-4a20-194b-526bb345cf73@redhat.com> <CAO-hwJKABBJExKciVt5R-8bjBtUe+uSc0Z_ikc35jbf1zrNpog@mail.gmail.com>
+Subject: Re: [PATCH v2 1/5] Add the `REL_WHEEL_HI_RES` event code
+Date: Mon, 3 Sep 2018 15:43:13 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1809031542370.25787@cbobk.fhfr.pm>
+References: <20180830215622.47550-1-hcutts@chromium.org> <20180830215622.47550-2-hcutts@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKABBJExKciVt5R-8bjBtUe+uSc0Z_ikc35jbf1zrNpog@mail.gmail.com>
+In-Reply-To: <20180830215622.47550-2-hcutts@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, kai.heng.feng@canonical.com
+To: Harry Cutts <hcutts@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jiri.kosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 3 Sep 2018, Benjamin Tissoires wrote:
+On Thu, 30 Aug 2018, Harry Cutts wrote:
 
-> > > The spec states that the HID devices should allow
-> > > the host to query the HID descriptor at any time.
-> > >
-> > > Some devices require the HID descriptor to be set
-> > > on resume, or they will fail.
-> > >
-> > > Instead of having a growing list of blacklisted devices
-> > > make the call part of the general resume process
-> > > so we can remove this list.
-> > >
-> > > Tested on a Dell XPS 9360 and a Surface 3.
-> > >
-> > > link: https://bugzilla.redhat.com/show_bug.cgi?id=1622695
-> > >
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >
-> > I agree we should just do this everywhere:
-> >
-> > Acked-by: Hans de Goede <hdegoede@redhat.com>
+> This event code represents scroll reports from high-resolution wheels,
+> and will be used by future patches in this series. See the linux-input
+> "Reporting high-resolution scroll events" thread [0] for more details.
 > 
-> Jiri, please hold with this patch, Canonical might have found a better
-> solution. Simply not resetting the device after S3 might be the trick.
+> [0]: https://www.spinics.net/lists/linux-input/msg57380.html
+> 
+> Signed-off-by: Harry Cutts <hcutts@chromium.org>
+> ---
+> 
+> Changes in v2: None
+> 
+>  Documentation/input/event-codes.rst    | 11 ++++++++++-
+>  include/uapi/linux/input-event-codes.h |  1 +
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+> index a8c0873beb95..cef220c176a4 100644
+> --- a/Documentation/input/event-codes.rst
+> +++ b/Documentation/input/event-codes.rst
+> @@ -190,7 +190,16 @@ A few EV_REL codes have special meanings:
+>  * REL_WHEEL, REL_HWHEEL:
+>  
+>    - These codes are used for vertical and horizontal scroll wheels,
+> -    respectively.
+> +    respectively. The value is the number of "notches" moved on the wheel, the
+> +    physical size of which varies by device. For high-resolution wheels (which
+> +    report multiple events for each notch of movement, or do not have notches)
+> +    this may be an approximation based on the high-resolution scroll events.
+> +
+> +* REL_WHEEL_HI_RES:
+> +
+> +  - If a vertical scroll wheel supports high-resolution scrolling, this code
+> +    will be emitted in addition to REL_WHEEL. The value is the (approximate)
+> +    distance travelled by the user's finger, in microns.
+>  
+>  EV_ABS
+>  ------
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 53fbae27b280..dad8d3890a3a 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -708,6 +708,7 @@
+>  #define REL_DIAL		0x07
+>  #define REL_WHEEL		0x08
+>  #define REL_MISC		0x09
+> +#define REL_WHEEL_HI_RES	0x0a
+>  #define REL_MAX			0x0f
+>  #define REL_CNT			(REL_MAX+1)
 
-Thanks for the heads up.
-
-In case that's the case, please also send a reference to the subsititute 
-patch submission into this thread, so that archives to pick it up :)
+Dmitry, is this OK with you?
 
 Thanks,
 

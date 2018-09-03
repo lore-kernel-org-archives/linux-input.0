@@ -1,110 +1,161 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: [PATCH] HID: i2c-hid: Don't reset device upon system resume
-Date: Mon, 3 Sep 2018 23:54:35 +0800
-Message-ID: <F02B6A3A-2584-452A-9A3F-BEF9DB0083E7@canonical.com>
-References: <20180831095417.8541-1-benjamin.tissoires@redhat.com>
- <20180903090855.14952-1-kai.heng.feng@canonical.com>
- <CAO-hwJKAiXfvkBKrTDCSZXMFGp0Ygkhq+G2sgT+Qazm7RGx05Q@mail.gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 11.5 \(3445.9.1\))
-Content-Type: text/plain;
-        charset=us-ascii;
-        delsp=yes;
-        format=flowed
-Content-Transfer-Encoding: 7bit
+From: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>
+Subject: KASAN: use-after-free Read in string
+Date: Mon, 03 Sep 2018 14:51:02 -0700
+Message-ID: <0000000000009ce64e0574fe896e@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKAiXfvkBKrTDCSZXMFGp0Ygkhq+G2sgT+Qazm7RGx05Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, AceLan Kao <acelan.kao@canonical.com>, Aaron Ma <aaron.ma@canonical.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rydberg@bitmath.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
+Hello,
 
-I forgot to include mailing list, first time -in-reply-to user :)
+syzbot found the following crash on:
 
-at 17:39, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+HEAD commit:    58c3f14f86c9 Merge tag 'riscv-for-linus-4.19-rc2' of git:/..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=15506dc1400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=531a917630d2a492
+dashboard link: https://syzkaller.appspot.com/bug?extid=f648cfb7e0b52bf7ae32
+compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1178aa46400000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11735e0a400000
 
-> On Mon, Sep 3, 2018 at 11:09 AM Kai-Heng Feng
-> <kai.heng.feng@canonical.com> wrote:
->> Raydium touchscreen triggers interrupt storm after system-wide suspend:
->> [ 179.085033] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete
->> report (58/65535)
->>
->> According to Raydium, Windows driver does not reset the device after
->> system resume.
->>
->> The HID over I2C spec does specify a reset should be used at
->> intialization, but it doesn't specify if reset is required for system
->> suspend.
->
-> Hmm, that would explain a lot, thanks for digging into this.
->
-> Jiri, I think this patch should partially replace
-> https://patchwork.kernel.org/patch/10583481/
->
-> Kai-heng, if you do not need to re-request the HID descriptors, I
-> think it should be good to squash these together to:
-> - remove I2C_HID_QUIRK_RESEND_REPORT_DESCR
-> - remove the re-request the HID descriptors on resume
-> - merge with this patch
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com
 
-There's still one user uses I2C_HID_QUIRK_RESEND_REPORT_DESCR,  
-USB_DEVICE_ID_SIS10FB_TOUCH.
-So I'd like to have an Ack from Hans first.
+RDX: 0000000000000001 RSI: 0000000000005502 RDI: 0000000000000004
+RBP: 00000000006cf018 R08: 0000000000000001 R09: 0000000000000038
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000006
+R13: ffffffffffffffff R14: 0000000000000000 R15: 0000000000000000
+==================================================================
+BUG: KASAN: use-after-free in string+0x2c6/0x2d0 lib/vsprintf.c:604
+Read of size 1 at addr ffff8801d79c5080 by task syz-executor215/4685
 
-I'll send a new patch with your suggestion afterward.
+CPU: 1 PID: 4685 Comm: syz-executor215 Not tainted 4.19.0-rc1+ #215
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1c9/0x2b4 lib/dump_stack.c:113
+  print_address_description+0x6c/0x20b mm/kasan/report.c:256
+  kasan_report_error mm/kasan/report.c:354 [inline]
+  kasan_report.cold.7+0x242/0x30d mm/kasan/report.c:412
+  __asan_report_load1_noabort+0x14/0x20 mm/kasan/report.c:430
+  string+0x2c6/0x2d0 lib/vsprintf.c:604
+  vsnprintf+0x48f/0x1b60 lib/vsprintf.c:2293
+  add_uevent_var+0x140/0x2f0 lib/kobject_uevent.c:659
+  input_dev_uevent+0x15d/0x860 drivers/input/input.c:1594
+  dev_uevent+0x340/0x7e0 drivers/base/core.c:1008
+  kobject_uevent_env+0x45b/0x1110 lib/kobject_uevent.c:547
+  kobject_uevent+0x1f/0x30 lib/kobject_uevent.c:636
+  kobject_cleanup lib/kobject.c:649 [inline]
+  kobject_release lib/kobject.c:691 [inline]
+  kref_put include/linux/kref.h:70 [inline]
+  kobject_put+0x1fb/0x280 lib/kobject.c:708
+  put_device+0x20/0x30 drivers/base/core.c:2024
+  input_put_device include/linux/input.h:349 [inline]
+  evdev_free+0x4f/0x70 drivers/input/evdev.c:369
+  device_release+0x7e/0x210 drivers/base/core.c:891
+  kobject_cleanup lib/kobject.c:662 [inline]
+  kobject_release lib/kobject.c:691 [inline]
+  kref_put include/linux/kref.h:70 [inline]
+  kobject_put+0x194/0x280 lib/kobject.c:708
+  cdev_default_release+0x3e/0x50 fs/char_dev.c:607
+  kobject_cleanup lib/kobject.c:662 [inline]
+  kobject_release lib/kobject.c:691 [inline]
+  kref_put include/linux/kref.h:70 [inline]
+  kobject_put+0x194/0x280 lib/kobject.c:708
+  cdev_put.part.0+0x36/0x50 fs/char_dev.c:368
+  cdev_put+0x1f/0x30 fs/char_dev.c:366
+  __fput+0x8ae/0xa40 fs/file_table.c:281
+  ____fput+0x15/0x20 fs/file_table.c:309
+  task_work_run+0x1e8/0x2a0 kernel/task_work.c:113
+  exit_task_work include/linux/task_work.h:22 [inline]
+  do_exit+0x1ae4/0x26e0 kernel/exit.c:867
+  do_group_exit+0x177/0x440 kernel/exit.c:970
+  __do_sys_exit_group kernel/exit.c:981 [inline]
+  __se_sys_exit_group kernel/exit.c:979 [inline]
+  __x64_sys_exit_group+0x3e/0x50 kernel/exit.c:979
+  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x443a68
+Code: Bad RIP value.
+RSP: 002b:00007fff70261298 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 0000000000443a68
+RDX: 0000000000000000 RSI: 000000000000003c RDI: 0000000000000000
+RBP: 00000000004c39c8 R08: 00000000000000e7 R09: ffffffffffffffd0
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
+R13: 00000000006d5180 R14: 0000000000000000 R15: 0000000000000000
 
->
->
->
->> Tested this patch on other i2c-hid touchpanels I have and those
->> touchpanels do work after S3 without doing reset. If any regression
->> happens to other touchpanel vendors, we can use quirk for Raydium
->> devices.
->>
->> Cc: AceLan Kao <acelan.kao@canonical.com>
->> Cc: Aaron Ma <aaron.ma@canonical.com>
->> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
->> ---
->>
->> Benjamin, Hans,
->>
->> I guess some vendors interpret spec this way, so hardware reset is an
->> unexpected request for their devices.
->> Can you give this patch a try?
->
-> The only device I have that you should not is the Surface 3. And I am
-> not so sure it goes into S3 fluently (it seems to, but I am not 100%
-> sure). If you have tested on a Dell XPS 9360, I think there is not
-> much more I could test.
+Allocated by task 4685:
+  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+  set_track mm/kasan/kasan.c:460 [inline]
+  kasan_kmalloc+0xc4/0xe0 mm/kasan/kasan.c:553
+  __do_kmalloc mm/slab.c:3718 [inline]
+  __kmalloc_track_caller+0x14a/0x720 mm/slab.c:3733
+  kstrndup+0x5f/0xe0 mm/util.c:98
+  uinput_setup_device_legacy drivers/input/misc/uinput.c:549 [inline]
+  uinput_write+0x2fb/0x1120 drivers/input/misc/uinput.c:621
+  __vfs_write+0x117/0x9d0 fs/read_write.c:485
+  vfs_write+0x1fc/0x560 fs/read_write.c:549
+  ksys_write+0x101/0x260 fs/read_write.c:598
+  __do_sys_write fs/read_write.c:610 [inline]
+  __se_sys_write fs/read_write.c:607 [inline]
+  __x64_sys_write+0x73/0xb0 fs/read_write.c:607
+  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-At least for the Raydium touchscreen, the issue can be observed under both  
-S2Idle and S3.
-So I guess Surface 3 is still suitable for test if it can do S2Idle.
+Freed by task 4685:
+  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+  set_track mm/kasan/kasan.c:460 [inline]
+  __kasan_slab_free+0x11a/0x170 mm/kasan/kasan.c:521
+  kasan_slab_free+0xe/0x10 mm/kasan/kasan.c:528
+  __cache_free mm/slab.c:3498 [inline]
+  kfree+0xd9/0x210 mm/slab.c:3813
+  uinput_destroy_device+0xf8/0x250 drivers/input/misc/uinput.c:310
+  uinput_ioctl_handler.isra.10+0x1439/0x2540 drivers/input/misc/uinput.c:880
+  uinput_ioctl+0x4c/0x60 drivers/input/misc/uinput.c:1047
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  file_ioctl fs/ioctl.c:501 [inline]
+  do_vfs_ioctl+0x1de/0x1720 fs/ioctl.c:685
+  ksys_ioctl+0xa9/0xd0 fs/ioctl.c:702
+  __do_sys_ioctl fs/ioctl.c:709 [inline]
+  __se_sys_ioctl fs/ioctl.c:707 [inline]
+  __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:707
+  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-I've test this on XPS 9370 and Precision 5520, the patch doesn't break them.
+The buggy address belongs to the object at ffff8801d79c5080
+  which belongs to the cache kmalloc-32 of size 32
+The buggy address is located 0 bytes inside of
+  32-byte region [ffff8801d79c5080, ffff8801d79c50a0)
+The buggy address belongs to the page:
+page:ffffea00075e7140 count:1 mapcount:0 mapping:ffff8801dac001c0  
+index:0xffff8801d79c5fc1
+flags: 0x2fffc0000000100(slab)
+raw: 02fffc0000000100 ffffea00075e0908 ffffea00075e7408 ffff8801dac001c0
+raw: ffff8801d79c5fc1 ffff8801d79c5000 000000010000003f 0000000000000000
+page dumped because: kasan: bad access detected
 
-Kai-Heng
+Memory state around the buggy address:
+  ffff8801d79c4f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff8801d79c5000: 00 00 fc fc fc fc fc fc 00 00 00 fc fc fc fc fc
+> ffff8801d79c5080: fb fb fb fb fc fc fc fc 07 fc fc fc fc fc fc fc
+                    ^
+  ffff8801d79c5100: fb fb fb fb fc fc fc fc fb fb fb fb fc fc fc fc
+  ffff8801d79c5180: fb fb fb fb fc fc fc fc fb fb fb fb fc fc fc fc
+==================================================================
 
->
-> Cheers,
-> Benjamin
->
->>  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
->> index 57126f6837bb..7567034a009f 100644
->> --- a/drivers/hid/i2c-hid/i2c-hid.c
->> +++ b/drivers/hid/i2c-hid/i2c-hid.c
->> @@ -1237,7 +1237,7 @@ static int i2c_hid_resume(struct device *dev)
->>         pm_runtime_enable(dev);
->>
->>         enable_irq(client->irq);
->> -       ret = i2c_hid_hwreset(client);
->> +       ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
->>         if (ret)
->>                 return ret;
->>
->> --
->> 2.17.1
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
+syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

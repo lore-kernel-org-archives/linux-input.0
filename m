@@ -1,78 +1,70 @@
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: [PATCH] hid: hid-core: Fix a sleep-in-atomic-context bug in __hid_request()
-Date: Sat,  1 Sep 2018 20:16:59 +0800
-Message-ID: <20180901121659.1257-1-baijiaju1990@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/5] Add support for high-resolution scrolling on
+ Logitech mice
+Date: Mon, 3 Sep 2018 10:15:08 +0200
+Message-ID: <CAO-hwJL6xz=b4wA5WnSeZw1PO+exVgs3isyPO6ZFWVemiJU9yA@mail.gmail.com>
+References: <20180830215622.47550-1-hcutts@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180830215622.47550-1-hcutts@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>
+To: hcutts@chromium.org
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, jiri.kosina@suse.cz, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-doc@vger.kernel.org, corbet@lwn.net, Jiri Kosina <jikos@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The driver may sleep with holding a spinlock.
+Hi Harry,
 
-The function call paths (from bottom to top) in Linux-4.16 are:
+On Thu, Aug 30, 2018 at 11:56 PM Harry Cutts <hcutts@chromium.org> wrote:
+>
+> Hi everyone,
+>
+> This is v2 of the patch set adding support for high-resolution scroll
+> wheels on Logitech mice. See the linux-input "Reporting high-resolution
+> scroll events" thread [0] for previous discussion of the evdev changes.
+> I would love to hear your feedback.
 
-[FUNC] hid_alloc_report_buf(GFP_KERNEL)
-drivers/hid/hid-core.c, 1435: 
-	hid_alloc_report_buf in __hid_request
-./include/linux/hid.h, 1023: 
-	__hid_request in hid_hw_request
-drivers/hid/hid-picolcd_core.c, 111: 
-	hid_hw_request in picolcd_send_and_wait
-drivers/hid/hid-picolcd_core.c, 100: 
-	_raw_spin_lock_irqsave in picolcd_send_and_wait
+Series looks good. I just tested it on a regular Logitech mouse and a
+MX Master with high-res scrolling and everything works as expected.
 
-[FUNC] hid_alloc_report_buf(GFP_KERNEL)
-drivers/hid/hid-core.c, 1435: 
-	hid_alloc_report_buf in __hid_request
-./include/linux/hid.h, 1023: 
-	__hid_request in hid_hw_request
-drivers/hid/hid-picolcd_core.c, 245: 
-	hid_hw_request in picolcd_reset
-drivers/hid/hid-picolcd_core.c, 235: 
-	_raw_spin_lock_irqsave in picolcd_reset
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-[FUNC] hid_alloc_report_buf(GFP_KERNEL)
-drivers/hid/hid-core.c, 1435: 
-	hid_alloc_report_buf in __hid_request
-./include/linux/hid.h, 1023: 
-	__hid_request in hid_hw_request
-drivers/hid/hid-picolcd_fb.c, 215: 
-	hid_hw_request in picolcd_fb_reset
-drivers/hid/hid-picolcd_fb.c, 206: 
-	_raw_spin_lock_irqsave in picolcd_fb_reset
+Cheers,
+Benjamin
 
-[FUNC] hid_alloc_report_buf(GFP_KERNEL)
-drivers/hid/hid-core.c, 1435: 
-	hid_alloc_report_buf in __hid_request
-./include/linux/hid.h, 1023: 
-	__hid_request in hid_hw_request
-drivers/hid/hid-lg4ff.c, 465: 
-	hid_hw_request in lg4ff_play
-drivers/hid/hid-lg4ff.c, 441: 
-	_raw_spin_lock_irqsave in lg4ff_play
-
-To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
-
-This bug is found by my static analysis tool DSAC.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
----
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 3942ee61bd1c..c886af00c8c9 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1442,7 +1442,7 @@ void __hid_request(struct hid_device *hid, struct hid_report *report,
- 	int ret;
- 	u32 len;
- 
--	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-+	buf = hid_alloc_report_buf(report, GFP_ATOMIC);
- 	if (!buf)
- 		return;
- 
--- 
-2.17.0
+>
+> Thanks,
+>
+> Harry Cutts
+> Chrome OS Touch/Input team
+>
+> [0]: https://www.spinics.net/lists/linux-input/msg57380.html
+>
+>
+> Changes in v2:
+> * Changed the REL_WHEEL_HI_RES code to use micrometres (a.k.a. microns)
+>   as its units, instead of 256ths of a millimetre.
+> * Removed support for mice connecting over Bluetooth, due to a bug where
+>   the mouse's high-res mode and the driver's settings get out of sync
+>   when the mouse is power cycled.
+> * Moved the creation of the HID++ 1.0 function and the refactor to use
+>   the LDJ_DEVICE macro into separate patches.
+> * Added a couple of explanatory comments to the Logitech driver.
+>
+> Harry Cutts (5):
+>   Add the `REL_WHEEL_HI_RES` event code
+>   Create a utility class for counting scroll events
+>   Add function to enable HID++ 1.0 "scrolling acceleration"
+>   Enable high-resolution scrolling on Logitech mice
+>   Use LDJ_DEVICE macro for existing Logitech mice
+>
+>  Documentation/input/event-codes.rst    |  11 +-
+>  drivers/hid/hid-input.c                |  45 ++++
+>  drivers/hid/hid-logitech-hidpp.c       | 311 ++++++++++++++++++++++---
+>  include/linux/hid.h                    |  28 +++
+>  include/uapi/linux/input-event-codes.h |   1 +
+>  5 files changed, 368 insertions(+), 28 deletions(-)
+>
+> --
+> 2.19.0.rc0.228.g281dcd1b4d0-goog
+>

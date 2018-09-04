@@ -1,128 +1,85 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4/4] HID: multitouch: simplify the application retrieval
-Date: Tue,  4 Sep 2018 15:31:15 +0200
-Message-ID: <20180904133115.5111-5-benjamin.tissoires@redhat.com>
-References: <20180904133115.5111-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180904133115.5111-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: Re: [PATCH] Partially revert "HID: generic: create one input report
+ per application type"
+Date: Tue, 4 Sep 2018 15:33:42 +0200
+Message-ID: <CAO-hwJ+1FGnP-rG3NJ_NCTSjQqybChYSY54XoEb1HN31Mws=Jw@mail.gmail.com>
+References: <20180831093604.5915-1-benjamin.tissoires@redhat.com> <CAO-hwJKxAt95WTrNT6-SfejEpxZvv5aAgoF25SjTxuTmti=ZUQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <CAO-hwJKxAt95WTrNT6-SfejEpxZvv5aAgoF25SjTxuTmti=ZUQ@mail.gmail.com>
+Sender: stable-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Now that the application is simply stored in struct hid_input, we can
-overwrite it in mt_input_mapping() for the faulty egalax and have a
-simpler suffix processing in mt_input_configured()
+On Tue, Sep 4, 2018 at 1:55 PM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> On Fri, Aug 31, 2018 at 11:36 AM Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> >
+> > This partially reverts commit f07b3c1da92db108662f99417a212fc1eddc44d1.
+> >
+> > It looks like some mice are not correctly treated by
+> > HID_QUIRK_INPUT_PER_APP. Those mice have the following
+> > report descriptor:
+> >
+> > 0x05, 0x01,                    // Usage Page (Generic Desktop)        0
+> > 0x09, 0x02,                    // Usage (Mouse)                       2
+> > 0xa1, 0x01,                    // Collection (Application)            4
+> > 0x85, 0x01,                    //  Report ID (1)                      6
+> > 0x09, 0x01,                    //  Usage (Pointer)                    8
+> > 0xa1, 0x00,                    //  Collection (Physical)              10
+> > 0x95, 0x05,                    //   Report Count (5)                  12
+> > 0x75, 0x01,                    //   Report Size (1)                   14
+> > 0x05, 0x09,                    //   Usage Page (Button)               16
+> > 0x19, 0x01,                    //   Usage Minimum (1)                 18
+> > 0x29, 0x05,                    //   Usage Maximum (5)                 20
+> > 0x15, 0x00,                    //   Logical Minimum (0)               22
+> > 0x25, 0x01,                    //   Logical Maximum (1)               24
+> > 0x81, 0x02,                    //   Input (Data,Var,Abs)              26
+> > ...
+> > 0xc0,                          //  End Collection                     57
+> > 0x85, 0x02,                    //  Report ID (2)                      58
+> > 0x09, 0x01,                    //  Usage (Consumer Control)           60
+> > 0xa1, 0x00,                    //  Collection (Physical)              62
+> > 0x75, 0x0c,                    //   Report Size (12)                  64
+> > 0x95, 0x02,                    //   Report Count (2)                  66
+> > 0x05, 0x01,                    //   Usage Page (Generic Desktop)      68
+> > 0x09, 0x30,                    //   Usage (X)                         70
+> > 0x09, 0x31,                    //   Usage (Y)                         72
+> > 0x16, 0x01, 0xf8,              //   Logical Minimum (-2047)           74
+> > 0x26, 0xff, 0x07,              //   Logical Maximum (2047)            77
+> > 0x81, 0x06,                    //   Input (Data,Var,Rel)              80
+> > 0xc0,                          //  End Collection                     82
+> > 0xc0,                          // End Collection                      83
+> > ...
+> >
+> > Both the cursor position and the buttons are located in the
+> > same application collection (Mouse) and the kernel should
+> > only create one input device for those.
+> >
+> > However, for an undetermined reason, the kernel splits the
+> > device in 2, making systemd not tagging the second mouse
+> > with the coordinates only as a mouse. And then userspace
+> > ignores it which leads to a mouse where only the buttons
+> > are working.
+> >
+> > Until the quirk gets properly fixed, we should probably
+> > revert applying it to all of the generic devices and
+> > re-enable it when the root reason has been found.
+>
+> Jiri,
+>
+> I actually just got the proper fix today. I think it would be better
+> to directly take the fix instead of the revert and a revert of the
+> revert later.
+>
+> I just need to make sure the tests are correctly handled and I should
+> be able to submit the patch today.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c | 72 ++++++++++++++++++++------------------------
- 1 file changed, 32 insertions(+), 40 deletions(-)
+Patch now submitted: https://patchwork.kernel.org/patch/10587369/
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index da954f3f4da7..f7c6de2b6730 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1319,6 +1319,13 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		return mt_touch_input_mapping(hdev, hi, field, usage, bit, max,
- 					      application);
- 
-+	/*
-+	 * some egalax touchscreens have "application == DG_TOUCHSCREEN"
-+	 * for the stylus. Overwrite the hid_input application
-+	 */
-+	if (field->physical == HID_DG_STYLUS)
-+		hi->application = HID_DG_STYLUS;
-+
- 	/* let hid-core decide for the others */
- 	return 0;
- }
-@@ -1507,14 +1514,12 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 	struct mt_device *td = hid_get_drvdata(hdev);
- 	char *name;
- 	const char *suffix = NULL;
--	unsigned int application = 0;
- 	struct mt_report_data *rdata;
- 	struct mt_application *mt_application = NULL;
- 	struct hid_report *report;
- 	int ret;
- 
- 	list_for_each_entry(report, &hi->reports, hidinput_list) {
--		application = report->application;
- 		rdata = mt_find_report_data(td, report);
- 		if (!rdata) {
- 			hid_err(hdev, "failed to allocate data for report\n");
-@@ -1529,46 +1534,33 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 			if (ret)
- 				return ret;
- 		}
--
--		/*
--		 * some egalax touchscreens have "application == DG_TOUCHSCREEN"
--		 * for the stylus. Check this first, and then rely on
--		 * the application field.
--		 */
--		if (report->field[0]->physical == HID_DG_STYLUS) {
--			suffix = "Pen";
--			/* force BTN_STYLUS to allow tablet matching in udev */
--			__set_bit(BTN_STYLUS, hi->input->keybit);
--		}
- 	}
- 
--	if (!suffix) {
--		switch (application) {
--		case HID_GD_KEYBOARD:
--		case HID_GD_KEYPAD:
--		case HID_GD_MOUSE:
--		case HID_DG_TOUCHPAD:
--		case HID_GD_SYSTEM_CONTROL:
--		case HID_CP_CONSUMER_CONTROL:
--		case HID_GD_WIRELESS_RADIO_CTLS:
--		case HID_GD_SYSTEM_MULTIAXIS:
--			/* already handled by hid core */
--			break;
--		case HID_DG_TOUCHSCREEN:
--			/* we do not set suffix = "Touchscreen" */
--			hi->input->name = hdev->name;
--			break;
--		case HID_DG_STYLUS:
--			/* force BTN_STYLUS to allow tablet matching in udev */
--			__set_bit(BTN_STYLUS, hi->input->keybit);
--			break;
--		case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
--			suffix = "Custom Media Keys";
--			break;
--		default:
--			suffix = "UNKNOWN";
--			break;
--		}
-+	switch (hi->application) {
-+	case HID_GD_KEYBOARD:
-+	case HID_GD_KEYPAD:
-+	case HID_GD_MOUSE:
-+	case HID_DG_TOUCHPAD:
-+	case HID_GD_SYSTEM_CONTROL:
-+	case HID_CP_CONSUMER_CONTROL:
-+	case HID_GD_WIRELESS_RADIO_CTLS:
-+	case HID_GD_SYSTEM_MULTIAXIS:
-+		/* already handled by hid core */
-+		break;
-+	case HID_DG_TOUCHSCREEN:
-+		/* we do not set suffix = "Touchscreen" */
-+		hi->input->name = hdev->name;
-+		break;
-+	case HID_DG_STYLUS:
-+		/* force BTN_STYLUS to allow tablet matching in udev */
-+		__set_bit(BTN_STYLUS, hi->input->keybit);
-+		break;
-+	case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
-+		suffix = "Custom Media Keys";
-+		break;
-+	default:
-+		suffix = "UNKNOWN";
-+		break;
- 	}
- 
- 	if (suffix) {
--- 
-2.14.3
+Cheers,
+Benjamin

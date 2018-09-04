@@ -1,76 +1,108 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2 1/5] Add the `REL_WHEEL_HI_RES` event code
-Date: Tue, 4 Sep 2018 16:28:24 +1000
-Message-ID: <20180904062824.GB1086@jelly>
-References: <20180830215622.47550-1-hcutts@chromium.org>
- <20180830215622.47550-2-hcutts@chromium.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Partially revert "HID: generic: create one input report
+ per application type"
+Date: Tue, 4 Sep 2018 11:53:12 +0200
+Message-ID: <CAO-hwJL20efqKS3MP_UttgwgoUxPRW6CaGUDy9=CsqbgHndGWg@mail.gmail.com>
+References: <20180831093604.5915-1-benjamin.tissoires@redhat.com> <SN6PR02MB4864D83F3B3FD94CB4741732ED0F0@SN6PR02MB4864.namprd02.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180830215622.47550-2-hcutts@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Harry Cutts <hcutts@chromium.org>
-Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jiri.kosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <SN6PR02MB4864D83F3B3FD94CB4741732ED0F0@SN6PR02MB4864.namprd02.prod.outlook.com>
+Sender: stable-owner@vger.kernel.org
+To: Terry.Junge@plantronics.com
+Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Aug 30, 2018 at 02:56:18PM -0700, Harry Cutts wrote:
-> This event code represents scroll reports from high-resolution wheels,
-> and will be used by future patches in this series. See the linux-input
-> "Reporting high-resolution scroll events" thread [0] for more details.
-> 
-> [0]: https://www.spinics.net/lists/linux-input/msg57380.html
-> 
-> Signed-off-by: Harry Cutts <hcutts@chromium.org>
+Hi Terry,
 
-looks good to me, thanks. For the archives, the libinput issue filed for
-this is here: https://gitlab.freedesktop.org/libinput/libinput/issues/130
+On Fri, Aug 31, 2018 at 7:48 PM Junge, Terry
+<Terry.Junge@plantronics.com> wrote:
+>
+> For what it's worth the Report Descriptor is a little questionable
+> which could be causing the collection to split in two
+>
+> >-----Original Message-----
+> >From: linux-input-owner@vger.kernel.org [mailto:linux-input-
+> >owner@vger.kernel.org] On Behalf Of Benjamin Tissoires
+> >Sent: Friday, August 31, 2018 2:36 AM
+> >To: Jiri Kosina <jikos@kernel.org>; Dmitry Torokhov
+> ><dmitry.torokhov@gmail.com>
+> >Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Benjamin
+> >Tissoires <benjamin.tissoires@redhat.com>; stable@vger.kernel.org
+> >Subject: [PATCH] Partially revert "HID: generic: create one input report per
+> >application type"
+> >
+> >This partially reverts commit f07b3c1da92db108662f99417a212fc1eddc44d1.
+> >
+> >It looks like some mice are not correctly treated by
+> >HID_QUIRK_INPUT_PER_APP. Those mice have the following
+> >report descriptor:
+> >
+> >0x05, 0x01,                    // Usage Page (Generic Desktop)        0
+> >0x09, 0x02,                    // Usage (Mouse)                       2
+> >0xa1, 0x01,                    // Collection (Application)            4
+> >0x85, 0x01,                    //  Report ID (1)                      6
+> >0x09, 0x01,                    //  Usage (Pointer)                    8
+>
+> This physical collection is associated with Generic Desktop:Pointer (0x0001:0x0001)
+>
+> >0xa1, 0x00,                    //  Collection (Physical)              10
+> >0x95, 0x05,                    //   Report Count (5)                  12
+> >0x75, 0x01,                    //   Report Size (1)                   14
+> >0x05, 0x09,                    //   Usage Page (Button)               16
+>
+> We are now in the Button page
+>
+> >0x19, 0x01,                    //   Usage Minimum (1)                 18
+> >0x29, 0x05,                    //   Usage Maximum (5)                 20
+> >0x15, 0x00,                    //   Logical Minimum (0)               22
+> >0x25, 0x01,                    //   Logical Maximum (1)               24
+> >0x81, 0x02,                    //   Input (Data,Var,Abs)              26
+> >...
+> >0xc0,                          //  End Collection                     57
+> >0x85, 0x02,                    //  Report ID (2)                      58
+> >0x09, 0x01,                    //  Usage (Consumer Control)           60
+>
+> This physical collection is associated with Button:Button 1 (0x0009:0x0001)
+> not Generic Desktop:Pointer (0x0001:0x0001)
+>
+> >0xa1, 0x00,                    //  Collection (Physical)              62
+> >0x75, 0x0c,                    //   Report Size (12)                  64
+> >0x95, 0x02,                    //   Report Count (2)                  66
+> >0x05, 0x01,                    //   Usage Page (Generic Desktop)      68
+>
+> Now we're back in the Generic Desktop page
+
+You are missing one bit in the HID specification. The report
+descriptor is both a stack and a machine with states. The 'usage page'
+can be considered as a 'register' that needs to be associated to the
+'usage' to provide the final usage.
+For example, Usage Page 0x01 (Generic Desktop) plus Usage 0x30 gives
+you the "X" usage.
+While Usage Page 0x0d (digitizer) plus the same Usage 0x30 gives you
+the "Tip Pressure".
+
+So here, there is nothing wrong.
+
+The stack part concerns the collections. You open a collection type
+(physical, or application), and you can close it.
+
+So here, the problem is that the 2 reports with Ids 1 and 2 are part
+of the same application collection "mouse" and should be tied to the
+same input device (at least that is how I thought of the code).
+Unfortunately, the bug makes that these 2 reports each have an input
+node, and this is where things start to mess up.
 
 Cheers,
-   Peter
+Benjamin
 
-> ---
-> 
-> Changes in v2: None
-> 
->  Documentation/input/event-codes.rst    | 11 ++++++++++-
->  include/uapi/linux/input-event-codes.h |  1 +
->  2 files changed, 11 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-> index a8c0873beb95..cef220c176a4 100644
-> --- a/Documentation/input/event-codes.rst
-> +++ b/Documentation/input/event-codes.rst
-> @@ -190,7 +190,16 @@ A few EV_REL codes have special meanings:
->  * REL_WHEEL, REL_HWHEEL:
->  
->    - These codes are used for vertical and horizontal scroll wheels,
-> -    respectively.
-> +    respectively. The value is the number of "notches" moved on the wheel, the
-> +    physical size of which varies by device. For high-resolution wheels (which
-> +    report multiple events for each notch of movement, or do not have notches)
-> +    this may be an approximation based on the high-resolution scroll events.
-> +
-> +* REL_WHEEL_HI_RES:
-> +
-> +  - If a vertical scroll wheel supports high-resolution scrolling, this code
-> +    will be emitted in addition to REL_WHEEL. The value is the (approximate)
-> +    distance travelled by the user's finger, in microns.
->  
->  EV_ABS
->  ------
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 53fbae27b280..dad8d3890a3a 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -708,6 +708,7 @@
->  #define REL_DIAL		0x07
->  #define REL_WHEEL		0x08
->  #define REL_MISC		0x09
-> +#define REL_WHEEL_HI_RES	0x0a
->  #define REL_MAX			0x0f
->  #define REL_CNT			(REL_MAX+1)
->  
-> -- 
-> 2.19.0.rc0.228.g281dcd1b4d0-goog
-> 
+>
+> >0x09, 0x30,                    //   Usage (X)                         70
+> >0x09, 0x31,                    //   Usage (Y)                         72
+> >0x16, 0x01, 0xf8,              //   Logical Minimum (-2047)           74
+> >0x26, 0xff, 0x07,              //   Logical Maximum (2047)            77
+> >0x81, 0x06,                    //   Input (Data,Var,Rel)              80
+> >0xc0,                          //  End Collection                     82
+> >0xc0,                          // End Collection                      83
+> >...
+> >

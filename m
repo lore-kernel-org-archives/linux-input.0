@@ -1,7 +1,7 @@
-From: Andi Shyti <andi@etezian.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH 1/2] input: egalax_ts: add system wakeup support
-Date: Wed, 5 Sep 2018 13:34:28 +0300
-Message-ID: <20180905103428.GA29158@jack.zhora.eu>
+Date: Wed, 5 Sep 2018 10:27:00 -0700
+Message-ID: <20180905172700.GA257188@dtor-ws>
 References: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -10,7 +10,7 @@ Content-Disposition: inline
 In-Reply-To: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Anson Huang <Anson.Huang@nxp.com>
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, marco.franchi@nxp.com, fabio.estevam@nxp.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-imx@nxp.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, marco.franchi@nxp.com, fabio.estevam@nxp.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
 Hi Anson,
@@ -22,16 +22,63 @@ On Wed, Sep 05, 2018 at 05:26:46PM +0800, Anson Huang wrote:
 > egalax touch screen will be able to wakeup system from suspend.
 > 
 > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> ---
+>  drivers/input/touchscreen/egalax_ts.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> index 80e69bb..74984ed 100644
+> --- a/drivers/input/touchscreen/egalax_ts.c
+> +++ b/drivers/input/touchscreen/egalax_ts.c
+> @@ -164,6 +164,7 @@ static int egalax_firmware_version(struct i2c_client *client)
+>  static int egalax_ts_probe(struct i2c_client *client,
+>  			   const struct i2c_device_id *id)
+>  {
+> +	struct device_node *np = client->dev.of_node;
+>  	struct egalax_ts *ts;
+>  	struct input_dev *input_dev;
+>  	int error;
+> @@ -224,6 +225,9 @@ static int egalax_ts_probe(struct i2c_client *client,
+>  	if (error)
+>  		return error;
+>  
+> +	if (of_property_read_bool(np, "wakeup-source"))
+> +		device_init_wakeup(&client->dev, true);
 
-I think you messed up the order of the patches, this patch
-whould come after the PATCH 2/2.
+This is done in i2c core, there is no need to do it in the driver.
 
-You first create the property and then use it. If someone checks
-out right here, he would find an inconsistency between the dts
-property and this code.
+> +
+>  	return 0;
+>  }
+>  
+> @@ -241,6 +245,9 @@ static int __maybe_unused egalax_ts_suspend(struct device *dev)
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  	int ret;
+>  
+> +	if (device_may_wakeup(dev))
+> +		return enable_irq_wake(client->irq);
+> +
+>  	ret = i2c_master_send(client, suspend_cmd, MAX_I2C_DATA_LEN);
+>  	return ret > 0 ? 0 : ret;
+>  }
+> @@ -249,6 +256,9 @@ static int __maybe_unused egalax_ts_resume(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  
+> +	if (device_may_wakeup(dev))
+> +		return 0;
 
-You can either send a version 2 with the correct order or check
-if Dmitry and Rob are willing to sync for who takes first the
-patch first.
+This will end up with unbalanced enable_irq_wake() from suspend.
 
-Andi
+> +
+>  	return egalax_wake_up_device(client);
+>  }
+>  
+> -- 
+> 2.7.4
+> 
+
+Thanks.
+
+-- 
+Dmitry

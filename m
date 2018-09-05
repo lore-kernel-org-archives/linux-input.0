@@ -1,76 +1,43 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid: hid-core: Fix a sleep-in-atomic-context bug in
- __hid_request()
-Date: Wed, 5 Sep 2018 10:29:29 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1809051026540.15880@cbobk.fhfr.pm>
-References: <20180901121659.1257-1-baijiaju1990@gmail.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH] Input: wm97xx: only unregister wm97xx_driver if it has
+ been registered
+Date: Wed, 5 Sep 2018 10:16:09 +0100
+Message-ID: <20180905091609.GC1653@imbe.wolfsonmicro.main>
+References: <20180904183505.10693-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180901121659.1257-1-baijiaju1990@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180904183505.10693-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Mark Brown <broonie@kernel.org>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, patches@opensource.cirrus.com, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 1 Sep 2018, Jia-Ju Bai wrote:
+On Tue, Sep 04, 2018 at 07:35:05PM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> In the case where IS_BUILTIN(CONFIG_AC97_BUS)) is not true, the
+> wm97xx_driver driver is being unregistered even it has not been
+> previously registered.  Fix this by only unregistering it if
+> IS_BUILTIN(CONFIG_AC97_BUS)) is true.  This fixes the warning
+> message:
+> 
+> [  834.111248] ------------[ cut here ]------------
+> [  834.111248] Unexpected driver unregister!
+> [  834.111319] WARNING: CPU: 2 PID: 11749 at drivers/base/driver.c:193 driver_unregister+0x3b/0x40
+> [  834.111319] Modules linked in: wm97xx_ts(-) ....
+> 
+> ..and a stack trace.
+> 
+> To easily reproduce this, load and unload the module on a system where
+> the hardware is not supported.
+> 
+> Fixes: ae9d1b5fbd7b ("Input: wm97xx: add new AC97 bus support")
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
 
-> The driver may sleep with holding a spinlock.
-> 
-> The function call paths (from bottom to top) in Linux-4.16 are:
-> 
-> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
-> drivers/hid/hid-core.c, 1435: 
-> 	hid_alloc_report_buf in __hid_request
-> ./include/linux/hid.h, 1023: 
-> 	__hid_request in hid_hw_request
-> drivers/hid/hid-picolcd_core.c, 111: 
-> 	hid_hw_request in picolcd_send_and_wait
-> drivers/hid/hid-picolcd_core.c, 100: 
-> 	_raw_spin_lock_irqsave in picolcd_send_and_wait
-> 
-> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
-> drivers/hid/hid-core.c, 1435: 
-> 	hid_alloc_report_buf in __hid_request
-> ./include/linux/hid.h, 1023: 
-> 	__hid_request in hid_hw_request
-> drivers/hid/hid-picolcd_core.c, 245: 
-> 	hid_hw_request in picolcd_reset
-> drivers/hid/hid-picolcd_core.c, 235: 
-> 	_raw_spin_lock_irqsave in picolcd_reset
-> 
-> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
-> drivers/hid/hid-core.c, 1435: 
-> 	hid_alloc_report_buf in __hid_request
-> ./include/linux/hid.h, 1023: 
-> 	__hid_request in hid_hw_request
-> drivers/hid/hid-picolcd_fb.c, 215: 
-> 	hid_hw_request in picolcd_fb_reset
-> drivers/hid/hid-picolcd_fb.c, 206: 
-> 	_raw_spin_lock_irqsave in picolcd_fb_reset
-> 
-> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
-> drivers/hid/hid-core.c, 1435: 
-> 	hid_alloc_report_buf in __hid_request
-> ./include/linux/hid.h, 1023: 
-> 	__hid_request in hid_hw_request
-> drivers/hid/hid-lg4ff.c, 465: 
-> 	hid_hw_request in lg4ff_play
-> drivers/hid/hid-lg4ff.c, 441: 
-> 	_raw_spin_lock_irqsave in lg4ff_play
-> 
-> To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
-> 
-> This bug is found by my static analysis tool DSAC.
-
-Could you please rewrite the changelog so that it's human readable? The 
-above is a bit hard to understand, I think something along the lines of 
-"__hid_request() has to be allocating with GFP_ATOMIC because there are 
-the following callchains leading to __hid_request() being an atomic 
-context: ... a->b->c.._hid_request()" etc.
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Charles

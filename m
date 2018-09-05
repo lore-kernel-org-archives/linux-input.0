@@ -1,43 +1,66 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH] Input: wm97xx: only unregister wm97xx_driver if it has
- been registered
-Date: Wed, 5 Sep 2018 10:16:09 +0100
-Message-ID: <20180905091609.GC1653@imbe.wolfsonmicro.main>
-References: <20180904183505.10693-1-colin.king@canonical.com>
+From: Anson Huang <Anson.Huang@nxp.com>
+Subject: [PATCH 1/2] input: egalax_ts: add system wakeup support
+Date: Wed,  5 Sep 2018 17:26:46 +0800
+Message-ID: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180904183505.10693-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Mark Brown <broonie@kernel.org>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, patches@opensource.cirrus.com, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, marco.franchi@nxp.com, fabio.estevam@nxp.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Sep 04, 2018 at 07:35:05PM +0100, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> In the case where IS_BUILTIN(CONFIG_AC97_BUS)) is not true, the
-> wm97xx_driver driver is being unregistered even it has not been
-> previously registered.  Fix this by only unregistering it if
-> IS_BUILTIN(CONFIG_AC97_BUS)) is true.  This fixes the warning
-> message:
-> 
-> [  834.111248] ------------[ cut here ]------------
-> [  834.111248] Unexpected driver unregister!
-> [  834.111319] WARNING: CPU: 2 PID: 11749 at drivers/base/driver.c:193 driver_unregister+0x3b/0x40
-> [  834.111319] Modules linked in: wm97xx_ts(-) ....
-> 
-> ..and a stack trace.
-> 
-> To easily reproduce this, load and unload the module on a system where
-> the hardware is not supported.
-> 
-> Fixes: ae9d1b5fbd7b ("Input: wm97xx: add new AC97 bus support")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
+This patch adds wakeup function support for egalax touch
+screen, if "wakeup-source" is added to device tree's egalax
+touch screen node, the wakeup function will be enabled, and
+egalax touch screen will be able to wakeup system from suspend.
 
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+ drivers/input/touchscreen/egalax_ts.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Thanks,
-Charles
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index 80e69bb..74984ed 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -164,6 +164,7 @@ static int egalax_firmware_version(struct i2c_client *client)
+ static int egalax_ts_probe(struct i2c_client *client,
+ 			   const struct i2c_device_id *id)
+ {
++	struct device_node *np = client->dev.of_node;
+ 	struct egalax_ts *ts;
+ 	struct input_dev *input_dev;
+ 	int error;
+@@ -224,6 +225,9 @@ static int egalax_ts_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	if (of_property_read_bool(np, "wakeup-source"))
++		device_init_wakeup(&client->dev, true);
++
+ 	return 0;
+ }
+ 
+@@ -241,6 +245,9 @@ static int __maybe_unused egalax_ts_suspend(struct device *dev)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	int ret;
+ 
++	if (device_may_wakeup(dev))
++		return enable_irq_wake(client->irq);
++
+ 	ret = i2c_master_send(client, suspend_cmd, MAX_I2C_DATA_LEN);
+ 	return ret > 0 ? 0 : ret;
+ }
+@@ -249,6 +256,9 @@ static int __maybe_unused egalax_ts_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 
++	if (device_may_wakeup(dev))
++		return 0;
++
+ 	return egalax_wake_up_device(client);
+ }
+ 
+-- 
+2.7.4

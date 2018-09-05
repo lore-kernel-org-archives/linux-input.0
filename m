@@ -1,42 +1,37 @@
-From: Anson Huang <Anson.Huang@nxp.com>
-Subject: [PATCH 2/2] dt-bindings: egalax-ts: add support for wakeup event action
-Date: Wed,  5 Sep 2018 17:26:47 +0800
-Message-ID: <1536139607-16848-2-git-send-email-Anson.Huang@nxp.com>
+From: Andi Shyti <andi@etezian.org>
+Subject: Re: [PATCH 1/2] input: egalax_ts: add system wakeup support
+Date: Wed, 5 Sep 2018 13:34:28 +0300
+Message-ID: <20180905103428.GA29158@jack.zhora.eu>
 References: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, marco.franchi@nxp.com, fabio.estevam@nxp.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Linux-imx@nxp.com
+To: Anson Huang <Anson.Huang@nxp.com>
+Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, marco.franchi@nxp.com, fabio.estevam@nxp.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-imx@nxp.com
 List-Id: linux-input@vger.kernel.org
 
-Add support for wakeup event action, this would allow the device
-to configure whether to be a wakeup source of system suspend.
+Hi Anson,
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
- Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt | 2 ++
- 1 file changed, 2 insertions(+)
+On Wed, Sep 05, 2018 at 05:26:46PM +0800, Anson Huang wrote:
+> This patch adds wakeup function support for egalax touch
+> screen, if "wakeup-source" is added to device tree's egalax
+> touch screen node, the wakeup function will be enabled, and
+> egalax touch screen will be able to wakeup system from suspend.
+> 
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-index 92fb262..296a9cd 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-@@ -6,6 +6,7 @@ Required properties:
- - interrupts: touch controller interrupt
- - wakeup-gpios: the gpio pin to be used for waking up the controller
-   and also used as irq pin
-+- wakeup-source: boolean, touch screen can wake-up the system
- 
- Example:
- 
-@@ -15,4 +16,5 @@ Example:
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <9 2>;
- 		wakeup-gpios = <&gpio1 9 0>;
-+		wakeup-source;
- 	};
--- 
-2.7.4
+I think you messed up the order of the patches, this patch
+whould come after the PATCH 2/2.
+
+You first create the property and then use it. If someone checks
+out right here, he would find an inconsistency between the dts
+property and this code.
+
+You can either send a version 2 with the correct order or check
+if Dmitry and Rob are willing to sync for who takes first the
+patch first.
+
+Andi

@@ -1,46 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/4] HID: multitouch: fix Elan panels with 2 input modes declaration
-Date: Wed, 5 Sep 2018 09:01:15 +0200
-Message-ID: <CAO-hwJ+MN=BR_ZS4_GpZitqu2WR+kYSJ3MikQrt8qHFheAbqrQ@mail.gmail.com>
-References: <20180904133115.5111-1-benjamin.tissoires@redhat.com>
- <20180904133115.5111-2-benjamin.tissoires@redhat.com> <nycvar.YFH.7.76.1809042130260.15880@cbobk.fhfr.pm>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: core: fix NULL pointer dereference
+Date: Wed, 5 Sep 2018 10:08:51 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1809051008420.15880@cbobk.fhfr.pm>
+References: <20180829152209.GA29831@embeddedor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1809042130260.15880@cbobk.fhfr.pm>
-Sender: stable-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180829152209.GA29831@embeddedor.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Stefan Agner <stefan@agner.ch>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Sep 4, 2018 at 9:31 PM Jiri Kosina <jikos@kernel.org> wrote:
->
-> On Tue, 4 Sep 2018, Benjamin Tissoires wrote:
->
-> > When implementing commit 7f81c8db5489 ("HID: multitouch: simplify
-> > the settings of the various features"), I wrongly removed a test
-> > that made sure we never try to set the second InputMode feature
-> > to something else than 0.
-> >
-> > This broke badly some recent Elan panels that now forget to send the
-> > click button in some area of the touchpad.
-> >
-> > Fixes 7f81c8db5489
->
-> Please make sure that the 'Fixes:' tag is always in proper format. There
-> are tools depending on that :)
+On Wed, 29 Aug 2018, Gustavo A. R. Silva wrote:
 
-Oops, thanks for fixing it. Lazy me :)
+> There is a NULL pointer dereference in case memory resources
+> for *parse* are not successfully allocated.
+> 
+> Fix this by adding a new goto label and make the execution
+> path jump to it in case vzalloc() fails.
+> 
+> Addresses-Coverity-ID: 1473081 ("Dereference after null check")
+> Fixes: b2dd9f2e5a8a ("HID: core: fix memory leak on probe")
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  drivers/hid/hid-core.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 4548dae..5bec924 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1000,7 +1000,7 @@ int hid_open_report(struct hid_device *device)
+>  	parser = vzalloc(sizeof(struct hid_parser));
+>  	if (!parser) {
+>  		ret = -ENOMEM;
+> -		goto err;
+> +		goto alloc_err;
+>  	}
+>  
+>  	parser->device = device;
+> @@ -1049,6 +1049,7 @@ int hid_open_report(struct hid_device *device)
+>  	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
+>  err:
+>  	kfree(parser->collection_stack);
+> +alloc_err:
+>  	vfree(parser);
+>  	hid_close_report(device);
+>  	return ret;
 
-Cheers,
-Benjamin
+Queued in for-4.19/fixes. Thanks,
 
->
-> I'll fix that up manually.
->
-> Thanks!
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+-- 
+Jiri Kosina
+SUSE Labs

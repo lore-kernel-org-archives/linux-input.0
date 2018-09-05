@@ -1,55 +1,26 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: core: fix NULL pointer dereference
-Date: Wed, 5 Sep 2018 10:08:51 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1809051008420.15880@cbobk.fhfr.pm>
-References: <20180829152209.GA29831@embeddedor.com>
+Subject: Re: [PATCH v2 0/5] Add support for high-resolution scrolling on
+ Logitech mice
+Date: Wed, 5 Sep 2018 10:13:16 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1809051013000.15880@cbobk.fhfr.pm>
+References: <20180830215622.47550-1-hcutts@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180829152209.GA29831@embeddedor.com>
+In-Reply-To: <20180830215622.47550-1-hcutts@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Stefan Agner <stefan@agner.ch>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Harry Cutts <hcutts@chromium.org>
+Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 29 Aug 2018, Gustavo A. R. Silva wrote:
+On Thu, 30 Aug 2018, Harry Cutts wrote:
 
-> There is a NULL pointer dereference in case memory resources
-> for *parse* are not successfully allocated.
-> 
-> Fix this by adding a new goto label and make the execution
-> path jump to it in case vzalloc() fails.
-> 
-> Addresses-Coverity-ID: 1473081 ("Dereference after null check")
-> Fixes: b2dd9f2e5a8a ("HID: core: fix memory leak on probe")
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> ---
->  drivers/hid/hid-core.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 4548dae..5bec924 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1000,7 +1000,7 @@ int hid_open_report(struct hid_device *device)
->  	parser = vzalloc(sizeof(struct hid_parser));
->  	if (!parser) {
->  		ret = -ENOMEM;
-> -		goto err;
-> +		goto alloc_err;
->  	}
->  
->  	parser->device = device;
-> @@ -1049,6 +1049,7 @@ int hid_open_report(struct hid_device *device)
->  	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
->  err:
->  	kfree(parser->collection_stack);
-> +alloc_err:
->  	vfree(parser);
->  	hid_close_report(device);
->  	return ret;
+> This is v2 of the patch set adding support for high-resolution scroll 
+> wheels on Logitech mice. See the linux-input "Reporting high-resolution 
+> scroll events" thread [0] for previous discussion of the evdev changes. 
+> I would love to hear your feedback.
 
-Queued in for-4.19/fixes. Thanks,
+Queued in for-4.20/logitech-highres. Thanks,
 
 -- 
 Jiri Kosina

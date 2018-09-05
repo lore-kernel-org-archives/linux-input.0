@@ -1,31 +1,79 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/4] HID fixes
-Date: Tue, 4 Sep 2018 21:33:47 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1809042133250.15880@cbobk.fhfr.pm>
-References: <20180904133115.5111-1-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 1/5] Add the `REL_WHEEL_HI_RES` event code
+Date: Tue, 4 Sep 2018 17:25:08 -0700
+Message-ID: <20180905002508.GA72133@dtor-ws>
+References: <20180830215622.47550-1-hcutts@chromium.org>
+ <20180830215622.47550-2-hcutts@chromium.org>
+ <nycvar.YFH.7.76.1809031542370.25787@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180904133115.5111-1-benjamin.tissoires@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <nycvar.YFH.7.76.1809031542370.25787@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Harry Cutts <hcutts@chromium.org>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jiri.kosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 4 Sep 2018, Benjamin Tissoires wrote:
+On Mon, Sep 03, 2018 at 03:43:13PM +0200, Jiri Kosina wrote:
+> On Thu, 30 Aug 2018, Harry Cutts wrote:
+> 
+> > This event code represents scroll reports from high-resolution wheels,
+> > and will be used by future patches in this series. See the linux-input
+> > "Reporting high-resolution scroll events" thread [0] for more details.
+> > 
+> > [0]: https://www.spinics.net/lists/linux-input/msg57380.html
+> > 
+> > Signed-off-by: Harry Cutts <hcutts@chromium.org>
+> > ---
+> > 
+> > Changes in v2: None
+> > 
+> >  Documentation/input/event-codes.rst    | 11 ++++++++++-
+> >  include/uapi/linux/input-event-codes.h |  1 +
+> >  2 files changed, 11 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+> > index a8c0873beb95..cef220c176a4 100644
+> > --- a/Documentation/input/event-codes.rst
+> > +++ b/Documentation/input/event-codes.rst
+> > @@ -190,7 +190,16 @@ A few EV_REL codes have special meanings:
+> >  * REL_WHEEL, REL_HWHEEL:
+> >  
+> >    - These codes are used for vertical and horizontal scroll wheels,
+> > -    respectively.
+> > +    respectively. The value is the number of "notches" moved on the wheel, the
+> > +    physical size of which varies by device. For high-resolution wheels (which
+> > +    report multiple events for each notch of movement, or do not have notches)
+> > +    this may be an approximation based on the high-resolution scroll events.
+> > +
+> > +* REL_WHEEL_HI_RES:
+> > +
+> > +  - If a vertical scroll wheel supports high-resolution scrolling, this code
+> > +    will be emitted in addition to REL_WHEEL. The value is the (approximate)
+> > +    distance travelled by the user's finger, in microns.
+> >  
+> >  EV_ABS
+> >  ------
+> > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> > index 53fbae27b280..dad8d3890a3a 100644
+> > --- a/include/uapi/linux/input-event-codes.h
+> > +++ b/include/uapi/linux/input-event-codes.h
+> > @@ -708,6 +708,7 @@
+> >  #define REL_DIAL		0x07
+> >  #define REL_WHEEL		0x08
+> >  #define REL_MISC		0x09
+> > +#define REL_WHEEL_HI_RES	0x0a
+> >  #define REL_MAX			0x0f
+> >  #define REL_CNT			(REL_MAX+1)
+> 
+> Dmitry, is this OK with you?
 
-> Hi Jiri,
-> 
-> there is no real link between those 4 commit but the fact that I wrote
-> them today ;)
-> 
-> 2 patches should at least be scheduled for v4.19: 1/4 and 3/4
-> Both are stable fixes for mistakes I made in v4.18.
-> 
-> Patch 2 and 4 are just nice to have, so v4.20 should be fine.
+Yep, please feel free to merge through your tree.
 
-And I've queued the patches exactly like that. Thanks,
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

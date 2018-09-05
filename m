@@ -1,26 +1,24 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2 0/5] Add support for high-resolution scrolling on
- Logitech mice
-Date: Wed, 5 Sep 2018 10:13:16 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1809051013000.15880@cbobk.fhfr.pm>
-References: <20180830215622.47550-1-hcutts@chromium.org>
+Subject: Re: [PATCH v2 0/2] Rumble support for Xbox One S controller
+Date: Wed, 5 Sep 2018 10:20:55 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1809051020420.15880@cbobk.fhfr.pm>
+References: <20180816024410.29218-1-andrew.smirnov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180830215622.47550-1-hcutts@chromium.org>
+In-Reply-To: <20180816024410.29218-1-andrew.smirnov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Harry Cutts <hcutts@chromium.org>
-Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+To: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>, Juha Kuikka <juha.kuikka@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 30 Aug 2018, Harry Cutts wrote:
+On Wed, 15 Aug 2018, Andrey Smirnov wrote:
 
-> This is v2 of the patch set adding support for high-resolution scroll 
-> wheels on Logitech mice. See the linux-input "Reporting high-resolution 
-> scroll events" thread [0] for previous discussion of the evdev changes. 
-> I would love to hear your feedback.
+> This is v2 of the patches adding support for rumble for Xbox One S
+> controller connected over Bluetooth. Hopefully all of the changes are
+> pretty straightforward and self-explanatory.
 
-Queued in for-4.20/logitech-highres. Thanks,
+Applied to for-4.20/microsoft branch. Thanks,
 
 -- 
 Jiri Kosina

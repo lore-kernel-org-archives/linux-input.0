@@ -1,82 +1,94 @@
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: Re: [PATCH] hid: hid-core: Fix a sleep-in-atomic-context bug in
- __hid_request()
-Date: Thu, 6 Sep 2018 10:35:14 +0800
-Message-ID: <6ec3d032-6d33-d2af-965f-7f3457dc8311@gmail.com>
-References: <20180901121659.1257-1-baijiaju1990@gmail.com>
- <nycvar.YFH.7.76.1809051026540.15880@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH v2] HID: i2c-hid: Don't reset device upon system resume
+Date: Thu,  6 Sep 2018 10:55:18 +0800
+Message-ID: <20180906025518.30191-1-kai.heng.feng@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1809051026540.15880@cbobk.fhfr.pm>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>, Aaron Ma <aaron.ma@canonical.com>, AceLan Kao <acelan.kao@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
+Raydium touchscreen triggers interrupt storm after system-wide suspend:
+[ 179.085033] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete
+report (58/65535)
 
+According to Raydium, Windows driver does not reset the device after
+system resume.
 
-On 2018/9/5 16:29, Jiri Kosina wrote:
-> On Sat, 1 Sep 2018, Jia-Ju Bai wrote:
->
->> The driver may sleep with holding a spinlock.
->>
->> The function call paths (from bottom to top) in Linux-4.16 are:
->>
->> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
->> drivers/hid/hid-core.c, 1435:
->> 	hid_alloc_report_buf in __hid_request
->> ./include/linux/hid.h, 1023:
->> 	__hid_request in hid_hw_request
->> drivers/hid/hid-picolcd_core.c, 111:
->> 	hid_hw_request in picolcd_send_and_wait
->> drivers/hid/hid-picolcd_core.c, 100:
->> 	_raw_spin_lock_irqsave in picolcd_send_and_wait
->>
->> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
->> drivers/hid/hid-core.c, 1435:
->> 	hid_alloc_report_buf in __hid_request
->> ./include/linux/hid.h, 1023:
->> 	__hid_request in hid_hw_request
->> drivers/hid/hid-picolcd_core.c, 245:
->> 	hid_hw_request in picolcd_reset
->> drivers/hid/hid-picolcd_core.c, 235:
->> 	_raw_spin_lock_irqsave in picolcd_reset
->>
->> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
->> drivers/hid/hid-core.c, 1435:
->> 	hid_alloc_report_buf in __hid_request
->> ./include/linux/hid.h, 1023:
->> 	__hid_request in hid_hw_request
->> drivers/hid/hid-picolcd_fb.c, 215:
->> 	hid_hw_request in picolcd_fb_reset
->> drivers/hid/hid-picolcd_fb.c, 206:
->> 	_raw_spin_lock_irqsave in picolcd_fb_reset
->>
->> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
->> drivers/hid/hid-core.c, 1435:
->> 	hid_alloc_report_buf in __hid_request
->> ./include/linux/hid.h, 1023:
->> 	__hid_request in hid_hw_request
->> drivers/hid/hid-lg4ff.c, 465:
->> 	hid_hw_request in lg4ff_play
->> drivers/hid/hid-lg4ff.c, 441:
->> 	_raw_spin_lock_irqsave in lg4ff_play
->>
->> To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
->>
->> This bug is found by my static analysis tool DSAC.
-> Could you please rewrite the changelog so that it's human readable? The
-> above is a bit hard to understand, I think something along the lines of
-> "__hid_request() has to be allocating with GFP_ATOMIC because there are
-> the following callchains leading to __hid_request() being an atomic
-> context: ... a->b->c.._hid_request()" etc.
->
+The HID over I2C spec does specify a reset should be used at
+intialization, but it doesn't specify if reset is required for system
+suspend.
 
-Okay, I will send a new patch.
+Tested this patch on other i2c-hid touchpanels I have and those
+touchpanels do work after S3 without doing reset. If any regression
+happens to other touchpanel vendors, we can use quirk for Raydium
+devices.
 
+There's still one device uses I2C_HID_QUIRK_RESEND_REPORT_DESCR so keep
+it there.
 
-Best wishes,
-Jia-Ju Bai
+Cc: Aaron Ma <aaron.ma@canonical.com>
+Cc: AceLan Kao <acelan.kao@canonical.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+---
+v2:
+ Remove Raydium devices' ID and quirk.
+ Rewording.
+
+ drivers/hid/hid-ids.h         |  4 ----
+ drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++------
+ 2 files changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7da93d789080..e254ae802688 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -530,10 +530,6 @@
+ #define I2C_VENDOR_ID_HANTICK		0x0911
+ #define I2C_PRODUCT_ID_HANTICK_5288	0x5288
+ 
+-#define I2C_VENDOR_ID_RAYD		0x2386
+-#define I2C_PRODUCT_ID_RAYD_3118	0x3118
+-#define I2C_PRODUCT_ID_RAYD_4B33	0x4B33
+-
+ #define USB_VENDOR_ID_HANWANG		0x0b57
+ #define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
+ #define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 57126f6837bb..f3076659361a 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -170,12 +170,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+ 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+ 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+-	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
+-		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+ 	{ USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS10FB_TOUCH,
+ 		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+-	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_4B33,
+-		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+ 	{ 0, 0 }
+ };
+ 
+@@ -1237,11 +1233,16 @@ static int i2c_hid_resume(struct device *dev)
+ 	pm_runtime_enable(dev);
+ 
+ 	enable_irq(client->irq);
+-	ret = i2c_hid_hwreset(client);
++
++	/* Instead of resetting device, simply powers the device on. This
++	 * solves "incomplete reports" on Raydium devices 2386:3118 and
++	 * 2386:4B33
++	 */
++	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+ 	if (ret)
+ 		return ret;
+ 
+-	/* RAYDIUM device (2386:3118) need to re-send report descr cmd
++	/* Some devices need to re-send report descr cmd
+ 	 * after resume, after this it will be back normal.
+ 	 * otherwise it issues too many incomplete reports.
+ 	 */
+-- 
+2.17.1

@@ -1,84 +1,82 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: egalax_ts: add system wakeup support
-Date: Wed, 5 Sep 2018 10:27:00 -0700
-Message-ID: <20180905172700.GA257188@dtor-ws>
-References: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+Subject: Re: [PATCH] hid: hid-core: Fix a sleep-in-atomic-context bug in
+ __hid_request()
+Date: Thu, 6 Sep 2018 10:35:14 +0800
+Message-ID: <6ec3d032-6d33-d2af-965f-7f3457dc8311@gmail.com>
+References: <20180901121659.1257-1-baijiaju1990@gmail.com>
+ <nycvar.YFH.7.76.1809051026540.15880@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <nycvar.YFH.7.76.1809051026540.15880@cbobk.fhfr.pm>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <Anson.Huang@nxp.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, marco.franchi@nxp.com, fabio.estevam@nxp.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Linux-imx@nxp.com
+To: Jiri Kosina <jikos@kernel.org>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Anson,
 
-On Wed, Sep 05, 2018 at 05:26:46PM +0800, Anson Huang wrote:
-> This patch adds wakeup function support for egalax touch
-> screen, if "wakeup-source" is added to device tree's egalax
-> touch screen node, the wakeup function will be enabled, and
-> egalax touch screen will be able to wakeup system from suspend.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> ---
->  drivers/input/touchscreen/egalax_ts.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-> index 80e69bb..74984ed 100644
-> --- a/drivers/input/touchscreen/egalax_ts.c
-> +++ b/drivers/input/touchscreen/egalax_ts.c
-> @@ -164,6 +164,7 @@ static int egalax_firmware_version(struct i2c_client *client)
->  static int egalax_ts_probe(struct i2c_client *client,
->  			   const struct i2c_device_id *id)
->  {
-> +	struct device_node *np = client->dev.of_node;
->  	struct egalax_ts *ts;
->  	struct input_dev *input_dev;
->  	int error;
-> @@ -224,6 +225,9 @@ static int egalax_ts_probe(struct i2c_client *client,
->  	if (error)
->  		return error;
->  
-> +	if (of_property_read_bool(np, "wakeup-source"))
-> +		device_init_wakeup(&client->dev, true);
 
-This is done in i2c core, there is no need to do it in the driver.
+On 2018/9/5 16:29, Jiri Kosina wrote:
+> On Sat, 1 Sep 2018, Jia-Ju Bai wrote:
+>
+>> The driver may sleep with holding a spinlock.
+>>
+>> The function call paths (from bottom to top) in Linux-4.16 are:
+>>
+>> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
+>> drivers/hid/hid-core.c, 1435:
+>> 	hid_alloc_report_buf in __hid_request
+>> ./include/linux/hid.h, 1023:
+>> 	__hid_request in hid_hw_request
+>> drivers/hid/hid-picolcd_core.c, 111:
+>> 	hid_hw_request in picolcd_send_and_wait
+>> drivers/hid/hid-picolcd_core.c, 100:
+>> 	_raw_spin_lock_irqsave in picolcd_send_and_wait
+>>
+>> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
+>> drivers/hid/hid-core.c, 1435:
+>> 	hid_alloc_report_buf in __hid_request
+>> ./include/linux/hid.h, 1023:
+>> 	__hid_request in hid_hw_request
+>> drivers/hid/hid-picolcd_core.c, 245:
+>> 	hid_hw_request in picolcd_reset
+>> drivers/hid/hid-picolcd_core.c, 235:
+>> 	_raw_spin_lock_irqsave in picolcd_reset
+>>
+>> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
+>> drivers/hid/hid-core.c, 1435:
+>> 	hid_alloc_report_buf in __hid_request
+>> ./include/linux/hid.h, 1023:
+>> 	__hid_request in hid_hw_request
+>> drivers/hid/hid-picolcd_fb.c, 215:
+>> 	hid_hw_request in picolcd_fb_reset
+>> drivers/hid/hid-picolcd_fb.c, 206:
+>> 	_raw_spin_lock_irqsave in picolcd_fb_reset
+>>
+>> [FUNC] hid_alloc_report_buf(GFP_KERNEL)
+>> drivers/hid/hid-core.c, 1435:
+>> 	hid_alloc_report_buf in __hid_request
+>> ./include/linux/hid.h, 1023:
+>> 	__hid_request in hid_hw_request
+>> drivers/hid/hid-lg4ff.c, 465:
+>> 	hid_hw_request in lg4ff_play
+>> drivers/hid/hid-lg4ff.c, 441:
+>> 	_raw_spin_lock_irqsave in lg4ff_play
+>>
+>> To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
+>>
+>> This bug is found by my static analysis tool DSAC.
+> Could you please rewrite the changelog so that it's human readable? The
+> above is a bit hard to understand, I think something along the lines of
+> "__hid_request() has to be allocating with GFP_ATOMIC because there are
+> the following callchains leading to __hid_request() being an atomic
+> context: ... a->b->c.._hid_request()" etc.
+>
 
-> +
->  	return 0;
->  }
->  
-> @@ -241,6 +245,9 @@ static int __maybe_unused egalax_ts_suspend(struct device *dev)
->  	struct i2c_client *client = to_i2c_client(dev);
->  	int ret;
->  
-> +	if (device_may_wakeup(dev))
-> +		return enable_irq_wake(client->irq);
-> +
->  	ret = i2c_master_send(client, suspend_cmd, MAX_I2C_DATA_LEN);
->  	return ret > 0 ? 0 : ret;
->  }
-> @@ -249,6 +256,9 @@ static int __maybe_unused egalax_ts_resume(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
->  
-> +	if (device_may_wakeup(dev))
-> +		return 0;
+Okay, I will send a new patch.
 
-This will end up with unbalanced enable_irq_wake() from suspend.
 
-> +
->  	return egalax_wake_up_device(client);
->  }
->  
-> -- 
-> 2.7.4
-> 
-
-Thanks.
-
--- 
-Dmitry
+Best wishes,
+Jia-Ju Bai

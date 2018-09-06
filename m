@@ -1,119 +1,110 @@
-From: Anson Huang <anson.huang@nxp.com>
-Subject: RE: [PATCH 1/2] input: egalax_ts: add system wakeup support
-Date: Thu, 6 Sep 2018 03:30:53 +0000
-Message-ID: <AM0PR0402MB3905F7737816174202D634CAF5010@AM0PR0402MB3905.eurprd04.prod.outlook.com>
-References: <1536139607-16848-1-git-send-email-Anson.Huang@nxp.com>
- <20180905172700.GA257188@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: Don't reset device upon system resume
+Date: Thu, 6 Sep 2018 09:07:18 +0200
+Message-ID: <CAO-hwJJTjDv0gj=3KkZDBz3cXejx-N+f_Jd2Bxk1xhogyxHMLg@mail.gmail.com>
+References: <20180906025518.30191-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180905172700.GA257188@dtor-ws>
-Content-Language: en-US
+In-Reply-To: <20180906025518.30191-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, Marco Antonio Franchi <marco.franchi@nxp.com>, Fabio Estevam <fabio.estevam@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
+To: Kai Heng Feng <kai.heng.feng@canonical.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Aaron Ma <aaron.ma@canonical.com>, AceLan Kao <acelan.kao@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi, Dmitry
+On Thu, Sep 6, 2018 at 4:55 AM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+> Raydium touchscreen triggers interrupt storm after system-wide suspend:
+> [ 179.085033] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete
+> report (58/65535)
+>
+> According to Raydium, Windows driver does not reset the device after
+> system resume.
+>
+> The HID over I2C spec does specify a reset should be used at
+> intialization, but it doesn't specify if reset is required for system
+> suspend.
+>
+> Tested this patch on other i2c-hid touchpanels I have and those
+> touchpanels do work after S3 without doing reset. If any regression
+> happens to other touchpanel vendors, we can use quirk for Raydium
+> devices.
+>
+> There's still one device uses I2C_HID_QUIRK_RESEND_REPORT_DESCR so keep
+> it there.
+>
+> Cc: Aaron Ma <aaron.ma@canonical.com>
+> Cc: AceLan Kao <acelan.kao@canonical.com>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-Anson Huang
-Best Regards!
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
+Jiri, note that this will replace https://patchwork.kernel.org/patch/10583481/
 
-> -----Original Message-----
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Sent: Thursday, September 6, 2018 1:27 AM
-> To: Anson Huang <anson.huang@nxp.com>
-> Cc: robh+dt@kernel.org; mark.rutland@arm.com; Marco Antonio Franchi
-> <marco.franchi@nxp.com>; Fabio Estevam <fabio.estevam@nxp.com>;
-> linux-input@vger.kernel.org; devicetree@vger.kernel.org;
-> linux-kernel@vger.kernel.org; dl-linux-imx <linux-imx@nxp.com>
-> Subject: Re: [PATCH 1/2] input: egalax_ts: add system wakeup support
->=20
-> Hi Anson,
->=20
-> On Wed, Sep 05, 2018 at 05:26:46PM +0800, Anson Huang wrote:
-> > This patch adds wakeup function support for egalax touch screen, if
-> > "wakeup-source" is added to device tree's egalax touch screen node,
-> > the wakeup function will be enabled, and egalax touch screen will be
-> > able to wakeup system from suspend.
-> >
-> > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> > ---
-> >  drivers/input/touchscreen/egalax_ts.c | 10 ++++++++++
-> >  1 file changed, 10 insertions(+)
-> >
-> > diff --git a/drivers/input/touchscreen/egalax_ts.c
-> > b/drivers/input/touchscreen/egalax_ts.c
-> > index 80e69bb..74984ed 100644
-> > --- a/drivers/input/touchscreen/egalax_ts.c
-> > +++ b/drivers/input/touchscreen/egalax_ts.c
-> > @@ -164,6 +164,7 @@ static int egalax_firmware_version(struct
-> > i2c_client *client)  static int egalax_ts_probe(struct i2c_client *clie=
-nt,
-> >  			   const struct i2c_device_id *id)  {
-> > +	struct device_node *np =3D client->dev.of_node;
-> >  	struct egalax_ts *ts;
-> >  	struct input_dev *input_dev;
-> >  	int error;
-> > @@ -224,6 +225,9 @@ static int egalax_ts_probe(struct i2c_client *clien=
-t,
-> >  	if (error)
-> >  		return error;
-> >
-> > +	if (of_property_read_bool(np, "wakeup-source"))
-> > +		device_init_wakeup(&client->dev, true);
->=20
-> This is done in i2c core, there is no need to do it in the driver.
-=20
-Correct, I removed it in V2 patch.
+Cheers,
+Benjamin
 
-
->=20
-> > +
-> >  	return 0;
-> >  }
-> >
-> > @@ -241,6 +245,9 @@ static int __maybe_unused
-> egalax_ts_suspend(struct device *dev)
-> >  	struct i2c_client *client =3D to_i2c_client(dev);
-> >  	int ret;
-> >
-> > +	if (device_may_wakeup(dev))
-> > +		return enable_irq_wake(client->irq);
-> > +
-> >  	ret =3D i2c_master_send(client, suspend_cmd, MAX_I2C_DATA_LEN);
-> >  	return ret > 0 ? 0 : ret;
-> >  }
-> > @@ -249,6 +256,9 @@ static int __maybe_unused egalax_ts_resume(struct
-> > device *dev)  {
-> >  	struct i2c_client *client =3D to_i2c_client(dev);
-> >
-> > +	if (device_may_wakeup(dev))
-> > +		return 0;
->=20
-> This will end up with unbalanced enable_irq_wake() from suspend.
-
-Ah, it is a mistake, I fix it in V2 patch, please help review it.
-
-And for the other patch about adding "wakeup-source" into dt-binding, I thi=
-nk it may
-be no need now, since it is already included in i2c's dt-binding, right?
-
-Thanks.
-
-Anson.
-
->=20
-> > +
-> >  	return egalax_wake_up_device(client);  }
-> >
-> > --
-> > 2.7.4
-> >
->=20
-> Thanks.
->=20
+> ---
+> v2:
+>  Remove Raydium devices' ID and quirk.
+>  Rewording.
+>
+>  drivers/hid/hid-ids.h         |  4 ----
+>  drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++------
+>  2 files changed, 7 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 7da93d789080..e254ae802688 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -530,10 +530,6 @@
+>  #define I2C_VENDOR_ID_HANTICK          0x0911
+>  #define I2C_PRODUCT_ID_HANTICK_5288    0x5288
+>
+> -#define I2C_VENDOR_ID_RAYD             0x2386
+> -#define I2C_PRODUCT_ID_RAYD_3118       0x3118
+> -#define I2C_PRODUCT_ID_RAYD_4B33       0x4B33
+> -
+>  #define USB_VENDOR_ID_HANWANG          0x0b57
+>  #define USB_DEVICE_ID_HANWANG_TABLET_FIRST     0x5000
+>  #define USB_DEVICE_ID_HANWANG_TABLET_LAST      0x8fff
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 57126f6837bb..f3076659361a 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -170,12 +170,8 @@ static const struct i2c_hid_quirks {
+>                 I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+>         { I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+>                 I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+> -       { I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
+> -               I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+>         { USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS10FB_TOUCH,
+>                 I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+> -       { I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_4B33,
+> -               I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+>         { 0, 0 }
+>  };
+>
+> @@ -1237,11 +1233,16 @@ static int i2c_hid_resume(struct device *dev)
+>         pm_runtime_enable(dev);
+>
+>         enable_irq(client->irq);
+> -       ret = i2c_hid_hwreset(client);
+> +
+> +       /* Instead of resetting device, simply powers the device on. This
+> +        * solves "incomplete reports" on Raydium devices 2386:3118 and
+> +        * 2386:4B33
+> +        */
+> +       ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+>         if (ret)
+>                 return ret;
+>
+> -       /* RAYDIUM device (2386:3118) need to re-send report descr cmd
+> +       /* Some devices need to re-send report descr cmd
+>          * after resume, after this it will be back normal.
+>          * otherwise it issues too many incomplete reports.
+>          */
 > --
-> Dmitry
+> 2.17.1
+>

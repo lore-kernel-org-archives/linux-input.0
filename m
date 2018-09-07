@@ -1,47 +1,98 @@
-From: Harry Cutts <hcutts@chromium.org>
-Subject: Re: [PATCH 6/7] HID: logitech-hidpp: support the G700 over wireless
-Date: Fri, 7 Sep 2018 10:33:15 -0700
-Message-ID: <CA+jURct6zJoxqqu7KeOW+MEuR-Voa79=ONQJDqypEx+_BrO47w@mail.gmail.com>
-References: <20180907103450.13890-1-benjamin.tissoires@redhat.com> <20180907103450.13890-7-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: reserve 2 events code because of HID
+Date: Fri, 7 Sep 2018 10:35:05 -0700
+Message-ID: <20180907173505.GA261528@dtor-ws>
+References: <20180907085115.30242-1-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180907103450.13890-7-benjamin.tissoires@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20180907085115.30242-1-benjamin.tissoires@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: benjamin.tissoires@redhat.com
-Cc: jikos@kernel.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, simon@mungewell.org, Olivier Gay <ogay@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
+On Fri, Sep 07, 2018 at 10:51:15AM +0200, Benjamin Tissoires wrote:
+> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> Prior to commit 190d7f02ce8e ("HID: input: do not increment usages when
+> a duplicate is found") from the v4.18 kernel, HID used to shift the
+> event codes if a duplicate usage was found. This ended up in a situation
+> where a device would export a ton of ABS_MISC+n event codes, or a ton
+> of REL_MISC+n event codes.
+> 
+> This is now fixed, however userspace needs to detect those situation.
+> Fortunately, ABS_MISC+1 was never assigned a code, and so libinput
+> can detect fake multitouch devices from genuine ones by checking is
+> ABS_MISC+1 is set.
+> 
+> Now that we have REL_WHEEL_HI_RES, libinput won't be able to differentiate
+> true high res mice from some other device in a pre-v4.18 kernel.
+> 
+> Set in stone that the ABS_MISC+1 and REL_MISC+1 are reserved and should not
+> be used so userspace can properly work around those old kernels.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> 
+> Hi,
+> 
+> while reviewing my local tree, I realize that we might want to be able
+> to differentiate older kernels from new ones that export REL_WHEEL_HI_RES.
+> 
+> I know Dmitry was against adding several REL_MISC, so I hope just moving
+> REL_WHEEL_HI_RES by one and reserving the faulty event codes would be good
+> this time.
+> 
+> This patch applies on top of the branch for-4.20/logitech-highres from
+> Jiri's tree. It should go through Jiri's tree as well.
 
-On Fri, 7 Sep 2018 at 03:35, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> The G700 is using a non unifying receiver, so it's easy to add its support
-> in hid-logitech-hidpp now.
-> [snip]
-> @@ -3671,6 +3671,9 @@ static const struct hid_device_id hidpp_devices[] = {
->         { /* Solar Keyboard Logitech K750 */
->           LDJ_DEVICE(0x4002),
->           .driver_data = HIDPP_QUIRK_CLASS_K750 },
-> +       { /* G700 over Wireless */
-> +         HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G700_RECEIVER),
-> +         .driver_data = HIDPP_QUIRK_RECEIVER | HIDPP_QUIRK_UNIFYING },
+Hm, this is a bit ugly, bit I guess we could spare an event code.
 
-As someone who's new to the codebase, it seems rather confusing to me
-that HIDPP_QUIRK_UNIFYING would be present here for a device that
-doesn't use a Unifying receiver. Am I misunderstanding, or should we
-consider renaming the quirk or adding some clarifying comment?
-(Similarly for the G900 in the next patch.)
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
->
->         { LDJ_DEVICE(HID_ANY_ID) },
->
-> --
+> 
+> Cheers,
+> Benjamin
+> 
+>  include/uapi/linux/input-event-codes.h | 13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 29fb891ea337..30149939249a 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -708,7 +708,12 @@
+>  #define REL_DIAL		0x07
+>  #define REL_WHEEL		0x08
+>  #define REL_MISC		0x09
+> -#define REL_WHEEL_HI_RES	0x0a
+> +/*
+> + * 0x0a is reserved and should not be used.
+> + * It was used by HID as REL_MISC+1 and usersapce needs to detect if
+> + * the next REL_* event is correct or is just REL_MISC + n.
+> + */
+> +#define REL_WHEEL_HI_RES	0x0b
+>  #define REL_MAX			0x0f
+>  #define REL_CNT			(REL_MAX+1)
+>  
+> @@ -745,6 +750,12 @@
+>  
+>  #define ABS_MISC		0x28
+>  
+> +/*
+> + * 0x29 is reserved and should not be used.
+> + * It was used by HID as ABS_MISC+1 and usersapce needs to detect if
+> + * the next ABS_* event is correct or is just ABS_MISC + n.
+> + */
+> +
+>  #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
+>  #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
+>  #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
+> -- 
 > 2.14.3
->
+> 
 
-Thanks,
-
-Harry Cutts
-Chrome OS Touch/Input team
+-- 
+Dmitry

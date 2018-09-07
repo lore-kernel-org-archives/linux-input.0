@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5/7] HID: logitech-hidpp: create a name based on the type if non available
-Date: Fri,  7 Sep 2018 12:34:48 +0200
-Message-ID: <20180907103450.13890-6-benjamin.tissoires@redhat.com>
+Subject: [PATCH 7/7] HID: logitech-hidpp: support the G900 over wireless
+Date: Fri,  7 Sep 2018 12:34:50 +0200
+Message-ID: <20180907103450.13890-8-benjamin.tissoires@redhat.com>
 References: <20180907103450.13890-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180907103450.13890-1-benjamin.tissoires@redhat.com>
@@ -10,89 +10,79 @@ To: Jiri Kosina <jikos@kernel.org>, Nestor Lopez Casado <nlopezcasad@logitech.co
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Some low cost devices don't even have a name (nor a serial) registered
-in the receiver. In those case, create a better name that "Logitech
-USB Receiver" or even "Logitech  " if we try to get their name.
+The receiver of the G900 is similar to a Unifying one. However,
+if we switch the receiver into the DJ mode through hid-logitech-dj,
+the reports emitted by the mouse are from a new kind. Instead of finding
+out what they are, and given that only one device should be connected
+to the receiver, just use hid-logitech-hidpp.
+
+The battery is not yet supported in the kernel, but at least the
+input nodes are now named after the mouse.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 36 +++++++++++++++++++++++++++++++-----
- 1 file changed, 31 insertions(+), 5 deletions(-)
+ drivers/hid/hid-ids.h            |  1 +
+ drivers/hid/hid-logitech-hidpp.c | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b366976e928c..f3de8562a92b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -745,6 +745,7 @@
+ #define USB_DEVICE_ID_LOGITECH_G700_RECEIVER		0xc531
+ #define USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2	0xc532
+ #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_2		0xc534
++#define USB_DEVICE_ID_LOGITECH_G900_RECEIVER		0xc539
+ #define USB_DEVICE_ID_SPACETRAVELLER	0xc623
+ #define USB_DEVICE_ID_SPACENAVIGATOR	0xc626
+ #define USB_DEVICE_ID_DINOVO_DESKTOP	0xc704
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 5f96e63dbd87..a09509fdb746 100644
+index 0ab7f8b66b83..2e264869b096 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -802,6 +802,9 @@ static char *hidpp_unifying_get_name(struct hidpp_device *hidpp_dev, int index)
- 	if (2 + len > sizeof(response.rap.params))
- 		return NULL;
+@@ -68,6 +68,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_QUIRK_HI_RES_SCROLL_X2120		BIT(27)
+ #define HIDPP_QUIRK_HI_RES_SCROLL_X2121		BIT(28)
+ #define HIDPP_QUIRK_RECEIVER			BIT(29)
++#define HIDPP_QUIRK_FORCE_OPEN			BIT(30)
  
-+	if (len < 4) /* logitech devices are usually at least Xddd */
-+		return NULL;
-+
- 	name = kzalloc(len + 1, GFP_KERNEL);
- 	if (!name)
- 		return NULL;
-@@ -838,7 +841,8 @@ static int hidpp_unifying_get_serial(struct hidpp_device *hidpp, int index,
- }
+ /* Convenience constant to check for any high-res support. */
+ #define HIDPP_QUIRK_HI_RES_SCROLL	(HIDPP_QUIRK_HI_RES_SCROLL_1P0 | \
+@@ -3584,6 +3585,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto hid_hw_start_fail;
+ 	}
  
- static int hidpp_unifying_get_name_and_uniq(struct hidpp_device *hidpp,
--		int device_index, u16 quadid, char name[128], char uniq[64])
-+		int device_index, u16 quadid, u8 type, char name[128],
-+		char uniq[64])
- {
- 	const char *hidpp_name;
- 	u32 serial;
-@@ -853,8 +857,29 @@ static int hidpp_unifying_get_name_and_uniq(struct hidpp_device *hidpp,
- 		device_index);
- 
- 	hidpp_name = hidpp_unifying_get_name(hidpp, device_index);
--	if (!hidpp_name)
--		return -EIO;
-+	if (!hidpp_name) {
-+		switch (type) {
-+		case 0x01:
-+			snprintf(name, 128, "Logitech Wireless Keyboard");
-+			break;
-+		case 0x02:
-+			snprintf(name, 128, "Logitech Wireless Mouse");
-+			break;
-+		case 0x03:
-+			snprintf(name, 128, "Logitech Wireless Numpad");
-+			break;
-+		case 0x04:
-+			snprintf(name, 128, "Logitech Wireless Presenter");
-+			break;
-+		case 0x08:
-+			snprintf(name, 128, "Logitech Wireless Trackball");
-+			break;
-+		case 0x09:
-+			snprintf(name, 128, "Logitech Wireless Touchpad");
-+			break;
-+		}
-+		return 0;
++	if (hidpp->quirks & HIDPP_QUIRK_FORCE_OPEN) {
++		ret = hid_hw_open(hdev);
++		if (ret)
++			goto hid_hw_open_fail;
 +	}
++
+ 	return ret;
  
- 	snprintf(name, 128, "%s", hidpp_name);
- 	dbg_hid("HID++ Unifying: Got name: '%s' for device %d\n", name,
-@@ -899,7 +924,8 @@ static int hidpp_unifying_init(struct hidpp_device *hidpp)
- 			 */
- 			if (i == 1) {
- 				ret = hidpp_unifying_get_name_and_uniq(hidpp, i,
--							q, hidpp->shared->name,
-+							q, type,
-+							hidpp->shared->name,
- 							hidpp->shared->uniq);
- 				if (ret)
- 					return ret;
-@@ -910,7 +936,7 @@ static int hidpp_unifying_init(struct hidpp_device *hidpp)
+ hid_hw_init_fail:
+@@ -3608,6 +3615,9 @@ static void hidpp_remove(struct hid_device *hdev)
  
- 	if (device_index != 1) {
- 		ret = hidpp_unifying_get_name_and_uniq(hidpp, device_index,
--						       quadid, hdev->name,
-+						       quadid, type, hdev->name,
- 						       hdev->uniq);
- 		if (ret)
- 			return ret;
+ 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
+ 
++	if (hidpp->quirks & HIDPP_QUIRK_FORCE_OPEN)
++		hid_hw_close(hdev);
++
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
+ 		hidpp_ff_deinit(hdev);
+ 
+@@ -3674,6 +3684,11 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	{ /* G700 over Wireless */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G700_RECEIVER),
+ 	  .driver_data = HIDPP_QUIRK_RECEIVER | HIDPP_QUIRK_UNIFYING },
++	{ /* G900 over Wireless */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_G900_RECEIVER),
++	  .driver_data = HIDPP_QUIRK_RECEIVER | HIDPP_QUIRK_UNIFYING |
++			 HIDPP_QUIRK_FORCE_OPEN},
+ 
+ 	{ LDJ_DEVICE(HID_ANY_ID) },
+ 
 -- 
 2.14.3

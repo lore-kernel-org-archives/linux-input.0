@@ -1,34 +1,25 @@
-From: Michael Schmitz <schmitzmic@gmail.com>
-Subject: Re: [PATCH 1/2] input: atakbd.c - fix Atari keymap
-Date: Sat, 8 Sep 2018 20:06:54 +1200
-Message-ID: <43d93d69-7180-f31d-50af-5ab30d528243@gmail.com>
-References: <1536277243-3821-1-git-send-email-schmitzmic@gmail.com>
- <1536277243-3821-2-git-send-email-schmitzmic@gmail.com>
- <alpine.LNX.2.21.1809071022520.49@nippy.intranet> <871sa5k6gp.fsf@igel.home>
+From: Antonio Borneo <borneo.antonio@gmail.com>
+Subject: Re: [PATCH V2 4/8] regulator: stpmic1: add stpmic1 regulator driver
+Date: Sat, 8 Sep 2018 11:37:29 +0200
+Message-ID: <CAAj6DX2tnT5wjmy9nfRx7ut62_6rsQ00RNjaXX3WxMsB+mSHYw@mail.gmail.com>
+References: <1536325173-16617-1-git-send-email-p.paillet@st.com> <1536325173-16617-5-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <bounce-debian-68k=debian-68k=m.gmane.org@lists.debian.org>
-In-Reply-To: <871sa5k6gp.fsf@igel.home>
-Resent-Message-ID: <C0Cq3zHyNSC.A.vJH.sM4kbB@bendel>
-List-URL: <https://lists.debian.org/debian-68k/>
-List-Post: <mailto:debian-68k@lists.debian.org>
-List-Help: <mailto:debian-68k-request@lists.debian.org?subject=help>
-List-Subscribe: <mailto:debian-68k-request@lists.debian.org?subject=subscribe>
-List-Unsubscribe: <mailto:debian-68k-request@lists.debian.org?subject=unsubscribe>
-List-Archive: https://lists.debian.org/msgid-search/43d93d69-7180-f31d-50af-5ab30d528243@gmail.com
-To: Andreas Schwab <schwab@linux-m68k.org>, Finn Thain <fthain@telegraphics.com.au>
-Cc: linux-input@vger.kernel.org, debian-68k@lists.debian.org, linux-m68k@lists.linux-m68k.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1536325173-16617-5-git-send-email-p.paillet@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: p.paillet@st.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, lee.jones@linaro.org, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, wim@linux-watchdog.org, linux@roeck-us.net, linux-input <linux-input@vger.kernel.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, benjamin.gaignard@linaro.org, eballetbo@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Thanks Andreas!
-
-Cheers,
-
-	Michael
-
-Am 07.09.2018 um 21:22 schrieb Andreas Schwab:
-> Signed-off-by: Andreas Schwab <schwab@linux-m68k.org>
+On Fri, Sep 7, 2018 at 3:15 PM Pascal PAILLET-LME <p.paillet@st.com> wrote:
 >
-> Andreas.
+> From: pascal paillet <p.paillet@st.com>
 >
+> The stpmic1 PMIC embeds several regulators and witches with
+> different capabilities.
+
+While fixing Kconfig, as Mark suggest, would you mind to fix also the
+typo s/witches/switches/ in the commit message?
+
+Antonio

@@ -1,354 +1,114 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2 6/8] input: stpmic1: add stpmic1 onkey driver
-Date: Fri, 7 Sep 2018 10:38:31 -0700
-Message-ID: <20180907173831.GB261528@dtor-ws>
-References: <1536325173-16617-1-git-send-email-p.paillet@st.com>
- <1536325173-16617-7-git-send-email-p.paillet@st.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] Input: reserve 2 events code because of HID
+Date: Sat, 8 Sep 2018 11:44:42 +1000
+Message-ID: <20180908014442.GA16029@jelly>
+References: <20180907085115.30242-1-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1536325173-16617-7-git-send-email-p.paillet@st.com>
+In-Reply-To: <20180907085115.30242-1-benjamin.tissoires@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Pascal,
+On Fri, Sep 07, 2018 at 10:51:15AM +0200, Benjamin Tissoires wrote:
+> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> Prior to commit 190d7f02ce8e ("HID: input: do not increment usages when
+> a duplicate is found") from the v4.18 kernel, HID used to shift the
+> event codes if a duplicate usage was found. This ended up in a situation
+> where a device would export a ton of ABS_MISC+n event codes, or a ton
+> of REL_MISC+n event codes.
+> 
+> This is now fixed, however userspace needs to detect those situation.
+> Fortunately, ABS_MISC+1 was never assigned a code, and so libinput
+> can detect fake multitouch devices from genuine ones by checking is
+> ABS_MISC+1 is set.
 
-On Fri, Sep 07, 2018 at 12:59:45PM +0000, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
+sorry, this isn't quite correct. we use ABS_MT_SLOT - 1 (0x2e) for the
+detection of fake MT devices, i.e.
+  if (ABS_MT_SLOT and not ABS_MT_SLOT-1) then multitouch
+
+That gives you up to ABS_MISC + 6 for legitimate usage. this is handled by
+libevdev, not libinput directly. libevdev adjusts the various bits on "is
+this device an MT device" based on whether ABS_MT_SLOT-1 is set.
+
+I can change this to also check for (ABS_MISC and not ABS_MISC+1) but that
+obviously will depend on updated libraries then. Though I guess it won't
+really be an issue until we fill up the other codes up to including 0x2e
+with real values and expect userspace to handle those.
+
+None of the bits I maintain have special code for REL_MISC+n so that bit
+works fine, IMO.
+
+One request though: instead of just having the value reserved, can we make
+it REL_RESERVED and ABS_RESERVED please? Or ABS_CANARY :) Much easier than
+hardcoding the numeric value.
+
+Cheers,
+   Peter
+
+
+> Now that we have REL_WHEEL_HI_RES, libinput won't be able to differentiate
+> true high res mice from some other device in a pre-v4.18 kernel.
 > 
-> The stpmic1 pmic is able to manage an onkey button. This driver exposes
-> the stpmic1 onkey as an input device. It can also be configured to
-> shut-down the power supplies on a long key-press with an adjustable
-> duration.
+> Set in stone that the ABS_MISC+1 and REL_MISC+1 are reserved and should not
+> be used so userspace can properly work around those old kernels.
 > 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > ---
-> changes in v2:
-> * the hardware component has been renamed from stpmu1 to stpmic1 !
-> * change headers
-> * handle remarks from Dmitry
-> * the irq is threaded because is is nested in a thread; I have added a comment.
-> Dmitry, I'm sorry, but I did not catch your comment regarding usage of 
-> "generic device property API.". could you tell more ? 
-
-You basically do
-
-s/of_property_/device_property_/
-
-and that's it.
-
 > 
->  drivers/input/misc/Kconfig         |  11 ++
->  drivers/input/misc/Makefile        |   2 +
->  drivers/input/misc/stpmic1_onkey.c | 257 +++++++++++++++++++++++++++++++++++++
->  3 files changed, 270 insertions(+)
->  create mode 100644 drivers/input/misc/stpmic1_onkey.c
+> Hi,
 > 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index c25606e..cc82dad 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -841,4 +841,15 @@ config INPUT_RAVE_SP_PWRBUTTON
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called rave-sp-pwrbutton.
+> while reviewing my local tree, I realize that we might want to be able
+> to differentiate older kernels from new ones that export REL_WHEEL_HI_RES.
+> 
+> I know Dmitry was against adding several REL_MISC, so I hope just moving
+> REL_WHEEL_HI_RES by one and reserving the faulty event codes would be good
+> this time.
+> 
+> This patch applies on top of the branch for-4.20/logitech-highres from
+> Jiri's tree. It should go through Jiri's tree as well.
+> 
+> Cheers,
+> Benjamin
+> 
+>  include/uapi/linux/input-event-codes.h | 13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 29fb891ea337..30149939249a 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -708,7 +708,12 @@
+>  #define REL_DIAL		0x07
+>  #define REL_WHEEL		0x08
+>  #define REL_MISC		0x09
+> -#define REL_WHEEL_HI_RES	0x0a
+> +/*
+> + * 0x0a is reserved and should not be used.
+> + * It was used by HID as REL_MISC+1 and usersapce needs to detect if
+> + * the next REL_* event is correct or is just REL_MISC + n.
+> + */
+> +#define REL_WHEEL_HI_RES	0x0b
+>  #define REL_MAX			0x0f
+>  #define REL_CNT			(REL_MAX+1)
 >  
-> +config INPUT_STPMIC1_ONKEY
-> +	tristate "STPMIC1 PMIC Onkey support"
-> +	depends on MFD_STPMIC1
-> +	help
-> +	  Say Y to enable support of onkey embedded into STPMIC1 PMIC. onkey
-> +	  can be used to wakeup from low power modes and force a shut-down on
-> +	  long press.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called stpmic1_onkey.
-> +
->  endif
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index 72cde28..f0e11b0 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -70,6 +70,7 @@ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
->  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
->  obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
->  obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
-> +obj-$(CONFIG_INPUT_STPMIC1_ONKEY)  	+= stpmic1_onkey.o
->  obj-$(CONFIG_INPUT_TPS65218_PWRBUTTON)	+= tps65218-pwrbutton.o
->  obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
->  obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
-> @@ -80,3 +81,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
->  obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
->  obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
->  obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
-> +
-> diff --git a/drivers/input/misc/stpmic1_onkey.c b/drivers/input/misc/stpmic1_onkey.c
-> new file mode 100644
-> index 0000000..170d879
-> --- /dev/null
-> +++ b/drivers/input/misc/stpmic1_onkey.c
-> @@ -0,0 +1,257 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (C) STMicroelectronics 2018
-> +// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
-> +
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/mfd/stpmic1.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +
-> +/**
-> + * struct stpmic1_onkey - OnKey data
-> + * @pmic:		pointer to STPMIC1 PMIC device
-> + * @input_dev:		pointer to input device
-> + * @irq_falling:	irq that we are hooked on to
-> + * @irq_rising:		irq that we are hooked on to
+> @@ -745,6 +750,12 @@
+>  
+>  #define ABS_MISC		0x28
+>  
+> +/*
+> + * 0x29 is reserved and should not be used.
+> + * It was used by HID as ABS_MISC+1 and usersapce needs to detect if
+> + * the next ABS_* event is correct or is just ABS_MISC + n.
 > + */
-> +struct stpmic1_onkey {
-> +	struct stpmic1_dev *pmic;
-> +	struct input_dev *input_dev;
-> +	int irq_falling;
-> +	int irq_rising;
-> +};
 > +
-> +/**
-> + * struct pmic_onkey_config - configuration of pmic PONKEYn
-> + * @turnoff_enabled:		value to enable turnoff condition
-> + * @cc_flag_clear:		value to clear CC flag in case of PowerOff
-> + * trigger by longkey press
-> + * @onkey_pullup_val:		value of PONKEY PullUp (active or inactive)
-> + * @long_press_time_val:	value for long press h/w shutdown event
-> + */
-> +struct pmic_onkey_config {
-> +	bool turnoff_enabled;
-> +	bool cc_flag_clear;
-> +	u8 onkey_pullup_val;
-> +	u8 long_press_time_val;
-> +};
-> +
-> +static irqreturn_t onkey_falling_irq(int irq, void *ponkey)
-> +{
-> +	struct stpmic1_onkey *onkey = ponkey;
-> +	struct input_dev *input_dev = onkey->input_dev;
-> +
-> +	input_report_key(input_dev, KEY_POWER, 1);
-> +	pm_wakeup_event(input_dev->dev.parent, 0);
-> +	input_sync(input_dev);
-> +
-> +	dev_dbg(&input_dev->dev, "Pwr Onkey Falling Interrupt received\n");
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static irqreturn_t onkey_rising_irq(int irq, void *ponkey)
-> +{
-> +	struct stpmic1_onkey *onkey = ponkey;
-> +	struct input_dev *input_dev = onkey->input_dev;
-> +
-> +	input_report_key(input_dev, KEY_POWER, 0);
-> +	pm_wakeup_event(input_dev->dev.parent, 0);
-> +	input_sync(input_dev);
-> +
-> +	dev_dbg(&input_dev->dev, "Pwr Onkey Rising Interrupt received\n");
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int stpmic1_onkey_dt_params(struct platform_device *pdev,
-> +				   struct stpmic1_onkey *onkey,
-> +				   struct pmic_onkey_config *config)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct device_node *np;
-> +	u32 val;
-> +
-> +	np = dev->of_node;
-> +
-> +	onkey->irq_falling = platform_get_irq_byname(pdev, "onkey-falling");
-> +	if (onkey->irq_falling < 0) {
-> +		dev_err(dev, "failed: request IRQ onkey-falling %d\n",
-> +			onkey->irq_falling);
-> +		return onkey->irq_falling;
-> +	}
-> +
-> +	onkey->irq_rising = platform_get_irq_byname(pdev, "onkey-rising");
-> +	if (onkey->irq_rising < 0) {
-> +		dev_err(dev, "failed: request IRQ onkey-rising %d\n",
-> +			onkey->irq_rising);
-> +		return onkey->irq_rising;
-> +	}
-> +
-> +	if (!of_property_read_u32(np, "st,onkey-long-press-seconds", &val)) {
-> +		if (val >= 1 && val <= 16) {
-> +			config->long_press_time_val = (16 - val);
-> +		} else {
-> +			dev_warn(dev,
-> +				 "Invalid range of long key pressed timer %d (<16)\n",
-> +				 val);
-> +		}
-> +	}
-> +	if (of_get_property(np, "st,onkey-pwroff-enabled", NULL))
-> +		config->turnoff_enabled = true;
-> +
-> +	if (of_get_property(np, "st,onkey-clear-cc-flag", NULL))
-> +		config->cc_flag_clear = true;
-> +
-> +	if (of_get_property(np, "st,onkey-pu-inactive", NULL))
-> +		config->onkey_pullup_val = PONKEY_PU_ACTIVE;
-> +
-> +	dev_dbg(dev, "onkey-switch-off duration=%d seconds\n",
-> +		config->long_press_time_val);
-> +
-> +	return 0;
-> +}
-> +
-> +static int stpmic1_onkey_probe(struct platform_device *pdev)
-> +{
-> +	struct stpmic1_dev *pmic = dev_get_drvdata(pdev->dev.parent);
-> +	struct device *dev = &pdev->dev;
-> +	struct input_dev *input_dev;
-> +	struct stpmic1_onkey *onkey;
-> +	struct pmic_onkey_config config;
-> +	unsigned int val = 0;
-> +	int error;
-> +
-> +	onkey = devm_kzalloc(dev, sizeof(*onkey), GFP_KERNEL);
-> +	if (!onkey)
-> +		return -ENOMEM;
-> +
-> +	memset(&config, 0, sizeof(struct pmic_onkey_config));
-> +	error = stpmic1_onkey_dt_params(pdev, onkey, &config);
-> +	if (error)
-> +		return error;
-> +
-> +	input_dev = devm_input_allocate_device(dev);
-> +	if (!input_dev) {
-> +		dev_err(dev, "Can't allocate Pwr Onkey Input Device\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	input_dev->name = "pmic_onkey";
-> +	input_dev->phys = "pmic_onkey/input0";
-> +
-> +	input_set_capability(input_dev, EV_KEY, KEY_POWER);
-> +
-> +	/* Setup Power Onkey Hardware parameters (long key press)*/
-> +	val = (config.long_press_time_val & PONKEY_TURNOFF_TIMER_MASK);
-> +	if (config.turnoff_enabled)
-> +		val |= PONKEY_PWR_OFF;
-> +	if (config.cc_flag_clear)
-> +		val |= PONKEY_CC_FLAG_CLEAR;
-> +	error = regmap_update_bits(pmic->regmap, PKEY_TURNOFF_CR,
-> +				   PONKEY_TURNOFF_MASK, val);
-> +	if (error) {
-> +		dev_err(dev, "LONG_PRESS_KEY_UPDATE failed: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	error = regmap_update_bits(pmic->regmap, PADS_PULL_CR,
-> +				   PONKEY_PU_ACTIVE,
-> +				   config.onkey_pullup_val);
-> +	if (error) {
-> +		dev_err(dev, "ONKEY Pads configuration failed: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	onkey->pmic = pmic;
-> +	onkey->input_dev = input_dev;
-> +
-> +	/* interrupt is nested in a thread */
-> +	error = devm_request_threaded_irq(dev, onkey->irq_falling, NULL,
-> +					  onkey_falling_irq, IRQF_ONESHOT,
-> +					  dev_name(dev), onkey);
-> +	if (error) {
-> +		dev_err(dev, "Can't get IRQ Onkey Falling: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	error = devm_request_threaded_irq(dev, onkey->irq_rising, NULL,
-> +					  onkey_rising_irq, IRQF_ONESHOT,
-> +					  dev_name(dev), onkey);
-> +	if (error) {
-> +		dev_err(dev, "Can't get IRQ Onkey Rising: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	error = input_register_device(input_dev);
-> +	if (error) {
-> +		dev_err(dev, "Can't register power button: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, onkey);
-> +	device_init_wakeup(dev, true);
-> +
-> +	return 0;
-> +}
-> +
-> +static int stpmic1_onkey_remove(struct platform_device *pdev)
-> +{
-> +	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
-> +
-> +	input_unregister_device(onkey->input_dev);
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused stpmic1_onkey_suspend(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(dev)) {
-> +		enable_irq_wake(onkey->irq_falling);
-> +		enable_irq_wake(onkey->irq_rising);
-> +	}
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused stpmic1_onkey_resume(struct device *dev)
-> +{
-> +	struct platform_device *pdev = to_platform_device(dev);
-> +	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
-> +
-> +	if (device_may_wakeup(dev)) {
-> +		disable_irq_wake(onkey->irq_falling);
-> +		disable_irq_wake(onkey->irq_rising);
-> +	}
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(stpmic1_onkey_pm,
-> +			 stpmic1_onkey_suspend,
-> +			 stpmic1_onkey_resume);
-> +
-> +static const struct of_device_id of_stpmic1_onkey_match[] = {
-> +	{ .compatible = "st,stpmic1-onkey" },
-> +	{ },
-> +};
-> +
-> +MODULE_DEVICE_TABLE(of, of_stpmic1_onkey_match);
-> +
-> +static struct platform_driver stpmic1_onkey_driver = {
-> +	.probe	= stpmic1_onkey_probe,
-> +	.remove	= stpmic1_onkey_remove,
-> +	.driver	= {
-> +		.name	= "stpmic1_onkey",
-> +		.of_match_table = of_match_ptr(of_stpmic1_onkey_match),
-> +		.pm	= &stpmic1_onkey_pm,
-> +	},
-> +};
-> +module_platform_driver(stpmic1_onkey_driver);
-> +
-> +MODULE_DESCRIPTION("Onkey driver for STPMIC1");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("Pascal Paillet");
+>  #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
+>  #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
+>  #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
 > -- 
-> 1.9.1
-
--- 
-Dmitry
+> 2.14.3
+> 

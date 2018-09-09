@@ -1,25 +1,125 @@
-From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: Re: [PATCH V2 4/8] regulator: stpmic1: add stpmic1 regulator driver
-Date: Sat, 8 Sep 2018 11:37:29 +0200
-Message-ID: <CAAj6DX2tnT5wjmy9nfRx7ut62_6rsQ00RNjaXX3WxMsB+mSHYw@mail.gmail.com>
-References: <1536325173-16617-1-git-send-email-p.paillet@st.com> <1536325173-16617-5-git-send-email-p.paillet@st.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: Don't reset device upon system resume
+Date: Sun, 9 Sep 2018 12:50:22 +0200
+Message-ID: <90dc0599-b902-3c86-6668-04a342b3acac@redhat.com>
+References: <20180906025518.30191-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1536325173-16617-5-git-send-email-p.paillet@st.com>
+In-Reply-To: <20180906025518.30191-1-kai.heng.feng@canonical.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: p.paillet@st.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, lee.jones@linaro.org, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, wim@linux-watchdog.org, linux@roeck-us.net, linux-input <linux-input@vger.kernel.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org, benjamin.gaignard@linaro.org, eballetbo@gmail.com
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>, jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>, AceLan Kao <acelan.kao@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Sep 7, 2018 at 3:15 PM Pascal PAILLET-LME <p.paillet@st.com> wrote:
->
-> From: pascal paillet <p.paillet@st.com>
->
-> The stpmic1 PMIC embeds several regulators and witches with
-> different capabilities.
+Hi,
 
-While fixing Kconfig, as Mark suggest, would you mind to fix also the
-typo s/witches/switches/ in the commit message?
+On 06-09-18 04:55, Kai-Heng Feng wrote:
+> Raydium touchscreen triggers interrupt storm after system-wide suspend:
+> [ 179.085033] i2c_hid i2c-CUST0000:00: i2c_hid_get_input: incomplete
+> report (58/65535)
+> 
+> According to Raydium, Windows driver does not reset the device after
+> system resume.
+> 
+> The HID over I2C spec does specify a reset should be used at
+> intialization, but it doesn't specify if reset is required for system
+> suspend.
+> 
+> Tested this patch on other i2c-hid touchpanels I have and those
+> touchpanels do work after S3 without doing reset. If any regression
+> happens to other touchpanel vendors, we can use quirk for Raydium
+> devices.
+> 
+> There's still one device uses I2C_HID_QUIRK_RESEND_REPORT_DESCR so keep
+> it there.
 
-Antonio
+I added that quirk and I still have the hardware for it. I've tested
+things with the quirk remove and the touchscreen works after resume
+now without the quirk.
+
+I also have some other devices with a SIS i2c-hid touchscreen which
+would no longer work after resume where the quirk did not help.
+
+I had looking into those on my TODO but did not get around to
+this yet. I've re-tested those with this patch and I'm happy to report
+that this patch also fixes resume on the SIS touchscreens in the
+following models:
+
+Asus T100HA
+Asus T200TA
+Peaq C1010
+
+Regards,
+
+Hans
+
+
+
+> 
+> Cc: Aaron Ma <aaron.ma@canonical.com>
+> Cc: AceLan Kao <acelan.kao@canonical.com>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+> v2:
+>   Remove Raydium devices' ID and quirk.
+>   Rewording.
+> 
+>   drivers/hid/hid-ids.h         |  4 ----
+>   drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++------
+>   2 files changed, 7 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 7da93d789080..e254ae802688 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -530,10 +530,6 @@
+>   #define I2C_VENDOR_ID_HANTICK		0x0911
+>   #define I2C_PRODUCT_ID_HANTICK_5288	0x5288
+>   
+> -#define I2C_VENDOR_ID_RAYD		0x2386
+> -#define I2C_PRODUCT_ID_RAYD_3118	0x3118
+> -#define I2C_PRODUCT_ID_RAYD_4B33	0x4B33
+> -
+>   #define USB_VENDOR_ID_HANWANG		0x0b57
+>   #define USB_DEVICE_ID_HANWANG_TABLET_FIRST	0x5000
+>   #define USB_DEVICE_ID_HANWANG_TABLET_LAST	0x8fff
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 57126f6837bb..f3076659361a 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -170,12 +170,8 @@ static const struct i2c_hid_quirks {
+>   		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+>   	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+>   		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+> -	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_3118,
+> -		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+>   	{ USB_VENDOR_ID_SIS_TOUCH, USB_DEVICE_ID_SIS10FB_TOUCH,
+>   		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+> -	{ I2C_VENDOR_ID_RAYD, I2C_PRODUCT_ID_RAYD_4B33,
+> -		I2C_HID_QUIRK_RESEND_REPORT_DESCR },
+>   	{ 0, 0 }
+>   };
+>   
+> @@ -1237,11 +1233,16 @@ static int i2c_hid_resume(struct device *dev)
+>   	pm_runtime_enable(dev);
+>   
+>   	enable_irq(client->irq);
+> -	ret = i2c_hid_hwreset(client);
+> +
+> +	/* Instead of resetting device, simply powers the device on. This
+> +	 * solves "incomplete reports" on Raydium devices 2386:3118 and
+> +	 * 2386:4B33
+> +	 */
+> +	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
+>   	if (ret)
+>   		return ret;
+>   
+> -	/* RAYDIUM device (2386:3118) need to re-send report descr cmd
+> +	/* Some devices need to re-send report descr cmd
+>   	 * after resume, after this it will be back normal.
+>   	 * otherwise it issues too many incomplete reports.
+>   	 */
+> 

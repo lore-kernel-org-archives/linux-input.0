@@ -1,48 +1,11 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH] Input: wm97xx: only unregister wm97xx_driver if it has been registered
-Date: Sun, 09 Sep 2018 21:08:53 +0200
-Message-ID: <87o9d65vzu.fsf@belgarion.home>
-References: <20180904183505.10693-1-colin.king@canonical.com>
-        <20180905091609.GC1653@imbe.wolfsonmicro.main>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Lubomir Rintel <lkundrak@v3.sk>
+Subject: [PATCH 0/8] OLPC 1.75 Keyboard/Touchpad fixes
+Date: Mon, 10 Sep 2018 13:26:46 +0200
+Message-ID: <20180910112654.42061-1-lkundrak@v3.sk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180905091609.GC1653@imbe.wolfsonmicro.main> (Charles Keepax's
-        message of "Wed, 5 Sep 2018 10:16:09 +0100")
 Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: Colin King <colin.king@canonical.com>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Mark Brown <broonie@kernel.org>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, patches@opensource.cirrus.com, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Charles Keepax <ckeepax@opensource.cirrus.com> writes:
-
-> On Tue, Sep 04, 2018 at 07:35:05PM +0100, Colin King wrote:
->> From: Colin Ian King <colin.king@canonical.com>
->> 
->> In the case where IS_BUILTIN(CONFIG_AC97_BUS)) is not true, the
->> wm97xx_driver driver is being unregistered even it has not been
->> previously registered.  Fix this by only unregistering it if
->> IS_BUILTIN(CONFIG_AC97_BUS)) is true.  This fixes the warning
->> message:
->> 
->> [  834.111248] ------------[ cut here ]------------
->> [  834.111248] Unexpected driver unregister!
->> [  834.111319] WARNING: CPU: 2 PID: 11749 at drivers/base/driver.c:193 driver_unregister+0x3b/0x40
->> [  834.111319] Modules linked in: wm97xx_ts(-) ....
->> 
->> ..and a stack trace.
->> 
->> To easily reproduce this, load and unload the module on a system where
->> the hardware is not supported.
->> 
->> Fixes: ae9d1b5fbd7b ("Input: wm97xx: add new AC97 bus support")
->> Signed-off-by: Colin Ian King <colin.king@canonical.com>
->> ---
->
-> Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-
-Cheers.
-
--- 
-Robert
+This makes keyboard/touchpad work on a DT MMP2 platform.

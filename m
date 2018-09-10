@@ -1,50 +1,41 @@
-From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 2/8] dt-bindings: olpc,ap-sp: add GPIO lines
-Date: Mon, 10 Sep 2018 13:26:48 +0200
-Message-ID: <20180910112654.42061-3-lkundrak@v3.sk>
-References: <20180910112654.42061-1-lkundrak@v3.sk>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: mfd: cros_ec: Check for mkbp events on resume only if supported.
+Date: Mon, 10 Sep 2018 15:37:44 +0100
+Message-ID: <20180910143744.GT28860@dell>
+References: <20180820153419.32098-1-ravisadineni@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180910112654.42061-1-lkundrak@v3.sk>
+Content-Disposition: inline
+In-Reply-To: <20180820153419.32098-1-ravisadineni@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Lubomir Rintel <lkundrak@v3.sk>
+To: RaviChandra Sadineni <ravisadineni@chromium.org>
+Cc: dmitry.torokhov@gmail.com, ravisadineni@google.com, dtor@google.com, linux-samsung-soc@vger.kernel.org, tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, tfiga@chromium.org, m.szyprowski@samsung.com
 List-Id: linux-input@vger.kernel.org
 
-Add properties describing the GPIO lines used by the keyboard controller.
-The olpc-apsp driver will do happily without them, but they are still part
-of the hardware description. The driver could still reserve the lines,
-so that nothing else touches them.
+On Mon, 20 Aug 2018, RaviChandra Sadineni wrote:
 
-This makes the device node almost compatible with "ps2-gpio". I'm not
-adding a compatible property, because ps2-gpio would use a different
-interrupt, so that we'd need to name it. And I haven't actually tried it.
+> Currently on every resume we check for mkbp events and notify the
+> clients. This helps in identifying the wakeup sources. But on devices
+> that do not support mkbp protocol, we might end up querying key state of
+> the keyboard in a loop which blocks the resume. Instead check for events
+> only if mkbp is supported.
+> 
+> Signed-off-by: RaviChandra Sadineni <ravisadineni@chromium.org>
+> ---
+> 
+>  Note: This patch fixes the suspend/resume issue on Snow and Peach-Pit
+>  Chromebooks, both on vanilla v4.18 as well as linux-next from 20 August 
+>  2018. Further info at: https://lkml.org/lkml/2018/6/5/1076
+>  
+>  drivers/mfd/cros_ec.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
----
- Documentation/devicetree/bindings/serio/olpc,ap-sp.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+Applied, thanks.
 
-diff --git a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt b/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-index 36603419d6f8..2b1b1dbb54c1 100644
---- a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-+++ b/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-@@ -7,6 +7,10 @@ Required properties:
- - clocks : phandle + clock-specifier for the clock that drives the WTM
- - clock-names:  should be "sp"
- 
-+Optional properties:
-+- data-gpios : GPIO line used for PS/2 interface data
-+- clk-gpios : GPIO line used for PS/2 interface clock
-+
- Example:
- 	ap-sp@d4290000 {
- 		compatible = "olpc,ap-sp";
-@@ -14,4 +18,6 @@ Example:
- 		interrupts = <40>;
- 		clocks = <&soc_clocks MMP2_CLK_SP>;
- 		clock-names = "sp";
-+		data-gpios = <&gpio 72 GPIO_ACTIVE_HIGH>;
-+		clk-gpios = <&gpio 71 GPIO_ACTIVE_HIGH>;
- 	}
 -- 
-2.17.1
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

@@ -1,163 +1,142 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 8/9] HID: intel-ish-hid: use resource-managed api
-Date: Tue, 11 Sep 2018 16:44:20 -0700
-Message-ID: <20180911234421.10691-9-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 7/9] HID: intel_ish-hid: Enhance API to get ring buffer sizes
+Date: Tue, 11 Sep 2018 16:44:19 -0700
+Message-ID: <20180911234421.10691-8-srinivas.pandruvada@linux.intel.com>
 References: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hong Liu <hong.liu@intel.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Hong Liu <hong.liu@intel.com>
+Added two APIs:
 
-Use resource-managed api to simplify error handling in probe and
-driver remove logic.
+- ishtp_cl_get_tx_free_buffer_size:
+This returns total size available for a client to queue TX data.
 
-With this patch, we can save ~170 bytes code size in intel-ish-ipc.ko.
-before:
-   text	   data	    bss	    dec	    hex	filename
-  11495	   1568	     72	  13135	   334f	intel-ish-ipc.ko
-after:
-   text    data     bss     dec     hex filename
-  11327    1568      72   12967    32a7 intel-ish-ipc.ko
+- ishtp_cl_get_tx_free_rings:
+This returns total number of TX rings available for a client.
 
-Signed-off-by: Hong Liu <hong.liu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 75 ++++++++-----------------
- 1 file changed, 24 insertions(+), 51 deletions(-)
+ .../hid/intel-ish-hid/ishtp/client-buffers.c  |  4 ++++
+ drivers/hid/intel-ish-hid/ishtp/client.c      | 24 +++++++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp/client.h      |  3 +++
+ 3 files changed, 31 insertions(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 050f9872f5c0..09d085946db3 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -113,18 +113,19 @@ static const struct pci_device_id ish_invalid_pci_ids[] = {
-  */
- static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- {
--	struct ishtp_device *dev;
-+	int ret;
- 	struct ish_hw *hw;
--	int	ret;
-+	struct ishtp_device *ishtp;
-+	struct device *dev = &pdev->dev;
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
+index 12d61305e83d..248651c35497 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
+@@ -69,6 +69,8 @@ int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl)
+ 	int	j;
+ 	unsigned long	flags;
  
- 	/* Check for invalid platforms for ISH support */
- 	if (pci_dev_present(ish_invalid_pci_ids))
- 		return -ENODEV;
++	cl->tx_ring_free_size = 0;
++
+ 	/* Allocate pool to free Tx bufs */
+ 	for (j = 0; j < cl->tx_ring_size; ++j) {
+ 		struct ishtp_cl_tx_ring	*tx_buf;
+@@ -85,6 +87,7 @@ int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl)
  
- 	/* enable pci dev */
--	ret = pci_enable_device(pdev);
-+	ret = pcim_enable_device(pdev);
- 	if (ret) {
--		dev_err(&pdev->dev, "ISH: Failed to enable PCI device\n");
-+		dev_err(dev, "ISH: Failed to enable PCI device\n");
- 		return ret;
+ 		spin_lock_irqsave(&cl->tx_free_list_spinlock, flags);
+ 		list_add_tail(&tx_buf->list, &cl->tx_free_list.list);
++		++cl->tx_ring_free_size;
+ 		spin_unlock_irqrestore(&cl->tx_free_list_spinlock, flags);
  	}
- 
-@@ -132,65 +133,44 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	pci_set_master(pdev);
- 
- 	/* pci request regions for ISH driver */
--	ret = pci_request_regions(pdev, KBUILD_MODNAME);
-+	ret = pcim_iomap_regions(pdev, 1 << 0, KBUILD_MODNAME);
- 	if (ret) {
--		dev_err(&pdev->dev, "ISH: Failed to get PCI regions\n");
--		goto disable_device;
-+		dev_err(dev, "ISH: Failed to get PCI regions\n");
-+		return ret;
+ 	return	0;
+@@ -144,6 +147,7 @@ void ishtp_cl_free_tx_ring(struct ishtp_cl *cl)
+ 		tx_buf = list_entry(cl->tx_free_list.list.next,
+ 				    struct ishtp_cl_tx_ring, list);
+ 		list_del(&tx_buf->list);
++		--cl->tx_ring_free_size;
+ 		kfree(tx_buf->send_buf.data);
+ 		kfree(tx_buf);
  	}
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
+index 007443ef5fca..faeccdb1475b 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+@@ -22,6 +22,25 @@
+ #include "hbm.h"
+ #include "client.h"
  
- 	/* allocates and initializes the ISH dev structure */
--	dev = ish_dev_init(pdev);
--	if (!dev) {
-+	ishtp = ish_dev_init(pdev);
-+	if (!ishtp) {
- 		ret = -ENOMEM;
--		goto release_regions;
-+		return ret;
- 	}
--	hw = to_ish_hw(dev);
--	dev->print_log = ish_event_tracer;
-+	hw = to_ish_hw(ishtp);
-+	ishtp->print_log = ish_event_tracer;
- 
- 	/* mapping IO device memory */
--	hw->mem_addr = pci_iomap(pdev, 0, 0);
--	if (!hw->mem_addr) {
--		dev_err(&pdev->dev, "ISH: mapping I/O range failure\n");
--		ret = -ENOMEM;
--		goto free_device;
--	}
--
--	dev->pdev = pdev;
--
-+	hw->mem_addr = pcim_iomap_table(pdev)[0];
-+	ishtp->pdev = pdev;
- 	pdev->dev_flags |= PCI_DEV_FLAGS_NO_D3;
- 
- 	/* request and enable interrupt */
--	ret = request_irq(pdev->irq, ish_irq_handler, IRQF_SHARED,
--			  KBUILD_MODNAME, dev);
-+	ret = devm_request_irq(dev, pdev->irq, ish_irq_handler,
-+			       IRQF_SHARED, KBUILD_MODNAME, ishtp);
- 	if (ret) {
--		dev_err(&pdev->dev, "ISH: request IRQ failure (%d)\n",
--			pdev->irq);
--		goto free_device;
-+		dev_err(dev, "ISH: request IRQ %d failed\n", pdev->irq);
-+		return ret;
- 	}
- 
--	dev_set_drvdata(dev->devc, dev);
-+	dev_set_drvdata(ishtp->devc, ishtp);
- 
--	init_waitqueue_head(&dev->suspend_wait);
--	init_waitqueue_head(&dev->resume_wait);
-+	init_waitqueue_head(&ishtp->suspend_wait);
-+	init_waitqueue_head(&ishtp->resume_wait);
- 
--	ret = ish_init(dev);
-+	ret = ish_init(ishtp);
- 	if (ret)
--		goto free_irq;
-+		return ret;
- 
- 	return 0;
--
--free_irq:
--	free_irq(pdev->irq, dev);
--free_device:
--	pci_iounmap(pdev, hw->mem_addr);
--release_regions:
--	pci_release_regions(pdev);
--disable_device:
--	pci_clear_master(pdev);
--	pci_disable_device(pdev);
--	dev_err(&pdev->dev, "ISH: PCI driver initialization failed.\n");
--
--	return ret;
- }
- 
++int ishtp_cl_get_tx_free_buffer_size(struct ishtp_cl *cl)
++{
++	unsigned long tx_free_flags;
++	int size;
++
++	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
++	size = cl->tx_ring_free_size * cl->device->fw_client->props.max_msg_length;
++	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
++
++	return size;
++}
++EXPORT_SYMBOL(ishtp_cl_get_tx_free_buffer_size);
++
++int ishtp_cl_get_tx_free_rings(struct ishtp_cl *cl)
++{
++	return cl->tx_ring_free_size;
++}
++EXPORT_SYMBOL(ishtp_cl_get_tx_free_rings);
++
  /**
-@@ -202,16 +182,9 @@ static int ish_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- static void ish_remove(struct pci_dev *pdev)
- {
- 	struct ishtp_device *ishtp_dev = pci_get_drvdata(pdev);
--	struct ish_hw *hw = to_ish_hw(ishtp_dev);
+  * ishtp_read_list_flush() - Flush read queue
+  * @cl: ishtp client instance
+@@ -90,6 +109,7 @@ static void ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev)
  
- 	ishtp_bus_remove_all_clients(ishtp_dev, false);
- 	ish_device_disable(ishtp_dev);
--
--	free_irq(pdev->irq, ishtp_dev);
--	pci_iounmap(pdev, hw->mem_addr);
--	pci_release_regions(pdev);
--	pci_clear_master(pdev);
--	pci_disable_device(pdev);
+ 	cl->rx_ring_size = CL_DEF_RX_RING_SIZE;
+ 	cl->tx_ring_size = CL_DEF_TX_RING_SIZE;
++	cl->tx_ring_free_size = cl->tx_ring_size;
+ 
+ 	/* dma */
+ 	cl->last_tx_path = CL_TX_PATH_IPC;
+@@ -577,6 +597,8 @@ int ishtp_cl_send(struct ishtp_cl *cl, uint8_t *buf, size_t length)
+ 	 * max ISHTP message size per client
+ 	 */
+ 	list_del_init(&cl_msg->list);
++	--cl->tx_ring_free_size;
++
+ 	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
+ 	memcpy(cl_msg->send_buf.data, buf, length);
+ 	cl_msg->send_buf.size = length;
+@@ -685,6 +707,7 @@ static void ipc_tx_callback(void *prm)
+ 		ishtp_write_message(dev, &ishtp_hdr, pmsg);
+ 		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
+ 		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
++		++cl->tx_ring_free_size;
+ 		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
+ 			tx_free_flags);
+ 	} else {
+@@ -778,6 +801,7 @@ static void ishtp_cl_send_msg_dma(struct ishtp_device *dev,
+ 	ishtp_write_message(dev, &hdr, (unsigned char *)&dma_xfer);
+ 	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
+ 	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
++	++cl->tx_ring_free_size;
+ 	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
+ 	++cl->send_msg_cnt_dma;
  }
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
+index a82ee4d82cdb..042f4c4853b1 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.h
++++ b/drivers/hid/intel-ish-hid/ishtp/client.h
+@@ -84,6 +84,7 @@ struct ishtp_cl {
+ 	/* Client Tx buffers list */
+ 	unsigned int	tx_ring_size;
+ 	struct ishtp_cl_tx_ring	tx_list, tx_free_list;
++	int		tx_ring_free_size;
+ 	spinlock_t	tx_list_spinlock;
+ 	spinlock_t	tx_free_list_spinlock;
+ 	size_t	tx_offs;	/* Offset in buffer at head of 'tx_list' */
+@@ -137,6 +138,8 @@ int ishtp_cl_alloc_rx_ring(struct ishtp_cl *cl);
+ int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl);
+ void ishtp_cl_free_rx_ring(struct ishtp_cl *cl);
+ void ishtp_cl_free_tx_ring(struct ishtp_cl *cl);
++int ishtp_cl_get_tx_free_buffer_size(struct ishtp_cl *cl);
++int ishtp_cl_get_tx_free_rings(struct ishtp_cl *cl);
  
- static struct device __maybe_unused *ish_resume_device;
+ /* DMA I/F functions */
+ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
 -- 
 2.17.1

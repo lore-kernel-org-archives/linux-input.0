@@ -1,142 +1,146 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 7/9] HID: intel_ish-hid: Enhance API to get ring buffer sizes
-Date: Tue, 11 Sep 2018 16:44:19 -0700
-Message-ID: <20180911234421.10691-8-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 9/9] HID: intel-ish-hid: using list_head for ipc write queue
+Date: Tue, 11 Sep 2018 16:44:21 -0700
+Message-ID: <20180911234421.10691-10-srinivas.pandruvada@linux.intel.com>
 References: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hong Liu <hong.liu@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Added two APIs:
+From: Hong Liu <hong.liu@intel.com>
 
-- ishtp_cl_get_tx_free_buffer_size:
-This returns total size available for a client to queue TX data.
+Currently wr_msg_ctl_info is used in ishtp_device just for list head
+purpose, using list_head directly can save ~150 bytes size for
+each replacement.
 
-- ishtp_cl_get_tx_free_rings:
-This returns total number of TX rings available for a client.
+Also this patch can save ~170 bytes of code size in intel-ish-ipc.ko.
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Hong Liu <hong.liu@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- .../hid/intel-ish-hid/ishtp/client-buffers.c  |  4 ++++
- drivers/hid/intel-ish-hid/ishtp/client.c      | 24 +++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/client.h      |  3 +++
- 3 files changed, 31 insertions(+)
+ drivers/hid/intel-ish-hid/ipc/ipc.c         | 32 +++++++++------------
+ drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h |  2 +-
+ 2 files changed, 15 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-index 12d61305e83d..248651c35497 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-@@ -69,6 +69,8 @@ int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl)
- 	int	j;
- 	unsigned long	flags;
- 
-+	cl->tx_ring_free_size = 0;
-+
- 	/* Allocate pool to free Tx bufs */
- 	for (j = 0; j < cl->tx_ring_size; ++j) {
- 		struct ishtp_cl_tx_ring	*tx_buf;
-@@ -85,6 +87,7 @@ int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl)
- 
- 		spin_lock_irqsave(&cl->tx_free_list_spinlock, flags);
- 		list_add_tail(&tx_buf->list, &cl->tx_free_list.list);
-+		++cl->tx_ring_free_size;
- 		spin_unlock_irqrestore(&cl->tx_free_list_spinlock, flags);
- 	}
- 	return	0;
-@@ -144,6 +147,7 @@ void ishtp_cl_free_tx_ring(struct ishtp_cl *cl)
- 		tx_buf = list_entry(cl->tx_free_list.list.next,
- 				    struct ishtp_cl_tx_ring, list);
- 		list_del(&tx_buf->list);
-+		--cl->tx_ring_free_size;
- 		kfree(tx_buf->send_buf.data);
- 		kfree(tx_buf);
- 	}
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 007443ef5fca..faeccdb1475b 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -22,6 +22,25 @@
- #include "hbm.h"
- #include "client.h"
- 
-+int ishtp_cl_get_tx_free_buffer_size(struct ishtp_cl *cl)
-+{
-+	unsigned long tx_free_flags;
-+	int size;
-+
-+	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
-+	size = cl->tx_ring_free_size * cl->device->fw_client->props.max_msg_length;
-+	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
-+
-+	return size;
-+}
-+EXPORT_SYMBOL(ishtp_cl_get_tx_free_buffer_size);
-+
-+int ishtp_cl_get_tx_free_rings(struct ishtp_cl *cl)
-+{
-+	return cl->tx_ring_free_size;
-+}
-+EXPORT_SYMBOL(ishtp_cl_get_tx_free_rings);
-+
- /**
-  * ishtp_read_list_flush() - Flush read queue
-  * @cl: ishtp client instance
-@@ -90,6 +109,7 @@ static void ishtp_cl_init(struct ishtp_cl *cl, struct ishtp_device *dev)
- 
- 	cl->rx_ring_size = CL_DEF_RX_RING_SIZE;
- 	cl->tx_ring_size = CL_DEF_TX_RING_SIZE;
-+	cl->tx_ring_free_size = cl->tx_ring_size;
- 
- 	/* dma */
- 	cl->last_tx_path = CL_TX_PATH_IPC;
-@@ -577,6 +597,8 @@ int ishtp_cl_send(struct ishtp_cl *cl, uint8_t *buf, size_t length)
- 	 * max ISHTP message size per client
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index bfbca7ec54ce..742191bb24c6 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -280,14 +280,14 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
+ 	 * if tx send list is empty - return 0;
+ 	 * may happen, as RX_COMPLETE handler doesn't check list emptiness.
  	 */
- 	list_del_init(&cl_msg->list);
-+	--cl->tx_ring_free_size;
-+
- 	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
- 	memcpy(cl_msg->send_buf.data, buf, length);
- 	cl_msg->send_buf.size = length;
-@@ -685,6 +707,7 @@ static void ipc_tx_callback(void *prm)
- 		ishtp_write_message(dev, &ishtp_hdr, pmsg);
- 		spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
- 		list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+		++cl->tx_ring_free_size;
- 		spin_unlock_irqrestore(&cl->tx_free_list_spinlock,
- 			tx_free_flags);
- 	} else {
-@@ -778,6 +801,7 @@ static void ishtp_cl_send_msg_dma(struct ishtp_device *dev,
- 	ishtp_write_message(dev, &hdr, (unsigned char *)&dma_xfer);
- 	spin_lock_irqsave(&cl->tx_free_list_spinlock, tx_free_flags);
- 	list_add_tail(&cl_msg->list, &cl->tx_free_list.list);
-+	++cl->tx_ring_free_size;
- 	spin_unlock_irqrestore(&cl->tx_free_list_spinlock, tx_free_flags);
- 	++cl->send_msg_cnt_dma;
- }
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
-index a82ee4d82cdb..042f4c4853b1 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.h
-@@ -84,6 +84,7 @@ struct ishtp_cl {
- 	/* Client Tx buffers list */
- 	unsigned int	tx_ring_size;
- 	struct ishtp_cl_tx_ring	tx_list, tx_free_list;
-+	int		tx_ring_free_size;
- 	spinlock_t	tx_list_spinlock;
- 	spinlock_t	tx_free_list_spinlock;
- 	size_t	tx_offs;	/* Offset in buffer at head of 'tx_list' */
-@@ -137,6 +138,8 @@ int ishtp_cl_alloc_rx_ring(struct ishtp_cl *cl);
- int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl);
- void ishtp_cl_free_rx_ring(struct ishtp_cl *cl);
- void ishtp_cl_free_tx_ring(struct ishtp_cl *cl);
-+int ishtp_cl_get_tx_free_buffer_size(struct ishtp_cl *cl);
-+int ishtp_cl_get_tx_free_rings(struct ishtp_cl *cl);
+-	if (list_empty(&dev->wr_processing_list_head.link)) {
++	if (list_empty(&dev->wr_processing_list)) {
+ 		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+ 		out_ipc_locked = 0;
+ 		return	0;
+ 	}
  
- /* DMA I/F functions */
- void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
+-	ipc_link = list_entry(dev->wr_processing_list_head.link.next,
+-			      struct wr_msg_ctl_info, link);
++	ipc_link = list_first_entry(&dev->wr_processing_list,
++				    struct wr_msg_ctl_info, link);
+ 	/* first 4 bytes of the data is the doorbell value (IPC header) */
+ 	length = ipc_link->length - sizeof(uint32_t);
+ 	doorbell_val = *(uint32_t *)ipc_link->inline_data;
+@@ -338,7 +338,7 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
+ 	ipc_send_compl = ipc_link->ipc_send_compl;
+ 	ipc_send_compl_prm = ipc_link->ipc_send_compl_prm;
+ 	list_del_init(&ipc_link->link);
+-	list_add_tail(&ipc_link->link, &dev->wr_free_list_head.link);
++	list_add(&ipc_link->link, &dev->wr_free_list);
+ 	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+ 
+ 	/*
+@@ -372,18 +372,18 @@ static int write_ipc_to_queue(struct ishtp_device *dev,
+ 	unsigned char *msg, int length)
+ {
+ 	struct wr_msg_ctl_info *ipc_link;
+-	unsigned long	flags;
++	unsigned long flags;
+ 
+ 	if (length > IPC_FULL_MSG_SIZE)
+ 		return -EMSGSIZE;
+ 
+ 	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
+-	if (list_empty(&dev->wr_free_list_head.link)) {
++	if (list_empty(&dev->wr_free_list)) {
+ 		spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+ 		return -ENOMEM;
+ 	}
+-	ipc_link = list_entry(dev->wr_free_list_head.link.next,
+-		struct wr_msg_ctl_info, link);
++	ipc_link = list_first_entry(&dev->wr_free_list,
++				    struct wr_msg_ctl_info, link);
+ 	list_del_init(&ipc_link->link);
+ 
+ 	ipc_link->ipc_send_compl = ipc_send_compl;
+@@ -391,7 +391,7 @@ static int write_ipc_to_queue(struct ishtp_device *dev,
+ 	ipc_link->length = length;
+ 	memcpy(ipc_link->inline_data, msg, length);
+ 
+-	list_add_tail(&ipc_link->link, &dev->wr_processing_list_head.link);
++	list_add_tail(&ipc_link->link, &dev->wr_processing_list);
+ 	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+ 
+ 	write_ipc_from_queue(dev);
+@@ -487,17 +487,13 @@ static int ish_fw_reset_handler(struct ishtp_device *dev)
+ {
+ 	uint32_t	reset_id;
+ 	unsigned long	flags;
+-	struct wr_msg_ctl_info *processing, *next;
+ 
+ 	/* Read reset ID */
+ 	reset_id = ish_reg_read(dev, IPC_REG_ISH2HOST_MSG) & 0xFFFF;
+ 
+ 	/* Clear IPC output queue */
+ 	spin_lock_irqsave(&dev->wr_processing_spinlock, flags);
+-	list_for_each_entry_safe(processing, next,
+-			&dev->wr_processing_list_head.link, link) {
+-		list_move_tail(&processing->link, &dev->wr_free_list_head.link);
+-	}
++	list_splice_init(&dev->wr_processing_list, &dev->wr_free_list);
+ 	spin_unlock_irqrestore(&dev->wr_processing_spinlock, flags);
+ 
+ 	/* ISHTP notification in IPC_RESET */
+@@ -921,9 +917,9 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 	spin_lock_init(&dev->out_ipc_spinlock);
+ 
+ 	/* Init IPC processing and free lists */
+-	INIT_LIST_HEAD(&dev->wr_processing_list_head.link);
+-	INIT_LIST_HEAD(&dev->wr_free_list_head.link);
+-	for (i = 0; i < IPC_TX_FIFO_SIZE; ++i) {
++	INIT_LIST_HEAD(&dev->wr_processing_list);
++	INIT_LIST_HEAD(&dev->wr_free_list);
++	for (i = 0; i < IPC_TX_FIFO_SIZE; i++) {
+ 		struct wr_msg_ctl_info	*tx_buf;
+ 
+ 		tx_buf = devm_kzalloc(&pdev->dev,
+@@ -939,7 +935,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 				i);
+ 			break;
+ 		}
+-		list_add_tail(&tx_buf->link, &dev->wr_free_list_head.link);
++		list_add_tail(&tx_buf->link, &dev->wr_free_list);
+ 	}
+ 
+ 	dev->ops = &ish_hw_ops;
+diff --git a/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+index 6a6d927b78b0..e7c6bfefaf9e 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
++++ b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+@@ -207,7 +207,7 @@ struct ishtp_device {
+ 	struct work_struct bh_hbm_work;
+ 
+ 	/* IPC write queue */
+-	struct wr_msg_ctl_info wr_processing_list_head, wr_free_list_head;
++	struct list_head wr_processing_list, wr_free_list;
+ 	/* For both processing list  and free list */
+ 	spinlock_t wr_processing_spinlock;
+ 
 -- 
 2.17.1

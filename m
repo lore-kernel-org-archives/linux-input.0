@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 5/9] hid: intel-ish-hid: ishtp: add helper function for client search
-Date: Tue, 11 Sep 2018 16:44:17 -0700
-Message-ID: <20180911234421.10691-6-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 3/9] hid: intel-ish-hid: ishtp: add helper functions for client buffer operation
+Date: Tue, 11 Sep 2018 16:44:15 -0700
+Message-ID: <20180911234421.10691-4-srinivas.pandruvada@linux.intel.com>
 References: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
@@ -12,64 +12,81 @@ List-Id: linux-input@vger.kernel.org
 
 From: Even Xu <even.xu@intel.com>
 
-Add helper function ishtp_fw_cl_get_client() for client driver searching
-client information to hide internal details from callers.
+Add helper ishtp_cl_tx_empty() and ishtp_cl_rx_get_rb() to hide internal
+details from callers, who needs this functionality.
 
 Signed-off-by: Even Xu <even.xu@intel.com>
 Reviewed-by: Andriy Shevchenko <andriy.shevchenko@intel.com>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ishtp/bus.c | 25 +++++++++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/bus.h |  2 ++
- 2 files changed, 27 insertions(+)
+ .../hid/intel-ish-hid/ishtp/client-buffers.c  | 45 +++++++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp/client.h      |  2 +
+ 2 files changed, 47 insertions(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index d5db5e96e4a1..728dc6d4561a 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -148,6 +148,31 @@ int ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *uuid)
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
+index b9b917d2d50d..12d61305e83d 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
+@@ -255,3 +255,48 @@ int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb)
+ 	return	rets;
  }
- EXPORT_SYMBOL(ishtp_fw_cl_by_uuid);
- 
+ EXPORT_SYMBOL(ishtp_cl_io_rb_recycle);
++
 +/**
-+ * ishtp_fw_cl_get_client() - return client information to client
-+ * @dev: the ishtp device structure
-+ * @uuid: uuid of the client to search
++ * ishtp_cl_tx_empty() -test whether client device tx buffer is empty
++ * @cl: Pointer to client device instance
 + *
-+ * Search firmware client using UUID and reture related client information.
++ * Look client device tx buffer list, and check whether this list is empty
 + *
-+ * Return: pointer of client information on success, NULL on failure.
++ * Return: true if client tx buffer list is empty else false
 + */
-+struct ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
-+						const uuid_le *uuid)
++bool ishtp_cl_tx_empty(struct ishtp_cl *cl)
 +{
-+	int i;
-+	unsigned long flags;
++	int tx_list_empty;
++	unsigned long tx_flags;
 +
-+	spin_lock_irqsave(&dev->fw_clients_lock, flags);
-+	i = ishtp_fw_cl_by_uuid(dev, uuid);
-+	spin_unlock_irqrestore(&dev->fw_clients_lock, flags);
-+	if (i < 0 || dev->fw_clients[i].props.fixed_address)
-+		return NULL;
++	spin_lock_irqsave(&cl->tx_list_spinlock, tx_flags);
++	tx_list_empty = list_empty(&cl->tx_list.list);
++	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
 +
-+	return &dev->fw_clients[i];
++	return !!tx_list_empty;
 +}
-+EXPORT_SYMBOL(ishtp_fw_cl_get_client);
++EXPORT_SYMBOL(ishtp_cl_tx_empty);
 +
- /**
-  * ishtp_fw_cl_by_id() - return index to fw_clients for client_id
-  * @dev: the ishtp device structure
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
-index 88883311667e..b8a5bcc82536 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
-@@ -113,5 +113,7 @@ void	ishtp_cl_driver_unregister(struct ishtp_cl_driver *driver);
- int	ishtp_register_event_cb(struct ishtp_cl_device *device,
- 				void (*read_cb)(struct ishtp_cl_device *));
- int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *cuuid);
-+struct	ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
-+						const uuid_le *uuid);
++/**
++ * ishtp_cl_rx_get_rb() -Get a rb from client device rx buffer list
++ * @cl: Pointer to client device instance
++ *
++ * Check client device in-processing buffer list and get a rb from it.
++ *
++ * Return: rb pointer if buffer list isn't empty else NULL
++ */
++struct ishtp_cl_rb *ishtp_cl_rx_get_rb(struct ishtp_cl *cl)
++{
++	unsigned long rx_flags;
++	struct ishtp_cl_rb *rb;
++
++	spin_lock_irqsave(&cl->in_process_spinlock, rx_flags);
++	rb = list_first_entry_or_null(&cl->in_process_list.list,
++				struct ishtp_cl_rb, list);
++	if (rb)
++		list_del_init(&rb->list);
++	spin_unlock_irqrestore(&cl->in_process_spinlock, rx_flags);
++
++	return rb;
++}
++EXPORT_SYMBOL(ishtp_cl_rx_get_rb);
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
+index 79eade547f5d..a82ee4d82cdb 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.h
++++ b/drivers/hid/intel-ish-hid/ishtp/client.h
+@@ -178,5 +178,7 @@ int ishtp_cl_flush_queues(struct ishtp_cl *cl);
  
- #endif /* _LINUX_ISHTP_CL_BUS_H */
+ /* exported functions from ISHTP client buffer management scope */
+ int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb);
++bool ishtp_cl_tx_empty(struct ishtp_cl *cl);
++struct ishtp_cl_rb *ishtp_cl_rx_get_rb(struct ishtp_cl *cl);
+ 
+ #endif /* _ISHTP_CLIENT_H_ */
 -- 
 2.17.1

@@ -1,41 +1,43 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: mfd: cros_ec: Check for mkbp events on resume only if supported.
-Date: Mon, 10 Sep 2018 15:37:44 +0100
-Message-ID: <20180910143744.GT28860@dell>
-References: <20180820153419.32098-1-ravisadineni@google.com>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: [PATCH V6 0/3]  da7280: haptic driver submission
+Date: Tue, 11 Sep 2018 21:18:06 +0900
+Message-ID: <cover.1536668286.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180820153419.32098-1-ravisadineni@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: RaviChandra Sadineni <ravisadineni@chromium.org>
-Cc: dmitry.torokhov@gmail.com, ravisadineni@google.com, dtor@google.com, linux-samsung-soc@vger.kernel.org, tbroch@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, tfiga@chromium.org, m.szyprowski@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 20 Aug 2018, RaviChandra Sadineni wrote:
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-> Currently on every resume we check for mkbp events and notify the
-> clients. This helps in identifying the wakeup sources. But on devices
-> that do not support mkbp protocol, we might end up querying key state of
-> the keyboard in a loop which blocks the resume. Instead check for events
-> only if mkbp is supported.
-> 
-> Signed-off-by: RaviChandra Sadineni <ravisadineni@chromium.org>
-> ---
-> 
->  Note: This patch fixes the suspend/resume issue on Snow and Peach-Pit
->  Chromebooks, both on vanilla v4.18 as well as linux-next from 20 August 
->  2018. Further info at: https://lkml.org/lkml/2018/6/5/1076
->  
->  drivers/mfd/cros_ec.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+In this patch set the following is provided:
 
-Applied, thanks.
+[PATCH V2 1/3] MAINTAINERS file update for DA7280
+[PATCH V2 2/3] DA7280 DT Binding
+[PATCH V2 3/3] DA7280 Driver
+
+This patch applies against linux-next and v4.19-rc3
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1438 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1971 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+end-of-patch for PATCH V6

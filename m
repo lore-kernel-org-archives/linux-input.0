@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 3/9] hid: intel-ish-hid: ishtp: add helper functions for client buffer operation
-Date: Tue, 11 Sep 2018 16:44:15 -0700
-Message-ID: <20180911234421.10691-4-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 1/9] hid: intel-ish-hid: ishtp: add helper function for driver data get/set
+Date: Tue, 11 Sep 2018 16:44:13 -0700
+Message-ID: <20180911234421.10691-2-srinivas.pandruvada@linux.intel.com>
 References: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
@@ -12,81 +12,68 @@ List-Id: linux-input@vger.kernel.org
 
 From: Even Xu <even.xu@intel.com>
 
-Add helper ishtp_cl_tx_empty() and ishtp_cl_rx_get_rb() to hide internal
-details from callers, who needs this functionality.
+Add helper function ishtp_set_drvdata() and ishtp_get_drvdata() for
+different ISH client drivers to set/get private driver data.
 
 Signed-off-by: Even Xu <even.xu@intel.com>
 Reviewed-by: Andriy Shevchenko <andriy.shevchenko@intel.com>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- .../hid/intel-ish-hid/ishtp/client-buffers.c  | 45 +++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/client.h      |  2 +
- 2 files changed, 47 insertions(+)
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 27 +++++++++++++++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp/bus.h |  3 +++
+ 2 files changed, 30 insertions(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-index b9b917d2d50d..12d61305e83d 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-@@ -255,3 +255,48 @@ int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb)
- 	return	rets;
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 2623a567ffba..d5db5e96e4a1 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -563,6 +563,33 @@ void ishtp_put_device(struct ishtp_cl_device *cl_device)
  }
- EXPORT_SYMBOL(ishtp_cl_io_rb_recycle);
+ EXPORT_SYMBOL(ishtp_put_device);
+ 
++/**
++ * ishtp_set_drvdata() - set client driver data
++ * @cl_device:	client device instance
++ * @data:	driver data need to be set
++ *
++ * Set client driver data to cl_device->driver_data.
++ */
++void ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data)
++{
++	cl_device->driver_data = data;
++}
++EXPORT_SYMBOL(ishtp_set_drvdata);
 +
 +/**
-+ * ishtp_cl_tx_empty() -test whether client device tx buffer is empty
-+ * @cl: Pointer to client device instance
++ * ishtp_get_drvdata() - get client driver data
++ * @cl_device:	client device instance
 + *
-+ * Look client device tx buffer list, and check whether this list is empty
++ * Get client driver data from cl_device->driver_data.
 + *
-+ * Return: true if client tx buffer list is empty else false
++ * Return: pointer of driver data
 + */
-+bool ishtp_cl_tx_empty(struct ishtp_cl *cl)
++void *ishtp_get_drvdata(struct ishtp_cl_device *cl_device)
 +{
-+	int tx_list_empty;
-+	unsigned long tx_flags;
-+
-+	spin_lock_irqsave(&cl->tx_list_spinlock, tx_flags);
-+	tx_list_empty = list_empty(&cl->tx_list.list);
-+	spin_unlock_irqrestore(&cl->tx_list_spinlock, tx_flags);
-+
-+	return !!tx_list_empty;
++	return cl_device->driver_data;
 +}
-+EXPORT_SYMBOL(ishtp_cl_tx_empty);
++EXPORT_SYMBOL(ishtp_get_drvdata);
 +
-+/**
-+ * ishtp_cl_rx_get_rb() -Get a rb from client device rx buffer list
-+ * @cl: Pointer to client device instance
-+ *
-+ * Check client device in-processing buffer list and get a rb from it.
-+ *
-+ * Return: rb pointer if buffer list isn't empty else NULL
-+ */
-+struct ishtp_cl_rb *ishtp_cl_rx_get_rb(struct ishtp_cl *cl)
-+{
-+	unsigned long rx_flags;
-+	struct ishtp_cl_rb *rb;
-+
-+	spin_lock_irqsave(&cl->in_process_spinlock, rx_flags);
-+	rb = list_first_entry_or_null(&cl->in_process_list.list,
-+				struct ishtp_cl_rb, list);
-+	if (rb)
-+		list_del_init(&rb->list);
-+	spin_unlock_irqrestore(&cl->in_process_spinlock, rx_flags);
-+
-+	return rb;
-+}
-+EXPORT_SYMBOL(ishtp_cl_rx_get_rb);
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
-index 79eade547f5d..a82ee4d82cdb 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.h
-@@ -178,5 +178,7 @@ int ishtp_cl_flush_queues(struct ishtp_cl *cl);
+ /**
+  * ishtp_bus_new_client() - Create a new client
+  * @dev:	ISHTP device instance
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
+index a1ffae7f26ad..88883311667e 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.h
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
+@@ -101,6 +101,9 @@ void	ishtp_reset_compl_handler(struct ishtp_device *dev);
+ void	ishtp_put_device(struct ishtp_cl_device *);
+ void	ishtp_get_device(struct ishtp_cl_device *);
  
- /* exported functions from ISHTP client buffer management scope */
- int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb);
-+bool ishtp_cl_tx_empty(struct ishtp_cl *cl);
-+struct ishtp_cl_rb *ishtp_cl_rx_get_rb(struct ishtp_cl *cl);
- 
- #endif /* _ISHTP_CLIENT_H_ */
++void	ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data);
++void	*ishtp_get_drvdata(struct ishtp_cl_device *cl_device);
++
+ int	__ishtp_cl_driver_register(struct ishtp_cl_driver *driver,
+ 				   struct module *owner);
+ #define ishtp_cl_driver_register(driver)		\
 -- 
 2.17.1

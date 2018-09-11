@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 1/9] hid: intel-ish-hid: ishtp: add helper function for driver data get/set
-Date: Tue, 11 Sep 2018 16:44:13 -0700
-Message-ID: <20180911234421.10691-2-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 2/9] hid: intel-ish-hid: use helper function for private driver data set/get
+Date: Tue, 11 Sep 2018 16:44:14 -0700
+Message-ID: <20180911234421.10691-3-srinivas.pandruvada@linux.intel.com>
 References: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
@@ -12,68 +12,82 @@ List-Id: linux-input@vger.kernel.org
 
 From: Even Xu <even.xu@intel.com>
 
-Add helper function ishtp_set_drvdata() and ishtp_get_drvdata() for
-different ISH client drivers to set/get private driver data.
+Use helper set/get function to set/get driver data in ishtp-hid-client
+driver instead of directly accessing cl_device driver_data member.
 
 Signed-off-by: Even Xu <even.xu@intel.com>
 Reviewed-by: Andriy Shevchenko <andriy.shevchenko@intel.com>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ishtp/bus.c | 27 +++++++++++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/bus.h |  3 +++
- 2 files changed, 30 insertions(+)
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index 2623a567ffba..d5db5e96e4a1 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -563,6 +563,33 @@ void ishtp_put_device(struct ishtp_cl_device *cl_device)
- }
- EXPORT_SYMBOL(ishtp_put_device);
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index 2d28cffc1404..11ce54fcd098 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -320,7 +320,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+  */
+ static void ish_cl_event_cb(struct ishtp_cl_device *device)
+ {
+-	struct ishtp_cl	*hid_ishtp_cl = device->driver_data;
++	struct ishtp_cl	*hid_ishtp_cl = ishtp_get_drvdata(device);
+ 	struct ishtp_cl_rb *rb_in_proc;
+ 	size_t r_length;
+ 	unsigned long flags;
+@@ -765,7 +765,7 @@ static void hid_ishtp_cl_reset_handler(struct work_struct *work)
+ 	if (!hid_ishtp_cl)
+ 		return;
  
-+/**
-+ * ishtp_set_drvdata() - set client driver data
-+ * @cl_device:	client device instance
-+ * @data:	driver data need to be set
-+ *
-+ * Set client driver data to cl_device->driver_data.
-+ */
-+void ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data)
-+{
-+	cl_device->driver_data = data;
-+}
-+EXPORT_SYMBOL(ishtp_set_drvdata);
-+
-+/**
-+ * ishtp_get_drvdata() - get client driver data
-+ * @cl_device:	client device instance
-+ *
-+ * Get client driver data from cl_device->driver_data.
-+ *
-+ * Return: pointer of driver data
-+ */
-+void *ishtp_get_drvdata(struct ishtp_cl_device *cl_device)
-+{
-+	return cl_device->driver_data;
-+}
-+EXPORT_SYMBOL(ishtp_get_drvdata);
-+
- /**
-  * ishtp_bus_new_client() - Create a new client
-  * @dev:	ISHTP device instance
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
-index a1ffae7f26ad..88883311667e 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
-@@ -101,6 +101,9 @@ void	ishtp_reset_compl_handler(struct ishtp_device *dev);
- void	ishtp_put_device(struct ishtp_cl_device *);
- void	ishtp_get_device(struct ishtp_cl_device *);
+-	cl_device->driver_data = hid_ishtp_cl;
++	ishtp_set_drvdata(cl_device, hid_ishtp_cl);
+ 	hid_ishtp_cl->client_data = client_data;
+ 	client_data->hid_ishtp_cl = hid_ishtp_cl;
  
-+void	ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data);
-+void	*ishtp_get_drvdata(struct ishtp_cl_device *cl_device);
-+
- int	__ishtp_cl_driver_register(struct ishtp_cl_driver *driver,
- 				   struct module *owner);
- #define ishtp_cl_driver_register(driver)		\
+@@ -814,7 +814,7 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
+ 	if (!hid_ishtp_cl)
+ 		return -ENOMEM;
+ 
+-	cl_device->driver_data = hid_ishtp_cl;
++	ishtp_set_drvdata(cl_device, hid_ishtp_cl);
+ 	hid_ishtp_cl->client_data = client_data;
+ 	client_data->hid_ishtp_cl = hid_ishtp_cl;
+ 	client_data->cl_device = cl_device;
+@@ -844,7 +844,7 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
+  */
+ static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
+ {
+-	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
++	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+ 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+@@ -874,7 +874,7 @@ static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
+  */
+ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
+ {
+-	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
++	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+ 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+@@ -898,7 +898,7 @@ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
+ static int hid_ishtp_cl_suspend(struct device *device)
+ {
+ 	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
+-	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
++	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+ 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+@@ -919,7 +919,7 @@ static int hid_ishtp_cl_suspend(struct device *device)
+ static int hid_ishtp_cl_resume(struct device *device)
+ {
+ 	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
+-	struct ishtp_cl *hid_ishtp_cl = cl_device->driver_data;
++	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+ 	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
 -- 
 2.17.1

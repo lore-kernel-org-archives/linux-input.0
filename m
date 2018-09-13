@@ -1,60 +1,39 @@
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: [PATCH V2] hid: hid-core: Fix a sleep-in-atomic-context bug in __hid_request()
-Date: Thu, 13 Sep 2018 11:34:32 +0800
-Message-ID: <20180913033432.16336-1-baijiaju1990@gmail.com>
+From: zhong jiang <zhongjiang@huawei.com>
+Subject: [PATCH] HID: logitech: fix a used uninitialized GCC warning
+Date: Thu, 13 Sep 2018 11:52:19 +0800
+Message-ID: <1536810739-27342-1-git-send-email-zhongjiang@huawei.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-hid_alloc_report_buf() has to be called with GFP_ATOMIC in 
-__hid_request(), because there are the following callchains 
-leading to __hid_request() being an atomic context:
+Fix the following compile warning:
 
-picolcd_send_and_wait (acquire a spinlock)
-  hid_hw_request
-    __hid_request
-      hid_alloc_report_buf(GFP_KERNEL)
+drivers/hid/hid-logitech-hidpp.c: In function hi_res_scroll_enable:
+drivers/hid/hid-logitech-hidpp.c:2714:54: warning: multiplier may be used uninitialized in this function [-Wmaybe-uninitialized]
+  hidpp->vertical_wheel_counter.resolution_multiplier = multiplier;
 
-picolcd_reset (acquire a spinlock)
-  hid_hw_request
-    __hid_request
-      hid_alloc_report_buf(GFP_KERNEL)
-
-lg4ff_play (acquire a spinlock)
-  hid_hw_request
-    __hid_request
-      hid_alloc_report_buf(GFP_KERNEL)
-
-lg4ff_set_autocenter_ffex (acquire a spinlock)
-  hid_hw_request
-    __hid_request
-      hid_alloc_report_buf(GFP_KERNEL)
-
-This bug is found by my static analysis tool DSAC.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
 ---
-v2:
-* Make the description more human readable.
-  Thanks Jiri for good advice.
----
- drivers/hid/hid-core.c | 2 +-
+ drivers/hid/hid-logitech-hidpp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 3942ee61bd1c..c886af00c8c9 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1442,7 +1442,7 @@ void __hid_request(struct hid_device *hid, struct hid_report *report,
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 5f0c080..83c43dd 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2696,7 +2696,7 @@ static int hi_res_scroll_look_up_microns(__u32 product_id)
+ static int hi_res_scroll_enable(struct hidpp_device *hidpp)
+ {
  	int ret;
- 	u32 len;
+-	u8 multiplier;
++	u8 uninitialized_var(multiplier);
  
--	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-+	buf = hid_alloc_report_buf(report, GFP_ATOMIC);
- 	if (!buf)
- 		return;
- 
+ 	if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2121) {
+ 		ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
 -- 
-2.17.0
+1.7.12.4

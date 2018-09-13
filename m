@@ -1,63 +1,57 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH] hyper-v: Fix wakeup from suspend-to-idle
-Date: Thu, 13 Sep 2018 08:55:22 +0200
-Message-ID: <CAJZ5v0jmNFaH3JUVS9W_1ofXcD=8U8Y9enPi+j+9U=6cBVxfJQ@mail.gmail.com>
-References: <20180912161101.2634-1-vkuznets@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: logitech: fix a used uninitialized GCC warning
+Date: Thu, 13 Sep 2018 09:01:47 +0200
+Message-ID: <CAO-hwJJAGdUokt4rByNFsit1bY8t3ZpV3CFh-ES7-GNukZTBLw@mail.gmail.com>
+References: <1536810739-27342-1-git-send-email-zhongjiang@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180912161101.2634-1-vkuznets@redhat.com>
+In-Reply-To: <1536810739-27342-1-git-send-email-zhongjiang@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Linux PM <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com, Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: zhongjiang@huawei.com
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 12, 2018 at 6:11 PM Vitaly Kuznetsov <vkuznets@redhat.com> wrote:
+On Thu, Sep 13, 2018 at 6:04 AM zhong jiang <zhongjiang@huawei.com> wrote:
 >
-> It makes little sense but still possible to put Hyper-V guests into
-> suspend-to-idle state. To wake them up two wakeup sources were registered
-> in the past: hyperv-keyboard and hid-hyperv. However, since
-> commit eed4d47efe95 ("ACPI / sleep: Ignore spurious SCI wakeups from
-> suspend-to-idle") pm_wakeup_event() from these devices is ignored. Switch
-> to pm_wakeup_hard_event() API as these devices are actually the only
-> possible way to wakeup Hyper-V guests.
+> Fix the following compile warning:
 >
-> Fixes: eed4d47efe95 (ACPI / sleep: Ignore spurious SCI wakeups from suspend-to-idle)
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
+> drivers/hid/hid-logitech-hidpp.c: In function ‘hi_res_scroll_enable’:
+> drivers/hid/hid-logitech-hidpp.c:2714:54: warning: ‘multiplier’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+>   hidpp->vertical_wheel_counter.resolution_multiplier = multiplier;
+>
+> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
 > ---
->  drivers/hid/hid-hyperv.c              | 2 +-
->  drivers/input/serio/hyperv-keyboard.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+>  drivers/hid/hid-logitech-hidpp.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-> index b372854cf38d..704049e62d58 100644
-> --- a/drivers/hid/hid-hyperv.c
-> +++ b/drivers/hid/hid-hyperv.c
-> @@ -309,7 +309,7 @@ static void mousevsc_on_receive(struct hv_device *device,
->                 hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
->                                  input_dev->input_buf, len, 1);
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 5f0c080..83c43dd 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -2696,7 +2696,7 @@ static int hi_res_scroll_look_up_microns(__u32 product_id)
+>  static int hi_res_scroll_enable(struct hidpp_device *hidpp)
+>  {
+>         int ret;
+> -       u8 multiplier;
+> +       u8 uninitialized_var(multiplier);
+
+I think your patch is correct (multiplier will be set given the code
+path), but IMO, it feels terribly wrong to explicitly remove this
+warning this way. The problem is that if someone else adds a new piece
+of code, we might miss the fact that multiplier is not set and we
+might show garbage in the hid_info call.
+
+Why don't you initialize the value to 8 as in the 'else' statement and
+remove the now duplicated assignement in this else statement?
+
+Cheers,
+Benjamin
+
 >
-> -               pm_wakeup_event(&input_dev->device->device, 0);
-> +               pm_wakeup_hard_event(&input_dev->device->device);
->
->                 break;
->         default:
-> diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-> index 47a0e81a2989..a8b9be3e28db 100644
-> --- a/drivers/input/serio/hyperv-keyboard.c
-> +++ b/drivers/input/serio/hyperv-keyboard.c
-> @@ -177,7 +177,7 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
->                  * state because the Enter-UP can trigger a wakeup at once.
->                  */
->                 if (!(info & IS_BREAK))
-> -                       pm_wakeup_event(&hv_dev->device, 0);
-> +                       pm_wakeup_hard_event(&hv_dev->device);
->
->                 break;
->
+>         if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2121) {
+>                 ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
 > --
-> 2.14.4
+> 1.7.12.4
 >

@@ -1,31 +1,27 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] input: egalax_ts: add system wakeup support
-Date: Mon, 17 Sep 2018 11:09:56 -0700
-Message-ID: <20180917180956.GC104770@dtor-ws>
-References: <1536204258-433-1-git-send-email-Anson.Huang@nxp.com>
- <CAOMZO5DzYBz3U=RT-HzzK5KMMnYipceCWh9eYuYRmBctkRZ_=w@mail.gmail.com>
+Subject: [RFC/PATCH 0/5] Support children for legacy device properties
+Date: Mon, 17 Sep 2018 11:15:58 -0700
+Message-ID: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAOMZO5DzYBz3U=RT-HzzK5KMMnYipceCWh9eYuYRmBctkRZ_=w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: Anson Huang <Anson.Huang@nxp.com>, Fabio Estevam <fabio.estevam@nxp.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, NXP Linux Team <Linux-imx@nxp.com>
+To: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Cc: linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Sep 06, 2018 at 01:46:32PM -0300, Fabio Estevam wrote:
-> On Thu, Sep 6, 2018 at 12:24 AM, Anson Huang <Anson.Huang@nxp.com> wrote:
-> > This patch adds wakeup function support for egalax touch
-> > screen, if "wakeup-source" is added to device tree's egalax
-> > touch screen node, the wakeup function will be enabled, and
-> > egalax touch screen will be able to wakeup system from suspend.
-> >
-> > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> 
-> Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+The generic device properties APIs are very helpful as they allow abstracting
+away details of the platform (whether it is ACPI, device tree, or legacy board
+file), so that individual driver does not need separate code paths to support
+all variants. However there are drivers that currently can not use generic
+device properties API as they need notion of children properties, for example
+gpio_keys driver, that expects every button to be described as a sub-node of
+main device.
 
-Applied, thank you.
+This patch series introduces notion of sub-nodes for static properties and ties
+it up with GPIO lookup tables so that they are usable with sub-nodes as well.
+
+Thanks.
 
 -- 
 Dmitry

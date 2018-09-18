@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 05/20] Input: iforce - introduce start and stop io transport ops
-Date: Mon, 17 Sep 2018 17:47:17 -0700
-Message-ID: <20180918004732.9875-5-dmitry.torokhov@gmail.com>
+Subject: [PATCH 03/20] Input: iforce - move get_id to the transport operations
+Date: Mon, 17 Sep 2018 17:47:15 -0700
+Message-ID: <20180918004732.9875-3-dmitry.torokhov@gmail.com>
 References: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,130 +12,192 @@ To: linux-input@vger.kernel.org, Tim Schumacher <timschumi@gmx.de>
 Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add start_io() and stop_io() transport methods so that core
-does not have to know the details.
+To avoid #ifdef-ing out parts of the code and having conditionals in normal
+control flow, let's define "get_id" transport method and move
+implementation into respective transport modules.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/joystick/iforce/iforce-main.c  | 25 ++------------------
- drivers/input/joystick/iforce/iforce-serio.c | 13 ++++++++++
- drivers/input/joystick/iforce/iforce-usb.c   | 17 +++++++++++++
- drivers/input/joystick/iforce/iforce.h       |  2 ++
- 4 files changed, 34 insertions(+), 23 deletions(-)
+ .../input/joystick/iforce/iforce-packets.c    | 64 -------------------
+ drivers/input/joystick/iforce/iforce-serio.c  | 17 +++++
+ drivers/input/joystick/iforce/iforce-usb.c    | 29 +++++++++
+ drivers/input/joystick/iforce/iforce.h        |  6 +-
+ 4 files changed, 51 insertions(+), 65 deletions(-)
 
-diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
-index 58d5cfe46526..4401ca4a4c38 100644
---- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -185,15 +185,7 @@ static int iforce_open(struct input_dev *dev)
- {
- 	struct iforce *iforce = input_get_drvdata(dev);
- 
--	switch (iforce->bus) {
--#ifdef CONFIG_JOYSTICK_IFORCE_USB
--		case IFORCE_USB:
--			iforce->irq->dev = iforce->usbdev;
--			if (usb_submit_urb(iforce->irq, GFP_KERNEL))
--				return -EIO;
--			break;
--#endif
--	}
-+	iforce->xport_ops->start_io(iforce);
- 
- 	if (test_bit(EV_FF, dev->evbit)) {
- 		/* Enable force feedback */
-@@ -226,20 +218,7 @@ static void iforce_close(struct input_dev *dev)
- 			!test_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags));
+diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/input/joystick/iforce/iforce-packets.c
+index b8ca9bdfdef8..e677562efc9a 100644
+--- a/drivers/input/joystick/iforce/iforce-packets.c
++++ b/drivers/input/joystick/iforce/iforce-packets.c
+@@ -210,67 +210,3 @@ void iforce_process_packet(struct iforce *iforce, u16 cmd, unsigned char *data)
+ 			break;
  	}
- 
--	switch (iforce->bus) {
--#ifdef CONFIG_JOYSTICK_IFORCE_USB
--	case IFORCE_USB:
--		usb_kill_urb(iforce->irq);
--		usb_kill_urb(iforce->out);
--		usb_kill_urb(iforce->ctrl);
--		break;
--#endif
--#ifdef CONFIG_JOYSTICK_IFORCE_232
--	case IFORCE_232:
--		//TODO: Wait for the last packets to be sent
--		break;
--#endif
--	}
-+	iforce->xport_ops->stop_io(iforce);
  }
- 
- int iforce_init_device(struct iforce *iforce)
+-
+-int iforce_get_id_packet(struct iforce *iforce, char *packet)
+-{
+-	switch (iforce->bus) {
+-
+-	case IFORCE_USB: {
+-#ifdef CONFIG_JOYSTICK_IFORCE_USB
+-		int status;
+-
+-		iforce->cr.bRequest = packet[0];
+-		iforce->ctrl->dev = iforce->usbdev;
+-
+-		status = usb_submit_urb(iforce->ctrl, GFP_KERNEL);
+-		if (status) {
+-			dev_err(&iforce->intf->dev,
+-				"usb_submit_urb failed %d\n", status);
+-			return -1;
+-		}
+-
+-		wait_event_interruptible_timeout(iforce->wait,
+-			iforce->ctrl->status != -EINPROGRESS, HZ);
+-
+-		if (iforce->ctrl->status) {
+-			dev_dbg(&iforce->intf->dev,
+-				"iforce->ctrl->status = %d\n",
+-				iforce->ctrl->status);
+-			usb_unlink_urb(iforce->ctrl);
+-			return -1;
+-		}
+-#else
+-		printk(KERN_DEBUG "iforce_get_id_packet: iforce->bus = USB!\n");
+-#endif
+-		}
+-		break;
+-
+-	case IFORCE_232:
+-
+-#ifdef CONFIG_JOYSTICK_IFORCE_232
+-		iforce->expect_packet = FF_CMD_QUERY;
+-		iforce_send_packet(iforce, FF_CMD_QUERY, packet);
+-
+-		wait_event_interruptible_timeout(iforce->wait,
+-			!iforce->expect_packet, HZ);
+-
+-		if (iforce->expect_packet) {
+-			iforce->expect_packet = 0;
+-			return -1;
+-		}
+-#else
+-		dev_err(&iforce->dev->dev,
+-			"iforce_get_id_packet: iforce->bus = SERIO!\n");
+-#endif
+-		break;
+-
+-	default:
+-		dev_err(&iforce->dev->dev,
+-			"iforce_get_id_packet: iforce->bus = %d\n",
+-			iforce->bus);
+-		break;
+-	}
+-
+-	return -(iforce->edata[0] != packet[0]);
+-}
+-
 diff --git a/drivers/input/joystick/iforce/iforce-serio.c b/drivers/input/joystick/iforce/iforce-serio.c
-index eca2f6eca7f0..afc7521b430d 100644
+index c9469209f994..fa45ce425d47 100644
 --- a/drivers/input/joystick/iforce/iforce-serio.c
 +++ b/drivers/input/joystick/iforce/iforce-serio.c
-@@ -83,9 +83,22 @@ static int iforce_serio_get_id(struct iforce *iforce, u8 *packet)
- 	return -(iforce->edata[0] != packet[0]);
+@@ -67,8 +67,25 @@ static void iforce_serio_xmit(struct iforce *iforce)
+ 	spin_unlock_irqrestore(&iforce->xmit_lock, flags);
  }
  
-+static int iforce_serio_start_io(struct iforce *iforce)
++static int iforce_serio_get_id(struct iforce *iforce, u8 *packet)
 +{
-+	/* No special handling required */
-+	return 0;
-+}
++	iforce->expect_packet = FF_CMD_QUERY;
++	iforce_send_packet(iforce, FF_CMD_QUERY, packet);
 +
-+static void iforce_serio_stop_io(struct iforce *iforce)
-+{
-+	//TODO: Wait for the last packets to be sent
++	wait_event_interruptible_timeout(iforce->wait,
++					 !iforce->expect_packet, HZ);
++
++	if (iforce->expect_packet) {
++		iforce->expect_packet = 0;
++		return -EIO;
++	}
++
++	return -(iforce->edata[0] != packet[0]);
 +}
 +
  static const struct iforce_xport_ops iforce_serio_xport_ops = {
  	.xmit		= iforce_serio_xmit,
- 	.get_id		= iforce_serio_get_id,
-+	.start_io	= iforce_serio_start_io,
-+	.stop_io	= iforce_serio_stop_io,
++	.get_id		= iforce_serio_get_id,
  };
  
  static void iforce_serio_write_wakeup(struct serio *serio)
 diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index f7eeaad92602..10b583b5fc82 100644
+index d4f7f34db9a0..f7eeaad92602 100644
 --- a/drivers/input/joystick/iforce/iforce-usb.c
 +++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -103,9 +103,26 @@ static int iforce_usb_get_id(struct iforce *iforce, u8 *packet)
- 	return -(iforce->edata[0] != packet[0]);
+@@ -75,8 +75,37 @@ static void iforce_usb_xmit(struct iforce *iforce)
+ 		__iforce_usb_xmit(iforce);
  }
  
-+static int iforce_usb_start_io(struct iforce *iforce)
++static int iforce_usb_get_id(struct iforce *iforce, u8 *packet)
 +{
-+	if (usb_submit_urb(iforce->irq, GFP_KERNEL))
++	int status;
++
++	iforce->cr.bRequest = packet[0];
++	iforce->ctrl->dev = iforce->usbdev;
++
++	status = usb_submit_urb(iforce->ctrl, GFP_KERNEL);
++	if (status) {
++		dev_err(&iforce->intf->dev,
++			"usb_submit_urb failed %d\n", status);
 +		return -EIO;
++	}
 +
-+	return 0;
-+}
++	wait_event_interruptible_timeout(iforce->wait,
++		iforce->ctrl->status != -EINPROGRESS, HZ);
 +
-+static void iforce_usb_stop_io(struct iforce *iforce)
-+{
-+	usb_kill_urb(iforce->irq);
-+	usb_kill_urb(iforce->out);
-+	usb_kill_urb(iforce->ctrl);
++	if (iforce->ctrl->status) {
++		dev_dbg(&iforce->intf->dev,
++			"iforce->ctrl->status = %d\n",
++			iforce->ctrl->status);
++		usb_unlink_urb(iforce->ctrl);
++		return -EIO;
++	}
++
++	return -(iforce->edata[0] != packet[0]);
 +}
 +
  static const struct iforce_xport_ops iforce_usb_xport_ops = {
  	.xmit		= iforce_usb_xmit,
- 	.get_id		= iforce_usb_get_id,
-+	.start_io	= iforce_usb_start_io,
-+	.stop_io	= iforce_usb_stop_io,
++	.get_id		= iforce_usb_get_id,
  };
  
  static void iforce_usb_irq(struct urb *urb)
 diff --git a/drivers/input/joystick/iforce/iforce.h b/drivers/input/joystick/iforce/iforce.h
-index f6636230be31..c020d61eccf2 100644
+index 2fea3be751ed..f6636230be31 100644
 --- a/drivers/input/joystick/iforce/iforce.h
 +++ b/drivers/input/joystick/iforce/iforce.h
-@@ -98,6 +98,8 @@ struct iforce;
+@@ -97,6 +97,7 @@ struct iforce;
+ 
  struct iforce_xport_ops {
  	void (*xmit)(struct iforce *iforce);
- 	int (*get_id)(struct iforce *iforce, u8* id);
-+	int (*start_io)(struct iforce *iforce);
-+	void (*stop_io)(struct iforce *iforce);
++	int (*get_id)(struct iforce *iforce, u8* id);
  };
  
  struct iforce {
+@@ -146,6 +147,10 @@ struct iforce {
+ /* Encode a time value */
+ #define TIME_SCALE(a)	(a)
+ 
++static inline int iforce_get_id_packet(struct iforce *iforce, u8* id)
++{
++	return iforce->xport_ops->get_id(iforce, id);
++}
+ 
+ /* Public functions */
+ /* iforce-main.c */
+@@ -156,7 +161,6 @@ int iforce_control_playback(struct iforce*, u16 id, unsigned int);
+ void iforce_process_packet(struct iforce *iforce, u16 cmd, unsigned char *data);
+ int iforce_send_packet(struct iforce *iforce, u16 cmd, unsigned char* data);
+ void iforce_dump_packet(struct iforce *iforce, char *msg, u16 cmd, unsigned char *data);
+-int iforce_get_id_packet(struct iforce *iforce, char *packet);
+ 
+ /* iforce-ff.c */
+ int iforce_upload_periodic(struct iforce *, struct ff_effect *, struct ff_effect *);
 -- 
 2.19.0.397.gdd90340f6a-goog

@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 02/20] Input: iforce - introduce transport ops
-Date: Mon, 17 Sep 2018 17:47:14 -0700
-Message-ID: <20180918004732.9875-2-dmitry.torokhov@gmail.com>
+Subject: [PATCH 08/20] Input: iforce - split into core and transport modules
+Date: Mon, 17 Sep 2018 17:47:20 -0700
+Message-ID: <20180918004732.9875-8-dmitry.torokhov@gmail.com>
 References: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,168 +12,184 @@ To: linux-input@vger.kernel.org, Tim Schumacher <timschumi@gmx.de>
 Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In order to tease apart the driver into core and transport modules, let's
-introduce transport operations and make "xmit" the very first one such
-operation.
+Now that we have moved enough transport details into separate source files
+we can change them into transport modules so that they are only loaded when
+needed.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- .../input/joystick/iforce/iforce-packets.c    | 20 ++-----------------
- drivers/input/joystick/iforce/iforce-serio.c  |  9 +++++++--
- drivers/input/joystick/iforce/iforce-usb.c    | 15 ++++++++++++--
- drivers/input/joystick/iforce/iforce.h        | 13 ++++++------
- 4 files changed, 29 insertions(+), 28 deletions(-)
+ drivers/input/joystick/iforce/Kconfig         |  8 ++---
+ drivers/input/joystick/iforce/Makefile        |  7 ++--
+ drivers/input/joystick/iforce/iforce-main.c   | 35 ++-----------------
+ .../input/joystick/iforce/iforce-packets.c    |  2 ++
+ drivers/input/joystick/iforce/iforce-serio.c  |  7 ++++
+ drivers/input/joystick/iforce/iforce-usb.c    |  7 ++++
+ drivers/input/joystick/iforce/iforce.h        |  2 --
+ 7 files changed, 25 insertions(+), 43 deletions(-)
 
+diff --git a/drivers/input/joystick/iforce/Kconfig b/drivers/input/joystick/iforce/Kconfig
+index ab4dbcbcbf50..55f6ae1da6b0 100644
+--- a/drivers/input/joystick/iforce/Kconfig
++++ b/drivers/input/joystick/iforce/Kconfig
+@@ -13,15 +13,15 @@ config JOYSTICK_IFORCE
+ 	  module will be called iforce.
+ 
+ config JOYSTICK_IFORCE_USB
+-	bool "I-Force USB joysticks and wheels"
+-	depends on JOYSTICK_IFORCE && (JOYSTICK_IFORCE=m || USB=y) && USB
++	tristate "I-Force USB joysticks and wheels"
++	depends on JOYSTICK_IFORCE && USB
+ 	help
+ 	  Say Y here if you have an I-Force joystick or steering wheel
+ 	  connected to your USB port.
+ 
+ config JOYSTICK_IFORCE_232
+-	bool "I-Force Serial joysticks and wheels"
+-	depends on JOYSTICK_IFORCE && (JOYSTICK_IFORCE=m || SERIO=y) && SERIO
++	tristate "I-Force Serial joysticks and wheels"
++	depends on JOYSTICK_IFORCE && SERIO
+ 	help
+ 	  Say Y here if you have an I-Force joystick or steering wheel
+ 	  connected to your serial (COM) port.
+diff --git a/drivers/input/joystick/iforce/Makefile b/drivers/input/joystick/iforce/Makefile
+index bc5bda22f15e..414075019a4f 100644
+--- a/drivers/input/joystick/iforce/Makefile
++++ b/drivers/input/joystick/iforce/Makefile
+@@ -4,8 +4,7 @@
+ # By Johann Deneux <johann.deneux@gmail.com>
+ #
+ 
+-obj-$(CONFIG_JOYSTICK_IFORCE)	+= iforce.o
+-
++obj-$(CONFIG_JOYSTICK_IFORCE)		+= iforce.o
+ iforce-y := iforce-ff.o iforce-main.o iforce-packets.o
+-iforce-$(CONFIG_JOYSTICK_IFORCE_232)	+= iforce-serio.o
+-iforce-$(CONFIG_JOYSTICK_IFORCE_USB)	+= iforce-usb.o
++obj-$(CONFIG_JOYSTICK_IFORCE_232)	+= iforce-serio.o
++obj-$(CONFIG_JOYSTICK_IFORCE_USB)	+= iforce-usb.o
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index 894769d03df3..3a0698327c42 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -24,7 +24,7 @@
+ #include "iforce.h"
+ 
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>, Johann Deneux <johann.deneux@gmail.com>");
+-MODULE_DESCRIPTION("USB/RS232 I-Force joysticks and wheels driver");
++MODULE_DESCRIPTION("Core I-Force joysticks and wheels driver");
+ MODULE_LICENSE("GPL");
+ 
+ static signed short btn_joystick[] =
+@@ -411,35 +411,4 @@ int iforce_init_device(struct device *parent, u16 bustype,
+  fail:	input_free_device(input_dev);
+ 	return error;
+ }
+-
+-static int __init iforce_init(void)
+-{
+-	int err = 0;
+-
+-#ifdef CONFIG_JOYSTICK_IFORCE_USB
+-	err = usb_register(&iforce_usb_driver);
+-	if (err)
+-		return err;
+-#endif
+-#ifdef CONFIG_JOYSTICK_IFORCE_232
+-	err = serio_register_driver(&iforce_serio_drv);
+-#ifdef CONFIG_JOYSTICK_IFORCE_USB
+-	if (err)
+-		usb_deregister(&iforce_usb_driver);
+-#endif
+-#endif
+-	return err;
+-}
+-
+-static void __exit iforce_exit(void)
+-{
+-#ifdef CONFIG_JOYSTICK_IFORCE_USB
+-	usb_deregister(&iforce_usb_driver);
+-#endif
+-#ifdef CONFIG_JOYSTICK_IFORCE_232
+-	serio_unregister_driver(&iforce_serio_drv);
+-#endif
+-}
+-
+-module_init(iforce_init);
+-module_exit(iforce_exit);
++EXPORT_SYMBOL(iforce_init_device);
 diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/input/joystick/iforce/iforce-packets.c
-index 91893c751524..b8ca9bdfdef8 100644
+index 8a9a152bb595..70db273e5045 100644
 --- a/drivers/input/joystick/iforce/iforce-packets.c
 +++ b/drivers/input/joystick/iforce/iforce-packets.c
-@@ -91,25 +91,9 @@ int iforce_send_packet(struct iforce *iforce, u16 cmd, unsigned char* data)
- /*
-  * If necessary, start the transmission
-  */
--	switch (iforce->bus) {
--
--#ifdef CONFIG_JOYSTICK_IFORCE_232
--		case IFORCE_232:
--		if (empty)
--			iforce_serial_xmit(iforce);
--		break;
--#endif
--#ifdef CONFIG_JOYSTICK_IFORCE_USB
--		case IFORCE_USB:
-+	if (empty)
-+		iforce->xport_ops->xmit(iforce);
+@@ -96,6 +96,7 @@ int iforce_send_packet(struct iforce *iforce, u16 cmd, unsigned char* data)
  
--		if (iforce->usbdev && empty &&
--			!test_and_set_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags)) {
--
--			iforce_usb_xmit(iforce);
--		}
--		break;
--#endif
--	}
  	return 0;
  }
++EXPORT_SYMBOL(iforce_send_packet);
  
+ /* Start or stop an effect */
+ int iforce_control_playback(struct iforce* iforce, u16 id, unsigned int value)
+@@ -203,3 +204,4 @@ void iforce_process_packet(struct iforce *iforce, u16 cmd, unsigned char *data)
+ 			break;
+ 	}
+ }
++EXPORT_SYMBOL(iforce_process_packet);
 diff --git a/drivers/input/joystick/iforce/iforce-serio.c b/drivers/input/joystick/iforce/iforce-serio.c
-index f4ba4a751fe0..c9469209f994 100644
+index 6ff1bbeeb494..6c6411fbdc32 100644
 --- a/drivers/input/joystick/iforce/iforce-serio.c
 +++ b/drivers/input/joystick/iforce/iforce-serio.c
-@@ -23,7 +23,7 @@
+@@ -21,6 +21,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
  
++#include <linux/serio.h>
  #include "iforce.h"
  
--void iforce_serial_xmit(struct iforce *iforce)
-+static void iforce_serio_xmit(struct iforce *iforce)
- {
- 	unsigned char cs;
- 	int i;
-@@ -67,11 +67,15 @@ void iforce_serial_xmit(struct iforce *iforce)
- 	spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- }
- 
-+static const struct iforce_xport_ops iforce_serio_xport_ops = {
-+	.xmit		= iforce_serio_xmit,
-+};
+ struct iforce_serio {
+@@ -250,3 +251,9 @@ struct serio_driver iforce_serio_drv = {
+ 	.connect	= iforce_serio_connect,
+ 	.disconnect	= iforce_serio_disconnect,
+ };
 +
- static void iforce_serio_write_wakeup(struct serio *serio)
- {
- 	struct iforce *iforce = serio_get_drvdata(serio);
- 
--	iforce_serial_xmit(iforce);
-+	iforce_serio_xmit(iforce);
- }
- 
- static irqreturn_t iforce_serio_irq(struct serio *serio,
-@@ -129,6 +133,7 @@ static int iforce_serio_connect(struct serio *serio, struct serio_driver *drv)
- 	if (!iforce)
- 		return -ENOMEM;
- 
-+	iforce->xport_ops = &iforce_serio_xport_ops;
- 	iforce->bus = IFORCE_232;
- 	iforce->serio = serio;
- 
++module_serio_driver(iforce_serio_drv);
++
++MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>, Johann Deneux <johann.deneux@gmail.com>");
++MODULE_DESCRIPTION("RS232 I-Force joysticks and wheels driver");
++MODULE_LICENSE("GPL");
 diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index 78073259c9a1..d4f7f34db9a0 100644
+index d4e7a24922cd..9d635f01cf19 100644
 --- a/drivers/input/joystick/iforce/iforce-usb.c
 +++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -23,7 +23,7 @@
+@@ -21,6 +21,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
  
++#include <linux/usb.h>
  #include "iforce.h"
  
--void iforce_usb_xmit(struct iforce *iforce)
-+static void __iforce_usb_xmit(struct iforce *iforce)
- {
- 	int n, c;
- 	unsigned long flags;
-@@ -69,6 +69,16 @@ void iforce_usb_xmit(struct iforce *iforce)
- 	spin_unlock_irqrestore(&iforce->xmit_lock, flags);
- }
- 
-+static void iforce_usb_xmit(struct iforce *iforce)
-+{
-+	if (!test_and_set_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags))
-+		__iforce_usb_xmit(iforce);
-+}
+ struct iforce_usb {
+@@ -316,3 +317,9 @@ struct usb_driver iforce_usb_driver = {
+ 	.disconnect =	iforce_usb_disconnect,
+ 	.id_table =	iforce_usb_ids,
+ };
 +
-+static const struct iforce_xport_ops iforce_usb_xport_ops = {
-+	.xmit		= iforce_usb_xmit,
-+};
++module_usb_driver(iforce_usb_driver);
 +
- static void iforce_usb_irq(struct urb *urb)
- {
- 	struct iforce *iforce = urb->context;
-@@ -113,7 +123,7 @@ static void iforce_usb_out(struct urb *urb)
- 		return;
- 	}
- 
--	iforce_usb_xmit(iforce);
-+	__iforce_usb_xmit(iforce);
- 
- 	wake_up(&iforce->wait);
- }
-@@ -155,6 +165,7 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 	if (!(iforce->ctrl = usb_alloc_urb(0, GFP_KERNEL)))
- 		goto fail;
- 
-+	iforce->xport_ops = &iforce_usb_xport_ops;
- 	iforce->bus = IFORCE_USB;
- 	iforce->usbdev = dev;
- 	iforce->intf = intf;
++MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>, Johann Deneux <johann.deneux@gmail.com>");
++MODULE_DESCRIPTION("USB I-Force joysticks and wheels driver");
++MODULE_LICENSE("GPL");
 diff --git a/drivers/input/joystick/iforce/iforce.h b/drivers/input/joystick/iforce/iforce.h
-index 0e9d01f8bcb6..2fea3be751ed 100644
+index d9712c48ba74..3e3df83b9d77 100644
 --- a/drivers/input/joystick/iforce/iforce.h
 +++ b/drivers/input/joystick/iforce/iforce.h
-@@ -93,9 +93,16 @@ struct iforce_device {
- 	signed short *ff;
- };
- 
-+struct iforce;
-+
-+struct iforce_xport_ops {
-+	void (*xmit)(struct iforce *iforce);
-+};
-+
- struct iforce {
- 	struct input_dev *dev;		/* Input device interface */
- 	struct iforce_device *type;
-+	const struct iforce_xport_ops *xport_ops;
- 	int bus;
- 
- 	unsigned char data[IFORCE_MAX_LENGTH];
-@@ -141,12 +148,6 @@ struct iforce {
- 
- 
- /* Public functions */
--/* iforce-serio.c */
--void iforce_serial_xmit(struct iforce *iforce);
--
--/* iforce-usb.c */
--void iforce_usb_xmit(struct iforce *iforce);
--
- /* iforce-main.c */
- int iforce_init_device(struct iforce *iforce);
+@@ -26,8 +26,6 @@
+ #include <linux/input.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+-#include <linux/usb.h>
+-#include <linux/serio.h>
+ #include <linux/circ_buf.h>
+ #include <linux/mutex.h>
  
 -- 
 2.19.0.397.gdd90340f6a-goog

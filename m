@@ -1,64 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 13/20] Input: iforce - signal command completion from transport code
-Date: Mon, 17 Sep 2018 17:47:25 -0700
-Message-ID: <20180918004732.9875-13-dmitry.torokhov@gmail.com>
-References: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
+From: Michael Schmitz <schmitzmic@gmail.com>
+Subject: Re: [PATCH 2/2] input: atakbd.c - fix Atari CapsLock behaviour
+Date: Tue, 18 Sep 2018 14:03:29 +1200
+Message-ID: <136f4a00-ba74-a705-ef31-29c60eb51aa1@gmail.com>
+References: <1536277243-3821-1-git-send-email-schmitzmic@gmail.com>
+ <1536277243-3821-3-git-send-email-schmitzmic@gmail.com>
+ <20180917194310.GA171258@dtor-ws> <87in33hnqj.fsf@igel.home>
+ <20180917223627.GC203020@dtor-ws>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Tim Schumacher <timschumi@gmx.de>
-Cc: linux-kernel@vger.kernel.org
+Return-path: <bounce-debian-68k=debian-68k=m.gmane.org@lists.debian.org>
+In-Reply-To: <20180917223627.GC203020@dtor-ws>
+Content-Language: en-US
+Resent-Message-ID: <ThsJ8BIMhIF.A.4WE.I0FobB@bendel>
+List-URL: <https://lists.debian.org/debian-68k/>
+List-Post: <mailto:debian-68k@lists.debian.org>
+List-Help: <mailto:debian-68k-request@lists.debian.org?subject=help>
+List-Subscribe: <mailto:debian-68k-request@lists.debian.org?subject=subscribe>
+List-Unsubscribe: <mailto:debian-68k-request@lists.debian.org?subject=unsubscribe>
+List-Archive: https://lists.debian.org/msgid-search/136f4a00-ba74-a705-ef31-29c60eb51aa1@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andreas Schwab <schwab@linux-m68k.org>
+Cc: linux-input@vger.kernel.org, debian-68k@lists.debian.org, linux-m68k@lists.linux-m68k.org
 List-Id: linux-input@vger.kernel.org
 
-Signalling command completion from iforce_process_packet() does
-not make sense, as not all transport use the same data path for
-both commands and motion data form the device, that is why USB
-code already has to signal command completion iforce_usb_out().
+Thanks Dmitry!
 
-Let's move signalling completion into individual transport
-modules.
+I had asked Andreas' signoff for his keymap fixes only - the rewrite of 
+the Atari keyboard driver to the current input framework (and hence the 
+CapsLock toggle bug) was entirely mine, no blame attaches to Andreas there.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/joystick/iforce/iforce-packets.c | 2 --
- drivers/input/joystick/iforce/iforce-serio.c   | 9 ++++++---
- 2 files changed, 6 insertions(+), 5 deletions(-)
+Cheers,
 
-diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/input/joystick/iforce/iforce-packets.c
-index 35b7a5206977..c0a665961c23 100644
---- a/drivers/input/joystick/iforce/iforce-packets.c
-+++ b/drivers/input/joystick/iforce/iforce-packets.c
-@@ -172,8 +172,6 @@ void iforce_process_packet(struct iforce *iforce,
- 	struct input_dev *dev = iforce->dev;
- 	int i, j;
- 
--	wake_up(&iforce->wait);
--
- 	if (!iforce->type)
- 		return;
- 
-diff --git a/drivers/input/joystick/iforce/iforce-serio.c b/drivers/input/joystick/iforce/iforce-serio.c
-index f8bf7d2aa59f..0dd95d145e85 100644
---- a/drivers/input/joystick/iforce/iforce-serio.c
-+++ b/drivers/input/joystick/iforce/iforce-serio.c
-@@ -169,10 +169,13 @@ static irqreturn_t iforce_serio_irq(struct serio *serio,
- 			iforce->ecmd = (iforce_serio->id << 8) |
- 					iforce_serio->idx;
- 			memcpy(iforce->edata, iforce->data, IFORCE_MAX_LENGTH);
--		}
- 
--		iforce_process_packet(iforce, iforce_serio->id,
--				      iforce->data, iforce_serio->len);
-+			/* Signal that command is done */
-+			wake_up(&iforce->wait);
-+		} else {
-+			iforce_process_packet(iforce, iforce_serio->id,
-+					      iforce->data, iforce_serio->len);
-+		}
- 
- 		iforce_serio->pkt = 0;
- 		iforce_serio->id  = 0;
--- 
-2.19.0.397.gdd90340f6a-goog
+     Michael
+
+
+
+On 18/09/18 10:36, Dmitry Torokhov wrote:
+> On Mon, Sep 17, 2018 at 10:29:08PM +0200, Andreas Schwab wrote:
+>> On Sep 17 2018, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+>>
+>>> On Fri, Sep 07, 2018 at 11:40:43AM +1200, Michael Schmitz wrote:
+>>>> The CapsLock key on Atari keyboards is not a toggle, it does send the
+>>>> normal make and break scancodes.
+>>>>
+>>>> Drop the CapsLock toggle handling code, which did cause the CapsLock
+>>>> key to merely act as a Shift key.
+>>>>
+>>>> Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+>>>> Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+>>> Andreas, I have no idea how Atari keyboards work, can you add your
+>>> signed-off-by (or NAK) to this one as well please?
+>> The old atakbd driver never had that special handling.
+>>
+>> Signed-off-by: Andreas Schwab <schwab@linux-m68k.org>
+> Applied, thank you.
+>

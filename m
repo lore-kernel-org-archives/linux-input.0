@@ -1,51 +1,32 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH v2 05/17] compat_ioctl: move more drivers to
- generic_compat_ioctl_ptrarg
-Date: Tue, 18 Sep 2018 11:59:52 -0600
-Message-ID: <20180918175952.GJ11367@ziepe.ca>
-References: <20180912150142.157913-1-arnd@arndb.de>
- <20180912151134.436719-1-arnd@arndb.de>
- <20180914203506.GE35251@wrath>
- <20180914205748.GC19965@ZenIV.linux.org.uk>
- <20180918175108.GF35251@wrath>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [RFC/PATCH 0/5] Support children for legacy device properties
+Date: Tue, 18 Sep 2018 22:05:24 +0200
+Message-ID: <5ab2968e-8ba5-adea-7862-3e9114623d63@intel.com>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180918175108.GF35251@wrath>
+In-Reply-To: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, linux-fsdevel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org, qat-linux@intel.com, linux-crypto@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, amd-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, sparclinux@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org, linuxppc-d
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Sep 18, 2018 at 10:51:08AM -0700, Darren Hart wrote:
-> On Fri, Sep 14, 2018 at 09:57:48PM +0100, Al Viro wrote:
-> > On Fri, Sep 14, 2018 at 01:35:06PM -0700, Darren Hart wrote:
-> >  
-> > > Acked-by: Darren Hart (VMware) <dvhart@infradead.org>
-> > > 
-> > > As for a longer term solution, would it be possible to init fops in such
-> > > a way that the compat_ioctl call defaults to generic_compat_ioctl_ptrarg
-> > > so we don't have to duplicate this boilerplate for every ioctl fops
-> > > structure?
-> > 
-> > 	Bad idea, that...  Because several years down the road somebody will add
-> > an ioctl that takes an unsigned int for argument.  Without so much as looking
-> > at your magical mystery macro being used to initialize file_operations.
-> 
-> Fair, being explicit in the declaration as it is currently may be
-> preferable then.
+On 9/17/2018 8:15 PM, Dmitry Torokhov wrote:
+> The generic device properties APIs are very helpful as they allow abstracting
+> away details of the platform (whether it is ACPI, device tree, or legacy board
+> file), so that individual driver does not need separate code paths to support
+> all variants. However there are drivers that currently can not use generic
+> device properties API as they need notion of children properties, for example
+> gpio_keys driver, that expects every button to be described as a sub-node of
+> main device.
+>
+> This patch series introduces notion of sub-nodes for static properties and ties
+> it up with GPIO lookup tables so that they are usable with sub-nodes as well.
 
-It would be much cleaner and safer if you could arrange things to add
-something like this to struct file_operations:
+I don't have any objections against this series.
 
-  long (*ptr_ioctl) (struct file *, unsigned int, void __user *);
-
-Where the core code automatically converts the unsigned long to the
-void __user * as appropriate.
-
-Then it just works right always and the compiler will help address
-Al's concern down the road.
-
-Cheers,
-Jason
+Thanks,
+Rafael

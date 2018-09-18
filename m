@@ -1,36 +1,64 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH] Input: uinput - allow for max == min during input_absinfo
- validation
-Date: Tue, 18 Sep 2018 15:22:56 +1000
-Message-ID: <20180918052256.GA23446@jelly>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [RFC/PATCH 4/5] gpiolib: add support for fetching descriptors
+ from static properties
+Date: Tue, 18 Sep 2018 12:02:19 +0300
+Message-ID: <20180918090219.GE14465@lahna.fi.intel.com>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-5-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20180917181603.125492-5-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-These values are inclusive, so a range of 1 requires min == max.
+Hi,
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
----
- drivers/input/misc/uinput.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Mon, Sep 17, 2018 at 11:16:02AM -0700, Dmitry Torokhov wrote:
+> Now that static device properties understand notion of child nodes, let's
+> teach gpiolib to tie such children and machine GPIO descriptor tables.
+> We will continue using a single table for entire device, but instead of
+> using connection ID as a lookup key in the GPIO descriptor table directly,
+> we will perform additional translation: fwnode_get_named_gpiod() when
+> dealing with property_set-backed fwnodes will try parsing string property
+> with name matching connection ID and use result of the lookup as the key in
+> the table:
+> 
+> static const struct property_entry dev_child1_props[] __initconst = {
+> 	...
+> 	PROPERTY_ENTRY_STRING("gpios",		"child-1-gpios"),
+> 	{ }
+> };
+> 
+> static struct gpiod_lookup_table dev_gpiod_table = {
+> 	.dev_id = "some-device",
+> 	.table = {
+> 		...
+> 		GPIO_LOOKUP_IDX("B", 1, "child-1-gpios", 1, GPIO_ACTIVE_LOW),
+> 		...
+> 	},
+> };
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 96a887f33698..eb14ddf69346 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -410,7 +410,7 @@ static int uinput_validate_absinfo(struct input_dev *dev, unsigned int code,
- 	min = abs->minimum;
- 	max = abs->maximum;
+I wonder if instead of passing and parsing strings (and hoping there are
+no typos) we could get the compiler to help us bit more?
+
+Something like below:
+
+static const struct property_entry dev_child1_props[] __initconst = {
+ 	...
+ 	PROPERTY_ENTRY_STRING("gpios","child-1-gpios"),
+ 	{ }
+};
  
--	if ((min != 0 || max != 0) && max <= min) {
-+	if ((min != 0 || max != 0) && max < min) {
- 		printk(KERN_DEBUG
- 		       "%s: invalid abs[%02x] min:%d max:%d\n",
- 		       UINPUT_NAME, code, min, max);
--- 
-2.17.1
+static struct gpiod_lookup_table dev_gpiod_table = {
+ 	.dev_id = "some-device",
+ 	.table = {
+ 		...
+ 		GPIO_LOOKUP_IDX("B", 1, dev_child1_props, SIZEOF(dev_child1_props),
+				1, GPIO_ACTIVE_LOW),
+ 		...
+ 	},
+};

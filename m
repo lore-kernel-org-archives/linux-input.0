@@ -1,43 +1,36 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [RFC/PATCH 0/5] Support children for legacy device properties
-Date: Tue, 18 Sep 2018 07:23:40 +0300
-Message-ID: <CAHp75VcguYVeKMLGZ-S2JTvY0omSbBpjeqGNby+SzVqUoNdQiw@mail.gmail.com>
-References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: [PATCH] Input: uinput - allow for max == min during input_absinfo
+ validation
+Date: Tue, 18 Sep 2018 15:22:56 +1000
+Message-ID: <20180918052256.GA23446@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-input <linux-input@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 17, 2018 at 9:18 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> The generic device properties APIs are very helpful as they allow abstracting
-> away details of the platform (whether it is ACPI, device tree, or legacy board
-> file), so that individual driver does not need separate code paths to support
-> all variants. However there are drivers that currently can not use generic
-> device properties API as they need notion of children properties, for example
-> gpio_keys driver, that expects every button to be described as a sub-node of
-> main device.
->
-> This patch series introduces notion of sub-nodes for static properties and ties
-> it up with GPIO lookup tables so that they are usable with sub-nodes as well.
+These values are inclusive, so a range of 1 requires min == max.
 
-I like the idea.
-Though, I Cc'ed this to Mika and Sakari who might be interested to see
-and, perhaps, comment on it.
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ drivers/input/misc/uinput.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->
-> Thanks.
->
-> --
-> Dmitry
->
-
-
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 96a887f33698..eb14ddf69346 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -410,7 +410,7 @@ static int uinput_validate_absinfo(struct input_dev *dev, unsigned int code,
+ 	min = abs->minimum;
+ 	max = abs->maximum;
+ 
+-	if ((min != 0 || max != 0) && max <= min) {
++	if ((min != 0 || max != 0) && max < min) {
+ 		printk(KERN_DEBUG
+ 		       "%s: invalid abs[%02x] min:%d max:%d\n",
+ 		       UINPUT_NAME, code, min, max);
 -- 
-With Best Regards,
-Andy Shevchenko
+2.17.1

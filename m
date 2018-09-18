@@ -1,57 +1,43 @@
-From: Michael Schmitz <schmitzmic@gmail.com>
-Subject: Re: [PATCH 2/2] input: atakbd.c - fix Atari CapsLock behaviour
-Date: Tue, 18 Sep 2018 14:03:29 +1200
-Message-ID: <136f4a00-ba74-a705-ef31-29c60eb51aa1@gmail.com>
-References: <1536277243-3821-1-git-send-email-schmitzmic@gmail.com>
- <1536277243-3821-3-git-send-email-schmitzmic@gmail.com>
- <20180917194310.GA171258@dtor-ws> <87in33hnqj.fsf@igel.home>
- <20180917223627.GC203020@dtor-ws>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [RFC/PATCH 0/5] Support children for legacy device properties
+Date: Tue, 18 Sep 2018 07:23:40 +0300
+Message-ID: <CAHp75VcguYVeKMLGZ-S2JTvY0omSbBpjeqGNby+SzVqUoNdQiw@mail.gmail.com>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <bounce-debian-68k=debian-68k=m.gmane.org@lists.debian.org>
-In-Reply-To: <20180917223627.GC203020@dtor-ws>
-Content-Language: en-US
-Resent-Message-ID: <ThsJ8BIMhIF.A.4WE.I0FobB@bendel>
-List-URL: <https://lists.debian.org/debian-68k/>
-List-Post: <mailto:debian-68k@lists.debian.org>
-List-Help: <mailto:debian-68k-request@lists.debian.org?subject=help>
-List-Subscribe: <mailto:debian-68k-request@lists.debian.org?subject=subscribe>
-List-Unsubscribe: <mailto:debian-68k-request@lists.debian.org?subject=unsubscribe>
-List-Archive: https://lists.debian.org/msgid-search/136f4a00-ba74-a705-ef31-29c60eb51aa1@gmail.com
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andreas Schwab <schwab@linux-m68k.org>
-Cc: linux-input@vger.kernel.org, debian-68k@lists.debian.org, linux-m68k@lists.linux-m68k.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-input <linux-input@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Thanks Dmitry!
-
-I had asked Andreas' signoff for his keymap fixes only - the rewrite of 
-the Atari keyboard driver to the current input framework (and hence the 
-CapsLock toggle bug) was entirely mine, no blame attaches to Andreas there.
-
-Cheers,
-
-     Michael
-
-
-
-On 18/09/18 10:36, Dmitry Torokhov wrote:
-> On Mon, Sep 17, 2018 at 10:29:08PM +0200, Andreas Schwab wrote:
->> On Sep 17 2018, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->>
->>> On Fri, Sep 07, 2018 at 11:40:43AM +1200, Michael Schmitz wrote:
->>>> The CapsLock key on Atari keyboards is not a toggle, it does send the
->>>> normal make and break scancodes.
->>>>
->>>> Drop the CapsLock toggle handling code, which did cause the CapsLock
->>>> key to merely act as a Shift key.
->>>>
->>>> Tested-by: Michael Schmitz <schmitzmic@gmail.com>
->>>> Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
->>> Andreas, I have no idea how Atari keyboards work, can you add your
->>> signed-off-by (or NAK) to this one as well please?
->> The old atakbd driver never had that special handling.
->>
->> Signed-off-by: Andreas Schwab <schwab@linux-m68k.org>
-> Applied, thank you.
+On Mon, Sep 17, 2018 at 9:18 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 >
+> The generic device properties APIs are very helpful as they allow abstracting
+> away details of the platform (whether it is ACPI, device tree, or legacy board
+> file), so that individual driver does not need separate code paths to support
+> all variants. However there are drivers that currently can not use generic
+> device properties API as they need notion of children properties, for example
+> gpio_keys driver, that expects every button to be described as a sub-node of
+> main device.
+>
+> This patch series introduces notion of sub-nodes for static properties and ties
+> it up with GPIO lookup tables so that they are usable with sub-nodes as well.
+
+I like the idea.
+Though, I Cc'ed this to Mika and Sakari who might be interested to see
+and, perhaps, comment on it.
+
+>
+> Thanks.
+>
+> --
+> Dmitry
+>
+
+
+-- 
+With Best Regards,
+Andy Shevchenko

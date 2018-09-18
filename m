@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 09/20] Input: iforce - use DMA-safe buffer when getting IDs from USB
-Date: Mon, 17 Sep 2018 17:47:21 -0700
-Message-ID: <20180918004732.9875-9-dmitry.torokhov@gmail.com>
+Subject: [PATCH 10/20] Input: iforce - update formatting of switch statements
+Date: Mon, 17 Sep 2018 17:47:22 -0700
+Message-ID: <20180918004732.9875-10-dmitry.torokhov@gmail.com>
 References: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,155 +12,275 @@ To: linux-input@vger.kernel.org, Tim Schumacher <timschumi@gmx.de>
 Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-When working with USB devices we need to use DMA-safe buffers,
-and iforce->edata is not one. Let's rework the code to allocate
-temporary buffer (iforce_get_id() is called only during initialization
-so there is no reason to have permanent buffer) and use it. While at it,
-let's utilize usb_control_msg() API which simplifies code.
+According to our coding style case labels in switch statements should
+be aligned with the switch keyword.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/joystick/iforce/iforce-usb.c | 68 +++++++---------------
- 1 file changed, 22 insertions(+), 46 deletions(-)
+ drivers/input/joystick/iforce/iforce-ff.c     |  18 +--
+ drivers/input/joystick/iforce/iforce-main.c   |  70 +++++------
+ .../input/joystick/iforce/iforce-packets.c    | 112 +++++++++---------
+ 3 files changed, 100 insertions(+), 100 deletions(-)
 
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index 9d635f01cf19..cefaa1c5abc7 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -29,8 +29,7 @@ struct iforce_usb {
+diff --git a/drivers/input/joystick/iforce/iforce-ff.c b/drivers/input/joystick/iforce/iforce-ff.c
+index 3536d5f5ad18..56973dd97fd6 100644
+--- a/drivers/input/joystick/iforce/iforce-ff.c
++++ b/drivers/input/joystick/iforce/iforce-ff.c
+@@ -384,12 +384,12 @@ int iforce_upload_periodic(struct iforce *iforce, struct ff_effect *effect, stru
+ 	}
  
- 	struct usb_device *usbdev;
- 	struct usb_interface *intf;
--	struct urb *irq, *out, *ctrl;
--	struct usb_ctrlrequest cr;
-+	struct urb *irq, *out;
- };
+ 	switch (effect->u.periodic.waveform) {
+-		case FF_SQUARE:		wave_code = 0x20; break;
+-		case FF_TRIANGLE:	wave_code = 0x21; break;
+-		case FF_SINE:		wave_code = 0x22; break;
+-		case FF_SAW_UP:		wave_code = 0x23; break;
+-		case FF_SAW_DOWN:	wave_code = 0x24; break;
+-		default:		wave_code = 0x20; break;
++	case FF_SQUARE:		wave_code = 0x20; break;
++	case FF_TRIANGLE:	wave_code = 0x21; break;
++	case FF_SINE:		wave_code = 0x22; break;
++	case FF_SAW_UP:		wave_code = 0x23; break;
++	case FF_SAW_DOWN:	wave_code = 0x24; break;
++	default:		wave_code = 0x20; break;
+ 	}
  
- static void __iforce_usb_xmit(struct iforce *iforce)
-@@ -92,30 +91,32 @@ static int iforce_usb_get_id(struct iforce *iforce, u8 *packet)
- {
- 	struct iforce_usb *iforce_usb = container_of(iforce, struct iforce_usb,
- 						     iforce);
-+	u8 *buf;
- 	int status;
+ 	if (!old || need_core(old, effect)) {
+@@ -488,9 +488,9 @@ int iforce_upload_condition(struct iforce *iforce, struct ff_effect *effect, str
+ 	int core_err = 0;
  
--	iforce_usb->cr.bRequest = packet[0];
--	iforce_usb->ctrl->dev = iforce_usb->usbdev;
+ 	switch (effect->type) {
+-		case FF_SPRING:	type = 0x40; break;
+-		case FF_DAMPER:	type = 0x41; break;
+-		default: return -1;
++	case FF_SPRING:	type = 0x40; break;
++	case FF_DAMPER:	type = 0x41; break;
++	default: return -1;
+ 	}
+ 
+ 	if (!old || need_condition_modifier(iforce, old, effect)) {
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index 3a0698327c42..9964aa8b3cdc 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -132,22 +132,21 @@ static int iforce_upload_effect(struct input_dev *dev, struct ff_effect *effect,
+  * Upload the effect
+  */
+ 	switch (effect->type) {
++	case FF_PERIODIC:
++		ret = iforce_upload_periodic(iforce, effect, old);
++		break;
+ 
+-		case FF_PERIODIC:
+-			ret = iforce_upload_periodic(iforce, effect, old);
+-			break;
++	case FF_CONSTANT:
++		ret = iforce_upload_constant(iforce, effect, old);
++		break;
+ 
+-		case FF_CONSTANT:
+-			ret = iforce_upload_constant(iforce, effect, old);
+-			break;
++	case FF_SPRING:
++	case FF_DAMPER:
++		ret = iforce_upload_condition(iforce, effect, old);
++		break;
+ 
+-		case FF_SPRING:
+-		case FF_DAMPER:
+-			ret = iforce_upload_condition(iforce, effect, old);
+-			break;
 -
--	status = usb_submit_urb(iforce_usb->ctrl, GFP_KERNEL);
--	if (status) {
-+	buf = kmalloc(IFORCE_MAX_LENGTH, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
+-		default:
+-			return -EINVAL;
++	default:
++		return -EINVAL;
+ 	}
+ 
+ 	if (ret == 0) {
+@@ -351,34 +350,29 @@ int iforce_init_device(struct device *parent, u16 bustype,
+ 		signed short t = iforce->type->abs[i];
+ 
+ 		switch (t) {
++		case ABS_X:
++		case ABS_Y:
++		case ABS_WHEEL:
++			input_set_abs_params(input_dev, t, -1920, 1920, 16, 128);
++			set_bit(t, input_dev->ffbit);
++			break;
+ 
+-			case ABS_X:
+-			case ABS_Y:
+-			case ABS_WHEEL:
+-
+-				input_set_abs_params(input_dev, t, -1920, 1920, 16, 128);
+-				set_bit(t, input_dev->ffbit);
+-				break;
+-
+-			case ABS_THROTTLE:
+-			case ABS_GAS:
+-			case ABS_BRAKE:
+-
+-				input_set_abs_params(input_dev, t, 0, 255, 0, 0);
+-				break;
+-
+-			case ABS_RUDDER:
+-
+-				input_set_abs_params(input_dev, t, -128, 127, 0, 0);
+-				break;
++		case ABS_THROTTLE:
++		case ABS_GAS:
++		case ABS_BRAKE:
++			input_set_abs_params(input_dev, t, 0, 255, 0, 0);
++			break;
+ 
+-			case ABS_HAT0X:
+-			case ABS_HAT0Y:
+-		        case ABS_HAT1X:
+-		        case ABS_HAT1Y:
++		case ABS_RUDDER:
++			input_set_abs_params(input_dev, t, -128, 127, 0, 0);
++			break;
+ 
+-				input_set_abs_params(input_dev, t, -1, 1, 0, 0);
+-				break;
++		case ABS_HAT0X:
++		case ABS_HAT0Y:
++		case ABS_HAT1X:
++		case ABS_HAT1Y:
++			input_set_abs_params(input_dev, t, -1, 1, 0, 0);
++			break;
+ 		}
+ 	}
+ 
+diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/input/joystick/iforce/iforce-packets.c
+index 70db273e5045..7aba2966454a 100644
+--- a/drivers/input/joystick/iforce/iforce-packets.c
++++ b/drivers/input/joystick/iforce/iforce-packets.c
+@@ -142,66 +142,72 @@ void iforce_process_packet(struct iforce *iforce, u16 cmd, unsigned char *data)
+ 
+ 	switch (HI(cmd)) {
+ 
+-		case 0x01:	/* joystick position data */
+-		case 0x03:	/* wheel position data */
+-			if (HI(cmd) == 1) {
+-				input_report_abs(dev, ABS_X, (__s16) (((__s16)data[1] << 8) | data[0]));
+-				input_report_abs(dev, ABS_Y, (__s16) (((__s16)data[3] << 8) | data[2]));
+-				input_report_abs(dev, ABS_THROTTLE, 255 - data[4]);
+-				if (LO(cmd) >= 8 && test_bit(ABS_RUDDER ,dev->absbit))
+-					input_report_abs(dev, ABS_RUDDER, (__s8)data[7]);
+-			} else {
+-				input_report_abs(dev, ABS_WHEEL, (__s16) (((__s16)data[1] << 8) | data[0]));
+-				input_report_abs(dev, ABS_GAS,   255 - data[2]);
+-				input_report_abs(dev, ABS_BRAKE, 255 - data[3]);
+-			}
++	case 0x01:	/* joystick position data */
++	case 0x03:	/* wheel position data */
++		if (HI(cmd) == 1) {
++			input_report_abs(dev, ABS_X, (__s16) (((__s16)data[1] << 8) | data[0]));
++			input_report_abs(dev, ABS_Y, (__s16) (((__s16)data[3] << 8) | data[2]));
++			input_report_abs(dev, ABS_THROTTLE, 255 - data[4]);
++			if (LO(cmd) >= 8 && test_bit(ABS_RUDDER ,dev->absbit))
++				input_report_abs(dev, ABS_RUDDER, (__s8)data[7]);
++		} else {
++			input_report_abs(dev, ABS_WHEEL, (__s16) (((__s16)data[1] << 8) | data[0]));
++			input_report_abs(dev, ABS_GAS,   255 - data[2]);
++			input_report_abs(dev, ABS_BRAKE, 255 - data[3]);
++		}
+ 
+-			input_report_abs(dev, ABS_HAT0X, iforce_hat_to_axis[data[6] >> 4].x);
+-			input_report_abs(dev, ABS_HAT0Y, iforce_hat_to_axis[data[6] >> 4].y);
+-
+-			for (i = 0; iforce->type->btn[i] >= 0; i++)
+-				input_report_key(dev, iforce->type->btn[i], data[(i >> 3) + 5] & (1 << (i & 7)));
+-
+-			/* If there are untouched bits left, interpret them as the second hat */
+-			if (i <= 8) {
+-				int btns = data[6];
+-				if (test_bit(ABS_HAT1X, dev->absbit)) {
+-					if (btns & 8) input_report_abs(dev, ABS_HAT1X, -1);
+-					else if (btns & 2) input_report_abs(dev, ABS_HAT1X, 1);
+-					else input_report_abs(dev, ABS_HAT1X, 0);
+-				}
+-				if (test_bit(ABS_HAT1Y, dev->absbit)) {
+-					if (btns & 1) input_report_abs(dev, ABS_HAT1Y, -1);
+-					else if (btns & 4) input_report_abs(dev, ABS_HAT1Y, 1);
+-					else input_report_abs(dev, ABS_HAT1Y, 0);
+-				}
++		input_report_abs(dev, ABS_HAT0X, iforce_hat_to_axis[data[6] >> 4].x);
++		input_report_abs(dev, ABS_HAT0Y, iforce_hat_to_axis[data[6] >> 4].y);
 +
-+	status = usb_control_msg(iforce_usb->usbdev,
-+				 usb_rcvctrlpipe(iforce_usb->usbdev, 0),
-+				 packet[0],
-+				 USB_TYPE_VENDOR | USB_DIR_IN |
-+					USB_RECIP_INTERFACE,
-+				 0, 0, buf, IFORCE_MAX_LENGTH, HZ);
-+	if (status < 0) {
- 		dev_err(&iforce_usb->intf->dev,
--			"usb_submit_urb failed %d\n", status);
--		return -EIO;
--	}
--
--	wait_event_interruptible_timeout(iforce->wait,
--		iforce_usb->ctrl->status != -EINPROGRESS, HZ);
--
--	if (iforce_usb->ctrl->status) {
--		dev_dbg(&iforce_usb->intf->dev,
--			"iforce->ctrl->status = %d\n",
--			iforce_usb->ctrl->status);
--		usb_unlink_urb(iforce_usb->ctrl);
--		return -EIO;
-+			"usb_submit_urb failed: %d\n", status);
-+	} else if (buf[0] != packet[0]) {
-+		status = -EIO;
-+	} else {
-+		iforce->ecmd = 0xff00 | status;
-+		memcpy(iforce->edata, buf, status);
-+		status = 0;
++		for (i = 0; iforce->type->btn[i] >= 0; i++)
++			input_report_key(dev, iforce->type->btn[i], data[(i >> 3) + 5] & (1 << (i & 7)));
++
++		/* If there are untouched bits left, interpret them as the second hat */
++		if (i <= 8) {
++			int btns = data[6];
++			if (test_bit(ABS_HAT1X, dev->absbit)) {
++				if (btns & 8)
++					input_report_abs(dev, ABS_HAT1X, -1);
++				else if (btns & 2)
++					input_report_abs(dev, ABS_HAT1X, 1);
++				else
++					input_report_abs(dev, ABS_HAT1X, 0);
+ 			}
++			if (test_bit(ABS_HAT1Y, dev->absbit)) {
++				if (btns & 1)
++					input_report_abs(dev, ABS_HAT1Y, -1);
++				else if (btns & 4)
++					input_report_abs(dev, ABS_HAT1Y, 1);
++				else
++					input_report_abs(dev, ABS_HAT1Y, 0);
++			}
++		}
+ 
+-			input_sync(dev);
++		input_sync(dev);
+ 
+-			break;
++		break;
+ 
+-		case 0x02:	/* status report */
+-			input_report_key(dev, BTN_DEAD, data[0] & 0x02);
+-			input_sync(dev);
++	case 0x02:	/* status report */
++		input_report_key(dev, BTN_DEAD, data[0] & 0x02);
++		input_sync(dev);
+ 
+-			/* Check if an effect was just started or stopped */
+-			i = data[1] & 0x7f;
+-			if (data[1] & 0x80) {
+-				if (!test_and_set_bit(FF_CORE_IS_PLAYED, iforce->core_effects[i].flags)) {
+-					/* Report play event */
+-					input_report_ff_status(dev, i, FF_STATUS_PLAYING);
+-				}
+-			} else if (test_and_clear_bit(FF_CORE_IS_PLAYED, iforce->core_effects[i].flags)) {
+-				/* Report stop event */
+-				input_report_ff_status(dev, i, FF_STATUS_STOPPED);
++		/* Check if an effect was just started or stopped */
++		i = data[1] & 0x7f;
++		if (data[1] & 0x80) {
++			if (!test_and_set_bit(FF_CORE_IS_PLAYED, iforce->core_effects[i].flags)) {
++				/* Report play event */
++				input_report_ff_status(dev, i, FF_STATUS_PLAYING);
+ 			}
+-			if (LO(cmd) > 3) {
+-				int j;
+-				for (j = 3; j < LO(cmd); j += 2)
+-					mark_core_as_ready(iforce, data[j] | (data[j+1]<<8));
+-			}
+-			break;
++		} else if (test_and_clear_bit(FF_CORE_IS_PLAYED, iforce->core_effects[i].flags)) {
++			/* Report stop event */
++			input_report_ff_status(dev, i, FF_STATUS_STOPPED);
++		}
++		if (LO(cmd) > 3) {
++			int j;
++			for (j = 3; j < LO(cmd); j += 2)
++				mark_core_as_ready(iforce, data[j] | (data[j+1]<<8));
++		}
++		break;
  	}
- 
--	return -(iforce->edata[0] != packet[0]);
-+	kfree(buf);
-+	return status;
  }
- 
- static int iforce_usb_start_io(struct iforce *iforce)
-@@ -136,7 +137,6 @@ static void iforce_usb_stop_io(struct iforce *iforce)
- 
- 	usb_kill_urb(iforce_usb->irq);
- 	usb_kill_urb(iforce_usb->out);
--	usb_kill_urb(iforce_usb->ctrl);
- }
- 
- static const struct iforce_xport_ops iforce_usb_xport_ops = {
-@@ -197,18 +197,6 @@ static void iforce_usb_out(struct urb *urb)
- 	wake_up(&iforce->wait);
- }
- 
--static void iforce_usb_ctrl(struct urb *urb)
--{
--	struct iforce_usb *iforce_usb = urb->context;
--	struct iforce *iforce = &iforce_usb->iforce;
--
--	if (urb->status)
--		return;
--
--	iforce->ecmd = 0xff00 | urb->actual_length;
--	wake_up(&iforce->wait);
--}
--
- static int iforce_usb_probe(struct usb_interface *intf,
- 				const struct usb_device_id *id)
- {
-@@ -236,9 +224,6 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 	if (!(iforce_usb->out = usb_alloc_urb(0, GFP_KERNEL)))
- 		goto fail;
- 
--	if (!(iforce_usb->ctrl = usb_alloc_urb(0, GFP_KERNEL)))
--		goto fail;
--
- 	iforce = &iforce_usb->iforce;
- 
- 	iforce->xport_ops = &iforce_usb_xport_ops;
-@@ -247,19 +232,12 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 	iforce_usb->usbdev = dev;
- 	iforce_usb->intf = intf;
- 
--	iforce_usb->cr.bRequestType = USB_TYPE_VENDOR | USB_DIR_IN | USB_RECIP_INTERFACE;
--	iforce_usb->cr.wIndex = 0;
--	iforce_usb->cr.wLength = cpu_to_le16(16);
--
- 	usb_fill_int_urb(iforce_usb->irq, dev, usb_rcvintpipe(dev, epirq->bEndpointAddress),
- 			iforce->data, 16, iforce_usb_irq, iforce_usb, epirq->bInterval);
- 
- 	usb_fill_int_urb(iforce_usb->out, dev, usb_sndintpipe(dev, epout->bEndpointAddress),
- 			iforce_usb + 1, 32, iforce_usb_out, iforce_usb, epout->bInterval);
- 
--	usb_fill_control_urb(iforce_usb->ctrl, dev, usb_rcvctrlpipe(dev, 0),
--			(void*) &iforce_usb->cr, iforce->edata, 16, iforce_usb_ctrl, iforce_usb);
--
- 	err = iforce_init_device(&intf->dev, BUS_USB, iforce);
- 	if (err)
- 		goto fail;
-@@ -271,7 +249,6 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 	if (iforce_usb) {
- 		usb_free_urb(iforce_usb->irq);
- 		usb_free_urb(iforce_usb->out);
--		usb_free_urb(iforce_usb->ctrl);
- 		kfree(iforce_usb);
- 	}
- 
-@@ -288,7 +265,6 @@ static void iforce_usb_disconnect(struct usb_interface *intf)
- 
- 	usb_free_urb(iforce_usb->irq);
- 	usb_free_urb(iforce_usb->out);
--	usb_free_urb(iforce_usb->ctrl);
- 
- 	kfree(iforce_usb);
- }
+ EXPORT_SYMBOL(iforce_process_packet);
 -- 
 2.19.0.397.gdd90340f6a-goog

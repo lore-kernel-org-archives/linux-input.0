@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 19/20] Input: iforce - drop couple of temps from transport code
-Date: Mon, 17 Sep 2018 17:47:31 -0700
-Message-ID: <20180918004732.9875-19-dmitry.torokhov@gmail.com>
+Subject: [PATCH 20/20] Input: iforce - use unaligned accessors, where appropriate
+Date: Mon, 17 Sep 2018 17:47:32 -0700
+Message-ID: <20180918004732.9875-20-dmitry.torokhov@gmail.com>
 References: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,77 +12,91 @@ To: linux-input@vger.kernel.org, Tim Schumacher <timschumi@gmx.de>
 Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Transport initialization code now deals mostly with transport-specific
-data, so we can drop couple of temporary variables.
+Instead of open-coding conversion from/to little-endian, let's
+use proper accessors.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/joystick/iforce/iforce-serio.c | 7 ++-----
- drivers/input/joystick/iforce/iforce-usb.c   | 7 ++-----
- 2 files changed, 4 insertions(+), 10 deletions(-)
+ drivers/input/joystick/iforce/iforce-main.c    |  7 ++++---
+ drivers/input/joystick/iforce/iforce-packets.c | 12 ++++++++----
+ 2 files changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/joystick/iforce/iforce-serio.c b/drivers/input/joystick/iforce/iforce-serio.c
-index 277522d0f324..e7692a38591e 100644
---- a/drivers/input/joystick/iforce/iforce-serio.c
-+++ b/drivers/input/joystick/iforce/iforce-serio.c
-@@ -204,16 +204,13 @@ static irqreturn_t iforce_serio_irq(struct serio *serio,
- static int iforce_serio_connect(struct serio *serio, struct serio_driver *drv)
- {
- 	struct iforce_serio *iforce_serio;
--	struct iforce *iforce;
- 	int err;
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index 5cb3e80f4e0d..d696b0b653b6 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -21,6 +21,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
  
- 	iforce_serio = kzalloc(sizeof(*iforce_serio), GFP_KERNEL);
- 	if (!iforce_serio)
- 		return -ENOMEM;
++#include <asm/unaligned.h>
+ #include "iforce.h"
  
--	iforce = &iforce_serio->iforce;
--
--	iforce->xport_ops = &iforce_serio_xport_ops;
-+	iforce_serio->iforce.xport_ops = &iforce_serio_xport_ops;
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>, Johann Deneux <johann.deneux@gmail.com>");
+@@ -286,17 +287,17 @@ int iforce_init_device(struct device *parent, u16 bustype,
+  */
  
- 	iforce_serio->serio = serio;
- 	serio_set_drvdata(serio, iforce_serio);
-@@ -222,7 +219,7 @@ static int iforce_serio_connect(struct serio *serio, struct serio_driver *drv)
- 	if (err)
- 		goto fail1;
+ 	if (!iforce_get_id_packet(iforce, 'M', buf, &len) || len < 3)
+-		input_dev->id.vendor = (buf[2] << 8) | buf[1];
++		input_dev->id.vendor = get_unaligned_le16(buf + 1);
+ 	else
+ 		dev_warn(&iforce->dev->dev, "Device does not respond to id packet M\n");
  
--	err = iforce_init_device(&serio->dev, BUS_RS232, iforce);
-+	err = iforce_init_device(&serio->dev, BUS_RS232, &iforce_serio->iforce);
- 	if (err)
- 		goto fail2;
+ 	if (!iforce_get_id_packet(iforce, 'P', buf, &len) || len < 3)
+-		input_dev->id.product = (buf[2] << 8) | buf[1];
++		input_dev->id.product = get_unaligned_le16(buf + 1);
+ 	else
+ 		dev_warn(&iforce->dev->dev, "Device does not respond to id packet P\n");
  
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index ae2dd5b5a416..a1e670781441 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -208,7 +208,6 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 	struct usb_host_interface *interface;
- 	struct usb_endpoint_descriptor *epirq, *epout;
- 	struct iforce_usb *iforce_usb;
--	struct iforce *iforce;
- 	int err = -ENOMEM;
+ 	if (!iforce_get_id_packet(iforce, 'B', buf, &len) || len < 3)
+-		iforce->device_memory.end = (buf[2] << 8) | buf[1];
++		iforce->device_memory.end = get_unaligned_le16(buf + 1);
+ 	else
+ 		dev_warn(&iforce->dev->dev, "Device does not respond to id packet B\n");
  
- 	interface = intf->cur_altsetting;
-@@ -231,9 +230,7 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 	if (!iforce_usb->out)
- 		goto fail;
+diff --git a/drivers/input/joystick/iforce/iforce-packets.c b/drivers/input/joystick/iforce/iforce-packets.c
+index 976ec1c7cf15..76c4475740ab 100644
+--- a/drivers/input/joystick/iforce/iforce-packets.c
++++ b/drivers/input/joystick/iforce/iforce-packets.c
+@@ -21,6 +21,7 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+  */
  
--	iforce = &iforce_usb->iforce;
--
--	iforce->xport_ops = &iforce_usb_xport_ops;
-+	iforce_usb->iforce.xport_ops = &iforce_usb_xport_ops;
++#include <asm/unaligned.h>
+ #include "iforce.h"
  
- 	iforce_usb->usbdev = dev;
- 	iforce_usb->intf = intf;
-@@ -248,7 +245,7 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 			 iforce_usb->data_out, sizeof(iforce_usb->data_out),
- 			 iforce_usb_out, iforce_usb, epout->bInterval);
+ static struct {
+@@ -175,8 +176,10 @@ void iforce_process_packet(struct iforce *iforce,
+ 	switch (packet_id) {
  
--	err = iforce_init_device(&intf->dev, BUS_USB, iforce);
-+	err = iforce_init_device(&intf->dev, BUS_USB, &iforce_usb->iforce);
- 	if (err)
- 		goto fail;
+ 	case 0x01:	/* joystick position data */
+-		input_report_abs(dev, ABS_X, (__s16) (((__s16)data[1] << 8) | data[0]));
+-		input_report_abs(dev, ABS_Y, (__s16) (((__s16)data[3] << 8) | data[2]));
++		input_report_abs(dev, ABS_X,
++				 (__s16) get_unaligned_le16(data));
++		input_report_abs(dev, ABS_Y,
++				 (__s16) get_unaligned_le16(data + 2));
+ 		input_report_abs(dev, ABS_THROTTLE, 255 - data[4]);
  
+ 		if (len >= 8 && test_bit(ABS_RUDDER ,dev->absbit))
+@@ -188,7 +191,8 @@ void iforce_process_packet(struct iforce *iforce,
+ 		break;
+ 
+ 	case 0x03:	/* wheel position data */
+-		input_report_abs(dev, ABS_WHEEL, (__s16) (((__s16)data[1] << 8) | data[0]));
++		input_report_abs(dev, ABS_WHEEL,
++				 (__s16) get_unaligned_le16(data));
+ 		input_report_abs(dev, ABS_GAS,   255 - data[2]);
+ 		input_report_abs(dev, ABS_BRAKE, 255 - data[3]);
+ 
+@@ -214,7 +218,7 @@ void iforce_process_packet(struct iforce *iforce,
+ 		}
+ 
+ 		for (j = 3; j < len; j += 2)
+-			mark_core_as_ready(iforce, data[j] | (data[j + 1] << 8));
++			mark_core_as_ready(iforce, get_unaligned_le16(data + j));
+ 
+ 		break;
+ 	}
 -- 
 2.19.0.397.gdd90340f6a-goog

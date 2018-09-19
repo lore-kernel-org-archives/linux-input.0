@@ -1,81 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
- for legacy boards
-Date: Wed, 19 Sep 2018 10:13:26 -0700
-Message-ID: <20180919171326.GB116719@dtor-ws>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC/PATCH 0/5] Support children for legacy device properties
+Date: Wed, 19 Sep 2018 12:55:15 -0700
+Message-ID: <CACRpkdYAvhaH6+L8J0sdQd7vYzrAioFhUZAcu2eB6t2hRK0L9Q@mail.gmail.com>
 References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
- <20180917181603.125492-3-dmitry.torokhov@gmail.com>
- <20180919151026.GB11965@kuha.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180919151026.GB11965@kuha.fi.intel.com>
+In-Reply-To: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Linux Input <linux-input@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Heikki,
+On Mon, Sep 17, 2018 at 11:16 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-On Wed, Sep 19, 2018 at 06:10:26PM +0300, Heikki Krogerus wrote:
-> Hi,
-> 
-> On Mon, Sep 17, 2018 at 11:16:00AM -0700, Dmitry Torokhov wrote:
-> > Several drivers rely on having notion of sub-nodes when describing
-> > hardware, let's allow static board-defined properties also have it.
-> > 
-> > The board files will then attach properties to devices in the following
-> > fashion:
-> > 
-> > 	device_add_properties(&board_platform_device.dev,
-> > 			      main_device_props);
-> > 	device_add_child_properties(&board_platform_device.dev,
-> > 				    dev_fwnode(&board_platform_device.dev),
-> > 				    child1_device_props);
-> > 	device_add_child_properties(&board_platform_device.dev,
-> > 				    dev_fwnode(&board_platform_device.dev),
-> > 				    child2_device_props);
-> > 	...
-> > 	platform_device_register(&board_platform_device.dev);
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/base/pset_property.c | 110 +++++++++++++++++++++++++++++++----
-> >  include/linux/property.h     |   4 ++
-> >  2 files changed, 102 insertions(+), 12 deletions(-)
-> > 
-> > diff --git a/drivers/base/pset_property.c b/drivers/base/pset_property.c
-> > index 08ecc13080ae..63f2377aefe8 100644
-> > --- a/drivers/base/pset_property.c
-> > +++ b/drivers/base/pset_property.c
-> > @@ -18,6 +18,11 @@ struct property_set {
-> >  	struct device *dev;
-> >  	struct fwnode_handle fwnode;
-> >  	const struct property_entry *properties;
-> > +
-> > +	struct property_set *parent;
-> > +	/* Entry in parent->children list */
-> > +	struct list_head child_node;
-> > +	struct list_head children;
-> 
-> Add
-> 
->         const char *name;
-> 
-> and you can implement also pset_get_named_child_node().
+> The generic device properties APIs are very helpful as they allow abstracting
+> away details of the platform (whether it is ACPI, device tree, or legacy board
+> file), so that individual driver does not need separate code paths to support
+> all variants. However there are drivers that currently can not use generic
+> device properties API as they need notion of children properties, for example
+> gpio_keys driver, that expects every button to be described as a sub-node of
+> main device.
+>
+> This patch series introduces notion of sub-nodes for static properties and ties
+> it up with GPIO lookup tables so that they are usable with sub-nodes as well.
 
-Or
-	char name[];
+This is the patch series I would have written, had I been smart enough.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+for the series.
 
-to avoid separate allocation.
+I can't test the SIM.ONE board with this until next week but the approach
+is definately what we want, not just for legacy boards, but also for any
+other non-discoverable hardware we currently poke into
+drivers/platform or arch/x86/platform etc.
 
-Alternatively, we can add it later when we need it, and add
-device_add_named_child_properties().
+Yours,
+Linus Walleij
 
-I'll leave it up to Rafael to decide.
-
-Thanks.
-
--- 
-Dmitry
+Yours,
+Linus Walleij

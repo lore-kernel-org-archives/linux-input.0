@@ -1,88 +1,43 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [RFC/PATCH 4/5] gpiolib: add support for fetching descriptors
- from static properties
-Date: Wed, 19 Sep 2018 11:33:31 +0300
-Message-ID: <20180919083331.GP14465@lahna.fi.intel.com>
-References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
- <20180917181603.125492-5-dmitry.torokhov@gmail.com>
- <20180918090219.GE14465@lahna.fi.intel.com>
- <20180918170418.GC177805@dtor-ws>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: [RESEND PATCH V6 0/3]  da7280: haptic driver submission
+Date: Wed, 19 Sep 2018 19:35:04 +0900
+Message-ID: <cover.1537353304.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180918170418.GC177805@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Sep 18, 2018 at 10:04:18AM -0700, Dmitry Torokhov wrote:
-> I am not sure how that would work, as there are multiple properties in
-> that child array, so we can't simply take the first entry or assume that
-> all entries describe GPIOs. Here is the fuller example:
-> 
-> static const struct property_entry simone_key_enter_props[] __initconst = {
-> 	PROPERTY_ENTRY_U32("linux,code",	KEY_ENTER),
-> 	PROPERTY_ENTRY_STRING("label",		"enter"),
-> 	PROPERTY_ENTRY_STRING("gpios",		"enter-gpios"),
-> 	{ }
-> };
-> 
-> static const struct property_entry simone_key_up_props[] __initconst = {
-> 	PROPERTY_ENTRY_U32("linux,code",	KEY_UP),
-> 	PROPERTY_ENTRY_STRING("label",		"up"),
-> 	PROPERTY_ENTRY_STRING("gpios",		"up-gpios"),
-> 	{ }
-> };
-> 
-> static const struct property_entry simone_key_up_props[] __initconst = {
-> 	PROPERTY_ENTRY_U32("linux,code",	KEY_LEFT),
-> 	PROPERTY_ENTRY_STRING("label",		"left"),
-> 	PROPERTY_ENTRY_STRING("gpios",		"left-gpios"),
-> 	{ }
-> };
-> 
-> static const struct property_entry simone_key_props[] __initconst = {
-> 	/* There are no properties at device level on this device */
-> 	{ }
-> };
-> 
-> static struct gpiod_lookup_table simone_keys_gpiod_table = {
-> 	.dev_id = "gpio-keys",
-> 	.table = {
-> 		/* Use local offsets on gpiochip/port "B" */
-> 		GPIO_LOOKUP_IDX("B", 0, "enter-gpios", 0, GPIO_ACTIVE_LOW),
-> 		GPIO_LOOKUP_IDX("B", 1, "up-gpios", 1, GPIO_ACTIVE_LOW),
-> 		GPIO_LOOKUP_IDX("B", 2, "left-gpios", 2, GPIO_ACTIVE_LOW),
-> 	},
-> };
-> 
-> static struct platform_device simone_keys_device = {
-> 	.name = "gpio-keys",
-> 	.id = -1,
-> };
-> 
-> static void __init simone_init_machine(void)
-> {
-> 	...
-> 	gpiod_add_lookup_table(&simone_keys_gpiod_table);
-> 	device_add_properties(&simone_keys_device.dev,
-> 			      simone_keys_device_props);
-> 	device_add_child_properties(&simone_keys_device.dev,
-> 				    dev_fwnode(&simone_keys_device.dev),
-> 				    simone_key_enter_props);
-> 	device_add_child_properties(&simone_keys_device.dev,
-> 				    dev_fwnode(&simone_keys_device.dev),
-> 				    simone_key_up_props);
-> 	device_add_child_properties(&simone_keys_device.dev,
-> 				    dev_fwnode(&simone_keys_device.dev),
-> 				    simone_key_left_props);
-> 	platform_device_register(&simone_keys_device);
-> 	...
-> }
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Thanks for clarifying. I missed this last part where you feed the
-properties to the device.
+In this patch set the following is provided:
 
-So looks fine by me :)
+[PATCH V2 1/3] MAINTAINERS file update for DA7280
+[PATCH V2 2/3] DA7280 DT Binding
+[PATCH V2 3/3] DA7280 Driver
+
+This patch applies against linux-next and v4.19-rc3
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1438 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1971 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
+
+-- 
+end-of-patch for RESEND PATCH V6

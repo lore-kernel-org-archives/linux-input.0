@@ -1,54 +1,79 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 01/20] Input: iforce - remove "being used" silliness
-Date: Wed, 19 Sep 2018 10:10:39 -0700
-Message-ID: <20180919171039.GA116719@dtor-ws>
-References: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
- <0541f46d-1f4f-05f4-8e93-6663f6c13bd9@gmx.de>
+Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
+ for legacy boards
+Date: Wed, 19 Sep 2018 10:13:26 -0700
+Message-ID: <20180919171326.GB116719@dtor-ws>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-3-dmitry.torokhov@gmail.com>
+ <20180919151026.GB11965@kuha.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <0541f46d-1f4f-05f4-8e93-6663f6c13bd9@gmx.de>
+In-Reply-To: <20180919151026.GB11965@kuha.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tim Schumacher <timschumi@gmx.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Sep 19, 2018 at 04:51:26PM +0200, Tim Schumacher wrote:
-> On 18.09.18 02:47, Dmitry Torokhov wrote:
-> > The kernel is supposed to handle multiple devices, static flags
-> > in packet handling code will never work.
+Hi Heikki,
+
+On Wed, Sep 19, 2018 at 06:10:26PM +0300, Heikki Krogerus wrote:
+> Hi,
+> 
+> On Mon, Sep 17, 2018 at 11:16:00AM -0700, Dmitry Torokhov wrote:
+> > Several drivers rely on having notion of sub-nodes when describing
+> > hardware, let's allow static board-defined properties also have it.
+> > 
+> > The board files will then attach properties to devices in the following
+> > fashion:
+> > 
+> > 	device_add_properties(&board_platform_device.dev,
+> > 			      main_device_props);
+> > 	device_add_child_properties(&board_platform_device.dev,
+> > 				    dev_fwnode(&board_platform_device.dev),
+> > 				    child1_device_props);
+> > 	device_add_child_properties(&board_platform_device.dev,
+> > 				    dev_fwnode(&board_platform_device.dev),
+> > 				    child2_device_props);
+> > 	...
+> > 	platform_device_register(&board_platform_device.dev);
 > > 
 > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > > ---
+> >  drivers/base/pset_property.c | 110 +++++++++++++++++++++++++++++++----
+> >  include/linux/property.h     |   4 ++
+> >  2 files changed, 102 insertions(+), 12 deletions(-)
 > > 
-> > This is a random assortment of iforce patches that I made a few weeks back.
-> > 
-> > Tim, I do not have hardware, so I was bound to screw it up, but if you
-> > have some time I'd appreciate if you try them out (and if I indeed broke
-> > things if you could identify issues that would be even more awesome).
-> > 
-> > Thanks!
-> > 
-> Hello Dmitry,
+> > diff --git a/drivers/base/pset_property.c b/drivers/base/pset_property.c
+> > index 08ecc13080ae..63f2377aefe8 100644
+> > --- a/drivers/base/pset_property.c
+> > +++ b/drivers/base/pset_property.c
+> > @@ -18,6 +18,11 @@ struct property_set {
+> >  	struct device *dev;
+> >  	struct fwnode_handle fwnode;
+> >  	const struct property_entry *properties;
+> > +
+> > +	struct property_set *parent;
+> > +	/* Entry in parent->children list */
+> > +	struct list_head child_node;
+> > +	struct list_head children;
 > 
-> I tested those patches and I didn't find any obvious issues. The basic functions
-> do work (i.e. buttons and axes, don't have a HAT so I can't test that), force
-> feedback seems to work to the extent it was before (I only have fftest though,
-> no games that support force feedback). I'll go through a few more applications
-> and see if anything not obvious is broken.
+> Add
 > 
-
-Thank you for taking a look.
-
-> Unfortunately, I only have that one wheel and I can only test USB connections
-> at the moment (unless I find a proper serial adaptor, but I'm not sure if that
-> would even work).
+>         const char *name;
 > 
-> Are those patches planned to go into 4.19 or are they intended to be merged in
-> the next development cycle?
+> and you can implement also pset_get_named_child_node().
 
-Definitely not 4.19. Could be 4.20 or 4.21...
+Or
+	char name[];
+
+to avoid separate allocation.
+
+Alternatively, we can add it later when we need it, and add
+device_add_named_child_properties().
+
+I'll leave it up to Rafael to decide.
 
 Thanks.
 

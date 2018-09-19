@@ -1,54 +1,45 @@
-From: Roy Im <roy.im.opensource@diasemi.com>
-Subject: [RESEND PATCH V6 1/3] MAINTAINERS: da7280 updates to the Dialog
- Semiconductor search terms
-Date: Wed, 19 Sep 2018 19:35:04 +0900
-Message-ID: <4a7f9f7c97298c88a99fdfed02b82db9b83115d8.1537353304.git.Roy.Im@diasemi.com>
-References: <cover.1537353304.git.Roy.Im@diasemi.com>
+From: Tim Schumacher <timschumi@gmx.de>
+Subject: Re: [PATCH 01/20] Input: iforce - remove "being used" silliness
+Date: Wed, 19 Sep 2018 16:51:26 +0200
+Message-ID: <0541f46d-1f4f-05f4-8e93-6663f6c13bd9@gmx.de>
+References: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1537353304.git.Roy.Im@diasemi.com>
+In-Reply-To: <20180918004732.9875-1-dmitry.torokhov@gmail.com>
+Content-Language: en-US-large
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On 18.09.18 02:47, Dmitry Torokhov wrote:
+> The kernel is supposed to handle multiple devices, static flags
+> in packet handling code will never work.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+> 
+> This is a random assortment of iforce patches that I made a few weeks back.
+> 
+> Tim, I do not have hardware, so I was bound to screw it up, but if you
+> have some time I'd appreciate if you try them out (and if I indeed broke
+> things if you could identify issues that would be even more awesome).
+> 
+> Thanks!
+> 
+Hello Dmitry,
 
-This patch adds the da7280 bindings doc and driver to the Dialog
-Semiconductor support list.
+I tested those patches and I didn't find any obvious issues. The basic functions
+do work (i.e. buttons and axes, don't have a HAT so I can't test that), force
+feedback seems to work to the extent it was before (I only have fftest though,
+no games that support force feedback). I'll go through a few more applications
+and see if anything not obvious is broken.
 
-Signed-off-by: Roy Im <roy.im.opensource@diasemi.com>
+Unfortunately, I only have that one wheel and I can only test USB connections
+at the moment (unless I find a proper serial adaptor, but I'm not sure if that
+would even work).
 
----
-v6: No changes.
-v5: No changes.
-v4: No changes.
-v3: No changes.
-v2: No changes.
-
-
- MAINTAINERS |    2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d870cb5..6244a7d 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4313,6 +4313,7 @@ S:	Supported
- F:	Documentation/hwmon/da90??
- F:	Documentation/devicetree/bindings/mfd/da90*.txt
- F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
-+F:	Documentation/devicetree/bindings/input/dlg,da72??.txt
- F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
- F:	Documentation/devicetree/bindings/regulator/da92*.txt
- F:	Documentation/devicetree/bindings/watchdog/da90??-wdt.txt
-@@ -4321,6 +4322,7 @@ F:	drivers/gpio/gpio-da90??.c
- F:	drivers/hwmon/da90??-hwmon.c
- F:	drivers/iio/adc/da91??-*.c
- F:	drivers/input/misc/da90??_onkey.c
-+F:	drivers/input/misc/da72??.[ch]
- F:	drivers/input/touchscreen/da9052_tsi.c
- F:	drivers/leds/leds-da90??.c
- F:	drivers/mfd/da903x.c
--- 
-end-of-patch for RESEND PATCH V6
+Are those patches planned to go into 4.19 or are they intended to be merged in
+the next development cycle?

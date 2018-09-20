@@ -1,98 +1,83 @@
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
- for legacy boards
-Date: Thu, 20 Sep 2018 16:53:48 +0300
-Message-ID: <20180920135348.GF11965@kuha.fi.intel.com>
-References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
- <20180917181603.125492-3-dmitry.torokhov@gmail.com>
+From: syzbot <syzbot+13cb3b01d0784e4ffc3f@syzkaller.appspotmail.com>
+Subject: KMSAN: uninit-value in synaptics_detect
+Date: Thu, 20 Sep 2018 14:04:04 -0700
+Message-ID: <000000000000f0575a057653dc12@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180917181603.125492-3-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: aaron.ma@canonical.com, aduggan@synaptics.com, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, kt.liao@emc.com.tw, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, peter.hutterer@who-t.net, rydberg@bitmath.org, syzkaller-bugs@googlegroups.com, zhenjie.wang@sjtu.edu.cn
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hello,
 
-On Mon, Sep 17, 2018 at 11:16:00AM -0700, Dmitry Torokhov wrote:
-> +/**
-> + * device_add_child_properties - Add a collection of properties to a device object.
-> + * @dev: Device to add properties to.
+syzbot found the following crash on:
 
-In case you didn't notice my comment for this, you are missing @parent
-here.
+HEAD commit:    42a037ca8d9d kmsan: update README.md to reference LLVM r34..
+git tree:       https://github.com/google/kmsan.git/master
+console output: https://syzkaller.appspot.com/x/log.txt?x=1392c149400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=3431f03869413153
+dashboard link: https://syzkaller.appspot.com/bug?extid=13cb3b01d0784e4ffc3f
+compiler:       clang version 8.0.0 (trunk 339414)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14616421400000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16a164d1400000
 
-But why do you need both the parent and the dev?
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+13cb3b01d0784e4ffc3f@syzkaller.appspotmail.com
 
-> + * @properties: Collection of properties to add.
-> + *
-> + * Associate a collection of device properties represented by @properties as a
-> + * child of given @parent firmware node.  The function takes a copy of
-> + * @properties.
-> + */
-> +struct fwnode_handle *
-> +device_add_child_properties(struct device *dev,
-> +			    struct fwnode_handle *parent,
-> +			    const struct property_entry *properties)
-> +{
-> +	struct property_set *p;
-> +	struct property_set *parent_pset;
-> +
-> +	if (!properties)
-> +		return ERR_PTR(-EINVAL);
-> +
-> +	parent_pset = to_pset_node(parent);
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+psmouse serio2: Failed to reset mouse on : -5
+misc userio: Buffer overflowed, userio client isn't keeping up
+==================================================================
+BUG: KMSAN: uninit-value in synaptics_detect+0x1fa/0x2a0  
+drivers/input/mouse/synaptics.c:112
+CPU: 1 PID: 41 Comm: kworker/1:2 Not tainted 4.19.0-rc1+ #42
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Workqueue: events_long serio_handle_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x14b/0x190 lib/dump_stack.c:113
+  kmsan_report+0x183/0x2b0 mm/kmsan/kmsan.c:956
+  __msan_warning+0x70/0xc0 mm/kmsan/kmsan_instr.c:645
+  synaptics_detect+0x1fa/0x2a0 drivers/input/mouse/synaptics.c:112
+  psmouse_do_detect drivers/input/mouse/psmouse-base.c:1011 [inline]
+  psmouse_extensions+0x10fd/0x3820 drivers/input/mouse/psmouse-base.c:1106
+  psmouse_switch_protocol+0x184/0xd90 drivers/input/mouse/psmouse-base.c:1544
+  psmouse_connect+0x1387/0x2290 drivers/input/mouse/psmouse-base.c:1634
+  serio_connect_driver drivers/input/serio/serio.c:59 [inline]
+  serio_driver_probe+0xe3/0x150 drivers/input/serio/serio.c:790
+  really_probe+0x19ae/0x2040 drivers/base/dd.c:500
+  driver_probe_device+0x1b4/0x4f0 drivers/base/dd.c:662
+  __device_attach_driver+0x632/0x750 drivers/base/dd.c:758
+  bus_for_each_drv+0x27e/0x390 drivers/base/bus.c:461
+  __device_attach+0x381/0x5e0 drivers/base/dd.c:815
+  device_initial_probe+0x4a/0x60 drivers/base/dd.c:862
+  bus_probe_device+0x137/0x390 drivers/base/bus.c:521
+  device_add+0x2687/0x2c70 drivers/base/core.c:1927
+  serio_add_port drivers/input/serio/serio.c:554 [inline]
+  serio_handle_event+0x1d90/0x2700 drivers/input/serio/serio.c:222
+  process_one_work+0x1605/0x1f40 kernel/workqueue.c:2153
+  worker_thread+0x11a2/0x2590 kernel/workqueue.c:2296
+  kthread+0x465/0x4a0 kernel/kthread.c:247
+  ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:416
 
-For this function, the parent will in practice have to be
-dev_fwnode(dev), so I don't think you need @parent at all, no?
-
-There is something wrong here..
-
-> +	if (!parent_pset)
-> +		return ERR_PTR(-EINVAL);
-> +
-> +	p = pset_create_set(properties);
-> +	if (IS_ERR(p))
-> +		return ERR_CAST(p);
-> +
-> +	p->dev = dev;
-
-That looks wrong.
-
-I'm guessing the assumption here is that the child nodes will never be
-assigned to their own devices, but you can't do that. It will limit
-the use of the child nodes to a very small number of cases, possibly
-only to gpios.
-
-I think that has to be fixed. It should not be a big deal. Just expect
-the child nodes to be removed separately, and add ref counting to the
-struct property_set handling.
-
-> +	p->parent = parent_pset;
-> +	list_add_tail(&p->child_node, &parent_pset->children);
-> +
-> +	return &p->fwnode;
-> +}
-> +EXPORT_SYMBOL_GPL(device_add_child_properties);
-
-The child nodes will change the purpose of the build-in property
-support. Originally the goal was just to support adding of build-in
-device properties to real firmware nodes, but things have changed
-quite a bit from that. These child nodes are purely tied to the
-build-in device property support, so we should be talking about adding
-pset type child nodes to pset type parent nodes in the API:
-fwnode_pset_add_child_node(), or something like that.
-
-I'm sorry to be a bit of pain in the butt with this. The build-in
-property support is a hack, it always was. A useful hack, but hack
-nevertheless. That means we need to be extra careful when expanding
-it, like here.
+Local variable description: ----param@synaptics_detect
+Variable was created at:
+  synaptics_detect+0x50/0x2a0 drivers/input/mouse/synaptics.c:100
+  psmouse_do_detect drivers/input/mouse/psmouse-base.c:1011 [inline]
+  psmouse_extensions+0x10fd/0x3820 drivers/input/mouse/psmouse-base.c:1106
+==================================================================
 
 
-Thanks,
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
--- 
-heikki
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
+syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches

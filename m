@@ -1,47 +1,61 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH] Input: pm8941-pwrkey - Add pms405 pwrkey support
-Date: Wed, 19 Sep 2018 18:49:28 -0700
-Message-ID: <20180920014928.15422-1-bjorn.andersson@linaro.org>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
+ for legacy boards
+Date: Thu, 20 Sep 2018 13:16:48 +0300
+Message-ID: <20180920101648.GC11965@kuha.fi.intel.com>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-3-dmitry.torokhov@gmail.com>
+ <20180919151026.GB11965@kuha.fi.intel.com>
+ <20180919171326.GB116719@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180919171326.GB116719@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Vinod Koul <vkoul@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+On Wed, Sep 19, 2018 at 10:13:26AM -0700, Dmitry Torokhov wrote:
+> > > diff --git a/drivers/base/pset_property.c b/drivers/base/pset_property.c
+> > > index 08ecc13080ae..63f2377aefe8 100644
+> > > --- a/drivers/base/pset_property.c
+> > > +++ b/drivers/base/pset_property.c
+> > > @@ -18,6 +18,11 @@ struct property_set {
+> > >  	struct device *dev;
+> > >  	struct fwnode_handle fwnode;
+> > >  	const struct property_entry *properties;
+> > > +
+> > > +	struct property_set *parent;
+> > > +	/* Entry in parent->children list */
+> > > +	struct list_head child_node;
+> > > +	struct list_head children;
+> > 
+> > Add
+> > 
+> >         const char *name;
+> > 
+> > and you can implement also pset_get_named_child_node().
+> 
+> Or
+> 	char name[];
+> 
+> to avoid separate allocation.
 
-Update the binding and driver for pms405 pwrkey.
+Let's not do that, especially if you are planning on exporting this
+structure. If the name is coming from .rodata, there is no need to
+allocate anything for the name. Check kstrdup_const().
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
----
- Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt | 1 +
- drivers/input/misc/pm8941-pwrkey.c                             | 1 +
- 2 files changed, 2 insertions(+)
+> Alternatively, we can add it later when we need it, and add
+> device_add_named_child_properties().
+> 
+> I'll leave it up to Rafael to decide.
 
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-index 34ab5763f494..736fba3bad54 100644
---- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-@@ -8,6 +8,7 @@ PROPERTIES
- 	Definition: must be one of:
- 		    "qcom,pm8941-pwrkey"
- 		    "qcom,pm8941-resin"
-+		    "qcom,pms405-pwrkey"
- 
- - reg:
- 	Usage: required
-diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-index 48153e0ca19a..fccf63263c1c 100644
---- a/drivers/input/misc/pm8941-pwrkey.c
-+++ b/drivers/input/misc/pm8941-pwrkey.c
-@@ -317,6 +317,7 @@ static const struct pm8941_data resin_data = {
- static const struct of_device_id pm8941_pwr_key_id_table[] = {
- 	{ .compatible = "qcom,pm8941-pwrkey", .data = &pwrkey_data },
- 	{ .compatible = "qcom,pm8941-resin", .data = &resin_data },
-+	{ .compatible = "qcom,pms405-pwrkey", .data = &pwrkey_data },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, pm8941_pwr_key_id_table);
+Fair enough.
+
+
+Thanks,
+
 -- 
-2.18.0
+heikki

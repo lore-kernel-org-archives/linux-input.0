@@ -1,68 +1,122 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
-Date: Fri, 21 Sep 2018 10:52:19 -0700
-Message-ID: <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
-References: <000000000000e5f76c057664e73d@google.com>
+Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
+ for legacy boards
+Date: Fri, 21 Sep 2018 16:31:19 -0700
+Message-ID: <20180921233119.GA44099@dtor-ws>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-3-dmitry.torokhov@gmail.com>
+ <20180920135348.GF11965@kuha.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <000000000000e5f76c057664e73d@google.com>
+Content-Disposition: inline
+In-Reply-To: <20180920135348.GF11965@kuha.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs@googlegroups.com
+To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Sep 21, 2018 at 10:24 AM syzbot
-<syzbot+87829a10073277282ad1@syzkaller.appspotmail.com> wrote:
->
-> Hello,
->
-> syzbot found the following crash on:
->
-> HEAD commit:    234b69e3e089 ocfs2: fix ocfs2 read block panic
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=131f761a400000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=5fa12be50bca08d8
-> dashboard link: https://syzkaller.appspot.com/bug?extid=87829a10073277282ad1
-> compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=126ca61a400000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=119d6511400000
->
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+87829a10073277282ad1@syzkaller.appspotmail.com
->
-> input: syz0 as /devices/virtual/input/input25382
-> WARNING: CPU: 0 PID: 11238 at mm/slab_common.c:1031 kmalloc_slab+0x56/0x70
-> mm/slab_common.c:1031
-> Kernel panic - not syncing: panic_on_warn set ...
+Hi Heikki,
 
-This is coming from:
+On Thu, Sep 20, 2018 at 04:53:48PM +0300, Heikki Krogerus wrote:
+> Hi Dmitry,
+> 
+> On Mon, Sep 17, 2018 at 11:16:00AM -0700, Dmitry Torokhov wrote:
+> > +/**
+> > + * device_add_child_properties - Add a collection of properties to a device object.
+> > + * @dev: Device to add properties to.
+> 
+> In case you didn't notice my comment for this, you are missing @parent
+> here.
+> 
+> But why do you need both the parent and the dev?
 
-commit 6286ae97d10ea2b5cd90532163797ab217bfdbdf
-Author: Christoph Lameter <cl@linux.com>
-Date:   Fri May 3 15:43:18 2013 +0000
+I could go by parent only and fetch dev from parent.
 
-   slab: Return NULL for oversized allocations
+> 
+> > + * @properties: Collection of properties to add.
+> > + *
+> > + * Associate a collection of device properties represented by @properties as a
+> > + * child of given @parent firmware node.  The function takes a copy of
+> > + * @properties.
+> > + */
+> > +struct fwnode_handle *
+> > +device_add_child_properties(struct device *dev,
+> > +			    struct fwnode_handle *parent,
+> > +			    const struct property_entry *properties)
+> > +{
+> > +	struct property_set *p;
+> > +	struct property_set *parent_pset;
+> > +
+> > +	if (!properties)
+> > +		return ERR_PTR(-EINVAL);
+> > +
+> > +	parent_pset = to_pset_node(parent);
+> 
+> For this function, the parent will in practice have to be
+> dev_fwnode(dev), so I don't think you need @parent at all, no?
+> 
+> There is something wrong here..
 
-   The inline path seems to have changed the SLAB behavior for very large
-   kmalloc allocations with  commit e3366016 ("slab: Use common
-   kmalloc_index/kmalloc_size functions"). This patch restores the old
-   behavior but also adds diagnostics so that we can figure where in the
-   code these large allocations occur.
+Yes, I expect majority of the calls will use dev_fwnode(dev) as parent,
+but nobody stops you from doing:
 
-   Reported-and-tested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-   Signed-off-by: Christoph Lameter <cl@linux.com>
-   Link: http://lkml.kernel.org/r/201305040348.CIF81716.OStQOHFJMFLOVF@I-love.SAKURA.ne.jp
-   [ penberg@kernel.org: use WARN_ON_ONCE ]
-   Signed-off-by: Pekka Enberg <penberg@kernel.org>
+	device_add_properties(dev, props);
+	c1 = device_add_child_properties(dev, dev_fwnode(dev), cp1);
+	c2 = device_add_child_properties(dev, c1, cp2);
+	c3 = device_add_child_properties(dev, c2, cp3);
+	...
 
-You'll have to convince Cristoph that WARN_ON_ONCE() there is evil and
-has to be eradicated so that KASAN can run (but then we'd not know
-easily that some allocation failed because it was too big and never
-had a chance of succeeding vs. ordinary memory failure).
+> 
+> > +	if (!parent_pset)
+> > +		return ERR_PTR(-EINVAL);
+> > +
+> > +	p = pset_create_set(properties);
+> > +	if (IS_ERR(p))
+> > +		return ERR_CAST(p);
+> > +
+> > +	p->dev = dev;
+> 
+> That looks wrong.
+> 
+> I'm guessing the assumption here is that the child nodes will never be
+> assigned to their own devices, but you can't do that. It will limit
+> the use of the child nodes to a very small number of cases, possibly
+> only to gpios.
 
-Can I recommend that maybe you introduce infrastructure for
-panic_on_warn to ignore certain "well known" warnings?
+If I need to assign a node to a device I'll use device_add_properties()
+API. device_add_child_properties() is for nodes living "below" the
+device.
+
+All nodes (the primary/secondary and children) would point to the owning
+device, just for convenience.
+
+> 
+> I think that has to be fixed. It should not be a big deal. Just expect
+> the child nodes to be removed separately, and add ref counting to the
+> struct property_set handling.
+
+Why do we need to remove them separately and what do we need refcounting
+for?
+
+> 
+> > +	p->parent = parent_pset;
+> > +	list_add_tail(&p->child_node, &parent_pset->children);
+> > +
+> > +	return &p->fwnode;
+> > +}
+> > +EXPORT_SYMBOL_GPL(device_add_child_properties);
+> 
+> The child nodes will change the purpose of the build-in property
+> support. Originally the goal was just to support adding of build-in
+> device properties to real firmware nodes, but things have changed
+> quite a bit from that. These child nodes are purely tied to the
+> build-in device property support, so we should be talking about adding
+> pset type child nodes to pset type parent nodes in the API:
+> fwnode_pset_add_child_node(), or something like that.
+
+OK, I can change device_add_child_properties() to
+fwnode_pset_add_child_node() if Rafael would prefer this name.
 
 Thanks.
 

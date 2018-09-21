@@ -1,72 +1,48 @@
-From: zhong jiang <zhongjiang@huawei.com>
-Subject: Re: [PATCH v2] HID: logitech: fix a used uninitialized GCC warning
-Date: Fri, 21 Sep 2018 09:46:54 +0800
-Message-ID: <5BA44D8E.3070708@huawei.com>
-References: <1536824470-36659-1-git-send-email-zhongjiang@huawei.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes for
+ legacy boards
+Date: Fri, 21 Sep 2018 08:36:53 -0700
+Message-ID: <CACRpkdZtM4G=4r3m6vLTms9MJFkdiOdPFucebO-Z0Kh-3ws3+g@mail.gmail.com>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-3-dmitry.torokhov@gmail.com> <20180920135348.GF11965@kuha.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1536824470-36659-1-git-send-email-zhongjiang@huawei.com>
+In-Reply-To: <20180920135348.GF11965@kuha.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Linux Input <linux-input@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Jiri
+On Thu, Sep 20, 2018 at 6:53 AM Heikki Krogerus
+<heikki.krogerus@linux.intel.com> wrote:
 
-Can you pick up the patch?
+> The child nodes will change the purpose of the build-in property
+> support. Originally the goal was just to support adding of build-in
+> device properties to real firmware nodes, but things have changed
+> quite a bit from that. These child nodes are purely tied to the
+> build-in device property support, so we should be talking about adding
+> pset type child nodes to pset type parent nodes in the API:
+> fwnode_pset_add_child_node(), or something like that.
+>
+> I'm sorry to be a bit of pain in the butt with this. The build-in
+> property support is a hack, it always was. A useful hack, but hack
+> nevertheless. That means we need to be extra careful when expanding
+> it, like here.
 
-Thanks
-zhong jiang
+I dunno how we got to here, what I tried to solve and Dmitry tries
+to make more general is converting old boardfiles to use fwnode, because
+I initially tried to just support gpio descriptors from board files.
 
-On 2018/9/13 15:41, zhong jiang wrote:
-> Fix the following compile warning:
->
-> drivers/hid/hid-logitech-hidpp.c: In function 'hi_res_scroll_enable':
-> drivers/hid/hid-logitech-hidpp.c:2714:54: warning: 'multiplier' may be used uninitialized in this function [-Wmaybe-uninitialized]
->   hidpp->vertical_wheel_counter.resolution_multiplier = multiplier;
->
-> Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-> ---
-> v1->v2:
->      According to Benjamin's suggestion, To initialize the value
-> and remove the duplicated assignement. 
->
->  drivers/hid/hid-logitech-hidpp.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 5f0c080..f012808 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -1231,7 +1231,6 @@ static int hidpp_hrw_get_wheel_capability(struct hidpp_device *hidpp,
->  	*multiplier = response.fap.params[0];
->  	return 0;
->  return_default:
-> -	*multiplier = 8;
->  	hid_warn(hidpp->hid_dev,
->  		 "Couldn't get wheel multiplier (error %d), assuming %d.\n",
->  		 ret, *multiplier);
-> @@ -2696,7 +2695,7 @@ static int hi_res_scroll_look_up_microns(__u32 product_id)
->  static int hi_res_scroll_enable(struct hidpp_device *hidpp)
->  {
->  	int ret;
-> -	u8 multiplier;
-> +	u8 multiplier = 8;
->  
->  	if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2121) {
->  		ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
-> @@ -2704,10 +2703,9 @@ static int hi_res_scroll_enable(struct hidpp_device *hidpp)
->  	} else if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2120) {
->  		ret = hidpp_hrs_set_highres_scrolling_mode(hidpp, true,
->  							   &multiplier);
-> -	} else /* if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_1P0) */ {
-> +	} else /* if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_1P0) */
->  		ret = hidpp10_enable_scrolling_acceleration(hidpp);
-> -		multiplier = 8;
-> -	}
-> +
->  	if (ret)
->  		return ret;
->  
+If boardfiles is what you mean with "build-in property support" I don't
+know, it predates both device tree and ACPI and any other hardware
+descriptions on the ARM architecture, from the perspective of these
+systems things are fine and the hardware description languages
+are the novelty...
+
+But I guess you know because you worked with OMAP :)
+
+So there is something I don't understand here.
+
+Yours,
+Linus Walleij

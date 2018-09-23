@@ -1,15 +1,15 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH V2 1/8] dt-bindings: mfd: document stpmic1
-Date: Sun, 23 Sep 2018 14:19:19 +0100
-Message-ID: <20180923131919.GC11050@dell>
+Subject: Re: [PATCH V2 2/8] mfd: stpmic1: add stpmic1 driver
+Date: Sun, 23 Sep 2018 15:41:34 +0100
+Message-ID: <20180923144134.GF11050@dell>
 References: <1536325173-16617-1-git-send-email-p.paillet@st.com>
- <1536325173-16617-2-git-send-email-p.paillet@st.com>
+ <1536325173-16617-3-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1536325173-16617-2-git-send-email-p.paillet@st.com>
+In-Reply-To: <1536325173-16617-3-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Pascal PAILLET-LME <p.paillet@st.com>
 Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
@@ -18,273 +18,872 @@ List-Id: linux-input@vger.kernel.org
 On Fri, 07 Sep 2018, Pascal PAILLET-LME wrote:
 
 > From: pascal paillet <p.paillet@st.com>
-> 
+
+This is odd.  What is your reason for not using `git send-email`?
+
+Also your name should really be capitalised.
+
+  Pascal Paillet
+
 > stpmic1 is a pmic from STMicroelectronics. The stpmic1 integrates 10
+
+"STPMIC1" and "PMIC"
+
 > regulators and 3 switches with various capabilities.
-> 
+
+What about the Watchdog that I saw in the bindings?
+
 > Signed-off-by: pascal paillet <p.paillet@st.com>
 > ---
 > changes in v2:
 > * the hardware component has been renamed from stpmu1 to stpmic1 !
-> * replace _ with - in properties name
-> * fix node names in example
-> * remove regulator compatibles in example
-> * add st,stpmic1.h to the patch
+> * Handle remarks from Enric
+> * change headers
+> * split binding description on another patch
+
+Please use proper English grammar.
+
+Capital letters at the start of sentences and for names of things, etc.
+
+> On other mfd upstreamed by us (ST) we always get the remark to use 
+
+MFD
+
+> devm_of_platform_populate and not mfd_add_devices().
+> MFD maintainers could you please clarify wich API I should here, thanks ?
+
+You can use either depending on the use-case.
+
+Here I think the former (first - devm_of_platform_populate) is better.
+
+>  drivers/mfd/Kconfig         |  13 ++
+>  drivers/mfd/Makefile        |   1 +
+>  drivers/mfd/stpmic1.c       | 457 ++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/mfd/stpmic1.h | 220 +++++++++++++++++++++
+>  4 files changed, 691 insertions(+)
+>  create mode 100644 drivers/mfd/stpmic1.c
+>  create mode 100644 include/linux/mfd/stpmic1.h
 > 
-> Rob, I did not change the usage of the properties because it would lead to a lot
-> of st properties; for example st,main-control-register would be replaced by:
->   st,power_cycling_on_turn_off
->   st,pwrctrl_enabled
->   st,pwrctrl_active_high
-> should I go this way ?
-> 
-> Rob, I did not found the standard property for st,onkey-press-seconds = <10>;
-> 
->  .../devicetree/bindings/mfd/st,stpmic1.txt         | 137 +++++++++++++++++++++
->  include/dt-bindings/mfd/st,stpmic1.h               |  46 +++++++
->  2 files changed, 183 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
->  create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
-> 
-> diff --git a/Documentation/devicetree/bindings/mfd/st,stpmic1.txt b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index b860eb5..7984803 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -1812,6 +1812,19 @@ config MFD_STM32_TIMERS
+>  	  for PWM and IIO Timer. This driver allow to share the
+>  	  registers between the others drivers.
+>  
+> +config MFD_STPMIC1
+> +	tristate "Support for STPMIC1 PMIC"
+> +	depends on (I2C=y && OF)
+> +	select REGMAP_I2C
+> +	select REGMAP_IRQ
+> +	select MFD_CORE
+> +	help
+> +	  Support for STMicroelectronics STPMIC1 PMIC. Stpmic1 mfd driver is
+
+"STPMIC MFD"
+
+> +	  the core driver for stpmic1 component that mainly handles interrupts.
+
+Same here.
+
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called stpmic1.
+> +
+>  menu "Multimedia Capabilities Port drivers"
+>  	depends on ARCH_SA1100
+>  
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index e9fd20d..b194929 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -220,6 +220,7 @@ obj-$(CONFIG_INTEL_SOC_PMIC_CHTDC_TI)	+= intel_soc_pmic_chtdc_ti.o
+>  obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
+>  
+>  obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
+> +obj-$(CONFIG_MFD_STPMIC1)	+= stpmic1.o
+>  obj-$(CONFIG_MFD_SUN4I_GPADC)	+= sun4i-gpadc.o
+>  
+>  obj-$(CONFIG_MFD_STM32_LPTIMER)	+= stm32-lptimer.o
+> diff --git a/drivers/mfd/stpmic1.c b/drivers/mfd/stpmic1.c
 > new file mode 100644
-> index 0000000..9f2c516
+> index 0000000..ea0bff2
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
-> @@ -0,0 +1,137 @@
-> +* STMicroelectronics STPMIC1 Power Management IC
-> +
-> +Required parent device properties:
-> +- compatible: "st,stpmic1"
-> +- reg: the I2C slave address for the stpmic1 chip
-> +- interrupts-extended: interrupt lines to use: second irq is for wakeup.
-> +- #interrupt-cells: should be 2.
-> +- interrupt-controller: describes the STPMIC1 as an interrupt
+> +++ b/drivers/mfd/stpmic1.c
+> @@ -0,0 +1,457 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (C) STMicroelectronics 2018
+> +// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
 
-I always find these are easier to read when they are tab aligned.
-While we're at it, let's throw some capital letters in there and
-remove the '.', as it's only used on one of the lines:
+You don't need to put "for STMicroelectronics", since you are an ST
+employee.  This is something we agreed to use when upstreaming ST code
+with our Linaro addresses.
 
-- compatible: 		"st,stpmic1"
-- reg:			The I2C slave address for the STPIC1 chip
-- interrupts-extended:	Interrupt lines to use: second IRQ is for wakeup.
-- #interrupt-cells:     Should be 2
-- interrupt-controller:	Describes the STPMIC1 as an interrupt
-
-Better, no?
-
-> +  controller (has its own domain). interrupt number are the following:
-
-Capital letters usually follow a '.'
-
-> +	/* Interrupt Register 1 (0x50 for latch) */
-> +	IT_SWOUT_R=0
-> +	IT_SWOUT_F=1
-> +	IT_VBUS_OTG_R=2
-> +	IT_VBUS_OTG_F=3
-> +	IT_WAKEUP_R=4
-> +	IT_WAKEUP_F=5
-> +	IT_PONKEY_R=6
-> +	IT_PONKEY_F=7
-> +	/* Interrupt Register 2 (0x51 for latch) */
-> +	IT_OVP_BOOST=8
-> +	IT_OCP_BOOST=9
-> +	IT_OCP_SWOUT=10
-> +	IT_OCP_OTG=11
-> +	IT_CURLIM_BUCK4=12
-> +	IT_CURLIM_BUCK3=13
-> +	IT_CURLIM_BUCK2=14
-> +	IT_CURLIM_BUCK1=15
-> +	/* Interrupt Register 3 (0x52 for latch) */
-> +	IT_SHORT_SWOUT=16
-> +	IT_SHORT_SWOTG=17
-> +	IT_CURLIM_LDO6=18
-> +	IT_CURLIM_LDO5=19
-> +	IT_CURLIM_LDO4=20
-> +	IT_CURLIM_LDO3=21
-> +	IT_CURLIM_LDO2=22
-> +	IT_CURLIM_LDO1=23
-> +	/* Interrupt Register 3 (0x52 for latch) */
-> +	IT_SWIN_R=24
-> +	IT_SWIN_F=25
-> +	IT_RESERVED_1=26
-> +	IT_RESERVED_2=27
-> +	IT_VINLOW_R=28
-> +	IT_VINLOW_F=29
-> +	IT_TWARN_R=30
-> +	IT_TWARN_F=31
-> +
-> +Optional parent device properties:
-> +- st,main-control-register:
-> +	-bit 1: Power cycling will be performed on turn OFF condition
-> +	-bit 2: PWRCTRL is functional
-> +	-bit 3: PWRCTRL active high
-> +- st,pads-pull-register:
-> +	-bit 1: WAKEUP pull down is not active
-> +	-bit 2: PWRCTRL pull up is active
-> +	-bit 3: PWRCTRL pull down is active
-> +	-bit 4: WAKEUP detector is disabled
-> +- st,vin-control-register:
-> +	-bit 0: VINLOW monitoring is enabled
-> +	-bit [1...3]: VINLOW rising threshold
-> +		000 VINOK_f + 50mV
-> +		001 VINOK_f + 100mV
-> +		010 VINOK_f + 150mV
-> +		011 VINOK_f + 200mV
-> +		100 VINOK_f + 250mV
-> +		101 VINOK_f + 300mV
-> +		110 VINOK_f + 350mV
-> +		111 VINOK_f + 400mV
-> +	-bit [4...5]: VINLOW hyst
-> +		00 100mV
-> +		01 200mV
-> +		10 300mV
-> +		11 400mV
-> +	-bit 6: SW_OUT detector is disabled
-> +	-bit 7: SW_IN detector is enabled.
-> +- st,usb-control-register:
-> +	-bit 3: SW_OUT current limit
-> +		0: 600mA
-> +		1: 1.1A
-> +	-bit 4: VBUS_OTG discharge is enabled
-> +	-bit 5: SW_OUT discharge is enabled
-> +	-bit 6: VBUS_OTG detection is enabled
-> +	-bit 7: BOOST_OVP is disabled
-> +
-> +
-
-Did you mean to add a double line space here?
-
-> +stpmic1 consists is a varied group of sub-devices:
-
-Should be STPMIC1, no?
-
-> +Device			 Description
-> +------			------------
-> +st,stpmic1-onkey		: On key
-
-Please describe this a "Power on key"
-
-> +st,stpmic1-regulators	: Regulators
-> +st,stpmic1-wdt		: Watchdog
-> +
-> +each sub-device bindings is be described in associated driver
-
-"Each sub-device binding is described in own documentation file"
-
-> +documentation section.
-
-Please list them using relative paths e.g:
-
-../../bindings/watchdog/st,stm32-iwdg.txt
-
-Or 
-
-../watchdog/st,stm32-iwdg.txt
-
-> +Example:
-> +
-> +pmic: stpmic1@33 {
-> +	compatible = "st,stpmic1";
-> +	reg = <0x33>;
-> +	interrupts = <0 2>;
-> +	interrupts-extended = <&intc GIC_SPI 149 IRQ_TYPE_NONE>,
-> +			      <&exti 55 1>;
-> +	st,version_status = <0x10>;
-> +	st,main-control-register=<0x0c>;
-> +	interrupt-controller;
-> +	#interrupt-cells = <2>;
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/mfd/stpmic1.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/pm_wakeirq.h>
+> +#include <linux/regmap.h>
 
 '\n' here.
 
-> +	onkey {
-> +		compatible = "st,stpmic1-onkey";
-> +		interrupt-parent = <&pmic>;
-> +		interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-> +		interrupt-names = "onkey-falling", "onkey-rising";
-> +		st,onkey-pwroff-enabled;
-> +		st,onkey-long-press-seconds = <10>;
-> +	};
+> +#include <dt-bindings/mfd/st,stpmic1.h>
 > +
-> +	watchdog {
-> +		compatible = "st,stpmic1-wdt";
-> +	};
+> +static bool stpmic1_reg_readable(struct device *dev, unsigned int reg);
+> +static bool stpmic1_reg_writeable(struct device *dev, unsigned int reg);
+> +static bool stpmic1_reg_volatile(struct device *dev, unsigned int reg);
+
+This is a bad sign.  Why you need these forward declarations?
+
+Best to reorder the functions instead.
+
+> +const struct regmap_config stpmic1_regmap_config = {
+> +	.reg_bits = 8,
+> +	.val_bits = 8,
+> +	.cache_type = REGCACHE_RBTREE,
+> +	.max_register = PMIC_MAX_REGISTER_ADDRESS,
+> +	.readable_reg = stpmic1_reg_readable,
+> +	.writeable_reg = stpmic1_reg_writeable,
+> +	.volatile_reg = stpmic1_reg_volatile,
+> +};
 > +
-> +	regulators {
-> +		compatible = "st,stpmic1-regulators";
+> +#define FILL_IRQS(_index) \
+> +	[(_index)] = { \
+> +		.reg_offset = ((_index) >> 3), \
+> +		.mask = (1 << (_index % 8)), \
+> +	}
+
+If you need this, then it is likely that others need it too.  Instead
+of hand-rolling your own MACROs, please push it into the Regmap
+subsystem.
+
+> +static const struct regmap_irq stpmic1_irqs[] = {
+> +	FILL_IRQS(IT_PONKEY_F),
+> +	FILL_IRQS(IT_PONKEY_R),
+> +	FILL_IRQS(IT_WAKEUP_F),
+> +	FILL_IRQS(IT_WAKEUP_R),
+> +	FILL_IRQS(IT_VBUS_OTG_F),
+> +	FILL_IRQS(IT_VBUS_OTG_R),
+> +	FILL_IRQS(IT_SWOUT_F),
+> +	FILL_IRQS(IT_SWOUT_R),
 > +
-> +		vdd_core: buck1 {
-> +			regulator-name = "vdd_core";
-> +			regulator-boot-on;
-> +			regulator-min-microvolt = <700000>;
-> +			regulator-max-microvolt = <1200000>;
-> +		};
-> +		vdd: buck3 {
-> +			regulator-name = "vdd";
-> +			regulator-min-microvolt = <3300000>;
-> +			regulator-max-microvolt = <3300000>;
-> +			regulator-boot-on;
-> +			regulator-pull-down;
-> +		};
-> +	};
-> diff --git a/include/dt-bindings/mfd/st,stpmic1.h b/include/dt-bindings/mfd/st,stpmic1.h
+> +	FILL_IRQS(IT_CURLIM_BUCK1),
+> +	FILL_IRQS(IT_CURLIM_BUCK2),
+> +	FILL_IRQS(IT_CURLIM_BUCK3),
+> +	FILL_IRQS(IT_CURLIM_BUCK4),
+> +	FILL_IRQS(IT_OCP_OTG),
+> +	FILL_IRQS(IT_OCP_SWOUT),
+> +	FILL_IRQS(IT_OCP_BOOST),
+> +	FILL_IRQS(IT_OVP_BOOST),
+> +
+> +	FILL_IRQS(IT_CURLIM_LDO1),
+> +	FILL_IRQS(IT_CURLIM_LDO2),
+> +	FILL_IRQS(IT_CURLIM_LDO3),
+> +	FILL_IRQS(IT_CURLIM_LDO4),
+> +	FILL_IRQS(IT_CURLIM_LDO5),
+> +	FILL_IRQS(IT_CURLIM_LDO6),
+> +	FILL_IRQS(IT_SHORT_SWOTG),
+> +	FILL_IRQS(IT_SHORT_SWOUT),
+> +
+> +	FILL_IRQS(IT_TWARN_F),
+> +	FILL_IRQS(IT_TWARN_R),
+> +	FILL_IRQS(IT_VINLOW_F),
+> +	FILL_IRQS(IT_VINLOW_R),
+> +	FILL_IRQS(IT_SWIN_F),
+> +	FILL_IRQS(IT_SWIN_R),
+> +};
+> +
+> +static const struct regmap_irq_chip stpmic1_regmap_irq_chip = {
+> +	.name = "pmic_irq",
+> +	.status_base = INT_PENDING_R1,
+> +	.mask_base = INT_CLEAR_MASK_R1,
+> +	.unmask_base = INT_SET_MASK_R1,
+> +	.ack_base = INT_CLEAR_R1,
+> +	.num_regs = STPMIC1_PMIC_NUM_IRQ_REGS,
+> +	.irqs = stpmic1_irqs,
+> +	.num_irqs = ARRAY_SIZE(stpmic1_irqs),
+> +};
+> +
+> +static bool stpmic1_reg_readable(struct device *dev, unsigned int reg)
+> +{
+> +	switch (reg) {
+> +	case TURN_ON_SR:
+> +	case TURN_OFF_SR:
+> +	case ICC_LDO_TURN_OFF_SR:
+> +	case ICC_BUCK_TURN_OFF_SR:
+> +	case RREQ_STATE_SR:
+> +	case VERSION_SR:
+> +	case SWOFF_PWRCTRL_CR:
+> +	case PADS_PULL_CR:
+> +	case BUCKS_PD_CR:
+> +	case LDO14_PD_CR:
+> +	case LDO56_VREF_PD_CR:
+> +	case VBUS_DET_VIN_CR:
+> +	case PKEY_TURNOFF_CR:
+> +	case BUCKS_MASK_RANK_CR:
+> +	case BUCKS_MASK_RESET_CR:
+> +	case LDOS_MASK_RANK_CR:
+> +	case LDOS_MASK_RESET_CR:
+> +	case WCHDG_CR:
+> +	case WCHDG_TIMER_CR:
+> +	case BUCKS_ICCTO_CR:
+> +	case LDOS_ICCTO_CR:
+> +	case BUCK1_ACTIVE_CR:
+> +	case BUCK2_ACTIVE_CR:
+> +	case BUCK3_ACTIVE_CR:
+> +	case BUCK4_ACTIVE_CR:
+> +	case VREF_DDR_ACTIVE_CR:
+> +	case LDO1_ACTIVE_CR:
+> +	case LDO2_ACTIVE_CR:
+> +	case LDO3_ACTIVE_CR:
+> +	case LDO4_ACTIVE_CR:
+> +	case LDO5_ACTIVE_CR:
+> +	case LDO6_ACTIVE_CR:
+> +	case BUCK1_STDBY_CR:
+> +	case BUCK2_STDBY_CR:
+> +	case BUCK3_STDBY_CR:
+> +	case BUCK4_STDBY_CR:
+> +	case VREF_DDR_STDBY_CR:
+> +	case LDO1_STDBY_CR:
+> +	case LDO2_STDBY_CR:
+> +	case LDO3_STDBY_CR:
+> +	case LDO4_STDBY_CR:
+> +	case LDO5_STDBY_CR:
+> +	case LDO6_STDBY_CR:
+> +	case BST_SW_CR:
+> +	case INT_PENDING_R1:
+> +	case INT_PENDING_R2:
+> +	case INT_PENDING_R3:
+> +	case INT_PENDING_R4:
+> +	case INT_DBG_LATCH_R1:
+> +	case INT_DBG_LATCH_R2:
+> +	case INT_DBG_LATCH_R3:
+> +	case INT_DBG_LATCH_R4:
+> +	case INT_CLEAR_R1:
+> +	case INT_CLEAR_R2:
+> +	case INT_CLEAR_R3:
+> +	case INT_CLEAR_R4:
+> +	case INT_MASK_R1:
+> +	case INT_MASK_R2:
+> +	case INT_MASK_R3:
+> +	case INT_MASK_R4:
+> +	case INT_SET_MASK_R1:
+> +	case INT_SET_MASK_R2:
+> +	case INT_SET_MASK_R3:
+> +	case INT_SET_MASK_R4:
+> +	case INT_CLEAR_MASK_R1:
+> +	case INT_CLEAR_MASK_R2:
+> +	case INT_CLEAR_MASK_R3:
+> +	case INT_CLEAR_MASK_R4:
+> +	case INT_SRC_R1:
+> +	case INT_SRC_R2:
+> +	case INT_SRC_R3:
+> +	case INT_SRC_R4:
+> +		return true;
+> +	default:
+> +		return false;
+> +	}
+> +}
+> +
+> +static bool stpmic1_reg_writeable(struct device *dev, unsigned int reg)
+> +{
+> +	switch (reg) {
+> +	case SWOFF_PWRCTRL_CR:
+> +	case PADS_PULL_CR:
+> +	case BUCKS_PD_CR:
+> +	case LDO14_PD_CR:
+> +	case LDO56_VREF_PD_CR:
+> +	case VBUS_DET_VIN_CR:
+> +	case PKEY_TURNOFF_CR:
+> +	case BUCKS_MASK_RANK_CR:
+> +	case BUCKS_MASK_RESET_CR:
+> +	case LDOS_MASK_RANK_CR:
+> +	case LDOS_MASK_RESET_CR:
+> +	case WCHDG_CR:
+> +	case WCHDG_TIMER_CR:
+> +	case BUCKS_ICCTO_CR:
+> +	case LDOS_ICCTO_CR:
+> +	case BUCK1_ACTIVE_CR:
+> +	case BUCK2_ACTIVE_CR:
+> +	case BUCK3_ACTIVE_CR:
+> +	case BUCK4_ACTIVE_CR:
+> +	case VREF_DDR_ACTIVE_CR:
+> +	case LDO1_ACTIVE_CR:
+> +	case LDO2_ACTIVE_CR:
+> +	case LDO3_ACTIVE_CR:
+> +	case LDO4_ACTIVE_CR:
+> +	case LDO5_ACTIVE_CR:
+> +	case LDO6_ACTIVE_CR:
+> +	case BUCK1_STDBY_CR:
+> +	case BUCK2_STDBY_CR:
+> +	case BUCK3_STDBY_CR:
+> +	case BUCK4_STDBY_CR:
+> +	case VREF_DDR_STDBY_CR:
+> +	case LDO1_STDBY_CR:
+> +	case LDO2_STDBY_CR:
+> +	case LDO3_STDBY_CR:
+> +	case LDO4_STDBY_CR:
+> +	case LDO5_STDBY_CR:
+> +	case LDO6_STDBY_CR:
+> +	case BST_SW_CR:
+> +	case INT_DBG_LATCH_R1:
+> +	case INT_DBG_LATCH_R2:
+> +	case INT_DBG_LATCH_R3:
+> +	case INT_DBG_LATCH_R4:
+> +	case INT_CLEAR_R1:
+> +	case INT_CLEAR_R2:
+> +	case INT_CLEAR_R3:
+> +	case INT_CLEAR_R4:
+> +	case INT_SET_MASK_R1:
+> +	case INT_SET_MASK_R2:
+> +	case INT_SET_MASK_R3:
+> +	case INT_SET_MASK_R4:
+> +	case INT_CLEAR_MASK_R1:
+> +	case INT_CLEAR_MASK_R2:
+> +	case INT_CLEAR_MASK_R3:
+> +	case INT_CLEAR_MASK_R4:
+> +		return true;
+> +	default:
+> +		return false;
+> +	}
+> +}
+> +
+> +static bool stpmic1_reg_volatile(struct device *dev, unsigned int reg)
+> +{
+> +	switch (reg) {
+> +	case TURN_ON_SR:
+> +	case TURN_OFF_SR:
+> +	case ICC_LDO_TURN_OFF_SR:
+> +	case ICC_BUCK_TURN_OFF_SR:
+> +	case RREQ_STATE_SR:
+> +	case INT_PENDING_R1:
+> +	case INT_PENDING_R2:
+> +	case INT_PENDING_R3:
+> +	case INT_PENDING_R4:
+> +	case INT_SRC_R1:
+> +	case INT_SRC_R2:
+> +	case INT_SRC_R3:
+> +	case INT_SRC_R4:
+> +	case WCHDG_CR:
+> +		return true;
+> +	default:
+> +		return false;
+> +	}
+> +}
+> +
+> +static int stpmic1_configure_from_dt(struct stpmic1_dev *pmic_dev)
+> +{
+> +	struct device_node *np = pmic_dev->np;
+> +	u32 reg;
+> +	int ret, irq;
+> +
+> +	irq = of_irq_get(np, 0);
+> +	if (irq <= 0) {
+> +		dev_err(pmic_dev->dev,
+
+If you do:
+
+struct device *dev = pmic_dev->dev
+
+... above you can save yourself a line break.
+
+> +			"Failed to get irq config: %d\n", irq);
+
+Failed to get the config, or the IRQ?
+
+Also should be "IRQ".
+
+> +		return irq ?: -ENODEV;
+
+Is 0 not a valid IRQ?  If not, what does it mean in this use-case?
+
+> +	}
+> +	pmic_dev->irq = irq;
+> +
+> +	irq = of_irq_get(np, 1);
+
+Please define what '0' and '1' mean here.
+
+> +	if (irq > 0)
+> +		pmic_dev->irq_wake = irq;
+> +	else
+> +		pmic_dev->irq_wake = pmic_dev->irq;
+> +
+> +	device_init_wakeup(pmic_dev->dev, true);
+
+'\n' here.
+
+> +	ret = dev_pm_set_dedicated_wake_irq(pmic_dev->dev, pmic_dev->irq_wake);
+> +	if (ret)
+> +		dev_warn(pmic_dev->dev, "failed to set up wakeup irq");
+
+"IRQ"
+
+> +	if (!of_property_read_u32(np, "st,main-control-register", &reg)) {
+> +		ret = regmap_update_bits(pmic_dev->regmap,
+> +					 SWOFF_PWRCTRL_CR,
+> +					 PWRCTRL_POLARITY_HIGH |
+> +					 PWRCTRL_PIN_VALID |
+> +					 RESTART_REQUEST_ENABLED,
+> +					 reg);
+> +		if (ret) {
+> +			dev_err(pmic_dev->dev,
+> +				"Failed to update main control register: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	if (!of_property_read_u32(np, "st,pads-pull-register", &reg)) {
+> +		ret = regmap_update_bits(pmic_dev->regmap,
+> +					 PADS_PULL_CR,
+> +					 WAKEUP_DETECTOR_DISABLED |
+> +					 PWRCTRL_PD_ACTIVE |
+> +					 PWRCTRL_PU_ACTIVE |
+> +					 WAKEUP_PD_ACTIVE,
+> +					 reg);
+> +		if (ret) {
+> +			dev_err(pmic_dev->dev,
+> +				"Failed to update pads control register: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	if (!of_property_read_u32(np, "st,vin-control-register", &reg)) {
+> +		ret = regmap_update_bits(pmic_dev->regmap,
+> +					 VBUS_DET_VIN_CR,
+> +					 VINLOW_CTRL_REG_MASK,
+> +					 reg);
+> +		if (ret) {
+> +			dev_err(pmic_dev->dev,
+> +				"Failed to update vin control register: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	if (!of_property_read_u32(np, "st,usb-control-register", &reg)) {
+> +		ret = regmap_update_bits(pmic_dev->regmap, BST_SW_CR,
+> +					 BOOST_OVP_DISABLED |
+> +					 VBUS_OTG_DETECTION_DISABLED |
+> +					 SW_OUT_DISCHARGE |
+> +					 VBUS_OTG_DISCHARGE |
+> +					 OCP_LIMIT_HIGH,
+> +					 reg);
+> +		if (ret) {
+> +			dev_err(pmic_dev->dev,
+> +				"Failed to update usb control register: %d\n",
+> +				ret);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +int stpmic1_device_init(struct stpmic1_dev *pmic_dev)
+> +{
+> +	int ret;
+> +	unsigned int val;
+> +
+> +	pmic_dev->regmap =
+> +	    devm_regmap_init_i2c(pmic_dev->i2c, &stpmic1_regmap_config);
+> +
+
+Remove this line.
+
+> +	if (IS_ERR(pmic_dev->regmap))
+> +		return PTR_ERR(pmic_dev->regmap);
+> +
+> +	ret = stpmic1_configure_from_dt(pmic_dev);
+
+You don't need all of these separate probe/init/setup functions if you;
+a) always call them and b) call them only once from a single call-site.
+
+If you *really* want to break-up probe() just pull out the DT stuff,
+but in all honesty, I wouldn't worry about it.
+
+> +	if (ret) {
+> +		dev_err(pmic_dev->dev,
+> +			"Unable to configure PMIC from Device Tree: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	/* Read Version ID */
+> +	ret = regmap_read(pmic_dev->regmap, VERSION_SR, &val);
+> +	if (ret) {
+> +		dev_err(pmic_dev->dev, "Unable to read pmic version\n");
+> +		return ret;
+> +	}
+> +	dev_info(pmic_dev->dev, "PMIC Chip Version: 0x%x\n", val);
+> +
+> +	/* Initialize PMIC IRQ Chip & IRQ domains associated */
+> +	ret = devm_regmap_add_irq_chip(pmic_dev->dev, pmic_dev->regmap,
+> +				       pmic_dev->irq,
+> +				       IRQF_ONESHOT | IRQF_SHARED,
+> +				       0, &stpmic1_regmap_irq_chip,
+> +				       &pmic_dev->irq_data);
+> +	if (ret) {
+> +		dev_err(pmic_dev->dev, "IRQ Chip registration failed: %d\n",
+> +			ret);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int stpmic1_probe(struct i2c_client *i2c,
+> +			 const struct i2c_device_id *id)
+> +{
+> +	struct stpmic1_dev *pmic;
+
+Remove the "_dev" and instead of 'pmic' please use 'ddata'.
+
+Although I don't see the point in having device data at all.  What do
+you use it for besides passing to functions called from probe()?
+
+> +	struct device *dev = &i2c->dev;
+> +	int ret;
+> +
+> +	pmic = devm_kzalloc(dev, sizeof(struct stpmic1_dev), GFP_KERNEL);
+> +	if (!pmic)
+> +		return -ENOMEM;
+> +
+> +	pmic->np = dev->of_node;
+> +
+> +	dev_set_drvdata(dev, pmic);
+
+Looks like either this or the i2c_get_clientdata() call is not
+correct.  Have you tested suspend/resume?  I suggest you do not use
+i2c_get_clientdata().
+
+> +	pmic->dev = dev;
+> +	pmic->i2c = i2c;
+> +
+> +	ret = stpmic1_device_init(pmic);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return devm_of_platform_populate(pmic->dev);
+> +}
+> +
+> +static const struct i2c_device_id stpmic1_id[] = {
+> +	{ "stpmic1", 0 },
+
+Why 0?
+
+> +	{}
+> +};
+> +
+> +MODULE_DEVICE_TABLE(i2c, stpmic1_id);
+> +
+> +#ifdef CONFIG_PM_SLEEP
+> +static int stpmic1_suspend(struct device *dev)
+> +{
+> +	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
+
+Should use to_i2c_client().
+
+> +	struct stpmic1_dev *pmic_dev = i2c_get_clientdata(i2c);
+
+How does this 'struct stpmic1_dev *' get into there?
+
+Also, if you put it into dev->driver_data instead, it will save a few
+lines.
+
+> +	if (device_may_wakeup(dev))
+> +		enable_irq_wake(pmic_dev->irq_wake);
+> +
+> +	disable_irq(pmic_dev->irq);
+
+'\n' here.
+
+> +	return 0;
+> +}
+> +
+> +static int stpmic1_resume(struct device *dev)
+> +{
+> +	struct i2c_client *i2c = container_of(dev, struct i2c_client, dev);
+> +	struct stpmic1_dev *pmic_dev = i2c_get_clientdata(i2c);
+
+As above.
+
+> +	int ret;
+> +
+> +	ret = regcache_sync(pmic_dev->regmap);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (device_may_wakeup(dev))
+> +		disable_irq_wake(pmic_dev->irq_wake);
+> +
+> +	enable_irq(pmic_dev->irq);
+
+'\n' here.
+
+> +	return 0;
+> +}
+> +#endif
+> +
+> +static SIMPLE_DEV_PM_OPS(stpmic1_pm, stpmic1_suspend, stpmic1_resume);
+> +
+> +static struct i2c_driver stpmic1_driver = {
+> +	.driver = {
+> +		   .name = "stpmic1",
+> +		   .pm = &stpmic1_pm,
+> +		   },
+
+Odd tabbing.
+
+> +	.probe = stpmic1_probe,
+> +	.id_table = stpmic1_id,
+> +};
+> +
+> +module_i2c_driver(stpmic1_driver);
+> +
+> +MODULE_DESCRIPTION("STPMIC1 PMIC Driver");
+> +MODULE_AUTHOR("Pascal Paillet");
+
+This normally contains an email address.
+
+> +MODULE_LICENSE("GPL v2");
+> diff --git a/include/linux/mfd/stpmic1.h b/include/linux/mfd/stpmic1.h
 > new file mode 100644
-> index 0000000..e32ac8f
+> index 0000000..024769d
 > --- /dev/null
-> +++ b/include/dt-bindings/mfd/st,stpmic1.h
-> @@ -0,0 +1,46 @@
+> +++ b/include/linux/mfd/stpmic1.h
+> @@ -0,0 +1,220 @@
 > +/* SPDX-License-Identifier: GPL-2.0 */
 > +/*
 > + * Copyright (C) STMicroelectronics 2018 - All Rights Reserved
 > + * Author: Philippe Peurichard <philippe.peurichard@st.com>,
 > + * Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
-
- * Author(s): Philippe Peurichard <philippe.peurichard@st.com>,
- *            Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
-
 > + */
 > +
-> +#ifndef __DT_BINDINGS_STPMIC1_H__
-> +#define __DT_BINDINGS_STPMIC1_H__
+> +#ifndef __LINUX_MFD_STPMIC1_H
+> +#define __LINUX_MFD_STPMIC1_H
 > +
-> +/* IRQ definitions */
-> +#define IT_PONKEY_F 0
-> +#define IT_PONKEY_R 1
-> +#define IT_WAKEUP_F 2
-> +#define IT_WAKEUP_R 3
-> +#define IT_VBUS_OTG_F 4
-> +#define IT_VBUS_OTG_R 5
-> +#define IT_SWOUT_F 6
-> +#define IT_SWOUT_R 7
+> +#define TURN_ON_SR		0x1
+> +#define TURN_OFF_SR		0x2
+> +#define ICC_LDO_TURN_OFF_SR	0x3
+> +#define ICC_BUCK_TURN_OFF_SR	0x4
+> +#define RREQ_STATE_SR		0x5
+> +#define VERSION_SR		0x6
+> +
+> +#define SWOFF_PWRCTRL_CR	0x10
+> +#define PADS_PULL_CR		0x11
+> +#define BUCKS_PD_CR		0x12
+> +#define LDO14_PD_CR		0x13
+> +#define LDO56_VREF_PD_CR	0x14
+> +#define VBUS_DET_VIN_CR		0x15
+> +#define PKEY_TURNOFF_CR		0x16
+> +#define BUCKS_MASK_RANK_CR	0x17
+> +#define BUCKS_MASK_RESET_CR	0x18
+> +#define LDOS_MASK_RANK_CR	0x19
+> +#define LDOS_MASK_RESET_CR	0x1A
+> +#define WCHDG_CR		0x1B
+> +#define WCHDG_TIMER_CR		0x1C
+> +#define BUCKS_ICCTO_CR		0x1D
+> +#define LDOS_ICCTO_CR		0x1E
+> +
+> +#define BUCK1_ACTIVE_CR		0x20
+> +#define BUCK2_ACTIVE_CR		0x21
+> +#define BUCK3_ACTIVE_CR		0x22
+> +#define BUCK4_ACTIVE_CR		0x23
+> +#define VREF_DDR_ACTIVE_CR	0x24
+> +#define LDO1_ACTIVE_CR		0x25
+> +#define LDO2_ACTIVE_CR		0x26
+> +#define LDO3_ACTIVE_CR		0x27
+> +#define LDO4_ACTIVE_CR		0x28
+> +#define LDO5_ACTIVE_CR		0x29
+> +#define LDO6_ACTIVE_CR		0x2A
+> +
+> +#define BUCK1_STDBY_CR		0x30
+> +#define BUCK2_STDBY_CR		0x31
+> +#define BUCK3_STDBY_CR		0x32
+> +#define BUCK4_STDBY_CR		0x33
+> +#define VREF_DDR_STDBY_CR	0x34
+> +#define LDO1_STDBY_CR		0x35
+> +#define LDO2_STDBY_CR		0x36
+> +#define LDO3_STDBY_CR		0x37
+> +#define LDO4_STDBY_CR		0x38
+> +#define LDO5_STDBY_CR		0x39
+> +#define LDO6_STDBY_CR		0x3A
+> +
+> +#define BST_SW_CR		0x40
+> +
+> +#define INT_PENDING_R1		0x50
+> +#define INT_PENDING_R2		0x51
+> +#define INT_PENDING_R3		0x52
+> +#define INT_PENDING_R4		0x53
+> +
+> +#define INT_DBG_LATCH_R1	0x60
+> +#define INT_DBG_LATCH_R2	0x61
+> +#define INT_DBG_LATCH_R3	0x62
+> +#define INT_DBG_LATCH_R4	0x63
+> +
+> +#define INT_CLEAR_R1		0x70
+> +#define INT_CLEAR_R2		0x71
+> +#define INT_CLEAR_R3		0x72
+> +#define INT_CLEAR_R4		0x73
+> +
+> +#define INT_MASK_R1		0x80
+> +#define INT_MASK_R2		0x81
+> +#define INT_MASK_R3		0x82
+> +#define INT_MASK_R4		0x83
+> +
+> +#define INT_SET_MASK_R1		0x90
+> +#define INT_SET_MASK_R2		0x91
+> +#define INT_SET_MASK_R3		0x92
+> +#define INT_SET_MASK_R4		0x93
+> +
+> +#define INT_CLEAR_MASK_R1	0xA0
+> +#define INT_CLEAR_MASK_R2	0xA1
+> +#define INT_CLEAR_MASK_R3	0xA2
+> +#define INT_CLEAR_MASK_R4	0xA3
+> +
+> +#define INT_SRC_R1		0xB0
+> +#define INT_SRC_R2		0xB1
+> +#define INT_SRC_R3		0xB2
+> +#define INT_SRC_R4		0xB3
+> +
+> +#define PMIC_MAX_REGISTER_ADDRESS INT_SRC_R4
+> +
+> +#define STPMIC1_PMIC_NUM_IRQ_REGS 4
+> +
+> +#define TURN_OFF_SR_ICC_EVENT	0x08
+> +
+> +#define LDO_VOLTAGE_MASK		GENMASK(6, 2)
+> +#define BUCK_VOLTAGE_MASK		GENMASK(7, 2)
+> +#define LDO_BUCK_VOLTAGE_SHIFT		2
+> +
+> +#define LDO_ENABLE_MASK			BIT(0)
+> +#define BUCK_ENABLE_MASK		BIT(0)
+> +
+> +#define BUCK_HPLP_ENABLE_MASK		BIT(1)
+> +#define BUCK_HPLP_SHIFT			1
+> +
+> +#define STDBY_ENABLE_MASK  BIT(0)
+> +
+> +#define BUCKS_PD_CR_REG_MASK	GENMASK(7, 0)
+> +#define BUCK_MASK_RANK_REGISTER_MASK	GENMASK(3, 0)
+> +#define BUCK_MASK_RESET_REGISTER_MASK	GENMASK(3, 0)
+> +#define LDO1234_PULL_DOWN_REGISTER_MASK	GENMASK(7, 0)
+> +#define LDO56_VREF_PD_CR_REG_MASK	GENMASK(5, 0)
+> +#define LDO_MASK_RANK_REGISTER_MASK	GENMASK(5, 0)
+> +#define LDO_MASK_RESET_REGISTER_MASK	GENMASK(5, 0)
+> +
+> +#define BUCK1_PULL_DOWN_REG		BUCKS_PD_CR
+> +#define BUCK1_PULL_DOWN_MASK		BIT(0)
+> +#define BUCK2_PULL_DOWN_REG		BUCKS_PD_CR
+> +#define BUCK2_PULL_DOWN_MASK		BIT(2)
+> +#define BUCK3_PULL_DOWN_REG		BUCKS_PD_CR
+> +#define BUCK3_PULL_DOWN_MASK		BIT(4)
+> +#define BUCK4_PULL_DOWN_REG		BUCKS_PD_CR
+> +#define BUCK4_PULL_DOWN_MASK		BIT(6)
+> +
+> +#define LDO1_PULL_DOWN_REG		LDO14_PD_CR
+> +#define LDO1_PULL_DOWN_MASK		BIT(0)
+> +#define LDO2_PULL_DOWN_REG		LDO14_PD_CR
+> +#define LDO2_PULL_DOWN_MASK		BIT(2)
+> +#define LDO3_PULL_DOWN_REG		LDO14_PD_CR
+> +#define LDO3_PULL_DOWN_MASK		BIT(4)
+> +#define LDO4_PULL_DOWN_REG		LDO14_PD_CR
+> +#define LDO4_PULL_DOWN_MASK		BIT(6)
+> +#define LDO5_PULL_DOWN_REG		LDO56_VREF_PD_CR
+> +#define LDO5_PULL_DOWN_MASK		BIT(0)
+> +#define LDO6_PULL_DOWN_REG		LDO56_VREF_PD_CR
+> +#define LDO6_PULL_DOWN_MASK		BIT(2)
+> +#define VREF_DDR_PULL_DOWN_REG		LDO56_VREF_PD_CR
+> +#define VREF_DDR_PULL_DOWN_MASK		BIT(4)
+> +
+> +#define BUCKS_ICCTO_CR_REG_MASK	GENMASK(6, 0)
+> +#define LDOS_ICCTO_CR_REG_MASK	GENMASK(5, 0)
+> +
+> +#define LDO_BYPASS_MASK			BIT(7)
+> +
+> +/* Main PMIC Control Register
+> + * SWOFF_PWRCTRL_CR
+> + * Address : 0x10
+> + */
+> +#define ICC_EVENT_ENABLED		BIT(4)
+> +#define PWRCTRL_POLARITY_HIGH		BIT(3)
+> +#define PWRCTRL_PIN_VALID		BIT(2)
+> +#define RESTART_REQUEST_ENABLED		BIT(1)
+> +#define SOFTWARE_SWITCH_OFF_ENABLED	BIT(0)
+> +
+> +/* Main PMIC PADS Control Register
+> + * PADS_PULL_CR
+> + * Address : 0x11
+> + */
+> +#define WAKEUP_DETECTOR_DISABLED	BIT(4)
+> +#define PWRCTRL_PD_ACTIVE		BIT(3)
+> +#define PWRCTRL_PU_ACTIVE		BIT(2)
+> +#define WAKEUP_PD_ACTIVE		BIT(1)
+> +#define PONKEY_PU_ACTIVE		BIT(0)
+> +
+> +/* Main PMIC VINLOW Control Register
+> + * VBUS_DET_VIN_CRC DMSC
+> + * Address : 0x15
+> + */
+> +#define SWIN_DETECTOR_ENABLED		BIT(7)
+> +#define SWOUT_DETECTOR_ENABLED		BIT(6)
+> +#define VINLOW_ENABLED			BIT(0)
+> +#define VINLOW_CTRL_REG_MASK		GENMASK(7, 0)
+> +
+> +/* USB Control Register
+> + * Address : 0x40
+> + */
+> +#define BOOST_OVP_DISABLED		BIT(7)
+> +#define VBUS_OTG_DETECTION_DISABLED	BIT(6)
+> +#define SW_OUT_DISCHARGE		BIT(5)
+> +#define VBUS_OTG_DISCHARGE		BIT(4)
+> +#define OCP_LIMIT_HIGH			BIT(3)
+> +#define SWIN_SWOUT_ENABLED		BIT(2)
+> +#define USBSW_OTG_SWITCH_ENABLED	BIT(1)
+> +#define BOOST_ENABLED			BIT(0)
+> +
+> +/* PKEY_TURNOFF_CR
+> + * Address : 0x16
+> + */
+> +#define PONKEY_PWR_OFF			BIT(7)
+> +#define PONKEY_CC_FLAG_CLEAR		BIT(6)
+> +#define PONKEY_TURNOFF_TIMER_MASK	GENMASK(3, 0)
+> +#define PONKEY_TURNOFF_MASK		GENMASK(7, 0)
+> +
+> +/*
+> + * struct stpmic1_dev - stpmic1 master device for sub-drivers
+> + * @dev: master device of the chip (can be used to access platform data)
+> + * @i2c: i2c client private data for regulator
+> + * @np: device DT node pointer
+> + * @irq_base: base IRQ numbers
+> + * @irq: generic IRQ number
+> + * @irq_wake: wakeup IRQ number
+> + * @regmap_irq_chip_data: irq chip data
+> + */
 
-Please ensure these are all tab aligned for readability.
+What do you do with this?
 
-> +#define IT_CURLIM_BUCK1 8
-> +#define IT_CURLIM_BUCK2 9
-> +#define IT_CURLIM_BUCK3 10
-> +#define IT_CURLIM_BUCK4 11
-> +#define IT_OCP_OTG 12
-> +#define IT_OCP_SWOUT 13
-> +#define IT_OCP_BOOST 14
-> +#define IT_OVP_BOOST 15
+I'm fairly sure not all of these attributes are required.
+
+> +struct stpmic1_dev {
+> +	struct device *dev;
+> +	struct i2c_client *i2c;
+> +	struct regmap *regmap;
+> +	struct device_node *np;
+> +	unsigned int irq_base;
+> +	int irq;
+> +	int irq_wake;
+> +	struct regmap_irq_chip_data *irq_data;
+> +};
 > +
-> +#define IT_CURLIM_LDO1 16
-> +#define IT_CURLIM_LDO2 17
-> +#define IT_CURLIM_LDO3 18
-> +#define IT_CURLIM_LDO4 19
-> +#define IT_CURLIM_LDO5 20
-> +#define IT_CURLIM_LDO6 21
-> +#define IT_SHORT_SWOTG 22
-> +#define IT_SHORT_SWOUT 23
-> +
-> +#define IT_TWARN_F 24
-> +#define IT_TWARN_R 25
-> +#define IT_VINLOW_F 26
-> +#define IT_VINLOW_R 27
-> +#define IT_SWIN_F 30
-> +#define IT_SWIN_R 31
-> +
-> +#endif /* __DT_BINDINGS_STPMIC1_H__ */
+> +#endif /*  __LINUX_MFD_STPMIC1_H */
 
 -- 
 Lee Jones [李琼斯]

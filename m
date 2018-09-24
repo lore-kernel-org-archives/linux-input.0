@@ -1,75 +1,67 @@
-From: Dmitry Vyukov <dvyukov@google.com>
-Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
-Date: Sun, 23 Sep 2018 18:33:37 +0200
-Message-ID: <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com>
-References: <000000000000e5f76c057664e73d@google.com> <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
+ for legacy boards
+Date: Mon, 24 Sep 2018 10:29:53 +0300
+Message-ID: <20180924072953.GH11965@kuha.fi.intel.com>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-3-dmitry.torokhov@gmail.com>
+ <20180919151026.GB11965@kuha.fi.intel.com>
+ <20180919171326.GB116719@dtor-ws>
+ <20180920101648.GC11965@kuha.fi.intel.com>
+ <20180921233336.GB44099@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180921233336.GB44099@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Christoph Lameter <cl@linux.com>, Pekka Enberg <penberg@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux-MM <linux-mm@kvack.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Sep 21, 2018 at 7:52 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Fri, Sep 21, 2018 at 10:24 AM syzbot
-> <syzbot+87829a10073277282ad1@syzkaller.appspotmail.com> wrote:
->>
->> Hello,
->>
->> syzbot found the following crash on:
->>
->> HEAD commit:    234b69e3e089 ocfs2: fix ocfs2 read block panic
->> git tree:       upstream
->> console output: https://syzkaller.appspot.com/x/log.txt?x=131f761a400000
->> kernel config:  https://syzkaller.appspot.com/x/.config?x=5fa12be50bca08d8
->> dashboard link: https://syzkaller.appspot.com/bug?extid=87829a10073277282ad1
->> compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
->> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=126ca61a400000
->> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=119d6511400000
->>
->> IMPORTANT: if you fix the bug, please add the following tag to the commit:
->> Reported-by: syzbot+87829a10073277282ad1@syzkaller.appspotmail.com
->>
->> input: syz0 as /devices/virtual/input/input25382
->> WARNING: CPU: 0 PID: 11238 at mm/slab_common.c:1031 kmalloc_slab+0x56/0x70
->> mm/slab_common.c:1031
->> Kernel panic - not syncing: panic_on_warn set ...
->
-> This is coming from:
->
-> commit 6286ae97d10ea2b5cd90532163797ab217bfdbdf
-> Author: Christoph Lameter <cl@linux.com>
-> Date:   Fri May 3 15:43:18 2013 +0000
->
->    slab: Return NULL for oversized allocations
->
->    The inline path seems to have changed the SLAB behavior for very large
->    kmalloc allocations with  commit e3366016 ("slab: Use common
->    kmalloc_index/kmalloc_size functions"). This patch restores the old
->    behavior but also adds diagnostics so that we can figure where in the
->    code these large allocations occur.
->
->    Reported-and-tested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
->    Signed-off-by: Christoph Lameter <cl@linux.com>
->    Link: http://lkml.kernel.org/r/201305040348.CIF81716.OStQOHFJMFLOVF@I-love.SAKURA.ne.jp
->    [ penberg@kernel.org: use WARN_ON_ONCE ]
->    Signed-off-by: Pekka Enberg <penberg@kernel.org>
->
-> You'll have to convince Cristoph that WARN_ON_ONCE() there is evil and
-> has to be eradicated so that KASAN can run (but then we'd not know
-> easily that some allocation failed because it was too big and never
-> had a chance of succeeding vs. ordinary memory failure).
->
-> Can I recommend that maybe you introduce infrastructure for
-> panic_on_warn to ignore certain "well known" warnings?
+On Fri, Sep 21, 2018 at 04:33:36PM -0700, Dmitry Torokhov wrote:
+> On Thu, Sep 20, 2018 at 01:16:48PM +0300, Heikki Krogerus wrote:
+> > On Wed, Sep 19, 2018 at 10:13:26AM -0700, Dmitry Torokhov wrote:
+> > > > > diff --git a/drivers/base/pset_property.c b/drivers/base/pset_property.c
+> > > > > index 08ecc13080ae..63f2377aefe8 100644
+> > > > > --- a/drivers/base/pset_property.c
+> > > > > +++ b/drivers/base/pset_property.c
+> > > > > @@ -18,6 +18,11 @@ struct property_set {
+> > > > >  	struct device *dev;
+> > > > >  	struct fwnode_handle fwnode;
+> > > > >  	const struct property_entry *properties;
+> > > > > +
+> > > > > +	struct property_set *parent;
+> > > > > +	/* Entry in parent->children list */
+> > > > > +	struct list_head child_node;
+> > > > > +	struct list_head children;
+> > > > 
+> > > > Add
+> > > > 
+> > > >         const char *name;
+> > > > 
+> > > > and you can implement also pset_get_named_child_node().
+> > > 
+> > > Or
+> > > 	char name[];
+> > > 
+> > > to avoid separate allocation.
+> > 
+> > Let's not do that, especially if you are planning on exporting this
+> > structure.
+> 
+> Can you please elaborate why? Not using pointer saves us 4/8 bytes +
+> however much memory we need for bookkeeping for the extra chunk. Given
+> that majority of pset nodes are unnamed this seems wasteful.
+> 
+> > If the name is coming from .rodata, there is no need to
+> > allocate anything for the name. Check kstrdup_const().
+> 
+> The data is most likely coming as __initconst so we do need to copy it.
 
-Hi Christoph,
+OK, I did not consider that. Yes, it makes sense to always copy.
 
-What was the motivation behind that WARNING about large allocations in
-kmalloc? Why do we want to know about them? Is the general policy that
-kmalloc calls with potentially large size requests need to use NOWARN?
-If this WARNING still considered useful? Or we should change it to
-pr_err?
+Thanks,
+
+-- 
+heikki

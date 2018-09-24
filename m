@@ -1,28 +1,89 @@
 From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
  for legacy boards
-Date: Mon, 24 Sep 2018 13:20:20 +0300
-Message-ID: <20180924102020.GJ11965@kuha.fi.intel.com>
+Date: Mon, 24 Sep 2018 16:20:50 +0300
+Message-ID: <20180924132050.GK11965@kuha.fi.intel.com>
 References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
  <20180917181603.125492-3-dmitry.torokhov@gmail.com>
  <20180920135348.GF11965@kuha.fi.intel.com>
- <CACRpkdZtM4G=4r3m6vLTms9MJFkdiOdPFucebO-Z0Kh-3ws3+g@mail.gmail.com>
+ <20180921233119.GA44099@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdZtM4G=4r3m6vLTms9MJFkdiOdPFucebO-Z0Kh-3ws3+g@mail.gmail.com>
+In-Reply-To: <20180921233119.GA44099@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Linux Input <linux-input@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+Hi Dmitry,
 
-On Fri, Sep 21, 2018 at 08:36:53AM -0700, Linus Walleij wrote:
-> On Thu, Sep 20, 2018 at 6:53 AM Heikki Krogerus
-> <heikki.krogerus@linux.intel.com> wrote:
+On Fri, Sep 21, 2018 at 04:31:19PM -0700, Dmitry Torokhov wrote:
+> > > +	if (!parent_pset)
+> > > +		return ERR_PTR(-EINVAL);
+> > > +
+> > > +	p = pset_create_set(properties);
+> > > +	if (IS_ERR(p))
+> > > +		return ERR_CAST(p);
+> > > +
+> > > +	p->dev = dev;
+> > 
+> > That looks wrong.
+> > 
+> > I'm guessing the assumption here is that the child nodes will never be
+> > assigned to their own devices, but you can't do that. It will limit
+> > the use of the child nodes to a very small number of cases, possibly
+> > only to gpios.
 > 
+> If I need to assign a node to a device I'll use device_add_properties()
+> API. device_add_child_properties() is for nodes living "below" the
+> device.
+
+device_add_properties() is not available to us before we have the
+actual struct device meant for the properties. If the child device is
+populated outside of the "boardfiles" then we have to be able to link
+it to the child node afterwards.
+
+But I took a closer look at the code and realized that you are not
+using that p->dev with the child nodes for anything, so I may be wrong
+about this. You are not actually linking the child nodes to that
+device here.
+
+> All nodes (the primary/secondary and children) would point to the owning
+> device, just for convenience.
+
+Since you don't use that for anything, then drop that line. It's only
+confusing.
+
+And besides, since we will have separate child devices for those child
+nodes, there is a small change that somebody needs to call
+device_remove_properties(child_dev). At least then that operation
+becomes safe, as it's a nop with the child pset nodes.
+
+> > I think that has to be fixed. It should not be a big deal. Just expect
+> > the child nodes to be removed separately, and add ref counting to the
+> > struct property_set handling.
+> 
+> Why do we need to remove them separately and what do we need refcounting
+> for?
+
+If you could remove the nodes independently, then obviously the parent
+can not be removed before the children. The ref count would be there
+to prevent that.
+
+Though my original comment is not valid, I still think that the child
+nodes should be created and destroyed separately. Actually, I don't
+think we should be talking about child nodes in the API at all. Check
+below..
+
+> > > +	p->parent = parent_pset;
+> > > +	list_add_tail(&p->child_node, &parent_pset->children);
+> > > +
+> > > +	return &p->fwnode;
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(device_add_child_properties);
+> > 
 > > The child nodes will change the purpose of the build-in property
 > > support. Originally the goal was just to support adding of build-in
 > > device properties to real firmware nodes, but things have changed
@@ -30,59 +91,27 @@ On Fri, Sep 21, 2018 at 08:36:53AM -0700, Linus Walleij wrote:
 > > build-in device property support, so we should be talking about adding
 > > pset type child nodes to pset type parent nodes in the API:
 > > fwnode_pset_add_child_node(), or something like that.
-> >
-> > I'm sorry to be a bit of pain in the butt with this. The build-in
-> > property support is a hack, it always was. A useful hack, but hack
-> > nevertheless. That means we need to be extra careful when expanding
-> > it, like here.
 > 
-> I dunno how we got to here, what I tried to solve and Dmitry tries
-> to make more general is converting old boardfiles to use fwnode, because
-> I initially tried to just support gpio descriptors from board files.
+> OK, I can change device_add_child_properties() to
+> fwnode_pset_add_child_node() if Rafael would prefer this name.
 
-I understand that, but what I'm trying to say is that the solution for
-the child nodes is not generic enough. I'll try to explain below.
+So not even that. We should have API like this:
 
-> If boardfiles is what you mean with "build-in property support" I don't
-> know, it predates both device tree and ACPI and any other hardware
-> descriptions on the ARM architecture, from the perspective of these
-> systems things are fine and the hardware description languages
-> are the novelty...
+struct fwnode_handle *
+fwnode_pset_create(struct fwnode_handle *parent, const char *name,
+                   const struct property_entry *props);
 
-Rafael talked about "build-in properties" at one point, and I just
-started using that expression after that, but it's probable not the
-best term to describe this thing.
+void fwnode_pset_destroy(struct fwnode_handle *fwnode);
 
-But please note that we are not talking about only static information
-with these property sets. They can be populated dynamically as well,
-so this kind of extensions must consider and support that. On top of
-board files we need to consider things like glue and probing drivers
-and even buses in some cases.
+int device_add_properties(struct device *dev,
+                          const struct fwnode_handle *pset_node);
 
-> But I guess you know because you worked with OMAP :)
-> 
-> So there is something I don't understand here.
+void device_remove_properties(struct device *dev);
 
-Sorry for the poor choice of words on my behalf. I guess I'm not
-explaining my point properly. Let me try again.
-
-So I'm seeing a case that this solution does not seem to be able to
-support, but ultimately it will need to do so: with USB ports we are
-going to need to be able to assign a device to the child nodes that
-represent those ports.
-
-To be honest, normally I would not care about that, and I would simply
-wait for this to go into mainline, and then propose a modification to
-it so it can also support that other case.
-
-However, this time I feel that we should not do that. The solution for
-the child nodes should be implemented so that it can support all the
-known cases from the beginning. The reason for that is because I fear
-that we'll end up having a pile of ad-hoc style solutions, each
-solving an individual problem, and a whole lot of duplicated stuff for
-these property sets. In the end we will have spaghetti with meatballs
-that nobody is able fully understand nor handle. And I really see a
-strong possibility for that to happen here.
+So basically we separate creation of the nodes from linking them to the
+devices completely. That would give this API much better structure. It
+would scale better, for example, it would then be possible to add
+child nodes from different locations if needed.
 
 
 Thanks,

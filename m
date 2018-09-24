@@ -1,35 +1,51 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hyper-v: Fix wakeup from suspend-to-idle
-Date: Mon, 24 Sep 2018 11:24:12 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1809241123040.15880@cbobk.fhfr.pm>
-References: <20180912161101.2634-1-vkuznets@redhat.com>
+Subject: Re: [PATCH V2] hid: hid-core: Fix a sleep-in-atomic-context bug in
+ __hid_request()
+Date: Mon, 24 Sep 2018 11:26:06 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1809241124480.15880@cbobk.fhfr.pm>
+References: <20180913033432.16336-1-baijiaju1990@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180912161101.2634-1-vkuznets@redhat.com>
+In-Reply-To: <20180913033432.16336-1-baijiaju1990@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: linux-pm@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 12 Sep 2018, Vitaly Kuznetsov wrote:
+On Thu, 13 Sep 2018, Jia-Ju Bai wrote:
 
-> It makes little sense but still possible to put Hyper-V guests into
-> suspend-to-idle state. To wake them up two wakeup sources were registered
-> in the past: hyperv-keyboard and hid-hyperv. However, since
-> commit eed4d47efe95 ("ACPI / sleep: Ignore spurious SCI wakeups from
-> suspend-to-idle") pm_wakeup_event() from these devices is ignored. Switch
-> to pm_wakeup_hard_event() API as these devices are actually the only
-> possible way to wakeup Hyper-V guests.
+> hid_alloc_report_buf() has to be called with GFP_ATOMIC in 
+> __hid_request(), because there are the following callchains 
+> leading to __hid_request() being an atomic context:
 > 
-> Fixes: eed4d47efe95 (ACPI / sleep: Ignore spurious SCI wakeups from suspend-to-idle)
-> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> ---
->  drivers/hid/hid-hyperv.c              | 2 +-
+> picolcd_send_and_wait (acquire a spinlock)
+>   hid_hw_request
+>     __hid_request
+>       hid_alloc_report_buf(GFP_KERNEL)
+> 
+> picolcd_reset (acquire a spinlock)
+>   hid_hw_request
+>     __hid_request
+>       hid_alloc_report_buf(GFP_KERNEL)
+> 
+> lg4ff_play (acquire a spinlock)
+>   hid_hw_request
+>     __hid_request
+>       hid_alloc_report_buf(GFP_KERNEL)
+> 
+> lg4ff_set_autocenter_ffex (acquire a spinlock)
+>   hid_hw_request
+>     __hid_request
+>       hid_alloc_report_buf(GFP_KERNEL)
 
-	Acked-by: Jiri Kosina <jkosina@suse.cz>
+Hm, so it's always drivers calling out into core in atomic context. So 
+either we take this, and put our bets on being able to allocate the buffer 
+without sleeping, or actually fix the few drivers (it's just lg4ff and 
+picolcd at the end of the day) not to do that, and explicitly anotate 
+__hid_request() with might_sleep().
 
-for the above. I guess this'd better go through ACPI tree?
+Hmm?
 
 Thanks,
 

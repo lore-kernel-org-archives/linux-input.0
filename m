@@ -1,67 +1,42 @@
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
- for legacy boards
-Date: Mon, 24 Sep 2018 10:29:53 +0300
-Message-ID: <20180924072953.GH11965@kuha.fi.intel.com>
-References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
- <20180917181603.125492-3-dmitry.torokhov@gmail.com>
- <20180919151026.GB11965@kuha.fi.intel.com>
- <20180919171326.GB116719@dtor-ws>
- <20180920101648.GC11965@kuha.fi.intel.com>
- <20180921233336.GB44099@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 0/9] HID: intel ISH: Cleanup patches
+Date: Mon, 24 Sep 2018 11:21:59 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1809241121470.15880@cbobk.fhfr.pm>
+References: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180921233336.GB44099@dtor-ws>
+In-Reply-To: <20180911234421.10691-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Sep 21, 2018 at 04:33:36PM -0700, Dmitry Torokhov wrote:
-> On Thu, Sep 20, 2018 at 01:16:48PM +0300, Heikki Krogerus wrote:
-> > On Wed, Sep 19, 2018 at 10:13:26AM -0700, Dmitry Torokhov wrote:
-> > > > > diff --git a/drivers/base/pset_property.c b/drivers/base/pset_property.c
-> > > > > index 08ecc13080ae..63f2377aefe8 100644
-> > > > > --- a/drivers/base/pset_property.c
-> > > > > +++ b/drivers/base/pset_property.c
-> > > > > @@ -18,6 +18,11 @@ struct property_set {
-> > > > >  	struct device *dev;
-> > > > >  	struct fwnode_handle fwnode;
-> > > > >  	const struct property_entry *properties;
-> > > > > +
-> > > > > +	struct property_set *parent;
-> > > > > +	/* Entry in parent->children list */
-> > > > > +	struct list_head child_node;
-> > > > > +	struct list_head children;
-> > > > 
-> > > > Add
-> > > > 
-> > > >         const char *name;
-> > > > 
-> > > > and you can implement also pset_get_named_child_node().
-> > > 
-> > > Or
-> > > 	char name[];
-> > > 
-> > > to avoid separate allocation.
-> > 
-> > Let's not do that, especially if you are planning on exporting this
-> > structure.
-> 
-> Can you please elaborate why? Not using pointer saves us 4/8 bytes +
-> however much memory we need for bookkeeping for the extra chunk. Given
-> that majority of pset nodes are unnamed this seems wasteful.
-> 
-> > If the name is coming from .rodata, there is no need to
-> > allocate anything for the name. Check kstrdup_const().
-> 
-> The data is most likely coming as __initconst so we do need to copy it.
+On Tue, 11 Sep 2018, Srinivas Pandruvada wrote:
 
-OK, I did not consider that. Yes, it makes sense to always copy.
+> This series is a cleanup series only and help to abstract client API.
+> 
+> There are no functional changes.
+> 
+> Even Xu (6):
+>   hid: intel-ish-hid: ishtp: add helper function for driver data get/set
+>   hid: intel-ish-hid: use helper function for private driver data
+>     set/get
+>   hid: intel-ish-hid: ishtp: add helper functions for client buffer
+>     operation
+>   hid: intel-ish-hid: use helper function to access client buffer
+>   hid: intel-ish-hid: ishtp: add helper function for client search
+>   hid: intel-ish-hid: use helper function to search client id
+> 
+> Hong Liu (2):
+>   HID: intel-ish-hid: use resource-managed api
+>   HID: intel-ish-hid: using list_head for ipc write queue
+> 
+> Srinivas Pandruvada (1):
+>   HID: intel_ish-hid: Enhance API to get ring buffer sizes
 
-Thanks,
+Applied to for-4.20/ish.
 
 -- 
-heikki
+Jiri Kosina
+SUSE Labs

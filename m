@@ -1,75 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
-Date: Mon, 24 Sep 2018 11:41:58 -0700
-Message-ID: <20180924184158.GA156847@dtor-ws>
-References: <000000000000e5f76c057664e73d@google.com>
- <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
- <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com>
- <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
- <CACT4Y+ayX8vzd2JPrLeFhf3K_Quf4x6SDtmtkNJuwNLyOh67tQ@mail.gmail.com>
- <010001660c4a8bbe-91200766-00df-48bd-bc60-a03da2ccdb7d-000000@email.amazonses.com>
+Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
+ for legacy boards
+Date: Mon, 24 Sep 2018 11:45:43 -0700
+Message-ID: <20180924184543.GB156847@dtor-ws>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-3-dmitry.torokhov@gmail.com>
+ <20180920135348.GF11965@kuha.fi.intel.com>
+ <20180921233119.GA44099@dtor-ws>
+ <20180924132050.GK11965@kuha.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <010001660c4a8bbe-91200766-00df-48bd-bc60-a03da2ccdb7d-000000@email.amazonses.com>
+In-Reply-To: <20180924132050.GK11965@kuha.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christopher Lameter <cl@linux.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>, syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Pekka Enberg <penberg@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux-MM <linux-mm@kvack.org>
+To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 24, 2018 at 03:55:04PM +0000, Christopher Lameter wrote:
-> On Mon, 24 Sep 2018, Dmitry Vyukov wrote:
+On Mon, Sep 24, 2018 at 04:20:50PM +0300, Heikki Krogerus wrote:
+> Hi Dmitry,
 > 
-> > On Mon, Sep 24, 2018 at 5:08 PM, Christopher Lameter <cl@linux.com> wrote:
-> > > On Sun, 23 Sep 2018, Dmitry Vyukov wrote:
-> > >
-> > >> What was the motivation behind that WARNING about large allocations in
-> > >> kmalloc? Why do we want to know about them? Is the general policy that
-> > >> kmalloc calls with potentially large size requests need to use NOWARN?
-> > >> If this WARNING still considered useful? Or we should change it to
-> > >> pr_err?
-> > >
-> > > In general large allocs should be satisfied by the page allocator. The
-> > > slab allocators are used for allocating and managing small objects. The
-> > > page allocator has mechanisms to deal with large objects (compound pages,
-> > > multiple page sized allocs etc).
-> >
-> > I am asking more about the status of this warning. If it fires in
-> > input_mt_init_slots(), does it mean that input_mt_init_slots() needs
-> > to be fixed? If not, then we need to change this warning to something
-> > else.
+> On Fri, Sep 21, 2018 at 04:31:19PM -0700, Dmitry Torokhov wrote:
+> > > > +	if (!parent_pset)
+> > > > +		return ERR_PTR(-EINVAL);
+> > > > +
+> > > > +	p = pset_create_set(properties);
+> > > > +	if (IS_ERR(p))
+> > > > +		return ERR_CAST(p);
+> > > > +
+> > > > +	p->dev = dev;
+> > > 
+> > > That looks wrong.
+> > > 
+> > > I'm guessing the assumption here is that the child nodes will never be
+> > > assigned to their own devices, but you can't do that. It will limit
+> > > the use of the child nodes to a very small number of cases, possibly
+> > > only to gpios.
+> > 
+> > If I need to assign a node to a device I'll use device_add_properties()
+> > API. device_add_child_properties() is for nodes living "below" the
+> > device.
 > 
-> Hmmm.. kmalloc falls back to the page allocator already?
-> 
-> See
-> 
-> static __always_inline void *kmalloc(size_t size, gfp_t flags)
-> {
->         if (__builtin_constant_p(size)) {
+> device_add_properties() is not available to us before we have the
+> actual struct device meant for the properties. If the child device is
+> populated outside of the "boardfiles" then we have to be able to link
+> it to the child node afterwards.
 
-It would not be a constant here though.
-
->                 if (size > KMALLOC_MAX_CACHE_SIZE)
->                         return kmalloc_large(size, flags);
-> 
-> 
-> Note that this uses KMALLOC_MAX_CACHE_SIZE which should be smaller than
-> KMALLOC_MAX_SIZE.
-> 
-> 
-> How large is the allocation? AFACIT nRequests larger than KMALLOC_MAX_SIZE
-> are larger than the maximum allowed by the page allocator. Thus the warning
-> and the NULL return.
-
-The size in this particular case is being derived from a value passed
-from userspace. Input core does not care about any limits on size of
-memory kmalloc() can support and is perfectly happy with getting NULL
-and telling userspace to go away with their silly requests by returning
--ENOMEM.
-
-For the record: I definitely do not want to pre-sanitize size neither in
-uinput nor in input core.
+I think we are talking about totally different use cases and that is why
+we are having hard time coming to a mutually agreeable solution. Could
+you please describe in more detail what you would like to achieve,
+and preferably show how it is described now with DT and/or ACPI, so that
+I have a better frame of reference.
 
 Thanks.
 

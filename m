@@ -1,26 +1,33 @@
-From: Christopher Lameter <cl@linux.com>
+From: Dmitry Vyukov <dvyukov@google.com>
 Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
-Date: Mon, 24 Sep 2018 15:08:15 +0000
-Message-ID: <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
-References: <000000000000e5f76c057664e73d@google.com> <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com> <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com>
+Date: Mon, 24 Sep 2018 17:18:25 +0200
+Message-ID: <CACT4Y+ayX8vzd2JPrLeFhf3K_Quf4x6SDtmtkNJuwNLyOh67tQ@mail.gmail.com>
+References: <000000000000e5f76c057664e73d@google.com> <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
+ <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com> <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com>
+In-Reply-To: <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Vyukov <dvyukov@google.com>
+To: Christopher Lameter <cl@linux.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Pekka Enberg <penberg@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux-MM <linux-mm@kvack.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 23 Sep 2018, Dmitry Vyukov wrote:
+On Mon, Sep 24, 2018 at 5:08 PM, Christopher Lameter <cl@linux.com> wrote:
+> On Sun, 23 Sep 2018, Dmitry Vyukov wrote:
+>
+>> What was the motivation behind that WARNING about large allocations in
+>> kmalloc? Why do we want to know about them? Is the general policy that
+>> kmalloc calls with potentially large size requests need to use NOWARN?
+>> If this WARNING still considered useful? Or we should change it to
+>> pr_err?
+>
+> In general large allocs should be satisfied by the page allocator. The
+> slab allocators are used for allocating and managing small objects. The
+> page allocator has mechanisms to deal with large objects (compound pages,
+> multiple page sized allocs etc).
 
-> What was the motivation behind that WARNING about large allocations in
-> kmalloc? Why do we want to know about them? Is the general policy that
-> kmalloc calls with potentially large size requests need to use NOWARN?
-> If this WARNING still considered useful? Or we should change it to
-> pr_err?
-
-In general large allocs should be satisfied by the page allocator. The
-slab allocators are used for allocating and managing small objects. The
-page allocator has mechanisms to deal with large objects (compound pages,
-multiple page sized allocs etc).
+I am asking more about the status of this warning. If it fires in
+input_mt_init_slots(), does it mean that input_mt_init_slots() needs
+to be fixed? If not, then we need to change this warning to something
+else.

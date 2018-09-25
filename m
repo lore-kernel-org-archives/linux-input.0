@@ -1,39 +1,78 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH] hyper-v: Fix wakeup from suspend-to-idle
-Date: Tue, 25 Sep 2018 00:49:16 +0200
-Message-ID: <CAJZ5v0g10fyZZhvLTz_qSADWQCO==fg=zcFQHD7QLZYwVDOsgA@mail.gmail.com>
-References: <20180912161101.2634-1-vkuznets@redhat.com> <nycvar.YFH.7.76.1809241123040.15880@cbobk.fhfr.pm>
+From: Dmitry Vyukov <dvyukov@google.com>
+Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
+Date: Tue, 25 Sep 2018 09:39:52 +0200
+Message-ID: <CACT4Y+ZPrngv8GTC-Cw68PBDxZ2T5x1kKMNXL3DmP24Xd0m_5g@mail.gmail.com>
+References: <000000000000e5f76c057664e73d@google.com> <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
+ <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com>
+ <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
+ <CACT4Y+ayX8vzd2JPrLeFhf3K_Quf4x6SDtmtkNJuwNLyOh67tQ@mail.gmail.com>
+ <010001660c4a8bbe-91200766-00df-48bd-bc60-a03da2ccdb7d-000000@email.amazonses.com>
+ <20180924184158.GA156847@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1809241123040.15880@cbobk.fhfr.pm>
+In-Reply-To: <20180924184158.GA156847@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>, Linux PM <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Christopher Lameter <cl@linux.com>, syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Pekka Enberg <penberg@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux-MM <linux-mm@kvack.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 24, 2018 at 11:24 AM Jiri Kosina <jikos@kernel.org> wrote:
+On Mon, Sep 24, 2018 at 8:41 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Mon, Sep 24, 2018 at 03:55:04PM +0000, Christopher Lameter wrote:
+>> On Mon, 24 Sep 2018, Dmitry Vyukov wrote:
+>>
+>> > On Mon, Sep 24, 2018 at 5:08 PM, Christopher Lameter <cl@linux.com> wrote:
+>> > > On Sun, 23 Sep 2018, Dmitry Vyukov wrote:
+>> > >
+>> > >> What was the motivation behind that WARNING about large allocations in
+>> > >> kmalloc? Why do we want to know about them? Is the general policy that
+>> > >> kmalloc calls with potentially large size requests need to use NOWARN?
+>> > >> If this WARNING still considered useful? Or we should change it to
+>> > >> pr_err?
+>> > >
+>> > > In general large allocs should be satisfied by the page allocator. The
+>> > > slab allocators are used for allocating and managing small objects. The
+>> > > page allocator has mechanisms to deal with large objects (compound pages,
+>> > > multiple page sized allocs etc).
+>> >
+>> > I am asking more about the status of this warning. If it fires in
+>> > input_mt_init_slots(), does it mean that input_mt_init_slots() needs
+>> > to be fixed? If not, then we need to change this warning to something
+>> > else.
+>>
+>> Hmmm.. kmalloc falls back to the page allocator already?
+>>
+>> See
+>>
+>> static __always_inline void *kmalloc(size_t size, gfp_t flags)
+>> {
+>>         if (__builtin_constant_p(size)) {
 >
-> On Wed, 12 Sep 2018, Vitaly Kuznetsov wrote:
+> It would not be a constant here though.
 >
-> > It makes little sense but still possible to put Hyper-V guests into
-> > suspend-to-idle state. To wake them up two wakeup sources were registered
-> > in the past: hyperv-keyboard and hid-hyperv. However, since
-> > commit eed4d47efe95 ("ACPI / sleep: Ignore spurious SCI wakeups from
-> > suspend-to-idle") pm_wakeup_event() from these devices is ignored. Switch
-> > to pm_wakeup_hard_event() API as these devices are actually the only
-> > possible way to wakeup Hyper-V guests.
-> >
-> > Fixes: eed4d47efe95 (ACPI / sleep: Ignore spurious SCI wakeups from suspend-to-idle)
-> > Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> > ---
-> >  drivers/hid/hid-hyperv.c              | 2 +-
+>>                 if (size > KMALLOC_MAX_CACHE_SIZE)
+>>                         return kmalloc_large(size, flags);
+>>
+>>
+>> Note that this uses KMALLOC_MAX_CACHE_SIZE which should be smaller than
+>> KMALLOC_MAX_SIZE.
+>>
+>>
+>> How large is the allocation? AFACIT nRequests larger than KMALLOC_MAX_SIZE
+>> are larger than the maximum allowed by the page allocator. Thus the warning
+>> and the NULL return.
 >
->         Acked-by: Jiri Kosina <jkosina@suse.cz>
+> The size in this particular case is being derived from a value passed
+> from userspace. Input core does not care about any limits on size of
+> memory kmalloc() can support and is perfectly happy with getting NULL
+> and telling userspace to go away with their silly requests by returning
+> -ENOMEM.
 >
-> for the above. I guess this'd better go through ACPI tree?
+> For the record: I definitely do not want to pre-sanitize size neither in
+> uinput nor in input core.
 
-No problem with that if you prefer.
+Christopher,
 
-Cheers,
-Rafael
+Assuming that the size is large enough to fail in all allocators, is
+this warning still useful? How? Should we remove it?

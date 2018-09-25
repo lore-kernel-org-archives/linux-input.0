@@ -1,78 +1,57 @@
-From: Dmitry Vyukov <dvyukov@google.com>
-Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
-Date: Tue, 25 Sep 2018 09:39:52 +0200
-Message-ID: <CACT4Y+ZPrngv8GTC-Cw68PBDxZ2T5x1kKMNXL3DmP24Xd0m_5g@mail.gmail.com>
-References: <000000000000e5f76c057664e73d@google.com> <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
- <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com>
- <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
- <CACT4Y+ayX8vzd2JPrLeFhf3K_Quf4x6SDtmtkNJuwNLyOh67tQ@mail.gmail.com>
- <010001660c4a8bbe-91200766-00df-48bd-bc60-a03da2ccdb7d-000000@email.amazonses.com>
- <20180924184158.GA156847@dtor-ws>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
+ for legacy boards
+Date: Tue, 25 Sep 2018 15:19:27 +0300
+Message-ID: <20180925121927.GL11965@kuha.fi.intel.com>
+References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
+ <20180917181603.125492-3-dmitry.torokhov@gmail.com>
+ <20180920135348.GF11965@kuha.fi.intel.com>
+ <20180921233119.GA44099@dtor-ws>
+ <20180924132050.GK11965@kuha.fi.intel.com>
+ <20180924184543.GB156847@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180924184158.GA156847@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <20180924184543.GB156847@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Christopher Lameter <cl@linux.com>, syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Pekka Enberg <penberg@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux-MM <linux-mm@kvack.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 24, 2018 at 8:41 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Sep 24, 2018 at 03:55:04PM +0000, Christopher Lameter wrote:
->> On Mon, 24 Sep 2018, Dmitry Vyukov wrote:
->>
->> > On Mon, Sep 24, 2018 at 5:08 PM, Christopher Lameter <cl@linux.com> wrote:
->> > > On Sun, 23 Sep 2018, Dmitry Vyukov wrote:
->> > >
->> > >> What was the motivation behind that WARNING about large allocations in
->> > >> kmalloc? Why do we want to know about them? Is the general policy that
->> > >> kmalloc calls with potentially large size requests need to use NOWARN?
->> > >> If this WARNING still considered useful? Or we should change it to
->> > >> pr_err?
->> > >
->> > > In general large allocs should be satisfied by the page allocator. The
->> > > slab allocators are used for allocating and managing small objects. The
->> > > page allocator has mechanisms to deal with large objects (compound pages,
->> > > multiple page sized allocs etc).
->> >
->> > I am asking more about the status of this warning. If it fires in
->> > input_mt_init_slots(), does it mean that input_mt_init_slots() needs
->> > to be fixed? If not, then we need to change this warning to something
->> > else.
->>
->> Hmmm.. kmalloc falls back to the page allocator already?
->>
->> See
->>
->> static __always_inline void *kmalloc(size_t size, gfp_t flags)
->> {
->>         if (__builtin_constant_p(size)) {
->
-> It would not be a constant here though.
->
->>                 if (size > KMALLOC_MAX_CACHE_SIZE)
->>                         return kmalloc_large(size, flags);
->>
->>
->> Note that this uses KMALLOC_MAX_CACHE_SIZE which should be smaller than
->> KMALLOC_MAX_SIZE.
->>
->>
->> How large is the allocation? AFACIT nRequests larger than KMALLOC_MAX_SIZE
->> are larger than the maximum allowed by the page allocator. Thus the warning
->> and the NULL return.
->
-> The size in this particular case is being derived from a value passed
-> from userspace. Input core does not care about any limits on size of
-> memory kmalloc() can support and is perfectly happy with getting NULL
-> and telling userspace to go away with their silly requests by returning
-> -ENOMEM.
->
-> For the record: I definitely do not want to pre-sanitize size neither in
-> uinput nor in input core.
+On Mon, Sep 24, 2018 at 11:45:43AM -0700, Dmitry Torokhov wrote:
+> I think we are talking about totally different use cases and that is why
+> we are having hard time coming to a mutually agreeable solution. Could
+> you please describe in more detail what you would like to achieve,
+> and preferably show how it is described now with DT and/or ACPI, so that
+> I have a better frame of reference.
 
-Christopher,
+Yes, of course. Sorry.
 
-Assuming that the size is large enough to fail in all allocators, is
-this warning still useful? How? Should we remove it?
+USB ports are devices that usually the USB controller drivers register
+(or actually the USB core code). They are represented in both ACPI and
+DT as child nodes of the controller device node. The USB connector OF
+node is defined in file
+Documentation/devicetree/bindings/connector/usb-connector.txt
+
+In short, the controller drivers will request handle to a child node
+that represents a port, and only after that register the actual port
+device.
+
+The drivers I'm looking at currently are the USB Type-C port
+controller drivers and the port manager (in Greg's usb-next or
+linux-next):
+
+        drivers/usb/typec/tcpm/tcpci.c
+        drivers/usb/typec/tcpm/fusb302.c
+        drivers/usb/typec/tcpm/tcpm.c
+
+The goal is simply to get rid of the platform data as usual, and
+ideally so that we don't need any extra code in order to support the
+"legacy" platforms.
+
+
+Thanks,
+
+-- 
+heikki

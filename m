@@ -1,14 +1,12 @@
 From: <dollinger.florian@gmx.de>
-Subject: AW: hid: microsoft: Add rumble support for Xbox One S controller
-Date: Wed, 26 Sep 2018 17:15:35 +0200
-Message-ID: <003401d455ab$c6df5280$549df780$@gmx.de>
-References: <20180810001714.14659-1-andrew.smirnov@gmail.com>    <20180926125130.974-1-dollinger.florian@gmx.de> <701e5f0fc3b24adf4b1ca4d817b3091fe73102ba.camel@hadess.net>
+Subject: Re: hid: microsoft: Add rumble support for Xbox One S controller
+Date: Wed, 26 Sep 2018 17:23:09 +0200
+Message-ID: <003601d455ac$d5512db0$7ff38910$@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain;
         charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <701e5f0fc3b24adf4b1ca4d817b3091fe73102ba.camel@hadess.net>
 Content-Language: de
 Sender: linux-kernel-owner@vger.kernel.org
 To: 'Bastien Nocera' <hadess@hadess.net>, andrew.smirnov@gmail.com
@@ -24,8 +22,7 @@ Hum, it's the first hit when you search for something like 'xbox one s driver li
 > I spent quite a bit of time trying to get the XBox One S controller working over Bluetooth, without success, and I see that you have a patch for that which you didn't send upstream either:
 https://github.com/atar-axis/xpadneo/blob/master/misc/kernel_patches/0001-fix_bluetooth_reconnect.patch
 
-Jap, I just never pushed it because I never pushed anything to the linux kernel and I don't really know how the whole process works^^
-Furthermore I wanted to fix possible before, but it looks like the driver is stable enough to push it now.
+Jap, I just never pushed it because I never pushed anything to the linux kernel and I don't really know how the whole process works^^ Furthermore I wanted to fix possible before, but it looks like the driver is stable enough to push it now.
 
 > I can imagine that a large portion of the driver can be integrated in the existing XBox pad driver, with each feature added in individual patches.
 

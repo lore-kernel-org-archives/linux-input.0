@@ -1,30 +1,58 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH V2 7/8] dt-bindings: watchdog: document stpmic1 pmic
- watchdog
-Date: Wed, 26 Sep 2018 10:29:23 -0500
-Message-ID: <20180926152923.GA1821@bogus>
-References: <1536325173-16617-1-git-send-email-p.paillet@st.com>
- <1536325173-16617-8-git-send-email-p.paillet@st.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: XBox One S controller, Bluetooth support (was Re: hid: microsoft:
+ Add rumble support for Xbox One S controller)
+Date: Wed, 26 Sep 2018 18:09:33 +0200
+Message-ID: <932c109c28bbba7b833ff82cc68ee0ccc9a30374.camel@hadess.net>
+References: <20180810001714.14659-1-andrew.smirnov@gmail.com>
+         <20180926125130.974-1-dollinger.florian@gmx.de>
+         <701e5f0fc3b24adf4b1ca4d817b3091fe73102ba.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1536325173-16617-8-git-send-email-p.paillet@st.com>
+In-Reply-To: <701e5f0fc3b24adf4b1ca4d817b3091fe73102ba.camel@hadess.net>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, Pascal PAILLET-LME <p.paillet@st.com>
+To: Dollinger Florian <dollinger.florian@gmx.de>, andrew.smirnov@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-bluetooth@kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 7 Sep 2018 12:59:45 +0000, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
+On Wed, 2018-09-26 at 15:45 +0200, Bastien Nocera wrote:
+> Hey Florian,
 > 
-> The stpmic1 PMIC embeds a watchdog which is disabled by default.
-> In case of watchdog, the PMIC goes off.
+> On Wed, 2018-09-26 at 14:51 +0200, Dollinger Florian wrote:
+> > From: Florian Dollinger <dollinger.florian@gmx.de>
+> > 
+> > Hi there! Why do you re-engineer the wheel? :) There is already a
+> > fully functional and tested driver out there (
+> > https://github.com/atar-axis/xpadneo). Would be much easier to help
+> > me (the owner of xpadneo) to push it into the kernel.
 > 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
-> ---
->  Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+> Probably because he didn't know about it, and how would he? I also
+> didn't know about it, because it didn't exist last I worked on those
+> joypads.
 > 
+> I spent quite a bit of time trying to get the XBox One S controller
+> working over Bluetooth, without success, and I see that you have a
+> patch for that which you didn't send upstream either:
+> https://github.com/atar-axis/xpadneo/blob/master/misc/kernel_patches/0001-fix_bluetooth_reconnect.patch
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+For this patch, after speaking with the Bluetooth maintainers, we would
+need to:
+- add relevant btmon outputs before and after the patch in the commit
+message
+- remove the mention of "many devices" (if you've seen other devices
+with that problem in the wild, please mention them, otherwise mention
+that it's for "XBox One S" controllers, and clones)
+- run the patch against the "Profile Tuning Suite Tool" from the
+Bluetooth SIG. This requires a Windows laptop, and a piece of hardware
+from the Bluetooth SIG, see below.
+
+The first 2 should be pretty easy to do, just send your patch using
+"git send-email" to the linux-bluetooth list (CC:ed), with the data
+attached.
+
+For the qualification test, I was told Szymon has a test suite that he
+could use to double-check the tests. If not, I should be able to buy
+the adapter and run that test suite locally.
+
+Cheers

@@ -1,83 +1,30 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: Re: [PATCH v2] dt-bindings: input: pwm-vibrator: correct pwms in
- example
-Date: Thu, 27 Sep 2018 08:45:39 +0200
-Message-ID: <20180927064538.i2omgznbtc473azt@earth.universe>
-References: <20180927004858.32529-1-masneyb@onstation.org>
+From: Dmitry Vyukov <dvyukov@google.com>
+Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
+Date: Thu, 27 Sep 2018 15:07:59 +0200
+Message-ID: <CACT4Y+aUdAmRmgiV5-KWXF-eGoCUCMhUC+ddLU-heQTQ53PhRA@mail.gmail.com>
+References: <000000000000e5f76c057664e73d@google.com> <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com>
+ <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com>
+ <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
+ <CACT4Y+ayX8vzd2JPrLeFhf3K_Quf4x6SDtmtkNJuwNLyOh67tQ@mail.gmail.com>
+ <010001660c4a8bbe-91200766-00df-48bd-bc60-a03da2ccdb7d-000000@email.amazonses.com>
+ <20180924184158.GA156847@dtor-ws> <CACT4Y+ZPrngv8GTC-Cw68PBDxZ2T5x1kKMNXL3DmP24Xd0m_5g@mail.gmail.com>
+ <01000166110bb882-0b1fa048-fe1c-4139-a1ba-702754bbc267-000000@email.amazonses.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ltl6bamnt433u7ig"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180927004858.32529-1-masneyb@onstation.org>
+In-Reply-To: <01000166110bb882-0b1fa048-fe1c-4139-a1ba-702754bbc267-000000@email.amazonses.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Masney <masneyb@onstation.org>
-Cc: robh@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, mark.rutland@arm.com
+To: Christopher Lameter <cl@linux.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Pekka Enberg <penberg@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux-MM <linux-mm@kvack.org>
 List-Id: linux-input@vger.kernel.org
 
-
---ltl6bamnt433u7ig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-On Wed, Sep 26, 2018 at 08:48:58PM -0400, Brian Masney wrote:
-> In the example for the pwm-vibrator bindings, pwm8 is the direction pin,
-> and pwm9 is the enable pin. The pwms on the vibrator node has these two
-> values swapped so this patch corrects it.
->=20
-> Signed-off-by: Brian Masney <masneyb@onstation.org>
-> ---
+On Tue, Sep 25, 2018 at 4:04 PM, Christopher Lameter <cl@linux.com> wrote:
+> On Tue, 25 Sep 2018, Dmitry Vyukov wrote:
 >
-> Changes since v1:
-> - Swapped the pwms values instead of the pwm-names values since enable
->   is required and direction is optional. Based on feedback from
->   Rob Herring.
->=20
->  Documentation/devicetree/bindings/input/pwm-vibrator.txt | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/input/pwm-vibrator.txt b/D=
-ocumentation/devicetree/bindings/input/pwm-vibrator.txt
-> index 09145d18491d..88c775a3fe21 100644
-> --- a/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-> +++ b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-> @@ -58,8 +58,8 @@ Example from Motorola Droid 4:
-> =20
->  	vibrator {
->  		compatible =3D "pwm-vibrator";
-> -		pwms =3D <&pwm8 0 1000000000 0>,
-> -		       <&pwm9 0 1000000000 0>;
-> +		pwms =3D <&pwm9 0 1000000000 0>,
-> +                       <&pwm8 0 1000000000 0>;
->  		pwm-names =3D "enable", "direction";
->  		direction-duty-cycle-ns =3D <1000000000>;
->  	};
+>> Assuming that the size is large enough to fail in all allocators, is
+>> this warning still useful? How? Should we remove it?
+>
+> Remove it. It does not make sense because we check earlier if possible
+> without the warn.
 
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-
- -- Sebastian
-
---ltl6bamnt433u7ig
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlusfJIACgkQ2O7X88g7
-+prMEQ//V1+b8d+LMKId888ISnvHlOyKkQUYNw01wVPPnL5Mq6L36GRyxHYVIeNM
-Fh3wJ1bJgvFBteUcnmf0sIZGVtHY2UYLjMWeq/21HLho33LH0SxNADAnjsFXKpfB
-binP67E7Q50NXPPCJqoNUIGWAY0pcMY1lZG2gQpgpxSNOQErcw6K+Y2xToUvAaz1
-+vhhaxiv/f69Jm4+7+w8IMpTliwvflAyOaFp3QOJjoFppSNKlO/fS6owdtTtoou1
-n6twlYbOUKKL+gO1YHMbpZdBEhCmk/nmk6r5jewJ2WuvcS95SF5Pl3Gv5xTZII3W
-Hj/omVkY1QA454Ch1SzjIIQCEVmtN2P+X8J6evI1BubisVAqiWwZJYjPnjDgRzNm
-f5ZQGPBxuPs+yzdU2YksXaZoqI+GO155H2jkYO6me90W06gyVHdma9ip7e0o0F+W
-Mta91zYwI3s02wbs4lltoop5Co5Z1CqZt+LDqIKcnJxafJPOk+4+D4+4G9MjKDh8
-1bXRNc5vpV4bgrT+OL05LnLVGLT4s6zMIPTi9HvV0WQjBnXTdi1W49Pbak5+SiJ2
-BXOAvbffPW7/C+Q6QBWGPVxqGJnb2KkE5tAT4bBagF5k3DswCov+tUxI3mQD3gop
-1dbOuUL1g7HgGvCZNl1raaQqICM+tJa+z6l4/sujFEs3GWCedIw=
-=JKan
------END PGP SIGNATURE-----
-
---ltl6bamnt433u7ig--
+Mailed "mm: don't warn about large allocations for slab" to remove the warning.

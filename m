@@ -1,64 +1,43 @@
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: Re: [PATCH V2] hid: hid-core: Fix a sleep-in-atomic-context bug in
- __hid_request()
-Date: Sat, 29 Sep 2018 17:00:50 +0800
-Message-ID: <4c0096c6-3745-963c-5086-5f579792599b@gmail.com>
-References: <20180913033432.16336-1-baijiaju1990@gmail.com>
- <nycvar.YFH.7.76.1809241124480.15880@cbobk.fhfr.pm>
+From: Tapasweni Pathak <tapaswenipathak@gmail.com>
+Subject: [PATCH] drivers: hid: Remove dead storage
+Date: Sat, 29 Sep 2018 21:36:46 +0530
+Message-ID: <5bafa31a.1c69fb81.ff018.dc43@mx.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1809241124480.15880@cbobk.fhfr.pm>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Remove storing of return value of ntrig_version_string function
+to ret as it is a dead storage and not used afterwards.
 
+Found using Facebook's Infer. Build tested it.
 
-On 2018/9/24 17:26, Jiri Kosina wrote:
-> On Thu, 13 Sep 2018, Jia-Ju Bai wrote:
->
->> hid_alloc_report_buf() has to be called with GFP_ATOMIC in
->> __hid_request(), because there are the following callchains
->> leading to __hid_request() being an atomic context:
->>
->> picolcd_send_and_wait (acquire a spinlock)
->>    hid_hw_request
->>      __hid_request
->>        hid_alloc_report_buf(GFP_KERNEL)
->>
->> picolcd_reset (acquire a spinlock)
->>    hid_hw_request
->>      __hid_request
->>        hid_alloc_report_buf(GFP_KERNEL)
->>
->> lg4ff_play (acquire a spinlock)
->>    hid_hw_request
->>      __hid_request
->>        hid_alloc_report_buf(GFP_KERNEL)
->>
->> lg4ff_set_autocenter_ffex (acquire a spinlock)
->>    hid_hw_request
->>      __hid_request
->>        hid_alloc_report_buf(GFP_KERNEL)
-> Hm, so it's always drivers calling out into core in atomic context. So
-> either we take this, and put our bets on being able to allocate the buffer
-> without sleeping,
+Signed-off-by: Tapasweni Pathak <tapaswenipathak@gmail.com>
+---
+There is another option to instead check for non zero return
+value for ntrig_version_string() as a successful completion
+of the function. ntrig_version_string() returns the length
+of output printed by sprintf() after converting the raw firmware
+code into a 5 comma separated numbers.
 
-In my opinion, I prefer this way.
+ drivers/hid/hid-ntrig.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 43b1c72..22aebf4 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -159,7 +159,7 @@ static void ntrig_report_version(struct hid_device *hdev)
+ 			      USB_CTRL_SET_TIMEOUT);
 
-Best wishes,
-Jia-Ju Bai
+ 	if (ret == 8) {
+-		ret = ntrig_version_string(&data[2], buf);
++		ntrig_version_string(&data[2], buf);
 
-> or actually fix the few drivers (it's just lg4ff and
-> picolcd at the end of the day) not to do that, and explicitly anotate
-> __hid_request() with might_sleep().
->
-> Hmm?
->
-> Thanks,
->
+ 		hid_info(hdev, "Firmware version: %s (%02x%02x %02x%02x)\n",
+ 			 buf, data[2], data[3], data[4], data[5]);
+--
+2.7.4

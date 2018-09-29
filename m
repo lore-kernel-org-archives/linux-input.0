@@ -1,43 +1,50 @@
-From: Tapasweni Pathak <tapaswenipathak@gmail.com>
-Subject: [PATCH] drivers: hid: Remove dead storage
-Date: Sat, 29 Sep 2018 21:36:46 +0530
-Message-ID: <5bafa31a.1c69fb81.ff018.dc43@mx.google.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH V2] hid: hid-core: Fix a sleep-in-atomic-context bug in
+ __hid_request()
+Date: Sat, 29 Sep 2018 21:20:07 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1809292118240.15880@cbobk.fhfr.pm>
+References: <20180913033432.16336-1-baijiaju1990@gmail.com> <nycvar.YFH.7.76.1809241124480.15880@cbobk.fhfr.pm> <4c0096c6-3745-963c-5086-5f579792599b@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <4c0096c6-3745-963c-5086-5f579792599b@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jia-Ju Bai <baijiaju1990@gmail.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Remove storing of return value of ntrig_version_string function
-to ret as it is a dead storage and not used afterwards.
+On Sat, 29 Sep 2018, Jia-Ju Bai wrote:
 
-Found using Facebook's Infer. Build tested it.
+> >> picolcd_send_and_wait (acquire a spinlock)
+> >>    hid_hw_request
+> >>      __hid_request
+> >>        hid_alloc_report_buf(GFP_KERNEL)
+> >>
+> >> picolcd_reset (acquire a spinlock)
+> >>    hid_hw_request
+> >>      __hid_request
+> >>        hid_alloc_report_buf(GFP_KERNEL)
+> >>
+> >> lg4ff_play (acquire a spinlock)
+> >>    hid_hw_request
+> >>      __hid_request
+> >>        hid_alloc_report_buf(GFP_KERNEL)
+> >>
+> >> lg4ff_set_autocenter_ffex (acquire a spinlock)
+> >>    hid_hw_request
+> >>      __hid_request
+> >>        hid_alloc_report_buf(GFP_KERNEL)
+> > Hm, so it's always drivers calling out into core in atomic context. So
+> > either we take this, and put our bets on being able to allocate the buffer
+> > without sleeping,
+> 
+> In my opinion, I prefer this way.
 
-Signed-off-by: Tapasweni Pathak <tapaswenipathak@gmail.com>
----
-There is another option to instead check for non zero return
-value for ntrig_version_string() as a successful completion
-of the function. ntrig_version_string() returns the length
-of output printed by sprintf() after converting the raw firmware
-code into a 5 comma separated numbers.
+Why? Forcing all the report buffer to be limited to be non-sleeping 
+allocations just because of two drivers, looks like an overkill, and 
+actually calls for more issues (as GFP_ATOMIC is of course in principle 
+less likely to succeed).
 
- drivers/hid/hid-ntrig.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 43b1c72..22aebf4 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -159,7 +159,7 @@ static void ntrig_report_version(struct hid_device *hdev)
- 			      USB_CTRL_SET_TIMEOUT);
-
- 	if (ret == 8) {
--		ret = ntrig_version_string(&data[2], buf);
-+		ntrig_version_string(&data[2], buf);
-
- 		hid_info(hdev, "Firmware version: %s (%02x%02x %02x%02x)\n",
- 			 buf, data[2], data[3], data[4], data[5]);
---
-2.7.4
+-- 
+Jiri Kosina
+SUSE Labs

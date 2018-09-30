@@ -1,50 +1,48 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH V2] hid: hid-core: Fix a sleep-in-atomic-context bug in
- __hid_request()
-Date: Sat, 29 Sep 2018 21:20:07 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1809292118240.15880@cbobk.fhfr.pm>
-References: <20180913033432.16336-1-baijiaju1990@gmail.com> <nycvar.YFH.7.76.1809241124480.15880@cbobk.fhfr.pm> <4c0096c6-3745-963c-5086-5f579792599b@gmail.com>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH] [v3] HID: add support for Apple Magic Trackpad 2
+Date: Sun, 30 Sep 2018 13:34:20 +0200
+Message-ID: <b3a3b9f8-3f74-d2d4-fb12-2cf46d756232@bitmath.org>
+References: <20180920231308.237277-1-seobrien@chromium.org>
+ <CAOOzhkosyZpr+B1xwZcG3viNbWZFWr9WQtgGdP13i_+_Ocdgmg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4c0096c6-3745-963c-5086-5f579792599b@gmail.com>
+In-Reply-To: <CAOOzhkosyZpr+B1xwZcG3viNbWZFWr9WQtgGdP13i_+_Ocdgmg@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sean O'Brien <seobrien@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: marek.wyborski@emwesoft.com, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, claudio@ponyfleisch.ch
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 29 Sep 2018, Jia-Ju Bai wrote:
+Hi Sean,
 
-> >> picolcd_send_and_wait (acquire a spinlock)
-> >>    hid_hw_request
-> >>      __hid_request
-> >>        hid_alloc_report_buf(GFP_KERNEL)
-> >>
-> >> picolcd_reset (acquire a spinlock)
-> >>    hid_hw_request
-> >>      __hid_request
-> >>        hid_alloc_report_buf(GFP_KERNEL)
-> >>
-> >> lg4ff_play (acquire a spinlock)
-> >>    hid_hw_request
-> >>      __hid_request
-> >>        hid_alloc_report_buf(GFP_KERNEL)
-> >>
-> >> lg4ff_set_autocenter_ffex (acquire a spinlock)
-> >>    hid_hw_request
-> >>      __hid_request
-> >>        hid_alloc_report_buf(GFP_KERNEL)
-> > Hm, so it's always drivers calling out into core in atomic context. So
-> > either we take this, and put our bets on being able to allocate the buffer
-> > without sleeping,
-> 
-> In my opinion, I prefer this way.
+> Gentle reminder, thank you!
+>
+> On Thu, Sep 20, 2018 at 4:13 PM Sean O'Brien <seobrien@chromium.org> wrote:
+>> USB device
+>>          Vendor 05ac (Apple)
+>>          Device 0265 (Magic Trackpad 2)
+>> Bluetooth device
+>>          Vendor 004c (Apple)
+>>          Device 0265 (Magic Trackpad 2)
+>>
+>> Add support for Apple Magic Trackpad 2 over USB and bluetooth, putting
+>> the device in multi-touch mode.
+>>
+>> Signed-off-by: Claudio Mettler <claudio@ponyfleisch.ch>
+>> Signed-off-by: Marek Wyborski <marek.wyborski@emwesoft.com>
+>> Signed-off-by: Sean O'Brien <seobrien@chromium.org>
+>> ---
+>>
+>>   drivers/hid/hid-ids.h        |   1 +
+>>   drivers/hid/hid-magicmouse.c | 149 +++++++++++++++++++++++++++++++----
+>>   2 files changed, 134 insertions(+), 16 deletions(-)
 
-Why? Forcing all the report buffer to be limited to be non-sleeping 
-allocations just because of two drivers, looks like an overkill, and 
-actually calls for more issues (as GFP_ATOMIC is of course in principle 
-less likely to succeed).
+This version looks good.
 
--- 
-Jiri Kosina
-SUSE Labs
+Reviewed-by: Henrik Rydberg <rydberg@bitmath.org>
+
+Thank you!
+
+Henrik

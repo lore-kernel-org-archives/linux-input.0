@@ -1,388 +1,157 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] [v3] HID: add support for Apple Magic Trackpad 2
-Date: Mon, 1 Oct 2018 10:43:27 +0200
-Message-ID: <CAO-hwJJL7XsNR4iVAdxYUrmB+01aJiZ=2s1b_JemU-=YNDehMQ@mail.gmail.com>
-References: <20180920231308.237277-1-seobrien@chromium.org>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: Re: [PATCH] input/psmouse: Don't hold the mutex while
+ calling ->disconnect
+Date: Mon, 1 Oct 2018 11:23:46 +0200
+Message-ID: <CAKMK7uGnFAJsXZx1Vcj036Ubd0zYYQJe3G6fcAxa-ksZJ8yJSw@mail.gmail.com>
+References: <20180430195649.17445-1-daniel.vetter@ffwll.ch>
+ <20180430211754.GB54182@dtor-ws>
+ <CAKMK7uFDwANOAF3j43g4S0jQ4V40b-_oiX+QSy8SRkL26Zwxzg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180920231308.237277-1-seobrien@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: seobrien@chromium.org, Peter Hutterer <peter.hutterer@redhat.com>
-Cc: marek.wyborski@emwesoft.com, lkml <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, Jiri Kosina <jikos@kernel.org>, claudio@ponyfleisch.ch
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <CAKMK7uFDwANOAF3j43g4S0jQ4V40b-_oiX+QSy8SRkL26Zwxzg@mail.gmail.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stephen Lyons <slysven@virginmedia.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, Daniel Vetter <daniel.vetter@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-[adding Peter, for the libinput question]
-
-On Fri, Sep 21, 2018 at 1:13 AM Sean O'Brien <seobrien@chromium.org> wrote:
->
-> USB device
->         Vendor 05ac (Apple)
->         Device 0265 (Magic Trackpad 2)
-> Bluetooth device
->         Vendor 004c (Apple)
->         Device 0265 (Magic Trackpad 2)
->
-> Add support for Apple Magic Trackpad 2 over USB and bluetooth, putting
-> the device in multi-touch mode.
->
-> Signed-off-by: Claudio Mettler <claudio@ponyfleisch.ch>
-> Signed-off-by: Marek Wyborski <marek.wyborski@emwesoft.com>
-> Signed-off-by: Sean O'Brien <seobrien@chromium.org>
-> ---
->
-
-a few nitpcks:
-
->  drivers/hid/hid-ids.h        |   1 +
->  drivers/hid/hid-magicmouse.c | 149 +++++++++++++++++++++++++++++++----
->  2 files changed, 134 insertions(+), 16 deletions(-)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 5146ee029db4..bb0cd212c7cc 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -92,6 +92,7 @@
->  #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE        0x0304
->  #define USB_DEVICE_ID_APPLE_MAGICMOUSE 0x030d
->  #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD      0x030e
-> +#define USB_DEVICE_ID_APPLE_MAGICTRACKPAD2     0x0265
->  #define USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI      0x020e
->  #define USB_DEVICE_ID_APPLE_FOUNTAIN_ISO       0x020f
->  #define USB_DEVICE_ID_APPLE_GEYSER_ANSI        0x0214
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index b454c4386157..6a3a6c83e509 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -54,6 +54,8 @@ module_param(report_undeciphered, bool, 0644);
->  MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state field using a MSC_RAW event");
->
->  #define TRACKPAD_REPORT_ID 0x28
-> +#define TRACKPAD2_USB_REPORT_ID 0x02
-> +#define TRACKPAD2_BT_REPORT_ID 0x31
->  #define MOUSE_REPORT_ID    0x29
->  #define DOUBLE_REPORT_ID   0xf7
->  /* These definitions are not precise, but they're close enough.  (Bits
-> @@ -91,6 +93,17 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
->  #define TRACKPAD_RES_Y \
->         ((TRACKPAD_MAX_Y - TRACKPAD_MIN_Y) / (TRACKPAD_DIMENSION_Y / 100))
->
-> +#define TRACKPAD2_DIMENSION_X (float)16000
-> +#define TRACKPAD2_MIN_X -3678
-> +#define TRACKPAD2_MAX_X 3934
-> +#define TRACKPAD2_RES_X \
-> +       ((TRACKPAD2_MAX_X - TRACKPAD2_MIN_X) / (TRACKPAD2_DIMENSION_X / 100))
-> +#define TRACKPAD2_DIMENSION_Y (float)11490
-> +#define TRACKPAD2_MIN_Y -2478
-> +#define TRACKPAD2_MAX_Y 2587
-> +#define TRACKPAD2_RES_Y \
-> +       ((TRACKPAD2_MAX_Y - TRACKPAD2_MIN_Y) / (TRACKPAD2_DIMENSION_Y / 100))
-> +
->  /**
->   * struct magicmouse_sc - Tracks Magic Mouse-specific data.
->   * @input: Input device through which we report events.
-> @@ -183,6 +196,7 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->  {
->         struct input_dev *input = msc->input;
->         int id, x, y, size, orientation, touch_major, touch_minor, state, down;
-> +       int pressure = 0;
->
->         if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
->                 id = (tdata[6] << 2 | tdata[5] >> 6) & 0xf;
-> @@ -194,6 +208,20 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->                 touch_minor = tdata[4];
->                 state = tdata[7] & TOUCH_STATE_MASK;
->                 down = state != TOUCH_STATE_NONE;
-> +       } else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-> +               id = tdata[8] & 0xf;
-> +               x = (tdata[1] << 27 | tdata[0] << 19) >> 19;
-> +               y = -((tdata[3] << 30 | tdata[2] << 22 | tdata[1] << 14) >> 19);
-> +               size = tdata[6];
-> +               orientation = (tdata[8] >> 5) - 4;
-> +               touch_major = tdata[4];
-> +               touch_minor = tdata[5];
-> +               /* Add to pressure to prevent libraries such as libinput
-> +                * from ignoring low pressure touches
-> +                */
-> +               pressure = tdata[7] + 30;
-
-Peter, can you have a look?
-
-To me, while adding this threshold, you are basically fooling
-userspace, and we might want to come back to the raw values at some
-point.
-If there is a userspace problem, it has to be solved in userspace.
-
-> +               state = tdata[3] & 0xC0;
-> +               down = state == 0x80;
->         } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
->                 id = (tdata[7] << 2 | tdata[6] >> 6) & 0xf;
->                 x = (tdata[1] << 27 | tdata[0] << 19) >> 19;
-> @@ -215,7 +243,8 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->         /* If requested, emulate a scroll wheel by detecting small
->          * vertical touch motions.
->          */
-> -       if (emulate_scroll_wheel) {
-> +       if (emulate_scroll_wheel && (input->id.product !=
-> +                       USB_DEVICE_ID_APPLE_MAGICTRACKPAD2)) {
->                 unsigned long now = jiffies;
->                 int step_x = msc->touches[id].scroll_x - x;
->                 int step_y = msc->touches[id].scroll_y - y;
-> @@ -269,10 +298,14 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
->                 input_report_abs(input, ABS_MT_POSITION_X, x);
->                 input_report_abs(input, ABS_MT_POSITION_Y, y);
->
-> +               if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2)
-> +                       input_report_abs(input, ABS_MT_PRESSURE, pressure);
-> +
->                 if (report_undeciphered) {
->                         if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
->                                 input_event(input, EV_MSC, MSC_RAW, tdata[7]);
-> -                       else /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +                       else if (input->id.product !=
-> +                                       USB_DEVICE_ID_APPLE_MAGICTRACKPAD2)
->                                 input_event(input, EV_MSC, MSC_RAW, tdata[8]);
->                 }
->         }
-> @@ -287,6 +320,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->
->         switch (data[0]) {
->         case TRACKPAD_REPORT_ID:
-> +       case TRACKPAD2_BT_REPORT_ID:
->                 /* Expect four bytes of prefix, and N*9 bytes of touch data. */
->                 if (size < 4 || ((size - 4) % 9) != 0)
->                         return 0;
-> @@ -301,12 +335,22 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->                         magicmouse_emit_touch(msc, ii, data + ii * 9 + 4);
->
->                 clicks = data[1];
-> +               break;
-> +       case TRACKPAD2_USB_REPORT_ID:
-> +               /* Expect twelve bytes of prefix and N*9 bytes of touch data. */
-> +               if (size < 12 || ((size - 12) % 9) != 0)
-> +                       return 0;
-> +               npoints = (size - 12) / 9;
-> +               if (npoints > 15) {
-> +                       hid_warn(hdev, "invalid size value (%d) for TRACKPAD2_USB_REPORT_ID\n",
-> +                                       size);
-> +                       return 0;
-> +               }
-> +               msc->ntouches = 0;
-> +               for (ii = 0; ii < npoints; ii++)
-> +                       magicmouse_emit_touch(msc, ii, data + ii * 9 + 12);
->
-> -               /* The following bits provide a device specific timestamp. They
-> -                * are unused here.
-> -                *
-> -                * ts = data[1] >> 6 | data[2] << 2 | data[3] << 10;
-> -                */
-
-Can you keep this comment from the original version? If your touchpad
-doesn't have the timestamp bit, the old ones still have them, and
-having the decoded information might help in the future.
-
-Cheers,
-Benjamin
-
-> +               clicks = data[1];
->                 break;
->         case MOUSE_REPORT_ID:
->                 /* Expect six bytes of prefix, and N*8 bytes of touch data. */
-> @@ -352,6 +396,9 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->                 magicmouse_emit_buttons(msc, clicks & 3);
->                 input_report_rel(input, REL_X, x);
->                 input_report_rel(input, REL_Y, y);
-> +       } else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-> +               input_mt_sync_frame(input);
-> +               input_report_key(input, BTN_MOUSE, clicks & 1);
->         } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
->                 input_report_key(input, BTN_MOUSE, clicks & 1);
->                 input_mt_report_pointer_emulation(input, true);
-> @@ -364,6 +411,7 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->  static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hdev)
->  {
->         int error;
-> +       int mt_flags = 0;
->
->         __set_bit(EV_KEY, input->evbit);
->
-> @@ -380,6 +428,22 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->                         __set_bit(REL_WHEEL, input->relbit);
->                         __set_bit(REL_HWHEEL, input->relbit);
->                 }
-> +       } else if (input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-> +               /* setting the device name to ensure the same driver settings
-> +                * get loaded, whether connected through bluetooth or USB
-> +                */
-> +               input->name = "Apple Inc. Magic Trackpad 2";
-> +
-> +               __clear_bit(EV_MSC, input->evbit);
-> +               __clear_bit(BTN_0, input->keybit);
-> +               __clear_bit(BTN_RIGHT, input->keybit);
-> +               __clear_bit(BTN_MIDDLE, input->keybit);
-> +               __set_bit(BTN_MOUSE, input->keybit);
-> +               __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-> +               __set_bit(BTN_TOOL_FINGER, input->keybit);
-> +
-> +               mt_flags = INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED |
-> +                               INPUT_MT_TRACK;
->         } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
->                 /* input->keybit is initialized with incorrect button info
->                  * for Magic Trackpad. There really is only one physical
-> @@ -402,14 +466,13 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->
->         __set_bit(EV_ABS, input->evbit);
->
-> -       error = input_mt_init_slots(input, 16, 0);
-> +       error = input_mt_init_slots(input, 16, mt_flags);
->         if (error)
->                 return error;
->         input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 255 << 2,
->                              4, 0);
->         input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 255 << 2,
->                              4, 0);
-> -       input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
->
->         /* Note: Touch Y position from the device is inverted relative
->          * to how pointer motion is reported (and relative to how USB
-> @@ -418,6 +481,7 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->          * inverse of the reported Y.
->          */
->         if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
-> +               input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
->                 input_set_abs_params(input, ABS_MT_POSITION_X,
->                                      MOUSE_MIN_X, MOUSE_MAX_X, 4, 0);
->                 input_set_abs_params(input, ABS_MT_POSITION_Y,
-> @@ -427,7 +491,25 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->                                   MOUSE_RES_X);
->                 input_abs_set_res(input, ABS_MT_POSITION_Y,
->                                   MOUSE_RES_Y);
-> +       } else if (input->id.product ==  USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-> +               input_set_abs_params(input, ABS_MT_PRESSURE, 0, 283, 0, 0);
-> +               input_set_abs_params(input, ABS_PRESSURE, 0, 283, 0, 0);
-> +               input_set_abs_params(input, ABS_MT_ORIENTATION, -3, 4, 0, 0);
-> +               input_set_abs_params(input, ABS_X, TRACKPAD2_MIN_X,
-> +                                    TRACKPAD2_MAX_X, 0, 0);
-> +               input_set_abs_params(input, ABS_Y, TRACKPAD2_MIN_Y,
-> +                                    TRACKPAD2_MAX_Y, 0, 0);
-> +               input_set_abs_params(input, ABS_MT_POSITION_X,
-> +                                    TRACKPAD2_MIN_X, TRACKPAD2_MAX_X, 0, 0);
-> +               input_set_abs_params(input, ABS_MT_POSITION_Y,
-> +                                    TRACKPAD2_MIN_Y, TRACKPAD2_MAX_Y, 0, 0);
-> +
-> +               input_abs_set_res(input, ABS_X, TRACKPAD2_RES_X);
-> +               input_abs_set_res(input, ABS_Y, TRACKPAD2_RES_Y);
-> +               input_abs_set_res(input, ABS_MT_POSITION_X, TRACKPAD2_RES_X);
-> +               input_abs_set_res(input, ABS_MT_POSITION_Y, TRACKPAD2_RES_Y);
->         } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +               input_set_abs_params(input, ABS_MT_ORIENTATION, -31, 32, 1, 0);
->                 input_set_abs_params(input, ABS_X, TRACKPAD_MIN_X,
->                                      TRACKPAD_MAX_X, 4, 0);
->                 input_set_abs_params(input, ABS_Y, TRACKPAD_MIN_Y,
-> @@ -447,7 +529,8 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->
->         input_set_events_per_packet(input, 60);
->
-> -       if (report_undeciphered) {
-> +       if (report_undeciphered &&
-> +           input->id.product != USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
->                 __set_bit(EV_MSC, input->evbit);
->                 __set_bit(MSC_RAW, input->mscbit);
->         }
-> @@ -465,7 +548,8 @@ static int magicmouse_input_mapping(struct hid_device *hdev,
->                 msc->input = hi->input;
->
->         /* Magic Trackpad does not give relative data after switching to MT */
-> -       if (hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD &&
-> +       if ((hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD ||
-> +            hi->input->id.product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) &&
->             field->flags & HID_MAIN_ITEM_RELATIVE)
->                 return -1;
->
-> @@ -494,11 +578,20 @@ static int magicmouse_input_configured(struct hid_device *hdev,
->  static int magicmouse_probe(struct hid_device *hdev,
->         const struct hid_device_id *id)
->  {
-> -       const u8 feature[] = { 0xd7, 0x01 };
-> +       const u8 *feature;
-> +       const u8 feature_mt[] = { 0xD7, 0x01 };
-> +       const u8 feature_mt_trackpad2_usb[] = { 0x02, 0x01 };
-> +       const u8 feature_mt_trackpad2_bt[] = { 0xF1, 0x02, 0x01 };
->         u8 *buf;
->         struct magicmouse_sc *msc;
->         struct hid_report *report;
->         int ret;
-> +       int feature_size;
-> +
-> +       if (id->vendor == USB_VENDOR_ID_APPLE &&
-> +           id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 &&
-> +           hdev->type != HID_TYPE_USBMOUSE)
-> +               return 0;
->
->         msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
->         if (msc == NULL) {
-> @@ -532,7 +625,14 @@ static int magicmouse_probe(struct hid_device *hdev,
->         if (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE)
->                 report = hid_register_report(hdev, HID_INPUT_REPORT,
->                         MOUSE_REPORT_ID, 0);
-> -       else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> +       else if (id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-> +               if (id->vendor == BT_VENDOR_ID_APPLE)
-> +                       report = hid_register_report(hdev, HID_INPUT_REPORT,
-> +                               TRACKPAD2_BT_REPORT_ID, 0);
-> +               else /* USB_VENDOR_ID_APPLE */
-> +                       report = hid_register_report(hdev, HID_INPUT_REPORT,
-> +                               TRACKPAD2_USB_REPORT_ID, 0);
-> +       } else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
->                 report = hid_register_report(hdev, HID_INPUT_REPORT,
->                         TRACKPAD_REPORT_ID, 0);
->                 report = hid_register_report(hdev, HID_INPUT_REPORT,
-> @@ -546,7 +646,20 @@ static int magicmouse_probe(struct hid_device *hdev,
->         }
->         report->size = 6;
->
-> -       buf = kmemdup(feature, sizeof(feature), GFP_KERNEL);
-> +       if (id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) {
-> +               if (id->vendor == BT_VENDOR_ID_APPLE) {
-> +                       feature_size = sizeof(feature_mt_trackpad2_bt);
-> +                       feature = feature_mt_trackpad2_bt;
-> +               } else { /* USB_VENDOR_ID_APPLE */
-> +                       feature_size = sizeof(feature_mt_trackpad2_usb);
-> +                       feature = feature_mt_trackpad2_usb;
-> +               }
-> +       } else {
-> +               feature_size = sizeof(feature_mt);
-> +               feature = feature_mt;
-> +       }
-> +
-> +       buf = kmemdup(feature, feature_size, GFP_KERNEL);
->         if (!buf) {
->                 ret = -ENOMEM;
->                 goto err_stop_hw;
-> @@ -560,10 +673,10 @@ static int magicmouse_probe(struct hid_device *hdev,
->          * but there seems to be no other way of switching the mode.
->          * Thus the super-ugly hacky success check below.
->          */
-> -       ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(feature),
-> +       ret = hid_hw_raw_request(hdev, buf[0], buf, feature_size,
->                                 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
->         kfree(buf);
-> -       if (ret != -EIO && ret != sizeof(feature)) {
-> +       if (ret != -EIO && ret != feature_size) {
->                 hid_err(hdev, "unable to request touch data (%d)\n", ret);
->                 goto err_stop_hw;
->         }
-> @@ -579,6 +692,10 @@ static const struct hid_device_id magic_mice[] = {
->                 USB_DEVICE_ID_APPLE_MAGICMOUSE), .driver_data = 0 },
->         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
->                 USB_DEVICE_ID_APPLE_MAGICTRACKPAD), .driver_data = 0 },
-> +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
-> +               USB_DEVICE_ID_APPLE_MAGICTRACKPAD2), .driver_data = 0 },
-> +       { HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
-> +               USB_DEVICE_ID_APPLE_MAGICTRACKPAD2), .driver_data = 0 },
->         { }
->  };
->  MODULE_DEVICE_TABLE(hid, magic_mice);
-> --
-> 2.19.0.444.g18242da7ef-goog
->
+T24gV2VkLCBNYXkgMiwgMjAxOCBhdCAxMTowNiBBTSBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0
+dGVyQGZmd2xsLmNoPiB3cm90ZToKPgo+IE9uIE1vbiwgQXByIDMwLCAyMDE4IGF0IDExOjE3IFBN
+LCBEbWl0cnkgVG9yb2tob3YKPiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6Cj4g
+PiBIaSBEYW5pZWwsCj4gPgo+ID4gT24gTW9uLCBBcHIgMzAsIDIwMTggYXQgMDk6NTY6NDlQTSAr
+MDIwMCwgRGFuaWVsIFZldHRlciB3cm90ZToKPiA+PiBBdCBsZWFzdCB0cmFja3BvaW50X2Rpc2Nv
+bm5lY3Qgd2FudHMgdG8gcmVtb3ZlIHNvbWUgc3lzZnMgZmlsZXMsIGFuZAo+ID4+IHdlIGNhbid0
+IHJlbW92ZSBzeXNmcyBmaWxlcyB3aGlsZSBob2xkaW5nIHBzbW91c2VfbXV0ZXg6Cj4gPj4KPiA+
+PiA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K
+PiA+PiBXQVJOSU5HOiBwb3NzaWJsZSBjaXJjdWxhciBsb2NraW5nIGRlcGVuZGVuY3kgZGV0ZWN0
+ZWQKPiA+PiA0LjE2LjAtcmM1LWc2MTNlYjg4NWI2OWUtZHJtdGlwXzErICMxIFRhaW50ZWQ6IEcg
+ICAgIFUKPiA+PiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0KPiA+PiBrd29ya2VyLzA6My8xMDIgaXMgdHJ5aW5nIHRvIGFjcXVpcmUgbG9jazoK
+PiA+PiAgKGtuLT5jb3VudCMxMzApeysrKyt9LCBhdDogWzwwMDAwMDAwMDk2Nzk3NDhiPl0ga2Vy
+bmZzX3JlbW92ZV9ieV9uYW1lX25zKzB4M2IvMHg4MAo+ID4+Cj4gPj4gYnV0IHRhc2sgaXMgYWxy
+ZWFkeSBob2xkaW5nIGxvY2s6Cj4gPj4gIChwc21vdXNlX211dGV4KXsrLisufSwgYXQ6IFs8MDAw
+MDAwMDAxNGY0NGJjYz5dIHBzbW91c2VfZGlzY29ubmVjdCsweDYyLzB4MTYwCj4gPj4KPiA+PiB3
+aGljaCBsb2NrIGFscmVhZHkgZGVwZW5kcyBvbiB0aGUgbmV3IGxvY2suCj4gPj4KPiA+PiB0aGUg
+ZXhpc3RpbmcgZGVwZW5kZW5jeSBjaGFpbiAoaW4gcmV2ZXJzZSBvcmRlcikgaXM6Cj4gPj4KPiA+
+PiAtPiAjMSAocHNtb3VzZV9tdXRleCl7Ky4rLn06Cj4gPj4gICAgICAgIHBzbW91c2VfYXR0cl9z
+ZXRfaGVscGVyKzB4MjgvMHgxNDAKPiA+PiAgICAgICAga2VybmZzX2ZvcF93cml0ZSsweGZlLzB4
+MTgwCj4gPj4gICAgICAgIF9fdmZzX3dyaXRlKzB4MWUvMHgxMzAKPiA+PiAgICAgICAgdmZzX3dy
+aXRlKzB4YmQvMHgxYjAKPiA+PiAgICAgICAgU3lTX3dyaXRlKzB4NDAvMHhhMAo+ID4+ICAgICAg
+ICBkb19zeXNjYWxsXzY0KzB4NjUvMHgxYTAKPiA+PiAgICAgICAgZW50cnlfU1lTQ0FMTF82NF9h
+ZnRlcl9od2ZyYW1lKzB4NDIvMHhiNwo+ID4+Cj4gPj4gLT4gIzAgKGtuLT5jb3VudCMxMzApeysr
+Kyt9Ogo+ID4+ICAgICAgICBfX2tlcm5mc19yZW1vdmUrMHgyNDMvMHgyYjAKPiA+PiAgICAgICAg
+a2VybmZzX3JlbW92ZV9ieV9uYW1lX25zKzB4M2IvMHg4MAo+ID4+ICAgICAgICByZW1vdmVfZmls
+ZXMuaXNyYS4wKzB4MmIvMHg2MAo+ID4+ICAgICAgICBzeXNmc19yZW1vdmVfZ3JvdXArMHgzOC8w
+eDgwCj4gPj4gICAgICAgIHN5c2ZzX3JlbW92ZV9ncm91cHMrMHgyNC8weDQwCj4gPj4gICAgICAg
+IHRyYWNrcG9pbnRfZGlzY29ubmVjdCsweDJjLzB4NTAKPiA+PiAgICAgICAgcHNtb3VzZV9kaXNj
+b25uZWN0KzB4OGYvMHgxNjAKPiA+PiAgICAgICAgc2VyaW9fZGlzY29ubmVjdF9kcml2ZXIrMHgy
+OC8weDQwCj4gPj4gICAgICAgIHNlcmlvX2RyaXZlcl9yZW1vdmUrMHhjLzB4MTAKPiA+PiAgICAg
+ICAgZGV2aWNlX3JlbGVhc2VfZHJpdmVyX2ludGVybmFsKzB4MTViLzB4MjMwCj4gPj4gICAgICAg
+IHNlcmlvX2hhbmRsZV9ldmVudCsweDFjOC8weDI2MAo+ID4+ICAgICAgICBwcm9jZXNzX29uZV93
+b3JrKzB4MjE1LzB4NjIwCj4gPj4gICAgICAgIHdvcmtlcl90aHJlYWQrMHg0OC8weDNhMAo+ID4+
+ICAgICAgICBrdGhyZWFkKzB4ZmIvMHgxMzAKPiA+PiAgICAgICAgcmV0X2Zyb21fZm9yaysweDNh
+LzB4NTAKPiA+Pgo+ID4+IG90aGVyIGluZm8gdGhhdCBtaWdodCBoZWxwIHVzIGRlYnVnIHRoaXM6
+Cj4gPj4KPiA+PiAgUG9zc2libGUgdW5zYWZlIGxvY2tpbmcgc2NlbmFyaW86Cj4gPj4KPiA+PiAg
+ICAgICAgQ1BVMCAgICAgICAgICAgICAgICAgICAgQ1BVMQo+ID4+ICAgICAgICAtLS0tICAgICAg
+ICAgICAgICAgICAgICAtLS0tCj4gPj4gICBsb2NrKHBzbW91c2VfbXV0ZXgpOwo+ID4+ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBsb2NrKGtuLT5jb3VudCMxMzApOwo+ID4+ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBsb2NrKHBzbW91c2VfbXV0ZXgpOwo+ID4+ICAgbG9j
+ayhrbi0+Y291bnQjMTMwKTsKPiA+Pgo+ID4+ICAqKiogREVBRExPQ0sgKioqCj4gPj4KPiA+PiA2
+IGxvY2tzIGhlbGQgYnkga3dvcmtlci8wOjMvMTAyOgo+ID4+ICAjMDogICgod3FfY29tcGxldGlv
+bikiZXZlbnRzX2xvbmciKXsrLisufSwgYXQ6IFs8MDAwMDAwMDAyZTQwOGJmYT5dIHByb2Nlc3Nf
+b25lX3dvcmsrMHgxOTEvMHg2MjAKPiA+PiAgIzE6ICAoc2VyaW9fZXZlbnRfd29yayl7Ky4rLn0s
+IGF0OiBbPDAwMDAwMDAwMmU0MDhiZmE+XSBwcm9jZXNzX29uZV93b3JrKzB4MTkxLzB4NjIwCj4g
+Pj4gICMyOiAgKHNlcmlvX211dGV4KXsrLisufSwgYXQ6IFs8MDAwMDAwMDBjOGE0OTg0Nz5dIHNl
+cmlvX2hhbmRsZV9ldmVudCsweDIzLzB4MjYwCj4gPj4gICMzOiAgKCZkZXYtPm11dGV4KXsuLi4u
+fSwgYXQ6IFs8MDAwMDAwMDBiNTVlZWU3NT5dIGRldmljZV9yZWxlYXNlX2RyaXZlcl9pbnRlcm5h
+bCsweDJmLzB4MjMwCj4gPj4gICM0OiAgKCZzZXJpby0+ZHJ2X211dGV4KXsrLisufSwgYXQ6IFs8
+MDAwMDAwMDA5NzE5Zjk5Nz5dIHNlcmlvX2Rpc2Nvbm5lY3RfZHJpdmVyKzB4MTYvMHg0MAo+ID4+
+ICAjNTogIChwc21vdXNlX211dGV4KXsrLisufSwgYXQ6IFs8MDAwMDAwMDAxNGY0NGJjYz5dIHBz
+bW91c2VfZGlzY29ubmVjdCsweDYyLzB4MTYwCj4gPj4KPiA+PiBzdGFjayBiYWNrdHJhY2U6Cj4g
+Pj4gQ1BVOiAwIFBJRDogMTAyIENvbW06IGt3b3JrZXIvMDozIFRhaW50ZWQ6IEcgICAgIFUgICAg
+ICAgICAgIDQuMTYuMC1yYzUtZzYxM2ViODg1YjY5ZS1kcm10aXBfMSsgIzEKPiA+PiBIYXJkd2Fy
+ZSBuYW1lOiBMRU5PVk8gNzQ1OTFQMC83NDU5MVAwLCBCSU9TIDZERVQyOFdXICgxLjA1ICkgMDcv
+MzAvMjAwOAo+ID4+IFdvcmtxdWV1ZTogZXZlbnRzX2xvbmcgc2VyaW9faGFuZGxlX2V2ZW50Cj4g
+Pj4gQ2FsbCBUcmFjZToKPiA+PiAgZHVtcF9zdGFjaysweDVmLzB4ODYKPiA+PiAgcHJpbnRfY2ly
+Y3VsYXJfYnVnLmlzcmEuMTgrMHgxZDAvMHgyYzAKPiA+PiAgX19sb2NrX2FjcXVpcmUrMHgxNGFl
+LzB4MWI2MAo+ID4+ICA/IGtlcm5mc19yZW1vdmVfYnlfbmFtZV9ucysweDIwLzB4ODAKPiA+PiAg
+PyBsb2NrX2FjcXVpcmUrMHhhZi8weDIwMAo+ID4+ICBsb2NrX2FjcXVpcmUrMHhhZi8weDIwMAo+
+ID4+ICA/IGtlcm5mc19yZW1vdmVfYnlfbmFtZV9ucysweDNiLzB4ODAKPiA+PiAgX19rZXJuZnNf
+cmVtb3ZlKzB4MjQzLzB4MmIwCj4gPj4gID8ga2VybmZzX3JlbW92ZV9ieV9uYW1lX25zKzB4M2Iv
+MHg4MAo+ID4+ICA/IGtlcm5mc19uYW1lX2hhc2grMHhkLzB4NzAKPiA+PiAgPyBrZXJuZnNfZmlu
+ZF9ucysweDdlLzB4MTAwCj4gPj4gIGtlcm5mc19yZW1vdmVfYnlfbmFtZV9ucysweDNiLzB4ODAK
+PiA+PiAgcmVtb3ZlX2ZpbGVzLmlzcmEuMCsweDJiLzB4NjAKPiA+PiAgc3lzZnNfcmVtb3ZlX2dy
+b3VwKzB4MzgvMHg4MAo+ID4+ICBzeXNmc19yZW1vdmVfZ3JvdXBzKzB4MjQvMHg0MAo+ID4+ICB0
+cmFja3BvaW50X2Rpc2Nvbm5lY3QrMHgyYy8weDUwCj4gPj4gIHBzbW91c2VfZGlzY29ubmVjdCsw
+eDhmLzB4MTYwCj4gPj4gIHNlcmlvX2Rpc2Nvbm5lY3RfZHJpdmVyKzB4MjgvMHg0MAo+ID4+ICBz
+ZXJpb19kcml2ZXJfcmVtb3ZlKzB4Yy8weDEwCj4gPj4gIGRldmljZV9yZWxlYXNlX2RyaXZlcl9p
+bnRlcm5hbCsweDE1Yi8weDIzMAo+ID4+ICBzZXJpb19oYW5kbGVfZXZlbnQrMHgxYzgvMHgyNjAK
+PiA+PiAgcHJvY2Vzc19vbmVfd29yaysweDIxNS8weDYyMAo+ID4+ICB3b3JrZXJfdGhyZWFkKzB4
+NDgvMHgzYTAKPiA+PiAgPyBfcmF3X3NwaW5fdW5sb2NrX2lycXJlc3RvcmUrMHg0Yy8weDYwCj4g
+Pj4gIGt0aHJlYWQrMHhmYi8weDEzMAo+ID4+ICA/IHByb2Nlc3Nfb25lX3dvcmsrMHg2MjAvMHg2
+MjAKPiA+PiAgPyBfa3RocmVhZF9jcmVhdGVfb25fbm9kZSsweDMwLzB4MzAKPiA+PiAgcmV0X2Zy
+b21fZm9yaysweDNhLzB4NTAKPiA+Pgo+ID4+IFNpZ25lZC1vZmYtYnk6IERhbmllbCBWZXR0ZXIg
+PGRhbmllbC52ZXR0ZXJAaW50ZWwuY29tPgo+ID4+IENjOiBEbWl0cnkgVG9yb2tob3YgPGRtaXRy
+eS50b3Jva2hvdkBnbWFpbC5jb20+Cj4gPj4gQ2M6IEJlbmphbWluIFRpc3NvaXJlcyA8YmVuamFt
+aW4udGlzc29pcmVzQHJlZGhhdC5jb20+Cj4gPj4gQ2M6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52
+ZXR0ZXJAZmZ3bGwuY2g+Cj4gPj4gQ2M6IEFydmluZCBZYWRhdiA8YXJ2aW5kLnlhZGF2LmNzQGdt
+YWlsLmNvbT4KPiA+PiBDYzogU3RlcGhlbiBMeW9ucyA8c2x5c3ZlbkB2aXJnaW5tZWRpYS5jb20+
+Cj4gPj4gQ2M6IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZwo+ID4+IC0tLQo+ID4+ICBkcml2
+ZXJzL2lucHV0L21vdXNlL3BzbW91c2UtYmFzZS5jIHwgMiArKwo+ID4+ICAxIGZpbGUgY2hhbmdl
+ZCwgMiBpbnNlcnRpb25zKCspCj4gPj4KPiA+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9t
+b3VzZS9wc21vdXNlLWJhc2UuYyBiL2RyaXZlcnMvaW5wdXQvbW91c2UvcHNtb3VzZS1iYXNlLmMK
+PiA+PiBpbmRleCA4OTAwYzMxNjZlYmYuLjA2Y2NkOGUyMmYzYyAxMDA2NDQKPiA+PiAtLS0gYS9k
+cml2ZXJzL2lucHV0L21vdXNlL3BzbW91c2UtYmFzZS5jCj4gPj4gKysrIGIvZHJpdmVycy9pbnB1
+dC9tb3VzZS9wc21vdXNlLWJhc2UuYwo+ID4+IEBAIC0xNDg0LDggKzE0ODQsMTAgQEAgc3RhdGlj
+IHZvaWQgcHNtb3VzZV9kaXNjb25uZWN0KHN0cnVjdCBzZXJpbyAqc2VyaW8pCj4gPj4gICAgICAg
+ICAgICAgICBwc21vdXNlX2RlYWN0aXZhdGUocGFyZW50KTsKPiA+PiAgICAgICB9Cj4gPj4KPiA+
+PiArICAgICBtdXRleF91bmxvY2soJnBzbW91c2VfbXV0ZXgpOwo+ID4+ICAgICAgIGlmIChwc21v
+dXNlLT5kaXNjb25uZWN0KQo+ID4+ICAgICAgICAgICAgICAgcHNtb3VzZS0+ZGlzY29ubmVjdChw
+c21vdXNlKTsKPiA+PiArICAgICBtdXRleF9sb2NrKCZwc21vdXNlX211dGV4KTsKPiA+Cj4gPiBX
+aHkgZG8geW91IHRoaW5rIGl0IGlzIHByb3BlciB0byBkcm9wIHRoaXMgbXV0ZXg/IEl0IGlzIGlu
+dHJvZHVjZWQgZm9yIGEKPiA+IHJlYXNvbi4KPiA+Cj4gPiBJIHRoaW5rIHRoZSB0cmFjZSB5b3Ug
+YXJlIHNlZWluZyBpcyBkdWUgdG86Cj4gPgo+ID4gY29tbWl0IDk4OGNkN2FmYjNmMzc1OTg4OTFj
+YTcwYjRjNmViOTE0YzMzOGM0NmEKPiA+IEF1dGhvcjogVGVqdW4gSGVvIDx0akBrZXJuZWwub3Jn
+Pgo+ID4gRGF0ZTogICBNb24gRmViIDMgMTQ6MDI6NTggMjAxNCAtMDUwMAo+ID4KPiA+ICAgICBr
+ZXJuZnM6IHJlbW92ZSBrZXJuZnNfYWRkcm1fY3h0Cj4gPgo+ID4gd2hlcmUgd2Ugc3RhcnRlZCB0
+YWtpbmcga2VybmZzX211dGV4IHdoZW4gYWRkaW5nL3JlbW92aW5nIHN5c2ZzIGZpbGVzLgo+ID4g
+VWx0aW1hdGVseSBJIHRoaW5rIHdlIG1heSBoYXZlIHRvIGNoYW5nZSBzd2l0Y2hpbmcgcHJvdG9j
+b2wgdG8gYSB3b3JrCj4gPiBpdGVtIHRvIGJlIGRvbmUgYXN5bmNocm9ub3VzbHkgZnJvbSB3cml0
+aW5nIHRvIHN5c2ZzIGF0dHJpYnV0ZS4KPgo+IFdlbGwgImhvbGRpbmcgYSBsb2NrIHdoaWxlIGFk
+ZGluZy9yZW1vdmluZyBzeXNmcyBmaWxlcyBhbmQgaG9sZGluZyB0aGUKPiBzYW1lIGxvY2sgZnJv
+bSBzeXNmcyByZWFkL3dyaXRlIGNhbGxiYWNrcyIgaXMgYSBjbGFzc2ljIGRlYWRsb2NrLiBJJ3Zl
+Cj4gbWFkZSBsb2NrZGVwIHNodXQgdXAgYWJvdXQgaXQsIEkgaGF2ZSBubyBpZGVhIGhvdyB0byBm
+aXggaXQgcHJvcGVybHkuCj4ga2VybmZzIHN3aXRjaGluZyBpdCdzIGxvY2tpbmcgZG9lc24ndCBj
+aGFuZ2UgYW55dGhpbmcgaGVyZS4KPgo+IEdlbmVyYWxseSB0aGUgZml4IGlzIHRvIHVudGFuZ2xl
+IHRoZSBsb2NraW5nOiBZb3UgbmVlZCAxIHNldCBvZiBsb2Nrcwo+IHRvIHByb3RlY3QgdGhlIGRh
+dGFzdHJ1Y3R1cmVzIGV4cG9zZWQgdGhyb3VnaCBzeXNmcywgYW5kIGFub3RoZXIgdGhpbmcKPiAo
+bWF5YmUgdGhhdCdzIHByb3ZpZGVkIGJ5IHNlcmlvIGFscmVhZHksIEkgaGF2ZSBubyBpZGVhKSB0
+byBtYWtlIHN1cmUKPiB5b3UncmUgb3JkZXJpbmcgY29ubmVjdC9kaXNjb25uZWN0IGhhbmRsaW5n
+IGNvcnJlY3QgYW5kIHRoZXJlJ3Mgbm90Cj4gY29uY3VycmVudCBjYWxscyB0byB0aGlzIGhvb2tz
+LiBBc3N1bWluZyBzZXJpbyBkb2VzIGdpdmUgdGhhdAo+IGd1YXJhbnRlZSB0aGVuIHRoZXJlJ3Mg
+bm8gbmVlZCB0byBob2xkIHRoZSBsb2NrIHdoaWxlIHVucmVnaXN0ZXJpbmcKPiB0aGUgc3lzZnMg
+ZmlsZXMgKHdlIGNvdWxkIHBlcmhhcHMgcHVzaCB0aGUgbG9jayBkcm9wcGluZyBkb3duIGludG8K
+PiB0cmFja3BvaW50X2Rpc2Nvbm5lY3QsIGJ1dCB0aGF0J3MgbGVzcyBtYWludGFpbmFibGUgaW1v
+IHNpbmNlIGl0J3Mgbm90Cj4gb2J2aW91cyBpbiBwc21vdXNlX2Rpc2Nvbm5lY3Qgd2hhdCdzIGdv
+aW5nIG9uKSwgYW5kIG15IHBhdGNoIGlzCj4gY29ycmVjdC4KPgo+IEJ1dCBJIGRpZG4ndCBkbyBh
+IGZ1bGwgbG9ja2luZyBhdWRpdCBvZiB3aGF0IGV4YWN0bHkgc2VyaW8gZ3VhcmFudGVlcywKPiBh
+bmQgd2hhdCBleGFjdGx5IHBzbW91c2VfbXV0ZXggbmVlZHMgdG8gcHJvdGVjdCAoYW5kIHdoZXJl
+Cj4gcHNtb3VzZV9tdXRleCBpcyBvbmx5IGhlbGQgYmVjYXVzZSBpdCdzIGNvbnZlbmllbnQpLgoK
+UGluZz8gSnVzdCBub3RpY2VkIHRoYXQgSSBzdGlsbCBoYXZlIHRoaXMgYnVnZml4IGhhbmdpbmcg
+YXJvdW5kLgpidWdmaXggYXMgaW4gIm1ha2UgbG9ja2RlcCBtb3JlIHVzZWZ1bCIsIG5vdCBuZWNl
+c3NhcmlseSBmaXhpbmcgdGhlCmxvY2tpbmcgaGVyZSBwcm9wZXJseS4gSSBndWVzcyBJIGNvdWxk
+IHJlc3BpbiB0byBhZGQgYSBGSVhNRSBjb21tZW50LApidXQgbm90IHN1cmUgaG93IHVzZWZ1bCB0
+aGF0IHdvdWxkIGJlLgotRGFuaWVsCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3YXJlIEVuZ2luZWVy
+LCBJbnRlbCBDb3Jwb3JhdGlvbgorNDEgKDApIDc5IDM2NSA1NyA0OCAtIGh0dHA6Ly9ibG9nLmZm
+d2xsLmNoCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCklu
+dGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRw
+czovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeAo=

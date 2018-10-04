@@ -1,109 +1,64 @@
-From: Vladis Dronov <vdronov@redhat.com>
-Subject: [PATCH 3/3] HID: debug: fix the ring buffer writer implementation
-Date: Wed,  3 Oct 2018 19:19:36 +0200
-Message-ID: <20181003171936.11271-4-vdronov@redhat.com>
-References: <20181003171936.11271-1-vdronov@redhat.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+Subject: Re: [PATCH V2] hid: hid-core: Fix a sleep-in-atomic-context bug in
+ __hid_request()
+Date: Thu, 4 Oct 2018 11:14:52 +0800
+Message-ID: <6bea4185-3325-b04d-56ed-2fdf4c74d8ae@gmail.com>
+References: <20180913033432.16336-1-baijiaju1990@gmail.com>
+ <nycvar.YFH.7.76.1809241124480.15880@cbobk.fhfr.pm>
+ <4c0096c6-3745-963c-5086-5f579792599b@gmail.com>
+ <nycvar.YFH.7.76.1809292118240.15880@cbobk.fhfr.pm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181003171936.11271-1-vdronov@redhat.com>
+In-Reply-To: <nycvar.YFH.7.76.1809292118240.15880@cbobk.fhfr.pm>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Vladis Dronov <vdronov@redhat.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-ring buffer implementation hid_debug_event() is strange allowing a lost
-of data. it does not move head pointer on append and uses per-byte for()
-loop. fix this by introducing a new ring buffer implementation, which
-overwrites the oldest data in case of the ring buffer overflow. it uses
-some calculations for the buffer pointers but only 2 or less memcpy()
-calls.
 
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
----
- drivers/hid/hid-debug.c | 66 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 58 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index de640e4132c7..63247ac4a9ce 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -661,20 +661,70 @@ EXPORT_SYMBOL_GPL(hid_dump_device);
- /* enqueue string to 'events' ring buffer */
- void hid_debug_event(struct hid_device *hdev, char *buf)
- {
--	unsigned i;
- 	struct hid_debug_list *list;
--	unsigned long flags, flags2;
-+	unsigned long flags1, flags2;
-+	unsigned int part1, part2;
-+	size_t len;
- 
--	spin_lock_irqsave(&hdev->debug_list_lock, flags);
-+	if (!buf || !buf[0])
-+		return;
-+
-+	len = strlen(buf);
-+
-+	spin_lock_irqsave(&hdev->debug_list_lock, flags1);
- 	list_for_each_entry(list, &hdev->debug_list, node) {
- 		spin_lock_irqsave(&list->list_lock, flags2);
--		for (i = 0; buf[i]; i++)
--			list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
--				buf[i];
--		list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
-+
-+		/* len >= BUFSIZE, copy the last HID_DEBUG_BUFSIZE-1 bytes */
-+		if (len > HID_DEBUG_BUFSIZE - 1) {
-+			memcpy(list->hid_debug_buf,
-+				buf + len - (HID_DEBUG_BUFSIZE - 1),
-+				HID_DEBUG_BUFSIZE - 1);
-+
-+			list->head = 0;
-+			list->tail = HID_DEBUG_BUFSIZE - 1;
-+		} else {
-+			/* append data to the ring buffer */
-+			part1 = min_t(size_t, HID_DEBUG_BUFSIZE - list->tail,
-+					len);
-+			part2 = len - part1;
-+
-+			memcpy(list->hid_debug_buf + list->tail, buf, part1);
-+
-+			/* check if head must be moved as the ring is full */
-+			if ((list->tail < list->head) &&
-+			    (list->tail + part1 >= list->head)) {
-+				list->head = list->tail + part1 + 1;
-+
-+				if (list->head >= HID_DEBUG_BUFSIZE)
-+					list->head -= HID_DEBUG_BUFSIZE;
-+			}
-+
-+			/* set tail after the end of appended data */
-+			list->tail = list->tail + part1;
-+			if (list->tail == HID_DEBUG_BUFSIZE) {
-+				list->tail = 0;
-+				if (list->head == 0)
-+					list->head = 1;
-+			}
-+
-+			/* append the 2nd part of data to the ring */
-+			if (part2 > 0) {
-+				memcpy(list->hid_debug_buf, buf + part1, part2);
-+
-+				/* check if head must be moved again as
-+				 * the ring is full
-+				 */
-+				if (list->tail + part2 >= list->head)
-+					list->head = list->tail + part2 + 1;
-+
-+				list->tail = list->tail + part2;
-+			}
-+		}
-+
- 		spin_unlock_irqrestore(&list->list_lock, flags2);
- 	}
--	spin_unlock_irqrestore(&hdev->debug_list_lock, flags);
-+	spin_unlock_irqrestore(&hdev->debug_list_lock, flags1);
- 
- 	wake_up_interruptible(&hdev->debug_wait);
- }
--- 
-2.19.0
+On 2018/9/30 3:20, Jiri Kosina wrote:
+> On Sat, 29 Sep 2018, Jia-Ju Bai wrote:
+>
+>>>> picolcd_send_and_wait (acquire a spinlock)
+>>>>     hid_hw_request
+>>>>       __hid_request
+>>>>         hid_alloc_report_buf(GFP_KERNEL)
+>>>>
+>>>> picolcd_reset (acquire a spinlock)
+>>>>     hid_hw_request
+>>>>       __hid_request
+>>>>         hid_alloc_report_buf(GFP_KERNEL)
+>>>>
+>>>> lg4ff_play (acquire a spinlock)
+>>>>     hid_hw_request
+>>>>       __hid_request
+>>>>         hid_alloc_report_buf(GFP_KERNEL)
+>>>>
+>>>> lg4ff_set_autocenter_ffex (acquire a spinlock)
+>>>>     hid_hw_request
+>>>>       __hid_request
+>>>>         hid_alloc_report_buf(GFP_KERNEL)
+>>> Hm, so it's always drivers calling out into core in atomic context. So
+>>> either we take this, and put our bets on being able to allocate the buffer
+>>> without sleeping,
+>> In my opinion, I prefer this way.
+> Why? Forcing all the report buffer to be limited to be non-sleeping
+> allocations just because of two drivers, looks like an overkill, and
+> actually calls for more issues (as GFP_ATOMIC is of course in principle
+> less likely to succeed).
+>
+
+Okay, I thought that using GFP_ATOMIC is the simplest way to fix these bugs.
+But I check the Linux kernel code again, and find that hid_hw_request() 
+are called at many places.
+So changing this function may affect many drivers.
+I agree to only change the two drivers, and explicitly anotate 
+__hid_request() with might_sleep().
+
+
+Best wishes,
+Jia-Ju Bai

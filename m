@@ -1,35 +1,43 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH V2] hid: hid-core: Fix a sleep-in-atomic-context bug in
- __hid_request()
-Date: Thu, 4 Oct 2018 09:35:35 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1810040935090.14430@cbobk.fhfr.pm>
-References: <20180913033432.16336-1-baijiaju1990@gmail.com> <nycvar.YFH.7.76.1809241124480.15880@cbobk.fhfr.pm> <4c0096c6-3745-963c-5086-5f579792599b@gmail.com> <nycvar.YFH.7.76.1809292118240.15880@cbobk.fhfr.pm>
- <6bea4185-3325-b04d-56ed-2fdf4c74d8ae@gmail.com>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: [PATCH V7 0/3]  da7280: haptic driver submission
+Date: Thu, 4 Oct 2018 15:45:41 +0900
+Message-ID: <cover.1538635541.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6bea4185-3325-b04d-56ed-2fdf4c74d8ae@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jia-Ju Bai <baijiaju1990@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 4 Oct 2018, Jia-Ju Bai wrote:
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-> > Why? Forcing all the report buffer to be limited to be non-sleeping
-> > allocations just because of two drivers, looks like an overkill, and
-> > actually calls for more issues (as GFP_ATOMIC is of course in principle
-> > less likely to succeed).
-> 
-> Okay, I thought that using GFP_ATOMIC is the simplest way to fix these bugs.
-> But I check the Linux kernel code again, and find that hid_hw_request() are
-> called at many places.
-> So changing this function may affect many drivers.
-> I agree to only change the two drivers, and explicitly anotate __hid_request()
-> with might_sleep().
+In this patch set the following is provided:
 
-Thanks. Are you planning to submit a patch to do that?
+[PATCH V2 1/3] MAINTAINERS file update for DA7280
+[PATCH V2 2/3] DA7280 DT Binding
+[PATCH V2 3/3] DA7280 Driver
+
+This patch applies against linux-next and v4.19-rc6
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1393 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1926 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
 
 -- 
-Jiri Kosina
-SUSE Labs
+end-of-patch for PATCH V7

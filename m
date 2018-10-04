@@ -1,47 +1,75 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] Input: reserve 2 events code because of HID
-Date: Thu, 4 Oct 2018 21:09:43 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1810042109100.14430@cbobk.fhfr.pm>
-References: <20181004123430.29348-1-benjamin.tissoires@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
+Subject: Re: [PATCH] Input: mousedev - add a schedule point in mousedev_write()
+Date: Thu, 4 Oct 2018 12:28:56 -0700
+Message-ID: <CANn89iJMhGEkw13KrGbqrvGbznb45QZwdr7eLy_rUV6zitvs=Q@mail.gmail.com>
+References: <20181004154749.111595-1-edumazet@google.com> <20181004185949.GA233675@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181004123430.29348-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <20181004185949.GA233675@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Eric Dumazet <eric.dumazet@gmail.com>, linux-input@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 4 Oct 2018, Benjamin Tissoires wrote:
+On Thu, Oct 4, 2018 at 11:59 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Eric,
+>
+> On Thu, Oct 04, 2018 at 08:47:49AM -0700, Eric Dumazet wrote:
+> > syzbot was able to trigger rcu stalls by calling write()
+> > with large number of bytes.
+> >
+> > Add a cond_resched() in the loop to avoid this.
+>
+> I think this simply masks a deeper issue. The code fetches characters
+> from userspace in a loop, takes a lock, quickly places response in an
+> output buffer, and releases interrupt. I do not see why this should
+> cause stalls as we do not hold spinlock/interrupts off for extended
+> period of time.
+>
+> Adding Paul so he can straighten me out...
+>
 
-> Prior to commit 190d7f02ce8e ("HID: input: do not increment usages when
-> a duplicate is found") from the v4.18 kernel, HID used to shift the
-> event codes if a duplicate usage was found. This ended up in a situation
-> where a device would export a ton of ABS_MISC+n event codes, or a ton
-> of REL_MISC+n event codes.
-> 
-> This is now fixed, however userspace needs to detect those situation.
-> Fortunately, ABS_MT_SLOT-1 (ABS_MISC+6) was never assigned a code, and
-> so libinput can detect fake multitouch devices from genuine ones by
-> checking if ABS_MT_SLOT-1 is set.
-> 
-> Now that we have REL_WHEEL_HI_RES, libinput won't be able to differentiate
-> true high res mice from some other device in a pre-v4.18 kernel.
-> 
-> Set in stone that the ABS_MISC+6 and REL_MISC+1 are reserved and should not
-> be used so userspace can properly work around those old kernels.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Dmitry, I did not take your Acked-by, as I added 2 new events and wanted to
-> be sure you are still OK.
-> 
-> Jiri, this will still need to go through your tree, as the input-event-codes
-> changes that introduce REL_WHEEL_HI_RES are in your for-4.20/logitech-highres.
+Well...
 
-Applied, thanks Benjamin.
+write(fd, buffer, 0x7FFF0000);
 
--- 
-Jiri Kosina
-SUSE Labs
+Takes between 20 seconds and 2 minutes depending on CONFIG options ....
+
+So either apply my patch, or add a limit on the max count, and
+possibly break legitimate user space ?
+
+I dunno...
+
+> >
+> > Link: https://lkml.org/lkml/2018/8/23/1106
+> > Signed-off-by: Eric Dumazet <edumazet@google.com>
+> > Reported-by: syzbot+9436b02171ac0894d33e@syzkaller.appspotmail.com
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: linux-input@vger.kernel.org
+> > ---
+> >  drivers/input/mousedev.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+> > index e08228061bcdd2f97aaadece31d6c83eb7539ae5..412fa71245afe26a7a8ad75705566f83633ba347 100644
+> > --- a/drivers/input/mousedev.c
+> > +++ b/drivers/input/mousedev.c
+> > @@ -707,6 +707,7 @@ static ssize_t mousedev_write(struct file *file, const char __user *buffer,
+> >               mousedev_generate_response(client, c);
+> >
+> >               spin_unlock_irq(&client->packet_lock);
+> > +             cond_resched();
+> >       }
+> >
+> >       kill_fasync(&client->fasync, SIGIO, POLL_IN);
+> > --
+> > 2.19.0.605.g01d371f741-goog
+> >
+>
+> Thanks.
+>
+> --
+> Dmitry

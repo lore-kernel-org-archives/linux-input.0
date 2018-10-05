@@ -1,70 +1,33 @@
-From: Vignesh R <vigneshr@ti.com>
-Subject: Re: [PATCH 0/5] ti_am335x_tsc: Enable wakeup capability
-Date: Fri, 5 Oct 2018 10:41:02 +0530
-Message-ID: <c53a8853-2571-75bc-0cd0-bda9ba906e0a@ti.com>
-References: <20180630103318.25355-1-vigneshr@ti.com>
- <dcb4a63b-9ecb-a72e-bfb8-ebb62017b4f7@ti.com> <20180718074736.GA4641@dell>
- <20180718170902.vk7rahyoaevucxbi@penguin> <20180723053708.GA4213@dell>
- <2236aa96-ca56-fa30-157d-2f484c6968cc@ti.com> <20180725052621.GB5835@dell>
- <f61848d8-57f6-14c0-eb74-cab488ceda50@ti.com>
+From: Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH] input: st1232: set INPUT_PROP_DIRECT property
+Date: Fri,  5 Oct 2018 10:14:07 +0200
+Message-ID: <20181005081407.15376-1-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f61848d8-57f6-14c0-eb74-cab488ceda50@ti.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, geert+renesas@glider.be
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
 List-Id: linux-input@vger.kernel.org
 
-On Friday 28 September 2018 11:42 AM, Vignesh R wrote:
-> Hi Lee,
-> 
-> On Wednesday 25 July 2018 10:56 AM, Lee Jones wrote:
-> [...]
->>>>>>>>
->>>>>>>> Vignesh R (5):
->>>>>>>>   mfd: ti_am335x_tscadc: Don't mark TSCADC MFD as wakeup capable
->>>>>>>>   Input: ti_am335x_tsc: Mark TSC device as wakeup source
->>>>>>>>   mfd: ti_am335x_tscadc: Keep ADC interface on if child is wakeup
->>>>>>>>     capable
->>>>>>>>   iio: adc: ti_am335x_adc: Disable ADC during suspend unconditionally
->>>>>>>>   Input: ti_am335x_tsc: Mark IRQ as wakeup capable
->>>>>>>>
->>>>>>>>  drivers/iio/adc/ti_am335x_adc.c           | 12 ++++--------
->>>>>>>>  drivers/input/touchscreen/ti_am335x_tsc.c | 22 +++++++++++++++++-----
->>>>>>>>  drivers/mfd/ti_am335x_tscadc.c            | 14 +++++++++++++-
->>>>>>>>  3 files changed, 34 insertions(+), 14 deletions(-)
->>>>>>>>
->>>>>>>
->>>>>>> Gentle ping... Could you review/pick this series? MFD amd IIO bits are
->>>>>>> already ACKed
->>>>>>
->>>>>> MFD patches are reviewed "for my own reference" meaning that we
->>>>>> haven't yet agreed on a merge plan yet.
->>>>>
->>>>> I think this series makes sense to be pushed through a single tree as
->>>>> opposed to being spread between 3, even if it could technically be
->>>>> possible. It looks like Jonathan is fine with going it through either
->>>>> his or some other tree, I am fine with it going through MFD.
->>>>
->>>> I'm happy either way.
->>>>
->>> Thanks Dmitry, Jonathan and Lee Jones!
->>>
->>> Could this be applied to one of the trees now? MFD perhaps?
->>
->> It'll be applied, when it's applied. ;)
-> 
-> I see that this series was not picked up for v4.19. Could you consider
-> this series for v4.20? Patches apply cleanly against linux-next.
-> 
-> 
+This is how userspace checks for touchscreen devices most reliably.
 
-Gentle ping...
+Signed-off-by: Martin Kepplinger <martink@posteo.de>
+---
+ drivers/input/touchscreen/st1232.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index d5dfa4053bbf..b71673911aac 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -195,6 +195,7 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 	input_dev->id.bustype = BUS_I2C;
+ 	input_dev->dev.parent = &client->dev;
+ 
++	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 	__set_bit(EV_SYN, input_dev->evbit);
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(EV_ABS, input_dev->evbit);
 -- 
-Regards
-Vignesh
+2.19.0

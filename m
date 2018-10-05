@@ -1,32 +1,39 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH] Input: mousedev - add a schedule point in
- mousedev_write()
-Date: Thu, 4 Oct 2018 16:01:19 -0700
-Message-ID: <2664c117-76c0-a60b-d76a-350ae7b6351a@gmail.com>
-References: <20181004154749.111595-1-edumazet@google.com>
- <20181004185949.GA233675@dtor-ws> <20181004193407.GK2674@linux.ibm.com>
- <20181004225455.GC233675@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: evdev - add a schedule point in evdev_write()
+Date: Thu, 4 Oct 2018 17:53:59 -0700
+Message-ID: <20181005005359.GA218372@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181004225455.GC233675@dtor-ws>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Paul E. McKenney" <paulmck@linux.ibm.com>
-Cc: Eric Dumazet <edumazet@google.com>, linux-kernel <linux-kernel@vger.kernel.org>, Eric Dumazet <eric.dumazet@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Eric Dumazet <edumazet@google.com>, "Paul E. McKenney" <paulmck@linux.ibm.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Large writes to evdev interface may cause rcu stalls. Let's add
+cond_resched() to the loop to avoid this.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/evdev.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 370206f987f9..f48369d6f3a0 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -564,6 +564,7 @@ static ssize_t evdev_write(struct file *file, const char __user *buffer,
+ 
+ 		input_inject_event(&evdev->handle,
+ 				   event.type, event.code, event.value);
++		cond_resched();
+ 	}
+ 
+  out:
+-- 
+2.19.0.605.g01d371f741-goog
 
 
-On 10/04/2018 03:54 PM, Dmitry Torokhov wrote:
-
-> OK, I see. I'll apply the patch then.
-
-Thanks !
-
-> 
-> I think evdev.c needs similar treatment as it will keep looping while
-> there is data...
-
-Yeah, presumably other drivers need care as well :/
+-- 
+Dmitry

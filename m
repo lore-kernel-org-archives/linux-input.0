@@ -1,57 +1,66 @@
-From: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 05/17] compat_ioctl: move more drivers to
- generic_compat_ioctl_ptrarg
-Date: Sat, 6 Oct 2018 00:05:21 -0700
-Message-ID: <20181006070521.GM12063@builder>
-References: <20180912150142.157913-1-arnd@arndb.de>
- <20180912151134.436719-1-arnd@arndb.de>
+From: Marian Cepok <marian.cepok@gmail.com>
+Subject: [PATCH] platform/x86: touchscreen_dmi: Add info for the Trekstor
+ Primetab T13B tablet
+Date: Mon, 8 Oct 2018 09:25:05 +0200
+Message-ID: <20181008072505.GA8334@mcepok-pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180912151134.436719-1-arnd-r2nGTMty4D4@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-remoteproc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvme-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, qat-linux-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linaro-mm-sig-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, ceph-devel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-crypto-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, "David S. Miller" <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>, linux-btrfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: hdegoede@redhat.com
+Cc: dvhart@infradead.org, andy@infradead.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed 12 Sep 08:08 PDT 2018, Arnd Bergmann wrote:
+Add touchscreen info for the Trekstor Primetab T13B tablet.
 
-[..]
-> diff --git a/drivers/rpmsg/rpmsg_char.c b/drivers/rpmsg/rpmsg_char.c
-> index a76b963a7e50..02aefb2b2d47 100644
-> --- a/drivers/rpmsg/rpmsg_char.c
-> +++ b/drivers/rpmsg/rpmsg_char.c
-> @@ -285,7 +285,7 @@ static const struct file_operations rpmsg_eptdev_fops = {
->  	.write = rpmsg_eptdev_write,
->  	.poll = rpmsg_eptdev_poll,
->  	.unlocked_ioctl = rpmsg_eptdev_ioctl,
-> -	.compat_ioctl = rpmsg_eptdev_ioctl,
-> +	.compat_ioctl = generic_compat_ioctl_ptrarg,
->  };
->  
->  static ssize_t name_show(struct device *dev, struct device_attribute *attr,
-> @@ -446,7 +446,7 @@ static const struct file_operations rpmsg_ctrldev_fops = {
->  	.open = rpmsg_ctrldev_open,
->  	.release = rpmsg_ctrldev_release,
->  	.unlocked_ioctl = rpmsg_ctrldev_ioctl,
-> -	.compat_ioctl = rpmsg_ctrldev_ioctl,
-> +	.compat_ioctl = generic_compat_ioctl_ptrarg,
->  };
->  
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Marian Cepok <marian.cepok@gmail.com>
+---
+ drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-For rpmsg part
-
-Acked-by: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-Regards,
-Bjorn
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index cb204f973491..c07954f0efc6 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -381,6 +381,22 @@ static const struct ts_dmi_data trekstor_primebook_c13_data = {
+ 	.properties	= trekstor_primebook_c13_props,
+ };
+ 
++static const struct property_entry trekstor_primetab_t13b_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 2500),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1900),
++	PROPERTY_ENTRY_STRING("firmware-name",
++			      "gsl1680-trekstor-primetab-t13b.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	{ }
++};
++
++static const struct ts_dmi_data trekstor_primetab_t13b_data = {
++	.acpi_name  = "MSSL1680:00",
++	.properties = trekstor_primetab_t13b_props,
++};
++
+ static const struct property_entry trekstor_surftab_twin_10_1_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 1900),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-y", 1280),
+@@ -648,6 +664,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Primebook C13"),
+ 		},
+ 	},
++	{
++		/* Trekstor Primetab T13B */
++		.driver_data = (void *)&trekstor_primetab_t13b_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Primetab T13B"),
++		},
++	},
+ 	{
+ 		/* TrekStor SurfTab twin 10.1 ST10432-8 */
+ 		.driver_data = (void *)&trekstor_surftab_twin_10_1_data,
+-- 
+2.17.1

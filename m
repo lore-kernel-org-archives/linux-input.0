@@ -1,52 +1,39 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH] HID: google: drop superfluous const before SIMPLE_DEV_PM_OPS()
-Date: Tue, 9 Oct 2018 10:34:25 -0700
-Message-ID: <CAE_wzQ8X+BRtoA8ttKU-hncESNAOaRN4v7O8Ay2yKY9dK_PGAg@mail.gmail.com>
-References: <nycvar.YFH.7.76.1810091046050.14430@cbobk.fhfr.pm>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v3 8/8] watchdog: stpmic1: add stpmic1 watchdog driver
+Date: Tue, 9 Oct 2018 14:44:50 -0700
+Message-ID: <20181009214450.GA13702@roeck-us.net>
+References: <1539016176-4072-9-git-send-email-p.paillet@st.com>
+ <201810090846.it9ed9td%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1810091046050.14430@cbobk.fhfr.pm>
+Content-Disposition: inline
+In-Reply-To: <201810090846.it9ed9td%fengguang.wu@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: kbuild-all@01.org, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Oct 9, 2018 at 1:48 AM Jiri Kosina <jikos@kernel.org> wrote:
->
-> From: Jiri Kosina <jkosina@suse.cz>
->
-> SIMPLE_DEV_PM_OPS() already implies const for the type; drop the extra
-> modifier.
->
-> Fixes: eb1aac4c8744f75460c34d71b0c73bebf3e8ee5c ("HID: google: add support tablet mode switch for Whiskers")
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+On Tue, Oct 09, 2018 at 08:47:26AM +0800, kbuild test robot wrote:
+> Hi pascal,
+> 
+> Thank you for the patch! Perhaps something to improve:
+> 
 
-FWIW
+[ ... ]
 
-Acked-by: Dmitry Torokhov <dtor@chromium.org>
+>     42	
+>     43	static int pmic_wdt_stop(struct watchdog_device *wdd)
+>     44	{
+>     45		struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+>     46	
+>     47		return regmap_update_bits(wdt->pmic->regmap,
+>   > 48					  WCHDG_CR, WDT_START_MASK, ~WDT_START);
 
-> ---
->
-> In hid.git#for-4.20/google
->
->  drivers/hid/hid-google-hammer.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-> index de3e7d055ca4..ee5e0bdcf078 100644
-> --- a/drivers/hid/hid-google-hammer.c
-> +++ b/drivers/hid/hid-google-hammer.c
-> @@ -161,7 +161,7 @@ static __maybe_unused int cbas_ec_resume(struct device *dev)
->         return 0;
->  }
->
-> -static const SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
-> +static SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
->
->  static void cbas_ec_set_input(struct input_dev *input)
->  {
->
-> --
-> Jiri Kosina
-> SUSE Labs
+Maybe use
+
+#define WDT_STOP	0
+
+instead, or just write 0. ~WDT_START may be convenient but not really correct.
+
+Guenter

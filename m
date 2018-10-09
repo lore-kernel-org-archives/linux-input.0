@@ -1,44 +1,38 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: [PATCH] HID: google: drop superfluous const before
- SIMPLE_DEV_PM_OPS()
-Date: Tue, 9 Oct 2018 10:48:04 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1810091046050.14430@cbobk.fhfr.pm>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/5] mfd: ti_am335x_tscadc: Don't mark TSCADC MFD as
+ wakeup capable
+Date: Tue, 9 Oct 2018 11:29:49 +0100
+Message-ID: <20181009102949.GM4939@dell>
+References: <20180630103318.25355-1-vigneshr@ti.com>
+ <20180630103318.25355-2-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180630103318.25355-2-vigneshr@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dtor@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Vignesh R <vigneshr@ti.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-iio@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+On Sat, 30 Jun 2018, Vignesh R wrote:
 
-SIMPLE_DEV_PM_OPS() already implies const for the type; drop the extra 
-modifier.
+> Currently tscadc MFD is marked as wakeup capable which incorrect
+> because, its actually touch event by child TSC device that wakes up the
+> system. Therefore, remove device_init_wakeup() call that marks TSCADC
+> device as wakeup capable in favor of moving to mark TSC input device as
+> wakeup capable later.
+> 
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> ---
+>  drivers/mfd/ti_am335x_tscadc.c | 1 -
+>  1 file changed, 1 deletion(-)
 
-Fixes: eb1aac4c8744f75460c34d71b0c73bebf3e8ee5c ("HID: google: add support tablet mode switch for Whiskers")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
-
-In hid.git#for-4.20/google
-
- drivers/hid/hid-google-hammer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index de3e7d055ca4..ee5e0bdcf078 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -161,7 +161,7 @@ static __maybe_unused int cbas_ec_resume(struct device *dev)
- 	return 0;
- }
- 
--static const SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
-+static SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
- 
- static void cbas_ec_set_input(struct input_dev *input)
- {
+Applied, thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

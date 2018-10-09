@@ -1,73 +1,52 @@
-From: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: Re: [PATCH v3 5/8] dt-bindings: input: document stpmic1 pmic onkey
-Date: Tue, 9 Oct 2018 13:52:52 +0000
-Message-ID: <5BBCB2B4.4070104@st.com>
-References: <1539016176-4072-1-git-send-email-p.paillet@st.com>
- <1539016176-4072-6-git-send-email-p.paillet@st.com>
+From: Dmitry Torokhov <dtor@chromium.org>
+Subject: Re: [PATCH] HID: google: drop superfluous const before SIMPLE_DEV_PM_OPS()
+Date: Tue, 9 Oct 2018 10:34:25 -0700
+Message-ID: <CAE_wzQ8X+BRtoA8ttKU-hncESNAOaRN4v7O8Ay2yKY9dK_PGAg@mail.gmail.com>
+References: <nycvar.YFH.7.76.1810091046050.14430@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1539016176-4072-6-git-send-email-p.paillet@st.com>
-Content-Language: en-US
-Content-ID: <0E93B6F714354E4691589622724375B9@st.com>
+In-Reply-To: <nycvar.YFH.7.76.1810091046050.14430@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Le 10/08/2018 06:29 PM, Pascal PAILLET-LME a écrit :
-> From: pascal paillet <p.paillet@st.com>
+On Tue, Oct 9, 2018 at 1:48 AM Jiri Kosina <jikos@kernel.org> wrote:
 >
-> The stpmic1 pmic is able to manage an onkey button. It can be configured
-> to shut-down the power supplies on a long key-press with an adjustable
-> duration.
+> From: Jiri Kosina <jkosina@suse.cz>
 >
-> Signed-off-by: pascal paillet <p.paillet@st.com>
-> ---
-> changes in v3:
-> * Replace st,onkey-long-press-seconds and st,onkey-pwroff-enabled by
-> power-off-time-sec.
+> SIMPLE_DEV_PM_OPS() already implies const for the type; drop the extra
+> modifier.
 >
->   .../devicetree/bindings/input/st,stpmic1-onkey.txt | 30 ++++++++++++++++++++++
->   1 file changed, 30 insertions(+)
->   create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
->
-> diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> new file mode 100644
-> index 0000000..8c58186
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> @@ -0,0 +1,30 @@
-> +STMicroelectronics STPMIC1 Onkey
-> +
-> +Required properties:
-> +
-> +- compatible = "st,stpmic1-onkey";
-> +- interrupt-parent: phandle to the parent interrupt controller
-> +- interrupts: interrupt line to use
-> +- interrupt-names = "onkey-falling", "onkey-rising"
-> +	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
-> +	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
-> +
-> +Optional properties:
-> +
-> +- st,onkey-clear-cc-flag: onkey is able power on after an
-> +  over-current shutdown event.
-> +- st,onkey-pu-inactive: onkey pull up is not active
-> +- power-off-time-sec: Duration in seconds which the key should be kept
-> +        pressed for device to power off automatically (from 1 to 16 seconds).
-> +        see See Documentation/devicetree/bindings/input/keys.txt
-> +
-> +Example:
-> +
-> +onkey {
-> +	compatible = "st,stpmic1-onkey";
-> +	interrupt-parent = <&pmic>;
-> +	interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-> +	interrupt-names = "onkey-falling", "onkey-rising";
-> +	st,onkey-pwroff-enabled;
-> +	st,onkey-long-press-seconds = <10>;
-st,onkey-pwroff-enabled and st,onkey-long-press-seconds to be replaced 
-by power-off-time-sec
+> Fixes: eb1aac4c8744f75460c34d71b0c73bebf3e8ee5c ("HID: google: add support tablet mode switch for Whiskers")
+> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-> +};
+FWIW
+
+Acked-by: Dmitry Torokhov <dtor@chromium.org>
+
+> ---
+>
+> In hid.git#for-4.20/google
+>
+>  drivers/hid/hid-google-hammer.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+> index de3e7d055ca4..ee5e0bdcf078 100644
+> --- a/drivers/hid/hid-google-hammer.c
+> +++ b/drivers/hid/hid-google-hammer.c
+> @@ -161,7 +161,7 @@ static __maybe_unused int cbas_ec_resume(struct device *dev)
+>         return 0;
+>  }
+>
+> -static const SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
+> +static SIMPLE_DEV_PM_OPS(cbas_ec_pm_ops, NULL, cbas_ec_resume);
+>
+>  static void cbas_ec_set_input(struct input_dev *input)
+>  {
+>
+> --
+> Jiri Kosina
+> SUSE Labs

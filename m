@@ -1,45 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 5/8] Input: olpc_apsp: depend on CONFIG_OF
-Date: Wed, 10 Oct 2018 10:18:08 -0700
-Message-ID: <20181010171808.GF47260@dtor-ws>
-References: <20181010142504.233467-1-lkundrak@v3.sk>
- <20181010142504.233467-6-lkundrak@v3.sk>
+From: Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH v2] Input: elants_i2c - Use DMA safe i2c when possible
+Date: Wed, 10 Oct 2018 13:00:17 -0700
+Message-ID: <20181010200017.255874-1-swboyd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181010142504.233467-6-lkundrak@v3.sk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 10, 2018 at 04:25:01PM +0200, Lubomir Rintel wrote:
-> This is a device-tree enabled driver. Moreover CONFIG_OLPC is specific
-> to the x86 platform code, while the driver is for an ARM-based laptop.
-> 
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-> ---
->  drivers/input/serio/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-> index d90d9f1098ff..a4f70021b53e 100644
-> --- a/drivers/input/serio/Kconfig
-> +++ b/drivers/input/serio/Kconfig
-> @@ -254,7 +254,7 @@ config SERIO_APBPS2
->  
->  config SERIO_OLPC_APSP
->  	tristate "OLPC AP-SP input support"
-> -	depends on OLPC || COMPILE_TEST
-> +	depends on OF
+This irq handler is always reading bytes from the device into a
+kmalloced buffer, so it's safe to mark this transaction as DMA safe.
+This avoids bouncing the buffer when an i2c controller decides to use
+DMA for a transaction.
 
-I do not see anything in the driver that depends on OF. If OLPC is not
-right dependency, then let's drop the whole depends.
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+---
 
-Are you going to be submitting DTS files for the platform?
+Changes from v1:
+ * Moved buf to end of structure to keep it cacheline aligned and DMA
+   safe
 
-Thanks.
+ drivers/input/touchscreen/elants_i2c.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index d21ca39b0fdb..f2cb23121833 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -147,10 +147,11 @@ struct elants_data {
+ 	u8 cmd_resp[HEADER_SIZE];
+ 	struct completion cmd_done;
+ 
+-	u8 buf[MAX_PACKET_SIZE];
+-
+ 	bool wake_irq_enabled;
+ 	bool keep_power_in_suspend;
++
++	/* Must be last to be used for DMA operations */
++	u8 buf[MAX_PACKET_SIZE] ____cacheline_aligned;
+ };
+ 
+ static int elants_i2c_send(struct i2c_client *client,
+@@ -863,7 +864,7 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 	int i;
+ 	int len;
+ 
+-	len = i2c_master_recv(client, ts->buf, sizeof(ts->buf));
++	len = i2c_master_recv_dmasafe(client, ts->buf, sizeof(ts->buf));
+ 	if (len < 0) {
+ 		dev_err(&client->dev, "%s: failed to read data: %d\n",
+ 			__func__, len);
 -- 
-Dmitry
+Sent by a computer through tubes

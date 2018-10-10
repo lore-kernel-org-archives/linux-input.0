@@ -1,7 +1,7 @@
 From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v2 2/8] dt-bindings: olpc,ap-sp: add GPIO lines
-Date: Wed, 10 Oct 2018 16:24:58 +0200
-Message-ID: <20181010142504.233467-3-lkundrak@v3.sk>
+Subject: [PATCH v2 5/8] Input: olpc_apsp: depend on CONFIG_OF
+Date: Wed, 10 Oct 2018 16:25:01 +0200
+Message-ID: <20181010142504.233467-6-lkundrak@v3.sk>
 References: <20181010142504.233467-1-lkundrak@v3.sk>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -12,44 +12,26 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
 List-Id: linux-input@vger.kernel.org
 
-Add properties describing the GPIO lines used by the keyboard controller.
-The olpc-apsp driver will do happily without them, but they are still par=
-t
-of the hardware description. The driver could still reserve the lines,
-so that nothing else touches them.
+This is a device-tree enabled driver. Moreover CONFIG_OLPC is specific
+to the x86 platform code, while the driver is for an ARM-based laptop.
 
-This makes the device node almost compatible with "ps2-gpio". I'm not
-adding a compatible property, because ps2-gpio would use a different
-interrupt, so that we'd need to name it. And I haven't actually tried it.
-
-Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 ---
- Documentation/devicetree/bindings/serio/olpc,ap-sp.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/input/serio/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt b/Doc=
-umentation/devicetree/bindings/serio/olpc,ap-sp.txt
-index 36603419d6f8..2b1b1dbb54c1 100644
---- a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-+++ b/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-@@ -7,6 +7,10 @@ Required properties:
- - clocks : phandle + clock-specifier for the clock that drives the WTM
- - clock-names:  should be "sp"
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index d90d9f1098ff..a4f70021b53e 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -254,7 +254,7 @@ config SERIO_APBPS2
 =20
-+Optional properties:
-+- data-gpios : GPIO line used for PS/2 interface data
-+- clk-gpios : GPIO line used for PS/2 interface clock
-+
- Example:
- 	ap-sp@d4290000 {
- 		compatible =3D "olpc,ap-sp";
-@@ -14,4 +18,6 @@ Example:
- 		interrupts =3D <40>;
- 		clocks =3D <&soc_clocks MMP2_CLK_SP>;
- 		clock-names =3D "sp";
-+		data-gpios =3D <&gpio 72 GPIO_ACTIVE_HIGH>;
-+		clk-gpios =3D <&gpio 71 GPIO_ACTIVE_HIGH>;
- 	}
+ config SERIO_OLPC_APSP
+ 	tristate "OLPC AP-SP input support"
+-	depends on OLPC || COMPILE_TEST
++	depends on OF
+ 	help
+ 	  Say Y here if you want support for the keyboard and touchpad included
+ 	  in the OLPC XO-1.75 and XO-4 laptops.
 --=20
 2.19.0

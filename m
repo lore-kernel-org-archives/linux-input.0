@@ -1,7 +1,7 @@
 From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v2 7/8] Input: olpc_apsp: enable the SP clock
-Date: Wed, 10 Oct 2018 16:25:03 +0200
-Message-ID: <20181010142504.233467-8-lkundrak@v3.sk>
+Subject: [PATCH v2 6/8] Input: olpc_apsp: check FIFO status on open(), not probe()
+Date: Wed, 10 Oct 2018 16:25:02 +0200
+Message-ID: <20181010142504.233467-7-lkundrak@v3.sk>
 References: <20181010142504.233467-1-lkundrak@v3.sk>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -12,68 +12,58 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
 List-Id: linux-input@vger.kernel.org
 
-Without the clock, the keyboard controller won't operate.
-Tested on an OLPC XO 1.75.
+Let's defer the FIFO status checking until open().
+
+When we'll get a clk handle, this will allow us to defer clock enablement
+until the device is actually used.
 
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 ---
- drivers/input/serio/olpc_apsp.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/serio/olpc_apsp.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_a=
 psp.c
-index 8b19a47dfa46..fe9e19014e70 100644
+index 8e9a4209fcad..8b19a47dfa46 100644
 --- a/drivers/input/serio/olpc_apsp.c
 +++ b/drivers/input/serio/olpc_apsp.c
-@@ -23,6 +23,7 @@
- #include <linux/of.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-+#include <linux/clk.h>
-=20
- /*
-  * The OLPC XO-1.75 and XO-4 laptops do not have a hardware PS/2 control=
-ler.
-@@ -74,6 +75,7 @@ struct olpc_apsp {
- 	struct serio *kbio;
- 	struct serio *padio;
- 	void __iomem *base;
-+	struct clk *clk;
- 	int open_count;
- 	int irq;
- };
-@@ -146,8 +148,13 @@ static int olpc_apsp_open(struct serio *port)
+@@ -145,8 +145,15 @@ static int olpc_apsp_open(struct serio *port)
+ {
  	struct olpc_apsp *priv =3D port->port_data;
  	unsigned int tmp;
- 	unsigned long l;
-+	int error;
++	unsigned long l;
 =20
  	if (priv->open_count++ =3D=3D 0) {
-+		error =3D clk_prepare_enable(priv->clk);
-+		if (error)
-+			return error;
++		l =3D readl(priv->base + COMMAND_FIFO_STATUS);
++		if (!(l & CMD_STS_MASK)) {
++			dev_err(priv->dev, "SP cannot accept commands.\n");
++			return -EIO;
++		}
 +
- 		l =3D readl(priv->base + COMMAND_FIFO_STATUS);
- 		if (!(l & CMD_STS_MASK)) {
- 			dev_err(priv->dev, "SP cannot accept commands.\n");
-@@ -171,6 +178,8 @@ static void olpc_apsp_close(struct serio *port)
- 		/* Disable interrupt 0 */
+ 		/* Enable interrupt 0 by clearing its bit */
  		tmp =3D readl(priv->base + PJ_INTERRUPT_MASK);
- 		writel(tmp | INT_0, priv->base + PJ_INTERRUPT_MASK);
-+
-+		clk_disable_unprepare(priv->clk);
- 	}
- }
+ 		writel(tmp & ~INT_0, priv->base + PJ_INTERRUPT_MASK);
+@@ -173,7 +180,6 @@ static int olpc_apsp_probe(struct platform_device *pd=
+ev)
+ 	struct olpc_apsp *priv;
+ 	struct resource *res;
+ 	struct device_node *np;
+-	unsigned long l;
+ 	int error;
 =20
-@@ -198,6 +207,10 @@ static int olpc_apsp_probe(struct platform_device *p=
+ 	priv =3D devm_kzalloc(&pdev->dev, sizeof(struct olpc_apsp), GFP_KERNEL)=
+;
+@@ -192,12 +198,6 @@ static int olpc_apsp_probe(struct platform_device *p=
 dev)
  	if (priv->irq < 0)
  		return priv->irq;
 =20
-+	priv->clk =3D devm_clk_get(&pdev->dev, "sp");
-+	if (IS_ERR(priv->clk))
-+		return PTR_ERR(priv->clk);
-+
+-	l =3D readl(priv->base + COMMAND_FIFO_STATUS);
+-	if (!(l & CMD_STS_MASK)) {
+-		dev_err(&pdev->dev, "SP cannot accept commands.\n");
+-		return -EIO;
+-	}
+-
  	/* KEYBOARD */
  	kb_serio =3D kzalloc(sizeof(struct serio), GFP_KERNEL);
  	if (!kb_serio)

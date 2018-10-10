@@ -1,57 +1,70 @@
-From: Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH v2] Input: elants_i2c - Use DMA safe i2c when possible
-Date: Wed, 10 Oct 2018 13:00:17 -0700
-Message-ID: <20181010200017.255874-1-swboyd@chromium.org>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Work around HID descriptor bug in DTK-2451 and DTH-2452
+Date: Wed, 10 Oct 2018 13:40:26 -0700
+Message-ID: <20181010204026.4555-1-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This irq handler is always reading bytes from the device into a
-kmalloced buffer, so it's safe to mark this transaction as DMA safe.
-This avoids bouncing the buffer when an i2c controller decides to use
-DMA for a transaction.
+The DTK-2451 and DTH-2452 have a buggy HID descriptor which incorrectly
+contains a Cintiq-like report, complete with pen tilt, rotation, twist,
+serial number, etc. The hardware doesn't actually support this data but
+our driver duitifully sets up the device as though it does. To ensure
+userspace has a correct view of devices without updated firmware, we clean
+up this incorrect data in wacom_setup_device_quirks.
 
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+We're also careful to clear the WACOM_QUIRK_TOOLSERIAL flag since its
+presence causes the driver to wait for serial number information (via
+wacom_wac_pen_serial_enforce) that never comes, resulting in the pen
+being non-responsive.
+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Fixes: 8341720642 ("HID: wacom: Queue events with missing type/serial data for later processing")
+Cc: stable@vger.kernel.org # v4.16+
 ---
+ drivers/hid/wacom_wac.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-Changes from v1:
- * Moved buf to end of structure to keep it cacheline aligned and DMA
-   safe
-
- drivers/input/touchscreen/elants_i2c.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index d21ca39b0fdb..f2cb23121833 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -147,10 +147,11 @@ struct elants_data {
- 	u8 cmd_resp[HEADER_SIZE];
- 	struct completion cmd_done;
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index e0a06be5ef5c..b4b4a30e3982 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -3335,6 +3335,7 @@ static void wacom_setup_intuos(struct wacom_wac *wacom_wac)
  
--	u8 buf[MAX_PACKET_SIZE];
--
- 	bool wake_irq_enabled;
- 	bool keep_power_in_suspend;
+ void wacom_setup_device_quirks(struct wacom *wacom)
+ {
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct wacom_features *features = &wacom->wacom_wac.features;
+ 
+ 	/* The pen and pad share the same interface on most devices */
+@@ -3464,6 +3465,25 @@ void wacom_setup_device_quirks(struct wacom *wacom)
+ 
+ 	if (features->type == REMOTE)
+ 		features->device_type |= WACOM_DEVICETYPE_WL_MONITOR;
 +
-+	/* Must be last to be used for DMA operations */
-+	u8 buf[MAX_PACKET_SIZE] ____cacheline_aligned;
- };
++	/* HID descriptor for DTK-2451 / DTH-2452 claims to report lots
++	 * of things it shouldn't. Lets fix up the damage...
++	 */
++	if (wacom->hdev->product == 0x382 || wacom->hdev->product == 0x37d) {
++		features->quirks &= ~WACOM_QUIRK_TOOLSERIAL;
++		__clear_bit(BTN_TOOL_BRUSH, wacom_wac->pen_input->keybit);
++		__clear_bit(BTN_TOOL_PENCIL, wacom_wac->pen_input->keybit);
++		__clear_bit(BTN_TOOL_AIRBRUSH, wacom_wac->pen_input->keybit);
++		__clear_bit(ABS_Z, wacom_wac->pen_input->absbit);
++		__clear_bit(ABS_DISTANCE, wacom_wac->pen_input->absbit);
++		__clear_bit(ABS_TILT_X, wacom_wac->pen_input->absbit);
++		__clear_bit(ABS_TILT_Y, wacom_wac->pen_input->absbit);
++		__clear_bit(ABS_WHEEL, wacom_wac->pen_input->absbit);
++		__clear_bit(ABS_MISC, wacom_wac->pen_input->absbit);
++		__clear_bit(MSC_SERIAL, wacom_wac->pen_input->mscbit);
++		__clear_bit(EV_MSC, wacom_wac->pen_input->evbit);
++	}
+ }
  
- static int elants_i2c_send(struct i2c_client *client,
-@@ -863,7 +864,7 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
- 	int i;
- 	int len;
- 
--	len = i2c_master_recv(client, ts->buf, sizeof(ts->buf));
-+	len = i2c_master_recv_dmasafe(client, ts->buf, sizeof(ts->buf));
- 	if (len < 0) {
- 		dev_err(&client->dev, "%s: failed to read data: %d\n",
- 			__func__, len);
+ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
 -- 
-Sent by a computer through tubes
+2.19.1

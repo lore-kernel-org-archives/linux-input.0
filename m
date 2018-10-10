@@ -1,68 +1,38 @@
-From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v2 8/8] Input: olpc_apsp: allocate the GPIOs used
-Date: Wed, 10 Oct 2018 16:25:04 +0200
-Message-ID: <20181010142504.233467-9-lkundrak@v3.sk>
-References: <20181010142504.233467-1-lkundrak@v3.sk>
+From: Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH] Input: elants_i2c - Use DMA safe i2c when possible
+Date: Wed, 10 Oct 2018 09:55:17 -0700
+Message-ID: <20181010165517.178545-1-swboyd@chromium.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181010142504.233467-1-lkundrak@v3.sk>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-input@vger.kernel.org
 
-Take the GPIO lines are used by the SP. The driver doesn't touch the
-lines -- this is done to disallow anything else from fiddling with
-them because that would confuse the SP firmware.
+This irq handler is always reading bytes from the device into a
+kmalloced buffer, so it's safe to mark this transaction as DMA safe.
+This avoids bouncing the buffer when an i2c controller decides to use
+DMA for a transaction.
 
-Also, the lines are now nicely visible in /sys/kernel/debug/gpio.
-
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 ---
- drivers/input/serio/olpc_apsp.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/touchscreen/elants_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_a=
-psp.c
-index fe9e19014e70..287759c5f36d 100644
---- a/drivers/input/serio/olpc_apsp.c
-+++ b/drivers/input/serio/olpc_apsp.c
-@@ -24,6 +24,7 @@
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/clk.h>
-+#include <linux/gpio/consumer.h>
-=20
- /*
-  * The OLPC XO-1.75 and XO-4 laptops do not have a hardware PS/2 control=
-ler.
-@@ -76,6 +77,8 @@ struct olpc_apsp {
- 	struct serio *padio;
- 	void __iomem *base;
- 	struct clk *clk;
-+	struct gpio_desc *clk_gpio;
-+	struct gpio_desc *data_gpio;
- 	int open_count;
- 	int irq;
- };
-@@ -211,6 +214,16 @@ static int olpc_apsp_probe(struct platform_device *p=
-dev)
- 	if (IS_ERR(priv->clk))
- 		return PTR_ERR(priv->clk);
-=20
-+	priv->clk_gpio =3D devm_gpiod_get_optional(&pdev->dev, "clk",
-+							GPIOD_ASIS);
-+	if (IS_ERR(priv->clk_gpio))
-+		return PTR_ERR(priv->clk_gpio);
-+
-+	priv->data_gpio =3D devm_gpiod_get_optional(&pdev->dev, "data",
-+							GPIOD_ASIS);
-+	if (IS_ERR(priv->data_gpio))
-+		return PTR_ERR(priv->data_gpio);
-+
- 	/* KEYBOARD */
- 	kb_serio =3D kzalloc(sizeof(struct serio), GFP_KERNEL);
- 	if (!kb_serio)
---=20
-2.19.0
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index d21ca39b0fdb..be44abb8de33 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -863,7 +863,7 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 	int i;
+ 	int len;
+ 
+-	len = i2c_master_recv(client, ts->buf, sizeof(ts->buf));
++	len = i2c_master_recv_dmasafe(client, ts->buf, sizeof(ts->buf));
+ 	if (len < 0) {
+ 		dev_err(&client->dev, "%s: failed to read data: %d\n",
+ 			__func__, len);
+-- 
+Sent by a computer through tubes

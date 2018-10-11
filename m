@@ -1,99 +1,70 @@
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: Re: [RFC/PATCH 2/5] device property: introduce notion of subnodes
- for legacy boards
-Date: Thu, 11 Oct 2018 11:18:19 +0300
-Message-ID: <20181011081819.GB24771@kuha.fi.intel.com>
-References: <20180917181603.125492-1-dmitry.torokhov@gmail.com>
- <20180917181603.125492-3-dmitry.torokhov@gmail.com>
- <20180920135348.GF11965@kuha.fi.intel.com>
- <20180921233119.GA44099@dtor-ws>
- <20180924132050.GK11965@kuha.fi.intel.com>
- <20180924184543.GB156847@dtor-ws>
- <20180925121927.GL11965@kuha.fi.intel.com>
- <20181005214734.GC215120@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: usbhid: Add quirk for Redragon/Dragonrise Seymur 2
+Date: Thu, 11 Oct 2018 10:34:44 +0200
+Message-ID: <CAO-hwJJkB=u44_kJNjOSL=8pgnXDkvda12_g8p39DeZ0JybqWQ@mail.gmail.com>
+References: <20181011075633.18868-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181005214734.GC215120@dtor-ws>
+In-Reply-To: <20181011075633.18868-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Kai Heng Feng <kai.heng.feng@canonical.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi Kai-Heng,
 
-Sorry for the late reply. I decided to give this a try myself, and
-I've now prepared something (not for the gpio stuff!). I'll do a quick
-internal review round, and send it to you guys as RFC after that..
+On Thu, Oct 11, 2018 at 9:56 AM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+> Redragon Seymur 2 stops working since commit 190d7f02ce8e ("HID: input:
+> do not increment usages when a duplicate is found").
+>
+> Use quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE suggested by the commit
+> can solve the issue.
 
-On Fri, Oct 05, 2018 at 02:47:34PM -0700, Dmitry Torokhov wrote:
-> Hi Heikki,
-> 
-> On Tue, Sep 25, 2018 at 03:19:27PM +0300, Heikki Krogerus wrote:
-> > On Mon, Sep 24, 2018 at 11:45:43AM -0700, Dmitry Torokhov wrote:
-> > > I think we are talking about totally different use cases and that is why
-> > > we are having hard time coming to a mutually agreeable solution. Could
-> > > you please describe in more detail what you would like to achieve,
-> > > and preferably show how it is described now with DT and/or ACPI, so that
-> > > I have a better frame of reference.
-> > 
-> > Yes, of course. Sorry.
-> > 
-> > USB ports are devices that usually the USB controller drivers register
-> > (or actually the USB core code). They are represented in both ACPI and
-> > DT as child nodes of the controller device node. The USB connector OF
-> > node is defined in file
-> > Documentation/devicetree/bindings/connector/usb-connector.txt
-> > 
-> > In short, the controller drivers will request handle to a child node
-> > that represents a port, and only after that register the actual port
-> > device.
-> > 
-> > The drivers I'm looking at currently are the USB Type-C port
-> > controller drivers and the port manager (in Greg's usb-next or
-> > linux-next):
-> > 
-> >         drivers/usb/typec/tcpm/tcpci.c
-> >         drivers/usb/typec/tcpm/fusb302.c
-> >         drivers/usb/typec/tcpm/tcpm.c
-> > 
-> > The goal is simply to get rid of the platform data as usual, and
-> > ideally so that we don't need any extra code in order to support the
-> > "legacy" platforms.
-> 
-> Are these actually used on any of the "legacy" platforms? I fetched
-> linux-next today, but I do not actually see anything in
-> drivers/usb/typec touching platform data...
+Before we take the hammer, could you share the report descriptors (or
+I'll request those in the kernel BZ)?
+In the kernel BZ, it's clear that the report descriptor is wrong at
+assigning axes, but I'd like to double check if applying the quirk
+will be OK and will not pollute other axes.
 
-It's not touching any platform data, and I would like to keep it that
-way :-). The device for fusb302 is created for example in
-drivers/platform/x86/intel_cht_int33fe.c.
+Cheers,
+Benjamin
 
-The fusb302.c driver already tries to find that child node named
-"connector" (and so do the other port drivers). I'm trying to supply
-the driver that node here somehow so I can avoid quirks.
-
-> In the context of the connector, even before we descend to child nodes
-> details, how do you propose implementing references between fwnodes?
-> Especially since the other node (in case you complementing existing
-> topology) may be ACPI or DT instance?
-
-The different fwnode types (ACPI, OF, etc.) must live in parallel,
-i.e. you can not have something like ACPI parent node with
-property_set children if that's what you mean. The "secondary" member
-will link the different types of fwnodes together, but they will live
-their separate lives. I'm not planning on changing that.
-
-I'm just looking for a smooth way of describing the devices in
-software when the firmware is not supplying the hardware description,
-just like you. What I really need is separation of the fwnode
-registration from device registration in those cases. For that I now
-have a proposal, and I believe my proposal will work for you as a
-baseline as well.
-
-
-Thanks,
-
--- 
-heikki
+>
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=200995
+> BugLink: https://bugs.launchpad.net/bugs/1793846
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+>  drivers/hid/hid-ids.h    | 1 +
+>  drivers/hid/hid-quirks.c | 1 +
+>  2 files changed, 2 insertions(+)
+>
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index bc49909aba8e..0e0aa7f0e6fc 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -342,6 +342,7 @@
+>  #define USB_DEVICE_ID_DMI_ENC          0x5fab
+>
+>  #define USB_VENDOR_ID_DRAGONRISE               0x0079
+> +#define USB_DEVICE_ID_REDRAGON_SEYMUR2         0x0006
+>  #define USB_DEVICE_ID_DRAGONRISE_WIIU          0x1800
+>  #define USB_DEVICE_ID_DRAGONRISE_PS3           0x1801
+>  #define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR    0x1803
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index 249d49b6b16c..52c3b01917e7 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -70,6 +70,7 @@ static const struct hid_device_id hid_quirks[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC), HID_QUIRK_NOGET },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES), HID_QUIRK_MULTI_INPUT },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES), HID_QUIRK_MULTI_INPUT },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_REDRAGON_SEYMUR2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR), HID_QUIRK_MULTI_INPUT },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1), HID_QUIRK_MULTI_INPUT },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3), HID_QUIRK_MULTI_INPUT },
+> --
+> 2.17.1
+>

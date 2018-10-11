@@ -1,70 +1,56 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: usbhid: Add quirk for Redragon/Dragonrise Seymur 2
-Date: Thu, 11 Oct 2018 10:34:44 +0200
-Message-ID: <CAO-hwJJkB=u44_kJNjOSL=8pgnXDkvda12_g8p39DeZ0JybqWQ@mail.gmail.com>
-References: <20181011075633.18868-1-kai.heng.feng@canonical.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 8/8] Input: olpc_apsp: allocate the GPIOs used
+Date: Thu, 11 Oct 2018 10:38:20 +0200
+Message-ID: <CACRpkdZK3=u-E3KgVQT_Wx8tZBqO3Own_+ASLeq03vaP8q+s7A@mail.gmail.com>
+References: <20181010142504.233467-1-lkundrak@v3.sk> <20181010142504.233467-9-lkundrak@v3.sk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181011075633.18868-1-kai.heng.feng@canonical.com>
+In-Reply-To: <20181010142504.233467-9-lkundrak@v3.sk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai Heng Feng <kai.heng.feng@canonical.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: lkundrak@v3.sk, Stephen Boyd <swboyd@chromium.org>, Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, quozl@laptop.org, Linux Input <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-clk <linux-clk@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Kai-Heng,
+Hi Lubomir,
 
-On Thu, Oct 11, 2018 at 9:56 AM Kai-Heng Feng
-<kai.heng.feng@canonical.com> wrote:
->
-> Redragon Seymur 2 stops working since commit 190d7f02ce8e ("HID: input:
-> do not increment usages when a duplicate is found").
->
-> Use quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE suggested by the commit
-> can solve the issue.
+thanks for your patch!
 
-Before we take the hammer, could you share the report descriptors (or
-I'll request those in the kernel BZ)?
-In the kernel BZ, it's clear that the report descriptor is wrong at
-assigning axes, but I'd like to double check if applying the quirk
-will be OK and will not pollute other axes.
+On Wed, Oct 10, 2018 at 4:26 PM Lubomir Rintel <lkundrak@v3.sk> wrote:
 
-Cheers,
-Benjamin
+> Take the GPIO lines are used by the SP. The driver doesn't touch the
+> lines -- this is done to disallow anything else from fiddling with
+> them because that would confuse the SP firmware.
+>
+> Also, the lines are now nicely visible in /sys/kernel/debug/gpio.
+>
+> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 
->
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=200995
-> BugLink: https://bugs.launchpad.net/bugs/1793846
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> ---
->  drivers/hid/hid-ids.h    | 1 +
->  drivers/hid/hid-quirks.c | 1 +
->  2 files changed, 2 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index bc49909aba8e..0e0aa7f0e6fc 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -342,6 +342,7 @@
->  #define USB_DEVICE_ID_DMI_ENC          0x5fab
->
->  #define USB_VENDOR_ID_DRAGONRISE               0x0079
-> +#define USB_DEVICE_ID_REDRAGON_SEYMUR2         0x0006
->  #define USB_DEVICE_ID_DRAGONRISE_WIIU          0x1800
->  #define USB_DEVICE_ID_DRAGONRISE_PS3           0x1801
->  #define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR    0x1803
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 249d49b6b16c..52c3b01917e7 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -70,6 +70,7 @@ static const struct hid_device_id hid_quirks[] = {
->         { HID_USB_DEVICE(USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC), HID_QUIRK_NOGET },
->         { HID_USB_DEVICE(USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES), HID_QUIRK_MULTI_INPUT },
-> +       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_REDRAGON_SEYMUR2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
->         { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3), HID_QUIRK_MULTI_INPUT },
-> --
-> 2.17.1
->
+Sadly I do not think this is the right way to do this these days.
+In the past I would have agreed.
+
+A few months back, Qualcomm engineers working on ACPI
+support ran into similar issues: there were GPIO lines that
+could not be touched by the kernel because they were used
+by firmware (BIOS).
+
+The solution we devised can be seen in
+commit 726cb3ba49692bdae6caff457755e7cdb432efa4
+"gpiolib: Support 'gpio-reserved-ranges' property"
+which adds a "valid mask" to struct gpio_chip.
+
+It is further refined in the lates working kernel code to make
+it easy for users to set up a custom valid_mask.
+https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/commit/?h=devel&id=f8ec92a9f63b3b11e399409141b7868bb405e6b5
+
+So what you should do is modify the platform set-up for
+the OLPC to mask off these GPIO lines as invalid since
+they are used by the firmware and Linux should not touch
+them.
+
+Sadly I don't know which GPIO driver the XO1 is using,
+but if you tell us I bet me or Andy will be able to help you
+out in finding the right spot to patch.
+
+Yours,
+Linus Walleij

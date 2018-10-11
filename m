@@ -1,82 +1,99 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Work around HID descriptor bug in DTK-2451
- and DTH-2452
-Date: Thu, 11 Oct 2018 14:33:43 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1810111432530.14430@cbobk.fhfr.pm>
-References: <20181010204026.4555-1-killertofu@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: usbhid: Add quirk for Redragon/Dragonrise Seymur 2
+Date: Thu, 11 Oct 2018 17:02:51 +0200
+Message-ID: <CAO-hwJKMkZx5mcXrYrbjYBeQdOqK0fThUc_amP0ofA6YtvWAEQ@mail.gmail.com>
+References: <20181011075633.18868-1-kai.heng.feng@canonical.com>
+ <CAO-hwJJkB=u44_kJNjOSL=8pgnXDkvda12_g8p39DeZ0JybqWQ@mail.gmail.com> <3941E373-A385-4080-ADCC-BAEBC862809A@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20181010204026.4555-1-killertofu@gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3941E373-A385-4080-ADCC-BAEBC862809A@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kai Heng Feng <kai.heng.feng@canonical.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 10 Oct 2018, Jason Gerecke wrote:
+On Thu, Oct 11, 2018 at 11:16 AM Kai Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+> Hi Benjamin,
+>
+> > On Oct 11, 2018, at 16:34, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> >
+> > Hi Kai-Heng,
+> >
+> > On Thu, Oct 11, 2018 at 9:56 AM Kai-Heng Feng
+> > <kai.heng.feng@canonical.com> wrote:
+> >>
+> >> Redragon Seymur 2 stops working since commit 190d7f02ce8e ("HID: input:
+> >> do not increment usages when a duplicate is found").
+> >>
+> >> Use quirk HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE suggested by the commit
+> >> can solve the issue.
+> >
+> > Before we take the hammer, could you share the report descriptors (or
+> > I'll request those in the kernel BZ)?
+>
+> Feel free to do so!
+>
+> I send the patch because seems like the user doesn’t know how to upstream patches.
 
-> The DTK-2451 and DTH-2452 have a buggy HID descriptor which incorrectly
-> contains a Cintiq-like report, complete with pen tilt, rotation, twist,
-> serial number, etc. The hardware doesn't actually support this data but
-> our driver duitifully sets up the device as though it does. To ensure
-> userspace has a correct view of devices without updated firmware, we clean
-> up this incorrect data in wacom_setup_device_quirks.
-> 
-> We're also careful to clear the WACOM_QUIRK_TOOLSERIAL flag since its
-> presence causes the driver to wait for serial number information (via
-> wacom_wac_pen_serial_enforce) that never comes, resulting in the pen
-> being non-responsive.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Fixes: 8341720642 ("HID: wacom: Queue events with missing type/serial data for later processing")
-> Cc: stable@vger.kernel.org # v4.16+
-> ---
->  drivers/hid/wacom_wac.c | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index e0a06be5ef5c..b4b4a30e3982 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -3335,6 +3335,7 @@ static void wacom_setup_intuos(struct wacom_wac *wacom_wac)
->  
->  void wacom_setup_device_quirks(struct wacom *wacom)
->  {
-> +	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
->  	struct wacom_features *features = &wacom->wacom_wac.features;
->  
->  	/* The pen and pad share the same interface on most devices */
-> @@ -3464,6 +3465,25 @@ void wacom_setup_device_quirks(struct wacom *wacom)
->  
->  	if (features->type == REMOTE)
->  		features->device_type |= WACOM_DEVICETYPE_WL_MONITOR;
-> +
-> +	/* HID descriptor for DTK-2451 / DTH-2452 claims to report lots
-> +	 * of things it shouldn't. Lets fix up the damage...
-> +	 */
-> +	if (wacom->hdev->product == 0x382 || wacom->hdev->product == 0x37d) {
-> +		features->quirks &= ~WACOM_QUIRK_TOOLSERIAL;
-> +		__clear_bit(BTN_TOOL_BRUSH, wacom_wac->pen_input->keybit);
-> +		__clear_bit(BTN_TOOL_PENCIL, wacom_wac->pen_input->keybit);
-> +		__clear_bit(BTN_TOOL_AIRBRUSH, wacom_wac->pen_input->keybit);
-> +		__clear_bit(ABS_Z, wacom_wac->pen_input->absbit);
-> +		__clear_bit(ABS_DISTANCE, wacom_wac->pen_input->absbit);
-> +		__clear_bit(ABS_TILT_X, wacom_wac->pen_input->absbit);
-> +		__clear_bit(ABS_TILT_Y, wacom_wac->pen_input->absbit);
-> +		__clear_bit(ABS_WHEEL, wacom_wac->pen_input->absbit);
-> +		__clear_bit(ABS_MISC, wacom_wac->pen_input->absbit);
-> +		__clear_bit(MSC_SERIAL, wacom_wac->pen_input->mscbit);
-> +		__clear_bit(EV_MSC, wacom_wac->pen_input->evbit);
-> +	}
->  }
->  
->  int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+Heh, no worries :)
 
-I don't know how you did it (I can't spot anything wrong there), but both 
-git and patch complain about this line when trying to apply the patch :)
+So, after a review of the report descriptors:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Anyway, I've applied it "manually" to for-4.19/fixes branch. Thanks,
+(In this case, adding the quirk is the easiest solution and it has no
+side effects)
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Benjamin
+
+>
+> Kai-Heng
+>
+> > In the kernel BZ, it's clear that the report descriptor is wrong at
+> > assigning axes, but I'd like to double check if applying the quirk
+> > will be OK and will not pollute other axes.
+> >
+> > Cheers,
+> > Benjamin
+> >
+> >>
+> >> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=200995
+> >> BugLink: https://bugs.launchpad.net/bugs/1793846
+> >> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> >> ---
+> >> drivers/hid/hid-ids.h    | 1 +
+> >> drivers/hid/hid-quirks.c | 1 +
+> >> 2 files changed, 2 insertions(+)
+> >>
+> >> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> >> index bc49909aba8e..0e0aa7f0e6fc 100644
+> >> --- a/drivers/hid/hid-ids.h
+> >> +++ b/drivers/hid/hid-ids.h
+> >> @@ -342,6 +342,7 @@
+> >> #define USB_DEVICE_ID_DMI_ENC          0x5fab
+> >>
+> >> #define USB_VENDOR_ID_DRAGONRISE               0x0079
+> >> +#define USB_DEVICE_ID_REDRAGON_SEYMUR2         0x0006
+> >> #define USB_DEVICE_ID_DRAGONRISE_WIIU          0x1800
+> >> #define USB_DEVICE_ID_DRAGONRISE_PS3           0x1801
+> >> #define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR    0x1803
+> >> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> >> index 249d49b6b16c..52c3b01917e7 100644
+> >> --- a/drivers/hid/hid-quirks.c
+> >> +++ b/drivers/hid/hid-quirks.c
+> >> @@ -70,6 +70,7 @@ static const struct hid_device_id hid_quirks[] = {
+> >>        { HID_USB_DEVICE(USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC), HID_QUIRK_NOGET },
+> >>        { HID_USB_DEVICE(USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES), HID_QUIRK_MULTI_INPUT },
+> >>        { HID_USB_DEVICE(USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES), HID_QUIRK_MULTI_INPUT },
+> >> +       { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_REDRAGON_SEYMUR2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+> >>        { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR), HID_QUIRK_MULTI_INPUT },
+> >>        { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1), HID_QUIRK_MULTI_INPUT },
+> >>        { HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3), HID_QUIRK_MULTI_INPUT },
+> >> --
+> >> 2.17.1
+> >>
+>

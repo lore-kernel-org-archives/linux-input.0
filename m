@@ -1,74 +1,46 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 5/8] dt-bindings: input: document stpmic1 pmic onkey
-Date: Fri, 12 Oct 2018 10:33:59 -0500
-Message-ID: <20181012153359.GA31604@bogus>
-References: <1539016176-4072-1-git-send-email-p.paillet@st.com>
- <1539016176-4072-6-git-send-email-p.paillet@st.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/5] Fix Elan I2C touchpads in latest generation from
+ Lenovo
+Date: Fri, 12 Oct 2018 11:53:42 -0700
+Message-ID: <20181012185342.GA35430@dtor-ws>
+References: <20181012142413.26107-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1539016176-4072-6-git-send-email-p.paillet@st.com>
+In-Reply-To: <20181012142413.26107-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: KT Liao <kt.liao@emc.com.tw>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
+On Fri, Oct 12, 2018 at 04:24:08PM +0200, Benjamin Tissoires wrote:
+> Since v4.18, we unconditionally switch the I2C capable touchpads over I2C.
+> In the model I had (a pre-prod t480s I guess), the touchpad was behaving
+> fine.
+> However, it occurs that later production models don't expose the clickpad
+> information from I2C. The Windows driver gets all the information from PS/2
+> so we should do the same.
 > 
-> The stpmic1 pmic is able to manage an onkey button. It can be configured
-> to shut-down the power supplies on a long key-press with an adjustable
-> duration.
+> The situation is even worse for the P52. Once of the query parameter function
+> fails, which means the touchpad doesn't even probe. This effectively kills
+> the touchpad, which is less than ideal.
 > 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
-> ---
-> changes in v3:
-> * Replace st,onkey-long-press-seconds and st,onkey-pwroff-enabled by 
-> power-off-time-sec.
+> Dmitry, I am not sure if we should take those for stable in v4.18+.
+> I'd like to, but given the series is 5 patches, I don't know if this
+> will be acceptable.
+> We could revert in stable df077237cf55928f5 but that would mean
+> distributions will have to revert the revert if they want to provide
+> the I2C behavior.
 > 
->  .../devicetree/bindings/input/st,stpmic1-onkey.txt | 30 ++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> new file mode 100644
-> index 0000000..8c58186
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
-> @@ -0,0 +1,30 @@
-> +STMicroelectronics STPMIC1 Onkey
-> +
-> +Required properties:
-> +
-> +- compatible = "st,stpmic1-onkey";
-> +- interrupt-parent: phandle to the parent interrupt controller
+> So, regarding stable: your call :)
 
-Drop this.
+Heh ;) I think we have to fix it at least in 4.19 stable train. How
+about we merge it normally into 4.20, and let it cook there for a while.
+If there is no issues, then we can send it to 4.19 stable manually. How
+does this sound?
 
-> +- interrupts: interrupt line to use
-> +- interrupt-names = "onkey-falling", "onkey-rising"
-> +	onkey-falling: happens when onkey is pressed; IT_PONKEY_F of pmic
-> +	onkey-rising: happens when onkey is released; IT_PONKEY_R of pmic
-> +
-> +Optional properties:
-> +
-> +- st,onkey-clear-cc-flag: onkey is able power on after an
-> +  over-current shutdown event.
-> +- st,onkey-pu-inactive: onkey pull up is not active
-> +- power-off-time-sec: Duration in seconds which the key should be kept
-> +        pressed for device to power off automatically (from 1 to 16 seconds).
-> +        see See Documentation/devicetree/bindings/input/keys.txt
-> +
-> +Example:
-> +
-> +onkey {
-> +	compatible = "st,stpmic1-onkey";
-> +	interrupt-parent = <&pmic>;
-> +	interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
-> +	interrupt-names = "onkey-falling", "onkey-rising";
-> +	st,onkey-pwroff-enabled;
-> +	st,onkey-long-press-seconds = <10>;
-> +};
-> -- 
-> 1.9.1
+Thanks.
+
+-- 
+Dmitry

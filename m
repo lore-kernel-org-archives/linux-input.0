@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4/5] Input: elan_i2c - do not query the info if they are provided
-Date: Fri, 12 Oct 2018 16:24:12 +0200
-Message-ID: <20181012142413.26107-5-benjamin.tissoires@redhat.com>
+Subject: [PATCH 5/5] Input: elantech/SMBus - export all capabilities from the PS/2 node
+Date: Fri, 12 Oct 2018 16:24:13 +0200
+Message-ID: <20181012142413.26107-6-benjamin.tissoires@redhat.com>
 References: <20181012142413.26107-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181012142413.26107-1-benjamin.tissoires@redhat.com>
@@ -10,84 +10,62 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: KT Liao <kt.liao@emc.com.tw>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-See the previous patch for a long explanation.
+The recent touchpads might not have all the information regarding the
+characteristics through the I2C port.
+On some Lenovo t480s, this results in the touchpad not being detected
+as a clickpad, and on the Lenovo P52, this results in a failure while
+fetching the resolution through I2C.
 
-TL;DR: the P52 and the t480s from Lenovo can't rely on I2C to fetch
-the information, so we need it from PS/2.
+We need to imitate the Windows behavior: fetch the data under PS/2, and
+limit the querries under I2C.
+
+This patch exports the needed info from PS/2.
 
 Link: https://bugzilla.redhat.com/show_bug.cgi?id=1628715
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/elan_i2c_core.c | 49 +++++++++++++++++++++++++++----------
- 1 file changed, 36 insertions(+), 13 deletions(-)
+ drivers/input/mouse/elantech.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index f5ae24865355..5e7ba383f95c 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -366,27 +366,50 @@ static unsigned int elan_convert_resolution(u8 val)
- 
- static int elan_query_device_parameters(struct elan_tp_data *data)
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 78ac732e8188..f597b5d14de8 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1764,17 +1764,30 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+ 				 struct elantech_device_info *info,
+ 				 bool leave_breadcrumbs)
  {
-+	struct i2c_client *client = data->client;
- 	unsigned int x_traces, y_traces;
- 	u8 hw_x_res, hw_y_res;
- 	int error;
- 
--	error = data->ops->get_max(data->client, &data->max_x, &data->max_y);
--	if (error)
--		return error;
-+	if (device_property_read_u32(&client->dev,
-+				     "elan,max_x", &data->max_x) ||
-+	    device_property_read_u32(&client->dev,
-+				     "elan,max_y", &data->max_y)) {
-+		error = data->ops->get_max(data->client,
-+					   &data->max_x,
-+					   &data->max_y);
-+		if (error)
-+			return error;
-+	}
- 
--	error = data->ops->get_num_traces(data->client, &x_traces, &y_traces);
--	if (error)
--		return error;
-+	if (device_property_read_u32(&client->dev,
-+				     "elan,width", &data->width_x)) {
-+		error = data->ops->get_num_traces(data->client,
-+						  &x_traces, &y_traces);
-+		if (error)
-+			return error;
- 
--	data->width_x = data->max_x / x_traces;
--	data->width_y = data->max_y / y_traces;
-+		data->width_x = data->max_x / x_traces;
-+		data->width_y = data->max_y / y_traces;
-+	} else {
-+		data->width_y = data->width_x;
-+	}
- 
--	error = data->ops->get_resolution(data->client, &hw_x_res, &hw_y_res);
--	if (error)
--		return error;
-+	if (device_property_read_u32(&client->dev,
-+				     "elan,x_res", &data->x_res) ||
-+	    device_property_read_u32(&client->dev,
-+				     "elan,y_res", &data->y_res)) {
-+		error = data->ops->get_resolution(data->client,
-+						  &hw_x_res, &hw_y_res);
-+		if (error)
-+			return error;
+-	const struct property_entry i2c_properties[] = {
+-		PROPERTY_ENTRY_BOOL("elan,trackpoint"),
+-		{ },
+-	};
++	struct property_entry i2c_props[10] = {};
+ 	struct i2c_board_info smbus_board = {
+ 		I2C_BOARD_INFO("elan_i2c", 0x15),
+ 		.flags = I2C_CLIENT_HOST_NOTIFY,
+ 	};
++	unsigned int prop_idx = 0;
 +
-+		data->x_res = elan_convert_resolution(hw_x_res);
-+		data->y_res = elan_convert_resolution(hw_y_res);
-+	}
++	smbus_board.properties = i2c_props;
++
++	i2c_props[prop_idx++] = PROPERTY_ENTRY_U32("elan,max_x", info->x_max);
++	i2c_props[prop_idx++] = PROPERTY_ENTRY_U32("elan,max_y", info->y_max);
++	i2c_props[prop_idx++] = PROPERTY_ENTRY_U32("elan,min_x", info->x_min);
++	i2c_props[prop_idx++] = PROPERTY_ENTRY_U32("elan,min_y", info->y_min);
++	i2c_props[prop_idx++] = PROPERTY_ENTRY_U32("elan,x_res", info->x_res);
++	i2c_props[prop_idx++] = PROPERTY_ENTRY_U32("elan,y_res", info->y_res);
  
--	data->x_res = elan_convert_resolution(hw_x_res);
--	data->y_res = elan_convert_resolution(hw_y_res);
-+	if (device_property_read_bool(&client->dev, "elan,clickpad"))
-+		data->clickpad = 1;
+ 	if (info->has_trackpoint)
+-		smbus_board.properties = i2c_properties;
++		i2c_props[prop_idx++] = PROPERTY_ENTRY_BOOL("elan,trackpoint");
++
++	if (info->width)
++		i2c_props[prop_idx++] = PROPERTY_ENTRY_U32("elan,width", info->width);
++
++	if (elantech_is_buttonpad(info))
++		i2c_props[prop_idx++] = PROPERTY_ENTRY_BOOL("elan,clickpad");
  
- 	return 0;
- }
+ 	return psmouse_smbus_init(psmouse, &smbus_board, NULL, 0, false,
+ 				  leave_breadcrumbs);
 -- 
 2.14.3

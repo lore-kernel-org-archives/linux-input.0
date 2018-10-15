@@ -1,354 +1,349 @@
-From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
-Subject: Re: [PATCH] HID: steam: remove input device when a hid client is
- running.
-Date: Mon, 15 Oct 2018 12:55:58 -0700
-Message-ID: <5114a63f-d6dc-e703-41de-6f78a2699611@valvesoftware.com>
-References: <20181014173643.9643-1-rodrigorivascosta@gmail.com>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 6/8] input: stpmic1: add stpmic1 onkey driver
+Date: Mon, 15 Oct 2018 15:32:52 -0700
+Message-ID: <20181015223252.GE127224@dtor-ws>
+References: <1539016176-4072-1-git-send-email-p.paillet@st.com>
+ <1539016176-4072-7-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181014173643.9643-1-rodrigorivascosta@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1539016176-4072-7-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
+Hi Pascal,
 
-
-On 10/14/18 10:36 AM, Rodrigo Rivas Costa wrote:
-> Previously, when a HID client such as the Steam Client was running, this
-> driver disabled its input device to avoid doubling the input events.
->=20
-> While it worked mostly fine, some games got confused by the idle gamepad,
-> and switched to two player mode, or asked the user to choose which gamepa=
-d
-> to use. Other games just crashed, probably a bug in Unity [1].
->=20
-> With this commit, when a HID client starts, the input device is removed;
-> when the HID client ends the input device is recreated.
->=20
-> [1]: https://github.com/ValveSoftware/steam-for-linux/issues/5645
-
-Hi Rodrigo,
-
-Thanks a lot, this should indeed help a ton. Just the presence of an=20
-extra gamepad node can indeed cause applications to go completely=20
-different paths. Assuming it otherwise looks good, is there a chance=20
-this fix could be put back into the 4.18 branch?
-
-Thanks,
-  - Pierre-Loup
-
->=20
-> Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+On Mon, Oct 08, 2018 at 04:29:41PM +0000, Pascal PAILLET-LME wrote:
+> From: pascal paillet <p.paillet@st.com>
+> 
+> The stpmic1 pmic is able to manage an onkey button. This driver exposes
+> the stpmic1 onkey as an input device. It can also be configured to
+> shut-down the power supplies on a long key-press with an adjustable
+> duration.
+> 
+> Signed-off-by: pascal paillet <p.paillet@st.com>
 > ---
->   drivers/hid/hid-steam.c | 154 +++++++++++++++++++++++-----------------
->   1 file changed, 90 insertions(+), 64 deletions(-)
->=20
-> diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-> index 0422ec2b13d2..dc4128bfe2ca 100644
-> --- a/drivers/hid/hid-steam.c
-> +++ b/drivers/hid/hid-steam.c
-> @@ -23,8 +23,9 @@
->    * In order to avoid breaking them this driver creates a layered hidraw=
- device,
->    * so it can detect when the client is running and then:
->    *  - it will not send any command to the controller.
-> - *  - this input device will be disabled, to avoid double input of the s=
-ame
-> + *  - this input device will be removed, to avoid double input of the sa=
-me
->    *    user action.
-> + * When the client is closed, this input device will be created again.
->    *
->    * For additional functions, such as changing the right-pad margin or s=
-witching
->    * the led, you can use the user-space tool at:
-> @@ -113,7 +114,7 @@ struct steam_device {
->   =09spinlock_t lock;
->   =09struct hid_device *hdev, *client_hdev;
->   =09struct mutex mutex;
-> -=09bool client_opened, input_opened;
-> +=09bool client_opened;
->   =09struct input_dev __rcu *input;
->   =09unsigned long quirks;
->   =09struct work_struct work_connect;
-> @@ -279,18 +280,6 @@ static void steam_set_lizard_mode(struct steam_devic=
-e *steam, bool enable)
->   =09}
->   }
->  =20
-> -static void steam_update_lizard_mode(struct steam_device *steam)
-> -{
-> -=09mutex_lock(&steam->mutex);
-> -=09if (!steam->client_opened) {
-> -=09=09if (steam->input_opened)
-> -=09=09=09steam_set_lizard_mode(steam, false);
-> -=09=09else
-> -=09=09=09steam_set_lizard_mode(steam, lizard_mode);
-> -=09}
-> -=09mutex_unlock(&steam->mutex);
-> -}
-> -
->   static int steam_input_open(struct input_dev *dev)
->   {
->   =09struct steam_device *steam =3D input_get_drvdata(dev);
-> @@ -301,7 +290,6 @@ static int steam_input_open(struct input_dev *dev)
->   =09=09return ret;
->  =20
->   =09mutex_lock(&steam->mutex);
-> -=09steam->input_opened =3D true;
->   =09if (!steam->client_opened && lizard_mode)
->   =09=09steam_set_lizard_mode(steam, false);
->   =09mutex_unlock(&steam->mutex);
-> @@ -313,7 +301,6 @@ static void steam_input_close(struct input_dev *dev)
->   =09struct steam_device *steam =3D input_get_drvdata(dev);
->  =20
->   =09mutex_lock(&steam->mutex);
-> -=09steam->input_opened =3D false;
->   =09if (!steam->client_opened && lizard_mode)
->   =09=09steam_set_lizard_mode(steam, true);
->   =09mutex_unlock(&steam->mutex);
-> @@ -400,7 +387,7 @@ static int steam_battery_register(struct steam_device=
- *steam)
->   =09return 0;
->   }
->  =20
-> -static int steam_register(struct steam_device *steam)
-> +static int steam_input_register(struct steam_device *steam)
->   {
->   =09struct hid_device *hdev =3D steam->hdev;
->   =09struct input_dev *input;
-> @@ -414,17 +401,6 @@ static int steam_register(struct steam_device *steam=
-)
->   =09=09return 0;
->   =09}
->  =20
-> -=09/*
-> -=09 * Unlikely, but getting the serial could fail, and it is not so
-> -=09 * important, so make up a serial number and go on.
-> -=09 */
-> -=09if (steam_get_serial(steam) < 0)
-> -=09=09strlcpy(steam->serial_no, "XXXXXXXXXX",
-> -=09=09=09=09sizeof(steam->serial_no));
-> -
-> -=09hid_info(hdev, "Steam Controller '%s' connected",
-> -=09=09=09steam->serial_no);
-> -
->   =09input =3D input_allocate_device();
->   =09if (!input)
->   =09=09return -ENOMEM;
-> @@ -492,11 +468,6 @@ static int steam_register(struct steam_device *steam=
-)
->   =09=09goto input_register_fail;
->  =20
->   =09rcu_assign_pointer(steam->input, input);
-> -
-> -=09/* ignore battery errors, we can live without it */
-> -=09if (steam->quirks & STEAM_QUIRK_WIRELESS)
-> -=09=09steam_battery_register(steam);
-> -
->   =09return 0;
->  =20
->   input_register_fail:
-> @@ -504,27 +475,88 @@ static int steam_register(struct steam_device *stea=
-m)
->   =09return ret;
->   }
->  =20
-> -static void steam_unregister(struct steam_device *steam)
-> +static void steam_input_unregister(struct steam_device *steam)
->   {
->   =09struct input_dev *input;
-> +=09rcu_read_lock();
-> +=09input =3D rcu_dereference(steam->input);
-> +=09rcu_read_unlock();
-> +=09if (!input)
-> +=09=09return;
-> +=09RCU_INIT_POINTER(steam->input, NULL);
-> +=09synchronize_rcu();
-> +=09input_unregister_device(input);
+> changes in v3:
+> * Rename struct stpmic1_dev by struct stpmic1.
+> * Replace of_property_ by device_property.
+> * Remove log in IRQ handler.
+> * Add email address in MODULE_AUTHOR.
+> 
+>  drivers/input/misc/Kconfig         |  11 ++
+>  drivers/input/misc/Makefile        |   2 +
+>  drivers/input/misc/stpmic1_onkey.c | 248 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 261 insertions(+)
+>  create mode 100644 drivers/input/misc/stpmic1_onkey.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index ca59a2b..279fb02 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -851,4 +851,15 @@ config INPUT_SC27XX_VIBRA
+>  	  To compile this driver as a module, choose M here. The module will
+>  	  be called sc27xx_vibra.
+>  
+> +config INPUT_STPMIC1_ONKEY
+> +	tristate "STPMIC1 PMIC Onkey support"
+> +	depends on MFD_STPMIC1
+> +	help
+> +	  Say Y to enable support of onkey embedded into STPMIC1 PMIC. onkey
+> +	  can be used to wakeup from low power modes and force a shut-down on
+> +	  long press.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called stpmic1_onkey.
+> +
+>  endif
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index 9d0f9d1..1b44202 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -71,6 +71,7 @@ obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+>  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
+>  obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
+>  obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
+> +obj-$(CONFIG_INPUT_STPMIC1_ONKEY)  	+= stpmic1_onkey.o
+>  obj-$(CONFIG_INPUT_TPS65218_PWRBUTTON)	+= tps65218-pwrbutton.o
+>  obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
+>  obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
+> @@ -81,3 +82,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+>  obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+>  obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+>  obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
+> +
+> diff --git a/drivers/input/misc/stpmic1_onkey.c b/drivers/input/misc/stpmic1_onkey.c
+> new file mode 100644
+> index 0000000..871a087
+> --- /dev/null
+> +++ b/drivers/input/misc/stpmic1_onkey.c
+> @@ -0,0 +1,248 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (C) STMicroelectronics 2018
+> +// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
+> +
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/mfd/stpmic1.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/property.h>
+> +#include <linux/regmap.h>
+> +
+> +/**
+> + * struct stpmic1_onkey - OnKey data
+> + * @pmic:		pointer to STPMIC1 PMIC device
+> + * @input_dev:		pointer to input device
+> + * @irq_falling:	irq that we are hooked on to
+> + * @irq_rising:		irq that we are hooked on to
+> + */
+> +struct stpmic1_onkey {
+> +	struct stpmic1 *pmic;
+> +	struct input_dev *input_dev;
+> +	int irq_falling;
+> +	int irq_rising;
+> +};
+> +
+> +/**
+> + * struct pmic_onkey_config - configuration of pmic PONKEYn
+> + * @cc_flag_clear:		value to clear CC flag in case of PowerOff
+> + * trigger by longkey press
+> + * @onkey_pullup_val:		value of PONKEY PullUp (active or inactive)
+> + * @power_off_time_sec:		value for long press h/w shutdown event
+> + */
+> +struct pmic_onkey_config {
+> +	bool cc_flag_clear;
+> +	u8 onkey_pullup_val;
+> +	u8 power_off_time_sec;
+> +};
+> +
+> +static irqreturn_t onkey_falling_irq(int irq, void *ponkey)
+> +{
+> +	struct stpmic1_onkey *onkey = ponkey;
+> +	struct input_dev *input_dev = onkey->input_dev;
+> +
+> +	input_report_key(input_dev, KEY_POWER, 1);
+> +	pm_wakeup_event(input_dev->dev.parent, 0);
+> +	input_sync(input_dev);
+> +
+> +	return IRQ_HANDLED;
 > +}
 > +
-> +static void steam_battery_unregister(struct steam_device *steam)
+> +static irqreturn_t onkey_rising_irq(int irq, void *ponkey)
 > +{
->   =09struct power_supply *battery;
->  =20
->   =09rcu_read_lock();
-> -=09input =3D rcu_dereference(steam->input);
->   =09battery =3D rcu_dereference(steam->battery);
->   =09rcu_read_unlock();
->  =20
-> -=09if (battery) {
-> -=09=09RCU_INIT_POINTER(steam->battery, NULL);
-> -=09=09synchronize_rcu();
-> -=09=09power_supply_unregister(battery);
-> +=09if (!battery)
-> +=09=09return;
-> +=09RCU_INIT_POINTER(steam->battery, NULL);
-> +=09synchronize_rcu();
-> +=09power_supply_unregister(battery);
+> +	struct stpmic1_onkey *onkey = ponkey;
+> +	struct input_dev *input_dev = onkey->input_dev;
+> +
+> +	input_report_key(input_dev, KEY_POWER, 0);
+> +	pm_wakeup_event(input_dev->dev.parent, 0);
+> +	input_sync(input_dev);
+> +
+> +	return IRQ_HANDLED;
 > +}
 > +
-> +static int steam_register(struct steam_device *steam)
+> +static int stpmic1_onkey_dt_params(struct platform_device *pdev,
+> +				   struct stpmic1_onkey *onkey,
+> +				   struct pmic_onkey_config *config)
 > +{
-> +=09int ret;
+> +	struct device *dev = &pdev->dev;
+> +	u32 val;
 > +
-> +=09/*
-> +=09 * This function can be called several times in a row with the
-> +=09 * wireless adaptor, without steam_unregister() between them, because
-> +=09 * another client send a get_connection_status command, for example.
-> +=09 * The battery and serial number are set just once per device.
-> +=09 */
-> +=09if (!steam->serial_no[0]) {
-> +=09=09/*
-> +=09=09 * Unlikely, but getting the serial could fail, and it is not so
-> +=09=09 * important, so make up a serial number and go on.
-> +=09=09 */
-> +=09=09if (steam_get_serial(steam) < 0)
-> +=09=09=09strlcpy(steam->serial_no, "XXXXXXXXXX",
-> +=09=09=09=09=09sizeof(steam->serial_no));
+> +	onkey->irq_falling = platform_get_irq_byname(pdev, "onkey-falling");
+> +	if (onkey->irq_falling < 0) {
+> +		dev_err(dev, "failed: request IRQ onkey-falling %d\n",
+> +			onkey->irq_falling);
+> +		return onkey->irq_falling;
+> +	}
 > +
-> +=09=09hid_info(steam->hdev, "Steam Controller '%s' connected",
-> +=09=09=09=09steam->serial_no);
+> +	onkey->irq_rising = platform_get_irq_byname(pdev, "onkey-rising");
+> +	if (onkey->irq_rising < 0) {
+> +		dev_err(dev, "failed: request IRQ onkey-rising %d\n",
+> +			onkey->irq_rising);
+> +		return onkey->irq_rising;
+> +	}
 > +
-> +=09=09/* ignore battery errors, we can live without it */
-> +=09=09if (steam->quirks & STEAM_QUIRK_WIRELESS)
-> +=09=09=09steam_battery_register(steam);
+> +	if (!device_property_read_u32(dev, "power-off-time-sec", &val)) {
+> +		if ((val > 0) && (val <= 16)) {
+> +			config->power_off_time_sec = val;
+> +		} else {
+> +			dev_err(dev, "power-off-time-sec out of range\n");
+> +			return -EINVAL;
+> +		}
+> +	}
 > +
-> +=09=09mutex_lock(&steam_devices_lock);
-> +=09=09list_add(&steam->list, &steam_devices);
-> +=09=09mutex_unlock(&steam_devices_lock);
->   =09}
-> -=09if (input) {
-> -=09=09RCU_INIT_POINTER(steam->input, NULL);
-> -=09=09synchronize_rcu();
+> +	if (device_property_present(dev, "st,onkey-clear-cc-flag"))
+> +		config->cc_flag_clear = true;
 > +
-> +=09mutex_lock(&steam->mutex);
-> +=09if (!steam->client_opened) {
-> +=09=09steam_set_lizard_mode(steam, lizard_mode);
-> +=09=09ret =3D steam_input_register(steam);
-> +=09} else {
-> +=09=09ret =3D 0;
-> +=09}
-> +=09mutex_unlock(&steam->mutex);
+> +	if (device_property_present(dev, "st,onkey-pu-inactive"))
+> +		config->onkey_pullup_val = PONKEY_PU_ACTIVE;
 > +
-> +=09return ret;
+> +	dev_dbg(dev, "onkey-switch-off duration=%d seconds\n",
+> +		config->power_off_time_sec);
+> +
+> +	return 0;
 > +}
 > +
-> +static void steam_unregister(struct steam_device *steam)
+> +static int stpmic1_onkey_probe(struct platform_device *pdev)
 > +{
-> +=09steam_battery_unregister(steam);
-> +=09steam_input_unregister(steam);
-> +=09if (steam->serial_no[0]) {
->   =09=09hid_info(steam->hdev, "Steam Controller '%s' disconnected",
->   =09=09=09=09steam->serial_no);
-> -=09=09input_unregister_device(input);
-> +=09=09mutex_lock(&steam_devices_lock);
-> +=09=09list_del(&steam->list);
-> +=09=09mutex_unlock(&steam_devices_lock);
-> +=09=09steam->serial_no[0] =3D 0;
->   =09}
->   }
->  =20
-> @@ -600,6 +632,9 @@ static int steam_client_ll_open(struct hid_device *hd=
-ev)
->   =09mutex_lock(&steam->mutex);
->   =09steam->client_opened =3D true;
->   =09mutex_unlock(&steam->mutex);
+> +	struct stpmic1 *pmic = dev_get_drvdata(pdev->dev.parent);
+> +	struct device *dev = &pdev->dev;
+> +	struct input_dev *input_dev;
+> +	struct stpmic1_onkey *onkey;
+> +	struct pmic_onkey_config config;
+> +	unsigned int val = 0;
+> +	int error;
 > +
-> +=09steam_input_unregister(steam);
+> +	onkey = devm_kzalloc(dev, sizeof(*onkey), GFP_KERNEL);
+> +	if (!onkey)
+> +		return -ENOMEM;
 > +
->   =09return ret;
->   }
->  =20
-> @@ -609,13 +644,13 @@ static void steam_client_ll_close(struct hid_device=
- *hdev)
->  =20
->   =09mutex_lock(&steam->mutex);
->   =09steam->client_opened =3D false;
-> -=09if (steam->input_opened)
-> -=09=09steam_set_lizard_mode(steam, false);
-> -=09else
-> -=09=09steam_set_lizard_mode(steam, lizard_mode);
->   =09mutex_unlock(&steam->mutex);
->  =20
->   =09hid_hw_close(steam->hdev);
-> +=09if (steam->connected) {
-> +=09=09steam_set_lizard_mode(steam, lizard_mode);
-> +=09=09steam_input_register(steam);
-> +=09}
->   }
->  =20
->   static int steam_client_ll_raw_request(struct hid_device *hdev,
-> @@ -744,11 +779,6 @@ static int steam_probe(struct hid_device *hdev,
->   =09=09}
->   =09}
->  =20
-> -=09mutex_lock(&steam_devices_lock);
-> -=09steam_update_lizard_mode(steam);
-> -=09list_add(&steam->list, &steam_devices);
-> -=09mutex_unlock(&steam_devices_lock);
-> -
->   =09return 0;
->  =20
->   hid_hw_open_fail:
-> @@ -774,10 +804,6 @@ static void steam_remove(struct hid_device *hdev)
->   =09=09return;
->   =09}
->  =20
-> -=09mutex_lock(&steam_devices_lock);
-> -=09list_del(&steam->list);
-> -=09mutex_unlock(&steam_devices_lock);
-> -
->   =09hid_destroy_device(steam->client_hdev);
->   =09steam->client_opened =3D false;
->   =09cancel_work_sync(&steam->work_connect);
-> @@ -792,12 +818,14 @@ static void steam_remove(struct hid_device *hdev)
->   static void steam_do_connect_event(struct steam_device *steam, bool con=
-nected)
->   {
->   =09unsigned long flags;
-> +=09bool changed;
->  =20
->   =09spin_lock_irqsave(&steam->lock, flags);
-> +=09changed =3D steam->connected !=3D connected;
->   =09steam->connected =3D connected;
->   =09spin_unlock_irqrestore(&steam->lock, flags);
->  =20
-> -=09if (schedule_work(&steam->work_connect) =3D=3D 0)
-> +=09if (changed && schedule_work(&steam->work_connect) =3D=3D 0)
->   =09=09dbg_hid("%s: connected=3D%d event already queued\n",
->   =09=09=09=09__func__, connected);
->   }
-> @@ -1019,13 +1047,8 @@ static int steam_raw_event(struct hid_device *hdev=
-,
->   =09=09=09return 0;
->   =09=09rcu_read_lock();
->   =09=09input =3D rcu_dereference(steam->input);
-> -=09=09if (likely(input)) {
-> +=09=09if (likely(input))
->   =09=09=09steam_do_input_event(steam, input, data);
-> -=09=09} else {
-> -=09=09=09dbg_hid("%s: input data without connect event\n",
-> -=09=09=09=09=09__func__);
-> -=09=09=09steam_do_connect_event(steam, true);
-> -=09=09}
->   =09=09rcu_read_unlock();
->   =09=09break;
->   =09case STEAM_EV_CONNECT:
-> @@ -1074,7 +1097,10 @@ static int steam_param_set_lizard_mode(const char =
-*val,
->  =20
->   =09mutex_lock(&steam_devices_lock);
->   =09list_for_each_entry(steam, &steam_devices, list) {
-> -=09=09steam_update_lizard_mode(steam);
-> +=09=09mutex_lock(&steam->mutex);
-> +=09=09if (!steam->client_opened)
-> +=09=09=09steam_set_lizard_mode(steam, lizard_mode);
-> +=09=09mutex_unlock(&steam->mutex);
->   =09}
->   =09mutex_unlock(&steam_devices_lock);
->   =09return 0;
->=20
+> +	memset(&config, 0, sizeof(struct pmic_onkey_config));
+> +	error = stpmic1_onkey_dt_params(pdev, onkey, &config);
+> +	if (error)
+> +		return error;
+> +
+> +	input_dev = devm_input_allocate_device(dev);
+> +	if (!input_dev) {
+> +		dev_err(dev, "Can't allocate Pwr Onkey Input Device\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	input_dev->name = "pmic_onkey";
+> +	input_dev->phys = "pmic_onkey/input0";
+> +
+> +	input_set_capability(input_dev, EV_KEY, KEY_POWER);
+> +
+> +	/* Setup Power Onkey Hardware parameters (long key press)*/
+> +	if (config.power_off_time_sec > 0) {
+> +		val |= PONKEY_PWR_OFF;
+> +		val |= ((16 - config.power_off_time_sec) &
+> +			PONKEY_TURNOFF_TIMER_MASK);
+> +	}
+> +	if (config.cc_flag_clear)
+
+How about doing:
+
+	if (device_property_present(dev, "st,onkey-clear-cc-flag"))
+> +		val |= PONKEY_CC_FLAG_CLEAR;
+
+and similarly handle other properties?  Then you would not really need
+the "config" structure/variable nor stpmic1_onkey_dt_params() and I do
+not think you'd lose any readability.
+
+> +	error = regmap_update_bits(pmic->regmap, PKEY_TURNOFF_CR,
+> +				   PONKEY_TURNOFF_MASK, val);
+> +	if (error) {
+> +		dev_err(dev, "LONG_PRESS_KEY_UPDATE failed: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error = regmap_update_bits(pmic->regmap, PADS_PULL_CR,
+> +				   PONKEY_PU_ACTIVE,
+> +				   config.onkey_pullup_val);
+> +	if (error) {
+> +		dev_err(dev, "ONKEY Pads configuration failed: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	onkey->pmic = pmic;
+> +	onkey->input_dev = input_dev;
+> +
+> +	/* interrupt is nested in a thread */
+> +	error = devm_request_threaded_irq(dev, onkey->irq_falling, NULL,
+> +					  onkey_falling_irq, IRQF_ONESHOT,
+> +					  dev_name(dev), onkey);
+> +	if (error) {
+> +		dev_err(dev, "Can't get IRQ Onkey Falling: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error = devm_request_threaded_irq(dev, onkey->irq_rising, NULL,
+> +					  onkey_rising_irq, IRQF_ONESHOT,
+> +					  dev_name(dev), onkey);
+> +	if (error) {
+> +		dev_err(dev, "Can't get IRQ Onkey Rising: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	error = input_register_device(input_dev);
+> +	if (error) {
+> +		dev_err(dev, "Can't register power button: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, onkey);
+> +	device_init_wakeup(dev, true);
+> +
+> +	return 0;
+> +}
+> +
+> +static int stpmic1_onkey_remove(struct platform_device *pdev)
+> +{
+> +	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
+> +
+> +	input_unregister_device(onkey->input_dev);
+
+Input device is devm-managed, it doe snot have to be unregistered
+manually. You can remove stpmic1_onkey_remove altogether.
+
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused stpmic1_onkey_suspend(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
+> +
+> +	if (device_may_wakeup(dev)) {
+> +		enable_irq_wake(onkey->irq_falling);
+> +		enable_irq_wake(onkey->irq_rising);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused stpmic1_onkey_resume(struct device *dev)
+> +{
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
+> +
+> +	if (device_may_wakeup(dev)) {
+> +		disable_irq_wake(onkey->irq_falling);
+> +		disable_irq_wake(onkey->irq_rising);
+> +	}
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(stpmic1_onkey_pm,
+> +			 stpmic1_onkey_suspend,
+> +			 stpmic1_onkey_resume);
+> +
+> +static const struct of_device_id of_stpmic1_onkey_match[] = {
+> +	{ .compatible = "st,stpmic1-onkey" },
+> +	{ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(of, of_stpmic1_onkey_match);
+> +
+> +static struct platform_driver stpmic1_onkey_driver = {
+> +	.probe	= stpmic1_onkey_probe,
+> +	.remove	= stpmic1_onkey_remove,
+> +	.driver	= {
+> +		.name	= "stpmic1_onkey",
+> +		.of_match_table = of_match_ptr(of_stpmic1_onkey_match),
+> +		.pm	= &stpmic1_onkey_pm,
+> +	},
+> +};
+> +module_platform_driver(stpmic1_onkey_driver);
+> +
+> +MODULE_DESCRIPTION("Onkey driver for STPMIC1");
+> +MODULE_AUTHOR("Pascal Paillet <p.paillet@st.com>");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 1.9.1
+
+-- 
+Dmitry

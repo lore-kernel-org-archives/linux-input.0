@@ -1,59 +1,46 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: fix wm97xx-ts exit path
-Date: Mon, 15 Oct 2018 11:17:46 -0700
-Message-ID: <20181015181746.GA127224@dtor-ws>
-References: <c522fb84-20cd-39e6-bd2d-79ed8709fd5d@infradead.org>
+Subject: Re: [PATCH] Input: elan_i2c - add ACPI ID for Lenovo IdeaPad
+ 330-15IGM
+Date: Mon, 15 Oct 2018 11:18:10 -0700
+Message-ID: <20181015181810.GB127224@dtor-ws>
+References: <20181014014632.4331-1-jackxviichaos@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <c522fb84-20cd-39e6-bd2d-79ed8709fd5d@infradead.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Mark Brown <broonie@kernel.org>, patches@opensource.cirrus.com
+In-Reply-To: <20181014014632.4331-1-jackxviichaos@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Mikhail Nikiforov <jackxviichaos@gmail.com>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Oct 13, 2018 at 10:06:18AM -0700, Randy Dunlap wrote:
-> From: Randy Dunlap <rdunlap@infradead.org>
+On Sun, Oct 14, 2018 at 04:46:32AM +0300, Mikhail Nikiforov wrote:
+> Add ELAN061C to the ACPI table to support Elan touchpad found in Lenovo
+> IdeaPad 330-15IGM.
 > 
-> Loading then unloading wm97xx-ts.ko when CONFIG_AC97_BUS=m
-> causes a WARNING: from drivers/base/driver.c:
-> 
-> Unexpected driver unregister!
-> WARNING: CPU: 0 PID: 1709 at ../drivers/base/driver.c:193 driver_unregister+0x30/0x40
-> 
-> Fix this by only calling driver_unregister() with the same
-> condition that driver_register() is called.
-> 
-> Fixes: ae9d1b5fbd7b ("Input: wm97xx: add new AC97 bus support")
-> 
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Robert Jarzmik <robert.jarzmik@free.fr>
-> Cc: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: patches@opensource.cirrus.com
-> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Mikhail Nikiforov <jackxviichaos@gmail.com>
+> Cc: stable@vger.kernel.org
 
 Applied, thank you.
 
 > ---
->  drivers/input/touchscreen/wm97xx-core.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  drivers/input/mouse/elan_i2c_core.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> --- lnx-419-rc7.orig/drivers/input/touchscreen/wm97xx-core.c
-> +++ lnx-419-rc7/drivers/input/touchscreen/wm97xx-core.c
-> @@ -929,7 +929,8 @@ static int __init wm97xx_init(void)
->  
->  static void __exit wm97xx_exit(void)
->  {
-> -	driver_unregister(&wm97xx_driver);
-> +	if (IS_BUILTIN(CONFIG_AC97_BUS))
-> +		driver_unregister(&wm97xx_driver);
->  	platform_driver_unregister(&wm97xx_mfd_driver);
->  }
->  
-> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index f5ae24865355..b0f9d19b3410 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -1346,6 +1346,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
+>  	{ "ELAN0611", 0 },
+>  	{ "ELAN0612", 0 },
+>  	{ "ELAN0618", 0 },
+> +	{ "ELAN061C", 0 },
+>  	{ "ELAN061D", 0 },
+>  	{ "ELAN0622", 0 },
+>  	{ "ELAN1000", 0 },
+> -- 
+> 2.17.1
 > 
 
 -- 

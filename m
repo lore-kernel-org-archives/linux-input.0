@@ -1,322 +1,126 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH] HID: steam: remove input device when a hid client is running.
-Date: Sun, 14 Oct 2018 19:36:43 +0200
-Message-ID: <20181014173643.9643-1-rodrigorivascosta@gmail.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Kai Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: Add a small delay after sleep command
+ for Raydium touchpanel
+Date: Mon, 15 Oct 2018 11:33:38 +0800
+Message-ID: <E080F790-05ED-461F-90A0-947FA359E697@canonical.com>
+References: <20181005044629.26286-1-kai.heng.feng@canonical.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.0 \(3445.100.39\))
+Content-Type: text/plain;
+        charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181005044629.26286-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Previously, when a HID client such as the Steam Client was running, this
-driver disabled its input device to avoid doubling the input events.
+Hi Jiri and Benjamin,
 
-While it worked mostly fine, some games got confused by the idle gamepad,
-and switched to two player mode, or asked the user to choose which gamepad
-to use. Other games just crashed, probably a bug in Unity [1].
+> On Oct 5, 2018, at 12:46, Kai-Heng Feng <kai.heng.feng@canonical.com> wrote:
+> 
+> Raydium touchpanel (2386:4B33) sometimes does not work in desktop session
+> although it works in display manager.
+> 
+> During user logging, the display manager exits, close the HID device,
+> then the device gets runtime suspended and powered off. The desktop
+> session begins shortly after, opens the HID device, then the device gets
+> runtime resumed and powered on.
+> 
+> If the trasition from display manager to desktop sesesion is fast, the
+> touchpanel cannot switch from powered off to powered on in short
+> timeframe. So add a small delay to workaround the issue.
 
-With this commit, when a HID client starts, the input device is removed;
-when the HID client ends the input device is recreated.
+Please review my patch and let me know if the approach is okay, thanks!
 
-[1]: https://github.com/ValveSoftware/steam-for-linux/issues/5645
+Kai-Heng
 
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
----
- drivers/hid/hid-steam.c | 154 +++++++++++++++++++++++-----------------
- 1 file changed, 90 insertions(+), 64 deletions(-)
-
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 0422ec2b13d2..dc4128bfe2ca 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -23,8 +23,9 @@
-  * In order to avoid breaking them this driver creates a layered hidraw device,
-  * so it can detect when the client is running and then:
-  *  - it will not send any command to the controller.
-- *  - this input device will be disabled, to avoid double input of the same
-+ *  - this input device will be removed, to avoid double input of the same
-  *    user action.
-+ * When the client is closed, this input device will be created again.
-  *
-  * For additional functions, such as changing the right-pad margin or switching
-  * the led, you can use the user-space tool at:
-@@ -113,7 +114,7 @@ struct steam_device {
- 	spinlock_t lock;
- 	struct hid_device *hdev, *client_hdev;
- 	struct mutex mutex;
--	bool client_opened, input_opened;
-+	bool client_opened;
- 	struct input_dev __rcu *input;
- 	unsigned long quirks;
- 	struct work_struct work_connect;
-@@ -279,18 +280,6 @@ static void steam_set_lizard_mode(struct steam_device *steam, bool enable)
- 	}
- }
- 
--static void steam_update_lizard_mode(struct steam_device *steam)
--{
--	mutex_lock(&steam->mutex);
--	if (!steam->client_opened) {
--		if (steam->input_opened)
--			steam_set_lizard_mode(steam, false);
--		else
--			steam_set_lizard_mode(steam, lizard_mode);
--	}
--	mutex_unlock(&steam->mutex);
--}
--
- static int steam_input_open(struct input_dev *dev)
- {
- 	struct steam_device *steam = input_get_drvdata(dev);
-@@ -301,7 +290,6 @@ static int steam_input_open(struct input_dev *dev)
- 		return ret;
- 
- 	mutex_lock(&steam->mutex);
--	steam->input_opened = true;
- 	if (!steam->client_opened && lizard_mode)
- 		steam_set_lizard_mode(steam, false);
- 	mutex_unlock(&steam->mutex);
-@@ -313,7 +301,6 @@ static void steam_input_close(struct input_dev *dev)
- 	struct steam_device *steam = input_get_drvdata(dev);
- 
- 	mutex_lock(&steam->mutex);
--	steam->input_opened = false;
- 	if (!steam->client_opened && lizard_mode)
- 		steam_set_lizard_mode(steam, true);
- 	mutex_unlock(&steam->mutex);
-@@ -400,7 +387,7 @@ static int steam_battery_register(struct steam_device *steam)
- 	return 0;
- }
- 
--static int steam_register(struct steam_device *steam)
-+static int steam_input_register(struct steam_device *steam)
- {
- 	struct hid_device *hdev = steam->hdev;
- 	struct input_dev *input;
-@@ -414,17 +401,6 @@ static int steam_register(struct steam_device *steam)
- 		return 0;
- 	}
- 
--	/*
--	 * Unlikely, but getting the serial could fail, and it is not so
--	 * important, so make up a serial number and go on.
--	 */
--	if (steam_get_serial(steam) < 0)
--		strlcpy(steam->serial_no, "XXXXXXXXXX",
--				sizeof(steam->serial_no));
--
--	hid_info(hdev, "Steam Controller '%s' connected",
--			steam->serial_no);
--
- 	input = input_allocate_device();
- 	if (!input)
- 		return -ENOMEM;
-@@ -492,11 +468,6 @@ static int steam_register(struct steam_device *steam)
- 		goto input_register_fail;
- 
- 	rcu_assign_pointer(steam->input, input);
--
--	/* ignore battery errors, we can live without it */
--	if (steam->quirks & STEAM_QUIRK_WIRELESS)
--		steam_battery_register(steam);
--
- 	return 0;
- 
- input_register_fail:
-@@ -504,27 +475,88 @@ static int steam_register(struct steam_device *steam)
- 	return ret;
- }
- 
--static void steam_unregister(struct steam_device *steam)
-+static void steam_input_unregister(struct steam_device *steam)
- {
- 	struct input_dev *input;
-+	rcu_read_lock();
-+	input = rcu_dereference(steam->input);
-+	rcu_read_unlock();
-+	if (!input)
-+		return;
-+	RCU_INIT_POINTER(steam->input, NULL);
-+	synchronize_rcu();
-+	input_unregister_device(input);
-+}
-+
-+static void steam_battery_unregister(struct steam_device *steam)
-+{
- 	struct power_supply *battery;
- 
- 	rcu_read_lock();
--	input = rcu_dereference(steam->input);
- 	battery = rcu_dereference(steam->battery);
- 	rcu_read_unlock();
- 
--	if (battery) {
--		RCU_INIT_POINTER(steam->battery, NULL);
--		synchronize_rcu();
--		power_supply_unregister(battery);
-+	if (!battery)
-+		return;
-+	RCU_INIT_POINTER(steam->battery, NULL);
-+	synchronize_rcu();
-+	power_supply_unregister(battery);
-+}
-+
-+static int steam_register(struct steam_device *steam)
-+{
-+	int ret;
-+
-+	/*
-+	 * This function can be called several times in a row with the
-+	 * wireless adaptor, without steam_unregister() between them, because
-+	 * another client send a get_connection_status command, for example.
-+	 * The battery and serial number are set just once per device.
-+	 */
-+	if (!steam->serial_no[0]) {
-+		/*
-+		 * Unlikely, but getting the serial could fail, and it is not so
-+		 * important, so make up a serial number and go on.
-+		 */
-+		if (steam_get_serial(steam) < 0)
-+			strlcpy(steam->serial_no, "XXXXXXXXXX",
-+					sizeof(steam->serial_no));
-+
-+		hid_info(steam->hdev, "Steam Controller '%s' connected",
-+				steam->serial_no);
-+
-+		/* ignore battery errors, we can live without it */
-+		if (steam->quirks & STEAM_QUIRK_WIRELESS)
-+			steam_battery_register(steam);
-+
-+		mutex_lock(&steam_devices_lock);
-+		list_add(&steam->list, &steam_devices);
-+		mutex_unlock(&steam_devices_lock);
- 	}
--	if (input) {
--		RCU_INIT_POINTER(steam->input, NULL);
--		synchronize_rcu();
-+
-+	mutex_lock(&steam->mutex);
-+	if (!steam->client_opened) {
-+		steam_set_lizard_mode(steam, lizard_mode);
-+		ret = steam_input_register(steam);
-+	} else {
-+		ret = 0;
-+	}
-+	mutex_unlock(&steam->mutex);
-+
-+	return ret;
-+}
-+
-+static void steam_unregister(struct steam_device *steam)
-+{
-+	steam_battery_unregister(steam);
-+	steam_input_unregister(steam);
-+	if (steam->serial_no[0]) {
- 		hid_info(steam->hdev, "Steam Controller '%s' disconnected",
- 				steam->serial_no);
--		input_unregister_device(input);
-+		mutex_lock(&steam_devices_lock);
-+		list_del(&steam->list);
-+		mutex_unlock(&steam_devices_lock);
-+		steam->serial_no[0] = 0;
- 	}
- }
- 
-@@ -600,6 +632,9 @@ static int steam_client_ll_open(struct hid_device *hdev)
- 	mutex_lock(&steam->mutex);
- 	steam->client_opened = true;
- 	mutex_unlock(&steam->mutex);
-+
-+	steam_input_unregister(steam);
-+
- 	return ret;
- }
- 
-@@ -609,13 +644,13 @@ static void steam_client_ll_close(struct hid_device *hdev)
- 
- 	mutex_lock(&steam->mutex);
- 	steam->client_opened = false;
--	if (steam->input_opened)
--		steam_set_lizard_mode(steam, false);
--	else
--		steam_set_lizard_mode(steam, lizard_mode);
- 	mutex_unlock(&steam->mutex);
- 
- 	hid_hw_close(steam->hdev);
-+	if (steam->connected) {
-+		steam_set_lizard_mode(steam, lizard_mode);
-+		steam_input_register(steam);
-+	}
- }
- 
- static int steam_client_ll_raw_request(struct hid_device *hdev,
-@@ -744,11 +779,6 @@ static int steam_probe(struct hid_device *hdev,
- 		}
- 	}
- 
--	mutex_lock(&steam_devices_lock);
--	steam_update_lizard_mode(steam);
--	list_add(&steam->list, &steam_devices);
--	mutex_unlock(&steam_devices_lock);
--
- 	return 0;
- 
- hid_hw_open_fail:
-@@ -774,10 +804,6 @@ static void steam_remove(struct hid_device *hdev)
- 		return;
- 	}
- 
--	mutex_lock(&steam_devices_lock);
--	list_del(&steam->list);
--	mutex_unlock(&steam_devices_lock);
--
- 	hid_destroy_device(steam->client_hdev);
- 	steam->client_opened = false;
- 	cancel_work_sync(&steam->work_connect);
-@@ -792,12 +818,14 @@ static void steam_remove(struct hid_device *hdev)
- static void steam_do_connect_event(struct steam_device *steam, bool connected)
- {
- 	unsigned long flags;
-+	bool changed;
- 
- 	spin_lock_irqsave(&steam->lock, flags);
-+	changed = steam->connected != connected;
- 	steam->connected = connected;
- 	spin_unlock_irqrestore(&steam->lock, flags);
- 
--	if (schedule_work(&steam->work_connect) == 0)
-+	if (changed && schedule_work(&steam->work_connect) == 0)
- 		dbg_hid("%s: connected=%d event already queued\n",
- 				__func__, connected);
- }
-@@ -1019,13 +1047,8 @@ static int steam_raw_event(struct hid_device *hdev,
- 			return 0;
- 		rcu_read_lock();
- 		input = rcu_dereference(steam->input);
--		if (likely(input)) {
-+		if (likely(input))
- 			steam_do_input_event(steam, input, data);
--		} else {
--			dbg_hid("%s: input data without connect event\n",
--					__func__);
--			steam_do_connect_event(steam, true);
--		}
- 		rcu_read_unlock();
- 		break;
- 	case STEAM_EV_CONNECT:
-@@ -1074,7 +1097,10 @@ static int steam_param_set_lizard_mode(const char *val,
- 
- 	mutex_lock(&steam_devices_lock);
- 	list_for_each_entry(steam, &steam_devices, list) {
--		steam_update_lizard_mode(steam);
-+		mutex_lock(&steam->mutex);
-+		if (!steam->client_opened)
-+			steam_set_lizard_mode(steam, lizard_mode);
-+		mutex_unlock(&steam->mutex);
- 	}
- 	mutex_unlock(&steam_devices_lock);
- 	return 0;
--- 
-2.19.1
+> 
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+> v2:
+> - Use quirk to only match affected touchpanel
+> - Only delay the next power on if the time hasn't elapsed
+> 
+> drivers/hid/hid-ids.h              |  3 +++
+> drivers/hid/i2c-hid/i2c-hid-core.c | 19 +++++++++++++++++++
+> 2 files changed, 22 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 16342188df19..c1b5f03eb630 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -926,6 +926,9 @@
+> #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3003		0x3003
+> #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3008		0x3008
+> 
+> +#define I2C_VENDOR_ID_RAYDIUM		0x2386
+> +#define I2C_PRODUCT_ID_RAYDIUM_4B33	0x4b33
+> +
+> #define USB_VENDOR_ID_RAZER            0x1532
+> #define USB_DEVICE_ID_RAZER_BLADE_14   0x011D
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 4aab96cf0818..3cde7c1b9c33 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -49,6 +49,7 @@
+> #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
+> #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
+> #define I2C_HID_QUIRK_NO_RUNTIME_PM		BIT(2)
+> +#define I2C_HID_QUIRK_DELAY_AFTER_SLEEP		BIT(3)
+> 
+> /* flags */
+> #define I2C_HID_STARTED		0
+> @@ -158,6 +159,8 @@ struct i2c_hid {
+> 
+> 	bool			irq_wake_enabled;
+> 	struct mutex		reset_lock;
+> +
+> +	unsigned long		sleep_delay;
+> };
+> 
+> static const struct i2c_hid_quirks {
+> @@ -172,6 +175,8 @@ static const struct i2c_hid_quirks {
+> 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+> 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET |
+> 		I2C_HID_QUIRK_NO_RUNTIME_PM },
+> +	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_4B33,
+> +		I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
+> 	{ 0, 0 }
+> };
+> 
+> @@ -387,6 +392,7 @@ static int i2c_hid_set_power(struct i2c_client *client, int power_state)
+> {
+> 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> 	int ret;
+> +	unsigned long now, delay;
+> 
+> 	i2c_hid_dbg(ihid, "%s\n", __func__);
+> 
+> @@ -404,9 +410,22 @@ static int i2c_hid_set_power(struct i2c_client *client, int power_state)
+> 			goto set_pwr_exit;
+> 	}
+> 
+> +	if (ihid->quirks & I2C_HID_QUIRK_DELAY_AFTER_SLEEP &&
+> +	    power_state == I2C_HID_PWR_ON) {
+> +		now = jiffies;
+> +		if (time_after(ihid->sleep_delay, now)) {
+> +			delay = jiffies_to_usecs(ihid->sleep_delay - now);
+> +			usleep_range(delay, delay + 1);
+> +		}
+> +	}
+> +
+> 	ret = __i2c_hid_command(client, &hid_set_power_cmd, power_state,
+> 		0, NULL, 0, NULL, 0);
+> 
+> +	if (ihid->quirks & I2C_HID_QUIRK_DELAY_AFTER_SLEEP &&
+> +	    power_state == I2C_HID_PWR_SLEEP)
+> +		ihid->sleep_delay = jiffies + msecs_to_jiffies(20);
+> +
+> 	if (ret)
+> 		dev_err(&client->dev, "failed to change power setting.\n");
+> 
+> -- 
+> 2.17.1
+> 

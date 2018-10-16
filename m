@@ -1,48 +1,58 @@
-From: Richard Leitner <richard.leitner@skidata.com>
-Subject: [PATCH 4/7] Input: sx8654 - add sx8655 and sx8656 to compatibles
-Date: Tue, 16 Oct 2018 11:16:50 +0200
-Message-ID: <20181016091653.26896-5-richard.leitner@skidata.com>
-References: <20181016091653.26896-1-richard.leitner@skidata.com>
+From: Lubomir Rintel <lkundrak@v3.sk>
+Subject: Re: [PATCH v2 0/8] OLPC 1.75 Keyboard/Touchpad fixes
+Date: Tue, 16 Oct 2018 11:44:34 +0200
+Message-ID: <c4edf9b09e88cd265a0829644aa962c28cbc3d51.camel@v3.sk>
+References: <20181010142504.233467-1-lkundrak@v3.sk>
+         <20181015195612.GB29649@amd>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181016091653.26896-1-richard.leitner@skidata.com>
+In-Reply-To: <20181015195612.GB29649@amd>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Leitner <richard.leitner@skidata.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-As the sx865[456] share the same datasheet and differ only in the
-presence of a "capacitive proximity detection circuit" and a "haptics
-motor driver for LRA/ERM" add them to the compatbiles. As the driver
-doesn't implement these features it should be no problem.
+Hello Pavel,
 
-Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
----
- drivers/input/touchscreen/sx8654.c | 4 ++++
- 1 file changed, 4 insertions(+)
+On Mon, 2018-10-15 at 21:56 +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > This makes keyboard/touchpad work on a DT MMP2 platform.
+> > 
+> > I believe that it would be a good idea if this, once reviewed, went
+> > in
+> > via the input tree. The DT and CLK parts got reviews/acks.
+> > 
+> > Changes from v1:
+> > - Basically none, just re-send, including Ack and Review tags in
+> > patches
+> >   that received them. Plus an extra Cc.
+> >   I'd be very thankful for reviews.
+> 
+> Ok, I believe I have OLPC 1.75, and it is actually a nice
+> machine. Can I get recent kernel working there in useful fashion? (Is
+> there docs somewhere)?
 
-diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-index 059127490c8d..622283b49d7c 100644
---- a/drivers/input/touchscreen/sx8654.c
-+++ b/drivers/input/touchscreen/sx8654.c
-@@ -222,6 +222,8 @@ static int sx8654_get_ofdata(struct sx8654 *ts)
- 
- static const struct of_device_id sx8654_of_match[] = {
- 	{ .compatible = "semtech,sx8654", },
-+	{ .compatible = "semtech,sx8655", },
-+	{ .compatible = "semtech,sx8656", },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, sx8654_of_match);
-@@ -326,6 +328,8 @@ static int sx8654_probe(struct i2c_client *client,
- 
- static const struct i2c_device_id sx8654_id_table[] = {
- 	{ "semtech_sx8654", 0 },
-+	{ "semtech_sx8655", 0 },
-+	{ "semtech_sx8656", 0 },
- 	{ },
- };
- MODULE_DEVICE_TABLE(i2c, sx8654_id_table);
--- 
-2.11.0
+A lovely machine indeed. I've written this now:
+
+https://github.com/hackerspace/olpc-xo175-linux/wiki/How-to-run-an-up-to-date-Linux-on-a-XO-1.75
+
+I didn't test it yet -- will do when I get home in the evening. But
+chances are it's good enough and I guess you'd be able to get it
+working even if I messed up some details.
+
+Please let me know if it works for you -- I'm having trouble getting
+reviews/acks/tested-bys for the XO-1.75 patch sets [1] and will be
+super thankful if I get some feedback from you.
+
+[1] https://lore.kernel.org/patchwork/bundle/lkundrak/OLPC%20XO%201.75/
+
+> 
+> Thanks,
+> 									
+> Pavel
+
+Cheers,
+Lubo

@@ -1,58 +1,58 @@
-From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: Re: [PATCH v2 0/8] OLPC 1.75 Keyboard/Touchpad fixes
-Date: Tue, 16 Oct 2018 11:44:34 +0200
-Message-ID: <c4edf9b09e88cd265a0829644aa962c28cbc3d51.camel@v3.sk>
-References: <20181010142504.233467-1-lkundrak@v3.sk>
-         <20181015195612.GB29649@amd>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] Input: uinput - fix Spectre v1 vulnerability
+Date: Tue, 16 Oct 2018 13:13:13 +0200
+Message-ID: <20181016111313.GA28307@embeddedor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181015195612.GB29649@amd>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello Pavel,
+setup.code can be indirectly controlled by user-space, hence leading to
+a potential exploitation of the Spectre variant 1 vulnerability.
 
-On Mon, 2018-10-15 at 21:56 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > This makes keyboard/touchpad work on a DT MMP2 platform.
-> > 
-> > I believe that it would be a good idea if this, once reviewed, went
-> > in
-> > via the input tree. The DT and CLK parts got reviews/acks.
-> > 
-> > Changes from v1:
-> > - Basically none, just re-send, including Ack and Review tags in
-> > patches
-> >   that received them. Plus an extra Cc.
-> >   I'd be very thankful for reviews.
-> 
-> Ok, I believe I have OLPC 1.75, and it is actually a nice
-> machine. Can I get recent kernel working there in useful fashion? (Is
-> there docs somewhere)?
+This issue was detected with the help of Smatch:
 
-A lovely machine indeed. I've written this now:
+drivers/input/misc/uinput.c:512 uinput_abs_setup() warn: potential
+spectre issue 'dev->absinfo' [w] (local cap)
 
-https://github.com/hackerspace/olpc-xo175-linux/wiki/How-to-run-an-up-to-date-Linux-on-a-XO-1.75
+Fix this by sanitizing setup.code before using it to index dev->absinfo.
 
-I didn't test it yet -- will do when I get home in the evening. But
-chances are it's good enough and I guess you'd be able to get it
-working even if I messed up some details.
+Notice that given that speculation windows are large, the policy is
+to kill the speculation on the first load and not worry if it can be
+completed with a dependent load/store [1].
 
-Please let me know if it works for you -- I'm having trouble getting
-reviews/acks/tested-bys for the XO-1.75 patch sets [1] and will be
-super thankful if I get some feedback from you.
+[1] https://marc.info/?l=linux-kernel&m=152449131114778&w=2
 
-[1] https://lore.kernel.org/patchwork/bundle/lkundrak/OLPC%20XO%201.75/
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/input/misc/uinput.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> 
-> Thanks,
-> 									
-> Pavel
-
-Cheers,
-Lubo
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 8ec483e..97b0809 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -42,6 +42,8 @@
+ #include <linux/input/mt.h>
+ #include "../input-compat.h"
+ 
++#include <linux/nospec.h>
++
+ #define UINPUT_NAME		"uinput"
+ #define UINPUT_BUFFER_SIZE	16
+ #define UINPUT_NUM_REQUESTS	16
+@@ -497,6 +499,7 @@ static int uinput_abs_setup(struct uinput_device *udev,
+ 
+ 	if (setup.code > ABS_MAX)
+ 		return -ERANGE;
++	setup.code = array_index_nospec(setup.code, ABS_MAX + 1);
+ 
+ 	dev = udev->dev;
+ 
+-- 
+2.7.4

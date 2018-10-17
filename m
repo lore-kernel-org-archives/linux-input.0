@@ -1,56 +1,39 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: synaptics - avoid using uninitialized variable
- when probing
-Date: Wed, 17 Oct 2018 09:03:12 +0200
-Message-ID: <CAO-hwJL1QEASk37NuYwkHhmW9N4pGWULnizpHi+4=65OdXe4yQ@mail.gmail.com>
-References: <20181017001443.GA232819@dtor-ws>
+From: Christopher Lameter <cl@linux.com>
+Subject: Re: WARNING: kmalloc bug in input_mt_init_slots
+Date: Wed, 17 Oct 2018 15:35:15 +0000
+Message-ID: <0100016682aaae79-d1382d3d-83f8-4972-b4b9-6220367f4f65-000000@email.amazonses.com>
+References: <000000000000e5f76c057664e73d@google.com> <CAKdAkRS7PSXv65MTnvKOewqESxt0_FtKohd86ioOuYR3R0z9dw@mail.gmail.com> <CACT4Y+YOb6M=xuPG64PAvd=0bcteicGtwQO60CevN_V67SJ=MQ@mail.gmail.com> <010001660c1fafb2-6d0dc7e1-d898-4589-874c-1be1af94e22d-000000@email.amazonses.com>
+ <CACT4Y+ayX8vzd2JPrLeFhf3K_Quf4x6SDtmtkNJuwNLyOh67tQ@mail.gmail.com> <010001660c4a8bbe-91200766-00df-48bd-bc60-a03da2ccdb7d-000000@email.amazonses.com> <20180924184158.GA156847@dtor-ws> <20180927143537.GB19006@bombadil.infradead.org>
+ <20181017000955.GG230131@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181017001443.GA232819@dtor-ws>
+In-Reply-To: <20181017000955.GG230131@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>, Dmitry Vyukov <dvyukov@google.com>, syzbot+87829a10073277282ad1@syzkaller.appspotmail.com, Pekka Enberg <penberg@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Linux-MM <linux-mm@kvack.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 17, 2018 at 2:14 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> synaptics_detect() does not check whether sending commands to the
-> device succeeds and instead relies on getting unique data from the
-> device. Let's make sure we seed entire buffer with zeroes to make sure
-> we not use garbage on stack that just happen to be 0x47.
->
-> Reported-by: syzbot+13cb3b01d0784e4ffc3f@syzkaller.appspotmail.com
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+On Tue, 16 Oct 2018, Dmitry Torokhov wrote:
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> On Thu, Sep 27, 2018 at 07:35:37AM -0700, Matthew Wilcox wrote:
+> > On Mon, Sep 24, 2018 at 11:41:58AM -0700, Dmitry Torokhov wrote:
+> > > > How large is the allocation? AFACIT nRequests larger than KMALLOC_MAX_SIZE
+> > > > are larger than the maximum allowed by the page allocator. Thus the warning
+> > > > and the NULL return.
+> > >
+> > > The size in this particular case is being derived from a value passed
+> > > from userspace. Input core does not care about any limits on size of
+> > > memory kmalloc() can support and is perfectly happy with getting NULL
+> > > and telling userspace to go away with their silly requests by returning
+> > > -ENOMEM.
+> > >
+> > > For the record: I definitely do not want to pre-sanitize size neither in
+> > > uinput nor in input core.
+> >
+> > Probably should be using kvzalloc then.
+>
+> No. No sane input device can track so many contacts so we need to use
+> kvzalloc(). Failing to allocate memory is proper response here.
 
-Cheers,
-Benjamin
-
->  drivers/input/mouse/synaptics.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
->
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 55d33500d55e..5e85f3cca867 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -99,9 +99,7 @@ static int synaptics_mode_cmd(struct psmouse *psmouse, u8 mode)
->  int synaptics_detect(struct psmouse *psmouse, bool set_properties)
->  {
->         struct ps2dev *ps2dev = &psmouse->ps2dev;
-> -       u8 param[4];
-> -
-> -       param[0] = 0;
-> +       u8 param[4] = { 0 };
->
->         ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
->         ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
-> --
-> 2.19.1.331.ge82ca0e54c-goog
->
->
-> --
-> Dmitry
+What is a "contact" here? Are we talking about SG segments?

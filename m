@@ -1,68 +1,40 @@
 From: Richard Leitner <richard.leitner@skidata.com>
-Subject: [PATCH v2 8/8] Input: sx8654 - convert #defined flags to BIT(x)
-Date: Wed, 17 Oct 2018 14:51:16 +0200
-Message-ID: <20181017125116.20077-9-richard.leitner@skidata.com>
-References: <20181017125116.20077-1-richard.leitner@skidata.com>
+Subject: [PATCH v2 0/7] Input: sx8654 - reset-gpio, sx865[056] support, etc.
+Date: Wed, 17 Oct 2018 14:51:08 +0200
+Message-ID: <20181017125116.20077-1-richard.leitner@skidata.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181017125116.20077-1-richard.leitner@skidata.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Leitner <richard.leitner@skidata.com>
 List-Id: linux-input@vger.kernel.org
 
-Some of the #defined register values are one-bit flags. Convert them to
-use the BIT(x) macro instead of 1 byte hexadecimal values. This improves
-readability and clarifies the intent.
+Add reset-gpio, sx8654[056] and common of_touchscreen functions support
+for the sx8654 driver.
 
-Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
----
- drivers/input/touchscreen/sx8654.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+Changes v2:
+	- use devm_gpiod_get_optional in probe instead of in #ifdef CONFIG_OF
+	- convert flags to BIT() in a separate patch
+	- replace hrtimer with "regular" timer
+	- use of_device_get_match_data instead of of_match_device
+	- add driver data to i2c_device_id table for non-DT fallback
+	- fix sequence of common touchscreen initialization
+	- div. minor stlye changes
 
-diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-index b7b263ed52af..3746ea855f94 100644
---- a/drivers/input/touchscreen/sx8654.c
-+++ b/drivers/input/touchscreen/sx8654.c
-@@ -36,6 +36,7 @@
- #include <linux/gpio/consumer.h>
- #include <linux/delay.h>
- #include <linux/input/touchscreen.h>
-+#include <linux/bitops.h>
- 
- /* register addresses */
- #define I2C_REG_TOUCH0			0x00
-@@ -46,7 +47,7 @@
- #define I2C_REG_SOFTRESET		0x3f
- 
- #define I2C_REG_SX8650_STAT		0x05
--#define SX8650_STAT_CONVIRQ		0x80
-+#define SX8650_STAT_CONVIRQ		BIT(7)
- 
- /* commands */
- #define CMD_READ_REGISTER		0x40
-@@ -56,8 +57,8 @@
- #define SOFTRESET_VALUE			0xde
- 
- /* bits for I2C_REG_IRQSRC */
--#define IRQ_PENTOUCH_TOUCHCONVDONE	0x08
--#define IRQ_PENRELEASE			0x04
-+#define IRQ_PENTOUCH_TOUCHCONVDONE	BIT(7)
-+#define IRQ_PENRELEASE			BIT(6)
- 
- /* bits for RegTouch1 */
- #define CONDIRQ				0x20
-@@ -65,8 +66,8 @@
- #define FILT_7SA			0x03
- 
- /* bits for I2C_REG_CHANMASK */
--#define CONV_X				0x80
--#define CONV_Y				0x40
-+#define CONV_X				BIT(7)
-+#define CONV_Y				BIT(6)
- 
- /* coordinates rate: higher nibble of CTRL0 register */
- #define RATE_MANUAL			0x00
+Richard Leitner (8):
+  dt-bindings: input: touchscreen: sx8654: add reset-gpio property
+  Input: sx8654 - add reset-gpio support
+  dt-bindings: input: touchscreen: sx8654: add compatible models
+  Input: sx8654 - add sx8655 and sx8656 to compatibles
+  dt-bindings: input: touchscreen: sx8654: add sx8650 to comatibles
+  Input: sx8654 - add sx8650 support
+  Input: sx8654 - use common of_touchscreen functions
+  Input: sx8654 - convert #defined flags to BIT(x)
+
+ .../bindings/input/touchscreen/sx8654.txt          |  10 +-
+ drivers/input/touchscreen/sx8654.c                 | 245 ++++++++++++++++++---
+ 2 files changed, 229 insertions(+), 26 deletions(-)
+
 -- 
 2.11.0

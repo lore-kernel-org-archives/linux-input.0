@@ -1,46 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: synaptics - avoid using uninitialized variable when
- probing
-Date: Tue, 16 Oct 2018 17:14:43 -0700
-Message-ID: <20181017001443.GA232819@dtor-ws>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: [RESEND PATCH V7 0/3]  da7280: haptic driver submission
+Date: Wed, 17 Oct 2018 09:57:57 +0900
+Message-ID: <cover.1539737877.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-synaptics_detect() does not check whether sending commands to the
-device succeeds and instead relies on getting unique data from the
-device. Let's make sure we seed entire buffer with zeroes to make sure
-we not use garbage on stack that just happen to be 0x47.
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-Reported-by: syzbot+13cb3b01d0784e4ffc3f@syzkaller.appspotmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/synaptics.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+In this patch set the following is provided:
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 55d33500d55e..5e85f3cca867 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -99,9 +99,7 @@ static int synaptics_mode_cmd(struct psmouse *psmouse, u8 mode)
- int synaptics_detect(struct psmouse *psmouse, bool set_properties)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
--	u8 param[4];
--
--	param[0] = 0;
-+	u8 param[4] = { 0 };
- 
- 	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
- 	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+[PATCH V7 1/3] MAINTAINERS file update for DA7280
+[PATCH V7 2/3] DA7280 DT Binding
+[PATCH V7 3/3] DA7280 Driver
+
+This patch applies against linux-next and v4.19-rc6
+
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
+
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
+
+ .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1409 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1942 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
+
 -- 
-2.19.1.331.ge82ca0e54c-goog
-
-
--- 
-Dmitry
+end-of-patch for RESEND PATCH V7

@@ -1,60 +1,68 @@
-From: Vinod <vkoul@kernel.org>
-Subject: Re: [PATCH] Input: pm8941-pwrkey - Add pms405 pwrkey support
-Date: Thu, 18 Oct 2018 10:54:37 +0530
-Message-ID: <20181018052437.GW2400@vkoul-mobl>
-References: <20180920014928.15422-1-bjorn.andersson@linaro.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 3/5] dt-bindings: add more optional properties for
+ elan_i2c touchpads
+Date: Thu, 18 Oct 2018 10:10:44 +0200
+Message-ID: <CAO-hwJ+z6YdnLdbzeh-7f99cBBjHfbLKLzKo-fQQaC_W8bt_Uw@mail.gmail.com>
+References: <20181012142413.26107-1-benjamin.tissoires@redhat.com>
+ <20181012142413.26107-4-benjamin.tissoires@redhat.com> <20181017201522.GA26525@bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180920014928.15422-1-bjorn.andersson@linaro.org>
+In-Reply-To: <20181017201522.GA26525@bogus>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: robh@kernel.org, Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 19-09-18, 18:49, Bjorn Andersson wrote:
-> From: Vinod Koul <vkoul@kernel.org>
-> 
-> Update the binding and driver for pms405 pwrkey.
+On Wed, Oct 17, 2018 at 10:15 PM Rob Herring <robh@kernel.org> wrote:
+>
+> On Fri, Oct 12, 2018 at 04:24:11PM +0200, Benjamin Tissoires wrote:
+> > Some new touchpads IC are connected through PS/2 and I2C. On some of these
+> > new IC, the I2C part doesn't have all of the information available.
+> > We need to be able to forward the touchpad parameters from PS/2 and
+> > thus, we need those new optional properties.
+> >
+> > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1628715
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+> >  Documentation/devicetree/bindings/input/elan_i2c.txt | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/input/elan_i2c.txt b/Documentation/devicetree/bindings/input/elan_i2c.txt
+> > index 797607460735..ace6bcb0b4eb 100644
+> > --- a/Documentation/devicetree/bindings/input/elan_i2c.txt
+> > +++ b/Documentation/devicetree/bindings/input/elan_i2c.txt
+> > @@ -13,6 +13,14 @@ Optional properties:
+> >    pinctrl binding [1]).
+> >  - vcc-supply: a phandle for the regulator supplying 3.3V power.
+> >  - elan,trackpoint: touchpad can support a trackpoint (boolean)
+> > +- elan,clickpad: touchpad is a clickpad (the entire surface is a button)
+>
+> > +- elan,max_x: the maximum reported value on the X axis
+> > +- elan,max_y: the maximum reported value on the Y axis
+> > +- elan,min_x: the minimum reported value on the X axis
+> > +- elan,min_y: the minimum reported value on the Y axis
+> > +- elan,x_res: the resolution of the X axis (in units per mm)
+> > +- elan,y_res: the resolution of the Y axis (in units per mm)
+> > +- elan,width: max reported width of a blob
+>
+> Can't we use standard touchscreen properties here? (Yes, I get this is a
+> touchpad, not touchscreen).
 
-Rob, Dmitry
+Hey Rob,
 
-Gentle reminder for this patch...
+Well, there is that (it's a touchpad driver) and we can't also really
+use the of_touchscreen.c implementation.
+If both concerns are not an issue, we can then move the [min/max/res]
+properties to the touchscreen ones.
 
-> Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> ---
->  Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt | 1 +
->  drivers/input/misc/pm8941-pwrkey.c                             | 1 +
->  2 files changed, 2 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> index 34ab5763f494..736fba3bad54 100644
-> --- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> +++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> @@ -8,6 +8,7 @@ PROPERTIES
->  	Definition: must be one of:
->  		    "qcom,pm8941-pwrkey"
->  		    "qcom,pm8941-resin"
-> +		    "qcom,pms405-pwrkey"
->  
->  - reg:
->  	Usage: required
-> diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-> index 48153e0ca19a..fccf63263c1c 100644
-> --- a/drivers/input/misc/pm8941-pwrkey.c
-> +++ b/drivers/input/misc/pm8941-pwrkey.c
-> @@ -317,6 +317,7 @@ static const struct pm8941_data resin_data = {
->  static const struct of_device_id pm8941_pwr_key_id_table[] = {
->  	{ .compatible = "qcom,pm8941-pwrkey", .data = &pwrkey_data },
->  	{ .compatible = "qcom,pm8941-resin", .data = &resin_data },
-> +	{ .compatible = "qcom,pms405-pwrkey", .data = &pwrkey_data },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, pm8941_pwr_key_id_table);
-> -- 
-> 2.18.0
+Regarding 'elan,width', this is something missing from the standard ts
+properties, and AFAICT, this controls the maximum reported
+width/height of a touch.
+I should probably rename them to max_width, max_height.
 
--- 
-~Vinod
+Hans, do you think we should add such properties to of_touchscreen.c
+too? (the width/height ones)
+
+Cheers,
+Benjamin

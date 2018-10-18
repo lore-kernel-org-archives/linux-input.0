@@ -1,115 +1,225 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 3/5] dt-bindings: add more optional properties for
- elan_i2c touchpads
-Date: Thu, 18 Oct 2018 10:51:44 +0200
-Message-ID: <4a81a5d1-39c8-60f3-16be-559d43c0116a@redhat.com>
-References: <20181012142413.26107-1-benjamin.tissoires@redhat.com>
- <20181012142413.26107-4-benjamin.tissoires@redhat.com>
- <20181017201522.GA26525@bogus>
- <CAO-hwJ+z6YdnLdbzeh-7f99cBBjHfbLKLzKo-fQQaC_W8bt_Uw@mail.gmail.com>
- <1fb98946-a518-d7d7-3bec-8944be95b91c@redhat.com>
- <CAO-hwJKXBvuGLensAQv82SoPh-vrt9UFgoC3_XeTA78EHCOANA@mail.gmail.com>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
+Date: Thu, 18 Oct 2018 09:02:11 +0000
+Message-ID: <1539853324-29051-2-git-send-email-p.paillet@st.com>
+References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKXBvuGLensAQv82SoPh-vrt9UFgoC3_XeTA78EHCOANA@mail.gmail.com>
+In-Reply-To: <1539853324-29051-1-git-send-email-p.paillet@st.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: robh@kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, devicetree@vger.kernel.org
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
+Cc: Pascal PAILLET-LME <p.paillet@st.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+From: pascal paillet <p.paillet@st.com>
 
-On 18-10-18 10:44, Benjamin Tissoires wrote:
-> On Thu, Oct 18, 2018 at 10:39 AM Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> Hi,
->>
->> On 18-10-18 10:10, Benjamin Tissoires wrote:
->>> On Wed, Oct 17, 2018 at 10:15 PM Rob Herring <robh@kernel.org> wrote:
->>>>
->>>> On Fri, Oct 12, 2018 at 04:24:11PM +0200, Benjamin Tissoires wrote:
->>>>> Some new touchpads IC are connected through PS/2 and I2C. On some of these
->>>>> new IC, the I2C part doesn't have all of the information available.
->>>>> We need to be able to forward the touchpad parameters from PS/2 and
->>>>> thus, we need those new optional properties.
->>>>>
->>>>> Link: https://bugzilla.redhat.com/show_bug.cgi?id=1628715
->>>>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->>>>> ---
->>>>>    Documentation/devicetree/bindings/input/elan_i2c.txt | 8 ++++++++
->>>>>    1 file changed, 8 insertions(+)
->>>>>
->>>>> diff --git a/Documentation/devicetree/bindings/input/elan_i2c.txt b/Documentation/devicetree/bindings/input/elan_i2c.txt
->>>>> index 797607460735..ace6bcb0b4eb 100644
->>>>> --- a/Documentation/devicetree/bindings/input/elan_i2c.txt
->>>>> +++ b/Documentation/devicetree/bindings/input/elan_i2c.txt
->>>>> @@ -13,6 +13,14 @@ Optional properties:
->>>>>      pinctrl binding [1]).
->>>>>    - vcc-supply: a phandle for the regulator supplying 3.3V power.
->>>>>    - elan,trackpoint: touchpad can support a trackpoint (boolean)
->>>>> +- elan,clickpad: touchpad is a clickpad (the entire surface is a button)
->>>>
->>>>> +- elan,max_x: the maximum reported value on the X axis
->>>>> +- elan,max_y: the maximum reported value on the Y axis
->>>>> +- elan,min_x: the minimum reported value on the X axis
->>>>> +- elan,min_y: the minimum reported value on the Y axis
->>>>> +- elan,x_res: the resolution of the X axis (in units per mm)
->>>>> +- elan,y_res: the resolution of the Y axis (in units per mm)
->>>>> +- elan,width: max reported width of a blob
->>>>
->>>> Can't we use standard touchscreen properties here? (Yes, I get this is a
->>>> touchpad, not touchscreen).
->>>
->>> Hey Rob,
->>>
->>> Well, there is that (it's a touchpad driver) and we can't also really
->>> use the of_touchscreen.c implementation.
->>> If both concerns are not an issue, we can then move the [min/max/res]
->>> properties to the touchscreen ones.
->>>
->>> Regarding 'elan,width', this is something missing from the standard ts
->>> properties, and AFAICT, this controls the maximum reported
->>> width/height of a touch.
->>> I should probably rename them to max_width, max_height.
->>>
->>> Hans, do you think we should add such properties to of_touchscreen.c
->>> too? (the width/height ones)
->>
->> Are there touchscreens which report finger/touch width / height ? if so
->> then it probably does make sense.
-> 
-> Well, it's pretty common for hid-multitouch touchscreens to report
-> such properties (it's a way to indicate the palm). Don't know about
-> the touchscreens that rely on of_touchscreen though.
+stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
+regulators , 3 switches, a watchdog and an input for a power on key.
 
-Now that you mention it I think some may also have some sort of
-pressure/weight value, but at least for the ones I wrote I do not
-think we do anything with it, since the actual meaning of the
-field is somewhat vague. This is all IIRC.
+Signed-off-by: pascal paillet <p.paillet@st.com>
+---
+changes in v4:
+* remove interrupt-parent description
+* pmic1@33 renamed to pmic@33
+* fix indentation
 
->> Note that for historical reasons
->> Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> 
-> Looks like your sentence is not finished here :)
+ .../devicetree/bindings/mfd/st,stpmic1.txt         | 131 +++++++++++++++++++++
+ include/dt-bindings/mfd/st,stpmic1.h               |  46 ++++++++
+ 2 files changed, 177 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+ create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
 
-I actually deleted it, but not those 2 lines, what I had written there
-was that for historical reasons it uses touchscreen-size-x rather then
-max-x and that that might be a bit confusing vs max-width, but I could
-not come up with something better then max-width, so I deleted my
-rambling, but ended up not deleting all of it :)
-
->> Also the touchscreen bindings have: touchscreen-x-mm and touchscreen-y-mm
->> rather then res, which can then be used to calculate the resolution.
->>
-> 
-> yeah, that's fine, I would need to convert to mm, then go back to res.
-> Extra effort, but that's the price to pay.
-
-Ack.
-
-Regards,
-
-Hans
+diff --git a/Documentation/devicetree/bindings/mfd/st,stpmic1.txt b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+new file mode 100644
+index 0000000..bb19cc8
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+@@ -0,0 +1,131 @@
++* STMicroelectronics STPMIC1 Power Management IC
++
++Required parent device properties:
++- compatible:			"st,stpmic1"
++- reg:				The I2C slave address for the STPMIC1 chip.
++- interrupts:			The interrupt line the device is connected to.
++- #interrupt-cells:		Should be 1.
++- interrupt-controller: 	Describes the STPMIC1 as an interrupt
++  controller (has its own domain). Interrupt number are the following:
++	/* Interrupt Register 1 (0x50 for latch) */
++	IT_SWOUT_R=0
++	IT_SWOUT_F=1
++	IT_VBUS_OTG_R=2
++	IT_VBUS_OTG_F=3
++	IT_WAKEUP_R=4
++	IT_WAKEUP_F=5
++	IT_PONKEY_R=6
++	IT_PONKEY_F=7
++	/* Interrupt Register 2 (0x51 for latch) */
++	IT_OVP_BOOST=8
++	IT_OCP_BOOST=9
++	IT_OCP_SWOUT=10
++	IT_OCP_OTG=11
++	IT_CURLIM_BUCK4=12
++	IT_CURLIM_BUCK3=13
++	IT_CURLIM_BUCK2=14
++	IT_CURLIM_BUCK1=15
++	/* Interrupt Register 3 (0x52 for latch) */
++	IT_SHORT_SWOUT=16
++	IT_SHORT_SWOTG=17
++	IT_CURLIM_LDO6=18
++	IT_CURLIM_LDO5=19
++	IT_CURLIM_LDO4=20
++	IT_CURLIM_LDO3=21
++	IT_CURLIM_LDO2=22
++	IT_CURLIM_LDO1=23
++	/* Interrupt Register 3 (0x52 for latch) */
++	IT_SWIN_R=24
++	IT_SWIN_F=25
++	IT_RESERVED_1=26
++	IT_RESERVED_2=27
++	IT_VINLOW_R=28
++	IT_VINLOW_F=29
++	IT_TWARN_R=30
++	IT_TWARN_F=31
++
++Optional parent device properties:
++- st,main-control-register:
++	-bit 1: Power cycling will be performed on turn OFF condition
++	-bit 2: PWRCTRL is functional
++	-bit 3: PWRCTRL active high
++- st,pads-pull-register:
++	-bit 1: WAKEUP pull down is not active
++	-bit 2: PWRCTRL pull up is active
++	-bit 3: PWRCTRL pull down is active
++	-bit 4: WAKEUP detector is disabled
++- st,vin-control-register:
++	-bit 0: VINLOW monitoring is enabled
++	-bit [1...3]: VINLOW rising threshold
++		000 VINOK_f + 50mV
++		001 VINOK_f + 100mV
++		010 VINOK_f + 150mV
++		011 VINOK_f + 200mV
++		100 VINOK_f + 250mV
++		101 VINOK_f + 300mV
++		110 VINOK_f + 350mV
++		111 VINOK_f + 400mV
++	-bit [4...5]: VINLOW hyst
++		00 100mV
++		01 200mV
++		10 300mV
++		11 400mV
++	-bit 6: SW_OUT detector is disabled
++	-bit 7: SW_IN detector is enabled.
++- st,usb-control-register:
++	-bit 3: SW_OUT current limit
++		0: 600mA
++		1: 1.1A
++	-bit 4: VBUS_OTG discharge is enabled
++	-bit 5: SW_OUT discharge is enabled
++	-bit 6: VBUS_OTG detection is enabled
++	-bit 7: BOOST_OVP is disabled
++
++STPMIC1 consists in a varied group of sub-devices.
++Each sub-device binding is be described in own documentation file.
++
++Device			 Description
++------			------------
++st,stpmic1-onkey	: Power on key, see ../input/st,stpmic1-onkey.txt
++st,stpmic1-regulators	: Regulators, see ../regulator/st,stpmic1-regulator.txt
++st,stpmic1-wdt		: Watchdog, see ../watchdog/st,stpmic1-wdt.txt
++
++Example:
++
++pmic: pmic@33 {
++	compatible = "st,stpmic1";
++	reg = <0x33>;
++	interrupt-parent = <&gpioa>;
++	interrupts = <0 2>;
++	st,main-control-register=<0x0c>;
++	interrupt-controller;
++	#interrupt-cells = <2>;
++
++	onkey {
++		compatible = "st,stpmic1-onkey";
++		interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
++		interrupt-names = "onkey-falling", "onkey-rising";
++		power-off-time-sec = <10>;
++	};
++
++	watchdog {
++		compatible = "st,stpmic1-wdt";
++	};
++
++	regulators {
++		compatible = "st,stpmic1-regulators";
++
++		vdd_core: buck1 {
++			regulator-name = "vdd_core";
++			regulator-boot-on;
++			regulator-min-microvolt = <700000>;
++			regulator-max-microvolt = <1200000>;
++		};
++		vdd: buck3 {
++			regulator-name = "vdd";
++			regulator-min-microvolt = <3300000>;
++			regulator-max-microvolt = <3300000>;
++			regulator-boot-on;
++			regulator-pull-down;
++		};
++	};
+diff --git a/include/dt-bindings/mfd/st,stpmic1.h b/include/dt-bindings/mfd/st,stpmic1.h
+new file mode 100644
+index 0000000..b2d6c83
+--- /dev/null
++++ b/include/dt-bindings/mfd/st,stpmic1.h
+@@ -0,0 +1,46 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (C) STMicroelectronics 2018 - All Rights Reserved
++ * Author: Philippe Peurichard <philippe.peurichard@st.com>,
++ * Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
++ */
++
++#ifndef __DT_BINDINGS_STPMIC1_H__
++#define __DT_BINDINGS_STPMIC1_H__
++
++/* IRQ definitions */
++#define IT_PONKEY_F	0
++#define IT_PONKEY_R	1
++#define IT_WAKEUP_F	2
++#define IT_WAKEUP_R	3
++#define IT_VBUS_OTG_F	4
++#define IT_VBUS_OTG_R	5
++#define IT_SWOUT_F	6
++#define IT_SWOUT_R	7
++
++#define IT_CURLIM_BUCK1	8
++#define IT_CURLIM_BUCK2	9
++#define IT_CURLIM_BUCK3	10
++#define IT_CURLIM_BUCK4	11
++#define IT_OCP_OTG	12
++#define IT_OCP_SWOUT	13
++#define IT_OCP_BOOST	14
++#define IT_OVP_BOOST	15
++
++#define IT_CURLIM_LDO1	16
++#define IT_CURLIM_LDO2	17
++#define IT_CURLIM_LDO3	18
++#define IT_CURLIM_LDO4	19
++#define IT_CURLIM_LDO5	20
++#define IT_CURLIM_LDO6	21
++#define IT_SHORT_SWOTG	22
++#define IT_SHORT_SWOUT	23
++
++#define IT_TWARN_F	24
++#define IT_TWARN_R	25
++#define IT_VINLOW_F	26
++#define IT_VINLOW_R	27
++#define IT_SWIN_F	30
++#define IT_SWIN_R	31
++
++#endif /* __DT_BINDINGS_STPMIC1_H__ */
+-- 
+1.9.1

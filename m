@@ -1,36 +1,36 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
-Date: Thu, 18 Oct 2018 13:47:26 -0500
-Message-ID: <20181018184726.GA27696@bogus>
-References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-2-git-send-email-p.paillet@st.com>
+From: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Input: uinput - fix Spectre v1 vulnerability
+Date: Thu, 18 Oct 2018 20:43:44 +0100
+Message-ID: <20181018204344.4c135203@alans-desktop>
+References: <20181016111313.GA28307@embeddedor.com>
+        <20181016172107.GA230131@dtor-ws>
+        <ead3e95a-1acb-362a-0ee2-d02dbc4f378c@embeddedor.com>
+        <26EEA6BC-43B0-42F7-A237-572D32EB2309@gmail.com>
+        <2856297d-9af0-e005-f926-e9596d437fad@embeddedor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1539853324-29051-2-git-send-email-p.paillet@st.com>
+In-Reply-To: <2856297d-9af0-e005-f926-e9596d437fad@embeddedor.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, Pascal PAILLET-LME <p.paillet@st.com>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 18 Oct 2018 09:02:11 +0000, Pascal PAILLET-LME wrote:
-> From: pascal paillet <p.paillet@st.com>
-> 
-> stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
-> regulators , 3 switches, a watchdog and an input for a power on key.
-> 
-> Signed-off-by: pascal paillet <p.paillet@st.com>
-> ---
-> changes in v4:
-> * remove interrupt-parent description
-> * pmic1@33 renamed to pmic@33
-> * fix indentation
-> 
->  .../devicetree/bindings/mfd/st,stpmic1.txt         | 131 +++++++++++++++++++++
->  include/dt-bindings/mfd/st,stpmic1.h               |  46 ++++++++
->  2 files changed, 177 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
->  create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
-> 
+On Tue, 16 Oct 2018 20:12:43 +0200
+"Gustavo A. R. Silva" <gustavo@embeddedor.com> wrote:
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+> On 10/16/18 8:09 PM, Dmitry Torokhov wrote:
+> 
+> > 
+> > /dev/uinput   
+> 
+> I've got it. This explains it all. :)
+> 
+> > must be 0600, or accessible to equally privileged user, or you'll be opening your system to much mischief.
+
+Still a correct change.
+
+CAP_SYS_RAWIO is not the same as being root, especially in a container.
+
+Alan

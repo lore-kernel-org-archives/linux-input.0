@@ -1,86 +1,219 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: quirks: fix support for Apple Magic Keyboards
-Date: Thu, 18 Oct 2018 15:04:49 +0200
-Message-ID: <CAO-hwJLi-F4wGp-i5vxo4J9EfZ9Jqyuu_RnwqB0ugrHr6Hojgg@mail.gmail.com>
-References: <20181017145201.7105-1-ncopa@alpinelinux.org> <CAO-hwJK4T5b0N5yc6wzeTioy-+PaoFgR7_Pq0y3MMi1=NXU2WA@mail.gmail.com>
- <20181017175515.798b2316@ncopa-desktop.copa.dup.pw> <CAO-hwJ+6Ksm6ZC85yUg86WEvfCvrBQ61OELepydx7ELYKGaqyQ@mail.gmail.com>
- <20181017165510.GA7468@kroah.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v4 8/8] watchdog: stpmic1: add stpmic1 watchdog driver
+Date: Thu, 18 Oct 2018 06:34:45 -0700
+Message-ID: <be9eb164-6ada-25c8-6f75-e3d8667728e1@roeck-us.net>
+References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
+ <1539853324-29051-9-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20181017165510.GA7468@kroah.com>
-Sender: stable-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org
-Cc: ncopa@alpinelinux.org, "3.8+" <stable@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, seobrien@chromium.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1539853324-29051-9-git-send-email-p.paillet@st.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pascal PAILLET-LME <p.paillet@st.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 17, 2018 at 6:55 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Wed, Oct 17, 2018 at 06:49:16PM +0200, Benjamin Tissoires wrote:
-> > On Wed, Oct 17, 2018 at 5:55 PM Natanael Copa <ncopa@alpinelinux.org> wrote:
-> > >
-> > > On Wed, 17 Oct 2018 16:59:15 +0200
-> > > Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> > >
-> > > > Hi Natanael,
-> > > >
-> > > > On Wed, Oct 17, 2018 at 4:52 PM Natanael Copa <ncopa@alpinelinux.org> wrote:
-> > > > >
-> > > > > Commit ee3454924370 ("HID: add support for Apple Magic Keyboards") added
-> > > > > support for the Magic Keyboard over Bluetooth, but did not add the
-> > > > > BT_VENDOR_ID_APPLE to hid-quirks. Fix this so hid-apple driver is used
-> > > > > over hid-generic.
-> > > > >
-> > > > > This fixes the Fn key, which does not work at all with hid-generic.
-> > > > >
-> > > > > Fixes: ee3454924370 ("HID: add support for Apple Magic Keyboards")
-> > > > > Bugzilla-id: https://bugzilla.kernel.org/show_bug.cgi?id=99881
-> > > > > Signed-off-by: Natanael Copa <ncopa@alpinelinux.org>
-> > > > > ---
-> > > > > This should be backported to stable too.
-> > > > >
-> > > > >  drivers/hid/hid-quirks.c | 3 +++
-> > > > >  1 file changed, 3 insertions(+)
-> > > > >
-> > > > > diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> > > > > index 249d49b6b16c..a3b3aecf8628 100644
-> > > > > --- a/drivers/hid/hid-quirks.c
-> > > > > +++ b/drivers/hid/hid-quirks.c
-> > > > > @@ -270,6 +270,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
-> > > > >         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO) },
-> > > > >         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS) },
-> > > > >         { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
-> > > > > +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
-> > > > > +       { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI) },
-> > > > > +       { HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_ANSI) },
-> > > >
-> > > > NACK, this should not be required with kernels v4.17+ IIRC.
-> > > >
-> > > > If it doesn't work on a recent kernel, please raise the issue, but I
-> > > > am actually chasing down the new inclusions of these when we add new
-> > > > device support.
-> > >
-> > > Fair enough. I think it may be needed for 4.14.y kernels though, to fix
-> > > commit b6cc0ba2cbf4 (HID: add support for Apple Magic Keyboards).
-> > >
-> > > Fn key did not work without this patch on 4.14.76 for me.
-> >
-> > Right, b6cc0ba2cbf4 has been added to 4.14.75 and is not working
-> > because tweaking hid_have_special_driver[] is not required in current
-> > kernels anymore.
-> >
-> > @stable folks, would it be possible to take this patch in the v4.9 and
-> > v4.14 trees? It can't go into Linus' tree, but I'd be glad to give my
-> > Acked-by for a stable backport.
->
-> Sure, if you resend it in a format that I can apply it in, with the text
-> saying why this is not applicable to newer kernel versions.
->
+On 10/18/2018 02:02 AM, Pascal PAILLET-LME wrote:
+> From: pascal paillet <p.paillet@st.com>
+> 
+> The stpmic1 PMIC embeds a watchdog which is disabled by default. As soon
+> as the watchdog is started, it must be refreshed periodically otherwise
+> the PMIC goes off.
+> 
+> Signed-off-by: pascal paillet <p.paillet@st.com>
+> ---
+> changes in v4:
+> * fix stop watchdog function
+> * Kconfig: fix grammar issue
+> 
+>   drivers/watchdog/Kconfig       |  12 ++++
+>   drivers/watchdog/Makefile      |   1 +
+>   drivers/watchdog/stpmic1_wdt.c | 139 +++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 152 insertions(+)
+>   create mode 100644 drivers/watchdog/stpmic1_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 5ea8909..6d2ffef 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -806,6 +806,18 @@ config STM32_WATCHDOG
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called stm32_iwdg.
+>   
+> +config STPMIC1_WATCHDOG
+> +	tristate "STPMIC1 PMIC watchdog support"
+> +	depends on MFD_STPMIC1
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include watchdog support embedded into STPMIC1 PMIC.
+> +	  If the watchdog timer expires, stpmic1 will shut down all its power
+> +	  supplies.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called spmic1_wdt.
+> +
+>   config UNIPHIER_WATCHDOG
+>   	tristate "UniPhier watchdog support"
+>   	depends on ARCH_UNIPHIER || COMPILE_TEST
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index bf92e7b..2649cf3 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -217,3 +217,4 @@ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+>   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+>   obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
+>   obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+> +obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
+> diff --git a/drivers/watchdog/stpmic1_wdt.c b/drivers/watchdog/stpmic1_wdt.c
+> new file mode 100644
+> index 0000000..a6cbc27
+> --- /dev/null
+> +++ b/drivers/watchdog/stpmic1_wdt.c
+> @@ -0,0 +1,139 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (C) STMicroelectronics 2018
+> +// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/stpmic1.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/of.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +#include <linux/watchdog.h>
+> +
+> +/* WATCHDOG CONTROL REGISTER bit */
+> +#define WDT_START		BIT(0)
+> +#define WDT_PING		BIT(1)
+> +#define WDT_START_MASK		BIT(0)
+> +#define WDT_PING_MASK		BIT(1)
+> +#define WDT_STOP		0
+> +
+> +#define PMIC_WDT_MIN_TIMEOUT 1
+> +#define PMIC_WDT_MAX_TIMEOUT 256
+> +#define PMIC_WDT_DEFAULT_TIMEOUT 30
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout,
+> +		"Watchdog cannot be stopped once started (default="
+> +				__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +struct stpmic1_wdt {
+> +	struct stpmic1 *pmic;
+> +	struct watchdog_device wdtdev;
+> +};
+> +
+> +static int pmic_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	return regmap_update_bits(wdt->pmic->regmap,
+> +				  WCHDG_CR, WDT_START_MASK, WDT_START);
+> +}
+> +
+> +static int pmic_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	return regmap_update_bits(wdt->pmic->regmap,
+> +				  WCHDG_CR, WDT_START_MASK, WDT_STOP);
+> +}
+> +
+> +static int pmic_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	return regmap_update_bits(wdt->pmic->regmap,
+> +				  WCHDG_CR, WDT_PING_MASK, WDT_PING);
+> +}
+> +
+> +static int pmic_wdt_set_timeout(struct watchdog_device *wdd,
+> +				unsigned int timeout)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	wdd->timeout = timeout;
+> +	/* timeout is equal to register value + 1 */
+> +	return regmap_write(wdt->pmic->regmap, WCHDG_TIMER_CR, timeout - 1);
+> +}
+> +
+> +static const struct watchdog_info pmic_watchdog_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+> +	.identity = "STPMIC1 PMIC Watchdog",
+> +};
+> +
+> +static const struct watchdog_ops pmic_watchdog_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = pmic_wdt_start,
+> +	.stop = pmic_wdt_stop,
+> +	.ping = pmic_wdt_ping,
+> +	.set_timeout = pmic_wdt_set_timeout,
+> +};
+> +
+> +static int pmic_wdt_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +	struct stpmic1 *pmic;
+> +	struct stpmic1_wdt *wdt;
+> +
+> +	if (!pdev->dev.parent)
+> +		return -EINVAL;
+> +
+> +	pmic = dev_get_drvdata(pdev->dev.parent);
+> +	if (!pmic)
+> +		return -EINVAL;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmic1_wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	wdt->pmic = pmic;
+> +
+> +	wdt->wdtdev.info = &pmic_watchdog_info;
+> +	wdt->wdtdev.ops = &pmic_watchdog_ops;
+> +	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
+> +	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
 
-Thanks Greg.
+Sorry I missed that earlier: You'll also want to set wdtdev.parent.
 
-Natanel, can you resend this patch with the explanation to stable@ and
-Cc me so I can give my Ack?
+Thanks,
+Guenter
 
-Cheers,
-Benjamin
+> +
+> +	wdt->wdtdev.timeout = PMIC_WDT_DEFAULT_TIMEOUT;
+> +	watchdog_init_timeout(&wdt->wdtdev, 0, &pdev->dev);
+> +
+> +	watchdog_set_nowayout(&wdt->wdtdev, nowayout);
+> +	watchdog_set_drvdata(&wdt->wdtdev, wdt);
+> +
+> +	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	dev_dbg(wdt->pmic->dev, "PMIC Watchdog driver probed\n");
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id of_pmic_wdt_match[] = {
+> +	{ .compatible = "st,stpmic1-wdt" },
+> +	{ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(of, of_pmic_wdt_match);
+> +
+> +static struct platform_driver stpmic1_wdt_driver = {
+> +	.probe = pmic_wdt_probe,
+> +	.driver = {
+> +		.name = "stpmic1-wdt",
+> +		.of_match_table = of_pmic_wdt_match,
+> +	},
+> +};
+> +module_platform_driver(stpmic1_wdt_driver);
+> +
+> +MODULE_DESCRIPTION("Watchdog driver for STPMIC1 device");
+> +MODULE_AUTHOR("Pascal Paillet <p.paillet@st.com>");
+> +MODULE_LICENSE("GPL v2");
+> 

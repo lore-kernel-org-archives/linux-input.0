@@ -1,39 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.19-rc8
-Date: Fri, 19 Oct 2018 10:45:08 -0700
-Message-ID: <20181019174508.GA47209@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+From: Breno Leitao <leitao@debian.org>
+Subject: [PATCH v2] HID: hiddev: fix potential Spectre v1
+Date: Fri, 19 Oct 2018 17:01:33 -0300
+Message-ID: <1539979293-16102-1-git-send-email-leitao@debian.org>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: gustavo@embeddedor.com, jkosina@suse.cz, Breno Leitao <leitao@debian.org>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Greg,
+uref->usage_index can be indirectly controlled by userspace, hence leading
+to a potential exploitation of the Spectre variant 1 vulnerability.
 
-Please pull from:
+This field is used as an array index by the hiddev_ioctl_usage() function,
+when 'cmd' is either HIDIOCGCOLLECTIONINDEX, HIDIOCGUSAGES or
+HIDIOCSUSAGES.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+For cmd == HIDIOCGCOLLECTIONINDEX case, uref->usage_index is compared to
+field->maxusage and then used as an index to dereference field->usage
+array. The same thing happens to the cmd == HIDIOC{G,S}USAGES cases, where
+uref->usage_index is checked against an array maximum value and then it is
+used as an index in an array.
 
-to receive updates for the input subsystem. Just an addition to elan
-touchpad driver ACPI table.
+This is a summary of the HIDIOCGCOLLECTIONINDEX case, which matches the
+traditional Spectre V1 first load:
 
-Changelog:
----------
+	copy_from_user(uref, user_arg, sizeof(*uref))
+	if (uref->usage_index >= field->maxusage)
+		goto inval;
+	i = field->usage[uref->usage_index].collection_index;
+	return i;
 
-Mikhail Nikiforov (1):
-      Input: elan_i2c - add ACPI ID for Lenovo IdeaPad 330-15IGM
+This patch fixes this by sanitizing field uref->usage_index before using it
+to index field->usage (HIDIOCGCOLLECTIONINDEX) or field->value in
+HIDIOC{G,S}USAGES arrays, thus, avoiding speculation in the first load.
 
-Diffstat:
---------
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Cc: <stable@vger.kernel.org>
 
- drivers/input/mouse/elan_i2c_core.c | 1 +
- 1 file changed, 1 insertion(+)
+--
 
-Thanks.
+v2: Contemplate cmd == HIDIOC{G,S}USAGES case
 
-
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 23872d08308c..a746017fac17 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -512,14 +512,24 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
+ 			if (cmd == HIDIOCGCOLLECTIONINDEX) {
+ 				if (uref->usage_index >= field->maxusage)
+ 					goto inval;
++				uref->usage_index =
++					array_index_nospec(uref->usage_index,
++							   field->maxusage);
+ 			} else if (uref->usage_index >= field->report_count)
+ 				goto inval;
+ 		}
+ 
+-		if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
+-		    (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
+-		     uref->usage_index + uref_multi->num_values > field->report_count))
+-			goto inval;
++		if (cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) {
++			if (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
++			    uref->usage_index + uref_multi->num_values >
++			    field->report_count)
++				goto inval;
++
++			uref->usage_index =
++				array_index_nospec(uref->usage_index,
++						   field->report_count -
++						   uref_multi->num_values);
++		}
+ 
+ 		switch (cmd) {
+ 		case HIDIOCGUSAGE:
 -- 
-Dmitry
+2.17.1

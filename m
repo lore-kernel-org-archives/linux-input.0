@@ -1,165 +1,68 @@
-From: Numan =?UTF-8?Q?Demird=C3=B6=C4=9Fen?= <if.gnu.linux@gmail.com>
-Subject: Fw: PROBLEM: Keyboard not responding after resuming from
- suspend/hibernate
-Date: Fri, 19 Oct 2018 10:20:31 +0300
-Message-ID: <20181019102031.77015d44@korsan.localdomain>
-References: <20180831215121.1b1f66bf@korsan.localdomain>
+From: Vinod <vkoul@kernel.org>
+Subject: Re: [PATCH] Input: pm8941-pwrkey - Add pms405 pwrkey support
+Date: Fri, 19 Oct 2018 14:35:55 +0530
+Message-ID: <20181019090555.GH2400@vkoul-mobl>
+References: <20180920014928.15422-1-bjorn.andersson@linaro.org>
+ <20181018052437.GW2400@vkoul-mobl>
+ <20181019000116.GD210757@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/.i0Hw2JstRd6MPEO7ifPL5U"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180831215121.1b1f66bf@korsan.localdomain>
+Content-Disposition: inline
+In-Reply-To: <20181019000116.GD210757@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: peterz@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---Sig_/.i0Hw2JstRd6MPEO7ifPL5U
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On 18-10-18, 17:01, Dmitry Torokhov wrote:
+> On Thu, Oct 18, 2018 at 10:54:37AM +0530, Vinod wrote:
+> > On 19-09-18, 18:49, Bjorn Andersson wrote:
+> > > From: Vinod Koul <vkoul@kernel.org>
+> > > 
+> > > Update the binding and driver for pms405 pwrkey.
+> > 
+> > Rob, Dmitry
+> > 
+> > Gentle reminder for this patch...
+> > 
+> > > Signed-off-by: Vinod Koul <vkoul@kernel.org>
+> > > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > > ---
+> > >  Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt | 1 +
+> > >  drivers/input/misc/pm8941-pwrkey.c                             | 1 +
+> > >  2 files changed, 2 insertions(+)
+> > > 
+> > > diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+> > > index 34ab5763f494..736fba3bad54 100644
+> > > --- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+> > > +++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
+> > > @@ -8,6 +8,7 @@ PROPERTIES
+> > >  	Definition: must be one of:
+> > >  		    "qcom,pm8941-pwrkey"
+> > >  		    "qcom,pm8941-resin"
+> > > +		    "qcom,pms405-pwrkey"
+> > >  
+> > >  - reg:
+> > >  	Usage: required
+> > > diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
+> > > index 48153e0ca19a..fccf63263c1c 100644
+> > > --- a/drivers/input/misc/pm8941-pwrkey.c
+> > > +++ b/drivers/input/misc/pm8941-pwrkey.c
+> > > @@ -317,6 +317,7 @@ static const struct pm8941_data resin_data = {
+> > >  static const struct of_device_id pm8941_pwr_key_id_table[] = {
+> > >  	{ .compatible = "qcom,pm8941-pwrkey", .data = &pwrkey_data },
+> > >  	{ .compatible = "qcom,pm8941-resin", .data = &resin_data },
+> > > +	{ .compatible = "qcom,pms405-pwrkey", .data = &pwrkey_data },
+> 
+> I am sure I asked this question before (in context of a different
+> driver), but why do we need this compatible if we already have
+> pm8941-pwrkey compatible? Isn't pms405-pwrkey compatible with
+> pm8941-pwrkey as far as power key block goes? In which cases do we need
+> new compatibles and when can we reuse existing ones? Rob?
 
-On Fri, 31 Aug 2018 21:53:11 +0300
-Numan Demird=C3=B6=C4=9Fen <if.gnu.linux@gmail.com> wrote:
+Relooking I do think that reuse of pm8941-pwrkey is entirely feasible,
+thanks for the suggestion. We can drop this and I will update DTS
 
->If I put laptop to suspend or hibernate by closing lid, power
->manager or any other method and then I resume/wake up laptop, keyboard
->is not responding. My laptop is a Sony Vaio VPCEH2F1E.=20
->
->Steps to produce bug:
->1. Boot
->2. Put laptop to sleep
->3. Resume
->
->What I expect to happen: Keyboard responds to key press.
->What happens: Keyboard does not respond but mouse and trackball are
->working.
->
->git bisect point 9d659ae14b545c4296e812c70493bfdc999b5c1c as the first
->bad commit.
->
->Bad commit link:
->https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?id=3D9=
-d659ae14b545c4296e812c70493bfdc999b5c1c
->
-> Link to actual bug report:
->https://bugzilla.kernel.org/show_bug.cgi?id=3D195471
->
->awk -f ver_linux
->Linux korsan 4.18.5-arch1-1-ARCH #1 SMP PREEMPT Fri Aug 24 12:48:58
->UTC 2018 x86_64 GNU/Linux GNU C               	8.2.0
->GNU Make            	4.2.1
->Binutils            	2.31.1
->Util-linux          	2.32.1
->Mount               	2.32.1
->Module-init-tools   	25
->E2fsprogs           	1.44.4
->Jfsutils            	1.1.15
->Reiserfsprogs       	3.6.27
->Xfsprogs            	4.17.0
->Pcmciautils         	018
->Linux C Library     	2.28
->Dynamic linker (ldd)	2.28
->Linux C++ Library   	6.0.25
->Procps              	3.3.15
->Kbd                 	2.0.4
->Console-tools       	2.0.4
->Sh-utils            	8.29
->Udev                	239
->Wireless-tools      	30
->Modules Loaded      	ac agpgart ahci arc4 ath ath3k ath9k
->ath9k_common ath9k_hw atkbd battery bluetooth bpfilter ccm cdrom
->cfg80211 coretemp crc16 crc32c_generic crc32c_intel crc32_pclmul
->crct10dif_pclmul cryptd drm drm_kms_helper ecdh_generic ehci_hcd
->ehci_pci evdev ext4 fb_sys_fops fscrypto fuse ghash_clmulni_intel
->gpio_ich hid hid_generic i2c_algo_bit i2c_i801 i8042 i915 input_leds
->intel_cstate intel_gtt intel_powerclamp intel_rapl intel_rapl_perf
->intel_uncore iptable_filter iptable_mangle iptable_nat ip_tables
->irqbypass iTCO_vendor_support iTCO_wdt jbd2 kvm kvm_intel led_class
->libahci libata libcrc32c libps2 lpc_ich mac80211 mac_hid mbcache mei
->mei_me mousedev msr nf_conntrack nf_conntrack_ipv4 nf_defrag_ipv4
->nf_nat nf_nat_ipv4 pcc_cpufreq psmouse rfkill rtc_cmos scsi_mod sd_mod
->serio serio_raw snd snd_hda_codec snd_hda_codec_conexant
->snd_hda_codec_generic snd_hda_codec_hdmi snd_hda_core snd_hda_intel
->snd_hwdep snd_pcm snd_timer sony_laptop soundcore sr_mod syscopyarea
->sysfillrect sysimgblt usb_common usbcore usbhid x86_pkg_temp_thermal
->x_tables
->
->dmesg | grep i8042
->[    0.574078] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M]
->at 0x60,0x64 irq 1,12 [    0.575936] serio: i8042 KBD port at
->0x60,0x64 irq 1 [    0.576143] serio: i8042 AUX port at 0x60,0x64 irq
->12 [    0.618880] input: AT Translated Set 2 keyboard
->as /devices/platform/i8042/serio0/input/input3 [   11.248435] input:
->AlpsPS/2 ALPS GlidePoint as /devices/platform/i8042/serio1/input/input5
->
->cat /proc/interrupts=20
->           CPU0       CPU1       CPU2       CPU3      =20
->  0:          8          0          0          0   IO-APIC
-> 2-edge      timer 1:          0          0          0      10286
-> IO-APIC   1-edge      i8042 8:          0          0
-> 0          1   IO-APIC   8-edge      rtc0 9:          0
-> 9479          0          0   IO-APIC   9-fasteoi   acpi 12:
-> 0          0     370114          0   IO-APIC  12-edge      i8042
-> 16:     197457          0          0          0   IO-APIC
-> 16-fasteoi   ehci_hcd:usb1, ath9k 19:          0          0
-> 0          0   IO-APIC  19-fasteoi   i801_smbus 23:
-> 0          0      71055          0   IO-APIC  23-fasteoi
-> ehci_hcd:usb2 24:          0      74549          0          0
-> PCI-MSI 512000-edge      ahci[0000:00:1f.2] 25:          0
-> 14          0          0   PCI-MSI 360448-edge      mei_me
-> 26:          0          0     138870          0   PCI-MSI
-> 32768-edge      i915 27:          0          0          0
-> 330   PCI-MSI 442368-edge      snd_hda_intel:card0
->NMI:         24         22         25         21   Non-maskable
->interrupts LOC:     534734     446934     603337     440320   Local
->timer interrupts SPU:          0          0          0          0
->Spurious interrupts PMI:         24         22         25         21
->Performance monitoring interrupts IWI:         26         12
->43115         22   IRQ work interrupts RTR:          0
->0          0          0   APIC ICR read retries RES:      95282
->76970      60242      46409   Rescheduling interrupts CAL:
->66746      75300      70554      69119   Function call interrupts
->TLB:      50929      54528      51413      48017   TLB shootdowns
->TRM:          0          0          0          0   Thermal event
->interrupts THR:          0          0          0          0
->Threshold APIC interrupts DFR:          0          0
->0          0   Deferred Error APIC interrupts MCE:          0
->0          0          0   Machine check exceptions MCP:
->18         19         19         19   Machine check polls
->HYP:          0          0          0          0   Hypervisor callback
->interrupts HRE:          0          0          0          0   Hyper-V
->reenlightenment interrupts HVS:          0          0
->0          0   Hyper-V stimer0 interrupts ERR:          0
->MIS:          0 PIN:          0          0          0          0
->Posted-interrupt notification event NPI:          0
->0          0          0   Nested posted-interrupt event PIW:
->0          0          0          0   Posted-interrupt wakeup event
->
->P.S: My native language is not English.
->
-
-Hi,
-
-I am forwarding this e-mail which describes a problem related to
-suspend/hibernate at the advise of Pavel Machek.
-
---=20
-Numan Demird=C3=B6=C4=9Fen
-
---Sig_/.i0Hw2JstRd6MPEO7ifPL5U
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEKU9fayrDgTGfA1OV4Dh9jqVujDIFAlvJhb8ACgkQ4Dh9jqVu
-jDKABAf/YPAHB3DIk33uE8MSsiturpYSpy8nvAGST2cT2hjSQyjh79LQAP1nxKdu
-tNmBdEAryPfXZG2qTPOpaaBBvaH2S7xcBInY7exE6xrLtncbF629S2QPn6i1dRg1
-LtGT/wjy0IvJgATu8X2nn/THv7ZWLjByxO6EprCObfwhSu2d79yzEiaoR1dDxE9O
-iiTyMQLtTWEC0rhWyFSXgn6G5AVSlIb/OzdxrotiFEsFYK7EgzctDwV/H7AQe5T6
-pHxd6LBH2u8giGZbXSNYvN01blx3CTyEQyiKdKelknK6N32ub/ix5TGcsEhs7ZLd
-Nbga5LatagV3QdR7uixTYoOihzDU8g==
-=/aip
------END PGP SIGNATURE-----
-
---Sig_/.i0Hw2JstRd6MPEO7ifPL5U--
+-- 
+~Vinod

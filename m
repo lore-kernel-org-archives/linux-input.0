@@ -1,65 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: pm8941-pwrkey - Add pms405 pwrkey support
-Date: Thu, 18 Oct 2018 17:01:16 -0700
-Message-ID: <20181019000116.GD210757@dtor-ws>
-References: <20180920014928.15422-1-bjorn.andersson@linaro.org>
- <20181018052437.GW2400@vkoul-mobl>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] Input: synaptics - avoid using uninitialized variable
+ when probing
+Date: Fri, 19 Oct 2018 15:46:24 +1000
+Message-ID: <20181019054624.GA2783@jelly>
+References: <20181017001443.GA232819@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181018052437.GW2400@vkoul-mobl>
+In-Reply-To: <20181017001443.GA232819@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vinod <vkoul@kernel.org>, Rob Herring <robh+dt@kernel.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 18, 2018 at 10:54:37AM +0530, Vinod wrote:
-> On 19-09-18, 18:49, Bjorn Andersson wrote:
-> > From: Vinod Koul <vkoul@kernel.org>
-> > 
-> > Update the binding and driver for pms405 pwrkey.
+On Tue, Oct 16, 2018 at 05:14:43PM -0700, Dmitry Torokhov wrote:
+> synaptics_detect() does not check whether sending commands to the
+> device succeeds and instead relies on getting unique data from the
+> device. Let's make sure we seed entire buffer with zeroes to make sure
+> we not use garbage on stack that just happen to be 0x47.
 > 
-> Rob, Dmitry
+> Reported-by: syzbot+13cb3b01d0784e4ffc3f@syzkaller.appspotmail.com
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+doh, was just about to send out the same patch.
+
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+
+Cheers,
+   Peter
+
+> ---
+>  drivers/input/mouse/synaptics.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> Gentle reminder for this patch...
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 55d33500d55e..5e85f3cca867 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -99,9 +99,7 @@ static int synaptics_mode_cmd(struct psmouse *psmouse, u8 mode)
+>  int synaptics_detect(struct psmouse *psmouse, bool set_properties)
+>  {
+>  	struct ps2dev *ps2dev = &psmouse->ps2dev;
+> -	u8 param[4];
+> -
+> -	param[0] = 0;
+> +	u8 param[4] = { 0 };
+>  
+>  	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+>  	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
+> -- 
+> 2.19.1.331.ge82ca0e54c-goog
 > 
-> > Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> > ---
-> >  Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt | 1 +
-> >  drivers/input/misc/pm8941-pwrkey.c                             | 1 +
-> >  2 files changed, 2 insertions(+)
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> > index 34ab5763f494..736fba3bad54 100644
-> > --- a/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> > +++ b/Documentation/devicetree/bindings/input/qcom,pm8941-pwrkey.txt
-> > @@ -8,6 +8,7 @@ PROPERTIES
-> >  	Definition: must be one of:
-> >  		    "qcom,pm8941-pwrkey"
-> >  		    "qcom,pm8941-resin"
-> > +		    "qcom,pms405-pwrkey"
-> >  
-> >  - reg:
-> >  	Usage: required
-> > diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-> > index 48153e0ca19a..fccf63263c1c 100644
-> > --- a/drivers/input/misc/pm8941-pwrkey.c
-> > +++ b/drivers/input/misc/pm8941-pwrkey.c
-> > @@ -317,6 +317,7 @@ static const struct pm8941_data resin_data = {
-> >  static const struct of_device_id pm8941_pwr_key_id_table[] = {
-> >  	{ .compatible = "qcom,pm8941-pwrkey", .data = &pwrkey_data },
-> >  	{ .compatible = "qcom,pm8941-resin", .data = &resin_data },
-> > +	{ .compatible = "qcom,pms405-pwrkey", .data = &pwrkey_data },
-
-I am sure I asked this question before (in context of a different
-driver), but why do we need this compatible if we already have
-pm8941-pwrkey compatible? Isn't pms405-pwrkey compatible with
-pm8941-pwrkey as far as power key block goes? In which cases do we need
-new compatibles and when can we reuse existing ones? Rob?
-
-Thanks.
-
--- 
-Dmitry
+> 
+> -- 
+> Dmitry

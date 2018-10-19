@@ -1,57 +1,78 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
-Date: Fri, 19 Oct 2018 12:50:15 +0100
-Message-ID: <20181019115015.GC5895@sirena.org.uk>
-References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-5-git-send-email-p.paillet@st.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for the Trekstor
+ Primetab T13B tablet
+Date: Fri, 19 Oct 2018 15:48:19 +0300
+Message-ID: <CAHp75Ve=n6oFRr7zoDfHMUGOACmgk1XbqU_q0n+j0D3D+6B0sg@mail.gmail.com>
+References: <20181008072505.GA8334@mcepok-pc>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="TYecfFk8j8mZq+dy"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1539853324-29051-5-git-send-email-p.paillet@st.com>
+In-Reply-To: <20181008072505.GA8334@mcepok-pc>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
+To: marian.cepok@gmail.com
+Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+On Mon, Oct 8, 2018 at 10:25 AM Marian Cepok <marian.cepok@gmail.com> wrote:
+>
+> Add touchscreen info for the Trekstor Primetab T13B tablet.
+>
 
---TYecfFk8j8mZq+dy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Pushed to my review and testing queue, thanks!
 
-On Thu, Oct 18, 2018 at 09:02:12AM +0000, Pascal PAILLET-LME wrote:
-
-> +	for (i = 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
-> +		/* Parse DT & find regulators to register */
-> +		init_data = stpmic1_regulators_matches[i].init_data;
-> +		if (init_data)
-> +			init_data->regulator_init = &stpmic1_regulator_parse_dt;
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Marian Cepok <marian.cepok@gmail.com>
+> ---
+>  drivers/platform/x86/touchscreen_dmi.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+>
+> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> index cb204f973491..c07954f0efc6 100644
+> --- a/drivers/platform/x86/touchscreen_dmi.c
+> +++ b/drivers/platform/x86/touchscreen_dmi.c
+> @@ -381,6 +381,22 @@ static const struct ts_dmi_data trekstor_primebook_c13_data = {
+>         .properties     = trekstor_primebook_c13_props,
+>  };
+>
+> +static const struct property_entry trekstor_primetab_t13b_props[] = {
+> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 2500),
+> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1900),
+> +       PROPERTY_ENTRY_STRING("firmware-name",
+> +                             "gsl1680-trekstor-primetab-t13b.fw"),
+> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+> +       PROPERTY_ENTRY_BOOL("silead,home-button"),
+> +       PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
+> +       { }
+> +};
 > +
-> +		rdev = stpmic1_regulator_register(pdev, i, init_data, regul);
-> +		if (IS_ERR(rdev))
-> +			return PTR_ERR(rdev);
+> +static const struct ts_dmi_data trekstor_primetab_t13b_data = {
+> +       .acpi_name  = "MSSL1680:00",
+> +       .properties = trekstor_primetab_t13b_props,
+> +};
+> +
+>  static const struct property_entry trekstor_surftab_twin_10_1_props[] = {
+>         PROPERTY_ENTRY_U32("touchscreen-size-x", 1900),
+>         PROPERTY_ENTRY_U32("touchscreen-size-y", 1280),
+> @@ -648,6 +664,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+>                         DMI_MATCH(DMI_PRODUCT_NAME, "Primebook C13"),
+>                 },
+>         },
+> +       {
+> +               /* Trekstor Primetab T13B */
+> +               .driver_data = (void *)&trekstor_primetab_t13b_data,
+> +               .matches = {
+> +                       DMI_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
+> +                       DMI_MATCH(DMI_PRODUCT_NAME, "Primetab T13B"),
+> +               },
+> +       },
+>         {
+>                 /* TrekStor SurfTab twin 10.1 ST10432-8 */
+>                 .driver_data = (void *)&trekstor_surftab_twin_10_1_data,
+> --
+> 2.17.1
+>
 
-This looks mostly good, the only big thing is this - the default is to
-just unconditionally register all the regulators that exist rather than
-only those that are configured on that particular platform.  This is a
-bit simpler and means that all the readback of the configuration for the
-unconfigured regulators is available for diagnostics.  Is there a reason
-not to do that?
 
---TYecfFk8j8mZq+dy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlvJxPYACgkQJNaLcl1U
-h9AVFwf9HuCK1nKd89bM5cuVWMEtrJN5wwS0dwfV9NJNvZ8H5h6NdUcTYb8JASZo
-c2MckaIg5ZWdFkVtQseoT85lrBAtbROJWGrSks44FXy+fmQM6SBosll+LKRavA2b
-1VPuCiyqBHPTUz6+dVUeAQRidxERF+dZdfK2FrJGaw7G96WKeHfg7zQXy4cRNJJ0
-kcfl9qNCYjF7I4FKDqugM0gKnEARpRPThYY0agxvSnJvjsR9HAcEKDNh2BBIrDQG
-acGQE+u8/nDkD6a0Wo8NgQ+V2GsJeSjMgBVUgl+gUFaoEcogr8t0wuAlnG+kvxtX
-/pYld58dINQUYBa8+hAqgvDZK9V+iQ==
-=W0oL
------END PGP SIGNATURE-----
-
---TYecfFk8j8mZq+dy--
+-- 
+With Best Regards,
+Andy Shevchenko

@@ -1,78 +1,28 @@
-From: Breno Leitao <leitao@debian.org>
-Subject: [PATCH v2] HID: hiddev: fix potential Spectre v1
-Date: Fri, 19 Oct 2018 17:01:33 -0300
-Message-ID: <1539979293-16102-1-git-send-email-leitao@debian.org>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Cc: gustavo@embeddedor.com, jkosina@suse.cz, Breno Leitao <leitao@debian.org>, stable@vger.kernel.org
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [git pull] Input updates for v4.19-rc8
+Date: Sat, 20 Oct 2018 09:08:22 +0200
+Message-ID: <20181020070822.GD15318@kroah.com>
+References: <20181019174508.GA47209@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181019174508.GA47209@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-uref->usage_index can be indirectly controlled by userspace, hence leading
-to a potential exploitation of the Spectre variant 1 vulnerability.
+On Fri, Oct 19, 2018 at 10:45:08AM -0700, Dmitry Torokhov wrote:
+> Hi Greg,
+> 
+> Please pull from:
+> 
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> 
+> to receive updates for the input subsystem. Just an addition to elan
+> touchpad driver ACPI table.
 
-This field is used as an array index by the hiddev_ioctl_usage() function,
-when 'cmd' is either HIDIOCGCOLLECTIONINDEX, HIDIOCGUSAGES or
-HIDIOCSUSAGES.
+Now merged, thanks.
 
-For cmd == HIDIOCGCOLLECTIONINDEX case, uref->usage_index is compared to
-field->maxusage and then used as an index to dereference field->usage
-array. The same thing happens to the cmd == HIDIOC{G,S}USAGES cases, where
-uref->usage_index is checked against an array maximum value and then it is
-used as an index in an array.
-
-This is a summary of the HIDIOCGCOLLECTIONINDEX case, which matches the
-traditional Spectre V1 first load:
-
-	copy_from_user(uref, user_arg, sizeof(*uref))
-	if (uref->usage_index >= field->maxusage)
-		goto inval;
-	i = field->usage[uref->usage_index].collection_index;
-	return i;
-
-This patch fixes this by sanitizing field uref->usage_index before using it
-to index field->usage (HIDIOCGCOLLECTIONINDEX) or field->value in
-HIDIOC{G,S}USAGES arrays, thus, avoiding speculation in the first load.
-
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Cc: <stable@vger.kernel.org>
-
---
-
-v2: Contemplate cmd == HIDIOC{G,S}USAGES case
-
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 23872d08308c..a746017fac17 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -512,14 +512,24 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
- 			if (cmd == HIDIOCGCOLLECTIONINDEX) {
- 				if (uref->usage_index >= field->maxusage)
- 					goto inval;
-+				uref->usage_index =
-+					array_index_nospec(uref->usage_index,
-+							   field->maxusage);
- 			} else if (uref->usage_index >= field->report_count)
- 				goto inval;
- 		}
- 
--		if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
--		    (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
--		     uref->usage_index + uref_multi->num_values > field->report_count))
--			goto inval;
-+		if (cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) {
-+			if (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
-+			    uref->usage_index + uref_multi->num_values >
-+			    field->report_count)
-+				goto inval;
-+
-+			uref->usage_index =
-+				array_index_nospec(uref->usage_index,
-+						   field->report_count -
-+						   uref_multi->num_values);
-+		}
- 
- 		switch (cmd) {
- 		case HIDIOCGUSAGE:
--- 
-2.17.1
+greg k-h

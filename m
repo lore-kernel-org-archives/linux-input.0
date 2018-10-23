@@ -1,80 +1,60 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] Input: uinput - fix Spectre v1 vulnerability
-Date: Mon, 22 Oct 2018 16:14:59 +0200
-Message-ID: <20181022141458.GA29727@amd>
-References: <20181016111313.GA28307@embeddedor.com>
- <20181016172107.GA230131@dtor-ws>
- <ead3e95a-1acb-362a-0ee2-d02dbc4f378c@embeddedor.com>
+From: Henrique de Moraes Holschuh <hmh-N3TV7GIv+o9fyO9Q7EP/yw@public.gmane.org>
+Subject: Re: 2nd Fan quirk for Thinkpad P50 causes spurios
+ touchpad/trackpoint events on ThinkPad L570
+Date: Tue, 23 Oct 2018 00:47:32 -0300
+Message-ID: <20181023034732.otali4g2sbdrbdk6@khazad-dum.debian.net>
+References: <eee05e84-42ed-a6ad-65c6-f5b2fe7cdd27@ristioja.ee>
+ <36111ed4-621c-47a8-bc6a-66cf756a0ac6@ristioja.ee>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <ead3e95a-1acb-362a-0ee2-d02dbc4f378c@embeddedor.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <36111ed4-621c-47a8-bc6a-66cf756a0ac6-89mTbI93R4uuvFJfX82//w@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/options/ibm-acpi-devel>,
+ <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=ibm-acpi-devel>
+List-Post: <mailto:ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/ibm-acpi-devel>,
+ <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Jaak Ristioja <jaak-89mTbI93R4uuvFJfX82//w@public.gmane.org>
+Cc: Alexander Kappner <agk-mA9ux5SlULTR7s880joybQ@public.gmane.org>, Jouke Witteveen <j.witteveen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
+On Sat, 13 Oct 2018, Jaak Ristioja wrote:
+> On 27.08.2018 19:22, Jaak Ristioja wrote:
+> > Upgrading Linux from 4.16 to 4.17, a ThinkPad L570 started receiving
+> > spurious input events, mostly right mouse button click events, but also
+> > cursor jumps.
+> > 
+> > I have not attempted to understand whether these events come from the
+> > trackpoint or touchpad or some other driver, but I managed to bisect
+> > this issue to commit a986c75a7df0 titled "platform/x86: thinkpad_acpi:
+> > Add 2nd Fan Support for Thinkpad P50" by Alexander Kappner.
+> > 
+> > Apparently the quirk mitigation is applied when the BIOS version begins
+> > with N1. The BIOS version on the L570 in question is N1XET57W (1.35 )
+> > which is probably why this commit causes the described problems on the
+> > ThinkPad L570. How exactly? - I don't know.
+> > 
+> > The issue did not reproduce when running some stable 4.17 and 4.18
+> > kernels with commit a986c75a7df0 reverted.
+> > 
+> > Please fix this for future kernels. Thanks! :)
+> 
+> Ping. Do you need any additional information?
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It looks like it is failing to detect N1X and N1 as different models,
+the bug is likely on this commit:
 
-On Tue 2018-10-16 19:52:58, Gustavo A. R. Silva wrote:
-> Hi Dmitry,
->=20
-> On 10/16/18 7:21 PM, Dmitry Torokhov wrote:
-> > Hi Gustavo,
-> >=20
-> > On Tue, Oct 16, 2018 at 01:13:13PM +0200, Gustavo A. R. Silva wrote:
-> >> setup.code can be indirectly controlled by user-space, hence leading to
-> >> a potential exploitation of the Spectre variant 1 vulnerability.
-> >>
-> >> This issue was detected with the help of Smatch:
-> >>
-> >> drivers/input/misc/uinput.c:512 uinput_abs_setup() warn: potential
-> >> spectre issue 'dev->absinfo' [w] (local cap)
-> >>
-> >> Fix this by sanitizing setup.code before using it to index dev->absinf=
-o.
-> >=20
-> > So we are saying that attacker, by repeatedly calling ioctl(...,
-> > UI_ABS_SETUP, ...) will be able to poison branch predictor and discover
-> > another program or kernel secrets? But uinput is a privileged interface
-> > open to root only, as it allows injecting arbitrary keystrokes into the
-> > kernel. And since only root can use uinput, meh?
-> >=20
->=20
-> Oh I see... in that case this is a false positive.
+	commit 846a416b4630fc960c10500b4194ad504bc22d4b
+	platform/x86: thinkpad_acpi: Proper model/release matching
 
-No, please lets fix it.
+Real life has been **extremely** busy, so I'd appreciate a patch.
+Otherwise I will eventually get to it, but it might take a few
+weeks(!!).
 
-Some people are trying to make sure kernel is "more priviledged" than
-root -- its called secure boot etc.
-
-And "if you givean attacker possibility to generate keystrokes, he can
-read kernel memory as well"... is very unexpected.
-
-Unexpected is bad when talking about security.
-								Pavel
-							=09
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlvN22IACgkQMOfwapXb+vJ1xACgkmaCK/eqBI2FyKOW4ixQxGGK
-9sYAoJcEKV2/6EU79TFPSfLv9m06gnaV
-=lcj5
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--
+-- 
+  Henrique Holschuh

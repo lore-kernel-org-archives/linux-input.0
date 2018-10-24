@@ -1,55 +1,55 @@
-From: Henrique de Moraes Holschuh <hmh-N3TV7GIv+o9fyO9Q7EP/yw@public.gmane.org>
-Subject: Re: 2nd Fan quirk for Thinkpad P50 causes spurios
- touchpad/trackpoint events on ThinkPad L570
-Date: Tue, 23 Oct 2018 21:47:38 -0300
-Message-ID: <20181024004738.kbafambtfwau3uzw@khazad-dum.debian.net>
-References: <eee05e84-42ed-a6ad-65c6-f5b2fe7cdd27@ristioja.ee>
- <36111ed4-621c-47a8-bc6a-66cf756a0ac6@ristioja.ee>
- <CAKdAkRTbQ+-+h8SMGf9Khc4+wE+P3_UCbYR0DDi1MoBwfSOWZQ@mail.gmail.com>
- <20181023035007.iy5vy2z3vuto2d6s@khazad-dum.debian.net>
- <CAJ2ouawfddrf8K22auR4OaJkO_n5f-rme=+XrbQYNo0eJfCtQA@mail.gmail.com>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
+Date: Wed, 24 Oct 2018 12:54:46 +0000
+Message-ID: <5BD06B96.3080809@st.com>
+References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
+ <1539853324-29051-5-git-send-email-p.paillet@st.com>
+ <20181019115015.GC5895@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAJ2ouawfddrf8K22auR4OaJkO_n5f-rme=+XrbQYNo0eJfCtQA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/options/ibm-acpi-devel>,
- <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=ibm-acpi-devel>
-List-Post: <mailto:ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/ibm-acpi-devel>,
- <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Jouke Witteveen <j.witteveen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: agk-mA9ux5SlULTR7s880joybQ@public.gmane.org, pali.rohar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, platform-driver-x86-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jaak-89mTbI93R4uuvFJfX82//w@public.gmane.org, andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181019115015.GC5895@sirena.org.uk>
+Content-Language: en-US
+Content-ID: <25C03AB68B403D46ADF5E95C06741A59@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 23 Oct 2018, Jouke Witteveen wrote:
-> > Apparently it has to be fixed properly, because if I understood the
-> > issue correctly, every two-character quirk will trigger on *any*
-> > three-character model that starts with those two characters.
-> 
-> This should be (and hopefully is) incorrect.
-> In the tpacpi_check_quirks function, equality between the quirk bios
-> and the actual model bios is tested. For two-character models there
-> are three nonzero bytes, for two character models there are only two.
+Hello Mark,
 
-Hmm, good.  Need to check the parser that is feeding it, though.
+Le 10/19/2018 01:50 PM, Mark Brown a écrit :
+> On Thu, Oct 18, 2018 at 09:02:12AM +0000, Pascal PAILLET-LME wrote:
+>
+>> +	for (i = 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
+>> +		/* Parse DT & find regulators to register */
+>> +		init_data = stpmic1_regulators_matches[i].init_data;
+>> +		if (init_data)
+>> +			init_data->regulator_init = &stpmic1_regulator_parse_dt;
+>> +
+>> +		rdev = stpmic1_regulator_register(pdev, i, init_data, regul);
+>> +		if (IS_ERR(rdev))
+>> +			return PTR_ERR(rdev);
+> This looks mostly good, the only big thing is this - the default is to
+> just unconditionally register all the regulators that exist rather than
+> only those that are configured on that particular platform.  This is a
+> bit simpler and means that all the readback of the configuration for the
+> unconfigured regulators is available for diagnostics.  Is there a reason
+> not to do that?
+I'm sorry, I'm not sure to understand. Would you prefer to not register 
+regulators that
+are not described in the device-tree ?
 
-One actually has to parse a DMI string like aaETxxWW (old models) and
-aaaET????  (need to actually verify how the ending goes on three-char
-models).  This for BIOS.  For EC, it used to be HT instead of ET for
-H8S-based embedded controllers, maybe it changed for the new ARC-based
-embedded controllers.
+In that case I could add:
+     if (!init_data)
+         continue;
 
-> That said, I do wonder why the fan quirks redefine all matching macros
-> (TPACPI_FAN_Q*) and don't use the generic ones (TPACPI_Q*). This looks
-> like an easy thing to clean up.
+This would permit to keep some regulators unmodified by the kernel. This 
+can be useful
+because we have some regulators configured by boot loaders (for the DDR 
+at least) and
+it would be more simple to not handle them in the kernel.
 
-They used to have some minor differences.  A cleanup patch is likely
-fine, as long as it is tested.
-
--- 
-  Henrique Holschuh
+best regards,
+pascal

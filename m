@@ -1,55 +1,52 @@
-From: Pascal PAILLET-LME <p.paillet@st.com>
+From: Mark Brown <broonie@kernel.org>
 Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
-Date: Wed, 24 Oct 2018 12:54:46 +0000
-Message-ID: <5BD06B96.3080809@st.com>
+Date: Wed, 24 Oct 2018 14:17:16 +0100
+Message-ID: <20181024131716.GQ2103@sirena.org.uk>
 References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
  <1539853324-29051-5-git-send-email-p.paillet@st.com>
  <20181019115015.GC5895@sirena.org.uk>
+ <5BD06B96.3080809@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="yFH6hwN92mUA4HK5"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181019115015.GC5895@sirena.org.uk>
-Content-Language: en-US
-Content-ID: <25C03AB68B403D46ADF5E95C06741A59@st.com>
+Content-Disposition: inline
+In-Reply-To: <5BD06B96.3080809@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
+To: Pascal PAILLET-LME <p.paillet@st.com>
 Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello Mark,
 
-Le 10/19/2018 01:50 PM, Mark Brown a écrit :
-> On Thu, Oct 18, 2018 at 09:02:12AM +0000, Pascal PAILLET-LME wrote:
->
->> +	for (i = 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
->> +		/* Parse DT & find regulators to register */
->> +		init_data = stpmic1_regulators_matches[i].init_data;
->> +		if (init_data)
->> +			init_data->regulator_init = &stpmic1_regulator_parse_dt;
->> +
->> +		rdev = stpmic1_regulator_register(pdev, i, init_data, regul);
->> +		if (IS_ERR(rdev))
->> +			return PTR_ERR(rdev);
-> This looks mostly good, the only big thing is this - the default is to
-> just unconditionally register all the regulators that exist rather than
-> only those that are configured on that particular platform.  This is a
-> bit simpler and means that all the readback of the configuration for the
-> unconfigured regulators is available for diagnostics.  Is there a reason
-> not to do that?
-I'm sorry, I'm not sure to understand. Would you prefer to not register 
-regulators that
-are not described in the device-tree ?
+--yFH6hwN92mUA4HK5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In that case I could add:
-     if (!init_data)
-         continue;
+On Wed, Oct 24, 2018 at 12:54:46PM +0000, Pascal PAILLET-LME wrote:
 
-This would permit to keep some regulators unmodified by the kernel. This 
-can be useful
-because we have some regulators configured by boot loaders (for the DDR 
-at least) and
-it would be more simple to not handle them in the kernel.
+> I'm sorry, I'm not sure to understand. Would you prefer to not register=
+=20
+> regulators that
+> are not described in the device-tree ?
 
-best regards,
-pascal
+No, I'm saying register all regulators regardless of if they are in the
+device tree - you shouldn't be looking at the init data at all here,
+just let the framework match them using of_match.
+
+--yFH6hwN92mUA4HK5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlvQcNgACgkQJNaLcl1U
+h9CvFQf8Czl2zAXmxAqiGUYNP76+JwWwgghhHVahho872+7g8JBFyzQdqgCk0s0L
+js7GKFtIuTp5nX5zI+RciHNZK2rYjqCJ+WMFm0eLrdSXVjBWcFLh/FlnIGDNDYly
+gnTcEk3DJQX/fo21bBUAysMBY/e0lYMZZuTIwsYle3I3XIrQFQUfb+EWBdLcV6jJ
+2Z4x0bPBSSHIJUVtOaKexxR2WjqP5hBU8IjgfFuzpTG8JTH/OSp2M4MxzSbRBBP5
+KCN1SqIWOI1vMUgsx/wagQ9agW9v23CIKy0+k+7zejMbrokDJx2XgPODUbXr6EXp
+zHXVPpbuRtuAiVJD3XoKwpKEiqVCSw==
+=sJkh
+-----END PGP SIGNATURE-----
+
+--yFH6hwN92mUA4HK5--

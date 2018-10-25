@@ -1,340 +1,190 @@
-From: Brian Masney <masneyb@onstation.org>
-Subject: [PATCH v3 2/3] Input: add new vibrator driver for various MSM SOCs
-Date: Wed, 24 Oct 2018 21:29:36 -0400
-Message-ID: <20181025012937.2154-3-masneyb@onstation.org>
-References: <20181025012937.2154-1-masneyb@onstation.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: [regression, bisected] Keyboard not responding after resuming from
+ suspend/hibernate
+Date: Thu, 25 Oct 2018 09:49:03 +0200
+Message-ID: <20181025074903.GA9323@amd>
+References: <20180831215121.1b1f66bf@korsan.localdomain>
+ <20181019102031.77015d44@korsan.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181025012937.2154-1-masneyb@onstation.org>
+Content-Disposition: inline
+In-Reply-To: <20181019102031.77015d44@korsan.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, andy.gross@linaro.org, david.brown@linaro.org
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, masneyb@onstation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devicetree@vger.kernel.org, jonathan@marek.ca
+To: Numan =?utf-8?B?RGVtaXJkw7bEn2Vu?= <if.gnu.linux@gmail.com>, jason.low2@hpe.com, Waiman.Long@hpe.com, paulmck@linux.vnet.ibm.com, tglx@linutronix.de
+Cc: dmitry.torokhov@gmail.com, peterz@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds a new vibrator driver that supports various Qualcomm
-MSM SOCs. Driver was tested on a LG Nexus 5 (hammerhead) phone.
 
-Signed-off-by: Brian Masney <masneyb@onstation.org>
----
- drivers/input/misc/Kconfig        |  10 ++
- drivers/input/misc/Makefile       |   1 +
- drivers/input/misc/msm-vibrator.c | 276 ++++++++++++++++++++++++++++++
- 3 files changed, 287 insertions(+)
- create mode 100644 drivers/input/misc/msm-vibrator.c
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index ca59a2be9bc5..e39aef84f357 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -117,6 +117,16 @@ config INPUT_E3X0_BUTTON
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called e3x0_button.
- 
-+config INPUT_MSM_VIBRATOR
-+	tristate "Qualcomm MSM vibrator driver"
-+	select INPUT_FF_MEMLESS
-+	help
-+	  Support for the vibrator that is found on various Qualcomm MSM
-+	  SOCs.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called msm_vibrator.
-+
- config INPUT_PCSPKR
- 	tristate "PC Speaker support"
- 	depends on PCSPKR_PLATFORM
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 9d0f9d1ff68f..96a6419cb1f2 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -48,6 +48,7 @@ obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
- obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
- obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+= mc13783-pwrbutton.o
- obj-$(CONFIG_INPUT_MMA8450)		+= mma8450.o
-+obj-$(CONFIG_INPUT_MSM_VIBRATOR)	+= msm-vibrator.o
- obj-$(CONFIG_INPUT_PALMAS_PWRBUTTON)	+= palmas-pwrbutton.o
- obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
- obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
-diff --git a/drivers/input/misc/msm-vibrator.c b/drivers/input/misc/msm-vibrator.c
-new file mode 100644
-index 000000000000..bb862f30a780
---- /dev/null
-+++ b/drivers/input/misc/msm-vibrator.c
-@@ -0,0 +1,276 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * Qualcomm MSM vibrator driver
-+ *
-+ * Copyright (c) 2018 Brian Masney <masneyb@onstation.org>
-+ *
-+ * Based on qcom,pwm-vibrator.c from:
-+ * Copyright (c) 2018 Jonathan Marek <jonathan@marek.ca>
-+ *
-+ * Based on msm_pwm_vibrator.c from downstream Android sources:
-+ * Copyright (C) 2009-2014 LGE, Inc.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/err.h>
-+#include <linux/gpio.h>
-+#include <linux/input.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regulator/consumer.h>
-+
-+#define REG_CMD_RCGR           0x00
-+#define REG_CFG_RCGR           0x04
-+#define REG_M                  0x08
-+#define REG_N                  0x0C
-+#define REG_D                  0x10
-+#define REG_CBCR               0x24
-+#define MMSS_CC_M_DEFAULT      1
-+
-+struct msm_vibrator {
-+	struct input_dev *input;
-+	struct mutex mutex;
-+	struct work_struct worker;
-+	void __iomem *base;
-+	struct regulator *vcc;
-+	struct clk *clk;
-+	struct gpio_desc *enable_gpio;
-+	u16 magnitude;
-+	bool enabled;
-+};
-+
-+#define msm_vibrator_write(msm_vibrator, offset, value) \
-+	writel((value), (void __iomem *)((msm_vibrator)->base + (offset)))
-+
-+static int msm_vibrator_start(struct msm_vibrator *vibrator)
-+{
-+	int d_reg_val, ret = 0;
-+
-+	mutex_lock(&vibrator->mutex);
-+
-+	if (!vibrator->enabled) {
-+		ret = clk_set_rate(vibrator->clk, 24000);
-+		if (ret) {
-+			dev_err(&vibrator->input->dev,
-+				"Failed to set clock rate: %d\n", ret);
-+			goto unlock;
-+		}
-+
-+		ret = clk_prepare_enable(vibrator->clk);
-+		if (ret) {
-+			dev_err(&vibrator->input->dev,
-+				"Failed to enable clock: %d\n", ret);
-+			goto unlock;
-+		}
-+
-+		ret = regulator_enable(vibrator->vcc);
-+		if (ret) {
-+			dev_err(&vibrator->input->dev,
-+				"Failed to enable regulator: %d\n", ret);
-+			clk_disable(vibrator->clk);
-+			goto unlock;
-+		}
-+
-+		gpiod_set_value_cansleep(vibrator->enable_gpio, 1);
-+
-+		vibrator->enabled = true;
-+	}
-+
-+	d_reg_val = 127 - ((126 * vibrator->magnitude) / 0xffff);
-+	msm_vibrator_write(vibrator, REG_CFG_RCGR,
-+			   (2 << 12) | /* dual edge mode */
-+			   (0 << 8) |  /* cxo */
-+			   (7 << 0));
-+	msm_vibrator_write(vibrator, REG_M, 1);
-+	msm_vibrator_write(vibrator, REG_N, 128);
-+	msm_vibrator_write(vibrator, REG_D, d_reg_val);
-+	msm_vibrator_write(vibrator, REG_CMD_RCGR, 1);
-+	msm_vibrator_write(vibrator, REG_CBCR, 1);
-+
-+unlock:
-+	mutex_unlock(&vibrator->mutex);
-+
-+	return ret;
-+}
-+
-+static void msm_vibrator_stop(struct msm_vibrator *vibrator)
-+{
-+	mutex_lock(&vibrator->mutex);
-+
-+	if (vibrator->enabled) {
-+		gpiod_set_value_cansleep(vibrator->enable_gpio, 0);
-+		regulator_disable(vibrator->vcc);
-+		clk_disable(vibrator->clk);
-+		vibrator->enabled = false;
-+	}
-+
-+	mutex_unlock(&vibrator->mutex);
-+}
-+
-+static void msm_vibrator_worker(struct work_struct *work)
-+{
-+	struct msm_vibrator *vibrator = container_of(work,
-+						     struct msm_vibrator,
-+						     worker);
-+
-+	if (vibrator->magnitude)
-+		msm_vibrator_start(vibrator);
-+	else
-+		msm_vibrator_stop(vibrator);
-+}
-+
-+static int msm_vibrator_play_effect(struct input_dev *dev, void *data,
-+				    struct ff_effect *effect)
-+{
-+	struct msm_vibrator *vibrator = input_get_drvdata(dev);
-+
-+	mutex_lock(&vibrator->mutex);
-+
-+	if (effect->u.rumble.strong_magnitude > 0)
-+		vibrator->magnitude = effect->u.rumble.strong_magnitude;
-+	else
-+		vibrator->magnitude = effect->u.rumble.weak_magnitude;
-+
-+	mutex_unlock(&vibrator->mutex);
-+
-+	schedule_work(&vibrator->worker);
-+
-+	return 0;
-+}
-+
-+static void msm_vibrator_close(struct input_dev *input)
-+{
-+	struct msm_vibrator *vibrator = input_get_drvdata(input);
-+
-+	cancel_work_sync(&vibrator->worker);
-+	msm_vibrator_stop(vibrator);
-+}
-+
-+static int msm_vibrator_probe(struct platform_device *pdev)
-+{
-+	struct msm_vibrator *vibrator;
-+	struct resource *res;
-+	int ret;
-+
-+	vibrator = devm_kzalloc(&pdev->dev, sizeof(*vibrator), GFP_KERNEL);
-+	if (!vibrator)
-+		return -ENOMEM;
-+
-+	vibrator->input = devm_input_allocate_device(&pdev->dev);
-+	if (!vibrator->input)
-+		return -ENOMEM;
-+
-+	vibrator->vcc = devm_regulator_get(&pdev->dev, "vcc");
-+	if (IS_ERR(vibrator->vcc)) {
-+		if (PTR_ERR(vibrator->vcc) != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get regulator: %ld\n",
-+				PTR_ERR(vibrator->vcc));
-+		return PTR_ERR(vibrator->vcc);
-+	}
-+
-+	vibrator->enable_gpio = devm_gpiod_get(&pdev->dev, "enable",
-+					       GPIOD_OUT_LOW);
-+	if (IS_ERR(vibrator->enable_gpio)) {
-+		dev_err(&pdev->dev, "Failed to get enable gpio: %ld\n",
-+			PTR_ERR(vibrator->enable_gpio));
-+		return PTR_ERR(vibrator->enable_gpio);
-+	}
-+
-+	vibrator->clk = devm_clk_get(&pdev->dev, "pwm");
-+	if (IS_ERR(vibrator->clk)) {
-+		dev_err(&pdev->dev, "Failed to lookup pwm clock: %ld\n",
-+			PTR_ERR(vibrator->clk));
-+		return PTR_ERR(vibrator->clk);
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		dev_err(&pdev->dev, "Failed to get platform resource\n");
-+		return -ENODEV;
-+	}
-+
-+	vibrator->base = devm_ioremap(&pdev->dev, res->start,
-+				     resource_size(res));
-+	if (IS_ERR(vibrator->base)) {
-+		dev_err(&pdev->dev, "Failed to iomap resource: %ld\n",
-+			PTR_ERR(vibrator->base));
-+		return PTR_ERR(vibrator->base);
-+	}
-+
-+	vibrator->enabled = false;
-+	mutex_init(&vibrator->mutex);
-+	INIT_WORK(&vibrator->worker, msm_vibrator_worker);
-+
-+	vibrator->input->name = "msm-vibrator";
-+	vibrator->input->id.bustype = BUS_HOST;
-+	vibrator->input->dev.parent = &pdev->dev;
-+	vibrator->input->close = msm_vibrator_close;
-+
-+	input_set_drvdata(vibrator->input, vibrator);
-+	input_set_capability(vibrator->input, EV_FF, FF_RUMBLE);
-+
-+	ret = input_ff_create_memless(vibrator->input, NULL,
-+				      msm_vibrator_play_effect);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to create ff memless: %d", ret);
-+		return ret;
-+	}
-+
-+	ret = input_register_device(vibrator->input);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to register input device: %d", ret);
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, vibrator);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused msm_vibrator_suspend(struct device *dev)
-+{
-+	struct msm_vibrator *vibrator = dev_get_drvdata(dev);
-+
-+	cancel_work_sync(&vibrator->worker);
-+
-+	if (vibrator->enabled)
-+		msm_vibrator_stop(vibrator);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused msm_vibrator_resume(struct device *dev)
-+{
-+	struct msm_vibrator *vibrator = dev_get_drvdata(dev);
-+
-+	if (vibrator->enabled)
-+		msm_vibrator_start(vibrator);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(msm_vibrator_pm_ops, msm_vibrator_suspend,
-+			 msm_vibrator_resume);
-+
-+static const struct of_device_id msm_vibrator_of_match[] = {
-+	{ .compatible = "qcom,msm8226-vibrator" },
-+	{ .compatible = "qcom,msm8974-vibrator" },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, msm_vibrator_of_match);
-+
-+static struct platform_driver msm_vibrator_driver = {
-+	.probe	= msm_vibrator_probe,
-+	.driver	= {
-+		.name = "msm-vibrator",
-+		.pm = &msm_vibrator_pm_ops,
-+		.of_match_table = of_match_ptr(msm_vibrator_of_match),
-+	},
-+};
-+module_platform_driver(msm_vibrator_driver);
-+
-+MODULE_AUTHOR("Brian Masney <masneyb@onstation.org>");
-+MODULE_DESCRIPTION("Qualcomm MSM vibrator driver");
-+MODULE_LICENSE("GPL");
--- 
-2.17.2
+Hi!
+
+Here's problem bisected down to:
+
+commit 9d659ae14b545c4296e812c70493bfdc999b5c1c
+Author: Peter Zijlstra <peterz@infradead.org>
+Date:   Tue Aug 23 14:40:16 2016 +0200
+
+    locking/mutex: Add lock handoff to avoid starvation
+
+    Implement lock handoff to avoid lock starvation.
+
+Numan, I assume revert of that patch on the 4.18 kernel still makes it
+work?
+
+Peter, any ideas?
+
+								Pavel
+
+On Fri 2018-10-19 10:20:31, Numan Demird=C3=B6=C4=9Fen wrote:
+> On Fri, 31 Aug 2018 21:53:11 +0300
+> Numan Demird=C3=B6=C4=9Fen <if.gnu.linux@gmail.com> wrote:
+>=20
+> >If I put laptop to suspend or hibernate by closing lid, power
+> >manager or any other method and then I resume/wake up laptop, keyboard
+> >is not responding. My laptop is a Sony Vaio VPCEH2F1E.=20
+> >
+> >Steps to produce bug:
+> >1. Boot
+> >2. Put laptop to sleep
+> >3. Resume
+> >
+> >What I expect to happen: Keyboard responds to key press.
+> >What happens: Keyboard does not respond but mouse and trackball are
+> >working.
+> >
+> >git bisect point 9d659ae14b545c4296e812c70493bfdc999b5c1c as the first
+> >bad commit.
+> >
+> >Bad commit link:
+> >https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?id=
+=3D9d659ae14b545c4296e812c70493bfdc999b5c1c
+> >
+> > Link to actual bug report:
+> >https://bugzilla.kernel.org/show_bug.cgi?id=3D195471
+> >
+> >awk -f ver_linux
+> >Linux korsan 4.18.5-arch1-1-ARCH #1 SMP PREEMPT Fri Aug 24 12:48:58
+> >UTC 2018 x86_64 GNU/Linux GNU C               	8.2.0
+> >GNU Make            	4.2.1
+> >Binutils            	2.31.1
+> >Util-linux          	2.32.1
+> >Mount               	2.32.1
+> >Module-init-tools   	25
+> >E2fsprogs           	1.44.4
+> >Jfsutils            	1.1.15
+> >Reiserfsprogs       	3.6.27
+> >Xfsprogs            	4.17.0
+> >Pcmciautils         	018
+> >Linux C Library     	2.28
+> >Dynamic linker (ldd)	2.28
+> >Linux C++ Library   	6.0.25
+> >Procps              	3.3.15
+> >Kbd                 	2.0.4
+> >Console-tools       	2.0.4
+> >Sh-utils            	8.29
+> >Udev                	239
+> >Wireless-tools      	30
+> >Modules Loaded      	ac agpgart ahci arc4 ath ath3k ath9k
+> >ath9k_common ath9k_hw atkbd battery bluetooth bpfilter ccm cdrom
+> >cfg80211 coretemp crc16 crc32c_generic crc32c_intel crc32_pclmul
+> >crct10dif_pclmul cryptd drm drm_kms_helper ecdh_generic ehci_hcd
+> >ehci_pci evdev ext4 fb_sys_fops fscrypto fuse ghash_clmulni_intel
+> >gpio_ich hid hid_generic i2c_algo_bit i2c_i801 i8042 i915 input_leds
+> >intel_cstate intel_gtt intel_powerclamp intel_rapl intel_rapl_perf
+> >intel_uncore iptable_filter iptable_mangle iptable_nat ip_tables
+> >irqbypass iTCO_vendor_support iTCO_wdt jbd2 kvm kvm_intel led_class
+> >libahci libata libcrc32c libps2 lpc_ich mac80211 mac_hid mbcache mei
+> >mei_me mousedev msr nf_conntrack nf_conntrack_ipv4 nf_defrag_ipv4
+> >nf_nat nf_nat_ipv4 pcc_cpufreq psmouse rfkill rtc_cmos scsi_mod sd_mod
+> >serio serio_raw snd snd_hda_codec snd_hda_codec_conexant
+> >snd_hda_codec_generic snd_hda_codec_hdmi snd_hda_core snd_hda_intel
+> >snd_hwdep snd_pcm snd_timer sony_laptop soundcore sr_mod syscopyarea
+> >sysfillrect sysimgblt usb_common usbcore usbhid x86_pkg_temp_thermal
+> >x_tables
+> >
+> >dmesg | grep i8042
+> >[    0.574078] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M]
+> >at 0x60,0x64 irq 1,12 [    0.575936] serio: i8042 KBD port at
+> >0x60,0x64 irq 1 [    0.576143] serio: i8042 AUX port at 0x60,0x64 irq
+> >12 [    0.618880] input: AT Translated Set 2 keyboard
+> >as /devices/platform/i8042/serio0/input/input3 [   11.248435] input:
+> >AlpsPS/2 ALPS GlidePoint as /devices/platform/i8042/serio1/input/input5
+> >
+> >cat /proc/interrupts=20
+> >           CPU0       CPU1       CPU2       CPU3      =20
+> >  0:          8          0          0          0   IO-APIC
+> > 2-edge      timer 1:          0          0          0      10286
+> > IO-APIC   1-edge      i8042 8:          0          0
+> > 0          1   IO-APIC   8-edge      rtc0 9:          0
+> > 9479          0          0   IO-APIC   9-fasteoi   acpi 12:
+> > 0          0     370114          0   IO-APIC  12-edge      i8042
+> > 16:     197457          0          0          0   IO-APIC
+> > 16-fasteoi   ehci_hcd:usb1, ath9k 19:          0          0
+> > 0          0   IO-APIC  19-fasteoi   i801_smbus 23:
+> > 0          0      71055          0   IO-APIC  23-fasteoi
+> > ehci_hcd:usb2 24:          0      74549          0          0
+> > PCI-MSI 512000-edge      ahci[0000:00:1f.2] 25:          0
+> > 14          0          0   PCI-MSI 360448-edge      mei_me
+> > 26:          0          0     138870          0   PCI-MSI
+> > 32768-edge      i915 27:          0          0          0
+> > 330   PCI-MSI 442368-edge      snd_hda_intel:card0
+> >NMI:         24         22         25         21   Non-maskable
+> >interrupts LOC:     534734     446934     603337     440320   Local
+> >timer interrupts SPU:          0          0          0          0
+> >Spurious interrupts PMI:         24         22         25         21
+> >Performance monitoring interrupts IWI:         26         12
+> >43115         22   IRQ work interrupts RTR:          0
+> >0          0          0   APIC ICR read retries RES:      95282
+> >76970      60242      46409   Rescheduling interrupts CAL:
+> >66746      75300      70554      69119   Function call interrupts
+> >TLB:      50929      54528      51413      48017   TLB shootdowns
+> >TRM:          0          0          0          0   Thermal event
+> >interrupts THR:          0          0          0          0
+> >Threshold APIC interrupts DFR:          0          0
+> >0          0   Deferred Error APIC interrupts MCE:          0
+> >0          0          0   Machine check exceptions MCP:
+> >18         19         19         19   Machine check polls
+> >HYP:          0          0          0          0   Hypervisor callback
+> >interrupts HRE:          0          0          0          0   Hyper-V
+> >reenlightenment interrupts HVS:          0          0
+> >0          0   Hyper-V stimer0 interrupts ERR:          0
+> >MIS:          0 PIN:          0          0          0          0
+> >Posted-interrupt notification event NPI:          0
+> >0          0          0   Nested posted-interrupt event PIW:
+> >0          0          0          0   Posted-interrupt wakeup event
+> >
+> >P.S: My native language is not English.
+> >
+>=20
+> Hi,
+>=20
+> I am forwarding this e-mail which describes a problem related to
+> suspend/hibernate at the advise of Pavel Machek.
+>=20
+
+
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlvRdW8ACgkQMOfwapXb+vKYEwCfaKmY/h5+vzipfGKsBty1Ft1S
+oXQAoJ8fvknx5o/2ziUvsZHHG9m/KNzZ
+=2uUx
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--

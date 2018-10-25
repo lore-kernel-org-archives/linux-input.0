@@ -1,190 +1,260 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: [regression, bisected] Keyboard not responding after resuming from
- suspend/hibernate
-Date: Thu, 25 Oct 2018 09:49:03 +0200
-Message-ID: <20181025074903.GA9323@amd>
-References: <20180831215121.1b1f66bf@korsan.localdomain>
- <20181019102031.77015d44@korsan.localdomain>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
+Date: Thu, 25 Oct 2018 10:44:30 +0100
+Message-ID: <20181025094430.GQ4939@dell>
+References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
+ <1539853324-29051-2-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181019102031.77015d44@korsan.localdomain>
+In-Reply-To: <1539853324-29051-2-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Numan =?utf-8?B?RGVtaXJkw7bEn2Vu?= <if.gnu.linux@gmail.com>, jason.low2@hpe.com, Waiman.Long@hpe.com, paulmck@linux.vnet.ibm.com, tglx@linutronix.de
-Cc: dmitry.torokhov@gmail.com, peterz@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
+Rob: please grep your name for some feedback.
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, 18 Oct 2018, Pascal PAILLET-LME wrote:
 
-Hi!
+> From: pascal paillet <p.paillet@st.com>
 
-Here's problem bisected down to:
+Please use `git send-email` to send patches.
 
-commit 9d659ae14b545c4296e812c70493bfdc999b5c1c
-Author: Peter Zijlstra <peterz@infradead.org>
-Date:   Tue Aug 23 14:40:16 2016 +0200
+Please capitalise your name: Pascal Paillet
 
-    locking/mutex: Add lock handoff to avoid starvation
+> stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
 
-    Implement lock handoff to avoid lock starvation.
+"STPMIC1"
+"PMIC"
 
-Numan, I assume revert of that patch on the 4.18 kernel still makes it
-work?
+> regulators , 3 switches, a watchdog and an input for a power on key.
 
-Peter, any ideas?
+Whitespace.
 
-								Pavel
+What is a switch?
 
-On Fri 2018-10-19 10:20:31, Numan Demird=C3=B6=C4=9Fen wrote:
-> On Fri, 31 Aug 2018 21:53:11 +0300
-> Numan Demird=C3=B6=C4=9Fen <if.gnu.linux@gmail.com> wrote:
->=20
-> >If I put laptop to suspend or hibernate by closing lid, power
-> >manager or any other method and then I resume/wake up laptop, keyboard
-> >is not responding. My laptop is a Sony Vaio VPCEH2F1E.=20
-> >
-> >Steps to produce bug:
-> >1. Boot
-> >2. Put laptop to sleep
-> >3. Resume
-> >
-> >What I expect to happen: Keyboard responds to key press.
-> >What happens: Keyboard does not respond but mouse and trackball are
-> >working.
-> >
-> >git bisect point 9d659ae14b545c4296e812c70493bfdc999b5c1c as the first
-> >bad commit.
-> >
-> >Bad commit link:
-> >https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?id=
-=3D9d659ae14b545c4296e812c70493bfdc999b5c1c
-> >
-> > Link to actual bug report:
-> >https://bugzilla.kernel.org/show_bug.cgi?id=3D195471
-> >
-> >awk -f ver_linux
-> >Linux korsan 4.18.5-arch1-1-ARCH #1 SMP PREEMPT Fri Aug 24 12:48:58
-> >UTC 2018 x86_64 GNU/Linux GNU C               	8.2.0
-> >GNU Make            	4.2.1
-> >Binutils            	2.31.1
-> >Util-linux          	2.32.1
-> >Mount               	2.32.1
-> >Module-init-tools   	25
-> >E2fsprogs           	1.44.4
-> >Jfsutils            	1.1.15
-> >Reiserfsprogs       	3.6.27
-> >Xfsprogs            	4.17.0
-> >Pcmciautils         	018
-> >Linux C Library     	2.28
-> >Dynamic linker (ldd)	2.28
-> >Linux C++ Library   	6.0.25
-> >Procps              	3.3.15
-> >Kbd                 	2.0.4
-> >Console-tools       	2.0.4
-> >Sh-utils            	8.29
-> >Udev                	239
-> >Wireless-tools      	30
-> >Modules Loaded      	ac agpgart ahci arc4 ath ath3k ath9k
-> >ath9k_common ath9k_hw atkbd battery bluetooth bpfilter ccm cdrom
-> >cfg80211 coretemp crc16 crc32c_generic crc32c_intel crc32_pclmul
-> >crct10dif_pclmul cryptd drm drm_kms_helper ecdh_generic ehci_hcd
-> >ehci_pci evdev ext4 fb_sys_fops fscrypto fuse ghash_clmulni_intel
-> >gpio_ich hid hid_generic i2c_algo_bit i2c_i801 i8042 i915 input_leds
-> >intel_cstate intel_gtt intel_powerclamp intel_rapl intel_rapl_perf
-> >intel_uncore iptable_filter iptable_mangle iptable_nat ip_tables
-> >irqbypass iTCO_vendor_support iTCO_wdt jbd2 kvm kvm_intel led_class
-> >libahci libata libcrc32c libps2 lpc_ich mac80211 mac_hid mbcache mei
-> >mei_me mousedev msr nf_conntrack nf_conntrack_ipv4 nf_defrag_ipv4
-> >nf_nat nf_nat_ipv4 pcc_cpufreq psmouse rfkill rtc_cmos scsi_mod sd_mod
-> >serio serio_raw snd snd_hda_codec snd_hda_codec_conexant
-> >snd_hda_codec_generic snd_hda_codec_hdmi snd_hda_core snd_hda_intel
-> >snd_hwdep snd_pcm snd_timer sony_laptop soundcore sr_mod syscopyarea
-> >sysfillrect sysimgblt usb_common usbcore usbhid x86_pkg_temp_thermal
-> >x_tables
-> >
-> >dmesg | grep i8042
-> >[    0.574078] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M]
-> >at 0x60,0x64 irq 1,12 [    0.575936] serio: i8042 KBD port at
-> >0x60,0x64 irq 1 [    0.576143] serio: i8042 AUX port at 0x60,0x64 irq
-> >12 [    0.618880] input: AT Translated Set 2 keyboard
-> >as /devices/platform/i8042/serio0/input/input3 [   11.248435] input:
-> >AlpsPS/2 ALPS GlidePoint as /devices/platform/i8042/serio1/input/input5
-> >
-> >cat /proc/interrupts=20
-> >           CPU0       CPU1       CPU2       CPU3      =20
-> >  0:          8          0          0          0   IO-APIC
-> > 2-edge      timer 1:          0          0          0      10286
-> > IO-APIC   1-edge      i8042 8:          0          0
-> > 0          1   IO-APIC   8-edge      rtc0 9:          0
-> > 9479          0          0   IO-APIC   9-fasteoi   acpi 12:
-> > 0          0     370114          0   IO-APIC  12-edge      i8042
-> > 16:     197457          0          0          0   IO-APIC
-> > 16-fasteoi   ehci_hcd:usb1, ath9k 19:          0          0
-> > 0          0   IO-APIC  19-fasteoi   i801_smbus 23:
-> > 0          0      71055          0   IO-APIC  23-fasteoi
-> > ehci_hcd:usb2 24:          0      74549          0          0
-> > PCI-MSI 512000-edge      ahci[0000:00:1f.2] 25:          0
-> > 14          0          0   PCI-MSI 360448-edge      mei_me
-> > 26:          0          0     138870          0   PCI-MSI
-> > 32768-edge      i915 27:          0          0          0
-> > 330   PCI-MSI 442368-edge      snd_hda_intel:card0
-> >NMI:         24         22         25         21   Non-maskable
-> >interrupts LOC:     534734     446934     603337     440320   Local
-> >timer interrupts SPU:          0          0          0          0
-> >Spurious interrupts PMI:         24         22         25         21
-> >Performance monitoring interrupts IWI:         26         12
-> >43115         22   IRQ work interrupts RTR:          0
-> >0          0          0   APIC ICR read retries RES:      95282
-> >76970      60242      46409   Rescheduling interrupts CAL:
-> >66746      75300      70554      69119   Function call interrupts
-> >TLB:      50929      54528      51413      48017   TLB shootdowns
-> >TRM:          0          0          0          0   Thermal event
-> >interrupts THR:          0          0          0          0
-> >Threshold APIC interrupts DFR:          0          0
-> >0          0   Deferred Error APIC interrupts MCE:          0
-> >0          0          0   Machine check exceptions MCP:
-> >18         19         19         19   Machine check polls
-> >HYP:          0          0          0          0   Hypervisor callback
-> >interrupts HRE:          0          0          0          0   Hyper-V
-> >reenlightenment interrupts HVS:          0          0
-> >0          0   Hyper-V stimer0 interrupts ERR:          0
-> >MIS:          0 PIN:          0          0          0          0
-> >Posted-interrupt notification event NPI:          0
-> >0          0          0   Nested posted-interrupt event PIW:
-> >0          0          0          0   Posted-interrupt wakeup event
-> >
-> >P.S: My native language is not English.
-> >
->=20
-> Hi,
->=20
-> I am forwarding this e-mail which describes a problem related to
-> suspend/hibernate at the advise of Pavel Machek.
->=20
+> Signed-off-by: pascal paillet <p.paillet@st.com>
+> ---
+> changes in v4:
+> * remove interrupt-parent description
+> * pmic1@33 renamed to pmic@33
+> * fix indentation
+> 
+>  .../devicetree/bindings/mfd/st,stpmic1.txt         | 131 +++++++++++++++++++++
+>  include/dt-bindings/mfd/st,stpmic1.h               |  46 ++++++++
+>  2 files changed, 177 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+>  create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/st,stpmic1.txt b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+> new file mode 100644
+> index 0000000..bb19cc8
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+> @@ -0,0 +1,131 @@
+> +* STMicroelectronics STPMIC1 Power Management IC
+> +
+> +Required parent device properties:
+> +- compatible:			"st,stpmic1"
+> +- reg:				The I2C slave address for the STPMIC1 chip.
+> +- interrupts:			The interrupt line the device is connected to.
+> +- #interrupt-cells:		Should be 1.
+> +- interrupt-controller: 	Describes the STPMIC1 as an interrupt
 
+Tabbing (this could just be a patch quirk).
 
+Either use full-stops or don't - please be consistent.
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+> +  controller (has its own domain). Interrupt number are the following:
 
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+"numbers"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Actually consider rewording - sounds funny.
 
-iEYEARECAAYFAlvRdW8ACgkQMOfwapXb+vKYEwCfaKmY/h5+vzipfGKsBty1Ft1S
-oXQAoJ8fvknx5o/2ziUvsZHHG9m/KNzZ
-=2uUx
------END PGP SIGNATURE-----
+> +	/* Interrupt Register 1 (0x50 for latch) */
+> +	IT_SWOUT_R=0
+> +	IT_SWOUT_F=1
+> +	IT_VBUS_OTG_R=2
+> +	IT_VBUS_OTG_F=3
+> +	IT_WAKEUP_R=4
+> +	IT_WAKEUP_F=5
+> +	IT_PONKEY_R=6
+> +	IT_PONKEY_F=7
+> +	/* Interrupt Register 2 (0x51 for latch) */
+> +	IT_OVP_BOOST=8
+> +	IT_OCP_BOOST=9
+> +	IT_OCP_SWOUT=10
+> +	IT_OCP_OTG=11
+> +	IT_CURLIM_BUCK4=12
+> +	IT_CURLIM_BUCK3=13
+> +	IT_CURLIM_BUCK2=14
+> +	IT_CURLIM_BUCK1=15
+> +	/* Interrupt Register 3 (0x52 for latch) */
+> +	IT_SHORT_SWOUT=16
+> +	IT_SHORT_SWOTG=17
+> +	IT_CURLIM_LDO6=18
+> +	IT_CURLIM_LDO5=19
+> +	IT_CURLIM_LDO4=20
+> +	IT_CURLIM_LDO3=21
+> +	IT_CURLIM_LDO2=22
+> +	IT_CURLIM_LDO1=23
+> +	/* Interrupt Register 3 (0x52 for latch) */
+> +	IT_SWIN_R=24
+> +	IT_SWIN_F=25
+> +	IT_RESERVED_1=26
+> +	IT_RESERVED_2=27
+> +	IT_VINLOW_R=28
+> +	IT_VINLOW_F=29
+> +	IT_TWARN_R=30
+> +	IT_TWARN_F=31
 
---/04w6evG8XlLl3ft--
+Do you really need these in here?  I suspect not.
+
+> +Optional parent device properties:
+> +- st,main-control-register:
+> +	-bit 1: Power cycling will be performed on turn OFF condition
+> +	-bit 2: PWRCTRL is functional
+> +	-bit 3: PWRCTRL active high
+> +- st,pads-pull-register:
+> +	-bit 1: WAKEUP pull down is not active
+> +	-bit 2: PWRCTRL pull up is active
+> +	-bit 3: PWRCTRL pull down is active
+> +	-bit 4: WAKEUP detector is disabled
+> +- st,vin-control-register:
+> +	-bit 0: VINLOW monitoring is enabled
+> +	-bit [1...3]: VINLOW rising threshold
+> +		000 VINOK_f + 50mV
+> +		001 VINOK_f + 100mV
+> +		010 VINOK_f + 150mV
+> +		011 VINOK_f + 200mV
+> +		100 VINOK_f + 250mV
+> +		101 VINOK_f + 300mV
+> +		110 VINOK_f + 350mV
+> +		111 VINOK_f + 400mV
+> +	-bit [4...5]: VINLOW hyst
+> +		00 100mV
+> +		01 200mV
+> +		10 300mV
+> +		11 400mV
+> +	-bit 6: SW_OUT detector is disabled
+> +	-bit 7: SW_IN detector is enabled.
+> +- st,usb-control-register:
+> +	-bit 3: SW_OUT current limit
+> +		0: 600mA
+> +		1: 1.1A
+> +	-bit 4: VBUS_OTG discharge is enabled
+> +	-bit 5: SW_OUT discharge is enabled
+> +	-bit 6: VBUS_OTG detection is enabled
+> +	-bit 7: BOOST_OVP is disabled
+
+I'm surprised Rob allowed you to add register bits in a DT property?
+
+> +STPMIC1 consists in a varied group of sub-devices.
+> +Each sub-device binding is be described in own documentation file.
+> +
+> +Device			 Description
+> +------			------------
+> +st,stpmic1-onkey	: Power on key, see ../input/st,stpmic1-onkey.txt
+> +st,stpmic1-regulators	: Regulators, see ../regulator/st,stpmic1-regulator.txt
+> +st,stpmic1-wdt		: Watchdog, see ../watchdog/st,stpmic1-wdt.txt
+> +
+> +Example:
+> +
+> +pmic: pmic@33 {
+> +	compatible = "st,stpmic1";
+> +	reg = <0x33>;
+> +	interrupt-parent = <&gpioa>;
+> +	interrupts = <0 2>;
+> +	st,main-control-register=<0x0c>;
+> +	interrupt-controller;
+> +	#interrupt-cells = <2>;
+> +
+> +	onkey {
+> +		compatible = "st,stpmic1-onkey";
+> +		interrupts = <IT_PONKEY_F 0>,<IT_PONKEY_R 1>;
+> +		interrupt-names = "onkey-falling", "onkey-rising";
+> +		power-off-time-sec = <10>;
+> +	};
+> +
+> +	watchdog {
+> +		compatible = "st,stpmic1-wdt";
+> +	};
+> +
+> +	regulators {
+> +		compatible = "st,stpmic1-regulators";
+> +
+> +		vdd_core: buck1 {
+> +			regulator-name = "vdd_core";
+> +			regulator-boot-on;
+> +			regulator-min-microvolt = <700000>;
+> +			regulator-max-microvolt = <1200000>;
+> +		};
+> +		vdd: buck3 {
+> +			regulator-name = "vdd";
+> +			regulator-min-microvolt = <3300000>;
+> +			regulator-max-microvolt = <3300000>;
+> +			regulator-boot-on;
+> +			regulator-pull-down;
+> +		};
+> +	};
+> diff --git a/include/dt-bindings/mfd/st,stpmic1.h b/include/dt-bindings/mfd/st,stpmic1.h
+> new file mode 100644
+> index 0000000..b2d6c83
+> --- /dev/null
+> +++ b/include/dt-bindings/mfd/st,stpmic1.h
+> @@ -0,0 +1,46 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) STMicroelectronics 2018 - All Rights Reserved
+> + * Author: Philippe Peurichard <philippe.peurichard@st.com>,
+> + * Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
+> + */
+> +
+> +#ifndef __DT_BINDINGS_STPMIC1_H__
+> +#define __DT_BINDINGS_STPMIC1_H__
+> +
+> +/* IRQ definitions */
+> +#define IT_PONKEY_F	0
+> +#define IT_PONKEY_R	1
+> +#define IT_WAKEUP_F	2
+> +#define IT_WAKEUP_R	3
+> +#define IT_VBUS_OTG_F	4
+> +#define IT_VBUS_OTG_R	5
+> +#define IT_SWOUT_F	6
+> +#define IT_SWOUT_R	7
+> +
+> +#define IT_CURLIM_BUCK1	8
+> +#define IT_CURLIM_BUCK2	9
+> +#define IT_CURLIM_BUCK3	10
+> +#define IT_CURLIM_BUCK4	11
+> +#define IT_OCP_OTG	12
+> +#define IT_OCP_SWOUT	13
+> +#define IT_OCP_BOOST	14
+> +#define IT_OVP_BOOST	15
+> +
+> +#define IT_CURLIM_LDO1	16
+> +#define IT_CURLIM_LDO2	17
+> +#define IT_CURLIM_LDO3	18
+> +#define IT_CURLIM_LDO4	19
+> +#define IT_CURLIM_LDO5	20
+> +#define IT_CURLIM_LDO6	21
+> +#define IT_SHORT_SWOTG	22
+> +#define IT_SHORT_SWOUT	23
+> +
+> +#define IT_TWARN_F	24
+> +#define IT_TWARN_R	25
+> +#define IT_VINLOW_F	26
+> +#define IT_VINLOW_R	27
+> +#define IT_SWIN_F	30
+> +#define IT_SWIN_R	31
+> +
+> +#endif /* __DT_BINDINGS_STPMIC1_H__ */
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

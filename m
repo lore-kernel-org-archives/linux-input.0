@@ -1,47 +1,37 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: hiddev: fix potential Spectre v1
-Date: Fri, 26 Oct 2018 17:07:18 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1810261707090.23511@cbobk.fhfr.pm>
-References: <1539979293-16102-1-git-send-email-leitao@debian.org>
+Subject: Re: [PATCH v2] HID: i2c-hid: Add a small delay after sleep command
+ for Raydium touchpanel
+Date: Fri, 26 Oct 2018 17:09:40 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1810261709310.23511@cbobk.fhfr.pm>
+References: <20181005044629.26286-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1539979293-16102-1-git-send-email-leitao@debian.org>
-Sender: stable-owner@vger.kernel.org
-To: Breno Leitao <leitao@debian.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, gustavo@embeddedor.com, stable@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181005044629.26286-1-kai.heng.feng@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: benjamin.tissoires@redhat.com, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 19 Oct 2018, Breno Leitao wrote:
+On Fri, 5 Oct 2018, Kai-Heng Feng wrote:
 
-> uref->usage_index can be indirectly controlled by userspace, hence leading
-> to a potential exploitation of the Spectre variant 1 vulnerability.
+> Raydium touchpanel (2386:4B33) sometimes does not work in desktop session
+> although it works in display manager.
 > 
-> This field is used as an array index by the hiddev_ioctl_usage() function,
-> when 'cmd' is either HIDIOCGCOLLECTIONINDEX, HIDIOCGUSAGES or
-> HIDIOCSUSAGES.
+> During user logging, the display manager exits, close the HID device,
+> then the device gets runtime suspended and powered off. The desktop
+> session begins shortly after, opens the HID device, then the device gets
+> runtime resumed and powered on.
 > 
-> For cmd == HIDIOCGCOLLECTIONINDEX case, uref->usage_index is compared to
-> field->maxusage and then used as an index to dereference field->usage
-> array. The same thing happens to the cmd == HIDIOC{G,S}USAGES cases, where
-> uref->usage_index is checked against an array maximum value and then it is
-> used as an index in an array.
+> If the trasition from display manager to desktop sesesion is fast, the
+> touchpanel cannot switch from powered off to powered on in short
+> timeframe. So add a small delay to workaround the issue.
 > 
-> This is a summary of the HIDIOCGCOLLECTIONINDEX case, which matches the
-> traditional Spectre V1 first load:
-> 
-> 	copy_from_user(uref, user_arg, sizeof(*uref))
-> 	if (uref->usage_index >= field->maxusage)
-> 		goto inval;
-> 	i = field->usage[uref->usage_index].collection_index;
-> 	return i;
-> 
-> This patch fixes this by sanitizing field uref->usage_index before using it
-> to index field->usage (HIDIOCGCOLLECTIONINDEX) or field->value in
-> HIDIOC{G,S}USAGES arrays, thus, avoiding speculation in the first load.
-> 
-> Signed-off-by: Breno Leitao <leitao@debian.org>
-> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+> v2:
+> - Use quirk to only match affected touchpanel
+> - Only delay the next power on if the time hasn't elapsed
 
 Applied, thanks.
 

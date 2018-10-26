@@ -1,101 +1,50 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
-Date: Fri, 26 Oct 2018 12:46:18 +0100
-Message-ID: <20181026114618.GR4870@dell>
-References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-2-git-send-email-p.paillet@st.com>
- <20181025094430.GQ4939@dell>
- <CAL_JsqKsp8kTK2v_cBrNm+enzieQSEh2G7KMxsBdidr+XhDwTg@mail.gmail.com>
- <20181026064614.GG4870@dell>
- <5BD2E2DB.5090305@st.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2] HID: hiddev: fix potential Spectre v1
+Date: Fri, 26 Oct 2018 17:07:18 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1810261707090.23511@cbobk.fhfr.pm>
+References: <1539979293-16102-1-git-send-email-leitao@debian.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5BD2E2DB.5090305@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Enric Balletbo i Serra <eballetbo@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <1539979293-16102-1-git-send-email-leitao@debian.org>
+Sender: stable-owner@vger.kernel.org
+To: Breno Leitao <leitao@debian.org>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, gustavo@embeddedor.com, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 26 Oct 2018, Pascal PAILLET-LME wrote:
+On Fri, 19 Oct 2018, Breno Leitao wrote:
 
-> Hello Lee,
+> uref->usage_index can be indirectly controlled by userspace, hence leading
+> to a potential exploitation of the Spectre variant 1 vulnerability.
 > 
-> Le 10/26/2018 08:46 AM, Lee Jones a écrit :
-> > On Thu, 25 Oct 2018, Rob Herring wrote:
-> >
-> >> On Thu, Oct 25, 2018 at 4:44 AM Lee Jones <lee.jones@linaro.org> wrote:
-> >>> Rob: please grep your name for some feedback.
-> > [Moved to the top]
-> >
-> >>> I'm surprised Rob allowed you to add register bits in a DT property?
-> >> Yeah, they are certainly questionable and not something we encourage,
-> >> but the alternative would be dozens of properties which only apply for
-> >> this one device and just get translated back to register values.
-> > I don't see how this device is any different to the 100's of devices
-> > which are already supported in DT.
-> >
-> >>> On Thu, 18 Oct 2018, Pascal PAILLET-LME wrote:
-> >>>
-> >>>> From: pascal paillet <p.paillet@st.com>
-> >>>> +Optional parent device properties:
-> >>>> +- st,main-control-register:
-> >>>> +     -bit 1: Power cycling will be performed on turn OFF condition
-> >>>> +     -bit 2: PWRCTRL is functional
-> >>>> +     -bit 3: PWRCTRL active high
-> >>>> +- st,pads-pull-register:
-> >>>> +     -bit 1: WAKEUP pull down is not active
-> >>>> +     -bit 2: PWRCTRL pull up is active
-> >>>> +     -bit 3: PWRCTRL pull down is active
-> >>>> +     -bit 4: WAKEUP detector is disabled
-> > This should be part of the Pinctrl configuration/driver.
-> >
-> > And Pinctrl probably already has properties for this?
-> I will remove this in the next version.
-> >>>> +- st,vin-control-register:
-> >>>> +     -bit 0: VINLOW monitoring is enabled
-> >>>> +     -bit [1...3]: VINLOW rising threshold
-> >>>> +             000 VINOK_f + 50mV
-> >>>> +             001 VINOK_f + 100mV
-> >>>> +             010 VINOK_f + 150mV
-> >>>> +             011 VINOK_f + 200mV
-> >>>> +             100 VINOK_f + 250mV
-> >>>> +             101 VINOK_f + 300mV
-> >>>> +             110 VINOK_f + 350mV
-> >>>> +             111 VINOK_f + 400mV
-> >>>> +     -bit [4...5]: VINLOW hyst
-> >>>> +             00 100mV
-> >>>> +             01 200mV
-> >>>> +             10 300mV
-> >>>> +             11 400mV
-> >>>> +     -bit 6: SW_OUT detector is disabled
-> >>>> +     -bit 7: SW_IN detector is enabled.
-> > This should be part of the Regulator configuration/driver?
-> I will also remove this in the next version. I think this could be 
-> handled by an hardware monitor future driver.
-> >>>> +- st,usb-control-register:
-> >>>> +     -bit 3: SW_OUT current limit
-> >>>> +             0: 600mA
-> >>>> +             1: 1.1A
-> >>>> +     -bit 4: VBUS_OTG discharge is enabled
-> >>>> +     -bit 5: SW_OUT discharge is enabled
-> >>>> +     -bit 6: VBUS_OTG detection is enabled
-> >>>> +     -bit 7: BOOST_OVP is disabled
-> > This should be part of the USB configuration/driver?
-> >
-> I will also remove this in the next version. And I'm going to add active 
-> discharge ops in the regulator driver.
+> This field is used as an array index by the hiddev_ioctl_usage() function,
+> when 'cmd' is either HIDIOCGCOLLECTIONINDEX, HIDIOCGUSAGES or
+> HIDIOCSUSAGES.
+> 
+> For cmd == HIDIOCGCOLLECTIONINDEX case, uref->usage_index is compared to
+> field->maxusage and then used as an index to dereference field->usage
+> array. The same thing happens to the cmd == HIDIOC{G,S}USAGES cases, where
+> uref->usage_index is checked against an array maximum value and then it is
+> used as an index in an array.
+> 
+> This is a summary of the HIDIOCGCOLLECTIONINDEX case, which matches the
+> traditional Spectre V1 first load:
+> 
+> 	copy_from_user(uref, user_arg, sizeof(*uref))
+> 	if (uref->usage_index >= field->maxusage)
+> 		goto inval;
+> 	i = field->usage[uref->usage_index].collection_index;
+> 	return i;
+> 
+> This patch fixes this by sanitizing field uref->usage_index before using it
+> to index field->usage (HIDIOCGCOLLECTIONINDEX) or field->value in
+> HIDIOC{G,S}USAGES arrays, thus, avoiding speculation in the first load.
+> 
+> Signed-off-by: Breno Leitao <leitao@debian.org>
+> Cc: <stable@vger.kernel.org>
 
-And unless this device is in any way special, these subsystems should
-already have generic bindings to set these hardware configuration
-options.
-
-I would say that passing raw register values is not the way to go.
+Applied, thanks.
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Jiri Kosina
+SUSE Labs

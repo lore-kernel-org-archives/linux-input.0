@@ -1,61 +1,85 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v4 4/8] regulator: stpmic1: add stpmic1 regulator driver
-Date: Fri, 26 Oct 2018 21:33:44 +0100
-Message-ID: <20181026203344.GD27137@sirena.org.uk>
-References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-5-git-send-email-p.paillet@st.com>
- <20181019115015.GC5895@sirena.org.uk>
- <5BD06B96.3080809@st.com>
- <20181024131716.GQ2103@sirena.org.uk>
- <5BD1C3BB.6060500@st.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v4.20-rc0
+Date: Fri, 26 Oct 2018 16:49:17 -0700
+Message-ID: <20181026234917.GA196749@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="WChQLJJJfbwij+9x"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5BD1C3BB.6060500@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi Linus,
 
---WChQLJJJfbwij+9x
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please pull from:
 
-On Thu, Oct 25, 2018 at 01:23:08PM +0000, Pascal PAILLET-LME wrote:
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> I have reworked the code so that we don't touch any more to the init_data.
-> the new loop to register the regulators is below:
->=20
->      for (i =3D 0; i < ARRAY_SIZE(stpmic1_regulator_cfgs); i++) {
->          ret =3D stpmic1_regulator_register(pdev, i, &stpmic1_matches[i],
->                           regul);
->          if (ret < 0)
->              return ret;
->          regul++;
->      }
->=20
-> Each regulator is registered, even is it is not described in the=20
-> device-tree.
+to receive updates for the input subsystem. Just random driver fixups,
+nothing exiting.
 
-Looks good.
+Changelog:
+---------
 
---WChQLJJJfbwij+9x
-Content-Type: application/pgp-signature; name="signature.asc"
+Brian Masney (1):
+      Input: pwm-vibrator - correct pwms in DT binding example
 
------BEGIN PGP SIGNATURE-----
+Dmitry Torokhov (1):
+      Input: synaptics - avoid using uninitialized variable when probing
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlvTeicACgkQJNaLcl1U
-h9BNawf/cbL/eN87EoAK84d4Blf5KW/72h2ON2hIQ4Zz17sppoHuiZaArEUDLbjv
-tDanZ8eCfCKDWaysFbU8014ck8IO74gnCgehAh9RAu4UMmFHBX3JBpfgnWtOhYYX
-Kw3MuAnBzFqeDq11wTdjUW3vfd6SZsm+/Zaezw/Py7btUesDIbo4Rg7OAtaG5Rkn
-2xnh/Upm2W0dHxwN3aH1Y9zxxJrr6xyROTO5LZnkkPmYNewAgW9UFuyzsmqJq8+N
-W7u9b900oQWhEa7cwxlwDMeVV+TPb5SOU8xTP0soHgLKf8ymDvom6Xf2Oi9jsKLX
-73RVLYgMgNl607gHIfWVbpaX61LQIg==
-=Uxw5
------END PGP SIGNATURE-----
+George G. Davis (1):
+      Input: atmel_mxt_ts - fix multiple <linux/property.h> includes
 
---WChQLJJJfbwij+9x--
+Gustavo A. R. Silva (3):
+      Input: cyapa - mark expected switch fall-throughs
+      Input: atmel_mxt_ts - mark expected switch fall-through
+      Input: xen-kbdfront - mark expected switch fall-through
+
+Hans de Goede (1):
+      Input: of_touchscreen - add support for touchscreen-min-x|y
+
+Julian Sax (1):
+      Input: silead - try firmware reload after unsuccessful resume
+
+Linus Walleij (1):
+      Input: Fix DIR-685 touchkeys MAINTAINERS entry
+
+Martin Kepplinger (1):
+      Input: st1232 - set INPUT_PROP_DIRECT property
+
+Randy Dunlap (1):
+      Input: wm97xx-ts - fix exit path
+
+Rob Herring (2):
+      Input: sun4i-lradc - convert to using %pOFn instead of device_node.name
+      Input: xilinx_ps2 - convert to using %pOFn instead of device_node.name
+
+Stephen Boyd (1):
+      Input: elants_i2c - use DMA safe i2c when possible
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/pwm-vibrator.txt     |  4 +--
+ .../bindings/input/touchscreen/touchscreen.txt     |  6 ++--
+ MAINTAINERS                                        |  2 +-
+ drivers/input/keyboard/sun4i-lradc-keys.c          |  6 ++--
+ drivers/input/misc/xen-kbdfront.c                  |  2 +-
+ drivers/input/mouse/cyapa_gen3.c                   |  4 +--
+ drivers/input/mouse/synaptics.c                    |  4 +--
+ drivers/input/serio/xilinx_ps2.c                   |  2 +-
+ drivers/input/touchscreen/atmel_mxt_ts.c           |  3 +-
+ drivers/input/touchscreen/elants_i2c.c             |  7 +++--
+ drivers/input/touchscreen/of_touchscreen.c         | 36 +++++++++++++++++-----
+ drivers/input/touchscreen/silead.c                 | 13 ++++++++
+ drivers/input/touchscreen/st1232.c                 |  1 +
+ drivers/input/touchscreen/wm97xx-core.c            |  3 +-
+ 14 files changed, 64 insertions(+), 29 deletions(-)
+
+Thanks.
+
+
+-- 
+Dmitry

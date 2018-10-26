@@ -1,89 +1,100 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v4 1/8] dt-bindings: mfd: document stpmic1
-Date: Fri, 26 Oct 2018 07:46:14 +0100
-Message-ID: <20181026064614.GG4870@dell>
+Subject: Re: [PATCH v4 2/8] mfd: stpmic1: add stpmic1 driver
+Date: Fri, 26 Oct 2018 08:17:44 +0100
+Message-ID: <20181026071744.GH4870@dell>
 References: <1539853324-29051-1-git-send-email-p.paillet@st.com>
- <1539853324-29051-2-git-send-email-p.paillet@st.com>
- <20181025094430.GQ4939@dell>
- <CAL_JsqKsp8kTK2v_cBrNm+enzieQSEh2G7KMxsBdidr+XhDwTg@mail.gmail.com>
+ <1539853324-29051-3-git-send-email-p.paillet@st.com>
+ <20181025112156.GB4870@dell>
+ <CA+M3ks6s=mhLr0Hzcym_vmPVKjsuk8AFnQQe0qj-doVaXo9VcA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAL_JsqKsp8kTK2v_cBrNm+enzieQSEh2G7KMxsBdidr+XhDwTg@mail.gmail.com>
+In-Reply-To: <CA+M3ks6s=mhLr0Hzcym_vmPVKjsuk8AFnQQe0qj-doVaXo9VcA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Pascal PAILLET-LME <p.paillet@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Benjamin Gaignard <benjamin.gaignard@linaro.org>, Enric Balletbo i Serra <eballetbo@gmail.com>
+To: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: pascal paillet <p.paillet@st.com>, dmitry.torokhov@gmail.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, wim@linux-watchdog.org, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-watchdog@vger.kernel.org, eballetbo@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 25 Oct 2018, Rob Herring wrote:
+On Thu, 25 Oct 2018, Benjamin Gaignard wrote:
 
-> On Thu, Oct 25, 2018 at 4:44 AM Lee Jones <lee.jones@linaro.org> wrote:
+> Le jeu. 25 oct. 2018 à 13:21, Lee Jones <lee.jones@linaro.org> a écrit :
 > >
-> > Rob: please grep your name for some feedback.
-
-[Moved to the top]
-
-> > I'm surprised Rob allowed you to add register bits in a DT property?
-> 
-> Yeah, they are certainly questionable and not something we encourage,
-> but the alternative would be dozens of properties which only apply for
-> this one device and just get translated back to register values.
-
-I don't see how this device is any different to the 100's of devices
-which are already supported in DT.
-
 > > On Thu, 18 Oct 2018, Pascal PAILLET-LME wrote:
 > >
 > > > From: pascal paillet <p.paillet@st.com>
-> 
-> > > +Optional parent device properties:
-> > > +- st,main-control-register:
-> > > +     -bit 1: Power cycling will be performed on turn OFF condition
-> > > +     -bit 2: PWRCTRL is functional
-> > > +     -bit 3: PWRCTRL active high
-> > > +- st,pads-pull-register:
-> > > +     -bit 1: WAKEUP pull down is not active
-> > > +     -bit 2: PWRCTRL pull up is active
-> > > +     -bit 3: PWRCTRL pull down is active
-> > > +     -bit 4: WAKEUP detector is disabled
+> > >
+> > > stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
+> > > regulators , 3 switches, a watchdog and an input for a power on key.
+> >
+> > Same comments as for the DT binding patch.
+> >
+> > > Signed-off-by: pascal paillet <p.paillet@st.com>
+> > > ---
+> > > changes in v4:
+> > > * rename PONKEY_PU_ACTIVE to PONKEY_PU_INACTIVE
+> > >
+> > >  drivers/mfd/Kconfig         |  13 ++
+> > >  drivers/mfd/Makefile        |   1 +
+> > >  drivers/mfd/stpmic1.c       | 401 ++++++++++++++++++++++++++++++++++++++++++++
+> > >  include/linux/mfd/stpmic1.h | 212 +++++++++++++++++++++++
+> > >  4 files changed, 627 insertions(+)
+> > >  create mode 100644 drivers/mfd/stpmic1.c
+> > >  create mode 100644 include/linux/mfd/stpmic1.h
 
-This should be part of the Pinctrl configuration/driver.
+[...]
 
-And Pinctrl probably already has properties for this?
+> > > +static const struct regmap_irq stpmic1_irqs[] = {
+> > > +     [IT_PONKEY_F]           = { .mask = 0x01 },
+> > > +     [IT_PONKEY_R]           = { .mask = 0x02 },
+> > > +     [IT_WAKEUP_F]           = { .mask = 0x04 },
+> > > +     [IT_WAKEUP_R]           = { .mask = 0x08 },
+> > > +     [IT_VBUS_OTG_F]         = { .mask = 0x10 },
+> > > +     [IT_VBUS_OTG_R]         = { .mask = 0x20 },
+> > > +     [IT_SWOUT_F]            = { .mask = 0x40 },
+> > > +     [IT_SWOUT_R]            = { .mask = 0x80 },
+> > > +
+> > > +     [IT_CURLIM_BUCK1]       = { .reg_offset = 1, .mask = 0x01 },
+> > > +     [IT_CURLIM_BUCK2]       = { .reg_offset = 1, .mask = 0x02 },
+> > > +     [IT_CURLIM_BUCK3]       = { .reg_offset = 1, .mask = 0x04 },
+> > > +     [IT_CURLIM_BUCK4]       = { .reg_offset = 1, .mask = 0x08 },
+> > > +     [IT_OCP_OTG]            = { .reg_offset = 1, .mask = 0x10 },
+> > > +     [IT_OCP_SWOUT]          = { .reg_offset = 1, .mask = 0x20 },
+> > > +     [IT_OCP_BOOST]          = { .reg_offset = 1, .mask = 0x40 },
+> > > +     [IT_OVP_BOOST]          = { .reg_offset = 1, .mask = 0x80 },
+> > > +
+> > > +     [IT_CURLIM_LDO1]        = { .reg_offset = 2, .mask = 0x01 },
+> > > +     [IT_CURLIM_LDO2]        = { .reg_offset = 2, .mask = 0x02 },
+> > > +     [IT_CURLIM_LDO3]        = { .reg_offset = 2, .mask = 0x04 },
+> > > +     [IT_CURLIM_LDO4]        = { .reg_offset = 2, .mask = 0x08 },
+> > > +     [IT_CURLIM_LDO5]        = { .reg_offset = 2, .mask = 0x10 },
+> > > +     [IT_CURLIM_LDO6]        = { .reg_offset = 2, .mask = 0x20 },
+> > > +     [IT_SHORT_SWOTG]        = { .reg_offset = 2, .mask = 0x40 },
+> > > +     [IT_SHORT_SWOUT]        = { .reg_offset = 2, .mask = 0x80 },
+> > > +
+> > > +     [IT_TWARN_F]            = { .reg_offset = 3, .mask = 0x01 },
+> > > +     [IT_TWARN_R]            = { .reg_offset = 3, .mask = 0x02 },
+> > > +     [IT_VINLOW_F]           = { .reg_offset = 3, .mask = 0x04 },
+> > > +     [IT_VINLOW_R]           = { .reg_offset = 3, .mask = 0x08 },
+> > > +     [IT_SWIN_F]             = { .reg_offset = 3, .mask = 0x40 },
+> > > +     [IT_SWIN_R]             = { .reg_offset = 3, .mask = 0x80 },
+> > > +};
+> >
+> > There should be a MACRO for doing this.
+> >
+> > If there isn't, you should author one and put it in the Regmap header.
 
-> > > +- st,vin-control-register:
-> > > +     -bit 0: VINLOW monitoring is enabled
-> > > +     -bit [1...3]: VINLOW rising threshold
-> > > +             000 VINOK_f + 50mV
-> > > +             001 VINOK_f + 100mV
-> > > +             010 VINOK_f + 150mV
-> > > +             011 VINOK_f + 200mV
-> > > +             100 VINOK_f + 250mV
-> > > +             101 VINOK_f + 300mV
-> > > +             110 VINOK_f + 350mV
-> > > +             111 VINOK_f + 400mV
-> > > +     -bit [4...5]: VINLOW hyst
-> > > +             00 100mV
-> > > +             01 200mV
-> > > +             10 300mV
-> > > +             11 400mV
-> > > +     -bit 6: SW_OUT detector is disabled
-> > > +     -bit 7: SW_IN detector is enabled.
+> I don't understand why you want to put this MACRO in regmap header.
 
-This should be part of the Regulator configuration/driver?
+REGMAP_IRQ_REG()
 
-> > > +- st,usb-control-register:
-> > > +     -bit 3: SW_OUT current limit
-> > > +             0: 600mA
-> > > +             1: 1.1A
-> > > +     -bit 4: VBUS_OTG discharge is enabled
-> > > +     -bit 5: SW_OUT discharge is enabled
-> > > +     -bit 6: VBUS_OTG detection is enabled
-> > > +     -bit 7: BOOST_OVP is disabled
+> Offsets and masks are custom from this hardware block.
+> How can this become generic enough to be put in regmap ?
 
-This should be part of the USB configuration/driver?
+When replying to only a small section of driver/review like this,
+would you mind trimming any unrelated quoting (as I have now done),
+please?
 
 -- 
 Lee Jones [李琼斯]

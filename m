@@ -1,85 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.20-rc0
-Date: Fri, 26 Oct 2018 16:49:17 -0700
-Message-ID: <20181026234917.GA196749@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: [PATCH] HID: moving to group maintainership model
+Date: Sat, 27 Oct 2018 14:19:02 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1810271417230.23511@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+From: Jiri Kosina <jkosina@suse.cz>
 
-Please pull from:
+Benjamin and myself will from now on be sharing maintainership 
+responsibilities for hid.git.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Update maintainers to reflect that change, and also move a git repository 
+to shared space at kernel.org.
 
-to receive updates for the input subsystem. Just random driver fixups,
-nothing exiting.
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
 
-Changelog:
----------
-
-Brian Masney (1):
-      Input: pwm-vibrator - correct pwms in DT binding example
-
-Dmitry Torokhov (1):
-      Input: synaptics - avoid using uninitialized variable when probing
-
-George G. Davis (1):
-      Input: atmel_mxt_ts - fix multiple <linux/property.h> includes
-
-Gustavo A. R. Silva (3):
-      Input: cyapa - mark expected switch fall-throughs
-      Input: atmel_mxt_ts - mark expected switch fall-through
-      Input: xen-kbdfront - mark expected switch fall-through
-
-Hans de Goede (1):
-      Input: of_touchscreen - add support for touchscreen-min-x|y
-
-Julian Sax (1):
-      Input: silead - try firmware reload after unsuccessful resume
-
-Linus Walleij (1):
-      Input: Fix DIR-685 touchkeys MAINTAINERS entry
-
-Martin Kepplinger (1):
-      Input: st1232 - set INPUT_PROP_DIRECT property
-
-Randy Dunlap (1):
-      Input: wm97xx-ts - fix exit path
-
-Rob Herring (2):
-      Input: sun4i-lradc - convert to using %pOFn instead of device_node.name
-      Input: xilinx_ps2 - convert to using %pOFn instead of device_node.name
-
-Stephen Boyd (1):
-      Input: elants_i2c - use DMA safe i2c when possible
-
-Diffstat:
---------
-
- .../devicetree/bindings/input/pwm-vibrator.txt     |  4 +--
- .../bindings/input/touchscreen/touchscreen.txt     |  6 ++--
- MAINTAINERS                                        |  2 +-
- drivers/input/keyboard/sun4i-lradc-keys.c          |  6 ++--
- drivers/input/misc/xen-kbdfront.c                  |  2 +-
- drivers/input/mouse/cyapa_gen3.c                   |  4 +--
- drivers/input/mouse/synaptics.c                    |  4 +--
- drivers/input/serio/xilinx_ps2.c                   |  2 +-
- drivers/input/touchscreen/atmel_mxt_ts.c           |  3 +-
- drivers/input/touchscreen/elants_i2c.c             |  7 +++--
- drivers/input/touchscreen/of_touchscreen.c         | 36 +++++++++++++++++-----
- drivers/input/touchscreen/silead.c                 | 13 ++++++++
- drivers/input/touchscreen/st1232.c                 |  1 +
- drivers/input/touchscreen/wm97xx-core.c            |  3 +-
- 14 files changed, 64 insertions(+), 29 deletions(-)
-
+Stephen, could you please update the hid.git URL for linux-next as below? 
 Thanks.
 
+ MAINTAINERS | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c0c4c5003998..6cdca65bb0a6 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -6588,9 +6588,9 @@ F:	arch/*/include/asm/suspend*.h
+ 
+ HID CORE LAYER
+ M:	Jiri Kosina <jikos@kernel.org>
+-R:	Benjamin Tissoires <benjamin.tissoires@redhat.com>
++M:	Benjamin Tissoires <benjamin.tissoires@redhat.com>
+ L:	linux-input@vger.kernel.org
+-T:	git git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git
++T:	git git://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git
+ S:	Maintained
+ F:	drivers/hid/
+ F:	include/linux/hid*
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

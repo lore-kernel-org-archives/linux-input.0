@@ -1,43 +1,71 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: Another HID problem this merge window..
-Date: Sat, 27 Oct 2018 23:45:05 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1810272338590.23511@cbobk.fhfr.pm>
-References: <CAHk-=wiZ24JuVehJ5sEC0UG1Gk2nvB363wO02RRsR1oEht6R9Q@mail.gmail.com> <c6b7e5b26883c53db35454e9b0ffb44898517228.camel@perches.com> <CAHk-=wgTMd_orbgEmjtKdpPJdnFcho_-66_R3PBr7joxFOxqsw@mail.gmail.com>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: [PATCH] HID: moving to group maintainership model
+Date: Sun, 28 Oct 2018 12:15:33 +1100
+Message-ID: <20181028121202.3efcbee5@canb.auug.org.au>
+References: <nycvar.YFH.7.76.1810271417230.23511@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/X2xECjmDpLIudRSbuvfwmpn"; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHk-=wgTMd_orbgEmjtKdpPJdnFcho_-66_R3PBr7joxFOxqsw@mail.gmail.com>
+In-Reply-To: <nycvar.YFH.7.76.1810271417230.23511@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: joe@perches.com, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 27 Oct 2018, Linus Torvalds wrote:
+--Sig_/X2xECjmDpLIudRSbuvfwmpn
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-> I wonder if there is some truly old historical legacy there, ie the old 
-> PC keyboard support would have been configurable out only for expert 
-> users to avoid errors, and maybe the HID Kconfig file started getting 
-> ideas from that...
+Hi Jiri,
 
-This really goes waaay back to times when we extracted all the quirks from 
-the generic driver (which became unmaintainable exactly because quirks 
-being sprinkled left and right) into specialized drivers, but didn't want 
-to cause too many user surprises that all of a sudden their configuration 
-regressed when it comes to hardware support.
+On Sat, 27 Oct 2018 14:19:02 +0200 (CEST) Jiri Kosina <jikos@kernel.org> wr=
+ote:
+>
+> Stephen, could you please update the hid.git URL for linux-next as below?=
+=20
+> Thanks.
 
-We've had exactly this discussion multiple times before, see for example
+Done, also added Benjamin as a contact.
 
-	https://lkml.org/lkml/2010/5/20/227
+[for Benjamin's benefit ...]
 
-So I guess there is no need for replaying it, I think we're in complete 
-agreement.
+Thanks for adding your subsystem tree as a participant of linux-next.  As
+you may know, this is not a judgement of your code.  The purpose of
+linux-next is for integration testing and to lower the impact of
+conflicts between subsystems in the next merge window.=20
 
-That being said, benff Kconfig setting definitely escaped attention. That 
-should never ever have been set to default y, I take blame for not 
-noticing that while applying the patch.
+You will need to ensure that the patches/commits in your tree/series have
+been:
+     * submitted under GPL v2 (or later) and include the Contributor's
+        Signed-off-by,
+     * posted to the relevant mailing list,
+     * reviewed by you (or another maintainer of your subsystem tree),
+     * successfully unit tested, and=20
+     * destined for the current or next Linux merge window.
 
-Thanks,
+Basically, this should be just what you would send to Linus (or ask him
+to fetch).  It is allowed to be rebased if you deem it necessary.
 
--- 
-Jiri Kosina
-SUSE Labs
+--=20
+Cheers,
+Stephen Rothwell=20
+sfr@canb.auug.org.au
+
+--Sig_/X2xECjmDpLIudRSbuvfwmpn
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAlvVDbUACgkQAVBC80lX
+0Gxxbwf/a+o3mYCPDkfx6dbJfVhQ6J7k6OnbkwoTDAbdxb9RsrPFkBhSx7n7bxMG
+jrkBK9wZW89Lh2OPFhTna/kE3PDtBu/w34b3ilR93dt6F/T2dGR61kSQl1VW7cCx
+PiHg7LqUgkiEC2yj3jq2+gRiA361vtQ7Amp7/yxGSnn4UJitK3olqphAt0uavw3E
+IObQiDQhHDXdA5jWqTeOquhrG/rIGld6rT/Uoq8rgi+JJUdzq/WoBb734JIpaH5U
+d9Srl6SYZA219UQUvospAkfxck9/EJVkRClmyDcDrmlopu1ieRWZ342l+O03ATh7
+5puqTsi0UDTti67BnhhyUeFlxYRYug==
+=AhaS
+-----END PGP SIGNATURE-----
+
+--Sig_/X2xECjmDpLIudRSbuvfwmpn--

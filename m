@@ -1,71 +1,89 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: [PATCH] HID: moving to group maintainership model
-Date: Sun, 28 Oct 2018 12:15:33 +1100
-Message-ID: <20181028121202.3efcbee5@canb.auug.org.au>
-References: <nycvar.YFH.7.76.1810271417230.23511@cbobk.fhfr.pm>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: Oops in current tree in i2c
+Date: Sun, 28 Oct 2018 11:44:59 +0100
+Message-ID: <8d8e3771-0b33-2489-4e27-d3d63162df11@redhat.com>
+References: <CAHk-=wiVH6SdC2YutcDJ8kiAYUkO-ei3Wdjp2TXcbWas7LJrSg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/X2xECjmDpLIudRSbuvfwmpn"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1810271417230.23511@cbobk.fhfr.pm>
+In-Reply-To: <CAHk-=wiVH6SdC2YutcDJ8kiAYUkO-ei3Wdjp2TXcbWas7LJrSg@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, Julian Sax <jsbc@gmx.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
---Sig_/X2xECjmDpLIudRSbuvfwmpn
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi Linus,
 
-Hi Jiri,
+On 27-10-18 18:08, Linus Torvalds wrote:
+> Julian, Jiri,
+>   On my laptop I'm getting a kernel page fault with the current git
+> tree, and I'm tentatively blaming commit
+> 
+>    9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
+> 
+> but that's simply because it's the only thing that seems to touch this
+> particular area in this merge window.
+> 
+> The oops looks like this:
+> 
+>    BUG: unable to handle kernel paging request at 000000007a25d598
+>    PGD 0 P4D 0
+>    Oops: 0000 [#1] SMP PTI
+>    CPU: 1 PID: 888 Comm: systemd-udevd Not tainted 4.19.0-07715-g345671ea0f92 #4
+>    Hardware name: Dell Inc. XPS 13 9350/09JHRY, BIOS 1.7.0 01/16/2018
+>    RIP: 0010:strstr+0x19/0x70
+> 
+> where the code disassembly (and the register contents) shows that the
+> wild pointer is the first argument to "strstr()", which just has a
+> bogus value that is not a valid kernel pointer (RDI: 000000007a25d598
+> - which is obviously also the address of the page fault)
+> 
+> The call trace is:
+> 
+>     dmi_matches+0x55/0xc0
+>     dmi_first_match+0x26/0x40
+>     i2c_hid_get_dmi_i2c_hid_desc_override+0x16/0x40 [i2c_hid]
+>     i2c_hid_probe+0x28c/0x760 [i2c_hid]
+>     i2c_device_probe+0x1e7/0x260
+>     really_probe+0xf8/0x3e0
+>     driver_probe_device+0x10f/0x120
+>     bus_for_each_drv+0x66/0xb0
+>     __device_attach+0xd9/0x150
+>     bus_probe_device+0x8a/0xa0
+>     device_add+0x48e/0x660
+>     i2c_new_device+0x162/0x350
+> 
+> which is why I suspect that new i2c_hid_get_dmi_hid_report_desc_override() code.
+> 
+> I *think* the problem is that the i2c_hid_dmi_desc_override_table[]
+> isn't terminated by a NULL entry, and I will test that next.
 
-On Sat, 27 Oct 2018 14:19:02 +0200 (CEST) Jiri Kosina <jikos@kernel.org> wr=
-ote:
->
-> Stephen, could you please update the hid.git URL for linux-next as below?=
-=20
-> Thanks.
+Yes that likely is the problem. I already had a bug report from one of the
+Manjaro maintainers who was cherry picking this into the Manjaro kernel.
 
-Done, also added Benjamin as a contact.
+So I ran some tests on a laptop of mine which does use i2c-hid but I
+failed to reproduce the issue, so we both (me and the Manjaro maintainer)
+both assumed something went wrong with the backport.
 
-[for Benjamin's benefit ...]
+Both of us seem to have overlooked the missing terminating entry,
+as well as other people involved in the patch.
 
-Thanks for adding your subsystem tree as a participant of linux-next.  As
-you may know, this is not a judgement of your code.  The purpose of
-linux-next is for integration testing and to lower the impact of
-conflicts between subsystems in the next merge window.=20
+> What makes me *very* unhappy about this is that if I'm right, I think
+> it means that code was literally not tested at all by anybody who
+> didn't have one of the entries in that list.
 
-You will need to ensure that the patches/commits in your tree/series have
-been:
-     * submitted under GPL v2 (or later) and include the Contributor's
-        Signed-off-by,
-     * posted to the relevant mailing list,
-     * reviewed by you (or another maintainer of your subsystem tree),
-     * successfully unit tested, and=20
-     * destined for the current or next Linux merge window.
+That is not true, I've hit one of these unterminated dmi lists
+issues before and it depends on what get put in mem directly
+after the list by the linker, bugs caused by this do not always
+reproduce unfortunately.
 
-Basically, this should be just what you would send to Linus (or ask him
-to fetch).  It is allowed to be rebased if you deem it necessary.
+And as mentioned I have tested the patch on a machine with an i2c-hid
+touchpad, which is not on the list and I did not hit this problem.
 
---=20
-Cheers,
-Stephen Rothwell=20
-sfr@canb.auug.org.au
+Anyways this is fixed now, thank you for catching this.
 
---Sig_/X2xECjmDpLIudRSbuvfwmpn
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+Regards,
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAlvVDbUACgkQAVBC80lX
-0Gxxbwf/a+o3mYCPDkfx6dbJfVhQ6J7k6OnbkwoTDAbdxb9RsrPFkBhSx7n7bxMG
-jrkBK9wZW89Lh2OPFhTna/kE3PDtBu/w34b3ilR93dt6F/T2dGR61kSQl1VW7cCx
-PiHg7LqUgkiEC2yj3jq2+gRiA361vtQ7Amp7/yxGSnn4UJitK3olqphAt0uavw3E
-IObQiDQhHDXdA5jWqTeOquhrG/rIGld6rT/Uoq8rgi+JJUdzq/WoBb734JIpaH5U
-d9Srl6SYZA219UQUvospAkfxck9/EJVkRClmyDcDrmlopu1ieRWZ342l+O03ATh7
-5puqTsi0UDTti67BnhhyUeFlxYRYug==
-=AhaS
------END PGP SIGNATURE-----
-
---Sig_/X2xECjmDpLIudRSbuvfwmpn--
+Hans

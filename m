@@ -1,105 +1,68 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: Oops in current tree in i2c
-Date: Mon, 29 Oct 2018 09:36:36 +0100
-Message-ID: <CAO-hwJLwihgNOBhzjXkJnoZM9iDSKW2XQPUT2xEzKSEBS_2wEw@mail.gmail.com>
-References: <CAHk-=wiVH6SdC2YutcDJ8kiAYUkO-ei3Wdjp2TXcbWas7LJrSg@mail.gmail.com>
- <8d8e3771-0b33-2489-4e27-d3d63162df11@redhat.com>
+Subject: Re: Another HID problem this merge window..
+Date: Mon, 29 Oct 2018 09:49:25 +0100
+Message-ID: <CAO-hwJJjP1SJjcfGkr84yyPqYpCx-_6LSk5uDP2Twg2ouy_3+w@mail.gmail.com>
+References: <CAHk-=wiZ24JuVehJ5sEC0UG1Gk2nvB363wO02RRsR1oEht6R9Q@mail.gmail.com>
+ <c6b7e5b26883c53db35454e9b0ffb44898517228.camel@perches.com>
+ <CAHk-=wgTMd_orbgEmjtKdpPJdnFcho_-66_R3PBr7joxFOxqsw@mail.gmail.com> <nycvar.YFH.7.76.1810272338590.23511@cbobk.fhfr.pm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8d8e3771-0b33-2489-4e27-d3d63162df11@redhat.com>
+In-Reply-To: <nycvar.YFH.7.76.1810272338590.23511@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, jkosina@suse.cz, Julian Sax <jsbc@gmx.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, joe@perches.com, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-On Sun, Oct 28, 2018 at 11:45 AM Hans de Goede <hdegoede@redhat.com> wrote:
+On Sat, Oct 27, 2018 at 11:45 PM Jiri Kosina <jikos@kernel.org> wrote:
 >
-> Hi Linus,
+> On Sat, 27 Oct 2018, Linus Torvalds wrote:
 >
-> On 27-10-18 18:08, Linus Torvalds wrote:
-> > Julian, Jiri,
-> >   On my laptop I'm getting a kernel page fault with the current git
-> > tree, and I'm tentatively blaming commit
-> >
-> >    9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
-> >
-> > but that's simply because it's the only thing that seems to touch this
-> > particular area in this merge window.
-> >
-> > The oops looks like this:
-> >
-> >    BUG: unable to handle kernel paging request at 000000007a25d598
-> >    PGD 0 P4D 0
-> >    Oops: 0000 [#1] SMP PTI
-> >    CPU: 1 PID: 888 Comm: systemd-udevd Not tainted 4.19.0-07715-g345671ea0f92 #4
-> >    Hardware name: Dell Inc. XPS 13 9350/09JHRY, BIOS 1.7.0 01/16/2018
-> >    RIP: 0010:strstr+0x19/0x70
-> >
-> > where the code disassembly (and the register contents) shows that the
-> > wild pointer is the first argument to "strstr()", which just has a
-> > bogus value that is not a valid kernel pointer (RDI: 000000007a25d598
-> > - which is obviously also the address of the page fault)
-> >
-> > The call trace is:
-> >
-> >     dmi_matches+0x55/0xc0
-> >     dmi_first_match+0x26/0x40
-> >     i2c_hid_get_dmi_i2c_hid_desc_override+0x16/0x40 [i2c_hid]
-> >     i2c_hid_probe+0x28c/0x760 [i2c_hid]
-> >     i2c_device_probe+0x1e7/0x260
-> >     really_probe+0xf8/0x3e0
-> >     driver_probe_device+0x10f/0x120
-> >     bus_for_each_drv+0x66/0xb0
-> >     __device_attach+0xd9/0x150
-> >     bus_probe_device+0x8a/0xa0
-> >     device_add+0x48e/0x660
-> >     i2c_new_device+0x162/0x350
-> >
-> > which is why I suspect that new i2c_hid_get_dmi_hid_report_desc_override() code.
-> >
-> > I *think* the problem is that the i2c_hid_dmi_desc_override_table[]
-> > isn't terminated by a NULL entry, and I will test that next.
+> > I wonder if there is some truly old historical legacy there, ie the old
+> > PC keyboard support would have been configurable out only for expert
+> > users to avoid errors, and maybe the HID Kconfig file started getting
+> > ideas from that...
+>
+> This really goes waaay back to times when we extracted all the quirks from
+> the generic driver (which became unmaintainable exactly because quirks
+> being sprinkled left and right) into specialized drivers, but didn't want
+> to cause too many user surprises that all of a sudden their configuration
+> regressed when it comes to hardware support.
+>
+> We've had exactly this discussion multiple times before, see for example
+>
+>         https://lkml.org/lkml/2010/5/20/227
+>
+> So I guess there is no need for replaying it, I think we're in complete
+> agreement.
 
-Thanks for fixing that in master. I should have spotted it while
-reviewing the series. My bad.
+On the things I have on my plate, I'll try to remove all of the tiny
+HID drivers that does nothing but some small remapping. This will
+probably need help from userspace ("firmware" or bpf loading), and I
+have not settled my plans yet.
+I also think we should probably clean up the Kconfig now that
+hid-generic can unbind itself if there is a special driver coming in.
+And that means that we should probably start removing the blacklist of
+devices that have special modules, to let them be taken by hid-generic
+on boot until their driver is loaded.
 
 >
-> Yes that likely is the problem. I already had a bug report from one of the
-> Manjaro maintainers who was cherry picking this into the Manjaro kernel.
->
-> So I ran some tests on a laptop of mine which does use i2c-hid but I
-> failed to reproduce the issue, so we both (me and the Manjaro maintainer)
-> both assumed something went wrong with the backport.
->
-> Both of us seem to have overlooked the missing terminating entry,
-> as well as other people involved in the patch.
->
-> > What makes me *very* unhappy about this is that if I'm right, I think
-> > it means that code was literally not tested at all by anybody who
-> > didn't have one of the entries in that list.
->
-> That is not true, I've hit one of these unterminated dmi lists
-> issues before and it depends on what get put in mem directly
-> after the list by the linker, bugs caused by this do not always
-> reproduce unfortunately.
->
-> And as mentioned I have tested the patch on a machine with an i2c-hid
-> touchpad, which is not on the list and I did not hit this problem.
+> That being said, benff Kconfig setting definitely escaped attention. That
+> should never ever have been set to default y, I take blame for not
+> noticing that while applying the patch.
 
-Oh. This explains why I was also sure I tested this on a i2c-hid
-laptop without having the oops.
-
-I'll try to setup some automate testing for those also.
+Not sure I have actually reviewed this one (I don't think so), but
+I'll keep this in my head for next drivers.
 
 Cheers,
 Benjamin
 
 >
-> Anyways this is fixed now, thank you for catching this.
+> Thanks,
 >
-> Regards,
+> --
+> Jiri Kosina
+> SUSE Labs
 >
-> Hans

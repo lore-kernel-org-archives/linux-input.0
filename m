@@ -1,60 +1,54 @@
-From: Vladis Dronov <vdronov@redhat.com>
-Subject: Re: [PATCH 0/3] HID: debug: fix the ring buffer implementation
-Date: Mon, 29 Oct 2018 16:51:29 -0400 (EDT)
-Message-ID: <65007864.26733351.1540846289100.JavaMail.zimbra@redhat.com>
-References: <20181003171936.11271-1-vdronov@redhat.com> <nycvar.YFH.7.76.1810261724510.23511@cbobk.fhfr.pm>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: Logitech high-resolution scrolling..
+Date: Mon, 29 Oct 2018 14:11:36 -0700
+Message-ID: <CAHk-=wh3VO9hD9hUBS-H2d4jjGuYuVTudshHsPe9p-5sYhFfGg@mail.gmail.com>
+References: <CAHk-=wjGKhoVaa60i5XZODEtzTUYVV3fouyYL4k=JsPY4K_xjQ@mail.gmail.com>
+ <nycvar.YFH.7.76.1810291415570.23511@cbobk.fhfr.pm> <CAHk-=wgwgmcqxChVXQb66itd__qJOBc7LBsJ+nRAM86qJH-S2Q@mail.gmail.com>
+ <CAHk-=wiRjotiAcy-=Jv5bMM2-r7KzWRGd84CwGmq1FLb1dWKcA@mail.gmail.com> <CA+jURcttJs05DFCuKCyOfe3oA9Q_KoiP3+g8-OVu4OPm9ufp6Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1810261724510.23511@cbobk.fhfr.pm>
+In-Reply-To: <CA+jURcttJs05DFCuKCyOfe3oA9Q_KoiP3+g8-OVu4OPm9ufp6Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Harry Cutts <hcutts@chromium.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, peter.hutterer@who-t.net
 List-Id: linux-input@vger.kernel.org
 
-Hello, Jiri,
+On Mon, Oct 29, 2018 at 12:17 PM Harry Cutts <hcutts@chromium.org> wrote:
+>
+> I don't really understand why the half-multiplier thing would cause
+> the instability; there's still a low-res threshold every 8 high-res
+> units whichever way you do it
 
-Thank you for the reply and your opinion. It appeared that my own implementation
-of a ring buffer was kind of "inventing a wheel", as "kfifo" is already is the
-kernel and it may work as a ring buffer quite well. I would like to rewrite my
-patchset and use kfifo instead in a new one. Please, ignore this my patchset and
-I'll try to submit v2 soon.
+No there isn't.
 
-This also will answer to "how was it tested" concern, as I believe, kfifo was
-quite tested.
+So what the half-multiplier did, assuming a multiplier of 8 (which is
+what my MX Anywhere 2S reports) would be:
 
-Best regards,
-Vladis Dronov | Red Hat, Inc. | Product Security Engineer
+ - remainder starts at 3
+ - high-res is +1
+ - now remainder is 3+1, and it triggers the >= half logic
+ - 4/8 is 0, but then the code added 1 because high-res was positive,
+so the code decides to add 1
+ - the code does a wheel update of 1, and updates remainder with -8,
+so now it's -4
 
------ Original Message -----
-> From: "Jiri Kosina" <jikos@kernel.org>
-> To: "Vladis Dronov" <vdronov@redhat.com>
-> Cc: "Benjamin Tissoires" <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-> Sent: Friday, October 26, 2018 5:25:21 PM
-> Subject: Re: [PATCH 0/3] HID: debug: fix the ring buffer implementation
-> 
-> On Wed, 3 Oct 2018, Vladis Dronov wrote:
-> 
-> > This patchset is fixing some aspects of the ring buffer implementation in
-> > drivers/hid/hid-debug.c. This implementation has certain problem points:
-> > 
-> > - it may stuck in an infinite loop
-> > - it may return corrupted data
-> > - a reader and a writer are not protected by spinlocks, which can lead to
-> >   the corrupted data
-> > 
-> > The suggested patchset is a new ring buffer implementation which overwrites
-> > the oldest data in case of an overflow. One can verify the suggested ring
-> > buffer implementation by fuzzing it with modified kernel and fuzzer-reader
-> > at: https://gist.github.com/nefigtut/33d56e3870b67493cc867344aed2a062
-> 
-> Vladis,
-> 
-> thanks for cleaning it up. I actually like your rewrite quite a lot.
-> 
-> Quick question -- how well was it tested in which scenarios?
-> 
-> --
-> Jiri Kosina
-> SUSE Labs
+Next time around, if the high-res update is 0 or -1, it will go the
+other direction. And then it will oscillate.
+
+Notice how tiny movements of +1/-1 in the *high-res* count can
+translate into +1/-1 in the regular wheel movement.
+
+And those tiny movements very definitely happen. Maybe it's just my
+mouse, but the undeniable fact is that the old algorithm was simply
+not stable.
+
+It was literally unusable. I had to be careful not to even touch the
+wheel at all, or it would scroll randomly.
+
+I do not believe that you actually ever *used* that code, or if you
+did, you only did so with applications that were high-res aware and
+ignored the regular wheel entirely because you were testing in an
+environment with other changes than just the kernel.
+
+                    Linus

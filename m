@@ -1,62 +1,60 @@
-From: Harry Cutts <hcutts@chromium.org>
-Subject: Re: Logitech high-resolution scrolling..
-Date: Mon, 29 Oct 2018 12:17:12 -0700
-Message-ID: <CA+jURcttJs05DFCuKCyOfe3oA9Q_KoiP3+g8-OVu4OPm9ufp6Q@mail.gmail.com>
-References: <CAHk-=wjGKhoVaa60i5XZODEtzTUYVV3fouyYL4k=JsPY4K_xjQ@mail.gmail.com>
- <nycvar.YFH.7.76.1810291415570.23511@cbobk.fhfr.pm> <CAHk-=wgwgmcqxChVXQb66itd__qJOBc7LBsJ+nRAM86qJH-S2Q@mail.gmail.com>
- <CAHk-=wiRjotiAcy-=Jv5bMM2-r7KzWRGd84CwGmq1FLb1dWKcA@mail.gmail.com>
+From: Vladis Dronov <vdronov@redhat.com>
+Subject: Re: [PATCH 0/3] HID: debug: fix the ring buffer implementation
+Date: Mon, 29 Oct 2018 16:51:29 -0400 (EDT)
+Message-ID: <65007864.26733351.1540846289100.JavaMail.zimbra@redhat.com>
+References: <20181003171936.11271-1-vdronov@redhat.com> <nycvar.YFH.7.76.1810261724510.23511@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHk-=wiRjotiAcy-=Jv5bMM2-r7KzWRGd84CwGmq1FLb1dWKcA@mail.gmail.com>
+In-Reply-To: <nycvar.YFH.7.76.1810261724510.23511@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: torvalds@linux-foundation.org
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-As I explained in the comments, the reason for triggering at the half
-multiplier point and then setting a negative remainder is to cater for
-wheels that sometimes rest just before they complete a whole "notch"
-in clicky mode. On those mice, setting the threshold at a full notch
-means that you frequently have to move the wheel a little past its
-resting point to trigger the low-res scroll event.
+Hello, Jiri,
 
-I don't really understand why the half-multiplier thing would cause
-the instability; there's still a low-res threshold every 8 high-res
-units whichever way you do it, it's just that with the half-multiplier
-method it's 4 closer to the point where the wheel was when the device
-was connected. Once you've scrolled around a bit in smooth mode that
-should be irrelevant, unless you're somehow managing to move the wheel
-in whole-notch increments without the help of the ratchet.
+Thank you for the reply and your opinion. It appeared that my own implementation
+of a ring buffer was kind of "inventing a wheel", as "kfifo" is already is the
+kernel and it may work as a ring buffer quite well. I would like to rewrite my
+patchset and use kfifo instead in a new one. Please, ignore this my patchset and
+I'll try to submit v2 soon.
 
-Maybe the long-term solution is to use more than just the value of the
-current scroll event when deciding whether to send a low-res event. In
-the meantime, I'll write a patch putting the threshold at 7/8ths of a
-notch, to see if that can solve both issues.
+This also will answer to "how was it tested" concern, as I believe, kfifo was
+quite tested.
 
-Thanks,
+Best regards,
+Vladis Dronov | Red Hat, Inc. | Product Security Engineer
 
-Harry Cutts
-Chrome OS Touch/Input team
-Harry Cutts
-Chrome OS Touch/Input team
-
-
-On Mon, 29 Oct 2018 at 11:33, Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
->
-> On Mon, Oct 29, 2018 at 8:16 AM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > Patch I'm using attached. I'm inclined to just commit it, but if
-> > somebody has a better idea, I can test alternatives too.
->
-> I committed my patch, as it at least makes the scroll wheel usable.
->
-> I'm more than open to further improvements, but I wasn't willing to
-> live with the status quo, and carrying this around in my tree as a
-> patch kept confusing me while doing merges whenever a conflict
-> happened (because the "git diff" that I use to see the conflicts
-> obviously also showed my own local modifications).
->
->                  Linus
+----- Original Message -----
+> From: "Jiri Kosina" <jikos@kernel.org>
+> To: "Vladis Dronov" <vdronov@redhat.com>
+> Cc: "Benjamin Tissoires" <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+> Sent: Friday, October 26, 2018 5:25:21 PM
+> Subject: Re: [PATCH 0/3] HID: debug: fix the ring buffer implementation
+> 
+> On Wed, 3 Oct 2018, Vladis Dronov wrote:
+> 
+> > This patchset is fixing some aspects of the ring buffer implementation in
+> > drivers/hid/hid-debug.c. This implementation has certain problem points:
+> > 
+> > - it may stuck in an infinite loop
+> > - it may return corrupted data
+> > - a reader and a writer are not protected by spinlocks, which can lead to
+> >   the corrupted data
+> > 
+> > The suggested patchset is a new ring buffer implementation which overwrites
+> > the oldest data in case of an overflow. One can verify the suggested ring
+> > buffer implementation by fuzzing it with modified kernel and fuzzer-reader
+> > at: https://gist.github.com/nefigtut/33d56e3870b67493cc867344aed2a062
+> 
+> Vladis,
+> 
+> thanks for cleaning it up. I actually like your rewrite quite a lot.
+> 
+> Quick question -- how well was it tested in which scenarios?
+> 
+> --
+> Jiri Kosina
+> SUSE Labs

@@ -1,106 +1,30 @@
-From: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v5 3/8] dt-bindings: regulator: document stpmic1 pmic
- regulators
-Date: Mon, 29 Oct 2018 16:22:05 +0000
-Message-ID: <1540830122-2577-4-git-send-email-p.paillet@st.com>
-References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: Logitech high-resolution scrolling..
+Date: Mon, 29 Oct 2018 11:32:56 -0700
+Message-ID: <CAHk-=wiRjotiAcy-=Jv5bMM2-r7KzWRGd84CwGmq1FLb1dWKcA@mail.gmail.com>
+References: <CAHk-=wjGKhoVaa60i5XZODEtzTUYVV3fouyYL4k=JsPY4K_xjQ@mail.gmail.com>
+ <nycvar.YFH.7.76.1810291415570.23511@cbobk.fhfr.pm> <CAHk-=wgwgmcqxChVXQb66itd__qJOBc7LBsJ+nRAM86qJH-S2Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1540830122-2577-1-git-send-email-p.paillet@st.com>
-Content-Language: en-US
+In-Reply-To: <CAHk-=wgwgmcqxChVXQb66itd__qJOBc7LBsJ+nRAM86qJH-S2Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
-Cc: Pascal PAILLET-LME <p.paillet@st.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Harry Cutts <hcutts@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, peter.hutterer@who-t.net
 List-Id: linux-input@vger.kernel.org
 
-The STPMIC1 regulators supply power to the application processor as well as
-to the external system peripherals such as DDR, Flash memories and system
-devices.
+On Mon, Oct 29, 2018 at 8:16 AM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> Patch I'm using attached. I'm inclined to just commit it, but if
+> somebody has a better idea, I can test alternatives too.
 
-Signed-off-by: Pascal Paillet <p.paillet@st.com>
----
-changes in v5:
-* describe regulator-active-discharge is available for power switches
-* remove interrupt parents
+I committed my patch, as it at least makes the scroll wheel usable.
 
- .../bindings/regulator/st,stpmic1-regulator.txt    | 67 ++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
+I'm more than open to further improvements, but I wasn't willing to
+live with the status quo, and carrying this around in my tree as a
+patch kept confusing me while doing merges whenever a conflict
+happened (because the "git diff" that I use to see the conflicts
+obviously also showed my own local modifications).
 
-diff --git a/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt b/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
-new file mode 100644
-index 0000000..5adc938
---- /dev/null
-+++ b/Documentation/devicetree/bindings/regulator/st,stpmic1-regulator.txt
-@@ -0,0 +1,67 @@
-+STMicroelectronics STPMIC1 Voltage regulators
-+
-+Regulator Nodes are optional depending on needs.
-+
-+Available Regulators in STPMIC1 device are:
-+  - buck1 for Buck BUCK1
-+  - buck2 for Buck BUCK2
-+  - buck3 for Buck BUCK3
-+  - buck4 for Buck BUCK4
-+  - ldo1 for LDO LDO1
-+  - ldo2 for LDO LDO2
-+  - ldo3 for LDO LDO3
-+  - ldo4 for LDO LDO4
-+  - ldo5 for LDO LDO5
-+  - ldo6 for LDO LDO6
-+  - vref_ddr for LDO Vref DDR
-+  - boost for Buck BOOST
-+  - pwr_sw1 for VBUS_OTG switch
-+  - pwr_sw2 for SW_OUT switch
-+
-+Switches are fixed voltage regulators with only enable/disable capability.
-+
-+Optional properties:
-+- st,mask-reset: mask reset for this regulator: the regulator configuration
-+  is maintained during pmic reset.
-+- regulator-pull-down: enable high pull down
-+  if not specified light pull down is used
-+- regulator-over-current-protection:
-+    if set, all regulators are switched off in case of over-current detection
-+    on this regulator,
-+    if not set, the driver only sends an over-current event.
-+- interrupt-parent: phandle to the parent interrupt controller
-+- interrupts: index of current limit detection interrupt
-+- <regulator>-supply: phandle to the parent supply/regulator node
-+	each regulator supply can be described except vref_ddr.
-+- regulator-active-discharge: can be used on pwr_sw1 and pwr_sw2.
-+
-+Example:
-+regulators {
-+	compatible = "st,stpmic1-regulators";
-+
-+	ldo6-supply = <&v3v3>;
-+
-+	vdd_core: buck1 {
-+		regulator-name = "vdd_core";
-+		interrupts = <IT_CURLIM_BUCK1 0>;
-+		st,mask-reset;
-+		regulator-pull-down;
-+		regulator-min-microvolt = <700000>;
-+		regulator-max-microvolt = <1200000>;
-+	};
-+
-+	v3v3: buck4 {
-+		regulator-name = "v3v3";
-+		interrupts = <IT_CURLIM_BUCK4 0>;
-+
-+		regulator-min-microvolt = <3300000>;
-+		regulator-max-microvolt = <3300000>;
-+	};
-+
-+	v1v8: ldo6 {
-+		regulator-name = "v1v8";
-+		regulator-min-microvolt = <1800000>;
-+		regulator-max-microvolt = <1800000>;
-+		regulator-over-current-protection;
-+	};
-+};
--- 
-1.9.1
+                 Linus

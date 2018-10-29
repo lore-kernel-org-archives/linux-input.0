@@ -1,95 +1,105 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: Logitech high-resolution scrolling..
-Date: Sun, 28 Oct 2018 14:08:31 -0700
-Message-ID: <CAHk-=wjisf8Bmgbtf3y0W+Lu58t3nSnvKGc0J=Zo=rmz3eA+Cw@mail.gmail.com>
-References: <CAHk-=wjGKhoVaa60i5XZODEtzTUYVV3fouyYL4k=JsPY4K_xjQ@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: Oops in current tree in i2c
+Date: Mon, 29 Oct 2018 09:36:36 +0100
+Message-ID: <CAO-hwJLwihgNOBhzjXkJnoZM9iDSKW2XQPUT2xEzKSEBS_2wEw@mail.gmail.com>
+References: <CAHk-=wiVH6SdC2YutcDJ8kiAYUkO-ei3Wdjp2TXcbWas7LJrSg@mail.gmail.com>
+ <8d8e3771-0b33-2489-4e27-d3d63162df11@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHk-=wjGKhoVaa60i5XZODEtzTUYVV3fouyYL4k=JsPY4K_xjQ@mail.gmail.com>
+In-Reply-To: <8d8e3771-0b33-2489-4e27-d3d63162df11@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Harry Cutts <hcutts@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, jkosina@suse.cz, Julian Sax <jsbc@gmx.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Oct 28, 2018 at 12:13 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
+Hi,
+
+On Sun, Oct 28, 2018 at 11:45 AM Hans de Goede <hdegoede@redhat.com> wrote:
 >
-> So the recent change to enable the high-res scrolling really seems a
-> bit *too* extreme.
+> Hi Linus,
 >
-> Is there some middle ground that turns the mouse from "look at it
-> sideways and it starts scrolling" to something slightly more
-> reasonable?
+> On 27-10-18 18:08, Linus Torvalds wrote:
+> > Julian, Jiri,
+> >   On my laptop I'm getting a kernel page fault with the current git
+> > tree, and I'm tentatively blaming commit
+> >
+> >    9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
+> >
+> > but that's simply because it's the only thing that seems to touch this
+> > particular area in this merge window.
+> >
+> > The oops looks like this:
+> >
+> >    BUG: unable to handle kernel paging request at 000000007a25d598
+> >    PGD 0 P4D 0
+> >    Oops: 0000 [#1] SMP PTI
+> >    CPU: 1 PID: 888 Comm: systemd-udevd Not tainted 4.19.0-07715-g345671ea0f92 #4
+> >    Hardware name: Dell Inc. XPS 13 9350/09JHRY, BIOS 1.7.0 01/16/2018
+> >    RIP: 0010:strstr+0x19/0x70
+> >
+> > where the code disassembly (and the register contents) shows that the
+> > wild pointer is the first argument to "strstr()", which just has a
+> > bogus value that is not a valid kernel pointer (RDI: 000000007a25d598
+> > - which is obviously also the address of the page fault)
+> >
+> > The call trace is:
+> >
+> >     dmi_matches+0x55/0xc0
+> >     dmi_first_match+0x26/0x40
+> >     i2c_hid_get_dmi_i2c_hid_desc_override+0x16/0x40 [i2c_hid]
+> >     i2c_hid_probe+0x28c/0x760 [i2c_hid]
+> >     i2c_device_probe+0x1e7/0x260
+> >     really_probe+0xf8/0x3e0
+> >     driver_probe_device+0x10f/0x120
+> >     bus_for_each_drv+0x66/0xb0
+> >     __device_attach+0xd9/0x150
+> >     bus_probe_device+0x8a/0xa0
+> >     device_add+0x48e/0x660
+> >     i2c_new_device+0x162/0x350
+> >
+> > which is why I suspect that new i2c_hid_get_dmi_hid_report_desc_override() code.
+> >
+> > I *think* the problem is that the i2c_hid_dmi_desc_override_table[]
+> > isn't terminated by a NULL entry, and I will test that next.
 
-Actually, I think the bug may be in the generic HID high-resolution
-scrolling code, and I only notice because the Logitech support means
-that now I see it.
+Thanks for fixing that in master. I should have spotted it while
+reviewing the series. My bad.
 
-In particular, if you look at hid_scroll_counter_handle_scroll(),
-you'll notice that it tries to turn a high-res scroll event into a
-regular wheel event by using the resolution_multiplier.
+>
+> Yes that likely is the problem. I already had a bug report from one of the
+> Manjaro maintainers who was cherry picking this into the Manjaro kernel.
+>
+> So I ran some tests on a laptop of mine which does use i2c-hid but I
+> failed to reproduce the issue, so we both (me and the Manjaro maintainer)
+> both assumed something went wrong with the backport.
+>
+> Both of us seem to have overlooked the missing terminating entry,
+> as well as other people involved in the patch.
+>
+> > What makes me *very* unhappy about this is that if I'm right, I think
+> > it means that code was literally not tested at all by anybody who
+> > didn't have one of the entries in that list.
+>
+> That is not true, I've hit one of these unterminated dmi lists
+> issues before and it depends on what get put in mem directly
+> after the list by the linker, bugs caused by this do not always
+> reproduce unfortunately.
+>
+> And as mentioned I have tested the patch on a machine with an i2c-hid
+> touchpad, which is not on the list and I did not hit this problem.
 
-But that code looks really broken. It tries to react to a "half
-multiplier" thing:
+Oh. This explains why I was also sure I tested this on a i2c-hid
+laptop without having the oops.
 
-        int threshold = counter->resolution_multiplier / 2;
-   ..
-        counter->remainder += hi_res_value;
-        if (abs(counter->remainder) >= threshold) {
+I'll try to setup some automate testing for those also.
 
-and that's absolutely and entirely wrong.
+Cheers,
+Benjamin
 
-Imagine that the high-res wheel counter has just moved a bit up (by
-one high-res) tick, so now it's at the half-way mark to the
-resolution_multiplier, and we scroll up by one:
-
-                low_res_scroll_amount =
-                        counter->remainder / counter->resolution_multiplier
-                        + (hi_res_value > 0 ? 1 : -1);
-                input_report_rel(counter->dev, REL_WHEEL,
-                                 low_res_scroll_amount);
-
-and then correct for it:
-
-                counter->remainder -=
-                        low_res_scroll_amount * counter->resolution_multiplier;
-
-now we went from "half resolution multiplier positive" to "half negative".
-
-Which means that next time that the high-res event happens by even
-just one high-resolution tick in the other direction, we'll now
-generate a low-resolution scroll event in the other direction.
-
-In other words, that function results in unstable behavior. Tiny tiny
-movements back-and-forth in the high-res wheel events (which could be
-just because either the sensor is unstable, or the wheel is wiggling
-imperceptibly) can result in visible movement in the low-res
-("regular") wheel reporting.
-
-There is no "damping" function, in other words. Noise in the high
-resolution reading can result in noise in the regular wheel reporting.
-
-So that threshold handling needs to be fixed, I feel. Either get rid
-of it entirely (you need to scroll a *full* resolution_multiplier to
-get a regular wheel event), or the counter->remainder needs to be
-*cleared* when a wheel event has been sent so that you don't get into
-the whole "back-and-forth" mode.
-
-Or some other damping model. I suspect there are people who have
-researched what the right answer is, but I guarantee that the current
-code is not the right answer.
-
-I suspect this also explains why I *sometimes* see that "just moving
-the mouse sends wheel events", and at other times don't. It needs to
-get close to that "half a resolution multiplier" stage to get into the
-bad cases, but then tiny tiny perturbations can cause unstable
-behavior.
-
-I can't be the only person seeing this, but I guess the Logitech mouse
-is right now the only one that uses the new generic HID code, and I
-guess not a lot of people have been *using* it.
-
-Harry?
-
-                 Linus
+>
+> Anyways this is fixed now, thank you for catching this.
+>
+> Regards,
+>
+> Hans

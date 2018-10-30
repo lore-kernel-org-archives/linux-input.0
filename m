@@ -1,89 +1,82 @@
 From: Pavel Machek <pavel@ucw.cz>
 Subject: Re: [PATCH v2 0/8] OLPC 1.75 Keyboard/Touchpad fixes
-Date: Tue, 30 Oct 2018 11:01:39 +0100
-Message-ID: <20181030100139.GB21529@amd>
+Date: Tue, 30 Oct 2018 11:26:10 +0100
+Message-ID: <20181030102610.GC21529@amd>
 References: <20181010142504.233467-1-lkundrak@v3.sk>
  <20181015195612.GB29649@amd>
  <c4edf9b09e88cd265a0829644aa962c28cbc3d51.camel@v3.sk>
+ <20181030100139.GB21529@amd>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+        protocol="application/pgp-signature"; boundary="TiqCXmo5T1hvSQQg"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <c4edf9b09e88cd265a0829644aa962c28cbc3d51.camel@v3.sk>
+In-Reply-To: <20181030100139.GB21529@amd>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lubomir Rintel <lkundrak@v3.sk>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
---7iMSBzlTiPOCCT2k
+--TiqCXmo5T1hvSQQg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> > > This makes keyboard/touchpad work on a DT MMP2 platform.
-> > >=20
-> > > I believe that it would be a good idea if this, once reviewed, went
-> > > in
-> > > via the input tree. The DT and CLK parts got reviews/acks.
-> > >=20
-> > > Changes from v1:
-> > > - Basically none, just re-send, including Ack and Review tags in
-> > > patches
-> > >   that received them. Plus an extra Cc.
-> > >   I'd be very thankful for reviews.
+> > https://github.com/hackerspace/olpc-xo175-linux/wiki/How-to-run-an-up-t=
+o-date-Linux-on-a-XO-1.75
 > >=20
-> > Ok, I believe I have OLPC 1.75, and it is actually a nice
-> > machine. Can I get recent kernel working there in useful fashion? (Is
-> > there docs somewhere)?
->=20
-> A lovely machine indeed. I've written this now:
->=20
-> https://github.com/hackerspace/olpc-xo175-linux/wiki/How-to-run-an-up-to-=
-date-Linux-on-a-XO-1.75
->=20
-> I didn't test it yet -- will do when I get home in the evening. But
-> chances are it's good enough and I guess you'd be able to get it
-> working even if I messed up some details.
+> > I didn't test it yet -- will do when I get home in the evening. But
+> > chances are it's good enough and I guess you'd be able to get it
+> > working even if I messed up some details.
 
-Ok, let me check. I went to this branch:
+Instruction say make, but you really need to do make zImage and make
+mmp2-olpc-xo-1-75.dtb .
 
-commit f99b274084d320814f4b035a7e3455af424229ea
-Author: Lubomir Rintel <lkundrak@v3.sk>
-Date:   Sun Aug 5 23:11:27 2018 +0200
+Instructions say "make -j", which is nice way to crash a machine. I
+suggest "make -j 8" :-).
 
-First comment: the zImage size adjusting hack should really be
-somewhere in tools/ and preferably in python. This is way beyond
-reasonable use of shell.
+Ok, I think I followed the instructions. I am using empty root
+filesystem, just with /boot -- want to see kernel messages first
+before I mess with the userland.
 
-> Please let me know if it works for you -- I'm having trouble getting
-> reviews/acks/tested-bys for the XO-1.75 patch sets [1] and will be
-> super thankful if I get some feedback from you.
->=20
-> [1] https://lore.kernel.org/patchwork/bundle/lkundrak/OLPC%20XO%201.75/
+But I don't get kernel messages during boot:
 
-You want to just continue without them :-). As long as you don't
-change the core code, you should be ok.
+OLPC 1B1, 512 MiB memory...
+OpenFirmware Q4C02 EC Frimware 0.3.02
 
+Type any key to interrupt...
+(but keys do not interrupt anything, ouch).
+Warning... partition type is 0xb...
+Boot device: /usb/disk:\boot\olpc.fth Arguments:
+Boot device ....
+Warning... partition type is 0xb...
+
+And that's it, cursor and no kernel messages.
+
+Any ideas?
+
+Could I get prepared binary zImage for testing?
+
+Thanks,
 									Pavel
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---7iMSBzlTiPOCCT2k
+--TiqCXmo5T1hvSQQg
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAlvYLAIACgkQMOfwapXb+vIJdwCfbPsc+dDKc8pF4G+DixcMANs4
-IhkAn05f8C5B7DFCPkU2Xhc4eAp1Jr9/
-=I0OY
+iEYEARECAAYFAlvYMcIACgkQMOfwapXb+vKPvgCfaHWdlBokcgCLJ+My3PkuySKa
+JS4AoIe0MQhnBoGuf4cVdPwTwzdstzQE
+=Q4St
 -----END PGP SIGNATURE-----
 
---7iMSBzlTiPOCCT2k--
+--TiqCXmo5T1hvSQQg--

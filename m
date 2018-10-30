@@ -1,82 +1,214 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v2 0/8] OLPC 1.75 Keyboard/Touchpad fixes
-Date: Tue, 30 Oct 2018 11:26:10 +0100
-Message-ID: <20181030102610.GC21529@amd>
-References: <20181010142504.233467-1-lkundrak@v3.sk>
- <20181015195612.GB29649@amd>
- <c4edf9b09e88cd265a0829644aa962c28cbc3d51.camel@v3.sk>
- <20181030100139.GB21529@amd>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v5 8/8] watchdog: stpmic1: add stpmic1 watchdog driver
+Date: Tue, 30 Oct 2018 06:17:06 -0700
+Message-ID: <8a2c1762-76c8-7a46-3d91-ebb2e37ac1f8@roeck-us.net>
+References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
+ <1540830122-2577-9-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="TiqCXmo5T1hvSQQg"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181030100139.GB21529@amd>
+In-Reply-To: <1540830122-2577-9-git-send-email-p.paillet@st.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+To: Pascal PAILLET-LME <p.paillet@st.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
 List-Id: linux-input@vger.kernel.org
 
+On 10/29/18 9:22 AM, Pascal PAILLET-LME wrote:
+> The stpmic1 PMIC embeds a watchdog which is disabled by default. As soon
+> as the watchdog is started, it must be refreshed periodically otherwise
+> the PMIC goes off.
+> 
+> Signed-off-by: Pascal Paillet <p.paillet@st.com>
 
---TiqCXmo5T1hvSQQg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-Hi!
-
-> > https://github.com/hackerspace/olpc-xo175-linux/wiki/How-to-run-an-up-t=
-o-date-Linux-on-a-XO-1.75
-> >=20
-> > I didn't test it yet -- will do when I get home in the evening. But
-> > chances are it's good enough and I guess you'd be able to get it
-> > working even if I messed up some details.
-
-Instruction say make, but you really need to do make zImage and make
-mmp2-olpc-xo-1-75.dtb .
-
-Instructions say "make -j", which is nice way to crash a machine. I
-suggest "make -j 8" :-).
-
-Ok, I think I followed the instructions. I am using empty root
-filesystem, just with /boot -- want to see kernel messages first
-before I mess with the userland.
-
-But I don't get kernel messages during boot:
-
-OLPC 1B1, 512 MiB memory...
-OpenFirmware Q4C02 EC Frimware 0.3.02
-
-Type any key to interrupt...
-(but keys do not interrupt anything, ouch).
-Warning... partition type is 0xb...
-Boot device: /usb/disk:\boot\olpc.fth Arguments:
-Boot device ....
-Warning... partition type is 0xb...
-
-And that's it, cursor and no kernel messages.
-
-Any ideas?
-
-Could I get prepared binary zImage for testing?
-
-Thanks,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---TiqCXmo5T1hvSQQg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlvYMcIACgkQMOfwapXb+vKPvgCfaHWdlBokcgCLJ+My3PkuySKa
-JS4AoIe0MQhnBoGuf4cVdPwTwzdstzQE
-=Q4St
------END PGP SIGNATURE-----
-
---TiqCXmo5T1hvSQQg--
+> ---
+> changes in v5:
+> * initialize wdtdev.parent
+> * fix checkpatch warning
+> 
+>   drivers/watchdog/Kconfig       |  12 ++++
+>   drivers/watchdog/Makefile      |   1 +
+>   drivers/watchdog/stpmic1_wdt.c | 139 +++++++++++++++++++++++++++++++++++++++++
+>   3 files changed, 152 insertions(+)
+>   create mode 100644 drivers/watchdog/stpmic1_wdt.c
+> 
+> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> index 5ea8909..6d2ffef 100644
+> --- a/drivers/watchdog/Kconfig
+> +++ b/drivers/watchdog/Kconfig
+> @@ -806,6 +806,18 @@ config STM32_WATCHDOG
+>   	  To compile this driver as a module, choose M here: the
+>   	  module will be called stm32_iwdg.
+>   
+> +config STPMIC1_WATCHDOG
+> +	tristate "STPMIC1 PMIC watchdog support"
+> +	depends on MFD_STPMIC1
+> +	select WATCHDOG_CORE
+> +	help
+> +	  Say Y here to include watchdog support embedded into STPMIC1 PMIC.
+> +	  If the watchdog timer expires, stpmic1 will shut down all its power
+> +	  supplies.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called spmic1_wdt.
+> +
+>   config UNIPHIER_WATCHDOG
+>   	tristate "UniPhier watchdog support"
+>   	depends on ARCH_UNIPHIER || COMPILE_TEST
+> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> index bf92e7b..2649cf3 100644
+> --- a/drivers/watchdog/Makefile
+> +++ b/drivers/watchdog/Makefile
+> @@ -217,3 +217,4 @@ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+>   obj-$(CONFIG_MENF21BMC_WATCHDOG) += menf21bmc_wdt.o
+>   obj-$(CONFIG_MENZ069_WATCHDOG) += menz69_wdt.o
+>   obj-$(CONFIG_RAVE_SP_WATCHDOG) += rave-sp-wdt.o
+> +obj-$(CONFIG_STPMIC1_WATCHDOG) += stpmic1_wdt.o
+> diff --git a/drivers/watchdog/stpmic1_wdt.c b/drivers/watchdog/stpmic1_wdt.c
+> new file mode 100644
+> index 0000000..ad431d8
+> --- /dev/null
+> +++ b/drivers/watchdog/stpmic1_wdt.c
+> @@ -0,0 +1,139 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +// Copyright (C) STMicroelectronics 2018
+> +// Author: Pascal Paillet <p.paillet@st.com> for STMicroelectronics.
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/mfd/stpmic1.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/of.h>
+> +#include <linux/regmap.h>
+> +#include <linux/slab.h>
+> +#include <linux/watchdog.h>
+> +
+> +/* WATCHDOG CONTROL REGISTER bit */
+> +#define WDT_START		BIT(0)
+> +#define WDT_PING		BIT(1)
+> +#define WDT_START_MASK		BIT(0)
+> +#define WDT_PING_MASK		BIT(1)
+> +#define WDT_STOP		0
+> +
+> +#define PMIC_WDT_MIN_TIMEOUT 1
+> +#define PMIC_WDT_MAX_TIMEOUT 256
+> +#define PMIC_WDT_DEFAULT_TIMEOUT 30
+> +
+> +static bool nowayout = WATCHDOG_NOWAYOUT;
+> +module_param(nowayout, bool, 0);
+> +MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+> +		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
+> +
+> +struct stpmic1_wdt {
+> +	struct stpmic1 *pmic;
+> +	struct watchdog_device wdtdev;
+> +};
+> +
+> +static int pmic_wdt_start(struct watchdog_device *wdd)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	return regmap_update_bits(wdt->pmic->regmap,
+> +				  WCHDG_CR, WDT_START_MASK, WDT_START);
+> +}
+> +
+> +static int pmic_wdt_stop(struct watchdog_device *wdd)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	return regmap_update_bits(wdt->pmic->regmap,
+> +				  WCHDG_CR, WDT_START_MASK, WDT_STOP);
+> +}
+> +
+> +static int pmic_wdt_ping(struct watchdog_device *wdd)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	return regmap_update_bits(wdt->pmic->regmap,
+> +				  WCHDG_CR, WDT_PING_MASK, WDT_PING);
+> +}
+> +
+> +static int pmic_wdt_set_timeout(struct watchdog_device *wdd,
+> +				unsigned int timeout)
+> +{
+> +	struct stpmic1_wdt *wdt = watchdog_get_drvdata(wdd);
+> +
+> +	wdd->timeout = timeout;
+> +	/* timeout is equal to register value + 1 */
+> +	return regmap_write(wdt->pmic->regmap, WCHDG_TIMER_CR, timeout - 1);
+> +}
+> +
+> +static const struct watchdog_info pmic_watchdog_info = {
+> +	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
+> +	.identity = "STPMIC1 PMIC Watchdog",
+> +};
+> +
+> +static const struct watchdog_ops pmic_watchdog_ops = {
+> +	.owner = THIS_MODULE,
+> +	.start = pmic_wdt_start,
+> +	.stop = pmic_wdt_stop,
+> +	.ping = pmic_wdt_ping,
+> +	.set_timeout = pmic_wdt_set_timeout,
+> +};
+> +
+> +static int pmic_wdt_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +	struct stpmic1 *pmic;
+> +	struct stpmic1_wdt *wdt;
+> +
+> +	if (!pdev->dev.parent)
+> +		return -EINVAL;
+> +
+> +	pmic = dev_get_drvdata(pdev->dev.parent);
+> +	if (!pmic)
+> +		return -EINVAL;
+> +
+> +	wdt = devm_kzalloc(&pdev->dev, sizeof(struct stpmic1_wdt), GFP_KERNEL);
+> +	if (!wdt)
+> +		return -ENOMEM;
+> +
+> +	wdt->pmic = pmic;
+> +
+> +	wdt->wdtdev.info = &pmic_watchdog_info;
+> +	wdt->wdtdev.ops = &pmic_watchdog_ops;
+> +	wdt->wdtdev.min_timeout = PMIC_WDT_MIN_TIMEOUT;
+> +	wdt->wdtdev.max_timeout = PMIC_WDT_MAX_TIMEOUT;
+> +	wdt->wdtdev.parent = &pdev->dev;
+> +
+> +	wdt->wdtdev.timeout = PMIC_WDT_DEFAULT_TIMEOUT;
+> +	watchdog_init_timeout(&wdt->wdtdev, 0, &pdev->dev);
+> +
+> +	watchdog_set_nowayout(&wdt->wdtdev, nowayout);
+> +	watchdog_set_drvdata(&wdt->wdtdev, wdt);
+> +
+> +	ret = devm_watchdog_register_device(&pdev->dev, &wdt->wdtdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	dev_dbg(wdt->pmic->dev, "PMIC Watchdog driver probed\n");
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id of_pmic_wdt_match[] = {
+> +	{ .compatible = "st,stpmic1-wdt" },
+> +	{ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(of, of_pmic_wdt_match);
+> +
+> +static struct platform_driver stpmic1_wdt_driver = {
+> +	.probe = pmic_wdt_probe,
+> +	.driver = {
+> +		.name = "stpmic1-wdt",
+> +		.of_match_table = of_pmic_wdt_match,
+> +	},
+> +};
+> +module_platform_driver(stpmic1_wdt_driver);
+> +
+> +MODULE_DESCRIPTION("Watchdog driver for STPMIC1 device");
+> +MODULE_AUTHOR("Pascal Paillet <p.paillet@st.com>");
+> +MODULE_LICENSE("GPL v2");
+> 

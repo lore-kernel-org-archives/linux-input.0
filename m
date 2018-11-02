@@ -1,49 +1,110 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 0/8] OLPC 1.75 Keyboard/Touchpad fixes
-Date: Thu, 1 Nov 2018 22:56:20 +0100
-Message-ID: <20181101215620.GA27132@amd>
-References: <20180910112654.42061-1-lkundrak@v3.sk>
+From: liujian <liujian56@huawei.com>
+Subject: [PATCH] driver: input: fix UBSAN warning in input_defuzz_abs_event
+Date: Fri, 2 Nov 2018 21:48:51 +0800
+Message-ID: <1541166531-248528-1-git-send-email-liujian56@huawei.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180910112654.42061-1-lkundrak@v3.sk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, liujian56@huawei.com
 List-Id: linux-input@vger.kernel.org
 
+syzkaller triggered a UBCAN warning:
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[  196.188950] UBSAN: Undefined behaviour in drivers/input/input.c:62:23
+[  196.188958] signed integer overflow:
+[  196.188964] -2147483647 - 104 cannot be represented in type 'int [2]'
+[  196.188973] CPU: 7 PID: 4763 Comm: syz-executor Not tainted
+4.19.0-514.55.6.9.x86_64+ #7
+[  196.188977] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+[  196.188979] Call Trace:
+[  196.189001]  dump_stack+0x91/0xeb
+[  196.189014]  ubsan_epilogue+0x9/0x7c
+[  196.189020]  handle_overflow+0x1d7/0x22c
+[  196.189028]  ? __ubsan_handle_negate_overflow+0x18f/0x18f
+[  196.189038]  ? __mutex_lock+0x213/0x13f0
+[  196.189053]  ? drop_futex_key_refs+0xa0/0xa0
+[  196.189070]  ? __might_fault+0xef/0x1b0
+[  196.189096]  input_handle_event+0xe1b/0x1290
+[  196.189108]  input_inject_event+0x1d7/0x27e
+[  196.189119]  evdev_write+0x2cf/0x3f0
+[  196.189129]  ? evdev_pass_values+0xd40/0xd40
+[  196.189157]  ? mark_held_locks+0x160/0x160
+[  196.189171]  ? __vfs_write+0xe0/0x6c0
+[  196.189175]  ? evdev_pass_values+0xd40/0xd40
+[  196.189179]  __vfs_write+0xe0/0x6c0
+[  196.189186]  ? kernel_read+0x130/0x130
+[  196.189204]  ? _cond_resched+0x15/0x30
+[  196.189214]  ? __inode_security_revalidate+0xb8/0xe0
+[  196.189222]  ? selinux_file_permission+0x354/0x430
+[  196.189233]  vfs_write+0x160/0x440
+[  196.189242]  ksys_write+0xc1/0x190
+[  196.189248]  ? __ia32_sys_read+0xb0/0xb0
+[  196.189259]  ? trace_hardirqs_on_thunk+0x1a/0x1c
+[  196.189267]  ? do_syscall_64+0x22/0x4a0
+[  196.189276]  do_syscall_64+0xa5/0x4a0
+[  196.189287]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  196.189293] RIP: 0033:0x44e7c9
+[  196.189299] Code: fc ff 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00
 
-Hi!
+the syzkaller reproduce script(but can't reproduce it every time):
 
-> This makes keyboard/touchpad work on a DT MMP2 platform.
+r0 = syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
+0x1)
+write$binfmt_elf64(r0, &(0x7f0000000240)={{0x7f, 0x45, 0x4c, 0x46, 0x40,
+0x2, 0x2, 0xffffffff, 0xffffffffffff374c, 0x3, 0x0, 0x80000001, 0x103,
+0x40, 0x22e, 0x26, 0x1, 0x38, 0x2, 0xa23, 0x1, 0x2}, [{0x6474e557, 0x5,
+0x6, 0x2, 0x9, 0x9, 0x6c3, 0x1ff}], "", [[], [], [], []]}, 0x478)
+ioctl$EVIOCGSW(0xffffffffffffffff, 0x8040451b, &(0x7f0000000040)=""/7)
+syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
+r1 = syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
+0x1)
+openat$smack_task_current(0xffffffffffffff9c,
+&(0x7f0000000040)='/proc/self/attr/current\x00', 0x2, 0x0)
+ioctl$EVIOCSABS0(r1, 0x401845c0, &(0x7f0000000000)={0x4, 0x10000, 0x4,
+0xd1, 0x81, 0x3})
+eventfd(0x1ff)
+syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
+0x200)
+syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
+syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
+syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
+syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
 
-For the series:
+Typecast int to long to fix the issue.
 
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Tested-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: liujian <liujian56@huawei.com>
+---
+ drivers/input/input.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlvbdoQACgkQMOfwapXb+vKvvACdFat/8nxUf3OehRXRrYhNy7wN
-j7MAnApc09buUM+ssljf3sdPv2F8LwkN
-=iuWR
------END PGP SIGNATURE-----
-
---WIyZ46R2i8wDzkSu--
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 3304aaa..24615ef 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -59,14 +59,17 @@ static inline int is_event_supported(unsigned int code,
+ static int input_defuzz_abs_event(int value, int old_val, int fuzz)
+ {
+ 	if (fuzz) {
+-		if (value > old_val - fuzz / 2 && value < old_val + fuzz / 2)
++		if (value > (long)old_val - fuzz / 2 &&
++				value < (long)old_val + fuzz / 2)
+ 			return old_val;
+ 
+-		if (value > old_val - fuzz && value < old_val + fuzz)
+-			return (old_val * 3 + value) / 4;
++		if (value > (long)old_val - fuzz &&
++				value < (long)old_val + fuzz)
++			return ((long)old_val * 3 + value) / 4;
+ 
+-		if (value > old_val - fuzz * 2 && value < old_val + fuzz * 2)
+-			return (old_val + value) / 2;
++		if (value > (long)old_val - fuzz * 2 &&
++				value < (long)old_val + fuzz * 2)
++			return ((long)old_val + value) / 2;
+ 	}
+ 
+ 	return value;
+-- 
+2.7.4

@@ -1,53 +1,111 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] HID: asus: fix build warning wiht CONFIG_ASUS_WMI disabled
-Date: Fri,  2 Nov 2018 16:14:32 +0100
-Message-ID: <20181102151443.758229-1-arnd@arndb.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 0/3] Fix display off hotkey on Asus machines
+Date: Fri, 2 Nov 2018 21:35:22 +0200
+Message-ID: <CAHp75VdzYf_CXiBzVrOUw+R5ZA8O-+_PGJ-Cv-q7QTXpvG0dVA@mail.gmail.com>
+References: <20181101002128.28884-1-jprvita@endlessm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181101002128.28884-1-jprvita@endlessm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Colin Ian King <colin.king@canonical.com>, Peter Hutterer <peter.hutterer@who-t.net>, Mustafa Kuscu <mustafakuscu@gmail.com>, Daniel Drake <drake@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?UTF-8?Q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@gmail.com>
+Cc: Corentin Chary <corentin.chary@gmail.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, acpi4asus-user <acpi4asus-user@lists.sourceforge.net>, Platform Driver <platform-driver-x86@vger.kernel.org>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux@endlessm.com, =?UTF-8?Q?Jo=C3=A3o_Paulo_Rechi_Vita?= <jprvita@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-asus_wmi_evaluate_method() is an empty dummy function when CONFIG_ASUS_WMI
-is disabled, or not reachable from a built-in device driver. This leads to
-a theoretical evaluation of an uninitialized variable that the compiler
-complains about, failing to check that the hardcoded return value makes
-this an unreachable code path:
+On Thu, Nov 1, 2018 at 2:21 AM Jo=C3=A3o Paulo Rechi Vita <jprvita@gmail.co=
+m> wrote:
+>
+> Asus laptops have a hotkey function on the F7 key to turn the display
+> backlight OFF, labeled with a screen with a X inside, as shown on
+> https://dlcdnimgs.asus.com/websites/global/products/Xep1ZcSY8dyWXK11/imag=
+es/keyboard.png
+>
+> This hotkey worked on very few Asus models, where the EC acts on the
+> backlight and input events are generated only to notify userspace of the
+> backlight status. On these machines the first hotkey press turns the
+> display backlight OFF and notifies the OS with 0x34, which asus-nb-wmi
+> forwards to userspace as KEY_DISPLAY_OFF, and a second press turns it
+> back ON and notifies the OS with 0x33, which asus-nb-wmi forwards to
+> userspace as KEY_DISPLAYTOGGLE. No other keys turn the display backlight
+> back ON, but their input is forwarded normally to the application under
+> focus.
+>
+> But for the majority of models, the EC actually does not act on the
+> backlight and we simply get a 0x33 notification every time the key is
+> pressed, or alternating values of 0x33 / 0x34. We have confirmed this
+> behavior on the following models: E203NAS, GL553VE, X441NC, X441UVK,
+> X541UVK, X555DG, X555UB, X555UQ, X560UD, X570ZD and X705FD, and the DSDT
+> on these machines and the working one (only confirmed on N552VW) is the
+> same for the query involved here.
+>
+> After trying to get information from Asus for quite some time on how
+> this works on Windows, we finally recently got a contact that was able
+> to give us a definitive answer and a specification for this feature.
+> According this contact the 0x33 / 0x34 is an old behavior and all newer
+> machines should only be notifying the OS with 0x35 instead, as newer ECs
+> don't control the backlight anymore. When a 0x35 notification is
+> received the OS should act on the display backlight. From the spec
+> (machine-translated from Chinese):
+>
+>   1.4 Fn+F7
+>   Function introduction
+>
+>   After the user presses Fn + F7, the screen will be closed through the
+>   Windows API. The user will immediately open the screen with the mouse
+>   and keyboard.
+>   The API used can be found in the Sample URL:
+>   https://code.msdn.microsoft.com/windowsdesktop/Coalescable-Timer-Sample=
+-d9da954c
+>   BIOS implementation
+>   Increase Notify code
+>   LCD On: 0x33 (display OSD)
+>   LCD Off: 0x34 (display OSD)
+>   LCD Switch: 0x35 (using API switch)
+>
+> The behavior on Windows with the ATKACPI driver from Asus installed
+> matches what is described above, with the hotkey turning OFF the
+> backlight of all connected displays with a fading effect, and any cursor
+> input or key press turning the backlight back ON. The key press or
+> cursor input is passed through to the application under focus or under
+> the cursor.
+>
+> With this information from the spec, a simple analysis of the DSDT
+> (pasted on the first commit of this series) shows that in order to have
+> the firmware notify the OS with 0x35 and have the OS act on the
+> backlight, we need to call WMNB(ASUS_WMI_DEVID_BACKLIGHT=3D=3D0x00050011,=
+ 2)
+> on the _WDG device. Then we can simply map that scan code to the
+> appropriate key code in the driver.
+>
+> In include/uapi/linux/input-event-codes.h KEY_DISPLAY_OFF is defined as
+> "display device to off state", but it is not actually handled by
+> userspace on a GNOME+Xorg stack. There are also KEY_SCREENSAVER and
+> KEY_SCREENLOCK / KEY_COFFEE. The former seems to be ignored by userspace
+> as well (and its value is higher than 255 so it can't be handled by Xorg
+> IIUC), and the later is mapped to XF86ScreenSaver by Xorg and triggers
+> the lock screen action on GNOME. KEY_SCREENLOCK seems to be what closest
+> matches the behavior described above in a Xorg world. I am not sure if
+> any of this changes with Wayland, so any clarifications in that regard
+> would be greatly appreciated.
+>
 
-In file included from include/linux/printk.h:336,
-                 from include/linux/kernel.h:14,
-                 from include/linux/list.h:9,
-                 from include/linux/dmi.h:5,
-                 from drivers/hid/hid-asus.c:29:
-drivers/hid/hid-asus.c: In function 'asus_input_configured':
-include/linux/dynamic_debug.h:135:3: error: 'value' may be used uninitialized in this function [-Werror=maybe-uninitialized]
-   __dynamic_dev_dbg(&descriptor, dev, fmt, \
-   ^~~~~~~~~~~~~~~~~
-drivers/hid/hid-asus.c:359:6: note: 'value' was declared here
-  u32 value;
-      ^~~~~
+Pushed to my review and testing queue, thanks!
 
-With an extra IS_ENABLED() check, the warning goes away.
+> Jo=C3=A3o Paulo Rechi Vita (3):
+>   asus-wmi: Tell the EC the OS will handle the display off hotkey
+>   asus-nb-wmi: Map 0x35 to KEY_SCREENLOCK
+>   asus-nb-wmi: Drop mapping of 0x33 and 0x34 scan codes
+>
+>  drivers/platform/x86/asus-nb-wmi.c | 3 +--
+>  drivers/platform/x86/asus-wmi.c    | 3 ++-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+>
+> --
+> 2.19.1
+>
 
-Fixes: 3b692c55e58d ("HID: asus: only support backlight when it's not driven by WMI")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/hid/hid-asus.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index dc6d6477e961..a1fa2fc8c9b5 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -359,6 +359,9 @@ static bool asus_kbd_wmi_led_control_present(struct hid_device *hdev)
- 	u32 value;
- 	int ret;
- 
-+	if (!IS_ENABLED(CONFIG_ASUS_WMI))
-+		return false;
-+
- 	ret = asus_wmi_evaluate_method(ASUS_WMI_METHODID_DSTS2,
- 				       ASUS_WMI_DEVID_KBD_BACKLIGHT, 0, &value);
- 	hid_dbg(hdev, "WMI backlight check: rc %d value %x", ret, value);
--- 
-2.18.0
+--=20
+With Best Regards,
+Andy Shevchenko

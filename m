@@ -1,110 +1,53 @@
-From: liujian <liujian56@huawei.com>
-Subject: [PATCH] driver: input: fix UBSAN warning in input_defuzz_abs_event
-Date: Fri, 2 Nov 2018 21:48:51 +0800
-Message-ID: <1541166531-248528-1-git-send-email-liujian56@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] HID: asus: fix build warning wiht CONFIG_ASUS_WMI disabled
+Date: Fri,  2 Nov 2018 16:14:32 +0100
+Message-ID: <20181102151443.758229-1-arnd@arndb.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, liujian56@huawei.com
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Colin Ian King <colin.king@canonical.com>, Peter Hutterer <peter.hutterer@who-t.net>, Mustafa Kuscu <mustafakuscu@gmail.com>, Daniel Drake <drake@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-syzkaller triggered a UBCAN warning:
+asus_wmi_evaluate_method() is an empty dummy function when CONFIG_ASUS_WMI
+is disabled, or not reachable from a built-in device driver. This leads to
+a theoretical evaluation of an uninitialized variable that the compiler
+complains about, failing to check that the hardcoded return value makes
+this an unreachable code path:
 
-[  196.188950] UBSAN: Undefined behaviour in drivers/input/input.c:62:23
-[  196.188958] signed integer overflow:
-[  196.188964] -2147483647 - 104 cannot be represented in type 'int [2]'
-[  196.188973] CPU: 7 PID: 4763 Comm: syz-executor Not tainted
-4.19.0-514.55.6.9.x86_64+ #7
-[  196.188977] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-[  196.188979] Call Trace:
-[  196.189001]  dump_stack+0x91/0xeb
-[  196.189014]  ubsan_epilogue+0x9/0x7c
-[  196.189020]  handle_overflow+0x1d7/0x22c
-[  196.189028]  ? __ubsan_handle_negate_overflow+0x18f/0x18f
-[  196.189038]  ? __mutex_lock+0x213/0x13f0
-[  196.189053]  ? drop_futex_key_refs+0xa0/0xa0
-[  196.189070]  ? __might_fault+0xef/0x1b0
-[  196.189096]  input_handle_event+0xe1b/0x1290
-[  196.189108]  input_inject_event+0x1d7/0x27e
-[  196.189119]  evdev_write+0x2cf/0x3f0
-[  196.189129]  ? evdev_pass_values+0xd40/0xd40
-[  196.189157]  ? mark_held_locks+0x160/0x160
-[  196.189171]  ? __vfs_write+0xe0/0x6c0
-[  196.189175]  ? evdev_pass_values+0xd40/0xd40
-[  196.189179]  __vfs_write+0xe0/0x6c0
-[  196.189186]  ? kernel_read+0x130/0x130
-[  196.189204]  ? _cond_resched+0x15/0x30
-[  196.189214]  ? __inode_security_revalidate+0xb8/0xe0
-[  196.189222]  ? selinux_file_permission+0x354/0x430
-[  196.189233]  vfs_write+0x160/0x440
-[  196.189242]  ksys_write+0xc1/0x190
-[  196.189248]  ? __ia32_sys_read+0xb0/0xb0
-[  196.189259]  ? trace_hardirqs_on_thunk+0x1a/0x1c
-[  196.189267]  ? do_syscall_64+0x22/0x4a0
-[  196.189276]  do_syscall_64+0xa5/0x4a0
-[  196.189287]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[  196.189293] RIP: 0033:0x44e7c9
-[  196.189299] Code: fc ff 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00
+In file included from include/linux/printk.h:336,
+                 from include/linux/kernel.h:14,
+                 from include/linux/list.h:9,
+                 from include/linux/dmi.h:5,
+                 from drivers/hid/hid-asus.c:29:
+drivers/hid/hid-asus.c: In function 'asus_input_configured':
+include/linux/dynamic_debug.h:135:3: error: 'value' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+   __dynamic_dev_dbg(&descriptor, dev, fmt, \
+   ^~~~~~~~~~~~~~~~~
+drivers/hid/hid-asus.c:359:6: note: 'value' was declared here
+  u32 value;
+      ^~~~~
 
-the syzkaller reproduce script(but can't reproduce it every time):
+With an extra IS_ENABLED() check, the warning goes away.
 
-r0 = syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
-0x1)
-write$binfmt_elf64(r0, &(0x7f0000000240)={{0x7f, 0x45, 0x4c, 0x46, 0x40,
-0x2, 0x2, 0xffffffff, 0xffffffffffff374c, 0x3, 0x0, 0x80000001, 0x103,
-0x40, 0x22e, 0x26, 0x1, 0x38, 0x2, 0xa23, 0x1, 0x2}, [{0x6474e557, 0x5,
-0x6, 0x2, 0x9, 0x9, 0x6c3, 0x1ff}], "", [[], [], [], []]}, 0x478)
-ioctl$EVIOCGSW(0xffffffffffffffff, 0x8040451b, &(0x7f0000000040)=""/7)
-syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
-r1 = syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
-0x1)
-openat$smack_task_current(0xffffffffffffff9c,
-&(0x7f0000000040)='/proc/self/attr/current\x00', 0x2, 0x0)
-ioctl$EVIOCSABS0(r1, 0x401845c0, &(0x7f0000000000)={0x4, 0x10000, 0x4,
-0xd1, 0x81, 0x3})
-eventfd(0x1ff)
-syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
-0x200)
-syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
-syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
-syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
-syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2, 0x1)
-
-Typecast int to long to fix the issue.
-
-Signed-off-by: liujian <liujian56@huawei.com>
+Fixes: 3b692c55e58d ("HID: asus: only support backlight when it's not driven by WMI")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/input.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/hid/hid-asus.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 3304aaa..24615ef 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -59,14 +59,17 @@ static inline int is_event_supported(unsigned int code,
- static int input_defuzz_abs_event(int value, int old_val, int fuzz)
- {
- 	if (fuzz) {
--		if (value > old_val - fuzz / 2 && value < old_val + fuzz / 2)
-+		if (value > (long)old_val - fuzz / 2 &&
-+				value < (long)old_val + fuzz / 2)
- 			return old_val;
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index dc6d6477e961..a1fa2fc8c9b5 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -359,6 +359,9 @@ static bool asus_kbd_wmi_led_control_present(struct hid_device *hdev)
+ 	u32 value;
+ 	int ret;
  
--		if (value > old_val - fuzz && value < old_val + fuzz)
--			return (old_val * 3 + value) / 4;
-+		if (value > (long)old_val - fuzz &&
-+				value < (long)old_val + fuzz)
-+			return ((long)old_val * 3 + value) / 4;
- 
--		if (value > old_val - fuzz * 2 && value < old_val + fuzz * 2)
--			return (old_val + value) / 2;
-+		if (value > (long)old_val - fuzz * 2 &&
-+				value < (long)old_val + fuzz * 2)
-+			return ((long)old_val + value) / 2;
- 	}
- 
- 	return value;
++	if (!IS_ENABLED(CONFIG_ASUS_WMI))
++		return false;
++
+ 	ret = asus_wmi_evaluate_method(ASUS_WMI_METHODID_DSTS2,
+ 				       ASUS_WMI_DEVID_KBD_BACKLIGHT, 0, &value);
+ 	hid_dbg(hdev, "WMI backlight check: rc %d value %x", ret, value);
 -- 
-2.7.4
+2.18.0

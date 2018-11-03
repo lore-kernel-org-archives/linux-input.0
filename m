@@ -1,52 +1,51 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 6/8] Input: olpc_apsp: check FIFO status on open(), not
- probe()
-Date: Fri, 2 Nov 2018 23:16:09 +0100
-Message-ID: <20181102221609.GA5322@amd>
-References: <20180910112654.42061-1-lkundrak@v3.sk>
- <20180910112654.42061-7-lkundrak@v3.sk>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] HID: asus: fix build warning wiht CONFIG_ASUS_WMI disabled
+Date: Sat, 3 Nov 2018 23:16:23 +0100
+Message-ID: <CAMuHMdXHQSk08KMsbEQVd+wxWAqudHZuejUeBo9C-dtKEkT0PA@mail.gmail.com>
+References: <20181102151443.758229-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180910112654.42061-7-lkundrak@v3.sk>
+In-Reply-To: <20181102151443.758229-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, Hans de Goede <hdegoede@redhat.com>, Colin King <colin.king@canonical.com>, peter.hutterer@who-t.net, mustafakuscu@gmail.com, Daniel Drake <drake@endlessm.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+On Fri, Nov 2, 2018 at 4:16 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> asus_wmi_evaluate_method() is an empty dummy function when CONFIG_ASUS_WMI
+> is disabled, or not reachable from a built-in device driver. This leads to
+> a theoretical evaluation of an uninitialized variable that the compiler
+> complains about, failing to check that the hardcoded return value makes
+> this an unreachable code path:
+>
+> In file included from include/linux/printk.h:336,
+>                  from include/linux/kernel.h:14,
+>                  from include/linux/list.h:9,
+>                  from include/linux/dmi.h:5,
+>                  from drivers/hid/hid-asus.c:29:
+> drivers/hid/hid-asus.c: In function 'asus_input_configured':
+> include/linux/dynamic_debug.h:135:3: error: 'value' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+>    __dynamic_dev_dbg(&descriptor, dev, fmt, \
+>    ^~~~~~~~~~~~~~~~~
+> drivers/hid/hid-asus.c:359:6: note: 'value' was declared here
+>   u32 value;
+>       ^~~~~
+>
+> With an extra IS_ENABLED() check, the warning goes away.
+>
+> Fixes: 3b692c55e58d ("HID: asus: only support backlight when it's not driven by WMI")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-On Mon 2018-09-10 13:26:52, Lubomir Rintel wrote:
-> Let's defer the FIFO status checking until open().
->=20
-> When we'll get a clk handle, this will allow us to defer clock enablement
-> until the device is actually used.
->=20
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Gr{oetje,eeting}s,
 
-Acked-by: Pavel Machek <pavel@ucw.cz>
+                        Geert
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlvczKkACgkQMOfwapXb+vITPwCggk6ezBBtegkYFh2J6ErUWagC
-FbwAn2iRysWVzLxqHqsq3oCGgSpUk8lR
-=11n9
------END PGP SIGNATURE-----
-
---k+w/mQv8wyuph6w0--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

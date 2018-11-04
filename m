@@ -1,52 +1,49 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v2 8/8] Input: olpc_apsp: allocate the GPIOs used
-Date: Sun, 4 Nov 2018 12:55:30 +0100
-Message-ID: <20181104115530.GL23864@amd>
-References: <20181010142504.233467-1-lkundrak@v3.sk>
- <20181010142504.233467-9-lkundrak@v3.sk>
+From: Richard Leitner <richard.leitner@skidata.com>
+Subject: Re: [PATCH v2 0/7] Input: sx8654 - reset-gpio, sx865[056] support,
+ etc.
+Date: Sun, 4 Nov 2018 22:38:18 +0100
+Message-ID: <67d1308f-8371-3bfe-7961-807e1e18c807@skidata.com>
+References: <20181017125116.20077-1-richard.leitner@skidata.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="NZiXfHLGvOGtDZMn"
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181010142504.233467-9-lkundrak@v3.sk>
+In-Reply-To: <20181017125116.20077-1-richard.leitner@skidata.com>
+Content-Language: de-AT
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Stephen Boyd <sboyd@kernel.org>, James Cameron <quozl@laptop.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi,
+friendly question for the status of this patchset of mine.
 
---NZiXfHLGvOGtDZMn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+thanks&regards;Richard.L
 
-On Wed 2018-10-10 16:25:04, Lubomir Rintel wrote:
-> Take the GPIO lines are used by the SP. The driver doesn't touch the
-> lines -- this is done to disallow anything else from fiddling with
-> them because that would confuse the SP firmware.
->=20
-> Also, the lines are now nicely visible in /sys/kernel/debug/gpio.
->=20
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-
-Acked-by: Pavel Machek <pavel@ucw.cz>
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---NZiXfHLGvOGtDZMn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlve3jIACgkQMOfwapXb+vIHIgCeN8jA2Mf/S5oOIubEcIBwPS3i
-D4oAoKeA+AjE/NGvKL46jU5o8LO/85EH
-=RE3U
------END PGP SIGNATURE-----
-
---NZiXfHLGvOGtDZMn--
+On 10/17/18 2:51 PM, Richard Leitner wrote:
+> Add reset-gpio, sx8654[056] and common of_touchscreen functions support
+> for the sx8654 driver.
+> 
+> Changes v2:
+> 	- use devm_gpiod_get_optional in probe instead of in #ifdef CONFIG_OF
+> 	- convert flags to BIT() in a separate patch
+> 	- replace hrtimer with "regular" timer
+> 	- use of_device_get_match_data instead of of_match_device
+> 	- add driver data to i2c_device_id table for non-DT fallback
+> 	- fix sequence of common touchscreen initialization
+> 	- div. minor stlye changes
+> 
+> Richard Leitner (8):
+>    dt-bindings: input: touchscreen: sx8654: add reset-gpio property
+>    Input: sx8654 - add reset-gpio support
+>    dt-bindings: input: touchscreen: sx8654: add compatible models
+>    Input: sx8654 - add sx8655 and sx8656 to compatibles
+>    dt-bindings: input: touchscreen: sx8654: add sx8650 to comatibles
+>    Input: sx8654 - add sx8650 support
+>    Input: sx8654 - use common of_touchscreen functions
+>    Input: sx8654 - convert #defined flags to BIT(x)
+> 
+>   .../bindings/input/touchscreen/sx8654.txt          |  10 +-
+>   drivers/input/touchscreen/sx8654.c                 | 245 ++++++++++++++++++---
+>   2 files changed, 229 insertions(+), 26 deletions(-)
+> 

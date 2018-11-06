@@ -1,46 +1,44 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: asus: fix build warning wiht CONFIG_ASUS_WMI
- disabled
-Date: Tue, 6 Nov 2018 13:58:03 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1811061357520.21975@cbobk.fhfr.pm>
-References: <20181102151443.758229-1-arnd@arndb.de>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: Re: [PATCH] hyper-v: Fix wakeup from suspend-to-idle
+Date: Tue, 06 Nov 2018 18:07:05 +0100
+Message-ID: <87ftweuocm.fsf@vitty.brq.redhat.com>
+References: <20180912161101.2634-1-vkuznets@redhat.com> <nycvar.YFH.7.76.1809241123040.15880@cbobk.fhfr.pm> <CAJZ5v0g10fyZZhvLTz_qSADWQCO==fg=zcFQHD7QLZYwVDOsgA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181102151443.758229-1-arnd@arndb.de>
+In-Reply-To: <CAJZ5v0g10fyZZhvLTz_qSADWQCO==fg=zcFQHD7QLZYwVDOsgA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Colin Ian King <colin.king@canonical.com>, Peter Hutterer <peter.hutterer@who-t.net>, Mustafa Kuscu <mustafakuscu@gmail.com>, Daniel Drake <drake@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>, Jiri Kosina <jikos@kernel.org>
+Cc: Linux PM <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2 Nov 2018, Arnd Bergmann wrote:
+"Rafael J. Wysocki" <rafael@kernel.org> writes:
 
-> asus_wmi_evaluate_method() is an empty dummy function when CONFIG_ASUS_WMI
-> is disabled, or not reachable from a built-in device driver. This leads to
-> a theoretical evaluation of an uninitialized variable that the compiler
-> complains about, failing to check that the hardcoded return value makes
-> this an unreachable code path:
-> 
-> In file included from include/linux/printk.h:336,
->                  from include/linux/kernel.h:14,
->                  from include/linux/list.h:9,
->                  from include/linux/dmi.h:5,
->                  from drivers/hid/hid-asus.c:29:
-> drivers/hid/hid-asus.c: In function 'asus_input_configured':
-> include/linux/dynamic_debug.h:135:3: error: 'value' may be used uninitialized in this function [-Werror=maybe-uninitialized]
->    __dynamic_dev_dbg(&descriptor, dev, fmt, \
->    ^~~~~~~~~~~~~~~~~
-> drivers/hid/hid-asus.c:359:6: note: 'value' was declared here
->   u32 value;
->       ^~~~~
-> 
-> With an extra IS_ENABLED() check, the warning goes away.
-> 
-> Fixes: 3b692c55e58d ("HID: asus: only support backlight when it's not driven by WMI")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> On Mon, Sep 24, 2018 at 11:24 AM Jiri Kosina <jikos@kernel.org> wrote:
+>>
+>> On Wed, 12 Sep 2018, Vitaly Kuznetsov wrote:
+>>
+>> > It makes little sense but still possible to put Hyper-V guests into
+>> > suspend-to-idle state. To wake them up two wakeup sources were registered
+>> > in the past: hyperv-keyboard and hid-hyperv. However, since
+>> > commit eed4d47efe95 ("ACPI / sleep: Ignore spurious SCI wakeups from
+>> > suspend-to-idle") pm_wakeup_event() from these devices is ignored. Switch
+>> > to pm_wakeup_hard_event() API as these devices are actually the only
+>> > possible way to wakeup Hyper-V guests.
+>> >
+>> > Fixes: eed4d47efe95 (ACPI / sleep: Ignore spurious SCI wakeups from suspend-to-idle)
+>> > Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+>> > ---
+>> >  drivers/hid/hid-hyperv.c              | 2 +-
+>>
+>>         Acked-by: Jiri Kosina <jkosina@suse.cz>
+>>
+>> for the above. I guess this'd better go through ACPI tree?
+>
+> No problem with that if you prefer.
+>
 
-Applied to for-4.20/upstream-fixes. Thanks,
+It seems this patch got lost somewhere :-( 
 
 -- 
-Jiri Kosina
-SUSE Labs
+Vitaly

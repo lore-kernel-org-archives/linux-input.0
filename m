@@ -1,49 +1,46 @@
-From: Richard Leitner <richard.leitner@skidata.com>
-Subject: Re: [PATCH v2 0/7] Input: sx8654 - reset-gpio, sx865[056] support,
- etc.
-Date: Sun, 4 Nov 2018 22:38:18 +0100
-Message-ID: <67d1308f-8371-3bfe-7961-807e1e18c807@skidata.com>
-References: <20181017125116.20077-1-richard.leitner@skidata.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: asus: fix build warning wiht CONFIG_ASUS_WMI
+ disabled
+Date: Tue, 6 Nov 2018 13:58:03 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1811061357520.21975@cbobk.fhfr.pm>
+References: <20181102151443.758229-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181017125116.20077-1-richard.leitner@skidata.com>
-Content-Language: de-AT
+In-Reply-To: <20181102151443.758229-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Colin Ian King <colin.king@canonical.com>, Peter Hutterer <peter.hutterer@who-t.net>, Mustafa Kuscu <mustafakuscu@gmail.com>, Daniel Drake <drake@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
-friendly question for the status of this patchset of mine.
+On Fri, 2 Nov 2018, Arnd Bergmann wrote:
 
-thanks&regards;Richard.L
+> asus_wmi_evaluate_method() is an empty dummy function when CONFIG_ASUS_WMI
+> is disabled, or not reachable from a built-in device driver. This leads to
+> a theoretical evaluation of an uninitialized variable that the compiler
+> complains about, failing to check that the hardcoded return value makes
+> this an unreachable code path:
+> 
+> In file included from include/linux/printk.h:336,
+>                  from include/linux/kernel.h:14,
+>                  from include/linux/list.h:9,
+>                  from include/linux/dmi.h:5,
+>                  from drivers/hid/hid-asus.c:29:
+> drivers/hid/hid-asus.c: In function 'asus_input_configured':
+> include/linux/dynamic_debug.h:135:3: error: 'value' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+>    __dynamic_dev_dbg(&descriptor, dev, fmt, \
+>    ^~~~~~~~~~~~~~~~~
+> drivers/hid/hid-asus.c:359:6: note: 'value' was declared here
+>   u32 value;
+>       ^~~~~
+> 
+> With an extra IS_ENABLED() check, the warning goes away.
+> 
+> Fixes: 3b692c55e58d ("HID: asus: only support backlight when it's not driven by WMI")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-On 10/17/18 2:51 PM, Richard Leitner wrote:
-> Add reset-gpio, sx8654[056] and common of_touchscreen functions support
-> for the sx8654 driver.
-> 
-> Changes v2:
-> 	- use devm_gpiod_get_optional in probe instead of in #ifdef CONFIG_OF
-> 	- convert flags to BIT() in a separate patch
-> 	- replace hrtimer with "regular" timer
-> 	- use of_device_get_match_data instead of of_match_device
-> 	- add driver data to i2c_device_id table for non-DT fallback
-> 	- fix sequence of common touchscreen initialization
-> 	- div. minor stlye changes
-> 
-> Richard Leitner (8):
->    dt-bindings: input: touchscreen: sx8654: add reset-gpio property
->    Input: sx8654 - add reset-gpio support
->    dt-bindings: input: touchscreen: sx8654: add compatible models
->    Input: sx8654 - add sx8655 and sx8656 to compatibles
->    dt-bindings: input: touchscreen: sx8654: add sx8650 to comatibles
->    Input: sx8654 - add sx8650 support
->    Input: sx8654 - use common of_touchscreen functions
->    Input: sx8654 - convert #defined flags to BIT(x)
-> 
->   .../bindings/input/touchscreen/sx8654.txt          |  10 +-
->   drivers/input/touchscreen/sx8654.c                 | 245 ++++++++++++++++++---
->   2 files changed, 229 insertions(+), 26 deletions(-)
-> 
+Applied to for-4.20/upstream-fixes. Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

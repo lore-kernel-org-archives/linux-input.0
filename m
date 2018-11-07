@@ -1,7 +1,7 @@
 From: Brian Norris <briannorris@chromium.org>
 Subject: [PATCH] input: cros_ec_keyb: fix button/switch capability reports
-Date: Wed,  7 Nov 2018 14:27:29 -0800
-Message-ID: <20181107222729.170234-1-briannorris@chromium.org>
+Date: Wed,  7 Nov 2018 14:38:13 -0800
+Message-ID: <20181107223813.178462-1-briannorris@chromium.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>

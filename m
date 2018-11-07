@@ -1,44 +1,58 @@
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: Re: [PATCH] hyper-v: Fix wakeup from suspend-to-idle
-Date: Tue, 06 Nov 2018 18:07:05 +0100
-Message-ID: <87ftweuocm.fsf@vitty.brq.redhat.com>
-References: <20180912161101.2634-1-vkuznets@redhat.com> <nycvar.YFH.7.76.1809241123040.15880@cbobk.fhfr.pm> <CAJZ5v0g10fyZZhvLTz_qSADWQCO==fg=zcFQHD7QLZYwVDOsgA@mail.gmail.com>
+From: Brian Norris <briannorris@chromium.org>
+Subject: [PATCH] input: cros_ec_keyb: fix button/switch capability reports
+Date: Wed,  7 Nov 2018 14:27:29 -0800
+Message-ID: <20181107222729.170234-1-briannorris@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0g10fyZZhvLTz_qSADWQCO==fg=zcFQHD7QLZYwVDOsgA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>, Jiri Kosina <jikos@kernel.org>
-Cc: Linux PM <linux-pm@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.co.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Doug Anderson <dianders@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-"Rafael J. Wysocki" <rafael@kernel.org> writes:
+The cros_ec_keyb_bs array lists buttons and switches together, expecting
+that its users will match the appropriate type and bit fields. But
+cros_ec_keyb_register_bs() only checks the 'bit' field, which causes
+misreported input capabilities in some cases. For example, tablets
+(e.g., Scarlet -- a.k.a. Acer Chromebook Tab 10) were reporting a SW_LID
+capability, because EC_MKBP_POWER_BUTTON and EC_MKBP_LID_OPEN happen to
+share the same bit.
 
-> On Mon, Sep 24, 2018 at 11:24 AM Jiri Kosina <jikos@kernel.org> wrote:
->>
->> On Wed, 12 Sep 2018, Vitaly Kuznetsov wrote:
->>
->> > It makes little sense but still possible to put Hyper-V guests into
->> > suspend-to-idle state. To wake them up two wakeup sources were registered
->> > in the past: hyperv-keyboard and hid-hyperv. However, since
->> > commit eed4d47efe95 ("ACPI / sleep: Ignore spurious SCI wakeups from
->> > suspend-to-idle") pm_wakeup_event() from these devices is ignored. Switch
->> > to pm_wakeup_hard_event() API as these devices are actually the only
->> > possible way to wakeup Hyper-V guests.
->> >
->> > Fixes: eed4d47efe95 (ACPI / sleep: Ignore spurious SCI wakeups from suspend-to-idle)
->> > Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
->> > ---
->> >  drivers/hid/hid-hyperv.c              | 2 +-
->>
->>         Acked-by: Jiri Kosina <jkosina@suse.cz>
->>
->> for the above. I guess this'd better go through ACPI tree?
->
-> No problem with that if you prefer.
->
+(This has comedic effect on a tablet, in which a power-management daemon
+then thinks this "lid" is closed, and so puts the system to sleep as
+soon as it boots!)
 
-It seems this patch got lost somewhere :-( 
+To fix this, check both the 'ev_type' and 'bit' fields before reporting
+the capability.
 
+Tested with a lid (Kevin / Samsung Chromebook Plus) and without a lid
+(Scarlet / Acer Chromebook Tab 10).
+
+This error got introduced when porting the feature from the downstream
+Chromium OS kernel to be upstreamed.
+
+Fixes: cdd7950e7aa4 ("input: cros_ec_keyb: Add non-matrix buttons and switches")
+Cc: <stable@vger.kernel.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+---
+ drivers/input/keyboard/cros_ec_keyb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 81be6f781f0b..d56001181598 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -493,7 +493,8 @@ static int cros_ec_keyb_register_bs(struct cros_ec_keyb *ckdev)
+ 	for (i = 0; i < ARRAY_SIZE(cros_ec_keyb_bs); i++) {
+ 		const struct cros_ec_bs_map *map = &cros_ec_keyb_bs[i];
+ 
+-		if (buttons & BIT(map->bit))
++		if ((map->ev_type == EV_KEY && (buttons & BIT(map->bit))) ||
++		    (map->ev_type == EV_SW && (switches & BIT(map->bit))))
+ 			input_set_capability(idev, map->ev_type, map->code);
+ 	}
+ 
 -- 
-Vitaly
+2.19.1.930.g4563a0d9d0-goog

@@ -1,56 +1,57 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: [PATCH] HID: hidraw: enforce minors_lock locking via lockdep
-Date: Thu, 8 Nov 2018 22:38:42 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1811082237460.21975@cbobk.fhfr.pm>
+From: Benson Leung <bleung@chromium.org>
+Subject: [PATCH] HID: input: Ignore battery reported by Symbol DS4308
+Date: Thu,  8 Nov 2018 15:59:21 -0800
+Message-ID: <20181108235921.62193-1-bleung@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dtor@chromium.org, dmitry.torokhov@gmail.com, Benson Leung <bleung@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+The Motorola/Zebra Symbol DS4308-HD is a handheld USB barcode scanner
+which does not have a battery, but reports one anyway that always has
+capacity 2.
 
-lockdep is much more powerful enforcing the locking rules than code comments,
-so let's switch to it.
+Let's apply the IGNORE quirk to prevent it from being treated like a
+power supply so that userspaces don't get confused that this
+accessory is almost out of power and warn the user that they need to charge
+their wired barcode scanner.
 
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported here: https://bugs.chromium.org/p/chromium/issues/detail?id=804720
+
+Signed-off-by: Benson Leung <bleung@chromium.org>
 ---
- drivers/hid/hidraw.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 4a44e48e08b2..cf2af069204f 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -107,8 +107,6 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c0d668944dbe..07f6348b9f86 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1043,6 +1043,7 @@
+ #define USB_VENDOR_ID_SYMBOL		0x05e0
+ #define USB_DEVICE_ID_SYMBOL_SCANNER_1	0x0800
+ #define USB_DEVICE_ID_SYMBOL_SCANNER_2	0x1300
++#define USB_DEVICE_ID_SYMBOL_SCANNER_3	0x1200
  
- /*
-  * The first byte of the report buffer is expected to be a report number.
-- *
-- * This function is to be called with the minors_lock mutex held.
-  */
- static ssize_t hidraw_send_report(struct file *file, const char __user *buffer, size_t count, unsigned char report_type)
- {
-@@ -117,6 +115,8 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
- 	__u8 *buf;
- 	int ret = 0;
+ #define USB_VENDOR_ID_SYNAPTICS		0x06cb
+ #define USB_DEVICE_ID_SYNAPTICS_TP	0x0001
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index a2f74e6adc70..44ea8e7c71a9 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -325,6 +325,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+ 		USB_DEVICE_ID_ELECOM_BM084),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
++		USB_DEVICE_ID_SYMBOL_SCANNER_3),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
  
-+	lockdep_assert_held(&minors_lock);
-+
- 	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
- 		ret = -ENODEV;
- 		goto out;
-@@ -192,6 +192,8 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
- 	int ret = 0, len;
- 	unsigned char report_number;
- 
-+	lockdep_assert_held(&minors_lock);
-+
- 	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
- 		ret = -ENODEV;
- 		goto out;
 -- 
-Jiri Kosina
-SUSE Labs
+2.19.1.930.g4563a0d9d0-goog

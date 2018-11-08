@@ -1,65 +1,56 @@
-From: Heiko Stuebner <heiko@sntech.de>
-Subject: Re: [PATCH] input: cros_ec_keyb: fix button/switch capability reports
-Date: Thu, 08 Nov 2018 09:55:14 +0100
-Message-ID: <3546338.6jxQVHVFiU@phil>
-References: <20181107223813.178462-1-briannorris@chromium.org>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: [PATCH] HID: hidraw: enforce minors_lock locking via lockdep
+Date: Thu, 8 Nov 2018 22:38:42 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1811082237460.21975@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181107223813.178462-1-briannorris@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Enric Balletbo i Serra <enric.balletbo@collabora.co.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Doug Anderson <dianders@chromium.org>
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Am Mittwoch, 7. November 2018, 23:38:13 CET schrieb Brian Norris:
-> The cros_ec_keyb_bs array lists buttons and switches together, expecting
-> that its users will match the appropriate type and bit fields. But
-> cros_ec_keyb_register_bs() only checks the 'bit' field, which causes
-> misreported input capabilities in some cases. For example, tablets
-> (e.g., Scarlet -- a.k.a. Acer Chromebook Tab 10) were reporting a SW_LID
-> capability, because EC_MKBP_POWER_BUTTON and EC_MKBP_LID_OPEN happen to
-> share the same bit.
-> 
-> (This has comedic effect on a tablet, in which a power-management daemon
-> then thinks this "lid" is closed, and so puts the system to sleep as
-> soon as it boots!)
-> 
-> To fix this, check both the 'ev_type' and 'bit' fields before reporting
-> the capability.
-> 
-> Tested with a lid (Kevin / Samsung Chromebook Plus) and without a lid
-> (Scarlet / Acer Chromebook Tab 10).
-> 
-> This error got introduced when porting the feature from the downstream
-> Chromium OS kernel to be upstreamed.
-> 
-> Fixes: cdd7950e7aa4 ("input: cros_ec_keyb: Add non-matrix buttons and switches")
-> Cc: <stable@vger.kernel.org>
-> Cc: Douglas Anderson <dianders@chromium.org>
-> Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
+From: Jiri Kosina <jkosina@suse.cz>
 
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+lockdep is much more powerful enforcing the locking rules than code comments,
+so let's switch to it.
 
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hidraw.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-> ---
->  drivers/input/keyboard/cros_ec_keyb.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index 81be6f781f0b..d56001181598 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -493,7 +493,8 @@ static int cros_ec_keyb_register_bs(struct cros_ec_keyb *ckdev)
->  	for (i = 0; i < ARRAY_SIZE(cros_ec_keyb_bs); i++) {
->  		const struct cros_ec_bs_map *map = &cros_ec_keyb_bs[i];
->  
-> -		if (buttons & BIT(map->bit))
-> +		if ((map->ev_type == EV_KEY && (buttons & BIT(map->bit))) ||
-> +		    (map->ev_type == EV_SW && (switches & BIT(map->bit))))
->  			input_set_capability(idev, map->ev_type, map->code);
->  	}
->  
-> 
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 4a44e48e08b2..cf2af069204f 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -107,8 +107,6 @@ static ssize_t hidraw_read(struct file *file, char __user *buffer, size_t count,
+ 
+ /*
+  * The first byte of the report buffer is expected to be a report number.
+- *
+- * This function is to be called with the minors_lock mutex held.
+  */
+ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer, size_t count, unsigned char report_type)
+ {
+@@ -117,6 +115,8 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer,
+ 	__u8 *buf;
+ 	int ret = 0;
+ 
++	lockdep_assert_held(&minors_lock);
++
+ 	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
+ 		ret = -ENODEV;
+ 		goto out;
+@@ -192,6 +192,8 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t
+ 	int ret = 0, len;
+ 	unsigned char report_number;
+ 
++	lockdep_assert_held(&minors_lock);
++
+ 	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
+ 		ret = -ENODEV;
+ 		goto out;
+-- 
+Jiri Kosina
+SUSE Labs

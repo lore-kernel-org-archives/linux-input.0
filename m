@@ -1,58 +1,43 @@
-From: Brian Norris <briannorris@chromium.org>
-Subject: [PATCH] input: cros_ec_keyb: fix button/switch capability reports
-Date: Wed,  7 Nov 2018 14:38:13 -0800
-Message-ID: <20181107223813.178462-1-briannorris@chromium.org>
+From: Roy Im <roy.im.opensource@diasemi.com>
+Subject: [RESEND PATCH V7 0/3]  da7280: haptic driver submission
+Date: Thu, 8 Nov 2018 14:54:10 +0900
+Message-ID: <cover.1541656450.git.Roy.Im@diasemi.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.co.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Doug Anderson <dianders@chromium.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Support Opensource <support.opensource@diasemi.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The cros_ec_keyb_bs array lists buttons and switches together, expecting
-that its users will match the appropriate type and bit fields. But
-cros_ec_keyb_register_bs() only checks the 'bit' field, which causes
-misreported input capabilities in some cases. For example, tablets
-(e.g., Scarlet -- a.k.a. Acer Chromebook Tab 10) were reporting a SW_LID
-capability, because EC_MKBP_POWER_BUTTON and EC_MKBP_LID_OPEN happen to
-share the same bit.
+This patch adds support for the Dialog DA7280 Haptic driver IC.
 
-(This has comedic effect on a tablet, in which a power-management daemon
-then thinks this "lid" is closed, and so puts the system to sleep as
-soon as it boots!)
+In this patch set the following is provided:
 
-To fix this, check both the 'ev_type' and 'bit' fields before reporting
-the capability.
+[PATCH V7 1/3] MAINTAINERS file update for DA7280
+[PATCH V7 2/3] DA7280 DT Binding
+[PATCH V7 3/3] DA7280 Driver
 
-Tested with a lid (Kevin / Samsung Chromebook Plus) and without a lid
-(Scarlet / Acer Chromebook Tab 10).
+This patch applies against linux-next and v4.19-rc6
 
-This error got introduced when porting the feature from the downstream
-Chromium OS kernel to be upstreamed.
+Thank you,
+Roy Im, Dialog Semiconductor Ltd.
 
-Fixes: cdd7950e7aa4 ("input: cros_ec_keyb: Add non-matrix buttons and switches")
-Cc: <stable@vger.kernel.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
----
- drivers/input/keyboard/cros_ec_keyb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Roy Im (3):
+  MAINTAINERS: da7280 updates to the Dialog Semiconductor search terms
+  dt-bindings: input: Add document bindings for DA7280
+  Input: new da7280 haptic driver
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 81be6f781f0b..d56001181598 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -493,7 +493,8 @@ static int cros_ec_keyb_register_bs(struct cros_ec_keyb *ckdev)
- 	for (i = 0; i < ARRAY_SIZE(cros_ec_keyb_bs); i++) {
- 		const struct cros_ec_bs_map *map = &cros_ec_keyb_bs[i];
- 
--		if (buttons & BIT(map->bit))
-+		if ((map->ev_type == EV_KEY && (buttons & BIT(map->bit))) ||
-+		    (map->ev_type == EV_SW && (switches & BIT(map->bit))))
- 			input_set_capability(idev, map->ev_type, map->code);
- 	}
- 
+ .../devicetree/bindings/input/dlg,da7280.txt       |  105 ++
+ MAINTAINERS                                        |    2 +
+ drivers/input/misc/Kconfig                         |   13 +
+ drivers/input/misc/Makefile                        |    1 +
+ drivers/input/misc/da7280.c                        | 1409 ++++++++++++++++++++
+ drivers/input/misc/da7280.h                        |  412 ++++++
+ 6 files changed, 1942 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlg,da7280.txt
+ create mode 100644 drivers/input/misc/da7280.c
+ create mode 100644 drivers/input/misc/da7280.h
+
 -- 
-2.19.1.930.g4563a0d9d0-goog
+end-of-patch for RESEND PATCH V7

@@ -1,72 +1,71 @@
-From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v2 3/6] clk: mmp2: add SP clock
-Date: Mon, 12 Nov 2018 03:30:26 +0100
-Message-ID: <20181112023029.648408-4-lkundrak@v3.sk>
-References: <20181112023029.648408-1-lkundrak@v3.sk>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: input: Ignore battery reported by Symbol DS4308
+Date: Mon, 12 Nov 2018 12:12:57 +0100
+Message-ID: <CAO-hwJJSn=dhoh_JuNhBDMz8w4w1xfcgxiHE_SbOXJucLUQ93g@mail.gmail.com>
+References: <20181108235921.62193-1-bleung@chromium.org> <CAO-hwJ+FpX6evn-6J1TU6RmXq-3OhGGB21Qb4LdfNNcRuYkQEQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181112023029.648408-1-lkundrak@v3.sk>
+In-Reply-To: <CAO-hwJ+FpX6evn-6J1TU6RmXq-3OhGGB21Qb4LdfNNcRuYkQEQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lubomir Rintel <lkundrak@v3.sk>
+To: bleung@chromium.org
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The "security processor", sometimes referred to as "wireless trusted
-module" or "generic encrypt unit" is a low-power core present on MMP2,
-that has nothing to do with security, wireless, trust or encryption.
+On Fri, Nov 9, 2018 at 9:50 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> On Fri, Nov 9, 2018 at 12:59 AM Benson Leung <bleung@chromium.org> wrote:
+> >
+> > The Motorola/Zebra Symbol DS4308-HD is a handheld USB barcode scanner
+> > which does not have a battery, but reports one anyway that always has
+> > capacity 2.
+> >
+> > Let's apply the IGNORE quirk to prevent it from being treated like a
+> > power supply so that userspaces don't get confused that this
+> > accessory is almost out of power and warn the user that they need to charge
+> > their wired barcode scanner.
+> >
+> > Reported here: https://bugs.chromium.org/p/chromium/issues/detail?id=804720
+> >
+> > Signed-off-by: Benson Leung <bleung@chromium.org>
+> > ---
+>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On an OLPC machine it runs CForth and serves as a keyboard controller:
-http://dev.laptop.org/git/users/wmb/cforth/tree/src/app/arm-xo-1.75/ps2.f=
-th
+And applied, thanks
 
-The register address was obtained from the OLPC kernel, since the
-datasheet seems to be the Marvell's most important business secret.
-
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Acked-by: Pavel Machek <pavel@ucw.cz>
----
- drivers/clk/mmp/clk-of-mmp2.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.=
-c
-index d083b860f083..61fefc046ec5 100644
---- a/drivers/clk/mmp/clk-of-mmp2.c
-+++ b/drivers/clk/mmp/clk-of-mmp2.c
-@@ -53,6 +53,7 @@
- #define APMU_DISP1	0x110
- #define APMU_CCIC0	0x50
- #define APMU_CCIC1	0xf4
-+#define APMU_SP		0x68
- #define MPMU_UART_PLL	0x14
-=20
- struct mmp2_clk_unit {
-@@ -209,6 +210,8 @@ static struct mmp_clk_mix_config ccic1_mix_config =3D=
- {
- 	.reg_info =3D DEFINE_MIX_REG_INFO(4, 16, 2, 6, 32),
- };
-=20
-+static DEFINE_SPINLOCK(sp_lock);
-+
- static struct mmp_param_mux_clk apmu_mux_clks[] =3D {
- 	{MMP2_CLK_DISP0_MUX, "disp0_mux", disp_parent_names, ARRAY_SIZE(disp_pa=
-rent_names), CLK_SET_RATE_PARENT, APMU_DISP0, 6, 2, 0, &disp0_lock},
- 	{MMP2_CLK_DISP1_MUX, "disp1_mux", disp_parent_names, ARRAY_SIZE(disp_pa=
-rent_names), CLK_SET_RATE_PARENT, APMU_DISP1, 6, 2, 0, &disp1_lock},
-@@ -239,6 +242,7 @@ static struct mmp_param_gate_clk apmu_gate_clks[] =3D=
- {
- 	{MMP2_CLK_CCIC1, "ccic1_clk", "ccic1_mix_clk", CLK_SET_RATE_PARENT, APM=
-U_CCIC1, 0x1b, 0x1b, 0x0, 0, &ccic1_lock},
- 	{MMP2_CLK_CCIC1_PHY, "ccic1_phy_clk", "ccic1_mix_clk", CLK_SET_RATE_PAR=
-ENT, APMU_CCIC1, 0x24, 0x24, 0x0, 0, &ccic1_lock},
- 	{MMP2_CLK_CCIC1_SPHY, "ccic1_sphy_clk", "ccic1_sphy_div", CLK_SET_RATE_=
-PARENT, APMU_CCIC1, 0x300, 0x300, 0x0, 0, &ccic1_lock},
-+	{MMP2_CLK_SP, "sp_clk", NULL, CLK_SET_RATE_PARENT, APMU_SP, 0x1b, 0x1b,=
- 0x0, 0, &sp_lock},
- };
-=20
- static void mmp2_axi_periph_clk_init(struct mmp2_clk_unit *pxa_unit)
---=20
-2.19.1
+>
+> >  drivers/hid/hid-ids.h   | 1 +
+> >  drivers/hid/hid-input.c | 3 +++
+> >  2 files changed, 4 insertions(+)
+> >
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index c0d668944dbe..07f6348b9f86 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -1043,6 +1043,7 @@
+> >  #define USB_VENDOR_ID_SYMBOL           0x05e0
+> >  #define USB_DEVICE_ID_SYMBOL_SCANNER_1 0x0800
+> >  #define USB_DEVICE_ID_SYMBOL_SCANNER_2 0x1300
+> > +#define USB_DEVICE_ID_SYMBOL_SCANNER_3 0x1200
+> >
+> >  #define USB_VENDOR_ID_SYNAPTICS                0x06cb
+> >  #define USB_DEVICE_ID_SYNAPTICS_TP     0x0001
+> > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> > index a2f74e6adc70..44ea8e7c71a9 100644
+> > --- a/drivers/hid/hid-input.c
+> > +++ b/drivers/hid/hid-input.c
+> > @@ -325,6 +325,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
+> >         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+> >                 USB_DEVICE_ID_ELECOM_BM084),
+> >           HID_BATTERY_QUIRK_IGNORE },
+> > +       { HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
+> > +               USB_DEVICE_ID_SYMBOL_SCANNER_3),
+> > +         HID_BATTERY_QUIRK_IGNORE },
+> >         {}
+> >  };
+> >
+> > --
+> > 2.19.1.930.g4563a0d9d0-goog
+> >

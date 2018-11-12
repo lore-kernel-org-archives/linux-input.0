@@ -1,71 +1,39 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: input: Ignore battery reported by Symbol DS4308
-Date: Mon, 12 Nov 2018 12:12:57 +0100
-Message-ID: <CAO-hwJJSn=dhoh_JuNhBDMz8w4w1xfcgxiHE_SbOXJucLUQ93g@mail.gmail.com>
-References: <20181108235921.62193-1-bleung@chromium.org> <CAO-hwJ+FpX6evn-6J1TU6RmXq-3OhGGB21Qb4LdfNNcRuYkQEQ@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: hidraw: enforce minors_lock locking via lockdep
+Date: Mon, 12 Nov 2018 12:45:53 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1811121244070.27368@cbobk.fhfr.pm>
+References: <nycvar.YFH.7.76.1811082237460.21975@cbobk.fhfr.pm> <CAO-hwJJehHLJfgrQvbrW0_bOTTeH-v1qhZK0p0WZCuVDR1wsKw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJ+FpX6evn-6J1TU6RmXq-3OhGGB21Qb4LdfNNcRuYkQEQ@mail.gmail.com>
+In-Reply-To: <CAO-hwJJehHLJfgrQvbrW0_bOTTeH-v1qhZK0p0WZCuVDR1wsKw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: bleung@chromium.org
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 9, 2018 at 9:50 AM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> On Fri, Nov 9, 2018 at 12:59 AM Benson Leung <bleung@chromium.org> wrote:
+On Fri, 9 Nov 2018, Benjamin Tissoires wrote:
+
+> On Thu, Nov 8, 2018 at 10:38 PM Jiri Kosina <jikos@kernel.org> wrote:
 > >
-> > The Motorola/Zebra Symbol DS4308-HD is a handheld USB barcode scanner
-> > which does not have a battery, but reports one anyway that always has
-> > capacity 2.
+> > From: Jiri Kosina <jkosina@suse.cz>
 > >
-> > Let's apply the IGNORE quirk to prevent it from being treated like a
-> > power supply so that userspaces don't get confused that this
-> > accessory is almost out of power and warn the user that they need to charge
-> > their wired barcode scanner.
+> > lockdep is much more powerful enforcing the locking rules than code comments,
+> > so let's switch to it.
 > >
-> > Reported here: https://bugs.chromium.org/p/chromium/issues/detail?id=804720
-> >
-> > Signed-off-by: Benson Leung <bleung@chromium.org>
+> > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 > > ---
->
+> 
+> Looks good to me.
+> 
 > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-And applied, thanks
+I actually missed the comment removal for hidraw_get_report(). I've 
+ammeded the patch and comitted, keeping your tag, please shout if you 
+disagree :)
 
->
-> >  drivers/hid/hid-ids.h   | 1 +
-> >  drivers/hid/hid-input.c | 3 +++
-> >  2 files changed, 4 insertions(+)
-> >
-> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > index c0d668944dbe..07f6348b9f86 100644
-> > --- a/drivers/hid/hid-ids.h
-> > +++ b/drivers/hid/hid-ids.h
-> > @@ -1043,6 +1043,7 @@
-> >  #define USB_VENDOR_ID_SYMBOL           0x05e0
-> >  #define USB_DEVICE_ID_SYMBOL_SCANNER_1 0x0800
-> >  #define USB_DEVICE_ID_SYMBOL_SCANNER_2 0x1300
-> > +#define USB_DEVICE_ID_SYMBOL_SCANNER_3 0x1200
-> >
-> >  #define USB_VENDOR_ID_SYNAPTICS                0x06cb
-> >  #define USB_DEVICE_ID_SYNAPTICS_TP     0x0001
-> > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> > index a2f74e6adc70..44ea8e7c71a9 100644
-> > --- a/drivers/hid/hid-input.c
-> > +++ b/drivers/hid/hid-input.c
-> > @@ -325,6 +325,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
-> >         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
-> >                 USB_DEVICE_ID_ELECOM_BM084),
-> >           HID_BATTERY_QUIRK_IGNORE },
-> > +       { HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
-> > +               USB_DEVICE_ID_SYMBOL_SCANNER_3),
-> > +         HID_BATTERY_QUIRK_IGNORE },
-> >         {}
-> >  };
-> >
-> > --
-> > 2.19.1.930.g4563a0d9d0-goog
-> >
+Thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

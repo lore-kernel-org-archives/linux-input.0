@@ -1,44 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] dt-bindings: input: Fix a typo in file input-reset.txt
-Date: Mon, 12 Nov 2018 11:27:49 -0800
-Message-ID: <20181112192749.GD192687@dtor-ws>
-References: <20181107055819.7527-1-miyatsu@qq.com>
+Subject: Re: [PATCH] input: atkbd: clean up indentation issue, add missing
+ tab in an if statement
+Date: Mon, 12 Nov 2018 11:41:51 -0800
+Message-ID: <20181112194151.GG192687@dtor-ws>
+References: <20181101151224.14840-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181107055819.7527-1-miyatsu@qq.com>
+In-Reply-To: <20181101151224.14840-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ding Tao <miyatsu@qq.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 07, 2018 at 05:58:19AM +0000, Ding Tao wrote:
-> Replace sysrq-reset-seq with keyset.
+On Thu, Nov 01, 2018 at 03:12:24PM +0000, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> Signed-off-by: Ding Tao <miyatsu@qq.com>
+> Trivial fix to clean up indentation issues, add missing tab
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
 Applied, thank you.
 
 > ---
->  Documentation/devicetree/bindings/input/input-reset.txt | 2 +-
+>  drivers/input/keyboard/atkbd.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/input-reset.txt b/Documentation/devicetree/bindings/input/input-reset.txt
-> index 2bb2626fdb78..1ca6cc5ebf8e 100644
-> --- a/Documentation/devicetree/bindings/input/input-reset.txt
-> +++ b/Documentation/devicetree/bindings/input/input-reset.txt
-> @@ -12,7 +12,7 @@ The /chosen node should contain a 'linux,sysrq-reset-seq' child node to define
->  a set of keys.
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+> index 7e75835e220f..850bb259c20e 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -841,7 +841,7 @@ static int atkbd_select_set(struct atkbd *atkbd, int target_set, int allow_extra
+>  	if (param[0] != 3) {
+>  		param[0] = 2;
+>  		if (ps2_command(ps2dev, param, ATKBD_CMD_SSCANSET))
+> -		return 2;
+> +			return 2;
+>  	}
 >  
->  Required property:
-> -sysrq-reset-seq: array of Linux keycodes, one keycode per cell.
-> +keyset: array of Linux keycodes, one keycode per cell.
->  
->  Optional property:
->  timeout-ms: duration keys must be pressed together in milliseconds before
+>  	ps2_command(ps2dev, param, ATKBD_CMD_SETALL_MBR);
 > -- 
-> 2.17.1
+> 2.19.1
 > 
 
 -- 

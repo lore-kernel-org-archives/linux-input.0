@@ -1,68 +1,44 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: cros_ec_keyb: fix button/switch capability reports
-Date: Mon, 12 Nov 2018 11:24:20 -0800
-Message-ID: <20181112192420.GC192687@dtor-ws>
-References: <20181107223813.178462-1-briannorris@chromium.org>
+Subject: Re: [PATCH] dt-bindings: input: Fix a typo in file input-reset.txt
+Date: Mon, 12 Nov 2018 11:27:49 -0800
+Message-ID: <20181112192749.GD192687@dtor-ws>
+References: <20181107055819.7527-1-miyatsu@qq.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181107223813.178462-1-briannorris@chromium.org>
+In-Reply-To: <20181107055819.7527-1-miyatsu@qq.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.co.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Doug Anderson <dianders@chromium.org>
+To: Ding Tao <miyatsu@qq.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 07, 2018 at 02:38:13PM -0800, Brian Norris wrote:
-> The cros_ec_keyb_bs array lists buttons and switches together, expecting
-> that its users will match the appropriate type and bit fields. But
-> cros_ec_keyb_register_bs() only checks the 'bit' field, which causes
-> misreported input capabilities in some cases. For example, tablets
-> (e.g., Scarlet -- a.k.a. Acer Chromebook Tab 10) were reporting a SW_LID
-> capability, because EC_MKBP_POWER_BUTTON and EC_MKBP_LID_OPEN happen to
-> share the same bit.
+On Wed, Nov 07, 2018 at 05:58:19AM +0000, Ding Tao wrote:
+> Replace sysrq-reset-seq with keyset.
 > 
-> (This has comedic effect on a tablet, in which a power-management daemon
-> then thinks this "lid" is closed, and so puts the system to sleep as
-> soon as it boots!)
-> 
-> To fix this, check both the 'ev_type' and 'bit' fields before reporting
-> the capability.
-> 
-> Tested with a lid (Kevin / Samsung Chromebook Plus) and without a lid
-> (Scarlet / Acer Chromebook Tab 10).
-> 
-> This error got introduced when porting the feature from the downstream
-> Chromium OS kernel to be upstreamed.
-> 
-> Fixes: cdd7950e7aa4 ("input: cros_ec_keyb: Add non-matrix buttons and switches")
-> Cc: <stable@vger.kernel.org>
-> Cc: Douglas Anderson <dianders@chromium.org>
-> Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> Signed-off-by: Ding Tao <miyatsu@qq.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/keyboard/cros_ec_keyb.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  Documentation/devicetree/bindings/input/input-reset.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index 81be6f781f0b..d56001181598 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -493,7 +493,8 @@ static int cros_ec_keyb_register_bs(struct cros_ec_keyb *ckdev)
->  	for (i = 0; i < ARRAY_SIZE(cros_ec_keyb_bs); i++) {
->  		const struct cros_ec_bs_map *map = &cros_ec_keyb_bs[i];
+> diff --git a/Documentation/devicetree/bindings/input/input-reset.txt b/Documentation/devicetree/bindings/input/input-reset.txt
+> index 2bb2626fdb78..1ca6cc5ebf8e 100644
+> --- a/Documentation/devicetree/bindings/input/input-reset.txt
+> +++ b/Documentation/devicetree/bindings/input/input-reset.txt
+> @@ -12,7 +12,7 @@ The /chosen node should contain a 'linux,sysrq-reset-seq' child node to define
+>  a set of keys.
 >  
-> -		if (buttons & BIT(map->bit))
-> +		if ((map->ev_type == EV_KEY && (buttons & BIT(map->bit))) ||
-> +		    (map->ev_type == EV_SW && (switches & BIT(map->bit))))
->  			input_set_capability(idev, map->ev_type, map->code);
->  	}
+>  Required property:
+> -sysrq-reset-seq: array of Linux keycodes, one keycode per cell.
+> +keyset: array of Linux keycodes, one keycode per cell.
 >  
+>  Optional property:
+>  timeout-ms: duration keys must be pressed together in milliseconds before
 > -- 
-> 2.19.1.930.g4563a0d9d0-goog
+> 2.17.1
 > 
 
 -- 

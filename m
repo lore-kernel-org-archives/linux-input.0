@@ -1,7 +1,7 @@
 From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH v2 1/6] dt-bindings: olpc,ap-sp: add clock
-Date: Mon, 12 Nov 2018 03:30:24 +0100
-Message-ID: <20181112023029.648408-2-lkundrak@v3.sk>
+Subject: [PATCH v2 4/6] Input: olpc_apsp: drop CONFIG_OLPC dependency
+Date: Mon, 12 Nov 2018 03:30:27 +0100
+Message-ID: <20181112023029.648408-5-lkundrak@v3.sk>
 References: <20181112023029.648408-1-lkundrak@v3.sk>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -12,37 +12,26 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@b
 Cc: linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lubomir Rintel <lkundrak@v3.sk>
 List-Id: linux-input@vger.kernel.org
 
-The clock is necessary for the device operation, hence it's required.
-Its name, "sp", stands for "Security Processor". It is one of several
-names that are used for the processor that serves as the keyboard
-controller on an OLPC and is consistent with the node name.
+CONFIG_OLPC is specific to the x86 platform code, while the driver is for
+an ARM-based laptop.
 
 Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Reviewed-by: Rob Herring <robh@kernel.org>
 Acked-by: Pavel Machek <pavel@ucw.cz>
 ---
- Documentation/devicetree/bindings/serio/olpc,ap-sp.txt | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/serio/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt b/Doc=
-umentation/devicetree/bindings/serio/olpc,ap-sp.txt
-index 0e72183f52bc..36603419d6f8 100644
---- a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-+++ b/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-@@ -4,10 +4,14 @@ Required properties:
- - compatible : "olpc,ap-sp"
- - reg : base address and length of SoC's WTM registers
- - interrupts : SP-AP interrupt
-+- clocks : phandle + clock-specifier for the clock that drives the WTM
-+- clock-names:  should be "sp"
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index d90d9f1098ff..c9c7224d5ae0 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -254,7 +254,6 @@ config SERIO_APBPS2
 =20
- Example:
- 	ap-sp@d4290000 {
- 		compatible =3D "olpc,ap-sp";
- 		reg =3D <0xd4290000 0x1000>;
- 		interrupts =3D <40>;
-+		clocks =3D <&soc_clocks MMP2_CLK_SP>;
-+		clock-names =3D "sp";
- 	}
+ config SERIO_OLPC_APSP
+ 	tristate "OLPC AP-SP input support"
+-	depends on OLPC || COMPILE_TEST
+ 	help
+ 	  Say Y here if you want support for the keyboard and touchpad included
+ 	  in the OLPC XO-1.75 and XO-4 laptops.
 --=20
 2.19.1

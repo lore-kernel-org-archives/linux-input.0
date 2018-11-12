@@ -1,39 +1,69 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hidraw: enforce minors_lock locking via lockdep
-Date: Mon, 12 Nov 2018 12:45:53 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1811121244070.27368@cbobk.fhfr.pm>
-References: <nycvar.YFH.7.76.1811082237460.21975@cbobk.fhfr.pm> <CAO-hwJJehHLJfgrQvbrW0_bOTTeH-v1qhZK0p0WZCuVDR1wsKw@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: cros_ec_keyb: fix button/switch capability reports
+Date: Mon, 12 Nov 2018 11:24:20 -0800
+Message-ID: <20181112192420.GC192687@dtor-ws>
+References: <20181107223813.178462-1-briannorris@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJJehHLJfgrQvbrW0_bOTTeH-v1qhZK0p0WZCuVDR1wsKw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20181107223813.178462-1-briannorris@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Brian Norris <briannorris@chromium.org>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.co.uk>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Doug Anderson <dianders@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 9 Nov 2018, Benjamin Tissoires wrote:
-
-> On Thu, Nov 8, 2018 at 10:38 PM Jiri Kosina <jikos@kernel.org> wrote:
-> >
-> > From: Jiri Kosina <jkosina@suse.cz>
-> >
-> > lockdep is much more powerful enforcing the locking rules than code comments,
-> > so let's switch to it.
-> >
-> > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> > ---
+On Wed, Nov 07, 2018 at 02:38:13PM -0800, Brian Norris wrote:
+> The cros_ec_keyb_bs array lists buttons and switches together, expecting
+> that its users will match the appropriate type and bit fields. But
+> cros_ec_keyb_register_bs() only checks the 'bit' field, which causes
+> misreported input capabilities in some cases. For example, tablets
+> (e.g., Scarlet -- a.k.a. Acer Chromebook Tab 10) were reporting a SW_LID
+> capability, because EC_MKBP_POWER_BUTTON and EC_MKBP_LID_OPEN happen to
+> share the same bit.
 > 
-> Looks good to me.
+> (This has comedic effect on a tablet, in which a power-management daemon
+> then thinks this "lid" is closed, and so puts the system to sleep as
+> soon as it boots!)
 > 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> To fix this, check both the 'ev_type' and 'bit' fields before reporting
+> the capability.
+> 
+> Tested with a lid (Kevin / Samsung Chromebook Plus) and without a lid
+> (Scarlet / Acer Chromebook Tab 10).
+> 
+> This error got introduced when porting the feature from the downstream
+> Chromium OS kernel to be upstreamed.
+> 
+> Fixes: cdd7950e7aa4 ("input: cros_ec_keyb: Add non-matrix buttons and switches")
+> Cc: <stable@vger.kernel.org>
+> Cc: Douglas Anderson <dianders@chromium.org>
+> Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
 
-I actually missed the comment removal for hidraw_get_report(). I've 
-ammeded the patch and comitted, keeping your tag, please shout if you 
-disagree :)
+Applied, thank you.
 
-Thanks.
+> ---
+>  drivers/input/keyboard/cros_ec_keyb.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+> index 81be6f781f0b..d56001181598 100644
+> --- a/drivers/input/keyboard/cros_ec_keyb.c
+> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> @@ -493,7 +493,8 @@ static int cros_ec_keyb_register_bs(struct cros_ec_keyb *ckdev)
+>  	for (i = 0; i < ARRAY_SIZE(cros_ec_keyb_bs); i++) {
+>  		const struct cros_ec_bs_map *map = &cros_ec_keyb_bs[i];
+>  
+> -		if (buttons & BIT(map->bit))
+> +		if ((map->ev_type == EV_KEY && (buttons & BIT(map->bit))) ||
+> +		    (map->ev_type == EV_SW && (switches & BIT(map->bit))))
+>  			input_set_capability(idev, map->ev_type, map->code);
+>  	}
+>  
+> -- 
+> 2.19.1.930.g4563a0d9d0-goog
+> 
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

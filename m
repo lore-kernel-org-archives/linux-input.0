@@ -1,67 +1,69 @@
-From: Jann Horn <jannh@google.com>
-Subject: Re: [PATCH v2] HID: uhid: forbid UHID_CREATE under KERNEL_DS or
- elevated privileges
-Date: Wed, 14 Nov 2018 23:37:47 +0100
-Message-ID: <CAG48ez1GH5=d2LcSVA=+AoW6zB=BELr1QL34f3jrA8ip_6WMtQ@mail.gmail.com>
-References: <CAG48ez3bPkh+DMPwiebM+r4ozX2CiVY=9=WMBP_xm1qVaSN4sQ@mail.gmail.com>
- <20181114215509.163600-1-ebiggers@kernel.org> <CAG48ez02ZYZOKRXuZ9yYUijZnaaw=G7-KYu1rB7C99+B45VqjQ@mail.gmail.com>
- <CAE_wzQ_GqjwkhUjoPs3h-s7KSVe8KoH-uu-4mf672JN0X89d6g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <CAE_wzQ_GqjwkhUjoPs3h-s7KSVe8KoH-uu-4mf672JN0X89d6g@mail.gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: dtor@google.com
-Cc: ebiggers@kernel.org, dh.herrmann@googlemail.com, Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, syzkaller-bugs@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>, syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com, stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.18 04/59] HID: alps: allow incoming reports when only the trackstick is opened
+Date: Wed, 14 Nov 2018 17:22:36 -0500
+Message-ID: <20181114222335.99339-4-sashal@kernel.org>
+References: <20181114222335.99339-1-sashal@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181114222335.99339-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 14, 2018 at 11:29 PM Dmitry Torokhov <dtor@google.com> wrote:
-> On Wed, Nov 14, 2018 at 2:05 PM Jann Horn <jannh@google.com> wrote:
-> > On Wed, Nov 14, 2018 at 10:55 PM Eric Biggers <ebiggers@kernel.org> wrote:
-> > > When a UHID_CREATE command is written to the uhid char device, a
-> > > copy_from_user() is done from a user pointer embedded in the command.
-> > > When the address limit is KERNEL_DS, e.g. as is the case during
-> > > sys_sendfile(), this can read from kernel memory.  Alternatively,
-> > > information can be leaked from a setuid binary that is tricked to write
-> > > to the file descriptor.  Therefore, forbid UHID_CREATE in these cases.
-> > >
-> > > No other commands in uhid_char_write() are affected by this bug and
-> > > UHID_CREATE is marked as "obsolete", so apply the restriction to
-> > > UHID_CREATE only rather than to uhid_char_write() entirely.
-[...]
-> > > diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-[...]
-> > > @@ -722,6 +723,17 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
-> > >
-> > >         switch (uhid->input_buf.type) {
-> > >         case UHID_CREATE:
-> > > +               /*
-> > > +                * 'struct uhid_create_req' contains a __user pointer which is
-> > > +                * copied from, so it's unsafe to allow this with elevated
-> > > +                * privileges (e.g. from a setuid binary) or via kernel_write().
-> > > +                */
->
-> uhid is a privileged interface so we would go from root to less
-> privileged (if at all). If non-privileged process can open uhid it can
-> construct virtual keyboard and inject whatever keystrokes it wants.
->
-> Also, instead of disallowing access, can we ensure that we switch back
-> to USER_DS before trying to load data from the user pointer?
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Does that even make sense? You are using some deprecated legacy
-interface; you interact with it by splicing a request from something
-like a file or a pipe into the uhid device; but the request you're
-splicing through contains a pointer into userspace memory? Do you know
-of anyone who is actually doing that? If not, anyone who does want to
-do this for some reason in the future can just go use UHID_CREATE2
-instead.
+[ Upstream commit 7dd8db68949a7acc5bd528ee0ecb8f8720f49921 ]
 
-> > > +               if (file->f_cred != current_cred() || uaccess_kernel()) {
-> > > +                       pr_err_once("UHID_CREATE from different security context by process %d (%s), this is not allowed.\n",
-> > > +                                   task_tgid_vnr(current), current->comm);
-> > > +                       ret = -EACCES;
-> > > +                       goto unlock;
-> > > +               }
-> > >                 ret = uhid_dev_create(uhid, &uhid->input_buf);
-> > >                 break;
-> > >         case UHID_CREATE2:
+If userspace only reads the trackstick node, and no one is listening to
+the touchpad nor the hidraw node then, the device is not powered on.
+
+Add open/close callbacks to allow users to disable the touchpad in Gnome
+while keeping the trackstick active.
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1559632
+Link: https://gitlab.gnome.org/GNOME/mutter/issues/128
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-alps.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index aec253b44156..3cd7229b6e54 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -660,6 +660,20 @@ static int T4_init(struct hid_device *hdev, struct alps_dev *pri_data)
+ 	return ret;
+ }
+ 
++static int alps_sp_open(struct input_dev *dev)
++{
++	struct hid_device *hid = input_get_drvdata(dev);
++
++	return hid_hw_open(hid);
++}
++
++static void alps_sp_close(struct input_dev *dev)
++{
++	struct hid_device *hid = input_get_drvdata(dev);
++
++	hid_hw_close(hid);
++}
++
+ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ {
+ 	struct alps_dev *data = hid_get_drvdata(hdev);
+@@ -733,6 +747,10 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		input2->id.version = input->id.version;
+ 		input2->dev.parent = input->dev.parent;
+ 
++		input_set_drvdata(input2, hdev);
++		input2->open = alps_sp_open;
++		input2->close = alps_sp_close;
++
+ 		__set_bit(EV_KEY, input2->evbit);
+ 		data->sp_btn_cnt = (data->sp_btn_info & 0x0F);
+ 		for (i = 0; i < data->sp_btn_cnt; i++)
+-- 
+2.17.1

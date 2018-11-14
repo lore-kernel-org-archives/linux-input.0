@@ -1,51 +1,73 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.18 03/59] Revert "HID: add NOGET quirk for Eaton Ellipse MAX UPS"
-Date: Wed, 14 Nov 2018 17:22:35 -0500
-Message-ID: <20181114222335.99339-3-sashal@kernel.org>
-References: <20181114222335.99339-1-sashal@kernel.org>
+From: Eric Biggers <ebiggers@kernel.org>
+Subject: [PATCH v2] HID: uhid: forbid UHID_CREATE under KERNEL_DS or elevated privileges
+Date: Wed, 14 Nov 2018 13:55:09 -0800
+Message-ID: <20181114215509.163600-1-ebiggers@kernel.org>
+References: <CAG48ez3bPkh+DMPwiebM+r4ozX2CiVY=9=WMBP_xm1qVaSN4sQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181114222335.99339-1-sashal@kernel.org>
+In-Reply-To: <CAG48ez3bPkh+DMPwiebM+r4ozX2CiVY=9=WMBP_xm1qVaSN4sQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: David Herrmann <dh.herrmann@googlemail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>, Dmitry Torokhov <dtor@google.com>, syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com, stable@vger.kernel.org, Jann Horn <jannh@google.com>, Andy Lutomirski <luto@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 6298944d8f57f40ee2a3e6dcea1253e78d7a9969 ]
+When a UHID_CREATE command is written to the uhid char device, a
+copy_from_user() is done from a user pointer embedded in the command.
+When the address limit is KERNEL_DS, e.g. as is the case during
+sys_sendfile(), this can read from kernel memory.  Alternatively,
+information can be leaked from a setuid binary that is tricked to write
+to the file descriptor.  Therefore, forbid UHID_CREATE in these cases.
 
-This reverts commit 67ddbb3e6568fb1820b2cc45b00c50702b114801.
+No other commands in uhid_char_write() are affected by this bug and
+UHID_CREATE is marked as "obsolete", so apply the restriction to
+UHID_CREATE only rather than to uhid_char_write() entirely.
 
-67ddbb3e656 ("HID: add NOGET quirk for Eaton Ellipse MAX UPS") was reported
-by Laurent Bigonville. It turns out that a later model Laurent got
-doesn't need the quirk after all.
+Thanks to Dmitry Vyukov for adding uhid definitions to syzkaller and to
+Jann Horn for commit 9da3f2b740544 ("x86/fault: BUG() when uaccess
+helpers fault on kernel addresses"), allowing this bug to be found.
 
-My take is that Eaton upgraded their firmwares, so we don't need it
-anymore.
-
-The old model was from 2012, so better make sure the new line works
-properly by removing the quirk. This allows upower to actually fetch
-the current data.
-
-Reported-by: Laurent Bigonville <bigon@bigon.be>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com
+Fixes: d365c6cfd337 ("HID: uhid: add UHID_CREATE and UHID_DESTROY events")
+Cc: <stable@vger.kernel.org> # v3.6+
+Cc: Jann Horn <jannh@google.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- drivers/hid/hid-quirks.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/hid/uhid.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 249d49b6b16c..caafbea94882 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -106,7 +106,6 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C05A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MOUSE_C06A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCS, USB_DEVICE_ID_MCS_GAMEPADBLOCK), HID_QUIRK_MULTI_INPUT },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE_PRO_2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2), HID_QUIRK_NO_INIT_REPORTS },
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 3c55073136064..051639c09f728 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -12,6 +12,7 @@
+ 
+ #include <linux/atomic.h>
+ #include <linux/compat.h>
++#include <linux/cred.h>
+ #include <linux/device.h>
+ #include <linux/fs.h>
+ #include <linux/hid.h>
+@@ -722,6 +723,17 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
+ 
+ 	switch (uhid->input_buf.type) {
+ 	case UHID_CREATE:
++		/*
++		 * 'struct uhid_create_req' contains a __user pointer which is
++		 * copied from, so it's unsafe to allow this with elevated
++		 * privileges (e.g. from a setuid binary) or via kernel_write().
++		 */
++		if (file->f_cred != current_cred() || uaccess_kernel()) {
++			pr_err_once("UHID_CREATE from different security context by process %d (%s), this is not allowed.\n",
++				    task_tgid_vnr(current), current->comm);
++			ret = -EACCES;
++			goto unlock;
++		}
+ 		ret = uhid_dev_create(uhid, &uhid->input_buf);
+ 		break;
+ 	case UHID_CREATE2:
 -- 
-2.17.1
+2.19.1.930.g4563a0d9d0-goog

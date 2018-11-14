@@ -1,90 +1,138 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH] Revert "HID: uhid: use strlcpy() instead of strncpy()"
-Date: Wed, 14 Nov 2018 17:09:42 -0600
-Message-ID: <CAGXu5jJJGg5_crJ3v+AG5JZWVGLpDvZGr0UVyurzFxcv9Fwa5A@mail.gmail.com>
-References: <20181114131642.21425-1-dh.herrmann@gmail.com> <ea944fb3-0cd9-e6e6-5449-faab7c9603c1@redhat.com>
+From: Dmitry Torokhov <dtor@google.com>
+Subject: Re: [PATCH v2] HID: uhid: forbid UHID_CREATE under KERNEL_DS or
+ elevated privileges
+Date: Wed, 14 Nov 2018 15:20:11 -0800
+Message-ID: <CAE_wzQ_OS-BnRrXjKFhNBeRFRYsQkX2tNO3DEUQRFR7g7A7-2g@mail.gmail.com>
+References: <CAG48ez3bPkh+DMPwiebM+r4ozX2CiVY=9=WMBP_xm1qVaSN4sQ@mail.gmail.com>
+ <20181114215509.163600-1-ebiggers@kernel.org> <CAG48ez02ZYZOKRXuZ9yYUijZnaaw=G7-KYu1rB7C99+B45VqjQ@mail.gmail.com>
+ <CAE_wzQ_GqjwkhUjoPs3h-s7KSVe8KoH-uu-4mf672JN0X89d6g@mail.gmail.com> <20181114230046.GC87768@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ea944fb3-0cd9-e6e6-5449-faab7c9603c1@redhat.com>
+In-Reply-To: <20181114230046.GC87768@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Laura Abbott <labbott@redhat.com>, linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Xiongfeng Wang <xiongfeng.wang@linaro.org>
+To: ebiggers@kernel.org
+Cc: jannh@google.com, dh.herrmann@googlemail.com, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, syzkaller-bugs@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>, syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com, stable@vger.kernel.org, luto@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 14, 2018 at 9:40 AM, Laura Abbott <labbott@redhat.com> wrote:
-> On 11/14/18 5:16 AM, David Herrmann wrote:
->>
->> This reverts commit 336fd4f5f25157e9e8bd50e898a1bbcd99eaea46.
->>
->> Please note that `strlcpy()` does *NOT* do what you think it does.
->> strlcpy() *ALWAYS* reads the full input string, regardless of the
->> 'length' parameter. That is, if the input is not zero-terminated,
->> strlcpy() will *READ* beyond input boundaries. It does this, because it
->> always returns the size it *would* copy if the target was big enough,
->> not the truncated size it actually copied.
->>
->> The original code was perfectly fine. The hid device is
->> zero-initialized and the strncpy() functions copied up to n-1
->> characters. The result is always zero-terminated this way.
->>
->> This is the third time someone tried to replace strncpy with strlcpy in
->> this function, and gets it wrong. I now added a comment that should at
->> least make people reconsider.
->>
+On Wed, Nov 14, 2018 at 3:00 PM Eric Biggers <ebiggers@kernel.org> wrote:
 >
-> Can we switch to strscpy instead? This will quiet gcc and avoid the
-> issues with strlcpy.
+> Hi Dmitry,
+>
+> On Wed, Nov 14, 2018 at 02:28:56PM -0800, 'Dmitry Torokhov' via syzkaller-bugs wrote:
+> > On Wed, Nov 14, 2018 at 2:05 PM Jann Horn <jannh@google.com> wrote:
+> > >
+> > > On Wed, Nov 14, 2018 at 10:55 PM Eric Biggers <ebiggers@kernel.org> wrote:
+> > > >
+> > > > From: Eric Biggers <ebiggers@google.com>
+> > > >
+> > > > When a UHID_CREATE command is written to the uhid char device, a
+> > > > copy_from_user() is done from a user pointer embedded in the command.
+> > > > When the address limit is KERNEL_DS, e.g. as is the case during
+> > > > sys_sendfile(), this can read from kernel memory.  Alternatively,
+> > > > information can be leaked from a setuid binary that is tricked to write
+> > > > to the file descriptor.  Therefore, forbid UHID_CREATE in these cases.
+> > > >
+> > > > No other commands in uhid_char_write() are affected by this bug and
+> > > > UHID_CREATE is marked as "obsolete", so apply the restriction to
+> > > > UHID_CREATE only rather than to uhid_char_write() entirely.
+> > > >
+> > > > Thanks to Dmitry Vyukov for adding uhid definitions to syzkaller and to
+> > > > Jann Horn for commit 9da3f2b740544 ("x86/fault: BUG() when uaccess
+> > > > helpers fault on kernel addresses"), allowing this bug to be found.
+> > > >
+> > > > Reported-by: syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com
+> > > > Fixes: d365c6cfd337 ("HID: uhid: add UHID_CREATE and UHID_DESTROY events")
+> > > > Cc: <stable@vger.kernel.org> # v3.6+
+> > > > Cc: Jann Horn <jannh@google.com>
+> > > > Cc: Andy Lutomirski <luto@kernel.org>
+> > > > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > >
+> > > Reviewed-by: Jann Horn <jannh@google.com>
+> > >
+> > > > ---
+> > > >  drivers/hid/uhid.c | 12 ++++++++++++
+> > > >  1 file changed, 12 insertions(+)
+> > > >
+> > > > diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> > > > index 3c55073136064..051639c09f728 100644
+> > > > --- a/drivers/hid/uhid.c
+> > > > +++ b/drivers/hid/uhid.c
+> > > > @@ -12,6 +12,7 @@
+> > > >
+> > > >  #include <linux/atomic.h>
+> > > >  #include <linux/compat.h>
+> > > > +#include <linux/cred.h>
+> > > >  #include <linux/device.h>
+> > > >  #include <linux/fs.h>
+> > > >  #include <linux/hid.h>
+> > > > @@ -722,6 +723,17 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
+> > > >
+> > > >         switch (uhid->input_buf.type) {
+> > > >         case UHID_CREATE:
+> > > > +               /*
+> > > > +                * 'struct uhid_create_req' contains a __user pointer which is
+> > > > +                * copied from, so it's unsafe to allow this with elevated
+> > > > +                * privileges (e.g. from a setuid binary) or via kernel_write().
+> > > > +                */
+> >
+> > uhid is a privileged interface so we would go from root to less
+> > privileged (if at all). If non-privileged process can open uhid it can
+> > construct virtual keyboard and inject whatever keystrokes it wants.
+> >
+> > Also, instead of disallowing access, can we ensure that we switch back
+> > to USER_DS before trying to load data from the user pointer?
+> >
+>
+> Actually uhid doesn't have any capability checks, so it's up to userspace to
+> assign permissions to the device node.
 
-Yes please: it looks like these strings are expected to be NUL
-terminated, so strscpy() without the "- 1" and min() logic would be
-the correct solution here. If @hid is already zero, then this would
-just be:
+Yes. There are quite a few such instances where kernel does not bother
+implementing superfluous checks and instead relies on userspace to
+provide sane environment. IIRC nobody in the kernel enforces root
+filesystem not be accessible to ordinary users, it is done with
+generic permission checks.
 
-       strscpy(hid->name, ev->u.create2.name, sizeof(hid->name));
-       strscpy(hid->phys, ev->u.create2.phys, sizeof(hid->phys));
-       strscpy(hid->uniq, ev->u.create2.uniq, sizeof(hid->uniq));
+> I think it's best not to make
+> assumptions about how the interface will be used and to be consistent with how
+> other ->write() methods in the kernel handle the misfeature where a __user
+> pointer in the write() or read() payload is dereferenced.
 
-If they are NOT NUL terminated, then keep using strncpy() but mark the
-fields in the struct with the __nonstring attribute.
+I can see that you might want to check credentials, etc, if interface
+can be accessed by unprivileged process, however is it a big no no for
+uhid/userio/uinput devices.
 
--Kees
+> Temporarily switching
+> to USER_DS would only avoid one of the two problems.
+
+So because of the above there is only one problem. If your system
+opened access to uhid to random processes you have much bigger
+problems than exposing some data from a suid binary. You can spam "rm
+-rf .; rm -rf /" though uhid if there is interactive session
+somewhere.
 
 >
->
->> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
->> ---
->>   drivers/hid/uhid.c | 13 +++++++------
->>   1 file changed, 7 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
->> index fefedc0b4dc6..0dfdd0ac7120 100644
->> --- a/drivers/hid/uhid.c
->> +++ b/drivers/hid/uhid.c
->> @@ -496,12 +496,13 @@ static int uhid_dev_create2(struct uhid_device
->> *uhid,
->>                 goto err_free;
->>         }
->>   -     len = min(sizeof(hid->name), sizeof(ev->u.create2.name));
->> -       strlcpy(hid->name, ev->u.create2.name, len);
->> -       len = min(sizeof(hid->phys), sizeof(ev->u.create2.phys));
->> -       strlcpy(hid->phys, ev->u.create2.phys, len);
->> -       len = min(sizeof(hid->uniq), sizeof(ev->u.create2.uniq));
->> -       strlcpy(hid->uniq, ev->u.create2.uniq, len);
->> +       /* @hid is zero-initialized, strncpy() is correct, strlcpy() not
->> */
->> +       len = min(sizeof(hid->name), sizeof(ev->u.create2.name)) - 1;
->> +       strncpy(hid->name, ev->u.create2.name, len);
->> +       len = min(sizeof(hid->phys), sizeof(ev->u.create2.phys)) - 1;
->> +       strncpy(hid->phys, ev->u.create2.phys, len);
->> +       len = min(sizeof(hid->uniq), sizeof(ev->u.create2.uniq)) - 1;
->> +       strncpy(hid->uniq, ev->u.create2.uniq, len);
->>         hid->ll_driver = &uhid_hid_driver;
->>         hid->bus = ev->u.create2.bus;
->>
->
+> Do you think the proposed restrictions would actually break anything?
 
+It would break if someone uses UHID_CREATE with sendpage. I do not
+know if anyone does. If we were certain there are no users we'd simply
+removed UHID_CREATE altogether.
 
+>
+> - Eric
+>
+> > > > +               if (file->f_cred != current_cred() || uaccess_kernel()) {
+> > > > +                       pr_err_once("UHID_CREATE from different security context by process %d (%s), this is not allowed.\n",
+> > > > +                                   task_tgid_vnr(current), current->comm);
+> > > > +                       ret = -EACCES;
+> > > > +                       goto unlock;
+> > > > +               }
+> > > >                 ret = uhid_dev_create(uhid, &uhid->input_buf);
+> > > >                 break;
+> > > >         case UHID_CREATE2:
+> > > > --
+
+Thanks.
 
 -- 
-Kees Cook
+Dmitry

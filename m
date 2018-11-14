@@ -1,59 +1,58 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH] HID: i2c-hid: Disable runtime PM for LG touchscreen
-Date: Wed, 14 Nov 2018 07:24:57 +0000
-Message-ID: <20181114072457.19793-1-kai.heng.feng@canonical.com>
+From: Tim Schumacher <timschumi@gmx.de>
+Subject: [PATCH] Input: iforce - Add the Saitek R440 Force Wheel
+Date: Wed, 14 Nov 2018 10:52:40 +0100
+Message-ID: <20181114095240.25967-1-timschumi@gmx.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, dmitry.torokhov@gmail.com, timschumi@gmx.de
 List-Id: linux-input@vger.kernel.org
 
-LG touchscreen (1fd2:8001) stops working after reboot:
-[ 4.859153] i2c_hid i2c-SAPS2101:00: i2c_hid_get_input: incomplete report (64/66)
-[ 4.936070] i2c_hid i2c-SAPS2101:00: i2c_hid_get_input: incomplete report (64/66)
-[ 9.948224] i2c_hid i2c-SAPS2101:00: failed to reset device.
-
-The device in question stops working after receives SLEEP, ON, SLEEP
-commands in a short period. The scenario is like this:
-- Once the desktop session closes, it also closed the hid device, so the
-device gets runtime suspended and receives a SLEEP command.
-- Before calling shutdown callback, it gets runtime resumed and received
-an ON command.
-- In the shutdown callback, it receives another SLEEP command.
-
-I failed to find a reliable interval between ON/SLEEP commands that can
-make it work, so let's simply disable runtime PM for the device.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Tim Schumacher <timschumi@gmx.de>
 ---
- drivers/hid/hid-ids.h              | 1 +
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 3 insertions(+)
+Please note that I do NOT own this device.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c0d668944dbe..bd636f529fad 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -707,6 +707,7 @@
- #define USB_VENDOR_ID_LG		0x1fd2
- #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
- #define USB_DEVICE_ID_LG_MELFAS_MT	0x6007
-+#define I2C_DEVICE_ID_LG_8001		0x8001
- 
- #define USB_VENDOR_ID_LOGITECH		0x046d
- #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 3cde7c1b9c33..8555ce7e737b 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -177,6 +177,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_NO_RUNTIME_PM },
- 	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_4B33,
- 		I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
-+	{ USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
-+		I2C_HID_QUIRK_NO_RUNTIME_PM },
- 	{ 0, 0 }
- };
- 
+I'm adding this based on the fact that this is an iforce-based
+device and that the Windows driver for the R440 works for the
+Logitech WingMan Formula Force after replacing the device/vendor
+IDs (I got the vendor/device IDs from there as well).
+
+Please don't add this patch if adding devices based on that is
+not ok.
+
+Also (not related to this patch specifically), does anyone know
+what the question marks at the end of some device definitions
+are supposed to mean?
+---
+ drivers/input/joystick/iforce/iforce-main.c | 1 +
+ drivers/input/joystick/iforce/iforce-usb.c  | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+index 58d5cfe46526..432deecaeff9 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -67,6 +67,7 @@ static struct iforce_device iforce_device[] = {
+ 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
++	{ 0x06a3, 0xff04, "Saitek R440 Force Wheel",			btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs_wheel, ff_iforce }, //?
+ 	{ 0x06f8, 0x0001, "Guillemot Jet Leader Force Feedback",	btn_joystick, abs_joystick_rudder, ff_iforce },
+ 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
+diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
+index 78073259c9a1..cdea61ae838d 100644
+--- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -214,6 +214,7 @@ static const struct usb_device_id iforce_usb_ids[] = {
+ 	{ USB_DEVICE(0x05ef, 0x8888) },		/* AVB Top Shot FFB Racing Wheel */
+ 	{ USB_DEVICE(0x061c, 0xc0a4) },         /* ACT LABS Force RS */
+ 	{ USB_DEVICE(0x061c, 0xc084) },         /* ACT LABS Force RS */
++	{ USB_DEVICE(0x06a3, 0xff04) },		/* Saitek R440 Force Wheel */
+ 	{ USB_DEVICE(0x06f8, 0x0001) },		/* Guillemot Race Leader Force Feedback */
+ 	{ USB_DEVICE(0x06f8, 0x0003) },		/* Guillemot Jet Leader Force Feedback */
+ 	{ USB_DEVICE(0x06f8, 0x0004) },		/* Guillemot Force Feedback Racing Wheel */
 -- 
-2.17.1
+2.19.1.450.ga4b8ab536

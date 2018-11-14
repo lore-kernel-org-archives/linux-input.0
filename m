@@ -1,58 +1,56 @@
-From: Tim Schumacher <timschumi@gmx.de>
-Subject: [PATCH] Input: iforce - Add the Saitek R440 Force Wheel
-Date: Wed, 14 Nov 2018 10:52:40 +0100
-Message-ID: <20181114095240.25967-1-timschumi@gmx.de>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: BUG: GPF in non-whitelisted uaccess (non-canonical address?)
+Date: Wed, 14 Nov 2018 13:20:53 +0100
+Message-ID: <CANq1E4T6+bacZ9iGREtWiyM8eUkAQoxhgFM6rPrzNRkzAcnfJg@mail.gmail.com>
+References: <00000000000080f8fa057a67b75c@google.com> <0000000000002d2a5b057a94f7ff@google.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0000000000002d2a5b057a94f7ff@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, dmitry.torokhov@gmail.com, timschumi@gmx.de
+To: syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Tim Schumacher <timschumi@gmx.de>
----
-Please note that I do NOT own this device.
+Hey
 
-I'm adding this based on the fact that this is an iforce-based
-device and that the Windows driver for the R440 works for the
-Logitech WingMan Formula Force after replacing the device/vendor
-IDs (I got the vendor/device IDs from there as well).
+On Wed, Nov 14, 2018 at 1:25 AM syzbot
+<syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com> wrote:
+> syzbot has found a reproducer for the following crash on:
+>
+> HEAD commit:    ccda4af0f4b9 Linux 4.20-rc2
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=13b4e77b400000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=4a0a89f12ca9b0f5
+> dashboard link: https://syzkaller.appspot.com/bug?extid=72473edc9bf4eb1c6556
+> compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1646a225400000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=108a6533400000
+>
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com
+>
+[...]
+> BUG: GPF in non-whitelisted uaccess (non-canonical address?)
 
-Please don't add this patch if adding devices based on that is
-not ok.
+This uses sendpage(2) to feed data from a file into a uhid chardev.
+The default behavior of the kernel is to create a temporary pipe, then
+splice from the file into the pipe, and then splice again from the
+pipe into uhid.
 
-Also (not related to this patch specifically), does anyone know
-what the question marks at the end of some device definitions
-are supposed to mean?
----
- drivers/input/joystick/iforce/iforce-main.c | 1 +
- drivers/input/joystick/iforce/iforce-usb.c  | 1 +
- 2 files changed, 2 insertions(+)
+The kernel provides default implementations for splicing between files
+and any other file. The default implementation of `.splice_write()`
+uses kmap() to map the page from the pipe and then uses the
+__kernel_write() (which uses .f_op->write()) to push the data into the
+target file. The problem is, __kernel_write() sets the address-space
+to KERNEL_DS `set_fs(get_ds())`, thus granting the UHID request access
+to kernel memory.
 
-diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
-index 58d5cfe46526..432deecaeff9 100644
---- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -67,6 +67,7 @@ static struct iforce_device iforce_device[] = {
- 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
-+	{ 0x06a3, 0xff04, "Saitek R440 Force Wheel",			btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x06f8, 0x0001, "Guillemot Race Leader Force Feedback",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x06f8, 0x0001, "Guillemot Jet Leader Force Feedback",	btn_joystick, abs_joystick_rudder, ff_iforce },
- 	{ 0x06f8, 0x0004, "Guillemot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index 78073259c9a1..cdea61ae838d 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -214,6 +214,7 @@ static const struct usb_device_id iforce_usb_ids[] = {
- 	{ USB_DEVICE(0x05ef, 0x8888) },		/* AVB Top Shot FFB Racing Wheel */
- 	{ USB_DEVICE(0x061c, 0xc0a4) },         /* ACT LABS Force RS */
- 	{ USB_DEVICE(0x061c, 0xc084) },         /* ACT LABS Force RS */
-+	{ USB_DEVICE(0x06a3, 0xff04) },		/* Saitek R440 Force Wheel */
- 	{ USB_DEVICE(0x06f8, 0x0001) },		/* Guillemot Race Leader Force Feedback */
- 	{ USB_DEVICE(0x06f8, 0x0003) },		/* Guillemot Jet Leader Force Feedback */
- 	{ USB_DEVICE(0x06f8, 0x0004) },		/* Guillemot Force Feedback Racing Wheel */
--- 
-2.19.1.450.ga4b8ab536
+I see several ways to fix that, the most simple solution is to simply
+prevent splice/sendpage on uhid (by setting f_op.splice_write to a
+dummy). Alternatively, we can implement a proper splice helper that
+takes the page directly, rather than through the __kernel_write()
+default implementation.
+
+Thanks
+David

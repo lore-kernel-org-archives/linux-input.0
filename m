@@ -1,279 +1,107 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v5 2/8] mfd: stpmic1: add stpmic1 driver
-Date: Tue, 13 Nov 2018 07:40:37 +0000
-Message-ID: <20181113074037.GC29388@dell>
-References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
- <1540830122-2577-3-git-send-email-p.paillet@st.com>
+From: syzbot <syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com>
+Subject: Re: BUG: GPF in non-whitelisted uaccess (non-canonical address?)
+Date: Tue, 13 Nov 2018 16:25:04 -0800
+Message-ID: <0000000000002d2a5b057a94f7ff@google.com>
+References: <00000000000080f8fa057a67b75c@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1540830122-2577-3-git-send-email-p.paillet@st.com>
+In-Reply-To: <00000000000080f8fa057a67b75c@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+To: benjamin.tissoires@redhat.com, dh.herrmann@googlemail.com, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 29 Oct 2018, Pascal PAILLET-LME wrote:
+syzbot has found a reproducer for the following crash on:
 
-> stpmic1 is a pmic from STMicroelectronics. The STPMIC1 integrates 10
+HEAD commit:    ccda4af0f4b9 Linux 4.20-rc2
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=13b4e77b400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=4a0a89f12ca9b0f5
+dashboard link: https://syzkaller.appspot.com/bug?extid=72473edc9bf4eb1c6556
+compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1646a225400000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=108a6533400000
 
-"STPMIC1 is a PMIC"
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+72473edc9bf4eb1c6556@syzkaller.appspotmail.com
 
-> regulators, 3 power switches, a watchdog and an input for a power on key.
-> 
-> Signed-off-by: Pascal Paillet <p.paillet@st.com>
-> ---
-> changes in v5:
-> * use macro to define regmap register ranges
-> * use REGMAP_IRQ_REG marco to define interrupts
-> * remove st properties
-> 
->  drivers/mfd/Kconfig         |  13 +++
->  drivers/mfd/Makefile        |   1 +
->  drivers/mfd/stpmic1.c       | 215 ++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/stpmic1.h | 212 +++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 444 insertions(+)
->  create mode 100644 drivers/mfd/stpmic1.c
->  create mode 100644 include/linux/mfd/stpmic1.h
-> 
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index 11841f4..07e39a6 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -1855,6 +1855,22 @@ config MFD_STM32_TIMERS
->  	  for PWM and IIO Timer. This driver allow to share the
->  	  registers between the others drivers.
->  
-> +config MFD_STPMIC1
-> +	tristate "Support for STPMIC1 PMIC"
-> +	depends on (I2C=y && OF)
-> +	select REGMAP_I2C
-> +	select REGMAP_IRQ
-> +	select MFD_CORE
-> +	help
-> +	  Support for ST Microelectronics STPMIC1 PMIC. STPMIC1 has power on
-> +	  key, watchdog and regulator functionalities which are supported via
-> +	  the relevant subsystems.  This driver provides core support for the
-> +	  STPMIC1, in order to use the actual functionaltiy of the device other
-
-s/,/./
-
-> +	  drivers must be enabled.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called stpmic1.
-> +
->  menu "Multimedia Capabilities Port drivers"
->  	depends on ARCH_SA1100
->  
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 5856a94..76fff14 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -232,6 +232,7 @@ obj-$(CONFIG_INTEL_SOC_PMIC_CHTDC_TI)	+= intel_soc_pmic_chtdc_ti.o
->  obj-$(CONFIG_MFD_MT6397)	+= mt6397-core.o
->  
->  obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
-> +obj-$(CONFIG_MFD_STPMIC1)	+= stpmic1.o
->  obj-$(CONFIG_MFD_SUN4I_GPADC)	+= sun4i-gpadc.o
->  
->  obj-$(CONFIG_MFD_STM32_LPTIMER)	+= stm32-lptimer.o
-> diff --git a/drivers/mfd/stpmic1.c b/drivers/mfd/stpmic1.c
-> new file mode 100644
-> index 0000000..2f4fd5e
-> --- /dev/null
-> +++ b/drivers/mfd/stpmic1.c
-> @@ -0,0 +1,215 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +// Copyright (C) STMicroelectronics 2018
-> +// Author: Pascal Paillet <p.paillet@st.com>
-> +
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/mfd/core.h>
-> +#include <linux/mfd/stpmic1.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/of_platform.h>
-> +#include <linux/pm_wakeirq.h>
-> +#include <linux/regmap.h>
-> +
-> +#include <dt-bindings/mfd/st,stpmic1.h>
-> +
-> +#define STPMIC1_MAIN_IRQ 0
-> +
-> +static const struct regmap_range stpmic1_readable_ranges[] = {
-> +	regmap_reg_range(TURN_ON_SR, VERSION_SR),
-> +	regmap_reg_range(SWOFF_PWRCTRL_CR, LDO6_STDBY_CR),
-> +	regmap_reg_range(BST_SW_CR, BST_SW_CR),
-> +	regmap_reg_range(INT_PENDING_R1, INT_PENDING_R4),
-> +	regmap_reg_range(INT_CLEAR_R1, INT_CLEAR_R4),
-> +	regmap_reg_range(INT_MASK_R1, INT_MASK_R4),
-> +	regmap_reg_range(INT_SET_MASK_R1, INT_SET_MASK_R4),
-> +	regmap_reg_range(INT_CLEAR_MASK_R1, INT_CLEAR_MASK_R4),
-> +	regmap_reg_range(INT_SRC_R1, INT_SRC_R1),
-> +};
-> +
-> +static const struct regmap_range stpmic1_writeable_ranges[] = {
-> +	regmap_reg_range(SWOFF_PWRCTRL_CR, LDO6_STDBY_CR),
-> +	regmap_reg_range(BST_SW_CR, BST_SW_CR),
-> +	regmap_reg_range(INT_CLEAR_R1, INT_CLEAR_R4),
-> +	regmap_reg_range(INT_SET_MASK_R1, INT_SET_MASK_R4),
-> +	regmap_reg_range(INT_CLEAR_MASK_R1, INT_CLEAR_MASK_R4),
-> +};
-> +
-> +static const struct regmap_range stpmic1_volatile_ranges[] = {
-> +	regmap_reg_range(TURN_ON_SR, VERSION_SR),
-> +	regmap_reg_range(WCHDG_CR, WCHDG_CR),
-> +	regmap_reg_range(INT_PENDING_R1, INT_PENDING_R4),
-> +	regmap_reg_range(INT_SRC_R1, INT_SRC_R4),
-> +};
-
-Nice!
-
-> +static const struct regmap_access_table stpmic1_readable_table = {
-> +	.yes_ranges = stpmic1_readable_ranges,
-> +	.n_yes_ranges = ARRAY_SIZE(stpmic1_readable_ranges),
-> +};
-> +
-> +static const struct regmap_access_table stpmic1_writeable_table = {
-> +	.yes_ranges = stpmic1_writeable_ranges,
-> +	.n_yes_ranges = ARRAY_SIZE(stpmic1_writeable_ranges),
-> +};
-> +
-> +static const struct regmap_access_table stpmic1_volatile_table = {
-> +	.yes_ranges = stpmic1_volatile_ranges,
-> +	.n_yes_ranges = ARRAY_SIZE(stpmic1_volatile_ranges),
-> +};
-> +
-> +const struct regmap_config stpmic1_regmap_config = {
-> +	.reg_bits = 8,
-> +	.val_bits = 8,
-> +	.cache_type = REGCACHE_RBTREE,
-> +	.max_register = PMIC_MAX_REGISTER_ADDRESS,
-> +	.rd_table = &stpmic1_readable_table,
-> +	.wr_table = &stpmic1_writeable_table,
-> +	.volatile_table = &stpmic1_volatile_table,
-> +};
-> +
-> +static const struct regmap_irq stpmic1_irqs[] = {
-> +	REGMAP_IRQ_REG(IT_PONKEY_F, 0, 0x01),
-> +	REGMAP_IRQ_REG(IT_PONKEY_R, 0, 0x02),
-> +	REGMAP_IRQ_REG(IT_WAKEUP_F, 0, 0x04),
-> +	REGMAP_IRQ_REG(IT_WAKEUP_R, 0, 0x08),
-> +	REGMAP_IRQ_REG(IT_VBUS_OTG_F, 0, 0x10),
-> +	REGMAP_IRQ_REG(IT_VBUS_OTG_R, 0, 0x20),
-> +	REGMAP_IRQ_REG(IT_SWOUT_F, 0, 0x40),
-> +	REGMAP_IRQ_REG(IT_SWOUT_R, 0, 0x80),
-> +
-> +	REGMAP_IRQ_REG(IT_CURLIM_BUCK1, 1, 0x01),
-> +	REGMAP_IRQ_REG(IT_CURLIM_BUCK2, 1, 0x02),
-> +	REGMAP_IRQ_REG(IT_CURLIM_BUCK3, 1, 0x04),
-> +	REGMAP_IRQ_REG(IT_CURLIM_BUCK4, 1, 0x08),
-> +	REGMAP_IRQ_REG(IT_OCP_OTG, 1, 0x10),
-> +	REGMAP_IRQ_REG(IT_OCP_SWOUT, 1, 0x20),
-> +	REGMAP_IRQ_REG(IT_OCP_BOOST, 1, 0x40),
-> +	REGMAP_IRQ_REG(IT_OVP_BOOST, 1, 0x80),
-> +
-> +	REGMAP_IRQ_REG(IT_CURLIM_LDO1, 2, 0x01),
-> +	REGMAP_IRQ_REG(IT_CURLIM_LDO2, 2, 0x02),
-> +	REGMAP_IRQ_REG(IT_CURLIM_LDO3, 2, 0x04),
-> +	REGMAP_IRQ_REG(IT_CURLIM_LDO4, 2, 0x08),
-> +	REGMAP_IRQ_REG(IT_CURLIM_LDO5, 2, 0x10),
-> +	REGMAP_IRQ_REG(IT_CURLIM_LDO6, 2, 0x20),
-> +	REGMAP_IRQ_REG(IT_SHORT_SWOTG, 2, 0x40),
-> +	REGMAP_IRQ_REG(IT_SHORT_SWOUT, 2, 0x80),
-> +
-> +	REGMAP_IRQ_REG(IT_TWARN_F, 3, 0x01),
-> +	REGMAP_IRQ_REG(IT_TWARN_R, 3, 0x02),
-> +	REGMAP_IRQ_REG(IT_VINLOW_F, 3, 0x04),
-> +	REGMAP_IRQ_REG(IT_VINLOW_R, 3, 0x08),
-> +	REGMAP_IRQ_REG(IT_SWIN_F, 3, 0x40),
-> +	REGMAP_IRQ_REG(IT_SWIN_R, 3, 0x80),
-> +};
-> +
-> +static const struct regmap_irq_chip stpmic1_regmap_irq_chip = {
-> +	.name = "pmic_irq",
-> +	.status_base = INT_PENDING_R1,
-> +	.mask_base = INT_CLEAR_MASK_R1,
-> +	.unmask_base = INT_SET_MASK_R1,
-> +	.ack_base = INT_CLEAR_R1,
-> +	.num_regs = STPMIC1_PMIC_NUM_IRQ_REGS,
-> +	.irqs = stpmic1_irqs,
-> +	.num_irqs = ARRAY_SIZE(stpmic1_irqs),
-> +};
-> +
-> +static int stpmic1_probe(struct i2c_client *i2c,
-> +			 const struct i2c_device_id *id)
-> +{
-> +	struct stpmic1 *ddata;
-> +	struct device *dev = &i2c->dev;
-> +	int ret;
-> +	struct device_node *np = dev->of_node;
-> +	u32 reg;
-> +
-> +	ddata = devm_kzalloc(dev, sizeof(struct stpmic1), GFP_KERNEL);
-> +	if (!ddata)
-> +		return -ENOMEM;
-> +
-> +	i2c_set_clientdata(i2c, ddata);
-> +	ddata->dev = dev;
-> +
-> +	ddata->regmap = devm_regmap_init_i2c(i2c, &stpmic1_regmap_config);
-> +	if (IS_ERR(ddata->regmap))
-> +		return PTR_ERR(ddata->regmap);
-> +
-> +	ddata->irq = of_irq_get(np, STPMIC1_MAIN_IRQ);
-> +	if (ddata->irq < 0) {
-> +		dev_err(dev, "Failed to get main IRQ: %d\n", ddata->irq);
-> +		return ddata->irq;
-> +	}
-> +
-> +	/* Read Version ID */
-
-I think the MACRO name and error message make this comment
-superfluous.
-
-> +	ret = regmap_read(ddata->regmap, VERSION_SR, &reg);
-> +	if (ret) {
-> +		dev_err(dev, "Unable to read pmic version\n");
-
-"PMIC"
-
-> +		return ret;
-> +	}
-> +	dev_info(dev, "PMIC Chip Version: 0x%x\n", reg);
-> +
-> +	/* Initialize PMIC IRQ Chip & IRQ domains associated */
-
-"associated IRQ domains"
-
-> +	ret = devm_regmap_add_irq_chip(dev, ddata->regmap, ddata->irq,
-> +				       IRQF_ONESHOT | IRQF_SHARED,
-> +				       0, &stpmic1_regmap_irq_chip,
-> +				       &ddata->irq_data);
-> +	if (ret) {
-> +		dev_err(dev, "IRQ Chip registration failed: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	return devm_of_platform_populate(dev);
-> +}
-> +
-> +static const struct i2c_device_id stpmic1_id[] = {
-> +	{ "stpmic1"},
-> +	{}
-> +};
-
-I don't think this is required any more.
-
-> +MODULE_DEVICE_TABLE(i2c, stpmic1_id);
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+audit: type=1400 audit(1542154838.102:35): avc:  denied  { map } for   
+pid=6149 comm="bash" path="/bin/bash" dev="sda1" ino=1457  
+scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023  
+tcontext=system_u:object_r:file_t:s0 tclass=file permissive=1
+audit: type=1400 audit(1542154844.872:36): avc:  denied  { map } for   
+pid=6163 comm="syz-executor697" path="/root/syz-executor697315096"  
+dev="sda1" ino=16483 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023  
+tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=1
+BUG: GPF in non-whitelisted uaccess (non-canonical address?)
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 6163 Comm: syz-executor697 Not tainted 4.20.0-rc2+ #112
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+RIP: 0010:copy_user_enhanced_fast_string+0xe/0x20  
+arch/x86/lib/copy_user_64.S:180
+Code: 89 d1 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 31 c0 0f 1f 00 c3 0f 1f  
+80 00 00 00 00 0f 1f 00 83 fa 40 0f 82 70 ff ff ff 89 d1 <f3> a4 31 c0 0f  
+1f 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 83
+RSP: 0018:ffff8881d188f398 EFLAGS: 00010206
+RAX: 0000000000000000 RBX: 0000000000000109 RCX: 0000000000000109
+RDX: 0000000000000109 RSI: 241037f828e5769d RDI: ffff8881ce130738
+RBP: ffff8881d188f3d0 R08: ffffed1039c26109 R09: ffffed1039c26109
+R10: ffffed1039c26108 R11: ffff8881ce130840 R12: 241037f828e577a6
+R13: 241037f828e5769d R14: ffff8881ce130738 R15: ffffffffffffffff
+FS:  0000000001dab880(0000) GS:ffff8881dae00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020d83ff8 CR3: 00000001b6a5c000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  copy_from_user include/linux/uaccess.h:147 [inline]
+  uhid_dev_create+0x20c/0xb40 drivers/hid/uhid.c:542
+  uhid_char_write+0xc74/0xef0 drivers/hid/uhid.c:725
+  __vfs_write+0x119/0x9f0 fs/read_write.c:485
+  __kernel_write+0x10c/0x370 fs/read_write.c:506
+  write_pipe_buf+0x180/0x240 fs/splice.c:797
+  splice_from_pipe_feed fs/splice.c:503 [inline]
+  __splice_from_pipe+0x38b/0x7c0 fs/splice.c:627
+  splice_from_pipe+0x1ec/0x340 fs/splice.c:662
+  default_file_splice_write+0x3c/0x90 fs/splice.c:809
+  do_splice_from fs/splice.c:851 [inline]
+  direct_splice_actor+0x128/0x190 fs/splice.c:1018
+  splice_direct_to_actor+0x318/0x8f0 fs/splice.c:973
+  do_splice_direct+0x2d4/0x420 fs/splice.c:1061
+  do_sendfile+0x62a/0xe20 fs/read_write.c:1439
+  __do_sys_sendfile64 fs/read_write.c:1494 [inline]
+  __se_sys_sendfile64 fs/read_write.c:1486 [inline]
+  __x64_sys_sendfile64+0x15d/0x250 fs/read_write.c:1486
+  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440309
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffcd9cfe2e8 EFLAGS: 00000203 ORIG_RAX: 0000000000000028
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 0000000000440309
+RDX: 0000000020d83ff8 RSI: 0000000000000004 RDI: 0000000000000003
+RBP: 00000000006cb018 R08: 00000000004002c8 R09: 00000000004002c8
+R10: 00008000fffffffe R11: 0000000000000203 R12: 0000000000401b90
+R13: 0000000000401c20 R14: 0000000000000000 R15: 0000000000000000
+Modules linked in:
+---[ end trace d77e684529ebafbc ]---
+RIP: 0010:copy_user_enhanced_fast_string+0xe/0x20  
+arch/x86/lib/copy_user_64.S:180
+Code: 89 d1 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 31 c0 0f 1f 00 c3 0f 1f  
+80 00 00 00 00 0f 1f 00 83 fa 40 0f 82 70 ff ff ff 89 d1 <f3> a4 31 c0 0f  
+1f 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 83
+RSP: 0018:ffff8881d188f398 EFLAGS: 00010206
+RAX: 0000000000000000 RBX: 0000000000000109 RCX: 0000000000000109
+RDX: 0000000000000109 RSI: 241037f828e5769d RDI: ffff8881ce130738
+RBP: ffff8881d188f3d0 R08: ffffed1039c26109 R09: ffffed1039c26109
+R10: ffffed1039c26108 R11: ffff8881ce130840 R12: 241037f828e577a6
+R13: 241037f828e5769d R14: ffff8881ce130738 R15: ffffffffffffffff
+FS:  0000000001dab880(0000) GS:ffff8881dae00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020d83ff8 CR3: 00000001b6a5c000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400

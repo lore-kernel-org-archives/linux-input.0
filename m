@@ -1,144 +1,65 @@
-From: Stefan Agner <stefan@agner.ch>
-Subject: Re: [PATCH v2 1/4] mfd: stmpe: Move ADC related defines to header of
- mfd
-Date: Mon, 19 Nov 2018 14:32:27 +0100
-Message-ID: <f603bcb612866bf68fa8ad00ad70a4df@agner.ch>
-References: <20181119102528.2830-1-dev@pschenker.ch>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] Revert "HID: uhid: use strlcpy() instead of strncpy()"
+Date: Mon, 19 Nov 2018 14:33:10 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1811191432460.21108@cbobk.fhfr.pm>
+References: <20181114131642.21425-1-dh.herrmann@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181119102528.2830-1-dev@pschenker.ch>
+In-Reply-To: <20181114131642.21425-1-dh.herrmann@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Philippe Schenker <dev@pschenker.ch>
-Cc: jic23@kernel.org, marcel.ziswiler@toradex.com, Philippe Schenker <philippe.schenker@toradex.com>, Max Krummenacher <max.krummenacher@toradex.com>, Alexandre Torgue <alexandre.torgue@st.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com
 List-Id: linux-input@vger.kernel.org
 
-On 19.11.2018 11:25, Philippe Schenker wrote:
-> Move defines that are ADC related to the header of the overlying mfd,
-> so they can be used from multiple sub-devices.
+On Wed, 14 Nov 2018, David Herrmann wrote:
 
-Looks good to me:
-
-Reviewed-by: Stefan Agner <stefan@agner.ch>
-
+> This reverts commit 336fd4f5f25157e9e8bd50e898a1bbcd99eaea46.
 > 
-> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+> Please note that `strlcpy()` does *NOT* do what you think it does.
+> strlcpy() *ALWAYS* reads the full input string, regardless of the
+> 'length' parameter. That is, if the input is not zero-terminated,
+> strlcpy() will *READ* beyond input boundaries. It does this, because it
+> always returns the size it *would* copy if the target was big enough,
+> not the truncated size it actually copied.
+> 
+> The original code was perfectly fine. The hid device is
+> zero-initialized and the strncpy() functions copied up to n-1
+> characters. The result is always zero-terminated this way.
+> 
+> This is the third time someone tried to replace strncpy with strlcpy in
+> this function, and gets it wrong. I now added a comment that should at
+> least make people reconsider.
+> 
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 > ---
+>  drivers/hid/uhid.c | 13 +++++++------
+>  1 file changed, 7 insertions(+), 6 deletions(-)
 > 
-> Changes in v2:
->  - This is a new added commit. Separate commit for moving the defines out of
->    drivers/input/touchscreen/stmpe-ts.c to overlying mfd-device
-> drivers/mfd/stmpe.c
->  - Pre-fix defines with STMPE_
-> 
->  drivers/input/touchscreen/stmpe-ts.c | 34 +++++++++++-----------------
->  include/linux/mfd/stmpe.h            | 11 +++++++++
->  2 files changed, 24 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/stmpe-ts.c
-> b/drivers/input/touchscreen/stmpe-ts.c
-> index 2a78e27b4495..c5d9006588a2 100644
-> --- a/drivers/input/touchscreen/stmpe-ts.c
-> +++ b/drivers/input/touchscreen/stmpe-ts.c
-> @@ -49,17 +49,6 @@
->  
->  #define STMPE_IRQ_TOUCH_DET		0
->  
-> -#define SAMPLE_TIME(x)			((x & 0xf) << 4)
-> -#define MOD_12B(x)			((x & 0x1) << 3)
-> -#define REF_SEL(x)			((x & 0x1) << 1)
-> -#define ADC_FREQ(x)			(x & 0x3)
-> -#define AVE_CTRL(x)			((x & 0x3) << 6)
-> -#define DET_DELAY(x)			((x & 0x7) << 3)
-> -#define SETTLING(x)			(x & 0x7)
-> -#define FRACTION_Z(x)			(x & 0x7)
-> -#define I_DRIVE(x)			(x & 0x1)
-> -#define OP_MODE(x)			((x & 0x7) << 1)
-> -
->  #define STMPE_TS_NAME			"stmpe-ts"
->  #define XY_MASK				0xfff
->  
-> @@ -213,9 +202,10 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
->  		return ret;
+> diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+> index fefedc0b4dc6..0dfdd0ac7120 100644
+> --- a/drivers/hid/uhid.c
+> +++ b/drivers/hid/uhid.c
+> @@ -496,12 +496,13 @@ static int uhid_dev_create2(struct uhid_device *uhid,
+>  		goto err_free;
 >  	}
 >  
-> -	adc_ctrl1 = SAMPLE_TIME(ts->sample_time) | MOD_12B(ts->mod_12b) |
-> -		REF_SEL(ts->ref_sel);
-> -	adc_ctrl1_mask = SAMPLE_TIME(0xff) | MOD_12B(0xff) | REF_SEL(0xff);
-> +	adc_ctrl1 = STMPE_SAMPLE_TIME(ts->sample_time) |
-> +		    STMPE_MOD_12B(ts->mod_12b) | STMPE_REF_SEL(ts->ref_sel);
-> +	adc_ctrl1_mask = STMPE_SAMPLE_TIME(0xff) | STMPE_MOD_12B(0xff) |
-> +			 STMPE_REF_SEL(0xff);
->  
->  	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL1,
->  			adc_ctrl1_mask, adc_ctrl1);
-> @@ -225,15 +215,17 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
->  	}
->  
->  	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL2,
-> -			ADC_FREQ(0xff), ADC_FREQ(ts->adc_freq));
-> +			STMPE_ADC_FREQ(0xff), STMPE_ADC_FREQ(ts->adc_freq));
->  	if (ret) {
->  		dev_err(dev, "Could not setup ADC\n");
->  		return ret;
->  	}
->  
-> -	tsc_cfg = AVE_CTRL(ts->ave_ctrl) | DET_DELAY(ts->touch_det_delay) |
-> -			SETTLING(ts->settling);
-> -	tsc_cfg_mask = AVE_CTRL(0xff) | DET_DELAY(0xff) | SETTLING(0xff);
-> +	tsc_cfg = STMPE_AVE_CTRL(ts->ave_ctrl) |
-> +		  STMPE_DET_DELAY(ts->touch_det_delay) |
-> +		  STMPE_SETTLING(ts->settling);
-> +	tsc_cfg_mask = STMPE_AVE_CTRL(0xff) | STMPE_DET_DELAY(0xff) |
-> +		       STMPE_SETTLING(0xff);
->  
->  	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_CFG, tsc_cfg_mask, tsc_cfg);
->  	if (ret) {
-> @@ -242,14 +234,14 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
->  	}
->  
->  	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_FRACTION_Z,
-> -			FRACTION_Z(0xff), FRACTION_Z(ts->fraction_z));
-> +			STMPE_FRACTION_Z(0xff), STMPE_FRACTION_Z(ts->fraction_z));
->  	if (ret) {
->  		dev_err(dev, "Could not config touch\n");
->  		return ret;
->  	}
->  
->  	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_I_DRIVE,
-> -			I_DRIVE(0xff), I_DRIVE(ts->i_drive));
-> +			STMPE_I_DRIVE(0xff), STMPE_I_DRIVE(ts->i_drive));
->  	if (ret) {
->  		dev_err(dev, "Could not config touch\n");
->  		return ret;
-> @@ -263,7 +255,7 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
->  	}
->  
->  	ret = stmpe_set_bits(stmpe, STMPE_REG_TSC_CTRL,
-> -			OP_MODE(0xff), OP_MODE(OP_MOD_XYZ));
-> +			STMPE_OP_MODE(0xff), STMPE_OP_MODE(OP_MOD_XYZ));
->  	if (ret) {
->  		dev_err(dev, "Could not set mode\n");
->  		return ret;
-> diff --git a/include/linux/mfd/stmpe.h b/include/linux/mfd/stmpe.h
-> index 4a827af17e59..c0353f6431f9 100644
-> --- a/include/linux/mfd/stmpe.h
-> +++ b/include/linux/mfd/stmpe.h
-> @@ -10,6 +10,17 @@
->  
->  #include <linux/mutex.h>
->  
-> +#define STMPE_SAMPLE_TIME(x)	((x & 0xf) << 4)
-> +#define STMPE_MOD_12B(x)	((x & 0x1) << 3)
-> +#define STMPE_REF_SEL(x)	((x & 0x1) << 1)
-> +#define STMPE_ADC_FREQ(x)	(x & 0x3)
-> +#define STMPE_AVE_CTRL(x)	((x & 0x3) << 6)
-> +#define STMPE_DET_DELAY(x)	((x & 0x7) << 3)
-> +#define STMPE_SETTLING(x)	(x & 0x7)
-> +#define STMPE_FRACTION_Z(x)	(x & 0x7)
-> +#define STMPE_I_DRIVE(x)	(x & 0x1)
-> +#define STMPE_OP_MODE(x)	((x & 0x7) << 1)
-> +
->  struct device;
->  struct regulator;
+> -	len = min(sizeof(hid->name), sizeof(ev->u.create2.name));
+> -	strlcpy(hid->name, ev->u.create2.name, len);
+> -	len = min(sizeof(hid->phys), sizeof(ev->u.create2.phys));
+> -	strlcpy(hid->phys, ev->u.create2.phys, len);
+> -	len = min(sizeof(hid->uniq), sizeof(ev->u.create2.uniq));
+> -	strlcpy(hid->uniq, ev->u.create2.uniq, len);
+> +	/* @hid is zero-initialized, strncpy() is correct, strlcpy() not */
+> +	len = min(sizeof(hid->name), sizeof(ev->u.create2.name)) - 1;
+> +	strncpy(hid->name, ev->u.create2.name, len);
+> +	len = min(sizeof(hid->phys), sizeof(ev->u.create2.phys)) - 1;
+> +	strncpy(hid->phys, ev->u.create2.phys, len);
+> +	len = min(sizeof(hid->uniq), sizeof(ev->u.create2.uniq)) - 1;
+> +	strncpy(hid->uniq, ev->u.create2.uniq, len);
+
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

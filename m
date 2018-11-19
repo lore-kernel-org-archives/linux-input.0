@@ -1,31 +1,51 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [LKP] dad4f140ed [ 7.709376] WARNING:suspicious_RCU_usage
-Date: Sun, 18 Nov 2018 17:19:04 -0800
-Message-ID: <20181119011904.GE7861@bombadil.infradead.org>
-References: <20181119010820.GM18977@shao2-debian>
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH] dt-bindings: ti-tsc-adc: Add new compatible for AM654 SoCs
+Date: Mon, 19 Nov 2018 15:15:09 +0530
+Message-ID: <20181119094509.22542-1-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181119010820.GM18977@shao2-debian>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kernel test robot <rong.a.chen@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, LKP <lkp@01.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Lee Jones <lee.jones@linaro.org>, Vignesh R <vigneshr@ti.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Nov 19, 2018 at 09:08:20AM +0800, kernel test robot wrote:
-> Greetings,
-> 
-> 0day kernel testing robot got the below dmesg and the first bad commit is
+AM654 SoCs has ADC IP which is similar to AM335x. Add new compatible to
+handle AM654 SoCs. Also, it seems that existing compatible strings used
+in the kernel DTs were never documented. So, document them now.
 
-Umm.  I don't see a 'suspicious RCU usage' message in here.  I see a
-lot of vmalloc warnings ... ?
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+---
+ .../devicetree/bindings/input/touchscreen/ti-tsc-adc.txt  | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-> [    7.699777] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6000c0(GFP_KERNEL), nodemask=(null)
-> [    7.724561] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6000c0(GFP_KERNEL), nodemask=(null)
-> [    7.737925] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6080c0(GFP_KERNEL|__GFP_ZERO), nodemask=(null)
-> [    7.750283] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6080c0(GFP_KERNEL|__GFP_ZERO), nodemask=(null)
-> [    7.777903] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6000c0(GFP_KERNEL), nodemask=(null)
-> [    7.787175] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6000c0(GFP_KERNEL), nodemask=(null)
-> [    7.796181] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6080c0(GFP_KERNEL|__GFP_ZERO), nodemask=(null)
-> [    7.804841] swapper: vmalloc: allocation failure: 18446744073709551615 bytes, mode:0x6080c0(GFP_KERNEL|__GFP_ZERO), nodemask=(null)
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+index b1163bf97146..aad5e34965eb 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+@@ -2,7 +2,12 @@
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ Required properties:
++- mfd
++	compatible: Should be
++		"ti,am3359-tscadc" for AM335x/AM437x SoCs
++		"ti,am654-tscadc", "ti,am3359-tscadc" for AM654 SoCs
+ - child "tsc"
++	compatible: Should be "ti,am3359-tsc".
+ 	ti,wires: Wires refer to application modes i.e. 4/5/8 wire touchscreen
+ 		  support on the platform.
+ 	ti,x-plate-resistance: X plate resistance
+@@ -25,6 +30,9 @@ Required properties:
+ 			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+ 			XP  = 0, XN = 1, YP = 2, YN = 3.
+ - child "adc"
++	compatible: Should be
++		    "ti,am3359-adc" for AM335x/AM437x SoCs
++		    "ti,am654-adc", "ti,am3359-adc" for AM654 SoCs
+ 	ti,adc-channels: List of analog inputs available for ADC.
+ 			 AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+ 
+-- 
+2.19.1

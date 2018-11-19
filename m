@@ -1,68 +1,109 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: i2c-hid: Disable runtime PM for LG touchscreen
-Date: Mon, 19 Nov 2018 16:28:25 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1811191628190.21108@cbobk.fhfr.pm>
-References: <20181114072457.19793-1-kai.heng.feng@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] ACPI / platform: Add SMB0001 HID to forbidden_id_list
+Date: Mon, 19 Nov 2018 19:06:01 +0100
+Message-ID: <20181119180601.962-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181114072457.19793-1-kai.heng.feng@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Lukas Kahnert <openproggerfreak@gmail.com>, Marc <suaefar@googlemail.com>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 14 Nov 2018, Kai-Heng Feng wrote:
+Many HP AMD based laptops contain an SMB0001 device like this:
 
-> LG touchscreen (1fd2:8001) stops working after reboot:
-> [ 4.859153] i2c_hid i2c-SAPS2101:00: i2c_hid_get_input: incomplete report (64/66)
-> [ 4.936070] i2c_hid i2c-SAPS2101:00: i2c_hid_get_input: incomplete report (64/66)
-> [ 9.948224] i2c_hid i2c-SAPS2101:00: failed to reset device.
-> 
-> The device in question stops working after receives SLEEP, ON, SLEEP
-> commands in a short period. The scenario is like this:
-> - Once the desktop session closes, it also closed the hid device, so the
-> device gets runtime suspended and receives a SLEEP command.
-> - Before calling shutdown callback, it gets runtime resumed and received
-> an ON command.
-> - In the shutdown callback, it receives another SLEEP command.
-> 
-> I failed to find a reliable interval between ON/SLEEP commands that can
-> make it work, so let's simply disable runtime PM for the device.
-> 
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> ---
->  drivers/hid/hid-ids.h              | 1 +
->  drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
->  2 files changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index c0d668944dbe..bd636f529fad 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -707,6 +707,7 @@
->  #define USB_VENDOR_ID_LG		0x1fd2
->  #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
->  #define USB_DEVICE_ID_LG_MELFAS_MT	0x6007
-> +#define I2C_DEVICE_ID_LG_8001		0x8001
->  
->  #define USB_VENDOR_ID_LOGITECH		0x046d
->  #define USB_DEVICE_ID_LOGITECH_AUDIOHUB 0x0a0e
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-> index 3cde7c1b9c33..8555ce7e737b 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> @@ -177,6 +177,8 @@ static const struct i2c_hid_quirks {
->  		I2C_HID_QUIRK_NO_RUNTIME_PM },
->  	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_4B33,
->  		I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
-> +	{ USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
-> +		I2C_HID_QUIRK_NO_RUNTIME_PM },
->  	{ 0, 0 }
->  };
+Device (SMBD)
+{
+    Name (_HID, "SMB0001")  // _HID: Hardware ID
+    Name (_CRS, ResourceTemplate ()  // _CRS: Current Resource Settings
+    {
+        IO (Decode16,
+            0x0B20,             // Range Minimum
+            0x0B20,             // Range Maximum
+            0x20,               // Alignment
+            0x20,               // Length
+            )
+        IRQ (Level, ActiveLow, Shared, )
+            {7}
+    })
+}
 
-Applied.
+The legacy style IRQ resource here causes acpi_dev_get_irqresource() to
+be called with legacy=true and this message to show in dmesg:
+ACPI: IRQ 7 override to edge, high
 
+This causes issues when later on the AMD0030 GPIO device gets enumerated:
+
+Device (GPIO)
+{
+    Name (_HID, "AMDI0030")  // _HID: Hardware ID
+    Name (_CID, "AMDI0030")  // _CID: Compatible ID
+    Name (_UID, Zero)  // _UID: Unique ID
+    Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+    {
+	Name (RBUF, ResourceTemplate ()
+	{
+	    Interrupt (ResourceConsumer, Level, ActiveLow, Shared, ,, )
+	    {
+		0x00000007,
+	    }
+	    Memory32Fixed (ReadWrite,
+		0xFED81500,         // Address Base
+		0x00000400,         // Address Length
+		)
+	})
+	Return (RBUF) /* \_SB_.GPIO._CRS.RBUF */
+    }
+}
+
+Now acpi_dev_get_irqresource() gets called with legacy=false, but because
+of the earlier override of the trigger-type acpi_register_gsi() returns
+-EBUSY (because we try to register the same interrupt with a different
+trigger-type) and we end up setting IORESOURCE_DISABLED in the flags.
+
+The setting of IORESOURCE_DISABLED causes platform_get_irq() to call
+acpi_irq_get() which is not implemented on x86 and returns -EINVAL.
+resulting in the following in dmesg:
+
+amd_gpio AMDI0030:00: Failed to get gpio IRQ: -22
+amd_gpio: probe of AMDI0030:00 failed with error -22
+
+The SMB0001 is a "virtual" device in the sense that the only way the OS
+interacts with it is through calling a couple of methods to do SMBus
+transfers. As such it is weird that it has IO and IRQ resources at all,
+because the driver for it is not expected to ever access the hardware
+directly.
+
+The Linux driver for the SMB0001 device directly binds to the acpi_device
+through the acpi_bus, so we do not need to instantiate a platform_device
+for this ACPI device. This commit adds the SMB0001 HID to the
+forbidden_id_list, avoiding the instantiating of a platform_device for it.
+Not instantiating a platform_device means we will no longer call
+acpi_dev_get_irqresource() for the legacy IRQ resource fixing the probe of
+the AMDI0030 device failing.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1644013
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=198715
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199523
+Reported-by: Lukas Kahnert <openproggerfreak@gmail.com>
+Tested-by: Marc <suaefar@googlemail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/acpi/acpi_platform.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/acpi/acpi_platform.c b/drivers/acpi/acpi_platform.c
+index eaa60c94205a..1f32caa87686 100644
+--- a/drivers/acpi/acpi_platform.c
++++ b/drivers/acpi/acpi_platform.c
+@@ -30,6 +30,7 @@ static const struct acpi_device_id forbidden_id_list[] = {
+ 	{"PNP0200",  0},	/* AT DMA Controller */
+ 	{"ACPI0009", 0},	/* IOxAPIC */
+ 	{"ACPI000A", 0},	/* IOAPIC */
++	{"SMB0001",  0},	/* ACPI SMBUS virtual device */
+ 	{"", 0},
+ };
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.19.1

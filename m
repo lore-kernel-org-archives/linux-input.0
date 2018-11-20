@@ -1,109 +1,143 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] ACPI / platform: Add SMB0001 HID to forbidden_id_list
-Date: Mon, 19 Nov 2018 19:06:01 +0100
-Message-ID: <20181119180601.962-1-hdegoede@redhat.com>
+From: "liujian (CE)" <liujian56@huawei.com>
+Subject: RE: [PATCH] driver: input: fix UBSAN warning in
+ input_defuzz_abs_event
+Date: Tue, 20 Nov 2018 01:45:10 +0000
+Message-ID: <4F88C5DDA1E80143B232E89585ACE27D024F8FC9@DGGEMM528-MBX.china.huawei.com>
+References: <1541166531-248528-1-git-send-email-liujian56@huawei.com>
+ <20181112194853.GH192687@dtor-ws>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Lukas Kahnert <openproggerfreak@gmail.com>, Marc <suaefar@googlemail.com>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181112194853.GH192687@dtor-ws>
+Content-Language: zh-CN
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Many HP AMD based laptops contain an SMB0001 device like this:
 
-Device (SMBD)
-{
-    Name (_HID, "SMB0001")  // _HID: Hardware ID
-    Name (_CRS, ResourceTemplate ()  // _CRS: Current Resource Settings
-    {
-        IO (Decode16,
-            0x0B20,             // Range Minimum
-            0x0B20,             // Range Maximum
-            0x20,               // Alignment
-            0x20,               // Length
-            )
-        IRQ (Level, ActiveLow, Shared, )
-            {7}
-    })
-}
 
-The legacy style IRQ resource here causes acpi_dev_get_irqresource() to
-be called with legacy=true and this message to show in dmesg:
-ACPI: IRQ 7 override to edge, high
 
-This causes issues when later on the AMD0030 GPIO device gets enumerated:
+Best Regards,
+liujian
 
-Device (GPIO)
-{
-    Name (_HID, "AMDI0030")  // _HID: Hardware ID
-    Name (_CID, "AMDI0030")  // _CID: Compatible ID
-    Name (_UID, Zero)  // _UID: Unique ID
-    Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-    {
-	Name (RBUF, ResourceTemplate ()
-	{
-	    Interrupt (ResourceConsumer, Level, ActiveLow, Shared, ,, )
-	    {
-		0x00000007,
-	    }
-	    Memory32Fixed (ReadWrite,
-		0xFED81500,         // Address Base
-		0x00000400,         // Address Length
-		)
-	})
-	Return (RBUF) /* \_SB_.GPIO._CRS.RBUF */
-    }
-}
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+> Sent: Tuesday, November 13, 2018 3:49 AM
+> To: liujian (CE) <liujian56@huawei.com>
+> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] driver: input: fix UBSAN warning in
+> input_defuzz_abs_event
+> 
+> Hi,
+> 
+> On Fri, Nov 02, 2018 at 09:48:51PM +0800, liujian wrote:
+> > syzkaller triggered a UBCAN warning:
+> >
+> > [  196.188950] UBSAN: Undefined behaviour in
+> > drivers/input/input.c:62:23 [  196.188958] signed integer overflow:
+> > [  196.188964] -2147483647 - 104 cannot be represented in type 'int [2]'
+> > [  196.188973] CPU: 7 PID: 4763 Comm: syz-executor Not tainted
+> > 4.19.0-514.55.6.9.x86_64+ #7 [  196.188977] Hardware name: Bochs
+> > Bochs, BIOS Bochs 01/01/2011 [  196.188979] Call Trace:
+> > [  196.189001]  dump_stack+0x91/0xeb
+> > [  196.189014]  ubsan_epilogue+0x9/0x7c [  196.189020]
+> > handle_overflow+0x1d7/0x22c [  196.189028]  ?
+> > __ubsan_handle_negate_overflow+0x18f/0x18f
+> > [  196.189038]  ? __mutex_lock+0x213/0x13f0 [  196.189053]  ?
+> > drop_futex_key_refs+0xa0/0xa0 [  196.189070]  ?
+> > __might_fault+0xef/0x1b0 [  196.189096]
+> > input_handle_event+0xe1b/0x1290 [  196.189108]
+> > input_inject_event+0x1d7/0x27e [  196.189119]
+> evdev_write+0x2cf/0x3f0
+> > [  196.189129]  ? evdev_pass_values+0xd40/0xd40 [  196.189157]  ?
+> > mark_held_locks+0x160/0x160 [  196.189171]  ?
+> __vfs_write+0xe0/0x6c0 [
+> > 196.189175]  ? evdev_pass_values+0xd40/0xd40 [  196.189179]
+> > __vfs_write+0xe0/0x6c0 [  196.189186]  ? kernel_read+0x130/0x130 [
+> > 196.189204]  ? _cond_resched+0x15/0x30 [  196.189214]  ?
+> > __inode_security_revalidate+0xb8/0xe0
+> > [  196.189222]  ? selinux_file_permission+0x354/0x430
+> > [  196.189233]  vfs_write+0x160/0x440
+> > [  196.189242]  ksys_write+0xc1/0x190
+> > [  196.189248]  ? __ia32_sys_read+0xb0/0xb0 [  196.189259]  ?
+> > trace_hardirqs_on_thunk+0x1a/0x1c [  196.189267]  ?
+> > do_syscall_64+0x22/0x4a0 [  196.189276]  do_syscall_64+0xa5/0x4a0 [
+> > 196.189287]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> > [  196.189293] RIP: 0033:0x44e7c9
+> > [  196.189299] Code: fc ff 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f
+> > 00
+> >
+> > the syzkaller reproduce script(but can't reproduce it every time):
+> >
+> > r0 = syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00',
+> > 0x2,
+> > 0x1)
+> > write$binfmt_elf64(r0, &(0x7f0000000240)={{0x7f, 0x45, 0x4c, 0x46,
+> > 0x40, 0x2, 0x2, 0xffffffff, 0xffffffffffff374c, 0x3, 0x0, 0x80000001,
+> > 0x103, 0x40, 0x22e, 0x26, 0x1, 0x38, 0x2, 0xa23, 0x1, 0x2},
+> > [{0x6474e557, 0x5, 0x6, 0x2, 0x9, 0x9, 0x6c3, 0x1ff}], "", [[], [],
+> > [], []]}, 0x478) ioctl$EVIOCGSW(0xffffffffffffffff, 0x8040451b,
+> > &(0x7f0000000040)=""/7)
+> > syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
+> > 0x1)
+> > r1 = syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00',
+> > 0x2,
+> > 0x1)
+> > openat$smack_task_current(0xffffffffffffff9c,
+> > &(0x7f0000000040)='/proc/self/attr/current\x00', 0x2, 0x0)
+> > ioctl$EVIOCSABS0(r1, 0x401845c0, &(0x7f0000000000)={0x4, 0x10000,
+> 0x4,
+> > 0xd1, 0x81, 0x3})
+> > eventfd(0x1ff)
+> > syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
+> > 0x200)
+> > syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
+> > 0x1) syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00',
+> > 0x2, 0x1)
+> > syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00', 0x2,
+> > 0x1) syz_open_dev$evdev(&(0x7f0000000100)='/dev/input/event#\x00',
+> > 0x2, 0x1)
+> >
+> > Typecast int to long to fix the issue.
+> 
+> Does this fix 32-bit platforms where long equals int? BTW, I'd prefer if we did
+> not have to do 64 bit arithmetic on 32 bit arches here, if possible.
+Hi Dmitry,
+Thanks for your review,  we can typecast it to long long?  but if do not 64 bit arithmetic on 32-bit platforms, how about this?
+We can not care about the overflow of addition/subtraction, but we should care about the return value.?
 
-Now acpi_dev_get_irqresource() gets called with legacy=false, but because
-of the earlier override of the trigger-type acpi_register_gsi() returns
--EBUSY (because we try to register the same interrupt with a different
-trigger-type) and we end up setting IORESOURCE_DISABLED in the flags.
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 3304aaa..954244f 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -59,14 +59,17 @@ static inline int is_event_supported(unsigned int code,
+ static int input_defuzz_abs_event(int value, int old_val, int fuzz)
+ {
+        if (fuzz) {
+-               if (value > old_val - fuzz / 2 && value < old_val + fuzz / 2)
++               if (value > (long)((unsigned long)old_val - (unsigned long)fuzz / 2) &&
++                               value < (long)((unsigned long)old_val + (unsigned long)fuzz / 2))
+                        return old_val;
 
-The setting of IORESOURCE_DISABLED causes platform_get_irq() to call
-acpi_irq_get() which is not implemented on x86 and returns -EINVAL.
-resulting in the following in dmesg:
+-               if (value > old_val - fuzz && value < old_val + fuzz)
+-                       return (old_val * 3 + value) / 4;
++               if (value > (long)((unsigned long)old_val - (unsigned long)fuzz) &&
++                               value < (long)((unsigned long)old_val + (unsigned long)fuzz))
++                       return ((long long)old_val * 3 + value) / 4;
 
-amd_gpio AMDI0030:00: Failed to get gpio IRQ: -22
-amd_gpio: probe of AMDI0030:00 failed with error -22
+-               if (value > old_val - fuzz * 2 && value < old_val + fuzz * 2)
+-                       return (old_val + value) / 2;
++               if (value > (long)((unsigned long)old_val - (unsigned long)fuzz * 2) &&
++                               value < (long)((unsigned long)old_val + (unsigned long)fuzz * 2))
++                       return ((long long)old_val + value) / 2;
+        }
 
-The SMB0001 is a "virtual" device in the sense that the only way the OS
-interacts with it is through calling a couple of methods to do SMBus
-transfers. As such it is weird that it has IO and IRQ resources at all,
-because the driver for it is not expected to ever access the hardware
-directly.
+        return value;
 
-The Linux driver for the SMB0001 device directly binds to the acpi_device
-through the acpi_bus, so we do not need to instantiate a platform_device
-for this ACPI device. This commit adds the SMB0001 HID to the
-forbidden_id_list, avoiding the instantiating of a platform_device for it.
-Not instantiating a platform_device means we will no longer call
-acpi_dev_get_irqresource() for the legacy IRQ resource fixing the probe of
-the AMDI0030 device failing.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1644013
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=198715
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=199523
-Reported-by: Lukas Kahnert <openproggerfreak@gmail.com>
-Tested-by: Marc <suaefar@googlemail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/acpi/acpi_platform.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/acpi/acpi_platform.c b/drivers/acpi/acpi_platform.c
-index eaa60c94205a..1f32caa87686 100644
---- a/drivers/acpi/acpi_platform.c
-+++ b/drivers/acpi/acpi_platform.c
-@@ -30,6 +30,7 @@ static const struct acpi_device_id forbidden_id_list[] = {
- 	{"PNP0200",  0},	/* AT DMA Controller */
- 	{"ACPI0009", 0},	/* IOxAPIC */
- 	{"ACPI000A", 0},	/* IOAPIC */
-+	{"SMB0001",  0},	/* ACPI SMBUS virtual device */
- 	{"", 0},
- };
- 
--- 
-2.19.1
+> Thanks.
+> 
+> --
+> Dmitry

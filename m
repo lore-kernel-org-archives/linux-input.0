@@ -1,55 +1,80 @@
 From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH] Input: sparcspkr add of_node_put()
-Date: Wed, 21 Nov 2018 08:28:06 -0500
-Message-ID: <20181121132806.22521-1-tiny.windzz@gmail.com>
+Subject: [PATCH] Input: i8042 add of_node_put()
+Date: Wed, 21 Nov 2018 09:35:13 -0500
+Message-ID: <20181121143513.22961-1-tiny.windzz@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-of_find_node_by_path() acquires a reference to the node
-returned by it and that reference needs to be dropped by its caller.
-bl_idle_init() doesn't do that, so fix it.
+use of_node_put() to release the refcount.
 
 Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
 ---
- drivers/input/misc/sparcspkr.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/input/serio/i8042-sparcio.h | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcspkr.c
-index 4a5afc7fe96e..dc121fbbd3e1 100644
---- a/drivers/input/misc/sparcspkr.c
-+++ b/drivers/input/misc/sparcspkr.c
-@@ -205,11 +205,11 @@ static int bbc_beep_probe(struct platform_device *op)
- 	info = &state->u.bbc;
- 	info->clock_freq = of_getintprop_default(dp, "clock-frequency", 0);
- 	if (!info->clock_freq)
--		goto out_free;
-+		goto out_put_node;
+diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
+index 796289846204..5495bc035518 100644
+--- a/drivers/input/serio/i8042-sparcio.h
++++ b/drivers/input/serio/i8042-sparcio.h
+@@ -108,18 +108,21 @@ static struct platform_driver sparc_i8042_driver = {
  
- 	info->regs = of_ioremap(&op->resource[0], 0, 6, "bbc beep");
- 	if (!info->regs)
--		goto out_free;
-+		goto out_put_node;
+ static int __init i8042_platform_init(void)
+ {
++	int rc;
+ 	struct device_node *root = of_find_node_by_path("/");
  
- 	platform_set_drvdata(op, state);
+ 	if (!strcmp(root->name, "SUNW,JavaStation-1")) {
+ 		/* Hardcoded values for MrCoffee.  */
+ 		i8042_kbd_irq = i8042_aux_irq = 13 | 0x20;
+ 		kbd_iobase = ioremap(0x71300060, 8);
+-		if (!kbd_iobase)
+-			return -ENODEV;
++		if (!kbd_iobase){
++			rc = -ENODEV;
++			goto out;
++		}
+ 	} else {
+-		int err = platform_driver_register(&sparc_i8042_driver);
+-		if (err)
+-			return err;
++		rc = platform_driver_register(&sparc_i8042_driver);
++		if (rc)
++			goto out;
  
-@@ -217,11 +217,14 @@ static int bbc_beep_probe(struct platform_device *op)
- 	if (err)
- 		goto out_clear_drvdata;
+ 		if (i8042_kbd_irq == -1 ||
+ 		    i8042_aux_irq == -1) {
+@@ -127,13 +130,18 @@ static int __init i8042_platform_init(void)
+ 				of_iounmap(kbd_res, kbd_iobase, 8);
+ 				kbd_iobase = (void __iomem *) NULL;
+ 			}
+-			return -ENODEV;
++			rc = -ENODEV;
++			goto out;
+ 		}
+ 	}
  
-+	of_node_put(dp);
+ 	i8042_reset = I8042_RESET_ALWAYS;
+ 
+-	return 0;
++	rc = 0;
++out:
++	of_node_put(root);
 +
- 	return 0;
++	return rc;
+ }
  
- out_clear_drvdata:
- 	of_iounmap(&op->resource[0], info->regs, 6);
--
-+out_put_node:
-+	of_node_put(dp);
- out_free:
- 	kfree(state);
- out_err:
+ static inline void i8042_platform_exit(void)
+@@ -142,6 +150,8 @@ static inline void i8042_platform_exit(void)
+ 
+ 	if (strcmp(root->name, "SUNW,JavaStation-1"))
+ 		platform_driver_unregister(&sparc_i8042_driver);
++
++	of_node_put(root);
+ }
+ 
+ #else /* !CONFIG_PCI */
 -- 
 2.17.0

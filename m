@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/7] Revert "HID: input: simplify/fix high-res scroll event handling"
-Date: Wed, 21 Nov 2018 16:27:06 +0100
-Message-ID: <20181121152712.6770-2-benjamin.tissoires@redhat.com>
+Subject: [PATCH 2/7] Revert "HID: logitech: fix a used uninitialized GCC warning"
+Date: Wed, 21 Nov 2018 16:27:07 +0100
+Message-ID: <20181121152712.6770-3-benjamin.tissoires@redhat.com>
 References: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,72 +12,49 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This reverts commit 044ee890286153a1aefb40cb8b6659921aecb38b.
+This reverts commit 5fe2ccbef9d7aecf5c4402c753444f1a12096cfd.
 
 It turns out the current API is not that compatible with
 some Microsoft mice, so better start again from scratch.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-input.c | 43 +++++++++++++++++++++--------------------
- 1 file changed, 22 insertions(+), 21 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 44ea8e7c71a9..28ee2ed88a1a 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1858,30 +1858,31 @@ EXPORT_SYMBOL_GPL(hidinput_disconnect);
- void hid_scroll_counter_handle_scroll(struct hid_scroll_counter *counter,
- 				      int hi_res_value)
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index f01280898b24..5f0c080059c6 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1231,6 +1231,7 @@ static int hidpp_hrw_get_wheel_capability(struct hidpp_device *hidpp,
+ 	*multiplier = response.fap.params[0];
+ 	return 0;
+ return_default:
++	*multiplier = 8;
+ 	hid_warn(hidpp->hid_dev,
+ 		 "Couldn't get wheel multiplier (error %d), assuming %d.\n",
+ 		 ret, *multiplier);
+@@ -2695,7 +2696,7 @@ static int hi_res_scroll_look_up_microns(__u32 product_id)
+ static int hi_res_scroll_enable(struct hidpp_device *hidpp)
  {
--	int low_res_value, remainder, multiplier;
-+	int low_res_scroll_amount;
-+	/* Some wheels will rest 7/8ths of a notch from the previous notch
-+	 * after slow movement, so we want the threshold for low-res events to
-+	 * be in the middle of the notches (e.g. after 4/8ths) as opposed to on
-+	 * the notches themselves (8/8ths).
-+	 */
-+	int threshold = counter->resolution_multiplier / 2;
+ 	int ret;
+-	u8 multiplier = 8;
++	u8 multiplier;
  
- 	input_report_rel(counter->dev, REL_WHEEL_HI_RES,
- 			 hi_res_value * counter->microns_per_hi_res_unit);
- 
--	/*
--	 * Update the low-res remainder with the high-res value,
--	 * but reset if the direction has changed.
--	 */
--	remainder = counter->remainder;
--	if ((remainder ^ hi_res_value) < 0)
--		remainder = 0;
--	remainder += hi_res_value;
+ 	if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2121) {
+ 		ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
+@@ -2703,9 +2704,10 @@ static int hi_res_scroll_enable(struct hidpp_device *hidpp)
+ 	} else if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_X2120) {
+ 		ret = hidpp_hrs_set_highres_scrolling_mode(hidpp, true,
+ 							   &multiplier);
+-	} else /* if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_1P0) */
++	} else /* if (hidpp->quirks & HIDPP_QUIRK_HI_RES_SCROLL_1P0) */ {
+ 		ret = hidpp10_enable_scrolling_acceleration(hidpp);
 -
--	/*
--	 * Then just use the resolution multiplier to see if
--	 * we should send a low-res (aka regular wheel) event.
--	 */
--	multiplier = counter->resolution_multiplier;
--	low_res_value = remainder / multiplier;
--	remainder -= low_res_value * multiplier;
--	counter->remainder = remainder;
--
--	if (low_res_value)
--		input_report_rel(counter->dev, REL_WHEEL, low_res_value);
-+	counter->remainder += hi_res_value;
-+	if (abs(counter->remainder) >= threshold) {
-+		/* Add (or subtract) 1 because we want to trigger when the wheel
-+		 * is half-way to the next notch (i.e. scroll 1 notch after a
-+		 * 1/2 notch movement, 2 notches after a 1 1/2 notch movement,
-+		 * etc.).
-+		 */
-+		low_res_scroll_amount =
-+			counter->remainder / counter->resolution_multiplier
-+			+ (hi_res_value > 0 ? 1 : -1);
-+		input_report_rel(counter->dev, REL_WHEEL,
-+				 low_res_scroll_amount);
-+		counter->remainder -=
-+			low_res_scroll_amount * counter->resolution_multiplier;
++		multiplier = 8;
 +	}
- }
- EXPORT_SYMBOL_GPL(hid_scroll_counter_handle_scroll);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.19.1

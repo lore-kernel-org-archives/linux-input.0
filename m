@@ -1,80 +1,56 @@
-From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH] Input: i8042 add of_node_put()
-Date: Wed, 21 Nov 2018 09:35:13 -0500
-Message-ID: <20181121143513.22961-1-tiny.windzz@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/7] HID: revert the Logitech High Resolution wheel support
+Date: Wed, 21 Nov 2018 16:27:05 +0100
+Message-ID: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, torvalds@linux-foundation.org
+Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-use of_node_put() to release the refcount.
+It turns out that the implementation of the high resolution support of
+Logitech wheels is rather incompatible with the mice from Microsoft.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
----
- drivers/input/serio/i8042-sparcio.h | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+We had a lengthy discussion off-list and the summary is quoted in 7/7.
 
-diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
-index 796289846204..5495bc035518 100644
---- a/drivers/input/serio/i8042-sparcio.h
-+++ b/drivers/input/serio/i8042-sparcio.h
-@@ -108,18 +108,21 @@ static struct platform_driver sparc_i8042_driver = {
- 
- static int __init i8042_platform_init(void)
- {
-+	int rc;
- 	struct device_node *root = of_find_node_by_path("/");
- 
- 	if (!strcmp(root->name, "SUNW,JavaStation-1")) {
- 		/* Hardcoded values for MrCoffee.  */
- 		i8042_kbd_irq = i8042_aux_irq = 13 | 0x20;
- 		kbd_iobase = ioremap(0x71300060, 8);
--		if (!kbd_iobase)
--			return -ENODEV;
-+		if (!kbd_iobase){
-+			rc = -ENODEV;
-+			goto out;
-+		}
- 	} else {
--		int err = platform_driver_register(&sparc_i8042_driver);
--		if (err)
--			return err;
-+		rc = platform_driver_register(&sparc_i8042_driver);
-+		if (rc)
-+			goto out;
- 
- 		if (i8042_kbd_irq == -1 ||
- 		    i8042_aux_irq == -1) {
-@@ -127,13 +130,18 @@ static int __init i8042_platform_init(void)
- 				of_iounmap(kbd_res, kbd_iobase, 8);
- 				kbd_iobase = (void __iomem *) NULL;
- 			}
--			return -ENODEV;
-+			rc = -ENODEV;
-+			goto out;
- 		}
- 	}
- 
- 	i8042_reset = I8042_RESET_ALWAYS;
- 
--	return 0;
-+	rc = 0;
-+out:
-+	of_node_put(root);
-+
-+	return rc;
- }
- 
- static inline void i8042_platform_exit(void)
-@@ -142,6 +150,8 @@ static inline void i8042_platform_exit(void)
- 
- 	if (strcmp(root->name, "SUNW,JavaStation-1"))
- 		platform_driver_unregister(&sparc_i8042_driver);
-+
-+	of_node_put(root);
- }
- 
- #else /* !CONFIG_PCI */
+The TL;DR, we need to revert the current series before it gets out in
+a released kernel and work on a better approach for 4.21.
+
+This patch series has informally been acked by Dmitry, Harry, Jiri, Nestor
+and Peter, but I wouldn't mind a public ack before I push this to
+the for-linus branch.
+
+Dmitry, I chose to also revert "Input: Add the `REL_WHEEL_HI_RES` event code"
+as the documentation needs to be updated.
+I would understand if you rather keep the patch that way and we just update
+the doc. This would help synchronizing the trees. So please tell me if you
+want 7/7 in the series or not (I'll reshuffle the commit message to have
+the summary from Peter).
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (7):
+  Revert "HID: input: simplify/fix high-res scroll event handling"
+  Revert "HID: logitech: fix a used uninitialized GCC warning"
+  Revert "HID: logitech: Use LDJ_DEVICE macro for existing Logitech
+    mice"
+  Revert "HID: logitech: Enable high-resolution scrolling on Logitech
+    mice"
+  Revert "HID: logitech: Add function to enable HID++ 1.0 "scrolling
+    acceleration""
+  Revert "HID: input: Create a utility class for counting scroll events"
+  Revert "Input: Add the `REL_WHEEL_HI_RES` event code"
+
+ Documentation/input/event-codes.rst    |  11 +-
+ drivers/hid/hid-input.c                |  44 ----
+ drivers/hid/hid-logitech-hidpp.c       | 309 +++----------------------
+ include/linux/hid.h                    |  28 ---
+ include/uapi/linux/input-event-codes.h |  10 -
+ 5 files changed, 28 insertions(+), 374 deletions(-)
+
 -- 
-2.17.0
+2.19.1

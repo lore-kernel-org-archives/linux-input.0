@@ -1,222 +1,30 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 7/7] Revert "Input: Add the `REL_WHEEL_HI_RES` event code"
-Date: Wed, 21 Nov 2018 16:27:12 +0100
-Message-ID: <20181121152712.6770-8-benjamin.tissoires@redhat.com>
+From: Harry Cutts <hcutts@chromium.org>
+Subject: Re: [PATCH 0/7] HID: revert the Logitech High Resolution wheel support
+Date: Wed, 21 Nov 2018 10:37:13 -0800
+Message-ID: <CA+jURctziob_scb36s-JxvD-FFrH1xn4Npd_i56g3DxxVEpZ4A@mail.gmail.com>
 References: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, torvalds@linux-foundation.org
-Cc: Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: benjamin.tissoires@redhat.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This reverts commit aaf9978c3c0291ef3beaa97610bc9c3084656a85.
+On Wed, 21 Nov 2018 at 07:27, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> The TL;DR, we need to revert the current series before it gets out in
+> a released kernel and work on a better approach for 4.21.
+>
+> This patch series has informally been acked by Dmitry, Harry, Jiri, Nestor
+> and Peter, but I wouldn't mind a public ack before I push this to
+> the for-linus branch.
 
-Quoting Peter:
+Thanks Benjamin!
 
-There is a HID feature report called "Resolution Multiplier"
-Described in the "Enhanced Wheel Support in Windows" doc and
-the "USB HID Usage Tables" page 30.
+For the series:
+Acked-by: Harry Cutts <hcutts@chromium.org>
 
-http://download.microsoft.com/download/b/d/1/bd1f7ef4-7d72-419e-bc5c-9f79ad7bb66e/wheel.docx
-https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
-
-This was new for Windows Vista, so we're only a decade behind here. I only
-accidentally found this a few days ago while debugging a stuck button on a
-Microsoft mouse.
-
-The docs above describe it like this: a wheel control by default sends
-value 1 per notch. If the resolution multiplier is active, the wheel is
-expected to send a value of $multiplier per notch (e.g. MS Sculpt mouse) or
-just send events more often, i.e. for less physical motion (e.g. MS Comfort
-mouse).
-
-For the latter, you need the right HW of course. The Sculpt mouse has
-tactile wheel clicks, so nothing really changes. The Comfort mouse has
-continuous motion with no tactile clicks. Similar to the free-wheeling
-Logitech mice but without any inertia.
-
-Note that the doc also says that Vista and onwards *always* enable this
-feature where available.
-
-An example HID definition looks like this:
-
-       Usage Page Generic Desktop (0x01)
-       Usage Resolution Multiplier (0x48)
-       Logical Minimum 0
-       Logical Maximum 1
-       Physical Minimum 1
-       Physical Maximum 16
-       Report Size 2 # in bits
-       Report Count 1
-       Feature (Data, Var, Abs)
-
-So the actual bits have values 0 or 1 and that reflects real values 1 or 16.
-We've only seen single-bits so far, so there's low-res and hi-res, but
-nothing in between.
-
-The multiplier is available for HID usages "Wheel" and "AC Pan" (horiz wheel).
-Microsoft suggests that
-
-> Vendors should ship their devices with smooth scrolling disabled and allow
-> Windows to enable it. This ensures that the device works like a regular HID
-> device on legacy operating systems that do not support smooth scrolling.
-(see the wheel doc linked above)
-
-The mice that we tested so far do reset on unplug.
-
-Device Support looks to be all (?) Microsoft mice but nothing else
-
-Not supported:
-- Logitech G500s, G303
-- Roccat Kone XTD
-- all the cheap Lenovo, HP, Dell, Logitech USB mice that come with a
-  workstation that I could find don't have it.
-- Etekcity something something
-- Razer Imperator
-
-Supported:
-- Microsoft Comfort Optical Mouse 3000 - yes, physical: 1:4
-- Microsoft Sculpt Ergonomic Mouse - yes, physical: 1:12
-- Microsoft Surface mouse - yes, physical: 1:4
-
-So again, I think this is really just available on Microsoft mice, but
-probably all decent MS mice released over the last decade.
-
-Looking at the hardware itself:
-
-- no noticeable notches in the weel
-- low-res: 18 events per 360deg rotation (click angle 20 deg)
-- high-res: 72 events per 360deg → matches multiplier of 4
-
-- I can feel the notches during wheel turns
-- low-res: 24 events per 360 deg rotation (click angle 15 deg)
-  - horiz wheel is tilt-based, continuous output value 1
-- high-res: 24 events per 360deg with value 12 → matches multiplier of 12
-  - horiz wheel output rate doubles/triples?, values is 3
-
-- It's a touch strip, not a wheel so no notches
-- high-res: events have value 4 instead of 1
-  a bit strange given that it doesn't actually have notches.
-
-Ok, why is this an issue for the current API? First, because the logitech
-multiplier used in Harry's patches looks suspiciously like the Resolution
-Multiplier so I think we should assume it's the same thing. Nestor, can you
-shed some light on that?
-
-- `REL_WHEEL` is defined as the number of notches, emulated where needed.
-- `REL_WHEEL_HI_RES` is the movement of the user's finger in microns.
-- `WM_MOUSEWHEEL` (Windows) is is a multiple of 120, defined as "the threshold
-  for action to be taken and one such action"
-  https://docs.microsoft.com/en-us/windows/desktop/inputdev/wm-mousewheel
-
-If the multiplier is set to M, this means we need an accumulated value of M
-until we can claim there was a wheel click. So after enabling the multiplier
-and setting it to the maximum (like Windows):
-- M units are 15deg rotation → 1 unit is 2620/M micron (see below). This is
-  the `REL_WHEEL_HI_RES` value.
-  - wheel diameter 20mm: 15 deg rotation is 2.62mm, 2620 micron (pi * 20mm /
-    (360deg/15deg))
-- For every M units accumulated, send one `REL_WHEEL` event
-
-The problem here is that we've now hardcoded 20mm/15 deg into the kernel and
-we have no way of getting the size of the wheel or the click angle into the
-kernel.
-
-In userspace we now have to undo the kernel's calculation. If our click angle
-is e.g. 20 degree we have to undo the (lossy) calculation from the kernel and
-calculate the correct angle instead. This also means the 15 is a hardcoded
-option forever and cannot be changed.
-
-In hid-logitech-hidpp.c, the microns per unit is hardcoded per device.
-Harry, did you measure those by hand? We'd need to update the kernel for
-every device and there are 10 years worth of devices from MS alone.
-
-The multiplier default is 8 which is in the right ballpark, so I'm pretty
-sure this is the same as the Resolution Multiplier, just in HID++ lingo. And
-given that the 120 magic factor is what Windows uses in the end, I can't
-imagine Logitech rolling their own thing here. Nestor?
-
-And we're already fairly inaccurate with the microns anyway. The MX Anywhere
-2S has a click angle of 20 degrees (18 stops) and a 17mm wheel, so a wheel
-notch is approximately 2.67mm, one event at multiplier 8 (1/8 of a notch)
-would be 334 micron. That's only 80% of the fallback value of 406 in the
-kernel. Multiplier 6 gives us 445micron (10% off). I'm assuming multiplier 7
-doesn't exist because it's not a factor of 120.
-
-Summary:
-
-Best option may be to simply do what Windows is doing, all the HW manufacturers
-have to use that approach after all. Switch `REL_WHEEL_HI_RES` to report in
-fractions of 120, with 120 being one notch and divide that by the multiplier
-for the actual events. So e.g. the Logitech multiplier 8 would send value 15
-for each event in hi-res mode. This can be converted in userspace to
-whatever userspace needs (combined with a hwdb there that tells you wheel
-size/click angle/...).
-
-Conflicts:
-	include/uapi/linux/input-event-codes.h -> I kept the new
-         reserved event in the code, so I had to adapt the revert
-         slightly
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- Documentation/input/event-codes.rst    | 11 +----------
- include/uapi/linux/input-event-codes.h | 10 ----------
- 2 files changed, 1 insertion(+), 20 deletions(-)
-
-diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-index cef220c176a4..a8c0873beb95 100644
---- a/Documentation/input/event-codes.rst
-+++ b/Documentation/input/event-codes.rst
-@@ -190,16 +190,7 @@ A few EV_REL codes have special meanings:
- * REL_WHEEL, REL_HWHEEL:
- 
-   - These codes are used for vertical and horizontal scroll wheels,
--    respectively. The value is the number of "notches" moved on the wheel, the
--    physical size of which varies by device. For high-resolution wheels (which
--    report multiple events for each notch of movement, or do not have notches)
--    this may be an approximation based on the high-resolution scroll events.
--
--* REL_WHEEL_HI_RES:
--
--  - If a vertical scroll wheel supports high-resolution scrolling, this code
--    will be emitted in addition to REL_WHEEL. The value is the (approximate)
--    distance travelled by the user's finger, in microns.
-+    respectively.
- 
- EV_ABS
- ------
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 6d180cc60a5d..3eb5a4c3d60a 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -716,7 +716,6 @@
-  * the situation described above.
-  */
- #define REL_RESERVED		0x0a
--#define REL_WHEEL_HI_RES	0x0b
- #define REL_MAX			0x0f
- #define REL_CNT			(REL_MAX+1)
- 
-@@ -753,15 +752,6 @@
- 
- #define ABS_MISC		0x28
- 
--/*
-- * 0x2e is reserved and should not be used in input drivers.
-- * It was used by HID as ABS_MISC+6 and userspace needs to detect if
-- * the next ABS_* event is correct or is just ABS_MISC + n.
-- * We define here ABS_RESERVED so userspace can rely on it and detect
-- * the situation described above.
-- */
--#define ABS_RESERVED		0x2e
--
- #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
- #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
- #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
--- 
-2.19.1
+Harry Cutts
+Chrome OS Touch/Input team

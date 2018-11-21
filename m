@@ -1,38 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
 Subject: Re: [PATCH 0/7] HID: revert the Logitech High Resolution wheel
  support
-Date: Wed, 21 Nov 2018 10:44:03 -0800
-Message-ID: <20181121184403.GA72827@dtor-ws>
+Date: Wed, 21 Nov 2018 19:46:57 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1811211946380.21108@cbobk.fhfr.pm>
 References: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
- <CA+jURctziob_scb36s-JxvD-FFrH1xn4Npd_i56g3DxxVEpZ4A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CA+jURctziob_scb36s-JxvD-FFrH1xn4Npd_i56g3DxxVEpZ4A@mail.gmail.com>
+In-Reply-To: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Harry Cutts <hcutts@chromium.org>
-Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 21, 2018 at 10:37:13AM -0800, Harry Cutts wrote:
-> On Wed, 21 Nov 2018 at 07:27, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> > The TL;DR, we need to revert the current series before it gets out in
-> > a released kernel and work on a better approach for 4.21.
-> >
-> > This patch series has informally been acked by Dmitry, Harry, Jiri, Nestor
-> > and Peter, but I wouldn't mind a public ack before I push this to
-> > the for-linus branch.
-> 
-> Thanks Benjamin!
-> 
-> For the series:
-> Acked-by: Harry Cutts <hcutts@chromium.org>
+On Wed, 21 Nov 2018, Benjamin Tissoires wrote:
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> It turns out that the implementation of the high resolution support of
+> Logitech wheels is rather incompatible with the mice from Microsoft.
+> 
+> We had a lengthy discussion off-list and the summary is quoted in 7/7.
+> 
+> The TL;DR, we need to revert the current series before it gets out in
+> a released kernel and work on a better approach for 4.21.
+> 
+> This patch series has informally been acked by Dmitry, Harry, Jiri, Nestor
+> and Peter, but I wouldn't mind a public ack before I push this to
+> the for-linus branch.
 
-Thanks!
+As discussed previously
+
+	Acked-by: Jiri Kosina <jkosina@suse.cz>
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs

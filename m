@@ -1,38 +1,36 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 0/7] HID: revert the Logitech High Resolution wheel
- support
-Date: Wed, 21 Nov 2018 19:46:57 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1811211946380.21108@cbobk.fhfr.pm>
-References: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
+From: Lyude Paul <lyude@redhat.com>
+Subject: [PATCH] Input: synaptics - Add PNP ID for ThinkPad P50 to SMBus
+Date: Wed, 21 Nov 2018 15:16:20 -0500
+Message-ID: <20181121201622.20815-1-lyude@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181121152712.6770-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, KT Liao <kt.liao@emc.com.tw>, Peter Hutterer <peter.hutterer@who-t.net>, Edvard Holst <edvard.holst@gmail.com>, Arkadiusz Hiler <arkadiusz.hiler@intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 21 Nov 2018, Benjamin Tissoires wrote:
+Noticed the other day the trackpoint felt different on my P50, then
+realized it was because rmi4 wasn't loading for this machine
+automatically. Suspend/resume, hibernate, and everything else seem to
+work perfectly fine on here.
 
-> It turns out that the implementation of the high resolution support of
-> Logitech wheels is rather incompatible with the mice from Microsoft.
-> 
-> We had a lengthy discussion off-list and the summary is quoted in 7/7.
-> 
-> The TL;DR, we need to revert the current series before it gets out in
-> a released kernel and work on a better approach for 4.21.
-> 
-> This patch series has informally been acked by Dmitry, Harry, Jiri, Nestor
-> and Peter, but I wouldn't mind a public ack before I push this to
-> the for-linus branch.
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+---
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-As discussed previously
-
-	Acked-by: Jiri Kosina <jkosina@suse.cz>
-
-Thanks,
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 5e85f3cca867..c42813d50591 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -170,6 +170,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0048", /* X1 Carbon 3 */
+ 	"LEN0046", /* X250 */
+ 	"LEN004a", /* W541 */
++	"LEN005b", /* P50 */
+ 	"LEN0071", /* T480 */
+ 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+ 	"LEN0073", /* X1 Carbon G5 (Elantech) */
 -- 
-Jiri Kosina
-SUSE Labs
+2.19.1

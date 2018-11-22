@@ -1,86 +1,81 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH 0/8] HID: MS and Logitech high-resolution scroll wheel support
-Date: Thu, 22 Nov 2018 16:34:01 +1000
-Message-ID: <20181122063409.15816-1-peter.hutterer@who-t.net>
+Subject: [PATCH 1/8] Input: add `REL_WHEEL_HI_RES` and `REL_HWHEEL_HI_RES`
+Date: Thu, 22 Nov 2018 16:34:02 +1000
+Message-ID: <20181122063409.15816-2-peter.hutterer@who-t.net>
+References: <20181122063409.15816-1-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181122063409.15816-1-peter.hutterer@who-t.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
+This event code represents scroll reports from high-resolution wheels and
+is modelled after the approach Windows uses. The value 120 is one detent
+(wheel click) of movement. Mice with higher-resolution scrolling can send
+fractions of 120 to be accumulate in userspace. Userspace can either wait
+for 120 to accumulate or scroll by fractions of one logical scroll movement
+as the events come in.
 
-This series enables high-resolution scrolling on some or many Microsoft mice
-of the last decade and Logitech mice with the required feature support.
+For more information see
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613912(v=vs.85)
 
-High resolution scrolling is exposed to userspace as REL_WHEEL_HI_RES and
-REL_HWHEEL_HI_RES. An accumulated value of 120 signals one wheel click, mice
-with higher granularity can send multiple values that are fractions of 120.
-REL_WHEEL and REL_HWHEEL are emulated for backwards compatibility.
-The 120 magic number comes from Windows and affects how hardware vendors
-build their shiny (and the use of a multiplier in the hw that is a whole
-fraction of 120).
+These new axes obsolete REL_WHEEL and REL_HWHEEL. The legacy axes are
+emulated but the most accurate (and most granular) data is available
+through the new axes.
 
-This series adds implementations for generic HID and for Logitech's HID++.
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ Documentation/input/event-codes.rst    | 21 ++++++++++++++++++++-
+ include/uapi/linux/input-event-codes.h |  2 ++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-Windows Vista added the Resolution Multiplier HID feature which gives
-us a multiplier that is applied (in hardware) to the wheel data. For the
-same physical motion and an example multiplier of 8, the hardware may: 
-- send 8 events of value 1, or
-- send 1 event of value 8, or
-- send 8/n events of value 1 * n
-The multiplier is a HID Feature and should default to an effective 1 in the
-hardware. Windows Vista and newer set this to the logical maximum, we do the
-same now. It's an approved HID Feature but so far, this feature has only
-been found on some Microsoft mice.
-
-Logitech mice do not seem to use it and have their own HID++ protocol to
-apply that multiplier. Harry's patchset had previously been merged, the
-exact implementation was incompatible with the Microsoft bits though so it
-was reverted. Harry's patches in this series are adjusted accordingly but
-are by and large the same.
-
-Notable: The Logitech REL_WHEEL emulation cannot just hook into the HID
-bits. The firmware drops some events so the point when we get the REL_WHEEL
-event moves around. This is worked around by directional resets and a
-timeout-based reset.
-
-Devices tested:
-- Microsoft Comfort Optical Mouse 3000
-- Microsoft Sculpt Ergonomic Mouse
-- Microsoft Surface mouse
-- Logitech MX Anywhere 2S
-
-The following devices were tested for the HID feature and didn't have it:
-- Logitech G500s, G303
-- Roccat Kone XTD
-- all the cheap Lenovo, HP, Dell, Logitech USB mice that come with a
-  workstation that I could find in the local office
-- Etekcity something something
-- Razer Imperator
-- Microsoft Classic IntelliMouse
-- Microsoft Surface Mobile Mouse
-
-Cheers,
-  Peter
-
-Harry Cutts (3):
-      HID: logitech: Use LDJ_DEVICE macro for existing Logitech mice
-      HID: logitech: Add function to enable HID++ 1.0 "scrolling acceleration"
-      HID: logitech: Enable high-resolution scrolling on Logitech mice
-
-Peter Hutterer (5):
-      Input: add `REL_WHEEL_HI_RES` and `REL_HWHEEL_HI_RES`
-      HID: core: store the collections as a basic tree
-      HID: core: process the Resolution Multiplier
-      HID: input: use the Resolution Multiplier for high-resolution scrolling
-      HID: logitech-hidpp: fix typo, hiddpp to hidpp
-
- Documentation/input/event-codes.rst    |  21 +++-
- drivers/hid/hid-core.c                 | 174 ++++++++++++++++++++++++++++++++
- drivers/hid/hid-input.c                | 137 ++++++++++++++++++++++++-
- drivers/hid/hid-logitech-hidpp.c       | 384 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++------
- include/linux/hid.h                    |  10 ++
- include/uapi/linux/input-event-codes.h |   2 +
- 6 files changed, 690 insertions(+), 38 deletions(-)
+diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+index a8c0873beb95..b24b5343f5eb 100644
+--- a/Documentation/input/event-codes.rst
++++ b/Documentation/input/event-codes.rst
+@@ -190,7 +190,26 @@ A few EV_REL codes have special meanings:
+ * REL_WHEEL, REL_HWHEEL:
+ 
+   - These codes are used for vertical and horizontal scroll wheels,
+-    respectively.
++    respectively. The value is the number of detents moved on the wheel, the
++    physical size of which varies by device. For high-resolution wheels
++    this may be an approximation based on the high-resolution scroll events,
++    see REL_WHEEL_HI_RES. These event codes are legacy codes and
++    REL_WHEEL_HI_RES and REL_HWHEEL_HI_RES should be preferred where
++    available.
++
++* REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES:
++
++  - High-resolution scroll wheel data. The accumulated value 120 represents
++    movement by one detent. For devices that do not provide high-resolution
++    scrolling, the value is always a multiple of 120. For devices with
++    high-resolution scrolling, the value may be a fraction of 120.
++
++    If a vertical scroll wheel supports high-resolution scrolling, this code
++    will be emitted in addition to REL_WHEEL or REL_HWHEEL. The REL_WHEEL
++    and REL_HWHEEL may be an approximation based on the high-resolution
++    scroll events. There is no guarantee that the high-resolution data
++    is a multiple of 120 at the time of an emulated REL_WHEEL or REL_HWHEEL
++    event.
+ 
+ EV_ABS
+ ------
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index ae366b87426a..7f14d4a66c28 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -716,6 +716,8 @@
+  * the situation described above.
+  */
+ #define REL_RESERVED		0x0a
++#define REL_WHEEL_HI_RES	0x0b
++#define REL_HWHEEL_HI_RES	0x0c
+ #define REL_MAX			0x0f
+ #define REL_CNT			(REL_MAX+1)
+ 
+-- 
+2.19.1

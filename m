@@ -1,7 +1,7 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH 6/8] HID: logitech: Use LDJ_DEVICE macro for existing Logitech mice
-Date: Thu, 22 Nov 2018 16:34:07 +1000
-Message-ID: <20181122063409.15816-7-peter.hutterer@who-t.net>
+Subject: [PATCH 7/8] HID: logitech: Add function to enable HID++ 1.0 "scrolling acceleration"
+Date: Thu, 22 Nov 2018 16:34:08 +1000
+Message-ID: <20181122063409.15816-8-peter.hutterer@who-t.net>
 References: <20181122063409.15816-1-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,54 +14,89 @@ List-Id: linux-input@vger.kernel.org
 
 From: Harry Cutts <hcutts@chromium.org>
 
+"Scrolling acceleration" is a bit of a misnomer: it doesn't deal with
+acceleration at all. However, that's the name used in Logitech's spec,
+so I used it here.
+
 Signed-off-by: Harry Cutts <hcutts@chromium.org>
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 ---
-Unmodified, same as the reverted 3fe1d6bbcd1
+Unmodified, same as the reverted 051dc9b0
 
- drivers/hid/hid-logitech-hidpp.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 47 +++++++++++++++++++++++---------
+ 1 file changed, 34 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 22b37a3844d1..146feedd9a2f 100644
+index 146feedd9a2f..67ca587aecfa 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3088,13 +3088,11 @@ static void hidpp_remove(struct hid_device *hdev)
+@@ -400,32 +400,53 @@ static void hidpp_prefix_name(char **name, int name_length)
+ #define HIDPP_SET_LONG_REGISTER				0x82
+ #define HIDPP_GET_LONG_REGISTER				0x83
  
- static const struct hid_device_id hidpp_devices[] = {
- 	{ /* wireless touchpad */
--	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
--		USB_VENDOR_ID_LOGITECH, 0x4011),
-+	  LDJ_DEVICE(0x4011),
- 	  .driver_data = HIDPP_QUIRK_CLASS_WTP | HIDPP_QUIRK_DELAYED_INIT |
- 			 HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS },
- 	{ /* wireless touchpad T650 */
--	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
--		USB_VENDOR_ID_LOGITECH, 0x4101),
-+	  LDJ_DEVICE(0x4101),
- 	  .driver_data = HIDPP_QUIRK_CLASS_WTP | HIDPP_QUIRK_DELAYED_INIT },
- 	{ /* wireless touchpad T651 */
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
-@@ -3105,16 +3103,13 @@ static const struct hid_device_id hidpp_devices[] = {
- 		USB_VENDOR_ID_LOGITECH, 0x402d),
- 	  .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560 },
- 	{ /* Keyboard logitech K400 */
--	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
--		USB_VENDOR_ID_LOGITECH, 0x4024),
-+	  LDJ_DEVICE(0x4024),
- 	  .driver_data = HIDPP_QUIRK_CLASS_K400 },
- 	{ /* Solar Keyboard Logitech K750 */
--	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
--		USB_VENDOR_ID_LOGITECH, 0x4002),
-+	  LDJ_DEVICE(0x4002),
- 	  .driver_data = HIDPP_QUIRK_CLASS_K750 },
+-#define HIDPP_REG_GENERAL				0x00
+-
+-static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
++/**
++ * hidpp10_set_register_bit() - Sets a single bit in a HID++ 1.0 register.
++ * @hidpp_dev: the device to set the register on.
++ * @register_address: the address of the register to modify.
++ * @byte: the byte of the register to modify. Should be less than 3.
++ * Return: 0 if successful, otherwise a negative error code.
++ */
++static int hidpp10_set_register_bit(struct hidpp_device *hidpp_dev,
++	u8 register_address, u8 byte, u8 bit)
+ {
+ 	struct hidpp_report response;
+ 	int ret;
+ 	u8 params[3] = { 0 };
  
--	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
--		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
-+	{ LDJ_DEVICE(HID_ANY_ID) },
+ 	ret = hidpp_send_rap_command_sync(hidpp_dev,
+-					REPORT_ID_HIDPP_SHORT,
+-					HIDPP_GET_REGISTER,
+-					HIDPP_REG_GENERAL,
+-					NULL, 0, &response);
++					  REPORT_ID_HIDPP_SHORT,
++					  HIDPP_GET_REGISTER,
++					  register_address,
++					  NULL, 0, &response);
+ 	if (ret)
+ 		return ret;
  
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL),
- 		.driver_data = HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
+ 	memcpy(params, response.rap.params, 3);
+ 
+-	/* Set the battery bit */
+-	params[0] |= BIT(4);
++	params[byte] |= BIT(bit);
+ 
+ 	return hidpp_send_rap_command_sync(hidpp_dev,
+-					REPORT_ID_HIDPP_SHORT,
+-					HIDPP_SET_REGISTER,
+-					HIDPP_REG_GENERAL,
+-					params, 3, &response);
++					   REPORT_ID_HIDPP_SHORT,
++					   HIDPP_SET_REGISTER,
++					   register_address,
++					   params, 3, &response);
++}
++
++
++#define HIDPP_REG_GENERAL				0x00
++
++static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
++{
++	return hidpp10_set_register_bit(hidpp_dev, HIDPP_REG_GENERAL, 0, 4);
++}
++
++#define HIDPP_REG_FEATURES				0x01
++
++/* On HID++ 1.0 devices, high-res scroll was called "scrolling acceleration". */
++static int hidpp10_enable_scrolling_acceleration(struct hidpp_device *hidpp_dev)
++{
++	return hidpp10_set_register_bit(hidpp_dev, HIDPP_REG_FEATURES, 0, 6);
+ }
+ 
+ #define HIDPP_REG_BATTERY_STATUS			0x07
 -- 
 2.19.1

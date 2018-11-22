@@ -1,7 +1,7 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH 1/8] Input: add `REL_WHEEL_HI_RES` and `REL_HWHEEL_HI_RES`
-Date: Thu, 22 Nov 2018 16:34:02 +1000
-Message-ID: <20181122063409.15816-2-peter.hutterer@who-t.net>
+Subject: [PATCH 2/8] HID: core: store the collections as a basic tree
+Date: Thu, 22 Nov 2018 16:34:03 +1000
+Message-ID: <20181122063409.15816-3-peter.hutterer@who-t.net>
 References: <20181122063409.15816-1-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,70 +12,57 @@ To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This event code represents scroll reports from high-resolution wheels and
-is modelled after the approach Windows uses. The value 120 is one detent
-(wheel click) of movement. Mice with higher-resolution scrolling can send
-fractions of 120 to be accumulate in userspace. Userspace can either wait
-for 120 to accumulate or scroll by fractions of one logical scroll movement
-as the events come in.
-
-For more information see
-https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613912(v=vs.85)
-
-These new axes obsolete REL_WHEEL and REL_HWHEEL. The legacy axes are
-emulated but the most accurate (and most granular) data is available
-through the new axes.
+For each collection parsed, store a pointer to the parent collection
+(if any). This makes it a lot easier to look up which collection(s)
+any given item is part of
 
 Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 ---
- Documentation/input/event-codes.rst    | 21 ++++++++++++++++++++-
- include/uapi/linux/input-event-codes.h |  2 ++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 4 ++++
+ include/linux/hid.h    | 2 ++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-index a8c0873beb95..b24b5343f5eb 100644
---- a/Documentation/input/event-codes.rst
-+++ b/Documentation/input/event-codes.rst
-@@ -190,7 +190,26 @@ A few EV_REL codes have special meanings:
- * REL_WHEEL, REL_HWHEEL:
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5bec9244c45b..43d488a45120 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -172,6 +172,8 @@ static int open_collection(struct hid_parser *parser, unsigned type)
+ 	collection->type = type;
+ 	collection->usage = usage;
+ 	collection->level = parser->collection_stack_ptr - 1;
++	collection->parent = parser->active_collection;
++	parser->active_collection = collection;
  
-   - These codes are used for vertical and horizontal scroll wheels,
--    respectively.
-+    respectively. The value is the number of detents moved on the wheel, the
-+    physical size of which varies by device. For high-resolution wheels
-+    this may be an approximation based on the high-resolution scroll events,
-+    see REL_WHEEL_HI_RES. These event codes are legacy codes and
-+    REL_WHEEL_HI_RES and REL_HWHEEL_HI_RES should be preferred where
-+    available.
-+
-+* REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES:
-+
-+  - High-resolution scroll wheel data. The accumulated value 120 represents
-+    movement by one detent. For devices that do not provide high-resolution
-+    scrolling, the value is always a multiple of 120. For devices with
-+    high-resolution scrolling, the value may be a fraction of 120.
-+
-+    If a vertical scroll wheel supports high-resolution scrolling, this code
-+    will be emitted in addition to REL_WHEEL or REL_HWHEEL. The REL_WHEEL
-+    and REL_HWHEEL may be an approximation based on the high-resolution
-+    scroll events. There is no guarantee that the high-resolution data
-+    is a multiple of 120 at the time of an emulated REL_WHEEL or REL_HWHEEL
-+    event.
+ 	if (type == HID_COLLECTION_APPLICATION)
+ 		parser->device->maxapplication++;
+@@ -190,6 +192,8 @@ static int close_collection(struct hid_parser *parser)
+ 		return -EINVAL;
+ 	}
+ 	parser->collection_stack_ptr--;
++	if (parser->active_collection)
++		parser->active_collection = parser->active_collection->parent;
+ 	return 0;
+ }
  
- EV_ABS
- ------
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index ae366b87426a..7f14d4a66c28 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -716,6 +716,8 @@
-  * the situation described above.
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index a355d61940f2..fdfda898656c 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -427,6 +427,7 @@ struct hid_local {
   */
- #define REL_RESERVED		0x0a
-+#define REL_WHEEL_HI_RES	0x0b
-+#define REL_HWHEEL_HI_RES	0x0c
- #define REL_MAX			0x0f
- #define REL_CNT			(REL_MAX+1)
  
+ struct hid_collection {
++	struct hid_collection *parent;
+ 	unsigned type;
+ 	unsigned usage;
+ 	unsigned level;
+@@ -650,6 +651,7 @@ struct hid_parser {
+ 	unsigned int         *collection_stack;
+ 	unsigned int          collection_stack_ptr;
+ 	unsigned int          collection_stack_size;
++	struct hid_collection *active_collection;
+ 	struct hid_device    *device;
+ 	unsigned int          scan_flags;
+ };
 -- 
 2.19.1

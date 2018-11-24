@@ -1,47 +1,50 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: dad4f140ed ("Merge branch 'xarray' of .."):
- Mem-Info:
-Date: Fri, 23 Nov 2018 19:58:03 -0800
-Message-ID: <20181124035803.GX3065@bombadil.infradead.org>
+From: Philip Li <philip.li@intel.com>
+Subject: Re: dad4f140ed ("Merge branch 'xarray' of .."):  Mem-Info:
+Date: Sat, 24 Nov 2018 17:04:44 +0800
+Message-ID: <20181124090444.GA3141@intel.com>
 References: <5bf8a766.2eiLO6qApoh2dO55%lkp@intel.com>
+ <20181124035803.GX3065@bombadil.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <5bf8a766.2eiLO6qApoh2dO55%lkp@intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: kernel test robot <lkp@intel.com>
-Cc: linux-parisc@vger.kernel.org, linux-doc@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, intel-gfx@lists.freedesktop.org, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-fsdevel@vger.kernel.org, LKP <lkp@01.org>
+In-Reply-To: <20181124035803.GX3065@bombadil.infradead.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: kernel test robot <lkp@intel.com>, linux-parisc@vger.kernel.org, linux-doc@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, intel-gfx@lists.freedesktop.org, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-fsdevel@vger.kernel.org, LKP <lkp@01.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gU2F0LCBOb3YgMjQsIDIwMTggYXQgMDk6MjA6MzhBTSArMDgwMCwga2VybmVsIHRlc3Qgcm9i
-b3Qgd3JvdGU6Cj4gR3JlZXRpbmdzLAo+IAo+IDBkYXkga2VybmVsIHRlc3Rpbmcgcm9ib3QgZ290
-IHRoZSBiZWxvdyBkbWVzZyBhbmQgdGhlIGZpcnN0IGJhZCBjb21taXQgaXMKPiAKPiBodHRwczov
-L2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5n
-aXQgbWFzdGVyCj4gCj4gY29tbWl0IGRhZDRmMTQwZWRhYTNmNmJiNDUyYjY5MTNkNDFhZjFmZmQ2
-NzJlNDUKCkkgdGhpbmsgeW91J3ZlIGdvdCB0aGUgd3JvbmcgYmlzZWN0aW9uIHBvaW50LCBjb25m
-dXNlZCBieSBvdGhlciBtZXNzYWdlcy4KSGVyZSdzIHRoZSBtZXNzYWdlcyBJIHRoaW5rIHlvdSBp
-bnRlbmQgdG8gY2hhc2U6CgpbICAxNTUuMzg5Mjk3XSBCVUc6IHdvcmtxdWV1ZSBsb2NrdXAgLSBw
-b29sIGNwdXM9MCBub2RlPTAgZmxhZ3M9MHgwIG5pY2U9MCBzdHVjawogZm9yIDUycyEKWyAgMTU1
-LjQwOTAwNF0gQlVHOiB3b3JrcXVldWUgbG9ja3VwIC0gcG9vbCBjcHVzPTAgZmxhZ3M9MHg0IG5p
-Y2U9MCBzdHVjayBmb3IgNDAKcyEKWyAgMTU1LjQyMDM3N10gU2hvd2luZyBidXN5IHdvcmtxdWV1
-ZXMgYW5kIHdvcmtlciBwb29sczoKWyAgMTU1LjQyODQ0NV0gd29ya3F1ZXVlIGV2ZW50czogZmxh
-Z3M9MHgwClsgIDE1NS40MzQ2MzRdICAgcHdxIDA6IGNwdXM9MCBub2RlPTAgZmxhZ3M9MHgwIG5p
-Y2U9MCBhY3RpdmU9MS8yNTYKWyAgMTU1LjQzNzkwNF0gICAgIHBlbmRpbmc6IGNhY2hlX3JlYXAK
-WyAgMTU1LjQ0OTY3MV0gd29ya3F1ZXVlIGV2ZW50c19wb3dlcl9lZmZpY2llbnQ6IGZsYWdzPTB4
-ODIKWyAgMTU1LjQ1ODAwMF0gICBwd3EgMjogY3B1cz0wIGZsYWdzPTB4NCBuaWNlPTAgYWN0aXZl
-PTMvMjU2ClsgIDE1NS40NjEyNjldICAgICBwZW5kaW5nOiBuZWlnaF9wZXJpb2RpY193b3JrLCBk
-b19jYWNoZV9jbGVhbiwgY2hlY2tfbGlmZXRpbWUKCgpidXQgeW91J3JlIGdldHRpbmcgaHVuZyB1
-cCBvbiB0aGUgdGVzdHN1aXRlIHByb2JsZW1zLgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBtYWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxp
-c3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL2ludGVsLWdmeAo=
+T24gRnJpLCBOb3YgMjMsIDIwMTggYXQgMDc6NTg6MDNQTSAtMDgwMCwgTWF0dGhldyBXaWxjb3gg
+d3JvdGU6Cj4gT24gU2F0LCBOb3YgMjQsIDIwMTggYXQgMDk6MjA6MzhBTSArMDgwMCwga2VybmVs
+IHRlc3Qgcm9ib3Qgd3JvdGU6Cj4gPiBHcmVldGluZ3MsCj4gPiAKPiA+IDBkYXkga2VybmVsIHRl
+c3Rpbmcgcm9ib3QgZ290IHRoZSBiZWxvdyBkbWVzZyBhbmQgdGhlIGZpcnN0IGJhZCBjb21taXQg
+aXMKPiA+IAo+ID4gaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9n
+aXQvdG9ydmFsZHMvbGludXguZ2l0IG1hc3Rlcgo+ID4gCj4gPiBjb21taXQgZGFkNGYxNDBlZGFh
+M2Y2YmI0NTJiNjkxM2Q0MWFmMWZmZDY3MmU0NQo+IAo+IEkgdGhpbmsgeW91J3ZlIGdvdCB0aGUg
+d3JvbmcgYmlzZWN0aW9uIHBvaW50LCBjb25mdXNlZCBieSBvdGhlciBtZXNzYWdlcy4KPiBIZXJl
+J3MgdGhlIG1lc3NhZ2VzIEkgdGhpbmsgeW91IGludGVuZCB0byBjaGFzZToKPiAKPiBbICAxNTUu
+Mzg5Mjk3XSBCVUc6IHdvcmtxdWV1ZSBsb2NrdXAgLSBwb29sIGNwdXM9MCBub2RlPTAgZmxhZ3M9
+MHgwIG5pY2U9MCBzdHVjawo+ICBmb3IgNTJzIQo+IFsgIDE1NS40MDkwMDRdIEJVRzogd29ya3F1
+ZXVlIGxvY2t1cCAtIHBvb2wgY3B1cz0wIGZsYWdzPTB4NCBuaWNlPTAgc3R1Y2sgZm9yIDQwCj4g
+cyEKPiBbICAxNTUuNDIwMzc3XSBTaG93aW5nIGJ1c3kgd29ya3F1ZXVlcyBhbmQgd29ya2VyIHBv
+b2xzOgo+IFsgIDE1NS40Mjg0NDVdIHdvcmtxdWV1ZSBldmVudHM6IGZsYWdzPTB4MAo+IFsgIDE1
+NS40MzQ2MzRdICAgcHdxIDA6IGNwdXM9MCBub2RlPTAgZmxhZ3M9MHgwIG5pY2U9MCBhY3RpdmU9
+MS8yNTYKPiBbICAxNTUuNDM3OTA0XSAgICAgcGVuZGluZzogY2FjaGVfcmVhcAo+IFsgIDE1NS40
+NDk2NzFdIHdvcmtxdWV1ZSBldmVudHNfcG93ZXJfZWZmaWNpZW50OiBmbGFncz0weDgyCj4gWyAg
+MTU1LjQ1ODAwMF0gICBwd3EgMjogY3B1cz0wIGZsYWdzPTB4NCBuaWNlPTAgYWN0aXZlPTMvMjU2
+Cj4gWyAgMTU1LjQ2MTI2OV0gICAgIHBlbmRpbmc6IG5laWdoX3BlcmlvZGljX3dvcmssIGRvX2Nh
+Y2hlX2NsZWFuLCBjaGVja19saWZldGltZQo+IAo+IAo+IGJ1dCB5b3UncmUgZ2V0dGluZyBodW5n
+IHVwIG9uIHRoZSB0ZXN0c3VpdGUgcHJvYmxlbXMuCnRoYW5rcyBmb3IgcG9pbnRpbmcgb3V0IHRo
+aXMuIEtpbmRseSBpZ25vcmUgdGhpcyByZXBvcnQsIHdoaWNoIGlzIGZhbHNlIHBvc2l0aXZlLgoK
+PiAKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJp
+LWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBz
+Oi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==

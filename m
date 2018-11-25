@@ -1,50 +1,209 @@
-From: Philip Li <philip.li@intel.com>
-Subject: Re: dad4f140ed ("Merge branch 'xarray' of .."):  Mem-Info:
-Date: Sat, 24 Nov 2018 17:04:44 +0800
-Message-ID: <20181124090444.GA3141@intel.com>
-References: <5bf8a766.2eiLO6qApoh2dO55%lkp@intel.com>
- <20181124035803.GX3065@bombadil.infradead.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v3 3/4] iio: adc: add STMPE ADC devicetree bindings
+Date: Sun, 25 Nov 2018 10:04:13 +0000
+Message-ID: <20181125100413.73bc729f@archlinux>
+References: <20181123142411.8921-1-dev@pschenker.ch>
+        <20181123142411.8921-3-dev@pschenker.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20181124035803.GX3065@bombadil.infradead.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: kernel test robot <lkp@intel.com>, linux-parisc@vger.kernel.org, linux-doc@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, intel-gfx@lists.freedesktop.org, linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-fsdevel@vger.kernel.org, LKP <lkp@01.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181123142411.8921-3-dev@pschenker.ch>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Philippe Schenker <dev@pschenker.ch>
+Cc: marcel.ziswiler@toradex.com, stefan@agner.ch, Max Krummenacher <max.krummenacher@toradex.com>, Philippe Schenker <philippe.schenker@toradex.com>, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCBOb3YgMjMsIDIwMTggYXQgMDc6NTg6MDNQTSAtMDgwMCwgTWF0dGhldyBXaWxjb3gg
-d3JvdGU6Cj4gT24gU2F0LCBOb3YgMjQsIDIwMTggYXQgMDk6MjA6MzhBTSArMDgwMCwga2VybmVs
-IHRlc3Qgcm9ib3Qgd3JvdGU6Cj4gPiBHcmVldGluZ3MsCj4gPiAKPiA+IDBkYXkga2VybmVsIHRl
-c3Rpbmcgcm9ib3QgZ290IHRoZSBiZWxvdyBkbWVzZyBhbmQgdGhlIGZpcnN0IGJhZCBjb21taXQg
-aXMKPiA+IAo+ID4gaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9n
-aXQvdG9ydmFsZHMvbGludXguZ2l0IG1hc3Rlcgo+ID4gCj4gPiBjb21taXQgZGFkNGYxNDBlZGFh
-M2Y2YmI0NTJiNjkxM2Q0MWFmMWZmZDY3MmU0NQo+IAo+IEkgdGhpbmsgeW91J3ZlIGdvdCB0aGUg
-d3JvbmcgYmlzZWN0aW9uIHBvaW50LCBjb25mdXNlZCBieSBvdGhlciBtZXNzYWdlcy4KPiBIZXJl
-J3MgdGhlIG1lc3NhZ2VzIEkgdGhpbmsgeW91IGludGVuZCB0byBjaGFzZToKPiAKPiBbICAxNTUu
-Mzg5Mjk3XSBCVUc6IHdvcmtxdWV1ZSBsb2NrdXAgLSBwb29sIGNwdXM9MCBub2RlPTAgZmxhZ3M9
-MHgwIG5pY2U9MCBzdHVjawo+ICBmb3IgNTJzIQo+IFsgIDE1NS40MDkwMDRdIEJVRzogd29ya3F1
-ZXVlIGxvY2t1cCAtIHBvb2wgY3B1cz0wIGZsYWdzPTB4NCBuaWNlPTAgc3R1Y2sgZm9yIDQwCj4g
-cyEKPiBbICAxNTUuNDIwMzc3XSBTaG93aW5nIGJ1c3kgd29ya3F1ZXVlcyBhbmQgd29ya2VyIHBv
-b2xzOgo+IFsgIDE1NS40Mjg0NDVdIHdvcmtxdWV1ZSBldmVudHM6IGZsYWdzPTB4MAo+IFsgIDE1
-NS40MzQ2MzRdICAgcHdxIDA6IGNwdXM9MCBub2RlPTAgZmxhZ3M9MHgwIG5pY2U9MCBhY3RpdmU9
-MS8yNTYKPiBbICAxNTUuNDM3OTA0XSAgICAgcGVuZGluZzogY2FjaGVfcmVhcAo+IFsgIDE1NS40
-NDk2NzFdIHdvcmtxdWV1ZSBldmVudHNfcG93ZXJfZWZmaWNpZW50OiBmbGFncz0weDgyCj4gWyAg
-MTU1LjQ1ODAwMF0gICBwd3EgMjogY3B1cz0wIGZsYWdzPTB4NCBuaWNlPTAgYWN0aXZlPTMvMjU2
-Cj4gWyAgMTU1LjQ2MTI2OV0gICAgIHBlbmRpbmc6IG5laWdoX3BlcmlvZGljX3dvcmssIGRvX2Nh
-Y2hlX2NsZWFuLCBjaGVja19saWZldGltZQo+IAo+IAo+IGJ1dCB5b3UncmUgZ2V0dGluZyBodW5n
-IHVwIG9uIHRoZSB0ZXN0c3VpdGUgcHJvYmxlbXMuCnRoYW5rcyBmb3IgcG9pbnRpbmcgb3V0IHRo
-aXMuIEtpbmRseSBpZ25vcmUgdGhpcyByZXBvcnQsIHdoaWNoIGlzIGZhbHNlIHBvc2l0aXZlLgoK
-PiAKPiAKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJp
-LWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBz
-Oi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On Fri, 23 Nov 2018 15:24:10 +0100
+Philippe Schenker <dev@pschenker.ch> wrote:
+
+> From: Stefan Agner <stefan@agner.ch>
+> 
+> This adds the devicetree bindings for the STMPE ADC.
+> 
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
+> Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+Clearly this will need review from input and mfd.
+
+I've suggested inline that you split the realignment out to a
+separate patch for reviewability reasons.
+
+> ---
+> 
+> Changes in v3:
+>  - Reformatted documentation for touchscreen to use tabs and have a better
+>    overview of the settings.
+>  - Added note which adc-settings will take precedence.
+>  - changed typo in sample-time setting from 144 clocks to 124 clocks, as stated
+>    in the datasheet.
+> 
+> Changes in v2:
+>  - Moved the bindings for ADC to the overlying mfd.
+>  - Reformatted for better readability
+> 
+>  .../devicetree/bindings/iio/adc/stmpe-adc.txt | 21 +++++++
+>  .../bindings/input/touchscreen/stmpe.txt      | 60 ++++++++++++-------
+>  .../devicetree/bindings/mfd/stmpe.txt         | 28 ++++++---
+>  3 files changed, 80 insertions(+), 29 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+> new file mode 100644
+> index 000000000000..480e66422625
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+> @@ -0,0 +1,21 @@
+> +STMPE ADC driver
+> +----------------
+> +
+> +Required properties:
+> + - compatible: "st,stmpe-adc"
+> +
+> +Optional properties:
+> +Note that the ADC is shared with the STMPE touchscreen. ADC related settings
+> +have to be done in the mfd.
+> +- st,norequest-mask: bitmask specifying which ADC channels should _not_ be
+> +  requestable due to different usage (e.g. touch)
+> +
+> +Node name must be stmpe_adc and should be child node of stmpe node to
+> +which it belongs.
+> +
+> +Example:
+> +
+> +	stmpe_adc {
+
+Can we use adc { here to match standard naming?
+
+> +		compatible = "st,stmpe-adc";
+> +		st,norequest-mask = <0x0F>; /* dont use ADC CH3-0 */
+> +	};
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+> index 127baa31a77a..414586513a02 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+> @@ -5,36 +5,52 @@ Required properties:
+>   - compatible: "st,stmpe-ts"
+>  
+>  Optional properties:
+> -- st,sample-time: ADC converstion time in number of clock.  (0 -> 36 clocks, 1 ->
+> -  44 clocks, 2 -> 56 clocks, 3 -> 64 clocks, 4 -> 80 clocks, 5 -> 96 clocks, 6
+> -  -> 144 clocks), recommended is 4.  
+> -- st,mod-12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
+> -- st,ref-sel: ADC reference source (0 -> internal reference, 1 -> external
+> -  reference)
+> -- st,adc-freq: ADC Clock speed (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
+> -- st,ave-ctrl: Sample average control (0 -> 1 sample, 1 -> 2 samples, 2 -> 4
+> -  samples, 3 -> 8 samples)
+> -- st,touch-det-delay: Touch detect interrupt delay (0 -> 10 us, 1 -> 50 us, 2 ->
+> -  100 us, 3 -> 500 us, 4-> 1 ms, 5 -> 5 ms, 6 -> 10 ms, 7 -> 50 ms) recommended
+> -  is 3
+> -- st,settling: Panel driver settling time (0 -> 10 us, 1 -> 100 us, 2 -> 500 us, 3
+> -  -> 1 ms, 4 -> 5 ms, 5 -> 10 ms, 6 for 50 ms, 7 -> 100 ms) recommended is 2  
+> -- st,fraction-z: Length of the fractional part in z (fraction-z ([0..7]) = Count of
+> -  the fractional part) recommended is 7
+> -- st,i-drive: current limit value of the touchscreen drivers (0 -> 20 mA typical 35
+> -  mA max, 1 -> 50 mA typical 80 mA max)
+> +- st,ave-ctrl		: Sample average control
+> +				0 -> 1 sample
+> +				1 -> 2 samples
+> +				2 -> 4 samples
+> +				3 -> 8 samples
+> +- st,touch-det-delay	: Touch detect interrupt delay (recommended is 3)
+> +				0 -> 10 us		5 -> 5 ms
+> +				1 -> 50 us		6 -> 10 ms
+> +				2 -> 100 us		7 -> 50 ms
+> +				3 -> 500 us
+> +				4-> 1 ms
+> +- st,settling		: Panel driver settling time (recommended is 2)
+> +				0 -> 10 us		5 -> 10 ms
+> +				1 -> 100 us		6 for 50 ms
+> +				2 -> 500 us		7 -> 100 ms
+> +				3 -> 1 ms
+> +				4 -> 5 ms
+> +- st,fraction-z		: Length of the fractional part in z (recommended is 7)
+> +			  (fraction-z ([0..7]) = Count of the fractional part)
+> +- st,i-drive		: current limit value of the touchscreen drivers
+> +				0 -> 20 mA (typical 35mA max)
+> +				1 -> 50 mA (typical 80 mA max)
+> +
+> +Optional properties common with MFD (deprecated):
+> + - st,sample-time	: ADC conversion time in number of clock.
+> +				0 -> 36 clocks		4 -> 80 clocks (recommended)
+> +				1 -> 44 clocks		5 -> 96 clocks
+> +				2 -> 56 clocks		6 -> 124 clocks
+> +				3 -> 64 clocks
+> + - st,mod-12b		: ADC Bit mode
+> +				0 -> 10bit ADC		1 -> 12bit ADC
+> + - st,ref-sel		: ADC reference source
+> +				0 -> internal		1 -> external
+> + - st,adc-freq		: ADC Clock speed
+> +				0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
+> +				1 -> 3.25 MHz
+>  
+>  Node name must be stmpe_touchscreen and should be child node of stmpe node to
+>  which it belongs.
+>  
+> +Note that common ADC settings of stmpe_touchscreen will take precedence.
+> +
+>  Example:
+>  
+>  	stmpe_touchscreen {
+>  		compatible = "st,stmpe-ts";
+> -		st,sample-time = <4>;
+> -		st,mod-12b = <1>;
+> -		st,ref-sel = <0>;
+> -		st,adc-freq = <1>;
+>  		st,ave-ctrl = <1>;
+>  		st,touch-det-delay = <2>;
+>  		st,settling = <2>;
+> diff --git a/Documentation/devicetree/bindings/mfd/stmpe.txt b/Documentation/devicetree/bindings/mfd/stmpe.txt
+> index c797c05cd3c2..d4408a417193 100644
+> --- a/Documentation/devicetree/bindings/mfd/stmpe.txt
+> +++ b/Documentation/devicetree/bindings/mfd/stmpe.txt
+> @@ -4,15 +4,29 @@ STMPE is an MFD device which may expose the following inbuilt devices: gpio,
+>  keypad, touchscreen, adc, pwm, rotator.
+>  
+>  Required properties:
+> - - compatible                   : "st,stmpe[610|801|811|1600|1601|2401|2403]"
+> - - reg                          : I2C/SPI address of the device
+> + - compatible			: "st,stmpe[610|801|811|1600|1601|2401|2403]"
+> + - reg				: I2C/SPI address of the device
+
+Nothing wrong with correcting alignment, but it shouldn't be in the same patch
+as a fundamental change lie this.  Just adds noise.
+
+If that means you first have to introduce the new block missaligned, then
+fix up the alignment in a follow up patch, then do that as we can then
+effectively ignore the realignment as obviously correct and focus on
+the real changes.
+
+>  
+>  Optional properties:
+> - - interrupts                   : The interrupt outputs from the controller
+> - - interrupt-controller         : Marks the device node as an interrupt controller
+> - - wakeup-source                : Marks the input device as wakable
+> - - st,autosleep-timeout         : Valid entries (ms); 4, 16, 32, 64, 128, 256, 512 and 1024
+> - - irq-gpio                     : If present, which GPIO to use for event IRQ
+> + - interrupts			: The interrupt outputs from the controller
+> + - interrupt-controller		: Marks the device node as an interrupt controller
+> + - wakeup-source		: Marks the input device as wakable
+> + - st,autosleep-timeout		: Valid entries (ms); 4, 16, 32, 64, 128, 256, 512 and 1024
+> + - irq-gpio			: If present, which GPIO to use for event IRQ
+> +
+> +Optional properties for devices with touch and ADC (STMPE811|STMPE610):
+> + - st,sample-time		: ADC conversion time in number of clock.
+> +					0 -> 36 clocks		4 -> 80 clocks (recommended)
+> +					1 -> 44 clocks		5 -> 96 clocks
+> +					2 -> 56 clocks		6 -> 124 clocks
+> +					3 -> 64 clocks
+> + - st,mod-12b			: ADC Bit mode
+> +					0 -> 10bit ADC		1 -> 12bit ADC
+> + - st,ref-sel			: ADC reference source
+> +					0 -> internal		1 -> external
+> + - st,adc-freq			: ADC Clock speed
+> +					0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
+> +					1 -> 3.25 MHz
+>  
+>  Example:
+>  

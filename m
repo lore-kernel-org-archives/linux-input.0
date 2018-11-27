@@ -1,46 +1,39 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v5 2/8] mfd: stpmic1: add stpmic1 driver
-Date: Tue, 27 Nov 2018 08:57:42 +0000
-Message-ID: <20181127085742.GG4272@dell>
-References: <1540830122-2577-1-git-send-email-p.paillet@st.com>
- <1540830122-2577-3-git-send-email-p.paillet@st.com>
- <20181113074037.GC29388@dell>
- <5BFC2B69.1050204@st.com>
+Subject: Re: [PATCH v2 1/4] mfd: stmpe: Move ADC related defines to header of
+ mfd
+Date: Tue, 27 Nov 2018 12:14:30 +0000
+Message-ID: <20181127121430.GJ4272@dell>
+References: <20181119102528.2830-1-dev@pschenker.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5BFC2B69.1050204@st.com>
+In-Reply-To: <20181119102528.2830-1-dev@pschenker.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+To: Philippe Schenker <dev@pschenker.ch>
+Cc: jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch, Philippe Schenker <philippe.schenker@toradex.com>, Max Krummenacher <max.krummenacher@toradex.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 26 Nov 2018, Pascal PAILLET-LME wrote:
-> Hi Lee,
-> I have just one question regarding i2c_device_id.
+On Mon, 19 Nov 2018, Philippe Schenker wrote:
 
-Don't forget to trim your responses.
-
-Lots of unrequired quotes here.
-
-[...]
-
-> >> +static const struct i2c_device_id stpmic1_id[] = {
-> >> +	{ "stpmic1"},
-> >> +	{}
-> >> +};
-> > I don't think this is required any more.
-> should I replace with the following ?
+> Move defines that are ADC related to the header of the overlying mfd,
+> so they can be used from multiple sub-devices.
 > 
-> static const struct of_device_id stpmic1_of_match[] = {
->      { .compatible = "st,stpmic1", },
->      {},
-> };
-> MODULE_DEVICE_TABLE(of, stpmic1_of_match);
+> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+> ---
+> 
+> Changes in v2:
+>  - This is a new added commit. Separate commit for moving the defines out of
+>    drivers/input/touchscreen/stmpe-ts.c to overlying mfd-device drivers/mfd/stmpe.c
+>  - Pre-fix defines with STMPE_
+> 
+>  drivers/input/touchscreen/stmpe-ts.c | 34 +++++++++++-----------------
+>  include/linux/mfd/stmpe.h            | 11 +++++++++
+>  2 files changed, 24 insertions(+), 21 deletions(-)
 
-I think it should have had that already.  So yes, please.
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
 -- 
 Lee Jones [李琼斯]

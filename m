@@ -1,44 +1,34 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v6 2/8] mfd: stpmic1: add stpmic1 driver
-Date: Wed, 28 Nov 2018 10:14:52 +0000
-Message-ID: <20181128101452.GE4272@dell>
-References: <1543337529-22301-1-git-send-email-p.paillet@st.com>
- <1543337529-22301-3-git-send-email-p.paillet@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: adam@adamwong.me
+Subject: [PATCH] Input: mouse: elan_i2c_core: Added support for ELAN0621 touchpad.
+Date: Wed, 28 Nov 2018 16:20:01 -0500
+Message-ID: <20181128212001.20839-1-adam@adamwong.me>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1543337529-22301-3-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+To: dmitry.torokhov@gmail.com
+Cc: benjamin.tissoires@redhat.com, kt.liao@emc.com.tw, dshanty@protonmail.com, robh@kernel.org, jackxviichaos@gmail.com, ben.hutchings@codethink.co.uk, gregkh@linuxfoundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, TheWongGuy <adam@adamwong.me>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 27 Nov 2018, Pascal PAILLET-LME wrote:
+From: TheWongGuy <adam@adamwong.me>
 
-> STPMIC1 is a PMIC from STMicroelectronics. The STPMIC1 integrates 10
-> regulators, 3 power switches, a watchdog and an input for a power on key.
-> 
-> Signed-off-by: Pascal Paillet <p.paillet@st.com>
-> ---
-> changes in v6:
-> * replace i2c_device_id by of_device_id
-> * fix commit message and Kconfig description
-> 
->  drivers/mfd/Kconfig         |  16 ++++
->  drivers/mfd/Makefile        |   1 +
->  drivers/mfd/stpmic1.c       | 213 ++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/mfd/stpmic1.h | 212 +++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 442 insertions(+)
->  create mode 100644 drivers/mfd/stpmic1.c
->  create mode 100644 include/linux/mfd/stpmic1.h
+Added the ability to detect the ELAN0621 touchpad found in some Lenovo
+laptops.
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Adam Wong <adam@adamwong.me>
+---
+ drivers/input/mouse/elan_i2c_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index b0f9d19b3410..a84362d0c99d 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1348,6 +1348,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0618", 0 },
+ 	{ "ELAN061C", 0 },
+ 	{ "ELAN061D", 0 },
++	{ "ELAN0621", 0 },
+ 	{ "ELAN0622", 0 },
+ 	{ "ELAN1000", 0 },
+ 	{ }
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.1

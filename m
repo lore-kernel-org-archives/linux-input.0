@@ -1,63 +1,70 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: Re: [PATCH] Input: xpad - add support for Hyperkin Duke Xbox One
- gamepad
-Date: Tue, 27 Nov 2018 19:53:44 -0800
-Message-ID: <e920f403-a9e0-5345-27a7-522488b89d27@gmail.com>
-References: <20181128032857.26167-1-aicommander@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 3/4] iio: adc: add STMPE ADC devicetree bindings
+Date: Wed, 28 Nov 2018 09:02:33 +0000
+Message-ID: <20181128090233.GQ4272@dell>
+References: <20181123142411.8921-1-dev@pschenker.ch>
+ <20181123142411.8921-3-dev@pschenker.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181128032857.26167-1-aicommander@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181123142411.8921-3-dev@pschenker.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: shelby@jueden.org
+To: Philippe Schenker <dev@pschenker.ch>
+Cc: jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch, Max Krummenacher <max.krummenacher@toradex.com>, Philippe Schenker <philippe.schenker@toradex.com>, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-input@vger.kernel.org
 
+On Fri, 23 Nov 2018, Philippe Schenker wrote:
 
-
-On 11/27/2018 07:28 PM, Cameron Gutman wrote:
-> Originally submitted by Shelby Jueden (GitHub: AkBKukU) to paroj/xpad:
-> https://github.com/paroj/xpad/pull/97
+> From: Stefan Agner <stefan@agner.ch>
 > 
-> Minor change to the location of the new entries done by me.
+> This adds the devicetree bindings for the STMPE ADC.
 > 
-> Cc: Shelby Jueden <shelby@jueden.org>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+> Signed-off-by: Stefan Agner <stefan@agner.ch>
+> Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
 > ---
-
-I'm going to actually NACK this one myself.
-
-I didn't realize Shelby had already submitted it here and received
-feedback - https://patchwork.kernel.org/patch/10421897/
-
-I believe I have a patch to always read from Xbox One gamepads kicking around
-here somewhere. I'll send that in a series with this patch (or Shelby's if he
-wants to make a v2 with the ordering fixed).
-
->  drivers/input/joystick/xpad.c | 2 ++
->  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index cfc8b94527b9..8d6ea091a01a 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -330,6 +330,7 @@ static const struct xpad_device {
->  	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
->  	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
->  	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-> +	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
->  	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
->  	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
->  	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
-> @@ -440,6 +441,7 @@ static const struct usb_device_id xpad_table[] = {
->  	XPAD_XBOX360_VENDOR(0x1bad),		/* Harminix Rock Band Guitar and Drums */
->  	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA Controllers */
->  	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
-> +	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke X-Box One pad */
->  	{ }
->  };
+> Changes in v3:
+>  - Reformatted documentation for touchscreen to use tabs and have a better
+>    overview of the settings.
+>  - Added note which adc-settings will take precedence.
+>  - changed typo in sample-time setting from 144 clocks to 124 clocks, as stated
+>    in the datasheet.
+> 
+> Changes in v2:
+>  - Moved the bindings for ADC to the overlying mfd.
+>  - Reformatted for better readability
+> 
+>  .../devicetree/bindings/iio/adc/stmpe-adc.txt | 21 +++++++
+>  .../bindings/input/touchscreen/stmpe.txt      | 60 ++++++++++++-------
+>  .../devicetree/bindings/mfd/stmpe.txt         | 28 ++++++---
+>  3 files changed, 80 insertions(+), 29 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+[...]
+
+> diff --git a/Documentation/devicetree/bindings/mfd/stmpe.txt b/Documentation/devicetree/bindings/mfd/stmpe.txt
+> index c797c05cd3c2..d4408a417193 100644
+> --- a/Documentation/devicetree/bindings/mfd/stmpe.txt
+> +++ b/Documentation/devicetree/bindings/mfd/stmpe.txt
+> @@ -4,15 +4,29 @@ STMPE is an MFD device which may expose the following inbuilt devices: gpio,
+>  keypad, touchscreen, adc, pwm, rotator.
 >  
-> 
+>  Required properties:
+> - - compatible                   : "st,stmpe[610|801|811|1600|1601|2401|2403]"
+> - - reg                          : I2C/SPI address of the device
+> + - compatible			: "st,stmpe[610|801|811|1600|1601|2401|2403]"
+> + - reg				: I2C/SPI address of the device
+
+Formatting changes should be completed in a separate patch.
+
+Here they only serve to obscure the real changes you have made.
+
+Please split the formatting changes out and re-submit.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

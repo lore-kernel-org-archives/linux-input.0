@@ -1,64 +1,66 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 13/68] HID: input: Ignore battery reported by Symbol DS4308
-Date: Thu, 29 Nov 2018 00:55:04 -0500
-Message-ID: <20181129055559.159228-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 41/68] Revert "HID: uhid: use strlcpy() instead of strncpy()"
+Date: Thu, 29 Nov 2018 00:55:32 -0500
+Message-ID: <20181129055559.159228-41-sashal@kernel.org>
 References: <20181129055559.159228-1-sashal@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181129055559.159228-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benson Leung <bleung@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: David Herrmann <dh.herrmann@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Benson Leung <bleung@chromium.org>
+From: David Herrmann <dh.herrmann@gmail.com>
 
-[ Upstream commit 0fd791841a6d67af1155a9c3de54dea51220721e ]
+[ Upstream commit 4d26d1d1e8065bb3326a7c06d5d4698e581443a9 ]
 
-The Motorola/Zebra Symbol DS4308-HD is a handheld USB barcode scanner
-which does not have a battery, but reports one anyway that always has
-capacity 2.
+This reverts commit 336fd4f5f25157e9e8bd50e898a1bbcd99eaea46.
 
-Let's apply the IGNORE quirk to prevent it from being treated like a
-power supply so that userspaces don't get confused that this
-accessory is almost out of power and warn the user that they need to charge
-their wired barcode scanner.
+Please note that `strlcpy()` does *NOT* do what you think it does.
+strlcpy() *ALWAYS* reads the full input string, regardless of the
+'length' parameter. That is, if the input is not zero-terminated,
+strlcpy() will *READ* beyond input boundaries. It does this, because it
+always returns the size it *would* copy if the target was big enough,
+not the truncated size it actually copied.
 
-Reported here: https://bugs.chromium.org/p/chromium/issues/detail?id=804720
+The original code was perfectly fine. The hid device is
+zero-initialized and the strncpy() functions copied up to n-1
+characters. The result is always zero-terminated this way.
 
-Signed-off-by: Benson Leung <bleung@chromium.org>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+This is the third time someone tried to replace strncpy with strlcpy in
+this function, and gets it wrong. I now added a comment that should at
+least make people reconsider.
+
+Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/hid/uhid.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 501c05cbec7e..a2d25055cd7f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1038,6 +1038,7 @@
- #define USB_VENDOR_ID_SYMBOL		0x05e0
- #define USB_DEVICE_ID_SYMBOL_SCANNER_1	0x0800
- #define USB_DEVICE_ID_SYMBOL_SCANNER_2	0x1300
-+#define USB_DEVICE_ID_SYMBOL_SCANNER_3	0x1200
+diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
+index 051639c09f72..840634e0f1e3 100644
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -497,12 +497,13 @@ static int uhid_dev_create2(struct uhid_device *uhid,
+ 		goto err_free;
+ 	}
  
- #define USB_VENDOR_ID_SYNAPTICS		0x06cb
- #define USB_DEVICE_ID_SYNAPTICS_TP	0x0001
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index a481eaf39e88..a3916e58dbf5 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -325,6 +325,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
- 		USB_DEVICE_ID_ELECOM_BM084),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
-+		USB_DEVICE_ID_SYMBOL_SCANNER_3),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
+-	len = min(sizeof(hid->name), sizeof(ev->u.create2.name));
+-	strlcpy(hid->name, ev->u.create2.name, len);
+-	len = min(sizeof(hid->phys), sizeof(ev->u.create2.phys));
+-	strlcpy(hid->phys, ev->u.create2.phys, len);
+-	len = min(sizeof(hid->uniq), sizeof(ev->u.create2.uniq));
+-	strlcpy(hid->uniq, ev->u.create2.uniq, len);
++	/* @hid is zero-initialized, strncpy() is correct, strlcpy() not */
++	len = min(sizeof(hid->name), sizeof(ev->u.create2.name)) - 1;
++	strncpy(hid->name, ev->u.create2.name, len);
++	len = min(sizeof(hid->phys), sizeof(ev->u.create2.phys)) - 1;
++	strncpy(hid->phys, ev->u.create2.phys, len);
++	len = min(sizeof(hid->uniq), sizeof(ev->u.create2.uniq)) - 1;
++	strncpy(hid->uniq, ev->u.create2.uniq, len);
  
+ 	hid->ll_driver = &uhid_hid_driver;
+ 	hid->bus = ev->u.create2.bus;
 -- 
 2.17.1

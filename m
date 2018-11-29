@@ -1,72 +1,54 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/8] HID: MS and Logitech high-resolution scroll wheel support
-Date: Thu, 29 Nov 2018 11:25:12 +0100
-Message-ID: <CAO-hwJ+eFJduSuORm8GavKjtsfV4tqkEGC5-cao0_yhkVbKfwg@mail.gmail.com>
-References: <20181122063409.15816-1-peter.hutterer@who-t.net>
- <CA+jURcuGGRtyeRXfLK0Or=hDG6KJ1z9eAS8DAuH12-QTNpgs0w@mail.gmail.com> <20181129042722.GA5872@jelly>
+Subject: Re: [PATCH] Input: synaptics - Add PNP ID for ThinkPad P50 to SMBus
+Date: Thu, 29 Nov 2018 12:16:29 +0100
+Message-ID: <CAO-hwJKLaM=RgfdR_c_MF_rCdJ=CPrbFRRST4KYb6czqsAORBA@mail.gmail.com>
+References: <20181121201622.20815-1-lyude@redhat.com> <20181128034720.GB21318@jelly>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181129042722.GA5872@jelly>
+In-Reply-To: <20181128034720.GB21318@jelly>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: hcutts@chromium.org, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, lkml <linux-kernel@vger.kernel.org>
+Cc: Lyude Paul <lyude@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, edvard.holst@gmail.com, arkadiusz.hiler@intel.com, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Nov 29, 2018 at 5:27 AM Peter Hutterer <peter.hutterer@who-t.net> wrote:
+On Wed, Nov 28, 2018 at 4:47 AM Peter Hutterer <peter.hutterer@who-t.net> wrote:
 >
-> On Wed, Nov 28, 2018 at 03:22:14PM -0800, Harry Cutts wrote:
-> > On Wed, 21 Nov 2018 at 22:34, Peter Hutterer <peter.hutterer@who-t.net> wrote:
-> > > [snip]
-> > > Devices tested:
-> > > - Microsoft Comfort Optical Mouse 3000
-> > > - Microsoft Sculpt Ergonomic Mouse
-> > > - Microsoft Surface mouse
-> > > - Logitech MX Anywhere 2S
-> > >
-> > > The following devices were tested for the HID feature and didn't have it:
-> > > - Logitech G500s, G303
-> > > - Roccat Kone XTD
-> > > - all the cheap Lenovo, HP, Dell, Logitech USB mice that come with a
-> > >   workstation that I could find in the local office
-> > > - Etekcity something something
-> > > - Razer Imperator
-> > > - Microsoft Classic IntelliMouse
-> > > - Microsoft Surface Mobile Mouse
+> On Wed, Nov 21, 2018 at 03:16:20PM -0500, Lyude Paul wrote:
+> > Noticed the other day the trackpoint felt different on my P50, then
+> > realized it was because rmi4 wasn't loading for this machine
+> > automatically. Suspend/resume, hibernate, and everything else seem to
+> > work perfectly fine on here.
 > >
-> > I just tested the patches with the Microsoft Comfort Optical Mouse
-> > 3000. I also tested with the Microsoft Surface Precision mouse [0],
-> > and like the Surface Mobile mouse it didn't seem to report the HID
-> > feature (at least, it was only reporting REL_WHEEL_HI_RES changes of
-> > 120 in evtest).
+> > Signed-off-by: Lyude Paul <lyude@redhat.com>
 >
-> IIRC that's the same mouse benjamin has and it does have the HID feature, it
-> just ends up reporting the same number of clicks anyway so there's no
-> visible effect. Which in itself is a good sign for the patch series, I
-> guess ;)
->
-> > For the series:
-> > Acked-by: Harry Cutts <hcutts@chromium.org>
-> > Verified-by: Harry Cutts <hcutts@chromium.org>
->
-> thanks, much appreciated.
+> Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
 
-Thanks everyone.
-
-Just a small note that there is a mess up in Peter's series that he is
-already aware of: patch 6/8 depends on 8/8 so there is either a small
-refactoring to do or change the order of the patches.
-
-I also have asked Peter to look for regression tests in hid-tools[0]
-before I can merge this. FWIW, I am putting together a CI system that
-will run this test suite for every submitted patch (plus a few other
-tests). But the test suite simply lacks basic wheel testing, so it's
-hard to see regressions :)
-
-I should be able to apply the series in the next following days or
-next week I think.
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
-[0] https://gitlab.freedesktop.org/libevdev/hid-tools/
+>
+> Cheers,
+>    Peter
+>
+> > ---
+> >  drivers/input/mouse/synaptics.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> > index 5e85f3cca867..c42813d50591 100644
+> > --- a/drivers/input/mouse/synaptics.c
+> > +++ b/drivers/input/mouse/synaptics.c
+> > @@ -170,6 +170,7 @@ static const char * const smbus_pnp_ids[] = {
+> >       "LEN0048", /* X1 Carbon 3 */
+> >       "LEN0046", /* X250 */
+> >       "LEN004a", /* W541 */
+> > +     "LEN005b", /* P50 */
+> >       "LEN0071", /* T480 */
+> >       "LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+> >       "LEN0073", /* X1 Carbon G5 (Elantech) */
+> > --
+> > 2.19.1
+> >

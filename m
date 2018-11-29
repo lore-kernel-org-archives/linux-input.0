@@ -1,60 +1,64 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 43/68] HID: multitouch: Add pointstick support for Cirque Touchpad
-Date: Thu, 29 Nov 2018 00:55:34 -0500
-Message-ID: <20181129055559.159228-43-sashal@kernel.org>
-References: <20181129055559.159228-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 07/35] HID: input: Ignore battery reported by Symbol DS4308
+Date: Thu, 29 Nov 2018 01:00:41 -0500
+Message-ID: <20181129060110.159878-7-sashal@kernel.org>
+References: <20181129060110.159878-1-sashal@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181129055559.159228-1-sashal@kernel.org>
+In-Reply-To: <20181129060110.159878-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Benson Leung <bleung@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Benson Leung <bleung@chromium.org>
 
-[ Upstream commit 12d43aacf9a74d0eb66fd0ea54ebeb79ca28940f ]
+[ Upstream commit 0fd791841a6d67af1155a9c3de54dea51220721e ]
 
-Cirque Touchpad/Pointstick combo is similar to Alps devices, it requires
-MT_CLS_WIN_8_DUAL to expose its pointstick as a mouse.
+The Motorola/Zebra Symbol DS4308-HD is a handheld USB barcode scanner
+which does not have a battery, but reports one anyway that always has
+capacity 2.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Let's apply the IGNORE quirk to prevent it from being treated like a
+power supply so that userspaces don't get confused that this
+accessory is almost out of power and warn the user that they need to charge
+their wired barcode scanner.
+
+Reported here: https://bugs.chromium.org/p/chromium/issues/detail?id=804720
+
+Signed-off-by: Benson Leung <bleung@chromium.org>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h        | 3 +++
- drivers/hid/hid-multitouch.c | 6 ++++++
- 2 files changed, 9 insertions(+)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a2d25055cd7f..b71c3600f470 100644
+index 3fc8c0d67592..87904d2adadb 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -271,6 +271,9 @@
+@@ -1001,6 +1001,7 @@
+ #define USB_VENDOR_ID_SYMBOL		0x05e0
+ #define USB_DEVICE_ID_SYMBOL_SCANNER_1	0x0800
+ #define USB_DEVICE_ID_SYMBOL_SCANNER_2	0x1300
++#define USB_DEVICE_ID_SYMBOL_SCANNER_3	0x1200
  
- #define USB_VENDOR_ID_CIDC		0x1677
+ #define USB_VENDOR_ID_SYNAPTICS		0x06cb
+ #define USB_DEVICE_ID_SYNAPTICS_TP	0x0001
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index bb984cc9753b..d146a9b545ee 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -325,6 +325,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+ 		USB_DEVICE_ID_ELECOM_BM084),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
++		USB_DEVICE_ID_SYMBOL_SCANNER_3),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
  
-+#define I2C_VENDOR_ID_CIRQUE		0x0488
-+#define I2C_PRODUCT_ID_CIRQUE_121F	0x121F
-+
- #define USB_VENDOR_ID_CJTOUCH		0x24b8
- #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
- #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0040	0x0040
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index da954f3f4da7..2faf5421fdd0 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1822,6 +1822,12 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_CHUNGHWAT,
- 			USB_DEVICE_ID_CHUNGHWAT_MULTITOUCH) },
- 
-+	/* Cirque devices */
-+	{ .driver_data = MT_CLS_WIN_8_DUAL,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			I2C_VENDOR_ID_CIRQUE,
-+			I2C_PRODUCT_ID_CIRQUE_121F) },
-+
- 	/* CJTouch panels */
- 	{ .driver_data = MT_CLS_NSMU,
- 		MT_USB_DEVICE(USB_VENDOR_ID_CJTOUCH,
 -- 
 2.17.1

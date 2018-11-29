@@ -1,64 +1,30 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 06/18] HID: input: Ignore battery reported by Symbol DS4308
-Date: Thu, 29 Nov 2018 01:03:18 -0500
-Message-ID: <20181129060331.160224-6-sashal@kernel.org>
-References: <20181129060331.160224-1-sashal@kernel.org>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] Input: mouse: elan_i2c_core: Added support for ELAN0621
+ touchpad.
+Date: Thu, 29 Nov 2018 08:50:51 +0100
+Message-ID: <20181129075051.GF12347@kroah.com>
+References: <20181128212001.20839-1-adam@adamwong.me>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181129060331.160224-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181128212001.20839-1-adam@adamwong.me>
 Sender: linux-kernel-owner@vger.kernel.org
-To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Benson Leung <bleung@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: adam@adamwong.me
+Cc: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, kt.liao@emc.com.tw, dshanty@protonmail.com, robh@kernel.org, jackxviichaos@gmail.com, ben.hutchings@codethink.co.uk, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Benson Leung <bleung@chromium.org>
+On Wed, Nov 28, 2018 at 04:20:01PM -0500, adam@adamwong.me wrote:
+> From: TheWongGuy <adam@adamwong.me>
 
-[ Upstream commit 0fd791841a6d67af1155a9c3de54dea51220721e ]
+This name, does not match:
 
-The Motorola/Zebra Symbol DS4308-HD is a handheld USB barcode scanner
-which does not have a battery, but reports one anyway that always has
-capacity 2.
+> Signed-off-by: Adam Wong <adam@adamwong.me>
 
-Let's apply the IGNORE quirk to prevent it from being treated like a
-power supply so that userspaces don't get confused that this
-accessory is almost out of power and warn the user that they need to charge
-their wired barcode scanner.
+That name :(
 
-Reported here: https://bugs.chromium.org/p/chromium/issues/detail?id=804720
+Please fix.
 
-Signed-off-by: Benson Leung <bleung@chromium.org>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 3 +++
- 2 files changed, 4 insertions(+)
+thanks,
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8913f357e78f..6f4c84d824e6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -965,6 +965,7 @@
- #define USB_VENDOR_ID_SYMBOL		0x05e0
- #define USB_DEVICE_ID_SYMBOL_SCANNER_1	0x0800
- #define USB_DEVICE_ID_SYMBOL_SCANNER_2	0x1300
-+#define USB_DEVICE_ID_SYMBOL_SCANNER_3	0x1200
- 
- #define USB_VENDOR_ID_SYNAPTICS		0x06cb
- #define USB_DEVICE_ID_SYNAPTICS_TP	0x0001
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 5ff6dd8147b6..fc7ada26457e 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -324,6 +324,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
- 		USB_DEVICE_ID_ELECOM_BM084),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
-+		USB_DEVICE_ID_SYMBOL_SCANNER_3),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
- 
--- 
-2.17.1
+greg k-h

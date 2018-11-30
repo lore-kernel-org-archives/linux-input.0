@@ -1,95 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: i8042 add of_node_put()
-Date: Thu, 29 Nov 2018 10:36:57 -0800
-Message-ID: <20181129183657.GD54791@dtor-ws>
-References: <20181121143513.22961-1-tiny.windzz@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Chris Chiu <chiu@endlessm.com>
+Subject: [PATCH] HID: input: support Microsoft wireless radio control hotkey
+Date: Fri, 30 Nov 2018 14:46:17 +0800
+Message-ID: <20181130064617.67920-1-chiu@endlessm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181121143513.22961-1-tiny.windzz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yangtao Li <tiny.windzz@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, rydberg@bitmath.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux@endlessm.com, Chris Chiu <chiu@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Yangtao,
+The ASUS laptops start to support the airplane mode radio management
+to replace the original machanism of airplane mode toggle hotkey.
+On the ASUS P5440FF, it presents as a HID device connecting via
+I2C, name i2c-AMPD0001. When pressing hotkey, the Embedded Controller
+send hid report up via I2C and switch the airplane mode indicator
+LED based on the status.
 
-On Wed, Nov 21, 2018 at 09:35:13AM -0500, Yangtao Li wrote:
-> use of_node_put() to release the refcount.
-> 
-> Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-> ---
->  drivers/input/serio/i8042-sparcio.h | 24 +++++++++++++++++-------
->  1 file changed, 17 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
-> index 796289846204..5495bc035518 100644
-> --- a/drivers/input/serio/i8042-sparcio.h
-> +++ b/drivers/input/serio/i8042-sparcio.h
-> @@ -108,18 +108,21 @@ static struct platform_driver sparc_i8042_driver = {
->  
->  static int __init i8042_platform_init(void)
->  {
-> +	int rc;
->  	struct device_node *root = of_find_node_by_path("/");
->  
->  	if (!strcmp(root->name, "SUNW,JavaStation-1")) {
->  		/* Hardcoded values for MrCoffee.  */
->  		i8042_kbd_irq = i8042_aux_irq = 13 | 0x20;
->  		kbd_iobase = ioremap(0x71300060, 8);
-> -		if (!kbd_iobase)
-> -			return -ENODEV;
-> +		if (!kbd_iobase){
-> +			rc = -ENODEV;
-> +			goto out;
-> +		}
->  	} else {
-> -		int err = platform_driver_register(&sparc_i8042_driver);
-> -		if (err)
-> -			return err;
-> +		rc = platform_driver_register(&sparc_i8042_driver);
-> +		if (rc)
-> +			goto out;
->  
->  		if (i8042_kbd_irq == -1 ||
->  		    i8042_aux_irq == -1) {
-> @@ -127,13 +130,18 @@ static int __init i8042_platform_init(void)
->  				of_iounmap(kbd_res, kbd_iobase, 8);
->  				kbd_iobase = (void __iomem *) NULL;
->  			}
-> -			return -ENODEV;
-> +			rc = -ENODEV;
-> +			goto out;
->  		}
->  	}
->  
->  	i8042_reset = I8042_RESET_ALWAYS;
->  
-> -	return 0;
-> +	rc = 0;
-> +out:
-> +	of_node_put(root);
-> +
-> +	return rc;
+However, it's not working because it fails to be identified as a
+hidinput device. It fails in hidinput_connect() due to the macro
+IS_INPUT_APPLICATION doesn't identify HID_GD_WIRELESS_RADIO_CTLS
+as a legit application code.
 
-Instead of rearranging code like this, can we instead have:
+It's easy to add the HID I2C vendor and product id to the quirk
+list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
+can be more generic to support such kind of application on PC.
 
-static inline bool i8042_is_mr_coffee(void)
-{
-	struct device_node *root;
-	bool is_mr_coffree;
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
+---
+ include/linux/hid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-	root = of_find_node_by_path("/");
-	is_mr_coffree = !strcmp(root->name, "SUNW,JavaStation-1");
-	of_node_put(root);
-
-	return is_mr_coffee;
-}
-
-?
-
-Thanks.
-
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index d44a78362942..f4805f605fed 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -836,7 +836,7 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
+ 
+ /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
+ /* We ignore a few input applications that are not widely used */
+-#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
++#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || || (a == 0x0001000c) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
+ 
+ /* HID core API */
+ 
 -- 
-Dmitry
+2.11.0

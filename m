@@ -1,46 +1,35 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: [PATCH] HID: input: support Microsoft wireless radio control hotkey
-Date: Fri, 30 Nov 2018 14:46:17 +0800
-Message-ID: <20181130064617.67920-1-chiu@endlessm.com>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: Re: [PATCH v6 3/8] dt-bindings: regulator: document stpmic1 pmic
+ regulators
+Date: Fri, 30 Nov 2018 08:51:28 +0000
+Message-ID: <5C00FA0F.3020303@st.com>
+References: <1543337529-22301-1-git-send-email-p.paillet@st.com>
+ <1543337529-22301-4-git-send-email-p.paillet@st.com>
+ <20181128094801.GF6828@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181128094801.GF6828@sirena.org.uk>
+Content-Language: en-US
+Content-ID: <9DB619103FCF3F4681616A2DF44F3FBE@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, rydberg@bitmath.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux@endlessm.com, Chris Chiu <chiu@endlessm.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
 List-Id: linux-input@vger.kernel.org
 
-The ASUS laptops start to support the airplane mode radio management
-to replace the original machanism of airplane mode toggle hotkey.
-On the ASUS P5440FF, it presents as a HID device connecting via
-I2C, name i2c-AMPD0001. When pressing hotkey, the Embedded Controller
-send hid report up via I2C and switch the airplane mode indicator
-LED based on the status.
+Le 11/28/2018 10:48 AM, Mark Brown a écrit :
+> On Tue, Nov 27, 2018 at 04:52:15PM +0000, Pascal PAILLET-LME wrote:
+>> The STPMIC1 regulators supply power to the application processor as well as
+>> to the external system peripherals such as DDR, Flash memories and system
+>> devices.
+> Please do not submit new versions of already applied patches, please
+> submit incremental updates to the existing code.  Modifying existing
+> commits creates problems for other users building on top of those
+> commits so it's best practice to only change pubished git commits if
+> absolutely essential.
 
-However, it's not working because it fails to be identified as a
-hidinput device. It fails in hidinput_connect() due to the macro
-IS_INPUT_APPLICATION doesn't identify HID_GD_WIRELESS_RADIO_CTLS
-as a legit application code.
+Sorry Mark, I will submit my changes on the regulator driver in separate 
+patches.
 
-It's easy to add the HID I2C vendor and product id to the quirk
-list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
-can be more generic to support such kind of application on PC.
-
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
----
- include/linux/hid.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index d44a78362942..f4805f605fed 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -836,7 +836,7 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
- 
- /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
- /* We ignore a few input applications that are not widely used */
--#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
-+#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || || (a == 0x0001000c) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
- 
- /* HID core API */
- 
--- 
-2.11.0
+pascal

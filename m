@@ -1,7 +1,7 @@
 From: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: [PATCH v7 7/7] regulator: stpmic1: fix regulator_lock usage
-Date: Fri, 30 Nov 2018 09:55:51 +0000
-Message-ID: <1543571742-17995-8-git-send-email-p.paillet@st.com>
+Subject: [PATCH v7 5/7] dt-bindings: watchdog: document stpmic1 pmic watchdog
+Date: Fri, 30 Nov 2018 09:55:50 +0000
+Message-ID: <1543571742-17995-6-git-send-email-p.paillet@st.com>
 References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -14,28 +14,35 @@ To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org
 Cc: Pascal PAILLET-LME <p.paillet@st.com>
 List-Id: linux-input@vger.kernel.org
 
-fix a compilation issue due to regulator_lock usage.
+The stpmic1 PMIC embeds a watchdog which is disabled by default.
+In case of watchdog, the PMIC goes off.
 
 Signed-off-by: Pascal Paillet <p.paillet@st.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 ---
-changes in v7: 
-* new patch due to rebase on regul/for-next
+changes in v7: nothing
 
- drivers/regulator/stpmic1_regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
 
-diff --git a/drivers/regulator/stpmic1_regulator.c b/drivers/regulator/stpmic1_regulator.c
-index eac0848..16ba029 100644
---- a/drivers/regulator/stpmic1_regulator.c
-+++ b/drivers/regulator/stpmic1_regulator.c
-@@ -489,7 +489,7 @@ static irqreturn_t stpmic1_curlim_irq_handler(int irq, void *data)
- {
- 	struct regulator_dev *rdev = (struct regulator_dev *)data;
- 
--	regulator_lock(rdev, NULL);
-+	regulator_lock(rdev);
- 
- 	/* Send an overcurrent notification */
- 	regulator_notifier_call_chain(rdev,
+diff --git a/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+new file mode 100644
+index 0000000..7cc1407
+--- /dev/null
++++ b/Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+@@ -0,0 +1,11 @@
++STMicroelectronics STPMIC1 Watchdog
++
++Required properties:
++
++- compatible : should be "st,stpmic1-wdt"
++
++Example:
++
++watchdog {
++	compatible = "st,stpmic1-wdt";
++};
 -- 
 1.9.1

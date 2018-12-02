@@ -1,91 +1,108 @@
-From: Aleix Roca Nonell <kernelrocks@gmail.com>
-Subject: [PATCH] HID: asus: Add support for the ASUS T101HA keyboard dock
-Date: Sat, 1 Dec 2018 20:01:53 +0100
-Message-ID: <20181201190153.GB4995@arks.localdomain>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [regression, bisected] Keyboard not responding after resuming
+ from suspend/hibernate
+Date: Sun, 2 Dec 2018 23:28:09 +0100
+Message-ID: <20181202222809.GA29467@amd>
+References: <20180831215121.1b1f66bf@korsan.localdomain>
+ <20181019102031.77015d44@korsan.localdomain>
+ <20181025074903.GA9323@amd>
+ <20181028220654.7e77e5d7@ubuntu>
+ <20181130154455.21578c4d@korsan.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20181130154455.21578c4d@korsan.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Numan =?utf-8?B?RGVtaXJkw7bEn2Vu?= <if.gnu.linux@gmail.com>
+Cc: jason.low2@hpe.com, Waiman.Long@hpe.com, paulmck@linux.vnet.ibm.com, tglx@linutronix.de, dmitry.torokhov@gmail.com, peterz@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The ASUS T101HA keyboard dock generates HID events using the ASUS vendor
-specific UsagePage 0xff31. In consequence, some multimedia keys such as
-brightness up and down are not working with hid-generic.
 
-This commit adds the T101HA dock into the supported device list of the
-hid-asus driver. It also prevents the dock's integrated touchpad to be
-bound with hid-asus given that it is already working fine with
-hid-multitouch.
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Aleix Roca Nonell <kernelrocks@gmail.com>
----
+On Fri 2018-11-30 15:44:55, Numan Demird=C3=B6=C4=9Fen wrote:
+> Sun, 28 Oct 2018 22:06:54 +0300 tarihinde
+> Numan Demird=C3=B6=C4=9Fen <if.gnu.linux@gmail.com> yazd=C4=B1:
+>=20
+> >Thu, 25 Oct 2018 09:49:03 +0200 tarihinde
+> >Pavel Machek <pavel@ucw.cz> yazd=C4=B1:
+> >
+> >> Hi!
+> >>=20
+> >> Here's problem bisected down to:
+> >>=20
+> >> commit 9d659ae14b545c4296e812c70493bfdc999b5c1c
+> >> Author: Peter Zijlstra <peterz@infradead.org>
+> >> Date:   Tue Aug 23 14:40:16 2016 +0200
+> >>=20
+> >>     locking/mutex: Add lock handoff to avoid starvation
+> >>=20
+> >>     Implement lock handoff to avoid lock starvation.
+> >>=20
+> >> Numan, I assume revert of that patch on the 4.18 kernel still makes
+> >> it work?
+> >>  =20
+> >
+> >Unfortunately, I could not revert
+> >9d659ae14b545c4296e812c70493bfdc999b5c1c on kernels from 4.18.16 to
+> >4.10-rc1 because there were too much conflicts, which I could not solve
+> >as an "average Joe". I tried a3ea3d9b865c2a8f7fe455c7fa26db4b6fd066e3
+> >which is parent of 9d659ae14b545c4296e812c70493bfdc999b5c1c and
+> >succeeded to compile kernel.
+> >
+> >git checkout a3ea3d9b865c2a8f7fe455c7fa26db4b6fd066e3
+> >
+> >Then, I compiled kernel and rebooted with it. I tried a couples of
+> >times suspending and resuming, all of the time keyboard worked as
+> >expected.
+> >
+>=20
+> With this one line patch from Takashi Iwai, keyboard is working as
+> expected after resuming from suspend/hibernate.
+>=20
+> --- a/kernel/locking/mutex.c
+> +++ b/kernel/locking/mutex.c
+> @@ -59,7 +59,7 @@ EXPORT_SYMBOL(__mutex_init);
+>   * Bit2 indicates handoff has been done and we're waiting for pickup.
+>   */
+>  #define MUTEX_FLAG_WAITERS	0x01
+> -#define MUTEX_FLAG_HANDOFF	0x02
+> +#define MUTEX_FLAG_HANDOFF	0x00
+>  #define MUTEX_FLAG_PICKUP	0x04
+> =20
+>  #define MUTEX_FLAGS		0x07
+>=20
+>=20
+> Thanks in advance and regards,
 
-This is my very first kernel patch done in my free time (be aware of the
-newbie!!) so please, let me know if I can improve anything and I will
-happily do it :)
+Ok. So it is a regression, and you can ask Linus to apply this
+=2E. but... that's kind of heavy solution. Peter, do you have any other
+ideas?
 
- drivers/hid/hid-asus.c | 12 ++++++++++++
- drivers/hid/hid-ids.h  |  1 +
- 2 files changed, 13 insertions(+)
+									Pavel
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index ab8bd40a77ed..d8b55dca97c6 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -42,6 +42,7 @@ MODULE_AUTHOR("Frederik Wenigwieser <frederik.wenigwieser@gmail.com>");
- MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- 
- #define T100_TPAD_INTF 2
-+#define T101HA_TPAD_INTF 2
- 
- #define T100CHI_MOUSE_REPORT_ID 0x06
- #define FEATURE_REPORT_ID 0x0d
-@@ -70,6 +71,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define QUIRK_T100_KEYBOARD		BIT(6)
- #define QUIRK_T100CHI			BIT(7)
- #define QUIRK_G752_KEYBOARD		BIT(8)
-+#define QUIRK_T101HA_DOCK		BIT(9)
- 
- #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
- 						 QUIRK_NO_INIT_REPORTS | \
-@@ -649,6 +651,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	int ret;
- 	struct asus_drvdata *drvdata;
- 
-+	if (id->driver_data & QUIRK_T101HA_DOCK) {
-+		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+
-+		/* use hid-multitouch for T101HA touchpad */
-+		if (intf->altsetting->desc.bInterfaceNumber == T101HA_TPAD_INTF)
-+			return -ENODEV;
-+	}
-+
- 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
- 	if (drvdata == NULL) {
- 		hid_err(hdev, "Can't alloc Asus descriptor\n");
-@@ -830,6 +840,8 @@ static const struct hid_device_id asus_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
- 	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+		USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD), QUIRK_T101HA_DOCK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 4206428c0ba2..f1eee2778b70 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -184,6 +184,7 @@
- #define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD	0x17e0
- #define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
- #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
-+#define USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD	0x183d
- #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
- #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
- #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
--- 
-2.19.2
+
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlwEXHkACgkQMOfwapXb+vKglQCaA7lxCzLnOVLGE4OKpnuR4mBr
+tkcAnA2BnEslbP+BkCLCtbbImMzF0oSG
+=MvNv
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--

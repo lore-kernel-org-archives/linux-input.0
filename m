@@ -1,13 +1,13 @@
 From: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
-Subject: [PATCH 5/9] dt-bindings: input: touchscreen: goodix:
- Document vcc-supply property
-Date: Mon,  3 Dec 2018 15:45:43 +0530
-Message-ID: <20181203101547.16835-5-jagan@amarulasolutions.com>
+Subject: [PATCH 7/9] dt-bindings: input: touchscreen: goodix:
+ Add GT5663 compatible
+Date: Mon,  3 Dec 2018 15:45:45 +0530
+Message-ID: <20181203101547.16835-7-jagan@amarulasolutions.com>
 References: <20181203101547.16835-1-jagan@amarulasolutions.com>
 Reply-To: jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-sunxi+bncBD7MFH7A7EEBBYMESTQAKGQEOS5DNSY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBD7MFH7A7EEBBY4ESTQAKGQEWC3MEPQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <20181203101547.16835-1-jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,27 +20,43 @@ To: Maxime Ripard <maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, Rob H
 Cc: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-vcc-supply property is need for some Goodix CTP controller like GT5663
-where 3.3V external pull-up regulator connected via controller VCC pin.
+GT5663 is capacitive touch controller with customized smart wakeup gestures,
+the existing goodix driver will work by phandle vcc-supply regulator.
 
-So, document the same as optional property.
+So, document compatible and example node for the same.
 
 Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 ---
- Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
- 1 file changed, 1 insertion(+)
+ .../bindings/input/touchscreen/goodix.txt           | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index f7e95c52f3c7..604766e347ce 100644
+index 604766e347ce..1898d3dde8e1 100644
 --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
 +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -23,6 +23,7 @@ Optional properties:
-  - touchscreen-inverted-y  : Y axis is inverted (boolean)
-  - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
-                              (swapping is done after inverting the axis)
-+ - vcc-supply		: 3v3 regulator phandle for controller VCC pin
+@@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
+ Required properties:
  
- Example:
+  - compatible		: Should be "goodix,gt1151"
++				 or "goodix,gt5663"
+ 				 or "goodix,gt911"
+ 				 or "goodix,gt9110"
+ 				 or "goodix,gt912"
+@@ -42,3 +43,15 @@ Example:
  
+ 		/* ... */
+ 	};
++
++	touchscreen@5d {
++		compatible = "goodix,gt5663";
++		reg = <0x5d>;
++		vcc-supply = <&reg_ldo_io0>;
++		interrupt-parent = <&pio>;
++		interrupts = <7 4 IRQ_TYPE_EDGE_FALLING>;
++		irq-gpios = <&pio 7 4 GPIO_ACTIVE_HIGH>;	/* CTP-INT: PH4 */
++		reset-gpios = <&pio 7 8 GPIO_ACTIVE_HIGH>;	/* CTP-RST: PH8 */
++		touchscreen-inverted-x;
++		touchscreen-inverted-y;
++	};
 -- 
 2.18.0.321.gffc6fa0e3

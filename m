@@ -1,50 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: synaptics - enable SMBus for HP 15-ay000
- (SYN3221).
-Date: Mon, 3 Dec 2018 11:26:29 -0800
-Message-ID: <20181203192629.GD257010@dtor-ws>
-References: <20181116.130459.1796034910024118091.teika@gmx.com>
+Subject: Re: [PATCH 1/1] input/mouse: elan_i2c_core: Add ELAN061E ID
+Date: Mon, 3 Dec 2018 11:28:54 -0800
+Message-ID: <20181203192854.GE257010@dtor-ws>
+References: <20181118165901.31689-1-harsh@prjkt.io>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181116.130459.1796034910024118091.teika@gmx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Teika Kazura <teika@gmx.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+In-Reply-To: <20181118165901.31689-1-harsh@prjkt.io>
+Sender: stable-owner@vger.kernel.org
+To: Harsh Shandilya <harsh@prjkt.io>
+Cc: linux-input@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 16, 2018 at 01:04:59PM +0900, Teika Kazura wrote:
-> SMBus works fine for the touchpad with id SYN3221, used in the HP 15-ay000 series,
-> 
-> This device has been reported in these messages in the "linux-input" mailing list:
-> * https://marc.info/?l=linux-input&m=152016683003369&w=2
-> * https://www.spinics.net/lists/linux-input/msg52525.html
-> 
-> Reported-by: Nitesh Debnath <niteshkd1999@gmail.com>
-> Reported-by: Teika Kazura <teika@gmx.com>
-> Signed-off-by: Teika Kazura <teika@gmx.com>
+Hi Harsh,
 
-Applied, thank you.
+On Sun, Nov 18, 2018 at 10:29:01PM +0530, Harsh Shandilya wrote:
+> Trackpad found in the Lenovo IdeaPad 330-15ARR U SKU
+> 
+> Signed-off-by: Harsh Shandilya <harsh@prjkt.io>
+> Cc: stable@vger.kernel.org
+
+Sorry, I noticed similar patch by Noah Westervelt first.
 
 > ---
->  drivers/input/mouse/synaptics.c | 1 +
+>  drivers/input/mouse/elan_i2c_core.c | 1 +
 >  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 55d33500d5..591b776f22 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[] = {
->  	"LEN0096", /* X280 */
->  	"LEN0097", /* X280 -> ALPS trackpoint */
->  	"LEN200f", /* T450s */
-> +	"SYN3221", /* HP 15-ay000 */
->  	NULL
->  };
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index fb8806c1a39a..5a27944fb8de 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -1371,6 +1371,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
+>  	{ "ELAN0618", 0 },
+>  	{ "ELAN061C", 0 },
+>  	{ "ELAN061D", 0 },
+> +	{ "ELAN061E", 0 },
+>  	{ "ELAN0622", 0 },
+>  	{ "ELAN1000", 0 },
+>  	{ }
+> -- 
+> 2.20.0.rc0
 > 
-> --
-> 2.18.1
 
 -- 
 Dmitry

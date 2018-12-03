@@ -1,13 +1,13 @@
 From: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
-Subject: [PATCH 4/9] arm64: allwinner: dts: axp803: Set GPIO0/1
- pinmux for LD0s
-Date: Mon,  3 Dec 2018 15:45:42 +0530
-Message-ID: <20181203101547.16835-4-jagan@amarulasolutions.com>
+Subject: [PATCH 5/9] dt-bindings: input: touchscreen: goodix:
+ Document vcc-supply property
+Date: Mon,  3 Dec 2018 15:45:43 +0530
+Message-ID: <20181203101547.16835-5-jagan@amarulasolutions.com>
 References: <20181203101547.16835-1-jagan@amarulasolutions.com>
 Reply-To: jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-sunxi+bncBD7MFH7A7EEBBYEESTQAKGQE635NPLI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBD7MFH7A7EEBBYMESTQAKGQEOS5DNSY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <20181203101547.16835-1-jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,53 +20,27 @@ To: Maxime Ripard <maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, Rob H
 Cc: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-GPIO0, GPIO1 can be used as LDO like ldo_io0, ldo_io1 in
-AXP803.
+vcc-supply property is need for some Goodix CTP controller like GT5663
+where 3.3V external pull-up regulator connected via controller VCC pin.
 
-So, attach the LDO GPIO pins along with pinctrl properties.
+So, document the same as optional property.
 
 Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 ---
- arch/arm64/boot/dts/allwinner/axp803.dtsi | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/allwinner/axp803.dtsi b/arch/arm64/boot/dts/allwinner/axp803.dtsi
-index c6b95980d476..b0d6b3c3cf38 100644
---- a/arch/arm64/boot/dts/allwinner/axp803.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/axp803.dtsi
-@@ -54,6 +54,16 @@
- 			     "x-powers,axp813-gpio";
- 		gpio-controller;
- 		#gpio-cells = <2>;
-+
-+		gpio0_ldo: gpio0-ldo {
-+			pins = "GPIO0";
-+			function = "ldo";
-+		};
-+
-+		gpio1_ldo: gpio1-ldo {
-+			pins = "GPIO1";
-+			function = "ldo";
-+		};
- 	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+index f7e95c52f3c7..604766e347ce 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+@@ -23,6 +23,7 @@ Optional properties:
+  - touchscreen-inverted-y  : Y axis is inverted (boolean)
+  - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
+                              (swapping is done after inverting the axis)
++ - vcc-supply		: 3v3 regulator phandle for controller VCC pin
  
- 	regulators {
-@@ -137,12 +147,16 @@
- 		};
- 
- 		reg_ldo_io0: ldo-io0 {
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&gpio0_ldo>;
- 			regulator-name = "ldo-io0";
- 			status = "disabled";
- 		};
- 
- 		reg_ldo_io1: ldo-io1 {
- 			regulator-name = "ldo-io1";
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&gpio1_ldo>;
- 			status = "disabled";
- 		};
+ Example:
  
 -- 
 2.18.0.321.gffc6fa0e3

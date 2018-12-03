@@ -1,111 +1,44 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 2/2] Input: omap-keypad: Fix idle configration to not block SoC idle states
-Date: Sun,  2 Dec 2018 17:29:33 -0800
-Message-ID: <20181203012933.6647-2-tony@atomide.com>
-References: <20181203012933.6647-1-tony@atomide.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Chris Chiu <chiu@endlessm.com>
+Subject: [PATCH 1/2] HID: use macros in IS_INPUT_APPLICATION
+Date: Mon,  3 Dec 2018 14:46:20 +0800
+Message-ID: <20181203064621.69876-1-chiu@endlessm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181203012933.6647-1-tony@atomide.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Axel Haslam <axelhaslam@ti.com>, Illia Smyrnov <illia.smyrnov@ti.com>, Marcel Partap <mpartap@gmx.net>, Merlijn Wajer <merlijn@wizzup.org>, Michael Scott <hashcode0f@gmail.com>, NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, rydberg@bitmath.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux@endlessm.com
 List-Id: linux-input@vger.kernel.org
 
-With PM enabled, I noticed that pressing a key on the droid4 keyboard will
-block deeper idle states for the SoC. Looks like we can fix this by
-managing the idle register to gether with the interrupt similar to what
-we already do for the GPIO controller.
+Add missing definition for HID_DG_WHITEBOARD then replace the hid
+usage hex with macros for better readibility.
 
-Note that we now must also disable OMAP4_DEF_IRQENABLE_LONGKEY as it
-should not be used together with debounce according to the TRM.
-
-Cc: Axel Haslam <axelhaslam@ti.com>
-Cc: Illia Smyrnov <illia.smyrnov@ti.com>
-Cc: Marcel Partap <mpartap@gmx.net>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Michael Scott <hashcode0f@gmail.com>
-Cc: NeKit <nekit1000@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
 ---
- drivers/input/keyboard/omap4-keypad.c | 28 ++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ include/linux/hid.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -53,11 +53,12 @@
- /* OMAP4 bit definitions */
- #define OMAP4_DEF_IRQENABLE_EVENTEN	BIT(0)
- #define OMAP4_DEF_IRQENABLE_LONGKEY	BIT(1)
--#define OMAP4_DEF_WUP_EVENT_ENA		BIT(0)
--#define OMAP4_DEF_WUP_LONG_KEY_ENA	BIT(1)
- #define OMAP4_DEF_CTRL_NOSOFTMODE	BIT(1)
- #define OMAP4_DEF_CTRL_PTV_SHIFT	2
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index a355d61940f2..ce5f996c8d3d 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -238,6 +238,7 @@ struct hid_item {
+ #define HID_DG_LIGHTPEN		0x000d0003
+ #define HID_DG_TOUCHSCREEN	0x000d0004
+ #define HID_DG_TOUCHPAD		0x000d0005
++#define HID_DG_WHITEBOARD	0x000d0006
+ #define HID_DG_STYLUS		0x000d0020
+ #define HID_DG_PUCK		0x000d0021
+ #define HID_DG_FINGER		0x000d0022
+@@ -836,7 +837,10 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
  
-+#define OMAP4_KBD_IRQ_MASK		(OMAP4_DEF_IRQENABLE_LONGKEY | \
-+					 OMAP4_DEF_IRQENABLE_EVENTEN)
-+
- /* OMAP4 values */
- #define OMAP4_VAL_IRQDISABLE		0x0
+ /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
+ /* We ignore a few input applications that are not widely used */
+-#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
++#define IS_INPUT_APPLICATION(a) \
++		(((a >= HID_UP_GENDESK) && (a <= HID_GD_MULTIAXIS)) \
++		|| ((a >= HID_DG_PEN) && (a <= HID_DG_WHITEBOARD)) \
++		|| (a == HID_GD_SYSTEM_CONTROL) || (a == HID_CP_CONSUMER_CONTROL))
  
-@@ -127,9 +128,11 @@ static irqreturn_t omap4_keypad_irq_handler(int irq, void *dev_id)
- 	struct omap4_keypad *keypad_data = dev_id;
+ /* HID core API */
  
- 	if (kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS)) {
--		/* Disable interrupts */
-+		/* Disable interrupts and wake-up events */
- 		kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
- 				 OMAP4_VAL_IRQDISABLE);
-+		kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, 0);
-+
- 		return IRQ_WAKE_THREAD;
- 	}
- 
-@@ -173,10 +176,9 @@ static irqreturn_t omap4_keypad_irq_thread_fn(int irq, void *dev_id)
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
- 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
- 
--	/* enable interrupts */
--	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
--		OMAP4_DEF_IRQENABLE_EVENTEN |
--				OMAP4_DEF_IRQENABLE_LONGKEY);
-+	/* enable interrupts and wake-up events */
-+	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE, OMAP4_KBD_IRQ_MASK);
-+	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, OMAP4_KBD_IRQ_MASK);
- 
- 	return IRQ_HANDLED;
- }
-@@ -197,11 +199,10 @@ static int omap4_keypad_open(struct input_dev *input)
- 	/* clear pending interrupts */
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
- 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
--	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
--			OMAP4_DEF_IRQENABLE_EVENTEN |
--				OMAP4_DEF_IRQENABLE_LONGKEY);
--	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
--			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
-+
-+	/* enable interrupts and wake-up events */
-+	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE, OMAP4_KBD_IRQ_MASK);
-+	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, OMAP4_KBD_IRQ_MASK);
- 
- 	enable_irq(keypad_data->irq);
- 
-@@ -214,9 +215,10 @@ static void omap4_keypad_close(struct input_dev *input)
- 
- 	disable_irq(keypad_data->irq);
- 
--	/* Disable interrupts */
-+	/* Disable interrupts and wake-up events */
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
- 			 OMAP4_VAL_IRQDISABLE);
-+	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, 0);
- 
- 	/* clear pending interrupts */
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
 -- 
-2.19.2
+2.19.1

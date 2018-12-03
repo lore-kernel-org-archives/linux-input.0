@@ -1,12 +1,13 @@
 From: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
-Subject: [PATCH 3/9] arm64: allwinner: dts: axp803: Add GPIO DT node
-Date: Mon,  3 Dec 2018 15:45:41 +0530
-Message-ID: <20181203101547.16835-3-jagan@amarulasolutions.com>
+Subject: [PATCH 4/9] arm64: allwinner: dts: axp803: Set GPIO0/1
+ pinmux for LD0s
+Date: Mon,  3 Dec 2018 15:45:42 +0530
+Message-ID: <20181203101547.16835-4-jagan@amarulasolutions.com>
 References: <20181203101547.16835-1-jagan@amarulasolutions.com>
 Reply-To: jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-sunxi+bncBD7MFH7A7EEBBX4ESTQAKGQEOJOK65Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBD7MFH7A7EEBBYEESTQAKGQE635NPLI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <20181203101547.16835-1-jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,30 +20,53 @@ To: Maxime Ripard <maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, Rob H
 Cc: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add GPIO/pinctrl node for AXP803 PMIC.
+GPIO0, GPIO1 can be used as LDO like ldo_io0, ldo_io1 in
+AXP803.
+
+So, attach the LDO GPIO pins along with pinctrl properties.
 
 Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 ---
- arch/arm64/boot/dts/allwinner/axp803.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/boot/dts/allwinner/axp803.dtsi | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/allwinner/axp803.dtsi b/arch/arm64/boot/dts/allwinner/axp803.dtsi
-index e5eae8bafc42..c6b95980d476 100644
+index c6b95980d476..b0d6b3c3cf38 100644
 --- a/arch/arm64/boot/dts/allwinner/axp803.dtsi
 +++ b/arch/arm64/boot/dts/allwinner/axp803.dtsi
-@@ -49,6 +49,13 @@
- 	interrupt-controller;
- 	#interrupt-cells = <1>;
- 
-+	axp_gpio: axp-gpio {
-+		compatible = "x-powers,axp803-gpio",
-+			     "x-powers,axp813-gpio";
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+	};
+@@ -54,6 +54,16 @@
+ 			     "x-powers,axp813-gpio";
+ 		gpio-controller;
+ 		#gpio-cells = <2>;
 +
++		gpio0_ldo: gpio0-ldo {
++			pins = "GPIO0";
++			function = "ldo";
++		};
++
++		gpio1_ldo: gpio1-ldo {
++			pins = "GPIO1";
++			function = "ldo";
++		};
+ 	};
+ 
  	regulators {
- 		/* Default work frequency for buck regulators */
- 		x-powers,dcdc-freq = <3000>;
+@@ -137,12 +147,16 @@
+ 		};
+ 
+ 		reg_ldo_io0: ldo-io0 {
++			pinctrl-names = "default";
++			pinctrl-0 = <&gpio0_ldo>;
+ 			regulator-name = "ldo-io0";
+ 			status = "disabled";
+ 		};
+ 
+ 		reg_ldo_io1: ldo-io1 {
+ 			regulator-name = "ldo-io1";
++			pinctrl-names = "default";
++			pinctrl-0 = <&gpio1_ldo>;
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.18.0.321.gffc6fa0e3

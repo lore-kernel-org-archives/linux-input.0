@@ -1,13 +1,12 @@
 From: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
-Subject: [PATCH 7/9] dt-bindings: input: touchscreen: goodix:
- Add GT5663 compatible
-Date: Mon,  3 Dec 2018 15:45:45 +0530
-Message-ID: <20181203101547.16835-7-jagan@amarulasolutions.com>
+Subject: [PATCH 6/9] Input: goodix - Add vcc-supply regulator support
+Date: Mon,  3 Dec 2018 15:45:44 +0530
+Message-ID: <20181203101547.16835-6-jagan@amarulasolutions.com>
 References: <20181203101547.16835-1-jagan@amarulasolutions.com>
 Reply-To: jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-sunxi+bncBD7MFH7A7EEBBY4ESTQAKGQEWC3MEPQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBD7MFH7A7EEBBYUESTQAKGQE56GXZ6Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <20181203101547.16835-1-jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -20,43 +19,131 @@ To: Maxime Ripard <maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, Rob H
 Cc: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-GT5663 is capacitive touch controller with customized smart wakeup gestures,
-the existing goodix driver will work by phandle vcc-supply regulator.
+vcc-supply property is need for some Goodix CTP controller like GT5663
+where 3.3V external pull-up regulator connected via controller VCC pin.
 
-So, document compatible and example node for the same.
+So, enable the regulator for those it attached the vcc-supply.
 
 Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 ---
- .../bindings/input/touchscreen/goodix.txt           | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/touchscreen/goodix.c | 39 ++++++++++++++++++++++++++----
+ 1 file changed, 34 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index 604766e347ce..1898d3dde8e1 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
- Required properties:
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index f2d9c2c41885..7adcf1491609 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -27,6 +27,7 @@
+ #include <linux/delay.h>
+ #include <linux/irq.h>
+ #include <linux/interrupt.h>
++#include <linux/regulator/consumer.h>
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+ #include <linux/of.h>
+@@ -47,6 +48,7 @@ struct goodix_ts_data {
+ 	struct touchscreen_properties prop;
+ 	unsigned int max_touch_num;
+ 	unsigned int int_trigger_type;
++	struct regulator *vcc;
+ 	struct gpio_desc *gpiod_int;
+ 	struct gpio_desc *gpiod_rst;
+ 	u16 id;
+@@ -58,6 +60,7 @@ struct goodix_ts_data {
  
-  - compatible		: Should be "goodix,gt1151"
-+				 or "goodix,gt5663"
- 				 or "goodix,gt911"
- 				 or "goodix,gt9110"
- 				 or "goodix,gt912"
-@@ -42,3 +43,15 @@ Example:
+ #define GOODIX_GPIO_INT_NAME		"irq"
+ #define GOODIX_GPIO_RST_NAME		"reset"
++#define GOODIX_VCC_CTP_NAME		"vcc"
  
- 		/* ... */
- 	};
+ #define GOODIX_MAX_HEIGHT		4096
+ #define GOODIX_MAX_WIDTH		4096
+@@ -525,12 +528,24 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+ {
+ 	int error;
+ 	struct device *dev;
++	struct regulator *regulator;
+ 	struct gpio_desc *gpiod;
+ 
+ 	if (!ts->client)
+ 		return -EINVAL;
+ 	dev = &ts->client->dev;
+ 
++	regulator = devm_regulator_get(dev, GOODIX_VCC_CTP_NAME);
++	if (IS_ERR(regulator)) {
++		error = PTR_ERR(regulator);
++		if (error != -EPROBE_DEFER)
++			dev_err(dev, "Failed to get vcc regulator: %d\n",
++				error);
++		return error;
++	}
 +
-+	touchscreen@5d {
-+		compatible = "goodix,gt5663";
-+		reg = <0x5d>;
-+		vcc-supply = <&reg_ldo_io0>;
-+		interrupt-parent = <&pio>;
-+		interrupts = <7 4 IRQ_TYPE_EDGE_FALLING>;
-+		irq-gpios = <&pio 7 4 GPIO_ACTIVE_HIGH>;	/* CTP-INT: PH4 */
-+		reset-gpios = <&pio 7 8 GPIO_ACTIVE_HIGH>;	/* CTP-RST: PH8 */
-+		touchscreen-inverted-x;
-+		touchscreen-inverted-y;
-+	};
++	ts->vcc = regulator;
++
+ 	/* Get the interrupt GPIO pin number */
+ 	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
+ 	if (IS_ERR(gpiod)) {
+@@ -786,25 +801,34 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	/* power the controller */
++	if (ts->vcc) {
++		error = regulator_enable(ts->vcc);
++		if (error) {
++			dev_err(&client->dev, "Controller fail to enable vcc\n");
++			return error;
++		}
++	}
++
+ 	if (ts->gpiod_int && ts->gpiod_rst) {
+ 		/* reset the controller */
+ 		error = goodix_reset(ts);
+ 		if (error) {
+ 			dev_err(&client->dev, "Controller reset failed.\n");
+-			return error;
++			goto error;
+ 		}
+ 	}
+ 
+ 	error = goodix_i2c_test(client);
+ 	if (error) {
+ 		dev_err(&client->dev, "I2C communication failure: %d\n", error);
+-		return error;
++		goto error;
+ 	}
+ 
+ 	error = goodix_read_version(ts);
+ 	if (error) {
+ 		dev_err(&client->dev, "Read version failed.\n");
+-		return error;
++		goto error;
+ 	}
+ 
+ 	ts->chip = goodix_get_chip_data(ts->id);
+@@ -823,17 +847,22 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 			dev_err(&client->dev,
+ 				"Failed to invoke firmware loader: %d\n",
+ 				error);
+-			return error;
++			goto error;
+ 		}
+ 
+ 		return 0;
+ 	} else {
+ 		error = goodix_configure_dev(ts);
+ 		if (error)
+-			return error;
++			goto error;
+ 	}
+ 
+ 	return 0;
++
++error:
++	if (ts->vcc)
++		regulator_disable(ts->vcc);
++	return error;
+ }
+ 
+ static int goodix_ts_remove(struct i2c_client *client)
 -- 
 2.18.0.321.gffc6fa0e3

@@ -1,70 +1,131 @@
-From: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
-Date: Tue, 4 Dec 2018 15:24:56 +0000
-Message-ID: <5C069C47.6080305@st.com>
-References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
- <20181203071145.GA26661@dell>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 2/2] Input: omap-keypad: Fix idle configration to not
+ block SoC idle states
+Date: Tue, 4 Dec 2018 11:09:32 -0800
+Message-ID: <20181204190932.GD6707@atomide.com>
+References: <20181203012933.6647-1-tony@atomide.com>
+ <20181203012933.6647-2-tony@atomide.com>
+ <20181203192351.GB257010@dtor-ws>
+ <20181203231251.GB39861@atomide.com>
+ <20181204040001.GA239923@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181203071145.GA26661@dell>
-Content-Language: en-US
-Content-ID: <8941E439D67E03489AE4B2FE7009C7A9@st.com>
+Content-Disposition: inline
+In-Reply-To: <20181204040001.GA239923@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Axel Haslam <axelhaslam@ti.com>, Illia Smyrnov <illia.smyrnov@ti.com>, Marcel Partap <mpartap@gmx.net>, Merlijn Wajer <merlijn@wizzup.org>, Michael Scott <hashcode0f@gmail.com>, NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-SGkgTGVlLA0KDQpMZSAxMi8wMy8yMDE4IDA4OjExIEFNLCBMZWUgSm9uZXMgYSDDqWNyaXQgOg0K
-PiBPbiBGcmksIDMwIE5vdiAyMDE4LCBQYXNjYWwgUEFJTExFVC1MTUUgd3JvdGU6DQo+DQo+PiBU
-aGUgZ29hbCBvZiB0aGlzIHBhdGNoLXNldCBpcyB0byBwcm9wb3NlIGEgZHJpdmVyIGZvciB0aGUg
-U1RQTUlDMSBQTUlDIGZyb20NCj4+IFNUTWljcm9lbGVjdHJvbmljcy4NCj4+IFRoZSBTVFBNSUMx
-IHJlZ3VsYXRvcnMgc3VwcGx5IHBvd2VyIHRvIGFuIGFwcGxpY2F0aW9uIHByb2Nlc3NvciBhcyB3
-ZWxsIGFzDQo+PiB0byBleHRlcm5hbCBzeXN0ZW0gcGVyaXBoZXJhbHMgc3VjaCBhcyBERFIsIEZs
-YXNoIG1lbW9yaWVzIGFuZCBzeXN0ZW0NCj4+IGRldmljZXMuIEl0IGFsc28gZmVhdHVyZXMgb25r
-ZXkgYnV0dG9uIGlucHV0IGFuZCBhbiBoYXJkd2FyZSB3YXRjaGRvZy4NCj4+IFRoZSBTVFBNSUMx
-IGlzIGNvbnRyb2xsZWQgdmlhIEkyQy4NCj4+DQo+PiBNYWluIGRyaXZlciBpcyBkcml2ZXJzL21m
-ZC9zdHBtaWMxIHRoYXQgaGFuZGxlIEkyQyByZWdtYXAgY29uZmlndXJhdGlvbiBhbmQNCj4+IGly
-cWNoaXAuIHN0cG1pYzFfcmVndWxhdG9yLCBzdHBtaWMxX29ua2V5IGFuZCBzdHBtaWMxX3dkdCBu
-ZWVkIHN0cG1pYzEgbWZkDQo+PiBhcyBwYXJlbnQuDQo+Pg0KPj4gU1RQTUlDMSBNRkQgYW5kIHJl
-Z3VsYXRvciBkcml2ZXJzIG1heWJlIG1hbmRhdG9yeSBhdCBib290IHRpbWUuDQo+Pg0KPj4gUGFz
-Y2FsIFBhaWxsZXQgKDcpOg0KPj4gY2hhbmdlcyBpbiB2NzoNCj4+ICogcmViYXNlIG9uIHJlZ3Vs
-L2Zvci1uZXh0DQo+Pg0KPj4gICAgZHQtYmluZGluZ3M6IG1mZDogZG9jdW1lbnQgc3RwbWljMQ0K
-Pj4gICAgbWZkOiBzdHBtaWMxOiBhZGQgc3RwbWljMSBkcml2ZXINCj4+ICAgIGR0LWJpbmRpbmdz
-OiBpbnB1dDogZG9jdW1lbnQgc3RwbWljMSBwbWljIG9ua2V5DQo+PiAgICBpbnB1dDogc3RwbWlj
-MTogYWRkIHN0cG1pYzEgb25rZXkgZHJpdmVyDQo+PiAgICBkdC1iaW5kaW5nczogd2F0Y2hkb2c6
-IGRvY3VtZW50IHN0cG1pYzEgcG1pYyB3YXRjaGRvZw0KPj4gICAgd2F0Y2hkb2c6IHN0cG1pYzE6
-IGFkZCBzdHBtaWMxIHdhdGNoZG9nIGRyaXZlcg0KPj4gICAgcmVndWxhdG9yOiBzdHBtaWMxOiBm
-aXggcmVndWxhdG9yX2xvY2sgdXNhZ2UNCj4+DQo+PiAgIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdz
-L2lucHV0L3N0LHN0cG1pYzEtb25rZXkudHh0IHwgIDI4ICsrKw0KPj4gICAuLi4vZGV2aWNldHJl
-ZS9iaW5kaW5ncy9tZmQvc3Qsc3RwbWljMS50eHQgICAgICAgICB8ICA2MSArKysrKysNCj4+ICAg
-Li4uL2JpbmRpbmdzL3dhdGNoZG9nL3N0LHN0cG1pYzEtd2R0LnR4dCAgICAgICAgICAgfCAgMTEg
-KysNCj4+ICAgZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAg
-ICAgfCAgMTEgKysNCj4+ICAgZHJpdmVycy9pbnB1dC9taXNjL01ha2VmaWxlICAgICAgICAgICAg
-ICAgICAgICAgICAgfCAgIDIgKw0KPj4gICBkcml2ZXJzL2lucHV0L21pc2Mvc3RwbWljMV9vbmtl
-eS5jICAgICAgICAgICAgICAgICB8IDE5OCArKysrKysrKysrKysrKysrKysrDQo+PiAgIGRyaXZl
-cnMvbWZkL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDE2ICsrDQo+
-PiAgIGRyaXZlcnMvbWZkL01ha2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
-ICAxICsNCj4+ICAgZHJpdmVycy9tZmQvc3RwbWljMS5jICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfCAyMTMgKysrKysrKysrKysrKysrKysrKysrDQo+PiAgIGRyaXZlcnMvcmVndWxhdG9y
-L3N0cG1pYzFfcmVndWxhdG9yLmMgICAgICAgICAgICAgIHwgICAyICstDQo+IElzIGl0IGp1c3Qg
-TWFyayB5b3UncmUgd2FpdGluZyBvbiBub3c/DQpJdCBpcyBvayBub3csIE1hcmsgaGFzIGFwcGxp
-ZWQgdGhlIHBhdGNoLg0KRXZyZXkgdGhpbmcgaGFzIGJlZW4gYWNrZWQgbm93LiBXaGF0IGlzIHRo
-ZSBuZXggc3RlcCA/DQoNCj4+ICAgZHJpdmVycy93YXRjaGRvZy9LY29uZmlnICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgfCAgMTIgKysNCj4+ICAgZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZSAg
-ICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKw0KPj4gICBkcml2ZXJzL3dhdGNoZG9nL3N0
-cG1pYzFfd2R0LmMgICAgICAgICAgICAgICAgICAgICB8IDEzOSArKysrKysrKysrKysrKw0KPj4g
-ICBpbmNsdWRlL2R0LWJpbmRpbmdzL21mZC9zdCxzdHBtaWMxLmggICAgICAgICAgICAgICB8ICA1
-MCArKysrKw0KPj4gICBpbmNsdWRlL2xpbnV4L21mZC9zdHBtaWMxLmggICAgICAgICAgICAgICAg
-ICAgICAgICB8IDIxMiArKysrKysrKysrKysrKysrKysrKw0KPj4gICAxNSBmaWxlcyBjaGFuZ2Vk
-LCA5NTYgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPj4gICBjcmVhdGUgbW9kZSAxMDA2
-NDQgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L3N0LHN0cG1pYzEtb25r
-ZXkudHh0DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
-YmluZGluZ3MvbWZkL3N0LHN0cG1pYzEudHh0DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1
-bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvc3Qsc3RwbWljMS13ZHQudHh0
-DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0L21pc2Mvc3RwbWljMV9vbmtl
-eS5jDQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21mZC9zdHBtaWMxLmMNCj4+ICAg
-Y3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvd2F0Y2hkb2cvc3RwbWljMV93ZHQuYw0KPj4gICBj
-cmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9kdC1iaW5kaW5ncy9tZmQvc3Qsc3RwbWljMS5oDQo+
-PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L21mZC9zdHBtaWMxLmgNCj4+DQo=
+Hi,
+
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> [181204 04:00]:
+> Hi Tony,
+> 
+> On Mon, Dec 03, 2018 at 03:12:51PM -0800, Tony Lindgren wrote:
+> > 
+> > With PM enabled, I noticed that pressing a key on the droid4 keyboard will
+> > block deeper idle states for the SoC. Looks like we can fix this by
+> > managing the idle register to gether with the interrupt similar to what
+> > we already do for the GPIO controller.
+> 
+> Can you show me where exactly we are doing this? I can't seem to find
+> the matching code.
+
+With your change it now becomes the fix, and we're just missing the
+clearing of the OMAP4_KBD_WAKEUPENABLE register in omap4_keypad_close.
+
+Does the following minimal version with updated comments make
+more sense now?
+
+Regards,
+
+Tony
+
+8< --------------
+>From tony Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Tue, 4 Dec 2018 11:07:56 -0800
+Subject: [PATCH] Input: omap-keypad: Fix idle configration to not block
+ SoC idle states
+
+With PM enabled, I noticed that pressing a key on the droid4 keyboard will
+block deeper idle states for the SoC. Let's fix this by using IRQF_ONESHOT
+and stop constantly toggling the device OMAP4_KBD_IRQENABLE register as
+suggested by Dmitry Torokhov <dmitry.torokhov@gmail.com>.
+
+>From the hardware point of view, looks like we need to manage the registers
+for OMAP4_KBD_IRQENABLE and OMAP4_KBD_WAKEUPENABLE together to avoid
+blocking deeper SoC idle states. And with toggling of OMAP4_KBD_IRQENABLE
+register now gone with IRQF_ONESHOT, also the SoC idle state problem is
+gone during runtime. We still also need to clear OMAP4_KBD_WAKEUPENABLE in
+omap4_keypad_close() though to pair it with omap4_keypad_open() to prevent
+blocking deeper SoC idle states after rmmod omap4-keypad.
+
+Cc: Axel Haslam <axelhaslam@ti.com>
+Cc: Illia Smyrnov <illia.smyrnov@ti.com>
+Cc: Marcel Partap <mpartap@gmx.net>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Michael Scott <hashcode0f@gmail.com>
+Cc: NeKit <nekit1000@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
+ drivers/input/keyboard/omap4-keypad.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -126,12 +126,8 @@ static irqreturn_t omap4_keypad_irq_handler(int irq, void *dev_id)
+ {
+ 	struct omap4_keypad *keypad_data = dev_id;
+ 
+-	if (kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS)) {
+-		/* Disable interrupts */
+-		kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
+-				 OMAP4_VAL_IRQDISABLE);
++	if (kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS))
+ 		return IRQ_WAKE_THREAD;
+-	}
+ 
+ 	return IRQ_NONE;
+ }
+@@ -173,11 +169,6 @@ static irqreturn_t omap4_keypad_irq_thread_fn(int irq, void *dev_id)
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
+ 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
+ 
+-	/* enable interrupts */
+-	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
+-		OMAP4_DEF_IRQENABLE_EVENTEN |
+-				OMAP4_DEF_IRQENABLE_LONGKEY);
+-
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -214,9 +205,10 @@ static void omap4_keypad_close(struct input_dev *input)
+ 
+ 	disable_irq(keypad_data->irq);
+ 
+-	/* Disable interrupts */
++	/* Disable interrupts and wake-up events */
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
+ 			 OMAP4_VAL_IRQDISABLE);
++	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, 0);
+ 
+ 	/* clear pending interrupts */
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
+@@ -365,7 +357,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	error = request_threaded_irq(keypad_data->irq, omap4_keypad_irq_handler,
+-				     omap4_keypad_irq_thread_fn, 0,
++				     omap4_keypad_irq_thread_fn, IRQF_ONESHOT,
+ 				     "omap4-keypad", keypad_data);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to register interrupt\n");
+-- 
+2.19.2

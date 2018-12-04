@@ -1,43 +1,70 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] dt-bindings: ti-tsc-adc: Add new compatible for AM654
- SoCs
-Date: Tue, 4 Dec 2018 09:54:01 +0000
-Message-ID: <20181204095401.GU26661@dell>
-References: <20181119094509.22542-1-vigneshr@ti.com>
- <4b42082c-462d-3d94-8ee9-6e7a61f57134@ti.com>
- <20181204095233.GT26661@dell>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Date: Tue, 4 Dec 2018 15:24:56 +0000
+Message-ID: <5C069C47.6080305@st.com>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+ <20181203071145.GA26661@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181204095233.GT26661@dell>
+In-Reply-To: <20181203071145.GA26661@dell>
+Content-Language: en-US
+Content-ID: <8941E439D67E03489AE4B2FE7009C7A9@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 04 Dec 2018, Lee Jones wrote:
-> On Tue, 04 Dec 2018, Vignesh R wrote:
-> > On 19/11/18 3:15 PM, Vignesh R wrote:
-> > > AM654 SoCs has ADC IP which is similar to AM335x. Add new compatible to
-> > > handle AM654 SoCs. Also, it seems that existing compatible strings used
-> > > in the kernel DTs were never documented. So, document them now.
-> > > 
-> > > Signed-off-by: Vignesh R <vigneshr@ti.com>
-> > > ---
-> > 
-> > Gentle ping on this patch..
-> 
-> Don't do that.
-> 
-> If you think your patch has been forgotten, please submit a [RESEND].
-
-As an aside, the subject line is missing a subsystem, which might be
-why it was missed by the subsystem maintainer.
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+SGkgTGVlLA0KDQpMZSAxMi8wMy8yMDE4IDA4OjExIEFNLCBMZWUgSm9uZXMgYSDDqWNyaXQgOg0K
+PiBPbiBGcmksIDMwIE5vdiAyMDE4LCBQYXNjYWwgUEFJTExFVC1MTUUgd3JvdGU6DQo+DQo+PiBU
+aGUgZ29hbCBvZiB0aGlzIHBhdGNoLXNldCBpcyB0byBwcm9wb3NlIGEgZHJpdmVyIGZvciB0aGUg
+U1RQTUlDMSBQTUlDIGZyb20NCj4+IFNUTWljcm9lbGVjdHJvbmljcy4NCj4+IFRoZSBTVFBNSUMx
+IHJlZ3VsYXRvcnMgc3VwcGx5IHBvd2VyIHRvIGFuIGFwcGxpY2F0aW9uIHByb2Nlc3NvciBhcyB3
+ZWxsIGFzDQo+PiB0byBleHRlcm5hbCBzeXN0ZW0gcGVyaXBoZXJhbHMgc3VjaCBhcyBERFIsIEZs
+YXNoIG1lbW9yaWVzIGFuZCBzeXN0ZW0NCj4+IGRldmljZXMuIEl0IGFsc28gZmVhdHVyZXMgb25r
+ZXkgYnV0dG9uIGlucHV0IGFuZCBhbiBoYXJkd2FyZSB3YXRjaGRvZy4NCj4+IFRoZSBTVFBNSUMx
+IGlzIGNvbnRyb2xsZWQgdmlhIEkyQy4NCj4+DQo+PiBNYWluIGRyaXZlciBpcyBkcml2ZXJzL21m
+ZC9zdHBtaWMxIHRoYXQgaGFuZGxlIEkyQyByZWdtYXAgY29uZmlndXJhdGlvbiBhbmQNCj4+IGly
+cWNoaXAuIHN0cG1pYzFfcmVndWxhdG9yLCBzdHBtaWMxX29ua2V5IGFuZCBzdHBtaWMxX3dkdCBu
+ZWVkIHN0cG1pYzEgbWZkDQo+PiBhcyBwYXJlbnQuDQo+Pg0KPj4gU1RQTUlDMSBNRkQgYW5kIHJl
+Z3VsYXRvciBkcml2ZXJzIG1heWJlIG1hbmRhdG9yeSBhdCBib290IHRpbWUuDQo+Pg0KPj4gUGFz
+Y2FsIFBhaWxsZXQgKDcpOg0KPj4gY2hhbmdlcyBpbiB2NzoNCj4+ICogcmViYXNlIG9uIHJlZ3Vs
+L2Zvci1uZXh0DQo+Pg0KPj4gICAgZHQtYmluZGluZ3M6IG1mZDogZG9jdW1lbnQgc3RwbWljMQ0K
+Pj4gICAgbWZkOiBzdHBtaWMxOiBhZGQgc3RwbWljMSBkcml2ZXINCj4+ICAgIGR0LWJpbmRpbmdz
+OiBpbnB1dDogZG9jdW1lbnQgc3RwbWljMSBwbWljIG9ua2V5DQo+PiAgICBpbnB1dDogc3RwbWlj
+MTogYWRkIHN0cG1pYzEgb25rZXkgZHJpdmVyDQo+PiAgICBkdC1iaW5kaW5nczogd2F0Y2hkb2c6
+IGRvY3VtZW50IHN0cG1pYzEgcG1pYyB3YXRjaGRvZw0KPj4gICAgd2F0Y2hkb2c6IHN0cG1pYzE6
+IGFkZCBzdHBtaWMxIHdhdGNoZG9nIGRyaXZlcg0KPj4gICAgcmVndWxhdG9yOiBzdHBtaWMxOiBm
+aXggcmVndWxhdG9yX2xvY2sgdXNhZ2UNCj4+DQo+PiAgIC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdz
+L2lucHV0L3N0LHN0cG1pYzEtb25rZXkudHh0IHwgIDI4ICsrKw0KPj4gICAuLi4vZGV2aWNldHJl
+ZS9iaW5kaW5ncy9tZmQvc3Qsc3RwbWljMS50eHQgICAgICAgICB8ICA2MSArKysrKysNCj4+ICAg
+Li4uL2JpbmRpbmdzL3dhdGNoZG9nL3N0LHN0cG1pYzEtd2R0LnR4dCAgICAgICAgICAgfCAgMTEg
+KysNCj4+ICAgZHJpdmVycy9pbnB1dC9taXNjL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgMTEgKysNCj4+ICAgZHJpdmVycy9pbnB1dC9taXNjL01ha2VmaWxlICAgICAgICAgICAg
+ICAgICAgICAgICAgfCAgIDIgKw0KPj4gICBkcml2ZXJzL2lucHV0L21pc2Mvc3RwbWljMV9vbmtl
+eS5jICAgICAgICAgICAgICAgICB8IDE5OCArKysrKysrKysrKysrKysrKysrDQo+PiAgIGRyaXZl
+cnMvbWZkL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDE2ICsrDQo+
+PiAgIGRyaXZlcnMvbWZkL01ha2VmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
+ICAxICsNCj4+ICAgZHJpdmVycy9tZmQvc3RwbWljMS5jICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAyMTMgKysrKysrKysrKysrKysrKysrKysrDQo+PiAgIGRyaXZlcnMvcmVndWxhdG9y
+L3N0cG1pYzFfcmVndWxhdG9yLmMgICAgICAgICAgICAgIHwgICAyICstDQo+IElzIGl0IGp1c3Qg
+TWFyayB5b3UncmUgd2FpdGluZyBvbiBub3c/DQpJdCBpcyBvayBub3csIE1hcmsgaGFzIGFwcGxp
+ZWQgdGhlIHBhdGNoLg0KRXZyZXkgdGhpbmcgaGFzIGJlZW4gYWNrZWQgbm93LiBXaGF0IGlzIHRo
+ZSBuZXggc3RlcCA/DQoNCj4+ICAgZHJpdmVycy93YXRjaGRvZy9LY29uZmlnICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgMTIgKysNCj4+ICAgZHJpdmVycy93YXRjaGRvZy9NYWtlZmlsZSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKw0KPj4gICBkcml2ZXJzL3dhdGNoZG9nL3N0
+cG1pYzFfd2R0LmMgICAgICAgICAgICAgICAgICAgICB8IDEzOSArKysrKysrKysrKysrKw0KPj4g
+ICBpbmNsdWRlL2R0LWJpbmRpbmdzL21mZC9zdCxzdHBtaWMxLmggICAgICAgICAgICAgICB8ICA1
+MCArKysrKw0KPj4gICBpbmNsdWRlL2xpbnV4L21mZC9zdHBtaWMxLmggICAgICAgICAgICAgICAg
+ICAgICAgICB8IDIxMiArKysrKysrKysrKysrKysrKysrKw0KPj4gICAxNSBmaWxlcyBjaGFuZ2Vk
+LCA5NTYgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPj4gICBjcmVhdGUgbW9kZSAxMDA2
+NDQgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2lucHV0L3N0LHN0cG1pYzEtb25r
+ZXkudHh0DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
+YmluZGluZ3MvbWZkL3N0LHN0cG1pYzEudHh0DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBEb2N1
+bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mvd2F0Y2hkb2cvc3Qsc3RwbWljMS13ZHQudHh0
+DQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lucHV0L21pc2Mvc3RwbWljMV9vbmtl
+eS5jDQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL21mZC9zdHBtaWMxLmMNCj4+ICAg
+Y3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvd2F0Y2hkb2cvc3RwbWljMV93ZHQuYw0KPj4gICBj
+cmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9kdC1iaW5kaW5ncy9tZmQvc3Qsc3RwbWljMS5oDQo+
+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L21mZC9zdHBtaWMxLmgNCj4+DQo=

@@ -1,138 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: omap-keypad: Fix idle configration to not
- block SoC idle states
-Date: Mon, 3 Dec 2018 20:00:01 -0800
-Message-ID: <20181204040001.GA239923@dtor-ws>
-References: <20181203012933.6647-1-tony@atomide.com>
- <20181203012933.6647-2-tony@atomide.com>
- <20181203192351.GB257010@dtor-ws>
- <20181203231251.GB39861@atomide.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH] dt-bindings: ti-tsc-adc: Add new compatible for AM654
+ SoCs
+Date: Tue, 4 Dec 2018 14:00:43 +0530
+Message-ID: <4b42082c-462d-3d94-8ee9-6e7a61f57134@ti.com>
+References: <20181119094509.22542-1-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181203231251.GB39861@atomide.com>
+In-Reply-To: <20181119094509.22542-1-vigneshr@ti.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Axel Haslam <axelhaslam@ti.com>, Illia Smyrnov <illia.smyrnov@ti.com>, Marcel Partap <mpartap@gmx.net>, Merlijn Wajer <merlijn@wizzup.org>, Michael Scott <hashcode0f@gmail.com>, NeKit <nekit1000@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Tony,
+Hi,
 
-On Mon, Dec 03, 2018 at 03:12:51PM -0800, Tony Lindgren wrote:
+On 19/11/18 3:15 PM, Vignesh R wrote:
+> AM654 SoCs has ADC IP which is similar to AM335x. Add new compatible to
+> handle AM654 SoCs. Also, it seems that existing compatible strings used
+> in the kernel DTs were never documented. So, document them now.
 > 
-> With PM enabled, I noticed that pressing a key on the droid4 keyboard will
-> block deeper idle states for the SoC. Looks like we can fix this by
-> managing the idle register to gether with the interrupt similar to what
-> we already do for the GPIO controller.
-
-Can you show me where exactly we are doing this? I can't seem to find
-the matching code.
-
-Thanks!
-
-> 
-> And there's no need to keep enabling and disabling interrupts and
-> wake-up events for normal use if we use IRQF_ONESHOT as suggested by
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> so let's do that too.
-> 
-> Cc: Axel Haslam <axelhaslam@ti.com>
-> Cc: Illia Smyrnov <illia.smyrnov@ti.com>
-> Cc: Marcel Partap <mpartap@gmx.net>
-> Cc: Merlijn Wajer <merlijn@wizzup.org>
-> Cc: Michael Scott <hashcode0f@gmail.com>
-> Cc: NeKit <nekit1000@gmail.com>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Sebastian Reichel <sre@kernel.org>
-> Reported-by: Pavel Machek <pavel@ucw.cz>
-> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
 > ---
->  drivers/input/keyboard/omap4-keypad.c | 30 ++++++++++-----------------
->  1 file changed, 11 insertions(+), 19 deletions(-)
+
+Gentle ping on this patch..
+
+>  .../devicetree/bindings/input/touchscreen/ti-tsc-adc.txt  | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -53,11 +53,12 @@
->  /* OMAP4 bit definitions */
->  #define OMAP4_DEF_IRQENABLE_EVENTEN	BIT(0)
->  #define OMAP4_DEF_IRQENABLE_LONGKEY	BIT(1)
-> -#define OMAP4_DEF_WUP_EVENT_ENA		BIT(0)
-> -#define OMAP4_DEF_WUP_LONG_KEY_ENA	BIT(1)
->  #define OMAP4_DEF_CTRL_NOSOFTMODE	BIT(1)
->  #define OMAP4_DEF_CTRL_PTV_SHIFT	2
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> index b1163bf97146..aad5e34965eb 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> @@ -2,7 +2,12 @@
+>  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >  
-> +#define OMAP4_KBD_IRQ_MASK		(OMAP4_DEF_IRQENABLE_LONGKEY | \
-> +					 OMAP4_DEF_IRQENABLE_EVENTEN)
-> +
->  /* OMAP4 values */
->  #define OMAP4_VAL_IRQDISABLE		0x0
+>  Required properties:
+> +- mfd
+> +	compatible: Should be
+> +		"ti,am3359-tscadc" for AM335x/AM437x SoCs
+> +		"ti,am654-tscadc", "ti,am3359-tscadc" for AM654 SoCs
+>  - child "tsc"
+> +	compatible: Should be "ti,am3359-tsc".
+>  	ti,wires: Wires refer to application modes i.e. 4/5/8 wire touchscreen
+>  		  support on the platform.
+>  	ti,x-plate-resistance: X plate resistance
+> @@ -25,6 +30,9 @@ Required properties:
+>  			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+>  			XP  = 0, XN = 1, YP = 2, YN = 3.
+>  - child "adc"
+> +	compatible: Should be
+> +		    "ti,am3359-adc" for AM335x/AM437x SoCs
+> +		    "ti,am654-adc", "ti,am3359-adc" for AM654 SoCs
+>  	ti,adc-channels: List of analog inputs available for ADC.
+>  			 AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
 >  
-> @@ -126,12 +127,8 @@ static irqreturn_t omap4_keypad_irq_handler(int irq, void *dev_id)
->  {
->  	struct omap4_keypad *keypad_data = dev_id;
->  
-> -	if (kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS)) {
-> -		/* Disable interrupts */
-> -		kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
-> -				 OMAP4_VAL_IRQDISABLE);
-> +	if (kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS))
->  		return IRQ_WAKE_THREAD;
-> -	}
->  
->  	return IRQ_NONE;
->  }
-> @@ -173,11 +170,6 @@ static irqreturn_t omap4_keypad_irq_thread_fn(int irq, void *dev_id)
->  	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
->  			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
->  
-> -	/* enable interrupts */
-> -	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
-> -		OMAP4_DEF_IRQENABLE_EVENTEN |
-> -				OMAP4_DEF_IRQENABLE_LONGKEY);
-> -
->  	return IRQ_HANDLED;
->  }
->  
-> @@ -197,11 +189,10 @@ static int omap4_keypad_open(struct input_dev *input)
->  	/* clear pending interrupts */
->  	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
->  			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
-> -	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
-> -			OMAP4_DEF_IRQENABLE_EVENTEN |
-> -				OMAP4_DEF_IRQENABLE_LONGKEY);
-> -	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE,
-> -			OMAP4_DEF_WUP_EVENT_ENA | OMAP4_DEF_WUP_LONG_KEY_ENA);
-> +
-> +	/* enable interrupts and wake-up events */
-> +	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE, OMAP4_KBD_IRQ_MASK);
-> +	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, OMAP4_KBD_IRQ_MASK);
->  
->  	enable_irq(keypad_data->irq);
->  
-> @@ -214,9 +205,10 @@ static void omap4_keypad_close(struct input_dev *input)
->  
->  	disable_irq(keypad_data->irq);
->  
-> -	/* Disable interrupts */
-> +	/* Disable interrupts and wake-up events */
->  	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
->  			 OMAP4_VAL_IRQDISABLE);
-> +	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, 0);
->  
->  	/* clear pending interrupts */
->  	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
-> @@ -365,7 +357,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
->  	}
->  
->  	error = request_threaded_irq(keypad_data->irq, omap4_keypad_irq_handler,
-> -				     omap4_keypad_irq_thread_fn, 0,
-> +				     omap4_keypad_irq_thread_fn, IRQF_ONESHOT,
->  				     "omap4-keypad", keypad_data);
->  	if (error) {
->  		dev_err(&pdev->dev, "failed to register interrupt\n");
-> -- 
-> 2.19.2
+> 
 
 -- 
-Dmitry
+Regards
+Vignesh

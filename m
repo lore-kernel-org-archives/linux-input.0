@@ -1,60 +1,84 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH v3 0/8] HID: MS and Logitech high-resolution scroll wheel support
-Date: Wed,  5 Dec 2018 10:42:20 +1000
-Message-ID: <20181205004228.10714-1-peter.hutterer@who-t.net>
+Subject: [PATCH v3 1/8] Input: add `REL_WHEEL_HI_RES` and `REL_HWHEEL_HI_RES`
+Date: Wed,  5 Dec 2018 10:42:21 +1000
+Message-ID: <20181205004228.10714-2-peter.hutterer@who-t.net>
+References: <20181205004228.10714-1-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181205004228.10714-1-peter.hutterer@who-t.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-A full explanation of why and what is in the v1, v2 patch thread here:
-https://lkml.org/lkml/2018/11/22/625
+This event code represents scroll reports from high-resolution wheels and
+is modelled after the approach Windows uses. The value 120 is one detent
+(wheel click) of movement. Mice with higher-resolution scrolling can send
+fractions of 120 which must be accumulated in userspace. Userspace can either
+wait for a full 120 to accumulate or scroll by fractions of one logical scroll
+movement as the events come in. 120 was picked as magic number because it has
+a high number of integer fractions that can be used by high-resolution wheels.
 
-v3 adds a better commit messages, m560 REL_HWHEEL_HI_RES support and a patch 
-moved in the ordering. This is a full patch sequence because Benjamin's
-magic scripts struggle with singular updates ;)
+For more information see
+https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613912(v=vs.85)
 
-hid-tools patches to add the tests:
-https://gitlab.freedesktop.org/libevdev/hid-tools/merge_requests/12
+These new axes obsolete REL_WHEEL and REL_HWHEEL. The legacy axes are emulated
+by the kernel but the most accurate (and most granular) data is available
+through the new axes.
 
-libinput support (unmerged):
-https://gitlab.freedesktop.org/whot/libinput/tree/wip/hi-res-scrolling
-If you want to 'feel' how it works, run sudo ./builddir/libinput-debug-gui
-and watch the green/red scroll bars. On a device with hi-res scrolling the
-green bar (scroll fractions) will move smoother than the red bar (wheel
-clicks).
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+No changes since v1
 
-Tested with:
-- Microsoft Comfort Optical Mouse 3000
-- Microsoft Sculpt Ergonomic Mouse
-- Microsoft Wireless Mobile Mouse 4000
-- Logitech MX Anywhere 2S
+ Documentation/input/event-codes.rst    | 21 ++++++++++++++++++++-
+ include/uapi/linux/input-event-codes.h |  2 ++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-And a few other mice that don't have that feature, so the testing was of
-limited excitement.
-
-Cheers,
-  Peter
-
-Harry Cutts (3):
-      HID: logitech: Add function to enable HID++ 1.0 "scrolling acceleration"
-      HID: logitech: Enable high-resolution scrolling on Logitech mice
-      HID: logitech: Use LDJ_DEVICE macro for existing Logitech mice
-
-Peter Hutterer (5):
-      Input: add `REL_WHEEL_HI_RES` and `REL_HWHEEL_HI_RES`
-      HID: core: store the collections as a basic tree
-      HID: core: process the Resolution Multiplier
-      HID: input: use the Resolution Multiplier for high-resolution scrolling
-      HID: logitech-hidpp: fix typo, hiddpp to hidpp
-
- Documentation/input/event-codes.rst    |  21 +++-
- drivers/hid/hid-core.c                 | 174 +++++++++++++++++++++++++++++++++
- drivers/hid/hid-input.c                | 108 +++++++++++++++++++-
- drivers/hid/hid-logitech-hidpp.c       | 375 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-------
- include/linux/hid.h                    |  10 ++
- include/uapi/linux/input-event-codes.h |   2 +
- 6 files changed, 651 insertions(+), 39 deletions(-)
+diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+index a8c0873beb95..b24b5343f5eb 100644
+--- a/Documentation/input/event-codes.rst
++++ b/Documentation/input/event-codes.rst
+@@ -190,7 +190,26 @@ A few EV_REL codes have special meanings:
+ * REL_WHEEL, REL_HWHEEL:
+ 
+   - These codes are used for vertical and horizontal scroll wheels,
+-    respectively.
++    respectively. The value is the number of detents moved on the wheel, the
++    physical size of which varies by device. For high-resolution wheels
++    this may be an approximation based on the high-resolution scroll events,
++    see REL_WHEEL_HI_RES. These event codes are legacy codes and
++    REL_WHEEL_HI_RES and REL_HWHEEL_HI_RES should be preferred where
++    available.
++
++* REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES:
++
++  - High-resolution scroll wheel data. The accumulated value 120 represents
++    movement by one detent. For devices that do not provide high-resolution
++    scrolling, the value is always a multiple of 120. For devices with
++    high-resolution scrolling, the value may be a fraction of 120.
++
++    If a vertical scroll wheel supports high-resolution scrolling, this code
++    will be emitted in addition to REL_WHEEL or REL_HWHEEL. The REL_WHEEL
++    and REL_HWHEEL may be an approximation based on the high-resolution
++    scroll events. There is no guarantee that the high-resolution data
++    is a multiple of 120 at the time of an emulated REL_WHEEL or REL_HWHEEL
++    event.
+ 
+ EV_ABS
+ ------
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 3eb5a4c3d60a..265ef2028660 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -716,6 +716,8 @@
+  * the situation described above.
+  */
+ #define REL_RESERVED		0x0a
++#define REL_WHEEL_HI_RES	0x0b
++#define REL_HWHEEL_HI_RES	0x0c
+ #define REL_MAX			0x0f
+ #define REL_CNT			(REL_MAX+1)
+ 
+-- 
+2.19.2

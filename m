@@ -1,70 +1,82 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH v3 2/8] HID: core: store the collections as a basic tree
-Date: Wed,  5 Dec 2018 10:42:22 +1000
-Message-ID: <20181205004228.10714-3-peter.hutterer@who-t.net>
-References: <20181205004228.10714-1-peter.hutterer@who-t.net>
+From: Chris Chiu <chiu@endlessm.com>
+Subject: Re: [PATCH] HID: input: support Microsoft wireless radio control hotkey
+Date: Wed, 5 Dec 2018 08:56:37 +0800
+Message-ID: <CAB4CAwfOBuAutaQdObyfrOg5Yo2M9NJGww1Ffc7o2YrAYDObEA@mail.gmail.com>
+References: <20181130064617.67920-1-chiu@endlessm.com> <CAO-hwJKAnHqPi7aOGqKET+_JKnXmvdwOyhtH4nLeqS+-K8597Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181205004228.10714-1-peter.hutterer@who-t.net>
+In-Reply-To: <CAO-hwJKAnHqPi7aOGqKET+_JKnXmvdwOyhtH4nLeqS+-K8597Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, rydberg@bitmath.org, linux-input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-For each collection parsed, store a pointer to the parent collection
-(if any). This makes it a lot easier to look up which collection(s)
-any given item is part of
+On Fri, Nov 30, 2018 at 7:18 PM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> On Fri, Nov 30, 2018 at 7:46 AM Chris Chiu <chiu@endlessm.com> wrote:
+> >
+> > The ASUS laptops start to support the airplane mode radio management
+> > to replace the original machanism of airplane mode toggle hotkey.
+> > On the ASUS P5440FF, it presents as a HID device connecting via
+> > I2C, name i2c-AMPD0001. When pressing hotkey, the Embedded Controller
+> > send hid report up via I2C and switch the airplane mode indicator
+> > LED based on the status.
+> >
+> > However, it's not working because it fails to be identified as a
+> > hidinput device. It fails in hidinput_connect() due to the macro
+> > IS_INPUT_APPLICATION doesn't identify HID_GD_WIRELESS_RADIO_CTLS
+> > as a legit application code.
+> >
+> > It's easy to add the HID I2C vendor and product id to the quirk
+> > list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
+> > can be more generic to support such kind of application on PC.
+>
+> Sounds good, but while you are at it, can you please:
+> - fix the kbuild warning
+> - rewrite the whole line to use macros,
+> - make the macro prettier by inserting new lines were required
+> - and define the missing macro:
+>   0x000d0006 -> HID_DG_WHITEBOARD
+>
+> Maybe we should keep the ranges definitions with raw values and put a
+> comment on the side with the names.
+>
+> Cheers,
+> Benjamin
+>
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
----
-No changes since v1
+Hi Bejamin,
+    Thanks for your comment, I've submitted other patches which may
+fulfill your suggestion.
+https://lore.kernel.org/patchwork/patch/1020373/
+https://lore.kernel.org/patchwork/patch/1020374/
 
- drivers/hid/hid-core.c | 4 ++++
- include/linux/hid.h    | 2 ++
- 2 files changed, 6 insertions(+)
+     Please help me review and correct me if there's any modification
+required. Thanks & Regards.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 5bec9244c45b..43d488a45120 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -172,6 +172,8 @@ static int open_collection(struct hid_parser *parser, unsigned type)
- 	collection->type = type;
- 	collection->usage = usage;
- 	collection->level = parser->collection_stack_ptr - 1;
-+	collection->parent = parser->active_collection;
-+	parser->active_collection = collection;
- 
- 	if (type == HID_COLLECTION_APPLICATION)
- 		parser->device->maxapplication++;
-@@ -190,6 +192,8 @@ static int close_collection(struct hid_parser *parser)
- 		return -EINVAL;
- 	}
- 	parser->collection_stack_ptr--;
-+	if (parser->active_collection)
-+		parser->active_collection = parser->active_collection->parent;
- 	return 0;
- }
- 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index a355d61940f2..fdfda898656c 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -427,6 +427,7 @@ struct hid_local {
-  */
- 
- struct hid_collection {
-+	struct hid_collection *parent;
- 	unsigned type;
- 	unsigned usage;
- 	unsigned level;
-@@ -650,6 +651,7 @@ struct hid_parser {
- 	unsigned int         *collection_stack;
- 	unsigned int          collection_stack_ptr;
- 	unsigned int          collection_stack_size;
-+	struct hid_collection *active_collection;
- 	struct hid_device    *device;
- 	unsigned int          scan_flags;
- };
--- 
-2.19.2
+Chris
+
+> >
+> > Signed-off-by: Chris Chiu <chiu@endlessm.com>
+> > ---
+> >  include/linux/hid.h | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > index d44a78362942..f4805f605fed 100644
+> > --- a/include/linux/hid.h
+> > +++ b/include/linux/hid.h
+> > @@ -836,7 +836,7 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
+> >
+> >  /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
+> >  /* We ignore a few input applications that are not widely used */
+> > -#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
+> > +#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || || (a == 0x0001000c) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
+> >
+> >  /* HID core API */
+> >
+> > --
+> > 2.11.0
+> >

@@ -1,32 +1,52 @@
-From: Harry Cutts <hcutts@chromium.org>
-Subject: Re: [PATCH v3 0/8] HID: MS and Logitech high-resolution scroll wheel support
-Date: Wed, 5 Dec 2018 13:56:54 -0800
-Message-ID: <CA+jURcugFhSt9GGRZELQUCnupOf2Ns96Ao5ZruWfVtq=z_7ytw@mail.gmail.com>
-References: <20181205004228.10714-1-peter.hutterer@who-t.net>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH RFC 0/2] input: driver for RPi's official 7" touchscreen
+Date: Wed,  5 Dec 2018 23:09:01 +0100
+Message-ID: <20181205220902.27682-1-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181205004228.10714-1-peter.hutterer@who-t.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com
+To: linux-input@vger.kernel.org
+Cc: linux-rpi-kernel@lists.infradead.org, stefan.wahren@i2se.com, eric@anholt.net, agraf@suse.de, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Eugen Hristev <eugen.hristev@microchip.com>, Hans de Goede <hdegoede@redhat.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Masanari Iida <standby24x7@gmail.com>, Zhu Yi <yi.zhu5@cn.bosch.com>, Corentin Labbe <clabbe.montjoie@gmail.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 4 Dec 2018 at 16:42, Peter Hutterer <peter.hutterer@who-t.net> wrote:
->
-> A full explanation of why and what is in the v1, v2 patch thread here:
-> https://lkml.org/lkml/2018/11/22/625
->
-> v3 adds a better commit messages, m560 REL_HWHEEL_HI_RES support and a patch
-> moved in the ordering. This is a full patch sequence because Benjamin's
-> magic scripts struggle with singular updates ;)
+This small series adds support for Raspberry pi's 7" touchscreen. Which
+alongside with the backlight driver are the last devices needed to have
+a functional touchscreen upstream.
 
-I've retested with the same Logitech mice as before, except for the MX
-Anywhere 2S, which is currently not available to me. So, for
-reference, that's the MX Master 2S, Performance MX, M560, Anywhere MX,
-and the M325 (to check low-resolution scrolling).
+With this setup the board's VC4 firmware takes care of communicating
+with the touch chip and provides data though a shared memory area
+provided by the driver. The driver takes care of polling the firmware
+whenever at around 60Hz since there is no interrupt line available.
 
-Verified-by: Harry Cutts <hcutts@chromium.org>
+The 1.0 revision of the touchscreen is based on the ft5426 chip.
+Technically, with some changes in edt-ft54x4.c we should be able to
+access the data directly through I2C. Yet this bus is meant to be owned
+by RPi's firmware and might access it anytime. For example, to
+configure RPi's camera device. As sharing the bus master interface is
+not possible a series of alternatives have been tested unsuccessfully
+[1]. It seems that we'll be unable to access the chip directly in a
+"clean" way which leaves us with this firmware based solution.
 
-Harry Cutts
-Chrome OS Touch/Input team
+The driver was rewritten based on the one available on the downstream
+Raspberry Pi kernel tree: https://github.com/raspberrypi/linux/.
+
+This series is based on v4.20-rc5 and was tested on a RPi 3 B+.
+
+[1] https://lists.infradead.org/pipermail/linux-rpi-kernel/2018-December/008444.html
+===
+
+Nicolas Saenz Julienne (2):
+  input: add official Raspberry Pi's 7" touchscreen driver
+  Input: raspberrypi-ts - add devicetree binding documentation
+
+ .../touchscreen/raspberrypi,firmware-ts.txt   |  25 ++
+ drivers/input/touchscreen/Kconfig             |  12 +
+ drivers/input/touchscreen/Makefile            |   1 +
+ drivers/input/touchscreen/raspberrypi-ts.c    | 252 ++++++++++++++++++
+ 4 files changed, 290 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/raspberrypi,firmware-ts.txt
+ create mode 100644 drivers/input/touchscreen/raspberrypi-ts.c
+
+-- 
+2.19.2

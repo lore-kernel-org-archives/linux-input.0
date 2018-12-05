@@ -1,82 +1,377 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: Re: [PATCH] HID: input: support Microsoft wireless radio control hotkey
-Date: Wed, 5 Dec 2018 08:56:37 +0800
-Message-ID: <CAB4CAwfOBuAutaQdObyfrOg5Yo2M9NJGww1Ffc7o2YrAYDObEA@mail.gmail.com>
-References: <20181130064617.67920-1-chiu@endlessm.com> <CAO-hwJKAnHqPi7aOGqKET+_JKnXmvdwOyhtH4nLeqS+-K8597Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 16/69] iio/hid-sensors: Fix IIO_CHAN_INFO_RAW returning wrong values for signed numbers
+Date: Wed,  5 Dec 2018 04:41:54 -0500
+Message-ID: <20181205094247.6556-16-sashal@kernel.org>
+References: <20181205094247.6556-1-sashal@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKAnHqPi7aOGqKET+_JKnXmvdwOyhtH4nLeqS+-K8597Q@mail.gmail.com>
+In-Reply-To: <20181205094247.6556-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, rydberg@bitmath.org, linux-input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Stable@vger.kernel.org, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Nov 30, 2018 at 7:18 PM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> On Fri, Nov 30, 2018 at 7:46 AM Chris Chiu <chiu@endlessm.com> wrote:
-> >
-> > The ASUS laptops start to support the airplane mode radio management
-> > to replace the original machanism of airplane mode toggle hotkey.
-> > On the ASUS P5440FF, it presents as a HID device connecting via
-> > I2C, name i2c-AMPD0001. When pressing hotkey, the Embedded Controller
-> > send hid report up via I2C and switch the airplane mode indicator
-> > LED based on the status.
-> >
-> > However, it's not working because it fails to be identified as a
-> > hidinput device. It fails in hidinput_connect() due to the macro
-> > IS_INPUT_APPLICATION doesn't identify HID_GD_WIRELESS_RADIO_CTLS
-> > as a legit application code.
-> >
-> > It's easy to add the HID I2C vendor and product id to the quirk
-> > list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
-> > can be more generic to support such kind of application on PC.
->
-> Sounds good, but while you are at it, can you please:
-> - fix the kbuild warning
-> - rewrite the whole line to use macros,
-> - make the macro prettier by inserting new lines were required
-> - and define the missing macro:
->   0x000d0006 -> HID_DG_WHITEBOARD
->
-> Maybe we should keep the ranges definitions with raw values and put a
-> comment on the side with the names.
->
-> Cheers,
-> Benjamin
->
+From: Hans de Goede <hdegoede@redhat.com>
 
-Hi Bejamin,
-    Thanks for your comment, I've submitted other patches which may
-fulfill your suggestion.
-https://lore.kernel.org/patchwork/patch/1020373/
-https://lore.kernel.org/patchwork/patch/1020374/
+[ Upstream commit 0145b50566e7de5637e80ecba96c7f0e6fff1aad ]
 
-     Please help me review and correct me if there's any modification
-required. Thanks & Regards.
+Before this commit sensor_hub_input_attr_get_raw_value() failed to take
+the signedness of 16 and 8 bit values into account, returning e.g.
+65436 instead of -100 for the z-axis reading of an accelerometer.
 
-Chris
+This commit adds a new is_signed parameter to the function and makes all
+callers pass the appropriate value for this.
 
-> >
-> > Signed-off-by: Chris Chiu <chiu@endlessm.com>
-> > ---
-> >  include/linux/hid.h | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/include/linux/hid.h b/include/linux/hid.h
-> > index d44a78362942..f4805f605fed 100644
-> > --- a/include/linux/hid.h
-> > +++ b/include/linux/hid.h
-> > @@ -836,7 +836,7 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
-> >
-> >  /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
-> >  /* We ignore a few input applications that are not widely used */
-> > -#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
-> > +#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || || (a == 0x0001000c) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
-> >
-> >  /* HID core API */
-> >
-> > --
-> > 2.11.0
-> >
+While at it, this commit also fixes up some neighboring lines where
+statements were needlessly split over 2 lines to improve readability.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-sensor-custom.c                  |  2 +-
+ drivers/hid/hid-sensor-hub.c                     | 13 ++++++++++---
+ drivers/iio/accel/hid-sensor-accel-3d.c          |  5 ++++-
+ drivers/iio/gyro/hid-sensor-gyro-3d.c            |  5 ++++-
+ drivers/iio/humidity/hid-sensor-humidity.c       |  3 ++-
+ drivers/iio/light/hid-sensor-als.c               |  8 +++++---
+ drivers/iio/light/hid-sensor-prox.c              |  8 +++++---
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c    |  8 +++++---
+ drivers/iio/orientation/hid-sensor-incl-3d.c     |  8 +++++---
+ drivers/iio/pressure/hid-sensor-press.c          |  8 +++++---
+ drivers/iio/temperature/hid-sensor-temperature.c |  3 ++-
+ drivers/rtc/rtc-hid-sensor-time.c                |  2 +-
+ include/linux/hid-sensor-hub.h                   |  4 +++-
+ 13 files changed, 52 insertions(+), 25 deletions(-)
+
+diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+index 0bcf041368c7..574126b649e9 100644
+--- a/drivers/hid/hid-sensor-custom.c
++++ b/drivers/hid/hid-sensor-custom.c
+@@ -358,7 +358,7 @@ static ssize_t show_value(struct device *dev, struct device_attribute *attr,
+ 						sensor_inst->hsdev,
+ 						sensor_inst->hsdev->usage,
+ 						usage, report_id,
+-						SENSOR_HUB_SYNC);
++						SENSOR_HUB_SYNC, false);
+ 	} else if (!strncmp(name, "units", strlen("units")))
+ 		value = sensor_inst->fields[field_index].attribute.units;
+ 	else if (!strncmp(name, "unit-expo", strlen("unit-expo")))
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index faba542d1b07..b5bd5cb7d532 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -299,7 +299,8 @@ EXPORT_SYMBOL_GPL(sensor_hub_get_feature);
+ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+ 					u32 usage_id,
+ 					u32 attr_usage_id, u32 report_id,
+-					enum sensor_hub_read_flags flag)
++					enum sensor_hub_read_flags flag,
++					bool is_signed)
+ {
+ 	struct sensor_hub_data *data = hid_get_drvdata(hsdev->hdev);
+ 	unsigned long flags;
+@@ -331,10 +332,16 @@ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+ 						&hsdev->pending.ready, HZ*5);
+ 		switch (hsdev->pending.raw_size) {
+ 		case 1:
+-			ret_val = *(u8 *)hsdev->pending.raw_data;
++			if (is_signed)
++				ret_val = *(s8 *)hsdev->pending.raw_data;
++			else
++				ret_val = *(u8 *)hsdev->pending.raw_data;
+ 			break;
+ 		case 2:
+-			ret_val = *(u16 *)hsdev->pending.raw_data;
++			if (is_signed)
++				ret_val = *(s16 *)hsdev->pending.raw_data;
++			else
++				ret_val = *(u16 *)hsdev->pending.raw_data;
+ 			break;
+ 		case 4:
+ 			ret_val = *(u32 *)hsdev->pending.raw_data;
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index 2238a26aba63..f573d9c61fc3 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -149,6 +149,7 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
++	s32 min;
+ 	struct hid_sensor_hub_device *hsdev =
+ 					accel_state->common_attributes.hsdev;
+ 
+@@ -158,12 +159,14 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
+ 	case 0:
+ 		hid_sensor_power_state(&accel_state->common_attributes, true);
+ 		report_id = accel_state->accel[chan->scan_index].report_id;
++		min = accel_state->accel[chan->scan_index].logical_minimum;
+ 		address = accel_3d_addresses[chan->scan_index];
+ 		if (report_id >= 0)
+ 			*val = sensor_hub_input_attr_get_raw_value(
+ 					accel_state->common_attributes.hsdev,
+ 					hsdev->usage, address, report_id,
+-					SENSOR_HUB_SYNC);
++					SENSOR_HUB_SYNC,
++					min < 0);
+ 		else {
+ 			*val = 0;
+ 			hid_sensor_power_state(&accel_state->common_attributes,
+diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+index c67ce2ac4715..d9192eb41131 100644
+--- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
++++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
+@@ -111,6 +111,7 @@ static int gyro_3d_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
++	s32 min;
+ 
+ 	*val = 0;
+ 	*val2 = 0;
+@@ -118,13 +119,15 @@ static int gyro_3d_read_raw(struct iio_dev *indio_dev,
+ 	case 0:
+ 		hid_sensor_power_state(&gyro_state->common_attributes, true);
+ 		report_id = gyro_state->gyro[chan->scan_index].report_id;
++		min = gyro_state->gyro[chan->scan_index].logical_minimum;
+ 		address = gyro_3d_addresses[chan->scan_index];
+ 		if (report_id >= 0)
+ 			*val = sensor_hub_input_attr_get_raw_value(
+ 					gyro_state->common_attributes.hsdev,
+ 					HID_USAGE_SENSOR_GYRO_3D, address,
+ 					report_id,
+-					SENSOR_HUB_SYNC);
++					SENSOR_HUB_SYNC,
++					min < 0);
+ 		else {
+ 			*val = 0;
+ 			hid_sensor_power_state(&gyro_state->common_attributes,
+diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
+index 6e09c1acfe51..e53914d51ec3 100644
+--- a/drivers/iio/humidity/hid-sensor-humidity.c
++++ b/drivers/iio/humidity/hid-sensor-humidity.c
+@@ -75,7 +75,8 @@ static int humidity_read_raw(struct iio_dev *indio_dev,
+ 				HID_USAGE_SENSOR_HUMIDITY,
+ 				HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY,
+ 				humid_st->humidity_attr.report_id,
+-				SENSOR_HUB_SYNC);
++				SENSOR_HUB_SYNC,
++				humid_st->humidity_attr.logical_minimum < 0);
+ 		hid_sensor_power_state(&humid_st->common_attributes, false);
+ 
+ 		return IIO_VAL_INT;
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index 059d964772c7..95ca86f50434 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -93,6 +93,7 @@ static int als_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
++	s32 min;
+ 
+ 	*val = 0;
+ 	*val2 = 0;
+@@ -102,8 +103,8 @@ static int als_read_raw(struct iio_dev *indio_dev,
+ 		case  CHANNEL_SCAN_INDEX_INTENSITY:
+ 		case  CHANNEL_SCAN_INDEX_ILLUM:
+ 			report_id = als_state->als_illum.report_id;
+-			address =
+-			HID_USAGE_SENSOR_LIGHT_ILLUM;
++			min = als_state->als_illum.logical_minimum;
++			address = HID_USAGE_SENSOR_LIGHT_ILLUM;
+ 			break;
+ 		default:
+ 			report_id = -1;
+@@ -116,7 +117,8 @@ static int als_read_raw(struct iio_dev *indio_dev,
+ 					als_state->common_attributes.hsdev,
+ 					HID_USAGE_SENSOR_ALS, address,
+ 					report_id,
+-					SENSOR_HUB_SYNC);
++					SENSOR_HUB_SYNC,
++					min < 0);
+ 			hid_sensor_power_state(&als_state->common_attributes,
+ 						false);
+ 		} else {
+diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+index 73fced8a63b7..8c017abc4ee2 100644
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -73,6 +73,7 @@ static int prox_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
++	s32 min;
+ 
+ 	*val = 0;
+ 	*val2 = 0;
+@@ -81,8 +82,8 @@ static int prox_read_raw(struct iio_dev *indio_dev,
+ 		switch (chan->scan_index) {
+ 		case  CHANNEL_SCAN_INDEX_PRESENCE:
+ 			report_id = prox_state->prox_attr.report_id;
+-			address =
+-			HID_USAGE_SENSOR_HUMAN_PRESENCE;
++			min = prox_state->prox_attr.logical_minimum;
++			address = HID_USAGE_SENSOR_HUMAN_PRESENCE;
+ 			break;
+ 		default:
+ 			report_id = -1;
+@@ -95,7 +96,8 @@ static int prox_read_raw(struct iio_dev *indio_dev,
+ 				prox_state->common_attributes.hsdev,
+ 				HID_USAGE_SENSOR_PROX, address,
+ 				report_id,
+-				SENSOR_HUB_SYNC);
++				SENSOR_HUB_SYNC,
++				min < 0);
+ 			hid_sensor_power_state(&prox_state->common_attributes,
+ 						false);
+ 		} else {
+diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+index 0e791b02ed4a..b495107bd173 100644
+--- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
++++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+@@ -163,21 +163,23 @@ static int magn_3d_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
++	s32 min;
+ 
+ 	*val = 0;
+ 	*val2 = 0;
+ 	switch (mask) {
+ 	case 0:
+ 		hid_sensor_power_state(&magn_state->magn_flux_attributes, true);
+-		report_id =
+-			magn_state->magn[chan->address].report_id;
++		report_id = magn_state->magn[chan->address].report_id;
++		min = magn_state->magn[chan->address].logical_minimum;
+ 		address = magn_3d_addresses[chan->address];
+ 		if (report_id >= 0)
+ 			*val = sensor_hub_input_attr_get_raw_value(
+ 				magn_state->magn_flux_attributes.hsdev,
+ 				HID_USAGE_SENSOR_COMPASS_3D, address,
+ 				report_id,
+-				SENSOR_HUB_SYNC);
++				SENSOR_HUB_SYNC,
++				min < 0);
+ 		else {
+ 			*val = 0;
+ 			hid_sensor_power_state(
+diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
+index fd1b3696ee42..16c744bef021 100644
+--- a/drivers/iio/orientation/hid-sensor-incl-3d.c
++++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
+@@ -111,21 +111,23 @@ static int incl_3d_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
++	s32 min;
+ 
+ 	*val = 0;
+ 	*val2 = 0;
+ 	switch (mask) {
+ 	case IIO_CHAN_INFO_RAW:
+ 		hid_sensor_power_state(&incl_state->common_attributes, true);
+-		report_id =
+-			incl_state->incl[chan->scan_index].report_id;
++		report_id = incl_state->incl[chan->scan_index].report_id;
++		min = incl_state->incl[chan->scan_index].logical_minimum;
+ 		address = incl_3d_addresses[chan->scan_index];
+ 		if (report_id >= 0)
+ 			*val = sensor_hub_input_attr_get_raw_value(
+ 				incl_state->common_attributes.hsdev,
+ 				HID_USAGE_SENSOR_INCLINOMETER_3D, address,
+ 				report_id,
+-				SENSOR_HUB_SYNC);
++				SENSOR_HUB_SYNC,
++				min < 0);
+ 		else {
+ 			hid_sensor_power_state(&incl_state->common_attributes,
+ 						false);
+diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
+index 6848d8c80eff..1c49ef78f888 100644
+--- a/drivers/iio/pressure/hid-sensor-press.c
++++ b/drivers/iio/pressure/hid-sensor-press.c
+@@ -77,6 +77,7 @@ static int press_read_raw(struct iio_dev *indio_dev,
+ 	int report_id = -1;
+ 	u32 address;
+ 	int ret_type;
++	s32 min;
+ 
+ 	*val = 0;
+ 	*val2 = 0;
+@@ -85,8 +86,8 @@ static int press_read_raw(struct iio_dev *indio_dev,
+ 		switch (chan->scan_index) {
+ 		case  CHANNEL_SCAN_INDEX_PRESSURE:
+ 			report_id = press_state->press_attr.report_id;
+-			address =
+-			HID_USAGE_SENSOR_ATMOSPHERIC_PRESSURE;
++			min = press_state->press_attr.logical_minimum;
++			address = HID_USAGE_SENSOR_ATMOSPHERIC_PRESSURE;
+ 			break;
+ 		default:
+ 			report_id = -1;
+@@ -99,7 +100,8 @@ static int press_read_raw(struct iio_dev *indio_dev,
+ 				press_state->common_attributes.hsdev,
+ 				HID_USAGE_SENSOR_PRESSURE, address,
+ 				report_id,
+-				SENSOR_HUB_SYNC);
++				SENSOR_HUB_SYNC,
++				min < 0);
+ 			hid_sensor_power_state(&press_state->common_attributes,
+ 						false);
+ 		} else {
+diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
+index c01efeca4002..6ed5cd5742f1 100644
+--- a/drivers/iio/temperature/hid-sensor-temperature.c
++++ b/drivers/iio/temperature/hid-sensor-temperature.c
+@@ -76,7 +76,8 @@ static int temperature_read_raw(struct iio_dev *indio_dev,
+ 			HID_USAGE_SENSOR_TEMPERATURE,
+ 			HID_USAGE_SENSOR_DATA_ENVIRONMENTAL_TEMPERATURE,
+ 			temp_st->temperature_attr.report_id,
+-			SENSOR_HUB_SYNC);
++			SENSOR_HUB_SYNC,
++			temp_st->temperature_attr.logical_minimum < 0);
+ 		hid_sensor_power_state(
+ 				&temp_st->common_attributes,
+ 				false);
+diff --git a/drivers/rtc/rtc-hid-sensor-time.c b/drivers/rtc/rtc-hid-sensor-time.c
+index 2751dba850c6..3e1abb455472 100644
+--- a/drivers/rtc/rtc-hid-sensor-time.c
++++ b/drivers/rtc/rtc-hid-sensor-time.c
+@@ -213,7 +213,7 @@ static int hid_rtc_read_time(struct device *dev, struct rtc_time *tm)
+ 	/* get a report with all values through requesting one value */
+ 	sensor_hub_input_attr_get_raw_value(time_state->common_attributes.hsdev,
+ 			HID_USAGE_SENSOR_TIME, hid_time_addresses[0],
+-			time_state->info[0].report_id, SENSOR_HUB_SYNC);
++			time_state->info[0].report_id, SENSOR_HUB_SYNC, false);
+ 	/* wait for all values (event) */
+ 	ret = wait_for_completion_killable_timeout(
+ 			&time_state->comp_last_time, HZ*6);
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index fc7aae64dcde..000de6da3b1b 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -177,6 +177,7 @@ int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
+ * @attr_usage_id:	Attribute usage id as per spec
+ * @report_id:	Report id to look for
+ * @flag:      Synchronous or asynchronous read
++* @is_signed:   If true then fields < 32 bits will be sign-extended
+ *
+ * Issues a synchronous or asynchronous read request for an input attribute.
+ * Returns data upto 32 bits.
+@@ -190,7 +191,8 @@ enum sensor_hub_read_flags {
+ int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
+  					u32 usage_id,
+  					u32 attr_usage_id, u32 report_id,
+- 					enum sensor_hub_read_flags flag
++					enum sensor_hub_read_flags flag,
++					bool is_signed
+ );
+ 
+ /**
+-- 
+2.17.1

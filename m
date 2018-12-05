@@ -1,7 +1,7 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH v3 5/8] HID: logitech-hidpp: fix typo, hiddpp to hidpp
-Date: Wed,  5 Dec 2018 10:42:25 +1000
-Message-ID: <20181205004228.10714-6-peter.hutterer@who-t.net>
+Subject: [PATCH v3 6/8] HID: logitech: Add function to enable HID++ 1.0 "scrolling acceleration"
+Date: Wed,  5 Dec 2018 10:42:26 +1000
+Message-ID: <20181205004228.10714-7-peter.hutterer@who-t.net>
 References: <20181205004228.10714-1-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,50 +12,91 @@ To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
+From: Harry Cutts <hcutts@chromium.org>
+
+"Scrolling acceleration" is a bit of a misnomer: it doesn't deal with
+acceleration at all. However, that's the name used in Logitech's spec,
+so I used it here.
+
+Signed-off-by: Harry Cutts <hcutts@chromium.org>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 ---
 Unchanged since v1
 
- drivers/hid/hid-logitech-hidpp.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 47 +++++++++++++++++++++++---------
+ 1 file changed, 34 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 19cc980eebce..22b37a3844d1 100644
+index 22b37a3844d1..95ba9db6e613 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1465,7 +1465,7 @@ struct hidpp_ff_work_data {
- 	u8 size;
- };
+@@ -400,32 +400,53 @@ static void hidpp_prefix_name(char **name, int name_length)
+ #define HIDPP_SET_LONG_REGISTER				0x82
+ #define HIDPP_GET_LONG_REGISTER				0x83
  
--static const signed short hiddpp_ff_effects[] = {
-+static const signed short hidpp_ff_effects[] = {
- 	FF_CONSTANT,
- 	FF_PERIODIC,
- 	FF_SINE,
-@@ -1480,7 +1480,7 @@ static const signed short hiddpp_ff_effects[] = {
- 	-1
- };
+-#define HIDPP_REG_GENERAL				0x00
+-
+-static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
++/**
++ * hidpp10_set_register_bit() - Sets a single bit in a HID++ 1.0 register.
++ * @hidpp_dev: the device to set the register on.
++ * @register_address: the address of the register to modify.
++ * @byte: the byte of the register to modify. Should be less than 3.
++ * Return: 0 if successful, otherwise a negative error code.
++ */
++static int hidpp10_set_register_bit(struct hidpp_device *hidpp_dev,
++	u8 register_address, u8 byte, u8 bit)
+ {
+ 	struct hidpp_report response;
+ 	int ret;
+ 	u8 params[3] = { 0 };
  
--static const signed short hiddpp_ff_effects_v2[] = {
-+static const signed short hidpp_ff_effects_v2[] = {
- 	FF_RAMP,
- 	FF_FRICTION,
- 	FF_INERTIA,
-@@ -1873,11 +1873,11 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 	version = bcdDevice & 255;
+ 	ret = hidpp_send_rap_command_sync(hidpp_dev,
+-					REPORT_ID_HIDPP_SHORT,
+-					HIDPP_GET_REGISTER,
+-					HIDPP_REG_GENERAL,
+-					NULL, 0, &response);
++					  REPORT_ID_HIDPP_SHORT,
++					  HIDPP_GET_REGISTER,
++					  register_address,
++					  NULL, 0, &response);
+ 	if (ret)
+ 		return ret;
  
- 	/* Set supported force feedback capabilities */
--	for (j = 0; hiddpp_ff_effects[j] >= 0; j++)
--		set_bit(hiddpp_ff_effects[j], dev->ffbit);
-+	for (j = 0; hidpp_ff_effects[j] >= 0; j++)
-+		set_bit(hidpp_ff_effects[j], dev->ffbit);
- 	if (version > 1)
--		for (j = 0; hiddpp_ff_effects_v2[j] >= 0; j++)
--			set_bit(hiddpp_ff_effects_v2[j], dev->ffbit);
-+		for (j = 0; hidpp_ff_effects_v2[j] >= 0; j++)
-+			set_bit(hidpp_ff_effects_v2[j], dev->ffbit);
+ 	memcpy(params, response.rap.params, 3);
  
- 	/* Read number of slots available in device */
- 	error = hidpp_send_fap_command_sync(hidpp, feature_index,
+-	/* Set the battery bit */
+-	params[0] |= BIT(4);
++	params[byte] |= BIT(bit);
+ 
+ 	return hidpp_send_rap_command_sync(hidpp_dev,
+-					REPORT_ID_HIDPP_SHORT,
+-					HIDPP_SET_REGISTER,
+-					HIDPP_REG_GENERAL,
+-					params, 3, &response);
++					   REPORT_ID_HIDPP_SHORT,
++					   HIDPP_SET_REGISTER,
++					   register_address,
++					   params, 3, &response);
++}
++
++
++#define HIDPP_REG_GENERAL				0x00
++
++static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
++{
++	return hidpp10_set_register_bit(hidpp_dev, HIDPP_REG_GENERAL, 0, 4);
++}
++
++#define HIDPP_REG_FEATURES				0x01
++
++/* On HID++ 1.0 devices, high-res scroll was called "scrolling acceleration". */
++static int hidpp10_enable_scrolling_acceleration(struct hidpp_device *hidpp_dev)
++{
++	return hidpp10_set_register_bit(hidpp_dev, HIDPP_REG_FEATURES, 0, 6);
+ }
+ 
+ #define HIDPP_REG_BATTERY_STATUS			0x07
 -- 
 2.19.2

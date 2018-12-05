@@ -1,7 +1,7 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH v3 1/8] Input: add `REL_WHEEL_HI_RES` and `REL_HWHEEL_HI_RES`
-Date: Wed,  5 Dec 2018 10:42:21 +1000
-Message-ID: <20181205004228.10714-2-peter.hutterer@who-t.net>
+Subject: [PATCH v3 4/8] HID: input: use the Resolution Multiplier for high-resolution scrolling
+Date: Wed,  5 Dec 2018 10:42:24 +1000
+Message-ID: <20181205004228.10714-5-peter.hutterer@who-t.net>
 References: <20181205004228.10714-1-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,73 +12,226 @@ To: linux-input@vger.kernel.org
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This event code represents scroll reports from high-resolution wheels and
-is modelled after the approach Windows uses. The value 120 is one detent
-(wheel click) of movement. Mice with higher-resolution scrolling can send
-fractions of 120 which must be accumulated in userspace. Userspace can either
-wait for a full 120 to accumulate or scroll by fractions of one logical scroll
-movement as the events come in. 120 was picked as magic number because it has
-a high number of integer fractions that can be used by high-resolution wheels.
+Windows uses a magic number of 120 for a wheel click. High-resolution
+scroll wheels are supposed to use a fraction of 120 to signal smaller
+scroll steps. This is implemented by the Resolution Multiplier in the
+device itself.
 
-For more information see
-https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613912(v=vs.85)
+If the multiplier is present in the report descriptor, set it to the
+logical max and then use the resolution multiplier to calculate the
+high-resolution events. This is the recommendation by Microsoft, see
+http://msdn.microsoft.com/en-us/windows/hardware/gg487477.aspx
 
-These new axes obsolete REL_WHEEL and REL_HWHEEL. The legacy axes are emulated
-by the kernel but the most accurate (and most granular) data is available
-through the new axes.
+Note that all mice encountered so far have a logical min/max of 0/1, so
+it's a binary "yes or no" to high-res scrolling anyway.
+
+To make userspace simpler, always enable the REL_WHEEL_HI_RES bit. Where
+the device doesn't support high-resolution scrolling, the value for the
+high-res data will simply be a multiple of 120 every time. For userspace,
+if REL_WHEEL_HI_RES is available that is the one to be used.
+
+Potential side-effect: a device with a Resolution Multiplier applying to
+other Input items will have those items set to the logical max as well.
+This cannot easily be worked around but it is doubtful such devices exist.
 
 Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 ---
-No changes since v1
+Changes since v1:
+- drop the wheel factor and calculate the hi-res value as the event comes
+  in. This fixes the issue with a multiplier of 16, makes the code simpler
+  too because we don't have to refresh anything after setting the
+  multiplier.
 
- Documentation/input/event-codes.rst    | 21 ++++++++++++++++++++-
- include/uapi/linux/input-event-codes.h |  2 ++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+Changes since v2:
+- unchanged
 
-diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-index a8c0873beb95..b24b5343f5eb 100644
---- a/Documentation/input/event-codes.rst
-+++ b/Documentation/input/event-codes.rst
-@@ -190,7 +190,26 @@ A few EV_REL codes have special meanings:
- * REL_WHEEL, REL_HWHEEL:
+ drivers/hid/hid-input.c | 108 ++++++++++++++++++++++++++++++++++++++--
+ include/linux/hid.h     |   3 ++
+ 2 files changed, 108 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index d6fab5798487..59a5608b8dc0 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -712,7 +712,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 				map_abs_clear(usage->hid & 0xf);
+ 			break;
  
-   - These codes are used for vertical and horizontal scroll wheels,
--    respectively.
-+    respectively. The value is the number of detents moved on the wheel, the
-+    physical size of which varies by device. For high-resolution wheels
-+    this may be an approximation based on the high-resolution scroll events,
-+    see REL_WHEEL_HI_RES. These event codes are legacy codes and
-+    REL_WHEEL_HI_RES and REL_HWHEEL_HI_RES should be preferred where
-+    available.
-+
-+* REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES:
-+
-+  - High-resolution scroll wheel data. The accumulated value 120 represents
-+    movement by one detent. For devices that do not provide high-resolution
-+    scrolling, the value is always a multiple of 120. For devices with
-+    high-resolution scrolling, the value may be a fraction of 120.
-+
-+    If a vertical scroll wheel supports high-resolution scrolling, this code
-+    will be emitted in addition to REL_WHEEL or REL_HWHEEL. The REL_WHEEL
-+    and REL_HWHEEL may be an approximation based on the high-resolution
-+    scroll events. There is no guarantee that the high-resolution data
-+    is a multiple of 120 at the time of an emulated REL_WHEEL or REL_HWHEEL
-+    event.
+-		case HID_GD_SLIDER: case HID_GD_DIAL: case HID_GD_WHEEL:
++		case HID_GD_WHEEL:
++			if (field->flags & HID_MAIN_ITEM_RELATIVE) {
++				set_bit(REL_WHEEL, input->relbit);
++				map_rel(REL_WHEEL_HI_RES);
++			} else {
++				map_abs(usage->hid & 0xf);
++			}
++			break;
++		case HID_GD_SLIDER: case HID_GD_DIAL:
+ 			if (field->flags & HID_MAIN_ITEM_RELATIVE)
+ 				map_rel(usage->hid & 0xf);
+ 			else
+@@ -1012,7 +1020,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x22f: map_key_clear(KEY_ZOOMRESET);	break;
+ 		case 0x233: map_key_clear(KEY_SCROLLUP);	break;
+ 		case 0x234: map_key_clear(KEY_SCROLLDOWN);	break;
+-		case 0x238: map_rel(REL_HWHEEL);		break;
++		case 0x238: /* AC Pan */
++			set_bit(REL_HWHEEL, input->relbit);
++			map_rel(REL_HWHEEL_HI_RES);
++			break;
+ 		case 0x23d: map_key_clear(KEY_EDIT);		break;
+ 		case 0x25f: map_key_clear(KEY_CANCEL);		break;
+ 		case 0x269: map_key_clear(KEY_INSERT);		break;
+@@ -1200,6 +1211,38 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
  
- EV_ABS
- ------
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 3eb5a4c3d60a..265ef2028660 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -716,6 +716,8 @@
-  * the situation described above.
-  */
- #define REL_RESERVED		0x0a
-+#define REL_WHEEL_HI_RES	0x0b
-+#define REL_HWHEEL_HI_RES	0x0c
- #define REL_MAX			0x0f
- #define REL_CNT			(REL_MAX+1)
+ }
  
++static void hidinput_handle_scroll(struct hid_usage *usage,
++				   struct input_dev *input,
++				   __s32 value)
++{
++	int code;
++	int hi_res, lo_res;
++
++	if (value == 0)
++		return;
++
++	if (usage->code == REL_WHEEL_HI_RES)
++		code = REL_WHEEL;
++	else
++		code = REL_HWHEEL;
++
++	/*
++	 * Windows reports one wheel click as value 120. Where a high-res
++	 * scroll wheel is present, a fraction of 120 is reported instead.
++	 * Our REL_WHEEL_HI_RES axis does the same because all HW must
++	 * adhere to the 120 expectation.
++	 */
++	hi_res = value * 120/usage->resolution_multiplier;
++
++	usage->wheel_accumulated += hi_res;
++	lo_res = usage->wheel_accumulated/120;
++	if (lo_res)
++		usage->wheel_accumulated -= lo_res * 120;
++
++	input_event(input, EV_REL, code, lo_res);
++	input_event(input, EV_REL, usage->code, hi_res);
++}
++
+ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value)
+ {
+ 	struct input_dev *input;
+@@ -1262,6 +1305,12 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+ 	if ((usage->type == EV_KEY) && (usage->code == 0)) /* Key 0 is "unassigned", not KEY_UNKNOWN */
+ 		return;
+ 
++	if ((usage->type == EV_REL) && (usage->code == REL_WHEEL_HI_RES ||
++					usage->code == REL_HWHEEL_HI_RES)) {
++		hidinput_handle_scroll(usage, input, value);
++		return;
++	}
++
+ 	if ((usage->type == EV_ABS) && (field->flags & HID_MAIN_ITEM_RELATIVE) &&
+ 			(usage->code == ABS_VOLUME)) {
+ 		int count = abs(value);
+@@ -1489,6 +1538,58 @@ static void hidinput_close(struct input_dev *dev)
+ 	hid_hw_close(hid);
+ }
+ 
++static void hidinput_change_resolution_multipliers(struct hid_device *hid)
++{
++	struct hid_report_enum *rep_enum;
++	struct hid_report *rep;
++	struct hid_usage *usage;
++	int i, j;
++
++	rep_enum = &hid->report_enum[HID_FEATURE_REPORT];
++	list_for_each_entry(rep, &rep_enum->report_list, list) {
++		bool update_needed = false;
++
++		if (rep->maxfield == 0)
++			continue;
++
++		/*
++		 * If we have more than one feature within this report we
++		 * need to fill in the bits from the others before we can
++		 * overwrite the ones for the Resolution Multiplier.
++		 */
++		if (rep->maxfield > 1) {
++			hid_hw_request(hid, rep, HID_REQ_GET_REPORT);
++			hid_hw_wait(hid);
++		}
++
++		for (i = 0; i < rep->maxfield; i++) {
++			__s32 logical_max = rep->field[i]->logical_maximum;
++
++			/* There is no good reason for a Resolution
++			 * Multiplier to have a count other than 1.
++			 * Ignore that case.
++			 */
++			if (rep->field[i]->report_count != 1)
++				continue;
++
++			for (j = 0; j < rep->field[i]->maxusage; j++) {
++				usage = &rep->field[i]->usage[j];
++
++				if (usage->hid != HID_GD_RESOLUTION_MULTIPLIER)
++					continue;
++
++				*rep->field[i]->value = logical_max;
++				update_needed = true;
++			}
++		}
++		if (update_needed)
++			hid_hw_request(hid, rep, HID_REQ_SET_REPORT);
++	}
++
++	/* refresh our structs */
++	hid_setup_resolution_multiplier(hid);
++}
++
+ static void report_features(struct hid_device *hid)
+ {
+ 	struct hid_driver *drv = hid->driver;
+@@ -1782,6 +1883,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 		}
+ 	}
+ 
++	hidinput_change_resolution_multipliers(hid);
++
+ 	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
+ 		if (drv->input_configured &&
+ 		    drv->input_configured(hid, hidinput))
+@@ -1840,4 +1943,3 @@ void hidinput_disconnect(struct hid_device *hid)
+ 	cancel_work_sync(&hid->led_work);
+ }
+ EXPORT_SYMBOL_GPL(hidinput_disconnect);
+-
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index fd8d860365a4..93db548f8761 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -233,6 +233,7 @@ struct hid_item {
+ #define HID_DC_BATTERYSTRENGTH	0x00060020
+ 
+ #define HID_CP_CONSUMER_CONTROL	0x000c0001
++#define HID_CP_AC_PAN		0x000c0238
+ 
+ #define HID_DG_DIGITIZER	0x000d0001
+ #define HID_DG_PEN		0x000d0002
+@@ -441,11 +442,13 @@ struct hid_usage {
+ 	__s8	  resolution_multiplier;/* Effective Resolution Multiplier
+ 					   (HUT v1.12, 4.3.1), default: 1 */
+ 	/* hidinput data */
++	__s8	  wheel_factor;		/* 120/resolution_multiplier */
+ 	__u16     code;			/* input driver code */
+ 	__u8      type;			/* input driver type */
+ 	__s8	  hat_min;		/* hat switch fun */
+ 	__s8	  hat_max;		/* ditto */
+ 	__s8	  hat_dir;		/* ditto */
++	__s16	  wheel_accumulated;	/* hi-res wheel */
+ };
+ 
+ struct hid_input;
 -- 
 2.19.2

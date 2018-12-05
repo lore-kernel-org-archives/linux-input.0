@@ -1,34 +1,29 @@
-From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: Re: [PATCH 5/9] dt-bindings: input: touchscreen: goodix: Document
- vcc-supply property
-Date: Thu, 6 Dec 2018 01:26:42 +0530
-Message-ID: <CAMty3ZAd9eZRkBM2Pitp_B+kVLsGjufL6ALMCJ=f7iUL=7SfsQ@mail.gmail.com>
-References: <20181203101547.16835-1-jagan@amarulasolutions.com>
- <20181203101547.16835-5-jagan@amarulasolutions.com> <CAGb2v67ocaKL05yt68F+juBeAq8BRQ49mB4uoHWijGRy8duamw@mail.gmail.com>
+From: Harry Cutts <hcutts@chromium.org>
+Subject: Re: [PATCH v3 7/8] HID: logitech: Enable high-resolution scrolling on
+ Logitech mice
+Date: Wed, 5 Dec 2018 13:52:54 -0800
+Message-ID: <CA+jURcuR8LzsQUPL4OMfx+OGV5DkADibO_LS_YPmA5pCGRkk8Q@mail.gmail.com>
+References: <20181205004228.10714-1-peter.hutterer@who-t.net> <20181205004228.10714-8-peter.hutterer@who-t.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAGb2v67ocaKL05yt68F+juBeAq8BRQ49mB4uoHWijGRy8duamw@mail.gmail.com>
+In-Reply-To: <20181205004228.10714-8-peter.hutterer@who-t.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, linux-sunxi <linux-sunxi@googlegroups.com>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, jikos@kernel.org, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Dec 3, 2018 at 4:11 PM Chen-Yu Tsai <wens@csie.org> wrote:
->
-> On Mon, Dec 3, 2018 at 6:16 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> >
-> > vcc-supply property is need for some Goodix CTP controller like GT5663
-> > where 3.3V external pull-up regulator connected via controller VCC pin.
->
-> "External pull-up regulator" sounds fishy. Chips have power supply
-> pins, either combined, or separate rails for analog, digital, and I/O.
-> For Goodix chips these are AVDD28, AVDD22, DVDD12, amd VDDIO. The name
-> and description you provide match none of these.
+Hi Peter,
 
-We have vcc pin in the connector to supply vcc-ctp, but indeed it is
-AVDD28 supply as per the reference schematic design[1] Page 23.  Host
-interface has AVDD pin which is connected to ADVDD28 on goodix chip,
-so I can name this as avdd28-supply. is that OK?
+On Tue, 4 Dec 2018 at 16:43, Peter Hutterer <peter.hutterer@who-t.net> wrote:
+> Changes to v2:
+> - m560 now has REL_HWHEEL_HI_RES (untested, I don't have the device)
 
-[1] https://www.crystalfontz.com/controllers/GOODIX/GT5663/459/
+I just tested with my M560, and it now reports REL_HWHEEL_HI_RES correctly.
+
+Verified-by: Harry Cutts <hcutts@chromium.org>
+
+Thanks,
+
+Harry Cutts
+Chrome OS Touch/Input team

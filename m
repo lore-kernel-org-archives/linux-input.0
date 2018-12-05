@@ -1,43 +1,41 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH] Input: restore EV_ABS ABS_RESERVED
-Date: Thu, 6 Dec 2018 09:03:36 +1000
-Message-ID: <20181205230336.GA23462@jelly>
+From: Jagan Teki <jagan@amarulasolutions.com>
+Subject: [PATCH v2 1/4] dt-bindings: input: touchscreen: goodix: Document AVDD28-supply property
+Date: Thu,  6 Dec 2018 05:22:17 +0530
+Message-ID: <20181205235220.3461-1-jagan@amarulasolutions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
+Cc: Jagan Teki <jagan@amarulasolutions.com>
 List-Id: linux-input@vger.kernel.org
 
-ABS_RESERVED was added in d9ca1c990a7 and accidentally removed as part of
-ffe0e7cf290f5c9 when the high-resolution scrolling code was removed.
+Most of the Goodix CTP controllers are supply with AVDD28 pin.
+which need to supply for controllers like GT5663 on some boards
+to trigger the power.
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+So, document the supply property so-that the required board
+that used on GT5663 can enable it via device tree.
+
+Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 ---
- include/uapi/linux/input-event-codes.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Changes for v2:
+- Rename vcc-supply with AVDD28-supply
 
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 3eb5a4c3d60a..ae366b87426a 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -752,6 +752,15 @@
+ Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+index f7e95c52f3c7..c4622c983e08 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+@@ -23,6 +23,7 @@ Optional properties:
+  - touchscreen-inverted-y  : Y axis is inverted (boolean)
+  - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
+                              (swapping is done after inverting the axis)
++ - AVDD28-supply	: Analog power supply regulator on AVDD28 pin
  
- #define ABS_MISC		0x28
+ Example:
  
-+/*
-+ * 0x2e is reserved and should not be used in input drivers.
-+ * It was used by HID as ABS_MISC+6 and userspace needs to detect if
-+ * the next ABS_* event is correct or is just ABS_MISC + n.
-+ * We define here ABS_RESERVED so userspace can rely on it and detect
-+ * the situation described above.
-+ */
-+#define ABS_RESERVED		0x2e
-+
- #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
- #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
- #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
 -- 
-2.19.2
+2.18.0.321.gffc6fa0e3

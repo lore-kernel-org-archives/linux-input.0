@@ -1,57 +1,43 @@
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH RFC 2/2] Input: raspberrypi-ts - add devicetree binding documentation
-Date: Wed,  5 Dec 2018 23:09:04 +0100
-Message-ID: <20181205220902.27682-3-nsaenzjulienne@suse.de>
-References: <20181205220902.27682-1-nsaenzjulienne@suse.de>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: [PATCH] Input: restore EV_ABS ABS_RESERVED
+Date: Thu, 6 Dec 2018 09:03:36 +1000
+Message-ID: <20181205230336.GA23462@jelly>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181205220902.27682-1-nsaenzjulienne@suse.de>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-rpi-kernel@lists.infradead.org, stefan.wahren@i2se.com, eric@anholt.net, agraf@suse.de, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Adds device tree documentation for Raspberry Pi's official 7"
-touchscreen. The firmware mailbox interface allows the ARM core to
-control the device.
+ABS_RESERVED was added in d9ca1c990a7 and accidentally removed as part of
+ffe0e7cf290f5c9 when the high-resolution scrolling code was removed.
 
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 ---
- .../touchscreen/raspberrypi,firmware-ts.txt   | 25 +++++++++++++++++++
- 1 file changed, 25 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/raspberrypi,firmware-ts.txt
+ include/uapi/linux/input-event-codes.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/raspberrypi,firmware-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/raspberrypi,firmware-ts.txt
-new file mode 100644
-index 000000000000..d28189476279
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/raspberrypi,firmware-ts.txt
-@@ -0,0 +1,25 @@
-+Raspberry Pi 3 firmware based 7" touchscreen
-+=====================================
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 3eb5a4c3d60a..ae366b87426a 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -752,6 +752,15 @@
+ 
+ #define ABS_MISC		0x28
+ 
++/*
++ * 0x2e is reserved and should not be used in input drivers.
++ * It was used by HID as ABS_MISC+6 and userspace needs to detect if
++ * the next ABS_* event is correct or is just ABS_MISC + n.
++ * We define here ABS_RESERVED so userspace can rely on it and detect
++ * the situation described above.
++ */
++#define ABS_RESERVED		0x2e
 +
-+Required properties:
-+ - compatible: "raspberrypi,firmware-ts"
-+
-+Optional properties:
-+ - touchscreen-size-x: See touchscreen.txt
-+ - touchscreen-size-y: See touchscreen.txt
-+ - touchscreen-inverted-x: See touchscreen.txt
-+ - touchscreen-inverted-y: See touchscreen.txt
-+ - touchscreen-swapped-x-y: See touchscreen.txt
-+
-+Example:
-+
-+firmware: firmware-rpi {
-+	compatible = "raspberrypi,bcm2835-firmware", "simple-bus";
-+	mboxes = <&mailbox>;
-+
-+	ts: touchscreen {
-+		compatible = "raspberrypi,firmware-ts";
-+		touchscreen-size-x = <800>;
-+		touchscreen-size-y = <480>;
-+	};
-+};
+ #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
+ #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
+ #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
 -- 
 2.19.2

@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH 4/8] Input: tm2-touchkey: Correct initial brightness
-Date: Fri,  7 Dec 2018 11:58:07 +0100
-Message-ID: <20181207105811.1831-5-pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH 2/8] Input: dt-bindings: tm2-touchkey: Add support for midas touchkey
+Date: Fri,  7 Dec 2018 11:58:05 +0100
+Message-ID: <20181207105811.1831-3-pawel.mikolaj.chmiel@gmail.com>
 References: <20181207105811.1831-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,29 +13,30 @@ To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
 Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, simon@lineageos.org
 List-Id: linux-input@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Simon Shields <simon@lineageos.org>
 
-Tm2-touchkey don't have brightness levels, but only on/off states,
-so replace LED_FULL with LED_ON.
+Document compatible for midas touchkey.
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Simon Shields <simon@lineageos.org>
 Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 ---
- drivers/input/keyboard/tm2-touchkey.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/input/cypress,tm2-touchkey.txt        | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
-index cc713b901bf2..a73894b8dede 100644
---- a/drivers/input/keyboard/tm2-touchkey.c
-+++ b/drivers/input/keyboard/tm2-touchkey.c
-@@ -235,7 +235,7 @@ static int tm2_touchkey_probe(struct i2c_client *client,
+diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
+index 0c252d9306da..dfb3b9f0ee40 100644
+--- a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
++++ b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
+@@ -1,7 +1,9 @@
+ Samsung tm2-touchkey
  
- 	/* led device */
- 	touchkey->led_dev.name = touchkey->variant->name;
--	touchkey->led_dev.brightness = LED_FULL;
-+	touchkey->led_dev.brightness = LED_ON;
- 	touchkey->led_dev.max_brightness = LED_ON;
- 	touchkey->led_dev.brightness_set = tm2_touchkey_led_brightness_set;
- 
+ Required properties:
+-- compatible: must be "cypress,tm2-touchkey"
++- compatible:
++    * "cypress,tm2-touchkey" - for the touchkey found on the tm2 board
++    * "cypress,midas-touchkey" - for the touchkey found on midas boards
+ - reg: I2C address of the chip.
+ - interrupts: interrupt to which the chip is connected (see interrupt
+ 	binding[0]).
 -- 
 2.17.1

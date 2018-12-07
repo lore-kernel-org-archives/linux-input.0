@@ -1,63 +1,64 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
-Date: Fri, 7 Dec 2018 12:19:55 +0000
-Message-ID: <20181207121955.GA6510@sirena.org.uk>
-References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
- <20181203071145.GA26661@dell>
- <5C069C47.6080305@st.com>
- <20181205093604.GZ26661@dell>
- <5C07F08B.2010701@st.com>
- <20181207073132.GH26661@dell>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] HID: input: support Microsoft wireless radio control hotkey
+Date: Fri, 7 Dec 2018 14:01:56 +0100
+Message-ID: <CAO-hwJKRsSDLSbjv44QRqqHCL4ynk6ncaJb+yE1DL-hrS-iJ4w@mail.gmail.com>
+References: <20181203064621.69876-1-chiu@endlessm.com> <20181203064621.69876-2-chiu@endlessm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181207073132.GH26661@dell>
+In-Reply-To: <20181203064621.69876-2-chiu@endlessm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Pascal PAILLET-LME <p.paillet@st.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+To: chiu@endlessm.com
+Cc: Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
+On Mon, Dec 3, 2018 at 7:46 AM Chris Chiu <chiu@endlessm.com> wrote:
+>
+> The ASUS laptops start to support the airplane mode radio management
+> to replace the original mechanism of airplane mode toggle hotkey.
+> On the ASUS P5440FF, it presents as a HID device connecting via
+> I2C, named i2c-AMPD0001. When pressing it, the Embedded Controller
+> send hid report via I2C and switch the airplane mode indicator LED
+> based on the status.
+>
+> However, it's not working because it fails to be identified as a
+> hidinput device. It fails in hidinput_connect() due to the macro
+> IS_INPUT_APPLICATION doesn't have HID_GD_WIRELESS_RADIO_CTLS as
+> a legit application code.
+>
+> It's easy to add the HID I2C vendor and product id to the quirk
+> list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
+> makes more sense to support it as a generic input application.
+>
+> Signed-off-by: Chris Chiu <chiu@endlessm.com>
+> ---
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for the refresh of the series. It looks much better now.
 
-On Fri, Dec 07, 2018 at 07:31:32AM +0000, Lee Jones wrote:
-> On Wed, 05 Dec 2018, Pascal PAILLET-LME wrote:
+I have scheduled this for 4.21. I am a bit hesitant in pushing changes
+to 4.20 when they touch hid-input.c, especially when we are this late
+in the process.
 
-> > Hi Lee, I have received an email from Mark telliing that the regulator=
-=20
-> > patch is applied on
+Cheers,
+Benjamin
 
-> >   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git=
- =20
-
-> > I can see it on the branch regul/for-next.
-
-> Does your patch tracker only reply to the author?
-
-> Any reason why I don't see it?
-
-It gets sent to anyone in patchwork.  It is possible there was some
-problem talking to patchwork, or that your mail system has filtered the
-mail.
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlwKZWgACgkQJNaLcl1U
-h9AqYQf/fPoVMFiBpJfNs61lytyuCMioJQadwRdtqBibh0un2085zKHfasON6BKV
-kFClkPGK0IVumMf0oAFEgUKCnq7cdAYKw9lIUs9n1cceblbjGDbKaTJlarP7SVWT
-EI6seMHKTYM3k6+CLwYY9EplerQ+1uDZ1wrMCB7THjElUPwFIgk2ITxOmqwQsbqa
-4H8vGI9SKmcRFj/Rf23oFlb541cSI+/QXSvQTlzaidz2EZxs8tQoNP8p0JVMoieh
-BSSnNwP7EBWxYYJoa0U6grg9yZ26Q5fz24/w0KY42DDEskdB8k36YYoTtPeYReLR
-Ig0Y7rO4nP2vuK4U14OofITZiDspWg==
-=+5Lu
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--
+>  include/linux/hid.h | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index ce5f996c8d3d..42079116fb61 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -840,7 +840,8 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
+>  #define IS_INPUT_APPLICATION(a) \
+>                 (((a >= HID_UP_GENDESK) && (a <= HID_GD_MULTIAXIS)) \
+>                 || ((a >= HID_DG_PEN) && (a <= HID_DG_WHITEBOARD)) \
+> -               || (a == HID_GD_SYSTEM_CONTROL) || (a == HID_CP_CONSUMER_CONTROL))
+> +               || (a == HID_GD_SYSTEM_CONTROL) || (a == HID_CP_CONSUMER_CONTROL) \
+> +               || (a == HID_GD_WIRELESS_RADIO_CTLS))
+>
+>  /* HID core API */
+>
+> --
+> 2.19.1
+>

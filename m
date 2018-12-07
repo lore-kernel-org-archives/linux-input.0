@@ -1,90 +1,91 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: Re: [PATCH] HID: input: support Microsoft wireless radio control hotkey
-Date: Fri, 7 Dec 2018 12:07:10 +0800
-Message-ID: <CAB4CAwf34ZvF88rVCz2H6iDKoDHF09txp1oGqvUfCt18ZH-w6w@mail.gmail.com>
-References: <20181130064617.67920-1-chiu@endlessm.com> <CAO-hwJKAnHqPi7aOGqKET+_JKnXmvdwOyhtH4nLeqS+-K8597Q@mail.gmail.com>
- <CAB4CAwfOBuAutaQdObyfrOg5Yo2M9NJGww1Ffc7o2YrAYDObEA@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Date: Fri, 7 Dec 2018 07:31:32 +0000
+Message-ID: <20181207073132.GH26661@dell>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+ <20181203071145.GA26661@dell>
+ <5C069C47.6080305@st.com>
+ <20181205093604.GZ26661@dell>
+ <5C07F08B.2010701@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAB4CAwfOBuAutaQdObyfrOg5Yo2M9NJGww1Ffc7o2YrAYDObEA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <5C07F08B.2010701@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, rydberg@bitmath.org, linux-input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 5, 2018 at 8:56 AM Chris Chiu <chiu@endlessm.com> wrote:
->
-> On Fri, Nov 30, 2018 at 7:18 PM Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> >
-> > On Fri, Nov 30, 2018 at 7:46 AM Chris Chiu <chiu@endlessm.com> wrote:
-> > >
-> > > The ASUS laptops start to support the airplane mode radio management
-> > > to replace the original machanism of airplane mode toggle hotkey.
-> > > On the ASUS P5440FF, it presents as a HID device connecting via
-> > > I2C, name i2c-AMPD0001. When pressing hotkey, the Embedded Controller
-> > > send hid report up via I2C and switch the airplane mode indicator
-> > > LED based on the status.
-> > >
-> > > However, it's not working because it fails to be identified as a
-> > > hidinput device. It fails in hidinput_connect() due to the macro
-> > > IS_INPUT_APPLICATION doesn't identify HID_GD_WIRELESS_RADIO_CTLS
-> > > as a legit application code.
-> > >
-> > > It's easy to add the HID I2C vendor and product id to the quirk
-> > > list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
-> > > can be more generic to support such kind of application on PC.
-> >
-> > Sounds good, but while you are at it, can you please:
-> > - fix the kbuild warning
-> > - rewrite the whole line to use macros,
-> > - make the macro prettier by inserting new lines were required
-> > - and define the missing macro:
-> >   0x000d0006 -> HID_DG_WHITEBOARD
-> >
-> > Maybe we should keep the ranges definitions with raw values and put a
-> > comment on the side with the names.
-> >
-> > Cheers,
-> > Benjamin
-> >
->
-> Hi Bejamin,
->     Thanks for your comment, I've submitted other patches which may
-> fulfill your suggestion.
-> https://lore.kernel.org/patchwork/patch/1020373/
-> https://lore.kernel.org/patchwork/patch/1020374/
->
->      Please help me review and correct me if there's any modification
-> required. Thanks & Regards.
->
-> Chris
->
+On Wed, 05 Dec 2018, Pascal PAILLET-LME wrote:
 
-Gentle ping. Any comment for the new patch? Thanks and Regards.
+> 
+> pascal paillet (p.paillet@st.com) Le Mans / France
+> Microcontrollers and Digital ICs Group | Application Development
+> TEL: +33.(0)2.44.02.74.69 | TINA: 166 7469
+> 
+> Le 12/05/2018 10:36 AM, Lee Jones a écrit :
+> > On Tue, 04 Dec 2018, Pascal PAILLET-LME wrote:
+> >> Le 12/03/2018 08:11 AM, Lee Jones a écrit :
+> >>> On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
+> >>>
+> >>>> The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from
+> >>>> STMicroelectronics.
+> >>>> The STPMIC1 regulators supply power to an application processor as well as
+> >>>> to external system peripherals such as DDR, Flash memories and system
+> >>>> devices. It also features onkey button input and an hardware watchdog.
+> >>>> The STPMIC1 is controlled via I2C.
+> >>>>
+> >>>> Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+> >>>> irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+> >>>> as parent.
+> >>>>
+> >>>> STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
+> >>>>
+> >>>> Pascal Paillet (7):
+> >>>> changes in v7:
+> >>>> * rebase on regul/for-next
+> >>>>
+> >>>>     dt-bindings: mfd: document stpmic1
+> >>>>     mfd: stpmic1: add stpmic1 driver
+> >>>>     dt-bindings: input: document stpmic1 pmic onkey
+> >>>>     input: stpmic1: add stpmic1 onkey driver
+> >>>>     dt-bindings: watchdog: document stpmic1 pmic watchdog
+> >>>>     watchdog: stpmic1: add stpmic1 watchdog driver
+> >>>>     regulator: stpmic1: fix regulator_lock usage
+> >>>>
+> >>>>    .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
+> >>>>    .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
+> >>>>    .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
+> >>>>    drivers/input/misc/Kconfig                         |  11 ++
+> >>>>    drivers/input/misc/Makefile                        |   2 +
+> >>>>    drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
+> >>>>    drivers/mfd/Kconfig                                |  16 ++
+> >>>>    drivers/mfd/Makefile                               |   1 +
+> >>>>    drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
+> >>>>    drivers/regulator/stpmic1_regulator.c              |   2 +-
+> >>> Is it just Mark you're waiting on now?
+> >> It is ok now, Mark has applied the patch.
+> >> Evrey thing has been acked now. What is the nex step ?
+> > Mark has applied patch 7?
+> >
+> > Why don't I see that?  Should you have removed it from this set?
+> Hi Lee, I have received an email from Mark telliing that the regulator 
+> patch is applied on
+> 
+>   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git  
+> 
+> I can see it on the branch regul/for-next.
 
-Chris
+Mark,
 
-> > >
-> > > Signed-off-by: Chris Chiu <chiu@endlessm.com>
-> > > ---
-> > >  include/linux/hid.h | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/include/linux/hid.h b/include/linux/hid.h
-> > > index d44a78362942..f4805f605fed 100644
-> > > --- a/include/linux/hid.h
-> > > +++ b/include/linux/hid.h
-> > > @@ -836,7 +836,7 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
-> > >
-> > >  /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
-> > >  /* We ignore a few input applications that are not widely used */
-> > > -#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
-> > > +#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || || (a == 0x0001000c) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
-> > >
-> > >  /* HID core API */
-> > >
-> > > --
-> > > 2.11.0
-> > >
+Does your patch tracker only reply to the author?
+
+Any reason why I don't see it?
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

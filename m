@@ -1,95 +1,90 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/8] Input: add `REL_WHEEL_HI_RES` and
- `REL_HWHEEL_HI_RES`
-Date: Thu, 6 Dec 2018 14:56:41 -0800
-Message-ID: <20181206225641.GB34001@dtor-ws>
-References: <20181205004228.10714-1-peter.hutterer@who-t.net>
- <20181205004228.10714-2-peter.hutterer@who-t.net>
+From: Chris Chiu <chiu@endlessm.com>
+Subject: Re: [PATCH] HID: input: support Microsoft wireless radio control hotkey
+Date: Fri, 7 Dec 2018 12:07:10 +0800
+Message-ID: <CAB4CAwf34ZvF88rVCz2H6iDKoDHF09txp1oGqvUfCt18ZH-w6w@mail.gmail.com>
+References: <20181130064617.67920-1-chiu@endlessm.com> <CAO-hwJKAnHqPi7aOGqKET+_JKnXmvdwOyhtH4nLeqS+-K8597Q@mail.gmail.com>
+ <CAB4CAwfOBuAutaQdObyfrOg5Yo2M9NJGww1Ffc7o2YrAYDObEA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181205004228.10714-2-peter.hutterer@who-t.net>
+In-Reply-To: <CAB4CAwfOBuAutaQdObyfrOg5Yo2M9NJGww1Ffc7o2YrAYDObEA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, rydberg@bitmath.org, linux-input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 05, 2018 at 10:42:21AM +1000, Peter Hutterer wrote:
-> This event code represents scroll reports from high-resolution wheels and
-> is modelled after the approach Windows uses. The value 120 is one detent
-> (wheel click) of movement. Mice with higher-resolution scrolling can send
-> fractions of 120 which must be accumulated in userspace. Userspace can either
-> wait for a full 120 to accumulate or scroll by fractions of one logical scroll
-> movement as the events come in. 120 was picked as magic number because it has
-> a high number of integer fractions that can be used by high-resolution wheels.
-> 
-> For more information see
-> https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn613912(v=vs.85)
-> 
-> These new axes obsolete REL_WHEEL and REL_HWHEEL. The legacy axes are emulated
-> by the kernel but the most accurate (and most granular) data is available
-> through the new axes.
-> 
-> Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+On Wed, Dec 5, 2018 at 8:56 AM Chris Chiu <chiu@endlessm.com> wrote:
+>
+> On Fri, Nov 30, 2018 at 7:18 PM Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> >
+> > On Fri, Nov 30, 2018 at 7:46 AM Chris Chiu <chiu@endlessm.com> wrote:
+> > >
+> > > The ASUS laptops start to support the airplane mode radio management
+> > > to replace the original machanism of airplane mode toggle hotkey.
+> > > On the ASUS P5440FF, it presents as a HID device connecting via
+> > > I2C, name i2c-AMPD0001. When pressing hotkey, the Embedded Controller
+> > > send hid report up via I2C and switch the airplane mode indicator
+> > > LED based on the status.
+> > >
+> > > However, it's not working because it fails to be identified as a
+> > > hidinput device. It fails in hidinput_connect() due to the macro
+> > > IS_INPUT_APPLICATION doesn't identify HID_GD_WIRELESS_RADIO_CTLS
+> > > as a legit application code.
+> > >
+> > > It's easy to add the HID I2C vendor and product id to the quirk
+> > > list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
+> > > can be more generic to support such kind of application on PC.
+> >
+> > Sounds good, but while you are at it, can you please:
+> > - fix the kbuild warning
+> > - rewrite the whole line to use macros,
+> > - make the macro prettier by inserting new lines were required
+> > - and define the missing macro:
+> >   0x000d0006 -> HID_DG_WHITEBOARD
+> >
+> > Maybe we should keep the ranges definitions with raw values and put a
+> > comment on the side with the names.
+> >
+> > Cheers,
+> > Benjamin
+> >
+>
+> Hi Bejamin,
+>     Thanks for your comment, I've submitted other patches which may
+> fulfill your suggestion.
+> https://lore.kernel.org/patchwork/patch/1020373/
+> https://lore.kernel.org/patchwork/patch/1020374/
+>
+>      Please help me review and correct me if there's any modification
+> required. Thanks & Regards.
+>
+> Chris
+>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Gentle ping. Any comment for the new patch? Thanks and Regards.
 
-> ---
-> No changes since v1
-> 
->  Documentation/input/event-codes.rst    | 21 ++++++++++++++++++++-
->  include/uapi/linux/input-event-codes.h |  2 ++
->  2 files changed, 22 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-> index a8c0873beb95..b24b5343f5eb 100644
-> --- a/Documentation/input/event-codes.rst
-> +++ b/Documentation/input/event-codes.rst
-> @@ -190,7 +190,26 @@ A few EV_REL codes have special meanings:
->  * REL_WHEEL, REL_HWHEEL:
->  
->    - These codes are used for vertical and horizontal scroll wheels,
-> -    respectively.
-> +    respectively. The value is the number of detents moved on the wheel, the
-> +    physical size of which varies by device. For high-resolution wheels
-> +    this may be an approximation based on the high-resolution scroll events,
-> +    see REL_WHEEL_HI_RES. These event codes are legacy codes and
-> +    REL_WHEEL_HI_RES and REL_HWHEEL_HI_RES should be preferred where
-> +    available.
-> +
-> +* REL_WHEEL_HI_RES, REL_HWHEEL_HI_RES:
-> +
-> +  - High-resolution scroll wheel data. The accumulated value 120 represents
-> +    movement by one detent. For devices that do not provide high-resolution
-> +    scrolling, the value is always a multiple of 120. For devices with
-> +    high-resolution scrolling, the value may be a fraction of 120.
-> +
-> +    If a vertical scroll wheel supports high-resolution scrolling, this code
-> +    will be emitted in addition to REL_WHEEL or REL_HWHEEL. The REL_WHEEL
-> +    and REL_HWHEEL may be an approximation based on the high-resolution
-> +    scroll events. There is no guarantee that the high-resolution data
-> +    is a multiple of 120 at the time of an emulated REL_WHEEL or REL_HWHEEL
-> +    event.
->  
->  EV_ABS
->  ------
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 3eb5a4c3d60a..265ef2028660 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -716,6 +716,8 @@
->   * the situation described above.
->   */
->  #define REL_RESERVED		0x0a
-> +#define REL_WHEEL_HI_RES	0x0b
-> +#define REL_HWHEEL_HI_RES	0x0c
->  #define REL_MAX			0x0f
->  #define REL_CNT			(REL_MAX+1)
->  
-> -- 
-> 2.19.2
-> 
+Chris
 
--- 
-Dmitry
+> > >
+> > > Signed-off-by: Chris Chiu <chiu@endlessm.com>
+> > > ---
+> > >  include/linux/hid.h | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > > index d44a78362942..f4805f605fed 100644
+> > > --- a/include/linux/hid.h
+> > > +++ b/include/linux/hid.h
+> > > @@ -836,7 +836,7 @@ static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
+> > >
+> > >  /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
+> > >  /* We ignore a few input applications that are not widely used */
+> > > -#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
+> > > +#define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || || (a == 0x0001000c) || (a == 0x000c0001) || ((a >= 0x000d0002) && (a <= 0x000d0006)))
+> > >
+> > >  /* HID core API */
+> > >
+> > > --
+> > > 2.11.0
+> > >

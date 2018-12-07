@@ -1,57 +1,45 @@
-From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v4 2/3] Input: atmel_mxt_ts: Wait for device be ready for communication
-Date: Fri,  7 Dec 2018 15:28:56 +0100
-Message-ID: <20181207142857.15818-3-pawel.mikolaj.chmiel@gmail.com>
-References: <20181207142857.15818-1-pawel.mikolaj.chmiel@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3 0/8] HID: MS and Logitech high-resolution scroll wheel support
+Date: Fri, 7 Dec 2018 17:18:16 +0100
+Message-ID: <CAO-hwJLO8o-nZ4H_it5q1fm4YQQBmoGvF2vSmBft3WiGdDx+JA@mail.gmail.com>
+References: <20181205004228.10714-1-peter.hutterer@who-t.net> <CA+jURcugFhSt9GGRZELQUCnupOf2Ns96Ao5ZruWfVtq=z_7ytw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181207142857.15818-1-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <CA+jURcugFhSt9GGRZELQUCnupOf2Ns96Ao5ZruWfVtq=z_7ytw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: nick@shmanahar.org
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+To: hcutts@chromium.org
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-According to documentation, device isn't ready for communication,
-until firmware asserts the CHG line. Add missing wait for this.
+On Wed, Dec 5, 2018 at 10:57 PM Harry Cutts <hcutts@chromium.org> wrote:
+>
+> On Tue, 4 Dec 2018 at 16:42, Peter Hutterer <peter.hutterer@who-t.net> wrote:
+> >
+> > A full explanation of why and what is in the v1, v2 patch thread here:
+> > https://lkml.org/lkml/2018/11/22/625
+> >
+> > v3 adds a better commit messages, m560 REL_HWHEEL_HI_RES support and a patch
+> > moved in the ordering. This is a full patch sequence because Benjamin's
+> > magic scripts struggle with singular updates ;)
+>
+> I've retested with the same Logitech mice as before, except for the MX
+> Anywhere 2S, which is currently not available to me. So, for
+> reference, that's the MX Master 2S, Performance MX, M560, Anywhere MX,
+> and the M325 (to check low-resolution scrolling).
+>
+> Verified-by: Harry Cutts <hcutts@chromium.org>
 
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
----
-Changes from v3:
-  - Fix checkpatch issues
----
- drivers/input/touchscreen/atmel_mxt_ts.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+Thanks everybody, especially Peter for respinning and re-writing the
+series, and writing the tests in hid-tools.
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index 1dc8ad0da5af..3f956d07d09e 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -202,6 +202,7 @@ enum t100_type {
- #define MXT_CRC_TIMEOUT		1000	/* msec */
- #define MXT_FW_RESET_TIME	3000	/* msec */
- #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-+#define MXT_POWERON_DELAY	150	/* msec */
- 
- /* Command to unlock bootloader */
- #define MXT_UNLOCK_CMD_MSB	0xaa
-@@ -3068,6 +3069,16 @@ static int mxt_regulator_enable(struct mxt_data *data)
- 		msleep(MXT_REGULATOR_DELAY);
- 		gpiod_set_value(data->reset_gpio, 1);
- 		msleep(MXT_RESET_INVALID_CHG);
-+
-+retry_wait:
-+		reinit_completion(&data->bl_completion);
-+		data->in_bootloader = true;
-+		error = mxt_wait_for_completion(data, &data->bl_completion,
-+						MXT_POWERON_DELAY);
-+		if (error == -EINTR)
-+			goto retry_wait;
-+
-+		data->in_bootloader = false;
- 	}
- 
- 	return 0;
--- 
-2.17.1
+I was a little bit afraid when I checked `libinput debug-gui` as the
+low res cursor was not moving if I were to scroll back and forth of
+just one notch. However, checking debug-events of a non high-res aware
+libinput showed that the low res wheel events were correctly emitted.
+So I guess this is a debug-gui issue.
+
+I have now queued this for 4.21. I do hope this will be smoother this time.
+
+Cheers,
+Benjamin

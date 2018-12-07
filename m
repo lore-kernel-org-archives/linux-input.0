@@ -1,76 +1,53 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: input: support Microsoft wireless radio control hotkey
-Date: Fri, 7 Dec 2018 14:02:54 +0100
-Message-ID: <CAO-hwJKPQP1sFmN7bukXh0DR8WdM7=sDZnyC=7va+vizRdqAsg@mail.gmail.com>
-References: <20181130064617.67920-1-chiu@endlessm.com> <CAO-hwJKAnHqPi7aOGqKET+_JKnXmvdwOyhtH4nLeqS+-K8597Q@mail.gmail.com>
- <CAB4CAwfOBuAutaQdObyfrOg5Yo2M9NJGww1Ffc7o2YrAYDObEA@mail.gmail.com> <CAB4CAwf34ZvF88rVCz2H6iDKoDHF09txp1oGqvUfCt18ZH-w6w@mail.gmail.com>
+Subject: Re: [PATCH] HID: intel-ish-hid: fixes incorrect error handling
+Date: Fri, 7 Dec 2018 15:23:29 +0100
+Message-ID: <CAO-hwJJDhtNqy6gc9OJ+rHnJimrQeAoxxkay5XnfXjxMtvEufQ@mail.gmail.com>
+References: <1542847953-127599-1-git-send-email-bianpan2016@163.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAB4CAwf34ZvF88rVCz2H6iDKoDHF09txp1oGqvUfCt18ZH-w6w@mail.gmail.com>
+In-Reply-To: <1542847953-127599-1-git-send-email-bianpan2016@163.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: chiu@endlessm.com
-Cc: Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: bianpan2016@163.com
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 7, 2018 at 5:07 AM Chris Chiu <chiu@endlessm.com> wrote:
+On Thu, Nov 22, 2018 at 1:52 AM Pan Bian <bianpan2016@163.com> wrote:
 >
-> On Wed, Dec 5, 2018 at 8:56 AM Chris Chiu <chiu@endlessm.com> wrote:
-> >
-> > On Fri, Nov 30, 2018 at 7:18 PM Benjamin Tissoires
-> > <benjamin.tissoires@redhat.com> wrote:
-> > >
-> > > On Fri, Nov 30, 2018 at 7:46 AM Chris Chiu <chiu@endlessm.com> wrote:
-> > > >
-> > > > The ASUS laptops start to support the airplane mode radio management
-> > > > to replace the original machanism of airplane mode toggle hotkey.
-> > > > On the ASUS P5440FF, it presents as a HID device connecting via
-> > > > I2C, name i2c-AMPD0001. When pressing hotkey, the Embedded Controller
-> > > > send hid report up via I2C and switch the airplane mode indicator
-> > > > LED based on the status.
-> > > >
-> > > > However, it's not working because it fails to be identified as a
-> > > > hidinput device. It fails in hidinput_connect() due to the macro
-> > > > IS_INPUT_APPLICATION doesn't identify HID_GD_WIRELESS_RADIO_CTLS
-> > > > as a legit application code.
-> > > >
-> > > > It's easy to add the HID I2C vendor and product id to the quirk
-> > > > list and apply HID_QUIRK_HIDINPUT_FORCE to make it work. But it
-> > > > can be more generic to support such kind of application on PC.
-> > >
-> > > Sounds good, but while you are at it, can you please:
-> > > - fix the kbuild warning
-> > > - rewrite the whole line to use macros,
-> > > - make the macro prettier by inserting new lines were required
-> > > - and define the missing macro:
-> > >   0x000d0006 -> HID_DG_WHITEBOARD
-> > >
-> > > Maybe we should keep the ranges definitions with raw values and put a
-> > > comment on the side with the names.
-> > >
-> > > Cheers,
-> > > Benjamin
-> > >
-> >
-> > Hi Bejamin,
-> >     Thanks for your comment, I've submitted other patches which may
-> > fulfill your suggestion.
-> > https://lore.kernel.org/patchwork/patch/1020373/
-> > https://lore.kernel.org/patchwork/patch/1020374/
-> >
-> >      Please help me review and correct me if there's any modification
-> > required. Thanks & Regards.
-> >
-> > Chris
-> >
+> The memory chunk allocated by hid_allocate_device() should be released
+> by hid_destroy_device(), not kfree().
 >
-> Gentle ping. Any comment for the new patch? Thanks and Regards.
+> Fixes: 0b28cb4bcb1("HID: intel-ish-hid: ISH HID client driver")
+> Signed-off-by: Pan Bian <bianpan2016@163.com>
+> ---
+>  drivers/hid/intel-ish-hid/ishtp-hid.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
+> index cd23903..e918d78 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-hid.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
+> @@ -222,7 +222,7 @@ int ishtp_hid_probe(unsigned int cur_hid_dev,
+>  err_hid_device:
+>         kfree(hid_data);
+>  err_hid_data:
+> -       kfree(hid);
+> +       hid_destroy_device(hid);
 
-Sorry for the delay. I broke my system and it took me a few days to
-get it back on its feet.
+Looks good to me. Srinivas, any comments?
+FWIW:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-The v2 is now scheduled for 4.21.
+Jiri, do you think we should send this one as 4.20/fixes material or
+wait for 4.21?
 
 Cheers,
 Benjamin
+
+>         return rv;
+>  }
+>
+> --
+> 2.7.4
+>
+>

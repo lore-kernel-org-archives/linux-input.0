@@ -1,79 +1,52 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 1/2] Input: omap-keypad: Fix keyboard debounce
- configuration
-Date: Sun, 9 Dec 2018 12:56:48 +0100
-Message-ID: <20181209115648.GA23309@amd>
-References: <20181203012933.6647-1-tony@atomide.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: intel-ish-hid: fixes incorrect error handling
+Date: Sun, 9 Dec 2018 21:45:39 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1812092144440.17216@cbobk.fhfr.pm>
+References: <1542847953-127599-1-git-send-email-bianpan2016@163.com> <CAO-hwJJDhtNqy6gc9OJ+rHnJimrQeAoxxkay5XnfXjxMtvEufQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181203012933.6647-1-tony@atomide.com>
+In-Reply-To: <CAO-hwJJDhtNqy6gc9OJ+rHnJimrQeAoxxkay5XnfXjxMtvEufQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Axel Haslam <axelhaslam@ti.com>, Felipe Balbi <felipe.balbi@linux.intel.com>, Illia Smyrnov <illia.smyrnov@ti.com>, Marcel Partap <mpartap@gmx.net>, Merlijn Wajer <merlijn@wizzup.org>, Michael Scott <hashcode0f@gmail.com>, NeKit <nekit1000@gmail.com>, Sebastian Reichel <sre@kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: bianpan2016@163.com, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+On Fri, 7 Dec 2018, Benjamin Tissoires wrote:
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > The memory chunk allocated by hid_allocate_device() should be released
+> > by hid_destroy_device(), not kfree().
+> >
+> > Fixes: 0b28cb4bcb1("HID: intel-ish-hid: ISH HID client driver")
+> > Signed-off-by: Pan Bian <bianpan2016@163.com>
+> > ---
+> >  drivers/hid/intel-ish-hid/ishtp-hid.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
+> > index cd23903..e918d78 100644
+> > --- a/drivers/hid/intel-ish-hid/ishtp-hid.c
+> > +++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
+> > @@ -222,7 +222,7 @@ int ishtp_hid_probe(unsigned int cur_hid_dev,
+> >  err_hid_device:
+> >         kfree(hid_data);
+> >  err_hid_data:
+> > -       kfree(hid);
+> > +       hid_destroy_device(hid);
+> 
+> Looks good to me. Srinivas, any comments?
+> FWIW:
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> Jiri, do you think we should send this one as 4.20/fixes material or
+> wait for 4.21?
 
-On Sun 2018-12-02 17:29:32, Tony Lindgren wrote:
-> I noticed that the Android v3.0.8 kernel on droid4 is using different
-> keypad values from the mainline kernel and does not have issues with
-> keys occasionally being stuck until pressed again. Turns out there was
-> an earlier patch posted to fix this as "Input: omap-keypad: errata i689:
-> Correct debounce time", but it was never reposted to fix use macros
-> for timing calculations.
->=20
-> This updated version is using macros, and also fixes the use of the
-> input clock rate to use 32768KiHz instead of 32000KiHz. And we want to
-> use the known good Android kernel values of 3 and 6 instead of 2 and 6
-> in the earlier patch.
->=20
-> Cc: Axel Haslam <axelhaslam@ti.com>
-> Cc: Felipe Balbi <felipe.balbi@linux.intel.com>
-> Cc: Illia Smyrnov <illia.smyrnov@ti.com>
-> Cc: Marcel Partap <mpartap@gmx.net>
-> Cc: Merlijn Wajer <merlijn@wizzup.org>
-> Cc: Michael Scott <hashcode0f@gmail.com>
-> Cc: NeKit <nekit1000@gmail.com>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Sebastian Reichel <sre@kernel.org>
-> Reported-by: Pavel Machek <pavel@ucw.cz>
-> Signed-off-by: Tony Lindgren <tony@atomide.com>
-
-So, if I press key "." quickly on console in
-4.18.0-rc4-88970-gf075a2c-dirty it starts repeating. I could reproduce
-it 3 times from tree tries. Then I decided to test your patch, and so
-I booted 4.20-rc5+ using kexec. Turns out, I can't reproduce that
-repeat there... I tried more than 10 times. But that's before your
-patch.
-
-So -- bad news for you -- seems like someone -- maybe you -- already
-fixed this. (But that does not mean the patch is bad idea).
+Given that this has been around since 4.9, I wouldn't be devastated if it 
+lands only in next merge window. So I'd just put it to 4.20/fixes and wait 
+for other more serious trigger for sending that to Linus eventually.
 
 Thanks,
-									Pavel
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---rwEMma7ioTxnRzrJ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlwNAwAACgkQMOfwapXb+vIzOwCgwGpGhjOyTgDxRGX5KMcDvnjp
-laIAoK9E4BElVpVT2De8AQRVQz87KZ2u
-=Pik5
------END PGP SIGNATURE-----
-
---rwEMma7ioTxnRzrJ--
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,60 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 6/8] Input: dt-bindings: tm2-touchkey: Document new
- keycodes property
-Date: Sat, 8 Dec 2018 20:57:35 -0800
-Message-ID: <20181209045735.GG211094@dtor-ws>
-References: <20181207105811.1831-1-pawel.mikolaj.chmiel@gmail.com>
- <20181207105811.1831-7-pawel.mikolaj.chmiel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: Yangtao Li <tiny.windzz@gmail.com>
+Subject: [PATCH v2] Input: i8042 fix refcount leak
+Date: Sun,  9 Dec 2018 00:19:00 -0500
+Message-ID: <20181209051900.19035-1-tiny.windzz@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181207105811.1831-7-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, xc-racer2@live.ca, simon@lineageos.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 07, 2018 at 11:58:09AM +0100, Paweł Chmiel wrote:
-> From: Jonathan Bakker <xc-racer2@live.ca>
-> 
-> Document new optional property for setting custom keycodes.
-> 
-> Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> ---
->  .../devicetree/bindings/input/cypress,tm2-touchkey.txt        | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-> index dfb3b9f0ee40..3b54d997b8de 100644
-> --- a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-> +++ b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-> @@ -10,6 +10,9 @@ Required properties:
->  - vcc-supply : internal regulator output. 1.8V
->  - vdd-supply : power supply for IC 3.3V
->  
-> +Optional properties:
-> +- keycodes: array of keycodes (max 4), default KEY_PHONE and KEY_BACK
-> +
->  [0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
->  
->  Example:
-> @@ -23,5 +26,6 @@ Example:
->  			interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
->  			vcc-supply=<&ldo32_reg>;
->  			vdd-supply=<&ldo33_reg>;
-> +			keycodes = /bits/ 8 <KEY_PHONE KEY_BACK>;
+use of_node_put() to release the refcount.
 
-We definitely have key codes bigger than 255. Just keep them normal
-ints please.
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+---
+ drivers/input/serio/i8042-sparcio.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
->  		};
->  	};
-> -- 
-> 2.17.1
-> 
-
+diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
+index 796289846204..cc6777b4c4ea 100644
+--- a/drivers/input/serio/i8042-sparcio.h
++++ b/drivers/input/serio/i8042-sparcio.h
+@@ -111,13 +111,17 @@ static int __init i8042_platform_init(void)
+ 	struct device_node *root = of_find_node_by_path("/");
+ 
+ 	if (!strcmp(root->name, "SUNW,JavaStation-1")) {
++		of_node_put(root);
+ 		/* Hardcoded values for MrCoffee.  */
+ 		i8042_kbd_irq = i8042_aux_irq = 13 | 0x20;
+ 		kbd_iobase = ioremap(0x71300060, 8);
+ 		if (!kbd_iobase)
+ 			return -ENODEV;
+ 	} else {
+-		int err = platform_driver_register(&sparc_i8042_driver);
++		int err;
++
++		of_node_put(root);
++		err = platform_driver_register(&sparc_i8042_driver);
+ 		if (err)
+ 			return err;
+ 
 -- 
-Dmitry
+2.17.0

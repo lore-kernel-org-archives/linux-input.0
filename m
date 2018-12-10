@@ -1,55 +1,51 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 1/4] mfd: stmpe: Move ADC related defines to header of
- mfd
-Date: Mon, 10 Dec 2018 06:16:38 +0000
-Message-ID: <20181210061638.GM26661@dell>
-References: <20181123142411.8921-1-dev@pschenker.ch>
- <20181128091532.GU4272@dell>
- <20181209045241.GF211094@dtor-ws>
+From: YueHaibing <yuehaibing@huawei.com>
+Subject: Re: [PATCH -next] input: keyboard: remove duplicated include from
+ mtk-pmic-keys.c
+Date: Mon, 10 Dec 2018 15:16:00 +0800
+Message-ID: <4f1a67e5-b735-f8bd-88b8-3a1ca590eba2@huawei.com>
+References: <20181209063440.27820-1-yuehaibing@huawei.com>
+ <20181210061557.GL26661@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181209045241.GF211094@dtor-ws>
+In-Reply-To: <20181210061557.GL26661@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Philippe Schenker <dev@pschenker.ch>, jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch, Philippe Schenker <philippe.schenker@toradex.com>, Max Krummenacher <max.krummenacher@toradex.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: dmitry.torokhov@gmail.com, matthias.bgg@gmail.com, chen.zhong@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 08 Dec 2018, Dmitry Torokhov wrote:
-
-> On Wed, Nov 28, 2018 at 09:15:32AM +0000, Lee Jones wrote:
-> > On Fri, 23 Nov 2018, Philippe Schenker wrote:
-> > 
-> > > Move defines that are ADC related to the header of the overlying mfd,
-> > > so they can be used from multiple sub-devices.
-> > > 
-> > > Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
-> > > ---
-> > > 
-> > > Changes in v3:
-> > >  - None
-> > > 
-> > > Changes in v2:
-> > >  - This is a new added commit. Separate commit for moving the defines out of
-> > >    drivers/input/touchscreen/stmpe-ts.c to overlying mfd-device drivers/mfd/stmpe.c
-> > >  - Pre-fix defines with STMPE_
-> > > 
-> > >  drivers/input/touchscreen/stmpe-ts.c | 34 +++++++++++-----------------
-> > >  include/linux/mfd/stmpe.h            | 11 +++++++++
-> > 
-> > Acked-by: Lee Jones <lee.jones@linaro.org>
+On 2018/12/10 14:15, Lee Jones wrote:
+> On Sun, 09 Dec 2018, YueHaibing wrote:
 > 
-> The series seem to be heading towards MFD or IIO, so I assume this patch
-> will be merged through one of these trees.
+>> Remove duplicated include.
+>>
+>> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+>> ---
+>>  drivers/input/keyboard/mtk-pmic-keys.c | 1 -
+>>  1 file changed, 1 deletion(-)
+>>
+>> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+>> index 02c67a1..5027ebb 100644
+>> --- a/drivers/input/keyboard/mtk-pmic-keys.c
+>> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+>> @@ -19,7 +19,6 @@
+>>  #include <linux/input.h>
+>>  #include <linux/interrupt.h>
+>>  #include <linux/platform_device.h>
+>> -#include <linux/kernel.h>
+>>  #include <linux/of.h>
+>>  #include <linux/of_device.h>
+>>  #include <linux/regmap.h>
 > 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> You are removing the wrong one.
 
-I'd be happy to take it.
+No, linux/kernel.h is a duplicated include indeed.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+> 
+> Please convert this patch's main intent to alphabetise the header
+> files.  Then you can remove any obvious duplicates.
+
+I can alphabetize it in v2 if need be.
+
+> 

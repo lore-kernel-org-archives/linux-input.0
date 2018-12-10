@@ -1,28 +1,35 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] Input: restore EV_ABS ABS_RESERVED
-Date: Mon, 10 Dec 2018 11:24:32 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1812101124100.17216@cbobk.fhfr.pm>
-References: <20181205230336.GA23462@jelly> <82d624a7-349b-c706-cda9-81a22f2473e0@ginzinger.com> <CAN+gG=FVvUFcYYcBnaOaj-YRQCgu4-FYFuJGccHhK+u31EjuvQ@mail.gmail.com> <20181206224605.GA27899@jelly> <20181206225619.GA34001@dtor-ws>
- <CAN+gG=ErkuyRNprp0b7i93pqPH2J4Tz1KTyVJTLTmBWJV2NeVg@mail.gmail.com>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH 1/2] Input: omap-keypad: Fix keyboard debounce
+ configuration
+Date: Mon, 10 Dec 2018 06:32:29 -0800
+Message-ID: <20181210143229.GY6707@atomide.com>
+References: <20181203012933.6647-1-tony@atomide.com>
+ <20181209115648.GA23309@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAN+gG=ErkuyRNprp0b7i93pqPH2J4Tz1KTyVJTLTmBWJV2NeVg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20181209115648.GA23309@amd>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martin.kepplinger@ginzinger.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Axel Haslam <axelhaslam@ti.com>, Felipe Balbi <felipe.balbi@linux.intel.com>, Illia Smyrnov <illia.smyrnov@ti.com>, Marcel Partap <mpartap@gmx.net>, Merlijn Wajer <merlijn@wizzup.org>, Michael Scott <hashcode0f@gmail.com>, NeKit <nekit1000@gmail.com>, Sebastian Reichel <sre@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 7 Dec 2018, Benjamin Tissoires wrote:
-
-> OK, thanks Dmitry.
+* Pavel Machek <pavel@ucw.cz> [181209 11:56]:
+> So, if I press key "." quickly on console in
+> 4.18.0-rc4-88970-gf075a2c-dirty it starts repeating. I could reproduce
+> it 3 times from tree tries. Then I decided to test your patch, and so
+> I booted 4.20-rc5+ using kexec. Turns out, I can't reproduce that
+> repeat there... I tried more than 10 times. But that's before your
+> patch.
 > 
-> Jiri, I have pushed this in for-4.20/upstream-fixes.
-> 
-> I think the branch has enough now to justify a PR towards Linus.
+> So -- bad news for you -- seems like someone -- maybe you -- already
+> fixed this. (But that does not mean the patch is bad idea).
 
-Agreed. I will be sending it today. Thanks,
+Hmm OK thanks for testing. For me it recently started happening before
+this fix, often when logging in as root on the console using the keypad
+where I'd start seeing roooooooot instead of root.
 
--- 
-Jiri Kosina
-SUSE Labs
+Regards,
+
+Tony

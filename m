@@ -1,63 +1,49 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] HID: intel-ish-hid: fixes incorrect error handling
-Date: Sun, 09 Dec 2018 19:20:18 -0800
-Message-ID: <0f9d668e8ed77ef17ba029e15b52fa817e49dbdb.camel@linux.intel.com>
-References: <1542847953-127599-1-git-send-email-bianpan2016@163.com>
-         <CAO-hwJJDhtNqy6gc9OJ+rHnJimrQeAoxxkay5XnfXjxMtvEufQ@mail.gmail.com>
-         <nycvar.YFH.7.76.1812092144440.17216@cbobk.fhfr.pm>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH -next] input: keyboard: remove duplicated include from
+ mtk-pmic-keys.c
+Date: Mon, 10 Dec 2018 06:15:57 +0000
+Message-ID: <20181210061557.GL26661@dell>
+References: <20181209063440.27820-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1812092144440.17216@cbobk.fhfr.pm>
+Content-Disposition: inline
+In-Reply-To: <20181209063440.27820-1-yuehaibing@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: bianpan2016@163.com, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: YueHaibing <yuehaibing@huawei.com>
+Cc: dmitry.torokhov@gmail.com, matthias.bgg@gmail.com, chen.zhong@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 2018-12-09 at 21:45 +0100, Jiri Kosina wrote:
-> On Fri, 7 Dec 2018, Benjamin Tissoires wrote:
-> 
-> > > The memory chunk allocated by hid_allocate_device() should be
-> > > released
-> > > by hid_destroy_device(), not kfree().
-> > > 
-> > > Fixes: 0b28cb4bcb1("HID: intel-ish-hid: ISH HID client driver")
-> > > Signed-off-by: Pan Bian <bianpan2016@163.com>
-> > > ---
-> > >  drivers/hid/intel-ish-hid/ishtp-hid.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c
-> > > b/drivers/hid/intel-ish-hid/ishtp-hid.c
-> > > index cd23903..e918d78 100644
-> > > --- a/drivers/hid/intel-ish-hid/ishtp-hid.c
-> > > +++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
-> > > @@ -222,7 +222,7 @@ int ishtp_hid_probe(unsigned int cur_hid_dev,
-> > >  err_hid_device:
-> > >         kfree(hid_data);
-> > >  err_hid_data:
-> > > -       kfree(hid);
-> > > +       hid_destroy_device(hid);
-> > 
-> > Looks good to me. Srinivas, any comments?
-> > FWIW:
-> > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > 
-> > Jiri, do you think we should send this one as 4.20/fixes material
-> > or
-> > wait for 4.21?
-> 
-> Given that this has been around since 4.9, I wouldn't be devastated
-> if it 
-> lands only in next merge window. So I'd just put it to 4.20/fixes and
-> wait 
-> for other more serious trigger for sending that to Linus eventually.
-> 
-Agree.
+On Sun, 09 Dec 2018, YueHaibing wrote:
 
-Thanks,
-Srinivas
-
-> Thanks,
+> Remove duplicated include.
 > 
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+> ---
+>  drivers/input/keyboard/mtk-pmic-keys.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+> index 02c67a1..5027ebb 100644
+> --- a/drivers/input/keyboard/mtk-pmic-keys.c
+> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+> @@ -19,7 +19,6 @@
+>  #include <linux/input.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/platform_device.h>
+> -#include <linux/kernel.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+>  #include <linux/regmap.h>
+
+You are removing the wrong one.
+
+Please convert this patch's main intent to alphabetise the header
+files.  Then you can remove any obvious duplicates.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

@@ -1,293 +1,321 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v3] Input: i8042 add i8042_is_mr_coffee() helper to avoid
- refconut leak
-Date: Tue, 11 Dec 2018 01:02:39 +0800
-Message-ID: <201812110132.w5WK8nap%fengguang.wu@intel.com>
-References: <20181209061428.19205-1-tiny.windzz@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: add official Raspberry Pi's touchscreen driver
+Date: Mon, 10 Dec 2018 11:02:11 -0800
+Message-ID: <20181210190211.GA66699@dtor-ws>
+References: <20181210163036.24813-1-nsaenzjulienne@suse.de>
+ <20181210163036.24813-2-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181209061428.19205-1-tiny.windzz@gmail.com>
+In-Reply-To: <20181210163036.24813-2-nsaenzjulienne@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: kbuild-all@01.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>
+To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-rpi-kernel@lists.infradead.org, stefan.wahren@i2se.com, eric@anholt.net, agraf@suse.de, Eugen Hristev <eugen.hristev@microchip.com>, Rob Herring <robh@kernel.org>, Mark Jonas <mark.jonas@de.bosch.com>, Zhu Yi <yi.zhu5@cn.bosch.com>, Hans de Goede <hdegoede@redhat.com>, Masanari Iida <standby24x7@gmail.com>, Corentin Labbe <clabbe.montjoie@gmail.com>, Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi Nicolas,
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Mon, Dec 10, 2018 at 05:30:20PM +0100, Nicolas Saenz Julienne wrote:
+> Add's support to Raspberry Pi's 7" Touch device. Instead of using a
+> conventional bus all information is copied into a memory mapped area by
+> RPi's firmware.
+> 
+> Based on the driver found in RPi's kernel repository.
 
-Hi Yangtao,
+I believe we are almost there, just a couple of nits.
 
-Thank you for the patch! Yet something to improve:
+> 
+> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+> ---
+>  drivers/input/touchscreen/Kconfig          |  12 ++
+>  drivers/input/touchscreen/Makefile         |   1 +
+>  drivers/input/touchscreen/raspberrypi-ts.c | 223 +++++++++++++++++++++
+>  3 files changed, 236 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/raspberrypi-ts.c
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 2a80675cfd94..a9be434de738 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -696,6 +696,18 @@ config TOUCHSCREEN_EDT_FT5X06
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called edt-ft5x06.
+>  
+> +config TOUCHSCREEN_RASPBERRYPI_TS
+> +	tristate "Raspberry Pi's firmware base touch screen support"
+> +	depends on RASPBERRYPI_FIRMWARE || COMPILE_TEST
+> +	help
+> +	  Say Y here if you have the offitial Raspberry Pi 7' scren on your
+> +	  system.
+> +
+> +	  If unsure, say N.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called raspberrypi-ts.
+> +
+>  config TOUCHSCREEN_MIGOR
+>  	tristate "Renesas MIGO-R touchscreen"
+>  	depends on (SH_MIGOR || COMPILE_TEST) && I2C
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index 5911a4190cd2..3eccb1925e89 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -109,3 +109,4 @@ obj-$(CONFIG_TOUCHSCREEN_ZET6223)	+= zet6223.o
+>  obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
+> +obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_TS)	+= raspberrypi-ts.o
+> diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
+> new file mode 100644
+> index 000000000000..edc92018687e
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/raspberrypi-ts.c
+> @@ -0,0 +1,223 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Raspberry Pi 3 firmware based touchscreen driver
+> + *
+> + * Copyright (C) 2015, 2017 Raspberry Pi
+> + * Copyright (C) 2018 Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+> + */
+> +
+> +#include <linux/io.h>
+> +#include <linux/slab.h>
+> +#include <linux/module.h>
+> +#include <linux/bitops.h>
+> +#include <linux/dma-mapping.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/input.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/input-polldev.h>
+> +#include <linux/input/touchscreen.h>
+> +#include <soc/bcm2835/raspberrypi-firmware.h>
+> +
+> +#define RPI_TS_DEFAULT_WIDTH	800
+> +#define RPI_TS_DEFAULT_HEIGHT	480
+> +
+> +#define RPI_TS_MAX_SUPPORTED_POINTS	10
+> +
+> +#define RPI_TS_FTS_TOUCH_DOWN		0
+> +#define RPI_TS_FTS_TOUCH_CONTACT	2
+> +
+> +#define RPI_TS_POLL_INTERVAL		17	/* 60fps */
+> +
+> +struct rpi_ts {
+> +	struct platform_device *pdev;
+> +	struct input_polled_dev *poll_dev;
+> +	struct touchscreen_properties prop;
+> +
+> +	void __iomem *fw_regs_va;
+> +	dma_addr_t fw_regs_phys;
+> +
+> +	int known_ids;
+> +};
+> +
+> +struct rpi_ts_regs {
+> +	u8 device_mode;
+> +	u8 gesture_id;
+> +	u8 num_points;
+> +	struct rpi_ts_touch {
+> +		u8 xh;
+> +		u8 xl;
+> +		u8 yh;
+> +		u8 yl;
+> +		u8 pressure; /* Not supported */
+> +		u8 area;     /* Not supported */
+> +	} point[RPI_TS_MAX_SUPPORTED_POINTS];
+> +};
+> +
+> +/*
+> + * We poll the memory based register copy of the touchscreen chip using the
+> + * number of points register to know whether the copy has been updated (we
+> + * write 99 to the memory copy, the GPU will write between 0 - 10 points)
+> + */
+> +static void rpi_ts_poll(struct input_polled_dev *dev)
+> +{
+> +	struct input_dev *input = dev->input;
+> +	struct rpi_ts *ts = dev->private;
+> +	struct rpi_ts_regs regs;
+> +	int modified_ids = 0;
+> +	long released_ids;
+> +	int event_type;
+> +	int touchid;
+> +	int x, y;
+> +	int i;
+> +
+> +	memcpy_fromio(&regs, ts->fw_regs_va, sizeof(regs));
+> +	iowrite8(99, ts->fw_regs_va + offsetof(struct rpi_ts_regs, num_points));
+> +
+> +	if (regs.num_points == 99 ||
+> +	    (regs.num_points == 0 && ts->known_ids == 0))
+> +	    return;
+> +
+> +	for (i = 0; i < regs.num_points; i++) {
+> +		x = (((int)regs.point[i].xh & 0xf) << 8) + regs.point[i].xl;
+> +		y = (((int)regs.point[i].yh & 0xf) << 8) + regs.point[i].yl;
+> +		touchid = (regs.point[i].yh >> 4) & 0xf;
+> +		event_type = (regs.point[i].xh >> 6) & 0x03;
+> +
+> +		modified_ids |= BIT(touchid);
+> +
+> +		if (event_type == RPI_TS_FTS_TOUCH_DOWN ||
+> +		    event_type == RPI_TS_FTS_TOUCH_CONTACT) {
+> +			input_mt_slot(input, touchid);
+> +			input_mt_report_slot_state(input, MT_TOOL_FINGER, 1);
+> +			touchscreen_report_pos(input, &ts->prop, x, y, true);
+> +		}
+> +	}
+> +
+> +	released_ids = ts->known_ids & ~modified_ids;
+> +	for_each_set_bit(i, &released_ids, RPI_TS_MAX_SUPPORTED_POINTS) {
+> +		input_mt_slot(input, i);
+> +		input_mt_report_slot_state(input, MT_TOOL_FINGER, 0);
+> +		modified_ids &= ~(BIT(i));
+> +	}
+> +	ts->known_ids = modified_ids;
+> +
+> +	input_mt_sync_frame(input);
+> +	input_sync(input);
+> +}
+> +
+> +static void rpi_ts_dma_cleanup(void *data)
+> +{
+> +	struct rpi_ts *ts = data;
+> +	struct device *dev = &ts->pdev->dev;
+> +
+> +	if(ts->fw_regs_va)
 
-[auto build test ERROR on input/next]
-[also build test ERROR on v4.20-rc6 next-20181207]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+Drop the condition.
 
-url:    https://github.com/0day-ci/linux/commits/Yangtao-Li/Input-i8042-add-i8042_is_mr_coffee-helper-to-avoid-refconut-leak/20181209-175146
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-config: sparc-defconfig (attached as .config)
-compiler: sparc-linux-gcc (GCC) 8.1.0
-reproduce:
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # save the attached .config to linux build tree
-        GCC_VERSION=8.1.0 make.cross ARCH=sparc 
+> +		dma_free_coherent(dev, PAGE_SIZE, ts->fw_regs_va,
+> +				  ts->fw_regs_phys);
+> +}
+> +
+> +static int rpi_ts_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *np = dev->of_node;
+> +	struct input_polled_dev *poll_dev;
+> +	struct device_node *fw_node;
+> +	struct rpi_firmware *fw;
+> +	struct input_dev *input;
+> +	struct rpi_ts *ts;
+> +	u32 touchbuf;
+> +	int ret;
+> +
+> +	fw_node = of_get_parent(np);
+> +	if (!fw_node) {
+> +		dev_err(dev, "Missing firmware node\n");
+> +		return -ENOENT;
+> +	}
+> +
+> +	fw = rpi_firmware_get(fw_node);
+> +	of_node_put(fw_node);
+> +	if (!fw)
+> +		return -EPROBE_DEFER;
+> +
+> +	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
+> +	if (!ts) {
+> +		dev_err(dev, "Failed to allocate memory\n");
+> +		return -ENOMEM;
+> +	}
+> +	ts->pdev = pdev;
+> +
+> +	ret = devm_add_action_or_reset(dev, rpi_ts_dma_cleanup, ts);
+> +	if (ret)
+> +		return ret;
 
-All error/warnings (new ones prefixed by >>):
+This call needs to be after dma_zalloc_coherent(). Also (my personal
+preference) can we please call this variable "error"? Then we can write
+"if (error) ...".
 
-   In file included from drivers/input/serio/i8042.h:26,
-                    from drivers/input/serio/i8042.c:132:
-   drivers/input/serio/i8042-sparcio.h: In function 'i8042_is_mr_coffee':
->> drivers/input/serio/i8042-sparcio.h:118:9: error: 'is_mr_coffee' undeclared (first use in this function); did you mean 'is_mr_coffree'?
-     return is_mr_coffee;
-            ^~~~~~~~~~~~
-            is_mr_coffree
-   drivers/input/serio/i8042-sparcio.h:118:9: note: each undeclared identifier is reported only once for each function it appears in
->> drivers/input/serio/i8042-sparcio.h:119:1: warning: control reaches end of non-void function [-Wreturn-type]
-    }
-    ^
+> +
+> +	ts->fw_regs_va = dma_zalloc_coherent(dev, PAGE_SIZE, &ts->fw_regs_phys,
+> +					     GFP_KERNEL);
+> +	if (!ts->fw_regs_va) {
+> +		dev_err(dev, "failed to dma_alloc_coherent\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	touchbuf = (u32)ts->fw_regs_phys;
+> +	ret = rpi_firmware_property(fw, RPI_FIRMWARE_FRAMEBUFFER_SET_TOUCHBUF,
+> +				    &touchbuf, sizeof(touchbuf));
+> +
+> +	if (ret || touchbuf != 0) {
+> +		dev_warn(dev, "Failed to set touchbuf, trying to get err:%x\n",
+> +			 ret);
+> +		return ret;
+> +	}
+> +
+> +	poll_dev = devm_input_allocate_polled_device(dev);
+> +	if (!poll_dev) {
+> +		dev_err(dev, "Failed to allocate input device\n");
+> +		return -ENOMEM;
+> +	}
+> +	ts->poll_dev = poll_dev;
+> +	input = poll_dev->input;
+> +
+> +	input->name = "raspberrypi-ts";
+> +	input->id.bustype = BUS_HOST;
+> +	poll_dev->poll_interval = RPI_TS_POLL_INTERVAL;
+> +	poll_dev->poll = rpi_ts_poll;
+> +	poll_dev->private = ts;
+> +
+> +	__set_bit(EV_SYN, input->evbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(EV_ABS, input->evbit);
 
-vim +118 drivers/input/serio/i8042-sparcio.h
+No need to set these, EV_SYN is set by the input core, and KEY/ABS are
+by input_set_abs_params() and input_mt_init_slots().
 
-   108	
-   109	static inline bool i8042_is_mr_coffee(void)
-   110	{
-   111		struct device_node *root;
-   112		bool is_mr_coffree;
-   113	
-   114		root = of_find_node_by_path("/");
-   115		is_mr_coffree = !strcmp(root->name, "SUNW,JavaStation-1");
-   116		of_node_put(root);
-   117	
- > 118		return is_mr_coffee;
- > 119	}
-   120	
+> +
+> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
+> +			     RPI_TS_DEFAULT_WIDTH, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
+> +			     RPI_TS_DEFAULT_HEIGHT, 0, 0);
+> +	touchscreen_parse_properties(input, true, &ts->prop);
+> +
+> +	input_mt_init_slots(input, RPI_TS_MAX_SUPPORTED_POINTS,
+> +			    INPUT_MT_DIRECT | INPUT_MT_POINTER);
 
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Error handling here please. Also, for touchscreens you do not need to
+set INPUT_MT_POINTER, just INPUT_MT_DIRECT.
 
---vkogqOf2sHV7VnPd
-Content-Type: application/gzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
+> +
+> +	ret = input_register_polled_device(poll_dev);
+> +	if (ret) {
+> +		dev_err(dev, "could not register input device, %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id rpi_ts_match[] = {
+> +	{ .compatible = "raspberrypi,firmware-ts", },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, rpi_ts_match);
+> +
+> +static struct platform_driver rpi_ts_driver = {
+> +	.driver = {
+> +		.name   = "raspberrypi-ts",
+> +		.of_match_table = rpi_ts_match,
+> +	},
+> +	.probe          = rpi_ts_probe,
+> +};
+> +module_platform_driver(rpi_ts_driver);
+> +
+> +MODULE_AUTHOR("Gordon Hollingworth");
+> +MODULE_AUTHOR("Nicolas Saenz Julienne <nsaenzjulienne@suse.de>");
+> +MODULE_DESCRIPTION("Raspberry Pi 3 firmware based touchscreen driver");
+> +MODULE_LICENSE("GPL v2");
+> -- 
+> 2.19.2
+> 
 
-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
+Thanks.
 
---vkogqOf2sHV7VnPd--
+-- 
+Dmitry

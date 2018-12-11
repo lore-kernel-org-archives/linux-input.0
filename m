@@ -1,295 +1,141 @@
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v2 2/2] input: add official Raspberry Pi's touchscreen driver
-Date: Tue, 11 Dec 2018 12:23:54 +0100
-Message-ID: <20181211112408.9524-3-nsaenzjulienne@suse.de>
-References: <20181211112408.9524-1-nsaenzjulienne@suse.de>
+From: Hardiksingh Rathore <hardiksingh.k@gmail.com>
+Subject: Re: [PATCH] Input: touchscreen: ad7879: Fix ERROR: foo* bar should be
+ "foo *bar"
+Date: Tue, 11 Dec 2018 17:19:33 +0530
+Message-ID: <CALxnk1NLo9cAUXB=oxkvz7AQnxb7dqdeG9A_MA=OwgTkYfu-yg@mail.gmail.com>
+References: <20181210154433.28319-1-hardiksingh.k@gmail.com> <44f0a055e4085824629285e78ac4928e15c494e3.camel@perches.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181211112408.9524-1-nsaenzjulienne@suse.de>
+In-Reply-To: <44f0a055e4085824629285e78ac4928e15c494e3.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: linux-rpi-kernel@lists.infradead.org, stefan.wahren@i2se.com, eric@anholt.net, agraf@suse.de, afaerber@suse.com, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Labbe <clabbe.montjoie@gmail.com>, Mark Jonas <mark.jonas@de.bosch.com>, Masanari Iida <standby24x7@gmail.com>, Heiko Schocher <hs@denx.de>, Hans de Goede <hdegoede@redhat.com>, Eugen Hristev <eugen.hristev@microchip.com>, Zhu Yi <yi.zhu5@cn.bosch.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: joe@perches.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, michael.hennerich@analog.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add's support to Raspberry Pi's 7" Touch device. Instead of using a
-conventional bus all information is copied into a memory mapped area by
-RPi's firmware.
+Hi Joe,
 
-Based on the driver found in RPi's kernel repository.
+On Tue, 11 Dec 2018 at 01:07, Joe Perches <joe@perches.com> wrote:
+>
+> On Mon, 2018-12-10 at 21:14 +0530, Hardik Singh Rathore wrote:
+> > Fix the coding style problem reported by checkpatch.pl.
+>
+> While whitespace only checkpatch cleanups are generally not
+> well accepted, why do one pointer location cleanup when you
+> could them all:
+>
+As suggested, I have sent the v2 patch for pointer location cleanups
+in all other
+drivers/input/touchscreen/* files.
 
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
----
- drivers/input/touchscreen/Kconfig          |  12 ++
- drivers/input/touchscreen/Makefile         |   1 +
- drivers/input/touchscreen/raspberrypi-ts.c | 227 +++++++++++++++++++++
- 3 files changed, 240 insertions(+)
- create mode 100644 drivers/input/touchscreen/raspberrypi-ts.c
+> $ ./scripts/checkpatch.pl -f --types=pointer_location --fix-inplace drivers/input/touchscreen/*.[ch]
+> $ git diff --stat -p drivers/input/touchscreen/
+>
+> produces:
+> ---
+>  drivers/input/touchscreen/ad7879.c   | 2 +-
+>  drivers/input/touchscreen/ektf2127.c | 2 +-
+>  drivers/input/touchscreen/gunze.c    | 4 ++--
+>  drivers/input/touchscreen/inexio.c   | 4 ++--
+>  drivers/input/touchscreen/mtouch.c   | 4 ++--
+>  5 files changed, 8 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+> index 2aae880c8aa6..6fa714c587b4 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -289,7 +289,7 @@ static int ad7879_open(struct input_dev *input)
+>         return 0;
+>  }
+>
+> -static void ad7879_close(struct input_dev* input)
+> +static void ad7879_close(struct input_dev *input)
+>  {
+>         struct ad7879 *ts = input_get_drvdata(input);
+>
+> diff --git a/drivers/input/touchscreen/ektf2127.c b/drivers/input/touchscreen/ektf2127.c
+> index 0ed34ff787ce..28fa1b36f7a5 100644
+> --- a/drivers/input/touchscreen/ektf2127.c
+> +++ b/drivers/input/touchscreen/ektf2127.c
+> @@ -51,7 +51,7 @@ struct ektf2127_ts {
+>         struct touchscreen_properties prop;
+>  };
+>
+> -static void ektf2127_parse_coordinates(const u8* buf, unsigned int touch_count,
+> +static void ektf2127_parse_coordinates(const u8 *buf, unsigned int touch_count,
+>                                        struct input_mt_pos *touches)
+>  {
+>         int index = 0;
+> diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
+> index 054c2537b392..56cf1a1ea3ea 100644
+> --- a/drivers/input/touchscreen/gunze.c
+> +++ b/drivers/input/touchscreen/gunze.c
+> @@ -53,7 +53,7 @@ struct gunze {
+>         char phys[32];
+>  };
+>
+> -static void gunze_process_packet(struct gunze* gunze)
+> +static void gunze_process_packet(struct gunze *gunze)
+>  {
+>         struct input_dev *dev = gunze->dev;
+>
+> @@ -72,7 +72,7 @@ static void gunze_process_packet(struct gunze* gunze)
+>  static irqreturn_t gunze_interrupt(struct serio *serio,
+>                 unsigned char data, unsigned int flags)
+>  {
+> -       struct gunze* gunze = serio_get_drvdata(serio);
+> +       struct gunze *gunze = serio_get_drvdata(serio);
+>
+>         if (data == '\r') {
+>                 gunze_process_packet(gunze);
+> diff --git a/drivers/input/touchscreen/inexio.c b/drivers/input/touchscreen/inexio.c
+> index b9bc56233ccc..13bd0bf580a7 100644
+> --- a/drivers/input/touchscreen/inexio.c
+> +++ b/drivers/input/touchscreen/inexio.c
+> @@ -79,7 +79,7 @@ static void inexio_process_data(struct inexio *pinexio)
+>  static irqreturn_t inexio_interrupt(struct serio *serio,
+>                 unsigned char data, unsigned int flags)
+>  {
+> -       struct inexio* pinexio = serio_get_drvdata(serio);
+> +       struct inexio *pinexio = serio_get_drvdata(serio);
+>
+>         pinexio->data[pinexio->idx] = data;
+>
+> @@ -97,7 +97,7 @@ static irqreturn_t inexio_interrupt(struct serio *serio,
+>
+>  static void inexio_disconnect(struct serio *serio)
+>  {
+> -       struct inexio* pinexio = serio_get_drvdata(serio);
+> +       struct inexio *pinexio = serio_get_drvdata(serio);
+>
+>         input_get_device(pinexio->dev);
+>         input_unregister_device(pinexio->dev);
+> diff --git a/drivers/input/touchscreen/mtouch.c b/drivers/input/touchscreen/mtouch.c
+> index a3707fad4d1c..8278a9058640 100644
+> --- a/drivers/input/touchscreen/mtouch.c
+> +++ b/drivers/input/touchscreen/mtouch.c
+> @@ -90,7 +90,7 @@ static void mtouch_process_response(struct mtouch *mtouch)
+>  static irqreturn_t mtouch_interrupt(struct serio *serio,
+>                 unsigned char data, unsigned int flags)
+>  {
+> -       struct mtouch* mtouch = serio_get_drvdata(serio);
+> +       struct mtouch *mtouch = serio_get_drvdata(serio);
+>
+>         mtouch->data[mtouch->idx] = data;
+>
+> @@ -110,7 +110,7 @@ static irqreturn_t mtouch_interrupt(struct serio *serio,
+>
+>  static void mtouch_disconnect(struct serio *serio)
+>  {
+> -       struct mtouch* mtouch = serio_get_drvdata(serio);
+> +       struct mtouch *mtouch = serio_get_drvdata(serio);
+>
+>         input_get_device(mtouch->dev);
+>         input_unregister_device(mtouch->dev);
+>
+>
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 2a80675cfd94..af6027cc7bbf 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -696,6 +696,18 @@ config TOUCHSCREEN_EDT_FT5X06
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called edt-ft5x06.
- 
-+config TOUCHSCREEN_RASPBERRYPI_FW
-+	tristate "Raspberry Pi's firmware base touch screen support"
-+	depends on RASPBERRYPI_FIRMWARE || COMPILE_TEST
-+	help
-+	  Say Y here if you have the official Raspberry Pi 7 inch screen on
-+	  your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called raspberrypi-ts.
-+
- config TOUCHSCREEN_MIGOR
- 	tristate "Renesas MIGO-R touchscreen"
- 	depends on (SH_MIGOR || COMPILE_TEST) && I2C
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 5911a4190cd2..fcc7605fba8d 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -109,3 +109,4 @@ obj-$(CONFIG_TOUCHSCREEN_ZET6223)	+= zet6223.o
- obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
- obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
- obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
-+obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_FW)	+= raspberrypi-ts.o
-diff --git a/drivers/input/touchscreen/raspberrypi-ts.c b/drivers/input/touchscreen/raspberrypi-ts.c
-new file mode 100644
-index 000000000000..7f8873eb2379
---- /dev/null
-+++ b/drivers/input/touchscreen/raspberrypi-ts.c
-@@ -0,0 +1,227 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Raspberry Pi firmware based touchscreen driver
-+ *
-+ * Copyright (C) 2015, 2017 Raspberry Pi
-+ * Copyright (C) 2018 Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-+ */
-+
-+#include <linux/io.h>
-+#include <linux/of.h>
-+#include <linux/slab.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/bitops.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/input-polldev.h>
-+#include <linux/input/touchscreen.h>
-+#include <soc/bcm2835/raspberrypi-firmware.h>
-+
-+#define RPI_TS_DEFAULT_WIDTH	800
-+#define RPI_TS_DEFAULT_HEIGHT	480
-+
-+#define RPI_TS_MAX_SUPPORTED_POINTS	10
-+
-+#define RPI_TS_FTS_TOUCH_DOWN		0
-+#define RPI_TS_FTS_TOUCH_CONTACT	2
-+
-+#define RPI_TS_POLL_INTERVAL		17	/* 60fps */
-+
-+#define RPI_TS_NPOINTS_REG_INVALIDATE	99
-+
-+struct rpi_ts {
-+	struct platform_device *pdev;
-+	struct input_polled_dev *poll_dev;
-+	struct touchscreen_properties prop;
-+
-+	void __iomem *fw_regs_va;
-+	dma_addr_t fw_regs_phys;
-+
-+	int known_ids;
-+};
-+
-+struct rpi_ts_regs {
-+	u8 device_mode;
-+	u8 gesture_id;
-+	u8 num_points;
-+	struct rpi_ts_touch {
-+		u8 xh;
-+		u8 xl;
-+		u8 yh;
-+		u8 yl;
-+		u8 pressure; /* Not supported */
-+		u8 area;     /* Not supported */
-+	} point[RPI_TS_MAX_SUPPORTED_POINTS];
-+};
-+
-+static void rpi_ts_poll(struct input_polled_dev *dev)
-+{
-+	struct input_dev *input = dev->input;
-+	struct rpi_ts *ts = dev->private;
-+	struct rpi_ts_regs regs;
-+	int modified_ids = 0;
-+	long released_ids;
-+	int event_type;
-+	int touchid;
-+	int x, y;
-+	int i;
-+
-+	memcpy_fromio(&regs, ts->fw_regs_va, sizeof(regs));
-+	/*
-+	 * We poll the memory based register copy of the touchscreen chip using
-+	 * the number of points register to know whether the copy has been
-+	 * updated (we write 99 to the memory copy, the GPU will write between
-+	 * 0 - 10 points)
-+	 */
-+	iowrite8(RPI_TS_NPOINTS_REG_INVALIDATE,
-+		 ts->fw_regs_va + offsetof(struct rpi_ts_regs, num_points));
-+
-+	if (regs.num_points == RPI_TS_NPOINTS_REG_INVALIDATE ||
-+	    (regs.num_points == 0 && ts->known_ids == 0))
-+	    return;
-+
-+	for (i = 0; i < regs.num_points; i++) {
-+		x = (((int)regs.point[i].xh & 0xf) << 8) + regs.point[i].xl;
-+		y = (((int)regs.point[i].yh & 0xf) << 8) + regs.point[i].yl;
-+		touchid = (regs.point[i].yh >> 4) & 0xf;
-+		event_type = (regs.point[i].xh >> 6) & 0x03;
-+
-+		modified_ids |= BIT(touchid);
-+
-+		if (event_type == RPI_TS_FTS_TOUCH_DOWN ||
-+		    event_type == RPI_TS_FTS_TOUCH_CONTACT) {
-+			input_mt_slot(input, touchid);
-+			input_mt_report_slot_state(input, MT_TOOL_FINGER, 1);
-+			touchscreen_report_pos(input, &ts->prop, x, y, true);
-+		}
-+	}
-+
-+	released_ids = ts->known_ids & ~modified_ids;
-+	for_each_set_bit(i, &released_ids, RPI_TS_MAX_SUPPORTED_POINTS) {
-+		input_mt_slot(input, i);
-+		input_mt_report_slot_state(input, MT_TOOL_FINGER, 0);
-+		modified_ids &= ~(BIT(i));
-+	}
-+	ts->known_ids = modified_ids;
-+
-+	input_mt_sync_frame(input);
-+	input_sync(input);
-+}
-+
-+static void rpi_ts_dma_cleanup(void *data)
-+{
-+	struct rpi_ts *ts = data;
-+	struct device *dev = &ts->pdev->dev;
-+
-+	dma_free_coherent(dev, PAGE_SIZE, ts->fw_regs_va, ts->fw_regs_phys);
-+}
-+
-+static int rpi_ts_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct device_node *np = dev->of_node;
-+	struct input_polled_dev *poll_dev;
-+	struct device_node *fw_node;
-+	struct rpi_firmware *fw;
-+	struct input_dev *input;
-+	struct rpi_ts *ts;
-+	u32 touchbuf;
-+	int error;
-+
-+	fw_node = of_get_parent(np);
-+	if (!fw_node) {
-+		dev_err(dev, "Missing firmware node\n");
-+		return -ENOENT;
-+	}
-+
-+	fw = rpi_firmware_get(fw_node);
-+	of_node_put(fw_node);
-+	if (!fw)
-+		return -EPROBE_DEFER;
-+
-+	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
-+	if (!ts)
-+		return -ENOMEM;
-+	ts->pdev = pdev;
-+
-+	ts->fw_regs_va = dma_zalloc_coherent(dev, PAGE_SIZE, &ts->fw_regs_phys,
-+					     GFP_KERNEL);
-+	if (!ts->fw_regs_va) {
-+		dev_err(dev, "failed to dma_alloc_coherent\n");
-+		return -ENOMEM;
-+	}
-+
-+	error = devm_add_action_or_reset(dev, rpi_ts_dma_cleanup, ts);
-+	if (error) {
-+		dev_err(dev, "failed to devm_add_action_or_reset, %d\n", error);
-+		return error;
-+	}
-+
-+
-+	touchbuf = (u32)ts->fw_regs_phys;
-+	error = rpi_firmware_property(fw, RPI_FIRMWARE_FRAMEBUFFER_SET_TOUCHBUF,
-+				      &touchbuf, sizeof(touchbuf));
-+
-+	if (error || touchbuf != 0) {
-+		dev_warn(dev, "Failed to set touchbuf, %d\n", error);
-+		return error;
-+	}
-+
-+	poll_dev = devm_input_allocate_polled_device(dev);
-+	if (!poll_dev) {
-+		dev_err(dev, "Failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+	ts->poll_dev = poll_dev;
-+	input = poll_dev->input;
-+
-+	input->name = "raspberrypi-ts";
-+	input->id.bustype = BUS_HOST;
-+	poll_dev->poll_interval = RPI_TS_POLL_INTERVAL;
-+	poll_dev->poll = rpi_ts_poll;
-+	poll_dev->private = ts;
-+
-+	input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+			     RPI_TS_DEFAULT_WIDTH, 0, 0);
-+	input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+			     RPI_TS_DEFAULT_HEIGHT, 0, 0);
-+	touchscreen_parse_properties(input, true, &ts->prop);
-+
-+	error = input_mt_init_slots(input, RPI_TS_MAX_SUPPORTED_POINTS,
-+				    INPUT_MT_DIRECT);
-+	if (error) {
-+		dev_err(dev, "could not init mt slots, %d\n", error);
-+		return error;
-+	}
-+
-+	error = input_register_polled_device(poll_dev);
-+	if (error) {
-+		dev_err(dev, "could not register input device, %d\n", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id rpi_ts_match[] = {
-+	{ .compatible = "raspberrypi,firmware-ts", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, rpi_ts_match);
-+
-+static struct platform_driver rpi_ts_driver = {
-+	.driver = {
-+		.name   = "raspberrypi-ts",
-+		.of_match_table = rpi_ts_match,
-+	},
-+	.probe          = rpi_ts_probe,
-+};
-+module_platform_driver(rpi_ts_driver);
-+
-+MODULE_AUTHOR("Gordon Hollingworth");
-+MODULE_AUTHOR("Nicolas Saenz Julienne <nsaenzjulienne@suse.de>");
-+MODULE_DESCRIPTION("Raspberry Pi firmware based touchscreen driver");
-+MODULE_LICENSE("GPL v2");
+
 -- 
-2.19.2
+Thanks,
+Hardik

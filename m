@@ -1,107 +1,74 @@
-From: Hardik Singh Rathore <hardiksingh.k@gmail.com>
-Subject: [PATCH v2] Input: touchscreen: Fix ERROR: foo* bar should be "foo *bar"
-Date: Tue, 11 Dec 2018 16:47:40 +0530
-Message-ID: <20181211111740.25643-1-hardiksingh.k@gmail.com>
-References: <20181210154433.28319-1-hardiksingh.k@gmail.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH v2 0/2] input: driver for RPi's official 7" touchscreen
+Date: Tue, 11 Dec 2018 12:23:52 +0100
+Message-ID: <20181211112408.9524-1-nsaenzjulienne@suse.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181210154433.28319-1-hardiksingh.k@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, joe@perches.com, Hardik Singh Rathore <hardiksingh.k@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-rpi-kernel@lists.infradead.org, stefan.wahren@i2se.com, eric@anholt.net, agraf@suse.de, afaerber@suse.com, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Masanari Iida <standby24x7@gmail.com>, Rob Herring <robh@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Zhu Yi <yi.zhu5@cn.bosch.com>, Eugen Hristev <eugen.hristev@microchip.com>, Corentin Labbe <clabbe.montjoie@gmail.com>, Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>, Mark Jonas <mark.jonas@de.bosch.com>, Heiko Schocher <hs@denx.de>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch fixes the coding style problem reported by checkpatch.pl.
+This small series adds support for Raspberry pi's 7" touchscreen. Which
+alongside with the backlight driver are the last devices needed to have
+a functional touchscreen upstream.
 
-Signed-off-by: Hardik Singh Rathore <hardiksingh.k@gmail.com>
----
-v2:
-- fix the pointer location style problem in drivers/input/touchscreen/*
-files leftover in previous patch.
+With this setup the board's VC4 firmware takes care of communicating
+with the touch chip and provides data though a shared memory area
+provided by the driver. The driver takes care of polling the firmware
+whenever at around 60Hz since there is no interrupt line available.
 
- drivers/input/touchscreen/ektf2127.c | 2 +-
- drivers/input/touchscreen/gunze.c    | 4 ++--
- drivers/input/touchscreen/inexio.c   | 4 ++--
- drivers/input/touchscreen/mtouch.c   | 4 ++--
- 4 files changed, 7 insertions(+), 7 deletions(-)
+The 1.0 revision of the touchscreen is based on the ft5426 chip.
+Technically, with some changes in edt-ft54x4.c we should be able to
+access the data directly through I2C. Yet this bus is meant to be owned
+by RPi's firmware and might access it anytime. For example, to
+configure RPi's camera device. As sharing the bus master interface is
+not possible a series of alternatives have been tested unsuccessfully
+[1]. It seems that we'll be unable to access the chip directly in a
+"clean" way which leaves us with this firmware based solution.
 
-diff --git a/drivers/input/touchscreen/ektf2127.c b/drivers/input/touchscreen/ektf2127.c
-index 0ed34ff787ce..28fa1b36f7a5 100644
---- a/drivers/input/touchscreen/ektf2127.c
-+++ b/drivers/input/touchscreen/ektf2127.c
-@@ -51,7 +51,7 @@ struct ektf2127_ts {
- 	struct touchscreen_properties prop;
- };
- 
--static void ektf2127_parse_coordinates(const u8* buf, unsigned int touch_count,
-+static void ektf2127_parse_coordinates(const u8 *buf, unsigned int touch_count,
- 				       struct input_mt_pos *touches)
- {
- 	int index = 0;
-diff --git a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
-index 054c2537b392..56cf1a1ea3ea 100644
---- a/drivers/input/touchscreen/gunze.c
-+++ b/drivers/input/touchscreen/gunze.c
-@@ -53,7 +53,7 @@ struct gunze {
- 	char phys[32];
- };
- 
--static void gunze_process_packet(struct gunze* gunze)
-+static void gunze_process_packet(struct gunze *gunze)
- {
- 	struct input_dev *dev = gunze->dev;
- 
-@@ -72,7 +72,7 @@ static void gunze_process_packet(struct gunze* gunze)
- static irqreturn_t gunze_interrupt(struct serio *serio,
- 		unsigned char data, unsigned int flags)
- {
--	struct gunze* gunze = serio_get_drvdata(serio);
-+	struct gunze *gunze = serio_get_drvdata(serio);
- 
- 	if (data == '\r') {
- 		gunze_process_packet(gunze);
-diff --git a/drivers/input/touchscreen/inexio.c b/drivers/input/touchscreen/inexio.c
-index b9bc56233ccc..13bd0bf580a7 100644
---- a/drivers/input/touchscreen/inexio.c
-+++ b/drivers/input/touchscreen/inexio.c
-@@ -79,7 +79,7 @@ static void inexio_process_data(struct inexio *pinexio)
- static irqreturn_t inexio_interrupt(struct serio *serio,
- 		unsigned char data, unsigned int flags)
- {
--	struct inexio* pinexio = serio_get_drvdata(serio);
-+	struct inexio *pinexio = serio_get_drvdata(serio);
- 
- 	pinexio->data[pinexio->idx] = data;
- 
-@@ -97,7 +97,7 @@ static irqreturn_t inexio_interrupt(struct serio *serio,
- 
- static void inexio_disconnect(struct serio *serio)
- {
--	struct inexio* pinexio = serio_get_drvdata(serio);
-+	struct inexio *pinexio = serio_get_drvdata(serio);
- 
- 	input_get_device(pinexio->dev);
- 	input_unregister_device(pinexio->dev);
-diff --git a/drivers/input/touchscreen/mtouch.c b/drivers/input/touchscreen/mtouch.c
-index a3707fad4d1c..8278a9058640 100644
---- a/drivers/input/touchscreen/mtouch.c
-+++ b/drivers/input/touchscreen/mtouch.c
-@@ -90,7 +90,7 @@ static void mtouch_process_response(struct mtouch *mtouch)
- static irqreturn_t mtouch_interrupt(struct serio *serio,
- 		unsigned char data, unsigned int flags)
- {
--	struct mtouch* mtouch = serio_get_drvdata(serio);
-+	struct mtouch *mtouch = serio_get_drvdata(serio);
- 
- 	mtouch->data[mtouch->idx] = data;
- 
-@@ -110,7 +110,7 @@ static irqreturn_t mtouch_interrupt(struct serio *serio,
- 
- static void mtouch_disconnect(struct serio *serio)
- {
--	struct mtouch* mtouch = serio_get_drvdata(serio);
-+	struct mtouch *mtouch = serio_get_drvdata(serio);
- 
- 	input_get_device(mtouch->dev);
- 	input_unregister_device(mtouch->dev);
+The driver was rewritten based on the one available on the downstream
+Raspberry Pi kernel tree: https://github.com/raspberrypi/linux/.
+
+This series is based on v4.20-rc6 and was tested on a RPi 3 B+.
+
+Changelog
+
+v1 -> v2:
+  - Remove all references to RPi3
+  - Spelling errors
+  - Rename config string
+  - Reorder devm_add_action_or_reset()
+  - Remove __set_bit(EV* functions
+  - Remove INPUT_MT_POINTER flag
+  - Add missing header files
+  - Create define to invalidate npointers
+  - Fix commit ordering and titles
+
+RFC -> PATCH:
+  - Better dependencies check in Kconfig
+  - Add SPDX tag
+  - Use polled input device API
+  - Use input_mt_sync_frame()
+  - Drop reference from dt node in probe
+  - Use devm where possible
+  - Small cosmetic changes
+
+[1] https://lists.infradead.org/pipermail/linux-rpi-kernel/2018-December/008444.html
+===
+
+Nicolas Saenz Julienne (2):
+  dt-bindings: input: Add Raspberry Pi Touchscreen
+  input: add official Raspberry Pi's touchscreen driver
+
+ .../touchscreen/raspberrypi,firmware-ts.txt   |  26 ++
+ drivers/input/touchscreen/Kconfig             |  12 +
+ drivers/input/touchscreen/Makefile            |   1 +
+ drivers/input/touchscreen/raspberrypi-ts.c    | 227 ++++++++++++++++++
+ 4 files changed, 266 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/raspberrypi,firmware-ts.txt
+ create mode 100644 drivers/input/touchscreen/raspberrypi-ts.c
+
 -- 
-2.17.1
+2.19.2

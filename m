@@ -1,72 +1,69 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] Input: elantech - Disable elan-i2c for P52 and P72
-Date: Wed, 12 Dec 2018 16:42:05 +0100
-Message-ID: <20181212154205.24025-1-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Yangtao Li <tiny.windzz@gmail.com>
+Subject: [PATCH v4] Input: i8042 add i8042_is_mr_coffee() helper to avoid refconut leak
+Date: Wed, 12 Dec 2018 11:35:48 -0500
+Message-ID: <20181212163548.23723-1-tiny.windzz@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kt.liao@emc.com.tw, Aaron Ma <aaron.ma@canonical.com>, Kai Heng Feng <kai.heng.feng@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The current implementation of elan_i2c is known to not support those
-2 laptops.
+of_find_node_by_path() acquires a reference to the node returned by
+it and that reference needs to be dropped by its caller. Add
+i8042_is_mr_coffee() helper to avoid refconut leak.
 
-A proper fix is to tweak both elantech and elan_i2c to transmit the
-correct information from PS/2, which would make a bad candidate for
-stable.
-
-So to give us some time for fixing the root of the problem, disable
-elan_i2c for the devices we know are not behaving properly.
-
-Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1803600
-Link: https://bugs.archlinux.org/task/59714
-Fixes: df077237cf55 Input: elantech - detect new ICs and setup Host Notify for them
-
-Cc: stable@vger.kernel.org  # v4.18+
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
 ---
- drivers/input/mouse/elantech.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+changes in v4:
+-fix typo
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 2d95e8d93cc7..830ae9f07045 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1767,6 +1767,18 @@ static int elantech_smbus = IS_ENABLED(CONFIG_MOUSE_ELAN_I2C_SMBUS) ?
- module_param_named(elantech_smbus, elantech_smbus, int, 0644);
- MODULE_PARM_DESC(elantech_smbus, "Use a secondary bus for the Elantech device.");
+changes in v3:
+-add i8042_is_mr_coffee
+---
+ drivers/input/serio/i8042-sparcio.h | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
+index 796289846204..28aa154d9c81 100644
+--- a/drivers/input/serio/i8042-sparcio.h
++++ b/drivers/input/serio/i8042-sparcio.h
+@@ -106,11 +106,23 @@ static struct platform_driver sparc_i8042_driver = {
+ 	.remove		= sparc_i8042_remove,
+ };
  
-+static const char * const i2c_blacklist_pnp_ids[] = {
-+	/*
-+	 * these are known to not be working properly as bits are missing
-+	 * in elan_i2c
-+	 */
-+	"LEN2131", /* ThinkPad P52 w/ NFC */
-+	"LEN2132", /* ThinkPad P52 */
-+	"LEN2133", /* ThinkPad P72 w/ NFC */
-+	"LEN2134", /* ThinkPad P72 */
-+	NULL
-+};
++static inline bool i8042_is_mr_coffee(void)
++{
++	struct device_node *root;
++	bool is_mr_coffee;
 +
- static int elantech_create_smbus(struct psmouse *psmouse,
- 				 struct elantech_device_info *info,
- 				 bool leave_breadcrumbs)
-@@ -1802,10 +1814,12 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
++	root = of_find_node_by_path("/");
++	is_mr_coffree = !strcmp(root->name, "SUNW,JavaStation-1");
++	of_node_put(root);
++
++	return is_mr_coffee;
++}
++
+ static int __init i8042_platform_init(void)
+ {
+-	struct device_node *root = of_find_node_by_path("/");
++	bool match = i8042_is_mr_coffee();
  
- 	if (elantech_smbus == ELANTECH_SMBUS_NOT_SET) {
- 		/*
--		 * New ICs are enabled by default.
-+		 * New ICs are enabled by default, unless mentioned in
-+		 * i2c_blacklist_pnp_ids.
- 		 * Old ICs are up to the user to decide.
- 		 */
--		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
-+		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
-+		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
- 			return -ENXIO;
- 	}
+-	if (!strcmp(root->name, "SUNW,JavaStation-1")) {
++	if (match) {
+ 		/* Hardcoded values for MrCoffee.  */
+ 		i8042_kbd_irq = i8042_aux_irq = 13 | 0x20;
+ 		kbd_iobase = ioremap(0x71300060, 8);
+@@ -138,9 +150,9 @@ static int __init i8042_platform_init(void)
+ 
+ static inline void i8042_platform_exit(void)
+ {
+-	struct device_node *root = of_find_node_by_path("/");
++	bool match = i8042_is_mr_coffee();
+ 
+-	if (strcmp(root->name, "SUNW,JavaStation-1"))
++	if (!match)
+ 		platform_driver_unregister(&sparc_i8042_driver);
+ }
  
 -- 
-2.19.2
+2.17.0

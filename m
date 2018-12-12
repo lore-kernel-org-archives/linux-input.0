@@ -1,44 +1,72 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: Elantech SMBus support regression
-Date: Wed, 12 Dec 2018 15:25:38 +0100
-Message-ID: <CAO-hwJ+fshPj7xbJoBvK8uGrhfKCdFSmzicmmOyMJS0cdzAapQ@mail.gmail.com>
-References: <6E2F161C-046B-4D5F-B831-B1308A554C40@canonical.com>
+Subject: [PATCH] Input: elantech - Disable elan-i2c for P52 and P72
+Date: Wed, 12 Dec 2018 16:42:05 +0100
+Message-ID: <20181212154205.24025-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6E2F161C-046B-4D5F-B831-B1308A554C40@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai Heng Feng <kai.heng.feng@canonical.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kt.liao@emc.com.tw, Aaron Ma <aaron.ma@canonical.com>, Kai Heng Feng <kai.heng.feng@canonical.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+The current implementation of elan_i2c is known to not support those
+2 laptops.
 
-sorry for the late reply. I was always meaning to fix this the proper
-way but couldn't dedicate a full day of work to go to the bottom of
-elan_i2c.
+A proper fix is to tweak both elantech and elan_i2c to transmit the
+correct information from PS/2, which would make a bad candidate for
+stable.
 
-Meanwhile, I am thinking at simply having a blacklist of devices that
-we know are not working well (P52, L480, L580 and P72).
+So to give us some time for fixing the root of the problem, disable
+elan_i2c for the devices we know are not behaving properly.
 
-Could you get the value of /sys/bus/serio/devices/serio1/firmware_id
-from all of these laptops?
-I know the P52 is LEN2131, but I don't seem to find the other PNPIds.
+Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1803600
+Link: https://bugs.archlinux.org/task/59714
+Fixes: df077237cf55 Input: elantech - detect new ICs and setup Host Notify for them
 
-Cheers,
-Benjamin
+Cc: stable@vger.kernel.org  # v4.18+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/input/mouse/elantech.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-On Thu, Nov 22, 2018 at 5:22 AM Kai Heng Feng
-<kai.heng.feng@canonical.com> wrote:
->
-> Hi Benjamin,
->
-> It appears the Elantech SMBus support breaks some users’ touchpad.
->
-> Please have a look at [1] [2], thanks!
->
-> [1] https://bugs.launchpad.net/bugs/1803600
-> [2] https://bugs.archlinux.org/task/59714
->
-> Kai-Heng
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 2d95e8d93cc7..830ae9f07045 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1767,6 +1767,18 @@ static int elantech_smbus = IS_ENABLED(CONFIG_MOUSE_ELAN_I2C_SMBUS) ?
+ module_param_named(elantech_smbus, elantech_smbus, int, 0644);
+ MODULE_PARM_DESC(elantech_smbus, "Use a secondary bus for the Elantech device.");
+ 
++static const char * const i2c_blacklist_pnp_ids[] = {
++	/*
++	 * these are known to not be working properly as bits are missing
++	 * in elan_i2c
++	 */
++	"LEN2131", /* ThinkPad P52 w/ NFC */
++	"LEN2132", /* ThinkPad P52 */
++	"LEN2133", /* ThinkPad P72 w/ NFC */
++	"LEN2134", /* ThinkPad P72 */
++	NULL
++};
++
+ static int elantech_create_smbus(struct psmouse *psmouse,
+ 				 struct elantech_device_info *info,
+ 				 bool leave_breadcrumbs)
+@@ -1802,10 +1814,12 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+ 
+ 	if (elantech_smbus == ELANTECH_SMBUS_NOT_SET) {
+ 		/*
+-		 * New ICs are enabled by default.
++		 * New ICs are enabled by default, unless mentioned in
++		 * i2c_blacklist_pnp_ids.
+ 		 * Old ICs are up to the user to decide.
+ 		 */
+-		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
++		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
++		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+ 			return -ENXIO;
+ 	}
+ 
+-- 
+2.19.2

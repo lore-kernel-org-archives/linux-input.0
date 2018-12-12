@@ -1,77 +1,156 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH v2] MAINTAINERS: add maintainers for ChromeOS EC
- sub-drivers
-Date: Wed, 12 Dec 2018 09:55:09 +0900
-Message-ID: <5C105C6D.30806@samsung.com>
-References: <CGME20181211191040epcas2p2a15c57e7488f216d012efe553a007d43@epcas2p2.samsung.com>
-        <20181211190953.13626-1-enric.balletbo@collabora.com>
+From: Philippe Schenker <dev@pschenker.ch>
+Subject: [PATCH v4 6/8] iio: adc: add STMPE ADC devicetree bindings
+Date: Wed, 12 Dec 2018 14:06:47 +0100
+Message-ID: <20181212130649.15146-6-dev@pschenker.ch>
+References: <20181212130649.15146-1-dev@pschenker.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20181211190953.13626-1-enric.balletbo@collabora.com>
+In-Reply-To: <20181212130649.15146-1-dev@pschenker.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, linux-kernel@vger.kernel.org
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Mark
+To: jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch
+Cc: thierry.reding@gmail.com, Max Krummenacher <max.krummenacher@toradex.com>, Philippe Schenker <philippe.schenker@toradex.com>, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-input@vger.kernel.org
 
-Hi Enric,
+From: Stefan Agner <stefan@agner.ch>
 
-On 2018년 12월 12일 04:09, Enric Balletbo i Serra wrote:
-> There are multiple ChromeOS EC sub-drivers spread in different
-> subsystems, as all of them are related to the Chrome stuff add
-> Benson and myself as a maintainers for all these sub-drivers.
-> 
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> ---
-> 
-> Changes in v2:
-> - Fix typo in Benson email address.
-> 
->  MAINTAINERS | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index a24129b0b043..bbe7180e2851 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3625,6 +3625,30 @@ S:	Maintained
->  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
->  F:	drivers/platform/chrome/
->  
-> +CHROMEOS EC SUBDRIVERS
-> +M:	Benson Leung <bleung@chromium.org>
-> +M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> +S:	Maintained
-> +F:	Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.txt
-> +F:	Documentation/devicetree/bindings/input/cros-ec-keyb.txt
-> +F:	Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
-> +F:	Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
-> +F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
-> +F:	Documentation/ABI/testing/sysfs-bus-iio-cros-ec
-> +F:	drivers/extcon/extcon-usbc-cros-ec.c
-> +F:	drivers/i2c/busses/i2c-cros-ec-tunnel.c
-> +F:	drivers/iio/accel/cros_ec*
-> +F:	drivers/iio/common/cros_ec_sensors/
-> +F:	drivers/iio/light/cros_ec*
-> +F:	drivers/iio/pressure/cros_ec*
-> +F:	drivers/input/keyboard/cros_ec*
-> +F:	drivers/mfd/cros_ec*
-> +F:	drivers/power/supply/cros_usbpd-charger.c
-> +F:	drivers/pwm/pwm-cros-ec.c
-> +F:	drivers/rtc/rtc-cros-ec.c
-> +F:	include/linux/iio/common/cros_ec_sensors_core.h
-> +F:	include/linux/mfd/cros_ec*
-> +
->  CIRRUS LOGIC AUDIO CODEC DRIVERS
->  M:	Brian Austin <brian.austin@cirrus.com>
->  M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
-> 
+This adds the devicetree bindings for the STMPE ADC. And corrects a
+typo in st,sample-time it is rather "6 -> 124 clocks" according
+to the datasheet and not 144.
 
-For extcon part,
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+---
 
+Changes in v4:
+ - Put reformatting in a separate precursor patch.
+
+Changes in v3:
+ - Reformatted documentation for touchscreen to use tabs and have a better
+   overview of the settings.
+ - Added note which adc-settings will take precedence.
+ - changed typo in sample-time setting from 144 clocks to 124 clocks, as stated
+   in the datasheet.
+
+Changes in v2:
+ - Moved the bindings for ADC to the overlying mfd.
+ - Reformatted for better readability
+
+ .../devicetree/bindings/iio/adc/stmpe-adc.txt | 21 ++++++++++++
+ .../bindings/input/touchscreen/stmpe.txt      | 32 +++++++++----------
+ .../devicetree/bindings/mfd/stmpe.txt         | 14 ++++++++
+ 3 files changed, 51 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+
+diff --git a/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+new file mode 100644
+index 000000000000..480e66422625
+--- /dev/null
++++ b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+@@ -0,0 +1,21 @@
++STMPE ADC driver
++----------------
++
++Required properties:
++ - compatible: "st,stmpe-adc"
++
++Optional properties:
++Note that the ADC is shared with the STMPE touchscreen. ADC related settings
++have to be done in the mfd.
++- st,norequest-mask: bitmask specifying which ADC channels should _not_ be
++  requestable due to different usage (e.g. touch)
++
++Node name must be stmpe_adc and should be child node of stmpe node to
++which it belongs.
++
++Example:
++
++	stmpe_adc {
++		compatible = "st,stmpe-adc";
++		st,norequest-mask = <0x0F>; /* dont use ADC CH3-0 */
++	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+index 1d3f84308142..8e2b240882fa 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
+@@ -5,18 +5,6 @@ Required properties:
+  - compatible: "st,stmpe-ts"
+ 
+ Optional properties:
+-- st,sample-time	: ADC conversion time in number of clock.
+-				0 -> 36 clocks		4 -> 80 clocks (recommended)
+-				1 -> 44 clocks		5 -> 96 clocks
+-				2 -> 56 clocks		6 -> 144 clocks
+-				3 -> 64 clocks
+-- st,mod-12b		: ADC Bit mode
+-				0 -> 10bit ADC		1 -> 12bit ADC
+-- st,ref-sel		: ADC reference source
+-				0 -> internal		1 -> external
+-- st,adc-freq		: ADC Clock speed
+-				0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
+-				1 -> 3.25 MHz
+ - st,ave-ctrl		: Sample average control
+ 				0 -> 1 sample
+ 				1 -> 2 samples
+@@ -40,17 +28,29 @@ Optional properties:
+ 				0 -> 20 mA (typical 35mA max)
+ 				1 -> 50 mA (typical 80 mA max)
+ 
++Optional properties common with MFD (deprecated):
++ - st,sample-time	: ADC conversion time in number of clock.
++				0 -> 36 clocks		4 -> 80 clocks (recommended)
++				1 -> 44 clocks		5 -> 96 clocks
++				2 -> 56 clocks		6 -> 124 clocks
++				3 -> 64 clocks
++ - st,mod-12b		: ADC Bit mode
++				0 -> 10bit ADC		1 -> 12bit ADC
++ - st,ref-sel		: ADC reference source
++				0 -> internal		1 -> external
++ - st,adc-freq		: ADC Clock speed
++				0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
++				1 -> 3.25 MHz
++
+ Node name must be stmpe_touchscreen and should be child node of stmpe node to
+ which it belongs.
+ 
++Note that common ADC settings of stmpe_touchscreen will take precedence.
++
+ Example:
+ 
+ 	stmpe_touchscreen {
+ 		compatible = "st,stmpe-ts";
+-		st,sample-time = <4>;
+-		st,mod-12b = <1>;
+-		st,ref-sel = <0>;
+-		st,adc-freq = <1>;
+ 		st,ave-ctrl = <1>;
+ 		st,touch-det-delay = <2>;
+ 		st,settling = <2>;
+diff --git a/Documentation/devicetree/bindings/mfd/stmpe.txt b/Documentation/devicetree/bindings/mfd/stmpe.txt
+index a46e7177195d..d4408a417193 100644
+--- a/Documentation/devicetree/bindings/mfd/stmpe.txt
++++ b/Documentation/devicetree/bindings/mfd/stmpe.txt
+@@ -14,6 +14,20 @@ Optional properties:
+  - st,autosleep-timeout		: Valid entries (ms); 4, 16, 32, 64, 128, 256, 512 and 1024
+  - irq-gpio			: If present, which GPIO to use for event IRQ
+ 
++Optional properties for devices with touch and ADC (STMPE811|STMPE610):
++ - st,sample-time		: ADC conversion time in number of clock.
++					0 -> 36 clocks		4 -> 80 clocks (recommended)
++					1 -> 44 clocks		5 -> 96 clocks
++					2 -> 56 clocks		6 -> 124 clocks
++					3 -> 64 clocks
++ - st,mod-12b			: ADC Bit mode
++					0 -> 10bit ADC		1 -> 12bit ADC
++ - st,ref-sel			: ADC reference source
++					0 -> internal		1 -> external
++ - st,adc-freq			: ADC Clock speed
++					0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
++					1 -> 3.25 MHz
++
+ Example:
+ 
+ 	stmpe1601: stmpe1601@40 {
 -- 
-Best Regards,
-Chanwoo Choi
-Samsung Electronics
+2.19.2

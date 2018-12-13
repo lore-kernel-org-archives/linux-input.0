@@ -1,50 +1,73 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 39/73] Input: synaptics - enable SMBus for HP 15-ay000
-Date: Wed, 12 Dec 2018 23:28:04 -0500
-Message-ID: <20181213042838.75160-39-sashal@kernel.org>
-References: <20181213042838.75160-1-sashal@kernel.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v2] MAINTAINERS: add maintainers for ChromeOS EC
+ sub-drivers
+Date: Thu, 13 Dec 2018 09:22:19 +0000
+Message-ID: <20181213092219.GM4497@dell>
+References: <20181211190953.13626-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181213042838.75160-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181211190953.13626-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Teika Kazura <teika@gmx.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars-Pet
 List-Id: linux-input@vger.kernel.org
 
-From: Teika Kazura <teika@gmx.com>
+On Tue, 11 Dec 2018, Enric Balletbo i Serra wrote:
 
-[ Upstream commit 5a6dab15f7a79817cab4af612ddd99eda793fce6 ]
+> There are multiple ChromeOS EC sub-drivers spread in different
+> subsystems, as all of them are related to the Chrome stuff add
+> Benson and myself as a maintainers for all these sub-drivers.
+> 
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+> 
+> Changes in v2:
+> - Fix typo in Benson email address.
+> 
+>  MAINTAINERS | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index a24129b0b043..bbe7180e2851 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -3625,6 +3625,30 @@ S:	Maintained
+>  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+>  F:	drivers/platform/chrome/
+>  
+> +CHROMEOS EC SUBDRIVERS
+> +M:	Benson Leung <bleung@chromium.org>
+> +M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> +S:	Maintained
+> +F:	Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.txt
+> +F:	Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+> +F:	Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
+> +F:	Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
+> +F:	Documentation/ABI/testing/sysfs-bus-iio-cros-ec
+> +F:	drivers/extcon/extcon-usbc-cros-ec.c
+> +F:	drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> +F:	drivers/iio/accel/cros_ec*
+> +F:	drivers/iio/common/cros_ec_sensors/
+> +F:	drivers/iio/light/cros_ec*
+> +F:	drivers/iio/pressure/cros_ec*
+> +F:	drivers/input/keyboard/cros_ec*
+> +F:	drivers/power/supply/cros_usbpd-charger.c
+> +F:	drivers/pwm/pwm-cros-ec.c
+> +F:	drivers/rtc/rtc-cros-ec.c
+> +F:	include/linux/iio/common/cros_ec_sensors_core.h
 
-SMBus works fine for the touchpad with id SYN3221, used in the HP 15-ay000
-series,
 
-This device has been reported in these messages in the "linux-input"
-mailing list:
-* https://marc.info/?l=linux-input&m=152016683003369&w=2
-* https://www.spinics.net/lists/linux-input/msg52525.html
+> +F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
+> +F:	drivers/mfd/cros_ec*
+> +F:	include/linux/mfd/cros_ec*
 
-Reported-by: Nitesh Debnath <niteshkd1999@gmail.com>
-Reported-by: Teika Kazura <teika@gmx.com>
-Signed-off-by: Teika Kazura <teika@gmx.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index c42813d50591..2bd5bb11c8ba 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -178,6 +178,7 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
- 	"LEN200f", /* T450s */
-+	"SYN3221", /* HP 15-ay000 */
- 	NULL
- };
- 
 -- 
-2.19.1
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

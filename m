@@ -1,76 +1,77 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 02/73] Input: hyper-v - fix wakeup from
- suspend-to-idle
-Date: Wed, 12 Dec 2018 23:27:27 -0500
-Message-ID: <20181213042838.75160-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 40/73] Input: omap-keypad - fix keyboard debounce configuration
+Date: Wed, 12 Dec 2018 23:28:05 -0500
+Message-ID: <20181213042838.75160-40-sashal@kernel.org>
 References: <20181213042838.75160-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181213042838.75160-1-sashal@kernel.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org, Vitaly Kuznetsov <vkuznets@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 10f91c73cc41ceead210a905dbd196398e99c7d2 ]
+[ Upstream commit 6c3516fed7b61a3527459ccfa67fab130d910610 ]
 
-It makes little sense but still possible to put Hyper-V guests into
-suspend-to-idle state. To wake them up two wakeup sources were registered
-in the past: hyperv-keyboard and hid-hyperv. However, since
-commit eed4d47efe95 ("ACPI / sleep: Ignore spurious SCI wakeups from
-suspend-to-idle") pm_wakeup_event() from these devices is ignored. Switch
-to pm_wakeup_hard_event() API as these devices are actually the only
-possible way to wakeup Hyper-V guests.
+I noticed that the Android v3.0.8 kernel on droid4 is using different
+keypad values from the mainline kernel and does not have issues with
+keys occasionally being stuck until pressed again. Turns out there was
+an earlier patch posted to fix this as "Input: omap-keypad: errata i689:
+Correct debounce time", but it was never reposted to fix use macros
+for timing calculations.
 
-Fixes: eed4d47efe95 (ACPI / sleep: Ignore spurious SCI wakeups from suspend-to-idle)
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: K. Y. Srinivasan <kys@microsoft.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+This updated version is using macros, and also fixes the use of the
+input clock rate to use 32768KiHz instead of 32000KiHz. And we want to
+use the known good Android kernel values of 3 and 6 instead of 2 and 6
+in the earlier patch.
+
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-hyperv.c              | 2 +-
- drivers/input/serio/hyperv-keyboard.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/omap4-keypad.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index b372854cf38d..704049e62d58 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -309,7 +309,7 @@ static void mousevsc_on_receive(struct hv_device *device,
- 		hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
- 				 input_dev->input_buf, len, 1);
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index 46406345742b..a7dc286f406c 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -60,8 +60,18 @@
  
--		pm_wakeup_event(&input_dev->device->device, 0);
-+		pm_wakeup_hard_event(&input_dev->device->device);
+ /* OMAP4 values */
+ #define OMAP4_VAL_IRQDISABLE		0x0
+-#define OMAP4_VAL_DEBOUNCINGTIME	0x7
+-#define OMAP4_VAL_PVT			0x7
++
++/*
++ * Errata i689: If a key is released for a time shorter than debounce time,
++ * the keyboard will idle and never detect the key release. The workaround
++ * is to use at least a 12ms debounce time. See omap5432 TRM chapter
++ * "26.4.6.2 Keyboard Controller Timer" for more information.
++ */
++#define OMAP4_KEYPAD_PTV_DIV_128        0x6
++#define OMAP4_KEYPAD_DEBOUNCINGTIME_MS(dbms, ptv)     \
++	((((dbms) * 1000) / ((1 << ((ptv) + 1)) * (1000000 / 32768))) - 1)
++#define OMAP4_VAL_DEBOUNCINGTIME_16MS					\
++	OMAP4_KEYPAD_DEBOUNCINGTIME_MS(16, OMAP4_KEYPAD_PTV_DIV_128)
  
- 		break;
- 	default:
-diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
-index 47a0e81a2989..a8b9be3e28db 100644
---- a/drivers/input/serio/hyperv-keyboard.c
-+++ b/drivers/input/serio/hyperv-keyboard.c
-@@ -177,7 +177,7 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
- 		 * state because the Enter-UP can trigger a wakeup at once.
- 		 */
- 		if (!(info & IS_BREAK))
--			pm_wakeup_event(&hv_dev->device, 0);
-+			pm_wakeup_hard_event(&hv_dev->device);
+ enum {
+ 	KBD_REVISION_OMAP4 = 0,
+@@ -181,9 +191,9 @@ static int omap4_keypad_open(struct input_dev *input)
  
- 		break;
- 
+ 	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
+ 			OMAP4_DEF_CTRL_NOSOFTMODE |
+-			(OMAP4_VAL_PVT << OMAP4_DEF_CTRL_PTV_SHIFT));
++			(OMAP4_KEYPAD_PTV_DIV_128 << OMAP4_DEF_CTRL_PTV_SHIFT));
+ 	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
+-			OMAP4_VAL_DEBOUNCINGTIME);
++			OMAP4_VAL_DEBOUNCINGTIME_16MS);
+ 	/* clear pending interrupts */
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
+ 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
 -- 
 2.19.1

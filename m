@@ -1,34 +1,76 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: [PATCH] Documentation: hid: fix wrong data structure reference for
- UHID_OUTPUT
-Date: Thu, 13 Dec 2018 11:28:51 +1000
-Message-ID: <20181213012851.GA25516@jelly>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/73] Input: hyper-v - fix wakeup from
+ suspend-to-idle
+Date: Wed, 12 Dec 2018 23:27:27 -0500
+Message-ID: <20181213042838.75160-2-sashal@kernel.org>
+References: <20181213042838.75160-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20181213042838.75160-1-sashal@kernel.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org, Vitaly Kuznetsov <vkuznets@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
----
- Documentation/hid/uhid.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-diff --git a/Documentation/hid/uhid.txt b/Documentation/hid/uhid.txt
-index c8656dd029a9..958fff945304 100644
---- a/Documentation/hid/uhid.txt
-+++ b/Documentation/hid/uhid.txt
-@@ -160,7 +160,7 @@ them but you should handle them according to your needs.
-   UHID_OUTPUT:
-   This is sent if the HID device driver wants to send raw data to the I/O
-   device on the interrupt channel. You should read the payload and forward it to
--  the device. The payload is of type "struct uhid_data_req".
-+  the device. The payload is of type "struct uhid_output_req".
-   This may be received even though you haven't received UHID_OPEN, yet.
+[ Upstream commit 10f91c73cc41ceead210a905dbd196398e99c7d2 ]
+
+It makes little sense but still possible to put Hyper-V guests into
+suspend-to-idle state. To wake them up two wakeup sources were registered
+in the past: hyperv-keyboard and hid-hyperv. However, since
+commit eed4d47efe95 ("ACPI / sleep: Ignore spurious SCI wakeups from
+suspend-to-idle") pm_wakeup_event() from these devices is ignored. Switch
+to pm_wakeup_hard_event() API as these devices are actually the only
+possible way to wakeup Hyper-V guests.
+
+Fixes: eed4d47efe95 (ACPI / sleep: Ignore spurious SCI wakeups from suspend-to-idle)
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: K. Y. Srinivasan <kys@microsoft.com>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-hyperv.c              | 2 +-
+ drivers/input/serio/hyperv-keyboard.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index b372854cf38d..704049e62d58 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -309,7 +309,7 @@ static void mousevsc_on_receive(struct hv_device *device,
+ 		hid_input_report(input_dev->hid_device, HID_INPUT_REPORT,
+ 				 input_dev->input_buf, len, 1);
  
-   UHID_GET_REPORT:
+-		pm_wakeup_event(&input_dev->device->device, 0);
++		pm_wakeup_hard_event(&input_dev->device->device);
+ 
+ 		break;
+ 	default:
+diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
+index 47a0e81a2989..a8b9be3e28db 100644
+--- a/drivers/input/serio/hyperv-keyboard.c
++++ b/drivers/input/serio/hyperv-keyboard.c
+@@ -177,7 +177,7 @@ static void hv_kbd_on_receive(struct hv_device *hv_dev,
+ 		 * state because the Enter-UP can trigger a wakeup at once.
+ 		 */
+ 		if (!(info & IS_BREAK))
+-			pm_wakeup_event(&hv_dev->device, 0);
++			pm_wakeup_hard_event(&hv_dev->device);
+ 
+ 		break;
+ 
 -- 
-2.19.2
+2.19.1

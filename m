@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 3.18 11/16] Input: omap-keypad - fix keyboard debounce configuration
-Date: Wed, 12 Dec 2018 23:33:38 -0500
-Message-ID: <20181213043343.76896-11-sashal@kernel.org>
-References: <20181213043343.76896-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 15/23] Input: omap-keypad - fix keyboard debounce configuration
+Date: Wed, 12 Dec 2018 23:32:51 -0500
+Message-ID: <20181213043259.76643-15-sashal@kernel.org>
+References: <20181213043259.76643-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181213043343.76896-1-sashal@kernel.org>
+In-Reply-To: <20181213043259.76643-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -37,7 +37,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 3ab045369c0c..1739221aa5fa 100644
+index 6639b2b8528a..f78c464899db 100644
 --- a/drivers/input/keyboard/omap4-keypad.c
 +++ b/drivers/input/keyboard/omap4-keypad.c
 @@ -60,8 +60,18 @@

@@ -1,77 +1,50 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 17/34] Input: omap-keypad - fix keyboard debounce configuration
-Date: Wed, 12 Dec 2018 23:31:43 -0500
-Message-ID: <20181213043200.76295-17-sashal@kernel.org>
-References: <20181213043200.76295-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 39/73] Input: synaptics - enable SMBus for HP 15-ay000
+Date: Wed, 12 Dec 2018 23:28:04 -0500
+Message-ID: <20181213042838.75160-39-sashal@kernel.org>
+References: <20181213042838.75160-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20181213043200.76295-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181213042838.75160-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Teika Kazura <teika@gmx.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Teika Kazura <teika@gmx.com>
 
-[ Upstream commit 6c3516fed7b61a3527459ccfa67fab130d910610 ]
+[ Upstream commit 5a6dab15f7a79817cab4af612ddd99eda793fce6 ]
 
-I noticed that the Android v3.0.8 kernel on droid4 is using different
-keypad values from the mainline kernel and does not have issues with
-keys occasionally being stuck until pressed again. Turns out there was
-an earlier patch posted to fix this as "Input: omap-keypad: errata i689:
-Correct debounce time", but it was never reposted to fix use macros
-for timing calculations.
+SMBus works fine for the touchpad with id SYN3221, used in the HP 15-ay000
+series,
 
-This updated version is using macros, and also fixes the use of the
-input clock rate to use 32768KiHz instead of 32000KiHz. And we want to
-use the known good Android kernel values of 3 and 6 instead of 2 and 6
-in the earlier patch.
+This device has been reported in these messages in the "linux-input"
+mailing list:
+* https://marc.info/?l=linux-input&m=152016683003369&w=2
+* https://www.spinics.net/lists/linux-input/msg52525.html
 
-Reported-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Reported-by: Nitesh Debnath <niteshkd1999@gmail.com>
+Reported-by: Teika Kazura <teika@gmx.com>
+Signed-off-by: Teika Kazura <teika@gmx.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/omap4-keypad.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 6639b2b8528a..f78c464899db 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -60,8 +60,18 @@
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index c42813d50591..2bd5bb11c8ba 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -178,6 +178,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
+ 	"LEN200f", /* T450s */
++	"SYN3221", /* HP 15-ay000 */
+ 	NULL
+ };
  
- /* OMAP4 values */
- #define OMAP4_VAL_IRQDISABLE		0x0
--#define OMAP4_VAL_DEBOUNCINGTIME	0x7
--#define OMAP4_VAL_PVT			0x7
-+
-+/*
-+ * Errata i689: If a key is released for a time shorter than debounce time,
-+ * the keyboard will idle and never detect the key release. The workaround
-+ * is to use at least a 12ms debounce time. See omap5432 TRM chapter
-+ * "26.4.6.2 Keyboard Controller Timer" for more information.
-+ */
-+#define OMAP4_KEYPAD_PTV_DIV_128        0x6
-+#define OMAP4_KEYPAD_DEBOUNCINGTIME_MS(dbms, ptv)     \
-+	((((dbms) * 1000) / ((1 << ((ptv) + 1)) * (1000000 / 32768))) - 1)
-+#define OMAP4_VAL_DEBOUNCINGTIME_16MS					\
-+	OMAP4_KEYPAD_DEBOUNCINGTIME_MS(16, OMAP4_KEYPAD_PTV_DIV_128)
- 
- enum {
- 	KBD_REVISION_OMAP4 = 0,
-@@ -181,9 +191,9 @@ static int omap4_keypad_open(struct input_dev *input)
- 
- 	kbd_writel(keypad_data, OMAP4_KBD_CTRL,
- 			OMAP4_DEF_CTRL_NOSOFTMODE |
--			(OMAP4_VAL_PVT << OMAP4_DEF_CTRL_PTV_SHIFT));
-+			(OMAP4_KEYPAD_PTV_DIV_128 << OMAP4_DEF_CTRL_PTV_SHIFT));
- 	kbd_writel(keypad_data, OMAP4_KBD_DEBOUNCINGTIME,
--			OMAP4_VAL_DEBOUNCINGTIME);
-+			OMAP4_VAL_DEBOUNCINGTIME_16MS);
- 	/* clear pending interrupts */
- 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
- 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
 -- 
 2.19.1

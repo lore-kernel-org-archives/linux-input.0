@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 15/23] Input: omap-keypad - fix keyboard debounce configuration
-Date: Wed, 12 Dec 2018 23:32:51 -0500
-Message-ID: <20181213043259.76643-15-sashal@kernel.org>
-References: <20181213043259.76643-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 17/34] Input: omap-keypad - fix keyboard debounce configuration
+Date: Wed, 12 Dec 2018 23:31:43 -0500
+Message-ID: <20181213043200.76295-17-sashal@kernel.org>
+References: <20181213043200.76295-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181213043259.76643-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20181213043200.76295-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org

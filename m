@@ -1,32 +1,103 @@
-From: Pascal PAILLET-LME <p.paillet@st.com>
-Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
-Date: Fri, 14 Dec 2018 14:36:52 +0000
-Message-ID: <5C13C004.9060504@st.com>
-References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
- <20181214124701.GZ4497@dell>
+From: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Subject: Re: [PATCH v4 1/3] Input: atmel_mxt_ts: Add support for  optional regulators
+Date: Fri, 14 Dec 2018 16:11:49 +0100
+Message-ID: <2132818.BxtBPRaDeS@acerlaptop>
+References: <20181207142857.15818-1-pawel.mikolaj.chmiel@gmail.com> <20181207142857.15818-2-pawel.mikolaj.chmiel@gmail.com> <20181209042612.GD211094@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181214124701.GZ4497@dell>
-Content-Language: en-US
-Content-ID: <D6BF6915D0936E40BD5E128ADF17C378@st.com>
+In-Reply-To: <20181209042612.GD211094@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nick@shmanahar.org, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGVsbG8gTGVlLA0KDQpMZSAxMi8xNC8yMDE4IDAxOjQ3IFBNLCBMZWUgSm9uZXMgYSDDqWNyaXQg
-Og0KPiBjaGFuZ2VzIGluIHY3Og0KPiAqIHJlYmFzZSBvbiByZWd1bC9mb3ItbmV4dA0KPg0KPiAg
-ICBkdC1iaW5kaW5nczogbWZkOiBkb2N1bWVudCBzdHBtaWMxDQo+ICAgIG1mZDogc3RwbWljMTog
-YWRkIHN0cG1pYzEgZHJpdmVyDQo+ICAgIGR0LWJpbmRpbmdzOiBpbnB1dDogZG9jdW1lbnQgc3Rw
-bWljMSBwbWljIG9ua2V5DQo+ICAgIGlucHV0OiBzdHBtaWMxOiBhZGQgc3RwbWljMSBvbmtleSBk
-cml2ZXINCj4gICAgZHQtYmluZGluZ3M6IHdhdGNoZG9nOiBkb2N1bWVudCBzdHBtaWMxIHBtaWMg
-d2F0Y2hkb2cNCj4gICAgd2F0Y2hkb2c6IHN0cG1pYzE6IGFkZCBzdHBtaWMxIHdhdGNoZG9nIGRy
-aXZlcg0KPiAgICByZWd1bGF0b3I6IHN0cG1pYzE6IGZpeCByZWd1bGF0b3JfbG9jayB1c2FnZQ0K
-PiBDb3VsZCB5b3UgcGxlYXNlIHJlbW92ZSBhbnkgcGF0Y2hlcyB3aGljaCBoYXZlIGJlZW4gYXBw
-bGllZCBhbmQNCj4gW1JFU0VORF0/DQpET05FLCBJIGhhdmUgcmVzZW50IGEgVjggd2l0aG91dCAg
-dGhlIHJlZ3VsYXRvciBwYXRjaC4NCg0KPiBBbHNvLCBpcyBEbWl0cnkgcGxhbm5pbmcgb24gQWNr
-aW5nOg0KPg0KPiAgICBkdC1iaW5kaW5nczogaW5wdXQ6IGRvY3VtZW50IHN0cG1pYzEgcG1pYyBv
-bmtleQ0KPg0KPiAuLi4gb3IgaXMgUm9iJ3MgQWNrIGVub3VnaD8NCj4NCg0KDQp0aGFuayB5b3Us
-DQpwYXNjYWwNCg==
+Dnia niedziela, 9 grudnia 2018 05:26:12 CET Dmitry Torokhov pisze:
+> On Fri, Dec 07, 2018 at 03:28:55PM +0100, Pawe=C5=82 Chmiel wrote:
+> > This patch adds optional regulators, which can be used to power
+> > up touchscreen. After enabling regulators, we need to wait 150msec.
+> > This value is taken from official driver.
+> >=20
+> > It was tested on Samsung Galaxy i9000 (based on Samsung S5PV210 SOC).
+> >=20
+> > Signed-off-by: Pawe=C5=82 Chmiel <pawel.mikolaj.chmiel@gmail.com>
+> > ---
+> > Changes from v3:
+> >   - Fix checkpatch issues
+> >   - Drop sentence punctuation from subject of one of patches
+> >=20
+> > Changes from v2:
+> >   - Move code enabling regulators into separate method,
+> >     to make code more readable.
+> >=20
+> > Changes from v1:
+> >   - Enable regulators only if reset_gpio is present.
+> >   - Switch from devm_regulator_get_optional to devm_regulator_get
+> > ---
+> >  drivers/input/touchscreen/atmel_mxt_ts.c | 65 +++++++++++++++++++++---
+> >  1 file changed, 59 insertions(+), 6 deletions(-)
+> >=20
+> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/t=
+ouchscreen/atmel_mxt_ts.c
+> > index d3aacd534e9c..1dc8ad0da5af 100644
+> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > @@ -27,6 +27,7 @@
+> >  #include <linux/interrupt.h>
+> >  #include <linux/of.h>
+> >  #include <linux/property.h>
+> > +#include <linux/regulator/consumer.h>
+> >  #include <linux/slab.h>
+> >  #include <linux/gpio/consumer.h>
+> >  #include <asm/unaligned.h>
+> > @@ -194,10 +195,10 @@ enum t100_type {
+> > =20
+> >  /* Delay times */
+> >  #define MXT_BACKUP_TIME		50	/* msec */
+> > -#define MXT_RESET_GPIO_TIME	20	/* msec */
+> >  #define MXT_RESET_INVALID_CHG	100	/* msec */
+> >  #define MXT_RESET_TIME		200	/* msec */
+> >  #define MXT_RESET_TIMEOUT	3000	/* msec */
+> > +#define MXT_REGULATOR_DELAY	150	/* msec */
+> >  #define MXT_CRC_TIMEOUT		1000	/* msec */
+> >  #define MXT_FW_RESET_TIME	3000	/* msec */
+> >  #define MXT_FW_CHG_TIMEOUT	300	/* msec */
+> > @@ -323,6 +324,8 @@ struct mxt_data {
+> >  	struct t7_config t7_cfg;
+> >  	struct mxt_dbg dbg;
+> >  	struct gpio_desc *reset_gpio;
+> > +	struct regulator *vdd_reg;
+> > +	struct regulator *avdd_reg;
+> > =20
+> >  	/* Cached parameters from object table */
+> >  	u16 T5_address;
+> > @@ -3038,6 +3041,38 @@ static const struct dmi_system_id chromebook_T9_=
+suspend_dmi[] =3D {
+> >  	{ }
+> >  };
+> > =20
+> > +static int mxt_regulator_enable(struct mxt_data *data)
+> > +{
+> > +	int error;
+> > +
+> > +	if (data->reset_gpio) {
+> > +		error =3D regulator_enable(data->vdd_reg);
+> > +		if (error) {
+> > +			dev_err(&data->client->dev,
+> > +				"Failed to enable vdd regulator: %d\n", error);
+> > +			return error;
+> > +		}
+> > +
+> > +		error =3D regulator_enable(data->avdd_reg);
+> > +		if (error) {
+> > +			dev_err(&data->client->dev,
+> > +				"Failed to enable avdd regulator: %d\n", error);
+>=20
+> This leaves vdd regulator enabled.
+Will be fixed in v5 version (will be today)
+Thanks for review.
+>=20
+> Thanks.
+>=20
+>=20

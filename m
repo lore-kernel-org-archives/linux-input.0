@@ -1,32 +1,66 @@
-From: =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>
-Subject: Re: [PATCH v3 7/8] HID: logitech: Enable high-resolution scrolling on
- Logitech mice
-Date: Fri, 14 Dec 2018 14:46:50 +0100
-Message-ID: <CAM4jgCqAh9Pck-9i8F5tO4-Kzpu+SjH-mQnGYThadSf-3b1ikw@mail.gmail.com>
-References: <20181205004228.10714-1-peter.hutterer@who-t.net> <20181205004228.10714-8-peter.hutterer@who-t.net>
+From: Guenter Roeck <groeck@google.com>
+Subject: Re: [PATCH v3] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
+Date: Fri, 14 Dec 2018 06:29:19 -0800
+Message-ID: <CABXOdTdDNaPgBK74dcTgRDy5mJKztZ9GTGRiXDv=ZXOwauO-2A@mail.gmail.com>
+References: <20181214114858.21231-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181205004228.10714-8-peter.hutterer@who-t.net>
+In-Reply-To: <20181214114858.21231-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Harry Cutts <hcutts@chromium.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, lkml <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, Guenter Roeck <groeck@chromium.org>, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE" <devicetree@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linar>
 List-Id: linux-input@vger.kernel.org
 
-Le mer. 5 d=C3=A9c. 2018 =C3=A0 01:44, Peter Hutterer <peter.hutterer@who-t=
-.net> a =C3=A9crit :
+On Fri, Dec 14, 2018 at 3:49 AM Enric Balletbo i Serra
+<enric.balletbo@collabora.com> wrote:
 >
-> From: Harry Cutts <hcutts@chromium.org>
+> There are multiple ChromeOS EC sub-drivers spread in different
+> subsystems, as all of them are related to the Chrome stuff add
+> Benson and myself as a maintainers for all these sub-drivers.
 >
-> There are three features used by various Logitech mice for
-> high-resolution scrolling: the scrolling acceleration bit in HID++ 1.0,
-> and the x2120 and x2121 features in HID++ 2.0 and above. This patch
-> supports all three, and uses the multiplier reported by the mouse for
-> the HID++ 2.0+ features.
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> Signed-off-by: Benson Leung <bleung@chromium.org>
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> for iio parts.
+> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
 
-Hi, The G500s (and the G500 too, I think) does support the "scrolling
-acceleration" bit. If I set it, I get around 8 events for each wheel
-"click", this is what this driver expects, right? If I understood
-correctly, I should try this patch with the
-HIDPP_QUIRK_HI_RES_SCROLL_1P0 quirk set for my mouse.
+Acked-by: Guenter Roeck <groeck@chromium.org>
+
+> ---
+>
+> Changes in v3:
+> - Add collected acks
+> - Use a cros[-_]ec pattern instead of list all the files.
+> - Add Guenter as a reviewer.
+>
+> Changes in v2:
+> - Fix typo in Benson email address.
+>
+>  MAINTAINERS | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index e7260191301b..437e036435d5 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -3629,6 +3629,14 @@ S:       Maintained
+>  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+>  F:     drivers/platform/chrome/
+>
+> +CHROMEOS EC SUBDRIVERS
+> +M:     Benson Leung <bleung@chromium.org>
+> +M:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> +R:     Guenter Roeck <groeck@chromium.org>
+> +S:     Maintained
+> +N:     cros[-_]ec
+> +F:     drivers/power/supply/cros_usbpd-charger.c
+> +
+>  CIRRUS LOGIC AUDIO CODEC DRIVERS
+>  M:     Brian Austin <brian.austin@cirrus.com>
+>  M:     Paul Handrigan <Paul.Handrigan@cirrus.com>
+> --
+> 2.19.2
+>

@@ -1,66 +1,32 @@
-From: Guenter Roeck <groeck@google.com>
-Subject: Re: [PATCH v3] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
-Date: Fri, 14 Dec 2018 06:29:19 -0800
-Message-ID: <CABXOdTdDNaPgBK74dcTgRDy5mJKztZ9GTGRiXDv=ZXOwauO-2A@mail.gmail.com>
-References: <20181214114858.21231-1-enric.balletbo@collabora.com>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Date: Fri, 14 Dec 2018 14:36:52 +0000
+Message-ID: <5C13C004.9060504@st.com>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+ <20181214124701.GZ4497@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181214114858.21231-1-enric.balletbo@collabora.com>
+In-Reply-To: <20181214124701.GZ4497@dell>
+Content-Language: en-US
+Content-ID: <D6BF6915D0936E40BD5E128ADF17C378@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, Guenter Roeck <groeck@chromium.org>, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE" <devicetree@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linar>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 14, 2018 at 3:49 AM Enric Balletbo i Serra
-<enric.balletbo@collabora.com> wrote:
->
-> There are multiple ChromeOS EC sub-drivers spread in different
-> subsystems, as all of them are related to the Chrome stuff add
-> Benson and myself as a maintainers for all these sub-drivers.
->
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Signed-off-by: Benson Leung <bleung@chromium.org>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> for iio parts.
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-
-Acked-by: Guenter Roeck <groeck@chromium.org>
-
-> ---
->
-> Changes in v3:
-> - Add collected acks
-> - Use a cros[-_]ec pattern instead of list all the files.
-> - Add Guenter as a reviewer.
->
-> Changes in v2:
-> - Fix typo in Benson email address.
->
->  MAINTAINERS | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index e7260191301b..437e036435d5 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3629,6 +3629,14 @@ S:       Maintained
->  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
->  F:     drivers/platform/chrome/
->
-> +CHROMEOS EC SUBDRIVERS
-> +M:     Benson Leung <bleung@chromium.org>
-> +M:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> +R:     Guenter Roeck <groeck@chromium.org>
-> +S:     Maintained
-> +N:     cros[-_]ec
-> +F:     drivers/power/supply/cros_usbpd-charger.c
-> +
->  CIRRUS LOGIC AUDIO CODEC DRIVERS
->  M:     Brian Austin <brian.austin@cirrus.com>
->  M:     Paul Handrigan <Paul.Handrigan@cirrus.com>
-> --
-> 2.19.2
->
+SGVsbG8gTGVlLA0KDQpMZSAxMi8xNC8yMDE4IDAxOjQ3IFBNLCBMZWUgSm9uZXMgYSDDqWNyaXQg
+Og0KPiBjaGFuZ2VzIGluIHY3Og0KPiAqIHJlYmFzZSBvbiByZWd1bC9mb3ItbmV4dA0KPg0KPiAg
+ICBkdC1iaW5kaW5nczogbWZkOiBkb2N1bWVudCBzdHBtaWMxDQo+ICAgIG1mZDogc3RwbWljMTog
+YWRkIHN0cG1pYzEgZHJpdmVyDQo+ICAgIGR0LWJpbmRpbmdzOiBpbnB1dDogZG9jdW1lbnQgc3Rw
+bWljMSBwbWljIG9ua2V5DQo+ICAgIGlucHV0OiBzdHBtaWMxOiBhZGQgc3RwbWljMSBvbmtleSBk
+cml2ZXINCj4gICAgZHQtYmluZGluZ3M6IHdhdGNoZG9nOiBkb2N1bWVudCBzdHBtaWMxIHBtaWMg
+d2F0Y2hkb2cNCj4gICAgd2F0Y2hkb2c6IHN0cG1pYzE6IGFkZCBzdHBtaWMxIHdhdGNoZG9nIGRy
+aXZlcg0KPiAgICByZWd1bGF0b3I6IHN0cG1pYzE6IGZpeCByZWd1bGF0b3JfbG9jayB1c2FnZQ0K
+PiBDb3VsZCB5b3UgcGxlYXNlIHJlbW92ZSBhbnkgcGF0Y2hlcyB3aGljaCBoYXZlIGJlZW4gYXBw
+bGllZCBhbmQNCj4gW1JFU0VORF0/DQpET05FLCBJIGhhdmUgcmVzZW50IGEgVjggd2l0aG91dCAg
+dGhlIHJlZ3VsYXRvciBwYXRjaC4NCg0KPiBBbHNvLCBpcyBEbWl0cnkgcGxhbm5pbmcgb24gQWNr
+aW5nOg0KPg0KPiAgICBkdC1iaW5kaW5nczogaW5wdXQ6IGRvY3VtZW50IHN0cG1pYzEgcG1pYyBv
+bmtleQ0KPg0KPiAuLi4gb3IgaXMgUm9iJ3MgQWNrIGVub3VnaD8NCj4NCg0KDQp0aGFuayB5b3Us
+DQpwYXNjYWwNCg==

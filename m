@@ -1,103 +1,142 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v3] MAINTAINERS: add maintainers for ChromeOS EC
- sub-drivers
-Date: Fri, 14 Dec 2018 14:17:52 +0100
-Message-ID: <20181214131752.3qfdbxk6z3hkp7cp@earth.universe>
-References: <20181214114858.21231-1-enric.balletbo@collabora.com>
+From: Aleix Roca Nonell <kernelrocks@gmail.com>
+Subject: Re: [PATCH] HID: asus: Add support for the ASUS T101HA keyboard dock
+Date: Fri, 14 Dec 2018 14:34:09 +0100
+Message-ID: <20181214133409.GB4189@rocks>
+References: <20181201190153.GB4995@arks.localdomain>
+ <20181214080700.GA4189@rocks>
+ <CAO-hwJJRuBbHKCmW4vcmjdDkNEF0==wuLC5ymSkw8mOHnkdwwQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="lgqwv4ykv6pafxpf"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181214114858.21231-1-enric.balletbo@collabora.com>
+In-Reply-To: <CAO-hwJJRuBbHKCmW4vcmjdDkNEF0==wuLC5ymSkw8mOHnkdwwQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars-Peter
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, mbrugger@suse.com
 List-Id: linux-input@vger.kernel.org
 
+Hi Benjamin! :D
 
---lgqwv4ykv6pafxpf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Dec 14, 2018 at 09:25:20AM +0100, Benjamin Tissoires wrote:
+> Hi Aleix,
+> 
+> On Fri, Dec 14, 2018 at 9:07 AM Aleix Roca Nonell <kernelrocks@gmail.com> wrote:
+> >
+> > Kind remminder ping :)
+> 
+> Hehe, I have seen the patch floating by and realized I would need more
+> than 2 minutes to answer it so it fell a little bit behind in my TODO
+> list.
+> 
+> Let's try to work on this now.
+> 
+> >
+> > I'm also adding my fellow Matthias in CC
+> >
+> > On Sat, Dec 01, 2018 at 08:01:53PM +0100, Aleix Roca Nonell wrote:
+> > > The ASUS T101HA keyboard dock generates HID events using the ASUS vendor
+> > > specific UsagePage 0xff31. In consequence, some multimedia keys such as
+> > > brightness up and down are not working with hid-generic.
+> > >
+> > > This commit adds the T101HA dock into the supported device list of the
+> > > hid-asus driver. It also prevents the dock's integrated touchpad to be
+> > > bound with hid-asus given that it is already working fine with
+> > > hid-multitouch.
+> > >
+> > > Signed-off-by: Aleix Roca Nonell <kernelrocks@gmail.com>
+> > > ---
+> > >
+> > > This is my very first kernel patch done in my free time (be aware of the
+> > > newbie!!) so please, let me know if I can improve anything and I will
+> > > happily do it :)
+> > >
+> > >  drivers/hid/hid-asus.c | 12 ++++++++++++
+> > >  drivers/hid/hid-ids.h  |  1 +
+> > >  2 files changed, 13 insertions(+)
+> > >
+> > > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> > > index ab8bd40a77ed..d8b55dca97c6 100644
+> > > --- a/drivers/hid/hid-asus.c
+> > > +++ b/drivers/hid/hid-asus.c
+> > > @@ -42,6 +42,7 @@ MODULE_AUTHOR("Frederik Wenigwieser <frederik.wenigwieser@gmail.com>");
+> > >  MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+> > >
+> > >  #define T100_TPAD_INTF 2
+> > > +#define T101HA_TPAD_INTF 2
+> > >
+> > >  #define T100CHI_MOUSE_REPORT_ID 0x06
+> > >  #define FEATURE_REPORT_ID 0x0d
+> > > @@ -70,6 +71,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+> > >  #define QUIRK_T100_KEYBOARD          BIT(6)
+> > >  #define QUIRK_T100CHI                        BIT(7)
+> > >  #define QUIRK_G752_KEYBOARD          BIT(8)
+> > > +#define QUIRK_T101HA_DOCK            BIT(9)
+> > >
+> > >  #define I2C_KEYBOARD_QUIRKS                  (QUIRK_FIX_NOTEBOOK_REPORT | \
+> > >                                                QUIRK_NO_INIT_REPORTS | \
+> > > @@ -649,6 +651,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> > >       int ret;
+> > >       struct asus_drvdata *drvdata;
+> > >
+> > > +     if (id->driver_data & QUIRK_T101HA_DOCK) {
+> > > +             struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+> 
+> I know the hid-asus driver already does this for the other devices,
+> but it would be nice not to. USB is part of the low level transport
+> and HID drivers should have no reasons to assume the USB driver is
+> used and that it will stay forever.
+> 
+> What I ask when we have such a case is to check on the report
+> descriptor to see if there is anything we could use in it (usually the
+> application) to skip this HID interface.
+> 
+> Besides that, there is not much more to say.
 
-Hi,
+Great I will do that!
 
-On Fri, Dec 14, 2018 at 12:48:58PM +0100, Enric Balletbo i Serra wrote:
-> There are multiple ChromeOS EC sub-drivers spread in different
-> subsystems, as all of them are related to the Chrome stuff add
-> Benson and myself as a maintainers for all these sub-drivers.
->=20
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Signed-off-by: Benson Leung <bleung@chromium.org>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> for iio parts.
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> ---
+> For having a look at the report descriptor, you can either use printk
+> in the kernel, or use hid-recorder as root in
+> https://gitlab.freedesktop.org/libevdev/hid-tools.
 
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Regarding the descriptor, shouldn't be ok to check
+/sys/kernel/debug/hid/<dev>/rdesc ?
 
--- Sebastian
+Thank you!
 
->=20
-> Changes in v3:
-> - Add collected acks
-> - Use a cros[-_]ec pattern instead of list all the files.
-> - Add Guenter as a reviewer.
->=20
-> Changes in v2:
-> - Fix typo in Benson email address.
->=20
->  MAINTAINERS | 8 ++++++++
->  1 file changed, 8 insertions(+)
->=20
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index e7260191301b..437e036435d5 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3629,6 +3629,14 @@ S:	Maintained
->  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platf=
-orm.git
->  F:	drivers/platform/chrome/
-> =20
-> +CHROMEOS EC SUBDRIVERS
-> +M:	Benson Leung <bleung@chromium.org>
-> +M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> +R:	Guenter Roeck <groeck@chromium.org>
-> +S:	Maintained
-> +N:	cros[-_]ec
-> +F:	drivers/power/supply/cros_usbpd-charger.c
-> +
->  CIRRUS LOGIC AUDIO CODEC DRIVERS
->  M:	Brian Austin <brian.austin@cirrus.com>
->  M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
-> --=20
-> 2.19.2
->=20
->=20
-> --=20
-> To unsubscribe, send mail to kernel-unsubscribe@lists.collabora.co.uk.
-
---lgqwv4ykv6pafxpf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlwTrX0ACgkQ2O7X88g7
-+pp/yxAAgDkNnwL/12ET+OUIaYGlUvknCfQAjrIMeEQkOj/cNanVPk5rHbr+xsSt
-ssO7WNBlyl45qUtUsQtGew2iSCIrn5LwWUb9rxiGpdEpLwx0nna1ZRIcN+lY/VOp
-OtcoXftkfJq/b5b8Dc553TqbpHCRSTjJQmnbDaWwSLQwOGjezAa6Bu3BllnaRKEl
-3XYwTmIy2Xfic/ONL7dHJT0+RSBbjrkVqNLg+4/Dtg9Nq5wfsik/XwGeDjc8ilYC
-urGFnqAQF61nU53KCbekcAYhtGxBdMqGqZxnd63pFCgqzQwWpRHDtCkFj4aEVaJJ
-kM1c8nVshjs/1+/6Ptlbej/2iTWK5dc5exkHFjin9UDhdXT0ypx8HnBQpVb5qOzA
-kW5t+BJA+yQG4TEKOrCbJRkYF5Zxg2XIjkJf2nl0jo+TAmQRrG+RS8nh3/3S/x0F
-ahjSjdNFIRoqsTwS82tNJ+r/Y8RkVaPNcFG7v4zBuZ0xmXYWaqhFnVyHmbeOv9ot
-jFQNT0MhLYA56t76YWfJheElTKwi1BkJwPsduXfYsl144zsWTJkQzKTG+r/R0BSG
-UZ6M2axDAosv4XFG3Zc43yRkrxaBMVIo2q3P703B2cdAQIxkSdCpPAQZU1q1DZcF
-AuoH4VcsHpCcomhjpoa2RWLKNMokC5vMiCuLLdgDJhXafuZdbLk=
-=7DkH
------END PGP SIGNATURE-----
-
---lgqwv4ykv6pafxpf--
+> 
+> Cheers,
+> Benjamin
+> 
+> > > +
+> > > +             /* use hid-multitouch for T101HA touchpad */
+> > > +             if (intf->altsetting->desc.bInterfaceNumber == T101HA_TPAD_INTF)
+> > > +                     return -ENODEV;
+> > > +     }
+> > > +
+> > >       drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
+> > >       if (drvdata == NULL) {
+> > >               hid_err(hdev, "Can't alloc Asus descriptor\n");
+> > > @@ -830,6 +840,8 @@ static const struct hid_device_id asus_devices[] = {
+> > >       { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> > >               USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+> > >         QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+> > > +     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> > > +             USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD), QUIRK_T101HA_DOCK },
+> > >       { HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+> > >       { HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+> > >       { HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+> > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > > index 4206428c0ba2..f1eee2778b70 100644
+> > > --- a/drivers/hid/hid-ids.h
+> > > +++ b/drivers/hid/hid-ids.h
+> > > @@ -184,6 +184,7 @@
+> > >  #define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD        0x17e0
+> > >  #define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD       0x1807
+> > >  #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD       0x8502
+> > > +#define USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD        0x183d
+> > >  #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD  0x184a
+> > >  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD   0x8585
+> > >  #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD   0x0101
+> > > --
+> > > 2.19.2
+> > >

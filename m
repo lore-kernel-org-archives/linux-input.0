@@ -1,72 +1,74 @@
-From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH v5] Input: i8042 add i8042_is_mr_coffee() helper to avoid refconut leak
-Date: Sat, 15 Dec 2018 04:08:46 -0500
-Message-ID: <20181215090846.28009-1-tiny.windzz@gmail.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [rfd] saving old mice -- button glitching/debouncing
+Date: Sat, 15 Dec 2018 10:47:22 +0100
+Message-ID: <20181215094722.GA5804@amd>
+References: <20181214232437.GA8310@amd>
+ <20181215085510.GB12930@suse.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181215085510.GB12930@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: tiny.windzz@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, jikos@suse.cz, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-of_find_node_by_path() acquires a reference to the node returned by
-it and that reference needs to be dropped by its caller. Add
-i8042_is_mr_coffee() helper to avoid refconut leak.
 
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
----
-changes in v5:
--fix typo
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-changes in v4:
--fix typo
+Hi!
 
-changes in v3:
--add i8042_is_mr_coffee
----
- drivers/input/serio/i8042-sparcio.h | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+> > Patch is obviously not ready; but:
+> >=20
+> > a) would it be useful to people
+>=20
+> Probably not.
+>=20
+> Mice already do internal software/hardware debouncing on switches. If you
+> see duplicate clicks making it all the way to the kernel driver, something
+> is very wrong with the switch, to the point where it'll soon fail
+> completely.
 
-diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
-index 796289846204..9e9e512bc432 100644
---- a/drivers/input/serio/i8042-sparcio.h
-+++ b/drivers/input/serio/i8042-sparcio.h
-@@ -106,11 +106,23 @@ static struct platform_driver sparc_i8042_driver = {
- 	.remove		= sparc_i8042_remove,
- };
- 
-+static inline bool i8042_is_mr_coffee(void)
-+{
-+	struct device_node *root;
-+	bool is_mr_coffee;
-+
-+	root = of_find_node_by_path("/");
-+	is_mr_coffee = !strcmp(root->name, "SUNW,JavaStation-1");
-+	of_node_put(root);
-+
-+	return is_mr_coffee;
-+}
-+
- static int __init i8042_platform_init(void)
- {
--	struct device_node *root = of_find_node_by_path("/");
-+	bool match = i8042_is_mr_coffee();
- 
--	if (!strcmp(root->name, "SUNW,JavaStation-1")) {
-+	if (match) {
- 		/* Hardcoded values for MrCoffee.  */
- 		i8042_kbd_irq = i8042_aux_irq = 13 | 0x20;
- 		kbd_iobase = ioremap(0x71300060, 8);
-@@ -138,9 +150,9 @@ static int __init i8042_platform_init(void)
- 
- static inline void i8042_platform_exit(void)
- {
--	struct device_node *root = of_find_node_by_path("/");
-+	bool match = i8042_is_mr_coffee();
- 
--	if (strcmp(root->name, "SUNW,JavaStation-1"))
-+	if (!match)
- 		platform_driver_unregister(&sparc_i8042_driver);
- }
- 
--- 
-2.17.0
+It seems mice normally survive 2 years under my use. This one has left
+button repaired and middle button failing... If debouncing gives it
+one more year, it will be success...
+
+> > b) would it be acceptable if done properly? (cmd line option to
+> > enable, avoiding duplicate/wrong events?)
+>=20
+> Well, for one, you shouldn't be using a timer, all the debouncing can be
+> done by math on the event timestamps.
+
+Not... really, right? You need to send an release some time after
+button indicates release if bounce did not happen. It is similar to
+autorepeat needing a timer.
+
+Let me gain some experience with the patch. I don't think hardware
+does as heavy debouncing as you describe.
+
+Best regards,
+								=09
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlwUzaoACgkQMOfwapXb+vKp9wCgwJowBaO003wnM519XYW0uBW0
+4h0An1zQelskdUkoRGIrsQXR1Qg06TwI
+=4Co/
+-----END PGP SIGNATURE-----
+
+--pWyiEgJYm5f9v55/--

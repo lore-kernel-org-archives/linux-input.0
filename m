@@ -1,71 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Vojtech Pavlik <vojtech@suse.cz>
 Subject: Re: [rfd] saving old mice -- button glitching/debouncing
-Date: Fri, 14 Dec 2018 16:19:56 -0800
-Message-ID: <CAKdAkRREmAu83Q97WQa2uJbnBKySjkN2HH4DMockFFzLeT3TiA@mail.gmail.com>
+Date: Sat, 15 Dec 2018 09:55:10 +0100
+Message-ID: <20181215085510.GB12930@suse.com>
 References: <20181214232437.GA8310@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20181214232437.GA8310@amd>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, jikos@suse.cz, Vojtech Pavlik <vojtech@suse.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, jikos@suse.cz, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Pavel,
+On Sat, Dec 15, 2018 at 12:24:37AM +0100, Pavel Machek wrote:
 
-On Fri, Dec 14, 2018 at 3:24 PM Pavel Machek <pavel@ucw.cz> wrote:
->
->
-> I believe I have hardware problem, but I'm kind of hoping software
-> could help me...?
->
-> Mouse wheel on my machine started glitching on my machine, generating
-> double-clicks when I click it once. Which unfortunately is quite
-> annoying: texts are pasted twice, two tabs are closed instead of one,
-> ....
->
-> Event: time 1544733054.903129, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90003
-> Event: time 1544733054.903129, type 1 (EV_KEY), code 274 (BTN_MIDDLE), value 1
-> Event: time 1544733054.903129, -------------- EV_SYN ------------
->             1544733054.967251, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90003
-> Event: time 1544733054.967251, type 1 (EV_KEY), code 274 (BTN_MIDDLE), value 0
-> Event: time 1544733054.967251, -------------- EV_SYN ------------
-> Event: time 1544733054.975144, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90003
-> Event: time 1544733054.975144, type 1 (EV_KEY), code 274 (BTN_MIDDLE), value 1
-> Event: time 1544733054.975144, -------------- EV_SYN ------------
->      : time 1544733065.127190, type 4 (EV_MSC), code 4 (MSC_SCAN), value 90003
-> Event: time 1544733065.127190, type 1 (EV_KEY), code 274 (BTN_MIDDLE), value 0
-> Event: time 1544733065.127190, -------------- EV_SYN ------------
->
-> Now, I could just buy a new mouse, but it seems that most optical mice
-> die like this... so maybe it would be nice to have an option to
-> debounce the buttons, so that the useful life of mice is extended a
-> bit?
->
-> (So... I have two mice with that fault -- cheap to replace, but button
-> in thinkpad X220 started doing that, too. That one will not be so
-> cheap to fix :-( ).
->
-> It is possible that some X versions already do something like this.
->
 > Patch is obviously not ready; but:
->
+> 
 > a) would it be useful to people
->
+
+Probably not.
+
+Mice already do internal software/hardware debouncing on switches. If you
+see duplicate clicks making it all the way to the kernel driver, something
+is very wrong with the switch, to the point where it'll soon fail
+completely.
+
+Hence the value of doing extra processing in the kernel is very limited.
+
 > b) would it be acceptable if done properly? (cmd line option to
 > enable, avoiding duplicate/wrong events?)
 
-I'd say if you are attached to failing hardware, solve it in
-userspace. Have a utility/daemon that you run (from udev?) that:
+Well, for one, you shouldn't be using a timer, all the debouncing can be
+done by math on the event timestamps.
 
-- "grabs" input device with EVIOCGRAB
-- does the debouncing/filtering/adjusting for the dirty sensor
-- reinject events back into kernel with /dev/uinput
+You'd also have a hard time distinguishing between doubleclicks and bounces.
 
-It will add some latency, but should be workable.
+Since the mice already filter the quick bounces and there is significant
+delay (100ms on USB, similar on PS/2) between updates from the hardware, a
+real doubleclick can look absolutely the same as what you observe as a
+bounce.
 
-Thanks.
+As such, it couldn't be enabled by default.
+
+If you really want to go this way, a userspace solution is the better choice.
 
 -- 
-Dmitry
+Vojtech Pavlik

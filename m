@@ -1,75 +1,226 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [rfd] saving old mice -- button glitching/debouncing
-Date: Sat, 15 Dec 2018 11:29:02 +0100
-Message-ID: <20181215102902.GA8022@amd>
-References: <20181214232437.GA8310@amd>
- <20181215085510.GB12930@suse.com>
- <20181215094722.GA5804@amd>
- <20181215101221.GA23879@suse.com>
+From: =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>
+Subject: Re: [PATCH v3 7/8] HID: logitech: Enable high-resolution scrolling on
+ Logitech mice
+Date: Sat, 15 Dec 2018 15:45:21 +0100
+Message-ID: <CAM4jgCo483upCJWUnpP45zh2LzQWqAZmQREf2622p49a1vbnnA@mail.gmail.com>
+References: <20181205004228.10714-1-peter.hutterer@who-t.net>
+ <20181205004228.10714-8-peter.hutterer@who-t.net> <CAM4jgCqAh9Pck-9i8F5tO4-Kzpu+SjH-mQnGYThadSf-3b1ikw@mail.gmail.com>
+ <CA+jURcuhBRYiqFYHDgK8dDycrPgvzkujTRZfnmYraiHvwE+e6w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181215101221.GA23879@suse.com>
+In-Reply-To: <CA+jURcuhBRYiqFYHDgK8dDycrPgvzkujTRZfnmYraiHvwE+e6w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, jikos@suse.cz, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Harry Cutts <hcutts@chromium.org>
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, torvalds@linux-foundation.org, Nestor Lopez Casado <nlopezcasad@logitech.com>, lkml <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
+Le ven. 14 d=C3=A9c. 2018 =C3=A0 19:37, Harry Cutts <hcutts@chromium.org> a=
+ =C3=A9crit :
+>
+> Hi Clement,
+>
+> On Fri, 14 Dec 2018 at 05:47, Cl=C3=A9ment VUCHENER
+> <clement.vuchener@gmail.com> wrote:
+> > Hi, The G500s (and the G500 too, I think) does support the "scrolling
+> > acceleration" bit. If I set it, I get around 8 events for each wheel
+> > "click", this is what this driver expects, right? If I understood
+> > correctly, I should try this patch with the
+> > HIDPP_QUIRK_HI_RES_SCROLL_1P0 quirk set for my mouse.
+>
+> Thanks for the info! Yes, that should work.
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, it is not that simple. I get "Device not connected" errors for
+both interfaces of the mouse.
 
-On Sat 2018-12-15 11:12:21, Vojtech Pavlik wrote:
-> On Sat, Dec 15, 2018 at 10:47:22AM +0100, Pavel Machek wrote:
->=20
-> > > > b) would it be acceptable if done properly? (cmd line option to
-> > > > enable, avoiding duplicate/wrong events?)
-> > >=20
-> > > Well, for one, you shouldn't be using a timer, all the debouncing can=
- be
-> > > done by math on the event timestamps.
-> >=20
-> > Not... really, right? You need to send an release some time after
-> > button indicates release if bounce did not happen. It is similar to
-> > autorepeat needing a timer.
->=20
-> You can send the first release and ignore all presses and releases in a
-> time window after that.
+logitech-hidpp-device 0003:046D:C24E.000E: Device not connected
+logitech-hidpp-device 0003:046D:C24E.000F: Device not connected
 
-I could, and it would work for glitches on release, but that would do
-very bad things if switch glitched on press, right?
+Here is the usbmon trace when connecting a G500s:
 
-"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XX           " ->
-"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX              " ... ok
+0cd42cc0 3.313741 C Ii:3:001:1 0:2048 1 =3D
+    04
+0cd42cc0 3.313750 S Ii:3:001:1 -:2048 4 <
+17b49a80 3.313764 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b49a80 3.313775 C Ci:3:001:0 0 4 =3D
+    01010100
+17b49a80 3.313781 S Co:3:001:0 s 23 01 0010 0002 0000 0
+17b49a80 3.313789 C Co:3:001:0 0 0
+17b49a80 3.313792 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b49a80 3.313797 C Ci:3:001:0 0 4 =3D
+    01010000
+17b49a80 3.340415 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b49a80 3.340438 C Ci:3:001:0 0 4 =3D
+    01010000
+17b49a80 3.367434 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b49a80 3.367448 C Ci:3:001:0 0 4 =3D
+    01010000
+17b49a80 3.394434 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b49a80 3.394449 C Ci:3:001:0 0 4 =3D
+    01010000
+17b49a80 3.421416 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b49a80 3.421431 C Ci:3:001:0 0 4 =3D
+    01010000
+17b49a80 3.421690 S Co:3:001:0 s 23 03 0004 0002 0000 0
+17b49a80 3.421707 C Co:3:001:0 0 0
+17b49a80 3.483421 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b49a80 3.483436 C Ci:3:001:0 0 4 =3D
+    11010000
+17b499c0 3.545429 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b499c0 3.545442 C Ci:3:001:0 0 4 =3D
+    03011000
+17b499c0 3.545448 S Co:3:001:0 s 23 01 0014 0002 0000 0
+17b499c0 3.545456 C Co:3:001:0 0 0
+17b499c0 3.597659 S Ci:3:000:0 s 80 06 0100 0000 0040 64 <
+17b499c0 3.597851 C Ci:3:000:0 0 8 =3D
+    12010002 00000008
+17b499c0 3.597870 S Co:3:001:0 s 23 03 0004 0002 0000 0
+17b499c0 3.597884 C Co:3:001:0 0 0
+17b499c0 3.659419 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b499c0 3.659434 C Ci:3:001:0 0 4 =3D
+    11010000
+17b499c0 3.721421 S Ci:3:001:0 s a3 00 0000 0002 0004 4 <
+17b499c0 3.721435 C Ci:3:001:0 0 4 =3D
+    03011000
+17b499c0 3.721442 S Co:3:001:0 s 23 01 0014 0002 0000 0
+17b499c0 3.721451 C Co:3:001:0 0 0
+17b49600 3.788420 S Ci:3:007:0 s 80 06 0100 0000 0012 18 <
+17b49600 3.788897 C Ci:3:007:0 0 18 =3D
+    12010002 00000008 6d044ec2 01840102 0301
+     . . . .  . . . .  m . N .  . . . .  . .
+17b49600 3.788920 S Ci:3:007:0 s 80 06 0600 0000 000a 10 <
+17b49600 3.789057 C Ci:3:007:0 -32 0
+17b49600 3.789092 S Ci:3:007:0 s 80 06 0600 0000 000a 10 <
+17b49600 3.789438 C Ci:3:007:0 -32 0
+17b49600 3.789459 S Ci:3:007:0 s 80 06 0600 0000 000a 10 <
+17b49600 3.789827 C Ci:3:007:0 -32 0
+17b49600 3.789850 S Ci:3:007:0 s 80 06 0200 0000 0009 9 <
+17b49600 3.790272 C Ci:3:007:0 0 9 =3D
+    09023b00 020104a0 31
+     . . ; .  . . . .  1
+17b49600 3.790285 S Ci:3:007:0 s 80 06 0200 0000 003b 59 <
+17b49600 3.791004 C Ci:3:007:0 0 59 =3D
+    09023b00 020104a0 31090400 00010301 02000921 11010001 22430007 05810308
+     . . ; .  . . . .  1 . . .  . . . .  . . . !  . . . .  " C . .  . . . .
+17b49600 3.791021 S Ci:3:007:0 s 80 06 0300 0000 00ff 255 <
+17b49600 3.791203 C Ci:3:007:0 0 4 =3D
+    04030904
+17b49600 3.791212 S Ci:3:007:0 s 80 06 0302 0409 00ff 255 <
+17b49600 3.791829 C Ci:3:007:0 0 50 =3D
+    32034700 35003000 30007300 20004c00 61007300 65007200 20004700 61006d00
+     2 . G .  5 . 0 .  0 . s .    . L .  a . s .  e . r .    . G .  a . m .
+17b49600 3.791844 S Ci:3:007:0 s 80 06 0301 0409 00ff 255 <
+17b49600 3.792141 C Ci:3:007:0 0 18 =3D
+    12034c00 6f006700 69007400 65006300 6800
+     . . L .  o . g .  i . t .  e . c .  h .
+17b49600 3.792154 S Ci:3:007:0 s 80 06 0303 0409 00ff 255 <
+17b49600 3.792563 C Ci:3:007:0 0 30 =3D
+    1e033300 34004500 31003300 38003500 30003800 36003000 30003000 3900
+     . . 3 .  4 . E .  1 . 3 .  8 . 5 .  0 . 8 .  6 . 0 .  0 . 0 .  9 .
+17b49300 3.795944 S Co:3:007:0 s 00 09 0001 0000 0000 0
+17b49300 3.795998 C Co:3:007:0 0 0
+17b49300 3.796025 S Ci:3:007:0 s 80 06 0304 0409 00ff 255 <
+17b49300 3.796392 C Ci:3:007:0 0 26 =3D
+    1a035500 38003400 2e003000 31005f00 42003000 30003000 3900
+     . . U .  8 . 4 .  . . 0 .  1 . _ .  B . 0 .  0 . 0 .  9 .
+17b49900 3.796473 S Ci:3:007:0 s 80 06 0303 0409 00ff 255 <
+17b49900 3.796883 C Ci:3:007:0 0 30 =3D
+    1e033300 34004500 31003300 38003500 30003800 36003000 30003000 3900
+     . . 3 .  4 . E .  1 . 3 .  8 . 5 .  0 . 8 .  6 . 0 .  0 . 0 .  9 .
+17b49900 3.796914 S Co:3:007:0 s 21 0a 0000 0000 0000 0
+17b49900 3.797027 C Co:3:007:0 -32 0
+17b49900 3.797056 S Ci:3:007:0 s 81 06 2200 0000 0043 67 <
+17b49900 3.798055 C Ci:3:007:0 0 67 =3D
+    05010902 a1010901 a1000509 19012910 15002501 95107501 81020501 16018026
+     . . . .  . . . .  . . . .  . . ) .  . . % .  . . u .  . . . .  . . . &
+17b49840 3.798350 S Co:3:007:0 s 21 09 0211 0000 0014 20 =3D
+    11ff0011 00000000 00000000 00000000 00000000
+17b49840 3.798500 C Co:3:007:0 0 20 >
+17b49240 9.289560 S Ci:3:007:0 s 80 06 0303 0409 00ff 255 <
+17b49240 9.289999 C Ci:3:007:0 0 30 =3D
+    1e033300 34004500 31003300 38003500 30003800 36003000 30003000 3900
+     . . 3 .  4 . E .  1 . 3 .  8 . 5 .  0 . 8 .  6 . 0 .  0 . 0 .  9 .
+17b49240 9.290040 S Co:3:007:0 s 21 0a 0000 0001 0000 0
+17b49240 9.290145 C Co:3:007:0 -32 0
+17b49240 9.290155 S Ci:3:007:0 s 81 06 2200 0001 007a 122 <
+17b49240 9.291756 C Ci:3:007:0 0 122 =3D
+    05010906 a1018501 050719e0 29e71500 25017501 95088102 95057508 150026a4
+     . . . .  . . . .  . . . .  ) . . .  % . u .  . . . .  . . u .  . . & .
+17b49c00 9.292167 S Co:3:007:0 s 21 09 0211 0001 0014 20 =3D
+    11ff0011 00000000 00000000 00000000 00000000
+17b49c00 9.292628 C Co:3:007:0 0 20 >
 
-"XX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..." ->
-"XX                                  ..." ... bad idea. [Maybe could be
-detected with "XX " being unusually short?]
+It looks like the mouse is not responding to the
+root_get_protocol_version packet. I don't know why, but even if it
+did, it would not work correctly. The HID++ reports will only work
+with one of the interfaces, the other should be ignored by the driver
+instead of being disabled because it failed to respond to the HID++
+report. The G500s and G500 HID++ interface also use the device index 0
+instead of 0xff.
 
-But I believe I see=20
+For comparison, if I use my distribution kernel
+(4.19.7-200.fc28.x86_64) and send reports from user-space (using
+hidraw) instead of for-4.21/highres-wheel kernel. I get this kind of
+trace:
 
-"XXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXX" on X220 device, too.
+592193c0 0.253975 S Co:3:003:0 s 21 09 0211 0001 0014 20 =3D
+    11ff0011 00000000 00000000 00000000 00000000
+592193c0 0.254426 C Co:3:003:0 0 20 >
+9ee5ff00 0.255859 C Ii:3:003:2 0:1 7 =3D
+    10ff8f00 110800
+9ee5ff00 0.255867 S Ii:3:003:2 -:1 20 <
+592193c0 11.116794 S Co:3:003:0 s 21 09 0211 0001 0014 20 =3D
+    11000011 00000000 00000000 00000000 00000000
+592193c0 11.117258 C Co:3:003:0 0 20 >
+9ee5ff00 11.118023 C Ii:3:003:2 0:1 7 =3D
+    10008f00 110100
+9ee5ff00 11.118033 S Ii:3:003:2 -:1 20 <
 
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+When using device index 0xff the mouse responds with a
+ERR_UNKNOWN_DEVICE (0x08) error, when using device index 0 it responds
+ERR_INVALID_SUBID (0x01), the expected error for a HID++1.0 device.
 
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Here is the diff from the for-4.21/highres-wheel branch, I only added
+the devices to the device list with the required quirk.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ed35c9a9a110..a1c431e7841c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -724,6 +724,7 @@
+ #define USB_DEVICE_ID_LOGITECH_KEYBOARD_G710_PLUS 0xc24d
+ #define USB_DEVICE_ID_LOGITECH_MOUSE_C01A      0xc01a
+ #define USB_DEVICE_ID_LOGITECH_MOUSE_C05A      0xc05a
++#define USB_DEVICE_ID_LOGITECH_MOUSE_G500      0xc068
+ #define USB_DEVICE_ID_LOGITECH_MOUSE_C06A      0xc06a
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD_CORD  0xc20a
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD       0xc211
+@@ -731,6 +732,7 @@
+ #define USB_DEVICE_ID_LOGITECH_DUAL_ACTION     0xc216
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2      0xc218
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2    0xc219
++#define USB_DEVICE_ID_LOGITECH_MOUSE_G500S     0xc24e
+ #define USB_DEVICE_ID_LOGITECH_G29_WHEEL       0xc24f
+ #define USB_DEVICE_ID_LOGITECH_G920_WHEEL      0xc262
+ #define USB_DEVICE_ID_LOGITECH_WINGMAN_F3D     0xc283
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
+dpp.c
+index 15ed6177a7a3..b9b34ce455a4 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -3416,6 +3416,10 @@ static const struct hid_device_id hidpp_devices[] =
+=3D {
 
-iEYEARECAAYFAlwU124ACgkQMOfwapXb+vKR/wCfcFxBeIlqKrMEK9h9TYHkH4ZF
-ZbkAn0Eksq6l5ksxYC9/ryTMmsG8X9MF
-=8YL4
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+        { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+USB_DEVICE_ID_LOGITECH_G920_WHEEL),
+                .driver_data =3D HIDPP_QUIRK_CLASS_G920 |
+HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
++       { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+USB_DEVICE_ID_LOGITECH_MOUSE_G500),
++               .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_1P0 },
++       { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+USB_DEVICE_ID_LOGITECH_MOUSE_G500S),
++               .driver_data =3D HIDPP_QUIRK_HI_RES_SCROLL_1P0 },
+        {}
+ };

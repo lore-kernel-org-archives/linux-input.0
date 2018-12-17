@@ -1,65 +1,92 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH v4] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
-Date: Mon, 17 Dec 2018 10:54:09 +0100
-Message-ID: <20181217095409.22627-1-enric.balletbo@collabora.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] HID: asus: Add support for the ASUS T101HA keyboard dock
+Date: Mon, 17 Dec 2018 14:23:49 +0100
+Message-ID: <CAO-hwJ+L_D98q5byOvYFiOxYgFEgJZ8s2xTe3Mb7R2UW8mhyOQ@mail.gmail.com>
+References: <20181216155319.GA17189@arks.localdomain>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181216155319.GA17189@arks.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars
+To: kernelrocks@gmail.com
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, mbrugger@suse.com
 List-Id: linux-input@vger.kernel.org
 
-There are multiple ChromeOS EC sub-drivers spread in different
-subsystems, as all of them are related to the Chrome stuff add
-Benson and myself as a maintainers for all these sub-drivers.
+On Sun, Dec 16, 2018 at 4:52 PM Aleix Roca Nonell <kernelrocks@gmail.com> wrote:
+>
+> The ASUS T101HA keyboard dock generates HID events using the ASUS vendor
+> specific UsagePage 0xff31. In consequence, some multimedia keys such as
+> brightness up and down are not working with hid-generic.
+>
+> This commit adds the T101HA dock into the supported device list of the
+> hid-asus driver. It also prevents the dock's integrated touchpad to be
+> bound with hid-asus given that it is already working fine with
+> hid-multitouch.
+>
+> Signed-off-by: Aleix Roca Nonell <kernelrocks@gmail.com>
+> ---
+>
+> Changes in v2:
+> - use the report descriptor's application usage to identify the dock's
+>   touchpad instead of the usb interface id
 
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Benson Leung <bleung@chromium.org>
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Acked-by: Guenter Roeck <groeck@chromium.org>
----
+Thanks for the quick respin.
 
-Changes in v4:
-- Remove the `for iio parts` from Jonathan's acked-by tag.
-- Add more collected acks.
-- Use two N patterns.
+Pushed into 4.21/hid-asus.
 
-Changes in v3:
-- Add collected acks
-- Use a cros[-_]ec pattern instead of list all the files.
-- Add Guenter as a reviewer.
+Cheers,
+Benjamin
 
-Changes in v2:
-- Fix typo in Benson email address.
-
- MAINTAINERS | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index fa6e2ad90568..1e27b24e912e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3629,6 +3629,15 @@ S:	Maintained
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
- F:	drivers/platform/chrome/
- 
-+CHROMEOS EC SUBDRIVERS
-+M:	Benson Leung <bleung@chromium.org>
-+M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
-+R:	Guenter Roeck <groeck@chromium.org>
-+S:	Maintained
-+N:	cros_ec
-+N:	cros-ec
-+F:	drivers/power/supply/cros_usbpd-charger.c
-+
- CIRRUS LOGIC AUDIO CODEC DRIVERS
- M:	Brian Austin <brian.austin@cirrus.com>
- M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
--- 
-2.19.2
+>
+> drivers/hid/hid-asus.c | 8 ++++++++
+> drivers/hid/hid-ids.h  | 1 +
+> 2 files changed, 9 insertions(+)
+>
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index ab8bd40a77ed..951bb17ae8b2 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -70,6 +70,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>  #define QUIRK_T100_KEYBOARD            BIT(6)
+>  #define QUIRK_T100CHI                  BIT(7)
+>  #define QUIRK_G752_KEYBOARD            BIT(8)
+> +#define QUIRK_T101HA_DOCK              BIT(9)
+>
+>  #define I2C_KEYBOARD_QUIRKS                    (QUIRK_FIX_NOTEBOOK_REPORT | \
+>                                                  QUIRK_NO_INIT_REPORTS | \
+> @@ -699,6 +700,11 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>                 return ret;
+>         }
+>
+> +       /* use hid-multitouch for T101HA touchpad */
+> +       if (id->driver_data & QUIRK_T101HA_DOCK &&
+> +           hdev->collection->usage == HID_GD_MOUSE)
+> +               return -ENODEV;
+> +
+>         ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>         if (ret) {
+>                 hid_err(hdev, "Asus hw start failed: %d\n", ret);
+> @@ -830,6 +836,8 @@ static const struct hid_device_id asus_devices[] = {
+>         { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>                 USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD),
+>           QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
+> +       { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +               USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD), QUIRK_T101HA_DOCK },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
+>         { HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 4206428c0ba2..f1eee2778b70 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -184,6 +184,7 @@
+>  #define USB_DEVICE_ID_ASUSTEK_T100TA_KEYBOARD  0x17e0
+>  #define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD 0x1807
+>  #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD 0x8502
+> +#define USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD  0x183d
+>  #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD    0x184a
+>  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD     0x8585
+>  #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD     0x0101
+> --
+> 2.20.0
+>

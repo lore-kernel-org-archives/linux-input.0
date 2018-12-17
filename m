@@ -1,100 +1,65 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v5 3/3] Input: atmel_mxt_ts: Document optional voltage
- regulators
-Date: Sun, 16 Dec 2018 23:41:51 +0100
-Message-ID: <20181216224151.h2kmm56a7yxolc2o@earth.universe>
-References: <20181214151214.5391-1-pawel.mikolaj.chmiel@gmail.com>
- <20181214151214.5391-4-pawel.mikolaj.chmiel@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7k22atdafibz2k5h"
+From: Kai Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: Elantech SMBus support regression
+Date: Mon, 17 Dec 2018 15:25:36 +0800
+Message-ID: <A67BA4A8-7A32-4B80-AF90-B9D99E7D5582@canonical.com>
+References: <6E2F161C-046B-4D5F-B831-B1308A554C40@canonical.com>
+ <CAO-hwJ+fshPj7xbJoBvK8uGrhfKCdFSmzicmmOyMJS0cdzAapQ@mail.gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181214151214.5391-4-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <CAO-hwJ+fshPj7xbJoBvK8uGrhfKCdFSmzicmmOyMJS0cdzAapQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: nick@shmanahar.org, mark.rutland@arm.com, devicetree@vger.kernel.org, alexandre.belloni@bootlin.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-
-
---7k22atdafibz2k5h
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On Fri, Dec 14, 2018 at 04:12:14PM +0100, Pawe=C5=82 Chmiel wrote:
-> Document new optional voltage regulators, which can be used
-> to power down/up touchscreen.
->=20
-> Signed-off-by: Pawe=C5=82 Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
+> On Dec 12, 2018, at 22:25, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> 
+> Hi,
+> 
+> sorry for the late reply. I was always meaning to fix this the proper
+> way but couldn't dedicate a full day of work to go to the bottom of
+> elan_i2c.
+> 
+> Meanwhile, I am thinking at simply having a blacklist of devices that
+> we know are not working well (P52, L480, L580 and P72).
+> 
+> Could you get the value of /sys/bus/serio/devices/serio1/firmware_id
+> from all of these laptops?
+> I know the P52 is LEN2131, but I don't seem to find the other PNPIds.
 
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+These are feedbacks from the users:
 
--- Sebastian
+L480:
+cat /sys/bus/serio/devices/serio1/firmware_id
+PNP: LEN2036 PNP0f13
 
-> ---
-> Changes from v1:
->   - Added reviewed-by
-> ---
->  .../devicetree/bindings/input/atmel,maxtouch.txt          | 8 ++++++++
->  1 file changed, 8 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b=
-/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> index c88919480d37..17930ecadad3 100644
-> --- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> +++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> @@ -31,6 +31,12 @@ Optional properties for main touchpad device:
-> =20
->  - reset-gpios: GPIO specifier for the touchscreen's reset pin (active lo=
-w)
-> =20
-> +- avdd-supply: Analog power supply. It powers up the analog channel block
-> +    of the controller to detect the touches.
-> +
-> +- vdd-supply: Digital power supply. It powers up the digital block
-> +    of the controller to enable i2c communication.
-> +
->  Example:
-> =20
->  	touch@4b {
-> @@ -38,4 +44,6 @@ Example:
->  		reg =3D <0x4b>;
->  		interrupt-parent =3D <&gpio>;
->  		interrupts =3D <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_LOW>;
-> +		avdd-supply =3D <&atsp_reg>;
-> +		vdd-supply =3D <&tsp_reg>;
->  	};
-> --=20
-> 2.17.1
->=20
->=20
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+P52:
+"cat /sys/bus/serio/devices/serio1/firmware_id":
+PNP: LEN2132 PNP0f13
 
---7k22atdafibz2k5h
-Content-Type: application/pgp-signature; name="signature.asc"
+So looks like it’s different to LEN2131.
 
------BEGIN PGP SIGNATURE-----
+Kai-Heng
 
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlwW1KwACgkQ2O7X88g7
-+povFw//QnuluuI9Fs8O+0wOzbZNRmJz+ZafrZSrnt02dgdbdUIkK81lZDigjIoD
-MJ4Ai26L3iXAZhHbIWtKQskAJ6AQKirU8pdQ3zdZfeKO7zlChJ8lrnfKCbuUfJ3C
-WKiYjvY75ceEwn3RuoNBZ/77WKWxofgSWF67pRoQP43gm800TdIxusBQFonvf5wK
-CGLAYRJGzIA74IIg0Y893C1AicrfBoW27AjFvRwF+JdT5c9n4WF7O5lwBbxBh5bK
-Zye4XIBg9y9IYBnOGnFkw3BU4k6+YzLfN2qwfGzGoCOjFD4VmOLZF4OUtTd4RUsx
-CfwsqU9/FeSQ4mLS92P4pCc6yLpsOOlhOlEfAaIQLcobj+AtJvw9YfX+4gWkY1R9
-22FScGbtBeVtOmLEzyN+MD062Gcgh6xof4cX7dtlQNX0yVBoMmANWke/cghT3qHD
-GBiMFRZnd3lbvPh1N0xa4PXw3E/CDsFxcHnKi4axceVsc6JWOto3I6i5arVnYqG9
-f2OGHa+Cbbb4hukGBCyNhHwEG2p7ICFRL+bGI9SERpd7huDc1mifgPZpR/ZTaAJc
-Fn9D981jzE1rkY53wsHbyX01Uhc3oxlH9gxagVK9R5sP4SwdBh4dRjxO4wwMTjDu
-oxfDqLOpKADchDWkHw9hP6fCiIJJBysw+nw8ZH2Zi4CtzmdWzZA=
-=v+dr
------END PGP SIGNATURE-----
-
---7k22atdafibz2k5h--
+> 
+> Cheers,
+> Benjamin
+> 
+> On Thu, Nov 22, 2018 at 5:22 AM Kai Heng Feng
+> <kai.heng.feng@canonical.com> wrote:
+>> 
+>> Hi Benjamin,
+>> 
+>> It appears the Elantech SMBus support breaks some users’ touchpad.
+>> 
+>> Please have a look at [1] [2], thanks!
+>> 
+>> [1] https://bugs.launchpad.net/bugs/1803600
+>> [2] https://bugs.archlinux.org/task/59714
+>> 
+>> Kai-Heng

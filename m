@@ -1,65 +1,65 @@
-From: Kai Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: Elantech SMBus support regression
-Date: Mon, 17 Dec 2018 15:25:36 +0800
-Message-ID: <A67BA4A8-7A32-4B80-AF90-B9D99E7D5582@canonical.com>
-References: <6E2F161C-046B-4D5F-B831-B1308A554C40@canonical.com>
- <CAO-hwJ+fshPj7xbJoBvK8uGrhfKCdFSmzicmmOyMJS0cdzAapQ@mail.gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: 8BIT
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH v4] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
+Date: Mon, 17 Dec 2018 10:54:09 +0100
+Message-ID: <20181217095409.22627-1-enric.balletbo@collabora.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJ+fshPj7xbJoBvK8uGrhfKCdFSmzicmmOyMJS0cdzAapQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+There are multiple ChromeOS EC sub-drivers spread in different
+subsystems, as all of them are related to the Chrome stuff add
+Benson and myself as a maintainers for all these sub-drivers.
 
-> On Dec 12, 2018, at 22:25, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> 
-> Hi,
-> 
-> sorry for the late reply. I was always meaning to fix this the proper
-> way but couldn't dedicate a full day of work to go to the bottom of
-> elan_i2c.
-> 
-> Meanwhile, I am thinking at simply having a blacklist of devices that
-> we know are not working well (P52, L480, L580 and P72).
-> 
-> Could you get the value of /sys/bus/serio/devices/serio1/firmware_id
-> from all of these laptops?
-> I know the P52 is LEN2131, but I don't seem to find the other PNPIds.
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Benson Leung <bleung@chromium.org>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Acked-by: Guenter Roeck <groeck@chromium.org>
+---
 
-These are feedbacks from the users:
+Changes in v4:
+- Remove the `for iio parts` from Jonathan's acked-by tag.
+- Add more collected acks.
+- Use two N patterns.
 
-L480:
-cat /sys/bus/serio/devices/serio1/firmware_id
-PNP: LEN2036 PNP0f13
+Changes in v3:
+- Add collected acks
+- Use a cros[-_]ec pattern instead of list all the files.
+- Add Guenter as a reviewer.
 
-P52:
-"cat /sys/bus/serio/devices/serio1/firmware_id":
-PNP: LEN2132 PNP0f13
+Changes in v2:
+- Fix typo in Benson email address.
 
-So looks like it’s different to LEN2131.
+ MAINTAINERS | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Kai-Heng
-
-> 
-> Cheers,
-> Benjamin
-> 
-> On Thu, Nov 22, 2018 at 5:22 AM Kai Heng Feng
-> <kai.heng.feng@canonical.com> wrote:
->> 
->> Hi Benjamin,
->> 
->> It appears the Elantech SMBus support breaks some users’ touchpad.
->> 
->> Please have a look at [1] [2], thanks!
->> 
->> [1] https://bugs.launchpad.net/bugs/1803600
->> [2] https://bugs.archlinux.org/task/59714
->> 
->> Kai-Heng
+diff --git a/MAINTAINERS b/MAINTAINERS
+index fa6e2ad90568..1e27b24e912e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3629,6 +3629,15 @@ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+ F:	drivers/platform/chrome/
+ 
++CHROMEOS EC SUBDRIVERS
++M:	Benson Leung <bleung@chromium.org>
++M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
++R:	Guenter Roeck <groeck@chromium.org>
++S:	Maintained
++N:	cros_ec
++N:	cros-ec
++F:	drivers/power/supply/cros_usbpd-charger.c
++
+ CIRRUS LOGIC AUDIO CODEC DRIVERS
+ M:	Brian Austin <brian.austin@cirrus.com>
+ M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
+-- 
+2.19.2

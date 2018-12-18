@@ -1,83 +1,43 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input: elantech - Disable elan-i2c for P52 and P72
-Date: Tue, 18 Dec 2018 18:13:43 +1000
-Message-ID: <20181218081343.GA4701@jelly>
-References: <20181212154205.24025-1-benjamin.tissoires@redhat.com>
+From: Richard Leitner <richard.leitner@skidata.com>
+Subject: [RESEND PATCH v2 0/8] Input: sx8654 - reset-gpio, sx865[056] support, etc.
+Date: Tue, 18 Dec 2018 09:35:58 +0100
+Message-ID: <20181218083606.25795-1-richard.leitner@skidata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181212154205.24025-1-benjamin.tissoires@redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kt.liao@emc.com.tw, Aaron Ma <aaron.ma@canonical.com>, Kai Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, mark.rutland@arm.com
+Cc: robh+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, richard.leitner@skidata.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 12, 2018 at 04:42:05PM +0100, Benjamin Tissoires wrote:
-> The current implementation of elan_i2c is known to not support those
-> 2 laptops.
-> 
-> A proper fix is to tweak both elantech and elan_i2c to transmit the
-> correct information from PS/2, which would make a bad candidate for
-> stable.
-> 
-> So to give us some time for fixing the root of the problem, disable
-> elan_i2c for the devices we know are not behaving properly.
-> 
-> Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1803600
-> Link: https://bugs.archlinux.org/task/59714
-> Fixes: df077237cf55 Input: elantech - detect new ICs and setup Host Notify for them
-> 
-> Cc: stable@vger.kernel.org  # v4.18+
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Add reset-gpio, sx8654[056] and common of_touchscreen functions support
+for the sx8654 driver.
 
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+Changes RESEND v2:
+	- added "Reviewed-by: Rob Herring <robh@kernel.org>" tags
 
-Cheers,
-   Peter
+Changes v2:
+	- use devm_gpiod_get_optional in probe instead of in #ifdef CONFIG_OF
+	- convert flags to BIT() in a separate patch
+	- replace hrtimer with "regular" timer
+	- use of_device_get_match_data instead of of_match_device
+	- add driver data to i2c_device_id table for non-DT fallback
+	- fix sequence of common touchscreen initialization
+	- div. minor stlye changes
 
-> ---
->  drivers/input/mouse/elantech.c | 18 ++++++++++++++++--
->  1 file changed, 16 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 2d95e8d93cc7..830ae9f07045 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1767,6 +1767,18 @@ static int elantech_smbus = IS_ENABLED(CONFIG_MOUSE_ELAN_I2C_SMBUS) ?
->  module_param_named(elantech_smbus, elantech_smbus, int, 0644);
->  MODULE_PARM_DESC(elantech_smbus, "Use a secondary bus for the Elantech device.");
->  
-> +static const char * const i2c_blacklist_pnp_ids[] = {
-> +	/*
-> +	 * these are known to not be working properly as bits are missing
-> +	 * in elan_i2c
-> +	 */
-> +	"LEN2131", /* ThinkPad P52 w/ NFC */
-> +	"LEN2132", /* ThinkPad P52 */
-> +	"LEN2133", /* ThinkPad P72 w/ NFC */
-> +	"LEN2134", /* ThinkPad P72 */
-> +	NULL
-> +};
-> +
->  static int elantech_create_smbus(struct psmouse *psmouse,
->  				 struct elantech_device_info *info,
->  				 bool leave_breadcrumbs)
-> @@ -1802,10 +1814,12 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
->  
->  	if (elantech_smbus == ELANTECH_SMBUS_NOT_SET) {
->  		/*
-> -		 * New ICs are enabled by default.
-> +		 * New ICs are enabled by default, unless mentioned in
-> +		 * i2c_blacklist_pnp_ids.
->  		 * Old ICs are up to the user to decide.
->  		 */
-> -		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
-> +		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
-> +		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
->  			return -ENXIO;
->  	}
->  
-> -- 
-> 2.19.2
-> 
+Richard Leitner (8):
+  dt-bindings: input: touchscreen: sx8654: add reset-gpio property
+  Input: sx8654 - add reset-gpio support
+  dt-bindings: input: touchscreen: sx8654: add compatible models
+  Input: sx8654 - add sx8655 and sx8656 to compatibles
+  dt-bindings: input: touchscreen: sx8654: add sx8650 to comatibles
+  Input: sx8654 - add sx8650 support
+  Input: sx8654 - use common of_touchscreen functions
+  Input: sx8654 - convert #defined flags to BIT(x)
+
+ .../bindings/input/touchscreen/sx8654.txt          |  10 +-
+ drivers/input/touchscreen/sx8654.c                 | 245 ++++++++++++++++++---
+ 2 files changed, 229 insertions(+), 26 deletions(-)
+
+-- 
+2.11.0

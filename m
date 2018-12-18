@@ -1,166 +1,125 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 6/8] iio: adc: add STMPE ADC devicetree bindings
-Date: Mon, 17 Dec 2018 16:15:02 -0600
-Message-ID: <20181217221502.GA30121@bogus>
-References: <20181212130649.15146-1-dev@pschenker.ch>
- <20181212130649.15146-6-dev@pschenker.ch>
+From: Numan =?UTF-8?B?RGVtaXJkw7bEn2Vu?= <if.gnu.linux@gmail.com>
+Subject: Re: [regression, bisected] Keyboard not responding after resuming
+ from suspend/hibernate
+Date: Tue, 18 Dec 2018 10:23:02 +0300
+Message-ID: <20181218102302.2b029612@korsan.localdomain>
+References: <20180831215121.1b1f66bf@korsan.localdomain>
+        <20181019102031.77015d44@korsan.localdomain>
+        <20181025074903.GA9323@amd>
+        <20181028220654.7e77e5d7@ubuntu>
+        <20181130154455.21578c4d@korsan.localdomain>
+        <20181202222809.GA29467@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/ug/JvfsHSZuytceYAejq0DI"; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181212130649.15146-6-dev@pschenker.ch>
+In-Reply-To: <20181202222809.GA29467@amd>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Philippe Schenker <dev@pschenker.ch>
-Cc: jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch, thierry.reding@gmail.com, Max Krummenacher <max.krummenacher@toradex.com>, Philippe Schenker <philippe.schenker@toradex.com>, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Alexandre Torgue <alexandre.torgue@st.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, Lars-Peter Clausen <lars@metafoo.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: jason.low2@hpe.com, Waiman.Long@hpe.com, paulmck@linux.vnet.ibm.com, tglx@linutronix.de, dmitry.torokhov@gmail.com, peterz@infradead.org, mingo@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 12, 2018 at 02:06:47PM +0100, Philippe Schenker wrote:
-> From: Stefan Agner <stefan@agner.ch>
-> 
-> This adds the devicetree bindings for the STMPE ADC. And corrects a
-> typo in st,sample-time it is rather "6 -> 124 clocks" according
-> to the datasheet and not 144.
-> 
-> Signed-off-by: Stefan Agner <stefan@agner.ch>
-> Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
-> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
-> ---
-> 
-> Changes in v4:
->  - Put reformatting in a separate precursor patch.
-> 
-> Changes in v3:
->  - Reformatted documentation for touchscreen to use tabs and have a better
->    overview of the settings.
->  - Added note which adc-settings will take precedence.
->  - changed typo in sample-time setting from 144 clocks to 124 clocks, as stated
->    in the datasheet.
-> 
-> Changes in v2:
->  - Moved the bindings for ADC to the overlying mfd.
->  - Reformatted for better readability
-> 
->  .../devicetree/bindings/iio/adc/stmpe-adc.txt | 21 ++++++++++++
->  .../bindings/input/touchscreen/stmpe.txt      | 32 +++++++++----------
->  .../devicetree/bindings/mfd/stmpe.txt         | 14 ++++++++
->  3 files changed, 51 insertions(+), 16 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
-> new file mode 100644
-> index 000000000000..480e66422625
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
-> @@ -0,0 +1,21 @@
-> +STMPE ADC driver
-> +----------------
-> +
-> +Required properties:
-> + - compatible: "st,stmpe-adc"
-> +
-> +Optional properties:
-> +Note that the ADC is shared with the STMPE touchscreen. ADC related settings
-> +have to be done in the mfd.
-> +- st,norequest-mask: bitmask specifying which ADC channels should _not_ be
-> +  requestable due to different usage (e.g. touch)
-> +
-> +Node name must be stmpe_adc and should be child node of stmpe node to
-> +which it belongs.
-> +
-> +Example:
-> +
-> +	stmpe_adc {
-> +		compatible = "st,stmpe-adc";
-> +		st,norequest-mask = <0x0F>; /* dont use ADC CH3-0 */
-> +	};
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
-> index 1d3f84308142..8e2b240882fa 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
-> @@ -5,18 +5,6 @@ Required properties:
->   - compatible: "st,stmpe-ts"
->  
->  Optional properties:
-> -- st,sample-time	: ADC conversion time in number of clock.
-> -				0 -> 36 clocks		4 -> 80 clocks (recommended)
-> -				1 -> 44 clocks		5 -> 96 clocks
-> -				2 -> 56 clocks		6 -> 144 clocks
-> -				3 -> 64 clocks
-> -- st,mod-12b		: ADC Bit mode
-> -				0 -> 10bit ADC		1 -> 12bit ADC
-> -- st,ref-sel		: ADC reference source
-> -				0 -> internal		1 -> external
-> -- st,adc-freq		: ADC Clock speed
-> -				0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
-> -				1 -> 3.25 MHz
->  - st,ave-ctrl		: Sample average control
->  				0 -> 1 sample
->  				1 -> 2 samples
-> @@ -40,17 +28,29 @@ Optional properties:
->  				0 -> 20 mA (typical 35mA max)
->  				1 -> 50 mA (typical 80 mA max)
->  
-> +Optional properties common with MFD (deprecated):
-> + - st,sample-time	: ADC conversion time in number of clock.
-> +				0 -> 36 clocks		4 -> 80 clocks (recommended)
-> +				1 -> 44 clocks		5 -> 96 clocks
-> +				2 -> 56 clocks		6 -> 124 clocks
-> +				3 -> 64 clocks
-> + - st,mod-12b		: ADC Bit mode
-> +				0 -> 10bit ADC		1 -> 12bit ADC
-> + - st,ref-sel		: ADC reference source
-> +				0 -> internal		1 -> external
-> + - st,adc-freq		: ADC Clock speed
-> +				0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
-> +				1 -> 3.25 MHz
-> +
->  Node name must be stmpe_touchscreen and should be child node of stmpe node to
->  which it belongs.
->  
-> +Note that common ADC settings of stmpe_touchscreen will take precedence.
+--Sig_/ug/JvfsHSZuytceYAejq0DI
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-This isn't clear. The parent or child properties take precedence?
+Sun, 2 Dec 2018 23:28:09 +0100 tarihinde
+Pavel Machek <pavel@ucw.cz> yazd=C4=B1:
 
-> +
->  Example:
->  
->  	stmpe_touchscreen {
->  		compatible = "st,stmpe-ts";
-> -		st,sample-time = <4>;
-> -		st,mod-12b = <1>;
-> -		st,ref-sel = <0>;
-> -		st,adc-freq = <1>;
+>On Fri 2018-11-30 15:44:55, Numan Demird=C3=B6=C4=9Fen wrote:
+>> Sun, 28 Oct 2018 22:06:54 +0300 tarihinde
+>> Numan Demird=C3=B6=C4=9Fen <if.gnu.linux@gmail.com> yazd=C4=B1:
+>>  =20
+>> >Thu, 25 Oct 2018 09:49:03 +0200 tarihinde
+>> >Pavel Machek <pavel@ucw.cz> yazd=C4=B1:
+>> > =20
+>> >> Hi!
+>> >>=20
+>> >> Here's problem bisected down to:
+>> >>=20
+>> >> commit 9d659ae14b545c4296e812c70493bfdc999b5c1c
+>> >> Author: Peter Zijlstra <peterz@infradead.org>
+>> >> Date:   Tue Aug 23 14:40:16 2016 +0200
+>> >>=20
+>> >>     locking/mutex: Add lock handoff to avoid starvation
+>> >>=20
+>> >>     Implement lock handoff to avoid lock starvation.
+>> >>=20
+>> >> Numan, I assume revert of that patch on the 4.18 kernel still
+>> >> makes it work?
+>> >>    =20
+>> >
+>> >Unfortunately, I could not revert
+>> >9d659ae14b545c4296e812c70493bfdc999b5c1c on kernels from 4.18.16 to
+>> >4.10-rc1 because there were too much conflicts, which I could not
+>> >solve as an "average Joe". I tried
+>> >a3ea3d9b865c2a8f7fe455c7fa26db4b6fd066e3 which is parent of
+>> >9d659ae14b545c4296e812c70493bfdc999b5c1c and succeeded to compile
+>> >kernel.
+>> >
+>> >git checkout a3ea3d9b865c2a8f7fe455c7fa26db4b6fd066e3
+>> >
+>> >Then, I compiled kernel and rebooted with it. I tried a couples of
+>> >times suspending and resuming, all of the time keyboard worked as
+>> >expected.
+>> > =20
+>>=20
+>> With this one line patch from Takashi Iwai, keyboard is working as
+>> expected after resuming from suspend/hibernate.
+>>=20
+>> --- a/kernel/locking/mutex.c
+>> +++ b/kernel/locking/mutex.c
+>> @@ -59,7 +59,7 @@ EXPORT_SYMBOL(__mutex_init);
+>>   * Bit2 indicates handoff has been done and we're waiting for
+>> pickup. */
+>>  #define MUTEX_FLAG_WAITERS	0x01
+>> -#define MUTEX_FLAG_HANDOFF	0x02
+>> +#define MUTEX_FLAG_HANDOFF	0x00
+>>  #define MUTEX_FLAG_PICKUP	0x04
+>> =20
+>>  #define MUTEX_FLAGS		0x07
+>>=20
+>>=20
+>> Thanks in advance and regards, =20
+>
+>Ok. So it is a regression, and you can ask Linus to apply this
+>.. but... that's kind of heavy solution. Peter, do you have any other
+>ideas?
+>
+>									Pavel
 
-It would be nice to see an example with both ADC and touchscreen.
+Hi,
 
->  		st,ave-ctrl = <1>;
->  		st,touch-det-delay = <2>;
->  		st,settling = <2>;
-> diff --git a/Documentation/devicetree/bindings/mfd/stmpe.txt b/Documentation/devicetree/bindings/mfd/stmpe.txt
-> index a46e7177195d..d4408a417193 100644
-> --- a/Documentation/devicetree/bindings/mfd/stmpe.txt
-> +++ b/Documentation/devicetree/bindings/mfd/stmpe.txt
-> @@ -14,6 +14,20 @@ Optional properties:
->   - st,autosleep-timeout		: Valid entries (ms); 4, 16, 32, 64, 128, 256, 512 and 1024
->   - irq-gpio			: If present, which GPIO to use for event IRQ
->  
-> +Optional properties for devices with touch and ADC (STMPE811|STMPE610):
-> + - st,sample-time		: ADC conversion time in number of clock.
-> +					0 -> 36 clocks		4 -> 80 clocks (recommended)
-> +					1 -> 44 clocks		5 -> 96 clocks
-> +					2 -> 56 clocks		6 -> 124 clocks
-> +					3 -> 64 clocks
-> + - st,mod-12b			: ADC Bit mode
-> +					0 -> 10bit ADC		1 -> 12bit ADC
-> + - st,ref-sel			: ADC reference source
-> +					0 -> internal		1 -> external
-> + - st,adc-freq			: ADC Clock speed
-> +					0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
-> +					1 -> 3.25 MHz
-> +
->  Example:
->  
->  	stmpe1601: stmpe1601@40 {
-> -- 
-> 2.19.2
-> 
+I did not mention the one line patch from Takashi Iwai as a means of fix
+but as a hint. Sorry for misunderstanding.
+
+Here is a another hint from another user:
+
+I found that passing the options i8042.reset=3D1 i8042.dumbkbd=3D1 i8042.di=
+rect=3D1
+results in the keyboard functioning after resume. However, there is a
+long delay before the keyboard or mouse will respond to input on the
+lock screen.[1]
+
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=3D195471#c39
+
+--=20
+Numan Demird=C3=B6=C4=9Fen
+
+--Sig_/ug/JvfsHSZuytceYAejq0DI
+Content-Type: application/pgp-signature
+Content-Description: Dijital OpenPGP imzası
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEKU9fayrDgTGfA1OV4Dh9jqVujDIFAlwYoFYACgkQ4Dh9jqVu
+jDIa7Qf/RTbkNmO3EHq+cL82Bv18SDJQFgM6haeV4uLp+VsVrwuQq8vFwUByLreW
+pYZ2kS1km16hEyJiYzigc/WAy/BvPdXw7kswsxqQMM1uMMmiKAXIgvuFQtMXiGdo
+FmRA14ufO7k03i8krnd+hFF9yQGznbIsySe2YWLvL/8zdFCQ6Fq0Qd8eRHMsIi3i
+ZufdHxtQEzgZkUtTCeYOw7S3KyjS3YujfxzH3WpFK+Mi0JGodJrla5KY+t1SXCHg
+JEk5S2O0EC/XB+oBzhUJMKc8Vw0ZGAwwc2V5o6QrOjJ7vY6ZljR6hHdQVyxUuLXF
+2gk2zDO5e9njtKA/+U1jk7ngS5bVtA==
+=Zr39
+-----END PGP SIGNATURE-----
+
+--Sig_/ug/JvfsHSZuytceYAejq0DI--

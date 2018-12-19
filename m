@@ -1,56 +1,69 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: debug: Change to use DEFINE_SHOW_ATTRIBUTE macro
-Date: Wed, 19 Dec 2018 14:21:50 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1812191421360.17216@cbobk.fhfr.pm>
-References: <20181201024951.5508-1-tiny.windzz@gmail.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 7/9] dt-bindings: input: touchscreen:
+ goodix: Add GT5663 compatible
+Date: Wed, 19 Dec 2018 11:15:53 -0600
+Message-ID: <20181219171553.GA4469@bogus>
+References: <20181203101547.16835-1-jagan@amarulasolutions.com>
+ <20181203101547.16835-7-jagan@amarulasolutions.com>
+Reply-To: robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181201024951.5508-1-tiny.windzz@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yangtao Li <tiny.windzz@gmail.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-sunxi+bncBDJIP47K7MERBS7Z5HQAKGQEBSYY73Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <20181203101547.16835-7-jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 30 Nov 2018, Yangtao Li wrote:
-
-> Use DEFINE_SHOW_ATTRIBUTE macro to simplify the code.
+On Mon, Dec 03, 2018 at 03:45:45PM +0530, Jagan Teki wrote:
+> GT5663 is capacitive touch controller with customized smart wakeup gestures,
+> the existing goodix driver will work by phandle vcc-supply regulator.
 > 
-> Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+> So, document compatible and example node for the same.
+> 
+> Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 > ---
->  drivers/hid/hid-debug.c | 12 +-----------
->  1 file changed, 1 insertion(+), 11 deletions(-)
+>  .../bindings/input/touchscreen/goodix.txt           | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
 > 
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index b48100236df8..c530476edba6 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -1072,11 +1072,6 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
->  	return 0;
->  }
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> index 604766e347ce..1898d3dde8e1 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> @@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
+>  Required properties:
 >  
-> -static int hid_debug_rdesc_open(struct inode *inode, struct file *file)
-> -{
-> -	return single_open(file, hid_debug_rdesc_show, inode->i_private);
-> -}
-> -
->  static int hid_debug_events_open(struct inode *inode, struct file *file)
->  {
->  	int err = 0;
-> @@ -1211,12 +1206,7 @@ static int hid_debug_events_release(struct inode *inode, struct file *file)
->  	return 0;
->  }
+>   - compatible		: Should be "goodix,gt1151"
+> +				 or "goodix,gt5663"
+>  				 or "goodix,gt911"
+>  				 or "goodix,gt9110"
+>  				 or "goodix,gt912"
+> @@ -42,3 +43,15 @@ Example:
 >  
-> -static const struct file_operations hid_debug_rdesc_fops = {
-> -	.open           = hid_debug_rdesc_open,
-> -	.read           = seq_read,
-> -	.llseek         = seq_lseek,
-> -	.release        = single_release,
-> -};
-> +DEFINE_SHOW_ATTRIBUTE(hid_debug_rdesc);
+>  		/* ... */
+>  	};
+> +
+> +	touchscreen@5d {
+> +		compatible = "goodix,gt5663";
 
-Applied to hid.git#for-4.21/core. Thanks,
+Just a new compatible doesn't warrant a new example.
 
--- 
-Jiri Kosina
-SUSE Labs
+> +		reg = <0x5d>;
+> +		vcc-supply = <&reg_ldo_io0>;
+> +		interrupt-parent = <&pio>;
+> +		interrupts = <7 4 IRQ_TYPE_EDGE_FALLING>;
+> +		irq-gpios = <&pio 7 4 GPIO_ACTIVE_HIGH>;	/* CTP-INT: PH4 */
+> +		reset-gpios = <&pio 7 8 GPIO_ACTIVE_HIGH>;	/* CTP-RST: PH8 */
+> +		touchscreen-inverted-x;
+> +		touchscreen-inverted-y;
+> +	};
+> -- 
+> 2.18.0.321.gffc6fa0e3
+> 

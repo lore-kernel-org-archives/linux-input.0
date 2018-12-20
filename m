@@ -1,53 +1,65 @@
-From: Eric Anholt <eric@anholt.net>
-Subject: Re: [PATCH v2 2/2] input: add official Raspberry Pi's touchscreen driver
-Date: Thu, 20 Dec 2018 10:39:07 -0800
-Message-ID: <87r2ecdovo.fsf@anholt.net>
-References: <20181211112408.9524-1-nsaenzjulienne@suse.de> <20181211112408.9524-3-nsaenzjulienne@suse.de>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: Re: [PATCH v2 2/2] input: add official Raspberry Pi's touchscreen
+ driver
+Date: Thu, 20 Dec 2018 20:12:23 +0100
+Message-ID: <2c433e120c2cf375b7d431f79ce6bfbace803c7e.camel@suse.de>
+References: <20181211112408.9524-1-nsaenzjulienne@suse.de>
+         <20181211112408.9524-3-nsaenzjulienne@suse.de> <87r2ecdovo.fsf@anholt.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha512; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-VNpI8kJnLV6TKHOFqu+A"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181211112408.9524-3-nsaenzjulienne@suse.de>
+In-Reply-To: <87r2ecdovo.fsf@anholt.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: linux-rpi-kernel@lists.infradead.org, stefan.wahren@i2se.com, agraf@suse.de, afaerber@suse.com, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Labbe <clabbe.montjoie@gmail.com>, Mark Jonas <mark.jonas@de.bosch.com>, Masanari Iida <standby24x7@gmail.com>, Heiko Schocher <hs@denx.de>, Hans de Goede <hdegoede@redhat.com>, Eugen Hristev <eugen.hristev@microchip.com>, Zhu Yi <yi.zhu5@cn.bosch.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Eric Anholt <eric@anholt.net>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-rpi-kernel@lists.infradead.org, stefan.wahren@i2se.com, agraf@suse.de, afaerber@suse.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Corentin Labbe <clabbe.montjoie@gmail.com>, Mark Jonas <mark.jonas@de.bosch.com>, Masanari Iida <standby24x7@gmail.com>, Heiko Schocher <hs@denx.de>, Hans de Goede <hdegoede@redhat.com>, Eugen Hristev <eugen.hristev@microchip.com>, Zhu Yi <yi.zhu5@cn.bosch.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain
 
-Nicolas Saenz Julienne <nsaenzjulienne@suse.de> writes:
+--=-VNpI8kJnLV6TKHOFqu+A
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> Add's support to Raspberry Pi's 7" Touch device. Instead of using a
-> conventional bus all information is copied into a memory mapped area by
-> RPi's firmware.
->
-> Based on the driver found in RPi's kernel repository.
->
-> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+On Thu, 2018-12-20 at 10:39 -0800, Eric Anholt wrote:
+> Nicolas Saenz Julienne <nsaenzjulienne@suse.de> writes:
+>=20
+> > Add's support to Raspberry Pi's 7" Touch device. Instead of using a
+> > conventional bus all information is copied into a memory mapped
+> > area by
+> > RPi's firmware.
+> >=20
+> > Based on the driver found in RPi's kernel repository.
+> >=20
+> > Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+>=20
+> While I wish we could just have a native driver instead, it does make
+> sense to have this driver upstream given the constraints.
+>=20
+> Acked-by: Eric Anholt <eric@anholt.net>
 
-While I wish we could just have a native driver instead, it does make
-sense to have this driver upstream given the constraints.
+Thanks Eric.
 
-Acked-by: Eric Anholt <eric@anholt.net>
+FYI I did manage to access the touchscreen after altering the native
+driver (edt-ft5x06). That said, as commented in the cover letter, it's
+not good enough as it breaks the camera. I plan on posting the patch
+and an overlay. I'm just waiting to see how these first patches are
+received.
 
---=-=-=
+--=-VNpI8kJnLV6TKHOFqu+A
 Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEE/JuuFDWp9/ZkuCBXtdYpNtH8nugFAlwb4csACgkQtdYpNtH8
-nugdkQ/+LY9jN6gEKsBN58yufoqoWA2ZTKuYIcPGi94pLuVG/WJ+JHu/FRnHCFln
-+I+BrPqPXPFndixY6UStBgj+xDPqUXbwbrXO+C4uc//0cdROP5zi4NLN3Pu+6agX
-VgwbpP4SUHhMVlq8MS0zywRtkyYF2Zp8rFho9QI/+E1/4ITOto+Goj5WESCXIGNg
-IpO7/yY0g+yAZca2UtK2OUDZyWRFmUBymXqCQhJ6lyH9AhwNxbOBxfNZWzvZBXpr
-kZhWtCVys9IDGCfzMLfz/IKwYwZF2kNtxVm3unIQbFN4REf1RnQj8VD5X5sVHJ2B
-Ju5ZpksCTevQfHy4JL/sxvAaNJ8BXJ84eIuvHzXVqFCO0lqClRrnr77G3qZdsUC0
-vo3v8IlEhb6QtLVQ7SgkG4CuN4lIk2eI9Y8Adpia5iR8CZW1JnZDHwWn/ccgduoJ
-PwQpDJJeAothSpa7NFbmkdMEa1qEP/AZ5ZchsPiRTocLKS3f/dWJ8JbGJ/tc70WZ
-VumGiaPsR1dGCjEabyKSAKQklLcJb3J2uIDfhhPAybEhnS2xajRnyRCtAw/aR1Gg
-JoVn8JwuUDiAnw2zLbljouX1VqTXdNNNPOZZAVeOTGOcVShWT14gtekWXwh6noJO
-kzdyZTrj+9lkJTHMv6/5tRUoKMBqem/dCjUGwwJNqxHcUMHNgPI=
-=cJa8
+iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAlwb6ZcACgkQlfZmHno8
+x/6Y8ggAi7oMS/uM+2GYb+jaxFtxar1otppH5rs755UJAiVYcVw66W8wfOz5hKKt
+1V92UBBGnfrvGlZB0vZsDyef+C6MFuBWNwUdiXatgWO+keAVKAg+EqiI7jH84GRj
+H3TD3urFXUGGsknN5ZSZA9OpFFDtWguW+hn5vDfSmK4SuxJV6/wa9DWgKuk+y+H+
+Uc6CNc0wlNXnTFHns9mi8moujpph5BEDdUAm/6EXtw/uxNP01LhdARBc0sCGrRL5
+LlOMTZOggkd2IxCVbB2xtK2HKEIrVmDvqOfgZKjbYo6a2RI4g/F6vjxxBxUG0Tpr
+31bZdKMfgVlNnGJilD5XxXE9pEzEAA==
+=uELI
 -----END PGP SIGNATURE-----
---=-=-=--
+
+--=-VNpI8kJnLV6TKHOFqu+A--

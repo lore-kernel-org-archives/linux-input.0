@@ -1,24 +1,42 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [git pull] Input updates for v4.20-rc7
-Date: Fri, 21 Dec 2018 19:30:03 +0000
-Message-ID: <20181221193003.15695.29715.pr-tracker-bot@pdx-korg-gitolite-1.ci.codeaurora.org>
-References: <20181221091258.GA63423@dtor-ws>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] input: drv2667: fix indentation issues, remove extra tabs
+Date: Fri, 21 Dec 2018 23:12:41 +0000
+Message-ID: <20181221231241.15925-1-colin.king@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181221091258.GA63423@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The pull request you sent on Fri, 21 Dec 2018 01:12:58 -0800:
+From: Colin Ian King <colin.king@canonical.com>
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+There are some statements that are indented incorrectly, fix this by
+removinf the extra tabs.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/0b517333721c1b7a740e54b1cbe78a14884d51e7
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/input/misc/drv2667.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Thank you!
-
+diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
+index 2849bb6906a8..6091f0490e8f 100644
+--- a/drivers/input/misc/drv2667.c
++++ b/drivers/input/misc/drv2667.c
+@@ -177,9 +177,9 @@ static int drv2667_set_waveform_freq(struct drv2667_data *haptics)
+ 		error = regmap_write(haptics->regmap, DRV2667_PAGE, read_buf);
+ 		if (error) {
+ 			dev_err(&haptics->client->dev,
+-					"Failed to set the page: %d\n", error);
+-				return -EIO;
+-			}
++				"Failed to set the page: %d\n", error);
++			return -EIO;
++		}
+ 	}
+ 
+ 	return error;
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.19.1

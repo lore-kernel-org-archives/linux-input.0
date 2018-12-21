@@ -1,8 +1,8 @@
 From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH v4 1/8] dt-bindings: stmpe: reformatting parameter list
  and use tabs only
-Date: Fri, 21 Dec 2018 10:42:24 +0000
-Message-ID: <20181221104224.GL13248@dell>
+Date: Fri, 21 Dec 2018 10:44:34 +0000
+Message-ID: <20181221104434.GN13248@dell>
 References: <20181212130649.15146-1-dev@pschenker.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -33,8 +33,11 @@ On Wed, 12 Dec 2018, Philippe Schenker wrote:
 >  .../devicetree/bindings/mfd/stmpe.txt         | 14 ++---
 >  2 files changed, 41 insertions(+), 25 deletions(-)
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Set looks okay.
+
+Please submit a [RESEND] with all the Acks you've collected.
+
+And next time, please make sure you author a 0th (cover-letter) patch.
 
 -- 
 Lee Jones [李琼斯]

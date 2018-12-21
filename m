@@ -1,223 +1,145 @@
 From: Philippe Schenker <dev@pschenker.ch>
-Subject: [PATCH v5 6/8] iio: adc: add STMPE ADC devicetree bindings
-Date: Fri, 21 Dec 2018 14:46:35 +0100
-Message-ID: <20181221134638.20600-7-dev@pschenker.ch>
+Subject: [PATCH v5 4/8] Input: stmpe-ts: preparations for STMPE ADC driver
+Date: Fri, 21 Dec 2018 14:46:33 +0100
+Message-ID: <20181221134638.20600-5-dev@pschenker.ch>
 References: <20181221134638.20600-1-dev@pschenker.ch>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <20181221134638.20600-1-dev@pschenker.ch>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch
-Cc: robh@kernel.org, alexandre.torgue@st.com, shawnguo@kernel.org, dmitry.torokhov@gmail.com, thierry.reding@gmail.com, digetx@gmail.com, lee.jones@linaro.org, coquelin.stm32@gmail.com, Max Krummenacher <max.krummenacher@toradex.com>, Philippe Schenker <philippe.schenker@toradex.com>, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, Lars-Peter Clausen <lars@metafoo.de>
+Cc: robh@kernel.org, alexandre.torgue@st.com, lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, Philippe Schenker <philippe.schenker@toradex.com>, thierry.reding@gmail.com, linux-arm-kernel@lists.infradead.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-input@vger.kernel.org, digetx@gmail.com, shawnguo@kernel.org, linux-stm32@st-md-mailman.stormreply.comcoquelin.stm32@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Philippe Schenker <philippe.schenker@toradex.com>
 
-This adds the devicetree bindings for the STMPE ADC. This also corrects
-a typo in st,sample-time it is rather "6 -> 124 clocks" according
-to the datasheet and not 144.
-We need to use the naming stmpe_adc in devicetree because this is given
-by the mfd device.
+This patch removes common ADC settings in favor to use
+stmpe811_adc_common_init that is present in MFD. This is necessary in
+preparation for the stmpe-adc driver, because those two drivers have
+common settings for the ADC.
 
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
 Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
 ---
 
 Changes in v5:
- - Made a one column list
- - Cleared note about precedence
- - Changed example to a full STMPE811 device with MFD, touchscreen, and the new
-   stmpe_adc driver.
- - Added Jonathan Cameron's Reviewed-by
+ - Changed author of commit to use correct email.
 
 Changes in v4:
- - Put reformatting in a separate precursor patch.
+ - New patch: Split changes in stmpe-ts.c to a separate commit
+ - Remove common adc settings from init and call the
+   stmpe811_adc_common_init function
 
 Changes in v3:
- - Reformatted documentation for touchscreen to use tabs and have a better
-   overview of the settings.
- - Added note which adc-settings will take precedence.
- - changed typo in sample-time setting from 144 clocks to 124 clocks, as stated
-   in the datasheet.
+ - Undo ADC-settings related code-deletions in stmpe-ts.c that the code
+   is backwards-compatible to older devicetrees.
 
-Changes in v2:
- - Moved the bindings for ADC to the overlying mfd.
- - Reformatted for better readability
+Changes in v2: None
 
- .../devicetree/bindings/iio/adc/stmpe-adc.txt | 21 +++++
- .../bindings/input/touchscreen/stmpe.txt      | 88 +++++++++++++------
- .../devicetree/bindings/mfd/stmpe.txt         | 14 +++
- 3 files changed, 98 insertions(+), 25 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
+ drivers/input/touchscreen/stmpe-ts.c | 42 +++++-----------------------
+ 1 file changed, 7 insertions(+), 35 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
-new file mode 100644
-index 000000000000..480e66422625
---- /dev/null
-+++ b/Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
-@@ -0,0 +1,21 @@
-+STMPE ADC driver
-+----------------
-+
-+Required properties:
-+ - compatible: "st,stmpe-adc"
-+
-+Optional properties:
-+Note that the ADC is shared with the STMPE touchscreen. ADC related settings
-+have to be done in the mfd.
-+- st,norequest-mask: bitmask specifying which ADC channels should _not_ be
-+  requestable due to different usage (e.g. touch)
-+
-+Node name must be stmpe_adc and should be child node of stmpe node to
-+which it belongs.
-+
-+Example:
-+
-+	stmpe_adc {
-+		compatible = "st,stmpe-adc";
-+		st,norequest-mask = <0x0F>; /* dont use ADC CH3-0 */
-+	};
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
-index bf66a55a7de5..c549924603d2 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/stmpe.txt
-@@ -5,24 +5,6 @@ Required properties:
-  - compatible: "st,stmpe-ts"
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index c5d9006588a2..cf9c9aa39f6e 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -30,8 +30,6 @@
+  * with touchscreen controller
+  */
+ #define STMPE_REG_INT_STA		0x0B
+-#define STMPE_REG_ADC_CTRL1		0x20
+-#define STMPE_REG_ADC_CTRL2		0x21
+ #define STMPE_REG_TSC_CTRL		0x40
+ #define STMPE_REG_TSC_CFG		0x41
+ #define STMPE_REG_FIFO_TH		0x4A
+@@ -58,15 +56,6 @@
+  * @idev: registered input device
+  * @work: a work item used to scan the device
+  * @dev: a pointer back to the MFD cell struct device*
+- * @sample_time: ADC converstion time in number of clock.
+- * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
+- * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
+- * recommended is 4.
+- * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
+- * @ref_sel: ADC reference source
+- * (0 -> internal reference, 1 -> external reference)
+- * @adc_freq: ADC Clock speed
+- * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
+  * @ave_ctrl: Sample average control
+  * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
+  * @touch_det_delay: Touch detect interrupt delay
+@@ -88,10 +77,6 @@ struct stmpe_touch {
+ 	struct input_dev *idev;
+ 	struct delayed_work work;
+ 	struct device *dev;
+-	u8 sample_time;
+-	u8 mod_12b;
+-	u8 ref_sel;
+-	u8 adc_freq;
+ 	u8 ave_ctrl;
+ 	u8 touch_det_delay;
+ 	u8 settling;
+@@ -192,7 +177,7 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
+ static int stmpe_init_hw(struct stmpe_touch *ts)
+ {
+ 	int ret;
+-	u8 adc_ctrl1, adc_ctrl1_mask, tsc_cfg, tsc_cfg_mask;
++	u8 tsc_cfg, tsc_cfg_mask;
+ 	struct stmpe *stmpe = ts->stmpe;
+ 	struct device *dev = ts->dev;
  
- Optional properties:
--- st,sample-time	: ADC conversion time in number of clock.
--				0 -> 36 clocks
--				1 -> 44 clocks
--				2 -> 56 clocks
--				3 -> 64 clocks
--				4 -> 80 clocks (recommended)
--				5 -> 96 clocks
--				6 -> 144 clocks
--- st,mod-12b		: ADC Bit mode
--				0 -> 10bit ADC
--				1 -> 12bit ADC
--- st,ref-sel		: ADC reference source
--				0 -> internal
--				1 -> external
--- st,adc-freq		: ADC Clock speed
--				0 -> 1.625 MHz
--				1 -> 3.25 MHz
--				2 || 3 -> 6.5 MHz
- - st,ave-ctrl		: Sample average control
- 				0 -> 1 sample
- 				1 -> 2 samples
-@@ -52,20 +34,76 @@ Optional properties:
- 				0 -> 20 mA (typical 35mA max)
- 				1 -> 50 mA (typical 80 mA max)
+@@ -202,22 +187,9 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
+ 		return ret;
+ 	}
  
-+Optional properties common with MFD (deprecated):
-+ - st,sample-time	: ADC conversion time in number of clock.
-+				0 -> 36 clocks
-+				1 -> 44 clocks
-+				2 -> 56 clocks
-+				3 -> 64 clocks
-+				4 -> 80 clocks (recommended)
-+				5 -> 96 clocks
-+				6 -> 124 clocks
-+ - st,mod-12b		: ADC Bit mode
-+				0 -> 10bit ADC
-+				1 -> 12bit ADC
-+ - st,ref-sel		: ADC reference source
-+				0 -> internal
-+				1 -> external
-+ - st,adc-freq		: ADC Clock speed
-+				0 -> 1.625 MHz
-+				1 -> 3.25 MHz
-+				2 || 3 -> 6.5 MHz
-+
- Node name must be stmpe_touchscreen and should be child node of stmpe node to
- which it belongs.
+-	adc_ctrl1 = STMPE_SAMPLE_TIME(ts->sample_time) |
+-		    STMPE_MOD_12B(ts->mod_12b) | STMPE_REF_SEL(ts->ref_sel);
+-	adc_ctrl1_mask = STMPE_SAMPLE_TIME(0xff) | STMPE_MOD_12B(0xff) |
+-			 STMPE_REF_SEL(0xff);
+-
+-	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL1,
+-			adc_ctrl1_mask, adc_ctrl1);
+-	if (ret) {
+-		dev_err(dev, "Could not setup ADC\n");
+-		return ret;
+-	}
+-
+-	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL2,
+-			STMPE_ADC_FREQ(0xff), STMPE_ADC_FREQ(ts->adc_freq));
++	ret = stmpe811_adc_common_init(stmpe);
+ 	if (ret) {
+-		dev_err(dev, "Could not setup ADC\n");
++		stmpe_disable(stmpe, STMPE_BLOCK_TOUCHSCREEN | STMPE_BLOCK_ADC);
+ 		return ret;
+ 	}
  
-+Note that common ADC settings of stmpe_touchscreen (child) will take precedence
-+over the settings done in MFD.
-+
- Example:
+@@ -295,13 +267,13 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
  
-+stmpe811@41 {
-+	compatible = "st,stmpe811";
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pinctrl_touch_int>;
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+	reg = <0x41>;
-+	interrupts = <10 IRQ_TYPE_LEVEL_LOW>;
-+	interrupt-parent = <&gpio4>;
-+	interrupt-controller;
-+	id = <0>;
-+	blocks = <0x5>;
-+	irq-trigger = <0x1>;
-+	/* Common ADC settings */
-+	/* 3.25 MHz ADC clock speed */
-+	st,adc-freq = <1>;
-+	/* 12-bit ADC */
-+	st,mod-12b = <1>;
-+	/* internal ADC reference */
-+	st,ref-sel = <0>;
-+	/* ADC converstion time: 80 clocks */
-+	st,sample-time = <4>;
-+
- 	stmpe_touchscreen {
- 		compatible = "st,stmpe-ts";
--		st,sample-time = <4>;
--		st,mod-12b = <1>;
--		st,ref-sel = <0>;
--		st,adc-freq = <1>;
--		st,ave-ctrl = <1>;
--		st,touch-det-delay = <2>;
--		st,settling = <2>;
-+		reg = <0>;
-+		/* 8 sample average control */
-+		st,ave-ctrl = <3>;
-+		/* 5 ms touch detect interrupt delay */
-+		st,touch-det-delay = <5>;
-+		/* 1 ms panel driver settling time */
-+		st,settling = <3>;
-+		/* 7 length fractional part in z */
- 		st,fraction-z = <7>;
-+		/*
-+		 * 50 mA typical 80 mA max touchscreen drivers
-+		 * current limit value
-+		 */
- 		st,i-drive = <1>;
- 	};
-+	stmpe_adc {
-+		compatible = "st,stmpe-adc";
-+		st,norequest-mask = <0x0F>;
-+	};
-+};
-diff --git a/Documentation/devicetree/bindings/mfd/stmpe.txt b/Documentation/devicetree/bindings/mfd/stmpe.txt
-index a46e7177195d..d4408a417193 100644
---- a/Documentation/devicetree/bindings/mfd/stmpe.txt
-+++ b/Documentation/devicetree/bindings/mfd/stmpe.txt
-@@ -14,6 +14,20 @@ Optional properties:
-  - st,autosleep-timeout		: Valid entries (ms); 4, 16, 32, 64, 128, 256, 512 and 1024
-  - irq-gpio			: If present, which GPIO to use for event IRQ
- 
-+Optional properties for devices with touch and ADC (STMPE811|STMPE610):
-+ - st,sample-time		: ADC conversion time in number of clock.
-+					0 -> 36 clocks		4 -> 80 clocks (recommended)
-+					1 -> 44 clocks		5 -> 96 clocks
-+					2 -> 56 clocks		6 -> 124 clocks
-+					3 -> 64 clocks
-+ - st,mod-12b			: ADC Bit mode
-+					0 -> 10bit ADC		1 -> 12bit ADC
-+ - st,ref-sel			: ADC reference source
-+					0 -> internal		1 -> external
-+ - st,adc-freq			: ADC Clock speed
-+					0 -> 1.625 MHz		2 || 3 -> 6.5 MHz
-+					1 -> 3.25 MHz
-+
- Example:
- 
- 	stmpe1601: stmpe1601@40 {
+ 	if (np) {
+ 		if (!of_property_read_u32(np, "st,sample-time", &val))
+-			ts->sample_time = val;
++			ts->stmpe->sample_time = val;
+ 		if (!of_property_read_u32(np, "st,mod-12b", &val))
+-			ts->mod_12b = val;
++			ts->stmpe->mod_12b = val;
+ 		if (!of_property_read_u32(np, "st,ref-sel", &val))
+-			ts->ref_sel = val;
++			ts->stmpe->ref_sel = val;
+ 		if (!of_property_read_u32(np, "st,adc-freq", &val))
+-			ts->adc_freq = val;
++			ts->stmpe->adc_freq = val;
+ 		if (!of_property_read_u32(np, "st,ave-ctrl", &val))
+ 			ts->ave_ctrl = val;
+ 		if (!of_property_read_u32(np, "st,touch-det-delay", &val))
 -- 
 2.19.2

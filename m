@@ -1,52 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: drv2667: fix indentation issues, remove extra tabs
-Date: Fri, 21 Dec 2018 17:01:28 -0800
-Message-ID: <20181222010128.GB31346@dtor-ws>
-References: <20181221231241.15925-1-colin.king@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Aditya Pakki <pakki001@umn.edu>
+Subject: [PATCH] input/touchscreen: Fix a missing check on regmap_bulk_read
+Date: Mon, 24 Dec 2018 12:37:19 -0600
+Message-ID: <20181224183719.22211-1-pakki001@umn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181221231241.15925-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: pakki001@umn.edu
+Cc: kjlu@umn.edu, Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 21, 2018 at 11:12:41PM +0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> There are some statements that are indented incorrectly, fix this by
-> removinf the extra tabs.
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+regmap_bulk_read() can return a non zero value on failure. The fix
+checks if the function call succeeded before calling mod_timer.
 
-Applied, thank you.
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+---
+ drivers/input/touchscreen/ad7879.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-> ---
->  drivers/input/misc/drv2667.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
-> index 2849bb6906a8..6091f0490e8f 100644
-> --- a/drivers/input/misc/drv2667.c
-> +++ b/drivers/input/misc/drv2667.c
-> @@ -177,9 +177,9 @@ static int drv2667_set_waveform_freq(struct drv2667_data *haptics)
->  		error = regmap_write(haptics->regmap, DRV2667_PAGE, read_buf);
->  		if (error) {
->  			dev_err(&haptics->client->dev,
-> -					"Failed to set the page: %d\n", error);
-> -				return -EIO;
-> -			}
-> +				"Failed to set the page: %d\n", error);
-> +			return -EIO;
-> +		}
->  	}
->  
->  	return error;
-> -- 
-> 2.19.1
-> 
-
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index 6bad23ee47a1..735cb4c0d913 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -247,11 +247,12 @@ static void ad7879_timer(struct timer_list *t)
+ static irqreturn_t ad7879_irq(int irq, void *handle)
+ {
+ 	struct ad7879 *ts = handle;
++	int ret;
+ 
+-	regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
+-			 ts->conversion_data, AD7879_NR_SENSE);
++	ret = regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
++				ts->conversion_data, AD7879_NR_SENSE);
+ 
+-	if (!ad7879_report(ts))
++	if (!ret && !ad7879_report(ts))
+ 		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
+ 
+ 	return IRQ_HANDLED;
 -- 
-Dmitry
+2.17.1

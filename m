@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 11/97] Input: restore EV_ABS ABS_RESERVED
-Date: Wed, 26 Dec 2018 17:34:31 -0500
-Message-ID: <20181226223557.149329-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/97] HID: ite: Add USB id match for another ITE based keyboard rfkill key quirk
+Date: Wed, 26 Dec 2018 17:34:26 -0500
+Message-ID: <20181226223557.149329-6-sashal@kernel.org>
 References: <20181226223557.149329-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,45 +9,60 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181226223557.149329-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Peter Hutterer <peter.hutterer@who-t.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit c201e3808e0e4be9b98d192802085a9f491bd80c ]
+[ Upstream commit 4050207485e47e00353e87f2fe2166083e282688 ]
 
-ABS_RESERVED was added in d9ca1c990a7 and accidentally removed as part of
-ffe0e7cf290f5c9 when the high-resolution scrolling code was removed.
+The 258a:6a88 keyboard-dock shipped with the Prowise PT301 tablet is
+likely another ITE based design. The controller die is directly bonded
+to the PCB with a blob of black glue on top so there are no markings and
+the 258a vendor-id used is unknown anywhere. But the keyboard has the
+exact same hotkeys mapped to Fn+F1 - F10 as the other ITE8595 keyboard
+I have *and* it has the same quirky behavior wrt the rfkill hotkey.
 
-Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
-Reviewed-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Either way as said this keyboard has the same quirk for its rfkill /
+airplane mode hotkey as the ITE 8595 chip, it only sends a single release
+event when pressed and released, it never sends a press event.
+
+This commit adds the 258a:6a88 USB id to the hid-ite id-table, fixing
+the rfkill key not working on this keyboard.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/input-event-codes.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hid/hid-ids.h | 3 +++
+ drivers/hid/hid-ite.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 53fbae27b280..61a5799b440b 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -744,6 +744,15 @@
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 46182d4dd1ce..b7870e7e41d4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -17,6 +17,9 @@
+ #ifndef HID_IDS_H_FILE
+ #define HID_IDS_H_FILE
  
- #define ABS_MISC		0x28
- 
-+/*
-+ * 0x2e is reserved and should not be used in input drivers.
-+ * It was used by HID as ABS_MISC+6 and userspace needs to detect if
-+ * the next ABS_* event is correct or is just ABS_MISC + n.
-+ * We define here ABS_RESERVED so userspace can rely on it and detect
-+ * the situation described above.
-+ */
-+#define ABS_RESERVED		0x2e
++#define USB_VENDOR_ID_258A		0x258a
++#define USB_DEVICE_ID_258A_6A88		0x6a88
 +
- #define ABS_MT_SLOT		0x2f	/* MT slot being modified */
- #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
- #define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis (omit if circular) */
+ #define USB_VENDOR_ID_3M		0x0596
+ #define USB_DEVICE_ID_3M1968		0x0500
+ #define USB_DEVICE_ID_3M2256		0x0502
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index 1882a4ab0f29..98b059d79bc8 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -42,6 +42,7 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+ 
+ static const struct hid_device_id ite_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ite_devices);
 -- 
 2.19.1

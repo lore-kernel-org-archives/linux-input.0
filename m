@@ -1,60 +1,68 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 92/97] Input: synaptics - enable SMBus for HP EliteBook 840 G4
-Date: Wed, 26 Dec 2018 17:35:52 -0500
-Message-ID: <20181226223557.149329-92-sashal@kernel.org>
-References: <20181226223557.149329-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 04/59] HID: ite: Add USB id match for another ITE based keyboard rfkill key quirk
+Date: Wed, 26 Dec 2018 17:37:44 -0500
+Message-ID: <20181226223839.150262-4-sashal@kernel.org>
+References: <20181226223839.150262-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20181226223557.149329-1-sashal@kernel.org>
+In-Reply-To: <20181226223839.150262-1-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Mantas Mikulėnas <grawity@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 7a71712293ba303aad928f580b89addb0be2892e ]
+[ Upstream commit 4050207485e47e00353e87f2fe2166083e282688 ]
 
-dmesg reports that "Your touchpad (PNP: SYN3052 SYN0100 SYN0002 PNP0f13)
-says it can support a different bus."
+The 258a:6a88 keyboard-dock shipped with the Prowise PT301 tablet is
+likely another ITE based design. The controller die is directly bonded
+to the PCB with a blob of black glue on top so there are no markings and
+the 258a vendor-id used is unknown anywhere. But the keyboard has the
+exact same hotkeys mapped to Fn+F1 - F10 as the other ITE8595 keyboard
+I have *and* it has the same quirky behavior wrt the rfkill hotkey.
 
-I've tested the offered psmouse.synaptics_intertouch=1 with 4.18.x and
-4.19.x and it seems to work well. No problems seen with suspend/resume.
+Either way as said this keyboard has the same quirk for its rfkill /
+airplane mode hotkey as the ITE 8595 chip, it only sends a single release
+event when pressed and released, it never sends a press event.
 
-Also, it appears that RMI/SMBus mode is actually required for 3-4 finger
-multitouch gestures to work -- otherwise they are not reported at all.
+This commit adds the 258a:6a88 USB id to the hid-ite id-table, fixing
+the rfkill key not working on this keyboard.
 
-Information from dmesg in both modes:
-
-  psmouse serio3: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2b1,
-      caps: 0xf00123/0x840300/0x2e800/0x0, board id: 3139, fw id: 2000742
-
-  psmouse serio3: synaptics: Trying to set up SMBus access
-  rmi4_smbus 6-002c: registering SMbus-connected sensor
-  rmi4_f01 rmi4-00.fn01: found RMI device,
-      manufacturer: Synaptics, product: TM3139-001, fw id: 2000742
-
-Signed-off-by: Mantas Mikulėnas <grawity@gmail.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h | 3 +++
+ drivers/hid/hid-ite.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 7bdf8fc2c3b5..b6da0c1267e3 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -179,6 +179,7 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
- 	"LEN200f", /* T450s */
-+	"SYN3052", /* HP EliteBook 840 G4 */
- 	"SYN3221", /* HP 15-ay000 */
- 	NULL
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index fcc688df694c..28ae3dc57103 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -17,6 +17,9 @@
+ #ifndef HID_IDS_H_FILE
+ #define HID_IDS_H_FILE
+ 
++#define USB_VENDOR_ID_258A		0x258a
++#define USB_DEVICE_ID_258A_6A88		0x6a88
++
+ #define USB_VENDOR_ID_3M		0x0596
+ #define USB_DEVICE_ID_3M1968		0x0500
+ #define USB_DEVICE_ID_3M2256		0x0502
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index 1882a4ab0f29..98b059d79bc8 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -42,6 +42,7 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+ 
+ static const struct hid_device_id ite_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
+ 	{ }
  };
+ MODULE_DEVICE_TABLE(hid, ite_devices);
 -- 
 2.19.1

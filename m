@@ -1,57 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] keyboard: (samsung) fix a missing check of return value
-Date: Wed, 26 Dec 2018 11:57:20 -0800
-Message-ID: <20181226195720.GA5999@dtor-ws>
-References: <20181226015131.71198-1-kjlu@umn.edu>
+Subject: Re: [PATCH v2] touchscreen: elants: fix a missing check of return
+ values
+Date: Wed, 26 Dec 2018 12:00:56 -0800
+Message-ID: <20181226200056.GB5999@dtor-ws>
+References: <20181225043616.66032-1-kjlu@umn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181226015131.71198-1-kjlu@umn.edu>
+In-Reply-To: <20181225043616.66032-1-kjlu@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Kangjie Lu <kjlu@umn.edu>
-Cc: pakki001@umn.edu, Kees Cook <keescook@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: pakki001@umn.edu, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Stephen Boyd <swboyd@chromium.org>, Joe Perches <joe@perches.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-On Tue, Dec 25, 2018 at 07:51:29PM -0600, Kangjie Lu wrote:
-> of_device_is_compatible() returns false if the device is incompatible.
-> The fix adds a check for its return value;
+On Mon, Dec 24, 2018 at 10:36:13PM -0600, Kangjie Lu wrote:
+> elants_i2c_send() may fail, let's check its return values. The fix does
+> the check and reports an error message upon the failure.
 > 
 > Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 > ---
->  drivers/input/keyboard/samsung-keypad.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+>  drivers/input/touchscreen/elants_i2c.c | 18 ++++++++++++++++--
+>  1 file changed, 16 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-> index 1fe1aa2adf85..5ba940f3f76e 100644
-> --- a/drivers/input/keyboard/samsung-keypad.c
-> +++ b/drivers/input/keyboard/samsung-keypad.c
-> @@ -387,9 +387,13 @@ static int samsung_keypad_probe(struct platform_device *pdev)
->  	keypad->stopped = true;
->  	init_waitqueue_head(&keypad->wait);
+> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+> index f2cb23121833..8ccba4ccee37 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -245,8 +245,22 @@ static int elants_i2c_calibrate(struct elants_data *ts)
+>  	ts->state = ELAN_WAIT_RECALIBRATION;
+>  	reinit_completion(&ts->cmd_done);
 >  
-> -	if (pdev->dev.of_node)
-> -		keypad->type = of_device_is_compatible(pdev->dev.of_node,
-> -					"samsung,s5pv210-keypad");
-> +	if (pdev->dev.of_node) {
-> +		error = of_device_is_compatible(pdev->dev.of_node,
-> +				"samsung,s5pv210-keypad");
-> +		if (!error)
-> +			return -EINVAL;
-
-What makes you think that not matching on this compatible is an error?
-Have you looked at the rest of the dirver?
-
-> +		keypad->type = error;
+> -	elants_i2c_send(client, w_flashkey, sizeof(w_flashkey));
+> -	elants_i2c_send(client, rek, sizeof(rek));
+> +	error = elants_i2c_send(client, w_flashkey, sizeof(w_flashkey));
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +				"error in sending the w_flashkey command for calibration: %d\n",
+> +				error);
+> +		enable_irq(client->irq);
+> +		return error;
 > +	}
->  	else
->  		keypad->type = platform_get_device_id(pdev)->driver_data;
+> +  error = elants_i2c_send(client, rek, sizeof(rek));
+
+Messed up formatting.
+
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +				"error in sending the rek command for calibration: %d\n",
+> +				error);
+> +		enable_irq(client->irq);
+> +		return error;
+
+This also leaves the touchscreen in ELAN_WAIT_RECALIBRATION state. I
+think all in all I'd rather leave the code as it was.
+
+> +	}
+>  
+>  	enable_irq(client->irq);
 >  
 > -- 
 > 2.17.2 (Apple Git-113)
 > 
+
+Thanks.
 
 -- 
 Dmitry

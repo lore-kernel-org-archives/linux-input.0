@@ -1,68 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] touchscreen: elants: fix a missing check of return
- values
-Date: Wed, 26 Dec 2018 12:00:56 -0800
-Message-ID: <20181226200056.GB5999@dtor-ws>
-References: <20181225043616.66032-1-kjlu@umn.edu>
+Subject: Re: [PATCH] input/touchscreen: Fix a missing check on
+ regmap_bulk_read
+Date: Wed, 26 Dec 2018 12:08:38 -0800
+Message-ID: <20181226200838.GC5999@dtor-ws>
+References: <20181224183719.22211-1-pakki001@umn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181225043616.66032-1-kjlu@umn.edu>
+In-Reply-To: <20181224183719.22211-1-pakki001@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kangjie Lu <kjlu@umn.edu>
-Cc: pakki001@umn.edu, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Stephen Boyd <swboyd@chromium.org>, Joe Perches <joe@perches.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Aditya Pakki <pakki001@umn.edu>
+Cc: kjlu@umn.edu, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-On Mon, Dec 24, 2018 at 10:36:13PM -0600, Kangjie Lu wrote:
-> elants_i2c_send() may fail, let's check its return values. The fix does
-> the check and reports an error message upon the failure.
+On Mon, Dec 24, 2018 at 12:37:19PM -0600, Aditya Pakki wrote:
+> regmap_bulk_read() can return a non zero value on failure. The fix
+> checks if the function call succeeded before calling mod_timer.
 > 
-> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+> Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 > ---
->  drivers/input/touchscreen/elants_i2c.c | 18 ++++++++++++++++--
->  1 file changed, 16 insertions(+), 2 deletions(-)
+>  drivers/input/touchscreen/ad7879.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-> index f2cb23121833..8ccba4ccee37 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -245,8 +245,22 @@ static int elants_i2c_calibrate(struct elants_data *ts)
->  	ts->state = ELAN_WAIT_RECALIBRATION;
->  	reinit_completion(&ts->cmd_done);
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+> index 6bad23ee47a1..735cb4c0d913 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -247,11 +247,12 @@ static void ad7879_timer(struct timer_list *t)
+>  static irqreturn_t ad7879_irq(int irq, void *handle)
+>  {
+>  	struct ad7879 *ts = handle;
+> +	int ret;
 >  
-> -	elants_i2c_send(client, w_flashkey, sizeof(w_flashkey));
-> -	elants_i2c_send(client, rek, sizeof(rek));
-> +	error = elants_i2c_send(client, w_flashkey, sizeof(w_flashkey));
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +				"error in sending the w_flashkey command for calibration: %d\n",
-> +				error);
-> +		enable_irq(client->irq);
-> +		return error;
-> +	}
-> +  error = elants_i2c_send(client, rek, sizeof(rek));
+> -	regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
+> -			 ts->conversion_data, AD7879_NR_SENSE);
+> +	ret = regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
+> +				ts->conversion_data, AD7879_NR_SENSE);
 
-Messed up formatting.
+I'd probably say:
 
-> +	if (error) {
-> +		dev_err(&client->dev,
-> +				"error in sending the rek command for calibration: %d\n",
-> +				error);
-> +		enable_irq(client->irq);
-> +		return error;
+	error = regmap_bulk_read(...);
+	if (error)
+		dev_err_ratelimited(...);
+	else if (!ad7879_report(ts))
+		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
 
-This also leaves the touchscreen in ELAN_WAIT_RECALIBRATION state. I
-think all in all I'd rather leave the code as it was.
+Were the failures observed in real life or it is some kind of class
+project?
 
-> +	}
 >  
->  	enable_irq(client->irq);
+> -	if (!ad7879_report(ts))
+> +	if (!ret && !ad7879_report(ts))
+>  		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
 >  
+>  	return IRQ_HANDLED;
 > -- 
-> 2.17.2 (Apple Git-113)
+> 2.17.1
 > 
 
 Thanks.

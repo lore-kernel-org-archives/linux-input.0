@@ -1,68 +1,92 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 06/97] HID: ite: Add USB id match for another ITE based keyboard rfkill key quirk
-Date: Wed, 26 Dec 2018 17:34:26 -0500
-Message-ID: <20181226223557.149329-6-sashal@kernel.org>
-References: <20181226223557.149329-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 3.18 04/12] Input: omap-keypad - fix idle configuration to not block SoC idle states
+Date: Wed, 26 Dec 2018 17:57:32 -0500
+Message-ID: <20181226225741.151608-4-sashal@kernel.org>
+References: <20181226225741.151608-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181226223557.149329-1-sashal@kernel.org>
+In-Reply-To: <20181226225741.151608-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 4050207485e47e00353e87f2fe2166083e282688 ]
+[ Upstream commit e2ca26ec4f01486661b55b03597c13e2b9c18b73 ]
 
-The 258a:6a88 keyboard-dock shipped with the Prowise PT301 tablet is
-likely another ITE based design. The controller die is directly bonded
-to the PCB with a blob of black glue on top so there are no markings and
-the 258a vendor-id used is unknown anywhere. But the keyboard has the
-exact same hotkeys mapped to Fn+F1 - F10 as the other ITE8595 keyboard
-I have *and* it has the same quirky behavior wrt the rfkill hotkey.
+With PM enabled, I noticed that pressing a key on the droid4 keyboard will
+block deeper idle states for the SoC. Let's fix this by using IRQF_ONESHOT
+and stop constantly toggling the device OMAP4_KBD_IRQENABLE register as
+suggested by Dmitry Torokhov <dmitry.torokhov@gmail.com>.
 
-Either way as said this keyboard has the same quirk for its rfkill /
-airplane mode hotkey as the ITE 8595 chip, it only sends a single release
-event when pressed and released, it never sends a press event.
+>From the hardware point of view, looks like we need to manage the registers
+for OMAP4_KBD_IRQENABLE and OMAP4_KBD_WAKEUPENABLE together to avoid
+blocking deeper SoC idle states. And with toggling of OMAP4_KBD_IRQENABLE
+register now gone with IRQF_ONESHOT, also the SoC idle state problem is
+gone during runtime. We still also need to clear OMAP4_KBD_WAKEUPENABLE in
+omap4_keypad_close() though to pair it with omap4_keypad_open() to prevent
+blocking deeper SoC idle states after rmmod omap4-keypad.
 
-This commit adds the 258a:6a88 USB id to the hid-ite id-table, fixing
-the rfkill key not working on this keyboard.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reported-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h | 3 +++
- drivers/hid/hid-ite.c | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/input/keyboard/omap4-keypad.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 46182d4dd1ce..b7870e7e41d4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -17,6 +17,9 @@
- #ifndef HID_IDS_H_FILE
- #define HID_IDS_H_FILE
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index 1739221aa5fa..75ea1e3e0e91 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -126,12 +126,8 @@ static irqreturn_t omap4_keypad_irq_handler(int irq, void *dev_id)
+ {
+ 	struct omap4_keypad *keypad_data = dev_id;
  
-+#define USB_VENDOR_ID_258A		0x258a
-+#define USB_DEVICE_ID_258A_6A88		0x6a88
-+
- #define USB_VENDOR_ID_3M		0x0596
- #define USB_DEVICE_ID_3M1968		0x0500
- #define USB_DEVICE_ID_3M2256		0x0502
-diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
-index 1882a4ab0f29..98b059d79bc8 100644
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -42,6 +42,7 @@ static int ite_event(struct hid_device *hdev, struct hid_field *field,
+-	if (kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS)) {
+-		/* Disable interrupts */
+-		kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
+-				 OMAP4_VAL_IRQDISABLE);
++	if (kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS))
+ 		return IRQ_WAKE_THREAD;
+-	}
  
- static const struct hid_device_id ite_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_258A, USB_DEVICE_ID_258A_6A88) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ite_devices);
+ 	return IRQ_NONE;
+ }
+@@ -173,11 +169,6 @@ static irqreturn_t omap4_keypad_irq_thread_fn(int irq, void *dev_id)
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
+ 			 kbd_read_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS));
+ 
+-	/* enable interrupts */
+-	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
+-		OMAP4_DEF_IRQENABLE_EVENTEN |
+-				OMAP4_DEF_IRQENABLE_LONGKEY);
+-
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -214,9 +205,10 @@ static void omap4_keypad_close(struct input_dev *input)
+ 
+ 	disable_irq(keypad_data->irq);
+ 
+-	/* Disable interrupts */
++	/* Disable interrupts and wake-up events */
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQENABLE,
+ 			 OMAP4_VAL_IRQDISABLE);
++	kbd_writel(keypad_data, OMAP4_KBD_WAKEUPENABLE, 0);
+ 
+ 	/* clear pending interrupts */
+ 	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
+@@ -364,7 +356,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	error = request_threaded_irq(keypad_data->irq, omap4_keypad_irq_handler,
+-				     omap4_keypad_irq_thread_fn, 0,
++				     omap4_keypad_irq_thread_fn, IRQF_ONESHOT,
+ 				     "omap4-keypad", keypad_data);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "failed to register interrupt\n");
 -- 
 2.19.1

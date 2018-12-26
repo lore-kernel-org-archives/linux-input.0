@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 24/97] Input: omap-keypad - fix idle configuration to not block SoC idle states
-Date: Wed, 26 Dec 2018 17:34:44 -0500
-Message-ID: <20181226223557.149329-24-sashal@kernel.org>
-References: <20181226223557.149329-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 07/21] Input: omap-keypad - fix idle configuration to not block SoC idle states
+Date: Wed, 26 Dec 2018 17:54:45 -0500
+Message-ID: <20181226225501.151365-7-sashal@kernel.org>
+References: <20181226225501.151365-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181226223557.149329-1-sashal@kernel.org>
+In-Reply-To: <20181226225501.151365-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -38,7 +38,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index a7dc286f406c..840e53732753 100644
+index f78c464899db..3d2c60c8de83 100644
 --- a/drivers/input/keyboard/omap4-keypad.c
 +++ b/drivers/input/keyboard/omap4-keypad.c
 @@ -126,12 +126,8 @@ static irqreturn_t omap4_keypad_irq_handler(int irq, void *dev_id)
@@ -79,7 +79,7 @@ index a7dc286f406c..840e53732753 100644
  
  	/* clear pending interrupts */
  	kbd_write_irqreg(keypad_data, OMAP4_KBD_IRQSTATUS,
-@@ -365,7 +357,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
+@@ -364,7 +356,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
  	}
  
  	error = request_threaded_irq(keypad_data->irq, omap4_keypad_irq_handler,

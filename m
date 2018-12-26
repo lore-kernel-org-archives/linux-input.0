@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 05/35] Input: restore EV_ABS ABS_RESERVED
-Date: Wed, 26 Dec 2018 17:41:12 -0500
-Message-ID: <20181226224142.150866-5-sashal@kernel.org>
-References: <20181226224142.150866-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 11/97] Input: restore EV_ABS ABS_RESERVED
+Date: Wed, 26 Dec 2018 17:34:31 -0500
+Message-ID: <20181226223557.149329-11-sashal@kernel.org>
+References: <20181226223557.149329-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181226224142.150866-1-sashal@kernel.org>
+In-Reply-To: <20181226223557.149329-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -30,10 +30,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 9 insertions(+)
 
 diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 3af60ee69053..b584868e1b26 100644
+index 53fbae27b280..61a5799b440b 100644
 --- a/include/uapi/linux/input-event-codes.h
 +++ b/include/uapi/linux/input-event-codes.h
-@@ -739,6 +739,15 @@
+@@ -744,6 +744,15 @@
  
  #define ABS_MISC		0x28
  

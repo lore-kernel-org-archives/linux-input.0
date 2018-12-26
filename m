@@ -1,67 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/touchscreen: Fix a missing check on
- regmap_bulk_read
-Date: Wed, 26 Dec 2018 12:08:38 -0800
-Message-ID: <20181226200838.GC5999@dtor-ws>
-References: <20181224183719.22211-1-pakki001@umn.edu>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 25/97] Input: synaptics - enable RMI on ThinkPad T560
+Date: Wed, 26 Dec 2018 17:34:45 -0500
+Message-ID: <20181226223557.149329-25-sashal@kernel.org>
+References: <20181226223557.149329-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181224183719.22211-1-pakki001@umn.edu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Aditya Pakki <pakki001@umn.edu>
-Cc: kjlu@umn.edu, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20181226223557.149329-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Yussuf Khalil <dev@pp3345.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+From: Yussuf Khalil <dev@pp3345.net>
 
-On Mon, Dec 24, 2018 at 12:37:19PM -0600, Aditya Pakki wrote:
-> regmap_bulk_read() can return a non zero value on failure. The fix
-> checks if the function call succeeded before calling mod_timer.
-> 
-> Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-> ---
->  drivers/input/touchscreen/ad7879.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-> index 6bad23ee47a1..735cb4c0d913 100644
-> --- a/drivers/input/touchscreen/ad7879.c
-> +++ b/drivers/input/touchscreen/ad7879.c
-> @@ -247,11 +247,12 @@ static void ad7879_timer(struct timer_list *t)
->  static irqreturn_t ad7879_irq(int irq, void *handle)
->  {
->  	struct ad7879 *ts = handle;
-> +	int ret;
->  
-> -	regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
-> -			 ts->conversion_data, AD7879_NR_SENSE);
-> +	ret = regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
-> +				ts->conversion_data, AD7879_NR_SENSE);
+[ Upstream commit ca5047286c9c93a01e1f471d00a6019536992954 ]
 
-I'd probably say:
+Before commit 7fd6d98b89f3 ("i2c: i801: Allow ACPI AML access I/O
+ports not reserved for SMBus"), enabling RMI on the T560 would cause
+the touchpad to stop working after resuming from suspend. Now that
+this issue is fixed, RMI can be enabled safely and works fine.
 
-	error = regmap_bulk_read(...);
-	if (error)
-		dev_err_ratelimited(...);
-	else if (!ad7879_report(ts))
-		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Yussuf Khalil <dev@pp3345.net>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Were the failures observed in real life or it is some kind of class
-project?
-
->  
-> -	if (!ad7879_report(ts))
-> +	if (!ret && !ad7879_report(ts))
->  		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
->  
->  	return IRQ_HANDLED;
-> -- 
-> 2.17.1
-> 
-
-Thanks.
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 2bd5bb11c8ba..7bdf8fc2c3b5 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -171,6 +171,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0046", /* X250 */
+ 	"LEN004a", /* W541 */
+ 	"LEN005b", /* P50 */
++	"LEN005e", /* T560 */
+ 	"LEN0071", /* T480 */
+ 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+ 	"LEN0073", /* X1 Carbon G5 (Elantech) */
 -- 
-Dmitry
+2.19.1

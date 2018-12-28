@@ -1,49 +1,40 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v5] Input: i8042 add i8042_is_mr_coffee() helper to avoid
- refconut leak
-Date: Thu, 27 Dec 2018 23:43:44 +0100
-Message-ID: <20181227224344.GA14925@amd>
-References: <20181215090846.28009-1-tiny.windzz@gmail.com>
+From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH v2 0/7] Input: tm2-touchkey: Add support for Aries and Midas
+Date: Fri, 28 Dec 2018 16:46:02 +0100
+Message-ID: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181215090846.28009-1-tiny.windzz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yangtao Li <tiny.windzz@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, simon@lineageos.org
 List-Id: linux-input@vger.kernel.org
 
+This patches adds support for Aries (Samsung i9000) and Midsa (Samsung S3)
+based devices to TM2 Touchkey driver.
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Changes from v1:
+  - Added Reviewed-by to some patches
+  - Use ints for keycodes (they could be bigger than 255)
+  - Droped separate name changes
+  - Added missing const in few places
+  - Removed redundant cast
 
-On Sat 2018-12-15 04:08:46, Yangtao Li wrote:
-> of_find_node_by_path() acquires a reference to the node returned by
-> it and that reference needs to be dropped by its caller. Add
-> i8042_is_mr_coffee() helper to avoid refconut leak.
+Jonathan Bakker (5):
+  Input: tm2-touchkey: Correct initial brightness
+  Input: tm2-touchkey: Allow specifying custom keycodes
+  Input: dt-bindings: tm2-touchkey: Document new keycodes property
+  Input: tm2-touchkey: Add support for aries touchkey variant
+  Input: dt-bindings: tm2-touchkey: Add support for aries touchkey
 
-refconut->refcount, here and in subject.
-									Pavel
-								=09
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+Simon Shields (2):
+  Input: tm2-touchkey: Add support for midas touchkey
+  Input: dt-bindings: tm2-touchkey: Add support for midas touchkey
 
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+ .../bindings/input/cypress,tm2-touchkey.txt   |   9 +-
+ drivers/input/keyboard/tm2-touchkey.c         | 132 +++++++++++++-----
+ 2 files changed, 108 insertions(+), 33 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlwlVaAACgkQMOfwapXb+vJW6ACglv83GBoZjn75uotdQD6f3hnl
-5BYAoJLsyWJzzj1seB/gV5vIYKvKW+gC
-=fzg6
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
+-- 
+2.17.1

@@ -1,40 +1,46 @@
 From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v2 0/7] Input: tm2-touchkey: Add support for Aries and Midas
-Date: Fri, 28 Dec 2018 16:46:02 +0100
-Message-ID: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH v2 2/7] Input: dt-bindings: tm2-touchkey: Add support for midas touchkey
+Date: Fri, 28 Dec 2018 16:46:04 +0100
+Message-ID: <20181228154609.14846-3-pawel.mikolaj.chmiel@gmail.com>
+References: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, simon@lineageos.org
 List-Id: linux-input@vger.kernel.org
 
-This patches adds support for Aries (Samsung i9000) and Midsa (Samsung S3)
-based devices to TM2 Touchkey driver.
+From: Simon Shields <simon@lineageos.org>
 
+Document compatible for midas touchkey.
+
+Signed-off-by: Simon Shields <simon@lineageos.org>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
 Changes from v1:
-  - Added Reviewed-by to some patches
-  - Use ints for keycodes (they could be bigger than 255)
-  - Droped separate name changes
-  - Added missing const in few places
-  - Removed redundant cast
+  - Added Reviewed-by
+---
+ .../devicetree/bindings/input/cypress,tm2-touchkey.txt        | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Jonathan Bakker (5):
-  Input: tm2-touchkey: Correct initial brightness
-  Input: tm2-touchkey: Allow specifying custom keycodes
-  Input: dt-bindings: tm2-touchkey: Document new keycodes property
-  Input: tm2-touchkey: Add support for aries touchkey variant
-  Input: dt-bindings: tm2-touchkey: Add support for aries touchkey
-
-Simon Shields (2):
-  Input: tm2-touchkey: Add support for midas touchkey
-  Input: dt-bindings: tm2-touchkey: Add support for midas touchkey
-
- .../bindings/input/cypress,tm2-touchkey.txt   |   9 +-
- drivers/input/keyboard/tm2-touchkey.c         | 132 +++++++++++++-----
- 2 files changed, 108 insertions(+), 33 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
+index 0c252d9306da..dfb3b9f0ee40 100644
+--- a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
++++ b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
+@@ -1,7 +1,9 @@
+ Samsung tm2-touchkey
+ 
+ Required properties:
+-- compatible: must be "cypress,tm2-touchkey"
++- compatible:
++    * "cypress,tm2-touchkey" - for the touchkey found on the tm2 board
++    * "cypress,midas-touchkey" - for the touchkey found on midas boards
+ - reg: I2C address of the chip.
+ - interrupts: interrupt to which the chip is connected (see interrupt
+ 	binding[0]).
 -- 
 2.17.1

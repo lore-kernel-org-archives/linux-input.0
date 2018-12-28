@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v2 2/7] Input: dt-bindings: tm2-touchkey: Add support for midas touchkey
-Date: Fri, 28 Dec 2018 16:46:04 +0100
-Message-ID: <20181228154609.14846-3-pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH v2 5/7] Input: dt-bindings: tm2-touchkey: Document new keycodes property
+Date: Fri, 28 Dec 2018 16:46:07 +0100
+Message-ID: <20181228154609.14846-6-pawel.mikolaj.chmiel@gmail.com>
 References: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,34 +13,39 @@ To: dmitry.torokhov@gmail.com
 Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, simon@lineageos.org
 List-Id: linux-input@vger.kernel.org
 
-From: Simon Shields <simon@lineageos.org>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-Document compatible for midas touchkey.
+Document new optional property for setting custom keycodes.
 
-Signed-off-by: Simon Shields <simon@lineageos.org>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
 Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
 Changes from v1:
-  - Added Reviewed-by
+  - Because key codes could be bigger than 255, use ints for keycodes
 ---
- .../devicetree/bindings/input/cypress,tm2-touchkey.txt        | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../devicetree/bindings/input/cypress,tm2-touchkey.txt        | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-index 0c252d9306da..dfb3b9f0ee40 100644
+index dfb3b9f0ee40..15d4bf4f307e 100644
 --- a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
 +++ b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-@@ -1,7 +1,9 @@
- Samsung tm2-touchkey
+@@ -10,6 +10,9 @@ Required properties:
+ - vcc-supply : internal regulator output. 1.8V
+ - vdd-supply : power supply for IC 3.3V
  
- Required properties:
--- compatible: must be "cypress,tm2-touchkey"
-+- compatible:
-+    * "cypress,tm2-touchkey" - for the touchkey found on the tm2 board
-+    * "cypress,midas-touchkey" - for the touchkey found on midas boards
- - reg: I2C address of the chip.
- - interrupts: interrupt to which the chip is connected (see interrupt
- 	binding[0]).
++Optional properties:
++- keycodes: array of keycodes (max 4), default KEY_PHONE and KEY_BACK
++
+ [0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+ 
+ Example:
+@@ -23,5 +26,6 @@ Example:
+ 			interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
+ 			vcc-supply=<&ldo32_reg>;
+ 			vdd-supply=<&ldo33_reg>;
++			keycodes = <KEY_PHONE KEY_BACK>;
+ 		};
+ 	};
 -- 
 2.17.1

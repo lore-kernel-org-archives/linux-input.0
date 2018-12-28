@@ -1,124 +1,88 @@
-From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v2 1/7] Input: tm2-touchkey: Add support for midas touchkey
-Date: Fri, 28 Dec 2018 16:46:03 +0100
-Message-ID: <20181228154609.14846-2-pawel.mikolaj.chmiel@gmail.com>
-References: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Kai Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] HID: i2c-hid: Ignore input report if there's no data
+ present on Elan touchpanels
+Date: Fri, 28 Dec 2018 23:58:07 +0800
+Message-ID: <C2BE37B9-E122-45FD-BFC6-C3DB79DB141D@canonical.com>
+References: <20181214090930.13386-1-kai.heng.feng@canonical.com>
+ <nycvar.YFH.7.76.1812191406240.17216@cbobk.fhfr.pm>
+Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <nycvar.YFH.7.76.1812191406240.17216@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, simon@lineageos.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Simon Shields <simon@lineageos.org>
 
-The touchkey on midas boards is almost identical.
-The only real difference is that it uses the same register for both
-keycode and base.
 
-Signed-off-by: Simon Shields <simon@lineageos.org>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
----
-Changes from v1:
-  - Droped separate name changes
-  - Added missing const in few places
-  - Removed redundant cast
----
- drivers/input/keyboard/tm2-touchkey.c | 34 +++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 5 deletions(-)
+> On Dec 19, 2018, at 21:09, Jiri Kosina <jikos@kernel.org> wrote:
+> 
+> On Fri, 14 Dec 2018, Kai-Heng Feng wrote:
+> 
+>> While using Elan touchpads, the message floods:
+>> [  136.138487] i2c_hid i2c-DELL08D6:00: i2c_hid_get_input: incomplete report (14/65535)
+>> 
+>> Though the message flood is annoying, the device it self works without
+>> any issue. I suspect that the device in question takes too much time to
+>> pull the IRQ back to high after I2C host has done reading its data.
+>> 
+>> Since the host receives all useful data, let's ignore the input report
+>> when there's no data.
+> 
+> Interesting, never seen such a bug before.
+> 
+>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>> ---
+>> drivers/hid/i2c-hid/i2c-hid-core.c | 9 +++++++++
+>> 1 file changed, 9 insertions(+)
+>> 
+>> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+>> index 8555ce7e737b..1776afa6d69c 100644
+>> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+>> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+>> @@ -50,6 +50,7 @@
+>> #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
+>> #define I2C_HID_QUIRK_NO_RUNTIME_PM		BIT(2)
+>> #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP		BIT(3)
+>> +#define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
+>> 
+>> /* flags */
+>> #define I2C_HID_STARTED		0
+>> @@ -179,6 +180,8 @@ static const struct i2c_hid_quirks {
+>> 		I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
+>> 	{ USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
+>> 		I2C_HID_QUIRK_NO_RUNTIME_PM },
+>> +	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
+>> +		 I2C_HID_QUIRK_BOGUS_IRQ },
+>> 	{ 0, 0 }
+>> };
+>> 
+>> @@ -503,6 +506,12 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+>> 		return;
+>> 	}
+>> 
+>> +	if (ihid->quirks & I2C_HID_QUIRK_BOGUS_IRQ && ret_size == 0xffff) {
+>> +		dev_dbg(&ihid->client->dev,
+>> +			"%s: IRQ triggered but there's no data\n", __func__);
+>> +		return;
+>> +	}
+> 
+> Would it perhaps make sense to make this some sort of printk_once(), so 
+> that it's immediately apparent from dmesg that the system/device is 
+> suffering from this particular problem? Might potentially be helpful piece 
+> of information.
 
-diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
-index abc266e40e17..5a1fe08bdd76 100644
---- a/drivers/input/keyboard/tm2-touchkey.c
-+++ b/drivers/input/keyboard/tm2-touchkey.c
-@@ -22,12 +22,12 @@
- #include <linux/leds.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
- #include <linux/pm.h>
- #include <linux/regulator/consumer.h>
- 
- #define TM2_TOUCHKEY_DEV_NAME		"tm2-touchkey"
--#define TM2_TOUCHKEY_KEYCODE_REG	0x03
--#define TM2_TOUCHKEY_BASE_REG		0x00
-+
- #define TM2_TOUCHKEY_CMD_LED_ON		0x10
- #define TM2_TOUCHKEY_CMD_LED_OFF	0x20
- #define TM2_TOUCHKEY_BIT_PRESS_EV	BIT(3)
-@@ -40,12 +40,28 @@ enum {
- 	TM2_TOUCHKEY_KEY_BACK,
- };
- 
-+struct touchkey_variant {
-+	u8 keycode_reg;
-+	u8 base_reg;
-+};
-+
- struct tm2_touchkey_data {
- 	struct i2c_client *client;
- 	struct input_dev *input_dev;
- 	struct led_classdev led_dev;
- 	struct regulator *vdd;
- 	struct regulator_bulk_data regulators[2];
-+	const struct touchkey_variant *variant;
-+};
-+
-+static const struct touchkey_variant tm2_touchkey_variant = {
-+	.keycode_reg = 0x03,
-+	.base_reg = 0x00,
-+};
-+
-+static const struct touchkey_variant midas_touchkey_variant = {
-+	.keycode_reg = 0x00,
-+	.base_reg = 0x00,
- };
- 
- static void tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
-@@ -66,7 +82,7 @@ static void tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
- 
- 	regulator_set_voltage(touchkey->vdd, volt, volt);
- 	i2c_smbus_write_byte_data(touchkey->client,
--				  TM2_TOUCHKEY_BASE_REG, data);
-+				  touchkey->variant->base_reg, data);
- }
- 
- static int tm2_touchkey_power_enable(struct tm2_touchkey_data *touchkey)
-@@ -99,7 +115,7 @@ static irqreturn_t tm2_touchkey_irq_handler(int irq, void *devid)
- 	int key;
- 
- 	data = i2c_smbus_read_byte_data(touchkey->client,
--					TM2_TOUCHKEY_KEYCODE_REG);
-+					touchkey->variant->keycode_reg);
- 	if (data < 0) {
- 		dev_err(&touchkey->client->dev,
- 			"failed to read i2c data: %d\n", data);
-@@ -153,6 +169,8 @@ static int tm2_touchkey_probe(struct i2c_client *client,
- 	touchkey->client = client;
- 	i2c_set_clientdata(client, touchkey);
- 
-+	touchkey->variant = of_device_get_match_data(&client->dev);
-+
- 	touchkey->regulators[0].supply = "vcc";
- 	touchkey->regulators[1].supply = "vdd";
- 	error = devm_regulator_bulk_get(&client->dev,
-@@ -262,7 +280,13 @@ static const struct i2c_device_id tm2_touchkey_id_table[] = {
- MODULE_DEVICE_TABLE(i2c, tm2_touchkey_id_table);
- 
- static const struct of_device_id tm2_touchkey_of_match[] = {
--	{ .compatible = "cypress,tm2-touchkey", },
-+	{
-+		.compatible = "cypress,tm2-touchkey",
-+		.data = &tm2_touchkey_variant,
-+	}, {
-+		.compatible = "cypress,midas-touchkey",
-+		.data = &midas_touchkey_variant,
-+	},
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, tm2_touchkey_of_match);
--- 
-2.17.1
+Good advice, I’ll send a v2 patch to address this issue.
+
+Kai-Heng
+
+> 
+> Thanks,
+> 
+> -- 
+> Jiri Kosina
+> SUSE Labs
+> 

@@ -1,43 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 5/7] Input: dt-bindings: tm2-touchkey: Document new
- keycodes property
-Date: Fri, 28 Dec 2018 14:52:12 -0800
-Message-ID: <CAKdAkRQ6iO5bSUkSuPOUXMy46W1kENqg3ev=i+75459wfWAhfw@mail.gmail.com>
-References: <20181228154609.14846-1-pawel.mikolaj.chmiel@gmail.com>
- <20181228154609.14846-6-pawel.mikolaj.chmiel@gmail.com> <20181228224707.GA7218@bogus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: [PATCH] input_event: Provide override for sparc64
+Date: Sat, 29 Dec 2018 10:35:14 -0800
+Message-ID: <20181229183514.24644-1-deepa.kernel@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181228224707.GA7218@bogus>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: =?UTF-8?Q?Pawe=C5=82_Chmiel?= <pawel.mikolaj.chmiel@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, DTML <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, xc-racer2@live.ca, Simon Shields <simon@lineageos.org>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, davem@davemloft.net, y2038@lists.linaro.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 28, 2018 at 2:47 PM Rob Herring <robh@kernel.org> wrote:
->
-> On Fri, 28 Dec 2018 16:46:07 +0100, =3D?UTF-8?q?Pawe=3DC5=3D82=3D20Chmiel=
-?=3D wrote:
-> > From: Jonathan Bakker <xc-racer2@live.ca>
-> >
-> > Document new optional property for setting custom keycodes.
-> >
-> > Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-> > Signed-off-by: Pawe=C5=82 Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> > ---
-> > Changes from v1:
-> >   - Because key codes could be bigger than 255, use ints for keycodes
-> > ---
-> >  .../devicetree/bindings/input/cypress,tm2-touchkey.txt        | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> >
->
-> Reviewed-by: Rob Herring <robh@kernel.org>
+The usec part of the timeval is defined as
+__kernel_suseconds_t	tv_usec; /* microseconds */
 
-Shouldn't this be "linux,keycodes" though?
+Arnd noticed that sparc64 is the only architecture
+that defines __kernel_suseconds_t as int rather than long.
 
-Thanks.
+This breaks the current y2038 fix for kernel as we only
+access and define the timeval struct for non-kernel use cases.
+But, this was hidden by an another typo in the use of __KERNEL__
+qualifier.
 
---=20
-Dmitry
+Fix the typo, and provide an override for sparc64.
+
+Fixes: 152194fe9c3f ("Input: extend usable life of event timestamps to 2106 on 32 bit systems")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+---
+ include/uapi/linux/input.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index fb78f6f500f3..ffab958bc512 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -26,13 +26,17 @@
+  */
+ 
+ struct input_event {
+-#if (__BITS_PER_LONG != 32 || !defined(__USE_TIME_BITS64)) && !defined(__KERNEL)
++#if (__BITS_PER_LONG != 32 || !defined(__USE_TIME_BITS64)) && !defined(__KERNEL__)
+ 	struct timeval time;
+ #define input_event_sec time.tv_sec
+ #define input_event_usec time.tv_usec
+ #else
+ 	__kernel_ulong_t __sec;
++#ifdef CONFIG_SPARC64
++	unsigned int __usec;
++#else
+ 	__kernel_ulong_t __usec;
++#endif
+ #define input_event_sec  __sec
+ #define input_event_usec __usec
+ #endif
+-- 
+2.17.1

@@ -1,81 +1,95 @@
-From: nazgul33 <nazgul33@gmail.com>
-Subject: Re: [PATCH 2/2] Input: rotaty-encoder - Add DT binding document
-Date: Sun, 6 Jan 2019 12:41:36 +0900
-Message-ID: <CAEo1RiwW4_j8t4G9amF7NsAmri5WYaYckz5VoZsKM1=saiLEfA@mail.gmail.com>
-References: <20190105202659.20198-1-nazgul33@gmail.com> <20190105202659.20198-3-nazgul33@gmail.com>
- <CAKdAkRR80M4R4bWPu4smPD5=KPWanL+EFPvDUYLNrHaFQfApPw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Kai Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] Elantech Touchpad: Fix Elantech touchpad and trackpoint
+ for Lenovo ThinkPad notebooks.
+Date: Sun, 6 Jan 2019 17:44:35 +0800
+Message-ID: <F09EA46C-73C3-48A8-9105-F4DE55D7FBB6@canonical.com>
+References: <20181228175327.14863-1-kaelinphilipp@gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKdAkRR80M4R4bWPu4smPD5=KPWanL+EFPvDUYLNrHaFQfApPw@mail.gmail.com>
+In-Reply-To: <20181228175327.14863-1-kaelinphilipp@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Daniel Mack <daniel@caiaq.de>, lkml <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Philipp Kaelin <kaelinphilipp@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Yes, it's needed.
-Even with the same encoder, adjusting steps affects rate of event generatio=
-n.
-(the steps defines 1 cycle of encoder rotation, and 1 cycle =3D 1 key event=
-.)
+Hi Benjamin,
 
-On Sun, Jan 6, 2019 at 8:11 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Sat, Jan 5, 2019 at 2:27 PM Donghoon Han <nazgul33@gmail.com> wrote:
-> >
-> > Add DT binding document for rotary-encoder, keycode options.
-> >
-> > Signed-off-by: Donghoon Han <nazgul33@gmail.com>
-> > ---
-> >  .../devicetree/bindings/input/rotary-encoder.txt     | 12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
-> >
-> > diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt=
- b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > index f99fe5cdeaec..113640079de3 100644
-> > --- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > +++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
-> > @@ -12,6 +12,10 @@ Optional properties:
-> >  - rotary-encoder,relative-axis: register a relative axis rather than a=
-n
-> >    absolute one. Relative axis will only generate +1/-1 events on the i=
-nput
-> >    device, hence no steps need to be passed.
-> > +- rotary-encoder,relative-keys : generate pair of key events. This set=
-ting
-> > +  behaves just like relative-axis, generating key events. keycode[2]
-> > +  corresponds -1/1 events.
-> > +- rotary-encoder,relative-keycodes : keycodes for relative-keys
-> >  - rotary-encoder,rollover: Automatic rollover when the rotary value be=
-comes
-> >    greater than the specified steps or smaller than 0. For absolute axi=
-s only.
-> >  - rotary-encoder,steps-per-period: Number of steps (stable states) per=
- period.
-> > @@ -48,3 +52,11 @@ Example:
-> >                         rotary-encoder,encoding =3D "binary";
-> >                         rotary-encoder,rollover;
-> >                 };
-> > +
-> > +               rotary@2 {
-> > +                       compatible =3D "rotary-encoder";
-> > +                       gpios =3D <&gpio 21 0>, <&gpio 22 0>;
-> > +                       rotary-encoder,relative-keys;
-> > +                       rotary-encoder,relative-keycode =3D <103>, <108=
->;
-> > +                       rotary-encoder,steps-per-period =3D <2>;
->
-> Do you need steps for keys? They weren't required for the relative axis m=
-ode.
->
-> Thanks.
->
-> --
-> Dmitry
+> On Dec 29, 2018, at 1:53 AM, Philipp Kaelin <kaelinphilipp@gmail.com> wrote:
+> 
+> Initial situation:
+> - The touchpad of a Lenovo ThinkPad L580 doesn't work with newer kernel versions eg. 4.20
+> - It used to work on earlier versions eg. 4.14
+> 
+> Cause:
+> - The elantech driver was adapted in to support SMBus wich not all firmware versions
+>  of the elantech firmware support. The SMBus is used as default.
+> 
+> Solution:
+> - Previously a blacklist was introduced for devices which doesn't support the access using SMBus.
+>  The ThinkPad P52 and P72 have already been fixed by adding it to such a blacklist in a prevois patch.
+>  The exact same solution fixed also the issue on the mentioned ThinkPad L580.
+> 
+> Change:
+> 1) The firmware id of the ThinkPad L580 was added to this blacklist.
+> 2) To not have a half baked solution the information which firmware versions are using the same driver
+>   and therefore most probably have all the same issue was extracted from the Lenovo Windows driver package.
+>   All these firmware versions are now also added to the blacklist.
 
+I actually have a reversed situation: 
+I’d like to make Elantech touchpad defaults to SMBus on some platforms, but the firmware version does not match to ETP_NEW_IC_SMBUS_HOST_NOTIFY().
 
+Use whitelist is obviously a bad idea so I’d like to know do you have any better approach in mind?
 
---=20
-=ED=95=9C=EB=8F=99=ED=9B=88 =EB=93=9C=EB=A6=BC.
+Kai-Heng
+
+> 
+> Risk assesment:
+> As in prevois versions of the kernel eg. 4.14 none of the devices used to be accessed via SMBus
+> (and they are reported to work at this time) it's quite safe that this blaklisting doesn't cause
+> any harm on devices which have not been testes but included in the blacklist.
+> 
+> Signed-off-by: Philipp Kaelin <kaelinphilipp@gmail.com>
+> ---
+> drivers/input/mouse/elantech.c | 23 +++++++++++++++++++----
+> 1 file changed, 19 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index 9fe075c137dc..e5fa8cfd8393 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1772,10 +1772,25 @@ static const char * const i2c_blacklist_pnp_ids[] = {
+> 	 * These are known to not be working properly as bits are missing
+> 	 * in elan_i2c.
+> 	 */
+> -	"LEN2131", /* ThinkPad P52 w/ NFC */
+> -	"LEN2132", /* ThinkPad P52 */
+> -	"LEN2133", /* ThinkPad P72 w/ NFC */
+> -	"LEN2134", /* ThinkPad P72 */
+> +	"LEN2131", /* Walter-3	w/ NFC		ThinkPad P52 w/ NFC	*/
+> +	"LEN2132", /* Walter-3	w/o/ NFC	ThinkPad P52		*/
+> +	"LEN2133", /* Chiron	w/ NFC		ThinkPad P72 w/ NFC	*/
+> +	"LEN2134", /* Chiron	w/o/ NFC	ThinkPad P72		*/
+> +	"LEN2037", /* Lando	w/ NFC		ThinkPad L580 w/ NFC	*/
+> +	"LEN2038", /* Lando	w/o/ NFC	ThinkPad L580		*/
+> +	"LEN004F", /* Storm	w/o/ NFC				*/
+> +	"LEN005C", /* Storm	w/ NFC					*/
+> +	"LEN2030", /* Carling						*/
+> +	"LEN2031", /* Bell						*/
+> +	"LEN2032", /* Bell-2						*/
+> +	"LEN2033", /* Storm-2						*/
+> +	"LEN2034", /* Storm-3						*/
+> +	"LEN2035", /* Solo	w/ NFC					*/
+> +	"LEN2036", /* Solo	w/o/ NFC				*/
+> +	"LEN2039", /* Leia						*/
+> +	"LEN2130", /* Kylo	(Clamshell)				*/
+> +	"LEN008F", /* Kolar	w/o/ NF					*/
+> +	"LEN0090", /* Kolar	w/ NFC					*/
+> 	NULL
+> };
+> 
+> -- 
+> 2.19.2
+> 

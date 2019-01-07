@@ -1,52 +1,55 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 0/7] Input: tm2-touchkey: Add support for Aries and
- Midas
-Date: Mon, 7 Jan 2019 11:53:31 -0800
-Message-ID: <20190107195331.GC141497@dtor-ws>
-References: <20190107185346.30184-1-pawel.mikolaj.chmiel@gmail.com>
+Subject: Re: [PATCH] [v2] Input: touchscreen: Fix a missing check on
+ regmap_bulk_read
+Date: Mon, 7 Jan 2019 12:00:26 -0800
+Message-ID: <20190107200026.GD141497@dtor-ws>
+References: <20190106181727.11815-1-pakki001@umn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190107185346.30184-1-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <20190106181727.11815-1-pakki001@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, xc-racer2@live.ca, simon@lineageos.org
+To: Aditya Pakki <pakki001@umn.edu>
+Cc: kjlu@umn.edu, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 07, 2019 at 07:53:39PM +0100, Paweł Chmiel wrote:
-> This patches adds support for Aries (Samsung i9000) and Midas (Samsung S3)
-> based devices to TM2 Touchkey driver.
+On Sun, Jan 06, 2019 at 12:17:27PM -0600, Aditya Pakki wrote:
+> regmap_bulk_read() can return a non zero value on failure. The fix
+> checks if the function call succeeded before calling mod_timer. The
+> issue was identified by a static analysis tool.
+> 
+> Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 
-Applied the lot, thank you.
+Applied, thank you.
 
+> ---
+>  drivers/input/touchscreen/ad7879.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
 > 
-> Changes from v2:
->   - Change property name from keycodes to linux,keycodes
-> 
-> Changes from v1:
->   - Added Reviewed-by to some patches
->   - Use ints for keycodes (they could be bigger than 255)
->   - Droped separate name changes
->   - Added missing const in few places
->   - Removed redundant cast
-> 
-> Jonathan Bakker (5):
->   Input: tm2-touchkey: Correct initial brightness
->   Input: tm2-touchkey: Allow specifying custom keycodes
->   Input: dt-bindings: tm2-touchkey: Document new keycodes property
->   Input: tm2-touchkey: Add support for aries touchkey variant
->   Input: dt-bindings: tm2-touchkey: Add support for aries touchkey
-> 
-> Simon Shields (2):
->   Input: tm2-touchkey: Add support for midas touchkey
->   Input: dt-bindings: tm2-touchkey: Add support for midas touchkey
-> 
->  .../bindings/input/cypress,tm2-touchkey.txt   |   9 +-
->  drivers/input/keyboard/tm2-touchkey.c         | 132 +++++++++++++-----
->  2 files changed, 108 insertions(+), 33 deletions(-)
-> 
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+> index 6fa714c587b4..8c908572c1f2 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -246,11 +246,14 @@ static void ad7879_timer(struct timer_list *t)
+>  static irqreturn_t ad7879_irq(int irq, void *handle)
+>  {
+>  	struct ad7879 *ts = handle;
+> +	int error;
+>  
+> -	regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
+> -			 ts->conversion_data, AD7879_NR_SENSE);
+> -
+> -	if (!ad7879_report(ts))
+> +	error = regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
+> +					ts->conversion_data, AD7879_NR_SENSE);
+> +	if (error)
+> +		dev_err_ratelimited(ts->dev, "failed to read %#02x: %d\n",
+> +					AD7879_REG_XPLUS, error);
+> +	else if (!ad7879_report(ts))
+>  		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
+>  
+>  	return IRQ_HANDLED;
 > -- 
 > 2.17.1
 > 

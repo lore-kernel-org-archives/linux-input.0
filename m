@@ -1,70 +1,61 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Elantech Touchpad: Fix Elantech touchpad and trackpoint
- for Lenovo ThinkPad notebooks.
-Date: Mon, 7 Jan 2019 09:05:07 +0100
-Message-ID: <CAO-hwJLW2rqz+SOPULTY=a51AeACNYNnePcUvuA0WGidvn8Nqg@mail.gmail.com>
-References: <20181228175327.14863-1-kaelinphilipp@gmail.com> <F09EA46C-73C3-48A8-9105-F4DE55D7FBB6@canonical.com>
+From: "Gonzalez, Alex" <Alex.Gonzalez@digi.com>
+Subject: Re: [PATCH] Input: goodix - decouple irq and reset lines
+Date: Mon, 7 Jan 2019 10:13:56 +0000
+Message-ID: <20190107101355.GA3117@agonzal-linux>
+References: <1546617648-23445-1-git-send-email-alex.gonzalez@digi.com>
+ <1546617648-23445-2-git-send-email-alex.gonzalez@digi.com>
+ <20190105225147.le5fgpnvq7sctxe5@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <F09EA46C-73C3-48A8-9105-F4DE55D7FBB6@canonical.com>
+In-Reply-To: <20190105225147.le5fgpnvq7sctxe5@penguin>
+Content-Language: en-US
+Content-ID: <2644DA3EE3E44B41AB3E287569C08B39@digi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai Heng Feng <kai.heng.feng@canonical.com>
-Cc: Philipp Kaelin <kaelinphilipp@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "hadess@hadess.net" <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Kai-Heng,
+Hi Dmitry,
 
-On Sun, Jan 6, 2019 at 10:44 AM Kai Heng Feng
-<kai.heng.feng@canonical.com> wrote:
+Thanks for your quick reply.
+
 >
-> Hi Benjamin,
+>I do not have a datasheet for the device, so I am not sure if reset line
+>is actually needed to put the device into sleep mode. As far as I can
+>see from the code we suspend it by pulsing INT line and then sending a
+>command to the controller, and resuming by pulsing the INT line again.
+>So it sounds to me INT only designs _could_ place device in sleep mode.
 >
-> > On Dec 29, 2018, at 1:53 AM, Philipp Kaelin <kaelinphilipp@gmail.com> wrote:
-> >
-> > Initial situation:
-> > - The touchpad of a Lenovo ThinkPad L580 doesn't work with newer kernel versions eg. 4.20
-> > - It used to work on earlier versions eg. 4.14
-> >
-> > Cause:
-> > - The elantech driver was adapted in to support SMBus wich not all firmware versions
-> >  of the elantech firmware support. The SMBus is used as default.
-> >
-> > Solution:
-> > - Previously a blacklist was introduced for devices which doesn't support the access using SMBus.
-> >  The ThinkPad P52 and P72 have already been fixed by adding it to such a blacklist in a prevois patch.
-> >  The exact same solution fixed also the issue on the mentioned ThinkPad L580.
-> >
-> > Change:
-> > 1) The firmware id of the ThinkPad L580 was added to this blacklist.
-> > 2) To not have a half baked solution the information which firmware versions are using the same driver
-> >   and therefore most probably have all the same issue was extracted from the Lenovo Windows driver package.
-> >   All these firmware versions are now also added to the blacklist.
+
+The way I read the gt911 dataheet I also understand that only the INT line is
+required to enter sleep mode but I don't other for the other supported 
+controllers.  My comment is based on both the suspend() and resume() functions 
+returning in the absence of either gpiod_int or gpiod_rst and not progressing 
+to the sleep sequence.
+
+>As far as the patch goes, if you do not need to execute reset or put
+>device into low power mode, you do not need to specify any of the GPIOs
+>as GPIO resources. Simply specify the INT GPIO as your interrupt source
+>(GpioInt() in ACPI world or "interrupts = <&gpio NNN
+>IRQF_TRIGGER_WHATEVER>" in DT world and be done with it.
 >
-> I actually have a reversed situation:
-> I’d like to make Elantech touchpad defaults to SMBus on some platforms, but the firmware version does not match to ETP_NEW_IC_SMBUS_HOST_NOTIFY().
+
+That was my first impression too. However this does not work for my device. My
+hypothesis is that the touch controller I2C address setting sequence is not 
+happening as it should, so I need at least the control of the INT line in 
+order to fix the I2C address.
+
+I am unsure though whether this is a problem specific to the design I am 
+testing with or all designs will have problems setting the I2C address without 
+controlling the INT GPIO line.
+
+Regards,
+Alex
+
+
+>Thanks.
 >
-> Use whitelist is obviously a bad idea so I’d like to know do you have any better approach in mind?
-
-TL;DR: I think there is no other solution than using a whitelist.
-
-Well, that's not entirely true. There is a bit in the old touchpads
-that says if it can be used by an other bus (I2C, SMBus or something
-else). But the problem is that those touchpads have been around for a
-quite a long time, and blindly switching them to SMBus would likely
-introduce regressions on old hardware we don't want to support
-anymore.
-
-I chose to only enable the new ones because I thought it would prevent
-me for having to deal with many issues, and you can see the result. At
-least, all of those machines are from the latest generation (or
-previous generation) so it doesn't seem to be a bad idea to try to fix
-them.
-
-So I'd say for the old touchpads that do not have
-ETP_NEW_IC_SMBUS_HOST_NOTIFY(), we should likely stick with a well
-defined whitelist so we can control the damages.
-
-Cheers,
-Benjamin
+>--
+>Dmitry

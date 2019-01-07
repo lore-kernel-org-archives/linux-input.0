@@ -1,7 +1,7 @@
 From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH v2] HID: i2c-hid: Ignore input report if there's no data present on Elan touchpanels
-Date: Mon,  7 Jan 2019 14:26:56 +0800
-Message-ID: <20190107062656.3065-1-kai.heng.feng@canonical.com>
+Subject: [PATCH v3] HID: i2c-hid: Ignore input report if there's no data present on Elan touchpanels
+Date: Mon,  7 Jan 2019 15:24:29 +0800
+Message-ID: <20190107072429.23828-1-kai.heng.feng@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com
@@ -20,14 +20,17 @@ when there's no data.
 
 Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 ---
+v3:
+Fix compiler error/warnings.
+
 v2:
- Use dev_warn_once() to warn the user about the situation.
+Use dev_warn_once() to warn the user about the situation.
 
  drivers/hid/i2c-hid/i2c-hid-core.c | 9 +++++++++
  1 file changed, 9 insertions(+)
 
 diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 8555ce7e737b..fd3b0ddace27 100644
+index 8555ce7e737b..2f940c1de616 100644
 --- a/drivers/hid/i2c-hid/i2c-hid-core.c
 +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
 @@ -50,6 +50,7 @@
@@ -52,8 +55,8 @@ index 8555ce7e737b..fd3b0ddace27 100644
  	}
  
 +	if (ihid->quirks & I2C_HID_QUIRK_BOGUS_IRQ && ret_size == 0xffff) {
-+		dev_warn_once(&ihid->client->dev, "%s: IRQ triggered but
-+			      there's no data\n", __func__);
++		dev_warn_once(&ihid->client->dev, "%s: IRQ triggered but "
++			      "there's no data\n", __func__);
 +		return;
 +	}
 +

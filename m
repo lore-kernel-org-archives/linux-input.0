@@ -1,146 +1,140 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 4/8] Input: stmpe-ts: preparations for STMPE ADC driver
-Date: Mon, 7 Jan 2019 23:03:30 +0000
-Message-ID: <20190107230330.fopheslpnwpfg6l4@penguin>
-References: <20181221134638.20600-1-dev@pschenker.ch>
- <20181221134638.20600-5-dev@pschenker.ch>
+Subject: Re: [PATCH v3 2/4] Input: goodix - Add AVDD28-supply regulator
+ support
+Date: Mon, 7 Jan 2019 23:00:09 +0000
+Message-ID: <20190107230009.wfzozb6g6ucymngw@penguin>
+References: <20181215151802.18592-1-jagan@amarulasolutions.com>
+ <20181215151802.18592-3-jagan@amarulasolutions.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181221134638.20600-5-dev@pschenker.ch>
+In-Reply-To: <20181215151802.18592-3-jagan@amarulasolutions.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Philippe Schenker <dev@pschenker.ch>
-Cc: jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch, robh@kernel.org, alexandre.torgue@st.com, shawnguo@kernel.org, thierry.reding@gmail.com, digetx@gmail.com, lee.jones@linaro.org, coquelin.stm32@gmail.com, Philippe Schenker <philippe.schenker@toradex.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
+To: Jagan Teki <jagan@amarulasolutions.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 21, 2018 at 02:46:33PM +0100, Philippe Schenker wrote:
-> From: Philippe Schenker <philippe.schenker@toradex.com>
-> 
-> This patch removes common ADC settings in favor to use
-> stmpe811_adc_common_init that is present in MFD. This is necessary in
-> preparation for the stmpe-adc driver, because those two drivers have
-> common settings for the ADC.
-> 
-> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+Hi Jagan,
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
+On Sat, Dec 15, 2018 at 08:48:00PM +0530, Jagan Teki wrote:
+> Goodix CTP controllers have AVDD28 pin connected to voltage
+> regulator which may not be turned on by default, like for GT5663.
 > 
+> Add support for such ctp used boards by adding voltage regulator
+> handling code to goodix ctp driver.
+> 
+> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 > ---
+>  drivers/input/touchscreen/goodix.c | 33 +++++++++++++++++++++++++-----
+>  1 file changed, 28 insertions(+), 5 deletions(-)
 > 
-> Changes in v5:
->  - Changed author of commit to use correct email.
-> 
-> Changes in v4:
->  - New patch: Split changes in stmpe-ts.c to a separate commit
->  - Remove common adc settings from init and call the
->    stmpe811_adc_common_init function
-> 
-> Changes in v3:
->  - Undo ADC-settings related code-deletions in stmpe-ts.c that the code
->    is backwards-compatible to older devicetrees.
-> 
-> Changes in v2: None
-> 
->  drivers/input/touchscreen/stmpe-ts.c | 42 +++++-----------------------
->  1 file changed, 7 insertions(+), 35 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
-> index c5d9006588a2..cf9c9aa39f6e 100644
-> --- a/drivers/input/touchscreen/stmpe-ts.c
-> +++ b/drivers/input/touchscreen/stmpe-ts.c
-> @@ -30,8 +30,6 @@
->   * with touchscreen controller
->   */
->  #define STMPE_REG_INT_STA		0x0B
-> -#define STMPE_REG_ADC_CTRL1		0x20
-> -#define STMPE_REG_ADC_CTRL2		0x21
->  #define STMPE_REG_TSC_CTRL		0x40
->  #define STMPE_REG_TSC_CFG		0x41
->  #define STMPE_REG_FIFO_TH		0x4A
-> @@ -58,15 +56,6 @@
->   * @idev: registered input device
->   * @work: a work item used to scan the device
->   * @dev: a pointer back to the MFD cell struct device*
-> - * @sample_time: ADC converstion time in number of clock.
-> - * (0 -> 36 clocks, 1 -> 44 clocks, 2 -> 56 clocks, 3 -> 64 clocks,
-> - * 4 -> 80 clocks, 5 -> 96 clocks, 6 -> 144 clocks),
-> - * recommended is 4.
-> - * @mod_12b: ADC Bit mode (0 -> 10bit ADC, 1 -> 12bit ADC)
-> - * @ref_sel: ADC reference source
-> - * (0 -> internal reference, 1 -> external reference)
-> - * @adc_freq: ADC Clock speed
-> - * (0 -> 1.625 MHz, 1 -> 3.25 MHz, 2 || 3 -> 6.5 MHz)
->   * @ave_ctrl: Sample average control
->   * (0 -> 1 sample, 1 -> 2 samples, 2 -> 4 samples, 3 -> 8 samples)
->   * @touch_det_delay: Touch detect interrupt delay
-> @@ -88,10 +77,6 @@ struct stmpe_touch {
->  	struct input_dev *idev;
->  	struct delayed_work work;
->  	struct device *dev;
-> -	u8 sample_time;
-> -	u8 mod_12b;
-> -	u8 ref_sel;
-> -	u8 adc_freq;
->  	u8 ave_ctrl;
->  	u8 touch_det_delay;
->  	u8 settling;
-> @@ -192,7 +177,7 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
->  static int stmpe_init_hw(struct stmpe_touch *ts)
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index f2d9c2c41885..7371f6946098 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/irq.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/regulator/consumer.h>
+>  #include <linux/slab.h>
+>  #include <linux/acpi.h>
+>  #include <linux/of.h>
+> @@ -47,6 +48,7 @@ struct goodix_ts_data {
+>  	struct touchscreen_properties prop;
+>  	unsigned int max_touch_num;
+>  	unsigned int int_trigger_type;
+> +	struct regulator *avdd28;
+>  	struct gpio_desc *gpiod_int;
+>  	struct gpio_desc *gpiod_rst;
+>  	u16 id;
+> @@ -786,25 +788,41 @@ static int goodix_ts_probe(struct i2c_client *client,
+>  	if (error)
+>  		return error;
+>  
+> +	ts->avdd28 = devm_regulator_get(&client->dev, "AVDD28");
+> +	if (IS_ERR(ts->avdd28)) {
+> +		error = PTR_ERR(ts->avdd28);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_err(&client->dev,
+> +				"Failed to get AVDD28 regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	/* power the controller */
+> +	error = regulator_enable(ts->avdd28);
+> +	if (error) {
+> +		dev_err(&client->dev, "Controller fail to enable AVDD28\n");
+> +		return error;
+> +	}
+> +
+>  	if (ts->gpiod_int && ts->gpiod_rst) {
+>  		/* reset the controller */
+>  		error = goodix_reset(ts);
+>  		if (error) {
+>  			dev_err(&client->dev, "Controller reset failed.\n");
+> -			return error;
+> +			goto error;
+>  		}
+>  	}
+>  
+>  	error = goodix_i2c_test(client);
+>  	if (error) {
+>  		dev_err(&client->dev, "I2C communication failure: %d\n", error);
+> -		return error;
+> +		goto error;
+>  	}
+>  
+>  	error = goodix_read_version(ts);
+>  	if (error) {
+>  		dev_err(&client->dev, "Read version failed.\n");
+> -		return error;
+> +		goto error;
+>  	}
+>  
+>  	ts->chip = goodix_get_chip_data(ts->id);
+> @@ -823,23 +841,28 @@ static int goodix_ts_probe(struct i2c_client *client,
+>  			dev_err(&client->dev,
+>  				"Failed to invoke firmware loader: %d\n",
+>  				error);
+> -			return error;
+> +			goto error;
+>  		}
+>  
+>  		return 0;
+>  	} else {
+>  		error = goodix_configure_dev(ts);
+>  		if (error)
+> -			return error;
+> +			goto error;
+>  	}
+>  
+>  	return 0;
+> +
+> +error:
+> +	regulator_disable(ts->avdd28);
+> +	return error;
+>  }
+>  
+>  static int goodix_ts_remove(struct i2c_client *client)
 >  {
->  	int ret;
-> -	u8 adc_ctrl1, adc_ctrl1_mask, tsc_cfg, tsc_cfg_mask;
-> +	u8 tsc_cfg, tsc_cfg_mask;
->  	struct stmpe *stmpe = ts->stmpe;
->  	struct device *dev = ts->dev;
+>  	struct goodix_ts_data *ts = i2c_get_clientdata(client);
 >  
-> @@ -202,22 +187,9 @@ static int stmpe_init_hw(struct stmpe_touch *ts)
->  		return ret;
->  	}
+> +	regulator_disable(ts->avdd28);
+
+This may be disabling the regulator too early. Please use
+devm_add_action_or_reset() to install a custom devm handler that would
+disable the regulator in line with the rest of devm unwinding flow.
+
+>  	if (ts->gpiod_int && ts->gpiod_rst)
+>  		wait_for_completion(&ts->firmware_loading_complete);
 >  
-> -	adc_ctrl1 = STMPE_SAMPLE_TIME(ts->sample_time) |
-> -		    STMPE_MOD_12B(ts->mod_12b) | STMPE_REF_SEL(ts->ref_sel);
-> -	adc_ctrl1_mask = STMPE_SAMPLE_TIME(0xff) | STMPE_MOD_12B(0xff) |
-> -			 STMPE_REF_SEL(0xff);
-> -
-> -	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL1,
-> -			adc_ctrl1_mask, adc_ctrl1);
-> -	if (ret) {
-> -		dev_err(dev, "Could not setup ADC\n");
-> -		return ret;
-> -	}
-> -
-> -	ret = stmpe_set_bits(stmpe, STMPE_REG_ADC_CTRL2,
-> -			STMPE_ADC_FREQ(0xff), STMPE_ADC_FREQ(ts->adc_freq));
-> +	ret = stmpe811_adc_common_init(stmpe);
->  	if (ret) {
-> -		dev_err(dev, "Could not setup ADC\n");
-> +		stmpe_disable(stmpe, STMPE_BLOCK_TOUCHSCREEN | STMPE_BLOCK_ADC);
->  		return ret;
->  	}
->  
-> @@ -295,13 +267,13 @@ static void stmpe_ts_get_platform_info(struct platform_device *pdev,
->  
->  	if (np) {
->  		if (!of_property_read_u32(np, "st,sample-time", &val))
-> -			ts->sample_time = val;
-> +			ts->stmpe->sample_time = val;
->  		if (!of_property_read_u32(np, "st,mod-12b", &val))
-> -			ts->mod_12b = val;
-> +			ts->stmpe->mod_12b = val;
->  		if (!of_property_read_u32(np, "st,ref-sel", &val))
-> -			ts->ref_sel = val;
-> +			ts->stmpe->ref_sel = val;
->  		if (!of_property_read_u32(np, "st,adc-freq", &val))
-> -			ts->adc_freq = val;
-> +			ts->stmpe->adc_freq = val;
->  		if (!of_property_read_u32(np, "st,ave-ctrl", &val))
->  			ts->ave_ctrl = val;
->  		if (!of_property_read_u32(np, "st,touch-det-delay", &val))
 > -- 
-> 2.19.2
+> 2.18.0.321.gffc6fa0e3
 > 
+
+Thanks.
 
 -- 
 Dmitry

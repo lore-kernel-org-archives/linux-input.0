@@ -1,58 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] [v2] Input: touchscreen: Fix a missing check on
- regmap_bulk_read
-Date: Mon, 7 Jan 2019 12:00:26 -0800
-Message-ID: <20190107200026.GD141497@dtor-ws>
-References: <20190106181727.11815-1-pakki001@umn.edu>
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH v2] dt-bindings: input: ti-tsc-adc: Add new compatible for AM654 SoCs
+Date: Tue, 8 Jan 2019 10:56:31 +0530
+Message-ID: <20190108052631.4169-1-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190106181727.11815-1-pakki001@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Aditya Pakki <pakki001@umn.edu>
-Cc: kjlu@umn.edu, Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Vignesh R <vigneshr@ti.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Jan 06, 2019 at 12:17:27PM -0600, Aditya Pakki wrote:
-> regmap_bulk_read() can return a non zero value on failure. The fix
-> checks if the function call succeeded before calling mod_timer. The
-> issue was identified by a static analysis tool.
-> 
-> Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+AM654 SoCs has ADC IP which is similar to AM335x, but without the
+touchscreen part. Add new compatible to handle AM654 SoCs. Also, it
+seems that existing compatible strings used in the kernel DTs were never
+documented. So, document them now.
 
-Applied, thank you.
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+v2:
+Fix subject line to include subsystem name
+Rebase onto v5.0-rc1
+v1: https://lkml.org/lkml/2018/11/19/313
 
-> ---
->  drivers/input/touchscreen/ad7879.c | 11 +++++++----
->  1 file changed, 7 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-> index 6fa714c587b4..8c908572c1f2 100644
-> --- a/drivers/input/touchscreen/ad7879.c
-> +++ b/drivers/input/touchscreen/ad7879.c
-> @@ -246,11 +246,14 @@ static void ad7879_timer(struct timer_list *t)
->  static irqreturn_t ad7879_irq(int irq, void *handle)
->  {
->  	struct ad7879 *ts = handle;
-> +	int error;
->  
-> -	regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
-> -			 ts->conversion_data, AD7879_NR_SENSE);
-> -
-> -	if (!ad7879_report(ts))
-> +	error = regmap_bulk_read(ts->regmap, AD7879_REG_XPLUS,
-> +					ts->conversion_data, AD7879_NR_SENSE);
-> +	if (error)
-> +		dev_err_ratelimited(ts->dev, "failed to read %#02x: %d\n",
-> +					AD7879_REG_XPLUS, error);
-> +	else if (!ad7879_report(ts))
->  		mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
->  
->  	return IRQ_HANDLED;
-> -- 
-> 2.17.1
-> 
+ .../devicetree/bindings/input/touchscreen/ti-tsc-adc.txt  | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+index b1163bf97146..aad5e34965eb 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+@@ -2,7 +2,12 @@
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ Required properties:
++- mfd
++	compatible: Should be
++		"ti,am3359-tscadc" for AM335x/AM437x SoCs
++		"ti,am654-tscadc", "ti,am3359-tscadc" for AM654 SoCs
+ - child "tsc"
++	compatible: Should be "ti,am3359-tsc".
+ 	ti,wires: Wires refer to application modes i.e. 4/5/8 wire touchscreen
+ 		  support on the platform.
+ 	ti,x-plate-resistance: X plate resistance
+@@ -25,6 +30,9 @@ Required properties:
+ 			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+ 			XP  = 0, XN = 1, YP = 2, YN = 3.
+ - child "adc"
++	compatible: Should be
++		    "ti,am3359-adc" for AM335x/AM437x SoCs
++		    "ti,am654-adc", "ti,am3359-adc" for AM654 SoCs
+ 	ti,adc-channels: List of analog inputs available for ADC.
+ 			 AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+ 
 -- 
-Dmitry
+2.20.1

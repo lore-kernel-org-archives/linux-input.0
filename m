@@ -1,53 +1,34 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] Input: tca6416-keypad: use struct_size() in kzalloc()
-Date: Tue, 8 Jan 2019 09:28:16 -0600
-Message-ID: <20190108152816.GA7486@embeddedor>
+From: "Gonzalez, Alex" <Alex.Gonzalez@digi.com>
+Subject: Re: [PATCH] Input: goodix - decouple irq and reset lines
+Date: Tue, 8 Jan 2019 17:20:13 +0000
+Message-ID: <20190108172013.GA13290@agonzal-linux>
+References: <1546617648-23445-1-git-send-email-alex.gonzalez@digi.com>
+ <1546617648-23445-2-git-send-email-alex.gonzalez@digi.com>
+ <20190105225147.le5fgpnvq7sctxe5@penguin>
+ <6b8f757eb52eb74d9dc2c3bedbfec798a58c0ec2.camel@hadess.net>
+ <20190107164225.GA5394@agonzal-linux> <20190107185607.GA141497@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20190107185607.GA141497@dtor-ws>
+Content-Language: en-US
+Content-ID: <0EB1086BE73FA14DAE97C15A4442E3B3@digi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Bastien Nocera <hadess@hadess.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-One of the more common cases of allocation size calculations is finding the
-size of a structure that has a zero-sized array at the end, along with memory
-for some number of elements for that array. For example:
+>
+>My concern with trying to do the address selection without RST line is
+>that it is quite unreliable, as it really depends on timings between the
+>chip reset, INT line being driven by the host and then being switched to
+>input.
 
-struct foo {
-    int stuff;
-    void *entry[];
-};
+I think you are right. thinking twice I should be able to fake the reset line
+by controlling a regulator to the voltage source for the pull-up. It seems a 
+more solid solution.
 
-instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
+Thanks a lot for your help and sorry for the noise.
 
-Instead of leaving these open-coded and prone to type mistakes, we can now
-use the new struct_size() helper:
-
-instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
-
-This code was detected with the help of Coccinelle.
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/input/keyboard/tca6416-keypad.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
-index dc983ab6c0ad..cdeef180aead 100644
---- a/drivers/input/keyboard/tca6416-keypad.c
-+++ b/drivers/input/keyboard/tca6416-keypad.c
-@@ -219,9 +219,7 @@ static int tca6416_keypad_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
- 
--	chip = kzalloc(sizeof(struct tca6416_keypad_chip) +
--		       pdata->nbuttons * sizeof(struct tca6416_button),
--		       GFP_KERNEL);
-+	chip = kzalloc(struct_size(chip, buttons, pdata->nbuttons), GFP_KERNEL);
- 	input = input_allocate_device();
- 	if (!chip || !input) {
- 		error = -ENOMEM;
--- 
-2.20.1
+Alex

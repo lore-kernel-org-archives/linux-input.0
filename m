@@ -1,140 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/4] Input: goodix - Add AVDD28-supply regulator
- support
-Date: Mon, 7 Jan 2019 23:00:09 +0000
-Message-ID: <20190107230009.wfzozb6g6ucymngw@penguin>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v3 1/4] dt-bindings: input: touchscreen: goodix: Document
+ AVDD28-supply property
+Date: Wed, 9 Jan 2019 07:37:53 -0600
+Message-ID: <CAL_JsqKTnPVM7Qahy9ejQbPfENpLCdzf5K5uUTcPh8j3EiqWRA@mail.gmail.com>
 References: <20181215151802.18592-1-jagan@amarulasolutions.com>
- <20181215151802.18592-3-jagan@amarulasolutions.com>
+ <20181215151802.18592-2-jagan@amarulasolutions.com> <20190107225810.ggmkkbrnkoy2ykx5@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181215151802.18592-3-jagan@amarulasolutions.com>
+In-Reply-To: <20190107225810.ggmkkbrnkoy2ykx5@penguin>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jagan Teki <jagan@amarulasolutions.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jagan Teki <jagan@amarulasolutions.com>
+Cc: Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Jagan,
+Please CC DT list if you want bindings reviewed.
 
-On Sat, Dec 15, 2018 at 08:48:00PM +0530, Jagan Teki wrote:
-> Goodix CTP controllers have AVDD28 pin connected to voltage
-> regulator which may not be turned on by default, like for GT5663.
-> 
-> Add support for such ctp used boards by adding voltage regulator
-> handling code to goodix ctp driver.
-> 
-> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-> ---
->  drivers/input/touchscreen/goodix.c | 33 +++++++++++++++++++++++++-----
->  1 file changed, 28 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index f2d9c2c41885..7371f6946098 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -27,6 +27,7 @@
->  #include <linux/delay.h>
->  #include <linux/irq.h>
->  #include <linux/interrupt.h>
-> +#include <linux/regulator/consumer.h>
->  #include <linux/slab.h>
->  #include <linux/acpi.h>
->  #include <linux/of.h>
-> @@ -47,6 +48,7 @@ struct goodix_ts_data {
->  	struct touchscreen_properties prop;
->  	unsigned int max_touch_num;
->  	unsigned int int_trigger_type;
-> +	struct regulator *avdd28;
->  	struct gpio_desc *gpiod_int;
->  	struct gpio_desc *gpiod_rst;
->  	u16 id;
-> @@ -786,25 +788,41 @@ static int goodix_ts_probe(struct i2c_client *client,
->  	if (error)
->  		return error;
->  
-> +	ts->avdd28 = devm_regulator_get(&client->dev, "AVDD28");
-> +	if (IS_ERR(ts->avdd28)) {
-> +		error = PTR_ERR(ts->avdd28);
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(&client->dev,
-> +				"Failed to get AVDD28 regulator: %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	/* power the controller */
-> +	error = regulator_enable(ts->avdd28);
-> +	if (error) {
-> +		dev_err(&client->dev, "Controller fail to enable AVDD28\n");
-> +		return error;
-> +	}
-> +
->  	if (ts->gpiod_int && ts->gpiod_rst) {
->  		/* reset the controller */
->  		error = goodix_reset(ts);
->  		if (error) {
->  			dev_err(&client->dev, "Controller reset failed.\n");
-> -			return error;
-> +			goto error;
->  		}
->  	}
->  
->  	error = goodix_i2c_test(client);
->  	if (error) {
->  		dev_err(&client->dev, "I2C communication failure: %d\n", error);
-> -		return error;
-> +		goto error;
->  	}
->  
->  	error = goodix_read_version(ts);
->  	if (error) {
->  		dev_err(&client->dev, "Read version failed.\n");
-> -		return error;
-> +		goto error;
->  	}
->  
->  	ts->chip = goodix_get_chip_data(ts->id);
-> @@ -823,23 +841,28 @@ static int goodix_ts_probe(struct i2c_client *client,
->  			dev_err(&client->dev,
->  				"Failed to invoke firmware loader: %d\n",
->  				error);
-> -			return error;
-> +			goto error;
->  		}
->  
->  		return 0;
->  	} else {
->  		error = goodix_configure_dev(ts);
->  		if (error)
-> -			return error;
-> +			goto error;
->  	}
->  
->  	return 0;
-> +
-> +error:
-> +	regulator_disable(ts->avdd28);
-> +	return error;
->  }
->  
->  static int goodix_ts_remove(struct i2c_client *client)
->  {
->  	struct goodix_ts_data *ts = i2c_get_clientdata(client);
->  
-> +	regulator_disable(ts->avdd28);
+On Wed, Jan 9, 2019 at 1:40 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Sat, Dec 15, 2018 at 08:47:59PM +0530, Jagan Teki wrote:
+> > Most of the Goodix CTP controllers are supply with AVDD28 pin.
+> > which need to supply for controllers like GT5663 on some boards
+> > to trigger the power.
+> >
+> > So, document the supply property so-that the require boards
+> > that used on GT5663 can enable it via device tree.
+> >
+> > Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+> > ---
+> >  Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > index f7e95c52f3c7..c4622c983e08 100644
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > @@ -23,6 +23,7 @@ Optional properties:
+> >   - touchscreen-inverted-y  : Y axis is inverted (boolean)
+> >   - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
+> >                               (swapping is done after inverting the axis)
+> > + - AVDD28-supply     : Analog power supply regulator on AVDD28 pin
+>
+> I think we normally use lower case in DT bindings and rarely encode
+> voltage in the supply name unless we are dealing with several supplies
+> of the same kind, but I'll let Ron comment on this.
 
-This may be disabling the regulator too early. Please use
-devm_add_action_or_reset() to install a custom devm handler that would
-disable the regulator in line with the rest of devm unwinding flow.
+Yes on lowercase though there are some exceptions.
 
->  	if (ts->gpiod_int && ts->gpiod_rst)
->  		wait_for_completion(&ts->firmware_loading_complete);
->  
-> -- 
-> 2.18.0.321.gffc6fa0e3
-> 
+There's also a AVDD22 supply as well as DVDD12 and VDDIO. So we
+probably need to keep the voltage, but the binding is incomplete.
 
-Thanks.
-
--- 
-Dmitry
+Rob

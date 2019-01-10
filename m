@@ -1,30 +1,156 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v6 1/8] dt-bindings: stmpe: reformatting parameter list
- and use tabs only
-Date: Thu, 10 Jan 2019 10:50:27 +0100
-Message-ID: <CACRpkdY97wU8UsEpHWNHzpv0LzoM7rQWaNsHoi_WrNy7dkvoyQ@mail.gmail.com>
-References: <20190109134208.5660-1-dev@pschenker.ch> <20190109134208.5660-2-dev@pschenker.ch>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1] HID: intel-ish-hid: Switch to use new generic UUID API
+Date: Thu, 10 Jan 2019 17:48:04 +0200
+Message-ID: <20190110154804.89298-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190109134208.5660-2-dev@pschenker.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Philippe Schenker <dev@pschenker.ch>
-Cc: Jonathan Cameron <jic23@kernel.org>, Marcel Ziswiler <marcel.ziswiler@toradex.com>, Stefan Agner <stefan@agner.ch>, Rob Herring <robh@kernel.org>, Alexandre TORGUE <alexandre.torgue@st.com>, Shawn Guo <shawnguo@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Dmitry Osipenko <digetx@gmail.com>, Lee Jones <lee.jones@linaro.org>, Philippe Schenker <philippe.schenker@toradex.com>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Max Krummenacher <max.krummenacher@toradex.com>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@v>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 9, 2019 at 2:43 PM Philippe Schenker <dev@pschenker.ch> wrote:
+There are new types and helpers that are supposed to be used in new code.
 
-> From: Philippe Schenker <philippe.schenker@toradex.com>
->
-> This patch reformats the parameter list for stmpe device in a
-> table-style so it is more clear to read.
->
-> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
-> Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-> Reviewed-by: Rob Herring <robh@kernel.org>
+As a preparation to get rid of legacy types and API functions do
+the conversion here.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c |  3 +--
+ drivers/hid/intel-ish-hid/ishtp-hid.h        |  6 +++---
+ drivers/hid/intel-ish-hid/ishtp/bus.c        | 19 ++++++++-----------
+ drivers/hid/intel-ish-hid/ishtp/bus.h        |  4 ++--
+ drivers/hid/intel-ish-hid/ishtp/client.h     |  2 +-
+ drivers/hid/intel-ish-hid/ishtp/hbm.h        |  2 +-
+ 6 files changed, 16 insertions(+), 20 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index e64243bc9c96..2246697ada1d 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -788,8 +788,7 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
+ 	if (!cl_device)
+ 		return	-ENODEV;
+ 
+-	if (uuid_le_cmp(hid_ishtp_guid,
+-			cl_device->fw_client->props.protocol_name) != 0)
++	if (!guid_equal(&hid_ishtp_guid, &cl_device->fw_client->props.protocol_name))
+ 		return	-ENODEV;
+ 
+ 	client_data = devm_kzalloc(&cl_device->dev, sizeof(*client_data),
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+index f5c7eb79b7b5..1cd07a441cd4 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.h
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
+@@ -29,9 +29,9 @@
+ 		client->cl_device->ishtp_dev, __VA_ARGS__)
+ 
+ /* ISH Transport protocol (ISHTP in short) GUID */
+-static const uuid_le hid_ishtp_guid = UUID_LE(0x33AECD58, 0xB679, 0x4E54,
+-					      0x9B, 0xD9, 0xA0, 0x4D, 0x34,
+-					      0xF0, 0xC2, 0x26);
++static const guid_t hid_ishtp_guid =
++	GUID_INIT(0x33AECD58, 0xB679, 0x4E54,
++		  0x9B, 0xD9, 0xA0, 0x4D, 0x34, 0xF0, 0xC2, 0x26);
+ 
+ /* ISH HID message structure */
+ struct hostif_msg_hdr {
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 728dc6d4561a..1b6092b300fe 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -133,18 +133,15 @@ int ishtp_write_message(struct ishtp_device *dev, struct ishtp_msg_hdr *hdr,
+  *
+  * Return: fw client index or -ENOENT if not found
+  */
+-int ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *uuid)
++int ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const guid_t *uuid)
+ {
+-	int i, res = -ENOENT;
++	unsigned int i;
+ 
+ 	for (i = 0; i < dev->fw_clients_num; ++i) {
+-		if (uuid_le_cmp(*uuid, dev->fw_clients[i].props.protocol_name)
+-				== 0) {
+-			res = i;
+-			break;
+-		}
++		if (guid_equal(uuid, &dev->fw_clients[i].props.protocol_name))
++			return i;
+ 	}
+-	return res;
++	return -ENOENT;
+ }
+ EXPORT_SYMBOL(ishtp_fw_cl_by_uuid);
+ 
+@@ -158,7 +155,7 @@ EXPORT_SYMBOL(ishtp_fw_cl_by_uuid);
+  * Return: pointer of client information on success, NULL on failure.
+  */
+ struct ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
+-						const uuid_le *uuid)
++					       const guid_t *uuid)
+ {
+ 	int i;
+ 	unsigned long flags;
+@@ -401,7 +398,7 @@ static const struct device_type ishtp_cl_device_type = {
+  * Return: ishtp_cl_device pointer or NULL on failure
+  */
+ static struct ishtp_cl_device *ishtp_bus_add_device(struct ishtp_device *dev,
+-						    uuid_le uuid, char *name)
++						    guid_t uuid, char *name)
+ {
+ 	struct ishtp_cl_device *device;
+ 	int status;
+@@ -629,7 +626,7 @@ int ishtp_bus_new_client(struct ishtp_device *dev)
+ 	int	i;
+ 	char	*dev_name;
+ 	struct ishtp_cl_device	*cl_device;
+-	uuid_le	device_uuid;
++	guid_t	device_uuid;
+ 
+ 	/*
+ 	 * For all reported clients, create an unconnected client and add its
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
+index b8a5bcc82536..babf19ba3ff6 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.h
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
+@@ -112,8 +112,8 @@ void	ishtp_cl_driver_unregister(struct ishtp_cl_driver *driver);
+ 
+ int	ishtp_register_event_cb(struct ishtp_cl_device *device,
+ 				void (*read_cb)(struct ishtp_cl_device *));
+-int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *cuuid);
++int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const guid_t *cuuid);
+ struct	ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
+-						const uuid_le *uuid);
++						const guid_t *uuid);
+ 
+ #endif /* _LINUX_ISHTP_CL_BUS_H */
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
+index 042f4c4853b1..e0df3eb611e6 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.h
++++ b/drivers/hid/intel-ish-hid/ishtp/client.h
+@@ -126,7 +126,7 @@ struct ishtp_cl {
+ };
+ 
+ /* Client connection managenment internal functions */
+-int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, uuid_le *uuid);
++int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, guid_t *uuid);
+ int ishtp_fw_cl_by_id(struct ishtp_device *dev, uint8_t client_id);
+ void ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl);
+ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.h b/drivers/hid/intel-ish-hid/ishtp/hbm.h
+index d96111cef7f8..7286e3600140 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/hbm.h
++++ b/drivers/hid/intel-ish-hid/ishtp/hbm.h
+@@ -149,7 +149,7 @@ struct hbm_host_enum_response {
+ } __packed;
+ 
+ struct ishtp_client_properties {
+-	uuid_le protocol_name;
++	guid_t protocol_name;
+ 	uint8_t protocol_version;
+ 	uint8_t max_number_of_connections;
+ 	uint8_t fixed_address;
+-- 
+2.20.1

@@ -1,69 +1,56 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: NULL pointer dereference when writing fuzzed data to /dev/uhid
-Date: Mon, 14 Jan 2019 00:09:46 +0100
-Message-ID: <20190113230946.GA18710@amd>
-References: <CAE5jQCch70ZSmGZeA6RQxjXhL=LjgShdj_VZAGmqUzVRPSQBZw@mail.gmail.com>
- <CAO-hwJK29V7gT3WQXLvsM5qaQgRLsgm2HAnR81vtkrrQAsCuEg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAO-hwJK29V7gT3WQXLvsM5qaQgRLsgm2HAnR81vtkrrQAsCuEg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>, Jiri Kosina <jikos@kernel.org>, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Roderick Colenbrander <thunderbird2k@gmail.com>
+From: Deepa Dinamani <deepa.kernel@gmail.com>
+Subject: Re: [PATCH] input_event: Provide override for sparc64
+Date: Sun, 13 Jan 2019 20:37:34 -0800
+Message-ID: <7D5DB92B-5CFA-4D92-A578-51ADDAE94A0E@gmail.com>
+References: <20181229183514.24644-1-deepa.kernel@gmail.com>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <y2038-bounces@lists.linaro.org>
+In-Reply-To: <20181229183514.24644-1-deepa.kernel@gmail.com>
+List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
+List-Archive: <http://lists.linaro.org/pipermail/y2038/>
+List-Post: <mailto:y2038@lists.linaro.org>
+List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
+List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
+ <mailto:y2038-request@lists.linaro.org?subject=subscribe>
+Errors-To: y2038-bounces@lists.linaro.org
+Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+To: dmitry.torokhov@gmail.com
+Cc: y2038@lists.linaro.org, davem@davemloft.net, linux-kernel@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-I just want to note that while these may not be high-priority, they
-are still security holes to be fixed.
-
-> > When writing the attached file to /dev/uhid, a NULL dereference occurs
-> > in kernel. As I understand, the problem is not UHID-specific, but is
-> > related to HID subsystem.
->=20
-> Thanks for the report.
-> I wanted to tell you that I started investigating the other private
-> report you sent us, but couldn't find the time to properly come with a
-> fix as the fuzzed data is hard to discriminate from valid data.
->=20
-> A couple of notes though:
-> - writing to uhid needs to be done by root. Any distribution that
-> doesn't enforce that is doomed to have several security issues
-
-We want to protect kernel from root, too.
-
-> - we could somehow reproduce those fuzzed data on a USB or Bluetooth
-> connection, but that would require physical access to the device, so
-> you are doomed also
-
-Not neccessarily. Imagine a kiosk where PC is protected but keyboard
-uses USB connection. If our USB stack is buggy, you are doomed... but
-you should not be ;-).
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlw7xToACgkQMOfwapXb+vJlLACgm4d3vDsB9nJwfr2hXsDb7+K+
-yqUAoJgqQ2VnCZ52zQ9eptL+D5k5BLSb
-=zVPf
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+Cgo+IE9uIERlYyAyOSwgMjAxOCwgYXQgMTA6MzUgQU0sIERlZXBhIERpbmFtYW5pIDxkZWVwYS5r
+ZXJuZWxAZ21haWwuY29tPiB3cm90ZToKPiAKPiBUaGUgdXNlYyBwYXJ0IG9mIHRoZSB0aW1ldmFs
+IGlzIGRlZmluZWQgYXMKPiBfX2tlcm5lbF9zdXNlY29uZHNfdCAgICB0dl91c2VjOyAvKiBtaWNy
+b3NlY29uZHMgKi8KPiAKPiBBcm5kIG5vdGljZWQgdGhhdCBzcGFyYzY0IGlzIHRoZSBvbmx5IGFy
+Y2hpdGVjdHVyZQo+IHRoYXQgZGVmaW5lcyBfX2tlcm5lbF9zdXNlY29uZHNfdCBhcyBpbnQgcmF0
+aGVyIHRoYW4gbG9uZy4KPiAKPiBUaGlzIGJyZWFrcyB0aGUgY3VycmVudCB5MjAzOCBmaXggZm9y
+IGtlcm5lbCBhcyB3ZSBvbmx5Cj4gYWNjZXNzIGFuZCBkZWZpbmUgdGhlIHRpbWV2YWwgc3RydWN0
+IGZvciBub24ta2VybmVsIHVzZSBjYXNlcy4KPiBCdXQsIHRoaXMgd2FzIGhpZGRlbiBieSBhbiBh
+bm90aGVyIHR5cG8gaW4gdGhlIHVzZSBvZiBfX0tFUk5FTF9fCj4gcXVhbGlmaWVyLgo+IAo+IEZp
+eCB0aGUgdHlwbywgYW5kIHByb3ZpZGUgYW4gb3ZlcnJpZGUgZm9yIHNwYXJjNjQuCj4gCj4gRml4
+ZXM6IDE1MjE5NGZlOWMzZiAoIklucHV0OiBleHRlbmQgdXNhYmxlIGxpZmUgb2YgZXZlbnQgdGlt
+ZXN0YW1wcyB0byAyMTA2IG9uIDMyIGJpdCBzeXN0ZW1zIikKPiBSZXBvcnRlZC1ieTogQXJuZCBC
+ZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KPiBTaWduZWQtb2ZmLWJ5OiBEZWVwYSBEaW5hbWFuaSA8
+ZGVlcGEua2VybmVsQGdtYWlsLmNvbT4KPiAtLS0KPiBpbmNsdWRlL3VhcGkvbGludXgvaW5wdXQu
+aCB8IDYgKysrKystCj4gMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlv
+bigtKQo+IAo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvaW5wdXQuaCBiL2luY2x1
+ZGUvdWFwaS9saW51eC9pbnB1dC5oCj4gaW5kZXggZmI3OGY2ZjUwMGYzLi5mZmFiOTU4YmM1MTIg
+MTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L2lucHV0LmgKPiArKysgYi9pbmNsdWRl
+L3VhcGkvbGludXgvaW5wdXQuaAo+IEBAIC0yNiwxMyArMjYsMTcgQEAKPiAgKi8KPiAKPiBzdHJ1
+Y3QgaW5wdXRfZXZlbnQgewo+IC0jaWYgKF9fQklUU19QRVJfTE9ORyAhPSAzMiB8fCAhZGVmaW5l
+ZChfX1VTRV9USU1FX0JJVFM2NCkpICYmICFkZWZpbmVkKF9fS0VSTkVMKQo+ICsjaWYgKF9fQklU
+U19QRVJfTE9ORyAhPSAzMiB8fCAhZGVmaW5lZChfX1VTRV9USU1FX0JJVFM2NCkpICYmICFkZWZp
+bmVkKF9fS0VSTkVMX18pCj4gICAgc3RydWN0IHRpbWV2YWwgdGltZTsKPiAjZGVmaW5lIGlucHV0
+X2V2ZW50X3NlYyB0aW1lLnR2X3NlYwo+ICNkZWZpbmUgaW5wdXRfZXZlbnRfdXNlYyB0aW1lLnR2
+X3VzZWMKPiAjZWxzZQo+ICAgIF9fa2VybmVsX3Vsb25nX3QgX19zZWM7Cj4gKyNpZmRlZiBDT05G
+SUdfU1BBUkM2NAo+ICsgICAgdW5zaWduZWQgaW50IF9fdXNlYzsKPiArI2Vsc2UKPiAgICBfX2tl
+cm5lbF91bG9uZ190IF9fdXNlYzsKPiArI2VuZGlmCj4gI2RlZmluZSBpbnB1dF9ldmVudF9zZWMg
+IF9fc2VjCj4gI2RlZmluZSBpbnB1dF9ldmVudF91c2VjIF9fdXNlYwo+ICNlbmRpZgo+IC0tIAo+
+IDIuMTcuMQoKUGluZy4KCgpUaGlzIGlzIHJlcXVpcmVkIGZvciB0aGUgcHJvcGVyIGZ1bmN0aW9u
+aW5nIG9mIHRoZSB5MjAzOCBhZGRpdGlvbnMgdG8gaW5wdXQgZXZlbnQuCgotRGVlcGEgCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcg
+bGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3kyMDM4Cg==

@@ -1,48 +1,61 @@
-From: Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 3/3] input: touchscreen: fix link error
-Date: Mon, 14 Jan 2019 10:57:54 +0100
-Message-ID: <20190114095754.23175-1-anders.roxell@linaro.org>
+From: Pascal PAILLET-LME <p.paillet@st.com>
+Subject: [PATCH RESEND v8 0/6] Introduce STPMIC1 PMIC Driver
+Date: Mon, 14 Jan 2019 10:05:14 +0000
+Message-ID: <1547460290-21049-1-git-send-email-p.paillet@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lee.jones@linaro.org" <lee.jones@linaro.org>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+Cc: Pascal PAILLET-LME <p.paillet@st.com>
 List-Id: linux-input@vger.kernel.org
 
-Fix link error when TOUCHSCREEN_RASPBERRYPI_FW is enabled as a module
-and the dependent module is built-in.
-The 'depends on RASPBERRYPI_FIRMWARE' by itself prevents the touchscreen
-driver from being built-in when the firmware is configured as a module.
-However, the '|| COMPILE_TEST' still allows it unless we explicitly
-prevent that configuration with '|| (RASPBERRYPI_FIRMWARE=n &&
-COMPILE_TEST)'
+The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
+STMicroelectronics. 
+The STPMIC1 regulators supply power to an application processor as well as 
+to external system peripherals such as DDR, Flash memories and system
+devices. It also features onkey button input and an hardware watchdog.
+The STPMIC1 is controlled via I2C. 
 
-ld: drivers/input/touchscreen/raspberrypi-ts.o: in function `rpi_ts_probe':
-raspberrypi-ts.c:(.text+0x3a8): undefined reference to `rpi_firmware_get'
-ld: raspberrypi-ts.c:(.text+0x3a8): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `rpi_firmware_get'
-ld: raspberrypi-ts.c:(.text+0x4c8): undefined reference to `rpi_firmware_property'
-ld: raspberrypi-ts.c:(.text+0x4c8): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `rpi_firmware_property'
+Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+as parent.
 
-Rework so that TOUCHSCREEN_RASPBERRYPI_FW depends on
-RASPBERRYPI_FIRMWARE=n if COMPILE_TEST is enabled.
+STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
----
- drivers/input/touchscreen/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Pascal Paillet (6):
+  dt-bindings: mfd: document stpmic1
+  mfd: stpmic1: add stpmic1 driver
+  dt-bindings: input: document stpmic1 pmic onkey
+  input: stpmic1: add stpmic1 onkey driver
+  dt-bindings: watchdog: document stpmic1 pmic watchdog
+  watchdog: stpmic1: add stpmic1 watchdog driver
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index af6027cc7bbf..068dbbc610fc 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -698,7 +698,7 @@ config TOUCHSCREEN_EDT_FT5X06
- 
- config TOUCHSCREEN_RASPBERRYPI_FW
- 	tristate "Raspberry Pi's firmware base touch screen support"
--	depends on RASPBERRYPI_FIRMWARE || COMPILE_TEST
-+	depends on RASPBERRYPI_FIRMWARE || (RASPBERRYPI_FIRMWARE=n && COMPILE_TEST)
- 	help
- 	  Say Y here if you have the official Raspberry Pi 7 inch screen on
- 	  your system.
+ .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
+ .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
+ .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
+ drivers/input/misc/Kconfig                         |  11 ++
+ drivers/input/misc/Makefile                        |   2 +
+ drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
+ drivers/mfd/Kconfig                                |  16 ++
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  12 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/stpmic1_wdt.c                     | 139 ++++++++++++++
+ include/dt-bindings/mfd/st,stpmic1.h               |  50 +++++
+ include/linux/mfd/stpmic1.h                        | 212 ++++++++++++++++++++
+ 14 files changed, 955 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+ create mode 100644 drivers/input/misc/stpmic1_onkey.c
+ create mode 100644 drivers/mfd/stpmic1.c
+ create mode 100644 drivers/watchdog/stpmic1_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+ create mode 100644 include/linux/mfd/stpmic1.h
+
 -- 
-2.19.2
+1.9.1

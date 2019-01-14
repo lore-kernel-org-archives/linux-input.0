@@ -1,56 +1,64 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: Re: [PATCH] input_event: Provide override for sparc64
-Date: Sun, 13 Jan 2019 20:37:34 -0800
-Message-ID: <7D5DB92B-5CFA-4D92-A578-51ADDAE94A0E@gmail.com>
-References: <20181229183514.24644-1-deepa.kernel@gmail.com>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-In-Reply-To: <20181229183514.24644-1-deepa.kernel@gmail.com>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
-To: dmitry.torokhov@gmail.com
-Cc: y2038@lists.linaro.org, davem@davemloft.net, linux-kernel@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: mcs_touchkey - use struct_size() in kzalloc()
+Date: Sun, 13 Jan 2019 22:31:02 -0800
+Message-ID: <20190114063102.GA217283@dtor-ws>
+References: <20190108211556.GA5760@embeddedor>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190108211556.GA5760@embeddedor>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Cgo+IE9uIERlYyAyOSwgMjAxOCwgYXQgMTA6MzUgQU0sIERlZXBhIERpbmFtYW5pIDxkZWVwYS5r
-ZXJuZWxAZ21haWwuY29tPiB3cm90ZToKPiAKPiBUaGUgdXNlYyBwYXJ0IG9mIHRoZSB0aW1ldmFs
-IGlzIGRlZmluZWQgYXMKPiBfX2tlcm5lbF9zdXNlY29uZHNfdCAgICB0dl91c2VjOyAvKiBtaWNy
-b3NlY29uZHMgKi8KPiAKPiBBcm5kIG5vdGljZWQgdGhhdCBzcGFyYzY0IGlzIHRoZSBvbmx5IGFy
-Y2hpdGVjdHVyZQo+IHRoYXQgZGVmaW5lcyBfX2tlcm5lbF9zdXNlY29uZHNfdCBhcyBpbnQgcmF0
-aGVyIHRoYW4gbG9uZy4KPiAKPiBUaGlzIGJyZWFrcyB0aGUgY3VycmVudCB5MjAzOCBmaXggZm9y
-IGtlcm5lbCBhcyB3ZSBvbmx5Cj4gYWNjZXNzIGFuZCBkZWZpbmUgdGhlIHRpbWV2YWwgc3RydWN0
-IGZvciBub24ta2VybmVsIHVzZSBjYXNlcy4KPiBCdXQsIHRoaXMgd2FzIGhpZGRlbiBieSBhbiBh
-bm90aGVyIHR5cG8gaW4gdGhlIHVzZSBvZiBfX0tFUk5FTF9fCj4gcXVhbGlmaWVyLgo+IAo+IEZp
-eCB0aGUgdHlwbywgYW5kIHByb3ZpZGUgYW4gb3ZlcnJpZGUgZm9yIHNwYXJjNjQuCj4gCj4gRml4
-ZXM6IDE1MjE5NGZlOWMzZiAoIklucHV0OiBleHRlbmQgdXNhYmxlIGxpZmUgb2YgZXZlbnQgdGlt
-ZXN0YW1wcyB0byAyMTA2IG9uIDMyIGJpdCBzeXN0ZW1zIikKPiBSZXBvcnRlZC1ieTogQXJuZCBC
-ZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KPiBTaWduZWQtb2ZmLWJ5OiBEZWVwYSBEaW5hbWFuaSA8
-ZGVlcGEua2VybmVsQGdtYWlsLmNvbT4KPiAtLS0KPiBpbmNsdWRlL3VhcGkvbGludXgvaW5wdXQu
-aCB8IDYgKysrKystCj4gMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlv
-bigtKQo+IAo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvaW5wdXQuaCBiL2luY2x1
-ZGUvdWFwaS9saW51eC9pbnB1dC5oCj4gaW5kZXggZmI3OGY2ZjUwMGYzLi5mZmFiOTU4YmM1MTIg
-MTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L2lucHV0LmgKPiArKysgYi9pbmNsdWRl
-L3VhcGkvbGludXgvaW5wdXQuaAo+IEBAIC0yNiwxMyArMjYsMTcgQEAKPiAgKi8KPiAKPiBzdHJ1
-Y3QgaW5wdXRfZXZlbnQgewo+IC0jaWYgKF9fQklUU19QRVJfTE9ORyAhPSAzMiB8fCAhZGVmaW5l
-ZChfX1VTRV9USU1FX0JJVFM2NCkpICYmICFkZWZpbmVkKF9fS0VSTkVMKQo+ICsjaWYgKF9fQklU
-U19QRVJfTE9ORyAhPSAzMiB8fCAhZGVmaW5lZChfX1VTRV9USU1FX0JJVFM2NCkpICYmICFkZWZp
-bmVkKF9fS0VSTkVMX18pCj4gICAgc3RydWN0IHRpbWV2YWwgdGltZTsKPiAjZGVmaW5lIGlucHV0
-X2V2ZW50X3NlYyB0aW1lLnR2X3NlYwo+ICNkZWZpbmUgaW5wdXRfZXZlbnRfdXNlYyB0aW1lLnR2
-X3VzZWMKPiAjZWxzZQo+ICAgIF9fa2VybmVsX3Vsb25nX3QgX19zZWM7Cj4gKyNpZmRlZiBDT05G
-SUdfU1BBUkM2NAo+ICsgICAgdW5zaWduZWQgaW50IF9fdXNlYzsKPiArI2Vsc2UKPiAgICBfX2tl
-cm5lbF91bG9uZ190IF9fdXNlYzsKPiArI2VuZGlmCj4gI2RlZmluZSBpbnB1dF9ldmVudF9zZWMg
-IF9fc2VjCj4gI2RlZmluZSBpbnB1dF9ldmVudF91c2VjIF9fdXNlYwo+ICNlbmRpZgo+IC0tIAo+
-IDIuMTcuMQoKUGluZy4KCgpUaGlzIGlzIHJlcXVpcmVkIGZvciB0aGUgcHJvcGVyIGZ1bmN0aW9u
-aW5nIG9mIHRoZSB5MjAzOCBhZGRpdGlvbnMgdG8gaW5wdXQgZXZlbnQuCgotRGVlcGEgCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClkyMDM4IG1haWxpbmcg
-bGlzdApZMjAzOEBsaXN0cy5saW5hcm8ub3JnCmh0dHBzOi8vbGlzdHMubGluYXJvLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3kyMDM4Cg==
+On Tue, Jan 08, 2019 at 03:15:56PM -0600, Gustavo A. R. Silva wrote:
+> One of the more common cases of allocation size calculations is finding the
+> size of a structure that has a zero-sized array at the end, along with memory
+> for some number of elements for that array. For example:
+> 
+> struct foo {
+>     int stuff;
+>     void *entry[];
+> };
+> 
+> instance = kzalloc(sizeof(struct foo) + sizeof(void *) * count, GFP_KERNEL);
+> 
+> Instead of leaving these open-coded and prone to type mistakes, we can now
+> use the new struct_size() helper:
+> 
+> instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
+> 
+> This code was detected with the help of Coccinelle.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/keyboard/mcs_touchkey.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
+> index be56d4f262a7..b132662201a4 100644
+> --- a/drivers/input/keyboard/mcs_touchkey.c
+> +++ b/drivers/input/keyboard/mcs_touchkey.c
+> @@ -113,9 +113,8 @@ static int mcs_touchkey_probe(struct i2c_client *client,
+>  		return -EINVAL;
+>  	}
+>  
+> -	data = kzalloc(sizeof(struct mcs_touchkey_data) +
+> -			sizeof(data->keycodes[0]) * (pdata->key_maxval + 1),
+> -			GFP_KERNEL);
+> +	data = kzalloc(struct_size(data, keycodes, pdata->key_maxval + 1),
+> +		       GFP_KERNEL);
+>  	input_dev = input_allocate_device();
+>  	if (!data || !input_dev) {
+>  		dev_err(&client->dev, "Failed to allocate memory\n");
+> -- 
+> 2.20.1
+> 
+
+-- 
+Dmitry

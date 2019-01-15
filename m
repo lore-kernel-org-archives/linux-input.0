@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH V2 2/2] Input: rotaty-encoder - Add DT binding document
-Date: Mon, 14 Jan 2019 19:52:21 -0800
-Message-ID: <20190115035221.GA151157@dtor-ws>
+Date: Mon, 14 Jan 2019 19:53:34 -0800
+Message-ID: <20190115035334.GB151157@dtor-ws>
 References: <20190107164249.2342-1-nazgul33@gmail.com>
  <20190107164249.2342-3-nazgul33@gmail.com>
 Mime-Version: 1.0
@@ -10,10 +10,11 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <20190107164249.2342-3-nazgul33@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Donghoon Han <nazgul33@gmail.com>
+To: Donghoon Han <nazgul33@gmail.com>, Rob Herring <robh+dt@kernel.org>
 Cc: linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+[ resending to Rob... ]
 On Tue, Jan 08, 2019 at 01:42:49AM +0900, Donghoon Han wrote:
 > Add DT binding document for rotary-encoder, keycode options.
 > 

@@ -1,72 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 2/3] Input: atmel_mxt_ts: Wait for device be ready for
- communication
-Date: Mon, 14 Jan 2019 16:42:32 -0800
-Message-ID: <20190115004232.GK117329@dtor-ws>
-References: <20181214151214.5391-1-pawel.mikolaj.chmiel@gmail.com>
- <20181214151214.5391-3-pawel.mikolaj.chmiel@gmail.com>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v7 0/7] Introduce STPMIC1 PMIC Driver
+Date: Mon, 14 Jan 2019 16:48:56 -0800
+Message-ID: <20190115004856.GL117329@dtor-ws>
+References: <1543571742-17995-1-git-send-email-p.paillet@st.com>
+ <20181214124701.GZ4497@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181214151214.5391-3-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <20181214124701.GZ4497@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: nick@shmanahar.org, robh+dt@kernel.org, mark.rutland@arm.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Pascal PAILLET-LME <p.paillet@st.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Dec 14, 2018 at 04:12:13PM +0100, Paweł Chmiel wrote:
-> According to documentation, device isn't ready for communication,
-> until firmware asserts the CHG line. Add missing wait for this.
+On Fri, Dec 14, 2018 at 12:47:01PM +0000, Lee Jones wrote:
+> On Fri, 30 Nov 2018, Pascal PAILLET-LME wrote:
 > 
-> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-> ---
-> Changes from v1:
->   - Fix checkpatch issues
-> ---
->  drivers/input/touchscreen/atmel_mxt_ts.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+> > The goal of this patch-set is to propose a driver for the STPMIC1 PMIC from 
+> > STMicroelectronics. 
+> > The STPMIC1 regulators supply power to an application processor as well as 
+> > to external system peripherals such as DDR, Flash memories and system
+> > devices. It also features onkey button input and an hardware watchdog.
+> > The STPMIC1 is controlled via I2C. 
+> > 
+> > Main driver is drivers/mfd/stpmic1 that handle I2C regmap configuration and
+> > irqchip. stpmic1_regulator, stpmic1_onkey and stpmic1_wdt need stpmic1 mfd
+> > as parent.
+> > 
+> > STPMIC1 MFD and regulator drivers maybe mandatory at boot time.
+> > 
+> > Pascal Paillet (7):
+> > changes in v7:
+> > * rebase on regul/for-next
+> > 
+> >   dt-bindings: mfd: document stpmic1
+> >   mfd: stpmic1: add stpmic1 driver
+> >   dt-bindings: input: document stpmic1 pmic onkey
+> >   input: stpmic1: add stpmic1 onkey driver
+> >   dt-bindings: watchdog: document stpmic1 pmic watchdog
+> >   watchdog: stpmic1: add stpmic1 watchdog driver
+> >   regulator: stpmic1: fix regulator_lock usage
 > 
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index 55a107fc1b73..e8949c6ceafa 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -202,6 +202,7 @@ enum t100_type {
->  #define MXT_CRC_TIMEOUT		1000	/* msec */
->  #define MXT_FW_RESET_TIME	3000	/* msec */
->  #define MXT_FW_CHG_TIMEOUT	300	/* msec */
-> +#define MXT_POWERON_DELAY	150	/* msec */
->  
->  /* Command to unlock bootloader */
->  #define MXT_UNLOCK_CMD_MSB	0xaa
-> @@ -3070,6 +3071,16 @@ static int mxt_regulator_enable(struct mxt_data *data)
->  		msleep(MXT_REGULATOR_DELAY);
->  		gpiod_set_value(data->reset_gpio, 1);
->  		msleep(MXT_RESET_INVALID_CHG);
-> +
-> +retry_wait:
-> +		reinit_completion(&data->bl_completion);
-> +		data->in_bootloader = true;
-
-I think you would want to reinit the ocmpletion and set the flag before
-releasing reset line and sleeping, otherwise if interrupt fires too
-early you'll be spinning for extra time.
-
-I'd also really want to hear from Nick on this change.
-
-> +		error = mxt_wait_for_completion(data, &data->bl_completion,
-> +						MXT_POWERON_DELAY);
-> +		if (error == -EINTR)
-> +			goto retry_wait;
-> +
-> +		data->in_bootloader = false;
->  	}
->  
->  	return 0;
-> -- 
-> 2.17.1
+> Could you please remove any patches which have been applied and
+> [RESEND]?
 > 
+> Also, is Dmitry planning on Acking:
+> 
+>   dt-bindings: input: document stpmic1 pmic onkey
+> 
+> ... or is Rob's Ack enough?
+
+For bindings I normally defer to Rob (unless I see something that really
+bugs me and then I'll speak up).
 
 Thanks.
 

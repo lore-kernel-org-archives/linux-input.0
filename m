@@ -1,49 +1,49 @@
-From: Kai Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: [PATCH] HID: i2c-hid: Disable runtime PM on Goodix touchpad
-Date: Wed, 16 Jan 2019 16:21:21 +0800
-Message-ID: <663EE74C-02E8-49DB-A197-2022AFE2D863@canonical.com>
-References: <20190114084734.3362-1-kai.heng.feng@canonical.com>
- <nycvar.YFH.7.76.1901141217550.6626@cbobk.fhfr.pm>
-Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1901141217550.6626@cbobk.fhfr.pm>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Lubomir Rintel <lkundrak@v3.sk>
+Subject: [PATCH] Input: olpc_apsp - assign priv->dev earlier
+Date: Wed, 16 Jan 2019 10:44:38 +0100
+Message-ID: <20190116094438.1921667-1-lkundrak@v3.sk>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+The dev field needs to be set when serio_register_port() is called,
+because the open callback may use it (in the error handling path).
 
+Cc: stable@vger.kernel.org # v4.18+
+Fixes: commit af518342effd ("Input: olpc_apsp - check FIFO status on open=
+(), not probe()")
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+---
+ drivers/input/serio/olpc_apsp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> On Jan 14, 2019, at 19:18, Jiri Kosina <jikos@kernel.org> wrote:
-> 
-> On Mon, 14 Jan 2019, Kai-Heng Feng wrote:
-> 
->> A Goodix touchpad doesn't work. Touching the touchpad can trigger IRQ
->> but there's no input event from HID subsystem.
->> 
->> Turns out it reports some invalid data:
->> [   22.136630] i2c_hid i2c-DELL091F:00: input: 0b 00 01 00 00 00 00 00 00 00 00
->> 
->> After some trial and error, it's another device that doesn't work well
->> with ON/SLEEP commands. Disable runtime PM to fix the issue.
-> 
-> Thanks, I've now applied the patch to for-5.0/upstream-fixes. I am 
-> wondering though we are we seeing these at all - do other OSes not do the 
-> runtime PM on i2c at all?
-
-According to the vendor, Windows does use ON/SLEEP, but infrequently.
-
-We can use pm_runtime_use_autosuspend() to reduce the frequency of
-ON/SLEEP commands, but it’s just papering over the touchpad firmware
-bug.
-
-Kai-Heng
-
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_a=
+psp.c
+index 0aece9777087..554f4b8228d2 100644
+--- a/drivers/input/serio/olpc_apsp.c
++++ b/drivers/input/serio/olpc_apsp.c
+@@ -198,6 +198,8 @@ static int olpc_apsp_probe(struct platform_device *pd=
+ev)
+ 	if (!priv)
+ 		return -ENOMEM;
+=20
++	priv->dev =3D &pdev->dev;
++
+ 	res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	priv->base =3D devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(priv->base)) {
+@@ -261,7 +263,6 @@ static int olpc_apsp_probe(struct platform_device *pd=
+ev)
+ 		goto err_irq;
+ 	}
+=20
+-	priv->dev =3D &pdev->dev;
+ 	device_init_wakeup(priv->dev, 1);
+ 	platform_set_drvdata(pdev, priv);
+=20
+--=20
+2.20.1

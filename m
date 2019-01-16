@@ -1,72 +1,58 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD, Input and Watchdog due for
- the v5.1 merge window
-Date: Wed, 16 Jan 2019 14:04:26 +0000
-Message-ID: <20190116140426.GF23399@dell>
-References: <1547460290-21049-1-git-send-email-p.paillet@st.com>
+From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH] input: misc: pwm-vibra: Prevent unbalanced regulator
+Date: Wed, 16 Jan 2019 22:11:31 +0100
+Message-ID: <20190116211131.18809-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1547460290-21049-1-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pascal PAILLET-LME <p.paillet@st.com>
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Enjoy!
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
+pwm_vibrator_stop disables the regulator, but it can be called from
+multiple places, even when the regulator is already disabled. Fix this
+by using regulator_is_enabled check when starting and stopping device.
 
-  Linux 5.0-rc1 (2019-01-06 17:08:20 -0800)
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+---
+ drivers/input/misc/pwm-vibra.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-watchdog-v5.1
-
-for you to fetch changes up to 28804c2c8fb3401aa4b7f16a883d49dd82f5e377:
-
-  watchdog: stpmic1: Add STPMIC1 watchdog driver (2019-01-16 14:01:19 +0000)
-
-----------------------------------------------------------------
-Immutable branch between MFD, Input and Watchdog due for the v5.1 merge window
-
-----------------------------------------------------------------
-Pascal PAILLET-LME (6):
-      dt-bindings: mfd: Document STPMIC1
-      mfd: stpmic1: Add STPMIC1 driver
-      dt-bindings: input: Document STPMIC1 PMIC onkey
-      input: stpmic1: Add STPMIC1 onkey driver
-      dt-bindings: watchdog: document STPMIC1 PMIC watchdog
-      watchdog: stpmic1: Add STPMIC1 watchdog driver
-
- .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
- .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
- .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
- drivers/input/misc/Kconfig                         |  11 ++
- drivers/input/misc/Makefile                        |   2 +
- drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
- drivers/mfd/Kconfig                                |  16 ++
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
- drivers/watchdog/Kconfig                           |  12 ++
- drivers/watchdog/Makefile                          |   1 +
- drivers/watchdog/stpmic1_wdt.c                     | 139 ++++++++++++++
- include/dt-bindings/mfd/st,stpmic1.h               |  50 +++++
- include/linux/mfd/stpmic1.h                        | 212 ++++++++++++++++++++
- 14 files changed, 955 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
- create mode 100644 drivers/input/misc/stpmic1_onkey.c
- create mode 100644 drivers/mfd/stpmic1.c
- create mode 100644 drivers/watchdog/stpmic1_wdt.c
- create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
- create mode 100644 include/linux/mfd/stpmic1.h
-
+diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
+index 55da191ae550..66677ee770ca 100644
+--- a/drivers/input/misc/pwm-vibra.c
++++ b/drivers/input/misc/pwm-vibra.c
+@@ -42,10 +42,12 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+ 	struct pwm_state state;
+ 	int err;
+ 
+-	err = regulator_enable(vibrator->vcc);
+-	if (err) {
+-		dev_err(pdev, "failed to enable regulator: %d", err);
+-		return err;
++	if (!regulator_is_enabled(vibrator->vcc)) {
++		err = regulator_enable(vibrator->vcc);
++		if (err) {
++			dev_err(pdev, "failed to enable regulator: %d", err);
++			return err;
++		}
+ 	}
+ 
+ 	pwm_get_state(vibrator->pwm, &state);
+@@ -76,7 +78,8 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+ 
+ static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
+ {
+-	regulator_disable(vibrator->vcc);
++	if (regulator_is_enabled(vibrator->vcc))
++		regulator_disable(vibrator->vcc);
+ 
+ 	if (vibrator->pwm_dir)
+ 		pwm_disable(vibrator->pwm_dir);
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.1

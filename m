@@ -1,23 +1,21 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD, IIO and Input due for the
- v5.1 merge window
-Date: Wed, 16 Jan 2019 12:44:21 +0000
-Message-ID: <20190116124421.GD23399@dell>
-References: <20181221134638.20600-1-dev@pschenker.ch>
+Subject: [GIT PULL] Immutable branch between MFD, Input and Watchdog due for
+ the v5.1 merge window
+Date: Wed, 16 Jan 2019 14:04:26 +0000
+Message-ID: <20190116140426.GF23399@dell>
+References: <1547460290-21049-1-git-send-email-p.paillet@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181221134638.20600-1-dev@pschenker.ch>
+In-Reply-To: <1547460290-21049-1-git-send-email-p.paillet@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Philippe Schenker <dev@pschenker.ch>
-Cc: jic23@kernel.org, marcel.ziswiler@toradex.com, stefan@agner.ch, robh@kernel.org, alexandre.torgue@st.com, shawnguo@kernel.org, dmitry.torokhov@gmail.com, thierry.reding@gmail.com, digetx@gmail.com, coquelin.stm32@gmail.com, Philippe Schenker <philippe.schenker@toradex.com>, Arnd Bergmann <arnd@arndb.de>, Arnaud Pouliquen <arnaud.pouliquen@st.com>, linux-iio@vger.kernel.org, Mark Brown <broonie@kernel.org>, Pengutronix Kernel Team <kernel@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, William Breathitt Gray <vilhelm.gray@gmail.com>, linux-stm32@st-md-mailman.stormreply.com, Fabio Estevam <fabio.estevam@nxp.com>, Randy Dunlap <rdunlap@infradead.org>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Freeman Liu <fre>
+To: Pascal PAILLET-LME <p.paillet@st.com>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "lgirdwood@gmail.com" <lgirdwood@gmail.com>, "broonie@kernel.org" <broonie@kernel.org>, "wim@linux-watchdog.org" <wim@linux-watchdog.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-watchdog@vger.kernel.org" <linux-watchdog@vger.kernel.org>, "benjamin.gaignard@linaro.org" <benjamin.gaignard@linaro.org>, "eballetbo@gmail.com" <eballetbo@gmail.com>, "axel.lin@ingics.com" <axel.lin@ingics.com>
 List-Id: linux-input@vger.kernel.org
 
-Taken all but the ARM patches.
-
-These need to be reviewed and go in via ARM-SoC.
+Enjoy!
 
 The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
 
@@ -25,39 +23,47 @@ The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
 
 are available in the Git repository at:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-iio-input-v5.1
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-watchdog-v5.1
 
-for you to fetch changes up to 81cdab79818988d27d8aeb162b7988c9e6dde936:
+for you to fetch changes up to 28804c2c8fb3401aa4b7f16a883d49dd82f5e377:
 
-  iio: adc: add STMPE ADC devicetree bindings (2019-01-16 12:37:36 +0000)
-
-----------------------------------------------------------------
-Immutable branch between MFD, IIO and Input due for the v5.1 merge window
+  watchdog: stpmic1: Add STPMIC1 watchdog driver (2019-01-16 14:01:19 +0000)
 
 ----------------------------------------------------------------
-Philippe Schenker (3):
-      dt-bindings: stmpe: Reformatting parameter list and use tabs only
-      mfd: stmpe: Move ADC related defines to MFD header
-      Input: stmpe-ts: preparations for STMPE ADC driver
+Immutable branch between MFD, Input and Watchdog due for the v5.1 merge window
 
-Stefan Agner (3):
-      mfd: stmpe: Preparations for STMPE ADC driver
-      iio: adc: add STMPE ADC driver using IIO framework
-      iio: adc: add STMPE ADC devicetree bindings
+----------------------------------------------------------------
+Pascal PAILLET-LME (6):
+      dt-bindings: mfd: Document STPMIC1
+      mfd: stpmic1: Add STPMIC1 driver
+      dt-bindings: input: Document STPMIC1 PMIC onkey
+      input: stpmic1: Add STPMIC1 onkey driver
+      dt-bindings: watchdog: document STPMIC1 PMIC watchdog
+      watchdog: stpmic1: Add STPMIC1 watchdog driver
 
- .../devicetree/bindings/iio/adc/stmpe-adc.txt      |  21 ++
- .../bindings/input/touchscreen/stmpe.txt           | 116 +++++--
- Documentation/devicetree/bindings/mfd/stmpe.txt    |  28 +-
- drivers/iio/adc/Kconfig                            |   7 +
- drivers/iio/adc/Makefile                           |   1 +
- drivers/iio/adc/stmpe-adc.c                        | 363 +++++++++++++++++++++
- drivers/input/touchscreen/stmpe-ts.c               |  66 +---
- drivers/mfd/Kconfig                                |   3 +-
- drivers/mfd/stmpe.c                                |  68 ++++
- include/linux/mfd/stmpe.h                          |  21 ++
- 10 files changed, 610 insertions(+), 84 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/iio/adc/stmpe-adc.txt
- create mode 100644 drivers/iio/adc/stmpe-adc.c
+ .../devicetree/bindings/input/st,stpmic1-onkey.txt |  28 +++
+ .../devicetree/bindings/mfd/st,stpmic1.txt         |  61 ++++++
+ .../bindings/watchdog/st,stpmic1-wdt.txt           |  11 ++
+ drivers/input/misc/Kconfig                         |  11 ++
+ drivers/input/misc/Makefile                        |   2 +
+ drivers/input/misc/stpmic1_onkey.c                 | 198 +++++++++++++++++++
+ drivers/mfd/Kconfig                                |  16 ++
+ drivers/mfd/Makefile                               |   1 +
+ drivers/mfd/stpmic1.c                              | 213 +++++++++++++++++++++
+ drivers/watchdog/Kconfig                           |  12 ++
+ drivers/watchdog/Makefile                          |   1 +
+ drivers/watchdog/stpmic1_wdt.c                     | 139 ++++++++++++++
+ include/dt-bindings/mfd/st,stpmic1.h               |  50 +++++
+ include/linux/mfd/stpmic1.h                        | 212 ++++++++++++++++++++
+ 14 files changed, 955 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/st,stpmic1-onkey.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/st,stpmic1.txt
+ create mode 100644 Documentation/devicetree/bindings/watchdog/st,stpmic1-wdt.txt
+ create mode 100644 drivers/input/misc/stpmic1_onkey.c
+ create mode 100644 drivers/mfd/stpmic1.c
+ create mode 100644 drivers/watchdog/stpmic1_wdt.c
+ create mode 100644 include/dt-bindings/mfd/st,stpmic1.h
+ create mode 100644 include/linux/mfd/stpmic1.h
 
 -- 
 Lee Jones [李琼斯]

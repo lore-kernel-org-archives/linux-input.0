@@ -1,70 +1,131 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: i2c-hid: Disable runtime PM on Goodix touchpad
-Date: Thu, 17 Jan 2019 13:35:32 +0100
-Message-ID: <CAO-hwJ+OQAsJkJj2YRGOE=8NcXhS=XWwdfGSaLjY9Bdvcfn7BQ@mail.gmail.com>
-References: <20190114084734.3362-1-kai.heng.feng@canonical.com>
- <nycvar.YFH.7.76.1901141217550.6626@cbobk.fhfr.pm> <663EE74C-02E8-49DB-A197-2022AFE2D863@canonical.com>
- <2149AEF5-ABBF-4745-89F9-7FF9719251B5@canonical.com> <CAO-hwJLHm8b6X9kX1myz7xx1992VW2tVjdn6xw2n1MVX2dn0=g@mail.gmail.com>
- <1897F291-4EB4-4E4B-87AA-3C16EF321340@canonical.com>
+Subject: Re: [PATCH 1/1] Input: elantech: Use SMBus based on bus info
+Date: Thu, 17 Jan 2019 15:42:44 +0100
+Message-ID: <CAO-hwJKyBHM1Yy8=pQrbDoArTOX4=8G6f0jECv4x1mth+LZZDw@mail.gmail.com>
+References: <20190117092948.32079-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1897F291-4EB4-4E4B-87AA-3C16EF321340@canonical.com>
+In-Reply-To: <20190117092948.32079-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>, Hans de Goede <hdegoede@redhat.com>, anisse@astier.eu
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 17, 2019 at 12:41 PM Kai-Heng Feng
+Hi Kai-Heng,
+
+On Thu, Jan 17, 2019 at 10:30 AM Kai-Heng Feng
 <kai.heng.feng@canonical.com> wrote:
 >
+> There are some new HP laptops with Elantech touchpad don't support
+> multitouch.
 >
+> Both ETP_BUS_SMB_HST_NTFY_ONLY and ETP_BUS_PS2_SMB_HST_NTFY devices can
+> use SMBus to support 5 fingers touch, so we need to chech them too.
 >
-> > On Jan 17, 2019, at 16:06, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> >
-> > On Thu, Jan 17, 2019 at 6:02 AM Kai-Heng Feng
-> > <kai.heng.feng@canonical.com> wrote:
-> [snipped]
-> >> Goodix says the firmware needs at least 60ms to fully respond ON and
-> >> SLEEP command.
-> >
-> > I was about to say that this is not conformant to the specification.
-> > But looking at 7.2.8 SET_POWER of
-> > https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn642101(v=vs.85)
-> >
-> > They say:
-> > "The DEVICE must ensure that it transitions to the HOST specified
-> > Power State in under 1 second. "
-> > But in the RESPONSE paragraph: "The DEVICE shall not respond back
-> > after receiving the command. The DEVICE is mandated to enter that
-> > power state imminently."
-> >
-> > My interpretation was always that the device has to be in a ready
-> > state for new commands "immediately".
-> > However, the first sentence may suggest that the driver would block
-> > any command to the device before the 1 second timestamp.
-> >
-> >>
-> >> I’ll see if an 200ms autosuspend can solve all Goodix, LG and Raydium
-> >> touchpanels.
-> >
-> > We already have a I2C_HID_QUIRK_DELAY_AFTER_SLEEP quirk that delay
-> > operations after sleep by 20ms. Maybe we can keep the runtime PM but
-> > use the same timers to not confuse the hardware.
+> So use elantech_use_host_notify() to do a more thouroughly check.
 >
-> Yes, but wouldn’t use pm_*_autosuspend() helpers can both solve the issue
-> and make the code more cleaner?
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+>  drivers/input/mouse/elantech.c | 58 +++++++++++++++++-----------------
+>  1 file changed, 29 insertions(+), 29 deletions(-)
+>
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index 9fe075c137dc..5bcf1c147eb1 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1799,6 +1799,34 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+>                                   leave_breadcrumbs);
+>  }
+>
+> +static bool elantech_use_host_notify(struct psmouse *psmouse,
+> +                                    struct elantech_device_info *info)
+> +{
+> +       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> +               return true;
+> +
+> +       switch (info->bus) {
+> +       case ETP_BUS_PS2_ONLY:
+> +               /* expected case */
+> +               break;
+> +       case ETP_BUS_SMB_ALERT_ONLY:
+> +               /* fall-through  */
+> +       case ETP_BUS_PS2_SMB_ALERT:
+> +               psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
+> +               break;
+> +       case ETP_BUS_SMB_HST_NTFY_ONLY:
+> +               /* fall-through  */
+> +       case ETP_BUS_PS2_SMB_HST_NTFY:
+> +               return true;
+> +       default:
+> +               psmouse_dbg(psmouse,
+> +                           "Ignoring SMBus bus provider %d.\n",
+> +                           info->bus);
+> +       }
+> +
+> +       return false;
+> +}
+> +
+>  /**
+>   * elantech_setup_smbus - called once the PS/2 devices are enumerated
+>   * and decides to instantiate a SMBus InterTouch device.
+> @@ -1818,7 +1846,7 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+>                  * i2c_blacklist_pnp_ids.
+>                  * Old ICs are up to the user to decide.
+>                  */
+> -               if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
+> +               if (!elantech_use_host_notify(psmouse, info) ||
 
-You are probably correct :)
+That was my initial approach of the series, but I ended up being more
+conservative as this would flip all of the existing elantech SMBUS
+capable touchpads to use elan_i2c.
+And I didn't want to deal with 4/5 year old laptops that suddenly broke.
 
-I am not too familiar with the details of the runtime PM API, but if
-you can make this a barrier to prevent the host to call too many
-suspends/resumes in a row, that would be nice.
-And we might be able to ditch I2C_HID_QUIRK_DELAY_AFTER_SLEEP and
-I2C_HID_QUIRK_NO_RUNTIME_PM.
-
-Adding the involved people in the thread.
+So I wonder if you can restrict this default change to the recent
+laptops (let's say 2018+). Maybe by looking at their FW version or
+something else in the DMI?
 
 Cheers,
 Benjamin
+
+>                     psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+>                         return -ENXIO;
+>         }
+> @@ -1838,34 +1866,6 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+>         return 0;
+>  }
+>
+> -static bool elantech_use_host_notify(struct psmouse *psmouse,
+> -                                    struct elantech_device_info *info)
+> -{
+> -       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> -               return true;
+> -
+> -       switch (info->bus) {
+> -       case ETP_BUS_PS2_ONLY:
+> -               /* expected case */
+> -               break;
+> -       case ETP_BUS_SMB_ALERT_ONLY:
+> -               /* fall-through  */
+> -       case ETP_BUS_PS2_SMB_ALERT:
+> -               psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
+> -               break;
+> -       case ETP_BUS_SMB_HST_NTFY_ONLY:
+> -               /* fall-through  */
+> -       case ETP_BUS_PS2_SMB_HST_NTFY:
+> -               return true;
+> -       default:
+> -               psmouse_dbg(psmouse,
+> -                           "Ignoring SMBus bus provider %d.\n",
+> -                           info->bus);
+> -       }
+> -
+> -       return false;
+> -}
+> -
+>  int elantech_init_smbus(struct psmouse *psmouse)
+>  {
+>         struct elantech_device_info info;
+> --
+> 2.17.1
+>

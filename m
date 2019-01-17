@@ -1,82 +1,56 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: misc: pwm-vibra: Prevent unbalanced regulator
-Date: Wed, 16 Jan 2019 23:08:38 -0800
-Message-ID: <20190117070838.GA8109@dtor-ws>
-References: <20190116211131.18809-1-pawel.mikolaj.chmiel@gmail.com>
+Subject: Re: [PATCH] Input: olpc_apsp - assign priv->dev earlier
+Date: Wed, 16 Jan 2019 23:12:23 -0800
+Message-ID: <20190117071223.GB8109@dtor-ws>
+References: <20190116094438.1921667-1-lkundrak@v3.sk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190116211131.18809-1-pawel.mikolaj.chmiel@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>
+In-Reply-To: <20190116094438.1921667-1-lkundrak@v3.sk>
+Sender: stable-owner@vger.kernel.org
+To: Lubomir Rintel <lkundrak@v3.sk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Paweł,
+On Wed, Jan 16, 2019 at 10:44:38AM +0100, Lubomir Rintel wrote:
+> The dev field needs to be set when serio_register_port() is called,
+> because the open callback may use it (in the error handling path).
+> 
+> Cc: stable@vger.kernel.org # v4.18+
+> Fixes: commit af518342effd ("Input: olpc_apsp - check FIFO status on open(), not probe()")
+> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
 
-On Wed, Jan 16, 2019 at 10:11:31PM +0100, Paweł Chmiel wrote:
-> From: Jonathan Bakker <xc-racer2@live.ca>
-> 
-> pwm_vibrator_stop disables the regulator, but it can be called from
-> multiple places, even when the regulator is already disabled. Fix this
-> by using regulator_is_enabled check when starting and stopping device.
-> 
-> Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Applied, thank you.
+
 > ---
->  drivers/input/misc/pwm-vibra.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
+>  drivers/input/serio/olpc_apsp.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-> index 55da191ae550..66677ee770ca 100644
-> --- a/drivers/input/misc/pwm-vibra.c
-> +++ b/drivers/input/misc/pwm-vibra.c
-> @@ -42,10 +42,12 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
->  	struct pwm_state state;
->  	int err;
+> diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_apsp.c
+> index 0aece9777087..554f4b8228d2 100644
+> --- a/drivers/input/serio/olpc_apsp.c
+> +++ b/drivers/input/serio/olpc_apsp.c
+> @@ -198,6 +198,8 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+>  	if (!priv)
+>  		return -ENOMEM;
 >  
-> -	err = regulator_enable(vibrator->vcc);
-> -	if (err) {
-> -		dev_err(pdev, "failed to enable regulator: %d", err);
-> -		return err;
-> +	if (!regulator_is_enabled(vibrator->vcc)) {
-
-I do not think this is correct in case of shared supply, as this checks
-global state of regulator. That means that if there is another user, we
-may forego enabling regulator here, and that anther user may power it
-down and vibrator will stop working.
-
-I think you need a local flag here.
-
-> +		err = regulator_enable(vibrator->vcc);
-> +		if (err) {
-> +			dev_err(pdev, "failed to enable regulator: %d", err);
-> +			return err;
-> +		}
+> +	priv->dev = &pdev->dev;
+> +
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	priv->base = devm_ioremap_resource(&pdev->dev, res);
+>  	if (IS_ERR(priv->base)) {
+> @@ -261,7 +263,6 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+>  		goto err_irq;
 >  	}
 >  
->  	pwm_get_state(vibrator->pwm, &state);
-> @@ -76,7 +78,8 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+> -	priv->dev = &pdev->dev;
+>  	device_init_wakeup(priv->dev, 1);
+>  	platform_set_drvdata(pdev, priv);
 >  
->  static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
->  {
-> -	regulator_disable(vibrator->vcc);
-> +	if (regulator_is_enabled(vibrator->vcc))
-> +		regulator_disable(vibrator->vcc);
-
-Looking at this, I wonder if we should not disable PWMs first and the
-disable regulator.
-
->  
->  	if (vibrator->pwm_dir)
->  		pwm_disable(vibrator->pwm_dir);
 > -- 
-> 2.17.1
+> 2.20.1
 > 
-
-Thanks.
 
 -- 
 Dmitry

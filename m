@@ -1,219 +1,93 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: synaptics - add PNP IDs for Dell XPS models to forcepad
-Date: Thu, 17 Jan 2019 09:13:36 +0100
-Message-ID: <CAO-hwJLBd-VGAoMBpwEZhWY2khsDEz2qKh05tNjbNVhAzQCRJA@mail.gmail.com>
-References: <20190111205430.15371-1-kim@kimphillips.com> <20190112014004.GA122403@dtor-ws>
- <22e2d619-0622-1816-2057-c9005288b46b@kimphillips.com> <20190114184012.GC117329@dtor-ws>
- <CAO-hwJKCeV5ZEw7aX58=mnfhWex5QtEVYbRdDX7OosfS5+suUw@mail.gmail.com> <4f0e0b88-c13a-a064-3a13-4d8abca252b3@kimphillips.com>
+From: =?UTF-8?Q?Pawe=C5=82_Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+Subject: Re: [PATCH] input: misc: pwm-vibra: Prevent unbalanced regulator
+Date: Thu, 17 Jan 2019 09:44:51 +0100
+Message-ID: <CAKpie0QcLf+M7YirVcX8AMXQYi8v+_kaKTSC7QZY1-0-op+aSQ@mail.gmail.com>
+References: <20190116211131.18809-1-pawel.mikolaj.chmiel@gmail.com> <20190117070838.GA8109@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4f0e0b88-c13a-a064-3a13-4d8abca252b3@kimphillips.com>
+In-Reply-To: <20190117070838.GA8109@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kim Phillips <kim@kimphillips.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, lkml <linux-kernel@vger.kernel.org>, Paul Menzel <pmenzel@molgen.mpg.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Jonathan Bakker <xc-racer2@live.ca>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 16, 2019 at 5:59 AM Kim Phillips <kim@kimphillips.com> wrote:
+czw., 17 sty 2019 o 08:08 Dmitry Torokhov <dmitry.torokhov@gmail.com>
+napisa=C5=82(a):
 >
-> On 1/15/19 2:57 AM, Benjamin Tissoires wrote:
-> > On Mon, Jan 14, 2019 at 7:40 PM Dmitry Torokhov
-> > <dmitry.torokhov@gmail.com> wrote:
-> >>
-> >> On Sat, Jan 12, 2019 at 04:04:36PM -0600, Kim Phillips wrote:
-> >>> On 1/11/19 7:40 PM, Dmitry Torokhov wrote:
-> >>>> Hi Kim,
-> >>>
-> >>> Hi Dmitry,
-> >>>
-> >>>> On Fri, Jan 11, 2019 at 02:54:30PM -0600, Kim Phillips wrote:
-> >>>>> This patch is the result of seeing this message:
-> >>>>>
-> >>>>> psmouse serio1: synaptics: Your touchpad (PNP: DLL087c PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org.
-> >>>>>
-> >>>>> If I set psmouse.synaptics_intertouch=1, or add the PNP ID to
-> >>>>> smbus_pnp_ids, the touchpad continues to work, and the above message
-> >>>>> goes away, but we now get:
-> >>>>>
-> >>>>> psmouse serio1: synaptics: Trying to set up SMBus access
-> >>>>> psmouse serio1: synaptics: SMbus companion is not ready yet
-> >>>>>
-> >>>>> With this patch applied, i.e., the PNP IDs are added to the forcepad
-> >>>>> array, the touchpad continues to work and all of the above messages
-> >>>>> disappear.
-> >>>>
-> >>>> Are you sure the touchpad in XPSes is a forcepad (i.e. it does not have
-> >>>> physical button underneath it)? As far as I know there were only couple
-> >>>> of HP laptops with forcepads and when switching to RMI mode forcepads
-> >>>> need F21 handler that we do not currently have in the kernel.
-> >>>
-> >>> I see, no, I'm not sure, but assuming you're right, the IDs
-> >>> should be added to the smbus array instead, after fixing
-> >>> the SMbus "companion not ready" problem?  Pointers for that and
-> >>> the below interrupts when touchpad idle after resume, welcome.
-> >>>
-> >>> Also, the link to get the RMI4 spec in
-> >>> Documentation/devicetree/bindings/input/rmi4/rmi_2d_sensor.txt
-> >>> is broken.  Any pointers for that also appreciated.
-> >>
-> >> OK, sorting it all out some more:
-> >>
-> >> - because we do not have support for F21 necessary for forcepads adding
-> >>    APIC ID to forcepad list actuallty disables SMbus companion mode, that
-> >>    is why you no longer see "companion not ready" messages vs. setting
-> >>    psmouse.synaptics_intertouch=1 module parameter.
+> Hi Pawe=C5=82,
+>
+> On Wed, Jan 16, 2019 at 10:11:31PM +0100, Pawe=C5=82 Chmiel wrote:
+> > From: Jonathan Bakker <xc-racer2@live.ca>
 > >
-> > Yep
+> > pwm_vibrator_stop disables the regulator, but it can be called from
+> > multiple places, even when the regulator is already disabled. Fix this
+> > by using regulator_is_enabled check when starting and stopping device.
 > >
-> >>
-> >> - this does not really matter as your touchpad ends up being driven by
-> >>    i2c-hid and hid-multitouch drivers, and that is how we wait it to
-> >>    work, as we do not want to deviate from behavior on Windows since OEM
-> >>    tested it (the device and firmware) in tha configuration.
+> > Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+> > Signed-off-by: Pawe=C5=82 Chmiel <pawel.mikolaj.chmiel@gmail.com>
+> > ---
+> >  drivers/input/misc/pwm-vibra.c | 13 ++++++++-----
+> >  1 file changed, 8 insertions(+), 5 deletions(-)
 > >
-> > Yep too. The I2C-hid touchpads from Synaptics do not have the SMBus
-> > wired at all, so we can't enable SMBus for them. Also, the fact that
-> > the device gets loaded over i2c-hid means that we can't know that it
-> > is the case from the psmouse/synaptics point of view.
->
-> Sigh, OK, I wasn't registering the word "not" when reading
-> "If i2c-hid and hid-rmi are not used" too quickly.
->
-> >> - we need to figure out issue with interrupts on resume, maybe Benjamin
-> >>    have seen it?
+> > diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vi=
+bra.c
+> > index 55da191ae550..66677ee770ca 100644
+> > --- a/drivers/input/misc/pwm-vibra.c
+> > +++ b/drivers/input/misc/pwm-vibra.c
+> > @@ -42,10 +42,12 @@ static int pwm_vibrator_start(struct pwm_vibrator *=
+vibrator)
+> >       struct pwm_state state;
+> >       int err;
 > >
-> > First time I see it.
+> > -     err =3D regulator_enable(vibrator->vcc);
+> > -     if (err) {
+> > -             dev_err(pdev, "failed to enable regulator: %d", err);
+> > -             return err;
+> > +     if (!regulator_is_enabled(vibrator->vcc)) {
+>
+> I do not think this is correct in case of shared supply, as this checks
+> global state of regulator. That means that if there is another user, we
+> may forego enabling regulator here, and that anther user may power it
+> down and vibrator will stop working.
+>
+> I think you need a local flag here.
+Ok will fix this (funny that in first version of patch there was such flag)=
+.
+>
+> > +             err =3D regulator_enable(vibrator->vcc);
+> > +             if (err) {
+> > +                     dev_err(pdev, "failed to enable regulator: %d", e=
+rr);
+> > +                     return err;
+> > +             }
+> >       }
 > >
-> > I just tried on a XPS 9360 and kernel v4.18 (fedora) and nothing was a problem.
-> > I then tried on a XPS 9575 with v4.19, and here, the wacom I2C node is
-> > also keeping firing the interrupts, but not the touchpad. However,
-> > here, the interrupts are not stopping when I touch the touchscreen or
-> > if I approach a pen.
+> >       pwm_get_state(vibrator->pwm, &state);
+> > @@ -76,7 +78,8 @@ static int pwm_vibrator_start(struct pwm_vibrator *vi=
+brator)
 > >
-> > Kim, rmmod-ing i2c-hid and modprobing back it with the parameter
-> > debug=1 doesn't show any events processed when the interrupts are
-> > firing. Do you see the same?
+> >  static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
+> >  {
+> > -     regulator_disable(vibrator->vcc);
+> > +     if (regulator_is_enabled(vibrator->vcc))
+> > +             regulator_disable(vibrator->vcc);
 >
-> After rmmodding i2c_hid, the WCOM488F and SYNA2393 entries in /proc/interrupts
-> somewhat expectedly disappear, however, the modprobe (with or without debug=1)
-> fails to bring them back, with these messages left in dmesg:
+> Looking at this, I wonder if we should not disable PWMs first and the
+> disable regulator.
+I will create and send separate patch for this.
+
+Thanks for review
 >
-> [ 3882.073222] calling  i2c_hid_driver_init+0x0/0x1000 [i2c_hid] @ 3082
-> [ 3882.180938] i2c_hid i2c-WCOM488F:00: HID over i2c has not been provided an Int IRQ
-> [ 3882.181060] i2c_hid: probe of i2c-WCOM488F:00 failed with error -22
-> [ 3882.181065] probe of i2c-WCOM488F:00 returned 0 after 496 usecs
-> [ 3882.289196] i2c_hid i2c-SYNA2393:00: HID over i2c has not been provided an Int IRQ
-> [ 3882.289318] i2c_hid: probe of i2c-SYNA2393:00 failed with error -22
-> [ 3882.289321] probe of i2c-SYNA2393:00 returned 0 after 508 usecs
-> [ 3882.289418] initcall i2c_hid_driver_init+0x0/0x1000 [i2c_hid] returned 0 after 211119 usecs
-
-Yes, that is a weird behavior I experience the other day also. It
-looks like rmmod-ing the driver simply kills the irq description
-attached to the i2c node. This waasn't the case previously, and I
-wonder if the issue is in i2c-hid (unlikely) or in i2c-core.
-
+> >
+> >       if (vibrator->pwm_dir)
+> >               pwm_disable(vibrator->pwm_dir);
+> > --
+> > 2.17.1
+> >
 >
-> In order to work around that problem, I set h2c_hid.debug=1 in the
-> boot command line, and after a resume, dmesg contains these messages,
-> relevant to i2c_hid:
+> Thanks.
 >
-> [  267.235673] i2c_hid i2c-WCOM488F:00: calling i2c_hid_resume+0x0/0x140 [i2c_hid] @ 3078, parent: i2c-9
-> [  267.235676] input input16: calling input_dev_resume+0x0/0x50 @ 3060, parent: card0
-> [  267.235681] input input16: input_dev_resume+0x0/0x50 returned 0 after 0 usecs
-> [  267.235682] i2c_hid i2c-WCOM488F:00: i2c_hid_set_power
-> [  267.235687] input input17: calling input_dev_resume+0x0/0x50 @ 3060, parent: card0
-> [  267.235689] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 00 08
-> [  267.235693] input input17: input_dev_resume+0x0/0x50 returned 0 after 0 usecs
-> [  267.235698] idma64 idma64.1: calling platform_pm_resume+0x0/0x50 @ 3060, parent: 0000:00:15.1
-> [  267.235701] idma64 idma64.1: platform_pm_resume+0x0/0x50 returned 0 after 0 usecs
-> [  267.235706] i2c_designware i2c_designware.1: calling platform_pm_resume+0x0/0x50 @ 3060, parent: 0000:00:15.1
-> [  267.235709] i2c_designware i2c_designware.1: platform_pm_resume+0x0/0x50 returned 0 after 0 usecs
-> [  267.235718] rfkill rfkill0: calling rfkill_resume+0x0/0x60 @ 3060, parent: phy0
-> [  267.235724] rfkill rfkill0: rfkill_resume+0x0/0x60 returned 0 after 3 usecs
-> [  267.235768] i2c_hid i2c-SYNA2393:00: calling i2c_hid_resume+0x0/0x140 [i2c_hid] @ 3108, parent: i2c-10
-> [  267.235774] i2c_hid i2c-SYNA2393:00: i2c_hid_set_power
-> [  267.235776] i2c_hid i2c-SYNA2393:00: __i2c_hid_command: cmd=22 00 00 08
-> [  267.236051] i2c_hid i2c-SYNA2393:00: i2c_hid_set_or_send_report
-> [  267.236053] i2c_hid i2c-SYNA2393:00: __i2c_hid_command: cmd=22 00 3d 03 23 00 04 00 0d 00
-> [  267.236076] i2c_hid i2c-WCOM488F:00: i2c_hid_set_or_send_report
-> [  267.236080] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 03 05 00 42 00 0b 00 fd 89 a3 07 f3 02 20 8d 49 06 d7 9c ff ff 80 59 5c 13 d7 9c ff ff 08 00 00 08 d7 9c ff ff 01 00 00 00 00 00 00 00 16 00 00 00 66 69 6c 65 75 74 6c 2e 6d 65 73 73
-> [  267.237691] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.238137] i2c_hid i2c-SYNA2393:00: i2c_hid_set_or_send_report
-> [  267.238140] i2c_hid i2c-SYNA2393:00: __i2c_hid_command: cmd=22 00 34 03 23 00 04 00 04 03
-> [  267.238670] i2c_hid i2c-WCOM488F:00: i2c_hid_get_report
-> [  267.238673] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 02 05 00
-> [  267.239708] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.240084] i2c_hid i2c-SYNA2393:00: i2c_hid_set_or_send_report
-> [  267.240087] i2c_hid i2c-SYNA2393:00: __i2c_hid_command: cmd=22 00 36 03 23 00 04 00 06 03
-> [  267.241377] i2c_hid i2c-WCOM488F:00: i2c_hid_set_or_send_report
-> [  267.241380] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 03 05 00 42 00 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> [  267.241711] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.243279] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.243981] i2c_hid i2c-WCOM488F:00: i2c_hid_get_report
-> [  267.243984] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 02 05 00
-> [  267.244847] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.245360] i2c_hid i2c-SYNA2393:00: i2c_hid_resume+0x0/0x140 [i2c_hid] returned 0 after 9360 usecs
-> [  267.245455] input input27: calling input_dev_resume+0x0/0x50 @ 3060, parent: 0018:06CB:7A13.0002
-> [  267.245460] input input27: input_dev_resume+0x0/0x50 returned 0 after 0 usecs
-> [  267.246773] i2c_hid i2c-WCOM488F:00: i2c_hid_set_or_send_report
-> [  267.246777] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 03 05 00 42 00 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> [  267.246919] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.248517] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.249383] i2c_hid i2c-WCOM488F:00: i2c_hid_get_report
-> [  267.249386] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 02 05 00
-> [  267.250116] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.251767] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.252137] i2c_hid i2c-WCOM488F:00: i2c_hid_set_or_send_report
-> [  267.252140] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 03 05 00 42 00 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> [  267.253440] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.254734] i2c_hid i2c-WCOM488F:00: i2c_hid_get_report
-> [  267.254737] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 02 05 00
-> [  267.255015] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.256612] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.257475] i2c_hid i2c-WCOM488F:00: i2c_hid_set_or_send_report
-> [  267.257478] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 03 05 00 42 00 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> [  267.258275] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.259852] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.260046] i2c_hid i2c-WCOM488F:00: i2c_hid_get_report
-> [  267.260049] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 02 05 00
-> [  267.261441] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.262789] i2c_hid i2c-WCOM488F:00: i2c_hid_set_or_send_report
-> [  267.262792] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 03 05 00 42 00 0b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> [  267.263129] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.264718] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.265410] i2c_hid i2c-WCOM488F:00: i2c_hid_get_report
-> [  267.265413] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3b 02 05 00
-> [  267.266318] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.267971] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.268169] i2c_hid i2c-WCOM488F:00: i2c_hid_set_or_send_report
-> [  267.268172] i2c_hid i2c-WCOM488F:00: __i2c_hid_command: cmd=04 00 3e 03 05 00 05 00 0e 02 00
-> [  267.268728] i2c_hid i2c-WCOM488F:00: i2c_hid_resume+0x0/0x140 [i2c_hid] returned 0 after 32273 usecs
-> [  267.269575] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.271144] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.272719] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
-> [  267.274298] i2c_hid i2c-SYNA2393:00: input: 20 00 03 01 3c 03 a8 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 60 01 00
->
-> ...and it goes on and on, where that same last line gets
-> repeated as the interrupts fire, until I start using the touchpad,
-> thereby stopping the interrupts.
-
-It looks like valid inputs. So I would expect the firmware to unset
-the IRQ line, but it doesn't do it.
-
-On an other thread, it has been brought to my attention that maybe we
-are not 100% compatible with the Windows driver regarding
-sleep/power_on commands. We expect the device to be ready while the
-Windows driver waits a little before sending a command. Maybe we can
-try to see if adding I2C_HID_QUIRK_DELAY_AFTER_SLEEP to this device
-changes something.
-
->
-> I'm not seeing any such bad behaviour from the WCOM device.
-
-In my case, the reports have a size of 0, so they are firing but
-nothing is processed (though i2c fetches the reports).
-I'll need to investigate all of these.
-
-Cheers,
-Benjamin
+> --
+> Dmitry

@@ -1,58 +1,62 @@
-From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH] input: misc: pwm-vibra: Prevent unbalanced regulator
-Date: Wed, 16 Jan 2019 22:11:31 +0100
-Message-ID: <20190116211131.18809-1-pawel.mikolaj.chmiel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] HID: i2c-hid: Disable runtime PM on Goodix touchpad
+Date: Thu, 17 Jan 2019 13:02:42 +0800
+Message-ID: <2149AEF5-ABBF-4745-89F9-7FF9719251B5@canonical.com>
+References: <20190114084734.3362-1-kai.heng.feng@canonical.com>
+ <nycvar.YFH.7.76.1901141217550.6626@cbobk.fhfr.pm>
+ <663EE74C-02E8-49DB-A197-2022AFE2D863@canonical.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <663EE74C-02E8-49DB-A197-2022AFE2D863@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
 
-pwm_vibrator_stop disables the regulator, but it can be called from
-multiple places, even when the regulator is already disabled. Fix this
-by using regulator_is_enabled check when starting and stopping device.
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
----
- drivers/input/misc/pwm-vibra.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+> On Jan 16, 2019, at 16:21, Kai Heng Feng <kai.heng.feng@canonical.com> wrote:
+> 
+> 
+> 
+>> On Jan 14, 2019, at 19:18, Jiri Kosina <jikos@kernel.org> wrote:
+>> 
+>> On Mon, 14 Jan 2019, Kai-Heng Feng wrote:
+>> 
+>>> A Goodix touchpad doesn't work. Touching the touchpad can trigger IRQ
+>>> but there's no input event from HID subsystem.
+>>> 
+>>> Turns out it reports some invalid data:
+>>> [   22.136630] i2c_hid i2c-DELL091F:00: input: 0b 00 01 00 00 00 00 00 00 00 00
+>>> 
+>>> After some trial and error, it's another device that doesn't work well
+>>> with ON/SLEEP commands. Disable runtime PM to fix the issue.
+>> 
+>> Thanks, I've now applied the patch to for-5.0/upstream-fixes. I am 
+>> wondering though we are we seeing these at all - do other OSes not do the 
+>> runtime PM on i2c at all?
+> 
+> According to the vendor, Windows does use ON/SLEEP, but infrequently.
+> 
+> We can use pm_runtime_use_autosuspend() to reduce the frequency of
+> ON/SLEEP commands, but it’s just papering over the touchpad firmware
+> bug.
 
-diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-index 55da191ae550..66677ee770ca 100644
---- a/drivers/input/misc/pwm-vibra.c
-+++ b/drivers/input/misc/pwm-vibra.c
-@@ -42,10 +42,12 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 	struct pwm_state state;
- 	int err;
- 
--	err = regulator_enable(vibrator->vcc);
--	if (err) {
--		dev_err(pdev, "failed to enable regulator: %d", err);
--		return err;
-+	if (!regulator_is_enabled(vibrator->vcc)) {
-+		err = regulator_enable(vibrator->vcc);
-+		if (err) {
-+			dev_err(pdev, "failed to enable regulator: %d", err);
-+			return err;
-+		}
- 	}
- 
- 	pwm_get_state(vibrator->pwm, &state);
-@@ -76,7 +78,8 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 
- static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
- {
--	regulator_disable(vibrator->vcc);
-+	if (regulator_is_enabled(vibrator->vcc))
-+		regulator_disable(vibrator->vcc);
- 
- 	if (vibrator->pwm_dir)
- 		pwm_disable(vibrator->pwm_dir);
--- 
-2.17.1
+Goodix says the firmware needs at least 60ms to fully respond ON and
+SLEEP command.
+
+I’ll see if an 200ms autosuspend can solve all Goodix, LG and Raydium
+touchpanels.
+
+Kai-Heng
+
+> 
+> Kai-Heng
+> 
+>> 
+>> -- 
+>> Jiri Kosina
+>> SUSE Labs

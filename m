@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 05/13] dt-bindings: leds: add DT bindings for max77650
-Date: Fri, 18 Jan 2019 14:42:36 +0100
-Message-ID: <20190118134244.22253-6-brgl@bgdev.pl>
+Subject: [PATCH 03/13] dt-bindings: power: supply: add DT bindings for max77650
+Date: Fri, 18 Jan 2019 14:42:34 +0100
+Message-ID: <20190118134244.22253-4-brgl@bgdev.pl>
 References: <20190118134244.22253-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,76 +14,46 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the LEDs module of max77650.
+Add the DT binding document for the battery charger module of max77650.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../bindings/leds/leds-max77650.txt           | 57 +++++++++++++++++++
- 1 file changed, 57 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
+ .../power/supply/max77650-charger.txt         | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
 
-diff --git a/Documentation/devicetree/bindings/leds/leds-max77650.txt b/Documentation/devicetree/bindings/leds/leds-max77650.txt
+diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
 new file mode 100644
-index 000000000000..822b8893bc20
+index 000000000000..f3e00d41e299
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/leds/leds-max77650.txt
-@@ -0,0 +1,57 @@
-+LED driver for MAX77650 PMIC from Maxim Integrated.
++++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+@@ -0,0 +1,27 @@
++Battery charger driver for MAX77650 PMIC from Maxim Integrated.
 +
 +This module is part of the MAX77650 MFD device. For more details
 +see Documentation/devicetree/bindings/mfd/max77650.txt.
 +
-+The LED controller is represented as a sub-node of the PMIC node on
-+the device tree.
-+
-+This device has three current sinks.
++The charger is represented as a sub-node of the PMIC node on the device tree.
 +
 +Required properties:
 +--------------------
-+- compatible:		Must be "maxim,max77650-leds"
-+- #address-cells:	Must be <1>.
-+- #size-cells:		Must be <0>.
++- compatible:		Must be "maxim,max77650-charger"
 +
-+Each LED is represented as a sub-node of the LED-controller node. Up to
-+three sub-nodes can be defined.
-+
-+Required properties of the sub-node:
-+------------------------------------
-+
-+- reg:			Must be <0>, <1> or <2>.
-+
-+Optional properties of the sub-node:
-+------------------------------------
-+
-+- label:		See Documentation/devicetree/bindings/leds/common.txt
-+- linux,default-trigger: See Documentation/devicetree/bindings/leds/common.txt
-+
-+For more details, please refer to the generic GPIO DT binding document
-+<devicetree/bindings/gpio/gpio.txt>.
++Optional properties:
++--------------------
++- maxim,vchgin-min:	Minimum CHGIN regulation voltage (in microvolts). Must be
++			one of: 4000000, 4100000, 4200000, 4300000, 4400000,
++			4500000, 4600000, 4700000.
++- maxim,ichgin-lim:	CHGIN input current limit (in microamps). Must be one of:
++			95000, 190000, 285000, 380000, 475000.
 +
 +Example:
 +--------
 +
-+	leds {
-+		compatible = "maxim,max77650-leds";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		led0 {
-+			reg = <0>;
-+			label = "max77650:blue:usr0";
-+		};
-+
-+		led1 {
-+			reg = <1>;
-+			label = "max77650:red:usr1";
-+			linux,default-trigger = "heartbeat";
-+		};
-+
-+		led2 {
-+			reg = <2>;
-+			label = "max77650:green:usr2";
-+		};
++	charger {
++		compatible = "maxim,max77650-charger";
++		maxim,vchgin-min = <4200000>;
++		maxim,ichgin-lim = <285000>;
 +	};
 -- 
 2.19.1

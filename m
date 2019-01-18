@@ -1,178 +1,82 @@
-From: =?big5?B?ufmxUrph?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH 1/1] Input: elantech: Use SMBus based on bus info
-Date: Fri, 18 Jan 2019 17:29:48 +0800
-Message-ID: <008c01d4af10$5b157f20$11407d60$@emc.com.tw>
-References: <20190117092948.32079-1-kai.heng.feng@canonical.com> <CAO-hwJKyBHM1Yy8=pQrbDoArTOX4=8G6f0jECv4x1mth+LZZDw@mail.gmail.com> <0BD3A587-B7B6-4C99-8F87-187394FF6EFC@canonical.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 00/13] mfd: add support for max77650 PMIC
+Date: Fri, 18 Jan 2019 14:42:31 +0100
+Message-ID: <20190118134244.22253-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="big5"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0BD3A587-B7B6-4C99-8F87-187394FF6EFC@canonical.com>
-Content-Language: zh-tw
 Sender: linux-kernel-owner@vger.kernel.org
-To: 'Kai Heng Feng' <kai.heng.feng@canonical.com>, 'Benjamin Tissoires' <benjamin.tissoires@redhat.com>
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, "'open list:HID CORE LAYER'" <linux-input@vger.kernel.org>, 'lkml' <linux-kernel@vger.kernel.org>
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
+This series adds support for max77650 ultra low-power PMIC. It provides
+the core mfd driver and a set of five sub-drivers for the regulator,
+power supply, gpio, leds and input subsystems.
 
------Original Message-----
-From: Kai Heng Feng [mailto:kai.heng.feng@canonical.com] 
-Sent: Friday, January 18, 2019 12:15 AM
-To: Benjamin Tissoires
-Cc: Dmitry Torokhov; ¹ù±Rºa; open list:HID CORE LAYER; lkml
-Subject: Re: [PATCH 1/1] Input: elantech: Use SMBus based on bus info
+Patches 1-6 add the DT binding documents. Patches 7-12 add all drivers.
+Last patch adds a MAINTAINERS entry for this device.
 
+Note that patch 8/13 depends on commit 03c87b95ac04 ("regulator: provide
+rdev_get_regmap()") which was picked up by Mark Brown for v5.1.
 
+Bartosz Golaszewski (13):
+  dt-bindings: mfd: add DT bindings for max77650
+  dt-bindings: regulator: add DT bindings for max77650
+  dt-bindings: power: supply: add DT bindings for max77650
+  dt-bindings: gpio: add DT bindings for max77650
+  dt-bindings: leds: add DT bindings for max77650
+  dt-bindings: input: add DT bindings for max77650
+  mfd: max77650: new core mfd driver
+  regulator: max77650: add regulator support
+  power: supply: max77650: add support for battery charger
+  gpio: max77650: add GPIO support
+  leds: max77650: add LEDs support
+  input: max77650: add onkey support
+  MAINTAINERS: add an entry for max77650 mfd driver
 
-> On Jan 17, 2019, at 10:42 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> 
-> Hi Kai-Heng,
-> 
-> On Thu, Jan 17, 2019 at 10:30 AM Kai-Heng Feng 
-> <kai.heng.feng@canonical.com> wrote:
->> 
->> There are some new HP laptops with Elantech touchpad don't support 
->> multitouch.
->> 
->> Both ETP_BUS_SMB_HST_NTFY_ONLY and ETP_BUS_PS2_SMB_HST_NTFY devices 
->> can use SMBus to support 5 fingers touch, so we need to chech them too.
->> 
->> So use elantech_use_host_notify() to do a more thouroughly check.
->> 
->> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
->> ---
->> drivers/input/mouse/elantech.c | 58 
->> +++++++++++++++++-----------------
->> 1 file changed, 29 insertions(+), 29 deletions(-)
->> 
->> diff --git a/drivers/input/mouse/elantech.c 
->> b/drivers/input/mouse/elantech.c index 9fe075c137dc..5bcf1c147eb1 
->> 100644
->> --- a/drivers/input/mouse/elantech.c
->> +++ b/drivers/input/mouse/elantech.c
->> @@ -1799,6 +1799,34 @@ static int elantech_create_smbus(struct psmouse
-*psmouse,
->>                                  leave_breadcrumbs); }
->> 
->> +static bool elantech_use_host_notify(struct psmouse *psmouse,
->> +                                    struct elantech_device_info 
->> +*info) {
->> +       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
->> +               return true;
->> +
->> +       switch (info->bus) {
->> +       case ETP_BUS_PS2_ONLY:
->> +               /* expected case */
->> +               break;
->> +       case ETP_BUS_SMB_ALERT_ONLY:
->> +               /* fall-through  */
->> +       case ETP_BUS_PS2_SMB_ALERT:
->> +               psmouse_dbg(psmouse, "Ignoring SMBus provider through
-alert protocol.\n");
->> +               break;
->> +       case ETP_BUS_SMB_HST_NTFY_ONLY:
->> +               /* fall-through  */
->> +       case ETP_BUS_PS2_SMB_HST_NTFY:
->> +               return true;
->> +       default:
->> +               psmouse_dbg(psmouse,
->> +                           "Ignoring SMBus bus provider %d.\n",
->> +                           info->bus);
->> +       }
->> +
->> +       return false;
->> +}
->> +
->> /**
->>  * elantech_setup_smbus - called once the PS/2 devices are enumerated
->>  * and decides to instantiate a SMBus InterTouch device.
->> @@ -1818,7 +1846,7 @@ static int elantech_setup_smbus(struct psmouse
-*psmouse,
->>                 * i2c_blacklist_pnp_ids.
->>                 * Old ICs are up to the user to decide.
->>                 */
->> -               if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
->> +               if (!elantech_use_host_notify(psmouse, info) ||
-> 
-> That was my initial approach of the series, but I ended up being more 
-> conservative as this would flip all of the existing elantech SMBUS 
-> capable touchpads to use elan_i2c.
-> And I didn't want to deal with 4/5 year old laptops that suddenly broke.
-> 
-> So I wonder if you can restrict this default change to the recent 
-> laptops (let's say 2018+). Maybe by looking at their FW version or 
-> something else in the DMI?
+ .../bindings/gpio/gpio-max77650.txt           |  34 ++
+ .../bindings/input/max77650-onkey.txt         |  26 +
+ .../bindings/leds/leds-max77650.txt           |  57 ++
+ .../devicetree/bindings/mfd/max77650.txt      |  28 +
+ .../power/supply/max77650-charger.txt         |  27 +
+ .../bindings/regulator/max77650-regulator.txt |  41 ++
+ MAINTAINERS                                   |  14 +
+ drivers/gpio/Kconfig                          |   7 +
+ drivers/gpio/Makefile                         |   1 +
+ drivers/gpio/gpio-max77650.c                  | 189 ++++++
+ drivers/input/misc/Kconfig                    |   9 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/max77650-onkey.c           | 135 +++++
+ drivers/leds/Kconfig                          |   6 +
+ drivers/leds/Makefile                         |   1 +
+ drivers/leds/leds-max77650.c                  | 162 ++++++
+ drivers/mfd/Kconfig                           |  11 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/max77650.c                        | 212 +++++++
+ drivers/power/supply/Kconfig                  |   7 +
+ drivers/power/supply/Makefile                 |   1 +
+ drivers/power/supply/max77650-charger.c       | 347 +++++++++++
+ drivers/regulator/Kconfig                     |   8 +
+ drivers/regulator/Makefile                    |   1 +
+ drivers/regulator/max77650-regulator.c        | 537 ++++++++++++++++++
+ include/linux/mfd/max77650.h                  |  73 +++
+ 26 files changed, 1936 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77650.txt
+ create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
+ create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
+ create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+ create mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.txt
+ create mode 100644 drivers/gpio/gpio-max77650.c
+ create mode 100644 drivers/input/misc/max77650-onkey.c
+ create mode 100644 drivers/leds/leds-max77650.c
+ create mode 100644 drivers/mfd/max77650.c
+ create mode 100644 drivers/power/supply/max77650-charger.c
+ create mode 100644 drivers/regulator/max77650-regulator.c
+ create mode 100644 include/linux/mfd/max77650.h
 
-It was KT who told me that I should use ETP_BUS_PS2_SMB_HST_NTFY.
-
-As for date, KT still knows better than me.
-
-KT,
-Can you name a year which is safe enough to enable SMBus?
-
-I have discussed it internally. 
-The internal rule for FW's SMbus implementation is stable after 2018
-If you meet some special case, please let me know.
-
-BTW, The SMbus supporting is requested by HP this time, and there are plenty
-of HP laptop use old IC
-which doesn't meet " ETP_NEW_IC_SMBUS_HOST_NOTIFY".
-
-Elan touchpad works well in PS/2 for HP, because it don't support
-TrackPoint.
-You may let old HP platform work as PS/2 for safety.
-
-Thanks
-KT
-
-Kai-Heng
-
-> 
-> Cheers,
-> Benjamin
-> 
->>                    psmouse_matches_pnp_id(psmouse,
-i2c_blacklist_pnp_ids))
->>                        return -ENXIO;
->>        }
->> @@ -1838,34 +1866,6 @@ static int elantech_setup_smbus(struct psmouse
-*psmouse,
->>        return 0;
->> }
->> 
->> -static bool elantech_use_host_notify(struct psmouse *psmouse,
->> -                                    struct elantech_device_info *info)
->> -{
->> -       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
->> -               return true;
->> -
->> -       switch (info->bus) {
->> -       case ETP_BUS_PS2_ONLY:
->> -               /* expected case */
->> -               break;
->> -       case ETP_BUS_SMB_ALERT_ONLY:
->> -               /* fall-through  */
->> -       case ETP_BUS_PS2_SMB_ALERT:
->> -               psmouse_dbg(psmouse, "Ignoring SMBus provider through
-alert protocol.\n");
->> -               break;
->> -       case ETP_BUS_SMB_HST_NTFY_ONLY:
->> -               /* fall-through  */
->> -       case ETP_BUS_PS2_SMB_HST_NTFY:
->> -               return true;
->> -       default:
->> -               psmouse_dbg(psmouse,
->> -                           "Ignoring SMBus bus provider %d.\n",
->> -                           info->bus);
->> -       }
->> -
->> -       return false;
->> -}
->> -
->> int elantech_init_smbus(struct psmouse *psmouse) {
->>        struct elantech_device_info info;
->> --
->> 2.17.1
+-- 
+2.19.1

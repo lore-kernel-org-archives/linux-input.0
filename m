@@ -1,71 +1,53 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 08/13] regulator: max77650: add regulator support
-Date: Fri, 18 Jan 2019 18:36:53 +0000
-Message-ID: <20190118183653.GE6260@sirena.org.uk>
-References: <20190118134244.22253-1-brgl@bgdev.pl>
- <20190118134244.22253-9-brgl@bgdev.pl>
- <20190118180148.GD6260@sirena.org.uk>
- <CAMpxmJX8OmnDtOhQjWi9edX-4pHu1daKiDkRdNAVw-PZsz9UXA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/7] Input: document meanings of KEY_SCREEN and KEY_ZOOM
+Date: Fri, 18 Jan 2019 15:30:31 -0800
+Message-ID: <20190118233037.87318-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="T6xhMxlHU34Bk0ad"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMpxmJX8OmnDtOhQjWi9edX-4pHu1daKiDkRdNAVw-PZsz9UXA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-gpio <linux-gpio@vger.kernel.org>, linux-devicetree <devicetree@vger.kernel.org>, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm <linux-pm@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+It is hard to say what KEY_SCREEN and KEY_ZOOM mean, but historically DVB
+folks have used them to indicate switch to full screen mode. Later, they
+converged on using KEY_ZOOM to switch into full screen mode and KEY)SCREEN
+to control aspect ratio (see Documentation/media/uapi/rc/rc-tables.rst).
 
---T6xhMxlHU34Bk0ad
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Let's commit to these uses, and define:
 
-On Fri, Jan 18, 2019 at 07:13:38PM +0100, Bartosz Golaszewski wrote:
-> pt., 18 sty 2019 o 19:01 Mark Brown <broonie@kernel.org> napisa=C5=82(a):
+- KEY_FULL_SCREEN (and make KEY_ZOOM its alias)
+- KEY_ASPECT_RATIO (and make KEY_SCREEN its alias)
 
-> > > +++ b/drivers/regulator/max77650-regulator.c
-> > > @@ -0,0 +1,537 @@
-> > > +// SPDX-License-Identifier: GPL-2.0
-> > > +/*
-> > > + * Copyright (C) 2018 BayLibre SAS
-> > > + * Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
 
-> > Please make the entire header C++ style so it looks more intentional.
+Please let me know how we want merge this. Some of patches can be applied
+independently and I tried marking them as such, but some require new key
+names from input.h
 
-> Seems like there are more files in the kernel source using the mixed
-> comment style for the SPDX identifier and I also prefer it over C++
-> only. Would you mind if it stayed that way?
+ include/uapi/linux/input-event-codes.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-I'd prefer to change.
-
-> > You don't need to do this, the core will do it for you (it will actually
-> > still do it even with the above, it'll only fall back to using
-> > config->init_data if it's own lookup fails).
-
-> I added this loop specifically because the core would not pick up the
-> init data from DT. What did I miss (some specific variable to assign)?
-> I just noticed some other drivers do the same and thought it's the
-> right thing to do.
-
-You should set regulators_node and of_match, see regulator_of_get_init_node=
-().
-
---T6xhMxlHU34Bk0ad
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxCHMQACgkQJNaLcl1U
-h9DXBwf8DBxtp6P6ln8aUsZTEj9e2Ti+0cszf0ukaKXrny3tYAfY8PiUE/iYvr3E
-1xb8upkWmq7kT7QO8bm/PbeDdClAIKlfI9aUoWyLo1HkHkj0F4VMUjDMy6mTbsl6
-cijuEtr67FxzE+pak6KQOvqhKhh/tp2DMQFZD30dbDhSX3p8cMsM5YTqmlIO1q4t
-p0Md4tGBiMAvtcI2suzwxkteeTVogqx00qMv6FdUGmupnQZ3y+PldPNpMmRY6ck2
-xajDLGrBuvWCLesasIimDKVxmo2VRIYQ+fBqL1zPSJ0roZL1gknOfgmTOPyCwkYs
-SzRytR1wQyrsQzW0TzFtxFhHHBuNKQ==
-=LpDs
------END PGP SIGNATURE-----
-
---T6xhMxlHU34Bk0ad--
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index ae366b87426a..bc5054e51bef 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -439,10 +439,12 @@
+ #define KEY_TITLE		0x171
+ #define KEY_SUBTITLE		0x172
+ #define KEY_ANGLE		0x173
+-#define KEY_ZOOM		0x174
++#define KEY_FULL_SCREEN		0x174	/* AC View Toggle */
++#define KEY_ZOOM		KEY_FULL_SCREEN
+ #define KEY_MODE		0x175
+ #define KEY_KEYBOARD		0x176
+-#define KEY_SCREEN		0x177
++#define KEY_ASPECT_RATIO	0x177	/* HUTRR37: Aspect */
++#define KEY_SCREEN		KEY_ASPECT_RATIO
+ #define KEY_PC			0x178	/* Media Select Computer */
+ #define KEY_TV			0x179	/* Media Select TV */
+ #define KEY_TV2			0x17a	/* Media Select Cable */
+-- 
+2.20.1.321.g9e740568ce-goog

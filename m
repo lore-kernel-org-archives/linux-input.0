@@ -1,61 +1,92 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 01/13] dt-bindings: mfd: add DT bindings for max77650
-Date: Fri, 18 Jan 2019 14:42:32 +0100
-Message-ID: <20190118134244.22253-2-brgl@bgdev.pl>
-References: <20190118134244.22253-1-brgl@bgdev.pl>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3] HID: i2c-hid: Ignore input report if there's no data
+ present on Elan touchpanels
+Date: Fri, 18 Jan 2019 16:50:32 +0100
+Message-ID: <CAO-hwJKo=EaPoXJLGUvjq3QRng1V1NkO7A5zYGojbPyxxyJYHA@mail.gmail.com>
+References: <20190107072429.23828-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190118134244.22253-1-brgl@bgdev.pl>
+In-Reply-To: <20190107072429.23828-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Hi Kai-Heng,
 
-Add a DT binding document for max77650 ultra-low power PMIC. This
-describes the core mfd device.
+On Mon, Jan 7, 2019 at 8:24 AM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+> While using Elan touchpads, the message floods:
+> [  136.138487] i2c_hid i2c-DELL08D6:00: i2c_hid_get_input: incomplete report (14/65535)
+>
+> Though the message flood is annoying, the device it self works without
+> any issue. I suspect that the device in question takes too much time to
+> pull the IRQ back to high after I2C host has done reading its data.
+>
+> Since the host receives all useful data, let's ignore the input report
+> when there's no data.
+>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- .../devicetree/bindings/mfd/max77650.txt      | 28 +++++++++++++++++++
- 1 file changed, 28 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
+Thanks for the v3.
 
-diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
-new file mode 100644
-index 000000000000..84631d3b1e14
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/max77650.txt
-@@ -0,0 +1,28 @@
-+MAX77650 ultra low-power PMIC from Maxim Integrated.
-+
-+Required properties:
-+-------------------
-+- compatible:		Must be "maxim,max77650"
-+- reg:			I2C device address.
-+- interrupts:		The interrupt on the parent the controller is
-+			connected to.
-+- interrupt-parent:	phandle of the parent interrupt controller.
-+- interrupt-controller: Marks the device node as an interrupt controller.
-+- #interrupt-cells:	Must be <2>.
-+
-+For device-tree bindings of sub-modules (regulator, power supply, GPIO, LEDs
-+and onkey) refer to the binding documents under the respective sub-system
-+directories.
-+
-+Example:
-+--------
-+
-+	pmic: max77650@48 {
-+		compatible = "maxim,max77650";
-+		reg = <0x48>;
-+
-+		interrupt-controller;
-+		interrupt-parent = <&gpio2>;
-+		#interrupt-cells = <2>;
-+		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
-+	};
--- 
-2.19.1
+This patch has just been brought to my attention, and I have one
+question before applying it:
+are those messages (without your patch) occurring all the time, or
+just after resume?
+
+I wonder if the pm_suspend delay we talked about in the other thread
+would fix that issue in a cleaner way.
+
+Cheers,
+Benjamin
+
+> ---
+> v3:
+> Fix compiler error/warnings.
+>
+> v2:
+> Use dev_warn_once() to warn the user about the situation.
+>
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+>
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 8555ce7e737b..2f940c1de616 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -50,6 +50,7 @@
+>  #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET       BIT(1)
+>  #define I2C_HID_QUIRK_NO_RUNTIME_PM            BIT(2)
+>  #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP                BIT(3)
+> +#define I2C_HID_QUIRK_BOGUS_IRQ                        BIT(4)
+>
+>  /* flags */
+>  #define I2C_HID_STARTED                0
+> @@ -179,6 +180,8 @@ static const struct i2c_hid_quirks {
+>                 I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
+>         { USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
+>                 I2C_HID_QUIRK_NO_RUNTIME_PM },
+> +       { USB_VENDOR_ID_ELAN, HID_ANY_ID,
+> +                I2C_HID_QUIRK_BOGUS_IRQ },
+>         { 0, 0 }
+>  };
+>
+> @@ -503,6 +506,12 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+>                 return;
+>         }
+>
+> +       if (ihid->quirks & I2C_HID_QUIRK_BOGUS_IRQ && ret_size == 0xffff) {
+> +               dev_warn_once(&ihid->client->dev, "%s: IRQ triggered but "
+> +                             "there's no data\n", __func__);
+> +               return;
+> +       }
+> +
+>         if ((ret_size > size) || (ret_size < 2)) {
+>                 dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+>                         __func__, size, ret_size);
+> --
+> 2.17.1
+>

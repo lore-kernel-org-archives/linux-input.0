@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 12/13] input: max77650: add onkey support
-Date: Fri, 18 Jan 2019 14:42:43 +0100
-Message-ID: <20190118134244.22253-13-brgl@bgdev.pl>
+Subject: [PATCH 10/13] gpio: max77650: add GPIO support
+Date: Fri, 18 Jan 2019 14:42:41 +0100
+Message-ID: <20190118134244.22253-11-brgl@bgdev.pl>
 References: <20190118134244.22253-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,187 +14,240 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add support for the push- and slide-button events for max77650.
+Add GPIO support for max77650 mfd device. This PMIC exposes a single
+GPIO line.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/input/misc/Kconfig          |   9 ++
- drivers/input/misc/Makefile         |   1 +
- drivers/input/misc/max77650-onkey.c | 135 ++++++++++++++++++++++++++++
- 3 files changed, 145 insertions(+)
- create mode 100644 drivers/input/misc/max77650-onkey.c
+ drivers/gpio/Kconfig         |   7 ++
+ drivers/gpio/Makefile        |   1 +
+ drivers/gpio/gpio-max77650.c | 189 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 197 insertions(+)
+ create mode 100644 drivers/gpio/gpio-max77650.c
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index ca59a2be9bc5..bb9c45c1269e 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -180,6 +180,15 @@ config INPUT_M68K_BEEP
- 	tristate "M68k Beeper support"
- 	depends on M68K
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index b5a2845347ec..fb297fe5bfec 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -1095,6 +1095,13 @@ config GPIO_MAX77620
+ 	  driver also provides interrupt support for each of the gpios.
+ 	  Say yes here to enable the max77620 to be used as gpio controller.
  
-+config INPUT_MAX77650_ONKEY
-+	tristate "Maxim MAX77650 ONKEY support"
++config GPIO_MAX77650
++	tristate "Maxim MAX77650/77651 GPIO support"
 +	depends on MFD_MAX77650
 +	help
-+	  Support the ONKEY of the MAX77650 PMIC as an input device.
++	  GPIO driver for MAX77650/77651 PMIC from Maxim Semiconductor.
++	  These chips have a single pin that can be configured as GPIO.
 +
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called max77650-onkey.
-+
- config INPUT_MAX77693_HAPTIC
- 	tristate "MAXIM MAX77693/MAX77843 haptic controller support"
- 	depends on (MFD_MAX77693 || MFD_MAX77843) && PWM
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 9d0f9d1ff68f..5bd53590ce60 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -43,6 +43,7 @@ obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
- obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
- obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
-+obj-$(CONFIG_INPUT_MAX77650_ONKEY)	+= max77650-onkey.o
- obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+= max77693-haptic.o
- obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
- obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
-diff --git a/drivers/input/misc/max77650-onkey.c b/drivers/input/misc/max77650-onkey.c
+ config GPIO_MSIC
+ 	bool "Intel MSIC mixed signal gpio support"
+ 	depends on (X86 || COMPILE_TEST) && MFD_INTEL_MSIC
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 37628f8dbf70..8bdad50db822 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -78,6 +78,7 @@ obj-$(CONFIG_GPIO_MAX7300)	+= gpio-max7300.o
+ obj-$(CONFIG_GPIO_MAX7301)	+= gpio-max7301.o
+ obj-$(CONFIG_GPIO_MAX732X)	+= gpio-max732x.o
+ obj-$(CONFIG_GPIO_MAX77620)	+= gpio-max77620.o
++obj-$(CONFIG_GPIO_MAX77650)	+= gpio-max77650.o
+ obj-$(CONFIG_GPIO_MB86S7X)	+= gpio-mb86s7x.o
+ obj-$(CONFIG_GPIO_MENZ127)	+= gpio-menz127.o
+ obj-$(CONFIG_GPIO_MERRIFIELD)	+= gpio-merrifield.o
+diff --git a/drivers/gpio/gpio-max77650.c b/drivers/gpio/gpio-max77650.c
 new file mode 100644
-index 000000000000..cc7e83f589cd
+index 000000000000..f8fe2b083e4d
 --- /dev/null
-+++ b/drivers/input/misc/max77650-onkey.c
-@@ -0,0 +1,135 @@
++++ b/drivers/gpio/gpio-max77650.c
+@@ -0,0 +1,189 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright (C) 2018 BayLibre SAS
 + * Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 + *
-+ * ONKEY driver for MAXIM 77650/77651 charger/power-supply.
++ * GPIO driver for MAXIM 77650/77651 charger/power-supply.
 + */
 +
++#include <linux/gpio/driver.h>
 +#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
 +#include <linux/mfd/max77650.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
 +#include <linux/regmap.h>
 +
-+#define MAX77650_ONKEY_MODE_MASK	BIT(3)
-+#define MAX77650_ONKEY_MODE_PUSH	0x00
-+#define MAX77650_ONKEY_MODE_SLIDE	BIT(3)
++#define MAX77650_GPIO_DIR_MASK		BIT(0)
++#define MAX77650_GPIO_INVAL_MASK	BIT(1)
++#define MAX77650_GPIO_DRV_MASK		BIT(2)
++#define MAX77650_GPIO_OUTVAL_MASK	BIT(3)
++#define MAX77650_GPIO_DEBOUNCE_MASK	BIT(4)
 +
-+struct max77650_onkey {
-+	struct input_dev *input;
-+	unsigned int code;
++#define MAX77650_GPIO_DIR_OUT		0x00
++#define MAX77650_GPIO_DIR_IN		BIT(0)
++#define MAX77650_GPIO_OUT_LOW		0x00
++#define MAX77650_GPIO_OUT_HIGH		BIT(3)
++#define MAX77650_GPIO_DRV_OPEN_DRAIN	0x00
++#define MAX77650_GPIO_DRV_PUSH_PULL	BIT(2)
++#define MAX77650_GPIO_DEBOUNCE		BIT(4)
++
++#define MAX77650_GPIO_DIR_BITS(_reg) \
++		((_reg) & MAX77650_GPIO_DIR_MASK)
++#define MAX77650_GPIO_INVAL_BITS(_reg) \
++		(((_reg) & MAX77650_GPIO_INVAL_MASK) >> 1)
++
++struct max77650_gpio_chip {
++	struct regmap *map;
++	struct regmap_irq_chip_data *irq_chip_data;
++	struct gpio_chip gc;
 +};
 +
-+static irqreturn_t
-+max77650_onkey_report(struct max77650_onkey *onkey, int value)
++static int max77650_gpio_direction_input(struct gpio_chip *gc,
++					 unsigned int offset)
 +{
-+	input_report_key(onkey->input, onkey->code, value);
-+	input_sync(onkey->input);
++	struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
 +
-+	return IRQ_HANDLED;
++	return regmap_update_bits(chip->map,
++				  MAX77650_REG_CNFG_GPIO,
++				  MAX77650_GPIO_DIR_MASK,
++				  MAX77650_GPIO_DIR_IN);
 +}
 +
-+static irqreturn_t max77650_onkey_falling(int irq, void *data)
++static int max77650_gpio_direction_output(struct gpio_chip *gc,
++					  unsigned int offset, int value)
 +{
-+	struct max77650_onkey *onkey = data;
++	struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
++	int mask, regval;
 +
-+	return max77650_onkey_report(onkey, 0);
++	mask = MAX77650_GPIO_DIR_MASK | MAX77650_GPIO_OUTVAL_MASK;
++	regval = value ? MAX77650_GPIO_OUT_HIGH : MAX77650_GPIO_OUT_LOW;
++	regval |= MAX77650_GPIO_DIR_OUT;
++
++	return regmap_update_bits(chip->map,
++				  MAX77650_REG_CNFG_GPIO, mask, regval);
 +}
 +
-+static irqreturn_t max77650_onkey_rising(int irq, void *data)
++static void max77650_gpio_set_value(struct gpio_chip *gc,
++				    unsigned int offset, int value)
 +{
-+	struct max77650_onkey *onkey = data;
++	struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
++	int rv, regval;
 +
-+	return max77650_onkey_report(onkey, 1);
++	regval = value ? MAX77650_GPIO_OUT_HIGH : MAX77650_GPIO_OUT_LOW;
++
++	rv = regmap_update_bits(chip->map, MAX77650_REG_CNFG_GPIO,
++				MAX77650_GPIO_OUTVAL_MASK, regval);
++	if (rv)
++		dev_err(gc->parent, "cannot set GPIO value: %d\n", rv);
 +}
 +
-+static int max77650_onkey_probe(struct platform_device *pdev)
++static int max77650_gpio_get_value(struct gpio_chip *gc,
++				   unsigned int offset)
 +{
-+	struct regmap_irq_chip_data *irq_data;
-+	struct max77650_onkey *onkey;
++	struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
++	unsigned int val;
++	int rv;
++
++	rv = regmap_read(chip->map, MAX77650_REG_CNFG_GPIO, &val);
++	if (rv)
++		return rv;
++
++	return MAX77650_GPIO_INVAL_BITS(val);
++}
++
++static int max77650_gpio_get_direction(struct gpio_chip *gc,
++				       unsigned int offset)
++{
++	struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
++	unsigned int val;
++	int rv;
++
++	rv = regmap_read(chip->map, MAX77650_REG_CNFG_GPIO, &val);
++	if (rv)
++		return rv;
++
++	return MAX77650_GPIO_DIR_BITS(val);
++}
++
++static int max77650_gpio_set_config(struct gpio_chip *gc,
++				    unsigned int offset, unsigned long cfg)
++{
++	struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
++
++	switch (pinconf_to_config_param(cfg)) {
++	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
++		return regmap_update_bits(chip->map,
++					  MAX77650_REG_CNFG_GPIO,
++					  MAX77650_GPIO_DRV_MASK,
++					  MAX77650_GPIO_DRV_OPEN_DRAIN);
++	case PIN_CONFIG_DRIVE_PUSH_PULL:
++		return regmap_update_bits(chip->map,
++					  MAX77650_REG_CNFG_GPIO,
++					  MAX77650_GPIO_DRV_MASK,
++					  MAX77650_GPIO_DRV_PUSH_PULL);
++	case PIN_CONFIG_INPUT_DEBOUNCE:
++		return regmap_update_bits(chip->map,
++					  MAX77650_REG_CNFG_GPIO,
++					  MAX77650_GPIO_DEBOUNCE_MASK,
++					  MAX77650_GPIO_DEBOUNCE);
++	default:
++		return -ENOTSUPP;
++	}
++}
++
++static int max77650_gpio_to_irq(struct gpio_chip *gc, unsigned int offset)
++{
++	struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
++
++	return regmap_irq_get_virq(chip->irq_chip_data, MAX77650_INT_GPI);
++}
++
++static int max77650_gpio_probe(struct platform_device *pdev)
++{
++	struct max77650_gpio_chip *chip;
 +	struct device *dev, *parent;
-+	int irq_r, irq_f, rv, mode;
 +	struct i2c_client *i2c;
-+	const char *mode_prop;
-+	struct regmap *map;
 +
 +	dev = &pdev->dev;
 +	parent = dev->parent;
 +	i2c = to_i2c_client(parent);
-+	irq_data = i2c_get_clientdata(i2c);
 +
-+	map = dev_get_regmap(parent, NULL);
-+	if (!map)
++	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
++	if (!chip)
++		return -ENOMEM;
++
++	chip->map = dev_get_regmap(parent, NULL);
++	if (!chip->map)
 +		return -ENODEV;
 +
-+	onkey = devm_kzalloc(dev, sizeof(*onkey), GFP_KERNEL);
-+	if (!onkey)
-+		return -ENOMEM;
++	chip->irq_chip_data = i2c_get_clientdata(i2c);
 +
-+	rv = device_property_read_u32(dev, "linux,code", &onkey->code);
-+	if (rv)
-+		onkey->code = KEY_POWER;
++	chip->gc.base = -1;
++	chip->gc.ngpio = 1;
++	chip->gc.label = i2c->name;
++	chip->gc.parent = dev;
++	chip->gc.owner = THIS_MODULE;
++	chip->gc.can_sleep = true;
 +
-+	rv = device_property_read_string(dev, "maxim,onkey-mode", &mode_prop);
-+	if (rv)
-+		mode_prop = "push";
++	chip->gc.direction_input = max77650_gpio_direction_input;
++	chip->gc.direction_output = max77650_gpio_direction_output;
++	chip->gc.set = max77650_gpio_set_value;
++	chip->gc.get = max77650_gpio_get_value;
++	chip->gc.get_direction = max77650_gpio_get_direction;
++	chip->gc.set_config = max77650_gpio_set_config;
++	chip->gc.to_irq = max77650_gpio_to_irq;
 +
-+	if (strcmp(mode_prop, "push") == 0)
-+		mode = MAX77650_ONKEY_MODE_PUSH;
-+	else if (strcmp(mode_prop, "slide") == 0)
-+		mode = MAX77650_ONKEY_MODE_SLIDE;
-+	else
-+		return -EINVAL;
-+
-+	rv = regmap_update_bits(map, MAX77650_REG_CNFG_GLBL,
-+				MAX77650_ONKEY_MODE_MASK, mode);
-+	if (rv)
-+		return rv;
-+
-+	irq_f = regmap_irq_get_virq(irq_data, MAX77650_INT_nEN_F);
-+	if (irq_f <= 0)
-+		return -EINVAL;
-+
-+	irq_r = regmap_irq_get_virq(irq_data, MAX77650_INT_nEN_R);
-+	if (irq_r <= 0)
-+		return -EINVAL;
-+
-+	onkey->input = devm_input_allocate_device(dev);
-+	if (!onkey->input)
-+		return -ENOMEM;
-+
-+	onkey->input->name = "max77650_onkey";
-+	onkey->input->phys = "max77650_onkey/input0";
-+	onkey->input->id.bustype = BUS_I2C;
-+	onkey->input->dev.parent = dev;
-+	input_set_capability(onkey->input, EV_KEY, onkey->code);
-+
-+	rv = devm_request_threaded_irq(dev, irq_f, NULL,
-+				       max77650_onkey_falling,
-+				       IRQF_ONESHOT, "onkey-down", onkey);
-+	if (rv)
-+		return rv;
-+
-+	rv = devm_request_threaded_irq(dev, irq_r, NULL,
-+				       max77650_onkey_rising,
-+				       IRQF_ONESHOT, "onkey-up", onkey);
-+	if (rv)
-+		return rv;
-+
-+	return input_register_device(onkey->input);
++	return devm_gpiochip_add_data(dev, &chip->gc, chip);
 +}
 +
-+static struct platform_driver max77650_onkey_driver = {
++static struct platform_driver max77650_gpio_driver = {
 +	.driver = {
-+		.name = "max77650-onkey",
++		.name = "max77650-gpio",
 +	},
-+	.probe = max77650_onkey_probe,
++	.probe = max77650_gpio_probe,
 +};
-+module_platform_driver(max77650_onkey_driver);
++module_platform_driver(max77650_gpio_driver);
 +
-+MODULE_DESCRIPTION("MAXIM 77650/77651 ONKEY driver");
++MODULE_DESCRIPTION("MAXIM 77650/77651 GPIO driver");
 +MODULE_AUTHOR("Bartosz Golaszewski <bgolaszewski@baylibre.com>");
 +MODULE_LICENSE("GPL");
 -- 

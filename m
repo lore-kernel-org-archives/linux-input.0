@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Subject: Re: [PATCH 08/13] regulator: max77650: add regulator support
-Date: Fri, 18 Jan 2019 19:13:38 +0100
-Message-ID: <CAMpxmJX8OmnDtOhQjWi9edX-4pHu1daKiDkRdNAVw-PZsz9UXA@mail.gmail.com>
+Date: Fri, 18 Jan 2019 19:18:00 +0100
+Message-ID: <CAMpxmJV6bjT558OTiqAGAxHe1ZcJ5u-LPVF45P677EZweXxrSw@mail.gmail.com>
 References: <20190118134244.22253-1-brgl@bgdev.pl> <20190118134244.22253-9-brgl@bgdev.pl>
  <20190118180148.GD6260@sirena.org.uk>
 Mime-Version: 1.0
@@ -22,11 +22,20 @@ pt., 18 sty 2019 o 19:01 Mark Brown <broonie@kernel.org> napisa=C5=82(a):
 s
 > > PMIC including non-linear voltage table for max77651 SBB1 rail.
 >
+
+Sorry for spamming, I missed it the last time.
+
 > Looks good, the ramping stuff might be a candidate for core (TBH I was
 > sure we'd got that implemented already but we don't seem to) but that
 > can be done later and the more complex one with non-linear steps does
 > feel like it might have to stay in the driver anyway.
 >
+
+I'm thinking about implementing that in the core for the next release
+cycle and then making this driver the first user.
+
+Bart
+
 > A couple of small nits:
 >
 > > +++ b/drivers/regulator/max77650-regulator.c
@@ -38,11 +47,6 @@ s
 >
 > Please make the entire header C++ style so it looks more intentional.
 >
-
-Seems like there are more files in the kernel source using the mixed
-comment style for the SPDX identifier and I also prefer it over C++
-only. Would you mind if it stayed that way?
-
 > > +             for_each_child_of_node(dev->of_node, child) {
 > > +                     if (!of_node_name_eq(child, rdesc->desc.name))
 > > +                             continue;
@@ -61,11 +65,3 @@ sc);
 > You don't need to do this, the core will do it for you (it will actually
 > still do it even with the above, it'll only fall back to using
 > config->init_data if it's own lookup fails).
-
-I added this loop specifically because the core would not pick up the
-init data from DT. What did I miss (some specific variable to assign)?
-I just noticed some other drivers do the same and thought it's the
-right thing to do.
-
-Thanks,
-Bart

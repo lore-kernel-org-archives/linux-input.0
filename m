@@ -1,39 +1,122 @@
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: [PATCH] input: Fix the CONFIG_SPARC64 mixup
-Date: Sun, 20 Jan 2019 17:49:14 -0800
-Message-ID: <20190121014914.2328-1-deepa.kernel@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <y2038-bounces@lists.linaro.org>
-List-Unsubscribe: <https://lists.linaro.org/mailman/options/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=unsubscribe>
-List-Archive: <http://lists.linaro.org/pipermail/y2038/>
-List-Post: <mailto:y2038@lists.linaro.org>
-List-Help: <mailto:y2038-request@lists.linaro.org?subject=help>
-List-Subscribe: <https://lists.linaro.org/mailman/listinfo/y2038>,
- <mailto:y2038-request@lists.linaro.org?subject=subscribe>
-Errors-To: y2038-bounces@lists.linaro.org
-Sender: "Y2038" <y2038-bounces@lists.linaro.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH v2] Input: elantech: Enable SMBus on new (2018+) systems
+Date: Mon, 21 Jan 2019 15:02:58 +0800
+Message-ID: <20190121070258.1844-1-kai.heng.feng@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
-Cc: y2038@lists.linaro.org, davem@davemloft.net, linux-kernel@vger.kernel.org, arnd@arndb.de, linux-input@vger.kernel.org
+Cc: benjamin.tissoires@redhat.com, kt.liao@emc.com.tw, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-QXJuZCBCZXJnbWFubiBwb2ludGVkIG91dCB0aGF0IENPTkZJR18qIGNhbm5vdCBiZSB1c2VkCmlu
-IGEgdWFwaSBoZWFkZXIuIE92ZXJyaWRlIHdpdGggYW4gZXF1aXZhbGVudCBjb25kaXRpb25hbC4K
-CkZpeGVzOiAyZTc0Njk0MmViYWMgKCJJbnB1dDogaW5wdXRfZXZlbnQgLSBwcm92aWRlIG92ZXJy
-aWRlIGZvciBzcGFyYzY0IikKRml4ZXM6IDE1MjE5NGZlOWMzZiAoIklucHV0OiBleHRlbmQgdXNh
-YmxlIGxpZmUgb2YgZXZlbnQgdGltZXN0YW1wcyB0byAyMTA2IG9uIDMyIGJpdCBzeXN0ZW1zIikK
-U2lnbmVkLW9mZi1ieTogRGVlcGEgRGluYW1hbmkgPGRlZXBhLmtlcm5lbEBnbWFpbC5jb20+Ci0t
-LQogaW5jbHVkZS91YXBpL2xpbnV4L2lucHV0LmggfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBp
-bnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGlu
-dXgvaW5wdXQuaCBiL2luY2x1ZGUvdWFwaS9saW51eC9pbnB1dC5oCmluZGV4IGZmYWI5NThiYzUx
-Mi4uZjA1NmIyYTAwZDVjIDEwMDY0NAotLS0gYS9pbmNsdWRlL3VhcGkvbGludXgvaW5wdXQuaAor
-KysgYi9pbmNsdWRlL3VhcGkvbGludXgvaW5wdXQuaApAQCAtMzIsNyArMzIsNyBAQCBzdHJ1Y3Qg
-aW5wdXRfZXZlbnQgewogI2RlZmluZSBpbnB1dF9ldmVudF91c2VjIHRpbWUudHZfdXNlYwogI2Vs
-c2UKIAlfX2tlcm5lbF91bG9uZ190IF9fc2VjOwotI2lmZGVmIENPTkZJR19TUEFSQzY0CisjaWYg
-ZGVmaW5lZChfX3NwYXJjX18pICYmIGRlZmluZWQoX19hcmNoNjRfXykKIAl1bnNpZ25lZCBpbnQg
-X191c2VjOwogI2Vsc2UKIAlfX2tlcm5lbF91bG9uZ190IF9fdXNlYzsKLS0gCjIuMTcuMQoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWTIwMzggbWFpbGlu
-ZyBsaXN0ClkyMDM4QGxpc3RzLmxpbmFyby5vcmcKaHR0cHM6Ly9saXN0cy5saW5hcm8ub3JnL21h
-aWxtYW4vbGlzdGluZm8veTIwMzgK
+There are some new HP laptops with Elantech touchpad don't support
+multitouch.
+
+Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is
+supported, but in addition to firmware version, the bus type also
+informs us if the IC can support SMBus, so also check that.
+
+In case of breaking old ICs, only enables SMBus on systems manufactured
+after 2018, alongsides aforementioned checks.
+
+Lastly, consolidats all check into elantech_use_host_notify() and use it
+to determine whether to use PS/2 or SMBus.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+---
+v2:
+- Wording.
+- Further restrain on older systems (< 2018).
+
+ drivers/input/mouse/elantech.c | 63 ++++++++++++++++++----------------
+ 1 file changed, 34 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 9fe075c137dc..2594130b0079 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1799,6 +1799,39 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+ 				  leave_breadcrumbs);
+ }
+ 
++static bool elantech_use_host_notify(struct psmouse *psmouse,
++				     struct elantech_device_info *info)
++{
++	bool host_notify = false;
++
++	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
++		host_notify = true;
++	else {
++		switch (info->bus) {
++		case ETP_BUS_PS2_ONLY:
++			/* expected case */
++			break;
++		case ETP_BUS_SMB_ALERT_ONLY:
++			/* fall-through  */
++		case ETP_BUS_PS2_SMB_ALERT:
++			psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
++			break;
++		case ETP_BUS_SMB_HST_NTFY_ONLY:
++			/* fall-through  */
++		case ETP_BUS_PS2_SMB_HST_NTFY:
++			host_notify = true;
++			break;
++		default:
++			psmouse_dbg(psmouse,
++				    "Ignoring SMBus bus provider %d.\n",
++				    info->bus);
++		}
++	}
++
++	/* SMbus implementation is stable after 2018 */
++	return host_notify && (dmi_get_bios_year() >= 2018);
++}
++
+ /**
+  * elantech_setup_smbus - called once the PS/2 devices are enumerated
+  * and decides to instantiate a SMBus InterTouch device.
+@@ -1818,7 +1851,7 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+ 		 * i2c_blacklist_pnp_ids.
+ 		 * Old ICs are up to the user to decide.
+ 		 */
+-		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
++		if (!elantech_use_host_notify(psmouse, info) ||
+ 		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+ 			return -ENXIO;
+ 	}
+@@ -1838,34 +1871,6 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+ 	return 0;
+ }
+ 
+-static bool elantech_use_host_notify(struct psmouse *psmouse,
+-				     struct elantech_device_info *info)
+-{
+-	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+-		return true;
+-
+-	switch (info->bus) {
+-	case ETP_BUS_PS2_ONLY:
+-		/* expected case */
+-		break;
+-	case ETP_BUS_SMB_ALERT_ONLY:
+-		/* fall-through  */
+-	case ETP_BUS_PS2_SMB_ALERT:
+-		psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
+-		break;
+-	case ETP_BUS_SMB_HST_NTFY_ONLY:
+-		/* fall-through  */
+-	case ETP_BUS_PS2_SMB_HST_NTFY:
+-		return true;
+-	default:
+-		psmouse_dbg(psmouse,
+-			    "Ignoring SMBus bus provider %d.\n",
+-			    info->bus);
+-	}
+-
+-	return false;
+-}
+-
+ int elantech_init_smbus(struct psmouse *psmouse)
+ {
+ 	struct elantech_device_info info;
+-- 
+2.17.1

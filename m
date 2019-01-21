@@ -1,27 +1,70 @@
 From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 0/3] Stop managing the SP clock
-Date: Mon, 21 Jan 2019 07:22:53 +0100
-Message-ID: <20190121062255.551587-1-lkundrak@v3.sk>
+Subject: [PATCH 2/3] Revert "clk: mmp2: add SP clock"
+Date: Mon, 21 Jan 2019 07:22:55 +0100
+Message-ID: <20190121062255.551587-3-lkundrak@v3.sk>
+References: <20190121062255.551587-1-lkundrak@v3.sk>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190121062255.551587-1-lkundrak@v3.sk>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+Cc: Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+It seems that the kernel has no business managing this clock: once the SP
+clock is disabled, it's not sufficient to just enable in order to bring t=
+he
+SP core back up. Just let the firmware keep it enabled and don't expose i=
+t
+to drivers.
 
-Per discussion in [1] it seems that the kernel has no business managing
-this clock: once the SP clock is disabled, it's not sufficient to just
-enable it in order to bring the SP core back up.
+This reverts commit fc27c2394d96fd19854b7e2d3f0e60df0d86fc90.
 
-Just let the firmware keep it enabled and don't expose it to drivers.
+Link: https://lore.kernel.org/lkml/154783267051.169631.319783654464662574=
+7@swboyd.mtv.corp.google.com/
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+---
+ drivers/clk/mmp/clk-of-mmp2.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-[1] https://lore.kernel.org/lkml/154783267051.169631.3197836544646625747@=
-swboyd.mtv.corp.google.com/
-
-The "secure processor" (SP) core runs the keyboard firmware on the
-OLPC XO 1.75 laptop.
-
-Lubo
+diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.=
+c
+index 61fefc046ec5..d083b860f083 100644
+--- a/drivers/clk/mmp/clk-of-mmp2.c
++++ b/drivers/clk/mmp/clk-of-mmp2.c
+@@ -53,7 +53,6 @@
+ #define APMU_DISP1	0x110
+ #define APMU_CCIC0	0x50
+ #define APMU_CCIC1	0xf4
+-#define APMU_SP		0x68
+ #define MPMU_UART_PLL	0x14
+=20
+ struct mmp2_clk_unit {
+@@ -210,8 +209,6 @@ static struct mmp_clk_mix_config ccic1_mix_config =3D=
+ {
+ 	.reg_info =3D DEFINE_MIX_REG_INFO(4, 16, 2, 6, 32),
+ };
+=20
+-static DEFINE_SPINLOCK(sp_lock);
+-
+ static struct mmp_param_mux_clk apmu_mux_clks[] =3D {
+ 	{MMP2_CLK_DISP0_MUX, "disp0_mux", disp_parent_names, ARRAY_SIZE(disp_pa=
+rent_names), CLK_SET_RATE_PARENT, APMU_DISP0, 6, 2, 0, &disp0_lock},
+ 	{MMP2_CLK_DISP1_MUX, "disp1_mux", disp_parent_names, ARRAY_SIZE(disp_pa=
+rent_names), CLK_SET_RATE_PARENT, APMU_DISP1, 6, 2, 0, &disp1_lock},
+@@ -242,7 +239,6 @@ static struct mmp_param_gate_clk apmu_gate_clks[] =3D=
+ {
+ 	{MMP2_CLK_CCIC1, "ccic1_clk", "ccic1_mix_clk", CLK_SET_RATE_PARENT, APM=
+U_CCIC1, 0x1b, 0x1b, 0x0, 0, &ccic1_lock},
+ 	{MMP2_CLK_CCIC1_PHY, "ccic1_phy_clk", "ccic1_mix_clk", CLK_SET_RATE_PAR=
+ENT, APMU_CCIC1, 0x24, 0x24, 0x0, 0, &ccic1_lock},
+ 	{MMP2_CLK_CCIC1_SPHY, "ccic1_sphy_clk", "ccic1_sphy_div", CLK_SET_RATE_=
+PARENT, APMU_CCIC1, 0x300, 0x300, 0x0, 0, &ccic1_lock},
+-	{MMP2_CLK_SP, "sp_clk", NULL, CLK_SET_RATE_PARENT, APMU_SP, 0x1b, 0x1b,=
+ 0x0, 0, &sp_lock},
+ };
+=20
+ static void mmp2_axi_periph_clk_init(struct mmp2_clk_unit *pxa_unit)
+--=20
+2.20.1

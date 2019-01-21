@@ -1,113 +1,92 @@
 From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: [PATCH v3] HID: i2c-hid: Ignore input report if there's no data
- present on Elan touchpanels
-Date: Mon, 21 Jan 2019 11:29:54 +0800
-Message-ID: <D7C6B90F-641A-495B-9E05-78BF4F56B552@canonical.com>
-References: <20190107072429.23828-1-kai.heng.feng@canonical.com>
- <CAO-hwJKo=EaPoXJLGUvjq3QRng1V1NkO7A5zYGojbPyxxyJYHA@mail.gmail.com>
+Subject: Re: [PATCH] HID: i2c-hid: Disable runtime PM on Goodix touchpad
+Date: Mon, 21 Jan 2019 11:23:01 +0800
+Message-ID: <0FFF8A37-B386-46A6-B790-403288E91EB4@canonical.com>
+References: <20190114084734.3362-1-kai.heng.feng@canonical.com>
+ <nycvar.YFH.7.76.1901141217550.6626@cbobk.fhfr.pm>
+ <663EE74C-02E8-49DB-A197-2022AFE2D863@canonical.com>
+ <2149AEF5-ABBF-4745-89F9-7FF9719251B5@canonical.com>
+ <CAO-hwJLHm8b6X9kX1myz7xx1992VW2tVjdn6xw2n1MVX2dn0=g@mail.gmail.com>
+ <1897F291-4EB4-4E4B-87AA-3C16EF321340@canonical.com>
+ <CAO-hwJ+OQAsJkJj2YRGOE=8NcXhS=XWwdfGSaLjY9Bdvcfn7BQ@mail.gmail.com>
 Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
 Content-Type: text/plain;
         charset=utf-8
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKo=EaPoXJLGUvjq3QRng1V1NkO7A5zYGojbPyxxyJYHA@mail.gmail.com>
+In-Reply-To: <CAO-hwJ+OQAsJkJj2YRGOE=8NcXhS=XWwdfGSaLjY9Bdvcfn7BQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, anisse@astier.eu, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
 
 
-> On Jan 18, 2019, at 23:50, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> On Jan 17, 2019, at 20:35, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
 > 
-> Hi Kai-Heng,
-> 
-> On Mon, Jan 7, 2019 at 8:24 AM Kai-Heng Feng
+> On Thu, Jan 17, 2019 at 12:41 PM Kai-Heng Feng
 > <kai.heng.feng@canonical.com> wrote:
 >> 
->> While using Elan touchpads, the message floods:
->> [  136.138487] i2c_hid i2c-DELL08D6:00: i2c_hid_get_input: incomplete report (14/65535)
 >> 
->> Though the message flood is annoying, the device it self works without
->> any issue. I suspect that the device in question takes too much time to
->> pull the IRQ back to high after I2C host has done reading its data.
 >> 
->> Since the host receives all useful data, let's ignore the input report
->> when there's no data.
+>>> On Jan 17, 2019, at 16:06, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+>>> 
+>>> On Thu, Jan 17, 2019 at 6:02 AM Kai-Heng Feng
+>>> <kai.heng.feng@canonical.com> wrote:
+>> [snipped]
+>>>> Goodix says the firmware needs at least 60ms to fully respond ON and
+>>>> SLEEP command.
+>>> 
+>>> I was about to say that this is not conformant to the specification.
+>>> But looking at 7.2.8 SET_POWER of
+>>> https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn642101(v=vs.85)
+>>> 
+>>> They say:
+>>> "The DEVICE must ensure that it transitions to the HOST specified
+>>> Power State in under 1 second. "
+>>> But in the RESPONSE paragraph: "The DEVICE shall not respond back
+>>> after receiving the command. The DEVICE is mandated to enter that
+>>> power state imminently."
+>>> 
+>>> My interpretation was always that the device has to be in a ready
+>>> state for new commands "immediately".
+>>> However, the first sentence may suggest that the driver would block
+>>> any command to the device before the 1 second timestamp.
+>>> 
+>>>> 
+>>>> I’ll see if an 200ms autosuspend can solve all Goodix, LG and Raydium
+>>>> touchpanels.
+>>> 
+>>> We already have a I2C_HID_QUIRK_DELAY_AFTER_SLEEP quirk that delay
+>>> operations after sleep by 20ms. Maybe we can keep the runtime PM but
+>>> use the same timers to not confuse the hardware.
 >> 
->> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>> Yes, but wouldn’t use pm_*_autosuspend() helpers can both solve the issue
+>> and make the code more cleaner?
 > 
-> Thanks for the v3.
+> You are probably correct :)
 > 
-> This patch has just been brought to my attention, and I have one
-> question before applying it:
-> are those messages (without your patch) occurring all the time, or
-> just after resume?
+> I am not too familiar with the details of the runtime PM API, but if
+> you can make this a barrier to prevent the host to call too many
+> suspends/resumes in a row, that would be nice.
+> And we might be able to ditch I2C_HID_QUIRK_DELAY_AFTER_SLEEP and
+> I2C_HID_QUIRK_NO_RUNTIME_PM.
 
-All the time.
+Ok, using autosuspend helpers doesn’t really solve the issue.
 
-The touchpad works fine though. The entire report is 0xff, so it can be
-safely ignored.
+Although it can cover the case like fast ON/SLEEP triggered by
+quick transition of display manager -> desktop session, but once
+it gets runtime suspended, we can never sure when it’ll get 
+runtime resumed again. So a mleep() between each powering
+commands is still needed.
 
-> 
-> I wonder if the pm_suspend delay we talked about in the other thread
-> would fix that issue in a cleaner way.
-
-I’ve replied in another thread, unfortunately it can’t.
-
-We can introduce msleep() between each commands though, but I don’t
-think it’s good either.
+So I think we should stick to I2C_HID_QUIRK_NO_RUNTIME_PM
+for now.
 
 Kai-Heng
 
 > 
+> Adding the involved people in the thread.
+> 
 > Cheers,
 > Benjamin
-> 
->> ---
->> v3:
->> Fix compiler error/warnings.
->> 
->> v2:
->> Use dev_warn_once() to warn the user about the situation.
->> 
->> drivers/hid/i2c-hid/i2c-hid-core.c | 9 +++++++++
->> 1 file changed, 9 insertions(+)
->> 
->> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
->> index 8555ce7e737b..2f940c1de616 100644
->> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
->> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
->> @@ -50,6 +50,7 @@
->> #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET       BIT(1)
->> #define I2C_HID_QUIRK_NO_RUNTIME_PM            BIT(2)
->> #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP                BIT(3)
->> +#define I2C_HID_QUIRK_BOGUS_IRQ                        BIT(4)
->> 
->> /* flags */
->> #define I2C_HID_STARTED                0
->> @@ -179,6 +180,8 @@ static const struct i2c_hid_quirks {
->>                I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
->>        { USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
->>                I2C_HID_QUIRK_NO_RUNTIME_PM },
->> +       { USB_VENDOR_ID_ELAN, HID_ANY_ID,
->> +                I2C_HID_QUIRK_BOGUS_IRQ },
->>        { 0, 0 }
->> };
->> 
->> @@ -503,6 +506,12 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
->>                return;
->>        }
->> 
->> +       if (ihid->quirks & I2C_HID_QUIRK_BOGUS_IRQ && ret_size == 0xffff) {
->> +               dev_warn_once(&ihid->client->dev, "%s: IRQ triggered but "
->> +                             "there's no data\n", __func__);
->> +               return;
->> +       }
->> +
->>        if ((ret_size > size) || (ret_size < 2)) {
->>                dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
->>                        __func__, size, ret_size);
->> --
->> 2.17.1
->> 

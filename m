@@ -1,113 +1,140 @@
-From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 1/3] Revert "Input: olpc_apsp - enable the SP clock"
-Date: Mon, 21 Jan 2019 07:22:54 +0100
-Message-ID: <20190121062255.551587-2-lkundrak@v3.sk>
-References: <20190121062255.551587-1-lkundrak@v3.sk>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2] Input: elantech: Enable SMBus on new (2018+) systems
+Date: Mon, 21 Jan 2019 09:33:14 +0100
+Message-ID: <CAO-hwJLPFzwkY+tkgeas8066CNygfyTY2EoVrximURx4dwQ0TQ@mail.gmail.com>
+References: <20190121070258.1844-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190121062255.551587-1-lkundrak@v3.sk>
+In-Reply-To: <20190121070258.1844-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Turns out this is not such a great idea. Once the SP clock is disabled,
-it's not sufficient to just enable in order to bring the SP core back up.
+On Mon, Jan 21, 2019 at 8:03 AM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+> There are some new HP laptops with Elantech touchpad don't support
+> multitouch.
+>
+> Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is
+> supported, but in addition to firmware version, the bus type also
+> informs us if the IC can support SMBus, so also check that.
+>
+> In case of breaking old ICs, only enables SMBus on systems manufactured
+> after 2018, alongsides aforementioned checks.
+>
+> Lastly, consolidats all check into elantech_use_host_notify() and use it
+> to determine whether to use PS/2 or SMBus.
+>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+> v2:
+> - Wording.
+> - Further restrain on older systems (< 2018).
+>
+>  drivers/input/mouse/elantech.c | 63 ++++++++++++++++++----------------
+>  1 file changed, 34 insertions(+), 29 deletions(-)
+>
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index 9fe075c137dc..2594130b0079 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1799,6 +1799,39 @@ static int elantech_create_smbus(struct psmouse *psmouse,
+>                                   leave_breadcrumbs);
+>  }
+>
+> +static bool elantech_use_host_notify(struct psmouse *psmouse,
+> +                                    struct elantech_device_info *info)
+> +{
+> +       bool host_notify = false;
+> +
+> +       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> +               host_notify = true;
+> +       else {
+> +               switch (info->bus) {
+> +               case ETP_BUS_PS2_ONLY:
+> +                       /* expected case */
+> +                       break;
+> +               case ETP_BUS_SMB_ALERT_ONLY:
+> +                       /* fall-through  */
+> +               case ETP_BUS_PS2_SMB_ALERT:
+> +                       psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
+> +                       break;
+> +               case ETP_BUS_SMB_HST_NTFY_ONLY:
+> +                       /* fall-through  */
+> +               case ETP_BUS_PS2_SMB_HST_NTFY:
+> +                       host_notify = true;
+> +                       break;
+> +               default:
+> +                       psmouse_dbg(psmouse,
+> +                                   "Ignoring SMBus bus provider %d.\n",
+> +                                   info->bus);
+> +               }
+> +       }
+> +
+> +       /* SMbus implementation is stable after 2018 */
+> +       return host_notify && (dmi_get_bios_year() >= 2018);
 
-It seems that the kernel has no business managing this clock. Just let
-the firmware keep it enabled.
+Strictly speaking, the check for the year should be in the `switch
+(info->bus)`, but OTOH, laptops with ETP_NEW_IC_SMBUS_HOST_NOTIFY
+should be manufactured after 2018 too, so we should be good.
 
-This reverts commit ed22cee91a88c47e564478b012fdbcb079653499.
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Link: https://lore.kernel.org/lkml/154783267051.169631.319783654464662574=
-7@swboyd.mtv.corp.google.com/
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
----
- .../devicetree/bindings/serio/olpc,ap-sp.txt       |  4 ----
- drivers/input/serio/olpc_apsp.c                    | 14 --------------
- 2 files changed, 18 deletions(-)
+Cheers,
+Benjamin
 
-diff --git a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt b/Doc=
-umentation/devicetree/bindings/serio/olpc,ap-sp.txt
-index 36603419d6f8..0e72183f52bc 100644
---- a/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-+++ b/Documentation/devicetree/bindings/serio/olpc,ap-sp.txt
-@@ -4,14 +4,10 @@ Required properties:
- - compatible : "olpc,ap-sp"
- - reg : base address and length of SoC's WTM registers
- - interrupts : SP-AP interrupt
--- clocks : phandle + clock-specifier for the clock that drives the WTM
--- clock-names:  should be "sp"
-=20
- Example:
- 	ap-sp@d4290000 {
- 		compatible =3D "olpc,ap-sp";
- 		reg =3D <0xd4290000 0x1000>;
- 		interrupts =3D <40>;
--		clocks =3D <&soc_clocks MMP2_CLK_SP>;
--		clock-names =3D "sp";
- 	}
-diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_a=
-psp.c
-index bae08226e3d9..a7cfab3db9ee 100644
---- a/drivers/input/serio/olpc_apsp.c
-+++ b/drivers/input/serio/olpc_apsp.c
-@@ -23,7 +23,6 @@
- #include <linux/of.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
--#include <linux/clk.h>
-=20
- /*
-  * The OLPC XO-1.75 and XO-4 laptops do not have a hardware PS/2 control=
-ler.
-@@ -75,7 +74,6 @@ struct olpc_apsp {
- 	struct serio *kbio;
- 	struct serio *padio;
- 	void __iomem *base;
--	struct clk *clk;
- 	int open_count;
- 	int irq;
- };
-@@ -148,17 +146,11 @@ static int olpc_apsp_open(struct serio *port)
- 	struct olpc_apsp *priv =3D port->port_data;
- 	unsigned int tmp;
- 	unsigned long l;
--	int error;
-=20
- 	if (priv->open_count++ =3D=3D 0) {
--		error =3D clk_prepare_enable(priv->clk);
--		if (error)
--			return error;
--
- 		l =3D readl(priv->base + COMMAND_FIFO_STATUS);
- 		if (!(l & CMD_STS_MASK)) {
- 			dev_err(priv->dev, "SP cannot accept commands.\n");
--			clk_disable_unprepare(priv->clk);
- 			return -EIO;
- 		}
-=20
-@@ -179,8 +171,6 @@ static void olpc_apsp_close(struct serio *port)
- 		/* Disable interrupt 0 */
- 		tmp =3D readl(priv->base + PJ_INTERRUPT_MASK);
- 		writel(tmp | INT_0, priv->base + PJ_INTERRUPT_MASK);
--
--		clk_disable_unprepare(priv->clk);
- 	}
- }
-=20
-@@ -208,10 +198,6 @@ static int olpc_apsp_probe(struct platform_device *p=
-dev)
- 	if (priv->irq < 0)
- 		return priv->irq;
-=20
--	priv->clk =3D devm_clk_get(&pdev->dev, "sp");
--	if (IS_ERR(priv->clk))
--		return PTR_ERR(priv->clk);
--
- 	/* KEYBOARD */
- 	kb_serio =3D kzalloc(sizeof(struct serio), GFP_KERNEL);
- 	if (!kb_serio)
---=20
-2.20.1
+> +}
+> +
+>  /**
+>   * elantech_setup_smbus - called once the PS/2 devices are enumerated
+>   * and decides to instantiate a SMBus InterTouch device.
+> @@ -1818,7 +1851,7 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+>                  * i2c_blacklist_pnp_ids.
+>                  * Old ICs are up to the user to decide.
+>                  */
+> -               if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
+> +               if (!elantech_use_host_notify(psmouse, info) ||
+>                     psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+>                         return -ENXIO;
+>         }
+> @@ -1838,34 +1871,6 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
+>         return 0;
+>  }
+>
+> -static bool elantech_use_host_notify(struct psmouse *psmouse,
+> -                                    struct elantech_device_info *info)
+> -{
+> -       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+> -               return true;
+> -
+> -       switch (info->bus) {
+> -       case ETP_BUS_PS2_ONLY:
+> -               /* expected case */
+> -               break;
+> -       case ETP_BUS_SMB_ALERT_ONLY:
+> -               /* fall-through  */
+> -       case ETP_BUS_PS2_SMB_ALERT:
+> -               psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
+> -               break;
+> -       case ETP_BUS_SMB_HST_NTFY_ONLY:
+> -               /* fall-through  */
+> -       case ETP_BUS_PS2_SMB_HST_NTFY:
+> -               return true;
+> -       default:
+> -               psmouse_dbg(psmouse,
+> -                           "Ignoring SMBus bus provider %d.\n",
+> -                           info->bus);
+> -       }
+> -
+> -       return false;
+> -}
+> -
+>  int elantech_init_smbus(struct psmouse *psmouse)
+>  {
+>         struct elantech_device_info info;
+> --
+> 2.17.1
+>

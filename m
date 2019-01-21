@@ -1,70 +1,211 @@
-From: Lubomir Rintel <lkundrak@v3.sk>
-Subject: [PATCH 2/3] Revert "clk: mmp2: add SP clock"
-Date: Mon, 21 Jan 2019 07:22:55 +0100
-Message-ID: <20190121062255.551587-3-lkundrak@v3.sk>
-References: <20190121062255.551587-1-lkundrak@v3.sk>
+From: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Subject: RE: [PATCH 1/1] Input: elantech: Use SMBus based on bus info
+Date: Mon, 21 Jan 2019 14:21:45 +0800
+Message-ID: <005701d4b151$952defb0$bf89cf10$@emc.com.tw>
+References: <20190117092948.32079-1-kai.heng.feng@canonical.com> <CAO-hwJKyBHM1Yy8=pQrbDoArTOX4=8G6f0jECv4x1mth+LZZDw@mail.gmail.com> <0BD3A587-B7B6-4C99-8F87-187394FF6EFC@canonical.com> <008c01d4af10$5b157f20$11407d60$@emc.com.tw> <11585D81-F3E5-4924-A010-4B6A11919216@canonical.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190121062255.551587-1-lkundrak@v3.sk>
+In-Reply-To: <11585D81-F3E5-4924-A010-4B6A11919216@canonical.com>
+Content-Language: zh-tw
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+To: 'Kai-Heng Feng' <kai.heng.feng@canonical.com>
+Cc: 'Benjamin Tissoires' <benjamin.tissoires@redhat.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, "'open list:HID CORE LAYER'" <linux-input@vger.kernel.org>, 'lkml' <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-It seems that the kernel has no business managing this clock: once the SP
-clock is disabled, it's not sufficient to just enable in order to bring t=
-he
-SP core back up. Just let the firmware keep it enabled and don't expose i=
-t
-to drivers.
 
-This reverts commit fc27c2394d96fd19854b7e2d3f0e60df0d86fc90.
 
-Link: https://lore.kernel.org/lkml/154783267051.169631.319783654464662574=
-7@swboyd.mtv.corp.google.com/
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
----
- drivers/clk/mmp/clk-of-mmp2.c | 4 ----
- 1 file changed, 4 deletions(-)
+-----Original Message-----
+From: Kai-Heng Feng [mailto:kai.heng.feng@canonical.com] 
+Sent: Monday, January 21, 2019 12:28 PM
+To: 廖崇榮
+Cc: Benjamin Tissoires; Dmitry Torokhov; open list:HID CORE LAYER; lkml
+Subject: Re: [PATCH 1/1] Input: elantech: Use SMBus based on bus info
 
-diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.=
-c
-index 61fefc046ec5..d083b860f083 100644
---- a/drivers/clk/mmp/clk-of-mmp2.c
-+++ b/drivers/clk/mmp/clk-of-mmp2.c
-@@ -53,7 +53,6 @@
- #define APMU_DISP1	0x110
- #define APMU_CCIC0	0x50
- #define APMU_CCIC1	0xf4
--#define APMU_SP		0x68
- #define MPMU_UART_PLL	0x14
-=20
- struct mmp2_clk_unit {
-@@ -210,8 +209,6 @@ static struct mmp_clk_mix_config ccic1_mix_config =3D=
- {
- 	.reg_info =3D DEFINE_MIX_REG_INFO(4, 16, 2, 6, 32),
- };
-=20
--static DEFINE_SPINLOCK(sp_lock);
--
- static struct mmp_param_mux_clk apmu_mux_clks[] =3D {
- 	{MMP2_CLK_DISP0_MUX, "disp0_mux", disp_parent_names, ARRAY_SIZE(disp_pa=
-rent_names), CLK_SET_RATE_PARENT, APMU_DISP0, 6, 2, 0, &disp0_lock},
- 	{MMP2_CLK_DISP1_MUX, "disp1_mux", disp_parent_names, ARRAY_SIZE(disp_pa=
-rent_names), CLK_SET_RATE_PARENT, APMU_DISP1, 6, 2, 0, &disp1_lock},
-@@ -242,7 +239,6 @@ static struct mmp_param_gate_clk apmu_gate_clks[] =3D=
- {
- 	{MMP2_CLK_CCIC1, "ccic1_clk", "ccic1_mix_clk", CLK_SET_RATE_PARENT, APM=
-U_CCIC1, 0x1b, 0x1b, 0x0, 0, &ccic1_lock},
- 	{MMP2_CLK_CCIC1_PHY, "ccic1_phy_clk", "ccic1_mix_clk", CLK_SET_RATE_PAR=
-ENT, APMU_CCIC1, 0x24, 0x24, 0x0, 0, &ccic1_lock},
- 	{MMP2_CLK_CCIC1_SPHY, "ccic1_sphy_clk", "ccic1_sphy_div", CLK_SET_RATE_=
-PARENT, APMU_CCIC1, 0x300, 0x300, 0x0, 0, &ccic1_lock},
--	{MMP2_CLK_SP, "sp_clk", NULL, CLK_SET_RATE_PARENT, APMU_SP, 0x1b, 0x1b,=
- 0x0, 0, &sp_lock},
- };
-=20
- static void mmp2_axi_periph_clk_init(struct mmp2_clk_unit *pxa_unit)
---=20
-2.20.1
+
+
+> On Jan 18, 2019, at 17:29, 廖崇榮 <kt.liao@emc.com.tw> wrote:
+> 
+> 
+> 
+> -----Original Message-----
+> From: Kai Heng Feng [mailto:kai.heng.feng@canonical.com]
+> Sent: Friday, January 18, 2019 12:15 AM
+> To: Benjamin Tissoires
+> Cc: Dmitry Torokhov; 廖崇榮; open list:HID CORE LAYER; lkml
+> Subject: Re: [PATCH 1/1] Input: elantech: Use SMBus based on bus info
+> 
+> 
+> 
+>> On Jan 17, 2019, at 10:42 PM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> 
+>> Hi Kai-Heng,
+>> 
+>> On Thu, Jan 17, 2019 at 10:30 AM Kai-Heng Feng 
+>> <kai.heng.feng@canonical.com> wrote:
+>>> 
+>>> There are some new HP laptops with Elantech touchpad don't support 
+>>> multitouch.
+>>> 
+>>> Both ETP_BUS_SMB_HST_NTFY_ONLY and ETP_BUS_PS2_SMB_HST_NTFY devices 
+>>> can use SMBus to support 5 fingers touch, so we need to chech them too.
+>>> 
+>>> So use elantech_use_host_notify() to do a more thouroughly check.
+>>> 
+>>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>>> ---
+>>> drivers/input/mouse/elantech.c | 58
+>>> +++++++++++++++++-----------------
+>>> 1 file changed, 29 insertions(+), 29 deletions(-)
+>>> 
+>>> diff --git a/drivers/input/mouse/elantech.c 
+>>> b/drivers/input/mouse/elantech.c index 9fe075c137dc..5bcf1c147eb1
+>>> 100644
+>>> --- a/drivers/input/mouse/elantech.c
+>>> +++ b/drivers/input/mouse/elantech.c
+>>> @@ -1799,6 +1799,34 @@ static int elantech_create_smbus(struct 
+>>> psmouse
+> *psmouse,
+>>>                                 leave_breadcrumbs); }
+>>> 
+>>> +static bool elantech_use_host_notify(struct psmouse *psmouse,
+>>> +                                    struct elantech_device_info
+>>> +*info) {
+>>> +       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+>>> +               return true;
+>>> +
+>>> +       switch (info->bus) {
+>>> +       case ETP_BUS_PS2_ONLY:
+>>> +               /* expected case */
+>>> +               break;
+>>> +       case ETP_BUS_SMB_ALERT_ONLY:
+>>> +               /* fall-through  */
+>>> +       case ETP_BUS_PS2_SMB_ALERT:
+>>> +               psmouse_dbg(psmouse, "Ignoring SMBus provider 
+>>> + through
+> alert protocol.\n");
+>>> +               break;
+>>> +       case ETP_BUS_SMB_HST_NTFY_ONLY:
+>>> +               /* fall-through  */
+>>> +       case ETP_BUS_PS2_SMB_HST_NTFY:
+>>> +               return true;
+>>> +       default:
+>>> +               psmouse_dbg(psmouse,
+>>> +                           "Ignoring SMBus bus provider %d.\n",
+>>> +                           info->bus);
+>>> +       }
+>>> +
+>>> +       return false;
+>>> +}
+>>> +
+>>> /**
+>>> * elantech_setup_smbus - called once the PS/2 devices are enumerated
+>>> * and decides to instantiate a SMBus InterTouch device.
+>>> @@ -1818,7 +1846,7 @@ static int elantech_setup_smbus(struct psmouse
+> *psmouse,
+>>>                * i2c_blacklist_pnp_ids.
+>>>                * Old ICs are up to the user to decide.
+>>>                */
+>>> -               if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
+>>> +               if (!elantech_use_host_notify(psmouse, info) ||
+>> 
+>> That was my initial approach of the series, but I ended up being more 
+>> conservative as this would flip all of the existing elantech SMBUS 
+>> capable touchpads to use elan_i2c.
+>> And I didn't want to deal with 4/5 year old laptops that suddenly broke.
+>> 
+>> So I wonder if you can restrict this default change to the recent 
+>> laptops (let's say 2018+). Maybe by looking at their FW version or 
+>> something else in the DMI?
+> 
+> It was KT who told me that I should use ETP_BUS_PS2_SMB_HST_NTFY.
+> 
+> As for date, KT still knows better than me.
+> 
+> KT,
+> Can you name a year which is safe enough to enable SMBus?
+> 
+> I have discussed it internally. 
+> The internal rule for FW's SMbus implementation is stable after 2018 
+> If you meet some special case, please let me know.
+
+Thanks for the info. I’ll use this for the V2 patch.
+
+> 
+> BTW, The SMbus supporting is requested by HP this time, and there are 
+> plenty of HP laptop use old IC which doesn't meet " 
+> ETP_NEW_IC_SMBUS_HOST_NOTIFY”.
+
+One more question, does ETP_BUS_SMB_HST_NTFY_ONLY means it should stick to SMBus, because it doesn’t support PS/2?
+
+I’d like to merge all checks into elantech_use_host_notify() but ETP_BUS_SMB_HST_NTFY_ONLY caught my attention.
+
+ETP_BUS_SMB_HST_NTFY_ONLY is for our previous planning but it never happen so far, and it won't happen in the future.
+There are two cases for our released touchpad and they are " ETP_BUS_PS2_ONLY" and " ETP_BUS_PS2_SMB_HST_NTFY".
+
+Thanks
+KT
+
+Kai-Heng
+
+> 
+> Elan touchpad works well in PS/2 for HP, because it don't support 
+> TrackPoint.
+> You may let old HP platform work as PS/2 for safety.
+> 
+> Thanks
+> KT
+> 
+> Kai-Heng
+> 
+>> 
+>> Cheers,
+>> Benjamin
+>> 
+>>>                   psmouse_matches_pnp_id(psmouse,
+> i2c_blacklist_pnp_ids))
+>>>                       return -ENXIO;
+>>>       }
+>>> @@ -1838,34 +1866,6 @@ static int elantech_setup_smbus(struct 
+>>> psmouse
+> *psmouse,
+>>>       return 0;
+>>> }
+>>> 
+>>> -static bool elantech_use_host_notify(struct psmouse *psmouse,
+>>> -                                    struct elantech_device_info *info)
+>>> -{
+>>> -       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+>>> -               return true;
+>>> -
+>>> -       switch (info->bus) {
+>>> -       case ETP_BUS_PS2_ONLY:
+>>> -               /* expected case */
+>>> -               break;
+>>> -       case ETP_BUS_SMB_ALERT_ONLY:
+>>> -               /* fall-through  */
+>>> -       case ETP_BUS_PS2_SMB_ALERT:
+>>> -               psmouse_dbg(psmouse, "Ignoring SMBus provider through
+> alert protocol.\n");
+>>> -               break;
+>>> -       case ETP_BUS_SMB_HST_NTFY_ONLY:
+>>> -               /* fall-through  */
+>>> -       case ETP_BUS_PS2_SMB_HST_NTFY:
+>>> -               return true;
+>>> -       default:
+>>> -               psmouse_dbg(psmouse,
+>>> -                           "Ignoring SMBus bus provider %d.\n",
+>>> -                           info->bus);
+>>> -       }
+>>> -
+>>> -       return false;
+>>> -}
+>>> -
+>>> int elantech_init_smbus(struct psmouse *psmouse) {
+>>>       struct elantech_device_info info;
+>>> --
+>>> 2.17.1
+> 

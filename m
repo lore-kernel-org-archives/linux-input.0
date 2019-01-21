@@ -1,82 +1,66 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 10/13] gpio: max77650: add GPIO support
-Date: Mon, 21 Jan 2019 15:20:13 +0100
-Message-ID: <CACRpkdZhy7yBZrGLxhRGaac7v5jZhgUSz9gZAhFXbevJbKjpZw@mail.gmail.com>
-References: <20190118134244.22253-1-brgl@bgdev.pl> <20190118134244.22253-11-brgl@bgdev.pl>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v3 1/4] dt-bindings: input: touchscreen: goodix: Document
+ AVDD28-supply property
+Date: Mon, 21 Jan 2019 10:16:43 -0600
+Message-ID: <CAL_JsqKCw3EV+0_DuMiHh7GRGxv7YogQf-xwp71n9gpc2GzSSQ@mail.gmail.com>
+References: <20181215151802.18592-1-jagan@amarulasolutions.com>
+ <20181215151802.18592-2-jagan@amarulasolutions.com> <20190107225810.ggmkkbrnkoy2ykx5@penguin>
+ <CAL_JsqKTnPVM7Qahy9ejQbPfENpLCdzf5K5uUTcPh8j3EiqWRA@mail.gmail.com> <CAMty3ZCyq=tZMt6RC1aYJuEWgYp2zv1LBh+ZUwucE+g4RCoUaQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190118134244.22253-11-brgl@bgdev.pl>
+In-Reply-To: <CAMty3ZCyq=tZMt6RC1aYJuEWgYp2zv1LBh+ZUwucE+g4RCoUaQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Brian Masney <masneyb@onstation.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylib>
+To: Jagan Teki <jagan@amarulasolutions.com>
+Cc: devicetree <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Bartosz,
-
-thanks for the patch!
-
-On Fri, Jan 18, 2019 at 2:43 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Fri, Jan 18, 2019 at 10:01 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
 >
-> Add GPIO support for max77650 mfd device. This PMIC exposes a single
-> GPIO line.
+> On Wed, Jan 9, 2019 at 7:08 PM Rob Herring <robh@kernel.org> wrote:
+> >
+> > Please CC DT list if you want bindings reviewed.
 >
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> Sorry I forgot.
+>
+> >
+> > On Wed, Jan 9, 2019 at 1:40 AM Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > >
+> > > On Sat, Dec 15, 2018 at 08:47:59PM +0530, Jagan Teki wrote:
+> > > > Most of the Goodix CTP controllers are supply with AVDD28 pin.
+> > > > which need to supply for controllers like GT5663 on some boards
+> > > > to trigger the power.
+> > > >
+> > > > So, document the supply property so-that the require boards
+> > > > that used on GT5663 can enable it via device tree.
+> > > >
+> > > > Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+> > > > ---
+> > > >  Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+> > > >  1 file changed, 1 insertion(+)
+> > > >
+> > > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > index f7e95c52f3c7..c4622c983e08 100644
+> > > > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > @@ -23,6 +23,7 @@ Optional properties:
+> > > >   - touchscreen-inverted-y  : Y axis is inverted (boolean)
+> > > >   - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
+> > > >                               (swapping is done after inverting the axis)
+> > > > + - AVDD28-supply     : Analog power supply regulator on AVDD28 pin
+> > >
+> > > I think we normally use lower case in DT bindings and rarely encode
+> > > voltage in the supply name unless we are dealing with several supplies
+> > > of the same kind, but I'll let Ron comment on this.
+> >
+> > Yes on lowercase though there are some exceptions.
+> >
+> > There's also a AVDD22 supply as well as DVDD12 and VDDIO. So we
+> > probably need to keep the voltage, but the binding is incomplete.
+>
+> What is incomplete here? can you please elaborate.
 
-Overall you know for sure what you're doing so not much to
-say about the GPIO chip etc. The .set_config() is nice and
-helpful (maybe you will be able to also add pull up/down
-using Thomas Petazzoni's new config interfaces!)
+You are missing the 3 other supplies the chip has: AVDD22, DVDD12 and VDDIO.
 
-However enlighten me on this:
-
-> +static int max77650_gpio_to_irq(struct gpio_chip *gc, unsigned int offset)
-> +{
-> +       struct max77650_gpio_chip *chip = gpiochip_get_data(gc);
-> +
-> +       return regmap_irq_get_virq(chip->irq_chip_data, MAX77650_INT_GPI);
-> +}
-
-I know this may be opening the gates to a lot of coding, but
-isn't this IRQ hierarchical? I.e. that irqchip is not in the
-node of the GPIO chip but in the node of the MFD top
-device, with a 1:1 mapping between some of the IRQs
-and a certain GPIO line.
-
-Using regmap IRQ makes it confusing for me so I do not
-know for sure if that is the case.
-
-I am worried that you are recreating a problem (present in many
-drivers, including some written by me, mea culpa) that Brian Masney
-has been trying to solve for the gpiochip inside the SPMI
-GPIO (drivers/pinctrl/qcom/pinctrl-spmi-gpio.c).
-
-I have queued Brians refactoring and solution here:
-https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/log/?h=ib-qcom-spmi
-
-And the overall description on what he's trying to achieve is
-here:
-https://marc.info/?l=linux-gpio&m=154793071511130&w=2
-
-My problem description (which I fear will apply also to this
-driver):
-https://www.spinics.net/lists/linux-gpio/msg34655.html
-
-I plan to merge Brians patches soon-ish to devel and then from
-there try to construct more helpers in the gpiolib core,
-and if possible fix some of the old drivers who rely on
-.to_irq().
-
-We will certainly fix ssbi-gpio as well, and that is a good start
-since the Qualdcomm platforms are so pervasive in the
-market.
-
-But maybe this doesn't apply here? I am not the smartest...
-Just want to make sure that it is possible to refer an
-interrupt directly to this DT node, as it is indeed marked
-as interrupt-controller.
-
-Yours,
-Linus Walleij
+Rob

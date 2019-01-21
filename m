@@ -1,140 +1,49 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] Input: elantech: Enable SMBus on new (2018+) systems
-Date: Mon, 21 Jan 2019 09:33:14 +0100
-Message-ID: <CAO-hwJLPFzwkY+tkgeas8066CNygfyTY2EoVrximURx4dwQ0TQ@mail.gmail.com>
-References: <20190121070258.1844-1-kai.heng.feng@canonical.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v1] HID: intel-ish-hid: Switch to use new generic UUID
+ API
+Date: Mon, 21 Jan 2019 09:40:08 +0100
+Message-ID: <20190121084008.GA18680@lst.de>
+References: <20190110154804.89298-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190121070258.1844-1-kai.heng.feng@canonical.com>
+Content-Disposition: inline
+In-Reply-To: <20190110154804.89298-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 21, 2019 at 8:03 AM Kai-Heng Feng
-<kai.heng.feng@canonical.com> wrote:
->
-> There are some new HP laptops with Elantech touchpad don't support
-> multitouch.
->
-> Currently we use ETP_NEW_IC_SMBUS_HOST_NOTIFY() to check if SMBus is
-> supported, but in addition to firmware version, the bus type also
-> informs us if the IC can support SMBus, so also check that.
->
-> In case of breaking old ICs, only enables SMBus on systems manufactured
-> after 2018, alongsides aforementioned checks.
->
-> Lastly, consolidats all check into elantech_use_host_notify() and use it
-> to determine whether to use PS/2 or SMBus.
->
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+On Thu, Jan 10, 2019 at 05:48:04PM +0200, Andy Shevchenko wrote:
+> There are new types and helpers that are supposed to be used in new code.
+> 
+> As a preparation to get rid of legacy types and API functions do
+> the conversion here.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > ---
-> v2:
-> - Wording.
-> - Further restrain on older systems (< 2018).
->
->  drivers/input/mouse/elantech.c | 63 ++++++++++++++++++----------------
->  1 file changed, 34 insertions(+), 29 deletions(-)
->
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 9fe075c137dc..2594130b0079 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1799,6 +1799,39 @@ static int elantech_create_smbus(struct psmouse *psmouse,
->                                   leave_breadcrumbs);
->  }
->
-> +static bool elantech_use_host_notify(struct psmouse *psmouse,
-> +                                    struct elantech_device_info *info)
-> +{
-> +       bool host_notify = false;
-> +
-> +       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
-> +               host_notify = true;
-> +       else {
-> +               switch (info->bus) {
-> +               case ETP_BUS_PS2_ONLY:
-> +                       /* expected case */
-> +                       break;
-> +               case ETP_BUS_SMB_ALERT_ONLY:
-> +                       /* fall-through  */
-> +               case ETP_BUS_PS2_SMB_ALERT:
-> +                       psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
-> +                       break;
-> +               case ETP_BUS_SMB_HST_NTFY_ONLY:
-> +                       /* fall-through  */
-> +               case ETP_BUS_PS2_SMB_HST_NTFY:
-> +                       host_notify = true;
-> +                       break;
-> +               default:
-> +                       psmouse_dbg(psmouse,
-> +                                   "Ignoring SMBus bus provider %d.\n",
-> +                                   info->bus);
-> +               }
-> +       }
-> +
-> +       /* SMbus implementation is stable after 2018 */
-> +       return host_notify && (dmi_get_bios_year() >= 2018);
+>  drivers/hid/intel-ish-hid/ishtp-hid-client.c |  3 +--
+>  drivers/hid/intel-ish-hid/ishtp-hid.h        |  6 +++---
+>  drivers/hid/intel-ish-hid/ishtp/bus.c        | 19 ++++++++-----------
+>  drivers/hid/intel-ish-hid/ishtp/bus.h        |  4 ++--
+>  drivers/hid/intel-ish-hid/ishtp/client.h     |  2 +-
+>  drivers/hid/intel-ish-hid/ishtp/hbm.h        |  2 +-
+>  6 files changed, 16 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> index e64243bc9c96..2246697ada1d 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+> @@ -788,8 +788,7 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
+>  	if (!cl_device)
+>  		return	-ENODEV;
+>  
+> -	if (uuid_le_cmp(hid_ishtp_guid,
+> -			cl_device->fw_client->props.protocol_name) != 0)
+> +	if (!guid_equal(&hid_ishtp_guid, &cl_device->fw_client->props.protocol_name))
 
-Strictly speaking, the check for the year should be in the `switch
-(info->bus)`, but OTOH, laptops with ETP_NEW_IC_SMBUS_HOST_NOTIFY
-should be manufactured after 2018 too, so we should be good.
+This adds an overly long line.
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+With that fixed:
 
-Cheers,
-Benjamin
-
-> +}
-> +
->  /**
->   * elantech_setup_smbus - called once the PS/2 devices are enumerated
->   * and decides to instantiate a SMBus InterTouch device.
-> @@ -1818,7 +1851,7 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
->                  * i2c_blacklist_pnp_ids.
->                  * Old ICs are up to the user to decide.
->                  */
-> -               if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
-> +               if (!elantech_use_host_notify(psmouse, info) ||
->                     psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
->                         return -ENXIO;
->         }
-> @@ -1838,34 +1871,6 @@ static int elantech_setup_smbus(struct psmouse *psmouse,
->         return 0;
->  }
->
-> -static bool elantech_use_host_notify(struct psmouse *psmouse,
-> -                                    struct elantech_device_info *info)
-> -{
-> -       if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
-> -               return true;
-> -
-> -       switch (info->bus) {
-> -       case ETP_BUS_PS2_ONLY:
-> -               /* expected case */
-> -               break;
-> -       case ETP_BUS_SMB_ALERT_ONLY:
-> -               /* fall-through  */
-> -       case ETP_BUS_PS2_SMB_ALERT:
-> -               psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
-> -               break;
-> -       case ETP_BUS_SMB_HST_NTFY_ONLY:
-> -               /* fall-through  */
-> -       case ETP_BUS_PS2_SMB_HST_NTFY:
-> -               return true;
-> -       default:
-> -               psmouse_dbg(psmouse,
-> -                           "Ignoring SMBus bus provider %d.\n",
-> -                           info->bus);
-> -       }
-> -
-> -       return false;
-> -}
-> -
->  int elantech_init_smbus(struct psmouse *psmouse)
->  {
->         struct elantech_device_info info;
-> --
-> 2.17.1
->
+Reviewed-by: Christoph Hellwig <hch@lst.de>

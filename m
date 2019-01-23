@@ -1,234 +1,549 @@
 From: Nick Crews <ncrews@chromium.org>
-Subject: [PATCH v4 0/9] platform/chrome: rtc: Add support for Wilco EC
-Date: Wed, 23 Jan 2019 11:33:16 -0700
-Message-ID: <20190123183325.92946-1-ncrews@chromium.org>
+Subject: [PATCH v4 6/9] platform/chrome: Add event handling
+Date: Wed, 23 Jan 2019 11:33:22 -0700
+Message-ID: <20190123183325.92946-7-ncrews@chromium.org>
+References: <20190123183325.92946-1-ncrews@chromium.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190123183325.92946-1-ncrews@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: sjg@chromium.org, dmitry.torokhov@gmail.com, sre@kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dlaurie@chromium.org, Nick Crews <ncrews@chromium.org>, linux-rtc@vger.kernel.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Alessandro Zummo <a.zummo@towertech.it>, Benson Leung <bleung@chromium.org>, Nick Crews <ncrews@google.com>, Duncan Laurie <dlaurie@google.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: sjg@chromium.org, dmitry.torokhov@gmail.com, sre@kernel.org, linux-input@vger.kernel.org, groeck@chromium.org, dlaurie@chromium.org, Duncan Laurie <dlaurie@google.com>, Nick Crews <ncrews@chromium.org>, Nick Crews <ncrews@google.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Benson Leung <bleung@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
+From: Duncan Laurie <dlaurie@google.com>
 
-There is a new chromebook that contains a different Embedded Controller
-(codename Wilco) than the rest of the chromebook series. Thus the kernel
-requires a different driver than the already existing and generalized
-cros_ec_* drivers. Specifically, this driver adds support for getting
-and setting the RTC on the EC, adding a binary sysfs attribute
-that receives ACPI events from the EC, adding a binary sysfs
-attribute to request telemetry data from the EC (useful for enterprise
-applications), adding a debugfs interface for sending/receiving raw byte
-sequesnces to the EC, and adding normal sysfs attributes to get/set various
-other properties on the EC. The core of the communication with the EC
-is implemented in wilco_ec/mailbox.c, using a simple byte-level protocol
-with a checksum, transmitted over an eSPI bus. For debugging purposes,
-a raw attribute is also provided via debugfs which can write/read
-arbitrary bytes to/from the eSPI bus.
-
-The entry point of the driver is wilco_ec/core.c,
-which is responsible for several tasks:
-- Initialize the register interface that is used by wilco_ec_mailbox()
-- Create a platform device which is picked up by the debugfs driver
-- Create a platform device which is picked up by the RTC driver
-- Initialize the sysfs entries
-- Set up event handling
-
-We attempted to adhere to the sysfs principles of "one piece of data per
-attribute" as much as possible, and mostly succeded. However, with the
-wilco_ec/adv_power.h attributes, which deal with scheduling power usage,
-we found it most elegant to bundle setting event times for an entire day
-into a single attribute, so at most you are using attributes formatted
-as "%d %d %d %d %d %d". With the telemetry attribute, we had to use a
-binary attribute, instead of the preferable human-readable ascii, in
-order to keep secure the information which is proprietary to the
-enterprise service provider. This opaque binary data will be read and
-sent using a proprietary daemon running on the OS.
-
-The RTC driver is exposed as a standard RTC driver with
-read/write functionality.
-
-For event notification, the Wilco EC can return extended events that
-are not handled by standard ACPI objects. These events can
+The Wilco Embedded Controller can return extended events that
+are not handled by standard ACPI objects.  These events can
 include hotkeys which map to standard functions like brightness
 controls, or information about EC controlled features like the
-charger or battery. These events are triggered with an
-ACPI Notify(0x90) and the event data buffer is read through an ACPI
-method provided by the BIOS which reads the event buffer from EC RAM.
+charger or battery.
+
+These events are triggered with an ACPI Notify(0x90) and the
+event data buffer is read through an ACPI method provided by
+the BIOS which reads the event buffer from EC RAM.
+
 These events are then processed, with hotkey events being sent
 to the input subsystem and other events put into a queue which
 can be read by a userspace daemon via a sysfs attribute.
 
-The rest of the attributes are categorized as either "properties" or
-"legacy". "legacy" implies that the attribute existed on the EC before it
-was modified for ChromeOS, and "properties" implies that the attribute
-exposes functionality that was added to the EC specifically for
-ChromeOS. They are mostly boolean flags or percentages.
+> evtest /dev/input/event6
+Input driver version is 1.0.1
+Input device ID: bus 0x19 vendor 0x0 product 0x0 version 0x0
+Input device name: "Wilco EC hotkeys"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 224 (KEY_BRIGHTNESSDOWN)
+    Event code 225 (KEY_BRIGHTNESSUP)
+    Event code 240 (KEY_UNKNOWN)
+  Event type 4 (EV_MSC)
+    Event code 4 (MSC_SCAN)
+Properties:
+Testing ... (interrupt to exit)
+Event: type 4 (EV_MSC), code 4 (MSC_SCAN), value 57
+Event: type 1 (EV_KEY), code 224 (KEY_BRIGHTNESSDOWN), value 1
+Event: -------------- SYN_REPORT ------------
+Event: type 1 (EV_KEY), code 224 (KEY_BRIGHTNESSDOWN), value 0
+Event: -------------- SYN_REPORT ------------
+Event: type 4 (EV_MSC), code 4 (MSC_SCAN), value 58
+Event: type 1 (EV_KEY), code 225 (KEY_BRIGHTNESSUP), value 1
+Event: -------------- SYN_REPORT ------------
+Event: type 1 (EV_KEY), code 225 (KEY_BRIGHTNESSUP), value 0
+Event: -------------- SYN_REPORT ------------
 
-A full thread of the development of these patches can be found at
-https://chromium-review.googlesource.com/c/1371034. This thread contains
-comments and revisions that could be helpful in understanding how the
-driver arrived at the state it is in now. The thread also contains some
-ChromeOS specific patches that actually enable the driver. If you want
-to test the patch yourself, you would have to install the ChromeOS SDK
-and cherry pick in these patches.
+Signed-off-by: Duncan Laurie <dlaurie@google.com>
+Signed-off-by: Nick Crews <ncrews@chromium.org>
+---
 
-I also wrote some integration tests using the Tast testing framework that
-ChromeOS uses. It would require a full ChromeOS SDK to actually run the
-tests, but the source of the tests, written in Go, are useful for
-understanding what the desired behavior is. You can view the tests here:
-https://chromium-review.googlesource.com/c/1372575
-
-Thank you for your comments!
-
-Changes in v4:
-- add #define DRV_NAME
-- remove redundant Kconfig nesting
-- changed my email to @chromium.org
-- Add better explanation of what core.c does
-- Change debugfs driver to be a separate module
-- Change me email to @chromium.org from @google.com
-- Change CONFIG_WILCO_EC_SYSFS_RAW to
-  CONFIG_WILCO_EC_DEBUGFS
-- Change me email to @chromium.org from @google.com
-- Move "Add RTC driver" before "Add sysfs attributes" so that
-  it could get accepted earlier, since it is less contentious
-- Move "Add RTC driver" before "Add sysfs attributes" so that
-  it could get accepted earlier, since it is less contentious
-
+Changes in v4: None
 Changes in v3:
-- Change <= to >= in mec_in_range()
-- Add " - EC_HOST_CMD_REGION0" to offset arg for io_bytes_mec()
-- remove unused ret in probe()
-- Add newline spacer in probe()
-- rm unnecessary res in get_resource()
-- s/8bit/8-bit
-- rm first sleep when sending command to EC
-- Move the attribute to the debugfs system
-- Move the implementation to debugfs.c
-- Improve the raw hex parsing
-- Encapsulate global variables in one object
-- Add safety check when passing less than 3 bytes
-- Move documentation to debugfs-wilco-ec
-- rm #define for driver name
-- Don't compute weekday when reading from RTC.
-  Still set weekday when writing, as RTC needs this
-  to control advanced power scheduling
-- rm check for invalid month data
-- Set range_min and range_max on rtc_device
-- explicitly define toplevel_groups from the start,
-so adding telem later makes sense
-- Break version attribute into individual attributes
-- rm unused WILCO_EC_ATTR_RW macro
-- Moved some #defines from legacy.h to legacy.c
 - change err check from "if (ret < 0)" to "if (ret)"
-- Now bubble up error codes from within sysfs_init()
-- Add comment that PID means Property ID
-- rm some useless references to internal docs from documentation
-- add err check on returned data size
-- add check on read request offset and size
 
 Changes in v2:
-- Fixed kernel-doc comments
-- Fixed include of linux/mfd/cros_ec_lpc_mec.h
-- cros_ec_lpc_mec_in_range() returns -EINVAL on error
-- Added parens around macro variables
-- Remove COMPILE_TEST from Kconfig because inb()/outb()
-won't work on anything but X86
-- Add myself as module author
-- Tweak mailbox()
-- Add sysfs documentation
-- rm duplicate EC_MAILBOX_DATA_SIZE defs
-- Make docstrings follow kernel style
-- Fix tags in commit msg
-- Move Kconfig to subdirectory
-- Reading raw now includes ASCII translation
-- rm license boiler plate
-- rm "wilco_ec_rtc -" prefix in docstring
-- Make rtc driver its own module within the drivers/rtc/ directory
-- Register a rtc device from core.c that is picked up by this driver
-- Remove license boiler plate
-- Remove "wilco_ec_sysfs -" docstring prefix
-- Fix accidental Makefile deletion
-- Add documentation for sysfs entries
-- Change "enable ? 0 : 1" to "!enable"
-- No longer override error code from sysfs_init()
-- Put attributes in the legacy file to begin with, don't move later
-- Remove duplicate error messages when init()ing sysfs
 - rm "wilco_ec_event -" prefix from docstring
 - rm license boiler plate
 - Add sysfs directory documentation
 - Fix cosmetics
 - events are init()ed before subdrivers now
-- rm license boiler plate
-- rm "wilco_ec_properties -" prefix from docstring
-- Add documentation
-- rm license boiler plate
-- rm "wilco_ec_adv_power - " prefix from docstring
-- Add documentation
-- make format strings in read() and store() functions static
 
-Duncan Laurie (6):
-  cros_ec: Remove cros_ec dependency in lpc_mec
-  platform/chrome: Add new driver for Wilco EC
-  platform/chrome: Add support for raw commands in debugfs
-  platform/chrome: rtc: Add RTC driver
-  platform/chrome: Add sysfs attributes
-  platform/chrome: Add event handling
-
-Nick Crews (3):
-  platform/chrome: Add EC properties
-  platform/chrome: Add peakshift and adv_batt_charging
-  platform/chrome: Add binary telemetry attributes
-
- Documentation/ABI/testing/debugfs-wilco-ec    |  23 +
- .../ABI/testing/sysfs-platform-wilco-ec       | 196 +++++++
- drivers/platform/chrome/Kconfig               |   4 +-
- drivers/platform/chrome/Makefile              |   2 +
- drivers/platform/chrome/cros_ec_lpc_mec.c     |  52 +-
- drivers/platform/chrome/cros_ec_lpc_mec.h     |  43 +-
- drivers/platform/chrome/cros_ec_lpc_reg.c     |  47 +-
- drivers/platform/chrome/wilco_ec/Kconfig      |  20 +
- drivers/platform/chrome/wilco_ec/Makefile     |   8 +
- drivers/platform/chrome/wilco_ec/adv_power.c  | 544 ++++++++++++++++++
- drivers/platform/chrome/wilco_ec/adv_power.h  | 183 ++++++
- drivers/platform/chrome/wilco_ec/core.c       | 164 ++++++
- drivers/platform/chrome/wilco_ec/debugfs.c    | 226 ++++++++
- drivers/platform/chrome/wilco_ec/event.c      | 347 +++++++++++
- drivers/platform/chrome/wilco_ec/legacy.c     | 103 ++++
- drivers/platform/chrome/wilco_ec/legacy.h     |  79 +++
- drivers/platform/chrome/wilco_ec/mailbox.c    | 236 ++++++++
- drivers/platform/chrome/wilco_ec/properties.c | 344 +++++++++++
- drivers/platform/chrome/wilco_ec/properties.h | 180 ++++++
- drivers/platform/chrome/wilco_ec/sysfs.c      | 245 ++++++++
- drivers/platform/chrome/wilco_ec/telemetry.c  |  73 +++
- drivers/platform/chrome/wilco_ec/telemetry.h  |  41 ++
- drivers/platform/chrome/wilco_ec/util.h       |  38 ++
- drivers/rtc/Kconfig                           |  11 +
- drivers/rtc/Makefile                          |   1 +
- drivers/rtc/rtc-wilco-ec.c                    | 177 ++++++
- include/linux/platform_data/wilco-ec.h        | 186 ++++++
- 27 files changed, 3513 insertions(+), 60 deletions(-)
- create mode 100644 Documentation/ABI/testing/debugfs-wilco-ec
- create mode 100644 Documentation/ABI/testing/sysfs-platform-wilco-ec
- create mode 100644 drivers/platform/chrome/wilco_ec/Kconfig
- create mode 100644 drivers/platform/chrome/wilco_ec/Makefile
- create mode 100644 drivers/platform/chrome/wilco_ec/adv_power.c
- create mode 100644 drivers/platform/chrome/wilco_ec/adv_power.h
- create mode 100644 drivers/platform/chrome/wilco_ec/core.c
- create mode 100644 drivers/platform/chrome/wilco_ec/debugfs.c
+ drivers/platform/chrome/wilco_ec/Makefile |   3 +-
+ drivers/platform/chrome/wilco_ec/core.c   |  12 +
+ drivers/platform/chrome/wilco_ec/event.c  | 347 ++++++++++++++++++++++
+ include/linux/platform_data/wilco-ec.h    |  34 +++
+ 4 files changed, 395 insertions(+), 1 deletion(-)
  create mode 100644 drivers/platform/chrome/wilco_ec/event.c
- create mode 100644 drivers/platform/chrome/wilco_ec/legacy.c
- create mode 100644 drivers/platform/chrome/wilco_ec/legacy.h
- create mode 100644 drivers/platform/chrome/wilco_ec/mailbox.c
- create mode 100644 drivers/platform/chrome/wilco_ec/properties.c
- create mode 100644 drivers/platform/chrome/wilco_ec/properties.h
- create mode 100644 drivers/platform/chrome/wilco_ec/sysfs.c
- create mode 100644 drivers/platform/chrome/wilco_ec/telemetry.c
- create mode 100644 drivers/platform/chrome/wilco_ec/telemetry.h
- create mode 100644 drivers/platform/chrome/wilco_ec/util.h
- create mode 100644 drivers/rtc/rtc-wilco-ec.c
- create mode 100644 include/linux/platform_data/wilco-ec.h
 
+diff --git a/drivers/platform/chrome/wilco_ec/Makefile b/drivers/platform/chrome/wilco_ec/Makefile
+index b4dadf8b1a07..c5a8397b0a16 100644
+--- a/drivers/platform/chrome/wilco_ec/Makefile
++++ b/drivers/platform/chrome/wilco_ec/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-wilco_ec-objs				:= core.o mailbox.o sysfs.o legacy.o
++wilco_ec-objs				:= core.o mailbox.o sysfs.o legacy.o \
++					   event.o
+ obj-$(CONFIG_WILCO_EC)			+= wilco_ec.o
+ wilco_ec_debugfs-objs			:= debugfs.o
+ obj-$(CONFIG_WILCO_EC_DEBUGFS)		+= wilco_ec_debugfs.o
+diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
+index 1a1cd8e59f3f..73901e8a8794 100644
+--- a/drivers/platform/chrome/wilco_ec/core.c
++++ b/drivers/platform/chrome/wilco_ec/core.c
+@@ -108,8 +108,17 @@ static int wilco_ec_probe(struct platform_device *pdev)
+ 		goto destroy_mec;
+ 	}
+ 
++	/* Prepare to handle events */
++	ret = wilco_ec_event_init(ec);
++	if (ret) {
++		dev_err(dev, "Failed to setup event handling\n");
++		goto remove_sysfs;
++	}
++
+ 	return 0;
+ 
++remove_sysfs:
++	wilco_ec_sysfs_remove(ec);
+ destroy_mec:
+ 	cros_ec_lpc_mec_destroy();
+ 	return ret;
+@@ -119,6 +128,9 @@ static int wilco_ec_remove(struct platform_device *pdev)
+ {
+ 	struct wilco_ec_device *ec = platform_get_drvdata(pdev);
+ 
++	/* Stop handling EC events */
++	wilco_ec_event_remove(ec);
++
+ 	/* Remove sysfs attributes */
+ 	wilco_ec_sysfs_remove(ec);
+ 
+diff --git a/drivers/platform/chrome/wilco_ec/event.c b/drivers/platform/chrome/wilco_ec/event.c
+new file mode 100644
+index 000000000000..7601c02dffe8
+--- /dev/null
++++ b/drivers/platform/chrome/wilco_ec/event.c
+@@ -0,0 +1,347 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Event handling for Wilco Embedded Controller
++ *
++ * Copyright 2018 Google LLC
++ *
++ * The Wilco Embedded Controller can return extended events that
++ * are not handled by standard ACPI objects.  These events can
++ * include hotkeys which map to standard functions like brightness
++ * controls, or information about EC controlled features like the
++ * charger or battery.
++ *
++ * These events are triggered with an ACPI Notify(0x90) and the
++ * event data buffer is read through an ACPI method provided by
++ * the BIOS which reads the event buffer from EC RAM.
++ *
++ * These events are then processed, with hotkey events being sent
++ * to the input subsystem and other events put into a queue which
++ * can be read by a userspace daemon via a sysfs attribute.
++ */
++
++#include <linux/acpi.h>
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/input/sparse-keymap.h>
++#include <linux/list.h>
++#include <linux/platform_data/wilco-ec.h>
++#include <linux/platform_device.h>
++
++/* ACPI Notify event code indicating event data is available */
++#define EC_ACPI_NOTIFY_EVENT		0x90
++
++/* ACPI Method to execute to retrieve event data buffer from the EC */
++#define EC_ACPI_GET_EVENT		"^QSET"
++
++/* Maximum number of words in event data returned by the EC */
++#define EC_ACPI_MAX_EVENT_DATA		6
++
++/* Keep at most 100 events in the queue */
++#define EC_EVENT_QUEUE_MAX		100
++
++/**
++ * enum ec_event_type - EC event categories.
++ * @EC_EVENT_TYPE_HOTKEY: Hotkey event for handling special keys.
++ * @EC_EVENT_TYPE_NOTIFY: EC feature state changes.
++ * @EC_EVENT_TYPE_SYSTEM: EC system messages.
++ */
++enum ec_event_type {
++	EC_EVENT_TYPE_HOTKEY = 0x10,
++	EC_EVENT_TYPE_NOTIFY = 0x11,
++	EC_EVENT_TYPE_SYSTEM = 0x12,
++};
++
++/**
++ * struct ec_event - Extended event returned by the EC.
++ * @size: Number of words in structure after the size word.
++ * @type: Extended event type from &enum ec_event_type.
++ * @event: Event data words.  Max count is %EC_ACPI_MAX_EVENT_DATA.
++ */
++struct ec_event {
++	u16 size;
++	u16 type;
++	u16 event[0];
++} __packed;
++
++/**
++ * struct ec_event_entry - Event queue entry.
++ * @list: List node.
++ * @size: Number of bytes in event structure.
++ * @event: Extended event returned by the EC.  This should be the last
++ *         element because &struct ec_event includes a zero length array.
++ */
++struct ec_event_entry {
++	struct list_head list;
++	size_t size;
++	struct ec_event event;
++};
++
++static const struct key_entry wilco_ec_keymap[] = {
++	{ KE_KEY, 0x0057, { KEY_BRIGHTNESSDOWN } },
++	{ KE_KEY, 0x0058, { KEY_BRIGHTNESSUP } },
++	{ KE_END, 0 }
++};
++
++/**
++ * wilco_ec_handle_events() - Handle Embedded Controller events.
++ * @ec: EC device.
++ * @buf: Buffer of event data.
++ * @length: Length of event data buffer.
++ *
++ * Return: Number of events in queue or negative error code on failure.
++ *
++ * This function will handle EC extended events, sending hotkey events
++ * to the input subsystem and queueing others to be read by userspace.
++ */
++static int wilco_ec_handle_events(struct wilco_ec_device *ec,
++				  u8 *buf, u32 length)
++{
++	struct wilco_ec_event *queue = &ec->event;
++	struct ec_event *event;
++	struct ec_event_entry *entry;
++	size_t entry_size, num_words;
++	u32 offset = 0;
++
++	while (offset < length) {
++		event = (struct ec_event *)(buf + offset);
++		if (!event)
++			return -EINVAL;
++
++		dev_dbg(ec->dev, "EC event type 0x%02x size %d\n", event->type,
++			event->size);
++
++		/* Number of 16bit event data words is size - 1 */
++		num_words = event->size - 1;
++		entry_size = sizeof(*event) + (num_words * sizeof(u16));
++
++		if (num_words > EC_ACPI_MAX_EVENT_DATA) {
++			dev_err(ec->dev, "Invalid event word count: %d > %d\n",
++				num_words, EC_ACPI_MAX_EVENT_DATA);
++			return -EOVERFLOW;
++		};
++
++		/* Ensure event does not overflow the available buffer */
++		if ((offset + entry_size) > length) {
++			dev_err(ec->dev, "Event exceeds buffer: %d > %d\n",
++				offset + entry_size, length);
++			return -EOVERFLOW;
++		}
++
++		/* Point to the next event in the buffer */
++		offset += entry_size;
++
++		/* Hotkeys are sent to the input subsystem */
++		if (event->type == EC_EVENT_TYPE_HOTKEY) {
++			if (sparse_keymap_report_event(queue->input,
++						       event->event[0],
++						       1, true))
++				continue;
++
++			/* Unknown hotkeys are put into the event queue */
++			dev_dbg(ec->dev, "Unknown hotkey 0x%04x\n",
++				event->event[0]);
++		}
++
++		/* Prepare event for the queue */
++		entry = kzalloc(entry_size, GFP_KERNEL);
++		if (!entry)
++			return -ENOMEM;
++
++		/* Copy event data */
++		entry->size = entry_size;
++		memcpy(&entry->event, event, entry->size);
++
++		/* Add this event to the queue */
++		mutex_lock(&queue->lock);
++		list_add_tail(&entry->list, &queue->list);
++		queue->count++;
++		mutex_unlock(&queue->lock);
++	}
++
++	return queue->count;
++}
++
++/**
++ * wilco_ec_acpi_notify() - Handler called by ACPI subsystem for Notify.
++ * @device: EC ACPI device.
++ * @value: Value passed to Notify() in ACPI.
++ * @data: Private data, pointer to EC device.
++ */
++static void wilco_ec_acpi_notify(acpi_handle device, u32 value, void *data)
++{
++	struct wilco_ec_device *ec = data;
++	struct acpi_buffer event_buffer = { ACPI_ALLOCATE_BUFFER, NULL };
++	union acpi_object *obj;
++	acpi_status status;
++	int count;
++
++	/* Currently only handle event notifications */
++	if (value != EC_ACPI_NOTIFY_EVENT) {
++		dev_err(ec->dev, "Invalid event: 0x%08x\n", value);
++		return;
++	}
++
++	/* Execute ACPI method to get event data buffer */
++	status = acpi_evaluate_object(device, EC_ACPI_GET_EVENT,
++				      NULL, &event_buffer);
++	if (ACPI_FAILURE(status)) {
++		dev_err(ec->dev, "Error executing ACPI method %s()\n",
++			 EC_ACPI_GET_EVENT);
++		return;
++	}
++
++	obj = (union acpi_object *)event_buffer.pointer;
++	if (!obj) {
++		dev_err(ec->dev, "Nothing returned from %s()\n",
++			EC_ACPI_GET_EVENT);
++		return;
++	}
++	if (obj->type != ACPI_TYPE_BUFFER) {
++		dev_err(ec->dev, "Invalid object returned from %s()\n",
++			EC_ACPI_GET_EVENT);
++		kfree(obj);
++		return;
++	}
++	if (obj->buffer.length < sizeof(struct ec_event)) {
++		dev_err(ec->dev, "Invalid buffer length %d from %s()\n",
++			obj->buffer.length, EC_ACPI_GET_EVENT);
++		kfree(obj);
++		return;
++	}
++
++	/* Handle events and notify sysfs if any queued for userspace */
++	count = wilco_ec_handle_events(ec, obj->buffer.pointer,
++				       obj->buffer.length);
++
++	if (count > 0) {
++		dev_dbg(ec->dev, "EC event queue has %d entries\n", count);
++		sysfs_notify(&ec->dev->kobj, NULL, "event");
++	}
++
++	kfree(obj);
++}
++
++static ssize_t wilco_ec_event_read(struct file *filp, struct kobject *kobj,
++				   struct bin_attribute *attr,
++				   char *buf, loff_t off, size_t count)
++{
++	struct wilco_ec_device *ec = attr->private;
++	struct ec_event_entry *entry;
++
++	/* Only supports reading full events */
++	if (off != 0)
++		return -EINVAL;
++
++	/* Remove the first event and provide it to userspace */
++	mutex_lock(&ec->event.lock);
++	entry = list_first_entry_or_null(&ec->event.list,
++					 struct ec_event_entry, list);
++	if (entry) {
++		if (entry->size < count)
++			count = entry->size;
++		memcpy(buf, &entry->event, count);
++		list_del(&entry->list);
++		kfree(entry);
++		ec->event.count--;
++	} else {
++		count = 0;
++	}
++	mutex_unlock(&ec->event.lock);
++
++	return count;
++}
++
++static void wilco_ec_event_clear(struct wilco_ec_device *ec)
++{
++	struct ec_event_entry *entry, *next;
++
++	mutex_lock(&ec->event.lock);
++
++	/* Clear the event queue */
++	list_for_each_entry_safe(entry, next, &ec->event.list, list) {
++		list_del(&entry->list);
++		kfree(entry);
++		ec->event.count--;
++	}
++
++	mutex_unlock(&ec->event.lock);
++}
++
++int wilco_ec_event_init(struct wilco_ec_device *ec)
++{
++	struct wilco_ec_event *event = &ec->event;
++	struct device *dev = ec->dev;
++	struct acpi_device *adev = ACPI_COMPANION(dev);
++	acpi_status status;
++	int ret;
++
++	if (!adev) {
++		dev_err(dev, "Unable to find Wilco ACPI Device\n");
++		return -ENODEV;
++	}
++
++	INIT_LIST_HEAD(&event->list);
++	mutex_init(&event->lock);
++
++	/* Allocate input device for hotkeys */
++	event->input = input_allocate_device();
++	if (!event->input)
++		return -ENOMEM;
++	event->input->name = "Wilco EC hotkeys";
++	event->input->phys = "ec/input0";
++	event->input->id.bustype = BUS_HOST;
++	ret = sparse_keymap_setup(event->input, wilco_ec_keymap, NULL);
++	if (ret) {
++		dev_err(dev, "Unable to setup input device keymap\n");
++		input_free_device(event->input);
++		return ret;
++	}
++	ret = input_register_device(event->input);
++	if (ret) {
++		dev_err(dev, "Unable to register input device\n");
++		input_free_device(event->input);
++		return ret;
++	}
++
++	/* Create sysfs attribute for userspace event handling */
++	sysfs_bin_attr_init(&event->attr);
++	event->attr.attr.name = "event";
++	event->attr.attr.mode = 0400;
++	event->attr.read = wilco_ec_event_read;
++	event->attr.private = ec;
++	ret = device_create_bin_file(dev, &event->attr);
++	if (ret) {
++		dev_err(dev, "Failed to create event attribute in sysfs\n");
++		input_unregister_device(event->input);
++		return ret;
++	}
++
++	/* Install ACPI handler for Notify events */
++	status = acpi_install_notify_handler(adev->handle, ACPI_ALL_NOTIFY,
++					     wilco_ec_acpi_notify, ec);
++	if (ACPI_FAILURE(status)) {
++		dev_err(dev, "Failed to register notifier %08x\n", status);
++		device_remove_bin_file(dev, &event->attr);
++		input_unregister_device(event->input);
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
++void wilco_ec_event_remove(struct wilco_ec_device *ec)
++{
++	struct acpi_device *adev = ACPI_COMPANION(ec->dev);
++
++	/* Stop new events */
++	if (adev)
++		acpi_remove_notify_handler(adev->handle, ACPI_ALL_NOTIFY,
++					   wilco_ec_acpi_notify);
++
++	/* Remove event interfaces */
++	device_remove_bin_file(ec->dev, &ec->event.attr);
++	input_unregister_device(ec->event.input);
++
++	/* Clear the event queue */
++	wilco_ec_event_clear(ec);
++}
+diff --git a/include/linux/platform_data/wilco-ec.h b/include/linux/platform_data/wilco-ec.h
+index 7c6ab6de7239..d6bfc114c50e 100644
+--- a/include/linux/platform_data/wilco-ec.h
++++ b/include/linux/platform_data/wilco-ec.h
+@@ -9,7 +9,9 @@
+ #define WILCO_EC_H
+ 
+ #include <linux/device.h>
++#include <linux/input.h>
+ #include <linux/kernel.h>
++#include <linux/list.h>
+ 
+ #define WILCO_EC_FLAG_NO_RESPONSE	BIT(0) /* EC does not respond */
+ #define WILCO_EC_FLAG_EXTENDED_DATA	BIT(1) /* EC returns 256 data bytes */
+@@ -24,6 +26,22 @@
+ /* Extended commands have 256 bytes of response data */
+ #define EC_MAILBOX_DATA_SIZE_EXTENDED	256
+ 
++/**
++ * struct wilco_ec_event - EC extended events.
++ * @lock: Mutex to guard the list of events.
++ * @list: Queue of EC events to be provided to userspace.
++ * @attr: Sysfs attribute for userspace to read events.
++ * @count: Count of events in the queue.
++ * @input: Input device for hotkey events.
++ */
++struct wilco_ec_event {
++	struct mutex lock;
++	struct list_head list;
++	struct bin_attribute attr;
++	size_t count;
++	struct input_dev *input;
++};
++
+ /**
+  * struct wilco_ec_device - Wilco Embedded Controller handle.
+  * @dev: Device handle.
+@@ -34,6 +52,7 @@
+  * @data_buffer: Buffer used for EC communication.  The same buffer
+  *               is used to hold the request and the response.
+  * @data_size: Size of the data buffer used for EC communication.
++ * @event: EC extended event handler.
+  */
+ struct wilco_ec_device {
+ 	struct device *dev;
+@@ -43,6 +62,7 @@ struct wilco_ec_device {
+ 	struct resource *io_packet;
+ 	void *data_buffer;
+ 	size_t data_size;
++	struct wilco_ec_event event;
+ };
+ 
+ /**
+@@ -149,4 +169,18 @@ int wilco_ec_sysfs_init(struct wilco_ec_device *ec);
+  */
+ void wilco_ec_sysfs_remove(struct wilco_ec_device *ec);
+ 
++/**
++ * wilco_ec_event_init() - Prepare to handle EC events.
++ * @ec: EC device.
++ *
++ * Return: 0 for success or negative error code on failure.
++ */
++int wilco_ec_event_init(struct wilco_ec_device *ec);
++
++/**
++ * wilco_ec_event_remove() - Remove EC event handler.
++ * @ec: EC device.
++ */
++void wilco_ec_event_remove(struct wilco_ec_device *ec);
++
+ #endif /* WILCO_EC_H */
 -- 
 2.20.1.321.g9e740568ce-goog

@@ -1,116 +1,463 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] drm/bridge: sil_sii8620: depend on INPUT instead of
- selecting it.
-Date: Thu, 24 Jan 2019 00:22:00 +0200
-Message-ID: <20190123222200.GF4675@pendragon.ideasonboard.com>
-References: <20190122141311.10445-1-ronald@innovation.ch>
- <20190123084556.gsospl6joh53qnzs@wunner.de>
- <20190123220342.GC179701@dtor-ws>
- <20190123221735.GE4675@pendragon.ideasonboard.com>
- <20190123222105.GF179701@dtor-ws>
+From: Enric Balletbo Serra <eballetbo@gmail.com>
+Subject: Re: [PATCH v4 3/9] platform/chrome: Add support for raw commands in debugfs
+Date: Wed, 23 Jan 2019 23:42:08 +0100
+Message-ID: <CAFqH_51-YT7FKO7VDY9-ZfcfAGR24dCF25X+UNQW5TMfY2eEVg@mail.gmail.com>
+References: <20190123183325.92946-1-ncrews@chromium.org> <20190123183325.92946-4-ncrews@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20190123222105.GF179701@dtor-ws>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ronald =?utf-8?B?VHNjaGFsw6Ry?= <ronald@innovation.ch>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190123183325.92946-4-ncrews@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Crews <ncrews@chromium.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Simon Glass <sjg@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Guenter Roeck <groeck@chromium.org>, dlaurie@chromium.org, Duncan Laurie <dlaurie@google.com>, Nick Crews <ncrews@google.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Benson Leung <bleung@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-SGVsbG8gRG1pdHksCgpPbiBXZWQsIEphbiAyMywgMjAxOSBhdCAwMjoyMTowNVBNIC0wODAwLCBE
-bWl0cnkgVG9yb2tob3Ygd3JvdGU6Cj4gT24gVGh1LCBKYW4gMjQsIDIwMTkgYXQgMTI6MTc6MzVB
-TSArMDIwMCwgTGF1cmVudCBQaW5jaGFydCB3cm90ZToKPiA+IE9uIFdlZCwgSmFuIDIzLCAyMDE5
-IGF0IDAyOjAzOjQyUE0gLTA4MDAsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToKPiA+PiBPbiBXZWQs
-IEphbiAyMywgMjAxOSBhdCAwOTo0NTo1NkFNICswMTAwLCBMdWthcyBXdW5uZXIgd3JvdGU6Cj4g
-Pj4+IE9uIFR1ZSwgSmFuIDIyLCAyMDE5IGF0IDA2OjEzOjExQU0gLTA4MDAsIFJvbmFsZCBUc2No
-YWzDpHIgd3JvdGU6Cj4gPj4+PiBjb21taXQgZDZhYmU2ZGY3MDZjNjZkODAzZTZkZDRmZTk4YzFi
-NmI3ZjEyNWE1NiAoZHJtL2JyaWRnZToKPiA+Pj4+IHNpbF9zaWk4NjIwOiBkbyBub3QgaGF2ZSBh
-IGRlcGVuZGVuY3kgb2YgUkNfQ09SRSkgYWRkZWQgYSBkZXBlbmRlbmN5IG9uCj4gPj4+PiBJTlBV
-VC4gSG93ZXZlciwgdGhpcyBjYXVzZXMgcHJvYmxlbXMgd2l0aCBvdGhlciBkcml2ZXJzLCBpbiBw
-YXJ0aWN1bGFyCj4gPj4+PiBhbiBpbnB1dCBkcml2ZXIgdGhhdCBkZXBlbmRzIG9uIE1GRF9JTlRF
-TF9MUFNTX1BDSSAodG8gYmUgYWRkZWQgaW4gYQo+ID4+Pj4gZnV0dXJlIGNvbW1pdCk6Cj4gPj4+
-PiAKPiA+Pj4+ICAgZHJpdmVycy9jbGsvS2NvbmZpZzo5OmVycm9yOiByZWN1cnNpdmUgZGVwZW5k
-ZW5jeSBkZXRlY3RlZCEKPiA+Pj4+ICAgZHJpdmVycy9jbGsvS2NvbmZpZzo5OiAgICAgICAgc3lt
-Ym9sIENPTU1PTl9DTEsgaXMgc2VsZWN0ZWQgYnkgTUZEX0lOVEVMX0xQU1MKPiA+Pj4+ICAgZHJp
-dmVycy9tZmQvS2NvbmZpZzo1NjY6ICAgICAgc3ltYm9sIE1GRF9JTlRFTF9MUFNTIGlzIHNlbGVj
-dGVkIGJ5IE1GRF9JTlRFTF9MUFNTX1BDSQo+ID4+Pj4gICBkcml2ZXJzL21mZC9LY29uZmlnOjU4
-MDogICAgICBzeW1ib2wgTUZEX0lOVEVMX0xQU1NfUENJIGlzIGltcGxpZWQgYnkgS0VZQk9BUkRf
-QVBQTEVTUEkKPiA+Pj4+ICAgZHJpdmVycy9pbnB1dC9rZXlib2FyZC9LY29uZmlnOjczOiAgICBz
-eW1ib2wgS0VZQk9BUkRfQVBQTEVTUEkgZGVwZW5kcyBvbiBJTlBVVAo+ID4+Pj4gICBkcml2ZXJz
-L2lucHV0L0tjb25maWc6ODogICAgICBzeW1ib2wgSU5QVVQgaXMgc2VsZWN0ZWQgYnkgRFJNX1NJ
-TF9TSUk4NjIwCj4gPj4+PiAgIGRyaXZlcnMvZ3B1L2RybS9icmlkZ2UvS2NvbmZpZzo4MzogICAg
-c3ltYm9sIERSTV9TSUxfU0lJODYyMCBkZXBlbmRzIG9uIERSTV9CUklER0UKPiA+Pj4+ICAgZHJp
-dmVycy9ncHUvZHJtL2JyaWRnZS9LY29uZmlnOjE6ICAgICBzeW1ib2wgRFJNX0JSSURHRSBpcyBz
-ZWxlY3RlZCBieSBEUk1fUEwxMTEKPiA+Pj4+ICAgZHJpdmVycy9ncHUvZHJtL3BsMTExL0tjb25m
-aWc6MTogICAgICBzeW1ib2wgRFJNX1BMMTExIGRlcGVuZHMgb24gQ09NTU9OX0NMSwo+ID4+Pj4g
-Cj4gPj4+PiBBY2NvcmRpbmcgdG8gdGhlIGRvY3MsIHNlbGVjdCBzaG91bGQgb25seSBiZSB1c2Vk
-IGZvciBub24tdmlzaWJsZQo+ID4+Pj4gc3ltYm9scy4gRnVydGhlcm1vcmUgYWxtb3N0IGFsbCBv
-dGhlciByZWZlcmVuY2VzIHRvIElOUFVUIHRocm91Z2hvdXQgdGhlCj4gPj4+PiBrZXJuZWwgY29u
-ZmlnIGFyZSBkZXBlbmRzLCBub3Qgc2VsZWN0cy4gSGVuY2UgdGhpcyBjaGFuZ2UuCj4gPj4gCj4g
-Pj4gSSB0aGluayB0aGlzIGlzIG5vdCBhcyBjdXQgYW5kIGRyeS4gV2Ugc2hvdWxkIGJlIGFibGUg
-dG8gc2VsZWN0IG5lZWRlZAo+ID4+IHN1YnN5c3RlbXMgKHN1Y2ggYXMgSU5QVVQsIFVTQiwgZXRj
-KSBldmVuIGlmIHRoZXkgYXJlIHVzZXIgdmlzaWJsZS4KPiA+IAo+ID4gU2VtYW50aWNhbGx5LCBt
-YXliZSwgYnV0IGdpdmVuIHRoZSBjdXJyZW50IHN0YXRlIG9mIEtjb25maWcgdGhpcyByZXN1bHRz
-Cj4gPiBpbiBhIHJlY3Vyc2l2ZSBkZXBlbmRlbmNpZXMgbmlnaHRtYXJlLiBJdCdzIGEgbm8tZ28u
-Cj4gPiAKPiA+PiBVc2VyLCB3aGVuIGVuYWJsaW5nIGEgcGllY2Ugb2YgaGFyZHdhcmUsIGRvZXMg
-bm90IG5lZWQgdG8ga25vdyB1bHRpbWF0ZQo+ID4+IGRldGFpbHMgb2YgYWxsIHN1YnN5c3RlbXMg
-dGhlIGRyaXZlciBtaWdodCBuZWVkIHRpIGZ1bmN0aW9uLgo+ID4+IAo+ID4+IEl0IGxvb2tzIGxp
-a2Ugb25lIG9mIHRoZSBkcml2ZXJzIGltcGxpZXMgTUZEX0lOVEVMX0xQU1NfUENJLCBtYXliZQo+
-ID4+IHRyZWF0aW5nIGltcGx5IHRoZSBzYW1lIGFzIHNlbGVjdCB3aGVuIGRldGVjdGluZyBjaXJj
-dWxhciBkZXBlbmRlbmN5IGlzCj4gPj4gd3JvbmcgYXMgd2UgYXJlIGFsbG93ZWQgdG8gZGVzZWxl
-Y3QgaW1wbGllZCBkZXBlbmRlbmNpZXM/Cj4gPj4gCj4gPj4+PiAKPiA+Pj4+IENDOiBJbmtpIERh
-ZSA8aW5raS5kYWVAc2Ftc3VuZy5jb20+Cj4gPj4+PiBDQzogQW5kcnplaiBIYWpkYSA8YS5oYWpk
-YUBzYW1zdW5nLmNvbT4KPiA+Pj4+IFNpZ25lZC1vZmYtYnk6IFJvbmFsZCBUc2NoYWzDpHIgPHJv
-bmFsZEBpbm5vdmF0aW9uLmNoPgo+ID4+PiAKPiA+Pj4gUmV2aWV3ZWQtYnk6IEx1a2FzIFd1bm5l
-ciA8bHVrYXNAd3VubmVyLmRlPgo+ID4+PiAKPiA+Pj4gSSB0aGluayB0aGlzIG5lZWRzIHRvIGJl
-IG1lcmdlZCB0aHJvdWdoIHRoZSBpbnB1dCB0cmVlIGFzIGEgcHJlcmVxdWlzaXRlCj4gPj4+IGZv
-ciB0aGUgYXBwbGVzcGkuYyBkcml2ZXIgKGtleWJvYXJkICsgdG91Y2hwYWQgZHJpdmVyIGZvciAy
-MDE1KyBNYWNCb29rLAo+ID4+PiBNYWNCb29rIEFpciBhbmQgTWFjQm9vayBQcm8gd2hpY2ggdXNl
-cyBTUEkgaW5zdGVhZCBvZiBVU0IpIHRvIGF2b2lkCj4gPj4+IGJyZWFraW5nIHRoZSBidWlsZC4g
-IEFkZGluZyBEbWl0cnkuCj4gPj4gCj4gPj4gSSBoYXZlIG5vIGlkZWEgd2hhdCBhcHBsZXNwaS5j
-IGlzIChpdCBpcyBkZWZpbml0ZWx5IG5vdCBpbiBteSB0cmVlKSwgc28KPiA+PiBJIHRoaW5rIGl0
-IHNob3VsZCBiZSBtZXJnZWQgdGhyb3VnaCB0aGUgc2FtZSB0cmVlIHRoYXQgdGhlIG9yaWdpbmFs
-Cj4gPj4gY29tbWl0IHdhcyBpbnRyb2R1Y2VkIHRocm91Z2guCj4gPj4gCj4gPj4+PiAtLS0KPiA+
-Pj4+ICBkcml2ZXJzL2dwdS9kcm0vYnJpZGdlL0tjb25maWcgfCAyICstCj4gPj4+PiAgMSBmaWxl
-IGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4gPj4+PiAKPiA+Pj4+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL0tjb25maWcgYi9kcml2ZXJzL2dwdS9k
-cm0vYnJpZGdlL0tjb25maWcKPiA+Pj4+IGluZGV4IDJmZWU0N2IwZDUwYi4uZWFiZWRjODNmMjVj
-IDEwMDY0NAo+ID4+Pj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9LY29uZmlnCj4gPj4+
-PiArKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL0tjb25maWcKPiA+Pj4+IEBAIC04Myw5ICs4
-Myw5IEBAIGNvbmZpZyBEUk1fUEFSQURFX1BTODYyMgo+ID4+Pj4gIGNvbmZpZyBEUk1fU0lMX1NJ
-STg2MjAKPiA+Pj4+ICAJdHJpc3RhdGUgIlNpbGljb24gSW1hZ2UgU0lJODYyMCBIRE1JL01ITCBi
-cmlkZ2UiCj4gPj4+PiAgCWRlcGVuZHMgb24gT0YKPiA+Pj4+ICsJZGVwZW5kcyBvbiBJTlBVVAo+
-ID4+Pj4gIAlzZWxlY3QgRFJNX0tNU19IRUxQRVIKPiA+Pj4+ICAJaW1wbHkgRVhUQ09OCj4gPj4+
-PiAtCXNlbGVjdCBJTlBVVAo+ID4+Pj4gIAlzZWxlY3QgUkNfQ09SRQo+ID4+IAo+ID4+IEtlZXBp
-bmcgInNlbGVjdCBSQ19DT1JFIiBpcyB3cm9uZyB0aG91Z2gsIGFzIHRoZSBkcml2ZXIgYXBwZWFy
-cyB0byBiZQo+ID4+IHdvcmtpbmcgZmluZCB3aXRob3V0IFJDLiBNYXliZSBpdCBzaG91bGQgYmUg
-c3R1YmJlZCBvdXQ/Cj4gPiAKPiA+IEl0IHNob3VsZCBkZWZpbml0ZWx5IG5vdCBiZSBzZWxlY3Qn
-ZWQgYXMgaXQncyBhIHVzZXItdmlzaWJsZSBzeW1ib2wuIE15Cj4gPiBwcmVmZXJlbmNlIHdvdWxk
-IGJlIHRvIHNpbXBseSByZXZlcnQgZDZhYmU2ZGY3MDZjLiBJZiB3ZSB3YW50IChhbmQgY2FuKQo+
-ID4gd29yayB3aXRob3V0IFJDIGNvcmUgdGhlbiBpdCBzaG91bGQgYmUgc3R1YmJlZCBvdXQuCj4g
-PiAKPiA+IENvbW1pdCBkNmFiZTZkZjcwNmMgc3RhdGVzCj4gPiAKPiA+ICAgICBBbmQgc29tZSBi
-b2FyZHMgbm90IHVzaW5nIHJlbW90ZSBjb250cm9sbGVyIGRldmljZSBkb24ndCByZWFsbHkKPiA+
-ICAgICBuZWVkIHRvIGtub3cgdGhhdCBSQ19DT1JFIGNvbmZpZyBzaG91bGQgYmUgZW5hYmxlZCB0
-byB1c2Ugc2lsX3NpaTg2MjAKPiA+ICAgICBkcml2ZXIgb25seSBmb3IgSERNSS4KPiA+IAo+ID4g
-VGhlIHNhbWUgcmVhc29uaW5nIGFwcGxpZXMgdG8gSU5QVVQsIGlmIHdlIGFncmVlIHRoYXQgZGVw
-ZW5kaW5nIG9uCj4gPiBSQ19DT1JFIGlzIGNvbmZ1c2luZyBmb3IgdXNlcnMsIHRoZW4gZGVwZW5k
-aW5nIG9uIElOUFVUIGlzIGNvbmZ1c2luZyBhcwo+ID4gd2VsbC4gVGhlcmUncyBub3QgcmVhc29u
-IHRvIGFwcGx5IGRpZmZlcmVudCBzdGFuZGFyZHMgdG8gSU5QVVQgYW5kCj4gPiBSQ19DT1JFLCBk
-ZXBlbmRpbmcgb24gb25lIGFuZCBzZWxlY3RpbmcgdGhlIG90aGVyIGRvZXNuJ3QgbWFrZSBtdWNo
-Cj4gPiBzZW5zZS4KPiAKPiBPSywgc28gcmV2ZXJ0ICsgcGF0Y2ggdG8gc3R1YiBvdXQgUkMgY2Fs
-bHM/IFRoYXQgd29ya3MgZm9yIG1lIChhbmQgSQo+IHN0aWxsIHNheSBpdCBzaG91bGQgZ28gdGhy
-b3VnaCB0aGUgc2FtZSB0cmVlIHRoYXQgaW50cm9kdWNlZAo+IGQ2YWJlNmRmNzA2YykuCgpZZXMs
-IHRoYXQgc291bmRzIGdvb2QgdG8gbWUuCgotLSAKUmVnYXJkcywKCkxhdXJlbnQgUGluY2hhcnQK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
-IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+Hi Nick,
+
+Missatge de Nick Crews <ncrews@chromium.org> del dia dc., 23 de gen.
+2019 a les 19:38:
+>
+> From: Duncan Laurie <dlaurie@google.com>
+>
+> Add a debugfs attribute that allows sending raw commands to the EC.
+> This is useful for development and debug but should not be enabled
+> in a production environment.
+>
+> Turn the keyboard global mic mute led on
+> > echo 00 f2 01 76 06 00 00 01 01 > /sys/kernel/debug/wilco_ec/raw
+> Turn the keyboard global mic mute led off
+> > echo 00 f2 01 76 06 00 00 01 00 > /sys/kernel/debug/wilco_ec/raw
+
+That won't be a real example, right? Would be better remove it?
+
+> Get the EC firmware build date
+> First send the request command
+> > echo 00 f0 38 00 03 00 > raw
+> Then read the result. "12/21/18" is in the middle of the response
+> > cat raw
+> 00 31 32 2f 32 31 2f 31 38 00 00 0f 01 00 01 00  .12/21/18.......
+>
+> Signed-off-by: Duncan Laurie <dlaurie@google.com>
+> Signed-off-by: Nick Crews <ncrews@chromium.org>
+> ---
+>
+> Changes in v4:
+> - Change debugfs driver to be a separate module
+> - Change me email to @chromium.org from @google.com
+> - Change CONFIG_WILCO_EC_SYSFS_RAW to
+>   CONFIG_WILCO_EC_DEBUGFS
+>
+> Changes in v3:
+> - Move the attribute to the debugfs system
+> - Move the implementation to debugfs.c
+> - Improve the raw hex parsing
+> - Encapsulate global variables in one object
+> - Add safety check when passing less than 3 bytes
+> - Move documentation to debugfs-wilco-ec
+>
+> Changes in v2:
+> - Add sysfs documentation
+> - rm duplicate EC_MAILBOX_DATA_SIZE defs
+> - Make docstrings follow kernel style
+> - Fix tags in commit msg
+> - Move Kconfig to subdirectory
+> - Reading raw now includes ASCII translation
+>
+>  Documentation/ABI/testing/debugfs-wilco-ec |  23 +++
+>  drivers/platform/chrome/wilco_ec/Kconfig   |   9 +
+>  drivers/platform/chrome/wilco_ec/Makefile  |   2 +
+>  drivers/platform/chrome/wilco_ec/core.c    |  20 ++
+>  drivers/platform/chrome/wilco_ec/debugfs.c | 226 +++++++++++++++++++++
+>  5 files changed, 280 insertions(+)
+>  create mode 100644 Documentation/ABI/testing/debugfs-wilco-ec
+>  create mode 100644 drivers/platform/chrome/wilco_ec/debugfs.c
+>
+> diff --git a/Documentation/ABI/testing/debugfs-wilco-ec b/Documentation/ABI/testing/debugfs-wilco-ec
+> new file mode 100644
+> index 000000000000..90bc3fe08dff
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/debugfs-wilco-ec
+> @@ -0,0 +1,23 @@
+> +What:          /sys/kernel/debug/wilco_ec/raw
+> +Date:          January 2019
+> +KernelVersion: 4.19
+> +Description:
+> +               Write and read raw mailbox commands to the EC.
+> +
+> +               For writing:
+> +               Bytes 0-1 indicate the message type:
+> +                       00 F0 = Execute Legacy Command
+> +                       00 F2 = Read/Write NVRAM Property
+> +               Byte 2 provides the command code
+> +               Bytes 3+ consist of the data passed in the request
+> +
+> +               Example:
+> +               // Request EC info type 3 (EC firmware build date)
+> +               $ echo 00 f0 38 00 03 00 > raw
+> +               // View the result. The decoded ASCII result "12/21/18" is
+> +               // included after the raw hex.
+> +               $ cat raw
+> +               00 31 32 2f 32 31 2f 31 38 00 38 00 01 00 2f 00  .12/21/18.8...
+> +
+> +               At least three bytes are required, for the msg type and command,
+> +               with additional bytes optional for additional data.
+> diff --git a/drivers/platform/chrome/wilco_ec/Kconfig b/drivers/platform/chrome/wilco_ec/Kconfig
+> index 20945a301ec6..56b871510c4d 100644
+> --- a/drivers/platform/chrome/wilco_ec/Kconfig
+> +++ b/drivers/platform/chrome/wilco_ec/Kconfig
+> @@ -9,3 +9,12 @@ config WILCO_EC
+>
+>           To compile this driver as a module, choose M here: the
+>           module will be called wilco_ec.
+> +
+> +config WILCO_EC_DEBUGFS
+> +       tristate "Enable raw access to EC via debugfs"
+> +       depends on WILCO_EC
+> +       help
+> +         If you say Y here, you get support for sending raw commands to
+> +         the Wilco EC via debugfs.  These commands do not do any byte
+> +         manipulation and allow for testing arbitrary commands.  This
+> +         interface is intended for debug only and is disabled by default.
+> diff --git a/drivers/platform/chrome/wilco_ec/Makefile b/drivers/platform/chrome/wilco_ec/Makefile
+> index 03b32301dc61..063e7fb4ea17 100644
+> --- a/drivers/platform/chrome/wilco_ec/Makefile
+> +++ b/drivers/platform/chrome/wilco_ec/Makefile
+> @@ -2,3 +2,5 @@
+>
+>  wilco_ec-objs                          := core.o mailbox.o
+>  obj-$(CONFIG_WILCO_EC)                 += wilco_ec.o
+> +wilco_ec_debugfs-objs                  := debugfs.o
+> +obj-$(CONFIG_WILCO_EC_DEBUGFS)         += wilco_ec_debugfs.o
+> diff --git a/drivers/platform/chrome/wilco_ec/core.c b/drivers/platform/chrome/wilco_ec/core.c
+> index 7dcb3bde132a..e036d88b6dd8 100644
+> --- a/drivers/platform/chrome/wilco_ec/core.c
+> +++ b/drivers/platform/chrome/wilco_ec/core.c
+> @@ -44,6 +44,8 @@ static int wilco_ec_probe(struct platform_device *pdev)
+>  {
+>         struct device *dev = &pdev->dev;
+>         struct wilco_ec_device *ec;
+> +       struct platform_device *child_pdev;
+> +       int ret;
+>
+>         ec = devm_kzalloc(dev, sizeof(*ec), GFP_KERNEL);
+>         if (!ec)
+> @@ -71,7 +73,25 @@ static int wilco_ec_probe(struct platform_device *pdev)
+>         cros_ec_lpc_mec_init(ec->io_packet->start,
+>                              ec->io_packet->start + EC_MAILBOX_DATA_SIZE);
+>
+> +       /*
+> +        * Register a debugfs platform device that will get picked up by the
+> +        * debugfs driver. This platform device will get freed when its parent
+> +        * device dev is unregistered.
+> +        */
+> +       child_pdev = platform_device_register_data(dev, "wilco-ec-debugfs",
+> +                                                  PLATFORM_DEVID_AUTO,
+> +                                                  NULL, 0);
+> +       if (IS_ERR(child_pdev)) {
+> +               dev_err(dev, "Failed to create debugfs platform device\n");
+> +               ret = PTR_ERR(child_pdev);
+> +               goto destroy_mec;
+
+I don't think makes sense destroy the wilco-ec if for some reason the
+debugfs interface driver fails (unlikely). Your driver should have the
+same behaviour without depending on the debugfs part ...
+
+> +       }
+> +
+>         return 0;
+> +
+> +destroy_mec:
+> +       cros_ec_lpc_mec_destroy();
+> +       return ret;
+
+... and then you can remove this error cleanup for now.
+
+>  }
+>
+>  static int wilco_ec_remove(struct platform_device *pdev)
+> diff --git a/drivers/platform/chrome/wilco_ec/debugfs.c b/drivers/platform/chrome/wilco_ec/debugfs.c
+> new file mode 100644
+> index 000000000000..6c12cd093209
+> --- /dev/null
+> +++ b/drivers/platform/chrome/wilco_ec/debugfs.c
+> @@ -0,0 +1,226 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * debugfs attributes for Wilco EC
+> + *
+> + * Copyright 2019 Google LLC
+> + *
+> + * There is only one attribute used for debugging, called raw.
+> + * You can write a hexadecimal sentence to raw, and that series of bytes
+> + * will be sent to the EC. Then, you can read the bytes of response
+> + * by reading from raw.
+> + */
+> +
+> +#include <linux/ctype.h>
+> +#include <linux/debugfs.h>
+> +#include <linux/fs.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_data/wilco-ec.h>
+> +#include <linux/platform_device.h>
+> +
+> +#define DRV_NAME "wilco-ec-debugfs"
+> +
+> +/* The 256 raw bytes will take up more space when represented as a hex string */
+> +#define FORMATTED_BUFFER_SIZE (EC_MAILBOX_DATA_SIZE_EXTENDED * 4)
+> +
+> +struct wilco_ec_debugfs {
+> +       struct wilco_ec_device *ec;
+> +       struct dentry *dir;
+> +       size_t response_size;
+> +       u8 raw_data[EC_MAILBOX_DATA_SIZE_EXTENDED];
+> +       u8 formatted_data[FORMATTED_BUFFER_SIZE];
+> +};
+> +
+> +static struct wilco_ec_debugfs *debug_info;
+> +
+> +/**
+> + * parse_hex_sentence() - Convert a ascii hex representation into byte array
+> + * @in: Input buffer of ascii
+> + * @isize: Length of input buffer
+> + * @out: Output buffer
+> + * @osize: Length of output buffer, e.g. max number of bytes to parse
+> + *
+> + * An valid input is a series of ascii hexadecimal numbers, separated by spaces.
+> + * An example valid input is
+> + * "   00 f2 0    000076 6 0  ff"
+> + *
+> + * If an individual "word" within the hex sentence is longer than MAX_WORD_SIZE,
+> + * then the sentence is illegal, and parsing will fail.
+> + *
+> + * Return: Number of bytes parsed, or negative error code on failure
+> + */
+> +static int parse_hex_sentence(const char *in, int isize, u8 *out, int osize)
+> +{
+> +       int n_parsed = 0;
+> +       int word_start = 0;
+> +       int word_end;
+> +       int word_len;
+> +       /* Temp buffer for holding a "word" of chars that represents one byte */
+> +       const static int MAX_WORD_SIZE = 16;
+> +       char tmp[MAX_WORD_SIZE+1];
+
+spaces around +
+[my first filter is run checkpatch.pl --strict :) ]
+
+> +       u8 byte;
+> +
+> +       while (word_start < isize && n_parsed < osize) {
+> +               /* Find the start of the next word */
+> +               while (word_start < isize && isspace(in[word_start]))
+> +                       word_start++;
+> +                /* reached the end of the input before next word? */
+> +               if (word_start >= isize)
+> +                       break;
+> +
+> +               /* Find the end of this word */
+> +               word_end = word_start;
+> +               while (word_end < isize && !isspace(in[word_end]))
+> +                       word_end++;
+> +
+> +               /* Copy to a tmp NULL terminated string */
+> +               word_len = word_end - word_start;
+> +               if (word_len > MAX_WORD_SIZE)
+> +                       return -EINVAL;
+> +               memcpy(tmp, in + word_start, word_len);
+> +               tmp[word_len] = '\0';
+> +
+> +               /*
+> +                * Convert from hex string, place in output. If fails to parse,
+> +                * just return -EINVAL because specific error code is only
+> +                * relevant for this one word, returning it would be confusing.
+> +                */
+> +               if (kstrtou8(tmp, 16, &byte))
+> +                       return -EINVAL;
+> +               out[n_parsed++] = byte;
+> +
+> +               word_start = word_end;
+> +       }
+> +       return n_parsed;
+> +}
+> +
+> +/* The message type takes up two bytes and the command takes a byte */
+> +#define CMDS_AND_DATA_SIZE ((EC_MAILBOX_DATA_SIZE) + 3)
+> +
+> +static ssize_t raw_write(struct file *file, const char __user *user_buf,
+> +                        size_t count, loff_t *ppos)
+> +{
+> +       char *buf = debug_info->formatted_data;
+> +       struct wilco_ec_message msg;
+> +       u8 request_data[CMDS_AND_DATA_SIZE];
+> +       ssize_t kcount;
+> +       int ret;
+> +
+> +       if (count > FORMATTED_BUFFER_SIZE)
+> +               return -EINVAL;
+> +
+> +       kcount = simple_write_to_buffer(buf, FORMATTED_BUFFER_SIZE, ppos,
+> +                                       user_buf, count);
+> +       if (kcount < 0)
+> +               return kcount;
+> +
+> +       ret = parse_hex_sentence(buf, kcount, request_data, CMDS_AND_DATA_SIZE);
+> +       if (ret < 0)
+> +               return ret;
+> +       /* Need at least three bytes for type and command */
+> +       if (ret < 3)
+> +               return -EINVAL;
+> +
+> +       /* Clear response data buffer */
+> +       memset(debug_info->raw_data, '\0', EC_MAILBOX_DATA_SIZE_EXTENDED);
+> +
+> +       msg.type = request_data[0] << 8 | request_data[1];
+> +       msg.flags = WILCO_EC_FLAG_RAW;
+> +       msg.command = request_data[2];
+> +       msg.request_data = ret > 3 ? request_data + 3 : NULL;
+> +       msg.request_size = ret - 3;
+> +       msg.response_data = debug_info->raw_data;
+> +       msg.response_size = EC_MAILBOX_DATA_SIZE;
+> +
+> +       /* Telemetry commands use extended response data */
+> +       if (msg.type == WILCO_EC_MSG_TELEMETRY) {
+> +               msg.flags |= WILCO_EC_FLAG_EXTENDED_DATA;
+> +               msg.response_size = EC_MAILBOX_DATA_SIZE_EXTENDED;
+> +       }
+> +
+> +       ret = wilco_ec_mailbox(debug_info->ec, &msg);
+> +       if (ret < 0)
+> +               return ret;
+> +       debug_info->response_size = ret;
+> +
+> +       return count;
+> +}
+> +
+> +/**
+> + * wilco_ec_raw_show() - Show result from previous call to raw_store()
+
+If you want to have the function documentation (see comment below)
+
+s/wilco_ec_raw_show/wilco_ec_raw_read/
+
+and
+
+s/raw_store/wilco_ec_raw_write/
+
+> + * @dev: Device representing the EC
+> + * @attr: The attribute in question
+> + * @buf: Output buffer to be filled
+> + *
+
+Note that the documentation doesn't match with current function. You
+can either, fix the documentation and also document wilco_ec_raw_write
+or just remove that documentation. For me it is clear what read/write
+means, It might make sense for the examples, but it is also documented
+in the debugfs-wilco-ec file (sometimes duplicating the info is a
+source of mismatches).
+
+> + * Example usage:
+> + *     // Call raw_store(), read EC info type 3 (EC firmware build date)
+> + *     # echo 00 f0 38 00 03 00 > raw
+> + *     // Call this function, view the result. The decoded ASCII result
+> + *     // "12/21/18" is included after the raw hex.
+> + *     # cat raw
+> + *     00 31 32 2f 32 31 2f 31 38 00 38 00 01 00 2f 00  .12/21/18.8.../.
+> + *
+> + * Return: Number of bytes written to output, negative error code on failure
+> + */
+> +static ssize_t raw_read(struct file *file, char __user *user_buf, size_t count,
+> +                       loff_t *ppos)
+
+s/raw_read/wilco_ec_raw_read/
+
+> +{
+> +       int fmt_len = 0;
+> +
+> +       if (debug_info->response_size) {
+> +               fmt_len = hex_dump_to_buffer(debug_info->raw_data,
+> +                                            debug_info->response_size,
+> +                                            16, 1, debug_info->formatted_data,
+> +                                            FORMATTED_BUFFER_SIZE, true);
+> +               /* Only return response the first time it is read */
+> +               debug_info->response_size = 0;
+> +       }
+> +
+> +       return simple_read_from_buffer(user_buf, count, ppos,
+> +                                      debug_info->formatted_data, fmt_len);
+> +}
+> +
+> +static const struct file_operations fops_raw = {
+> +       .owner = THIS_MODULE,
+> +       .read = raw_read,
+
+s/raw_read/wilco_ec_raw_read/
+
+> +       .write = raw_write,
+
+s/raw_write/wilco_ec_raw_write/
+
+> +       .llseek = no_llseek,
+> +};
+> +
+> +static int wilco_ec_debugfs_probe(struct platform_device *pdev)
+> +{
+> +       /*
+> +        * Ignore all errors, if there's a problem then we're already on fire:
+> +        * www.mail-archive.com/linux-kernel@vger.kernel.org/msg1906997.html
+> +        */
+
+I'd prefer if you remove this comment, as is not really true (see
+below) and likely this will end on a broken link in the future.
+
+> +       struct wilco_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
+> +
+> +       debug_info = devm_kzalloc(&pdev->dev, sizeof(*debug_info), GFP_KERNEL);
+
+Oh, you should check the return value of devm_kzalloc, which would
+cause a NULL pointer dereference in a OOM situation. It's only for the
+debugfs calls that you should not have to check the error.
+
+> +       debug_info->ec = ec;
+> +       debug_info->dir = debugfs_create_dir("wilco_ec", NULL);
+> +       debugfs_create_file("raw", 0644, debug_info->dir, NULL, &fops_raw);
+> +
+> +       return 0;
+> +}
+> +
+> +static int wilco_ec_debugfs_remove(struct platform_device *pdev)
+> +{
+> +       if (debug_info)
+
+It is possible to have debug_info not allocated at this point? I think
+that now you can remove this check
+
+> +               debugfs_remove_recursive(debug_info->dir);
+> +
+> +       return 0;
+> +}
+> +
+> +static struct platform_driver wilco_ec_debugfs_driver = {
+> +       .driver = {
+> +               .name = DRV_NAME,
+> +       },
+> +       .probe = wilco_ec_debugfs_probe,
+> +       .remove = wilco_ec_debugfs_remove,
+> +};
+> +
+> +module_platform_driver(wilco_ec_debugfs_driver);
+> +
+> +MODULE_ALIAS("platform:" DRV_NAME);
+> +MODULE_AUTHOR("Nick Crews <ncrews@chromium.org>");
+> +MODULE_LICENSE("GPL v2");
+> +MODULE_DESCRIPTION("Wilco EC debugfs driver");
+> --
+> 2.20.1.321.g9e740568ce-goog
+>
+
+After solving these comments I think you can add my
+
+Acked-for-chrome-platform-by: Enric Balletbo i Serra
+<enric.balletbo@collabora.com>
+
+Thanks,
+ Enric

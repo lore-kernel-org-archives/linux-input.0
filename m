@@ -1,122 +1,116 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Subject: Re: [PATCH] drm/bridge: sil_sii8620: depend on INPUT instead of
  selecting it.
-Date: Wed, 23 Jan 2019 14:21:05 -0800
-Message-ID: <20190123222105.GF179701@dtor-ws>
+Date: Thu, 24 Jan 2019 00:22:00 +0200
+Message-ID: <20190123222200.GF4675@pendragon.ideasonboard.com>
 References: <20190122141311.10445-1-ronald@innovation.ch>
  <20190123084556.gsospl6joh53qnzs@wunner.de>
  <20190123220342.GC179701@dtor-ws>
  <20190123221735.GE4675@pendragon.ideasonboard.com>
+ <20190123222105.GF179701@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <20190123221735.GE4675@pendragon.ideasonboard.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Lukas Wunner <lukas@wunner.de>, Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>, Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20190123222105.GF179701@dtor-ws>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ronald =?utf-8?B?VHNjaGFsw6Ry?= <ronald@innovation.ch>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Laurent,
-
-On Thu, Jan 24, 2019 at 12:17:35AM +0200, Laurent Pinchart wrote:
-> Hello Dmity,
-> 
-> On Wed, Jan 23, 2019 at 02:03:42PM -0800, Dmitry Torokhov wrote:
-> > On Wed, Jan 23, 2019 at 09:45:56AM +0100, Lukas Wunner wrote:
-> > > On Tue, Jan 22, 2019 at 06:13:11AM -0800, Ronald Tschalär wrote:
-> > >> commit d6abe6df706c66d803e6dd4fe98c1b6b7f125a56 (drm/bridge:
-> > >> sil_sii8620: do not have a dependency of RC_CORE) added a dependency on
-> > >> INPUT. However, this causes problems with other drivers, in particular
-> > >> an input driver that depends on MFD_INTEL_LPSS_PCI (to be added in a
-> > >> future commit):
-> > >> 
-> > >>   drivers/clk/Kconfig:9:error: recursive dependency detected!
-> > >>   drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
-> > >>   drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
-> > >>   drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
-> > >>   drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
-> > >>   drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
-> > >>   drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
-> > >>   drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
-> > >>   drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
-> > >> 
-> > >> According to the docs, select should only be used for non-visible
-> > >> symbols. Furthermore almost all other references to INPUT throughout the
-> > >> kernel config are depends, not selects. Hence this change.
-> > 
-> > I think this is not as cut and dry. We should be able to select needed
-> > subsystems (such as INPUT, USB, etc) even if they are user visible.
-> 
-> Semantically, maybe, but given the current state of Kconfig this results
-> in a recursive dependencies nightmare. It's a no-go.
-> 
-> > User, when enabling a piece of hardware, does not need to know ultimate
-> > details of all subsystems the driver might need ti function.
-> > 
-> > It looks like one of the drivers implies MFD_INTEL_LPSS_PCI, maybe
-> > treating imply the same as select when detecting circular dependency is
-> > wrong as we are allowed to deselect implied dependencies?
-> > 
-> > >> 
-> > >> CC: Inki Dae <inki.dae@samsung.com>
-> > >> CC: Andrzej Hajda <a.hajda@samsung.com>
-> > >> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
-> > > 
-> > > Reviewed-by: Lukas Wunner <lukas@wunner.de>
-> > > 
-> > > I think this needs to be merged through the input tree as a prerequisite
-> > > for the applespi.c driver (keyboard + touchpad driver for 2015+ MacBook,
-> > > MacBook Air and MacBook Pro which uses SPI instead of USB) to avoid
-> > > breaking the build.  Adding Dmitry.
-> > 
-> > I have no idea what applespi.c is (it is definitely not in my tree), so
-> > I think it should be merged through the same tree that the original
-> > commit was introduced through.
-> > 
-> > >> ---
-> > >>  drivers/gpu/drm/bridge/Kconfig | 2 +-
-> > >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >> 
-> > >> diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-> > >> index 2fee47b0d50b..eabedc83f25c 100644
-> > >> --- a/drivers/gpu/drm/bridge/Kconfig
-> > >> +++ b/drivers/gpu/drm/bridge/Kconfig
-> > >> @@ -83,9 +83,9 @@ config DRM_PARADE_PS8622
-> > >>  config DRM_SIL_SII8620
-> > >>  	tristate "Silicon Image SII8620 HDMI/MHL bridge"
-> > >>  	depends on OF
-> > >> +	depends on INPUT
-> > >>  	select DRM_KMS_HELPER
-> > >>  	imply EXTCON
-> > >> -	select INPUT
-> > >>  	select RC_CORE
-> > 
-> > Keeping "select RC_CORE" is wrong though, as the driver appears to be
-> > working find without RC. Maybe it should be stubbed out?
-> 
-> It should definitely not be select'ed as it's a user-visible symbol. My
-> preference would be to simply revert d6abe6df706c. If we want (and can)
-> work without RC core then it should be stubbed out.
-> 
-> Commit d6abe6df706c states
-> 
->     And some boards not using remote controller device don't really
->     need to know that RC_CORE config should be enabled to use sil_sii8620
->     driver only for HDMI.
-> 
-> The same reasoning applies to INPUT, if we agree that depending on
-> RC_CORE is confusing for users, then depending on INPUT is confusing as
-> well. There's not reason to apply different standards to INPUT and
-> RC_CORE, depending on one and selecting the other doesn't make much
-> sense.
-
-OK, so revert + patch to stub out RC calls? That works for me (and I
-still say it should go through the same tree that introduced
-d6abe6df706c).
-
-Thanks.
-
--- 
-Dmitry
+SGVsbG8gRG1pdHksCgpPbiBXZWQsIEphbiAyMywgMjAxOSBhdCAwMjoyMTowNVBNIC0wODAwLCBE
+bWl0cnkgVG9yb2tob3Ygd3JvdGU6Cj4gT24gVGh1LCBKYW4gMjQsIDIwMTkgYXQgMTI6MTc6MzVB
+TSArMDIwMCwgTGF1cmVudCBQaW5jaGFydCB3cm90ZToKPiA+IE9uIFdlZCwgSmFuIDIzLCAyMDE5
+IGF0IDAyOjAzOjQyUE0gLTA4MDAsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToKPiA+PiBPbiBXZWQs
+IEphbiAyMywgMjAxOSBhdCAwOTo0NTo1NkFNICswMTAwLCBMdWthcyBXdW5uZXIgd3JvdGU6Cj4g
+Pj4+IE9uIFR1ZSwgSmFuIDIyLCAyMDE5IGF0IDA2OjEzOjExQU0gLTA4MDAsIFJvbmFsZCBUc2No
+YWzDpHIgd3JvdGU6Cj4gPj4+PiBjb21taXQgZDZhYmU2ZGY3MDZjNjZkODAzZTZkZDRmZTk4YzFi
+NmI3ZjEyNWE1NiAoZHJtL2JyaWRnZToKPiA+Pj4+IHNpbF9zaWk4NjIwOiBkbyBub3QgaGF2ZSBh
+IGRlcGVuZGVuY3kgb2YgUkNfQ09SRSkgYWRkZWQgYSBkZXBlbmRlbmN5IG9uCj4gPj4+PiBJTlBV
+VC4gSG93ZXZlciwgdGhpcyBjYXVzZXMgcHJvYmxlbXMgd2l0aCBvdGhlciBkcml2ZXJzLCBpbiBw
+YXJ0aWN1bGFyCj4gPj4+PiBhbiBpbnB1dCBkcml2ZXIgdGhhdCBkZXBlbmRzIG9uIE1GRF9JTlRF
+TF9MUFNTX1BDSSAodG8gYmUgYWRkZWQgaW4gYQo+ID4+Pj4gZnV0dXJlIGNvbW1pdCk6Cj4gPj4+
+PiAKPiA+Pj4+ICAgZHJpdmVycy9jbGsvS2NvbmZpZzo5OmVycm9yOiByZWN1cnNpdmUgZGVwZW5k
+ZW5jeSBkZXRlY3RlZCEKPiA+Pj4+ICAgZHJpdmVycy9jbGsvS2NvbmZpZzo5OiAgICAgICAgc3lt
+Ym9sIENPTU1PTl9DTEsgaXMgc2VsZWN0ZWQgYnkgTUZEX0lOVEVMX0xQU1MKPiA+Pj4+ICAgZHJp
+dmVycy9tZmQvS2NvbmZpZzo1NjY6ICAgICAgc3ltYm9sIE1GRF9JTlRFTF9MUFNTIGlzIHNlbGVj
+dGVkIGJ5IE1GRF9JTlRFTF9MUFNTX1BDSQo+ID4+Pj4gICBkcml2ZXJzL21mZC9LY29uZmlnOjU4
+MDogICAgICBzeW1ib2wgTUZEX0lOVEVMX0xQU1NfUENJIGlzIGltcGxpZWQgYnkgS0VZQk9BUkRf
+QVBQTEVTUEkKPiA+Pj4+ICAgZHJpdmVycy9pbnB1dC9rZXlib2FyZC9LY29uZmlnOjczOiAgICBz
+eW1ib2wgS0VZQk9BUkRfQVBQTEVTUEkgZGVwZW5kcyBvbiBJTlBVVAo+ID4+Pj4gICBkcml2ZXJz
+L2lucHV0L0tjb25maWc6ODogICAgICBzeW1ib2wgSU5QVVQgaXMgc2VsZWN0ZWQgYnkgRFJNX1NJ
+TF9TSUk4NjIwCj4gPj4+PiAgIGRyaXZlcnMvZ3B1L2RybS9icmlkZ2UvS2NvbmZpZzo4MzogICAg
+c3ltYm9sIERSTV9TSUxfU0lJODYyMCBkZXBlbmRzIG9uIERSTV9CUklER0UKPiA+Pj4+ICAgZHJp
+dmVycy9ncHUvZHJtL2JyaWRnZS9LY29uZmlnOjE6ICAgICBzeW1ib2wgRFJNX0JSSURHRSBpcyBz
+ZWxlY3RlZCBieSBEUk1fUEwxMTEKPiA+Pj4+ICAgZHJpdmVycy9ncHUvZHJtL3BsMTExL0tjb25m
+aWc6MTogICAgICBzeW1ib2wgRFJNX1BMMTExIGRlcGVuZHMgb24gQ09NTU9OX0NMSwo+ID4+Pj4g
+Cj4gPj4+PiBBY2NvcmRpbmcgdG8gdGhlIGRvY3MsIHNlbGVjdCBzaG91bGQgb25seSBiZSB1c2Vk
+IGZvciBub24tdmlzaWJsZQo+ID4+Pj4gc3ltYm9scy4gRnVydGhlcm1vcmUgYWxtb3N0IGFsbCBv
+dGhlciByZWZlcmVuY2VzIHRvIElOUFVUIHRocm91Z2hvdXQgdGhlCj4gPj4+PiBrZXJuZWwgY29u
+ZmlnIGFyZSBkZXBlbmRzLCBub3Qgc2VsZWN0cy4gSGVuY2UgdGhpcyBjaGFuZ2UuCj4gPj4gCj4g
+Pj4gSSB0aGluayB0aGlzIGlzIG5vdCBhcyBjdXQgYW5kIGRyeS4gV2Ugc2hvdWxkIGJlIGFibGUg
+dG8gc2VsZWN0IG5lZWRlZAo+ID4+IHN1YnN5c3RlbXMgKHN1Y2ggYXMgSU5QVVQsIFVTQiwgZXRj
+KSBldmVuIGlmIHRoZXkgYXJlIHVzZXIgdmlzaWJsZS4KPiA+IAo+ID4gU2VtYW50aWNhbGx5LCBt
+YXliZSwgYnV0IGdpdmVuIHRoZSBjdXJyZW50IHN0YXRlIG9mIEtjb25maWcgdGhpcyByZXN1bHRz
+Cj4gPiBpbiBhIHJlY3Vyc2l2ZSBkZXBlbmRlbmNpZXMgbmlnaHRtYXJlLiBJdCdzIGEgbm8tZ28u
+Cj4gPiAKPiA+PiBVc2VyLCB3aGVuIGVuYWJsaW5nIGEgcGllY2Ugb2YgaGFyZHdhcmUsIGRvZXMg
+bm90IG5lZWQgdG8ga25vdyB1bHRpbWF0ZQo+ID4+IGRldGFpbHMgb2YgYWxsIHN1YnN5c3RlbXMg
+dGhlIGRyaXZlciBtaWdodCBuZWVkIHRpIGZ1bmN0aW9uLgo+ID4+IAo+ID4+IEl0IGxvb2tzIGxp
+a2Ugb25lIG9mIHRoZSBkcml2ZXJzIGltcGxpZXMgTUZEX0lOVEVMX0xQU1NfUENJLCBtYXliZQo+
+ID4+IHRyZWF0aW5nIGltcGx5IHRoZSBzYW1lIGFzIHNlbGVjdCB3aGVuIGRldGVjdGluZyBjaXJj
+dWxhciBkZXBlbmRlbmN5IGlzCj4gPj4gd3JvbmcgYXMgd2UgYXJlIGFsbG93ZWQgdG8gZGVzZWxl
+Y3QgaW1wbGllZCBkZXBlbmRlbmNpZXM/Cj4gPj4gCj4gPj4+PiAKPiA+Pj4+IENDOiBJbmtpIERh
+ZSA8aW5raS5kYWVAc2Ftc3VuZy5jb20+Cj4gPj4+PiBDQzogQW5kcnplaiBIYWpkYSA8YS5oYWpk
+YUBzYW1zdW5nLmNvbT4KPiA+Pj4+IFNpZ25lZC1vZmYtYnk6IFJvbmFsZCBUc2NoYWzDpHIgPHJv
+bmFsZEBpbm5vdmF0aW9uLmNoPgo+ID4+PiAKPiA+Pj4gUmV2aWV3ZWQtYnk6IEx1a2FzIFd1bm5l
+ciA8bHVrYXNAd3VubmVyLmRlPgo+ID4+PiAKPiA+Pj4gSSB0aGluayB0aGlzIG5lZWRzIHRvIGJl
+IG1lcmdlZCB0aHJvdWdoIHRoZSBpbnB1dCB0cmVlIGFzIGEgcHJlcmVxdWlzaXRlCj4gPj4+IGZv
+ciB0aGUgYXBwbGVzcGkuYyBkcml2ZXIgKGtleWJvYXJkICsgdG91Y2hwYWQgZHJpdmVyIGZvciAy
+MDE1KyBNYWNCb29rLAo+ID4+PiBNYWNCb29rIEFpciBhbmQgTWFjQm9vayBQcm8gd2hpY2ggdXNl
+cyBTUEkgaW5zdGVhZCBvZiBVU0IpIHRvIGF2b2lkCj4gPj4+IGJyZWFraW5nIHRoZSBidWlsZC4g
+IEFkZGluZyBEbWl0cnkuCj4gPj4gCj4gPj4gSSBoYXZlIG5vIGlkZWEgd2hhdCBhcHBsZXNwaS5j
+IGlzIChpdCBpcyBkZWZpbml0ZWx5IG5vdCBpbiBteSB0cmVlKSwgc28KPiA+PiBJIHRoaW5rIGl0
+IHNob3VsZCBiZSBtZXJnZWQgdGhyb3VnaCB0aGUgc2FtZSB0cmVlIHRoYXQgdGhlIG9yaWdpbmFs
+Cj4gPj4gY29tbWl0IHdhcyBpbnRyb2R1Y2VkIHRocm91Z2guCj4gPj4gCj4gPj4+PiAtLS0KPiA+
+Pj4+ICBkcml2ZXJzL2dwdS9kcm0vYnJpZGdlL0tjb25maWcgfCAyICstCj4gPj4+PiAgMSBmaWxl
+IGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4gPj4+PiAKPiA+Pj4+IGRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL0tjb25maWcgYi9kcml2ZXJzL2dwdS9k
+cm0vYnJpZGdlL0tjb25maWcKPiA+Pj4+IGluZGV4IDJmZWU0N2IwZDUwYi4uZWFiZWRjODNmMjVj
+IDEwMDY0NAo+ID4+Pj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2JyaWRnZS9LY29uZmlnCj4gPj4+
+PiArKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJpZGdlL0tjb25maWcKPiA+Pj4+IEBAIC04Myw5ICs4
+Myw5IEBAIGNvbmZpZyBEUk1fUEFSQURFX1BTODYyMgo+ID4+Pj4gIGNvbmZpZyBEUk1fU0lMX1NJ
+STg2MjAKPiA+Pj4+ICAJdHJpc3RhdGUgIlNpbGljb24gSW1hZ2UgU0lJODYyMCBIRE1JL01ITCBi
+cmlkZ2UiCj4gPj4+PiAgCWRlcGVuZHMgb24gT0YKPiA+Pj4+ICsJZGVwZW5kcyBvbiBJTlBVVAo+
+ID4+Pj4gIAlzZWxlY3QgRFJNX0tNU19IRUxQRVIKPiA+Pj4+ICAJaW1wbHkgRVhUQ09OCj4gPj4+
+PiAtCXNlbGVjdCBJTlBVVAo+ID4+Pj4gIAlzZWxlY3QgUkNfQ09SRQo+ID4+IAo+ID4+IEtlZXBp
+bmcgInNlbGVjdCBSQ19DT1JFIiBpcyB3cm9uZyB0aG91Z2gsIGFzIHRoZSBkcml2ZXIgYXBwZWFy
+cyB0byBiZQo+ID4+IHdvcmtpbmcgZmluZCB3aXRob3V0IFJDLiBNYXliZSBpdCBzaG91bGQgYmUg
+c3R1YmJlZCBvdXQ/Cj4gPiAKPiA+IEl0IHNob3VsZCBkZWZpbml0ZWx5IG5vdCBiZSBzZWxlY3Qn
+ZWQgYXMgaXQncyBhIHVzZXItdmlzaWJsZSBzeW1ib2wuIE15Cj4gPiBwcmVmZXJlbmNlIHdvdWxk
+IGJlIHRvIHNpbXBseSByZXZlcnQgZDZhYmU2ZGY3MDZjLiBJZiB3ZSB3YW50IChhbmQgY2FuKQo+
+ID4gd29yayB3aXRob3V0IFJDIGNvcmUgdGhlbiBpdCBzaG91bGQgYmUgc3R1YmJlZCBvdXQuCj4g
+PiAKPiA+IENvbW1pdCBkNmFiZTZkZjcwNmMgc3RhdGVzCj4gPiAKPiA+ICAgICBBbmQgc29tZSBi
+b2FyZHMgbm90IHVzaW5nIHJlbW90ZSBjb250cm9sbGVyIGRldmljZSBkb24ndCByZWFsbHkKPiA+
+ICAgICBuZWVkIHRvIGtub3cgdGhhdCBSQ19DT1JFIGNvbmZpZyBzaG91bGQgYmUgZW5hYmxlZCB0
+byB1c2Ugc2lsX3NpaTg2MjAKPiA+ICAgICBkcml2ZXIgb25seSBmb3IgSERNSS4KPiA+IAo+ID4g
+VGhlIHNhbWUgcmVhc29uaW5nIGFwcGxpZXMgdG8gSU5QVVQsIGlmIHdlIGFncmVlIHRoYXQgZGVw
+ZW5kaW5nIG9uCj4gPiBSQ19DT1JFIGlzIGNvbmZ1c2luZyBmb3IgdXNlcnMsIHRoZW4gZGVwZW5k
+aW5nIG9uIElOUFVUIGlzIGNvbmZ1c2luZyBhcwo+ID4gd2VsbC4gVGhlcmUncyBub3QgcmVhc29u
+IHRvIGFwcGx5IGRpZmZlcmVudCBzdGFuZGFyZHMgdG8gSU5QVVQgYW5kCj4gPiBSQ19DT1JFLCBk
+ZXBlbmRpbmcgb24gb25lIGFuZCBzZWxlY3RpbmcgdGhlIG90aGVyIGRvZXNuJ3QgbWFrZSBtdWNo
+Cj4gPiBzZW5zZS4KPiAKPiBPSywgc28gcmV2ZXJ0ICsgcGF0Y2ggdG8gc3R1YiBvdXQgUkMgY2Fs
+bHM/IFRoYXQgd29ya3MgZm9yIG1lIChhbmQgSQo+IHN0aWxsIHNheSBpdCBzaG91bGQgZ28gdGhy
+b3VnaCB0aGUgc2FtZSB0cmVlIHRoYXQgaW50cm9kdWNlZAo+IGQ2YWJlNmRmNzA2YykuCgpZZXMs
+IHRoYXQgc291bmRzIGdvb2QgdG8gbWUuCgotLSAKUmVnYXJkcywKCkxhdXJlbnQgUGluY2hhcnQK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==

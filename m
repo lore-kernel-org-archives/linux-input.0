@@ -1,35 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Revert "Input: olpc_apsp - enable the SP clock"
-Date: Wed, 23 Jan 2019 14:05:45 -0800
-Message-ID: <20190123220545.GD179701@dtor-ws>
-References: <20190121062255.551587-1-lkundrak@v3.sk>
- <20190121062255.551587-2-lkundrak@v3.sk>
+Subject: Re: [PATCH 1/7] Input: document meanings of KEY_SCREEN and KEY_ZOOM
+Date: Wed, 23 Jan 2019 14:07:35 -0800
+Message-ID: <20190123220735.GE179701@dtor-ws>
+References: <20190118233037.87318-1-dmitry.torokhov@gmail.com>
+ <nycvar.YFH.7.76.1901211110190.6626@cbobk.fhfr.pm>
+ <CAO-hwJLMKyOeuFyCyaR+zO9BNTDA1pXe35yRF_4nK7ZpOY=3GQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190121062255.551587-2-lkundrak@v3.sk>
+In-Reply-To: <CAO-hwJLMKyOeuFyCyaR+zO9BNTDA1pXe35yRF_4nK7ZpOY=3GQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lubomir Rintel <lkundrak@v3.sk>
-Cc: Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-media@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 21, 2019 at 07:22:54AM +0100, Lubomir Rintel wrote:
-> Turns out this is not such a great idea. Once the SP clock is disabled,
-> it's not sufficient to just enable in order to bring the SP core back up.
+On Mon, Jan 21, 2019 at 11:41:32AM +0100, Benjamin Tissoires wrote:
+> On Mon, Jan 21, 2019 at 11:11 AM Jiri Kosina <jikos@kernel.org> wrote:
+> >
+> > On Fri, 18 Jan 2019, Dmitry Torokhov wrote:
+> >
+> > > It is hard to say what KEY_SCREEN and KEY_ZOOM mean, but historically DVB
+> > > folks have used them to indicate switch to full screen mode. Later, they
+> > > converged on using KEY_ZOOM to switch into full screen mode and KEY)SCREEN
+> > > to control aspect ratio (see Documentation/media/uapi/rc/rc-tables.rst).
+> > >
+> > > Let's commit to these uses, and define:
+> > >
+> > > - KEY_FULL_SCREEN (and make KEY_ZOOM its alias)
+> > > - KEY_ASPECT_RATIO (and make KEY_SCREEN its alias)
+> > >
+> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > ---
+> > >
+> > > Please let me know how we want merge this. Some of patches can be applied
+> > > independently and I tried marking them as such, but some require new key
+> > > names from input.h
+> >
+> > Acked-by: Jiri Kosina <jkosina@suse.cz>
 > 
-> It seems that the kernel has no business managing this clock. Just let
-> the firmware keep it enabled.
-> 
-> This reverts commit ed22cee91a88c47e564478b012fdbcb079653499.
-> 
-> Link: https://lore.kernel.org/lkml/154783267051.169631.3197836544646625747@swboyd.mtv.corp.google.com/
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-OK, as clock folks say it is a bad idea it must be so. Merge though clk
-tree?
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Mauro, any objections on pushing the media doc patch through my tree?
 
 Thanks.
 

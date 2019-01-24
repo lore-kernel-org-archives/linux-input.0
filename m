@@ -1,144 +1,142 @@
-From: "Life is hard, and then you die" <ronald@innovation.ch>
-Subject: Re: [PATCH] drm/bridge: sil_sii8620: depend on INPUT instead of
- selecting it.
-Date: Wed, 23 Jan 2019 23:21:25 -0800
-Message-ID: <20190124072125.GA28127@innovation.ch>
-References: <20190122141311.10445-1-ronald@innovation.ch>
- <20190123084556.gsospl6joh53qnzs@wunner.de>
- <20190123220342.GC179701@dtor-ws>
- <20190123221735.GE4675@pendragon.ideasonboard.com>
- <20190123222105.GF179701@dtor-ws>
- <20190123222200.GF4675@pendragon.ideasonboard.com>
+From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
+Subject: [PATCH v2] drm/bridge: sil_sii8620: make remote control optional.
+Date: Thu, 24 Jan 2019 00:24:23 -0800
+Message-ID: <20190124082423.23139-1-ronald@innovation.ch>
+References: <20190124072125.GA28127@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190123222200.GF4675@pendragon.ideasonboard.com>
+In-Reply-To: <20190124072125.GA28127@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lukas Wunner <lukas@wunner.de>, Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Lukas Wunner <lukas@wunner.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+commit d6abe6df706c (drm/bridge: sil_sii8620: do not have a dependency
+of RC_CORE) changed the driver to select both RC_CORE and INPUT.
+However, this causes problems with other drivers, in particular an input
+driver that depends on MFD_INTEL_LPSS_PCI (to be added in a separate
+commit):
 
-On Thu, Jan 24, 2019 at 12:22:00AM +0200, Laurent Pinchart wrote:
-> 
-> On Wed, Jan 23, 2019 at 02:21:05PM -0800, Dmitry Torokhov wrote:
-> > On Thu, Jan 24, 2019 at 12:17:35AM +0200, Laurent Pinchart wrote:
-> > > On Wed, Jan 23, 2019 at 02:03:42PM -0800, Dmitry Torokhov wrote:
-> > >> On Wed, Jan 23, 2019 at 09:45:56AM +0100, Lukas Wunner wrote:
-> > >>> On Tue, Jan 22, 2019 at 06:13:11AM -0800, Ronald Tschal‰r wrote:
-> > >>>> commit d6abe6df706c66d803e6dd4fe98c1b6b7f125a56 (drm/bridge:
-> > >>>> sil_sii8620: do not have a dependency of RC_CORE) added a dependency on
-> > >>>> INPUT. However, this causes problems with other drivers, in particular
-> > >>>> an input driver that depends on MFD_INTEL_LPSS_PCI (to be added in a
-> > >>>> future commit):
-> > >>>> 
-> > >>>>   drivers/clk/Kconfig:9:error: recursive dependency detected!
-> > >>>>   drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
-> > >>>>   drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
-> > >>>>   drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
-> > >>>>   drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
-> > >>>>   drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
-> > >>>>   drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
-> > >>>>   drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
-> > >>>>   drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
-> > >>>> 
-> > >>>> According to the docs, select should only be used for non-visible
-> > >>>> symbols. Furthermore almost all other references to INPUT throughout the
-> > >>>> kernel config are depends, not selects. Hence this change.
-> > >> 
-> > >> I think this is not as cut and dry. We should be able to select needed
-> > >> subsystems (such as INPUT, USB, etc) even if they are user visible.
-> > > 
-> > > Semantically, maybe, but given the current state of Kconfig this results
-> > > in a recursive dependencies nightmare. It's a no-go.
-> > > 
-> > >> User, when enabling a piece of hardware, does not need to know ultimate
-> > >> details of all subsystems the driver might need ti function.
-> > >> 
-> > >> It looks like one of the drivers implies MFD_INTEL_LPSS_PCI, maybe
-> > >> treating imply the same as select when detecting circular dependency is
-> > >> wrong as we are allowed to deselect implied dependencies?
-> > >> 
-> > >>>> 
-> > >>>> CC: Inki Dae <inki.dae@samsung.com>
-> > >>>> CC: Andrzej Hajda <a.hajda@samsung.com>
-> > >>>> Signed-off-by: Ronald Tschal‰r <ronald@innovation.ch>
-> > >>> 
-> > >>> Reviewed-by: Lukas Wunner <lukas@wunner.de>
-> > >>> 
-> > >>> I think this needs to be merged through the input tree as a prerequisite
-> > >>> for the applespi.c driver (keyboard + touchpad driver for 2015+ MacBook,
-> > >>> MacBook Air and MacBook Pro which uses SPI instead of USB) to avoid
-> > >>> breaking the build.  Adding Dmitry.
-> > >> 
-> > >> I have no idea what applespi.c is (it is definitely not in my tree), so
-> > >> I think it should be merged through the same tree that the original
-> > >> commit was introduced through.
+  drivers/clk/Kconfig:9:error: recursive dependency detected!
+  drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
+  drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
+  drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
+  drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
+  drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
+  drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
+  drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
+  drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
 
-Apologies, I should've added a cover letter explain this: the applespi
-driver is a new input driver I'm about to submit through the input
-tree, hence why you wouldn't have it. But as Lukas says, the change
-here is a prerequisite for the proposed Kconfig for that driver.
+According to the docs and general consensus, select should only be used
+for non user-visible symbols, but both RC_CORE and INPUT are
+user-visible. Furthermore almost all other references to INPUT
+throughout the kernel config are depends, not selects. For this reason
+the first part of this change reverts commit d6abe6df706c.
 
-Since the two changes (the change here + the new driver) seem to be
-best submitted through different trees, I'm trying to figure out how
-best to handle this. I suppose I could temporarily change the driver
-Kconfig to not trigger the conflict, and then once the change here has
-been upstreamed (not sure at what point exactly that would be
-considered the case, e.g. if in linux-next is sufficient, or has to
-wait for Linus' merge, or something else) submit another change to
-change the driver's Kconfig to the desired one.
+In order to address the original reason for commit d6abe6df706c, namely
+that not all boards use the remote controller functionality and hence
+should not need have to deal with RC_CORE, the second part of this
+change now makes the remote control support in the driver optional and
+contingent on RC_CORE being defined. And with this the hard dependency
+on INPUT also goes away as that is only needed if RC_CORE is defined
+(which in turn already depends on INPUT).
 
-> > >>>> ---
-> > >>>>  drivers/gpu/drm/bridge/Kconfig | 2 +-
-> > >>>>  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >>>> 
-> > >>>> diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-> > >>>> index 2fee47b0d50b..eabedc83f25c 100644
-> > >>>> --- a/drivers/gpu/drm/bridge/Kconfig
-> > >>>> +++ b/drivers/gpu/drm/bridge/Kconfig
-> > >>>> @@ -83,9 +83,9 @@ config DRM_PARADE_PS8622
-> > >>>>  config DRM_SIL_SII8620
-> > >>>>  	tristate "Silicon Image SII8620 HDMI/MHL bridge"
-> > >>>>  	depends on OF
-> > >>>> +	depends on INPUT
-> > >>>>  	select DRM_KMS_HELPER
-> > >>>>  	imply EXTCON
-> > >>>> -	select INPUT
-> > >>>>  	select RC_CORE
-> > >> 
-> > >> Keeping "select RC_CORE" is wrong though, as the driver appears to be
-> > >> working find without RC. Maybe it should be stubbed out?
-> > > 
-> > > It should definitely not be select'ed as it's a user-visible symbol. My
-> > > preference would be to simply revert d6abe6df706c. If we want (and can)
-> > > work without RC core then it should be stubbed out.
-> > > 
-> > > Commit d6abe6df706c states
-> > > 
-> > >     And some boards not using remote controller device don't really
-> > >     need to know that RC_CORE config should be enabled to use sil_sii8620
-> > >     driver only for HDMI.
-> > > 
-> > > The same reasoning applies to INPUT, if we agree that depending on
-> > > RC_CORE is confusing for users, then depending on INPUT is confusing as
-> > > well. There's not reason to apply different standards to INPUT and
-> > > RC_CORE, depending on one and selecting the other doesn't make much
-> > > sense.
-> > 
-> > OK, so revert + patch to stub out RC calls? That works for me (and I
-> > still say it should go through the same tree that introduced
-> > d6abe6df706c).
-> 
-> Yes, that sounds good to me.
+CC: Inki Dae <inki.dae@samsung.com>
+CC: Andrzej Hajda <a.hajda@samsung.com>
+CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Ronald Tschal√§r <ronald@innovation.ch>
+---
+Changes in v2:
+ - completely remove dependencies on both RC_CORE and INPUT in Kconfig,
+ - make remote control functionality in driver contingent on RC_CORE
+   being defined
 
-Thanks for the reviews. Ok, I'll submit a new patch shortly for this.
-However, other than compiling with RC_CORE and INPUT set/unset I can't
-test the changes to the sil-sii8620 driver.
+ drivers/gpu/drm/bridge/Kconfig       |  2 --
+ drivers/gpu/drm/bridge/sil-sii8620.c | 17 +++++++++++++++++
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
-
-  Cheers,
-
-  Ronald
+diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
+index 2fee47b0d50b..a11198a36005 100644
+--- a/drivers/gpu/drm/bridge/Kconfig
++++ b/drivers/gpu/drm/bridge/Kconfig
+@@ -85,8 +85,6 @@ config DRM_SIL_SII8620
+ 	depends on OF
+ 	select DRM_KMS_HELPER
+ 	imply EXTCON
+-	select INPUT
+-	select RC_CORE
+ 	help
+ 	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
+ 
+diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
+index 0cc293a6ac24..dee47752791e 100644
+--- a/drivers/gpu/drm/bridge/sil-sii8620.c
++++ b/drivers/gpu/drm/bridge/sil-sii8620.c
+@@ -66,7 +66,9 @@ enum sii8620_mt_state {
+ struct sii8620 {
+ 	struct drm_bridge bridge;
+ 	struct device *dev;
++#if IS_ENABLED(CONFIG_RC_CORE)
+ 	struct rc_dev *rc_dev;
++#endif
+ 	struct clk *clk_xtal;
+ 	struct gpio_desc *gpio_reset;
+ 	struct gpio_desc *gpio_int;
+@@ -1756,6 +1758,7 @@ static void sii8620_send_features(struct sii8620 *ctx)
+ 	sii8620_write_buf(ctx, REG_MDT_XMIT_WRITE_PORT, buf, ARRAY_SIZE(buf));
+ }
+ 
++#if IS_ENABLED(CONFIG_RC_CORE)
+ static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
+ {
+ 	bool pressed = !(scancode & MHL_RCP_KEY_RELEASED_MASK);
+@@ -1774,6 +1777,12 @@ static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
+ 
+ 	return true;
+ }
++#else
++static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
++{
++	return false;
++}
++#endif
+ 
+ static void sii8620_msc_mr_set_int(struct sii8620 *ctx)
+ {
+@@ -2097,6 +2106,7 @@ static void sii8620_cable_in(struct sii8620 *ctx)
+ 	enable_irq(to_i2c_client(ctx->dev)->irq);
+ }
+ 
++#if IS_ENABLED(CONFIG_RC_CORE)
+ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+ {
+ 	struct rc_dev *rc_dev;
+@@ -2126,6 +2136,11 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+ 	}
+ 	ctx->rc_dev = rc_dev;
+ }
++#else
++static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
++{
++}
++#endif
+ 
+ static void sii8620_cable_out(struct sii8620 *ctx)
+ {
+@@ -2214,9 +2229,11 @@ static int sii8620_attach(struct drm_bridge *bridge)
+ 
+ static void sii8620_detach(struct drm_bridge *bridge)
+ {
++#if IS_ENABLED(CONFIG_RC_CORE)
+ 	struct sii8620 *ctx = bridge_to_sii8620(bridge);
+ 
+ 	rc_unregister_device(ctx->rc_dev);
++#endif
+ }
+ 
+ static int sii8620_is_packing_required(struct sii8620 *ctx,
+-- 
+2.20.1

@@ -1,28 +1,173 @@
-From: Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH 3/3] Revert "dt-bindings: marvell,mmp2: Add clock id for the SP clock"
-Date: Thu, 24 Jan 2019 10:56:20 -0800
-Message-ID: <154835618070.136743.10161536507964722189@swboyd.mtv.corp.google.com>
-References: <20190121062255.551587-1-lkundrak@v3.sk> <20190121062255.551587-4-lkundrak@v3.sk>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2] HID: intel-ish-hid: Switch to use new generic UUID API
+Date: Thu, 24 Jan 2019 22:09:06 +0200
+Message-ID: <20190124200906.60296-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190121062255.551587-4-lkundrak@v3.sk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Michael Turquette <mturquette@baylibre.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Quoting Lubomir Rintel (2019-01-20 22:22:56)
-> It seems that the kernel has no business managing this clock: once the SP
-> clock is disabled, it's not sufficient to just enable it in order to bring
-> the SP core back up.
->=20
-> Pretty sure nothing ever used this and it's safe to remove.
->=20
-> This reverts commit e8a2c779141415105825e65a4715f1130bba61b1.
->=20
-> Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-> ---
+There are new types and helpers that are supposed to be used in new code.
 
-Applied to clk-fixes
+As a preparation to get rid of legacy types and API functions do
+the conversion here.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+
+v2:
+ - split long line
+ - append tags
+
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c |  4 ++--
+ drivers/hid/intel-ish-hid/ishtp-hid.h        |  6 +++---
+ drivers/hid/intel-ish-hid/ishtp/bus.c        | 21 +++++++++-----------
+ drivers/hid/intel-ish-hid/ishtp/bus.h        |  4 ++--
+ drivers/hid/intel-ish-hid/ishtp/client.h     |  2 +-
+ drivers/hid/intel-ish-hid/ishtp/hbm.h        |  2 +-
+ 6 files changed, 18 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index e64243bc9c96..30fe0c5e6fad 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -788,8 +788,8 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
+ 	if (!cl_device)
+ 		return	-ENODEV;
+ 
+-	if (uuid_le_cmp(hid_ishtp_guid,
+-			cl_device->fw_client->props.protocol_name) != 0)
++	if (!guid_equal(&hid_ishtp_guid,
++			&cl_device->fw_client->props.protocol_name))
+ 		return	-ENODEV;
+ 
+ 	client_data = devm_kzalloc(&cl_device->dev, sizeof(*client_data),
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+index f5c7eb79b7b5..1cd07a441cd4 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.h
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
+@@ -29,9 +29,9 @@
+ 		client->cl_device->ishtp_dev, __VA_ARGS__)
+ 
+ /* ISH Transport protocol (ISHTP in short) GUID */
+-static const uuid_le hid_ishtp_guid = UUID_LE(0x33AECD58, 0xB679, 0x4E54,
+-					      0x9B, 0xD9, 0xA0, 0x4D, 0x34,
+-					      0xF0, 0xC2, 0x26);
++static const guid_t hid_ishtp_guid =
++	GUID_INIT(0x33AECD58, 0xB679, 0x4E54,
++		  0x9B, 0xD9, 0xA0, 0x4D, 0x34, 0xF0, 0xC2, 0x26);
+ 
+ /* ISH HID message structure */
+ struct hostif_msg_hdr {
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 728dc6d4561a..efa21d33ad60 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -133,18 +133,15 @@ int ishtp_write_message(struct ishtp_device *dev, struct ishtp_msg_hdr *hdr,
+  *
+  * Return: fw client index or -ENOENT if not found
+  */
+-int ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *uuid)
++int ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const guid_t *uuid)
+ {
+-	int i, res = -ENOENT;
++	unsigned int i;
+ 
+ 	for (i = 0; i < dev->fw_clients_num; ++i) {
+-		if (uuid_le_cmp(*uuid, dev->fw_clients[i].props.protocol_name)
+-				== 0) {
+-			res = i;
+-			break;
+-		}
++		if (guid_equal(uuid, &dev->fw_clients[i].props.protocol_name))
++			return i;
+ 	}
+-	return res;
++	return -ENOENT;
+ }
+ EXPORT_SYMBOL(ishtp_fw_cl_by_uuid);
+ 
+@@ -158,7 +155,7 @@ EXPORT_SYMBOL(ishtp_fw_cl_by_uuid);
+  * Return: pointer of client information on success, NULL on failure.
+  */
+ struct ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
+-						const uuid_le *uuid)
++					       const guid_t *uuid)
+ {
+ 	int i;
+ 	unsigned long flags;
+@@ -401,7 +398,7 @@ static const struct device_type ishtp_cl_device_type = {
+  * Return: ishtp_cl_device pointer or NULL on failure
+  */
+ static struct ishtp_cl_device *ishtp_bus_add_device(struct ishtp_device *dev,
+-						    uuid_le uuid, char *name)
++						    guid_t uuid, char *name)
+ {
+ 	struct ishtp_cl_device *device;
+ 	int status;
+@@ -629,7 +626,7 @@ int ishtp_bus_new_client(struct ishtp_device *dev)
+ 	int	i;
+ 	char	*dev_name;
+ 	struct ishtp_cl_device	*cl_device;
+-	uuid_le	device_uuid;
++	guid_t	device_uuid;
+ 
+ 	/*
+ 	 * For all reported clients, create an unconnected client and add its
+@@ -639,7 +636,7 @@ int ishtp_bus_new_client(struct ishtp_device *dev)
+ 	 */
+ 	i = dev->fw_client_presentation_num - 1;
+ 	device_uuid = dev->fw_clients[i].props.protocol_name;
+-	dev_name = kasprintf(GFP_KERNEL, "{%pUL}", device_uuid.b);
++	dev_name = kasprintf(GFP_KERNEL, "{%pUL}", &device_uuid);
+ 	if (!dev_name)
+ 		return	-ENOMEM;
+ 
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
+index b8a5bcc82536..babf19ba3ff6 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.h
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
+@@ -112,8 +112,8 @@ void	ishtp_cl_driver_unregister(struct ishtp_cl_driver *driver);
+ 
+ int	ishtp_register_event_cb(struct ishtp_cl_device *device,
+ 				void (*read_cb)(struct ishtp_cl_device *));
+-int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const uuid_le *cuuid);
++int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const guid_t *cuuid);
+ struct	ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
+-						const uuid_le *uuid);
++						const guid_t *uuid);
+ 
+ #endif /* _LINUX_ISHTP_CL_BUS_H */
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
+index 042f4c4853b1..e0df3eb611e6 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.h
++++ b/drivers/hid/intel-ish-hid/ishtp/client.h
+@@ -126,7 +126,7 @@ struct ishtp_cl {
+ };
+ 
+ /* Client connection managenment internal functions */
+-int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, uuid_le *uuid);
++int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, guid_t *uuid);
+ int ishtp_fw_cl_by_id(struct ishtp_device *dev, uint8_t client_id);
+ void ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl);
+ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.h b/drivers/hid/intel-ish-hid/ishtp/hbm.h
+index d96111cef7f8..7286e3600140 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/hbm.h
++++ b/drivers/hid/intel-ish-hid/ishtp/hbm.h
+@@ -149,7 +149,7 @@ struct hbm_host_enum_response {
+ } __packed;
+ 
+ struct ishtp_client_properties {
+-	uuid_le protocol_name;
++	guid_t protocol_name;
+ 	uint8_t protocol_version;
+ 	uint8_t max_number_of_connections;
+ 	uint8_t fixed_address;
+-- 
+2.20.1

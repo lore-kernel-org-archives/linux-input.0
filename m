@@ -1,55 +1,53 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 10/13] gpio: max77650: add GPIO support
-Date: Thu, 24 Jan 2019 11:30:18 +0100
-Message-ID: <CACRpkdacfOLSs1GPew4gMtL_BX0OTXqBQNWzWZMwAkk+Ah2ETQ@mail.gmail.com>
-References: <20190118134244.22253-1-brgl@bgdev.pl> <20190118134244.22253-11-brgl@bgdev.pl>
- <CACRpkdZhy7yBZrGLxhRGaac7v5jZhgUSz9gZAhFXbevJbKjpZw@mail.gmail.com> <CAMRc=Me6OSKDk7bN4++M68DjoeArd+gZx16o0oQBXfRoCWBt2A@mail.gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
+Subject: Re: [PATCH] HID: elan: Make array buf static, shrinks object size
+Date: Thu, 24 Jan 2019 16:54:28 +0000
+Message-ID: <11666348-f50a-719f-89d6-d90b0a1ea8f7@canonical.com>
+References: <20180926084150.17514-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=Me6OSKDk7bN4++M68DjoeArd+gZx16o0oQBXfRoCWBt2A@mail.gmail.com>
+In-Reply-To: <20180926084150.17514-1-colin.king@canonical.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Brian Masney <masneyb@onstation.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 21, 2019 at 6:07 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+ping?
 
-> Thank you for your review. While I think you're right about the issue
-> being present in this driver, I'm not sure it's really a problem. Do
-> we actually require every gpio-controller to also be a stand-alone
-> interrupt-controller?
-
-Absolutely not :D
-
-Just GPIO is fine.
-
-> The binding document for the GPIO module doesn't
-> mention this - it only requires the gpio-controller property. Without
-> the "interrupt-controller" property dtc will bail-out if anyone uses
-> this node as the interrupt parent.
->
-> If I'm wrong and we do require it, then I think we need to update
-> Documentation/devicetree/bindings/gpio/gpio.txt.
-
-What is weird is if a driver with DT bindings not mentioning IRQ
-and only probing from DT start implementing IRQ support, that
-becomes quite inconsistent. So then max77650_gpio_to_irq()
-should just return -ENOTSUPP
-or something for now, then it's fine.
-
-We can add the (complicated) IRQ handling later.
-
-I am trying to eat my own dogfood here, I was sweating all
-last night trying to implement a hierarchical IRQ controller.
-There is no running away from that now. :/
-
-Apparently doing hierarchical IRQs demand that all irq
-controllers up to the top-level SoC IRQ controller support
-hierarchical interrupts using the v2 version of the irqdomain
-API, and currently it seems like the ARM
-GIC seems like the only top level IRQ controller that can
-do that.
-
-Yours,
-Linus Walleij
+On 26/09/2018 09:41, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> Don't populate the array buf on the stack but instead make it
+> static. Makes the object code smaller by 43 bytes:
+> 
+> Before:
+>    text	   data	    bss	    dec	    hex	filename
+>    7769	   1520	      0	   9289	   2449	drivers/hid/hid-elan.o
+> 
+> After:
+>    text	   data	    bss	    dec	    hex	filename
+>    7662	   1584	      0	   9246	   241e	drivers/hid/hid-elan.o
+> 
+> (gcc version 8.2.0 x86_64)
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
+>  drivers/hid/hid-elan.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
+> index 07e26c3567eb..05377eec2cb2 100644
+> --- a/drivers/hid/hid-elan.c
+> +++ b/drivers/hid/hid-elan.c
+> @@ -393,7 +393,7 @@ static int elan_start_multitouch(struct hid_device *hdev)
+>  	 * This byte sequence will enable multitouch mode and disable
+>  	 * mouse emulation
+>  	 */
+> -	const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
+> +	static const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
+>  	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
+>  
+>  	if (!dmabuf)
+> 

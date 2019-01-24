@@ -1,142 +1,48 @@
-From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-Subject: [PATCH v2] drm/bridge: sil_sii8620: make remote control optional.
-Date: Thu, 24 Jan 2019 00:24:23 -0800
-Message-ID: <20190124082423.23139-1-ronald@innovation.ch>
-References: <20190124072125.GA28127@innovation.ch>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Fix the CONFIG_SPARC64 mixup
+Date: Thu, 24 Jan 2019 00:29:55 -0800
+Message-ID: <20190124082955.GA139904@dtor-ws>
+References: <20190121014914.2328-1-deepa.kernel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190124072125.GA28127@innovation.ch>
+Content-Disposition: inline
+In-Reply-To: <20190121014914.2328-1-deepa.kernel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Lukas Wunner <lukas@wunner.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de, davem@davemloft.net, y2038@lists.linaro.org
 List-Id: linux-input@vger.kernel.org
 
-commit d6abe6df706c (drm/bridge: sil_sii8620: do not have a dependency
-of RC_CORE) changed the driver to select both RC_CORE and INPUT.
-However, this causes problems with other drivers, in particular an input
-driver that depends on MFD_INTEL_LPSS_PCI (to be added in a separate
-commit):
+On Sun, Jan 20, 2019 at 05:49:14PM -0800, Deepa Dinamani wrote:
+> Arnd Bergmann pointed out that CONFIG_* cannot be used
+> in a uapi header. Override with an equivalent conditional.
+> 
+> Fixes: 2e746942ebac ("Input: input_event - provide override for sparc64")
+> Fixes: 152194fe9c3f ("Input: extend usable life of event timestamps to 2106 on 32 bit systems")
+> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
 
-  drivers/clk/Kconfig:9:error: recursive dependency detected!
-  drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
-  drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
-  drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
-  drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
-  drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
-  drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
-  drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
-  drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
+Applied, thank you.
 
-According to the docs and general consensus, select should only be used
-for non user-visible symbols, but both RC_CORE and INPUT are
-user-visible. Furthermore almost all other references to INPUT
-throughout the kernel config are depends, not selects. For this reason
-the first part of this change reverts commit d6abe6df706c.
+> ---
+>  include/uapi/linux/input.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+> index ffab958bc512..f056b2a00d5c 100644
+> --- a/include/uapi/linux/input.h
+> +++ b/include/uapi/linux/input.h
+> @@ -32,7 +32,7 @@ struct input_event {
+>  #define input_event_usec time.tv_usec
+>  #else
+>  	__kernel_ulong_t __sec;
+> -#ifdef CONFIG_SPARC64
+> +#if defined(__sparc__) && defined(__arch64__)
+>  	unsigned int __usec;
+>  #else
+>  	__kernel_ulong_t __usec;
+> -- 
+> 2.17.1
+> 
 
-In order to address the original reason for commit d6abe6df706c, namely
-that not all boards use the remote controller functionality and hence
-should not need have to deal with RC_CORE, the second part of this
-change now makes the remote control support in the driver optional and
-contingent on RC_CORE being defined. And with this the hard dependency
-on INPUT also goes away as that is only needed if RC_CORE is defined
-(which in turn already depends on INPUT).
-
-CC: Inki Dae <inki.dae@samsung.com>
-CC: Andrzej Hajda <a.hajda@samsung.com>
-CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
----
-Changes in v2:
- - completely remove dependencies on both RC_CORE and INPUT in Kconfig,
- - make remote control functionality in driver contingent on RC_CORE
-   being defined
-
- drivers/gpu/drm/bridge/Kconfig       |  2 --
- drivers/gpu/drm/bridge/sil-sii8620.c | 17 +++++++++++++++++
- 2 files changed, 17 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-index 2fee47b0d50b..a11198a36005 100644
---- a/drivers/gpu/drm/bridge/Kconfig
-+++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -85,8 +85,6 @@ config DRM_SIL_SII8620
- 	depends on OF
- 	select DRM_KMS_HELPER
- 	imply EXTCON
--	select INPUT
--	select RC_CORE
- 	help
- 	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
- 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index 0cc293a6ac24..dee47752791e 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -66,7 +66,9 @@ enum sii8620_mt_state {
- struct sii8620 {
- 	struct drm_bridge bridge;
- 	struct device *dev;
-+#if IS_ENABLED(CONFIG_RC_CORE)
- 	struct rc_dev *rc_dev;
-+#endif
- 	struct clk *clk_xtal;
- 	struct gpio_desc *gpio_reset;
- 	struct gpio_desc *gpio_int;
-@@ -1756,6 +1758,7 @@ static void sii8620_send_features(struct sii8620 *ctx)
- 	sii8620_write_buf(ctx, REG_MDT_XMIT_WRITE_PORT, buf, ARRAY_SIZE(buf));
- }
- 
-+#if IS_ENABLED(CONFIG_RC_CORE)
- static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
- {
- 	bool pressed = !(scancode & MHL_RCP_KEY_RELEASED_MASK);
-@@ -1774,6 +1777,12 @@ static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
- 
- 	return true;
- }
-+#else
-+static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
-+{
-+	return false;
-+}
-+#endif
- 
- static void sii8620_msc_mr_set_int(struct sii8620 *ctx)
- {
-@@ -2097,6 +2106,7 @@ static void sii8620_cable_in(struct sii8620 *ctx)
- 	enable_irq(to_i2c_client(ctx->dev)->irq);
- }
- 
-+#if IS_ENABLED(CONFIG_RC_CORE)
- static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
- {
- 	struct rc_dev *rc_dev;
-@@ -2126,6 +2136,11 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
- 	}
- 	ctx->rc_dev = rc_dev;
- }
-+#else
-+static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
-+{
-+}
-+#endif
- 
- static void sii8620_cable_out(struct sii8620 *ctx)
- {
-@@ -2214,9 +2229,11 @@ static int sii8620_attach(struct drm_bridge *bridge)
- 
- static void sii8620_detach(struct drm_bridge *bridge)
- {
-+#if IS_ENABLED(CONFIG_RC_CORE)
- 	struct sii8620 *ctx = bridge_to_sii8620(bridge);
- 
- 	rc_unregister_device(ctx->rc_dev);
-+#endif
- }
- 
- static int sii8620_is_packing_required(struct sii8620 *ctx,
 -- 
-2.20.1
+Dmitry

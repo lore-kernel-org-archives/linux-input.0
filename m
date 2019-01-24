@@ -1,51 +1,31 @@
-From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v2 2/2] input: misc: pwm-vibra: Stop regulator after disabling pwm, not before
-Date: Thu, 24 Jan 2019 21:27:32 +0100
-Message-ID: <20190124202732.14723-2-pawel.mikolaj.chmiel@gmail.com>
-References: <20190124202732.14723-1-pawel.mikolaj.chmiel@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: Switch to use new generic UUID
+ API
+Date: Thu, 24 Jan 2019 23:00:26 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1901242300020.6626@cbobk.fhfr.pm>
+References: <20190124200906.60296-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190124202732.14723-1-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <20190124200906.60296-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>, linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-This patch fixes order of disable calls in pwm_vibrator_stop.
-Currently when starting device, we first enable vcc regulator and then
-setup and enable pwm. When stopping, we should do this in oposite order,
-so first disable pwm and then disable regulator.
-Previously order was the same as in start.
+On Thu, 24 Jan 2019, Andy Shevchenko wrote:
 
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
----
- drivers/input/misc/pwm-vibra.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+> There are new types and helpers that are supposed to be used in new code.
+> 
+> As a preparation to get rid of legacy types and API functions do
+> the conversion here.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-index 9df87431d7d4..dbb6d9e1b947 100644
---- a/drivers/input/misc/pwm-vibra.c
-+++ b/drivers/input/misc/pwm-vibra.c
-@@ -80,14 +80,14 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 
- static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
- {
-+	if (vibrator->pwm_dir)
-+		pwm_disable(vibrator->pwm_dir);
-+	pwm_disable(vibrator->pwm);
-+
- 	if (vibrator->vcc_on) {
- 		regulator_disable(vibrator->vcc);
- 		vibrator->vcc_on = false;
- 	}
--
--	if (vibrator->pwm_dir)
--		pwm_disable(vibrator->pwm_dir);
--	pwm_disable(vibrator->pwm);
- }
- 
- static void pwm_vibrator_play_work(struct work_struct *work)
+Applied to for-5.1/ish branch, thanks.
+
 -- 
-2.17.1
+Jiri Kosina
+SUSE Labs

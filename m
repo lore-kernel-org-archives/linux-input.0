@@ -1,53 +1,38 @@
-From: Colin Ian King <colin.king@canonical.com>
-Subject: Re: [PATCH] HID: elan: Make array buf static, shrinks object size
-Date: Thu, 24 Jan 2019 16:54:28 +0000
-Message-ID: <11666348-f50a-719f-89d6-d90b0a1ea8f7@canonical.com>
-References: <20180926084150.17514-1-colin.king@canonical.com>
+From: Stephen Boyd <sboyd@kernel.org>
+Subject: Re: [PATCH 1/3] Revert "Input: olpc_apsp - enable the SP clock"
+Date: Thu, 24 Jan 2019 10:53:23 -0800
+Message-ID: <154835600359.136743.8585628353385883771@swboyd.mtv.corp.google.com>
+References: <20190121062255.551587-1-lkundrak@v3.sk> <20190121062255.551587-2-lkundrak@v3.sk> <20190123220545.GD179701@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180926084150.17514-1-colin.king@canonical.com>
-Content-Language: en-US
+In-Reply-To: <20190123220545.GD179701@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lubomir Rintel <lkundrak@v3.sk>
+Cc: Michael Turquette <mturquette@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-ping?
+Quoting Dmitry Torokhov (2019-01-23 14:05:45)
+> On Mon, Jan 21, 2019 at 07:22:54AM +0100, Lubomir Rintel wrote:
+> > Turns out this is not such a great idea. Once the SP clock is disabled,
+> > it's not sufficient to just enable in order to bring the SP core back u=
+p.
+> >=20
+> > It seems that the kernel has no business managing this clock. Just let
+> > the firmware keep it enabled.
+> >=20
+> > This reverts commit ed22cee91a88c47e564478b012fdbcb079653499.
+> >=20
+> > Link: https://lore.kernel.org/lkml/154783267051.169631.3197836544646625=
+747@swboyd.mtv.corp.google.com/
+> > Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+>=20
+> OK, as clock folks say it is a bad idea it must be so. Merge though clk
+> tree?
+>=20
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>=20
 
-On 26/09/2018 09:41, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> Don't populate the array buf on the stack but instead make it
-> static. Makes the object code smaller by 43 bytes:
-> 
-> Before:
->    text	   data	    bss	    dec	    hex	filename
->    7769	   1520	      0	   9289	   2449	drivers/hid/hid-elan.o
-> 
-> After:
->    text	   data	    bss	    dec	    hex	filename
->    7662	   1584	      0	   9246	   241e	drivers/hid/hid-elan.o
-> 
-> (gcc version 8.2.0 x86_64)
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  drivers/hid/hid-elan.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
-> index 07e26c3567eb..05377eec2cb2 100644
-> --- a/drivers/hid/hid-elan.c
-> +++ b/drivers/hid/hid-elan.c
-> @@ -393,7 +393,7 @@ static int elan_start_multitouch(struct hid_device *hdev)
->  	 * This byte sequence will enable multitouch mode and disable
->  	 * mouse emulation
->  	 */
-> -	const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
-> +	static const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
->  	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
->  
->  	if (!dmabuf)
-> 
+Ok sure. I'll merge them through clk tree. I'll fast track it through
+clk-fixes too.

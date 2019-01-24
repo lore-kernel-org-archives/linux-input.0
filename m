@@ -1,36 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: st1232 - add support for st1633
-Date: Thu, 24 Jan 2019 00:48:53 -0800
-Message-ID: <20190124084853.GD139904@dtor-ws>
-References: <20190123072651.31791-1-martink@posteo.de>
- <20190123072651.31791-2-martink@posteo.de>
- <df37b873-0641-c127-d6d8-5bd9ed155e87@ginzinger.com>
+From: Lukas Wunner <lukas@wunner.de>
+Subject: Re: [PATCH] drm/bridge: sil_sii8620: depend on INPUT instead of
+ selecting it.
+Date: Thu, 24 Jan 2019 10:13:42 +0100
+Message-ID: <20190124091342.i4g3hwzpnt5uwwxf@wunner.de>
+References: <20190122141311.10445-1-ronald@innovation.ch>
+ <20190123084556.gsospl6joh53qnzs@wunner.de>
+ <20190123220342.GC179701@dtor-ws>
+ <20190123221735.GE4675@pendragon.ideasonboard.com>
+ <20190123222105.GF179701@dtor-ws>
+ <20190123222200.GF4675@pendragon.ideasonboard.com>
+ <20190124072125.GA28127@innovation.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <df37b873-0641-c127-d6d8-5bd9ed155e87@ginzinger.com>
+In-Reply-To: <20190124072125.GA28127@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: Martin Kepplinger <martink@posteo.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, chinyeow.sim.xt@renesas.com, linux-kernel@vger.kernel.org
+To: ronald@innovation.ch, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 23, 2019 at 11:07:55AM +0100, Martin Kepplinger wrote:
-> On 23.01.19 08:26, Martin Kepplinger wrote:
-> > From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-> > 
-> > Add support for the Sitronix ST1633 touchscreen controller to the st1232
-> > driver.
-> > 
-> 
-> FYI, here's a protocol spec:
-> www.ampdisplay.com/documents/pdf/AM-320480B6TZQW-TC0H.pdf
-> 
-> Let me know if you want that link in the commit message.
+On Wed, Jan 23, 2019 at 11:21:25PM -0800, Life is hard, and then you die wrote:
+> Since the two changes (the change here + the new driver) seem to be
+> best submitted through different trees, I'm trying to figure out how
+> best to handle this. I suppose I could temporarily change the driver
+> Kconfig to not trigger the conflict, and then once the change here has
+> been upstreamed (not sure at what point exactly that would be
+> considered the case, e.g. if in linux-next is sufficient, or has to
+> wait for Linus' merge, or something else) submit another change to
+> change the driver's Kconfig to the desired one.
 
-Sure, please add it.
+If a series touches multiple subsystems and its patches are interdependent,
+the pull requests sent to Linus would have to be merged in a specific order.
 
-Thanks.
+In practice that's too cumbersome, so either the series is split in multiple
+parts and merged across multiple releases (which obviously can take a long
+time) or, if the change to other subsystems is smallish (as is the case
+here), the entire series is merged through a single subsystem tree and
+those patches touching other subsystems need to have an Acked-by or
+Reviewed-by tag from a maintainer of those other subsystems.
 
--- 
-Dmitry
+If a case can be made that the change to the other subsystem (e.g. DRM) is
+actually a bug fix, then that change can go in immediately and will appear
+in one of Linus' next -rc releases.  The rest of the series can then go
+through the appropriate subsystem (e.g. input) and will land in Linus' tree
+in the next merge window.
+
+Either way, the correct patch order is preserved and it's guaranteed that
+the build is not broken for someone ending up on an in-between commit while
+bisecting.
+
+HTH,
+
+Lukas

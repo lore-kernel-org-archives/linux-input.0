@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH 3/4] input: misc: gp2a: Enable device tree
-Date: Fri, 25 Jan 2019 18:50:44 +0100
-Message-ID: <20190125175045.22576-4-pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH 1/4] input: misc: gp2a: Use managed resource helpers
+Date: Fri, 25 Jan 2019 18:50:42 +0100
+Message-ID: <20190125175045.22576-2-pawel.mikolaj.chmiel@gmail.com>
 References: <20190125175045.22576-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,98 +15,105 @@ List-Id: linux-input@vger.kernel.org
 
 From: Jonathan Bakker <xc-racer2@live.ca>
 
-Enable probing of gp2a via device tree via a simple of_match table
+Simplify cleanup of failures by using managed resource helpers
 
 Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
 Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 ---
- drivers/input/misc/gp2ap002a00f.c | 46 +++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/input/misc/gp2ap002a00f.c | 37 ++++++++++---------------------
+ 1 file changed, 12 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
-index 090c8c313295..01a7d44ae921 100644
+index c6a29e57b5e4..79c8c4c56d1a 100644
 --- a/drivers/input/misc/gp2ap002a00f.c
 +++ b/drivers/input/misc/gp2ap002a00f.c
-@@ -21,6 +21,8 @@
- #include <linux/gpio.h>
- #include <linux/delay.h>
- #include <linux/input/gp2ap002a00f.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
+@@ -138,14 +138,15 @@ static int gp2a_probe(struct i2c_client *client,
+ 			return error;
+ 	}
  
- struct gp2a_data {
- 	struct iio_channel *channel;
-@@ -140,6 +142,35 @@ static int gp2a_initialize(struct gp2a_data *dt)
- 	return error;
- }
+-	error = gpio_request_one(pdata->vout_gpio, GPIOF_IN, GP2A_I2C_NAME);
++	error = devm_gpio_request_one(&client->dev, pdata->vout_gpio,
++				      GPIOF_IN, GP2A_I2C_NAME);
+ 	if (error)
+ 		goto err_hw_shutdown;
  
-+static struct gp2a_platform_data *gp2a_parse_dt_pdata(struct device *dev)
-+{
-+	struct gp2a_platform_data *pdata;
-+	int ret;
-+
-+	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
-+	if (!pdata)
-+		return ERR_PTR(-ENOMEM);
-+
-+	pdata->wakeup = of_property_read_bool(dev->of_node, "wakeup");
-+
-+	pdata->vout_gpio = of_get_named_gpio(dev->of_node, "vout-gpio", 0);
-+	if (pdata->vout_gpio < 0) {
-+		dev_err(dev, "failed to find vout-gpio");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	ret = device_property_read_u32(dev, "light-adc-max",
-+				       &pdata->light_adc_max);
-+	if (ret)
-+		pdata->light_adc_max = 4096;
-+	ret = device_property_read_u32(dev, "light-adc-fuzz",
-+				       &pdata->light_adc_fuzz);
-+	if (ret)
-+		pdata->light_adc_fuzz = 80;
-+
-+	return pdata;
-+}
-+
- static int gp2a_probe(struct i2c_client *client,
- 				const struct i2c_device_id *id)
- {
-@@ -147,6 +178,12 @@ static int gp2a_probe(struct i2c_client *client,
- 	struct gp2a_data *dt;
- 	int error, value;
+-	dt = kzalloc(sizeof(struct gp2a_data), GFP_KERNEL);
++	dt = devm_kzalloc(&client->dev, sizeof(struct gp2a_data), GFP_KERNEL);
+ 	if (!dt) {
+ 		error = -ENOMEM;
+-		goto err_free_gpio;
++		goto err_hw_shutdown;
+ 	}
  
-+	if (IS_ENABLED(CONFIG_OF) && client->dev.of_node) {
-+		pdata = gp2a_parse_dt_pdata(&client->dev);
-+		if (IS_ERR(pdata))
-+			return PTR_ERR(pdata);
-+	}
-+
- 	if (!pdata)
- 		return -EINVAL;
+ 	dt->pdata = pdata;
+@@ -153,12 +154,12 @@ static int gp2a_probe(struct i2c_client *client,
  
-@@ -317,6 +354,14 @@ static int __maybe_unused gp2a_resume(struct device *dev)
+ 	error = gp2a_initialize(dt);
+ 	if (error < 0)
+-		goto err_free_mem;
++		goto err_hw_shutdown;
  
- static SIMPLE_DEV_PM_OPS(gp2a_pm, gp2a_suspend, gp2a_resume);
+-	dt->input = input_allocate_device();
++	dt->input = devm_input_allocate_device(&client->dev);
+ 	if (!dt->input) {
+ 		error = -ENOMEM;
+-		goto err_free_mem;
++		goto err_hw_shutdown;
+ 	}
  
-+#if IS_ENABLED(CONFIG_OF)
-+static const struct of_device_id gp2a_of_match[] = {
-+	{ .compatible = "sharp,gp2ap002a00f" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, gp2a_of_match);
-+#endif
-+
- static const struct i2c_device_id gp2a_i2c_id[] = {
- 	{ GP2A_I2C_NAME, 0 },
- 	{ }
-@@ -326,6 +371,7 @@ MODULE_DEVICE_TABLE(i2c, gp2a_i2c_id);
- static struct i2c_driver gp2a_i2c_driver = {
- 	.driver = {
- 		.name	= GP2A_I2C_NAME,
-+		.of_match_table = of_match_ptr(gp2a_of_match),
- 		.pm	= &gp2a_pm,
- 	},
- 	.probe		= gp2a_probe,
+ 	input_set_drvdata(dt->input, dt);
+@@ -171,19 +172,18 @@ static int gp2a_probe(struct i2c_client *client,
+ 
+ 	input_set_capability(dt->input, EV_SW, SW_FRONT_PROXIMITY);
+ 
+-	error = request_threaded_irq(client->irq, NULL, gp2a_irq,
+-			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
+-				IRQF_ONESHOT,
+-			GP2A_I2C_NAME, dt);
++	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
++			gp2a_irq, IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
++			IRQF_ONESHOT, GP2A_I2C_NAME, dt);
+ 	if (error) {
+ 		dev_err(&client->dev, "irq request failed\n");
+-		goto err_free_input_dev;
++		goto err_hw_shutdown;
+ 	}
+ 
+ 	error = input_register_device(dt->input);
+ 	if (error) {
+ 		dev_err(&client->dev, "device registration failed\n");
+-		goto err_free_irq;
++		goto err_hw_shutdown;
+ 	}
+ 
+ 	device_init_wakeup(&client->dev, pdata->wakeup);
+@@ -191,14 +191,6 @@ static int gp2a_probe(struct i2c_client *client,
+ 
+ 	return 0;
+ 
+-err_free_irq:
+-	free_irq(client->irq, dt);
+-err_free_input_dev:
+-	input_free_device(dt->input);
+-err_free_mem:
+-	kfree(dt);
+-err_free_gpio:
+-	gpio_free(pdata->vout_gpio);
+ err_hw_shutdown:
+ 	if (pdata->hw_shutdown)
+ 		pdata->hw_shutdown(client);
+@@ -210,12 +202,7 @@ static int gp2a_remove(struct i2c_client *client)
+ 	struct gp2a_data *dt = i2c_get_clientdata(client);
+ 	const struct gp2a_platform_data *pdata = dt->pdata;
+ 
+-	free_irq(client->irq, dt);
+-
+ 	input_unregister_device(dt->input);
+-	kfree(dt);
+-
+-	gpio_free(pdata->vout_gpio);
+ 
+ 	if (pdata->hw_shutdown)
+ 		pdata->hw_shutdown(client);
 -- 
 2.17.1

@@ -1,54 +1,78 @@
-From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH 3/3] input: dt-bindings: Add binding for bma150 sensor
-Date: Fri, 25 Jan 2019 19:44:00 +0100
-Message-ID: <20190125184400.17669-4-pawel.mikolaj.chmiel@gmail.com>
-References: <20190125184400.17669-1-pawel.mikolaj.chmiel@gmail.com>
+From: Eric Wong <e@80x24.org>
+Subject: Re: [PATCH][RESEND] wistron_btns needs executable BIOS image
+Date: Fri, 25 Jan 2019 21:13:49 +0000
+Message-ID: <20190125211349.nfbbcuaip5y6l5dr@dcvr>
+References: <20170731182010.GA933@stranger.qboosh.pl>
+ <20190125191437.GA25902@stranger.qboosh.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190125184400.17669-1-pawel.mikolaj.chmiel@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20190125191437.GA25902@stranger.qboosh.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jakub Bogusz <qboosh@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org, mitr@volny.cz, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+Jakub Bogusz <qboosh@pld-linux.org> wrote:
+> Let's try once again... (take 3)
+> 
+> First time I sent this patch when I prepared it in 2013 for Linux 3.12,
+> the second time after update for Linux 4.12 in 2017...
+> And it still applies to Linux 4.20.
 
-Add device tree bindings for Bosch BMA150 Accelerometer Sensor
+Adding Dmitry Torokhov and linux-input to Cc:
+(that's what ./scripts/get_maintainer.pl says)
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
----
- .../bindings/input/bosch,bma150.txt           | 20 +++++++++++++++++++
- 1 file changed, 20 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/bosch,bma150.txt
+> Actual description in forwarded message.
+> 
+> 
+> -- 
+> Jakub Bogusz    http://qboosh.pl/
 
-diff --git a/Documentation/devicetree/bindings/input/bosch,bma150.txt b/Documentation/devicetree/bindings/input/bosch,bma150.txt
-new file mode 100644
-index 000000000000..290c60e38c70
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/bosch,bma150.txt
-@@ -0,0 +1,20 @@
-+* Bosch BMA150 Accelerometer Sensor
-+
-+Also works for the SMB380 and BMA023 accelerometers
-+
-+Required properties:
-+- compatible : Should be "bosch,bma150"
-+- reg : The I2C address of the sensor
-+
-+Optional properties:
-+- interrupt-parent : should be the phandle for the interrupt controller
-+- interrupts : Interrupt mapping for IRQ.  If not present device will be polled
-+
-+Example:
-+
-+bma150@38 {
-+	compatible = "bosch,bma150";
-+	reg = <0x38>;
-+	interrupt-parent = <&gph0>;
-+	interrupts = <1 IRQ_TYPE_LEVEL_HIGH>;
-+};
--- 
-2.17.1
+> From: Jakub Bogusz <qboosh@pld-linux.org>
+> To: linux-kernel@vger.kernel.org, mitr@volny.cz
+> Subject: [PATCH] wistron_btns needs executable BIOS image
+> 
+> Hello,
+> 
+> This patch (originally agains 3.1x, now I updated include to build
+> against 4.12.x) fixes winstron_btns module issue with calling BIOS
+> functions in non-executable memory.
+> 
+> Tested (on Linux 3.10.x and few later versions) on F-S Amilo 8210 laptop.
+> 
+> 
+> -- 
+> Jakub Bogusz    http://qboosh.pl/
+
+> wistron_btns needs executable BIOS image.
+> 
+> Signed-off-by: Jakub Bogusz <qboosh@pld-linux.org>
+> 
+> --- linux-4.12/drivers/input/misc/wistron_btns.c.orig	2013-11-16 09:05:55.612742472 +0100
+> +++ linux-4.12/drivers/input/misc/wistron_btns.c	2013-11-16 09:24:37.356028732 +0100
+> @@ -33,6 +33,7 @@
+>  #include <linux/types.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/leds.h>
+> +#include <asm/set_memory.h>
+>  
+>  /* How often we poll keys - msecs */
+>  #define POLL_INTERVAL_DEFAULT	500 /* when idle */
+> @@ -124,6 +125,7 @@
+>  	if (entry_point >= 0xF0000) {
+>  		bios_code_map_base = base;
+>  		bios_entry_point = bios_code_map_base + (entry_point & 0xFFFF);
+> +		set_memory_x((unsigned long)bios_code_map_base, 0x10000 >> PAGE_SHIFT);
+>  	} else {
+>  		iounmap(base);
+>  		bios_code_map_base = ioremap(entry_point & ~0x3FFF, 0x4000);
+> @@ -134,6 +136,7 @@
+>  			goto err;
+>  		}
+>  		bios_entry_point = bios_code_map_base + (entry_point & 0x3FFF);
+> +		set_memory_x((unsigned long)bios_code_map_base, 0x4000 >> PAGE_SHIFT);
+>  	}
+>  	/* The Windows driver maps 0x10000 bytes, we keep only one page... */
+>  	bios_data_map_base = ioremap(0x400, 0xc00);

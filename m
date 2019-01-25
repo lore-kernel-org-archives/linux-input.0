@@ -1,48 +1,40 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH][RESEND] HID: elan: Make array buf static, shrinks object size
-Date: Fri, 25 Jan 2019 16:05:46 +0000
-Message-ID: <20190125160546.8732-1-colin.king@canonical.com>
+From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH 0/4] input: misc: gp2a: Add device tree support
+Date: Fri, 25 Jan 2019 18:50:41 +0100
+Message-ID: <20190125175045.22576-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, mchehab+samsung@kernel.org, colyli@suse.de, ckeepax@opensource.wolfsonmicro.com, andrew.smirnov@gmail.com, arnd@arndb.de, xiaotong.lu@spreadtrum.com, xc-racer2@live.ca, pawel.mikolaj.chmiel@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+The main goal of this patchset is to add device tree support to driver.
 
-Don't populate the array buf on the stack but instead make it
-static. Makes the object code smaller by 43 bytes:
+First patch is doing little cleanup by using managed resource helpers.
 
-Before:
-   text	   data	    bss	    dec	    hex	filename
-   7769	   1520	      0	   9289	   2449	drivers/hid/hid-elan.o
+Second patch adds support for light sensor part, which is supported by hw,
+but was not supported by driver.
 
-After:
-   text	   data	    bss	    dec	    hex	filename
-   7662	   1584	      0	   9246	   241e	drivers/hid/hid-elan.o
+The last two patches adds device tree support to driver,
+with documentation.
 
-(gcc version 8.2.0 x86_64)
+It was tested on s5pv210-galaxys and s5pv210-fascinate4g.
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/hid/hid-elan.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Jonathan Bakker (4):
+  input: misc: gp2a: Use managed resource helpers
+  input: misc: gp2a: Add support for light sensor
+  input: misc: gp2a: Enable device tree
+  dt-bindings: input: Add documentation for gp2a sensor
 
-diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
-index 0bfd6d1b44c1..1c62095cee99 100644
---- a/drivers/hid/hid-elan.c
-+++ b/drivers/hid/hid-elan.c
-@@ -393,7 +393,7 @@ static int elan_start_multitouch(struct hid_device *hdev)
- 	 * This byte sequence will enable multitouch mode and disable
- 	 * mouse emulation
- 	 */
--	const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
-+	static const unsigned char buf[] = { 0x0D, 0x00, 0x03, 0x21, 0x00 };
- 	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
- 
- 	if (!dmabuf)
+ .../bindings/input/sharp,gp2ap002a00f.txt     |  29 ++++
+ drivers/input/misc/Kconfig                    |   2 +
+ drivers/input/misc/gp2ap002a00f.c             | 154 +++++++++++++++---
+ include/linux/input/gp2ap002a00f.h            |   4 +
+ 4 files changed, 163 insertions(+), 26 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/sharp,gp2ap002a00f.txt
+
 -- 
-2.19.1
+2.17.1

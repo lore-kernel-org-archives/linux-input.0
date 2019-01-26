@@ -1,37 +1,36 @@
-From: Vladis Dronov <vdronov@redhat.com>
-Subject: Re: [PATCH] HID: debug: fix the ring buffer implementation
-Date: Sat, 26 Jan 2019 10:44:41 -0500 (EST)
-Message-ID: <1280032330.67094297.1548517481057.JavaMail.zimbra@redhat.com>
-References: <20190125095744.3813-1-vdronov@redhat.com> <20190125130113.GA18589@redhat.com>
+From: =?UTF-8?q?Tobias=20V=C3=B6geli?= <tobias@voegeli.com>
+Subject: [PATCH] input: elan_i2c: Add ACPI ID for touchpad in Lenovo V130-15IGM
+Date: Sat, 26 Jan 2019 16:48:56 +0100
+Message-ID: <20190126154856.14060-1-tobias@voegeli.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190125130113.GA18589@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Oleg Nesterov <oleg@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?q?Tobias=20V=C3=B6geli?= <tobias@voegeli.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello, Oleg, all,
+From: Tobias Vögeli <tobias@voegeli.com>
 
-Thanks much, Oleg, these are really valuable additions:
+Add ELAN061A to the ACPI table to support the touchpad of the Lenovo V130-15IGM.
 
-> suspicious ;) if you add a comment the patch will be even better.
+Signed-off-by: Tobias Vögeli <tobias@voegeli.com>
+---
+ drivers/input/mouse/elan_i2c_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Great, will do.
-
-> perhaps it make sense to move this check into the "if (kfifo_is_empty())"
-> block.
-
-Indeed, otherwise it kinda breaks the execution logic.
-
-> is kfifo_is_empty() == T really possible here?
-
-It looks like it is not. Reads are guarded by read_mutex and the only other
-code which touches hid_debug_fifo is writer.
-
-I will post v2 here soon. Lets see if it is ready for inclusion.
-
-Best regards,
-Vladis Dronov | Red Hat, Inc. | Product Security | Senior Software Engineer
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index f322a1768fbb..4998b7007201 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1347,6 +1347,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0611", 0 },
+ 	{ "ELAN0612", 0 },
+ 	{ "ELAN0618", 0 },
++	{ "ELAN061A", 0 },
+ 	{ "ELAN061C", 0 },
+ 	{ "ELAN061D", 0 },
+ 	{ "ELAN061E", 0 },
+-- 
+2.20.1

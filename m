@@ -1,134 +1,91 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/4] input: misc: gp2a: Use managed resource helpers
-Date: Fri, 25 Jan 2019 17:17:02 -0800
-Message-ID: <20190126011702.GB212026@dtor-ws>
+Subject: Re: [PATCH 2/4] input: misc: gp2a: Add support for light sensor
+Date: Fri, 25 Jan 2019 17:18:00 -0800
+Message-ID: <20190126011800.GC212026@dtor-ws>
 References: <20190125175045.22576-1-pawel.mikolaj.chmiel@gmail.com>
- <20190125175045.22576-2-pawel.mikolaj.chmiel@gmail.com>
+ <20190125175045.22576-3-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190125175045.22576-2-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <20190125175045.22576-3-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
 Cc: robh+dt@kernel.org, mark.rutland@arm.com, mchehab+samsung@kernel.org, colyli@suse.de, ckeepax@opensource.wolfsonmicro.com, andrew.smirnov@gmail.com, arnd@arndb.de, xiaotong.lu@spreadtrum.com, xc-racer2@live.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 25, 2019 at 06:50:42PM +0100, Paweł Chmiel wrote:
+On Fri, Jan 25, 2019 at 06:50:43PM +0100, Paweł Chmiel wrote:
 > From: Jonathan Bakker <xc-racer2@live.ca>
 > 
-> Simplify cleanup of failures by using managed resource helpers
+> The gp2a driver previously only supported the proximity part of the
+> sensor while the hardware supports both.
 > 
 > Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
 > Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 > ---
->  drivers/input/misc/gp2ap002a00f.c | 37 ++++++++++---------------------
->  1 file changed, 12 insertions(+), 25 deletions(-)
+>  drivers/input/misc/Kconfig         |  2 +
+>  drivers/input/misc/gp2ap002a00f.c  | 71 +++++++++++++++++++++++++++++-
+>  include/linux/input/gp2ap002a00f.h |  4 ++
+>  3 files changed, 76 insertions(+), 1 deletion(-)
 > 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index ca59a2be9bc5..a532efb4e6d8 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -252,6 +252,8 @@ config INPUT_GP2A
+>  	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
+>  	depends on I2C
+>  	depends on GPIOLIB || COMPILE_TEST
+> +	depends on IIO
+> +	select INPUT_POLLDEV
+>  	help
+>  	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
+>  	  hooked to an I2C bus.
 > diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
-> index c6a29e57b5e4..79c8c4c56d1a 100644
+> index 79c8c4c56d1a..090c8c313295 100644
 > --- a/drivers/input/misc/gp2ap002a00f.c
 > +++ b/drivers/input/misc/gp2ap002a00f.c
-> @@ -138,14 +138,15 @@ static int gp2a_probe(struct i2c_client *client,
->  			return error;
->  	}
+> @@ -10,9 +10,12 @@
+>   */
 >  
-> -	error = gpio_request_one(pdata->vout_gpio, GPIOF_IN, GP2A_I2C_NAME);
-> +	error = devm_gpio_request_one(&client->dev, pdata->vout_gpio,
-> +				      GPIOF_IN, GP2A_I2C_NAME);
->  	if (error)
->  		goto err_hw_shutdown;
+>  #include <linux/i2c.h>
+> +#include <linux/iio/consumer.h>
+> +#include <linux/iio/iio.h>
+>  #include <linux/irq.h>
+>  #include <linux/slab.h>
+>  #include <linux/input.h>
+> +#include <linux/input-polldev.h>
+>  #include <linux/module.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/gpio.h>
+> @@ -20,7 +23,9 @@
+>  #include <linux/input/gp2ap002a00f.h>
 >  
-> -	dt = kzalloc(sizeof(struct gp2a_data), GFP_KERNEL);
-> +	dt = devm_kzalloc(&client->dev, sizeof(struct gp2a_data), GFP_KERNEL);
->  	if (!dt) {
->  		error = -ENOMEM;
-> -		goto err_free_gpio;
-> +		goto err_hw_shutdown;
->  	}
+>  struct gp2a_data {
+> +	struct iio_channel *channel;
+>  	struct input_dev *input;
+> +	struct input_polled_dev *poll_dev;
+>  	const struct gp2a_platform_data *pdata;
+>  	struct i2c_client *i2c_client;
+>  };
+> @@ -58,6 +63,19 @@ static irqreturn_t gp2a_irq(int irq, void *handle)
+>  	return IRQ_HANDLED;
+>  }
 >  
->  	dt->pdata = pdata;
-> @@ -153,12 +154,12 @@ static int gp2a_probe(struct i2c_client *client,
->  
->  	error = gp2a_initialize(dt);
->  	if (error < 0)
-> -		goto err_free_mem;
-> +		goto err_hw_shutdown;
->  
-> -	dt->input = input_allocate_device();
-> +	dt->input = devm_input_allocate_device(&client->dev);
->  	if (!dt->input) {
->  		error = -ENOMEM;
-> -		goto err_free_mem;
-> +		goto err_hw_shutdown;
->  	}
->  
->  	input_set_drvdata(dt->input, dt);
-> @@ -171,19 +172,18 @@ static int gp2a_probe(struct i2c_client *client,
->  
->  	input_set_capability(dt->input, EV_SW, SW_FRONT_PROXIMITY);
->  
-> -	error = request_threaded_irq(client->irq, NULL, gp2a_irq,
-> -			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
-> -				IRQF_ONESHOT,
-> -			GP2A_I2C_NAME, dt);
-> +	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +			gp2a_irq, IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
-> +			IRQF_ONESHOT, GP2A_I2C_NAME, dt);
->  	if (error) {
->  		dev_err(&client->dev, "irq request failed\n");
-> -		goto err_free_input_dev;
-> +		goto err_hw_shutdown;
->  	}
->  
->  	error = input_register_device(dt->input);
->  	if (error) {
->  		dev_err(&client->dev, "device registration failed\n");
-> -		goto err_free_irq;
-> +		goto err_hw_shutdown;
->  	}
->  
->  	device_init_wakeup(&client->dev, pdata->wakeup);
-> @@ -191,14 +191,6 @@ static int gp2a_probe(struct i2c_client *client,
->  
->  	return 0;
->  
-> -err_free_irq:
-> -	free_irq(client->irq, dt);
-> -err_free_input_dev:
-> -	input_free_device(dt->input);
-> -err_free_mem:
-> -	kfree(dt);
-> -err_free_gpio:
-> -	gpio_free(pdata->vout_gpio);
->  err_hw_shutdown:
->  	if (pdata->hw_shutdown)
->  		pdata->hw_shutdown(client);
-> @@ -210,12 +202,7 @@ static int gp2a_remove(struct i2c_client *client)
->  	struct gp2a_data *dt = i2c_get_clientdata(client);
->  	const struct gp2a_platform_data *pdata = dt->pdata;
->  
-> -	free_irq(client->irq, dt);
-> -
->  	input_unregister_device(dt->input);
+> +static void gp2a_poll(struct input_polled_dev *dev)
+> +{
+> +	struct gp2a_data *dt = dev->private;
+> +	int ret, value;
+> +
+> +	ret = iio_read_channel_processed(dt->channel, &value);
+> +	if (ret < 0)
+> +		dev_err(&dt->i2c_client->dev, "failed to read value!");
+> +
+> +	input_report_abs(dev->input, ABS_MISC, value);
+> +	input_sync(dev->input);
 
-You do not need explicitly unregister input device if it is managed
-(allocated with devm).
-
-> -	kfree(dt);
-> -
-> -	gpio_free(pdata->vout_gpio);
->  
->  	if (pdata->hw_shutdown)
->  		pdata->hw_shutdown(client);
-
-This is however is wrong, as you can't shutdown hardware before
-disapling/freeing IRQ, etc. Given that there are no users of
-gp2a_platform_data in kernel I'd recommend creating a preparatory patch
-removing platform data support from the driver.
-
-Thanks.
+No, light sensor is not an input device, keep it in IIO please.
 
 -- 
 Dmitry

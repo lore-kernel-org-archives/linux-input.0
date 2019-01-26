@@ -1,102 +1,79 @@
-From: Jonathan Bakker <xc-racer2@live.ca>
-Subject: Re: [PATCH 1/3] input: misc: bma150: Use managed resources helpers
-Date: Sat, 26 Jan 2019 03:40:38 +0000
-Message-ID: <BYAPR02MB549573B44BDD22147A8375F9A3940@BYAPR02MB5495.namprd02.prod.outlook.com>
-References: <20190125184400.17669-1-pawel.mikolaj.chmiel@gmail.com>
- <20190125184400.17669-2-pawel.mikolaj.chmiel@gmail.com>
- <20190126012909.GE212026@dtor-ws>
+From: Jakub Bogusz <qboosh@pld-linux.org>
+Subject: Re: [PATCH][RESEND] wistron_btns needs executable BIOS image
+Date: Sat, 26 Jan 2019 09:23:22 +0100
+Message-ID: <20190126082321.GA6792@mail>
+References: <20170731182010.GA933@stranger.qboosh.pl> <20190125191437.GA25902@stranger.qboosh.pl> <20190125211349.nfbbcuaip5y6l5dr@dcvr> <CAKdAkRSZ6cT=fO42YG320Po6cYtWaPgg2puAf5jMnC+hD+Em2g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190126012909.GE212026@dtor-ws>
-Content-Language: en-US
-Content-ID: <F9BB699F09736B45A593C4DEFA8930F5@namprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <CAKdAkRSZ6cT=fO42YG320Po6cYtWaPgg2puAf5jMnC+hD+Em2g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?utf-8?B?UGF3ZcWCIENobWllbA==?= <pawel.mikolaj.chmiel@gmail.com>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Eric Wong <e@80x24.org>, lkml <linux-kernel@vger.kernel.org>, Miloslav Trmac <mitr@volny.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-DQoNCk9uIDIwMTktMDEtMjUgNToyOSBwLm0uLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+IE9u
-IEZyaSwgSmFuIDI1LCAyMDE5IGF0IDA3OjQzOjU4UE0gKzAxMDAsIFBhd2XFgiBDaG1pZWwgd3Jv
-dGU6DQo+PiBGcm9tOiBKb25hdGhhbiBCYWtrZXIgPHhjLXJhY2VyMkBsaXZlLmNhPg0KPj4NCj4+
-IFRoZSBkcml2ZXIgY2FuIGJlIGNsZWFuZWQgdXAgYnkgdXNpbmcgbWFuYWdlZCByZXNvdXJjZSBo
-ZWxwZXJzDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTogSm9uYXRoYW4gQmFra2VyIDx4Yy1yYWNlcjJA
-bGl2ZS5jYT4NCj4+IFNpZ25lZC1vZmYtYnk6IFBhd2XFgiBDaG1pZWwgPHBhd2VsLm1pa29sYWou
-Y2htaWVsQGdtYWlsLmNvbT4NCj4+IC0tLQ0KPj4gIGRyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAu
-YyB8IDQwICsrKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4+ICAxIGZpbGUg
-Y2hhbmdlZCwgMTQgaW5zZXJ0aW9ucygrKSwgMjYgZGVsZXRpb25zKC0pDQo+Pg0KPj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAuYyBiL2RyaXZlcnMvaW5wdXQvbWlzYy9i
-bWExNTAuYw0KPj4gaW5kZXggMWVmY2ZkZjlmOGE4Li5kMTAxYmIwYTMzZDYgMTAwNjQ0DQo+PiAt
-LS0gYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj4+ICsrKyBiL2RyaXZlcnMvaW5wdXQv
-bWlzYy9ibWExNTAuYw0KPj4gQEAgLTQ3MSw3ICs0NzEsNyBAQCBzdGF0aWMgaW50IGJtYTE1MF9y
-ZWdpc3Rlcl9pbnB1dF9kZXZpY2Uoc3RydWN0IGJtYTE1MF9kYXRhICpibWExNTApDQo+PiAgCXN0
-cnVjdCBpbnB1dF9kZXYgKmlkZXY7DQo+PiAgCWludCBlcnJvcjsNCj4+ICANCj4+IC0JaWRldiA9
-IGlucHV0X2FsbG9jYXRlX2RldmljZSgpOw0KPj4gKwlpZGV2ID0gZGV2bV9pbnB1dF9hbGxvY2F0
-ZV9kZXZpY2UoJmJtYTE1MC0+Y2xpZW50LT5kZXYpOw0KPj4gIAlpZiAoIWlkZXYpDQo+PiAgCQly
-ZXR1cm4gLUVOT01FTTsNCj4+ICANCj4+IEBAIC00ODIsMTAgKzQ4Miw4IEBAIHN0YXRpYyBpbnQg
-Ym1hMTUwX3JlZ2lzdGVyX2lucHV0X2RldmljZShzdHJ1Y3QgYm1hMTUwX2RhdGEgKmJtYTE1MCkN
-Cj4+ICAJaW5wdXRfc2V0X2RydmRhdGEoaWRldiwgYm1hMTUwKTsNCj4+ICANCj4+ICAJZXJyb3Ig
-PSBpbnB1dF9yZWdpc3Rlcl9kZXZpY2UoaWRldik7DQo+PiAtCWlmIChlcnJvcikgew0KPj4gLQkJ
-aW5wdXRfZnJlZV9kZXZpY2UoaWRldik7DQo+PiArCWlmIChlcnJvcikNCj4+ICAJCXJldHVybiBl
-cnJvcjsNCj4+IC0JfQ0KPj4gIA0KPj4gIAlibWExNTAtPmlucHV0ID0gaWRldjsNCj4+ICAJcmV0
-dXJuIDA7DQo+PiBAQCAtNDk2LDcgKzQ5NCw3IEBAIHN0YXRpYyBpbnQgYm1hMTUwX3JlZ2lzdGVy
-X3BvbGxlZF9kZXZpY2Uoc3RydWN0IGJtYTE1MF9kYXRhICpibWExNTApDQo+PiAgCXN0cnVjdCBp
-bnB1dF9wb2xsZWRfZGV2ICppcG9sbF9kZXY7DQo+PiAgCWludCBlcnJvcjsNCj4+ICANCj4+IC0J
-aXBvbGxfZGV2ID0gaW5wdXRfYWxsb2NhdGVfcG9sbGVkX2RldmljZSgpOw0KPj4gKwlpcG9sbF9k
-ZXYgPSBkZXZtX2lucHV0X2FsbG9jYXRlX3BvbGxlZF9kZXZpY2UoJmJtYTE1MC0+Y2xpZW50LT5k
-ZXYpOw0KPj4gIAlpZiAoIWlwb2xsX2RldikNCj4+ICAJCXJldHVybiAtRU5PTUVNOw0KPj4gIA0K
-Pj4gQEAgLTUxMSwxMCArNTA5LDggQEAgc3RhdGljIGludCBibWExNTBfcmVnaXN0ZXJfcG9sbGVk
-X2RldmljZShzdHJ1Y3QgYm1hMTUwX2RhdGEgKmJtYTE1MCkNCj4+ICAJYm1hMTUwX2luaXRfaW5w
-dXRfZGV2aWNlKGJtYTE1MCwgaXBvbGxfZGV2LT5pbnB1dCk7DQo+PiAgDQo+PiAgCWVycm9yID0g
-aW5wdXRfcmVnaXN0ZXJfcG9sbGVkX2RldmljZShpcG9sbF9kZXYpOw0KPj4gLQlpZiAoZXJyb3Ip
-IHsNCj4+IC0JCWlucHV0X2ZyZWVfcG9sbGVkX2RldmljZShpcG9sbF9kZXYpOw0KPj4gKwlpZiAo
-ZXJyb3IpDQo+PiAgCQlyZXR1cm4gZXJyb3I7DQo+PiAtCX0NCj4+ICANCj4+ICAJYm1hMTUwLT5p
-bnB1dF9wb2xsZWQgPSBpcG9sbF9kZXY7DQo+PiAgCWJtYTE1MC0+aW5wdXQgPSBpcG9sbF9kZXYt
-PmlucHV0Ow0KPj4gQEAgLTU0Myw3ICs1MzksOCBAQCBzdGF0aWMgaW50IGJtYTE1MF9wcm9iZShz
-dHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPj4gIAkJcmV0dXJuIC1FSU5WQUw7DQo+PiAgCX0N
-Cj4+ICANCj4+IC0JYm1hMTUwID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IGJtYTE1MF9kYXRhKSwg
-R0ZQX0tFUk5FTCk7DQo+PiArCWJtYTE1MCA9IGRldm1fa3phbGxvYygmY2xpZW50LT5kZXYsIHNp
-emVvZihzdHJ1Y3QgYm1hMTUwX2RhdGEpLA0KPj4gKwkJCSAgICAgIEdGUF9LRVJORUwpOw0KPj4g
-IAlpZiAoIWJtYTE1MCkNCj4+ICAJCXJldHVybiAtRU5PTUVNOw0KPj4gIA0KPj4gQEAgLTU1Niw3
-ICs1NTMsNyBAQCBzdGF0aWMgaW50IGJtYTE1MF9wcm9iZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xp
-ZW50LA0KPj4gIAkJCQlkZXZfZXJyKCZjbGllbnQtPmRldiwNCj4+ICAJCQkJCSJJUlEgR1BJTyBj
-b25mLiBlcnJvciAlZCwgZXJyb3IgJWRcbiIsDQo+PiAgCQkJCQljbGllbnQtPmlycSwgZXJyb3Ip
-Ow0KPj4gLQkJCQlnb3RvIGVycl9mcmVlX21lbTsNCj4+ICsJCQkJcmV0dXJuIGVycm9yOw0KPj4g
-IAkJCX0NCj4+ICAJCX0NCj4+ICAJCWNmZyA9ICZwZGF0YS0+Y2ZnOw0KPj4gQEAgLTU2NiwxNCAr
-NTYzLDE0IEBAIHN0YXRpYyBpbnQgYm1hMTUwX3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGll
-bnQsDQo+PiAgDQo+PiAgCWVycm9yID0gYm1hMTUwX2luaXRpYWxpemUoYm1hMTUwLCBjZmcpOw0K
-Pj4gIAlpZiAoZXJyb3IpDQo+PiAtCQlnb3RvIGVycl9mcmVlX21lbTsNCj4+ICsJCXJldHVybiBl
-cnJvcjsNCj4+ICANCj4+ICAJaWYgKGNsaWVudC0+aXJxID4gMCkgew0KPj4gIAkJZXJyb3IgPSBi
-bWExNTBfcmVnaXN0ZXJfaW5wdXRfZGV2aWNlKGJtYTE1MCk7DQo+PiAgCQlpZiAoZXJyb3IpDQo+
-PiAtCQkJZ290byBlcnJfZnJlZV9tZW07DQo+PiArCQkJcmV0dXJuIGVycm9yOw0KPj4gIA0KPj4g
-LQkJZXJyb3IgPSByZXF1ZXN0X3RocmVhZGVkX2lycShjbGllbnQtPmlycSwNCj4+ICsJCWVycm9y
-ID0gZGV2bV9yZXF1ZXN0X3RocmVhZGVkX2lycSgmY2xpZW50LT5kZXYsIGNsaWVudC0+aXJxLA0K
-Pj4gIAkJCQkJTlVMTCwgYm1hMTUwX2lycV90aHJlYWQsDQo+PiAgCQkJCQlJUlFGX1RSSUdHRVJf
-UklTSU5HIHwgSVJRRl9PTkVTSE9ULA0KPj4gIAkJCQkJQk1BMTUwX0RSSVZFUiwgYm1hMTUwKTsN
-Cj4+IEBAIC01ODIsMTIgKzU3OSwxMiBAQCBzdGF0aWMgaW50IGJtYTE1MF9wcm9iZShzdHJ1Y3Qg
-aTJjX2NsaWVudCAqY2xpZW50LA0KPj4gIAkJCQkiaXJxIHJlcXVlc3QgZmFpbGVkICVkLCBlcnJv
-ciAlZFxuIiwNCj4+ICAJCQkJY2xpZW50LT5pcnEsIGVycm9yKTsNCj4+ICAJCQlpbnB1dF91bnJl
-Z2lzdGVyX2RldmljZShibWExNTAtPmlucHV0KTsNCj4gDQo+IE5vIG5lZWQgdG8gdW5yZWdpc3Rl
-ciBtYW51YWxseSBpZiB5b3UgYXJlIHVzaW5nIGRldm0uDQpPaywgZ290IGl0LCB3aWxsIGZpeC4g
-IEkgc2VlbWVkIHRvIGRvIHRoaXMgYSBsb3QgOikNCj4gDQo+PiAtCQkJZ290byBlcnJfZnJlZV9t
-ZW07DQo+PiArCQkJcmV0dXJuIGVycm9yOw0KPj4gIAkJfQ0KPj4gIAl9IGVsc2Ugew0KPj4gIAkJ
-ZXJyb3IgPSBibWExNTBfcmVnaXN0ZXJfcG9sbGVkX2RldmljZShibWExNTApOw0KPj4gIAkJaWYg
-KGVycm9yKQ0KPj4gLQkJCWdvdG8gZXJyX2ZyZWVfbWVtOw0KPj4gKwkJCXJldHVybiBlcnJvcjsN
-Cj4+ICAJfQ0KPj4gIA0KPj4gIAlpMmNfc2V0X2NsaWVudGRhdGEoY2xpZW50LCBibWExNTApOw0K
-Pj4gQEAgLTU5NSwxMCArNTkyLDYgQEAgc3RhdGljIGludCBibWExNTBfcHJvYmUoc3RydWN0IGky
-Y19jbGllbnQgKmNsaWVudCwNCj4+ICAJcG1fcnVudGltZV9lbmFibGUoJmNsaWVudC0+ZGV2KTsN
-Cj4+ICANCj4+ICAJcmV0dXJuIDA7DQo+PiAtDQo+PiAtZXJyX2ZyZWVfbWVtOg0KPj4gLQlrZnJl
-ZShibWExNTApOw0KPj4gLQlyZXR1cm4gZXJyb3I7DQo+PiAgfQ0KPj4gIA0KPj4gIHN0YXRpYyBp
-bnQgYm1hMTUwX3JlbW92ZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQ0KPj4gQEAgLTYwNywx
-NSArNjAwLDEwIEBAIHN0YXRpYyBpbnQgYm1hMTUwX3JlbW92ZShzdHJ1Y3QgaTJjX2NsaWVudCAq
-Y2xpZW50KQ0KPj4gIA0KPj4gIAlwbV9ydW50aW1lX2Rpc2FibGUoJmNsaWVudC0+ZGV2KTsNCj4+
-ICANCj4+IC0JaWYgKGNsaWVudC0+aXJxID4gMCkgew0KPj4gLQkJZnJlZV9pcnEoY2xpZW50LT5p
-cnEsIGJtYTE1MCk7DQo+PiArCWlmIChjbGllbnQtPmlycSA+IDApDQo+PiAgCQlpbnB1dF91bnJl
-Z2lzdGVyX2RldmljZShibWExNTAtPmlucHV0KTsNCj4gDQo+IEhlcmUgYXMgd2VsbC4NCj4gDQo+
-PiAtCX0gZWxzZSB7DQo+PiArCWVsc2UNCj4+ICAJCWlucHV0X3VucmVnaXN0ZXJfcG9sbGVkX2Rl
-dmljZShibWExNTAtPmlucHV0X3BvbGxlZCk7DQo+IA0KPiBBbmQgaGVyZS4NCj4gDQo+PiAtCQlp
-bnB1dF9mcmVlX3BvbGxlZF9kZXZpY2UoYm1hMTUwLT5pbnB1dF9wb2xsZWQpOw0KPj4gLQl9DQo+
-PiAtDQo+PiAtCWtmcmVlKGJtYTE1MCk7DQo+PiAgDQo+PiAgCXJldHVybiAwOw0KPj4gIH0NCj4+
-IC0tIA0KPj4gMi4xNy4xDQo+Pg0KPiANCj4gVGhhbmtzLg0KPiANClRoYW5rcywNCkpvbmF0aGFu
-DQo=
+On Fri, Jan 25, 2019 at 01:41:47PM -0800, Dmitry Torokhov wrote:
+> On Fri, Jan 25, 2019 at 1:13 PM Eric Wong <e@80x24.org> wrote:
+> >
+> > Jakub Bogusz <qboosh@pld-linux.org> wrote:
+> > > Let's try once again... (take 3)
+> > >
+> > > First time I sent this patch when I prepared it in 2013 for Linux 3.12,
+> > > the second time after update for Linux 4.12 in 2017...
+> > > And it still applies to Linux 4.20.
+> >
+> > Adding Dmitry Torokhov and linux-input to Cc:
+> > (that's what ./scripts/get_maintainer.pl says)
+
+Thanks. I was aware only of MAINTAINERS file.
+
+[...]
+> > > wistron_btns needs executable BIOS image.
+> > >
+> > > Signed-off-by: Jakub Bogusz <qboosh@pld-linux.org>
+> > >
+> > > --- linux-4.12/drivers/input/misc/wistron_btns.c.orig 2013-11-16 09:05:55.612742472 +0100
+> > > +++ linux-4.12/drivers/input/misc/wistron_btns.c      2013-11-16 09:24:37.356028732 +0100
+> > > @@ -33,6 +33,7 @@
+> > >  #include <linux/types.h>
+> > >  #include <linux/platform_device.h>
+> > >  #include <linux/leds.h>
+> > > +#include <asm/set_memory.h>
+> > >
+> > >  /* How often we poll keys - msecs */
+> > >  #define POLL_INTERVAL_DEFAULT        500 /* when idle */
+> > > @@ -124,6 +125,7 @@
+> > >       if (entry_point >= 0xF0000) {
+> > >               bios_code_map_base = base;
+> > >               bios_entry_point = bios_code_map_base + (entry_point & 0xFFFF);
+> > > +             set_memory_x((unsigned long)bios_code_map_base, 0x10000 >> PAGE_SHIFT);
+> > >       } else {
+> > >               iounmap(base);
+> > >               bios_code_map_base = ioremap(entry_point & ~0x3FFF, 0x4000);
+> > > @@ -134,6 +136,7 @@
+> > >                       goto err;
+> > >               }
+> > >               bios_entry_point = bios_code_map_base + (entry_point & 0x3FFF);
+> > > +             set_memory_x((unsigned long)bios_code_map_base, 0x4000 >> PAGE_SHIFT);
+> > >       }
+> > >       /* The Windows driver maps 0x10000 bytes, we keep only one page... */
+> > >       bios_data_map_base = ioremap(0x400, 0xc00);
+> 
+> It is really weird have __iomem region to have executable bit set. I
+> wonder if, along with the setting memory to X, we should not change
+> that ioremap() to memremap()?
+
+Maybe... this is area of BIOS ROM, not I/O. But I'm not sure about
+cacheability.
+
+Looking at recent kernel code (4.19 to be exact) ioremap ends in
+__ioremap_caller with _PAGE_CACHE_MODE_UC_MINUS, while memremap would end
+in __ioremap_caller with e.g. (depending on flags) _PAGE_CACHE_MODE_WT.
+
+Unfortunately now I have rare access to this hardware (FS Amilo) to
+test.
+
+
+-- 
+Jakub Bogusz    http://qboosh.pl/

@@ -1,86 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH][RESEND] wistron_btns needs executable BIOS image
-Date: Fri, 25 Jan 2019 13:41:47 -0800
-Message-ID: <CAKdAkRSZ6cT=fO42YG320Po6cYtWaPgg2puAf5jMnC+hD+Em2g@mail.gmail.com>
-References: <20170731182010.GA933@stranger.qboosh.pl> <20190125191437.GA25902@stranger.qboosh.pl>
- <20190125211349.nfbbcuaip5y6l5dr@dcvr>
+Subject: Re: [PATCH v2 2/2] Input: st1232 - add support for st1633
+Date: Fri, 25 Jan 2019 16:55:36 -0800
+Message-ID: <20190126005536.GA212026@dtor-ws>
+References: <20190124102125.25458-1-martink@posteo.de>
+ <20190124102125.25458-2-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190125211349.nfbbcuaip5y6l5dr@dcvr>
+Content-Disposition: inline
+In-Reply-To: <20190124102125.25458-2-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eric Wong <e@80x24.org>
-Cc: Jakub Bogusz <qboosh@pld-linux.org>, lkml <linux-kernel@vger.kernel.org>, Miloslav Trmac <mitr@volny.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Martin Kepplinger <martink@posteo.de>
+Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, chinyeow.sim.xt@renesas.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 25, 2019 at 1:13 PM Eric Wong <e@80x24.org> wrote:
->
-> Jakub Bogusz <qboosh@pld-linux.org> wrote:
-> > Let's try once again... (take 3)
-> >
-> > First time I sent this patch when I prepared it in 2013 for Linux 3.12,
-> > the second time after update for Linux 4.12 in 2017...
-> > And it still applies to Linux 4.20.
->
-> Adding Dmitry Torokhov and linux-input to Cc:
-> (that's what ./scripts/get_maintainer.pl says)
->
-> > Actual description in forwarded message.
-> >
-> >
-> > --
-> > Jakub Bogusz    http://qboosh.pl/
->
-> > From: Jakub Bogusz <qboosh@pld-linux.org>
-> > To: linux-kernel@vger.kernel.org, mitr@volny.cz
-> > Subject: [PATCH] wistron_btns needs executable BIOS image
-> >
-> > Hello,
-> >
-> > This patch (originally agains 3.1x, now I updated include to build
-> > against 4.12.x) fixes winstron_btns module issue with calling BIOS
-> > functions in non-executable memory.
-> >
-> > Tested (on Linux 3.10.x and few later versions) on F-S Amilo 8210 laptop.
-> >
-> >
-> > --
-> > Jakub Bogusz    http://qboosh.pl/
->
-> > wistron_btns needs executable BIOS image.
-> >
-> > Signed-off-by: Jakub Bogusz <qboosh@pld-linux.org>
-> >
-> > --- linux-4.12/drivers/input/misc/wistron_btns.c.orig 2013-11-16 09:05:55.612742472 +0100
-> > +++ linux-4.12/drivers/input/misc/wistron_btns.c      2013-11-16 09:24:37.356028732 +0100
-> > @@ -33,6 +33,7 @@
-> >  #include <linux/types.h>
-> >  #include <linux/platform_device.h>
-> >  #include <linux/leds.h>
-> > +#include <asm/set_memory.h>
-> >
-> >  /* How often we poll keys - msecs */
-> >  #define POLL_INTERVAL_DEFAULT        500 /* when idle */
-> > @@ -124,6 +125,7 @@
-> >       if (entry_point >= 0xF0000) {
-> >               bios_code_map_base = base;
-> >               bios_entry_point = bios_code_map_base + (entry_point & 0xFFFF);
-> > +             set_memory_x((unsigned long)bios_code_map_base, 0x10000 >> PAGE_SHIFT);
-> >       } else {
-> >               iounmap(base);
-> >               bios_code_map_base = ioremap(entry_point & ~0x3FFF, 0x4000);
-> > @@ -134,6 +136,7 @@
-> >                       goto err;
-> >               }
-> >               bios_entry_point = bios_code_map_base + (entry_point & 0x3FFF);
-> > +             set_memory_x((unsigned long)bios_code_map_base, 0x4000 >> PAGE_SHIFT);
-> >       }
-> >       /* The Windows driver maps 0x10000 bytes, we keep only one page... */
-> >       bios_data_map_base = ioremap(0x400, 0xc00);
+Hi Martin,
 
-It is really weird have __iomem region to have executable bit set. I
-wonder if, along with the setting memory to X, we should not change
-that ioremap() to memremap()?
+On Thu, Jan 24, 2019 at 11:21:25AM +0100, Martin Kepplinger wrote:
+> From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> 
+> Add support for the Sitronix ST1633 touchscreen controller to the st1232
+> driver. A protocol spec can be found here:
+> www.ampdisplay.com/documents/pdf/AM-320480B6TZQW-TC0H.pdf
+> 
+> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> ---
+> 
+> while this works, I'm not totally convinced by how the i2c path of probe
+> looks. what do you say?
+
+Not quite what I had in mind. See below...
+
+>  static int st1232_ts_probe(struct i2c_client *client,
+>  			   const struct i2c_device_id *id)
+>  {
+>  	struct st1232_ts_data *ts;
+> +	struct st1232_ts_finger *finger;
+>  	struct input_dev *input_dev;
+>  	int error;
+> +	const struct st_chip_info *match = NULL;
+> +
+> +	if (dev_fwnode(&client->dev))
+> +		match = device_get_match_data(&client->dev);
+> +	else if (id && id->driver_data == st1232)
+> +		match = &st1232_chip_info;
+> +	else if (id && id->driver_data == st1633)
+> +		match = &st1633_chip_info;
+> +	if (!match) {
+> +		dev_err(&client->dev, "unknown device model\n");
+> +		return -ENODEV;
+> +	}
+
+If you do:
+
+static const struct i2c_device_id st1232_ts_id[] = {
+	{ ST1232_TS_NAME, (unsigned long)&st1232_chip_info },
+	{ ST1633_TS_NAME, (unsigned long)&st1633_chip_info },
+	{ }
+};
+
+
+Then you can do:
+
+	match = device_get_match_data(&client->dev);
+	if (!match && id)
+		match = (const void *)id->driver_data;
+	if (!match) {
+		dev_err(&client->dev, "unknown device model\n");
+		return -ENODEV;
+	}
 
 Thanks.
 

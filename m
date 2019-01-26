@@ -1,47 +1,138 @@
-From: =?UTF-8?Q?Tobias_V=c3=b6geli?= <tobias@voegeli.com>
-Subject: Re: [PATCH] input: elan_i2c: Add ACPI ID for touchpad in Lenovo
- V130-15IGM
-Date: Sat, 26 Jan 2019 22:14:07 +0100
-Message-ID: <ebaf58f8-328f-9f3a-c5c8-086274063f2c@voegeli.com>
-References: <20190126154856.14060-1-tobias@voegeli.com>
+From: Ken Sloat <ken.sloat@ohmlinxelectronics.com>
+Subject: Re: [bug report] Input: add st-keyscan driver
+Date: Sat, 26 Jan 2019 16:25:32 -0500
+Message-ID: <CAPo_4QB+ozVESD85d2qxuitgvgPgLvrjx9SyEMfFTGvkz4MjWg@mail.gmail.com>
+References: <20190122185351.GA28627@kadam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190126154856.14060-1-tobias@voegeli.com>
-Content-Language: en-US
+In-Reply-To: <20190122185351.GA28627@kadam>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?Q?Tobias_V=c3=b6geli?= <tobias@voegeli.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Ken Sloat <Ken.sloat@ohmlinxelectronics.com>, gabriel.fernandez@st.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, Nate Drude <nate.drude@ohmlinxelectronics.com>
 List-Id: linux-input@vger.kernel.org
 
-Not sure if the last mail went trough, so here again:
-
-Forget this patch, I did some further testing and even though the touchpad works, it generates some dmesg messages. I have to take a closer look into this.
-
-Sorry for the spam.
-
-Tobias
-
-
-> From: Tobias Vögeli <tobias@voegeli.com>
+On Tue, Jan 22, 2019 at 1:53 PM Dan Carpenter <dan.carpenter@oracle.com> wrote:
 >
-> Add ELAN061A to the ACPI table to support the touchpad of the Lenovo V130-15IGM.
+> Hello Gabriel FERNANDEZ,
+
+Hello Dan,
+
+I have added CCs for the maintainers as well as Gabriel Fernandez as
+currently you just have the linux-input mailing list
+
+> The patch 062589b13991: "Input: add st-keyscan driver" from Apr 12,
+> 2014, leads to the following static checker warning:
 >
-> Signed-off-by: Tobias Vögeli <tobias@voegeli.com>
-> ---
->   drivers/input/mouse/elan_i2c_core.c | 1 +
->   1 file changed, 1 insertion(+)
+>         drivers/input/keyboard/st-keyscan.c:156 keyscan_probe()
+>         error: potential zalloc NULL dereference: 'keypad_data->input_dev'
 >
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index f322a1768fbb..4998b7007201 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -1347,6 +1347,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
->   	{ "ELAN0611", 0 },
->   	{ "ELAN0612", 0 },
->   	{ "ELAN0618", 0 },
-> +	{ "ELAN061A", 0 },
->   	{ "ELAN061C", 0 },
->   	{ "ELAN061D", 0 },
->   	{ "ELAN061E", 0 },
+> drivers/input/keyboard/st-keyscan.c
+>     125 static int keyscan_probe(struct platform_device *pdev)
+>     126 {
+>     127         struct st_keyscan *keypad_data;
+>     128         struct input_dev *input_dev;
+>     129         struct resource *res;
+>     130         int error;
+>     131
+>     132         if (!pdev->dev.of_node) {
+>     133                 dev_err(&pdev->dev, "no DT data present\n");
+>     134                 return -EINVAL;
+>     135         }
+>     136
+>     137         keypad_data = devm_kzalloc(&pdev->dev, sizeof(*keypad_data),
+>     138                                    GFP_KERNEL);
+>     139         if (!keypad_data)
+>     140                 return -ENOMEM;
+>     141
+>     142         input_dev = devm_input_allocate_device(&pdev->dev);
+>     143         if (!input_dev) {
+>     144                 dev_err(&pdev->dev, "failed to allocate the input device\n");
+>     145                 return -ENOMEM;
+>     146         }
+>     147
+>     148         input_dev->name = pdev->name;
+>     149         input_dev->phys = "keyscan-keys/input0";
+>     150         input_dev->dev.parent = &pdev->dev;
+>     151         input_dev->open = keyscan_open;
+>     152         input_dev->close = keyscan_close;
+>     153
+>     154         input_dev->id.bustype = BUS_HOST;
+>     155
+> --> 156         error = keypad_matrix_key_parse_dt(keypad_data);
+>                                                    ^^^^^^^^^^^
+I agree with you this would be a problem
+to clarify the NULL derefence would occur here within keypad_matrix_key_parse_dt
+
+struct device *dev = keypad_data->input_dev->dev.parent;
+
+> This assumes we have set "keypad_data->input_dev = input_dev;" but we
+> don't do that until...
+>
+>     157         if (error)
+>     158                 return error;
+>     159
+>     160         error = matrix_keypad_build_keymap(NULL, NULL,
+>     161                                            keypad_data->n_rows,
+>     162                                            keypad_data->n_cols,
+>     163                                            NULL, input_dev);
+>     164         if (error) {
+>     165                 dev_err(&pdev->dev, "failed to build keymap\n");
+>     166                 return error;
+>     167         }
+>     168
+>     169         input_set_drvdata(input_dev, keypad_data);
+>     170
+>     171         keypad_data->input_dev = input_dev;
+>                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>
+> this line here.  This driver has never worked and it was included almost
+> five years ago.  Is it worth fixing?
+>
+>     172
+>     173         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>     174         keypad_data->base = devm_ioremap_resource(&pdev->dev, res);
+>     175         if (IS_ERR(keypad_data->base))
+>     176                 return PTR_ERR(keypad_data->base);
+>     177
+>
+> regards,
+> dan carpenter
+>
+
+Here is the interesting thing, I was looking on patchwork, and several
+of the patches including what appears to be the latest actually set
+"keypad_data->input_dev = input_dev" before calling
+"keypad_matrix_key_parse_dt"
+
+>From v4 on patchwork
++ if (IS_ERR(keypad_data->clk)) {
++ dev_err(&pdev->dev, "cannot get clock");
++ return PTR_ERR(keypad_data->clk);
++ }
++
++ keypad_data->input_dev = input_dev;
++
++ input_dev->name = pdev->name;
++ input_dev->phys = "keyscan-keys/input0";
++ input_dev->dev.parent = &pdev->dev;
++ input_dev->open = keyscan_open;
++ input_dev->close = keyscan_close;
++
++ input_dev->id.bustype = BUS_HOST;
++
++ error = keypad_matrix_key_parse_dt(keypad_data);
+
+According to patchwork, these aren't listed as accepted, so I'm not
+sure where the exact accepted patch came from. Looking at the commit
+log, it looks like the issue you showed above was made in the original
+commit 062589b1399176a9c14bc68e16169f40439d658c so I'm not quite sure
+what is going on here. Maybe the maintainer can chime in with the
+original patch/mailing list discussion on this. For reference, I've
+added the patchwork links below
+https://patchwork.kernel.org/patch/3854341/
+https://patchwork.kernel.org/patch/3968891/
+https://patchwork.kernel.org/patch/3969991/
+
+Thanks,
+Ken Sloat

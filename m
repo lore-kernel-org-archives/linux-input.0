@@ -1,55 +1,37 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: [PATCH 3/3] ARM: dts: lpc32xx: reparent keypad controller to SIC1
-Date: Sat, 26 Jan 2019 16:29:21 +0200
-Message-ID: <20190126142921.16041-4-vz@mleia.com>
-References: <20190126142921.16041-1-vz@mleia.com>
+From: Vladis Dronov <vdronov@redhat.com>
+Subject: Re: [PATCH] HID: debug: fix the ring buffer implementation
+Date: Sat, 26 Jan 2019 10:44:41 -0500 (EST)
+Message-ID: <1280032330.67094297.1548517481057.JavaMail.zimbra@redhat.com>
+References: <20190125095744.3813-1-vdronov@redhat.com> <20190125130113.GA18589@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190126142921.16041-1-vz@mleia.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Sylvain Lemieux <slemieux.tyco@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190125130113.GA18589@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oleg Nesterov <oleg@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-After switching to a new interrupt controller scheme by separating SIC1
-and SIC2 from MIC interrupt controller just one SoC keypad controller
-was not taken into account, fix it now:
+Hello, Oleg, all,
 
-  WARNING: CPU: 0 PID: 1 at kernel/irq/irqdomain.c:524 irq_domain_associate+0x50/0x1b0
-  error: hwirq 0x36 is too large for interrupt-controller@40008000
-  ...
-  lpc32xx_keys 40050000.key: failed to get platform irq
-  lpc32xx_keys: probe of 40050000.key failed with error -22
+Thanks much, Oleg, these are really valuable additions:
 
-Fixes: 9b8ad3fb81ae ("ARM: dts: lpc32xx: reparent SIC1 and SIC2 interrupts from MIC")
-Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
----
- arch/arm/boot/dts/lpc32xx.dtsi | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> suspicious ;) if you add a comment the patch will be even better.
 
-diff --git a/arch/arm/boot/dts/lpc32xx.dtsi b/arch/arm/boot/dts/lpc32xx.dtsi
-index d4368eeff1b9..4f8f671c3343 100644
---- a/arch/arm/boot/dts/lpc32xx.dtsi
-+++ b/arch/arm/boot/dts/lpc32xx.dtsi
-@@ -463,7 +463,8 @@
- 				compatible = "nxp,lpc3220-key";
- 				reg = <0x40050000 0x1000>;
- 				clocks = <&clk LPC32XX_CLK_KEY>;
--				interrupts = <54 IRQ_TYPE_LEVEL_HIGH>;
-+				interrupt-parent = <&sic1>;
-+				interrupts = <22 IRQ_TYPE_LEVEL_HIGH>;
- 				status = "disabled";
- 			};
- 
--- 
-2.20.1
+Great, will do.
+
+> perhaps it make sense to move this check into the "if (kfifo_is_empty())"
+> block.
+
+Indeed, otherwise it kinda breaks the execution logic.
+
+> is kfifo_is_empty() == T really possible here?
+
+It looks like it is not. Reads are guarded by read_mutex and the only other
+code which touches hid_debug_fifo is writer.
+
+I will post v2 here soon. Lets see if it is ready for inclusion.
+
+Best regards,
+Vladis Dronov | Red Hat, Inc. | Product Security | Senior Software Engineer

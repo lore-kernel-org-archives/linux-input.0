@@ -1,11 +1,11 @@
 From: =?UTF-8?Q?Tobias_V=c3=b6geli?= <tobias@voegeli.com>
 Subject: Re: [PATCH] input: elan_i2c: Add ACPI ID for touchpad in Lenovo
  V130-15IGM
-Date: Sat, 26 Jan 2019 21:46:23 +0100
-Message-ID: <7a392798-0c21-a44b-6964-0ba511324fff@voegeli.com>
+Date: Sat, 26 Jan 2019 22:14:07 +0100
+Message-ID: <ebaf58f8-328f-9f3a-c5c8-086274063f2c@voegeli.com>
 References: <20190126154856.14060-1-tobias@voegeli.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190126154856.14060-1-tobias@voegeli.com>
@@ -15,13 +15,14 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: =?UTF-8?Q?Tobias_V=c3=b6geli?= <tobias@voegeli.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Not sure if the last mail went trough, so here again:
+
 Forget this patch, I did some further testing and even though the touchpad works, it generates some dmesg messages. I have to take a closer look into this.
 
 Sorry for the spam.
 
 Tobias
 
-  
 
 > From: Tobias Vögeli <tobias@voegeli.com>
 >

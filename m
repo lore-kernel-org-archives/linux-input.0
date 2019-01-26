@@ -1,91 +1,70 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] input: misc: gp2a: Add support for light sensor
-Date: Fri, 25 Jan 2019 17:18:00 -0800
-Message-ID: <20190126011800.GC212026@dtor-ws>
-References: <20190125175045.22576-1-pawel.mikolaj.chmiel@gmail.com>
- <20190125175045.22576-3-pawel.mikolaj.chmiel@gmail.com>
+Subject: Re: [PATCH 3/3] input: dt-bindings: Add binding for bma150 sensor
+Date: Fri, 25 Jan 2019 17:28:02 -0800
+Message-ID: <20190126012802.GD212026@dtor-ws>
+References: <20190125184400.17669-1-pawel.mikolaj.chmiel@gmail.com>
+ <20190125184400.17669-4-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190125175045.22576-3-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <20190125184400.17669-4-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, mchehab+samsung@kernel.org, colyli@suse.de, ckeepax@opensource.wolfsonmicro.com, andrew.smirnov@gmail.com, arnd@arndb.de, xiaotong.lu@spreadtrum.com, xc-racer2@live.ca, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, xc-racer2@live.ca, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 25, 2019 at 06:50:43PM +0100, Paweł Chmiel wrote:
+On Fri, Jan 25, 2019 at 07:44:00PM +0100, Paweł Chmiel wrote:
 > From: Jonathan Bakker <xc-racer2@live.ca>
 > 
-> The gp2a driver previously only supported the proximity part of the
-> sensor while the hardware supports both.
+> Add device tree bindings for Bosch BMA150 Accelerometer Sensor
 > 
 > Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
 > Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 > ---
->  drivers/input/misc/Kconfig         |  2 +
->  drivers/input/misc/gp2ap002a00f.c  | 71 +++++++++++++++++++++++++++++-
->  include/linux/input/gp2ap002a00f.h |  4 ++
->  3 files changed, 76 insertions(+), 1 deletion(-)
+>  .../bindings/input/bosch,bma150.txt           | 20 +++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/bosch,bma150.txt
 > 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index ca59a2be9bc5..a532efb4e6d8 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -252,6 +252,8 @@ config INPUT_GP2A
->  	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
->  	depends on I2C
->  	depends on GPIOLIB || COMPILE_TEST
-> +	depends on IIO
-> +	select INPUT_POLLDEV
->  	help
->  	  Say Y here if you have a Sharp GP2AP002A00F proximity/als combo-chip
->  	  hooked to an I2C bus.
-> diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
-> index 79c8c4c56d1a..090c8c313295 100644
-> --- a/drivers/input/misc/gp2ap002a00f.c
-> +++ b/drivers/input/misc/gp2ap002a00f.c
-> @@ -10,9 +10,12 @@
->   */
->  
->  #include <linux/i2c.h>
-> +#include <linux/iio/consumer.h>
-> +#include <linux/iio/iio.h>
->  #include <linux/irq.h>
->  #include <linux/slab.h>
->  #include <linux/input.h>
-> +#include <linux/input-polldev.h>
->  #include <linux/module.h>
->  #include <linux/interrupt.h>
->  #include <linux/gpio.h>
-> @@ -20,7 +23,9 @@
->  #include <linux/input/gp2ap002a00f.h>
->  
->  struct gp2a_data {
-> +	struct iio_channel *channel;
->  	struct input_dev *input;
-> +	struct input_polled_dev *poll_dev;
->  	const struct gp2a_platform_data *pdata;
->  	struct i2c_client *i2c_client;
->  };
-> @@ -58,6 +63,19 @@ static irqreturn_t gp2a_irq(int irq, void *handle)
->  	return IRQ_HANDLED;
->  }
->  
-> +static void gp2a_poll(struct input_polled_dev *dev)
-> +{
-> +	struct gp2a_data *dt = dev->private;
-> +	int ret, value;
+> diff --git a/Documentation/devicetree/bindings/input/bosch,bma150.txt b/Documentation/devicetree/bindings/input/bosch,bma150.txt
+> new file mode 100644
+> index 000000000000..290c60e38c70
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/bosch,bma150.txt
+> @@ -0,0 +1,20 @@
+> +* Bosch BMA150 Accelerometer Sensor
 > +
-> +	ret = iio_read_channel_processed(dt->channel, &value);
-> +	if (ret < 0)
-> +		dev_err(&dt->i2c_client->dev, "failed to read value!");
+> +Also works for the SMB380 and BMA023 accelerometers
 > +
-> +	input_report_abs(dev->input, ABS_MISC, value);
-> +	input_sync(dev->input);
+> +Required properties:
+> +- compatible : Should be "bosch,bma150"
+> +- reg : The I2C address of the sensor
+> +
+> +Optional properties:
+> +- interrupt-parent : should be the phandle for the interrupt controller
+> +- interrupts : Interrupt mapping for IRQ.  If not present device will be polled
+> +
+> +Example:
+> +
+> +bma150@38 {
+> +	compatible = "bosch,bma150";
+> +	reg = <0x38>;
+> +	interrupt-parent = <&gph0>;
+> +	interrupts = <1 IRQ_TYPE_LEVEL_HIGH>;
 
-No, light sensor is not an input device, keep it in IIO please.
+Hmm, here you say that IRQ_TYPE_LEVEL_HIGH, so it is level interrupts,
+but the driver overrides to rising edge unconditionally. Since you are
+the first to add DT support please make separate patch to driver to drop
+the ORQ trigger from request_theraded_irq() leaving only IRQF_ONESHOT.
+
+Also please create patch removing platform data support as noone is
+using it upstream.
+
+What about the rest of config parameters from bma150_cfg? They should be
+handled as device properties too.
+
+Thanks.
 
 -- 
 Dmitry

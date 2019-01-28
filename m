@@ -1,16 +1,33 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH 2/3] Input: st1232 - add support for st1633
-Date: Mon, 28 Jan 2019 09:44:48 +0100
-Message-ID: <20190128084449.16070-2-martink@posteo.de>
-References: <20190128084449.16070-1-martink@posteo.de>
+From: Kepplinger Martin <Martin.Kepplinger@ginzinger.com>
+Subject: AW: [PATCH 2/3] Input: st1232 - add support for st1633
+Date: Mon, 28 Jan 2019 08:49:26 +0000
+Message-ID: <20ec36c93a66462e893085af9920b3a5@ginzinger.com>
+References: <20190128084449.16070-1-martink@posteo.de>,<20190128084449.16070-2-martink@posteo.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg="sha-256"; boundary="----7F082D21316967F941AD2464A9530B10"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190128084449.16070-1-martink@posteo.de>
+In-Reply-To: <20190128084449.16070-2-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
+To: Martin Kepplinger <martink@posteo.de>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
+
+This is an S/MIME signed message
+
+------7F082D21316967F941AD2464A9530B10
+Content-Language: de-AT
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+
+________________________________________
+Von: Martin Kepplinger [martink@posteo.de]
+Gesendet: Montag, 28. J=E4nner 2019 09:44
+An: devicetree@vger.kernel.org; linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com; robh+dt@kernel.org; mark.rutland@arm.com; li=
+nux-kernel@vger.kernel.org; Kepplinger Martin
+Betreff: [PATCH 2/3] Input: st1232 - add support for st1633
 
 From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 
@@ -20,247 +37,108 @@ www.ampdisplay.com/documents/pdf/AM-320480B6TZQW-TC0H.pdf
 
 Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 ---
+
+sorry, this is v3 of this series.
+
+anyways, the of_device.h header isn't directly need now neither. thanks Dmi=
+try!
+
+                                 martin
+
+
+revision history
+----------------
+v3: implement Dmitry's suggestion for i2c probe from v2 review
+v2: use device_get_match_data(), invent an internal "have_z" bool property
+v1: initial idea for the change
+
+
+
  drivers/input/touchscreen/Kconfig  |   6 +-
  drivers/input/touchscreen/st1232.c | 122 +++++++++++++++++++++--------
  2 files changed, 94 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 068dbbc610fc..7c597a49c265 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -1168,11 +1168,11 @@ config TOUCHSCREEN_SIS_I2C
- 	  module will be called sis_i2c.
- 
- config TOUCHSCREEN_ST1232
--	tristate "Sitronix ST1232 touchscreen controllers"
-+	tristate "Sitronix ST1232 or ST1633 touchscreen controllers"
- 	depends on I2C
- 	help
--	  Say Y here if you want to support Sitronix ST1232
--	  touchscreen controller.
-+	  Say Y here if you want to support the Sitronix ST1232
-+	  or ST1633 touchscreen controller.
- 
- 	  If unsure, say N.
- 
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index 11ff32c68025..19a665d48dad 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -23,13 +23,15 @@
- #include <linux/types.h>
- 
- #define ST1232_TS_NAME	"st1232-ts"
-+#define ST1633_TS_NAME	"st1633-ts"
-+
-+enum {
-+	st1232,
-+	st1633,
-+};
- 
- #define MIN_X		0x00
- #define MIN_Y		0x00
--#define MAX_X		0x31f	/* (800 - 1) */
--#define MAX_Y		0x1df	/* (480 - 1) */
--#define MAX_AREA	0xff
--#define MAX_FINGERS	2
- 
- struct st1232_ts_finger {
- 	u16 x;
-@@ -38,12 +40,24 @@ struct st1232_ts_finger {
- 	bool is_valid;
- };
- 
-+struct st_chip_info {
-+	bool	have_z;
-+	u16	max_x;
-+	u16	max_y;
-+	u16	max_area;
-+	u16	max_fingers;
-+	u8	start_reg;
-+};
-+
- struct st1232_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input_dev;
--	struct st1232_ts_finger finger[MAX_FINGERS];
- 	struct dev_pm_qos_request low_latency_req;
- 	int reset_gpio;
-+	const struct st_chip_info *chip_info;
-+	int read_buf_len;
-+	u8 *read_buf;
-+	struct st1232_ts_finger *finger;
- };
- 
- static int st1232_ts_read_data(struct st1232_ts_data *ts)
-@@ -52,40 +66,35 @@ static int st1232_ts_read_data(struct st1232_ts_data *ts)
- 	struct i2c_client *client = ts->client;
- 	struct i2c_msg msg[2];
- 	int error;
--	u8 start_reg;
--	u8 buf[10];
-+	int i, y;
-+	u8 start_reg = ts->chip_info->start_reg;
-+	u8 *buf = ts->read_buf;
- 
--	/* read touchscreen data from ST1232 */
-+	/* read touchscreen data */
- 	msg[0].addr = client->addr;
- 	msg[0].flags = 0;
- 	msg[0].len = 1;
- 	msg[0].buf = &start_reg;
--	start_reg = 0x10;
- 
- 	msg[1].addr = ts->client->addr;
- 	msg[1].flags = I2C_M_RD;
--	msg[1].len = sizeof(buf);
-+	msg[1].len = ts->read_buf_len;
- 	msg[1].buf = buf;
- 
- 	error = i2c_transfer(client->adapter, msg, 2);
- 	if (error < 0)
- 		return error;
- 
--	/* get "valid" bits */
--	finger[0].is_valid = buf[2] >> 7;
--	finger[1].is_valid = buf[5] >> 7;
-+	for (i = 0, y = 0; i < ts->chip_info->max_fingers; i++, y += 3) {
-+		finger[i].is_valid = buf[i + y] >> 7;
-+		if (finger[i].is_valid) {
-+			finger[i].x = ((buf[i + y] & 0x0070) << 4) | buf[i + 1];
-+			finger[i].y = ((buf[i + y] & 0x0007) << 8) | buf[i + 2];
- 
--	/* get xy coordinate */
--	if (finger[0].is_valid) {
--		finger[0].x = ((buf[2] & 0x0070) << 4) | buf[3];
--		finger[0].y = ((buf[2] & 0x0007) << 8) | buf[4];
--		finger[0].t = buf[8];
--	}
--
--	if (finger[1].is_valid) {
--		finger[1].x = ((buf[5] & 0x0070) << 4) | buf[6];
--		finger[1].y = ((buf[5] & 0x0007) << 8) | buf[7];
--		finger[1].t = buf[9];
-+			/* st1232 includes a z-axis / touch strength */
-+			if (ts->chip_info->have_z)
-+				finger[i].t = buf[i + 6];
-+		}
- 	}
- 
- 	return 0;
-@@ -104,11 +113,14 @@ static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
- 		goto end;
- 
- 	/* multi touch protocol */
--	for (i = 0; i < MAX_FINGERS; i++) {
-+	for (i = 0; i < ts->chip_info->max_fingers; i++) {
- 		if (!finger[i].is_valid)
- 			continue;
- 
--		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, finger[i].t);
-+		if (ts->chip_info->have_z)
-+			input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR,
-+					 finger[i].t);
-+
- 		input_report_abs(input_dev, ABS_MT_POSITION_X, finger[i].x);
- 		input_report_abs(input_dev, ABS_MT_POSITION_Y, finger[i].y);
- 		input_mt_sync(input_dev);
-@@ -142,12 +154,40 @@ static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
- 		gpio_direction_output(ts->reset_gpio, poweron);
- }
- 
-+static const struct st_chip_info st1232_chip_info = {
-+		.have_z = true,
-+		.max_x = 0x31f, /* 800 - 1 */
-+		.max_y = 0x1df, /* 480 -1 */
-+		.max_area = 0xff,
-+		.max_fingers = 2,
-+		.start_reg = 0x12,
-+};
-+
-+static const struct st_chip_info st1633_chip_info = {
-+		.have_z = false,
-+		.max_x = 0x13f, /* 320 - 1 */
-+		.max_y = 0x1df, /* 480 -1 */
-+		.max_area = 0x00,
-+		.max_fingers = 5,
-+		.start_reg = 0x12,
-+};
-+
- static int st1232_ts_probe(struct i2c_client *client,
- 			   const struct i2c_device_id *id)
- {
- 	struct st1232_ts_data *ts;
-+	struct st1232_ts_finger *finger;
- 	struct input_dev *input_dev;
- 	int error;
-+	const struct st_chip_info *match = NULL;
-+
-+	match = device_get_match_data(&client->dev);
-+	if (!match && id)
-+		match = (const void *)id->driver_data;
-+	if (!match) {
-+		dev_err(&client->dev, "unknown device model\n");
-+		return -ENODEV;
-+	}
- 
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
- 		dev_err(&client->dev, "need I2C_FUNC_I2C\n");
-@@ -163,6 +203,19 @@ static int st1232_ts_probe(struct i2c_client *client,
- 	if (!ts)
- 		return -ENOMEM;
- 
-+	ts->chip_info = match;
-+	ts->finger = devm_kzalloc(&client->dev,
-+				  sizeof(*finger) * ts->chip_info->max_fingers,
-+				  GFP_KERNEL);
-+	if (!ts->finger)
-+		return -ENOMEM;
-+
-+	/* allocate a buffer according to the number of registers to read */
-+	ts->read_buf_len = ts->chip_info->max_fingers * 4;
-+	ts->read_buf = devm_kzalloc(&client->dev, ts->read_buf_len, GFP_KERNEL);
-+	if (!ts->read_buf)
-+		return -ENOMEM;
-+
- 	input_dev = devm_input_allocate_device(&client->dev);
- 	if (!input_dev)
- 		return -ENOMEM;
-@@ -192,9 +245,14 @@ static int st1232_ts_probe(struct i2c_client *client,
- 	__set_bit(EV_KEY, input_dev->evbit);
- 	__set_bit(EV_ABS, input_dev->evbit);
- 
--	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, MAX_AREA, 0, 0);
--	input_set_abs_params(input_dev, ABS_MT_POSITION_X, MIN_X, MAX_X, 0, 0);
--	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, MIN_Y, MAX_Y, 0, 0);
-+	if (ts->chip_info->have_z)
-+		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
-+				     ts->chip_info->max_area, 0, 0);
-+
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-+			     MIN_X, ts->chip_info->max_x, 0, 0);
-+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-+			     MIN_Y, ts->chip_info->max_y, 0, 0);
- 
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, st1232_ts_irq_handler,
-@@ -261,13 +319,15 @@ static SIMPLE_DEV_PM_OPS(st1232_ts_pm_ops,
- 			 st1232_ts_suspend, st1232_ts_resume);
- 
- static const struct i2c_device_id st1232_ts_id[] = {
--	{ ST1232_TS_NAME, 0 },
-+	{ ST1232_TS_NAME, (unsigned long)&st1232_chip_info },
-+	{ ST1633_TS_NAME, (unsigned long)&st1633_chip_info },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, st1232_ts_id);
- 
- static const struct of_device_id st1232_ts_dt_ids[] = {
--	{ .compatible = "sitronix,st1232", },
-+	{ .compatible = "sitronix,st1232", .data = &st1232_chip_info },
-+	{ .compatible = "sitronix,st1633", .data = &st1633_chip_info },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, st1232_ts_dt_ids);
--- 
-2.20.1
+
+------7F082D21316967F941AD2464A9530B10
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+
+MIIOHAYJKoZIhvcNAQcCoIIODTCCDgkCAQExDzANBglghkgBZQMEAgEFADALBgkq
+hkiG9w0BBwGgggshMIIF5jCCA86gAwIBAgIQapvhODv/K2ufAdXZuKdSVjANBgkq
+hkiG9w0BAQwFADCBhTELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFu
+Y2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExp
+bWl0ZWQxKzApBgNVBAMTIkNPTU9ETyBSU0EgQ2VydGlmaWNhdGlvbiBBdXRob3Jp
+dHkwHhcNMTMwMTEwMDAwMDAwWhcNMjgwMTA5MjM1OTU5WjCBlzELMAkGA1UEBhMC
+R0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9y
+ZDEaMBgGA1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBS
+U0EgQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0EwggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC+s55XrCh2dUAWxzgDmNPGGHYh
+UPMleQtMtaDRfTpYPpynMS6n9jR22YRq2tA9NEjk6vW7rN/5sYFLIP1of3l0NKZ6
+fLWfF2VgJ5cijKYy/qlAckY1wgOkUMgzKlWlVJGyK+UlNEQ1/5ErCsHq9x9aU/x1
+KwTdF/LCrT03Rl/FwFrf1XTCwa2QZYL55AqLPikFlgqOtzk06kb2qvGlnHJvijjI
+03BOrNpo+kZGpcHsgyO1/u1OZTaOo8wvEU17VVeP1cHWse9tGKTDyUGg2hJZjrqc
+k39UIm/nKbpDSZ0JsMoIw/JtOOg0JC56VzQgBo7ictReTQE5LFLG3yQK+xS1AgMB
+AAGjggE8MIIBODAfBgNVHSMEGDAWgBS7r34CPfqm8TyEjq3uOJjs2TIy1DAdBgNV
+HQ4EFgQUgq9sjPjF/pZhfOgfPStxSF7Ei8AwDgYDVR0PAQH/BAQDAgGGMBIGA1Ud
+EwEB/wQIMAYBAf8CAQAwEQYDVR0gBAowCDAGBgRVHSAAMEwGA1UdHwRFMEMwQaA/
+oD2GO2h0dHA6Ly9jcmwuY29tb2RvY2EuY29tL0NPTU9ET1JTQUNlcnRpZmljYXRp
+b25BdXRob3JpdHkuY3JsMHEGCCsGAQUFBwEBBGUwYzA7BggrBgEFBQcwAoYvaHR0
+cDovL2NydC5jb21vZG9jYS5jb20vQ09NT0RPUlNBQWRkVHJ1c3RDQS5jcnQwJAYI
+KwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmNvbW9kb2NhLmNvbTANBgkqhkiG9w0BAQwF
+AAOCAgEAeFyygSg0TzzuX1bOn5dW7I+iaxf28/ZJCAbU2C81zd9A/tNx4+jsQgwR
+GiHjZrAYayZrrm78hOx7aEpkfNPQIHGG6Fvq3EzWf/Lvx7/hk6zSPwIal9v5IkDc
+ZoFD7f3iT7PdkHJY9B51csvU50rxpEg1OyOT8fk2zvvPBuM4qQNqbGWlnhMpIMwp
+WZT89RY0wpJO+2V6eXEGGHsROs3njeP9DqqqAJaBa4wBeKOdGCWn1/Jp2oY6dyNm
+NppI4ZNMUH4Tam85S1j6E95u4+1Nuru84OrMIzqvISE2HN/56ebTOWlcrurffade
+2022O/tUU1gb4jfWCcyvB8czm12FgX/y/lRjmDbEA08QJNB2729Y+io1IYO3ztve
+BdvUCIYZojTq/OCR6MvnzS6X72HP0PRLRTiOSEmIDsS5N5w/8IW1Hva5hEFy6fDA
+fd9yI+O+IMMAj1KcL/Zo9jzJ16HO5m60ttl1Enk8MQkz/W3JlHaeI5iKFn4UJu1/
+cP2YHXYPiWf2JyBzsLBrGk1II+3yL8aorYew6CQvdVifC3HtwlSam9V1niiCfOBe
+2C12TdKGu05LWIA3ZkFcWJGaNXOZ6Ggyh/TqvXG5v7zmEVDNXFnHn9tFpMpOUvxh
+csjycBtH0dZ0WrNw6gH+HF8TIhCnH3+zzWuDN0Rk6h9KVkfKehIwggUzMIIEG6AD
+AgECAhBNQrEzGzrZ6FVYh1EEYH4+MA0GCSqGSIb3DQEBCwUAMIGXMQswCQYDVQQG
+EwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVzdGVyMRAwDgYDVQQHEwdTYWxm
+b3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDE9MDsGA1UEAxM0Q09NT0RP
+IFJTQSBDbGllbnQgQXV0aGVudGljYXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQTAe
+Fw0xODA3MTgwMDAwMDBaFw0yMTA3MTcyMzU5NTlaMDAxLjAsBgkqhkiG9w0BCQEW
+H21hcnRpbi5rZXBwbGluZ2VyQGdpbnppbmdlci5jb20wggEiMA0GCSqGSIb3DQEB
+AQUAA4IBDwAwggEKAoIBAQDsMC77L0D+2D8I8X5ubnBhADLgU+HtlwMTFt/WJIhc
+kgbvnawYXWrCIpk8F6BJ0R/iFCykPdG7741EmlcHRKOJfhVxjXhwnoGFqnYmurCt
+fvZLR3+mT3FWnVv2RAdrXscXH3BpijqqWabdtTbiTvmcl86Zc6mNlVhYZSbDul/E
+voIGZotGcGIWrgZxN+8MQJQHKb0KHyWlPVPkrjvEfOJHKKLFsBNSnNMR95Ijg3Sp
+h8/8RG490/zRHflGzUlxDSlLyY9YJGzSdDzcFKoYcc4oaaUY5N3uhRna43TLUIQh
+6ybt3DKVz1Pw/ikwYJrOsulJrVr3D8KVHdGxq7HYl7jnAgMBAAGjggHfMIIB2zAf
+BgNVHSMEGDAWgBSCr2yM+MX+lmF86B89K3FIXsSLwDAdBgNVHQ4EFgQU/GtSUbHg
+14sPDlmo27eQYwtjaS0wDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYD
+VR0lBBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMEYGA1UdIAQ/MD0wOwYMKwYBBAGy
+MQECAQMFMCswKQYIKwYBBQUHAgEWHWh0dHBzOi8vc2VjdXJlLmNvbW9kby5uZXQv
+Q1BTMFoGA1UdHwRTMFEwT6BNoEuGSWh0dHA6Ly9jcmwuY29tb2RvY2EuY29tL0NP
+TU9ET1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcmww
+gYsGCCsGAQUFBwEBBH8wfTBVBggrBgEFBQcwAoZJaHR0cDovL2NydC5jb21vZG9j
+YS5jb20vQ09NT0RPUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFp
+bENBLmNydDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2RvY2EuY29tMCoG
+A1UdEQQjMCGBH21hcnRpbi5rZXBwbGluZ2VyQGdpbnppbmdlci5jb20wDQYJKoZI
+hvcNAQELBQADggEBAGEuG01K1tt5i3gUdQkYem/KpbJUYBZd43QwmoTa0TGXUiYq
+b+g/TeGG9QQ1yq+73xOr8fu6oT2608C7EiJc6JmjTs485/OZmTqgYkrLfs71F1kB
+3Z59WPf5aoR/pnn5vdfkkoO29V1cKPJR4z+iOG2hOlcK/dXrX8i6mnL5DGIe8l5n
+udUPvIbUhbMavrDd6kwhs0oCjylwdKGlFkCpKMn3HPflfDeHuV9Z8Nrpeq/7+Pm0
+I/fLPkaYlULASJoJCucMYcedY9rmuro9JhV+NuVXaqLIrQPc1vyKFeRuLHh84M6c
+1h1DArdGTykXZUwjXnnHtuOtzjIAzkx2Ns43vEsxggK/MIICuwIBATCBrDCBlzEL
+MAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UE
+BxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMT
+NENPTU9ETyBSU0EgQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1h
+aWwgQ0ECEE1CsTMbOtnoVViHUQRgfj4wDQYJYIZIAWUDBAIBBQCggeQwGAYJKoZI
+hvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTkwMTI4MDg0OTMw
+WjAvBgkqhkiG9w0BCQQxIgQg3D58ivFGBcoGu4qkwP6L58XB7SWI7kuGQUU3d3z7
+SIsweQYJKoZIhvcNAQkPMWwwajALBglghkgBZQMEASowCwYJYIZIAWUDBAEWMAsG
+CWCGSAFlAwQBAjAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcN
+AwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwDQYJKoZIhvcNAQEBBQAEggEA
+j60cx+2cWouASA10yfO1FcDu6vj6oKi4kjhuxNnntERrmT8eKzMKtplb8tQPBll2
+W7GE8obBV/0+xsoANHhf+X8BlEwoJbmvrF234lKyOU2Oz45Tfrs/ZcOknsym6zUQ
+Jna86zoQrMUUDERWy2kHo2ln99dJLsg6Q10JYtaGbNnC9XWTFsePeKBszWIxfLiQ
+B/lgfTk3MHcl3LxkFl58ZowpvQv38lrsJKfk/Qruz/pbn64W7BLM82ciKSZC9FAc
+8KXta5LjP4VLwfoDrHBGXt2lasYksa5uLH/nA4mGM4cALSPOUIDFbTf5+RqvITku
+UeX9Yv9G/oxvYHpIYYzF/Q==
+
+------7F082D21316967F941AD2464A9530B10--

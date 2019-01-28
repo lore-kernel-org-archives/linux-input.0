@@ -1,58 +1,36 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 294/304] HID: lenovo: Add checks to fix of_led_classdev_register
-Date: Mon, 28 Jan 2019 10:43:31 -0500
-Message-ID: <20190128154341.47195-294-sashal@kernel.org>
-References: <20190128154341.47195-1-sashal@kernel.org>
+From: Stefan Agner <stefan@agner.ch>
+Subject: [PATCH 1/3] input: keyboard: allow to select IMX SNVS Power Key driver for i.MX 7D
+Date: Mon, 28 Jan 2019 17:03:05 +0100
+Message-ID: <20190128160305.22398-1-stefan@agner.ch>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190128154341.47195-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Aditya Pakki <pakki001@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: arnd@arndb.de, peng.fan@nxp.com, linux-imx@nxp.com, kernel@pengutronix.de, fabio.estevam@nxp.com, shawnguo@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stefan Agner <stefan@agner.ch>
 List-Id: linux-input@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+The i.MX SNVS Power Key driver supports the i.MX 7D SoC family too.
+Allow to enable the i.MX SNVS Power Key driver even if only i.MX 7D
+SoC is selected.
 
-[ Upstream commit 6ae16dfb61bce538d48b7fe98160fada446056c5 ]
-
-In lenovo_probe_tpkbd(), the function of_led_classdev_register() could
-return an error value that is unchecked. The fix adds these checks.
-
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
 ---
- drivers/hid/hid-lenovo.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 643b6eb54442..eacc76d2ab96 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -743,7 +743,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
- 	data_pointer->led_mute.brightness_get = lenovo_led_brightness_get_tpkbd;
- 	data_pointer->led_mute.brightness_set = lenovo_led_brightness_set_tpkbd;
- 	data_pointer->led_mute.dev = dev;
--	led_classdev_register(dev, &data_pointer->led_mute);
-+	ret = led_classdev_register(dev, &data_pointer->led_mute);
-+	if (ret < 0)
-+		goto err;
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 4713957b0cbb..a878351f1643 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -420,7 +420,7 @@ config KEYBOARD_MPR121
  
- 	data_pointer->led_micmute.name = name_micmute;
- 	data_pointer->led_micmute.brightness_get =
-@@ -751,7 +753,11 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
- 	data_pointer->led_micmute.brightness_set =
- 		lenovo_led_brightness_set_tpkbd;
- 	data_pointer->led_micmute.dev = dev;
--	led_classdev_register(dev, &data_pointer->led_micmute);
-+	ret = led_classdev_register(dev, &data_pointer->led_micmute);
-+	if (ret < 0) {
-+		led_classdev_unregister(&data_pointer->led_mute);
-+		goto err;
-+	}
- 
- 	lenovo_features_set_tpkbd(hdev);
- 
+ config KEYBOARD_SNVS_PWRKEY
+ 	tristate "IMX SNVS Power Key Driver"
+-	depends on SOC_IMX6SX
++	depends on SOC_IMX6SX || SOC_IMX7D
+ 	depends on OF
+ 	help
+ 	  This is the snvs powerkey driver for the Freescale i.MX application
 -- 
-2.19.1
+2.20.1

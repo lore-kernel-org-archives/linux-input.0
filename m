@@ -1,24 +1,40 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [git pull] Input updates for v5.0-rc3
-Date: Sun, 27 Jan 2019 17:25:04 +0000
-Message-ID: <154860990465.19009.15601039563890389947.pr-tracker-bot@kernel.org>
-References: <20190126011113.GA23858@dtor-ws>
+From: Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH 1/3] dt-bindings: input: sitronix-st1232: add compatible string for ST1633
+Date: Mon, 28 Jan 2019 09:44:47 +0100
+Message-ID: <20190128084449.16070-1-martink@posteo.de>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190126011113.GA23858@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
 List-Id: linux-input@vger.kernel.org
 
-The pull request you sent on Fri, 25 Jan 2019 17:11:13 -0800:
+From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+The st1232 driver gains support for the ST1633 controller too; update
+the bindings doc accordingly.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/78e372e6509bc2412e86afb11be65185f4c9c568
+Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+---
+ .../bindings/input/touchscreen/sitronix-st1232.txt          | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Thank you!
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+index 64ad48b824a2..e73e826e0f2a 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+@@ -1,7 +1,9 @@
+-* Sitronix st1232 touchscreen controller
++* Sitronix st1232 or st1633 touchscreen controller
+ 
+ Required properties:
+-- compatible: must be "sitronix,st1232"
++- compatible: must contain one of
++  * "sitronix,st1232"
++  * "sitronix,st1633"
+ - reg: I2C address of the chip
+ - interrupts: interrupt to which the chip is connected
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.20.1

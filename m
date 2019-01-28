@@ -1,10 +1,12 @@
 From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH 1/3] dt-bindings: input: sitronix-st1232: add compatible string for ST1633
-Date: Mon, 28 Jan 2019 09:44:47 +0100
-Message-ID: <20190128084449.16070-1-martink@posteo.de>
+Subject: [PATCH 3/3] Input: st1232 - add Martin as module author
+Date: Mon, 28 Jan 2019 09:44:49 +0100
+Message-ID: <20190128084449.16070-3-martink@posteo.de>
+References: <20190128084449.16070-1-martink@posteo.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190128084449.16070-1-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: devicetree@vger.kernel.org, linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
@@ -12,29 +14,24 @@ List-Id: linux-input@vger.kernel.org
 
 From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 
-The st1232 driver gains support for the ST1633 controller too; update
-the bindings doc accordingly.
+This adds myself as an author of the st1232 driver module as Tony's
+email address doesn't seem to work anymore.
 
 Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 ---
- .../bindings/input/touchscreen/sitronix-st1232.txt          | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/st1232.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
-index 64ad48b824a2..e73e826e0f2a 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
-@@ -1,7 +1,9 @@
--* Sitronix st1232 touchscreen controller
-+* Sitronix st1232 or st1633 touchscreen controller
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index 19a665d48dad..906b233970aa 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -346,5 +346,6 @@ static struct i2c_driver st1232_ts_driver = {
+ module_i2c_driver(st1232_ts_driver);
  
- Required properties:
--- compatible: must be "sitronix,st1232"
-+- compatible: must contain one of
-+  * "sitronix,st1232"
-+  * "sitronix,st1633"
- - reg: I2C address of the chip
- - interrupts: interrupt to which the chip is connected
- 
+ MODULE_AUTHOR("Tony SIM <chinyeow.sim.xt@renesas.com>");
++MODULE_AUTHOR("Martin Kepplinger <martin.kepplinger@ginzinger.com>");
+ MODULE_DESCRIPTION("SITRONIX ST1232 Touchscreen Controller Driver");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.20.1

@@ -1,278 +1,193 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID: debug: fix the ring buffer implementation
-Date: Mon, 28 Jan 2019 10:14:53 +0100
-Message-ID: <CAO-hwJJGux_5bQJmXgLrcj+v=n3n8hvqXfqPEu60aghYNJSfzw@mail.gmail.com>
-References: <20190126170722.8035-1-vdronov@redhat.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH v2] drm/bridge: sil_sii8620: make remote control
+ optional.
+Date: Mon, 28 Jan 2019 11:53:38 +0100
+Message-ID: <d7e8493b-a1fc-3f7d-c715-5f72f15f9320@samsung.com>
+References: <20190124072125.GA28127@innovation.ch>
+        <CGME20190125013406epcas3p2971d09f6836084e51cbf5d326593a93e@epcas3p2.samsung.com>
+        <20190125013355.GA6722@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190126170722.8035-1-vdronov@redhat.com>
+In-Reply-To: <20190125013355.GA6722@innovation.ch>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vladis Dronov <vdronov@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Oleg Nesterov <oleg@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+To: Inki Dae <inki.dae@samsung.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lukas Wunner <lukas@wunner.de>, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Jan 26, 2019 at 6:07 PM Vladis Dronov <vdronov@redhat.com> wrote:
+On 25.01.2019 02:33, Ronald Tschalär wrote:
+> commit d6abe6df706c (drm/bridge: sil_sii8620: do not have a dependency
+> of RC_CORE) changed the driver to select both RC_CORE and INPUT.
+> However, this causes problems with other drivers, in particular an input
+> driver that depends on MFD_INTEL_LPSS_PCI (to be added in a separate
+> commit):
 >
-> Ring buffer implementation in hid_debug_event() and hid_debug_events_read()
-> is strange allowing lost or corrupted data. After commit 717adfdaf147
-> ("HID: debug: check length before copy_to_user()") it is possible to enter
-> an infinite loop in hid_debug_events_read() by providing 0 as count, this
-> locks up a system. Fix this by rewriting the ring buffer implementation
-> with kfifo and simplify the code.
+>   drivers/clk/Kconfig:9:error: recursive dependency detected!
+>   drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
+>   drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
+>   drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
+>   drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
+>   drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
+>   drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
+>   drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
+>   drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
 >
-> This fixes CVE-2019-3819.
+> According to the docs and general consensus, select should only be used
+> for non user-visible symbols, but both RC_CORE and INPUT are
+> user-visible. Furthermore almost all other references to INPUT
+> throughout the kernel config are depends, not selects. For this reason
+> the first part of this change reverts commit d6abe6df706c.
 >
-> v2: fix an execution logic and add a comment
+> In order to address the original reason for commit d6abe6df706c, namely
+> that not all boards use the remote controller functionality and hence
+> should not need have to deal with RC_CORE, the second part of this
+> change now makes the remote control support in the driver optional and
+> contingent on RC_CORE being defined. And with this the hard dependency
+> on INPUT also goes away as that is only needed if RC_CORE is defined
+> (which in turn already depends on INPUT).
 
-Thanks for the respin.
-v2 looks good to me.
-Oleg, can you provide some feedback before I push this?
 
-Cheers,
-Benjamin
+Thanks for fixing it, this seems to be a best way to deal with it, more
+comments below.
+
 
 >
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=1669187
-> Cc: stable@vger.kernel.org # v4.18+
-> Fixes: cd667ce24796 ("HID: use debugfs for events/reports dumping")
-> Fixes: 717adfdaf147 ("HID: debug: check length before copy_to_user()")
-> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+> CC: Inki Dae <inki.dae@samsung.com>
+> CC: Andrzej Hajda <a.hajda@samsung.com>
+> CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
 > ---
->  drivers/hid/hid-debug.c   | 116 ++++++++++++++------------------------
->  include/linux/hid-debug.h |   9 ++-
->  2 files changed, 47 insertions(+), 78 deletions(-)
+> Resending this, as I somehow managed to forget to cc dri-devel.
+> Apologies for the duplication.
 >
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index c530476edba6..08870c909268 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -30,6 +30,7 @@
+> Changes in v2:
+>  - completely remove dependencies on both RC_CORE and INPUT in Kconfig,
+>  - make remote control functionality in driver contingent on RC_CORE
+>    being defined
 >
->  #include <linux/debugfs.h>
->  #include <linux/seq_file.h>
-> +#include <linux/kfifo.h>
->  #include <linux/sched/signal.h>
->  #include <linux/export.h>
->  #include <linux/slab.h>
-> @@ -661,17 +662,12 @@ EXPORT_SYMBOL_GPL(hid_dump_device);
->  /* enqueue string to 'events' ring buffer */
->  void hid_debug_event(struct hid_device *hdev, char *buf)
->  {
-> -       unsigned i;
->         struct hid_debug_list *list;
->         unsigned long flags;
+>  drivers/gpu/drm/bridge/Kconfig       |  2 --
+>  drivers/gpu/drm/bridge/sil-sii8620.c | 17 +++++++++++++++++
+>  2 files changed, 17 insertions(+), 2 deletions(-)
 >
->         spin_lock_irqsave(&hdev->debug_list_lock, flags);
-> -       list_for_each_entry(list, &hdev->debug_list, node) {
-> -               for (i = 0; buf[i]; i++)
-> -                       list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
-> -                               buf[i];
-> -               list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
-> -        }
-> +       list_for_each_entry(list, &hdev->debug_list, node)
-> +               kfifo_in(&list->hid_debug_fifo, buf, strlen(buf));
->         spin_unlock_irqrestore(&hdev->debug_list_lock, flags);
->
->         wake_up_interruptible(&hdev->debug_wait);
-> @@ -722,8 +718,7 @@ void hid_dump_input(struct hid_device *hdev, struct hid_usage *usage, __s32 valu
->         hid_debug_event(hdev, buf);
->
->         kfree(buf);
-> -        wake_up_interruptible(&hdev->debug_wait);
-> -
-> +       wake_up_interruptible(&hdev->debug_wait);
+> diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
+> index 2fee47b0d50b..a11198a36005 100644
+> --- a/drivers/gpu/drm/bridge/Kconfig
+> +++ b/drivers/gpu/drm/bridge/Kconfig
+> @@ -85,8 +85,6 @@ config DRM_SIL_SII8620
+>  	depends on OF
+>  	select DRM_KMS_HELPER
+>  	imply EXTCON
+> -	select INPUT
+> -	select RC_CORE
+
+
+Shouldn't you put here "imply RC_CORE"? To avoid RC_CORE as module and
+sii8620 built-in.
+
+
+>  	help
+>  	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
+>  
+> diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
+> index 0cc293a6ac24..dee47752791e 100644
+> --- a/drivers/gpu/drm/bridge/sil-sii8620.c
+> +++ b/drivers/gpu/drm/bridge/sil-sii8620.c
+> @@ -66,7 +66,9 @@ enum sii8620_mt_state {
+>  struct sii8620 {
+>  	struct drm_bridge bridge;
+>  	struct device *dev;
+> +#if IS_ENABLED(CONFIG_RC_CORE)
+>  	struct rc_dev *rc_dev;
+> +#endif
+>  	struct clk *clk_xtal;
+>  	struct gpio_desc *gpio_reset;
+>  	struct gpio_desc *gpio_int;
+> @@ -1756,6 +1758,7 @@ static void sii8620_send_features(struct sii8620 *ctx)
+>  	sii8620_write_buf(ctx, REG_MDT_XMIT_WRITE_PORT, buf, ARRAY_SIZE(buf));
 >  }
->  EXPORT_SYMBOL_GPL(hid_dump_input);
->
-> @@ -1083,8 +1078,8 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
->                 goto out;
->         }
->
-> -       if (!(list->hid_debug_buf = kzalloc(HID_DEBUG_BUFSIZE, GFP_KERNEL))) {
-> -               err = -ENOMEM;
-> +       err = kfifo_alloc(&list->hid_debug_fifo, HID_DEBUG_FIFOSIZE, GFP_KERNEL);
-> +       if (err) {
->                 kfree(list);
->                 goto out;
->         }
-> @@ -1104,77 +1099,57 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
->                 size_t count, loff_t *ppos)
+>  
+> +#if IS_ENABLED(CONFIG_RC_CORE)
+>  static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
 >  {
->         struct hid_debug_list *list = file->private_data;
-> -       int ret = 0, len;
-> +       int ret = 0, copied;
->         DECLARE_WAITQUEUE(wait, current);
->
->         mutex_lock(&list->read_mutex);
-> -       while (ret == 0) {
-> -               if (list->head == list->tail) {
-> -                       add_wait_queue(&list->hdev->debug_wait, &wait);
-> -                       set_current_state(TASK_INTERRUPTIBLE);
-> -
-> -                       while (list->head == list->tail) {
-> -                               if (file->f_flags & O_NONBLOCK) {
-> -                                       ret = -EAGAIN;
-> -                                       break;
-> -                               }
-> -                               if (signal_pending(current)) {
-> -                                       ret = -ERESTARTSYS;
-> -                                       break;
-> -                               }
-> -
-> -                               if (!list->hdev || !list->hdev->debug) {
-> -                                       ret = -EIO;
-> -                                       set_current_state(TASK_RUNNING);
-> -                                       goto out;
-> -                               }
-> -
-> -                               /* allow O_NONBLOCK from other threads */
-> -                               mutex_unlock(&list->read_mutex);
-> -                               schedule();
-> -                               mutex_lock(&list->read_mutex);
-> -                               set_current_state(TASK_INTERRUPTIBLE);
-> -                       }
-> -
-> -                       set_current_state(TASK_RUNNING);
-> -                       remove_wait_queue(&list->hdev->debug_wait, &wait);
-> -               }
-> -
-> -               if (ret)
-> -                       goto out;
-> +       if (kfifo_is_empty(&list->hid_debug_fifo)) {
-> +               add_wait_queue(&list->hdev->debug_wait, &wait);
-> +               set_current_state(TASK_INTERRUPTIBLE);
-> +
-> +               while (kfifo_is_empty(&list->hid_debug_fifo)) {
-> +                       if (file->f_flags & O_NONBLOCK) {
-> +                               ret = -EAGAIN;
-> +                               break;
-> +                       }
-> +
-> +                       if (signal_pending(current)) {
-> +                               ret = -ERESTARTSYS;
-> +                               break;
-> +                       }
-> +
-> +                       /* if list->hdev is NULL we cannot remove_wait_queue().
-> +                        * if list->hdev->debug is 0 then hid_debug_unregister()
-> +                        * was already called and list->hdev is being destroyed.
-> +                        * if we add remove_wait_queue() here we can hit a race.
-> +                        */
-> +                       if (!list->hdev || !list->hdev->debug) {
-> +                               ret = -EIO;
-> +                               set_current_state(TASK_RUNNING);
-> +                               goto out;
-> +                       }
-> +
-> +                       /* allow O_NONBLOCK from other threads */
-> +                       mutex_unlock(&list->read_mutex);
-> +                       schedule();
-> +                       mutex_lock(&list->read_mutex);
-> +                       set_current_state(TASK_INTERRUPTIBLE);
-> +               }
-> +
-> +               set_current_state(TASK_RUNNING);
-> +               remove_wait_queue(&list->hdev->debug_wait, &wait);
-> +
-> +               if (ret)
-> +                       goto out;
-> +       }
->
-> -               /* pass the ringbuffer contents to userspace */
-> -copy_rest:
-> -               if (list->tail == list->head)
-> -                       goto out;
-> -               if (list->tail > list->head) {
-> -                       len = list->tail - list->head;
-> -                       if (len > count)
-> -                               len = count;
-> -
-> -                       if (copy_to_user(buffer + ret, &list->hid_debug_buf[list->head], len)) {
-> -                               ret = -EFAULT;
-> -                               goto out;
-> -                       }
-> -                       ret += len;
-> -                       list->head += len;
-> -               } else {
-> -                       len = HID_DEBUG_BUFSIZE - list->head;
-> -                       if (len > count)
-> -                               len = count;
-> -
-> -                       if (copy_to_user(buffer, &list->hid_debug_buf[list->head], len)) {
-> -                               ret = -EFAULT;
-> -                               goto out;
-> -                       }
-> -                       list->head = 0;
-> -                       ret += len;
-> -                       count -= len;
-> -                       if (count > 0)
-> -                               goto copy_rest;
-> -               }
-> -
-> -       }
-> +       /* pass the fifo content to userspace, locking is not needed with only
-> +        * one concurrent reader and one concurrent writer
-> +        */
-> +       ret = kfifo_to_user(&list->hid_debug_fifo, buffer, count, &copied);
-> +       if (ret)
-> +               goto out;
-> +       ret = copied;
->  out:
->         mutex_unlock(&list->read_mutex);
->         return ret;
-> @@ -1185,7 +1160,7 @@ static __poll_t hid_debug_events_poll(struct file *file, poll_table *wait)
->         struct hid_debug_list *list = file->private_data;
->
->         poll_wait(file, &list->hdev->debug_wait, wait);
-> -       if (list->head != list->tail)
-> +       if (!kfifo_is_empty(&list->hid_debug_fifo))
->                 return EPOLLIN | EPOLLRDNORM;
->         if (!list->hdev->debug)
->                 return EPOLLERR | EPOLLHUP;
-> @@ -1200,7 +1175,7 @@ static int hid_debug_events_release(struct inode *inode, struct file *file)
->         spin_lock_irqsave(&list->hdev->debug_list_lock, flags);
->         list_del(&list->node);
->         spin_unlock_irqrestore(&list->hdev->debug_list_lock, flags);
-> -       kfree(list->hid_debug_buf);
-> +       kfifo_free(&list->hid_debug_fifo);
->         kfree(list);
->
->         return 0;
-> @@ -1246,4 +1221,3 @@ void hid_debug_exit(void)
->  {
->         debugfs_remove_recursive(hid_debug_root);
+>  	bool pressed = !(scancode & MHL_RCP_KEY_RELEASED_MASK);
+> @@ -1774,6 +1777,12 @@ static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
+>  
+>  	return true;
 >  }
-> -
-> diff --git a/include/linux/hid-debug.h b/include/linux/hid-debug.h
-> index 8663f216c563..e7a7c92aaf09 100644
-> --- a/include/linux/hid-debug.h
-> +++ b/include/linux/hid-debug.h
-> @@ -24,7 +24,10 @@
->
->  #ifdef CONFIG_DEBUG_FS
->
-> +#include <linux/kfifo.h>
-> +
->  #define HID_DEBUG_BUFSIZE 512
-> +#define HID_DEBUG_FIFOSIZE 512
->
->  void hid_dump_input(struct hid_device *, struct hid_usage *, __s32);
->  void hid_dump_report(struct hid_device *, int , u8 *, int);
-> @@ -38,10 +41,7 @@ void hid_debug_event(struct hid_device *, char *);
->  void hid_debug_event(struct hid_device *, char *);
->
-> -
->  struct hid_debug_list {
-> -       char *hid_debug_buf;
-> -       int head;
-> -       int tail;
-> +       DECLARE_KFIFO_PTR(hid_debug_fifo, char);
->         struct fasync_struct *fasync;
->         struct hid_device *hdev;
->         struct list_head node;
-> @@ -64,4 +64,3 @@ struct hid_debug_list {
->  #endif
->
->  #endif
-> -
+> +#else
+> +static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
+> +{
+> +	return false;
+> +}
+> +#endif
+>  
+>  static void sii8620_msc_mr_set_int(struct sii8620 *ctx)
+>  {
+> @@ -2097,6 +2106,7 @@ static void sii8620_cable_in(struct sii8620 *ctx)
+>  	enable_irq(to_i2c_client(ctx->dev)->irq);
+>  }
+>  
+> +#if IS_ENABLED(CONFIG_RC_CORE)
+>  static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+>  {
+>  	struct rc_dev *rc_dev;
+> @@ -2126,6 +2136,11 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+>  	}
+>  	ctx->rc_dev = rc_dev;
+>  }
+> +#else
+> +static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+> +{
+> +}
+> +#endif
+>  
+>  static void sii8620_cable_out(struct sii8620 *ctx)
+>  {
+> @@ -2214,9 +2229,11 @@ static int sii8620_attach(struct drm_bridge *bridge)
+>  
+>  static void sii8620_detach(struct drm_bridge *bridge)
+>  {
+> +#if IS_ENABLED(CONFIG_RC_CORE)
+>  	struct sii8620 *ctx = bridge_to_sii8620(bridge);
+>  
+>  	rc_unregister_device(ctx->rc_dev);
+> +#endif
+>  }
+
+
+In two cases you create stub functions, in the third you put ifdefs
+inside function, some lack of consistency.
+
+I wonder if it wouldn't be better to create stubs just for rc_core
+functions, the best would be to put stubs into rc-core.h, but if the
+case of 'optional rc-core' is too rare you can put stubs into the driver:
+
+diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c
+b/drivers/gpu/drm/bridge/sil-sii8620.c
+
+index a6e8f4591e63..6ca838d30f93 100644
+--- a/drivers/gpu/drm/bridge/sil-sii8620.c
++++ b/drivers/gpu/drm/bridge/sil-sii8620.c
+@@ -35,6 +35,13 @@
+ 
+ #include "sil-sii8620.h"
+ 
++#if !IS_ENABLED(CONFIG_RC_CORE)
++#define rc_unregister_device(dev) ({ (void)(dev); })
++#define rc_allocate_device(type) ({ NULL; })
++#define rc_keydown(...) ({ })
++#define rc_keyup(...) ({ })
++#endif
++
+ #define SII8620_BURST_BUF_LEN 288
+ #define VAL_RX_HDMI_CTRL2_DEFVAL VAL_RX_HDMI_CTRL2_IDLE_CNT(3)
+
+Regards
+
+Andrzej
+
+
+>  
+>  static int sii8620_is_packing_required(struct sii8620 *ctx,

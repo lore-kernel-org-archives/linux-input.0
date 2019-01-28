@@ -1,57 +1,48 @@
-From: Guido =?iso-8859-1?Q?G=FCnther?= <agx@sigxcpu.org>
-Subject: [PATCH] input: goodix - support Goodix gt5688
-Date: Mon, 28 Jan 2019 18:03:10 +0100
-Message-ID: <20190128170310.GA305@bogon.m.sigxcpu.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 148/304] Input: rotary-encoder - don't log EPROBE_DEFER to kernel log
+Date: Mon, 28 Jan 2019 10:41:05 -0500
+Message-ID: <20190128154341.47195-148-sashal@kernel.org>
+References: <20190128154341.47195-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20190128154341.47195-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Bastien Nocera <hadess@hadess.net>, Matthias Brugger <matthias.bgg@gmail.com>, Guido =?iso-8859-1?Q?G=FCnther?= <agx@sigxcpu.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
->From what I've seen in vendor trees it's fine to treat this as gt1x¹.
+From: Uwe Kleine-KÃ¶nig <uwe@kleine-koenig.org>
 
-[1]: https://github.com/TadiT7/android_kernel_mtk-4.4/tree/master/drivers/input/touchscreen/mediatek/GT5688
+[ Upstream commit 0832e93632c61987d504e251b927a2be769dd21a ]
 
-Signed-off-by: Guido Günther <agx@sigxcpu.org>
+When a driver fails to bind because a resource it still missing it's not
+helpful to report this as (usually) probing is repeated later.
+
+Signed-off-by: Uwe Kleine-KÃ¶nig <uwe@kleine-koenig.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
- drivers/input/touchscreen/goodix.c                             | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/input/misc/rotary_encoder.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index f7e95c52f3c7..57d3d8870a09 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
- Required properties:
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index 30ec77ad32c6..d748897bf5e9 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -240,8 +240,10 @@ static int rotary_encoder_probe(struct platform_device *pdev)
  
-  - compatible		: Should be "goodix,gt1151"
-+				 or "goodix,gt5688"
- 				 or "goodix,gt911"
- 				 or "goodix,gt9110"
- 				 or "goodix,gt912"
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index f2d9c2c41885..47b1ced41576 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -216,6 +216,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
- {
- 	switch (id) {
- 	case 1151:
-+	case 5688:
- 		return &gt1x_chip_data;
- 
- 	case 911:
-@@ -942,6 +943,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
- #ifdef CONFIG_OF
- static const struct of_device_id goodix_of_match[] = {
- 	{ .compatible = "goodix,gt1151" },
-+	{ .compatible = "goodix,gt5688" },
- 	{ .compatible = "goodix,gt911" },
- 	{ .compatible = "goodix,gt9110" },
- 	{ .compatible = "goodix,gt912" },
+ 	encoder->gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
+ 	if (IS_ERR(encoder->gpios)) {
+-		dev_err(dev, "unable to get gpios\n");
+-		return PTR_ERR(encoder->gpios);
++		err = PTR_ERR(encoder->gpios);
++		if (err != -EPROBE_DEFER)
++			dev_err(dev, "unable to get gpios: %d\n", err);
++		return err;
+ 	}
+ 	if (encoder->gpios->ndescs < 2) {
+ 		dev_err(dev, "not enough gpios found\n");
 -- 
-2.20.1
+2.19.1

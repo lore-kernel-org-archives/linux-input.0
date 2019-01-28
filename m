@@ -1,33 +1,58 @@
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: Re: [PATCH v2] HID: debug: fix the ring buffer implementation
-Date: Mon, 28 Jan 2019 12:18:19 +0100
-Message-ID: <20190128111818.GA22143@redhat.com>
-References: <20190126170722.8035-1-vdronov@redhat.com>
- <CAO-hwJJGux_5bQJmXgLrcj+v=n3n8hvqXfqPEu60aghYNJSfzw@mail.gmail.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 294/304] HID: lenovo: Add checks to fix of_led_classdev_register
+Date: Mon, 28 Jan 2019 10:43:31 -0500
+Message-ID: <20190128154341.47195-294-sashal@kernel.org>
+References: <20190128154341.47195-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAO-hwJJGux_5bQJmXgLrcj+v=n3n8hvqXfqPEu60aghYNJSfzw@mail.gmail.com>
+In-Reply-To: <20190128154341.47195-1-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Vladis Dronov <vdronov@redhat.com>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Aditya Pakki <pakki001@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 01/28, Benjamin Tissoires wrote:
->
-> Oleg, can you provide some feedback before I push this?
+From: Aditya Pakki <pakki001@umn.edu>
 
-Looks good to me, feel free to add
+[ Upstream commit 6ae16dfb61bce538d48b7fe98160fada446056c5 ]
 
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+In lenovo_probe_tpkbd(), the function of_led_classdev_register() could
+return an error value that is unchecked. The fix adds these checks.
 
-> > +               set_current_state(TASK_RUNNING);
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-lenovo.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-I still think that
-
-		    __set_current_state(TASK_RUNNING);
-
-will look a bit better, but this is really minor.
-
-Oleg.
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index 643b6eb54442..eacc76d2ab96 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -743,7 +743,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	data_pointer->led_mute.brightness_get = lenovo_led_brightness_get_tpkbd;
+ 	data_pointer->led_mute.brightness_set = lenovo_led_brightness_set_tpkbd;
+ 	data_pointer->led_mute.dev = dev;
+-	led_classdev_register(dev, &data_pointer->led_mute);
++	ret = led_classdev_register(dev, &data_pointer->led_mute);
++	if (ret < 0)
++		goto err;
+ 
+ 	data_pointer->led_micmute.name = name_micmute;
+ 	data_pointer->led_micmute.brightness_get =
+@@ -751,7 +753,11 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	data_pointer->led_micmute.brightness_set =
+ 		lenovo_led_brightness_set_tpkbd;
+ 	data_pointer->led_micmute.dev = dev;
+-	led_classdev_register(dev, &data_pointer->led_micmute);
++	ret = led_classdev_register(dev, &data_pointer->led_micmute);
++	if (ret < 0) {
++		led_classdev_unregister(&data_pointer->led_mute);
++		goto err;
++	}
+ 
+ 	lenovo_features_set_tpkbd(hdev);
+ 
+-- 
+2.19.1

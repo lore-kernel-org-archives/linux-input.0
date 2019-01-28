@@ -1,64 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.20 148/304] Input: rotary-encoder - don't log
- EPROBE_DEFER to kernel log
-Date: Mon, 28 Jan 2019 10:24:05 -0800
-Message-ID: <20190128182405.GA30191@dtor-ws>
-References: <20190128154341.47195-1-sashal@kernel.org>
- <20190128154341.47195-148-sashal@kernel.org>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] input: goodix - support Goodix gt5688
+Date: Mon, 28 Jan 2019 19:24:33 +0100
+Message-ID: <7e289e6b3410a3fdea99d7d6becfe5180a69f0c5.camel@hadess.net>
+References: <20190128170310.GA305@bogon.m.sigxcpu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190128154341.47195-148-sashal@kernel.org>
+In-Reply-To: <20190128170310.GA305@bogon.m.sigxcpu.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sasha Levin <sashal@kernel.org>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>, linux-input@vger.kernel.org
+To: Guido =?ISO-8859-1?Q?G=FCnther?= <agx@sigxcpu.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Sasha,
-
-On Mon, Jan 28, 2019 at 10:41:05AM -0500, Sasha Levin wrote:
-> From: Uwe Kleine-König <uwe@kleine-koenig.org>
+On Mon, 2019-01-28 at 18:03 +0100, Guido GÃ¼nther wrote:
+> From what I've seen in vendor trees it's fine to treat this as gt1xÂ¹.
 > 
-> [ Upstream commit 0832e93632c61987d504e251b927a2be769dd21a ]
-> 
-> When a driver fails to bind because a resource it still missing it's not
-> helpful to report this as (usually) probing is repeated later.
+> [1]: https://github.com/TadiT7/android_kernel_mtk-4.4/tree/master/drivers/input/touchscreen/mediatek/GT5688
 
-I do not think that patch that merely suppresses a harmless warning in
-dmesg belongs in stable.
+Can you please point to the exact line of code that makes you say that?
+I'm not saying it's not compatible, but it's not the same driver that
+the current goodix.c was based on, or even goodix.c.
 
-> 
-> Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Can you please elaborate?
+
+Finding that data in the specs would also be fine:
+https://github.com/hadess/gt9xx/tree/master/specifications
+
+Cheers
+
+[1]: original driver:
+https://github.com/hadess/gt9xx/commit/82b141220e8bce00060e0de697735d0a70af2678
+
+> Signed-off-by: Guido GÃ¼nther <agx@sigxcpu.org>
 > ---
->  drivers/input/misc/rotary_encoder.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
+>  Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+>  drivers/input/touchscreen/goodix.c                             | 2
+> ++
+>  2 files changed, 3 insertions(+)
 > 
-> diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-> index 30ec77ad32c6..d748897bf5e9 100644
-> --- a/drivers/input/misc/rotary_encoder.c
-> +++ b/drivers/input/misc/rotary_encoder.c
-> @@ -240,8 +240,10 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+> diff --git
+> a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> index f7e95c52f3c7..57d3d8870a09 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> @@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series
+> touchscreen controller
+>  Required properties:
 >  
->  	encoder->gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
->  	if (IS_ERR(encoder->gpios)) {
-> -		dev_err(dev, "unable to get gpios\n");
-> -		return PTR_ERR(encoder->gpios);
-> +		err = PTR_ERR(encoder->gpios);
-> +		if (err != -EPROBE_DEFER)
-> +			dev_err(dev, "unable to get gpios: %d\n", err);
-> +		return err;
->  	}
->  	if (encoder->gpios->ndescs < 2) {
->  		dev_err(dev, "not enough gpios found\n");
-> -- 
-> 2.19.1
-> 
-
-Thanks.
-
--- 
-Dmitry
+>   - compatible		: Should be "goodix,gt1151"
+> +				 or "goodix,gt5688"
+>  				 or "goodix,gt911"
+>  				 or "goodix,gt9110"
+>  				 or "goodix,gt912"
+> diff --git a/drivers/input/touchscreen/goodix.c
+> b/drivers/input/touchscreen/goodix.c
+> index f2d9c2c41885..47b1ced41576 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -216,6 +216,7 @@ static const struct goodix_chip_data
+> *goodix_get_chip_data(u16 id)
+>  {
+>  	switch (id) {
+>  	case 1151:
+> +	case 5688:
+>  		return &gt1x_chip_data;
+>  
+>  	case 911:
+> @@ -942,6 +943,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
+>  #ifdef CONFIG_OF
+>  static const struct of_device_id goodix_of_match[] = {
+>  	{ .compatible = "goodix,gt1151" },
+> +	{ .compatible = "goodix,gt5688" },
+>  	{ .compatible = "goodix,gt911" },
+>  	{ .compatible = "goodix,gt9110" },
+>  	{ .compatible = "goodix,gt912" },

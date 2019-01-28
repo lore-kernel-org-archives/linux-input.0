@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 77/80] HID: lenovo: Add checks to fix of_led_classdev_register
-Date: Mon, 28 Jan 2019 11:23:58 -0500
-Message-ID: <20190128162401.58841-77-sashal@kernel.org>
-References: <20190128162401.58841-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 102/107] HID: lenovo: Add checks to fix of_led_classdev_register
+Date: Mon, 28 Jan 2019 11:19:42 -0500
+Message-ID: <20190128161947.57405-102-sashal@kernel.org>
+References: <20190128161947.57405-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190128162401.58841-1-sashal@kernel.org>
+In-Reply-To: <20190128161947.57405-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Aditya Pakki <pakki001@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -27,10 +27,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 8979f1fd5208..24a4a23bdc90 100644
+index 1ac4ff4d57a6..d409cc8759fc 100644
 --- a/drivers/hid/hid-lenovo.c
 +++ b/drivers/hid/hid-lenovo.c
-@@ -703,7 +703,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+@@ -713,7 +713,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
  	data_pointer->led_mute.brightness_get = lenovo_led_brightness_get_tpkbd;
  	data_pointer->led_mute.brightness_set = lenovo_led_brightness_set_tpkbd;
  	data_pointer->led_mute.dev = dev;
@@ -41,7 +41,7 @@ index 8979f1fd5208..24a4a23bdc90 100644
  
  	data_pointer->led_micmute.name = name_micmute;
  	data_pointer->led_micmute.brightness_get =
-@@ -711,7 +713,11 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+@@ -721,7 +723,11 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
  	data_pointer->led_micmute.brightness_set =
  		lenovo_led_brightness_set_tpkbd;
  	data_pointer->led_micmute.dev = dev;

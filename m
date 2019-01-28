@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 081/170] Input: rotary-encoder - don't log EPROBE_DEFER to kernel log
-Date: Mon, 28 Jan 2019 11:10:31 -0500
-Message-ID: <20190128161200.55107-81-sashal@kernel.org>
-References: <20190128161200.55107-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 047/107] Input: rotary-encoder - don't log EPROBE_DEFER to kernel log
+Date: Mon, 28 Jan 2019 11:18:47 -0500
+Message-ID: <20190128161947.57405-47-sashal@kernel.org>
+References: <20190128161947.57405-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190128161200.55107-1-sashal@kernel.org>
+In-Reply-To: <20190128161947.57405-1-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org

@@ -1,58 +1,57 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 163/170] HID: lenovo: Add checks to fix of_led_classdev_register
-Date: Mon, 28 Jan 2019 11:11:53 -0500
-Message-ID: <20190128161200.55107-163-sashal@kernel.org>
-References: <20190128161200.55107-1-sashal@kernel.org>
+From: Guido =?iso-8859-1?Q?G=FCnther?= <agx@sigxcpu.org>
+Subject: [PATCH] input: goodix - support Goodix gt5688
+Date: Mon, 28 Jan 2019 18:03:10 +0100
+Message-ID: <20190128170310.GA305@bogon.m.sigxcpu.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190128161200.55107-1-sashal@kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Aditya Pakki <pakki001@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Bastien Nocera <hadess@hadess.net>, Matthias Brugger <matthias.bgg@gmail.com>, Guido =?iso-8859-1?Q?G=FCnther?= <agx@sigxcpu.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+>From what I've seen in vendor trees it's fine to treat this as gt1x¹.
 
-[ Upstream commit 6ae16dfb61bce538d48b7fe98160fada446056c5 ]
+[1]: https://github.com/TadiT7/android_kernel_mtk-4.4/tree/master/drivers/input/touchscreen/mediatek/GT5688
 
-In lenovo_probe_tpkbd(), the function of_led_classdev_register() could
-return an error value that is unchecked. The fix adds these checks.
-
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Guido Günther <agx@sigxcpu.org>
 ---
- drivers/hid/hid-lenovo.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+ drivers/input/touchscreen/goodix.c                             | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 643b6eb54442..eacc76d2ab96 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -743,7 +743,9 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
- 	data_pointer->led_mute.brightness_get = lenovo_led_brightness_get_tpkbd;
- 	data_pointer->led_mute.brightness_set = lenovo_led_brightness_set_tpkbd;
- 	data_pointer->led_mute.dev = dev;
--	led_classdev_register(dev, &data_pointer->led_mute);
-+	ret = led_classdev_register(dev, &data_pointer->led_mute);
-+	if (ret < 0)
-+		goto err;
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+index f7e95c52f3c7..57d3d8870a09 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+@@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
+ Required properties:
  
- 	data_pointer->led_micmute.name = name_micmute;
- 	data_pointer->led_micmute.brightness_get =
-@@ -751,7 +753,11 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
- 	data_pointer->led_micmute.brightness_set =
- 		lenovo_led_brightness_set_tpkbd;
- 	data_pointer->led_micmute.dev = dev;
--	led_classdev_register(dev, &data_pointer->led_micmute);
-+	ret = led_classdev_register(dev, &data_pointer->led_micmute);
-+	if (ret < 0) {
-+		led_classdev_unregister(&data_pointer->led_mute);
-+		goto err;
-+	}
+  - compatible		: Should be "goodix,gt1151"
++				 or "goodix,gt5688"
+ 				 or "goodix,gt911"
+ 				 or "goodix,gt9110"
+ 				 or "goodix,gt912"
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index f2d9c2c41885..47b1ced41576 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -216,6 +216,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
+ {
+ 	switch (id) {
+ 	case 1151:
++	case 5688:
+ 		return &gt1x_chip_data;
  
- 	lenovo_features_set_tpkbd(hdev);
- 
+ 	case 911:
+@@ -942,6 +943,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
+ #ifdef CONFIG_OF
+ static const struct of_device_id goodix_of_match[] = {
+ 	{ .compatible = "goodix,gt1151" },
++	{ .compatible = "goodix,gt5688" },
+ 	{ .compatible = "goodix,gt911" },
+ 	{ .compatible = "goodix,gt9110" },
+ 	{ .compatible = "goodix,gt912" },
 -- 
-2.19.1
+2.20.1

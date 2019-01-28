@@ -1,36 +1,48 @@
-From: Stefan Agner <stefan@agner.ch>
-Subject: [PATCH 1/3] input: keyboard: allow to select IMX SNVS Power Key driver for i.MX 7D
-Date: Mon, 28 Jan 2019 17:03:05 +0100
-Message-ID: <20190128160305.22398-1-stefan@agner.ch>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 124/258] Input: rotary-encoder - don't log EPROBE_DEFER to kernel log
+Date: Mon, 28 Jan 2019 10:57:10 -0500
+Message-ID: <20190128155924.51521-124-sashal@kernel.org>
+References: <20190128155924.51521-1-sashal@kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190128155924.51521-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: arnd@arndb.de, peng.fan@nxp.com, linux-imx@nxp.com, kernel@pengutronix.de, fabio.estevam@nxp.com, shawnguo@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Stefan Agner <stefan@agner.ch>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The i.MX SNVS Power Key driver supports the i.MX 7D SoC family too.
-Allow to enable the i.MX SNVS Power Key driver even if only i.MX 7D
-SoC is selected.
+From: Uwe Kleine-König <uwe@kleine-koenig.org>
 
-Signed-off-by: Stefan Agner <stefan@agner.ch>
+[ Upstream commit 0832e93632c61987d504e251b927a2be769dd21a ]
+
+When a driver fails to bind because a resource it still missing it's not
+helpful to report this as (usually) probing is repeated later.
+
+Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/misc/rotary_encoder.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 4713957b0cbb..a878351f1643 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -420,7 +420,7 @@ config KEYBOARD_MPR121
+diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
+index 30ec77ad32c6..d748897bf5e9 100644
+--- a/drivers/input/misc/rotary_encoder.c
++++ b/drivers/input/misc/rotary_encoder.c
+@@ -240,8 +240,10 @@ static int rotary_encoder_probe(struct platform_device *pdev)
  
- config KEYBOARD_SNVS_PWRKEY
- 	tristate "IMX SNVS Power Key Driver"
--	depends on SOC_IMX6SX
-+	depends on SOC_IMX6SX || SOC_IMX7D
- 	depends on OF
- 	help
- 	  This is the snvs powerkey driver for the Freescale i.MX application
+ 	encoder->gpios = devm_gpiod_get_array(dev, NULL, GPIOD_IN);
+ 	if (IS_ERR(encoder->gpios)) {
+-		dev_err(dev, "unable to get gpios\n");
+-		return PTR_ERR(encoder->gpios);
++		err = PTR_ERR(encoder->gpios);
++		if (err != -EPROBE_DEFER)
++			dev_err(dev, "unable to get gpios: %d\n", err);
++		return err;
+ 	}
+ 	if (encoder->gpios->ndescs < 2) {
+ 		dev_err(dev, "not enough gpios found\n");
 -- 
-2.20.1
+2.19.1

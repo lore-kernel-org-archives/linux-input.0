@@ -1,76 +1,82 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RESEND PATCH v2 8/8] Input: sx8654 - convert #defined flags to
- BIT(x)
-Date: Mon, 28 Jan 2019 16:25:18 -0800
-Message-ID: <20190129002518.GH34692@dtor-ws>
+Subject: Re: [RESEND PATCH v2 7/8] Input: sx8654 - use common of_touchscreen
+ functions
+Date: Mon, 28 Jan 2019 16:25:26 -0800
+Message-ID: <20190129002526.GI34692@dtor-ws>
 References: <20181218083606.25795-1-richard.leitner@skidata.com>
- <20181218084002.19454-1-richard.leitner@skidata.com>
+ <20181218083946.13823-1-richard.leitner@skidata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181218084002.19454-1-richard.leitner@skidata.com>
+In-Reply-To: <20181218083946.13823-1-richard.leitner@skidata.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Richard Leitner <richard.leitner@skidata.com>
 Cc: mark.rutland@arm.com, robh+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Dec 18, 2018 at 09:40:02AM +0100, Richard Leitner wrote:
-> Some of the #defined register values are one-bit flags. Convert them to
-> use the BIT(x) macro instead of 1 byte hexadecimal values. This improves
-> readability and clarifies the intent.
+On Tue, Dec 18, 2018 at 09:39:46AM +0100, Richard Leitner wrote:
+> of_touchscreen.c provides a common interface for a axis invertion and
+> swapping of touchscreens. Therefore use it in the sx8654 driver.
 > 
 > Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/touchscreen/sx8654.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
+>  drivers/input/touchscreen/sx8654.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-> index b7b263ed52af..3746ea855f94 100644
+> index 4939863efbef..b7b263ed52af 100644
 > --- a/drivers/input/touchscreen/sx8654.c
 > +++ b/drivers/input/touchscreen/sx8654.c
-> @@ -36,6 +36,7 @@
+> @@ -35,6 +35,7 @@
+>  #include <linux/irq.h>
 >  #include <linux/gpio/consumer.h>
 >  #include <linux/delay.h>
->  #include <linux/input/touchscreen.h>
-> +#include <linux/bitops.h>
+> +#include <linux/input/touchscreen.h>
 >  
 >  /* register addresses */
 >  #define I2C_REG_TOUCH0			0x00
-> @@ -46,7 +47,7 @@
->  #define I2C_REG_SOFTRESET		0x3f
+> @@ -101,6 +102,7 @@ struct sx8654 {
 >  
->  #define I2C_REG_SX8650_STAT		0x05
-> -#define SX8650_STAT_CONVIRQ		0x80
-> +#define SX8650_STAT_CONVIRQ		BIT(7)
+>  	spinlock_t		lock; /* for input reporting from irq/timer */
+>  	struct timer_list	timer;
+> +	struct touchscreen_properties props;
 >  
->  /* commands */
->  #define CMD_READ_REGISTER		0x40
-> @@ -56,8 +57,8 @@
->  #define SOFTRESET_VALUE			0xde
+>  	const struct sx865x_data *data;
+>  };
+> @@ -178,8 +180,7 @@ static irqreturn_t sx8650_irq(int irq, void *handle)
+>  				 chdata);
+>  	}
 >  
->  /* bits for I2C_REG_IRQSRC */
-> -#define IRQ_PENTOUCH_TOUCHCONVDONE	0x08
-> -#define IRQ_PENRELEASE			0x04
-> +#define IRQ_PENTOUCH_TOUCHCONVDONE	BIT(7)
-> +#define IRQ_PENRELEASE			BIT(6)
+> -	input_report_abs(ts->input, ABS_X, x);
+> -	input_report_abs(ts->input, ABS_Y, y);
+> +	touchscreen_report_pos(ts->input, &ts->props, x, y, false);
+>  	input_report_key(ts->input, BTN_TOUCH, 1);
+>  	input_sync(ts->input);
+>  	dev_dbg(dev, "point(%4d,%4d)\n", x, y);
+> @@ -226,8 +227,8 @@ static irqreturn_t sx8654_irq(int irq, void *handle)
+>  		x = ((data[0] & 0xf) << 8) | (data[1]);
+>  		y = ((data[2] & 0xf) << 8) | (data[3]);
 >  
->  /* bits for RegTouch1 */
->  #define CONDIRQ				0x20
-> @@ -65,8 +66,8 @@
->  #define FILT_7SA			0x03
+> -		input_report_abs(sx8654->input, ABS_X, x);
+> -		input_report_abs(sx8654->input, ABS_Y, y);
+> +		touchscreen_report_pos(sx8654->input, &sx8654->props, x, y,
+> +				       false);
+>  		input_report_key(sx8654->input, BTN_TOUCH, 1);
+>  		input_sync(sx8654->input);
 >  
->  /* bits for I2C_REG_CHANMASK */
-> -#define CONV_X				0x80
-> -#define CONV_Y				0x40
-> +#define CONV_X				BIT(7)
-> +#define CONV_Y				BIT(6)
+> @@ -377,6 +378,8 @@ static int sx8654_probe(struct i2c_client *client,
+>  	input_set_abs_params(input, ABS_X, 0, MAX_12BIT, 0, 0);
+>  	input_set_abs_params(input, ABS_Y, 0, MAX_12BIT, 0, 0);
 >  
->  /* coordinates rate: higher nibble of CTRL0 register */
->  #define RATE_MANUAL			0x00
+> +	touchscreen_parse_properties(input, false, &sx8654->props);
+> +
+>  	sx8654->client = client;
+>  	sx8654->input = input;
+>  
 > -- 
 > 2.11.0
 > 

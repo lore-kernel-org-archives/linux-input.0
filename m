@@ -1,127 +1,45 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3] HID: i2c-hid: Ignore input report if there's no data
- present on Elan touchpanels
-Date: Tue, 29 Jan 2019 11:05:53 +0100
-Message-ID: <CAO-hwJ+CF-obuUK9T=x0ggJRLBNmM3H6-FfKjv2y0LT96C=TUg@mail.gmail.com>
-References: <20190107072429.23828-1-kai.heng.feng@canonical.com>
- <CAO-hwJKo=EaPoXJLGUvjq3QRng1V1NkO7A5zYGojbPyxxyJYHA@mail.gmail.com> <D7C6B90F-641A-495B-9E05-78BF4F56B552@canonical.com>
+From: Martin Kepplinger <martink@posteo.de>
+Subject: [PATCH 1/2] dt-bindings: input: sitronix-st1232: document optional reset-gpios property
+Date: Tue, 29 Jan 2019 11:23:46 +0100
+Message-ID: <20190129102347.27754-1-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <D7C6B90F-641A-495B-9E05-78BF4F56B552@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jan 21, 2019 at 4:30 AM Kai-Heng Feng
-<kai.heng.feng@canonical.com> wrote:
->
->
->
-> > On Jan 18, 2019, at 23:50, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> >
-> > Hi Kai-Heng,
-> >
-> > On Mon, Jan 7, 2019 at 8:24 AM Kai-Heng Feng
-> > <kai.heng.feng@canonical.com> wrote:
-> >>
-> >> While using Elan touchpads, the message floods:
-> >> [  136.138487] i2c_hid i2c-DELL08D6:00: i2c_hid_get_input: incomplete report (14/65535)
-> >>
-> >> Though the message flood is annoying, the device it self works without
-> >> any issue. I suspect that the device in question takes too much time to
-> >> pull the IRQ back to high after I2C host has done reading its data.
-> >>
-> >> Since the host receives all useful data, let's ignore the input report
-> >> when there's no data.
-> >>
-> >> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> >
-> > Thanks for the v3.
-> >
-> > This patch has just been brought to my attention, and I have one
-> > question before applying it:
-> > are those messages (without your patch) occurring all the time, or
-> > just after resume?
->
-> All the time.
->
-> The touchpad works fine though. The entire report is 0xff, so it can be
-> safely ignored.
+From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 
-Couple of things:
-- I have forgotten to tell you that I have applied this patch in
-for-5.1/i2c-hid, it will be pushed to linux-next today.
-- Dell told me that a BIOS fix was solving the issue. We can still
-quarry the patch, but there should not be a strong need for it when
-users upgrade their BIOS.
+The st1232 driver reads this via gpiod.
 
-Cheers,
-Benjamin
+Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+---
+ .../devicetree/bindings/input/touchscreen/sitronix-st1232.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
->
-> >
-> > I wonder if the pm_suspend delay we talked about in the other thread
-> > would fix that issue in a cleaner way.
->
-> I’ve replied in another thread, unfortunately it can’t.
->
-> We can introduce msleep() between each commands though, but I don’t
-> think it’s good either.
->
-> Kai-Heng
->
-> >
-> > Cheers,
-> > Benjamin
-> >
-> >> ---
-> >> v3:
-> >> Fix compiler error/warnings.
-> >>
-> >> v2:
-> >> Use dev_warn_once() to warn the user about the situation.
-> >>
-> >> drivers/hid/i2c-hid/i2c-hid-core.c | 9 +++++++++
-> >> 1 file changed, 9 insertions(+)
-> >>
-> >> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-> >> index 8555ce7e737b..2f940c1de616 100644
-> >> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> >> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> >> @@ -50,6 +50,7 @@
-> >> #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET       BIT(1)
-> >> #define I2C_HID_QUIRK_NO_RUNTIME_PM            BIT(2)
-> >> #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP                BIT(3)
-> >> +#define I2C_HID_QUIRK_BOGUS_IRQ                        BIT(4)
-> >>
-> >> /* flags */
-> >> #define I2C_HID_STARTED                0
-> >> @@ -179,6 +180,8 @@ static const struct i2c_hid_quirks {
-> >>                I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
-> >>        { USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
-> >>                I2C_HID_QUIRK_NO_RUNTIME_PM },
-> >> +       { USB_VENDOR_ID_ELAN, HID_ANY_ID,
-> >> +                I2C_HID_QUIRK_BOGUS_IRQ },
-> >>        { 0, 0 }
-> >> };
-> >>
-> >> @@ -503,6 +506,12 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
-> >>                return;
-> >>        }
-> >>
-> >> +       if (ihid->quirks & I2C_HID_QUIRK_BOGUS_IRQ && ret_size == 0xffff) {
-> >> +               dev_warn_once(&ihid->client->dev, "%s: IRQ triggered but "
-> >> +                             "there's no data\n", __func__);
-> >> +               return;
-> >> +       }
-> >> +
-> >>        if ((ret_size > size) || (ret_size < 2)) {
-> >>                dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
-> >>                        __func__, size, ret_size);
-> >> --
-> >> 2.17.1
-> >>
->
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+index e73e826e0f2a..365b32d30d4b 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+@@ -8,7 +8,7 @@ Required properties:
+ - interrupts: interrupt to which the chip is connected
+ 
+ Optional properties:
+-- gpios: a phandle to the reset GPIO
++- reset-gpios: a phandle to the reset GPIO
+ 
+ Example:
+ 
+@@ -19,7 +19,7 @@ Example:
+ 			compatible = "sitronix,st1232";
+ 			reg = <0x55>;
+ 			interrupts = <2 0>;
+-			gpios = <&gpio1 166 0>;
++			reset-gpios = <&gpio1 166 0>;
+ 		};
+ 
+ 		/* ... */
+-- 
+2.20.1

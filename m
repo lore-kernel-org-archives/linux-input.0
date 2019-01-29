@@ -1,81 +1,61 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH 2/2] Input: st1232 - switch to gpiod API
-Date: Tue, 29 Jan 2019 11:23:47 +0100
-Message-ID: <20190129102347.27754-2-martink@posteo.de>
-References: <20190129102347.27754-1-martink@posteo.de>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] input: goodix - support Goodix gt5688
+Date: Tue, 29 Jan 2019 11:30:53 +0100
+Message-ID: <12e21befacf68861ddf34020838ff7a6e6e078ad.camel@hadess.net>
+References: <20190128170310.GA305@bogon.m.sigxcpu.org>
+         <7e289e6b3410a3fdea99d7d6becfe5180a69f0c5.camel@hadess.net>
+         <20190129091651.GA8497@bogon.m.sigxcpu.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190129102347.27754-1-martink@posteo.de>
+In-Reply-To: <20190129091651.GA8497@bogon.m.sigxcpu.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
+To: Guido =?ISO-8859-1?Q?G=FCnther?= <agx@sigxcpu.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+On Tue, 2019-01-29 at 10:16 +0100, Guido Günther wrote:
+> Hi,
+> On Mon, Jan 28, 2019 at 07:24:33PM +0100, Bastien Nocera wrote:
+> > On Mon, 2019-01-28 at 18:03 +0100, Guido Günther wrote:
+> > > From what I've seen in vendor trees it's fine to treat this as
+> > > gt1x¹.
+> > > 
+> > > [1]: 
+> > > https://github.com/TadiT7/android_kernel_mtk-4.4/tree/master/drivers/input/touchscreen/mediatek/GT5688
+> > 
+> > Can you please point to the exact line of code that makes you say
+> > that?
+> > I'm not saying it's not compatible, but it's not the same driver
+> > that
+> > the current goodix.c was based on, or even goodix.c.
+> > 
+> > Can you please elaborate?
+> 
+> I basically looked at the registers uses for the config update:
+> 
+> https://github.com/TadiT7/android_kernel_mtk-4.4/blob/master/drivers/input/touchscreen/mediatek/GT5688/include/gt1x_tpd_common.h#L152
+> https://github.com/TadiT7/android_kernel_mtk-4.4/blob/master/drivers/input/touchscreen/mediatek/GT5688/gt1x_generic.c#L430
 
-Use devm_gpiod_get_optional() and gpiod_set_value_cansleep() instead
-of the old API. The st1232_ts_power() now passes on the inverted "poweron"
-value to reflect the correct logical value.
+I'm not sure that's good enough to say that the touchscreen models are
+compatible.
 
-Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
----
+> That and the fact that the driver is doing it's job well made me
+> believe
+> that's good for base support.
 
-Tested and works. thanks for your help Dmitry,
+If you've tested it, that's better. Can you please add a reference to
+the device that you've tested this on in the commit message?
 
-                          martin
+>  Things like hotknot, gesture wakeup and
+> proximity sensor will need additional work.
+> 
+> > Finding that data in the specs would also be fine:
+> > https://github.com/hadess/gt9xx/tree/master/specifications
+> 
+> https://github.com/hadess/gt9xx/pull/3
 
+Merged that, thanks
 
-
- drivers/input/touchscreen/st1232.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index 777df903605d..04d75b08be44 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -45,7 +45,7 @@ struct st1232_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input_dev;
- 	struct dev_pm_qos_request low_latency_req;
--	int reset_gpio;
-+	struct gpio_desc *reset_gpio;
- 	const struct st_chip_info *chip_info;
- 	int read_buf_len;
- 	u8 *read_buf;
-@@ -142,8 +142,8 @@ static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
- 
- static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
- {
--	if (gpio_is_valid(ts->reset_gpio))
--		gpio_direction_output(ts->reset_gpio, poweron);
-+	if (ts->reset_gpio)
-+		gpiod_set_value_cansleep(ts->reset_gpio, !poweron);
- }
- 
- static const struct st_chip_info st1232_chip_info = {
-@@ -215,15 +215,13 @@ static int st1232_ts_probe(struct i2c_client *client,
- 	ts->client = client;
- 	ts->input_dev = input_dev;
- 
--	ts->reset_gpio = of_get_gpio(client->dev.of_node, 0);
--	if (gpio_is_valid(ts->reset_gpio)) {
--		error = devm_gpio_request(&client->dev, ts->reset_gpio, NULL);
--		if (error) {
--			dev_err(&client->dev,
--				"Unable to request GPIO pin %d.\n",
--				ts->reset_gpio);
--				return error;
--		}
-+	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
-+						 GPIOD_OUT_HIGH);
-+	if (IS_ERR(ts->reset_gpio)) {
-+		error = PTR_ERR(ts->reset_gpio);
-+		dev_err(&client->dev, "Unable to request GPIO pin: %d.\n",
-+			error);
-+		return error;
- 	}
- 
- 	st1232_ts_power(ts, true);
--- 
-2.20.1
+Cheers

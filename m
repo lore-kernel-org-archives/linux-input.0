@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v2 05/13] dt-bindings: leds: add DT bindings for max77650
-Date: Tue, 29 Jan 2019 14:35:37 +0100
-Message-ID: <20190129133545.1931-7-brgl@bgdev.pl>
+Subject: [PATCH v2 02/13] dt-bindings: regulator: add DT bindings for max77650
+Date: Tue, 29 Jan 2019 14:35:34 +0100
+Message-ID: <20190129133545.1931-4-brgl@bgdev.pl>
 References: <20190129133545.1931-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,75 +14,59 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the LEDs module of max77650.
+Add the DT binding document for max77650 regulators.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../bindings/leds/leds-max77650.txt           | 57 +++++++++++++++++++
- 1 file changed, 57 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
+ .../bindings/regulator/max77650-regulator.txt | 41 +++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.txt
 
-diff --git a/Documentation/devicetree/bindings/leds/leds-max77650.txt b/Documentation/devicetree/bindings/leds/leds-max77650.txt
+diff --git a/Documentation/devicetree/bindings/regulator/max77650-regulator.txt b/Documentation/devicetree/bindings/regulator/max77650-regulator.txt
 new file mode 100644
-index 000000000000..b2fac8e719a6
+index 000000000000..f1cbe813c30f
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/leds/leds-max77650.txt
-@@ -0,0 +1,57 @@
-+LED driver for MAX77650 PMIC from Maxim Integrated.
++++ b/Documentation/devicetree/bindings/regulator/max77650-regulator.txt
+@@ -0,0 +1,41 @@
++Regulator driver for MAX77650 PMIC from Maxim Integrated.
 +
 +This module is part of the MAX77650 MFD device. For more details
 +see Documentation/devicetree/bindings/mfd/max77650.txt.
 +
-+The LED controller is represented as a sub-node of the PMIC node on
-+the device tree.
++The regulator controller is represented as a sub-node of the PMIC node
++on the device tree.
 +
-+This device has three current sinks.
++The device has a single LDO regulator and a SIMO buck-boost regulator with
++three independent power rails.
 +
 +Required properties:
 +--------------------
-+- compatible:		Must be "maxim,max77650-led"
-+- #address-cells:	Must be <1>.
-+- #size-cells:		Must be <0>.
++- compatible:		Must be "maxim,max77650-regulator"
 +
-+Each LED is represented as a sub-node of the LED-controller node. Up to
-+three sub-nodes can be defined.
++Each rail must be instantiated under the regulators subnode of the top PMIC
++node. Up to four regulators can be defined. For standard regulator properties
++refer to Documentation/devicetree/bindings/regulator/regulator.txt.
 +
-+Required properties of the sub-node:
-+------------------------------------
-+
-+- reg:			Must be <0>, <1> or <2>.
-+
-+Optional properties of the sub-node:
-+------------------------------------
-+
-+- label:		See Documentation/devicetree/bindings/leds/common.txt
-+- linux,default-trigger: See Documentation/devicetree/bindings/leds/common.txt
-+
-+For more details, please refer to the generic GPIO DT binding document
-+<devicetree/bindings/gpio/gpio.txt>.
++Available regulator compatible strings are: "ldo", "sbb0", "sbb1", "sbb2".
 +
 +Example:
 +--------
 +
-+	leds {
-+		compatible = "maxim,max77650-leds";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
++	regulators {
++		compatible = "maxim,max77650-regulator";
 +
-+		led@0 {
-+			reg = <0>;
-+			label = "blue:usr0";
++		max77650_ldo: regulator@0 {
++			regulator-compatible = "ldo";
++			regulator-name = "max77650-ldo";
++			regulator-min-microvolt = <1350000>;
++			regulator-max-microvolt = <2937500>;
 +		};
 +
-+		led@1 {
-+			reg = <1>;
-+			label = "red:usr1";
-+			linux,default-trigger = "heartbeat";
-+		};
-+
-+		led@2 {
-+			reg = <2>;
-+			label = "green:usr2";
++		max77650_sbb0: regulator@1 {
++			regulator-compatible = "sbb0";
++			regulator-name = "max77650-sbb0";
++			regulator-min-microvolt = <800000>;
++			regulator-max-microvolt = <1587500>;
 +		};
 +	};
 -- 

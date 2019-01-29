@@ -1,279 +1,88 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3] HID: debug: fix the ring buffer implementation
-Date: Tue, 29 Jan 2019 13:55:38 +0100
-Message-ID: <CAO-hwJLWRjyqqTnwzKVgZOunEuFWDtUO9Ma9=aoPEnVGhN1TFw@mail.gmail.com>
-References: <20190129105835.4723-1-vdronov@redhat.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH 10/13] gpio: max77650: add GPIO support
+Date: Tue, 29 Jan 2019 14:22:00 +0100
+Message-ID: <CAMRc=Mewf0p1v+afVKDhg8FJHip09ipt3_uO5uYtJP75HyuCSQ@mail.gmail.com>
+References: <20190118134244.22253-1-brgl@bgdev.pl> <20190118134244.22253-11-brgl@bgdev.pl>
+ <CACRpkdZhy7yBZrGLxhRGaac7v5jZhgUSz9gZAhFXbevJbKjpZw@mail.gmail.com>
+ <CAMRc=Me6OSKDk7bN4++M68DjoeArd+gZx16o0oQBXfRoCWBt2A@mail.gmail.com>
+ <CACRpkdacfOLSs1GPew4gMtL_BX0OTXqBQNWzWZMwAkk+Ah2ETQ@mail.gmail.com> <CAMRc=MftwsuooC8vLmnGYiiKj2rVShXeuekTrho8JRihjiBJ+w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190129105835.4723-1-vdronov@redhat.com>
+In-Reply-To: <CAMRc=MftwsuooC8vLmnGYiiKj2rVShXeuekTrho8JRihjiBJ+w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vladis Dronov <vdronov@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "3.8+" <stable@vger.kernel.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Brian Masney <masneyb@onstation.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 29, 2019 at 11:58 AM Vladis Dronov <vdronov@redhat.com> wrote:
+wt., 29 sty 2019 o 12:00 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a=
+):
 >
-> Ring buffer implementation in hid_debug_event() and hid_debug_events_read()
-> is strange allowing lost or corrupted data. After commit 717adfdaf147
-> ("HID: debug: check length before copy_to_user()") it is possible to enter
-> an infinite loop in hid_debug_events_read() by providing 0 as count, this
-> locks up a system. Fix this by rewriting the ring buffer implementation
-> with kfifo and simplify the code.
+> czw., 24 sty 2019 o 11:30 Linus Walleij <linus.walleij@linaro.org> napisa=
+=C5=82(a):
+> >
+> > On Mon, Jan 21, 2019 at 6:07 PM Bartosz Golaszewski <brgl@bgdev.pl> wro=
+te:
+> >
+> > > Thank you for your review. While I think you're right about the issue
+> > > being present in this driver, I'm not sure it's really a problem. Do
+> > > we actually require every gpio-controller to also be a stand-alone
+> > > interrupt-controller?
+> >
+> > Absolutely not :D
+> >
+> > Just GPIO is fine.
+> >
+> > > The binding document for the GPIO module doesn't
+> > > mention this - it only requires the gpio-controller property. Without
+> > > the "interrupt-controller" property dtc will bail-out if anyone uses
+> > > this node as the interrupt parent.
+> > >
+> > > If I'm wrong and we do require it, then I think we need to update
+> > > Documentation/devicetree/bindings/gpio/gpio.txt.
+> >
+> > What is weird is if a driver with DT bindings not mentioning IRQ
+> > and only probing from DT start implementing IRQ support, that
+> > becomes quite inconsistent. So then max77650_gpio_to_irq()
+> > should just return -ENOTSUPP
+> > or something for now, then it's fine.
+> >
 >
-> This fixes CVE-2019-3819.
+> I don't see it as weird at all. I see the need to define the register
+> and interrupt resources in DT for SoC peripherals becaue SoCs often
+> reuse IPs. But in the case of a self-contained i2c PMIC - the modules
+> such as GPIO are tightly coupled with the core functionality. In the
+> case of this device for example: there isn't even a separate set of
+> mask/status registers for GPIO interrupts.
 >
-> v2: fix an execution logic and add a comment
-> v3: use __set_current_state() instead of set_current_state()
+> Most mfd devices setup the resources in a hard-coded manner.
 >
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=1669187
-> Cc: stable@vger.kernel.org # v4.18+
-> Fixes: cd667ce24796 ("HID: use debugfs for events/reports dumping")
-> Fixes: 717adfdaf147 ("HID: debug: check length before copy_to_user()")
-> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-> ---
+> > We can add the (complicated) IRQ handling later.
+> >
+> > I am trying to eat my own dogfood here, I was sweating all
+> > last night trying to implement a hierarchical IRQ controller.
+> > There is no running away from that now. :/
+> >
+> > Apparently doing hierarchical IRQs demand that all irq
+> > controllers up to the top-level SoC IRQ controller support
+> > hierarchical interrupts using the v2 version of the irqdomain
+> > API, and currently it seems like the ARM
+> > GIC seems like the only top level IRQ controller that can
+> > do that.
+> >
+>
+> Yep, and for that reason I can't use the regmap irq_chip abstraction
+> for now because it doesn't implement support for hierarchical
+> interrupts either.
+>
+> How about the cascaded gpiochip irq_chip?
+>
+> Best regards,
+> Bartosz
 
-Thanks for the quick v3.
+Nah that won't work either without a proper hierarchy...
 
-I have now applied this to for-5.0/upstream-fixes with Oleg's rev-by.
+In that case, let's leave out the irq support for now. I'll send v2.
 
-Cheers,
-Benjamin
-
->  drivers/hid/hid-debug.c   | 116 ++++++++++++++------------------------
->  include/linux/hid-debug.h |   9 ++-
->  2 files changed, 47 insertions(+), 78 deletions(-)
->
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-> index c530476edba6..08870c909268 100644
-> --- a/drivers/hid/hid-debug.c
-> +++ b/drivers/hid/hid-debug.c
-> @@ -30,6 +30,7 @@
->
->  #include <linux/debugfs.h>
->  #include <linux/seq_file.h>
-> +#include <linux/kfifo.h>
->  #include <linux/sched/signal.h>
->  #include <linux/export.h>
->  #include <linux/slab.h>
-> @@ -661,17 +662,12 @@ EXPORT_SYMBOL_GPL(hid_dump_device);
->  /* enqueue string to 'events' ring buffer */
->  void hid_debug_event(struct hid_device *hdev, char *buf)
->  {
-> -       unsigned i;
->         struct hid_debug_list *list;
->         unsigned long flags;
->
->         spin_lock_irqsave(&hdev->debug_list_lock, flags);
-> -       list_for_each_entry(list, &hdev->debug_list, node) {
-> -               for (i = 0; buf[i]; i++)
-> -                       list->hid_debug_buf[(list->tail + i) % HID_DEBUG_BUFSIZE] =
-> -                               buf[i];
-> -               list->tail = (list->tail + i) % HID_DEBUG_BUFSIZE;
-> -        }
-> +       list_for_each_entry(list, &hdev->debug_list, node)
-> +               kfifo_in(&list->hid_debug_fifo, buf, strlen(buf));
->         spin_unlock_irqrestore(&hdev->debug_list_lock, flags);
->
->         wake_up_interruptible(&hdev->debug_wait);
-> @@ -722,8 +718,7 @@ void hid_dump_input(struct hid_device *hdev, struct hid_usage *usage, __s32 valu
->         hid_debug_event(hdev, buf);
->
->         kfree(buf);
-> -        wake_up_interruptible(&hdev->debug_wait);
-> -
-> +       wake_up_interruptible(&hdev->debug_wait);
->  }
->  EXPORT_SYMBOL_GPL(hid_dump_input);
->
-> @@ -1083,8 +1078,8 @@ static int hid_debug_events_open(struct inode *inode, struct file *file)
->                 goto out;
->         }
->
-> -       if (!(list->hid_debug_buf = kzalloc(HID_DEBUG_BUFSIZE, GFP_KERNEL))) {
-> -               err = -ENOMEM;
-> +       err = kfifo_alloc(&list->hid_debug_fifo, HID_DEBUG_FIFOSIZE, GFP_KERNEL);
-> +       if (err) {
->                 kfree(list);
->                 goto out;
->         }
-> @@ -1104,77 +1099,57 @@ static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
->                 size_t count, loff_t *ppos)
->  {
->         struct hid_debug_list *list = file->private_data;
-> -       int ret = 0, len;
-> +       int ret = 0, copied;
->         DECLARE_WAITQUEUE(wait, current);
->
->         mutex_lock(&list->read_mutex);
-> -       while (ret == 0) {
-> -               if (list->head == list->tail) {
-> -                       add_wait_queue(&list->hdev->debug_wait, &wait);
-> -                       set_current_state(TASK_INTERRUPTIBLE);
-> -
-> -                       while (list->head == list->tail) {
-> -                               if (file->f_flags & O_NONBLOCK) {
-> -                                       ret = -EAGAIN;
-> -                                       break;
-> -                               }
-> -                               if (signal_pending(current)) {
-> -                                       ret = -ERESTARTSYS;
-> -                                       break;
-> -                               }
-> -
-> -                               if (!list->hdev || !list->hdev->debug) {
-> -                                       ret = -EIO;
-> -                                       set_current_state(TASK_RUNNING);
-> -                                       goto out;
-> -                               }
-> -
-> -                               /* allow O_NONBLOCK from other threads */
-> -                               mutex_unlock(&list->read_mutex);
-> -                               schedule();
-> -                               mutex_lock(&list->read_mutex);
-> -                               set_current_state(TASK_INTERRUPTIBLE);
-> -                       }
-> -
-> -                       set_current_state(TASK_RUNNING);
-> -                       remove_wait_queue(&list->hdev->debug_wait, &wait);
-> -               }
-> -
-> -               if (ret)
-> -                       goto out;
-> +       if (kfifo_is_empty(&list->hid_debug_fifo)) {
-> +               add_wait_queue(&list->hdev->debug_wait, &wait);
-> +               set_current_state(TASK_INTERRUPTIBLE);
-> +
-> +               while (kfifo_is_empty(&list->hid_debug_fifo)) {
-> +                       if (file->f_flags & O_NONBLOCK) {
-> +                               ret = -EAGAIN;
-> +                               break;
-> +                       }
-> +
-> +                       if (signal_pending(current)) {
-> +                               ret = -ERESTARTSYS;
-> +                               break;
-> +                       }
-> +
-> +                       /* if list->hdev is NULL we cannot remove_wait_queue().
-> +                        * if list->hdev->debug is 0 then hid_debug_unregister()
-> +                        * was already called and list->hdev is being destroyed.
-> +                        * if we add remove_wait_queue() here we can hit a race.
-> +                        */
-> +                       if (!list->hdev || !list->hdev->debug) {
-> +                               ret = -EIO;
-> +                               set_current_state(TASK_RUNNING);
-> +                               goto out;
-> +                       }
-> +
-> +                       /* allow O_NONBLOCK from other threads */
-> +                       mutex_unlock(&list->read_mutex);
-> +                       schedule();
-> +                       mutex_lock(&list->read_mutex);
-> +                       set_current_state(TASK_INTERRUPTIBLE);
-> +               }
-> +
-> +               __set_current_state(TASK_RUNNING);
-> +               remove_wait_queue(&list->hdev->debug_wait, &wait);
-> +
-> +               if (ret)
-> +                       goto out;
-> +       }
->
-> -               /* pass the ringbuffer contents to userspace */
-> -copy_rest:
-> -               if (list->tail == list->head)
-> -                       goto out;
-> -               if (list->tail > list->head) {
-> -                       len = list->tail - list->head;
-> -                       if (len > count)
-> -                               len = count;
-> -
-> -                       if (copy_to_user(buffer + ret, &list->hid_debug_buf[list->head], len)) {
-> -                               ret = -EFAULT;
-> -                               goto out;
-> -                       }
-> -                       ret += len;
-> -                       list->head += len;
-> -               } else {
-> -                       len = HID_DEBUG_BUFSIZE - list->head;
-> -                       if (len > count)
-> -                               len = count;
-> -
-> -                       if (copy_to_user(buffer, &list->hid_debug_buf[list->head], len)) {
-> -                               ret = -EFAULT;
-> -                               goto out;
-> -                       }
-> -                       list->head = 0;
-> -                       ret += len;
-> -                       count -= len;
-> -                       if (count > 0)
-> -                               goto copy_rest;
-> -               }
-> -
-> -       }
-> +       /* pass the fifo content to userspace, locking is not needed with only
-> +        * one concurrent reader and one concurrent writer
-> +        */
-> +       ret = kfifo_to_user(&list->hid_debug_fifo, buffer, count, &copied);
-> +       if (ret)
-> +               goto out;
-> +       ret = copied;
->  out:
->         mutex_unlock(&list->read_mutex);
->         return ret;
-> @@ -1185,7 +1160,7 @@ static __poll_t hid_debug_events_poll(struct file *file, poll_table *wait)
->         struct hid_debug_list *list = file->private_data;
->
->         poll_wait(file, &list->hdev->debug_wait, wait);
-> -       if (list->head != list->tail)
-> +       if (!kfifo_is_empty(&list->hid_debug_fifo))
->                 return EPOLLIN | EPOLLRDNORM;
->         if (!list->hdev->debug)
->                 return EPOLLERR | EPOLLHUP;
-> @@ -1200,7 +1175,7 @@ static int hid_debug_events_release(struct inode *inode, struct file *file)
->         spin_lock_irqsave(&list->hdev->debug_list_lock, flags);
->         list_del(&list->node);
->         spin_unlock_irqrestore(&list->hdev->debug_list_lock, flags);
-> -       kfree(list->hid_debug_buf);
-> +       kfifo_free(&list->hid_debug_fifo);
->         kfree(list);
->
->         return 0;
-> @@ -1246,4 +1221,3 @@ void hid_debug_exit(void)
->  {
->         debugfs_remove_recursive(hid_debug_root);
->  }
-> -
-> diff --git a/include/linux/hid-debug.h b/include/linux/hid-debug.h
-> index 8663f216c563..e7a7c92aaf09 100644
-> --- a/include/linux/hid-debug.h
-> +++ b/include/linux/hid-debug.h
-> @@ -24,7 +24,10 @@
->
->  #ifdef CONFIG_DEBUG_FS
->
-> +#include <linux/kfifo.h>
-> +
->  #define HID_DEBUG_BUFSIZE 512
-> +#define HID_DEBUG_FIFOSIZE 512
->
->  void hid_dump_input(struct hid_device *, struct hid_usage *, __s32);
->  void hid_dump_report(struct hid_device *, int , u8 *, int);
-> @@ -38,10 +41,7 @@ void hid_debug_event(struct hid_device *, char *);
->  void hid_debug_event(struct hid_device *, char *);
->
-> -
->  struct hid_debug_list {
-> -       char *hid_debug_buf;
-> -       int head;
-> -       int tail;
-> +       DECLARE_KFIFO_PTR(hid_debug_fifo, char);
->         struct fasync_struct *fasync;
->         struct hid_device *hdev;
->         struct list_head node;
-> @@ -64,4 +64,3 @@ struct hid_debug_list {
->  #endif
->
->  #endif
-> -
+Bart

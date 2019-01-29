@@ -1,88 +1,121 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 10/13] gpio: max77650: add GPIO support
-Date: Tue, 29 Jan 2019 14:22:00 +0100
-Message-ID: <CAMRc=Mewf0p1v+afVKDhg8FJHip09ipt3_uO5uYtJP75HyuCSQ@mail.gmail.com>
-References: <20190118134244.22253-1-brgl@bgdev.pl> <20190118134244.22253-11-brgl@bgdev.pl>
- <CACRpkdZhy7yBZrGLxhRGaac7v5jZhgUSz9gZAhFXbevJbKjpZw@mail.gmail.com>
- <CAMRc=Me6OSKDk7bN4++M68DjoeArd+gZx16o0oQBXfRoCWBt2A@mail.gmail.com>
- <CACRpkdacfOLSs1GPew4gMtL_BX0OTXqBQNWzWZMwAkk+Ah2ETQ@mail.gmail.com> <CAMRc=MftwsuooC8vLmnGYiiKj2rVShXeuekTrho8JRihjiBJ+w@mail.gmail.com>
+Subject: [PATCH v2 00/13] mfd: add support for max77650 PMIC
+Date: Tue, 29 Jan 2019 14:35:31 +0100
+Message-ID: <20190129133545.1931-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=MftwsuooC8vLmnGYiiKj2rVShXeuekTrho8JRihjiBJ+w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Brian Masney <masneyb@onstation.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-wt., 29 sty 2019 o 12:00 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a=
-):
->
-> czw., 24 sty 2019 o 11:30 Linus Walleij <linus.walleij@linaro.org> napisa=
-=C5=82(a):
-> >
-> > On Mon, Jan 21, 2019 at 6:07 PM Bartosz Golaszewski <brgl@bgdev.pl> wro=
-te:
-> >
-> > > Thank you for your review. While I think you're right about the issue
-> > > being present in this driver, I'm not sure it's really a problem. Do
-> > > we actually require every gpio-controller to also be a stand-alone
-> > > interrupt-controller?
-> >
-> > Absolutely not :D
-> >
-> > Just GPIO is fine.
-> >
-> > > The binding document for the GPIO module doesn't
-> > > mention this - it only requires the gpio-controller property. Without
-> > > the "interrupt-controller" property dtc will bail-out if anyone uses
-> > > this node as the interrupt parent.
-> > >
-> > > If I'm wrong and we do require it, then I think we need to update
-> > > Documentation/devicetree/bindings/gpio/gpio.txt.
-> >
-> > What is weird is if a driver with DT bindings not mentioning IRQ
-> > and only probing from DT start implementing IRQ support, that
-> > becomes quite inconsistent. So then max77650_gpio_to_irq()
-> > should just return -ENOTSUPP
-> > or something for now, then it's fine.
-> >
->
-> I don't see it as weird at all. I see the need to define the register
-> and interrupt resources in DT for SoC peripherals becaue SoCs often
-> reuse IPs. But in the case of a self-contained i2c PMIC - the modules
-> such as GPIO are tightly coupled with the core functionality. In the
-> case of this device for example: there isn't even a separate set of
-> mask/status registers for GPIO interrupts.
->
-> Most mfd devices setup the resources in a hard-coded manner.
->
-> > We can add the (complicated) IRQ handling later.
-> >
-> > I am trying to eat my own dogfood here, I was sweating all
-> > last night trying to implement a hierarchical IRQ controller.
-> > There is no running away from that now. :/
-> >
-> > Apparently doing hierarchical IRQs demand that all irq
-> > controllers up to the top-level SoC IRQ controller support
-> > hierarchical interrupts using the v2 version of the irqdomain
-> > API, and currently it seems like the ARM
-> > GIC seems like the only top level IRQ controller that can
-> > do that.
-> >
->
-> Yep, and for that reason I can't use the regmap irq_chip abstraction
-> for now because it doesn't implement support for hierarchical
-> interrupts either.
->
-> How about the cascaded gpiochip irq_chip?
->
-> Best regards,
-> Bartosz
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Nah that won't work either without a proper hierarchy...
+This series adds support for max77650 ultra low-power PMIC. It provides
+the core mfd driver and a set of five sub-drivers for the regulator,
+power supply, gpio, leds and input subsystems.
 
-In that case, let's leave out the irq support for now. I'll send v2.
+Patches 1-6 add the DT binding documents. Patches 7-12 add all drivers.
+Last patch adds a MAINTAINERS entry for this device.
 
-Bart
+Note that patch 8/13 depends on commit 03c87b95ac04 ("regulator: provide
+rdev_get_regmap()") which was picked up by Mark Brown for v5.1.
+
+v1 -> v2:
+
+General:
+- use C++ style comments for the SPDX license identifier and the
+  copyright header
+- s/MODULE_LICENSE("GPL")/MODULE_LICENSE("GPL v2")/
+- lookup the virtual interrupt numbers in the MFD driver, setup
+  resources for child devices and use platform_get_irq_byname()
+  in sub-drivers
+- picked up review tags
+- use devm_request_any_context_irq() for interrupt requests
+
+LEDs:
+- changed the max77650_leds_ prefix to max77650_led_
+- drop the max77650_leds structure as the only field it held was the
+  regmap pointer, move said pointer to struct max77650_led
+- change the driver name to "max77650-led"
+- drop the last return value check and return the result of
+  regmap_write() directly
+- change the labeling scheme to one consistent with other LED drivers
+
+ONKEY:
+- drop the key reporting helper and call the input functions directly
+  from interrupt handlers
+- rename the rv local variable to error
+- drop parent device asignment
+
+Regulator:
+- drop the unnecessary init_data lookup from the driver code
+- drop unnecessary include
+
+Charger:
+- disable the charger on driver remove
+- change the power supply type to POWER_SUPPLY_TYPE_USB
+
+GPIO:
+- drop interrupt support until we have correct implementation of hierarchical
+  irqs in gpiolib
+
+Bartosz Golaszewski (13):
+  dt-bindings: mfd: add DT bindings for max77650
+  dt-bindings: regulator: add DT bindings for max77650
+  dt-bindings: power: supply: add DT bindings for max77650
+  dt-bindings: gpio: add DT bindings for max77650
+  dt-bindings: leds: add DT bindings for max77650
+  dt-bindings: input: add DT bindings for max77650
+  mfd: max77650: new core mfd driver
+  regulator: max77650: add regulator support
+  power: supply: max77650: add support for battery charger
+  gpio: max77650: add GPIO support
+  leds: max77650: add LEDs support
+  input: max77650: add onkey support
+  MAINTAINERS: add an entry for max77650 mfd driver
+
+ .../bindings/gpio/gpio-max77650.txt           |  34 ++
+ .../bindings/input/max77650-onkey.txt         |  26 +
+ .../bindings/leds/leds-max77650.txt           |  57 ++
+ .../devicetree/bindings/mfd/max77650.txt      |  28 +
+ .../power/supply/max77650-charger.txt         |  27 +
+ .../bindings/regulator/max77650-regulator.txt |  41 ++
+ MAINTAINERS                                   |  14 +
+ drivers/gpio/Kconfig                          |   7 +
+ drivers/gpio/Makefile                         |   1 +
+ drivers/gpio/gpio-max77650.c                  | 189 +++++++
+ drivers/input/misc/Kconfig                    |   9 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/max77650-onkey.c           | 127 +++++
+ drivers/leds/Kconfig                          |   6 +
+ drivers/leds/Makefile                         |   1 +
+ drivers/leds/leds-max77650.c                  | 152 +++++
+ drivers/mfd/Kconfig                           |  11 +
+ drivers/mfd/Makefile                          |   1 +
+ drivers/mfd/max77650.c                        | 338 ++++++++++++
+ drivers/power/supply/Kconfig                  |   7 +
+ drivers/power/supply/Makefile                 |   1 +
+ drivers/power/supply/max77650-charger.c       | 355 ++++++++++++
+ drivers/regulator/Kconfig                     |   8 +
+ drivers/regulator/Makefile                    |   1 +
+ drivers/regulator/max77650-regulator.c        | 518 ++++++++++++++++++
+ include/linux/mfd/max77650.h                  |  59 ++
+ 26 files changed, 2019 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77650.txt
+ create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
+ create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
+ create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+ create mode 100644 Documentation/devicetree/bindings/regulator/max77650-regulator.txt
+ create mode 100644 drivers/gpio/gpio-max77650.c
+ create mode 100644 drivers/input/misc/max77650-onkey.c
+ create mode 100644 drivers/leds/leds-max77650.c
+ create mode 100644 drivers/mfd/max77650.c
+ create mode 100644 drivers/power/supply/max77650-charger.c
+ create mode 100644 drivers/regulator/max77650-regulator.c
+ create mode 100644 include/linux/mfd/max77650.h
+
+-- 
+2.20.1

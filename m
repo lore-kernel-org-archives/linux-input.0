@@ -1,259 +1,111 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH] gpio fixup domain
-Date: Tue, 29 Jan 2019 14:39:27 +0100
-Message-ID: <CAMRc=Md4iTPi_i3EO5QT2SW1S2__8mMe22+9tcO7VUE2_hPNiw@mail.gmail.com>
-References: <20190129133545.1931-1-brgl@bgdev.pl> <20190129133545.1931-3-brgl@bgdev.pl>
+From: =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+Subject: [PATCH] doc: Change LXR references to elixir.bootlin.com
+Date: Tue, 29 Jan 2019 15:29:11 +0100
+Message-ID: <20190129142923.5743-1-j.neuschaefer@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190129133545.1931-3-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: linux-doc@vger.kernel.org
+Cc: =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Federico Vaga <federico.vaga@vaga.pv.it>, Markus Heiser <markus.heiser@darmarit.de>, Minghui Liu <minghui.liu.95@gmail.com>, Michael Rodin <michael-git@rodin.online>, Grigory Shipunov <mail@oxapentane.com>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Stephen Boyd <sboyd@kernel.org>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Takashi Iwai <tiwai@suse.de>, Matthias Brugger <matthias.bgg@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-wt., 29 sty 2019 o 14:35 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a=
-):
->
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> ---
->  arch/arm/boot/dts/am335x-bone-common.dtsi |   4 +
->  drivers/gpio/gpio-max77650.c              | 138 +++++++++++++++++++++-
->  2 files changed, 136 insertions(+), 6 deletions(-)
->
-> diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dt=
-s/am335x-bone-common.dtsi
-> index 62f7f2ac191c..320b4c21fdf3 100644
-> --- a/arch/arm/boot/dts/am335x-bone-common.dtsi
-> +++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
-> @@ -276,6 +276,10 @@
->
->                         gpio-controller;
->                         #gpio-cells =3D <2>;
-> +
-> +                       interrupt-parent =3D <&pmic>;
-> +                       interrupts =3D <0 IRQ_TYPE_LEVEL_LOW>;
-> +                       interrupt-names =3D "GPI";
->                 };
->
->                 leds {
-> diff --git a/drivers/gpio/gpio-max77650.c b/drivers/gpio/gpio-max77650.c
-> index 3f03f4e8956c..03a5a2ed07f8 100644
-> --- a/drivers/gpio/gpio-max77650.c
-> +++ b/drivers/gpio/gpio-max77650.c
-> @@ -9,6 +9,7 @@
->  #include <linux/i2c.h>
->  #include <linux/mfd/max77650.h>
->  #include <linux/module.h>
-> +#include <linux/of_irq.h>
->  #include <linux/platform_device.h>
->  #include <linux/regmap.h>
->
-> @@ -34,7 +35,8 @@
->  struct max77650_gpio_chip {
->         struct regmap *map;
->         struct gpio_chip gc;
-> -       int irq;
-> +       struct fwnode_handle *fwnode;
-> +       struct irq_domain *domain;
->  };
->
->  static int max77650_gpio_direction_input(struct gpio_chip *gc,
-> @@ -130,20 +132,114 @@ static int max77650_gpio_set_config(struct gpio_ch=
-ip *gc,
->         }
->  }
->
-> +static struct irq_chip max77650_gpio_irq_chip =3D {
-> +       .name =3D "max77650-gpio",
-> +       .irq_ack =3D irq_chip_ack_parent,
-> +       .irq_mask =3D irq_chip_mask_parent,
-> +       .irq_unmask =3D irq_chip_unmask_parent,
-> +       .irq_set_type =3D irq_chip_set_type_parent,
-> +};
-> +
-> +static int max77650_gpio_irq_domain_activate(struct irq_domain *domain,
-> +                                            struct irq_data *data,
-> +                                            bool reserve)
-> +{
-> +       struct max77650_gpio_chip *chip =3D domain->host_data;
-> +
-> +       return gpiochip_lock_as_irq(&chip->gc, data->hwirq);
-> +}
-> +
-> +static void max77650_gpio_irq_domain_deactivate(struct irq_domain *domai=
-n,
-> +                                               struct irq_data *data)
-> +{
-> +       struct max77650_gpio_chip *chip =3D domain->host_data;
-> +
-> +       return gpiochip_unlock_as_irq(&chip->gc, data->hwirq);
-> +}
-> +
-> +static int max77650_gpio_domain_translate(struct irq_domain *domain,
-> +                                         struct irq_fwspec *fwspec,
-> +                                         unsigned long *hwirq,
-> +                                         unsigned int *type)
-> +{
-> +       struct max77650_gpio_chip *chip =3D domain->host_data;
-> +
-> +       if (fwspec->param_count !=3D 2 || fwspec->param[0] >=3D chip->gc.=
-ngpio)
-> +               return -EINVAL;
-> +
-> +       *hwirq =3D fwspec->param[0];
-> +       *type =3D fwspec->param[1];
-> +
-> +       return 0;
-> +}
-> +
-> +static int max77650_gpio_domain_alloc(struct irq_domain *domain,
-> +                                     unsigned int virq,
-> +                                     unsigned int nr_irqs, void *data)
-> +{
-> +       struct max77650_gpio_chip *chip =3D domain->host_data;
-> +       struct irq_fwspec *fwspec =3D data;
-> +       struct irq_fwspec parent_fwspec;
-> +       irq_hw_number_t hwirq;
-> +       unsigned int type;
-> +       int ret;
-> +
-> +       if (nr_irqs !=3D 1)
-> +               return -EINVAL;
-> +
-> +       ret =3D max77650_gpio_domain_translate(domain, fwspec, &hwirq, &t=
-ype);
-> +       if (ret)
-> +               return ret;
-> +
-> +       irq_domain_set_info(domain, virq, hwirq,
-> +                           &max77650_gpio_irq_chip, chip,
-> +                           handle_level_irq, NULL, NULL);
-> +
-> +       parent_fwspec.fwnode =3D domain->parent->fwnode;
-> +       parent_fwspec.param_count =3D 4;
-> +       parent_fwspec.param[0] =3D 0;
-> +       parent_fwspec.param[1] =3D hwirq;
-> +       parent_fwspec.param[2] =3D 0;
-> +       parent_fwspec.param[3] =3D fwspec->param[1];
-> +
-> +       return irq_domain_alloc_irqs_parent(domain, virq, nr_irqs,
-> +                                           &parent_fwspec);
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct irq_domain_ops max77650_gpio_irq_domain_ops =3D {
-> +       .activate =3D max77650_gpio_irq_domain_activate,
-> +       .deactivate =3D max77650_gpio_irq_domain_deactivate,
-> +       .alloc =3D max77650_gpio_domain_alloc,
-> +       .free =3D irq_domain_free_irqs_common,
-> +       .translate =3D max77650_gpio_domain_translate,
-> +};
-> +
->  static int max77650_gpio_to_irq(struct gpio_chip *gc, unsigned int offse=
-t)
->  {
->         struct max77650_gpio_chip *chip =3D gpiochip_get_data(gc);
-> +       struct irq_fwspec fwspec;
-> +
-> +       fwspec.fwnode =3D chip->fwnode;
-> +       fwspec.param_count =3D 2;
-> +       fwspec.param[0] =3D 0;
-> +       fwspec.param[1] =3D IRQ_TYPE_LEVEL_LOW;
->
-> -       return chip->irq;
-> +       return irq_create_fwspec_mapping(&fwspec);
->  }
->
->  static int max77650_gpio_probe(struct platform_device *pdev)
->  {
-> +       struct device_node *of_node, *parent_node;
-> +       struct irq_domain *parent_domain;
->         struct max77650_gpio_chip *chip;
->         struct device *dev, *parent;
->         struct i2c_client *i2c;
-> +       int rv;
->
->         dev =3D &pdev->dev;
-> +       of_node =3D dev->of_node;
->         parent =3D dev->parent;
->         i2c =3D to_i2c_client(parent);
->
-> @@ -151,13 +247,29 @@ static int max77650_gpio_probe(struct platform_devi=
-ce *pdev)
->         if (!chip)
->                 return -ENOMEM;
->
-> +       chip->fwnode =3D dev->fwnode;
-> +       platform_set_drvdata(pdev, chip);
-> +
->         chip->map =3D dev_get_regmap(parent, NULL);
->         if (!chip->map)
->                 return -ENODEV;
->
-> -       chip->irq =3D platform_get_irq_byname(pdev, "GPI");
-> -       if (chip->irq < 0)
-> -               return chip->irq;
-> +       parent_node =3D of_irq_find_parent(of_node);
-> +       if (!parent_node)
-> +               return -ENXIO;
-> +
-> +       parent_domain =3D irq_find_host(parent_node);
-> +       of_node_put(parent_node);
-> +       if (!parent_domain)
-> +               return -ENXIO;
-> +
-> +       chip->fwnode =3D of_node_to_fwnode(of_node);
-> +       chip->domain =3D irq_domain_create_hierarchy(parent_domain, 0, 1,
-> +                                               chip->fwnode,
-> +                                               &max77650_gpio_irq_domain=
-_ops,
-> +                                               chip);
-> +       if (!chip->domain)
-> +               return -ENODEV;
->
->         chip->gc.base =3D -1;
->         chip->gc.ngpio =3D 1;
-> @@ -174,7 +286,20 @@ static int max77650_gpio_probe(struct platform_devic=
-e *pdev)
->         chip->gc.set_config =3D max77650_gpio_set_config;
->         chip->gc.to_irq =3D max77650_gpio_to_irq;
->
-> -       return devm_gpiochip_add_data(dev, &chip->gc, chip);
-> +       rv =3D devm_gpiochip_add_data(dev, &chip->gc, chip);
-> +       if (rv)
-> +               irq_domain_remove(chip->domain);
-> +
-> +       return rv;
-> +}
-> +
-> +static int max77650_gpio_remove(struct platform_device *pdev)
-> +{
-> +       struct max77650_gpio_chip *chip =3D platform_get_drvdata(pdev);
-> +
-> +       irq_domain_remove(chip->domain);
-> +
-> +       return 0;
->  }
->
->  static struct platform_driver max77650_gpio_driver =3D {
-> @@ -182,6 +307,7 @@ static struct platform_driver max77650_gpio_driver =
-=3D {
->                 .name =3D "max77650-gpio",
->         },
->         .probe =3D max77650_gpio_probe,
-> +       .remove =3D max77650_gpio_remove,
->  };
->  module_platform_driver(max77650_gpio_driver);
->
-> --
-> 2.20.1
->
+Recently, Free Electrons was renamed to Bootlin[1]. Less recently, the
+Linux Cross Reference (LXR) at lxr.free-electrons.com was replaced by
+Elixir[2], and lxr.free-electrons.com redirected first to
+elixir.free-electrons.com and now to elixir.bootlin.com.
 
-Please ignore this one, it got lost on the way. It was just experimentation=
-.
+[1]: https://bootlin.com/blog/free-electrons-becomes-bootlin/
+[2]: https://github.com/free-electrons/elixir
 
-Bart
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+---
+ Documentation/input/devices/xpad.rst               | 2 +-
+ Documentation/process/howto.rst                    | 2 +-
+ Documentation/process/kernel-docs.rst              | 2 +-
+ Documentation/translations/it_IT/process/howto.rst | 2 +-
+ Documentation/translations/ja_JP/howto.rst         | 2 +-
+ Documentation/translations/ko_KR/howto.rst         | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/input/devices/xpad.rst b/Documentation/input/devices/xpad.rst
+index b8bd65962dd8..95d410b27a96 100644
+--- a/Documentation/input/devices/xpad.rst
++++ b/Documentation/input/devices/xpad.rst
+@@ -218,7 +218,7 @@ References
+ .. [1] http://euc.jp/periphs/xbox-controller.ja.html (ITO Takayuki)
+ .. [2] http://xpad.xbox-scene.com/
+ .. [3] http://www.markosweb.com/www/xboxhackz.com/
+-.. [4] http://lxr.free-electrons.com/ident?i=xpad_device
++.. [4] https://elixir.bootlin.com/ident?i=xpad_device
+ 
+ 
+ Historic Edits
+diff --git a/Documentation/process/howto.rst b/Documentation/process/howto.rst
+index 58b2f46c4f98..bdd2eda81a1c 100644
+--- a/Documentation/process/howto.rst
++++ b/Documentation/process/howto.rst
+@@ -225,7 +225,7 @@ Cross-Reference project, which is able to present source code in a
+ self-referential, indexed webpage format. An excellent up-to-date
+ repository of the kernel code may be found at:
+ 
+-	http://lxr.free-electrons.com/
++	https://elixir.bootlin.com/
+ 
+ 
+ The development process
+diff --git a/Documentation/process/kernel-docs.rst b/Documentation/process/kernel-docs.rst
+index 3fb28de556e4..ab12dddc773e 100644
+--- a/Documentation/process/kernel-docs.rst
++++ b/Documentation/process/kernel-docs.rst
+@@ -565,7 +565,7 @@ Miscellaneous
+ 
+     * Name: **Cross-Referencing Linux**
+ 
+-      :URL: http://lxr.free-electrons.com/
++      :URL: https://elixir.bootlin.com/
+       :Keywords: Browsing source code.
+       :Description: Another web-based Linux kernel source code browser.
+         Lots of cross references to variables and functions. You can see
+diff --git a/Documentation/translations/it_IT/process/howto.rst b/Documentation/translations/it_IT/process/howto.rst
+index 909e6a55bc43..b323c4b309a5 100644
+--- a/Documentation/translations/it_IT/process/howto.rst
++++ b/Documentation/translations/it_IT/process/howto.rst
+@@ -234,7 +234,7 @@ il progetto Linux Cross-Reference, che è in grado di presentare codice
+ sorgente in un formato autoreferenziale ed indicizzato. Un eccellente ed
+ aggiornata fonte di consultazione del codice del kernel la potete trovare qui:
+ 
+-	http://lxr.free-electrons.com/
++	https://elixir.bootlin.com
+ 
+ 
+ Il processo di sviluppo
+diff --git a/Documentation/translations/ja_JP/howto.rst b/Documentation/translations/ja_JP/howto.rst
+index f3116381c26b..2ca9389d5915 100644
+--- a/Documentation/translations/ja_JP/howto.rst
++++ b/Documentation/translations/ja_JP/howto.rst
+@@ -245,7 +245,7 @@ Linux カーネルソースツリーの中に含まれる、きれいにし、
+ できます。この最新の素晴しいカーネルコードのリポジトリは以下で見つかり
+ ます -
+ 
+-	http://lxr.free-electrons.com/
++	https://elixir.bootlin.com/
+ 
+ 開発プロセス
+ ------------
+diff --git a/Documentation/translations/ko_KR/howto.rst b/Documentation/translations/ko_KR/howto.rst
+index a8197e072599..9fc869087e9c 100644
+--- a/Documentation/translations/ko_KR/howto.rst
++++ b/Documentation/translations/ko_KR/howto.rst
+@@ -235,7 +235,7 @@ ReST 마크업을 사용하는 문서들은 Documentation/output 에 생성된
+ 소스코드를 인덱스된 웹 페이지들의 형태로 보여준다. 최신의 멋진 커널
+ 코드 저장소는 다음을 통하여 참조할 수 있다.
+ 
+-      http://lxr.free-electrons.com/
++      https://elixir.bootlin.com/
+ 
+ 
+ 개발 프로세스
+-- 
+2.20.1

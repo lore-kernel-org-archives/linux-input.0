@@ -1,142 +1,144 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: [PATCH v3] HID: i2c-hid: Ignore input report if there's no data
- present on Elan touchpanels
-Date: Wed, 30 Jan 2019 11:50:54 +0800
-Message-ID: <D83049E7-8AE2-4C80-B160-5F35BB8170EE@canonical.com>
-References: <20190107072429.23828-1-kai.heng.feng@canonical.com>
- <CAO-hwJKo=EaPoXJLGUvjq3QRng1V1NkO7A5zYGojbPyxxyJYHA@mail.gmail.com>
- <D7C6B90F-641A-495B-9E05-78BF4F56B552@canonical.com>
- <CAO-hwJ+CF-obuUK9T=x0ggJRLBNmM3H6-FfKjv2y0LT96C=TUg@mail.gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: 8BIT
+From: Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Subject: Re: [bug report] Input: add st-keyscan driver
+Date: Wed, 30 Jan 2019 08:58:49 +0000
+Message-ID: <76b17374-b58a-a8f8-db8a-75ef28632a0a@st.com>
+References: <20190122185351.GA28627@kadam>
+ <CAPo_4QB+ozVESD85d2qxuitgvgPgLvrjx9SyEMfFTGvkz4MjWg@mail.gmail.com>
+ <CAKdAkRT6hKywKW1NnD-hiuFn9YTZF74GZVr36ZNJqyoxQghT9Q@mail.gmail.com>
+ <CAPo_4QCMX+oYw2ZcBgSiLcEzgTJMJB=E-xdXWe_Xg2a=FmQ+Rg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJ+CF-obuUK9T=x0ggJRLBNmM3H6-FfKjv2y0LT96C=TUg@mail.gmail.com>
+In-Reply-To: <CAPo_4QCMX+oYw2ZcBgSiLcEzgTJMJB=E-xdXWe_Xg2a=FmQ+Rg@mail.gmail.com>
+Content-Language: en-US
+Content-ID: <62B637EF7C27C440A92A6EE3F23086CA@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Ken Sloat <ken.sloat@ohmlinxelectronics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, linux-input <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Nate Drude <nate.drude@ohmlinxelectronics.com>, Giuseppe CONDORELLI <giuseppe.condorelli@st.com>
 List-Id: linux-input@vger.kernel.org
 
-
-
-> On Jan 29, 2019, at 18:05, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> 
-> On Mon, Jan 21, 2019 at 4:30 AM Kai-Heng Feng
-> <kai.heng.feng@canonical.com> wrote:
->> 
->> 
->> 
->>> On Jan 18, 2019, at 23:50, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
->>> 
->>> Hi Kai-Heng,
->>> 
->>> On Mon, Jan 7, 2019 at 8:24 AM Kai-Heng Feng
->>> <kai.heng.feng@canonical.com> wrote:
->>>> 
->>>> While using Elan touchpads, the message floods:
->>>> [  136.138487] i2c_hid i2c-DELL08D6:00: i2c_hid_get_input: incomplete report (14/65535)
->>>> 
->>>> Though the message flood is annoying, the device it self works without
->>>> any issue. I suspect that the device in question takes too much time to
->>>> pull the IRQ back to high after I2C host has done reading its data.
->>>> 
->>>> Since the host receives all useful data, let's ignore the input report
->>>> when there's no data.
->>>> 
->>>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
->>> 
->>> Thanks for the v3.
->>> 
->>> This patch has just been brought to my attention, and I have one
->>> question before applying it:
->>> are those messages (without your patch) occurring all the time, or
->>> just after resume?
->> 
->> All the time.
->> 
->> The touchpad works fine though. The entire report is 0xff, so it can be
->> safely ignored.
-> 
-> Couple of things:
-> - I have forgotten to tell you that I have applied this patch in
-> for-5.1/i2c-hid, it will be pushed to linux-next today.
-
-Thanks!
-
-> - Dell told me that a BIOS fix was solving the issue. We can still
-> quarry the patch, but there should not be a strong need for it when
-> users upgrade their BIOS.
-
-Multiple platforms are affected by this issue [1], so the patch can still be really helpful.
-
-[1] https://bugs.launchpad.net/bugs/1784152
-
-Kai-Heng
-
-> 
-> Cheers,
-> Benjamin
-> 
->> 
->>> 
->>> I wonder if the pm_suspend delay we talked about in the other thread
->>> would fix that issue in a cleaner way.
->> 
->> I’ve replied in another thread, unfortunately it can’t.
->> 
->> We can introduce msleep() between each commands though, but I don’t
->> think it’s good either.
->> 
->> Kai-Heng
->> 
->>> 
->>> Cheers,
->>> Benjamin
->>> 
->>>> ---
->>>> v3:
->>>> Fix compiler error/warnings.
->>>> 
->>>> v2:
->>>> Use dev_warn_once() to warn the user about the situation.
->>>> 
->>>> drivers/hid/i2c-hid/i2c-hid-core.c | 9 +++++++++
->>>> 1 file changed, 9 insertions(+)
->>>> 
->>>> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
->>>> index 8555ce7e737b..2f940c1de616 100644
->>>> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
->>>> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
->>>> @@ -50,6 +50,7 @@
->>>> #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET       BIT(1)
->>>> #define I2C_HID_QUIRK_NO_RUNTIME_PM            BIT(2)
->>>> #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP                BIT(3)
->>>> +#define I2C_HID_QUIRK_BOGUS_IRQ                        BIT(4)
->>>> 
->>>> /* flags */
->>>> #define I2C_HID_STARTED                0
->>>> @@ -179,6 +180,8 @@ static const struct i2c_hid_quirks {
->>>>               I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
->>>>       { USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
->>>>               I2C_HID_QUIRK_NO_RUNTIME_PM },
->>>> +       { USB_VENDOR_ID_ELAN, HID_ANY_ID,
->>>> +                I2C_HID_QUIRK_BOGUS_IRQ },
->>>>       { 0, 0 }
->>>> };
->>>> 
->>>> @@ -503,6 +506,12 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
->>>>               return;
->>>>       }
->>>> 
->>>> +       if (ihid->quirks & I2C_HID_QUIRK_BOGUS_IRQ && ret_size == 0xffff) {
->>>> +               dev_warn_once(&ihid->client->dev, "%s: IRQ triggered but "
->>>> +                             "there's no data\n", __func__);
->>>> +               return;
->>>> +       }
->>>> +
->>>>       if ((ret_size > size) || (ret_size < 2)) {
->>>>               dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
->>>>                       __func__, size, ret_size);
->>>> --
->>>> 2.17.1
+SGkgYWxsLA0KDQpJIHByZWZlciB0byBmaXggaXQuIEkgZ3Vlc3MgcGVvcGxlIHVzZWQgdGhlaXIg
+b3duIGNvcnJlY3Rpb24uDQoNCkkgd2lsbCBzZW5kIHlvdSBhIGZpeMKgIGFzYXAuDQoNCg0KQmVz
+dCBSZWdhcmRzDQoNCg0KR2FicmllbA0KDQoNCk9uIDEvMjcvMTkgMjoyMCBBTSwgS2VuIFNsb2F0
+IHdyb3RlOg0KPiBPbiBTYXQsIEphbiAyNiwgMjAxOSBhdCA1OjE1IFBNIERtaXRyeSBUb3Jva2hv
+dg0KPiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6DQo+PiBPbiBTYXQsIEphbiAy
+NiwgMjAxOSBhdCAxOjI1IFBNIEtlbiBTbG9hdA0KPj4gPGtlbi5zbG9hdEBvaG1saW54ZWxlY3Ry
+b25pY3MuY29tPiB3cm90ZToNCj4+PiBPbiBUdWUsIEphbiAyMiwgMjAxOSBhdCAxOjUzIFBNIERh
+biBDYXJwZW50ZXIgPGRhbi5jYXJwZW50ZXJAb3JhY2xlLmNvbT4gd3JvdGU6DQo+Pj4+IEhlbGxv
+IEdhYnJpZWwgRkVSTkFOREVaLA0KPj4+IEhlbGxvIERhbiwNCj4+Pg0KPj4+IEkgaGF2ZSBhZGRl
+ZCBDQ3MgZm9yIHRoZSBtYWludGFpbmVycyBhcyB3ZWxsIGFzIEdhYnJpZWwgRmVybmFuZGV6IGFz
+DQo+Pj4gY3VycmVudGx5IHlvdSBqdXN0IGhhdmUgdGhlIGxpbnV4LWlucHV0IG1haWxpbmcgbGlz
+dA0KPj4+DQo+Pj4+IFRoZSBwYXRjaCAwNjI1ODliMTM5OTE6ICJJbnB1dDogYWRkIHN0LWtleXNj
+YW4gZHJpdmVyIiBmcm9tIEFwciAxMiwNCj4+Pj4gMjAxNCwgbGVhZHMgdG8gdGhlIGZvbGxvd2lu
+ZyBzdGF0aWMgY2hlY2tlciB3YXJuaW5nOg0KPj4+Pg0KPj4+PiAgICAgICAgICBkcml2ZXJzL2lu
+cHV0L2tleWJvYXJkL3N0LWtleXNjYW4uYzoxNTYga2V5c2Nhbl9wcm9iZSgpDQo+Pj4+ICAgICAg
+ICAgIGVycm9yOiBwb3RlbnRpYWwgemFsbG9jIE5VTEwgZGVyZWZlcmVuY2U6ICdrZXlwYWRfZGF0
+YS0+aW5wdXRfZGV2Jw0KPj4+Pg0KPj4+PiBkcml2ZXJzL2lucHV0L2tleWJvYXJkL3N0LWtleXNj
+YW4uYw0KPj4+PiAgICAgIDEyNSBzdGF0aWMgaW50IGtleXNjYW5fcHJvYmUoc3RydWN0IHBsYXRm
+b3JtX2RldmljZSAqcGRldikNCj4+Pj4gICAgICAxMjYgew0KPj4+PiAgICAgIDEyNyAgICAgICAg
+IHN0cnVjdCBzdF9rZXlzY2FuICprZXlwYWRfZGF0YTsNCj4+Pj4gICAgICAxMjggICAgICAgICBz
+dHJ1Y3QgaW5wdXRfZGV2ICppbnB1dF9kZXY7DQo+Pj4+ICAgICAgMTI5ICAgICAgICAgc3RydWN0
+IHJlc291cmNlICpyZXM7DQo+Pj4+ICAgICAgMTMwICAgICAgICAgaW50IGVycm9yOw0KPj4+PiAg
+ICAgIDEzMQ0KPj4+PiAgICAgIDEzMiAgICAgICAgIGlmICghcGRldi0+ZGV2Lm9mX25vZGUpIHsN
+Cj4+Pj4gICAgICAxMzMgICAgICAgICAgICAgICAgIGRldl9lcnIoJnBkZXYtPmRldiwgIm5vIERU
+IGRhdGEgcHJlc2VudFxuIik7DQo+Pj4+ICAgICAgMTM0ICAgICAgICAgICAgICAgICByZXR1cm4g
+LUVJTlZBTDsNCj4+Pj4gICAgICAxMzUgICAgICAgICB9DQo+Pj4+ICAgICAgMTM2DQo+Pj4+ICAg
+ICAgMTM3ICAgICAgICAga2V5cGFkX2RhdGEgPSBkZXZtX2t6YWxsb2MoJnBkZXYtPmRldiwgc2l6
+ZW9mKCprZXlwYWRfZGF0YSksDQo+Pj4+ICAgICAgMTM4ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgR0ZQX0tFUk5FTCk7DQo+Pj4+ICAgICAgMTM5ICAgICAgICAgaWYgKCFrZXlw
+YWRfZGF0YSkNCj4+Pj4gICAgICAxNDAgICAgICAgICAgICAgICAgIHJldHVybiAtRU5PTUVNOw0K
+Pj4+PiAgICAgIDE0MQ0KPj4+PiAgICAgIDE0MiAgICAgICAgIGlucHV0X2RldiA9IGRldm1faW5w
+dXRfYWxsb2NhdGVfZGV2aWNlKCZwZGV2LT5kZXYpOw0KPj4+PiAgICAgIDE0MyAgICAgICAgIGlm
+ICghaW5wdXRfZGV2KSB7DQo+Pj4+ICAgICAgMTQ0ICAgICAgICAgICAgICAgICBkZXZfZXJyKCZw
+ZGV2LT5kZXYsICJmYWlsZWQgdG8gYWxsb2NhdGUgdGhlIGlucHV0IGRldmljZVxuIik7DQo+Pj4+
+ICAgICAgMTQ1ICAgICAgICAgICAgICAgICByZXR1cm4gLUVOT01FTTsNCj4+Pj4gICAgICAxNDYg
+ICAgICAgICB9DQo+Pj4+ICAgICAgMTQ3DQo+Pj4+ICAgICAgMTQ4ICAgICAgICAgaW5wdXRfZGV2
+LT5uYW1lID0gcGRldi0+bmFtZTsNCj4+Pj4gICAgICAxNDkgICAgICAgICBpbnB1dF9kZXYtPnBo
+eXMgPSAia2V5c2Nhbi1rZXlzL2lucHV0MCI7DQo+Pj4+ICAgICAgMTUwICAgICAgICAgaW5wdXRf
+ZGV2LT5kZXYucGFyZW50ID0gJnBkZXYtPmRldjsNCj4+Pj4gICAgICAxNTEgICAgICAgICBpbnB1
+dF9kZXYtPm9wZW4gPSBrZXlzY2FuX29wZW47DQo+Pj4+ICAgICAgMTUyICAgICAgICAgaW5wdXRf
+ZGV2LT5jbG9zZSA9IGtleXNjYW5fY2xvc2U7DQo+Pj4+ICAgICAgMTUzDQo+Pj4+ICAgICAgMTU0
+ICAgICAgICAgaW5wdXRfZGV2LT5pZC5idXN0eXBlID0gQlVTX0hPU1Q7DQo+Pj4+ICAgICAgMTU1
+DQo+Pj4+IC0tPiAxNTYgICAgICAgICBlcnJvciA9IGtleXBhZF9tYXRyaXhfa2V5X3BhcnNlX2R0
+KGtleXBhZF9kYXRhKTsNCj4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIF5eXl5eXl5eXl5eDQo+Pj4gSSBhZ3JlZSB3aXRoIHlvdSB0aGlzIHdv
+dWxkIGJlIGEgcHJvYmxlbQ0KPj4+IHRvIGNsYXJpZnkgdGhlIE5VTEwgZGVyZWZlbmNlIHdvdWxk
+IG9jY3VyIGhlcmUgd2l0aGluIGtleXBhZF9tYXRyaXhfa2V5X3BhcnNlX2R0DQo+Pj4NCj4+PiBz
+dHJ1Y3QgZGV2aWNlICpkZXYgPSBrZXlwYWRfZGF0YS0+aW5wdXRfZGV2LT5kZXYucGFyZW50Ow0K
+Pj4+DQo+Pj4+IFRoaXMgYXNzdW1lcyB3ZSBoYXZlIHNldCAia2V5cGFkX2RhdGEtPmlucHV0X2Rl
+diA9IGlucHV0X2RldjsiIGJ1dCB3ZQ0KPj4+PiBkb24ndCBkbyB0aGF0IHVudGlsLi4uDQo+Pj4+
+DQo+Pj4+ICAgICAgMTU3ICAgICAgICAgaWYgKGVycm9yKQ0KPj4+PiAgICAgIDE1OCAgICAgICAg
+ICAgICAgICAgcmV0dXJuIGVycm9yOw0KPj4+PiAgICAgIDE1OQ0KPj4+PiAgICAgIDE2MCAgICAg
+ICAgIGVycm9yID0gbWF0cml4X2tleXBhZF9idWlsZF9rZXltYXAoTlVMTCwgTlVMTCwNCj4+Pj4g
+ICAgICAxNjEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGtleXBh
+ZF9kYXRhLT5uX3Jvd3MsDQo+Pj4+ICAgICAgMTYyICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICBrZXlwYWRfZGF0YS0+bl9jb2xzLA0KPj4+PiAgICAgIDE2MyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTlVMTCwgaW5wdXRfZGV2KTsN
+Cj4+Pj4gICAgICAxNjQgICAgICAgICBpZiAoZXJyb3IpIHsNCj4+Pj4gICAgICAxNjUgICAgICAg
+ICAgICAgICAgIGRldl9lcnIoJnBkZXYtPmRldiwgImZhaWxlZCB0byBidWlsZCBrZXltYXBcbiIp
+Ow0KPj4+PiAgICAgIDE2NiAgICAgICAgICAgICAgICAgcmV0dXJuIGVycm9yOw0KPj4+PiAgICAg
+IDE2NyAgICAgICAgIH0NCj4+Pj4gICAgICAxNjgNCj4+Pj4gICAgICAxNjkgICAgICAgICBpbnB1
+dF9zZXRfZHJ2ZGF0YShpbnB1dF9kZXYsIGtleXBhZF9kYXRhKTsNCj4+Pj4gICAgICAxNzANCj4+
+Pj4gICAgICAxNzEgICAgICAgICBrZXlwYWRfZGF0YS0+aW5wdXRfZGV2ID0gaW5wdXRfZGV2Ow0K
+Pj4+PiAgICAgICAgICAgICAgICAgIF5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl5eXl4N
+Cj4+Pj4NCj4+Pj4gdGhpcyBsaW5lIGhlcmUuICBUaGlzIGRyaXZlciBoYXMgbmV2ZXIgd29ya2Vk
+IGFuZCBpdCB3YXMgaW5jbHVkZWQgYWxtb3N0DQo+Pj4+IGZpdmUgeWVhcnMgYWdvLiAgSXMgaXQg
+d29ydGggZml4aW5nPw0KPj4+Pg0KPj4+PiAgICAgIDE3Mg0KPj4+PiAgICAgIDE3MyAgICAgICAg
+IHJlcyA9IHBsYXRmb3JtX2dldF9yZXNvdXJjZShwZGV2LCBJT1JFU09VUkNFX01FTSwgMCk7DQo+
+Pj4+ICAgICAgMTc0ICAgICAgICAga2V5cGFkX2RhdGEtPmJhc2UgPSBkZXZtX2lvcmVtYXBfcmVz
+b3VyY2UoJnBkZXYtPmRldiwgcmVzKTsNCj4+Pj4gICAgICAxNzUgICAgICAgICBpZiAoSVNfRVJS
+KGtleXBhZF9kYXRhLT5iYXNlKSkNCj4+Pj4gICAgICAxNzYgICAgICAgICAgICAgICAgIHJldHVy
+biBQVFJfRVJSKGtleXBhZF9kYXRhLT5iYXNlKTsNCj4+Pj4gICAgICAxNzcNCj4+Pj4NCj4+Pj4g
+cmVnYXJkcywNCj4+Pj4gZGFuIGNhcnBlbnRlcg0KPj4+Pg0KPj4+IEhlcmUgaXMgdGhlIGludGVy
+ZXN0aW5nIHRoaW5nLCBJIHdhcyBsb29raW5nIG9uIHBhdGNod29yaywgYW5kIHNldmVyYWwNCj4+
+PiBvZiB0aGUgcGF0Y2hlcyBpbmNsdWRpbmcgd2hhdCBhcHBlYXJzIHRvIGJlIHRoZSBsYXRlc3Qg
+YWN0dWFsbHkgc2V0DQo+Pj4gImtleXBhZF9kYXRhLT5pbnB1dF9kZXYgPSBpbnB1dF9kZXYiIGJl
+Zm9yZSBjYWxsaW5nDQo+Pj4gImtleXBhZF9tYXRyaXhfa2V5X3BhcnNlX2R0Ig0KPj4+DQo+Pj4g
+IEZyb20gdjQgb24gcGF0Y2h3b3JrDQo+Pj4gKyBpZiAoSVNfRVJSKGtleXBhZF9kYXRhLT5jbGsp
+KSB7DQo+Pj4gKyBkZXZfZXJyKCZwZGV2LT5kZXYsICJjYW5ub3QgZ2V0IGNsb2NrIik7DQo+Pj4g
+KyByZXR1cm4gUFRSX0VSUihrZXlwYWRfZGF0YS0+Y2xrKTsNCj4+PiArIH0NCj4+PiArDQo+Pj4g
+KyBrZXlwYWRfZGF0YS0+aW5wdXRfZGV2ID0gaW5wdXRfZGV2Ow0KPj4+ICsNCj4+PiArIGlucHV0
+X2Rldi0+bmFtZSA9IHBkZXYtPm5hbWU7DQo+Pj4gKyBpbnB1dF9kZXYtPnBoeXMgPSAia2V5c2Nh
+bi1rZXlzL2lucHV0MCI7DQo+Pj4gKyBpbnB1dF9kZXYtPmRldi5wYXJlbnQgPSAmcGRldi0+ZGV2
+Ow0KPj4+ICsgaW5wdXRfZGV2LT5vcGVuID0ga2V5c2Nhbl9vcGVuOw0KPj4+ICsgaW5wdXRfZGV2
+LT5jbG9zZSA9IGtleXNjYW5fY2xvc2U7DQo+Pj4gKw0KPj4+ICsgaW5wdXRfZGV2LT5pZC5idXN0
+eXBlID0gQlVTX0hPU1Q7DQo+Pj4gKw0KPj4+ICsgZXJyb3IgPSBrZXlwYWRfbWF0cml4X2tleV9w
+YXJzZV9kdChrZXlwYWRfZGF0YSk7DQo+Pj4NCj4+PiBBY2NvcmRpbmcgdG8gcGF0Y2h3b3JrLCB0
+aGVzZSBhcmVuJ3QgbGlzdGVkIGFzIGFjY2VwdGVkLCBzbyBJJ20gbm90DQo+Pj4gc3VyZSB3aGVy
+ZSB0aGUgZXhhY3QgYWNjZXB0ZWQgcGF0Y2ggY2FtZSBmcm9tLiBMb29raW5nIGF0IHRoZSBjb21t
+aXQNCj4+PiBsb2csIGl0IGxvb2tzIGxpa2UgdGhlIGlzc3VlIHlvdSBzaG93ZWQgYWJvdmUgd2Fz
+IG1hZGUgaW4gdGhlIG9yaWdpbmFsDQo+Pj4gY29tbWl0IDA2MjU4OWIxMzk5MTc2YTljMTRiYzY4
+ZTE2MTY5ZjQwNDM5ZDY1OGMgc28gSSdtIG5vdCBxdWl0ZSBzdXJlDQo+Pj4gd2hhdCBpcyBnb2lu
+ZyBvbiBoZXJlLiBNYXliZSB0aGUgbWFpbnRhaW5lciBjYW4gY2hpbWUgaW4gd2l0aCB0aGUNCj4+
+PiBvcmlnaW5hbCBwYXRjaC9tYWlsaW5nIGxpc3QgZGlzY3Vzc2lvbiBvbiB0aGlzLiBGb3IgcmVm
+ZXJlbmNlLCBJJ3ZlDQo+Pj4gYWRkZWQgdGhlIHBhdGNod29yayBsaW5rcyBiZWxvdw0KPj4+IGh0
+dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvMzg1NDM0MS8NCj4+PiBodHRwczovL3Bh
+dGNod29yay5rZXJuZWwub3JnL3BhdGNoLzM5Njg4OTEvDQo+Pj4gaHR0cHM6Ly9wYXRjaHdvcmsu
+a2VybmVsLm9yZy9wYXRjaC8zOTY5OTkxLw0KPj4gSXQgbWF5IHZlcnkgd2VsbCBiZSB0aGF0IEkg
+bWVzc2VkIHVwIHdoZW4gYXBwbHlpbmcgdGhlIHBhdGNoLiBJIGd1ZXNzDQo+PiB3aGF0ZXZlciBw
+bGF0Zm9ybSB0aGF0IGlzIHVzaW5nIHRoZSBkcml2ZXIgaGFzIG5vdCBhdHRlbXB0ZWQgdG8gdXBk
+YXRlDQo+PiB0aGVpciBrZXJuZWwgc2luY2UgdGhlbi4NCj4+DQo+PiBUaGFua3MuDQo+Pg0KPj4g
+LS0NCj4+IERtaXRyeQ0KPiBIaSBEbWl0cnksDQo+DQo+IFRoYW5rcyBmb3IgdGhlIHF1aWNrIHJl
+c3BvbnNlLiBZZXMgSSB3YXMganVzdCBsb29raW5nIGF0IHRoZSBvdGhlcg0KPiBtYWlsaW5nIGxp
+c3RzIHBhdGNod29yayBhbmQgd2hpbGUgY29tbWVudHMgd2VyZSBtaXNzaW5nIG9uIHRoZQ0KPiBs
+aW51eC1pbnB1dCBsaXN0IGZvciB0aGUgdjQgcGF0Y2gsIHRoZXJlIHdhcyBhIGRpc2N1c3Npb24g
+b24gdGhlDQo+IHJlZ3VsYXIga2VybmVsIG1haWxpbmcgbGlzdDoNCj4gaHR0cHM6Ly9sb3JlLmtl
+cm5lbC5vcmcvcGF0Y2h3b3JrL3BhdGNoLzQ1NTQ1MC8jNjMwNDQ1DQo+DQo+IEl0IGxvb2tzIGxp
+a2UgeW91IHRvbGQgaGltIGhlIGRpZG4ndCBuZWVkIHRvIHN1Ym1pdCBhIHY1IGJ1dCBnZW5lcmF0
+ZWQNCj4gb25lIGJhc2VkIG9uIHRoZSBjaGFuZ2VzIHN1Z2dlc3RlZCBpbiB0aGUgZGlzY3Vzc2lv
+bjoNCj4NCj4gW2JlZ2luIHF1b3RlXQ0KPiBPbiBXZWQsIEFwciAxNiwgMjAxNCBhdCAxMDo0OToy
+OUFNICswMjAwLCBHYWJyaWVsIEZlcm5hbmRleiB3cm90ZToNCj4+IE9uIDEzIEFwcmlsIDIwMTQg
+MDc6MTAsIERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6
+DQo+Pj4gRG9lcyB0aGUgdmVyc2lvbiBvZiB0aGUgcGF0Y2ggYmVsb3cgc3RpbGwgd29yayBmb3Ig
+eW91Pw0KPj4+DQo+PiBZZXMgaXQncyB3YXMgdGVzdGVkIG9uIGIyMDAwIGFuZCBiMjA4OSBzdGkg
+Ym9hcmRzLg0KPj4NCj4+PiBUaGFua3MuDQo+Pj4NCj4+PiAtLQ0KPj4+IERtaXRyeQ0KPj4+DQo+
+PiBUaGFua3MgZm9yIHlvdXJzIHJlbWFya3MsIGkgd2lsbCBwcmVwYXJlIGEgdjUgdmVyc2lvbnMu
+DQo+DQo+IElmIHRoZSB2ZXJzaW9uIEkgc2VudCB0byB5b3Ugd29ya3MgdGhlbiB5b3UgZG8gbm90
+IG5lZWQgdG8gcHJlcGFyZSB2NSwNCj4gSSdsbCBqdXN0IGFwcGx5IHdoYXQgSSBoYXZlLg0KPg0K
+PiBUaGFua3MhDQo+IFtlbmQgcXVvdGVdDQo+DQo+IFNvIEkgZ3Vlc3MgRGFuJ3Mgb3JpZ2luYWwg
+cXVlc3Rpb24gcmVtYWlucywgc2hvdWxkIHRoaXMgYmUgZml4ZWQNCj4gY29uc2lkZXJpbmcgaXQn
+cyBzbyBvbGQgYW5kIGFwcGFyZW50bHkgbm9ib2R5IGNvdWxkIHBvc3NpYmx5IGJlIHVzaW5nDQo+
+IGl0IGluIHRoZSBrZXJuZWwgc2luY2UgaXQgZG9lc24ndCB3b3JrIChpbiB3aGljaCBjYXNlIHRo
+ZSBkcml2ZXINCj4gc2hvdWxkIHByb2JhYmx5IGJlIGRyb3BwZWQpIG9yIHNob3VsZCB3ZSBmaXgg
+aXQ/DQo+DQo+IFRoYW5rcywNCj4gS2VuIFNsb2F0

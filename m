@@ -1,59 +1,142 @@
-From: Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
-Subject: Re: [PATCH] doc: Change LXR references to elixir.bootlin.com
-Date: Tue, 29 Jan 2019 16:27:25 +0100
-Message-ID: <20190129152725.GA19354@latitude>
-References: <20190129142923.5743-1-j.neuschaefer@gmx.net>
- <2755754cdd8e4bd3956648f9fb6315c2@ginzinger.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH v3] HID: i2c-hid: Ignore input report if there's no data
+ present on Elan touchpanels
+Date: Wed, 30 Jan 2019 11:50:54 +0800
+Message-ID: <D83049E7-8AE2-4C80-B160-5F35BB8170EE@canonical.com>
+References: <20190107072429.23828-1-kai.heng.feng@canonical.com>
+ <CAO-hwJKo=EaPoXJLGUvjq3QRng1V1NkO7A5zYGojbPyxxyJYHA@mail.gmail.com>
+ <D7C6B90F-641A-495B-9E05-78BF4F56B552@canonical.com>
+ <CAO-hwJ+CF-obuUK9T=x0ggJRLBNmM3H6-FfKjv2y0LT96C=TUg@mail.gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.2 \(3445.102.3\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <2755754cdd8e4bd3956648f9fb6315c2@ginzinger.com>
+In-Reply-To: <CAO-hwJ+CF-obuUK9T=x0ggJRLBNmM3H6-FfKjv2y0LT96C=TUg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kepplinger Martin <Martin.Kepplinger@ginzinger.com>
-Cc: Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Federico Vaga <federico.vaga@vaga.pv.it>, Markus Heiser <markus.heiser@darmarit.de>, Minghui Liu <minghui.liu.95@gmail.com>, Michael Rodin <michael-git@rodin.online>, Grigory Shipunov <mail@oxapentane.com>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Stephen Boyd <sboyd@kernel.org>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Takashi Iwai <tiwai@suse.de>, Matthias Brugger <matthias.bgg@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kern
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 29, 2019 at 03:01:18PM +0000, Kepplinger Martin wrote:
-[...]
-> -.. [4] http://lxr.free-electrons.com/ident?i=3Dxpad_device
-> +.. [4] https://elixir.bootlin.com/ident?i=3Dxpad_device
->=20
-> that seems to be wrong. I think it's https://elixir.bootlin.com/linux/lat=
-est/ident/xpad_device
+> On Jan 29, 2019, at 18:05, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> 
+> On Mon, Jan 21, 2019 at 4:30 AM Kai-Heng Feng
+> <kai.heng.feng@canonical.com> wrote:
+>> 
+>> 
+>> 
+>>> On Jan 18, 2019, at 23:50, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+>>> 
+>>> Hi Kai-Heng,
+>>> 
+>>> On Mon, Jan 7, 2019 at 8:24 AM Kai-Heng Feng
+>>> <kai.heng.feng@canonical.com> wrote:
+>>>> 
+>>>> While using Elan touchpads, the message floods:
+>>>> [  136.138487] i2c_hid i2c-DELL08D6:00: i2c_hid_get_input: incomplete report (14/65535)
+>>>> 
+>>>> Though the message flood is annoying, the device it self works without
+>>>> any issue. I suspect that the device in question takes too much time to
+>>>> pull the IRQ back to high after I2C host has done reading its data.
+>>>> 
+>>>> Since the host receives all useful data, let's ignore the input report
+>>>> when there's no data.
+>>>> 
+>>>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>>> 
+>>> Thanks for the v3.
+>>> 
+>>> This patch has just been brought to my attention, and I have one
+>>> question before applying it:
+>>> are those messages (without your patch) occurring all the time, or
+>>> just after resume?
+>> 
+>> All the time.
+>> 
+>> The touchpad works fine though. The entire report is 0xff, so it can be
+>> safely ignored.
+> 
+> Couple of things:
+> - I have forgotten to tell you that I have applied this patch in
+> for-5.1/i2c-hid, it will be pushed to linux-next today.
 
-Oops. Indeed, it doesn't work with the old syntax. I'll fix this in v2.
+Thanks!
 
-> other than that, good.
+> - Dell told me that a BIOS fix was solving the issue. We can still
+> quarry the patch, but there should not be a strong need for it when
+> users upgrade their BIOS.
 
-Thanks,
-Jonathan Neusch=C3=A4fer
+Multiple platforms are affected by this issue [1], so the patch can still be really helpful.
 
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
+[1] https://bugs.launchpad.net/bugs/1784152
 
------BEGIN PGP SIGNATURE-----
+Kai-Heng
 
-iQIzBAABCgAdFiEEvHAHGBBjQPVy+qvDCDBEmo7zX9sFAlxQcNYACgkQCDBEmo7z
-X9u4Ew/9FelWYWndNdMHR93IecjDouiZCV0jCiaO1/yx2wnqPx+mnEBnIxkrTcBw
-V41za5eEdhwOX+kxS8sHupBZHbdLZxBR5xgEgnwc9P8PwogFJa6wx2CY0NnHAhSI
-B7k1BVLMYuDIAWrSyMEN8GWbKFiCdlgzQMeDK+g9bDu9Hlo41AJxxa1foTpEFPue
-d9zH0t0nL+WRwykPPOcG6MmjPMIpLfQLFHV0FOIee7KFY9ZpUPUdnpYSJEzA/7sS
-/hCu3BU+d96H8VrcmxKP6Zv2p4Y+tlz3K/AhhOBQLe2jyWORBsBAT77oqxajs6u2
-5VXABKrWmm72roFkMd4ePm9aOEsoEZmA+nYGRB2zQ6z3mXWsMlb5IOOqIEEmH8mx
-85kljFP9HUvuwaQQ956SEtBHFVWRfqubM8oVTqjz+SR61I3OrWHTX5QuZ3HBH2/R
-H1pJYkxTqEvUtQ47DEkum1SqKDnrPf4cCYrNV8herSvJC5h4tHks+whbHRH3lCzV
-Fpxmi/gbCygzfpRecNu90j+gfW3RksIp4hh1odERUR6d/eyX1Oi98OPbvYf6aoTS
-XJlK1vY2FqTV8rEdSzRwExEW8j8S2GraPTOYUUieLVTWpqV78J9yNLawS5BZxlsh
-mkMuOYNv8hP8iHzXLOOw3ywJz3uD69NjOf9/xTasM+9j2ZLLJwk=
-=Rd97
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
+> 
+> Cheers,
+> Benjamin
+> 
+>> 
+>>> 
+>>> I wonder if the pm_suspend delay we talked about in the other thread
+>>> would fix that issue in a cleaner way.
+>> 
+>> I’ve replied in another thread, unfortunately it can’t.
+>> 
+>> We can introduce msleep() between each commands though, but I don’t
+>> think it’s good either.
+>> 
+>> Kai-Heng
+>> 
+>>> 
+>>> Cheers,
+>>> Benjamin
+>>> 
+>>>> ---
+>>>> v3:
+>>>> Fix compiler error/warnings.
+>>>> 
+>>>> v2:
+>>>> Use dev_warn_once() to warn the user about the situation.
+>>>> 
+>>>> drivers/hid/i2c-hid/i2c-hid-core.c | 9 +++++++++
+>>>> 1 file changed, 9 insertions(+)
+>>>> 
+>>>> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+>>>> index 8555ce7e737b..2f940c1de616 100644
+>>>> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+>>>> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+>>>> @@ -50,6 +50,7 @@
+>>>> #define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET       BIT(1)
+>>>> #define I2C_HID_QUIRK_NO_RUNTIME_PM            BIT(2)
+>>>> #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP                BIT(3)
+>>>> +#define I2C_HID_QUIRK_BOGUS_IRQ                        BIT(4)
+>>>> 
+>>>> /* flags */
+>>>> #define I2C_HID_STARTED                0
+>>>> @@ -179,6 +180,8 @@ static const struct i2c_hid_quirks {
+>>>>               I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
+>>>>       { USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
+>>>>               I2C_HID_QUIRK_NO_RUNTIME_PM },
+>>>> +       { USB_VENDOR_ID_ELAN, HID_ANY_ID,
+>>>> +                I2C_HID_QUIRK_BOGUS_IRQ },
+>>>>       { 0, 0 }
+>>>> };
+>>>> 
+>>>> @@ -503,6 +506,12 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+>>>>               return;
+>>>>       }
+>>>> 
+>>>> +       if (ihid->quirks & I2C_HID_QUIRK_BOGUS_IRQ && ret_size == 0xffff) {
+>>>> +               dev_warn_once(&ihid->client->dev, "%s: IRQ triggered but "
+>>>> +                             "there's no data\n", __func__);
+>>>> +               return;
+>>>> +       }
+>>>> +
+>>>>       if ((ret_size > size) || (ret_size < 2)) {
+>>>>               dev_err(&ihid->client->dev, "%s: incomplete report (%d/%d)\n",
+>>>>                       __func__, size, ret_size);
+>>>> --
+>>>> 2.17.1

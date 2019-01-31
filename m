@@ -1,62 +1,54 @@
-From: Kai Renzig <k.renzig@gmail.com>
-Subject: [PATCH] platform/x86: silead_dmi: Add touchscreen platform data for the Chuwi Hi8 Air tablet
-Date: Thu, 31 Jan 2019 11:49:07 +0100
-Message-ID: <20190131104907.9649-1-k.renzig@gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v2 12/13] input: max77650: add onkey support
+Date: Thu, 31 Jan 2019 12:28:13 +0000
+Message-ID: <20190131122813.GB20797@sirena.org.uk>
+References: <20190129133545.1931-1-brgl@bgdev.pl>
+ <20190129133545.1931-14-brgl@bgdev.pl>
+ <20190130185328.GA149208@dtor-ws>
+ <CAMRc=McaqqmU6S_Yz35ZMvhWtWO4hTASA0fmL5CT4JizbYgu4Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMRc=McaqqmU6S_Yz35ZMvhWtWO4hTASA0fmL5CT4JizbYgu4Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Kai Renzig <k.renzig@gmail.com>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-Add touchscreen platform data for the Chuwi Hi8 Air tablet.
 
-Signed-off-by: Kai Renzig <k.renzig@gmail.com>
----
- drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+--9zSXsLTf0vkW971A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 8c5d47c0aea6..48e5d92040ab 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -41,6 +41,20 @@ static const struct ts_dmi_data chuwi_hi8_data = {
- 	.properties     = chuwi_hi8_props,
- };
- 
-+static const struct property_entry chuwi_hi8_air_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl3680-chuwi-hi8-air.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data chuwi_hi8_air_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= chuwi_hi8_air_props,
-+};
-+
- static const struct property_entry chuwi_hi8_pro_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-x", 6),
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 3),
-@@ -497,6 +511,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BIOS_VERSION, "H1D_S806_206"),
- 		},
- 	},
-+	{
-+		/* Chuwi Hi8 Air (CWI543) */
-+		.driver_data = (void *)&chuwi_hi8_air_data,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Default string"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Hi8 Air"),
-+		},
-+	},
- 	{
- 		/* Chuwi Hi8 Pro (CWI513) */
- 		.driver_data = (void *)&chuwi_hi8_pro_data,
--- 
-2.19.1
+On Thu, Jan 31, 2019 at 09:15:01AM +0100, Bartosz Golaszewski wrote:
+
+> I'm not sure what the policy is on merging MFD drivers, but I'm seeing
+> that Mark Brown has already picked up the regulator part into his tree
+> (including the binding document). I think you can just pick up the
+> input patches and it will simply not show up in Kconfig until the core
+> mfd module is upstream.
+
+> @Mark: could you please confirm it?
+
+Right, as it's a new MFD the Kconfig will stop it causing build breakage
+until the MFD is merged.  I'm doing it partly just to cut down on the
+amount of mail from resends while the rest of the series gets reviewed.
+
+--9zSXsLTf0vkW971A
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxS6dwACgkQJNaLcl1U
+h9BBNAf/Yq7Uoem9cGciS63O6v97feMamBfser9PLXATQwLIfr7vuvbz8Ig1I/jt
+1UQPV4xcX4J6Oj13T5hUuc6BgQ7eGEwwHE4fDLbSs5Ze2Hj1Brd9sM7ER/Ro3L3m
+Xuz7lFta+tF8gWGtdX8bKyJEcIfWOtawyLhIsCZ7qSWE44x5yUmUmV9kxSpXyAnI
+IfDJnfSW1E3XHt5WjfpIcDIxvup1fPxIstkHts7+OdsQcIcSUmrnFIvuzmbq94/z
+zvyu2vj0Qm0DkkGQDYfVMdINpac608CdtXlAUQ1F4+ImRgSDNn32QZ9Jde+1190c
+3HjaOajFH7egd9TFMTJxLaHaiEHaeA==
+=y+sH
+-----END PGP SIGNATURE-----
+
+--9zSXsLTf0vkW971A--

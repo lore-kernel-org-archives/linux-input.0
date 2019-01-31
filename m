@@ -1,43 +1,62 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2 12/13] input: max77650: add onkey support
-Date: Thu, 31 Jan 2019 09:15:01 +0100
-Message-ID: <CAMRc=McaqqmU6S_Yz35ZMvhWtWO4hTASA0fmL5CT4JizbYgu4Q@mail.gmail.com>
-References: <20190129133545.1931-1-brgl@bgdev.pl> <20190129133545.1931-14-brgl@bgdev.pl>
- <20190130185328.GA149208@dtor-ws>
+From: Kai Renzig <k.renzig@gmail.com>
+Subject: [PATCH] platform/x86: silead_dmi: Add touchscreen platform data for the Chuwi Hi8 Air tablet
+Date: Thu, 31 Jan 2019 11:49:07 +0100
+Message-ID: <20190131104907.9649-1-k.renzig@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190130185328.GA149208@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Brown <broonie@kernel.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Kai Renzig <k.renzig@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-=C5=9Br., 30 sty 2019 o 19:53 Dmitry Torokhov <dmitry.torokhov@gmail.com> n=
-apisa=C5=82(a):
->
-> On Tue, Jan 29, 2019 at 02:35:44PM +0100, Bartosz Golaszewski wrote:
-> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >
-> > Add support for the push- and slide-button events for max77650.
-> >
-> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> Please feel free to merge with other patches (MFD tree I suppose?).
->
+Add touchscreen platform data for the Chuwi Hi8 Air tablet.
 
-Hi Dmitry,
+Signed-off-by: Kai Renzig <k.renzig@gmail.com>
+---
+ drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-I'm not sure what the policy is on merging MFD drivers, but I'm seeing
-that Mark Brown has already picked up the regulator part into his tree
-(including the binding document). I think you can just pick up the
-input patches and it will simply not show up in Kconfig until the core
-mfd module is upstream.
-
-@Mark: could you please confirm it?
-
-Best regards,
-Bartosz Golaszewski
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 8c5d47c0aea6..48e5d92040ab 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -41,6 +41,20 @@ static const struct ts_dmi_data chuwi_hi8_data = {
+ 	.properties     = chuwi_hi8_props,
+ };
+ 
++static const struct property_entry chuwi_hi8_air_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl3680-chuwi-hi8-air.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct ts_dmi_data chuwi_hi8_air_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= chuwi_hi8_air_props,
++};
++
+ static const struct property_entry chuwi_hi8_pro_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 6),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 3),
+@@ -497,6 +511,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BIOS_VERSION, "H1D_S806_206"),
+ 		},
+ 	},
++	{
++		/* Chuwi Hi8 Air (CWI543) */
++		.driver_data = (void *)&chuwi_hi8_air_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Default string"),
++			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Hi8 Air"),
++		},
++	},
+ 	{
+ 		/* Chuwi Hi8 Pro (CWI513) */
+ 		.driver_data = (void *)&chuwi_hi8_pro_data,
+-- 
+2.19.1

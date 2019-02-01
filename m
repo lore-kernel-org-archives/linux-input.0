@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v3 07/11] power: supply: max77650: add support for battery charger
-Date: Fri,  1 Feb 2019 10:47:32 +0100
-Message-ID: <20190201094736.32057-8-brgl@bgdev.pl>
+Subject: [PATCH v3 03/11] dt-bindings: gpio: add DT bindings for max77650
+Date: Fri,  1 Feb 2019 10:47:28 +0100
+Message-ID: <20190201094736.32057-4-brgl@bgdev.pl>
 References: <20190201094736.32057-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,406 +14,54 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add basic support for the battery charger for max77650 PMIC.
+Add the DT binding document for the GPIO module of max77650.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/power/supply/Kconfig            |   7 +
- drivers/power/supply/Makefile           |   1 +
- drivers/power/supply/max77650-charger.c | 355 ++++++++++++++++++++++++
- 3 files changed, 363 insertions(+)
- create mode 100644 drivers/power/supply/max77650-charger.c
+ .../bindings/gpio/gpio-max77650.txt           | 34 +++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77650.txt
 
-diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-index e901b9879e7e..0230c96fa94d 100644
---- a/drivers/power/supply/Kconfig
-+++ b/drivers/power/supply/Kconfig
-@@ -499,6 +499,13 @@ config CHARGER_DETECTOR_MAX14656
- 	  Revision 1.2 and can be found e.g. in Kindle 4/5th generation
- 	  readers and certain LG devices.
- 
-+config CHARGER_MAX77650
-+	tristate "Maxim MAX77650 battery charger driver"
-+	depends on MFD_MAX77650
-+	help
-+	  Say Y to enable support for the battery charger control of MAX77650
-+	  PMICs.
-+
- config CHARGER_MAX77693
- 	tristate "Maxim MAX77693 battery charger driver"
- 	depends on MFD_MAX77693
-diff --git a/drivers/power/supply/Makefile b/drivers/power/supply/Makefile
-index b731c2a9b695..b73eb8c5c1a9 100644
---- a/drivers/power/supply/Makefile
-+++ b/drivers/power/supply/Makefile
-@@ -70,6 +70,7 @@ obj-$(CONFIG_CHARGER_MANAGER)	+= charger-manager.o
- obj-$(CONFIG_CHARGER_LTC3651)	+= ltc3651-charger.o
- obj-$(CONFIG_CHARGER_MAX14577)	+= max14577_charger.o
- obj-$(CONFIG_CHARGER_DETECTOR_MAX14656)	+= max14656_charger_detector.o
-+obj-$(CONFIG_CHARGER_MAX77650)	+= max77650-charger.o
- obj-$(CONFIG_CHARGER_MAX77693)	+= max77693_charger.o
- obj-$(CONFIG_CHARGER_MAX8997)	+= max8997_charger.o
- obj-$(CONFIG_CHARGER_MAX8998)	+= max8998_charger.o
-diff --git a/drivers/power/supply/max77650-charger.c b/drivers/power/supply/max77650-charger.c
+diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77650.txt b/Documentation/devicetree/bindings/gpio/gpio-max77650.txt
 new file mode 100644
-index 000000000000..7055c9b5ee24
+index 000000000000..b5dbbe934deb
 --- /dev/null
-+++ b/drivers/power/supply/max77650-charger.c
-@@ -0,0 +1,355 @@
-+// SPDX-License-Identifier: GPL-2.0
-+//
-+// Copyright (C) 2018 BayLibre SAS
-+// Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-+//
-+// Battery charger driver for MAXIM 77650/77651 charger/power-supply.
++++ b/Documentation/devicetree/bindings/gpio/gpio-max77650.txt
+@@ -0,0 +1,34 @@
++GPIO driver for MAX77650 PMIC from Maxim Integrated.
 +
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/mfd/max77650.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/power_supply.h>
-+#include <linux/regmap.h>
++This module is part of the MAX77650 MFD device. For more details
++see Documentation/devicetree/bindings/mfd/max77650.txt.
 +
-+#define MAX77650_CHARGER_ENABLED		BIT(0)
-+#define MAX77650_CHARGER_DISABLED		0x00
-+#define MAX77650_CHARGER_CHG_EN_MASK		BIT(0)
++The GPIO controller is represented as a sub-node of the PMIC node on
++the device tree.
 +
-+#define MAX77650_CHARGER_CHG_DTLS_MASK		GENMASK(7, 4)
-+#define MAX77650_CHARGER_CHG_DTLS_BITS(_reg) \
-+		(((_reg) & MAX77650_CHARGER_CHG_DTLS_MASK) >> 4)
++This device has a single GPIO pin.
 +
-+#define MAX77650_CHARGER_CHG_OFF		0x00
-+#define MAX77650_CHARGER_CHG_PREQ		0x01
-+#define MAX77650_CHARGER_CHG_ON_CURR		0x02
-+#define MAX77650_CHARGER_CHG_ON_JCURR		0x03
-+#define MAX77650_CHARGER_CHG_ON_VOLT		0x04
-+#define MAX77650_CHARGER_CHG_ON_JVOLT		0x05
-+#define MAX77650_CHARGER_CHG_ON_TOPOFF		0x06
-+#define MAX77650_CHARGER_CHG_ON_JTOPOFF		0x07
-+#define MAX77650_CHARGER_CHG_DONE		0x08
-+#define MAX77650_CHARGER_CHG_JDONE		0x09
-+#define MAX77650_CHARGER_CHG_SUSP_PF		0x0a
-+#define MAX77650_CHARGER_CHG_SUSP_FCF		0x0b
-+#define MAX77650_CHARGER_CHG_SUSP_BTF		0x0c
++Required properties:
++--------------------
++- compatible:		Must be "maxim,max77650-gpio"
++- gpio-controller : 	Marks the device node as a gpio controller.
++- #gpio-cells : 	Must be <2>. The first cell is the pin number and
++			the second cell is used to specify the gpio active
++			state.
 +
-+#define MAX77650_CHARGER_CHGIN_DTLS_MASK	GENMASK(3, 2)
-+#define MAX77650_CHARGER_CHGIN_DTLS_BITS(_reg) \
-+		(((_reg) & MAX77650_CHARGER_CHGIN_DTLS_MASK) >> 2)
++Optional properties:
++--------------------
++gpio-line-names:	Single string containing the name of the GPIO line.
 +
-+#define MAX77650_CHARGER_CHGIN_UVL		0x00
-+#define MAX77650_CHARGER_CHGIN_OVL		0x01
-+#define MAX77650_CHARGER_CHGIN_OKAY		0x11
++For more details, please refer to the generic GPIO DT binding document
++<devicetree/bindings/gpio/gpio.txt>.
 +
-+#define MAX77650_CHARGER_CHG_MASK	BIT(1)
-+#define MAX77650_CHARGER_CHG_CHARGING(_reg) \
-+		(((_reg) & MAX77650_CHARGER_CHG_MASK) > 1)
++Example:
++--------
 +
-+#define MAX77650_CHARGER_VCHGIN_MIN_MASK	0xc0
-+#define MAX77650_CHARGER_VCHGIN_MIN_SHIFT(_val)	((_val) << 5)
-+
-+#define MAX77650_CHARGER_ICHGIN_LIM_MASK	0x1c
-+#define MAX77650_CHARGER_ICHGIN_LIM_SHIFT(_val)	((_val) << 2)
-+
-+struct max77650_charger_data {
-+	struct regmap *map;
-+	struct device *dev;
-+};
-+
-+static enum power_supply_property max77650_charger_properties[] = {
-+	POWER_SUPPLY_PROP_STATUS,
-+	POWER_SUPPLY_PROP_ONLINE,
-+	POWER_SUPPLY_PROP_CHARGE_TYPE
-+};
-+
-+static const unsigned int max77650_charger_vchgin_min_table[] = {
-+	4000000, 4100000, 4200000, 4300000, 4400000, 4500000, 4600000, 4700000
-+};
-+
-+static const unsigned int max77650_charger_ichgin_lim_table[] = {
-+	95000, 190000, 285000, 380000, 475000
-+};
-+
-+static int max77650_charger_set_vchgin_min(struct max77650_charger_data *chg,
-+					   unsigned int val)
-+{
-+	int i, rv;
-+
-+	for (i = 0; i < ARRAY_SIZE(max77650_charger_vchgin_min_table); i++) {
-+		if (val == max77650_charger_vchgin_min_table[i]) {
-+			rv = regmap_update_bits(chg->map,
-+					MAX77650_REG_CNFG_CHG_B,
-+					MAX77650_CHARGER_VCHGIN_MIN_MASK,
-+					MAX77650_CHARGER_VCHGIN_MIN_SHIFT(i));
-+			if (rv)
-+				return rv;
-+
-+			return 0;
-+		}
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int max77650_charger_set_ichgin_lim(struct max77650_charger_data *chg,
-+					   unsigned int val)
-+{
-+	int i, rv;
-+
-+	for (i = 0; i < ARRAY_SIZE(max77650_charger_ichgin_lim_table); i++) {
-+		if (val == max77650_charger_ichgin_lim_table[i]) {
-+			rv = regmap_update_bits(chg->map,
-+					MAX77650_REG_CNFG_CHG_B,
-+					MAX77650_CHARGER_ICHGIN_LIM_MASK,
-+					MAX77650_CHARGER_ICHGIN_LIM_SHIFT(i));
-+			if (rv)
-+				return rv;
-+
-+			return 0;
-+		}
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static void max77650_charger_enable(struct max77650_charger_data *chg)
-+{
-+	int rv;
-+
-+	rv = regmap_update_bits(chg->map,
-+				MAX77650_REG_CNFG_CHG_B,
-+				MAX77650_CHARGER_CHG_EN_MASK,
-+				MAX77650_CHARGER_ENABLED);
-+	if (rv)
-+		dev_err(chg->dev, "unable to enable the charger: %d\n", rv);
-+}
-+
-+static void max77650_charger_disable(struct max77650_charger_data *chg)
-+{
-+	int rv;
-+
-+	rv = regmap_update_bits(chg->map,
-+				MAX77650_REG_CNFG_CHG_B,
-+				MAX77650_CHARGER_CHG_EN_MASK,
-+				MAX77650_CHARGER_DISABLED);
-+	if (rv)
-+		dev_err(chg->dev, "unable to disable the charger: %d\n", rv);
-+}
-+
-+static irqreturn_t max77650_charger_check_status(int irq, void *data)
-+{
-+	struct max77650_charger_data *chg = data;
-+	int rv, reg;
-+
-+	rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
-+	if (rv) {
-+		dev_err(chg->dev,
-+			"unable to read the charger status: %d\n", rv);
-+		return IRQ_HANDLED;
-+	}
-+
-+	switch (MAX77650_CHARGER_CHGIN_DTLS_BITS(reg)) {
-+	case MAX77650_CHARGER_CHGIN_UVL:
-+		dev_err(chg->dev, "undervoltage lockout detected, disabling charger\n");
-+		max77650_charger_disable(chg);
-+		break;
-+	case MAX77650_CHARGER_CHGIN_OVL:
-+		dev_err(chg->dev, "overvoltage lockout detected, disabling charger\n");
-+		max77650_charger_disable(chg);
-+		break;
-+	case MAX77650_CHARGER_CHGIN_OKAY:
-+		max77650_charger_enable(chg);
-+		break;
-+	default:
-+		/* May be 0x10 - debouncing */
-+		break;
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int max77650_charger_get_property(struct power_supply *psy,
-+					 enum power_supply_property psp,
-+					 union power_supply_propval *val)
-+{
-+	struct max77650_charger_data *chg = power_supply_get_drvdata(psy);
-+	int rv, reg;
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_STATUS:
-+		rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
-+		if (rv)
-+			return rv;
-+
-+		if (MAX77650_CHARGER_CHG_CHARGING(reg)) {
-+			val->intval = POWER_SUPPLY_STATUS_CHARGING;
-+			break;
-+		}
-+
-+		switch (MAX77650_CHARGER_CHG_DTLS_BITS(reg)) {
-+		case MAX77650_CHARGER_CHG_OFF:
-+		case MAX77650_CHARGER_CHG_SUSP_PF:
-+		case MAX77650_CHARGER_CHG_SUSP_FCF:
-+		case MAX77650_CHARGER_CHG_SUSP_BTF:
-+			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
-+			break;
-+		case MAX77650_CHARGER_CHG_PREQ:
-+		case MAX77650_CHARGER_CHG_ON_CURR:
-+		case MAX77650_CHARGER_CHG_ON_JCURR:
-+		case MAX77650_CHARGER_CHG_ON_VOLT:
-+		case MAX77650_CHARGER_CHG_ON_JVOLT:
-+		case MAX77650_CHARGER_CHG_ON_TOPOFF:
-+		case MAX77650_CHARGER_CHG_ON_JTOPOFF:
-+			val->intval = POWER_SUPPLY_STATUS_CHARGING;
-+			break;
-+		case MAX77650_CHARGER_CHG_DONE:
-+			val->intval = POWER_SUPPLY_STATUS_FULL;
-+			break;
-+		default:
-+			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
-+		}
-+		break;
-+	case POWER_SUPPLY_PROP_ONLINE:
-+		rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
-+		if (rv)
-+			return rv;
-+
-+		val->intval = MAX77650_CHARGER_CHG_CHARGING(reg);
-+		break;
-+	case POWER_SUPPLY_PROP_CHARGE_TYPE:
-+		rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
-+		if (rv)
-+			return rv;
-+
-+		if (!MAX77650_CHARGER_CHG_CHARGING(reg)) {
-+			val->intval = POWER_SUPPLY_CHARGE_TYPE_NONE;
-+			break;
-+		}
-+
-+		switch (MAX77650_CHARGER_CHG_DTLS_BITS(reg)) {
-+		case MAX77650_CHARGER_CHG_PREQ:
-+		case MAX77650_CHARGER_CHG_ON_CURR:
-+		case MAX77650_CHARGER_CHG_ON_JCURR:
-+		case MAX77650_CHARGER_CHG_ON_VOLT:
-+		case MAX77650_CHARGER_CHG_ON_JVOLT:
-+			val->intval = POWER_SUPPLY_CHARGE_TYPE_FAST;
-+			break;
-+		case MAX77650_CHARGER_CHG_ON_TOPOFF:
-+		case MAX77650_CHARGER_CHG_ON_JTOPOFF:
-+			val->intval = POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
-+			break;
-+		default:
-+			val->intval = POWER_SUPPLY_CHARGE_TYPE_UNKNOWN;
-+		}
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct power_supply_desc max77650_battery_desc = {
-+	.name		= "max77650",
-+	.type		= POWER_SUPPLY_TYPE_USB,
-+	.get_property	= max77650_charger_get_property,
-+	.properties	= max77650_charger_properties,
-+	.num_properties	= ARRAY_SIZE(max77650_charger_properties),
-+};
-+
-+static int max77650_charger_probe(struct platform_device *pdev)
-+{
-+	struct power_supply_config pscfg = {};
-+	struct max77650_charger_data *chg;
-+	struct power_supply *battery;
-+	struct device *dev, *parent;
-+	int rv, chg_irq, chgin_irq;
-+	unsigned int prop;
-+
-+	dev = &pdev->dev;
-+	parent = dev->parent;
-+
-+	chg = devm_kzalloc(dev, sizeof(*chg), GFP_KERNEL);
-+	if (!chg)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, chg);
-+
-+	chg->map = dev_get_regmap(parent, NULL);
-+	if (!chg->map)
-+		return -ENODEV;
-+
-+	chg->dev = dev;
-+
-+	pscfg.of_node = dev->of_node;
-+	pscfg.drv_data = chg;
-+
-+	chg_irq = platform_get_irq_byname(pdev, "CHG");
-+	if (chg_irq < 0)
-+		return chg_irq;
-+
-+	chgin_irq = platform_get_irq_byname(pdev, "CHGIN");
-+	if (chgin_irq < 0)
-+		return chgin_irq;
-+
-+	rv = devm_request_any_context_irq(dev, chg_irq,
-+					  max77650_charger_check_status,
-+					  IRQF_ONESHOT, "chg", chg);
-+	if (rv < 0)
-+		return rv;
-+
-+	rv = devm_request_any_context_irq(dev, chgin_irq,
-+					  max77650_charger_check_status,
-+					  IRQF_ONESHOT, "chgin", chg);
-+	if (rv < 0)
-+		return rv;
-+
-+	battery = devm_power_supply_register(dev,
-+					     &max77650_battery_desc, &pscfg);
-+	if (IS_ERR(battery))
-+		return PTR_ERR(battery);
-+
-+	rv = of_property_read_u32(dev->of_node, "maxim,vchgin-min", &prop);
-+	if (rv == 0) {
-+		rv = max77650_charger_set_vchgin_min(chg, prop);
-+		if (rv)
-+			return rv;
-+	}
-+
-+	rv = of_property_read_u32(dev->of_node, "maxim,ichgin-lim", &prop);
-+	if (rv == 0) {
-+		rv = max77650_charger_set_ichgin_lim(chg, prop);
-+		if (rv)
-+			return rv;
-+	}
-+
-+	return regmap_update_bits(chg->map,
-+				  MAX77650_REG_CNFG_CHG_B,
-+				  MAX77650_CHARGER_CHG_EN_MASK,
-+				  MAX77650_CHARGER_ENABLED);
-+}
-+
-+static int max77650_charger_remove(struct platform_device *pdev)
-+{
-+	struct max77650_charger_data *chg = platform_get_drvdata(pdev);
-+
-+	return regmap_update_bits(chg->map,
-+				  MAX77650_REG_CNFG_CHG_B,
-+				  MAX77650_CHARGER_CHG_EN_MASK,
-+				  MAX77650_CHARGER_DISABLED);
-+}
-+
-+static struct platform_driver max77650_charger_driver = {
-+	.driver = {
-+		.name = "max77650-charger",
-+	},
-+	.probe = max77650_charger_probe,
-+	.remove = max77650_charger_remove,
-+};
-+module_platform_driver(max77650_charger_driver);
-+
-+MODULE_DESCRIPTION("MAXIM 77650/77651 charger driver");
-+MODULE_AUTHOR("Bartosz Golaszewski <bgolaszewski@baylibre.com>");
-+MODULE_LICENSE("GPL v2");
++	gpio {
++		compatible = "maxim,max77650-gpio";
++		gpio-line-names = "max77650-charger";
++		gpio-controller;
++		#gpio-cells = <2>;
++	};
 -- 
 2.20.1

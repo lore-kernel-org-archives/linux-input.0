@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v3 03/11] dt-bindings: gpio: add DT bindings for max77650
-Date: Fri,  1 Feb 2019 10:47:28 +0100
-Message-ID: <20190201094736.32057-4-brgl@bgdev.pl>
+Subject: [PATCH v3 02/11] dt-bindings: power: supply: add DT bindings for max77650
+Date: Fri,  1 Feb 2019 10:47:27 +0100
+Message-ID: <20190201094736.32057-3-brgl@bgdev.pl>
 References: <20190201094736.32057-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,54 +14,46 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the GPIO module of max77650.
+Add the DT binding document for the battery charger module of max77650.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- .../bindings/gpio/gpio-max77650.txt           | 34 +++++++++++++++++++
- 1 file changed, 34 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-max77650.txt
+ .../power/supply/max77650-charger.txt         | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
 
-diff --git a/Documentation/devicetree/bindings/gpio/gpio-max77650.txt b/Documentation/devicetree/bindings/gpio/gpio-max77650.txt
+diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
 new file mode 100644
-index 000000000000..b5dbbe934deb
+index 000000000000..f3e00d41e299
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/gpio-max77650.txt
-@@ -0,0 +1,34 @@
-+GPIO driver for MAX77650 PMIC from Maxim Integrated.
++++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+@@ -0,0 +1,27 @@
++Battery charger driver for MAX77650 PMIC from Maxim Integrated.
 +
 +This module is part of the MAX77650 MFD device. For more details
 +see Documentation/devicetree/bindings/mfd/max77650.txt.
 +
-+The GPIO controller is represented as a sub-node of the PMIC node on
-+the device tree.
-+
-+This device has a single GPIO pin.
++The charger is represented as a sub-node of the PMIC node on the device tree.
 +
 +Required properties:
 +--------------------
-+- compatible:		Must be "maxim,max77650-gpio"
-+- gpio-controller : 	Marks the device node as a gpio controller.
-+- #gpio-cells : 	Must be <2>. The first cell is the pin number and
-+			the second cell is used to specify the gpio active
-+			state.
++- compatible:		Must be "maxim,max77650-charger"
 +
 +Optional properties:
 +--------------------
-+gpio-line-names:	Single string containing the name of the GPIO line.
-+
-+For more details, please refer to the generic GPIO DT binding document
-+<devicetree/bindings/gpio/gpio.txt>.
++- maxim,vchgin-min:	Minimum CHGIN regulation voltage (in microvolts). Must be
++			one of: 4000000, 4100000, 4200000, 4300000, 4400000,
++			4500000, 4600000, 4700000.
++- maxim,ichgin-lim:	CHGIN input current limit (in microamps). Must be one of:
++			95000, 190000, 285000, 380000, 475000.
 +
 +Example:
 +--------
 +
-+	gpio {
-+		compatible = "maxim,max77650-gpio";
-+		gpio-line-names = "max77650-charger";
-+		gpio-controller;
-+		#gpio-cells = <2>;
++	charger {
++		compatible = "maxim,max77650-charger";
++		maxim,vchgin-min = <4200000>;
++		maxim,ichgin-lim = <285000>;
 +	};
 -- 
 2.20.1

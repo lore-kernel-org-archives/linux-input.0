@@ -1,51 +1,53 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 12/13] input: max77650: add onkey support
-Date: Fri, 1 Feb 2019 09:11:14 +0000
-Message-ID: <20190201091114.GD783@dell>
-References: <20190129133545.1931-1-brgl@bgdev.pl>
- <20190129133545.1931-14-brgl@bgdev.pl>
- <20190130185328.GA149208@dtor-ws>
- <CAMRc=McaqqmU6S_Yz35ZMvhWtWO4hTASA0fmL5CT4JizbYgu4Q@mail.gmail.com>
- <20190131122813.GB20797@sirena.org.uk>
- <CAKdAkRQUAMsT7SA7oAaEmLrkZ6hOdAqCC9RC6HGRsjJ+TvASrQ@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: intel-ish-hid: Use VID/PID from ISH
+Date: Fri, 1 Feb 2019 10:46:43 +0100
+Message-ID: <CAO-hwJJBrA8i=p-LbHJJbyngoht=bBqfzBt3jzQKYjOfsCADUA@mail.gmail.com>
+References: <20190130213217.8060-1-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKdAkRQUAMsT7SA7oAaEmLrkZ6hOdAqCC9RC6HGRsjJ+TvASrQ@mail.gmail.com>
+In-Reply-To: <20190130213217.8060-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 31 Jan 2019, Dmitry Torokhov wrote:
+On Wed, Jan 30, 2019 at 10:32 PM Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> The Intel ISH HID can now have other devices attached to it, not just
+> sensors. Hence ISH HID transport is no longer just used for sensors.
+> Currently the vendor and product id is hardcoded for sensors, but they
+> can be obtained from ISH firmware for the real device. The driver already
+> extract them and store as part of device_info structure in client_data.
+> So use vendor id/product id obtained from the ISH firmware.
+>
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> ---
 
-> On Thu, Jan 31, 2019 at 4:28 AM Mark Brown <broonie@kernel.org> wrote:
-> >
-> > On Thu, Jan 31, 2019 at 09:15:01AM +0100, Bartosz Golaszewski wrote:
-> >
-> > > I'm not sure what the policy is on merging MFD drivers, but I'm seeing
-> > > that Mark Brown has already picked up the regulator part into his tree
-> > > (including the binding document). I think you can just pick up the
-> > > input patches and it will simply not show up in Kconfig until the core
-> > > mfd module is upstream.
-> >
-> > > @Mark: could you please confirm it?
-> >
-> > Right, as it's a new MFD the Kconfig will stop it causing build breakage
-> > until the MFD is merged.  I'm doing it partly just to cut down on the
-> > amount of mail from resends while the rest of the series gets reviewed.
-> 
-> Ugh, I might have pulled it in if it did not reference the new header
-> file. As a rule I try to enable all symbols that result in input
-> devices being created so as much of input code is covered... I'd
-> prefer input piece be merged with MFD.
+Applied to for-5.1/ish
 
-That's no problem.
+Cheers,
+Benjamin
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+>  drivers/hid/intel-ish-hid/ishtp-hid.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
+> index e918d78e541c..bc4c536f3c0d 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp-hid.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
+> @@ -206,8 +206,8 @@ int ishtp_hid_probe(unsigned int cur_hid_dev,
+>         hid->bus = BUS_INTEL_ISHTP;
+>         hid->dev.parent = &client_data->cl_device->dev;
+>         hid->version = le16_to_cpu(ISH_HID_VERSION);
+> -       hid->vendor = le16_to_cpu(ISH_HID_VENDOR);
+> -       hid->product = le16_to_cpu(ISH_HID_PRODUCT);
+> +       hid->vendor = le16_to_cpu(client_data->hid_devices[cur_hid_dev].vid);
+> +       hid->product = le16_to_cpu(client_data->hid_devices[cur_hid_dev].pid);
+>         snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X", "hid-ishtp",
+>                 hid->vendor, hid->product);
+>
+> --
+> 2.17.2
+>

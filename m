@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v3 02/11] dt-bindings: power: supply: add DT bindings for max77650
-Date: Fri,  1 Feb 2019 10:47:27 +0100
-Message-ID: <20190201094736.32057-3-brgl@bgdev.pl>
+Subject: [PATCH v3 01/11] dt-bindings: mfd: add DT bindings for max77650
+Date: Fri,  1 Feb 2019 10:47:26 +0100
+Message-ID: <20190201094736.32057-2-brgl@bgdev.pl>
 References: <20190201094736.32057-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,46 +14,48 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the battery charger module of max77650.
+Add a DT binding document for max77650 ultra-low power PMIC. This
+describes the core mfd device.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../power/supply/max77650-charger.txt         | 27 +++++++++++++++++++
- 1 file changed, 27 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+ .../devicetree/bindings/mfd/max77650.txt      | 28 +++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
 
-diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
 new file mode 100644
-index 000000000000..f3e00d41e299
+index 000000000000..84631d3b1e14
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
-@@ -0,0 +1,27 @@
-+Battery charger driver for MAX77650 PMIC from Maxim Integrated.
-+
-+This module is part of the MAX77650 MFD device. For more details
-+see Documentation/devicetree/bindings/mfd/max77650.txt.
-+
-+The charger is represented as a sub-node of the PMIC node on the device tree.
++++ b/Documentation/devicetree/bindings/mfd/max77650.txt
+@@ -0,0 +1,28 @@
++MAX77650 ultra low-power PMIC from Maxim Integrated.
 +
 +Required properties:
-+--------------------
-+- compatible:		Must be "maxim,max77650-charger"
++-------------------
++- compatible:		Must be "maxim,max77650"
++- reg:			I2C device address.
++- interrupts:		The interrupt on the parent the controller is
++			connected to.
++- interrupt-parent:	phandle of the parent interrupt controller.
++- interrupt-controller: Marks the device node as an interrupt controller.
++- #interrupt-cells:	Must be <2>.
 +
-+Optional properties:
-+--------------------
-+- maxim,vchgin-min:	Minimum CHGIN regulation voltage (in microvolts). Must be
-+			one of: 4000000, 4100000, 4200000, 4300000, 4400000,
-+			4500000, 4600000, 4700000.
-+- maxim,ichgin-lim:	CHGIN input current limit (in microamps). Must be one of:
-+			95000, 190000, 285000, 380000, 475000.
++For device-tree bindings of sub-modules (regulator, power supply, GPIO, LEDs
++and onkey) refer to the binding documents under the respective sub-system
++directories.
 +
 +Example:
 +--------
 +
-+	charger {
-+		compatible = "maxim,max77650-charger";
-+		maxim,vchgin-min = <4200000>;
-+		maxim,ichgin-lim = <285000>;
++	pmic: max77650@48 {
++		compatible = "maxim,max77650";
++		reg = <0x48>;
++
++		interrupt-controller;
++		interrupt-parent = <&gpio2>;
++		#interrupt-cells = <2>;
++		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
 +	};
 -- 
 2.20.1

@@ -1,148 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/4] Input: goodix - Add AVDD28-supply regulator support
-Date: Fri, 1 Feb 2019 00:18:35 -0800
-Message-ID: <CAKdAkRR8MQvh2CQ6+6d1LcX28CmRASXvmqc3QoJaoMEz92=uxg@mail.gmail.com>
-References: <20181215151802.18592-1-jagan@amarulasolutions.com>
- <20181215151802.18592-3-jagan@amarulasolutions.com> <20190107230009.wfzozb6g6ucymngw@penguin>
- <CAMty3ZB_=VaX+_03B=ATVKzRyBHnTijC3Z8y3+DNAZcPf-=3-Q@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v2 12/13] input: max77650: add onkey support
+Date: Fri, 1 Feb 2019 09:11:14 +0000
+Message-ID: <20190201091114.GD783@dell>
+References: <20190129133545.1931-1-brgl@bgdev.pl>
+ <20190129133545.1931-14-brgl@bgdev.pl>
+ <20190130185328.GA149208@dtor-ws>
+ <CAMRc=McaqqmU6S_Yz35ZMvhWtWO4hTASA0fmL5CT4JizbYgu4Q@mail.gmail.com>
+ <20190131122813.GB20797@sirena.org.uk>
+ <CAKdAkRQUAMsT7SA7oAaEmLrkZ6hOdAqCC9RC6HGRsjJ+TvASrQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMty3ZB_=VaX+_03B=ATVKzRyBHnTijC3Z8y3+DNAZcPf-=3-Q@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CAKdAkRQUAMsT7SA7oAaEmLrkZ6hOdAqCC9RC6HGRsjJ+TvASrQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jagan Teki <jagan@amarulasolutions.com>
-Cc: Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 31, 2019 at 12:00 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
->
-> On Wed, Jan 9, 2019 at 1:10 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
+On Thu, 31 Jan 2019, Dmitry Torokhov wrote:
+
+> On Thu, Jan 31, 2019 at 4:28 AM Mark Brown <broonie@kernel.org> wrote:
 > >
-> > Hi Jagan,
+> > On Thu, Jan 31, 2019 at 09:15:01AM +0100, Bartosz Golaszewski wrote:
 > >
-> > On Sat, Dec 15, 2018 at 08:48:00PM +0530, Jagan Teki wrote:
-> > > Goodix CTP controllers have AVDD28 pin connected to voltage
-> > > regulator which may not be turned on by default, like for GT5663.
-> > >
-> > > Add support for such ctp used boards by adding voltage regulator
-> > > handling code to goodix ctp driver.
-> > >
-> > > Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-> > > ---
-> > >  drivers/input/touchscreen/goodix.c | 33 +++++++++++++++++++++++++-----
-> > >  1 file changed, 28 insertions(+), 5 deletions(-)
-> > >
-> > > diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> > > index f2d9c2c41885..7371f6946098 100644
-> > > --- a/drivers/input/touchscreen/goodix.c
-> > > +++ b/drivers/input/touchscreen/goodix.c
-> > > @@ -27,6 +27,7 @@
-> > >  #include <linux/delay.h>
-> > >  #include <linux/irq.h>
-> > >  #include <linux/interrupt.h>
-> > > +#include <linux/regulator/consumer.h>
-> > >  #include <linux/slab.h>
-> > >  #include <linux/acpi.h>
-> > >  #include <linux/of.h>
-> > > @@ -47,6 +48,7 @@ struct goodix_ts_data {
-> > >       struct touchscreen_properties prop;
-> > >       unsigned int max_touch_num;
-> > >       unsigned int int_trigger_type;
-> > > +     struct regulator *avdd28;
-> > >       struct gpio_desc *gpiod_int;
-> > >       struct gpio_desc *gpiod_rst;
-> > >       u16 id;
-> > > @@ -786,25 +788,41 @@ static int goodix_ts_probe(struct i2c_client *client,
-> > >       if (error)
-> > >               return error;
-> > >
-> > > +     ts->avdd28 = devm_regulator_get(&client->dev, "AVDD28");
-> > > +     if (IS_ERR(ts->avdd28)) {
-> > > +             error = PTR_ERR(ts->avdd28);
-> > > +             if (error != -EPROBE_DEFER)
-> > > +                     dev_err(&client->dev,
-> > > +                             "Failed to get AVDD28 regulator: %d\n", error);
-> > > +             return error;
-> > > +     }
-> > > +
-> > > +     /* power the controller */
-> > > +     error = regulator_enable(ts->avdd28);
-> > > +     if (error) {
-> > > +             dev_err(&client->dev, "Controller fail to enable AVDD28\n");
-> > > +             return error;
-> > > +     }
-> > > +
-> > >       if (ts->gpiod_int && ts->gpiod_rst) {
-> > >               /* reset the controller */
-> > >               error = goodix_reset(ts);
-> > >               if (error) {
-> > >                       dev_err(&client->dev, "Controller reset failed.\n");
-> > > -                     return error;
-> > > +                     goto error;
-> > >               }
-> > >       }
-> > >
-> > >       error = goodix_i2c_test(client);
-> > >       if (error) {
-> > >               dev_err(&client->dev, "I2C communication failure: %d\n", error);
-> > > -             return error;
-> > > +             goto error;
-> > >       }
-> > >
-> > >       error = goodix_read_version(ts);
-> > >       if (error) {
-> > >               dev_err(&client->dev, "Read version failed.\n");
-> > > -             return error;
-> > > +             goto error;
-> > >       }
-> > >
-> > >       ts->chip = goodix_get_chip_data(ts->id);
-> > > @@ -823,23 +841,28 @@ static int goodix_ts_probe(struct i2c_client *client,
-> > >                       dev_err(&client->dev,
-> > >                               "Failed to invoke firmware loader: %d\n",
-> > >                               error);
-> > > -                     return error;
-> > > +                     goto error;
-> > >               }
-> > >
-> > >               return 0;
-> > >       } else {
-> > >               error = goodix_configure_dev(ts);
-> > >               if (error)
-> > > -                     return error;
-> > > +                     goto error;
-> > >       }
-> > >
-> > >       return 0;
-> > > +
-> > > +error:
-> > > +     regulator_disable(ts->avdd28);
-> > > +     return error;
-> > >  }
-> > >
-> > >  static int goodix_ts_remove(struct i2c_client *client)
-> > >  {
-> > >       struct goodix_ts_data *ts = i2c_get_clientdata(client);
-> > >
-> > > +     regulator_disable(ts->avdd28);
+> > > I'm not sure what the policy is on merging MFD drivers, but I'm seeing
+> > > that Mark Brown has already picked up the regulator part into his tree
+> > > (including the binding document). I think you can just pick up the
+> > > input patches and it will simply not show up in Kconfig until the core
+> > > mfd module is upstream.
 > >
-> > This may be disabling the regulator too early. Please use
-> > devm_add_action_or_reset() to install a custom devm handler that would
-> > disable the regulator in line with the rest of devm unwinding flow.
->
-> Like handler with only regulator_disable?
+> > > @Mark: could you please confirm it?
+> >
+> > Right, as it's a new MFD the Kconfig will stop it causing build breakage
+> > until the MFD is merged.  I'm doing it partly just to cut down on the
+> > amount of mail from resends while the rest of the series gets reviewed.
+> 
+> Ugh, I might have pulled it in if it did not reference the new header
+> file. As a rule I try to enable all symbols that result in input
+> devices being created so as much of input code is covered... I'd
+> prefer input piece be merged with MFD.
 
-Right.
-
-> and would that call from suspend or not need?
-
-No, it will only be called when device is unbound from the driver or
-when probe fails. If you need to control regulator in suspend/resume
-you can do it with normal regulator_enable() and regulator_disable()
-calls.
-
-Thanks.
+That's no problem.
 
 -- 
-Dmitry
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

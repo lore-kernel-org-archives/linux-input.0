@@ -1,266 +1,133 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v3 09/11] leds: max77650: add LEDs support
-Date: Sat, 2 Feb 2019 15:39:55 +0100
-Message-ID: <CAMRc=McK0oc2-Cve5x6k+3TOJDF9qSxaCr9ix3=i=7Z2eDw2XQ@mail.gmail.com>
-References: <20190201094736.32057-1-brgl@bgdev.pl> <20190201094736.32057-10-brgl@bgdev.pl>
- <78b99abb-f367-1533-0690-8da26957a664@gmail.com> <d86adc21-627f-0350-72e0-f6f10b023413@ti.com>
+From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH v2 1/5] dt-bindings: input: Add binding for bma150 sensor
+Date: Sat,  2 Feb 2019 16:18:02 +0100
+Message-ID: <20190202151806.9064-2-pawel.mikolaj.chmiel@gmail.com>
+References: <20190202151806.9064-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d86adc21-627f-0350-72e0-f6f10b023413@ti.com>
+In-Reply-To: <20190202151806.9064-1-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Murphy <dmurphy@ti.com>
-Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: dmitry.torokhov@gmail.com
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-pt., 1 lut 2019 o 21:15 Dan Murphy <dmurphy@ti.com> napisa=C5=82(a):
->
-> Hi
->
-> On 2/1/19 1:45 PM, Jacek Anaszewski wrote:
-> > Hi Bartosz,
-> >
-> > Thanks for the update.
-> >
-> > On 2/1/19 10:47 AM, Bartosz Golaszewski wrote:
-> >> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >>
-> >> This adds basic support for LEDs for the max77650 PMIC. The device has
-> >> three current sinks for driving LEDs.
-> >>
-> >> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >> ---
-> >>   drivers/leds/Kconfig         |   6 ++
-> >>   drivers/leds/Makefile        |   1 +
-> >>   drivers/leds/leds-max77650.c | 147 +++++++++++++++++++++++++++++++++=
-++
-> >>   3 files changed, 154 insertions(+)
-> >>   create mode 100644 drivers/leds/leds-max77650.c
-> >>
-> >> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> >> index a72f97fca57b..6e7a8f51eccc 100644
-> >> --- a/drivers/leds/Kconfig
-> >> +++ b/drivers/leds/Kconfig
-> >> @@ -608,6 +608,12 @@ config LEDS_TLC591XX
-> >>         This option enables support for Texas Instruments TLC59108
-> >>         and TLC59116 LED controllers.
-> >>   +config LEDS_MAX77650
-> >> +    tristate "LED support for Maxim MAX77650 PMIC"
-> >> +    depends on MFD_MAX77650
-> >> +    help
-> >> +      LEDs driver for MAX77650 family of PMICs from Maxim Integrated.=
-"
-> >> +
-> >>   config LEDS_MAX77693
-> >>       tristate "LED support for MAX77693 Flash"
-> >>       depends on LEDS_CLASS_FLASH
-> >> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> >> index 4c1b0054f379..f48b2404dbb7 100644
-> >> --- a/drivers/leds/Makefile
-> >> +++ b/drivers/leds/Makefile
-> >> @@ -61,6 +61,7 @@ obj-$(CONFIG_LEDS_MC13783)        +=3D leds-mc13783.=
-o
-> >>   obj-$(CONFIG_LEDS_NS2)            +=3D leds-ns2.o
-> >>   obj-$(CONFIG_LEDS_NETXBIG)        +=3D leds-netxbig.o
-> >>   obj-$(CONFIG_LEDS_ASIC3)        +=3D leds-asic3.o
-> >> +obj-$(CONFIG_LEDS_MAX77650)        +=3D leds-max77650.o
-> >>   obj-$(CONFIG_LEDS_MAX77693)        +=3D leds-max77693.o
-> >>   obj-$(CONFIG_LEDS_MAX8997)        +=3D leds-max8997.o
-> >>   obj-$(CONFIG_LEDS_LM355x)        +=3D leds-lm355x.o
-> >> diff --git a/drivers/leds/leds-max77650.c b/drivers/leds/leds-max77650=
-.c
-> >> new file mode 100644
-> >> index 000000000000..6b74ce9cac12
-> >> --- /dev/null
-> >> +++ b/drivers/leds/leds-max77650.c
-> >> @@ -0,0 +1,147 @@
-> >> +// SPDX-License-Identifier: GPL-2.0
-> >> +//
-> >> +// Copyright (C) 2018 BayLibre SAS
-> >> +// Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >> +//
-> >> +// LED driver for MAXIM 77650/77651 charger/power-supply.
-> >> +
-> >> +#include <linux/i2c.h>
-> >> +#include <linux/leds.h>
-> >> +#include <linux/mfd/max77650.h>
-> >> +#include <linux/module.h>
-> >> +#include <linux/platform_device.h>
-> >> +#include <linux/regmap.h>
-> >> +
-> >> +#define MAX77650_LED_NUM_LEDS        3
-> >> +
-> >> +#define MAX77650_LED_A_BASE        0x40
-> >> +#define MAX77650_LED_B_BASE        0x43
-> >> +
-> >> +#define MAX77650_LED_BR_MASK        GENMASK(4, 0)
-> >> +#define MAX77650_LED_EN_MASK        GENMASK(7, 6)
-> >> +
-> >> +#define MAX77650_LED_MAX_BRIGHTNESS    MAX77650_LED_BR_MASK
-> >> +
-> >> +/* Enable EN_LED_MSTR. */
-> >> +#define MAX77650_LED_TOP_DEFAULT    BIT(0)
-> >> +
-> >> +#define MAX77650_LED_ENABLE        GENMASK(7, 6)
-> >> +#define MAX77650_LED_DISABLE        0x00
-> >> +
-> >> +#define MAX77650_LED_A_DEFAULT        MAX77650_LED_DISABLE
-> >> +/* 100% on duty */
-> >> +#define MAX77650_LED_B_DEFAULT        GENMASK(3, 0)
-> >> +
-> >> +struct max77650_led {
-> >> +    struct led_classdev cdev;
-> >> +    struct regmap *map;
-> >> +    unsigned int regA;
-> >> +    unsigned int regB;
->
-> Please don't use camel case.
->
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-Sorry, but this is pointless nitpicking. The registers are referred to
-in the manual as LED[012]_A and LED[012]_B so these variable names
-reflect that. The difference between ThisKindOfCamelCase and regA/regB
-is obvious. It's much more readable than for example rega or reg_a. I
-also used the same approach in the regulator module and there were no
-complaints.
+Add device tree bindings for Bosch BMA150 Accelerometer Sensor
 
-> >> +};
-> >> +
-> >> +static struct max77650_led *max77650_to_led(struct led_classdev *cdev=
-)
-> >> +{
-> >> +    return container_of(cdev, struct max77650_led, cdev);
-> >> +}
-> >> +
-> >> +static int max77650_led_brightness_set(struct led_classdev *cdev,
-> >> +                       enum led_brightness brightness)
-> >> +{
-> >> +    struct max77650_led *led =3D max77650_to_led(cdev);
-> >> +    int val, mask;
-> >> +
->
-> The register value and bits are only 8 bit why an int?
->
+Changes from v1:
+ - Add properties for all of bma150_cfg
+ - Correct IRQ type in example
 
-Because regmap_update_bits() deals with 32-bit integers. There's no
-hurt and it's less confusing.
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+---
+ .../bindings/input/bosch,bma150.txt           | 38 +++++++++++++++++++
+ include/dt-bindings/input/bma150.h            | 22 +++++++++++
+ include/linux/bma150.h                        | 13 +------
+ 3 files changed, 62 insertions(+), 11 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/bosch,bma150.txt
+ create mode 100644 include/dt-bindings/input/bma150.h
 
-> >> +    mask =3D MAX77650_LED_BR_MASK | MAX77650_LED_EN_MASK;
-> >> +
-> >> +    if (brightness =3D=3D LED_OFF)
-> >> +        val =3D MAX77650_LED_DISABLE;
-> >> +    else
-> >> +        val =3D MAX77650_LED_ENABLE | brightness;
-> >> +
-> >> +    return regmap_update_bits(led->map, led->regA, mask, val);
-> >> +}
-> >> +
-> >> +static int max77650_led_probe(struct platform_device *pdev)
-> >> +{
-> >> +    struct device_node *of_node, *child;
-> >> +    struct max77650_led *leds, *led;
-> >> +    struct device *parent;
-> >> +    struct device *dev;
-> >> +    struct regmap *map;
-> >> +    const char *label;
-> >> +    int rv, num_leds;
-> >> +    u32 reg;
-> >> +
-> >> +    dev =3D &pdev->dev;
-> >> +    parent =3D dev->parent;
-> >> +    of_node =3D dev->of_node;
-> >> +
-> >> +    if (!of_node)
-> >> +        return -ENODEV;
-> >> +
-> >> +    leds =3D devm_kcalloc(dev, sizeof(*leds),
-> >> +                MAX77650_LED_NUM_LEDS, GFP_KERNEL);
-> >> +    if (!leds)
-> >> +        return -ENOMEM;
-> >> +
-> >> +    map =3D dev_get_regmap(dev->parent, NULL);
-> >> +    if (!map)
-> >> +        return -ENODEV;
-> >> +
-> >> +    num_leds =3D of_get_child_count(of_node);
-> >> +    if (!num_leds || num_leds > MAX77650_LED_NUM_LEDS)
-> >> +        return -ENODEV;
-> >> +
-> >> +    for_each_child_of_node(of_node, child) {
-> >> +        rv =3D of_property_read_u32(child, "reg", &reg);
->
-> Can we use the fwnode_property_read_u32 call here?
-> And the same for all below as well?
->
->
-
-Of course we can. But why? This is a low-power PMIC. Is there really a
-chance that a non-DT system will want to use it? If so - we will be
-able to convert it if needed. For now: I'd stick with of_* functions.
-
-> >> +        if (rv || reg >=3D MAX77650_LED_NUM_LEDS)
-> >> +            return -EINVAL;
-> >> +
-> >> +        led =3D &leds[reg];
-> >> +        led->map =3D map;
-> >> +        led->regA =3D MAX77650_LED_A_BASE + reg;
-> >> +        led->regB =3D MAX77650_LED_B_BASE + reg;
-> >> +        led->cdev.brightness_set_blocking =3D max77650_led_brightness=
-_set;
-> >> +        led->cdev.max_brightness =3D MAX77650_LED_MAX_BRIGHTNESS;
-> >> +
-> >> +        label =3D of_get_property(child, "label", NULL);
-> >> +        if (!label) {
-> >> +            led->cdev.name =3D "max77650::";
-> >> +        } else {
-> >> +            led->cdev.name =3D devm_kasprintf(dev, GFP_KERNEL,
-> >> +                            "max77650:%s", label);
-> >> +            if (!led->cdev.name)
-> >> +                return -ENOMEM;
-> >> +        }
-> >> +
-> >> +        of_property_read_string(child, "linux,default-trigger",
-> >> +                    &led->cdev.default_trigger);
-> >> +
-> >> +        rv =3D devm_of_led_classdev_register(dev, child, &led->cdev);
-> >> +        if (rv)
-> >> +            return rv;
-> >> +
-> >> +        rv =3D regmap_write(map, led->regA, MAX77650_LED_A_DEFAULT);
-> >> +        if (rv)
-> >> +            return rv;
-> >> +
-> >> +        rv =3D regmap_write(map, led->regB, MAX77650_LED_B_DEFAULT);
-> >> +        if (rv)
-> >> +            return rv;
-> >> +    }
-> >> +
-> >> +    return regmap_write(map,
-> >> +                MAX77650_REG_CNFG_LED_TOP,
-> >> +                MAX77650_LED_TOP_DEFAULT);
-> >> +}
-> >> +
-> >> +static struct platform_driver max77650_led_driver =3D {
-> >> +    .driver =3D {
-> >> +        .name =3D "max77650-led",
-> >> +    },
-> >> +    .probe =3D max77650_led_probe,
-> >> +};
-> >> +module_platform_driver(max77650_led_driver);
-> >> +
-> >> +MODULE_DESCRIPTION("MAXIM 77650/77651 LED driver");
-> >> +MODULE_AUTHOR("Bartosz Golaszewski <bgolaszewski@baylibre.com>");
-> >> +MODULE_LICENSE("GPL v2");
-> >>
-> >
-> > Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-> >
->
->
-> --
-> ------------------
-> Dan Murphy
-
-Best regards,
-Bartosz Golaszewski
+diff --git a/Documentation/devicetree/bindings/input/bosch,bma150.txt b/Documentation/devicetree/bindings/input/bosch,bma150.txt
+new file mode 100644
+index 000000000000..f644d132f79c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/bosch,bma150.txt
+@@ -0,0 +1,38 @@
++* Bosch BMA150 Accelerometer Sensor
++
++Also works for the SMB380 and BMA023 accelerometers
++
++Required properties:
++- compatible : Should be "bosch,bma150"
++- reg : The I2C address of the sensor
++
++Optional properties:
++- interrupt-parent : should be the phandle for the interrupt controller
++- interrupts : Interrupt mapping for IRQ.  If not present device will be polled
++- any-motion-int : bool for if the any motion interrupt should be enabled
++- hg-int : bool for if the high-G interrupt should be enabled
++- lg-int : bool for if the low-G interrupt should be enabled
++- any-motion-cfg : array of integers for any motion duration and threshold
++- hg-cfg : array of integers for high-G hysterisis, duration, and threshold
++- lg-cfg : array of integers for low-G hysterisis, duration, and threshold
++- range : configuration of range, one of BMA150_RANGE_* as defined in [1]
++- bandwidth : refresh rate of device, one of BMA150_BW_* as defined in [1]
++
++Example:
++
++bma150@38 {
++	compatible = "bosch,bma150";
++	reg = <0x38>;
++	interrupt-parent = <&gph0>;
++	interrupts = <1 IRQ_TYPE_EDGE_RISING>;
++	any-motion-int;
++	hg-int;
++	lg-int;
++	any-motion-cfg = <0 0>;
++	hg-cfg = <0 150 160>;
++	lg-cfg = <0 150 20>;
++	range = <BMA150_RANGE_2G>;
++	bandwidth = <BMA150_BW_50HZ>;
++};
++
++[1] include/dt-bindings/input/bma150.h
+diff --git a/include/dt-bindings/input/bma150.h b/include/dt-bindings/input/bma150.h
+new file mode 100644
+index 000000000000..fb38ca787f0f
+--- /dev/null
++++ b/include/dt-bindings/input/bma150.h
+@@ -0,0 +1,22 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * This header provides bindings for the BMA150 accelerometer
++ */
++#ifndef _DT_BINDINGS_INPUT_BMA150_H
++#define _DT_BINDINGS_INPUT_BMA150_H
++
++/* Range */
++#define BMA150_RANGE_2G		0
++#define BMA150_RANGE_4G		1
++#define BMA150_RANGE_8G		2
++
++/* Refresh rate */
++#define BMA150_BW_25HZ		0
++#define BMA150_BW_50HZ		1
++#define BMA150_BW_100HZ		2
++#define BMA150_BW_190HZ		3
++#define BMA150_BW_375HZ		4
++#define BMA150_BW_750HZ		5
++#define BMA150_BW_1500HZ	6
++
++#endif /* _DT_BINDINGS_INPUT_BMA150_H */
+diff --git a/include/linux/bma150.h b/include/linux/bma150.h
+index 97ade7cdc870..b85266a9c35c 100644
+--- a/include/linux/bma150.h
++++ b/include/linux/bma150.h
+@@ -20,19 +20,10 @@
+ #ifndef _BMA150_H_
+ #define _BMA150_H_
+ 
+-#define BMA150_DRIVER		"bma150"
++#include <dt-bindings/input/bma150.h>
+ 
+-#define BMA150_RANGE_2G		0
+-#define BMA150_RANGE_4G		1
+-#define BMA150_RANGE_8G		2
++#define BMA150_DRIVER		"bma150"
+ 
+-#define BMA150_BW_25HZ		0
+-#define BMA150_BW_50HZ		1
+-#define BMA150_BW_100HZ		2
+-#define BMA150_BW_190HZ		3
+-#define BMA150_BW_375HZ		4
+-#define BMA150_BW_750HZ		5
+-#define BMA150_BW_1500HZ	6
+ 
+ struct bma150_cfg {
+ 	bool any_motion_int;		/* Set to enable any-motion interrupt */
+-- 
+2.17.1

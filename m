@@ -1,37 +1,78 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH v2] doc: Change LXR references to elixir.bootlin.com
-Date: Fri, 1 Feb 2019 16:05:39 -0700
-Message-ID: <20190201160539.68cd8897@lwn.net>
-References: <20190130172528.7552-1-j.neuschaefer@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: KT Liao <kt.liao@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Add i2c_reset in sysfs for ELAN touchpad recovery
+Date: Sat,  2 Feb 2019 15:54:56 +0800
+Message-ID: <1549094096-4082-1-git-send-email-kt.liao@emc.com.tw>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190130172528.7552-1-j.neuschaefer@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan =?UTF-8?B?TmV1c2Now6RmZXI=?= <j.neuschaefer@gmx.net>
-Cc: linux-doc@vger.kernel.org, Kepplinger Martin <Martin.Kepplinger@ginzinger.com>, Stephen Boyd <sboyd@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Federico Vaga <federico.vaga@vaga.pv.it>, Markus Heiser <markus.heiser@darmarit.de>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Michael Rodin <michael-git@rodin.online>, Minghui Liu <minghui.liu.95@gmail.com>, Grigory Shipunov <mail@oxapentane.com>, Mathieu Poirier <mathieu.poirier@linaro.org>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Coly Li <colyli@suse.de>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, Guenter Roeck <linux@roeck-us.net>, Takashi Iwai <tiwai@suse.de>, linux-input@vger.ke
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, ulrik.debie-os@e2big.org
+Cc: kt.liao@emc.com.tw, Roger.Whittaker@suse.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 30 Jan 2019 18:25:15 +0100
-Jonathan Neuschäfer <j.neuschaefer@gmx.net> wrote:
+Roger from SUSE reported the touchpad on Lenovo yoga2 crush sometimes.
+He found that rmmod/modprobe elan_i2c will recover the issue.
+He add the workaround on SUSE and solve the problem.
+Recently, the workaround fails in kernel 4.20 becasue IRQ mismatch.
+genirq: Flags mismatch irq 0. 00002002 (ELAN0600:00) vs. 00015a00 (timer)
+I can't reproduce the issue in SUSE with the same kernel.
+And it's a 5 years old laptop, ELAN can't find the module for testing.
+Instead of IRQ debugging IRQ, I tried another approach.
+I added i2c_reset in sysfs to avoid IRQ requesting in probe.
 
-> Recently, Free Electrons was renamed to Bootlin[1]. Less recently, the
-> Linux Cross Reference (LXR) at lxr.free-electrons.com was replaced by
-> Elixir[2], and lxr.free-electrons.com redirected first to
-> elixir.free-electrons.com and now to elixir.bootlin.com.
-> 
-> [1]: https://bootlin.com/blog/free-electrons-becomes-bootlin/
-> [2]: https://github.com/free-electrons/elixir
-> 
-> Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-> ---
-> 
-> v2:
-> - Fix ident search URL, as suggested by Martin Kepplinger
-> - Add trailing slash, which I accidentally dropped in v1 in
->   Documentation/translations/it_IT/process/howto.rst
+Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+Acked-by: Roger Whittaker <Roger.Whittaker@suse.com>
+---
+ drivers/input/mouse/elan_i2c_core.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-Applied, thanks.
-
-jon
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 2690a4b..388b1f0 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -670,6 +670,29 @@ static ssize_t calibrate_store(struct device *dev,
+ 	return retval ?: count;
+ }
+ 
++static ssize_t i2c_reset_store(struct device *dev,
++			       struct device_attribute *attr,
++			       const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct elan_tp_data *data = i2c_get_clientdata(client);
++	int retval;
++
++	retval = mutex_lock_interruptible(&data->sysfs_mutex);
++	if (retval)
++		return retval;
++
++	disable_irq(client->irq);
++
++	retval = elan_initialize(data);
++	if (retval)
++		dev_err(dev, "failed to re-initialize touchpad: %d\n", retval);
++
++	enable_irq(client->irq);
++	mutex_unlock(&data->sysfs_mutex);
++	return retval ?: count;
++}
++
+ static ssize_t elan_sysfs_read_mode(struct device *dev,
+ 				    struct device_attribute *attr,
+ 				    char *buf)
+@@ -702,6 +725,7 @@ static DEVICE_ATTR(mode, S_IRUGO, elan_sysfs_read_mode, NULL);
+ static DEVICE_ATTR(update_fw, S_IWUSR, NULL, elan_sysfs_update_fw);
+ 
+ static DEVICE_ATTR_WO(calibrate);
++static DEVICE_ATTR_WO(i2c_reset);
+ 
+ static struct attribute *elan_sysfs_entries[] = {
+ 	&dev_attr_product_id.attr,
+@@ -710,6 +734,7 @@ static struct attribute *elan_sysfs_entries[] = {
+ 	&dev_attr_iap_version.attr,
+ 	&dev_attr_fw_checksum.attr,
+ 	&dev_attr_calibrate.attr,
++	&dev_attr_i2c_reset.attr,
+ 	&dev_attr_mode.attr,
+ 	&dev_attr_update_fw.attr,
+ 	NULL,
+-- 
+2.7.4

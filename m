@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v2 2/5] input: misc: bma150: Use managed resources helpers
-Date: Sat,  2 Feb 2019 16:18:03 +0100
-Message-ID: <20190202151806.9064-3-pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH v2 4/5] input: misc: bma150: Drop platform data
+Date: Sat,  2 Feb 2019 16:18:05 +0100
+Message-ID: <20190202151806.9064-5-pawel.mikolaj.chmiel@gmail.com>
 References: <20190202151806.9064-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,144 +15,75 @@ List-Id: linux-input@vger.kernel.org
 
 From: Jonathan Bakker <xc-racer2@live.ca>
 
-The driver can be cleaned up by using managed resource helpers
-
-Changes from v1:
- - Correct devm input unregistering
+bma150 supports DT now and as there are no in-kernel users of
+the platform data, remove it.
 
 Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
 Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 ---
- drivers/input/misc/bma150.c | 44 ++++++++++---------------------------
- 1 file changed, 12 insertions(+), 32 deletions(-)
+ drivers/input/misc/bma150.c | 27 +++++----------------------
+ include/linux/bma150.h      |  5 -----
+ 2 files changed, 5 insertions(+), 27 deletions(-)
 
 diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-index 1efcfdf9f8a8..79acaaf86b7e 100644
+index e86df79490ad..1cdc8ce97968 100644
 --- a/drivers/input/misc/bma150.c
 +++ b/drivers/input/misc/bma150.c
-@@ -471,7 +471,7 @@ static int bma150_register_input_device(struct bma150_data *bma150)
- 	struct input_dev *idev;
- 	int error;
+@@ -567,8 +567,6 @@ int bma150_cfg_from_of(struct device_node *np)
+ static int bma150_probe(struct i2c_client *client,
+ 				  const struct i2c_device_id *id)
+ {
+-	const struct bma150_platform_data *pdata =
+-			dev_get_platdata(&client->dev);
+ 	const struct bma150_cfg *cfg;
+ 	struct bma150_data *bma150;
+ 	int chip_id;
+@@ -592,27 +590,12 @@ static int bma150_probe(struct i2c_client *client,
  
--	idev = input_allocate_device();
-+	idev = devm_input_allocate_device(&bma150->client->dev);
- 	if (!idev)
- 		return -ENOMEM;
+ 	bma150->client = client;
  
-@@ -482,10 +482,8 @@ static int bma150_register_input_device(struct bma150_data *bma150)
- 	input_set_drvdata(idev, bma150);
- 
- 	error = input_register_device(idev);
--	if (error) {
--		input_free_device(idev);
-+	if (error)
- 		return error;
--	}
- 
- 	bma150->input = idev;
- 	return 0;
-@@ -496,7 +494,7 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
- 	struct input_polled_dev *ipoll_dev;
- 	int error;
- 
--	ipoll_dev = input_allocate_polled_device();
-+	ipoll_dev = devm_input_allocate_polled_device(&bma150->client->dev);
- 	if (!ipoll_dev)
- 		return -ENOMEM;
- 
-@@ -511,10 +509,8 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
- 	bma150_init_input_device(bma150, ipoll_dev->input);
- 
- 	error = input_register_polled_device(ipoll_dev);
--	if (error) {
--		input_free_polled_device(ipoll_dev);
-+	if (error)
- 		return error;
--	}
- 
- 	bma150->input_polled = ipoll_dev;
- 	bma150->input = ipoll_dev->input;
-@@ -543,7 +539,8 @@ static int bma150_probe(struct i2c_client *client,
- 		return -EINVAL;
+-	if (pdata) {
+-		if (pdata->irq_gpio_cfg) {
+-			error = pdata->irq_gpio_cfg();
+-			if (error) {
+-				dev_err(&client->dev,
+-					"IRQ GPIO conf. error %d, error %d\n",
+-					client->irq, error);
+-				return error;
+-			}
+-		}
+-		cfg = &pdata->cfg;
+-	} else if (client->dev.of_node) {
+-		error = bma150_cfg_from_of(client->dev.of_node);
+-		if (error) {
+-			dev_err(&client->dev, "Failed to parse of data\n");
+-			return error;
+-		}
+-		cfg = &default_cfg;
+-	} else {
+-		cfg = &default_cfg;
++	error = bma150_cfg_from_of(client->dev.of_node);
++	if (error) {
++		dev_err(&client->dev, "Failed to parse of data\n");
++		return error;
  	}
- 
--	bma150 = kzalloc(sizeof(struct bma150_data), GFP_KERNEL);
-+	bma150 = devm_kzalloc(&client->dev, sizeof(struct bma150_data),
-+			      GFP_KERNEL);
- 	if (!bma150)
- 		return -ENOMEM;
- 
-@@ -556,7 +553,7 @@ static int bma150_probe(struct i2c_client *client,
- 				dev_err(&client->dev,
- 					"IRQ GPIO conf. error %d, error %d\n",
- 					client->irq, error);
--				goto err_free_mem;
-+				return error;
- 			}
- 		}
- 		cfg = &pdata->cfg;
-@@ -566,14 +563,14 @@ static int bma150_probe(struct i2c_client *client,
++	cfg = &default_cfg;
  
  	error = bma150_initialize(bma150, cfg);
  	if (error)
--		goto err_free_mem;
-+		return error;
+diff --git a/include/linux/bma150.h b/include/linux/bma150.h
+index ad19dc7a30d7..650ffe9fa4cf 100644
+--- a/include/linux/bma150.h
++++ b/include/linux/bma150.h
+@@ -41,9 +41,4 @@ struct bma150_cfg {
+ 	u32 bandwidth;			/* one of BMA0150_BW_xxx */
+ };
  
- 	if (client->irq > 0) {
- 		error = bma150_register_input_device(bma150);
- 		if (error)
--			goto err_free_mem;
-+			return error;
- 
--		error = request_threaded_irq(client->irq,
-+		error = devm_request_threaded_irq(&client->dev, client->irq,
- 					NULL, bma150_irq_thread,
- 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
- 					BMA150_DRIVER, bma150);
-@@ -581,13 +578,12 @@ static int bma150_probe(struct i2c_client *client,
- 			dev_err(&client->dev,
- 				"irq request failed %d, error %d\n",
- 				client->irq, error);
--			input_unregister_device(bma150->input);
--			goto err_free_mem;
-+			return error;
- 		}
- 	} else {
- 		error = bma150_register_polled_device(bma150);
- 		if (error)
--			goto err_free_mem;
-+			return error;
- 	}
- 
- 	i2c_set_clientdata(client, bma150);
-@@ -595,28 +591,12 @@ static int bma150_probe(struct i2c_client *client,
- 	pm_runtime_enable(&client->dev);
- 
- 	return 0;
+-struct bma150_platform_data {
+-	struct bma150_cfg cfg;
+-	int (*irq_gpio_cfg)(void);
+-};
 -
--err_free_mem:
--	kfree(bma150);
--	return error;
- }
- 
- static int bma150_remove(struct i2c_client *client)
- {
--	struct bma150_data *bma150 = i2c_get_clientdata(client);
--
- 	pm_runtime_disable(&client->dev);
- 
--	if (client->irq > 0) {
--		free_irq(client->irq, bma150);
--		input_unregister_device(bma150->input);
--	} else {
--		input_unregister_polled_device(bma150->input_polled);
--		input_free_polled_device(bma150->input_polled);
--	}
--
--	kfree(bma150);
--
- 	return 0;
- }
- 
+ #endif /* _BMA150_H_ */
 -- 
 2.17.1

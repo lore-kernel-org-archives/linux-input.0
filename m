@@ -1,42 +1,158 @@
 From: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>
-Subject: [PATCH v2 0/5] input: misc: bma150: Add support for device tree
-Date: Sat,  2 Feb 2019 16:18:01 +0100
-Message-ID: <20190202151806.9064-1-pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH v2 2/5] input: misc: bma150: Use managed resources helpers
+Date: Sat,  2 Feb 2019 16:18:03 +0100
+Message-ID: <20190202151806.9064-3-pawel.mikolaj.chmiel@gmail.com>
+References: <20190202151806.9064-1-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190202151806.9064-1-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: robh+dt@kernel.org, mark.rutland@arm.com, pawel.mikolaj.chmiel@gmail.com, xc-racer2@live.ca, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This small patchset adds support for device tree to Bosch BMA150 Accelerometer
-Sensor driver.
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-It was tested on s5pv210-galaxys and s5pv210-fascinate4g.
+The driver can be cleaned up by using managed resource helpers
 
 Changes from v1:
-  - Correct devm input unregistering
-  - Correct IRQ type in DT documentation
-  - Add DT properties for bma150_cfg and document
-  - Add patch removing pdata
-  - Fix race condition in input device registering
+ - Correct devm input unregistering
 
-Jonathan Bakker (5):
-  dt-bindings: input: Add binding for bma150 sensor
-  input: misc: bma150: Use managed resources helpers
-  input: misc: bma150: Add support for device tree
-  input: misc: bma150: Drop platform data
-  input: misc: bma150: Register input device after setting private data
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+---
+ drivers/input/misc/bma150.c | 44 ++++++++++---------------------------
+ 1 file changed, 12 insertions(+), 32 deletions(-)
 
- .../bindings/input/bosch,bma150.txt           |  38 ++++++
- drivers/input/misc/bma150.c                   | 128 ++++++++++--------
- include/dt-bindings/input/bma150.h            |  22 +++
- include/linux/bma150.h                        |  38 ++----
- 4 files changed, 144 insertions(+), 82 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/bosch,bma150.txt
- create mode 100644 include/dt-bindings/input/bma150.h
-
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+index 1efcfdf9f8a8..79acaaf86b7e 100644
+--- a/drivers/input/misc/bma150.c
++++ b/drivers/input/misc/bma150.c
+@@ -471,7 +471,7 @@ static int bma150_register_input_device(struct bma150_data *bma150)
+ 	struct input_dev *idev;
+ 	int error;
+ 
+-	idev = input_allocate_device();
++	idev = devm_input_allocate_device(&bma150->client->dev);
+ 	if (!idev)
+ 		return -ENOMEM;
+ 
+@@ -482,10 +482,8 @@ static int bma150_register_input_device(struct bma150_data *bma150)
+ 	input_set_drvdata(idev, bma150);
+ 
+ 	error = input_register_device(idev);
+-	if (error) {
+-		input_free_device(idev);
++	if (error)
+ 		return error;
+-	}
+ 
+ 	bma150->input = idev;
+ 	return 0;
+@@ -496,7 +494,7 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
+ 	struct input_polled_dev *ipoll_dev;
+ 	int error;
+ 
+-	ipoll_dev = input_allocate_polled_device();
++	ipoll_dev = devm_input_allocate_polled_device(&bma150->client->dev);
+ 	if (!ipoll_dev)
+ 		return -ENOMEM;
+ 
+@@ -511,10 +509,8 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
+ 	bma150_init_input_device(bma150, ipoll_dev->input);
+ 
+ 	error = input_register_polled_device(ipoll_dev);
+-	if (error) {
+-		input_free_polled_device(ipoll_dev);
++	if (error)
+ 		return error;
+-	}
+ 
+ 	bma150->input_polled = ipoll_dev;
+ 	bma150->input = ipoll_dev->input;
+@@ -543,7 +539,8 @@ static int bma150_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
+ 
+-	bma150 = kzalloc(sizeof(struct bma150_data), GFP_KERNEL);
++	bma150 = devm_kzalloc(&client->dev, sizeof(struct bma150_data),
++			      GFP_KERNEL);
+ 	if (!bma150)
+ 		return -ENOMEM;
+ 
+@@ -556,7 +553,7 @@ static int bma150_probe(struct i2c_client *client,
+ 				dev_err(&client->dev,
+ 					"IRQ GPIO conf. error %d, error %d\n",
+ 					client->irq, error);
+-				goto err_free_mem;
++				return error;
+ 			}
+ 		}
+ 		cfg = &pdata->cfg;
+@@ -566,14 +563,14 @@ static int bma150_probe(struct i2c_client *client,
+ 
+ 	error = bma150_initialize(bma150, cfg);
+ 	if (error)
+-		goto err_free_mem;
++		return error;
+ 
+ 	if (client->irq > 0) {
+ 		error = bma150_register_input_device(bma150);
+ 		if (error)
+-			goto err_free_mem;
++			return error;
+ 
+-		error = request_threaded_irq(client->irq,
++		error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					NULL, bma150_irq_thread,
+ 					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+ 					BMA150_DRIVER, bma150);
+@@ -581,13 +578,12 @@ static int bma150_probe(struct i2c_client *client,
+ 			dev_err(&client->dev,
+ 				"irq request failed %d, error %d\n",
+ 				client->irq, error);
+-			input_unregister_device(bma150->input);
+-			goto err_free_mem;
++			return error;
+ 		}
+ 	} else {
+ 		error = bma150_register_polled_device(bma150);
+ 		if (error)
+-			goto err_free_mem;
++			return error;
+ 	}
+ 
+ 	i2c_set_clientdata(client, bma150);
+@@ -595,28 +591,12 @@ static int bma150_probe(struct i2c_client *client,
+ 	pm_runtime_enable(&client->dev);
+ 
+ 	return 0;
+-
+-err_free_mem:
+-	kfree(bma150);
+-	return error;
+ }
+ 
+ static int bma150_remove(struct i2c_client *client)
+ {
+-	struct bma150_data *bma150 = i2c_get_clientdata(client);
+-
+ 	pm_runtime_disable(&client->dev);
+ 
+-	if (client->irq > 0) {
+-		free_irq(client->irq, bma150);
+-		input_unregister_device(bma150->input);
+-	} else {
+-		input_unregister_polled_device(bma150->input_polled);
+-		input_free_polled_device(bma150->input_polled);
+-	}
+-
+-	kfree(bma150);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.17.1

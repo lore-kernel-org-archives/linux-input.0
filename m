@@ -1,65 +1,40 @@
-From: Kai Renzig <k.renzig@gmail.com>
-Subject: [PATCH v2] platform/x86: silead_dmi: Add touchscreen platform data for the Chuwi Hi8 Air tablet
-Date: Sun,  3 Feb 2019 19:34:23 +0100
-Message-ID: <20190203183423.7661-1-k.renzig@gmail.com>
+From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
+Subject: [PATCH 0/2] Add Apple SPI keyboard and trackpad driver
+Date: Mon,  4 Feb 2019 00:19:45 -0800
+Message-ID: <20190204081947.25152-1-ronald@innovation.ch>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Kai Renzig <k.renzig@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add touchscreen platform data for the Chuwi Hi8 Air tablet.
+This changeset adds a driver for the SPI keyboard and trackpad on recent
+MacBook's and MacBook Pro's. The driver has seen a fair amount of use
+over the last 2 years (basically anybody running linux on these
+machines), with only relatively small changes in the last year or so.
+For those interested, the driver development has been hosted at
+https://github.com/cb22/macbook12-spi-driver/ (as well as my clone at
+https://github.com/roadrunner2/macbook12-spi-driver/).
 
-Signed-off-by: Kai Renzig <k.renzig@gmail.com>
----
-Changes in v2:
- - Fix the firmware filename to match the actual touchscreen controller.
+The first patch is just a placeholder for now and is provided in case
+somebody wants to compile the driver while it's being reviewed here; the
+real patch has been submitted to dri-devel and is being discussed there,
+with the intent/hope that I can get an Ack and permission to merge it
+through the input subsystem tree here as part of this patch series.
 
- drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+Ronald Tschalär (2):
+  drm/bridge: sil_sii8620: depend on INPUT instead of selecting it.
+  Input: add Apple SPI keyboard and trackpad driver.
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 8c5d47c0aea6..1f66405928a9 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -41,6 +41,20 @@ static const struct ts_dmi_data chuwi_hi8_data = {
- 	.properties     = chuwi_hi8_props,
- };
- 
-+static const struct property_entry chuwi_hi8_air_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-chuwi-hi8-air.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data chuwi_hi8_air_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= chuwi_hi8_air_props,
-+};
-+
- static const struct property_entry chuwi_hi8_pro_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-x", 6),
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 3),
-@@ -497,6 +511,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BIOS_VERSION, "H1D_S806_206"),
- 		},
- 	},
-+	{
-+		/* Chuwi Hi8 Air (CWI543) */
-+		.driver_data = (void *)&chuwi_hi8_air_data,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Default string"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Hi8 Air"),
-+		},
-+	},
- 	{
- 		/* Chuwi Hi8 Pro (CWI513) */
- 		.driver_data = (void *)&chuwi_hi8_pro_data,
+ drivers/gpu/drm/bridge/Kconfig    |    2 +-
+ drivers/input/keyboard/Kconfig    |   13 +
+ drivers/input/keyboard/Makefile   |    1 +
+ drivers/input/keyboard/applespi.c | 1919 +++++++++++++++++++++++++++++
+ 4 files changed, 1934 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/input/keyboard/applespi.c
+
 -- 
-2.19.1
+2.20.1

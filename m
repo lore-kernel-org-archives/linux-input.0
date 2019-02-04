@@ -1,40 +1,59 @@
 From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-Subject: [PATCH 0/2] Add Apple SPI keyboard and trackpad driver
-Date: Mon,  4 Feb 2019 00:19:45 -0800
-Message-ID: <20190204081947.25152-1-ronald@innovation.ch>
+Subject: [PATCH 1/2] drm/bridge: sil_sii8620: depend on INPUT instead of selecting it.
+Date: Mon,  4 Feb 2019 00:19:46 -0800
+Message-ID: <20190204081947.25152-2-ronald@innovation.ch>
+References: <20190204081947.25152-1-ronald@innovation.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190204081947.25152-1-ronald@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, Andrzej Hajda <a.hajda@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-This changeset adds a driver for the SPI keyboard and trackpad on recent
-MacBook's and MacBook Pro's. The driver has seen a fair amount of use
-over the last 2 years (basically anybody running linux on these
-machines), with only relatively small changes in the last year or so.
-For those interested, the driver development has been hosted at
-https://github.com/cb22/macbook12-spi-driver/ (as well as my clone at
-https://github.com/roadrunner2/macbook12-spi-driver/).
+commit d6abe6df706c66d803e6dd4fe98c1b6b7f125a56 (drm/bridge:
+sil_sii8620: do not have a dependency of RC_CORE) added a dependency on
+INPUT. However, this causes problems with other drivers, in particular
+an input driver that depends on MFD_INTEL_LPSS_PCI (to be added in a
+future commit):
 
-The first patch is just a placeholder for now and is provided in case
-somebody wants to compile the driver while it's being reviewed here; the
-real patch has been submitted to dri-devel and is being discussed there,
-with the intent/hope that I can get an Ack and permission to merge it
-through the input subsystem tree here as part of this patch series.
+  drivers/clk/Kconfig:9:error: recursive dependency detected!
+  drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
+  drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
+  drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
+  drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
+  drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
+  drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
+  drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
+  drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
 
-Ronald Tschalär (2):
-  drm/bridge: sil_sii8620: depend on INPUT instead of selecting it.
-  Input: add Apple SPI keyboard and trackpad driver.
+According to the docs, select should only be used for non-visible
+symbols. Furthermore almost all other references to INPUT throughout the
+kernel config are depends, not selects. Hence this change.
 
- drivers/gpu/drm/bridge/Kconfig    |    2 +-
- drivers/input/keyboard/Kconfig    |   13 +
- drivers/input/keyboard/Makefile   |    1 +
- drivers/input/keyboard/applespi.c | 1919 +++++++++++++++++++++++++++++
- 4 files changed, 1934 insertions(+), 1 deletion(-)
- create mode 100644 drivers/input/keyboard/applespi.c
+CC: Inki Dae <inki.dae@samsung.com>
+CC: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+---
+ drivers/gpu/drm/bridge/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
+index 2fee47b0d50b..eabedc83f25c 100644
+--- a/drivers/gpu/drm/bridge/Kconfig
++++ b/drivers/gpu/drm/bridge/Kconfig
+@@ -83,9 +83,9 @@ config DRM_PARADE_PS8622
+ config DRM_SIL_SII8620
+ 	tristate "Silicon Image SII8620 HDMI/MHL bridge"
+ 	depends on OF
++	depends on INPUT
+ 	select DRM_KMS_HELPER
+ 	imply EXTCON
+-	select INPUT
+ 	select RC_CORE
+ 	help
+ 	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
 -- 
 2.20.1

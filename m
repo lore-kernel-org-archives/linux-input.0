@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v4 04/10] dt-bindings: input: add DT bindings for max77650
-Date: Tue,  5 Feb 2019 10:12:31 +0100
-Message-ID: <20190205091237.6448-5-brgl@bgdev.pl>
+Subject: [PATCH v4 03/10] dt-bindings: leds: add DT bindings for max77650
+Date: Tue,  5 Feb 2019 10:12:30 +0100
+Message-ID: <20190205091237.6448-4-brgl@bgdev.pl>
 References: <20190205091237.6448-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,45 +14,76 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the onkey module of max77650.
+Add the DT binding document for the LEDs module of max77650.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../bindings/input/max77650-onkey.txt         | 26 +++++++++++++++++++
- 1 file changed, 26 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
+ .../bindings/leds/leds-max77650.txt           | 57 +++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
 
-diff --git a/Documentation/devicetree/bindings/input/max77650-onkey.txt b/Documentation/devicetree/bindings/input/max77650-onkey.txt
+diff --git a/Documentation/devicetree/bindings/leds/leds-max77650.txt b/Documentation/devicetree/bindings/leds/leds-max77650.txt
 new file mode 100644
-index 000000000000..37c80898be4d
+index 000000000000..3a67115cc1da
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/max77650-onkey.txt
-@@ -0,0 +1,26 @@
-+Onkey driver for MAX77650 PMIC from Maxim Integrated.
++++ b/Documentation/devicetree/bindings/leds/leds-max77650.txt
+@@ -0,0 +1,57 @@
++LED driver for MAX77650 PMIC from Maxim Integrated.
 +
 +This module is part of the MAX77650 MFD device. For more details
 +see Documentation/devicetree/bindings/mfd/max77650.txt.
 +
-+The onkey controller is represented as a sub-node of the PMIC node on
++The LED controller is represented as a sub-node of the PMIC node on
 +the device tree.
++
++This device has three current sinks.
 +
 +Required properties:
 +--------------------
-+- compatible:		Must be "maxim,max77650-onkey".
++- compatible:		Must be "maxim,max77650-led"
++- #address-cells:	Must be <1>.
++- #size-cells:		Must be <0>.
 +
-+Optional properties:
-+- linux,code:		The key-code to be reported when the key is pressed.
-+			Defaults to KEY_POWER.
-+- maxim,onkey-mode:	Must be "push" or "slide" depending on the type of
-+			button used by the system. Defaults to "push".
++Each LED is represented as a sub-node of the LED-controller node. Up to
++three sub-nodes can be defined.
++
++Required properties of the sub-node:
++------------------------------------
++
++- reg:			Must be <0>, <1> or <2>.
++
++Optional properties of the sub-node:
++------------------------------------
++
++- label:		See Documentation/devicetree/bindings/leds/common.txt
++- linux,default-trigger: See Documentation/devicetree/bindings/leds/common.txt
++
++For more details, please refer to the generic GPIO DT binding document
++<devicetree/bindings/gpio/gpio.txt>.
 +
 +Example:
 +--------
 +
-+	onkey {
-+		compatible = "maxim,max77650-onkey";
-+		linux,code = <KEY_END>;
-+		maxim,onkey-mode = "slide";
++	leds {
++		compatible = "maxim,max77650-led";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		led@0 {
++			reg = <0>;
++			label = "blue:usr0";
++		};
++
++		led@1 {
++			reg = <1>;
++			label = "red:usr1";
++			linux,default-trigger = "heartbeat";
++		};
++
++		led@2 {
++			reg = <2>;
++			label = "green:usr2";
++		};
 +	};
 -- 
 2.20.1

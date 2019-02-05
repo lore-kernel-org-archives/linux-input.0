@@ -1,42 +1,66 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 0/2] Add Apple SPI keyboard and trackpad driver
-Date: Mon, 4 Feb 2019 21:47:55 +0100
-Message-ID: <cdca5121-4f2b-2f74-8a1c-63fda385ee6f@bitmath.org>
-References: <20190204081947.25152-1-ronald@innovation.ch>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RESEND PATCH v2 8/8] Input: sx8654 - convert #defined flags to
+ BIT(x)
+Date: Mon, 4 Feb 2019 23:27:35 -0800
+Message-ID: <20190205072735.GA24918@dtor-ws>
+References: <20181218083606.25795-1-richard.leitner@skidata.com>
+ <20181218084002.19454-1-richard.leitner@skidata.com>
+ <20190129002518.GH34692@dtor-ws>
+ <533e48bd35d360cec8d749f3b70425c1eb5e6e9d.camel@perches.com>
+ <50c0a3a5-7039-abc0-9b9e-4314504bcb6f@skidata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190204081947.25152-1-ronald@innovation.ch>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <50c0a3a5-7039-abc0-9b9e-4314504bcb6f@skidata.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Ronald_Tschal=c3=a4r?= <ronald@innovation.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Richard Leitner <richard.leitner@skidata.com>
+Cc: Joe Perches <joe@perches.com>, mark.rutland@arm.com, robh+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Ronald,
+On Tue, Jan 29, 2019 at 12:23:01PM +0100, Richard Leitner wrote:
+> Hi Joe,
+> 
+> On 29/01/2019 06:40, Joe Perches wrote:
+> > On Mon, 2019-01-28 at 16:25 -0800, Dmitry Torokhov wrote:
+> > > On Tue, Dec 18, 2018 at 09:40:02AM +0100, Richard Leitner wrote:
+> > > > Some of the #defined register values are one-bit flags. Convert them to
+> > > > use the BIT(x) macro instead of 1 byte hexadecimal values. This improves
+> > > > readability and clarifies the intent.
+> > > > 
+> > > > Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
+> > > 
+> > > Applied, thank you.
+> > 
+> > Not so sure this should be applied.
+> > 
+> > > > diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
+> > []
+> > > > @@ -46,7 +47,7 @@
+> > []
+> > > >   /* bits for I2C_REG_IRQSRC */
+> > > > -#define IRQ_PENTOUCH_TOUCHCONVDONE	0x08
+> > > > -#define IRQ_PENRELEASE			0x04
+> > > > +#define IRQ_PENTOUCH_TOUCHCONVDONE	BIT(7)
+> > > > +#define IRQ_PENRELEASE			BIT(6)
+> > 
+> > Shouldn't this be BIT(3) and BIT(2)
+> > or did you mean to change the values too?
+> > 
+> > If so, this change should be noted in the commit message.
+> > 
+> 
+> That's true, those values should stay the same. Thanks for the catch!
 
-> This changeset adds a driver for the SPI keyboard and trackpad on recent
-> MacBook's and MacBook Pro's. The driver has seen a fair amount of use
-> over the last 2 years (basically anybody running linux on these
-> machines), with only relatively small changes in the last year or so.
-> For those interested, the driver development has been hosted at
-> https://github.com/cb22/macbook12-spi-driver/  (as well as my clone at
-> https://github.com/roadrunner2/macbook12-spi-driver/).
->
-> The first patch is just a placeholder for now and is provided in case
-> somebody wants to compile the driver while it's being reviewed here; the
-> real patch has been submitted to dri-devel and is being discussed there,
-> with the intent/hope that I can get an Ack and permission to merge it
-> through the input subsystem tree here as part of this patch series.
+Thanks Joe!
 
-Great to see this upstream. The patch obviously has a lot in common with 
-the previous keyboard and touchpad drivers; foremost this is a change of 
-transport protocol and not functionality. That said, the code is compact 
-and clear enough to make it hard to motivate any major effort to share 
-more of existing code, at least initially. Barring detailed comments 
-that are likely to produce new revisions, this looks like really good work.
+> 
+> @Dimitry: Should I send an updated version or do you fix it yourself?
+> 
 
-Thanks,
+I updated the values and pushed out the new version.
 
-Henrik
+Thanks.
+
+-- 
+Dmitry

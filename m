@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v4 09/10] input: max77650: add onkey support
-Date: Tue,  5 Feb 2019 10:12:36 +0100
-Message-ID: <20190205091237.6448-10-brgl@bgdev.pl>
+Subject: [PATCH v4 06/10] power: supply: max77650: add support for battery charger
+Date: Tue,  5 Feb 2019 10:12:33 +0100
+Message-ID: <20190205091237.6448-7-brgl@bgdev.pl>
 References: <20190205091237.6448-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,180 +14,405 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add support for the push- and slide-button events for max77650.
+Add basic support for the battery charger for max77650 PMIC.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/Kconfig          |   9 ++
- drivers/input/misc/Makefile         |   1 +
- drivers/input/misc/max77650-onkey.c | 127 ++++++++++++++++++++++++++++
- 3 files changed, 137 insertions(+)
- create mode 100644 drivers/input/misc/max77650-onkey.c
+ drivers/power/supply/Kconfig            |   7 +
+ drivers/power/supply/Makefile           |   1 +
+ drivers/power/supply/max77650-charger.c | 355 ++++++++++++++++++++++++
+ 3 files changed, 363 insertions(+)
+ create mode 100644 drivers/power/supply/max77650-charger.c
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index ca59a2be9bc5..bb9c45c1269e 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -180,6 +180,15 @@ config INPUT_M68K_BEEP
- 	tristate "M68k Beeper support"
- 	depends on M68K
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index e901b9879e7e..0230c96fa94d 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -499,6 +499,13 @@ config CHARGER_DETECTOR_MAX14656
+ 	  Revision 1.2 and can be found e.g. in Kindle 4/5th generation
+ 	  readers and certain LG devices.
  
-+config INPUT_MAX77650_ONKEY
-+	tristate "Maxim MAX77650 ONKEY support"
++config CHARGER_MAX77650
++	tristate "Maxim MAX77650 battery charger driver"
 +	depends on MFD_MAX77650
 +	help
-+	  Support the ONKEY of the MAX77650 PMIC as an input device.
++	  Say Y to enable support for the battery charger control of MAX77650
++	  PMICs.
 +
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called max77650-onkey.
-+
- config INPUT_MAX77693_HAPTIC
- 	tristate "MAXIM MAX77693/MAX77843 haptic controller support"
- 	depends on (MFD_MAX77693 || MFD_MAX77843) && PWM
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 9d0f9d1ff68f..5bd53590ce60 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -43,6 +43,7 @@ obj-$(CONFIG_INPUT_IXP4XX_BEEPER)	+= ixp4xx-beeper.o
- obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
- obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
-+obj-$(CONFIG_INPUT_MAX77650_ONKEY)	+= max77650-onkey.o
- obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+= max77693-haptic.o
- obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
- obj-$(CONFIG_INPUT_MAX8997_HAPTIC)	+= max8997_haptic.o
-diff --git a/drivers/input/misc/max77650-onkey.c b/drivers/input/misc/max77650-onkey.c
+ config CHARGER_MAX77693
+ 	tristate "Maxim MAX77693 battery charger driver"
+ 	depends on MFD_MAX77693
+diff --git a/drivers/power/supply/Makefile b/drivers/power/supply/Makefile
+index b731c2a9b695..b73eb8c5c1a9 100644
+--- a/drivers/power/supply/Makefile
++++ b/drivers/power/supply/Makefile
+@@ -70,6 +70,7 @@ obj-$(CONFIG_CHARGER_MANAGER)	+= charger-manager.o
+ obj-$(CONFIG_CHARGER_LTC3651)	+= ltc3651-charger.o
+ obj-$(CONFIG_CHARGER_MAX14577)	+= max14577_charger.o
+ obj-$(CONFIG_CHARGER_DETECTOR_MAX14656)	+= max14656_charger_detector.o
++obj-$(CONFIG_CHARGER_MAX77650)	+= max77650-charger.o
+ obj-$(CONFIG_CHARGER_MAX77693)	+= max77693_charger.o
+ obj-$(CONFIG_CHARGER_MAX8997)	+= max8997_charger.o
+ obj-$(CONFIG_CHARGER_MAX8998)	+= max8998_charger.o
+diff --git a/drivers/power/supply/max77650-charger.c b/drivers/power/supply/max77650-charger.c
 new file mode 100644
-index 000000000000..7fc3e9196abb
+index 000000000000..7055c9b5ee24
 --- /dev/null
-+++ b/drivers/input/misc/max77650-onkey.c
-@@ -0,0 +1,127 @@
++++ b/drivers/power/supply/max77650-charger.c
+@@ -0,0 +1,355 @@
 +// SPDX-License-Identifier: GPL-2.0
 +//
 +// Copyright (C) 2018 BayLibre SAS
 +// Author: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 +//
-+// ONKEY driver for MAXIM 77650/77651 charger/power-supply.
++// Battery charger driver for MAXIM 77650/77651 charger/power-supply.
 +
 +#include <linux/i2c.h>
-+#include <linux/input.h>
 +#include <linux/interrupt.h>
 +#include <linux/mfd/max77650.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
++#include <linux/power_supply.h>
 +#include <linux/regmap.h>
 +
-+#define MAX77650_ONKEY_MODE_MASK	BIT(3)
-+#define MAX77650_ONKEY_MODE_PUSH	0x00
-+#define MAX77650_ONKEY_MODE_SLIDE	BIT(3)
++#define MAX77650_CHARGER_ENABLED		BIT(0)
++#define MAX77650_CHARGER_DISABLED		0x00
++#define MAX77650_CHARGER_CHG_EN_MASK		BIT(0)
 +
-+struct max77650_onkey {
-+	struct input_dev *input;
-+	unsigned int code;
++#define MAX77650_CHARGER_CHG_DTLS_MASK		GENMASK(7, 4)
++#define MAX77650_CHARGER_CHG_DTLS_BITS(_reg) \
++		(((_reg) & MAX77650_CHARGER_CHG_DTLS_MASK) >> 4)
++
++#define MAX77650_CHARGER_CHG_OFF		0x00
++#define MAX77650_CHARGER_CHG_PREQ		0x01
++#define MAX77650_CHARGER_CHG_ON_CURR		0x02
++#define MAX77650_CHARGER_CHG_ON_JCURR		0x03
++#define MAX77650_CHARGER_CHG_ON_VOLT		0x04
++#define MAX77650_CHARGER_CHG_ON_JVOLT		0x05
++#define MAX77650_CHARGER_CHG_ON_TOPOFF		0x06
++#define MAX77650_CHARGER_CHG_ON_JTOPOFF		0x07
++#define MAX77650_CHARGER_CHG_DONE		0x08
++#define MAX77650_CHARGER_CHG_JDONE		0x09
++#define MAX77650_CHARGER_CHG_SUSP_PF		0x0a
++#define MAX77650_CHARGER_CHG_SUSP_FCF		0x0b
++#define MAX77650_CHARGER_CHG_SUSP_BTF		0x0c
++
++#define MAX77650_CHARGER_CHGIN_DTLS_MASK	GENMASK(3, 2)
++#define MAX77650_CHARGER_CHGIN_DTLS_BITS(_reg) \
++		(((_reg) & MAX77650_CHARGER_CHGIN_DTLS_MASK) >> 2)
++
++#define MAX77650_CHARGER_CHGIN_UVL		0x00
++#define MAX77650_CHARGER_CHGIN_OVL		0x01
++#define MAX77650_CHARGER_CHGIN_OKAY		0x11
++
++#define MAX77650_CHARGER_CHG_MASK	BIT(1)
++#define MAX77650_CHARGER_CHG_CHARGING(_reg) \
++		(((_reg) & MAX77650_CHARGER_CHG_MASK) > 1)
++
++#define MAX77650_CHARGER_VCHGIN_MIN_MASK	0xc0
++#define MAX77650_CHARGER_VCHGIN_MIN_SHIFT(_val)	((_val) << 5)
++
++#define MAX77650_CHARGER_ICHGIN_LIM_MASK	0x1c
++#define MAX77650_CHARGER_ICHGIN_LIM_SHIFT(_val)	((_val) << 2)
++
++struct max77650_charger_data {
++	struct regmap *map;
++	struct device *dev;
 +};
 +
-+static irqreturn_t max77650_onkey_falling(int irq, void *data)
-+{
-+	struct max77650_onkey *onkey = data;
++static enum power_supply_property max77650_charger_properties[] = {
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_CHARGE_TYPE
++};
 +
-+	input_report_key(onkey->input, onkey->code, 0);
-+	input_sync(onkey->input);
++static const unsigned int max77650_charger_vchgin_min_table[] = {
++	4000000, 4100000, 4200000, 4300000, 4400000, 4500000, 4600000, 4700000
++};
++
++static const unsigned int max77650_charger_ichgin_lim_table[] = {
++	95000, 190000, 285000, 380000, 475000
++};
++
++static int max77650_charger_set_vchgin_min(struct max77650_charger_data *chg,
++					   unsigned int val)
++{
++	int i, rv;
++
++	for (i = 0; i < ARRAY_SIZE(max77650_charger_vchgin_min_table); i++) {
++		if (val == max77650_charger_vchgin_min_table[i]) {
++			rv = regmap_update_bits(chg->map,
++					MAX77650_REG_CNFG_CHG_B,
++					MAX77650_CHARGER_VCHGIN_MIN_MASK,
++					MAX77650_CHARGER_VCHGIN_MIN_SHIFT(i));
++			if (rv)
++				return rv;
++
++			return 0;
++		}
++	}
++
++	return -EINVAL;
++}
++
++static int max77650_charger_set_ichgin_lim(struct max77650_charger_data *chg,
++					   unsigned int val)
++{
++	int i, rv;
++
++	for (i = 0; i < ARRAY_SIZE(max77650_charger_ichgin_lim_table); i++) {
++		if (val == max77650_charger_ichgin_lim_table[i]) {
++			rv = regmap_update_bits(chg->map,
++					MAX77650_REG_CNFG_CHG_B,
++					MAX77650_CHARGER_ICHGIN_LIM_MASK,
++					MAX77650_CHARGER_ICHGIN_LIM_SHIFT(i));
++			if (rv)
++				return rv;
++
++			return 0;
++		}
++	}
++
++	return -EINVAL;
++}
++
++static void max77650_charger_enable(struct max77650_charger_data *chg)
++{
++	int rv;
++
++	rv = regmap_update_bits(chg->map,
++				MAX77650_REG_CNFG_CHG_B,
++				MAX77650_CHARGER_CHG_EN_MASK,
++				MAX77650_CHARGER_ENABLED);
++	if (rv)
++		dev_err(chg->dev, "unable to enable the charger: %d\n", rv);
++}
++
++static void max77650_charger_disable(struct max77650_charger_data *chg)
++{
++	int rv;
++
++	rv = regmap_update_bits(chg->map,
++				MAX77650_REG_CNFG_CHG_B,
++				MAX77650_CHARGER_CHG_EN_MASK,
++				MAX77650_CHARGER_DISABLED);
++	if (rv)
++		dev_err(chg->dev, "unable to disable the charger: %d\n", rv);
++}
++
++static irqreturn_t max77650_charger_check_status(int irq, void *data)
++{
++	struct max77650_charger_data *chg = data;
++	int rv, reg;
++
++	rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
++	if (rv) {
++		dev_err(chg->dev,
++			"unable to read the charger status: %d\n", rv);
++		return IRQ_HANDLED;
++	}
++
++	switch (MAX77650_CHARGER_CHGIN_DTLS_BITS(reg)) {
++	case MAX77650_CHARGER_CHGIN_UVL:
++		dev_err(chg->dev, "undervoltage lockout detected, disabling charger\n");
++		max77650_charger_disable(chg);
++		break;
++	case MAX77650_CHARGER_CHGIN_OVL:
++		dev_err(chg->dev, "overvoltage lockout detected, disabling charger\n");
++		max77650_charger_disable(chg);
++		break;
++	case MAX77650_CHARGER_CHGIN_OKAY:
++		max77650_charger_enable(chg);
++		break;
++	default:
++		/* May be 0x10 - debouncing */
++		break;
++	}
 +
 +	return IRQ_HANDLED;
 +}
 +
-+static irqreturn_t max77650_onkey_rising(int irq, void *data)
++static int max77650_charger_get_property(struct power_supply *psy,
++					 enum power_supply_property psp,
++					 union power_supply_propval *val)
 +{
-+	struct max77650_onkey *onkey = data;
++	struct max77650_charger_data *chg = power_supply_get_drvdata(psy);
++	int rv, reg;
 +
-+	input_report_key(onkey->input, onkey->code, 1);
-+	input_sync(onkey->input);
++	switch (psp) {
++	case POWER_SUPPLY_PROP_STATUS:
++		rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
++		if (rv)
++			return rv;
 +
-+	return IRQ_HANDLED;
++		if (MAX77650_CHARGER_CHG_CHARGING(reg)) {
++			val->intval = POWER_SUPPLY_STATUS_CHARGING;
++			break;
++		}
++
++		switch (MAX77650_CHARGER_CHG_DTLS_BITS(reg)) {
++		case MAX77650_CHARGER_CHG_OFF:
++		case MAX77650_CHARGER_CHG_SUSP_PF:
++		case MAX77650_CHARGER_CHG_SUSP_FCF:
++		case MAX77650_CHARGER_CHG_SUSP_BTF:
++			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
++			break;
++		case MAX77650_CHARGER_CHG_PREQ:
++		case MAX77650_CHARGER_CHG_ON_CURR:
++		case MAX77650_CHARGER_CHG_ON_JCURR:
++		case MAX77650_CHARGER_CHG_ON_VOLT:
++		case MAX77650_CHARGER_CHG_ON_JVOLT:
++		case MAX77650_CHARGER_CHG_ON_TOPOFF:
++		case MAX77650_CHARGER_CHG_ON_JTOPOFF:
++			val->intval = POWER_SUPPLY_STATUS_CHARGING;
++			break;
++		case MAX77650_CHARGER_CHG_DONE:
++			val->intval = POWER_SUPPLY_STATUS_FULL;
++			break;
++		default:
++			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
++		}
++		break;
++	case POWER_SUPPLY_PROP_ONLINE:
++		rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
++		if (rv)
++			return rv;
++
++		val->intval = MAX77650_CHARGER_CHG_CHARGING(reg);
++		break;
++	case POWER_SUPPLY_PROP_CHARGE_TYPE:
++		rv = regmap_read(chg->map, MAX77650_REG_STAT_CHG_B, &reg);
++		if (rv)
++			return rv;
++
++		if (!MAX77650_CHARGER_CHG_CHARGING(reg)) {
++			val->intval = POWER_SUPPLY_CHARGE_TYPE_NONE;
++			break;
++		}
++
++		switch (MAX77650_CHARGER_CHG_DTLS_BITS(reg)) {
++		case MAX77650_CHARGER_CHG_PREQ:
++		case MAX77650_CHARGER_CHG_ON_CURR:
++		case MAX77650_CHARGER_CHG_ON_JCURR:
++		case MAX77650_CHARGER_CHG_ON_VOLT:
++		case MAX77650_CHARGER_CHG_ON_JVOLT:
++			val->intval = POWER_SUPPLY_CHARGE_TYPE_FAST;
++			break;
++		case MAX77650_CHARGER_CHG_ON_TOPOFF:
++		case MAX77650_CHARGER_CHG_ON_JTOPOFF:
++			val->intval = POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
++			break;
++		default:
++			val->intval = POWER_SUPPLY_CHARGE_TYPE_UNKNOWN;
++		}
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	return 0;
 +}
 +
-+static int max77650_onkey_probe(struct platform_device *pdev)
++static const struct power_supply_desc max77650_battery_desc = {
++	.name		= "max77650",
++	.type		= POWER_SUPPLY_TYPE_USB,
++	.get_property	= max77650_charger_get_property,
++	.properties	= max77650_charger_properties,
++	.num_properties	= ARRAY_SIZE(max77650_charger_properties),
++};
++
++static int max77650_charger_probe(struct platform_device *pdev)
 +{
-+	int irq_r, irq_f, error, mode;
-+	struct max77650_onkey *onkey;
++	struct power_supply_config pscfg = {};
++	struct max77650_charger_data *chg;
++	struct power_supply *battery;
 +	struct device *dev, *parent;
-+	const char *mode_prop;
-+	struct regmap *map;
++	int rv, chg_irq, chgin_irq;
++	unsigned int prop;
 +
 +	dev = &pdev->dev;
 +	parent = dev->parent;
 +
-+	map = dev_get_regmap(parent, NULL);
-+	if (!map)
++	chg = devm_kzalloc(dev, sizeof(*chg), GFP_KERNEL);
++	if (!chg)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, chg);
++
++	chg->map = dev_get_regmap(parent, NULL);
++	if (!chg->map)
 +		return -ENODEV;
 +
-+	onkey = devm_kzalloc(dev, sizeof(*onkey), GFP_KERNEL);
-+	if (!onkey)
-+		return -ENOMEM;
++	chg->dev = dev;
 +
-+	error = device_property_read_u32(dev, "linux,code", &onkey->code);
-+	if (error)
-+		onkey->code = KEY_POWER;
++	pscfg.of_node = dev->of_node;
++	pscfg.drv_data = chg;
 +
-+	error = device_property_read_string(dev,
-+					    "maxim,onkey-mode", &mode_prop);
-+	if (error)
-+		mode_prop = "push";
++	chg_irq = platform_get_irq_byname(pdev, "CHG");
++	if (chg_irq < 0)
++		return chg_irq;
 +
-+	if (strcmp(mode_prop, "push") == 0)
-+		mode = MAX77650_ONKEY_MODE_PUSH;
-+	else if (strcmp(mode_prop, "slide") == 0)
-+		mode = MAX77650_ONKEY_MODE_SLIDE;
-+	else
-+		return -EINVAL;
++	chgin_irq = platform_get_irq_byname(pdev, "CHGIN");
++	if (chgin_irq < 0)
++		return chgin_irq;
 +
-+	error = regmap_update_bits(map, MAX77650_REG_CNFG_GLBL,
-+				   MAX77650_ONKEY_MODE_MASK, mode);
-+	if (error)
-+		return error;
++	rv = devm_request_any_context_irq(dev, chg_irq,
++					  max77650_charger_check_status,
++					  IRQF_ONESHOT, "chg", chg);
++	if (rv < 0)
++		return rv;
 +
-+	irq_f = platform_get_irq_byname(pdev, "nEN_F");
-+	if (irq_f < 0)
-+		return irq_f;
++	rv = devm_request_any_context_irq(dev, chgin_irq,
++					  max77650_charger_check_status,
++					  IRQF_ONESHOT, "chgin", chg);
++	if (rv < 0)
++		return rv;
 +
-+	irq_r = platform_get_irq_byname(pdev, "nEN_R");
-+	if (irq_r < 0)
-+		return irq_r;
++	battery = devm_power_supply_register(dev,
++					     &max77650_battery_desc, &pscfg);
++	if (IS_ERR(battery))
++		return PTR_ERR(battery);
 +
-+	onkey->input = devm_input_allocate_device(dev);
-+	if (!onkey->input)
-+		return -ENOMEM;
++	rv = of_property_read_u32(dev->of_node, "maxim,vchgin-min", &prop);
++	if (rv == 0) {
++		rv = max77650_charger_set_vchgin_min(chg, prop);
++		if (rv)
++			return rv;
++	}
 +
-+	onkey->input->name = "max77650_onkey";
-+	onkey->input->phys = "max77650_onkey/input0";
-+	onkey->input->id.bustype = BUS_I2C;
-+	input_set_capability(onkey->input, EV_KEY, onkey->code);
++	rv = of_property_read_u32(dev->of_node, "maxim,ichgin-lim", &prop);
++	if (rv == 0) {
++		rv = max77650_charger_set_ichgin_lim(chg, prop);
++		if (rv)
++			return rv;
++	}
 +
-+	error = devm_request_any_context_irq(dev, irq_f,
-+					     max77650_onkey_falling,
-+					     IRQF_ONESHOT, "onkey-down",
-+					     onkey);
-+	if (error < 0)
-+		return error;
-+
-+	error = devm_request_any_context_irq(dev, irq_r, max77650_onkey_rising,
-+					     IRQF_ONESHOT, "onkey-up", onkey);
-+	if (error < 0)
-+		return error;
-+
-+	return input_register_device(onkey->input);
++	return regmap_update_bits(chg->map,
++				  MAX77650_REG_CNFG_CHG_B,
++				  MAX77650_CHARGER_CHG_EN_MASK,
++				  MAX77650_CHARGER_ENABLED);
 +}
 +
-+static struct platform_driver max77650_onkey_driver = {
-+	.driver = {
-+		.name = "max77650-onkey",
-+	},
-+	.probe = max77650_onkey_probe,
-+};
-+module_platform_driver(max77650_onkey_driver);
++static int max77650_charger_remove(struct platform_device *pdev)
++{
++	struct max77650_charger_data *chg = platform_get_drvdata(pdev);
 +
-+MODULE_DESCRIPTION("MAXIM 77650/77651 ONKEY driver");
++	return regmap_update_bits(chg->map,
++				  MAX77650_REG_CNFG_CHG_B,
++				  MAX77650_CHARGER_CHG_EN_MASK,
++				  MAX77650_CHARGER_DISABLED);
++}
++
++static struct platform_driver max77650_charger_driver = {
++	.driver = {
++		.name = "max77650-charger",
++	},
++	.probe = max77650_charger_probe,
++	.remove = max77650_charger_remove,
++};
++module_platform_driver(max77650_charger_driver);
++
++MODULE_DESCRIPTION("MAXIM 77650/77651 charger driver");
 +MODULE_AUTHOR("Bartosz Golaszewski <bgolaszewski@baylibre.com>");
 +MODULE_LICENSE("GPL v2");
 -- 

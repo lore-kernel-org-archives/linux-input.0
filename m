@@ -1,79 +1,141 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2] platform/x86: silead_dmi: Add touchscreen platform
- data for the Chuwi Hi8 Air tablet
-Date: Tue, 5 Feb 2019 20:18:58 +0200
-Message-ID: <CAHp75Ve5BgpwqRrhfQixZRjMzGR5k6W02q_wFuira3Z0NW6-kw@mail.gmail.com>
-References: <20190203183423.7661-1-k.renzig@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3 2/3] Input: add new vibrator driver for various MSM
+ SOCs
+Date: Tue, 5 Feb 2019 11:42:46 -0800
+Message-ID: <20190205194246.GA19151@dtor-ws>
+References: <20181025012937.2154-1-masneyb@onstation.org>
+ <20181025012937.2154-3-masneyb@onstation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190203183423.7661-1-k.renzig@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20181025012937.2154-3-masneyb@onstation.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai Renzig <k.renzig@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Brian Masney <masneyb@onstation.org>
+Cc: andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devicetree@vger.kernel.org, jonathan@marek.ca
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Feb 3, 2019 at 8:34 PM Kai Renzig <k.renzig@gmail.com> wrote:
->
-> Add touchscreen platform data for the Chuwi Hi8 Air tablet.
->
+Hi Brian,
 
-Pushed to my review and testing queue, thanks!
+On Wed, Oct 24, 2018 at 09:29:36PM -0400, Brian Masney wrote:
+> This patch adds a new vibrator driver that supports various Qualcomm
+> MSM SOCs. Driver was tested on a LG Nexus 5 (hammerhead) phone.
+> 
 
-> Signed-off-by: Kai Renzig <k.renzig@gmail.com>
-> ---
-> Changes in v2:
->  - Fix the firmware filename to match the actual touchscreen controller.
->
->  drivers/platform/x86/touchscreen_dmi.c | 23 +++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
->
-> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-> index 8c5d47c0aea6..1f66405928a9 100644
-> --- a/drivers/platform/x86/touchscreen_dmi.c
-> +++ b/drivers/platform/x86/touchscreen_dmi.c
-> @@ -41,6 +41,20 @@ static const struct ts_dmi_data chuwi_hi8_data = {
->         .properties     = chuwi_hi8_props,
->  };
->
-> +static const struct property_entry chuwi_hi8_air_props[] = {
-> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
-> +       PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-> +       PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-chuwi-hi8-air.fw"),
-> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +       { }
-> +};
+...
+
 > +
-> +static const struct ts_dmi_data chuwi_hi8_air_data = {
-> +       .acpi_name      = "MSSL1680:00",
-> +       .properties     = chuwi_hi8_air_props,
-> +};
-> +
->  static const struct property_entry chuwi_hi8_pro_props[] = {
->         PROPERTY_ENTRY_U32("touchscreen-min-x", 6),
->         PROPERTY_ENTRY_U32("touchscreen-min-y", 3),
-> @@ -497,6 +511,15 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
->                         DMI_MATCH(DMI_BIOS_VERSION, "H1D_S806_206"),
->                 },
->         },
-> +       {
-> +               /* Chuwi Hi8 Air (CWI543) */
-> +               .driver_data = (void *)&chuwi_hi8_air_data,
-> +               .matches = {
-> +                       DMI_MATCH(DMI_BOARD_VENDOR, "Default string"),
-> +                       DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-> +                       DMI_MATCH(DMI_PRODUCT_NAME, "Hi8 Air"),
-> +               },
-> +       },
->         {
->                 /* Chuwi Hi8 Pro (CWI513) */
->                 .driver_data = (void *)&chuwi_hi8_pro_data,
-> --
-> 2.19.1
->
+> +#define msm_vibrator_write(msm_vibrator, offset, value) \
+> +	writel((value), (void __iomem *)((msm_vibrator)->base + (offset)))
 
+Make in a function? It will be inlined anyways...
+
+> +
+> +	vibrator->vcc = devm_regulator_get(&pdev->dev, "vcc");
+> +	if (IS_ERR(vibrator->vcc)) {
+> +		if (PTR_ERR(vibrator->vcc) != -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Failed to get regulator: %ld\n",
+> +				PTR_ERR(vibrator->vcc));
+> +		return PTR_ERR(vibrator->vcc);
+> +	}
+> +
+> +	vibrator->enable_gpio = devm_gpiod_get(&pdev->dev, "enable",
+> +					       GPIOD_OUT_LOW);
+> +	if (IS_ERR(vibrator->enable_gpio)) {
+
+You have explicit deferral handling for the regulator, but not gpio. I'd
+prefer if we did (or not) it consistently.
+
+> +		dev_err(&pdev->dev, "Failed to get enable gpio: %ld\n",
+> +			PTR_ERR(vibrator->enable_gpio));
+> +		return PTR_ERR(vibrator->enable_gpio);
+> +	}
+> +
+> +	vibrator->clk = devm_clk_get(&pdev->dev, "pwm");
+> +	if (IS_ERR(vibrator->clk)) {
+
+Same here.
+
+> +		dev_err(&pdev->dev, "Failed to lookup pwm clock: %ld\n",
+> +			PTR_ERR(vibrator->clk));
+> +		return PTR_ERR(vibrator->clk);
+> +	}
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!res) {
+> +		dev_err(&pdev->dev, "Failed to get platform resource\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	vibrator->base = devm_ioremap(&pdev->dev, res->start,
+> +				     resource_size(res));
+> +	if (IS_ERR(vibrator->base)) {
+
+devm_ioremap() returns NULL on error. You either need to check for NULL
+or see of you can use devm_ioremap_resource().
+
+> +		dev_err(&pdev->dev, "Failed to iomap resource: %ld\n",
+> +			PTR_ERR(vibrator->base));
+> +		return PTR_ERR(vibrator->base);
+> +	}
+> +
+> +	vibrator->enabled = false;
+> +	mutex_init(&vibrator->mutex);
+> +	INIT_WORK(&vibrator->worker, msm_vibrator_worker);
+> +
+> +	vibrator->input->name = "msm-vibrator";
+> +	vibrator->input->id.bustype = BUS_HOST;
+> +	vibrator->input->dev.parent = &pdev->dev;
+
+You allocated input device with devm so there is no need to set parent
+by hand.
+
+> +	vibrator->input->close = msm_vibrator_close;
+> +
+> +	input_set_drvdata(vibrator->input, vibrator);
+> +	input_set_capability(vibrator->input, EV_FF, FF_RUMBLE);
+> +
+> +	ret = input_ff_create_memless(vibrator->input, NULL,
+> +				      msm_vibrator_play_effect);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to create ff memless: %d", ret);
+> +		return ret;
+> +	}
+> +
+> +	ret = input_register_device(vibrator->input);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Failed to register input device: %d", ret);
+> +		return ret;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, vibrator);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused msm_vibrator_suspend(struct device *dev)
+> +{
+> +	struct msm_vibrator *vibrator = dev_get_drvdata(dev);
+
+Prefer explicit platform_get_drvdata() since we are working with
+platform device (even though it resolves to the same thing).
+
+> +
+> +	cancel_work_sync(&vibrator->worker);
+> +
+> +	if (vibrator->enabled)
+> +		msm_vibrator_stop(vibrator);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused msm_vibrator_resume(struct device *dev)
+> +{
+> +	struct msm_vibrator *vibrator = dev_get_drvdata(dev);
+
+Same here.
+
+Thanks.
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Dmitry

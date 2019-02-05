@@ -1,114 +1,83 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: cap11xx - switch to using set_brightness_blocking()
-Date: Tue, 5 Feb 2019 14:20:50 -0800
-Message-ID: <20190205222050.GA145676@dtor-ws>
+Subject: [PATCH] Input: stmfts - acknowledge that setting brightness is a
+ blocking call
+Date: Tue, 5 Feb 2019 14:46:42 -0800
+Message-ID: <20190205224642.GA182156@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Sven Van Asbroeck <thesven73@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, linux-kernel@vger.kernel.org
+Cc: Andi Shyti <andi@etezian.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Updating LED state requires access to regmap and therefore we may sleep, so
-we could not do that directly form set_brightness() method. Historically
-we used private work to adjust the brightness, but with the introduction of
-set_brightness_blocking() we no longer need it.
+We need to turn regulators on and off when switching brightness, and
+that may block, therefore we have to set stmfts_brightness_set() as
+LED's brightness_set_blocking() method.
 
-As a bonus, not having our own work item means we do not have
-use-after-free issue as we neglected to cancel outstanding work on driver
-unbind.
-
-Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
+Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/cap11xx.c | 47 ++++++++++++++------------------
- 1 file changed, 21 insertions(+), 26 deletions(-)
+ drivers/input/touchscreen/stmfts.c | 30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 312916f99597..c0baf323ddda 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -75,9 +75,8 @@
- struct cap11xx_led {
- 	struct cap11xx_priv *priv;
- 	struct led_classdev cdev;
--	struct work_struct work;
- 	u32 reg;
--	enum led_brightness new_brightness;
-+	enum led_brightness brightness;
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index 704e99046916..b6f95f20f924 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -106,27 +106,29 @@ struct stmfts_data {
+ 	bool running;
  };
- #endif
  
-@@ -233,30 +232,28 @@ static void cap11xx_input_close(struct input_dev *idev)
- }
- 
- #ifdef CONFIG_LEDS_CLASS
--static void cap11xx_led_work(struct work_struct *work)
--{
--	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
--	struct cap11xx_priv *priv = led->priv;
--	int value = led->new_brightness;
--
--	/*
--	 * All LEDs share the same duty cycle as this is a HW limitation.
--	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
--	 */
--	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
--				BIT(led->reg), value ? BIT(led->reg) : 0);
--}
--
--static void cap11xx_led_set(struct led_classdev *cdev,
--			   enum led_brightness value)
-+static int cap11xx_led_set(struct led_classdev *cdev,
-+			    enum led_brightness value)
+-static void stmfts_brightness_set(struct led_classdev *led_cdev,
++static int stmfts_brightness_set(struct led_classdev *led_cdev,
+ 					enum led_brightness value)
  {
- 	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
-+	struct cap11xx_priv *priv = led->priv;
-+	int error = 0;
-+
-+	if (led->brightness != value) {
-+		/*
-+		 * All LEDs share the same duty cycle as this is a HW
-+		 * limitation. Brightness levels per LED are either
-+		 * 0 (OFF) and 1 (ON).
-+		 */
-+		error = regmap_update_bits(priv->regmap,
-+					   CAP11XX_REG_LED_OUTPUT_CONTROL,
-+					   BIT(led->reg),
-+					   value ? BIT(led->reg) : 0);
-+		if (!error)
-+			led->brightness = value;
-+	}
+ 	struct stmfts_data *sdata = container_of(led_cdev,
+ 					struct stmfts_data, led_cdev);
+ 	int err;
  
--	if (led->new_brightness == value)
+-	if (value == sdata->led_status || !sdata->ledvdd)
 -		return;
 -
--	led->new_brightness = value;
--	schedule_work(&led->work);
-+	return error;
+-	if (!value) {
+-		regulator_disable(sdata->ledvdd);
+-	} else {
+-		err = regulator_enable(sdata->ledvdd);
+-		if (err)
+-			dev_warn(&sdata->client->dev,
+-				 "failed to disable ledvdd regulator: %d\n",
+-				 err);
++	if (value != sdata->led_status && sdata->ledvdd) {
++		if (!value) {
++			regulator_disable(sdata->ledvdd);
++		} else {
++			err = regulator_enable(sdata->ledvdd);
++			if (err) {
++				dev_warn(&sdata->client->dev,
++					 "failed to disable ledvdd regulator: %d\n",
++					 err);
++				return err;
++			}
++		}
++		sdata->led_status = value;
+ 	}
+ 
+-	sdata->led_status = value;
++	return 0;
  }
  
- static int cap11xx_init_leds(struct device *dev,
-@@ -299,7 +296,7 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->cdev.default_trigger =
- 			of_get_property(child, "linux,default-trigger", NULL);
- 		led->cdev.flags = 0;
--		led->cdev.brightness_set = cap11xx_led_set;
-+		led->cdev.brightness_set_blocking = cap11xx_led_set;
- 		led->cdev.max_brightness = 1;
- 		led->cdev.brightness = LED_OFF;
+ static enum led_brightness stmfts_brightness_get(struct led_classdev *led_cdev)
+@@ -608,7 +610,7 @@ static int stmfts_enable_led(struct stmfts_data *sdata)
+ 	sdata->led_cdev.name = STMFTS_DEV_NAME;
+ 	sdata->led_cdev.max_brightness = LED_ON;
+ 	sdata->led_cdev.brightness = LED_OFF;
+-	sdata->led_cdev.brightness_set = stmfts_brightness_set;
++	sdata->led_cdev.brightness_set_blocking = stmfts_brightness_set;
+ 	sdata->led_cdev.brightness_get = stmfts_brightness_get;
  
-@@ -312,8 +309,6 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->reg = reg;
- 		led->priv = priv;
- 
--		INIT_WORK(&led->work, cap11xx_led_work);
--
- 		error = devm_led_classdev_register(dev, &led->cdev);
- 		if (error) {
- 			of_node_put(child);
+ 	err = devm_led_classdev_register(&sdata->client->dev, &sdata->led_cdev);
 -- 
 2.20.1.611.gfbb209baf1-goog
 

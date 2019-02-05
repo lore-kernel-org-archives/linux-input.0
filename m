@@ -1,66 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RESEND PATCH v2 8/8] Input: sx8654 - convert #defined flags to
- BIT(x)
-Date: Mon, 4 Feb 2019 23:27:35 -0800
-Message-ID: <20190205072735.GA24918@dtor-ws>
-References: <20181218083606.25795-1-richard.leitner@skidata.com>
- <20181218084002.19454-1-richard.leitner@skidata.com>
- <20190129002518.GH34692@dtor-ws>
- <533e48bd35d360cec8d749f3b70425c1eb5e6e9d.camel@perches.com>
- <50c0a3a5-7039-abc0-9b9e-4314504bcb6f@skidata.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH v4 01/10] dt-bindings: mfd: add DT bindings for max77650
+Date: Tue,  5 Feb 2019 10:12:28 +0100
+Message-ID: <20190205091237.6448-2-brgl@bgdev.pl>
+References: <20190205091237.6448-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <50c0a3a5-7039-abc0-9b9e-4314504bcb6f@skidata.com>
+In-Reply-To: <20190205091237.6448-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Richard Leitner <richard.leitner@skidata.com>
-Cc: Joe Perches <joe@perches.com>, mark.rutland@arm.com, robh+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 29, 2019 at 12:23:01PM +0100, Richard Leitner wrote:
-> Hi Joe,
-> 
-> On 29/01/2019 06:40, Joe Perches wrote:
-> > On Mon, 2019-01-28 at 16:25 -0800, Dmitry Torokhov wrote:
-> > > On Tue, Dec 18, 2018 at 09:40:02AM +0100, Richard Leitner wrote:
-> > > > Some of the #defined register values are one-bit flags. Convert them to
-> > > > use the BIT(x) macro instead of 1 byte hexadecimal values. This improves
-> > > > readability and clarifies the intent.
-> > > > 
-> > > > Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
-> > > 
-> > > Applied, thank you.
-> > 
-> > Not so sure this should be applied.
-> > 
-> > > > diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-> > []
-> > > > @@ -46,7 +47,7 @@
-> > []
-> > > >   /* bits for I2C_REG_IRQSRC */
-> > > > -#define IRQ_PENTOUCH_TOUCHCONVDONE	0x08
-> > > > -#define IRQ_PENRELEASE			0x04
-> > > > +#define IRQ_PENTOUCH_TOUCHCONVDONE	BIT(7)
-> > > > +#define IRQ_PENRELEASE			BIT(6)
-> > 
-> > Shouldn't this be BIT(3) and BIT(2)
-> > or did you mean to change the values too?
-> > 
-> > If so, this change should be noted in the commit message.
-> > 
-> 
-> That's true, those values should stay the same. Thanks for the catch!
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Thanks Joe!
+Add a DT binding document for max77650 ultra-low power PMIC. This
+describes the core mfd device and the GPIO module.
 
-> 
-> @Dimitry: Should I send an updated version or do you fix it yourself?
-> 
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ .../devicetree/bindings/mfd/max77650.txt      | 47 +++++++++++++++++++
+ 1 file changed, 47 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
 
-I updated the values and pushed out the new version.
-
-Thanks.
-
+diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
+new file mode 100644
+index 000000000000..0a40e9c6aab8
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/max77650.txt
+@@ -0,0 +1,47 @@
++MAX77650 ultra low-power PMIC from Maxim Integrated.
++
++Required properties:
++-------------------
++- compatible:		Must be "maxim,max77650"
++- reg:			I2C device address.
++- interrupts:		The interrupt on the parent the controller is
++			connected to.
++- interrupt-parent:	phandle of the parent interrupt controller.
++- interrupt-controller: Marks the device node as an interrupt controller.
++- #interrupt-cells:	Must be <2>.
++
++- gpio-controller : 	Marks the device node as a gpio controller.
++- #gpio-cells : 	Must be <2>. The first cell is the pin number and
++			the second cell is used to specify the gpio active
++			state.
++
++Optional properties:
++--------------------
++gpio-line-names:	Single string containing the name of the GPIO line.
++
++The GPIO-controller module is represented as part of the top-level PMIC
++node. The device exposes a single GPIO line.
++
++For device-tree bindings of other sub-modules (regulator, power supply,
++LEDs and onkey) refer to the binding documents under the respective
++sub-system directories.
++
++For more details on GPIO bindings, please refer to the generic GPIO DT
++binding document <devicetree/bindings/gpio/gpio.txt>.
++
++Example:
++--------
++
++	pmic: max77650@48 {
++		compatible = "maxim,max77650";
++		reg = <0x48>;
++
++		interrupt-controller;
++		interrupt-parent = <&gpio2>;
++		#interrupt-cells = <2>;
++		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "max77650-charger";
++	};
 -- 
-Dmitry
+2.20.1

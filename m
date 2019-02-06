@@ -1,7 +1,7 @@
 From: Brian Masney <masneyb@onstation.org>
-Subject: [PATCH v4 3/3] ARM: dts: qcom: msm8974-hammerhead: add device tree bindings for vibrator
-Date: Tue,  5 Feb 2019 20:33:29 -0500
-Message-ID: <20190206013329.18195-4-masneyb@onstation.org>
+Subject: [PATCH v4 1/3] dt-bindings: Input: new bindings for MSM vibrator
+Date: Tue,  5 Feb 2019 20:33:27 -0500
+Message-ID: <20190206013329.18195-2-masneyb@onstation.org>
 References: <20190206013329.18195-1-masneyb@onstation.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190206013329.18195-1-masneyb@onstation.org>
@@ -10,65 +10,60 @@ To: dmitry.torokhov@gmail.com, andy.gross@linaro.org
 Cc: david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devicetree@vger.kernel.org, jonathan@marek.ca
 List-Id: linux-input@vger.kernel.org
 
-This patch adds device device tree bindings for the vibrator found on
-the LG Nexus 5 (hammerhead) phone.
+This patch adds the device tree bindings for the vibrator found on
+various Qualcomm MSM SOCs.
 
 Signed-off-by: Brian Masney <masneyb@onstation.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
 Changes since v3:
 - None
 
- .../qcom-msm8974-lge-nexus5-hammerhead.dts    | 31 +++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ .../bindings/input/msm-vibrator.txt           | 36 +++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/msm-vibrator.txt
 
-diff --git a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-index b3b04736a159..1fd9f429f34a 100644
---- a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-+++ b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
-@@ -5,6 +5,7 @@
- #include <dt-bindings/gpio/gpio.h>
- #include <dt-bindings/input/input.h>
- #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
-+#include <dt-bindings/clock/qcom,mmcc-msm8974.h>
- 
- / {
- 	model = "LGE MSM 8974 HAMMERHEAD";
-@@ -306,6 +307,36 @@
- 				input-enable;
- 			};
- 		};
+diff --git a/Documentation/devicetree/bindings/input/msm-vibrator.txt b/Documentation/devicetree/bindings/input/msm-vibrator.txt
+new file mode 100644
+index 000000000000..8dcf014ef2e5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/msm-vibrator.txt
+@@ -0,0 +1,36 @@
++* Device tree bindings for the Qualcomm MSM vibrator
 +
-+		vibrator_pin: vibrator {
-+			pwm {
-+				pins = "gpio27";
-+				function = "gp1_clk";
++Required properties:
 +
-+				drive-strength = <6>;
-+				bias-disable;
-+			};
++  - compatible: Should be one of
++		"qcom,msm8226-vibrator"
++		"qcom,msm8974-vibrator"
++  - reg: the base address and length of the IO memory for the registers.
++  - pinctrl-names: set to default.
++  - pinctrl-0: phandles pointing to pin configuration nodes. See
++               Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
++  - clock-names: set to pwm
++  - clocks: phandle of the clock. See
++            Documentation/devicetree/bindings/clock/clock-bindings.txt
++  - enable-gpios: GPIO that enables the vibrator.
 +
-+			enable {
-+				pins = "gpio60";
-+				function = "gpio";
-+			};
-+		};
-+	};
++Optional properties:
 +
-+	vibrator@fd8c3450 {
-+		compatible = "qcom,msm8974-vibrator";
-+		reg = <0xfd8c3450 0x400>;
++  - vcc-supply: phandle to the regulator that provides power to the sensor.
 +
-+		vcc-supply = <&pm8941_l19>;
++Example from a LG Nexus 5 (hammerhead) phone:
 +
-+		clocks = <&mmcc CAMSS_GP1_CLK>;
-+		clock-names = "pwm";
++vibrator@fd8c3450 {
++	reg = <0xfd8c3450 0x400>;
++	compatible = "qcom,msm8974-vibrator";
 +
-+		enable-gpios = <&msmgpio 60 GPIO_ACTIVE_HIGH>;
++	vcc-supply = <&pm8941_l19>;
 +
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&vibrator_pin>;
- 	};
- 
- 	sdhci@f9824900 {
++	clocks = <&mmcc CAMSS_GP1_CLK>;
++	clock-names = "pwm";
++
++	enable-gpios = <&msmgpio 60 GPIO_ACTIVE_HIGH>;
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&vibrator_pin>;
++};
 -- 
 2.17.2

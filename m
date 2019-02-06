@@ -1,132 +1,128 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 5/5] input: misc: bma150: Register input device after
- setting private data
-Date: Wed, 6 Feb 2019 10:53:07 -0800
-Message-ID: <20190206185307.GD174258@dtor-ws>
-References: <20190202151806.9064-1-pawel.mikolaj.chmiel@gmail.com>
- <20190202151806.9064-6-pawel.mikolaj.chmiel@gmail.com>
+From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Subject: Re: [PATCH] Input: cap11xx - switch to using
+ set_brightness_blocking()
+Date: Wed, 6 Feb 2019 20:09:14 +0100
+Message-ID: <5a8a3929-d64e-da93-d0e0-eabcbcfc214d@gmail.com>
+References: <20190205222050.GA145676@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190202151806.9064-6-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <20190205222050.GA145676@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, xc-racer2@live.ca, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Sven Van Asbroeck <thesven73@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Feb 02, 2019 at 04:18:06PM +0100, Paweł Chmiel wrote:
-> From: Jonathan Bakker <xc-racer2@live.ca>
-> 
-> Otherwise we introduce a race condition where userspace can request input
-> before we're ready leading to null pointer dereference such as
-> 
-> input: bma150 as /devices/platform/i2c-gpio-2/i2c-5/5-0038/input/input3
-> Unable to handle kernel NULL pointer dereference at virtual address 00000018
-> pgd = (ptrval)
-> [00000018] *pgd=55dac831, *pte=00000000, *ppte=00000000
-> Internal error: Oops: 17 [#1] PREEMPT ARM
-> Modules linked in: bma150 input_polldev [last unloaded: bma150]
-> CPU: 0 PID: 2870 Comm: accelerometer Not tainted 5.0.0-rc3-dirty #46
-> Hardware name: Samsung S5PC110/S5PV210-based board
-> PC is at input_event+0x8/0x60
-> LR is at bma150_report_xyz+0x9c/0xe0 [bma150]
-> pc : [<80450f70>]    lr : [<7f0a614c>]    psr: 800d0013
-> sp : a4c1fd78  ip : 00000081  fp : 00020000
-> r10: 00000000  r9 : a5e2944c  r8 : a7455000
-> r7 : 00000016  r6 : 00000101  r5 : a7617940  r4 : 80909048
-> r3 : fffffff2  r2 : 00000000  r1 : 00000003  r0 : 00000000
-> Flags: Nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-> Control: 10c5387d  Table: 54e34019  DAC: 00000051
-> Process accelerometer (pid: 2870, stack limit = 0x(ptrval))
-> Stackck: (0xa4c1fd78 to 0xa4c20000)
-> fd60:                                                       fffffff3 fc813f6c
-> fd80: 40410581 d7530ce3 a5e2817c a7617f00 a5e29404 a5e2817c 00000000 7f008324
-> fda0: a5e28000 8044f59c a5fdd9d0 a5e2945c a46a4a00 a5e29668 a7455000 80454f10
-> fdc0: 80909048 a5e29668 a5fdd9d0 a46a4a00 806316d0 00000000 a46a4a00 801df5f0
-> fde0: 00000000 d7530ce3 a4c1fec0 a46a4a00 00000000 a5fdd9d0 a46a4a08 801df53c
-> fe00: 00000000 801d74bc a4c1fec0 00000000 a4c1ff70 00000000 a7038da8 00000000
-> fe20: a46a4a00 801e91fc a411bbe0 801f2e88 00000004 00000000 80909048 00000041
-> fe40: 00000000 00020000 00000000 dead4ead a6a88da0 00000000 ffffe000 806fcae8
-> fe60: a4c1fec8 00000000 80909048 00000002 a5fdd9d0 a7660110 a411bab0 00000001
-> fe80: dead4ead ffffffff ffffffff a4c1fe8c a4c1fe8c d7530ce3 20000013 80909048
-> fea0: 80909048 a4c1ff70 00000001 fffff000 a4c1e000 00000005 00026038 801eabd8
-> fec0: a7660110 a411bab0 b9394901 00000006 a696201b 76fb3000 00000000 a7039720
-> fee0: a5fdd9d0 00000101 00000002 00000096 00000000 00000000 00000000 a4c1ff00
-> ff00: a6b310f4 805cb174 a6b310f4 00000010 00000fe0 00000010 a4c1e000 d7530ce3
-> ff20: 00000003 a5f41400 a5f41424 00000000 a6962000 00000000 00000003 00000002
-> ff40: ffffff9c 000a0000 80909048 d7530ce3 a6962000 00000003 80909048 ffffff9c
-> ff60: a6962000 801d890c 00000000 00000000 00020000 a7590000 00000004 00000100
-> ff80: 00000001 d7530ce3 000288b8 00026320 000288b8 00000005 80101204 a4c1e000
-> ffa0: 00000005 80101000 000288b8 00026320 000288b8 000a0000 00000000 00000000
-> ffc0: 000288b8 00026320 000288b8 00000005 7eef3bac 000264e8 00028ad8 00026038
-> ffe0: 00000005 7eef3300 76f76e91 76f78546 800d0030 000288b8 00000000 00000000
-> [<80450f70>] (input_event) from [<a5e2817c>] (0xa5e2817c)
-> Code: e1a08148 eaffffa8 e351001f 812fff1e (e590c018)
-> ---[ end trace 1c691ee85f2ff243 ]---
-> 
-> Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Hi Dmitry,
 
-Applied, thank you.
-
+On 2/5/19 11:20 PM, Dmitry Torokhov wrote:
+> Updating LED state requires access to regmap and therefore we may sleep, so
+> we could not do that directly form set_brightness() method. Historically
+> we used private work to adjust the brightness, but with the introduction of
+> set_brightness_blocking() we no longer need it.
+> 
+> As a bonus, not having our own work item means we do not have
+> use-after-free issue as we neglected to cancel outstanding work on driver
+> unbind.
+> 
+> Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/misc/bma150.c | 15 +++------------
->  1 file changed, 3 insertions(+), 12 deletions(-)
+>   drivers/input/keyboard/cap11xx.c | 47 ++++++++++++++------------------
+>   1 file changed, 21 insertions(+), 26 deletions(-)
 > 
-> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-> index 1cdc8ce97968..64caf43e5bca 100644
-> --- a/drivers/input/misc/bma150.c
-> +++ b/drivers/input/misc/bma150.c
-> @@ -470,7 +470,6 @@ static void bma150_init_input_device(struct bma150_data *bma150,
->  static int bma150_register_input_device(struct bma150_data *bma150)
->  {
->  	struct input_dev *idev;
-> -	int error;
->  
->  	idev = devm_input_allocate_device(&bma150->client->dev);
->  	if (!idev)
-> @@ -482,18 +481,14 @@ static int bma150_register_input_device(struct bma150_data *bma150)
->  	idev->close = bma150_irq_close;
->  	input_set_drvdata(idev, bma150);
->  
-> -	error = input_register_device(idev);
-> -	if (error)
-> -		return error;
+> diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
+> index 312916f99597..c0baf323ddda 100644
+> --- a/drivers/input/keyboard/cap11xx.c
+> +++ b/drivers/input/keyboard/cap11xx.c
+> @@ -75,9 +75,8 @@
+>   struct cap11xx_led {
+>   	struct cap11xx_priv *priv;
+>   	struct led_classdev cdev;
+> -	struct work_struct work;
+>   	u32 reg;
+> -	enum led_brightness new_brightness;
+> +	enum led_brightness brightness;
+>   };
+>   #endif
+>   
+> @@ -233,30 +232,28 @@ static void cap11xx_input_close(struct input_dev *idev)
+>   }
+>   
+>   #ifdef CONFIG_LEDS_CLASS
+> -static void cap11xx_led_work(struct work_struct *work)
+> -{
+> -	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
+> -	struct cap11xx_priv *priv = led->priv;
+> -	int value = led->new_brightness;
 > -
->  	bma150->input = idev;
-> -	return 0;
+> -	/*
+> -	 * All LEDs share the same duty cycle as this is a HW limitation.
+> -	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
+> -	 */
+> -	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
+> -				BIT(led->reg), value ? BIT(led->reg) : 0);
+> -}
+> -
+> -static void cap11xx_led_set(struct led_classdev *cdev,
+> -			   enum led_brightness value)
+> +static int cap11xx_led_set(struct led_classdev *cdev,
+> +			    enum led_brightness value)
+>   {
+>   	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
+> +	struct cap11xx_priv *priv = led->priv;
+> +	int error = 0;
 > +
-> +	return input_register_device(idev);
->  }
->  
->  static int bma150_register_polled_device(struct bma150_data *bma150)
->  {
->  	struct input_polled_dev *ipoll_dev;
-> -	int error;
->  
->  	ipoll_dev = devm_input_allocate_polled_device(&bma150->client->dev);
->  	if (!ipoll_dev)
-> @@ -509,14 +504,10 @@ static int bma150_register_polled_device(struct bma150_data *bma150)
->  
->  	bma150_init_input_device(bma150, ipoll_dev->input);
->  
-> -	error = input_register_polled_device(ipoll_dev);
-> -	if (error)
-> -		return error;
+> +	if (led->brightness != value) {
+
+I'd say this check is not needed. If registers are not marked volatile
+then regmap should not do the actual write to the hardware if the value
+is equal to the cached one.
+
+> +		/*
+> +		 * All LEDs share the same duty cycle as this is a HW
+> +		 * limitation. Brightness levels per LED are either
+> +		 * 0 (OFF) and 1 (ON).
+> +		 */
+> +		error = regmap_update_bits(priv->regmap,
+> +					   CAP11XX_REG_LED_OUTPUT_CONTROL,
+> +					   BIT(led->reg),
+> +					   value ? BIT(led->reg) : 0);
+> +		if (!error)
+> +			led->brightness = value;
+> +	}
+>   
+> -	if (led->new_brightness == value)
+> -		return;
 > -
->  	bma150->input_polled = ipoll_dev;
->  	bma150->input = ipoll_dev->input;
->  
-> -	return 0;
-> +	return input_register_polled_device(ipoll_dev);
->  }
->  
->  int bma150_cfg_from_of(struct device_node *np)
-> -- 
-> 2.17.1
+> -	led->new_brightness = value;
+> -	schedule_work(&led->work);
+> +	return error;
+>   }
+>   
+>   static int cap11xx_init_leds(struct device *dev,
+> @@ -299,7 +296,7 @@ static int cap11xx_init_leds(struct device *dev,
+>   		led->cdev.default_trigger =
+>   			of_get_property(child, "linux,default-trigger", NULL);
+>   		led->cdev.flags = 0;
+> -		led->cdev.brightness_set = cap11xx_led_set;
+> +		led->cdev.brightness_set_blocking = cap11xx_led_set;
+>   		led->cdev.max_brightness = 1;
+>   		led->cdev.brightness = LED_OFF;
+>   
+> @@ -312,8 +309,6 @@ static int cap11xx_init_leds(struct device *dev,
+>   		led->reg = reg;
+>   		led->priv = priv;
+>   
+> -		INIT_WORK(&led->work, cap11xx_led_work);
+> -
+>   		error = devm_led_classdev_register(dev, &led->cdev);
+>   		if (error) {
+>   			of_node_put(child);
 > 
 
 -- 
-Dmitry
+Best regards,
+Jacek Anaszewski

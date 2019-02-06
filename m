@@ -1,55 +1,74 @@
 From: Brian Masney <masneyb@onstation.org>
-Subject: [PATCH v4 0/3] ARM: qcom: add vibrator support for various MSM SOCs
-Date: Tue,  5 Feb 2019 20:33:26 -0500
-Message-ID: <20190206013329.18195-1-masneyb@onstation.org>
+Subject: [PATCH v4 3/3] ARM: dts: qcom: msm8974-hammerhead: add device tree bindings for vibrator
+Date: Tue,  5 Feb 2019 20:33:29 -0500
+Message-ID: <20190206013329.18195-4-masneyb@onstation.org>
+References: <20190206013329.18195-1-masneyb@onstation.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190206013329.18195-1-masneyb@onstation.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, andy.gross@linaro.org
 Cc: david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devicetree@vger.kernel.org, jonathan@marek.ca
 List-Id: linux-input@vger.kernel.org
 
-This patch set adds support for the vibrator found on various Qualcomm
-MSM SOCs. This is based on work from:
+This patch adds device device tree bindings for the vibrator found on
+the LG Nexus 5 (hammerhead) phone.
 
-Jonathan Marek from qcom,pwm-vibrator.c in the PostmarketOS repo:
-https://gitlab.com/postmarketOS/linux-postmarketos/commit/7647fb36cb1cbd060f8b52087a68ab93583292b5
+Signed-off-by: Brian Masney <masneyb@onstation.org>
+---
+Changes since v3:
+- None
 
-Jongrak Kwon and Devin Kim from msm_pwm_vibrator.c in the downstream
-Android 3.4.0 sources:
-https://android.googlesource.com/kernel/msm/+/android-msm-lenok-3.10-lollipop-wear-release/drivers/misc/msm_pwm_vibrator.c
+ .../qcom-msm8974-lge-nexus5-hammerhead.dts    | 31 +++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-Driver was tested on a LG Nexus 5 (hammerhead) phone using rumble-test:
-https://git.collabora.com/cgit/user/sre/rumble-test.git/plain/rumble-test.c
-
-Changes since v3
-- Patch 2 is the only one that changed based on feedback from Dmitry
-  Torokhov. See notes on that patch for details.
-
-Changes since v2
-- Moved from pwm to input subsystem based on feedback from
-  https://lore.kernel.org/lkml/20181012114749.GC31561@ulmo/. I
-  previously wired this into the input system via pwm-vibra.
-
-Changes since v1
-- Update device tree binding document based on feedback from Rob
-  Herring.
-- Changed the driver description to: Qualcomm PWM driver for the MSM
-  vibrator.
-
-Brian Masney (3):
-  dt-bindings: Input: new bindings for MSM vibrator
-  Input: add new vibrator driver for various MSM SOCs
-  ARM: dts: qcom: msm8974-hammerhead: add device tree bindings for
-    vibrator
-
- .../bindings/input/msm-vibrator.txt           |  36 +++
- .../qcom-msm8974-lge-nexus5-hammerhead.dts    |  31 ++
- drivers/input/misc/Kconfig                    |  10 +
- drivers/input/misc/Makefile                   |   1 +
- drivers/input/misc/msm-vibrator.c             | 282 ++++++++++++++++++
- 5 files changed, 360 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/msm-vibrator.txt
- create mode 100644 drivers/input/misc/msm-vibrator.c
-
+diff --git a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
+index b3b04736a159..1fd9f429f34a 100644
+--- a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
++++ b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
+@@ -5,6 +5,7 @@
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/input.h>
+ #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
++#include <dt-bindings/clock/qcom,mmcc-msm8974.h>
+ 
+ / {
+ 	model = "LGE MSM 8974 HAMMERHEAD";
+@@ -306,6 +307,36 @@
+ 				input-enable;
+ 			};
+ 		};
++
++		vibrator_pin: vibrator {
++			pwm {
++				pins = "gpio27";
++				function = "gp1_clk";
++
++				drive-strength = <6>;
++				bias-disable;
++			};
++
++			enable {
++				pins = "gpio60";
++				function = "gpio";
++			};
++		};
++	};
++
++	vibrator@fd8c3450 {
++		compatible = "qcom,msm8974-vibrator";
++		reg = <0xfd8c3450 0x400>;
++
++		vcc-supply = <&pm8941_l19>;
++
++		clocks = <&mmcc CAMSS_GP1_CLK>;
++		clock-names = "pwm";
++
++		enable-gpios = <&msmgpio 60 GPIO_ACTIVE_HIGH>;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&vibrator_pin>;
+ 	};
+ 
+ 	sdhci@f9824900 {
 -- 
 2.17.2

@@ -1,44 +1,55 @@
 From: Brian Masney <masneyb@onstation.org>
-Subject: Re: [PATCH v3 2/3] Input: add new vibrator driver for various MSM
- SOCs
-Date: Tue, 5 Feb 2019 19:52:16 -0500
-Message-ID: <20190206005216.GA16650@basecamp>
-References: <20181025012937.2154-1-masneyb@onstation.org>
- <20181025012937.2154-3-masneyb@onstation.org>
- <20190205194246.GA19151@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: [PATCH v4 0/3] ARM: qcom: add vibrator support for various MSM SOCs
+Date: Tue,  5 Feb 2019 20:33:26 -0500
+Message-ID: <20190206013329.18195-1-masneyb@onstation.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190205194246.GA19151@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devicetree@vger.kernel.org, jonathan@marek.ca
+To: dmitry.torokhov@gmail.com, andy.gross@linaro.org
+Cc: david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, devicetree@vger.kernel.org, jonathan@marek.ca
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Feb 05, 2019 at 11:42:46AM -0800, Dmitry Torokhov wrote:
-> > +		dev_err(&pdev->dev, "Failed to lookup pwm clock: %ld\n",
-> > +			PTR_ERR(vibrator->clk));
-> > +		return PTR_ERR(vibrator->clk);
-> > +	}
-> > +
-> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > +	if (!res) {
-> > +		dev_err(&pdev->dev, "Failed to get platform resource\n");
-> > +		return -ENODEV;
-> > +	}
-> > +
-> > +	vibrator->base = devm_ioremap(&pdev->dev, res->start,
-> > +				     resource_size(res));
-> > +	if (IS_ERR(vibrator->base)) {
-> 
-> devm_ioremap() returns NULL on error. You either need to check for NULL
-> or see of you can use devm_ioremap_resource().
+This patch set adds support for the vibrator found on various Qualcomm
+MSM SOCs. This is based on work from:
 
-I originally tried to use devm_ioremap_resource() but the call to
-devm_request_mem_region() would fail. I'll go with the NULL check here
-for devm_ioremap().
+Jonathan Marek from qcom,pwm-vibrator.c in the PostmarketOS repo:
+https://gitlab.com/postmarketOS/linux-postmarketos/commit/7647fb36cb1cbd060f8b52087a68ab93583292b5
 
-Thanks for the review!
+Jongrak Kwon and Devin Kim from msm_pwm_vibrator.c in the downstream
+Android 3.4.0 sources:
+https://android.googlesource.com/kernel/msm/+/android-msm-lenok-3.10-lollipop-wear-release/drivers/misc/msm_pwm_vibrator.c
 
-Brian
+Driver was tested on a LG Nexus 5 (hammerhead) phone using rumble-test:
+https://git.collabora.com/cgit/user/sre/rumble-test.git/plain/rumble-test.c
+
+Changes since v3
+- Patch 2 is the only one that changed based on feedback from Dmitry
+  Torokhov. See notes on that patch for details.
+
+Changes since v2
+- Moved from pwm to input subsystem based on feedback from
+  https://lore.kernel.org/lkml/20181012114749.GC31561@ulmo/. I
+  previously wired this into the input system via pwm-vibra.
+
+Changes since v1
+- Update device tree binding document based on feedback from Rob
+  Herring.
+- Changed the driver description to: Qualcomm PWM driver for the MSM
+  vibrator.
+
+Brian Masney (3):
+  dt-bindings: Input: new bindings for MSM vibrator
+  Input: add new vibrator driver for various MSM SOCs
+  ARM: dts: qcom: msm8974-hammerhead: add device tree bindings for
+    vibrator
+
+ .../bindings/input/msm-vibrator.txt           |  36 +++
+ .../qcom-msm8974-lge-nexus5-hammerhead.dts    |  31 ++
+ drivers/input/misc/Kconfig                    |  10 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/input/misc/msm-vibrator.c             | 282 ++++++++++++++++++
+ 5 files changed, 360 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/msm-vibrator.txt
+ create mode 100644 drivers/input/misc/msm-vibrator.c
+
+-- 
+2.17.2

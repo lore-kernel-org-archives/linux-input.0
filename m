@@ -1,42 +1,20 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: matrix_keypad - use flush_delayed_work()
-Date: Thu, 7 Feb 2019 14:46:50 -0800
-Message-ID: <20190207224650.GA49861@dtor-ws>
+From: Sven Van Asbroeck <thesven73@gmail.com>
+Subject: Re: [PATCH] Input: ps2-gpio - flush TX work when closing port
+Date: Thu, 7 Feb 2019 18:03:03 -0500
+Message-ID: <CAGngYiWzC92Lw+Z-BAtPfEHgys0vcQOxdxo7g_JHKHF36-Hm7Q@mail.gmail.com>
+References: <20190207222740.GA38612@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20190207222740.GA38612@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Sven Van Asbroeck <thesven73@gmail.com>, tj@kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Danilo Krummrich <danilokrummrich@dk-develop.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-We should be using flush_delayed_work() instead of flush_work() in
-matrix_keypad_stop() to ensure that we are not missing work that is
-scheduled but not yet put in the workqueue (i.e. its delay timer has not
-expired yet).
+On Thu, Feb 7, 2019 at 5:27 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> +       flush_work(&drvdata->tx_work.work);
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/keyboard/matrix_keypad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 403452ef00e6..3d1cb7bf5e35 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -222,7 +222,7 @@ static void matrix_keypad_stop(struct input_dev *dev)
- 	keypad->stopped = true;
- 	spin_unlock_irq(&keypad->lock);
- 
--	flush_work(&keypad->work.work);
-+	flush_delayed_work(&keypad->work);
- 	/*
- 	 * matrix_keypad_scan() will leave IRQs enabled;
- 	 * we should disable them now.
--- 
-2.20.1.611.gfbb209baf1-goog
-
-
--- 
-Dmitry
+Would cancel_work_sync() be better than flush_work() ?

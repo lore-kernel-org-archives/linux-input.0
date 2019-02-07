@@ -1,123 +1,75 @@
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Subject: [PATCH] HID: steam: fix boot loop with bluetooth firmware.
-Date: Wed,  6 Feb 2019 22:27:54 +0100
-Message-ID: <20190206212754.17929-1-rodrigorivascosta@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: ili210x - switch to using devm_device_add_group()
+Date: Wed, 6 Feb 2019 22:27:46 -0800
+Message-ID: <20190207062746.GA30406@dtor-ws>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
-Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There is a new firmware for the Steam Controller with support for BLE
-connections. When using such a device with a wired connection, it
-reboots itself every 10 seconds unless an application has opened it.
+By switching to devm_device_add_group() we can complete driver conversion
+to using managed resources and get rid of ili210x_i2c_remove().
 
-Doing hid_hw_open() unconditionally on probe fixes the issue, and the
-code becomes simpler.
-
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-steam.c | 34 +++++++++++-----------------------
- 1 file changed, 11 insertions(+), 23 deletions(-)
+ drivers/input/touchscreen/ili210x.c | 16 ++--------------
+ 1 file changed, 2 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index dc4128bfe2ca..8141cadfca0e 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -283,11 +283,6 @@ static void steam_set_lizard_mode(struct steam_device *steam, bool enable)
- static int steam_input_open(struct input_dev *dev)
- {
- 	struct steam_device *steam = input_get_drvdata(dev);
--	int ret;
--
--	ret = hid_hw_open(steam->hdev);
--	if (ret)
--		return ret;
+diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+index 6cfe463ac118..af1dd9cff12a 100644
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -376,7 +376,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
- 	mutex_lock(&steam->mutex);
- 	if (!steam->client_opened && lizard_mode)
-@@ -304,8 +299,6 @@ static void steam_input_close(struct input_dev *dev)
- 	if (!steam->client_opened && lizard_mode)
- 		steam_set_lizard_mode(steam, true);
- 	mutex_unlock(&steam->mutex);
--
--	hid_hw_close(steam->hdev);
- }
+-	error = sysfs_create_group(&dev->kobj, &ili210x_attr_group);
++	error = devm_device_add_group(dev, &ili210x_attr_group);
+ 	if (error) {
+ 		dev_err(dev, "Unable to create sysfs attributes, err: %d\n",
+ 			error);
+@@ -386,7 +386,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 	error = input_register_device(priv->input);
+ 	if (error) {
+ 		dev_err(dev, "Cannot register input device, err: %d\n", error);
+-		goto err_remove_sysfs;
++		return error;
+ 	}
  
- static enum power_supply_property steam_battery_props[] = {
-@@ -623,11 +616,6 @@ static void steam_client_ll_stop(struct hid_device *hdev)
- static int steam_client_ll_open(struct hid_device *hdev)
- {
- 	struct steam_device *steam = hdev->driver_data;
--	int ret;
--
--	ret = hid_hw_open(steam->hdev);
--	if (ret)
--		return ret;
- 
- 	mutex_lock(&steam->mutex);
- 	steam->client_opened = true;
-@@ -635,7 +623,7 @@ static int steam_client_ll_open(struct hid_device *hdev)
- 
- 	steam_input_unregister(steam);
- 
--	return ret;
-+	return 0;
- }
- 
- static void steam_client_ll_close(struct hid_device *hdev)
-@@ -646,7 +634,6 @@ static void steam_client_ll_close(struct hid_device *hdev)
- 	steam->client_opened = false;
- 	mutex_unlock(&steam->mutex);
- 
--	hid_hw_close(steam->hdev);
- 	if (steam->connected) {
- 		steam_set_lizard_mode(steam, lizard_mode);
- 		steam_input_register(steam);
-@@ -759,14 +746,15 @@ static int steam_probe(struct hid_device *hdev,
- 	if (ret)
- 		goto client_hdev_add_fail;
- 
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_err(hdev,
-+			"%s:hid_hw_open\n",
-+			__func__);
-+		goto hid_hw_open_fail;
-+	}
-+
- 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
--		ret = hid_hw_open(hdev);
--		if (ret) {
--			hid_err(hdev,
--				"%s:hid_hw_open for wireless\n",
--				__func__);
--			goto hid_hw_open_fail;
--		}
- 		hid_info(hdev, "Steam wireless receiver connected");
- 		steam_request_conn_status(steam);
- 	} else {
-@@ -781,8 +769,8 @@ static int steam_probe(struct hid_device *hdev,
+ 	device_init_wakeup(dev, 1);
+@@ -396,17 +396,6 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 		client->irq, firmware.id, firmware.major, firmware.minor);
  
  	return 0;
- 
--hid_hw_open_fail:
- input_register_fail:
-+hid_hw_open_fail:
- client_hdev_add_fail:
- 	hid_hw_stop(hdev);
- hid_hw_start_fail:
-@@ -809,8 +797,8 @@ static void steam_remove(struct hid_device *hdev)
- 	cancel_work_sync(&steam->work_connect);
- 	if (steam->quirks & STEAM_QUIRK_WIRELESS) {
- 		hid_info(hdev, "Steam wireless receiver disconnected");
--		hid_hw_close(hdev);
- 	}
-+	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
- 	steam_unregister(steam);
+-
+-err_remove_sysfs:
+-	sysfs_remove_group(&dev->kobj, &ili210x_attr_group);
+-	return error;
+-}
+-
+-static int ili210x_i2c_remove(struct i2c_client *client)
+-{
+-	sysfs_remove_group(&client->dev.kobj, &ili210x_attr_group);
+-
+-	return 0;
  }
+ 
+ static int __maybe_unused ili210x_i2c_suspend(struct device *dev)
+@@ -454,7 +443,6 @@ static struct i2c_driver ili210x_ts_driver = {
+ 	},
+ 	.id_table = ili210x_i2c_id,
+ 	.probe = ili210x_i2c_probe,
+-	.remove = ili210x_i2c_remove,
+ };
+ 
+ module_i2c_driver(ili210x_ts_driver);
 -- 
-2.20.1
+2.20.1.611.gfbb209baf1-goog
+
+
+-- 
+Dmitry

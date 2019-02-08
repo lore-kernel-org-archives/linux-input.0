@@ -1,48 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: st1232 - switch to gpiod API
-Date: Fri, 8 Feb 2019 00:05:55 -0800
-Message-ID: <20190208080555.GD31622@dtor-ws>
-References: <20190129102347.27754-1-martink@posteo.de>
- <20190129102347.27754-2-martink@posteo.de>
- <83a86244-f40b-44b1-d7be-1fcbeb4c359e@ginzinger.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH (resend)] Input: uinput - Set name/phys to NULL before
+ kfree().
+Date: Fri, 8 Feb 2019 19:25:52 +0900
+Message-ID: <b937b59c-22b8-9113-229f-056738819467@I-love.SAKURA.ne.jp>
+References: <0000000000009ce64e0574fe896e@google.com>
+ <47d5fdbe-120e-cf42-106f-b0cc0f2feb49@I-love.SAKURA.ne.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <83a86244-f40b-44b1-d7be-1fcbeb4c359e@ginzinger.com>
+In-Reply-To: <47d5fdbe-120e-cf42-106f-b0cc0f2feb49@I-love.SAKURA.ne.jp>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: Martin Kepplinger <martink@posteo.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rydberg@bitmath.org
+Cc: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Martin,
+syzbot is hitting use-after-free bug in uinput module [1]. This is because
+uinput_destroy_device() sometimes kfree()s dev->name and dev->phys at
+uinput_destroy_device() before dev_uevent() is triggered by dropping the
+refcount to 0. Since the timing of triggering last input_put_device() is
+uncontrollable, this patch prepares for such race by setting dev->name and
+dev->phys to NULL before doing operations which might drop the refcount
+to 0.
 
-On Tue, Feb 05, 2019 at 11:20:16AM +0100, Martin Kepplinger wrote:
-> On 29.01.19 11:23, Martin Kepplinger wrote:
-> > From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-> > 
-> > Use devm_gpiod_get_optional() and gpiod_set_value_cansleep() instead
-> > of the old API. The st1232_ts_power() now passes on the inverted "poweron"
-> > value to reflect the correct logical value.
-> > 
-> > Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-> > ---
-> > 
-> > Tested and works. thanks for your help Dmitry,
-> > 
-> 
-> is this what you had in mind? any problems or questions?
+[1] https://syzkaller.appspot.com/bug?id=8b17c134fe938bbddd75a45afaa9e68af43a362d
 
-Yes, that is what I wanted, with one exception:
+Reported-by: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+---
+ drivers/input/misc/uinput.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> > +	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
-> > +						 GPIOD_OUT_HIGH);
-
-This breaks compatibility with old DTSes, please try changing to:
-
-	devm_gpiod_get_optional(&client->dev, NULL, GPIOD_OUT_HIGH);
-
-Thanks.
-
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 8ec483e8688b..131591b5babd 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -300,7 +300,9 @@ static void uinput_destroy_device(struct uinput_device *udev)
+ 
+ 	if (dev) {
+ 		name = dev->name;
++		dev->name = NULL;
+ 		phys = dev->phys;
++		dev->phys = NULL;
+ 		if (old_state == UIST_CREATED) {
+ 			uinput_flush_requests(udev);
+ 			input_unregister_device(dev);
 -- 
-Dmitry
+2.17.1

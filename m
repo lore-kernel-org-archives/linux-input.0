@@ -1,50 +1,29 @@
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH (resend)] Input: uinput - Set name/phys to NULL before
- kfree().
-Date: Fri, 8 Feb 2019 19:25:52 +0900
-Message-ID: <b937b59c-22b8-9113-229f-056738819467@I-love.SAKURA.ne.jp>
-References: <0000000000009ce64e0574fe896e@google.com>
- <47d5fdbe-120e-cf42-106f-b0cc0f2feb49@I-love.SAKURA.ne.jp>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v4 07/10] gpio: max77650: add GPIO support
+Date: Fri, 8 Feb 2019 12:22:10 +0100
+Message-ID: <CACRpkdYKLeKA7CPFvoBPHB-K+X_n80YvFyYS_SHxuTTyGLNZ4g@mail.gmail.com>
+References: <20190205091237.6448-1-brgl@bgdev.pl> <20190205091237.6448-8-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <47d5fdbe-120e-cf42-106f-b0cc0f2feb49@I-love.SAKURA.ne.jp>
-Content-Language: en-US
+In-Reply-To: <20190205091237.6448-8-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rydberg@bitmath.org
-Cc: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-syzbot is hitting use-after-free bug in uinput module [1]. This is because
-uinput_destroy_device() sometimes kfree()s dev->name and dev->phys at
-uinput_destroy_device() before dev_uevent() is triggered by dropping the
-refcount to 0. Since the timing of triggering last input_put_device() is
-uncontrollable, this patch prepares for such race by setting dev->name and
-dev->phys to NULL before doing operations which might drop the refcount
-to 0.
+On Tue, Feb 5, 2019 at 10:12 AM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
 
-[1] https://syzkaller.appspot.com/bug?id=8b17c134fe938bbddd75a45afaa9e68af43a362d
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>
+> Add GPIO support for max77650 mfd device. This PMIC exposes a single
+> GPIO line.
+>
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Reported-by: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
----
- drivers/input/misc/uinput.c | 2 ++
- 1 file changed, 2 insertions(+)
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 8ec483e8688b..131591b5babd 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -300,7 +300,9 @@ static void uinput_destroy_device(struct uinput_device *udev)
- 
- 	if (dev) {
- 		name = dev->name;
-+		dev->name = NULL;
- 		phys = dev->phys;
-+		dev->phys = NULL;
- 		if (old_state == UIST_CREATED) {
- 			uinput_flush_requests(udev);
- 			input_unregister_device(dev);
--- 
-2.17.1
+Please merge this with the rest of the stuff through MFD!
+
+Thanks,
+Linus Walleij

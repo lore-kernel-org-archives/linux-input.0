@@ -1,113 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v2] Input: cap11xx - switch to using set_brightness_blocking()
-Date: Thu, 7 Feb 2019 23:57:39 -0800
-Message-ID: <20190208075739.GA95091@dtor-ws>
+Subject: Re: [PATCH 2/2] Input: st1232 - switch to gpiod API
+Date: Fri, 8 Feb 2019 00:05:55 -0800
+Message-ID: <20190208080555.GD31622@dtor-ws>
+References: <20190129102347.27754-1-martink@posteo.de>
+ <20190129102347.27754-2-martink@posteo.de>
+ <83a86244-f40b-44b1-d7be-1fcbeb4c359e@ginzinger.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <83a86244-f40b-44b1-d7be-1fcbeb4c359e@ginzinger.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jacek Anaszewski <jacek.anaszewski@gmail.com>, Sven Van Asbroeck <TheSven73@googlemail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Cc: Martin Kepplinger <martink@posteo.de>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Updating LED state requires access to regmap and therefore we may sleep,
-so we could not do that directly form set_brightness() method.
-Historically we used private work to adjust the brightness, but with the
-introduction of set_brightness_blocking() we no longer need it.
+Hi Martin,
 
-As a bonus, not having our own work item means we do not have
-use-after-free issue as we neglected to cancel outstanding work on
-driver unbind.
+On Tue, Feb 05, 2019 at 11:20:16AM +0100, Martin Kepplinger wrote:
+> On 29.01.19 11:23, Martin Kepplinger wrote:
+> > From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> > 
+> > Use devm_gpiod_get_optional() and gpiod_set_value_cansleep() instead
+> > of the old API. The st1232_ts_power() now passes on the inverted "poweron"
+> > value to reflect the correct logical value.
+> > 
+> > Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> > ---
+> > 
+> > Tested and works. thanks for your help Dmitry,
+> > 
+> 
+> is this what you had in mind? any problems or questions?
 
-Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
-Reviewed-by: Sven Van Asbroeck <TheSven73@googlemail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
+Yes, that is what I wanted, with one exception:
 
-v2: no longer checking current brightness before trying to update since
-    regmap should take care of caching and skipping updates when needed
-    (Jacek).
+> > +	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
+> > +						 GPIOD_OUT_HIGH);
 
- drivers/input/keyboard/cap11xx.c | 35 ++++++++++----------------------
- 1 file changed, 11 insertions(+), 24 deletions(-)
+This breaks compatibility with old DTSes, please try changing to:
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 312916f99597..73686c2460ce 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -75,9 +75,7 @@
- struct cap11xx_led {
- 	struct cap11xx_priv *priv;
- 	struct led_classdev cdev;
--	struct work_struct work;
- 	u32 reg;
--	enum led_brightness new_brightness;
- };
- #endif
- 
-@@ -233,30 +231,21 @@ static void cap11xx_input_close(struct input_dev *idev)
- }
- 
- #ifdef CONFIG_LEDS_CLASS
--static void cap11xx_led_work(struct work_struct *work)
-+static int cap11xx_led_set(struct led_classdev *cdev,
-+			    enum led_brightness value)
- {
--	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
-+	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
- 	struct cap11xx_priv *priv = led->priv;
--	int value = led->new_brightness;
- 
- 	/*
--	 * All LEDs share the same duty cycle as this is a HW limitation.
--	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
-+	 * All LEDs share the same duty cycle as this is a HW
-+	 * limitation. Brightness levels per LED are either
-+	 * 0 (OFF) and 1 (ON).
- 	 */
--	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
--				BIT(led->reg), value ? BIT(led->reg) : 0);
--}
--
--static void cap11xx_led_set(struct led_classdev *cdev,
--			   enum led_brightness value)
--{
--	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
--
--	if (led->new_brightness == value)
--		return;
--
--	led->new_brightness = value;
--	schedule_work(&led->work);
-+	return regmap_update_bits(priv->regmap,
-+				  CAP11XX_REG_LED_OUTPUT_CONTROL,
-+				  BIT(led->reg),
-+				  value ? BIT(led->reg) : 0);
- }
- 
- static int cap11xx_init_leds(struct device *dev,
-@@ -299,7 +288,7 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->cdev.default_trigger =
- 			of_get_property(child, "linux,default-trigger", NULL);
- 		led->cdev.flags = 0;
--		led->cdev.brightness_set = cap11xx_led_set;
-+		led->cdev.brightness_set_blocking = cap11xx_led_set;
- 		led->cdev.max_brightness = 1;
- 		led->cdev.brightness = LED_OFF;
- 
-@@ -312,8 +301,6 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->reg = reg;
- 		led->priv = priv;
- 
--		INIT_WORK(&led->work, cap11xx_led_work);
--
- 		error = devm_led_classdev_register(dev, &led->cdev);
- 		if (error) {
- 			of_node_put(child);
--- 
-2.20.1.791.gb4d0f1c61a-goog
+	devm_gpiod_get_optional(&client->dev, NULL, GPIOD_OUT_HIGH);
 
+Thanks.
 
 -- 
 Dmitry

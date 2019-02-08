@@ -1,56 +1,113 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: keyboard: gpio-keys-polled: use input name from
- pdata if available
-Date: Thu, 7 Feb 2019 23:35:54 -0800
-Message-ID: <20190208073554.GB31622@dtor-ws>
-References: <1549559131-7423-1-git-send-email-info@metux.net>
+Subject: [PATCH v2] Input: cap11xx - switch to using set_brightness_blocking()
+Date: Thu, 7 Feb 2019 23:57:39 -0800
+Message-ID: <20190208075739.GA95091@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1549559131-7423-1-git-send-email-info@metux.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jacek Anaszewski <jacek.anaszewski@gmail.com>, Sven Van Asbroeck <TheSven73@googlemail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Enrico,
+Updating LED state requires access to regmap and therefore we may sleep,
+so we could not do that directly form set_brightness() method.
+Historically we used private work to adjust the brightness, but with the
+introduction of set_brightness_blocking() we no longer need it.
 
-On Thu, Feb 07, 2019 at 06:05:31PM +0100, Enrico Weigelt, metux IT consult wrote:
-> Instead of hardcoding the input name to the driver name ('gpio-keys-polled'),
-> allow the passing a name via platform data ('name' field was already present),
-> but default to old behaviour in case of NULL.
+As a bonus, not having our own work item means we do not have
+use-after-free issue as we neglected to cancel outstanding work on
+driver unbind.
 
-I thought the world is moving away from platform data and towards
-OF/ACPI systems. What device are you targeting with this change?
+Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
+Reviewed-by: Sven Van Asbroeck <TheSven73@googlemail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
 
-I would want to convert gpio-keys[-polled] to generic device properties
-and away form platform data...
+v2: no longer checking current brightness before trying to update since
+    regmap should take care of caching and skipping updates when needed
+    (Jacek).
 
-> 
-> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
-> ---
->  drivers/input/keyboard/gpio_keys_polled.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-> index edc7262..3312186 100644
-> --- a/drivers/input/keyboard/gpio_keys_polled.c
-> +++ b/drivers/input/keyboard/gpio_keys_polled.c
-> @@ -272,7 +272,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
->  
->  	input = poll_dev->input;
->  
-> -	input->name = pdev->name;
-> +	input->name = (pdata->name ? pdata->name : pdev->name);
->  	input->phys = DRV_NAME"/input0";
->  
->  	input->id.bustype = BUS_HOST;
-> -- 
-> 1.9.1
-> 
+ drivers/input/keyboard/cap11xx.c | 35 ++++++++++----------------------
+ 1 file changed, 11 insertions(+), 24 deletions(-)
 
-Thanks.
+diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
+index 312916f99597..73686c2460ce 100644
+--- a/drivers/input/keyboard/cap11xx.c
++++ b/drivers/input/keyboard/cap11xx.c
+@@ -75,9 +75,7 @@
+ struct cap11xx_led {
+ 	struct cap11xx_priv *priv;
+ 	struct led_classdev cdev;
+-	struct work_struct work;
+ 	u32 reg;
+-	enum led_brightness new_brightness;
+ };
+ #endif
+ 
+@@ -233,30 +231,21 @@ static void cap11xx_input_close(struct input_dev *idev)
+ }
+ 
+ #ifdef CONFIG_LEDS_CLASS
+-static void cap11xx_led_work(struct work_struct *work)
++static int cap11xx_led_set(struct led_classdev *cdev,
++			    enum led_brightness value)
+ {
+-	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
++	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
+ 	struct cap11xx_priv *priv = led->priv;
+-	int value = led->new_brightness;
+ 
+ 	/*
+-	 * All LEDs share the same duty cycle as this is a HW limitation.
+-	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
++	 * All LEDs share the same duty cycle as this is a HW
++	 * limitation. Brightness levels per LED are either
++	 * 0 (OFF) and 1 (ON).
+ 	 */
+-	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
+-				BIT(led->reg), value ? BIT(led->reg) : 0);
+-}
+-
+-static void cap11xx_led_set(struct led_classdev *cdev,
+-			   enum led_brightness value)
+-{
+-	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
+-
+-	if (led->new_brightness == value)
+-		return;
+-
+-	led->new_brightness = value;
+-	schedule_work(&led->work);
++	return regmap_update_bits(priv->regmap,
++				  CAP11XX_REG_LED_OUTPUT_CONTROL,
++				  BIT(led->reg),
++				  value ? BIT(led->reg) : 0);
+ }
+ 
+ static int cap11xx_init_leds(struct device *dev,
+@@ -299,7 +288,7 @@ static int cap11xx_init_leds(struct device *dev,
+ 		led->cdev.default_trigger =
+ 			of_get_property(child, "linux,default-trigger", NULL);
+ 		led->cdev.flags = 0;
+-		led->cdev.brightness_set = cap11xx_led_set;
++		led->cdev.brightness_set_blocking = cap11xx_led_set;
+ 		led->cdev.max_brightness = 1;
+ 		led->cdev.brightness = LED_OFF;
+ 
+@@ -312,8 +301,6 @@ static int cap11xx_init_leds(struct device *dev,
+ 		led->reg = reg;
+ 		led->priv = priv;
+ 
+-		INIT_WORK(&led->work, cap11xx_led_work);
+-
+ 		error = devm_led_classdev_register(dev, &led->cdev);
+ 		if (error) {
+ 			of_node_put(child);
+-- 
+2.20.1.791.gb4d0f1c61a-goog
+
 
 -- 
 Dmitry

@@ -1,88 +1,153 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: apanel - switch to using brightness_set_blocking()
-Date: Sat, 9 Feb 2019 09:19:25 -0800
-Message-ID: <20190209171925.GA24193@dtor-ws>
+Subject: [PATCH] Input: qt2160 - switch to using brightness_set_blocking()
+Date: Sat, 9 Feb 2019 09:20:58 -0800
+Message-ID: <20190209172058.GA24435@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: iSven Van Asbroeck <thesven73@gmail.com>, linux-kernel@vger.kernel.org
+Cc: Sven Van Asbroeck <thesven73@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 Now that LEDs core allows "blocking" flavor of "set brightness" method we
-can use it and get rid of private work item. As a bonus, we are no longer
-forgetting to cancel it when we unbind the driver.
+can use it and get rid of private work items.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/apanel.c | 17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ drivers/input/keyboard/qt2160.c | 69 +++++++++++++--------------------
+ 1 file changed, 27 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/input/misc/apanel.c b/drivers/input/misc/apanel.c
-index 094bddf56755..2e138fef1274 100644
---- a/drivers/input/misc/apanel.c
-+++ b/drivers/input/misc/apanel.c
-@@ -22,7 +22,6 @@
- #include <linux/io.h>
- #include <linux/input-polldev.h>
- #include <linux/i2c.h>
--#include <linux/workqueue.h>
- #include <linux/leds.h>
+diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
+index 43b86482dda0..d466bc07aebb 100644
+--- a/drivers/input/keyboard/qt2160.c
++++ b/drivers/input/keyboard/qt2160.c
+@@ -58,10 +58,9 @@ static unsigned char qt2160_key2code[] = {
+ struct qt2160_led {
+ 	struct qt2160_data *qt2160;
+ 	struct led_classdev cdev;
+-	struct work_struct work;
+ 	char name[32];
+ 	int id;
+-	enum led_brightness new_brightness;
++	enum led_brightness brightness;
+ };
+ #endif
  
- #define APANEL_NAME	"Fujitsu Application Panel"
-@@ -60,7 +59,6 @@ struct apanel {
- 	unsigned short keymap[MAX_PANEL_KEYS];
- 	u16    nkeys;
- 	u16    led_bits;
--	struct work_struct led_work;
- 	struct led_classdev mail_led;
+@@ -74,7 +73,6 @@ struct qt2160_data {
+ 	u16 key_matrix;
+ #ifdef CONFIG_LEDS_CLASS
+ 	struct qt2160_led leds[QT2160_NUM_LEDS_X];
+-	struct mutex led_lock;
+ #endif
  };
  
-@@ -109,15 +107,7 @@ static void apanel_poll(struct input_polled_dev *ipdev)
- 			report_key(idev, ap->keymap[i]);
- }
+@@ -83,46 +81,39 @@ static int qt2160_write(struct i2c_client *client, u8 reg, u8 data);
  
--/* Track state changes of LED */
--static void led_update(struct work_struct *work)
--{
--	struct apanel *ap = container_of(work, struct apanel, led_work);
--
--	i2c_smbus_write_word_data(ap->client, 0x10, ap->led_bits);
--}
--
--static void mail_led_set(struct led_classdev *led,
-+static int mail_led_set(struct led_classdev *led,
- 			 enum led_brightness value)
+ #ifdef CONFIG_LEDS_CLASS
+ 
+-static void qt2160_led_work(struct work_struct *work)
++static int qt2160_led_set(struct led_classdev *cdev,
++			  enum led_brightness value)
  {
- 	struct apanel *ap = container_of(led, struct apanel, mail_led);
-@@ -127,7 +117,7 @@ static void mail_led_set(struct led_classdev *led,
- 	else
- 		ap->led_bits &= ~0x8000;
+-	struct qt2160_led *led = container_of(work, struct qt2160_led, work);
++	struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
+ 	struct qt2160_data *qt2160 = led->qt2160;
+ 	struct i2c_client *client = qt2160->client;
+-	int value = led->new_brightness;
+ 	u32 drive, pwmen;
  
--	schedule_work(&ap->led_work);
-+	return i2c_smbus_write_word_data(ap->client, 0x10, ap->led_bits);
+-	mutex_lock(&qt2160->led_lock);
+-
+-	drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
+-	pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
+-	if (value != LED_OFF) {
+-		drive |= (1 << led->id);
+-		pwmen |= (1 << led->id);
+-
+-	} else {
+-		drive &= ~(1 << led->id);
+-		pwmen &= ~(1 << led->id);
+-	}
+-	qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
+-	qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
++	if (value != led->brightness) {
++		drive = qt2160_read(client, QT2160_CMD_DRIVE_X);
++		pwmen = qt2160_read(client, QT2160_CMD_PWMEN_X);
++		if (value != LED_OFF) {
++			drive |= BIT(led->id);
++			pwmen |= BIT(led->id);
+ 
+-	/*
+-	 * Changing this register will change the brightness
+-	 * of every LED in the qt2160. It's a HW limitation.
+-	 */
+-	if (value != LED_OFF)
+-		qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
++		} else {
++			drive &= ~BIT(led->id);
++			pwmen &= ~BIT(led->id);
++		}
++		qt2160_write(client, QT2160_CMD_DRIVE_X, drive);
++		qt2160_write(client, QT2160_CMD_PWMEN_X, pwmen);
+ 
+-	mutex_unlock(&qt2160->led_lock);
+-}
++		/*
++		 * Changing this register will change the brightness
++		 * of every LED in the qt2160. It's a HW limitation.
++		 */
++		if (value != LED_OFF)
++			qt2160_write(client, QT2160_CMD_PWM_DUTY, value);
+ 
+-static void qt2160_led_set(struct led_classdev *cdev,
+-			   enum led_brightness value)
+-{
+-	struct qt2160_led *led = container_of(cdev, struct qt2160_led, cdev);
++		led->brightness = value;
++	}
+ 
+-	led->new_brightness = value;
+-	schedule_work(&led->work);
++	return 0;
  }
  
- static int apanel_remove(struct i2c_client *client)
-@@ -179,7 +169,7 @@ static struct apanel apanel = {
- 	},
- 	.mail_led = {
- 		.name = "mail:blue",
--		.brightness_set = mail_led_set,
-+		.brightness_set_blocking = mail_led_set,
- 	},
- };
+ #endif /* CONFIG_LEDS_CLASS */
+@@ -293,20 +284,16 @@ static int qt2160_register_leds(struct qt2160_data *qt2160)
+ 	int ret;
+ 	int i;
  
-@@ -235,7 +225,6 @@ static int apanel_probe(struct i2c_client *client,
- 	if (err)
- 		goto out3;
+-	mutex_init(&qt2160->led_lock);
+-
+ 	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
+ 		struct qt2160_led *led = &qt2160->leds[i];
  
--	INIT_WORK(&ap->led_work, led_update);
- 	if (device_chip[APANEL_DEV_LED] != CHIP_NONE) {
- 		err = led_classdev_register(&client->dev, &ap->mail_led);
- 		if (err)
+ 		snprintf(led->name, sizeof(led->name), "qt2160:x%d", i);
+ 		led->cdev.name = led->name;
+-		led->cdev.brightness_set = qt2160_led_set;
++		led->cdev.brightness_set_blocking = qt2160_led_set;
+ 		led->cdev.brightness = LED_OFF;
+ 		led->id = i;
+ 		led->qt2160 = qt2160;
+ 
+-		INIT_WORK(&led->work, qt2160_led_work);
+-
+ 		ret = led_classdev_register(&client->dev, &led->cdev);
+ 		if (ret < 0)
+ 			return ret;
+@@ -324,10 +311,8 @@ static void qt2160_unregister_leds(struct qt2160_data *qt2160)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < QT2160_NUM_LEDS_X; i++) {
++	for (i = 0; i < QT2160_NUM_LEDS_X; i++)
+ 		led_classdev_unregister(&qt2160->leds[i].cdev);
+-		cancel_work_sync(&qt2160->leds[i].work);
+-	}
+ }
+ 
+ #else
 -- 
 2.20.1.791.gb4d0f1c61a-goog
 

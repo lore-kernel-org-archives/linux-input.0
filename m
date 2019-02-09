@@ -1,85 +1,91 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] input: misc: pwm-vibra: Prevent unbalanced
- regulator
-Date: Sat, 9 Feb 2019 09:13:03 -0800
-Message-ID: <20190209171303.GE197782@dtor-ws>
-References: <20190124202732.14723-1-pawel.mikolaj.chmiel@gmail.com>
+Subject: [PATCH] Input: apanel - switch to using brightness_set_blocking()
+Date: Sat, 9 Feb 2019 09:19:25 -0800
+Message-ID: <20190209171925.GA24193@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190124202732.14723-1-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>
+To: linux-input@vger.kernel.org
+Cc: iSven Van Asbroeck <thesven73@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 24, 2019 at 09:27:31PM +0100, Paweł Chmiel wrote:
-> From: Jonathan Bakker <xc-racer2@live.ca>
-> 
-> pwm_vibrator_stop disables the regulator, but it can be called from
-> multiple places, even when the regulator is already disabled. Fix this
-> by using regulator_is_enabled check when starting and stopping device.
-> 
-> Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Now that LEDs core allows "blocking" flavor of "set brightness" method we
+can use it and get rid of private work item. As a bonus, we are no longer
+forgetting to cancel it when we unbind the driver.
 
-Applied, thank you.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/apanel.c | 17 +++--------------
+ 1 file changed, 3 insertions(+), 14 deletions(-)
 
-> ---
-> Changes from v1:
->   - Rather than using regulator_is_enabled api, use local flag for
->     checking if regulator is enabled
-> ---
->  drivers/input/misc/pwm-vibra.c | 17 ++++++++++++-----
->  1 file changed, 12 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-> index 55da191ae550..9df87431d7d4 100644
-> --- a/drivers/input/misc/pwm-vibra.c
-> +++ b/drivers/input/misc/pwm-vibra.c
-> @@ -34,6 +34,7 @@ struct pwm_vibrator {
->  	struct work_struct play_work;
->  	u16 level;
->  	u32 direction_duty_cycle;
-> +	bool vcc_on;
->  };
->  
->  static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
-> @@ -42,10 +43,13 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
->  	struct pwm_state state;
->  	int err;
->  
-> -	err = regulator_enable(vibrator->vcc);
-> -	if (err) {
-> -		dev_err(pdev, "failed to enable regulator: %d", err);
-> -		return err;
-> +	if (!vibrator->vcc_on) {
-> +		err = regulator_enable(vibrator->vcc);
-> +		if (err) {
-> +			dev_err(pdev, "failed to enable regulator: %d", err);
-> +			return err;
-> +		}
-> +		vibrator->vcc_on = true;
->  	}
->  
->  	pwm_get_state(vibrator->pwm, &state);
-> @@ -76,7 +80,10 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
->  
->  static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
->  {
-> -	regulator_disable(vibrator->vcc);
-> +	if (vibrator->vcc_on) {
-> +		regulator_disable(vibrator->vcc);
-> +		vibrator->vcc_on = false;
-> +	}
->  
->  	if (vibrator->pwm_dir)
->  		pwm_disable(vibrator->pwm_dir);
-> -- 
-> 2.17.1
-> 
+diff --git a/drivers/input/misc/apanel.c b/drivers/input/misc/apanel.c
+index 094bddf56755..2e138fef1274 100644
+--- a/drivers/input/misc/apanel.c
++++ b/drivers/input/misc/apanel.c
+@@ -22,7 +22,6 @@
+ #include <linux/io.h>
+ #include <linux/input-polldev.h>
+ #include <linux/i2c.h>
+-#include <linux/workqueue.h>
+ #include <linux/leds.h>
+ 
+ #define APANEL_NAME	"Fujitsu Application Panel"
+@@ -60,7 +59,6 @@ struct apanel {
+ 	unsigned short keymap[MAX_PANEL_KEYS];
+ 	u16    nkeys;
+ 	u16    led_bits;
+-	struct work_struct led_work;
+ 	struct led_classdev mail_led;
+ };
+ 
+@@ -109,15 +107,7 @@ static void apanel_poll(struct input_polled_dev *ipdev)
+ 			report_key(idev, ap->keymap[i]);
+ }
+ 
+-/* Track state changes of LED */
+-static void led_update(struct work_struct *work)
+-{
+-	struct apanel *ap = container_of(work, struct apanel, led_work);
+-
+-	i2c_smbus_write_word_data(ap->client, 0x10, ap->led_bits);
+-}
+-
+-static void mail_led_set(struct led_classdev *led,
++static int mail_led_set(struct led_classdev *led,
+ 			 enum led_brightness value)
+ {
+ 	struct apanel *ap = container_of(led, struct apanel, mail_led);
+@@ -127,7 +117,7 @@ static void mail_led_set(struct led_classdev *led,
+ 	else
+ 		ap->led_bits &= ~0x8000;
+ 
+-	schedule_work(&ap->led_work);
++	return i2c_smbus_write_word_data(ap->client, 0x10, ap->led_bits);
+ }
+ 
+ static int apanel_remove(struct i2c_client *client)
+@@ -179,7 +169,7 @@ static struct apanel apanel = {
+ 	},
+ 	.mail_led = {
+ 		.name = "mail:blue",
+-		.brightness_set = mail_led_set,
++		.brightness_set_blocking = mail_led_set,
+ 	},
+ };
+ 
+@@ -235,7 +225,6 @@ static int apanel_probe(struct i2c_client *client,
+ 	if (err)
+ 		goto out3;
+ 
+-	INIT_WORK(&ap->led_work, led_update);
+ 	if (device_chip[APANEL_DEV_LED] != CHIP_NONE) {
+ 		err = led_classdev_register(&client->dev, &ap->mail_led);
+ 		if (err)
+-- 
+2.20.1.791.gb4d0f1c61a-goog
+
 
 -- 
 Dmitry

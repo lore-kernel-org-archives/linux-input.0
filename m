@@ -1,97 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: st1232 - switch to gpiod API
-Date: Sat, 9 Feb 2019 08:54:56 -0800
-Message-ID: <20190209165456.GD197782@dtor-ws>
-References: <20190208161533.25230-1-martin.kepplinger@ginzinger.com>
+Subject: Re: [PATCH v2 2/2] input: misc: pwm-vibra: Stop regulator after
+ disabling pwm, not before
+Date: Sat, 9 Feb 2019 09:13:10 -0800
+Message-ID: <20190209171310.GF197782@dtor-ws>
+References: <20190124202732.14723-1-pawel.mikolaj.chmiel@gmail.com>
+ <20190124202732.14723-2-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190208161533.25230-1-martin.kepplinger@ginzinger.com>
+In-Reply-To: <20190124202732.14723-2-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Feb 08, 2019 at 05:15:33PM +0100, Martin Kepplinger wrote:
-> Use devm_gpiod_get_optional() and gpiod_set_value_cansleep() instead
-> of the old API. The st1232_ts_power() now passes on the inverted "poweron"
-> value to reflect the correct logical value.
+On Thu, Jan 24, 2019 at 09:27:32PM +0100, Paweł Chmiel wrote:
+> This patch fixes order of disable calls in pwm_vibrator_stop.
+> Currently when starting device, we first enable vcc regulator and then
+> setup and enable pwm. When stopping, we should do this in oposite order,
+> so first disable pwm and then disable regulator.
+> Previously order was the same as in start.
 > 
-> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
 Applied, thank you.
 
 > ---
+>  drivers/input/misc/pwm-vibra.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> ok. tested. If i get that right, assigning different gpio functions
-> would now be difficult, but afaik isn't needed anyways.
-> 
-> thanks
->                                   martin
-> 
-> 
-> 
-> revision history
-> ----------------
-> v2: retain dts compatibility by allowing current reset-gpios setting
-> 
-> 
->  drivers/input/touchscreen/st1232.c | 22 ++++++++++------------
->  1 file changed, 10 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-> index 634d6c243845..1fbc0847416b 100644
-> --- a/drivers/input/touchscreen/st1232.c
-> +++ b/drivers/input/touchscreen/st1232.c
-> @@ -45,7 +45,7 @@ struct st1232_ts_data {
->  	struct i2c_client *client;
->  	struct input_dev *input_dev;
->  	struct dev_pm_qos_request low_latency_req;
-> -	int reset_gpio;
-> +	struct gpio_desc *reset_gpio;
->  	const struct st_chip_info *chip_info;
->  	int read_buf_len;
->  	u8 *read_buf;
-> @@ -142,8 +142,8 @@ static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
+> diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
+> index 9df87431d7d4..dbb6d9e1b947 100644
+> --- a/drivers/input/misc/pwm-vibra.c
+> +++ b/drivers/input/misc/pwm-vibra.c
+> @@ -80,14 +80,14 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
 >  
->  static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
+>  static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
 >  {
-> -	if (gpio_is_valid(ts->reset_gpio))
-> -		gpio_direction_output(ts->reset_gpio, poweron);
-> +	if (ts->reset_gpio)
-> +		gpiod_set_value_cansleep(ts->reset_gpio, !poweron);
+> +	if (vibrator->pwm_dir)
+> +		pwm_disable(vibrator->pwm_dir);
+> +	pwm_disable(vibrator->pwm);
+> +
+>  	if (vibrator->vcc_on) {
+>  		regulator_disable(vibrator->vcc);
+>  		vibrator->vcc_on = false;
+>  	}
+> -
+> -	if (vibrator->pwm_dir)
+> -		pwm_disable(vibrator->pwm_dir);
+> -	pwm_disable(vibrator->pwm);
 >  }
 >  
->  static const struct st_chip_info st1232_chip_info = {
-> @@ -215,15 +215,13 @@ static int st1232_ts_probe(struct i2c_client *client,
->  	ts->client = client;
->  	ts->input_dev = input_dev;
->  
-> -	ts->reset_gpio = of_get_gpio(client->dev.of_node, 0);
-> -	if (gpio_is_valid(ts->reset_gpio)) {
-> -		error = devm_gpio_request(&client->dev, ts->reset_gpio, NULL);
-> -		if (error) {
-> -			dev_err(&client->dev,
-> -				"Unable to request GPIO pin %d.\n",
-> -				ts->reset_gpio);
-> -				return error;
-> -		}
-> +	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, NULL,
-> +						 GPIOD_OUT_HIGH);
-> +	if (IS_ERR(ts->reset_gpio)) {
-> +		error = PTR_ERR(ts->reset_gpio);
-> +		dev_err(&client->dev, "Unable to request GPIO pin: %d.\n",
-> +			error);
-> +		return error;
->  	}
->  
->  	st1232_ts_power(ts, true);
+>  static void pwm_vibrator_play_work(struct work_struct *work)
 > -- 
-> 2.20.1
+> 2.17.1
 > 
-
-
 
 -- 
 Dmitry

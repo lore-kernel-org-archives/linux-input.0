@@ -1,59 +1,82 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 2/2] input: misc: pwm-vibra: Stop regulator after
- disabling pwm, not before
-Date: Sat, 9 Feb 2019 09:13:10 -0800
-Message-ID: <20190209171310.GF197782@dtor-ws>
+Subject: Re: [PATCH v2 1/2] input: misc: pwm-vibra: Prevent unbalanced
+ regulator
+Date: Sat, 9 Feb 2019 09:13:03 -0800
+Message-ID: <20190209171303.GE197782@dtor-ws>
 References: <20190124202732.14723-1-pawel.mikolaj.chmiel@gmail.com>
- <20190124202732.14723-2-pawel.mikolaj.chmiel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190124202732.14723-2-pawel.mikolaj.chmiel@gmail.com>
+In-Reply-To: <20190124202732.14723-1-pawel.mikolaj.chmiel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: =?utf-8?B?UGF3ZcWC?= Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 24, 2019 at 09:27:32PM +0100, Paweł Chmiel wrote:
-> This patch fixes order of disable calls in pwm_vibrator_stop.
-> Currently when starting device, we first enable vcc regulator and then
-> setup and enable pwm. When stopping, we should do this in oposite order,
-> so first disable pwm and then disable regulator.
-> Previously order was the same as in start.
+On Thu, Jan 24, 2019 at 09:27:31PM +0100, Paweł Chmiel wrote:
+> From: Jonathan Bakker <xc-racer2@live.ca>
 > 
+> pwm_vibrator_stop disables the regulator, but it can be called from
+> multiple places, even when the regulator is already disabled. Fix this
+> by using regulator_is_enabled check when starting and stopping device.
+> 
+> Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
 > Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/misc/pwm-vibra.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+> Changes from v1:
+>   - Rather than using regulator_is_enabled api, use local flag for
+>     checking if regulator is enabled
+> ---
+>  drivers/input/misc/pwm-vibra.c | 17 ++++++++++++-----
+>  1 file changed, 12 insertions(+), 5 deletions(-)
 > 
 > diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-> index 9df87431d7d4..dbb6d9e1b947 100644
+> index 55da191ae550..9df87431d7d4 100644
 > --- a/drivers/input/misc/pwm-vibra.c
 > +++ b/drivers/input/misc/pwm-vibra.c
-> @@ -80,14 +80,14 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+> @@ -34,6 +34,7 @@ struct pwm_vibrator {
+>  	struct work_struct play_work;
+>  	u16 level;
+>  	u32 direction_duty_cycle;
+> +	bool vcc_on;
+>  };
+>  
+>  static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+> @@ -42,10 +43,13 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+>  	struct pwm_state state;
+>  	int err;
+>  
+> -	err = regulator_enable(vibrator->vcc);
+> -	if (err) {
+> -		dev_err(pdev, "failed to enable regulator: %d", err);
+> -		return err;
+> +	if (!vibrator->vcc_on) {
+> +		err = regulator_enable(vibrator->vcc);
+> +		if (err) {
+> +			dev_err(pdev, "failed to enable regulator: %d", err);
+> +			return err;
+> +		}
+> +		vibrator->vcc_on = true;
+>  	}
+>  
+>  	pwm_get_state(vibrator->pwm, &state);
+> @@ -76,7 +80,10 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
 >  
 >  static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
 >  {
-> +	if (vibrator->pwm_dir)
-> +		pwm_disable(vibrator->pwm_dir);
-> +	pwm_disable(vibrator->pwm);
-> +
->  	if (vibrator->vcc_on) {
->  		regulator_disable(vibrator->vcc);
->  		vibrator->vcc_on = false;
->  	}
-> -
-> -	if (vibrator->pwm_dir)
-> -		pwm_disable(vibrator->pwm_dir);
-> -	pwm_disable(vibrator->pwm);
->  }
+> -	regulator_disable(vibrator->vcc);
+> +	if (vibrator->vcc_on) {
+> +		regulator_disable(vibrator->vcc);
+> +		vibrator->vcc_on = false;
+> +	}
 >  
->  static void pwm_vibrator_play_work(struct work_struct *work)
+>  	if (vibrator->pwm_dir)
+>  		pwm_disable(vibrator->pwm_dir);
 > -- 
 > 2.17.1
 > 

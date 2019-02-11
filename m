@@ -1,25 +1,53 @@
-From: Sven Van Asbroeck <thesven73@gmail.com>
-Subject: Re: [PATCH] Input: matrix_keypad - use flush_delayed_work()
-Date: Mon, 11 Feb 2019 07:42:27 -0500
-Message-ID: <CAGngYiXZ-vgX4MTJENRaPPoj12gBNFffjOef2F8NeOy0RT8hTw@mail.gmail.com>
-References: <20190207224650.GA49861@dtor-ws> <CAGngYiXytDjjAVh_gAaqJa0qLZAM-cTko92s6=PjS4tjZMvfHg@mail.gmail.com>
- <20190211082902.GA95126@dtor-ws>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] HID: roccat: Mark expected switch fall-through
+Date: Mon, 11 Feb 2019 15:53:34 -0600
+Message-ID: <20190211215334.GA6216@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190211082902.GA95126@dtor-ws>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Kees Cook <keescook@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Feb 11, 2019 at 3:29 AM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> It will not schedule new work because we check keypad->stopped flag
-> in ISR.
->
+In preparation to enabling -Wimplicit-fallthrough, mark switch
+cases where we are expecting to fall through.
 
-Yes, you are correct. Sorry for the confusion.
+This patch fixes the following warning:
 
-Reviewed-by: Sven Van Asbroeck <TheSven73@gmail.com>
+drivers/hid/hid-roccat-kone.c: In function ‘kone_keep_values_up_to_date’:
+drivers/hid/hid-roccat-kone.c:784:20: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   kone->actual_dpi = kone->profiles[event->value - 1].
+   ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     startup_dpi;
+     ~~~~~~~~~~~
+drivers/hid/hid-roccat-kone.c:786:2: note: here
+  case kone_mouse_event_osd_profile:
+  ^~~~
+
+Warning level 3 was used: -Wimplicit-fallthrough=3
+
+This patch is part of the ongoing efforts to enable
+-Wimplicit-fallthrough.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/hid/hid-roccat-kone.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index bf4675a27396..c4dd6162c1d6 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -783,6 +783,7 @@ static void kone_keep_values_up_to_date(struct kone_device *kone,
+ 	case kone_mouse_event_switch_profile:
+ 		kone->actual_dpi = kone->profiles[event->value - 1].
+ 				startup_dpi;
++		/* fall through */
+ 	case kone_mouse_event_osd_profile:
+ 		kone->actual_profile = event->value;
+ 		break;
+-- 
+2.20.1

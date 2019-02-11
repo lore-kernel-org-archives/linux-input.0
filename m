@@ -1,74 +1,75 @@
-From: thesven73@gmail.com
-Subject: [PATCH] Input: qt2160 - remove redundant spinlock
-Date: Sun, 10 Feb 2019 21:32:22 -0500
-Message-ID: <20190211023222.29168-1-TheSven73@gmail.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH v2] dt-bindings: input: ti-tsc-adc: Add new compatible for
+ AM654 SoCs
+Date: Mon, 11 Feb 2019 11:10:59 +0530
+Message-ID: <3623af02-063d-9077-1e59-99d8cfe93ddd@ti.com>
+References: <20190108052631.4169-1-vigneshr@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190108052631.4169-1-vigneshr@ti.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>, Tejun Heo <tj@kernel.org>
+Cc: Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Sven Van Asbroeck <TheSven73@gmail.com>
+Hi Dmitry,
 
-Remove a spinlock which prevents schedule_delayed_work() and
-mod_delayed_work() from executing concurrently.
+On 08/01/19 10:56 AM, Vignesh R wrote:
+> AM654 SoCs has ADC IP which is similar to AM335x, but without the
+> touchscreen part. Add new compatible to handle AM654 SoCs. Also, it
+> seems that existing compatible strings used in the kernel DTs were never
+> documented. So, document them now.
+> 
+> Signed-off-by: Vignesh R <vigneshr@ti.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> ---
 
-This was required back when mod_delayed_work() did not exist,
-and had to be implemented with a cancel + schedule. See
-commit e7c2f967445d ("workqueue: use mod_delayed_work() instead of
-__cancel + queue")
+If there are no comments, could you queue this bindings patch? This will
+help me in getting ADC DT nodes to be merged into ARM SoC tree.
 
-schedule_delayed_work() and mod_delayed_work() can now be used
-concurrently. So the spinlock is no longer needed.
+Regards
+Vignesh
 
-Cc: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
----
- drivers/input/keyboard/qt2160.c | 9 ---------
- 1 file changed, 9 deletions(-)
+> v2:
+> Fix subject line to include subsystem name
+> Rebase onto v5.0-rc1
+> v1: https://lkml.org/lkml/2018/11/19/313
+> 
+>  .../devicetree/bindings/input/touchscreen/ti-tsc-adc.txt  | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> index b1163bf97146..aad5e34965eb 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
+> @@ -2,7 +2,12 @@
+>  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>  
+>  Required properties:
+> +- mfd
+> +	compatible: Should be
+> +		"ti,am3359-tscadc" for AM335x/AM437x SoCs
+> +		"ti,am654-tscadc", "ti,am3359-tscadc" for AM654 SoCs
+>  - child "tsc"
+> +	compatible: Should be "ti,am3359-tsc".
+>  	ti,wires: Wires refer to application modes i.e. 4/5/8 wire touchscreen
+>  		  support on the platform.
+>  	ti,x-plate-resistance: X plate resistance
+> @@ -25,6 +30,9 @@ Required properties:
+>  			AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+>  			XP  = 0, XN = 1, YP = 2, YN = 3.
+>  - child "adc"
+> +	compatible: Should be
+> +		    "ti,am3359-adc" for AM335x/AM437x SoCs
+> +		    "ti,am654-adc", "ti,am3359-adc" for AM654 SoCs
+>  	ti,adc-channels: List of analog inputs available for ADC.
+>  			 AIN0 = 0, AIN1 = 1 and so on till AIN7 = 7.
+>  
+> 
 
-diff --git a/drivers/input/keyboard/qt2160.c b/drivers/input/keyboard/qt2160.c
-index 43b86482dda0..23dc7c0c7d78 100644
---- a/drivers/input/keyboard/qt2160.c
-+++ b/drivers/input/keyboard/qt2160.c
-@@ -69,7 +69,6 @@ struct qt2160_data {
- 	struct i2c_client *client;
- 	struct input_dev *input;
- 	struct delayed_work dwork;
--	spinlock_t lock;        /* Protects canceling/rescheduling of dwork */
- 	unsigned short keycodes[ARRAY_SIZE(qt2160_key2code)];
- 	u16 key_matrix;
- #ifdef CONFIG_LEDS_CLASS
-@@ -221,22 +220,15 @@ static int qt2160_get_key_matrix(struct qt2160_data *qt2160)
- static irqreturn_t qt2160_irq(int irq, void *_qt2160)
- {
- 	struct qt2160_data *qt2160 = _qt2160;
--	unsigned long flags;
--
--	spin_lock_irqsave(&qt2160->lock, flags);
- 
- 	mod_delayed_work(system_wq, &qt2160->dwork, 0);
- 
--	spin_unlock_irqrestore(&qt2160->lock, flags);
--
- 	return IRQ_HANDLED;
- }
- 
- static void qt2160_schedule_read(struct qt2160_data *qt2160)
- {
--	spin_lock_irq(&qt2160->lock);
- 	schedule_delayed_work(&qt2160->dwork, QT2160_CYCLE_INTERVAL);
--	spin_unlock_irq(&qt2160->lock);
- }
- 
- static void qt2160_worker(struct work_struct *work)
-@@ -406,7 +398,6 @@ static int qt2160_probe(struct i2c_client *client,
- 	qt2160->client = client;
- 	qt2160->input = input;
- 	INIT_DELAYED_WORK(&qt2160->dwork, qt2160_worker);
--	spin_lock_init(&qt2160->lock);
- 
- 	input->name = "AT42QT2160 Touch Sense Keyboard";
- 	input->id.bustype = BUS_I2C;
 -- 
-2.17.1
+Regards
+Vignesh

@@ -1,14 +1,14 @@
 From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] HID: roccat: Mark expected switch fall-through
-Date: Mon, 11 Feb 2019 15:53:34 -0600
-Message-ID: <20190211215334.GA6216@embeddedor>
+Subject: [PATCH] HID: wacom: Mark expected switch fall-through
+Date: Mon, 11 Feb 2019 16:04:22 -0600
+Message-ID: <20190211220422.GA22137@embeddedor>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Achatz <erazor_de@users.sourceforge.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Kees Cook <keescook@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
@@ -17,14 +17,12 @@ cases where we are expecting to fall through.
 
 This patch fixes the following warning:
 
-drivers/hid/hid-roccat-kone.c: In function ‘kone_keep_values_up_to_date’:
-drivers/hid/hid-roccat-kone.c:784:20: warning: this statement may fall through [-Wimplicit-fallthrough=]
-   kone->actual_dpi = kone->profiles[event->value - 1].
-   ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     startup_dpi;
-     ~~~~~~~~~~~
-drivers/hid/hid-roccat-kone.c:786:2: note: here
-  case kone_mouse_event_osd_profile:
+drivers/hid/wacom_wac.c: In function ‘wacom_setup_pen_input_capabilities’:
+drivers/hid/wacom_wac.c:3506:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   __clear_bit(ABS_MISC, input_dev->absbit);
+   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/hid/wacom_wac.c:3508:2: note: here
+  case WACOM_MO:
   ^~~~
 
 Warning level 3 was used: -Wimplicit-fallthrough=3
@@ -34,20 +32,20 @@ This patch is part of the ongoing efforts to enable
 
 Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 ---
- drivers/hid/hid-roccat-kone.c | 1 +
+ drivers/hid/wacom_wac.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
-index bf4675a27396..c4dd6162c1d6 100644
---- a/drivers/hid/hid-roccat-kone.c
-+++ b/drivers/hid/hid-roccat-kone.c
-@@ -783,6 +783,7 @@ static void kone_keep_values_up_to_date(struct kone_device *kone,
- 	case kone_mouse_event_switch_profile:
- 		kone->actual_dpi = kone->profiles[event->value - 1].
- 				startup_dpi;
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 72477e872324..5ecda99bf431 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -3504,6 +3504,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 	switch (features->type) {
+ 	case GRAPHIRE_BT:
+ 		__clear_bit(ABS_MISC, input_dev->absbit);
 +		/* fall through */
- 	case kone_mouse_event_osd_profile:
- 		kone->actual_profile = event->value;
- 		break;
+ 
+ 	case WACOM_MO:
+ 	case WACOM_G4:
 -- 
 2.20.1

@@ -1,35 +1,25 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH] input: keyboard: gpio-keys-polled: use input name from pdata if available
-Date: Mon, 11 Feb 2019 12:19:04 +0100
-Message-ID: <1549883944-1210-1-git-send-email-info@metux.net>
+From: Sven Van Asbroeck <thesven73@gmail.com>
+Subject: Re: [PATCH] Input: matrix_keypad - use flush_delayed_work()
+Date: Mon, 11 Feb 2019 07:42:27 -0500
+Message-ID: <CAGngYiXZ-vgX4MTJENRaPPoj12gBNFffjOef2F8NeOy0RT8hTw@mail.gmail.com>
+References: <20190207224650.GA49861@dtor-ws> <CAGngYiXytDjjAVh_gAaqJa0qLZAM-cTko92s6=PjS4tjZMvfHg@mail.gmail.com>
+ <20190211082902.GA95126@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190211082902.GA95126@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Instead of hardcoding the input name to the driver name
-('gpio-keys-polled'), allow the passing a name via platform data
-('name' field was already present), but default to old behaviour
-in case of NULL.
+On Mon, Feb 11, 2019 at 3:29 AM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> It will not schedule new work because we check keypad->stopped flag
+> in ISR.
+>
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- drivers/input/keyboard/gpio_keys_polled.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes, you are correct. Sorry for the confusion.
 
-diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
-index edc7262..3312186 100644
---- a/drivers/input/keyboard/gpio_keys_polled.c
-+++ b/drivers/input/keyboard/gpio_keys_polled.c
-@@ -272,7 +272,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
- 
- 	input = poll_dev->input;
- 
--	input->name = pdev->name;
-+	input->name = (pdata->name ? pdata->name : pdev->name);
- 	input->phys = DRV_NAME"/input0";
- 
- 	input->id.bustype = BUS_HOST;
--- 
-1.9.1
+Reviewed-by: Sven Van Asbroeck <TheSven73@gmail.com>

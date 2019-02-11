@@ -1,54 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: matrix_keypad - use flush_delayed_work()
-Date: Mon, 11 Feb 2019 00:29:02 -0800
-Message-ID: <20190211082902.GA95126@dtor-ws>
-References: <20190207224650.GA49861@dtor-ws>
- <CAGngYiXytDjjAVh_gAaqJa0qLZAM-cTko92s6=PjS4tjZMvfHg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH] input: keyboard: gpio-keys-polled: use input name from pdata if available
+Date: Mon, 11 Feb 2019 12:19:04 +0100
+Message-ID: <1549883944-1210-1-git-send-email-info@metux.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAGngYiXytDjjAVh_gAaqJa0qLZAM-cTko92s6=PjS4tjZMvfHg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sven Van Asbroeck <thesven73@gmail.com>
-Cc: linux-input@vger.kernel.org, Tejun Heo <tj@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Sven,
+Instead of hardcoding the input name to the driver name
+('gpio-keys-polled'), allow the passing a name via platform data
+('name' field was already present), but default to old behaviour
+in case of NULL.
 
-On Sun, Feb 10, 2019 at 12:43:21PM -0500, Sven Van Asbroeck wrote:
-> Hi Dmitry,
-> 
-> On Thu, Feb 7, 2019 at 5:46 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > We should be using flush_delayed_work() instead of flush_work() in
-> > matrix_keypad_stop() to ensure that we are not missing work that is
-> > scheduled but not yet put in the workqueue (i.e. its delay timer has not
-> > expired yet).
-> >
-> 
-> Could the following scenario cause a use-after-free?
-> (I am adding comments on lines starting with -->)
-> 
-> a) user closes the device handle:
-> 
-> static void matrix_keypad_stop(struct input_dev *dev)
-> {
->         struct matrix_keypad *keypad = input_get_drvdata(dev);
-> 
->         spin_lock_irq(&keypad->lock);
->         keypad->stopped = true;
->         spin_unlock_irq(&keypad->lock);
-> 
->         flush_work(&keypad->work.work);
-> -->
-> --> new interrupt comes in, and schedules new delayed keypad->work (1)
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+---
+ drivers/input/keyboard/gpio_keys_polled.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-It will not schedule new work because we check keypad->stopped flag
-in ISR.
-
-Thanks.
-
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index edc7262..3312186 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -272,7 +272,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 	input = poll_dev->input;
+ 
+-	input->name = pdev->name;
++	input->name = (pdata->name ? pdata->name : pdev->name);
+ 	input->phys = DRV_NAME"/input0";
+ 
+ 	input->id.bustype = BUS_HOST;
 -- 
-Dmitry
+1.9.1

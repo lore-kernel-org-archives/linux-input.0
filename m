@@ -1,51 +1,44 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] HID: wacom: Mark expected switch fall-through
-Date: Mon, 11 Feb 2019 16:04:22 -0600
-Message-ID: <20190211220422.GA22137@embeddedor>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] dt-bindings: input: ti-tsc-adc: Add new compatible
+ for AM654 SoCs
+Date: Mon, 11 Feb 2019 14:10:11 -0800
+Message-ID: <20190211221011.GA149505@dtor-ws>
+References: <20190108052631.4169-1-vigneshr@ti.com>
+ <3623af02-063d-9077-1e59-99d8cfe93ddd@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <3623af02-063d-9077-1e59-99d8cfe93ddd@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Kees Cook <keescook@chromium.org>
+To: Vignesh R <vigneshr@ti.com>
+Cc: Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-In preparation to enabling -Wimplicit-fallthrough, mark switch
-cases where we are expecting to fall through.
+Hi Vignesh,
 
-This patch fixes the following warning:
+On Mon, Feb 11, 2019 at 11:10:59AM +0530, Vignesh R wrote:
+> Hi Dmitry,
+> 
+> On 08/01/19 10:56 AM, Vignesh R wrote:
+> > AM654 SoCs has ADC IP which is similar to AM335x, but without the
+> > touchscreen part. Add new compatible to handle AM654 SoCs. Also, it
+> > seems that existing compatible strings used in the kernel DTs were never
+> > documented. So, document them now.
+> > 
+> > Signed-off-by: Vignesh R <vigneshr@ti.com>
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> > ---
+> 
+> If there are no comments, could you queue this bindings patch? This will
+> help me in getting ADC DT nodes to be merged into ARM SoC tree.
 
-drivers/hid/wacom_wac.c: In function ‘wacom_setup_pen_input_capabilities’:
-drivers/hid/wacom_wac.c:3506:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
-   __clear_bit(ABS_MISC, input_dev->absbit);
-   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/hid/wacom_wac.c:3508:2: note: here
-  case WACOM_MO:
-  ^~~~
+Sorry I did not realize you waited for me. Yes, please feel free to
+merge through your tree.
 
-Warning level 3 was used: -Wimplicit-fallthrough=3
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-This patch is part of the ongoing efforts to enable
--Wimplicit-fallthrough.
+Thanks,
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/hid/wacom_wac.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 72477e872324..5ecda99bf431 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3504,6 +3504,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
- 	switch (features->type) {
- 	case GRAPHIRE_BT:
- 		__clear_bit(ABS_MISC, input_dev->absbit);
-+		/* fall through */
- 
- 	case WACOM_MO:
- 	case WACOM_G4:
 -- 
-2.20.1
+Dmitry

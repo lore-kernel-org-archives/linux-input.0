@@ -1,104 +1,66 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v4 05/10] mfd: max77650: new core mfd driver
-Date: Tue, 12 Feb 2019 13:20:16 +0000
-Message-ID: <20190212132016.GA4781@dell>
-References: <20190205091237.6448-1-brgl@bgdev.pl>
- <20190205091237.6448-6-brgl@bgdev.pl>
- <20190212083642.GT20638@dell>
- <CAMRc=MderQf20_8aG4-otBkCv60FSNSSqV3NVALPkFL-MqmJbg@mail.gmail.com>
- <20190212095457.GA20638@dell>
- <CAMRc=MdyT7nMJ7dUTf6M3PvRdynaCurb_TftMyA4eCwzpR9fVA@mail.gmail.com>
- <20190212101835.GB20638@dell>
- <CAMRc=MfYeVbvY6O03xq4eLN9TVpAKWCAXPk0eP5LSBCU7VU9fA@mail.gmail.com>
- <20190212111403.GC20638@dell>
- <CAMpxmJWXOb1HW4QiEn8gMp3Nh05ahE0CMLXkac+hEKRjtGxTHQ@mail.gmail.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v3 02/11] dt-bindings: power: supply: add DT bindings for max77650
+Date: Tue, 12 Feb 2019 14:28:10 +0100
+Message-ID: <CAMRc=MdCXfPh6g4u-v4GkQJxNDA+v1dqRChcEHdauczrVywkDg@mail.gmail.com>
+References: <20190201094736.32057-1-brgl@bgdev.pl> <20190201094736.32057-3-brgl@bgdev.pl>
+ <20190212115420.GA24296@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMpxmJWXOb1HW4QiEn8gMp3Nh05ahE0CMLXkac+hEKRjtGxTHQ@mail.gmail.com>
+In-Reply-To: <20190212115420.GA24296@amd>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
+wt., 12 lut 2019 o 12:54 Pavel Machek <pavel@ucw.cz> napisa=C5=82(a):
+>
+> Hi!
+>
+> > diff --git a/Documentation/devicetree/bindings/power/supply/max77650-ch=
+arger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger=
+.txt
+> > new file mode 100644
+> > index 000000000000..f3e00d41e299
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.t=
+xt
+> > @@ -0,0 +1,27 @@
+> > +Battery charger driver for MAX77650 PMIC from Maxim Integrated.
+> > +
+> > +This module is part of the MAX77650 MFD device. For more details
+> > +see Documentation/devicetree/bindings/mfd/max77650.txt.
+> > +
+> > +The charger is represented as a sub-node of the PMIC node on the devic=
+e tree.
+> > +
+> > +Required properties:
+> > +--------------------
+> > +- compatible:                Must be "maxim,max77650-charger"
+> > +
+> > +Optional properties:
+> > +--------------------
+> > +- maxim,vchgin-min:  Minimum CHGIN regulation voltage (in microvolts).=
+ Must be
+> > +                     one of: 4000000, 4100000, 4200000, 4300000, 44000=
+00,
+> > +                     4500000, 4600000, 4700000.
+> > +- maxim,ichgin-lim:  CHGIN input current limit (in microamps). Must be=
+ one of:
+> > +                     95000, 190000, 285000, 380000, 475000.
+>
+> We already have richtek,min-input-voltage-regulation and
+> ti,minimum-sys-voltage and ti,in-dpm-voltage.
+>
+> This is not too consistent with with the rest.. and perhaps common
+> name should be used for those?
+>
+> See also ti,current-limit. That seems to be direct match.
+>
 
-> wt., 12 lut 2019 o 12:14 Lee Jones <lee.jones@linaro.org> napisał(a):
-> >
-> > On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
-> >
-> > > wt., 12 lut 2019 o 11:18 Lee Jones <lee.jones@linaro.org> napisał(a):
-> > > >
-> > > > On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
-> > > >
-> > > > > wt., 12 lut 2019 o 10:55 Lee Jones <lee.jones@linaro.org> napisał(a):
-> > > > > >
-> > > > > >  * The declaration of a superfluous struct
-> > > > > >  * 100 lines of additional/avoidable code
-> > > > > >  * Hacky hoop jumping trying to fudge VIRQs into resources
-> > > > > >  * Resources were designed for HWIRQs (unless a domain is present)
-> > > > > >  * Loads of additional/avoidable CPU cycles setting all this up
-> > > > >
-> > > > > While the above may be right, this one is negligible and you know it. :)
-> > > >
-> > > > You have nested for() loops.  You *are* wasting lots of cycles.
-> > > >
-> > > > > > Need I go on? :)
-> > > > > >
-> > > > > > Surely the fact that you are using both sides of an API
-> > > > > > (devm_regmap_init_i2c and regmap_irq_get_*) in the same driver, must
-> > > > > > set some alarm bells ringing?
-> > > > > >
-> > > > > > This whole HWIRQ setting, VIRQ getting, resource hacking is a mess.
-> > > > > >
-> > > > > > And for what?  To avoid passing IRQ data to a child driver?
-> > > > >
-> > > > > What do you propose? Should I go back to the approach in v1 and pass
-> > > > > the regmap_irq_chip_data to child drivers?
-> > > >
-> > > > I'm saying you should remove all of this hackery and pass IRQs as they
-> > > > are supposed to be passed (like everyone else does).
-> > >
-> > > I'm not sure what you mean by "like everyone else does" - different
-> > > mfd drivers seem to be doing different things. Is a simple struct
-> > > containing virtual irq numbers passed to sub-drivers fine?
-> >
-> > How do you plan on deriving the VIRQs to place into the struct?
-> 
-> Exampe:
-> 
-> struct max77650_gpio_pdata {
->     int gpi_irq;
-> };
-> 
-> In MFD driver:
-> 
-> struct max77650_gpio_pdata *gpio_data = devm_kmalloc(dev, sizeof(*gpio_data));
-> 
-> gpio_data->gpi_irq = regmap_irq_get_virq(irqchip_data, GPI_NUM);
-> 
-> gpio_cell.platform_data = gpio_data;
-> 
-> In GPIO driver:
-> 
-> struct max77650_gpio_pdata *gpio_data = pdev->dev.platform_data;
-> 
-> int irq = gpio_data->gpi_irq;
+Well I can't really use a TI-specific property name on a maxim part, can I?
 
-Definitely not.  What you're trying to do is a hack.
+Bart
 
-If you're using Regmap to handle your IRQs, then you should use Regmap
-in the client to pull them out.  Setting them via Regmap, then pulling
-them out again in the *same driver*, only to store them in platform
-data to be passed to a child device is bonkers.
-
-*Either* use the MFD provided platform-data helpers *or* pass and
-handle them via the Regmap APIs, *not* both.
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+PS This version was superseded by v4.

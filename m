@@ -1,7 +1,7 @@
 From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: [PATCH v4 4/4] Input: goodix - Add GT5663 CTP support
-Date: Tue, 12 Feb 2019 16:54:39 +0530
-Message-ID: <20190212112439.2025-5-jagan@amarulasolutions.com>
+Subject: [PATCH v4 3/4] dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
+Date: Tue, 12 Feb 2019 16:54:38 +0530
+Message-ID: <20190212112439.2025-4-jagan@amarulasolutions.com>
 References: <20190212112439.2025-1-jagan@amarulasolutions.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -13,39 +13,27 @@ Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-ker
 List-Id: linux-input@vger.kernel.org
 
 GT5663 is capacitive touch controller with customized smart
-wakeup gestures.
+wakeup gestures, it support chipdata which is similar to
+existing GT1151 and require AVDD28 supply for some boards.
 
-Add support for it by adding compatible and supported chip data.
-
-The chip data on GT5663 is similar to GT1151, like
-- config data register has 0x8050 address
-- config data register max len is 240
-- config data checksum has 16-bit
+Document the compatible for the same.
 
 Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 ---
- drivers/input/touchscreen/goodix.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index e92b90be1ac2..9a676dec79c6 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -218,6 +218,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
- {
- 	switch (id) {
- 	case 1151:
-+	case 5663:
- 		return &gt1x_chip_data;
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+index c4622c983e08..59c89276e6bb 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+@@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
+ Required properties:
  
- 	case 911:
-@@ -976,6 +977,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
- #ifdef CONFIG_OF
- static const struct of_device_id goodix_of_match[] = {
- 	{ .compatible = "goodix,gt1151" },
-+	{ .compatible = "goodix,gt5663" },
- 	{ .compatible = "goodix,gt911" },
- 	{ .compatible = "goodix,gt9110" },
- 	{ .compatible = "goodix,gt912" },
+  - compatible		: Should be "goodix,gt1151"
++				 or "goodix,gt5663"
+ 				 or "goodix,gt911"
+ 				 or "goodix,gt9110"
+ 				 or "goodix,gt912"
 -- 
 2.18.0.321.gffc6fa0e3

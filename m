@@ -1,63 +1,91 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH v3 10/11] input: max77650: add onkey support
-Date: Tue, 12 Feb 2019 13:17:46 +0100
-Message-ID: <20190212121745.GE25613@amd>
-References: <20190201094736.32057-1-brgl@bgdev.pl>
- <20190201094736.32057-11-brgl@bgdev.pl>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v4 05/10] mfd: max77650: new core mfd driver
+Date: Tue, 12 Feb 2019 13:29:39 +0100
+Message-ID: <CAMpxmJWXOb1HW4QiEn8gMp3Nh05ahE0CMLXkac+hEKRjtGxTHQ@mail.gmail.com>
+References: <20190205091237.6448-1-brgl@bgdev.pl> <20190205091237.6448-6-brgl@bgdev.pl>
+ <20190212083642.GT20638@dell> <CAMRc=MderQf20_8aG4-otBkCv60FSNSSqV3NVALPkFL-MqmJbg@mail.gmail.com>
+ <20190212095457.GA20638@dell> <CAMRc=MdyT7nMJ7dUTf6M3PvRdynaCurb_TftMyA4eCwzpR9fVA@mail.gmail.com>
+ <20190212101835.GB20638@dell> <CAMRc=MfYeVbvY6O03xq4eLN9TVpAKWCAXPk0eP5LSBCU7VU9fA@mail.gmail.com>
+ <20190212111403.GC20638@dell>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="ZInfyf7laFu/Kiw7"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190201094736.32057-11-brgl@bgdev.pl>
+In-Reply-To: <20190212111403.GC20638@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+wt., 12 lut 2019 o 12:14 Lee Jones <lee.jones@linaro.org> napisa=C5=82(a):
+>
+> On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
+>
+> > wt., 12 lut 2019 o 11:18 Lee Jones <lee.jones@linaro.org> napisa=C5=82(=
+a):
+> > >
+> > > On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
+> > >
+> > > > wt., 12 lut 2019 o 10:55 Lee Jones <lee.jones@linaro.org> napisa=C5=
+=82(a):
+> > > > >
+> > > > >  * The declaration of a superfluous struct
+> > > > >  * 100 lines of additional/avoidable code
+> > > > >  * Hacky hoop jumping trying to fudge VIRQs into resources
+> > > > >  * Resources were designed for HWIRQs (unless a domain is present=
+)
+> > > > >  * Loads of additional/avoidable CPU cycles setting all this up
+> > > >
+> > > > While the above may be right, this one is negligible and you know i=
+t. :)
+> > >
+> > > You have nested for() loops.  You *are* wasting lots of cycles.
+> > >
+> > > > > Need I go on? :)
+> > > > >
+> > > > > Surely the fact that you are using both sides of an API
+> > > > > (devm_regmap_init_i2c and regmap_irq_get_*) in the same driver, m=
+ust
+> > > > > set some alarm bells ringing?
+> > > > >
+> > > > > This whole HWIRQ setting, VIRQ getting, resource hacking is a mes=
+s.
+> > > > >
+> > > > > And for what?  To avoid passing IRQ data to a child driver?
+> > > >
+> > > > What do you propose? Should I go back to the approach in v1 and pas=
+s
+> > > > the regmap_irq_chip_data to child drivers?
+> > >
+> > > I'm saying you should remove all of this hackery and pass IRQs as the=
+y
+> > > are supposed to be passed (like everyone else does).
+> >
+> > I'm not sure what you mean by "like everyone else does" - different
+> > mfd drivers seem to be doing different things. Is a simple struct
+> > containing virtual irq numbers passed to sub-drivers fine?
+>
+> How do you plan on deriving the VIRQs to place into the struct?
 
---ZInfyf7laFu/Kiw7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Exampe:
 
-Hi!
+struct max77650_gpio_pdata {
+    int gpi_irq;
+};
 
-> +	error =3D device_property_read_string(dev,
-> +					    "maxim,onkey-mode", &mode_prop);
-> +	if (error)
-> +		mode_prop =3D "push";
-> +
-> +	if (strcmp(mode_prop, "push") =3D=3D 0)
-> +		mode =3D MAX77650_ONKEY_MODE_PUSH;
-> +	else if (strcmp(mode_prop, "slide") =3D=3D 0)
-> +		mode =3D MAX77650_ONKEY_MODE_SLIDE;
-> +	else
-> +		return -EINVAL;
-=2E..
-> +	onkey->input->name =3D "max77650_onkey";
-> +	onkey->input->phys =3D "max77650_onkey/input0";
-> +	onkey->input->id.bustype =3D BUS_I2C;
-> +	input_set_capability(onkey->input, EV_KEY, onkey->code);
+In MFD driver:
 
-Is EV_KEY correct for mode=3D=3Dslide?
+struct max77650_gpio_pdata *gpio_data =3D devm_kmalloc(dev, sizeof(*gpio_da=
+ta));
 
+gpio_data->gpi_irq =3D regmap_irq_get_virq(irqchip_data, GPI_NUM);
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+gpio_cell.platform_data =3D gpio_data;
 
---ZInfyf7laFu/Kiw7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+In GPIO driver:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+struct max77650_gpio_pdata *gpio_data =3D pdev->dev.platform_data;
 
-iEYEARECAAYFAlxiuWkACgkQMOfwapXb+vL97gCfeIC+c5OV205NgupxrKvuj5CO
-0kQAoI+IbZw8GC/aKAaDgtbl6y75BUXl
-=skQG
------END PGP SIGNATURE-----
+int irq =3D gpio_data->gpi_irq;
 
---ZInfyf7laFu/Kiw7--
+Bart

@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v5 04/11] dt-bindings: input: add DT bindings for max77650
-Date: Wed, 13 Feb 2019 14:43:28 +0100
-Message-ID: <20190213134335.10838-5-brgl@bgdev.pl>
+Subject: [PATCH v5 01/11] dt-bindings: mfd: add DT bindings for max77650
+Date: Wed, 13 Feb 2019 14:43:25 +0100
+Message-ID: <20190213134335.10838-2-brgl@bgdev.pl>
 References: <20190213134335.10838-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,45 +14,67 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the onkey module of max77650.
+Add a DT binding document for max77650 ultra-low power PMIC. This
+describes the core mfd device and the GPIO module.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../bindings/input/max77650-onkey.txt         | 26 +++++++++++++++++++
- 1 file changed, 26 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
+ .../devicetree/bindings/mfd/max77650.txt      | 47 +++++++++++++++++++
+ 1 file changed, 47 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
 
-diff --git a/Documentation/devicetree/bindings/input/max77650-onkey.txt b/Documentation/devicetree/bindings/input/max77650-onkey.txt
+diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
 new file mode 100644
-index 000000000000..37c80898be4d
+index 000000000000..0a40e9c6aab8
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/max77650-onkey.txt
-@@ -0,0 +1,26 @@
-+Onkey driver for MAX77650 PMIC from Maxim Integrated.
-+
-+This module is part of the MAX77650 MFD device. For more details
-+see Documentation/devicetree/bindings/mfd/max77650.txt.
-+
-+The onkey controller is represented as a sub-node of the PMIC node on
-+the device tree.
++++ b/Documentation/devicetree/bindings/mfd/max77650.txt
+@@ -0,0 +1,47 @@
++MAX77650 ultra low-power PMIC from Maxim Integrated.
 +
 +Required properties:
-+--------------------
-+- compatible:		Must be "maxim,max77650-onkey".
++-------------------
++- compatible:		Must be "maxim,max77650"
++- reg:			I2C device address.
++- interrupts:		The interrupt on the parent the controller is
++			connected to.
++- interrupt-parent:	phandle of the parent interrupt controller.
++- interrupt-controller: Marks the device node as an interrupt controller.
++- #interrupt-cells:	Must be <2>.
++
++- gpio-controller : 	Marks the device node as a gpio controller.
++- #gpio-cells : 	Must be <2>. The first cell is the pin number and
++			the second cell is used to specify the gpio active
++			state.
 +
 +Optional properties:
-+- linux,code:		The key-code to be reported when the key is pressed.
-+			Defaults to KEY_POWER.
-+- maxim,onkey-mode:	Must be "push" or "slide" depending on the type of
-+			button used by the system. Defaults to "push".
++--------------------
++gpio-line-names:	Single string containing the name of the GPIO line.
++
++The GPIO-controller module is represented as part of the top-level PMIC
++node. The device exposes a single GPIO line.
++
++For device-tree bindings of other sub-modules (regulator, power supply,
++LEDs and onkey) refer to the binding documents under the respective
++sub-system directories.
++
++For more details on GPIO bindings, please refer to the generic GPIO DT
++binding document <devicetree/bindings/gpio/gpio.txt>.
 +
 +Example:
 +--------
 +
-+	onkey {
-+		compatible = "maxim,max77650-onkey";
-+		linux,code = <KEY_END>;
-+		maxim,onkey-mode = "slide";
++	pmic: max77650@48 {
++		compatible = "maxim,max77650";
++		reg = <0x48>;
++
++		interrupt-controller;
++		interrupt-parent = <&gpio2>;
++		#interrupt-cells = <2>;
++		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "max77650-charger";
 +	};
 -- 
 2.20.1

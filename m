@@ -1,43 +1,76 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v3 09/11] leds: max77650: add LEDs support
-Date: Wed, 13 Feb 2019 11:58:26 +0100
-Message-ID: <CAMRc=MfpCU0fRGrQb5CncaHu2Yfdv=NbuZc9Oujb7FUWdn93Pg@mail.gmail.com>
-References: <20190201094736.32057-1-brgl@bgdev.pl> <20190201094736.32057-10-brgl@bgdev.pl>
- <20190212121236.GD25613@amd>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v4 05/10] mfd: max77650: new core mfd driver
+Date: Wed, 13 Feb 2019 12:02:38 +0100
+Message-ID: <20190213110238.GA30507@amd>
+References: <CAMRc=MderQf20_8aG4-otBkCv60FSNSSqV3NVALPkFL-MqmJbg@mail.gmail.com>
+ <20190212095457.GA20638@dell>
+ <CAMRc=MdyT7nMJ7dUTf6M3PvRdynaCurb_TftMyA4eCwzpR9fVA@mail.gmail.com>
+ <20190212101835.GB20638@dell>
+ <CAMRc=MfYeVbvY6O03xq4eLN9TVpAKWCAXPk0eP5LSBCU7VU9fA@mail.gmail.com>
+ <20190212111403.GC20638@dell>
+ <CAMpxmJWXOb1HW4QiEn8gMp3Nh05ahE0CMLXkac+hEKRjtGxTHQ@mail.gmail.com>
+ <20190212132016.GA4781@dell>
+ <20190213092553.GE1863@dell>
+ <CAMRc=MeTMq_GWzQB6LBvts1csMftj=On5sB22jsJZzQzONxbNg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190212121236.GD25613@amd>
+Content-Disposition: inline
+In-Reply-To: <CAMRc=MeTMq_GWzQB6LBvts1csMftj=On5sB22jsJZzQzONxbNg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Lee Jones <lee.jones@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Mark Brown <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-wt., 12 lut 2019 o 13:12 Pavel Machek <pavel@ucw.cz> napisa=C5=82(a):
->
->
-> > diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> > index a72f97fca57b..6e7a8f51eccc 100644
-> > --- a/drivers/leds/Kconfig
-> > +++ b/drivers/leds/Kconfig
-> > @@ -608,6 +608,12 @@ config LEDS_TLC591XX
-> >         This option enables support for Texas Instruments TLC59108
-> >         and TLC59116 LED controllers.
+
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> > As you can see, it will return the IRQ Domain for the chip.
 > >
-> > +config LEDS_MAX77650
-> > +     tristate "LED support for Maxim MAX77650 PMIC"
-> > +     depends on MFD_MAX77650
-> > +     help
-> > +       LEDs driver for MAX77650 family of PMICs from Maxim Integrated.=
-"
-> > +
->
-> List the chips? Remove extra "?
->                                                                         P=
-avel
+> > You can then pass this IRQ domain to mfd_add_devices() and it will do
+> > the HWIRQ =3D> VIRQ mapping for you on the fly.  Meaning that you can
+> > remove all the nastiness in max77650_setup_irqs() and have the Input
+> > device use the standard (e.g. platform_get_irq()) APIs.
+> >
+> > How does that Sound?
+>=20
+> This does sound better! Why didn't you lead with that in the first
+>place?
 
-They are already listed in the core mfd Kconfig, but thanks for
-spotting that stray ".
+TBH, this can be considered rude and I'm not surprised Lee reacted the
+way he did.
 
-Bart
+> It's a pity it's not documented, I had to look at the code to find out
+> irq resources would get translated in mfd_add_devices() if a domain is
+> present.
+
+I guess documentation patch would be welcome.
+
+Best regards,
+									Pavel
+
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlxj+U4ACgkQMOfwapXb+vL/BQCdEGkaJPfLbI+tEuJVF0ANhxsc
+5acAn2oCVZb7slwa63nJgPYYkBk4vrzA
+=8OAJ
+-----END PGP SIGNATURE-----
+
+--WIyZ46R2i8wDzkSu--

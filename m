@@ -1,97 +1,127 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 12/13] input: max77650: add onkey support
-Date: Tue, 12 Feb 2019 23:30:17 -0800
-Message-ID: <CAKdAkRQZ+ug7tpkE4x_8iTbUm9JnyF5wWrUnPRASi98t25LTbA@mail.gmail.com>
-References: <20190118134244.22253-1-brgl@bgdev.pl> <20190118134244.22253-13-brgl@bgdev.pl>
- <20190119090318.GB187380@dtor-ws> <20190212203408.GA1863@dell>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 05/10] mfd: max77650: new core mfd driver
+Date: Wed, 13 Feb 2019 09:25:53 +0000
+Message-ID: <20190213092553.GE1863@dell>
+References: <20190205091237.6448-6-brgl@bgdev.pl>
+ <20190212083642.GT20638@dell>
+ <CAMRc=MderQf20_8aG4-otBkCv60FSNSSqV3NVALPkFL-MqmJbg@mail.gmail.com>
+ <20190212095457.GA20638@dell>
+ <CAMRc=MdyT7nMJ7dUTf6M3PvRdynaCurb_TftMyA4eCwzpR9fVA@mail.gmail.com>
+ <20190212101835.GB20638@dell>
+ <CAMRc=MfYeVbvY6O03xq4eLN9TVpAKWCAXPk0eP5LSBCU7VU9fA@mail.gmail.com>
+ <20190212111403.GC20638@dell>
+ <CAMpxmJWXOb1HW4QiEn8gMp3Nh05ahE0CMLXkac+hEKRjtGxTHQ@mail.gmail.com>
+ <20190212132016.GA4781@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190212203408.GA1863@dell>
+Content-Disposition: inline
+In-Reply-To: <20190212132016.GA4781@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, lkml <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, broonie@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Lee,
+On Tue, 12 Feb 2019, Lee Jones wrote:
 
-On Tue, Feb 12, 2019 at 12:34 PM Lee Jones <lee.jones@linaro.org> wrote:
->
-> > > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
+> 
+> > wt., 12 lut 2019 o 12:14 Lee Jones <lee.jones@linaro.org> napisał(a):
 > > >
-> > > Add support for the push- and slide-button events for max77650.
+> > > On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
 > > >
-> > > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > > ---
-> > >  drivers/input/misc/Kconfig          |   9 ++
-> > >  drivers/input/misc/Makefile         |   1 +
-> > >  drivers/input/misc/max77650-onkey.c | 135 ++++++++++++++++++++++++++++
-> > >  3 files changed, 145 insertions(+)
-> > >  create mode 100644 drivers/input/misc/max77650-onkey.c
->
-> [...]
->
-> Moving things around a bit:
->
-> > > +static int max77650_onkey_probe(struct platform_device *pdev)
-> > > +{
->
-> > > +   irq_f = regmap_irq_get_virq(irq_data, MAX77650_INT_nEN_F);
-> > > +   if (irq_f <= 0)
-> > > +           return -EINVAL;
-> > > +
-> > > +   irq_r = regmap_irq_get_virq(irq_data, MAX77650_INT_nEN_R);
-> > > +   if (irq_r <= 0)
-> > > +           return -EINVAL;
-> >
-> > Ugh, it would be better if you handled IRQ mapping in the MFD piece and
-> > passed it as resources of platform device. Then you'd simply call
-> > platform_get_irq() here and did not have to reach into parent device for
-> > "irq_dara".
->
-> These device IRQs were defined and registered with the Regmap *set*
-> (actually init()) APIs and thus should be pulled out using the
-> appropriate reverse Regmap *get* APIs here in the device.
->
-> Registering them with Regmap *and* pulling them back out again in the
-> same (MFD in this case) driver, only to register them as platform data
-> is certainly not how I see the API being designed/used.
->
-> > > +   struct regmap_irq_chip_data *irq_data;
-> > > +   struct device *dev, *parent;
->
-> > > +   dev = &pdev->dev;
-> > > +   parent = dev->parent;
-> > > +   i2c = to_i2c_client(parent);
-> > > +   irq_data = i2c_get_clientdata(i2c);
-> > > +
-> > > +   map = dev_get_regmap(parent, NULL);
-> > > +   if (!map)
-> > > +           return -ENODEV;
->
-> However, this hoop jumping is a bit crazy and for the most part
-> superfluous.  Instead, create a struct of attributes you wish to share
-> with the child devices (containing both regmap (which you should call
-> regmap and not map by the way) and irq_data) and pass it as either
-> platform data (preferred) or as device data.
->
-> If you choose the latter, you do not need to convert from 'device' to
-> 'i2c' to do the look-up.  Since this function (probe()) is provided
-> with a platform_device, you can just use platform_get_drvdata() to
-> achieve the same as above.
->
-> If you go the preferred (platform data) route, then you should use
-> dev_get_platdata() instead.
+> > > > wt., 12 lut 2019 o 11:18 Lee Jones <lee.jones@linaro.org> napisał(a):
+> > > > >
+> > > > > On Tue, 12 Feb 2019, Bartosz Golaszewski wrote:
+> > > > >
+> > > > > > wt., 12 lut 2019 o 10:55 Lee Jones <lee.jones@linaro.org> napisał(a):
+> > > > > > >
+> > > > > > >  * The declaration of a superfluous struct
+> > > > > > >  * 100 lines of additional/avoidable code
+> > > > > > >  * Hacky hoop jumping trying to fudge VIRQs into resources
+> > > > > > >  * Resources were designed for HWIRQs (unless a domain is present)
+> > > > > > >  * Loads of additional/avoidable CPU cycles setting all this up
+> > > > > >
+> > > > > > While the above may be right, this one is negligible and you know it. :)
+> > > > >
+> > > > > You have nested for() loops.  You *are* wasting lots of cycles.
+> > > > >
+> > > > > > > Need I go on? :)
+> > > > > > >
+> > > > > > > Surely the fact that you are using both sides of an API
+> > > > > > > (devm_regmap_init_i2c and regmap_irq_get_*) in the same driver, must
+> > > > > > > set some alarm bells ringing?
+> > > > > > >
+> > > > > > > This whole HWIRQ setting, VIRQ getting, resource hacking is a mess.
+> > > > > > >
+> > > > > > > And for what?  To avoid passing IRQ data to a child driver?
+> > > > > >
+> > > > > > What do you propose? Should I go back to the approach in v1 and pass
+> > > > > > the regmap_irq_chip_data to child drivers?
+> > > > >
+> > > > > I'm saying you should remove all of this hackery and pass IRQs as they
+> > > > > are supposed to be passed (like everyone else does).
+> > > >
+> > > > I'm not sure what you mean by "like everyone else does" - different
+> > > > mfd drivers seem to be doing different things. Is a simple struct
+> > > > containing virtual irq numbers passed to sub-drivers fine?
+> > >
+> > > How do you plan on deriving the VIRQs to place into the struct?
+> > 
+> > Exampe:
+> > 
+> > struct max77650_gpio_pdata {
+> >     int gpi_irq;
+> > };
+> > 
+> > In MFD driver:
+> > 
+> > struct max77650_gpio_pdata *gpio_data = devm_kmalloc(dev, sizeof(*gpio_data));
+> > 
+> > gpio_data->gpi_irq = regmap_irq_get_virq(irqchip_data, GPI_NUM);
+> > 
+> > gpio_cell.platform_data = gpio_data;
+> > 
+> > In GPIO driver:
+> > 
+> > struct max77650_gpio_pdata *gpio_data = pdev->dev.platform_data;
+> > 
+> > int irq = gpio_data->gpi_irq;
+> 
+> Definitely not.  What you're trying to do is a hack.
+> 
+> If you're using Regmap to handle your IRQs, then you should use Regmap
+> in the client to pull them out.  Setting them via Regmap, then pulling
+> them out again in the *same driver*, only to store them in platform
+> data to be passed to a child device is bonkers.
+> 
+> *Either* use the MFD provided platform-data helpers *or* pass and
+> handle them via the Regmap APIs, *not* both.
 
-By doing what you are suggesting (introducing platform data) you
-introducing strong dependency between MFD and input piece for no
-different reason. With the current implementation the parent can be
-reworked completely without involving onkey driver.
+Right, a plan has been formed.
 
-I find such clean separation desirable. We are trying to move away
-form platform data where it makes sense.
+Hopefully this works and you can avoid all this dancing around.
 
-Thanks.
+Firstly, you need to make a small change to:
+
+  drivers/base/regmap/regmap-irq.c
+
+Add the following function:
+
+  struct irq_domain *regmap_irq_get_domain(struct regmap *map)
+
+As you can see, it will return the IRQ Domain for the chip.
+
+You can then pass this IRQ domain to mfd_add_devices() and it will do
+the HWIRQ => VIRQ mapping for you on the fly.  Meaning that you can
+remove all the nastiness in max77650_setup_irqs() and have the Input
+device use the standard (e.g. platform_get_irq()) APIs.
+
+How does that Sound?
 
 -- 
-Dmitry
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

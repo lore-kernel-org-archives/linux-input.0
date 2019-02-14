@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v6 04/11] dt-bindings: input: add DT bindings for max77650
-Date: Thu, 14 Feb 2019 15:00:15 +0100
-Message-ID: <20190214140022.19201-5-brgl@bgdev.pl>
+Subject: [PATCH v6 05/11] mfd: core: document mfd_add_devices()
+Date: Thu, 14 Feb 2019 15:00:16 +0100
+Message-ID: <20190214140022.19201-6-brgl@bgdev.pl>
 References: <20190214140022.19201-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,45 +14,37 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the onkey module of max77650.
+Add a kernel doc for mfd_add_devices().
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- .../bindings/input/max77650-onkey.txt         | 26 +++++++++++++++++++
- 1 file changed, 26 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
+ drivers/mfd/mfd-core.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/max77650-onkey.txt b/Documentation/devicetree/bindings/input/max77650-onkey.txt
-new file mode 100644
-index 000000000000..477dc74f452a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/max77650-onkey.txt
-@@ -0,0 +1,26 @@
-+Onkey driver for MAX77650 PMIC from Maxim Integrated.
-+
-+This module is part of the MAX77650 MFD device. For more details
-+see Documentation/devicetree/bindings/mfd/max77650.txt.
-+
-+The onkey controller is represented as a sub-node of the PMIC node on
-+the device tree.
-+
-+Required properties:
-+--------------------
-+- compatible:		Must be "maxim,max77650-onkey".
-+
-+Optional properties:
-+- linux,code:		The key-code to be reported when the key is pressed.
-+			Defaults to KEY_POWER.
-+- maxim,onkey-slide:	The system's button is a slide switch, not the default
-+			push button.
-+
-+Example:
-+--------
-+
-+	onkey {
-+		compatible = "maxim,max77650-onkey";
-+		linux,code = <KEY_END>;
-+		maxim,onkey-slide;
-+	};
+diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+index 94e3f32ce935..0898a8db1747 100644
+--- a/drivers/mfd/mfd-core.c
++++ b/drivers/mfd/mfd-core.c
+@@ -269,6 +269,20 @@ static int mfd_add_device(struct device *parent, int id,
+ 	return ret;
+ }
+ 
++/**
++ * mfd_add_devices - register a set of child devices
++ *
++ * @parent: Parent device for all sub-nodes.
++ * @id: Platform device id. If >= 0, each sub-device will have its cell_id
++ *      added to this number and use it as the platform device id.
++ * @cells: Array of mfd cells describing sub-devices.
++ * @n_devs: Number of sub-devices to register.
++ * @mem_base: Parent register range resource for sub-devices.
++ * @irq_base: Base of the range of virtual interrupt numbers allocated for
++ *            this MFD device. Unused if @domain is specified.
++ * @domain: Interrupt domain used to create mappings for HW interrupt numbers
++ *          specificed in sub-devices' IRQ resources.
++ */
+ int mfd_add_devices(struct device *parent, int id,
+ 		    const struct mfd_cell *cells, int n_devs,
+ 		    struct resource *mem_base,
 -- 
 2.20.1

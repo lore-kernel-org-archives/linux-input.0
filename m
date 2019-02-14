@@ -1,71 +1,61 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: Re: [PATCH] HID: wacom: Mark expected switch fall-through
-Date: Wed, 13 Feb 2019 17:19:07 -0600
-Message-ID: <5a9703b9-2fb3-a01a-9f69-f2f53d701762@embeddedor.com>
-References: <20190211220422.GA22137@embeddedor>
- <nycvar.YFH.7.76.1902140006510.11598@cbobk.fhfr.pm>
+From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Subject: Re: [PATCH] input: keyboard: gpio-keys-polled: use input name from
+ pdata if available
+Date: Thu, 14 Feb 2019 09:01:14 +0100
+Message-ID: <089b2db5-50bc-e180-e39e-1e791bf6e044@metux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1902140006510.11598@cbobk.fhfr.pm>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <ping.cheng@wacom.com>
+To: Dmitry Torokhov <dtor@chromium.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+Dmitry Torokhov wrote:
 
 
-On 2/13/19 5:07 PM, Jiri Kosina wrote:
-> On Mon, 11 Feb 2019, Gustavo A. R. Silva wrote:
-> 
->> In preparation to enabling -Wimplicit-fallthrough, mark switch
->> cases where we are expecting to fall through.
->>
->> This patch fixes the following warning:
->>
->> drivers/hid/wacom_wac.c: In function ‘wacom_setup_pen_input_capabilities’:
->> drivers/hid/wacom_wac.c:3506:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
->>    __clear_bit(ABS_MISC, input_dev->absbit);
->>    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/hid/wacom_wac.c:3508:2: note: here
->>   case WACOM_MO:
->>   ^~~~
->>
->> Warning level 3 was used: -Wimplicit-fallthrough=3
->>
->> This patch is part of the ongoing efforts to enable
->> -Wimplicit-fallthrough.
->>
->> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-> 
-> Let's CC Jason and Ping to make sure it's really intended :)
-> 
+sorry for the late reply - lost your mail by broken filter :(
+(just picked it out now of the archive ...)
 
-Sounds great.
+> > Instead of hardcoding the input name to the driver name
+('gpio-keys-polled'),
+> > allow the passing a name via platform data ('name' field was already
+present),
+> > but default to old behaviour in case of NULL.
 
-Thanks, Jiri.
---
-Gustavo
+> I thought the world is moving away from platform data and towards
+> OF/ACPI systems. What device are you targeting with this change?
 
->> ---
->>  drivers/hid/wacom_wac.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
->> index 72477e872324..5ecda99bf431 100644
->> --- a/drivers/hid/wacom_wac.c
->> +++ b/drivers/hid/wacom_wac.c
->> @@ -3504,6 +3504,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
->>  	switch (features->type) {
->>  	case GRAPHIRE_BT:
->>  		__clear_bit(ABS_MISC, input_dev->absbit);
->> +		/* fall through */
->>  
->>  	case WACOM_MO:
->>  	case WACOM_G4:
->> -- 
->> 2.20.1
->>
-> 
+Well, it that only would be available everywhere :o
+
+I've written an platform driver for the APUv2 board, which has an
+gpio-attached button and LEDs on the front. It's an x86 machine,
+(= no OF), and no usable ACPI information (no, I won't patch up
+the bios for that, unless somebody inserts enough coins ;-))
+
+Therefore, I need to pass everything via platform data.
+
+By the way: I've also added support for gpio lookup table.
+(sending it w/ the next patch queue)
+
+> I would want to convert gpio-keys[-polled] to generic device
+> properties and away form platform data...
+
+I'd like to see that too, but it's not that easy. Not all platforms
+support proper generic configuration mechanisms.
+
+Maybe it would be easier, if we had oftree everywhere, and drivers
+for composite devices could directly inject (locally scoped) oftree
+nodes.For example, a PCI-based GPU board which has lots of sub-devices
+like regulators, sensors, fans, etc. The driver then would be probed via
+PCI, declare it's own bus and probe the individual devices by it's
+own of subtree. Well, that's gonna take a lot more discussions ...
+
+
+--mtx
+
+-- 
+Enrico Weigelt, metux IT consult
+Free software and Linux embedded engineering
+info@metux.net -- +49-151-27565287

@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v6 05/11] mfd: core: document mfd_add_devices()
-Date: Thu, 14 Feb 2019 15:00:16 +0100
-Message-ID: <20190214140022.19201-6-brgl@bgdev.pl>
+Subject: [PATCH v6 01/11] dt-bindings: mfd: add DT bindings for max77650
+Date: Thu, 14 Feb 2019 15:00:12 +0100
+Message-ID: <20190214140022.19201-2-brgl@bgdev.pl>
 References: <20190214140022.19201-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,37 +14,66 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add a kernel doc for mfd_add_devices().
+Add a DT binding document for max77650 ultra-low power PMIC. This
+describes the core mfd device and the GPIO module.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/mfd/mfd-core.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ .../devicetree/bindings/mfd/max77650.txt      | 46 +++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
 
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index 94e3f32ce935..0898a8db1747 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -269,6 +269,20 @@ static int mfd_add_device(struct device *parent, int id,
- 	return ret;
- }
- 
-+/**
-+ * mfd_add_devices - register a set of child devices
-+ *
-+ * @parent: Parent device for all sub-nodes.
-+ * @id: Platform device id. If >= 0, each sub-device will have its cell_id
-+ *      added to this number and use it as the platform device id.
-+ * @cells: Array of mfd cells describing sub-devices.
-+ * @n_devs: Number of sub-devices to register.
-+ * @mem_base: Parent register range resource for sub-devices.
-+ * @irq_base: Base of the range of virtual interrupt numbers allocated for
-+ *            this MFD device. Unused if @domain is specified.
-+ * @domain: Interrupt domain used to create mappings for HW interrupt numbers
-+ *          specificed in sub-devices' IRQ resources.
-+ */
- int mfd_add_devices(struct device *parent, int id,
- 		    const struct mfd_cell *cells, int n_devs,
- 		    struct resource *mem_base,
+diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
+new file mode 100644
+index 000000000000..b529d8d19335
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/max77650.txt
+@@ -0,0 +1,46 @@
++MAX77650 ultra low-power PMIC from Maxim Integrated.
++
++Required properties:
++-------------------
++- compatible:		Must be "maxim,max77650"
++- reg:			I2C device address.
++- interrupts:		The interrupt on the parent the controller is
++			connected to.
++- interrupt-controller: Marks the device node as an interrupt controller.
++- #interrupt-cells:	Must be <2>.
++
++- gpio-controller:	Marks the device node as a gpio controller.
++- #gpio-cells:		Must be <2>. The first cell is the pin number and
++			the second cell is used to specify the gpio active
++			state.
++
++Optional properties:
++--------------------
++gpio-line-names:	Single string containing the name of the GPIO line.
++
++The GPIO-controller module is represented as part of the top-level PMIC
++node. The device exposes a single GPIO line.
++
++For device-tree bindings of other sub-modules (regulator, power supply,
++LEDs and onkey) refer to the binding documents under the respective
++sub-system directories.
++
++For more details on GPIO bindings, please refer to the generic GPIO DT
++binding document <devicetree/bindings/gpio/gpio.txt>.
++
++Example:
++--------
++
++	pmic@48 {
++		compatible = "maxim,max77650";
++		reg = <0x48>;
++
++		interrupt-controller;
++		interrupt-parent = <&gpio2>;
++		#interrupt-cells = <2>;
++		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
++
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "max77650-charger";
++	};
 -- 
 2.20.1

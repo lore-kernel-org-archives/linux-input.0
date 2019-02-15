@@ -1,93 +1,64 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: Re: [PATCH] HID: wacom: Mark expected switch fall-through
-Date: Thu, 14 Feb 2019 17:06:29 -0600
-Message-ID: <4c5597dd-ba95-10ff-c28a-e969f87aa773@embeddedor.com>
-References: <20190211220422.GA22137@embeddedor>
- <nycvar.YFH.7.76.1902140006510.11598@cbobk.fhfr.pm>
- <CAF8JNh+EzcCoOvyTm59p99Cg_3S4adGcnpKs4QkpZStsU=XURA@mail.gmail.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 15/77] HID: i2c-hid: Disable runtime PM on Goodix touchpad
+Date: Thu, 14 Feb 2019 21:07:53 -0500
+Message-ID: <20190215020855.176727-15-sashal@kernel.org>
+References: <20190215020855.176727-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAF8JNh+EzcCoOvyTm59p99Cg_3S4adGcnpKs4QkpZStsU=XURA@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20190215020855.176727-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <ping.cheng@wacom.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
+[ Upstream commit 77ae0d8e401f083ca69c202502da4fc0e38cb1b7 ]
 
-On 2/14/19 4:33 PM, Ping Cheng wrote:
-> On Thu, Feb 14, 2019 at 6:01 AM Jiri Kosina <jikos@kernel.org> wrote:
-> 
->> On Mon, 11 Feb 2019, Gustavo A. R. Silva wrote:
->>
->>> In preparation to enabling -Wimplicit-fallthrough, mark switch
->>> cases where we are expecting to fall through.
->>>
->>> This patch fixes the following warning:
->>>
->>> drivers/hid/wacom_wac.c: In function
->> ‘wacom_setup_pen_input_capabilities’:
->>> drivers/hid/wacom_wac.c:3506:3: warning: this statement may fall through
->> [-Wimplicit-fallthrough=]
->>>    __clear_bit(ABS_MISC, input_dev->absbit);
->>>    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->>> drivers/hid/wacom_wac.c:3508:2: note: here
->>>   case WACOM_MO:
->>>   ^~~~
->>>
->>> Warning level 3 was used: -Wimplicit-fallthrough=3
->>>
->>> This patch is part of the ongoing efforts to enable
->>> -Wimplicit-fallthrough.
->>>
->>> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
->>
->> Let's CC Jason and Ping to make sure it's really intended :)
->>
-> 
-> Yes, it was intended. You can have my Acked-by: Ping Cheng <
-> ping.cheng@wacom.com>
-> 
+A Goodix touchpad doesn't work. Touching the touchpad can trigger IRQ
+but there's no input event from HID subsystem.
 
-Great.
+Turns out it reports some invalid data:
+[   22.136630] i2c_hid i2c-DELL091F:00: input: 0b 00 01 00 00 00 00 00 00 00 00
 
-Thanks, Ping.
+After some trial and error, it's another device that doesn't work well
+with ON/SLEEP commands. Disable runtime PM to fix the issue.
 
---
-Gustavo
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-ids.h              | 3 +++
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
-> Cheers,
-> Ping
-> 
-> 
->>
->>> ---
->>>  drivers/hid/wacom_wac.c | 1 +
->>>  1 file changed, 1 insertion(+)
->>>
->>> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
->>> index 72477e872324..5ecda99bf431 100644
->>> --- a/drivers/hid/wacom_wac.c
->>> +++ b/drivers/hid/wacom_wac.c
->>> @@ -3504,6 +3504,7 @@ int wacom_setup_pen_input_capabilities(struct
->> input_dev *input_dev,
->>>       switch (features->type) {
->>>       case GRAPHIRE_BT:
->>>               __clear_bit(ABS_MISC, input_dev->absbit);
->>> +             /* fall through */
->>>
->>>       case WACOM_MO:
->>>       case WACOM_G4:
->>> --
->>> 2.20.1
->>>
->>
->> --
->> Jiri Kosina
->> SUSE Labs
->>
->>
-> 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 27519eb8ee63..81bc2f6b93a3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -459,6 +459,9 @@
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_010A 0x010a
+ #define USB_DEVICE_ID_GENERAL_TOUCH_WIN8_PIT_E100 0xe100
+ 
++#define I2C_VENDOR_ID_GOODIX		0x27c6
++#define I2C_DEVICE_ID_GOODIX_01F0	0x01f0
++
+ #define USB_VENDOR_ID_GOODTOUCH		0x1aad
+ #define USB_DEVICE_ID_GOODTOUCH_000f	0x000f
+ 
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 8555ce7e737b..c5edfa966343 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -179,6 +179,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_DELAY_AFTER_SLEEP },
+ 	{ USB_VENDOR_ID_LG, I2C_DEVICE_ID_LG_8001,
+ 		I2C_HID_QUIRK_NO_RUNTIME_PM },
++	{ I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_01F0,
++		I2C_HID_QUIRK_NO_RUNTIME_PM },
+ 	{ 0, 0 }
+ };
+ 
+-- 
+2.19.1

@@ -1,51 +1,99 @@
 From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: [PATCH v5 4/4] Input: goodix - Add GT5663 CTP support
-Date: Sun, 17 Feb 2019 14:44:36 +0530
-Message-ID: <20190217091436.3702-5-jagan@amarulasolutions.com>
-References: <20190217091436.3702-1-jagan@amarulasolutions.com>
+Subject: Re: [PATCH v3 1/4] dt-bindings: input: touchscreen: goodix: Document
+ AVDD28-supply property
+Date: Sun, 17 Feb 2019 14:45:52 +0530
+Message-ID: <CAMty3ZDBu2Y9psNu9nrZ=BNVvhpJ2qYn-Qp7MDqdhK9_SrcpNg@mail.gmail.com>
+References: <20181215151802.18592-1-jagan@amarulasolutions.com>
+ <20181215151802.18592-2-jagan@amarulasolutions.com> <20190107225810.ggmkkbrnkoy2ykx5@penguin>
+ <CAL_JsqKTnPVM7Qahy9ejQbPfENpLCdzf5K5uUTcPh8j3EiqWRA@mail.gmail.com>
+ <CAMty3ZCyq=tZMt6RC1aYJuEWgYp2zv1LBh+ZUwucE+g4RCoUaQ@mail.gmail.com>
+ <CAL_JsqKCw3EV+0_DuMiHh7GRGxv7YogQf-xwp71n9gpc2GzSSQ@mail.gmail.com>
+ <CAMty3ZBtoocXBW5A0astyQPh2y7vG7NtbZ_M0BjSeex2etmGsw@mail.gmail.com>
+ <CAL_JsqJSMX7E2zQA2O8ofZQPDrm3S6PMCLG1iAQ95P10Pe2yFg@mail.gmail.com> <CAMty3ZDMB=pwY8Rxdt3du=90pksBedLo0Pc_-=diqx9-Xndzqg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190217091436.3702-1-jagan@amarulasolutions.com>
+In-Reply-To: <CAMty3ZDMB=pwY8Rxdt3du=90pksBedLo0Pc_-=diqx9-Xndzqg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>, Jagan Teki <jagan@amarulasolutions.com>
+To: Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree <devicetree@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
 List-Id: linux-input@vger.kernel.org
 
-GT5663 is capacitive touch controller with customized smart
-wakeup gestures.
+On Sun, Feb 17, 2019 at 1:21 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
+>
+> Hi Dmitry and Rob,
+>
+> On Thu, Feb 14, 2019 at 3:21 AM Rob Herring <robh@kernel.org> wrote:
+> >
+> > On Tue, Jan 22, 2019 at 7:39 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
+> > >
+> > > On Mon, Jan 21, 2019 at 9:46 PM Rob Herring <robh@kernel.org> wrote:
+> > > >
+> > > > On Fri, Jan 18, 2019 at 10:01 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
+> > > > >
+> > > > > On Wed, Jan 9, 2019 at 7:08 PM Rob Herring <robh@kernel.org> wrote:
+> > > > > >
+> > > > > > Please CC DT list if you want bindings reviewed.
+> > > > >
+> > > > > Sorry I forgot.
+> > > > >
+> > > > > >
+> > > > > > On Wed, Jan 9, 2019 at 1:40 AM Dmitry Torokhov
+> > > > > > <dmitry.torokhov@gmail.com> wrote:
+> > > > > > >
+> > > > > > > On Sat, Dec 15, 2018 at 08:47:59PM +0530, Jagan Teki wrote:
+> > > > > > > > Most of the Goodix CTP controllers are supply with AVDD28 pin.
+> > > > > > > > which need to supply for controllers like GT5663 on some boards
+> > > > > > > > to trigger the power.
+> > > > > > > >
+> > > > > > > > So, document the supply property so-that the require boards
+> > > > > > > > that used on GT5663 can enable it via device tree.
+> > > > > > > >
+> > > > > > > > Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+> > > > > > > > ---
+> > > > > > > >  Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+> > > > > > > >  1 file changed, 1 insertion(+)
+> > > > > > > >
+> > > > > > > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > > index f7e95c52f3c7..c4622c983e08 100644
+> > > > > > > > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > > @@ -23,6 +23,7 @@ Optional properties:
+> > > > > > > >   - touchscreen-inverted-y  : Y axis is inverted (boolean)
+> > > > > > > >   - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
+> > > > > > > >                               (swapping is done after inverting the axis)
+> > > > > > > > + - AVDD28-supply     : Analog power supply regulator on AVDD28 pin
+> > > > > > >
+> > > > > > > I think we normally use lower case in DT bindings and rarely encode
+> > > > > > > voltage in the supply name unless we are dealing with several supplies
+> > > > > > > of the same kind, but I'll let Ron comment on this.
+> > > > > >
+> > > > > > Yes on lowercase though there are some exceptions.
+> > > > > >
+> > > > > > There's also a AVDD22 supply as well as DVDD12 and VDDIO. So we
+> > > > > > probably need to keep the voltage, but the binding is incomplete.
+> > > > >
+> > > > > What is incomplete here? can you please elaborate.
+> > > >
+> > > > You are missing the 3 other supplies the chip has: AVDD22, DVDD12 and VDDIO.
+> > >
+> > > Though it has other supplies, only AVDD28 is connected in the Host
+> > > interface design similar like 9. Reference Schematic on Page, 23 in
+> > > attached manual.
+> >
+> > That is for a particular board design. It still has other supplies.
+> > Just make the binding complete please. You can make them optional. I
+> > don't care if the driver supports controlling all the supplies or not
+> > (though Dmitry might).
+>
+> So, Can I make bulk get and enable in all 4 regulators global to
+> driver or specific to that chip, in either way the regulators which
+> are not used to process via dummy regulators (which we all know).
+>
+> or regulator which are not using are get via devm_regulator_get_optional.
+>
+> Any suggestions?
 
-Add support for it by adding compatible and supported chip data.
+Just realized to go with bulk calls, please have a look at on v5 [1]
 
-The chip data on GT5663 is similar to GT1151, like
-- config data register has 0x8050 address
-- config data register max len is 240
-- config data checksum has 16-bit
-
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
----
- drivers/input/touchscreen/goodix.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 294456a53fe0..80f8b920ef5e 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -227,6 +227,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
- {
- 	switch (id) {
- 	case 1151:
-+	case 5663:
- 		return &gt1x_chip_data;
- 
- 	case 911:
-@@ -988,6 +989,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
- #ifdef CONFIG_OF
- static const struct of_device_id goodix_of_match[] = {
- 	{ .compatible = "goodix,gt1151" },
-+	{ .compatible = "goodix,gt5663" },
- 	{ .compatible = "goodix,gt911" },
- 	{ .compatible = "goodix,gt9110" },
- 	{ .compatible = "goodix,gt912" },
--- 
-2.18.0.321.gffc6fa0e3
+[1] https://patchwork.kernel.org/cover/10816901/

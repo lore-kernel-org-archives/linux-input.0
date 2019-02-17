@@ -1,61 +1,38 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v1] Input: st-keyscan - fix potential zalloc NULL
- dereference
-Date: Sat, 16 Feb 2019 21:26:34 -0800
-Message-ID: <20190217052634.GA107793@dtor-ws>
-References: <20190212153055.3925-1-gabriel.fernandez@st.com>
+Subject: Re: [PATCH] Input: synaptics_i2c - remove redundant spinlock
+Date: Sat, 16 Feb 2019 21:29:59 -0800
+Message-ID: <20190217052959.GB107793@dtor-ws>
+References: <20190212013442.26030-1-TheSven73@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190212153055.3925-1-gabriel.fernandez@st.com>
+In-Reply-To: <20190212013442.26030-1-TheSven73@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gabriel.fernandez@st.com
-Cc: linux-clk@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, giuseppe.condorelli@st.com, Nate Drude <nate.drude@ohmlinxelectronics.com>, Dan Carpenter <dan.carpenter@oracle.com>
+To: thesven73@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tejun Heo <tj@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Feb 12, 2019 at 04:30:55PM +0100, gabriel.fernandez@st.com wrote:
-> From: Gabriel Fernandez <gabriel.fernandez@st.com>
-> 
-> This patch fixes the following static checker warning:
-> 
-> drivers/input/keyboard/st-keyscan.c:156 keyscan_probe()
-> error: potential zalloc NULL dereference: 'keypad_data->input_dev'
-> 
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
+Hi Sven,
 
-Applied, thank you.
-
-> ---
->  drivers/input/keyboard/st-keyscan.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
-> index babcfb165e4f..3b85631fde91 100644
-> --- a/drivers/input/keyboard/st-keyscan.c
-> +++ b/drivers/input/keyboard/st-keyscan.c
-> @@ -153,6 +153,8 @@ static int keyscan_probe(struct platform_device *pdev)
->  
->  	input_dev->id.bustype = BUS_HOST;
->  
-> +	keypad_data->input_dev = input_dev;
-> +
->  	error = keypad_matrix_key_parse_dt(keypad_data);
->  	if (error)
->  		return error;
-> @@ -168,8 +170,6 @@ static int keyscan_probe(struct platform_device *pdev)
->  
->  	input_set_drvdata(input_dev, keypad_data);
->  
-> -	keypad_data->input_dev = input_dev;
+On Mon, Feb 11, 2019 at 08:34:42PM -0500, thesven73@gmail.com wrote:
+> @@ -372,13 +371,7 @@ static bool synaptics_i2c_get_input(struct synaptics_i2c *touch)
+>  static void synaptics_i2c_reschedule_work(struct synaptics_i2c *touch,
+>  					  unsigned long delay)
+>  {
+> -	unsigned long flags;
 > -
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	keypad_data->base = devm_ioremap_resource(&pdev->dev, res);
->  	if (IS_ERR(keypad_data->base))
-> -- 
-> 2.17.0
-> 
+> -	spin_lock_irqsave(&touch->lock, flags);
+> -
+>  	mod_delayed_work(system_wq, &touch->dwork, delay);
+> -
+> -	spin_unlock_irqrestore(&touch->lock, flags);
+>  }
+
+This makes synaptics_i2c_reschedule_work() a useless wrapper for
+mod_delayed_work(). Can we get rid of it?
+
+Thanks.
 
 -- 
 Dmitry

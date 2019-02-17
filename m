@@ -1,7 +1,7 @@
 From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: [PATCH v5 3/4] dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
-Date: Sun, 17 Feb 2019 14:44:35 +0530
-Message-ID: <20190217091436.3702-4-jagan@amarulasolutions.com>
+Subject: [PATCH v5 4/4] Input: goodix - Add GT5663 CTP support
+Date: Sun, 17 Feb 2019 14:44:36 +0530
+Message-ID: <20190217091436.3702-5-jagan@amarulasolutions.com>
 References: <20190217091436.3702-1-jagan@amarulasolutions.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -13,27 +13,39 @@ Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-ker
 List-Id: linux-input@vger.kernel.org
 
 GT5663 is capacitive touch controller with customized smart
-wakeup gestures, it support chipdata which is similar to
-existing GT1151 and require AVDD28 supply for some boards.
+wakeup gestures.
 
-Document the compatible for the same.
+Add support for it by adding compatible and supported chip data.
+
+The chip data on GT5663 is similar to GT1151, like
+- config data register has 0x8050 address
+- config data register max len is 240
+- config data checksum has 16-bit
 
 Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 ---
- Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/touchscreen/goodix.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index 8f6e6eede64d..29c149d91a05 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
- Required properties:
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 294456a53fe0..80f8b920ef5e 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -227,6 +227,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
+ {
+ 	switch (id) {
+ 	case 1151:
++	case 5663:
+ 		return &gt1x_chip_data;
  
-  - compatible		: Should be "goodix,gt1151"
-+				 or "goodix,gt5663"
- 				 or "goodix,gt911"
- 				 or "goodix,gt9110"
- 				 or "goodix,gt912"
+ 	case 911:
+@@ -988,6 +989,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
+ #ifdef CONFIG_OF
+ static const struct of_device_id goodix_of_match[] = {
+ 	{ .compatible = "goodix,gt1151" },
++	{ .compatible = "goodix,gt5663" },
+ 	{ .compatible = "goodix,gt911" },
+ 	{ .compatible = "goodix,gt9110" },
+ 	{ .compatible = "goodix,gt912" },
 -- 
 2.18.0.321.gffc6fa0e3

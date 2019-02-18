@@ -1,50 +1,103 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH (resend)] Input: uinput - Set name/phys to NULL before
- kfree().
-Date: Sun, 17 Feb 2019 13:07:13 -0800
-Message-ID: <20190217210713.GA145509@dtor-ws>
-References: <0000000000009ce64e0574fe896e@google.com>
- <47d5fdbe-120e-cf42-106f-b0cc0f2feb49@I-love.SAKURA.ne.jp>
- <b937b59c-22b8-9113-229f-056738819467@I-love.SAKURA.ne.jp>
+Subject: Re: [PATCH v4 2/4] Input: goodix - Add AVDD28-supply regulator
+ support
+Date: Sun, 17 Feb 2019 23:08:38 -0800
+Message-ID: <20190218070838.GD242714@dtor-ws>
+References: <20190212112439.2025-1-jagan@amarulasolutions.com>
+ <20190212112439.2025-3-jagan@amarulasolutions.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <b937b59c-22b8-9113-229f-056738819467@I-love.SAKURA.ne.jp>
+In-Reply-To: <20190212112439.2025-3-jagan@amarulasolutions.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: rydberg@bitmath.org, syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Jagan Teki <jagan@amarulasolutions.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Tetsuo,
+Hi Jagan,
 
-On Fri, Feb 08, 2019 at 07:25:52PM +0900, Tetsuo Handa wrote:
-> syzbot is hitting use-after-free bug in uinput module [1]. This is because
-> uinput_destroy_device() sometimes kfree()s dev->name and dev->phys at
-> uinput_destroy_device() before dev_uevent() is triggered by dropping the
-> refcount to 0. Since the timing of triggering last input_put_device() is
-> uncontrollable, this patch prepares for such race by setting dev->name and
-> dev->phys to NULL before doing operations which might drop the refcount
-> to 0.
+On Tue, Feb 12, 2019 at 04:54:37PM +0530, Jagan Teki wrote:
+> Goodix CTP controllers have AVDD28 pin connected to voltage
+> regulator which may not be turned on by default, like for GT5663.
 > 
-> [1] https://syzkaller.appspot.com/bug?id=8b17c134fe938bbddd75a45afaa9e68af43a362d
+> Add support for such ctp used boards by adding voltage regulator
+> handling code to goodix ctp driver.
+> 
+> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+> ---
+>  drivers/input/touchscreen/goodix.c | 44 ++++++++++++++++++++++++++----
+>  1 file changed, 39 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index f2d9c2c41885..e92b90be1ac2 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/irq.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/regulator/consumer.h>
+>  #include <linux/slab.h>
+>  #include <linux/acpi.h>
+>  #include <linux/of.h>
+> @@ -47,6 +48,7 @@ struct goodix_ts_data {
+>  	struct touchscreen_properties prop;
+>  	unsigned int max_touch_num;
+>  	unsigned int int_trigger_type;
+> +	struct regulator *avdd28;
+>  	struct gpio_desc *gpiod_int;
+>  	struct gpio_desc *gpiod_rst;
+>  	u16 id;
+> @@ -761,6 +763,13 @@ static void goodix_config_cb(const struct firmware *cfg, void *ctx)
+>  	complete_all(&ts->firmware_loading_complete);
+>  }
+>  
+> +static void goodix_disable_regulator(void *arg)
+> +{
+> +	struct goodix_ts_data *ts = arg;
+> +
+> +	regulator_disable(ts->avdd28);
+> +}
+> +
+>  static int goodix_ts_probe(struct i2c_client *client,
+>  			   const struct i2c_device_id *id)
+>  {
+> @@ -786,25 +795,46 @@ static int goodix_ts_probe(struct i2c_client *client,
+>  	if (error)
+>  		return error;
+>  
+> +	ts->avdd28 = devm_regulator_get(&client->dev, "AVDD28");
+> +	if (IS_ERR(ts->avdd28)) {
+> +		error = PTR_ERR(ts->avdd28);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_err(&client->dev,
+> +				"Failed to get AVDD28 regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	/* power the controller */
+> +	error = regulator_enable(ts->avdd28);
+> +	if (error) {
+> +		dev_err(&client->dev, "Controller fail to enable AVDD28\n");
+> +		return error;
+> +	}
+> +
+> +	error = devm_add_action_or_reset(&client->dev,
+> +					 goodix_disable_regulator, ts);
+> +	if (error)
+> +		return error;
+> +
+>  	if (ts->gpiod_int && ts->gpiod_rst) {
+>  		/* reset the controller */
+>  		error = goodix_reset(ts);
+>  		if (error) {
+>  			dev_err(&client->dev, "Controller reset failed.\n");
+> -			return error;
+> +			goto error;
 
-Sorry it took me so long to sort out the issue and unfortunately I
-disagree with your analysis. The issue here is not that we do not know
-when last reference is being dropped (because we expect that KOBJ_REMOVE
-uevent will be sent out when we call input_unregister_device, which is
-quite deterministic) but the kobject cleanup logic added in commit
-0f4dafc0563c6c49e17fe14b3f5f356e4c4b8806 ("Kobject: auto-cleanup on
-final unref") coupled with the fault injected by the syzcaller.
-The commit tries to send final uevent for objects for which "add" uevent
-has been sent, but not "remove" event. However in uinput (and general
-input case) we always take care of sending uevent at unregister, and do
-not expect to have uevent sent out at the final "put" time.
-
-I believe the real fix is to have kobj->state_remove_uevent_sent be set
-to true as soon as we enter kobject_uevent(kobj, KOBJ_REMOVE) so that
-it is being set even if memory allocation fails. Doing anything else may
-violate expectations of subsystem owning the kobject.
+Why are you changing this? You added goodix_disable_regulator() as
+custom devm action, so it will fire if probe() returns with error.
 
 Thanks.
 

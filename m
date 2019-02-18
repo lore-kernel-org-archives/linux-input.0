@@ -1,102 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - Rework DT node name comparisons
-Date: Sun, 17 Feb 2019 23:23:25 -0800
-Message-ID: <20190218072325.GF242714@dtor-ws>
-References: <20190213161631.17028-1-robh@kernel.org>
+Subject: Re: [PATCH 2/7] [media] doc-rst: switch to new names for Full
+ Screen/Aspect keys
+Date: Sun, 17 Feb 2019 23:26:06 -0800
+Message-ID: <20190218072606.GG242714@dtor-ws>
+References: <20190118233037.87318-1-dmitry.torokhov@gmail.com>
+ <20190118233037.87318-2-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190213161631.17028-1-robh@kernel.org>
+In-Reply-To: <20190118233037.87318-2-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 13, 2019 at 10:16:31AM -0600, Rob Herring wrote:
-> Convert string compares of DT node names to use of_node_name_eq helper
-> instead. For the root node on SUN DT, we need to retrieve the 'name'
-> property as it is the rare case where the 'name' property and node name
-> differ. With both changes, it removes direct access to the node name
-> pointer.
+On Fri, Jan 18, 2019 at 03:30:32PM -0800, Dmitry Torokhov wrote:
+> We defined better names for keys to activate full screen mode or
+> change aspect ratio (while keeping the existing keycodes to avoid
+> breaking userspace), so let's use them in the document.
 > 
-> While at it, comvert the open coded loop to use
-> for_each_child_of_node().
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
-
-Applied, thank you.
-
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/serio/i8042-sparcio.h | 21 ++++++++++-----------
->  1 file changed, 10 insertions(+), 11 deletions(-)
+>  Documentation/media/uapi/rc/rc-tables.rst | 4 ++--
+
+Mauro, do you want to take this through your tree or I should pick it up
+with the patch that does renames in uapi header?
+
+Thanks!
+
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/serio/i8042-sparcio.h b/drivers/input/serio/i8042-sparcio.h
-> index 796289846204..fce76812843b 100644
-> --- a/drivers/input/serio/i8042-sparcio.h
-> +++ b/drivers/input/serio/i8042-sparcio.h
-> @@ -53,12 +53,11 @@ static struct resource *kbd_res;
+> diff --git a/Documentation/media/uapi/rc/rc-tables.rst b/Documentation/media/uapi/rc/rc-tables.rst
+> index c8ae9479f842..57797e56f45e 100644
+> --- a/Documentation/media/uapi/rc/rc-tables.rst
+> +++ b/Documentation/media/uapi/rc/rc-tables.rst
+> @@ -616,7 +616,7 @@ the remote via /dev/input/event devices.
 >  
->  static int sparc_i8042_probe(struct platform_device *op)
->  {
-> -	struct device_node *dp = op->dev.of_node;
-> +	struct device_node *dp;
+>      -  .. row 78
 >  
-> -	dp = dp->child;
-> -	while (dp) {
-> -		if (!strcmp(dp->name, OBP_PS2KBD_NAME1) ||
-> -		    !strcmp(dp->name, OBP_PS2KBD_NAME2)) {
-> +	for_each_child_of_node(op->dev.of_node, dp) {
-> +		if (of_node_name_eq(dp, OBP_PS2KBD_NAME1) ||
-> +		    of_node_name_eq(dp, OBP_PS2KBD_NAME2)) {
->  			struct platform_device *kbd = of_find_device_by_node(dp);
->  			unsigned int irq = kbd->archdata.irqs[0];
->  			if (irq == 0xffffffff)
-> @@ -67,16 +66,14 @@ static int sparc_i8042_probe(struct platform_device *op)
->  			kbd_iobase = of_ioremap(&kbd->resource[0],
->  						0, 8, "kbd");
->  			kbd_res = &kbd->resource[0];
-> -		} else if (!strcmp(dp->name, OBP_PS2MS_NAME1) ||
-> -			   !strcmp(dp->name, OBP_PS2MS_NAME2)) {
-> +		} else if (of_node_name_eq(dp, OBP_PS2MS_NAME1) ||
-> +			   of_node_name_eq(dp, OBP_PS2MS_NAME2)) {
->  			struct platform_device *ms = of_find_device_by_node(dp);
->  			unsigned int irq = ms->archdata.irqs[0];
->  			if (irq == 0xffffffff)
->  				irq = op->archdata.irqs[0];
->  			i8042_aux_irq = irq;
->  		}
-> -
-> -		dp = dp->sibling;
->  	}
+> -       -  ``KEY_SCREEN``
+> +       -  ``KEY_ASPECT_RATIO``
 >  
->  	return 0;
-> @@ -109,8 +106,9 @@ static struct platform_driver sparc_i8042_driver = {
->  static int __init i8042_platform_init(void)
->  {
->  	struct device_node *root = of_find_node_by_path("/");
-> +	const char *name = of_get_property(root, "name", NULL);
+>         -  Select screen aspect ratio
 >  
-> -	if (!strcmp(root->name, "SUNW,JavaStation-1")) {
-> +	if (name && !strcmp(name, "SUNW,JavaStation-1")) {
->  		/* Hardcoded values for MrCoffee.  */
->  		i8042_kbd_irq = i8042_aux_irq = 13 | 0x20;
->  		kbd_iobase = ioremap(0x71300060, 8);
-> @@ -139,8 +137,9 @@ static int __init i8042_platform_init(void)
->  static inline void i8042_platform_exit(void)
->  {
->  	struct device_node *root = of_find_node_by_path("/");
-> +	const char *name = of_get_property(root, "name", NULL);
+> @@ -624,7 +624,7 @@ the remote via /dev/input/event devices.
 >  
-> -	if (strcmp(root->name, "SUNW,JavaStation-1"))
-> +	if (!name || strcmp(name, "SUNW,JavaStation-1"))
->  		platform_driver_unregister(&sparc_i8042_driver);
->  }
+>      -  .. row 79
+>  
+> -       -  ``KEY_ZOOM``
+> +       -  ``KEY_FULL_SCREEN``
+>  
+>         -  Put device into zoom/full screen mode
 >  
 > -- 
-> 2.19.1
+> 2.20.1.321.g9e740568ce-goog
 > 
 
 -- 

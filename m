@@ -1,123 +1,79 @@
-From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: Re: [PATCH v3 1/4] dt-bindings: input: touchscreen: goodix: Document
- AVDD28-supply property
-Date: Mon, 18 Feb 2019 15:03:56 +0530
-Message-ID: <CAMty3ZDbFU-NpWQvkaUWgUiVTabjTZoFWUCUZSPKMA6VuHc+iQ@mail.gmail.com>
-References: <20181215151802.18592-1-jagan@amarulasolutions.com>
- <20181215151802.18592-2-jagan@amarulasolutions.com> <20190107225810.ggmkkbrnkoy2ykx5@penguin>
- <CAL_JsqKTnPVM7Qahy9ejQbPfENpLCdzf5K5uUTcPh8j3EiqWRA@mail.gmail.com>
- <CAMty3ZCyq=tZMt6RC1aYJuEWgYp2zv1LBh+ZUwucE+g4RCoUaQ@mail.gmail.com>
- <CAL_JsqKCw3EV+0_DuMiHh7GRGxv7YogQf-xwp71n9gpc2GzSSQ@mail.gmail.com>
- <CAMty3ZBtoocXBW5A0astyQPh2y7vG7NtbZ_M0BjSeex2etmGsw@mail.gmail.com>
- <CAL_JsqJSMX7E2zQA2O8ofZQPDrm3S6PMCLG1iAQ95P10Pe2yFg@mail.gmail.com>
- <CAMty3ZDMB=pwY8Rxdt3du=90pksBedLo0Pc_-=diqx9-Xndzqg@mail.gmail.com>
- <CAMty3ZDBu2Y9psNu9nrZ=BNVvhpJ2qYn-Qp7MDqdhK9_SrcpNg@mail.gmail.com> <20190218071207.GE242714@dtor-ws>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [PATCH (resend)] Input: uinput - Set name/phys to NULL before
+ kfree().
+Date: Mon, 18 Feb 2019 19:10:23 +0900
+Message-ID: <722c14a1-78cd-14b6-59ef-ba0d6fc82cb1@i-love.sakura.ne.jp>
+References: <0000000000009ce64e0574fe896e@google.com>
+ <47d5fdbe-120e-cf42-106f-b0cc0f2feb49@I-love.SAKURA.ne.jp>
+ <b937b59c-22b8-9113-229f-056738819467@I-love.SAKURA.ne.jp>
+ <20190217210713.GA145509@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190218071207.GE242714@dtor-ws>
+In-Reply-To: <20190217210713.GA145509@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, devicetree <devicetree@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
+Cc: rydberg@bitmath.org, syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Thank you for responding.
 
-On Mon, Feb 18, 2019 at 12:42 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> On Sun, Feb 17, 2019 at 02:45:52PM +0530, Jagan Teki wrote:
-> > On Sun, Feb 17, 2019 at 1:21 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> > >
-> > > Hi Dmitry and Rob,
-> > >
-> > > On Thu, Feb 14, 2019 at 3:21 AM Rob Herring <robh@kernel.org> wrote:
-> > > >
-> > > > On Tue, Jan 22, 2019 at 7:39 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> > > > >
-> > > > > On Mon, Jan 21, 2019 at 9:46 PM Rob Herring <robh@kernel.org> wrote:
-> > > > > >
-> > > > > > On Fri, Jan 18, 2019 at 10:01 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> > > > > > >
-> > > > > > > On Wed, Jan 9, 2019 at 7:08 PM Rob Herring <robh@kernel.org> wrote:
-> > > > > > > >
-> > > > > > > > Please CC DT list if you want bindings reviewed.
-> > > > > > >
-> > > > > > > Sorry I forgot.
-> > > > > > >
-> > > > > > > >
-> > > > > > > > On Wed, Jan 9, 2019 at 1:40 AM Dmitry Torokhov
-> > > > > > > > <dmitry.torokhov@gmail.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Sat, Dec 15, 2018 at 08:47:59PM +0530, Jagan Teki wrote:
-> > > > > > > > > > Most of the Goodix CTP controllers are supply with AVDD28 pin.
-> > > > > > > > > > which need to supply for controllers like GT5663 on some boards
-> > > > > > > > > > to trigger the power.
-> > > > > > > > > >
-> > > > > > > > > > So, document the supply property so-that the require boards
-> > > > > > > > > > that used on GT5663 can enable it via device tree.
-> > > > > > > > > >
-> > > > > > > > > > Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-> > > > > > > > > > ---
-> > > > > > > > > >  Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
-> > > > > > > > > >  1 file changed, 1 insertion(+)
-> > > > > > > > > >
-> > > > > > > > > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > > > > > index f7e95c52f3c7..c4622c983e08 100644
-> > > > > > > > > > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > > > > > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-> > > > > > > > > > @@ -23,6 +23,7 @@ Optional properties:
-> > > > > > > > > >   - touchscreen-inverted-y  : Y axis is inverted (boolean)
-> > > > > > > > > >   - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
-> > > > > > > > > >                               (swapping is done after inverting the axis)
-> > > > > > > > > > + - AVDD28-supply     : Analog power supply regulator on AVDD28 pin
-> > > > > > > > >
-> > > > > > > > > I think we normally use lower case in DT bindings and rarely encode
-> > > > > > > > > voltage in the supply name unless we are dealing with several supplies
-> > > > > > > > > of the same kind, but I'll let Ron comment on this.
-> > > > > > > >
-> > > > > > > > Yes on lowercase though there are some exceptions.
-> > > > > > > >
-> > > > > > > > There's also a AVDD22 supply as well as DVDD12 and VDDIO. So we
-> > > > > > > > probably need to keep the voltage, but the binding is incomplete.
-> > > > > > >
-> > > > > > > What is incomplete here? can you please elaborate.
-> > > > > >
-> > > > > > You are missing the 3 other supplies the chip has: AVDD22, DVDD12 and VDDIO.
-> > > > >
-> > > > > Though it has other supplies, only AVDD28 is connected in the Host
-> > > > > interface design similar like 9. Reference Schematic on Page, 23 in
-> > > > > attached manual.
-> > > >
-> > > > That is for a particular board design. It still has other supplies.
-> > > > Just make the binding complete please. You can make them optional. I
-> > > > don't care if the driver supports controlling all the supplies or not
-> > > > (though Dmitry might).
-> > >
-> > > So, Can I make bulk get and enable in all 4 regulators global to
-> > > driver or specific to that chip, in either way the regulators which
-> > > are not used to process via dummy regulators (which we all know).
-> > >
-> > > or regulator which are not using are get via devm_regulator_get_optional.
-> > >
-> > > Any suggestions?
-> >
-> > Just realized to go with bulk calls, please have a look at on v5 [1]
->
-> I do not believe you can use bulk regulator API here as you need to
-> implement the power up timing scheme mentioned on p. 12 of the spec you
-> referenced earlier. And, because of that timing diagram, I believe if
-> you want to control AVDD supply, you also have to control VDDIO supply
-> as it has to be on only after enabling AVDD.
+On 2019/02/18 6:07, Dmitry Torokhov wrote:
+> The commit tries to send final uevent for objects for which "add" uevent
+> has been sent, but not "remove" event. However in uinput (and general
+> input case) we always take care of sending uevent at unregister, and do
+> not expect to have uevent sent out at the final "put" time.
 
-AVDD here is AVDD28 it' is an out name of pin (mentioned in p. 23). So
-the power scheme goes to enable AVDD28 and then VDDIO does that really
-mean bulk of two regulators?
+Then, we want to keep dev->name and dev->phys when calling "unregister" time.
 
->
-> I also wonder if it is valid to have both AVDD28 and AVDD22 connected at
-> the same time.
+> 
+> I believe the real fix is to have kobj->state_remove_uevent_sent be set
+> to true as soon as we enter kobject_uevent(kobj, KOBJ_REMOVE) so that
+> it is being set even if memory allocation fails. Doing anything else may
+> violate expectations of subsystem owning the kobject.
 
-Yes, DVDD12 and AVDD22 not been part of power-up schema at-least from
-the datasheet. I'm thinking we can skip these until any of other
-goodix CTP needed, what do you think Rob?
+If we want to keep dev->name and dev->phys when calling "unregister" time,
+we could do something like below. Does calling kobject_uevent(KOBJ_REMOVE)
+without dev->name and dev->phys (to some degree) help (compared to not
+triggering kobject_uevent(KOBJ_REMOVE) at all) ?
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 3304aaa..da39a23 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1587,6 +1587,7 @@ static int input_dev_uevent(struct device *device, struct kobj_uevent_env *env)
+ {
+ 	struct input_dev *dev = to_input_dev(device);
+ 
++	rcu_read_lock();
+ 	INPUT_ADD_HOTPLUG_VAR("PRODUCT=%x/%x/%x/%x",
+ 				dev->id.bustype, dev->id.vendor,
+ 				dev->id.product, dev->id.version);
+@@ -1618,6 +1619,7 @@ static int input_dev_uevent(struct device *device, struct kobj_uevent_env *env)
+ 		INPUT_ADD_HOTPLUG_BM_VAR("SW=", dev->swbit, SW_MAX);
+ 
+ 	INPUT_ADD_HOTPLUG_MODALIAS_VAR(dev);
++	rcu_read_unlock();
+ 
+ 	return 0;
+ }
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 26ec603f..6689312 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -308,9 +308,12 @@ static void uinput_destroy_device(struct uinput_device *udev)
+ 		} else {
+ 			input_free_device(dev);
+ 		}
++		dev->name = NULL;
++		dev->phys = NULL;
++		udev->dev = NULL;
++		synchronize_rcu();
+ 		kfree(name);
+ 		kfree(phys);
+-		udev->dev = NULL;
+ 	}
+ }
+ 

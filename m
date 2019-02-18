@@ -1,135 +1,26 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] Input: add Apple SPI keyboard and trackpad driver.
-Date: Mon, 18 Feb 2019 14:00:25 +0200
-Message-ID: <20190218120025.GI9224@smile.fi.intel.com>
-References: <20190204081947.25152-1-ronald@innovation.ch>
- <20190204081947.25152-3-ronald@innovation.ch>
- <20190206202256.GZ9224@smile.fi.intel.com>
- <20190210111834.GA27627@innovation.ch>
- <20190216004426.GE9224@smile.fi.intel.com>
- <20190218090851.GA24261@innovation.ch>
+From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Subject: Re: [PATCH] Input: uinput - Allow uinput_request to be interrupted
+Date: Mon, 18 Feb 2019 15:21:10 +0100
+Message-ID: <20190218142110.GA23087@casa>
+References: <20190218004305.339758-1-marcos.souza.org@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190218090851.GA24261@innovation.ch>
+In-Reply-To: <20190218004305.339758-1-marcos.souza.org@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, rodrigorivascosta@gmail.com, Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "Paul E. McKenney" <paulmck@linux.ibm.com>, Martin Kepplinger <martink@posteo.de>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Feb 18, 2019 at 01:08:51AM -0800, Life is hard, and then you die wrote:
-> On Sat, Feb 16, 2019 at 02:44:26AM +0200, Andy Shevchenko wrote:
-> > On Sun, Feb 10, 2019 at 03:18:34AM -0800, Life is hard, and then you die wrote:
-> > > On Wed, Feb 06, 2019 at 10:22:56PM +0200, Andy Shevchenko wrote:
-> > > > On Mon, Feb 04, 2019 at 12:19:47AM -0800, Ronald Tschalär wrote:
+On Sun, Feb 17, 2019 at 09:42:52PM -0300, Marcos Paulo de Souza wrote:
+> -	if (!wait_for_completion_timeout(&request->done, 30 * HZ)) {
+> +	if (!wait_for_completion_interruptible_timeout(&request->done,
+> +							30 * HZ)) {
+>  		retval = -ETIMEDOUT;
+>  		goto out;
+>  	}
 
-> > Hmm... Usually you put either module_name.dyndbg into kernel command line to
-> > enable Dynamic Debug on built-in modules, or modprobe module_name dyndbg if
-> > it's built as a module.
-> 
-> Right, but while that works with
-> 
->     applespi.dyndbg=+p
-> 
-> it does not appear to work with
-> 
->     applespi.dyndbg="func applespi_get_spi_settings +p"
-> 
-> (it is parsed correctly, but it just doesn't get applied when the
-> module is later loaded - I've not tried to chase this down any further
-> than that)
-
-Of course it wouldn't work that way. If you have compiled driver as a module,
-you need to supply the parameters during modprobe. Actually it's kinda luck
-that +p works for you.
-
-> > > > > +	message->counter = applespi->cmd_msg_cntr++ & 0xff;
-> > > > 
-> > > > Usual pattern for this kind of entries is
-> > > > 
-> > > >       x = ... % 256;
-> > > > 
-> > > > Btw, isn't 256 is defined somewhere?
-> > > 
-> > > Many things are defined as have a value of 256 :-) But I didn't find any
-> > > with the intended semantics; could use (U8_MAX+1), though.
-> > 
-> > What I meant is that I saw in the same driver definition with value of 256.
-> > Isn't it about messages?
-> 
-> Ah, right: the packet length is 256 bytes. But the semantics are quite
-> different, so IMHO it wouldn't be good to use that here. I.e. I think
-> (U8_MAX+1) is still semantically the best.
-
-OK.
-
-> > > > > +/* lifted from the BCM5974 driver */
-> > > > > +/* convert 16-bit little endian to signed integer */
-> > > > > +static inline int raw2int(__le16 x)
-> > > > > +{
-> > > > > +	return (signed short)le16_to_cpu(x);
-> > > > > +}
-> > > > 
-> > > > Perhaps it's time to introduce it inside include/linux/input.h ?
-> > > 
-> > > Perhaps as
-> > > 
-> > >     static inline int le16_to_signed_int(__le16 x)
-> > > 
-> > > ? (raw2int seems to ambiguous for a global function)
-> > 
-> > I'm fine. It would need a description though.
-> 
-> After looking at this in more detail I don't think that
-> include/linux/input.h is the proper place for this, because input.h
-> basically represents the interface to the input core, and as such it
-> is devoid of helpers like above or any driver specific definitions.
-> Instead I'd like to suggest a new include file specific to the bcm5974
-> driver, as follows:
-> 
-> --- /dev/null
-> +++ b/include/linux/input/bcm5974.h
-> @@ -0,0 +1,27 @@
-> +/*
-> + * Copyright (C) 2008     Henrik Rydberg (rydberg@euromail.se)
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + */
-> +
-> +#ifndef _BCM5974_H
-> +#define _BCM5974_H
-> +
-> +#include <linux/kernel.h>
-> +
-> +/**
-> + * raw2int - convert a 16-bit little endian value as received from the device
-> + * to a signed integer in cpu endianness.
-> + * @x: the received value
-> + *
-> + * Returns the converted value.
-> + */
-> +static inline int raw2int(__le16 x)
-> +{
-> +       return (signed short)le16_to_cpu(x);
-> +}
-> +
-> +#endif
-> 
-> Thoughts?
-
-I see. Since there is no comment from input maintainers, let's stick with the
-initial approach (copy'n'paste to your code with comment from where). Only one
-suggestion is to name function for further use without changing it. So, in the
-future we may move it to generic header.
-
-> I'll send out v2 of the patches with all the changes soon.
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+Now this function can succeed or fail because of ETIMEDOUT or an
+interrupt. I think you should return -EINTR or maybe -ESYSRESTART if
+interrupted.

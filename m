@@ -1,187 +1,123 @@
-From: "Life is hard, and then you die" <ronald@innovation.ch>
-Subject: Re: [PATCH 2/2] Input: add Apple SPI keyboard and trackpad driver.
-Date: Mon, 18 Feb 2019 01:08:51 -0800
-Message-ID: <20190218090851.GA24261@innovation.ch>
-References: <20190204081947.25152-1-ronald@innovation.ch>
- <20190204081947.25152-3-ronald@innovation.ch>
- <20190206202256.GZ9224@smile.fi.intel.com>
- <20190210111834.GA27627@innovation.ch>
- <20190216004426.GE9224@smile.fi.intel.com>
+From: Jagan Teki <jagan@amarulasolutions.com>
+Subject: Re: [PATCH v3 1/4] dt-bindings: input: touchscreen: goodix: Document
+ AVDD28-supply property
+Date: Mon, 18 Feb 2019 15:03:56 +0530
+Message-ID: <CAMty3ZDbFU-NpWQvkaUWgUiVTabjTZoFWUCUZSPKMA6VuHc+iQ@mail.gmail.com>
+References: <20181215151802.18592-1-jagan@amarulasolutions.com>
+ <20181215151802.18592-2-jagan@amarulasolutions.com> <20190107225810.ggmkkbrnkoy2ykx5@penguin>
+ <CAL_JsqKTnPVM7Qahy9ejQbPfENpLCdzf5K5uUTcPh8j3EiqWRA@mail.gmail.com>
+ <CAMty3ZCyq=tZMt6RC1aYJuEWgYp2zv1LBh+ZUwucE+g4RCoUaQ@mail.gmail.com>
+ <CAL_JsqKCw3EV+0_DuMiHh7GRGxv7YogQf-xwp71n9gpc2GzSSQ@mail.gmail.com>
+ <CAMty3ZBtoocXBW5A0astyQPh2y7vG7NtbZ_M0BjSeex2etmGsw@mail.gmail.com>
+ <CAL_JsqJSMX7E2zQA2O8ofZQPDrm3S6PMCLG1iAQ95P10Pe2yFg@mail.gmail.com>
+ <CAMty3ZDMB=pwY8Rxdt3du=90pksBedLo0Pc_-=diqx9-Xndzqg@mail.gmail.com>
+ <CAMty3ZDBu2Y9psNu9nrZ=BNVvhpJ2qYn-Qp7MDqdhK9_SrcpNg@mail.gmail.com> <20190218071207.GE242714@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190216004426.GE9224@smile.fi.intel.com>
+In-Reply-To: <20190218071207.GE242714@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, devicetree <devicetree@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Trimarchi <michael@amarulasolutions.com>, linux-amarula@amarulasolutions.com
 List-Id: linux-input@vger.kernel.org
 
+Hi Dmitry,
 
-On Sat, Feb 16, 2019 at 02:44:26AM +0200, Andy Shevchenko wrote:
-> On Sun, Feb 10, 2019 at 03:18:34AM -0800, Life is hard, and then you die wrote:
-> > On Wed, Feb 06, 2019 at 10:22:56PM +0200, Andy Shevchenko wrote:
-> > > On Mon, Feb 04, 2019 at 12:19:47AM -0800, Ronald Tschalär wrote:
-> 
-> > > > +#define	debug_print(mask, fmt, ...) \
-> > > > +	do { \
-> > > > +		if (debug & mask) \
-> > > > +			printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__); \
-> > > > +	} while (0)
-> > > > +
-> > > > +#define	debug_print_header(mask) \
-> > > > +	debug_print(mask, "--- %s ---------------------------\n", \
-> > > > +		    applespi_debug_facility(mask))
-> > > > +
-> > > > +#define	debug_print_buffer(mask, fmt, ...) \
-> > > > +	do { \
-> > > > +		if (debug & mask) \
-> > > > +			print_hex_dump(KERN_DEBUG, pr_fmt(fmt), \
-> > > > +				       DUMP_PREFIX_NONE, 32, 1, ##__VA_ARGS__, \
-> > > > +				       false); \
-> > > > +	} while (0)
-> > > 
-> > > I'm not sure we need all of these... But okay, the driver is
-> > > reverse-engineered, perhaps we can drop it later on.
-> > 
-> > These have been extremely useful for debugging; but yes, they are for
-> > debugging only. They also explicitly do not use the dynamic-debug
-> > facilities because
-> >   1. those can't be enabled at a function or line level on the kernel
-> >      command line (the docs indicate this should work, but it doesn't,
-> >      or at the very least I've been unable to figure out how, at least
-> >      for those drivers built as modules)
-> 
-> Hmm... Usually you put either module_name.dyndbg into kernel command line to
-> enable Dynamic Debug on built-in modules, or modprobe module_name dyndbg if
-> it's built as a module.
+On Mon, Feb 18, 2019 at 12:42 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Sun, Feb 17, 2019 at 02:45:52PM +0530, Jagan Teki wrote:
+> > On Sun, Feb 17, 2019 at 1:21 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
+> > >
+> > > Hi Dmitry and Rob,
+> > >
+> > > On Thu, Feb 14, 2019 at 3:21 AM Rob Herring <robh@kernel.org> wrote:
+> > > >
+> > > > On Tue, Jan 22, 2019 at 7:39 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
+> > > > >
+> > > > > On Mon, Jan 21, 2019 at 9:46 PM Rob Herring <robh@kernel.org> wrote:
+> > > > > >
+> > > > > > On Fri, Jan 18, 2019 at 10:01 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
+> > > > > > >
+> > > > > > > On Wed, Jan 9, 2019 at 7:08 PM Rob Herring <robh@kernel.org> wrote:
+> > > > > > > >
+> > > > > > > > Please CC DT list if you want bindings reviewed.
+> > > > > > >
+> > > > > > > Sorry I forgot.
+> > > > > > >
+> > > > > > > >
+> > > > > > > > On Wed, Jan 9, 2019 at 1:40 AM Dmitry Torokhov
+> > > > > > > > <dmitry.torokhov@gmail.com> wrote:
+> > > > > > > > >
+> > > > > > > > > On Sat, Dec 15, 2018 at 08:47:59PM +0530, Jagan Teki wrote:
+> > > > > > > > > > Most of the Goodix CTP controllers are supply with AVDD28 pin.
+> > > > > > > > > > which need to supply for controllers like GT5663 on some boards
+> > > > > > > > > > to trigger the power.
+> > > > > > > > > >
+> > > > > > > > > > So, document the supply property so-that the require boards
+> > > > > > > > > > that used on GT5663 can enable it via device tree.
+> > > > > > > > > >
+> > > > > > > > > > Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+> > > > > > > > > > ---
+> > > > > > > > > >  Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+> > > > > > > > > >  1 file changed, 1 insertion(+)
+> > > > > > > > > >
+> > > > > > > > > > diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > > > > index f7e95c52f3c7..c4622c983e08 100644
+> > > > > > > > > > --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > > > > +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+> > > > > > > > > > @@ -23,6 +23,7 @@ Optional properties:
+> > > > > > > > > >   - touchscreen-inverted-y  : Y axis is inverted (boolean)
+> > > > > > > > > >   - touchscreen-swapped-x-y : X and Y axis are swapped (boolean)
+> > > > > > > > > >                               (swapping is done after inverting the axis)
+> > > > > > > > > > + - AVDD28-supply     : Analog power supply regulator on AVDD28 pin
+> > > > > > > > >
+> > > > > > > > > I think we normally use lower case in DT bindings and rarely encode
+> > > > > > > > > voltage in the supply name unless we are dealing with several supplies
+> > > > > > > > > of the same kind, but I'll let Ron comment on this.
+> > > > > > > >
+> > > > > > > > Yes on lowercase though there are some exceptions.
+> > > > > > > >
+> > > > > > > > There's also a AVDD22 supply as well as DVDD12 and VDDIO. So we
+> > > > > > > > probably need to keep the voltage, but the binding is incomplete.
+> > > > > > >
+> > > > > > > What is incomplete here? can you please elaborate.
+> > > > > >
+> > > > > > You are missing the 3 other supplies the chip has: AVDD22, DVDD12 and VDDIO.
+> > > > >
+> > > > > Though it has other supplies, only AVDD28 is connected in the Host
+> > > > > interface design similar like 9. Reference Schematic on Page, 23 in
+> > > > > attached manual.
+> > > >
+> > > > That is for a particular board design. It still has other supplies.
+> > > > Just make the binding complete please. You can make them optional. I
+> > > > don't care if the driver supports controlling all the supplies or not
+> > > > (though Dmitry might).
+> > >
+> > > So, Can I make bulk get and enable in all 4 regulators global to
+> > > driver or specific to that chip, in either way the regulators which
+> > > are not used to process via dummy regulators (which we all know).
+> > >
+> > > or regulator which are not using are get via devm_regulator_get_optional.
+> > >
+> > > Any suggestions?
+> >
+> > Just realized to go with bulk calls, please have a look at on v5 [1]
+>
+> I do not believe you can use bulk regulator API here as you need to
+> implement the power up timing scheme mentioned on p. 12 of the spec you
+> referenced earlier. And, because of that timing diagram, I believe if
+> you want to control AVDD supply, you also have to control VDDIO supply
+> as it has to be on only after enabling AVDD.
 
-Right, but while that works with
+AVDD here is AVDD28 it' is an out name of pin (mentioned in p. 23). So
+the power scheme goes to enable AVDD28 and then VDDIO does that really
+mean bulk of two regulators?
 
-    applespi.dyndbg=+p
+>
+> I also wonder if it is valid to have both AVDD28 and AVDD22 connected at
+> the same time.
 
-it does not appear to work with
-
-    applespi.dyndbg="func applespi_get_spi_settings +p"
-
-(it is parsed correctly, but it just doesn't get applied when the
-module is later loaded - I've not tried to chase this down any further
-than that)
-
-[snip]
-> > > > +static int touchpad_dimensions[4];
-> > > > +module_param_array(touchpad_dimensions, int, NULL, 0444);
-> > > > +MODULE_PARM_DESC(touchpad_dimensions, "The pixel dimensions of the touchpad, as x_min,x_max,y_min,y_max .");
-> > > 
-> > > We have some parsers for similar data as in format
-> > > 
-> > > %dx%d%+d%+d ?
-> > > 
-> > > For example, 200x100+20+10.
-> > 
-> > Maybe it's just my grep-foo that is lacking, but I couldn't find
-> > anything useful. There is some stuff for framebuffer video modes, but
-> > that is too different and not really amenable for use here. OTOH, a
-> > simple sscanf(buf, "%dx%d+%d+%d", ...) would parse this just fine
-> > without the need for any fancier parser.
-> > 
-> > OTOH, I'm not sure this format is any better: internally we need
-> > x/y min/max, not x/y/w/h (though obviously the two are trivially
-> > convertable); and for the user it doesn't really matter since they would
-> > basically be getting the dimensions from running with debug set to
-> > 0x10000 and using that output to set this param, i.e. I don't see any
-> > inherent advantage of using x/y/w/h.
-> 
-> I would stick with some more or less standard notation. The XxY+W+H is widely
-> used in X11 world.
-> 
-> If you have better examples for input devices, choose them. My point that it
-> would be better to be a standard to some extent.
-
-I couldn't find anything useful (looked in the kernel and libinput),
-so going with XxY+W+H.
-
-[snip]
-> > > > +	message->counter = applespi->cmd_msg_cntr++ & 0xff;
-> > > 
-> > > Usual pattern for this kind of entries is
-> > > 
-> > >       x = ... % 256;
-> > > 
-> > > Btw, isn't 256 is defined somewhere?
-> > 
-> > Many things are defined as have a value of 256 :-) But I didn't find any
-> > with the intended semantics; could use (U8_MAX+1), though.
-> 
-> What I meant is that I saw in the same driver definition with value of 256.
-> Isn't it about messages?
-
-Ah, right: the packet length is 256 bytes. But the semantics are quite
-different, so IMHO it wouldn't be good to use that here. I.e. I think
-(U8_MAX+1) is still semantically the best.
-
-[snip]
-> > > > +/* lifted from the BCM5974 driver */
-> > > > +/* convert 16-bit little endian to signed integer */
-> > > > +static inline int raw2int(__le16 x)
-> > > > +{
-> > > > +	return (signed short)le16_to_cpu(x);
-> > > > +}
-> > > 
-> > > Perhaps it's time to introduce it inside include/linux/input.h ?
-> > 
-> > Perhaps as
-> > 
-> >     static inline int le16_to_signed_int(__le16 x)
-> > 
-> > ? (raw2int seems to ambiguous for a global function)
-> 
-> I'm fine. It would need a description though.
-
-After looking at this in more detail I don't think that
-include/linux/input.h is the proper place for this, because input.h
-basically represents the interface to the input core, and as such it
-is devoid of helpers like above or any driver specific definitions.
-Instead I'd like to suggest a new include file specific to the bcm5974
-driver, as follows:
-
---- /dev/null
-+++ b/include/linux/input/bcm5974.h
-@@ -0,0 +1,27 @@
-+/*
-+ * Copyright (C) 2008     Henrik Rydberg (rydberg@euromail.se)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#ifndef _BCM5974_H
-+#define _BCM5974_H
-+
-+#include <linux/kernel.h>
-+
-+/**
-+ * raw2int - convert a 16-bit little endian value as received from the device
-+ * to a signed integer in cpu endianness.
-+ * @x: the received value
-+ *
-+ * Returns the converted value.
-+ */
-+static inline int raw2int(__le16 x)
-+{
-+       return (signed short)le16_to_cpu(x);
-+}
-+
-+#endif
-
-Thoughts?
-
-I'll send out v2 of the patches with all the changes soon.
-
-
-  Cheers,
-
-  Ronald
+Yes, DVDD12 and AVDD22 not been part of power-up schema at-least from
+the datasheet. I'm thinking we can skip these until any of other
+goodix CTP needed, what do you think Rob?

@@ -1,51 +1,62 @@
-From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: [PATCH v6 4/4] Input: goodix - Add GT5663 CTP support
-Date: Tue, 19 Feb 2019 15:46:29 +0530
-Message-ID: <20190219101629.15977-5-jagan@amarulasolutions.com>
-References: <20190219101629.15977-1-jagan@amarulasolutions.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: roccat: Mark expected switch fall-through
+Date: Tue, 19 Feb 2019 14:16:11 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1902191415550.11598@cbobk.fhfr.pm>
+References: <20190211215334.GA6216@embeddedor>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190219101629.15977-1-jagan@amarulasolutions.com>
+In-Reply-To: <20190211215334.GA6216@embeddedor>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>, Jagan Teki <jagan@amarulasolutions.com>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-GT5663 is capacitive touch controller with customized smart
-wakeup gestures.
+On Mon, 11 Feb 2019, Gustavo A. R. Silva wrote:
 
-Add support for it by adding compatible and supported chip data.
+> In preparation to enabling -Wimplicit-fallthrough, mark switch
+> cases where we are expecting to fall through.
+> 
+> This patch fixes the following warning:
+> 
+> drivers/hid/hid-roccat-kone.c: In function ‘kone_keep_values_up_to_date’:
+> drivers/hid/hid-roccat-kone.c:784:20: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    kone->actual_dpi = kone->profiles[event->value - 1].
+>    ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>      startup_dpi;
+>      ~~~~~~~~~~~
+> drivers/hid/hid-roccat-kone.c:786:2: note: here
+>   case kone_mouse_event_osd_profile:
+>   ^~~~
+> 
+> Warning level 3 was used: -Wimplicit-fallthrough=3
+> 
+> This patch is part of the ongoing efforts to enable
+> -Wimplicit-fallthrough.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> ---
+>  drivers/hid/hid-roccat-kone.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+> index bf4675a27396..c4dd6162c1d6 100644
+> --- a/drivers/hid/hid-roccat-kone.c
+> +++ b/drivers/hid/hid-roccat-kone.c
+> @@ -783,6 +783,7 @@ static void kone_keep_values_up_to_date(struct kone_device *kone,
+>  	case kone_mouse_event_switch_profile:
+>  		kone->actual_dpi = kone->profiles[event->value - 1].
+>  				startup_dpi;
+> +		/* fall through */
+>  	case kone_mouse_event_osd_profile:
+>  		kone->actual_profile = event->value;
+>  		break;
 
-The chip data on GT5663 is similar to GT1151, like
-- config data register has 0x8050 address
-- config data register max len is 240
-- config data checksum has 16-bit
+Stefan, could you please confirm that this is intended behavior?
 
-Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
----
- drivers/input/touchscreen/goodix.c | 2 ++
- 1 file changed, 2 insertions(+)
+Thanks,
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 5f9e755c5bc7..405246d61701 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -219,6 +219,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
- {
- 	switch (id) {
- 	case 1151:
-+	case 5663:
- 		return &gt1x_chip_data;
- 
- 	case 911:
-@@ -1000,6 +1001,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
- #ifdef CONFIG_OF
- static const struct of_device_id goodix_of_match[] = {
- 	{ .compatible = "goodix,gt1151" },
-+	{ .compatible = "goodix,gt5663" },
- 	{ .compatible = "goodix,gt911" },
- 	{ .compatible = "goodix,gt9110" },
- 	{ .compatible = "goodix,gt912" },
 -- 
-2.18.0.321.gffc6fa0e3
+Jiri Kosina
+SUSE Labs

@@ -1,28 +1,89 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: roccat: Mark expected switch fall-through
-Date: Wed, 20 Feb 2019 09:40:10 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1902200939530.11598@cbobk.fhfr.pm>
-References: <20190211215334.GA6216@embeddedor>  <nycvar.YFH.7.76.1902191415550.11598@cbobk.fhfr.pm> <1550650517.5256.2.camel@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: [PATCH 2/2] Input: synaptics-rmi4 - export nosleep of f01 via sysfs
+Date: Wed, 20 Feb 2019 17:42:00 +0100
+Message-ID: <20190220164200.31044-2-aaron.ma@canonical.com>
+References: <20190220164200.31044-1-aaron.ma@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550650517.5256.2.camel@web.de>
+In-Reply-To: <20190220164200.31044-1-aaron.ma@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Achatz <stefan_achatz@web.de>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Stefan Achatz <erazor_de@users.sourceforge.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cheiny@synaptics.com, aduggan@synaptics.com, benjamin.tissoires@redhat.com, aaron.ma@canonical.com
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 20 Feb 2019, Stefan Achatz wrote:
+Some of ThinkPad X1C6 touchpads didn't wakeup after resume.
+Forcing enable nosleep make touchpad back.
+Add nosleep via sysfs, so user can control it to workaround issue.
 
-> I already confirmed this 7 months ago but as I see only in a reply to
-> you.
+/sys/devices/rmi4-00/nosleep can be written non-zero will enable
+nosleep mode.
 
-I guess that fell in between cracks somewhere.
+BugLink: https://bugs.launchpad.net/bugs/1791427
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+---
+ drivers/input/rmi4/rmi_f01.c | 45 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-> Yes, this patch is correct.
-
-Applied, thanks.
-
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index 4edaa14fe878..e41d1ec625d9 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -325,12 +325,57 @@ static ssize_t rmi_driver_package_id_show(struct device *dev,
+ 
+ static DEVICE_ATTR(package_id, 0444, rmi_driver_package_id_show, NULL);
+ 
++static ssize_t rmi_driver_nosleep_show(struct device *dev,
++					  struct device_attribute *dattr,
++					  char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
++	int f01_nosleep;
++
++	f01_nosleep = ((f01->device_control.ctrl0 & RMI_F01_CTRL0_NOSLEEP_BIT)
++		 ? 1 : 0);
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n", f01_nosleep);
++}
++
++static ssize_t rmi_driver_nosleep_store(struct device *dev,
++					  struct device_attribute *dattr,
++					  const char *buf, size_t count)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
++	int error;
++
++	if (count <= 0)
++		return count;
++
++	if ('0' == *buf) {
++		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
++	} else {
++		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
++	}
++
++	error = rmi_write(data->rmi_dev,
++			data->f01_container->fd.control_base_addr,
++			  f01->device_control.ctrl0);
++	if (error) {
++		dev_err(dev, "Failed to write nosleep mode: %d.\n", error);
++	}
++
++	return count;
++}
++
++static DEVICE_ATTR(nosleep, 0644,
++		rmi_driver_nosleep_show, rmi_driver_nosleep_store);
++
+ static struct attribute *rmi_f01_attrs[] = {
+ 	&dev_attr_manufacturer_id.attr,
+ 	&dev_attr_date_of_manufacture.attr,
+ 	&dev_attr_product_id.attr,
+ 	&dev_attr_firmware_id.attr,
+ 	&dev_attr_package_id.attr,
++	&dev_attr_nosleep.attr,
+ 	NULL
+ };
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.17.1

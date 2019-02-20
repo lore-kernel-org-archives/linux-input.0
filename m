@@ -1,89 +1,44 @@
 From: Aaron Ma <aaron.ma@canonical.com>
-Subject: [PATCH 2/2] Input: synaptics-rmi4 - export nosleep of f01 via sysfs
-Date: Wed, 20 Feb 2019 17:42:00 +0100
-Message-ID: <20190220164200.31044-2-aaron.ma@canonical.com>
-References: <20190220164200.31044-1-aaron.ma@canonical.com>
+Subject: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
+Date: Wed, 20 Feb 2019 17:41:59 +0100
+Message-ID: <20190220164200.31044-1-aaron.ma@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190220164200.31044-1-aaron.ma@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cheiny@synaptics.com, aduggan@synaptics.com, benjamin.tissoires@redhat.com, aaron.ma@canonical.com
 List-Id: linux-input@vger.kernel.org
 
-Some of ThinkPad X1C6 touchpads didn't wakeup after resume.
-Forcing enable nosleep make touchpad back.
-Add nosleep via sysfs, so user can control it to workaround issue.
-
-/sys/devices/rmi4-00/nosleep can be written non-zero will enable
-nosleep mode.
+rmi4 got spam data after S3 resume on some ThinkPads.
+Then TrackPoint lost when be detected by psmouse.
+Clear irqs status before set irqs will make TrackPoint back.
 
 BugLink: https://bugs.launchpad.net/bugs/1791427
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
 ---
- drivers/input/rmi4/rmi_f01.c | 45 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
+ drivers/input/rmi4/rmi_driver.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index 4edaa14fe878..e41d1ec625d9 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -325,12 +325,57 @@ static ssize_t rmi_driver_package_id_show(struct device *dev,
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index fc3ab93b7aea..20631b272f43 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -374,6 +374,17 @@ static int rmi_driver_set_irq_bits(struct rmi_device *rmi_dev,
+ 	struct device *dev = &rmi_dev->dev;
  
- static DEVICE_ATTR(package_id, 0444, rmi_driver_package_id_show, NULL);
- 
-+static ssize_t rmi_driver_nosleep_show(struct device *dev,
-+					  struct device_attribute *dattr,
-+					  char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
-+	int f01_nosleep;
+ 	mutex_lock(&data->irq_mutex);
 +
-+	f01_nosleep = ((f01->device_control.ctrl0 & RMI_F01_CTRL0_NOSLEEP_BIT)
-+		 ? 1 : 0);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", f01_nosleep);
-+}
-+
-+static ssize_t rmi_driver_nosleep_store(struct device *dev,
-+					  struct device_attribute *dattr,
-+					  const char *buf, size_t count)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
-+	int error;
-+
-+	if (count <= 0)
-+		return count;
-+
-+	if ('0' == *buf) {
-+		f01->device_control.ctrl0 &= ~RMI_F01_CTRL0_NOSLEEP_BIT;
-+	} else {
-+		f01->device_control.ctrl0 |= RMI_F01_CTRL0_NOSLEEP_BIT;
++	/* Dummy read in order to clear irqs */
++	error = rmi_read_block(rmi_dev,
++			data->f01_container->fd.data_base_addr + 1,
++			data->irq_status, data->num_of_irq_regs);
++	if (error < 0) {
++		dev_err(dev, "%s: Failed to read interrupt status!",
++							__func__);
++		goto error_unlock;
 +	}
 +
-+	error = rmi_write(data->rmi_dev,
-+			data->f01_container->fd.control_base_addr,
-+			  f01->device_control.ctrl0);
-+	if (error) {
-+		dev_err(dev, "Failed to write nosleep mode: %d.\n", error);
-+	}
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(nosleep, 0644,
-+		rmi_driver_nosleep_show, rmi_driver_nosleep_store);
-+
- static struct attribute *rmi_f01_attrs[] = {
- 	&dev_attr_manufacturer_id.attr,
- 	&dev_attr_date_of_manufacture.attr,
- 	&dev_attr_product_id.attr,
- 	&dev_attr_firmware_id.attr,
- 	&dev_attr_package_id.attr,
-+	&dev_attr_nosleep.attr,
- 	NULL
- };
+ 	bitmap_or(data->new_irq_mask,
+ 		  data->current_irq_mask, mask, data->irq_count);
  
 -- 
 2.17.1

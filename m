@@ -1,50 +1,70 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH (resend)] Input: uinput - Set name/phys to NULL before
- kfree().
-Date: Tue, 19 Feb 2019 10:58:55 -0800
-Message-ID: <20190219185855.GB210481@dtor-ws>
-References: <0000000000009ce64e0574fe896e@google.com>
- <47d5fdbe-120e-cf42-106f-b0cc0f2feb49@I-love.SAKURA.ne.jp>
- <b937b59c-22b8-9113-229f-056738819467@I-love.SAKURA.ne.jp>
- <20190217210713.GA145509@dtor-ws>
- <722c14a1-78cd-14b6-59ef-ba0d6fc82cb1@i-love.sakura.ne.jp>
+From: Stefan Achatz <stefan_achatz@web.de>
+Subject: Re: [PATCH] HID: roccat: Mark expected switch fall-through
+Date: Wed, 20 Feb 2019 09:15:17 +0100
+Message-ID: <1550650517.5256.2.camel@web.de>
+References: <20190211215334.GA6216@embeddedor>
+         <nycvar.YFH.7.76.1902191415550.11598@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <722c14a1-78cd-14b6-59ef-ba0d6fc82cb1@i-love.sakura.ne.jp>
+In-Reply-To: <nycvar.YFH.7.76.1902191415550.11598@cbobk.fhfr.pm>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: rydberg@bitmath.org, syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: Jiri Kosina <jikos@kernel.org>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Stefan Achatz <erazor_de@users.sourceforge.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Feb 18, 2019 at 07:10:23PM +0900, Tetsuo Handa wrote:
-> Thank you for responding.
-> 
-> On 2019/02/18 6:07, Dmitry Torokhov wrote:
-> > The commit tries to send final uevent for objects for which "add" uevent
-> > has been sent, but not "remove" event. However in uinput (and general
-> > input case) we always take care of sending uevent at unregister, and do
-> > not expect to have uevent sent out at the final "put" time.
-> 
-> Then, we want to keep dev->name and dev->phys when calling "unregister" time.
-> 
-> > 
-> > I believe the real fix is to have kobj->state_remove_uevent_sent be set
-> > to true as soon as we enter kobject_uevent(kobj, KOBJ_REMOVE) so that
-> > it is being set even if memory allocation fails. Doing anything else may
-> > violate expectations of subsystem owning the kobject.
-> 
-> If we want to keep dev->name and dev->phys when calling "unregister" time,
-> we could do something like below. Does calling kobject_uevent(KOBJ_REMOVE)
-> without dev->name and dev->phys (to some degree) help (compared to not
-> triggering kobject_uevent(KOBJ_REMOVE) at all) ?
+Am Dienstag, den 19.02.2019, 14:16 +0100 schrieb Jiri Kosina:
+> On Mon, 11 Feb 2019, Gustavo A. R. Silva wrote:
+>
+> > In preparation to enabling -Wimplicit-fallthrough, mark switch
+> > cases where we are expecting to fall through.
+> >
+> > This patch fixes the following warning:
+> >
+> > drivers/hid/hid-roccat-kone.c: In function
+> > =E2=80=98kone_keep_values_up_to_date=E2=80=99:
+> > drivers/hid/hid-roccat-kone.c:784:20: warning: this statement may
+> > fall through [-Wimplicit-fallthrough=3D]
+> >    kone->actual_dpi =3D kone->profiles[event->value - 1].
+> >    ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> >      startup_dpi;
+> >      ~~~~~~~~~~~
+> > drivers/hid/hid-roccat-kone.c:786:2: note: here
+> >   case kone_mouse_event_osd_profile:
+> >   ^~~~
+> >
+> > Warning level 3 was used: -Wimplicit-fallthrough=3D3
+> >
+> > This patch is part of the ongoing efforts to enable
+> > -Wimplicit-fallthrough.
+> >
+> > Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> > ---
+> >  drivers/hid/hid-roccat-kone.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-
+> > roccat-kone.c
+> > index bf4675a27396..c4dd6162c1d6 100644
+> > --- a/drivers/hid/hid-roccat-kone.c
+> > +++ b/drivers/hid/hid-roccat-kone.c
+> > @@ -783,6 +783,7 @@ static void kone_keep_values_up_to_date(struct
+> > kone_device *kone,
+> >  	case kone_mouse_event_switch_profile:
+> >  		kone->actual_dpi =3D kone->profiles[event->value -
+> > 1].
+> >  				startup_dpi;
+> > +		/* fall through */
+> >  	case kone_mouse_event_osd_profile:
+> >  		kone->actual_profile =3D event->value;
+> >  		break;
+>
+> Stefan, could you please confirm that this is intended behavior?
+>
+> Thanks,
 
-We are talking about handling pretty bad failure (I am not sure if these
-allocations can fail in real life) so not getting KOBJ_REMOVE uevent is
-not a big deal.
-
-Thanks.
-
--- 
-Dmitry
+I already confirmed this 7 months ago but as I see only in a reply to
+you.
+Yes, this patch is correct.
+Stefan

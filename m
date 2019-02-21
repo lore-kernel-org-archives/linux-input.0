@@ -1,179 +1,64 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: Re: [PATCH] Input: uinput - Allow uinput_request to be interrupted
-Date: Thu, 21 Feb 2019 08:11:27 -0300
-Message-ID: <dd48a489-fb13-fa66-a002-783d547e90c9@gmail.com>
-References: <20190218004305.339758-1-marcos.souza.org@gmail.com>
- <20190218142110.GA23087@casa> <20190218201544.GA192977@dtor-ws>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] Input: evdev - use struct_size() in kzalloc() and vzalloc()
+Date: Thu, 21 Feb 2019 09:37:38 -0600
+Message-ID: <20190221153738.GA17825@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190218201544.GA192977@dtor-ws>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, "Paul E. McKenney" <paulmck@linux.ibm.com>, Martin Kepplinger <martink@posteo.de>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+One of the more common cases of allocation size calculations is finding
+the size of a structure that has a zero-sized array at the end, along
+with memory for some number of elements for that array. For example:
 
-On 2/18/19 5:15 PM, Dmitry Torokhov wrote:
-> On Mon, Feb 18, 2019 at 03:21:10PM +0100, Rodrigo Rivas Costa wrote:
->> On Sun, Feb 17, 2019 at 09:42:52PM -0300, Marcos Paulo de Souza wrote:
->>> -	if (!wait_for_completion_timeout(&request->done, 30 * HZ)) {
->>> +	if (!wait_for_completion_interruptible_timeout(&request->done,
->>> +							30 * HZ)) {
->>>   		retval = -ETIMEDOUT;
->>>   		goto out;
->>>   	}
->> Now this function can succeed or fail because of ETIMEDOUT or an
->> interrupt. I think you should return -EINTR or maybe -ESYSRESTART if
->> interrupted.
-> Rodrigo, you are right. Marcos, could you please send updated patch that
-> returns different error code for timeout vs interrupt condition?
+struct foo {
+    int stuff;
+    struct boo entry[];
+};
 
-Sure. But now I found another issue: If we start fftest and press 
-Ctrl-C, it works (as Rodrigo and we all tested), but if we press -1 
-(Stopping effects), it gets stuck in the same old way. Now I'm running 
-lockdep and trying to fix this missing case (lockdep added bellow).
+size = sizeof(struct foo) + count * sizeof(struct boo);
+instance = kzalloc(size, GFP_KERNEL);
 
-This lockdep warning is shown before the fftest can even allow the user 
-to choose between his available options or press -1.
+Instead of leaving these open-coded and prone to type mistakes, we can
+now use the new struct_size() helper:
 
->
-> I dropped the patch for now.
->
-> Thanks.
-[   11.528465] WARNING: possible circular locking dependency detected 
-[37/7926]
-[   11.530419] 5.0.0-rc7+ #5 Not tainted
-[   11.531368] ------------------------------------------------------
-[   11.533295] fftest/200 is trying to acquire lock:
-[   11.534713] 000000006528ddcb (&newdev->mutex){+.+.}, at: 
-uinput_request_submit+0x10a/0x320 [uinput]
-[ 11.536939]
-[   11.536939] but task is already holding lock:
-[   11.538338] 000000004113875e (&ff->mutex){+.+.}, at: 
-input_ff_upload+0xa6/0x250
-[ 11.540114]
-[   11.540114] which lock already depends on the new lock.
-[ 11.540114]
-[ 11.541966]
-[   11.541966] the existing dependency chain (in reverse order) is:
-[ 11.543765]
-[   11.543765] -> #3 (&ff->mutex){+.+.}:
-[   11.544982] input_ff_flush+0x23/0x60
-[   11.545933] input_flush_device+0x3b/0x60
-[   11.546985]        evdev_flush+0x54/0x60
-[   11.547974]        filp_close+0x25/0x70
-[   11.548849]        __x64_sys_close+0x19/0x40
-[   11.549838]        do_syscall_64+0x4b/0x180
-[   11.550853]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[   11.552584]
-[   11.552584] -> #2 (&dev->mutex#2){+.+.}:
-[   11.554077]        input_register_handle+0x25/0xc0
-[   11.555228]        kbd_connect+0x44/0x90
-[   11.556141]        input_attach_handler+0x73/0xb0
-[   11.557222]        input_register_device+0x438/0x4b0
-[   11.558383]        acpi_button_add+0x179/0x470
-[   11.559392]        acpi_device_probe+0x43/0x110
-[   11.560432]        really_probe+0x1c4/0x2d0
-[   11.561334]        driver_probe_device+0x4a/0xe0
-[   11.562286]        __driver_attach+0xb0/0xc0
-[   11.563165]        bus_for_each_dev+0x74/0xc0
-[   11.564159]        bus_add_driver+0x194/0x210
-[   11.565142]        driver_register+0x56/0xe0
-[   11.566157]        do_one_initcall+0x58/0x2ae
-[   11.567095]        kernel_init_freeable+0x1ca/0x256
-[   11.568176]        kernel_init+0x5/0x100
-[   11.569032]        ret_from_fork+0x3a/0x50
-[   11.569898]
-[   11.569898] -> #1 (input_mutex){+.+.}:
-[   11.571027]        input_register_device+0x3e6/0x4b0
-[   11.572116]        uinput_ioctl_handler.isra.9+0x557/0x980 [uinput]
-[   11.573509]        do_vfs_ioctl+0xa0/0x6e0
-[   11.574395]        ksys_ioctl+0x6b/0x80
-[   11.575234]        __x64_sys_ioctl+0x11/0x20
-[   11.576161]        do_syscall_64+0x4b/0x180
-[   11.577085]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[   11.578281]
-[   11.578281] -> #0 (&newdev->mutex){+.+.}:
-[   11.579436]        __mutex_lock+0x7d/0x9a0
-[   11.580381]        uinput_request_submit+0x10a/0x320 [uinput]
-[   11.581590]        uinput_dev_upload_effect+0x76/0xb0 [uinput]
-[   11.582893]        input_ff_upload+0x1c0/0x250
-[   11.583853]        evdev_ioctl_handler+0x388/0xbd0
-[   11.584926]        do_vfs_ioctl+0xa0/0x6e0
-[   11.586208]        ksys_ioctl+0x6b/0x80
-[   11.587292]        __x64_sys_ioctl+0x11/0x20
-[   11.588254]        do_syscall_64+0x4b/0x180
-[   11.589221]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[   11.590424]
-[   11.590424] other info that might help us debug this:
-[   11.590424]
-[   11.592162] Chain exists of:
-[   11.592162]   &newdev->mutex --> &dev->mutex#2 --> &ff->mutex
-[   11.592162]
-[   11.594156]  Possible unsafe locking scenario:
-[   11.594156]
-[   11.595456]        CPU0                    CPU1
-[   11.596452]        ----                    ----
-[   11.597377]   lock(&ff->mutex);
-[   11.598004] lock(&dev->mutex#2);
-[   11.599163] lock(&ff->mutex);
-[   11.600282]   lock(&newdev->mutex);
-[   11.600982]
-[   11.600982]  *** DEADLOCK ***
-[   11.600982]
-[   11.602144] 2 locks held by fftest/200:
-[   11.602915]  #0: 000000006ae3e58b (&evdev->mutex){+.+.}, at: 
-evdev_ioctl_handler+0x48/0xbd0
-[   11.604581]  #1: 000000004113875e (&ff->mutex){+.+.}, at: 
-input_ff_upload+0xa6/0x250
-[   11.606110]
-[   11.606110] stack backtrace:
-[   11.606982] CPU: 0 PID: 200 Comm: fftest Not tainted 5.0.0-rc7+ #5
-[   11.608140] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), 
-BIOS rel-1.11.0-0-g63451fc-prebuilt.qemu-project.org 04/01/2014
-[   11.610344] Call Trace:
-[   11.610827]  dump_stack+0x67/0x9b
-[   11.611470]  print_circular_bug.isra.35+0x1ce/0x1db
-[   11.612392]  __lock_acquire+0x15e4/0x1650
-[   11.613188]  ? _raw_spin_unlock_irq+0x24/0x30
-[   11.614045]  ? lock_acquire+0xa7/0x1b0
-[   11.614793]  lock_acquire+0xa7/0x1b0
-[   11.615489]  ? uinput_request_submit+0x10a/0x320 [uinput]
-[   11.616526]  ? uinput_request_submit+0x10a/0x320 [uinput]
-[   11.617562]  __mutex_lock+0x7d/0x9a0
-[   11.618243]  ? uinput_request_submit+0x10a/0x320 [uinput]
-[   11.619234]  ? vprintk_emit+0xec/0x260
-[   11.620271]  ? printk+0x4d/0x69
-[   11.621158]  ? uinput_request_submit+0x10a/0x320 [uinput]
-[   11.622464]  uinput_request_submit+0x10a/0x320 [uinput]
-[   11.623587]  uinput_dev_upload_effect+0x76/0xb0 [uinput]
-[   11.624788]  ? find_held_lock+0x2d/0x90
-[   11.625633]  input_ff_upload+0x1c0/0x250
-[   11.626524]  evdev_ioctl_handler+0x388/0xbd0
-[   11.627439]  do_vfs_ioctl+0xa0/0x6e0
-[   11.628215]  ksys_ioctl+0x6b/0x80
-[   11.628967]  __x64_sys_ioctl+0x11/0x20
-[   11.629734]  do_syscall_64+0x4b/0x180
-[   11.630483]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[   11.631508] RIP: 0033:0x7f2d99a76467
-[   11.632220] Code: b3 66 90 48 8b 05 31 4a 2c 00 64 c7 00 26 00 00 00 
-48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 
-05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 01 4a 2c 00 f7 d8 64 89 01 48
-[   11.635876] RSP: 002b:00007ffe1ab6fbd8 EFLAGS: 00000246 ORIG_RAX: 
-0000000000000010
-[   11.637355] RAX: ffffffffffffffda RBX: 00007ffe1ab6fc50 RCX: 
-00007f2d99a76467
-[   11.638766] RDX: 00007ffe1ab6fd10 RSI: 0000000040304580 RDI: 
-0000000000000003
-[   11.640177] RBP: 0000000000000003 R08: 00007f2d99d3d880 R09: 
-00007f2d99f47500
-[   11.641679] R10: 000055c75edf2140 R11: 0000000000000246 R12: 
-000055c75edf1a80
-[   11.643211] R13: 00007ffe1ab6feb0 R14: 0000000000000000 R15: 
-0000000000000000
+instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
 
->
+Notice that, in this case, variable size is not necessary, hence
+it is removed.
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/input/evdev.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index f48369d6f3a0..ee8dd8b1b09e 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -503,14 +503,13 @@ static int evdev_open(struct inode *inode, struct file *file)
+ {
+ 	struct evdev *evdev = container_of(inode->i_cdev, struct evdev, cdev);
+ 	unsigned int bufsize = evdev_compute_buffer_size(evdev->handle.dev);
+-	unsigned int size = sizeof(struct evdev_client) +
+-					bufsize * sizeof(struct input_event);
+ 	struct evdev_client *client;
+ 	int error;
+ 
+-	client = kzalloc(size, GFP_KERNEL | __GFP_NOWARN);
++	client = kzalloc(struct_size(client, buffer, bufsize),
++			 GFP_KERNEL | __GFP_NOWARN);
+ 	if (!client)
+-		client = vzalloc(size);
++		client = vzalloc(struct_size(client, buffer, bufsize));
+ 	if (!client)
+ 		return -ENOMEM;
+ 
+-- 
+2.20.1

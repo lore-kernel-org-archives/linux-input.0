@@ -1,86 +1,58 @@
-From: "Life is hard, and then you die" <ronald@innovation.ch>
-Subject: Re: [PATCH v2 2/2] Input: add Apple SPI keyboard and trackpad driver.
-Date: Mon, 25 Feb 2019 00:05:29 -0800
-Message-ID: <20190225080529.GA26142@innovation.ch>
-References: <20190221105609.5710-1-ronald@innovation.ch>
- <20190221105609.5710-3-ronald@innovation.ch>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/2] dt-bindings: input: sitronix-st1232: document
+ optional reset-gpios property
+Date: Mon, 25 Feb 2019 08:43:28 -0600
+Message-ID: <20190225144328.GA13518@bogus>
+References: <20190129102347.27754-1-martink@posteo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190221105609.5710-3-ronald@innovation.ch>
+In-Reply-To: <20190129102347.27754-1-martink@posteo.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
-Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Martin Kepplinger <martink@posteo.de>
+Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, mark.rutland@arm.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
 List-Id: linux-input@vger.kernel.org
 
+On Tue, Jan 29, 2019 at 11:23:46AM +0100, Martin Kepplinger wrote:
+> From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> 
+> The st1232 driver reads this via gpiod.
 
-On Thu, Feb 21, 2019 at 02:56:09AM -0800, Ronald Tschalär wrote:
-> The keyboard and trackpad on recent MacBook's (since 8,1) and
-> MacBookPro's (13,* and 14,*) are attached to an SPI controller instead
-> of USB, as previously. The higher level protocol is not publicly
-> documented and hence has been reverse engineered. As a consequence there
-> are still a number of unknown fields and commands. However, the known
-> parts have been working well and received extensive testing and use.
+What a driver does is not relevant to the binding. This breaks 
+compatibility so you need to mention that and why this is okay.
+
+Either you need to keep 'gpios' as deprecated or you can drop it if 
+there aren't any dts files using it.
+
 > 
-> In order for this driver to work, the proper SPI drivers need to be
-> loaded too; for MB8,1 these are spi_pxa2xx_platform and spi_pxa2xx_pci;
-> for all others they are spi_pxa2xx_platform and intel_lpss_pci. For this
-> reason enabling this driver in the config implies enabling the above
-> drivers.
-> 
-> CC: Federico Lorenzi <federico@travelground.com>
-> CC: Lukas Wunner <lukas@wunner.de>
-> CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=99891
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=108331
-> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 > ---
->  drivers/input/keyboard/Kconfig    |   14 +
->  drivers/input/keyboard/Makefile   |    1 +
->  drivers/input/keyboard/applespi.c | 2003 +++++++++++++++++++++++++++++
->  3 files changed, 2018 insertions(+)
->  create mode 100644 drivers/input/keyboard/applespi.c
-[snip]
-> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-> new file mode 100644
-> index 000000000000..2a8d1786011d
-> --- /dev/null
-> +++ b/drivers/input/keyboard/applespi.c
-[snip]
-> +/**
-> + * This is a reduced version of print_hex_dump() that uses dev_printk().
-> + */
-> +static void dev_print_hex_dump(const char *level, const struct device *dev,
-> +			       const char *prefix_str,
-> +			       int rowsize, int groupsize,
-> +			       const void *buf, size_t len, bool ascii)
-> +{
-> +	const u8 *ptr = buf;
-> +	int i, linelen, remaining = len;
-> +	unsigned char linebuf[32 * 3 + 2 + 32 + 1];
-> +
-> +	if (rowsize != 16 && rowsize != 32)
-> +		rowsize = 16;
-> +
-> +	for (i = 0; i < len; i += rowsize) {
-> +		linelen = min(remaining, rowsize);
-> +		remaining -= rowsize;
-> +
-> +		hex_dump_to_buffer(ptr + i, linelen, rowsize, groupsize,
-> +				   linebuf, sizeof(linebuf), ascii);
-> +
-> +		dev_printk(level, dev, "%s%s\n", prefix_str, linebuf);
-> +	}
-> +}
-
-Apologies, I should've have fixed this before posting v2: I'll
-introduce an additional patch to add this function to the core to
-avoid duplication and because I presume this may be useful for others
-too.
-
-
-  Cheers,
-
-  Ronald
+>  .../devicetree/bindings/input/touchscreen/sitronix-st1232.txt | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+> index e73e826e0f2a..365b32d30d4b 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
+> @@ -8,7 +8,7 @@ Required properties:
+>  - interrupts: interrupt to which the chip is connected
+>  
+>  Optional properties:
+> -- gpios: a phandle to the reset GPIO
+> +- reset-gpios: a phandle to the reset GPIO
+>  
+>  Example:
+>  
+> @@ -19,7 +19,7 @@ Example:
+>  			compatible = "sitronix,st1232";
+>  			reg = <0x55>;
+>  			interrupts = <2 0>;
+> -			gpios = <&gpio1 166 0>;
+> +			reset-gpios = <&gpio1 166 0>;
+>  		};
+>  
+>  		/* ... */
+> -- 
+> 2.20.1
+> 

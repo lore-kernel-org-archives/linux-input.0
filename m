@@ -1,52 +1,86 @@
-From: Vladimir Zapolskiy <vz@mleia.com>
-Subject: Re: [PATCH 1/3] Input: lpc32xx-key - add clocks property and fix DT
- binding example
-Date: Sat, 23 Feb 2019 13:38:01 +0200
-Message-ID: <41befcd7-5ca4-34c9-6929-1ae1d706b108@mleia.com>
-References: <20190126142921.16041-1-vz@mleia.com>
- <20190126142921.16041-2-vz@mleia.com> <20190223004158.GA3951@bogus>
+From: "Life is hard, and then you die" <ronald@innovation.ch>
+Subject: Re: [PATCH v2 2/2] Input: add Apple SPI keyboard and trackpad driver.
+Date: Mon, 25 Feb 2019 00:05:29 -0800
+Message-ID: <20190225080529.GA26142@innovation.ch>
+References: <20190221105609.5710-1-ronald@innovation.ch>
+ <20190221105609.5710-3-ronald@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190223004158.GA3951@bogus>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Sylvain Lemieux <slemieux.tyco@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190221105609.5710-3-ronald@innovation.ch>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
 
-On 02/23/2019 02:41 AM, Rob Herring wrote:
-> On Sat, 26 Jan 2019 16:29:19 +0200, Vladimir Zapolskiy wrote:
->> The keypad controller on NXP LPC32xx requires its clock gate to be open,
->> therefore add description of the requires 'clocks' property.
->>
->> In addition adjust the example by adding description of required 'clocks'
->> property and by fixing 'interrupts' property.
->>
->> Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
->> ---
->>  Documentation/devicetree/bindings/input/lpc32xx-key.txt | 5 ++++-
->>  1 file changed, 4 insertions(+), 1 deletion(-)
->>
+On Thu, Feb 21, 2019 at 02:56:09AM -0800, Ronald Tschalär wrote:
+> The keyboard and trackpad on recent MacBook's (since 8,1) and
+> MacBookPro's (13,* and 14,*) are attached to an SPI controller instead
+> of USB, as previously. The higher level protocol is not publicly
+> documented and hence has been reverse engineered. As a consequence there
+> are still a number of unknown fields and commands. However, the known
+> parts have been working well and received extensive testing and use.
 > 
-> Reviewed-by: Rob Herring <robh@kernel.org>
+> In order for this driver to work, the proper SPI drivers need to be
+> loaded too; for MB8,1 these are spi_pxa2xx_platform and spi_pxa2xx_pci;
+> for all others they are spi_pxa2xx_platform and intel_lpss_pci. For this
+> reason enabling this driver in the config implies enabling the above
+> drivers.
 > 
+> CC: Federico Lorenzi <federico@travelground.com>
+> CC: Lukas Wunner <lukas@wunner.de>
+> CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=99891
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=108331
+> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+> ---
+>  drivers/input/keyboard/Kconfig    |   14 +
+>  drivers/input/keyboard/Makefile   |    1 +
+>  drivers/input/keyboard/applespi.c | 2003 +++++++++++++++++++++++++++++
+>  3 files changed, 2018 insertions(+)
+>  create mode 100644 drivers/input/keyboard/applespi.c
+[snip]
+> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+> new file mode 100644
+> index 000000000000..2a8d1786011d
+> --- /dev/null
+> +++ b/drivers/input/keyboard/applespi.c
+[snip]
+> +/**
+> + * This is a reduced version of print_hex_dump() that uses dev_printk().
+> + */
+> +static void dev_print_hex_dump(const char *level, const struct device *dev,
+> +			       const char *prefix_str,
+> +			       int rowsize, int groupsize,
+> +			       const void *buf, size_t len, bool ascii)
+> +{
+> +	const u8 *ptr = buf;
+> +	int i, linelen, remaining = len;
+> +	unsigned char linebuf[32 * 3 + 2 + 32 + 1];
+> +
+> +	if (rowsize != 16 && rowsize != 32)
+> +		rowsize = 16;
+> +
+> +	for (i = 0; i < len; i += rowsize) {
+> +		linelen = min(remaining, rowsize);
+> +		remaining -= rowsize;
+> +
+> +		hex_dump_to_buffer(ptr + i, linelen, rowsize, groupsize,
+> +				   linebuf, sizeof(linebuf), ascii);
+> +
+> +		dev_printk(level, dev, "%s%s\n", prefix_str, linebuf);
+> +	}
+> +}
 
-can you please pull this documentation change through Linux input branch?
+Apologies, I should've have fixed this before posting v2: I'll
+introduce an additional patch to add this function to the core to
+avoid duplication and because I presume this may be useful for others
+too.
 
-The two other dts changes have been already included into arm-soc.
 
---
-Best wishes,
-Vladimir
+  Cheers,
+
+  Ronald

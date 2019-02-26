@@ -1,58 +1,57 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/2] dt-bindings: input: sitronix-st1232: document
- optional reset-gpios property
-Date: Mon, 25 Feb 2019 08:43:28 -0600
-Message-ID: <20190225144328.GA13518@bogus>
-References: <20190129102347.27754-1-martink@posteo.de>
+From: Jagan Teki <jagan@amarulasolutions.com>
+Subject: Re: [PATCH v6 0/4] input: touchscreen: Add goodix GT5553 CTP support
+Date: Tue, 26 Feb 2019 11:43:54 +0530
+Message-ID: <CAMty3ZDpy5YX3V+6e=UtY=a9Lgiw-NEP1JPQn4_LKL3mYFtrvQ@mail.gmail.com>
+References: <20190219101629.15977-1-jagan@amarulasolutions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190129102347.27754-1-martink@posteo.de>
+In-Reply-To: <20190219101629.15977-1-jagan@amarulasolutions.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Martin Kepplinger <martink@posteo.de>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, mark.rutland@arm.com, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 29, 2019 at 11:23:46AM +0100, Martin Kepplinger wrote:
-> From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-> 
-> The st1232 driver reads this via gpiod.
+Hi Dmitry,
 
-What a driver does is not relevant to the binding. This breaks 
-compatibility so you need to mention that and why this is okay.
+On Tue, Feb 19, 2019 at 3:46 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
+>
+> This is v6 patchset for supporting goodix GT5553 CTP. Here is the
+> previous version[1]
+>
+> Changes for v5:
+> - document bindings for required regulators, which are need during
+>   power-on sequence
+> - enable, disable required regulators as described in power-on sequence
+>   using normal regulator calls
+> - update the proper commi messages
+> Changes for v4:
+> - document AVDD22, DVDD12, VDDIO as optional properties
+> - use regulator bulk calls, for get, enable and disable functionalities
+> Changes for v4:
+> - devm_add_action_or_reset for disabling regulator
+> Changes for v3:
+> - add cover-letter
+> - s/ADVV28/AVDD28 on commit head
+> - fix few typo
+> Changes for v2:
+> - Rename vcc-supply with AVDD28-supply
+> - disable regulator in remove
+> - fix to setup regulator in probe code
+> - add chipdata
+> - drop example node in dt-bindings
+>
+> [1] https://patchwork.kernel.org/cover/10816901/
+>
+> Jagan Teki (4):
+>   dt-bindings: input: touchscreen: goodix: Document regulator properties
+>   Input: goodix - Add regulators suppot
+>   dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
+>   Input: goodix - Add GT5663 CTP support
+>
+>  .../bindings/input/touchscreen/goodix.txt     |  3 +
+>  drivers/input/touchscreen/goodix.c            | 60 +++++++++++++++++++
+>  2 files changed, 63 insertions(+)
 
-Either you need to keep 'gpios' as deprecated or you can drop it if 
-there aren't any dts files using it.
-
-> 
-> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-> ---
->  .../devicetree/bindings/input/touchscreen/sitronix-st1232.txt | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
-> index e73e826e0f2a..365b32d30d4b 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix-st1232.txt
-> @@ -8,7 +8,7 @@ Required properties:
->  - interrupts: interrupt to which the chip is connected
->  
->  Optional properties:
-> -- gpios: a phandle to the reset GPIO
-> +- reset-gpios: a phandle to the reset GPIO
->  
->  Example:
->  
-> @@ -19,7 +19,7 @@ Example:
->  			compatible = "sitronix,st1232";
->  			reg = <0x55>;
->  			interrupts = <2 0>;
-> -			gpios = <&gpio1 166 0>;
-> +			reset-gpios = <&gpio1 166 0>;
->  		};
->  
->  		/* ... */
-> -- 
-> 2.20.1
-> 
+Let me know if you have any further comments on regulator patch, fyi
+Rob reviewed it already.

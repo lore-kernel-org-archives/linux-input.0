@@ -1,86 +1,67 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [RFC/RFT] HID: primax: Fix wireless keyboards descriptor
-Date: Fri, 1 Mar 2019 10:48:44 +0100
-Message-ID: <CAO-hwJ+9ft070W-shhEwxfTq9B5XyVB2v6Qx0b4nC4LdTiTEDg@mail.gmail.com>
-References: <20190228135556.14713-1-nsaenzjulienne@suse.de>
- <BYAPR02MB56078ADD429292DF89F8C694ED750@BYAPR02MB5607.namprd02.prod.outlook.com>
- <a6ecd59f99aa64355ac7c176aa4310d32ce8969e.camel@suse.de>
+From: me@myself5.de
+Subject: [PATCH] platform/x86: touchscreen_dmi: Add info for the CHUWI Hi10 Air tablet
+Date: Fri,  1 Mar 2019 17:40:01 +0100
+Message-ID: <20190301164002.6031-1-me@myself5.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a6ecd59f99aa64355ac7c176aa4310d32ce8969e.camel@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: "Junge, Terry" <Terry.Junge@plantronics.com>, Jiri Kosina <jikos@kernel.org>, "oneukum@suse.de" <oneukum@suse.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Christian Oder <me@myself5.de>, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Feb 28, 2019 at 7:01 PM Nicolas Saenz Julienne
-<nsaenzjulienne@suse.de> wrote:
->
-> On Thu, 2019-02-28 at 17:02 +0000, Junge, Terry wrote:
-> > This could also be a parser error. In the HID specification section 6.2.2.8 it
-> > states that the last declared Usage Page is applied to Usages when the Main
-> > item is encountered.
-> >
-> > "If the bSize field = 1 or 2 then the Usage is interpreted as an unsigned
-> > value
-> > that selects a Usage ID on the currently defined Usage Page. When the parser
-> > encounters a main item it concatenates the last declared Usage Page with a
-> > Usage to form a complete usage value. Extended usages can be used to
-> > override the currently defined Usage Page for individual usages."
-> >
->
-> Hi Terry, thanks for the comment.
-> Just for the record the paragraph I cited on my patch is the following:
->
->         6.2.2.7 Global Items
->
->         [...]
->
->         Usage Page: Unsigned integer specifying the current Usage Page. Since a
->         usage are 32 bit values, Usage Page items can be used to conserve space
->         in a report descriptor by setting the high order 16 bits of a
->         subsequent usages. Any usage that follows which is defines* 16 bits or
->         less is interpreted as a Usage ID and concatenated with the Usage Page
->         to form a 32 bit Usage.
->
->         * This is a spec errata, I belive it should say "defined"
->
-> As you can see they use the word "follows" which in my opinion contradicts the
-> paragraph you pointed out. That said I may be wrong, I'm not too good at
-> reading specs :).
+From: Christian Oder <me@myself5.de>
 
-I think you are both right (that is some decision making skills :-P).
+Add  touchscreen info for the CHUWUI Hi10 Air tablet.
 
-I never saw a case where the Usage Page was after the Usage. And I
-would lean towards Nicolas interpretation.
-However, Terry's point is valid too, and by re-reading the two
-paragraphs, one could argue that the "follows" of 6.2.2.7 could be
-applied when the Main item is processed as in 6.2.2.8.
+Signed-off-by: Christian Oder <me@myself5.de>
+---
+ drivers/platform/x86/touchscreen_dmi.c | 27 ++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-So I am going to base my decision on the "reference" driver. How well
-behaves Windows with this particular keyboard?
-
-If it behaves properly, then we better use the 6.2.2.8 version where
-the Usage Page is only appended when there is a Main item. This means
-we need to remember what size was the last Usage (and Min/Max), to
-know if we should concatenate the 2.
-
-Note that for every change that involves the generic parser, I'd like
-a few tests added to `tests/test_keyboard.py in
-https://gitlab.freedesktop.org/libevdev/hid-tools
-Also note that the HID parser implementation in hid-tools follows the
-kernel, so we might need to adjust it there too if we want to add high
-level events. If you directly call `.call_input_event()` with raw
-events, it should be fine.
-
->
-> I checked the HID parser and it's indeed written assuming local items are
-> preceded by a Usage Page. I'd be glad to fix it there, but it would be nice to
-> have the mantainer's opinion on the matter first.
->
-
-You've now got the opinion of one of the 2 maintainers, hope this helps :)
-
-Cheers,
-Benjamin
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 167a156e3cc7..2d56ff7c8230 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -72,6 +72,25 @@ static const struct ts_dmi_data chuwi_hi8_pro_data = {
+ 	.properties	= chuwi_hi8_pro_props,
+ };
+ 
++static const struct property_entry chuwi_hi10_air_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1981),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1271),
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 99),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 9),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_U32("touchscreen-fuzz-x", 5),
++	PROPERTY_ENTRY_U32("touchscreen-fuzz-y", 4),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10-air.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct ts_dmi_data chuwi_hi10_air_data = {
++	.acpi_name	= "MSSL1680:00",
++	.properties	= chuwi_hi10_air_props,
++};
++
+ static const struct property_entry chuwi_vi8_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
+@@ -546,6 +565,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "X1D3_C806N"),
+ 		},
+ 	},
++	{
++		/* Chuwi Hi10 Air */
++		.driver_data = (void *)&chuwi_hi10_air_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
++		},
++	},
+ 	{
+ 		/* Chuwi Vi8 (CWI506) */
+ 		.driver_data = (void *)&chuwi_vi8_data,
+-- 
+2.20.1

@@ -1,67 +1,46 @@
-From: me@myself5.de
-Subject: [PATCH] platform/x86: touchscreen_dmi: Add info for the CHUWI Hi10 Air tablet
-Date: Fri,  1 Mar 2019 17:40:01 +0100
-Message-ID: <20190301164002.6031-1-me@myself5.de>
+From: Luca Weiss <luca@z3ntu.xyz>
+Subject: [PATCH 1/2] dt-bindings: input: add GPIO controllable vibrator
+Date: Sat,  2 Mar 2019 15:11:30 +0100
+Message-ID: <20190302141132.21160-1-luca@z3ntu.xyz>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Christian Oder <me@myself5.de>, Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Luca Weiss <luca@z3ntu.xyz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "open list:INPUT KEYBOARD, MOUSE, JOYSTICK
+        , TOUCHSCREEN..." <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED
+        DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Christian Oder <me@myself5.de>
+Provide a simple driver for GPIO controllable vibrators.
+It will be used by the Fairphone 2.
 
-Add  touchscreen info for the CHUWUI Hi10 Air tablet.
-
-Signed-off-by: Christian Oder <me@myself5.de>
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 27 ++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ .../devicetree/bindings/input/gpio-vibrator.txt  | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/gpio-vibrator.txt
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 167a156e3cc7..2d56ff7c8230 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -72,6 +72,25 @@ static const struct ts_dmi_data chuwi_hi8_pro_data = {
- 	.properties	= chuwi_hi8_pro_props,
- };
- 
-+static const struct property_entry chuwi_hi10_air_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1981),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1271),
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 99),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 9),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_U32("touchscreen-fuzz-x", 5),
-+	PROPERTY_ENTRY_U32("touchscreen-fuzz-y", 4),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10-air.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
-+	{ }
-+};
+diff --git a/Documentation/devicetree/bindings/input/gpio-vibrator.txt b/Documentation/devicetree/bindings/input/gpio-vibrator.txt
+new file mode 100644
+index 000000000000..9e2e9acf497b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/gpio-vibrator.txt
+@@ -0,0 +1,16 @@
++* GPIO vibrator device tree bindings
 +
-+static const struct ts_dmi_data chuwi_hi10_air_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= chuwi_hi10_air_props,
-+};
++Registers a GPIO device as vibrator, where the vibration motor just has the capability to turn on or off. If the device is connected to a pwm, you should use the pwm-vibrator driver instead.
 +
- static const struct property_entry chuwi_vi8_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
-@@ -546,6 +565,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "X1D3_C806N"),
- 		},
- 	},
-+	{
-+		/* Chuwi Hi10 Air */
-+		.driver_data = (void *)&chuwi_hi10_air_data,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
-+			DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
-+		},
-+	},
- 	{
- 		/* Chuwi Vi8 (CWI506) */
- 		.driver_data = (void *)&chuwi_vi8_data,
++Required properties:
++- compatible: should contain "gpio-vibrator"
++- enable-gpios: Should contain a GPIO handle
++- vcc-supply: Phandle for the regulator supplying power
++
++Example from Fairphone 2:
++
++vibrator {
++	compatible = "gpio-vibrator";
++	enable-gpios = <&msmgpio 86 GPIO_ACTIVE_HIGH>;
++	vcc-supply = <&pm8941_l18>;
++};
 -- 
-2.20.1
+2.21.0

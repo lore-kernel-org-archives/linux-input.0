@@ -1,88 +1,61 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] platform/x86: touchscreen_dmi: Add info for the CHUWI
- Hi10 Air tablet
-Date: Sun, 3 Mar 2019 14:59:05 +0100
-Message-ID: <f4937ec1-9dac-0810-7386-a15ec5d306ae@redhat.com>
-References: <c6b0c2ef-eed9-ffae-e974-92260d5356aa@redhat.com>
- <20190303134727.6680-1-me@myself5.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH 0/9] HID: intel-ish-hid: Clean up external interfaces
+Date: Sun,  3 Mar 2019 08:46:45 -0800
+Message-ID: <20190303164654.29400-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190303134727.6680-1-me@myself5.de>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christian Oder <me@myself5.de>
-Cc: andy@infradead.org, dvhart@infradead.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Christian,
+FOR kernel v5.2+.
 
-On 03-03-19 14:47, Christian Oder wrote:
-> Add  touchscreen info for the CHUWUI Hi10 Air tablet.
-> 
-> Signed-off-by: Christian Oder <me@myself5.de>
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> - added review tag
+No functional changes are expected with this series. I am posting this now
+because of usage of ISH in ChromeOS Embedded Controller.
+https://lkml.org/lkml/2019/2/24/26
+I want to make sure that API is restricted before more development and posting
+there.
 
-A quick note for any patches you may submit in the future, there
-is no need to send a v2 just to add someones Reviewed-by or Acked-by,
-these will be picked up automatically by the subsys-maintainer when
-they add the patch to their tree.
+Currently only one ISH client is using ISH transport. But it is changing now
+with the development of other clients using ISH transport. Some of these
+clients which are targeted for Linux based OS only laptops, are not using
+HID to export sensors. As more clients are getting developed it is important
+that the external interface for ISH transport only allows what clients need.
+Currently the header files used by clients "client.h" and "ishtp-dev.h"
+include other ISH header files. Also clients access fields from structure
+which also has other fields which are only used by ISH transort.
 
-Regards,
+So this series introduces one header file "linux/intel-ish-client-if.h".
+This header files doesn't include any other ISH transport header files.
+There are interface functions defined so that clients never have to directly
+access any ISH transort structures.
+Also clients don't have to match there GUID in probe. They will be only
+probbed if their GUID matches, which is passed as driver registry. 
 
-Hans
+Hong Liu (1):
+  HID: intel-ish-hid: Add match callback to ishtp bus type
 
-> 
->   drivers/platform/x86/touchscreen_dmi.c | 27 ++++++++++++++++++++++++++
->   1 file changed, 27 insertions(+)
-> 
-> diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-> index 167a156e3cc7..2d56ff7c8230 100644
-> --- a/drivers/platform/x86/touchscreen_dmi.c
-> +++ b/drivers/platform/x86/touchscreen_dmi.c
-> @@ -72,6 +72,25 @@ static const struct ts_dmi_data chuwi_hi8_pro_data = {
->   	.properties	= chuwi_hi8_pro_props,
->   };
->   
-> +static const struct property_entry chuwi_hi10_air_props[] = {
-> +	PROPERTY_ENTRY_U32("touchscreen-size-x", 1981),
-> +	PROPERTY_ENTRY_U32("touchscreen-size-y", 1271),
-> +	PROPERTY_ENTRY_U32("touchscreen-min-x", 99),
-> +	PROPERTY_ENTRY_U32("touchscreen-min-y", 9),
-> +	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-> +	PROPERTY_ENTRY_U32("touchscreen-fuzz-x", 5),
-> +	PROPERTY_ENTRY_U32("touchscreen-fuzz-y", 4),
-> +	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10-air.fw"),
-> +	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +	PROPERTY_ENTRY_BOOL("silead,home-button"),
-> +	{ }
-> +};
-> +
-> +static const struct ts_dmi_data chuwi_hi10_air_data = {
-> +	.acpi_name	= "MSSL1680:00",
-> +	.properties	= chuwi_hi10_air_props,
-> +};
-> +
->   static const struct property_entry chuwi_vi8_props[] = {
->   	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
->   	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
-> @@ -546,6 +565,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
->   			DMI_MATCH(DMI_PRODUCT_NAME, "X1D3_C806N"),
->   		},
->   	},
-> +	{
-> +		/* Chuwi Hi10 Air */
-> +		.driver_data = (void *)&chuwi_hi10_air_data,
-> +		.matches = {
-> +			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
-> +			DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
-> +		},
-> +	},
->   	{
->   		/* Chuwi Vi8 (CWI506) */
->   		.driver_data = (void *)&chuwi_vi8_data,
-> 
+Srinivas Pandruvada (8):
+  HID: intel-ish-hid: Hide members of struct ishtp_cl_device
+  HID: intel-ish-hid: Simplify ishtp_cl_link()
+  HID: intel-ish-hid: Move driver registry functions
+  HID: intel-ish-hid: Store ishtp_cl_device instance in device
+  HID: intel-ish-hid: Move the common functions from client.h
+  HID: intel-ish-hid: Add interface functions for struct ishtp_cl
+  HID: intel-ish-hid: Move functions related to bus and device
+  HID: intel-ish-hid: Use the new interface functions in HID ish client
+
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 131 ++++++++++---------
+ drivers/hid/intel-ish-hid/ishtp-hid.c        |   6 +-
+ drivers/hid/intel-ish-hid/ishtp-hid.h        |   6 +-
+ drivers/hid/intel-ish-hid/ishtp/bus.c        |  83 +++++++++++-
+ drivers/hid/intel-ish-hid/ishtp/bus.h        |  37 +-----
+ drivers/hid/intel-ish-hid/ishtp/client.c     |  60 +++++++--
+ drivers/hid/intel-ish-hid/ishtp/client.h     |  24 ----
+ drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h  |  31 -----
+ include/linux/intel-ish-client-if.h          | 110 ++++++++++++++++
+ 9 files changed, 310 insertions(+), 178 deletions(-)
+ create mode 100644 include/linux/intel-ish-client-if.h
+
+-- 
+2.17.2

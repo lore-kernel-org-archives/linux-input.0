@@ -1,45 +1,54 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] HID: hid-asus: select CONFIG_POWER_SUPPLY
-Date: Mon,  4 Mar 2019 20:54:43 +0100
-Message-ID: <20190304195536.1019650-1-arnd@arndb.de>
+Subject: [PATCH] Input: msm-vibrator: use correct gpio header
+Date: Mon,  4 Mar 2019 20:56:59 +0100
+Message-ID: <20190304195734.1070109-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: NOGUCHI Hiroshi <drvlabo@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Brian Masney <masneyb@onstation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The newly added power supply code fails to link when the power supply core
-code is disabled:
+When CONFIG_GPIOLIB is not set, we get a couple of build
+errors during test building:
 
-drivers/hid/hid-asus.o: In function `asus_battery_get_property':
-hid-asus.c:(.text+0x11de): undefined reference to `power_supply_get_drvdata'
-drivers/hid/hid-asus.o: In function `asus_probe':
-hid-asus.c:(.text+0x170c): undefined reference to `devm_power_supply_register'
-hid-asus.c:(.text+0x1734): undefined reference to `power_supply_powers'
-drivers/hid/hid-asus.o: In function `asus_raw_event':
-hid-asus.c:(.text+0x1914): undefined reference to `power_supply_changed'
+drivers/input/misc/msm-vibrator.c: In function 'msm_vibrator_start':
+drivers/input/misc/msm-vibrator.c:79:3: error: implicit declaration of function 'gpiod_set_value_cansleep'; did you mean 'gpio_set_value_cansleep'? [-Werror=implicit-function-declaration]
+   gpiod_set_value_cansleep(vibrator->enable_gpio, 1);
+   ^~~~~~~~~~~~~~~~~~~~~~~~
+   gpio_set_value_cansleep
+drivers/input/misc/msm-vibrator.c: In function 'msm_vibrator_probe':
+drivers/input/misc/msm-vibrator.c:176:26: error: implicit declaration of function 'devm_gpiod_get'; did you mean 'devm_gpio_free'? [-Werror=implicit-function-declaration]
+  vibrator->enable_gpio = devm_gpiod_get(&pdev->dev, "enable",
+                          ^~~~~~~~~~~~~~
+                          devm_gpio_free
+drivers/input/misc/msm-vibrator.c:177:13: error: 'GPIOD_OUT_LOW' undeclared (first use in this function); did you mean 'GPIOF_INIT_LOW'?
+             GPIOD_OUT_LOW);
+             ^~~~~~~~~~~~~
+             GPIOF_INIT_LOW
+drivers/input/misc/msm-vibrator.c:177:13: note: each undeclared identifier is reported only once for each function it appears in
 
-Select the subsystem from Kconfig as we do for other hid drivers already.
+This is easy to avoid when we use gpio/consumer.h as the documented interface.
 
-Fixes: 6311d329e12a ("HID: hid-asus: Add BT keyboard dock battery monitoring support")
+Fixes: 0f681d09e66e ("Input: add new vibrator driver for various MSM SOCs")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/hid/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/misc/msm-vibrator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 6ca8d322b487..4ca0cdfa6b33 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -150,6 +150,7 @@ config HID_ASUS
- 	tristate "Asus"
- 	depends on LEDS_CLASS
- 	depends on ASUS_WMI || ASUS_WMI=n
-+	select POWER_SUPPLY
- 	---help---
- 	Support for Asus notebook built-in keyboard and touchpad via i2c, and
- 	the Asus Republic of Gamers laptop keyboard special keys.
+diff --git a/drivers/input/misc/msm-vibrator.c b/drivers/input/misc/msm-vibrator.c
+index 69f2579c4ec2..b60f1aaee705 100644
+--- a/drivers/input/misc/msm-vibrator.c
++++ b/drivers/input/misc/msm-vibrator.c
+@@ -13,7 +13,7 @@
+ 
+ #include <linux/clk.h>
+ #include <linux/err.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/input.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
 -- 
 2.20.0

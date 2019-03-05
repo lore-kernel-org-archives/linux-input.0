@@ -1,83 +1,97 @@
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: Re: [PATCH] Input: raspberrypi-ts: select CONFIG_INPUT_POLLDEV
-Date: Tue, 05 Mar 2019 11:39:42 +0100
-Message-ID: <87a8108f573e04d5c2eaaaa23be0f3a58bd45eb1.camel@suse.de>
-References: <20190304195845.1096214-1-arnd@arndb.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2] platform/x86: touchscreen_dmi: Add info for the CHUWI
+ Hi10 Air tablet
+Date: Tue, 5 Mar 2019 15:42:23 +0200
+Message-ID: <CAHp75VfHVWj-JBxqDMu1R249M_WpkzHgyX2dQr40JkPUNwNL5A@mail.gmail.com>
+References: <c6b0c2ef-eed9-ffae-e974-92260d5356aa@redhat.com>
+ <20190303134727.6680-1-me@myself5.de> <f4937ec1-9dac-0810-7386-a15ec5d306ae@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-WemAnIj4qWz8ckr1MW2z"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190304195845.1096214-1-arnd@arndb.de>
+In-Reply-To: <f4937ec1-9dac-0810-7386-a15ec5d306ae@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Zhu Yi <yi.zhu5@cn.bosch.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Christian Oder <me@myself5.de>, Andy Shevchenko <andy@infradead.org>, Darren Hart <dvhart@infradead.org>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+On Sun, Mar 3, 2019 at 3:59 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi Christian,
+>
+> On 03-03-19 14:47, Christian Oder wrote:
+> > Add  touchscreen info for the CHUWUI Hi10 Air tablet.
+> >
+> > Signed-off-by: Christian Oder <me@myself5.de>
+> > Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
---=-WemAnIj4qWz8ckr1MW2z
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Pushed to my review and testing queue, thanks!
 
-On Mon, 2019-03-04 at 20:57 +0100, Arnd Bergmann wrote:
-> When CONFIG_INPUT_POLLDEV is disabled, we get a link error:
->=20
-> drivers/input/touchscreen/raspberrypi-ts.o: In function `rpi_ts_probe':
-> raspberrypi-ts.c:(.text+0xec): undefined reference to
-> `devm_input_allocate_polled_device'
-> raspberrypi-ts.c:(.text+0xec): relocation truncated to fit: R_AARCH64_CAL=
-L26
-> against undefined symbol `devm_input_allocate_polled_device'
-> raspberrypi-ts.c:(.text+0x19c): undefined reference to
-> `input_register_polled_device'
-> raspberrypi-ts.c:(.text+0x19c): relocation truncated to fit: R_AARCH64_CA=
-LL26
-> against undefined symbol `input_register_polled_device'
->=20
-> Select that symbol like we do from the other similar drivers.
->=20
-> Fixes: 0b9f28fed3f7 ("Input: add official Raspberry Pi's touchscreen driv=
-er")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/input/touchscreen/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/input/touchscreen/Kconfig
-> b/drivers/input/touchscreen/Kconfig
-> index 7c597a49c265..7a4884ad198b 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -699,6 +699,7 @@ config TOUCHSCREEN_EDT_FT5X06
->  config TOUCHSCREEN_RASPBERRYPI_FW
->  	tristate "Raspberry Pi's firmware base touch screen support"
->  	depends on RASPBERRYPI_FIRMWARE || (RASPBERRYPI_FIRMWARE=3Dn &&
-> COMPILE_TEST)
-> +	select INPUT_POLLDEV
->  	help
->  	  Say Y here if you have the official Raspberry Pi 7 inch screen on
->  	  your system.
+> > ---
+> > Changes in v2:
+> > - added review tag
+>
+> A quick note for any patches you may submit in the future, there
+> is no need to send a v2 just to add someones Reviewed-by or Acked-by,
+> these will be picked up automatically by the subsys-maintainer when
+> they add the patch to their tree.
+>
+> Regards,
+>
+> Hans
+>
+> >
+> >   drivers/platform/x86/touchscreen_dmi.c | 27 ++++++++++++++++++++++++++
+> >   1 file changed, 27 insertions(+)
+> >
+> > diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> > index 167a156e3cc7..2d56ff7c8230 100644
+> > --- a/drivers/platform/x86/touchscreen_dmi.c
+> > +++ b/drivers/platform/x86/touchscreen_dmi.c
+> > @@ -72,6 +72,25 @@ static const struct ts_dmi_data chuwi_hi8_pro_data = {
+> >       .properties     = chuwi_hi8_pro_props,
+> >   };
+> >
+> > +static const struct property_entry chuwi_hi10_air_props[] = {
+> > +     PROPERTY_ENTRY_U32("touchscreen-size-x", 1981),
+> > +     PROPERTY_ENTRY_U32("touchscreen-size-y", 1271),
+> > +     PROPERTY_ENTRY_U32("touchscreen-min-x", 99),
+> > +     PROPERTY_ENTRY_U32("touchscreen-min-y", 9),
+> > +     PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
+> > +     PROPERTY_ENTRY_U32("touchscreen-fuzz-x", 5),
+> > +     PROPERTY_ENTRY_U32("touchscreen-fuzz-y", 4),
+> > +     PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10-air.fw"),
+> > +     PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+> > +     PROPERTY_ENTRY_BOOL("silead,home-button"),
+> > +     { }
+> > +};
+> > +
+> > +static const struct ts_dmi_data chuwi_hi10_air_data = {
+> > +     .acpi_name      = "MSSL1680:00",
+> > +     .properties     = chuwi_hi10_air_props,
+> > +};
+> > +
+> >   static const struct property_entry chuwi_vi8_props[] = {
+> >       PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
+> >       PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
+> > @@ -546,6 +565,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+> >                       DMI_MATCH(DMI_PRODUCT_NAME, "X1D3_C806N"),
+> >               },
+> >       },
+> > +     {
+> > +             /* Chuwi Hi10 Air */
+> > +             .driver_data = (void *)&chuwi_hi10_air_data,
+> > +             .matches = {
+> > +                     DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
+> > +                     DMI_MATCH(DMI_PRODUCT_SKU, "P1W6_C109D_B"),
+> > +             },
+> > +     },
+> >       {
+> >               /* Chuwi Vi8 (CWI506) */
+> >               .driver_data = (void *)&chuwi_vi8_data,
+> >
 
-Thanks!
-Looks good to me.
-
-Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
 
---=-WemAnIj4qWz8ckr1MW2z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAlx+Ue8ACgkQlfZmHno8
-x/59Twf/TLxpOWUqV46ZAxxiS1B7mQB+GB+MVuiQFreCAeHEmm8/nq6emJcSb6TB
-INpToHGrCFKAE/PClzcXomD7X+ziKzYPr5hsFiylAuPlMgr/ybeJQ9p2grAJfwx4
-rppOupjRECwh6ADtItswvfj934ewVtX18vjcdXZqt2RBUxajmpl4P/9Dw2EdZ18M
-LDn+ldiXINJcryqLR4+Gx3eLJ+wJMzR1g+ZBbFnbOnvFeZ2+SLbluJTqcK5WjXPh
-EYWqU15bn0DYepISJigF75lsODRdmKIRDYmyrzkERBs1rb+0tuAZLmoR6znzx8vV
-uLi7AYhFttJVvaMrs6p0q/exyw7SOg==
-=7s70
------END PGP SIGNATURE-----
-
---=-WemAnIj4qWz8ckr1MW2z--
+-- 
+With Best Regards,
+Andy Shevchenko

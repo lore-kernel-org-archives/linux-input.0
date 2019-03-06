@@ -1,47 +1,65 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH] drivers: input: keyboard: Kconfig: formatting cleanup
-Date: Wed,  6 Mar 2019 16:13:02 +0100
-Message-ID: <1551885182-18563-1-git-send-email-info@metux.net>
+From: Jagan Teki <jagan@amarulasolutions.com>
+Subject: Re: [PATCH v6 0/4] input: touchscreen: Add goodix GT5553 CTP support
+Date: Wed, 6 Mar 2019 22:47:26 +0530
+Message-ID: <CAMty3ZB3o1Np7_H7rmCgpUWPk7BRqHRm7gxRpgAq_YyeCUKgaw@mail.gmail.com>
+References: <20190219101629.15977-1-jagan@amarulasolutions.com> <CAMty3ZDpy5YX3V+6e=UtY=a9Lgiw-NEP1JPQn4_LKL3mYFtrvQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMty3ZDpy5YX3V+6e=UtY=a9Lgiw-NEP1JPQn4_LKL3mYFtrvQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
 List-Id: linux-input@vger.kernel.org
 
-Formatting of Kconfig files doesn't look so pretty, so just
-take damp cloth and clean it up.
+Hi Dmitry,
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- drivers/input/keyboard/Kconfig | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+On Tue, Feb 26, 2019 at 11:43 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
+>
+> Hi Dmitry,
+>
+> On Tue, Feb 19, 2019 at 3:46 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
+> >
+> > This is v6 patchset for supporting goodix GT5553 CTP. Here is the
+> > previous version[1]
+> >
+> > Changes for v5:
+> > - document bindings for required regulators, which are need during
+> >   power-on sequence
+> > - enable, disable required regulators as described in power-on sequence
+> >   using normal regulator calls
+> > - update the proper commi messages
+> > Changes for v4:
+> > - document AVDD22, DVDD12, VDDIO as optional properties
+> > - use regulator bulk calls, for get, enable and disable functionalities
+> > Changes for v4:
+> > - devm_add_action_or_reset for disabling regulator
+> > Changes for v3:
+> > - add cover-letter
+> > - s/ADVV28/AVDD28 on commit head
+> > - fix few typo
+> > Changes for v2:
+> > - Rename vcc-supply with AVDD28-supply
+> > - disable regulator in remove
+> > - fix to setup regulator in probe code
+> > - add chipdata
+> > - drop example node in dt-bindings
+> >
+> > [1] https://patchwork.kernel.org/cover/10816901/
+> >
+> > Jagan Teki (4):
+> >   dt-bindings: input: touchscreen: goodix: Document regulator properties
+> >   Input: goodix - Add regulators suppot
+> >   dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
+> >   Input: goodix - Add GT5663 CTP support
+> >
+> >  .../bindings/input/touchscreen/goodix.txt     |  3 +
+> >  drivers/input/touchscreen/goodix.c            | 60 +++++++++++++++++++
+> >  2 files changed, 63 insertions(+)
+>
+> Let me know if you have any further comments on regulator patch, fyi
+> Rob reviewed it already.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index a878351..ef39f5c 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -138,14 +138,14 @@ config KEYBOARD_ATKBD_RDI_KEYCODES
- 	  left-hand column.
- 
- config KEYBOARD_QT1070
--       tristate "Atmel AT42QT1070 Touch Sensor Chip"
--       depends on I2C
--       help
--         Say Y here if you want to use Atmel AT42QT1070 QTouch
--         Sensor chip as input device.
--
--         To compile this driver as a module, choose M here:
--         the module will be called qt1070
-+	tristate "Atmel AT42QT1070 Touch Sensor Chip"
-+	depends on I2C
-+	help
-+	  Say Y here if you want to use Atmel AT42QT1070 QTouch
-+	  Sensor chip as input device.
-+
-+	  To compile this driver as a module, choose M here:
-+	  the module will be called qt1070
- 
- config KEYBOARD_QT2160
- 	tristate "Atmel AT42QT2160 Touch Sensor Chip"
--- 
-1.9.1
+Would you comment on this? few dts changes are pending for this to support.
+
+Jagan.

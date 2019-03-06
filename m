@@ -1,65 +1,183 @@
-From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: Re: [PATCH v6 0/4] input: touchscreen: Add goodix GT5553 CTP support
-Date: Wed, 6 Mar 2019 22:47:26 +0530
-Message-ID: <CAMty3ZB3o1Np7_H7rmCgpUWPk7BRqHRm7gxRpgAq_YyeCUKgaw@mail.gmail.com>
-References: <20190219101629.15977-1-jagan@amarulasolutions.com> <CAMty3ZDpy5YX3V+6e=UtY=a9Lgiw-NEP1JPQn4_LKL3mYFtrvQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH] drivers: input: Kconfig: pedantic claenups
+Date: Wed,  6 Mar 2019 19:48:25 +0100
+Message-ID: <1551898105-17927-1-git-send-email-info@metux.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMty3ZDpy5YX3V+6e=UtY=a9Lgiw-NEP1JPQn4_LKL3mYFtrvQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+---
+ drivers/input/misc/Kconfig        | 26 +++++++++++++-------------
+ drivers/input/mouse/Kconfig       | 26 +++++++++++++-------------
+ drivers/input/serio/Kconfig       |  2 +-
+ drivers/input/tablet/Kconfig      | 20 ++++++++++----------
+ drivers/input/touchscreen/Kconfig |  2 +-
+ 5 files changed, 38 insertions(+), 38 deletions(-)
 
-On Tue, Feb 26, 2019 at 11:43 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
->
-> Hi Dmitry,
->
-> On Tue, Feb 19, 2019 at 3:46 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> >
-> > This is v6 patchset for supporting goodix GT5553 CTP. Here is the
-> > previous version[1]
-> >
-> > Changes for v5:
-> > - document bindings for required regulators, which are need during
-> >   power-on sequence
-> > - enable, disable required regulators as described in power-on sequence
-> >   using normal regulator calls
-> > - update the proper commi messages
-> > Changes for v4:
-> > - document AVDD22, DVDD12, VDDIO as optional properties
-> > - use regulator bulk calls, for get, enable and disable functionalities
-> > Changes for v4:
-> > - devm_add_action_or_reset for disabling regulator
-> > Changes for v3:
-> > - add cover-letter
-> > - s/ADVV28/AVDD28 on commit head
-> > - fix few typo
-> > Changes for v2:
-> > - Rename vcc-supply with AVDD28-supply
-> > - disable regulator in remove
-> > - fix to setup regulator in probe code
-> > - add chipdata
-> > - drop example node in dt-bindings
-> >
-> > [1] https://patchwork.kernel.org/cover/10816901/
-> >
-> > Jagan Teki (4):
-> >   dt-bindings: input: touchscreen: goodix: Document regulator properties
-> >   Input: goodix - Add regulators suppot
-> >   dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
-> >   Input: goodix - Add GT5663 CTP support
-> >
-> >  .../bindings/input/touchscreen/goodix.txt     |  3 +
-> >  drivers/input/touchscreen/goodix.c            | 60 +++++++++++++++++++
-> >  2 files changed, 63 insertions(+)
->
-> Let me know if you have any further comments on regulator patch, fyi
-> Rob reviewed it already.
-
-Would you comment on this? few dts changes are pending for this to support.
-
-Jagan.
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index ca59a2b..0ffafc0 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -240,13 +240,13 @@ config INPUT_APANEL
+ 	select INPUT_POLLDEV
+ 	select CHECK_SIGNATURE
+ 	help
+-	 Say Y here for support of the Application Panel buttons, used on
+-	 Fujitsu Lifebook. These are attached to the mainboard through
+-	 an SMBus interface managed by the I2C Intel ICH (i801) driver,
+-	 which you should also build for this kernel.
++	  Say Y here for support of the Application Panel buttons, used on
++	  Fujitsu Lifebook. These are attached to the mainboard through
++	  an SMBus interface managed by the I2C Intel ICH (i801) driver,
++	  which you should also build for this kernel.
+ 
+-	 To compile this driver as a module, choose M here: the module will
+-	 be called apanel.
++	  To compile this driver as a module, choose M here: the module will
++	  be called apanel.
+ 
+ config INPUT_GP2A
+ 	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
+@@ -273,12 +273,12 @@ config INPUT_GPIO_DECODER
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	select INPUT_POLLDEV
+ 	help
+-	 Say Y here if you want driver to read status of multiple GPIO
+-	 lines and report the encoded value as an absolute integer to
+-	 input subsystem.
++	  Say Y here if you want driver to read status of multiple GPIO
++	  lines and report the encoded value as an absolute integer to
++	  input subsystem.
+ 
+-	 To compile this driver as a module, choose M here: the module
+-	 will be called gpio_decoder.
++	  To compile this driver as a module, choose M here: the module
++	  will be called gpio_decoder.
+ 
+ config INPUT_IXP4XX_BEEPER
+ 	tristate "IXP4XX Beeper support"
+@@ -543,8 +543,8 @@ config INPUT_PCF50633_PMU
+ 	tristate "PCF50633 PMU events"
+ 	depends on MFD_PCF50633
+ 	help
+-	 Say Y to include support for delivering  PMU events via  input
+-	 layer on NXP PCF50633.
++	  Say Y to include support for delivering  PMU events via  input
++	  layer on NXP PCF50633.
+ 
+ config INPUT_PCF8574
+ 	tristate "PCF8574 Keypad input device"
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 566a1e3..8b7a7e0 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -91,14 +91,14 @@ config MOUSE_PS2_SYNAPTICS_SMBUS
+ 	  If unsure, say Y.
+ 
+ config MOUSE_PS2_CYPRESS
+-       bool "Cypress PS/2 mouse protocol extension" if EXPERT
+-       default y
+-       depends on MOUSE_PS2
+-       help
+-         Say Y here if you have a Cypress PS/2 Trackpad connected to
+-         your system.
++	bool "Cypress PS/2 mouse protocol extension" if EXPERT
++	default y
++	depends on MOUSE_PS2
++	help
++	  Say Y here if you have a Cypress PS/2 Trackpad connected to
++	  your system.
+ 
+-         If unsure, say Y.
++	  If unsure, say Y.
+ 
+ config MOUSE_PS2_LIFEBOOK
+ 	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EXPERT
+@@ -285,19 +285,19 @@ config MOUSE_ELAN_I2C_I2C
+ 	depends on MOUSE_ELAN_I2C
+ 	default y
+ 	help
+-	   Say Y here if Elan Touchpad in your system is connected to
+-	   a standard I2C controller.
++	  Say Y here if Elan Touchpad in your system is connected to
++	  a standard I2C controller.
+ 
+-	   If unsure, say Y.
++	  If unsure, say Y.
+ 
+ config MOUSE_ELAN_I2C_SMBUS
+ 	bool "Enable SMbus support"
+ 	depends on MOUSE_ELAN_I2C
+ 	help
+-	   Say Y here if Elan Touchpad in your system is connected to
+-	   a SMbus adapter.
++	  Say Y here if Elan Touchpad in your system is connected to
++	  a SMbus adapter.
+ 
+-	   If unsure, say Y.
++	  If unsure, say Y.
+ 
+ config MOUSE_INPORT
+ 	tristate "InPort/MS/ATIXL busmouse"
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index c9c7224..b29cb49 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -7,7 +7,7 @@ config SERIO
+ 	help
+ 	  Say Yes here if you have any input device that uses serial I/O to
+ 	  communicate with the system. This includes the
+-	  		* standard AT keyboard and PS/2 mouse *
++	                * standard AT keyboard and PS/2 mouse *
+ 	  as well as serial mice, Sun keyboards, some joysticks and 6dof
+ 	  devices and more.
+ 
+diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
+index a2b9f97..df427d1 100644
+--- a/drivers/input/tablet/Kconfig
++++ b/drivers/input/tablet/Kconfig
+@@ -38,16 +38,16 @@ config TABLET_USB_AIPTEK
+ 	  module will be called aiptek.
+ 
+ config TABLET_USB_GTCO
+-        tristate "GTCO CalComp/InterWrite USB Support"
+-        depends on USB && INPUT
+-        help
+-          Say Y here if you want to use the USB version of the GTCO
+-          CalComp/InterWrite Tablet.  Make sure to say Y to "Mouse support"
+-          (CONFIG_INPUT_MOUSEDEV) and/or "Event interface support"
+-          (CONFIG_INPUT_EVDEV) as well.
+-
+-          To compile this driver as a module, choose M here: the
+-          module will be called gtco.
++	tristate "GTCO CalComp/InterWrite USB Support"
++	depends on USB && INPUT
++	help
++	  Say Y here if you want to use the USB version of the GTCO
++	  CalComp/InterWrite Tablet.  Make sure to say Y to "Mouse support"
++	  (CONFIG_INPUT_MOUSEDEV) and/or "Event interface support"
++	  (CONFIG_INPUT_EVDEV) as well.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called gtco.
+ 
+ config TABLET_USB_HANWANG
+ 	tristate "Hanwang Art Master III tablet support (USB)"
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 068dbbc..11ca597 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -632,7 +632,7 @@ config TOUCHSCREEN_HP600
+ 	depends on SH_HP6XX && SH_ADC
+ 	help
+ 	  Say Y here if you have a HP Jornada 620/660/680/690 and want to
+-          support the built-in touchscreen.
++	  support the built-in touchscreen.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called hp680_ts_input.
+-- 
+1.9.1

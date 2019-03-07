@@ -1,217 +1,125 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH v2] drivers: input: Kconfig: pedantic formatting
-Date: Thu,  7 Mar 2019 02:50:12 +0100
-Message-ID: <1551923412-7174-2-git-send-email-info@metux.net>
-References: <1551898105-17927-1-git-send-email-info@metux.net>
- <1551923412-7174-1-git-send-email-info@metux.net>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: Re: [RFC/RFT] HID: primax: Fix wireless keyboards descriptor
+Date: Thu, 07 Mar 2019 17:20:35 +0100
+Message-ID: <d473feac52a9411a7ffb585aa61e2614df890972.camel@suse.de>
+References: <20190228135556.14713-1-nsaenzjulienne@suse.de>
+         <BYAPR02MB56078ADD429292DF89F8C694ED750@BYAPR02MB5607.namprd02.prod.outlook.com>
+         <a6ecd59f99aa64355ac7c176aa4310d32ce8969e.camel@suse.de>
+         <CAO-hwJ+9ft070W-shhEwxfTq9B5XyVB2v6Qx0b4nC4LdTiTEDg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-A1MyYkJzgvepcTVgytdG"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1551923412-7174-1-git-send-email-info@metux.net>
+In-Reply-To: <CAO-hwJ+9ft070W-shhEwxfTq9B5XyVB2v6Qx0b4nC4LdTiTEDg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "Junge, Terry" <Terry.Junge@plantronics.com>, Jiri Kosina <jikos@kernel.org>, "oneukum@suse.de" <oneukum@suse.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Formatting of Kconfig files doesn't look so pretty, so just
-take damp cloth and clean it up.
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- drivers/input/keyboard/Kconfig    | 16 ++++++++--------
- drivers/input/misc/Kconfig        | 26 +++++++++++++-------------
- drivers/input/mouse/Kconfig       | 26 +++++++++++++-------------
- drivers/input/serio/Kconfig       |  2 +-
- drivers/input/tablet/Kconfig      | 20 ++++++++++----------
- drivers/input/touchscreen/Kconfig |  2 +-
- 6 files changed, 46 insertions(+), 46 deletions(-)
+--=-A1MyYkJzgvepcTVgytdG
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index a878351..ef39f5c 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -138,14 +138,14 @@ config KEYBOARD_ATKBD_RDI_KEYCODES
- 	  left-hand column.
- 
- config KEYBOARD_QT1070
--       tristate "Atmel AT42QT1070 Touch Sensor Chip"
--       depends on I2C
--       help
--         Say Y here if you want to use Atmel AT42QT1070 QTouch
--         Sensor chip as input device.
--
--         To compile this driver as a module, choose M here:
--         the module will be called qt1070
-+	tristate "Atmel AT42QT1070 Touch Sensor Chip"
-+	depends on I2C
-+	help
-+	  Say Y here if you want to use Atmel AT42QT1070 QTouch
-+	  Sensor chip as input device.
-+
-+	  To compile this driver as a module, choose M here:
-+	  the module will be called qt1070
- 
- config KEYBOARD_QT2160
- 	tristate "Atmel AT42QT2160 Touch Sensor Chip"
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index ca59a2b..0ffafc0 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -240,13 +240,13 @@ config INPUT_APANEL
- 	select INPUT_POLLDEV
- 	select CHECK_SIGNATURE
- 	help
--	 Say Y here for support of the Application Panel buttons, used on
--	 Fujitsu Lifebook. These are attached to the mainboard through
--	 an SMBus interface managed by the I2C Intel ICH (i801) driver,
--	 which you should also build for this kernel.
-+	  Say Y here for support of the Application Panel buttons, used on
-+	  Fujitsu Lifebook. These are attached to the mainboard through
-+	  an SMBus interface managed by the I2C Intel ICH (i801) driver,
-+	  which you should also build for this kernel.
- 
--	 To compile this driver as a module, choose M here: the module will
--	 be called apanel.
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called apanel.
- 
- config INPUT_GP2A
- 	tristate "Sharp GP2AP002A00F I2C Proximity/Opto sensor driver"
-@@ -273,12 +273,12 @@ config INPUT_GPIO_DECODER
- 	depends on GPIOLIB || COMPILE_TEST
- 	select INPUT_POLLDEV
- 	help
--	 Say Y here if you want driver to read status of multiple GPIO
--	 lines and report the encoded value as an absolute integer to
--	 input subsystem.
-+	  Say Y here if you want driver to read status of multiple GPIO
-+	  lines and report the encoded value as an absolute integer to
-+	  input subsystem.
- 
--	 To compile this driver as a module, choose M here: the module
--	 will be called gpio_decoder.
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called gpio_decoder.
- 
- config INPUT_IXP4XX_BEEPER
- 	tristate "IXP4XX Beeper support"
-@@ -543,8 +543,8 @@ config INPUT_PCF50633_PMU
- 	tristate "PCF50633 PMU events"
- 	depends on MFD_PCF50633
- 	help
--	 Say Y to include support for delivering  PMU events via  input
--	 layer on NXP PCF50633.
-+	  Say Y to include support for delivering  PMU events via  input
-+	  layer on NXP PCF50633.
- 
- config INPUT_PCF8574
- 	tristate "PCF8574 Keypad input device"
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index 566a1e3..8b7a7e0 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -91,14 +91,14 @@ config MOUSE_PS2_SYNAPTICS_SMBUS
- 	  If unsure, say Y.
- 
- config MOUSE_PS2_CYPRESS
--       bool "Cypress PS/2 mouse protocol extension" if EXPERT
--       default y
--       depends on MOUSE_PS2
--       help
--         Say Y here if you have a Cypress PS/2 Trackpad connected to
--         your system.
-+	bool "Cypress PS/2 mouse protocol extension" if EXPERT
-+	default y
-+	depends on MOUSE_PS2
-+	help
-+	  Say Y here if you have a Cypress PS/2 Trackpad connected to
-+	  your system.
- 
--         If unsure, say Y.
-+	  If unsure, say Y.
- 
- config MOUSE_PS2_LIFEBOOK
- 	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EXPERT
-@@ -285,19 +285,19 @@ config MOUSE_ELAN_I2C_I2C
- 	depends on MOUSE_ELAN_I2C
- 	default y
- 	help
--	   Say Y here if Elan Touchpad in your system is connected to
--	   a standard I2C controller.
-+	  Say Y here if Elan Touchpad in your system is connected to
-+	  a standard I2C controller.
- 
--	   If unsure, say Y.
-+	  If unsure, say Y.
- 
- config MOUSE_ELAN_I2C_SMBUS
- 	bool "Enable SMbus support"
- 	depends on MOUSE_ELAN_I2C
- 	help
--	   Say Y here if Elan Touchpad in your system is connected to
--	   a SMbus adapter.
-+	  Say Y here if Elan Touchpad in your system is connected to
-+	  a SMbus adapter.
- 
--	   If unsure, say Y.
-+	  If unsure, say Y.
- 
- config MOUSE_INPORT
- 	tristate "InPort/MS/ATIXL busmouse"
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index c9c7224..b29cb49 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -7,7 +7,7 @@ config SERIO
- 	help
- 	  Say Yes here if you have any input device that uses serial I/O to
- 	  communicate with the system. This includes the
--	  		* standard AT keyboard and PS/2 mouse *
-+	                * standard AT keyboard and PS/2 mouse *
- 	  as well as serial mice, Sun keyboards, some joysticks and 6dof
- 	  devices and more.
- 
-diff --git a/drivers/input/tablet/Kconfig b/drivers/input/tablet/Kconfig
-index a2b9f97..df427d1 100644
---- a/drivers/input/tablet/Kconfig
-+++ b/drivers/input/tablet/Kconfig
-@@ -38,16 +38,16 @@ config TABLET_USB_AIPTEK
- 	  module will be called aiptek.
- 
- config TABLET_USB_GTCO
--        tristate "GTCO CalComp/InterWrite USB Support"
--        depends on USB && INPUT
--        help
--          Say Y here if you want to use the USB version of the GTCO
--          CalComp/InterWrite Tablet.  Make sure to say Y to "Mouse support"
--          (CONFIG_INPUT_MOUSEDEV) and/or "Event interface support"
--          (CONFIG_INPUT_EVDEV) as well.
--
--          To compile this driver as a module, choose M here: the
--          module will be called gtco.
-+	tristate "GTCO CalComp/InterWrite USB Support"
-+	depends on USB && INPUT
-+	help
-+	  Say Y here if you want to use the USB version of the GTCO
-+	  CalComp/InterWrite Tablet.  Make sure to say Y to "Mouse support"
-+	  (CONFIG_INPUT_MOUSEDEV) and/or "Event interface support"
-+	  (CONFIG_INPUT_EVDEV) as well.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gtco.
- 
- config TABLET_USB_HANWANG
- 	tristate "Hanwang Art Master III tablet support (USB)"
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 068dbbc..11ca597 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -632,7 +632,7 @@ config TOUCHSCREEN_HP600
- 	depends on SH_HP6XX && SH_ADC
- 	help
- 	  Say Y here if you have a HP Jornada 620/660/680/690 and want to
--          support the built-in touchscreen.
-+	  support the built-in touchscreen.
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called hp680_ts_input.
--- 
-1.9.1
+On Fri, 2019-03-01 at 10:48 +0100, Benjamin Tissoires wrote:
+> On Thu, Feb 28, 2019 at 7:01 PM Nicolas Saenz Julienne
+> <nsaenzjulienne@suse.de> wrote:
+> > On Thu, 2019-02-28 at 17:02 +0000, Junge, Terry wrote:
+> > > This could also be a parser error. In the HID specification section
+> > > 6.2.2.8 it
+> > > states that the last declared Usage Page is applied to Usages when th=
+e
+> > > Main
+> > > item is encountered.
+> > >=20
+> > > "If the bSize field =3D 1 or 2 then the Usage is interpreted as an un=
+signed
+> > > value
+> > > that selects a Usage ID on the currently defined Usage Page. When the
+> > > parser
+> > > encounters a main item it concatenates the last declared Usage Page w=
+ith a
+> > > Usage to form a complete usage value. Extended usages can be used to
+> > > override the currently defined Usage Page for individual usages."
+> > >=20
+> >=20
+> > Hi Terry, thanks for the comment.
+> > Just for the record the paragraph I cited on my patch is the following:
+> >=20
+> >         6.2.2.7 Global Items
+> >=20
+> >         [...]
+> >=20
+> >         Usage Page: Unsigned integer specifying the current Usage Page.
+> > Since a
+> >         usage are 32 bit values, Usage Page items can be used to conser=
+ve
+> > space
+> >         in a report descriptor by setting the high order 16 bits of a
+> >         subsequent usages. Any usage that follows which is defines* 16 =
+bits
+> > or
+> >         less is interpreted as a Usage ID and concatenated with the Usa=
+ge
+> > Page
+> >         to form a 32 bit Usage.
+> >=20
+> >         * This is a spec errata, I belive it should say "defined"
+> >=20
+> > As you can see they use the word "follows" which in my opinion contradi=
+cts
+> > the
+> > paragraph you pointed out. That said I may be wrong, I'm not too good a=
+t
+> > reading specs :).
+>=20
+> I think you are both right (that is some decision making skills :-P).
+>=20
+> I never saw a case where the Usage Page was after the Usage. And I
+> would lean towards Nicolas interpretation.
+> However, Terry's point is valid too, and by re-reading the two
+> paragraphs, one could argue that the "follows" of 6.2.2.7 could be
+> applied when the Main item is processed as in 6.2.2.8.
+>=20
+> So I am going to base my decision on the "reference" driver. How well
+> behaves Windows with this particular keyboard?
+>=20
+> If it behaves properly, then we better use the 6.2.2.8 version where
+> the Usage Page is only appended when there is a Main item. This means
+> we need to remember what size was the last Usage (and Min/Max), to
+> know if we should concatenate the 2.
+>=20
+> Note that for every change that involves the generic parser, I'd like
+> a few tests added to `tests/test_keyboard.py in
+> https://gitlab.freedesktop.org/libevdev/hid-tools
+> Also note that the HID parser implementation in hid-tools follows the
+> kernel, so we might need to adjust it there too if we want to add high
+> level events. If you directly call `.call_input_event()` with raw
+> events, it should be fine.
+
+Thanks for the reply. I might get my hands on one of the faulty keyboards s=
+oon
+so I'll be able to check windows' behaviour and test the patches.
+
+Regards,
+Nicolas
+
+
+--=-A1MyYkJzgvepcTVgytdG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAlyBRNMACgkQlfZmHno8
+x/6SlAf/YZwwiqqBsPw7FViHUQGH1jBUpw29GTSN9eUy2fZDnrWFvGvkhKprL6Pw
+8xM6js1Y/BQQwSfA32gltRK2dp854TANTCwscNoHrr7RIh+muwGIV9nV11GbzKsD
++dVjlFCT3wz4nO0nUmBu5WvYCkZz7Iv/WdKLwkvgcMDOgdvmsr6u1gCD9iXMRvlm
+yXetjgH1P0Y6CV41AmX21Fv6cIUDSQXp8wr3MnrWfjdaFuFAVXOH3OUXPkozKf8a
+yiSgapCiH7+r8Z1qfmVNNAQSQWgNAs5n+kIpSMS3bcvo8YfIPrPDHR5qJO4JTxbg
+3Zb7qMaXyLA8S0OLliQ4tCyq2AvGbQ==
+=hUGm
+-----END PGP SIGNATURE-----
+
+--=-A1MyYkJzgvepcTVgytdG--

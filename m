@@ -1,44 +1,72 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH] HID: Increase maximum report size allowed by hid_field_extract()
-Date: Fri,  8 Mar 2019 13:11:17 +0800
-Message-ID: <20190308051117.21899-1-kai.heng.feng@canonical.com>
+From: Christopher Heiny <Cheiny@synaptics.com>
+Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
+Date: Fri, 8 Mar 2019 23:13:00 +0000
+Message-ID: <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
+References: <20190220164200.31044-1-aaron.ma@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190220164200.31044-1-aaron.ma@canonical.com>
+Content-Language: en-US
+Content-ID: <D82E47E23F0DAB4098F488DC49326F8A@namprd03.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+To: Aaron Ma <aaron.ma@canonical.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Commit 71f6fa90a353 ("HID: increase maximum global item tag report size
-to 256") increases the max report size from 128 to 256.
-
-We also need to update the report size in hid_field_extract() otherwise
-it complains and truncates now valid report size:
-[ 406.165461] hid-sensor-hub 001F:8086:22D8.0002: hid_field_extract() called with n (192) > 32! (kworker/5:1)
-
-BugLink: https://bugs.launchpad.net/bugs/1818547
-Fixes: 71f6fa90a353 ("HID: increase maximum global item tag report size to 256")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
----
- drivers/hid/hid-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9993b692598f..860e21ec6a49 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1301,10 +1301,10 @@ static u32 __extract(u8 *report, unsigned offset, int n)
- u32 hid_field_extract(const struct hid_device *hid, u8 *report,
- 			unsigned offset, unsigned n)
- {
--	if (n > 32) {
--		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
-+	if (n > 256) {
-+		hid_warn(hid, "hid_field_extract() called with n (%d) > 256! (%s)\n",
- 			 n, current->comm);
--		n = 32;
-+		n = 256;
- 	}
- 
- 	return __extract(report, offset, n);
--- 
-2.17.1
+T24gV2VkLCAyMDE5LTAyLTIwIGF0IDE3OjQxICswMTAwLCBBYXJvbiBNYSB3cm90ZToNCj4gQ0FV
+VElPTjogRW1haWwgb3JpZ2luYXRlZCBleHRlcm5hbGx5LCBkbyBub3QgY2xpY2sgbGlua3Mgb3Ig
+b3Blbg0KPiBhdHRhY2htZW50cyB1bmxlc3MgeW91IHJlY29nbml6ZSB0aGUgc2VuZGVyIGFuZCBr
+bm93IHRoZSBjb250ZW50IGlzDQo+IHNhZmUuDQo+IA0KPiANCj4gcm1pNCBnb3Qgc3BhbSBkYXRh
+IGFmdGVyIFMzIHJlc3VtZSBvbiBzb21lIFRoaW5rUGFkcy4NCj4gVGhlbiBUcmFja1BvaW50IGxv
+c3Qgd2hlbiBiZSBkZXRlY3RlZCBieSBwc21vdXNlLg0KPiBDbGVhciBpcnFzIHN0YXR1cyBiZWZv
+cmUgc2V0IGlycXMgd2lsbCBtYWtlIFRyYWNrUG9pbnQgYmFjay4NCj4gDQo+IEJ1Z0xpbms6IA0K
+PiBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2ludC5jb20vdjIvdXJsP3U9aHR0cHMtM0FfX2J1
+Z3MubGF1bmNocGFkLm5ldF9idWdzXzE3OTE0MjcmZD1Ed0lCQWcmYz03ZGZCSjhjWGJXamhjMEJo
+SW11OHdRJnI9dmVPeHYxXzdITFhJYVdHLU9LTHFwLXF2WmMzcjd1Y1QxZC02OEpTV3FwTSZtPTNu
+Tm00b2I2RzF3dGY1MDJZRnV4b3JKVmtTUXZkQmFzamUyUnJaTHhoVE0mcz1aMG5IU1BBS2hRTHpk
+b0VOQVpCWXVEQzZRbVpOT2xpeWlFN2gxT09Wa0JBJmU9DQo+IENjOiA8c3RhYmxlQHZnZXIua2Vy
+bmVsLm9yZz4NCj4gU2lnbmVkLW9mZi1ieTogQWFyb24gTWEgPGFhcm9uLm1hQGNhbm9uaWNhbC5j
+b20+DQo+IC0tLQ0KPiAgZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9kcml2ZXIuYyB8IDExICsrKysr
+KysrKysrDQo+ICAxIGZpbGUgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvaW5wdXQvcm1pNC9ybWlfZHJpdmVyLmMNCj4gYi9kcml2ZXJzL2lucHV0
+L3JtaTQvcm1pX2RyaXZlci5jDQo+IGluZGV4IGZjM2FiOTNiN2FlYS4uMjA2MzFiMjcyZjQzIDEw
+MDY0NA0KPiAtLS0gYS9kcml2ZXJzL2lucHV0L3JtaTQvcm1pX2RyaXZlci5jDQo+ICsrKyBiL2Ry
+aXZlcnMvaW5wdXQvcm1pNC9ybWlfZHJpdmVyLmMNCj4gQEAgLTM3NCw2ICszNzQsMTcgQEAgc3Rh
+dGljIGludCBybWlfZHJpdmVyX3NldF9pcnFfYml0cyhzdHJ1Y3QNCj4gcm1pX2RldmljZSAqcm1p
+X2RldiwNCj4gICAgICAgICBzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmcm1pX2Rldi0+ZGV2Ow0KPiAN
+Cj4gICAgICAgICBtdXRleF9sb2NrKCZkYXRhLT5pcnFfbXV0ZXgpOw0KPiArDQo+ICsgICAgICAg
+LyogRHVtbXkgcmVhZCBpbiBvcmRlciB0byBjbGVhciBpcnFzICovDQo+ICsgICAgICAgZXJyb3Ig
+PSBybWlfcmVhZF9ibG9jayhybWlfZGV2LA0KPiArICAgICAgICAgICAgICAgICAgICAgICBkYXRh
+LT5mMDFfY29udGFpbmVyLT5mZC5kYXRhX2Jhc2VfYWRkciArIDEsDQo+ICsgICAgICAgICAgICAg
+ICAgICAgICAgIGRhdGEtPmlycV9zdGF0dXMsIGRhdGEtPm51bV9vZl9pcnFfcmVncyk7DQo+ICsg
+ICAgICAgaWYgKGVycm9yIDwgMCkgew0KPiArICAgICAgICAgICAgICAgZGV2X2VycihkZXYsICIl
+czogRmFpbGVkIHRvIHJlYWQgaW50ZXJydXB0IHN0YXR1cyEiLA0KPiArICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF9fZnVuY19fKTsNCj4gKyAg
+ICAgICAgICAgICAgIGdvdG8gZXJyb3JfdW5sb2NrOw0KPiArICAgICAgIH0NCj4gKw0KPiAgICAg
+ICAgIGJpdG1hcF9vcihkYXRhLT5uZXdfaXJxX21hc2ssDQo+ICAgICAgICAgICAgICAgICAgIGRh
+dGEtPmN1cnJlbnRfaXJxX21hc2ssIG1hc2ssIGRhdGEtPmlycV9jb3VudCk7DQo+IA0KPiAtLQ0K
+PiAyLjE3LjENCj4gDQoNClNvcnJ5IGZvciB0aGUgbG9uZyBkZWxheSBpbiBmb2xsb3dpbmcgdXAg
+b24gdGhpcy4NCg0KSSdtIG5vdCBzdXJlIHRoaXMgaXMgYSBzYWZlIGFjdGlvbiwgZHVlIHRvIGEg
+cmFjZSBjb25kaXRpb24gd2l0aCB0aGUNCmFjdHVhbCBJUlEgaGFuZGxlciAocm1pX3Byb2Nlc3Nf
+aW50ZXJydXB0X3JlcXVlc3RzIGZyb20gcm1pX2RyaXZlci5jKS4gDQpSZW1lbWJlciB0aGF0IHJl
+YWRpbmcgdGhlIElSUSBzdGF0dXMgcmVnaXN0ZXIgY2xlYXJzIGFsbCB0aGUgSVJRIGJpdHMuIA0K
+U28geW91J3JlIGZhY2VkIHdpdGggdGhpcyBwb3NzaWJsZSBzY2VuYXJpbzoNCiAgICAtIEFUVE4g
+YXNzZXJ0ZWQsIGluZGljYXRpbmcgbmV3IGRhdGEgaW4gSVJRIHN0YXR1cyByZWdpc3Rlcg0KICAg
+IC0gcm1pX2RyaXZlcl9zZXRfaXJxX2JpdHMgY2FsbGVkDQogICAgLSBybWlfZHJpdmVyX3NldF9p
+cnFfYml0cyByZWFkcyBJUlEgc3RhdHVzLCBjbGVhcmluZyBiaXRzDQogICAgLSBybWlfcHJvY2Vz
+c19pbnRlcnJ1cHRfcmVxdWVzdHMgY2FsbGVkDQogICAgLSBybWlfcHJvY2Vzc19pbnRlcnJ1cHRf
+cmVxdWVzdCByZWFkcyBJUlEgc3RhdHVzLCBzZWVzIG5vDQogICAgICBiaXRzIHNldCwgbmVzdGVk
+IElSUXMgYXJlIG5vdCBoYW5kbGVkDQpUaGlzIGNvdWxkIGxlYWQgdG8gbG9zcyBvZiBkYXRhIG9y
+IGluY29uc2lzdGVudCBzeXN0ZW0gc3RhdGUNCmluZm9ybWF0aW9uLiAgRm9yIGV4YW1wbGUsIGEg
+YnV0dG9uIHVwIG9yIGRvd24gZXZlbnQgbWF5IGJlIGxvc3QsIHdpdGgNCmNvbnNlcXVlbnQgd2Vp
+cmQgYmVoYXZpb3IgYnkgdGhlIHVzZXIgaW50ZXJmYWNlLg0KDQpDQVZFQVQ6IEkgaGF2ZW4ndCBo
+YWQgbXVjaCB0byBkbyB3aXRoIHRoZSBSTUk0IGRyaXZlciBmb3IgYSBsb25nIHdoaWxlLA0KYW5k
+IGFtIGp1c3Qgc3RhcnRpbmcgdG8gcG9rZSBhcm91bmQgd2l0aCBpdCBhZ2Fpbi4gIEkgYW0gbm90
+IHZlcnkNCmZhbWlsaWFyIHdpdGggdGhlIGN1cnJlbnQgSVJRIGhhbmRsaW5nIGltcGxlbWVudGF0
+aW9uLiAgUGVyaGFwcyB0aGVyZQ0KaXMgYSBndWFyYW50ZWUgaW4gdGhlIGtlcm5lbCBJUlEgbWVj
+aGFuaXNtIHRoYXQgb25jZSBBVFROIGlzIGFzc2VydGVkLA0KdGhlbiBybWlfcHJvY2Vzc19pbnRl
+cnJ1cHRfcmVxdWVzdHMgd2lsbCBiZSBjYWxsZWQgYmVmb3JlIGFueW9uZSBlbHNlDQpnZXRzIGEg
+Y2hhbmNlIHRvIHJlYWQgdGhlIElSUSBzdGF0dXMgcmVnaXN0ZXIuICBJZiB0aGF0J3MgdGhlIGNh
+c2UsIGxldA0KbWUga25vdyBJJ20gd29ycmllZCBhYm91dCBub3RoaW5nLCBhbmQgaWdub3JlIHRo
+aXMgY29tbWVudC4NCg0KQ2hlZXJzLA0KQ2hyaXMNCg0K

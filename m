@@ -1,72 +1,34 @@
-From: Christopher Heiny <Cheiny@synaptics.com>
-Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
-Date: Fri, 8 Mar 2019 23:13:00 +0000
-Message-ID: <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
-References: <20190220164200.31044-1-aaron.ma@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Kangjie Lu <kjlu@umn.edu>
+Subject: [PATCH] hid: logitech: check the return value of create_singlethread_workqueue
+Date: Fri,  8 Mar 2019 22:43:45 -0600
+Message-ID: <20190309044345.7018-1-kjlu@umn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190220164200.31044-1-aaron.ma@canonical.com>
-Content-Language: en-US
-Content-ID: <D82E47E23F0DAB4098F488DC49326F8A@namprd03.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+To: kjlu@umn.edu
+Cc: pakki001@umn.edu, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-T24gV2VkLCAyMDE5LTAyLTIwIGF0IDE3OjQxICswMTAwLCBBYXJvbiBNYSB3cm90ZToNCj4gQ0FV
-VElPTjogRW1haWwgb3JpZ2luYXRlZCBleHRlcm5hbGx5LCBkbyBub3QgY2xpY2sgbGlua3Mgb3Ig
-b3Blbg0KPiBhdHRhY2htZW50cyB1bmxlc3MgeW91IHJlY29nbml6ZSB0aGUgc2VuZGVyIGFuZCBr
-bm93IHRoZSBjb250ZW50IGlzDQo+IHNhZmUuDQo+IA0KPiANCj4gcm1pNCBnb3Qgc3BhbSBkYXRh
-IGFmdGVyIFMzIHJlc3VtZSBvbiBzb21lIFRoaW5rUGFkcy4NCj4gVGhlbiBUcmFja1BvaW50IGxv
-c3Qgd2hlbiBiZSBkZXRlY3RlZCBieSBwc21vdXNlLg0KPiBDbGVhciBpcnFzIHN0YXR1cyBiZWZv
-cmUgc2V0IGlycXMgd2lsbCBtYWtlIFRyYWNrUG9pbnQgYmFjay4NCj4gDQo+IEJ1Z0xpbms6IA0K
-PiBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2ludC5jb20vdjIvdXJsP3U9aHR0cHMtM0FfX2J1
-Z3MubGF1bmNocGFkLm5ldF9idWdzXzE3OTE0MjcmZD1Ed0lCQWcmYz03ZGZCSjhjWGJXamhjMEJo
-SW11OHdRJnI9dmVPeHYxXzdITFhJYVdHLU9LTHFwLXF2WmMzcjd1Y1QxZC02OEpTV3FwTSZtPTNu
-Tm00b2I2RzF3dGY1MDJZRnV4b3JKVmtTUXZkQmFzamUyUnJaTHhoVE0mcz1aMG5IU1BBS2hRTHpk
-b0VOQVpCWXVEQzZRbVpOT2xpeWlFN2gxT09Wa0JBJmU9DQo+IENjOiA8c3RhYmxlQHZnZXIua2Vy
-bmVsLm9yZz4NCj4gU2lnbmVkLW9mZi1ieTogQWFyb24gTWEgPGFhcm9uLm1hQGNhbm9uaWNhbC5j
-b20+DQo+IC0tLQ0KPiAgZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9kcml2ZXIuYyB8IDExICsrKysr
-KysrKysrDQo+ICAxIGZpbGUgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaW5wdXQvcm1pNC9ybWlfZHJpdmVyLmMNCj4gYi9kcml2ZXJzL2lucHV0
-L3JtaTQvcm1pX2RyaXZlci5jDQo+IGluZGV4IGZjM2FiOTNiN2FlYS4uMjA2MzFiMjcyZjQzIDEw
-MDY0NA0KPiAtLS0gYS9kcml2ZXJzL2lucHV0L3JtaTQvcm1pX2RyaXZlci5jDQo+ICsrKyBiL2Ry
-aXZlcnMvaW5wdXQvcm1pNC9ybWlfZHJpdmVyLmMNCj4gQEAgLTM3NCw2ICszNzQsMTcgQEAgc3Rh
-dGljIGludCBybWlfZHJpdmVyX3NldF9pcnFfYml0cyhzdHJ1Y3QNCj4gcm1pX2RldmljZSAqcm1p
-X2RldiwNCj4gICAgICAgICBzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmcm1pX2Rldi0+ZGV2Ow0KPiAN
-Cj4gICAgICAgICBtdXRleF9sb2NrKCZkYXRhLT5pcnFfbXV0ZXgpOw0KPiArDQo+ICsgICAgICAg
-LyogRHVtbXkgcmVhZCBpbiBvcmRlciB0byBjbGVhciBpcnFzICovDQo+ICsgICAgICAgZXJyb3Ig
-PSBybWlfcmVhZF9ibG9jayhybWlfZGV2LA0KPiArICAgICAgICAgICAgICAgICAgICAgICBkYXRh
-LT5mMDFfY29udGFpbmVyLT5mZC5kYXRhX2Jhc2VfYWRkciArIDEsDQo+ICsgICAgICAgICAgICAg
-ICAgICAgICAgIGRhdGEtPmlycV9zdGF0dXMsIGRhdGEtPm51bV9vZl9pcnFfcmVncyk7DQo+ICsg
-ICAgICAgaWYgKGVycm9yIDwgMCkgew0KPiArICAgICAgICAgICAgICAgZGV2X2VycihkZXYsICIl
-czogRmFpbGVkIHRvIHJlYWQgaW50ZXJydXB0IHN0YXR1cyEiLA0KPiArICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF9fZnVuY19fKTsNCj4gKyAg
-ICAgICAgICAgICAgIGdvdG8gZXJyb3JfdW5sb2NrOw0KPiArICAgICAgIH0NCj4gKw0KPiAgICAg
-ICAgIGJpdG1hcF9vcihkYXRhLT5uZXdfaXJxX21hc2ssDQo+ICAgICAgICAgICAgICAgICAgIGRh
-dGEtPmN1cnJlbnRfaXJxX21hc2ssIG1hc2ssIGRhdGEtPmlycV9jb3VudCk7DQo+IA0KPiAtLQ0K
-PiAyLjE3LjENCj4gDQoNClNvcnJ5IGZvciB0aGUgbG9uZyBkZWxheSBpbiBmb2xsb3dpbmcgdXAg
-b24gdGhpcy4NCg0KSSdtIG5vdCBzdXJlIHRoaXMgaXMgYSBzYWZlIGFjdGlvbiwgZHVlIHRvIGEg
-cmFjZSBjb25kaXRpb24gd2l0aCB0aGUNCmFjdHVhbCBJUlEgaGFuZGxlciAocm1pX3Byb2Nlc3Nf
-aW50ZXJydXB0X3JlcXVlc3RzIGZyb20gcm1pX2RyaXZlci5jKS4gDQpSZW1lbWJlciB0aGF0IHJl
-YWRpbmcgdGhlIElSUSBzdGF0dXMgcmVnaXN0ZXIgY2xlYXJzIGFsbCB0aGUgSVJRIGJpdHMuIA0K
-U28geW91J3JlIGZhY2VkIHdpdGggdGhpcyBwb3NzaWJsZSBzY2VuYXJpbzoNCiAgICAtIEFUVE4g
-YXNzZXJ0ZWQsIGluZGljYXRpbmcgbmV3IGRhdGEgaW4gSVJRIHN0YXR1cyByZWdpc3Rlcg0KICAg
-IC0gcm1pX2RyaXZlcl9zZXRfaXJxX2JpdHMgY2FsbGVkDQogICAgLSBybWlfZHJpdmVyX3NldF9p
-cnFfYml0cyByZWFkcyBJUlEgc3RhdHVzLCBjbGVhcmluZyBiaXRzDQogICAgLSBybWlfcHJvY2Vz
-c19pbnRlcnJ1cHRfcmVxdWVzdHMgY2FsbGVkDQogICAgLSBybWlfcHJvY2Vzc19pbnRlcnJ1cHRf
-cmVxdWVzdCByZWFkcyBJUlEgc3RhdHVzLCBzZWVzIG5vDQogICAgICBiaXRzIHNldCwgbmVzdGVk
-IElSUXMgYXJlIG5vdCBoYW5kbGVkDQpUaGlzIGNvdWxkIGxlYWQgdG8gbG9zcyBvZiBkYXRhIG9y
-IGluY29uc2lzdGVudCBzeXN0ZW0gc3RhdGUNCmluZm9ybWF0aW9uLiAgRm9yIGV4YW1wbGUsIGEg
-YnV0dG9uIHVwIG9yIGRvd24gZXZlbnQgbWF5IGJlIGxvc3QsIHdpdGgNCmNvbnNlcXVlbnQgd2Vp
-cmQgYmVoYXZpb3IgYnkgdGhlIHVzZXIgaW50ZXJmYWNlLg0KDQpDQVZFQVQ6IEkgaGF2ZW4ndCBo
-YWQgbXVjaCB0byBkbyB3aXRoIHRoZSBSTUk0IGRyaXZlciBmb3IgYSBsb25nIHdoaWxlLA0KYW5k
-IGFtIGp1c3Qgc3RhcnRpbmcgdG8gcG9rZSBhcm91bmQgd2l0aCBpdCBhZ2Fpbi4gIEkgYW0gbm90
-IHZlcnkNCmZhbWlsaWFyIHdpdGggdGhlIGN1cnJlbnQgSVJRIGhhbmRsaW5nIGltcGxlbWVudGF0
-aW9uLiAgUGVyaGFwcyB0aGVyZQ0KaXMgYSBndWFyYW50ZWUgaW4gdGhlIGtlcm5lbCBJUlEgbWVj
-aGFuaXNtIHRoYXQgb25jZSBBVFROIGlzIGFzc2VydGVkLA0KdGhlbiBybWlfcHJvY2Vzc19pbnRl
-cnJ1cHRfcmVxdWVzdHMgd2lsbCBiZSBjYWxsZWQgYmVmb3JlIGFueW9uZSBlbHNlDQpnZXRzIGEg
-Y2hhbmNlIHRvIHJlYWQgdGhlIElSUSBzdGF0dXMgcmVnaXN0ZXIuICBJZiB0aGF0J3MgdGhlIGNh
-c2UsIGxldA0KbWUga25vdyBJJ20gd29ycmllZCBhYm91dCBub3RoaW5nLCBhbmQgaWdub3JlIHRo
-aXMgY29tbWVudC4NCg0KQ2hlZXJzLA0KQ2hyaXMNCg0K
+create_singlethread_workqueue may fail and return NULL. The fix
+checks if it is NULL to avoid NULL pointer dereference.
+
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+---
+ drivers/hid/hid-logitech-hidpp.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 15ed6177a7a3..efbc39b92aa2 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2156,6 +2156,9 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 
+ 	/* init the hardware command queue */
+ 	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
++	if (!data->wq)
++		return -ENOMEM;
++
+ 	atomic_set(&data->workqueue_size, 0);
+ 
+ 	/* initialize with zero autocenter to get wheel in usable state */
+-- 
+2.17.1

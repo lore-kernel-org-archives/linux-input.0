@@ -1,34 +1,33 @@
 From: Kangjie Lu <kjlu@umn.edu>
-Subject: [PATCH] hid: logitech: check the return value of create_singlethread_workqueue
-Date: Fri,  8 Mar 2019 22:43:45 -0600
-Message-ID: <20190309044345.7018-1-kjlu@umn.edu>
+Subject: [PATCH] input: pm8xxx-vibrator: fix a potential NULL pointer dereference
+Date: Fri,  8 Mar 2019 23:39:21 -0600
+Message-ID: <20190309053922.22212-1-kjlu@umn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: kjlu@umn.edu
-Cc: pakki001@umn.edu, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: pakki001@umn.edu, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-create_singlethread_workqueue may fail and return NULL. The fix
-checks if it is NULL to avoid NULL pointer dereference.
+In case of_device_get_match_data fails to find the matched data,
+returns -ENODEV
 
 Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 ---
- drivers/hid/hid-logitech-hidpp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/misc/pm8xxx-vibrator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 15ed6177a7a3..efbc39b92aa2 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2156,6 +2156,9 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
+index 7dd1c1fbe42a..740e59c11808 100644
+--- a/drivers/input/misc/pm8xxx-vibrator.c
++++ b/drivers/input/misc/pm8xxx-vibrator.c
+@@ -196,6 +196,8 @@ static int pm8xxx_vib_probe(struct platform_device *pdev)
+ 	vib->vib_input_dev = input_dev;
  
- 	/* init the hardware command queue */
- 	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
-+	if (!data->wq)
-+		return -ENOMEM;
-+
- 	atomic_set(&data->workqueue_size, 0);
+ 	regs = of_device_get_match_data(&pdev->dev);
++	if (unlikely(!regs))
++		return -ENODEV;
  
- 	/* initialize with zero autocenter to get wheel in usable state */
+ 	/* operate in manual mode */
+ 	error = regmap_read(vib->regmap, regs->drv_addr, &val);
 -- 
 2.17.1

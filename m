@@ -1,47 +1,49 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
-Date: Sat, 9 Mar 2019 16:37:33 +0800
-Message-ID: <a0f21198-5715-8858-8368-51e43092181e@canonical.com>
-References: <20190220164200.31044-1-aaron.ma@canonical.com>
- <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: msm-vibrator: use correct gpio header
+Date: Sat, 9 Mar 2019 15:33:30 -0800
+Message-ID: <20190309233330.GB13699@dtor-ws>
+References: <20190304195734.1070109-1-arnd@arndb.de>
+ <CACRpkdaq9YzFSSXp7HSOf+RC2PGxv0N-m+iV99tn-0xTeEZr=Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CACRpkdaq9YzFSSXp7HSOf+RC2PGxv0N-m+iV99tn-0xTeEZr=Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christopher Heiny <Cheiny@synaptics.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Brian Masney <masneyb@onstation.org>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+On Tue, Mar 05, 2019 at 08:49:01AM +0100, Linus Walleij wrote:
+> On Mon, Mar 4, 2019 at 8:57 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> 
+> > When CONFIG_GPIOLIB is not set, we get a couple of build
+> > errors during test building:
+> >
+> > drivers/input/misc/msm-vibrator.c: In function 'msm_vibrator_start':
+> > drivers/input/misc/msm-vibrator.c:79:3: error: implicit declaration of function 'gpiod_set_value_cansleep'; did you mean 'gpio_set_value_cansleep'? [-Werror=implicit-function-declaration]
+> >    gpiod_set_value_cansleep(vibrator->enable_gpio, 1);
+> >    ^~~~~~~~~~~~~~~~~~~~~~~~
+> >    gpio_set_value_cansleep
+> > drivers/input/misc/msm-vibrator.c: In function 'msm_vibrator_probe':
+> > drivers/input/misc/msm-vibrator.c:176:26: error: implicit declaration of function 'devm_gpiod_get'; did you mean 'devm_gpio_free'? [-Werror=implicit-function-declaration]
+> >   vibrator->enable_gpio = devm_gpiod_get(&pdev->dev, "enable",
+> >                           ^~~~~~~~~~~~~~
+> >                           devm_gpio_free
+> > drivers/input/misc/msm-vibrator.c:177:13: error: 'GPIOD_OUT_LOW' undeclared (first use in this function); did you mean 'GPIOF_INIT_LOW'?
+> >              GPIOD_OUT_LOW);
+> >              ^~~~~~~~~~~~~
+> >              GPIOF_INIT_LOW
+> > drivers/input/misc/msm-vibrator.c:177:13: note: each undeclared identifier is reported only once for each function it appears in
+> >
+> > This is easy to avoid when we use gpio/consumer.h as the documented interface.
+> >
+> > Fixes: 0f681d09e66e ("Input: add new vibrator driver for various MSM SOCs")
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> 
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-On 3/9/19 7:13 AM, Christopher Heiny wrote:
-> I'm not sure this is a safe action, due to a race condition with the
-> actual IRQ handler (rmi_process_interrupt_requests from rmi_driver.c). 
-> Remember that reading the IRQ status register clears all the IRQ bits. 
-> So you're faced with this possible scenario:
->     - ATTN asserted, indicating new data in IRQ status register
->     - rmi_driver_set_irq_bits called
->     - rmi_driver_set_irq_bits reads IRQ status, clearing bits
->     - rmi_process_interrupt_requests called
->     - rmi_process_interrupt_request reads IRQ status, sees no
->       bits set, nested IRQs are not handled
-> This could lead to loss of data or inconsistent system state
-> information.  For example, a button up or down event may be lost, with
-> consequent weird behavior by the user interface.
+Applied, thank you.
 
-rmi_driver_set_irq_bits is only called to config and enable specific
-functions of RMI.
-Reading IRQ status before set irqs is supposed to clear spam data/irq
-status.
-spam data make probe/detect touchpad/trackpoint fail.
-
-rmi_smb_resume -> rmi_driver_reset_handler -> fn-config ->
-clear_irq_bits -> set_irq_bits -> enable_irq -> irq_handler  ->
-rmi_process_interrupt_requests
-
-set_irq_bits will not be in interrupt context, it enables IRQ bits of RMI.
-
-Regards,
-Aaron
+-- 
+Dmitry

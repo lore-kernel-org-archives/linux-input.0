@@ -1,64 +1,90 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: raspberrypi-ts: select CONFIG_INPUT_POLLDEV
-Date: Sat, 9 Mar 2019 15:34:38 -0800
-Message-ID: <20190309233438.GC13699@dtor-ws>
-References: <20190304195845.1096214-1-arnd@arndb.de>
- <87a8108f573e04d5c2eaaaa23be0f3a58bd45eb1.camel@suse.de>
+Subject: Re: [PATCH] Input: fix oops in input_to_handler
+Date: Sat, 9 Mar 2019 15:46:59 -0800
+Message-ID: <20190309234659.GD13699@dtor-ws>
+References: <1551413607-32036-1-git-send-email-xiezhipeng1@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <87a8108f573e04d5c2eaaaa23be0f3a58bd45eb1.camel@suse.de>
+In-Reply-To: <1551413607-32036-1-git-send-email-xiezhipeng1@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, Zhu Yi <yi.zhu5@cn.bosch.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Zhipeng Xie <xiezhipeng1@huawei.com>
+Cc: rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel.openeuler@huawei.com, euleros@huawei.com, huawei.libin@huawei.com, yangyingliang@huawei.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Mar 05, 2019 at 11:39:42AM +0100, Nicolas Saenz Julienne wrote:
-> On Mon, 2019-03-04 at 20:57 +0100, Arnd Bergmann wrote:
-> > When CONFIG_INPUT_POLLDEV is disabled, we get a link error:
-> > 
-> > drivers/input/touchscreen/raspberrypi-ts.o: In function `rpi_ts_probe':
-> > raspberrypi-ts.c:(.text+0xec): undefined reference to
-> > `devm_input_allocate_polled_device'
-> > raspberrypi-ts.c:(.text+0xec): relocation truncated to fit: R_AARCH64_CALL26
-> > against undefined symbol `devm_input_allocate_polled_device'
-> > raspberrypi-ts.c:(.text+0x19c): undefined reference to
-> > `input_register_polled_device'
-> > raspberrypi-ts.c:(.text+0x19c): relocation truncated to fit: R_AARCH64_CALL26
-> > against undefined symbol `input_register_polled_device'
-> > 
-> > Select that symbol like we do from the other similar drivers.
-> > 
-> > Fixes: 0b9f28fed3f7 ("Input: add official Raspberry Pi's touchscreen driver")
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  drivers/input/touchscreen/Kconfig | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/input/touchscreen/Kconfig
-> > b/drivers/input/touchscreen/Kconfig
-> > index 7c597a49c265..7a4884ad198b 100644
-> > --- a/drivers/input/touchscreen/Kconfig
-> > +++ b/drivers/input/touchscreen/Kconfig
-> > @@ -699,6 +699,7 @@ config TOUCHSCREEN_EDT_FT5X06
-> >  config TOUCHSCREEN_RASPBERRYPI_FW
-> >  	tristate "Raspberry Pi's firmware base touch screen support"
-> >  	depends on RASPBERRYPI_FIRMWARE || (RASPBERRYPI_FIRMWARE=n &&
-> > COMPILE_TEST)
-> > +	select INPUT_POLLDEV
-> >  	help
-> >  	  Say Y here if you have the official Raspberry Pi 7 inch screen on
-> >  	  your system.
-> 
-> Thanks!
-> Looks good to me.
-> 
-> Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-> 
+Hi Zhipeng,
 
-Applied, thank you.
+On Fri, Mar 01, 2019 at 12:13:27PM +0800, Zhipeng Xie wrote:
+> we got the following boot crash:
+> 
+> 	[   36.086344] Internal error: Oops: 96000004 [#1] SMP
+> 	[   36.091371] CPU: 32 PID: 0 Comm: swapper/32 Tainted: G           OE     4.19.25-vhulk1901.1.0.h111.aarch64 #1
+> 	[   36.101444] Hardware name: Huawei TaiShan 2280 /BC11SPCD, BIOS 1.58 10/24/2018
+> 	[   36.108860] pstate: 20000085 (nzCv daIf -PAN -UAO)
+> 	[   36.113727] pc : input_to_handler+0x2c/0x148
+> 	[   36.118058] lr : input_pass_values.part.2+0x148/0x168
+> 	[   36.123177] sp : ffff000100103ba0
+> 	[   36.126535] x29: ffff000100103ba0 x28: ffff801fb2ac5958
+> 	[   36.131924] x27: ffff000009799000 x26: 0000000000000001
+> 	[   36.137375] x25: 0000000000000000 x24: ffff801fb5b57c00
+> 	[   36.142822] x23: 000000020987f3d0 x22: ffff801faf427e00
+> 	[   36.148211] x21: 0000000000000003 x20: 0000000000000003
+> 	[   36.153599] x19: ffff801faf427e00 x18: 000000000000000e
+> 	[   36.158986] x17: 000000000000000e x16: 0000000000000007
+> 	[   36.164374] x15: 0000000000000001 x14: 0000000000000019
+> 	[   36.169762] x13: 0000000000000033 x12: 000000000000004c
+> 	[   36.175150] x11: 0000000000000068 x10: ffff000008dfa290
+> 	[   36.180538] x9 : 000000000000007d x8 : 0000000000000000
+> 	[   36.185925] x7 : 0000000000000053 x6 : 0000000000000000
+> 	[   36.191313] x5 : 0000000000000000 x4 : 0000000000000000
+> 	[   36.196700] x3 : 0000000000000010 x2 : 0000000000000003
+> 	[   36.202088] x1 : ffff801fb5b57c00 x0 : ffff000008a120a0
+> 	[   36.207477] Process swapper/32 (pid: 0, stack limit = 0x0000000032f86b58)
+> 	[   36.214361] Call trace:
+> 	[   36.216840]  input_to_handler+0x2c/0x148
+> 	[   36.220816]  input_pass_values.part.2+0x148/0x168
+> 	[   36.225582]  input_handle_event+0x130/0x5b8
+> 	[   36.229823]  i6.242013]  hid_input_report+0x128/0x1b0
+> 	[   36.246076]  hid_irq_in+0x240/0x298
+> 	[   36.249613]  __usb_hcd_giveback_urb+0x9c/0x130
+> 	[   36.257460]  usb_giveback_urb_bh+0xf4/0x198
+> 	[   36.265127]  tasklet_action_common.isra.6+0x94/0x160
+> 	[   36.273458]  tasklet_hi_action+0x2c/0x38
+> 	[   36.280597]  __do_softirq+0x118/0x314
+> 	[   36.287494]  irq_exit+0xa4/0xe8
+> 	[   36.293682]  __handle_domain_irq+0x6c/0xc0
+> 	[   36.300783]  gic_handle_irq+0x6c/0x170
+> 	[   36.307296]  el1_irq+0xb8/0x140
+> 	[   36.313283]  arch_cpu_idle+0x38/0x1c0
+> 	[   36.319776]  default_idle_call+0x24/0x44
+> 	[   36.326527]  do_idle+0x1ec/0x2d0
+> 	[   36.332503]  cpu_startup_entry+0x28/0x30
+> 	[   36.339161]  secondary_start_kernel+0x194/0x1d8
+> 
+> We need to check the input_handler before referencing its members.
+> 
+> Signed-off-by: Zhipeng Xie <xiezhipeng1@huawei.com>
+> ---
+>  drivers/input/input.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/input.c b/drivers/input/input.c
+> index 3304aaa..b768d14 100644
+> --- a/drivers/input/input.c
+> +++ b/drivers/input/input.c
+> @@ -100,6 +100,9 @@ static unsigned int input_to_handler(struct input_handle *handle,
+>  	struct input_value *end = vals;
+>  	struct input_value *v;
+>  
+> +	if (!handler)
+> +		return 0;
 
+No, is not a proper change. That means that someone registered an input
+handle without setting handler, which is not allowed. Do you have any
+custom input handlers in your system?
+
+Thanks.
 
 -- 
 Dmitry

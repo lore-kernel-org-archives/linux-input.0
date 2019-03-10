@@ -1,90 +1,178 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: fix oops in input_to_handler
-Date: Sat, 9 Mar 2019 15:46:59 -0800
-Message-ID: <20190309234659.GD13699@dtor-ws>
-References: <1551413607-32036-1-git-send-email-xiezhipeng1@huawei.com>
+Subject: [git pull] Input updates for v5.1-rc0
+Date: Sat, 9 Mar 2019 18:34:27 -0800
+Message-ID: <20190310023427.GA68528@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1551413607-32036-1-git-send-email-xiezhipeng1@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Zhipeng Xie <xiezhipeng1@huawei.com>
-Cc: rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel.openeuler@huawei.com, euleros@huawei.com, huawei.libin@huawei.com, yangyingliang@huawei.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Zhipeng,
+Hi Linus,
 
-On Fri, Mar 01, 2019 at 12:13:27PM +0800, Zhipeng Xie wrote:
-> we got the following boot crash:
-> 
-> 	[   36.086344] Internal error: Oops: 96000004 [#1] SMP
-> 	[   36.091371] CPU: 32 PID: 0 Comm: swapper/32 Tainted: G           OE     4.19.25-vhulk1901.1.0.h111.aarch64 #1
-> 	[   36.101444] Hardware name: Huawei TaiShan 2280 /BC11SPCD, BIOS 1.58 10/24/2018
-> 	[   36.108860] pstate: 20000085 (nzCv daIf -PAN -UAO)
-> 	[   36.113727] pc : input_to_handler+0x2c/0x148
-> 	[   36.118058] lr : input_pass_values.part.2+0x148/0x168
-> 	[   36.123177] sp : ffff000100103ba0
-> 	[   36.126535] x29: ffff000100103ba0 x28: ffff801fb2ac5958
-> 	[   36.131924] x27: ffff000009799000 x26: 0000000000000001
-> 	[   36.137375] x25: 0000000000000000 x24: ffff801fb5b57c00
-> 	[   36.142822] x23: 000000020987f3d0 x22: ffff801faf427e00
-> 	[   36.148211] x21: 0000000000000003 x20: 0000000000000003
-> 	[   36.153599] x19: ffff801faf427e00 x18: 000000000000000e
-> 	[   36.158986] x17: 000000000000000e x16: 0000000000000007
-> 	[   36.164374] x15: 0000000000000001 x14: 0000000000000019
-> 	[   36.169762] x13: 0000000000000033 x12: 000000000000004c
-> 	[   36.175150] x11: 0000000000000068 x10: ffff000008dfa290
-> 	[   36.180538] x9 : 000000000000007d x8 : 0000000000000000
-> 	[   36.185925] x7 : 0000000000000053 x6 : 0000000000000000
-> 	[   36.191313] x5 : 0000000000000000 x4 : 0000000000000000
-> 	[   36.196700] x3 : 0000000000000010 x2 : 0000000000000003
-> 	[   36.202088] x1 : ffff801fb5b57c00 x0 : ffff000008a120a0
-> 	[   36.207477] Process swapper/32 (pid: 0, stack limit = 0x0000000032f86b58)
-> 	[   36.214361] Call trace:
-> 	[   36.216840]  input_to_handler+0x2c/0x148
-> 	[   36.220816]  input_pass_values.part.2+0x148/0x168
-> 	[   36.225582]  input_handle_event+0x130/0x5b8
-> 	[   36.229823]  i6.242013]  hid_input_report+0x128/0x1b0
-> 	[   36.246076]  hid_irq_in+0x240/0x298
-> 	[   36.249613]  __usb_hcd_giveback_urb+0x9c/0x130
-> 	[   36.257460]  usb_giveback_urb_bh+0xf4/0x198
-> 	[   36.265127]  tasklet_action_common.isra.6+0x94/0x160
-> 	[   36.273458]  tasklet_hi_action+0x2c/0x38
-> 	[   36.280597]  __do_softirq+0x118/0x314
-> 	[   36.287494]  irq_exit+0xa4/0xe8
-> 	[   36.293682]  __handle_domain_irq+0x6c/0xc0
-> 	[   36.300783]  gic_handle_irq+0x6c/0x170
-> 	[   36.307296]  el1_irq+0xb8/0x140
-> 	[   36.313283]  arch_cpu_idle+0x38/0x1c0
-> 	[   36.319776]  default_idle_call+0x24/0x44
-> 	[   36.326527]  do_idle+0x1ec/0x2d0
-> 	[   36.332503]  cpu_startup_entry+0x28/0x30
-> 	[   36.339161]  secondary_start_kernel+0x194/0x1d8
-> 
-> We need to check the input_handler before referencing its members.
-> 
-> Signed-off-by: Zhipeng Xie <xiezhipeng1@huawei.com>
-> ---
->  drivers/input/input.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index 3304aaa..b768d14 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -100,6 +100,9 @@ static unsigned int input_to_handler(struct input_handle *handle,
->  	struct input_value *end = vals;
->  	struct input_value *v;
->  
-> +	if (!handler)
-> +		return 0;
+Please pull from:
 
-No, is not a proper change. That means that someone registered an input
-handle without setting handler, which is not allowed. Do you have any
-custom input handlers in your system?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. You will get:
+
+- update to ili210x touchscreen driver, refreshing the code and adding
+  support for ILI251X line
+- update to st1232 touchscreen driver adding support for st1633 model
+- sx8654 touchscreen driver gained support for sx8650 model
+- edt-ft5x06 touchscreen driver gained support for Evervision FT5726
+- Goodix touchscreen driver can now support gt5688
+- new vibrator driver for MSM SOCs
+- miscellaneous fixes for the rest of input drivers
+
+Thanks!
+
+Changelog:
+---------
+
+Aditya Pakki (1):
+      Input: ad7879 - add check for read errors in interrupt
+
+Arnd Bergmann (2):
+      Input: msm-vibrator - use correct gpio header
+      Input: raspberrypi-ts - select CONFIG_INPUT_POLLDEV
+
+Brian Masney (1):
+      Input: add new vibrator driver for various MSM SOCs
+
+Dan Carpenter (1):
+      Input: msm-vibrator - tweak an error message
+
+Dmitry Torokhov (5):
+      Input: sx8654 - do not override interrupt trigger
+      Input: ili210x - switch to using devm_device_add_group()
+      Input: stmfts - acknowledge that setting brightness is a blocking call
+      Input: tm2-touchkey - acknowledge that setting brightness is a blocking call
+      Input: ims-pcu - switch to using brightness_set_blocking()
+
+Florian Fainelli (1):
+      Input: gpio-keys - add shutdown callback
+
+Guido Günther (3):
+      Input: goodix - support Goodix gt5688
+      Input: goodix - refer to touchscreen.txt in device tree bindings
+      Input: goodix - print values in case of inconsistencies
+
+Gustavo A. R. Silva (3):
+      Input: tca6416-keypad - use struct_size() in kzalloc()
+      Input: mcs_touchkey - use struct_size() in kzalloc()
+      Input: db9 - mark expected switch fall-through
+
+Hans de Goede (2):
+      Input: soc_button_array - add usage-page 0x01 usage-id 0xca mapping
+      Input: soc_button_array - fix mapping of the 5th GPIO in a PNP0C40 device
+
+Jason Gerecke (1):
+      Input: wacom_serial4 - add support for Wacom ArtPad II tablet
+
+Jonathan Bakker (3):
+      Input: tm2-touchkey - correct initial brightness
+      Input: tm2-touchkey - allow specifying custom keycodes
+      Input: tm2-touchkey - add support for aries touchkey variant
+
+Marco Felsch (3):
+      Input: edt-ft5x06 - add support for Evervision FT5726
+      Input: edt-ft5x06 - add support to update ev-ft5726 registers
+      Input: edt-ft5x06 - add offset support for ev-ft5726
+
+Marek Vasut (11):
+      Input: ili210x - add DT binding document
+      Input: ili210x - drop platform data support
+      Input: ili210x - drop get_pendown_state
+      Input: ili210x - convert to devm_ functions
+      Input: ili210x - add reset GPIO support
+      Input: ili210x - convert to devm IRQ
+      Input: ili210x - rework the touchscreen sample processing
+      Input: ili210x - reorder probe
+      Input: ili210x - add OF match table
+      Input: ili210x - add ILI251X support
+      Input: ili210x - fetch touchscreen geometry from DT
+
+Martin Kepplinger (3):
+      Input: st1232 - add support for st1633
+      Input: st1232 - add Martin as module author
+      Input: st1232 - switch to gpiod API
+
+Matthias Fend (1):
+      Input: st1232 - handle common DT bindings
+
+Richard Leitner (5):
+      Input: sx8654 - add reset-gpio support
+      Input: sx8654 - add sx8655 and sx8656 to compatibles
+      Input: sx8654 - add sx8650 support
+      Input: sx8654 - use common of_touchscreen functions
+      Input: sx8654 - convert #defined flags to BIT(x)
+
+Rob Herring (1):
+      Input: i8042 - rework DT node name comparisons
+
+Simon Shields (1):
+      Input: tm2-touchkey - add support for midas touchkey
+
+Sven Van Asbroeck (2):
+      Input: qt2160 - remove redundant spinlock
+      Input: synaptics_i2c - remove redundant spinlock
+
+Vincent Batts (1):
+      Input: elan_i2c - add id for touchpad found in Lenovo s21e-20
+
+YueHaibing (2):
+      Input: mtk-pmic-keys - remove duplicated include from mtk-pmic-keys.c
+      Input: ti_am335x_tsc - remove set but not used variable 'tscadc_dev'
+
+Diffstat:
+--------
+
+ .../bindings/input/cypress,tm2-touchkey.txt        |   9 +-
+ .../devicetree/bindings/input/ilitek,ili2xxx.txt   |  25 ++
+ .../devicetree/bindings/input/msm-vibrator.txt     |  36 +++
+ .../bindings/input/touchscreen/edt-ft5x06.txt      |  13 +-
+ .../bindings/input/touchscreen/goodix.txt          |  14 +-
+ .../bindings/input/touchscreen/sitronix-st1232.txt |   8 +-
+ .../bindings/input/touchscreen/sx8654.txt          |  10 +-
+ drivers/input/joystick/db9.c                       |   2 +-
+ drivers/input/keyboard/gpio_keys.c                 |  10 +
+ drivers/input/keyboard/mcs_touchkey.c              |   5 +-
+ drivers/input/keyboard/mtk-pmic-keys.c             |  13 +-
+ drivers/input/keyboard/qt2160.c                    |   9 -
+ drivers/input/keyboard/tca6416-keypad.c            |   4 +-
+ drivers/input/keyboard/tm2-touchkey.c              | 136 ++++++---
+ drivers/input/misc/Kconfig                         |  10 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/ims-pcu.c                       |  27 +-
+ drivers/input/misc/msm-vibrator.c                  | 281 ++++++++++++++++++
+ drivers/input/misc/soc_button_array.c              |   6 +-
+ drivers/input/mouse/elan_i2c_core.c                |   1 +
+ drivers/input/mouse/synaptics_i2c.c                |  22 +-
+ drivers/input/serio/i8042-sparcio.h                |  21 +-
+ drivers/input/tablet/wacom_serial4.c               |   2 +
+ drivers/input/touchscreen/Kconfig                  |   7 +-
+ drivers/input/touchscreen/ad7879.c                 |  11 +-
+ drivers/input/touchscreen/edt-ft5x06.c             | 110 ++++++-
+ drivers/input/touchscreen/goodix.c                 |   6 +-
+ drivers/input/touchscreen/ili210x.c                | 321 +++++++++++++--------
+ drivers/input/touchscreen/st1232.c                 | 154 ++++++----
+ drivers/input/touchscreen/stmfts.c                 |  30 +-
+ drivers/input/touchscreen/sx8654.c                 | 255 ++++++++++++++--
+ drivers/input/touchscreen/ti_am335x_tsc.c          |   4 -
+ include/linux/input/ili210x.h                      |  11 -
+ 33 files changed, 1207 insertions(+), 367 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/ilitek,ili2xxx.txt
+ create mode 100644 Documentation/devicetree/bindings/input/msm-vibrator.txt
+ create mode 100644 drivers/input/misc/msm-vibrator.c
+ delete mode 100644 include/linux/input/ili210x.h
 
 Thanks.
+
 
 -- 
 Dmitry

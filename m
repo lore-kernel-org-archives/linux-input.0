@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 06/12] Input: matrix_keypad - use flush_delayed_work()
-Date: Mon, 11 Mar 2019 15:59:06 -0400
-Message-ID: <20190311195912.139410-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 05/12] Input: cap11xx - switch to using set_brightness_blocking()
+Date: Mon, 11 Mar 2019 15:59:05 -0400
+Message-ID: <20190311195912.139410-5-sashal@kernel.org>
 References: <20190311195912.139410-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,31 +14,98 @@ List-Id: linux-input@vger.kernel.org
 
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit a342083abe576db43594a32d458a61fa81f7cb32 ]
+[ Upstream commit 628442880af8c201d307a45f3862a7a17df8a189 ]
 
-We should be using flush_delayed_work() instead of flush_work() in
-matrix_keypad_stop() to ensure that we are not missing work that is
-scheduled but not yet put in the workqueue (i.e. its delay timer has not
-expired yet).
+Updating LED state requires access to regmap and therefore we may sleep,
+so we could not do that directly form set_brightness() method.
+Historically we used private work to adjust the brightness, but with the
+introduction of set_brightness_blocking() we no longer need it.
 
+As a bonus, not having our own work item means we do not have
+use-after-free issue as we neglected to cancel outstanding work on
+driver unbind.
+
+Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
+Reviewed-by: Sven Van Asbroeck <TheSven73@googlemail.com>
+Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/matrix_keypad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/cap11xx.c | 35 ++++++++++----------------------
+ 1 file changed, 11 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index c64d87442a62..2e12e31f45c5 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -220,7 +220,7 @@ static void matrix_keypad_stop(struct input_dev *dev)
- 	keypad->stopped = true;
- 	spin_unlock_irq(&keypad->lock);
+diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
+index 4401be225d64..3c53aa5d5c0c 100644
+--- a/drivers/input/keyboard/cap11xx.c
++++ b/drivers/input/keyboard/cap11xx.c
+@@ -75,9 +75,7 @@
+ struct cap11xx_led {
+ 	struct cap11xx_priv *priv;
+ 	struct led_classdev cdev;
+-	struct work_struct work;
+ 	u32 reg;
+-	enum led_brightness new_brightness;
+ };
+ #endif
  
--	flush_work(&keypad->work.work);
-+	flush_delayed_work(&keypad->work);
+@@ -233,30 +231,21 @@ static void cap11xx_input_close(struct input_dev *idev)
+ }
+ 
+ #ifdef CONFIG_LEDS_CLASS
+-static void cap11xx_led_work(struct work_struct *work)
++static int cap11xx_led_set(struct led_classdev *cdev,
++			    enum led_brightness value)
+ {
+-	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
++	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
+ 	struct cap11xx_priv *priv = led->priv;
+-	int value = led->new_brightness;
+ 
  	/*
- 	 * matrix_keypad_scan() will leave IRQs enabled;
- 	 * we should disable them now.
+-	 * All LEDs share the same duty cycle as this is a HW limitation.
+-	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
++	 * All LEDs share the same duty cycle as this is a HW
++	 * limitation. Brightness levels per LED are either
++	 * 0 (OFF) and 1 (ON).
+ 	 */
+-	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
+-				BIT(led->reg), value ? BIT(led->reg) : 0);
+-}
+-
+-static void cap11xx_led_set(struct led_classdev *cdev,
+-			   enum led_brightness value)
+-{
+-	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
+-
+-	if (led->new_brightness == value)
+-		return;
+-
+-	led->new_brightness = value;
+-	schedule_work(&led->work);
++	return regmap_update_bits(priv->regmap,
++				  CAP11XX_REG_LED_OUTPUT_CONTROL,
++				  BIT(led->reg),
++				  value ? BIT(led->reg) : 0);
+ }
+ 
+ static int cap11xx_init_leds(struct device *dev,
+@@ -299,7 +288,7 @@ static int cap11xx_init_leds(struct device *dev,
+ 		led->cdev.default_trigger =
+ 			of_get_property(child, "linux,default-trigger", NULL);
+ 		led->cdev.flags = 0;
+-		led->cdev.brightness_set = cap11xx_led_set;
++		led->cdev.brightness_set_blocking = cap11xx_led_set;
+ 		led->cdev.max_brightness = 1;
+ 		led->cdev.brightness = LED_OFF;
+ 
+@@ -312,8 +301,6 @@ static int cap11xx_init_leds(struct device *dev,
+ 		led->reg = reg;
+ 		led->priv = priv;
+ 
+-		INIT_WORK(&led->work, cap11xx_led_work);
+-
+ 		error = devm_led_classdev_register(dev, &led->cdev);
+ 		if (error) {
+ 			of_node_put(child);
 -- 
 2.19.1

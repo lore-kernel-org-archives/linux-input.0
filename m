@@ -1,24 +1,57 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [git pull] Input updates for v5.1-rc0
-Date: Mon, 11 Mar 2019 19:00:18 +0000
-Message-ID: <155233081803.15239.9340470308444935828.pr-tracker-bot@kernel.org>
-References: <20190310023427.GA68528@dtor-ws>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 12/52] Input: pwm-vibra - stop regulator after disabling pwm, not before
+Date: Mon, 11 Mar 2019 15:54:36 -0400
+Message-ID: <20190311195516.137772-12-sashal@kernel.org>
+References: <20190311195516.137772-1-sashal@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190310023427.GA68528@dtor-ws>
+In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The pull request you sent on Sat, 9 Mar 2019 18:34:27 -0800:
+From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+[ Upstream commit 94803aef3533676194c772383472636c453e3147 ]
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/4f0237062ca70c8e34e16e518aee4b84c30d1832
+This patch fixes order of disable calls in pwm_vibrator_stop.
+Currently when starting device, we first enable vcc regulator and then
+setup and enable pwm. When stopping, we should do this in oposite order,
+so first disable pwm and then disable regulator.
+Previously order was the same as in start.
 
-Thank you!
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/input/misc/pwm-vibra.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
+index 9df87431d7d4..dbb6d9e1b947 100644
+--- a/drivers/input/misc/pwm-vibra.c
++++ b/drivers/input/misc/pwm-vibra.c
+@@ -80,14 +80,14 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+ 
+ static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
+ {
++	if (vibrator->pwm_dir)
++		pwm_disable(vibrator->pwm_dir);
++	pwm_disable(vibrator->pwm);
++
+ 	if (vibrator->vcc_on) {
+ 		regulator_disable(vibrator->vcc);
+ 		vibrator->vcc_on = false;
+ 	}
+-
+-	if (vibrator->pwm_dir)
+-		pwm_disable(vibrator->pwm_dir);
+-	pwm_disable(vibrator->pwm);
+ }
+ 
+ static void pwm_vibrator_play_work(struct work_struct *work)
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.19.1

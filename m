@@ -1,55 +1,57 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 52/52] Input: st-keyscan - fix potential zalloc NULL dereference
-Date: Mon, 11 Mar 2019 15:55:16 -0400
-Message-ID: <20190311195516.137772-52-sashal@kernel.org>
-References: <20190311195516.137772-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 11/44] Input: pwm-vibra - stop regulator after disabling pwm, not before
+Date: Mon, 11 Mar 2019 15:56:27 -0400
+Message-ID: <20190311195700.138462-11-sashal@kernel.org>
+References: <20190311195700.138462-1-sashal@kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
+In-Reply-To: <20190311195700.138462-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Gabriel Fernandez <gabriel.fernandez@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Gabriel Fernandez <gabriel.fernandez@st.com>
+From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-[ Upstream commit 2439d37e1bf8a34d437573c086572abe0f3f1b15 ]
+[ Upstream commit 94803aef3533676194c772383472636c453e3147 ]
 
-This patch fixes the following static checker warning:
+This patch fixes order of disable calls in pwm_vibrator_stop.
+Currently when starting device, we first enable vcc regulator and then
+setup and enable pwm. When stopping, we should do this in oposite order,
+so first disable pwm and then disable regulator.
+Previously order was the same as in start.
 
-drivers/input/keyboard/st-keyscan.c:156 keyscan_probe()
-error: potential zalloc NULL dereference: 'keypad_data->input_dev'
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/st-keyscan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/misc/pwm-vibra.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
-index babcfb165e4f..3b85631fde91 100644
---- a/drivers/input/keyboard/st-keyscan.c
-+++ b/drivers/input/keyboard/st-keyscan.c
-@@ -153,6 +153,8 @@ static int keyscan_probe(struct platform_device *pdev)
+diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
+index 9df87431d7d4..dbb6d9e1b947 100644
+--- a/drivers/input/misc/pwm-vibra.c
++++ b/drivers/input/misc/pwm-vibra.c
+@@ -80,14 +80,14 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
  
- 	input_dev->id.bustype = BUS_HOST;
- 
-+	keypad_data->input_dev = input_dev;
+ static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
+ {
++	if (vibrator->pwm_dir)
++		pwm_disable(vibrator->pwm_dir);
++	pwm_disable(vibrator->pwm);
 +
- 	error = keypad_matrix_key_parse_dt(keypad_data);
- 	if (error)
- 		return error;
-@@ -168,8 +170,6 @@ static int keyscan_probe(struct platform_device *pdev)
- 
- 	input_set_drvdata(input_dev, keypad_data);
- 
--	keypad_data->input_dev = input_dev;
+ 	if (vibrator->vcc_on) {
+ 		regulator_disable(vibrator->vcc);
+ 		vibrator->vcc_on = false;
+ 	}
 -
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	keypad_data->base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(keypad_data->base))
+-	if (vibrator->pwm_dir)
+-		pwm_disable(vibrator->pwm_dir);
+-	pwm_disable(vibrator->pwm);
+ }
+ 
+ static void pwm_vibrator_play_work(struct work_struct *work)
 -- 
 2.19.1

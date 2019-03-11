@@ -1,108 +1,56 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID: quirks: use correct format chars in dbg_hid
-Date: Mon, 11 Mar 2019 15:56:13 +0100
-Message-ID: <CAO-hwJKD_Oy9_znmNL2s_652YuS59O4O9_2Qk=HZZ58XcT75cg@mail.gmail.com>
-References: <20190226234853.20441-1-louis@kragniz.eu> <20190227110720.27329-1-louis@kragniz.eu>
- <CAKwvOd=RZ7E3MRo4dB6KEi5aw92kjZ63ij0jL4XJ0nKzDwcm=g@mail.gmail.com>
+Subject: Re: [PATCH] HID: hid-asus: select CONFIG_POWER_SUPPLY
+Date: Mon, 11 Mar 2019 15:57:14 +0100
+Message-ID: <CAO-hwJLRq-0dXyAS+gg8yasqQuvR82EOeLPb+duj22tpBstKNw@mail.gmail.com>
+References: <20190304195536.1019650-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKwvOd=RZ7E3MRo4dB6KEi5aw92kjZ63ij0jL4XJ0nKzDwcm=g@mail.gmail.com>
+In-Reply-To: <20190304195536.1019650-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Louis Taylor <louis@kragniz.eu>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, clang-built-linux@googlegroups.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jiri Kosina <jikos@kernel.org>, NOGUCHI Hiroshi <drvlabo@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 27, 2019 at 8:43 PM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
+On Mon, Mar 4, 2019 at 8:55 PM Arnd Bergmann <arnd@arndb.de> wrote:
 >
-> On Wed, Feb 27, 2019 at 3:08 AM Louis Taylor <louis@kragniz.eu> wrote:
-> >
-> > When building with -Wformat, clang warns:
-> >
-> > drivers/hid/hid-quirks.c:1075:27: warning: format specifies type
-> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
-> > [-Wformat]
-> >                   bl_entry->driver_data, bl_entry->vendor,
-> >                                          ^~~~~~~~~~~~~~~~
-> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
-> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
-> >                                    ~~~~~~              ^~~
-> > drivers/hid/hid-quirks.c:1076:4: warning: format specifies type
-> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
-> > [-Wformat]
-> >                   bl_entry->product);
-> >                   ^~~~~~~~~~~~~~~~~
-> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
-> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
-> >                                    ~~~~~~              ^~~
-> > drivers/hid/hid-quirks.c:1242:12: warning: format specifies type
-> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
-> > [-Wformat]
-> >                   quirks, hdev->vendor, hdev->product);
-> >                           ^~~~~~~~~~~~
-> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
-> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
-> >                                    ~~~~~~              ^~~
-> > drivers/hid/hid-quirks.c:1242:26: warning: format specifies type
-> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
-> > [-Wformat]
-> >                   quirks, hdev->vendor, hdev->product);
-> >                                         ^~~~~~~~~~~~~
-> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
-> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
-> >                                    ~~~~~~              ^~~
-> > 4 warnings generated.
-> >
-> > This patch fixes the format strings to use the correct format type for unsigned
-> > ints.
-> >
-> > Link: https://github.com/ClangBuiltLinux/linux/issues/378
-> > Signed-off-by: Louis Taylor <louis@kragniz.eu>
+> The newly added power supply code fails to link when the power supply core
+> code is disabled:
 >
-> Thanks for following up on the feedback.
-> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+> drivers/hid/hid-asus.o: In function `asus_battery_get_property':
+> hid-asus.c:(.text+0x11de): undefined reference to `power_supply_get_drvdata'
+> drivers/hid/hid-asus.o: In function `asus_probe':
+> hid-asus.c:(.text+0x170c): undefined reference to `devm_power_supply_register'
+> hid-asus.c:(.text+0x1734): undefined reference to `power_supply_powers'
+> drivers/hid/hid-asus.o: In function `asus_raw_event':
+> hid-asus.c:(.text+0x1914): undefined reference to `power_supply_changed'
+>
+> Select the subsystem from Kconfig as we do for other hid drivers already.
+>
+> Fixes: 6311d329e12a ("HID: hid-asus: Add BT keyboard dock battery monitoring support")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
 
 Applied to for-5.1/upstream-fixes
 
 Cheers,
 Benjamin
 
+>  drivers/hid/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> > ---
-> >
-> > v2: change format string to use %04x instead of %x
-> >
-> >  drivers/hid/hid-quirks.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> > index 94088c0ed68a..b608a57b7908 100644
-> > --- a/drivers/hid/hid-quirks.c
-> > +++ b/drivers/hid/hid-quirks.c
-> > @@ -1071,7 +1071,7 @@ static struct hid_device_id *hid_exists_dquirk(const struct hid_device *hdev)
-> >         }
-> >
-> >         if (bl_entry != NULL)
-> > -               dbg_hid("Found dynamic quirk 0x%lx for HID device 0x%hx:0x%hx\n",
-> > +               dbg_hid("Found dynamic quirk 0x%lx for HID device 0x%04x:0x%04x\n",
-> >                         bl_entry->driver_data, bl_entry->vendor,
-> >                         bl_entry->product);
-> >
-> > @@ -1238,7 +1238,7 @@ static unsigned long hid_gets_squirk(const struct hid_device *hdev)
-> >                 quirks |= bl_entry->driver_data;
-> >
-> >         if (quirks)
-> > -               dbg_hid("Found squirk 0x%lx for HID device 0x%hx:0x%hx\n",
-> > +               dbg_hid("Found squirk 0x%lx for HID device 0x%04x:0x%04x\n",
-> >                         quirks, hdev->vendor, hdev->product);
-> >         return quirks;
-> >  }
-> > --
-> > 2.20.1
-> >
->
->
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 6ca8d322b487..4ca0cdfa6b33 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -150,6 +150,7 @@ config HID_ASUS
+>         tristate "Asus"
+>         depends on LEDS_CLASS
+>         depends on ASUS_WMI || ASUS_WMI=n
+> +       select POWER_SUPPLY
+>         ---help---
+>         Support for Asus notebook built-in keyboard and touchpad via i2c, and
+>         the Asus Republic of Gamers laptop keyboard special keys.
 > --
-> Thanks,
-> ~Nick Desaulniers
+> 2.20.0
+>

@@ -1,68 +1,54 @@
-From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: Re: [PATCH v6 0/4] input: touchscreen: Add goodix GT5553 CTP support
-Date: Mon, 11 Mar 2019 19:08:45 +0530
-Message-ID: <CAMty3ZAmPzXvM+xS3+ULorGuQ-rKfMRNi-HvQdr7hjaFYfMZrg@mail.gmail.com>
-References: <20190219101629.15977-1-jagan@amarulasolutions.com>
- <CAMty3ZDpy5YX3V+6e=UtY=a9Lgiw-NEP1JPQn4_LKL3mYFtrvQ@mail.gmail.com> <CAMty3ZB3o1Np7_H7rmCgpUWPk7BRqHRm7gxRpgAq_YyeCUKgaw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH][next] HID: uclogic: remove redudant duplicated null check
+ on ver_ptr
+Date: Mon, 11 Mar 2019 15:55:39 +0100
+Message-ID: <CAO-hwJJXgiLqLCQ+8Cw7Z1=yba0pVkLCkGH8R8HZjNQj=Vg4GA@mail.gmail.com>
+References: <20190302222338.8023-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMty3ZB3o1Np7_H7rmCgpUWPk7BRqHRm7gxRpgAq_YyeCUKgaw@mail.gmail.com>
+In-Reply-To: <20190302222338.8023-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
+To: Colin King <colin.king@canonical.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 6, 2019 at 10:47 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
+On Sat, Mar 2, 2019 at 11:23 PM Colin King <colin.king@canonical.com> wrote:
 >
-> Hi Dmitry,
+> From: Colin Ian King <colin.king@canonical.com>
 >
-> On Tue, Feb 26, 2019 at 11:43 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> >
-> > Hi Dmitry,
-> >
-> > On Tue, Feb 19, 2019 at 3:46 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> > >
-> > > This is v6 patchset for supporting goodix GT5553 CTP. Here is the
-> > > previous version[1]
-> > >
-> > > Changes for v5:
-> > > - document bindings for required regulators, which are need during
-> > >   power-on sequence
-> > > - enable, disable required regulators as described in power-on sequence
-> > >   using normal regulator calls
-> > > - update the proper commi messages
-> > > Changes for v4:
-> > > - document AVDD22, DVDD12, VDDIO as optional properties
-> > > - use regulator bulk calls, for get, enable and disable functionalities
-> > > Changes for v4:
-> > > - devm_add_action_or_reset for disabling regulator
-> > > Changes for v3:
-> > > - add cover-letter
-> > > - s/ADVV28/AVDD28 on commit head
-> > > - fix few typo
-> > > Changes for v2:
-> > > - Rename vcc-supply with AVDD28-supply
-> > > - disable regulator in remove
-> > > - fix to setup regulator in probe code
-> > > - add chipdata
-> > > - drop example node in dt-bindings
-> > >
-> > > [1] https://patchwork.kernel.org/cover/10816901/
-> > >
-> > > Jagan Teki (4):
-> > >   dt-bindings: input: touchscreen: goodix: Document regulator properties
-> > >   Input: goodix - Add regulators suppot
-> > >   dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
-> > >   Input: goodix - Add GT5663 CTP support
-> > >
-> > >  .../bindings/input/touchscreen/goodix.txt     |  3 +
-> > >  drivers/input/touchscreen/goodix.c            | 60 +++++++++++++++++++
-> > >  2 files changed, 63 insertions(+)
-> >
-> > Let me know if you have any further comments on regulator patch, fyi
-> > Rob reviewed it already.
+> Currently ver_ptr is being null checked twice, once before calling
+> usb_string and once afterwards.  The second null check is redundant
+> and can be removed, remove it.
 >
-> Would you comment on this? few dts changes are pending for this to support.
+> Detected by CoverityScan, CID#1477308 ("Logically dead code")
+>
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
 
-Gentle remainder.
+Applied to for-5.1/upstream-fixes
+
+Cheers,
+Benjamin
+
+>  drivers/hid/hid-uclogic-params.c | 4 ----
+>  1 file changed, 4 deletions(-)
+>
+> diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+> index 7710d9f957da..0187c9f8fc22 100644
+> --- a/drivers/hid/hid-uclogic-params.c
+> +++ b/drivers/hid/hid-uclogic-params.c
+> @@ -735,10 +735,6 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
+>                 goto cleanup;
+>         }
+>         rc = usb_string(udev, 201, ver_ptr, ver_len);
+> -       if (ver_ptr == NULL) {
+> -               rc = -ENOMEM;
+> -               goto cleanup;
+> -       }
+>         if (rc == -EPIPE) {
+>                 *ver_ptr = '\0';
+>         } else if (rc < 0) {
+> --
+> 2.20.1
+>

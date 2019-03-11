@@ -1,75 +1,44 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 06/27] Input: pwm-vibra - prevent unbalanced regulator
-Date: Mon, 11 Mar 2019 15:58:03 -0400
-Message-ID: <20190311195824.139043-6-sashal@kernel.org>
-References: <20190311195824.139043-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 25/44] Input: matrix_keypad - use flush_delayed_work()
+Date: Mon, 11 Mar 2019 15:56:41 -0400
+Message-ID: <20190311195700.138462-25-sashal@kernel.org>
+References: <20190311195700.138462-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190311195824.139043-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190311195700.138462-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Jonathan Bakker <xc-racer2@live.ca>, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 3ca232df9921f083c3b37ba5fbc76f4d9046268b ]
+[ Upstream commit a342083abe576db43594a32d458a61fa81f7cb32 ]
 
-pwm_vibrator_stop disables the regulator, but it can be called from
-multiple places, even when the regulator is already disabled. Fix this
-by using regulator_is_enabled check when starting and stopping device.
+We should be using flush_delayed_work() instead of flush_work() in
+matrix_keypad_stop() to ensure that we are not missing work that is
+scheduled but not yet put in the workqueue (i.e. its delay timer has not
+expired yet).
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/pwm-vibra.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/matrix_keypad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-index 55da191ae550..9df87431d7d4 100644
---- a/drivers/input/misc/pwm-vibra.c
-+++ b/drivers/input/misc/pwm-vibra.c
-@@ -34,6 +34,7 @@ struct pwm_vibrator {
- 	struct work_struct play_work;
- 	u16 level;
- 	u32 direction_duty_cycle;
-+	bool vcc_on;
- };
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index 403452ef00e6..3d1cb7bf5e35 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -222,7 +222,7 @@ static void matrix_keypad_stop(struct input_dev *dev)
+ 	keypad->stopped = true;
+ 	spin_unlock_irq(&keypad->lock);
  
- static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
-@@ -42,10 +43,13 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 	struct pwm_state state;
- 	int err;
- 
--	err = regulator_enable(vibrator->vcc);
--	if (err) {
--		dev_err(pdev, "failed to enable regulator: %d", err);
--		return err;
-+	if (!vibrator->vcc_on) {
-+		err = regulator_enable(vibrator->vcc);
-+		if (err) {
-+			dev_err(pdev, "failed to enable regulator: %d", err);
-+			return err;
-+		}
-+		vibrator->vcc_on = true;
- 	}
- 
- 	pwm_get_state(vibrator->pwm, &state);
-@@ -76,7 +80,10 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 
- static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
- {
--	regulator_disable(vibrator->vcc);
-+	if (vibrator->vcc_on) {
-+		regulator_disable(vibrator->vcc);
-+		vibrator->vcc_on = false;
-+	}
- 
- 	if (vibrator->pwm_dir)
- 		pwm_disable(vibrator->pwm_dir);
+-	flush_work(&keypad->work.work);
++	flush_delayed_work(&keypad->work);
+ 	/*
+ 	 * matrix_keypad_scan() will leave IRQs enabled;
+ 	 * we should disable them now.
 -- 
 2.19.1

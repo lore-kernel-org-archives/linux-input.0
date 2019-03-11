@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 8/8] Input: st-keyscan - fix potential zalloc NULL dereference
-Date: Mon, 11 Mar 2019 15:59:38 -0400
-Message-ID: <20190311195938.139603-8-sashal@kernel.org>
-References: <20190311195938.139603-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 3.18 6/6] Input: st-keyscan - fix potential zalloc NULL dereference
+Date: Mon, 11 Mar 2019 15:59:51 -0400
+Message-ID: <20190311195951.139741-6-sashal@kernel.org>
+References: <20190311195951.139741-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190311195938.139603-1-sashal@kernel.org>
+In-Reply-To: <20190311195951.139741-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Gabriel Fernandez <gabriel.fernandez@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org

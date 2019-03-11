@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 23/44] Input: cap11xx - switch to using set_brightness_blocking()
-Date: Mon, 11 Mar 2019 15:56:39 -0400
-Message-ID: <20190311195700.138462-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 44/44] Input: st-keyscan - fix potential zalloc NULL dereference
+Date: Mon, 11 Mar 2019 15:57:00 -0400
+Message-ID: <20190311195700.138462-44-sashal@kernel.org>
 References: <20190311195700.138462-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,103 +9,47 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190311195700.138462-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Gabriel Fernandez <gabriel.fernandez@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Gabriel Fernandez <gabriel.fernandez@st.com>
 
-[ Upstream commit 628442880af8c201d307a45f3862a7a17df8a189 ]
+[ Upstream commit 2439d37e1bf8a34d437573c086572abe0f3f1b15 ]
 
-Updating LED state requires access to regmap and therefore we may sleep,
-so we could not do that directly form set_brightness() method.
-Historically we used private work to adjust the brightness, but with the
-introduction of set_brightness_blocking() we no longer need it.
+This patch fixes the following static checker warning:
 
-As a bonus, not having our own work item means we do not have
-use-after-free issue as we neglected to cancel outstanding work on
-driver unbind.
+drivers/input/keyboard/st-keyscan.c:156 keyscan_probe()
+error: potential zalloc NULL dereference: 'keypad_data->input_dev'
 
-Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
-Reviewed-by: Sven Van Asbroeck <TheSven73@googlemail.com>
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/cap11xx.c | 35 ++++++++++----------------------
- 1 file changed, 11 insertions(+), 24 deletions(-)
+ drivers/input/keyboard/st-keyscan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 312916f99597..73686c2460ce 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -75,9 +75,7 @@
- struct cap11xx_led {
- 	struct cap11xx_priv *priv;
- 	struct led_classdev cdev;
--	struct work_struct work;
- 	u32 reg;
--	enum led_brightness new_brightness;
- };
- #endif
+diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
+index babcfb165e4f..3b85631fde91 100644
+--- a/drivers/input/keyboard/st-keyscan.c
++++ b/drivers/input/keyboard/st-keyscan.c
+@@ -153,6 +153,8 @@ static int keyscan_probe(struct platform_device *pdev)
  
-@@ -233,30 +231,21 @@ static void cap11xx_input_close(struct input_dev *idev)
- }
+ 	input_dev->id.bustype = BUS_HOST;
  
- #ifdef CONFIG_LEDS_CLASS
--static void cap11xx_led_work(struct work_struct *work)
-+static int cap11xx_led_set(struct led_classdev *cdev,
-+			    enum led_brightness value)
- {
--	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
-+	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
- 	struct cap11xx_priv *priv = led->priv;
--	int value = led->new_brightness;
++	keypad_data->input_dev = input_dev;
++
+ 	error = keypad_matrix_key_parse_dt(keypad_data);
+ 	if (error)
+ 		return error;
+@@ -168,8 +170,6 @@ static int keyscan_probe(struct platform_device *pdev)
  
- 	/*
--	 * All LEDs share the same duty cycle as this is a HW limitation.
--	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
-+	 * All LEDs share the same duty cycle as this is a HW
-+	 * limitation. Brightness levels per LED are either
-+	 * 0 (OFF) and 1 (ON).
- 	 */
--	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
--				BIT(led->reg), value ? BIT(led->reg) : 0);
--}
+ 	input_set_drvdata(input_dev, keypad_data);
+ 
+-	keypad_data->input_dev = input_dev;
 -
--static void cap11xx_led_set(struct led_classdev *cdev,
--			   enum led_brightness value)
--{
--	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
--
--	if (led->new_brightness == value)
--		return;
--
--	led->new_brightness = value;
--	schedule_work(&led->work);
-+	return regmap_update_bits(priv->regmap,
-+				  CAP11XX_REG_LED_OUTPUT_CONTROL,
-+				  BIT(led->reg),
-+				  value ? BIT(led->reg) : 0);
- }
- 
- static int cap11xx_init_leds(struct device *dev,
-@@ -299,7 +288,7 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->cdev.default_trigger =
- 			of_get_property(child, "linux,default-trigger", NULL);
- 		led->cdev.flags = 0;
--		led->cdev.brightness_set = cap11xx_led_set;
-+		led->cdev.brightness_set_blocking = cap11xx_led_set;
- 		led->cdev.max_brightness = 1;
- 		led->cdev.brightness = LED_OFF;
- 
-@@ -312,8 +301,6 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->reg = reg;
- 		led->priv = priv;
- 
--		INIT_WORK(&led->work, cap11xx_led_work);
--
- 		error = devm_led_classdev_register(dev, &led->cdev);
- 		if (error) {
- 			of_node_put(child);
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	keypad_data->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(keypad_data->base))
 -- 
 2.19.1

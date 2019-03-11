@@ -1,54 +1,108 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH][next] HID: uclogic: remove redudant duplicated null check
- on ver_ptr
-Date: Mon, 11 Mar 2019 15:55:39 +0100
-Message-ID: <CAO-hwJJXgiLqLCQ+8Cw7Z1=yba0pVkLCkGH8R8HZjNQj=Vg4GA@mail.gmail.com>
-References: <20190302222338.8023-1-colin.king@canonical.com>
+Subject: Re: [PATCH v2] HID: quirks: use correct format chars in dbg_hid
+Date: Mon, 11 Mar 2019 15:56:13 +0100
+Message-ID: <CAO-hwJKD_Oy9_znmNL2s_652YuS59O4O9_2Qk=HZZ58XcT75cg@mail.gmail.com>
+References: <20190226234853.20441-1-louis@kragniz.eu> <20190227110720.27329-1-louis@kragniz.eu>
+ <CAKwvOd=RZ7E3MRo4dB6KEi5aw92kjZ63ij0jL4XJ0nKzDwcm=g@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190302222338.8023-1-colin.king@canonical.com>
+In-Reply-To: <CAKwvOd=RZ7E3MRo4dB6KEi5aw92kjZ63ij0jL4XJ0nKzDwcm=g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, kernel-janitors@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Louis Taylor <louis@kragniz.eu>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, clang-built-linux@googlegroups.com
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Mar 2, 2019 at 11:23 PM Colin King <colin.king@canonical.com> wrote:
+On Wed, Feb 27, 2019 at 8:43 PM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
 >
-> From: Colin Ian King <colin.king@canonical.com>
+> On Wed, Feb 27, 2019 at 3:08 AM Louis Taylor <louis@kragniz.eu> wrote:
+> >
+> > When building with -Wformat, clang warns:
+> >
+> > drivers/hid/hid-quirks.c:1075:27: warning: format specifies type
+> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
+> > [-Wformat]
+> >                   bl_entry->driver_data, bl_entry->vendor,
+> >                                          ^~~~~~~~~~~~~~~~
+> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
+> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
+> >                                    ~~~~~~              ^~~
+> > drivers/hid/hid-quirks.c:1076:4: warning: format specifies type
+> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
+> > [-Wformat]
+> >                   bl_entry->product);
+> >                   ^~~~~~~~~~~~~~~~~
+> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
+> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
+> >                                    ~~~~~~              ^~~
+> > drivers/hid/hid-quirks.c:1242:12: warning: format specifies type
+> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
+> > [-Wformat]
+> >                   quirks, hdev->vendor, hdev->product);
+> >                           ^~~~~~~~~~~~
+> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
+> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
+> >                                    ~~~~~~              ^~~
+> > drivers/hid/hid-quirks.c:1242:26: warning: format specifies type
+> > 'unsigned short' but the argument has type '__u32' (aka 'unsigned int')
+> > [-Wformat]
+> >                   quirks, hdev->vendor, hdev->product);
+> >                                         ^~~~~~~~~~~~~
+> > ./include/linux/hid.h:1170:48: note: expanded from macro 'dbg_hid'
+> >           printk(KERN_DEBUG "%s: " format, __FILE__, ##arg);      \
+> >                                    ~~~~~~              ^~~
+> > 4 warnings generated.
+> >
+> > This patch fixes the format strings to use the correct format type for unsigned
+> > ints.
+> >
+> > Link: https://github.com/ClangBuiltLinux/linux/issues/378
+> > Signed-off-by: Louis Taylor <louis@kragniz.eu>
 >
-> Currently ver_ptr is being null checked twice, once before calling
-> usb_string and once afterwards.  The second null check is redundant
-> and can be removed, remove it.
->
-> Detected by CoverityScan, CID#1477308 ("Logically dead code")
->
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
+> Thanks for following up on the feedback.
+> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 
 Applied to for-5.1/upstream-fixes
 
 Cheers,
 Benjamin
 
->  drivers/hid/hid-uclogic-params.c | 4 ----
->  1 file changed, 4 deletions(-)
 >
-> diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-> index 7710d9f957da..0187c9f8fc22 100644
-> --- a/drivers/hid/hid-uclogic-params.c
-> +++ b/drivers/hid/hid-uclogic-params.c
-> @@ -735,10 +735,6 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
->                 goto cleanup;
->         }
->         rc = usb_string(udev, 201, ver_ptr, ver_len);
-> -       if (ver_ptr == NULL) {
-> -               rc = -ENOMEM;
-> -               goto cleanup;
-> -       }
->         if (rc == -EPIPE) {
->                 *ver_ptr = '\0';
->         } else if (rc < 0) {
+> > ---
+> >
+> > v2: change format string to use %04x instead of %x
+> >
+> >  drivers/hid/hid-quirks.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> > index 94088c0ed68a..b608a57b7908 100644
+> > --- a/drivers/hid/hid-quirks.c
+> > +++ b/drivers/hid/hid-quirks.c
+> > @@ -1071,7 +1071,7 @@ static struct hid_device_id *hid_exists_dquirk(const struct hid_device *hdev)
+> >         }
+> >
+> >         if (bl_entry != NULL)
+> > -               dbg_hid("Found dynamic quirk 0x%lx for HID device 0x%hx:0x%hx\n",
+> > +               dbg_hid("Found dynamic quirk 0x%lx for HID device 0x%04x:0x%04x\n",
+> >                         bl_entry->driver_data, bl_entry->vendor,
+> >                         bl_entry->product);
+> >
+> > @@ -1238,7 +1238,7 @@ static unsigned long hid_gets_squirk(const struct hid_device *hdev)
+> >                 quirks |= bl_entry->driver_data;
+> >
+> >         if (quirks)
+> > -               dbg_hid("Found squirk 0x%lx for HID device 0x%hx:0x%hx\n",
+> > +               dbg_hid("Found squirk 0x%lx for HID device 0x%04x:0x%04x\n",
+> >                         quirks, hdev->vendor, hdev->product);
+> >         return quirks;
+> >  }
+> > --
+> > 2.20.1
+> >
+>
+>
 > --
-> 2.20.1
->
+> Thanks,
+> ~Nick Desaulniers

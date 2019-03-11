@@ -1,56 +1,55 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: hid-asus: select CONFIG_POWER_SUPPLY
-Date: Mon, 11 Mar 2019 15:57:14 +0100
-Message-ID: <CAO-hwJLRq-0dXyAS+gg8yasqQuvR82EOeLPb+duj22tpBstKNw@mail.gmail.com>
-References: <20190304195536.1019650-1-arnd@arndb.de>
+Subject: Re: [PATCH] hid: logitech: check the return value of create_singlethread_workqueue
+Date: Mon, 11 Mar 2019 16:08:51 +0100
+Message-ID: <CAO-hwJLwvZvhPPKU7r74xtKsp_P5VBZ2964iQhgBR5zF-ZM7wg@mail.gmail.com>
+References: <20190309044345.7018-1-kjlu@umn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190304195536.1019650-1-arnd@arndb.de>
+In-Reply-To: <20190309044345.7018-1-kjlu@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Jiri Kosina <jikos@kernel.org>, NOGUCHI Hiroshi <drvlabo@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Kangjie Lu <kjlu@umn.edu>
+Cc: pakki001@umn.edu, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 4, 2019 at 8:55 PM Arnd Bergmann <arnd@arndb.de> wrote:
+On Sat, Mar 9, 2019 at 5:43 AM Kangjie Lu <kjlu@umn.edu> wrote:
 >
-> The newly added power supply code fails to link when the power supply core
-> code is disabled:
+> create_singlethread_workqueue may fail and return NULL. The fix
+> checks if it is NULL to avoid NULL pointer dereference.
 >
-> drivers/hid/hid-asus.o: In function `asus_battery_get_property':
-> hid-asus.c:(.text+0x11de): undefined reference to `power_supply_get_drvdata'
-> drivers/hid/hid-asus.o: In function `asus_probe':
-> hid-asus.c:(.text+0x170c): undefined reference to `devm_power_supply_register'
-> hid-asus.c:(.text+0x1734): undefined reference to `power_supply_powers'
-> drivers/hid/hid-asus.o: In function `asus_raw_event':
-> hid-asus.c:(.text+0x1914): undefined reference to `power_supply_changed'
->
-> Select the subsystem from Kconfig as we do for other hid drivers already.
->
-> Fixes: 6311d329e12a ("HID: hid-asus: Add BT keyboard dock battery monitoring support")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 > ---
+>  drivers/hid/hid-logitech-hidpp.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 15ed6177a7a3..efbc39b92aa2 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -2156,6 +2156,9 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+>
+>         /* init the hardware command queue */
+>         data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
+> +       if (!data->wq)
+> +               return -ENOMEM;
+> +
 
-Applied to for-5.1/upstream-fixes
+I agree there is something wrong with the current code, but I think
+you are not fixing the issue properly.
+The code just above allocates data with kzalloc and stores it in the
+hid_device and set up everything. If create_singlethread_workqueue()
+fails now, then we are screwed and you need to reverse all of the FF
+init.
+
+I think we should move the thread creation above so we are not leaking
+memory and not create the FF elements if there is something wrong.
 
 Cheers,
 Benjamin
 
->  drivers/hid/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
+>         atomic_set(&data->workqueue_size, 0);
 >
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 6ca8d322b487..4ca0cdfa6b33 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -150,6 +150,7 @@ config HID_ASUS
->         tristate "Asus"
->         depends on LEDS_CLASS
->         depends on ASUS_WMI || ASUS_WMI=n
-> +       select POWER_SUPPLY
->         ---help---
->         Support for Asus notebook built-in keyboard and touchpad via i2c, and
->         the Asus Republic of Gamers laptop keyboard special keys.
+>         /* initialize with zero autocenter to get wheel in usable state */
 > --
-> 2.20.0
+> 2.17.1
 >

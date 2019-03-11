@@ -1,44 +1,55 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 5/8] Input: matrix_keypad - use flush_delayed_work()
-Date: Mon, 11 Mar 2019 15:59:35 -0400
-Message-ID: <20190311195938.139603-5-sashal@kernel.org>
-References: <20190311195938.139603-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 27/27] Input: st-keyscan - fix potential zalloc NULL dereference
+Date: Mon, 11 Mar 2019 15:58:24 -0400
+Message-ID: <20190311195824.139043-27-sashal@kernel.org>
+References: <20190311195824.139043-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190311195938.139603-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190311195824.139043-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Gabriel Fernandez <gabriel.fernandez@st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Gabriel Fernandez <gabriel.fernandez@st.com>
 
-[ Upstream commit a342083abe576db43594a32d458a61fa81f7cb32 ]
+[ Upstream commit 2439d37e1bf8a34d437573c086572abe0f3f1b15 ]
 
-We should be using flush_delayed_work() instead of flush_work() in
-matrix_keypad_stop() to ensure that we are not missing work that is
-scheduled but not yet put in the workqueue (i.e. its delay timer has not
-expired yet).
+This patch fixes the following static checker warning:
 
+drivers/input/keyboard/st-keyscan.c:156 keyscan_probe()
+error: potential zalloc NULL dereference: 'keypad_data->input_dev'
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Gabriel Fernandez <gabriel.fernandez@st.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/matrix_keypad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/st-keyscan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index c64d87442a62..2e12e31f45c5 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -220,7 +220,7 @@ static void matrix_keypad_stop(struct input_dev *dev)
- 	keypad->stopped = true;
- 	spin_unlock_irq(&keypad->lock);
+diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
+index babcfb165e4f..3b85631fde91 100644
+--- a/drivers/input/keyboard/st-keyscan.c
++++ b/drivers/input/keyboard/st-keyscan.c
+@@ -153,6 +153,8 @@ static int keyscan_probe(struct platform_device *pdev)
  
--	flush_work(&keypad->work.work);
-+	flush_delayed_work(&keypad->work);
- 	/*
- 	 * matrix_keypad_scan() will leave IRQs enabled;
- 	 * we should disable them now.
+ 	input_dev->id.bustype = BUS_HOST;
+ 
++	keypad_data->input_dev = input_dev;
++
+ 	error = keypad_matrix_key_parse_dt(keypad_data);
+ 	if (error)
+ 		return error;
+@@ -168,8 +170,6 @@ static int keyscan_probe(struct platform_device *pdev)
+ 
+ 	input_set_drvdata(input_dev, keypad_data);
+ 
+-	keypad_data->input_dev = input_dev;
+-
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	keypad_data->base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(keypad_data->base))
 -- 
 2.19.1

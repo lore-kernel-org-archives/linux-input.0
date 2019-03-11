@@ -1,111 +1,75 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 25/52] Input: cap11xx - switch to using set_brightness_blocking()
-Date: Mon, 11 Mar 2019 15:54:49 -0400
-Message-ID: <20190311195516.137772-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 11/52] Input: pwm-vibra - prevent unbalanced regulator
+Date: Mon, 11 Mar 2019 15:54:35 -0400
+Message-ID: <20190311195516.137772-11-sashal@kernel.org>
 References: <20190311195516.137772-1-sashal@kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Jonathan Bakker <xc-racer2@live.ca>, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-[ Upstream commit 628442880af8c201d307a45f3862a7a17df8a189 ]
+[ Upstream commit 3ca232df9921f083c3b37ba5fbc76f4d9046268b ]
 
-Updating LED state requires access to regmap and therefore we may sleep,
-so we could not do that directly form set_brightness() method.
-Historically we used private work to adjust the brightness, but with the
-introduction of set_brightness_blocking() we no longer need it.
+pwm_vibrator_stop disables the regulator, but it can be called from
+multiple places, even when the regulator is already disabled. Fix this
+by using regulator_is_enabled check when starting and stopping device.
 
-As a bonus, not having our own work item means we do not have
-use-after-free issue as we neglected to cancel outstanding work on
-driver unbind.
-
-Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
-Reviewed-by: Sven Van Asbroeck <TheSven73@googlemail.com>
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/cap11xx.c | 35 ++++++++++----------------------
- 1 file changed, 11 insertions(+), 24 deletions(-)
+ drivers/input/misc/pwm-vibra.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 312916f99597..73686c2460ce 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -75,9 +75,7 @@
- struct cap11xx_led {
- 	struct cap11xx_priv *priv;
- 	struct led_classdev cdev;
--	struct work_struct work;
- 	u32 reg;
--	enum led_brightness new_brightness;
+diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
+index 55da191ae550..9df87431d7d4 100644
+--- a/drivers/input/misc/pwm-vibra.c
++++ b/drivers/input/misc/pwm-vibra.c
+@@ -34,6 +34,7 @@ struct pwm_vibrator {
+ 	struct work_struct play_work;
+ 	u16 level;
+ 	u32 direction_duty_cycle;
++	bool vcc_on;
  };
- #endif
  
-@@ -233,30 +231,21 @@ static void cap11xx_input_close(struct input_dev *idev)
- }
+ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+@@ -42,10 +43,13 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+ 	struct pwm_state state;
+ 	int err;
  
- #ifdef CONFIG_LEDS_CLASS
--static void cap11xx_led_work(struct work_struct *work)
-+static int cap11xx_led_set(struct led_classdev *cdev,
-+			    enum led_brightness value)
+-	err = regulator_enable(vibrator->vcc);
+-	if (err) {
+-		dev_err(pdev, "failed to enable regulator: %d", err);
+-		return err;
++	if (!vibrator->vcc_on) {
++		err = regulator_enable(vibrator->vcc);
++		if (err) {
++			dev_err(pdev, "failed to enable regulator: %d", err);
++			return err;
++		}
++		vibrator->vcc_on = true;
+ 	}
+ 
+ 	pwm_get_state(vibrator->pwm, &state);
+@@ -76,7 +80,10 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
+ 
+ static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
  {
--	struct cap11xx_led *led = container_of(work, struct cap11xx_led, work);
-+	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
- 	struct cap11xx_priv *priv = led->priv;
--	int value = led->new_brightness;
+-	regulator_disable(vibrator->vcc);
++	if (vibrator->vcc_on) {
++		regulator_disable(vibrator->vcc);
++		vibrator->vcc_on = false;
++	}
  
- 	/*
--	 * All LEDs share the same duty cycle as this is a HW limitation.
--	 * Brightness levels per LED are either 0 (OFF) and 1 (ON).
-+	 * All LEDs share the same duty cycle as this is a HW
-+	 * limitation. Brightness levels per LED are either
-+	 * 0 (OFF) and 1 (ON).
- 	 */
--	regmap_update_bits(priv->regmap, CAP11XX_REG_LED_OUTPUT_CONTROL,
--				BIT(led->reg), value ? BIT(led->reg) : 0);
--}
--
--static void cap11xx_led_set(struct led_classdev *cdev,
--			   enum led_brightness value)
--{
--	struct cap11xx_led *led = container_of(cdev, struct cap11xx_led, cdev);
--
--	if (led->new_brightness == value)
--		return;
--
--	led->new_brightness = value;
--	schedule_work(&led->work);
-+	return regmap_update_bits(priv->regmap,
-+				  CAP11XX_REG_LED_OUTPUT_CONTROL,
-+				  BIT(led->reg),
-+				  value ? BIT(led->reg) : 0);
- }
- 
- static int cap11xx_init_leds(struct device *dev,
-@@ -299,7 +288,7 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->cdev.default_trigger =
- 			of_get_property(child, "linux,default-trigger", NULL);
- 		led->cdev.flags = 0;
--		led->cdev.brightness_set = cap11xx_led_set;
-+		led->cdev.brightness_set_blocking = cap11xx_led_set;
- 		led->cdev.max_brightness = 1;
- 		led->cdev.brightness = LED_OFF;
- 
-@@ -312,8 +301,6 @@ static int cap11xx_init_leds(struct device *dev,
- 		led->reg = reg;
- 		led->priv = priv;
- 
--		INIT_WORK(&led->work, cap11xx_led_work);
--
- 		error = devm_led_classdev_register(dev, &led->cdev);
- 		if (error) {
- 			of_node_put(child);
+ 	if (vibrator->pwm_dir)
+ 		pwm_disable(vibrator->pwm_dir);
 -- 
 2.19.1

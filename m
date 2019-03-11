@@ -1,55 +1,24 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] hid: logitech: check the return value of create_singlethread_workqueue
-Date: Mon, 11 Mar 2019 16:08:51 +0100
-Message-ID: <CAO-hwJLwvZvhPPKU7r74xtKsp_P5VBZ2964iQhgBR5zF-ZM7wg@mail.gmail.com>
-References: <20190309044345.7018-1-kjlu@umn.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: pr-tracker-bot@kernel.org
+Subject: Re: [git pull] Input updates for v5.1-rc0
+Date: Mon, 11 Mar 2019 19:00:18 +0000
+Message-ID: <155233081803.15239.9340470308444935828.pr-tracker-bot@kernel.org>
+References: <20190310023427.GA68528@dtor-ws>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190309044345.7018-1-kjlu@umn.edu>
+In-Reply-To: <20190310023427.GA68528@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kangjie Lu <kjlu@umn.edu>
-Cc: pakki001@umn.edu, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Mar 9, 2019 at 5:43 AM Kangjie Lu <kjlu@umn.edu> wrote:
->
-> create_singlethread_workqueue may fail and return NULL. The fix
-> checks if it is NULL to avoid NULL pointer dereference.
->
-> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 15ed6177a7a3..efbc39b92aa2 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -2156,6 +2156,9 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
->
->         /* init the hardware command queue */
->         data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
-> +       if (!data->wq)
-> +               return -ENOMEM;
-> +
+The pull request you sent on Sat, 9 Mar 2019 18:34:27 -0800:
 
-I agree there is something wrong with the current code, but I think
-you are not fixing the issue properly.
-The code just above allocates data with kzalloc and stores it in the
-hid_device and set up everything. If create_singlethread_workqueue()
-fails now, then we are screwed and you need to reverse all of the FF
-init.
+> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-I think we should move the thread creation above so we are not leaking
-memory and not create the FF elements if there is something wrong.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/4f0237062ca70c8e34e16e518aee4b84c30d1832
 
-Cheers,
-Benjamin
+Thank you!
 
->         atomic_set(&data->workqueue_size, 0);
->
->         /* initialize with zero autocenter to get wheel in usable state */
-> --
-> 2.17.1
->
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker

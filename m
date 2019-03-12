@@ -1,75 +1,50 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 11/52] Input: pwm-vibra - prevent unbalanced regulator
-Date: Mon, 11 Mar 2019 15:54:35 -0400
-Message-ID: <20190311195516.137772-11-sashal@kernel.org>
-References: <20190311195516.137772-1-sashal@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Kangjie Lu <kjlu@umn.edu>
+Subject: [PATCH v2] hid: logitech: check the return value of create_singlethread_workqueue
+Date: Tue, 12 Mar 2019 01:16:28 -0500
+Message-ID: <20190312061628.13869-1-kjlu@umn.edu>
+References: <CAO-hwJLwvZvhPPKU7r74xtKsp_P5VBZ2964iQhgBR5zF-ZM7wg@mail.gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
+In-Reply-To: <CAO-hwJLwvZvhPPKU7r74xtKsp_P5VBZ2964iQhgBR5zF-ZM7wg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Jonathan Bakker <xc-racer2@live.ca>, =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: kjlu@umn.edu
+Cc: pakki001@umn.edu, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+create_singlethread_workqueue may fail and return NULL. The fix
+checks if it is NULL to avoid NULL pointer dereference.
+Also, the fix moves the call of create_singlethread_workqueue
+earlier to avoid resource-release issues.
 
-[ Upstream commit 3ca232df9921f083c3b37ba5fbc76f4d9046268b ]
-
-pwm_vibrator_stop disables the regulator, but it can be called from
-multiple places, even when the regulator is already disabled. Fix this
-by using regulator_is_enabled check when starting and stopping device.
-
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 ---
- drivers/input/misc/pwm-vibra.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-index 55da191ae550..9df87431d7d4 100644
---- a/drivers/input/misc/pwm-vibra.c
-+++ b/drivers/input/misc/pwm-vibra.c
-@@ -34,6 +34,7 @@ struct pwm_vibrator {
- 	struct work_struct play_work;
- 	u16 level;
- 	u32 direction_duty_cycle;
-+	bool vcc_on;
- };
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 15ed6177a7a3..1b7c336cae6d 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2106,6 +2106,12 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
++
++	/* init the hardware command queue */
++	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
++	if (!data->wq)
++		return -ENOMEM;
++
+ 	data->effect_ids = kcalloc(num_slots, sizeof(int), GFP_KERNEL);
+ 	if (!data->effect_ids) {
+ 		kfree(data);
+@@ -2154,8 +2160,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 	data->gain = error ? 0xffff : get_unaligned_be16(&response.fap.params[0]);
+ 	/* ignore boost value at response.fap.params[2] */
  
- static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
-@@ -42,10 +43,13 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 	struct pwm_state state;
- 	int err;
+-	/* init the hardware command queue */
+-	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
+ 	atomic_set(&data->workqueue_size, 0);
  
--	err = regulator_enable(vibrator->vcc);
--	if (err) {
--		dev_err(pdev, "failed to enable regulator: %d", err);
--		return err;
-+	if (!vibrator->vcc_on) {
-+		err = regulator_enable(vibrator->vcc);
-+		if (err) {
-+			dev_err(pdev, "failed to enable regulator: %d", err);
-+			return err;
-+		}
-+		vibrator->vcc_on = true;
- 	}
- 
- 	pwm_get_state(vibrator->pwm, &state);
-@@ -76,7 +80,10 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 
- static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
- {
--	regulator_disable(vibrator->vcc);
-+	if (vibrator->vcc_on) {
-+		regulator_disable(vibrator->vcc);
-+		vibrator->vcc_on = false;
-+	}
- 
- 	if (vibrator->pwm_dir)
- 		pwm_disable(vibrator->pwm_dir);
+ 	/* initialize with zero autocenter to get wheel in usable state */
 -- 
-2.19.1
+2.17.1

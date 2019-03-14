@@ -1,53 +1,46 @@
-From: Kangjie Lu <kjlu@umn.edu>
-Subject: [PATCH v3] hid: logitech: check the return value of create_singlethread_workqueue
-Date: Thu, 14 Mar 2019 00:24:02 -0500
-Message-ID: <20190314052402.31448-1-kjlu@umn.edu>
-References: <20190312100233.106098c8@lwn.net>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [regression, bisected] Keyboard not responding after resuming
+ from suspend/hibernate
+Date: Thu, 14 Mar 2019 20:54:51 +0100
+Message-ID: <20190314195451.GC6058@hirez.programming.kicks-ass.net>
+References: <20180831215121.1b1f66bf@korsan.localdomain>
+ <20181019102031.77015d44@korsan.localdomain>
+ <20181025074903.GA9323@amd>
+ <20181028220654.7e77e5d7@ubuntu>
+ <20181130154455.21578c4d@korsan.localdomain>
+ <20181202222809.GA29467@amd>
+ <20181218102302.2b029612@korsan.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190312100233.106098c8@lwn.net>
+Content-Disposition: inline
+In-Reply-To: <20181218102302.2b029612@korsan.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kjlu@umn.edu
-Cc: pakki001@umn.edu, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Numan =?utf-8?B?RGVtaXJkw7bEn2Vu?= <if.gnu.linux@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, jason.low2@hpe.com, Waiman.Long@hpe.com, paulmck@linux.vnet.ibm.com, tglx@linutronix.de, dmitry.torokhov@gmail.com, mingo@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-create_singlethread_workqueue may fail and return NULL. The fix
-checks if it is NULL to avoid NULL pointer dereference.
-Also, the fix moves the call of create_singlethread_workqueue
-earlier to avoid resource-release issues.
+On Tue, Dec 18, 2018 at 10:23:02AM +0300, Numan Demirdöğen wrote:
+> I found that passing the options i8042.reset=1 i8042.dumbkbd=1 i8042.direct=1
+> results in the keyboard functioning after resume. However, there is a
+> long delay before the keyboard or mouse will respond to input on the
+> lock screen.[1]
 
---
-V3: do not introduce memory leaks.
+So the thing is, the mutex works, there's nothing wrong or broken about
+it (or we'd have known, the kernel would crash and burn). The hand-off
+stuff fixed at least one known starvation case as well.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
----
- drivers/hid/hid-logitech-hidpp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+What it does do, is change timing behaviour. But that is something that
+is not guaranteed anyway.
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 15ed6177a7a3..0a243247b231 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2111,6 +2111,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 		kfree(data);
- 		return -ENOMEM;
- 	}
-+	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
-+	if (!data->wq) {
-+		kfree(data->effect_ids);
-+		kfree(data);
-+		return -ENOMEM;
-+	}
-+
- 	data->hidpp = hidpp;
- 	data->feature_index = feature_index;
- 	data->version = version;
-@@ -2155,7 +2162,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 	/* ignore boost value at response.fap.params[2] */
- 
- 	/* init the hardware command queue */
--	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
- 	atomic_set(&data->workqueue_size, 0);
- 
- 	/* initialize with zero autocenter to get wheel in usable state */
--- 
-2.17.1
+This all smells like there's some timing dependent behaviour (aka. race
+condition) in the suspend/keyboard interaction _somewhere_.
+
+Now, I know absolutely nothing about either suspend or keyboard stuff,
+so I really can't help there. The best idea is to add trace_printk()
+throughout the keyboard suspend/resume code and see if there's a clue to
+be had there (using remote access to dump the trace buffer after resume,
+because of lack of keyboard).
+
+Obviously that takes someone who knows how that should work ...

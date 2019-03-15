@@ -1,46 +1,41 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [regression, bisected] Keyboard not responding after resuming
- from suspend/hibernate
-Date: Thu, 14 Mar 2019 20:54:51 +0100
-Message-ID: <20190314195451.GC6058@hirez.programming.kicks-ass.net>
-References: <20180831215121.1b1f66bf@korsan.localdomain>
- <20181019102031.77015d44@korsan.localdomain>
- <20181025074903.GA9323@amd>
- <20181028220654.7e77e5d7@ubuntu>
- <20181130154455.21578c4d@korsan.localdomain>
- <20181202222809.GA29467@amd>
- <20181218102302.2b029612@korsan.localdomain>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: [Xen-devel][PATCH] Input: xen-kbdfront - signal the backend that we disconnect
+Date: Fri, 15 Mar 2019 11:23:48 +0200
+Message-ID: <20190315092348.32613-1-andr2000@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181218102302.2b029612@korsan.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Numan =?utf-8?B?RGVtaXJkw7bEn2Vu?= <if.gnu.linux@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, jason.low2@hpe.com, Waiman.Long@hpe.com, paulmck@linux.vnet.ibm.com, tglx@linutronix.de, dmitry.torokhov@gmail.com, mingo@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: xen-devel@lists.xenproject.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jgross@suse.com, boris.ostrovsky@oracle.com
+Cc: andr2000@gmail.com, Volodymyr_Babchuk@epam.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Dec 18, 2018 at 10:23:02AM +0300, Numan Demirdöğen wrote:
-> I found that passing the options i8042.reset=1 i8042.dumbkbd=1 i8042.direct=1
-> results in the keyboard functioning after resume. However, there is a
-> long delay before the keyboard or mouse will respond to input on the
-> lock screen.[1]
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-So the thing is, the mutex works, there's nothing wrong or broken about
-it (or we'd have known, the kernel would crash and burn). The hand-off
-stuff fixed at least one known starvation case as well.
+While disconnecting from the backend we clean up shared resources
+(event channel, ring buffer), but never let the backend know about
+that. This may lead to inconsistent backend state and/or shared
+resources use.
+Fix this by explicitly letting the backend know that frontend has
+destroyed shared resources by changing its Xen bus state accordingly.
 
-What it does do, is change timing behaviour. But that is something that
-is not guaranteed anyway.
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-This all smells like there's some timing dependent behaviour (aka. race
-condition) in the suspend/keyboard interaction _somewhere_.
-
-Now, I know absolutely nothing about either suspend or keyboard stuff,
-so I really can't help there. The best idea is to add trace_printk()
-throughout the keyboard suspend/resume code and see if there's a clue to
-be had there (using remote access to dump the trace buffer after resume,
-because of lack of keyboard).
-
-Obviously that takes someone who knows how that should work ...
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 24bc5c5d876f..ecb6e719e0e2 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -488,6 +488,8 @@ static int xenkbd_connect_backend(struct xenbus_device *dev,
+ 
+ static void xenkbd_disconnect_backend(struct xenkbd_info *info)
+ {
++	xenbus_switch_state(info->xbdev, XenbusStateClosing);
++
+ 	if (info->irq >= 0)
+ 		unbind_from_irqhandler(info->irq, info);
+ 	info->irq = -1;
+-- 
+2.21.0

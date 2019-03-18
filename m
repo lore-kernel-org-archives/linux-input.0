@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2 10/10] HID: intel-ish-hid: Add interface function for PCI device pointer
-Date: Mon, 18 Mar 2019 12:14:28 -0700
-Message-ID: <20190318191428.6527-11-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v2 07/10] HID: intel-ish-hid: Add interface functions for struct ishtp_cl
+Date: Mon, 18 Mar 2019 12:14:25 -0700
+Message-ID: <20190318191428.6527-8-srinivas.pandruvada@linux.intel.com>
 References: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
@@ -10,51 +10,81 @@ To: jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-Instead of directly accessing PCI device poitner via struct ishtp_cl,
-create interface function for same. This is required for DMA transfer.
+Instead of directly accessing members of struct ishtp_cl, create interface
+functions to access them.
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ishtp/bus.c | 13 +++++++++++++
- include/linux/intel-ish-client-if.h   |  2 ++
- 2 files changed, 15 insertions(+)
+ drivers/hid/intel-ish-hid/ishtp/client.c | 42 ++++++++++++++++++++++++
+ include/linux/intel-ish-client-if.h      |  7 ++++
+ 2 files changed, 49 insertions(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index 66a485a41481..fb8ca12955b4 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -855,6 +855,19 @@ struct device *ishtp_device(struct ishtp_cl_device *device)
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
+index 657b46dcefa6..b7ac5e3b1e82 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+@@ -1063,3 +1063,45 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
+ eoi:
+ 	return;
  }
- EXPORT_SYMBOL(ishtp_device);
- 
-+/**
-+ * ishtp_get_pci_device() - Return PCI device dev pointer
-+ * This interface is used to return PCI device pointer
-+ * from ishtp_cl_device instance.
-+ *
-+ * Return: device *.
-+ */
-+struct device *ishtp_get_pci_device(struct ishtp_cl_device *device)
-+{
-+	return device->ishtp_dev->devc;
-+}
-+EXPORT_SYMBOL(ishtp_get_pci_device);
 +
- /**
-  * ishtp_trace_callback() - Return trace callback
-  *
++void *ishtp_get_client_data(struct ishtp_cl *cl)
++{
++	return cl->client_data;
++}
++EXPORT_SYMBOL(ishtp_get_client_data);
++
++void ishtp_set_client_data(struct ishtp_cl *cl, void *data)
++{
++	cl->client_data = data;
++}
++EXPORT_SYMBOL(ishtp_set_client_data);
++
++struct ishtp_device *ishtp_get_ishtp_device(struct ishtp_cl *cl)
++{
++	return cl->dev;
++}
++EXPORT_SYMBOL(ishtp_get_ishtp_device);
++
++void ishtp_set_tx_ring_size(struct ishtp_cl *cl, int size)
++{
++	cl->tx_ring_size = size;
++}
++EXPORT_SYMBOL(ishtp_set_tx_ring_size);
++
++void ishtp_set_rx_ring_size(struct ishtp_cl *cl, int size)
++{
++	cl->rx_ring_size = size;
++}
++EXPORT_SYMBOL(ishtp_set_rx_ring_size);
++
++void ishtp_set_connection_state(struct ishtp_cl *cl, int state)
++{
++	cl->state = state;
++}
++EXPORT_SYMBOL(ishtp_set_connection_state);
++
++void ishtp_cl_set_fw_client_id(struct ishtp_cl *cl, int fw_client_id)
++{
++	cl->fw_client_id = fw_client_id;
++}
++EXPORT_SYMBOL(ishtp_cl_set_fw_client_id);
 diff --git a/include/linux/intel-ish-client-if.h b/include/linux/intel-ish-client-if.h
-index e98bfbb1e07e..16255c2ca2f4 100644
+index 7ce172f656f8..526e3048e09f 100644
 --- a/include/linux/intel-ish-client-if.h
 +++ b/include/linux/intel-ish-client-if.h
-@@ -77,6 +77,8 @@ int ishtp_register_event_cb(struct ishtp_cl_device *device,
- struct device *ishtp_device(struct ishtp_cl_device *cl_device);
- /* Trace interface for clients */
- void *ishtp_trace_callback(struct ishtp_cl_device *cl_device);
-+/* Get device pointer of PCI device for DMA acces */
-+struct device *ishtp_get_pci_device(struct ishtp_cl_device *cl_device);
+@@ -87,5 +87,12 @@ int ishtp_cl_flush_queues(struct ishtp_cl *cl);
+ int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb);
+ bool ishtp_cl_tx_empty(struct ishtp_cl *cl);
+ struct ishtp_cl_rb *ishtp_cl_rx_get_rb(struct ishtp_cl *cl);
++void *ishtp_get_client_data(struct ishtp_cl *cl);
++void ishtp_set_client_data(struct ishtp_cl *cl, void *data);
++struct ishtp_device *ishtp_get_ishtp_device(struct ishtp_cl *cl);
++void ishtp_set_tx_ring_size(struct ishtp_cl *cl, int size);
++void ishtp_set_rx_ring_size(struct ishtp_cl *cl, int size);
++void ishtp_set_connection_state(struct ishtp_cl *cl, int state);
++void ishtp_cl_set_fw_client_id(struct ishtp_cl *cl, int fw_client_id);
  
- struct ishtp_cl *ishtp_cl_allocate(struct ishtp_cl_device *cl_device);
- void ishtp_cl_free(struct ishtp_cl *cl);
+ #endif /* _INTEL_ISH_CLIENT_IF_H_ */
 -- 
 2.17.2

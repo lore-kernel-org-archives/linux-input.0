@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [RESEND PATCH v6 03/11] dt-bindings: leds: add DT bindings for max77650
-Date: Mon, 18 Mar 2019 18:40:32 +0100
-Message-ID: <20190318174040.17899-4-brgl@bgdev.pl>
+Subject: [RESEND PATCH v6 01/11] dt-bindings: mfd: add DT bindings for max77650
+Date: Mon, 18 Mar 2019 18:40:30 +0100
+Message-ID: <20190318174040.17899-2-brgl@bgdev.pl>
 References: <20190318174040.17899-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,77 +14,67 @@ List-Id: linux-input@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add the DT binding document for the LEDs module of max77650.
+Add a DT binding document for max77650 ultra-low power PMIC. This
+describes the core mfd device and the GPIO module.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- .../bindings/leds/leds-max77650.txt           | 57 +++++++++++++++++++
- 1 file changed, 57 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
+ .../devicetree/bindings/mfd/max77650.txt      | 46 +++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
 
-diff --git a/Documentation/devicetree/bindings/leds/leds-max77650.txt b/Documentation/devicetree/bindings/leds/leds-max77650.txt
+diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
 new file mode 100644
-index 000000000000..3a67115cc1da
+index 000000000000..b529d8d19335
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/leds/leds-max77650.txt
-@@ -0,0 +1,57 @@
-+LED driver for MAX77650 PMIC from Maxim Integrated.
-+
-+This module is part of the MAX77650 MFD device. For more details
-+see Documentation/devicetree/bindings/mfd/max77650.txt.
-+
-+The LED controller is represented as a sub-node of the PMIC node on
-+the device tree.
-+
-+This device has three current sinks.
++++ b/Documentation/devicetree/bindings/mfd/max77650.txt
+@@ -0,0 +1,46 @@
++MAX77650 ultra low-power PMIC from Maxim Integrated.
 +
 +Required properties:
++-------------------
++- compatible:		Must be "maxim,max77650"
++- reg:			I2C device address.
++- interrupts:		The interrupt on the parent the controller is
++			connected to.
++- interrupt-controller: Marks the device node as an interrupt controller.
++- #interrupt-cells:	Must be <2>.
++
++- gpio-controller:	Marks the device node as a gpio controller.
++- #gpio-cells:		Must be <2>. The first cell is the pin number and
++			the second cell is used to specify the gpio active
++			state.
++
++Optional properties:
 +--------------------
-+- compatible:		Must be "maxim,max77650-led"
-+- #address-cells:	Must be <1>.
-+- #size-cells:		Must be <0>.
++gpio-line-names:	Single string containing the name of the GPIO line.
 +
-+Each LED is represented as a sub-node of the LED-controller node. Up to
-+three sub-nodes can be defined.
++The GPIO-controller module is represented as part of the top-level PMIC
++node. The device exposes a single GPIO line.
 +
-+Required properties of the sub-node:
-+------------------------------------
++For device-tree bindings of other sub-modules (regulator, power supply,
++LEDs and onkey) refer to the binding documents under the respective
++sub-system directories.
 +
-+- reg:			Must be <0>, <1> or <2>.
-+
-+Optional properties of the sub-node:
-+------------------------------------
-+
-+- label:		See Documentation/devicetree/bindings/leds/common.txt
-+- linux,default-trigger: See Documentation/devicetree/bindings/leds/common.txt
-+
-+For more details, please refer to the generic GPIO DT binding document
-+<devicetree/bindings/gpio/gpio.txt>.
++For more details on GPIO bindings, please refer to the generic GPIO DT
++binding document <devicetree/bindings/gpio/gpio.txt>.
 +
 +Example:
 +--------
 +
-+	leds {
-+		compatible = "maxim,max77650-led";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
++	pmic@48 {
++		compatible = "maxim,max77650";
++		reg = <0x48>;
 +
-+		led@0 {
-+			reg = <0>;
-+			label = "blue:usr0";
-+		};
++		interrupt-controller;
++		interrupt-parent = <&gpio2>;
++		#interrupt-cells = <2>;
++		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
 +
-+		led@1 {
-+			reg = <1>;
-+			label = "red:usr1";
-+			linux,default-trigger = "heartbeat";
-+		};
-+
-+		led@2 {
-+			reg = <2>;
-+			label = "green:usr2";
-+		};
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "max77650-charger";
 +	};
 -- 
 2.20.1

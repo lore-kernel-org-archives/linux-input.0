@@ -1,69 +1,332 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2 00/10] HID: intel-ish-hid: Clean up external interfaces
-Date: Mon, 18 Mar 2019 12:14:18 -0700
-Message-ID: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v2 09/10] HID: intel-ish-hid: Use the new interface functions in HID ish client
+Date: Mon, 18 Mar 2019 12:14:27 -0700
+Message-ID: <20190318191428.6527-10-srinivas.pandruvada@linux.intel.com>
+References: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-NOT FOR kernel v5.1.
+Only include intel-ish-client-if.h, which has all interfaces required to
+implment ISHTP client. There is no longer any direct field access from
+core ISHTP only include files.
 
-v2
-- Rebased on the top of
-"HID: intel-ish: enable raw interface to HID devices on ISH"
-which Jiri already applied.
-- Also exported devc pointer for DMA
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+---
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 68 +++++++++-----------
+ drivers/hid/intel-ish-hid/ishtp-hid.c        |  2 -
+ drivers/hid/intel-ish-hid/ishtp-hid.h        |  6 +-
+ 3 files changed, 35 insertions(+), 41 deletions(-)
 
-No functional changes are expected with this series. I am posting this now
-because of usage of ISH in ChromeOS Embedded Controller.
-https://lkml.org/lkml/2019/2/24/26
-I want to make sure that API is restricted before more development and posting
-there.
-
-Currently only one ISH client is using ISH transport. But it is changing now
-with the development of other clients using ISH transport. Some of these
-clients which are targeted for Linux based OS only laptops, are not using
-HID to export sensors. As more clients are getting developed it is important
-that the external interface for ISH transport only allows what clients need.
-Currently the header files used by clients "client.h" and "ishtp-dev.h"
-include other ISH header files. Also clients access fields from structure
-which also has other fields which are only used by ISH transort.
-
-So this series introduces one header file "linux/intel-ish-client-if.h".
-This header files doesn't include any other ISH transport header files.
-There are interface functions defined so that clients never have to directly
-access any ISH transort structures.
-Also clients don't have to match there GUID in probe. They will be only
-probbed if their GUID matches, which is passed as driver registry. 
-
-
-Hong Liu (1):
-  HID: intel-ish-hid: Add match callback to ishtp bus type
-
-Srinivas Pandruvada (9):
-  HID: intel-ish-hid: Hide members of struct ishtp_cl_device
-  HID: intel-ish-hid: Simplify ishtp_cl_link()
-  HID: intel-ish-hid: Move driver registry functions
-  HID: intel-ish-hid: Store ishtp_cl_device instance in device
-  HID: intel-ish-hid: Move the common functions from client.h
-  HID: intel-ish-hid: Add interface functions for struct ishtp_cl
-  HID: intel-ish-hid: Move functions related to bus and device
-  HID: intel-ish-hid: Use the new interface functions in HID ish client
-  HID: intel-ish-hid: Add interface function for PCI device pointer
-
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 131 ++++++++++---------
- drivers/hid/intel-ish-hid/ishtp-hid.c        |   6 +-
- drivers/hid/intel-ish-hid/ishtp-hid.h        |   6 +-
- drivers/hid/intel-ish-hid/ishtp/bus.c        |  96 +++++++++++++-
- drivers/hid/intel-ish-hid/ishtp/bus.h        |  37 +-----
- drivers/hid/intel-ish-hid/ishtp/client.c     |  60 +++++++--
- drivers/hid/intel-ish-hid/ishtp/client.h     |  24 ----
- drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h  |  31 -----
- include/linux/intel-ish-client-if.h          | 112 ++++++++++++++++
- 9 files changed, 325 insertions(+), 178 deletions(-)
- create mode 100644 include/linux/intel-ish-client-if.h
-
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index 4afb39713213..56777a43e69c 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -17,8 +17,6 @@
+ #include <linux/hid.h>
+ #include <linux/intel-ish-client-if.h>
+ #include <linux/sched.h>
+-#include "ishtp/ishtp-dev.h"
+-#include "ishtp/client.h"
+ #include "ishtp-hid.h"
+ 
+ /* Rx ring buffer pool size */
+@@ -40,7 +38,7 @@ static void report_bad_packet(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 			      size_t cur_pos,  size_t payload_len)
+ {
+ 	struct hostif_msg *recv_msg = recv_buf;
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 
+ 	dev_err(cl_data_to_dev(client_data), "[hid-ish]: BAD packet %02X\n"
+ 		"total_bad=%u cur_pos=%u\n"
+@@ -77,7 +75,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 	struct report_list *reports_list;
+ 	char *reports;
+ 	size_t report_len;
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 	int curr_hid_dev = client_data->cur_hid_dev;
+ 	struct ishtp_hid_data *hid_data = NULL;
+ 	struct hid_device *hid = NULL;
+@@ -93,7 +91,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 				(unsigned int)data_len,
+ 				(unsigned int)sizeof(struct hostif_msg_hdr));
+ 			++client_data->bad_recv_cnt;
+-			ish_hw_reset(hid_ishtp_cl->dev);
++			ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+ 			break;
+ 		}
+ 
+@@ -106,7 +104,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 			++client_data->bad_recv_cnt;
+ 			report_bad_packet(hid_ishtp_cl, recv_msg, cur_pos,
+ 					  payload_len);
+-			ish_hw_reset(hid_ishtp_cl->dev);
++			ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+ 			break;
+ 		}
+ 
+@@ -121,7 +119,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 				report_bad_packet(hid_ishtp_cl, recv_msg,
+ 						  cur_pos,
+ 						  payload_len);
+-				ish_hw_reset(hid_ishtp_cl->dev);
++				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+ 				break;
+ 			}
+ 			client_data->hid_dev_count = (unsigned int)*payload;
+@@ -170,7 +168,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 				report_bad_packet(hid_ishtp_cl, recv_msg,
+ 						  cur_pos,
+ 						  payload_len);
+-				ish_hw_reset(hid_ishtp_cl->dev);
++				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+ 				break;
+ 			}
+ 			if (!client_data->hid_descr[curr_hid_dev])
+@@ -195,7 +193,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 				report_bad_packet(hid_ishtp_cl, recv_msg,
+ 						  cur_pos,
+ 						  payload_len);
+-				ish_hw_reset(hid_ishtp_cl->dev);
++				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+ 				break;
+ 			}
+ 			if (!client_data->report_descr[curr_hid_dev])
+@@ -313,7 +311,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 			++client_data->bad_recv_cnt;
+ 			report_bad_packet(hid_ishtp_cl, recv_msg, cur_pos,
+ 					  payload_len);
+-			ish_hw_reset(hid_ishtp_cl->dev);
++			ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
+ 			break;
+ 
+ 		}
+@@ -493,7 +491,7 @@ int ishtp_hid_link_ready_wait(struct ishtp_cl_data *client_data)
+ static int ishtp_enum_enum_devices(struct ishtp_cl *hid_ishtp_cl)
+ {
+ 	struct hostif_msg msg;
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 	int retry_count;
+ 	int rv;
+ 
+@@ -530,7 +528,7 @@ static int ishtp_enum_enum_devices(struct ishtp_cl *hid_ishtp_cl)
+ 	}
+ 
+ 	client_data->num_hid_devices = client_data->hid_dev_count;
+-	dev_info(&hid_ishtp_cl->device->dev,
++	dev_info(ishtp_device(client_data->cl_device),
+ 		"[hid-ish]: enum_devices_done OK, num_hid_devices=%d\n",
+ 		client_data->num_hid_devices);
+ 
+@@ -549,7 +547,7 @@ static int ishtp_enum_enum_devices(struct ishtp_cl *hid_ishtp_cl)
+ static int ishtp_get_hid_descriptor(struct ishtp_cl *hid_ishtp_cl, int index)
+ {
+ 	struct hostif_msg msg;
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 	int rv;
+ 
+ 	/* Get HID descriptor */
+@@ -596,7 +594,7 @@ static int ishtp_get_report_descriptor(struct ishtp_cl *hid_ishtp_cl,
+ 				       int index)
+ {
+ 	struct hostif_msg msg;
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 	int rv;
+ 
+ 	/* Get report descriptor */
+@@ -644,7 +642,7 @@ static int ishtp_get_report_descriptor(struct ishtp_cl *hid_ishtp_cl,
+ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
+ {
+ 	struct ishtp_device *dev;
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 	struct ishtp_fw_client *fw_client;
+ 	int i;
+ 	int rv;
+@@ -661,11 +659,11 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
+ 
+ 	client_data->init_done = 0;
+ 
+-	dev = hid_ishtp_cl->dev;
++	dev = ishtp_get_ishtp_device(hid_ishtp_cl);
+ 
+ 	/* Connect to FW client */
+-	hid_ishtp_cl->rx_ring_size = HID_CL_RX_RING_SIZE;
+-	hid_ishtp_cl->tx_ring_size = HID_CL_TX_RING_SIZE;
++	ishtp_set_tx_ring_size(hid_ishtp_cl, HID_CL_TX_RING_SIZE);
++	ishtp_set_rx_ring_size(hid_ishtp_cl, HID_CL_RX_RING_SIZE);
+ 
+ 	fw_client = ishtp_fw_cl_get_client(dev, &hid_ishtp_guid);
+ 	if (!fw_client) {
+@@ -673,9 +671,9 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
+ 			"ish client uuid not found\n");
+ 		return -ENOENT;
+ 	}
+-
+-	hid_ishtp_cl->fw_client_id = fw_client->client_id;
+-	hid_ishtp_cl->state = ISHTP_CL_CONNECTING;
++	ishtp_cl_set_fw_client_id(hid_ishtp_cl,
++				  ishtp_get_fw_client_id(fw_client));
++	ishtp_set_connection_state(hid_ishtp_cl, ISHTP_CL_CONNECTING);
+ 
+ 	rv = ishtp_cl_connect(hid_ishtp_cl);
+ 	if (rv) {
+@@ -687,7 +685,7 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
+ 	hid_ishtp_trace(client_data,  "%s client connected\n", __func__);
+ 
+ 	/* Register read callback */
+-	ishtp_register_event_cb(hid_ishtp_cl->device, ish_cl_event_cb);
++	ishtp_register_event_cb(client_data->cl_device, ish_cl_event_cb);
+ 
+ 	rv = ishtp_enum_enum_devices(hid_ishtp_cl);
+ 	if (rv)
+@@ -725,7 +723,7 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
+ 	return 0;
+ 
+ err_cl_disconnect:
+-	hid_ishtp_cl->state = ISHTP_CL_DISCONNECTING;
++	ishtp_set_connection_state(hid_ishtp_cl, ISHTP_CL_DISCONNECTING);
+ 	ishtp_cl_disconnect(hid_ishtp_cl);
+ err_cl_unlink:
+ 	ishtp_cl_unlink(hid_ishtp_cl);
+@@ -762,7 +760,7 @@ static void hid_ishtp_cl_reset_handler(struct work_struct *work)
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+ 			hid_ishtp_cl);
+-	dev_dbg(&cl_device->dev, "%s\n", __func__);
++	dev_dbg(ishtp_device(client_data->cl_device), "%s\n", __func__);
+ 
+ 	hid_ishtp_cl_deinit(hid_ishtp_cl);
+ 
+@@ -771,7 +769,7 @@ static void hid_ishtp_cl_reset_handler(struct work_struct *work)
+ 		return;
+ 
+ 	ishtp_set_drvdata(cl_device, hid_ishtp_cl);
+-	hid_ishtp_cl->client_data = client_data;
++	ishtp_set_client_data(hid_ishtp_cl, client_data);
+ 	client_data->hid_ishtp_cl = hid_ishtp_cl;
+ 
+ 	client_data->num_hid_devices = 0;
+@@ -789,7 +787,7 @@ static void hid_ishtp_cl_reset_handler(struct work_struct *work)
+ 	}
+ }
+ 
+-void (*hid_print_trace)(void *dev, const char *format, ...);
++void (*hid_print_trace)(void *unused, const char *format, ...);
+ 
+ /**
+  * hid_ishtp_cl_probe() - ISHTP client driver probe
+@@ -819,7 +817,7 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
+ 		return -ENOMEM;
+ 
+ 	ishtp_set_drvdata(cl_device, hid_ishtp_cl);
+-	hid_ishtp_cl->client_data = client_data;
++	ishtp_set_client_data(hid_ishtp_cl, client_data);
+ 	client_data->hid_ishtp_cl = hid_ishtp_cl;
+ 	client_data->cl_device = cl_device;
+ 
+@@ -851,13 +849,13 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
+ static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
+ {
+ 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+ 			hid_ishtp_cl);
+ 
+ 	dev_dbg(ishtp_device(cl_device), "%s\n", __func__);
+-	hid_ishtp_cl->state = ISHTP_CL_DISCONNECTING;
++	ishtp_set_connection_state(hid_ishtp_cl, ISHTP_CL_DISCONNECTING);
+ 	ishtp_cl_disconnect(hid_ishtp_cl);
+ 	ishtp_put_device(cl_device);
+ 	ishtp_hid_remove(client_data);
+@@ -881,7 +879,7 @@ static int hid_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
+ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
+ {
+ 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+ 			hid_ishtp_cl);
+@@ -891,8 +889,6 @@ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
+ 	return 0;
+ }
+ 
+-#define to_ishtp_cl_device(d) container_of(d, struct ishtp_cl_device, dev)
+-
+ /**
+  * hid_ishtp_cl_suspend() - ISHTP client driver suspend
+  * @device:	device instance
+@@ -903,9 +899,9 @@ static int hid_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
+  */
+ static int hid_ishtp_cl_suspend(struct device *device)
+ {
+-	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
++	struct ishtp_cl_device *cl_device = dev_get_drvdata(device);
+ 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+ 			hid_ishtp_cl);
+@@ -924,9 +920,9 @@ static int hid_ishtp_cl_suspend(struct device *device)
+  */
+ static int hid_ishtp_cl_resume(struct device *device)
+ {
+-	struct ishtp_cl_device *cl_device = to_ishtp_cl_device(device);
++	struct ishtp_cl_device *cl_device = dev_get_drvdata(device);
+ 	struct ishtp_cl *hid_ishtp_cl = ishtp_get_drvdata(cl_device);
+-	struct ishtp_cl_data *client_data = hid_ishtp_cl->client_data;
++	struct ishtp_cl_data *client_data = ishtp_get_client_data(hid_ishtp_cl);
+ 
+ 	hid_ishtp_trace(client_data, "%s hid_ishtp_cl %p\n", __func__,
+ 			hid_ishtp_cl);
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.c b/drivers/hid/intel-ish-hid/ishtp-hid.c
+index 95a5b87d9105..62c03561adaa 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.c
+@@ -16,7 +16,6 @@
+ #include <linux/hid.h>
+ #include <linux/intel-ish-client-if.h>
+ #include <uapi/linux/input.h>
+-#include "ishtp/client.h"
+ #include "ishtp-hid.h"
+ 
+ /**
+@@ -154,7 +153,6 @@ static void ishtp_hid_request(struct hid_device *hid, struct hid_report *rep,
+ static int ishtp_wait_for_response(struct hid_device *hid)
+ {
+ 	struct ishtp_hid_data *hid_data =  hid->driver_data;
+-	struct ishtp_cl_data *client_data = hid_data->client_data;
+ 	int rv;
+ 
+ 	hid_ishtp_trace(client_data,  "%s hid %p\n", __func__, hid);
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid.h b/drivers/hid/intel-ish-hid/ishtp-hid.h
+index 8af44e855a49..e27d3d6c1920 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid.h
++++ b/drivers/hid/intel-ish-hid/ishtp-hid.h
+@@ -24,9 +24,9 @@
+ #define	IS_RESPONSE	0x80
+ 
+ /* Used to dump to Linux trace buffer, if enabled */
+-#define hid_ishtp_trace(client, ...)   \
+-	client->cl_device->ishtp_dev->print_log(\
+-		client->cl_device->ishtp_dev, __VA_ARGS__)
++extern void (*hid_print_trace)(void *unused, const char *format, ...);
++#define hid_ishtp_trace(client, ...) \
++		(hid_print_trace)(NULL, __VA_ARGS__)
+ 
+ /* ISH Transport protocol (ISHTP in short) GUID */
+ static const guid_t hid_ishtp_guid =
 -- 
 2.17.2

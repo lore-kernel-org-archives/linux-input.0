@@ -1,75 +1,39 @@
-From: Jagan Teki <jagan@amarulasolutions.com>
-Subject: Re: [PATCH v6 0/4] input: touchscreen: Add goodix GT5553 CTP support
-Date: Mon, 18 Mar 2019 00:02:02 +0530
-Message-ID: <CAMty3ZAn-7BSr_Bd3hOqEK2pvyBpuLX2McuFBf6Krsk1BKPP8g@mail.gmail.com>
-References: <20190219101629.15977-1-jagan@amarulasolutions.com>
- <CAMty3ZDpy5YX3V+6e=UtY=a9Lgiw-NEP1JPQn4_LKL3mYFtrvQ@mail.gmail.com>
- <CAMty3ZB3o1Np7_H7rmCgpUWPk7BRqHRm7gxRpgAq_YyeCUKgaw@mail.gmail.com> <CAMty3ZAmPzXvM+xS3+ULorGuQ-rKfMRNi-HvQdr7hjaFYfMZrg@mail.gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: steam: fix deadlock with input devices.
+Date: Mon, 18 Mar 2019 14:44:54 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1903181444420.19912@cbobk.fhfr.pm>
+References: <20190315190910.4602-1-rodrigorivascosta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMty3ZAmPzXvM+xS3+ULorGuQ-rKfMRNi-HvQdr7hjaFYfMZrg@mail.gmail.com>
+In-Reply-To: <20190315190910.4602-1-rodrigorivascosta@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
+To: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Simon Gene Gottlieb <simon@gottliebtfreitag.de>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Fri, 15 Mar 2019, Rodrigo Rivas Costa wrote:
 
-On Mon, Mar 11, 2019 at 7:08 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
->
-> On Wed, Mar 6, 2019 at 10:47 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> >
-> > Hi Dmitry,
-> >
-> > On Tue, Feb 26, 2019 at 11:43 AM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> > >
-> > > Hi Dmitry,
-> > >
-> > > On Tue, Feb 19, 2019 at 3:46 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
-> > > >
-> > > > This is v6 patchset for supporting goodix GT5553 CTP. Here is the
-> > > > previous version[1]
-> > > >
-> > > > Changes for v5:
-> > > > - document bindings for required regulators, which are need during
-> > > >   power-on sequence
-> > > > - enable, disable required regulators as described in power-on sequence
-> > > >   using normal regulator calls
-> > > > - update the proper commi messages
-> > > > Changes for v4:
-> > > > - document AVDD22, DVDD12, VDDIO as optional properties
-> > > > - use regulator bulk calls, for get, enable and disable functionalities
-> > > > Changes for v4:
-> > > > - devm_add_action_or_reset for disabling regulator
-> > > > Changes for v3:
-> > > > - add cover-letter
-> > > > - s/ADVV28/AVDD28 on commit head
-> > > > - fix few typo
-> > > > Changes for v2:
-> > > > - Rename vcc-supply with AVDD28-supply
-> > > > - disable regulator in remove
-> > > > - fix to setup regulator in probe code
-> > > > - add chipdata
-> > > > - drop example node in dt-bindings
-> > > >
-> > > > [1] https://patchwork.kernel.org/cover/10816901/
-> > > >
-> > > > Jagan Teki (4):
-> > > >   dt-bindings: input: touchscreen: goodix: Document regulator properties
-> > > >   Input: goodix - Add regulators suppot
-> > > >   dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
-> > > >   Input: goodix - Add GT5663 CTP support
-> > > >
-> > > >  .../bindings/input/touchscreen/goodix.txt     |  3 +
-> > > >  drivers/input/touchscreen/goodix.c            | 60 +++++++++++++++++++
-> > > >  2 files changed, 63 insertions(+)
-> > >
-> > > Let me know if you have any further comments on regulator patch, fyi
-> > > Rob reviewed it already.
-> >
-> > Would you comment on this? few dts changes are pending for this to support.
->
-> Gentle remainder.
+> When using this driver with the wireless dongle and some usermode
+> program that monitors every input device (acpid, for example), while
+> another usermode client opens and closes the low-level device
+> repeadedly, the system eventually deadlocks.
+> 
+> The reason is that steam_input_register_device() must not be called with
+> the mutex held, because the input subsystem has its own synchronization
+> that clashes with this one: it is possible that steam_input_open() is
+> called before input_register_device() returns, and since
+> steam_input_open() needs to lock the mutex, it deadlocks.
+> 
+> However we must hold the mutex when calling any function that sends
+> commands to the controller. If not, random commands end up falling fail.
+> 
+> Reported-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
+> Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+> Tested-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
 
-It's been several weeks, any further comments?
+Applied to for-5.1/upstream-fixes, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

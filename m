@@ -1,7 +1,7 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2 03/10] HID: intel-ish-hid: Simplify ishtp_cl_link()
-Date: Mon, 18 Mar 2019 12:14:21 -0700
-Message-ID: <20190318191428.6527-4-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v2 08/10] HID: intel-ish-hid: Move functions related to bus and device
+Date: Mon, 18 Mar 2019 12:14:26 -0700
+Message-ID: <20190318191428.6527-9-srinivas.pandruvada@linux.intel.com>
 References: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
@@ -10,82 +10,127 @@ To: jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-All callers will only use ISHTP_HOST_CLIENT_ID_ANY, so get rid of
-option to pass this additional id.
+Move function idefinitions related to bus and device to common header file.
+Also create new function to get fw client id and move ish_hw_reset() from
+inline to exported function.
 
 Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ishtp-hid-client.c |  2 +-
- drivers/hid/intel-ish-hid/ishtp/client.c     | 14 ++++----------
- drivers/hid/intel-ish-hid/ishtp/client.h     |  2 +-
- 3 files changed, 6 insertions(+), 12 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp/bus.c       | 26 +++++++++++++++++++++
+ drivers/hid/intel-ish-hid/ishtp/bus.h       | 11 ---------
+ drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h |  5 ----
+ include/linux/intel-ish-client-if.h         | 12 ++++++++++
+ 4 files changed, 38 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 17d5bd4f52c1..94a00ffeb09b 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -652,7 +652,7 @@ static int hid_ishtp_cl_init(struct ishtp_cl *hid_ishtp_cl, int reset)
- 	dev_dbg(cl_data_to_dev(client_data), "%s\n", __func__);
- 	hid_ishtp_trace(client_data,  "%s reset flag: %d\n", __func__, reset);
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 2ca65864192f..66a485a41481 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -170,6 +170,19 @@ struct ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
+ }
+ EXPORT_SYMBOL(ishtp_fw_cl_get_client);
  
--	rv = ishtp_cl_link(hid_ishtp_cl, ISHTP_HOST_CLIENT_ID_ANY);
-+	rv = ishtp_cl_link(hid_ishtp_cl);
- 	if (rv) {
- 		dev_err(cl_data_to_dev(client_data),
- 			"ishtp_cl_link failed\n");
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 760e48a368a8..657b46dcefa6 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -168,9 +168,6 @@ EXPORT_SYMBOL(ishtp_cl_free);
++/**
++ * ishtp_get_fw_client_id() - Get fw client id
++ *
++ * This interface is used to reset HW get FW client id.
++ *
++ * Return: firmware client id.
++ */
++int ishtp_get_fw_client_id(struct ishtp_fw_client *fw_client)
++{
++	return fw_client->client_id;
++}
++EXPORT_SYMBOL(ishtp_get_fw_client_id);
++
  /**
-  * ishtp_cl_link() - Reserve a host id and link the client instance
-  * @cl: client device instance
-- * @id: host client id to use. It can be ISHTP_HOST_CLIENT_ID_ANY if any
-- *	id from the available can be used
-- *
+  * ishtp_fw_cl_by_id() - return index to fw_clients for client_id
+  * @dev: the ishtp device structure
+@@ -855,6 +868,19 @@ void *ishtp_trace_callback(struct ishtp_cl_device *cl_device)
+ }
+ EXPORT_SYMBOL(ishtp_trace_callback);
+ 
++/**
++ * ish_hw_reset() - Call HW reset IPC callback
++ *
++ * This interface is used to reset HW in case of error.
++ *
++ * Return: value from IPC hw_reset callback
++ */
++int ish_hw_reset(struct ishtp_device *dev)
++{
++	return dev->ops->hw_reset(dev);
++}
++EXPORT_SYMBOL(ish_hw_reset);
++
+ /**
+  * ishtp_bus_register() - Function to register bus
   *
-  * This allocates a single bit in the hostmap. This function will make sure
-  * that not many client sessions are opened at the same time. Once allocated
-@@ -179,11 +176,11 @@ EXPORT_SYMBOL(ishtp_cl_free);
-  *
-  * Return: 0 or error code on failure
-  */
--int ishtp_cl_link(struct ishtp_cl *cl, int id)
-+int ishtp_cl_link(struct ishtp_cl *cl)
- {
- 	struct ishtp_device *dev;
--	unsigned long	flags, flags_cl;
--	int	ret = 0;
-+	unsigned long flags, flags_cl;
-+	int id, ret = 0;
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
+index 4aed195719de..93d516f5a853 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.h
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
+@@ -80,16 +80,5 @@ void	ishtp_recv(struct ishtp_device *dev);
+ void	ishtp_reset_handler(struct ishtp_device *dev);
+ void	ishtp_reset_compl_handler(struct ishtp_device *dev);
  
- 	if (WARN_ON(!cl || !cl->dev))
- 		return -EINVAL;
-@@ -197,10 +194,7 @@ int ishtp_cl_link(struct ishtp_cl *cl, int id)
- 		goto unlock_dev;
- 	}
+-void	ishtp_put_device(struct ishtp_cl_device *);
+-void	ishtp_get_device(struct ishtp_cl_device *);
+-
+-void	ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data);
+-void	*ishtp_get_drvdata(struct ishtp_cl_device *cl_device);
+-
+-int	ishtp_register_event_cb(struct ishtp_cl_device *device,
+-				void (*read_cb)(struct ishtp_cl_device *));
+ int	ishtp_fw_cl_by_uuid(struct ishtp_device *dev, const guid_t *cuuid);
+-struct	ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
+-						const guid_t *uuid);
+-
+ #endif /* _LINUX_ISHTP_CL_BUS_H */
+diff --git a/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+index e0a320e67a41..3cfef084b9fc 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
++++ b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+@@ -238,11 +238,6 @@ static inline int ish_ipc_reset(struct ishtp_device *dev)
+ 	return dev->ops->ipc_reset(dev);
+ }
  
--	/* If Id is not assigned get one*/
--	if (id == ISHTP_HOST_CLIENT_ID_ANY)
--		id = find_first_zero_bit(dev->host_clients_map,
--			ISHTP_CLIENTS_MAX);
-+	id = find_first_zero_bit(dev->host_clients_map, ISHTP_CLIENTS_MAX);
+-static inline int ish_hw_reset(struct ishtp_device *dev)
+-{
+-	return dev->ops->hw_reset(dev);
+-}
+-
+ /* Exported function */
+ void	ishtp_device_init(struct ishtp_device *dev);
+ int	ishtp_start(struct ishtp_device *dev);
+diff --git a/include/linux/intel-ish-client-if.h b/include/linux/intel-ish-client-if.h
+index 526e3048e09f..e98bfbb1e07e 100644
+--- a/include/linux/intel-ish-client-if.h
++++ b/include/linux/intel-ish-client-if.h
+@@ -9,7 +9,9 @@
+ #define _INTEL_ISH_CLIENT_IF_H_
  
- 	if (id >= ISHTP_CLIENTS_MAX) {
- 		spin_unlock_irqrestore(&dev->device_lock, flags);
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
-index 992625891a6c..afa8b1f521d0 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.h
-@@ -172,7 +172,7 @@ static inline bool ishtp_cl_cmp_id(const struct ishtp_cl *cl1,
- /* exported functions from ISHTP under client management scope */
- struct ishtp_cl *ishtp_cl_allocate(struct ishtp_cl_device *cl_device);
- void ishtp_cl_free(struct ishtp_cl *cl);
--int ishtp_cl_link(struct ishtp_cl *cl, int id);
-+int ishtp_cl_link(struct ishtp_cl *cl);
- void ishtp_cl_unlink(struct ishtp_cl *cl);
- int ishtp_cl_disconnect(struct ishtp_cl *cl);
- int ishtp_cl_connect(struct ishtp_cl *cl);
+ struct ishtp_cl_device;
++struct ishtp_device;
+ struct ishtp_cl;
++struct ishtp_fw_client;
+ 
+ /* Client state */
+ enum cl_state {
+@@ -95,4 +97,14 @@ void ishtp_set_rx_ring_size(struct ishtp_cl *cl, int size);
+ void ishtp_set_connection_state(struct ishtp_cl *cl, int state);
+ void ishtp_cl_set_fw_client_id(struct ishtp_cl *cl, int fw_client_id);
+ 
++void ishtp_put_device(struct ishtp_cl_device *cl_dev);
++void ishtp_get_device(struct ishtp_cl_device *cl_dev);
++void ishtp_set_drvdata(struct ishtp_cl_device *cl_device, void *data);
++void *ishtp_get_drvdata(struct ishtp_cl_device *cl_device);
++int ishtp_register_event_cb(struct ishtp_cl_device *device,
++				void (*read_cb)(struct ishtp_cl_device *));
++struct	ishtp_fw_client *ishtp_fw_cl_get_client(struct ishtp_device *dev,
++						const guid_t *uuid);
++int ishtp_get_fw_client_id(struct ishtp_fw_client *fw_client);
++int ish_hw_reset(struct ishtp_device *dev);
+ #endif /* _INTEL_ISH_CLIENT_IF_H_ */
 -- 
 2.17.2

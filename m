@@ -1,107 +1,173 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2 01/10] HID: intel-ish-hid: Add match callback to ishtp bus type
-Date: Mon, 18 Mar 2019 12:14:19 -0700
-Message-ID: <20190318191428.6527-2-srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v2 06/10] HID: intel-ish-hid: Move the common functions from client.h
+Date: Mon, 18 Mar 2019 12:14:24 -0700
+Message-ID: <20190318191428.6527-7-srinivas.pandruvada@linux.intel.com>
 References: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hong Liu <hong.liu@intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Hong Liu <hong.liu@intel.com>
+Move the interface functions in client.h to common include. These are
+already abstracted well to use as is. Also move any associated structures
+used by these functions.
 
-Currently we depend on the guid check in ishtp_cl_driver.probe to match
-the device and driver. However Linux device core first calls the match()
-callback to decide the matching of driver and device, and then does some
-preparation before calling the driver probe function. If we return error
-in the driver probe, it needs to tear down all the preparation work and
-retry with next driver.
-
-Adding the match callback can avoid the unnecessary entry into unmatched
-driver probe function for ishtp clients reported by FW.
-
-Signed-off-by: Hong Liu <hong.liu@intel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/hid/intel-ish-hid/ishtp-hid-client.c |  5 +----
- drivers/hid/intel-ish-hid/ishtp/bus.c        | 21 ++++++++++++++++++++
- drivers/hid/intel-ish-hid/ishtp/bus.h        |  1 +
- 3 files changed, 23 insertions(+), 4 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp/client.h    | 24 -----------
+ drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h | 26 -----------
+ include/linux/intel-ish-client-if.h         | 48 +++++++++++++++++++++
+ 3 files changed, 48 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 58773a3b5150..b86290611a5f 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -803,10 +803,6 @@ static int hid_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
- 	if (!cl_device)
- 		return	-ENODEV;
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
+index afa8b1f521d0..6ed00947d6bc 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.h
++++ b/drivers/hid/intel-ish-hid/ishtp/client.h
+@@ -19,15 +19,6 @@
+ #include <linux/types.h>
+ #include "ishtp-dev.h"
  
--	if (!guid_equal(&hid_ishtp_guid,
--			&cl_device->fw_client->props.protocol_name))
--		return	-ENODEV;
+-/* Client state */
+-enum cl_state {
+-	ISHTP_CL_INITIALIZING = 0,
+-	ISHTP_CL_CONNECTING,
+-	ISHTP_CL_CONNECTED,
+-	ISHTP_CL_DISCONNECTING,
+-	ISHTP_CL_DISCONNECTED
+-};
 -
- 	client_data = devm_kzalloc(&cl_device->dev, sizeof(*client_data),
- 				   GFP_KERNEL);
- 	if (!client_data)
-@@ -937,6 +933,7 @@ static const struct dev_pm_ops hid_ishtp_pm_ops = {
- 
- static struct ishtp_cl_driver	hid_ishtp_cl_driver = {
- 	.name = "ish-hid",
-+	.guid = &hid_ishtp_guid,
- 	.probe = hid_ishtp_cl_probe,
- 	.remove = hid_ishtp_cl_remove,
- 	.reset = hid_ishtp_cl_reset,
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index d5f4b6438d86..6348fee8aadc 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -219,6 +219,26 @@ static int ishtp_cl_device_probe(struct device *dev)
- 	return driver->probe(device);
+ /* Tx and Rx ring size */
+ #define	CL_DEF_RX_RING_SIZE	2
+ #define	CL_DEF_TX_RING_SIZE	2
+@@ -169,19 +160,4 @@ static inline bool ishtp_cl_cmp_id(const struct ishtp_cl *cl1,
+ 		(cl1->fw_client_id == cl2->fw_client_id);
  }
  
-+/**
-+ * ishtp_cl_bus_match() - Bus match() callback
-+ * @dev: the device structure
-+ * @drv: the driver structure
-+ *
-+ * This is a bus match callback, called when a new ishtp_cl_device is
-+ * registered during ishtp bus client enumeration. Use the guid_t in
-+ * drv and dev to decide whether they match or not.
-+ *
-+ * Return: 1 if dev & drv matches, 0 otherwise.
-+ */
-+static int ishtp_cl_bus_match(struct device *dev, struct device_driver *drv)
-+{
-+	struct ishtp_cl_device *device = to_ishtp_cl_device(dev);
-+	struct ishtp_cl_driver *driver = to_ishtp_cl_driver(drv);
+-/* exported functions from ISHTP under client management scope */
+-struct ishtp_cl *ishtp_cl_allocate(struct ishtp_cl_device *cl_device);
+-void ishtp_cl_free(struct ishtp_cl *cl);
+-int ishtp_cl_link(struct ishtp_cl *cl);
+-void ishtp_cl_unlink(struct ishtp_cl *cl);
+-int ishtp_cl_disconnect(struct ishtp_cl *cl);
+-int ishtp_cl_connect(struct ishtp_cl *cl);
+-int ishtp_cl_send(struct ishtp_cl *cl, uint8_t *buf, size_t length);
+-int ishtp_cl_flush_queues(struct ishtp_cl *cl);
+-
+-/* exported functions from ISHTP client buffer management scope */
+-int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb);
+-bool ishtp_cl_tx_empty(struct ishtp_cl *cl);
+-struct ishtp_cl_rb *ishtp_cl_rx_get_rb(struct ishtp_cl *cl);
+-
+ #endif /* _ISHTP_CLIENT_H_ */
+diff --git a/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+index e54ce1ef27dd..e0a320e67a41 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
++++ b/drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h
+@@ -79,32 +79,6 @@ struct ishtp_fw_client {
+ 	uint8_t client_id;
+ };
+ 
+-/**
+- * struct ishtp_msg_data - ISHTP message data struct
+- * @size:	Size of data in the *data
+- * @data:	Pointer to data
+- */
+-struct ishtp_msg_data {
+-	uint32_t size;
+-	unsigned char *data;
+-};
+-
+-/*
+- * struct ishtp_cl_rb - request block structure
+- * @list:	Link to list members
+- * @cl:		ISHTP client instance
+- * @buffer:	message header
+- * @buf_idx:	Index into buffer
+- * @read_time:	 unused at this time
+- */
+-struct ishtp_cl_rb {
+-	struct list_head list;
+-	struct ishtp_cl *cl;
+-	struct ishtp_msg_data buffer;
+-	unsigned long buf_idx;
+-	unsigned long read_time;
+-};
+-
+ /*
+  * Control info for IPC messages ISHTP/IPC sending FIFO -
+  * list with inline data buffer
+diff --git a/include/linux/intel-ish-client-if.h b/include/linux/intel-ish-client-if.h
+index abc0b8122f07..7ce172f656f8 100644
+--- a/include/linux/intel-ish-client-if.h
++++ b/include/linux/intel-ish-client-if.h
+@@ -9,6 +9,16 @@
+ #define _INTEL_ISH_CLIENT_IF_H_
+ 
+ struct ishtp_cl_device;
++struct ishtp_cl;
 +
-+	return guid_equal(driver->guid,
-+			  &device->fw_client->props.protocol_name);
-+}
-+
++/* Client state */
++enum cl_state {
++	ISHTP_CL_INITIALIZING = 0,
++	ISHTP_CL_CONNECTING,
++	ISHTP_CL_CONNECTED,
++	ISHTP_CL_DISCONNECTING,
++	ISHTP_CL_DISCONNECTED
++};
+ 
  /**
-  * ishtp_cl_device_remove() - Bus remove() callback
-  * @dev: the device structure
-@@ -372,6 +392,7 @@ static struct bus_type ishtp_cl_bus_type = {
- 	.name		= "ishtp",
- 	.dev_groups	= ishtp_cl_dev_groups,
- 	.probe		= ishtp_cl_device_probe,
-+	.match		= ishtp_cl_bus_match,
- 	.remove		= ishtp_cl_device_remove,
- 	.pm		= &ishtp_cl_bus_dev_pm_ops,
- 	.uevent		= ishtp_cl_uevent,
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
-index 4cf7ad586c37..c96e7fb42f01 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
-@@ -64,6 +64,7 @@ struct ishtp_cl_device {
- struct ishtp_cl_driver {
- 	struct device_driver driver;
- 	const char *name;
-+	const guid_t *guid;
- 	int (*probe)(struct ishtp_cl_device *dev);
- 	int (*remove)(struct ishtp_cl_device *dev);
- 	int (*reset)(struct ishtp_cl_device *dev);
+  * struct ishtp_cl_device - ISHTP device handle
+@@ -29,6 +39,32 @@ struct ishtp_cl_driver {
+ 	const struct dev_pm_ops *pm;
+ };
+ 
++/**
++ * struct ishtp_msg_data - ISHTP message data struct
++ * @size:	Size of data in the *data
++ * @data:	Pointer to data
++ */
++struct ishtp_msg_data {
++	uint32_t size;
++	unsigned char *data;
++};
++
++/*
++ * struct ishtp_cl_rb - request block structure
++ * @list:	Link to list members
++ * @cl:		ISHTP client instance
++ * @buffer:	message header
++ * @buf_idx:	Index into buffer
++ * @read_time:	 unused at this time
++ */
++struct ishtp_cl_rb {
++	struct list_head list;
++	struct ishtp_cl *cl;
++	struct ishtp_msg_data buffer;
++	unsigned long buf_idx;
++	unsigned long read_time;
++};
++
+ int ishtp_cl_driver_register(struct ishtp_cl_driver *driver,
+ 			     struct module *owner);
+ void ishtp_cl_driver_unregister(struct ishtp_cl_driver *driver);
+@@ -40,4 +76,16 @@ struct device *ishtp_device(struct ishtp_cl_device *cl_device);
+ /* Trace interface for clients */
+ void *ishtp_trace_callback(struct ishtp_cl_device *cl_device);
+ 
++struct ishtp_cl *ishtp_cl_allocate(struct ishtp_cl_device *cl_device);
++void ishtp_cl_free(struct ishtp_cl *cl);
++int ishtp_cl_link(struct ishtp_cl *cl);
++void ishtp_cl_unlink(struct ishtp_cl *cl);
++int ishtp_cl_disconnect(struct ishtp_cl *cl);
++int ishtp_cl_connect(struct ishtp_cl *cl);
++int ishtp_cl_send(struct ishtp_cl *cl, uint8_t *buf, size_t length);
++int ishtp_cl_flush_queues(struct ishtp_cl *cl);
++int ishtp_cl_io_rb_recycle(struct ishtp_cl_rb *rb);
++bool ishtp_cl_tx_empty(struct ishtp_cl *cl);
++struct ishtp_cl_rb *ishtp_cl_rx_get_rb(struct ishtp_cl *cl);
++
+ #endif /* _INTEL_ISH_CLIENT_IF_H_ */
 -- 
 2.17.2

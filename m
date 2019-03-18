@@ -1,43 +1,52 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 3/4] input: da9063_onkey: convert header to SPDX
-Date: Mon, 18 Mar 2019 16:57:26 +0100
-Message-ID: <20190318155728.28365-4-wsa+renesas@sang-engineering.com>
-References: <20190318155728.28365-1-wsa+renesas@sang-engineering.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH 0/6] mfd: da9063: remove platform_data
+Date: Mon, 18 Mar 2019 16:34:52 +0000
+Message-ID: <VI1PR10MB23522C4EA0F730414CD14B56FE470@VI1PR10MB2352.EURPRD10.PROD.OUTLOOK.COM>
+References: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190318155728.28365-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Support Opensource <Support.Opensource@diasemi.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Covnert the header of the source file to SPDX.
+Hi Mark,
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/input/misc/da9063_onkey.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+On 18 March 2019 15:48, Wolfram Sang wrote:
 
-diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-index 3e9c353d82ef..7b8ae905a6fb 100644
---- a/drivers/input/misc/da9063_onkey.c
-+++ b/drivers/input/misc/da9063_onkey.c
-@@ -1,16 +1,7 @@
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * OnKey device driver for DA9063, DA9062 and DA9061 PMICs
-  * Copyright (C) 2015  Dialog Semiconductor Ltd.
-- *
-- * This program is free software; you can redistribute it and/or
-- * modify it under the terms of the GNU General Public License
-- * as published by the Free Software Foundation; either version 2
-- * of the License, or (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-  */
- 
- #include <linux/module.h>
--- 
-2.11.0
+> To: linux-kernel@vger.kernel.org
+> Subject: [PATCH 0/6] mfd: da9063: remove platform_data
+>=20
+> When working with this driver while debugging something else, I noticed t=
+hat
+> there are no in-kernel users of platform_data anymore. Removing the suppo=
+rt
+> simplifies the code and gets rid of quite some lines. The biggest refacto=
+ring
+> went to the regulator driver which could maybe benefit from more
+> refactorization. However, there is no in-kernel user of that driver, so n=
+o
+> testing. I left it at this stage. I think the changes are still at a leve=
+l
+> where review and build-testing will give enough confidence.
+>=20
+> Besides the regulator thing, it was tested on a Renesas Lager board (R-Ca=
+r H2).
+> No regressions encountered. buildbot was happy, too.
+>=20
+> The patches are based on v5.1-rc1. I'd vote for all of them going through=
+ the
+> MFD tree. Looking forward to comments!
+>=20
+>    Wolfram
+
+My regulator tests are currently broken, so I'm looking into it.
+I'll read-through and test these patches as soon as I've solved the regress=
+ions.
+
+Regards,
+Steve

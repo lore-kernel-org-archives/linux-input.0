@@ -1,217 +1,69 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [RESEND PATCH v6 00/11] mfd: add support for max77650 PMIC
-Date: Mon, 18 Mar 2019 18:44:18 +0100
-Message-ID: <CAMRc=Mf5itrBMdgAUaMLJ8tWKByPSstZbdKvEhw=_qnsKXdKAg@mail.gmail.com>
-References: <20190318174040.17899-1-brgl@bgdev.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v2 00/10] HID: intel-ish-hid: Clean up external interfaces
+Date: Mon, 18 Mar 2019 12:14:18 -0700
+Message-ID: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190318174040.17899-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-pon., 18 mar 2019 o 18:40 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(=
-a):
->
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> This series missed the last merge window so resending rebased on top
-> of v5.1-rc1 with no functional changes.
->
-> ---
->
-> This series adds support for max77650 ultra low-power PMIC. It provides
-> the core mfd driver and a set of five sub-drivers for the regulator,
-> power supply, gpio, leds and input subsystems.
->
-> Patches 1-4 add the DT binding documents. Patch 5 documents mfd_add_devic=
-es().
-> Patches 6-10 add all drivers. Last patch adds a MAINTAINERS entry for thi=
-s
-> device.
->
-> The regulator part is already upstream.
->
-> v1 -> v2:
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> General:
-> - use C++ style comments for the SPDX license identifier and the
->   copyright header
-> - s/MODULE_LICENSE("GPL")/MODULE_LICENSE("GPL v2")/
-> - lookup the virtual interrupt numbers in the MFD driver, setup
->   resources for child devices and use platform_get_irq_byname()
->   in sub-drivers
-> - picked up review tags
-> - use devm_request_any_context_irq() for interrupt requests
->
-> LEDs:
-> - changed the max77650_leds_ prefix to max77650_led_
-> - drop the max77650_leds structure as the only field it held was the
->   regmap pointer, move said pointer to struct max77650_led
-> - change the driver name to "max77650-led"
-> - drop the last return value check and return the result of
->   regmap_write() directly
-> - change the labeling scheme to one consistent with other LED drivers
->
-> ONKEY:
-> - drop the key reporting helper and call the input functions directly
->   from interrupt handlers
-> - rename the rv local variable to error
-> - drop parent device asignment
->
-> Regulator:
-> - drop the unnecessary init_data lookup from the driver code
-> - drop unnecessary include
->
-> Charger:
-> - disable the charger on driver remove
-> - change the power supply type to POWER_SUPPLY_TYPE_USB
->
-> GPIO:
-> - drop interrupt support until we have correct implementation of hierarch=
-ical
->   irqs in gpiolib
->
-> v2 -> v3:
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> General:
-> - dropped regulator patches as they're already in Mark Brown's branch
->
-> LED:
-> - fix the compatible string in the DT binding example
-> - use the max_brightness property
-> - use a common prefix ("MAX77650_LED") for all defines in the driver
->
-> MFD:
-> - add the MODULE_DEVICE_TABLE()
-> - add a sentinel to the of_device_id array
-> - constify the pointers to irq names
-> - use an enum instead of defines for interrupt indexes
->
-> v3 -> v4:
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> GPIO:
-> - as discussed with Linus Walleij: the gpio-controller is now part of
->   the core mfd module (we don't spawn a sub-node anymore), the binding
->   document for GPIO has been dropped, the GPIO properties have been
->   defined in the binding document for the mfd core, the interrupt
->   functionality has been reintroduced with the irq directly passed from
->   the mfd part
-> - due to the above changes the Reviewed-by tag from Linus was dropped
->
-> v4 -> v5:
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> General:
-> - add a patch documenting mfd_add_devices()
->
-> MFD:
-> - pass the regmap irq_chip irq domain to mfd over mfd_add_devices so that
->   the hw interrupts from resources can be correctly mapped to virtual irq=
-s
-> - remove the enum listing cell indexes
-> - extend Kconfig help
-> - add a link to the programming manual
-> - use REGMAP_IRQ_REG() for regmap interrupts (except for GPI which has
->   is composed of two hw interrupts for rising and falling edge)
-> - add error messages in probe
-> - use PLATFORM_DEVID_NONE constant in devm_mfd_add_devices()
-> - set irq_base to 0 in regmap_add_irq_chip() as other users to, it's only
->   relevant if it's > 0
->
-> Charger:
-> - use non-maxim specific property names for minimum input voltage and cur=
-rent
->   limit
-> - code shrink by using the enable/disable charger helpers everywhere
-> - use more descriptive names for constants
->
-> Onkey:
-> - use EV_SW event type for slide mode
->
-> LED:
-> - remove stray " from Kconfig help
->
-> v5 -> v6:
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D
->
-> MFD:
-> - remove stray spaces in the binding document
-> - rename the example dt node
-> - remove unnecessary interrupt-parent property from the bindings
->
-> LED:
-> - add a missing dependency on LEDS_CLASS to Kconfig
->
-> Onkey:
-> - use boolean for the slide button property
->
-> Charger:
-> - fix the property names in DT example
-> - make constants even more readable
->
-> Bartosz Golaszewski (11):
->   dt-bindings: mfd: add DT bindings for max77650
->   dt-bindings: power: supply: add DT bindings for max77650
->   dt-bindings: leds: add DT bindings for max77650
->   dt-bindings: input: add DT bindings for max77650
->   mfd: core: document mfd_add_devices()
->   mfd: max77650: new core mfd driver
->   power: supply: max77650: add support for battery charger
->   gpio: max77650: add GPIO support
->   leds: max77650: add LEDs support
->   input: max77650: add onkey support
->   MAINTAINERS: add an entry for max77650 mfd driver
->
->  .../bindings/input/max77650-onkey.txt         |  26 ++
->  .../bindings/leds/leds-max77650.txt           |  57 +++
->  .../devicetree/bindings/mfd/max77650.txt      |  46 +++
->  .../power/supply/max77650-charger.txt         |  27 ++
->  MAINTAINERS                                   |  14 +
->  drivers/gpio/Kconfig                          |   7 +
->  drivers/gpio/Makefile                         |   1 +
->  drivers/gpio/gpio-max77650.c                  | 190 +++++++++
->  drivers/input/misc/Kconfig                    |   9 +
->  drivers/input/misc/Makefile                   |   1 +
->  drivers/input/misc/max77650-onkey.c           | 121 ++++++
->  drivers/leds/Kconfig                          |   6 +
->  drivers/leds/Makefile                         |   1 +
->  drivers/leds/leds-max77650.c                  | 147 +++++++
->  drivers/mfd/Kconfig                           |  14 +
->  drivers/mfd/Makefile                          |   1 +
->  drivers/mfd/max77650.c                        | 234 +++++++++++
->  drivers/mfd/mfd-core.c                        |  14 +
->  drivers/power/supply/Kconfig                  |   7 +
->  drivers/power/supply/Makefile                 |   1 +
->  drivers/power/supply/max77650-charger.c       | 366 ++++++++++++++++++
->  include/linux/mfd/max77650.h                  |  59 +++
->  22 files changed, 1349 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/max77650-onke=
-y.txt
->  create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.=
-txt
->  create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
->  create mode 100644 Documentation/devicetree/bindings/power/supply/max776=
-50-charger.txt
->  create mode 100644 drivers/gpio/gpio-max77650.c
->  create mode 100644 drivers/input/misc/max77650-onkey.c
->  create mode 100644 drivers/leds/leds-max77650.c
->  create mode 100644 drivers/mfd/max77650.c
->  create mode 100644 drivers/power/supply/max77650-charger.c
->  create mode 100644 include/linux/mfd/max77650.h
->
-> --
-> 2.20.1
->
+NOT FOR kernel v5.1.
 
-Sorry for spamming - I got a strange error from git send-email:
+v2
+- Rebased on the top of
+"HID: intel-ish: enable raw interface to HID devices on ISH"
+which Jiri already applied.
+- Also exported devc pointer for DMA
 
-Died at /<snip!>libexec/git-core/git-send-email line 1542.
+No functional changes are expected with this series. I am posting this now
+because of usage of ISH in ChromeOS Embedded Controller.
+https://lkml.org/lkml/2019/2/24/26
+I want to make sure that API is restricted before more development and posting
+there.
 
-Bart
+Currently only one ISH client is using ISH transport. But it is changing now
+with the development of other clients using ISH transport. Some of these
+clients which are targeted for Linux based OS only laptops, are not using
+HID to export sensors. As more clients are getting developed it is important
+that the external interface for ISH transport only allows what clients need.
+Currently the header files used by clients "client.h" and "ishtp-dev.h"
+include other ISH header files. Also clients access fields from structure
+which also has other fields which are only used by ISH transort.
+
+So this series introduces one header file "linux/intel-ish-client-if.h".
+This header files doesn't include any other ISH transport header files.
+There are interface functions defined so that clients never have to directly
+access any ISH transort structures.
+Also clients don't have to match there GUID in probe. They will be only
+probbed if their GUID matches, which is passed as driver registry. 
+
+
+Hong Liu (1):
+  HID: intel-ish-hid: Add match callback to ishtp bus type
+
+Srinivas Pandruvada (9):
+  HID: intel-ish-hid: Hide members of struct ishtp_cl_device
+  HID: intel-ish-hid: Simplify ishtp_cl_link()
+  HID: intel-ish-hid: Move driver registry functions
+  HID: intel-ish-hid: Store ishtp_cl_device instance in device
+  HID: intel-ish-hid: Move the common functions from client.h
+  HID: intel-ish-hid: Add interface functions for struct ishtp_cl
+  HID: intel-ish-hid: Move functions related to bus and device
+  HID: intel-ish-hid: Use the new interface functions in HID ish client
+  HID: intel-ish-hid: Add interface function for PCI device pointer
+
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 131 ++++++++++---------
+ drivers/hid/intel-ish-hid/ishtp-hid.c        |   6 +-
+ drivers/hid/intel-ish-hid/ishtp-hid.h        |   6 +-
+ drivers/hid/intel-ish-hid/ishtp/bus.c        |  96 +++++++++++++-
+ drivers/hid/intel-ish-hid/ishtp/bus.h        |  37 +-----
+ drivers/hid/intel-ish-hid/ishtp/client.c     |  60 +++++++--
+ drivers/hid/intel-ish-hid/ishtp/client.h     |  24 ----
+ drivers/hid/intel-ish-hid/ishtp/ishtp-dev.h  |  31 -----
+ include/linux/intel-ish-client-if.h          | 112 ++++++++++++++++
+ 9 files changed, 325 insertions(+), 178 deletions(-)
+ create mode 100644 include/linux/intel-ish-client-if.h
+
+-- 
+2.17.2

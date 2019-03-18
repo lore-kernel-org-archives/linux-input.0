@@ -1,33 +1,57 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: Increase maximum report size allowed by
- hid_field_extract()
-Date: Mon, 18 Mar 2019 14:48:25 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1903181448180.19912@cbobk.fhfr.pm>
-References: <20190308051117.21899-1-kai.heng.feng@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/6] input: da9063_onkey: remove platform_data support
+Date: Mon, 18 Mar 2019 16:47:54 +0100
+Message-ID: <20190318154759.21978-3-wsa+renesas@sang-engineering.com>
+References: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190308051117.21899-1-kai.heng.feng@canonical.com>
+In-Reply-To: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 8 Mar 2019, Kai-Heng Feng wrote:
+There are no in-kernel users anymore, so remove this outdated interface.
 
-> Commit 71f6fa90a353 ("HID: increase maximum global item tag report size
-> to 256") increases the max report size from 128 to 256.
-> 
-> We also need to update the report size in hid_field_extract() otherwise
-> it complains and truncates now valid report size:
-> [ 406.165461] hid-sensor-hub 001F:8086:22D8.0002: hid_field_extract() called with n (192) > 32! (kworker/5:1)
-> 
-> BugLink: https://bugs.launchpad.net/bugs/1818547
-> Fixes: 71f6fa90a353 ("HID: increase maximum global item tag report size to 256")
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/input/misc/da9063_onkey.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-Applied, thanks.
-
+diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
+index 3e9c353d82ef..e3a273c74123 100644
+--- a/drivers/input/misc/da9063_onkey.c
++++ b/drivers/input/misc/da9063_onkey.c
+@@ -22,7 +22,6 @@
+ #include <linux/regmap.h>
+ #include <linux/of.h>
+ #include <linux/mfd/da9063/core.h>
+-#include <linux/mfd/da9063/pdata.h>
+ #include <linux/mfd/da9063/registers.h>
+ #include <linux/mfd/da9062/core.h>
+ #include <linux/mfd/da9062/registers.h>
+@@ -201,8 +200,6 @@ static void da9063_cancel_poll(void *data)
+ 
+ static int da9063_onkey_probe(struct platform_device *pdev)
+ {
+-	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
+-	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
+ 	struct da9063_onkey *onkey;
+ 	const struct of_device_id *match;
+ 	int irq;
+@@ -229,12 +226,8 @@ static int da9063_onkey_probe(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
+ 
+-	if (pdata)
+-		onkey->key_power = pdata->key_power;
+-	else
+-		onkey->key_power =
+-			!of_property_read_bool(pdev->dev.of_node,
+-					       "dlg,disable-key-power");
++	onkey->key_power = !of_property_read_bool(pdev->dev.of_node,
++						  "dlg,disable-key-power");
+ 
+ 	onkey->input = devm_input_allocate_device(&pdev->dev);
+ 	if (!onkey->input) {
 -- 
-Jiri Kosina
-SUSE Labs
+2.11.0

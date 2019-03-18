@@ -1,57 +1,47 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/6] input: da9063_onkey: remove platform_data support
-Date: Mon, 18 Mar 2019 16:47:54 +0100
-Message-ID: <20190318154759.21978-3-wsa+renesas@sang-engineering.com>
-References: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/6] mfd: da9063: remove platform_data
+Date: Mon, 18 Mar 2019 16:47:52 +0100
+Message-ID: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-There are no in-kernel users anymore, so remove this outdated interface.
+When working with this driver while debugging something else, I noticed that
+there are no in-kernel users of platform_data anymore. Removing the support
+simplifies the code and gets rid of quite some lines. The biggest refactoring
+went to the regulator driver which could maybe benefit from more
+refactorization. However, there is no in-kernel user of that driver, so no
+testing. I left it at this stage. I think the changes are still at a level
+where review and build-testing will give enough confidence.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/input/misc/da9063_onkey.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+Besides the regulator thing, it was tested on a Renesas Lager board (R-Car H2).
+No regressions encountered. buildbot was happy, too.
 
-diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-index 3e9c353d82ef..e3a273c74123 100644
---- a/drivers/input/misc/da9063_onkey.c
-+++ b/drivers/input/misc/da9063_onkey.c
-@@ -22,7 +22,6 @@
- #include <linux/regmap.h>
- #include <linux/of.h>
- #include <linux/mfd/da9063/core.h>
--#include <linux/mfd/da9063/pdata.h>
- #include <linux/mfd/da9063/registers.h>
- #include <linux/mfd/da9062/core.h>
- #include <linux/mfd/da9062/registers.h>
-@@ -201,8 +200,6 @@ static void da9063_cancel_poll(void *data)
- 
- static int da9063_onkey_probe(struct platform_device *pdev)
- {
--	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
--	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
- 	struct da9063_onkey *onkey;
- 	const struct of_device_id *match;
- 	int irq;
-@@ -229,12 +226,8 @@ static int da9063_onkey_probe(struct platform_device *pdev)
- 		return -ENXIO;
- 	}
- 
--	if (pdata)
--		onkey->key_power = pdata->key_power;
--	else
--		onkey->key_power =
--			!of_property_read_bool(pdev->dev.of_node,
--					       "dlg,disable-key-power");
-+	onkey->key_power = !of_property_read_bool(pdev->dev.of_node,
-+						  "dlg,disable-key-power");
- 
- 	onkey->input = devm_input_allocate_device(&pdev->dev);
- 	if (!onkey->input) {
+The patches are based on v5.1-rc1. I'd vote for all of them going through the
+MFD tree. Looking forward to comments!
+
+   Wolfram
+
+
+Wolfram Sang (6):
+  regulator: da9063: remove platform_data support
+  input: da9063_onkey: remove platform_data support
+  mfd: da9063: remove platform_data support
+  regulator: da9063: move definitions out of a header into the driver
+  mfd: da9063: remove leftover platform_data definitions
+  regulator: da9063: platform_data is gone, depend on OF
+
+ drivers/input/misc/da9063_onkey.c    |  11 +---
+ drivers/mfd/da9063-core.c            |  20 +-----
+ drivers/mfd/da9063-i2c.c             |   1 -
+ drivers/mfd/da9063-irq.c             |   1 -
+ drivers/regulator/Kconfig            |   2 +-
+ drivers/regulator/da9063-regulator.c |  61 +++++++++++++------
+ include/linux/mfd/da9063/pdata.h     | 114 -----------------------------------
+ 7 files changed, 49 insertions(+), 161 deletions(-)
+ delete mode 100644 include/linux/mfd/da9063/pdata.h
+
 -- 
 2.11.0

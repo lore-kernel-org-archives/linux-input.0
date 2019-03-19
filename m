@@ -1,32 +1,32 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v3] hid: logitech: check the return value of
- create_singlethread_workqueue
-Date: Tue, 19 Mar 2019 11:48:51 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1903191148210.19912@cbobk.fhfr.pm>
-References: <20190312100233.106098c8@lwn.net> <20190314052402.31448-1-kjlu@umn.edu>
+Subject: Re: [PATCH v2 00/10] HID: intel-ish-hid: Clean up external
+ interfaces
+Date: Tue, 19 Mar 2019 11:59:49 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1903191158230.19912@cbobk.fhfr.pm>
+References: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190314052402.31448-1-kjlu@umn.edu>
+In-Reply-To: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kangjie Lu <kjlu@umn.edu>
-Cc: pakki001@umn.edu, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 14 Mar 2019, Kangjie Lu wrote:
+On Mon, 18 Mar 2019, Srinivas Pandruvada wrote:
 
-> create_singlethread_workqueue may fail and return NULL. The fix
-> checks if it is NULL to avoid NULL pointer dereference.
-> Also, the fix moves the call of create_singlethread_workqueue
-> earlier to avoid resource-release issues.
+> NOT FOR kernel v5.1.
 > 
-> --
-> V3: do not introduce memory leaks.
-> 
-> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+> v2
+> - Rebased on the top of
+> "HID: intel-ish: enable raw interface to HID devices on ISH"
+> which Jiri already applied.
+> - Also exported devc pointer for DMA
 
-The signoff has to be in the commit log, not in the "notes" area. I've 
-fixed that and applied.
+I've already reviewed v1 before, so I just went through these highlighted 
+changes above, and applied.
+
+Thanks,
 
 -- 
 Jiri Kosina

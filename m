@@ -1,67 +1,42 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/1] hid: hid-sensor-custom: simplify getting .driver_data
-Date: Tue, 19 Mar 2019 17:36:38 +0100
-Message-ID: <20190319163638.31003-1-wsa+renesas@sang-engineering.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: [PATCH] HID: logitech: Handle 0 scroll events for the m560
+Date: Wed, 20 Mar 2019 08:48:23 +1000
+Message-ID: <20190319224823.GA26366@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aimo =?iso-8859-1?Q?Mets=E4l=E4?= <aimetsal@outlook.com>, nlopezcasad@logitech.com, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-We should get 'driver_data' from 'struct device' directly. Going via
-platform_device is an unneeded step back and forth.
+hidpp_scroll_counter_handle_scroll() doesn't expect a 0-value scroll event, it
+gets interpreted as a negative scroll direction event. This can cause scroll
+direction resets and thus broken scrolling.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reported-and-tested-by: Aimo Metsälä <aimetsal@outlook.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 ---
+ drivers/hid/hid-logitech-hidpp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Build tested only. buildbot is happy.
-
- drivers/hid/hid-sensor-custom.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-index bb012bc032e0..462e653a7bbb 100644
---- a/drivers/hid/hid-sensor-custom.c
-+++ b/drivers/hid/hid-sensor-custom.c
-@@ -157,8 +157,7 @@ static int usage_id_cmp(const void *p1, const void *p2)
- static ssize_t enable_sensor_show(struct device *dev,
- 				  struct device_attribute *attr, char *buf)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 15ed6177a7a3..f040c8a7f9a9 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2608,8 +2608,9 @@ static int m560_raw_event(struct hid_device *hdev, u8 *data, int size)
+ 		input_report_rel(mydata->input, REL_Y, v);
  
- 	return sprintf(buf, "%d\n", sensor_inst->enable);
- }
-@@ -237,8 +236,7 @@ static ssize_t enable_sensor_store(struct device *dev,
- 				   struct device_attribute *attr,
- 				   const char *buf, size_t count)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
- 	int value;
- 	int ret = -EINVAL;
+ 		v = hid_snto32(data[6], 8);
+-		hidpp_scroll_counter_handle_scroll(
+-				&hidpp->vertical_wheel_counter, v);
++		if (v != 0)
++			hidpp_scroll_counter_handle_scroll(
++					&hidpp->vertical_wheel_counter, v);
  
-@@ -283,8 +281,7 @@ static const struct attribute_group enable_sensor_attr_group = {
- static ssize_t show_value(struct device *dev, struct device_attribute *attr,
- 			  char *buf)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
- 	struct hid_sensor_hub_attribute_info *attribute;
- 	int index, usage, field_index;
- 	char name[HID_CUSTOM_NAME_LENGTH];
-@@ -392,8 +389,7 @@ static ssize_t show_value(struct device *dev, struct device_attribute *attr,
- static ssize_t store_value(struct device *dev, struct device_attribute *attr,
- 			   const char *buf, size_t count)
- {
--	struct platform_device *pdev = to_platform_device(dev);
--	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
-+	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
- 	int index, field_index, usage;
- 	char name[HID_CUSTOM_NAME_LENGTH];
- 	int value;
+ 		input_sync(mydata->input);
+ 	}
 -- 
-2.11.0
+2.20.1

@@ -1,66 +1,49 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 2/6] input: da9063_onkey: remove platform_data support
-Date: Tue, 19 Mar 2019 13:49:18 +0100
-Message-ID: <20190319124917.sidcf742iml2jzam@verge.net.au>
-References: <20190318154759.21978-1-wsa+renesas@sang-engineering.com>
- <20190318154759.21978-3-wsa+renesas@sang-engineering.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: must hold the driver_input_lock in hid_debug_rdesc_show
+Date: Tue, 19 Mar 2019 15:42:09 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1903191541410.19912@cbobk.fhfr.pm>
+References: <CD6925E8781EFD4D8E11882D20FC406D52A6168C@SHSMSX104.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190318154759.21978-3-wsa+renesas@sang-engineering.com>
+In-Reply-To: <CD6925E8781EFD4D8E11882D20FC406D52A6168C@SHSMSX104.ccr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: "He, Bo" <bo.he@intel.com>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Zhang, Jun" <jun.zhang@intel.com>, "Zhang, Yanmin" <yanmin.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 18, 2019 at 04:47:54PM +0100, Wolfram Sang wrote:
-> There are no in-kernel users anymore, so remove this outdated interface.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Thu, 14 Mar 2019, He, Bo wrote:
 
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+> we see the below kernel panic logs when run suspend resume test with
+> usb mouse and usb keyboard connected.
+> 
+> the scenario is the userspace call the hid_debug_rdesc_show to dump
+> the input device while the device is removed. the patch
+> hold the driver_input_lock to avoid the race.
+> 
+> [ 5381.757295] selinux: SELinux:  Could not stat
+> /sys/devices/pci0000:00/0000:00:15.0/usb1/1-2/1-2:1.0/0003:03F0:0325.0320/input/input960/input960::scrolllock:
+> No such file or directory.
+> [ 5382.636498] BUG: unable to handle kernel paging request at 0000000783316040
+> [ 5382.651950] CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
+> [ 5382.663797] RIP: 0010:hid_dump_device+0x9b/0x160
+> [ 5382.758853] Call Trace:
+> [ 5382.761581]  hid_debug_rdesc_show+0x72/0x1d0
+> [ 5382.766343]  seq_read+0xe0/0x410
+> [ 5382.769941]  full_proxy_read+0x5f/0x90
+> [ 5382.774121]  __vfs_read+0x3a/0x170
+> [ 5382.788392]  vfs_read+0xa0/0x150
+> [ 5382.791984]  ksys_read+0x58/0xc0
+> [ 5382.801404]  __x64_sys_read+0x1a/0x20
+> [ 5382.805483]  do_syscall_64+0x55/0x110
+> [ 5382.809559]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> 
+> Signed-off-by: he, bo <bo.he@intel.com>
+> Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
 
-> ---
->  drivers/input/misc/da9063_onkey.c | 11 ++---------
->  1 file changed, 2 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/input/misc/da9063_onkey.c b/drivers/input/misc/da9063_onkey.c
-> index 3e9c353d82ef..e3a273c74123 100644
-> --- a/drivers/input/misc/da9063_onkey.c
-> +++ b/drivers/input/misc/da9063_onkey.c
-> @@ -22,7 +22,6 @@
->  #include <linux/regmap.h>
->  #include <linux/of.h>
->  #include <linux/mfd/da9063/core.h>
-> -#include <linux/mfd/da9063/pdata.h>
->  #include <linux/mfd/da9063/registers.h>
->  #include <linux/mfd/da9062/core.h>
->  #include <linux/mfd/da9062/registers.h>
-> @@ -201,8 +200,6 @@ static void da9063_cancel_poll(void *data)
->  
->  static int da9063_onkey_probe(struct platform_device *pdev)
->  {
-> -	struct da9063 *da9063 = dev_get_drvdata(pdev->dev.parent);
-> -	struct da9063_pdata *pdata = dev_get_platdata(da9063->dev);
->  	struct da9063_onkey *onkey;
->  	const struct of_device_id *match;
->  	int irq;
-> @@ -229,12 +226,8 @@ static int da9063_onkey_probe(struct platform_device *pdev)
->  		return -ENXIO;
->  	}
->  
-> -	if (pdata)
-> -		onkey->key_power = pdata->key_power;
-> -	else
-> -		onkey->key_power =
-> -			!of_property_read_bool(pdev->dev.of_node,
-> -					       "dlg,disable-key-power");
-> +	onkey->key_power = !of_property_read_bool(pdev->dev.of_node,
-> +						  "dlg,disable-key-power");
->  
->  	onkey->input = devm_input_allocate_device(&pdev->dev);
->  	if (!onkey->input) {
-> -- 
-> 2.11.0
-> 
+I rewrote the changelog to explain the situation a bit more clearly, and 
+applied. Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

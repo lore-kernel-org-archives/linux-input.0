@@ -1,34 +1,33 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH v2 05/10] HID: intel-ish-hid: Store ishtp_cl_device instance in device
-Date: Mon, 18 Mar 2019 12:14:23 -0700
-Message-ID: <20190318191428.6527-6-srinivas.pandruvada@linux.intel.com>
-References: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v3] hid: logitech: check the return value of
+ create_singlethread_workqueue
+Date: Tue, 19 Mar 2019 11:48:51 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1903191148210.19912@cbobk.fhfr.pm>
+References: <20190312100233.106098c8@lwn.net> <20190314052402.31448-1-kjlu@umn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190318191428.6527-1-srinivas.pandruvada@linux.intel.com>
+In-Reply-To: <20190314052402.31448-1-kjlu@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Kangjie Lu <kjlu@umn.edu>
+Cc: pakki001@umn.edu, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Store ishtp_cl_device pointer in device struct private data. In this
-way we can get ishtp_cl_device * from device struct pointer.
+On Thu, 14 Mar 2019, Kangjie Lu wrote:
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/intel-ish-hid/ishtp/bus.c | 1 +
- 1 file changed, 1 insertion(+)
+> create_singlethread_workqueue may fail and return NULL. The fix
+> checks if it is NULL to avoid NULL pointer dereference.
+> Also, the fix moves the call of create_singlethread_workqueue
+> earlier to avoid resource-release issues.
+> 
+> --
+> V3: do not introduce memory leaks.
+> 
+> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index 95a97534fcda..2ca65864192f 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -466,6 +466,7 @@ static struct ishtp_cl_device *ishtp_bus_add_device(struct ishtp_device *dev,
- 	}
- 
- 	ishtp_device_ready = true;
-+	dev_set_drvdata(&device->dev, device);
- 
- 	return device;
- }
+The signoff has to be in the commit log, not in the "notes" area. I've 
+fixed that and applied.
+
 -- 
-2.17.2
+Jiri Kosina
+SUSE Labs

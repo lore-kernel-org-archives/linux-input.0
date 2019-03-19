@@ -1,145 +1,67 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 2/2] Input: add Apple SPI keyboard and trackpad driver.
-Date: Tue, 19 Mar 2019 16:59:58 +0200
-Message-ID: <20190319145958.GI9224@smile.fi.intel.com>
-References: <20190221105609.5710-1-ronald@innovation.ch>
- <20190221105609.5710-3-ronald@innovation.ch>
- <20190226092059.GV9224@smile.fi.intel.com>
- <20190227072958.GA10349@innovation.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/1] hid: hid-sensor-custom: simplify getting .driver_data
+Date: Tue, 19 Mar 2019 17:36:38 +0100
+Message-ID: <20190319163638.31003-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190227072958.GA10349@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Feb 26, 2019 at 11:29:58PM -0800, Life is hard, and then you die wrote:
-> On Tue, Feb 26, 2019 at 11:20:59AM +0200, Andy Shevchenko wrote:
-> > On Thu, Feb 21, 2019 at 02:56:09AM -0800, Ronald Tschalär wrote:
+We should get 'driver_data' from 'struct device' directly. Going via
+platform_device is an unneeded step back and forth.
 
-> > > +config KEYBOARD_APPLESPI
-> > > +	tristate "Apple SPI keyboard and trackpad"
-> > 
-> > > +	depends on ACPI && SPI && EFI
-> > 
-> > I would rather want to see separate line for SPI...
-> > 
-> > > +	depends on X86 || COMPILE_TEST
-> > 
-> > ...like here
-> > 
-> > 	depends on SPI
-> 
-> Sure. Generally, what is the criteria/rule here for splitting
-> conjunctions into separate 'depends'?
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-Rule of common sense.
+Build tested only. buildbot is happy.
 
-For example UEFI and ACPI may have some relations, SPI and ACPI kinda
-orthogonal.
+ drivers/hid/hid-sensor-custom.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-> > + #define DEV(applespi)           (&(applespi)->spi->dev)
-
-> > > +	if (memcmp(applespi->tx_status, status_ok, APPLESPI_STATUS_SIZE)) {
-> > 
-> > > +		dev_warn(DEV(applespi), "Error writing to device: %*ph\n",
-> > 
-> > Hmm... DEV() is too generic name for custom macro. And frankly I don't think
-> > it's good to have in the first place.
-> 
-> Yeah, I've been having trouble coming up with a better (but still
-> succinct) name - CORE_DEV()? RAW_DEV()? DEV_OF()? However, because
-> this expression is used in many places throughout the driver (mostly,
-> but not only, for logging statements) I feel like it's good to factor
-> it out. But I'll defer to your .
-
-Please remove this macro for good. Otherwise big subsystems / drivers usually do something like
-
-#define foo_err(...)	dev_err(...)
-...
-
-Don't know if it would help here, the driver is standalone and not so big.
-
-> > > +static void
-> > > +applespi_remap_fn_key(struct keyboard_protocol *keyboard_protocol)
-> > > +{
-> > > +	unsigned char tmp;
-> > 
-> > > +	unsigned long *modifiers =
-> > > +			(unsigned long *)&keyboard_protocol->modifiers;
-> > 
-> > I would leave it on one online despite checkpatch warning (also, instead of
-> > (unsigned long *) the (void *) might be used as a small trick).
-> > 
-> > > +
-> > > +	if (!fnremap || fnremap > ARRAY_SIZE(applespi_controlcodes) ||
-> > > +	    !applespi_controlcodes[fnremap - 1])
-> > > +		return;
-> > > +
-> > > +	tmp = keyboard_protocol->fn_pressed;
-> > > +	keyboard_protocol->fn_pressed = test_bit(fnremap - 1, modifiers);
-> > > +	if (tmp)
-> > 
-> > > +		__set_bit(fnremap - 1, modifiers);
-> > > +	else
-> > > +		__clear_bit(fnremap - 1, modifiers);
-> > 
-> > Oh, this is not good. modifiers should be really unsigned long bounary,
-> > otherwise it is potential overflow.
-> > 
-> > Best to fix is to define them as unsigned long in the first place.
-> 
-> Can't do that directly, because keyboard_protocol->modifiers is a
-> field in the data received from the device, i.e. defined by that
-> protocol. Instead I could make a copy of the modifiers and pass that
-> around separately (i.e. in addition to the keyboard_protocol struct).
-> 
-> However, the implied size assertions here would basically still apply:
-> 
->   MAX_MODIFIERS == sizeof(keyboard_protocol->modifiers) * 8
->   ARRAY_SIZE(applespi_controlcodes) == sizeof(keyboard_protocol->modifiers) * 8
-> 
-> (hmm, MAX_MODIFIERS is really redundant - getting rid of it...)
-> 
-> Would using compiletime_assert()'s be an acceptable alternate approach
-> here? It would serve to both document the size constraint and to
-> protect against overflow due to an error in some future edit. E.g.
-> 
->  applespi_remap_fn_key(struct keyboard_protocol *keyboard_protocol)
->  {
->         unsigned char tmp;
->         unsigned long *modifiers = (void *)&keyboard_protocol->modifiers;
-> +
-> +       compiletime_assert(ARRAY_SIZE(applespi_controlcodes) ==
-> +                          sizeof_field(struct keyboard_protocol, modifiers) * 8,
-> +                          "applespi_controlcodes has wrong number of entries");
->  
->         if (!fnremap || fnremap > ARRAY_SIZE(applespi_controlcodes) ||
->             !applespi_controlcodes[fnremap - 1])
->  		return;
->  
->  	tmp = keyboard_protocol->fn_pressed;
->  	keyboard_protocol->fn_pressed = test_bit(fnremap - 1, modifiers);
->  	if (tmp)
->  
->  		__set_bit(fnremap - 1, modifiers);
->  	else
->  		__clear_bit(fnremap - 1, modifiers);
->  }
-
-Perhaps, simple
-
-	__set_bit(b, x)		->	x |= BIT(b);
-	__clear_bit(b, x)	->	x &= ~BIT(b);
-
-?
-
-> > > +}
-
+diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+index bb012bc032e0..462e653a7bbb 100644
+--- a/drivers/hid/hid-sensor-custom.c
++++ b/drivers/hid/hid-sensor-custom.c
+@@ -157,8 +157,7 @@ static int usage_id_cmp(const void *p1, const void *p2)
+ static ssize_t enable_sensor_show(struct device *dev,
+ 				  struct device_attribute *attr, char *buf)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
++	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
+ 
+ 	return sprintf(buf, "%d\n", sensor_inst->enable);
+ }
+@@ -237,8 +236,7 @@ static ssize_t enable_sensor_store(struct device *dev,
+ 				   struct device_attribute *attr,
+ 				   const char *buf, size_t count)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
++	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
+ 	int value;
+ 	int ret = -EINVAL;
+ 
+@@ -283,8 +281,7 @@ static const struct attribute_group enable_sensor_attr_group = {
+ static ssize_t show_value(struct device *dev, struct device_attribute *attr,
+ 			  char *buf)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
++	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
+ 	struct hid_sensor_hub_attribute_info *attribute;
+ 	int index, usage, field_index;
+ 	char name[HID_CUSTOM_NAME_LENGTH];
+@@ -392,8 +389,7 @@ static ssize_t show_value(struct device *dev, struct device_attribute *attr,
+ static ssize_t store_value(struct device *dev, struct device_attribute *attr,
+ 			   const char *buf, size_t count)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct hid_sensor_custom *sensor_inst = platform_get_drvdata(pdev);
++	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
+ 	int index, field_index, usage;
+ 	char name[HID_CUSTOM_NAME_LENGTH];
+ 	int value;
 -- 
-With Best Regards,
-Andy Shevchenko
+2.11.0

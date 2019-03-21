@@ -1,71 +1,65 @@
 From: Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: Re: [PATCH 2/7] [media] doc-rst: switch to new names for Full
- Screen/Aspect keys
-Date: Thu, 21 Mar 2019 09:20:07 -0300
-Message-ID: <20190321092007.3eb2fd2a@coco.lan>
+Subject: Re: [PATCH 1/7] Input: document meanings of KEY_SCREEN and KEY_ZOOM
+Date: Thu, 21 Mar 2019 09:17:31 -0300
+Message-ID: <20190321091731.7b34fc63@coco.lan>
 References: <20190118233037.87318-1-dmitry.torokhov@gmail.com>
-        <20190118233037.87318-2-dmitry.torokhov@gmail.com>
-        <20190218072606.GG242714@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190218072606.GG242714@dtor-ws>
+In-Reply-To: <20190118233037.87318-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Em Sun, 17 Feb 2019 23:26:06 -0800
+Em Fri, 18 Jan 2019 15:30:31 -0800
 Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
 
-> On Fri, Jan 18, 2019 at 03:30:32PM -0800, Dmitry Torokhov wrote:
-> > We defined better names for keys to activate full screen mode or
-> > change aspect ratio (while keeping the existing keycodes to avoid
-> > breaking userspace), so let's use them in the document.
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  Documentation/media/uapi/rc/rc-tables.rst | 4 ++--  
+> It is hard to say what KEY_SCREEN and KEY_ZOOM mean, but historically DVB
+> folks have used them to indicate switch to full screen mode. Later, they
+> converged on using KEY_ZOOM to switch into full screen mode and KEY)SCREEN
+> to control aspect ratio (see Documentation/media/uapi/rc/rc-tables.rst).
 > 
-> Mauro, do you want to take this through your tree or I should pick it up
-> with the patch that does renames in uapi header?
+> Let's commit to these uses, and define:
+> 
+> - KEY_FULL_SCREEN (and make KEY_ZOOM its alias)
+> - KEY_ASPECT_RATIO (and make KEY_SCREEN its alias)
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Feel free to apply it via your tree. It probably makes sense to keep it
-with the series that add the new codes.
+Feel free to apply via your tree.
 
 Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+
+> ---
 > 
-> Thanks!
+> Please let me know how we want merge this. Some of patches can be applied
+> independently and I tried marking them as such, but some require new key
+> names from input.h
 > 
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/Documentation/media/uapi/rc/rc-tables.rst b/Documentation/media/uapi/rc/rc-tables.rst
-> > index c8ae9479f842..57797e56f45e 100644
-> > --- a/Documentation/media/uapi/rc/rc-tables.rst
-> > +++ b/Documentation/media/uapi/rc/rc-tables.rst
-> > @@ -616,7 +616,7 @@ the remote via /dev/input/event devices.
-> >  
-> >      -  .. row 78
-> >  
-> > -       -  ``KEY_SCREEN``
-> > +       -  ``KEY_ASPECT_RATIO``
-> >  
-> >         -  Select screen aspect ratio
-> >  
-> > @@ -624,7 +624,7 @@ the remote via /dev/input/event devices.
-> >  
-> >      -  .. row 79
-> >  
-> > -       -  ``KEY_ZOOM``
-> > +       -  ``KEY_FULL_SCREEN``
-> >  
-> >         -  Put device into zoom/full screen mode
-> >  
-> > -- 
-> > 2.20.1.321.g9e740568ce-goog
-> >   
+>  include/uapi/linux/input-event-codes.h | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 > 
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index ae366b87426a..bc5054e51bef 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -439,10 +439,12 @@
+>  #define KEY_TITLE		0x171
+>  #define KEY_SUBTITLE		0x172
+>  #define KEY_ANGLE		0x173
+> -#define KEY_ZOOM		0x174
+> +#define KEY_FULL_SCREEN		0x174	/* AC View Toggle */
+> +#define KEY_ZOOM		KEY_FULL_SCREEN
+>  #define KEY_MODE		0x175
+>  #define KEY_KEYBOARD		0x176
+> -#define KEY_SCREEN		0x177
+> +#define KEY_ASPECT_RATIO	0x177	/* HUTRR37: Aspect */
+> +#define KEY_SCREEN		KEY_ASPECT_RATIO
+>  #define KEY_PC			0x178	/* Media Select Computer */
+>  #define KEY_TV			0x179	/* Media Select TV */
+>  #define KEY_TV2			0x17a	/* Media Select Cable */
 
 
 

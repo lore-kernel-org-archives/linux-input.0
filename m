@@ -1,67 +1,65 @@
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: Re: [PATCH 1/7] Input: document meanings of KEY_SCREEN and KEY_ZOOM
-Date: Thu, 21 Mar 2019 09:17:31 -0300
-Message-ID: <20190321091731.7b34fc63@coco.lan>
-References: <20190118233037.87318-1-dmitry.torokhov@gmail.com>
+From: Alexey Slepov <sir-lexa@yandex.ru>
+Subject: Re: Re: [PATCH V2 2/2] Input: rotaty-encoder - Add DT binding
+ document
+Date: Fri, 22 Mar 2019 02:04:59 +0100
+Message-ID: <f780ef34-474b-3e23-b495-f2e80e87c18b@yandex.ru>
+References: <20190107164249.2342-1-nazgul33@gmail.com>
+ <20190107164249.2342-3-nazgul33@gmail.com> <20190115035221.GA151157@dtor-ws>
+ <20190115202948.GA26482@bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190118233037.87318-1-dmitry.torokhov@gmail.com>
+In-Reply-To: <20190115202948.GA26482@bogus>
+Content-Language: de-DE
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+To: Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Donghoon Han <nazgul33@gmail.com>, linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Em Fri, 18 Jan 2019 15:30:31 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> escreveu:
+Hello,
 
-> It is hard to say what KEY_SCREEN and KEY_ZOOM mean, but historically DVB
-> folks have used them to indicate switch to full screen mode. Later, they
-> converged on using KEY_ZOOM to switch into full screen mode and KEY)SCREEN
-> to control aspect ratio (see Documentation/media/uapi/rc/rc-tables.rst).
-> 
-> Let's commit to these uses, and define:
-> 
-> - KEY_FULL_SCREEN (and make KEY_ZOOM its alias)
-> - KEY_ASPECT_RATIO (and make KEY_SCREEN its alias)
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Feel free to apply via your tree.
-
-Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-
-> ---
-> 
-> Please let me know how we want merge this. Some of patches can be applied
-> independently and I tried marking them as such, but some require new key
-> names from input.h
-> 
->  include/uapi/linux/input-event-codes.h | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index ae366b87426a..bc5054e51bef 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -439,10 +439,12 @@
->  #define KEY_TITLE		0x171
->  #define KEY_SUBTITLE		0x172
->  #define KEY_ANGLE		0x173
-> -#define KEY_ZOOM		0x174
-> +#define KEY_FULL_SCREEN		0x174	/* AC View Toggle */
-> +#define KEY_ZOOM		KEY_FULL_SCREEN
->  #define KEY_MODE		0x175
->  #define KEY_KEYBOARD		0x176
-> -#define KEY_SCREEN		0x177
-> +#define KEY_ASPECT_RATIO	0x177	/* HUTRR37: Aspect */
-> +#define KEY_SCREEN		KEY_ASPECT_RATIO
->  #define KEY_PC			0x178	/* Media Select Computer */
->  #define KEY_TV			0x179	/* Media Select TV */
->  #define KEY_TV2			0x17a	/* Media Select Cable */
+i used this rotary-encoder patch in my embedded project and found two 
+errors:
 
 
+First, in drivers/input/misc/rotary_encoder.c,
+at @@ -237,6 +244,16 @@:
+instead of
 
-Thanks,
-Mauro
++        if (err)
++            dev_err(dev, "unable to get keycodes: %d\n", err);
++        return err;
+
+it must be
+
++        if (err) {
++            dev_err(dev, "unable to get keycodes: %d\n", err);
++            return err;
++        }
+
+otherwise successful creation of device is not possible.
+
+
+Second, a typo in 
+Documentation/devicetree/bindings/input/rotary-encoder.txt,
+at @@ -48,3 +52,11 @@:
+instead of
+
++            rotary-encoder,relative-keycode = <103>, <108>;
+
+it should be
+
++            rotary-encoder,relative-keycodes = <103>, <108>;
+
+otherwise keycodes are not found.
+
+
+I am sorry, I know that E-Mail style is not good.
+I have no time right now, but I'll be back in two weeks.
+Someone, maybe Mr. Han, could submit a new version of the patch.
+If not, I'll try to do it on my return. (it could take some time, since 
+I am new to patchwork)
+
+Best Regards and thanks
+Alexey Slepov

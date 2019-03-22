@@ -1,65 +1,53 @@
-From: Alexey Slepov <sir-lexa@yandex.ru>
-Subject: Re: Re: [PATCH V2 2/2] Input: rotaty-encoder - Add DT binding
- document
-Date: Fri, 22 Mar 2019 02:04:59 +0100
-Message-ID: <f780ef34-474b-3e23-b495-f2e80e87c18b@yandex.ru>
-References: <20190107164249.2342-1-nazgul33@gmail.com>
- <20190107164249.2342-3-nazgul33@gmail.com> <20190115035221.GA151157@dtor-ws>
- <20190115202948.GA26482@bogus>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RESEND PATCH v6 01/11] dt-bindings: mfd: add DT bindings for
+ max77650
+Date: Fri, 22 Mar 2019 09:57:48 +0100
+Message-ID: <20190322085748.GD27015@amd>
+References: <20190318174040.17899-1-brgl@bgdev.pl>
+ <20190318174040.17899-2-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="oj4kGyHlBMXGt3Le"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190115202948.GA26482@bogus>
-Content-Language: de-DE
+Content-Disposition: inline
+In-Reply-To: <20190318174040.17899-2-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Donghoon Han <nazgul33@gmail.com>, linux-input@vger.kernel.org, Daniel Mack <daniel@caiaq.de>, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hello,
 
-i used this rotary-encoder patch in my embedded project and found two 
-errors:
+--oj4kGyHlBMXGt3Le
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon 2019-03-18 18:40:30, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>=20
+> Add a DT binding document for max77650 ultra-low power PMIC. This
+> describes the core mfd device and the GPIO module.
+>=20
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-First, in drivers/input/misc/rotary_encoder.c,
-at @@ -237,6 +244,16 @@:
-instead of
+Acked-by: Pavel Machek <pavel@ucw.cz>
 
-+        if (err)
-+            dev_err(dev, "unable to get keycodes: %d\n", err);
-+        return err;
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-it must be
+--oj4kGyHlBMXGt3Le
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-+        if (err) {
-+            dev_err(dev, "unable to get keycodes: %d\n", err);
-+            return err;
-+        }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-otherwise successful creation of device is not possible.
+iEYEARECAAYFAlyUo4wACgkQMOfwapXb+vILvQCfX9xF7DmG5Ki/cBwwwmkdu+Ty
+0wgAoKBVJq7fzsfgCulS3ORdhn9ugNZ+
+=kXai
+-----END PGP SIGNATURE-----
 
-
-Second, a typo in 
-Documentation/devicetree/bindings/input/rotary-encoder.txt,
-at @@ -48,3 +52,11 @@:
-instead of
-
-+            rotary-encoder,relative-keycode = <103>, <108>;
-
-it should be
-
-+            rotary-encoder,relative-keycodes = <103>, <108>;
-
-otherwise keycodes are not found.
-
-
-I am sorry, I know that E-Mail style is not good.
-I have no time right now, but I'll be back in two weeks.
-Someone, maybe Mr. Han, could submit a new version of the patch.
-If not, I'll try to do it on my return. (it could take some time, since 
-I am new to patchwork)
-
-Best Regards and thanks
-Alexey Slepov
+--oj4kGyHlBMXGt3Le--

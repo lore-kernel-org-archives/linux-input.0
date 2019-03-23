@@ -1,54 +1,33 @@
-From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Subject: Re: [RESEND PATCH v6 09/11] leds: max77650: add LEDs support
-Date: Fri, 22 Mar 2019 20:40:44 +0100
-Message-ID: <f2963c2e-b4d0-1fae-3c7f-28fcdb545ee2@gmail.com>
-References: <20190318174228.18194-1-brgl@bgdev.pl>
- <20190318174228.18194-10-brgl@bgdev.pl> <20190322092124.GK27015@amd>
- <CAMRc=Mf1DxF1e63y+HsXtCFxZW8R0XWDLUXGy+4cp3zBS0_qhw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Kangjie Lu <kjlu@umn.edu>
+Subject: [PATCH] input: pm8xxx-vibrator: fix a potential NULL pointer dereference
+Date: Fri, 22 Mar 2019 21:44:33 -0500
+Message-ID: <20190323024434.14794-1-kjlu@umn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=Mf1DxF1e63y+HsXtCFxZW8R0XWDLUXGy+4cp3zBS0_qhw@mail.gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Pavel Machek <pavel@ucw.cz>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: kjlu@umn.edu
+Cc: pakki001@umn.edu, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 3/22/19 10:53 AM, Bartosz Golaszewski wrote:
-> pt., 22 mar 2019 o 10:21 Pavel Machek <pavel@ucw.cz> napisał(a):
->>
->> On Mon 2019-03-18 18:42:26, Bartosz Golaszewski wrote:
->>> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->>>
->>> This adds basic support for LEDs for the max77650 PMIC. The device has
->>> three current sinks for driving LEDs.
->>>
->>> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->>> Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
->>
->> Acked-by: Pavel Machek <pavel@ucw.cz>
->>
->>> +             label = of_get_property(child, "label", NULL);
->>> +             if (!label) {
->>> +                     led->cdev.name = "max77650::";
->>> +             } else {
->>> +                     led->cdev.name = devm_kasprintf(dev, GFP_KERNEL,
->>> +                                                     "max77650:%s", label);
->>> +                     if (!led->cdev.name)
->>> +                             return -ENOMEM;
->>> +             }
->>
->> I'd rather not have the "max77650:" prefix in the LED name (as it is
->> useless).
->>
-> 
-> I was instructed to do so by the LED subsystem maintainer.
+In case of_device_get_match_data fails to find the matched data,
+returns -ENODEV
 
-Yes, let's keep things consistent, we will convert it to use generic
-support for LED naming once that support is merged.
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+---
+ drivers/input/misc/pm8xxx-vibrator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
+index 7dd1c1fbe42a..740e59c11808 100644
+--- a/drivers/input/misc/pm8xxx-vibrator.c
++++ b/drivers/input/misc/pm8xxx-vibrator.c
+@@ -196,6 +196,8 @@ static int pm8xxx_vib_probe(struct platform_device *pdev)
+ 	vib->vib_input_dev = input_dev;
+ 
+ 	regs = of_device_get_match_data(&pdev->dev);
++	if (unlikely(!regs))
++		return -ENODEV;
+ 
+ 	/* operate in manual mode */
+ 	error = regmap_read(vib->regmap, regs->drv_addr, &val);
 -- 
-Best regards,
-Jacek Anaszewski
+2.17.1

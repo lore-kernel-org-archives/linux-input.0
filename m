@@ -1,207 +1,241 @@
-From: Mike Salvatore <mike.salvatore@canonical.com>
-Subject: [PATCH] xpad.c: Send necessary control transfer to certain Xbox
- controllers
-Date: Sat, 23 Mar 2019 12:46:38 -0400
-Message-ID: <eff45453-f105-d713-1e77-a8fa9850c8fa@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
+Date: Sun, 24 Mar 2019 13:27:01 +0100
+Message-ID: <3c8a3903-4eb4-6160-bb31-6aa4aea68ebb@redhat.com>
+References: <LaQHUFs--3-1@tutanota.com> <LaUpAlT--3-1@tutanota.com>
+ <LaeGPSe--3-1@tutanota.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="rYteyFdsY6vMC1PGbGITvEJgshPJ1niYl"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: ramzeto@gmail.com, marcus.folkesson@gmail.com, flibitijibibo@gmail.com, aicommander@gmail.com, leosperling97@gmail.com, gottox@voidlinux.eu, frtherien@gmail.com, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---rYteyFdsY6vMC1PGbGITvEJgshPJ1niYl
-Content-Type: multipart/mixed; boundary="06aaZUYQ70Bok69xtlnJ5I91mu9k25xx3";
- protected-headers="v1"
-From: Mike Salvatore <mike.salvatore@canonical.com>
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Cc: ramzeto@gmail.com, marcus.folkesson@gmail.com, flibitijibibo@gmail.com,
- aicommander@gmail.com, leosperling97@gmail.com, gottox@voidlinux.eu,
- frtherien@gmail.com, linux-kernel@vger.kernel.org
-Message-ID: <eff45453-f105-d713-1e77-a8fa9850c8fa@canonical.com>
-Subject: [PATCH] xpad.c: Send necessary control transfer to certain Xbox
- controllers
-
---06aaZUYQ70Bok69xtlnJ5I91mu9k25xx3
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <LaeGPSe--3-1@tutanota.com>
 Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
+To: hotwater438@tutanota.com, Jikos <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Kai Heng Feng <kai.heng.feng@canonical.com>, Swboyd <swboyd@chromium.org>, Bigeasy <bigeasy@linutronix.de>, Dtor <dtor@chromium.org>, Linux Input <linux-input@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-I recently purchased an Xbox controller with USB ID 045e:028e. When I plu=
-gged
-the device in, it was recognized as a joystick but button presses were no=
-t
-recognized. Using evtest, I confirmed that the device was not sending any=
+On 23-03-19 12:18, hotwater438@tutanota.com wrote:
+> Guys, I am a little bit confused. Do you mean that it is not kernel related issue, and it's the issue of ASUS BIOS?
 
-information to the host when I pressed its buttons.
+Technically this is a BIOS bug, the BIOS should properly declare the IRQ as
+edge-falling and then everything would just work.
 
-After doing some research, I found that this particular device requires t=
-hat the
-host send a control transfer before the device will begin sending any dat=
-a to
-the host. Below is a patch that introduces a mechanism into xpad.c for se=
-nding
-control transfers to specific Xbox controllers at initialization.
+But BIOS bugs is what quirks are for (unfortunately)
 
-After applying this patch to the xpad module, the Xbox controller is prop=
-erly
-initialized when plugged in and functions as expected. Other Xbox control=
-lers
-may also require control transfers at initialization, but I don't know wh=
-ich (if
-any).
+> And why do you think that triggering edge-falling quirk for this exactly this touchpad and exactly ELAN vendor can somehow break other systems?
+
+I'm not seeing anything about breaking other systems in the discussion
+(but I may have missed this) what we were discussing is also applying
+the quirk to other systems with an Elan touchpad to see if it also
+helps with issues on other systems.
+
+Summarizing: Your patch is fine (minus the style issues and the goto error_foo stuff)
+please fix those issues and submit a new version.
 
 Regards,
-Mike Salvatore
 
-
-=46rom 3051524e62d68b920019bcb50a713e736fcf4234 Mon Sep 17 00:00:00 2001
-From: Mike Salvatore <mike.salvatore@canonical.com>
-Date: Wed, 13 Mar 2019 22:11:37 -0400
-Subject: [PATCH] Input: xpad - send control init message to certain Xbox
- controllers
-
-The Xbox controller with idVendor =3D=3D 0x045e and idProduct =3D=3D 0x02=
-8e
-requires that a specific control transfer be sent from the host to the
-device before the device will send data to the host.
-
-This patch introduces an xboxone_control_packet struct and a mechanism
-for sending control packets to devices that require them at
-initialization.
-
-Signed-off-by: Mike Salvatore <mike.salvatore@canonical.com>
----
- drivers/input/joystick/xpad.c | 56 +++++++++++++++++++++++++++++++++++
- 1 file changed, 56 insertions(+)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.=
-c
-index cfc8b94527b9..f45522b9ff1f 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -460,6 +460,25 @@ struct xboxone_init_packet {
- 		.len		=3D ARRAY_SIZE(_data),	\
- 	}
-=20
-+struct xboxone_control_packet {
-+	u16 idVendor;
-+	u16 idProduct;
-+	struct usb_ctrlrequest ctrlrequest;
-+};
-+
-+#define XBOXONE_CONTROL_PKT(_vid, _pid, _reqtype, _req, _value, _index, =
-_len)  \
-+	{						\
-+		.idVendor	=3D (_vid),		\
-+		.idProduct	=3D (_pid),		\
-+		.ctrlrequest    =3D {			\
-+			.bRequestType	=3D (_reqtype),	\
-+			.bRequest	=3D (_req),	\
-+			.wValue		=3D (_value),	\
-+			.wIndex		=3D (_index),	\
-+			.wLength	=3D (_len),	\
-+		},					\
-+	}
-+
-=20
- /*
-  * This packet is required for all Xbox One pads with 2015
-@@ -537,6 +556,13 @@ static const struct xboxone_init_packet xboxone_init=
-_packets[] =3D {
- 	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumbleend_init),
- };
-=20
-+static const struct xboxone_control_packet xboxone_control_packets[] =3D=
- {
-+	XBOXONE_CONTROL_PKT(0x045e, 0x028e,
-+			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_INTERFACE,
-+			USB_REQ_CLEAR_FEATURE,
-+			USB_DEVICE_REMOTE_WAKEUP, 0, 0),
-+};
-+
- struct xpad_output_packet {
- 	u8 data[XPAD_PKT_LEN];
- 	u8 len;
-@@ -1119,6 +1145,31 @@ static int xpad_init_output(struct usb_interface *=
-intf, struct usb_xpad *xpad,
- 	return error;
- }
-=20
-+static int xpad_init_control_msg(struct usb_xpad *xpad)
-+{
-+	struct usb_device *udev =3D xpad->udev;
-+	size_t i;
-+
-+	for (i =3D 0; i < ARRAY_SIZE(xboxone_control_packets); i++) {
-+		u16 idVendor =3D xboxone_control_packets[i].idVendor;
-+		u16 idProduct =3D xboxone_control_packets[i].idProduct;
-+
-+		if (le16_to_cpu(udev->descriptor.idVendor) =3D=3D idVendor
-+		    && le16_to_cpu(udev->descriptor.idProduct) =3D=3D idProduct) {
-+			const struct usb_ctrlrequest *ctrlrequest =3D
-+				&(xboxone_control_packets[i].ctrlrequest);
-+
-+			return usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-+				ctrlrequest->bRequest,
-+				ctrlrequest->bRequestType, ctrlrequest->wValue,
-+				ctrlrequest->wIndex, NULL, ctrlrequest->wLength,
-+				2 * HZ);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static void xpad_stop_output(struct usb_xpad *xpad)
- {
- 	if (xpad->xtype !=3D XTYPE_UNKNOWN) {
-@@ -1839,6 +1890,11 @@ static int xpad_probe(struct usb_interface *intf, =
-const struct usb_device_id *id
- 		if (error)
- 			goto err_deinit_output;
- 	}
-+
-+	error =3D xpad_init_control_msg(xpad);
-+	if (error)
-+		goto err_deinit_output;
-+
- 	return 0;
-=20
- err_deinit_output:
---=20
-2.17.1
+Hans
 
 
 
---06aaZUYQ70Bok69xtlnJ5I91mu9k25xx3--
 
---rYteyFdsY6vMC1PGbGITvEJgshPJ1niYl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEwZbe96kJeWh2OITRdyg1Qz0oXX0FAlyWYvUACgkQdyg1Qz0o
-XX3mPw//UMR3Te0qEjP/PkyWowSYuM09YSgnsIN54mQ4/tkMH7I5tG9xSjYczZu7
-CPGBbwHYm7CbrTq0mFGuPURzwAx7lYG9ImAPS8GZstwL6jJ+Xkptws+ZRtQwStYr
-aAzh7X4u0s9YXKAYMKuIsiZmipAr9hUz5eUW6fImE0Gf5UZ5AhoaJXVmWoj+Es5r
-ULQ2PlrouTtrL75DGAKgJsOZKlqOCPmWq6mCsLXG3ZzXEnlh0vQV6q+E24aMXEWl
-fBUXp/Kvv+WiNIGiJqBWQVRxdLKaDjWQ3i/wVtch3r6mBWLl5uLc2+JsLJWVXbfU
-Lt93e8CtFwv2cpOtHoTDUG2j+XXn58uKrX3UQ+ZlzyC/AUccjkU7Vf3QOOvK5mdS
-XiIAIK+EWVcwLK3DOu4+X6H9lmcdgjexgV1qiwhfO9A/c/+VuuSbsiebOHfV0zS8
-Hmxm7Cdm9VP01xyM+9rqnb5uRlDGiBvfiiBE6DVXmIp9ROk5XU7dBM5XqSZAYSc5
-PUt1N2VqzL7LixYcs2UlMOr2ruE3JfLctHJ7QJPGsbQDzKngRaw7GWLPc6Q2PRza
-kSnAUp3WwsJMUO6BgzqOOmuXICm+dFqd1OO/LWBgPH4UENvQ7Dov9/d86nJGt7vB
-uasxrVBre5d7uKLNE5WAhd6WFBZVv1Yt98fgLZQdgBLKMUbehEU=
-=9403
------END PGP SIGNATURE-----
-
---rYteyFdsY6vMC1PGbGITvEJgshPJ1niYl--
+> 
+> Regards,
+> Vladislav
+> 
+> Mar 21, 2019, 12:38 PM by hotwater438@tutanota.com:
+> 
+>     Hello! Thank you for an answer and for helping me with the patch. It is my very first contribution.
+> 
+>     About some indent problems: I am sorry, it was mainly caused by my .vimrc, and I will edit these errors and send a new patch. Though, there is one typo:
+> 
+>                 +#define I2C_HID_QUIRK_FORCE_TRIGGER_FALLING BIT(5)
+> 
+>                 /* flags */
+>                 #define I2C_HID_STARTED 0
+>                 @@ -182,8 +183,10 @@ static const struct i2c_hid_quirks {
+>                 I2C_HID_QUIRK_NO_RUNTIME_PM },
+>                 { I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_01F0,
+>                 I2C_HID_QUIRK_NO_RUNTIME_PM },
+>                 + { USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ELAN_TOUCHPAD,
+>                 + I2C_HID_QUIRK_BOGUS_IRQ | I2C_HID_QUIRK_FORCE_TRIGGER_FALLING },
+>                 { USB_VENDOR_ID_ELAN, HID_ANY_ID,
+>                 - I2C_HID_QUIRK_BOGUS_IRQ },
+>                 + I2C_HID_QUIRK_BOGUS_IRQ },
+> 
+> 
+>             same here, this line should not be changed.
+> 
+>     If you take a look at original file, you can notice extra space there.
+> 
+>         In your case, if you do not have any Elantech engineer who agreed to
+>         sign off the patch, you can definitively mention them this way.
+> 
+>     I don't have any.
+> 
+>             ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
+>             irqflags | IRQF_ONESHOT, client->name, ihid);
+>             @@ -1123,10 +1128,6 @@ static int i2c_hid_probe(struct i2c_client *client,
+>             if (ret < 0)
+>             goto err_pm;
+> 
+>             - ret = i2c_hid_init_irq(client);
+>             - if (ret < 0)
+>             - goto err_pm;
+>             -
+>             hid = hid_allocate_device();
+>             if (IS_ERR(hid)) {
+>             ret = PTR_ERR(hid);
+> 
+> 
+>         the next call is "goto err_irq", which should be changed to "goto err_pm"
+> 
+>             @@ -1149,6 +1150,10 @@ static int i2c_hid_probe(struct i2c_client *client,
+> 
+>             ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+> 
+>             + ret = i2c_hid_init_irq(client);
+>             + if (ret < 0)
+>             + goto err_pm;
+> 
+> 
+>         this should be "err_mem_free"
+> 
+>             +
+>             ret = hid_add_device(hid);
+>             if (ret) {
+>             if (ret != -ENODEV)
+> 
+> 
+>         next one should be "err_irq"
+> 
+>         and the err_irq and err_mem_free should be inverted at the end of probe.
+> 
+>     I tried to understand this as hard as I could, but there may be some errors, so please review my latest patch:
+> 
+>      From 80576dd7ac193548ba747d287b5ab5606f642d00 Mon Sep 17 00:00:00 2001
+>     From: h0tw4t3r <hotwater438@tutanota.com <mailto:hotwater438@tutanota.com>>
+>     Date: Wed, 20 Mar 2019 00:41:22 +0200
+>     Subject: [PATCH] ELAN touchpad i2c_hid bugs fix
+> 
+>     Description: The ELAN1200:04F3:303E touchpad exposes several issues, all caused by
+>     an error setting the correct IRQ_TRIGGER flag:
+>          - i2c_hid incoplete error flood in journalctl;
+>          - Five finger tap kill's module so you have to restart it;
+>     - Two finger scoll is working incorrect and sometimes even when you raised one of two finger still thinks that you are scrolling
+> 
+>     Fix all of these with a new quirk that corrects the trigger flag
+>     announced by the ACPI tables. (edge-falling).
+> 
+>     Reason behind moving i2c_hid_init_irq section described below:
+>          i2c_hid_init_irq now checks for a quirk, so we must setup the quirks before we init the irq, and we cannot setup the quirk earlier, so we must init the irq later.
+> 
+>     Signed-off-by: Vladislav Dalechyn <hotwater438@tutanota.com <mailto:hotwater438@tutanota.com>>
+>     ---
+>     drivers/hid/hid-ids.h              |  1 +
+>     drivers/hid/i2c-hid/i2c-hid-core.c | 25 +++++++++++++++----------
+>     2 files changed, 16 insertions(+), 10 deletions(-)
+> 
+>     diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>     index b6d93f4ad037..660b4e0e912e 100644
+>     --- a/drivers/hid/hid-ids.h
+>     +++ b/drivers/hid/hid-ids.h
+>     @@ -389,6 +389,7 @@
+>     #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W 0x0401
+>     #define USB_DEVICE_ID_HP_X2 0x074d
+>     #define USB_DEVICE_ID_HP_X2_10_COVER 0x0755
+>     +#define I2C_DEVICE_ID_ELAN_TOUCHPAD 0x303e
+> 
+>     #define USB_VENDOR_ID_ELECOM 0x056e
+>     #define USB_DEVICE_ID_ELECOM_BM084 0x0061
+>     diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+>     index 90164fed08d3..9b417914411f 100644
+>     --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+>     +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+>     @@ -51,6 +51,7 @@
+>     #define I2C_HID_QUIRK_NO_RUNTIME_PM BIT(2)
+>     #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP BIT(3)
+>     #define I2C_HID_QUIRK_BOGUS_IRQ BIT(4)
+>     +#define I2C_HID_QUIRK_FORCE_TRIGGER_FALLING BIT(5)
+> 
+>     /* flags */
+>     #define I2C_HID_STARTED 0
+>     @@ -182,8 +183,10 @@ static const struct i2c_hid_quirks {
+>     I2C_HID_QUIRK_NO_RUNTIME_PM },
+>     { I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_01F0,
+>     I2C_HID_QUIRK_NO_RUNTIME_PM },
+>     + { USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_ELAN_TOUCHPAD,
+>     + I2C_HID_QUIRK_BOGUS_IRQ | I2C_HID_QUIRK_FORCE_TRIGGER_FALLING },
+>     { USB_VENDOR_ID_ELAN, HID_ANY_ID,
+>     - I2C_HID_QUIRK_BOGUS_IRQ },
+>     + I2C_HID_QUIRK_BOGUS_IRQ },
+>     { 0, 0 }
+>     };
+> 
+>     @@ -854,6 +857,8 @@ static int i2c_hid_init_irq(struct i2c_client *client)
+> 
+>     if (!irq_get_trigger_type(client->irq))
+>     irqflags = IRQF_TRIGGER_LOW;
+>     + if (ihid->quirks & I2C_HID_QUIRK_FORCE_TRIGGER_FALLING)
+>     + irqflags = IRQF_TRIGGER_FALLING;
+> 
+>     ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
+>         irqflags | IRQF_ONESHOT, client->name, ihid);
+>     @@ -1123,14 +1128,10 @@ static int i2c_hid_probe(struct i2c_client *client,
+>     if (ret < 0)
+>     goto err_pm;
+> 
+>     - ret = i2c_hid_init_irq(client);
+>     - if (ret < 0)
+>     - goto err_pm;
+>     -
+>     hid = hid_allocate_device();
+>     if (IS_ERR(hid)) {
+>     ret = PTR_ERR(hid);
+>     - goto err_irq;
+>     + goto err_pm;
+>     }
+> 
+>     ihid->hid = hid;
+>     @@ -1149,11 +1150,15 @@ static int i2c_hid_probe(struct i2c_client *client,
+> 
+>     ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+> 
+>     + ret = i2c_hid_init_irq(client);
+>     + if (ret < 0)
+>     + goto err_mem_free;
+>     +
+>     ret = hid_add_device(hid);
+>     if (ret) {
+>     if (ret != -ENODEV)
+>     hid_err(client, "can't add hid device: %d\n", ret);
+>     - goto err_mem_free;
+>     + goto err_irq;
+>     }
+> 
+>     if (!(ihid->quirks & I2C_HID_QUIRK_NO_RUNTIME_PM))
+>     @@ -1161,12 +1166,12 @@ static int i2c_hid_probe(struct i2c_client *client,
+> 
+>     return 0;
+> 
+>     +err_irq:
+>     +    free_irq(client->irq, ihid);
+>     +
+>     err_mem_free:
+>     hid_destroy_device(hid);
+> 
+>     -err_irq:
+>     - free_irq(client->irq, ihid);
+>     -
+>     err_pm:
+>     pm_runtime_put_noidle(&client->dev);
+>     pm_runtime_disable(&client->dev);
+>     --
+>     2.20.1
+> 
+>     Regards,
+>     Vladislav.
+> 
+> 

@@ -1,86 +1,61 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH 1/1] hid: hid-sensor-custom: simplify getting
- .driver_data
-Date: Mon, 25 Mar 2019 09:20:48 -0700
-Message-ID: <000d6a3a402461974a1ab4e3186173da1c47c118.camel@linux.intel.com>
-References: <20190319163638.31003-1-wsa+renesas@sang-engineering.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
+Date: Mon, 25 Mar 2019 17:38:07 +0100
+Message-ID: <a2952bc4-0ad0-c8a0-5a5b-13a279023455@redhat.com>
+References: <20190325125704.6585-1-hotwater438@tutanota.com>
+ <CAE_wzQ8Aep1FOONeCUxvjBFbgKcVRWP5mUuwQnDxzfemUw-eaA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190319163638.31003-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <CAE_wzQ8Aep1FOONeCUxvjBFbgKcVRWP5mUuwQnDxzfemUw-eaA@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+To: Dmitry Torokhov <dtor@chromium.org>, Vladislav Dalechyn <vlad.dalechin@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, kai.heng.feng@canonical.com, swboyd@chromium.org, bigeasy@linutronix.de, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, hotwater438@tutanota.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2019-03-19 at 17:36 +0100, Wolfram Sang wrote:
-> We should get 'driver_data' from 'struct device' directly. Going via
-> platform_device is an unneeded step back and forth.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Hi Dmitry,
 
-> ---
+On 25-03-19 17:02, Dmitry Torokhov wrote:
+> Hi Vladislav,
 > 
-> Build tested only. buildbot is happy.
+> On Mon, Mar 25, 2019 at 5:57 AM Vladislav Dalechyn
+> <vlad.dalechin@gmail.com> wrote:
+>>
+>> From: Vladislav Dalechyn <hotwater438@tutanota.com>
+>>
+>> Description: The ELAN1200:04F3:303E touchpad exposes several issues, all
+>> caused by an error setting the correct IRQ_TRIGGER flag:
+>> - i2c_hid incoplete error flood in journalctl;
+>> - Five finger tap kill's module so you have to restart it;
+>> - Two finger scoll is working incorrect and sometimes even when you
+>> raised one of two finger still thinks that you are scrolling.
+>>
+>> Fix all of these with a new quirk that corrects the trigger flag
+>> announced by the ACPI tables. (edge-falling).
 > 
->  drivers/hid/hid-sensor-custom.c | 12 ++++--------
->  1 file changed, 4 insertions(+), 8 deletions(-)
+> I do not believe this is right solution. The driver makes liberal use
+> of disable_irq() and enable_irq() which may lead to lost edges and
+> touchpad stopping working altogether.
 > 
-> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
-> sensor-custom.c
-> index bb012bc032e0..462e653a7bbb 100644
-> --- a/drivers/hid/hid-sensor-custom.c
-> +++ b/drivers/hid/hid-sensor-custom.c
-> @@ -157,8 +157,7 @@ static int usage_id_cmp(const void *p1, const
-> void *p2)
->  static ssize_t enable_sensor_show(struct device *dev,
->  				  struct device_attribute *attr, char
-> *buf)
->  {
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	struct hid_sensor_custom *sensor_inst =
-> platform_get_drvdata(pdev);
-> +	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
->  
->  	return sprintf(buf, "%d\n", sensor_inst->enable);
->  }
-> @@ -237,8 +236,7 @@ static ssize_t enable_sensor_store(struct device
-> *dev,
->  				   struct device_attribute *attr,
->  				   const char *buf, size_t count)
->  {
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	struct hid_sensor_custom *sensor_inst =
-> platform_get_drvdata(pdev);
-> +	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
->  	int value;
->  	int ret = -EINVAL;
->  
-> @@ -283,8 +281,7 @@ static const struct attribute_group
-> enable_sensor_attr_group = {
->  static ssize_t show_value(struct device *dev, struct
-> device_attribute *attr,
->  			  char *buf)
->  {
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	struct hid_sensor_custom *sensor_inst =
-> platform_get_drvdata(pdev);
-> +	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
->  	struct hid_sensor_hub_attribute_info *attribute;
->  	int index, usage, field_index;
->  	char name[HID_CUSTOM_NAME_LENGTH];
-> @@ -392,8 +389,7 @@ static ssize_t show_value(struct device *dev,
-> struct device_attribute *attr,
->  static ssize_t store_value(struct device *dev, struct
-> device_attribute *attr,
->  			   const char *buf, size_t count)
->  {
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	struct hid_sensor_custom *sensor_inst =
-> platform_get_drvdata(pdev);
-> +	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
->  	int index, field_index, usage;
->  	char name[HID_CUSTOM_NAME_LENGTH];
->  	int value;
+> Usually the "extra" report is caused by GPIO controller clearing
+> interrupt condition at the wrong time (too early), or in unsafe or
+> racy fashion. You need to look there instead of adding quirk to
+> i2c-hid.
+
+The falling-edge solution was proposed by Elan themselves.
+
+Also if you look at: https://bugzilla.redhat.com/show_bug.cgi?id=1543769
+
+And esp. the "cat /proc/interrupts" output there, then you will see
+that the interrupt seems to be stuck at low level, which according
+to the ACPI tables is its active level.
+
+As for this being a GPIO chip driver problem, this is using standard
+Intel pinctrl stuff, which is not showing this same issue with many
+other i2c-hid touchpads.
+
+Regards,
+
+Hans

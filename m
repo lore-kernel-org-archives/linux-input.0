@@ -1,132 +1,163 @@
-From: Vladislav Dalechyn <vlad.dalechin@gmail.com>
-Subject: [PATCH] ELAN touchpad i2c_hid bugs fix
-Date: Mon, 25 Mar 2019 14:57:04 +0200
-Message-ID: <20190325125704.6585-1-hotwater438@tutanota.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: core: move Usage Page concatenation to hid_parser_main()
+Date: Mon, 25 Mar 2019 16:08:55 +0100
+Message-ID: <CAO-hwJ+_CBJ1tkUpcedMM8dgbzyHk2GPdhnFxFN+bAckwQytmA@mail.gmail.com>
+References: <20190312093652.12829-1-nsaenzjulienne@suse.de> <CAO-hwJKo84vMDubVZM8Tye9wyGYkLC9sOVNUw=hUbzH1ktGv1A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAO-hwJKo84vMDubVZM8Tye9wyGYkLC9sOVNUw=hUbzH1ktGv1A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: benjamin.tissoires@redhat.com, jikos@kernel.org, kai.heng.feng@canonical.com, swboyd@chromium.org, bigeasy@linutronix.de, dtor@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hotwater438@tutanota.com
-Cc: Hans De Goede <hdegoede@redhat.com>
+To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: Jiri Kosina <jikos@kernel.org>, oneukum@suse.de, "Junge, Terry" <Terry.Junge@plantronics.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Vladislav Dalechyn <hotwater438@tutanota.com>
+On Mon, Mar 25, 2019 at 11:39 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> Hi Nicolas,
+>
+> On Tue, Mar 12, 2019 at 10:37 AM Nicolas Saenz Julienne
+> <nsaenzjulienne@suse.de> wrote:
+> >
+> > As seen on some USB wireless keyboards manufactured by Primax, the HID
+> > parser was using some assumptions that are not always true. In this case
+> > it's s the fact that, inside the scope of a main item, an Usage Page
+> > will always precede an Usage.
+> >
+> > The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
+> > is interpreted as a Usage ID and concatenated with the Usage Page".
+> > While 6.2.2.8 states "When the parser encounters a main item it
+> > concatenates the last declared Usage Page with a Usage to form a
+> > complete usage value." Being somewhat contradictory it was decided to
+> > match Window's implementation, which follows 6.2.2.8.
+> >
+> > In summary, the patch moves the Usage Page concatenation from the local
+> > item parsing function to the main item parsing function.
+> >
+> > Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+> > ---
+>
+> Patch looks good to me.
+>
+> Terry, did you have time to review it?
+>
+> Cheers,
+> Benjamin
+>
+> >
+> > Note: A PR in hid-tools shoud show up anytime soon
+> >
+> >  drivers/hid/hid-core.c | 30 ++++++++++++++++++------------
+> >  include/linux/hid.h    |  1 +
+> >  2 files changed, 19 insertions(+), 12 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > index 9993b692598f..158468ef23a6 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -218,13 +218,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
+> >   * Add a usage to the temporary parser table.
+> >   */
+> >
+> > -static int hid_add_usage(struct hid_parser *parser, unsigned usage)
+> > +static int hid_add_usage(struct hid_parser *parser, unsigned usage, __u8 size)
+> >  {
+> >         if (parser->local.usage_index >= HID_MAX_USAGES) {
+> >                 hid_err(parser->device, "usage index exceeded\n");
+> >                 return -1;
+> >         }
+> >         parser->local.usage[parser->local.usage_index] = usage;
+> > +       parser->local.usage_size[parser->local.usage_index] = size;
+> >         parser->local.collection_index[parser->local.usage_index] =
+> >                 parser->collection_stack_ptr ?
+> >                 parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
+> > @@ -486,10 +487,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+> >                         return 0;
+> >                 }
+> >
+> > -               if (item->size <= 2)
+> > -                       data = (parser->global.usage_page << 16) + data;
+> > -
+> > -               return hid_add_usage(parser, data);
+> > +               return hid_add_usage(parser, data, item->size);
+> >
+> >         case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+> >
+> > @@ -498,9 +496,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+> >                         return 0;
+> >                 }
+> >
+> > -               if (item->size <= 2)
+> > -                       data = (parser->global.usage_page << 16) + data;
+> > -
+> >                 parser->local.usage_minimum = data;
+> >                 return 0;
+> >
+> > @@ -511,9 +506,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+> >                         return 0;
+> >                 }
+> >
+> > -               if (item->size <= 2)
+> > -                       data = (parser->global.usage_page << 16) + data;
+> > -
+> >                 count = data - parser->local.usage_minimum;
+> >                 if (count + parser->local.usage_index >= HID_MAX_USAGES) {
+> >                         /*
+> > @@ -533,7 +525,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+> >                 }
+> >
+> >                 for (n = parser->local.usage_minimum; n <= data; n++)
+> > -                       if (hid_add_usage(parser, n)) {
+> > +                       if (hid_add_usage(parser, n, item->size)) {
+> >                                 dbg_hid("hid_add_usage failed\n");
+> >                                 return -1;
+> >                         }
+> > @@ -553,8 +545,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+> >
+> >  static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
+> >  {
+> > +       unsigned int usages;
+> >         __u32 data;
+> >         int ret;
+> > +       int i;
+> > +
+> > +       usages = max_t(unsigned, parser->local.usage_index,
+> > +                                parser->global.report_count);
+> > +
+> > +       /*
+> > +        * As per specification, 6.2.2.8:
+> > +        * "When the parser encounters a main item it concatenates the last
+> > +        * declared Usage Page with a Usage to form a complete usage value."
+> > +        */
+> > +       for (i = 0; i < usages; i++)
+> > +               if (parser->local.usage_size[i] <= 2)
+> > +                       parser->local.usage[i] += parser->global.usage_page << 16;
 
-Description: The ELAN1200:04F3:303E touchpad exposes several issues, all
-caused by an error setting the correct IRQ_TRIGGER flag:
-- i2c_hid incoplete error flood in journalctl;
-- Five finger tap kill's module so you have to restart it;
-- Two finger scoll is working incorrect and sometimes even when you
-raised one of two finger still thinks that you are scrolling.
+Actually, the good thing of having a test suite, is that it raises bugs :)
 
-Fix all of these with a new quirk that corrects the trigger flag
-announced by the ACPI tables. (edge-falling).
+You are also missing the computation of the usage in hid_scan_main().
+This makes the autoloading of hid-multitouch fail, and thus the test
+suite failing.
 
-Reason behind moving i2c_hid_init_irq section described below:
-i2c_hid_init_irq now checks for a quirk, so we must setup the quirks
-before we init the irq, and we cannot setup the quirk earlier, so we must
-init the irq later.
+Cheers,
+Benjamin
 
-Co-developed-by: Hans De Goede <hdegoede@redhat.com>
-Signed-off-by: Vladislav Dalechyn <hotwater438@tutanota.com>
----
- drivers/hid/hid-ids.h              |  1 +
- drivers/hid/i2c-hid/i2c-hid-core.c | 25 +++++++++++++++----------
- 2 files changed, 16 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b6d93f4ad037..660b4e0e912e 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -389,6 +389,7 @@
- #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
-+#define I2C_DEVICE_ID_ELAN_TOUCHPAD 0x303e
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 90164fed08d3..9b417914411f 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -51,6 +51,7 @@
- #define I2C_HID_QUIRK_NO_RUNTIME_PM		BIT(2)
- #define I2C_HID_QUIRK_DELAY_AFTER_SLEEP		BIT(3)
- #define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
-+#define I2C_HID_QUIRK_FORCE_TRIGGER_FALLING	BIT(5)
- 
- /* flags */
- #define I2C_HID_STARTED		0
-@@ -182,8 +183,10 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_NO_RUNTIME_PM },
- 	{ I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_01F0,
- 		I2C_HID_QUIRK_NO_RUNTIME_PM },
-+	{ USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_ELAN_TOUCHPAD,
-+		I2C_HID_QUIRK_BOGUS_IRQ | I2C_HID_QUIRK_FORCE_TRIGGER_FALLING },
- 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
--		 I2C_HID_QUIRK_BOGUS_IRQ },
-+		I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ 0, 0 }
- };
- 
-@@ -854,6 +857,8 @@ static int i2c_hid_init_irq(struct i2c_client *client)
- 
- 	if (!irq_get_trigger_type(client->irq))
- 		irqflags = IRQF_TRIGGER_LOW;
-+	if (ihid->quirks & I2C_HID_QUIRK_FORCE_TRIGGER_FALLING)
-+		irqflags = IRQF_TRIGGER_FALLING;
- 
- 	ret = request_threaded_irq(client->irq, NULL, i2c_hid_irq,
- 				   irqflags | IRQF_ONESHOT, client->name, ihid);
-@@ -1123,14 +1128,10 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	if (ret < 0)
- 		goto err_pm;
- 
--	ret = i2c_hid_init_irq(client);
--	if (ret < 0)
--		goto err_pm;
--
- 	hid = hid_allocate_device();
- 	if (IS_ERR(hid)) {
- 		ret = PTR_ERR(hid);
--		goto err_irq;
-+		goto err_pm;
- 	}
- 
- 	ihid->hid = hid;
-@@ -1149,11 +1150,15 @@ static int i2c_hid_probe(struct i2c_client *client,
- 
- 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
- 
-+	ret = i2c_hid_init_irq(client);
-+	if (ret < 0)
-+		goto err_mem_free;
-+
- 	ret = hid_add_device(hid);
- 	if (ret) {
- 		if (ret != -ENODEV)
- 			hid_err(client, "can't add hid device: %d\n", ret);
--		goto err_mem_free;
-+		goto err_irq;
- 	}
- 
- 	if (!(ihid->quirks & I2C_HID_QUIRK_NO_RUNTIME_PM))
-@@ -1161,12 +1166,12 @@ static int i2c_hid_probe(struct i2c_client *client,
- 
- 	return 0;
- 
-+err_irq:
-+	free_irq(client->irq, ihid);
-+
- err_mem_free:
- 	hid_destroy_device(hid);
- 
--err_irq:
--	free_irq(client->irq, ihid);
--
- err_pm:
- 	pm_runtime_put_noidle(&client->dev);
- 	pm_runtime_disable(&client->dev);
--- 
-2.20.1
+> >
+> >         data = item_udata(item);
+> >
+> > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > index f9707d1dcb58..d1fb4b678873 100644
+> > --- a/include/linux/hid.h
+> > +++ b/include/linux/hid.h
+> > @@ -417,6 +417,7 @@ struct hid_global {
+> >
+> >  struct hid_local {
+> >         unsigned usage[HID_MAX_USAGES]; /* usage array */
+> > +       __u8 usage_size[HID_MAX_USAGES]; /* usage size array */
+> >         unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
+> >         unsigned usage_index;
+> >         unsigned usage_minimum;
+> > --
+> > 2.21.0
+> >

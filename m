@@ -1,42 +1,56 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
-Date: Mon, 25 Mar 2019 11:30:24 -0700
-Message-ID: <CAE_wzQ9iqOW6zrR8p3knhiPwf6YcdLXd5v=F28shNZwaXVfPZQ@mail.gmail.com>
-References: <20190325125704.6585-1-hotwater438@tutanota.com>
- <CAE_wzQ8Aep1FOONeCUxvjBFbgKcVRWP5mUuwQnDxzfemUw-eaA@mail.gmail.com>
- <a2952bc4-0ad0-c8a0-5a5b-13a279023455@redhat.com> <CAE_wzQ8sYcMVYLmnctw_UQuvn0B8U2CU2dNeg-9sh85AL_CfgQ@mail.gmail.com>
- <Laq4ykv--3-1@tutanota.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [RESEND PATCH v6 02/11] dt-bindings: power: supply: add DT
+ bindings for max77650
+Date: Mon, 25 Mar 2019 15:46:09 -0500
+Message-ID: <20190325204609.GA29935@bogus>
+References: <20190318174228.18194-1-brgl@bgdev.pl>
+ <20190318174228.18194-3-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <Laq4ykv--3-1@tutanota.com>
+Content-Disposition: inline
+In-Reply-To: <20190318174228.18194-3-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: hotwater438@tutanota.com
-Cc: Hans de Goede <hdegoede@redhat.com>, Vladislav Dalechyn <vlad.dalechin@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Kai Heng Feng <kai.heng.feng@canonical.com>, Swboyd <swboyd@chromium.org>, Bigeasy <bigeasy@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 25, 2019 at 11:23 AM <hotwater438@tutanota.com> wrote:
->
-> Hi.
->
-> Mar 25, 2019, 6:56 PM by dtor@chromium.org:
->
-> If you want to keep on using edge you need to make sure that i2c-hid
-> never loses edge, as replaying of previously disabled interrupts in
-> not at all reliable. So you need to "kick" the device after
-> enable_irq() by initiating read from it and be ready to not get any
-> data or get valid data and process accordingly.
->
-> I'm sorry, but how edge can be loosed? There is device ID and quirk's which are associated with that ID, and quirk will always trigger edge irq.
+On Mon, Mar 18, 2019 at 06:42:19PM +0100, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> Add the DT binding document for the battery charger module of max77650.
+> 
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  .../power/supply/max77650-charger.txt         | 27 +++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+> new file mode 100644
+> index 000000000000..d25c95369616
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+> @@ -0,0 +1,27 @@
+> +Battery charger driver for MAX77650 PMIC from Maxim Integrated.
+> +
+> +This module is part of the MAX77650 MFD device. For more details
+> +see Documentation/devicetree/bindings/mfd/max77650.txt.
+> +
+> +The charger is represented as a sub-node of the PMIC node on the device tree.
+> +
+> +Required properties:
+> +--------------------
+> +- compatible:		Must be "maxim,max77650-charger"
+> +
+> +Optional properties:
+> +--------------------
+> +- min-microvolt:	Minimum CHGIN regulation voltage (in microvolts). Must be
+> +			one of: 4000000, 4100000, 4200000, 4300000, 4400000,
+> +			4500000, 4600000, 4700000.
+> +- curr-lim-microamp:	CHGIN input current limit (in microamps). Must be one of:
+> +			95000, 190000, 285000, 380000, 475000.
 
-If edge arrives while interrupt is disabled and replay of the
-interrupt does not work when it is reenabled (and I do not think it
-ever works for GPIO, you can hunt for Thomas Gleixner emails to that
-effect on LKML), then ISR in the driver will never be called, so
-driver will never read from the device to reset the interrupt
-condition and interrupt will never be reasserted again -> edge lost.
+These should be common charger properties IMO.
 
-Thanks.
-
--- 
-Dmitry
+Rob

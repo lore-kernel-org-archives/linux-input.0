@@ -1,61 +1,47 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [RESEND PATCH v6 06/11] mfd: max77650: new core mfd driver
-Date: Tue, 26 Mar 2019 14:49:24 +0100
-Message-ID: <CAMRc=Me1BbZKPQyAt4RR1eRk9pX3oHFudpm1CnHx3-AuD-G5ug@mail.gmail.com>
-References: <20190318174228.18194-1-brgl@bgdev.pl> <20190318174228.18194-7-brgl@bgdev.pl>
- <20190322091223.GI27015@amd>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Subject: [PATCH] HID: quirks: Fix keyboard + touchpad on Lenovo Miix 630
+Date: Tue, 26 Mar 2019 09:55:54 -0700
+Message-ID: <20190326165554.17266-1-jeffrey.l.hugo@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190322091223.GI27015@amd>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, bjorn.andersson@linaro.org, lee.jones@linaro.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-pt., 22 mar 2019 o 10:12 Pavel Machek <pavel@ucw.cz> napisa=C5=82(a):
->
-> On Mon 2019-03-18 18:42:23, Bartosz Golaszewski wrote:
-> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >
-> > Add the core mfd driver for max77650 PMIC. We define five sub-devices
-> > for which the drivers will be added in subsequent patches.
-> >
-> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > ---
-> >  drivers/mfd/Kconfig          |  14 +++
-> >  drivers/mfd/Makefile         |   1 +
-> >  drivers/mfd/max77650.c       | 234 +++++++++++++++++++++++++++++++++++
-> >  include/linux/mfd/max77650.h |  59 +++++++++
-> >  4 files changed, 308 insertions(+)
-> >  create mode 100644 drivers/mfd/max77650.c
-> >  create mode 100644 include/linux/mfd/max77650.h
-> >
-> > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> > index 0ce2d8dfc5f1..ade04e124aa0 100644
-> > --- a/drivers/mfd/Kconfig
-> > +++ b/drivers/mfd/Kconfig
-> > @@ -733,6 +733,20 @@ config MFD_MAX77620
-> >         provides common support for accessing the device; additional dr=
-ivers
-> >         must be enabled in order to use the functionality of the device=
-.
-> >
-> > +config MFD_MAX77650
-> > +     tristate "Maxim MAX77650/77651 PMIC Support"
-> > +     depends on I2C
-> > +     depends on OF || COMPILE_TEST
->
-> This says it will compile ok in !OF case. Will it?
->
+Similar to commit edfc3722cfef ("HID: quirks: Fix keyboard + touchpad on
+Toshiba Click Mini not working"), the Lenovo Miix 630 has a combo
+keyboard/touchpad device with vid:pid of 04F3:0400, which is shared with
+Elan touchpads.  The combo on the Miix 630 has an ACPI id of QTEC0001,
+which is not claimed by the elan_i2c driver, so key on that similar to
+what was done for the Toshiba Click Mini.
 
-It will compile because the stubs for OF functions will be provided -
-it just won't work, because they won't be implemented.
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+---
+ drivers/hid/hid-quirks.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Bart
-
-> --
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/b=
-log.html
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 1148d8c0816a..77ffba48cc73 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -715,7 +715,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DEALEXTREAME, USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) },
+@@ -996,6 +995,10 @@ bool hid_ignore(struct hid_device *hdev)
+ 		if (hdev->product == 0x0401 &&
+ 		    strncmp(hdev->name, "ELAN0800", 8) != 0)
+ 			return true;
++		/* Same with product id 0x0400 */
++		if (hdev->product == 0x0400 &&
++		    strncmp(hdev->name, "QTEC0001", 8) != 0)
++			return true;
+ 		break;
+ 	}
+ 
+-- 
+2.17.1

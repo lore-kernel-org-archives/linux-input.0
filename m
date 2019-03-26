@@ -1,7 +1,7 @@
 From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: [PATCH v2] HID: core: move Usage Page concatenation to hid_parser_main()
-Date: Tue, 26 Mar 2019 20:59:27 +0100
-Message-ID: <20190326195928.25112-1-nsaenzjulienne@suse.de>
+Subject: [PATCH v3] HID: core: move Usage Page concatenation to Main item
+Date: Tue, 26 Mar 2019 21:03:30 +0100
+Message-ID: <20190326200331.25934-1-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -27,6 +27,8 @@ item parsing function to the main item parsing function.
 
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 ---
+
+v2->v3: - Update patch title
 
 v1->v2: - Add usage concatenation to hid_scan_main()
 	- Rework tests in hid-tools, making sure no-one is failing

@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 72/87] HID: intel-ish: ipc: handle PIMR before ish_wakeup also clear PISR busy_clear bit
-Date: Wed, 27 Mar 2019 14:20:25 -0400
-Message-ID: <20190327182040.17444-72-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 44/87] HID: intel-ish-hid: avoid binding wrong ishtp_cl_device
+Date: Wed, 27 Mar 2019 14:19:57 -0400
+Message-ID: <20190327182040.17444-44-sashal@kernel.org>
 References: <20190327182040.17444-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,65 +9,55 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190327182040.17444-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Song Hongyan <hongyan.song@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Hong Liu <hong.liu@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Song Hongyan <hongyan.song@intel.com>
+From: Hong Liu <hong.liu@intel.com>
 
-[ Upstream commit 2edefc056e4f0e6ec9508dd1aca2c18fa320efef ]
+[ Upstream commit 0d28f49412405d87d3aae83da255070a46e67627 ]
 
-Host driver should handle interrupt mask register earlier than wake up ish FW
-else there will be conditions when FW interrupt comes, host PIMR register still
-not set ready, so move the interrupt mask setting before ish_wakeup.
+When performing a warm reset in ishtp bus driver, the ishtp_cl_device
+will not be removed, its fw_client still points to the already freed
+ishtp_device.fw_clients array.
 
-Clear PISR busy_clear bit in ish_irq_handler. If not clear, there will be
-conditions host driver received a busy_clear interrupt (before the busy_clear
-mask bit is ready), it will return IRQ_NONE after check_generated_interrupt,
-the interrupt will never be cleared, causing the DEVICE not sending following
-IRQ.
+Later after driver finishing ishtp client enumeration, this dangling
+pointer may cause driver to bind the wrong ishtp_cl_device to the new
+client, causing wrong callback to be called for messages intended for
+the new client.
 
-Since PISR clear should not be called for the CHV device we do this change.
-After the change, both ISH2HOST interrupt and busy_clear interrupt will be
-considered as interrupt from ISH, busy_clear interrupt will return IRQ_HANDLED
-from IPC_IS_BUSY check.
+This helps in development of firmware where frequent switching of
+firmwares is required without Linux reboot.
 
-Signed-off-by: Song Hongyan <hongyan.song@intel.com>
+Signed-off-by: Hong Liu <hong.liu@intel.com>
+Tested-by: Hongyan Song <hongyan.song@intel.com>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 0c9ac4d5d850..41d44536aa15 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -92,7 +92,10 @@ static bool check_generated_interrupt(struct ishtp_device *dev)
- 			IPC_INT_FROM_ISH_TO_HOST_CHV_AB(pisr_val);
- 	} else {
- 		pisr_val = ish_reg_read(dev, IPC_REG_PISR_BXT);
--		interrupt_generated = IPC_INT_FROM_ISH_TO_HOST_BXT(pisr_val);
-+		interrupt_generated = !!pisr_val;
-+		/* only busy-clear bit is RW, others are RO */
-+		if (pisr_val)
-+			ish_reg_write(dev, IPC_REG_PISR_BXT, pisr_val);
- 	}
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 256521509d20..0de18c76f8d4 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -628,7 +628,8 @@ int ishtp_cl_device_bind(struct ishtp_cl *cl)
+ 	spin_lock_irqsave(&cl->dev->device_list_lock, flags);
+ 	list_for_each_entry(cl_device, &cl->dev->device_list,
+ 			device_link) {
+-		if (cl_device->fw_client->client_id == cl->fw_client_id) {
++		if (cl_device->fw_client &&
++		    cl_device->fw_client->client_id == cl->fw_client_id) {
+ 			cl->device = cl_device;
+ 			rv = 0;
+ 			break;
+@@ -688,6 +689,7 @@ void ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev,
+ 	spin_lock_irqsave(&ishtp_dev->device_list_lock, flags);
+ 	list_for_each_entry_safe(cl_device, n, &ishtp_dev->device_list,
+ 				 device_link) {
++		cl_device->fw_client = NULL;
+ 		if (warm_reset && cl_device->reference_count)
+ 			continue;
  
- 	return interrupt_generated;
-@@ -795,11 +798,11 @@ int ish_hw_start(struct ishtp_device *dev)
- {
- 	ish_set_host_rdy(dev);
- 
-+	set_host_ready(dev);
-+
- 	/* After that we can enable ISH DMA operation and wakeup ISHFW */
- 	ish_wakeup(dev);
- 
--	set_host_ready(dev);
--
- 	/* wait for FW-initiated reset flow */
- 	if (!dev->recvd_hw_ready)
- 		wait_event_interruptible_timeout(dev->wait_hw_ready,
 -- 
 2.19.1

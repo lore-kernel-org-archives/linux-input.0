@@ -1,26 +1,28 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 1/1] hid: hid-sensor-custom: simplify getting
- .driver_data
-Date: Wed, 27 Mar 2019 14:06:40 +0100 (CET)
-Message-ID: <nycvar.YFH.7.76.1903271406260.19912@cbobk.fhfr.pm>
-References: <20190319163638.31003-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH] HID: quirks: Fix keyboard + touchpad on Lenovo Miix
+ 630
+Date: Wed, 27 Mar 2019 14:17:38 +0100 (CET)
+Message-ID: <nycvar.YFH.7.76.1903271417240.19912@cbobk.fhfr.pm>
+References: <20190326165554.17266-1-jeffrey.l.hugo@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190319163638.31003-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190326165554.17266-1-jeffrey.l.hugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, bjorn.andersson@linaro.org, lee.jones@linaro.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 19 Mar 2019, Wolfram Sang wrote:
+On Tue, 26 Mar 2019, Jeffrey Hugo wrote:
 
-> We should get 'driver_data' from 'struct device' directly. Going via
-> platform_device is an unneeded step back and forth.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Similar to commit edfc3722cfef ("HID: quirks: Fix keyboard + touchpad on
+> Toshiba Click Mini not working"), the Lenovo Miix 630 has a combo
+> keyboard/touchpad device with vid:pid of 04F3:0400, which is shared with
+> Elan touchpads.  The combo on the Miix 630 has an ACPI id of QTEC0001,
+> which is not claimed by the elan_i2c driver, so key on that similar to
+> what was done for the Toshiba Click Mini.
 
-Applied to for-5.2/sensor, thanks.
+Applied to for-5.1/upstream-fixes, thanks.
 
 -- 
 Jiri Kosina

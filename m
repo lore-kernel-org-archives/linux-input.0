@@ -1,64 +1,73 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 254/262] Input: soc_button_array - fix mapping of the 5th GPIO in a PNP0C40 device
-Date: Wed, 27 Mar 2019 14:01:49 -0400
-Message-ID: <20190327180158.10245-254-sashal@kernel.org>
-References: <20190327180158.10245-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 103/123] HID: intel-ish: ipc: handle PIMR before ish_wakeup also clear PISR busy_clear bit
+Date: Wed, 27 Mar 2019 14:16:07 -0400
+Message-ID: <20190327181628.15899-103-sashal@kernel.org>
+References: <20190327181628.15899-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
+In-Reply-To: <20190327181628.15899-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Song Hongyan <hongyan.song@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Song Hongyan <hongyan.song@intel.com>
 
-[ Upstream commit e9eb788f9442d1b5d93efdb30c3be071ce8a22b1 ]
+[ Upstream commit 2edefc056e4f0e6ec9508dd1aca2c18fa320efef ]
 
-The Microsoft documenation for the PNP0C40 device aka the
-"Windows-compatible button array" describes the 5th GpioInt listed in
-the resources as: '5. Interrupt corresponding to the "Rotation Lock"
-button, if supported'.
+Host driver should handle interrupt mask register earlier than wake up ish FW
+else there will be conditions when FW interrupt comes, host PIMR register still
+not set ready, so move the interrupt mask setting before ish_wakeup.
 
-Notice this describes the 5th entry as a button while we sofar have been
-mapping it to EV_SW, SW_ROTATE_LOCK. On my Point of View TAB P1006W-232
-which actually comes with a rotation-lock button, the button indeed is a
-button and not a slider/switch. An image search for other Windows tablets
-has found 2 more models with a rotation-lock button and on both of those
-it too is a push-button and not a slider/switch.
+Clear PISR busy_clear bit in ish_irq_handler. If not clear, there will be
+conditions host driver received a busy_clear interrupt (before the busy_clear
+mask bit is ready), it will return IRQ_NONE after check_generated_interrupt,
+the interrupt will never be cleared, causing the DEVICE not sending following
+IRQ.
 
-Further evidence can be found in the HUT extension HUTRR52 from Microsoft
-which adds rotation lock support to the HUT, which describes 2 different
-usages: "0xC9 System Display Rotation Lock Button" and
-"0xCA System Display Rotation Lock Slider Switch" note that switch is seen
-as a separate thing here and the non switch wording is an exact match for
-the "Windows-compatible button array" spec wording.
+Since PISR clear should not be called for the CHV device we do this change.
+After the change, both ISH2HOST interrupt and busy_clear interrupt will be
+considered as interrupt from ISH, busy_clear interrupt will return IRQ_HANDLED
+from IPC_IS_BUSY check.
 
-TL;DR: our current mapping of the 5th GPIO to SW_ROTATE_LOCK is wrong
-because the 5th GPIO is for a push-button not a switch.
-
-This commit fixes this by maping the 5th GPIO to KEY_ROTATE_LOCK_TOGGLE.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Song Hongyan <hongyan.song@intel.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/soc_button_array.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 23520df7650f..55cd6e0b409c 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -373,7 +373,7 @@ static struct soc_button_info soc_button_PNP0C40[] = {
- 	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true },
- 	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
- 	{ "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false },
--	{ "rotation_lock", 4, EV_SW, SW_ROTATE_LOCK, false, false },
-+	{ "rotation_lock", 4, EV_KEY, KEY_ROTATE_LOCK_TOGGLE, false, false },
- 	{ }
- };
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 9a60ec13cb10..a3106fcc2253 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -91,7 +91,10 @@ static bool check_generated_interrupt(struct ishtp_device *dev)
+ 			IPC_INT_FROM_ISH_TO_HOST_CHV_AB(pisr_val);
+ 	} else {
+ 		pisr_val = ish_reg_read(dev, IPC_REG_PISR_BXT);
+-		interrupt_generated = IPC_INT_FROM_ISH_TO_HOST_BXT(pisr_val);
++		interrupt_generated = !!pisr_val;
++		/* only busy-clear bit is RW, others are RO */
++		if (pisr_val)
++			ish_reg_write(dev, IPC_REG_PISR_BXT, pisr_val);
+ 	}
  
+ 	return interrupt_generated;
+@@ -843,11 +846,11 @@ int ish_hw_start(struct ishtp_device *dev)
+ {
+ 	ish_set_host_rdy(dev);
+ 
++	set_host_ready(dev);
++
+ 	/* After that we can enable ISH DMA operation and wakeup ISHFW */
+ 	ish_wakeup(dev);
+ 
+-	set_host_ready(dev);
+-
+ 	/* wait for FW-initiated reset flow */
+ 	if (!dev->recvd_hw_ready)
+ 		wait_event_interruptible_timeout(dev->wait_hw_ready,
 -- 
 2.19.1

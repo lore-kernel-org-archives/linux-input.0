@@ -1,57 +1,64 @@
-From: Nick Crews <ncrews@chromium.org>
-Subject: Re: [PATCH] HID: intel-ish-hid: ISH firmware loader client driver
-Date: Wed, 27 Mar 2019 10:01:49 -0600
-Message-ID: <CAHX4x86DKshGWj8D4nYje3fUvETG14jD4jNt+VgpejmzU2Dnog@mail.gmail.com>
-References: <1553339772-25012-1-git-send-email-rushikesh.s.kadam@intel.com>
- <31755c704928710da998353192157ddfd903080c.camel@linux.intel.com>
- <CAHX4x87iQgjX8wHOYNCD7nYQJZKoirgCimPax11bMX_DGMEudw@mail.gmail.com> <de917efc4ded94b3fbc70913207881b3a0c10b52.camel@linux.intel.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 254/262] Input: soc_button_array - fix mapping of the 5th GPIO in a PNP0C40 device
+Date: Wed, 27 Mar 2019 14:01:49 -0400
+Message-ID: <20190327180158.10245-254-sashal@kernel.org>
+References: <20190327180158.10245-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <de917efc4ded94b3fbc70913207881b3a0c10b52.camel@linux.intel.com>
+In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>, benjamin.tissoires@redhat.com, jikos@kernel.org, jettrink@chromium.org, gwendal@google.com, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Mar 26, 2019 at 8:22 PM Srinivas Pandruvada
-<srinivas.pandruvada@linux.intel.com> wrote:
->
-> On Tue, 2019-03-26 at 18:39 -0600, Nick Crews wrote:
-> > Hi Rushikesh, I know I've been reviewing this on Chromium, but I have
-> > some more larges-scale design thoughts.
-> Hi Nick.
->
-> Does this fundamentally change, the way it is done here or can wait for
-> subsequent revisions later?
+From: Hans de Goede <hdegoede@redhat.com>
 
-I don't have any official stakes in this, as I'm not the maintainer or
-anything, so
-I'm just preaching what I think would be good design :)
+[ Upstream commit e9eb788f9442d1b5d93efdb30c3be071ce8a22b1 ]
 
-I think I would like to see most of my suggestions addressed. At the
-very least there
-are some actual bugs (infinite loops, accessing bad memory, not
-reporting all errors)
- that need to get fixed. Of course I'm not the one that has to write
-or test it, but I imagine
-that the one large design change I proposed of where memory is
-allocated shouldn't be too
-hard either. I worry that "subsequent revisions" to upstream won't
-happen, since it's hard enough
-to get a patch accepted. Maybe that concern isn't warranted though, I
-don't have that
-much experience on the LKML.
+The Microsoft documenation for the PNP0C40 device aka the
+"Windows-compatible button array" describes the 5th GpioInt listed in
+the resources as: '5. Interrupt corresponding to the "Rotation Lock"
+button, if supported'.
 
-Is there a really tight deadline for this? If so then I would say we
-should apply what
-we currently have to the Chromium tree, and upstream the final version
-when it's done.
+Notice this describes the 5th entry as a button while we sofar have been
+mapping it to EV_SW, SW_ROTATE_LOCK. On my Point of View TAB P1006W-232
+which actually comes with a rotation-lock button, the button indeed is a
+button and not a slider/switch. An image search for other Windows tablets
+has found 2 more models with a rotation-lock button and on both of those
+it too is a push-button and not a slider/switch.
 
-Thanks,
-Nick
+Further evidence can be found in the HUT extension HUTRR52 from Microsoft
+which adds rotation lock support to the HUT, which describes 2 different
+usages: "0xC9 System Display Rotation Lock Button" and
+"0xCA System Display Rotation Lock Slider Switch" note that switch is seen
+as a separate thing here and the non switch wording is an exact match for
+the "Windows-compatible button array" spec wording.
 
->
-> Thanks,
-> Srinivas
->
+TL;DR: our current mapping of the 5th GPIO to SW_ROTATE_LOCK is wrong
+because the 5th GPIO is for a push-button not a switch.
+
+This commit fixes this by maping the 5th GPIO to KEY_ROTATE_LOCK_TOGGLE.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/input/misc/soc_button_array.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 23520df7650f..55cd6e0b409c 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -373,7 +373,7 @@ static struct soc_button_info soc_button_PNP0C40[] = {
+ 	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true },
+ 	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
+ 	{ "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false },
+-	{ "rotation_lock", 4, EV_SW, SW_ROTATE_LOCK, false, false },
++	{ "rotation_lock", 4, EV_KEY, KEY_ROTATE_LOCK_TOGGLE, false, false },
+ 	{ }
+ };
+ 
+-- 
+2.19.1

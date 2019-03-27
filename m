@@ -1,69 +1,61 @@
 From: Anson Huang <anson.huang@nxp.com>
-Subject: RE: [PATCH] input: keyboard: snvs: make sure irq is handled correctly
-Date: Wed, 27 Mar 2019 05:05:28 +0000
-Message-ID: <DB3PR0402MB3916979BF8E1E94C29063F3EF5580@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <1553654517-7810-1-git-send-email-Anson.Huang@nxp.com>
- <20190327042903.GA40550@dtor-ws>
+Subject: [PATCH V2] input: keyboard: snvs: initialize necessary driver data
+ before enabling IRQ
+Date: Wed, 27 Mar 2019 06:07:06 +0000
+Message-ID: <1553666514-21505-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327042903.GA40550@dtor-ws>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Fabio Estevam <fabio.estevam@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-SGksIERtaXRyeQ0KDQpCZXN0IFJlZ2FyZHMhDQpBbnNvbiBIdWFuZw0KDQo+IC0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20gW21haWx0
-bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiBTZW50OiAyMDE5xOoz1MIyN8jVIDEyOjI5
-DQo+IFRvOiBBbnNvbiBIdWFuZyA8YW5zb24uaHVhbmdAbnhwLmNvbT4NCj4gQ2M6IEZhYmlvIEVz
-dGV2YW0gPGZhYmlvLmVzdGV2YW1AbnhwLmNvbT47IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9y
-ZzsNCj4gbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgZGwtbGludXgtaW14IDxsaW51eC1p
-bXhAbnhwLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gaW5wdXQ6IGtleWJvYXJkOiBzbnZz
-OiBtYWtlIHN1cmUgaXJxIGlzIGhhbmRsZWQNCj4gY29ycmVjdGx5DQo+IA0KPiBIaSBBbnNvbiwN
-Cj4gDQo+IE9uIFdlZCwgTWFyIDI3LCAyMDE5IGF0IDAyOjQ3OjA2QU0gKzAwMDAsIEFuc29uIEh1
-YW5nIHdyb3RlOg0KPiA+IFNOVlMgSVJRIGlzIHJlcXVlc3RlZCBiZWZvcmUgbmVjZXNzYXJ5IGRy
-aXZlciBkYXRhIGluaXRpYWxpemVkLCBpZg0KPiA+IHRoZXJlIGlzIGEgcGVuZGluZyBJUlEgZHVy
-aW5nIGRyaXZlciBwcm9iZSBwaGFzZSwga2VybmVsIE5VTEwgcG9pbnRlcg0KPiA+IHBhbmljIHdp
-bGwgb2NjdXIgaW4gSVJRIGhhbmRsZXIuIFRvIGF2b2lkIHN1Y2ggc2NlbmFyaW8sIG5lZWQgdG8g
-bW92ZQ0KPiA+IHRoZSBJUlEgcmVxdWVzdCB0byBhZnRlciBkcml2ZXIgZGF0YSBpbml0aWFsaXph
-dGlvbiBkb25lLiBUaGlzIHBhdGNoDQo+ID4gaXMgaW5zcGlyZWQgYnkgTlhQJ3MgaW50ZXJuYWwg
-a2VybmVsIHRyZWUuDQo+ID4NCj4gPiBGaXhlczogZDNkYzZlMjMyMjE1ICgiaW5wdXQ6IGtleWJv
-YXJkOiBpbXg6IGFkZCBzbnZzIHBvd2VyIGtleQ0KPiA+IGRyaXZlciIpDQo+ID4gU2lnbmVkLW9m
-Zi1ieTogQW5zb24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+DQo+ID4gLS0tDQo+ID4gIGRy
-aXZlcnMvaW5wdXQva2V5Ym9hcmQvc252c19wd3JrZXkuYyB8IDE3ICsrKysrKysrLS0tLS0tLS0t
-DQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDkgZGVsZXRpb25zKC0pDQo+
-ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9zbnZzX3B3cmtleS5j
-DQo+ID4gYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL3NudnNfcHdya2V5LmMNCj4gPiBpbmRleCBl
-ZmZiNjMyLi42ZmY0MWZkIDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQv
-c252c19wd3JrZXkuYw0KPiA+ICsrKyBiL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvc252c19wd3Jr
-ZXkuYw0KPiA+IEBAIC0xNDgsMTUgKzE0OCw2IEBAIHN0YXRpYyBpbnQgaW14X3NudnNfcHdya2V5
-X3Byb2JlKHN0cnVjdA0KPiBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gIAkJcmV0dXJuIGVy
-cm9yOw0KPiA+ICAJfQ0KPiA+DQo+ID4gLQllcnJvciA9IGRldm1fcmVxdWVzdF9pcnEoJnBkZXYt
-PmRldiwgcGRhdGEtPmlycSwNCj4gPiAtCQkJICAgICAgIGlteF9zbnZzX3B3cmtleV9pbnRlcnJ1
-cHQsDQo+ID4gLQkJCSAgICAgICAwLCBwZGV2LT5uYW1lLCBwZGV2KTsNCj4gPiAtDQo+ID4gLQlp
-ZiAoZXJyb3IpIHsNCj4gPiAtCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJpbnRlcnJ1cHQgbm90IGF2
-YWlsYWJsZS5cbiIpOw0KPiA+IC0JCXJldHVybiBlcnJvcjsNCj4gPiAtCX0NCj4gPiAtDQo+ID4g
-IAllcnJvciA9IGlucHV0X3JlZ2lzdGVyX2RldmljZShpbnB1dCk7DQo+ID4gIAlpZiAoZXJyb3Ig
-PCAwKSB7DQo+ID4gIAkJZGV2X2VycigmcGRldi0+ZGV2LCAiZmFpbGVkIHRvIHJlZ2lzdGVyIGlu
-cHV0IGRldmljZVxuIik7DQo+IEBAIC0xNjYsNg0KPiA+ICsxNTcsMTQgQEAgc3RhdGljIGludCBp
-bXhfc252c19wd3JrZXlfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZQ0KPiAqcGRldikNCj4g
-PiAgCXBkYXRhLT5pbnB1dCA9IGlucHV0Ow0KPiA+ICAJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRl
-diwgcGRhdGEpOw0KPiA+DQo+ID4gKwllcnJvciA9IGRldm1fcmVxdWVzdF9pcnEoJnBkZXYtPmRl
-diwgcGRhdGEtPmlycSwNCj4gPiArCQkJCSBpbXhfc252c19wd3JrZXlfaW50ZXJydXB0LA0KPiA+
-ICsJCQkJIDAsIHBkZXYtPm5hbWUsIHBkZXYpOw0KPiA+ICsJaWYgKGVycm9yKSB7DQo+ID4gKwkJ
-ZGV2X2VycigmcGRldi0+ZGV2LCAiaW50ZXJydXB0IG5vdCBhdmFpbGFibGUuXG4iKTsNCj4gPiAr
-CQlyZXR1cm4gZXJyb3I7DQo+ID4gKwl9DQo+IA0KPiBJbnN0ZWFkIG9mIG1vdmluZyBkZXZtX3Jl
-cXVlc3RfaXJxKCkgYXJvdW5kIGNvdWxkIHlvdSBzaW1wbHkgbW92ZQ0KPiBwZGF0YS0+aW5wdXQg
-PSBpbnB1dCBhc3NpZ25tZW50IGhpZ2hlcj8gSXQgaXMgcGVyZmVjdGx5IGZpbmUgdG8gdHJ5DQo+
-IGNhbGxpbmcgaW5wdXRfZXZlbnQoKSBvbiBpbnB1dCBkZXZpY2UgdGhhdCBpcyBhbGxvY2F0ZWQg
-YnV0IG5vdCB5ZXQgcmVnaXN0ZXJlZC4NCg0KT0ssIG1ha2Ugc2Vuc2UuDQoNCj4gDQo+ID4gKw0K
-PiA+ICAJZGV2aWNlX2luaXRfd2FrZXVwKCZwZGV2LT5kZXYsIHBkYXRhLT53YWtldXApOw0KPiAN
-Cj4gVW5yZWxhdGVkIHN1Z2dlc3Rpb246DQo+IA0KPiBDYW4geW91IHRyeSBjYWxsaW5nIGRldl9w
-bV9zZXRfd2FrZV9pcnEoJnBkZXYtPmRldiwgcGRhdGEtPmlycSkgaGVyZSBhbmQNCj4gSSB0aGlu
-ayB5b3Ugd2lsbCBiZSBhYmxlIHRvIGdldCByaWQgb2Ygc3VzcGVuZC9yZXN1bWUgbWV0aG9kcyBp
-biB0aGUgZHJpdmVyLg0KDQpPSywgSSB3aWxsIGxvb2sgaW50byBpdCwgYW5kIHNlbmQgYW5vdGhl
-ciBwYXRjaCB0byBpbXByb3ZlIHRoaXMuDQoNClRoYW5rcy4NCkFuc29uDQoNCj4gDQo+IFRoYW5r
-cy4NCj4gDQo+IC0tDQo+IERtaXRyeQ0K
+SNVS IRQ is requested before necessary driver data initialized,
+if there is a pending IRQ during driver probe phase, kernel
+NULL pointer panic will occur in IRQ handler. To avoid such
+scenario, just initialize necessary driver data before enabling
+IRQ. This patch is inspired by NXP's internal kernel tree.
+
+Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+Changes since V1:
+	- move the platform data initialization to before IRQ enable instead of mo=
+ving the IRQ enable
+	  to the end of probe function.
+---
+ drivers/input/keyboard/snvs_pwrkey.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/=
+snvs_pwrkey.c
+index effb632..4c67cf3 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -148,6 +148,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device=
+ *pdev)
+ 		return error;
+ 	}
+=20
++	pdata->input =3D input;
++	platform_set_drvdata(pdev, pdata);
++
+ 	error =3D devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+@@ -163,9 +166,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device=
+ *pdev)
+ 		return error;
+ 	}
+=20
+-	pdata->input =3D input;
+-	platform_set_drvdata(pdev, pdata);
+-
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+=20
+ 	return 0;
+--=20
+2.7.4

@@ -1,63 +1,57 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 132/262] HID: intel-ish-hid: avoid binding wrong ishtp_cl_device
-Date: Wed, 27 Mar 2019 13:59:47 -0400
-Message-ID: <20190327180158.10245-132-sashal@kernel.org>
-References: <20190327180158.10245-1-sashal@kernel.org>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/2] dt-bindings: input: add GPIO controllable vibrator
+Date: Wed, 27 Mar 2019 14:43:19 -0500
+Message-ID: <20190327194319.GA20142@bogus>
+References: <20190302141132.21160-1-luca@z3ntu.xyz>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190302141132.21160-1-luca@z3ntu.xyz>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Hong Liu <hong.liu@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Luca Weiss <luca@z3ntu.xyz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Hong Liu <hong.liu@intel.com>
+On Sat, Mar 02, 2019 at 03:11:30PM +0100, Luca Weiss wrote:
+> Provide a simple driver for GPIO controllable vibrators.
+> It will be used by the Fairphone 2.
+> 
+> Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+> ---
+>  .../devicetree/bindings/input/gpio-vibrator.txt  | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/gpio-vibrator.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/gpio-vibrator.txt b/Documentation/devicetree/bindings/input/gpio-vibrator.txt
+> new file mode 100644
+> index 000000000000..9e2e9acf497b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/gpio-vibrator.txt
+> @@ -0,0 +1,16 @@
+> +* GPIO vibrator device tree bindings
+> +
+> +Registers a GPIO device as vibrator, where the vibration motor just has the capability to turn on or off. If the device is connected to a pwm, you should use the pwm-vibrator driver instead.
 
-[ Upstream commit 0d28f49412405d87d3aae83da255070a46e67627 ]
+Need to wrap line.
 
-When performing a warm reset in ishtp bus driver, the ishtp_cl_device
-will not be removed, its fw_client still points to the already freed
-ishtp_device.fw_clients array.
+> +
+> +Required properties:
+> +- compatible: should contain "gpio-vibrator"
+> +- enable-gpios: Should contain a GPIO handle
+> +- vcc-supply: Phandle for the regulator supplying power
 
-Later after driver finishing ishtp client enumeration, this dangling
-pointer may cause driver to bind the wrong ishtp_cl_device to the new
-client, causing wrong callback to be called for messages intended for
-the new client.
+This should probably be optional. There may not be a s/w controllable 
+supply.
 
-This helps in development of firmware where frequent switching of
-firmwares is required without Linux reboot.
-
-Signed-off-by: Hong Liu <hong.liu@intel.com>
-Tested-by: Hongyan Song <hongyan.song@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/intel-ish-hid/ishtp/bus.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index 728dc6d4561a..a271d6d169b1 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -675,7 +675,8 @@ int ishtp_cl_device_bind(struct ishtp_cl *cl)
- 	spin_lock_irqsave(&cl->dev->device_list_lock, flags);
- 	list_for_each_entry(cl_device, &cl->dev->device_list,
- 			device_link) {
--		if (cl_device->fw_client->client_id == cl->fw_client_id) {
-+		if (cl_device->fw_client &&
-+		    cl_device->fw_client->client_id == cl->fw_client_id) {
- 			cl->device = cl_device;
- 			rv = 0;
- 			break;
-@@ -735,6 +736,7 @@ void ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev,
- 	spin_lock_irqsave(&ishtp_dev->device_list_lock, flags);
- 	list_for_each_entry_safe(cl_device, n, &ishtp_dev->device_list,
- 				 device_link) {
-+		cl_device->fw_client = NULL;
- 		if (warm_reset && cl_device->reference_count)
- 			continue;
- 
--- 
-2.19.1
+> +
+> +Example from Fairphone 2:
+> +
+> +vibrator {
+> +	compatible = "gpio-vibrator";
+> +	enable-gpios = <&msmgpio 86 GPIO_ACTIVE_HIGH>;
+> +	vcc-supply = <&pm8941_l18>;
+> +};
+> -- 
+> 2.21.0
+> 

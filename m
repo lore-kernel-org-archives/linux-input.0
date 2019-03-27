@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-Subject: [PATCH v3 3/4] driver core: add dev_print_hex_dump() logging function.
-Date: Tue, 26 Mar 2019 18:48:06 -0700
-Message-ID: <20190327014807.7472-4-ronald@innovation.ch>
+Subject: [PATCH v3 2/4] lib/hexdump.c: factor out generic hexdump formatting for reuse.
+Date: Tue, 26 Mar 2019 18:48:05 -0700
+Message-ID: <20190327014807.7472-3-ronald@innovation.ch>
 References: <20190327014807.7472-1-ronald@innovation.ch>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,42 +12,146 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath
 Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is the dev_xxx() analog to print_hex_dump(), using dev_printk()
-instead of straight printk() to match other dev_xxx() logging functions.
----
- drivers/base/core.c    | 43 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/device.h | 15 +++++++++++++++
- 2 files changed, 58 insertions(+)
+This introduces print_hex_dump_to_cb() which contains all the hexdump
+formatting minus the actual printk() call, allowing an arbitrary print
+function to be supplied instead. And print_hex_dump() is re-implemented
+using print_hex_dump_to_cb().
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 0073b09bb99f..eb260d482750 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -3097,6 +3097,49 @@ define_dev_printk_level(_dev_warn, KERN_WARNING);
- define_dev_printk_level(_dev_notice, KERN_NOTICE);
- define_dev_printk_level(_dev_info, KERN_INFO);
- 
-+static void
-+print_to_dev_printk(const char *level, void *arg, const char *fmt, ...)
+This allows other hex-dump logging functions to be provided which call
+printk() differently or even log the hexdump somewhere entirely
+different.
+---
+ include/linux/printk.h | 12 ++++++
+ lib/hexdump.c          | 95 +++++++++++++++++++++++++++++++-----------
+ 2 files changed, 83 insertions(+), 24 deletions(-)
+
+diff --git a/include/linux/printk.h b/include/linux/printk.h
+index 77740a506ebb..4ebdacd7a287 100644
+--- a/include/linux/printk.h
++++ b/include/linux/printk.h
+@@ -483,10 +483,16 @@ enum {
+ extern int hex_dump_to_buffer(const void *buf, size_t len, int rowsize,
+ 			      int groupsize, char *linebuf, size_t linebuflen,
+ 			      bool ascii);
++typedef
++void (*hex_dump_callback)(const char *level, void *arg, const char *fmt, ...);
+ #ifdef CONFIG_PRINTK
+ extern void print_hex_dump(const char *level, const char *prefix_str,
+ 			   int prefix_type, int rowsize, int groupsize,
+ 			   const void *buf, size_t len, bool ascii);
++extern void print_hex_dump_to_cb(const char *level, const char *prefix_str,
++				 int prefix_type, int rowsize, int groupsize,
++				 const void *buf, size_t len, bool ascii,
++				 hex_dump_callback print, void *print_arg);
+ #if defined(CONFIG_DYNAMIC_DEBUG)
+ #define print_hex_dump_bytes(prefix_str, prefix_type, buf, len)	\
+ 	dynamic_hex_dump(prefix_str, prefix_type, 16, 1, buf, len, true)
+@@ -500,6 +506,12 @@ static inline void print_hex_dump(const char *level, const char *prefix_str,
+ 				  const void *buf, size_t len, bool ascii)
+ {
+ }
++extern void print_hex_dump_to_cb(const char *level, const char *prefix_str,
++				 int prefix_type, int rowsize, int groupsize,
++				 const void *buf, size_t len, bool ascii,
++				 hex_dump_callback *print, void *print_arg);
 +{
-+	struct va_format vaf;
++}
+ static inline void print_hex_dump_bytes(const char *prefix_str, int prefix_type,
+ 					const void *buf, size_t len)
+ {
+diff --git a/lib/hexdump.c b/lib/hexdump.c
+index 81b70ed37209..43583cf6accd 100644
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -210,7 +210,8 @@ EXPORT_SYMBOL(hex_dump_to_buffer);
+ 
+ #ifdef CONFIG_PRINTK
+ /**
+- * print_hex_dump - print a text hex dump to syslog for a binary blob of data
++ * print_hex_dump_to_cb - print a text hex dump using given callback for a
++ * binary blob of data
+  * @level: kernel log level (e.g. KERN_DEBUG)
+  * @prefix_str: string to prefix each line with;
+  *  caller supplies trailing spaces for alignment if desired
+@@ -221,28 +222,18 @@ EXPORT_SYMBOL(hex_dump_to_buffer);
+  * @buf: data blob to dump
+  * @len: number of bytes in the @buf
+  * @ascii: include ASCII after the hex output
++ * @print: the print function, called once for each line
++ * @print_arg: an arbitrary argument to pass to the print function
+  *
+- * Given a buffer of u8 data, print_hex_dump() prints a hex + ASCII dump
+- * to the kernel log at the specified kernel log level, with an optional
+- * leading prefix.
+- *
+- * print_hex_dump() works on one "line" of output at a time, i.e.,
+- * 16 or 32 bytes of input data converted to hex + ASCII output.
+- * print_hex_dump() iterates over the entire input @buf, breaking it into
+- * "line size" chunks to format and print.
+- *
+- * E.g.:
+- *   print_hex_dump(KERN_DEBUG, "raw data: ", DUMP_PREFIX_ADDRESS,
+- *		    16, 1, frame->data, frame->len, true);
++ * This is a low level helper function - normally you want to use
++ * print_hex_dump() or other wrapper around it.
+  *
+- * Example output using %DUMP_PREFIX_OFFSET and 1-byte mode:
+- * 0009ab42: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f  @ABCDEFGHIJKLMNO
+- * Example output using %DUMP_PREFIX_ADDRESS and 4-byte mode:
+- * ffffffff88089af0: 73727170 77767574 7b7a7978 7f7e7d7c  pqrstuvwxyz{|}~.
++ * See print_hex_dump() for more details and examples.
+  */
+-void print_hex_dump(const char *level, const char *prefix_str, int prefix_type,
+-		    int rowsize, int groupsize,
+-		    const void *buf, size_t len, bool ascii)
++void print_hex_dump_to_cb(const char *level, const char *prefix_str,
++			  int prefix_type, int rowsize, int groupsize,
++			  const void *buf, size_t len, bool ascii,
++			  hex_dump_callback print, void *print_arg)
+ {
+ 	const u8 *ptr = buf;
+ 	int i, linelen, remaining = len;
+@@ -260,18 +251,74 @@ void print_hex_dump(const char *level, const char *prefix_str, int prefix_type,
+ 
+ 		switch (prefix_type) {
+ 		case DUMP_PREFIX_ADDRESS:
+-			printk("%s%s%p: %s\n",
+-			       level, prefix_str, ptr + i, linebuf);
++			print(level, print_arg, "%s%p: %s\n", prefix_str,
++			      ptr + i, linebuf);
+ 			break;
+ 		case DUMP_PREFIX_OFFSET:
+-			printk("%s%s%.8x: %s\n", level, prefix_str, i, linebuf);
++			print(level, print_arg, "%s%.8x: %s\n", prefix_str, i,
++			      linebuf);
+ 			break;
+ 		default:
+-			printk("%s%s%s\n", level, prefix_str, linebuf);
++			print(level, print_arg, "%s%s\n", prefix_str, linebuf);
+ 			break;
+ 		}
+ 	}
+ }
++EXPORT_SYMBOL(print_hex_dump_to_cb);
++
++static void print_to_printk(const char *level, void *arg, const char *fmt, ...)
++{
 +	va_list args;
++	struct va_format vaf;
 +
 +	va_start(args, fmt);
 +
 +	vaf.fmt = fmt;
 +	vaf.va = &args;
 +
-+	__dev_printk(level, (const struct device *)arg, &vaf);
++	printk("%s%pV", level, &vaf);
 +
 +	va_end(args);
 +}
 +
 +/**
-+ * _dev_print_hex_dump - print a text hex dump to syslog for a binary blob of
-+ * data
++ * print_hex_dump - print a text hex dump to syslog for a binary blob of data
 + * @level: kernel log level (e.g. KERN_DEBUG)
-+ * @dev: the device to which this log message pertains
 + * @prefix_str: string to prefix each line with;
 + *  caller supplies trailing spaces for alignment if desired
 + * @prefix_type: controls whether prefix of an offset, address, or none
@@ -58,60 +162,33 @@ index 0073b09bb99f..eb260d482750 100644
 + * @len: number of bytes in the @buf
 + * @ascii: include ASCII after the hex output
 + *
-+ * See print_hex_dump() for additional details and examples.
++ * Given a buffer of u8 data, print_hex_dump() prints a hex + ASCII dump
++ * to the kernel log at the specified kernel log level, with an optional
++ * leading prefix.
++ *
++ * print_hex_dump() works on one "line" of output at a time, i.e.,
++ * 16 or 32 bytes of input data converted to hex + ASCII output.
++ * print_hex_dump() iterates over the entire input @buf, breaking it into
++ * "line size" chunks to format and print.
++ *
++ * E.g.:
++ *   print_hex_dump(KERN_DEBUG, "raw data: ", DUMP_PREFIX_ADDRESS,
++ *		    16, 1, frame->data, frame->len, true);
++ *
++ * Example output using %DUMP_PREFIX_OFFSET and 1-byte mode:
++ * 0009ab42: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f  @ABCDEFGHIJKLMNO
++ * Example output using %DUMP_PREFIX_ADDRESS and 4-byte mode:
++ * ffffffff88089af0: 73727170 77767574 7b7a7978 7f7e7d7c  pqrstuvwxyz{|}~.
 + */
-+void _dev_print_hex_dump(const char *level, const struct device *dev,
-+			 const char *prefix_str, int prefix_type,
-+			 int rowsize, int groupsize,
-+			 const void *buf, size_t len, bool ascii)
++void print_hex_dump(const char *level, const char *prefix_str, int prefix_type,
++		    int rowsize, int groupsize,
++		    const void *buf, size_t len, bool ascii)
 +{
 +	print_hex_dump_to_cb(level, prefix_str, prefix_type, rowsize, groupsize,
-+			     buf, len, ascii, print_to_dev_printk, (void *)dev);
++			     buf, len, ascii, print_to_printk, NULL);
 +}
-+EXPORT_SYMBOL(_dev_print_hex_dump);
-+
- #endif
+ EXPORT_SYMBOL(print_hex_dump);
  
- static inline bool fwnode_is_primary(struct fwnode_handle *fwnode)
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 6cb4640b6160..dc6fcae3002a 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -1405,6 +1405,10 @@ __printf(2, 3)
- void _dev_notice(const struct device *dev, const char *fmt, ...);
- __printf(2, 3)
- void _dev_info(const struct device *dev, const char *fmt, ...);
-+void _dev_print_hex_dump(const char *level, const struct device *dev,
-+			 const char *prefix_str, int prefix_type,
-+			 int rowsize, int groupsize,
-+			 const void *buf, size_t len, bool ascii);
- 
- #else
- 
-@@ -1445,6 +1449,12 @@ void _dev_notice(const struct device *dev, const char *fmt, ...)
- static inline __printf(2, 3)
- void _dev_info(const struct device *dev, const char *fmt, ...)
- {}
-+static inline
-+void _dev_print_hex_dump(const char *level, const struct device *dev,
-+			 const char *prefix_str, int prefix_type,
-+			 int rowsize, int groupsize,
-+			 const void *buf, size_t len, bool ascii);
-+{}
- 
- #endif
- 
-@@ -1467,6 +1477,11 @@ void _dev_info(const struct device *dev, const char *fmt, ...)
- 	_dev_notice(dev, dev_fmt(fmt), ##__VA_ARGS__)
- #define dev_info(dev, fmt, ...)						\
- 	_dev_info(dev, dev_fmt(fmt), ##__VA_ARGS__)
-+#define dev_print_hex_dump(level, dev, prefix_str, prefix_type,		\
-+			   rowsize, groupsize, buf, len, ascii)		\
-+	_dev_print_hex_dump(level, dev, dev_fmt(prefix_str),		\
-+			    prefix_type, rowsize, groupsize, buf, len,	\
-+			    ascii);
- 
- #if defined(CONFIG_DYNAMIC_DEBUG)
- #define dev_dbg(dev, fmt, ...)						\
+ #if !defined(CONFIG_DYNAMIC_DEBUG)
 -- 
 2.20.1

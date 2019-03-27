@@ -1,83 +1,57 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH v3 1/4] drm/bridge: sil_sii8620: depend on INPUT instead
- of selecting it.
-Date: Wed, 27 Mar 2019 15:13:37 +0100
-Message-ID: <9fd8af5b-20ed-5dca-7d5c-98f2926b9b0c@samsung.com>
-References: <20190327014807.7472-1-ronald@innovation.ch>
-        <CGME20190327014824epcas2p1f79a41c58f76150f7324169805f506f0@epcas2p1.samsung.com>
-        <20190327014807.7472-2-ronald@innovation.ch>
+From: Nick Crews <ncrews@chromium.org>
+Subject: Re: [PATCH] HID: intel-ish-hid: ISH firmware loader client driver
+Date: Wed, 27 Mar 2019 10:01:49 -0600
+Message-ID: <CAHX4x86DKshGWj8D4nYje3fUvETG14jD4jNt+VgpejmzU2Dnog@mail.gmail.com>
+References: <1553339772-25012-1-git-send-email-rushikesh.s.kadam@intel.com>
+ <31755c704928710da998353192157ddfd903080c.camel@linux.intel.com>
+ <CAHX4x87iQgjX8wHOYNCD7nYQJZKoirgCimPax11bMX_DGMEudw@mail.gmail.com> <de917efc4ded94b3fbc70913207881b3a0c10b52.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327014807.7472-2-ronald@innovation.ch>
-Content-Language: en-US
+In-Reply-To: <de917efc4ded94b3fbc70913207881b3a0c10b52.camel@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Ronald_Tschal=c3=a4r?= <ronald@innovation.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>, benjamin.tissoires@redhat.com, jikos@kernel.org, jettrink@chromium.org, gwendal@google.com, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-+cc: dri-devel
-
-On 27.03.2019 02:48, Ronald Tschalär wrote:
-> commit d6abe6df706c66d803e6dd4fe98c1b6b7f125a56 (drm/bridge:
-> sil_sii8620: do not have a dependency of RC_CORE) added a dependency on
-> INPUT. However, this causes problems with other drivers, in particular
-> an input driver that depends on MFD_INTEL_LPSS_PCI (to be added in a
-> future commit):
+On Tue, Mar 26, 2019 at 8:22 PM Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
 >
->   drivers/clk/Kconfig:9:error: recursive dependency detected!
->   drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
->   drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
->   drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
->   drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
->   drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
->   drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
->   drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
->   drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
+> On Tue, 2019-03-26 at 18:39 -0600, Nick Crews wrote:
+> > Hi Rushikesh, I know I've been reviewing this on Chromium, but I have
+> > some more larges-scale design thoughts.
+> Hi Nick.
 >
-> According to the docs, select should only be used for non-visible
-> symbols. Furthermore almost all other references to INPUT throughout the
-> kernel config are depends, not selects. Hence this change.
+> Does this fundamentally change, the way it is done here or can wait for
+> subsequent revisions later?
+
+I don't have any official stakes in this, as I'm not the maintainer or
+anything, so
+I'm just preaching what I think would be good design :)
+
+I think I would like to see most of my suggestions addressed. At the
+very least there
+are some actual bugs (infinite loops, accessing bad memory, not
+reporting all errors)
+ that need to get fixed. Of course I'm not the one that has to write
+or test it, but I imagine
+that the one large design change I proposed of where memory is
+allocated shouldn't be too
+hard either. I worry that "subsequent revisions" to upstream won't
+happen, since it's hard enough
+to get a patch accepted. Maybe that concern isn't warranted though, I
+don't have that
+much experience on the LKML.
+
+Is there a really tight deadline for this? If so then I would say we
+should apply what
+we currently have to the Chromium tree, and upstream the final version
+when it's done.
+
+Thanks,
+Nick
+
 >
-> CC: Inki Dae <inki.dae@samsung.com>
-> CC: Andrzej Hajda <a.hajda@samsung.com>
-> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
-
-
-This is drm bridge driver, next time please cc it to dri-devel ML also.
-
-Anyway this is not the solution we have agreed to.
-
-Why have you abandoned the patch [1]? It needed just some minor
-polishing, as I wrote in response to this mail.
-
-
-[1]:
-https://lore.kernel.org/lkml/20190124082423.23139-1-ronald@innovation.ch/T/#mf620df0b1583096a214d8e2e690387078583472f
-
-
-Regards
-
-Andrzej
-
-
-> ---
->  drivers/gpu/drm/bridge/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Thanks,
+> Srinivas
 >
-> diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-> index 2fee47b0d50b..eabedc83f25c 100644
-> --- a/drivers/gpu/drm/bridge/Kconfig
-> +++ b/drivers/gpu/drm/bridge/Kconfig
-> @@ -83,9 +83,9 @@ config DRM_PARADE_PS8622
->  config DRM_SIL_SII8620
->  	tristate "Silicon Image SII8620 HDMI/MHL bridge"
->  	depends on OF
-> +	depends on INPUT
->  	select DRM_KMS_HELPER
->  	imply EXTCON
-> -	select INPUT
->  	select RC_CORE
->  	help
->  	  Silicon Image SII8620 HDMI/MHL bridge chip driver.

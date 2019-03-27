@@ -1,73 +1,56 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 219/262] HID: intel-ish: ipc: handle PIMR before ish_wakeup also clear PISR busy_clear bit
-Date: Wed, 27 Mar 2019 14:01:14 -0400
-Message-ID: <20190327180158.10245-219-sashal@kernel.org>
-References: <20190327180158.10245-1-sashal@kernel.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3 4/4] Input: add Apple SPI keyboard and trackpad driver.
+Date: Wed, 27 Mar 2019 21:22:06 +0200
+Message-ID: <20190327192206.GQ9224@smile.fi.intel.com>
+References: <20190327014807.7472-1-ronald@innovation.ch>
+ <20190327014807.7472-5-ronald@innovation.ch>
+ <20190327093530.GH9224@smile.fi.intel.com>
+ <20190327184526.GA11095@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190327184526.GA11095@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Song Hongyan <hongyan.song@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Song Hongyan <hongyan.song@intel.com>
+On Wed, Mar 27, 2019 at 07:45:26PM +0100, Greg Kroah-Hartman wrote:
+> On Wed, Mar 27, 2019 at 11:35:30AM +0200, Andy Shevchenko wrote:
+> > On Tue, Mar 26, 2019 at 06:48:07PM -0700, Ronald Tschalär wrote:
+> > > The keyboard and trackpad on recent MacBook's (since 8,1) and
+> > > MacBookPro's (13,* and 14,*) are attached to an SPI controller instead
+> > > of USB, as previously. The higher level protocol is not publicly
+> > > documented and hence has been reverse engineered. As a consequence there
+> > > are still a number of unknown fields and commands. However, the known
+> > > parts have been working well and received extensive testing and use.
+> > > 
+> > > In order for this driver to work, the proper SPI drivers need to be
+> > > loaded too; for MB8,1 these are spi_pxa2xx_platform and spi_pxa2xx_pci;
+> > > for all others they are spi_pxa2xx_platform and intel_lpss_pci. For this
+> > > reason enabling this driver in the config implies enabling the above
+> > > drivers.
+> > 
+> > > +// SPDX-License-Identifier: GPL-2.0
+> > 
+> > According to last changes this should be GPL-2.0-only
+> 
+> What "last changes"?  "GPL-2.0" is a totally valid SPDX identifier for
+> the kernel.  Don't buy into the "-only" prefix crud that the newer SPDX
+> version adopted for crazy reasons.  The in-kernel documentation lists
+> the valid identifiers and the version of SPDX we are currently using.
 
-[ Upstream commit 2edefc056e4f0e6ec9508dd1aca2c18fa320efef ]
+Thanks for this clarification.
 
-Host driver should handle interrupt mask register earlier than wake up ish FW
-else there will be conditions when FW interrupt comes, host PIMR register still
-not set ready, so move the interrupt mask setting before ish_wakeup.
+// offtopic
 
-Clear PISR busy_clear bit in ish_irq_handler. If not clear, there will be
-conditions host driver received a busy_clear interrupt (before the busy_clear
-mask bit is ready), it will return IRQ_NONE after check_generated_interrupt,
-the interrupt will never be cleared, causing the DEVICE not sending following
-IRQ.
+Bartosz, so, it seems my first mail has been a correct one: in-kernel
+documentation clarifies things for kernel.
 
-Since PISR clear should not be called for the CHV device we do this change.
-After the change, both ISH2HOST interrupt and busy_clear interrupt will be
-considered as interrupt from ISH, busy_clear interrupt will return IRQ_HANDLED
-from IPC_IS_BUSY check.
+// offtopic
 
-Signed-off-by: Song Hongyan <hongyan.song@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 742191bb24c6..45e33c7ba9a6 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -91,7 +91,10 @@ static bool check_generated_interrupt(struct ishtp_device *dev)
- 			IPC_INT_FROM_ISH_TO_HOST_CHV_AB(pisr_val);
- 	} else {
- 		pisr_val = ish_reg_read(dev, IPC_REG_PISR_BXT);
--		interrupt_generated = IPC_INT_FROM_ISH_TO_HOST_BXT(pisr_val);
-+		interrupt_generated = !!pisr_val;
-+		/* only busy-clear bit is RW, others are RO */
-+		if (pisr_val)
-+			ish_reg_write(dev, IPC_REG_PISR_BXT, pisr_val);
- 	}
- 
- 	return interrupt_generated;
-@@ -839,11 +842,11 @@ int ish_hw_start(struct ishtp_device *dev)
- {
- 	ish_set_host_rdy(dev);
- 
-+	set_host_ready(dev);
-+
- 	/* After that we can enable ISH DMA operation and wakeup ISHFW */
- 	ish_wakeup(dev);
- 
--	set_host_ready(dev);
--
- 	/* wait for FW-initiated reset flow */
- 	if (!dev->recvd_hw_ready)
- 		wait_event_interruptible_timeout(dev->wait_hw_ready,
 -- 
-2.19.1
+With Best Regards,
+Andy Shevchenko

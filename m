@@ -1,98 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - Add i2c_reset in sysfs for ELAN
- touchpad recovery
-Date: Tue, 26 Mar 2019 21:34:23 -0700
-Message-ID: <20190327043423.GD40550@dtor-ws>
-References: <1549094096-4082-1-git-send-email-kt.liao@emc.com.tw>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: RE: [PATCH] input: keyboard: snvs: make sure irq is handled correctly
+Date: Wed, 27 Mar 2019 05:05:28 +0000
+Message-ID: <DB3PR0402MB3916979BF8E1E94C29063F3EF5580@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1553654517-7810-1-git-send-email-Anson.Huang@nxp.com>
+ <20190327042903.GA40550@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1549094096-4082-1-git-send-email-kt.liao@emc.com.tw>
+In-Reply-To: <20190327042903.GA40550@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: KT Liao <kt.liao@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ulrik.debie-os@e2big.org, Roger.Whittaker@suse.com
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi KT,
-
-On Sat, Feb 02, 2019 at 03:54:56PM +0800, KT Liao wrote:
-> Roger from SUSE reported the touchpad on Lenovo yoga2 crush sometimes.
-> He found that rmmod/modprobe elan_i2c will recover the issue.
-> He add the workaround on SUSE and solve the problem.
-> Recently, the workaround fails in kernel 4.20 becasue IRQ mismatch.
-> genirq: Flags mismatch irq 0. 00002002 (ELAN0600:00) vs. 00015a00 (timer)
-> I can't reproduce the issue in SUSE with the same kernel.
-> And it's a 5 years old laptop, ELAN can't find the module for testing.
-> Instead of IRQ debugging IRQ, I tried another approach.
-> I added i2c_reset in sysfs to avoid IRQ requesting in probe.
-
-How will users discover this flag? I do not think this is the best
-approach. Can we detect that the touchpad firmware crashed from the
-kernel and reset automatically?
-
-Thanks.
-
-> 
-> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-> Acked-by: Roger Whittaker <Roger.Whittaker@suse.com>
-> ---
->  drivers/input/mouse/elan_i2c_core.c | 25 +++++++++++++++++++++++++
->  1 file changed, 25 insertions(+)
-> 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 2690a4b..388b1f0 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -670,6 +670,29 @@ static ssize_t calibrate_store(struct device *dev,
->  	return retval ?: count;
->  }
->  
-> +static ssize_t i2c_reset_store(struct device *dev,
-> +			       struct device_attribute *attr,
-> +			       const char *buf, size_t count)
-> +{
-> +	struct i2c_client *client = to_i2c_client(dev);
-> +	struct elan_tp_data *data = i2c_get_clientdata(client);
-> +	int retval;
-> +
-> +	retval = mutex_lock_interruptible(&data->sysfs_mutex);
-> +	if (retval)
-> +		return retval;
-> +
-> +	disable_irq(client->irq);
-> +
-> +	retval = elan_initialize(data);
-> +	if (retval)
-> +		dev_err(dev, "failed to re-initialize touchpad: %d\n", retval);
-> +
-> +	enable_irq(client->irq);
-> +	mutex_unlock(&data->sysfs_mutex);
-> +	return retval ?: count;
-> +}
-> +
->  static ssize_t elan_sysfs_read_mode(struct device *dev,
->  				    struct device_attribute *attr,
->  				    char *buf)
-> @@ -702,6 +725,7 @@ static DEVICE_ATTR(mode, S_IRUGO, elan_sysfs_read_mode, NULL);
->  static DEVICE_ATTR(update_fw, S_IWUSR, NULL, elan_sysfs_update_fw);
->  
->  static DEVICE_ATTR_WO(calibrate);
-> +static DEVICE_ATTR_WO(i2c_reset);
->  
->  static struct attribute *elan_sysfs_entries[] = {
->  	&dev_attr_product_id.attr,
-> @@ -710,6 +734,7 @@ static struct attribute *elan_sysfs_entries[] = {
->  	&dev_attr_iap_version.attr,
->  	&dev_attr_fw_checksum.attr,
->  	&dev_attr_calibrate.attr,
-> +	&dev_attr_i2c_reset.attr,
->  	&dev_attr_mode.attr,
->  	&dev_attr_update_fw.attr,
->  	NULL,
-> -- 
-> 2.7.4
-> 
-
--- 
-Dmitry
+SGksIERtaXRyeQ0KDQpCZXN0IFJlZ2FyZHMhDQpBbnNvbiBIdWFuZw0KDQo+IC0tLS0tT3JpZ2lu
+YWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20gW21haWx0
+bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiBTZW50OiAyMDE5xOoz1MIyN8jVIDEyOjI5
+DQo+IFRvOiBBbnNvbiBIdWFuZyA8YW5zb24uaHVhbmdAbnhwLmNvbT4NCj4gQ2M6IEZhYmlvIEVz
+dGV2YW0gPGZhYmlvLmVzdGV2YW1AbnhwLmNvbT47IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9y
+ZzsNCj4gbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgZGwtbGludXgtaW14IDxsaW51eC1p
+bXhAbnhwLmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gaW5wdXQ6IGtleWJvYXJkOiBzbnZz
+OiBtYWtlIHN1cmUgaXJxIGlzIGhhbmRsZWQNCj4gY29ycmVjdGx5DQo+IA0KPiBIaSBBbnNvbiwN
+Cj4gDQo+IE9uIFdlZCwgTWFyIDI3LCAyMDE5IGF0IDAyOjQ3OjA2QU0gKzAwMDAsIEFuc29uIEh1
+YW5nIHdyb3RlOg0KPiA+IFNOVlMgSVJRIGlzIHJlcXVlc3RlZCBiZWZvcmUgbmVjZXNzYXJ5IGRy
+aXZlciBkYXRhIGluaXRpYWxpemVkLCBpZg0KPiA+IHRoZXJlIGlzIGEgcGVuZGluZyBJUlEgZHVy
+aW5nIGRyaXZlciBwcm9iZSBwaGFzZSwga2VybmVsIE5VTEwgcG9pbnRlcg0KPiA+IHBhbmljIHdp
+bGwgb2NjdXIgaW4gSVJRIGhhbmRsZXIuIFRvIGF2b2lkIHN1Y2ggc2NlbmFyaW8sIG5lZWQgdG8g
+bW92ZQ0KPiA+IHRoZSBJUlEgcmVxdWVzdCB0byBhZnRlciBkcml2ZXIgZGF0YSBpbml0aWFsaXph
+dGlvbiBkb25lLiBUaGlzIHBhdGNoDQo+ID4gaXMgaW5zcGlyZWQgYnkgTlhQJ3MgaW50ZXJuYWwg
+a2VybmVsIHRyZWUuDQo+ID4NCj4gPiBGaXhlczogZDNkYzZlMjMyMjE1ICgiaW5wdXQ6IGtleWJv
+YXJkOiBpbXg6IGFkZCBzbnZzIHBvd2VyIGtleQ0KPiA+IGRyaXZlciIpDQo+ID4gU2lnbmVkLW9m
+Zi1ieTogQW5zb24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+DQo+ID4gLS0tDQo+ID4gIGRy
+aXZlcnMvaW5wdXQva2V5Ym9hcmQvc252c19wd3JrZXkuYyB8IDE3ICsrKysrKysrLS0tLS0tLS0t
+DQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCA4IGluc2VydGlvbnMoKyksIDkgZGVsZXRpb25zKC0pDQo+
+ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9zbnZzX3B3cmtleS5j
+DQo+ID4gYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL3NudnNfcHdya2V5LmMNCj4gPiBpbmRleCBl
+ZmZiNjMyLi42ZmY0MWZkIDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQv
+c252c19wd3JrZXkuYw0KPiA+ICsrKyBiL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvc252c19wd3Jr
+ZXkuYw0KPiA+IEBAIC0xNDgsMTUgKzE0OCw2IEBAIHN0YXRpYyBpbnQgaW14X3NudnNfcHdya2V5
+X3Byb2JlKHN0cnVjdA0KPiBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ID4gIAkJcmV0dXJuIGVy
+cm9yOw0KPiA+ICAJfQ0KPiA+DQo+ID4gLQllcnJvciA9IGRldm1fcmVxdWVzdF9pcnEoJnBkZXYt
+PmRldiwgcGRhdGEtPmlycSwNCj4gPiAtCQkJICAgICAgIGlteF9zbnZzX3B3cmtleV9pbnRlcnJ1
+cHQsDQo+ID4gLQkJCSAgICAgICAwLCBwZGV2LT5uYW1lLCBwZGV2KTsNCj4gPiAtDQo+ID4gLQlp
+ZiAoZXJyb3IpIHsNCj4gPiAtCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJpbnRlcnJ1cHQgbm90IGF2
+YWlsYWJsZS5cbiIpOw0KPiA+IC0JCXJldHVybiBlcnJvcjsNCj4gPiAtCX0NCj4gPiAtDQo+ID4g
+IAllcnJvciA9IGlucHV0X3JlZ2lzdGVyX2RldmljZShpbnB1dCk7DQo+ID4gIAlpZiAoZXJyb3Ig
+PCAwKSB7DQo+ID4gIAkJZGV2X2VycigmcGRldi0+ZGV2LCAiZmFpbGVkIHRvIHJlZ2lzdGVyIGlu
+cHV0IGRldmljZVxuIik7DQo+IEBAIC0xNjYsNg0KPiA+ICsxNTcsMTQgQEAgc3RhdGljIGludCBp
+bXhfc252c19wd3JrZXlfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZQ0KPiAqcGRldikNCj4g
+PiAgCXBkYXRhLT5pbnB1dCA9IGlucHV0Ow0KPiA+ICAJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRl
+diwgcGRhdGEpOw0KPiA+DQo+ID4gKwllcnJvciA9IGRldm1fcmVxdWVzdF9pcnEoJnBkZXYtPmRl
+diwgcGRhdGEtPmlycSwNCj4gPiArCQkJCSBpbXhfc252c19wd3JrZXlfaW50ZXJydXB0LA0KPiA+
+ICsJCQkJIDAsIHBkZXYtPm5hbWUsIHBkZXYpOw0KPiA+ICsJaWYgKGVycm9yKSB7DQo+ID4gKwkJ
+ZGV2X2VycigmcGRldi0+ZGV2LCAiaW50ZXJydXB0IG5vdCBhdmFpbGFibGUuXG4iKTsNCj4gPiAr
+CQlyZXR1cm4gZXJyb3I7DQo+ID4gKwl9DQo+IA0KPiBJbnN0ZWFkIG9mIG1vdmluZyBkZXZtX3Jl
+cXVlc3RfaXJxKCkgYXJvdW5kIGNvdWxkIHlvdSBzaW1wbHkgbW92ZQ0KPiBwZGF0YS0+aW5wdXQg
+PSBpbnB1dCBhc3NpZ25tZW50IGhpZ2hlcj8gSXQgaXMgcGVyZmVjdGx5IGZpbmUgdG8gdHJ5DQo+
+IGNhbGxpbmcgaW5wdXRfZXZlbnQoKSBvbiBpbnB1dCBkZXZpY2UgdGhhdCBpcyBhbGxvY2F0ZWQg
+YnV0IG5vdCB5ZXQgcmVnaXN0ZXJlZC4NCg0KT0ssIG1ha2Ugc2Vuc2UuDQoNCj4gDQo+ID4gKw0K
+PiA+ICAJZGV2aWNlX2luaXRfd2FrZXVwKCZwZGV2LT5kZXYsIHBkYXRhLT53YWtldXApOw0KPiAN
+Cj4gVW5yZWxhdGVkIHN1Z2dlc3Rpb246DQo+IA0KPiBDYW4geW91IHRyeSBjYWxsaW5nIGRldl9w
+bV9zZXRfd2FrZV9pcnEoJnBkZXYtPmRldiwgcGRhdGEtPmlycSkgaGVyZSBhbmQNCj4gSSB0aGlu
+ayB5b3Ugd2lsbCBiZSBhYmxlIHRvIGdldCByaWQgb2Ygc3VzcGVuZC9yZXN1bWUgbWV0aG9kcyBp
+biB0aGUgZHJpdmVyLg0KDQpPSywgSSB3aWxsIGxvb2sgaW50byBpdCwgYW5kIHNlbmQgYW5vdGhl
+ciBwYXRjaCB0byBpbXByb3ZlIHRoaXMuDQoNClRoYW5rcy4NCkFuc29uDQoNCj4gDQo+IFRoYW5r
+cy4NCj4gDQo+IC0tDQo+IERtaXRyeQ0K

@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 103/123] HID: intel-ish: ipc: handle PIMR before ish_wakeup also clear PISR busy_clear bit
-Date: Wed, 27 Mar 2019 14:16:07 -0400
-Message-ID: <20190327181628.15899-103-sashal@kernel.org>
-References: <20190327181628.15899-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 72/87] HID: intel-ish: ipc: handle PIMR before ish_wakeup also clear PISR busy_clear bit
+Date: Wed, 27 Mar 2019 14:20:25 -0400
+Message-ID: <20190327182040.17444-72-sashal@kernel.org>
+References: <20190327182040.17444-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327181628.15899-1-sashal@kernel.org>
+In-Reply-To: <20190327182040.17444-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Song Hongyan <hongyan.song@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -40,10 +40,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 9a60ec13cb10..a3106fcc2253 100644
+index 0c9ac4d5d850..41d44536aa15 100644
 --- a/drivers/hid/intel-ish-hid/ipc/ipc.c
 +++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -91,7 +91,10 @@ static bool check_generated_interrupt(struct ishtp_device *dev)
+@@ -92,7 +92,10 @@ static bool check_generated_interrupt(struct ishtp_device *dev)
  			IPC_INT_FROM_ISH_TO_HOST_CHV_AB(pisr_val);
  	} else {
  		pisr_val = ish_reg_read(dev, IPC_REG_PISR_BXT);
@@ -55,7 +55,7 @@ index 9a60ec13cb10..a3106fcc2253 100644
  	}
  
  	return interrupt_generated;
-@@ -843,11 +846,11 @@ int ish_hw_start(struct ishtp_device *dev)
+@@ -795,11 +798,11 @@ int ish_hw_start(struct ishtp_device *dev)
  {
  	ish_set_host_rdy(dev);
  

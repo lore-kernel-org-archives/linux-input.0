@@ -1,8 +1,8 @@
 From: megous via linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Subject: [PATCH RESEND v4 2/4] dt-bindings: input: Add R_LRADC
+Subject: [PATCH RESEND v4 3/4] ARM: dts: sunxi: Add R_LRADC
  support for A83T
-Date: Wed, 27 Mar 2019 03:33:37 +0100
-Message-ID: <20190327023339.25975-3-megous@megous.com>
+Date: Wed, 27 Mar 2019 03:33:38 +0100
+Message-ID: <20190327023339.25975-4-megous@megous.com>
 References: <20190327023339.25975-1-megous@megous.com>
 Reply-To: megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org
 Mime-Version: 1.0
@@ -21,36 +21,33 @@ List-Id: linux-input@vger.kernel.org
 
 From: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Allwinner A83T SoC has a low res ADC like the one in Allwinner A10 SoC.
+Allwinner A83T SoC has a low res adc like the one in Allwinner A10 SoC.
+Now the driver has been modified to support it.
 
-Add binding for it.
+Add support for it.
 
 Signed-off-by: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
- .../devicetree/bindings/input/sun4i-lradc-keys.txt          | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/sun8i-a83t.dtsi | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt b/Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt
-index 1458c3179a63..496125c6bfb7 100644
---- a/Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt
-+++ b/Documentation/devicetree/bindings/input/sun4i-lradc-keys.txt
-@@ -2,12 +2,14 @@ Allwinner sun4i low res adc attached tablet keys
- ------------------------------------------------
+diff --git a/arch/arm/boot/dts/sun8i-a83t.dtsi b/arch/arm/boot/dts/sun8i-a83t.dtsi
+index fcb7ef5ce2df..de1b77e49f06 100644
+--- a/arch/arm/boot/dts/sun8i-a83t.dtsi
++++ b/arch/arm/boot/dts/sun8i-a83t.dtsi
+@@ -1024,6 +1024,13 @@
+ 			status = "disabled";
+ 		};
  
- Required properties:
-- - compatible: "allwinner,sun4i-a10-lradc-keys"
-+ - compatible: should be one of the following string:
-+		"allwinner,sun4i-a10-lradc-keys"
-+		"allwinner,sun8i-a83t-r-lradc"
-  - reg: mmio address range of the chip
-  - interrupts: interrupt to which the chip is connected
-  - vref-supply: powersupply for the lradc reference voltage
- 
--Each key is represented as a sub-node of "allwinner,sun4i-a10-lradc-keys":
-+Each key is represented as a sub-node of the compatible mentioned above:
- 
- Required subnode-properties:
- 	- label: Descriptive name of the key.
++		r_lradc: lradc@1f03c00 {
++			compatible = "allwinner,sun8i-a83t-r-lradc";
++			reg = <0x01f03c00 0x100>;
++			interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
++			status = "disabled";
++		};
++
+ 		r_pio: pinctrl@1f02c00 {
+ 			compatible = "allwinner,sun8i-a83t-r-pinctrl";
+ 			reg = <0x01f02c00 0x400>;
 -- 
 2.21.0

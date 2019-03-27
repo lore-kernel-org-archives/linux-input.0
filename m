@@ -1,65 +1,158 @@
 From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Subject: Re: [PATCH v3] HID: core: move Usage Page concatenation to Main item
-Date: Wed, 27 Mar 2019 11:16:13 +0100
-Message-ID: <3ea28268d51c6d9befecf273e1295ba11f8d3b06.camel@suse.de>
-References: <20190326200331.25934-1-nsaenzjulienne@suse.de>
-         <1553679302.14990.0.camel@suse.com>
+Subject: [PATCH v4] HID: core: move Usage Page concatenation to Main item
+Date: Wed, 27 Mar 2019 11:18:48 +0100
+Message-ID: <20190327101848.25477-1-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-mUp3K+XZ82nz6aO0pkje"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1553679302.14990.0.camel@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Terry.Junge@plantronics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: oneukum@suse.de, Terry.Junge@plantronics.com, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+As seen on some USB wireless keyboards manufactured by Primax, the HID
+parser was using some assumptions that are not always true. In this case
+it's s the fact that, inside the scope of a main item, an Usage Page
+will always precede an Usage.
 
---=-mUp3K+XZ82nz6aO0pkje
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
+is interpreted as a Usage ID and concatenated with the Usage Page".
+While 6.2.2.8 states "When the parser encounters a main item it
+concatenates the last declared Usage Page with a Usage to form a
+complete usage value." Being somewhat contradictory it was decided to
+match Window's implementation, which follows 6.2.2.8.
 
-Hi Oliver, thanks for the review!
+In summary, the patch moves the Usage Page concatenation from the local
+item parsing function to the main item parsing function.
 
-On Wed, 2019-03-27 at 10:35 +0100, Oliver Neukum wrote:
-> On Di, 2019-03-26 at 21:03 +0100, Nicolas Saenz Julienne wrote:
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -218,13 +218,14 @@ static unsigned hid_lookup_collection(struct
-> > hid_parser *parser, unsigned type)
-> >   * Add a usage to the temporary parser table.
-> >   */
-> > =20
-> > -static int hid_add_usage(struct hid_parser *parser, unsigned usage)
-> > +static int hid_add_usage(struct hid_parser *parser, unsigned usage, __=
-u8
-> > size)
->=20
-> No need to use the __u8 style inside the kernel. u8 will do.
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+---
 
-Noted, fixed for v4.
+v3->v4: - Use u8 instead of __u8
+        - Remove overly complex usage size calculation
 
->=20
-> 	Regards
-> 		Oliver
->=20
+v2->v3: - Update patch title
 
+v1->v2: - Add usage concatenation to hid_scan_main()
+        - Rework tests in hid-tools, making sure no-one is failing
 
---=-mUp3K+XZ82nz6aO0pkje
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
+ drivers/hid/hid-core.c | 36 ++++++++++++++++++++++++------------
+ include/linux/hid.h    |  1 +
+ 2 files changed, 25 insertions(+), 12 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAlybTW0ACgkQlfZmHno8
-x/7DXggAqpMi5OD/MzO3QKe+MsiQAQJlI70NyUiUtDaJOkB1zVUM1dub8hvpeH9c
-2gBJCMcUOqBuCpQ6OVfB2Gtp8l+J4/6Ng19veubKHm1LFTA3XYbf+8l/iQ8IMuzO
-ft/OTsHv6b/r6HkuLj0682lROuBmeJCerADbw63a2t84vHHbBCU6iaRzOuizFOTK
-Nis3n+Hipw7JSnwyNt6XvBoHIbhAVXr/IzsRVntV0nM13YxlQBDOywyt0q0bSMZV
-XGR4NWebReYaTurH3G1n97aOM3NTVwsaiwt26epb1Nzs5VVmAeUUGBtk97lRMogb
-x8P9D2Lc4j6yyUHgtoQNvsnnMoZu/A==
-=ULv/
------END PGP SIGNATURE-----
-
---=-mUp3K+XZ82nz6aO0pkje--
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 9993b692598f..852bbd303d9a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -218,13 +218,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
+  * Add a usage to the temporary parser table.
+  */
+ 
+-static int hid_add_usage(struct hid_parser *parser, unsigned usage)
++static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
+ {
+ 	if (parser->local.usage_index >= HID_MAX_USAGES) {
+ 		hid_err(parser->device, "usage index exceeded\n");
+ 		return -1;
+ 	}
+ 	parser->local.usage[parser->local.usage_index] = usage;
++	parser->local.usage_size[parser->local.usage_index] = size;
+ 	parser->local.collection_index[parser->local.usage_index] =
+ 		parser->collection_stack_ptr ?
+ 		parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
+@@ -486,10 +487,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 			return 0;
+ 		}
+ 
+-		if (item->size <= 2)
+-			data = (parser->global.usage_page << 16) + data;
+-
+-		return hid_add_usage(parser, data);
++		return hid_add_usage(parser, data, item->size);
+ 
+ 	case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+ 
+@@ -498,9 +496,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 			return 0;
+ 		}
+ 
+-		if (item->size <= 2)
+-			data = (parser->global.usage_page << 16) + data;
+-
+ 		parser->local.usage_minimum = data;
+ 		return 0;
+ 
+@@ -511,9 +506,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 			return 0;
+ 		}
+ 
+-		if (item->size <= 2)
+-			data = (parser->global.usage_page << 16) + data;
+-
+ 		count = data - parser->local.usage_minimum;
+ 		if (count + parser->local.usage_index >= HID_MAX_USAGES) {
+ 			/*
+@@ -533,7 +525,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 		}
+ 
+ 		for (n = parser->local.usage_minimum; n <= data; n++)
+-			if (hid_add_usage(parser, n)) {
++			if (hid_add_usage(parser, n, item->size)) {
+ 				dbg_hid("hid_add_usage failed\n");
+ 				return -1;
+ 			}
+@@ -547,6 +539,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 	return 0;
+ }
+ 
++/*
++ * Concatenate Usage Pages into Usages where relevant:
++ * As per specification, 6.2.2.8: "When the parser encounters a main item it
++ * concatenates the last declared Usage Page with a Usage to form a complete
++ * usage value."
++ */
++
++static void hid_concatenate_usage_page(struct hid_parser *parser)
++{
++	int i;
++
++	for (i = 0; i < parser->local.usage_index; i++)
++		if (parser->local.usage_size[i] <= 2)
++			parser->local.usage[i] += parser->global.usage_page << 16;
++}
++
+ /*
+  * Process a main item.
+  */
+@@ -556,6 +564,8 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
+ 	__u32 data;
+ 	int ret;
+ 
++	hid_concatenate_usage_page(parser);
++
+ 	data = item_udata(item);
+ 
+ 	switch (item->tag) {
+@@ -765,6 +775,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
+ 	__u32 data;
+ 	int i;
+ 
++	hid_concatenate_usage_page(parser);
++
+ 	data = item_udata(item);
+ 
+ 	switch (item->tag) {
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index f9707d1dcb58..ac0c70b4ce10 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -417,6 +417,7 @@ struct hid_global {
+ 
+ struct hid_local {
+ 	unsigned usage[HID_MAX_USAGES]; /* usage array */
++	u8 usage_size[HID_MAX_USAGES]; /* usage size array */
+ 	unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
+ 	unsigned usage_index;
+ 	unsigned usage_minimum;
+-- 
+2.21.0

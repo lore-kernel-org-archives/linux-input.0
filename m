@@ -1,63 +1,51 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 095/192] HID: intel-ish-hid: avoid binding wrong ishtp_cl_device
-Date: Wed, 27 Mar 2019 14:08:47 -0400
-Message-ID: <20190327181025.13507-95-sashal@kernel.org>
-References: <20190327181025.13507-1-sashal@kernel.org>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH v3 4/4] Input: add Apple SPI keyboard and trackpad
+ driver.
+Date: Wed, 27 Mar 2019 15:15:38 -0400
+Message-ID: <20190327151538.2ca6ac83@gandalf.local.home>
+References: <20190327014807.7472-1-ronald@innovation.ch>
+        <20190327014807.7472-5-ronald@innovation.ch>
+        <20190327093530.GH9224@smile.fi.intel.com>
+        <20190327184526.GA11095@kroah.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327181025.13507-1-sashal@kernel.org>
+In-Reply-To: <20190327184526.GA11095@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Hong Liu <hong.liu@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Ronald =?UTF-8?B?VHNjaGFsw6Ry?= <ronald@innovation.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Hong Liu <hong.liu@intel.com>
+On Wed, 27 Mar 2019 19:45:26 +0100
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-[ Upstream commit 0d28f49412405d87d3aae83da255070a46e67627 ]
+> > > +// SPDX-License-Identifier: GPL-2.0  
+> > 
+> > According to last changes this should be GPL-2.0-only  
+> 
+> What "last changes"?  "GPL-2.0" is a totally valid SPDX identifier for
+> the kernel.  Don't buy into the "-only" prefix crud that the newer SPDX
+> version adopted for crazy reasons.  The in-kernel documentation lists
+> the valid identifiers and the version of SPDX we are currently using.
 
-When performing a warm reset in ishtp bus driver, the ishtp_cl_device
-will not be removed, its fw_client still points to the already freed
-ishtp_device.fw_clients array.
+According to: LICENSES/preferred/GPL-2.0
 
-Later after driver finishing ishtp client enumeration, this dangling
-pointer may cause driver to bind the wrong ishtp_cl_device to the new
-client, causing wrong callback to be called for messages intended for
-the new client.
+> SPDX-URL: https://spdx.org/licenses/GPL-2.0.html
+> Usage-Guide:
+>   To use this license in source code, put one of the following SPDX
+>   tag/value pairs into a comment according to the placement
+>   guidelines in the licensing rules documentation.
+>   For 'GNU General Public License (GPL) version 2 only' use:
+>     SPDX-License-Identifier: GPL-2.0
+>   or
+>     SPDX-License-Identifier: GPL-2.0-only
+>   For 'GNU General Public License (GPL) version 2 or any later version' use:
+>     SPDX-License-Identifier: GPL-2.0+
+>   or
+>     SPDX-License-Identifier: GPL-2.0-or-later
 
-This helps in development of firmware where frequent switching of
-firmwares is required without Linux reboot.
+So, GPL-2.0 is the same as GPL-2.0-only. Changing it from one to the
+other doesn't make any difference.
 
-Signed-off-by: Hong Liu <hong.liu@intel.com>
-Tested-by: Hongyan Song <hongyan.song@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/intel-ish-hid/ishtp/bus.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index 2623a567ffba..f546635e9ac9 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -623,7 +623,8 @@ int ishtp_cl_device_bind(struct ishtp_cl *cl)
- 	spin_lock_irqsave(&cl->dev->device_list_lock, flags);
- 	list_for_each_entry(cl_device, &cl->dev->device_list,
- 			device_link) {
--		if (cl_device->fw_client->client_id == cl->fw_client_id) {
-+		if (cl_device->fw_client &&
-+		    cl_device->fw_client->client_id == cl->fw_client_id) {
- 			cl->device = cl_device;
- 			rv = 0;
- 			break;
-@@ -683,6 +684,7 @@ void ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev,
- 	spin_lock_irqsave(&ishtp_dev->device_list_lock, flags);
- 	list_for_each_entry_safe(cl_device, n, &ishtp_dev->device_list,
- 				 device_link) {
-+		cl_device->fw_client = NULL;
- 		if (warm_reset && cl_device->reference_count)
- 			continue;
- 
--- 
-2.19.1
+-- Steve

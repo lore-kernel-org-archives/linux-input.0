@@ -1,63 +1,64 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 063/123] HID: intel-ish-hid: avoid binding wrong ishtp_cl_device
-Date: Wed, 27 Mar 2019 14:15:27 -0400
-Message-ID: <20190327181628.15899-63-sashal@kernel.org>
-References: <20190327181628.15899-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 187/192] Input: soc_button_array - fix mapping of the 5th GPIO in a PNP0C40 device
+Date: Wed, 27 Mar 2019 14:10:19 -0400
+Message-ID: <20190327181025.13507-187-sashal@kernel.org>
+References: <20190327181025.13507-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327181628.15899-1-sashal@kernel.org>
+In-Reply-To: <20190327181025.13507-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Hong Liu <hong.liu@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Hong Liu <hong.liu@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 0d28f49412405d87d3aae83da255070a46e67627 ]
+[ Upstream commit e9eb788f9442d1b5d93efdb30c3be071ce8a22b1 ]
 
-When performing a warm reset in ishtp bus driver, the ishtp_cl_device
-will not be removed, its fw_client still points to the already freed
-ishtp_device.fw_clients array.
+The Microsoft documenation for the PNP0C40 device aka the
+"Windows-compatible button array" describes the 5th GpioInt listed in
+the resources as: '5. Interrupt corresponding to the "Rotation Lock"
+button, if supported'.
 
-Later after driver finishing ishtp client enumeration, this dangling
-pointer may cause driver to bind the wrong ishtp_cl_device to the new
-client, causing wrong callback to be called for messages intended for
-the new client.
+Notice this describes the 5th entry as a button while we sofar have been
+mapping it to EV_SW, SW_ROTATE_LOCK. On my Point of View TAB P1006W-232
+which actually comes with a rotation-lock button, the button indeed is a
+button and not a slider/switch. An image search for other Windows tablets
+has found 2 more models with a rotation-lock button and on both of those
+it too is a push-button and not a slider/switch.
 
-This helps in development of firmware where frequent switching of
-firmwares is required without Linux reboot.
+Further evidence can be found in the HUT extension HUTRR52 from Microsoft
+which adds rotation lock support to the HUT, which describes 2 different
+usages: "0xC9 System Display Rotation Lock Button" and
+"0xCA System Display Rotation Lock Slider Switch" note that switch is seen
+as a separate thing here and the non switch wording is an exact match for
+the "Windows-compatible button array" spec wording.
 
-Signed-off-by: Hong Liu <hong.liu@intel.com>
-Tested-by: Hongyan Song <hongyan.song@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+TL;DR: our current mapping of the 5th GPIO to SW_ROTATE_LOCK is wrong
+because the 5th GPIO is for a push-button not a switch.
+
+This commit fixes this by maping the 5th GPIO to KEY_ROTATE_LOCK_TOGGLE.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp/bus.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/misc/soc_button_array.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index 2623a567ffba..f546635e9ac9 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -623,7 +623,8 @@ int ishtp_cl_device_bind(struct ishtp_cl *cl)
- 	spin_lock_irqsave(&cl->dev->device_list_lock, flags);
- 	list_for_each_entry(cl_device, &cl->dev->device_list,
- 			device_link) {
--		if (cl_device->fw_client->client_id == cl->fw_client_id) {
-+		if (cl_device->fw_client &&
-+		    cl_device->fw_client->client_id == cl->fw_client_id) {
- 			cl->device = cl_device;
- 			rv = 0;
- 			break;
-@@ -683,6 +684,7 @@ void ishtp_bus_remove_all_clients(struct ishtp_device *ishtp_dev,
- 	spin_lock_irqsave(&ishtp_dev->device_list_lock, flags);
- 	list_for_each_entry_safe(cl_device, n, &ishtp_dev->device_list,
- 				 device_link) {
-+		cl_device->fw_client = NULL;
- 		if (warm_reset && cl_device->reference_count)
- 			continue;
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 23520df7650f..55cd6e0b409c 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -373,7 +373,7 @@ static struct soc_button_info soc_button_PNP0C40[] = {
+ 	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true },
+ 	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
+ 	{ "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false },
+-	{ "rotation_lock", 4, EV_SW, SW_ROTATE_LOCK, false, false },
++	{ "rotation_lock", 4, EV_KEY, KEY_ROTATE_LOCK_TOGGLE, false, false },
+ 	{ }
+ };
  
 -- 
 2.19.1

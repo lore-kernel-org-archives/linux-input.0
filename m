@@ -1,62 +1,113 @@
-From: "Life is hard, and then you die" <ronald@innovation.ch>
-Subject: Re: [PATCH v3 2/4] lib/hexdump.c: factor out generic hexdump
- formatting for reuse.
-Date: Thu, 28 Mar 2019 03:29:28 -0700
-Message-ID: <20190328102928.GB26446@innovation.ch>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v3 3/4] driver core: add dev_print_hex_dump() logging
+ function.
+Date: Thu, 28 Mar 2019 12:29:52 +0100
+Message-ID: <20190328112952.GA2232@kroah.com>
 References: <20190327014807.7472-1-ronald@innovation.ch>
- <20190327014807.7472-3-ronald@innovation.ch>
- <CAHp75VebbroyOt6DPnqKVk99RowZsxgjuHbi6HoXf-tAuZLMqA@mail.gmail.com>
- <20190328003459.GG24753@innovation.ch>
- <20190328090350.GS9224@smile.fi.intel.com>
+ <20190327014807.7472-4-ronald@innovation.ch>
+ <20190327023757.GB20766@kroah.com>
+ <20190328002817.GF24753@innovation.ch>
+ <20190328052917.GB18668@kroah.com>
+ <20190328102755.GA26446@innovation.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190328090350.GS9224@smile.fi.intel.com>
+In-Reply-To: <20190328102755.GA26446@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: "Life is hard, and then you die" <ronald@innovation.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
-On Thu, Mar 28, 2019 at 11:03:50AM +0200, Andy Shevchenko wrote:
-> On Wed, Mar 27, 2019 at 05:34:59PM -0700, Life is hard, and then you die wrote:
+On Thu, Mar 28, 2019 at 03:27:55AM -0700, Life is hard, and then you die wrote:
+> 
+> On Thu, Mar 28, 2019 at 06:29:17AM +0100, Greg Kroah-Hartman wrote:
+> > On Wed, Mar 27, 2019 at 05:28:17PM -0700, Life is hard, and then you die wrote:
+> > > 
+> > > On Wed, Mar 27, 2019 at 11:37:57AM +0900, Greg Kroah-Hartman wrote:
+> > > > On Tue, Mar 26, 2019 at 06:48:06PM -0700, Ronald Tschalär wrote:
+> > > > > This is the dev_xxx() analog to print_hex_dump(), using dev_printk()
+> > > > > instead of straight printk() to match other dev_xxx() logging functions.
+> > > > > ---
+> > > > >  drivers/base/core.c    | 43 ++++++++++++++++++++++++++++++++++++++++++
+> > > > >  include/linux/device.h | 15 +++++++++++++++
+> > > > >  2 files changed, 58 insertions(+)
+> > > > 
+> > > > No signed-off-by?
+> > > 
+> > > Aargh! Apologies, fixed for the future.
+> > > 
+> > > > Anyway, no, please do not do this.  Please do not dump large hex values
+> > > > like this to the kernel log, it does not help anyone.
+> > > > 
+> > > > You can do this while debugging, sure, but not for "real" kernel code.
+> > > 
+> > > As used by this driver, it is definitely called for debugging only and
+> > > must be explicitly enabled via a module param. But having the ability
+> > > for folks to easily generate and print out debugging info has proven
+> > > quite valuable.
 > > 
-> > On Wed, Mar 27, 2019 at 09:46:48AM +0200, Andy Shevchenko wrote:
-> > > On Wed, Mar 27, 2019 at 3:49 AM Ronald Tschalär <ronald@innovation.ch> wrote:
-> > > >
-> > > > This introduces print_hex_dump_to_cb() which contains all the hexdump
-> > > > formatting minus the actual printk() call, allowing an arbitrary print
-> > > > function to be supplied instead. And print_hex_dump() is re-implemented
-> > > > using print_hex_dump_to_cb().
-> > > >
-> > > > This allows other hex-dump logging functions to be provided which call
-> > > > printk() differently or even log the hexdump somewhere entirely
-> > > > different.
+> > We have dynamic debugging, no need for module parameters at all.  This
+> > isn't the 1990's anymore :)
 > 
-> > > In any case, don't do it like this. smaller non-recursive printf() is
-> > > better than one big receursive call.
-> > > When it looks like an optimization, it's actually a regression.
-> > 
-> > Not sure where you see recursion here - are you referring to the
-> > callback approach?
+> I am aware of dynamic debugging, but there are several issues with it
+> from the perspective of the logging I'm doing here (I mentioned these
+> in response to an earlier review already):
 > 
-> %pV is a recursive printf().
+>   1. Dynamic debugging can't be enabled at a function or line level on
+>      the kernel command line, so this means that to debug issues
+>      during boot you have to enable everything, which can be way too
+>      verbose
 
-Ah!
+You can, and should enable it at a function or line level by writing to
+the proper kernel file in debugfs.
 
-> > Since dev_printk() ends up calling printk with a
-> > dictionary as well as additional formatting, vs print_hex_dump()'s
-> > stright use of printk, this seemed like the best way accommodate
-> > various possible ways of logging the messages. But as per below I
-> > guess this is moot.
+You have read Documentation/admin-guide/dynamic-debug-howto.rst, right?
+
+No need to do anything on the command line, that's so old-school :)
+
+>   2. The expressions to enable the individual logging statements are
+>      quite brittle (in particular the line-based ones) since they
+>      (may) change any time the code is changed - having stable
+>      commands to give to users and put in documentation (e.g.
+>      "echo 0x200 > /sys/module/applespi/parameters/debug") is
+>      quite valuable.
 > 
-> I recommend to read this: https://lwn.net/Articles/780556/
+>      One way to work around this would be to put every single logging
+>      statement in a function of its own, thereby ensuring a stable
+>      name is associated with each one.
 
-Thanks, quite informative.
+Again, read the documentation, this works today as-is.
 
+>   3. In at least two places we log different types of packets in the
+>      same lines of code (protected by a "if (log_mask & PKT_TYPE)") -
+>      dynamic-debug would only allow enabling or disabling logging of
+>      all packets. This could be worked around by creating a separate
+>      (but essentially duplicate) logging function for each packet type
+>      and some lookup table to call the appropriate one. Not very
+>      pretty IMO, though.
 
-  Cheers,
+True, but you can use tracepoints as well, that would probably be much
+easier when you are logging data streams.  You can also use an ebpf
+program with the tracepoints to log just what you need/want to when you
+want to as well.
 
-  Ronald
+>   4. In a couple places we log both the sent command and the received
+>      response, with the log-mask determining for which types of
+>      packets to do this. With a log mask there is one bit to set to
+>      get both logged; with dynamic debugging you'd have to enable the
+>      writing and receiving parts separately (not a huge deal, but yet
+>      one place where things are a bit more complicated than
+>      necessary).
+> 
+> Except for the first, none of these are insurmountable, but together
+> they don't make dynamic debugging very attractive for this sort of
+> logging.
+
+Look into it some more, we have all of this covered today, no need for
+just a single driver to do something fancy on its own :)
+
+thanks,
+
+greg k-h

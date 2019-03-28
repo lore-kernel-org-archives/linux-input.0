@@ -1,113 +1,116 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v3 3/4] driver core: add dev_print_hex_dump() logging
- function.
-Date: Thu, 28 Mar 2019 12:29:52 +0100
-Message-ID: <20190328112952.GA2232@kroah.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: Re: [PATCH v3 1/4] drm/bridge: sil_sii8620: depend on INPUT
+ instead of selecting it.
+Date: Thu, 28 Mar 2019 12:48:39 +0100
+Message-ID: <35bf8a61-b84c-3aae-00de-14637d37547b@samsung.com>
 References: <20190327014807.7472-1-ronald@innovation.ch>
- <20190327014807.7472-4-ronald@innovation.ch>
- <20190327023757.GB20766@kroah.com>
- <20190328002817.GF24753@innovation.ch>
- <20190328052917.GB18668@kroah.com>
- <20190328102755.GA26446@innovation.ch>
+        <CGME20190327014824epcas2p1f79a41c58f76150f7324169805f506f0@epcas2p1.samsung.com>
+        <20190327014807.7472-2-ronald@innovation.ch>
+        <9fd8af5b-20ed-5dca-7d5c-98f2926b9b0c@samsung.com>
+        <20190328000743.GB24753@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190328102755.GA26446@innovation.ch>
+In-Reply-To: <20190328000743.GB24753@innovation.ch>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 28, 2019 at 03:27:55AM -0700, Life is hard, and then you die wrote:
-> 
-> On Thu, Mar 28, 2019 at 06:29:17AM +0100, Greg Kroah-Hartman wrote:
-> > On Wed, Mar 27, 2019 at 05:28:17PM -0700, Life is hard, and then you die wrote:
-> > > 
-> > > On Wed, Mar 27, 2019 at 11:37:57AM +0900, Greg Kroah-Hartman wrote:
-> > > > On Tue, Mar 26, 2019 at 06:48:06PM -0700, Ronald Tschal�r wrote:
-> > > > > This is the dev_xxx() analog to print_hex_dump(), using dev_printk()
-> > > > > instead of straight printk() to match other dev_xxx() logging functions.
-> > > > > ---
-> > > > >  drivers/base/core.c    | 43 ++++++++++++++++++++++++++++++++++++++++++
-> > > > >  include/linux/device.h | 15 +++++++++++++++
-> > > > >  2 files changed, 58 insertions(+)
-> > > > 
-> > > > No signed-off-by?
-> > > 
-> > > Aargh! Apologies, fixed for the future.
-> > > 
-> > > > Anyway, no, please do not do this.  Please do not dump large hex values
-> > > > like this to the kernel log, it does not help anyone.
-> > > > 
-> > > > You can do this while debugging, sure, but not for "real" kernel code.
-> > > 
-> > > As used by this driver, it is definitely called for debugging only and
-> > > must be explicitly enabled via a module param. But having the ability
-> > > for folks to easily generate and print out debugging info has proven
-> > > quite valuable.
-> > 
-> > We have dynamic debugging, no need for module parameters at all.  This
-> > isn't the 1990's anymore :)
-> 
-> I am aware of dynamic debugging, but there are several issues with it
-> from the perspective of the logging I'm doing here (I mentioned these
-> in response to an earlier review already):
-> 
->   1. Dynamic debugging can't be enabled at a function or line level on
->      the kernel command line, so this means that to debug issues
->      during boot you have to enable everything, which can be way too
->      verbose
+On 28.03.2019 01:07, Life is hard, and then you die wrote:
+>   Hi Andrzej,
+>
+> On Wed, Mar 27, 2019 at 03:13:37PM +0100, Andrzej Hajda wrote:
+>> +cc: dri-devel
+>>
+>> On 27.03.2019 02:48, Ronald Tschalär wrote:
+>>> commit d6abe6df706c66d803e6dd4fe98c1b6b7f125a56 (drm/bridge:
+>>> sil_sii8620: do not have a dependency of RC_CORE) added a dependency on
+>>> INPUT. However, this causes problems with other drivers, in particular
+>>> an input driver that depends on MFD_INTEL_LPSS_PCI (to be added in a
+>>> future commit):
+>>>
+>>>   drivers/clk/Kconfig:9:error: recursive dependency detected!
+>>>   drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
+>>>   drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
+>>>   drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
+>>>   drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
+>>>   drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
+>>>   drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
+>>>   drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
+>>>   drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
+>>>
+>>> According to the docs, select should only be used for non-visible
+>>> symbols. Furthermore almost all other references to INPUT throughout the
+>>> kernel config are depends, not selects. Hence this change.
+>>>
+>>> CC: Inki Dae <inki.dae@samsung.com>
+>>> CC: Andrzej Hajda <a.hajda@samsung.com>
+>>> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+>> This is drm bridge driver, next time please cc it to dri-devel ML also.
+> Ok. Though as noted in the cover letter, the patch here is meant as a
+> placeholder till the real thing being discussed on dri-devel is
+> finalized. I was trying to avoid cross-posting too much, hence the
+> separate submission on dri-devel.
+>
+>> Anyway this is not the solution we have agreed to.
+>>
+>> Why have you abandoned the patch [1]? It needed just some minor
+>> polishing, as I wrote in response to this mail.
+>>
+>> [1]:
+>> https://lore.kernel.org/lkml/20190124082423.23139-1-ronald@innovation.ch/T/#mf620df0b1583096a214d8e2e690387078583472f
+> It seems your mail client doesn't like me :-) I got neither of your
+> responses. Sorry, I should've checked the archives when I didn't hear
+> anything. In any case thank you for your review, and I will update
+> that patch and send out a new version shortly.
 
-You can, and should enable it at a function or line level by writing to
-the proper kernel file in debugfs.
 
-You have read Documentation/admin-guide/dynamic-debug-howto.rst, right?
+I see where is the problem: Your mail client (mutt I suppose) sets
+Mail-Followup-To header to all recipients (To and Cc) without the
+sender. And my client (thunderbird) after pressing "Reply-All" checks
+for Mail-Followup-To field, if present it uses only it to set
+recipients, so in your case it does not response to the original author.
 
-No need to do anything on the command line, that's so old-school :)
+I do not know which mail client works incorrectly in this case, but for
+sure it is not what we want :)
 
->   2. The expressions to enable the individual logging statements are
->      quite brittle (in particular the line-based ones) since they
->      (may) change any time the code is changed - having stable
->      commands to give to users and put in documentation (e.g.
->      "echo 0x200 > /sys/module/applespi/parameters/debug") is
->      quite valuable.
-> 
->      One way to work around this would be to put every single logging
->      statement in a function of its own, thereby ensuring a stable
->      name is associated with each one.
+I do not know how to solve the issue in thunderbird, maybe mutt is more
+configurable?
 
-Again, read the documentation, this works today as-is.
 
->   3. In at least two places we log different types of packets in the
->      same lines of code (protected by a "if (log_mask & PKT_TYPE)") -
->      dynamic-debug would only allow enabling or disabling logging of
->      all packets. This could be worked around by creating a separate
->      (but essentially duplicate) logging function for each packet type
->      and some lookup table to call the appropriate one. Not very
->      pretty IMO, though.
+Regards
 
-True, but you can use tracepoints as well, that would probably be much
-easier when you are logging data streams.  You can also use an ebpf
-program with the tracepoints to log just what you need/want to when you
-want to as well.
+Andrzej
 
->   4. In a couple places we log both the sent command and the received
->      response, with the log-mask determining for which types of
->      packets to do this. With a log mask there is one bit to set to
->      get both logged; with dynamic debugging you'd have to enable the
->      writing and receiving parts separately (not a huge deal, but yet
->      one place where things are a bit more complicated than
->      necessary).
-> 
-> Except for the first, none of these are insurmountable, but together
-> they don't make dynamic debugging very attractive for this sort of
-> logging.
 
-Look into it some more, we have all of this covered today, no need for
-just a single driver to do something fancy on its own :)
-
-thanks,
-
-greg k-h
+>
+>
+>   Cheers,
+>
+>   Ronald
+>
+>
+>>> ---
+>>>  drivers/gpu/drm/bridge/Kconfig | 2 +-
+>>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
+>>> index 2fee47b0d50b..eabedc83f25c 100644
+>>> --- a/drivers/gpu/drm/bridge/Kconfig
+>>> +++ b/drivers/gpu/drm/bridge/Kconfig
+>>> @@ -83,9 +83,9 @@ config DRM_PARADE_PS8622
+>>>  config DRM_SIL_SII8620
+>>>  	tristate "Silicon Image SII8620 HDMI/MHL bridge"
+>>>  	depends on OF
+>>> +	depends on INPUT
+>>>  	select DRM_KMS_HELPER
+>>>  	imply EXTCON
+>>> -	select INPUT
+>>>  	select RC_CORE
+>>>  	help
+>>>  	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
+>>
+>

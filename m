@@ -1,184 +1,434 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
-Date: Fri, 29 Mar 2019 11:23:45 -0700
-Message-ID: <CAE_wzQ8f6F7EvF-Jti=nPrUZw2bN1NGGCFJFohJv2m11GbMfGw@mail.gmail.com>
-References: <20190325125704.6585-1-hotwater438@tutanota.com>
- <CAE_wzQ8Aep1FOONeCUxvjBFbgKcVRWP5mUuwQnDxzfemUw-eaA@mail.gmail.com>
- <a2952bc4-0ad0-c8a0-5a5b-13a279023455@redhat.com> <CAE_wzQ8sYcMVYLmnctw_UQuvn0B8U2CU2dNeg-9sh85AL_CfgQ@mail.gmail.com>
- <abe3eccb-1490-e088-1fd8-6af4dc1bd2ec@redhat.com>
+From: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
+Subject: Re: [PATCH v2] HID: intel-ish-hid: ISH firmware loader client driver
+Date: Sat, 30 Mar 2019 01:29:37 +0530
+Message-ID: <20190329195936.GA6971@intel.com>
+References: <1553804456-5329-1-git-send-email-rushikesh.s.kadam@intel.com>
+ <CAHX4x876zC0BjQnAC0e3+b00QzfvSOgFnW-TfGLf6-u55q9Ftw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <abe3eccb-1490-e088-1fd8-6af4dc1bd2ec@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <CAHX4x876zC0BjQnAC0e3+b00QzfvSOgFnW-TfGLf6-u55q9Ftw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Cc: Vladislav Dalechyn <vlad.dalechin@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, kai.heng.feng@canonical.com, swboyd@chromium.org, bigeasy@linutronix.de, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, hotwater438@tutanota.com
+To: Nick Crews <ncrews@chromium.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, benjamin.tissoires@redhat.com, jikos@kernel.org, jettrink@chromium.org, Gwendal Grignou <gwendal@google.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 29, 2019 at 5:18 AM Hans de Goede <hdegoede@redhat.com> wrote:
+Hi Nick
+Please see my comments inline below,
+
+On Thu, Mar 28, 2019 at 11:02:52PM -0700, Nick Crews wrote:
+> This is so close! There are just one or two tiny things.
+> 
+> On Thu, Mar 28, 2019 at 1:20 PM Rushikesh S Kadam
+> <rushikesh.s.kadam@intel.com> wrote:
+
+> > +/**
+> > + * loader_cl_send()    Send message from host to firmware
+> > + * @client_data:       Client data instance
+> > + * @out_msg            Message buffer to be sent to firmware
+> > + * @out_size           Size of out going message
+> > + * @in_msg             Message buffer where the incoming data copied.
+> > + *                     This buffer is allocated by calling
+> > + * @in_size            Max size of incoming message
+> > + *
+> > + * Return: Received buffer size on success, negative error code on failure.
+> 
+> Number of bytes copied to in_msg? Maybe a bit different than number of
+> bytes received?
+
+Will change to say number of bytes copied.
+
+> 
+> > + */
+> > +static int loader_cl_send(struct ishtp_cl_data *client_data,
+> > +                         u8 *out_msg, size_t out_size,
+> > +                         u8 *in_msg, size_t in_size)
+> > +{
+> > +       int rv;
+> > +       struct loader_msg_hdr *in_hdr;
+> > +       struct loader_msg_hdr *out_hdr = (struct loader_msg_hdr *)out_msg;
+> > +       struct ishtp_cl *loader_ishtp_cl = client_data->loader_ishtp_cl;
+> > +
+> > +       dev_dbg(cl_data_to_dev(client_data),
+> > +               "%s: command=%02lx is_response=%u status=%02x\n",
+> > +               __func__,
+> > +               out_hdr->command & CMD_MASK,
+> > +               out_hdr->command & IS_RESPONSE ? 1 : 0,
+> > +               out_hdr->status);
+> > +
+> > +       /* Setup in coming buffer & size */
+> > +       client_data->response.data = in_msg;
+> > +       client_data->response.max_size = in_size;
+> > +       client_data->response.error = 0;
+> > +       client_data->response.flag_response = false;
+> 
+> nit:
+> Consider renaming to something a bit more descriptive
+> such as "response.received"?
 >
-> Hi,
->
-> On 3/25/19 5:56 PM, Dmitry Torokhov wrote:
-> > Hi Hans,
+
+Will do.
+ 
+> > +
+> > +       rv = ishtp_cl_send(loader_ishtp_cl, out_msg, out_size);
+> > +       if (rv < 0) {
+> > +               dev_err(cl_data_to_dev(client_data),
+> > +                       "ishtp_cl_send error %d\n", rv);
+> > +               return rv;
+> > +       }
+> > +
+> > +       wait_event_interruptible_timeout(client_data->response.wait_queue,
+> > +                                        client_data->response.flag_response,
+> > +                                        ISHTP_SEND_TIMEOUT);
+> > +       if (!client_data->response.flag_response) {
+> > +               dev_err(cl_data_to_dev(client_data),
+> > +                       "Timed out for response to command=%02lx",
+> > +                       out_hdr->command & CMD_MASK);
+> > +               return -ETIMEDOUT;
+> > +       }
+> > +
+> > +       if (client_data->response.error < 0)
+> > +               return client_data->response.error;
+> > +
+> > +       /* All response messages will contain a header */
+> > +       in_hdr = (struct loader_msg_hdr *)in_msg;
+> > +
+> > +       /* Sanity checks */
+> > +       if (!(in_hdr->command & IS_RESPONSE)) {
+> > +               dev_err(cl_data_to_dev(client_data),
+> > +                       "Invalid response to command\n");
+> > +               return -EIO;
+> > +       }
+> > +
+> > +       if (in_hdr->status) {
+> > +               dev_err(cl_data_to_dev(client_data),
+> > +                       "Loader returned status %d\n",
+> > +                       in_hdr->status);
+> > +               return -EIO;
+> > +       }
+> 
+> There are two places these sanity checks happen: Here and in
+> process_recv(). I think they should all be in the same place. Before,
+> I said move them into here (since then we could return error codes),
+> but now that you added client_data->response.error, it seems
+> equivalent to move these down there. So I would put these two
+> checks down there, then you don't have to cast in_msg at all.
+> There is new context, but sorry to flip flop!
+
+No problem. Will move the check to process_recv().
+
+> > +       case LOADER_CMD_START:
+> > +               /* Sanity check */
+> > +               if (client_data->response.flag_response) {
+> > +                       dev_err(cl_data_to_dev(client_data),
+> > +                               "Previous firmware message not yet processed\n");
+> > +                       client_data->response.error = -EINVAL;
+> > +                       break;
+> > +               }
+> > +               if (!client_data->response.data) {
+> > +                       dev_err(cl_data_to_dev(client_data),
+> > +                               "Receiving buffer is null. Should be allocated by calling function\n");
+> > +                       client_data->response.error = -EINVAL;
+> > +                       break;
+> > +               }
+> 
+> Here you are forcing the callers of loader_cl_send() to allocate some data,
+> but in multiple cases this isn't necessary. Maybe you considered this,
+> but perhaps
+> you could make it so if this is NULL then just don't copy any data,
+> but still succeed?
+> Then callers of loader_cl_send() can just use NULL as in_msg if they don't want
+> the returned data. Update docstring of loader_cl_send() if so.
+
+All loader firmware messages have a header, so a null is
+treated as an error case. Just a sanity check.
+
+> 
+> > +
+> > +               if (data_len > client_data->response.max_size) {
+> > +                       dev_err(cl_data_to_dev(client_data),
+> > +                               "Received buffer size %zu is larger than allocated buffer %zu\n",
+> > +                               data_len, client_data->response.max_size);
+> > +                       client_data->response.error = -EMSGSIZE;
+> > +                       break;
+> > +               }
+> 
+> Here you need to decide the meaning of the in_size arg for
+> loader_cl_send(): Does it mean
+> "The required size of incoming data" or "max size to copy to in_data"?
+> One is more strict, which
+> could be good for error checking, but the second is more in line to
+> the read() syscall and some
+> other read() functions. At the least fix the docstring of
+> loader_cl_send(). I think I'm fine with either,
+> maybe someone else has an opinion?
+
+> 
+> This could be the alternative algorithm:
+> 
+> bytes_to_copy = min(data_len, client_data->response.max_size);
+> client_data->response.size = bytes_to_copy;
+> if (bytes_to_copy && !client_data->response.data)
+>          error()
+> memcpy(client_data->response.data, b_in_proc->buffer.data, bytes_to_copy);
+
+I would say in_size is the "max size of incoming data".
+
+If the data exceeds the max size, I want to treat it as an
+error.
+
+The read() functions copy partial data, leaving remaining
+data behind, to be copied on next iteration. We don't expect
+or do that here, so should log an error.
+
+> 
+> > +
+> > +               /* Update the actual received buffer size */
+> > +               client_data->response.size = data_len;
+> > +
+> > +               /*
+> > +                * Copy the buffer received in firmware response for the
+> > +                * calling thread.
+> > +                */
+> > +               memcpy(client_data->response.data,
+> > +                      rb_in_proc->buffer.data, data_len);
+> > +
+> > +               /* Free the buffer */
+> > +               ishtp_cl_io_rb_recycle(rb_in_proc);
+> > +               rb_in_proc = NULL;
+> > +
+> > +               /* Wake the calling thread */
+> > +               client_data->response.flag_response = true;
+> > +               wake_up_interruptible(&client_data->response.wait_queue);
+> > +               break;
+> > +
+> > +       default:
+> > +               dev_err(cl_data_to_dev(client_data),
+> > +                       "Invalid command=%02lx\n",
+> > +                       hdr->command & CMD_MASK);
+> > +               client_data->response.error = -EPROTO;
+> > +       }
+> 
+> Instead of placing the "normal" code inside the successful cases of the switch
+> statement, move the "normal" code out here:
+> https://refactoring.com/catalog/replaceNestedConditionalWithGuardClauses.html
+> 
+> Using these guard clauses has two benefits:
+> -reduces indenting and visual complexity
+> -separates main logic from error checking
+
+I think the switch-case isn't a good choice anymore. I do
+not do any case specific processing here. I'll drop the
+switch, instead add a "if" check at the start for valid
+commands. Ok?
+
+> 
+> > +
+> > +end_error:
+> > +       /* Free the buffer if we did not do above */
+> > +       if (rb_in_proc)
+> > +               ishtp_cl_io_rb_recycle(rb_in_proc);
+> > +}
+> > +
+> > +/**
+> > + * loader_cl_event_cb() - bus driver callback for incoming message
+> > + * @device:            Pointer to the ishtp client device for which this
+> > + *                     message is targeted
+> > + *
+> > + * Remove the packet from the list and process the message by calling
+> > + * process_recv
+> > + */
+> > +static void loader_cl_event_cb(struct ishtp_cl_device *cl_device)
+> > +{
+> > +       struct ishtp_cl_rb *rb_in_proc;
+> > +       struct ishtp_cl_data *client_data;
+> > +       struct ishtp_cl *loader_ishtp_cl = ishtp_get_drvdata(cl_device);
+> > +
+> > +       client_data = ishtp_get_client_data(loader_ishtp_cl);
+> 
+> You never use client_data, remove it?
+
+Will remove client_data.
+
+> 
+> Or you could change process_recv() to use client_data as argument, since that is
+> sufficient for it.
+> 
+
+> > +/**
+> > + * ish_fw_xfer_direct_dma() - Loads ISH firmware using direct dma
+> > + * @client_data:       Client data instance
+> > + * @fw:                        Poiner to firmware data struct in host memory
+> 
+> add @fw_info. And there's still a typo above. and make fw_info const below?
+
+Will correct both.
+
+> 
+
+> > +static int ish_fw_start(struct ishtp_cl_data *client_data)
+> > +{
+> > +       int rv;
+> > +       struct loader_start ldr_start;
+> > +       struct loader_msg_hdr ldr_start_ack;
+> > +
+> > +       memset(&ldr_start, 0, sizeof(ldr_start));
+> > +       ldr_start.hdr.command = LOADER_CMD_START;
+> > +       rv = loader_cl_send(client_data,
+> > +                           (u8 *)&ldr_start,
+> > +                           sizeof(ldr_start),
+> > +                           (u8 *)&ldr_start_ack,
+> > +                           sizeof(ldr_start_ack));
+> > +
+> > +       return rv;
+> 
+> Remove rv and just return loader_cl_send()
+
+yes, will do.
+
+> 
+> > +}
+> > +
+> > +/**
+> > + * load_fw_from_host() Loads ISH firmware from host
+> > + * @client_data:       Client data instance
+> > + *
+> > + * This function loads the ISH firmware to ISH SRAM and starts execution
+> > + *
+> > + * Return: 0 for success, negative error code for failure.
+> > + */
+> > +static int load_fw_from_host(struct ishtp_cl_data *client_data)
+> > +{
+> > +       int rv;
+> > +       u32 xfer_mode;
+> > +       char *filename;
+> > +       const struct firmware *fw;
+> > +       struct shim_fw_info fw_info;
+> > +       struct ishtp_cl *loader_ishtp_cl = client_data->loader_ishtp_cl;
+> > +
+> > +       client_data->flag_retry = false;
+> > +
+> > +       filename = kzalloc(FILENAME_SIZE, GFP_KERNEL);
+> > +       if (!filename) {
+> > +               rv = -ENOMEM;
+> > +               goto end_error;
+> 
+> flag_retry is false here, so a re-attempt will not happen, is that OK?
+
+Should retry this case as well. Will add the flag.
+
+> 
+> > +       }
+> > +
+> > +       /* Get filename of the ISH firmware to be loaded */
+> > +       rv = get_firmware_variant(client_data, filename);
+> > +       if (rv < 0)
+> > +               goto end_err_filename_buf_release;
+> > +
+> > +       rv = request_firmware(&fw, filename, cl_data_to_dev(client_data));
+> > +       if (rv < 0)
+> > +               goto end_err_filename_buf_release;
+> > +
+> > +       /* Step 1: Query Shim firmware loader properties */
+> > +
+> > +       rv = ish_query_loader_prop(client_data, fw, &fw_info);
+> > +       if (rv < 0)
+> > +               goto end_err_fw_release;
+> > +
+> > +       /* Step 2: Send the main firmware image to be loaded, to ISH SRAM */
+> > +
+> > +       xfer_mode = fw_info.ldr_capability.xfer_mode;
+> > +       if (xfer_mode & LOADER_XFER_MODE_DIRECT_DMA) {
+> > +               rv = ish_fw_xfer_direct_dma(client_data, fw, fw_info);
+> > +       } else if (xfer_mode & LOADER_XFER_MODE_ISHTP) {
+> > +               rv = ish_fw_xfer_ishtp(client_data, fw);
+> > +       } else {
+> > +               dev_err(cl_data_to_dev(client_data),
+> > +                       "No transfer mode selected in firmware\n");
+> > +               rv = -EINVAL;
+> > +       }
+> > +       if (rv < 0)
+> > +               goto end_err_fw_release;
+> > +
+> > +       /* Step 3: Start ISH main firmware exeuction */
+> > +
+> > +       rv = ish_fw_start(client_data);
+> > +       if (rv < 0)
+> > +               goto end_err_fw_release;
+> > +
+> > +       release_firmware(fw);
+> > +       kfree(filename);
+> > +       dev_info(cl_data_to_dev(client_data), "ISH firmware %s loaded\n",
+> > +                filename);
+> > +       return 0;
+> > +
+> > +end_err_fw_release:
+> > +       release_firmware(fw);
+> > +end_err_filename_buf_release:
+> > +       kfree(filename);
+> > +end_error:
+> > +       /* Keep a count of retries, and give up after 3 attempts */
+> > +       if (client_data->flag_retry && client_data->retry_count++ < 3) {
+> 
+> #define MAX_LOAD_ATTEMPTS  at the top of the file?
+> Also consider explicitly initializing retry count to 0?
+
+Will do.
+
+> 
+> > +               dev_warn(cl_data_to_dev(client_data),
+> > +                        "ISH host firmware load failed %d. Reset ISH & try again..\n",
+> > +                        rv);
+> 
+> Maybe change Reset to Resetting? Reset sounds like it is requesting the
+> user to perform an action.
+
+Will change.
+
+> 
+> > +               ish_hw_reset(ishtp_get_ishtp_device(loader_ishtp_cl));
+> > +       } else {
+> > +               dev_err(cl_data_to_dev(client_data),
+> > +                       "ISH host firmware load failed %d\n", rv);
+> > +       }
+> > +       return rv;
+> > +}
+> > +
+> > +static void load_fw_from_host_handler(struct work_struct *work)
+> > +{
+> > +       struct ishtp_cl_data *client_data;
+> > +
+> > +       client_data = container_of(work, struct ishtp_cl_data,
+> > +                                  work_fw_load);
+> > +       load_fw_from_host(client_data);
+> 
+> If load_fw_from_host() fails then maybe just log the error code?
+
+We log the error code inside load_fw_from_host(). Are you
+suggesting to log again here?
+
+> 
+> > +
+> > +late_initcall(ish_loader_init);
+> > +module_exit(ish_loader_exit);
+> > +
+> > +module_param(dma_buf_size_limit, int, 0644);
+> > +MODULE_PARM_DESC(dma_buf_size_limit, "Limit the DMA buf size to this value in bytes");
+> > +
+> > +MODULE_DESCRIPTION("ISH ISH-TP Host firmware Loader Client Driver");
+> > +MODULE_AUTHOR("Rushikesh S Kadam <rushikesh.s.kadam@intel.com>");
+> > +
+> > +MODULE_LICENSE("GPL v2");
+> > +MODULE_ALIAS("ishtp:*");
+> > --
+> > 1.9.1
 > >
-> > On Mon, Mar 25, 2019 at 9:38 AM Hans de Goede <hdegoede@redhat.com> wrote:
-> >>
-> >> Hi Dmitry,
-> >>
-> >> On 25-03-19 17:02, Dmitry Torokhov wrote:
-> >>> Hi Vladislav,
-> >>>
-> >>> On Mon, Mar 25, 2019 at 5:57 AM Vladislav Dalechyn
-> >>> <vlad.dalechin@gmail.com> wrote:
-> >>>>
-> >>>> From: Vladislav Dalechyn <hotwater438@tutanota.com>
-> >>>>
-> >>>> Description: The ELAN1200:04F3:303E touchpad exposes several issues, all
-> >>>> caused by an error setting the correct IRQ_TRIGGER flag:
-> >>>> - i2c_hid incoplete error flood in journalctl;
-> >>>> - Five finger tap kill's module so you have to restart it;
-> >>>> - Two finger scoll is working incorrect and sometimes even when you
-> >>>> raised one of two finger still thinks that you are scrolling.
-> >>>>
-> >>>> Fix all of these with a new quirk that corrects the trigger flag
-> >>>> announced by the ACPI tables. (edge-falling).
-> >>>
-> >>> I do not believe this is right solution. The driver makes liberal use
-> >>> of disable_irq() and enable_irq() which may lead to lost edges and
-> >>> touchpad stopping working altogether.
-> >>>
-> >>> Usually the "extra" report is caused by GPIO controller clearing
-> >>> interrupt condition at the wrong time (too early), or in unsafe or
-> >>> racy fashion. You need to look there instead of adding quirk to
-> >>> i2c-hid.
-> >>
-> >> The falling-edge solution was proposed by Elan themselves.
-> >>
-> >> Also if you look at: https://bugzilla.redhat.com/show_bug.cgi?id=1543769
-> >>
-> >> And esp. the "cat /proc/interrupts" output there, then you will see
-> >> that the interrupt seems to be stuck at low level, which according
-> >> to the ACPI tables is its active level.
-> >
-> > So how does it generate a new edge if it is stuck at low?
-> >
-> > Is it bad touchpad firmware that does not deassert interrupt quickly
-> > enough?
->
-> I do not believe it is not de-asserting it quick enough (I believe
-> the amount of interrups is too high for that.
->
-> It seems to simply be low most of the time, or it is really really
-> slow with de-asserting.
->
-> Vladislav can you check the output of /cat/interrupts on a kernel
-> without the patch and while *not* using the touchpad; and check
-> if the amount of touchpads-interrupts still keeps increasing in this
-> case?
->
-> Also I believe that you had contact with Elan about this and they
-> told you to change the interrupt type to falling-edge as work-around,
-> right?  Can you ask them why?
+> 
+> After those final tweaks, then oh my goodness,
+> Acked-by: Nick Crews <ncrews@chromium.org>
 
-KT, do you know anything about using edge interrupts with your
-hid-over-i2c products?
-
->
-> This is quite unususal, I've collected quite a few DSDTs over time
-> and I've just checked about 40 of them all with a PNP0C50 in
-> some form (and in many cases multiple such devices) and NONE of
-> them is using edged-interrupts in the ACPI config.
-
-That is because MS spec for HID over I2C requires level interrupts:
-
-"7.4 Interrupt Line Management
-
-DEVICE is responsible to assert the interrupt line (level trigger
-interrupt required) when it has data.
-
-DEVICE must keep the interrupt line asserted until the data has been
-fully read by the HOST. After this point, the DEVICE must de-assert
-the interrupt line if it has no more data to report to the HOST.
-When the DEVICE has new data to report, it must repeat the process above."
-
-See https://docs.microsoft.com/en-us/previous-versions/windows/hardware/design/dn642101(v=vs.85)
-
->
-> <speculation>
->
-> I think that the Elan touchpad firmware supports a mode to
-> work on devices which only support edge interrupts and that
-> this mode is accidentally enabled in this firmware.
->
-> I think that the interrupt line is simply low all the time
-> and gets pulsed high then low again when the touchpad detects
-> a finger. Hopefully it does this pulsing on every event and not
-> only when its event "fifo" is empty.
-
-This behavior would violate HID-over-I2C spec though.
-
->
-> </speculation>
->
-> > I scrolled through the bug but I do not see if it had been
-> > confirmed that original windows installation actually uses edge (it
-> > may very well be using it; Elan engineers pushed us to use edge in a
-> > few cases, but they all boiled down to an issue with pin control/GPIO
-> > implementation).
->
-> This has not been checked on Windows AFAIK.
->
-> >> As for this being a GPIO chip driver problem, this is using standard
-> >> Intel pinctrl stuff, which is not showing this same issue with many
-> >> other i2c-hid touchpads.
-> >
-> > Well, there have been plenty of issues in intel drivers, coupled with
-> > "interesting" things done by firmware and boards.
-> >
-> > If you want to keep on using edge you need to make sure that i2c-hid
-> > never loses edge, as replaying of previously disabled interrupts in
-> > not at all reliable. So you need to "kick" the device after
-> > enable_irq() by initiating read from it and be ready to not get any
-> > data or get valid data and process accordingly.
->
-> That is a good point and I agree.
->
-> Vladislav, let me explain this a bit. Normally the touchpad
-> driver the IRQ line low when it has touch-data to respond, which means
-> that if touch-data is reported before the driver loads (or while
-> the driver has the irq disabled during e.g. suspend), it will immediately
-> see an interrupt. If we use edge mode then the IRQ will only trigger
-> when the IRQ line goes from high to low, if this happens when the driver
-> is not listening then we do not see the edge. And since we never read the
-> pending touch-data, the IRQ line never goes high again (which it does
-> when we have read all available data), so we will never see a negative-edge
-> and then things are stuck.
->
-> It would be good, if running a kernel with your patch, you can try
-> to trigger this by:
->
-> 1) Suspending the machine by selecting suspend from a menu in your
-> desktop environment, or by briefly pressing the power-button, do
-> not close the lid
-> 2) As soon as the system starts suspending and while it is suspended, move
-> your finger around the touchpad
-> 3) Wake the system up with the powerbutton while moving your finger around
-> 4) Check if the touchpad still works after this
->
-> Or by:
->
-> 1) Using ctrl + alt + f3 to switch to a text console
-> 2) Move finger around on touchpad, keep moving it around
-> 3) Switch back to X11 with alt + f2 or alt + f7, while still moving the finger
-> 4) Check if the touchpad still works after this
->
-> If neither causes the touchpad to stop working, then at least the problem Dmitry
-> fears is not easy to trigger, but we should probably still prepare to deal
-> with it; and we really should try to better understand the problem here, so
-> if you can answer my questions above, then that would be great.
-
-Thanks.
+Thanks
+Rushikesh
 
 -- 
-Dmitry

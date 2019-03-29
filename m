@@ -1,98 +1,50 @@
-From: Anson Huang <anson.huang@nxp.com>
-Subject: [PATCH 2/2] input: keyboard: imx: make sure keyboard can always wake
- up system
-Date: Fri, 29 Mar 2019 07:00:46 +0000
-Message-ID: <1553842562-8481-2-git-send-email-Anson.Huang@nxp.com>
-References: <1553842562-8481-1-git-send-email-Anson.Huang@nxp.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v4] HID: core: move Usage Page concatenation to Main item
+Date: Fri, 29 Mar 2019 08:51:37 +0100
+Message-ID: <CAO-hwJJ926=ivk0avup_H3nAOYCbjkWT1M12wjyizJA2uojqtQ@mail.gmail.com>
+References: <20190327101848.25477-1-nsaenzjulienne@suse.de>
+ <BYAPR02MB5607E9396127F67A9A2BEC948A590@BYAPR02MB5607.namprd02.prod.outlook.com>
+ <CAO-hwJLatVKwgevfdFk1Lqqpg3H7Oc28_VEkiyxPXne3fhSrqw@mail.gmail.com> <BYAPR02MB560797BC61D1AE47761139B48A5A0@BYAPR02MB5607.namprd02.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1553842562-8481-1-git-send-email-Anson.Huang@nxp.com>
-Content-Language: en-US
+In-Reply-To: <BYAPR02MB560797BC61D1AE47761139B48A5A0@BYAPR02MB5607.namprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: dl-linux-imx <linux-imx@nxp.com>
+To: "Junge, Terry" <terry.junge@poly.com>
+Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Jiri Kosina <jikos@kernel.org>, "oneukum@suse.de" <oneukum@suse.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-There are several scenarios that keyboard can NOT wake up system
-from suspend, e.g., if a keyboard is depressed between system
-device suspend phase and device noirq suspend phase, the keyboard
-ISR will be called and both keyboard depress and release interrupts
-will be disabled, then keyboard will no longer be able to wake up
-system. Another scenario would be, if a keyboard is kept depressed,
-and then system goes into suspend, the expected behavior would be
-when keyboard is released, system will be waked up, but current
-implementation can NOT achieve that, because both depress and release
-interrupts are disabled in ISR, and the event check is still in
-progress.
+On Fri, Mar 29, 2019 at 1:48 AM Junge, Terry <terry.junge@poly.com> wrote:
+>
+> On Thursday, March 28, 2019 6:49 AM Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> >>
+> >> Hi Nicolas,
+> >>
+> >> V4 looks good to me.
+> >
+> >Looks good to me too.
+> >
+> >Terry, can I consider this as a formal Rev-by you?
+>
+> Benjamin,
+>
+> Yes, thank you. What is the normal way of formally indicating Rev-by?
+>
 
-To fix these issues, need to make sure keyboard's depress or release
-interrupt is enabled after noirq device suspend phase, this patch
-moves the suspend/resume callback to noirq suspend/resume phase, and
-enable the corresponding interrupt according to current keyboard status.
+Thanks.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
----
- drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+So giving a rev-by is described in
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst
+section 13.
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/i=
-mx_keypad.c
-index 7e32c36..9ae2090 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -521,11 +521,12 @@ static int imx_keypad_probe(struct platform_device *p=
-dev)
- 	return 0;
- }
-=20
--static int __maybe_unused imx_kbd_suspend(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
- {
- 	struct platform_device *pdev =3D to_platform_device(dev);
- 	struct imx_keypad *kbd =3D platform_get_drvdata(pdev);
- 	struct input_dev *input_dev =3D kbd->input_dev;
-+	unsigned short reg_val =3D readw(kbd->mmio_base + KPSR);
-=20
- 	/* imx kbd can wake up system even clock is disabled */
- 	mutex_lock(&input_dev->mutex);
-@@ -535,13 +536,20 @@ static int __maybe_unused imx_kbd_suspend(struct devi=
-ce *dev)
-=20
- 	mutex_unlock(&input_dev->mutex);
-=20
--	if (device_may_wakeup(&pdev->dev))
-+	if (device_may_wakeup(&pdev->dev)) {
-+		if (reg_val & KBD_STAT_KPKD)
-+			reg_val |=3D KBD_STAT_KRIE;
-+		if (reg_val & KBD_STAT_KPKR)
-+			reg_val |=3D KBD_STAT_KDIE;
-+		writew(reg_val, kbd->mmio_base + KPSR);
-+
- 		enable_irq_wake(kbd->irq);
-+	}
-=20
- 	return 0;
- }
-=20
--static int __maybe_unused imx_kbd_resume(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
- {
- 	struct platform_device *pdev =3D to_platform_device(dev);
- 	struct imx_keypad *kbd =3D platform_get_drvdata(pdev);
-@@ -565,7 +573,9 @@ static int __maybe_unused imx_kbd_resume(struct device =
-*dev)
- 	return ret;
- }
-=20
--static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
-+static const struct dev_pm_ops imx_kbd_pm_ops =3D {
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume=
-)
-+};
-=20
- static struct platform_driver imx_keypad_driver =3D {
- 	.driver		=3D {
---=20
-2.7.4
+Basically, you just answer a patch with: "Reviewed-by: Your Name
+<your@address.sth>" (without quotes).
+
+This has 2 benefits: it's formal, and everybody understands it, and
+patchwork (at https://patchwork.kernel.org/patch/10873179/ for this
+patch) will catch it. Then with the patchwork client, I can apply the
+patch without having to manually add your tag :) (no need to resend
+one here, unless you want to  give a try, I'll apply it manually).
+
+Cheers,
+Benjamin

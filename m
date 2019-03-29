@@ -1,50 +1,63 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4] HID: core: move Usage Page concatenation to Main item
-Date: Fri, 29 Mar 2019 08:51:37 +0100
-Message-ID: <CAO-hwJJ926=ivk0avup_H3nAOYCbjkWT1M12wjyizJA2uojqtQ@mail.gmail.com>
-References: <20190327101848.25477-1-nsaenzjulienne@suse.de>
- <BYAPR02MB5607E9396127F67A9A2BEC948A590@BYAPR02MB5607.namprd02.prod.outlook.com>
- <CAO-hwJLatVKwgevfdFk1Lqqpg3H7Oc28_VEkiyxPXne3fhSrqw@mail.gmail.com> <BYAPR02MB560797BC61D1AE47761139B48A5A0@BYAPR02MB5607.namprd02.prod.outlook.com>
+From: "Life is hard, and then you die" <ronald@innovation.ch>
+Subject: Re: Re: [PATCH v3 1/4] drm/bridge: sil_sii8620: depend on INPUT
+ instead of selecting it.
+Date: Fri, 29 Mar 2019 02:22:46 -0700
+Message-ID: <20190329092246.GA7306@innovation.ch>
+References: <20190327014807.7472-1-ronald@innovation.ch>
+ <CGME20190327014824epcas2p1f79a41c58f76150f7324169805f506f0@epcas2p1.samsung.com>
+ <20190327014807.7472-2-ronald@innovation.ch>
+ <9fd8af5b-20ed-5dca-7d5c-98f2926b9b0c@samsung.com>
+ <20190328000743.GB24753@innovation.ch>
+ <35bf8a61-b84c-3aae-00de-14637d37547b@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BYAPR02MB560797BC61D1AE47761139B48A5A0@BYAPR02MB5607.namprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <35bf8a61-b84c-3aae-00de-14637d37547b@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Junge, Terry" <terry.junge@poly.com>
-Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Jiri Kosina <jikos@kernel.org>, "oneukum@suse.de" <oneukum@suse.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Inki Dae <inki.dae@samsung.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 29, 2019 at 1:48 AM Junge, Terry <terry.junge@poly.com> wrote:
->
-> On Thursday, March 28, 2019 6:49 AM Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> >>
-> >> Hi Nicolas,
-> >>
-> >> V4 looks good to me.
+
+On Thu, Mar 28, 2019 at 12:48:39PM +0100, Andrzej Hajda wrote:
+> On 28.03.2019 01:07, Life is hard, and then you die wrote:
 > >
-> >Looks good to me too.
-> >
-> >Terry, can I consider this as a formal Rev-by you?
->
-> Benjamin,
->
-> Yes, thank you. What is the normal way of formally indicating Rev-by?
->
+> > On Wed, Mar 27, 2019 at 03:13:37PM +0100, Andrzej Hajda wrote:
+> >> +cc: dri-devel
+[snip]
+> > It seems your mail client doesn't like me :-) I got neither of your
+> > responses. Sorry, I should've checked the archives when I didn't hear
+> > anything. In any case thank you for your review, and I will update
+> > that patch and send out a new version shortly.
+> 
+> I see where is the problem: Your mail client (mutt I suppose) sets
+> Mail-Followup-To header to all recipients (To and Cc) without the
+> sender. And my client (thunderbird) after pressing "Reply-All" checks
+> for Mail-Followup-To field, if present it uses only it to set
+> recipients, so in your case it does not response to the original author.
+> 
+> I do not know which mail client works incorrectly in this case, but for
+> sure it is not what we want :)
+> 
+> I do not know how to solve the issue in thunderbird, maybe mutt is more
+> configurable?
 
-Thanks.
+Thanks for debugging this! I'm sorry, but it looks like this was an
+error on my part. So for anybody else using mutt: by default, mutt
+will add a Mail-Followup-To header without your own address when
+sending mail to any lists you are subscribed to, as defined by the
+'subscribe' command (to avoid receiving replies in duplicate, i.e.
+once via to/cc and once via the list). Unfortunately I was using a
+regex there that included all freedesktop.org lists, not just ones I'm
+actually subscribed to, and hence it thought I was subscribed
+dri-devel too, leading to the this screwup.
 
-So giving a rev-by is described in
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst
-section 13.
+Apologies for this - I guess even after more than 2 decades of mutt
+and mailing lists I still manage to not know all its ins and outs.
+But it should be fixed now.
 
-Basically, you just answer a patch with: "Reviewed-by: Your Name
-<your@address.sth>" (without quotes).
 
-This has 2 benefits: it's formal, and everybody understands it, and
-patchwork (at https://patchwork.kernel.org/patch/10873179/ for this
-patch) will catch it. Then with the patchwork client, I can apply the
-patch without having to manually add your tag :) (no need to resend
-one here, unless you want to  give a try, I'll apply it manually).
+  Cheers,
 
-Cheers,
-Benjamin
+  Ronald

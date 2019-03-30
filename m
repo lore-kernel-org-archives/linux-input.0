@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 14/57] HID: i2c-hid: override HID descriptors for certain devices
-Date: Fri, 29 Mar 2019 21:28:07 -0400
-Message-ID: <20190330012854.32212-14-sashal@kernel.org>
-References: <20190330012854.32212-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 10/37] HID: i2c-hid: override HID descriptors for certain devices
+Date: Fri, 29 Mar 2019 21:29:53 -0400
+Message-ID: <20190330013020.379-10-sashal@kernel.org>
+References: <20190330013020.379-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190330012854.32212-1-sashal@kernel.org>
+In-Reply-To: <20190330013020.379-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Julian Sax <jsbc@gmx.de>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -59,7 +59,7 @@ diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid-core.c
 similarity index 96%
 rename from drivers/hid/i2c-hid/i2c-hid.c
 rename to drivers/hid/i2c-hid/i2c-hid-core.c
-index 88daa388e1f6..3cde7c1b9c33 100644
+index 136a34dc31b8..7842d76aa813 100644
 --- a/drivers/hid/i2c-hid/i2c-hid.c
 +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
 @@ -43,6 +43,7 @@
@@ -70,7 +70,7 @@ index 88daa388e1f6..3cde7c1b9c33 100644
  
  /* quirks to control the device */
  #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
-@@ -687,6 +688,7 @@ static int i2c_hid_parse(struct hid_device *hid)
+@@ -663,6 +664,7 @@ static int i2c_hid_parse(struct hid_device *hid)
  	char *rdesc;
  	int ret;
  	int tries = 3;
@@ -78,7 +78,7 @@ index 88daa388e1f6..3cde7c1b9c33 100644
  
  	i2c_hid_dbg(ihid, "entering %s\n", __func__);
  
-@@ -705,26 +707,37 @@ static int i2c_hid_parse(struct hid_device *hid)
+@@ -681,26 +683,37 @@ static int i2c_hid_parse(struct hid_device *hid)
  	if (ret)
  		return ret;
  
@@ -95,20 +95,20 @@ index 88daa388e1f6..3cde7c1b9c33 100644
 +		i2c_hid_dbg(ihid, "Using a HID report descriptor override\n");
 +	} else {
 +		rdesc = kzalloc(rsize, GFP_KERNEL);
-+
+ 
+-	i2c_hid_dbg(ihid, "asking HID report descriptor\n");
 +		if (!rdesc) {
 +			dbg_hid("couldn't allocate rdesc memory\n");
 +			return -ENOMEM;
 +		}
- 
--	i2c_hid_dbg(ihid, "asking HID report descriptor\n");
-+		i2c_hid_dbg(ihid, "asking HID report descriptor\n");
  
 -	ret = i2c_hid_command(client, &hid_report_descr_cmd, rdesc, rsize);
 -	if (ret) {
 -		hid_err(hid, "reading report descriptor failed\n");
 -		kfree(rdesc);
 -		return -EIO;
++		i2c_hid_dbg(ihid, "asking HID report descriptor\n");
++
 +		ret = i2c_hid_command(client, &hid_report_descr_cmd,
 +				      rdesc, rsize);
 +		if (ret) {
@@ -128,7 +128,7 @@ index 88daa388e1f6..3cde7c1b9c33 100644
  	if (ret) {
  		dbg_hid("parsing report descriptor failed\n");
  		return ret;
-@@ -851,12 +864,19 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+@@ -827,12 +840,19 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
  	int ret;
  
  	/* i2c hid fetch using a fixed descriptor size (30 bytes) */

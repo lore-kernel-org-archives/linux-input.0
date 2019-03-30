@@ -1,1220 +1,566 @@
-From: Nick Crews <ncrews@chromium.org>
-Subject: Re: [PATCH v3] HID: intel-ish-hid: ISH firmware loader client driver
-Date: Fri, 29 Mar 2019 16:30:18 -0700
-Message-ID: <CAHX4x85jFVYhOpRCKfvhYEqhXFwpKaK3_5gEit1EMaXY3L4Z4g@mail.gmail.com>
-References: <1553889813-17677-1-git-send-email-rushikesh.s.kadam@intel.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 14/57] HID: i2c-hid: override HID descriptors for certain devices
+Date: Fri, 29 Mar 2019 21:28:07 -0400
+Message-ID: <20190330012854.32212-14-sashal@kernel.org>
+References: <20190330012854.32212-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1553889813-17677-1-git-send-email-rushikesh.s.kadam@intel.com>
+In-Reply-To: <20190330012854.32212-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, benjamin.tissoires@redhat.com, jikos@kernel.org, jettrink@chromium.org, Gwendal Grignou <gwendal@google.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Sax <jsbc@gmx.de>, Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 29, 2019 at 1:03 PM Rushikesh S Kadam
-<rushikesh.s.kadam@intel.com> wrote:
->
-> This driver adds support for loading Intel Integrated
-> Sensor Hub (ISH) firmware from host file system to ISH
-> SRAM and start execution.
->
-> At power-on, the ISH subsystem shall boot to an interim
-> Shim loader-firmware, which shall expose an ISHTP loader
-> device.
->
-> The driver implements an ISHTP client that communicates
-> with the Shim ISHTP loader device over the intel-ish-hid
-> stack, to download the main ISH firmware.
->
-> Signed-off-by: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
-> ---
-> The patches are baselined to hid git tree, branch for-5.2/ish
-> https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/log/?h=for-5.2/ish
->
-> v3
->  - Moved a couple of sanity checks from loader_cl_send() to
->    process_recv().
->  - Several minor changes to address review comments.
->
-> v2
->  - Change loader_cl_send() so that the calling function
->    shall allocate and pass the buffer to be used for
->    receiving firwmare response data. Corresponding changes
->    in calling function and process_recv().
->  - Introduced struct response_info to encapsulate and pass
->    data between from the process_recv() callback to
->    calling function loader_cl_send().
->  - Keep count of host firmware load retries, and fail after
->    3 unsuccessful attempts.
->  - Dropped report_bad_packets() function previously used for
->    keeping count of bad packets.
->  - Inlined loader_ish_hw_reset()'s functionality
->
-> v1
->  - Initial version.
->
->  drivers/hid/Makefile                        |    1 +
->  drivers/hid/intel-ish-hid/Kconfig           |   15 +
->  drivers/hid/intel-ish-hid/Makefile          |    3 +
->  drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 1088 +++++++++++++++++++++++++++
->  4 files changed, 1107 insertions(+)
->  create mode 100644 drivers/hid/intel-ish-hid/ishtp-fw-loader.c
->
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index 170163b..d8d393e 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -134,3 +134,4 @@ obj-$(CONFIG_USB_KBD)               += usbhid/
->  obj-$(CONFIG_I2C_HID)          += i2c-hid/
->
->  obj-$(CONFIG_INTEL_ISH_HID)    += intel-ish-hid/
-> +obj-$(INTEL_ISH_FIRMWARE_DOWNLOADER)   += intel-ish-hid/
-> diff --git a/drivers/hid/intel-ish-hid/Kconfig b/drivers/hid/intel-ish-hid/Kconfig
-> index 519e4c8..786adbc 100644
-> --- a/drivers/hid/intel-ish-hid/Kconfig
-> +++ b/drivers/hid/intel-ish-hid/Kconfig
-> @@ -14,4 +14,19 @@ config INTEL_ISH_HID
->           Broxton and Kaby Lake.
->
->           Say Y here if you want to support Intel ISH. If unsure, say N.
-> +
-> +config INTEL_ISH_FIRMWARE_DOWNLOADER
-> +       tristate "Host Firmware Load feature for Intel ISH"
-> +       depends on INTEL_ISH_HID
-> +       depends on X86
-> +       help
-> +         The Integrated Sensor Hub (ISH) enables the kernel to offload
-> +         sensor polling and algorithm processing to a dedicated low power
-> +         processor in the chipset.
-> +
-> +         The Host Firmware Load feature adds support to load the ISH
-> +         firmware from host file system at boot.
-> +
-> +         Say M here if you want to support Host Firmware Loading feature
-> +         for Intel ISH. If unsure, say N.
->  endmenu
-> diff --git a/drivers/hid/intel-ish-hid/Makefile b/drivers/hid/intel-ish-hid/Makefile
-> index 825b70a..2de97e4 100644
-> --- a/drivers/hid/intel-ish-hid/Makefile
-> +++ b/drivers/hid/intel-ish-hid/Makefile
-> @@ -20,4 +20,7 @@ obj-$(CONFIG_INTEL_ISH_HID) += intel-ishtp-hid.o
->  intel-ishtp-hid-objs := ishtp-hid.o
->  intel-ishtp-hid-objs += ishtp-hid-client.o
->
-> +obj-$(CONFIG_INTEL_ISH_FIRMWARE_DOWNLOADER) += intel-ishtp-loader.o
-> +intel-ishtp-loader-objs += ishtp-fw-loader.o
-> +
->  ccflags-y += -Idrivers/hid/intel-ish-hid/ishtp
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> new file mode 100644
-> index 0000000..656dec0
-> --- /dev/null
-> +++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> @@ -0,0 +1,1088 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * ISH-TP client driver for ISH firmware loading
-> + *
-> + * Copyright (c) 2019, Intel Corporation.
-> + */
-> +
-> +#include <linux/firmware.h>
-> +#include <linux/module.h>
-> +#include <linux/pci.h>
-> +#include <linux/intel-ish-client-if.h>
-> +#include <linux/property.h>
-> +#include <asm/cacheflush.h>
-> +
-> +/* Number of times we attempt to load the firmware before giving up */
-> +#define MAX_LOAD_ATTEMPTS                      3
-> +
-> +/* ISH TX/RX ring buffer pool size */
-> +#define LOADER_CL_RX_RING_SIZE                 1
-> +#define LOADER_CL_TX_RING_SIZE                 1
-> +
-> +/*
-> + * ISH Shim firmware loader reserves 4 Kb buffer in SRAM. The buffer is
-> + * used to temporarily hold the data transferred from host to Shim
-> + * firmware loader. Reason for the odd size of 3968 bytes? Each IPC
-> + * transfer is 128 bytes (= 4 bytes header + 124 bytes payload). So the
-> + * 4 Kb buffer can hold maximum of 32 IPC transfers, which means we can
-> + * have a max payload of 3968 bytes (= 32 x 124 payload).
-> + */
-> +#define LOADER_SHIM_IPC_BUF_SIZE               3968
-> +
-> +/**
-> + * enum ish_loader_commands -  ISH loader host commands.
-> + * LOADER_CMD_XFER_QUERY       Query the Shim firmware loader for
-> + *                             capabilities
-> + * LOADER_CMD_XFER_FRAGMENT    Transfer one firmware image fragment at a
-> + *                             time. The command may be executed
-> + *                             multiple times until the entire firmware
-> + *                             image is downloaded to SRAM.
-> + * LOADER_CMD_START            Start executing the main firmware.
-> + */
-> +enum ish_loader_commands {
-> +       LOADER_CMD_XFER_QUERY = 0,
-> +       LOADER_CMD_XFER_FRAGMENT,
-> +       LOADER_CMD_START,
-> +};
-> +
-> +/* Command bit mask */
-> +#define        CMD_MASK                                GENMASK(6, 0)
-> +#define        IS_RESPONSE                             BIT(7)
-> +
-> +/*
-> + * ISH firmware max delay for one transmit failure is 1 Hz,
-> + * and firmware will retry 2 times, so 3 Hz is used for timeout.
-> + */
-> +#define ISHTP_SEND_TIMEOUT                     (3 * HZ)
-> +
-> +/*
-> + * Loader transfer modes:
-> + *
-> + * LOADER_XFER_MODE_ISHTP mode uses the existing ISH-TP mechanism to
-> + * transfer data. This may use IPC or DMA if supported in firmware.
-> + * The buffer size is limited to 4 Kb by the IPC/ISH-TP protocol for
-> + * both IPC & DMA (legacy).
-> + *
-> + * LOADER_XFER_MODE_DIRECT_DMA - firmware loading is a bit different
-> + * from the sensor data streaming. Here we download a large (300+ Kb)
-> + * image directly to ISH SRAM memory. There is limited benefit of
-> + * DMA'ing 300 Kb image in 4 Kb chucks limit. Hence, we introduce
-> + * this "direct dma" mode, where we do not use ISH-TP for DMA, but
-> + * instead manage the DMA directly in kernel driver and Shim firmware
-> + * loader (allocate buffer, break in chucks and transfer). This allows
-> + * to overcome 4 Kb limit, and optimize the data flow path in firmware.
-> + */
-> +#define LOADER_XFER_MODE_DIRECT_DMA            BIT(0)
-> +#define LOADER_XFER_MODE_ISHTP                 BIT(1)
-> +
-> +/* ISH Transport Loader client unique GUID */
-> +static const guid_t loader_ishtp_guid =
-> +       GUID_INIT(0xc804d06a, 0x55bd, 0x4ea7,
-> +                 0xad, 0xed, 0x1e, 0x31, 0x22, 0x8c, 0x76, 0xdc);
-> +
-> +#define FILENAME_SIZE                          256
-> +
-> +/*
-> + * The firmware loading latency will be minimum if we can DMA the
-> + * entire ISH firmware image in one go. This requires that we allocate
-> + * a large DMA buffer in kernel, which could be problematic on some
-> + * platforms. So here we limit the DMA buffer size via a module_param.
-> + * We default to 4 pages, but a customer can set it to higher limit if
-> + * deemed appropriate for his platform.
-> + */
-> +static int dma_buf_size_limit = 4 * PAGE_SIZE;
-> +
-> +/**
-> + * struct loader_msg_hdr - Header for ISH Loader commands.
-> + * @command:           LOADER_CMD* commands. Bit 7 is the response.
-> + * @status:            Command response status. Non 0, is error
-> + *                     condition.
-> + *
-> + * This structure is used as header for every command/data sent/received
-> + * between Host driver and ISH Shim firmware loader.
-> + */
-> +struct loader_msg_hdr {
-> +       u8 command;
-> +       u8 reserved[2];
-> +       u8 status;
-> +} __packed;
-> +
-> +struct loader_xfer_query {
-> +       struct loader_msg_hdr hdr;
-> +       u32 image_size;
-> +} __packed;
-> +
-> +struct ish_fw_version {
-> +       u16 major;
-> +       u16 minor;
-> +       u16 hotfix;
-> +       u16 build;
-> +} __packed;
-> +
-> +union loader_version {
-> +       u32 value;
-> +       struct {
-> +               u8 major;
-> +               u8 minor;
-> +               u8 hotfix;
-> +               u8 build;
-> +       };
-> +} __packed;
-> +
-> +struct loader_capability {
-> +       u32 max_fw_image_size;
-> +       u32 xfer_mode;
-> +       u32 max_dma_buf_size; /* only for dma mode, multiples of cacheline */
-> +} __packed;
-> +
-> +struct shim_fw_info {
-> +       struct ish_fw_version ish_fw_version;
-> +       u32 protocol_version;
-> +       union loader_version ldr_version;
-> +       struct loader_capability ldr_capability;
-> +} __packed;
-> +
-> +struct loader_xfer_query_response {
-> +       struct loader_msg_hdr hdr;
-> +       struct shim_fw_info fw_info;
-> +} __packed;
-> +
-> +struct loader_xfer_fragment {
-> +       struct loader_msg_hdr hdr;
-> +       u32 xfer_mode;
-> +       u32 offset;
-> +       u32 size;
-> +       u32 is_last;
-> +} __packed;
-> +
-> +struct loader_xfer_ipc_fragment {
-> +       struct loader_xfer_fragment fragment;
-> +       u8 data[] ____cacheline_aligned; /* variable length payload here */
-> +} __packed;
-> +
-> +struct loader_xfer_dma_fragment {
-> +       struct loader_xfer_fragment fragment;
-> +       u64 ddr_phys_addr;
-> +} __packed;
-> +
-> +struct loader_start {
-> +       struct loader_msg_hdr hdr;
-> +} __packed;
-> +
-> +/**
-> + * struct response_info - Encapsulate firmware response related
-> + *                     information for passing between function
-> + *                     loader_cl_send() and process_recv() callback.
-> + * @data               Copy the data received from firmware here.
-> + * @max_size           Max size allocated for the @data buffer. If the
-> + *                     received data exceeds this value, we log an
-> + *                     error.
-> + * @size               Actual size of data received from firmware.
-> + * @error              Returns 0 for success, negative error code for a
-> + *                     failure in function process_recv().
-> + * @received           Set to true on receiving a valid firmware
-> + *                     response to host command
-> + * @wait_queue         Wait queue for Host firmware loading where the
-> + *                     client sends message to ISH firmware and waits
-> + *                     for response
-> + */
-> +struct response_info {
-> +       void *data;
-> +       size_t max_size;
-> +       size_t size;
-> +       int error;
-> +       bool received;
-> +       wait_queue_head_t wait_queue;
-> +};
-> +
-> +/**
-> + * struct ishtp_cl_data - Encapsulate per ISH-TP Client Data.
-> + * @work_ishtp_reset:  Work queue for reset handling.
-> + * @work_fw_load:      Work queue for host firmware loading.
-> + * @flag_retry         Flag for indicating host firmware loading should
-> + *                     be retried.
-> + * @retry_count                Count the number of retries.
-> + *
-> + * This structure is used to store data per client.
-> + */
-> +struct ishtp_cl_data {
-> +       struct ishtp_cl *loader_ishtp_cl;
-> +       struct ishtp_cl_device *cl_device;
-> +
-> +       /*
-> +        * Used for passing firmware response information between
-> +        * loader_cl_send() and process_recv() callback.
-> +        */
-> +       struct response_info response;
-> +
-> +       struct work_struct work_ishtp_reset;
-> +       struct work_struct work_fw_load;
-> +
-> +       /*
-> +        * In certain failure scenrios, it makes sense to reset the ISH
-> +        * subsystem and retry Host firmware loading (e.g. bad message
-> +        * packet, ENOMEM, etc.). On the other hand, failures due to
-> +        * protocol mismatch, etc., are not recoverable. We do not
-> +        * retry them.
-> +        *
-> +        * If set, the flag indicates that we should re-try the
-> +        * particular failure.
-> +        */
-> +       bool flag_retry;
-> +       int retry_count;
-> +};
-> +
-> +#define IPC_FRAGMENT_DATA_PREAMBLE                             \
-> +       offsetof(struct loader_xfer_ipc_fragment, data)
-> +
-> +#define cl_data_to_dev(client_data) ishtp_device((client_data)->cl_device)
-> +
-> +/**
-> + * get_firmware_variant() - Gets the filename of firmware image to be
-> + *                     loaded based on platform variant.
-> + * @client_data                Client data instance.
-> + * @filename           Returns firmware filename.
-> + *
-> + * Queries the firmware-name device property string.
-> + *
-> + * Return: 0 for success, negative error code for failure.
-> + */
-> +static int get_firmware_variant(struct ishtp_cl_data *client_data,
-> +                               char *filename)
-> +{
-> +       int rv;
-> +       const char *val;
-> +       struct device *devc = ishtp_get_pci_device(client_data->cl_device);
-> +
-> +       rv = device_property_read_string(devc, "firmware-name", &val);
-> +       if (rv < 0) {
-> +               dev_err(devc,
-> +                       "Error: ISH firmware-name device property required\n");
-> +               return rv;
-> +       }
-> +       return snprintf(filename, FILENAME_SIZE, "intel/%s", val);
-> +}
-> +
-> +/**
-> + * loader_cl_send()    Send message from host to firmware
-> + * @client_data:       Client data instance
-> + * @out_msg            Message buffer to be sent to firmware
-> + * @out_size           Size of out going message
-> + * @in_msg             Message buffer where the incoming data copied.
-> + *                     This buffer is allocated by calling
-> + * @in_size            Max size of incoming message
-> + *
-> + * Return: Number of bytes copied in the in_msg on success, negative
-> + * error code on failure.
-> + */
-> +static int loader_cl_send(struct ishtp_cl_data *client_data,
-> +                         u8 *out_msg, size_t out_size,
-> +                         u8 *in_msg, size_t in_size)
-> +{
-> +       int rv;
-> +       struct loader_msg_hdr *out_hdr = (struct loader_msg_hdr *)out_msg;
-> +       struct ishtp_cl *loader_ishtp_cl = client_data->loader_ishtp_cl;
-> +
-> +       dev_dbg(cl_data_to_dev(client_data),
-> +               "%s: command=%02lx is_response=%u status=%02x\n",
-> +               __func__,
-> +               out_hdr->command & CMD_MASK,
-> +               out_hdr->command & IS_RESPONSE ? 1 : 0,
-> +               out_hdr->status);
-> +
-> +       /* Setup in coming buffer & size */
-> +       client_data->response.data = in_msg;
-> +       client_data->response.max_size = in_size;
-> +       client_data->response.error = 0;
-> +       client_data->response.received = false;
-> +
-> +       rv = ishtp_cl_send(loader_ishtp_cl, out_msg, out_size);
-> +       if (rv < 0) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "ishtp_cl_send error %d\n", rv);
-> +               return rv;
-> +       }
-> +
-> +       wait_event_interruptible_timeout(client_data->response.wait_queue,
-> +                                        client_data->response.received,
-> +                                        ISHTP_SEND_TIMEOUT);
-> +       if (!client_data->response.received) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Timed out for response to command=%02lx",
-> +                       out_hdr->command & CMD_MASK);
-> +               return -ETIMEDOUT;
-> +       }
-> +
-> +       if (client_data->response.error < 0)
-> +               return client_data->response.error;
-> +
-> +       return client_data->response.size;
-> +}
-> +
-> +/**
-> + * process_recv() -    Receive and parse incoming packet
-> + * @loader_ishtp_cl:   Client instance to get stats
-> + * @rb_in_proc:                ISH received message buffer
-> + *
-> + * Parse the incoming packet. If it is a response packet then it will
-> + * update received and wake up the caller waiting to for the response.
-> + */
-> +static void process_recv(struct ishtp_cl *loader_ishtp_cl,
-> +                        struct ishtp_cl_rb *rb_in_proc)
-> +{
-> +       struct loader_msg_hdr *hdr;
-> +       size_t data_len = rb_in_proc->buf_idx;
-> +       struct ishtp_cl_data *client_data =
-> +               ishtp_get_client_data(loader_ishtp_cl);
-> +
-> +       /*
-> +        * All firmware messages have a header. Check buffer size
-> +        * before accessing elements inside.
-> +        */
-> +       if (!rb_in_proc->buffer.data) {
-> +               dev_warn(cl_data_to_dev(client_data),
-> +                        "rb_in_proc->buffer.data returned null");
-> +               client_data->response.error = -EBADMSG;
-> +               goto end_error;
-> +       }
-> +
-> +       if (data_len < sizeof(struct loader_msg_hdr)) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "data size %zu is less than header %zu\n",
-> +                       data_len, sizeof(struct loader_msg_hdr));
-> +               client_data->response.error = -EMSGSIZE;
-> +               goto end_error;
-> +       }
-> +
-> +       hdr = (struct loader_msg_hdr *)rb_in_proc->buffer.data;
-> +
-> +       dev_dbg(cl_data_to_dev(client_data),
-> +               "%s: command=%02lx is_response=%u status=%02x\n",
-> +               __func__,
-> +               hdr->command & CMD_MASK,
-> +               hdr->command & IS_RESPONSE ? 1 : 0,
-> +               hdr->status);
-> +
-> +       if (((hdr->command & CMD_MASK) != LOADER_CMD_XFER_QUERY) &&
-> +           ((hdr->command & CMD_MASK) != LOADER_CMD_XFER_FRAGMENT) &&
-> +           ((hdr->command & CMD_MASK) != LOADER_CMD_START)) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Invalid command=%02lx\n",
-> +                       hdr->command & CMD_MASK);
-> +               client_data->response.error = -EPROTO;
-> +               goto end_error;
-> +       }
-> +
-> +       /* Sanity check */
-> +       if (client_data->response.received) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Previous firmware message not yet processed\n");
-> +               client_data->response.error = -EINVAL;
-> +               goto end_error;
-> +       }
-> +
-> +       if (!client_data->response.data) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Receiving buffer is null. Should be allocated by calling function\n");
-> +               client_data->response.error = -EINVAL;
-> +               goto end_error;
-> +       }
-> +
-> +       if (data_len > client_data->response.max_size) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Received buffer size %zu is larger than allocated buffer %zu\n",
-> +                       data_len, client_data->response.max_size);
-> +               client_data->response.error = -EMSGSIZE;
-> +               goto end_error;
-> +       }
-> +
-> +       /* We expect only "response" messages from firmware */
-> +       if (!(hdr->command & IS_RESPONSE)) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Invalid response to command\n");
-> +               client_data->response.error = -EIO;
-> +               goto end_error;
-> +       }
-> +
-> +       if (hdr->status) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Loader returned status %d\n",
-> +                       hdr->status);
-> +               client_data->response.error = -EIO;
-> +               goto end_error;
-> +       }
-> +
-> +       /* Update the actual received buffer size */
-> +       client_data->response.size = data_len;
-> +
-> +       /*
-> +        * Copy the buffer received in firmware response for the
-> +        * calling thread.
-> +        */
-> +       memcpy(client_data->response.data,
-> +              rb_in_proc->buffer.data, data_len);
-> +
-> +       /* Free the buffer */
-> +       ishtp_cl_io_rb_recycle(rb_in_proc);
-> +       rb_in_proc = NULL;
-> +
-> +       /* Wake the calling thread */
-> +       client_data->response.received = true;
-> +       wake_up_interruptible(&client_data->response.wait_queue);
-> +
-> +end_error:
-> +       /* Free the buffer if we did not do above */
-> +       if (rb_in_proc)
-> +               ishtp_cl_io_rb_recycle(rb_in_proc);
-> +}
-> +
-> +/**
-> + * loader_cl_event_cb() - bus driver callback for incoming message
-> + * @device:            Pointer to the ishtp client device for which this
-> + *                     message is targeted
-> + *
-> + * Remove the packet from the list and process the message by calling
-> + * process_recv
-> + */
-> +static void loader_cl_event_cb(struct ishtp_cl_device *cl_device)
-> +{
-> +       struct ishtp_cl_rb *rb_in_proc;
-> +       struct ishtp_cl *loader_ishtp_cl = ishtp_get_drvdata(cl_device);
-> +
-> +       while ((rb_in_proc = ishtp_cl_rx_get_rb(loader_ishtp_cl)) != NULL) {
-> +               /* Process the data packet from firmware */
-> +               process_recv(loader_ishtp_cl, rb_in_proc);
-> +       }
-> +}
-> +
-> +/**
-> + * ish_query_loader_prop() -  Query ISH Shim firmware loader
-> + * @client_data:       Client data instance
-> + * @fw:                        Poiner to firmware data struct in host memory
-> + * @fw_info:           Loader firmware properties
-> + *
-> + * This function queries the ISH Shim firmware loader for capabilities.
-> + *
-> + * Return: 0 for success, negative error code for failure.
-> + */
-> +static int ish_query_loader_prop(struct ishtp_cl_data *client_data,
-> +                                const struct firmware *fw,
-> +                                struct shim_fw_info *fw_info)
-> +{
-> +       int rv;
-> +       struct loader_xfer_query ldr_xfer_query;
-> +       struct loader_xfer_query_response ldr_xfer_query_resp;
-> +
-> +       memset(&ldr_xfer_query, 0, sizeof(ldr_xfer_query));
-> +       ldr_xfer_query.hdr.command = LOADER_CMD_XFER_QUERY;
-> +       ldr_xfer_query.image_size = fw->size;
-> +       rv = loader_cl_send(client_data,
-> +                           (u8 *)&ldr_xfer_query,
-> +                           sizeof(ldr_xfer_query),
-> +                           (u8 *)&ldr_xfer_query_resp,
-> +                           sizeof(ldr_xfer_query_resp));
-> +       if (rv < 0) {
-> +               client_data->flag_retry = true;
-> +               return rv;
-> +       }
-> +
-> +       /* On success, the return value is the received buffer size */
-> +       if (rv != sizeof(struct loader_xfer_query_response)) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "data size %d is not equal to size of loader_xfer_query_response %zu\n",
-> +                       rv, sizeof(struct loader_xfer_query_response));
-> +               client_data->flag_retry = true;
-> +               return -EMSGSIZE;
-> +       }
-> +
-> +       /* Save fw_info for use outside this function */
-> +       *fw_info = ldr_xfer_query_resp.fw_info;
-> +
-> +       /* Loader firmware properties */
-> +       dev_dbg(cl_data_to_dev(client_data),
-> +               "ish_fw_version: major=%d minor=%d hotfix=%d build=%d protocol_version=0x%x loader_version=%d\n",
-> +               fw_info->ish_fw_version.major,
-> +               fw_info->ish_fw_version.minor,
-> +               fw_info->ish_fw_version.hotfix,
-> +               fw_info->ish_fw_version.build,
-> +               fw_info->protocol_version,
-> +               fw_info->ldr_version.value);
-> +
-> +       dev_dbg(cl_data_to_dev(client_data),
-> +               "loader_capability: max_fw_image_size=0x%x xfer_mode=%d max_dma_buf_size=0x%x dma_buf_size_limit=0x%x\n",
-> +               fw_info->ldr_capability.max_fw_image_size,
-> +               fw_info->ldr_capability.xfer_mode,
-> +               fw_info->ldr_capability.max_dma_buf_size,
-> +               dma_buf_size_limit);
-> +
-> +       /* Sanity checks */
-> +       if (fw_info->ldr_capability.max_fw_image_size < fw->size) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "ISH firmware size %zu is greater than Shim firmware loader max supported %d\n",
-> +                       fw->size,
-> +                       fw_info->ldr_capability.max_fw_image_size);
-> +               return -ENOSPC;
-> +       }
-> +
-> +       /* For DMA the buffer size should be multiple of cacheline size */
-> +       if ((fw_info->ldr_capability.xfer_mode & LOADER_XFER_MODE_DIRECT_DMA) &&
-> +           (fw_info->ldr_capability.max_dma_buf_size % L1_CACHE_BYTES)) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "Shim firmware loader buffer size %d should be multipe of cacheline\n",
-> +                       fw_info->ldr_capability.max_dma_buf_size);
-> +               return -EINVAL;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +/**
-> + * ish_fw_xfer_ishtp() Loads ISH firmware using ishtp interface
-> + * @client_data:       Client data instance
-> + * @fw:                        Pointer to firmware data struct in host memory
-> + *
-> + * This function uses ISH-TP to transfer ISH firmware from host to
-> + * ISH SRAM. Lower layers may use IPC or DMA depending on firmware
-> + * support.
-> + *
-> + * Return: 0 for success, negative error code for failure.
-> + */
-> +static int ish_fw_xfer_ishtp(struct ishtp_cl_data *client_data,
-> +                            const struct firmware *fw)
-> +{
-> +       int rv;
-> +       u32 fragment_offset, fragment_size, payload_max_size;
-> +       struct loader_xfer_ipc_fragment *ldr_xfer_ipc_frag;
-> +       struct loader_msg_hdr ldr_xfer_ipc_ack;
-> +
-> +       payload_max_size =
-> +               LOADER_SHIM_IPC_BUF_SIZE - IPC_FRAGMENT_DATA_PREAMBLE;
-> +
-> +       ldr_xfer_ipc_frag = kzalloc(LOADER_SHIM_IPC_BUF_SIZE, GFP_KERNEL);
-> +       if (!ldr_xfer_ipc_frag) {
+From: Julian Sax <jsbc@gmx.de>
 
-Log error here.
+[ Upstream commit 9ee3e06610fdb8a601cde59c92089fb6c1deb4aa ]
 
-> +               client_data->flag_retry = true;
-> +               return -ENOMEM;
-> +       }
-> +
-> +       ldr_xfer_ipc_frag->fragment.hdr.command = LOADER_CMD_XFER_FRAGMENT;
-> +       ldr_xfer_ipc_frag->fragment.xfer_mode = LOADER_XFER_MODE_ISHTP;
-> +
-> +       /* Break the firmware image into fragments and send as ISH-TP payload */
-> +       fragment_offset = 0;
-> +       while (fragment_offset < fw->size) {
-> +               if (fragment_offset + payload_max_size < fw->size) {
-> +                       fragment_size = payload_max_size;
-> +                       ldr_xfer_ipc_frag->fragment.is_last = 0;
-> +               } else {
-> +                       fragment_size = fw->size - fragment_offset;
-> +                       ldr_xfer_ipc_frag->fragment.is_last = 1;
-> +               }
-> +
-> +               ldr_xfer_ipc_frag->fragment.offset = fragment_offset;
-> +               ldr_xfer_ipc_frag->fragment.size = fragment_size;
-> +               memcpy(ldr_xfer_ipc_frag->data,
-> +                      &fw->data[fragment_offset],
-> +                      fragment_size);
-> +
-> +               dev_dbg(cl_data_to_dev(client_data),
-> +                       "xfer_mode=ipc offset=0x%08x size=0x%08x is_last=%d\n",
-> +                       ldr_xfer_ipc_frag->fragment.offset,
-> +                       ldr_xfer_ipc_frag->fragment.size,
-> +                       ldr_xfer_ipc_frag->fragment.is_last);
-> +
-> +               rv = loader_cl_send(client_data,
-> +                                   (u8 *)ldr_xfer_ipc_frag,
-> +                                   IPC_FRAGMENT_DATA_PREAMBLE + fragment_size,
-> +                                   (u8 *)&ldr_xfer_ipc_ack,
-> +                                   sizeof(ldr_xfer_ipc_ack));
-> +               if (rv < 0) {
-> +                       client_data->flag_retry = true;
-> +                       goto end_err_resp_buf_release;
-> +               }
-> +
-> +               fragment_offset += fragment_size;
-> +       }
-> +
-> +       kfree(ldr_xfer_ipc_frag);
-> +       return 0;
-> +
-> +end_err_resp_buf_release:
-> +       /* Free ISH buffer if not done already, in error case */
-> +       kfree(ldr_xfer_ipc_frag);
-> +       return rv;
-> +}
-> +
-> +/**
-> + * ish_fw_xfer_direct_dma() - Loads ISH firmware using direct dma
-> + * @client_data:       Client data instance
-> + * @fw:                        Pointer to firmware data struct in host memory
-> + * @fw_info:           Loader firmware properties
-> + *
-> + * Host firmware load is a unique case where we need to download
-> + * a large firmware image (200+ Kb). This function implements
-> + * direct DMA transfer in kernel and ISH firmware. This allows
-> + * us to overcome the ISH-TP 4 Kb limit, and allows us to DMA
-> + * directly to ISH UMA at location of choice.
-> + * Function depends on corresponding support in ISH firmware.
-> + *
-> + * Return: 0 for success, negative error code for failure.
-> + */
-> +static int ish_fw_xfer_direct_dma(struct ishtp_cl_data *client_data,
-> +                                 const struct firmware *fw,
-> +                                 const struct shim_fw_info fw_info)
-> +{
-> +       int rv;
-> +       void *dma_buf;
-> +       dma_addr_t dma_buf_phy;
-> +       u32 fragment_offset, fragment_size, payload_max_size;
-> +       struct loader_msg_hdr ldr_xfer_dma_frag_ack;
-> +       struct loader_xfer_dma_fragment ldr_xfer_dma_frag;
-> +       struct device *devc = ishtp_get_pci_device(client_data->cl_device);
-> +       u32 shim_fw_buf_size =
-> +               fw_info.ldr_capability.max_dma_buf_size;
-> +
-> +       /*
-> +        * payload_max_size should be set to minimum of
-> +        *  (1) Size of firmware to be loaded,
-> +        *  (2) Max DMA buffer size supported by Shim firmware,
-> +        *  (3) DMA buffer size limit set by boot_param dma_buf_size_limit.
-> +        */
-> +       payload_max_size = min3(fw->size,
-> +                               (size_t)shim_fw_buf_size,
-> +                               (size_t)dma_buf_size_limit);
-> +
-> +       /*
-> +        * Buffer size should be multiple of cacheline size
-> +        * if it's not, select the previous cacheline boundary.
-> +        */
-> +       payload_max_size &= ~(L1_CACHE_BYTES - 1);
-> +
-> +       dma_buf = kmalloc(payload_max_size, GFP_KERNEL | GFP_DMA32);
-> +       if (!dma_buf) {
+A particular touchpad (SIPODEV SP1064) refuses to supply the HID
+descriptors. This patch provides the framework for overriding these
+descriptors based on DMI data. It also includes the descriptors for
+said touchpad, which were extracted by listening to the traffic of the
+windows filter driver, as well as the DMI data for the laptops known
+to use this device.
 
-Log error here.
+Relevant Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1526312
 
-> +               client_data->flag_retry = true;
-> +               return -ENOMEM;
-> +       }
-> +
-> +       dma_buf_phy = dma_map_single(devc, dma_buf, payload_max_size,
-> +                                    DMA_TO_DEVICE);
-> +       if (dma_mapping_error(devc, dma_buf_phy)) {
-> +               dev_err(cl_data_to_dev(client_data), "DMA map failed\n");
-> +               client_data->flag_retry = true;
-> +               rv = -ENOMEM;
-> +               goto end_err_dma_buf_release;
-> +       }
-> +
-> +       ldr_xfer_dma_frag.fragment.hdr.command = LOADER_CMD_XFER_FRAGMENT;
-> +       ldr_xfer_dma_frag.fragment.xfer_mode = LOADER_XFER_MODE_DIRECT_DMA;
-> +       ldr_xfer_dma_frag.ddr_phys_addr = (u64)dma_buf_phy;
-> +
-> +       /* Send the firmware image in chucks of payload_max_size */
-> +       fragment_offset = 0;
-> +       while (fragment_offset < fw->size) {
-> +               if (fragment_offset + payload_max_size < fw->size) {
-> +                       fragment_size = payload_max_size;
-> +                       ldr_xfer_dma_frag.fragment.is_last = 0;
-> +               } else {
-> +                       fragment_size = fw->size - fragment_offset;
-> +                       ldr_xfer_dma_frag.fragment.is_last = 1;
-> +               }
-> +
-> +               ldr_xfer_dma_frag.fragment.offset = fragment_offset;
-> +               ldr_xfer_dma_frag.fragment.size = fragment_size;
-> +               memcpy(dma_buf, &fw->data[fragment_offset], fragment_size);
-> +
-> +               dma_sync_single_for_device(devc, dma_buf_phy,
-> +                                          payload_max_size,
-> +                                          DMA_TO_DEVICE);
-> +
-> +               /*
-> +                * Flush cache here because the dma_sync_single_for_device()
-> +                * does not do for x86.
-> +                */
-> +               clflush_cache_range(dma_buf, payload_max_size);
-> +
-> +               dev_dbg(cl_data_to_dev(client_data),
-> +                       "xfer_mode=dma offset=0x%08x size=0x%x is_last=%d ddr_phys_addr=0x%016llx\n",
-> +                       ldr_xfer_dma_frag.fragment.offset,
-> +                       ldr_xfer_dma_frag.fragment.size,
-> +                       ldr_xfer_dma_frag.fragment.is_last,
-> +                       ldr_xfer_dma_frag.ddr_phys_addr);
-> +
-> +               rv = loader_cl_send(client_data,
-> +                                   (u8 *)&ldr_xfer_dma_frag,
-> +                                   sizeof(ldr_xfer_dma_frag),
-> +                                   (u8 *)&ldr_xfer_dma_frag_ack,
-> +                                   sizeof(ldr_xfer_dma_frag_ack));
-> +               if (rv < 0) {
-> +                       client_data->flag_retry = true;
-> +                       goto end_err_resp_buf_release;
-> +               }
-> +
-> +               fragment_offset += fragment_size;
-> +       }
-> +
-> +       dma_unmap_single(devc, dma_buf_phy, payload_max_size, DMA_TO_DEVICE);
-> +       kfree(dma_buf);
-> +       return 0;
-> +
-> +end_err_resp_buf_release:
-> +       /* Free ISH buffer if not done already, in error case */
-> +       dma_unmap_single(devc, dma_buf_phy, payload_max_size, DMA_TO_DEVICE);
-> +end_err_dma_buf_release:
-> +       kfree(dma_buf);
-> +       return rv;
-> +}
-> +
-> +/**
-> + * ish_fw_start()      Start executing ISH main firmware
-> + * @client_data:       client data instance
-> + *
-> + * This function sends message to Shim firmware loader to start
-> + * the execution of ISH main firmware.
-> + *
-> + * Return: 0 for success, negative error code for failure.
-> + */
-> +static int ish_fw_start(struct ishtp_cl_data *client_data)
-> +{
-> +       struct loader_start ldr_start;
-> +       struct loader_msg_hdr ldr_start_ack;
-> +
-> +       memset(&ldr_start, 0, sizeof(ldr_start));
-> +       ldr_start.hdr.command = LOADER_CMD_START;
-> +       return loader_cl_send(client_data,
-> +                           (u8 *)&ldr_start,
-> +                           sizeof(ldr_start),
-> +                           (u8 *)&ldr_start_ack,
-> +                           sizeof(ldr_start_ack));
-> +}
-> +
-> +/**
-> + * load_fw_from_host() Loads ISH firmware from host
-> + * @client_data:       Client data instance
-> + *
-> + * This function loads the ISH firmware to ISH SRAM and starts execution
-> + *
-> + * Return: 0 for success, negative error code for failure.
-> + */
-> +static int load_fw_from_host(struct ishtp_cl_data *client_data)
-> +{
-> +       int rv;
-> +       u32 xfer_mode;
-> +       char *filename;
-> +       const struct firmware *fw;
-> +       struct shim_fw_info fw_info;
-> +       struct ishtp_cl *loader_ishtp_cl = client_data->loader_ishtp_cl;
-> +
-> +       client_data->flag_retry = false;
-> +
-> +       filename = kzalloc(FILENAME_SIZE, GFP_KERNEL);
-> +       if (!filename) {
-> +               client_data->flag_retry = true;
-> +               rv = -ENOMEM;
+Cc: Hans de Goede <hdegoede@redhat.com>
+Reported-and-tested-by: ahormann@gmx.net
+Reported-and-tested-by: Bruno Jesus <bruno.fl.jesus@gmail.com>
+Reported-and-tested-by: Dietrich <enaut.w@googlemail.com>
+Reported-and-tested-by: kloxdami@yahoo.com
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/i2c-hid/Makefile                  |   3 +
+ .../hid/i2c-hid/{i2c-hid.c => i2c-hid-core.c} |  56 ++-
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c      | 376 ++++++++++++++++++
+ drivers/hid/i2c-hid/i2c-hid.h                 |  20 +
+ 4 files changed, 437 insertions(+), 18 deletions(-)
+ rename drivers/hid/i2c-hid/{i2c-hid.c => i2c-hid-core.c} (96%)
+ create mode 100644 drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+ create mode 100644 drivers/hid/i2c-hid/i2c-hid.h
 
-log error here
-
-> +               goto end_error;
-> +       }
-> +
-> +       /* Get filename of the ISH firmware to be loaded */
-> +       rv = get_firmware_variant(client_data, filename);
-> +       if (rv < 0)
-> +               goto end_err_filename_buf_release;
-> +
-> +       rv = request_firmware(&fw, filename, cl_data_to_dev(client_data));
-> +       if (rv < 0)
-> +               goto end_err_filename_buf_release;
-> +
-> +       /* Step 1: Query Shim firmware loader properties */
-> +
-> +       rv = ish_query_loader_prop(client_data, fw, &fw_info);
-> +       if (rv < 0)
-> +               goto end_err_fw_release;
-> +
-> +       /* Step 2: Send the main firmware image to be loaded, to ISH SRAM */
-> +
-> +       xfer_mode = fw_info.ldr_capability.xfer_mode;
-> +       if (xfer_mode & LOADER_XFER_MODE_DIRECT_DMA) {
-> +               rv = ish_fw_xfer_direct_dma(client_data, fw, fw_info);
-> +       } else if (xfer_mode & LOADER_XFER_MODE_ISHTP) {
-> +               rv = ish_fw_xfer_ishtp(client_data, fw);
-> +       } else {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "No transfer mode selected in firmware\n");
-> +               rv = -EINVAL;
-> +       }
-> +       if (rv < 0)
-> +               goto end_err_fw_release;
-> +
-> +       /* Step 3: Start ISH main firmware exeuction */
-> +
-> +       rv = ish_fw_start(client_data);
-> +       if (rv < 0)
-> +               goto end_err_fw_release;
-> +
-> +       release_firmware(fw);
-> +       kfree(filename);
-> +       dev_info(cl_data_to_dev(client_data), "ISH firmware %s loaded\n",
-> +                filename);
-> +       return 0;
-> +
-> +end_err_fw_release:
-> +       release_firmware(fw);
-> +end_err_filename_buf_release:
-> +       kfree(filename);
-> +end_error:
-> +       /* Keep a count of retries, and give up after 3 attempts */
-> +       if (client_data->flag_retry &&
-> +           client_data->retry_count++ < MAX_LOAD_ATTEMPTS) {
-> +               dev_warn(cl_data_to_dev(client_data),
-> +                        "ISH host firmware load failed %d. Resetting ISH, and trying again..\n",
-> +                        rv);
-> +               ish_hw_reset(ishtp_get_ishtp_device(loader_ishtp_cl));
-> +       } else {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "ISH host firmware load failed %d\n", rv);
-> +       }
-> +       return rv;
-> +}
-> +
-> +static void load_fw_from_host_handler(struct work_struct *work)
-> +{
-> +       struct ishtp_cl_data *client_data;
-> +
-> +       client_data = container_of(work, struct ishtp_cl_data,
-> +                                  work_fw_load);
-> +       load_fw_from_host(client_data);
-> +}
-> +
-> +/**
-> + * loader_init() -     Init function for ISH-TP client
-> + * @loader_ishtp_cl:   ISH-TP client instance
-> + * @reset:             true if called for init after reset
-> + *
-> + * Return: 0 for success, negative error code for failure
-> + */
-> +static int loader_init(struct ishtp_cl *loader_ishtp_cl, int reset)
-> +{
-> +       int rv;
-> +       struct ishtp_fw_client *fw_client;
-> +       struct ishtp_cl_data *client_data =
-> +               ishtp_get_client_data(loader_ishtp_cl);
-> +
-> +       dev_dbg(cl_data_to_dev(client_data), "reset flag: %d\n", reset);
-> +
-> +       rv = ishtp_cl_link(loader_ishtp_cl);
-> +       if (rv < 0) {
-> +               dev_err(cl_data_to_dev(client_data), "ishtp_cl_link failed\n");
-> +               return rv;
-> +       }
-> +
-> +       /* Connect to firmware client */
-> +       ishtp_set_tx_ring_size(loader_ishtp_cl, LOADER_CL_TX_RING_SIZE);
-> +       ishtp_set_rx_ring_size(loader_ishtp_cl, LOADER_CL_RX_RING_SIZE);
-> +
-> +       fw_client =
-> +               ishtp_fw_cl_get_client(ishtp_get_ishtp_device(loader_ishtp_cl),
-> +                                      &loader_ishtp_guid);
-> +       if (!fw_client) {
-> +               dev_err(cl_data_to_dev(client_data),
-> +                       "ISH client uuid not found\n");
-> +               rv = -ENOENT;
-> +               goto err_cl_unlink;
-> +       }
-> +
-> +       ishtp_cl_set_fw_client_id(loader_ishtp_cl,
-> +                                 ishtp_get_fw_client_id(fw_client));
-> +       ishtp_set_connection_state(loader_ishtp_cl, ISHTP_CL_CONNECTING);
-> +
-> +       rv = ishtp_cl_connect(loader_ishtp_cl);
-> +       if (rv < 0) {
-> +               dev_err(cl_data_to_dev(client_data), "Client connect fail\n");
-> +               goto err_cl_unlink;
-> +       }
-> +
-> +       dev_dbg(cl_data_to_dev(client_data), "Client connected\n");
-> +
-> +       ishtp_register_event_cb(client_data->cl_device, loader_cl_event_cb);
-> +
-> +       return 0;
-> +
-> +err_cl_unlink:
-> +       ishtp_cl_unlink(loader_ishtp_cl);
-> +       return rv;
-> +}
-> +
-> +static void loader_deinit(struct ishtp_cl *loader_ishtp_cl)
-> +{
-> +       ishtp_set_connection_state(loader_ishtp_cl, ISHTP_CL_DISCONNECTING);
-> +       ishtp_cl_disconnect(loader_ishtp_cl);
-> +       ishtp_cl_unlink(loader_ishtp_cl);
-> +       ishtp_cl_flush_queues(loader_ishtp_cl);
-> +
-> +       /* Disband and free all Tx and Rx client-level rings */
-> +       ishtp_cl_free(loader_ishtp_cl);
-> +}
-> +
-> +static void reset_handler(struct work_struct *work)
-> +{
-> +       int rv;
-> +       struct ishtp_cl_data *client_data;
-> +       struct ishtp_cl *loader_ishtp_cl;
-> +       struct ishtp_cl_device *cl_device;
-> +
-> +       client_data = container_of(work, struct ishtp_cl_data,
-> +                                  work_ishtp_reset);
-> +
-> +       loader_ishtp_cl = client_data->loader_ishtp_cl;
-> +       cl_device = client_data->cl_device;
-> +
-> +       /* Unlink, flush queues & start again */
-> +       ishtp_cl_unlink(loader_ishtp_cl);
-> +       ishtp_cl_flush_queues(loader_ishtp_cl);
-> +       ishtp_cl_free(loader_ishtp_cl);
-> +
-> +       loader_ishtp_cl = ishtp_cl_allocate(cl_device);
-> +       if (!loader_ishtp_cl)
-> +               return;
-> +
-> +       ishtp_set_drvdata(cl_device, loader_ishtp_cl);
-> +       ishtp_set_client_data(loader_ishtp_cl, client_data);
-> +       client_data->loader_ishtp_cl = loader_ishtp_cl;
-> +       client_data->cl_device = cl_device;
-> +
-> +       rv = loader_init(loader_ishtp_cl, 1);
-> +       if (rv < 0) {
-> +               dev_err(ishtp_device(cl_device), "Reset Failed\n");
-> +               return;
-> +       }
-> +
-> +       /* ISH firmware loading from host */
-> +       load_fw_from_host(client_data);
-> +}
-> +
-> +/**
-> + * loader_ishtp_cl_probe() - ISH-TP client driver probe
-> + * @cl_device:         ISH-TP client device instance
-> + *
-> + * This function gets called on device create on ISH-TP bus
-> + *
-> + * Return: 0 for success, negative error code for failure
-> + */
-> +static int loader_ishtp_cl_probe(struct ishtp_cl_device *cl_device)
-> +{
-> +       struct ishtp_cl *loader_ishtp_cl;
-> +       struct ishtp_cl_data *client_data;
-> +       int rv;
-> +
-> +       client_data = devm_kzalloc(ishtp_device(cl_device),
-> +                                  sizeof(*client_data),
-> +                                  GFP_KERNEL);
-> +       if (!client_data)
-
-log error here
-
-> +               return -ENOMEM;
-> +
-> +       loader_ishtp_cl = ishtp_cl_allocate(cl_device);
-> +       if (!loader_ishtp_cl)
-
-log error here
-
-> +               return -ENOMEM;
-> +
-> +       ishtp_set_drvdata(cl_device, loader_ishtp_cl);
-> +       ishtp_set_client_data(loader_ishtp_cl, client_data);
-> +       client_data->loader_ishtp_cl = loader_ishtp_cl;
-> +       client_data->cl_device = cl_device;
-> +
-> +       init_waitqueue_head(&client_data->response.wait_queue);
-> +
-> +       INIT_WORK(&client_data->work_ishtp_reset,
-> +                 reset_handler);
-> +       INIT_WORK(&client_data->work_fw_load,
-> +                 load_fw_from_host_handler);
-> +
-> +       rv = loader_init(loader_ishtp_cl, 0);
-> +       if (rv < 0) {
-> +               ishtp_cl_free(loader_ishtp_cl);
-> +               return rv;
-> +       }
-> +       ishtp_get_device(cl_device);
-> +
-> +       client_data->retry_count = 0;
-> +
-> +       /* ISH firmware loading from host */
-> +       schedule_work(&client_data->work_fw_load);
-> +
-> +       return 0;
-> +}
-> +
-> +/**
-> + * loader_ishtp_cl_remove() - ISH-TP client driver remove
-> + * @cl_device:         ISH-TP client device instance
-> + *
-> + * This function gets called on device remove on ISH-TP bus
-> + *
-> + * Return: 0
-> + */
-> +static int loader_ishtp_cl_remove(struct ishtp_cl_device *cl_device)
-> +{
-> +       struct ishtp_cl_data *client_data;
-> +       struct ishtp_cl *loader_ishtp_cl = ishtp_get_drvdata(cl_device);
-> +
-> +       client_data = ishtp_get_client_data(loader_ishtp_cl);
-> +
-> +       /*
-> +        * The sequence of the following two cancel_work_sync() is
-> +        * important. The work_fw_load can in turn schedue
-> +        * work_ishtp_reset, so first cancel work_fw_load then
-> +        * cancel work_ishtp_reset.
-> +        */
-> +       cancel_work_sync(&client_data->work_fw_load);
-> +       cancel_work_sync(&client_data->work_ishtp_reset);
-> +       loader_deinit(loader_ishtp_cl);
-> +       ishtp_put_device(cl_device);
-> +
-> +       return 0;
-> +}
-> +
-> +/**
-> + * loader_ishtp_cl_reset() - ISH-TP client driver reset
-> + * @cl_device:         ISH-TP client device instance
-> + *
-> + * This function gets called on device reset on ISH-TP bus
-> + *
-> + * Return: 0
-> + */
-> +static int loader_ishtp_cl_reset(struct ishtp_cl_device *cl_device)
-> +{
-> +       struct ishtp_cl_data *client_data;
-> +       struct ishtp_cl *loader_ishtp_cl = ishtp_get_drvdata(cl_device);
-> +
-> +       client_data = ishtp_get_client_data(loader_ishtp_cl);
-> +
-> +       schedule_work(&client_data->work_ishtp_reset);
-> +
-> +       return 0;
-> +}
-> +
-> +static struct ishtp_cl_driver  loader_ishtp_cl_driver = {
-> +       .name = "ish-loader",
-> +       .guid = &loader_ishtp_guid,
-> +       .probe = loader_ishtp_cl_probe,
-> +       .remove = loader_ishtp_cl_remove,
-> +       .reset = loader_ishtp_cl_reset,
-> +};
-> +
-> +static int __init ish_loader_init(void)
-> +{
-> +       return ishtp_cl_driver_register(&loader_ishtp_cl_driver, THIS_MODULE);
-> +}
-> +
-> +static void __exit ish_loader_exit(void)
-> +{
-> +       ishtp_cl_driver_unregister(&loader_ishtp_cl_driver);
-> +}
-> +
-> +late_initcall(ish_loader_init);
-> +module_exit(ish_loader_exit);
-> +
-> +module_param(dma_buf_size_limit, int, 0644);
-> +MODULE_PARM_DESC(dma_buf_size_limit, "Limit the DMA buf size to this value in bytes");
-> +
-> +MODULE_DESCRIPTION("ISH ISH-TP Host firmware Loader Client Driver");
-> +MODULE_AUTHOR("Rushikesh S Kadam <rushikesh.s.kadam@intel.com>");
-> +
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_ALIAS("ishtp:*");
-> --
-> 1.9.1
->
+diff --git a/drivers/hid/i2c-hid/Makefile b/drivers/hid/i2c-hid/Makefile
+index 832d8f9aaba2..099e1ce2f234 100644
+--- a/drivers/hid/i2c-hid/Makefile
++++ b/drivers/hid/i2c-hid/Makefile
+@@ -3,3 +3,6 @@
+ #
+ 
+ obj-$(CONFIG_I2C_HID)				+= i2c-hid.o
++
++i2c-hid-objs					=  i2c-hid-core.o
++i2c-hid-$(CONFIG_DMI)				+= i2c-hid-dmi-quirks.o
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+similarity index 96%
+rename from drivers/hid/i2c-hid/i2c-hid.c
+rename to drivers/hid/i2c-hid/i2c-hid-core.c
+index 88daa388e1f6..3cde7c1b9c33 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -43,6 +43,7 @@
+ #include <linux/platform_data/i2c-hid.h>
+ 
+ #include "../hid-ids.h"
++#include "i2c-hid.h"
+ 
+ /* quirks to control the device */
+ #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
+@@ -687,6 +688,7 @@ static int i2c_hid_parse(struct hid_device *hid)
+ 	char *rdesc;
+ 	int ret;
+ 	int tries = 3;
++	char *use_override;
+ 
+ 	i2c_hid_dbg(ihid, "entering %s\n", __func__);
+ 
+@@ -705,26 +707,37 @@ static int i2c_hid_parse(struct hid_device *hid)
+ 	if (ret)
+ 		return ret;
+ 
+-	rdesc = kzalloc(rsize, GFP_KERNEL);
++	use_override = i2c_hid_get_dmi_hid_report_desc_override(client->name,
++								&rsize);
+ 
+-	if (!rdesc) {
+-		dbg_hid("couldn't allocate rdesc memory\n");
+-		return -ENOMEM;
+-	}
++	if (use_override) {
++		rdesc = use_override;
++		i2c_hid_dbg(ihid, "Using a HID report descriptor override\n");
++	} else {
++		rdesc = kzalloc(rsize, GFP_KERNEL);
++
++		if (!rdesc) {
++			dbg_hid("couldn't allocate rdesc memory\n");
++			return -ENOMEM;
++		}
+ 
+-	i2c_hid_dbg(ihid, "asking HID report descriptor\n");
++		i2c_hid_dbg(ihid, "asking HID report descriptor\n");
+ 
+-	ret = i2c_hid_command(client, &hid_report_descr_cmd, rdesc, rsize);
+-	if (ret) {
+-		hid_err(hid, "reading report descriptor failed\n");
+-		kfree(rdesc);
+-		return -EIO;
++		ret = i2c_hid_command(client, &hid_report_descr_cmd,
++				      rdesc, rsize);
++		if (ret) {
++			hid_err(hid, "reading report descriptor failed\n");
++			kfree(rdesc);
++			return -EIO;
++		}
+ 	}
+ 
+ 	i2c_hid_dbg(ihid, "Report Descriptor: %*ph\n", rsize, rdesc);
+ 
+ 	ret = hid_parse_report(hid, rdesc, rsize);
+-	kfree(rdesc);
++	if (!use_override)
++		kfree(rdesc);
++
+ 	if (ret) {
+ 		dbg_hid("parsing report descriptor failed\n");
+ 		return ret;
+@@ -851,12 +864,19 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+ 	int ret;
+ 
+ 	/* i2c hid fetch using a fixed descriptor size (30 bytes) */
+-	i2c_hid_dbg(ihid, "Fetching the HID descriptor\n");
+-	ret = i2c_hid_command(client, &hid_descr_cmd, ihid->hdesc_buffer,
+-				sizeof(struct i2c_hid_desc));
+-	if (ret) {
+-		dev_err(&client->dev, "hid_descr_cmd failed\n");
+-		return -ENODEV;
++	if (i2c_hid_get_dmi_i2c_hid_desc_override(client->name)) {
++		i2c_hid_dbg(ihid, "Using a HID descriptor override\n");
++		ihid->hdesc =
++			*i2c_hid_get_dmi_i2c_hid_desc_override(client->name);
++	} else {
++		i2c_hid_dbg(ihid, "Fetching the HID descriptor\n");
++		ret = i2c_hid_command(client, &hid_descr_cmd,
++				      ihid->hdesc_buffer,
++				      sizeof(struct i2c_hid_desc));
++		if (ret) {
++			dev_err(&client->dev, "hid_descr_cmd failed\n");
++			return -ENODEV;
++		}
+ 	}
+ 
+ 	/* Validate the length of HID descriptor, the 4 first bytes:
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+new file mode 100644
+index 000000000000..1d645c9ab417
+--- /dev/null
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -0,0 +1,376 @@
++// SPDX-License-Identifier: GPL-2.0+
++
++/*
++ * Quirks for I2C-HID devices that do not supply proper descriptors
++ *
++ * Copyright (c) 2018 Julian Sax <jsbc@gmx.de>
++ *
++ */
++
++#include <linux/types.h>
++#include <linux/dmi.h>
++#include <linux/mod_devicetable.h>
++
++#include "i2c-hid.h"
++
++
++struct i2c_hid_desc_override {
++	union {
++		struct i2c_hid_desc *i2c_hid_desc;
++		uint8_t             *i2c_hid_desc_buffer;
++	};
++	uint8_t              *hid_report_desc;
++	unsigned int          hid_report_desc_size;
++	uint8_t              *i2c_name;
++};
++
++
++/*
++ * descriptors for the SIPODEV SP1064 touchpad
++ *
++ * This device does not supply any descriptors and on windows a filter
++ * driver operates between the i2c-hid layer and the device and injects
++ * these descriptors when the device is prompted. The descriptors were
++ * extracted by listening to the i2c-hid traffic that occurs between the
++ * windows filter driver and the windows i2c-hid driver.
++ */
++
++static const struct i2c_hid_desc_override sipodev_desc = {
++	.i2c_hid_desc_buffer = (uint8_t [])
++	{0x1e, 0x00,                  /* Length of descriptor                 */
++	 0x00, 0x01,                  /* Version of descriptor                */
++	 0xdb, 0x01,                  /* Length of report descriptor          */
++	 0x21, 0x00,                  /* Location of report descriptor        */
++	 0x24, 0x00,                  /* Location of input report             */
++	 0x1b, 0x00,                  /* Max input report length              */
++	 0x25, 0x00,                  /* Location of output report            */
++	 0x11, 0x00,                  /* Max output report length             */
++	 0x22, 0x00,                  /* Location of command register         */
++	 0x23, 0x00,                  /* Location of data register            */
++	 0x11, 0x09,                  /* Vendor ID                            */
++	 0x88, 0x52,                  /* Product ID                           */
++	 0x06, 0x00,                  /* Version ID                           */
++	 0x00, 0x00, 0x00, 0x00       /* Reserved                             */
++	},
++
++	.hid_report_desc = (uint8_t [])
++	{0x05, 0x01,                  /* Usage Page (Desktop),                */
++	 0x09, 0x02,                  /* Usage (Mouse),                       */
++	 0xA1, 0x01,                  /* Collection (Application),            */
++	 0x85, 0x01,                  /*     Report ID (1),                   */
++	 0x09, 0x01,                  /*     Usage (Pointer),                 */
++	 0xA1, 0x00,                  /*     Collection (Physical),           */
++	 0x05, 0x09,                  /*         Usage Page (Button),         */
++	 0x19, 0x01,                  /*         Usage Minimum (01h),         */
++	 0x29, 0x02,                  /*         Usage Maximum (02h),         */
++	 0x25, 0x01,                  /*         Logical Maximum (1),         */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x95, 0x02,                  /*         Report Count (2),            */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x95, 0x06,                  /*         Report Count (6),            */
++	 0x81, 0x01,                  /*         Input (Constant),            */
++	 0x05, 0x01,                  /*         Usage Page (Desktop),        */
++	 0x09, 0x30,                  /*         Usage (X),                   */
++	 0x09, 0x31,                  /*         Usage (Y),                   */
++	 0x15, 0x81,                  /*         Logical Minimum (-127),      */
++	 0x25, 0x7F,                  /*         Logical Maximum (127),       */
++	 0x75, 0x08,                  /*         Report Size (8),             */
++	 0x95, 0x02,                  /*         Report Count (2),            */
++	 0x81, 0x06,                  /*         Input (Variable, Relative),  */
++	 0xC0,                        /*     End Collection,                  */
++	 0xC0,                        /* End Collection,                      */
++	 0x05, 0x0D,                  /* Usage Page (Digitizer),              */
++	 0x09, 0x05,                  /* Usage (Touchpad),                    */
++	 0xA1, 0x01,                  /* Collection (Application),            */
++	 0x85, 0x04,                  /*     Report ID (4),                   */
++	 0x05, 0x0D,                  /*     Usage Page (Digitizer),          */
++	 0x09, 0x22,                  /*     Usage (Finger),                  */
++	 0xA1, 0x02,                  /*     Collection (Logical),            */
++	 0x15, 0x00,                  /*         Logical Minimum (0),         */
++	 0x25, 0x01,                  /*         Logical Maximum (1),         */
++	 0x09, 0x47,                  /*         Usage (Touch Valid),         */
++	 0x09, 0x42,                  /*         Usage (Tip Switch),          */
++	 0x95, 0x02,                  /*         Report Count (2),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x75, 0x03,                  /*         Report Size (3),             */
++	 0x25, 0x05,                  /*         Logical Maximum (5),         */
++	 0x09, 0x51,                  /*         Usage (Contact Identifier),  */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x95, 0x03,                  /*         Report Count (3),            */
++	 0x81, 0x03,                  /*         Input (Constant, Variable),  */
++	 0x05, 0x01,                  /*         Usage Page (Desktop),        */
++	 0x26, 0x44, 0x0A,            /*         Logical Maximum (2628),      */
++	 0x75, 0x10,                  /*         Report Size (16),            */
++	 0x55, 0x0E,                  /*         Unit Exponent (14),          */
++	 0x65, 0x11,                  /*         Unit (Centimeter),           */
++	 0x09, 0x30,                  /*         Usage (X),                   */
++	 0x46, 0x1A, 0x04,            /*         Physical Maximum (1050),     */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x46, 0xBC, 0x02,            /*         Physical Maximum (700),      */
++	 0x26, 0x34, 0x05,            /*         Logical Maximum (1332),      */
++	 0x09, 0x31,                  /*         Usage (Y),                   */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0xC0,                        /*     End Collection,                  */
++	 0x05, 0x0D,                  /*     Usage Page (Digitizer),          */
++	 0x09, 0x22,                  /*     Usage (Finger),                  */
++	 0xA1, 0x02,                  /*     Collection (Logical),            */
++	 0x25, 0x01,                  /*         Logical Maximum (1),         */
++	 0x09, 0x47,                  /*         Usage (Touch Valid),         */
++	 0x09, 0x42,                  /*         Usage (Tip Switch),          */
++	 0x95, 0x02,                  /*         Report Count (2),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x75, 0x03,                  /*         Report Size (3),             */
++	 0x25, 0x05,                  /*         Logical Maximum (5),         */
++	 0x09, 0x51,                  /*         Usage (Contact Identifier),  */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x95, 0x03,                  /*         Report Count (3),            */
++	 0x81, 0x03,                  /*         Input (Constant, Variable),  */
++	 0x05, 0x01,                  /*         Usage Page (Desktop),        */
++	 0x26, 0x44, 0x0A,            /*         Logical Maximum (2628),      */
++	 0x75, 0x10,                  /*         Report Size (16),            */
++	 0x09, 0x30,                  /*         Usage (X),                   */
++	 0x46, 0x1A, 0x04,            /*         Physical Maximum (1050),     */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x46, 0xBC, 0x02,            /*         Physical Maximum (700),      */
++	 0x26, 0x34, 0x05,            /*         Logical Maximum (1332),      */
++	 0x09, 0x31,                  /*         Usage (Y),                   */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0xC0,                        /*     End Collection,                  */
++	 0x05, 0x0D,                  /*     Usage Page (Digitizer),          */
++	 0x09, 0x22,                  /*     Usage (Finger),                  */
++	 0xA1, 0x02,                  /*     Collection (Logical),            */
++	 0x25, 0x01,                  /*         Logical Maximum (1),         */
++	 0x09, 0x47,                  /*         Usage (Touch Valid),         */
++	 0x09, 0x42,                  /*         Usage (Tip Switch),          */
++	 0x95, 0x02,                  /*         Report Count (2),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x75, 0x03,                  /*         Report Size (3),             */
++	 0x25, 0x05,                  /*         Logical Maximum (5),         */
++	 0x09, 0x51,                  /*         Usage (Contact Identifier),  */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x95, 0x03,                  /*         Report Count (3),            */
++	 0x81, 0x03,                  /*         Input (Constant, Variable),  */
++	 0x05, 0x01,                  /*         Usage Page (Desktop),        */
++	 0x26, 0x44, 0x0A,            /*         Logical Maximum (2628),      */
++	 0x75, 0x10,                  /*         Report Size (16),            */
++	 0x09, 0x30,                  /*         Usage (X),                   */
++	 0x46, 0x1A, 0x04,            /*         Physical Maximum (1050),     */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x46, 0xBC, 0x02,            /*         Physical Maximum (700),      */
++	 0x26, 0x34, 0x05,            /*         Logical Maximum (1332),      */
++	 0x09, 0x31,                  /*         Usage (Y),                   */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0xC0,                        /*     End Collection,                  */
++	 0x05, 0x0D,                  /*     Usage Page (Digitizer),          */
++	 0x09, 0x22,                  /*     Usage (Finger),                  */
++	 0xA1, 0x02,                  /*     Collection (Logical),            */
++	 0x25, 0x01,                  /*         Logical Maximum (1),         */
++	 0x09, 0x47,                  /*         Usage (Touch Valid),         */
++	 0x09, 0x42,                  /*         Usage (Tip Switch),          */
++	 0x95, 0x02,                  /*         Report Count (2),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x75, 0x03,                  /*         Report Size (3),             */
++	 0x25, 0x05,                  /*         Logical Maximum (5),         */
++	 0x09, 0x51,                  /*         Usage (Contact Identifier),  */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x95, 0x03,                  /*         Report Count (3),            */
++	 0x81, 0x03,                  /*         Input (Constant, Variable),  */
++	 0x05, 0x01,                  /*         Usage Page (Desktop),        */
++	 0x26, 0x44, 0x0A,            /*         Logical Maximum (2628),      */
++	 0x75, 0x10,                  /*         Report Size (16),            */
++	 0x09, 0x30,                  /*         Usage (X),                   */
++	 0x46, 0x1A, 0x04,            /*         Physical Maximum (1050),     */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0x46, 0xBC, 0x02,            /*         Physical Maximum (700),      */
++	 0x26, 0x34, 0x05,            /*         Logical Maximum (1332),      */
++	 0x09, 0x31,                  /*         Usage (Y),                   */
++	 0x81, 0x02,                  /*         Input (Variable),            */
++	 0xC0,                        /*     End Collection,                  */
++	 0x05, 0x0D,                  /*     Usage Page (Digitizer),          */
++	 0x55, 0x0C,                  /*     Unit Exponent (12),              */
++	 0x66, 0x01, 0x10,            /*     Unit (Seconds),                  */
++	 0x47, 0xFF, 0xFF, 0x00, 0x00,/*     Physical Maximum (65535),        */
++	 0x27, 0xFF, 0xFF, 0x00, 0x00,/*     Logical Maximum (65535),         */
++	 0x75, 0x10,                  /*     Report Size (16),                */
++	 0x95, 0x01,                  /*     Report Count (1),                */
++	 0x09, 0x56,                  /*     Usage (Scan Time),               */
++	 0x81, 0x02,                  /*     Input (Variable),                */
++	 0x09, 0x54,                  /*     Usage (Contact Count),           */
++	 0x25, 0x7F,                  /*     Logical Maximum (127),           */
++	 0x75, 0x08,                  /*     Report Size (8),                 */
++	 0x81, 0x02,                  /*     Input (Variable),                */
++	 0x05, 0x09,                  /*     Usage Page (Button),             */
++	 0x09, 0x01,                  /*     Usage (01h),                     */
++	 0x25, 0x01,                  /*     Logical Maximum (1),             */
++	 0x75, 0x01,                  /*     Report Size (1),                 */
++	 0x95, 0x01,                  /*     Report Count (1),                */
++	 0x81, 0x02,                  /*     Input (Variable),                */
++	 0x95, 0x07,                  /*     Report Count (7),                */
++	 0x81, 0x03,                  /*     Input (Constant, Variable),      */
++	 0x05, 0x0D,                  /*     Usage Page (Digitizer),          */
++	 0x85, 0x02,                  /*     Report ID (2),                   */
++	 0x09, 0x55,                  /*     Usage (Contact Count Maximum),   */
++	 0x09, 0x59,                  /*     Usage (59h),                     */
++	 0x75, 0x04,                  /*     Report Size (4),                 */
++	 0x95, 0x02,                  /*     Report Count (2),                */
++	 0x25, 0x0F,                  /*     Logical Maximum (15),            */
++	 0xB1, 0x02,                  /*     Feature (Variable),              */
++	 0x05, 0x0D,                  /*     Usage Page (Digitizer),          */
++	 0x85, 0x07,                  /*     Report ID (7),                   */
++	 0x09, 0x60,                  /*     Usage (60h),                     */
++	 0x75, 0x01,                  /*     Report Size (1),                 */
++	 0x95, 0x01,                  /*     Report Count (1),                */
++	 0x25, 0x01,                  /*     Logical Maximum (1),             */
++	 0xB1, 0x02,                  /*     Feature (Variable),              */
++	 0x95, 0x07,                  /*     Report Count (7),                */
++	 0xB1, 0x03,                  /*     Feature (Constant, Variable),    */
++	 0x85, 0x06,                  /*     Report ID (6),                   */
++	 0x06, 0x00, 0xFF,            /*     Usage Page (FF00h),              */
++	 0x09, 0xC5,                  /*     Usage (C5h),                     */
++	 0x26, 0xFF, 0x00,            /*     Logical Maximum (255),           */
++	 0x75, 0x08,                  /*     Report Size (8),                 */
++	 0x96, 0x00, 0x01,            /*     Report Count (256),              */
++	 0xB1, 0x02,                  /*     Feature (Variable),              */
++	 0xC0,                        /* End Collection,                      */
++	 0x06, 0x00, 0xFF,            /* Usage Page (FF00h),                  */
++	 0x09, 0x01,                  /* Usage (01h),                         */
++	 0xA1, 0x01,                  /* Collection (Application),            */
++	 0x85, 0x0D,                  /*     Report ID (13),                  */
++	 0x26, 0xFF, 0x00,            /*     Logical Maximum (255),           */
++	 0x19, 0x01,                  /*     Usage Minimum (01h),             */
++	 0x29, 0x02,                  /*     Usage Maximum (02h),             */
++	 0x75, 0x08,                  /*     Report Size (8),                 */
++	 0x95, 0x02,                  /*     Report Count (2),                */
++	 0xB1, 0x02,                  /*     Feature (Variable),              */
++	 0xC0,                        /* End Collection,                      */
++	 0x05, 0x0D,                  /* Usage Page (Digitizer),              */
++	 0x09, 0x0E,                  /* Usage (Configuration),               */
++	 0xA1, 0x01,                  /* Collection (Application),            */
++	 0x85, 0x03,                  /*     Report ID (3),                   */
++	 0x09, 0x22,                  /*     Usage (Finger),                  */
++	 0xA1, 0x02,                  /*     Collection (Logical),            */
++	 0x09, 0x52,                  /*         Usage (Device Mode),         */
++	 0x25, 0x0A,                  /*         Logical Maximum (10),        */
++	 0x95, 0x01,                  /*         Report Count (1),            */
++	 0xB1, 0x02,                  /*         Feature (Variable),          */
++	 0xC0,                        /*     End Collection,                  */
++	 0x09, 0x22,                  /*     Usage (Finger),                  */
++	 0xA1, 0x00,                  /*     Collection (Physical),           */
++	 0x85, 0x05,                  /*         Report ID (5),               */
++	 0x09, 0x57,                  /*         Usage (57h),                 */
++	 0x09, 0x58,                  /*         Usage (58h),                 */
++	 0x75, 0x01,                  /*         Report Size (1),             */
++	 0x95, 0x02,                  /*         Report Count (2),            */
++	 0x25, 0x01,                  /*         Logical Maximum (1),         */
++	 0xB1, 0x02,                  /*         Feature (Variable),          */
++	 0x95, 0x06,                  /*         Report Count (6),            */
++	 0xB1, 0x03,                  /*         Feature (Constant, Variable),*/
++	 0xC0,                        /*     End Collection,                  */
++	 0xC0                         /* End Collection                       */
++	},
++	.hid_report_desc_size = 475,
++	.i2c_name = "SYNA3602:00"
++};
++
++
++static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
++	{
++		.ident = "Teclast F6 Pro",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TECLAST"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "F6 Pro"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
++	{
++		.ident = "Teclast F7",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TECLAST"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "F7"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
++	{
++		.ident = "Trekstor Primebook C13",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Primebook C13"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
++	{
++		.ident = "Trekstor Primebook C11",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TREKSTOR"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Primebook C11"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
++	{
++		.ident = "Direkt-Tek DTLAPY116-2",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Direkt-Tek"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "DTLAPY116-2"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
++	{
++		.ident = "Mediacom Flexbook Edge 11",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "FlexBook edge11 - M-FBE11"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	}
++};
++
++
++struct i2c_hid_desc *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name)
++{
++	struct i2c_hid_desc_override *override;
++	const struct dmi_system_id *system_id;
++
++	system_id = dmi_first_match(i2c_hid_dmi_desc_override_table);
++	if (!system_id)
++		return NULL;
++
++	override = system_id->driver_data;
++	if (strcmp(override->i2c_name, i2c_name))
++		return NULL;
++
++	return override->i2c_hid_desc;
++}
++
++char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
++					       unsigned int *size)
++{
++	struct i2c_hid_desc_override *override;
++	const struct dmi_system_id *system_id;
++
++	system_id = dmi_first_match(i2c_hid_dmi_desc_override_table);
++	if (!system_id)
++		return NULL;
++
++	override = system_id->driver_data;
++	if (strcmp(override->i2c_name, i2c_name))
++		return NULL;
++
++	*size = override->hid_report_desc_size;
++	return override->hid_report_desc;
++}
+diff --git a/drivers/hid/i2c-hid/i2c-hid.h b/drivers/hid/i2c-hid/i2c-hid.h
+new file mode 100644
+index 000000000000..a8c19aef5824
+--- /dev/null
++++ b/drivers/hid/i2c-hid/i2c-hid.h
+@@ -0,0 +1,20 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++
++#ifndef I2C_HID_H
++#define I2C_HID_H
++
++
++#ifdef CONFIG_DMI
++struct i2c_hid_desc *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name);
++char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
++					       unsigned int *size);
++#else
++static inline struct i2c_hid_desc
++		   *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name)
++{ return NULL; }
++static inline char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
++							     unsigned int *size)
++{ return NULL; }
++#endif
++
++#endif
+-- 
+2.19.1

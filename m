@@ -1,53 +1,61 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: INFO: task hung in evdev_release
-Date: Mon, 1 Apr 2019 04:01:40 +0100
-Message-ID: <20190401030140.GA2059@sirena.org.uk>
-References: <000000000000f1be430578524a20@google.com>
- <000000000000bf3ccd05851d68a7@google.com>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: [PATCH] input: imx6ul_tsc: use devm_platform_ioremap_resource() to
+ simplify code
+Date: Mon, 1 Apr 2019 05:19:55 +0000
+Message-ID: <1554095712-15413-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <000000000000bf3ccd05851d68a7@google.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: syzbot <syzbot+a979743610b4755d4d57@syzkaller.appspotmail.com>
-Cc: alsa-devel@alsa-project.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, jbrunet@baylibre.com, lgirdwood@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mark.rutland@arm.com, robh+dt@kernel.org, rydberg@bitmath.org, syzkaller-bugs@googlegroups.com
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
+Use the new helper devm_platform_ioremap_resource() which wraps the
+platform_get_resource() and devm_ioremap_resource() together, to
+simplify the code.
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+ drivers/input/touchscreen/imx6ul_tsc.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-On Wed, Mar 27, 2019 at 06:24:01PM -0700, syzbot wrote:
-
-> syzbot has bisected this bug to:
-
-This bug being...
-
-> commit e32d99af6830c9a8f37b4f2637ef0cdc60fa79fb
-> Author: Jerome Brunet <jbrunet@baylibre.com>
-> Date:   Tue Jul 17 15:42:50 2018 +0000
->=20
->     ASoC: meson: add axg fifos DT binding documentation
-
-This is fairly clearly a false bisection result.
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlyhfxIACgkQJNaLcl1U
-h9CYJgf/UNLYpBORuC8ySyXKjv9u88zc9YzTYOz9msumtsKzL05CjdW72UucOcW+
-xF71zVLPkWxpOiiz1GY0i6KR6T/H2BZ/nOLm+RK57DE+d06FNkrZY5WFkoqBT8WV
-HjOs/QJYpH+tIlirwTzrnxp1ADaROD6otZfhVhFsQGE3VoYIPn9A7quYaEbVMHeM
-i6/Bs/q1g3K6B3zrBEueeGS4bew2Pha8Jd33/BBOCbiODNnIuBuCeOUc5LLcyVJg
-BdewxSIh7TU+bAvJvFNYEtOJTM1hbMNv23ZH/GETjakfjql014dpzzN77zdRhnBO
-XWgjVW7HaG0ycAwLYu1hbc+F9VoI7A==
-=RbAG
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--
+diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchsc=
+reen/imx6ul_tsc.c
+index c10fc59..e04eecd 100644
+--- a/drivers/input/touchscreen/imx6ul_tsc.c
++++ b/drivers/input/touchscreen/imx6ul_tsc.c
+@@ -364,8 +364,6 @@ static int imx6ul_tsc_probe(struct platform_device *pde=
+v)
+ 	struct device_node *np =3D pdev->dev.of_node;
+ 	struct imx6ul_tsc *tsc;
+ 	struct input_dev *input_dev;
+-	struct resource *tsc_mem;
+-	struct resource *adc_mem;
+ 	int err;
+ 	int tsc_irq;
+ 	int adc_irq;
+@@ -403,16 +401,14 @@ static int imx6ul_tsc_probe(struct platform_device *p=
+dev)
+ 		return err;
+ 	}
+=20
+-	tsc_mem =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	tsc->tsc_regs =3D devm_ioremap_resource(&pdev->dev, tsc_mem);
++	tsc->tsc_regs =3D devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(tsc->tsc_regs)) {
+ 		err =3D PTR_ERR(tsc->tsc_regs);
+ 		dev_err(&pdev->dev, "failed to remap tsc memory: %d\n", err);
+ 		return err;
+ 	}
+=20
+-	adc_mem =3D platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	tsc->adc_regs =3D devm_ioremap_resource(&pdev->dev, adc_mem);
++	tsc->adc_regs =3D devm_platform_ioremap_resource(pdev, 1);
+ 	if (IS_ERR(tsc->adc_regs)) {
+ 		err =3D PTR_ERR(tsc->adc_regs);
+ 		dev_err(&pdev->dev, "failed to remap adc memory: %d\n", err);
+--=20
+2.7.4

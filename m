@@ -1,37 +1,79 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [RESEND PATCH v6 01/11] dt-bindings: mfd: add DT bindings for
- max77650
-Date: Tue, 2 Apr 2019 08:25:20 +0100
-Message-ID: <20190402072520.GF4187@dell>
+Subject: Re: [RESEND PATCH v6 05/11] mfd: core: document mfd_add_devices()
+Date: Tue, 2 Apr 2019 08:41:03 +0100
+Message-ID: <20190402074103.GG4187@dell>
 References: <20190318174228.18194-1-brgl@bgdev.pl>
- <20190318174228.18194-2-brgl@bgdev.pl>
+ <20190318174228.18194-6-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190318174228.18194-2-brgl@bgdev.pl>
+In-Reply-To: <20190318174228.18194-6-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh@kernel.org>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
 On Mon, 18 Mar 2019, Bartosz Golaszewski wrote:
 
 > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 > 
-> Add a DT binding document for max77650 ultra-low power PMIC. This
-> describes the core mfd device and the GPIO module.
+> Add a kernel doc for mfd_add_devices().
 > 
 > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
 > ---
->  .../devicetree/bindings/mfd/max77650.txt      | 46 +++++++++++++++++++
->  1 file changed, 46 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
+>  drivers/mfd/mfd-core.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+> 
+> diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+> index 94e3f32ce935..0898a8db1747 100644
+> --- a/drivers/mfd/mfd-core.c
+> +++ b/drivers/mfd/mfd-core.c
+> @@ -269,6 +269,20 @@ static int mfd_add_device(struct device *parent, int id,
+>  	return ret;
+>  }
+>  
+> +/**
+> + * mfd_add_devices - register a set of child devices
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+"register child devices"
+
+> + *
+> + * @parent: Parent device for all sub-nodes.
+> + * @id: Platform device id. If >= 0, each sub-device will have its cell_id
+> + *      added to this number and use it as the platform device id.
+> + * @cells: Array of mfd cells describing sub-devices.
+> + * @n_devs: Number of sub-devices to register.
+> + * @mem_base: Parent register range resource for sub-devices.
+> + * @irq_base: Base of the range of virtual interrupt numbers allocated for
+> + *            this MFD device. Unused if @domain is specified.
+> + * @domain: Interrupt domain used to create mappings for HW interrupt numbers
+> + *          specificed in sub-devices' IRQ resources.
+
+Spelling.
+
+> + */
+>  int mfd_add_devices(struct device *parent, int id,
+>  		    const struct mfd_cell *cells, int n_devs,
+>  		    struct resource *mem_base,
+
+How about this:
+
+/**
+ * mfd_add_devices - register child devices
+ *
+ * @parent:	Pointer to parent device.
+ * @id:		Can be PLATFORM_DEVID_AUTO to let the Platform API take care
+ * 		of device numbering, or will be added to a device's cell_id.
+ * @cells:	Array of (struct mfd_cell)s describing child devices.
+ * @n_devs:	Number of child devices to register.
+ * @mem_base:	Parent register range resource for child devices.
+ * @irq_base:	Base of the range of virtual interrupt numbers allocated for
+ * 		this MFD device. Unused if @domain is specified.
+ * @domain:	Interrupt domain to create mappings for hardware interrupts.
+ */
+
 
 -- 
 Lee Jones [李琼斯]

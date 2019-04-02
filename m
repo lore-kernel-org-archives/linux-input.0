@@ -1,92 +1,52 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [RESEND PATCH v6 05/11] mfd: core: document mfd_add_devices()
-Date: Tue, 2 Apr 2019 10:08:59 +0200
-Message-ID: <CAMRc=Mekomya5A_tj3RKSeno1EaBoGNAFJajPfyB1cHP7c+L6w@mail.gmail.com>
-References: <20190318174228.18194-1-brgl@bgdev.pl> <20190318174228.18194-6-brgl@bgdev.pl>
- <20190402074103.GG4187@dell>
+From: Jagan Teki <jagan@amarulasolutions.com>
+Subject: Re: [PATCH v7 0/4] input: touchscreen: Add goodix GT5553 CTP support
+Date: Tue, 2 Apr 2019 19:00:26 +0530
+Message-ID: <CAMty3ZBKGpsGLJ8Z-WEOH+puULrh5BjREn+608dUmTMUW9Qhqg@mail.gmail.com>
+References: <20190321082104.2874-1-jagan@amarulasolutions.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190402074103.GG4187@dell>
+In-Reply-To: <20190321082104.2874-1-jagan@amarulasolutions.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
 List-Id: linux-input@vger.kernel.org
 
-wt., 2 kwi 2019 o 09:41 Lee Jones <lee.jones@linaro.org> napisa=C5=82(a):
+On Thu, Mar 21, 2019 at 1:51 PM Jagan Teki <jagan@amarulasolutions.com> wrote:
 >
-> On Mon, 18 Mar 2019, Bartosz Golaszewski wrote:
+> This is v7 patchset for supporting goodix GT5553 CTP. Here is the
+> previous version[1]
 >
-> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >
-> > Add a kernel doc for mfd_add_devices().
-> >
-> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > ---
-> >  drivers/mfd/mfd-core.c | 14 ++++++++++++++
-> >  1 file changed, 14 insertions(+)
-> >
-> > diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-> > index 94e3f32ce935..0898a8db1747 100644
-> > --- a/drivers/mfd/mfd-core.c
-> > +++ b/drivers/mfd/mfd-core.c
-> > @@ -269,6 +269,20 @@ static int mfd_add_device(struct device *parent, i=
-nt id,
-> >       return ret;
-> >  }
-> >
-> > +/**
-> > + * mfd_add_devices - register a set of child devices
+> Changes for v5:
+> - rebase on linux-next
+> Changes for v5:
+> - document bindings for required regulators, which are need during
+>   power-on sequence
+> - enable, disable required regulators as described in power-on sequence
+>   using normal regulator calls
+> - update the proper commi messages
+> Changes for v4:
+> - document AVDD22, DVDD12, VDDIO as optional properties
+> - use regulator bulk calls, for get, enable and disable functionalities
+> Changes for v4:
+> - devm_add_action_or_reset for disabling regulator
+> Changes for v3:
+> - add cover-letter
+> - s/ADVV28/AVDD28 on commit head
+> - fix few typo
+> Changes for v2:
+> - Rename vcc-supply with AVDD28-supply
+> - disable regulator in remove
+> - fix to setup regulator in probe code
+> - add chipdata
+> - drop example node in dt-bindings
 >
-> "register child devices"
+> [1] https://patchwork.kernel.org/cover/10819645/
 >
-> > + *
-> > + * @parent: Parent device for all sub-nodes.
-> > + * @id: Platform device id. If >=3D 0, each sub-device will have its c=
-ell_id
-> > + *      added to this number and use it as the platform device id.
-> > + * @cells: Array of mfd cells describing sub-devices.
-> > + * @n_devs: Number of sub-devices to register.
-> > + * @mem_base: Parent register range resource for sub-devices.
-> > + * @irq_base: Base of the range of virtual interrupt numbers allocated=
- for
-> > + *            this MFD device. Unused if @domain is specified.
-> > + * @domain: Interrupt domain used to create mappings for HW interrupt =
-numbers
-> > + *          specificed in sub-devices' IRQ resources.
->
-> Spelling.
->
-> > + */
-> >  int mfd_add_devices(struct device *parent, int id,
-> >                   const struct mfd_cell *cells, int n_devs,
-> >                   struct resource *mem_base,
->
-> How about this:
->
-> /**
->  * mfd_add_devices - register child devices
->  *
->  * @parent:     Pointer to parent device.
->  * @id:         Can be PLATFORM_DEVID_AUTO to let the Platform API take c=
-are
->  *              of device numbering, or will be added to a device's cell_=
-id.
->  * @cells:      Array of (struct mfd_cell)s describing child devices.
->  * @n_devs:     Number of child devices to register.
->  * @mem_base:   Parent register range resource for child devices.
->  * @irq_base:   Base of the range of virtual interrupt numbers allocated =
-for
->  *              this MFD device. Unused if @domain is specified.
->  * @domain:     Interrupt domain to create mappings for hardware interrup=
-ts.
->  */
->
+> Jagan Teki (4):
+>   dt-bindings: input: touchscreen: goodix: Document regulator properties
+>   Input: goodix - Add regulators suppot
+>   dt-bindings: input: touchscreen: goodix: Add GT5663 compatible
+>   Input: goodix - Add GT5663 CTP support
 
-Sure, looks good to me.
-
-FYI the latest version of this series is v7, but the mfd driver didn't
-change since v6.
-
-Bart
+Ping?

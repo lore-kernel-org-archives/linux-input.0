@@ -1,55 +1,40 @@
-From: Christopher Heiny <Cheiny@synaptics.com>
-Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
-Date: Tue, 2 Apr 2019 16:16:13 +0000
-Message-ID: <f4f7265d9ad06726bb2ef12ab6b7529d2fb06165.camel@synaptics.com>
-References: <20190220164200.31044-1-aaron.ma@canonical.com>
-         <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
-         <a0f21198-5715-8858-8368-51e43092181e@canonical.com>
-         <acd07f4d-1602-46c5-c486-c917f1868b59@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] HID: input: add mapping for Assistant key
+Date: Tue, 2 Apr 2019 09:57:13 -0700
+Message-ID: <20190402165713.GA161074@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <acd07f4d-1602-46c5-c486-c917f1868b59@canonical.com>
-Content-Language: en-US
-Content-ID: <2CBB9A7432A4B94191621205712F8E59@namprd03.prod.outlook.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Aaron Ma <aaron.ma@canonical.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-T24gVGh1LCAyMDE5LTAzLTI4IGF0IDE0OjAyICswODAwLCBBYXJvbiBNYSB3cm90ZToNCj4gSGkg
-RG1pdHJ5IGFuZCBDaGlyaXN0b3BoZXI6DQo+IA0KPiBEbyB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlv
-biBhYm91dCB0aGVzZSAyIHBhdGNoZXM/DQo+IA0KPiBNYW55IHVzZXJzIGNvbmZpcm1lZCB0aGF0
-IHRoZXkgZml4ZWQgaXNzdWVzIG9mIFRyYWNrcG9pbnQvVG91Y2hwYWQNCj4gYWZ0ZXIgUzMuDQo+
-IA0KPiBXaWxsIHlvdSBjb25zaWRlciB0aGVtIGJlIGFjY2VwdGVkPw0KDQpIaSBBYXJvbiwNCg0K
-U29ycnkgLSBJIHRob3VnaHQgSSdkIHJlcGxpZWQgb24gdGhlIE5PIFNMRUVQIHBvcnRpb24gb2Yg
-dGhlc2UgcGF0Y2hlcywNCmJ1dCBsb29raW5nIGJhY2sgSSBkb24ndCBmaW5kIHRoZSBkcmFmdCBv
-ciB0aGUgc2VudCBlbWFpbC4gIFNvcnJ5IGFib3V0DQp0aGF0LiAgSSdsbCBzdW1tYXJpemUgaGVy
-ZSB3aGF0IEkgd3JvdGUgbGFzdCBtb250aC4NCg0KVGhpcyBpc24ndCBzbyBtdWNoIGEgImZpeCIg
-YXMgYSAiaGFja3kgd29ya2Fyb3VuZCIgZm9yIHRoZSBpc3N1ZS4gIEZyb20NCnRoZSBkZXNjcmlw
-dGlvbnMgaW4gdGhlIGJ1ZyB5b3UgbGlua2VkIGluIHlvdXIgb3JpZ2luYWwgcGF0Y2gNCnN1Ym1p
-c3Npb24sIGl0IGFwcGVhcnMgdGhhdCB0aGUgcm9vdCBjYXVzZSBpcyBzb21ld2hlcmUgaW4gU01C
-dXMgc3lzdGVtDQooY291bGQgYmUgU01CdXMgZHJpdmVyLCBTTUJ1cyBoYXJkd2FyZSwgb3IgdGhl
-IGRldmljZXMgb24gdGhlIFNNQnVzDQoodG91Y2ggZGV2aWNlcyBvciBvdGhlciBkZXZpY2VzKSAt
-IGl0J3MgaGFyZCB0byB0ZWxsIHdpdGggdGhlIGluZm8NCmF2YWlsYWJsZSksIHdoZXJlIHRoZSBT
-TUJ1cyBpcyBmYWlsaW5nIHRvIGNvbWUgb25saW5lIGNvcnJlY3RseSBjb21pbmcNCm91dCBvZiBT
-MyBzdGF0ZS4gIEFueXdheSwgdGhpcyBwYXRjaCBkb2Vzbid0IGZpeCB0aGUgcm9vdCBjYXVzZSwg
-YnV0DQptZXJlbHkgd29ya3MgYXJvdW5kIGl0Lg0KDQpTZXR0aW5nIHRoZSBOTyBTTEVFUCBiaXQg
-d2lsbCBmb3JjZSB0aGUgdG91Y2ggc2Vuc29yIHRvIHJlbWFpbiBpbiBhDQpoaWdoIHBvd2VyIGNv
-bnN1bXB0aW9uIHN0YXRlIHdoaWxlIHRoZSByZXN0IG9mIHRoZSBzeXN0ZW0gaXMgaW4gUzMuIA0K
-V2hpbGUgbm90IGEgbG90IG9mIHBvd2VyIGNvbXBhcmVkIHRvIHRoaW5ncyBsaWtlIHRoZSBDUFUs
-IGRpc3BsYXksIGFuZA0Kb3RoZXJzLCBpdCBpcyBzdGlsbCBub24tdHJpdmlhbCBhbmQgd2lsbCBy
-ZXN1bHQgaW4gc2hvcnRlciB0aW1lLW9uLQ0KYmF0dGVyeSBjYXBhYmlsaXR5Lg0KDQpJZiB5b3Ug
-aGF2ZSBhY2Nlc3MgdG8gdGhlIHBvd2VyIHBpbihzKSBmb3IgdGhlIHRvdWNoIHNlbnNvcihzKS9z
-dHlrKHMpLA0KaXQgbWlnaHQgYmUgaW50ZXJlc3RpbmcgdG8gdHJ5IHR1cm5pbmcgcG93ZXIgb2Zm
-IG9uIGVudGVyaW5nIFMzLCBhbmQNCnJlc3RvcmluZyBpdCBvbiBleGl0LiAgVGhhdCdzIHZlcnkg
-aGFja3ksIGFuZCBoYXMgdGhlIHNpZGUgZWZmZWN0IG9mDQpzbGlnaHRseSBkZWxheWluZyB0b3Vj
-aHBhZCByZWFkaW5lc3Mgb24gZXhpdCBmcm9tIFMzLiAgUGx1cyB5b3UnbGwgbmVlZA0KdG8gcmVz
-dG9yZSB0b3VjaCBzZW5zb3IgY29uZmlndXJhdGlvbiBzZXR0aW5ncyBvbiBleGl0LiAgQnV0IGl0
-DQpkZWZpbml0ZWx5IHJlZHVjZXMgcG93ZXIgY29uc3VtcHRpb24uDQoNCg0KU2VwYXJhdGVseSwg
-SSBhbSBzdGlsbCBjb25jZXJuZWQgYWJvdXQgdGhlIHBvc3NpYmlsaXR5IG9mIGRyb3BwZWQgdG91
-Y2gNCmV2ZW50cyBpbiB0aGUgSVJRIGNsZWFyaW5nLiAgSSdtIG5vdCBjb252aW5jZWQgdGhhdCB0
-aGUgY29kZSBpcyBzYWZlDQooYXMgeW91IG1lbnRpb25lZCBpbiB5b3VyIHJlcGx5IHRvIG15IGVh
-cmxpZXIgY29tbWVudCksIHNvIEknbGwgaGF2ZSB0bw0Kc3R1ZHkgdGhlIGltcGxlbWVudGF0aW9u
-IG1vcmUgY2FyZWZ1bGx5Lg0KDQoJCQkJCUNoZWVycywNCgkJCQkJCUNocmlzDQoNCg0KDQo+IA0K
-PiBUaGFua3MsDQo+IEFhcm9uDQoNCg0K
+According to HUTRR89 usage 0x1cb from the consumer page was assigned to
+allow launching desktop-aware assistant application, so let's add the
+mapping.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/hid/hid-input.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index da76358cde06..a7046a322ddd 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -999,6 +999,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x1b8: map_key_clear(KEY_VIDEO);		break;
+ 		case 0x1bc: map_key_clear(KEY_MESSENGER);	break;
+ 		case 0x1bd: map_key_clear(KEY_INFO);		break;
++		case 0x1cb: map_key_clear(KEY_ASSISTANT);	break;
+ 		case 0x201: map_key_clear(KEY_NEW);		break;
+ 		case 0x202: map_key_clear(KEY_OPEN);		break;
+ 		case 0x203: map_key_clear(KEY_CLOSE);		break;
+-- 
+2.21.0.392.gf8f6787159e-goog
+
+
+-- 
+Dmitry

@@ -1,186 +1,172 @@
-From: <Mario.Limonciello@dell.com>
-Subject: RE: [PATCH] ELAN touchpad i2c_hid bugs fix
-Date: Tue, 2 Apr 2019 14:08:02 +0000
-Message-ID: <16218e1c23bb4cb6b0b739d561a707bc@ausx13mpc120.AMER.DELL.COM>
-References: <LaQHUFs--3-1@tutanota.com>
- <CAO-hwJLGABHATo-fOc_jgc8uNeLDv7cemsHuQMj7zRJWmfyp4g@mail.gmail.com>
- <9151d116-958c-9298-9427-fe803a163e9f@redhat.com>
- <F03846A5-6C42-4290-AF72-F644C809A50A@canonical.com>
- <CAHp75VcOG9H8u+tZyNN682r7+jsRZi8VoPPZ2uJPch1gNyFgmQ@mail.gmail.com>
- <220FEDBD-9A71-4C14-A7D6-3850D515865F@canonical.com>
- <CAHp75VdTMn_v8ag11jo6aYtuiWL4bhvSzCnhaUBtuqSQxxnT_w@mail.gmail.com>
- <d813fe02035b481b8f3a55aa4dffbb22@ausx13mpc120.AMER.DELL.COM>
- <6105BFF6-41B1-4DB8-A78D-20BC2E35C014@canonical.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v4] HID: core: move Usage Page concatenation to Main item
+Date: Tue, 2 Apr 2019 16:34:33 +0200
+Message-ID: <CAO-hwJJEkuxdgZ2vRO-HV1Z6yNxjvVRf82ncPRBVJ=5ujyRsRg@mail.gmail.com>
+References: <20190327101848.25477-1-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6105BFF6-41B1-4DB8-A78D-20BC2E35C014@canonical.com>
-Content-Language: en-US
+In-Reply-To: <20190327101848.25477-1-nsaenzjulienne@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kai.heng.feng@canonical.com
-Cc: andy.shevchenko@gmail.com, hdegoede@redhat.com, benjamin.tissoires@redhat.com, hotwater438@tutanota.com, jikos@kernel.org, swboyd@chromium.org, bigeasy@linutronix.de, dtor@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: Jiri Kosina <jikos@kernel.org>, oneukum@suse.de, "Junge, Terry" <Terry.Junge@plantronics.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBLYWkgSGVuZyBGZW5nIDxrYWku
-aGVuZy5mZW5nQGNhbm9uaWNhbC5jb20+DQo+IFNlbnQ6IE1vbmRheSwgQXByaWwgMSwgMjAxOSAx
-MToxOCBQTQ0KPiBUbzogTGltb25jaWVsbG8sIE1hcmlvDQo+IENjOiBBbmR5IFNoZXZjaGVua287
-IGhkZWdvZWRlQHJlZGhhdC5jb207IGJlbmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tOw0KPiBo
-b3R3YXRlcjQzOEB0dXRhbm90YS5jb207IGppa29zQGtlcm5lbC5vcmc7IHN3Ym95ZEBjaHJvbWl1
-bS5vcmc7DQo+IGJpZ2Vhc3lAbGludXRyb25peC5kZTsgZHRvckBjaHJvbWl1bS5vcmc7IGxpbnV4
-LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgtDQo+IGtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcN
-Cj4gU3ViamVjdDogUmU6IFtQQVRDSF0gRUxBTiB0b3VjaHBhZCBpMmNfaGlkIGJ1Z3MgZml4DQo+
-IA0KPiANCj4gW0VYVEVSTkFMIEVNQUlMXQ0KPiANCj4gDQo+IA0KPiA+IE9uIEFwciAyLCAyMDE5
-LCBhdCA1OjM3IEFNLCA8TWFyaW8uTGltb25jaWVsbG9AZGVsbC5jb20+DQo+ID4gPE1hcmlvLkxp
-bW9uY2llbGxvQGRlbGwuY29tPiB3cm90ZToNCj4gPg0KPiA+PiAtLS0tLU9yaWdpbmFsIE1lc3Nh
-Z2UtLS0tLQ0KPiA+PiBGcm9tOiBBbmR5IFNoZXZjaGVua28gPGFuZHkuc2hldmNoZW5rb0BnbWFp
-bC5jb20+DQo+ID4+IFNlbnQ6IFRodXJzZGF5LCBNYXJjaCAyMSwgMjAxOSA0OjQ4IEFNDQo+ID4+
-IFRvOiBLYWktSGVuZyBGZW5nOyBMaW1vbmNpZWxsbywgTWFyaW8NCj4gPj4gQ2M6IEhhbnMgZGUg
-R29lZGU7IEJlbmphbWluIFRpc3NvaXJlczsgaG90d2F0ZXI0MzhAdHV0YW5vdGEuY29tOyBKaXJp
-DQo+ID4+IEtvc2luYTsNCj4gPj4gU3RlcGhlbiBCb3lkOyBTZWJhc3RpYW4gQW5kcnplaiBTaWV3
-aW9yOyBEbWl0cnkgVG9yb2tob3Y7IG9wZW4gbGlzdDpISUQNCj4gPj4gQ09SRQ0KPiA+PiBMQVlF
-UjsgbGttbA0KPiA+PiBTdWJqZWN0OiBSZTogW1BBVENIXSBFTEFOIHRvdWNocGFkIGkyY19oaWQg
-YnVncyBmaXgNCj4gPj4NCj4gPj4NCj4gPj4gW0VYVEVSTkFMIEVNQUlMXQ0KPiA+Pg0KPiA+PiAr
-Q2M6IE1hcmlvDQo+ID4+DQo+ID4+IE1hcmlvLCBkbyB5b3UgaGF2ZSBhbnkgaW5zaWdodHMgYWJv
-dXQgdGhlIGlzc3VlIHdpdGggdG91Y2hwYWQgb24gRGVsbA0KPiA+PiBzeXN0ZW0gZGVzY3JpYmVk
-IGJlbG93Pw0KPiA+DQo+ID4gTXkgYXBvbG9naWVzLCB0aGlzIGdvdCBsb3N0IHdoaWxlIEkgd2Fz
-IG9uIHZhY2F0aW9uLg0KPiA+DQo+ID4+DQo+ID4+IE9uIFRodSwgTWFyIDIxLCAyMDE5IGF0IDY6
-MDggQU0gS2FpLUhlbmcgRmVuZw0KPiA+PiA8a2FpLmhlbmcuZmVuZ0BjYW5vbmljYWwuY29tPiB3
-cm90ZToNCj4gPj4+DQo+ID4+PiBhdCAwMToxOCwgQW5keSBTaGV2Y2hlbmtvIDxhbmR5LnNoZXZj
-aGVua29AZ21haWwuY29tPiB3cm90ZToNCj4gPj4+DQo+ID4+Pj4gT24gV2VkLCBNYXIgMjAsIDIw
-MTkgYXQgNjo1NSBQTSBLYWktSGVuZyBGZW5nDQo+ID4+Pj4gPGthaS5oZW5nLmZlbmdAY2Fub25p
-Y2FsLmNvbT4gd3JvdGU6DQo+ID4+Pj4+IGF0IDIzOjM5LCBIYW5zIGRlIEdvZWRlIDxoZGVnb2Vk
-ZUByZWRoYXQuY29tPiB3cm90ZToNCj4gPj4+Pj4+IE9uIDMvMjAvMTkgMzozNyBQTSwgQmVuamFt
-aW4gVGlzc29pcmVzIHdyb3RlOg0KPiA+Pj4+DQo+ID4+Pj4+PiBCZW5qYW1pbiwgd2hhdCBJIGZp
-bmQgaW50ZXJlc3RpbmcgaGVyZSBpcyB0aGF0IHRoZSBCT0dVU19JUlEgcXVpcmsNCj4gPj4+Pj4+
-IGlzIGFsc28gdXNlZCBvbiBFbGFuIGRldmljZXMsIEkgc3VzcGVjdCB0aGF0IHRoZXNlIEVsYW4g
-ZGV2aWNlcw0KPiA+Pj4+Pj4gbGlrZWx5IGFsc28gbmVlZCB0aGUgSTJDX0hJRF9RVUlSS19GT1JD
-RV9UUklHR0VSX0ZBTExJTkcgcXVpcmsNCj4gPj4+Pj4+IGFuZCB0aGVuIHRoZXkgcHJvYmFibHkg
-d2lsbCBubyBsb25nZXIgbmVlZCB0aGUgYm9ndXMgSVJRIGZsYWcsDQo+ID4+Pj4+PiBpZiB5b3Ug
-a25vdyBhYm91dCBidWdyZXBvcnRzIHdpdGggYW4gYWNwaWR1bXAgZm9yIGFueSBvZiB0aGUgZGV2
-aWNlcw0KPiA+Pj4+Pj4gbmVlZGluZyB0aGUgYm9ndXMgSVJRIHF1aXJrLCB0aGVuIEkgKG9yIHlv
-dSkgY2FuIGNoZWNrIGhvdyB0aGUgSVJRIGlzDQo+ID4+Pj4+PiBkZWNsYXJlZCB0aGVyZSwgSSBz
-dXNwZWN0IGl0IHdpbGwgYmUgZGVjbGFyZWQgYXMgbGV2ZWwtbG93LCBqdXN0IGxpa2UNCj4gPj4+
-Pj4+IHdpdGggdGhlIGxhcHRvcCB0aGlzIHBhdGNoIHdhcyB3cml0dGVuIGZvci4gQW5kIGl0IHBy
-b2JhYmx5IG5lZWQgdG8NCj4gPj4+Pj4+IGJlIGVkZ2UtZmFsbGluZyBpbnN0ZWFkIG9mIGxldmVs
-LWxvdyBqdXN0IGxpa2UgdGhpcyBjYXNlLg0KPiA+Pj4+Pg0KPiA+Pj4+PiBGaXJzdCwgSeKAmXZl
-IGFscmVhZHkgdHJpZWQgdXNpbmcgSVJRRl9UUklHR0VSX0ZBTExJTkcsIHVuZm9ydHVuYXRlbHkg
-aXQNCj4gPj4+Pj4gZG9lc27igJl0IHNvbHZlIHRoZSBpc3N1ZSBmb3IgbWUuDQo+ID4+Pj4+DQo+
-ID4+Pj4+IEkgdGFsa2VkIHRvIEVsYW4gb25jZSwgYW5kIHRoZXkgY29uZmlybSB0aGUgY29ycmVj
-dCBJUlEgdHJpZ2dlciBpcw0KPiA+Pj4+PiBsZXZlbA0KPiA+Pj4+PiBsb3cuIFNvIGZvcmNpbmcg
-ZmFsbGluZyB0cmlnZ2VyIG1heSBicmVhayBvdGhlciBwbGF0Zm9ybXMuDQo+ID4+Pj4NCj4gPj4+
-PiBBcyBmYXIgYXMgSSB1bmRlcnN0b29kIFZsYWRpc2xhdiB0aGUgcXVpcmsgaGUgZ290IGZyb20g
-RWxhbiBhcyB3ZWxsLg0KPiA+Pj4NCj4gPj4+IE9rLCB0aGVuIHRoaXMgaXMgcmVhbGx5IHdlaXJk
-Lg0KPiA+Pj4NCj4gPj4+Pg0KPiA+Pj4+PiBSZWNlbnRseSB3ZSBmb3VuZCB0aGF0IEVsYW4gdG91
-Y2hwYWQgZG9lc27igJl0IGxpa2UgR3Bpb0ludCgpIGZyb20gaXRzDQo+ID4+Pj4+IF9DUlMuDQo+
-ID4+Pj4+IE9uY2UgdGhlIEludGVycnVwdCgpIGlzIHVzZWQgaW5zdGVhZCwgdGhlIGlzc3VlIGdv
-ZXMgYXdheS4NCj4gPj4+Pg0KPiA+Pj4+IElJUkMgaTJjIGNvcmUgdHJpZXMgdG8gZ2V0IGludGVy
-cnVwdCBmcm9tIEludGVycnVwdCgpIHJlc291cmNlIGFuZA0KPiA+Pj4+IHRoZW4gZmFsbHMgYmFj
-ayB0byBHcGlvSW50KCkuDQo+ID4+Pj4gU2VlIGkyY19hY3BpX2dldF9pbmZvKCkgYW5kIGkyY19k
-ZXZpY2VfcHJvYmUoKS4NCj4gPj4+DQo+ID4+PiBIZXJl4oCZcyBpdHMgQVNMOg0KPiA+Pj4NCj4g
-Pj4+ICAgICBTY29wZSAoXF9TQi5QQ0kwLkkyQzQpDQo+ID4+PiAgICAgew0KPiA+Pj4gICAgICAg
-ICBEZXZpY2UgKFRQRDApDQo+ID4+PiAgICAgICAgIHsNCj4gPj4+ICAgICAgICAgICAgIE5hbWUg
-KF9BRFIsIE9uZSkgIC8vIF9BRFI6IEFkZHJlc3MNCj4gPj4+ICAgICAgICAgICAgIE5hbWUgKF9I
-SUQsICJERUxMMDhBRSIpICAvLyBfSElEOiBIYXJkd2FyZSBJRA0KPiA+Pj4gICAgICAgICAgICAg
-TmFtZSAoX0NJRCwgIlBOUDBDNTAiIC8qIEhJRCBQcm90b2NvbCBEZXZpY2UgKEkyQyBidXMpICov
-KSAgLy8gX0NJRDoNCj4gPj4gQ29tcGF0aWJsZSBJRA0KPiA+Pj4gICAgICAgICAgICAgTmFtZSAo
-X1VJRCwgT25lKSAgLy8gX1VJRDogVW5pcXVlIElEDQo+ID4+PiAgICAgICAgICAgICBOYW1lIChf
-UzBXLCAweDA0KSAgLy8gX1MwVzogUzAgRGV2aWNlIFdha2UgU3RhdGUNCj4gPj4+ICAgICAgICAg
-ICAgIE5hbWUgKFNCRkIsIFJlc291cmNlVGVtcGxhdGUgKCkNCj4gPj4+ICAgICAgICAgICAgIHsN
-Cj4gPj4+ICAgICAgICAgICAgICAgICBJMmNTZXJpYWxCdXNWMiAoMHgwMDJDLCBDb250cm9sbGVy
-SW5pdGlhdGVkLCAweDAwMDYxQTgwLA0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICBBZGRyZXNz
-aW5nTW9kZTdCaXQsICJcXF9TQi5QQ0kwLkkyQzQiLA0KPiA+Pj4gICAgICAgICAgICAgICAgICAg
-ICAweDAwLCBSZXNvdXJjZUNvbnN1bWVyLCAsIEV4Y2x1c2l2ZSwNCj4gPj4+ICAgICAgICAgICAg
-ICAgICAgICAgKQ0KPiA+Pj4gICAgICAgICAgICAgfSkNCj4gPj4+ICAgICAgICAgICAgIE5hbWUg
-KFNCRkcsIFJlc291cmNlVGVtcGxhdGUgKCkNCj4gPj4+ICAgICAgICAgICAgIHsNCj4gPj4+ICAg
-ICAgICAgICAgICAgICBHcGlvSW50IChMZXZlbCwgQWN0aXZlTG93LCBFeGNsdXNpdmVBbmRXYWtl
-LCBQdWxsVXAsIDB4MDAwMCwNCj4gPj4+ICAgICAgICAgICAgICAgICAgICAgIlxcX1NCLkdQTzEi
-LCAweDAwLCBSZXNvdXJjZUNvbnN1bWVyLCAsDQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICkN
-Cj4gPj4+ICAgICAgICAgICAgICAgICAgICAgeyAgIC8vIFBpbiBsaXN0DQo+ID4+PiAgICAgICAg
-ICAgICAgICAgICAgICAgICAweDAwMTINCj4gPj4+ICAgICAgICAgICAgICAgICAgICAgfQ0KPiA+
-Pj4gICAgICAgICAgICAgfSkNCj4gPj4+ICAgICAgICAgICAgIE5hbWUgKFNCRkksIFJlc291cmNl
-VGVtcGxhdGUgKCkNCj4gPj4+ICAgICAgICAgICAgIHsNCj4gPj4+ICAgICAgICAgICAgICAgICBJ
-bnRlcnJ1cHQgKFJlc291cmNlQ29uc3VtZXIsIExldmVsLCBBY3RpdmVMb3csIEV4Y2x1c2l2ZUFu
-ZFdha2UsICwsICkNCj4gPj4+ICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAg
-ICAgICAgIDB4MDAwMDAwM0MsDQo+ID4+PiAgICAgICAgICAgICAgICAgfQ0KPiA+Pj4gICAgICAg
-ICAgICAgfSkNCj4gPj4+ICAgICAgICAgICAgIE1ldGhvZCAoX0lOSSwgMCwgTm90U2VyaWFsaXpl
-ZCkgIC8vIF9JTkk6IEluaXRpYWxpemUNCj4gPj4+ICAgICAgICAgICAgIHsNCj4gPj4+ICAgICAg
-ICAgICAgIH0NCj4gPj4+ICAgICAgICAgICAgIE1ldGhvZCAoX1NUQSwgMCwgTm90U2VyaWFsaXpl
-ZCkgIC8vIF9TVEE6IFN0YXR1cw0KPiA+Pj4gICAgICAgICAgICAgew0KPiA+Pj4gICAgICAgICAg
-ICAgICAgIElmICgoVENQRCA9PSBPbmUpKQ0KPiA+Pj4gICAgICAgICAgICAgICAgIHsNCj4gPj4+
-ICAgICAgICAgICAgICAgICAgICAgUmV0dXJuICgweDBGKQ0KPiA+Pj4gICAgICAgICAgICAgICAg
-IH0NCj4gPj4+DQo+ID4+PiAgICAgICAgICAgICAgICAgUmV0dXJuIChaZXJvKQ0KPiA+Pj4gICAg
-ICAgICAgICAgfQ0KPiA+Pj4gICAgICAgICAgICAgTWV0aG9kIChfQ1JTLCAwLCBOb3RTZXJpYWxp
-emVkKSAgLy8gX0NSUzogQ3VycmVudCBSZXNvdXJjZSBTZXR0aW5ncw0KPiA+Pj4gICAgICAgICAg
-ICAgew0KPiA+Pj4gICAgICAgICAgICAgICAgIElmICgoT1NZUyA8IDB4MDdEQykpDQo+ID4+PiAg
-ICAgICAgICAgICAgICAgew0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICBSZXR1cm4gKFNCRkkp
-IC8qIFxfU0JfLlBDSTAuSTJDNC5UUEQwLlNCRkkgKi8NCj4gPj4+ICAgICAgICAgICAgICAgICB9
-DQo+ID4+Pg0KPiA+Pj4gICAgICAgICAgICAgICAgIFJldHVybiAoQ29uY2F0ZW5hdGVSZXNUZW1w
-bGF0ZSAoU0JGQiwgU0JGRykpDQo+ID4+PiAgICAgICAgICAgICB9DQo+ID4+PiAgICAgICAgICAg
-ICBNZXRob2QgKF9EU00sIDQsIE5vdFNlcmlhbGl6ZWQpICAvLyBfRFNNOiBEZXZpY2UtU3BlY2lm
-aWMgTWV0aG9kDQo+ID4+PiAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgSWYg
-KChBcmcwID09IFRvVVVJRCAoIjNjZGZmNmY3LTQyNjctNDU1NS1hZDA1LWIzMGEzZDg5MzhkZSIp
-IC8qDQo+IEhJRA0KPiA+PiBJMkMgRGV2aWNlICovKSkNCj4gPj4+ICAgICAgICAgICAgICAgICB7
-DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgIElmICgoQXJnMiA9PSBaZXJvKSkNCj4gPj4+ICAg
-ICAgICAgICAgICAgICAgICAgew0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgSWYgKChB
-cmcxID09IE9uZSkpDQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgUmV0dXJuIChCdWZmZXIgKE9uZSkNCj4gPj4+ICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAweDAzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-Ly8gLg0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgIH0pDQo+ID4+PiAgICAgICAg
-ICAgICAgICAgICAgICAgICB9DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICBFbHNlDQo+
-ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgUmV0dXJuIChCdWZmZXIgKE9uZSkNCj4gPj4+ICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAweDAwICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLy8gLg0KPiA+Pj4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIH0pDQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAg
-ICB9DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgIH0NCj4gPj4+ICAgICAgICAgICAgICAgICAg
-ICAgRWxzZUlmICgoQXJnMiA9PSBPbmUpKQ0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICB7DQo+
-ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICBSZXR1cm4gKDB4MjApDQo+ID4+PiAgICAgICAg
-ICAgICAgICAgICAgIH0NCj4gPj4+ICAgICAgICAgICAgICAgICAgICAgRWxzZQ0KPiA+Pj4gICAg
-ICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICBSZXR1cm4g
-KEJ1ZmZlciAoT25lKQ0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgew0KPiA+Pj4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAweDAwICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgLy8gLg0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgfSkN
-Cj4gPj4+ICAgICAgICAgICAgICAgICAgICAgfQ0KPiA+Pj4gICAgICAgICAgICAgICAgIH0NCj4g
-Pj4+ICAgICAgICAgICAgICAgICBFbHNlSWYgKChBcmcwID09IFRvVVVJRCAoImVmODdlYjgyLWY5
-NTEtNDZkYS04NGVjLTE0ODcxYWM2Zjg0YiIpKSkNCj4gPj4+ICAgICAgICAgICAgICAgICB7DQo+
-ID4+PiAgICAgICAgICAgICAgICAgICAgIElmICgoQXJnMiA9PSBaZXJvKSkNCj4gPj4+ICAgICAg
-ICAgICAgICAgICAgICAgew0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgSWYgKChBcmcx
-ID09IE9uZSkpDQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgUmV0dXJuIChCdWZmZXIgKE9uZSkNCj4gPj4+ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAweDAzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLy8g
-Lg0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgIH0pDQo+ID4+PiAgICAgICAgICAg
-ICAgICAgICAgICAgICB9DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgIH0NCj4gPj4+DQo+ID4+
-PiAgICAgICAgICAgICAgICAgICAgIElmICgoQXJnMiA9PSBPbmUpKQ0KPiA+Pj4gICAgICAgICAg
-ICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgICAgICBSZXR1cm4gKENvbmNh
-dGVuYXRlUmVzVGVtcGxhdGUgKFNCRkIsIFNCRkcpKQ0KPiA+Pj4gICAgICAgICAgICAgICAgICAg
-ICB9DQo+ID4+Pg0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICBSZXR1cm4gKEJ1ZmZlciAoT25l
-KQ0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgMHgwMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8v
-IC4NCj4gPj4+ICAgICAgICAgICAgICAgICAgICAgfSkNCj4gPj4+ICAgICAgICAgICAgICAgICB9
-DQo+ID4+PiAgICAgICAgICAgICAgICAgfQ0KPiA+Pj4gICAgICAgICAgICAgICAgIEVsc2UNCj4g
-Pj4+ICAgICAgICAgICAgICAgICB7DQo+ID4+PiAgICAgICAgICAgICAgICAgICAgIFJldHVybiAo
-QnVmZmVyIChPbmUpDQo+ID4+PiAgICAgICAgICAgICAgICAgICAgIHsNCj4gPj4+ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAweDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgLy8gLg0KPiA+Pj4gICAgICAgICAgICAgICAgICAgICB9KQ0KPiA+Pj4gICAgICAg
-ICAgICAgICAgIH0NCj4gPj4+ICAgICAgICAgICAgIH0NCj4gPj4+ICAgICAgICAgfQ0KPiA+Pj4g
-ICAgIH0NCj4gPj4+DQo+ID4+PiBDaGFuZ2UgU0JGRyB0byBTQkZJIGluIGl0cyBfQ1JTIGNhbiB3
-b3JrYXJvdW5kIHRoZSBpc3N1ZS4NCj4gPj4+IElzIEFTTCBpbiB0aGlzIGZvcm0gcG9zc2libGUg
-dG8gZG8gdGhlIGZsb3cgeW91IGRlc2NyaWJlZD8NCj4gPj4+DQo+ID4+PiBLYWktSGVuZw0KPiA+
-Pj4NCj4gPj4+Pg0KPiA+Pj4+PiBCdXQgSSBhbSBub3Qgc3VyZSBob3cgdG8gcGF0Y2ggaXRzIERT
-RFQvU1NEVCBpbiBpMmMtaGlkLg0KPiA+DQo+ID4gSXMgdGhpcyBwcmUtcHJvZHVjdGlvbiBIVz8g
-IElmIHNvLCBtYXliZSB0aGlzIGlzIGEgY2FzZSB0aGF0IHdlIHNob3VsZCB0YWxrDQo+ID4gYWJv
-dXQgY3VzdG9tIE9TSSBzdHJpbmcgdG8gcnVuIHRoZSBBU0wgZGlmZmVyZW50bHkuDQo+IA0KPiBT
-b21lIGFyZSBhbHJlYWR5IHNoaXBwZWQuDQo+IA0KPiANCj4gPg0KPiA+IFRoZSBvdGhlciBvcHRp
-b24gd291bGQgYmUgdG8gY3JlYXRlIGEgbmV3IEFTTCBtZXRob2QgaW4gRlcgYW5kIGZyb20gTGlu
-dXgNCj4gPiBzaWRlIGEgcXVpcmsgdGhhdCBjYWxscyB0aGlzIG5ldyBBU0wgbWV0aG9kLg0KPiA+
-DQo+IA0KPiBTaW5jZSB0aGlzIHBhdGNoIGlzIGZvciBBU1VTIExhcHRvcCwgSSB0aGluayBhIG1v
-cmUgZ2VuZXJpYyBzb2x1dGlvbiBmcm9tDQo+IGRyaXZlciBsYXllciBpcyBwcmVmZXJyZWQuDQo+
-IA0KDQpJIHRob3VnaHQgdGhpcyBBU0wgd2FzIGZyb20gRGVsbCBsYXB0b3AuICBUaGUgSElEIG1h
-a2UgaXQgbG9va3MgbGlrZSBpdCBhdCBsZWFzdC4NCj4gPj4+ICAgICAgICAgICAgIE5hbWUgKF9I
-SUQsICJERUxMMDhBRSIpICAvLyBfSElEOiBIYXJkd2FyZSBJRA0KDQpJbiBnZW5lcmFsIG1vcmUg
-Z2VuZXJpYyBzb2x1dGlvbiBmcm9tIGRyaXZlciBsYXllciBpcyBwcmVmZXJyZWQgSSBhZ3JlZS4g
-IFlvdSBtaWdodA0KbmVlZCB0byBjaGVjayB3aXRoIEFDUEkgZ3V5cyB0byBzZWUgaWYgdGhleSBo
-YXZlIHNvbWUgaWRlYXMgb24gc2l0dWF0aW9ucyB0aGF0DQpHcGlvSW50IGZhaWwuDQoNCg==
+On Wed, Mar 27, 2019 at 11:19 AM Nicolas Saenz Julienne
+<nsaenzjulienne@suse.de> wrote:
+>
+> As seen on some USB wireless keyboards manufactured by Primax, the HID
+> parser was using some assumptions that are not always true. In this case
+> it's s the fact that, inside the scope of a main item, an Usage Page
+> will always precede an Usage.
+>
+> The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
+> is interpreted as a Usage ID and concatenated with the Usage Page".
+> While 6.2.2.8 states "When the parser encounters a main item it
+> concatenates the last declared Usage Page with a Usage to form a
+> complete usage value." Being somewhat contradictory it was decided to
+> match Window's implementation, which follows 6.2.2.8.
+>
+> In summary, the patch moves the Usage Page concatenation from the local
+> item parsing function to the main item parsing function.
+>
+> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+> ---
+
+Applied to for-5.2/core with Terry's reviewed-by.
+
+Thanks everybody.
+
+Cheers,
+Benjamin
+
+>
+> v3->v4: - Use u8 instead of __u8
+>         - Remove overly complex usage size calculation
+>
+> v2->v3: - Update patch title
+>
+> v1->v2: - Add usage concatenation to hid_scan_main()
+>         - Rework tests in hid-tools, making sure no-one is failing
+>
+>  drivers/hid/hid-core.c | 36 ++++++++++++++++++++++++------------
+>  include/linux/hid.h    |  1 +
+>  2 files changed, 25 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 9993b692598f..852bbd303d9a 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -218,13 +218,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
+>   * Add a usage to the temporary parser table.
+>   */
+>
+> -static int hid_add_usage(struct hid_parser *parser, unsigned usage)
+> +static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
+>  {
+>         if (parser->local.usage_index >= HID_MAX_USAGES) {
+>                 hid_err(parser->device, "usage index exceeded\n");
+>                 return -1;
+>         }
+>         parser->local.usage[parser->local.usage_index] = usage;
+> +       parser->local.usage_size[parser->local.usage_index] = size;
+>         parser->local.collection_index[parser->local.usage_index] =
+>                 parser->collection_stack_ptr ?
+>                 parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
+> @@ -486,10 +487,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+>                         return 0;
+>                 }
+>
+> -               if (item->size <= 2)
+> -                       data = (parser->global.usage_page << 16) + data;
+> -
+> -               return hid_add_usage(parser, data);
+> +               return hid_add_usage(parser, data, item->size);
+>
+>         case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+>
+> @@ -498,9 +496,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+>                         return 0;
+>                 }
+>
+> -               if (item->size <= 2)
+> -                       data = (parser->global.usage_page << 16) + data;
+> -
+>                 parser->local.usage_minimum = data;
+>                 return 0;
+>
+> @@ -511,9 +506,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+>                         return 0;
+>                 }
+>
+> -               if (item->size <= 2)
+> -                       data = (parser->global.usage_page << 16) + data;
+> -
+>                 count = data - parser->local.usage_minimum;
+>                 if (count + parser->local.usage_index >= HID_MAX_USAGES) {
+>                         /*
+> @@ -533,7 +525,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+>                 }
+>
+>                 for (n = parser->local.usage_minimum; n <= data; n++)
+> -                       if (hid_add_usage(parser, n)) {
+> +                       if (hid_add_usage(parser, n, item->size)) {
+>                                 dbg_hid("hid_add_usage failed\n");
+>                                 return -1;
+>                         }
+> @@ -547,6 +539,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+>         return 0;
+>  }
+>
+> +/*
+> + * Concatenate Usage Pages into Usages where relevant:
+> + * As per specification, 6.2.2.8: "When the parser encounters a main item it
+> + * concatenates the last declared Usage Page with a Usage to form a complete
+> + * usage value."
+> + */
+> +
+> +static void hid_concatenate_usage_page(struct hid_parser *parser)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < parser->local.usage_index; i++)
+> +               if (parser->local.usage_size[i] <= 2)
+> +                       parser->local.usage[i] += parser->global.usage_page << 16;
+> +}
+> +
+>  /*
+>   * Process a main item.
+>   */
+> @@ -556,6 +564,8 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
+>         __u32 data;
+>         int ret;
+>
+> +       hid_concatenate_usage_page(parser);
+> +
+>         data = item_udata(item);
+>
+>         switch (item->tag) {
+> @@ -765,6 +775,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
+>         __u32 data;
+>         int i;
+>
+> +       hid_concatenate_usage_page(parser);
+> +
+>         data = item_udata(item);
+>
+>         switch (item->tag) {
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index f9707d1dcb58..ac0c70b4ce10 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -417,6 +417,7 @@ struct hid_global {
+>
+>  struct hid_local {
+>         unsigned usage[HID_MAX_USAGES]; /* usage array */
+> +       u8 usage_size[HID_MAX_USAGES]; /* usage size array */
+>         unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
+>         unsigned usage_index;
+>         unsigned usage_minimum;
+> --
+> 2.21.0
+>

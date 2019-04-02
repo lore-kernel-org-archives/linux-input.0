@@ -1,172 +1,55 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4] HID: core: move Usage Page concatenation to Main item
-Date: Tue, 2 Apr 2019 16:34:33 +0200
-Message-ID: <CAO-hwJJEkuxdgZ2vRO-HV1Z6yNxjvVRf82ncPRBVJ=5ujyRsRg@mail.gmail.com>
-References: <20190327101848.25477-1-nsaenzjulienne@suse.de>
+From: Christopher Heiny <Cheiny@synaptics.com>
+Subject: Re: [PATCH 1/2] Input: synaptics-rmi4 - clear irqs before set irqs
+Date: Tue, 2 Apr 2019 16:16:13 +0000
+Message-ID: <f4f7265d9ad06726bb2ef12ab6b7529d2fb06165.camel@synaptics.com>
+References: <20190220164200.31044-1-aaron.ma@canonical.com>
+         <17cd420ea32a9787c56ba25e36e7661541c2f65f.camel@synaptics.com>
+         <a0f21198-5715-8858-8368-51e43092181e@canonical.com>
+         <acd07f4d-1602-46c5-c486-c917f1868b59@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327101848.25477-1-nsaenzjulienne@suse.de>
+In-Reply-To: <acd07f4d-1602-46c5-c486-c917f1868b59@canonical.com>
+Content-Language: en-US
+Content-ID: <2CBB9A7432A4B94191621205712F8E59@namprd03.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: Jiri Kosina <jikos@kernel.org>, oneukum@suse.de, "Junge, Terry" <Terry.Junge@plantronics.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Aaron Ma <aaron.ma@canonical.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 27, 2019 at 11:19 AM Nicolas Saenz Julienne
-<nsaenzjulienne@suse.de> wrote:
->
-> As seen on some USB wireless keyboards manufactured by Primax, the HID
-> parser was using some assumptions that are not always true. In this case
-> it's s the fact that, inside the scope of a main item, an Usage Page
-> will always precede an Usage.
->
-> The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
-> is interpreted as a Usage ID and concatenated with the Usage Page".
-> While 6.2.2.8 states "When the parser encounters a main item it
-> concatenates the last declared Usage Page with a Usage to form a
-> complete usage value." Being somewhat contradictory it was decided to
-> match Window's implementation, which follows 6.2.2.8.
->
-> In summary, the patch moves the Usage Page concatenation from the local
-> item parsing function to the main item parsing function.
->
-> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-> ---
-
-Applied to for-5.2/core with Terry's reviewed-by.
-
-Thanks everybody.
-
-Cheers,
-Benjamin
-
->
-> v3->v4: - Use u8 instead of __u8
->         - Remove overly complex usage size calculation
->
-> v2->v3: - Update patch title
->
-> v1->v2: - Add usage concatenation to hid_scan_main()
->         - Rework tests in hid-tools, making sure no-one is failing
->
->  drivers/hid/hid-core.c | 36 ++++++++++++++++++++++++------------
->  include/linux/hid.h    |  1 +
->  2 files changed, 25 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9993b692598f..852bbd303d9a 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -218,13 +218,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
->   * Add a usage to the temporary parser table.
->   */
->
-> -static int hid_add_usage(struct hid_parser *parser, unsigned usage)
-> +static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
->  {
->         if (parser->local.usage_index >= HID_MAX_USAGES) {
->                 hid_err(parser->device, "usage index exceeded\n");
->                 return -1;
->         }
->         parser->local.usage[parser->local.usage_index] = usage;
-> +       parser->local.usage_size[parser->local.usage_index] = size;
->         parser->local.collection_index[parser->local.usage_index] =
->                 parser->collection_stack_ptr ?
->                 parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
-> @@ -486,10 +487,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
->                         return 0;
->                 }
->
-> -               if (item->size <= 2)
-> -                       data = (parser->global.usage_page << 16) + data;
-> -
-> -               return hid_add_usage(parser, data);
-> +               return hid_add_usage(parser, data, item->size);
->
->         case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
->
-> @@ -498,9 +496,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
->                         return 0;
->                 }
->
-> -               if (item->size <= 2)
-> -                       data = (parser->global.usage_page << 16) + data;
-> -
->                 parser->local.usage_minimum = data;
->                 return 0;
->
-> @@ -511,9 +506,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
->                         return 0;
->                 }
->
-> -               if (item->size <= 2)
-> -                       data = (parser->global.usage_page << 16) + data;
-> -
->                 count = data - parser->local.usage_minimum;
->                 if (count + parser->local.usage_index >= HID_MAX_USAGES) {
->                         /*
-> @@ -533,7 +525,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
->                 }
->
->                 for (n = parser->local.usage_minimum; n <= data; n++)
-> -                       if (hid_add_usage(parser, n)) {
-> +                       if (hid_add_usage(parser, n, item->size)) {
->                                 dbg_hid("hid_add_usage failed\n");
->                                 return -1;
->                         }
-> @@ -547,6 +539,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
->         return 0;
->  }
->
-> +/*
-> + * Concatenate Usage Pages into Usages where relevant:
-> + * As per specification, 6.2.2.8: "When the parser encounters a main item it
-> + * concatenates the last declared Usage Page with a Usage to form a complete
-> + * usage value."
-> + */
-> +
-> +static void hid_concatenate_usage_page(struct hid_parser *parser)
-> +{
-> +       int i;
-> +
-> +       for (i = 0; i < parser->local.usage_index; i++)
-> +               if (parser->local.usage_size[i] <= 2)
-> +                       parser->local.usage[i] += parser->global.usage_page << 16;
-> +}
-> +
->  /*
->   * Process a main item.
->   */
-> @@ -556,6 +564,8 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
->         __u32 data;
->         int ret;
->
-> +       hid_concatenate_usage_page(parser);
-> +
->         data = item_udata(item);
->
->         switch (item->tag) {
-> @@ -765,6 +775,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
->         __u32 data;
->         int i;
->
-> +       hid_concatenate_usage_page(parser);
-> +
->         data = item_udata(item);
->
->         switch (item->tag) {
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index f9707d1dcb58..ac0c70b4ce10 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -417,6 +417,7 @@ struct hid_global {
->
->  struct hid_local {
->         unsigned usage[HID_MAX_USAGES]; /* usage array */
-> +       u8 usage_size[HID_MAX_USAGES]; /* usage size array */
->         unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
->         unsigned usage_index;
->         unsigned usage_minimum;
-> --
-> 2.21.0
->
+T24gVGh1LCAyMDE5LTAzLTI4IGF0IDE0OjAyICswODAwLCBBYXJvbiBNYSB3cm90ZToNCj4gSGkg
+RG1pdHJ5IGFuZCBDaGlyaXN0b3BoZXI6DQo+IA0KPiBEbyB5b3UgaGF2ZSBhbnkgc3VnZ2VzdGlv
+biBhYm91dCB0aGVzZSAyIHBhdGNoZXM/DQo+IA0KPiBNYW55IHVzZXJzIGNvbmZpcm1lZCB0aGF0
+IHRoZXkgZml4ZWQgaXNzdWVzIG9mIFRyYWNrcG9pbnQvVG91Y2hwYWQNCj4gYWZ0ZXIgUzMuDQo+
+IA0KPiBXaWxsIHlvdSBjb25zaWRlciB0aGVtIGJlIGFjY2VwdGVkPw0KDQpIaSBBYXJvbiwNCg0K
+U29ycnkgLSBJIHRob3VnaHQgSSdkIHJlcGxpZWQgb24gdGhlIE5PIFNMRUVQIHBvcnRpb24gb2Yg
+dGhlc2UgcGF0Y2hlcywNCmJ1dCBsb29raW5nIGJhY2sgSSBkb24ndCBmaW5kIHRoZSBkcmFmdCBv
+ciB0aGUgc2VudCBlbWFpbC4gIFNvcnJ5IGFib3V0DQp0aGF0LiAgSSdsbCBzdW1tYXJpemUgaGVy
+ZSB3aGF0IEkgd3JvdGUgbGFzdCBtb250aC4NCg0KVGhpcyBpc24ndCBzbyBtdWNoIGEgImZpeCIg
+YXMgYSAiaGFja3kgd29ya2Fyb3VuZCIgZm9yIHRoZSBpc3N1ZS4gIEZyb20NCnRoZSBkZXNjcmlw
+dGlvbnMgaW4gdGhlIGJ1ZyB5b3UgbGlua2VkIGluIHlvdXIgb3JpZ2luYWwgcGF0Y2gNCnN1Ym1p
+c3Npb24sIGl0IGFwcGVhcnMgdGhhdCB0aGUgcm9vdCBjYXVzZSBpcyBzb21ld2hlcmUgaW4gU01C
+dXMgc3lzdGVtDQooY291bGQgYmUgU01CdXMgZHJpdmVyLCBTTUJ1cyBoYXJkd2FyZSwgb3IgdGhl
+IGRldmljZXMgb24gdGhlIFNNQnVzDQoodG91Y2ggZGV2aWNlcyBvciBvdGhlciBkZXZpY2VzKSAt
+IGl0J3MgaGFyZCB0byB0ZWxsIHdpdGggdGhlIGluZm8NCmF2YWlsYWJsZSksIHdoZXJlIHRoZSBT
+TUJ1cyBpcyBmYWlsaW5nIHRvIGNvbWUgb25saW5lIGNvcnJlY3RseSBjb21pbmcNCm91dCBvZiBT
+MyBzdGF0ZS4gIEFueXdheSwgdGhpcyBwYXRjaCBkb2Vzbid0IGZpeCB0aGUgcm9vdCBjYXVzZSwg
+YnV0DQptZXJlbHkgd29ya3MgYXJvdW5kIGl0Lg0KDQpTZXR0aW5nIHRoZSBOTyBTTEVFUCBiaXQg
+d2lsbCBmb3JjZSB0aGUgdG91Y2ggc2Vuc29yIHRvIHJlbWFpbiBpbiBhDQpoaWdoIHBvd2VyIGNv
+bnN1bXB0aW9uIHN0YXRlIHdoaWxlIHRoZSByZXN0IG9mIHRoZSBzeXN0ZW0gaXMgaW4gUzMuIA0K
+V2hpbGUgbm90IGEgbG90IG9mIHBvd2VyIGNvbXBhcmVkIHRvIHRoaW5ncyBsaWtlIHRoZSBDUFUs
+IGRpc3BsYXksIGFuZA0Kb3RoZXJzLCBpdCBpcyBzdGlsbCBub24tdHJpdmlhbCBhbmQgd2lsbCBy
+ZXN1bHQgaW4gc2hvcnRlciB0aW1lLW9uLQ0KYmF0dGVyeSBjYXBhYmlsaXR5Lg0KDQpJZiB5b3Ug
+aGF2ZSBhY2Nlc3MgdG8gdGhlIHBvd2VyIHBpbihzKSBmb3IgdGhlIHRvdWNoIHNlbnNvcihzKS9z
+dHlrKHMpLA0KaXQgbWlnaHQgYmUgaW50ZXJlc3RpbmcgdG8gdHJ5IHR1cm5pbmcgcG93ZXIgb2Zm
+IG9uIGVudGVyaW5nIFMzLCBhbmQNCnJlc3RvcmluZyBpdCBvbiBleGl0LiAgVGhhdCdzIHZlcnkg
+aGFja3ksIGFuZCBoYXMgdGhlIHNpZGUgZWZmZWN0IG9mDQpzbGlnaHRseSBkZWxheWluZyB0b3Vj
+aHBhZCByZWFkaW5lc3Mgb24gZXhpdCBmcm9tIFMzLiAgUGx1cyB5b3UnbGwgbmVlZA0KdG8gcmVz
+dG9yZSB0b3VjaCBzZW5zb3IgY29uZmlndXJhdGlvbiBzZXR0aW5ncyBvbiBleGl0LiAgQnV0IGl0
+DQpkZWZpbml0ZWx5IHJlZHVjZXMgcG93ZXIgY29uc3VtcHRpb24uDQoNCg0KU2VwYXJhdGVseSwg
+SSBhbSBzdGlsbCBjb25jZXJuZWQgYWJvdXQgdGhlIHBvc3NpYmlsaXR5IG9mIGRyb3BwZWQgdG91
+Y2gNCmV2ZW50cyBpbiB0aGUgSVJRIGNsZWFyaW5nLiAgSSdtIG5vdCBjb252aW5jZWQgdGhhdCB0
+aGUgY29kZSBpcyBzYWZlDQooYXMgeW91IG1lbnRpb25lZCBpbiB5b3VyIHJlcGx5IHRvIG15IGVh
+cmxpZXIgY29tbWVudCksIHNvIEknbGwgaGF2ZSB0bw0Kc3R1ZHkgdGhlIGltcGxlbWVudGF0aW9u
+IG1vcmUgY2FyZWZ1bGx5Lg0KDQoJCQkJCUNoZWVycywNCgkJCQkJCUNocmlzDQoNCg0KDQo+IA0K
+PiBUaGFua3MsDQo+IEFhcm9uDQoNCg0K

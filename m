@@ -1,135 +1,108 @@
-From: Mukesh Ojha <mojha@codeaurora.org>
-Subject: Re: [PATCH -next] Input: uinput - Avoid Use-After-Free with udev lock
-Date: Tue, 2 Apr 2019 11:34:00 +0530
-Message-ID: <9d1f5731-aaa1-844e-12a2-439a93356c25@codeaurora.org>
-References: <1553767582-15318-1-git-send-email-mojha@codeaurora.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v3 3/4] driver core: add dev_print_hex_dump() logging
+ function.
+Date: Tue, 2 Apr 2019 08:33:26 +0200
+Message-ID: <20190402063326.GB7218@kroah.com>
+References: <20190327014807.7472-1-ronald@innovation.ch>
+ <20190327014807.7472-4-ronald@innovation.ch>
+ <20190327023757.GB20766@kroah.com>
+ <20190328002817.GF24753@innovation.ch>
+ <20190328052917.GB18668@kroah.com>
+ <20190328102755.GA26446@innovation.ch>
+ <20190328112952.GA2232@kroah.com>
+ <20190402024714.GA14213@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1553767582-15318-1-git-send-email-mojha@codeaurora.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190402024714.GA14213@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Life is hard, and then you die" <ronald@innovation.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Please don't consider this patch, i will send v2 of this.
+On Mon, Apr 01, 2019 at 07:47:14PM -0700, Life is hard, and then you die wrote:
+> 
+> On Thu, Mar 28, 2019 at 12:29:52PM +0100, Greg Kroah-Hartman wrote:
+> > On Thu, Mar 28, 2019 at 03:27:55AM -0700, Life is hard, and then you die wrote:
+> > > 
+> > > On Thu, Mar 28, 2019 at 06:29:17AM +0100, Greg Kroah-Hartman wrote:
+> > > > On Wed, Mar 27, 2019 at 05:28:17PM -0700, Life is hard, and then you die wrote:
+> > > > > 
+> > > > > On Wed, Mar 27, 2019 at 11:37:57AM +0900, Greg Kroah-Hartman wrote:
+> > > > > > On Tue, Mar 26, 2019 at 06:48:06PM -0700, Ronald Tschalär wrote:
+> > > > > > > This is the dev_xxx() analog to print_hex_dump(), using dev_printk()
+> > > > > > > instead of straight printk() to match other dev_xxx() logging functions.
+> > > > > > > ---
+> > > > > > >  drivers/base/core.c    | 43 ++++++++++++++++++++++++++++++++++++++++++
+> > > > > > >  include/linux/device.h | 15 +++++++++++++++
+> > > > > > >  2 files changed, 58 insertions(+)
+> [snip]
+> > > > > > Anyway, no, please do not do this.  Please do not dump large hex values
+> > > > > > like this to the kernel log, it does not help anyone.
+> > > > > > 
+> > > > > > You can do this while debugging, sure, but not for "real" kernel code.
+> > > > > 
+> > > > > As used by this driver, it is definitely called for debugging only and
+> > > > > must be explicitly enabled via a module param. But having the ability
+> > > > > for folks to easily generate and print out debugging info has proven
+> > > > > quite valuable.
+> > > > 
+> > > > We have dynamic debugging, no need for module parameters at all.  This
+> > > > isn't the 1990's anymore :)
+> > > 
+> > > I am aware of dynamic debugging, but there are several issues with it
+> > > from the perspective of the logging I'm doing here (I mentioned these
+> > > in response to an earlier review already):
+> > > 
+> > >   1. Dynamic debugging can't be enabled at a function or line level on
+> > >      the kernel command line, so this means that to debug issues
+> > >      during boot you have to enable everything, which can be way too
+> > >      verbose
+> > 
+> > You can, and should enable it at a function or line level by writing to
+> > the proper kernel file in debugfs.
+> > 
+> > You have read Documentation/admin-guide/dynamic-debug-howto.rst, right?
+> 
+> Yes, and I've played with the parameters quite a bit.
+> 
+> > No need to do anything on the command line, that's so old-school :)
+> 
+> Sorry if I'm being unduly dense, but then how to enable debugging
+> during early boot? The only other alternative I see is modifying the
+> initrd, and asking folks to do that is noticeably more complicated
+> than having them add something to the command line in grub. So from my
+> perspective I find kernel params far from old-school :-)
+
+You can do dynamic debugging from the kernel command line, if your code
+is built into the kernel (but why would a tiny driver under testing like
+this, not be built into the kernel?) what specifically did not work for you?
+
+> > >   2. The expressions to enable the individual logging statements are
+> > >      quite brittle (in particular the line-based ones) since they
+> > >      (may) change any time the code is changed - having stable
+> > >      commands to give to users and put in documentation (e.g.
+> > >      "echo 0x200 > /sys/module/applespi/parameters/debug") is
+> > >      quite valuable.
+> > > 
+> > >      One way to work around this would be to put every single logging
+> > >      statement in a function of its own, thereby ensuring a stable
+> > >      name is associated with each one.
+> > 
+> > Again, read the documentation, this works today as-is.
+> 
+> I have read it (we're talking about the dynamic debug docs here), but
+> I just don't see how it addresses this in any way.
+
+You can enable/disable logging per-function, which is what you want,
+right?
 
 
-Thanks,
-Mukesh
+Anyway, I'm glad tracepoints work for you, that should be all that is
+now needed.
 
-On 3/28/2019 3:36 PM, Mukesh Ojha wrote:
-> uinput_destroy_device() gets called from two places. In one place,
-> uinput_ioctl_handler() it is protected under a lock udev->mutex
-> but same is not true for other place inside uinput_release().
->
-> This can result in a race where udev device gets freed while it
-> is in use.
->
-> [  160.093398] Call trace:
-> [  160.093417]  kernfs_get+0x64/0x88
-> [  160.093438]  kernfs_new_node+0x94/0xc8
-> [  160.093450]  kernfs_create_dir_ns+0x44/0xfc
-> [  160.093463]  sysfs_create_dir_ns+0xa8/0x130
-> [  160.093479]  kobject_add_internal+0x278/0x650
-> [  160.093491]  kobject_add_varg+0xe0/0x130
-> [  160.093502]  kobject_add+0x15c/0x1d0
-> [  160.093518]  device_add+0x2bc/0xde0
-> [  160.093533]  input_register_device+0x5f4/0xa0c
-> [  160.093547]  uinput_ioctl_handler+0x1184/0x2198
-> [  160.093560]  uinput_ioctl+0x38/0x48
-> [  160.093573]  vfs_ioctl+0x7c/0xb4
-> [  160.093585]  do_vfs_ioctl+0x9ec/0x2350
-> [  160.093597]  SyS_ioctl+0x6c/0xa4
-> [  160.093610]  el0_svc_naked+0x34/0x38
-> [  160.093621] ---[ end trace bccf0093cda2c538 ]---
-> [  160.099041] =============================================================================
-> [  160.107459] BUG kernfs_node_cache (Tainted: G S      W  O   ): Object already free
-> [  160.115235] -----------------------------------------------------------------------------
-> [  160.115235]
-> [  160.125151] Disabling lock debugging due to kernel taint
-> [  160.130626] INFO: Allocated in __kernfs_new_node+0x8c/0x3c0 age=11 cpu=2 pid=7098
-> [  160.138314] 	kmem_cache_alloc+0x358/0x388
-> [  160.142445] 	__kernfs_new_node+0x8c/0x3c0
-> [  160.146590] 	kernfs_new_node+0x80/0xc8
-> [  160.150462] 	kernfs_create_dir_ns+0x44/0xfc
-> [  160.154777] 	sysfs_create_dir_ns+0xa8/0x130
-> [  160.158416] CPU5: update max cpu_capacity 1024
-> [  160.159085] 	kobject_add_internal+0x278/0x650
-> [  160.163567] 	kobject_add_varg+0xe0/0x130
-> [  160.167606] 	kobject_add+0x15c/0x1d0
-> [  160.168452] CPU5: update max cpu_capacity 780
-> [  160.171287] 	get_device_parent+0x2d0/0x34c
-> [  160.175510] 	device_add+0x240/0xde0
-> [  160.178371] CPU6: update max cpu_capacity 916
-> [  160.179108] 	input_register_device+0x5f4/0xa0c
-> [  160.183686] 	uinput_ioctl_handler+0x1184/0x2198
-> [  160.188346] 	uinput_ioctl+0x38/0x48
-> [  160.191941] 	vfs_ioctl+0x7c/0xb4
-> [  160.195261] 	do_vfs_ioctl+0x9ec/0x2350
-> [  160.199111] 	SyS_ioctl+0x6c/0xa4
-> [  160.202436] INFO: Freed in kernfs_put+0x2c8/0x434 age=14 cpu=0 pid=7096
-> [  160.209230] 	kernfs_put+0x2c8/0x434
-> [  160.212825] 	kobject_del+0x50/0xcc
-> [  160.216332] 	cleanup_glue_dir+0x124/0x16c
-> [  160.220456] 	device_del+0x55c/0x5c8
-> [  160.224047] 	__input_unregister_device+0x274/0x2a8
-> [  160.228974] 	input_unregister_device+0x90/0xd0
-> [  160.233553] 	uinput_destroy_device+0x15c/0x1dc
-> [  160.238131] 	uinput_release+0x44/0x5c
-> [  160.241898] 	__fput+0x1f4/0x4e4
-> [  160.245127] 	____fput+0x20/0x2c
-> [  160.248358] 	task_work_run+0x9c/0x174
-> [  160.252127] 	do_notify_resume+0x104/0x6bc
-> [  160.256253] 	work_pending+0x8/0x14
-> [  160.259751] INFO: Slab 0xffffffbf0215ff00 objects=33 used=11 fp=0xffffffc0857ffd08 flags=0x8101
-> [  160.268693] INFO: Object 0xffffffc0857ffd08 @offset=15624 fp=0xffffffc0857fefb0
-> [  160.268693]
-> [  160.277721] Redzone ffffffc0857ffd00: bb bb bb bb bb bb bb bb                          ........
-> [  160.286656] Object ffffffc0857ffd08: 00 00 00 00 01 00 00 80 58 a2 37 45 c1 ff ff ff  ........X.7E....
-> [  160.296207] Object ffffffc0857ffd18: ae 21 10 0b 90 ff ff ff 20 fd 7f 85 c0 ff ff ff  .!...... .......
-> [  160.305780] Object ffffffc0857ffd28: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-> [  160.315342] Object ffffffc0857ffd38: 00 00 00 00 00 00 00 00 7d a3 25 69 00 00 00 00  ........}.%i....
-> [  160.324896] Object ffffffc0857ffd48: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-> [  160.334446] Object ffffffc0857ffd58: 80 c0 28 47 c1 ff ff ff 00 00 00 00 00 00 00 00  ..(G............
-> [  160.344000] Object ffffffc0857ffd68: 80 4a ce d1 c0 ff ff ff dc 32 01 00 01 00 00 00  .J.......2......
-> [  160.353554] Object ffffffc0857ffd78: 11 00 ed 41 00 00 00 00 00 00 00 00 00 00 00 00  ...A............
-> [  160.363099] Redzone ffffffc0857ffd88: bb bb bb bb bb bb bb bb                          ........
-> [  160.372032] Padding ffffffc0857ffee0: 5a 5a 5a 5a 5a 5a 5a 5a                          ZZZZZZZZ
-> [  160.378299] CPU6: update max cpu_capacity 780
-> [  160.380971] CPU: 4 PID: 7098 Comm: syz-executor Tainted: G S  B   W  O    4.14.98+ #1
->
-> So, avoid the race by taking a udev lock inside `uinput_release()`.
->
-> Change-Id: I3bbb07589b7b6e0e1b3bea572b5eb4f6b09774d6
-> Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
-> Cc:Gaurav Kohli <gkohli@codeaurora.org>
-> Cc:Peter Hutterer <peter.hutterer@who-t.net>
-> Cc:Martin Kepplinger <martink@posteo.de>
-> Cc:"Paul E. McKenney" <paulmck@linux.ibm.com>
->
-> ---
->   drivers/input/misc/uinput.c | 6 ++++++
->   1 file changed, 6 insertions(+)
->
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index 26ec603f..a3fb3b1 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -714,9 +714,15 @@ static __poll_t uinput_poll(struct file *file, poll_table *wait)
->   static int uinput_release(struct inode *inode, struct file *file)
->   {
->   	struct uinput_device *udev = file->private_data;
-> +	ssize_t retval;
-> +
-> +	retval = mutex_lock_interruptible(&udev->mutex);
-> +	if (retval)
-> +		return retval;
->   
->   	uinput_destroy_device(udev);
->   	kfree(udev);
-> +	mutex_unlock(&udev->mutex);
->   
->   	return 0;
->   }
+good luck with your driver!
+
+greg k-h

@@ -1,18 +1,16 @@
 From: Mukesh Ojha <mojha@codeaurora.org>
-Subject: Re: [PATCH RESEND -next] Input: uinput - Avoid Use-After-Free with
- udev lock
-Date: Tue, 2 Apr 2019 11:33:42 +0530
-Message-ID: <c9fa45b8-5d3c-0d5d-1f53-200d2fd047cd@codeaurora.org>
-References: <1553768752-21739-1-git-send-email-mojha@codeaurora.org>
+Subject: Re: [PATCH -next] Input: uinput - Avoid Use-After-Free with udev lock
+Date: Tue, 2 Apr 2019 11:34:00 +0530
+Message-ID: <9d1f5731-aaa1-844e-12a2-439a93356c25@codeaurora.org>
+References: <1553767582-15318-1-git-send-email-mojha@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1553768752-21739-1-git-send-email-mojha@codeaurora.org>
+In-Reply-To: <1553767582-15318-1-git-send-email-mojha@codeaurora.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
 List-Id: linux-input@vger.kernel.org
 
 Please don't consider this patch, i will send v2 of this.
@@ -21,7 +19,7 @@ Please don't consider this patch, i will send v2 of this.
 Thanks,
 Mukesh
 
-On 3/28/2019 3:55 PM, Mukesh Ojha wrote:
+On 3/28/2019 3:36 PM, Mukesh Ojha wrote:
 > uinput_destroy_device() gets called from two places. In one place,
 > uinput_ioctl_handler() it is protected under a lock udev->mutex
 > but same is not true for other place inside uinput_release().
@@ -106,10 +104,10 @@ On 3/28/2019 3:55 PM, Mukesh Ojha wrote:
 >
 > Change-Id: I3bbb07589b7b6e0e1b3bea572b5eb4f6b09774d6
 > Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
-> Cc: Gaurav Kohli <gkohli@codeaurora.org>
-> Cc: Peter Hutterer <peter.hutterer@who-t.net>
-> Cc: Martin Kepplinger <martink@posteo.de>
-> Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+> Cc:Gaurav Kohli <gkohli@codeaurora.org>
+> Cc:Peter Hutterer <peter.hutterer@who-t.net>
+> Cc:Martin Kepplinger <martink@posteo.de>
+> Cc:"Paul E. McKenney" <paulmck@linux.ibm.com>
 >
 > ---
 >   drivers/input/misc/uinput.c | 6 ++++++

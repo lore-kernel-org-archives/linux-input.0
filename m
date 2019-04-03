@@ -1,273 +1,102 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
 Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
-Date: Wed, 3 Apr 2019 17:24:37 +0800
-Message-ID: <3E46D2D1-EADC-4F77-8091-A36E648C4908@canonical.com>
-References: <LaQHUFs--3-1@tutanota.com>
- <CAO-hwJLGABHATo-fOc_jgc8uNeLDv7cemsHuQMj7zRJWmfyp4g@mail.gmail.com>
- <9151d116-958c-9298-9427-fe803a163e9f@redhat.com>
- <F03846A5-6C42-4290-AF72-F644C809A50A@canonical.com>
- <CAHp75VcOG9H8u+tZyNN682r7+jsRZi8VoPPZ2uJPch1gNyFgmQ@mail.gmail.com>
- <220FEDBD-9A71-4C14-A7D6-3850D515865F@canonical.com>
- <CAHp75VdTMn_v8ag11jo6aYtuiWL4bhvSzCnhaUBtuqSQxxnT_w@mail.gmail.com>
- <d813fe02035b481b8f3a55aa4dffbb22@ausx13mpc120.AMER.DELL.COM>
- <6105BFF6-41B1-4DB8-A78D-20BC2E35C014@canonical.com>
- <16218e1c23bb4cb6b0b739d561a707bc@ausx13mpc120.AMER.DELL.COM>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.8\))
-Content-Type: text/plain;
-        charset=utf-8;
-        delsp=yes;
-        format=flowed
-Content-Transfer-Encoding: 8bit
+Date: Wed, 3 Apr 2019 13:18:23 +0200
+Message-ID: <a58ebeb8-10fd-29d0-1562-4ed8d84f2239@redhat.com>
+References: <20190325125704.6585-1-hotwater438@tutanota.com>
+ <CAE_wzQ8Aep1FOONeCUxvjBFbgKcVRWP5mUuwQnDxzfemUw-eaA@mail.gmail.com>
+ <a2952bc4-0ad0-c8a0-5a5b-13a279023455@redhat.com>
+ <CAE_wzQ8sYcMVYLmnctw_UQuvn0B8U2CU2dNeg-9sh85AL_CfgQ@mail.gmail.com>
+ <abe3eccb-1490-e088-1fd8-6af4dc1bd2ec@redhat.com> <LbI7kio--3-1@tutanota.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <16218e1c23bb4cb6b0b739d561a707bc@ausx13mpc120.AMER.DELL.COM>
+In-Reply-To: <LbI7kio--3-1@tutanota.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mario.Limonciello@dell.com
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Hans de Goede <hdegoede@redhat.com>, benjamin.tissoires@redhat.com, hotwater438@tutanota.com, jikos@kernel.org, swboyd@chromium.org, bigeasy@linutronix.de, dtor@chromium.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: hotwater438@tutanota.com
+Cc: Dmitry Torokhov <dtor@chromium.org>, Vladislav Dalechyn <vlad.dalechin@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Kai Heng Feng <kai.heng.feng@canonical.com>, Swboyd <swboyd@chromium.org>, Bigeasy <bigeasy@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-at 22:08, <Mario.Limonciello@dell.com> <Mario.Limonciello@dell.com> wrote:
+Hi,
 
->> -----Original Message-----
->> From: Kai Heng Feng <kai.heng.feng@canonical.com>
->> Sent: Monday, April 1, 2019 11:18 PM
->> To: Limonciello, Mario
->> Cc: Andy Shevchenko; hdegoede@redhat.com; benjamin.tissoires@redhat.com;
->> hotwater438@tutanota.com; jikos@kernel.org; swboyd@chromium.org;
->> bigeasy@linutronix.de; dtor@chromium.org; linux-input@vger.kernel.org;  
->> linux-
->> kernel@vger.kernel.org
->> Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
->>
->>
->> [EXTERNAL EMAIL]
->>
->>
->>
->>> On Apr 2, 2019, at 5:37 AM, <Mario.Limonciello@dell.com>
->>> <Mario.Limonciello@dell.com> wrote:
->>>
->>>> -----Original Message-----
->>>> From: Andy Shevchenko <andy.shevchenko@gmail.com>
->>>> Sent: Thursday, March 21, 2019 4:48 AM
->>>> To: Kai-Heng Feng; Limonciello, Mario
->>>> Cc: Hans de Goede; Benjamin Tissoires; hotwater438@tutanota.com; Jiri
->>>> Kosina;
->>>> Stephen Boyd; Sebastian Andrzej Siewior; Dmitry Torokhov; open list:HID
->>>> CORE
->>>> LAYER; lkml
->>>> Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
->>>>
->>>>
->>>> [EXTERNAL EMAIL]
->>>>
->>>> +Cc: Mario
->>>>
->>>> Mario, do you have any insights about the issue with touchpad on Dell
->>>> system described below?
->>>
->>> My apologies, this got lost while I was on vacation.
->>>
->>>> On Thu, Mar 21, 2019 at 6:08 AM Kai-Heng Feng
->>>> <kai.heng.feng@canonical.com> wrote:
->>>>> at 01:18, Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
->>>>>
->>>>>> On Wed, Mar 20, 2019 at 6:55 PM Kai-Heng Feng
->>>>>> <kai.heng.feng@canonical.com> wrote:
->>>>>>> at 23:39, Hans de Goede <hdegoede@redhat.com> wrote:
->>>>>>>> On 3/20/19 3:37 PM, Benjamin Tissoires wrote:
->>>>>>
->>>>>>>> Benjamin, what I find interesting here is that the BOGUS_IRQ quirk
->>>>>>>> is also used on Elan devices, I suspect that these Elan devices
->>>>>>>> likely also need the I2C_HID_QUIRK_FORCE_TRIGGER_FALLING quirk
->>>>>>>> and then they probably will no longer need the bogus IRQ flag,
->>>>>>>> if you know about bugreports with an acpidump for any of the devices
->>>>>>>> needing the bogus IRQ quirk, then I (or you) can check how the IRQ  
->>>>>>>> is
->>>>>>>> declared there, I suspect it will be declared as level-low, just  
->>>>>>>> like
->>>>>>>> with the laptop this patch was written for. And it probably need to
->>>>>>>> be edge-falling instead of level-low just like this case.
->>>>>>>
->>>>>>> First, I’ve already tried using IRQF_TRIGGER_FALLING, unfortunately  
->>>>>>> it
->>>>>>> doesn’t solve the issue for me.
->>>>>>>
->>>>>>> I talked to Elan once, and they confirm the correct IRQ trigger is
->>>>>>> level
->>>>>>> low. So forcing falling trigger may break other platforms.
->>>>>>
->>>>>> As far as I understood Vladislav the quirk he got from Elan as well.
->>>>>
->>>>> Ok, then this is really weird.
->>>>>
->>>>>>> Recently we found that Elan touchpad doesn’t like GpioInt() from its
->>>>>>> _CRS.
->>>>>>> Once the Interrupt() is used instead, the issue goes away.
->>>>>>
->>>>>> IIRC i2c core tries to get interrupt from Interrupt() resource and
->>>>>> then falls back to GpioInt().
->>>>>> See i2c_acpi_get_info() and i2c_device_probe().
->>>>>
->>>>> Here’s its ASL:
->>>>>
->>>>>     Scope (\_SB.PCI0.I2C4)
->>>>>     {
->>>>>         Device (TPD0)
->>>>>         {
->>>>>             Name (_ADR, One)  // _ADR: Address
->>>>>             Name (_HID, "DELL08AE")  // _HID: Hardware ID
->>>>>             Name (_CID, "PNP0C50" /* HID Protocol Device (I2C bus) */)  // _CID:
->>>> Compatible ID
->>>>>            Name (_UID, One)  // _UID: Unique ID
->>>>>             Name (_S0W, 0x04)  // _S0W: S0 Device Wake State
->>>>>             Name (SBFB, ResourceTemplate ()
->>>>>             {
->>>>>                 I2cSerialBusV2 (0x002C, ControllerInitiated, 0x00061A80,
->>>>>                     AddressingMode7Bit, "\\_SB.PCI0.I2C4",
->>>>>                     0x00, ResourceConsumer, , Exclusive,
->>>>>                     )
->>>>>             })
->>>>>             Name (SBFG, ResourceTemplate ()
->>>>>             {
->>>>>                 GpioInt (Level, ActiveLow, ExclusiveAndWake, PullUp, 0x0000,
->>>>>                     "\\_SB.GPO1", 0x00, ResourceConsumer, ,
->>>>>                     )
->>>>>                     {   // Pin list
->>>>>                         0x0012
->>>>>                     }
->>>>>             })
->>>>>             Name (SBFI, ResourceTemplate ()
->>>>>             {
->>>>>                 Interrupt (ResourceConsumer, Level, ActiveLow, ExclusiveAndWake, ,, )
->>>>>                 {
->>>>>                     0x0000003C,
->>>>>                 }
->>>>>             })
->>>>>             Method (_INI, 0, NotSerialized)  // _INI: Initialize
->>>>>             {
->>>>>             }
->>>>>             Method (_STA, 0, NotSerialized)  // _STA: Status
->>>>>             {
->>>>>                 If ((TCPD == One))
->>>>>                 {
->>>>>                     Return (0x0F)
->>>>>                 }
->>>>>
->>>>>                 Return (Zero)
->>>>>             }
->>>>>             Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
->>>>>             {
->>>>>                 If ((OSYS < 0x07DC))
->>>>>                 {
->>>>>                     Return (SBFI) /* \_SB_.PCI0.I2C4.TPD0.SBFI */
->>>>>                 }
->>>>>
->>>>>                 Return (ConcatenateResTemplate (SBFB, SBFG))
->>>>>             }
->>>>>             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
->>>>>             {
->>>>>                 If ((Arg0 == ToUUID ("3cdff6f7-4267-4555-ad05-b30a3d8938de") /*
->> HID
->>>> I2C Device */))
->>>>>                {
->>>>>                     If ((Arg2 == Zero))
->>>>>                     {
->>>>>                         If ((Arg1 == One))
->>>>>                         {
->>>>>                             Return (Buffer (One)
->>>>>                             {
->>>>>                                  0x03                                             // .
->>>>>                             })
->>>>>                         }
->>>>>                         Else
->>>>>                         {
->>>>>                             Return (Buffer (One)
->>>>>                             {
->>>>>                                  0x00                                             // .
->>>>>                             })
->>>>>                         }
->>>>>                     }
->>>>>                     ElseIf ((Arg2 == One))
->>>>>                     {
->>>>>                         Return (0x20)
->>>>>                     }
->>>>>                     Else
->>>>>                     {
->>>>>                         Return (Buffer (One)
->>>>>                         {
->>>>>                              0x00                                             // .
->>>>>                         })
->>>>>                     }
->>>>>                 }
->>>>>                 ElseIf ((Arg0 == ToUUID ("ef87eb82-f951-46da-84ec-14871ac6f84b")))
->>>>>                 {
->>>>>                     If ((Arg2 == Zero))
->>>>>                     {
->>>>>                         If ((Arg1 == One))
->>>>>                         {
->>>>>                             Return (Buffer (One)
->>>>>                             {
->>>>>                                  0x03                                             // .
->>>>>                             })
->>>>>                         }
->>>>>                     }
->>>>>
->>>>>                     If ((Arg2 == One))
->>>>>                     {
->>>>>                         Return (ConcatenateResTemplate (SBFB, SBFG))
->>>>>                     }
->>>>>
->>>>>                     Return (Buffer (One)
->>>>>                     {
->>>>>                          0x00                                             // .
->>>>>                     })
->>>>>                 }
->>>>>                 }
->>>>>                 Else
->>>>>                 {
->>>>>                     Return (Buffer (One)
->>>>>                     {
->>>>>                          0x00                                             // .
->>>>>                     })
->>>>>                 }
->>>>>             }
->>>>>         }
->>>>>     }
->>>>>
->>>>> Change SBFG to SBFI in its _CRS can workaround the issue.
->>>>> Is ASL in this form possible to do the flow you described?
->>>>>
->>>>> Kai-Heng
->>>>>
->>>>>>> But I am not sure how to patch its DSDT/SSDT in i2c-hid.
->>>
->>> Is this pre-production HW?  If so, maybe this is a case that we should  
->>> talk
->>> about custom OSI string to run the ASL differently.
->>
->> Some are already shipped.
->>
->>
->>> The other option would be to create a new ASL method in FW and from Linux
->>> side a quirk that calls this new ASL method.
->>
->> Since this patch is for ASUS Laptop, I think a more generic solution from
->> driver layer is preferred.
->
-> I thought this ASL was from Dell laptop.  The HID make it looks like it  
-> at least.
+On 31-03-19 11:50, hotwater438@tutanota.com wrote:
+> Hi. I've done everything you said, here are results:
+> 
+>     Vladislav can you check the output of /cat/interrupts on a kernel
+>     without the patch and while *not* using the touchpad; and check
+>     if the amount of touchpads-interrupts still keeps increasing in this
+>     case?
+> 
+> IWI or IRQ work interrupts keep increasing with speed at least 3 interrupts/s.
 
-Yes this ASL is from a Dell system.
+I'm really only interested in the touchpad related IRQs, so e.g. the line
+about "intel-gpio  129  ELAN1200:00", if you're seeing 3 interrupts/s on
+some others that is fine, so I take it the ELAN1200:00 interrupt count
+does not increase on an *unpatched* kernel, unless you use the touchpad?
 
->>>>>            Name (_HID, "DELL08AE")  // _HID: Hardware ID
->
-> In general more generic solution from driver layer is preferred I agree.   
-> You might
-> need to check with ACPI guys to see if they have some ideas on situations  
-> that
-> GpioInt fail.
+> Also when I am moving touchpad IR-IO-APIC 14-fasteoi INT345D:00 get's triggered and increased.
 
-I’ve filed a bug here but we don’t find any proper solution:
-https://bugzilla.kernel.org/show_bug.cgi?id=201311
+That is the GPIO controller interrupt, so that one increasing is normal.
 
-Kai-Heng
+If I understand things correctly then this all means that the IRQ indeed
+is a normal level IRQ and Dmitry is likely correct that there is an
+pinctrl / gpiochip driver problem here.
+
+Can you try the following with an *unpatched* kernel? :
+
+1) Run "cat /proc/interrupts | grep ELAN" , note down the value
+2) Very quickly/briefly touch the touchpad once
+3) Run "cat /proc/interrupts | grep ELAN" , note down the value again
+4) Subtract result from 1. from result from 3, this difference is
+    the value we are interested in. E.g. my testing got 254 and 257, so
+    a difference of 3.
+
+The goal here is to get an as low as possible difference. Feel free
+to repeat this a couple of times.
+
+On an Apollo Lake laptop with an I2C hid mt touchpad I can get the
+amount of interrupts triggered for a single touch down to 3,
+given the huge interrupt counts of 130000+ reported in:
+https://bugzilla.redhat.com/show_bug.cgi?id=1543769
+
+I expect you to get a much bigger smallest possible difference
+between 2 "cat /proc/interrupts | grep ELAN" commands, note a
+difference of 0 means your touch did not register.
+
+Assuming you indeed see much more interrupts for a very quick
+touch + release, then we indeed have an interrupt handling problem
+we need to investigate further.
+
+> I don't know if it's important or not, but for some reason these interrupts keep popping only on CPU2 (i have 4cpu processor).
+
+That does not matter.
+
+>     1) Suspending the machine by selecting suspend from a menu in your
+>     desktop environment, or by briefly pressing the power-button, do
+>     not close the lid
+>     2) As soon as the system starts suspending and while it is suspended, move
+>     your finger around the touchpad
+>     3) Wake the system up with the powerbutton while moving your finger around
+>     4) Check if the touchpad still works after this
+> 
+> It works, but as it seems, looses edge. JournalCTL is being flooded with i2c_hid_get_input: incomplete report (16/65535)
+
+That is probably a different issue. If you loose the edge IRQ, then the touchpad
+would stop working without any messages. I believe that the suspend / resume
+issue may be fixed by:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=52cf93e63ee672a92f349edc6ddad86ec8808fd8
+
+Does your kernel have this commit?  (please always use the latest kernel while
+testing).
+
+> Also a thing to notice, that after manually removing and modprobing i2c_hid module, it says next in journalctl:
+> 
+> i2c_hid i2c-ELAN1200:00: i2c-ELAN1200:00 supply vdd not found, using dummy regulator
+> i2c_hid i2c-ELAN1200:00: i2c-ELAN1200:00 supply vddl not found, using dummy regulator
+
+Those messages can safely be ignored.
+
+Regards,
+
+Hans

@@ -1,40 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] HID: input: add mapping for Assistant key
-Date: Tue, 2 Apr 2019 09:57:13 -0700
-Message-ID: <20190402165713.GA161074@dtor-ws>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v7 00/11] mfd: add support for max77650 PMIC
+Date: Wed, 3 Apr 2019 08:37:10 +0100
+Message-ID: <20190403073710.GA11301@dell>
+References: <20190326173208.30614-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20190326173208.30614-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-According to HUTRR89 usage 0x1cb from the consumer page was assigned to
-allow launching desktop-aware assistant application, so let's add the
-mapping.
+On Tue, 26 Mar 2019, Bartosz Golaszewski wrote:
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/hid/hid-input.c | 1 +
- 1 file changed, 1 insertion(+)
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> This series adds support for max77650 ultra low-power PMIC. It provides
+> the core mfd driver and a set of five sub-drivers for the regulator,
+> power supply, gpio, leds and input subsystems.
+> 
+> Patches 1-4 add the DT binding documents. Patch 5 documents mfd_add_devices().
+> Patches 6-10 add all drivers. Last patch adds a MAINTAINERS entry for this
+> device.
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index da76358cde06..a7046a322ddd 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -999,6 +999,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x1b8: map_key_clear(KEY_VIDEO);		break;
- 		case 0x1bc: map_key_clear(KEY_MESSENGER);	break;
- 		case 0x1bd: map_key_clear(KEY_INFO);		break;
-+		case 0x1cb: map_key_clear(KEY_ASSISTANT);	break;
- 		case 0x201: map_key_clear(KEY_NEW);		break;
- 		case 0x202: map_key_clear(KEY_OPEN);		break;
- 		case 0x203: map_key_clear(KEY_CLOSE);		break;
--- 
-2.21.0.392.gf8f6787159e-goog
+My review carries forward to this version.
 
+Please apply Acks, make changes and resubmit.
 
 -- 
-Dmitry
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

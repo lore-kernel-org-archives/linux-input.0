@@ -1,95 +1,120 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: keyboard: snvs: use dev_pm_set_wake_irq() to
- simplify code
-Date: Wed, 3 Apr 2019 15:16:42 -0700
-Message-ID: <20190403221642.GF53104@dtor-ws>
-References: <1553666576-21621-1-git-send-email-Anson.Huang@nxp.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v7 2/4] Input: goodix - Add regulators suppot
+Date: Wed, 3 Apr 2019 16:09:22 -0700
+Message-ID: <20190403230922.GG53104@dtor-ws>
+References: <20190321082104.2874-1-jagan@amarulasolutions.com>
+ <20190321082104.2874-3-jagan@amarulasolutions.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1553666576-21621-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <20190321082104.2874-3-jagan@amarulasolutions.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <anson.huang@nxp.com>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
+To: Jagan Teki <jagan@amarulasolutions.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 27, 2019 at 06:08:05AM +0000, Anson Huang wrote:
-> With calling dev_pm_set_wake_irq() to set SNVS ON/OFF button
-> as wakeup source for suspend, generic wake irq mechanism
-> will automatically enable it as wakeup source when suspend,
-> then the enable_irq_wake()/disable_irq_wake() can be removed
-> in suspend/resume callback, it simplifies the code.
+Hi Jagan,
+
+On Thu, Mar 21, 2019 at 01:51:02PM +0530, Jagan Teki wrote:
+> Goodix CTP controllers require AVDD28, VDDIO regulators for power-on
+> sequence.
 > 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-
-Applied, thank you.
-
+> The delay between these regualtor operations as per Power-on Timing
+> from datasheet[1] is 0 (T1 >= 0 usec).
+> 
+> So, enable and disable these regulators in proper order using normal
+> regulator functions without any delay in between.
+> 
+> [1] GT5663 Datasheet_English_20151106_Rev.01
+> 
+> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 > ---
->  drivers/input/keyboard/snvs_pwrkey.c | 30 ++++--------------------------
->  1 file changed, 4 insertions(+), 26 deletions(-)
+>  drivers/input/touchscreen/goodix.c | 58 ++++++++++++++++++++++++++++++
+>  1 file changed, 58 insertions(+)
 > 
-> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
-> index 4c67cf3..5342d8d 100644
-> --- a/drivers/input/keyboard/snvs_pwrkey.c
-> +++ b/drivers/input/keyboard/snvs_pwrkey.c
-> @@ -15,6 +15,7 @@
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index f57d82220a88..de5b80a08f41 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/irq.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/regulator/consumer.h>
+>  #include <linux/slab.h>
+>  #include <linux/acpi.h>
 >  #include <linux/of.h>
->  #include <linux/of_address.h>
->  #include <linux/platform_device.h>
-> +#include <linux/pm_wakeirq.h>
->  #include <linux/mfd/syscon.h>
->  #include <linux/regmap.h>
+> @@ -47,6 +48,8 @@ struct goodix_ts_data {
+>  	struct touchscreen_properties prop;
+>  	unsigned int max_touch_num;
+>  	unsigned int int_trigger_type;
+> +	struct regulator *avdd28;
+> +	struct regulator *vddio;
+>  	struct gpio_desc *gpiod_int;
+>  	struct gpio_desc *gpiod_rst;
+>  	u16 id;
+> @@ -532,6 +535,24 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+>  		return -EINVAL;
+>  	dev = &ts->client->dev;
 >  
-> @@ -167,28 +168,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
->  	}
->  
->  	device_init_wakeup(&pdev->dev, pdata->wakeup);
-> -
-> -	return 0;
-> -}
-> -
-> -static int __maybe_unused imx_snvs_pwrkey_suspend(struct device *dev)
-> -{
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> -
-> -	if (device_may_wakeup(&pdev->dev))
-> -		enable_irq_wake(pdata->irq);
-> -
-> -	return 0;
-> -}
-> -
-> -static int __maybe_unused imx_snvs_pwrkey_resume(struct device *dev)
-> -{
-> -	struct platform_device *pdev = to_platform_device(dev);
-> -	struct pwrkey_drv_data *pdata = platform_get_drvdata(pdev);
-> -
-> -	if (device_may_wakeup(&pdev->dev))
-> -		disable_irq_wake(pdata->irq);
-> +	error = dev_pm_set_wake_irq(&pdev->dev, pdata->irq);
-> +	if (error)
-> +		dev_err(&pdev->dev, "irq wake enable failed.\n");
->  
->  	return 0;
+> +	ts->avdd28 = devm_regulator_get(dev, "AVDD28");
+> +	if (IS_ERR(ts->avdd28)) {
+> +		error = PTR_ERR(ts->avdd28);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_err(dev,
+> +				"Failed to get AVDD28 regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+> +	ts->vddio = devm_regulator_get(dev, "VDDIO");
+> +	if (IS_ERR(ts->vddio)) {
+> +		error = PTR_ERR(ts->vddio);
+> +		if (error != -EPROBE_DEFER)
+> +			dev_err(dev,
+> +				"Failed to get VDDIO regulator: %d\n", error);
+> +		return error;
+> +	}
+> +
+>  	/* Get the interrupt GPIO pin number */
+>  	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_INT_NAME, GPIOD_IN);
+>  	if (IS_ERR(gpiod)) {
+> @@ -764,6 +785,17 @@ static void goodix_config_cb(const struct firmware *cfg, void *ctx)
+>  	complete_all(&ts->firmware_loading_complete);
 >  }
-> @@ -199,13 +181,9 @@ static const struct of_device_id imx_snvs_pwrkey_ids[] = {
->  };
->  MODULE_DEVICE_TABLE(of, imx_snvs_pwrkey_ids);
 >  
-> -static SIMPLE_DEV_PM_OPS(imx_snvs_pwrkey_pm_ops, imx_snvs_pwrkey_suspend,
-> -				imx_snvs_pwrkey_resume);
-> -
->  static struct platform_driver imx_snvs_pwrkey_driver = {
->  	.driver = {
->  		.name = "snvs_pwrkey",
-> -		.pm     = &imx_snvs_pwrkey_pm_ops,
->  		.of_match_table = imx_snvs_pwrkey_ids,
->  	},
->  	.probe = imx_snvs_pwrkey_probe,
-> -- 
-> 2.7.4
-> 
+> +static void goodix_disable_regulator(void *arg)
+> +{
+> +	struct goodix_ts_data *ts = arg;
+> +
+> +	if (!IS_ERR(ts->vddio))
+> +		regulator_disable(ts->vddio);
+
+We error out of goodix_get_gpio_config() and abort probe() if
+devm_regulator_get() fails, so there is no need to check for errors
+here.
+
+> +
+> +	if (!IS_ERR(ts->avdd28))
+> +		regulator_disable(ts->avdd28);
+> +}
+> +
+>  static int goodix_ts_probe(struct i2c_client *client,
+>  			   const struct i2c_device_id *id)
+>  {
+> @@ -789,6 +821,32 @@ static int goodix_ts_probe(struct i2c_client *client,
+>  	if (error)
+>  		return error;
+>  
+> +	error = devm_add_action_or_reset(&client->dev,
+> +					 goodix_disable_regulator, ts);
+> +	if (error)
+> +		return error;
+
+We need to do this after enabling regulators, otherwise there is a risk
+of unbalanced disable.
+
+I adjusted and applied, thank you.
 
 -- 
 Dmitry

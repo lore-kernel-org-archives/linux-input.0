@@ -1,26 +1,38 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: input: add mapping for Assistant key
-Date: Wed, 3 Apr 2019 13:34:25 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1904031334170.9803@cbobk.fhfr.pm>
-References: <20190402165713.GA161074@dtor-ws>
+Subject: Re: [PATCH v5] HID: intel-ish-hid: ISH firmware loader client
+ driver
+Date: Wed, 3 Apr 2019 15:11:02 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1904031510430.9803@cbobk.fhfr.pm>
+References: <1554184061-2872-1-git-send-email-rushikesh.s.kadam@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190402165713.GA161074@dtor-ws>
+In-Reply-To: <1554184061-2872-1-git-send-email-rushikesh.s.kadam@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
+Cc: srinivas.pandruvada@linux.intel.com, benjamin.tissoires@redhat.com, ncrews@chromium.org, jettrink@chromium.org, gwendal@google.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2 Apr 2019, Dmitry Torokhov wrote:
+On Tue, 2 Apr 2019, Rushikesh S Kadam wrote:
 
-> According to HUTRR89 usage 0x1cb from the consumer page was assigned to
-> allow launching desktop-aware assistant application, so let's add the
-> mapping.
+> This driver adds support for loading Intel Integrated
+> Sensor Hub (ISH) firmware from host file system to ISH
+> SRAM and start execution.
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> At power-on, the ISH subsystem shall boot to an interim
+> Shim loader-firmware, which shall expose an ISHTP loader
+> device.
+> 
+> The driver implements an ISHTP client that communicates
+> with the Shim ISHTP loader device over the intel-ish-hid
+> stack, to download the main ISH firmware.
+> 
+> Signed-off-by: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Acked-by: Nick Crews <ncrews@chromium.org>
+> Tested-by: Jett Rink <jettrink@chromium.org>
 
-Applied, thanks Dmitry.
+Now queued in for-5.2/ish. Thanks,
 
 -- 
 Jiri Kosina

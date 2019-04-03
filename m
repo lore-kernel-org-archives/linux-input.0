@@ -1,65 +1,75 @@
-From: Ken Sloat <KSloat@aampglobal.com>
-Subject: [BUG REPORT] linux-input: keyboard: gpio_keys: False Button Press
- Event on Wake
-Date: Wed, 3 Apr 2019 17:50:09 +0000
-Message-ID: <BL0PR07MB41151EC4B770F6A7396C152EAD570@BL0PR07MB4115.namprd07.prod.outlook.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: evdev - use struct_size() in kzalloc() and
+ vzalloc()
+Date: Wed, 3 Apr 2019 10:51:22 -0700
+Message-ID: <20190403175122.GA53104@dtor-ws>
+References: <20190221153738.GA17825@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190221153738.GA17825@embeddedor>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "josephl@nvidia.com" <josephl@nvidia.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ken Sloat <KSloat@aampglobal.com>
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hello Dmitry,
+On Thu, Feb 21, 2019 at 09:37:38AM -0600, Gustavo A. R. Silva wrote:
+> One of the more common cases of allocation size calculations is finding
+> the size of a structure that has a zero-sized array at the end, along
+> with memory for some number of elements for that array. For example:
+> 
+> struct foo {
+>     int stuff;
+>     struct boo entry[];
+> };
+> 
+> size = sizeof(struct foo) + count * sizeof(struct boo);
+> instance = kzalloc(size, GFP_KERNEL);
+> 
+> Instead of leaving these open-coded and prone to type mistakes, we can
+> now use the new struct_size() helper:
+> 
+> instance = kzalloc(struct_size(instance, entry, count), GFP_KERNEL);
+> 
+> Notice that, in this case, variable size is not necessary, hence
+> it is removed.
+> 
+> This code was detected with the help of Coccinelle.
+> 
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-I may have found a potential bug in the "gpio_keys" driver. FYI, I am runni=
-ng the 4.14 LTS kernel on my system, but from my understanding of the issue=
-, it seems that this would still occur in the latest version of the kernel.
+Applied, thank you.
 
-The problem:
-In the 4.14 LTS kernel, both key press and release events can generate a wa=
-ke event. In the 5.x kernel, wake events are configurable for press only, r=
-elease only or "both" (see "wakeup-event-action" binding). The issue can oc=
-cur in the "both" case or release/deasserted case. Let's imagine that a sys=
-tem is suspended when a gpio key button is pressed, and subsequently resume=
-d when the button is released. If we look at the sequence of actions and ev=
-ents reported by the input system, we can see the potential problem:
+> ---
+>  drivers/input/evdev.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index f48369d6f3a0..ee8dd8b1b09e 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -503,14 +503,13 @@ static int evdev_open(struct inode *inode, struct file *file)
+>  {
+>  	struct evdev *evdev = container_of(inode->i_cdev, struct evdev, cdev);
+>  	unsigned int bufsize = evdev_compute_buffer_size(evdev->handle.dev);
+> -	unsigned int size = sizeof(struct evdev_client) +
+> -					bufsize * sizeof(struct input_event);
+>  	struct evdev_client *client;
+>  	int error;
+>  
+> -	client = kzalloc(size, GFP_KERNEL | __GFP_NOWARN);
+> +	client = kzalloc(struct_size(client, buffer, bufsize),
+> +			 GFP_KERNEL | __GFP_NOWARN);
+>  	if (!client)
+> -		client = vzalloc(size);
+> +		client = vzalloc(struct_size(client, buffer, bufsize));
+>  	if (!client)
+>  		return -ENOMEM;
+>  
+> -- 
+> 2.20.1
+> 
 
-Button Pressed
-Event Value 1
-System Suspend
-Button Released
-System Wake & Resume
-Event Value 0
-Event Value 1
-Event Value 0
-
-As you can see the input system will report an extra button event/press. Th=
-is appears to be caused in gpio_keys_gpio_isr by the following statement:
-
-if (bdata->suspended  &&
-    (button->type =3D=3D 0 || button->type =3D=3D EV_KEY)) {
-        /*
-         * Simulate wakeup key press in case the key has
-         * already released by the time we got interrupt
-         * handler to run.
-         */
-        input_report_key(bdata->input, button->code, 1);
-}
-
-This code does not seem to take into account that the wake event may have b=
-een caused by a button release action, and just assumes we must have a butt=
-on press.
-
-This can obviously be problematic in the use case I mentioned, as the syste=
-m would be put in a constant loop between waking and sleeping. While there =
-are other ways to deal with or react to this issue in the userspace, it see=
-ms that the driver should probably take this into account.
-
-Thoughts?
-
-Thanks,
-Ken Sloat=20
+-- 
+Dmitry

@@ -1,55 +1,66 @@
 From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: keyboard: imx: no need to control interrupt
- status in event check
-Date: Wed, 3 Apr 2019 14:48:42 -0700
-Message-ID: <20190403214842.GD53104@dtor-ws>
-References: <1553842562-8481-1-git-send-email-Anson.Huang@nxp.com>
+Subject: Re: [PATCH V2] input: keyboard: snvs: initialize necessary driver
+ data before enabling IRQ
+Date: Wed, 3 Apr 2019 15:15:28 -0700
+Message-ID: <20190403221528.GE53104@dtor-ws>
+References: <1553666514-21505-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1553842562-8481-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <1553666514-21505-1-git-send-email-Anson.Huang@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Anson Huang <anson.huang@nxp.com>
-Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Anson,
-
-On Fri, Mar 29, 2019 at 07:00:43AM +0000, Anson Huang wrote:
-> There is no need to enable release interrupt and disable depress
-> interrupt in event check, as a timer is setup for checking these
-> events rather than interrupts.
-
-But won't using release interrupt allow signalling key release earlier?
-
+On Wed, Mar 27, 2019 at 06:07:06AM +0000, Anson Huang wrote:
+> SNVS IRQ is requested before necessary driver data initialized,
+> if there is a pending IRQ during driver probe phase, kernel
+> NULL pointer panic will occur in IRQ handler. To avoid such
+> scenario, just initialize necessary driver data before enabling
+> IRQ. This patch is inspired by NXP's internal kernel tree.
 > 
+> Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
 > Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+
+Applied, thank you.
+
 > ---
->  drivers/input/keyboard/imx_keypad.c | 5 -----
->  1 file changed, 5 deletions(-)
+> Changes since V1:
+> 	- move the platform data initialization to before IRQ enable instead of moving the IRQ enable
+> 	  to the end of probe function.
+> ---
+>  drivers/input/keyboard/snvs_pwrkey.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-> index 539cb67..7e32c36 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -276,11 +276,6 @@ static void imx_keypad_check_for_events(struct timer_list *t)
->  		reg_val = readw(keypad->mmio_base + KPSR);
->  		reg_val |= KBD_STAT_KPKR | KBD_STAT_KRSS;
->  		writew(reg_val, keypad->mmio_base + KPSR);
-> -
-> -		reg_val = readw(keypad->mmio_base + KPSR);
-> -		reg_val |= KBD_STAT_KRIE;
-> -		reg_val &= ~KBD_STAT_KDIE;
-> -		writew(reg_val, keypad->mmio_base + KPSR);
+> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+> index effb632..4c67cf3 100644
+> --- a/drivers/input/keyboard/snvs_pwrkey.c
+> +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> @@ -148,6 +148,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+>  		return error;
 >  	}
->  }
 >  
+> +	pdata->input = input;
+> +	platform_set_drvdata(pdev, pdata);
+> +
+>  	error = devm_request_irq(&pdev->dev, pdata->irq,
+>  			       imx_snvs_pwrkey_interrupt,
+>  			       0, pdev->name, pdev);
+> @@ -163,9 +166,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+>  		return error;
+>  	}
+>  
+> -	pdata->input = input;
+> -	platform_set_drvdata(pdev, pdata);
+> -
+>  	device_init_wakeup(&pdev->dev, pdata->wakeup);
+>  
+>  	return 0;
 > -- 
 > 2.7.4
 > 
-
-Thanks.
 
 -- 
 Dmitry

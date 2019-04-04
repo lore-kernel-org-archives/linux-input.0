@@ -1,48 +1,25 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH][next] HID: intel-ish-hid: fix spelling mistake "multipe"
- -> "multiple"
-Date: Thu, 4 Apr 2019 14:30:01 +0200
-Message-ID: <CAO-hwJ+BbsyWyar_Uz8Gig0fPgM_piqFEYZdFrBu=rfG-P3_CQ@mail.gmail.com>
-References: <20190404075857.12411-1-colin.king@canonical.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v8 03/11] dt-bindings: leds: add DT bindings for max77650
+Date: Thu, 4 Apr 2019 15:22:20 +0200
+Message-ID: <20190404132220.GB6178@xo-6d-61-c0.localdomain>
+References: <20190403090108.24788-1-brgl@bgdev.pl>
+ <20190403090108.24788-4-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190404075857.12411-1-colin.king@canonical.com>
+Content-Disposition: inline
+In-Reply-To: <20190403090108.24788-4-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Apr 4, 2019 at 9:59 AM Colin King <colin.king@canonical.com> wrote:
->
-> From: Colin Ian King <colin.king@canonical.com>
->
-> There is a spelling mistake in a dev_err message, fix it.
->
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
+On Wed 2019-04-03 11:01:00, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> Add the DT binding document for the LEDs module of max77650.
+> 
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-Applied to for-5.2/ish
-
-Cheers,
-Benjamin
-
->  drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> index e770e220bd73..22ba21457035 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-> @@ -525,7 +525,7 @@ static int ish_query_loader_prop(struct ishtp_cl_data *client_data,
->         if ((fw_info->ldr_capability.xfer_mode & LOADER_XFER_MODE_DIRECT_DMA) &&
->             (fw_info->ldr_capability.max_dma_buf_size % L1_CACHE_BYTES)) {
->                 dev_err(cl_data_to_dev(client_data),
-> -                       "Shim firmware loader buffer size %d should be multipe of cacheline\n",
-> +                       "Shim firmware loader buffer size %d should be multiple of cacheline\n",
->                         fw_info->ldr_capability.max_dma_buf_size);
->                 return -EINVAL;
->         }
-> --
-> 2.20.1
->
+Acked-by: Pavel Machek <pavel@ucw.cz>

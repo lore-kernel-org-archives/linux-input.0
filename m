@@ -1,22 +1,11 @@
 From: Mukesh Ojha <mojha@codeaurora.org>
-Subject: [PATCH 4/5] Input: sun4i-ts: Use devm_platform_ioremap_resource()
-Date: Thu,  4 Apr 2019 12:47:22 +0530
-Message-ID: <1554362243-2888-5-git-send-email-mojha@codeaurora.org>
+Subject: [PATCH 5/5] Input: ts4800-ts: Use devm_platform_ioremap_resource()
+Date: Thu,  4 Apr 2019 12:47:23 +0530
+Message-ID: <1554362243-2888-6-git-send-email-mojha@codeaurora.org>
 References: <1554362243-2888-1-git-send-email-mojha@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1554362243-2888-1-git-send-email-mojha@codeaurora.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, linux-imx@nxp.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: Mukesh Ojha <mojha@codeaurora.org>
 List-Id: linux-input@vger.kernel.org
@@ -27,19 +16,27 @@ use devm_platform_ioremap_resource() directly.
 
 Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
 ---
- drivers/input/touchscreen/sun4i-ts.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/touchscreen/ts4800-ts.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
-index d2e14d9..bbb0104 100644
---- a/drivers/input/touchscreen/sun4i-ts.c
-+++ b/drivers/input/touchscreen/sun4i-ts.c
-@@ -309,8 +309,7 @@ static int sun4i_ts_probe(struct platform_device *pdev)
- 		input_set_drvdata(ts->input, ts);
- 	}
+diff --git a/drivers/input/touchscreen/ts4800-ts.c b/drivers/input/touchscreen/ts4800-ts.c
+index fed73ee..5b4f536 100644
+--- a/drivers/input/touchscreen/ts4800-ts.c
++++ b/drivers/input/touchscreen/ts4800-ts.c
+@@ -148,7 +148,6 @@ static int ts4800_ts_probe(struct platform_device *pdev)
+ {
+ 	struct input_polled_dev *poll_dev;
+ 	struct ts4800_ts *ts;
+-	struct resource *res;
+ 	int error;
  
--	ts->base = devm_ioremap_resource(dev,
--			      platform_get_resource(pdev, IORESOURCE_MEM, 0));
+ 	ts = devm_kzalloc(&pdev->dev, sizeof(*ts), GFP_KERNEL);
+@@ -159,8 +158,7 @@ static int ts4800_ts_probe(struct platform_device *pdev)
+ 	if (error)
+ 		return error;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	ts->base = devm_ioremap_resource(&pdev->dev, res);
 +	ts->base = devm_platform_ioremap_resource(pdev, 0);
  	if (IS_ERR(ts->base))
  		return PTR_ERR(ts->base);

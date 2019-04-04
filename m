@@ -1,52 +1,96 @@
 From: Anson Huang <anson.huang@nxp.com>
-Subject: RE: [PATCH 1/2] input: keyboard: imx: no need to control interrupt
- status in event check
-Date: Thu, 4 Apr 2019 01:29:48 +0000
-Message-ID: <DB3PR0402MB3916E8CFA62672094C7DC020F5500@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <1553842562-8481-1-git-send-email-Anson.Huang@nxp.com>
- <20190403214842.GD53104@dtor-ws>
+Subject: [RESEND] input: keyboard: imx: make sure keyboard can always wake up
+ system
+Date: Thu, 4 Apr 2019 01:40:16 +0000
+Message-ID: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190403214842.GD53104@dtor-ws>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-SGksIERtaXRyeQ0KDQpCZXN0IFJlZ2FyZHMhDQpBbnNvbiBIdWFuZw0KDQo+IC0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20gW21haWx0
-bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiBTZW50OiAyMDE5xOo01MI0yNUgNTo0OQ0K
-PiBUbzogQW5zb24gSHVhbmcgPGFuc29uLmh1YW5nQG54cC5jb20+DQo+IENjOiBzaGF3bmd1b0Br
-ZXJuZWwub3JnOyBzLmhhdWVyQHBlbmd1dHJvbml4LmRlOw0KPiBrZXJuZWxAcGVuZ3V0cm9uaXgu
-ZGU7IGZlc3RldmFtQGdtYWlsLmNvbTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOw0KPiBs
-aW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtl
-cm5lbC5vcmc7IGRsLWxpbnV4LQ0KPiBpbXggPGxpbnV4LWlteEBueHAuY29tPg0KPiBTdWJqZWN0
-OiBSZTogW1BBVENIIDEvMl0gaW5wdXQ6IGtleWJvYXJkOiBpbXg6IG5vIG5lZWQgdG8gY29udHJv
-bCBpbnRlcnJ1cHQNCj4gc3RhdHVzIGluIGV2ZW50IGNoZWNrDQo+IA0KPiBIaSBBbnNvbiwNCj4g
-DQo+IE9uIEZyaSwgTWFyIDI5LCAyMDE5IGF0IDA3OjAwOjQzQU0gKzAwMDAsIEFuc29uIEh1YW5n
-IHdyb3RlOg0KPiA+IFRoZXJlIGlzIG5vIG5lZWQgdG8gZW5hYmxlIHJlbGVhc2UgaW50ZXJydXB0
-IGFuZCBkaXNhYmxlIGRlcHJlc3MNCj4gPiBpbnRlcnJ1cHQgaW4gZXZlbnQgY2hlY2ssIGFzIGEg
-dGltZXIgaXMgc2V0dXAgZm9yIGNoZWNraW5nIHRoZXNlDQo+ID4gZXZlbnRzIHJhdGhlciB0aGFu
-IGludGVycnVwdHMuDQo+IA0KPiBCdXQgd29uJ3QgdXNpbmcgcmVsZWFzZSBpbnRlcnJ1cHQgYWxs
-b3cgc2lnbmFsbGluZyBrZXkgcmVsZWFzZSBlYXJsaWVyPw0KDQpJdCBtYWtlcyBzZW5zZSwgcGF0
-Y2ggIzEgY2FuIGJlIGRyb3BwZWQsIEkgd2lsbCByZXNlbmQgdGhlIHBhdGNoICMyIGZvciByZXZp
-ZXcuDQoNClRoYW5rcywNCkFuc29uLg0KDQo+IA0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogQW5z
-b24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvaW5w
-dXQva2V5Ym9hcmQvaW14X2tleXBhZC5jIHwgNSAtLS0tLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwg
-NSBkZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tleWJv
-YXJkL2lteF9rZXlwYWQuYw0KPiA+IGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9pbXhfa2V5cGFk
-LmMNCj4gPiBpbmRleCA1MzljYjY3Li43ZTMyYzM2IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMv
-aW5wdXQva2V5Ym9hcmQvaW14X2tleXBhZC5jDQo+ID4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXli
-b2FyZC9pbXhfa2V5cGFkLmMNCj4gPiBAQCAtMjc2LDExICsyNzYsNiBAQCBzdGF0aWMgdm9pZCBp
-bXhfa2V5cGFkX2NoZWNrX2Zvcl9ldmVudHMoc3RydWN0DQo+IHRpbWVyX2xpc3QgKnQpDQo+ID4g
-IAkJcmVnX3ZhbCA9IHJlYWR3KGtleXBhZC0+bW1pb19iYXNlICsgS1BTUik7DQo+ID4gIAkJcmVn
-X3ZhbCB8PSBLQkRfU1RBVF9LUEtSIHwgS0JEX1NUQVRfS1JTUzsNCj4gPiAgCQl3cml0ZXcocmVn
-X3ZhbCwga2V5cGFkLT5tbWlvX2Jhc2UgKyBLUFNSKTsNCj4gPiAtDQo+ID4gLQkJcmVnX3ZhbCA9
-IHJlYWR3KGtleXBhZC0+bW1pb19iYXNlICsgS1BTUik7DQo+ID4gLQkJcmVnX3ZhbCB8PSBLQkRf
-U1RBVF9LUklFOw0KPiA+IC0JCXJlZ192YWwgJj0gfktCRF9TVEFUX0tESUU7DQo+ID4gLQkJd3Jp
-dGV3KHJlZ192YWwsIGtleXBhZC0+bW1pb19iYXNlICsgS1BTUik7DQo+ID4gIAl9DQo+ID4gIH0N
-Cj4gPg0KPiA+IC0tDQo+ID4gMi43LjQNCj4gPg0KPiANCj4gVGhhbmtzLg0KPiANCj4gLS0NCj4g
-RG1pdHJ5DQo=
+There are several scenarios that keyboard can NOT wake up system
+from suspend, e.g., if a keyboard is depressed between system
+device suspend phase and device noirq suspend phase, the keyboard
+ISR will be called and both keyboard depress and release interrupts
+will be disabled, then keyboard will no longer be able to wake up
+system. Another scenario would be, if a keyboard is kept depressed,
+and then system goes into suspend, the expected behavior would be
+when keyboard is released, system will be waked up, but current
+implementation can NOT achieve that, because both depress and release
+interrupts are disabled in ISR, and the event check is still in
+progress.
+
+To fix these issues, need to make sure keyboard's depress or release
+interrupt is enabled after noirq device suspend phase, this patch
+moves the suspend/resume callback to noirq suspend/resume phase, and
+enable the corresponding interrupt according to current keyboard status.
+
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+---
+ drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/i=
+mx_keypad.c
+index cf08f4a..97500a2 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -524,11 +524,12 @@ static int imx_keypad_probe(struct platform_device *p=
+dev)
+ 	return 0;
+ }
+=20
+-static int __maybe_unused imx_kbd_suspend(struct device *dev)
++static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev =3D to_platform_device(dev);
+ 	struct imx_keypad *kbd =3D platform_get_drvdata(pdev);
+ 	struct input_dev *input_dev =3D kbd->input_dev;
++	unsigned short reg_val =3D readw(kbd->mmio_base + KPSR);
+=20
+ 	/* imx kbd can wake up system even clock is disabled */
+ 	mutex_lock(&input_dev->mutex);
+@@ -538,13 +539,20 @@ static int __maybe_unused imx_kbd_suspend(struct devi=
+ce *dev)
+=20
+ 	mutex_unlock(&input_dev->mutex);
+=20
+-	if (device_may_wakeup(&pdev->dev))
++	if (device_may_wakeup(&pdev->dev)) {
++		if (reg_val & KBD_STAT_KPKD)
++			reg_val |=3D KBD_STAT_KRIE;
++		if (reg_val & KBD_STAT_KPKR)
++			reg_val |=3D KBD_STAT_KDIE;
++		writew(reg_val, kbd->mmio_base + KPSR);
++
+ 		enable_irq_wake(kbd->irq);
++	}
+=20
+ 	return 0;
+ }
+=20
+-static int __maybe_unused imx_kbd_resume(struct device *dev)
++static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev =3D to_platform_device(dev);
+ 	struct imx_keypad *kbd =3D platform_get_drvdata(pdev);
+@@ -568,7 +576,9 @@ static int __maybe_unused imx_kbd_resume(struct device =
+*dev)
+ 	return ret;
+ }
+=20
+-static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
++static const struct dev_pm_ops imx_kbd_pm_ops =3D {
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume=
+)
++};
+=20
+ static struct platform_driver imx_keypad_driver =3D {
+ 	.driver		=3D {
+--=20
+2.7.4

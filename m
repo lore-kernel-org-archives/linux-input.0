@@ -1,61 +1,52 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v7 4/4] Input: goodix - Add GT5663 CTP support
-Date: Wed, 3 Apr 2019 16:09:39 -0700
-Message-ID: <20190403230939.GH53104@dtor-ws>
-References: <20190321082104.2874-1-jagan@amarulasolutions.com>
- <20190321082104.2874-5-jagan@amarulasolutions.com>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: RE: [PATCH 1/2] input: keyboard: imx: no need to control interrupt
+ status in event check
+Date: Thu, 4 Apr 2019 01:29:48 +0000
+Message-ID: <DB3PR0402MB3916E8CFA62672094C7DC020F5500@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1553842562-8481-1-git-send-email-Anson.Huang@nxp.com>
+ <20190403214842.GD53104@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190321082104.2874-5-jagan@amarulasolutions.com>
+In-Reply-To: <20190403214842.GD53104@dtor-ws>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jagan Teki <jagan@amarulasolutions.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Rob Herring <robh+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, linux-amarula@amarulasolutions.com, Michael Trimarchi <michael@amarulasolutions.com>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 21, 2019 at 01:51:04PM +0530, Jagan Teki wrote:
-> GT5663 is capacitive touch controller with customized smart
-> wakeup gestures.
-> 
-> Add support for it by adding compatible and supported chip data.
-> 
-> The chip data on GT5663 is similar to GT1151, like
-> - config data register has 0x8050 address
-> - config data register max len is 240
-> - config data checksum has 16-bit
-> 
-> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-
-Applied, thank you.
-
-> ---
->  drivers/input/touchscreen/goodix.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index de5b80a08f41..c558b091749c 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -219,6 +219,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
->  {
->  	switch (id) {
->  	case 1151:
-> +	case 5663:
->  	case 5688:
->  		return &gt1x_chip_data;
->  
-> @@ -1003,6 +1004,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
->  #ifdef CONFIG_OF
->  static const struct of_device_id goodix_of_match[] = {
->  	{ .compatible = "goodix,gt1151" },
-> +	{ .compatible = "goodix,gt5663" },
->  	{ .compatible = "goodix,gt5688" },
->  	{ .compatible = "goodix,gt911" },
->  	{ .compatible = "goodix,gt9110" },
-> -- 
-> 2.18.0.321.gffc6fa0e3
-> 
-
--- 
-Dmitry
+SGksIERtaXRyeQ0KDQpCZXN0IFJlZ2FyZHMhDQpBbnNvbiBIdWFuZw0KDQo+IC0tLS0tT3JpZ2lu
+YWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20gW21haWx0
+bzpkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tXQ0KPiBTZW50OiAyMDE5xOo01MI0yNUgNTo0OQ0K
+PiBUbzogQW5zb24gSHVhbmcgPGFuc29uLmh1YW5nQG54cC5jb20+DQo+IENjOiBzaGF3bmd1b0Br
+ZXJuZWwub3JnOyBzLmhhdWVyQHBlbmd1dHJvbml4LmRlOw0KPiBrZXJuZWxAcGVuZ3V0cm9uaXgu
+ZGU7IGZlc3RldmFtQGdtYWlsLmNvbTsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOw0KPiBs
+aW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtl
+cm5lbC5vcmc7IGRsLWxpbnV4LQ0KPiBpbXggPGxpbnV4LWlteEBueHAuY29tPg0KPiBTdWJqZWN0
+OiBSZTogW1BBVENIIDEvMl0gaW5wdXQ6IGtleWJvYXJkOiBpbXg6IG5vIG5lZWQgdG8gY29udHJv
+bCBpbnRlcnJ1cHQNCj4gc3RhdHVzIGluIGV2ZW50IGNoZWNrDQo+IA0KPiBIaSBBbnNvbiwNCj4g
+DQo+IE9uIEZyaSwgTWFyIDI5LCAyMDE5IGF0IDA3OjAwOjQzQU0gKzAwMDAsIEFuc29uIEh1YW5n
+IHdyb3RlOg0KPiA+IFRoZXJlIGlzIG5vIG5lZWQgdG8gZW5hYmxlIHJlbGVhc2UgaW50ZXJydXB0
+IGFuZCBkaXNhYmxlIGRlcHJlc3MNCj4gPiBpbnRlcnJ1cHQgaW4gZXZlbnQgY2hlY2ssIGFzIGEg
+dGltZXIgaXMgc2V0dXAgZm9yIGNoZWNraW5nIHRoZXNlDQo+ID4gZXZlbnRzIHJhdGhlciB0aGFu
+IGludGVycnVwdHMuDQo+IA0KPiBCdXQgd29uJ3QgdXNpbmcgcmVsZWFzZSBpbnRlcnJ1cHQgYWxs
+b3cgc2lnbmFsbGluZyBrZXkgcmVsZWFzZSBlYXJsaWVyPw0KDQpJdCBtYWtlcyBzZW5zZSwgcGF0
+Y2ggIzEgY2FuIGJlIGRyb3BwZWQsIEkgd2lsbCByZXNlbmQgdGhlIHBhdGNoICMyIGZvciByZXZp
+ZXcuDQoNClRoYW5rcywNCkFuc29uLg0KDQo+IA0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogQW5z
+b24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvaW5w
+dXQva2V5Ym9hcmQvaW14X2tleXBhZC5jIHwgNSAtLS0tLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwg
+NSBkZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tleWJv
+YXJkL2lteF9rZXlwYWQuYw0KPiA+IGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9pbXhfa2V5cGFk
+LmMNCj4gPiBpbmRleCA1MzljYjY3Li43ZTMyYzM2IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMv
+aW5wdXQva2V5Ym9hcmQvaW14X2tleXBhZC5jDQo+ID4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXli
+b2FyZC9pbXhfa2V5cGFkLmMNCj4gPiBAQCAtMjc2LDExICsyNzYsNiBAQCBzdGF0aWMgdm9pZCBp
+bXhfa2V5cGFkX2NoZWNrX2Zvcl9ldmVudHMoc3RydWN0DQo+IHRpbWVyX2xpc3QgKnQpDQo+ID4g
+IAkJcmVnX3ZhbCA9IHJlYWR3KGtleXBhZC0+bW1pb19iYXNlICsgS1BTUik7DQo+ID4gIAkJcmVn
+X3ZhbCB8PSBLQkRfU1RBVF9LUEtSIHwgS0JEX1NUQVRfS1JTUzsNCj4gPiAgCQl3cml0ZXcocmVn
+X3ZhbCwga2V5cGFkLT5tbWlvX2Jhc2UgKyBLUFNSKTsNCj4gPiAtDQo+ID4gLQkJcmVnX3ZhbCA9
+IHJlYWR3KGtleXBhZC0+bW1pb19iYXNlICsgS1BTUik7DQo+ID4gLQkJcmVnX3ZhbCB8PSBLQkRf
+U1RBVF9LUklFOw0KPiA+IC0JCXJlZ192YWwgJj0gfktCRF9TVEFUX0tESUU7DQo+ID4gLQkJd3Jp
+dGV3KHJlZ192YWwsIGtleXBhZC0+bW1pb19iYXNlICsgS1BTUik7DQo+ID4gIAl9DQo+ID4gIH0N
+Cj4gPg0KPiA+IC0tDQo+ID4gMi43LjQNCj4gPg0KPiANCj4gVGhhbmtzLg0KPiANCj4gLS0NCj4g
+RG1pdHJ5DQo=

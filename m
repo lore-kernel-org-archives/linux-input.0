@@ -1,7 +1,7 @@
 From: Mukesh Ojha <mojha@codeaurora.org>
-Subject: [PATCH 1/5] Input: fsl-imx25-tcq: Use devm_platform_ioremap_resource()
-Date: Thu,  4 Apr 2019 12:47:19 +0530
-Message-ID: <1554362243-2888-2-git-send-email-mojha@codeaurora.org>
+Subject: [PATCH 2/5] Input: mxs-lradc-ts.c: Use devm_platform_ioremap_resource()
+Date: Thu,  4 Apr 2019 12:47:20 +0530
+Message-ID: <1554362243-2888-3-git-send-email-mojha@codeaurora.org>
 References: <1554362243-2888-1-git-send-email-mojha@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1554362243-2888-1-git-send-email-mojha@codeaurora.org>
@@ -16,30 +16,32 @@ use devm_platform_ioremap_resource() directly.
 
 Signed-off-by: Mukesh Ojha <mojha@codeaurora.org>
 ---
- drivers/input/touchscreen/fsl-imx25-tcq.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/input/touchscreen/mxs-lradc-ts.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/input/touchscreen/fsl-imx25-tcq.c b/drivers/input/touchscreen/fsl-imx25-tcq.c
-index 1d6c8f4..b66df8a 100644
---- a/drivers/input/touchscreen/fsl-imx25-tcq.c
-+++ b/drivers/input/touchscreen/fsl-imx25-tcq.c
-@@ -503,7 +503,6 @@ static int mx25_tcq_probe(struct platform_device *pdev)
- 	struct input_dev *idev;
- 	struct mx25_tcq_priv *priv;
- 	struct mx25_tsadc *tsadc = dev_get_drvdata(dev->parent);
--	struct resource *res;
- 	void __iomem *mem;
- 	int error;
+diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
+index c850b51..af047fa 100644
+--- a/drivers/input/touchscreen/mxs-lradc-ts.c
++++ b/drivers/input/touchscreen/mxs-lradc-ts.c
+@@ -615,7 +615,6 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
+ 	struct device_node *node = dev->parent->of_node;
+ 	struct mxs_lradc *lradc = dev_get_drvdata(dev->parent);
+ 	struct mxs_lradc_ts *ts;
+-	struct resource *iores;
+ 	int ret, irq, virq, i;
+ 	u32 ts_wires = 0, adapt;
  
-@@ -512,8 +511,7 @@ static int mx25_tcq_probe(struct platform_device *pdev)
+@@ -629,10 +628,7 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
+ 	ts->dev = dev;
+ 	spin_lock_init(&ts->lock);
+ 
+-	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!iores)
+-		return -EINVAL;
+-	ts->base = devm_ioremap(dev, iores->start, resource_size(iores));
++	ts->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (!ts->base)
  		return -ENOMEM;
- 	priv->dev = dev;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	mem = devm_ioremap_resource(dev, res);
-+	mem = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(mem))
- 		return PTR_ERR(mem);
  
 -- 
 Qualcomm India Private Limited, on behalf of Qualcomm Innovation Center,

@@ -1,42 +1,90 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RESEND v4 1/4] input: sun4i-a10-lradc-keys:
- Add support for A83T
-Date: Thu, 4 Apr 2019 11:49:15 -0700
-Message-ID: <20190404184915.GB116898@dtor-ws>
-References: <20190327023339.25975-1-megous@megous.com>
- <20190327023339.25975-2-megous@megous.com>
-Reply-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for Myria MY8307 2-in-1
+Date: Fri, 5 Apr 2019 17:22:52 +0300
+Message-ID: <CAHp75VcS=aQCj1D_ecQq3HP=eZFYd3++rdatcMDs5hJxeniTow@mail.gmail.com>
+References: <20190315133113.21215-1-gabriel.lazar@com.utcluj.ro> <12a67eb2-18ff-dd9f-4c48-4d01a01a2aa7@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBL5DTHSQKGQEJQAHTOY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20190327023339.25975-2-megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org
-Cc: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <12a67eb2-18ff-dd9f-4c48-4d01a01a2aa7@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Gabriel Lazar <gabriel.lazar@com.utcluj.ro>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 27, 2019 at 03:33:36AM +0100, megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org wrote:
-> From: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> 
-> Allwinner A83T SoC has a low res adc like the one in Allwinner A10 SoC,
-> however, the A10 SoC's vref of lradc internally is divided by 2/3 and
-> the A83T SoC's vref of lradc internally is divided by 3/4, thus add
-> a hardware variant for it to be compatible with various devices.
-> 
-> Signed-off-by: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Acked-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+On Fri, Mar 15, 2019 at 7:47 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi,
+>
+> On 3/15/19 2:31 PM, Gabriel Lazar wrote:
+> > Add touchscreen platform data for the Myrya MY8307 2-in-1 laptop.
+> >
+> > Signed-off-by: Gabriel Lazar <gabriel.lazar@com.utcluj.ro>
+>
+> Patch looks good to me:
+>
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-Applied, this and binding patch; the dts changes should go through other
-relevant trees I believe.
+Pushed to my review and testing queue, thanks!
 
-Thanks.
+>
+> Regards,
+>
+> Hans
+>
+>
+>
+> > ---
+> >   drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
+> >   1 file changed, 25 insertions(+)
+> >
+> > diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+> > index 2d56ff7c8230..3319f0cbb558 100644
+> > --- a/drivers/platform/x86/touchscreen_dmi.c
+> > +++ b/drivers/platform/x86/touchscreen_dmi.c
+> > @@ -265,6 +265,23 @@ static const struct ts_dmi_data jumper_ezpad_mini3_data = {
+> >       .properties     = jumper_ezpad_mini3_props,
+> >   };
+> >
+> > +static const struct property_entry myria_my8307_props[] = {
+> > +     PROPERTY_ENTRY_U32("touchscreen-size-x", 1720),
+> > +     PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
+> > +     PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
+> > +     PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
+> > +     PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
+> > +     PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-myria-my8307.fw"),
+> > +     PROPERTY_ENTRY_U32("silead,max-fingers", 10),
+> > +     PROPERTY_ENTRY_BOOL("silead,home-button"),
+> > +     { }
+> > +};
+> > +
+> > +static const struct ts_dmi_data myria_my8307_data = {
+> > +     .acpi_name      = "MSSL1680:00",
+> > +     .properties     = myria_my8307_props,
+> > +};
+> > +
+> >   static const struct property_entry onda_obook_20_plus_props[] = {
+> >       PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
+> >       PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
+> > @@ -690,6 +707,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
+> >                       DMI_MATCH(DMI_PRODUCT_NAME, "FlexBook edge11 - M-FBE11"),
+> >               },
+> >       },
+> > +     {
+> > +             /* Myria MY8307 */
+> > +             .driver_data = (void *)&myria_my8307_data,
+> > +             .matches = {
+> > +                     DMI_MATCH(DMI_SYS_VENDOR, "Complet Electro Serv"),
+> > +                     DMI_MATCH(DMI_PRODUCT_NAME, "MY8307"),
+> > +             },
+> > +     },
+> >       {
+> >               /* Onda oBook 20 Plus */
+> >               .driver_data = (void *)&onda_obook_20_plus_data,
+> >
+
+
 
 -- 
-Dmitry
+With Best Regards,
+Andy Shevchenko

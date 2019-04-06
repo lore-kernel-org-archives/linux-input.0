@@ -1,90 +1,68 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] platform/x86: touchscreen_dmi: Add info for Myria MY8307 2-in-1
-Date: Fri, 5 Apr 2019 17:22:52 +0300
-Message-ID: <CAHp75VcS=aQCj1D_ecQq3HP=eZFYd3++rdatcMDs5hJxeniTow@mail.gmail.com>
-References: <20190315133113.21215-1-gabriel.lazar@com.utcluj.ro> <12a67eb2-18ff-dd9f-4c48-4d01a01a2aa7@redhat.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v8 02/11] dt-bindings: power: supply: add DT bindings for
+ max77650
+Date: Sat, 6 Apr 2019 02:07:46 -0500
+Message-ID: <20190406070746.GA29624@bogus>
+References: <20190403090108.24788-1-brgl@bgdev.pl>
+ <20190403090108.24788-3-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <12a67eb2-18ff-dd9f-4c48-4d01a01a2aa7@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20190403090108.24788-3-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Gabriel Lazar <gabriel.lazar@com.utcluj.ro>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Mar 15, 2019 at 7:47 PM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Hi,
->
-> On 3/15/19 2:31 PM, Gabriel Lazar wrote:
-> > Add touchscreen platform data for the Myrya MY8307 2-in-1 laptop.
-> >
-> > Signed-off-by: Gabriel Lazar <gabriel.lazar@com.utcluj.ro>
->
-> Patch looks good to me:
->
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+On Wed, Apr 03, 2019 at 11:00:59AM +0200, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> Add the DT binding document for the battery charger module of max77650.
+> 
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  .../power/supply/max77650-charger.txt         | 27 +++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/power/supply/max77650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+> new file mode 100644
+> index 000000000000..fef188144386
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
+> @@ -0,0 +1,27 @@
+> +Battery charger driver for MAX77650 PMIC from Maxim Integrated.
+> +
+> +This module is part of the MAX77650 MFD device. For more details
+> +see Documentation/devicetree/bindings/mfd/max77650.txt.
+> +
+> +The charger is represented as a sub-node of the PMIC node on the device tree.
+> +
+> +Required properties:
+> +--------------------
+> +- compatible:		Must be "maxim,max77650-charger"
+> +
+> +Optional properties:
+> +--------------------
+> +- min-microvolt:	Minimum CHGIN regulation voltage (in microvolts). Must be
+> +			one of: 4000000, 4100000, 4200000, 4300000, 4400000,
+> +			4500000, 4600000, 4700000.
+> +- current-limit-microamp:	CHGIN input current limit (in microamps). Must
+> +				be one of: 95000, 190000, 285000, 380000, 475000.
 
-Pushed to my review and testing queue, thanks!
+To repeat what I said on v6, these should be common properties IMO (and 
+therefore documented as such).
 
->
-> Regards,
->
-> Hans
->
->
->
-> > ---
-> >   drivers/platform/x86/touchscreen_dmi.c | 25 +++++++++++++++++++++++++
-> >   1 file changed, 25 insertions(+)
-> >
-> > diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-> > index 2d56ff7c8230..3319f0cbb558 100644
-> > --- a/drivers/platform/x86/touchscreen_dmi.c
-> > +++ b/drivers/platform/x86/touchscreen_dmi.c
-> > @@ -265,6 +265,23 @@ static const struct ts_dmi_data jumper_ezpad_mini3_data = {
-> >       .properties     = jumper_ezpad_mini3_props,
-> >   };
-> >
-> > +static const struct property_entry myria_my8307_props[] = {
-> > +     PROPERTY_ENTRY_U32("touchscreen-size-x", 1720),
-> > +     PROPERTY_ENTRY_U32("touchscreen-size-y", 1140),
-> > +     PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
-> > +     PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
-> > +     PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-> > +     PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-myria-my8307.fw"),
-> > +     PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> > +     PROPERTY_ENTRY_BOOL("silead,home-button"),
-> > +     { }
-> > +};
-> > +
-> > +static const struct ts_dmi_data myria_my8307_data = {
-> > +     .acpi_name      = "MSSL1680:00",
-> > +     .properties     = myria_my8307_props,
-> > +};
-> > +
-> >   static const struct property_entry onda_obook_20_plus_props[] = {
-> >       PROPERTY_ENTRY_U32("touchscreen-size-x", 1728),
-> >       PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
-> > @@ -690,6 +707,14 @@ static const struct dmi_system_id touchscreen_dmi_table[] = {
-> >                       DMI_MATCH(DMI_PRODUCT_NAME, "FlexBook edge11 - M-FBE11"),
-> >               },
-> >       },
-> > +     {
-> > +             /* Myria MY8307 */
-> > +             .driver_data = (void *)&myria_my8307_data,
-> > +             .matches = {
-> > +                     DMI_MATCH(DMI_SYS_VENDOR, "Complet Electro Serv"),
-> > +                     DMI_MATCH(DMI_PRODUCT_NAME, "MY8307"),
-> > +             },
-> > +     },
-> >       {
-> >               /* Onda oBook 20 Plus */
-> >               .driver_data = (void *)&onda_obook_20_plus_data,
-> >
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+> +
+> +Example:
+> +--------
+> +
+> +	charger {
+> +		compatible = "maxim,max77650-charger";
+> +		min-microvolt = <4200000>;
+> +		curr-lim-microamp = <285000>;
+> +	};
+> -- 
+> 2.21.0
+> 

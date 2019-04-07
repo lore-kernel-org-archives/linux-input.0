@@ -1,698 +1,641 @@
 From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 3/3] iio: Add PAT9125 optical tracker sensor
-Date: Sun, 7 Apr 2019 11:20:24 +0100
-Message-ID: <20190407112024.6297cbfa@archlinux>
-References: <1554456870-8104-1-git-send-email-amergnat@baylibre.com>
-        <1554456870-8104-4-git-send-email-amergnat@baylibre.com>
+Subject: Re: [RFC v2] iio: input-bridge: optionally bridge iio acceleometers
+ to create a /dev/input interface
+Date: Sun, 7 Apr 2019 13:30:37 +0100
+Message-ID: <20190407133037.0ad98897@archlinux>
+References: <195994ebff28de22eae872df134d086c761b83b8.1554026986.git.hns@goldelico.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1554456870-8104-4-git-send-email-amergnat@baylibre.com>
+In-Reply-To: <195994ebff28de22eae872df134d086c761b83b8.1554026986.git.hns@goldelico.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Mergnat <amergnat@baylibre.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, baylibre-upstreaming@groups.io, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Piel <eric.piel@tremplin-utc.net>, linux-input@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri,  5 Apr 2019 09:34:30 +0000
-Alexandre Mergnat <amergnat@baylibre.com> wrote:
+On Sun, 31 Mar 2019 12:09:46 +0200
+"H. Nikolaus Schaller" <hns@goldelico.com> wrote:
 
-> This adds support for PixArt Imaging=E2=80=99s miniature low power
-> optical navigation chip using LASER light source
-> enabling digital surface tracking.
+Hi Nikolaus,
 
-Hi Alexandre,
+I'm probably going to repeat a few things I sent for v1 as the audience has
+expanded somewhat!
 
-So I have no problem with this as an IIO driver, but for devices that
-are somewhat 'on the edge' I always like to get a clear answer to the
-question: Why not input?
+Good to see this moving forwards though as there has been at least some dem=
+and
+for it going way back to the early days of IIO.
 
-I would also argue that, to actually be 'useful' we would typically need
-some representation of the 'mechanicals' that are providing the motion
-being measured.  Looking at the datasheet this includes, rotating shafts
-(side or end on), disk edges and flat surface tracking (mouse like).
+> Some user spaces (e.g. some Android devices) use /dev/input/event* for ha=
+ndling
+> the 3D position of the device with respect to the center of gravity (eart=
+h).
+> This can be used for gaming input, auto-rotation of screens etc.
+>=20
+> This interface should be the standard for such use cases because it is an=
+ abstraction
+> of how orientation data is acquired from sensor chips. Sensor chips may b=
+e connected
+> through different interfaces and in different positions. They may also ha=
+ve different
+> parameters. And, if a chip is replaced by a different one, the values rep=
+orted by
+> the device position interface should remain the same, provided the device=
+ tree reflects
+> the changed chip.
+>=20
+> This did initially lead to input accelerometer drivers like drivers/input=
+/misc/bma150.c
+> or drivers/misc/lis3lv02d/
+>=20
+> But nowadays, new accelerometer chips mostly get iio drivers and rarely i=
+nput drivers.
+>=20
+> Therefore we need something like a protocol stack which bridges raw data =
+and input devices.
+> It can be seen as a similar layering like TCP/IP vs. bare Ethernet. Or ke=
+yboard
+> input events vs. raw gpio or raw USB access.
+>=20
+> This patch bridges the gap between raw iio data and the input device abst=
+raction
+> so that accelerometer measurements can additionally be presented as X/Y/Z=
+ accelerometer
+> channels (INPUT_PROP_ACCELEROMETER) through /dev/input/event*.
+>=20
+> There are no special requirements or changes needed for an iio driver.
+>=20
+> There is no need to define a mapping (e.g. in device tree).
+This worries me, as it inherently means we end up with this interface being
+registered in cases where it makes no sense.  A lot of generic distros get
+used across widely differing use cases.
 
-That's easy enough to do with the iio in kernel consumer interface. These
-are similar to when we handle analog electronic front ends.
+I think we need some deliberate userspace interaction to instantiate
+one of these rather than 'always doing it'.
 
-I you can, please describe what it is being used for in your application
-as that may give us somewhere to start!
+As I mentioned in V1, look at the possibility of a configfs based method
+to build the map.  It's easy for userspace to work out what makes sense to
+map in principle.  There may be some missing info that we also need to
+look to expose.
 
-+ CC Dmitry and linux-input.
+In general, userspace created channel maps would be very useful for
+other things such as maker type boards where they can plug all sorts
+of odd things into ADC channels for example.
 
 >=20
-> This IIO driver allow to read delta position on 2 axis (X and Y).
-> The values can be taken through ponctual "read_raw" which will issue
-> a read in the device registers to return the deltas or subscribe
-> to the data buffer feed automaticaly by a new value using a
-> trigger gpio. The buffer payload is: |16 bits delta X|16 bits delta Y|tim=
-estamp|.
-> The possible I2C adresses are 0x73, 0x75 and 0x79.
+> This driver simply collects the first 3 accelerometer channels as X, Y an=
+d Z.
+> If only 1 or 2 channels are available, they are used for X and Y only. Ad=
+ditional
+> channels are ignored.
 >=20
-> Unfortunately, the device configuration must be hardcoded in the initiali=
-zation
-> function and can't be changed "on-the-fly" in user space due to the lack =
-of
-> configuration interface.
->=20
-> The "ot" directory is added to coutain Optical Tracker drivers.
-=46rom a shared interface point of view we don't really care 'how', but rathe=
-r 'what'.
-So arguably this is actually measuring differential position, or sort of
-'velocity'.  I think it should probably be mapped to simple position though=
-.  See
-below.
+> Scaling is done automatically so that 1g is represented by value 256 and
+> range is assumed to be -511 .. +511 which gives a reasonable precision as=
+ an
+> input device.
+
+Why do we do this, rather than letting input deal with it?  Input is used
+to widely differing scales IIRC
 
 >=20
-> Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
-
-Comments inline.
-
+> If a mount-matrix is provided by the iio driver, it is also taken into ac=
+count
+> so that the input event automatically gets the correct orientation with r=
+espect
+> to the device.
+>=20
+> If this extension is not configured into the kernel it takes no resources=
+ (except
+> source code).
+>=20
+> If it is configured, but there is no accelerometer, there is only a tiny =
+penalty
+> for scanning for accelerometer channels once during probe of each iio dev=
+ice.
+>=20
+> If it runs, the driver polls the device(s) once every 100 ms. A mode wher=
+e the
+> iio device defines the update rate is not implemented and for further stu=
+dy.
+>=20
+> If there is no user-space client, polling is not running.
+>=20
+> The driver is capable to handle multiple iio accelerometers and they are
+> presented by unique /dev/input/event* files. The iio chip name is used to=
+ define
+> the input device name so that it can be identified (e.g. by udev rules or=
+ evtest).
+>=20
+> Here is some example what you can expect from the driver (device:
+> arch/arm/boot/dts/omap3-gta04a5.dts):
+>=20
+> root@letux:~# dmesg|fgrep iio
+> [ =C2=A0 =C2=A06.324584] input: iio-bridge: bmc150_accel as /devices/plat=
+form/68000000.ocp/48072000.i2c/i2c-1/1-0010/iio:device1/input/input5
+> [ =C2=A0 =C2=A06.516632] input: iio-bridge: bno055 as /devices/platform/6=
+8000000.ocp/48072000.i2c/i2c-1/1-0029/iio:device3/input/input7
+> root@letux:~# evtest /dev/input/event5 | head -19
+> Input driver version is 1.0.1
+> Input device ID: bus 0x0 vendor 0x0 product 0x0 version 0x0
+> Input device name: "iio-bridge: bmc150_accel"
+> Supported events:
+> =C2=A0 Event type 0 (EV_SYN)
+> =C2=A0 Event type 3 (EV_ABS)
+> =C2=A0 =C2=A0 Event code 0 (ABS_X)
+> =C2=A0 =C2=A0 =C2=A0 Value =C2=A0 =C2=A0 =C2=A08
+> =C2=A0 =C2=A0 =C2=A0 Min =C2=A0 =C2=A0 -511
+> =C2=A0 =C2=A0 =C2=A0 Max =C2=A0 =C2=A0 =C2=A0511
+> =C2=A0 =C2=A0 Event code 1 (ABS_Y)
+> =C2=A0 =C2=A0 =C2=A0 Value =C2=A0 =C2=A0-44
+> =C2=A0 =C2=A0 =C2=A0 Min =C2=A0 =C2=A0 -511
+> =C2=A0 =C2=A0 =C2=A0 Max =C2=A0 =C2=A0 =C2=A0511
+> =C2=A0 =C2=A0 Event code 2 (ABS_Z)
+> =C2=A0 =C2=A0 =C2=A0 Value =C2=A0 -265
+> =C2=A0 =C2=A0 =C2=A0 Min =C2=A0 =C2=A0 -511
+> =C2=A0 =C2=A0 =C2=A0 Max =C2=A0 =C2=A0 =C2=A0511
+> Properties:
+> root@letux:~# evtest /dev/input/event7 | head -19
+> Input driver version is 1.0.1
+> Input device ID: bus 0x0 vendor 0x0 product 0x0 version 0x0
+> Input device name: "iio-bridge: bno055"
+> Supported events:
+> =C2=A0 Event type 0 (EV_SYN)
+> =C2=A0 Event type 3 (EV_ABS)
+> =C2=A0 =C2=A0 Event code 0 (ABS_X)
+> =C2=A0 =C2=A0 =C2=A0 Value =C2=A0 =C2=A0 -6
+> =C2=A0 =C2=A0 =C2=A0 Min =C2=A0 =C2=A0 -511
+> =C2=A0 =C2=A0 =C2=A0 Max =C2=A0 =C2=A0 =C2=A0511
+> =C2=A0 =C2=A0 Event code 1 (ABS_Y)
+> =C2=A0 =C2=A0 =C2=A0 Value =C2=A0 =C2=A0 17
+> =C2=A0 =C2=A0 =C2=A0 Min =C2=A0 =C2=A0 -511
+> =C2=A0 =C2=A0 =C2=A0 Max =C2=A0 =C2=A0 =C2=A0511
+> =C2=A0 =C2=A0 Event code 2 (ABS_Z)
+> =C2=A0 =C2=A0 =C2=A0 Value =C2=A0 -250
+> =C2=A0 =C2=A0 =C2=A0 Min =C2=A0 =C2=A0 -511
+> =C2=A0 =C2=A0 =C2=A0 Max =C2=A0 =C2=A0 =C2=A0511
+> Properties:
+> root@letux:~#=C2=A0
+>=20
+> Although the sensor chips are mounted with different axis orientation,
+> the application of the mount matrix provides equivalent (despite noise
+> and precision) information on device orientation.
+>=20
+> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 > ---
->  drivers/iio/Kconfig      |   1 +
->  drivers/iio/Makefile     |   1 +
->  drivers/iio/ot/Kconfig   |  16 ++
->  drivers/iio/ot/Makefile  |   6 +
->  drivers/iio/ot/pat9125.c | 407 +++++++++++++++++++++++++++++++++++++++++=
-++++++
->  5 files changed, 431 insertions(+)
->  create mode 100644 drivers/iio/ot/Kconfig
->  create mode 100644 drivers/iio/ot/Makefile
->  create mode 100644 drivers/iio/ot/pat9125.c
+>  drivers/iio/Kconfig                    |   7 +
+>  drivers/iio/Makefile                   |   1 +
+>  drivers/iio/industrialio-core.c        |  12 +
+>  drivers/iio/industrialio-inputbridge.c | 295 +++++++++++++++++++++++++
+>  drivers/iio/industrialio-inputbridge.h |  28 +++
+>  5 files changed, 343 insertions(+)
+>  create mode 100644 drivers/iio/industrialio-inputbridge.c
+>  create mode 100644 drivers/iio/industrialio-inputbridge.h
 >=20
 > diff --git a/drivers/iio/Kconfig b/drivers/iio/Kconfig
-> index d08aeb4..bdf1bd0 100644
+> index d08aeb41cd07..d85afe002613 100644
 > --- a/drivers/iio/Kconfig
 > +++ b/drivers/iio/Kconfig
-> @@ -86,6 +86,7 @@ source "drivers/iio/light/Kconfig"
->  source "drivers/iio/magnetometer/Kconfig"
->  source "drivers/iio/multiplexer/Kconfig"
->  source "drivers/iio/orientation/Kconfig"
-> +source "drivers/iio/ot/Kconfig"
->  if IIO_TRIGGER
->     source "drivers/iio/trigger/Kconfig"
->  endif #IIO_TRIGGER
+> @@ -68,6 +68,13 @@ config IIO_TRIGGERED_EVENT
+>  	help
+>  	  Provides helper functions for setting up triggered events.
+> =20
+> +config IIO_INPUT_BRIDGE
+> +	bool "Enable accelerometer bridge to input driver"
+
+Dependency on input?
+
+> +	help
+> +	  Provides a /dev/input/event* device for accelerometers
+> +	  to use as a 3D input device, e.g. for gaming or auto-rotation
+> +	  of screen contents.
+> +
+>  source "drivers/iio/accel/Kconfig"
+>  source "drivers/iio/adc/Kconfig"
+>  source "drivers/iio/afe/Kconfig"
 > diff --git a/drivers/iio/Makefile b/drivers/iio/Makefile
-> index cb59932..fdda2e1 100644
+> index cb5993251381..d695e5a27da5 100644
 > --- a/drivers/iio/Makefile
 > +++ b/drivers/iio/Makefile
-> @@ -32,6 +32,7 @@ obj-y +=3D light/
->  obj-y +=3D magnetometer/
->  obj-y +=3D multiplexer/
->  obj-y +=3D orientation/
-> +obj-y +=3D ot/
->  obj-y +=3D potentiometer/
->  obj-y +=3D potentiostat/
->  obj-y +=3D pressure/
-> diff --git a/drivers/iio/ot/Kconfig b/drivers/iio/ot/Kconfig
+> @@ -7,6 +7,7 @@ obj-$(CONFIG_IIO) +=3D industrialio.o
+>  industrialio-y :=3D industrialio-core.o industrialio-event.o inkern.o
+>  industrialio-$(CONFIG_IIO_BUFFER) +=3D industrialio-buffer.o
+>  industrialio-$(CONFIG_IIO_TRIGGER) +=3D industrialio-trigger.o
+> +industrialio-$(CONFIG_IIO_INPUT_BRIDGE) +=3D industrialio-inputbridge.o
+> =20
+>  obj-$(CONFIG_IIO_CONFIGFS) +=3D industrialio-configfs.o
+>  obj-$(CONFIG_IIO_SW_DEVICE) +=3D industrialio-sw-device.o
+> diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-c=
+ore.c
+> index 4700fd5d8c90..81f412b41a78 100644
+> --- a/drivers/iio/industrialio-core.c
+> +++ b/drivers/iio/industrialio-core.c
+> @@ -29,6 +29,7 @@
+>  #include <linux/iio/iio.h>
+>  #include "iio_core.h"
+>  #include "iio_core_trigger.h"
+> +#include "industrialio-inputbridge.h"
+>  #include <linux/iio/sysfs.h>
+>  #include <linux/iio/events.h>
+>  #include <linux/iio/buffer.h>
+> @@ -1723,6 +1724,15 @@ int __iio_device_register(struct iio_dev *indio_de=
+v, struct module *this_mod)
+>  	if (ret < 0)
+>  		goto error_unreg_eventset;
+> =20
+> +	ret =3D iio_device_register_inputbridge(indio_dev);
+> +	if (ret) {
+> +		dev_err(indio_dev->dev.parent,
+> +			"Failed to register as input driver\n");
+> +		device_del(&indio_dev->dev);
+> +
+This doesn't look like balanced error handling given the goto in the previo=
+us
+case.  If we are treating this as an error we need to unwind the whole
+of this function properly.
+
+> +		return ret;
+> +	}
+> +
+>  	return 0;
+> =20
+>  error_unreg_eventset:
+> @@ -1745,6 +1755,8 @@ void iio_device_unregister(struct iio_dev *indio_de=
+v)
+>  {
+>  	mutex_lock(&indio_dev->info_exist_lock);
+> =20
+> +	iio_device_unregister_inputbridge(indio_dev);
+> +
+>  	cdev_device_del(&indio_dev->chrdev, &indio_dev->dev);
+> =20
+>  	iio_device_unregister_debugfs(indio_dev);
+> diff --git a/drivers/iio/industrialio-inputbridge.c b/drivers/iio/industr=
+ialio-inputbridge.c
 > new file mode 100644
-> index 0000000..3d17fda
+> index 000000000000..dd672e25bc70
 > --- /dev/null
-> +++ b/drivers/iio/ot/Kconfig
-> @@ -0,0 +1,16 @@
-> +#
-> +# Optical tracker sensors
-> +#
-> +# When adding new entries keep the list in alphabetical order
-> +
-> +menu "Optical tracker sensors"
-> +
-> +config PAT9125
-> +	tristate "Optical tracker PAT9125 I2C driver"
-> +	depends on I2C
-> +	select IIO_BUFFER
-> +	help
-> +	  Say yes here to build support for PAT9125 optical tracker
-> +	  sensors.
-> +
-> +endmenu
-> diff --git a/drivers/iio/ot/Makefile b/drivers/iio/ot/Makefile
-> new file mode 100644
-> index 0000000..cf29491
-> --- /dev/null
-> +++ b/drivers/iio/ot/Makefile
-> @@ -0,0 +1,6 @@
-> +#
-> +# Makefile for industrial I/O Optical tracker sensor drivers
-> +#
-> +
-> +# When adding new entries keep the list in alphabetical order
-> +obj-$(CONFIG_PAT9125) +=3D pat9125.o
-> diff --git a/drivers/iio/ot/pat9125.c b/drivers/iio/ot/pat9125.c
-> new file mode 100644
-> index 0000000..f416bfa
-> --- /dev/null
-> +++ b/drivers/iio/ot/pat9125.c
-> @@ -0,0 +1,407 @@
-> +// SPDX-License-Identifier: (GPL-2.0)
+> +++ b/drivers/iio/industrialio-inputbridge.c
+> @@ -0,0 +1,295 @@
+> +// SPDX-License-Identifier: GPL-2.0
 > +/*
-> + * Copyright (C) 2018 BayLibre, SAS
+> + * The Industrial I/O core, bridge to input devices
+> + *
+> + * Copyright (c) 2016-2019 Golden Delicious Computers GmbH&Co. KG
+> + *
+> + * This program is free software; you can redistribute it and/or modify =
+it
+> + * under the terms of the GNU General Public License version 2 as publis=
+hed by
+> + * the Free Software Foundation.
+No need for the boiler plate if you have SPDX.  That is one of the
+advantages!
 
-Probably going to need to add 2019!
-
-> + * Author: Alexandre Mergnat <amergnat@baylibre.com>
 > + */
 > +
-> +#include <linux/i2c.h>
+> +#include <linux/iio/consumer.h>
+> +#include <linux/iio/iio.h>
+> +#include <linux/iio/types.h>
+> +#include <linux/input.h>
+> +#include <linux/input-polldev.h>
 > +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/regmap.h>
-> +#include <linux/delay.h>
-> +#include <linux/interrupt.h>
 > +#include <linux/slab.h>
 > +
-> +#include <linux/iio/iio.h>
-> +#include <linux/iio/sysfs.h>
-> +#include <linux/iio/events.h>
-> +#include <linux/iio/buffer.h>
-> +#include <linux/iio/kfifo_buf.h>
+> +#include "industrialio-inputbridge.h"
 > +
-> +/* I2C Address function to ID pin*/
-> +#define PAT9125_I2C_ADDR_HI		0x73
-> +#define PAT9125_I2C_ADDR_LO		0x75
-> +#define PAT9125_I2C_ADDR_NC		0x79
+> +/* currently, only polling is implemented */
+> +#define POLLING_MSEC	100
 > +
-> +/* Registers */
-> +#define PAT9125_PRD_ID1_REG		0x00
-> +#define PAT9125_PRD_ID2_REG		0x01
-> +#define PAT9125_MOTION_STATUS_REG	0x02
-> +#define PAT9125_DELTA_X_LO_REG		0x03
-> +#define PAT9125_DELTA_Y_LO_REG		0x04
-> +#define PAT9125_OP_MODE_REG		0x05
-> +#define PAT9125_CONFIG_REG		0x06
-> +#define PAT9125_WRITE_PROTEC_REG	0x09
-> +#define PAT9125_SLEEP1_REG		0x0A
-> +#define PAT9125_SLEEP2_REG		0x0B
-> +#define PAT9125_RES_X_REG		0x0D
-> +#define PAT9125_RES_Y_REG		0x0E
-> +#define PAT9125_DELTA_XY_HI_REG		0x12
-> +#define PAT9125_SHUTER_REG		0x14
-> +#define PAT9125_FRAME_AVG_REG		0x17
-> +#define PAT9125_ORIENTATION_REG		0x19
-> +
-> +/* Masks */
-> +#define PAT9125_VALID_MOTION_DATA_MASK	0x80
-> +#define PAT9125_RESET_MASK		0x80
-
-BIT?
-
-> +
-> +/* Registers' values */
-> +#define PAT9125_SENSOR_ID_VAL			0x31
-> +#define PAT9125_DISABLE_WRITE_PROTECT_VAL	0x5A
-> +#define PAT9125_ENABLE_WRITE_PROTECT_VAL	0x00
-> +#define PAT9125_CPI_RESOLUTION_X_VAL		0x65
-> +#define PAT9125_CPI_RESOLUTION_Y_VAL		0xFF
-> +
-> +/* Default Value of sampled value size */
-> +#define PAT9125_SAMPLED_VAL_BIT_SIZE		12
-These defines actually mostly add to obscure what is going on.
-In my mind, the values themselves are clearer than the defines.
-
-> +#define PAT9125_SAMPLED_VAL_BYTE_SIZE		2	/* 12 bits by default */
-> +#define PAT9125_TIMESTAMP_BYTE_SIZE		8	/* 64 bits */
-> +#define PAT9125_PAYLOAD_BYTE_SIZE \
-> +	(2 * PAT9125_SAMPLED_VAL_BYTE_SIZE + PAT9125_TIMESTAMP_BYTE_SIZE)
-> +#define PAT9125_REALBITS_XY_VAL \
-> +	(2 * PAT9125_SAMPLED_VAL_BIT_SIZE)
-> +#define PAT9125_STORAGEBITS_XY_VAL \
-> +	(2 * PAT9125_SAMPLED_VAL_BYTE_SIZE)
-> +
-> +struct pat9125_data {
-> +	struct i2c_client *client;
-I think client is only used to get dev for debug message purposes.
-you can get that in a number of other ways including from the regmap.
-
-Hence drop client from this structure.
-
-> +	struct regmap *regmap;
-> +	s16 delta_x;
-> +	s16 delta_y;
+> +struct iio_input_map {
+> +	struct input_polled_dev *poll_dev;	/* the input device */
+> +	struct iio_channel channels[3];		/* x, y, z channels */
+> +	struct matrix {
+> +		int mxx, myx, mzx;	/* fixed point mount-matrix */
+> +		int mxy, myy, mzy;
+> +		int mxz, myz, mzz;
+> +	} matrix;
 > +};
 > +
-> +static const struct iio_event_spec pat9125_event =3D {
-> +	.type =3D IIO_EV_TYPE_THRESH,
-> +	.dir =3D IIO_EV_DIR_RISING,
-> +	.mask_separate =3D BIT(IIO_EV_INFO_VALUE),
-> +};
-> +
-> +static const struct iio_chan_spec pat9125_channels[] =3D {
-> +	{
-> +		.type =3D IIO_DISTANCE,
-> +		.modified =3D 1,
-> +		.channel2 =3D IIO_MOD_X_AND_Y,
-> +		.info_mask_separate =3D BIT(IIO_CHAN_INFO_RAW),
-> +		.address =3D 0,
-> +		.scan_index =3D 0,
-> +		.scan_type =3D {
-> +			.sign =3D 's',			\
-> +			.realbits =3D 24,			\
-That is not how mod_x_and_y is used.  It only exists for events, not
-to let you define your own version of channels with two elements.
-
-In IIO these are two separate channels and must be represented as
-such.
-
-There is another problem here, in what type of channel this actually
-is.  Now I may have the following wrong as the datasheet is less than
-super clear!.
-
-It's not outputting position at all, but rather a delta value from
-when it was either:
-1. last read? (not sure on this)
-2. last fired an interrupt?
-3. last took a sample? (fixed sampling frequency).=20
-
-If 1 or 2, I would suggest that you provide absolute position to
-Linux.  So add the value to a software counter and provide that.
-32 bits should be plenty of resolution for that.
-
-If 3, it's a velocity sensor so report it as velocity not position.
-
-If it is actually not possible to report the two channels separately
-then don't report them at all except via the buffered interface and
-set the available scan masks so that both are on.
-
-> +			.storagebits =3D 32,		\
-> +			.shift =3D 8,			\
-> +			.endianness =3D IIO_BE,		\
-> +		},
-> +		.event_spec =3D &pat9125_event,
-> +		.num_event_specs =3D 1,
-> +	},
-> +	IIO_CHAN_SOFT_TIMESTAMP(1),
-> +};
-> +
-> +static int pat9125_read_delta(struct pat9125_data *data)
+> +static inline struct iio_input_map *to_iio_input_map(
+> +		struct iio_channel *channel)
 > +{
-> +	struct regmap *regmap =3D data->regmap;
-> +	int status =3D 0;
-> +	int val_x =3D 0;
-> +	int val_y =3D 0;
-> +	int val_xy =3D 0;
-val_xy is a confusing name.  perhaps val_high_nibbles?
-
-> +	int r;
-ret, be consistent with naming.
-
+> +	return (struct iio_input_map *) channel->data;
+> +}
 > +
-> +	r =3D regmap_read(regmap, PAT9125_MOTION_STATUS_REG, &status);
-> +	if (r < 0)
-> +		return r;
+> +/* minimum and maximum range we want to report */
+> +#define ABSMAX_ACC_VAL		(512 - 1)
+> +#define ABSMIN_ACC_VAL		-(ABSMAX_ACC_VAL)
 > +
-> +	/* Check motion bit in bit7 */
-Why?  This is reading a value, if there is no motion, then is the
-right answer not to set it to such? i.e. 0.
-
-Also we carefully used a macro to hide the fact it is bit7 so don't put
-it in the comment ;)
-
-> +	if (status & PAT9125_VALID_MOTION_DATA_MASK) {
-> +		r =3D regmap_read(regmap, PAT9125_DELTA_X_LO_REG, &val_x);
-> +		if (r < 0)
-> +			return r;
-
-One thing that isn't clear from the datasheet I am looking at is whether th=
-is
-is potentially racey.  What stops an update whilst we are reading?
-
+> +/* scale processed iio values so that 1g maps to ABSMAX_ACC_VAL / 2 */
+> +#define SCALE			((100 * ABSMAX_ACC_VAL) / (2 * 981))
 > +
-> +		r =3D regmap_read(regmap, PAT9125_DELTA_Y_LO_REG, &val_y);
-> +		if (r < 0)
-> +			return r;
+> +/*
+> + * convert float string to scaled fixed point format, e.g.
+> + *   1		-> 1000		(value passed as unit)
+> + *   1.23	-> 1230
+> + *   0.1234	->  123
+> + *   -.01234	->  -12
+> + */
 > +
-> +		r =3D regmap_read(regmap, PAT9125_DELTA_XY_HI_REG, &val_xy);
-> +		if (r < 0)
-> +			return r;
+> +static int32_t atofix(const char *str, uint32_t unit)
+> +{
+> +	int32_t mantissa =3D 0;
+> +	bool sign =3D false;
+> +	bool decimal =3D false;
+> +	int32_t divisor =3D 1;
 > +
-> +		data->delta_x =3D val_x | ((val_xy << 4) & 0xF00);
-> +		data->delta_y =3D val_y | ((val_xy << 8) & 0xF00);
-> +
-> +		if (data->delta_x & 0x800)
-> +			data->delta_x |=3D 0xF000;
-This looks like sign extension to me.  We have standard functions for
-that.sign_extend32.  Note that it's actually cheaper to do a 32 bit sign ex=
-tend
-to 32 bits than it is to 16, then assign back to 16 if you want to.
-
-> +
-> +		if (data->delta_y & 0x800)
-> +			data->delta_y |=3D 0xF000;
+> +	if (*str =3D=3D '-')
+> +		sign =3D true, str++;
+> +	while (*str && divisor < unit) {
+> +		if (*str >=3D '0' && *str <=3D '9') {
+> +			mantissa =3D 10 * mantissa + (*str - '0');
+> +			if (decimal)
+> +				divisor *=3D 10;
+> +		} else if (*str =3D=3D '.')
+> +			decimal =3D true;
+> +		else
+> +			return 0;	/* error */
+> +		str++;
 > +	}
+> +
+> +	mantissa =3D (mantissa * unit) / divisor;
+> +	if (sign)
+> +		mantissa =3D -mantissa;
+> +
+> +	return mantissa;
+> +}
+> +
+> +static void iio_apply_matrix(struct matrix *m, int *in, int *out, uint32=
+_t unit)
+> +{
+> +	/* apply mount matrix */
+> +	out[0] =3D (m->mxx * in[0] + m->myx * in[1] + m->mzx * in[2]) / unit;
+> +	out[1] =3D (m->mxy * in[0] + m->myy * in[1] + m->mzy * in[2]) / unit;
+> +	out[2] =3D (m->mxz * in[0] + m->myz * in[1] + m->mzz * in[2]) / unit;
+> +}
+> +
+> +#define FIXED_POINT_UNIT	1000	/* seems reasonable for accelerometer inpu=
+t */
+> +
+> +static void iio_accel_poll(struct input_polled_dev *dev)
+> +{
+> +	struct iio_input_map *map =3D dev->private;
+> +	struct input_dev *input =3D dev->input;
+> +
+> +	int values[3];		/* values while processing */
+> +	int aligned_values[3];	/* mount matrix applied */
+> +
+> +	int cindex =3D 0;
+> +
+> +printk("%s: map=3D%px input=3D%px\n", __func__, map, input);
+Remember to tidy these debug statements up at some point.
+
+> +
+> +	while (cindex < ARRAY_SIZE(values)) {
+> +		struct iio_channel *channel =3D
+> +			&map->channels[cindex];
+> +		int val;
+> +		int ret;
+> +
+> +		if (!channel->indio_dev) {
+> +			values[cindex] =3D 0;
+> +			continue;
+> +		}
+> +
+> +		ret =3D iio_read_channel_raw(channel, &val);
+> +
+> +		if (ret < 0) {
+> +			pr_err("%s(): channel read error %d\n",
+> +				__func__, cindex);
+> +			return;
+> +		}
+> +
+> +		ret =3D iio_convert_raw_to_processed(channel, val,
+> +				 &values[cindex], SCALE);
+> +
+> +		if (ret < 0) {
+> +			pr_err("%s(): channel processing error\n",
+> +				__func__);
+> +			return;
+> +		}
+> +
+> +		cindex++;
+> +	}
+> +
+> +	iio_apply_matrix(&map->matrix, values, aligned_values, FIXED_POINT_UNIT=
+);
+> +
+> +	input_report_abs(input, ABS_X, aligned_values[0]);
+> +	input_report_abs(input, ABS_Y, aligned_values[1]);
+> +	input_report_abs(input, ABS_Z, aligned_values[2]);
+> +	input_sync(input);
+> +}
+> +
+> +static int dindex=3D0;	/* assign unique names to accel/input devices */
+Build something from the iio device IDA perhaps?  Those are unique
+as well.  Useful to know which one this is linked to.
+
+> +
+> +static int iio_input_register_accel_channel(struct iio_dev *indio_dev,
+> +		 const struct iio_chan_spec *chan)
+> +{ /* we found some accelerometer channel */
+> +	int ret;
+> +	int cindex;
+> +	struct iio_input_map *map =3D iio_device_get_drvdata(indio_dev);
+
+Don't do that.   That is in the domain of the device driver and so
+will sometimes already be in use.=20
+
+> +
+> +printk("%s: map=3D%px\n", __func__, map);
+> +
+> +	if (!map) {
+> +		struct input_polled_dev *poll_dev;
+> +		const struct iio_chan_spec_ext_info *ext_info;
+> +
+> +		map =3D devm_kzalloc(&indio_dev->dev, sizeof(struct iio_input_map), GF=
+P_KERNEL);
+> +		if (!map)
+> +			return -ENOMEM;
+> +
+> +		iio_device_set_drvdata(indio_dev, map);
+> +
+> +		poll_dev =3D devm_input_allocate_polled_device(&indio_dev->dev);
+> +		if (!poll_dev)
+> +			return -ENOMEM;
+> +
+> +		poll_dev->private =3D map;
+> +		poll_dev->poll =3D iio_accel_poll;
+> +		poll_dev->poll_interval =3D POLLING_MSEC;
+> +
+> +		poll_dev->input->name =3D kasprintf(GFP_KERNEL, "iio-bridge: %s",
+> +						    indio_dev->name);
+> +		poll_dev->input->phys =3D kasprintf(GFP_KERNEL, "accel/input%d",
+> +						    dindex++);
+> +
+> +// do we need something like this?
+> +//		poll_dev->input->id.bustype =3D BUS_IIO;
+> +//		poll_dev->input->id.vendor =3D 0x0001;
+> +//		poll_dev->input->id.product =3D 0x0001;
+> +//		poll_dev->input->id.version =3D 0x0001;
+> +
+> +		set_bit(INPUT_PROP_ACCELEROMETER, poll_dev->input->propbit);
+> +		poll_dev->input->evbit[0] =3D BIT_MASK(EV_ABS);
+> +		input_alloc_absinfo(poll_dev->input);
+> +		input_set_abs_params(poll_dev->input, ABS_X, ABSMIN_ACC_VAL,
+> +					ABSMAX_ACC_VAL, 0, 0);
+> +		input_set_abs_params(poll_dev->input, ABS_Y, ABSMIN_ACC_VAL,
+> +					ABSMAX_ACC_VAL, 0, 0);
+> +		input_set_abs_params(poll_dev->input, ABS_Z, ABSMIN_ACC_VAL,
+> +					ABSMAX_ACC_VAL, 0, 0);
+> +
+> +		map->poll_dev =3D poll_dev;
+> +
+> +		ret =3D input_register_polled_device(poll_dev);
+> +
+> +		if (ret < 0) {
+> +			kfree(poll_dev->input->name);
+> +			kfree(poll_dev->input->phys);
+> +			return ret;
+> +		}
+> +
+> +		/* assume all channels of a device share the same matrix */
+> +
+> +		ext_info =3D chan->ext_info;
+> +		for (; ext_info && ext_info->name; ext_info++) {
+> +			if (strcmp(ext_info->name, "mount_matrix") =3D=3D 0)
+> +				break;
+> +		}
+> +
+> +		if (ext_info && ext_info->name) {
+> +			/* matrix found */
+> +			uintptr_t priv =3D ext_info->private;
+> +			const struct iio_mount_matrix *mtx;
+> +
+> +			mtx =3D ((iio_get_mount_matrix_t *) priv)(indio_dev,
+> +								chan);
+> +
+> +			map->matrix.mxx =3D atofix(mtx->rotation[0], FIXED_POINT_UNIT);
+> +			map->matrix.myx =3D atofix(mtx->rotation[1], FIXED_POINT_UNIT);
+> +			map->matrix.mzx =3D atofix(mtx->rotation[2], FIXED_POINT_UNIT);
+> +			map->matrix.mxy =3D atofix(mtx->rotation[3], FIXED_POINT_UNIT);
+> +			map->matrix.myy =3D atofix(mtx->rotation[4], FIXED_POINT_UNIT);
+> +			map->matrix.mzy =3D atofix(mtx->rotation[5], FIXED_POINT_UNIT);
+> +			map->matrix.mxz =3D atofix(mtx->rotation[6], FIXED_POINT_UNIT);
+> +			map->matrix.myz =3D atofix(mtx->rotation[7], FIXED_POINT_UNIT);
+> +			map->matrix.mzz =3D atofix(mtx->rotation[8], FIXED_POINT_UNIT);
+> +		} else {
+> +			map->matrix.mxx =3D FIXED_POINT_UNIT;
+> +			map->matrix.myx =3D 0;
+> +			map->matrix.mzx =3D 0;
+> +			map->matrix.mxy =3D 0;
+> +			map->matrix.myy =3D FIXED_POINT_UNIT;
+> +			map->matrix.mzy =3D 0;
+> +			map->matrix.mxz =3D 0;
+> +			map->matrix.myz =3D 0;
+> +			map->matrix.mzz =3D FIXED_POINT_UNIT;
+> +		}
+> +	}
+> +
+> +// brauchen wir das noch? Oder nehmen wir einfach an dass es 3 Kan=C3=A4=
+le gibt?
+> +
+> +	/* find free channel within this device */
+> +
+> +	for (cindex =3D 0; cindex < ARRAY_SIZE(map->channels); cindex++) {
+> +		if (!map->channels[cindex].indio_dev)
+> +			break;
+> +	}
+> +
+> +	/* check if we already have collected enough channels */
+> +	if (cindex =3D=3D ARRAY_SIZE(map->channels))
+> +		return 0;	/* silently ignore */
+> +
+> +	map->channels[cindex].indio_dev =3D indio_dev;
+> +	map->channels[cindex].channel =3D chan;
+> +	map->channels[cindex].data =3D map;
 > +
 > +	return 0;
 > +}
 > +
-> +/**
-> + * pat9125_read_raw() - Sample and return the value(s)
-> + * function to the associated channel info enum.
-> + **/
-> +static int pat9125_read_raw(struct iio_dev *indio_dev,
-> +			    struct iio_chan_spec const *chan,
-> +			    int *val, int *val2, long mask)
+> +int iio_device_register_inputbridge(struct iio_dev *indio_dev)
 > +{
-> +	struct pat9125_data *data =3D iio_priv(indio_dev);
-> +	int ret;
+> +	int i;
 > +
-> +	switch (mask) {
-> +	case IIO_CHAN_INFO_RAW:
-> +		ret =3D pat9125_read_delta(data);
-> +		if (ret)
-> +			return ret;
+> +	for (i =3D 0; i < indio_dev->num_channels; i++) {
+> +		const struct iio_chan_spec *chan =3D
+> +				&indio_dev->channels[i];
 > +
-> +		*val =3D data->delta_x;
-> +		*val2 =3D data->delta_y;
+> +		if (chan->type =3D=3D IIO_ACCEL) {
+> +			int r =3D iio_input_register_accel_channel(indio_dev,
+> +								 chan);
+It would be cleaner (and safer) to go find all the necessary channels then
+set up the map in one go, rather that iterating and trying to build it
+in a sequential fashion.
 
-That's not how the IIO interface works.  You can't just push values
-into different fields.  These are two axis, and are independent.
-If you absolutely have to read them together then it must be done with
-the buffered interface and we simply don't provide a read raw interface at
-all.
+So move the search loop inside and have something like.
 
-> +		return IIO_VAL_INT;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	return -EINVAL;
-> +}
-> +
-> +/**
-> + * pat9125_read_event_value() - return last sampled value.
-> + **/
-> +static int pat9125_read_event_value(struct iio_dev *indio_dev,
-> +				    const struct iio_chan_spec *chan,
-> +				    enum iio_event_type type,
-> +				    enum iio_event_direction dir,
-> +				    enum iio_event_info info,
-> +				    int *val,
-> +				    int *val2)
-> +{
-> +	struct pat9125_data *data =3D iio_priv(indio_dev);
-> +
-> +	switch (info) {
-> +	case IIO_EV_INFO_VALUE:
-> +		val[0] =3D data->delta_x;
-> +		val[1] =3D data->delta_y;
-
-Silly question for you.  What happens if you set the delta values to 0?
-Do we get an interrupt which is effectively data ready?
-If we do, you might want to think about a scheme where that is an option.
-As things currently stand we have a confusing interface where changing this
-threshold effects the buffered data output.   That should only be the
-case if this interface is for a trigger, not an event.
-
-> +		*val2 =3D 2;
-> +		return IIO_VAL_INT_MULTIPLE;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +/**
-> + * pat9125_event_handler() - handling ring and non ring events
-> + * @irq: The irq being handled.
-> + * @private: struct iio_device pointer for the device.
-This blank line doesn't add anything to readability so tidy it up.
-> + *
-> + */
-> +static irqreturn_t pat9125_event_handler(int irq, void *private)
-> +{
-> +	struct iio_dev *indio_dev =3D private;
-> +	struct pat9125_data *data =3D iio_priv(indio_dev);
-> +	int ret =3D 0;
-
-ret is always set below, so don't initialise.
-
-> +	u8 *payload;
-> +	s64 last_timestamp =3D iio_get_time_ns(indio_dev);
-> +
-> +	payload =3D kmalloc(sizeof(s64) + 2 *
-> +		  PAT9125_SAMPLED_VAL_BYTE_SIZE, GFP_KERNEL);
-Why on the stack?  It's small and last thing you want to
-do is a memory allocation ever time.
-
-Also, you haven't allowed for the required alignment of the
-timestamp. This needs to be a multiple of 8 bytes.
+iio_input_find_accel_channel(indio_dev, chan, &numchans);
+iio_input_register_device(indio_dev, chan, numchans);
 =20
 > +
-> +	ret =3D pat9125_read_delta(data);
-> +	if (ret)
-> +		return ret;
-> +	memcpy(&payload[0], &data->delta_x, 2);
-
-Make payload and array of u16 and you can just assign directly.
-
-> +	memcpy(&payload[2], &data->delta_y, 2);
-> +
-> +	iio_push_to_buffers_with_timestamp(indio_dev, payload, last_timestamp);
-
-Hmm. This is not how IIO is normally used.  So the oddity here is the sensor
-only produces an interrupt on a change of value.
-
-So in IIO terms this would normally be considered a 'value change trigger'
-driving normal buffered sampling.  I think it is also perfectly valid
-if someone wants evenly spaced samples to read on demand?  If so
-then you definitely want to allow use of high resolution timer triggers
-and similar.=20
-
-So, create a trigger that is base don the 'event' - there are other drivers
-doing this.  It's possible that you might want that 'trigger' to also
-call the iio event interface, but usually only if there are usecases where
-knowing "motion happened" is useful rather than what the motion was.
-
-Then use the triggered_buffer helpers to set up all the data capture side
-of things.
-
-> +	iio_push_event(indio_dev,
-> +		       IIO_MOD_EVENT_CODE(IIO_DISTANCE,
-> +					  0,
-> +					  IIO_MOD_X_AND_Y,
-That one is wrong btw, surely it is IIO_MOD_X_OR_Y. You aren't
-triggering on motion in 'both X and Y' directions, motion in one
-of them is enough.
-
-> +					  IIO_EV_TYPE_THRESH,
-> +					  IIO_EV_DIR_RISING),
-> +		       last_timestamp);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int pat9125_configure_ring(struct iio_dev *indio_dev)
-> +{
-> +	struct iio_buffer *buffer;
-> +	struct pat9125_data *data =3D iio_priv(indio_dev);
-> +
-> +	buffer =3D devm_iio_kfifo_allocate(&data->client->dev);
-> +	if (!buffer)
-> +		return -ENOMEM;
-Hmm. Direct use of kfifo's is fairly unusual as it normally means there
-is something unusual about how the device is being mapped to the IIO
-elements.
-
-> +
-> +	iio_device_attach_buffer(indio_dev, buffer);
-> +	indio_dev->modes |=3D INDIO_BUFFER_SOFTWARE;
+> +			if (r < 0)
+> +				return r;
+> +		}
+> +	}
 > +
 > +	return 0;
 > +}
 > +
-> +static const struct regmap_config pat9125_regmap_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +};
-> +
-> +static const struct iio_info pat9125_info =3D {
-> +	.read_raw =3D pat9125_read_raw,
-> +	.read_event_value =3D &pat9125_read_event_value,
-> +};
-> +
-> +static int pat9125_probe(struct i2c_client *client,
-> +			 const struct i2c_device_id *id)
+> +void iio_device_unregister_inputbridge(struct iio_dev *indio_dev)
 > +{
-> +	struct pat9125_data *data;
-> +	struct iio_dev *indio_dev;
-> +	int r, sensor_pid;
+> +	struct iio_input_map *map =3D iio_device_get_drvdata(indio_dev);
+> +	struct input_dev *input =3D map->poll_dev->input;
 > +
-> +	indio_dev =3D devm_iio_device_alloc(&client->dev, sizeof(*data));
-> +	if (!indio_dev) {
-> +		dev_err(&client->dev, "IIO device allocation failed");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	data =3D iio_priv(indio_dev);
-> +	data->client =3D client;
-> +
-> +	indio_dev->dev.parent =3D &client->dev;
-> +	indio_dev->name =3D id->name;
-> +	indio_dev->channels =3D pat9125_channels;
-> +	indio_dev->num_channels =3D ARRAY_SIZE(pat9125_channels);
-> +	indio_dev->info =3D &pat9125_info;
-> +	indio_dev->modes =3D INDIO_DIRECT_MODE;
-> +
-> +	r =3D pat9125_configure_ring(indio_dev);
-
-I'd rename this, its a fifo, rather than a ring (it was a ring
-early in IIO's history so the naming still kicks around
-in a few drivers).
-
-> +	if (r < 0) {
-> +		dev_err(&client->dev, "FIFO buffer allocation failed");
-> +		return r;
-> +	}
-> +
-> +	data->regmap =3D devm_regmap_init_i2c(client, &pat9125_regmap_config);
-> +	if (IS_ERR(data->regmap)) {
-> +		dev_err(&client->dev,
-> +			"regmap init failed %ld",
-> +			PTR_ERR(data->regmap));
-
-This is wrapped onto more lines than necessary.  Kernel coding convention
-is to keep as many parameters on each line as fit under 80 chars.
-
-> +		return PTR_ERR(data->regmap);
-> +	}
-> +
-> +	/* Check device ID */
-> +	r =3D regmap_read(data->regmap, PAT9125_PRD_ID1_REG, &sensor_pid);
-> +	if (r < 0)
-> +		goto reg_access_fail;
-> +	if (sensor_pid !=3D PAT9125_SENSOR_ID_VAL)
-> +		return -ENODEV;
-> +
-> +	/* Software reset (i.e. set bit7 to 1).
-Multiline, comment style in most of the kernel, including IIO is
-/*
- * Soft reset...
- */
-
-> +	 * It will reset to 0 automatically
-> +	 */
-> +	r =3D regmap_write_bits(data->regmap,
-> +			      PAT9125_CONFIG_REG,
-> +			      PAT9125_RESET_MASK,
-> +			      1);
-> +	if (r < 0)
-> +		goto reg_access_fail;
-> +
-> +	/* Delay 20ms */
-> +	msleep(20);
-> +
-> +	/* Disable write protect */
-Don't add comments for things that are obvious from the code.
-(i.e. the sleep above and this one).
-
-> +	r =3D regmap_write(data->regmap,
-> +			 PAT9125_WRITE_PROTEC_REG,
-> +			 PAT9125_DISABLE_WRITE_PROTECT_VAL);
-> +	if (r < 0)
-> +		goto reg_access_fail;
-> +
-> +	/* Set X-axis resolution (depends on application) */
-> +	r =3D regmap_write(data->regmap,
-> +			 PAT9125_RES_X_REG,
-> +			 0x0A);
-
-Need to control this from somewhere. Device tree binding perhaps?
-
-> +	if (r < 0)
-> +		goto reg_access_fail;
-> +
-> +	/* Set Y-axis resolution (depends on application) */
-> +	r =3D regmap_write(data->regmap,
-> +			 PAT9125_RES_Y_REG,
-> +			 0x0A);
-> +	if (r < 0)
-> +		goto reg_access_fail;
-> +
-> +	/* Enable write protection */
-> +	r =3D regmap_write(data->regmap,
-> +			 PAT9125_WRITE_PROTEC_REG,
-> +			 PAT9125_ENABLE_WRITE_PROTECT_VAL);
-> +	if (r < 0)
-> +		goto reg_access_fail;
-> +
-> +	r =3D devm_iio_device_register(&client->dev, indio_dev);
-> +	if (r) {
-> +		dev_err(&client->dev, "IIO device register failed");
-> +		return r;
-> +	}
-> +
-> +	i2c_set_clientdata(client, indio_dev);
-> +
-> +	dev_info(&client->dev, "%s: sensor '%s'\n",
-> +		 dev_name(&indio_dev->dev),
-> +		 client->name);
-> +
-> +	/* Make read to reset motion bit status */
-> +	r =3D pat9125_read_delta(data);
-> +	if (r)
-> +		goto reg_access_fail;
-> +
-> +	/* Init GPIO IRQ */
-> +	if (client->irq) {
-> +		r =3D devm_request_threaded_irq(&client->dev,
-> +					      client->irq,
-> +					      NULL,
-> +					      pat9125_event_handler,
-> +					      IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +					      "pat9125",
-> +					      indio_dev);
-> +		if (r)
-> +			return r;
-> +	}
-> +	return 0;
-> +
-> +reg_access_fail:
-This just makes the code flow harder to follow.  If you want to add
-the print out, just replicate it, with information for example on=20
-which register access failed.
-
-Only do goto, return paths if there is actual code to run.
-
-> +	dev_err(&client->dev, "register access failed %d", r);
-> +	return r;
+> +	kfree(input->name);
+> +	kfree(input->phys);
+> +	input_unregister_polled_device(map->poll_dev);
 > +}
 > +
-> +static int pat9125_remove(struct i2c_client *client)
-> +{
-> +	dev_info(&client->dev, "PAT9125 removed\n");
+> +MODULE_AUTHOR("H. Nikolaus Schaller <hns@goldelico.com>");
+> +MODULE_DESCRIPTION("Bridge to present Industrial I/O accelerometers as p=
+roperly oriented Input devices");
+> +MODULE_LICENSE("GPL v2");
+> diff --git a/drivers/iio/industrialio-inputbridge.h b/drivers/iio/industr=
+ialio-inputbridge.h
+> new file mode 100644
+> index 000000000000..1363b10ab3f7
+> --- /dev/null
+> +++ b/drivers/iio/industrialio-inputbridge.h
+> @@ -0,0 +1,28 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * The Industrial I/O core, bridge to input devices
+> + *
+> + * Copyright (c) 2016-2019 Golden Delicious Computers GmbH&Co. KG
+> + *
+> + * This program is free software; you can redistribute it and/or modify =
+it
+> + * under the terms of the GNU General Public License version 2 as publis=
+hed by
+> + * the Free Software Foundation.
+> + */
 > +
+> +#if defined(CONFIG_IIO_INPUT_BRIDGE)
+> +
+> +extern int iio_device_register_inputbridge(struct iio_dev *indio_dev);
+> +extern void iio_device_unregister_inputbridge(struct iio_dev *indio_dev);
+> +
+> +#else
+> +
+> +static inline int iio_device_register_inputbridge(struct iio_dev *indio_=
+dev)
+> +{
 > +	return 0;
 > +}
 > +
-> +static const struct i2c_device_id pat9125_id[] =3D {
-> +	{ "pat9125", 0 },
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(i2c, pat9125_id);
+> +static inline void iio_device_unregister_inputbridge(struct iio_dev *ind=
+io_dev)
+> +{
+> +}
 > +
-> +static const unsigned short normal_i2c[] =3D {
-> +	PAT9125_I2C_ADDR_HI,
-> +	PAT9125_I2C_ADDR_LO,
-> +	PAT9125_I2C_ADDR_NC,
-> +	I2C_CLIENT_END
-> +};
-> +
-> +static struct i2c_driver pat9125_driver =3D {
-> +	.driver =3D {
-> +		.name =3D "pat9125",
-> +	},
-> +	.probe =3D pat9125_probe,
-> +	.remove =3D pat9125_remove,
-> +	.address_list =3D normal_i2c,
-> +	.id_table =3D pat9125_id,
-> +};
-> +
-> +module_i2c_driver(pat9125_driver);
-> +
-> +MODULE_AUTHOR("Alexandre Mergnat <amergnat@baylibre.com>");
-> +MODULE_DESCRIPTION("Optical Tracking sensor");
-> +MODULE_LICENSE("GPL");
-> +
-Clean up this blank line.
-
-Thanks,
-
-Jonathan
+> +#endif

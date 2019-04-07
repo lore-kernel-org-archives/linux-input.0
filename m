@@ -1,144 +1,56 @@
-From: "Life is hard, and then you die" <ronald@innovation.ch>
-Subject: Re: [PATCH v3 3/4] driver core: add dev_print_hex_dump() logging
- function.
-Date: Sat, 6 Apr 2019 18:46:13 -0700
-Message-ID: <20190407014613.GA14812@innovation.ch>
-References: <20190327014807.7472-1-ronald@innovation.ch>
- <20190327014807.7472-4-ronald@innovation.ch>
- <20190327023757.GB20766@kroah.com>
- <20190328002817.GF24753@innovation.ch>
- <20190328052917.GB18668@kroah.com>
- <20190328102755.GA26446@innovation.ch>
- <20190328112952.GA2232@kroah.com>
- <20190402024714.GA14213@innovation.ch>
- <20190402063326.GB7218@kroah.com>
+From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
+Subject: [PATCH v4 0/2] Add Apple SPI keyboard and trackpad driver
+Date: Sat,  6 Apr 2019 22:03:56 -0700
+Message-ID: <20190407050358.2976-1-ronald@innovation.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190402063326.GB7218@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+This changeset adds a driver for the SPI keyboard and trackpad on recent
+MacBook's and MacBook Pro's. The driver has seen a fair amount of use
+over the last 2 years (basically anybody running linux on these
+machines), with only relatively small changes in the last year or so.
+For those interested, the driver development has been hosted at
+https://github.com/cb22/macbook12-spi-driver/ (as well as my clone at
+https://github.com/roadrunner2/macbook12-spi-driver/).
 
-> On Mon, Apr 01, 2019 at 07:47:14PM -0700, Life is hard, and then you die wrote:
-> > 
-> > On Thu, Mar 28, 2019 at 12:29:52PM +0100, Greg Kroah-Hartman wrote:
-> > > On Thu, Mar 28, 2019 at 03:27:55AM -0700, Life is hard, and then you die wrote:
-> > > > 
-> > > > On Thu, Mar 28, 2019 at 06:29:17AM +0100, Greg Kroah-Hartman wrote:
-> > > > > On Wed, Mar 27, 2019 at 05:28:17PM -0700, Life is hard, and then you die wrote:
-> > > > > > 
-> > > > > > On Wed, Mar 27, 2019 at 11:37:57AM +0900, Greg Kroah-Hartman wrote:
-> > > > > > > On Tue, Mar 26, 2019 at 06:48:06PM -0700, Ronald Tschalär wrote:
-> > > > > > > > This is the dev_xxx() analog to print_hex_dump(), using dev_printk()
-> > > > > > > > instead of straight printk() to match other dev_xxx() logging functions.
-> > > > > > > > ---
-> > > > > > > >  drivers/base/core.c    | 43 ++++++++++++++++++++++++++++++++++++++++++
-> > > > > > > >  include/linux/device.h | 15 +++++++++++++++
-> > > > > > > >  2 files changed, 58 insertions(+)
-> > [snip]
-> > > > > > > Anyway, no, please do not do this.  Please do not dump large hex values
-> > > > > > > like this to the kernel log, it does not help anyone.
-> > > > > > > 
-> > > > > > > You can do this while debugging, sure, but not for "real" kernel code.
-> > > > > > 
-> > > > > > As used by this driver, it is definitely called for debugging only and
-> > > > > > must be explicitly enabled via a module param. But having the ability
-> > > > > > for folks to easily generate and print out debugging info has proven
-> > > > > > quite valuable.
-> > > > > 
-> > > > > We have dynamic debugging, no need for module parameters at all.  This
-> > > > > isn't the 1990's anymore :)
-> > > > 
-> > > > I am aware of dynamic debugging, but there are several issues with it
-> > > > from the perspective of the logging I'm doing here (I mentioned these
-> > > > in response to an earlier review already):
-> > > > 
-> > > >   1. Dynamic debugging can't be enabled at a function or line level on
-> > > >      the kernel command line, so this means that to debug issues
-> > > >      during boot you have to enable everything, which can be way too
-> > > >      verbose
-> > > 
-> > > You can, and should enable it at a function or line level by writing to
-> > > the proper kernel file in debugfs.
-> > > 
-> > > You have read Documentation/admin-guide/dynamic-debug-howto.rst, right?
-> > 
-> > Yes, and I've played with the parameters quite a bit.
-> > 
-> > > No need to do anything on the command line, that's so old-school :)
-> > 
-> > Sorry if I'm being unduly dense, but then how to enable debugging
-> > during early boot? The only other alternative I see is modifying the
-> > initrd, and asking folks to do that is noticeably more complicated
-> > than having them add something to the command line in grub. So from my
-> > perspective I find kernel params far from old-school :-)
-> 
-> You can do dynamic debugging from the kernel command line, if your code
-> is built into the kernel (but why would a tiny driver under testing like
-> this, not be built into the kernel?) what specifically did not work for you?
+The first patch fixes a problem during config and is provided for
+anybody wanting to compile the driver while it's being reviewed here.
+The patch is the latest version that has been submitted for review
+at dri-devel; the intent is to get an Ack and permission to merge it
+through the input subsystem tree here as part of this patch series.
 
-This may be part of our disconnect: there's almost no reason (and
-several downsides) to building it into the kernel instead of as a
-module:
+The second patch contains the new applespi driver.
 
-- When developing, being able to just reload the module instead of
-  rebooting is just so much faster and more convenient.
+Changes in v4:
+  Applied all feedback from review by Andy Shevchenko and Greg
+  Kroah-Hartman, including:
+  - minor include path fix
+  - moved debug logging to debugfs and tracepoints
+  The full set of changes to applespi can be viewed at
+  https://github.com/roadrunner2/macbook12-spi-driver/ as individual
+  commits 3a6262e..daf60f8 in the upstreaming-review branch.
 
-- For other users, having them build the driver as a dkms managed
-  module is also by far the simplest and least error-prone approach -
-  explaning to users how to rebuild their kernel (something most of
-  them have never done) takes a bunch of time and effort on both
-  sides for essentially no gain.
+Ronald TschalÃ¤r (2):
+  drm/bridge: sil_sii8620: make remote control optional.
+  Input: add Apple SPI keyboard and trackpad driver.
 
-- Once the driver is part of the regular kernel, practically all
-  distro's will build it as a module (at least I'm fairly certain
-  about this).
+ drivers/gpu/drm/bridge/Kconfig          |    3 +-
+ drivers/gpu/drm/bridge/sil-sii8620.c    |   21 +
+ drivers/input/keyboard/Kconfig          |   15 +
+ drivers/input/keyboard/Makefile         |    1 +
+ drivers/input/keyboard/applespi.c       | 1999 +++++++++++++++++++++++
+ drivers/input/keyboard/applespi.h       |   29 +
+ drivers/input/keyboard/applespi_trace.h |   94 ++
+ 7 files changed, 2160 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/input/keyboard/applespi.c
+ create mode 100644 drivers/input/keyboard/applespi.h
+ create mode 100644 drivers/input/keyboard/applespi_trace.h
 
-In the case where a problem happens during early boot, if I can
-reproduce myself then of course I can build the driver into the kernel
-and debug it; but if I need others to test/debug things, then this is
-a much harder sell.
-
-In my experience, every time you make something even a little harder
-for a user to do, the chance of them doing it and you getting useful
-feedback goes down exponentially and the amount of work you need to do
-to handhold them goes up significantly. So I think it's absolutely
-vital to try and keep things as simple as possible.
-
-> > > >   2. The expressions to enable the individual logging statements are
-> > > >      quite brittle (in particular the line-based ones) since they
-> > > >      (may) change any time the code is changed - having stable
-> > > >      commands to give to users and put in documentation (e.g.
-> > > >      "echo 0x200 > /sys/module/applespi/parameters/debug") is
-> > > >      quite valuable.
-> > > > 
-> > > >      One way to work around this would be to put every single logging
-> > > >      statement in a function of its own, thereby ensuring a stable
-> > > >      name is associated with each one.
-> > > 
-> > > Again, read the documentation, this works today as-is.
-> > 
-> > I have read it (we're talking about the dynamic debug docs here), but
-> > I just don't see how it addresses this in any way.
-> 
-> You can enable/disable logging per-function, which is what you want,
-> right?
-
-Yes'ish: the problem is that if they are just part of regular
-functions, A) the chances are higher that the function may get renamed
-and hence any existing debug instructions broken, and B) this doesn't
-work if there are multiple debug statements in a function. Hence my
-assertion that for this work well (and yes, it can work well) you
-basically need to create a separate function for each debug statement
-(which that contains just that debug statement) (a sort of stable
-labelling of each debug statement).
-
-
-  Cheers,
-
-  Ronald
+-- 
+2.20.1

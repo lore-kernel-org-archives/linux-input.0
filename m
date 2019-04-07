@@ -1,53 +1,67 @@
-From: Luca Weiss <luca@z3ntu.xyz>
-Subject: [PATCH v2 1/3] dt-bindings: input: add GPIO controllable vibrator
-Date: Sun,  7 Apr 2019 17:58:40 +0200
-Message-ID: <20190407155841.27354-1-luca@z3ntu.xyz>
+From: Lyude Paul <lyude@redhat.com>
+Subject: [PATCH] Input: i8042 - disable KBD port on Late-2016 Razer Blade Stealth
+Date: Sun,  7 Apr 2019 17:37:34 -0400
+Message-ID: <20190407213735.10658-1-lyude@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pascal PAILLET-LME <p.paillet@st.com>, Coly Li <colyli@suse.de>, Lee Jones <lee.jones@linaro.org>, Xiaotong Lu <xiaotong.lu@spreadtrum.com>, Brian Masney <masneyb@onstation.org>, Rob Herring <robh@kernel.org>, Baolin Wang <baolin.wang@linaro.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, "open list:ARM/QUALCOMM SUPPORT" <linux-arm-msm@vger.kernel.org>, "open list:INPUT KEYBOARD, MOUSE, JOYSTICK
-        , TOUCHSCREEN..." <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, ope <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Provide a simple driver for GPIO controllable vibrators.
-It will be used by the Fairphone 2.
+The late 2016 model of the Razer Blade Stealth has a built-in USB
+keyboard, but for some reason the BIOS exposes an i8042 controller with
+a connected KBD port. While this fake AT Keyboard device doesn't appear
+to report any events, attempting to change the state of the caps lock
+LED on it from on to off causes the entire system to hang.
 
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+So, introduce a quirk table for disabling keyboard probing by default,
+i8042_dmi_nokbd_table, and add this specific model of Razer laptop to
+that table.
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org
 ---
-Changes from v1:
-- Mark vcc-supply as optional
+ drivers/input/serio/i8042-x86ia64io.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
- .../bindings/input/gpio-vibrator.txt          | 20 +++++++++++++++++++
- 1 file changed, 20 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/gpio-vibrator.txt
-
-diff --git a/Documentation/devicetree/bindings/input/gpio-vibrator.txt b/Documentation/devicetree/bindings/input/gpio-vibrator.txt
-new file mode 100644
-index 000000000000..93e5a8e7622d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/gpio-vibrator.txt
-@@ -0,0 +1,20 @@
-+* GPIO vibrator device tree bindings
-+
-+Registers a GPIO device as vibrator, where the vibration motor just has the
-+capability to turn on or off. If the device is connected to a pwm, you should
-+use the pwm-vibrator driver instead.
-+
-+Required properties:
-+- compatible: should contain "gpio-vibrator"
-+- enable-gpios: Should contain a GPIO handle
-+
-+Optional properties:
-+- vcc-supply: Phandle for the regulator supplying power
-+
-+Example from Fairphone 2:
-+
-+vibrator {
-+	compatible = "gpio-vibrator";
-+	enable-gpios = <&msmgpio 86 GPIO_ACTIVE_HIGH>;
-+	vcc-supply = <&pm8941_l18>;
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 136f6e7bf797..888f5f6feebf 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -884,6 +884,22 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
+ 	{ }
+ };
+ 
++static const struct dmi_system_id i8042_dmi_nokbd_table[] __initconst = {
++	{
++		/*
++		 * Razer Blade Stealth (Late 2016 model) - Keyboard is on USB
++		 * but the system exposes a fake AT keyboard that crashes the
++		 * system if the caps lock LED is changed
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Razer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Blade Stealth"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "2.04"),
++		},
++	},
++	{ }
 +};
++
+ #endif /* CONFIG_X86 */
+ 
+ #ifdef CONFIG_PNP
+@@ -1040,6 +1056,9 @@ static int __init i8042_pnp_init(void)
+ #ifdef CONFIG_X86
+ 	if (dmi_check_system(i8042_dmi_nopnp_table))
+ 		i8042_nopnp = true;
++
++	if (dmi_check_system(i8042_dmi_nokbd_table))
++		i8042_nokbd = true;
+ #endif
+ 
+ 	if (i8042_nopnp) {
 -- 
-2.21.0
+2.20.1

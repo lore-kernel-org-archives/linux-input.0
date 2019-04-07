@@ -1,151 +1,144 @@
-From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-Subject: [PATCH v3] drm/bridge: sil_sii8620: make remote control optional.
-Date: Sat,  6 Apr 2019 18:30:01 -0700
-Message-ID: <20190407013001.25598-1-ronald@innovation.ch>
-References: <20190125013355.GA6722@innovation.ch>
+From: "Life is hard, and then you die" <ronald@innovation.ch>
+Subject: Re: [PATCH v3 3/4] driver core: add dev_print_hex_dump() logging
+ function.
+Date: Sat, 6 Apr 2019 18:46:13 -0700
+Message-ID: <20190407014613.GA14812@innovation.ch>
+References: <20190327014807.7472-1-ronald@innovation.ch>
+ <20190327014807.7472-4-ronald@innovation.ch>
+ <20190327023757.GB20766@kroah.com>
+ <20190328002817.GF24753@innovation.ch>
+ <20190328052917.GB18668@kroah.com>
+ <20190328102755.GA26446@innovation.ch>
+ <20190328112952.GA2232@kroah.com>
+ <20190402024714.GA14213@innovation.ch>
+ <20190402063326.GB7218@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190125013355.GA6722@innovation.ch>
+Content-Disposition: inline
+In-Reply-To: <20190402063326.GB7218@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lukas Wunner <lukas@wunner.de>, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-commit d6abe6df706c (drm/bridge: sil_sii8620: do not have a dependency
-of RC_CORE) changed the driver to select both RC_CORE and INPUT.
-However, this causes problems with other drivers, in particular an input
-driver that depends on MFD_INTEL_LPSS_PCI (to be added in a separate
-commit):
 
-  drivers/clk/Kconfig:9:error: recursive dependency detected!
-  drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
-  drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
-  drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
-  drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
-  drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
-  drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
-  drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
-  drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
+> On Mon, Apr 01, 2019 at 07:47:14PM -0700, Life is hard, and then you die wrote:
+> > 
+> > On Thu, Mar 28, 2019 at 12:29:52PM +0100, Greg Kroah-Hartman wrote:
+> > > On Thu, Mar 28, 2019 at 03:27:55AM -0700, Life is hard, and then you die wrote:
+> > > > 
+> > > > On Thu, Mar 28, 2019 at 06:29:17AM +0100, Greg Kroah-Hartman wrote:
+> > > > > On Wed, Mar 27, 2019 at 05:28:17PM -0700, Life is hard, and then you die wrote:
+> > > > > > 
+> > > > > > On Wed, Mar 27, 2019 at 11:37:57AM +0900, Greg Kroah-Hartman wrote:
+> > > > > > > On Tue, Mar 26, 2019 at 06:48:06PM -0700, Ronald Tschal‰r wrote:
+> > > > > > > > This is the dev_xxx() analog to print_hex_dump(), using dev_printk()
+> > > > > > > > instead of straight printk() to match other dev_xxx() logging functions.
+> > > > > > > > ---
+> > > > > > > >  drivers/base/core.c    | 43 ++++++++++++++++++++++++++++++++++++++++++
+> > > > > > > >  include/linux/device.h | 15 +++++++++++++++
+> > > > > > > >  2 files changed, 58 insertions(+)
+> > [snip]
+> > > > > > > Anyway, no, please do not do this.  Please do not dump large hex values
+> > > > > > > like this to the kernel log, it does not help anyone.
+> > > > > > > 
+> > > > > > > You can do this while debugging, sure, but not for "real" kernel code.
+> > > > > > 
+> > > > > > As used by this driver, it is definitely called for debugging only and
+> > > > > > must be explicitly enabled via a module param. But having the ability
+> > > > > > for folks to easily generate and print out debugging info has proven
+> > > > > > quite valuable.
+> > > > > 
+> > > > > We have dynamic debugging, no need for module parameters at all.  This
+> > > > > isn't the 1990's anymore :)
+> > > > 
+> > > > I am aware of dynamic debugging, but there are several issues with it
+> > > > from the perspective of the logging I'm doing here (I mentioned these
+> > > > in response to an earlier review already):
+> > > > 
+> > > >   1. Dynamic debugging can't be enabled at a function or line level on
+> > > >      the kernel command line, so this means that to debug issues
+> > > >      during boot you have to enable everything, which can be way too
+> > > >      verbose
+> > > 
+> > > You can, and should enable it at a function or line level by writing to
+> > > the proper kernel file in debugfs.
+> > > 
+> > > You have read Documentation/admin-guide/dynamic-debug-howto.rst, right?
+> > 
+> > Yes, and I've played with the parameters quite a bit.
+> > 
+> > > No need to do anything on the command line, that's so old-school :)
+> > 
+> > Sorry if I'm being unduly dense, but then how to enable debugging
+> > during early boot? The only other alternative I see is modifying the
+> > initrd, and asking folks to do that is noticeably more complicated
+> > than having them add something to the command line in grub. So from my
+> > perspective I find kernel params far from old-school :-)
+> 
+> You can do dynamic debugging from the kernel command line, if your code
+> is built into the kernel (but why would a tiny driver under testing like
+> this, not be built into the kernel?) what specifically did not work for you?
 
-According to the docs and general consensus, select should only be used
-for non user-visible symbols, but both RC_CORE and INPUT are
-user-visible. Furthermore almost all other references to INPUT
-throughout the kernel config are depends, not selects. For this reason
-the first part of this change reverts commit d6abe6df706c.
+This may be part of our disconnect: there's almost no reason (and
+several downsides) to building it into the kernel instead of as a
+module:
 
-In order to address the original reason for commit d6abe6df706c, namely
-that not all boards use the remote controller functionality and hence
-should not need have to deal with RC_CORE, the second part of this
-change now makes the remote control support in the driver optional and
-contingent on RC_CORE being defined. And with this the hard dependency
-on INPUT also goes away as that is only needed if RC_CORE is defined
-(which in turn already depends on INPUT).
+- When developing, being able to just reload the module instead of
+  rebooting is just so much faster and more convenient.
 
-CC: Inki Dae <inki.dae@samsung.com>
-CC: Andrzej Hajda <a.hajda@samsung.com>
-CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Ronald Tschal√§r <ronald@innovation.ch>
----
-Changes in v3, from review by Andrzej Hajda:
- - imply RC_CORE in Kconfig to avoid the possibility of sii8620 being
-   built-in but rc-core being a module
- - completely stub out sii8620_detach() to make it consistent with the
-   approach taken for the other rc-related functions
+- For other users, having them build the driver as a dkms managed
+  module is also by far the simplest and least error-prone approach -
+  explaning to users how to rebuild their kernel (something most of
+  them have never done) takes a bunch of time and effort on both
+  sides for essentially no gain.
 
- drivers/gpu/drm/bridge/Kconfig       |  3 +--
- drivers/gpu/drm/bridge/sil-sii8620.c | 21 +++++++++++++++++++++
- 2 files changed, 22 insertions(+), 2 deletions(-)
+- Once the driver is part of the regular kernel, practically all
+  distro's will build it as a module (at least I'm fairly certain
+  about this).
 
-diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-index 8840f396a7b6..298189067929 100644
---- a/drivers/gpu/drm/bridge/Kconfig
-+++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -86,8 +86,7 @@ config DRM_SIL_SII8620
- 	depends on OF
- 	select DRM_KMS_HELPER
- 	imply EXTCON
--	select INPUT
--	select RC_CORE
-+	imply RC_CORE
- 	help
- 	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
- 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index 0cc293a6ac24..9cac00579414 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -66,7 +66,9 @@ enum sii8620_mt_state {
- struct sii8620 {
- 	struct drm_bridge bridge;
- 	struct device *dev;
-+#if IS_ENABLED(CONFIG_RC_CORE)
- 	struct rc_dev *rc_dev;
-+#endif
- 	struct clk *clk_xtal;
- 	struct gpio_desc *gpio_reset;
- 	struct gpio_desc *gpio_int;
-@@ -1756,6 +1758,7 @@ static void sii8620_send_features(struct sii8620 *ctx)
- 	sii8620_write_buf(ctx, REG_MDT_XMIT_WRITE_PORT, buf, ARRAY_SIZE(buf));
- }
- 
-+#if IS_ENABLED(CONFIG_RC_CORE)
- static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
- {
- 	bool pressed = !(scancode & MHL_RCP_KEY_RELEASED_MASK);
-@@ -1774,6 +1777,12 @@ static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
- 
- 	return true;
- }
-+#else
-+static bool sii8620_rcp_consume(struct sii8620 *ctx, u8 scancode)
-+{
-+	return false;
-+}
-+#endif
- 
- static void sii8620_msc_mr_set_int(struct sii8620 *ctx)
- {
-@@ -2097,6 +2106,7 @@ static void sii8620_cable_in(struct sii8620 *ctx)
- 	enable_irq(to_i2c_client(ctx->dev)->irq);
- }
- 
-+#if IS_ENABLED(CONFIG_RC_CORE)
- static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
- {
- 	struct rc_dev *rc_dev;
-@@ -2126,6 +2136,11 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
- 	}
- 	ctx->rc_dev = rc_dev;
- }
-+#else
-+static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
-+{
-+}
-+#endif
- 
- static void sii8620_cable_out(struct sii8620 *ctx)
- {
-@@ -2212,12 +2227,18 @@ static int sii8620_attach(struct drm_bridge *bridge)
- 	return sii8620_clear_error(ctx);
- }
- 
-+#if IS_ENABLED(CONFIG_RC_CORE)
- static void sii8620_detach(struct drm_bridge *bridge)
- {
- 	struct sii8620 *ctx = bridge_to_sii8620(bridge);
- 
- 	rc_unregister_device(ctx->rc_dev);
- }
-+#else
-+static void sii8620_detach(struct drm_bridge *bridge)
-+{
-+}
-+#endif
- 
- static int sii8620_is_packing_required(struct sii8620 *ctx,
- 				       const struct drm_display_mode *mode)
--- 
-2.20.1
+In the case where a problem happens during early boot, if I can
+reproduce myself then of course I can build the driver into the kernel
+and debug it; but if I need others to test/debug things, then this is
+a much harder sell.
+
+In my experience, every time you make something even a little harder
+for a user to do, the chance of them doing it and you getting useful
+feedback goes down exponentially and the amount of work you need to do
+to handhold them goes up significantly. So I think it's absolutely
+vital to try and keep things as simple as possible.
+
+> > > >   2. The expressions to enable the individual logging statements are
+> > > >      quite brittle (in particular the line-based ones) since they
+> > > >      (may) change any time the code is changed - having stable
+> > > >      commands to give to users and put in documentation (e.g.
+> > > >      "echo 0x200 > /sys/module/applespi/parameters/debug") is
+> > > >      quite valuable.
+> > > > 
+> > > >      One way to work around this would be to put every single logging
+> > > >      statement in a function of its own, thereby ensuring a stable
+> > > >      name is associated with each one.
+> > > 
+> > > Again, read the documentation, this works today as-is.
+> > 
+> > I have read it (we're talking about the dynamic debug docs here), but
+> > I just don't see how it addresses this in any way.
+> 
+> You can enable/disable logging per-function, which is what you want,
+> right?
+
+Yes'ish: the problem is that if they are just part of regular
+functions, A) the chances are higher that the function may get renamed
+and hence any existing debug instructions broken, and B) this doesn't
+work if there are multiple debug statements in a function. Hence my
+assertion that for this work well (and yes, it can work well) you
+basically need to create a separate function for each debug statement
+(which that contains just that debug statement) (a sort of stable
+labelling of each debug statement).
+
+
+  Cheers,
+
+  Ronald

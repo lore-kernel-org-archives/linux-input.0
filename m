@@ -1,51 +1,51 @@
 From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Subject: [PATCH 0/6] Use MFD framework for SGI IOC3 drivers
-Date: Mon,  8 Apr 2019 16:20:52 +0200
-Message-ID: <20190408142100.27618-1-tbogendoerfer@suse.de>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
+Subject: [PATCH 1/6] MIPS: SGI-IP27: remove ioc3 ethernet init
+Date: Mon,  8 Apr 2019 16:20:53 +0200
+Message-ID: <20190408142100.27618-2-tbogendoerfer@suse.de>
+References: <20190408142100.27618-1-tbogendoerfer@suse.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190408142100.27618-1-tbogendoerfer@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-SGI IOC3 ASIC includes support for ethernet, PS2 keyboard/mouse,
-NIC (number in a can), GPIO and a byte  bus. By attaching a
-SuperIO chip to it, it also supports serial lines and a parallel
-port. The chip is used on a variety of SGI systems with different
-configurations. This patchset moves code out of the network driver,
-which doesn't belong there, into its new place a MFD driver and
-specific platform drivers for the different subfunctions.
+Removed not needed disabling of ethernet interrupts in IP27 platform code.
 
-Thomas Bogendoerfer (6):
-  MIPS: SGI-IP27: remove ioc3 ethernet init
-  MIPS: SGI-IP27: remove setup of RTC platform device
-  mfd: ioc3: Add driver for SGI IOC3 chip
-  MIPS: SGI-IP27: fix readb/writeb addressing
-  tty: serial: Add 8250-core base IOC3 driver
-  Input: add IOC3 serio driver
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+---
+ arch/mips/sgi-ip27/ip27-init.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
- arch/mips/include/asm/mach-ip27/mangle-port.h |    2 +-
- arch/mips/include/asm/sn/ioc3.h               |  350 ++---
- arch/mips/sgi-ip27/ip27-console.c             |    5 +-
- arch/mips/sgi-ip27/ip27-init.c                |   13 -
- arch/mips/sgi-ip27/ip27-timer.c               |   20 -
- drivers/input/serio/Kconfig                   |   12 +
- drivers/input/serio/Makefile                  |    1 +
- drivers/input/serio/ioc3kbd.c                 |  183 +++
- drivers/mfd/Kconfig                           |   13 +
- drivers/mfd/Makefile                          |    1 +
- drivers/mfd/ioc3.c                            |  802 +++++++++++
- drivers/net/ethernet/sgi/Kconfig              |    4 +-
- drivers/net/ethernet/sgi/ioc3-eth.c           | 1869 +++++++++----------------
- drivers/rtc/rtc-m48t35.c                      |   11 +
- drivers/tty/serial/8250/8250_ioc3.c           |   98 ++
- drivers/tty/serial/8250/Kconfig               |   11 +
- drivers/tty/serial/8250/Makefile              |    1 +
- include/linux/platform_data/ioc3eth.h         |   15 +
- 18 files changed, 1974 insertions(+), 1437 deletions(-)
- create mode 100644 drivers/input/serio/ioc3kbd.c
- create mode 100644 drivers/mfd/ioc3.c
- create mode 100644 drivers/tty/serial/8250/8250_ioc3.c
- create mode 100644 include/linux/platform_data/ioc3eth.h
-
+diff --git a/arch/mips/sgi-ip27/ip27-init.c b/arch/mips/sgi-ip27/ip27-init.c
+index 066b33f50bcc..59d5375c9021 100644
+--- a/arch/mips/sgi-ip27/ip27-init.c
++++ b/arch/mips/sgi-ip27/ip27-init.c
+@@ -130,17 +130,6 @@ cnodeid_t get_compact_nodeid(void)
+ 	return NASID_TO_COMPACT_NODEID(get_nasid());
+ }
+ 
+-static inline void ioc3_eth_init(void)
+-{
+-	struct ioc3 *ioc3;
+-	nasid_t nid;
+-
+-	nid = get_nasid();
+-	ioc3 = (struct ioc3 *) KL_CONFIG_CH_CONS_INFO(nid)->memory_base;
+-
+-	ioc3->eier = 0;
+-}
+-
+ extern void ip27_reboot_setup(void);
+ 
+ void __init plat_mem_setup(void)
+@@ -182,8 +171,6 @@ void __init plat_mem_setup(void)
+ 		panic("Kernel compiled for N mode.");
+ #endif
+ 
+-	ioc3_eth_init();
+-
+ 	ioport_resource.start = 0;
+ 	ioport_resource.end = ~0UL;
+ 	set_io_port_base(IO_BASE);
 -- 
 2.13.7

@@ -1,49 +1,50 @@
-From: Maxime Ripard <maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH RESEND v4 3/4] ARM: dts: sunxi: Add R_LRADC
- support for A83T
-Date: Mon, 8 Apr 2019 10:00:56 +0200
-Message-ID: <20190408080056.lfzjxfkvs65oabuu@flea>
-References: <20190327023339.25975-1-megous@megous.com>
- <20190327023339.25975-4-megous@megous.com>
-Reply-To: maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH] Input: i8042 - disable KBD port on Late-2016 Razer Blade
+ Stealth
+Date: Mon, 8 Apr 2019 09:55:00 +0000
+Message-ID: <28dc38a55c45467dad6f11e9ea459172@AcuMS.aculab.com>
+References: <20190407213735.10658-1-lyude@redhat.com>
+         <20190407221034.GA162359@dtor-ws>
+ <0ac9aef48f4cf974f4f7046aad1267ab5c8fe525.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="h4pyodfm67kr7ci6"
-Return-path: <linux-sunxi+bncBDSJBYGBRIMBBPP7VPSQKGQEUCOLJ6A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20190327023339.25975-4-megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org
-Cc: wens-jdAy2FN1RRM@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, mark.rutland-5wv7dgnIgG8@public.gmane.org, Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0ac9aef48f4cf974f4f7046aad1267ab5c8fe525.camel@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: 'Lyude Paul' <lyude@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "stable@vger.kernel.org" <stable@vger.kernel.org>, Chen-Yu Tsai <wens@csie.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-
---h4pyodfm67kr7ci6
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-
-On Wed, Mar 27, 2019 at 03:33:38AM +0100, megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org wrote:
-> From: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->
-> Allwinner A83T SoC has a low res adc like the one in Allwinner A10 SoC.
-> Now the driver has been modified to support it.
->
-> Add support for it.
->
-> Signed-off-by: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-It's missing your SoB.
-
-Maxime
-
---
-Maxime Ripard, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
---h4pyodfm67kr7ci6--
+RnJvbTogTHl1ZGUgUGF1bA0KPiBTZW50OiAwNyBBcHJpbCAyMDE5IDIzOjU1DQo+IE9uIFN1biwg
+MjAxOS0wNC0wNyBhdCAxNToxMCAtMDcwMCwgRG1pdHJ5IFRvcm9raG92IHdyb3RlOg0KPiA+IEhp
+IEx5dWRlLA0KPiA+DQo+ID4gT24gU3VuLCBBcHIgMDcsIDIwMTkgYXQgMDU6Mzc6MzRQTSAtMDQw
+MCwgTHl1ZGUgUGF1bCB3cm90ZToNCj4gPiA+IFRoZSBsYXRlIDIwMTYgbW9kZWwgb2YgdGhlIFJh
+emVyIEJsYWRlIFN0ZWFsdGggaGFzIGEgYnVpbHQtaW4gVVNCDQo+ID4gPiBrZXlib2FyZCwgYnV0
+IGZvciBzb21lIHJlYXNvbiB0aGUgQklPUyBleHBvc2VzIGFuIGk4MDQyIGNvbnRyb2xsZXIgd2l0
+aA0KPiA+ID4gYSBjb25uZWN0ZWQgS0JEIHBvcnQuIFdoaWxlIHRoaXMgZmFrZSBBVCBLZXlib2Fy
+ZCBkZXZpY2UgZG9lc24ndCBhcHBlYXINCj4gPiA+IHRvIHJlcG9ydCBhbnkgZXZlbnRzLCBhdHRl
+bXB0aW5nIHRvIGNoYW5nZSB0aGUgc3RhdGUgb2YgdGhlIGNhcHMgbG9jaw0KPiA+ID4gTEVEIG9u
+IGl0IGZyb20gb24gdG8gb2ZmIGNhdXNlcyB0aGUgZW50aXJlIHN5c3RlbSB0byBoYW5nLg0KPiA+
+ID4NCj4gPiA+IFNvLCBpbnRyb2R1Y2UgYSBxdWlyayB0YWJsZSBmb3IgZGlzYWJsaW5nIGtleWJv
+YXJkIHByb2JpbmcgYnkgZGVmYXVsdCwNCj4gPiA+IGk4MDQyX2RtaV9ub2tiZF90YWJsZSwgYW5k
+IGFkZCB0aGlzIHNwZWNpZmljIG1vZGVsIG9mIFJhemVyIGxhcHRvcCB0bw0KPiA+ID4gdGhhdCB0
+YWJsZS4NCj4gPg0KPiA+IFdoYXQgZG9lcyBkbWVzZyBzaG93IGFib3V0IGk4MDQyIGZvciB0aGlz
+IGRldmljZT8gRXNwZWNpYWxseSBsaW5lICJQTlA6DQo+ID4gUFMvMiBDb250cm9sbGVyICAuLi4i
+Pw0KPiA+DQo+IA0KPiBBcHIgMDcgMTg6NDI6NDYgbWFsYWNoaXRlIGtlcm5lbDogaTgwNDI6IFBO
+UDogTm8gUFMvMiBjb250cm9sbGVyIGZvdW5kLg0KPiBBcHIgMDcgMTg6NDI6NDYgbWFsYWNoaXRl
+IGtlcm5lbDogaTgwNDI6IFByb2JpbmcgcG9ydHMgZGlyZWN0bHkuDQo+IEFwciAwNyAxODo0Mjo0
+NiBtYWxhY2hpdGUga2VybmVsOiBzZXJpbzogaTgwNDIgS0JEIHBvcnQgYXQgMHg2MCwweDY0IGly
+cSAxDQo+IEFwciAwNyAxODo0Mjo0NiBtYWxhY2hpdGUga2VybmVsOiBzZXJpbzogaTgwNDIgQVVY
+IHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMg0KPiBBcHIgMDcgMTg6NDI6NDYgbWFsYWNoaXRlIGtl
+cm5lbDogbW91c2VkZXY6IFBTLzIgbW91c2UgZGV2aWNlIGNvbW1vbiBmb3IgYWxsIG1pY2UNCg0K
+VGhhdCBpcyB0aGUgJ2RlZmF1bHQnIHByb2JlIG9mIHRoZSBwcy8yIHNlcmlhbCBwb3J0cy4NCkxv
+b2tzIGxpa2UgdGhlIEJJT1MgaXMgY29ycmVjdCBpbiBub3QgZXhwb3NpbmcgdGhlIHBzLzIgY29u
+dHJvbGxlci4NClVzdWFsbHkgdGhleSBqdXN0IGZhaWwgdG8gZXhwb3NlIHRoZSBtb3VzZSB3aGVu
+IGl0IG5lZWRzIGEgcHMvMiBzcGxpdHRlciA6LSgNCg0KSSBkbyB3b25kZXIgd2hhdCB0aGV5J3Zl
+IGNvbm5lY3RlZCBpdCB0byB0aG91Z2guDQpJdCBpcyBleHRyZW1lbHkgdW5saWtlbHkgdGhleSd2
+ZSBmb3VuZCBhbiB4ODYgY2hpcHNldCB0aGF0IGRvZXNuJ3QNCmhhdmUgdGhlIHBzLzIgc2VyaWFs
+IHBvcnRzIGF0IHRoZSBzdGFuZGFyZCBpbyBhZGRyZXNzZXMuDQoNCglEYXZpZA0KDQotDQpSZWdp
+c3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9u
+IEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=

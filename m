@@ -1,59 +1,84 @@
-From: =?UTF-8?Q?=27Ond=C5=99ej_Jirman=27_via_linux=2Dsunxi?= <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Subject: Re: [PATCH RESEND v4 3/4] ARM: dts: sunxi: Add R_LRADC
- support for A83T
-Date: Mon, 8 Apr 2019 14:09:01 +0200
-Message-ID: <20190408120901.v46rdhqvobr5vuks@core.my.home>
-References: <20190327023339.25975-1-megous@megous.com>
- <20190327023339.25975-4-megous@megous.com>
- <20190408080056.lfzjxfkvs65oabuu@flea>
-Reply-To: megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v8 02/11] dt-bindings: power: supply: add DT bindings for max77650
+Date: Mon, 8 Apr 2019 14:25:45 +0200
+Message-ID: <CAMRc=Mc+cTVrzywTydp-10Hj=-m=qCmtK1+4NRiOFHZ855fnDw@mail.gmail.com>
+References: <20190403090108.24788-1-brgl@bgdev.pl> <20190403090108.24788-3-brgl@bgdev.pl>
+ <20190406070746.GA29624@bogus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-sunxi+bncBDXLF6FR5INBBYPTVTSQKGQEFO4FWGA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20190408080056.lfzjxfkvs65oabuu@flea>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Maxime Ripard <maxime.ripard-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190406070746.GA29624@bogus>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello Maxime,
-
-On Mon, Apr 08, 2019 at 10:00:56AM +0200, Maxime Ripard wrote:
-> On Wed, Mar 27, 2019 at 03:33:38AM +0100, megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org wrote:
-> > From: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+sob., 6 kwi 2019 o 09:07 Rob Herring <robh@kernel.org> napisa=C5=82(a):
+>
+> On Wed, Apr 03, 2019 at 11:00:59AM +0200, Bartosz Golaszewski wrote:
+> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 > >
-> > Allwinner A83T SoC has a low res adc like the one in Allwinner A10 SoC.
-> > Now the driver has been modified to support it.
+> > Add the DT binding document for the battery charger module of max77650.
 > >
-> > Add support for it.
+> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> > ---
+> >  .../power/supply/max77650-charger.txt         | 27 +++++++++++++++++++
+> >  1 file changed, 27 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/power/supply/max7=
+7650-charger.txt
 > >
-> > Signed-off-by: Ziping Chen <techping.chan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> 
-> It's missing your SoB.
+> > diff --git a/Documentation/devicetree/bindings/power/supply/max77650-ch=
+arger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger=
+.txt
+> > new file mode 100644
+> > index 000000000000..fef188144386
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.t=
+xt
+> > @@ -0,0 +1,27 @@
+> > +Battery charger driver for MAX77650 PMIC from Maxim Integrated.
+> > +
+> > +This module is part of the MAX77650 MFD device. For more details
+> > +see Documentation/devicetree/bindings/mfd/max77650.txt.
+> > +
+> > +The charger is represented as a sub-node of the PMIC node on the devic=
+e tree.
+> > +
+> > +Required properties:
+> > +--------------------
+> > +- compatible:                Must be "maxim,max77650-charger"
+> > +
+> > +Optional properties:
+> > +--------------------
+> > +- min-microvolt:     Minimum CHGIN regulation voltage (in microvolts).=
+ Must be
+> > +                     one of: 4000000, 4100000, 4200000, 4300000, 44000=
+00,
+> > +                     4500000, 4600000, 4700000.
+> > +- current-limit-microamp:    CHGIN input current limit (in microamps).=
+ Must
+> > +                             be one of: 95000, 190000, 285000, 380000,=
+ 475000.
+>
+> To repeat what I said on v6, these should be common properties IMO (and
+> therefore documented as such).
+>
 
-Signed-off-by: Ondrej Jirman <megous-5qf/QAjKc83QT0dZR+AlfA@public.gmane.org>
+Do you mean a separate "charger.txt" document in
+Documentation/devicetree/bindings/power/supply/?
 
-Please add it when aplying he patch.
+Bart
 
-regards,
-  Ondrej
-
-> Maxime
-> 
-> --
-> Maxime Ripard, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
-
-
-
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> > +
+> > +Example:
+> > +--------
+> > +
+> > +     charger {
+> > +             compatible =3D "maxim,max77650-charger";
+> > +             min-microvolt =3D <4200000>;
+> > +             curr-lim-microamp =3D <285000>;
+> > +     };
+> > --
+> > 2.21.0
+> >

@@ -1,99 +1,54 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v8 02/11] dt-bindings: power: supply: add DT bindings for max77650
-Date: Tue, 9 Apr 2019 17:38:20 +0200
-Message-ID: <CAMRc=MfkdBMmhrCM7Ut8ZGkgT=gFTRrbgFmu3MbghGwCRkEEKg@mail.gmail.com>
-References: <20190403090108.24788-1-brgl@bgdev.pl> <20190403090108.24788-3-brgl@bgdev.pl>
- <20190406070746.GA29624@bogus> <CAMRc=Mc+cTVrzywTydp-10Hj=-m=qCmtK1+4NRiOFHZ855fnDw@mail.gmail.com>
- <CAL_JsqKHjppN2kXqVpv5LjTedykA-Q8vteQDipw=FAaoUZLGeg@mail.gmail.com> <CAMRc=Mc4HOn+Pjwf+sD4fU7gNoksRKXz9Yq6zE233CCoNskPiQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Subject: [PATCH v2 0/4] Use MFD framework for SGI IOC3 drivers
+Date: Tue,  9 Apr 2019 17:46:04 +0200
+Message-ID: <20190409154610.6735-1-tbogendoerfer@suse.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=Mc4HOn+Pjwf+sD4fU7gNoksRKXz9Yq6zE233CCoNskPiQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, "David S. Miller" <davem@davemloft.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-wt., 9 kwi 2019 o 13:04 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a)=
-:
->
-> wt., 9 kwi 2019 o 03:10 Rob Herring <robh@kernel.org> napisa=C5=82(a):
-> >
-> > On Mon, Apr 8, 2019 at 7:25 AM Bartosz Golaszewski <brgl@bgdev.pl> wrot=
-e:
-> > >
-> > > sob., 6 kwi 2019 o 09:07 Rob Herring <robh@kernel.org> napisa=C5=82(a=
-):
-> > > >
-> > > > On Wed, Apr 03, 2019 at 11:00:59AM +0200, Bartosz Golaszewski wrote=
-:
-> > > > > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > > > >
-> > > > > Add the DT binding document for the battery charger module of max=
-77650.
-> > > > >
-> > > > > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > > > > ---
-> > > > >  .../power/supply/max77650-charger.txt         | 27 +++++++++++++=
-++++++
-> > > > >  1 file changed, 27 insertions(+)
-> > > > >  create mode 100644 Documentation/devicetree/bindings/power/suppl=
-y/max77650-charger.txt
-> > > > >
-> > > > > diff --git a/Documentation/devicetree/bindings/power/supply/max77=
-650-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-c=
-harger.txt
-> > > > > new file mode 100644
-> > > > > index 000000000000..fef188144386
-> > > > > --- /dev/null
-> > > > > +++ b/Documentation/devicetree/bindings/power/supply/max77650-cha=
-rger.txt
-> > > > > @@ -0,0 +1,27 @@
-> > > > > +Battery charger driver for MAX77650 PMIC from Maxim Integrated.
-> > > > > +
-> > > > > +This module is part of the MAX77650 MFD device. For more details
-> > > > > +see Documentation/devicetree/bindings/mfd/max77650.txt.
-> > > > > +
-> > > > > +The charger is represented as a sub-node of the PMIC node on the=
- device tree.
-> > > > > +
-> > > > > +Required properties:
-> > > > > +--------------------
-> > > > > +- compatible:                Must be "maxim,max77650-charger"
-> > > > > +
-> > > > > +Optional properties:
-> > > > > +--------------------
-> > > > > +- min-microvolt:     Minimum CHGIN regulation voltage (in microv=
-olts). Must be
-> > > > > +                     one of: 4000000, 4100000, 4200000, 4300000,=
- 4400000,
-> > > > > +                     4500000, 4600000, 4700000.
-> > > > > +- current-limit-microamp:    CHGIN input current limit (in micro=
-amps). Must
-> > > > > +                             be one of: 95000, 190000, 285000, 3=
-80000, 475000.
-> > > >
-> > > > To repeat what I said on v6, these should be common properties IMO =
-(and
-> > > > therefore documented as such).
-> > > >
-> > >
-> > > Do you mean a separate "charger.txt" document in
-> > > Documentation/devicetree/bindings/power/supply/?
-> >
-> > Yes, though I thought we had something already.
-> >
-> > Rob
->
-> We don't AFAICT. There's only a binding document for "simple-battery"
-> in power supply.
->
-> Bart
+SGI IOC3 ASIC includes support for ethernet, PS2 keyboard/mouse,
+NIC (number in a can), GPIO and a byte  bus. By attaching a
+SuperIO chip to it, it also supports serial lines and a parallel
+port. The chip is used on a variety of SGI systems with different
+configurations. This patchset moves code out of the network driver,
+which doesn't belong there, into its new place a MFD driver and
+specific platform drivers for the different subfunctions.
 
-Can we have it locally for now but without the maxim prefix and then
-reuse it if any other charger needs such functionality? To make it
-even more generic we can name it: "input-voltage-min-microvolt" &
-"input-current-limit-microamp".
+Change in v2:
+ - fixed issue in ioc3kbd.c reported by Dmitry Torokhov
+ - merged IP27 RTC removal and 8250 serial driver addition into
+   main MFD patch to keep patches bisectable
 
-Bart
+Thomas Bogendoerfer (4):
+  MIPS: SGI-IP27: remove ioc3 ethernet init
+  mfd: ioc3: Add driver for SGI IOC3 chip
+  MIPS: SGI-IP27: fix readb/writeb addressing
+  Input: add IOC3 serio driver
+
+ arch/mips/include/asm/mach-ip27/mangle-port.h |    2 +-
+ arch/mips/include/asm/sn/ioc3.h               |  349 ++---
+ arch/mips/sgi-ip27/ip27-console.c             |    5 +-
+ arch/mips/sgi-ip27/ip27-init.c                |   13 -
+ arch/mips/sgi-ip27/ip27-timer.c               |   20 -
+ drivers/input/serio/Kconfig                   |   10 +
+ drivers/input/serio/Makefile                  |    1 +
+ drivers/input/serio/ioc3kbd.c                 |  158 +++
+ drivers/mfd/Kconfig                           |   13 +
+ drivers/mfd/Makefile                          |    1 +
+ drivers/mfd/ioc3.c                            |  802 +++++++++++
+ drivers/net/ethernet/sgi/Kconfig              |    4 +-
+ drivers/net/ethernet/sgi/ioc3-eth.c           | 1867 +++++++++----------------
+ drivers/rtc/rtc-m48t35.c                      |   11 +
+ drivers/tty/serial/8250/8250_ioc3.c           |   98 ++
+ drivers/tty/serial/8250/Kconfig               |   11 +
+ drivers/tty/serial/8250/Makefile              |    1 +
+ include/linux/platform_data/ioc3eth.h         |   15 +
+ 18 files changed, 1946 insertions(+), 1435 deletions(-)
+ create mode 100644 drivers/input/serio/ioc3kbd.c
+ create mode 100644 drivers/mfd/ioc3.c
+ create mode 100644 drivers/tty/serial/8250/8250_ioc3.c
+ create mode 100644 include/linux/platform_data/ioc3eth.h
+
+-- 
+2.13.7

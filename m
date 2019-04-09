@@ -1,77 +1,71 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v8 02/11] dt-bindings: power: supply: add DT bindings for max77650
-Date: Mon, 8 Apr 2019 20:10:30 -0500
-Message-ID: <CAL_JsqKHjppN2kXqVpv5LjTedykA-Q8vteQDipw=FAaoUZLGeg@mail.gmail.com>
-References: <20190403090108.24788-1-brgl@bgdev.pl> <20190403090108.24788-3-brgl@bgdev.pl>
- <20190406070746.GA29624@bogus> <CAMRc=Mc+cTVrzywTydp-10Hj=-m=qCmtK1+4NRiOFHZ855fnDw@mail.gmail.com>
+From: "Life is hard, and then you die" <ronald@innovation.ch>
+Subject: Re: [PATCH v4 2/2] Input: add Apple SPI keyboard and trackpad driver.
+Date: Mon, 8 Apr 2019 20:23:31 -0700
+Message-ID: <20190409032331.GA478@innovation.ch>
+References: <20190407050358.2976-1-ronald@innovation.ch>
+ <20190407050358.2976-3-ronald@innovation.ch>
+ <20190408123343.GO9224@smile.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=Mc+cTVrzywTydp-10Hj=-m=qCmtK1+4NRiOFHZ855fnDw@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20190408123343.GO9224@smile.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 8, 2019 at 7:25 AM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
->
-> sob., 6 kwi 2019 o 09:07 Rob Herring <robh@kernel.org> napisa=C5=82(a):
-> >
-> > On Wed, Apr 03, 2019 at 11:00:59AM +0200, Bartosz Golaszewski wrote:
-> > > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > >
-> > > Add the DT binding document for the battery charger module of max7765=
-0.
-> > >
-> > > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > > ---
-> > >  .../power/supply/max77650-charger.txt         | 27 +++++++++++++++++=
-++
-> > >  1 file changed, 27 insertions(+)
-> > >  create mode 100644 Documentation/devicetree/bindings/power/supply/ma=
-x77650-charger.txt
-> > >
-> > > diff --git a/Documentation/devicetree/bindings/power/supply/max77650-=
-charger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charg=
-er.txt
-> > > new file mode 100644
-> > > index 000000000000..fef188144386
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/power/supply/max77650-charger=
-.txt
-> > > @@ -0,0 +1,27 @@
-> > > +Battery charger driver for MAX77650 PMIC from Maxim Integrated.
-> > > +
-> > > +This module is part of the MAX77650 MFD device. For more details
-> > > +see Documentation/devicetree/bindings/mfd/max77650.txt.
-> > > +
-> > > +The charger is represented as a sub-node of the PMIC node on the dev=
-ice tree.
-> > > +
-> > > +Required properties:
-> > > +--------------------
-> > > +- compatible:                Must be "maxim,max77650-charger"
-> > > +
-> > > +Optional properties:
-> > > +--------------------
-> > > +- min-microvolt:     Minimum CHGIN regulation voltage (in microvolts=
-). Must be
-> > > +                     one of: 4000000, 4100000, 4200000, 4300000, 440=
-0000,
-> > > +                     4500000, 4600000, 4700000.
-> > > +- current-limit-microamp:    CHGIN input current limit (in microamps=
-). Must
-> > > +                             be one of: 95000, 190000, 285000, 38000=
-0, 475000.
-> >
-> > To repeat what I said on v6, these should be common properties IMO (and
-> > therefore documented as such).
-> >
->
-> Do you mean a separate "charger.txt" document in
-> Documentation/devicetree/bindings/power/supply/?
 
-Yes, though I thought we had something already.
+On Mon, Apr 08, 2019 at 03:33:43PM +0300, Andy Shevchenko wrote:
+> On Sat, Apr 06, 2019 at 10:03:58PM -0700, Ronald Tschalär wrote:
+> > The keyboard and trackpad on recent MacBook's (since 8,1) and
+> > MacBookPro's (13,* and 14,*) are attached to an SPI controller instead
+> > of USB, as previously. The higher level protocol is not publicly
+> > documented and hence has been reverse engineered. As a consequence there
+> > are still a number of unknown fields and commands. However, the known
+> > parts have been working well and received extensive testing and use.
+> > 
+> > In order for this driver to work, the proper SPI drivers need to be
+> > loaded too; for MB8,1 these are spi_pxa2xx_platform and spi_pxa2xx_pci;
+> > for all others they are spi_pxa2xx_platform and intel_lpss_pci. For this
+> > reason enabling this driver in the config implies enabling the above
+> > drivers.
+> 
+> Thank you for an update, my comments below.
 
-Rob
+Thank you again for your review.
+
+[snip]
+> > +	} else {
+> > +		struct dentry *ret;
+> > +
+> > +		ret = debugfs_create_bool("enable_tp_dim", 0600,
+> > +					  applespi->debugfs_root,
+> > +					  &applespi->debug_tp_dim);
+> > +		if (IS_ERR(ret))
+> > +			dev_warn(&(applespi)->spi->dev,
+> > +				 "Error creating debugfs entry enable_tp_dim (%ld)\n",
+> > +				 PTR_ERR(ret));
+> 
+> Can ret be NULL?
+
+No, it actually can't (I manually traced all code paths to be sure):
+the documentation for these helper functions is wrong in this respect.
+However, I note that a lot of existing kernel code also has this wrong
+(i.e. it's checking for NULL). Digging a bit further and looking at
+the history, it appears this was changed just recently (commit
+ff9fb72b "debugfs: return error values, not NULL"), which would
+explain the existing code and documentation. I'll submit a patch to
+update the docs.
+
+> dev_dbg() looks more appropriate.
+
+Hmm, ok, I guess I find this a bit odd, though: true, this only
+affects code used for debugging, but it's nevertheless an error that
+shouldn't normally occur.
+
+
+  Cheers,
+
+  Ronald

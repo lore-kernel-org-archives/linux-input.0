@@ -1,68 +1,180 @@
-From: Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH v3 2/3] Input: add a driver for GPIO controllable vibrators
-Date: Fri, 12 Apr 2019 10:43:52 -0700
-Message-ID: <155509103299.20095.15957232326393337000@swboyd.mtv.corp.google.com>
-References: <20190412150625.28384-1-luca@z3ntu.xyz> <20190412150625.28384-2-luca@z3ntu.xyz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] ELAN touchpad i2c_hid bugs fix
+Date: Sat, 13 Apr 2019 16:42:38 +0800
+Message-ID: <385F448C-463D-4EF0-BCFB-8386D043F189@canonical.com>
+References: <20190325125704.6585-1-hotwater438@tutanota.com>
+ <CAE_wzQ8Aep1FOONeCUxvjBFbgKcVRWP5mUuwQnDxzfemUw-eaA@mail.gmail.com>
+ <a2952bc4-0ad0-c8a0-5a5b-13a279023455@redhat.com>
+ <CAE_wzQ8sYcMVYLmnctw_UQuvn0B8U2CU2dNeg-9sh85AL_CfgQ@mail.gmail.com>
+ <abe3eccb-1490-e088-1fd8-6af4dc1bd2ec@redhat.com> <LbI7kio--3-1@tutanota.com>
+ <a58ebeb8-10fd-29d0-1562-4ed8d84f2239@redhat.com> <LbZjy9p--3-1@tutanota.com>
+ <B7A141A3-613C-4EB8-8BB4-F845A0AC8F23@canonical.com>
+ <LcKqhgD--3-1@tutanota.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.8\))
+Content-Type: text/plain;
+        charset=utf-8;
+        delsp=yes;
+        format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190412150625.28384-2-luca@z3ntu.xyz>
+In-Reply-To: <LcKqhgD--3-1@tutanota.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Weiss <luca@z3ntu.xyz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pascal PAILLET-LME <p.paillet@st.com>, Coly Li <colyli@suse.de>, Lee Jones <lee.jones@linaro.org>, Xiaotong Lu <xiaotong.lu@spreadtrum.com>, Brian Masney <masneyb@onstation.org>, Rob Herring <robh@kernel.org>, Baolin Wang <baolin.wang@linaro.org>, David Brown <david.brown@linaro.org>, "open list:ARM/QUALCOMM SUPPORT" <linux-arm-msm@vger.kernel.org>, "open list:INPUT KEYBOARD, MOUSE, JOYSTICK , TOUCHSCREEN..." <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>Luca Weiss <l>
+To: hotwater438@tutanota.com
+Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dtor@chromium.org>, Vladislav Dalechyn <vlad.dalechin@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Swboyd <swboyd@chromium.org>, Bigeasy <bigeasy@linutronix.de>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Quoting Luca Weiss (2019-04-12 08:06:24)
-> diff --git a/drivers/input/misc/gpio-vibra.c b/drivers/input/misc/gpio-vi=
-bra.c
-> new file mode 100644
-> index 000000000000..3fd2dfd4f670
-> --- /dev/null
-> +++ b/drivers/input/misc/gpio-vibra.c
-> @@ -0,0 +1,209 @@
-> +
-> +static int gpio_vibrator_probe(struct platform_device *pdev)
-> +{
-[...]
-> +       vibrator->input->id.bustype =3D BUS_HOST;
-> +       vibrator->input->close =3D gpio_vibrator_close;
-> +
-> +       input_set_drvdata(vibrator->input, vibrator);
-> +       input_set_capability(vibrator->input, EV_FF, FF_RUMBLE);
-> +
-> +       err =3D input_ff_create_memless(vibrator->input, NULL,
-> +                                     gpio_vibrator_play_effect);
-> +       if (err) {
-> +               dev_err(&pdev->dev, "Couldn't create FF dev: %d", err);
-> +               return err;
-> +       }
-> +
-> +       err =3D input_register_device(vibrator->input);
-> +       if (err) {
-> +               dev_err(&pdev->dev, "Couldn't register input dev: %d", er=
-r);
+at 16:40, <hotwater438@tutanota.com> <hotwater438@tutanota.com> wrote:
 
-All the printks in this file need a newline.
+> Hi.
+>
+> I've applied this patch, but still getting incomplete report messages.
 
-> +               return err;
-> +       }
-> +
-> +       platform_set_drvdata(pdev, vibrator);
-> +
-> +       return 0;
-> +}
-> +
-> +
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id gpio_vibra_dt_match_table[] =3D {
-> +       { .compatible =3D "gpio-vibrator" },
-> +       {},
+Does the patch fix the other two issues:
+- Five finger tap kill's module so you have to restart it;
+- Two finger scoll is working incorrect and sometimes even when you
+raised one of two finger still thinks that you are scrolling.
 
-Nitpick: Drop the comma on the sentinel so nothing can go after it
-without causing a compilation error.
+Kai-Heng
 
-> +};
-> +MODULE_DEVICE_TABLE(of, gpio_vibra_dt_match_table);
-> +#endif
+>
+> Regards,
+> Vladislav
+>
+> Apr 11, 2019, 7:17 PM by kai.heng.feng@canonical.com:
+> Hi,
+>
+> at 05:18, <hotwater438@tutanota.com> <hotwater438@tutanota.com> wrote:
+> Hi.
+>
+> 1) Run "cat /proc/interrupts | grep ELAN" , note down the value
+> 2) Very quickly/briefly touch the touchpad once
+> 3) Run "cat /proc/interrupts | grep ELAN" , note down the value again
+> 4) Subtract result from 1. from result from 3, this difference is
+> the value we are interested in. E.g. my testing got 254 and 257, so
+> a difference of 3.
+> I've tested that, main diffs are 30, 24, 16 (the most frequent), 2 (the  
+> least frequent).
+>
+> I was using 4.19.13 kernel, because I use ParrotOS (which happens to be  
+> Debian distribution).
+> But I've installed experimental 5.0.0 kernel and I can't say right now if  
+> suspend problem is resolved (i have to rebuild latest kernel with patch).
+>
+> Can you try below fix?
+>
+> This can solve what commit 1475af255e18 ("HID: i2c-hid: Ignore input  
+> report if there's no data present on Elan touchpanels”) tries to  
+> workaround.
+>
+> diff --git a/drivers/pinctrl/intel/pinctrl-intel.c  
+> b/drivers/pinctrl/intel/pinctrl-intel.c
+> index c19a4c45f7bb..30e3664f1ae5 100644
+> --- a/drivers/pinctrl/intel/pinctrl-intel.c
+> +++ b/drivers/pinctrl/intel/pinctrl-intel.c
+> @@ -957,6 +957,10 @@ static void intel_gpio_irq_mask_unmask(struct  
+> irq_data *d, bool mask)
+> reg = community->regs + community->ie_offset + gpp * 4;
+>
+> raw_spin_lock_irqsave(&pctrl->lock, flags);
 > +
+> + if (!mask)
+> + writel(BIT(gpp_offset), community->regs + community->is_offset + gpp *  
+> 4);
+> +
+> value = readl(reg);
+> if (mask)
+> value &= ~BIT(gpp_offset);
+>
+>
+> Regards,
+> Vladislav.
+>
+> Apr 3, 2019, 2:18 PM by hdegoede@redhat.com:
+> Hi,
+>
+> On 31-03-19 11:50, hotwater438@tutanota.com wrote:
+> Hi. I've done everything you said, here are results:
+>
+> Vladislav can you check the output of /cat/interrupts on a kernel
+> without the patch and while *not* using the touchpad; and check
+> if the amount of touchpads-interrupts still keeps increasing in this
+> case?
+>
+> IWI or IRQ work interrupts keep increasing with speed at least 3  
+> interrupts/s.
+>
+> I'm really only interested in the touchpad related IRQs, so e.g. the line
+> about "intel-gpio 129 ELAN1200:00", if you're seeing 3 interrupts/s on
+> some others that is fine, so I take it the ELAN1200:00 interrupt count
+> does not increase on an *unpatched* kernel, unless you use the touchpad?
+> Also when I am moving touchpad IR-IO-APIC 14-fasteoi INT345D:00 get's  
+> triggered and increased.
+>
+> That is the GPIO controller interrupt, so that one increasing is normal.
+>
+> If I understand things correctly then this all means that the IRQ indeed
+> is a normal level IRQ and Dmitry is likely correct that there is an
+> pinctrl / gpiochip driver problem here.
+>
+> Can you try the following with an *unpatched* kernel? :
+>
+> 1) Run "cat /proc/interrupts | grep ELAN" , note down the value
+> 2) Very quickly/briefly touch the touchpad once
+> 3) Run "cat /proc/interrupts | grep ELAN" , note down the value again
+> 4) Subtract result from 1. from result from 3, this difference is
+> the value we are interested in. E.g. my testing got 254 and 257, so
+> a difference of 3.
+>
+> The goal here is to get an as low as possible difference. Feel free
+> to repeat this a couple of times.
+>
+> On an Apollo Lake laptop with an I2C hid mt touchpad I can get the
+> amount of interrupts triggered for a single touch down to 3,
+> given the huge interrupt counts of 130000+ reported in:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1543769
+>
+> I expect you to get a much bigger smallest possible difference
+> between 2 "cat /proc/interrupts | grep ELAN" commands, note a
+> difference of 0 means your touch did not register.
+>
+> Assuming you indeed see much more interrupts for a very quick
+> touch + release, then we indeed have an interrupt handling problem
+> we need to investigate further.
+> I don't know if it's important or not, but for some reason these  
+> interrupts keep popping only on CPU2 (i have 4cpu processor).
+>
+> That does not matter.
+> 1) Suspending the machine by selecting suspend from a menu in your
+> desktop environment, or by briefly pressing the power-button, do
+> not close the lid
+> 2) As soon as the system starts suspending and while it is suspended, move
+> your finger around the touchpad
+> 3) Wake the system up with the powerbutton while moving your finger around
+> 4) Check if the touchpad still works after this
+>
+> It works, but as it seems, looses edge. JournalCTL is being flooded with  
+> i2c_hid_get_input: incomplete report (16/65535)
+>
+> That is probably a different issue. If you loose the edge IRQ, then the  
+> touchpad
+> would stop working without any messages. I believe that the suspend /  
+> resume
+> issue may be fixed by:
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=52cf93e63ee672a92f349edc6ddad86ec8808fd8
+>
+> Does your kernel have this commit? (please always use the latest kernel  
+> while
+> testing).
+> Also a thing to notice, that after manually removing and modprobing  
+> i2c_hid module, it says next in journalctl:
+>
+> i2c_hid i2c-ELAN1200:00: i2c-ELAN1200:00 supply vdd not found, using  
+> dummy regulator
+> i2c_hid i2c-ELAN1200:00: i2c-ELAN1200:00 supply vddl not found, using  
+> dummy regulator
+>
+> Those messages can safely be ignored.
+>
+> Regards,
+>
+> Hans

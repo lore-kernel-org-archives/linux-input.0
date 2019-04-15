@@ -1,108 +1,85 @@
 From: "Life is hard, and then you die" <ronald@innovation.ch>
-Subject: Re: [PATCH v5 2/2] Input: add Apple SPI keyboard and trackpad driver.
-Date: Mon, 15 Apr 2019 16:09:55 -0700
-Message-ID: <20190415230955.GA13033@innovation.ch>
+Subject: Re: [PATCH v5 1/2] drm/bridge: sil_sii8620: make remote control
+ optional.
+Date: Mon, 15 Apr 2019 16:24:44 -0700
+Message-ID: <20190415232444.GB13033@innovation.ch>
 References: <20190415081300.24831-1-ronald@innovation.ch>
- <20190415081300.24831-3-ronald@innovation.ch>
- <20190415090346.GL9224@smile.fi.intel.com>
+ <CGME20190415082007epcas2p431304d9b3a9ddb13ff6b7384d7b583ac@epcas2p4.samsung.com>
+ <20190415081300.24831-2-ronald@innovation.ch>
+ <76cf3079-f190-bed4-7a00-149d7fa0a650@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190415090346.GL9224@smile.fi.intel.com>
+In-Reply-To: <76cf3079-f190-bed4-7a00-149d7fa0a650@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andrzej Hajda <a.hajda@samsung.com>, Inki Dae <inki.dae@samsung.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Inki Dae <inki.dae@samsung.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lukas Wunner <lukas@wunner.de>, Federico Lorenzi <federico@travelground.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 
-  Hi Andy,
+  Hi Andrzej,
 
-On Mon, Apr 15, 2019 at 12:03:46PM +0300, Andy Shevchenko wrote:
-> On Mon, Apr 15, 2019 at 01:13:00AM -0700, Ronald Tschalär wrote:
-> > The keyboard and trackpad on recent MacBook's (since 8,1) and
-> > MacBookPro's (13,* and 14,*) are attached to an SPI controller instead
-> > of USB, as previously. The higher level protocol is not publicly
-> > documented and hence has been reverse engineered. As a consequence there
-> > are still a number of unknown fields and commands. However, the known
-> > parts have been working well and received extensive testing and use.
-> > 
-> > In order for this driver to work, the proper SPI drivers need to be
-> > loaded too; for MB8,1 these are spi_pxa2xx_platform and spi_pxa2xx_pci;
-> > for all others they are spi_pxa2xx_platform and intel_lpss_pci. For this
-> > reason enabling this driver in the config implies enabling the above
-> > drivers.
+On Mon, Apr 15, 2019 at 10:58:09AM +0200, Andrzej Hajda wrote:
+> On 15.04.2019 10:12, Ronald Tschalär wrote:
+> > commit d6abe6df706c (drm/bridge: sil_sii8620: do not have a dependency
+> > of RC_CORE) changed the driver to select both RC_CORE and INPUT.
+> > However, this causes problems with other drivers, in particular an input
+> > driver that depends on MFD_INTEL_LPSS_PCI (to be added in a separate
+> > commit):
+> >
+> >   drivers/clk/Kconfig:9:error: recursive dependency detected!
+> >   drivers/clk/Kconfig:9:        symbol COMMON_CLK is selected by MFD_INTEL_LPSS
+> >   drivers/mfd/Kconfig:566:      symbol MFD_INTEL_LPSS is selected by MFD_INTEL_LPSS_PCI
+> >   drivers/mfd/Kconfig:580:      symbol MFD_INTEL_LPSS_PCI is implied by KEYBOARD_APPLESPI
+> >   drivers/input/keyboard/Kconfig:73:    symbol KEYBOARD_APPLESPI depends on INPUT
+> >   drivers/input/Kconfig:8:      symbol INPUT is selected by DRM_SIL_SII8620
+> >   drivers/gpu/drm/bridge/Kconfig:83:    symbol DRM_SIL_SII8620 depends on DRM_BRIDGE
+> >   drivers/gpu/drm/bridge/Kconfig:1:     symbol DRM_BRIDGE is selected by DRM_PL111
+> >   drivers/gpu/drm/pl111/Kconfig:1:      symbol DRM_PL111 depends on COMMON_CLK
+> >
+> > According to the docs and general consensus, select should only be used
+> > for non user-visible symbols, but both RC_CORE and INPUT are
+> > user-visible. Furthermore almost all other references to INPUT
+> > throughout the kernel config are depends, not selects. For this reason
+> > the first part of this change reverts commit d6abe6df706c.
+> >
+> > In order to address the original reason for commit d6abe6df706c, namely
+> > that not all boards use the remote controller functionality and hence
+> > should not need have to deal with RC_CORE, the second part of this
+> > change now makes the remote control support in the driver optional and
+> > contingent on RC_CORE being defined. And with this the hard dependency
+> > on INPUT also goes away as that is only needed if RC_CORE is defined
+> > (which in turn already depends on INPUT).
+> >
+> > CC: Inki Dae <inki.dae@samsung.com>
+> > CC: Andrzej Hajda <a.hajda@samsung.com>
+> > CC: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> > CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
 > 
-> Thank you for an update.
-> I suddenly realized couple of places where something maybe optimized.
 > 
-> Nevertheless, FWIW,
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
 
-Many thanks for all your reviews!
+Thanks for your reviews!
 
-[snip]
-> > +static void
-> > +applespi_remap_fn_key(struct keyboard_protocol *keyboard_protocol)
-> > +{
-> > +	unsigned char tmp;
-> 
-> > +	u8 bit = BIT(fnremap - 1);
-> 
-> The above is UB and I'm sorry I didn't find this earlier.
-> 
-> So, something like this would work
-> 
-> 	u8 bit = BIT((fnremap - 1) & 0x07);
+> If there are no objections I will take it to drm-misc tomorrow.
 
-fnremap is already constrained by the following:
-
-> > +
-> > +	if (!fnremap || fnremap > ARRAY_SIZE(applespi_controlcodes) ||
-> > +	    !applespi_controlcodes[fnremap - 1])
-> > +		return;
-
-and the array-size of applespi_controlcodes is constrained to the
-number of bits in u8 according to this assertion
-
-> > +	compiletime_assert(ARRAY_SIZE(applespi_controlcodes) ==
-> > +			   sizeof_field(struct keyboard_protocol, modifiers) * 8,
-> > +			   "applespi_controlcodes has wrong number of entries");
-
-So I don't see that the masking buys anything new.
-
-[snip]
-> > +	/* check for rollover overflow, which is signalled by all keys == 1 */
-> > +	for (i = 0; i < MAX_ROLLOVER; i++) {
-> > +		if (keyboard_protocol->keys_pressed[i] != 1)
-> > +			break;
-> > +	}
-> > +
-> > +	if (i == MAX_ROLLOVER)	/* all keys were 1 */
-> > +		return;
-> 
-> Since keys_pressed is an array of byte values, it may be replaced with
-> memchr_inv().
-> 
-> > +
-> > +	/* remap fn key if desired */
-> > +	applespi_remap_fn_key(keyboard_protocol);
-> > +
-> > +	/* check released keys */
-> > +	for (i = 0; i < MAX_ROLLOVER; i++) {
-> > +		for (j = 0; j < MAX_ROLLOVER; j++) {
-> > +			if (applespi->last_keys_pressed[i] ==
-> > +			    keyboard_protocol->keys_pressed[j])
-> > +				break;
-> > +		}
-> > +
-> > +		if (j < MAX_ROLLOVER)	/* key is still pressed */
-> > +			continue;
-> 
-> And memchr() here.
-
-Ah, yes, excellent suggestion. Thanks.
+This brings us back to the discussion started in response to the first
+version of my patch (see
+https://lore.kernel.org/lkml/20190124082423.23139-1-ronald@innovation.ch/T/#m24f45fecd987a787a9554c8088f463fd10de2b00).
+To recap: the problem is that the applespi patch depends on this patch
+here, as make-config will break as described above otherwise. So if
+this patch is submitted through drm-misc, then it's unclear to me how
+to ensure that the two patches make it upstream in proper order,
+unless the applespi patch is also upstreamed through drm-misc, or the
+Kconfig for applespi is (temporarily) modified to not trigger the
+config error and another patch is later submitted to fix the Kconfig
+again (which seems somewhat ugly to me). Assuming that consensus is to
+merge both patches through one tree, then it would seem that because
+this patch here is relatively small that maybe it could be merged
+through the input tree along with the applespi patch?
 
 
   Cheers,

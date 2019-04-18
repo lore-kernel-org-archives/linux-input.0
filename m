@@ -1,52 +1,45 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: uinput: Avoid Object-Already-Free with a
- global lock
-Date: Thu, 18 Apr 2019 01:43:21 +0000
-Message-ID: <20190418014321.dptin7tpxpldhsns@penguin>
-References: <1554883176-24318-1-git-send-email-mojha@codeaurora.org>
- <7299a6db-38b7-75c7-633a-00d2257eba45@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Pan Bian <bianpan2016@163.com>
+Subject: Input: synaptics-rmi4: fix possible double free
+Date: Thu, 18 Apr 2019 09:58:35 +0800
+Message-ID: <1555552715-34820-1-git-send-email-bianpan2016@163.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <7299a6db-38b7-75c7-633a-00d2257eba45@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mukesh Ojha <mojha@codeaurora.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>, Nick Dyer <nick@shmanahar.org>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Pan Bian <bianpan2016@163.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Mukesh,
+The RMI4 function structure has been released in rmi_register_function
+if error occurs. However, it will be released again in the function
+rmi_create_function, which may result in a double-free bug.
 
-On Mon, Apr 15, 2019 at 03:35:51PM +0530, Mukesh Ojha wrote:
-> 
-> Hi Dmitry,
-> 
-> Can you please have a look at this patch ? as this seems to reproducing
-> quite frequently
-> 
-> Thanks,
-> Mukesh
-> 
-> On 4/10/2019 1:29 PM, Mukesh Ojha wrote:
-> > uinput_destroy_device() gets called from two places. In one place,
-> > uinput_ioctl_handler() where it is protected under a lock
-> > udev->mutex but there is no protection on udev device from freeing
-> > inside uinput_release().
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+---
+ drivers/input/rmi4/rmi_driver.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-uinput_release() should be called when last file handle to the uinput
-instance is being dropped, so there should be no other users and thus we
-can't be racing with anyone.
-
-> > 
-> > This can result in Object-Already-Free case where uinput parent
-> > device already got freed while a child being inserted inside it.
-> > That result in a double free case for parent while kernfs_put()
-> > being done for child in a failure path of adding a node.
-
-Can you please describe scenario in more detail? How do you free the
-parent device while child input device is being registered?
-
-Thanks.
-
-- 
-Dmitry
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index fc3ab93..7fb358f 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -860,7 +860,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+ 
+ 	error = rmi_register_function(fn);
+ 	if (error)
+-		goto err_put_fn;
++		return error;
+ 
+ 	if (pdt->function_number == 0x01)
+ 		data->f01_container = fn;
+@@ -870,10 +870,6 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+ 	list_add_tail(&fn->node, &data->function_list);
+ 
+ 	return RMI_SCAN_CONTINUE;
+-
+-err_put_fn:
+-	put_device(&fn->dev);
+-	return error;
+ }
+ 
+ void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
+-- 
+2.7.4

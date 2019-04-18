@@ -1,66 +1,52 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v3 1/3] dt-bindings: input: add GPIO controllable vibrator
-Date: Wed, 17 Apr 2019 20:35:27 -0500
-Message-ID: <CAL_JsqL7awWWLK3G6u2yzse2aU7KUSuUELuacCnCpfErWA_UaQ@mail.gmail.com>
-References: <20190412150625.28384-1-luca@z3ntu.xyz> <15255825.75VNnaJK3T@g550jk>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: uinput: Avoid Object-Already-Free with a
+ global lock
+Date: Thu, 18 Apr 2019 01:43:21 +0000
+Message-ID: <20190418014321.dptin7tpxpldhsns@penguin>
+References: <1554883176-24318-1-git-send-email-mojha@codeaurora.org>
+ <7299a6db-38b7-75c7-633a-00d2257eba45@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <15255825.75VNnaJK3T@g550jk>
+Content-Disposition: inline
+In-Reply-To: <7299a6db-38b7-75c7-633a-00d2257eba45@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Weiss <luca@z3ntu.xyz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pascal PAILLET-LME <p.paillet@st.com>, Coly Li <colyli@suse.de>, Lee Jones <lee.jones@linaro.org>, Xiaotong Lu <xiaotong.lu@spreadtrum.com>, Brian Masney <masneyb@onstation.org>, Rob Herring <robh@kernel.org>, Baolin Wang <baolin.wang@linaro.org>, David Brown <david.brown@linaro.org>, "open list:ARM/QUALCOMM SUPPORT" <linux-arm-msm@vger.kernel.org>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Mukesh Ojha <mojha@codeaurora.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Apr 17, 2019 at 11:02 AM Luca Weiss <luca@z3ntu.xyz> wrote:
->
-> On Freitag, 12. April 2019 17:06:23 CEST Luca Weiss wrote:
-> > Provide a simple driver for GPIO controllable vibrators.
-> > It will be used by the Fairphone 2.
-> >
-> > Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-> > ---
-> >  .../bindings/input/gpio-vibrator.txt          | 20 +++++++++++++++++++
-> >  1 file changed, 20 insertions(+)
-> >  create mode 100644
-> > Documentation/devicetree/bindings/input/gpio-vibrator.txt
-> >
-> > diff --git a/Documentation/devicetree/bindings/input/gpio-vibrator.txt
-> > b/Documentation/devicetree/bindings/input/gpio-vibrator.txt new file mode
-> > 100644
-> > index 000000000000..93e5a8e7622d
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/gpio-vibrator.txt
-> > @@ -0,0 +1,20 @@
-> > +* GPIO vibrator device tree bindings
-> > +
-> > +Registers a GPIO device as vibrator, where the vibration motor just has the
-> > +capability to turn on or off. If the device is connected to a pwm, you
-> > should +use the pwm-vibrator driver instead.
-> > +
-> > +Required properties:
-> > +- compatible: should contain "gpio-vibrator"
-> > +- enable-gpios: Should contain a GPIO handle
-> > +
-> > +Optional properties:
-> > +- vcc-supply: Phandle for the regulator supplying power
-> > +
-> > +Example from Fairphone 2:
-> > +
-> > +vibrator {
-> > +     compatible = "gpio-vibrator";
-> > +     enable-gpios = <&msmgpio 86 GPIO_ACTIVE_HIGH>;
-> > +     vcc-supply = <&pm8941_l18>;
-> > +};
->
-> I see that the yaml based device tree binding docs seem to be the new hotness?
-> Is there any "policy" / preference about new drivers?
+Hi Mukesh,
 
-Not required yet, but welcomed. It's still a trickle so we can work
-out any issues and in some cases the common bindings still need to be
-done. I'm starting to ask subsystem maintainers to require DT schemas
-though.
+On Mon, Apr 15, 2019 at 03:35:51PM +0530, Mukesh Ojha wrote:
+> 
+> Hi Dmitry,
+> 
+> Can you please have a look at this patch ? as this seems to reproducing
+> quite frequently
+> 
+> Thanks,
+> Mukesh
+> 
+> On 4/10/2019 1:29 PM, Mukesh Ojha wrote:
+> > uinput_destroy_device() gets called from two places. In one place,
+> > uinput_ioctl_handler() where it is protected under a lock
+> > udev->mutex but there is no protection on udev device from freeing
+> > inside uinput_release().
 
-This one looks straightforward to use the schema.
+uinput_release() should be called when last file handle to the uinput
+instance is being dropped, so there should be no other users and thus we
+can't be racing with anyone.
 
-Rob
+> > 
+> > This can result in Object-Already-Free case where uinput parent
+> > device already got freed while a child being inserted inside it.
+> > That result in a double free case for parent while kernfs_put()
+> > being done for child in a failure path of adding a node.
+
+Can you please describe scenario in more detail? How do you free the
+parent device while child input device is being registered?
+
+Thanks.
+
+- 
+Dmitry

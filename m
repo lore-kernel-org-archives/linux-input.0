@@ -1,71 +1,69 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v3 09/26] compat_ioctl: move drivers to compat_ptr_ioctl
-Date: Thu, 18 Apr 2019 12:10:17 +0100
-Message-ID: <20190418111017.GE23876@stefanha-x1.localdomain>
-References: <20190416202013.4034148-1-arnd@arndb.de>
- <20190416202013.4034148-10-arnd@arndb.de>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Subject: Re: [PATCH v3 2/3] HID: quirks: Fix keyboard + touchpad on Lenovo
+ Miix 630 for DT
+Date: Thu, 18 Apr 2019 08:43:02 -0600
+Message-ID: <CAOCk7NrSiepivq8qjXJ1eKai3gdUD+uNy3eC6wgjA3ubPzt0RQ@mail.gmail.com>
+References: <20190415160915.16324-1-jeffrey.l.hugo@gmail.com>
+ <20190415161108.16419-1-jeffrey.l.hugo@gmail.com> <CAO-hwJKeACBPW52ej6mVeG4aVDYvGF8zEMtegonVwFjT-ZoLOQ@mail.gmail.com>
+ <a47672ed-fc25-dd07-0ddf-2deca08283ef@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="KlAEzMkarCnErv5Q"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190416202013.4034148-10-arnd@arndb.de>
+In-Reply-To: <a47672ed-fc25-dd07-0ddf-2deca08283ef@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, y2038@lists.linaro.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@mellanox.com>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Tomas Winkler <tomas.winkler@intel.com>, Artem Bityutskiy <dedekind1@gmail.com>, Richard Weinberger <richard@nod>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jiri Kosina <jikos@kernel.org>, Lee Jones <lee.jones@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, agross@kernel.org, David Brown <david.brown@linaro.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+On Thu, Apr 18, 2019 at 3:51 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi,
+>
+> On 18-04-19 11:34, Benjamin Tissoires wrote:
+> > On Mon, Apr 15, 2019 at 6:11 PM Jeffrey Hugo <jeffrey.l.hugo@gmail.com> wrote:
+> >>
+> >> Following up on commit 2bafa1e96254 ("HID: quirks: Fix keyboard + touchpad
+> >> on Lenovo Miix 630"), the devicetree (DT) identifier for the combo keyboard
+> >> + touchpad device is "elan,combo400-i2c", which differs from the ACPI ID,
+> >> thus if we want the quirk to work properly when booting via DT instead of
+> >> ACPI, we need to key off the DT id as well.
+> >>
+> >> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> >> ---
+> >>   drivers/hid/hid-quirks.c | 3 ++-
+> >>   1 file changed, 2 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> >> index 77ffba48cc73..00c08f8318b8 100644
+> >> --- a/drivers/hid/hid-quirks.c
+> >> +++ b/drivers/hid/hid-quirks.c
+> >> @@ -997,7 +997,8 @@ bool hid_ignore(struct hid_device *hdev)
+> >>                          return true;
+> >>                  /* Same with product id 0x0400 */
+> >>                  if (hdev->product == 0x0400 &&
+> >> -                   strncmp(hdev->name, "QTEC0001", 8) != 0)
+> >> +                   (strncmp(hdev->name, "QTEC0001", 8) != 0 ||
+> >> +                    strncmp(hdev->name, "elan,combo400-i2c", 17) != 0))
+> >
+> > I think we are taking the problem the wrong way here.
+> >
+> > When I first introduced 6ccfe64, I thought 0x0400 would be reserved
+> > for the elan_i2c touchpads only. But it turns out we are deliberately
+> > disabling valid HID touchpads hoping that they would be picked up by
+> > elan_i2c when elan_i2c has its own whitelist of devices.
+> >
+> > How about we turn this into list with the matching ones from elan_i2c:
+> > if ((hdev->product == 0x0400 || hdev->product == 0x0401) &&
+> >     (strncmp(hdev->name, "ELAN0000", 8) == 0 ||
+> >      strncmp(hdev->name, "ELAN0100", 8) == 0 ||
+> >      ...
+> >      strncmp(hdev->name, "ELAN1000", 8) == 0))
+> >        return true;
+> >
+> > So next time we need to force binding a HID touchpad to elan_i2c, we
+> > can just blacklist here and whitelist it in elan_i2c.
+>
+> This indeed sounds like a better way forward with this.
 
---KlAEzMkarCnErv5Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Apr 16, 2019 at 10:19:47PM +0200, Arnd Bergmann wrote:
-> Each of these drivers has a copy of the same trivial helper function to
-> convert the pointer argument and then call the native ioctl handler.
->=20
-> We now have a generic implementation of that, so use it.
->=20
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/char/ppdev.c              | 12 +---------
->  drivers/char/tpm/tpm_vtpm_proxy.c | 12 +---------
->  drivers/firewire/core-cdev.c      | 12 +---------
->  drivers/hid/usbhid/hiddev.c       | 11 +--------
->  drivers/hwtracing/stm/core.c      | 12 +---------
->  drivers/misc/mei/main.c           | 22 +----------------
->  drivers/mtd/ubi/cdev.c            | 36 +++-------------------------
->  drivers/net/tap.c                 | 12 +---------
->  drivers/staging/pi433/pi433_if.c  | 12 +---------
->  drivers/usb/core/devio.c          | 16 +------------
->  drivers/vfio/vfio.c               | 39 +++----------------------------
->  drivers/vhost/net.c               | 12 +---------
->  drivers/vhost/scsi.c              | 12 +---------
->  drivers/vhost/test.c              | 12 +---------
->  drivers/vhost/vsock.c             | 12 +---------
->  fs/fat/file.c                     | 13 +----------
->  16 files changed, 20 insertions(+), 237 deletions(-)
-
-The vhost parts look good:
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---KlAEzMkarCnErv5Q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEcBAEBAgAGBQJcuFsZAAoJEJykq7OBq3PIjmUH/3YzT8r/nZGWhf+D9Jhao8p9
-N6eNCnBkQtsAj+s6IhmhZxdmPlkw0b8X0ws3iIw/zE3PNeLtIt2hG92evE9QSRzD
-dkSG0m+8KJ1fQK73GrmLousrFnSOagczYoTD/svPhC3WMptVGlPB4aqBZO4Eh79w
-SyUrD7cXe2NQXUFVRI9/QVj+yu59BtvUivzkDwGZxYa5Y8RvwDvelz+xTAkKP/cl
-CZ9Gnc2gCrzuK26f5odjmby93QWbAVkiMe5k22pzy/RRpuzsijL5ujr+Ayeti45g
-cDTLJ4YjNSzM07rYoa8nqHgZATbSokG/gvbNByeC//MoqtmpE23wNzmMwuFJdi8=
-=85Rm
------END PGP SIGNATURE-----
-
---KlAEzMkarCnErv5Q--
+This sounds good to me.  Let me implement it and test with the Miix
+630.  Thanks for the suggestion.

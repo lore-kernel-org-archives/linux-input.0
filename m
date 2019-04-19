@@ -1,88 +1,59 @@
-From: Mukesh Ojha <mojha@codeaurora.org>
-Subject: Re: [PATCH v2] Input: uinput: Avoid Object-Already-Free with a global
- lock
-Date: Fri, 19 Apr 2019 14:13:48 +0530
-Message-ID: <f3cd46fb-2bb1-0422-b2be-3f7625ec9c4e@codeaurora.org>
-References: <1554883176-24318-1-git-send-email-mojha@codeaurora.org>
- <7299a6db-38b7-75c7-633a-00d2257eba45@codeaurora.org>
- <20190418014321.dptin7tpxpldhsns@penguin>
- <bb92c3f2-faf1-04ec-4c67-3aba56c507a9@codeaurora.org>
- <a4d1a2f3-1db7-e300-9569-7b7a2fadd64e@codeaurora.org>
- <20190419071152.x5ghvbybjhv76uxt@penguin>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Input: synaptics-rmi4: fix possible double free
+Date: Fri, 19 Apr 2019 07:39:23 +0000
+Message-ID: <20190419073923.6ojzx4ic5ylq3n3m@penguin>
+References: <1555552715-34820-1-git-send-email-bianpan2016@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190419071152.x5ghvbybjhv76uxt@penguin>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1555552715-34820-1-git-send-email-bianpan2016@163.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
+To: Pan Bian <bianpan2016@163.com>
+Cc: Wei Yongjun <weiyongjun1@huawei.com>, Nick Dyer <nick@shmanahar.org>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Thu, Apr 18, 2019 at 09:58:35AM +0800, Pan Bian wrote:
+> The RMI4 function structure has been released in rmi_register_function
+> if error occurs. However, it will be released again in the function
+> rmi_create_function, which may result in a double-free bug.
+> 
+> Signed-off-by: Pan Bian <bianpan2016@163.com>
 
-On 4/19/2019 12:41 PM, dmitry.torokhov@gmail.com wrote:
-> Hi Mukesh,
->
-> On Fri, Apr 19, 2019 at 12:17:44PM +0530, Mukesh Ojha wrote:
->> For some reason my last mail did not get delivered,  sending it again.
->>
->>
->> On 4/18/2019 11:55 AM, Mukesh Ojha wrote:
->>>
->>> On 4/18/2019 7:13 AM, dmitry.torokhov@gmail.com wrote:
->>>> Hi Mukesh,
->>>>
->>>> On Mon, Apr 15, 2019 at 03:35:51PM +0530, Mukesh Ojha wrote:
->>>>> Hi Dmitry,
->>>>>
->>>>> Can you please have a look at this patch ? as this seems to reproducing
->>>>> quite frequently
->>>>>
->>>>> Thanks,
->>>>> Mukesh
->>>>>
->>>>> On 4/10/2019 1:29 PM, Mukesh Ojha wrote:
->>>>>> uinput_destroy_device() gets called from two places. In one place,
->>>>>> uinput_ioctl_handler() where it is protected under a lock
->>>>>> udev->mutex but there is no protection on udev device from freeing
->>>>>> inside uinput_release().
->>>> uinput_release() should be called when last file handle to the uinput
->>>> instance is being dropped, so there should be no other users and thus we
->>>> can't be racing with anyone.
->>> Lets say an example where i am creating input device quite frequently
->>>
->>> [   97.836603] input: syz0 as /devices/virtual/input/input262
->>> [   97.845589] input: syz0 as /devices/virtual/input/input261
->>> [   97.849415] input: syz0 as /devices/virtual/input/input263
->>> [   97.856479] input: syz0 as /devices/virtual/input/input264
->>> [   97.936128] input: syz0 as /devices/virtual/input/input265
->>>
->>> e.g input265
->>>
->>> while input265 gets created [1] and handlers are getting registered on
->>> that device*fput* gets called on
->>> that device as user space got to know that input265 is created and its
->>> reference is still 1(rare but possible).
-> Are you saying that there are 2 threads sharing the same file
-> descriptor, one issuing the registration ioctl while the other closing
-> the same fd?
+Applied, thank you.
 
-Dmitry,
+> ---
+>  drivers/input/rmi4/rmi_driver.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index fc3ab93..7fb358f 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -860,7 +860,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+>  
+>  	error = rmi_register_function(fn);
+>  	if (error)
+> -		goto err_put_fn;
+> +		return error;
+>  
+>  	if (pdt->function_number == 0x01)
+>  		data->f01_container = fn;
+> @@ -870,10 +870,6 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+>  	list_add_tail(&fn->node, &data->function_list);
+>  
+>  	return RMI_SCAN_CONTINUE;
+> -
+> -err_put_fn:
+> -	put_device(&fn->dev);
+> -	return error;
+>  }
+>  
+>  void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
+> -- 
+> 2.7.4
+> 
+> 
 
-I don't have a the exact look inside the app here, but this looks like 
-the same as it is able to do
-fput on the uinput device.
-
-FYI
-Syskaller app is running in userspace (which is for syscall fuzzing) on 
-kernel which is enabled
-with various config fault injection, FAULT_INJECTION,FAIL_SLAB, 
-FAIL_PAGEALLOC, KASAN etc.
-
-Thanks,
-Mukesh
-
->
-> Thanks.
->
+-- 
+Dmitry

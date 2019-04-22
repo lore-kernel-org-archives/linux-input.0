@@ -1,2265 +1,942 @@
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH v2 59/79] docs: hid: convert to ReST
-Date: Mon, 22 Apr 2019 10:27:48 -0300
-Message-ID: <d3afdc396fe7cb92334cda3ed4d55f12b52c0fa1.1555938376.git.mchehab+samsung@kernel.org>
-References: <cover.1555938375.git.mchehab+samsung@kernel.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [RFC v2] iio: input-bridge: optionally bridge iio acceleometers
+ to create a /dev/input interface
+Date: Mon, 22 Apr 2019 15:20:14 +0100
+Message-ID: <20190422152014.7c6637ab@archlinux>
+References: <195994ebff28de22eae872df134d086c761b83b8.1554026986.git.hns@goldelico.com>
+        <20190407133037.0ad98897@archlinux>
+        <CD44AFA0-6676-4842-9C80-61BB363DD556@goldelico.com>
+        <20190414124029.1f1f6084@archlinux>
+        <CD6219BE-61FF-4C38-9532-054C60A77F89@goldelico.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1555938375.git.mchehab+samsung@kernel.org>
+In-Reply-To: <CD6219BE-61FF-4C38-9532-054C60A77F89@goldelico.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-usb@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Piel <eric.piel@tremplin-utc.net>, linux-input@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Rename the HID documentation files to ReST, add an
-index for them and adjust in order to produce a nice html
-output via the Sphinx build system.
+On Mon, 15 Apr 2019 23:04:15 +0200
+H. Nikolaus Schaller <hns@goldelico.com> wrote:
 
-While here, fix the sysfs example from hid-sensor.txt, that
-has a lot of "?" instead of the proper UTF-8 characters that
-are produced by the tree command.
+> Hi Jonathan,
+> we seem to have opposite goals and therefore quite different ideas what t=
+he right
+> solution is.
 
-At its new index.rst, let's add a :orphan: while this is not linked to
-the main index.rst file, in order to avoid build warnings.
+Yup :)  Yikes this email has gotten complex.  Hopefully I haven't
+lost track of the various points below.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
----
- .../hid/{hid-alps.txt => hid-alps.rst}        |  85 ++-
- .../hid/{hid-sensor.txt => hid-sensor.rst}    | 192 +++----
- .../{hid-transport.txt => hid-transport.rst}  |  82 ++-
- Documentation/hid/{hiddev.txt => hiddev.rst}  | 130 +++--
- Documentation/hid/{hidraw.txt => hidraw.rst}  |  53 +-
- Documentation/hid/index.rst                   |  18 +
- Documentation/hid/intel-ish-hid.rst           | 485 ++++++++++++++++++
- Documentation/hid/intel-ish-hid.txt           | 454 ----------------
- Documentation/hid/{uhid.txt => uhid.rst}      |  46 +-
- Documentation/input/input.rst                 |   2 +-
- MAINTAINERS                                   |   2 +-
- 11 files changed, 885 insertions(+), 664 deletions(-)
- rename Documentation/hid/{hid-alps.txt => hid-alps.rst} (64%)
- rename Documentation/hid/{hid-sensor.txt => hid-sensor.rst} (61%)
- rename Documentation/hid/{hid-transport.txt => hid-transport.rst} (93%)
- rename Documentation/hid/{hiddev.txt => hiddev.rst} (80%)
- rename Documentation/hid/{hidraw.txt => hidraw.rst} (89%)
- create mode 100644 Documentation/hid/index.rst
- create mode 100644 Documentation/hid/intel-ish-hid.rst
- delete mode 100644 Documentation/hid/intel-ish-hid.txt
- rename Documentation/hid/{uhid.txt => uhid.rst} (94%)
+>=20
+> I come from user-space and the input side, find that input can handle abs=
+tract "acceleration input",
+> and some older chip drivers even provide that as their only interface. Th=
+erefore I want
+> to provide "acceleration input" in these cases where only iio capable dri=
+vers exist by
+> using the existing in-kernel-iio infrastructure. Nothing more.
+>=20
+> You seem to come from the iio architecture and want to extend it to other=
+ APIs as
+> general as possible and input is just one of several of them.
 
-diff --git a/Documentation/hid/hid-alps.txt b/Documentation/hid/hid-alps.rst
-similarity index 64%
-rename from Documentation/hid/hid-alps.txt
-rename to Documentation/hid/hid-alps.rst
-index 6b02a2447c77..e2f4c4c11e3f 100644
---- a/Documentation/hid/hid-alps.txt
-+++ b/Documentation/hid/hid-alps.rst
-@@ -1,19 +1,26 @@
-+==========================
- ALPS HID Touchpad Protocol
------------------------
-+==========================
- 
- Introduction
- ------------
- Currently ALPS HID driver supports U1 Touchpad device.
- 
--U1 devuce basic information.
-+U1 device basic information.
-+
-+==========	======
- Vender ID	0x044E
- Product ID	0x120B
- Version ID	0x0121
-+==========	======
- 
- 
- HID Descriptor
--------------
-+--------------
-+
-+=======	====================	=====	=======================================
- Byte	Field			Value	Notes
-+=======	====================	=====	=======================================
- 0	wHIDDescLength		001E	Length of HID Descriptor : 30 bytes
- 2	bcdVersion		0100	Compliant with Version 1.00
- 4	wReportDescLength	00B2	Report Descriptor is 178 Bytes (0x00B2)
-@@ -28,32 +35,42 @@ Byte	Field			Value	Notes
- 22	wProductID		120B	Product ID 0x120B
- 24	wVersionID		0121	Version 01.21
- 26	RESERVED		0000	RESERVED
-+=======	====================	=====	=======================================
- 
- 
- Report ID
--------------
--ReportID-1	(Input Reports)	(HIDUsage-Mouse) for TP&SP
--ReportID-2	(Input Reports)	(HIDUsage-keyboard) for TP
--ReportID-3	(Input Reports)	(Vendor Usage: Max 10 finger data) for TP
--ReportID-4	(Input Reports)	(Vendor Usage: ON bit data) for GP
--ReportID-5	(Feature Reports)	Feature Reports
--ReportID-6	(Input Reports)	(Vendor Usage: StickPointer data) for SP
--ReportID-7	(Feature Reports)	Flash update (Bootloader)
-+---------
-+
-+==========	=================  =========================================
-+ReportID-1	(Input Reports)	   (HIDUsage-Mouse) for TP&SP
-+ReportID-2	(Input Reports)	   (HIDUsage-keyboard) for TP
-+ReportID-3	(Input Reports)	   (Vendor Usage: Max 10 finger data) for TP
-+ReportID-4	(Input Reports)	   (Vendor Usage: ON bit data) for GP
-+ReportID-5	(Feature Reports)  Feature Reports
-+ReportID-6	(Input Reports)	   (Vendor Usage: StickPointer data) for SP
-+ReportID-7	(Feature Reports)  Flash update (Bootloader)
-+==========	=================  =========================================
- 
- 
- Data pattern
- ------------
-+
-+=====	==========	=====	=================
- Case1	ReportID_1	TP/SP	Relative/Relative
- Case2	ReportID_3	TP	Absolute
- 	ReportID_6	SP	Absolute
-+=====	==========	=====	=================
- 
- 
- Command Read/Write
- ------------------
- To read/write to RAM, need to send a commands to the device.
-+
- The command format is as below.
- 
- DataByte(SET_REPORT)
-+
-+=====	======================
- Byte1	Command Byte
- Byte2	Address - Byte 0 (LSB)
- Byte3	Address - Byte 1
-@@ -61,13 +78,19 @@ Byte4	Address - Byte 2
- Byte5	Address - Byte 3 (MSB)
- Byte6	Value Byte
- Byte7	Checksum
-+=====	======================
- 
- Command Byte is read=0xD1/write=0xD2 .
-+
- Address is read/write RAM address.
-+
- Value Byte is writing data when you send the write commands.
-+
- When you read RAM, there is no meaning.
- 
- DataByte(GET_REPORT)
-+
-+=====	======================
- Byte1	Response Byte
- Byte2	Address - Byte 0 (LSB)
- Byte3	Address - Byte 1
-@@ -75,6 +98,7 @@ Byte4	Address - Byte 2
- Byte5	Address - Byte 3 (MSB)
- Byte6	Value Byte
- Byte7	Checksum
-+=====	======================
- 
- Read value is stored in Value Byte.
- 
-@@ -82,7 +106,11 @@ Read value is stored in Value Byte.
- Packet Format
- Touchpad data byte
- ------------------
--	b7	b6	b5	b4	b3	b2	b1	b0
-+
-+
-+======= ======= ======= ======= ======= ======= ======= ======= =====
-+-	b7	b6	b5	b4	b3	b2	b1	b0
-+======= ======= ======= ======= ======= ======= ======= ======= =====
- 1	0	0	SW6	SW5	SW4	SW3	SW2	SW1
- 2	0	0	0	Fcv	Fn3	Fn2	Fn1	Fn0
- 3	Xa0_7	Xa0_6	Xa0_5	Xa0_4	Xa0_3	Xa0_2	Xa0_1	Xa0_0
-@@ -114,17 +142,25 @@ Touchpad data byte
- 25	Ya4_7	Ya4_6	Ya4_5	Ya4_4	Ya4_3	Ya4_2	Ya4_1	Ya4_0
- 26	Ya4_15	Ya4_14	Ya4_13	Ya4_12	Ya4_11	Ya4_10	Ya4_9	Ya4_8
- 27	LFB4	Zs4_6	Zs4_5	Zs4_4	Zs4_3	Zs4_2	Zs4_1	Zs4_0
-+======= ======= ======= ======= ======= ======= ======= ======= =====
- 
- 
--SW1-SW6:	SW ON/OFF status
--Xan_15-0(16bit):X Absolute data of the "n"th finger
--Yan_15-0(16bit):Y Absolute data of the "n"th finger
--Zsn_6-0(7bit):	Operation area of the "n"th finger
-+SW1-SW6:
-+	SW ON/OFF status
-+Xan_15-0(16bit):
-+	X Absolute data of the "n"th finger
-+Yan_15-0(16bit):
-+	Y Absolute data of the "n"th finger
-+Zsn_6-0(7bit):
-+	Operation area of the "n"th finger
- 
- 
- StickPointer data byte
--------------------
--	b7	b6	b5	b4	b3	b2	b1	b0
-+----------------------
-+
-+======= ======= ======= ======= ======= ======= ======= ======= =====
-+-	b7	b6	b5	b4	b3	b2	b1	b0
-+======= ======= ======= ======= ======= ======= ======= ======= =====
- Byte1	1	1	1	0	1	SW3	SW2	SW1
- Byte2	X7	X6	X5	X4	X3	X2	X1	X0
- Byte3	X15	X14	X13	X12	X11	X10	X9	X8
-@@ -132,8 +168,13 @@ Byte4	Y7	Y6	Y5	Y4	Y3	Y2	Y1	Y0
- Byte5	Y15	Y14	Y13	Y12	Y11	Y10	Y9	Y8
- Byte6	Z7	Z6	Z5	Z4	Z3	Z2	Z1	Z0
- Byte7	T&P	Z14	Z13	Z12	Z11	Z10	Z9	Z8
-+======= ======= ======= ======= ======= ======= ======= ======= =====
- 
--SW1-SW3:	SW ON/OFF status
--Xn_15-0(16bit):X Absolute data
--Yn_15-0(16bit):Y Absolute data
--Zn_14-0(15bit):Z
-+SW1-SW3:
-+	SW ON/OFF status
-+Xn_15-0(16bit):
-+	X Absolute data
-+Yn_15-0(16bit):
-+	Y Absolute data
-+Zn_14-0(15bit):
-+	Z
-diff --git a/Documentation/hid/hid-sensor.txt b/Documentation/hid/hid-sensor.rst
-similarity index 61%
-rename from Documentation/hid/hid-sensor.txt
-rename to Documentation/hid/hid-sensor.rst
-index b287752a31cd..758972e34971 100644
---- a/Documentation/hid/hid-sensor.txt
-+++ b/Documentation/hid/hid-sensor.rst
-@@ -1,6 +1,6 @@
--
-+=====================
- HID Sensors Framework
--======================
-+=====================
- HID sensor framework provides necessary interfaces to implement sensor drivers,
- which are connected to a sensor hub. The sensor hub is a HID device and it provides
- a report descriptor conforming to HID 1.12 sensor usage tables.
-@@ -15,22 +15,22 @@ the drivers themselves."
- This specification describes many usage IDs, which describe the type of sensor
- and also the individual data fields. Each sensor can have variable number of
- data fields. The length and order is specified in the report descriptor. For
--example a part of report descriptor can look like:
-+example a part of report descriptor can look like::
- 
--   INPUT(1)[INPUT]
-- ..
--    Field(2)
--      Physical(0020.0073)
--      Usage(1)
--        0020.045f
--      Logical Minimum(-32767)
--      Logical Maximum(32767)
--      Report Size(8)
--      Report Count(1)
--      Report Offset(16)
--      Flags(Variable Absolute)
--..
--..
-+     INPUT(1)[INPUT]
-+   ..
-+      Field(2)
-+        Physical(0020.0073)
-+        Usage(1)
-+          0020.045f
-+        Logical Minimum(-32767)
-+        Logical Maximum(32767)
-+        Report Size(8)
-+        Report Count(1)
-+        Report Offset(16)
-+        Flags(Variable Absolute)
-+  ..
-+  ..
- 
- The report is indicating "sensor page (0x20)" contains an accelerometer-3D (0x73).
- This accelerometer-3D has some fields. Here for example field 2 is motion intensity
-@@ -40,13 +40,14 @@ data will use this format.
- 
- 
- Implementation
--=================
-+==============
- 
- This specification defines many different types of sensors with different sets of
- data fields. It is difficult to have a common input event to user space applications,
- for different sensors. For example an accelerometer can send X,Y and Z data, whereas
- an ambient light sensor can send illumination data.
- So the implementation has two parts:
-+
- - Core hid driver
- - Individual sensor processing part (sensor drivers)
- 
-@@ -55,8 +56,11 @@ Core driver
- The core driver registers (hid-sensor-hub) registers as a HID driver. It parses
- report descriptors and identifies all the sensors present. It adds an MFD device
- with name HID-SENSOR-xxxx (where xxxx is usage id from the specification).
--For example
-+
-+For example:
-+
- HID-SENSOR-200073 is registered for an Accelerometer 3D driver.
-+
- So if any driver with this name is inserted, then the probe routine for that
- function will be called. So an accelerometer processing driver can register
- with this name and will be probed if there is an accelerometer-3D detected.
-@@ -66,7 +70,8 @@ drivers to register and get events for that usage id. Also it provides parsing
- functions, which get and set each input/feature/output report.
- 
- Individual sensor processing part (sensor drivers)
-------------
-+--------------------------------------------------
-+
- The processing driver will use an interface provided by the core driver to parse
- the report and get the indexes of the fields and also can get events. This driver
- can use IIO interface to use the standard ABI defined for a type of sensor.
-@@ -75,31 +80,34 @@ can use IIO interface to use the standard ABI defined for a type of sensor.
- Core driver Interface
- =====================
- 
--Callback structure:
--Each processing driver can use this structure to set some callbacks.
-+Callback structure::
-+
-+  Each processing driver can use this structure to set some callbacks.
- 	int (*suspend)(..): Callback when HID suspend is received
- 	int (*resume)(..): Callback when HID resume is received
- 	int (*capture_sample)(..): Capture a sample for one of its data fields
- 	int (*send_event)(..): One complete event is received which can have
-                                multiple data fields.
- 
--Registration functions:
--int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
-+Registration functions::
-+
-+  int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
- 			u32 usage_id,
- 			struct hid_sensor_hub_callbacks *usage_callback):
- 
- Registers callbacks for an usage id. The callback functions are not allowed
--to sleep.
-+to sleep::
- 
- 
--int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
-+  int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
- 			u32 usage_id):
- 
- Removes callbacks for an usage id.
- 
- 
--Parsing function:
--int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
-+Parsing function::
-+
-+  int sensor_hub_input_get_attribute_info(struct hid_sensor_hub_device *hsdev,
- 			u8 type,
- 			u32 usage_id, u32 attr_usage_id,
- 			struct hid_sensor_hub_attribute_info *info);
-@@ -110,26 +118,27 @@ so that fields can be set or get individually.
- These indexes avoid searching every time and getting field index to get or set.
- 
- 
--Set Feature report
--int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-+Set Feature report::
-+
-+  int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 			u32 field_index, s32 value);
- 
- This interface is used to set a value for a field in feature report. For example
- if there is a field report_interval, which is parsed by a call to
--sensor_hub_input_get_attribute_info before, then it can directly set that individual
--field.
-+sensor_hub_input_get_attribute_info before, then it can directly set that
-+individual field::
- 
- 
--int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
-+  int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 			u32 field_index, s32 *value);
- 
- This interface is used to get a value for a field in input report. For example
- if there is a field report_interval, which is parsed by a call to
--sensor_hub_input_get_attribute_info before, then it can directly get that individual
--field value.
-+sensor_hub_input_get_attribute_info before, then it can directly get that
-+individual field value::
- 
- 
--int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
-+  int sensor_hub_input_attr_get_raw_value(struct hid_sensor_hub_device *hsdev,
- 			u32 usage_id,
- 			u32 attr_usage_id, u32 report_id);
- 
-@@ -143,6 +152,8 @@ registered callback function to process the sample.
- ----------
- 
- HID Custom and generic Sensors
-+------------------------------
-+
- 
- HID Sensor specification defines two special sensor usage types. Since they
- don't represent a standard sensor, it is not possible to define using Linux IIO
-@@ -158,66 +169,73 @@ keyboard attached/detached or lid open/close.
- To allow application to utilize these sensors, here they are exported uses sysfs
- attribute groups, attributes and misc device interface.
- 
--An example of this representation on sysfs:
--/sys/devices/pci0000:00/INT33C2:00/i2c-0/i2c-INT33D1:00/0018:8086:09FA.0001/HID-SENSOR-2000e1.6.auto$ tree -R
--.
--????????? enable_sensor
--????????? feature-0-200316
--??????? ????????? feature-0-200316-maximum
--??????? ????????? feature-0-200316-minimum
--??????? ????????? feature-0-200316-name
--??????? ????????? feature-0-200316-size
--??????? ????????? feature-0-200316-unit-expo
--??????? ????????? feature-0-200316-units
--??????? ????????? feature-0-200316-value
--????????? feature-1-200201
--??????? ????????? feature-1-200201-maximum
--??????? ????????? feature-1-200201-minimum
--??????? ????????? feature-1-200201-name
--??????? ????????? feature-1-200201-size
--??????? ????????? feature-1-200201-unit-expo
--??????? ????????? feature-1-200201-units
--??????? ????????? feature-1-200201-value
--????????? input-0-200201
--??????? ????????? input-0-200201-maximum
--??????? ????????? input-0-200201-minimum
--??????? ????????? input-0-200201-name
--??????? ????????? input-0-200201-size
--??????? ????????? input-0-200201-unit-expo
--??????? ????????? input-0-200201-units
--??????? ????????? input-0-200201-value
--????????? input-1-200202
--??????? ????????? input-1-200202-maximum
--??????? ????????? input-1-200202-minimum
--??????? ????????? input-1-200202-name
--??????? ????????? input-1-200202-size
--??????? ????????? input-1-200202-unit-expo
--??????? ????????? input-1-200202-units
--??????? ????????? input-1-200202-value
-+An example of this representation on sysfs::
-+
-+  /sys/devices/pci0000:00/INT33C2:00/i2c-0/i2c-INT33D1:00/0018:8086:09FA.0001/HID-SENSOR-2000e1.6.auto$ tree -R
-+  .
-+  │   ├──  enable_sensor
-+  │   │   ├── feature-0-200316
-+  │   │   │   ├── feature-0-200316-maximum
-+  │   │   │   ├── feature-0-200316-minimum
-+  │   │   │   ├── feature-0-200316-name
-+  │   │   │   ├── feature-0-200316-size
-+  │   │   │   ├── feature-0-200316-unit-expo
-+  │   │   │   ├── feature-0-200316-units
-+  │   │   │   ├── feature-0-200316-value
-+  │   │   ├── feature-1-200201
-+  │   │   │   ├── feature-1-200201-maximum
-+  │   │   │   ├── feature-1-200201-minimum
-+  │   │   │   ├── feature-1-200201-name
-+  │   │   │   ├── feature-1-200201-size
-+  │   │   │   ├── feature-1-200201-unit-expo
-+  │   │   │   ├── feature-1-200201-units
-+  │   │   │   ├── feature-1-200201-value
-+  │   │   ├── input-0-200201
-+  │   │   │   ├── input-0-200201-maximum
-+  │   │   │   ├── input-0-200201-minimum
-+  │   │   │   ├── input-0-200201-name
-+  │   │   │   ├── input-0-200201-size
-+  │   │   │   ├── input-0-200201-unit-expo
-+  │   │   │   ├── input-0-200201-units
-+  │   │   │   ├── input-0-200201-value
-+  │   │   ├── input-1-200202
-+  │   │   │   ├── input-1-200202-maximum
-+  │   │   │   ├── input-1-200202-minimum
-+  │   │   │   ├── input-1-200202-name
-+  │   │   │   ├── input-1-200202-size
-+  │   │   │   ├── input-1-200202-unit-expo
-+  │   │   │   ├── input-1-200202-units
-+  │   │   │   ├── input-1-200202-value
- 
- Here there is a custom sensors with four fields, two feature and two inputs.
- Each field is represented by a set of attributes. All fields except the "value"
- are read only. The value field is a RW field.
--Example
--/sys/bus/platform/devices/HID-SENSOR-2000e1.6.auto/feature-0-200316$ grep -r . *
--feature-0-200316-maximum:6
--feature-0-200316-minimum:0
--feature-0-200316-name:property-reporting-state
--feature-0-200316-size:1
--feature-0-200316-unit-expo:0
--feature-0-200316-units:25
--feature-0-200316-value:1
-+
-+Example::
-+
-+  /sys/bus/platform/devices/HID-SENSOR-2000e1.6.auto/feature-0-200316$ grep -r . *
-+  feature-0-200316-maximum:6
-+  feature-0-200316-minimum:0
-+  feature-0-200316-name:property-reporting-state
-+  feature-0-200316-size:1
-+  feature-0-200316-unit-expo:0
-+  feature-0-200316-units:25
-+  feature-0-200316-value:1
- 
- How to enable such sensor?
-+^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
- By default sensor can be power gated. To enable sysfs attribute "enable" can be
--used.
--$ echo 1 > enable_sensor
-+used::
-+
-+	$ echo 1 > enable_sensor
- 
- Once enabled and powered on, sensor can report value using HID reports.
--These reports are pushed using misc device interface in a FIFO order.
--/dev$ tree | grep HID-SENSOR-2000e1.6.auto
--??????? ????????? 10:53 -> ../HID-SENSOR-2000e1.6.auto
--????????? HID-SENSOR-2000e1.6.auto
-+These reports are pushed using misc device interface in a FIFO order::
-+
-+	/dev$ tree | grep HID-SENSOR-2000e1.6.auto
-+	│   │   │   ├── 10:53 -> ../HID-SENSOR-2000e1.6.auto
-+	│   ├──  HID-SENSOR-2000e1.6.auto
- 
- Each reports can be of variable length preceded by a header. This header
- consist of a 32 bit usage id, 64 bit time stamp and 32 bit length field of raw
-diff --git a/Documentation/hid/hid-transport.txt b/Documentation/hid/hid-transport.rst
-similarity index 93%
-rename from Documentation/hid/hid-transport.txt
-rename to Documentation/hid/hid-transport.rst
-index 3dcba9fd4a3a..6f3aaa86ce7b 100644
---- a/Documentation/hid/hid-transport.txt
-+++ b/Documentation/hid/hid-transport.rst
-@@ -1,5 +1,6 @@
--                          HID I/O Transport Drivers
--                         ===========================
-+=========================
-+HID I/O Transport Drivers
-+=========================
- 
- The HID subsystem is independent of the underlying transport driver. Initially,
- only USB was supported, but other specifications adopted the HID design and
-@@ -16,6 +17,8 @@ transport and device setup/management. HID core is responsible of
- report-parsing, report interpretation and the user-space API. Device specifics
- and quirks are handled by all layers depending on the quirk.
- 
-+::
-+
-  +-----------+  +-----------+            +-----------+  +-----------+
-  | Device #1 |  | Device #i |            | Device #j |  | Device #k |
-  +-----------+  +-----------+            +-----------+  +-----------+
-@@ -42,8 +45,9 @@ and quirks are handled by all layers depending on the quirk.
-  +----------------+  +-----------+  +------------------+  +------------------+
- 
- Example Drivers:
--  I/O: USB, I2C, Bluetooth-l2cap
--  Transport: USB-HID, I2C-HID, BT-HIDP
-+
-+  - I/O: USB, I2C, Bluetooth-l2cap
-+  - Transport: USB-HID, I2C-HID, BT-HIDP
- 
- Everything below "HID Core" is simplified in this graph as it is only of
- interest to HID device drivers. Transport drivers do not need to know the
-@@ -183,7 +187,7 @@ Other ctrl-channel requests are supported by USB-HID but are not available
- -------------------
- 
- Transport drivers normally use the following procedure to register a new device
--with HID core:
-+with HID core::
- 
- 	struct hid_device *hid;
- 	int ret;
-@@ -215,7 +219,7 @@ Once hid_add_device() is entered, HID core might use the callbacks provided in
- "custom_ll_driver". Note that fields like "country" can be ignored by underlying
- transport-drivers if not supported.
- 
--To unregister a device, use:
-+To unregister a device, use::
- 
- 	hid_destroy_device(hid);
- 
-@@ -226,73 +230,110 @@ driver callbacks.
- -----------------------------
- 
- The available HID callbacks are:
-- - int (*start) (struct hid_device *hdev)
-+
-+   ::
-+
-+      int (*start) (struct hid_device *hdev)
-+
-    Called from HID device drivers once they want to use the device. Transport
-    drivers can choose to setup their device in this callback. However, normally
-    devices are already set up before transport drivers register them to HID core
-    so this is mostly only used by USB-HID.
- 
-- - void (*stop) (struct hid_device *hdev)
-+   ::
-+
-+      void (*stop) (struct hid_device *hdev)
-+
-    Called from HID device drivers once they are done with a device. Transport
-    drivers can free any buffers and deinitialize the device. But note that
-    ->start() might be called again if another HID device driver is loaded on the
-    device.
-+
-    Transport drivers are free to ignore it and deinitialize devices after they
-    destroyed them via hid_destroy_device().
- 
-- - int (*open) (struct hid_device *hdev)
-+   ::
-+
-+      int (*open) (struct hid_device *hdev)
-+
-    Called from HID device drivers once they are interested in data reports.
-    Usually, while user-space didn't open any input API/etc., device drivers are
-    not interested in device data and transport drivers can put devices asleep.
-    However, once ->open() is called, transport drivers must be ready for I/O.
-    ->open() calls are nested for each client that opens the HID device.
- 
-- - void (*close) (struct hid_device *hdev)
-+   ::
-+
-+      void (*close) (struct hid_device *hdev)
-+
-    Called from HID device drivers after ->open() was called but they are no
-    longer interested in device reports. (Usually if user-space closed any input
-    devices of the driver).
-+
-    Transport drivers can put devices asleep and terminate any I/O of all
-    ->open() calls have been followed by a ->close() call. However, ->start() may
-    be called again if the device driver is interested in input reports again.
- 
-- - int (*parse) (struct hid_device *hdev)
-+   ::
-+
-+      int (*parse) (struct hid_device *hdev)
-+
-    Called once during device setup after ->start() has been called. Transport
-    drivers must read the HID report-descriptor from the device and tell HID core
-    about it via hid_parse_report().
- 
-- - int (*power) (struct hid_device *hdev, int level)
-+   ::
-+
-+      int (*power) (struct hid_device *hdev, int level)
-+
-    Called by HID core to give PM hints to transport drivers. Usually this is
-    analogical to the ->open() and ->close() hints and redundant.
- 
-- - void (*request) (struct hid_device *hdev, struct hid_report *report,
--                    int reqtype)
-+   ::
-+
-+      void (*request) (struct hid_device *hdev, struct hid_report *report,
-+		       int reqtype)
-+
-    Send an HID request on the ctrl channel. "report" contains the report that
-    should be sent and "reqtype" the request type. Request-type can be
-    HID_REQ_SET_REPORT or HID_REQ_GET_REPORT.
-+
-    This callback is optional. If not provided, HID core will assemble a raw
-    report following the HID specs and send it via the ->raw_request() callback.
-    The transport driver is free to implement this asynchronously.
- 
-- - int (*wait) (struct hid_device *hdev)
-+   ::
-+
-+      int (*wait) (struct hid_device *hdev)
-+
-    Used by HID core before calling ->request() again. A transport driver can use
-    it to wait for any pending requests to complete if only one request is
-    allowed at a time.
- 
-- - int (*raw_request) (struct hid_device *hdev, unsigned char reportnum,
--                       __u8 *buf, size_t count, unsigned char rtype,
--                       int reqtype)
-+   ::
-+
-+      int (*raw_request) (struct hid_device *hdev, unsigned char reportnum,
-+                          __u8 *buf, size_t count, unsigned char rtype,
-+                          int reqtype)
-+
-    Same as ->request() but provides the report as raw buffer. This request shall
-    be synchronous. A transport driver must not use ->wait() to complete such
-    requests. This request is mandatory and hid core will reject the device if
-    it is missing.
- 
-- - int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len)
-+   ::
-+
-+      int (*output_report) (struct hid_device *hdev, __u8 *buf, size_t len)
-+
-    Send raw output report via intr channel. Used by some HID device drivers
-    which require high throughput for outgoing requests on the intr channel. This
-    must not cause SET_REPORT calls! This must be implemented as asynchronous
-    output report on the intr channel!
- 
-- - int (*idle) (struct hid_device *hdev, int report, int idle, int reqtype)
-+   ::
-+
-+      int (*idle) (struct hid_device *hdev, int report, int idle, int reqtype)
-+
-    Perform SET/GET_IDLE request. Only used by USB-HID, do not implement!
- 
- 2.3) Data Path
-@@ -314,4 +355,5 @@ transport driver and not passed to hid_input_report().
- Acknowledgements to SET_REPORT requests are not of interest to HID core.
- 
- ----------------------------------------------------
-+
- Written 2013, David Herrmann <dh.herrmann@gmail.com>
-diff --git a/Documentation/hid/hiddev.txt b/Documentation/hid/hiddev.rst
-similarity index 80%
-rename from Documentation/hid/hiddev.txt
-rename to Documentation/hid/hiddev.rst
-index 638448707aa2..16c663530db2 100644
---- a/Documentation/hid/hiddev.txt
-+++ b/Documentation/hid/hiddev.rst
-@@ -1,6 +1,9 @@
-+================================================
- Care and feeding of your Human Interface Devices
-+================================================
- 
--INTRODUCTION
-+Introduction
-+============
- 
- In addition to the normal input type HID devices, USB also uses the
- human interface device protocols for things that are not really human
-@@ -16,7 +19,7 @@ normalised event interface - see Documentation/input/input.rst
- * the hiddev interface, which provides fairly raw HID events
- 
- The data flow for a HID event produced by a device is something like
--the following :
-+the following::
- 
-  usb.c ---> hid-core.c  ----> hid-input.c ----> [keyboard/mouse/joystick/event]
-                          |
-@@ -27,27 +30,29 @@ In addition, other subsystems (apart from USB) can potentially feed
- events into the input subsystem, but these have no effect on the hid
- device interface.
- 
--USING THE HID DEVICE INTERFACE
-+Using the HID Device Interface
-+==============================
- 
- The hiddev interface is a char interface using the normal USB major,
- with the minor numbers starting at 96 and finishing at 111. Therefore,
--you need the following commands:
--mknod /dev/usb/hiddev0 c 180 96
--mknod /dev/usb/hiddev1 c 180 97
--mknod /dev/usb/hiddev2 c 180 98
--mknod /dev/usb/hiddev3 c 180 99
--mknod /dev/usb/hiddev4 c 180 100
--mknod /dev/usb/hiddev5 c 180 101
--mknod /dev/usb/hiddev6 c 180 102
--mknod /dev/usb/hiddev7 c 180 103
--mknod /dev/usb/hiddev8 c 180 104
--mknod /dev/usb/hiddev9 c 180 105
--mknod /dev/usb/hiddev10 c 180 106
--mknod /dev/usb/hiddev11 c 180 107
--mknod /dev/usb/hiddev12 c 180 108
--mknod /dev/usb/hiddev13 c 180 109
--mknod /dev/usb/hiddev14 c 180 110
--mknod /dev/usb/hiddev15 c 180 111
-+you need the following commands::
-+
-+	mknod /dev/usb/hiddev0 c 180 96
-+	mknod /dev/usb/hiddev1 c 180 97
-+	mknod /dev/usb/hiddev2 c 180 98
-+	mknod /dev/usb/hiddev3 c 180 99
-+	mknod /dev/usb/hiddev4 c 180 100
-+	mknod /dev/usb/hiddev5 c 180 101
-+	mknod /dev/usb/hiddev6 c 180 102
-+	mknod /dev/usb/hiddev7 c 180 103
-+	mknod /dev/usb/hiddev8 c 180 104
-+	mknod /dev/usb/hiddev9 c 180 105
-+	mknod /dev/usb/hiddev10 c 180 106
-+	mknod /dev/usb/hiddev11 c 180 107
-+	mknod /dev/usb/hiddev12 c 180 108
-+	mknod /dev/usb/hiddev13 c 180 109
-+	mknod /dev/usb/hiddev14 c 180 110
-+	mknod /dev/usb/hiddev15 c 180 111
- 
- So you point your hiddev compliant user-space program at the correct
- interface for your device, and it all just works.
-@@ -56,7 +61,9 @@ Assuming that you have a hiddev compliant user-space program, of
- course. If you need to write one, read on.
- 
- 
--THE HIDDEV API
-+The HIDDEV API
-+==============
-+
- This description should be read in conjunction with the HID
- specification, freely available from http://www.usb.org, and
- conveniently linked of http://www.linux-usb.org.
-@@ -69,12 +76,14 @@ each of which can have one or more "usages".  In the hid-core,
- each one of these usages has a single signed 32 bit value.
- 
- read():
-+-------
-+
- This is the event interface.  When the HID device's state changes,
- it performs an interrupt transfer containing a report which contains
- the changed value.  The hid-core.c module parses the report, and
- returns to hiddev.c the individual usages that have changed within
- the report.  In its basic mode, the hiddev will make these individual
--usage changes available to the reader using a struct hiddev_event:
-+usage changes available to the reader using a struct hiddev_event::
- 
-        struct hiddev_event {
-            unsigned hid;
-@@ -91,12 +100,18 @@ ioctl() described below.
- 
- 
- ioctl(): 
-+--------
-+
- This is the control interface. There are a number of controls: 
- 
--HIDIOCGVERSION - int (read)
--Gets the version code out of the hiddev driver.
-+HIDIOCGVERSION
-+  - int (read)
-+
-+ Gets the version code out of the hiddev driver.
-+
-+HIDIOCAPPLICATION
-+  - (none)
- 
--HIDIOCAPPLICATION - (none)
- This ioctl call returns the HID application usage associated with the
- hid device. The third argument to ioctl() specifies which application
- index to get. This is useful when the device has more than one
-@@ -106,7 +121,9 @@ returns -1. You can find out beforehand how many application
- collections the device has from the num_applications field from the
- hiddev_devinfo structure. 
- 
--HIDIOCGCOLLECTIONINFO - struct hiddev_collection_info (read/write)
-+HIDIOCGCOLLECTIONINFO
-+  - struct hiddev_collection_info (read/write)
-+
- This returns a superset of the information above, providing not only
- application collections, but all the collections the device has.  It
- also returns the level the collection lives in the hierarchy.
-@@ -115,14 +132,20 @@ field set to the index that should be returned.  The ioctl fills in
- the other fields.  If the index is larger than the last collection 
- index, the ioctl returns -1 and sets errno to -EINVAL.
- 
--HIDIOCGDEVINFO - struct hiddev_devinfo (read)
-+HIDIOCGDEVINFO
-+  - struct hiddev_devinfo (read)
-+
- Gets a hiddev_devinfo structure which describes the device.
- 
--HIDIOCGSTRING - struct hiddev_string_descriptor (read/write)
-+HIDIOCGSTRING
-+  - struct hiddev_string_descriptor (read/write)
-+
- Gets a string descriptor from the device. The caller must fill in the
- "index" field to indicate which descriptor should be returned.
- 
--HIDIOCINITREPORT - (none)
-+HIDIOCINITREPORT
-+  - (none)
-+
- Instructs the kernel to retrieve all input and feature report values
- from the device. At this point, all the usage structures will contain
- current values for the device, and will maintain it as the device
-@@ -130,21 +153,29 @@ changes.  Note that the use of this ioctl is unnecessary in general,
- since later kernels automatically initialize the reports from the
- device at attach time.
- 
--HIDIOCGNAME - string (variable length)
-+HIDIOCGNAME
-+  - string (variable length)
-+
- Gets the device name
- 
--HIDIOCGREPORT - struct hiddev_report_info (write)
-+HIDIOCGREPORT
-+  - struct hiddev_report_info (write)
-+
- Instructs the kernel to get a feature or input report from the device,
- in order to selectively update the usage structures (in contrast to
- INITREPORT).
- 
--HIDIOCSREPORT - struct hiddev_report_info (write)
-+HIDIOCSREPORT
-+  - struct hiddev_report_info (write)
-+
- Instructs the kernel to send a report to the device. This report can
- be filled in by the user through HIDIOCSUSAGE calls (below) to fill in
- individual usage values in the report before sending the report in full
- to the device. 
- 
--HIDIOCGREPORTINFO - struct hiddev_report_info (read/write)
-+HIDIOCGREPORTINFO
-+  - struct hiddev_report_info (read/write)
-+
- Fills in a hiddev_report_info structure for the user. The report is
- looked up by type (input, output or feature) and id, so these fields
- must be filled in by the user. The ID can be absolute -- the actual
-@@ -156,19 +187,25 @@ use the relative IDs above to enumerate the valid IDs. The ioctl
- returns non-zero when there is no more next ID. The real report ID is
- filled into the returned hiddev_report_info structure. 
- 
--HIDIOCGFIELDINFO - struct hiddev_field_info (read/write)
-+HIDIOCGFIELDINFO
-+  - struct hiddev_field_info (read/write)
-+
- Returns the field information associated with a report in a
- hiddev_field_info structure. The user must fill in report_id and
- report_type in this structure, as above. The field_index should also
- be filled in, which should be a number from 0 and maxfield-1, as
- returned from a previous HIDIOCGREPORTINFO call. 
- 
--HIDIOCGUCODE - struct hiddev_usage_ref (read/write)
-+HIDIOCGUCODE
-+  - struct hiddev_usage_ref (read/write)
-+
- Returns the usage_code in a hiddev_usage_ref structure, given that
- given its report type, report id, field index, and index within the
- field have already been filled into the structure.
- 
--HIDIOCGUSAGE - struct hiddev_usage_ref (read/write)
-+HIDIOCGUSAGE
-+  - struct hiddev_usage_ref (read/write)
-+
- Returns the value of a usage in a hiddev_usage_ref structure. The
- usage to be retrieved can be specified as above, or the user can
- choose to fill in the report_type field and specify the report_id as
-@@ -176,28 +213,37 @@ HID_REPORT_ID_UNKNOWN. In this case, the hiddev_usage_ref will be
- filled in with the report and field information associated with this
- usage if it is found. 
- 
--HIDIOCSUSAGE - struct hiddev_usage_ref (write)
-+HIDIOCSUSAGE
-+  - struct hiddev_usage_ref (write)
-+
- Sets the value of a usage in an output report.  The user fills in
- the hiddev_usage_ref structure as above, but additionally fills in
- the value field.
- 
--HIDIOGCOLLECTIONINDEX - struct hiddev_usage_ref (write)
-+HIDIOGCOLLECTIONINDEX
-+  - struct hiddev_usage_ref (write)
-+
- Returns the collection index associated with this usage.  This
- indicates where in the collection hierarchy this usage sits.
- 
--HIDIOCGFLAG - int (read)
--HIDIOCSFLAG - int (write)
-+HIDIOCGFLAG
-+  - int (read)
-+HIDIOCSFLAG
-+  - int (write)
-+
- These operations respectively inspect and replace the mode flags
- that influence the read() call above.  The flags are as follows:
- 
--    HIDDEV_FLAG_UREF - read() calls will now return 
-+    HIDDEV_FLAG_UREF
-+      - read() calls will now return
-         struct hiddev_usage_ref instead of struct hiddev_event.
-         This is a larger structure, but in situations where the
-         device has more than one usage in its reports with the
-         same usage code, this mode serves to resolve such
-         ambiguity.
- 
--    HIDDEV_FLAG_REPORT - This flag can only be used in conjunction
-+    HIDDEV_FLAG_REPORT
-+      - This flag can only be used in conjunction
-         with HIDDEV_FLAG_UREF.  With this flag set, when the device
-         sends a report, a struct hiddev_usage_ref will be returned
-         to read() filled in with the report_type and report_id, but 
-diff --git a/Documentation/hid/hidraw.txt b/Documentation/hid/hidraw.rst
-similarity index 89%
-rename from Documentation/hid/hidraw.txt
-rename to Documentation/hid/hidraw.rst
-index c8436e354f44..4a4a0ba1f362 100644
---- a/Documentation/hid/hidraw.txt
-+++ b/Documentation/hid/hidraw.rst
-@@ -1,5 +1,6 @@
--      HIDRAW - Raw Access to USB and Bluetooth Human Interface Devices
--     ==================================================================
-+================================================================
-+HIDRAW - Raw Access to USB and Bluetooth Human Interface Devices
-+================================================================
- 
- The hidraw driver provides a raw interface to USB and Bluetooth Human
- Interface Devices (HIDs).  It differs from hiddev in that reports sent and
-@@ -31,6 +32,7 @@ directly under /dev (eg: /dev/hidraw0).  As this location is distribution-
- and udev rule-dependent, applications should use libudev to locate hidraw
- devices attached to the system.  There is a tutorial on libudev with a
- working example at:
-+
- 	http://www.signal11.us/oss/udev/
- 
- The HIDRAW API
-@@ -51,7 +53,7 @@ byte.  For devices which do not use numbered reports, the report data
- will begin at the first byte.
- 
- write()
----------
-+-------
- The write() function will write a report to the device. For USB devices, if
- the device has an INTERRUPT OUT endpoint, the report will be sent on that
- endpoint. If it does not, the report will be sent over the control endpoint,
-@@ -62,38 +64,52 @@ number.  If the device does not use numbered reports, the first byte should
- be set to 0. The report data itself should begin at the second byte.
- 
- ioctl()
----------
-+-------
- Hidraw supports the following ioctls:
- 
--HIDIOCGRDESCSIZE: Get Report Descriptor Size
-+HIDIOCGRDESCSIZE:
-+	Get Report Descriptor Size
-+
- This ioctl will get the size of the device's report descriptor.
- 
--HIDIOCGRDESC: Get Report Descriptor
-+HIDIOCGRDESC:
-+	Get Report Descriptor
-+
- This ioctl returns the device's report descriptor using a
- hidraw_report_descriptor struct.  Make sure to set the size field of the
- hidraw_report_descriptor struct to the size returned from HIDIOCGRDESCSIZE.
- 
--HIDIOCGRAWINFO: Get Raw Info
-+HIDIOCGRAWINFO:
-+	Get Raw Info
-+
- This ioctl will return a hidraw_devinfo struct containing the bus type, the
- vendor ID (VID), and product ID (PID) of the device. The bus type can be one
--of:
--	BUS_USB
--	BUS_HIL
--	BUS_BLUETOOTH
--	BUS_VIRTUAL
-+of::
-+
-+	- BUS_USB
-+	- BUS_HIL
-+	- BUS_BLUETOOTH
-+	- BUS_VIRTUAL
-+
- which are defined in uapi/linux/input.h.
- 
--HIDIOCGRAWNAME(len): Get Raw Name
-+HIDIOCGRAWNAME(len):
-+	Get Raw Name
-+
- This ioctl returns a string containing the vendor and product strings of
- the device.  The returned string is Unicode, UTF-8 encoded.
- 
--HIDIOCGRAWPHYS(len): Get Physical Address
-+HIDIOCGRAWPHYS(len):
-+	Get Physical Address
-+
- This ioctl returns a string representing the physical address of the device.
- For USB devices, the string contains the physical path to the device (the
- USB controller, hubs, ports, etc).  For Bluetooth devices, the string
- contains the hardware (MAC) address of the device.
- 
--HIDIOCSFEATURE(len): Send a Feature Report
-+HIDIOCSFEATURE(len):
-+	Send a Feature Report
-+
- This ioctl will send a feature report to the device.  Per the HID
- specification, feature reports are always sent using the control endpoint.
- Set the first byte of the supplied buffer to the report number.  For devices
-@@ -101,7 +117,9 @@ which do not use numbered reports, set the first byte to 0. The report data
- begins in the second byte. Make sure to set len accordingly, to one more
- than the length of the report (to account for the report number).
- 
--HIDIOCGFEATURE(len): Get a Feature Report
-+HIDIOCGFEATURE(len):
-+	Get a Feature Report
-+
- This ioctl will request a feature report from the device using the control
- endpoint.  The first byte of the supplied buffer should be set to the report
- number of the requested report.  For devices which do not use numbered
-@@ -109,11 +127,12 @@ reports, set the first byte to 0.  The report will be returned starting at
- the first byte of the buffer (ie: the report number is not returned).
- 
- Example
-----------
-+-------
- In samples/, find hid-example.c, which shows examples of read(), write(),
- and all the ioctls for hidraw.  The code may be used by anyone for any
- purpose, and can serve as a starting point for developing applications using
- hidraw.
- 
- Document by:
-+
- 	Alan Ott <alan@signal11.us>, Signal 11 Software
-diff --git a/Documentation/hid/index.rst b/Documentation/hid/index.rst
-new file mode 100644
-index 000000000000..af4324902622
---- /dev/null
-+++ b/Documentation/hid/index.rst
-@@ -0,0 +1,18 @@
-+:orphan:
-+
-+=============================
-+Human Interface Devices (HID)
-+=============================
-+
-+.. toctree::
-+   :maxdepth: 1
-+
-+   hiddev
-+   hidraw
-+   hid-sensor
-+   hid-transport
-+
-+   uhid
-+
-+   hid-alps
-+   intel-ish-hid
-diff --git a/Documentation/hid/intel-ish-hid.rst b/Documentation/hid/intel-ish-hid.rst
-new file mode 100644
-index 000000000000..cccbf4be17d7
---- /dev/null
-+++ b/Documentation/hid/intel-ish-hid.rst
-@@ -0,0 +1,485 @@
-+=================================
-+Intel Integrated Sensor Hub (ISH)
-+=================================
-+
-+A sensor hub enables the ability to offload sensor polling and algorithm
-+processing to a dedicated low power co-processor. This allows the core
-+processor to go into low power modes more often, resulting in the increased
-+battery life.
-+
-+There are many vendors providing external sensor hubs confirming to HID
-+Sensor usage tables, and used in several tablets, 2 in 1 convertible laptops
-+and embedded products. Linux had this support since Linux 3.9.
-+
-+Intel® introduced integrated sensor hubs as a part of the SoC starting from
-+Cherry Trail and now supported on multiple generations of CPU packages. There
-+are many commercial devices already shipped with Integrated Sensor Hubs (ISH).
-+These ISH also comply to HID sensor specification, but the  difference is the
-+transport protocol used for communication. The current external sensor hubs
-+mainly use HID over i2C or USB. But ISH doesn't use either i2c or USB.
-+
-+1. Overview
-+===========
-+
-+Using a analogy with a usbhid implementation, the ISH follows a similar model
-+for a very high speed communication::
-+
-+	-----------------		----------------------
-+	|    USB HID	|	-->	|    ISH HID	     |
-+	-----------------		----------------------
-+	-----------------		----------------------
-+	|  USB protocol	|	-->	|    ISH Transport   |
-+	-----------------		----------------------
-+	-----------------		----------------------
-+	|  EHCI/XHCI	|	-->	|    ISH IPC	     |
-+	-----------------		----------------------
-+	      PCI				 PCI
-+	-----------------		----------------------
-+        |Host controller|	-->	|    ISH processor   |
-+	-----------------		----------------------
-+	     USB Link
-+	-----------------		----------------------
-+	| USB End points|	-->	|    ISH Clients     |
-+	-----------------		----------------------
-+
-+Like USB protocol provides a method for device enumeration, link management
-+and user data encapsulation, the ISH also provides similar services. But it is
-+very light weight tailored to manage and communicate with ISH client
-+applications implemented in the firmware.
-+
-+The ISH allows multiple sensor management applications executing in the
-+firmware. Like USB endpoints the messaging can be to/from a client. As part of
-+enumeration process, these clients are identified. These clients can be simple
-+HID sensor applications, sensor calibration application or senor firmware
-+update application.
-+
-+The implementation model is similar, like USB bus, ISH transport is also
-+implemented as a bus. Each client application executing in the ISH processor
-+is registered as a device on this bus. The driver, which binds each device
-+(ISH HID driver) identifies the device type and registers with the hid core.
-+
-+2. ISH Implementation: Block Diagram
-+====================================
-+
-+::
-+
-+	 ---------------------------
-+	|  User Space Applications  |
-+	 ---------------------------
-+
-+  ----------------IIO ABI----------------
-+	 --------------------------
-+	|  IIO Sensor Drivers	  |
-+	 --------------------------
-+	 --------------------------
-+	|	 IIO core	  |
-+	 --------------------------
-+	 --------------------------
-+	|   HID Sensor Hub MFD	  |
-+	 --------------------------
-+	 --------------------------
-+	|       HID Core	  |
-+	 --------------------------
-+	 --------------------------
-+	|   HID over ISH Client   |
-+	 --------------------------
-+	 --------------------------
-+	|   ISH Transport (ISHTP) |
-+	 --------------------------
-+	 --------------------------
-+	|      IPC Drivers	  |
-+	 --------------------------
-+  OS
-+  ---------------- PCI -----------------
-+  Hardware + Firmware
-+	 ----------------------------
-+	| ISH Hardware/Firmware(FW) |
-+	 ----------------------------
-+
-+3. High level processing in above blocks
-+========================================
-+
-+3.1 Hardware Interface
-+----------------------
-+
-+The ISH is exposed as "Non-VGA unclassified PCI device" to the host. The PCI
-+product and vendor IDs are changed from different generations of processors. So
-+the source code which enumerate drivers needs to update from generation to
-+generation.
-+
-+3.2 Inter Processor Communication (IPC) driver
-+----------------------------------------------
-+
-+Location: drivers/hid/intel-ish-hid/ipc
-+
-+The IPC message used memory mapped I/O. The registers are defined in
-+hw-ish-regs.h.
-+
-+3.2.1 IPC/FW message types
-+^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+There are two types of messages, one for management of link and other messages
-+are to and from transport layers.
-+
-+TX and RX of Transport messages
-+...............................
-+
-+A set of memory mapped register offers support of multi byte messages TX and
-+RX (E.g.IPC_REG_ISH2HOST_MSG, IPC_REG_HOST2ISH_MSG). The IPC layer maintains
-+internal queues to sequence messages and send them in order to the FW.
-+Optionally the caller can register handler to get notification of completion.
-+A door bell mechanism is used in messaging to trigger processing in host and
-+client firmware side. When ISH interrupt handler is called, the ISH2HOST
-+doorbell register is used by host drivers to determine that the interrupt
-+is for ISH.
-+
-+Each side has 32 32-bit message registers and a 32-bit doorbell. Doorbell
-+register has the following format:
-+Bits 0..6: fragment length (7 bits are used)
-+Bits 10..13: encapsulated protocol
-+Bits 16..19: management command (for IPC management protocol)
-+Bit 31: doorbell trigger (signal H/W interrupt to the other side)
-+Other bits are reserved, should be 0.
-+
-+3.2.2 Transport layer interface
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+To abstract HW level IPC communication, a set of callbacks are registered.
-+The transport layer uses them to send and receive messages.
-+Refer to  struct ishtp_hw_ops for callbacks.
-+
-+3.3 ISH Transport layer
-+-----------------------
-+
-+Location: drivers/hid/intel-ish-hid/ishtp/
-+
-+3.3.1 A Generic Transport Layer
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+The transport layer is a bi-directional protocol, which defines:
-+- Set of commands to start, stop, connect, disconnect and flow control
-+(ishtp/hbm.h) for details
-+- A flow control mechanism to avoid buffer overflows
-+
-+This protocol resembles bus messages described in the following document:
-+http://www.intel.com/content/dam/www/public/us/en/documents/technical-\
-+specifications/dcmi-hi-1-0-spec.pdf "Chapter 7: Bus Message Layer"
-+
-+3.3.2 Connection and Flow Control Mechanism
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+Each FW client and a protocol is identified by an UUID. In order to communicate
-+to a FW client, a connection must be established using connect request and
-+response bus messages. If successful, a pair (host_client_id and fw_client_id)
-+will identify the connection.
-+
-+Once connection is established, peers send each other flow control bus messages
-+independently. Every peer may send a message only if it has received a
-+flow-control credit before. Once it sent a message, it may not send another one
-+before receiving the next flow control credit.
-+Either side can send disconnect request bus message to end communication. Also
-+the link will be dropped if major FW reset occurs.
-+
-+3.3.3 Peer to Peer data transfer
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+Peer to Peer data transfer can happen with or without using DMA. Depending on
-+the sensor bandwidth requirement DMA can be enabled by using module parameter
-+ishtp_use_dma under intel_ishtp.
-+
-+Each side (host and FW) manages its DMA transfer memory independently. When an
-+ISHTP client from either host or FW side wants to send something, it decides
-+whether to send over IPC or over DMA; for each transfer the decision is
-+independent. The sending side sends DMA_XFER message when the message is in
-+the respective host buffer (TX when host client sends, RX when FW client
-+sends). The recipient of DMA message responds with DMA_XFER_ACK, indicating
-+the sender that the memory region for that message may be reused.
-+
-+DMA initialization is started with host sending DMA_ALLOC_NOTIFY bus message
-+(that includes RX buffer) and FW responds with DMA_ALLOC_NOTIFY_ACK.
-+Additionally to DMA address communication, this sequence checks capabilities:
-+if thw host doesn't support DMA, then it won't send DMA allocation, so FW can't
-+send DMA; if FW doesn't support DMA then it won't respond with
-+DMA_ALLOC_NOTIFY_ACK, in which case host will not use DMA transfers.
-+Here ISH acts as busmaster DMA controller. Hence when host sends DMA_XFER,
-+it's request to do host->ISH DMA transfer; when FW sends DMA_XFER, it means
-+that it already did DMA and the message resides at host. Thus, DMA_XFER
-+and DMA_XFER_ACK act as ownership indicators.
-+
-+At initial state all outgoing memory belongs to the sender (TX to host, RX to
-+FW), DMA_XFER transfers ownership on the region that contains ISHTP message to
-+the receiving side, DMA_XFER_ACK returns ownership to the sender. A sender
-+needs not wait for previous DMA_XFER to be ack'ed, and may send another message
-+as long as remaining continuous memory in its ownership is enough.
-+In principle, multiple DMA_XFER and DMA_XFER_ACK messages may be sent at once
-+(up to IPC MTU), thus allowing for interrupt throttling.
-+Currently, ISH FW decides to send over DMA if ISHTP message is more than 3 IPC
-+fragments and via IPC otherwise.
-+
-+3.3.4 Ring Buffers
-+^^^^^^^^^^^^^^^^^^
-+
-+When a client initiate a connection, a ring or RX and TX buffers are allocated.
-+The size of ring can be specified by the client. HID client set 16 and 32 for
-+TX and RX buffers respectively. On send request from client, the data to be
-+sent is copied to one of the send ring buffer and scheduled to be sent using
-+bus message protocol. These buffers are required because the FW may have not
-+have processed the last message and may not have enough flow control credits
-+to send. Same thing holds true on receive side and flow control is required.
-+
-+3.3.5 Host Enumeration
-+^^^^^^^^^^^^^^^^^^^^^^
-+
-+The host enumeration bus command allow discovery of clients present in the FW.
-+There can be multiple sensor clients and clients for calibration function.
-+
-+To ease in implantation and allow independent driver handle each client
-+this transport layer takes advantage of Linux Bus driver model. Each
-+client is registered as device on the the transport bus (ishtp bus).
-+
-+Enumeration sequence of messages:
-+
-+- Host sends HOST_START_REQ_CMD, indicating that host ISHTP layer is up.
-+- FW responds with HOST_START_RES_CMD
-+- Host sends HOST_ENUM_REQ_CMD (enumerate FW clients)
-+- FW responds with HOST_ENUM_RES_CMD that includes bitmap of available FW
-+  client IDs
-+- For each FW ID found in that bitmap host sends
-+  HOST_CLIENT_PROPERTIES_REQ_CMD
-+- FW responds with HOST_CLIENT_PROPERTIES_RES_CMD. Properties include UUID,
-+  max ISHTP message size, etc.
-+- Once host received properties for that last discovered client, it considers
-+  ISHTP device fully functional (and allocates DMA buffers)
-+
-+3.4 HID over ISH Client
-+-----------------------
-+
-+Location: drivers/hid/intel-ish-hid
-+
-+The ISHTP client driver is responsible for:
-+
-+- enumerate HID devices under FW ISH client
-+- Get Report descriptor
-+- Register with HID core as a LL driver
-+- Process Get/Set feature request
-+- Get input reports
-+
-+3.5 HID Sensor Hub MFD and IIO sensor drivers
-+---------------------------------------------
-+
-+The functionality in these drivers is the same as an external sensor hub.
-+Refer to
-+Documentation/hid/hid-sensor.rst for HID sensor
-+Documentation/ABI/testing/sysfs-bus-iio for IIO ABIs to user space
-+
-+3.6 End to End HID transport Sequence Diagram
-+---------------------------------------------
-+
-+::
-+
-+  HID-ISH-CLN                    ISHTP                    IPC                             HW
-+          |                        |                       |                               |
-+          |                        |                       |-----WAKE UP------------------>|
-+          |                        |                       |                               |
-+          |                        |                       |-----HOST READY--------------->|
-+          |                        |                       |                               |
-+          |                        |                       |<----MNG_RESET_NOTIFY_ACK----- |
-+          |                        |                       |                               |
-+          |                        |<----ISHTP_START------ |                               |
-+          |                        |                       |                               |
-+          |                        |<-----------------HOST_START_RES_CMD-------------------|
-+          |                        |                       |                               |
-+          |                        |------------------QUERY_SUBSCRIBER-------------------->|
-+          |                        |                       |                               |
-+          |                        |------------------HOST_ENUM_REQ_CMD------------------->|
-+          |                        |                       |                               |
-+          |                        |<-----------------HOST_ENUM_RES_CMD--------------------|
-+          |                        |                       |                               |
-+          |                        |------------------HOST_CLIENT_PROPERTIES_REQ_CMD------>|
-+          |                        |                       |                               |
-+          |                        |<-----------------HOST_CLIENT_PROPERTIES_RES_CMD-------|
-+          |       Create new device on in ishtp bus        |                               |
-+          |                        |                       |                               |
-+          |                        |------------------HOST_CLIENT_PROPERTIES_REQ_CMD------>|
-+          |                        |                       |                               |
-+          |                        |<-----------------HOST_CLIENT_PROPERTIES_RES_CMD-------|
-+          |       Create new device on in ishtp bus        |                               |
-+          |                        |                       |                               |
-+          |                        |--Repeat HOST_CLIENT_PROPERTIES_REQ_CMD-till last one--|
-+          |                        |                       |                               |
-+       probed()
-+          |----ishtp_cl_connect--->|----------------- CLIENT_CONNECT_REQ_CMD-------------->|
-+          |                        |                       |                               |
-+          |                        |<----------------CLIENT_CONNECT_RES_CMD----------------|
-+          |                        |                       |                               |
-+          |register event callback |                       |                               |
-+          |                        |                       |                               |
-+          |ishtp_cl_send(
-+          HOSTIF_DM_ENUM_DEVICES)  |----------fill ishtp_msg_hdr struct write to HW-----  >|
-+          |                        |                       |                               |
-+          |                        |                       |<-----IRQ(IPC_PROTOCOL_ISHTP---|
-+          |                        |                       |                               |
-+          |<--ENUM_DEVICE RSP------|                       |                               |
-+          |                        |                       |                               |
-+  for each enumerated device
-+          |ishtp_cl_send(
-+          HOSTIF_GET_HID_DESCRIPTOR|----------fill ishtp_msg_hdr struct write to HW-----  >|
-+          |                        |                       |                               |
-+          ...Response
-+          |                        |                       |                               |
-+  for each enumerated device
-+          |ishtp_cl_send(
-+       HOSTIF_GET_REPORT_DESCRIPTOR|--------------fill ishtp_msg_hdr struct write to HW-- >|
-+          |                        |                       |                               |
-+          |                        |                       |                               |
-+   hid_allocate_device
-+          |                        |                       |                               |
-+   hid_add_device                  |                       |                               |
-+          |                        |                       |                               |
-+
-+
-+3.7 ISH Debugging
-+-----------------
-+
-+To debug ISH, event tracing mechanism is used. To enable debug logs
-+echo 1 > /sys/kernel/debug/tracing/events/intel_ish/enable
-+cat sys/kernel/debug/tracing/trace
-+
-+3.8 ISH IIO sysfs Example on Lenovo thinkpad Yoga 260
-+-----------------------------------------------------
-+
-+::
-+
-+  root@otcpl-ThinkPad-Yoga-260:~# tree -l /sys/bus/iio/devices/
-+  /sys/bus/iio/devices/
-+  ├── iio:device0 -> ../../../devices/0044:8086:22D8.0001/HID-SENSOR-200073.9.auto/iio:device0
-+  │   ├── buffer
-+  │   │   ├── enable
-+  │   │   ├── length
-+  │   │   └── watermark
-+  ...
-+  │   ├── in_accel_hysteresis
-+  │   ├── in_accel_offset
-+  │   ├── in_accel_sampling_frequency
-+  │   ├── in_accel_scale
-+  │   ├── in_accel_x_raw
-+  │   ├── in_accel_y_raw
-+  │   ├── in_accel_z_raw
-+  │   ├── name
-+  │   ├── scan_elements
-+  │   │   ├── in_accel_x_en
-+  │   │   ├── in_accel_x_index
-+  │   │   ├── in_accel_x_type
-+  │   │   ├── in_accel_y_en
-+  │   │   ├── in_accel_y_index
-+  │   │   ├── in_accel_y_type
-+  │   │   ├── in_accel_z_en
-+  │   │   ├── in_accel_z_index
-+  │   │   └── in_accel_z_type
-+  ...
-+  │   │   ├── devices
-+  │   │   │   │   ├── buffer
-+  │   │   │   │   │   ├── enable
-+  │   │   │   │   │   ├── length
-+  │   │   │   │   │   └── watermark
-+  │   │   │   │   ├── dev
-+  │   │   │   │   ├── in_intensity_both_raw
-+  │   │   │   │   ├── in_intensity_hysteresis
-+  │   │   │   │   ├── in_intensity_offset
-+  │   │   │   │   ├── in_intensity_sampling_frequency
-+  │   │   │   │   ├── in_intensity_scale
-+  │   │   │   │   ├── name
-+  │   │   │   │   ├── scan_elements
-+  │   │   │   │   │   ├── in_intensity_both_en
-+  │   │   │   │   │   ├── in_intensity_both_index
-+  │   │   │   │   │   └── in_intensity_both_type
-+  │   │   │   │   ├── trigger
-+  │   │   │   │   │   └── current_trigger
-+  ...
-+  │   │   │   │   ├── buffer
-+  │   │   │   │   │   ├── enable
-+  │   │   │   │   │   ├── length
-+  │   │   │   │   │   └── watermark
-+  │   │   │   │   ├── dev
-+  │   │   │   │   ├── in_magn_hysteresis
-+  │   │   │   │   ├── in_magn_offset
-+  │   │   │   │   ├── in_magn_sampling_frequency
-+  │   │   │   │   ├── in_magn_scale
-+  │   │   │   │   ├── in_magn_x_raw
-+  │   │   │   │   ├── in_magn_y_raw
-+  │   │   │   │   ├── in_magn_z_raw
-+  │   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_raw
-+  │   │   │   │   ├── in_rot_hysteresis
-+  │   │   │   │   ├── in_rot_offset
-+  │   │   │   │   ├── in_rot_sampling_frequency
-+  │   │   │   │   ├── in_rot_scale
-+  │   │   │   │   ├── name
-+  ...
-+  │   │   │   │   ├── scan_elements
-+  │   │   │   │   │   ├── in_magn_x_en
-+  │   │   │   │   │   ├── in_magn_x_index
-+  │   │   │   │   │   ├── in_magn_x_type
-+  │   │   │   │   │   ├── in_magn_y_en
-+  │   │   │   │   │   ├── in_magn_y_index
-+  │   │   │   │   │   ├── in_magn_y_type
-+  │   │   │   │   │   ├── in_magn_z_en
-+  │   │   │   │   │   ├── in_magn_z_index
-+  │   │   │   │   │   ├── in_magn_z_type
-+  │   │   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_en
-+  │   │   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_index
-+  │   │   │   │   │   └── in_rot_from_north_magnetic_tilt_comp_type
-+  │   │   │   │   ├── trigger
-+  │   │   │   │   │   └── current_trigger
-+  ...
-+  │   │   │   │   ├── buffer
-+  │   │   │   │   │   ├── enable
-+  │   │   │   │   │   ├── length
-+  │   │   │   │   │   └── watermark
-+  │   │   │   │   ├── dev
-+  │   │   │   │   ├── in_anglvel_hysteresis
-+  │   │   │   │   ├── in_anglvel_offset
-+  │   │   │   │   ├── in_anglvel_sampling_frequency
-+  │   │   │   │   ├── in_anglvel_scale
-+  │   │   │   │   ├── in_anglvel_x_raw
-+  │   │   │   │   ├── in_anglvel_y_raw
-+  │   │   │   │   ├── in_anglvel_z_raw
-+  │   │   │   │   ├── name
-+  │   │   │   │   ├── scan_elements
-+  │   │   │   │   │   ├── in_anglvel_x_en
-+  │   │   │   │   │   ├── in_anglvel_x_index
-+  │   │   │   │   │   ├── in_anglvel_x_type
-+  │   │   │   │   │   ├── in_anglvel_y_en
-+  │   │   │   │   │   ├── in_anglvel_y_index
-+  │   │   │   │   │   ├── in_anglvel_y_type
-+  │   │   │   │   │   ├── in_anglvel_z_en
-+  │   │   │   │   │   ├── in_anglvel_z_index
-+  │   │   │   │   │   └── in_anglvel_z_type
-+  │   │   │   │   ├── trigger
-+  │   │   │   │   │   └── current_trigger
-+  ...
-+  │   │   │   │   ├── buffer
-+  │   │   │   │   │   ├── enable
-+  │   │   │   │   │   ├── length
-+  │   │   │   │   │   └── watermark
-+  │   │   │   │   ├── dev
-+  │   │   │   │   ├── in_anglvel_hysteresis
-+  │   │   │   │   ├── in_anglvel_offset
-+  │   │   │   │   ├── in_anglvel_sampling_frequency
-+  │   │   │   │   ├── in_anglvel_scale
-+  │   │   │   │   ├── in_anglvel_x_raw
-+  │   │   │   │   ├── in_anglvel_y_raw
-+  │   │   │   │   ├── in_anglvel_z_raw
-+  │   │   │   │   ├── name
-+  │   │   │   │   ├── scan_elements
-+  │   │   │   │   │   ├── in_anglvel_x_en
-+  │   │   │   │   │   ├── in_anglvel_x_index
-+  │   │   │   │   │   ├── in_anglvel_x_type
-+  │   │   │   │   │   ├── in_anglvel_y_en
-+  │   │   │   │   │   ├── in_anglvel_y_index
-+  │   │   │   │   │   ├── in_anglvel_y_type
-+  │   │   │   │   │   ├── in_anglvel_z_en
-+  │   │   │   │   │   ├── in_anglvel_z_index
-+  │   │   │   │   │   └── in_anglvel_z_type
-+  │   │   │   │   ├── trigger
-+  │   │   │   │   │   └── current_trigger
-+  ...
-diff --git a/Documentation/hid/intel-ish-hid.txt b/Documentation/hid/intel-ish-hid.txt
-deleted file mode 100644
-index d48b21c71ddd..000000000000
---- a/Documentation/hid/intel-ish-hid.txt
-+++ /dev/null
-@@ -1,454 +0,0 @@
--Intel Integrated Sensor Hub (ISH)
--===============================
--
--A sensor hub enables the ability to offload sensor polling and algorithm
--processing to a dedicated low power co-processor. This allows the core
--processor to go into low power modes more often, resulting in the increased
--battery life.
--
--There are many vendors providing external sensor hubs confirming to HID
--Sensor usage tables, and used in several tablets, 2 in 1 convertible laptops
--and embedded products. Linux had this support since Linux 3.9.
--
--Intel® introduced integrated sensor hubs as a part of the SoC starting from
--Cherry Trail and now supported on multiple generations of CPU packages. There
--are many commercial devices already shipped with Integrated Sensor Hubs (ISH).
--These ISH also comply to HID sensor specification, but the  difference is the
--transport protocol used for communication. The current external sensor hubs
--mainly use HID over i2C or USB. But ISH doesn't use either i2c or USB.
--
--1. Overview
--
--Using a analogy with a usbhid implementation, the ISH follows a similar model
--for a very high speed communication:
--
--	-----------------		----------------------
--	|    USB HID	|	-->	|    ISH HID	     |
--	-----------------		----------------------
--	-----------------		----------------------
--	|  USB protocol	|	-->	|    ISH Transport   |
--	-----------------		----------------------
--	-----------------		----------------------
--	|  EHCI/XHCI	|	-->	|    ISH IPC	     |
--	-----------------		----------------------
--	      PCI				 PCI
--	-----------------		----------------------
--        |Host controller|	-->	|    ISH processor   |
--	-----------------		----------------------
--	     USB Link
--	-----------------		----------------------
--	| USB End points|	-->	|    ISH Clients     |
--	-----------------		----------------------
--
--Like USB protocol provides a method for device enumeration, link management
--and user data encapsulation, the ISH also provides similar services. But it is
--very light weight tailored to manage and communicate with ISH client
--applications implemented in the firmware.
--
--The ISH allows multiple sensor management applications executing in the
--firmware. Like USB endpoints the messaging can be to/from a client. As part of
--enumeration process, these clients are identified. These clients can be simple
--HID sensor applications, sensor calibration application or senor firmware
--update application.
--
--The implementation model is similar, like USB bus, ISH transport is also
--implemented as a bus. Each client application executing in the ISH processor
--is registered as a device on this bus. The driver, which binds each device
--(ISH HID driver) identifies the device type and registers with the hid core.
--
--2. ISH Implementation: Block Diagram
--
--	 ---------------------------
--	|  User Space Applications  |
--	 ---------------------------
--
------------------IIO ABI----------------
--	 --------------------------
--	|  IIO Sensor Drivers	  |
--	 --------------------------
--	 --------------------------
--	|	 IIO core	  |
--	 --------------------------
--	 --------------------------
--	|   HID Sensor Hub MFD	  |
--	 --------------------------
--	 --------------------------
--	|       HID Core	  |
--	 --------------------------
--	 --------------------------
--	|   HID over ISH Client   |
--	 --------------------------
--	 --------------------------
--	|   ISH Transport (ISHTP) |
--	 --------------------------
--	 --------------------------
--	|      IPC Drivers	  |
--	 --------------------------
--OS
------------------   PCI -----------------
--Hardware + Firmware
--	 ----------------------------
--	| ISH Hardware/Firmware(FW) |
--	 ----------------------------
--
--3. High level processing in above blocks
--
--3.1 Hardware Interface
--
--The ISH is exposed as "Non-VGA unclassified PCI device" to the host. The PCI
--product and vendor IDs are changed from different generations of processors. So
--the source code which enumerate drivers needs to update from generation to
--generation.
--
--3.2 Inter Processor Communication (IPC) driver
--Location: drivers/hid/intel-ish-hid/ipc
--
--The IPC message used memory mapped I/O. The registers are defined in
--hw-ish-regs.h.
--
--3.2.1 IPC/FW message types
--
--There are two types of messages, one for management of link and other messages
--are to and from transport layers.
--
--TX and RX of Transport messages
--
--A set of memory mapped register offers support of multi byte messages TX and
--RX (E.g.IPC_REG_ISH2HOST_MSG, IPC_REG_HOST2ISH_MSG). The IPC layer maintains
--internal queues to sequence messages and send them in order to the FW.
--Optionally the caller can register handler to get notification of completion.
--A door bell mechanism is used in messaging to trigger processing in host and
--client firmware side. When ISH interrupt handler is called, the ISH2HOST
--doorbell register is used by host drivers to determine that the interrupt
--is for ISH.
--
--Each side has 32 32-bit message registers and a 32-bit doorbell. Doorbell
--register has the following format:
--Bits 0..6: fragment length (7 bits are used)
--Bits 10..13: encapsulated protocol
--Bits 16..19: management command (for IPC management protocol)
--Bit 31: doorbell trigger (signal H/W interrupt to the other side)
--Other bits are reserved, should be 0.
--
--3.2.2 Transport layer interface
--
--To abstract HW level IPC communication, a set of callbacks are registered.
--The transport layer uses them to send and receive messages.
--Refer to  struct ishtp_hw_ops for callbacks.
--
--3.3 ISH Transport layer
--Location: drivers/hid/intel-ish-hid/ishtp/
--
--3.3.1 A Generic Transport Layer
--
--The transport layer is a bi-directional protocol, which defines:
--- Set of commands to start, stop, connect, disconnect and flow control
--(ishtp/hbm.h) for details
--- A flow control mechanism to avoid buffer overflows
--
--This protocol resembles bus messages described in the following document:
--http://www.intel.com/content/dam/www/public/us/en/documents/technical-\
--specifications/dcmi-hi-1-0-spec.pdf "Chapter 7: Bus Message Layer"
--
--3.3.2 Connection and Flow Control Mechanism
--
--Each FW client and a protocol is identified by an UUID. In order to communicate
--to a FW client, a connection must be established using connect request and
--response bus messages. If successful, a pair (host_client_id and fw_client_id)
--will identify the connection.
--
--Once connection is established, peers send each other flow control bus messages
--independently. Every peer may send a message only if it has received a
--flow-control credit before. Once it sent a message, it may not send another one
--before receiving the next flow control credit.
--Either side can send disconnect request bus message to end communication. Also
--the link will be dropped if major FW reset occurs.
--
--3.3.3 Peer to Peer data transfer
--
--Peer to Peer data transfer can happen with or without using DMA. Depending on
--the sensor bandwidth requirement DMA can be enabled by using module parameter
--ishtp_use_dma under intel_ishtp.
--
--Each side (host and FW) manages its DMA transfer memory independently. When an
--ISHTP client from either host or FW side wants to send something, it decides
--whether to send over IPC or over DMA; for each transfer the decision is
--independent. The sending side sends DMA_XFER message when the message is in
--the respective host buffer (TX when host client sends, RX when FW client
--sends). The recipient of DMA message responds with DMA_XFER_ACK, indicating
--the sender that the memory region for that message may be reused.
--
--DMA initialization is started with host sending DMA_ALLOC_NOTIFY bus message
--(that includes RX buffer) and FW responds with DMA_ALLOC_NOTIFY_ACK.
--Additionally to DMA address communication, this sequence checks capabilities:
--if thw host doesn't support DMA, then it won't send DMA allocation, so FW can't
--send DMA; if FW doesn't support DMA then it won't respond with
--DMA_ALLOC_NOTIFY_ACK, in which case host will not use DMA transfers.
--Here ISH acts as busmaster DMA controller. Hence when host sends DMA_XFER,
--it's request to do host->ISH DMA transfer; when FW sends DMA_XFER, it means
--that it already did DMA and the message resides at host. Thus, DMA_XFER
--and DMA_XFER_ACK act as ownership indicators.
--
--At initial state all outgoing memory belongs to the sender (TX to host, RX to
--FW), DMA_XFER transfers ownership on the region that contains ISHTP message to
--the receiving side, DMA_XFER_ACK returns ownership to the sender. A sender
--needs not wait for previous DMA_XFER to be ack'ed, and may send another message
--as long as remaining continuous memory in its ownership is enough.
--In principle, multiple DMA_XFER and DMA_XFER_ACK messages may be sent at once
--(up to IPC MTU), thus allowing for interrupt throttling.
--Currently, ISH FW decides to send over DMA if ISHTP message is more than 3 IPC
--fragments and via IPC otherwise.
--
--3.3.4 Ring Buffers
--
--When a client initiate a connection, a ring or RX and TX buffers are allocated.
--The size of ring can be specified by the client. HID client set 16 and 32 for
--TX and RX buffers respectively. On send request from client, the data to be
--sent is copied to one of the send ring buffer and scheduled to be sent using
--bus message protocol. These buffers are required because the FW may have not
--have processed the last message and may not have enough flow control credits
--to send. Same thing holds true on receive side and flow control is required.
--
--3.3.5 Host Enumeration
--
--The host enumeration bus command allow discovery of clients present in the FW.
--There can be multiple sensor clients and clients for calibration function.
--
--To ease in implantation and allow independent driver handle each client
--this transport layer takes advantage of Linux Bus driver model. Each
--client is registered as device on the the transport bus (ishtp bus).
--
--Enumeration sequence of messages:
--- Host sends HOST_START_REQ_CMD, indicating that host ISHTP layer is up.
--- FW responds with HOST_START_RES_CMD
--- Host sends HOST_ENUM_REQ_CMD (enumerate FW clients)
--- FW responds with HOST_ENUM_RES_CMD that includes bitmap of available FW
--client IDs
--- For each FW ID found in that bitmap host sends
--HOST_CLIENT_PROPERTIES_REQ_CMD
--- FW responds with HOST_CLIENT_PROPERTIES_RES_CMD. Properties include UUID,
--max ISHTP message size, etc.
--- Once host received properties for that last discovered client, it considers
--ISHTP device fully functional (and allocates DMA buffers)
--
--3.4 HID over ISH Client
--Location: drivers/hid/intel-ish-hid
--
--The ISHTP client driver is responsible for:
--- enumerate HID devices under FW ISH client
--- Get Report descriptor
--- Register with HID core as a LL driver
--- Process Get/Set feature request
--- Get input reports
--
--3.5 HID Sensor Hub MFD and IIO sensor drivers
--
--The functionality in these drivers is the same as an external sensor hub.
--Refer to
--Documentation/hid/hid-sensor.txt for HID sensor
--Documentation/ABI/testing/sysfs-bus-iio for IIO ABIs to user space
--
--3.6 End to End HID transport Sequence Diagram
--
--HID-ISH-CLN			ISHTP			IPC				HW
--	|			|			|				|
--	|			|			|-----WAKE UP------------------>|
--	|			|			|				|
--	|			|			|-----HOST READY--------------->|
--	|			|			|				|
--	|			|			|<----MNG_RESET_NOTIFY_ACK----- |
--	|			|			|				|
--	|			|<----ISHTP_START------ |				|
--	|			|			|				|
--	|			|<-----------------HOST_START_RES_CMD-------------------|
--	|			|			|				|
--	|			|------------------QUERY_SUBSCRIBER-------------------->|
--	|			|			|				|
--	|			|------------------HOST_ENUM_REQ_CMD------------------->|
--	|			|			|				|
--	|			|<-----------------HOST_ENUM_RES_CMD--------------------|
--	|			|			|				|
--	|			|------------------HOST_CLIENT_PROPERTIES_REQ_CMD------>|
--	|			|			|				|
--	|			|<-----------------HOST_CLIENT_PROPERTIES_RES_CMD-------|
--	|	Create new device on in ishtp bus	|				|
--	|			|			|				|
--	|			|------------------HOST_CLIENT_PROPERTIES_REQ_CMD------>|
--	|			|			|				|
--	|			|<-----------------HOST_CLIENT_PROPERTIES_RES_CMD-------|
--	|	Create new device on in ishtp bus	|				|
--	|			|			|				|
--	|			|--Repeat HOST_CLIENT_PROPERTIES_REQ_CMD-till last one--|
--	|			|			|				|
--     probed()
--	|----ishtp_cl_connect-->|----------------- CLIENT_CONNECT_REQ_CMD-------------->|
--	|			|			|				|
--	|			|<----------------CLIENT_CONNECT_RES_CMD----------------|
--	|			|			|				|
--	|register event callback|			|				|
--	|			|			|				|
--	|ishtp_cl_send(
--	HOSTIF_DM_ENUM_DEVICES) |----------fill ishtp_msg_hdr struct write to HW-----  >|
--	|			|			|				|
--	|			|			|<-----IRQ(IPC_PROTOCOL_ISHTP---|
--	|			|			|				|
--	|<--ENUM_DEVICE RSP-----|			|				|
--	|			|			|				|
--for each enumerated device
--	|ishtp_cl_send(
--	HOSTIF_GET_HID_DESCRIPTOR |----------fill ishtp_msg_hdr struct write to HW---  >|
--	|			|			|				|
--	...Response
--	|			|			|				|
--for each enumerated device
--	|ishtp_cl_send(
--	HOSTIF_GET_REPORT_DESCRIPTOR |----------fill ishtp_msg_hdr struct write to HW- >|
--	|			|			|				|
--	|			|			|				|
-- hid_allocate_device
--	|			|			|				|
-- hid_add_device			|			|				|
--	|			|			|				|
--
--
--3.7 ISH Debugging
--
--To debug ISH, event tracing mechanism is used. To enable debug logs
--echo 1 > /sys/kernel/debug/tracing/events/intel_ish/enable
--cat sys/kernel/debug/tracing/trace
--
--3.8 ISH IIO sysfs Example on Lenovo thinkpad Yoga 260
--
--root@otcpl-ThinkPad-Yoga-260:~# tree -l /sys/bus/iio/devices/
--/sys/bus/iio/devices/
--├── iio:device0 -> ../../../devices/0044:8086:22D8.0001/HID-SENSOR-200073.9.auto/iio:device0
--│   ├── buffer
--│   │   ├── enable
--│   │   ├── length
--│   │   └── watermark
--...
--│   ├── in_accel_hysteresis
--│   ├── in_accel_offset
--│   ├── in_accel_sampling_frequency
--│   ├── in_accel_scale
--│   ├── in_accel_x_raw
--│   ├── in_accel_y_raw
--│   ├── in_accel_z_raw
--│   ├── name
--│   ├── scan_elements
--│   │   ├── in_accel_x_en
--│   │   ├── in_accel_x_index
--│   │   ├── in_accel_x_type
--│   │   ├── in_accel_y_en
--│   │   ├── in_accel_y_index
--│   │   ├── in_accel_y_type
--│   │   ├── in_accel_z_en
--│   │   ├── in_accel_z_index
--│   │   └── in_accel_z_type
--...
--│   │   ├── devices
--│   │   │   │   ├── buffer
--│   │   │   │   │   ├── enable
--│   │   │   │   │   ├── length
--│   │   │   │   │   └── watermark
--│   │   │   │   ├── dev
--│   │   │   │   ├── in_intensity_both_raw
--│   │   │   │   ├── in_intensity_hysteresis
--│   │   │   │   ├── in_intensity_offset
--│   │   │   │   ├── in_intensity_sampling_frequency
--│   │   │   │   ├── in_intensity_scale
--│   │   │   │   ├── name
--│   │   │   │   ├── scan_elements
--│   │   │   │   │   ├── in_intensity_both_en
--│   │   │   │   │   ├── in_intensity_both_index
--│   │   │   │   │   └── in_intensity_both_type
--│   │   │   │   ├── trigger
--│   │   │   │   │   └── current_trigger
--...
--│   │   │   │   ├── buffer
--│   │   │   │   │   ├── enable
--│   │   │   │   │   ├── length
--│   │   │   │   │   └── watermark
--│   │   │   │   ├── dev
--│   │   │   │   ├── in_magn_hysteresis
--│   │   │   │   ├── in_magn_offset
--│   │   │   │   ├── in_magn_sampling_frequency
--│   │   │   │   ├── in_magn_scale
--│   │   │   │   ├── in_magn_x_raw
--│   │   │   │   ├── in_magn_y_raw
--│   │   │   │   ├── in_magn_z_raw
--│   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_raw
--│   │   │   │   ├── in_rot_hysteresis
--│   │   │   │   ├── in_rot_offset
--│   │   │   │   ├── in_rot_sampling_frequency
--│   │   │   │   ├── in_rot_scale
--│   │   │   │   ├── name
--...
--│   │   │   │   ├── scan_elements
--│   │   │   │   │   ├── in_magn_x_en
--│   │   │   │   │   ├── in_magn_x_index
--│   │   │   │   │   ├── in_magn_x_type
--│   │   │   │   │   ├── in_magn_y_en
--│   │   │   │   │   ├── in_magn_y_index
--│   │   │   │   │   ├── in_magn_y_type
--│   │   │   │   │   ├── in_magn_z_en
--│   │   │   │   │   ├── in_magn_z_index
--│   │   │   │   │   ├── in_magn_z_type
--│   │   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_en
--│   │   │   │   │   ├── in_rot_from_north_magnetic_tilt_comp_index
--│   │   │   │   │   └── in_rot_from_north_magnetic_tilt_comp_type
--│   │   │   │   ├── trigger
--│   │   │   │   │   └── current_trigger
--...
--│   │   │   │   ├── buffer
--│   │   │   │   │   ├── enable
--│   │   │   │   │   ├── length
--│   │   │   │   │   └── watermark
--│   │   │   │   ├── dev
--│   │   │   │   ├── in_anglvel_hysteresis
--│   │   │   │   ├── in_anglvel_offset
--│   │   │   │   ├── in_anglvel_sampling_frequency
--│   │   │   │   ├── in_anglvel_scale
--│   │   │   │   ├── in_anglvel_x_raw
--│   │   │   │   ├── in_anglvel_y_raw
--│   │   │   │   ├── in_anglvel_z_raw
--│   │   │   │   ├── name
--│   │   │   │   ├── scan_elements
--│   │   │   │   │   ├── in_anglvel_x_en
--│   │   │   │   │   ├── in_anglvel_x_index
--│   │   │   │   │   ├── in_anglvel_x_type
--│   │   │   │   │   ├── in_anglvel_y_en
--│   │   │   │   │   ├── in_anglvel_y_index
--│   │   │   │   │   ├── in_anglvel_y_type
--│   │   │   │   │   ├── in_anglvel_z_en
--│   │   │   │   │   ├── in_anglvel_z_index
--│   │   │   │   │   └── in_anglvel_z_type
--│   │   │   │   ├── trigger
--│   │   │   │   │   └── current_trigger
--...
--│   │   │   │   ├── buffer
--│   │   │   │   │   ├── enable
--│   │   │   │   │   ├── length
--│   │   │   │   │   └── watermark
--│   │   │   │   ├── dev
--│   │   │   │   ├── in_anglvel_hysteresis
--│   │   │   │   ├── in_anglvel_offset
--│   │   │   │   ├── in_anglvel_sampling_frequency
--│   │   │   │   ├── in_anglvel_scale
--│   │   │   │   ├── in_anglvel_x_raw
--│   │   │   │   ├── in_anglvel_y_raw
--│   │   │   │   ├── in_anglvel_z_raw
--│   │   │   │   ├── name
--│   │   │   │   ├── scan_elements
--│   │   │   │   │   ├── in_anglvel_x_en
--│   │   │   │   │   ├── in_anglvel_x_index
--│   │   │   │   │   ├── in_anglvel_x_type
--│   │   │   │   │   ├── in_anglvel_y_en
--│   │   │   │   │   ├── in_anglvel_y_index
--│   │   │   │   │   ├── in_anglvel_y_type
--│   │   │   │   │   ├── in_anglvel_z_en
--│   │   │   │   │   ├── in_anglvel_z_index
--│   │   │   │   │   └── in_anglvel_z_type
--│   │   │   │   ├── trigger
--│   │   │   │   │   └── current_trigger
--...
-diff --git a/Documentation/hid/uhid.txt b/Documentation/hid/uhid.rst
-similarity index 94%
-rename from Documentation/hid/uhid.txt
-rename to Documentation/hid/uhid.rst
-index 958fff945304..b18cb96c885f 100644
---- a/Documentation/hid/uhid.txt
-+++ b/Documentation/hid/uhid.rst
-@@ -1,5 +1,6 @@
--      UHID - User-space I/O driver support for HID subsystem
--     ========================================================
-+======================================================
-+UHID - User-space I/O driver support for HID subsystem
-+======================================================
- 
- UHID allows user-space to implement HID transport drivers. Please see
- hid-transport.txt for an introduction into HID transport drivers. This document
-@@ -22,9 +23,9 @@ If a new device is detected by your HID I/O Driver and you want to register this
- device with the HID subsystem, then you need to open /dev/uhid once for each
- device you want to register. All further communication is done by read()'ing or
- write()'ing "struct uhid_event" objects. Non-blocking operations are supported
--by setting O_NONBLOCK.
-+by setting O_NONBLOCK::
- 
--struct uhid_event {
-+  struct uhid_event {
-         __u32 type;
-         union {
-                 struct uhid_create2_req create2;
-@@ -32,7 +33,7 @@ struct uhid_event {
-                 struct uhid_input2_req input2;
-                 ...
-         } u;
--};
-+  };
- 
- The "type" field contains the ID of the event. Depending on the ID different
- payloads are sent. You must not split a single event across multiple read()'s or
-@@ -86,31 +87,31 @@ the request was handled successfully. O_NONBLOCK does not affect write() as
- writes are always handled immediately in a non-blocking fashion. Future requests
- might make use of O_NONBLOCK, though.
- 
--  UHID_CREATE2:
-+UHID_CREATE2:
-   This creates the internal HID device. No I/O is possible until you send this
-   event to the kernel. The payload is of type struct uhid_create2_req and
-   contains information about your device. You can start I/O now.
- 
--  UHID_DESTROY:
-+UHID_DESTROY:
-   This destroys the internal HID device. No further I/O will be accepted. There
-   may still be pending messages that you can receive with read() but no further
-   UHID_INPUT events can be sent to the kernel.
-   You can create a new device by sending UHID_CREATE2 again. There is no need to
-   reopen the character device.
- 
--  UHID_INPUT2:
-+UHID_INPUT2:
-   You must send UHID_CREATE2 before sending input to the kernel! This event
-   contains a data-payload. This is the raw data that you read from your device
-   on the interrupt channel. The kernel will parse the HID reports.
- 
--  UHID_GET_REPORT_REPLY:
-+UHID_GET_REPORT_REPLY:
-   If you receive a UHID_GET_REPORT request you must answer with this request.
-   You  must copy the "id" field from the request into the answer. Set the "err"
-   field to 0 if no error occurred or to EIO if an I/O error occurred.
-   If "err" is 0 then you should fill the buffer of the answer with the results
-   of the GET_REPORT request and set "size" correspondingly.
- 
--  UHID_SET_REPORT_REPLY:
-+UHID_SET_REPORT_REPLY:
-   This is the SET_REPORT equivalent of UHID_GET_REPORT_REPLY. Unlike GET_REPORT,
-   SET_REPORT never returns a data buffer, therefore, it's sufficient to set the
-   "id" and "err" fields correctly.
-@@ -120,16 +121,18 @@ read()
- read() will return a queued output report. No reaction is required to any of
- them but you should handle them according to your needs.
- 
--  UHID_START:
-+UHID_START:
-   This is sent when the HID device is started. Consider this as an answer to
-   UHID_CREATE2. This is always the first event that is sent. Note that this
-   event might not be available immediately after write(UHID_CREATE2) returns.
-   Device drivers might required delayed setups.
-   This event contains a payload of type uhid_start_req. The "dev_flags" field
-   describes special behaviors of a device. The following flags are defined:
--      UHID_DEV_NUMBERED_FEATURE_REPORTS:
--      UHID_DEV_NUMBERED_OUTPUT_REPORTS:
--      UHID_DEV_NUMBERED_INPUT_REPORTS:
-+
-+      - UHID_DEV_NUMBERED_FEATURE_REPORTS
-+      - UHID_DEV_NUMBERED_OUTPUT_REPORTS
-+      - UHID_DEV_NUMBERED_INPUT_REPORTS
-+
-           Each of these flags defines whether a given report-type uses numbered
-           reports. If numbered reports are used for a type, all messages from
-           the kernel already have the report-number as prefix. Otherwise, no
-@@ -137,33 +140,35 @@ them but you should handle them according to your needs.
-           For messages sent by user-space to the kernel, you must adjust the
-           prefixes according to these flags.
- 
--  UHID_STOP:
-+UHID_STOP:
-   This is sent when the HID device is stopped. Consider this as an answer to
-   UHID_DESTROY.
-+
-   If you didn't destroy your device via UHID_DESTROY, but the kernel sends an
-   UHID_STOP event, this should usually be ignored. It means that the kernel
-   reloaded/changed the device driver loaded on your HID device (or some other
-   maintenance actions happened).
-+
-   You can usually ignored any UHID_STOP events safely.
- 
--  UHID_OPEN:
-+UHID_OPEN:
-   This is sent when the HID device is opened. That is, the data that the HID
-   device provides is read by some other process. You may ignore this event but
-   it is useful for power-management. As long as you haven't received this event
-   there is actually no other process that reads your data so there is no need to
-   send UHID_INPUT2 events to the kernel.
- 
--  UHID_CLOSE:
-+UHID_CLOSE:
-   This is sent when there are no more processes which read the HID data. It is
-   the counterpart of UHID_OPEN and you may as well ignore this event.
- 
--  UHID_OUTPUT:
-+UHID_OUTPUT:
-   This is sent if the HID device driver wants to send raw data to the I/O
-   device on the interrupt channel. You should read the payload and forward it to
-   the device. The payload is of type "struct uhid_output_req".
-   This may be received even though you haven't received UHID_OPEN, yet.
- 
--  UHID_GET_REPORT:
-+UHID_GET_REPORT:
-   This event is sent if the kernel driver wants to perform a GET_REPORT request
-   on the control channeld as described in the HID specs. The report-type and
-   report-number are available in the payload.
-@@ -177,11 +182,12 @@ them but you should handle them according to your needs.
-   timed out, the kernel will ignore the response silently. The "id" field is
-   never re-used, so conflicts cannot happen.
- 
--  UHID_SET_REPORT:
-+UHID_SET_REPORT:
-   This is the SET_REPORT equivalent of UHID_GET_REPORT. On receipt, you shall
-   send a SET_REPORT request to your hid device. Once it replies, you must tell
-   the kernel about it via UHID_SET_REPORT_REPLY.
-   The same restrictions as for UHID_GET_REPORT apply.
- 
- ----------------------------------------------------
-+
- Written 2012, David Herrmann <dh.herrmann@gmail.com>
-diff --git a/Documentation/input/input.rst b/Documentation/input/input.rst
-index 47f86a4bf16c..0eb61e67a7b7 100644
---- a/Documentation/input/input.rst
-+++ b/Documentation/input/input.rst
-@@ -188,7 +188,7 @@ LCDs and many other purposes.
- 
- The monitor and speaker controls should be easy to add to the hid/input
- interface, but for the UPSs and LCDs it doesn't make much sense. For this,
--the hiddev interface was designed. See Documentation/hid/hiddev.txt
-+the hiddev interface was designed. See Documentation/hid/hiddev.rst
- for more information about it.
- 
- The usage of the usbhid module is very simple, it takes no parameters,
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 66bcec263dbf..4e1e598a32d9 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -16165,7 +16165,7 @@ M:	Benjamin Tissoires <benjamin.tissoires@redhat.com>
- L:	linux-usb@vger.kernel.org
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git
- S:	Maintained
--F:	Documentation/hid/hiddev.txt
-+F:	Documentation/hid/hiddev.rst
- F:	drivers/hid/usbhid/
- 
- USB INTEL XHCI ROLE MUX DRIVER
--- 
-2.20.1
+Yes, my target is to produce a subsystem that meets many (all would be nice)
+requirements, including yours.  Whilst I'm happy to debate this for ever, I=
+'m not
+sure we are making any substantial progress.  As you mention below we
+probably need to 'see the code' to drive the discussion forwards.
+
+>=20
+> Different goals usually lead to different solution architectures.
+
+Indeed, but in this case we have your proposal which is a subset of what
+I am suggesting.  One architecture can fulfil both requirements.
+
+I'll leave it for the other thread, but Bastien has raised the case
+(that I'd forgotten) that there already userspace stacks that are
+capable of happily taking in both IIO and Input devices.  The confusion
+here is they will now discover 'both' without the existing userspace
+knowing that they are the same device.  We need to be very careful not
+to break those userspace programs.
+
+So this is an illustration of why the simplistic case doesn't work
+'now'.
+
+>=20
+> > Am 14.04.2019 um 13:40 schrieb Jonathan Cameron <jic23@kernel.org>:
+> >=20
+> > On Mon, 8 Apr 2019 15:15:56 +0200
+> > H. Nikolaus Schaller <hns@goldelico.com> wrote:
+> >  =20
+> >> Hi Jonathan,
+> >>=20
+> >> I still do not fully understand what is worrying you here. =20
+> >  =20
+> >>=20
+> >> Do you worry about functionality, flexibility or resources or somethin=
+g else? =20
+> >=20
+> > Two main things:
+> > 1) Lack of generality of the approach.=20
+> >   This is a single use trick for input devices. Why does it make sense =
+for
+> >   input devices? =20
+>=20
+> No, it is not a trick...
+Bad choice of words. Sorry about that.
+
+Any time we register a device as two types of device it is less than ideal.
+
+If we had the true separation of IIO front end and back end then it
+would be perfectly acceptable to 'only' have an input front end for
+a given device.  That choice would still, in this sort of usecase,
+have to be made from userspace. It's policy, not design.  If there are reas=
+ons
+a particular device 'is input' then that mapping should be in DT or similar.
+It's no different from knowing an ADC channel is wired to an analog
+temperature sensor.  For example, you could build a joystick with
+an accelerometer in the stick - then the usecase would be obvious!
+Hence I would also argue that any dynamic interface should also support
+a static path (DT or equivalent) for the cases where is really a
+physical characteristic of the system!  Perhaps the Sony parts
+fall into this category as well.
+
+For a bit of historical background, there was a concerted effort
+to produced a userspace stack for IIO for android. =20
+https://01.org/android-iio-sensors-hal
+
+Unfortunately I think it died as a result of other moves in Intel on
+one of their periodic shifts in direction.
+
+>=20
+> Why does it make sense for input devices?
+
+These are not just 'input' devices. They are accelerometers. One usecase
+is to use them for input.  The exact same physical device is used for games
+input uses and counting steps for example (actually a lot wider cases than
+that, but this one is common in android devices).
+
+Keep that in mind at all times. There are lots of usecases.
+So we need a solution that does not result in problems for those
+usecases.  We are not writing a subsytem targetting android use of
+accelerometers. We are writing a subsystem addressing as many usecases
+as we can of those devices.
+
+Note that the original reason for IIO was to generalize a whole set of
+proposed individual subsystems targeting particular sensor types. So
+that is our focus - solutions that work for everyone.  This isn't
+totally dissimilar from those discussions - at the time I wanted
+to do a small focused ALS subsystem and got a resounding "no" from
+Linus.  Generality matters a lot for the long term.
+
+>=20
+> a) because there is no alternative for accelerometer input devices and th=
+ere are some
+> (older) accelerometer chips which only present themselves as input device=
+s as soon
+> as the driver is compiled and the chip is found.
+
+Actually that is not accurate.  The vast majority of those older devices
+that have had any attempt at mainlining are in IIO. AFAIK no accelerometer
+driver has been merged to mainline input for many years. This is because,
+amongst others, Dmitry has been of the view they didn't belong there for
+a very long time.
+
+>=20
+> b) because input events define ACCEL input devices. But no Temperature or=
+ Voltage
+> input or generic ADC input.So there is no generalization of input devices=
+ beyond
+> keyboard, mouse, joystick, accelerometer and some others.
+
+That's not totally inaccurate, but the distinction in the other sensor cases
+is that there is a clear 'additional' element that we can map in devicetree
+which relates the IIO sensor channel to the input device.
+Doesn't matter for the point of view of this discussion though.
+
+>=20
+> >  There are lots of other in kernel users and potential
+> >   ones in the future. =20
+>=20
+> This bridge addition does not exclude any (additional) in-kernel use.
+
+No but it creates several problems:
+
+1. Two ways to do the same thing.=20
+2. Two sets of code to maintain.
+3. Confusion over what is the best way of doing it.
+4. The known issues with multiple consumers (note my solution has
+that problem as well!)
+
+My job here is to maintain the code, which is why I push back on something
+that makes that job harder.
+
+When the next usecases comes along and someone says they want to map
+all ADC channels to hwmon channels because that is the subystem that
+they expect to measure voltages in, then I don't have a good argument
+to stop them doing the same thing you have.
+
+As a side note we have in the past had input drivers for gyroscopes and
+magnetometers.  Why are accelerometers special?
+
+I really don't see why we should treat accelerometers differently
+
+As this discussion runs on, I am increasingly convinced that there *must*
+be a userspace policy control over whether an input device is
+instantiated for a given accelerometer.   Once that is the
+case then I cannot see a reason to treat it any differently from
+other channel types.
+
+>=20
+> >  The ability to register additional IIO consumers like
+> >   this is useful, lets make it useful to everyone. =20
+>=20
+> But not everyone and every iio device can and should be mappable to the "=
+input" abstraction.
+> This does not make any sense to me.
+
+Absolutely.  It should not be.  I clearly didn't explain this well.
+
+It should be mapped to a consumer.
+
+One type of consumer is iio-input, another is iio-hmwon etc.
+
+>=20
+> For example, does it make sense to map a temperature sensor to accelerome=
+ter input? Or an
+> accelerometer to hwmon? This seems to be possible of your generalization =
+unless I am missing something here.
+> If it is, it ignores that iio sensors are already grouped by what physica=
+l property they do measure.
+
+If people want to map crazy channels to crazy sensor outputs, why stop them?
+(at this level of the interface).
+
+This is a policy question for a userspace script.  Particular consumer driv=
+ers
+could of course perform sanity checking and refuse to do anything if they
+cannot sensibly use the channels.
+
+Yes, the interface has this flexibility. Which is a good thing!  Take the e=
+xample
+of the gyroscope as input I used above.  If we want to add that support
+in future to your driver (I have no idea if it actually makes sense)
+then we can - without having to change the interface.
+
+>=20
+> >=20
+> > 2) To much generality of the specific usecase.  I don't want to put an =
+Input
+> >   interface on accelerometers where it makes no sense. =20
+>=20
+> I think you can just ignore the input interfaces in that case, if it was =
+created.
+
+Bastien raised a case where this isn't true.
+
+>=20
+> >  The rule of it has
+> >   2-3 axis so it must make sense isn't good enough to my mind.  How
+> >   does userspace know which accelerometer to use (more and more devices=
+ have
+> >   multiple?) =20
+>=20
+> In our approach user-space can make it known by udev rules based on /dev/=
+input/event*
+> (not on iio but the input created for accelerometers). I think I mentione=
+d that. This
+> comes for free for any device registering as input. So it is no additiona=
+l code.
+
+Sorry, I'm lost.  What in there tells you to use 'this' interface rather th=
+an one
+of the other N that were registered?  I'm not sure what information you
+have available there.
+
+>=20
+> >  You could do something like looking at the location info from
+> >   DT / ACPI in your driver and pick the 'best' but that's policy. Shoul=
+d be
+> >   in userspace.  Sure you can just use the right input driver, but the =
+moment
+> >   we do that, we need aware userspace, if that's the case why not make =
+it
+> >   aware from the start.
+> >=20
+> > Believe me I've been round this one a good few times and thought about =
+it
+> > a lot. =20
+>=20
+> That is fine and why we should discuss all the different aspects we have =
+collected.
+>=20
+> >  I'll take a lot of convincing that this isn't a problem that
+> > should be pushed into userspace.
+> >  =20
+> >>=20
+> >> I think having them mapped always does not need much resources (except=
+ a handful of bytes
+> >> in memory and some =C2=B5s during probing) unless the event device is =
+opened and really used.
+> >> Only then it starts e.g. I2C traffic to read the sensors. =20
+> >=20
+> > The bytes don't really mater. =20
+>=20
+> Ok, good to know.
+>=20
+> > The userspace ABI additions do. =20
+>=20
+> There are only new /dev/input/event devices with well defined ABI. This a=
+pproach does
+> not invent anything new here, hence there are no ABI additions which we c=
+an break.
+
+But it does - we aren't talking general ABI, but ABI on specific
+devices.  Sure, Android doesn't care - though you'd be amazed how much
+individual android device developers will because we just added another
+pile of tests to their CI.
+
+An industrial sensor platform absolutely does.  They have to validate
+those interfaces.  They can't just ignore them because they feel like
+it because who knows if some future user will use them?
+
+For another case, see Bastien's reply to the later thread.
+
+Instantiating interfaces has testing costs, even when the are standard
+interfaces.
+
+>=20
+> >  =20
+> >>=20
+> >> So it is just some unused file sitting around in /dev. Or 2 or could b=
+e even 100.
+> >> For devices which have no iio accelerometers configured, there will be=
+ no /dev/input
+> >> file. So we are discussing the rare case of devices with more than one=
+ or two accelerometers. =20
+> >=20
+> > Well they aren't exactly rare in IIO using systems ;) =20
+>=20
+> This is another thing where our experiences differ. What specific devices=
+ are you thinking
+> of? I am focussed on handhelds where the accelerometer (or two) is a way =
+to do GUI input
+> depending on device orientation in space.
+
+Again, you are introducing this interface for everyone. Including lots of
+'interesting' usecases.
+
+I have worked with sensor platforms with accelerometers of different parts =
+of humans,
+We have people do bridge vibration measurement, flying UAVs and tracking th=
+e motion
+of trucks.
+
+Most are not huge numbers of accelerometers per node but don't rule out the
+possibility.  It's normally limited by length of cables rather than anything
+else so you used multiple nodes after a while each with their own set of se=
+nsors.
+
+There are lots of plaforms out there that use multiple accelerometers in mo=
+re
+or less the same place to do very high dynamic range measurement (without l=
+osing
+precision when things are nearly still).
+
+Anyhow, it's not a particularly important point anyway!
+
+> >  =20
+> >>=20
+> >> Now, on every system there are many interfaces and files that are not =
+used because it makes
+> >> no sense to look at them. If I check on one of my systems, I find for =
+example a lot of
+> >> /dev/tty and only a very small portion is used and generic distros hav=
+e no issue with it.
+> >>=20
+> >> There is even /dev/iio:device0 to /dev/iio:device5 representing the ra=
+w iio devices.
+> >> Not all of them are actively used, but they are simply there and can b=
+e scanned for. =20
+> >=20
+> > Agreed, in the ideal case we wouldn't have had that either, but we are
+> > stuck with it.  The long term plan is to allow use of IIO backends with=
+out the
+> > front end being there at all. Lots of SoC ADC users would prefer this. =
+We are
+> > stuck with the legacy intertwining fo the front end and back end of IIO=
+ so
+> > this isn't as easy to do as I would like. =20
+>=20
+> Ah, ok. I think it is a similar discussion of hiding the serdev /dev/tty*=
+ if it is
+> used for accessing an embedded GPS or Bluetooth chip, for example.
+>=20
+> But is this needed? I think it is not a problem if there are multiple con=
+sumers for
+> the same iio channel. Some in-kernel, some through /dev/iio:device* and m=
+aybe some
+> through /dev/input (which boils down to in-kernel).
+
+There are quite a few complexities around multiple consumers that we really=
+ haven't
+solved.  Right now the cases that work are very much restricted.  I'd love
+to tidy some of these up, but never enough time and all that.
+
+It's not that relevant here, but in short a few of the issues are:
+1) Interference over control settings.  - Two consumers need different filt=
+er
+   settings/ sampling frequency / range.  How do we negotiate the choice and
+   communicate it to the other consumers.  More complex questions such
+   mediating choices of triggers.
+2) One driver is doing polled reads, the other is doing interrupt driven.
+   Most drivers prevent this combination because the polled reads can lead
+   to unlimited delays on the interrupt driven path and hence break it.
+
+The main driver for this separation was to present only the 'right' interfa=
+ce
+to reduced people's validation costs etc.  People really do want to have the
+option to strip back the userspace inteface.  Obviously these are the rare
+people who would disable your config option, but the point of this was
+that we actually would like to make even the IIO interface optional as
+well but have a fair way to go before we can.
+
+>=20
+> >  =20
+> >>=20
+> >> So I do not see a resource problem if every accelerometer /dev/iio:dev=
+ice* gets
+> >> some companion /dev/input/event* for being used on demand - but only i=
+f this bridge
+> >> is configured at all. =20
+> >=20
+> > That argument does not apply. If we add a config option, distros will e=
+nable it.
+> > So the vast majority of systems will ship with this turned on.  You can=
+not
+> > use a config variable to control policy and expect it to be change by a=
+nyone
+> > but a very very small subset of users.  So please drop the 'you can jus=
+t not
+> > build it argument'. =20
+>=20
+> This is not my point here. I mention this under the (now known to be wron=
+g) assumption
+> that resources do care. I just want to state that kernels built for platf=
+orms where every
+> byte counts can be stripped down by disabling it. Others where resources =
+are no concern
+> simply can map them all, even if not used.
+
+Agreed. A subset of users will just build without this.
+
+>=20
+> > Userspace configuration changing is a lot easier if people actually car=
+e.
+> > Sure, many distros will ship the same script to everyone.
+> >  =20
+> >>  =20
+> >>> I think we need some deliberate userspace interaction to instantiate
+> >>> one of these rather than 'always doing it'.   =20
+> >>=20
+> >> My gut feeling is that this additional user-space interaction needs mo=
+re resources and
+> >> adds a lot of complexity, independently of how it is done. =20
+> >=20
+> > Trivial resources and actually fairly trivial complexity.  Key thing is
+> > it puts the burden on the users of this functionality to configure what=
+ they
+> > want. =20
+>=20
+> Hm. No. My proposal does not need configuration which accelerometers shou=
+ld go where.
+
+Agreed. I was talking about my proposal here :)
+
+>=20
+> I assumethat input accelerometer users do not want to configure anything,=
+ like neither
+> a mouse or keyboard is to be configured to be useable (yes there are keym=
+aps but that
+> is impossible to automate).
+
+The difference is a mouse is only really useful as a mouse and most of the =
+time a keyboard
+is a used only as a keyboard.  Here that's not true.
+
+>=20
+> They just want to be able to read device orientation in a device-independ=
+ent scale.
+> Therefore my approach already takes the mount-matrix into account to hide=
+ sensor position
+> differences.
+
+And how does that work on the common case of a sensor in the lid of a lapto=
+p?
+how do you know what angle the screen is at? =20
+One oddity to note here is that until very recently we deliberately didn't =
+register
+certain ACPI IDs because they confused userspace by reporting two accelerom=
+eters
+without any info on which was in the lid.  Thankfully proper handling of th=
+at
+is no being sorted.  It's still mostly a case of just deliberately ignoring=
+ one
+of the sensors.
+
+>=20
+> >  =20
+> >>=20
+> >> And I think is even less flexible than "always doing it". Let me expla=
+in this claim.
+> >>=20
+> >> For me, the kernel should present everything the hardware supports to =
+user-space
+> >> in better digestable device files or APIs (without making any assumpti=
+ons about the
+> >> user-space code). =20
+> >=20
+> > Agreed, we just have a different view on how this should be done. I want
+> > it to be dynamic and extremely flexible, you want the easy way of just
+> > putting a fixed set out all the time.
+> >  =20
+> >>=20
+> >> Then, every user-space that will be installed can find out what the ha=
+rdware supports
+> >> by looking at standard places.
+> >>=20
+> >> E.g. it can scan for all mice and keyboards. And for all input acceler=
+ometers. =20
+> >=20
+> > Or, you an have the correct 'fairly trivial' userspace setup to scan fo=
+r all
+> > registered accelerometers and 'on demand' create the bindings to bring =
+them up as
+> > Input accelerometers if that is what makes sense for your platform. =20
+>=20
+> Why not scan for input accelerometers and leave it as an implementation d=
+etail that
+> the kernel does serve the physical chips through the iio infrastructure?
+
+If we could separate the IIO front end from the IIO backend I would agree t=
+hat
+would be another valid -userspace- policy.
+
+>=20
+> IMHO some user-spaces may already be scanning all */input/event* and chec=
+k for
+> the device property INPUT_PROP_ACCELEROMETER.
+>=20
+> This is a discussion mainly about proper encapsulation of lower level dif=
+ferences.
+>=20
+> >  =20
+> >>=20
+> >> If the kernel is hiding some chips and needs some initial user-space a=
+ction before
+> >> presenting them all, this requires that the user-space has some a-prio=
+ri knowledge
+> >> about which specific devices it should ask for. =20
+> >=20
+> > No more that it needs to know which accelerometer to use? =20
+>=20
+> >  =20
+> >> So it does not really need to scan
+> >> for them. Because it must already know. Obviously in some mapping tabl=
+e stored at
+> >> a well known location inside the rootfs image. =20
+> >=20
+> > No. Let me give some more details of how this would work.  It's really =
+just
+> > a more flexible version of what you have.
+> >=20
+> > A distro, or individual user decides to put the relevant script in plac=
+e for the
+> > following:
+> >=20
+> > 1. Userspace detects a new accelerometer driver, via the standard metho=
+ds (uevent)
+> > 2. Userspace looks to see if it has the required properties. Now this i=
+ncludes things
+> > like detecting that it is the accelerometer in the lid of a laptop - if=
+ so do not
+> > register it as an input device.  If it's in the keyboard then do regist=
+er it.
+> > 3. Userspace script then creates the files in configfs
+> > /sys/kernel/config/iio/maps/
+> > (this interface needs appropriate definition)
+> > Maybe...
+> > /sys/kernel/config/iio/maps/iio_input/iio_device:X/accel_x, accel_y, etc
+> > When done it writes to the bind file
+> > /sys/kernel/config/iio/maps/iio_input/iio_device:X/bind
+> > which instantiates the input driver.
+> >=20
+> > This moves all of the policy decision into userspace, where it belongs.=
+  If
+> > we want to enable a particular accelerometer on a particular board beca=
+use it
+> > actually works better than the one the default policy says to use, then=
+ we can
+> > do so.
+> >=20
+> > The resulting infrastructure is much more general, because it lets us d=
+o the
+> > same for any IIO consumer.  This input bridge is not a special case. It=
+ works
+> > equally well for the existing hwmon bridge any would even let us do thi=
+ngs
+> > like provide the information from userspace that we have an analog acce=
+lerometer
+> > wired up to an ADC on some hacker board. =20
+>=20
+> Ok, understood.
+>=20
+> My approach triggers input uevents:
+>=20
+> 1. kernel detects a new iio accelerometer (looks like an analog accelerom=
+eter should be
+>    the DTS child of an iio adc and then iio should create an acceleromete=
+r and not a voltage
+>    channel)
+
+Yes ultimately it would be a child device that would be it's own IIO device=
+. We
+already have this for some gyroscopes.
+
+> 2. iio-bridge registers as input event
+> 3. this triggers an uevent
+> 4  an udev-rule can detect the properties and map it to some "speaking" n=
+ame like
+>    /dev/input/main-accelerometer, /dev/input/lid-accelerometer etc. Or if=
+ the
+>    accelerometer is to be ignored, it does not get a "speaking" name at a=
+ll.
+>=20
+> The required udev rules are stored in user space and are of course user-s=
+pace and application
+> specific. But this does not require to invent some new configfs stuff and=
+ special scripts
+> in user-space. Just install some udev rule at a well established location=
+ in file-system.
+
+I'm not sure there is any significant difference between you creating a map=
+ping like
+this an udev rule that creates the whole mapping.  Bit more to do perhaps b=
+ut it's
+nothing particularly special that I can see.  Sure there is new kernel supp=
+ort to be
+done.
+
+>=20
+> Yes, this does not cover arbitrary mappings. But what are arbitrary mappi=
+ngs good
+> for? Your scheme seems to be able to map a light sensor to accelerometer =
+input.
+> Does this "full matrix of everything is possible" really make sense?
+
+=46rom a generic interface point of view - yes it absolutely does.
+
+We define an interface that covers all usecases rather than a whole set of
+separate ones that cover individual corner cases.  That way we don't have to
+keep defining new interfaces.
+
+The individual drivers can easily do validation of what they are provided w=
+ith.
+
+>=20
+> I can't decide because I have no need for it. Others may have.
+>=20
+> But another thought: does it interfere with this input-bridge? Probably n=
+o. You can
+> still add your configfs approach for general iio devices to e.g. hwmon ma=
+ppings. Even
+> as an alternate method of creating input devices (enabled only if my inpu=
+t-bridge is
+> disabled).
+
+Yes see above.  Both approaches meet your requirement (I think anyway).
+I do not want to see two long term solutions to the same problem.
+
+I'm interested in a long term sustainable solution so I want to see
+the generic one.
+
+>=20
+> >=20
+> >  =20
+> >>=20
+> >> This seems to make it impossible to develop a generic distro rootfs im=
+age - without
+> >> asking the user for manual configuration. And that where the kernel al=
+ready knows
+> >> this (which iio accelerometers do exist for a specific piece of hardwa=
+re).
+> >>=20
+> >> This is why I believe a mechanism to instantiate only on demand isn't =
+adding but
+> >> removing flexibility because it prevents copying a rootfs from one dev=
+ice to another. =20
+> >=20
+> > I disagree, see above.
+> >  =20
+> >>  =20
+> >>>=20
+> >>> As I mentioned in V1, look at the possibility of a configfs based met=
+hod
+> >>> to build the map.  It's easy for userspace to work out what makes sen=
+se to
+> >>> map in principle.  There may be some missing info that we also need to
+> >>> look to expose.   =20
+> >>=20
+> >> With a "may be missing" it is impossible to write code for it...
+> >> Can you please name which information is missing on the input accelero=
+meter
+> >> API? =20
+> >=20
+> > See above. It's not the input accelerometer ABI, it's the missing abili=
+ty
+> > to instantiate IIO maps from user space.
+> >  =20
+> >>  =20
+> >>>=20
+> >>> In general, userspace created channel maps would be very useful for
+> >>> other things such as maker type boards where they can plug all sorts
+> >>> of odd things into ADC channels for example.   =20
+> >>=20
+> >> Ok, I understand, but this is a different problem where this iio-input=
+-bridge is not
+> >> intended to be a solution. Generic ADCs are not input devices. Like SD=
+ cards are not
+> >> keyboards.
+> >>=20
+> >> So we should not try to mix the idea of general mapping with this inpu=
+t-bridge for
+> >> input accelerometers. =20
+> > Yes we should. You are proposing a solution that is a subset of the lar=
+ger
+> > problem set. =20
+>=20
+> Yes, of course. Because I did not see or know about the general problem s=
+et.
+> And I still don't see a need for user-space controlled mapping for input-=
+accelerometers.
+
+We are clearly going to differ on this.  Bastien gave one example for why
+this is required.  There will be others.
+
+>=20
+> >  Why introduce a stop gap like this when we can do it correctly
+> > and provide something useful for all those other use cases.
+> >=20
+> > The only difference here is the uevent triggered script that creates th=
+ose maps
+> > for your particular usecase. =20
+>=20
+> Well, I am a friend of solving one problem after the other in smaller ste=
+ps than
+> immediately aiming at a very general solution, which has side-effects of =
+inventing
+> new stuff for things that would work without.
+
+That works in a world where you can drop the previous approach as part of y=
+our
+generalization.  When you are playing with kernel / userspace ABI then it
+doesn't. Ideally you have to figure out the extensible general solution at =
+the
+start because you are stuck maintaining the 'small steps' for many years to
+come.  I don't want to perpetually 'have' to export all 3D accelerometers as
+input devices, because we didn't have the ability to chose which should be
+exported at some point in the past.
+
+>=20
+> >=20
+> >  =20
+> >>=20
+> >> BTW, there is a way to define additional mapping using udev rules whic=
+h symlink the
+> >> /dev/input/event* paths to stable names like /dev/input/accelerometer.
+> >>=20
+> >> This comes without additional code and is already provided by udev and=
+ the input system.
+> >>=20
+> >> So in summary, I have not yet seen a convincing scenario where being a=
+ble to dynamically
+> >> map iio channels to input devices seems beneficial. =20
+> >=20
+> > That is true for the narrow case you are talking about. I don't want to=
+ see that
+> > narrow case solved in a fashion that effectively breaks solving it prop=
+erly. =20
+>=20
+> How does it break your approach if added later? The more I think about it=
+ they are
+> not incompatible. It is just useless to apply both in parallel.
+
+The reality is that if we put one in first that will used for ever because =
+there
+will be devices out there using it.  Therefore we have to maintain both for
+ever.
+
+>=20
+> > If we add this, we have to export all accelerometers for ever under all=
+ circumstances
+> > to userspace, because to remove it will break existing userspace.
+> >=20
+> > If we stand back and work out if we can do the general solution now, we=
+ avoid
+> > this problem. =20
+>=20
+> We get a different problem that we break existing user-space that simply =
+wants to see
+> an /dev/input/accelerometer without doing more than an existing udev rule.
+
+I would love to say such a userspace doesn't exist, but reality is there are
+all sorts of hideous things out there.  There are cases that deal with this
+as an option of course (such as Bastien's sensor-proxy)
+
+The number of devices that are supported under mainline as input accelerome=
+ters
+is pretty small.  It's not a perfect world unfortunately but having to add a
+small udev script is at least not a major break if we do cause it.
+>=20
+> >  =20
+> >>  =20
+> >>>  =20
+> >>>>=20
+> >>>> This driver simply collects the first 3 accelerometer channels as X,=
+ Y and Z.
+> >>>> If only 1 or 2 channels are available, they are used for X and Y onl=
+y. Additional
+> >>>> channels are ignored.
+> >>>>=20
+> >>>> Scaling is done automatically so that 1g is represented by value 256=
+ and
+> >>>> range is assumed to be -511 .. +511 which gives a reasonable precisi=
+on as an
+> >>>> input device.   =20
+> >>>=20
+> >>> Why do we do this, rather than letting input deal with it?  Input is =
+used
+> >>> to widely differing scales IIRC   =20
+> >>=20
+> >> Well, it can't be done differently... And what I call scale here is no=
+thing more than
+> >> defining ABSMIN_ACC_VAL and ABSMAX_ACC_VAL.
+> >>=20
+> >> We need to apply some scale since iio reports in (fractional) units of=
+ 1g, i.e. values
+> >> of magnitude 1. =20
+> >=20
+> > m/s^2 not g, but doesn't matter for the point of view of this discussio=
+n. =20
+>=20
+> My fault. The driver takes care of this in the scaling formula so that "i=
+nput" reports
+> MAX/2 for 1g.
+>=20
+> >  =20
+> >> These are not adaequate for input events which use integers. So we must
+> >> define some factor for iio_convert_raw_to_processed() to scale from ra=
+w value range
+> >> to int value range. We could report raw values but this would be an im=
+proper abstraction
+> >> from chip specific differences. =20
+> >=20
+> > Hmm. I can see we perhaps need some mapping, but is there a concept of =
+standard scale
+> > for existing input accelerometers?  How is this done to give for other =
+input devices
+> > such as touch screens?  I'd expect to see a separation between scale, a=
+nd range.
+> >=20
+> >  =20
+> >>=20
+> >> BTW: the range (and therefore the factor) is reported through the evde=
+v driver to user-space
+> >> (evtest reports Min and Max as you can see in the example).
+> >>=20
+> >> The most important thing is that this is a hardware independent defini=
+tion. Every accelerometer
+> >> chip will report this range. So you can easily upgrade hardware or swi=
+tch accelerometers
+> >> without touching user-space calibration. Like you can replace ethernet=
+ controller chips but
+> >> networking works the same with all of them. =20
+> >=20
+> > Agreed, it needs to be hardware independent by the time it hits userspa=
+ce, but I would
+> > have thought that scaling would be done in input, rather than IIO. It's=
+ hardly
+> > a problem unique to our usecase!
+> >=20
+> > Perhaps Dmitry can give some advice on this. =20
+>=20
+> Yes, that would be helpful.
+>=20
+> >  =20
+> >>=20
+> >>=20
+> >> Hm. Is there an alternative to attach such private data to an struct i=
+io_dev
+> >> allocated by someone else? I have not found one yet.
+> >>=20
+> >> Or can I add some void *input_mapping; to struct iio_dev? Depending on
+> >> #if defined(CONFIG_IIO_INPUT_BRIDGE)? =20
+> >=20
+> > Yes, add a new element. =20
+>=20
+> Ok, works fine.
+>=20
+> I already have found one case of iio accelerometer driver where it did ma=
+ke a problem
+> not using a special element.
+>=20
+> >>>=20
+> >>> iio_input_find_accel_channel(indio_dev, chan, &numchans);
+> >>> iio_input_register_device(indio_dev, chan, numchans);   =20
+> >>=20
+> >> Well, that looks like it needs some temporary storage of dynamic size
+> >> and loop twice over channels for no functional benefit. =20
+> >=20
+> > Use fixed size. The worst that happens is we end up with it being
+> > an entry larger that it needs to be.
+> >  =20
+> >> And handle the
+> >> special case of numchans =3D=3D 0 (the proposed code simply does not c=
+all
+> >> iio_input_register_accel_channel and does not register anything).
+> >>=20
+> >> So I'd prefer to follow the "KISS" principle and register single chann=
+els
+> >> instead of a set of channels. =20
+> >=20
+> > Well we disagree on this.  A singleton approach like used here
+> > is to my mind not KISS.  I would rather see what is there then
+> > act as two simple steps, rather than interleave two different
+> > actions with a totally different path for the first channel found.
+> > If there is only one channel you just built a load of infrastructure
+> > that makes no sense.  If you scan first then you can know that
+> > before building anything. =20
+>=20
+> Ok, this is more a matter of taste and resource requirements can probably
+> be neglected. I'll update the driver.
+>=20
+> So in summary, I'll post a v3 that fixes some bugs of v2 (because we need
+> them fixed for our production systems as well).
+>=20
+> Then it is up to you if you want to take this approach or want to write
+> a full version following your concept. Or if it is possible as I assume, =
+we
+> can have both.
+
+Thanks. I think we need at some code for what I was proposing to discuss
+much further. Unfortunately it may be a little while before I get time to
+work on that.  Hopefully not too long though!
+
+Jonathan
+
+>=20
+> BR and thanks,
+> Nikolaus
+>=20

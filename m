@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>
-Subject: [PATCH 2/3] HID: apple-ib-tb: Add driver for the Touch Bar on MacBook Pro's.
-Date: Sun, 21 Apr 2019 20:12:50 -0700
-Message-ID: <20190422031251.11968-3-ronald@innovation.ch>
+Subject: [PATCH 3/3] iio: light: apple-ib-als: Add driver for ALS on iBridge chip.
+Date: Sun, 21 Apr 2019 20:12:51 -0700
+Message-ID: <20190422031251.11968-4-ronald@innovation.ch>
 References: <20190422031251.11968-1-ronald@innovation.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,1318 +13,726 @@ To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redha
 Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This driver enables basic touch bar functionality: enabling it, switching
-between modes on FN key press, and dimming and turning the display
-off/on when idle/active.
+On 2016/2017 MacBook Pro's with a Touch Bar the ALS is attached to,
+and exposed via the iBridge device. This provides the driver for that
+sensor.
 
 Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
 ---
- drivers/hid/Kconfig       |   10 +
- drivers/hid/Makefile      |    1 +
- drivers/hid/apple-ib-tb.c | 1288 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 1299 insertions(+)
- create mode 100644 drivers/hid/apple-ib-tb.c
+ drivers/iio/light/Kconfig        |  12 +
+ drivers/iio/light/Makefile       |   1 +
+ drivers/iio/light/apple-ib-als.c | 694 +++++++++++++++++++++++++++++++
+ 3 files changed, 707 insertions(+)
+ create mode 100644 drivers/iio/light/apple-ib-als.c
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 41e9935fc584..f0a65bb4be6e 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -135,6 +135,16 @@ config HID_APPLE
- 	Say Y here if you want support for keyboards of	Apple iBooks, PowerBooks,
- 	MacBooks, MacBook Pros and Apple Aluminum.
+diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
+index 36f458433480..49159fab1c0e 100644
+--- a/drivers/iio/light/Kconfig
++++ b/drivers/iio/light/Kconfig
+@@ -64,6 +64,18 @@ config APDS9960
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called apds9960
  
-+config HID_APPLE_IBRIDGE_TB
-+	tristate "Apple iBridge Touch Bar"
++config APPLE_IBRIDGE_ALS
++	tristate "Apple iBridge ambient light sensor"
++	select IIO_BUFFER
++	select IIO_TRIGGERED_BUFFER
 +	depends on MFD_APPLE_IBRIDGE
-+	---help---
-+	Say Y here if you want support for the Touch Bar on recent
-+	MacBook Pros.
++	help
++	  Say Y here to build the driver for the Apple iBridge ALS
++	  sensor.
 +
-+	To compile this driver as a module, choose M here: the
-+	module will be called apple-ib-tb.
++	  To compile this driver as a module, choose M here: the
++	  module will be called apple-ib-als.
 +
- config HID_APPLEIR
- 	tristate "Apple infrared receiver"
- 	depends on (USB_HID)
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 896a51ce7ce0..dedd8049d3fb 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -26,6 +26,7 @@ obj-$(CONFIG_HID_ACCUTOUCH)	+= hid-accutouch.o
- obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
- obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-+obj-$(CONFIG_HID_APPLE_IBRIDGE_TB)	+= apple-ib-tb.o
- obj-$(CONFIG_HID_APPLEIR)	+= hid-appleir.o
- obj-$(CONFIG_HID_ASUS)		+= hid-asus.o
- obj-$(CONFIG_HID_AUREAL)	+= hid-aureal.o
-diff --git a/drivers/hid/apple-ib-tb.c b/drivers/hid/apple-ib-tb.c
+ config BH1750
+ 	tristate "ROHM BH1750 ambient light sensor"
+ 	depends on I2C
+diff --git a/drivers/iio/light/Makefile b/drivers/iio/light/Makefile
+index 286bf3975372..144d918917f7 100644
+--- a/drivers/iio/light/Makefile
++++ b/drivers/iio/light/Makefile
+@@ -9,6 +9,7 @@ obj-$(CONFIG_ADJD_S311)		+= adjd_s311.o
+ obj-$(CONFIG_AL3320A)		+= al3320a.o
+ obj-$(CONFIG_APDS9300)		+= apds9300.o
+ obj-$(CONFIG_APDS9960)		+= apds9960.o
++obj-$(CONFIG_APPLE_IBRIDGE_ALS)	+= apple-ib-als.o
+ obj-$(CONFIG_BH1750)		+= bh1750.o
+ obj-$(CONFIG_BH1780)		+= bh1780.o
+ obj-$(CONFIG_CM32181)		+= cm32181.o
+diff --git a/drivers/iio/light/apple-ib-als.c b/drivers/iio/light/apple-ib-als.c
 new file mode 100644
-index 000000000000..6b72ff56b17f
+index 000000000000..1718fcbe304f
 --- /dev/null
-+++ b/drivers/hid/apple-ib-tb.c
-@@ -0,0 +1,1288 @@
++++ b/drivers/iio/light/apple-ib-als.c
+@@ -0,0 +1,694 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Apple Touch Bar Driver
++ * Apple Ambient Light Sensor Driver
 + *
 + * Copyright (c) 2017-2018 Ronald Tschalär
 + */
 +
 +/*
-+ * Recent MacBookPro models (13,[23] and 14,[23]) have a touch bar, which
-+ * is exposed via several USB interfaces. MacOS supports a fancy mode
-+ * where arbitrary buttons can be defined; this driver currently only
-+ * supports the simple mode that consists of 3 predefined layouts
-+ * (escape-only, esc + special keys, and esc + function keys).
++ * MacBookPro models with an iBridge chip (13,[23] and 14,[23]) have an
++ * ambient light sensor that is exposed via one of the USB interfaces on
++ * the iBridge as a standard HID light sensor. However, we cannot use the
++ * existing hid-sensor-als driver, for two reasons:
 + *
-+ * The first USB HID interface supports two reports, an input report that
-+ * is used to report the key presses, and an output report which can be
-+ * used to set the touch bar "mode": touch bar off (in which case no touches
-+ * are reported at all), escape key only, escape + 12 function keys, and
-+ * escape + several special keys (including brightness, audio volume,
-+ * etc). The second interface supports several, complex reports, most of
-+ * which are unknown at this time, but one of which has been determined to
-+ * allow for controlling of the touch bar's brightness: off (though touches
-+ * are still reported), dimmed, and full brightness. This driver makes
-+ * use of these two reports.
++ * 1. The hid-sensor-als driver is part of the hid-sensor-hub which in turn
++ *    is a hid driver, but you can't have more than one hid driver per hid
++ *    device, which is a problem because the touch bar also needs to
++ *    register as a driver for this hid device.
++ *
++ * 2. While the hid-sensors-als driver stores sensor readings received via
++ *    interrupt in an iio buffer, reads on the sysfs
++ *    .../iio:deviceX/in_illuminance_YYY attribute result in a get of the
++ *    feature report; however, in the case of this sensor here the
++ *    illuminance field of that report is always 0. Instead, the input
++ *    report needs to be requested.
 + */
 +
-+#define dev_fmt(fmt) "tb: " fmt
++#define dev_fmt(fmt) "als: " fmt
 +
 +#include <linux/device.h>
 +#include <linux/hid.h>
-+#include <linux/input.h>
-+#include <linux/jiffies.h>
-+#include <linux/ktime.h>
++#include <linux/hid-sensor-ids.h>
++#include <linux/iio/buffer.h>
++#include <linux/iio/iio.h>
++#include <linux/iio/trigger_consumer.h>
++#include <linux/iio/triggered_buffer.h>
++#include <linux/iio/trigger.h>
 +#include <linux/mfd/apple-ibridge.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
 +#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/sysfs.h>
-+#include <linux/usb/ch9.h>
-+#include <linux/usb.h>
-+#include <linux/workqueue.h>
 +
-+#define HID_UP_APPLE		0xff120000
-+#define HID_USAGE_MODE		(HID_UP_CUSTOM | 0x0004)
-+#define HID_USAGE_APPLE_APP	(HID_UP_APPLE  | 0x0001)
-+#define HID_USAGE_DISP		(HID_UP_APPLE  | 0x0021)
++#define APPLEALS_DYN_SENS		0	/* our dynamic sensitivity */
++#define APPLEALS_DEF_CHANGE_SENS	APPLEALS_DYN_SENS
 +
-+#define APPLETB_MAX_TB_KEYS	13	/* ESC, F1-F12 */
-+
-+#define APPLETB_CMD_MODE_ESC	0
-+#define APPLETB_CMD_MODE_FN	1
-+#define APPLETB_CMD_MODE_SPCL	2
-+#define APPLETB_CMD_MODE_OFF	3
-+#define APPLETB_CMD_MODE_NONE	255
-+
-+#define APPLETB_CMD_DISP_ON	1
-+#define APPLETB_CMD_DISP_DIM	2
-+#define APPLETB_CMD_DISP_OFF	4
-+#define APPLETB_CMD_DISP_NONE	255
-+
-+#define APPLETB_FN_MODE_FKEYS	0
-+#define APPLETB_FN_MODE_NORM	1
-+#define APPLETB_FN_MODE_INV	2
-+#define APPLETB_FN_MODE_SPCL	3
-+#define APPLETB_FN_MODE_MAX	APPLETB_FN_MODE_SPCL
-+
-+#define APPLETB_DEVID_KEYBOARD	1
-+#define APPLETB_DEVID_TOUCHPAD	2
-+
-+#define APPLETB_MAX_DIM_TIME	30
-+
-+static int appletb_tb_def_idle_timeout = 5 * 60;
-+module_param_named(idle_timeout, appletb_tb_def_idle_timeout, int, 0444);
-+MODULE_PARM_DESC(idle_timeout, "Default touch bar idle timeout (in seconds); 0 disables touch bar, -1 disables timeout");
-+
-+static int appletb_tb_def_dim_timeout = -2;
-+module_param_named(dim_timeout, appletb_tb_def_dim_timeout, int, 0444);
-+MODULE_PARM_DESC(dim_timeout, "Default touch bar dim timeout (in seconds); 0 means always dimmmed, -1 disables dimming, [-2] calculates timeout based on idle-timeout");
-+
-+static int appletb_tb_def_fn_mode = APPLETB_FN_MODE_NORM;
-+module_param_named(fnmode, appletb_tb_def_fn_mode, int, 0444);
-+MODULE_PARM_DESC(fnmode, "Default Fn key mode: 0 = f-keys only, [1] = fn key switches from special to f-keys, 2 = inverse of 1, 3 = special keys only");
-+
-+static ssize_t idle_timeout_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf);
-+static ssize_t idle_timeout_store(struct device *dev,
-+				  struct device_attribute *attr,
-+				  const char *buf, size_t size);
-+static DEVICE_ATTR_RW(idle_timeout);
-+
-+static ssize_t dim_timeout_show(struct device *dev,
-+				struct device_attribute *attr, char *buf);
-+static ssize_t dim_timeout_store(struct device *dev,
-+				 struct device_attribute *attr,
-+				 const char *buf, size_t size);
-+static DEVICE_ATTR_RW(dim_timeout);
-+
-+static ssize_t fnmode_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf);
-+static ssize_t fnmode_store(struct device *dev, struct device_attribute *attr,
-+			    const char *buf, size_t size);
-+static DEVICE_ATTR_RW(fnmode);
-+
-+static struct attribute *appletb_attrs[] = {
-+	&dev_attr_idle_timeout.attr,
-+	&dev_attr_dim_timeout.attr,
-+	&dev_attr_fnmode.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group appletb_attr_group = {
-+	.attrs = appletb_attrs,
-+};
-+
-+struct appletb_device {
-+	bool			active;
++struct appleals_device {
++	struct appleib_device	*ib_dev;
 +	struct device		*log_dev;
-+
-+	struct appletb_report_info {
-+		struct hid_device	*hdev;
-+		struct usb_interface	*usb_iface;
-+		unsigned int		usb_epnum;
-+		unsigned int		report_id;
-+		unsigned int		report_type;
-+		bool			suspended;
-+	}			mode_info, disp_info;
-+
-+	struct input_handler	inp_handler;
-+	struct input_handle	kbd_handle;
-+	struct input_handle	tpd_handle;
-+
-+	bool			last_tb_keys_pressed[APPLETB_MAX_TB_KEYS];
-+	bool			last_tb_keys_translated[APPLETB_MAX_TB_KEYS];
-+	bool			last_fn_pressed;
-+
-+	ktime_t			last_event_time;
-+
-+	unsigned char		cur_tb_mode;
-+	unsigned char		pnd_tb_mode;
-+	unsigned char		cur_tb_disp;
-+	unsigned char		pnd_tb_disp;
-+	bool			tb_autopm_off;
-+	bool			restore_autopm;
-+	struct delayed_work	tb_work;
-+	/* protects most of the above */
-+	spinlock_t		tb_lock;
-+
-+	int			dim_timeout;
-+	int			idle_timeout;
-+	bool			dim_to_is_calc;
-+	int			fn_mode;
++	struct hid_device	*hid_dev;
++	struct hid_report	*cfg_report;
++	struct hid_field	*illum_field;
++	struct iio_dev		*iio_dev;
++	struct iio_trigger	*iio_trig;
++	int			cur_sensitivity;
++	int			cur_hysteresis;
++	bool			events_enabled;
 +};
 +
-+struct appletb_key_translation {
-+	u16 from;
-+	u16 to;
-+};
-+
-+static const struct appletb_key_translation appletb_fn_codes[] = {
-+	{ KEY_F1,  KEY_BRIGHTNESSDOWN },
-+	{ KEY_F2,  KEY_BRIGHTNESSUP },
-+	{ KEY_F3,  KEY_SCALE },		/* not used */
-+	{ KEY_F4,  KEY_DASHBOARD },	/* not used */
-+	{ KEY_F5,  KEY_KBDILLUMDOWN },
-+	{ KEY_F6,  KEY_KBDILLUMUP },
-+	{ KEY_F7,  KEY_PREVIOUSSONG },
-+	{ KEY_F8,  KEY_PLAYPAUSE },
-+	{ KEY_F9,  KEY_NEXTSONG },
-+	{ KEY_F10, KEY_MUTE },
-+	{ KEY_F11, KEY_VOLUMEDOWN },
-+	{ KEY_F12, KEY_VOLUMEUP },
-+};
-+
-+static struct hid_driver appletb_hid_driver;
-+
-+static int appletb_send_hid_report(struct appletb_report_info *rinfo,
-+				   __u8 requesttype, void *data, __u16 size)
-+{
-+	void *buffer;
-+	struct usb_device *dev = interface_to_usbdev(rinfo->usb_iface);
-+	u8 ifnum = rinfo->usb_iface->cur_altsetting->desc.bInterfaceNumber;
-+	int tries = 0;
-+	int rc;
-+
-+	buffer = kmemdup(data, size, GFP_KERNEL);
-+	if (!buffer)
-+		return -ENOMEM;
-+
-+	do {
-+		rc = usb_control_msg(dev,
-+				     usb_sndctrlpipe(dev, rinfo->usb_epnum),
-+				     HID_REQ_SET_REPORT, requesttype,
-+				     rinfo->report_type << 8 | rinfo->report_id,
-+				     ifnum, buffer, size, 2000);
-+		if (rc != -EPIPE)
-+			break;
-+
-+		usleep_range(1000 << tries, 3000 << tries);
-+	} while (++tries < 5);
-+
-+	kfree(buffer);
-+
-+	return (rc > 0) ? 0 : rc;
-+}
-+
-+static bool appletb_disable_autopm(struct appletb_report_info *rinfo)
-+{
-+	int rc;
-+
-+	rc = usb_autopm_get_interface(rinfo->usb_iface);
-+	if (rc == 0)
-+		return true;
-+
-+	hid_err(rinfo->hdev,
-+		"Failed to disable auto-pm on touch bar device (%d)\n", rc);
-+	return false;
-+}
-+
-+static int appletb_set_tb_mode(struct appletb_device *tb_dev,
-+			       unsigned char mode)
-+{
-+	int rc;
-+	bool autopm_off = false;
-+
-+	if (!tb_dev->mode_info.usb_iface)
-+		return -ENOTCONN;
-+
-+	autopm_off = appletb_disable_autopm(&tb_dev->mode_info);
-+
-+	rc = appletb_send_hid_report(&tb_dev->mode_info,
-+				     USB_DIR_OUT | USB_TYPE_VENDOR |
-+							USB_RECIP_DEVICE,
-+				     &mode, 1);
-+	if (rc < 0)
-+		dev_err(tb_dev->log_dev,
-+			"Failed to set touch bar mode to %u (%d)\n", mode, rc);
-+
-+	if (autopm_off)
-+		usb_autopm_put_interface(tb_dev->mode_info.usb_iface);
-+
-+	return rc;
-+}
-+
-+static int appletb_set_tb_disp(struct appletb_device *tb_dev,
-+			       unsigned char disp)
-+{
-+	unsigned char report[] = { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-+	int rc;
-+
-+	if (!tb_dev->disp_info.usb_iface)
-+		return -ENOTCONN;
-+
-+	/*
-+	 * Keep the USB interface powered on while the touch bar display is on
-+	 * for better responsiveness.
-+	 */
-+	if (disp != APPLETB_CMD_DISP_OFF &&
-+	    tb_dev->cur_tb_disp == APPLETB_CMD_DISP_OFF)
-+		tb_dev->tb_autopm_off =
-+			appletb_disable_autopm(&tb_dev->disp_info);
-+
-+	report[0] = tb_dev->disp_info.report_id;
-+	report[2] = disp;
-+
-+	rc = appletb_send_hid_report(&tb_dev->disp_info,
-+				     USB_DIR_OUT | USB_TYPE_CLASS |
-+						USB_RECIP_INTERFACE,
-+				     report, sizeof(report));
-+	if (rc < 0)
-+		dev_err(tb_dev->log_dev,
-+			"Failed to set touch bar display to %u (%d)\n", disp,
-+			rc);
-+
-+	if (disp == APPLETB_CMD_DISP_OFF &&
-+	    tb_dev->cur_tb_disp != APPLETB_CMD_DISP_OFF) {
-+		if (tb_dev->tb_autopm_off) {
-+			usb_autopm_put_interface(tb_dev->disp_info.usb_iface);
-+			tb_dev->tb_autopm_off = false;
-+		}
-+	}
-+
-+	return rc;
-+}
-+
-+static bool appletb_any_tb_key_pressed(struct appletb_device *tb_dev)
-+{
-+	int idx;
-+
-+	for (idx = 0; idx < ARRAY_SIZE(tb_dev->last_tb_keys_pressed); idx++) {
-+		if (tb_dev->last_tb_keys_pressed[idx])
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+static void appletb_schedule_tb_update(struct appletb_device *tb_dev, s64 secs)
-+{
-+	schedule_delayed_work(&tb_dev->tb_work, msecs_to_jiffies(secs * 1000));
-+}
-+
-+static void appletb_set_tb_worker(struct work_struct *work)
-+{
-+	struct appletb_device *tb_dev =
-+		container_of(work, struct appletb_device, tb_work.work);
-+	s64 time_left, min_timeout, time_to_off;
-+	unsigned char pending_mode;
-+	unsigned char pending_disp;
-+	unsigned char current_disp;
-+	bool restore_autopm;
-+	bool any_tb_key_pressed, need_reschedule;
-+	int rc1 = 1, rc2 = 1;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	/* handle explicit mode-change request */
-+	pending_mode = tb_dev->pnd_tb_mode;
-+	pending_disp = tb_dev->pnd_tb_disp;
-+	restore_autopm = tb_dev->restore_autopm;
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+
-+	if (pending_mode != APPLETB_CMD_MODE_NONE)
-+		rc1 = appletb_set_tb_mode(tb_dev, pending_mode);
-+	if (pending_mode != APPLETB_CMD_MODE_NONE &&
-+	    pending_disp != APPLETB_CMD_DISP_NONE)
-+		msleep(25);
-+	if (pending_disp != APPLETB_CMD_DISP_NONE)
-+		rc2 = appletb_set_tb_disp(tb_dev, pending_disp);
-+
-+	if (restore_autopm && tb_dev->tb_autopm_off)
-+		appletb_disable_autopm(&tb_dev->disp_info);
-+
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	need_reschedule = false;
-+
-+	if (rc1 == 0) {
-+		tb_dev->cur_tb_mode = pending_mode;
-+
-+		if (tb_dev->pnd_tb_mode == pending_mode)
-+			tb_dev->pnd_tb_mode = APPLETB_CMD_MODE_NONE;
-+		else
-+			need_reschedule = true;
-+	}
-+
-+	if (rc2 == 0) {
-+		tb_dev->cur_tb_disp = pending_disp;
-+
-+		if (tb_dev->pnd_tb_disp == pending_disp)
-+			tb_dev->pnd_tb_disp = APPLETB_CMD_DISP_NONE;
-+		else
-+			need_reschedule = true;
-+	}
-+	current_disp = tb_dev->cur_tb_disp;
-+
-+	tb_dev->restore_autopm = false;
-+
-+	/* calculate time left to next timeout */
-+	if (tb_dev->idle_timeout <= 0 && tb_dev->dim_timeout <= 0)
-+		min_timeout = -1;
-+	else if (tb_dev->dim_timeout <= 0)
-+		min_timeout = tb_dev->idle_timeout;
-+	else if (tb_dev->idle_timeout <= 0)
-+		min_timeout = tb_dev->dim_timeout;
-+	else
-+		min_timeout = min(tb_dev->dim_timeout, tb_dev->idle_timeout);
-+
-+	if (min_timeout > 0) {
-+		s64 idle_time =
-+			(ktime_ms_delta(ktime_get(), tb_dev->last_event_time) +
-+			 500) / 1000;
-+
-+		time_left = max(min_timeout - idle_time, 0LL);
-+		if (tb_dev->idle_timeout <= 0)
-+			time_to_off = -1;
-+		else if (idle_time >= tb_dev->idle_timeout)
-+			time_to_off = 0;
-+		else
-+			time_to_off = tb_dev->idle_timeout - idle_time;
-+	}
-+
-+	any_tb_key_pressed = appletb_any_tb_key_pressed(tb_dev);
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+
-+	/* a new command arrived while we were busy - handle it */
-+	if (need_reschedule) {
-+		appletb_schedule_tb_update(tb_dev, 0);
-+		return;
-+	}
-+
-+	/* if no idle/dim timeout, we're done */
-+	if (min_timeout <= 0)
-+		return;
-+
-+	/* manage idle/dim timeout */
-+	if (time_left > 0) {
-+		/* we fired too soon or had a mode-change - re-schedule */
-+		appletb_schedule_tb_update(tb_dev, time_left);
-+	} else if (any_tb_key_pressed) {
-+		/* keys are still pressed - re-schedule */
-+		appletb_schedule_tb_update(tb_dev, min_timeout);
-+	} else {
-+		/* dim or idle timeout reached */
-+		int next_disp = (time_to_off == 0) ? APPLETB_CMD_DISP_OFF :
-+						     APPLETB_CMD_DISP_DIM;
-+		if (next_disp != current_disp &&
-+		    appletb_set_tb_disp(tb_dev, next_disp) == 0) {
-+			spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+			tb_dev->cur_tb_disp = next_disp;
-+			spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+		}
-+
-+		if (time_to_off > 0)
-+			appletb_schedule_tb_update(tb_dev, time_to_off);
-+	}
-+}
-+
-+static u16 appletb_fn_to_special(u16 code)
-+{
-+	int idx;
-+
-+	for (idx = 0; idx < ARRAY_SIZE(appletb_fn_codes); idx++) {
-+		if (appletb_fn_codes[idx].from == code)
-+			return appletb_fn_codes[idx].to;
-+	}
-+
-+	return 0;
-+}
-+
-+static unsigned char appletb_get_cur_tb_mode(struct appletb_device *tb_dev)
-+{
-+	return tb_dev->pnd_tb_mode != APPLETB_CMD_MODE_NONE ?
-+				tb_dev->pnd_tb_mode : tb_dev->cur_tb_mode;
-+}
-+
-+static unsigned char appletb_get_cur_tb_disp(struct appletb_device *tb_dev)
-+{
-+	return tb_dev->pnd_tb_disp != APPLETB_CMD_DISP_NONE ?
-+				tb_dev->pnd_tb_disp : tb_dev->cur_tb_disp;
-+}
-+
-+static unsigned char appletb_get_fn_tb_mode(struct appletb_device *tb_dev)
-+{
-+	switch (tb_dev->fn_mode) {
-+	case APPLETB_FN_MODE_FKEYS:
-+		return APPLETB_CMD_MODE_FN;
-+
-+	case APPLETB_FN_MODE_SPCL:
-+		return APPLETB_CMD_MODE_SPCL;
-+
-+	case APPLETB_FN_MODE_INV:
-+		return (tb_dev->last_fn_pressed) ? APPLETB_CMD_MODE_SPCL :
-+						   APPLETB_CMD_MODE_FN;
-+
-+	case APPLETB_FN_MODE_NORM:
-+	default:
-+		return (tb_dev->last_fn_pressed) ? APPLETB_CMD_MODE_FN :
-+						   APPLETB_CMD_MODE_SPCL;
-+	}
-+}
++static struct hid_driver appleals_hid_driver;
 +
 +/*
-+ * Switch touch bar mode and display when mode or display not the desired ones.
++ * This is a primitive way to get a relative sensitivity, one where we get
++ * notified when the value changes by a certain percentage rather than some
++ * absolute value. MacOS somehow manages to configure the sensor to work this
++ * way (with a 15% relative sensitivity), but I haven't been able to figure
++ * out how so far. So until we do, this provides a less-than-perfect
++ * simulation.
++ *
++ * When the brightness value is within one of the ranges, the sensitivity is
++ * set to that range's sensitivity. But in order to reduce flapping when the
++ * brightness is right on the border between two ranges, the ranges overlap
++ * somewhat (by at least one sensitivity), and sensitivity is only changed if
++ * the value leaves the current sensitivity's range.
++ *
++ * The values chosen for the map are somewhat arbitrary: a compromise of not
++ * too many ranges (and hence changing the sensitivity) but not too small or
++ * large of a percentage of the min and max values in the range (currently
++ * from 7.5% to 30%, i.e. within a factor of 2 of 15%), as well as just plain
++ * "this feels reasonable to me".
 + */
-+static void appletb_update_touchbar_no_lock(struct appletb_device *tb_dev,
-+					    bool force)
-+{
-+	unsigned char want_mode;
-+	unsigned char want_disp;
-+	bool need_update = false;
++struct appleals_sensitivity_map {
++	int	sensitivity;
++	int	illum_low;
++	int	illum_high;
++};
 +
-+	/*
-+	 * Calculate the new modes:
-+	 *   idle_timeout:
-+	 *     -1  always on
-+	 *      0  always off
-+	 *     >0  turn off after idle_timeout seconds
-+	 *   dim_timeout (only valid if idle_timeout != 0):
-+	 *     -1  never dimmed
-+	 *      0  always dimmed
-+	 *     >0  dim off after dim_timeout seconds
-+	 */
-+	if (tb_dev->idle_timeout == 0) {
-+		want_mode = APPLETB_CMD_MODE_OFF;
-+		want_disp = APPLETB_CMD_DISP_OFF;
-+	} else {
-+		want_mode = appletb_get_fn_tb_mode(tb_dev);
-+		want_disp = tb_dev->dim_timeout == 0 ? APPLETB_CMD_DISP_DIM :
-+						       APPLETB_CMD_DISP_ON;
++static struct appleals_sensitivity_map appleals_sensitivity_map[] = {
++	{   1,    0,   14 },
++	{   3,   10,   40 },
++	{   9,   30,  120 },
++	{  27,   90,  360 },
++	{  81,  270, 1080 },
++	{ 243,  810, 3240 },
++	{ 729, 2430, 9720 },
++};
++
++static int appleals_compute_sensitivity(int cur_illum, int cur_sens)
++{
++	struct appleals_sensitivity_map *entry;
++	int i;
++
++	/* see if we're still in current range */
++	for (i = 0; i < ARRAY_SIZE(appleals_sensitivity_map); i++) {
++		entry = &appleals_sensitivity_map[i];
++
++		if (entry->sensitivity == cur_sens &&
++		    entry->illum_low <= cur_illum &&
++		    entry->illum_high >= cur_illum)
++			return cur_sens;
++		else if (entry->sensitivity > cur_sens)
++			break;
 +	}
 +
-+	/*
-+	 * See if we need to update the touch bar, taking into account that we
-+	 * generally don't want to switch modes while a touch bar key is
-+	 * pressed.
-+	 */
-+	if (appletb_get_cur_tb_mode(tb_dev) != want_mode &&
-+	    !appletb_any_tb_key_pressed(tb_dev)) {
-+		tb_dev->pnd_tb_mode = want_mode;
-+		need_update = true;
++	/* not in current range, so find new sensitivity */
++	for (i = 0; i < ARRAY_SIZE(appleals_sensitivity_map); i++) {
++		entry = &appleals_sensitivity_map[i];
++
++		if (entry->illum_low <= cur_illum &&
++		    entry->illum_high >= cur_illum)
++			return entry->sensitivity;
 +	}
 +
-+	if (appletb_get_cur_tb_disp(tb_dev) != want_disp &&
-+	    (!appletb_any_tb_key_pressed(tb_dev) ||
-+	     (appletb_any_tb_key_pressed(tb_dev) &&
-+	      want_disp != APPLETB_CMD_DISP_OFF))) {
-+		tb_dev->pnd_tb_disp = want_disp;
-+		need_update = true;
-+	}
-+
-+	if (force)
-+		need_update = true;
-+
-+	/* schedule the update if desired */
-+	dev_dbg_ratelimited(tb_dev->log_dev,
-+			    "update: need_update=%d, want_mode=%d, cur-mode=%d, want_disp=%d, cur-disp=%d\n",
-+			    need_update, want_mode, tb_dev->cur_tb_mode,
-+			    want_disp, tb_dev->cur_tb_disp);
-+	if (need_update) {
-+		cancel_delayed_work(&tb_dev->tb_work);
-+		appletb_schedule_tb_update(tb_dev, 0);
-+	}
++	/* hmm, not in table, so assume we are above highest range */
++	i = ARRAY_SIZE(appleals_sensitivity_map) - 1;
++	return appleals_sensitivity_map[i].sensitivity;
 +}
 +
-+static void appletb_update_touchbar(struct appletb_device *tb_dev, bool force)
++static int appleals_get_field_value_for_usage(struct hid_field *field,
++					      unsigned int usage)
 +{
-+	unsigned long flags;
++	int u;
 +
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	if (tb_dev->active)
-+		appletb_update_touchbar_no_lock(tb_dev, force);
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+}
-+
-+static void appletb_set_idle_timeout(struct appletb_device *tb_dev, int new)
-+{
-+	tb_dev->idle_timeout = new;
-+	if (tb_dev->dim_to_is_calc)
-+		tb_dev->dim_timeout = new - min(APPLETB_MAX_DIM_TIME, new / 3);
-+}
-+
-+static ssize_t idle_timeout_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(dev_get_drvdata(dev), &appletb_hid_driver);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", tb_dev->idle_timeout);
-+}
-+
-+static ssize_t idle_timeout_store(struct device *dev,
-+				  struct device_attribute *attr,
-+				  const char *buf, size_t size)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(dev_get_drvdata(dev), &appletb_hid_driver);
-+	long new;
-+	int rc;
-+
-+	rc = kstrtol(buf, 0, &new);
-+	if (rc || new > INT_MAX || new < -1)
-+		return -EINVAL;
-+
-+	appletb_set_idle_timeout(tb_dev, new);
-+	appletb_update_touchbar(tb_dev, true);
-+
-+	return size;
-+}
-+
-+static void appletb_set_dim_timeout(struct appletb_device *tb_dev, int new)
-+{
-+	if (new == -2) {
-+		tb_dev->dim_to_is_calc = true;
-+		appletb_set_idle_timeout(tb_dev, tb_dev->idle_timeout);
-+	} else {
-+		tb_dev->dim_to_is_calc = false;
-+		tb_dev->dim_timeout = new;
-+	}
-+}
-+
-+static ssize_t dim_timeout_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(dev_get_drvdata(dev), &appletb_hid_driver);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n",
-+			tb_dev->dim_to_is_calc ? -2 : tb_dev->dim_timeout);
-+}
-+
-+static ssize_t dim_timeout_store(struct device *dev,
-+				 struct device_attribute *attr,
-+				 const char *buf, size_t size)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(dev_get_drvdata(dev), &appletb_hid_driver);
-+	long new;
-+	int rc;
-+
-+	rc = kstrtol(buf, 0, &new);
-+	if (rc || new > INT_MAX || new < -2)
-+		return -EINVAL;
-+
-+	appletb_set_dim_timeout(tb_dev, new);
-+	appletb_update_touchbar(tb_dev, true);
-+
-+	return size;
-+}
-+
-+static ssize_t fnmode_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(dev_get_drvdata(dev), &appletb_hid_driver);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", tb_dev->fn_mode);
-+}
-+
-+static ssize_t fnmode_store(struct device *dev, struct device_attribute *attr,
-+			    const char *buf, size_t size)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(dev_get_drvdata(dev), &appletb_hid_driver);
-+	long new;
-+	int rc;
-+
-+	rc = kstrtol(buf, 0, &new);
-+	if (rc || new > APPLETB_FN_MODE_MAX || new < 0)
-+		return -EINVAL;
-+
-+	tb_dev->fn_mode = new;
-+	appletb_update_touchbar(tb_dev, false);
-+
-+	return size;
-+}
-+
-+static int appletb_tb_key_to_slot(unsigned int code)
-+{
-+	switch (code) {
-+	case KEY_ESC:
-+		return 0;
-+	case KEY_F1:
-+	case KEY_F2:
-+	case KEY_F3:
-+	case KEY_F4:
-+	case KEY_F5:
-+	case KEY_F6:
-+	case KEY_F7:
-+	case KEY_F8:
-+	case KEY_F9:
-+	case KEY_F10:
-+		return code - KEY_F1 + 1;
-+	case KEY_F11:
-+	case KEY_F12:
-+		return code - KEY_F11 + 11;
-+	default:
++	if (!field)
 +		return -1;
++
++	for (u = 0; u < field->maxusage; u++) {
++		if (field->usage[u].hid == usage)
++			return u + field->logical_minimum;
 +	}
++
++	return -1;
 +}
 +
-+static int appletb_hid_event(struct hid_device *hdev, struct hid_field *field,
-+			     struct hid_usage *usage, __s32 value)
++static __s32 appleals_get_field_value(struct appleals_device *als_dev,
++				      struct hid_field *field)
 +{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(hid_get_drvdata(hdev), &appletb_hid_driver);
-+	unsigned int new_code = 0;
-+	unsigned long flags;
-+	bool send_dummy = false;
-+	bool send_trnsl = false;
-+	int slot;
-+	int rc = 0;
++	hid_hw_request(als_dev->hid_dev, field->report, HID_REQ_GET_REPORT);
++	hid_hw_wait(als_dev->hid_dev);
 +
-+	/* Only interested in keyboard events */
-+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_KEYBOARD ||
-+	    usage->type != EV_KEY)
-+		return 0;
-+
-+	/*
-+	 * Skip non-touch-bar keys.
-+	 *
-+	 * Either the touch bar itself or usbhid generate a slew of key-down
-+	 * events for all the meta keys. None of which we're at all interested
-+	 * in.
-+	 */
-+	slot = appletb_tb_key_to_slot(usage->code);
-+	if (slot < 0)
-+		return 0;
-+
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	if (!tb_dev->active) {
-+		spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+		return 0;
-+	}
-+
-+	new_code = appletb_fn_to_special(usage->code);
-+
-+	/* remember which (untranslated) touch bar keys are pressed */
-+	if (value != 2)
-+		tb_dev->last_tb_keys_pressed[slot] = value;
-+
-+	/* remember last time keyboard or touchpad was touched */
-+	tb_dev->last_event_time = ktime_get();
-+
-+	/* only switch touch bar mode when no touch bar keys are pressed */
-+	appletb_update_touchbar_no_lock(tb_dev, false);
-+
-+	/*
-+	 * We want to suppress touch bar keys while the touch bar is off, but
-+	 * we do want to wake up the screen if it's asleep, so generate a dummy
-+	 * event.
-+	 */
-+	if (tb_dev->cur_tb_mode == APPLETB_CMD_MODE_OFF ||
-+	    tb_dev->cur_tb_disp == APPLETB_CMD_DISP_OFF) {
-+		send_dummy = true;
-+		rc = 1;
-+	/* translate special keys */
-+	} else if (new_code &&
-+		   ((value > 0 &&
-+		     appletb_get_cur_tb_mode(tb_dev) == APPLETB_CMD_MODE_SPCL)
-+		    ||
-+		    (value == 0 && tb_dev->last_tb_keys_translated[slot]))) {
-+		tb_dev->last_tb_keys_translated[slot] = true;
-+		send_trnsl = true;
-+		rc = 1;
-+	/* everything else handled normally */
-+	} else {
-+		tb_dev->last_tb_keys_translated[slot] = false;
-+	}
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+
-+	/*
-+	 * Need to send these input events outside of the lock, as otherwise
-+	 * we can run into the following deadlock:
-+	 *            Task 1                         Task 2
-+	 *     appletb_hid_event()            input_event()
-+	 *       acquire tb_lock                acquire dev->event_lock
-+	 *       input_event()                  appletb_inp_event()
-+	 *         acquire dev->event_lock        acquire tb_lock
-+	 */
-+	if (send_dummy) {
-+		input_event(field->hidinput->input, EV_KEY, KEY_UNKNOWN, 1);
-+		input_event(field->hidinput->input, EV_KEY, KEY_UNKNOWN, 0);
-+	} else if (send_trnsl) {
-+		input_event(field->hidinput->input, usage->type, new_code,
-+			    value);
-+	}
-+
-+	return rc;
++	return field->value[0];
 +}
 +
-+static void appletb_inp_event(struct input_handle *handle, unsigned int type,
-+			      unsigned int code, int value)
++static void appleals_set_field_value(struct appleals_device *als_dev,
++				     struct hid_field *field, __s32 value)
 +{
-+	struct appletb_device *tb_dev = handle->private;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	if (!tb_dev->active) {
-+		spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+		return;
-+	}
-+
-+	/* remember last state of FN key */
-+	if (type == EV_KEY && code == KEY_FN && value != 2)
-+		tb_dev->last_fn_pressed = value;
-+
-+	/* remember last time keyboard or touchpad was touched */
-+	tb_dev->last_event_time = ktime_get();
-+
-+	/* only switch touch bar mode when no touch bar keys are pressed */
-+	appletb_update_touchbar_no_lock(tb_dev, false);
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
++	hid_set_field(field, 0, value);
++	hid_hw_request(als_dev->hid_dev, field->report, HID_REQ_SET_REPORT);
 +}
 +
-+/* Find and save the usb-device associated with the touch bar input device */
-+static struct usb_interface *appletb_get_usb_iface(struct hid_device *hdev)
++static int appleals_get_config(struct appleals_device *als_dev,
++			       unsigned int field_usage, __s32 *value)
 +{
-+	struct device *dev = &hdev->dev;
-+
-+	/* find the usb-interface device */
-+	if (!dev->bus || strcmp(dev->bus->name, "hid") != 0)
-+		return NULL;
-+
-+	dev = dev->parent;
-+	if (!dev || !dev->bus || strcmp(dev->bus->name, "usb") != 0)
-+		return NULL;
-+
-+	return to_usb_interface(dev);
-+}
-+
-+static int appletb_inp_connect(struct input_handler *handler,
-+			       struct input_dev *dev,
-+			       const struct input_device_id *id)
-+{
-+	struct appletb_device *tb_dev = handler->private;
-+	struct input_handle *handle;
-+	int rc;
-+
-+	if (id->driver_info == APPLETB_DEVID_KEYBOARD) {
-+		handle = &tb_dev->kbd_handle;
-+		handle->name = "tbkbd";
-+	} else if (id->driver_info == APPLETB_DEVID_TOUCHPAD) {
-+		handle = &tb_dev->tpd_handle;
-+		handle->name = "tbtpad";
-+	} else {
-+		dev_err(tb_dev->log_dev, "Unknown device id (%lu)\n",
-+			id->driver_info);
-+		return -ENOENT;
-+	}
-+
-+	if (handle->dev) {
-+		dev_err(tb_dev->log_dev,
-+			"Duplicate connect to %s input device\n", handle->name);
-+		return -EEXIST;
-+	}
-+
-+	handle->open = 0;
-+	handle->dev = input_get_device(dev);
-+	handle->handler = handler;
-+	handle->private = tb_dev;
-+
-+	rc = input_register_handle(handle);
-+	if (rc)
-+		goto err_free_dev;
-+
-+	rc = input_open_device(handle);
-+	if (rc)
-+		goto err_unregister_handle;
-+
-+	dev_dbg(tb_dev->log_dev, "Connected to %s input device\n",
-+		handle == &tb_dev->kbd_handle ? "keyboard" : "touchpad");
-+
-+	return 0;
-+
-+ err_unregister_handle:
-+	input_unregister_handle(handle);
-+ err_free_dev:
-+	input_put_device(handle->dev);
-+	handle->dev = NULL;
-+	return rc;
-+}
-+
-+static void appletb_inp_disconnect(struct input_handle *handle)
-+{
-+	struct appletb_device *tb_dev = handle->private;
-+
-+	input_close_device(handle);
-+	input_unregister_handle(handle);
-+
-+	dev_dbg(tb_dev->log_dev, "Disconnected from %s input device\n",
-+		handle == &tb_dev->kbd_handle ? "keyboard" : "touchpad");
-+
-+	input_put_device(handle->dev);
-+	handle->dev = NULL;
-+}
-+
-+static int appletb_input_configured(struct hid_device *hdev,
-+				    struct hid_input *hidinput)
-+{
-+	int idx;
-+	struct input_dev *input = hidinput->input;
-+
-+	/*
-+	 * Clear various input capabilities that are blindly set by the hid
-+	 * driver (usbkbd.c)
-+	 */
-+	memset(input->evbit, 0, sizeof(input->evbit));
-+	memset(input->keybit, 0, sizeof(input->keybit));
-+	memset(input->ledbit, 0, sizeof(input->ledbit));
-+
-+	/* set our actual capabilities */
-+	__set_bit(EV_KEY, input->evbit);
-+	__set_bit(EV_REP, input->evbit);
-+	__set_bit(EV_MSC, input->evbit);  /* hid-input generates MSC_SCAN */
-+
-+	for (idx = 0; idx < ARRAY_SIZE(appletb_fn_codes); idx++) {
-+		input_set_capability(input, EV_KEY, appletb_fn_codes[idx].from);
-+		input_set_capability(input, EV_KEY, appletb_fn_codes[idx].to);
-+	}
-+
-+	input_set_capability(input, EV_KEY, KEY_ESC);
-+	input_set_capability(input, EV_KEY, KEY_UNKNOWN);
-+
-+	return 0;
-+}
-+
-+static int appletb_fill_report_info(struct appletb_device *tb_dev,
-+				    struct hid_device *hdev)
-+{
-+	struct appletb_report_info *report_info = NULL;
-+	struct usb_interface *usb_iface;
 +	struct hid_field *field;
 +
-+	field = appleib_find_hid_field(hdev, HID_GD_KEYBOARD, HID_USAGE_MODE);
-+	if (field) {
-+		report_info = &tb_dev->mode_info;
-+	} else {
-+		field = appleib_find_hid_field(hdev, HID_USAGE_APPLE_APP,
-+					       HID_USAGE_DISP);
-+		if (field)
-+			report_info = &tb_dev->disp_info;
-+	}
++	field = appleib_find_report_field(als_dev->cfg_report, field_usage);
++	if (!field)
++		return -EINVAL;
 +
-+	if (!report_info)
-+		return 0;
-+
-+	usb_iface = appletb_get_usb_iface(hdev);
-+	if (!usb_iface) {
-+		dev_err(tb_dev->log_dev,
-+			"Failed to find usb interface for hid device %s\n",
-+			dev_name(&hdev->dev));
-+		return -ENODEV;
-+	}
-+
-+	report_info->hdev = hdev;
-+
-+	report_info->usb_iface = usb_get_intf(usb_iface);
-+	report_info->usb_epnum = 0;
-+
-+	report_info->report_id = field->report->id;
-+	switch (field->report->type) {
-+	case HID_INPUT_REPORT:
-+		report_info->report_type = 0x01; break;
-+	case HID_OUTPUT_REPORT:
-+		report_info->report_type = 0x02; break;
-+	case HID_FEATURE_REPORT:
-+		report_info->report_type = 0x03; break;
-+	}
-+
-+	return 1;
-+}
-+
-+static struct appletb_report_info *
-+appletb_get_report_info(struct appletb_device *tb_dev, struct hid_device *hdev)
-+{
-+	if (hdev == tb_dev->mode_info.hdev)
-+		return &tb_dev->mode_info;
-+	if (hdev == tb_dev->disp_info.hdev)
-+		return &tb_dev->disp_info;
-+	return NULL;
-+}
-+
-+static void appletb_mark_active(struct appletb_device *tb_dev, bool active)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+	tb_dev->active = active;
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+}
-+
-+static const struct input_device_id appletb_input_devices[] = {
-+	{
-+		.flags = INPUT_DEVICE_ID_MATCH_BUS |
-+			INPUT_DEVICE_ID_MATCH_KEYBIT,
-+		.bustype = BUS_SPI,
-+		.keybit = { [BIT_WORD(KEY_FN)] = BIT_MASK(KEY_FN) },
-+		.driver_info = APPLETB_DEVID_KEYBOARD,
-+	},			/* Builtin keyboard device */
-+	{
-+		.flags = INPUT_DEVICE_ID_MATCH_BUS |
-+			INPUT_DEVICE_ID_MATCH_KEYBIT,
-+		.bustype = BUS_SPI,
-+		.keybit = { [BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH) },
-+		.driver_info = APPLETB_DEVID_TOUCHPAD,
-+	},			/* Builtin touchpad device */
-+	{ },			/* Terminating zero entry */
-+};
-+
-+static int appletb_probe(struct hid_device *hdev,
-+			 const struct hid_device_id *id)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(hid_get_drvdata(hdev), &appletb_hid_driver);
-+	struct appletb_report_info *report_info;
-+	int rc;
-+
-+	/* initialize the report info */
-+	rc = appletb_fill_report_info(tb_dev, hdev);
-+	if (rc < 0)
-+		goto error;
-+
-+	/* do setup if we have both interfaces */
-+	if (tb_dev->mode_info.hdev && tb_dev->disp_info.hdev) {
-+		/* mark active */
-+		appletb_mark_active(tb_dev, true);
-+
-+		/* initialize the touch bar */
-+		if (appletb_tb_def_fn_mode >= 0 &&
-+		    appletb_tb_def_fn_mode <= APPLETB_FN_MODE_MAX)
-+			tb_dev->fn_mode = appletb_tb_def_fn_mode;
-+		else
-+			tb_dev->fn_mode = APPLETB_FN_MODE_NORM;
-+		appletb_set_idle_timeout(tb_dev, appletb_tb_def_idle_timeout);
-+		appletb_set_dim_timeout(tb_dev, appletb_tb_def_dim_timeout);
-+		tb_dev->last_event_time = ktime_get();
-+
-+		tb_dev->cur_tb_mode = APPLETB_CMD_MODE_OFF;
-+		tb_dev->cur_tb_disp = APPLETB_CMD_DISP_OFF;
-+
-+		appletb_update_touchbar(tb_dev, false);
-+
-+		/* set up the input handler */
-+		tb_dev->inp_handler.event = appletb_inp_event;
-+		tb_dev->inp_handler.connect = appletb_inp_connect;
-+		tb_dev->inp_handler.disconnect = appletb_inp_disconnect;
-+		tb_dev->inp_handler.name = "appletb";
-+		tb_dev->inp_handler.id_table = appletb_input_devices;
-+		tb_dev->inp_handler.private = tb_dev;
-+
-+		rc = input_register_handler(&tb_dev->inp_handler);
-+		if (rc) {
-+			dev_err(tb_dev->log_dev,
-+				"Unable to register keyboard handler (%d)\n",
-+				rc);
-+			goto mark_inactive;
-+		}
-+
-+		/* initialize sysfs attributes */
-+		rc = sysfs_create_group(&tb_dev->mode_info.hdev->dev.kobj,
-+					&appletb_attr_group);
-+		if (rc) {
-+			dev_err(tb_dev->log_dev,
-+				"Failed to create sysfs attributes (%d)\n", rc);
-+			goto unreg_handler;
-+		}
-+
-+		dev_info(tb_dev->log_dev, "Touchbar activated\n");
-+	}
++	*value = appleals_get_field_value(als_dev, field);
 +
 +	return 0;
++}
 +
-+unreg_handler:
-+	input_unregister_handler(&tb_dev->inp_handler);
-+mark_inactive:
-+	appletb_mark_active(tb_dev, false);
-+	cancel_delayed_work_sync(&tb_dev->tb_work);
++static int appleals_set_config(struct appleals_device *als_dev,
++			       unsigned int field_usage, __s32 value)
++{
++	struct hid_field *field;
 +
-+	report_info = appletb_get_report_info(tb_dev, hdev);
-+	if (report_info) {
-+		usb_put_intf(report_info->usb_iface);
-+		report_info->usb_iface = NULL;
-+		report_info->hdev = NULL;
++	field = appleib_find_report_field(als_dev->cfg_report, field_usage);
++	if (!field)
++		return -EINVAL;
++
++	appleals_set_field_value(als_dev, field, value);
++
++	return 0;
++}
++
++static int appleals_set_enum_config(struct appleals_device *als_dev,
++				    unsigned int field_usage,
++				    unsigned int value_usage)
++{
++	struct hid_field *field;
++	int value;
++
++	field = appleib_find_report_field(als_dev->cfg_report, field_usage);
++	if (!field)
++		return -EINVAL;
++
++	value = appleals_get_field_value_for_usage(field, value_usage);
++
++	appleals_set_field_value(als_dev, field, value);
++
++	return 0;
++}
++
++static void appleals_update_dyn_sensitivity(struct appleals_device *als_dev,
++					    __s32 value)
++{
++	int new_sens;
++	int rc;
++
++	new_sens = appleals_compute_sensitivity(value,
++						als_dev->cur_sensitivity);
++	if (new_sens != als_dev->cur_sensitivity) {
++		rc = appleals_set_config(als_dev,
++			HID_USAGE_SENSOR_LIGHT_ILLUM |
++			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS,
++			new_sens);
++		if (!rc)
++			als_dev->cur_sensitivity = new_sens;
 +	}
-+error:
++}
++
++static void appleals_push_new_value(struct appleals_device *als_dev,
++				    __s32 value)
++{
++	__s32 buf[2] = { value, value };
++
++	iio_push_to_buffers(als_dev->iio_dev, buf);
++
++	if (als_dev->cur_hysteresis == APPLEALS_DYN_SENS)
++		appleals_update_dyn_sensitivity(als_dev, value);
++}
++
++static int appleals_hid_event(struct hid_device *hdev, struct hid_field *field,
++			      struct hid_usage *usage, __s32 value)
++{
++	struct appleals_device *als_dev =
++		appleib_get_drvdata(hid_get_drvdata(hdev),
++				    &appleals_hid_driver);
++	int rc = 0;
++
++	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_SENSOR)
++		return 0;
++
++	if (usage->hid == HID_USAGE_SENSOR_LIGHT_ILLUM) {
++		appleals_push_new_value(als_dev, value);
++		rc = 1;
++	}
++
 +	return rc;
 +}
 +
-+static void appletb_remove(struct hid_device *hdev)
++static int appleals_enable_events(struct iio_trigger *trig, bool enable)
 +{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(hid_get_drvdata(hdev), &appletb_hid_driver);
-+	struct appletb_report_info *report_info;
++	struct appleals_device *als_dev = iio_trigger_get_drvdata(trig);
++	int value;
 +
-+	if ((hdev == tb_dev->mode_info.hdev && tb_dev->disp_info.hdev) ||
-+	    (hdev == tb_dev->disp_info.hdev && tb_dev->mode_info.hdev)) {
-+		sysfs_remove_group(&tb_dev->mode_info.hdev->dev.kobj,
-+				   &appletb_attr_group);
++	/* set the sensor's reporting state */
++	appleals_set_enum_config(als_dev, HID_USAGE_SENSOR_PROP_REPORT_STATE,
++		enable ? HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM :
++			 HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM);
++	als_dev->events_enabled = enable;
 +
-+		input_unregister_handler(&tb_dev->inp_handler);
-+
-+		cancel_delayed_work_sync(&tb_dev->tb_work);
-+		appletb_set_tb_mode(tb_dev, APPLETB_CMD_MODE_OFF);
-+		appletb_set_tb_disp(tb_dev, APPLETB_CMD_DISP_ON);
-+
-+		if (tb_dev->tb_autopm_off)
-+			usb_autopm_put_interface(tb_dev->disp_info.usb_iface);
-+
-+		appletb_mark_active(tb_dev, false);
-+
-+		dev_info(tb_dev->log_dev, "Touchbar deactivated\n");
++	/* if the sensor was enabled, push an initial value */
++	if (enable) {
++		value = appleals_get_field_value(als_dev, als_dev->illum_field);
++		appleals_push_new_value(als_dev, value);
 +	}
-+
-+	report_info = appletb_get_report_info(tb_dev, hdev);
-+	if (report_info) {
-+		usb_put_intf(report_info->usb_iface);
-+		report_info->usb_iface = NULL;
-+		report_info->hdev = NULL;
-+	}
-+}
-+
-+#ifdef CONFIG_PM
-+static int appletb_suspend(struct hid_device *hdev, pm_message_t message)
-+{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(hid_get_drvdata(hdev), &appletb_hid_driver);
-+	unsigned long flags;
-+	bool all_suspended = false;
-+
-+	if (message.event != PM_EVENT_SUSPEND &&
-+	    message.event != PM_EVENT_FREEZE)
-+		return 0;
-+
-+	/*
-+	 * Wait for both interfaces to be suspended and no more async work
-+	 * in progress.
-+	 */
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	if (!tb_dev->mode_info.suspended && !tb_dev->disp_info.suspended) {
-+		tb_dev->active = false;
-+		cancel_delayed_work(&tb_dev->tb_work);
-+	}
-+
-+	appletb_get_report_info(tb_dev, hdev)->suspended = true;
-+
-+	if ((!tb_dev->mode_info.hdev || tb_dev->mode_info.suspended) &&
-+	    (!tb_dev->disp_info.hdev || tb_dev->disp_info.suspended))
-+		all_suspended = true;
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+
-+	flush_delayed_work(&tb_dev->tb_work);
-+
-+	if (!all_suspended)
-+		return 0;
-+
-+	/*
-+	 * The touch bar device itself remembers the last state when suspended
-+	 * in some cases, but in others (e.g. when mode != off and disp == off)
-+	 * it resumes with a different state; furthermore it may be only
-+	 * partially responsive in that state. By turning both mode and disp
-+	 * off we ensure it is in a good state when resuming (and this happens
-+	 * to be the same state after booting/resuming-from-hibernate, so less
-+	 * special casing between the two).
-+	 */
-+	if (message.event == PM_EVENT_SUSPEND) {
-+		appletb_set_tb_mode(tb_dev, APPLETB_CMD_MODE_OFF);
-+		appletb_set_tb_disp(tb_dev, APPLETB_CMD_DISP_OFF);
-+	}
-+
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	tb_dev->cur_tb_mode = APPLETB_CMD_MODE_OFF;
-+	tb_dev->cur_tb_disp = APPLETB_CMD_DISP_OFF;
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+
-+	dev_info(tb_dev->log_dev, "Touchbar suspended.\n");
 +
 +	return 0;
 +}
 +
-+static int appletb_reset_resume(struct hid_device *hdev)
++static int appleals_read_raw(struct iio_dev *iio_dev,
++			     struct iio_chan_spec const *chan,
++			     int *val, int *val2, long mask)
 +{
-+	struct appletb_device *tb_dev =
-+		appleib_get_drvdata(hid_get_drvdata(hdev), &appletb_hid_driver);
-+	unsigned long flags;
-+
-+	/*
-+	 * Restore touch bar state. Note that autopm state is preserved, no need
-+	 * explicitly restore that here.
-+	 */
-+	spin_lock_irqsave(&tb_dev->tb_lock, flags);
-+
-+	appletb_get_report_info(tb_dev, hdev)->suspended = false;
-+
-+	if ((tb_dev->mode_info.hdev && !tb_dev->mode_info.suspended) &&
-+	    (tb_dev->disp_info.hdev && !tb_dev->disp_info.suspended)) {
-+		tb_dev->active = true;
-+		tb_dev->restore_autopm = true;
-+		tb_dev->last_event_time = ktime_get();
-+
-+		appletb_update_touchbar_no_lock(tb_dev, true);
-+
-+		dev_info(tb_dev->log_dev, "Touchbar resumed.\n");
-+	}
-+
-+	spin_unlock_irqrestore(&tb_dev->tb_lock, flags);
-+
-+	return 0;
-+}
-+#endif
-+
-+static struct appletb_device *appletb_alloc_device(struct device *log_dev)
-+{
-+	struct appletb_device *tb_dev;
-+
-+	/* allocate */
-+	tb_dev = kzalloc(sizeof(*tb_dev), GFP_KERNEL);
-+	if (!tb_dev)
-+		return NULL;
-+
-+	/* initialize structures */
-+	spin_lock_init(&tb_dev->tb_lock);
-+	INIT_DELAYED_WORK(&tb_dev->tb_work, appletb_set_tb_worker);
-+	tb_dev->log_dev = log_dev;
-+
-+	return tb_dev;
-+}
-+
-+static void appletb_free_device(struct appletb_device *tb_dev)
-+{
-+	cancel_delayed_work_sync(&tb_dev->tb_work);
-+	kfree(tb_dev);
-+}
-+
-+static struct hid_driver appletb_hid_driver = {
-+	.name = "apple-ib-touchbar",
-+	.probe = appletb_probe,
-+	.remove = appletb_remove,
-+	.event = appletb_hid_event,
-+	.input_configured = appletb_input_configured,
-+#ifdef CONFIG_PM
-+	.suspend = appletb_suspend,
-+	.reset_resume = appletb_reset_resume,
-+#endif
-+};
-+
-+static int appletb_platform_probe(struct platform_device *pdev)
-+{
-+	struct appleib_platform_data *pdata = pdev->dev.platform_data;
-+	struct appleib_device *ib_dev = pdata->ib_dev;
-+	struct appletb_device *tb_dev;
++	struct appleals_device *als_dev =
++				*(struct appleals_device **)iio_priv(iio_dev);
++	__s32 value;
 +	int rc;
 +
-+	tb_dev = appletb_alloc_device(pdata->log_dev);
-+	if (!tb_dev)
++	*val = 0;
++	*val2 = 0;
++
++	switch (mask) {
++	case IIO_CHAN_INFO_RAW:
++	case IIO_CHAN_INFO_PROCESSED:
++		*val = appleals_get_field_value(als_dev, als_dev->illum_field);
++		return IIO_VAL_INT;
++
++	case IIO_CHAN_INFO_SAMP_FREQ:
++		rc = appleals_get_config(als_dev,
++					 HID_USAGE_SENSOR_PROP_REPORT_INTERVAL,
++					 &value);
++		if (rc)
++			return rc;
++
++		/* interval is in ms; val is in HZ, val2 in µHZ */
++		value = 1000000000 / value;
++		*val = value / 1000000;
++		*val2 = value - (*val * 1000000);
++
++		return IIO_VAL_INT_PLUS_MICRO;
++
++	case IIO_CHAN_INFO_HYSTERESIS:
++		if (als_dev->cur_hysteresis == APPLEALS_DYN_SENS) {
++			*val = als_dev->cur_hysteresis;
++			return IIO_VAL_INT;
++		}
++
++		rc = appleals_get_config(als_dev,
++			HID_USAGE_SENSOR_LIGHT_ILLUM |
++			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS,
++			val);
++		if (!rc) {
++			als_dev->cur_sensitivity = *val;
++			als_dev->cur_hysteresis = *val;
++		}
++		return rc ? rc : IIO_VAL_INT;
++
++	default:
++		return -EINVAL;
++	}
++}
++
++static int appleals_write_raw(struct iio_dev *iio_dev,
++			      struct iio_chan_spec const *chan,
++			      int val, int val2, long mask)
++{
++	struct appleals_device *als_dev =
++				*(struct appleals_device **)iio_priv(iio_dev);
++	__s32 illum;
++	int rc;
++
++	switch (mask) {
++	case IIO_CHAN_INFO_SAMP_FREQ:
++		rc = appleals_set_config(als_dev,
++					 HID_USAGE_SENSOR_PROP_REPORT_INTERVAL,
++					 1000000000 / (val * 1000000 + val2));
++		break;
++
++	case IIO_CHAN_INFO_HYSTERESIS:
++		if (val == APPLEALS_DYN_SENS) {
++			if (als_dev->cur_hysteresis != APPLEALS_DYN_SENS) {
++				als_dev->cur_hysteresis = val;
++				illum = appleals_get_field_value(als_dev,
++							als_dev->illum_field);
++				appleals_update_dyn_sensitivity(als_dev, illum);
++			}
++			rc = 0;
++			break;
++		}
++
++		rc = appleals_set_config(als_dev,
++			HID_USAGE_SENSOR_LIGHT_ILLUM |
++			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS,
++			val);
++		if (!rc) {
++			als_dev->cur_sensitivity = val;
++			als_dev->cur_hysteresis = val;
++		}
++		break;
++
++	default:
++		rc = -EINVAL;
++	}
++
++	return rc;
++}
++
++static const struct iio_chan_spec appleals_channels[] = {
++	{
++		.type = IIO_INTENSITY,
++		.modified = 1,
++		.channel2 = IIO_MOD_LIGHT_BOTH,
++		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED) |
++			BIT(IIO_CHAN_INFO_RAW),
++		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ) |
++			BIT(IIO_CHAN_INFO_HYSTERESIS),
++		.scan_type = {
++			.sign = 'u',
++			.realbits = 32,
++			.storagebits = 32,
++		},
++		.scan_index = 0,
++	},
++	{
++		.type = IIO_LIGHT,
++		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED) |
++			BIT(IIO_CHAN_INFO_RAW),
++		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ) |
++			BIT(IIO_CHAN_INFO_HYSTERESIS),
++		.scan_type = {
++			.sign = 'u',
++			.realbits = 32,
++			.storagebits = 32,
++		},
++		.scan_index = 1,
++	}
++};
++
++static const struct iio_trigger_ops appleals_trigger_ops = {
++	.set_trigger_state = &appleals_enable_events,
++};
++
++static const struct iio_info appleals_info = {
++	.read_raw = &appleals_read_raw,
++	.write_raw = &appleals_write_raw,
++};
++
++static void appleals_config_sensor(struct appleals_device *als_dev,
++				   bool events_enabled, int sensitivity)
++{
++	struct hid_field *field;
++	__s32 val;
++
++	/*
++	 * We're (often) in a probe here, so need to enable input processing
++	 * in that case, but only in that case.
++	 */
++	if (appleib_in_hid_probe(als_dev->ib_dev))
++		hid_device_io_start(als_dev->hid_dev);
++
++	/* power on the sensor */
++	field = appleib_find_report_field(als_dev->cfg_report,
++					  HID_USAGE_SENSOR_PROY_POWER_STATE);
++	val = appleals_get_field_value_for_usage(field,
++			HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM);
++	hid_set_field(field, 0, val);
++
++	/* configure reporting of change events */
++	field = appleib_find_report_field(als_dev->cfg_report,
++					  HID_USAGE_SENSOR_PROP_REPORT_STATE);
++	val = appleals_get_field_value_for_usage(field,
++		events_enabled ?
++			HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM :
++			HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM);
++	hid_set_field(field, 0, val);
++
++	/* report change events asap */
++	field = appleib_find_report_field(als_dev->cfg_report,
++					 HID_USAGE_SENSOR_PROP_REPORT_INTERVAL);
++	hid_set_field(field, 0, field->logical_minimum);
++
++	/*
++	 * Set initial change sensitivity; if dynamic, enabling trigger will set
++	 * it instead.
++	 */
++	if (sensitivity != APPLEALS_DYN_SENS) {
++		field = appleib_find_report_field(als_dev->cfg_report,
++			HID_USAGE_SENSOR_LIGHT_ILLUM |
++			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS);
++
++		hid_set_field(field, 0, sensitivity);
++	}
++
++	/* write the new config to the sensor */
++	hid_hw_request(als_dev->hid_dev, als_dev->cfg_report,
++		       HID_REQ_SET_REPORT);
++
++	if (appleib_in_hid_probe(als_dev->ib_dev))
++		hid_device_io_stop(als_dev->hid_dev);
++};
++
++static int appleals_config_iio(struct appleals_device *als_dev)
++{
++	struct iio_dev *iio_dev;
++	struct iio_trigger *iio_trig;
++	int rc;
++
++	/* create and register iio device */
++	iio_dev = iio_device_alloc(sizeof(als_dev));
++	if (!iio_dev)
 +		return -ENOMEM;
 +
-+	rc = appleib_register_hid_driver(ib_dev, &appletb_hid_driver, tb_dev);
++	*(struct appleals_device **)iio_priv(iio_dev) = als_dev;
++
++	iio_dev->channels = appleals_channels;
++	iio_dev->num_channels = ARRAY_SIZE(appleals_channels);
++	iio_dev->dev.parent = &als_dev->hid_dev->dev;
++	iio_dev->info = &appleals_info;
++	iio_dev->name = "als";
++	iio_dev->modes = INDIO_DIRECT_MODE;
++
++	rc = iio_triggered_buffer_setup(iio_dev, &iio_pollfunc_store_time, NULL,
++					NULL);
 +	if (rc) {
-+		dev_err(tb_dev->log_dev, "Error registering hid driver: %d\n",
++		dev_err(als_dev->log_dev, "failed to set up iio triggers: %d\n",
 +			rc);
-+		goto error;
++		goto free_iio_dev;
 +	}
 +
-+	platform_set_drvdata(pdev, tb_dev);
++	iio_trig = iio_trigger_alloc("%s-dev%d", iio_dev->name, iio_dev->id);
++	if (!iio_trig) {
++		rc = -ENOMEM;
++		goto clean_trig_buf;
++	}
++
++	iio_trig->dev.parent = &als_dev->hid_dev->dev;
++	iio_trig->ops = &appleals_trigger_ops;
++	iio_trigger_set_drvdata(iio_trig, als_dev);
++
++	rc = iio_trigger_register(iio_trig);
++	if (rc) {
++		dev_err(als_dev->log_dev, "failed to register iio trigger: %d\n",
++			rc);
++		goto free_iio_trig;
++	}
++
++	als_dev->iio_trig = iio_trig;
++
++	rc = iio_device_register(iio_dev);
++	if (rc) {
++		dev_err(als_dev->log_dev, "failed to register iio device: %d\n",
++			rc);
++		goto unreg_iio_trig;
++	}
++
++	als_dev->iio_dev = iio_dev;
 +
 +	return 0;
 +
-+error:
-+	appletb_free_device(tb_dev);
++unreg_iio_trig:
++	iio_trigger_unregister(iio_trig);
++free_iio_trig:
++	iio_trigger_free(iio_trig);
++	als_dev->iio_trig = NULL;
++clean_trig_buf:
++	iio_triggered_buffer_cleanup(iio_dev);
++free_iio_dev:
++	iio_device_free(iio_dev);
++
 +	return rc;
 +}
 +
-+static int appletb_platform_remove(struct platform_device *pdev)
++static int appleals_probe(struct hid_device *hdev,
++			  const struct hid_device_id *id)
++{
++	struct appleals_device *als_dev =
++		appleib_get_drvdata(hid_get_drvdata(hdev),
++				    &appleals_hid_driver);
++	struct hid_field *state_field;
++	struct hid_field *illum_field;
++	int rc;
++
++	/* find als fields and reports */
++	state_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
++					    HID_USAGE_SENSOR_PROP_REPORT_STATE);
++	illum_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
++					     HID_USAGE_SENSOR_LIGHT_ILLUM);
++	if (!state_field || !illum_field)
++		return -ENODEV;
++
++	if (als_dev->hid_dev) {
++		dev_warn(als_dev->log_dev,
++			 "Found duplicate ambient light sensor - ignoring\n");
++		return -EBUSY;
++	}
++
++	dev_info(als_dev->log_dev, "Found ambient light sensor\n");
++
++	/* initialize device */
++	als_dev->hid_dev = hdev;
++	als_dev->cfg_report = state_field->report;
++	als_dev->illum_field = illum_field;
++
++	als_dev->cur_hysteresis = APPLEALS_DEF_CHANGE_SENS;
++	als_dev->cur_sensitivity = APPLEALS_DEF_CHANGE_SENS;
++	appleals_config_sensor(als_dev, false, als_dev->cur_sensitivity);
++
++	rc = appleals_config_iio(als_dev);
++	if (rc)
++		return rc;
++
++	return 0;
++}
++
++static void appleals_remove(struct hid_device *hdev)
++{
++	struct appleals_device *als_dev =
++		appleib_get_drvdata(hid_get_drvdata(hdev),
++				    &appleals_hid_driver);
++
++	if (als_dev->iio_dev) {
++		iio_device_unregister(als_dev->iio_dev);
++
++		iio_trigger_unregister(als_dev->iio_trig);
++		iio_trigger_free(als_dev->iio_trig);
++		als_dev->iio_trig = NULL;
++
++		iio_triggered_buffer_cleanup(als_dev->iio_dev);
++		iio_device_free(als_dev->iio_dev);
++		als_dev->iio_dev = NULL;
++	}
++
++	als_dev->hid_dev = NULL;
++}
++
++#ifdef CONFIG_PM
++static int appleals_reset_resume(struct hid_device *hdev)
++{
++	struct appleals_device *als_dev =
++		appleib_get_drvdata(hid_get_drvdata(hdev),
++				    &appleals_hid_driver);
++
++	appleals_config_sensor(als_dev, als_dev->events_enabled,
++			       als_dev->cur_sensitivity);
++
++	return 0;
++}
++#endif
++
++static struct hid_driver appleals_hid_driver = {
++	.name = "apple-ib-als",
++	.probe = appleals_probe,
++	.remove = appleals_remove,
++	.event = appleals_hid_event,
++#ifdef CONFIG_PM
++	.reset_resume = appleals_reset_resume,
++#endif
++};
++
++static int appleals_platform_probe(struct platform_device *pdev)
 +{
 +	struct appleib_platform_data *pdata = pdev->dev.platform_data;
 +	struct appleib_device *ib_dev = pdata->ib_dev;
-+	struct appletb_device *tb_dev = platform_get_drvdata(pdev);
++	struct appleals_device *als_dev;
 +	int rc;
 +
-+	rc = appleib_unregister_hid_driver(ib_dev, &appletb_hid_driver);
++	als_dev = kzalloc(sizeof(*als_dev), GFP_KERNEL);
++	if (!als_dev)
++		return -ENOMEM;
++
++	als_dev->ib_dev = ib_dev;
++	als_dev->log_dev = pdata->log_dev;
++
++	rc = appleib_register_hid_driver(ib_dev, &appleals_hid_driver, als_dev);
 +	if (rc) {
-+		dev_err(tb_dev->log_dev, "Error unregistering hid driver: %d\n",
++		dev_err(als_dev->log_dev, "Error registering hid driver: %d\n",
 +			rc);
 +		goto error;
 +	}
 +
-+	appletb_free_device(tb_dev);
++	platform_set_drvdata(pdev, als_dev);
++
++	return 0;
++
++error:
++	kfree(als_dev);
++	return rc;
++}
++
++static int appleals_platform_remove(struct platform_device *pdev)
++{
++	struct appleib_platform_data *pdata = pdev->dev.platform_data;
++	struct appleib_device *ib_dev = pdata->ib_dev;
++	struct appleals_device *als_dev = platform_get_drvdata(pdev);
++	int rc;
++
++	rc = appleib_unregister_hid_driver(ib_dev, &appleals_hid_driver);
++	if (rc) {
++		dev_err(als_dev->log_dev,
++			"Error unregistering hid driver: %d\n", rc);
++		goto error;
++	}
++
++	kfree(als_dev);
 +
 +	return 0;
 +
@@ -1332,25 +740,25 @@ index 000000000000..6b72ff56b17f
 +	return rc;
 +}
 +
-+static const struct platform_device_id appletb_platform_ids[] = {
-+	{ .name = PLAT_NAME_IB_TB },
++static const struct platform_device_id appleals_platform_ids[] = {
++	{ .name = PLAT_NAME_IB_ALS },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(platform, appletb_platform_ids);
++MODULE_DEVICE_TABLE(platform, appleals_platform_ids);
 +
-+static struct platform_driver appletb_platform_driver = {
-+	.id_table = appletb_platform_ids,
++static struct platform_driver appleals_platform_driver = {
++	.id_table = appleals_platform_ids,
 +	.driver = {
-+		.name	= "apple-ib-tb",
++		.name	= "apple-ib-als",
 +	},
-+	.probe = appletb_platform_probe,
-+	.remove = appletb_platform_remove,
++	.probe = appleals_platform_probe,
++	.remove = appleals_platform_remove,
 +};
 +
-+module_platform_driver(appletb_platform_driver);
++module_platform_driver(appleals_platform_driver);
 +
 +MODULE_AUTHOR("Ronald Tschalär");
-+MODULE_DESCRIPTION("MacBookPro Touch Bar driver");
++MODULE_DESCRIPTION("Apple iBridge ALS driver");
 +MODULE_LICENSE("GPL v2");
 -- 
 2.20.1

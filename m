@@ -1,814 +1,1118 @@
-From: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-Subject: Re: [PATCH 3/3] iio: light: apple-ib-als: Add driver for ALS on
- iBridge chip.
-Date: Mon, 22 Apr 2019 11:17:27 +0200 (CEST)
-Message-ID: <alpine.DEB.2.21.1904221101420.964@vps.pmeerw.net>
-References: <20190422031251.11968-1-ronald@innovation.ch> <20190422031251.11968-4-ronald@innovation.ch>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH 1/3] mfd: apple-ibridge: Add Apple iBridge MFD driver.
+Date: Mon, 22 Apr 2019 12:34:26 +0100
+Message-ID: <20190422123426.2d0b4bdf@archlinux>
+References: <20190422031251.11968-1-ronald@innovation.ch>
+        <20190422031251.11968-2-ronald@innovation.ch>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="324302256-668623410-1555924647=:964"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190422031251.11968-4-ronald@innovation.ch>
+In-Reply-To: <20190422031251.11968-2-ronald@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-15?Q?Ronald_Tschal=E4r?= <ronald@innovation.ch>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ronald =?UTF-8?B?VHNjaGFsw6Ry?= <ronald@innovation.ch>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sun, 21 Apr 2019 20:12:49 -0700
+Ronald Tschal=C3=A4r <ronald@innovation.ch> wrote:
 
---324302256-668623410-1555924647=:964
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+> The iBridge device provides access to several devices, including:
+> - the Touch Bar
+> - the iSight webcam
+> - the light sensor
+> - the fingerprint sensor
+>=20
+> This driver provides the core support for managing the iBridge device
+> and the access to the underlying devices. In particular, since the
+> functionality for the touch bar and light sensor is exposed via USB HID
+> interfaces, and the same HID device is used for multiple functions, this
+> driver provides a multiplexing layer that allows multiple HID drivers to
+> be registered for a given HID device. This allows the touch bar and ALS
+> driver to be separated out into their own modules.
+>=20
+> Signed-off-by: Ronald Tschal=C3=A4r <ronald@innovation.ch
+Hi Ronald,
 
-On Sun, 21 Apr 2019, Ronald Tschalär wrote:
+I've only taken a fairly superficial look at this.  A few global
+things to note though.
 
-> On 2016/2017 MacBook Pro's with a Touch Bar the ALS is attached to,
-> and exposed via the iBridge device. This provides the driver for that
-> sensor.
+1. Please either use kernel-doc style for function descriptions, or
+   do not.  Right now you are sort of half way there.
+2. There is quite a complex nest of separate structures being allocated,
+   so think about whether they can be simplified.  In particular
+   use of container_of macros can allow a lot of forwards and backwards
+   pointers to be dropped if you embed the various structures directly.
 
-some comments below inline
- 
-> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+This obviously needs hid and mfd review though as neither is my
+area of expertise!
+
+Jonathan
+>
 > ---
->  drivers/iio/light/Kconfig        |  12 +
->  drivers/iio/light/Makefile       |   1 +
->  drivers/iio/light/apple-ib-als.c | 694 +++++++++++++++++++++++++++++++
->  3 files changed, 707 insertions(+)
->  create mode 100644 drivers/iio/light/apple-ib-als.c
-> 
-> diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
-> index 36f458433480..49159fab1c0e 100644
-> --- a/drivers/iio/light/Kconfig
-> +++ b/drivers/iio/light/Kconfig
-> @@ -64,6 +64,18 @@ config APDS9960
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called apds9960
->  
-> +config APPLE_IBRIDGE_ALS
-> +	tristate "Apple iBridge ambient light sensor"
-> +	select IIO_BUFFER
-> +	select IIO_TRIGGERED_BUFFER
-> +	depends on MFD_APPLE_IBRIDGE
+>  drivers/mfd/Kconfig               |  15 +
+>  drivers/mfd/Makefile              |   1 +
+>  drivers/mfd/apple-ibridge.c       | 883 ++++++++++++++++++++++++++++++
+>  include/linux/mfd/apple-ibridge.h |  39 ++
+>  4 files changed, 938 insertions(+)
+>  create mode 100644 drivers/mfd/apple-ibridge.c
+>  create mode 100644 include/linux/mfd/apple-ibridge.h
+>=20
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index 76f9909cf396..d55fa77faacf 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -1916,5 +1916,20 @@ config RAVE_SP_CORE
+>  	  Select this to get support for the Supervisory Processor
+>  	  device found on several devices in RAVE line of hardware.
+> =20
+> +config MFD_APPLE_IBRIDGE
+> +	tristate "Apple iBridge chip"
+> +	depends on ACPI
+> +	depends on USB_HID
+> +	depends on X86 || COMPILE_TEST
+> +	select MFD_CORE
 > +	help
-> +	  Say Y here to build the driver for the Apple iBridge ALS
-> +	  sensor.
+> +	  This MFD provides the core support for the Apple iBridge chip
+> +	  found on recent MacBookPro's. The drivers for the Touch Bar
+> +	  (apple-ib-tb) and light sensor (apple-ib-als) need to be
+> +	  enabled separately.
 > +
 > +	  To compile this driver as a module, choose M here: the
-> +	  module will be called apple-ib-als.
+> +	  module will be called apple-ibridge.
 > +
->  config BH1750
->  	tristate "ROHM BH1750 ambient light sensor"
->  	depends on I2C
-> diff --git a/drivers/iio/light/Makefile b/drivers/iio/light/Makefile
-> index 286bf3975372..144d918917f7 100644
-> --- a/drivers/iio/light/Makefile
-> +++ b/drivers/iio/light/Makefile
-> @@ -9,6 +9,7 @@ obj-$(CONFIG_ADJD_S311)		+= adjd_s311.o
->  obj-$(CONFIG_AL3320A)		+= al3320a.o
->  obj-$(CONFIG_APDS9300)		+= apds9300.o
->  obj-$(CONFIG_APDS9960)		+= apds9960.o
-> +obj-$(CONFIG_APPLE_IBRIDGE_ALS)	+= apple-ib-als.o
->  obj-$(CONFIG_BH1750)		+= bh1750.o
->  obj-$(CONFIG_BH1780)		+= bh1780.o
->  obj-$(CONFIG_CM32181)		+= cm32181.o
-> diff --git a/drivers/iio/light/apple-ib-als.c b/drivers/iio/light/apple-ib-als.c
+>  endmenu
+>  endif
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index 12980a4ad460..c364e0e9d313 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -241,4 +241,5 @@ obj-$(CONFIG_MFD_MXS_LRADC)     +=3D mxs-lradc.o
+>  obj-$(CONFIG_MFD_SC27XX_PMIC)	+=3D sprd-sc27xx-spi.o
+>  obj-$(CONFIG_RAVE_SP_CORE)	+=3D rave-sp.o
+>  obj-$(CONFIG_MFD_ROHM_BD718XX)	+=3D rohm-bd718x7.o
+> +obj-$(CONFIG_MFD_APPLE_IBRIDGE)	+=3D apple-ibridge.o
+> =20
+> diff --git a/drivers/mfd/apple-ibridge.c b/drivers/mfd/apple-ibridge.c
 > new file mode 100644
-> index 000000000000..1718fcbe304f
+> index 000000000000..56d325396961
 > --- /dev/null
-> +++ b/drivers/iio/light/apple-ib-als.c
-> @@ -0,0 +1,694 @@
+> +++ b/drivers/mfd/apple-ibridge.c
+> @@ -0,0 +1,883 @@
 > +// SPDX-License-Identifier: GPL-2.0
 > +/*
-> + * Apple Ambient Light Sensor Driver
+> + * Apple iBridge Driver
 > + *
-> + * Copyright (c) 2017-2018 Ronald Tschalär
+> + * Copyright (c) 2018 Ronald Tschal=C3=A4r
 > + */
 > +
-> +/*
-> + * MacBookPro models with an iBridge chip (13,[23] and 14,[23]) have an
-> + * ambient light sensor that is exposed via one of the USB interfaces on
-> + * the iBridge as a standard HID light sensor. However, we cannot use the
-> + * existing hid-sensor-als driver, for two reasons:
+> +/**
+> + * MacBookPro models with a Touch Bar (13,[23] and 14,[23]) have an Apple
+> + * iBridge chip (also known as T1 chip) which exposes the touch bar,
+> + * built-in webcam (iSight), ambient light sensor, and Secure Enclave
+> + * Processor (SEP) for TouchID. It shows up in the system as a USB device
+> + * with 3 configurations: 'Default iBridge Interfaces', 'Default iBridge
+> + * Interfaces(OS X)', and 'Default iBridge Interfaces(Recovery)'. While
+> + * the second one is used by MacOS to provide the fancy touch bar
+> + * functionality with custom buttons etc, this driver just uses the firs=
+t.
 > + *
-> + * 1. The hid-sensor-als driver is part of the hid-sensor-hub which in turn
-> + *    is a hid driver, but you can't have more than one hid driver per hid
-> + *    device, which is a problem because the touch bar also needs to
-> + *    register as a driver for this hid device.
+> + * In the first (default after boot) configuration, 4 usb interfaces are
+> + * exposed: 2 related to the webcam, and 2 USB HID interfaces representi=
+ng
+> + * the touch bar and the ambient light sensor (and possibly the SEP,
+> + * though at this point in time nothing is known about that). The webcam
+> + * interfaces are already handled by the uvcvideo driver; furthermore, t=
+he
+> + * handling of the input reports when "keys" on the touch bar are pressed
+> + * is already handled properly by the generic USB HID core. This leaves
+> + * the management of the touch bar modes (e.g. switching between function
+> + * and special keys when the FN key is pressed), the touch bar display
+> + * (dimming and turning off), the key-remapping when the FN key is
+> + * pressed, and handling of the light sensor.
 > + *
-> + * 2. While the hid-sensors-als driver stores sensor readings received via
-> + *    interrupt in an iio buffer, reads on the sysfs
-> + *    .../iio:deviceX/in_illuminance_YYY attribute result in a get of the
-> + *    feature report; however, in the case of this sensor here the
-> + *    illuminance field of that report is always 0. Instead, the input
-> + *    report needs to be requested.
+> + * This driver is implemented as an MFD driver, with the touch bar and A=
+LS
+> + * functions implemented by appropriate subdrivers (mfd cells). Because
+> + * both those are basically hid drivers, but the current kernel driver
+> + * structure does not allow more than one driver per device, this driver
+> + * implements a demuxer for hid drivers: it registers itself as a hid
+> + * driver with the core, and in turn it lets the subdrivers register
+> + * themselves as hid drivers with this driver; the callbacks from the co=
+re
+> + * are then forwarded to the subdrivers.
+> + *
+> + * Lastly, this driver also takes care of the power-management for the
+> + * iBridge when suspending and resuming.
 > + */
 > +
-> +#define dev_fmt(fmt) "als: " fmt
-> +
+> +#include <linux/acpi.h>
 > +#include <linux/device.h>
 > +#include <linux/hid.h>
-> +#include <linux/hid-sensor-ids.h>
-> +#include <linux/iio/buffer.h>
-> +#include <linux/iio/iio.h>
-> +#include <linux/iio/trigger_consumer.h>
-> +#include <linux/iio/triggered_buffer.h>
-> +#include <linux/iio/trigger.h>
+> +#include <linux/list.h>
 > +#include <linux/mfd/apple-ibridge.h>
+> +#include <linux/mfd/core.h>
 > +#include <linux/module.h>
-> +#include <linux/platform_device.h>
+> +#include <linux/mutex.h>
+> +#include <linux/rculist.h>
 > +#include <linux/slab.h>
+> +#include <linux/srcu.h>
+> +#include <linux/usb.h>
 > +
-> +#define APPLEALS_DYN_SENS		0	/* our dynamic sensitivity */
-> +#define APPLEALS_DEF_CHANGE_SENS	APPLEALS_DYN_SENS
+> +#include "../hid/usbhid/usbhid.h"
 > +
-> +struct appleals_device {
-> +	struct appleib_device	*ib_dev;
-> +	struct device		*log_dev;
-> +	struct hid_device	*hid_dev;
-> +	struct hid_report	*cfg_report;
-> +	struct hid_field	*illum_field;
-> +	struct iio_dev		*iio_dev;
-> +	struct iio_trigger	*iio_trig;
-> +	int			cur_sensitivity;
-> +	int			cur_hysteresis;
-> +	bool			events_enabled;
+> +#define USB_ID_VENDOR_APPLE	0x05ac
+> +#define USB_ID_PRODUCT_IBRIDGE	0x8600
+> +
+> +#define APPLETB_BASIC_CONFIG	1
+> +
+> +#define	LOG_DEV(ib_dev)		(&(ib_dev)->acpi_dev->dev)
+> +
+> +struct appleib_device {
+> +	struct acpi_device	*acpi_dev;
+> +	acpi_handle		asoc_socw;
+> +	struct list_head	hid_drivers;
+> +	struct list_head	hid_devices;
+> +	struct mfd_cell		*subdevs;
+> +	struct mutex		update_lock; /* protect updates to all lists */
+> +	struct srcu_struct	lists_srcu;
+> +	bool			in_hid_probe;
 > +};
 > +
-> +static struct hid_driver appleals_hid_driver;
-> +
-> +/*
-> + * This is a primitive way to get a relative sensitivity, one where we get
-> + * notified when the value changes by a certain percentage rather than some
-> + * absolute value. MacOS somehow manages to configure the sensor to work this
-> + * way (with a 15% relative sensitivity), but I haven't been able to figure
-> + * out how so far. So until we do, this provides a less-than-perfect
-> + * simulation.
-> + *
-> + * When the brightness value is within one of the ranges, the sensitivity is
-> + * set to that range's sensitivity. But in order to reduce flapping when the
-> + * brightness is right on the border between two ranges, the ranges overlap
-> + * somewhat (by at least one sensitivity), and sensitivity is only changed if
-> + * the value leaves the current sensitivity's range.
-> + *
-> + * The values chosen for the map are somewhat arbitrary: a compromise of not
-> + * too many ranges (and hence changing the sensitivity) but not too small or
-> + * large of a percentage of the min and max values in the range (currently
-> + * from 7.5% to 30%, i.e. within a factor of 2 of 15%), as well as just plain
-> + * "this feels reasonable to me".
-> + */
-> +struct appleals_sensitivity_map {
-> +	int	sensitivity;
-> +	int	illum_low;
-> +	int	illum_high;
+> +struct appleib_hid_drv_info {
+> +	struct list_head	entry;
+> +	struct hid_driver	*driver;
+> +	void			*driver_data;
 > +};
 > +
-> +static struct appleals_sensitivity_map appleals_sensitivity_map[] = {
-
-const?
-
-> +	{   1,    0,   14 },
-> +	{   3,   10,   40 },
-> +	{   9,   30,  120 },
-> +	{  27,   90,  360 },
-> +	{  81,  270, 1080 },
-> +	{ 243,  810, 3240 },
-> +	{ 729, 2430, 9720 },
+> +struct appleib_hid_dev_info {
+> +	struct list_head		entry;
+> +	struct list_head		drivers;
+> +	struct hid_device		*device;
+> +	const struct hid_device_id	*device_id;
+> +	bool				started;
 > +};
 > +
-> +static int appleals_compute_sensitivity(int cur_illum, int cur_sens)
-> +{
-> +	struct appleals_sensitivity_map *entry;
-> +	int i;
-> +
-> +	/* see if we're still in current range */
-> +	for (i = 0; i < ARRAY_SIZE(appleals_sensitivity_map); i++) {
-> +		entry = &appleals_sensitivity_map[i];
-> +
-> +		if (entry->sensitivity == cur_sens &&
-> +		    entry->illum_low <= cur_illum &&
-> +		    entry->illum_high >= cur_illum)
-> +			return cur_sens;
-> +		else if (entry->sensitivity > cur_sens)
-> +			break;
-> +	}
-> +
-> +	/* not in current range, so find new sensitivity */
-> +	for (i = 0; i < ARRAY_SIZE(appleals_sensitivity_map); i++) {
-> +		entry = &appleals_sensitivity_map[i];
-> +
-> +		if (entry->illum_low <= cur_illum &&
-> +		    entry->illum_high >= cur_illum)
-> +			return entry->sensitivity;
-> +	}
-> +
-> +	/* hmm, not in table, so assume we are above highest range */
-> +	i = ARRAY_SIZE(appleals_sensitivity_map) - 1;
-> +	return appleals_sensitivity_map[i].sensitivity;
-> +}
-> +
-> +static int appleals_get_field_value_for_usage(struct hid_field *field,
-> +					      unsigned int usage)
-> +{
-> +	int u;
-> +
-> +	if (!field)
-> +		return -1;
-> +
-> +	for (u = 0; u < field->maxusage; u++) {
-> +		if (field->usage[u].hid == usage)
-> +			return u + field->logical_minimum;
-> +	}
-> +
-> +	return -1;
-> +}
-> +
-> +static __s32 appleals_get_field_value(struct appleals_device *als_dev,
-> +				      struct hid_field *field)
-> +{
-> +	hid_hw_request(als_dev->hid_dev, field->report, HID_REQ_GET_REPORT);
-> +	hid_hw_wait(als_dev->hid_dev);
-> +
-> +	return field->value[0];
-> +}
-> +
-> +static void appleals_set_field_value(struct appleals_device *als_dev,
-> +				     struct hid_field *field, __s32 value)
-> +{
-> +	hid_set_field(field, 0, value);
-> +	hid_hw_request(als_dev->hid_dev, field->report, HID_REQ_SET_REPORT);
-> +}
-> +
-> +static int appleals_get_config(struct appleals_device *als_dev,
-> +			       unsigned int field_usage, __s32 *value)
-> +{
-> +	struct hid_field *field;
-> +
-> +	field = appleib_find_report_field(als_dev->cfg_report, field_usage);
-> +	if (!field)
-> +		return -EINVAL;
-> +
-> +	*value = appleals_get_field_value(als_dev, field);
-> +
-> +	return 0;
-> +}
-> +
-> +static int appleals_set_config(struct appleals_device *als_dev,
-> +			       unsigned int field_usage, __s32 value)
-> +{
-> +	struct hid_field *field;
-> +
-> +	field = appleib_find_report_field(als_dev->cfg_report, field_usage);
-> +	if (!field)
-> +		return -EINVAL;
-> +
-> +	appleals_set_field_value(als_dev, field, value);
-> +
-> +	return 0;
-> +}
-> +
-> +static int appleals_set_enum_config(struct appleals_device *als_dev,
-> +				    unsigned int field_usage,
-> +				    unsigned int value_usage)
-> +{
-> +	struct hid_field *field;
-> +	int value;
-> +
-> +	field = appleib_find_report_field(als_dev->cfg_report, field_usage);
-> +	if (!field)
-> +		return -EINVAL;
-> +
-> +	value = appleals_get_field_value_for_usage(field, value_usage);
-
-can return -1, not checked
-
-> +
-> +	appleals_set_field_value(als_dev, field, value);
-> +
-> +	return 0;
-> +}
-> +
-> +static void appleals_update_dyn_sensitivity(struct appleals_device *als_dev,
-> +					    __s32 value)
-> +{
-> +	int new_sens;
-> +	int rc;
-> +
-> +	new_sens = appleals_compute_sensitivity(value,
-> +						als_dev->cur_sensitivity);
-> +	if (new_sens != als_dev->cur_sensitivity) {
-> +		rc = appleals_set_config(als_dev,
-> +			HID_USAGE_SENSOR_LIGHT_ILLUM |
-> +			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS,
-> +			new_sens);
-> +		if (!rc)
-> +			als_dev->cur_sensitivity = new_sens;
-> +	}
-> +}
-> +
-> +static void appleals_push_new_value(struct appleals_device *als_dev,
-> +				    __s32 value)
-> +{
-> +	__s32 buf[2] = { value, value };
-> +
-> +	iio_push_to_buffers(als_dev->iio_dev, buf);
-> +
-> +	if (als_dev->cur_hysteresis == APPLEALS_DYN_SENS)
-> +		appleals_update_dyn_sensitivity(als_dev, value);
-> +}
-> +
-> +static int appleals_hid_event(struct hid_device *hdev, struct hid_field *field,
-> +			      struct hid_usage *usage, __s32 value)
-> +{
-> +	struct appleals_device *als_dev =
-> +		appleib_get_drvdata(hid_get_drvdata(hdev),
-> +				    &appleals_hid_driver);
-> +	int rc = 0;
-> +
-> +	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_SENSOR)
-> +		return 0;
-> +
-> +	if (usage->hid == HID_USAGE_SENSOR_LIGHT_ILLUM) {
-> +		appleals_push_new_value(als_dev, value);
-> +		rc = 1;
-> +	}
-> +
-> +	return rc;
-> +}
-> +
-> +static int appleals_enable_events(struct iio_trigger *trig, bool enable)
-> +{
-> +	struct appleals_device *als_dev = iio_trigger_get_drvdata(trig);
-> +	int value;
-> +
-> +	/* set the sensor's reporting state */
-> +	appleals_set_enum_config(als_dev, HID_USAGE_SENSOR_PROP_REPORT_STATE,
-> +		enable ? HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM :
-> +			 HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM);
-> +	als_dev->events_enabled = enable;
-> +
-> +	/* if the sensor was enabled, push an initial value */
-> +	if (enable) {
-> +		value = appleals_get_field_value(als_dev, als_dev->illum_field);
-> +		appleals_push_new_value(als_dev, value);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int appleals_read_raw(struct iio_dev *iio_dev,
-> +			     struct iio_chan_spec const *chan,
-> +			     int *val, int *val2, long mask)
-> +{
-> +	struct appleals_device *als_dev =
-> +				*(struct appleals_device **)iio_priv(iio_dev);
-> +	__s32 value;
-> +	int rc;
-> +
-> +	*val = 0;
-> +	*val2 = 0;
-
-no need to set these here
-
-> +
-> +	switch (mask) {
-> +	case IIO_CHAN_INFO_RAW:
-> +	case IIO_CHAN_INFO_PROCESSED:
-> +		*val = appleals_get_field_value(als_dev, als_dev->illum_field);
-> +		return IIO_VAL_INT;
-> +
-> +	case IIO_CHAN_INFO_SAMP_FREQ:
-> +		rc = appleals_get_config(als_dev,
-> +					 HID_USAGE_SENSOR_PROP_REPORT_INTERVAL,
-> +					 &value);
-> +		if (rc)
-> +			return rc;
-> +
-> +		/* interval is in ms; val is in HZ, val2 in µHZ */
-> +		value = 1000000000 / value;
-> +		*val = value / 1000000;
-> +		*val2 = value - (*val * 1000000);
-> +
-> +		return IIO_VAL_INT_PLUS_MICRO;
-> +
-> +	case IIO_CHAN_INFO_HYSTERESIS:
-> +		if (als_dev->cur_hysteresis == APPLEALS_DYN_SENS) {
-> +			*val = als_dev->cur_hysteresis;
-> +			return IIO_VAL_INT;
-> +		}
-> +
-> +		rc = appleals_get_config(als_dev,
-> +			HID_USAGE_SENSOR_LIGHT_ILLUM |
-> +			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS,
-> +			val);
-> +		if (!rc) {
-> +			als_dev->cur_sensitivity = *val;
-> +			als_dev->cur_hysteresis = *val;
-> +		}
-> +		return rc ? rc : IIO_VAL_INT;
-> +
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +static int appleals_write_raw(struct iio_dev *iio_dev,
-> +			      struct iio_chan_spec const *chan,
-> +			      int val, int val2, long mask)
-> +{
-> +	struct appleals_device *als_dev =
-> +				*(struct appleals_device **)iio_priv(iio_dev);
-> +	__s32 illum;
-> +	int rc;
-> +
-> +	switch (mask) {
-> +	case IIO_CHAN_INFO_SAMP_FREQ:
-> +		rc = appleals_set_config(als_dev,
-> +					 HID_USAGE_SENSOR_PROP_REPORT_INTERVAL,
-> +					 1000000000 / (val * 1000000 + val2));
-> +		break;
-
-maybe return directly instead of at the end (matter of taste);
-here and in the other cases below
-
-> +
-> +	case IIO_CHAN_INFO_HYSTERESIS:
-> +		if (val == APPLEALS_DYN_SENS) {
-> +			if (als_dev->cur_hysteresis != APPLEALS_DYN_SENS) {
-> +				als_dev->cur_hysteresis = val;
-> +				illum = appleals_get_field_value(als_dev,
-> +							als_dev->illum_field);
-> +				appleals_update_dyn_sensitivity(als_dev, illum);
-> +			}
-> +			rc = 0;
-> +			break;
-> +		}
-> +
-> +		rc = appleals_set_config(als_dev,
-> +			HID_USAGE_SENSOR_LIGHT_ILLUM |
-> +			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS,
-> +			val);
-> +		if (!rc) {
-> +			als_dev->cur_sensitivity = val;
-> +			als_dev->cur_hysteresis = val;
-> +		}
-> +		break;
-> +
-> +	default:
-> +		rc = -EINVAL;
-> +	}
-> +
-> +	return rc;
-> +}
-> +
-> +static const struct iio_chan_spec appleals_channels[] = {
-> +	{
-> +		.type = IIO_INTENSITY,
-> +		.modified = 1,
-> +		.channel2 = IIO_MOD_LIGHT_BOTH,
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED) |
-> +			BIT(IIO_CHAN_INFO_RAW),
-> +		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +			BIT(IIO_CHAN_INFO_HYSTERESIS),
-> +		.scan_type = {
-> +			.sign = 'u',
-> +			.realbits = 32,
-> +			.storagebits = 32,
-> +		},
-> +		.scan_index = 0,
-> +	},
-> +	{
-> +		.type = IIO_LIGHT,
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED) |
-> +			BIT(IIO_CHAN_INFO_RAW),
-> +		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +			BIT(IIO_CHAN_INFO_HYSTERESIS),
-> +		.scan_type = {
-> +			.sign = 'u',
-> +			.realbits = 32,
-> +			.storagebits = 32,
-> +		},
-> +		.scan_index = 1,
-> +	}
+> +static const struct mfd_cell appleib_subdevs[] =3D {
+> +	{ .name =3D PLAT_NAME_IB_TB },
+> +	{ .name =3D PLAT_NAME_IB_ALS },
 > +};
 > +
-> +static const struct iio_trigger_ops appleals_trigger_ops = {
-> +	.set_trigger_state = &appleals_enable_events,
-> +};
+> +static struct appleib_device *appleib_dev;
 > +
-> +static const struct iio_info appleals_info = {
-> +	.read_raw = &appleals_read_raw,
-> +	.write_raw = &appleals_write_raw,
-> +};
+> +#define	call_void_driver_func(drv_info, fn, ...)			\
+
+This sort of macro may seem like a good idea because it saves a few lines
+of code.  However, that comes at the cost of readability, so just
+put the code inline.
+
+> +	do {								\
+> +		if ((drv_info)->driver->fn)				\
+> +			(drv_info)->driver->fn(__VA_ARGS__);		\
+> +	} while (0)
 > +
-> +static void appleals_config_sensor(struct appleals_device *als_dev,
-> +				   bool events_enabled, int sensitivity)
+> +#define	call_driver_func(drv_info, fn, ret_type, ...)			\
+> +	({								\
+> +		ret_type rc =3D 0;					\
+> +									\
+> +		if ((drv_info)->driver->fn)				\
+> +			rc =3D (drv_info)->driver->fn(__VA_ARGS__);	\
+> +									\
+> +		rc;							\
+> +	})
+> +
+> +static void appleib_remove_driver(struct appleib_device *ib_dev,
+> +				  struct appleib_hid_drv_info *drv_info,
+> +				  struct appleib_hid_dev_info *dev_info)
 > +{
-> +	struct hid_field *field;
-> +	__s32 val;
+> +	list_del_rcu(&drv_info->entry);
+> +	synchronize_srcu(&ib_dev->lists_srcu);
 > +
-> +	/*
-> +	 * We're (often) in a probe here, so need to enable input processing
-> +	 * in that case, but only in that case.
-> +	 */
-> +	if (appleib_in_hid_probe(als_dev->ib_dev))
-> +		hid_device_io_start(als_dev->hid_dev);
+> +	call_void_driver_func(drv_info, remove, dev_info->device);
 > +
-> +	/* power on the sensor */
-> +	field = appleib_find_report_field(als_dev->cfg_report,
-> +					  HID_USAGE_SENSOR_PROY_POWER_STATE);
-> +	val = appleals_get_field_value_for_usage(field,
-> +			HID_USAGE_SENSOR_PROP_POWER_STATE_D0_FULL_POWER_ENUM);
-
-what if -1?
-
-> +	hid_set_field(field, 0, val);
-> +
-> +	/* configure reporting of change events */
-> +	field = appleib_find_report_field(als_dev->cfg_report,
-> +					  HID_USAGE_SENSOR_PROP_REPORT_STATE);
-> +	val = appleals_get_field_value_for_usage(field,
-> +		events_enabled ?
-> +			HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EVENTS_ENUM :
-> +			HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM);
-> +	hid_set_field(field, 0, val);
-> +
-> +	/* report change events asap */
-> +	field = appleib_find_report_field(als_dev->cfg_report,
-> +					 HID_USAGE_SENSOR_PROP_REPORT_INTERVAL);
-> +	hid_set_field(field, 0, field->logical_minimum);
-> +
-> +	/*
-> +	 * Set initial change sensitivity; if dynamic, enabling trigger will set
-> +	 * it instead.
-> +	 */
-> +	if (sensitivity != APPLEALS_DYN_SENS) {
-> +		field = appleib_find_report_field(als_dev->cfg_report,
-> +			HID_USAGE_SENSOR_LIGHT_ILLUM |
-> +			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS);
-> +
-> +		hid_set_field(field, 0, sensitivity);
-> +	}
-> +
-> +	/* write the new config to the sensor */
-> +	hid_hw_request(als_dev->hid_dev, als_dev->cfg_report,
-> +		       HID_REQ_SET_REPORT);
-> +
-> +	if (appleib_in_hid_probe(als_dev->ib_dev))
-> +		hid_device_io_stop(als_dev->hid_dev);
-> +};
-
-no semicolon at the end of a function please
-
-> +
-> +static int appleals_config_iio(struct appleals_device *als_dev)
-> +{
-> +	struct iio_dev *iio_dev;
-> +	struct iio_trigger *iio_trig;
-> +	int rc;
-> +
-> +	/* create and register iio device */
-> +	iio_dev = iio_device_alloc(sizeof(als_dev));
-
-how about using the devm_ variants?
-
-> +	if (!iio_dev)
-> +		return -ENOMEM;
-> +
-> +	*(struct appleals_device **)iio_priv(iio_dev) = als_dev;
-> +
-> +	iio_dev->channels = appleals_channels;
-> +	iio_dev->num_channels = ARRAY_SIZE(appleals_channels);
-> +	iio_dev->dev.parent = &als_dev->hid_dev->dev;
-> +	iio_dev->info = &appleals_info;
-> +	iio_dev->name = "als";
-> +	iio_dev->modes = INDIO_DIRECT_MODE;
-> +
-> +	rc = iio_triggered_buffer_setup(iio_dev, &iio_pollfunc_store_time, NULL,
-> +					NULL);
-> +	if (rc) {
-> +		dev_err(als_dev->log_dev, "failed to set up iio triggers: %d\n",
-
-just one trigger?
-
-> +			rc);
-> +		goto free_iio_dev;
-> +	}
-> +
-> +	iio_trig = iio_trigger_alloc("%s-dev%d", iio_dev->name, iio_dev->id);
-> +	if (!iio_trig) {
-> +		rc = -ENOMEM;
-> +		goto clean_trig_buf;
-> +	}
-> +
-> +	iio_trig->dev.parent = &als_dev->hid_dev->dev;
-> +	iio_trig->ops = &appleals_trigger_ops;
-> +	iio_trigger_set_drvdata(iio_trig, als_dev);
-> +
-> +	rc = iio_trigger_register(iio_trig);
-> +	if (rc) {
-> +		dev_err(als_dev->log_dev, "failed to register iio trigger: %d\n",
-
-some messages start lowercase, some uppercase (nitpicking)
-
-> +			rc);
-> +		goto free_iio_trig;
-> +	}
-> +
-> +	als_dev->iio_trig = iio_trig;
-> +
-> +	rc = iio_device_register(iio_dev);
-> +	if (rc) {
-> +		dev_err(als_dev->log_dev, "failed to register iio device: %d\n",
-> +			rc);
-> +		goto unreg_iio_trig;
-> +	}
-> +
-> +	als_dev->iio_dev = iio_dev;
-> +
-> +	return 0;
-> +
-> +unreg_iio_trig:
-> +	iio_trigger_unregister(iio_trig);
-> +free_iio_trig:
-> +	iio_trigger_free(iio_trig);
-> +	als_dev->iio_trig = NULL;
-> +clean_trig_buf:
-> +	iio_triggered_buffer_cleanup(iio_dev);
-> +free_iio_dev:
-> +	iio_device_free(iio_dev);
-> +
-> +	return rc;
+> +	kfree(drv_info);
 > +}
 > +
-> +static int appleals_probe(struct hid_device *hdev,
-> +			  const struct hid_device_id *id)
+> +static int appleib_probe_driver(struct appleib_hid_drv_info *drv_info,
+> +				struct appleib_hid_dev_info *dev_info)
 > +{
-> +	struct appleals_device *als_dev =
-> +		appleib_get_drvdata(hid_get_drvdata(hdev),
-> +				    &appleals_hid_driver);
-> +	struct hid_field *state_field;
-> +	struct hid_field *illum_field;
-> +	int rc;
+> +	struct appleib_hid_drv_info *d;
+> +	int rc =3D 0;
 > +
-> +	/* find als fields and reports */
-> +	state_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
-> +					    HID_USAGE_SENSOR_PROP_REPORT_STATE);
-> +	illum_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
-> +					     HID_USAGE_SENSOR_LIGHT_ILLUM);
-> +	if (!state_field || !illum_field)
-> +		return -ENODEV;
-> +
-> +	if (als_dev->hid_dev) {
-> +		dev_warn(als_dev->log_dev,
-> +			 "Found duplicate ambient light sensor - ignoring\n");
-> +		return -EBUSY;
-> +	}
-> +
-> +	dev_info(als_dev->log_dev, "Found ambient light sensor\n");
-
-in general avoid logging for the OK case, it just clutters the log
-
-> +
-> +	/* initialize device */
-> +	als_dev->hid_dev = hdev;
-> +	als_dev->cfg_report = state_field->report;
-> +	als_dev->illum_field = illum_field;
-> +
-> +	als_dev->cur_hysteresis = APPLEALS_DEF_CHANGE_SENS;
-> +	als_dev->cur_sensitivity = APPLEALS_DEF_CHANGE_SENS;
-> +	appleals_config_sensor(als_dev, false, als_dev->cur_sensitivity);
-> +
-> +	rc = appleals_config_iio(als_dev);
+> +	rc =3D call_driver_func(drv_info, probe, int, dev_info->device,
+> +			      dev_info->device_id);
 > +	if (rc)
 > +		return rc;
 > +
-> +	return 0;
-> +}
-> +
-> +static void appleals_remove(struct hid_device *hdev)
-> +{
-> +	struct appleals_device *als_dev =
-> +		appleib_get_drvdata(hid_get_drvdata(hdev),
-> +				    &appleals_hid_driver);
-> +
-
-could be a lot less if devm_ were used?
-
-> +	if (als_dev->iio_dev) {
-> +		iio_device_unregister(als_dev->iio_dev);
-> +
-> +		iio_trigger_unregister(als_dev->iio_trig);
-> +		iio_trigger_free(als_dev->iio_trig);
-> +		als_dev->iio_trig = NULL;
-> +
-> +		iio_triggered_buffer_cleanup(als_dev->iio_dev);
-> +		iio_device_free(als_dev->iio_dev);
-> +		als_dev->iio_dev = NULL;
+> +	d =3D kmemdup(drv_info, sizeof(*drv_info), GFP_KERNEL);
+> +	if (!d) {
+> +		call_void_driver_func(drv_info, remove, dev_info->device);
+> +		return -ENOMEM;
 > +	}
 > +
-> +	als_dev->hid_dev = NULL;
-> +}
-> +
-> +#ifdef CONFIG_PM
-> +static int appleals_reset_resume(struct hid_device *hdev)
-> +{
-> +	struct appleals_device *als_dev =
-> +		appleib_get_drvdata(hid_get_drvdata(hdev),
-> +				    &appleals_hid_driver);
-> +
-> +	appleals_config_sensor(als_dev, als_dev->events_enabled,
-> +			       als_dev->cur_sensitivity);
-> +
+> +	list_add_tail_rcu(&d->entry, &dev_info->drivers);
 > +	return 0;
 > +}
-> +#endif
 > +
-> +static struct hid_driver appleals_hid_driver = {
-> +	.name = "apple-ib-als",
-> +	.probe = appleals_probe,
-> +	.remove = appleals_remove,
-> +	.event = appleals_hid_event,
-> +#ifdef CONFIG_PM
-> +	.reset_resume = appleals_reset_resume,
-> +#endif
-> +};
-> +
-> +static int appleals_platform_probe(struct platform_device *pdev)
+> +static void appleib_remove_driver_attachments(struct appleib_device *ib_=
+dev,
+> +					struct appleib_hid_dev_info *dev_info,
+> +					struct hid_driver *driver)
 > +{
-> +	struct appleib_platform_data *pdata = pdev->dev.platform_data;
-> +	struct appleib_device *ib_dev = pdata->ib_dev;
-> +	struct appleals_device *als_dev;
+> +	struct appleib_hid_drv_info *drv_info;
+> +	struct appleib_hid_drv_info *tmp;
+> +
+> +	list_for_each_entry_safe(drv_info, tmp, &dev_info->drivers, entry) {
+> +		if (!driver || drv_info->driver =3D=3D driver)
+> +			appleib_remove_driver(ib_dev, drv_info, dev_info);
+> +	}
+> +}
+> +
+> +/*
+> + * Find all devices that are attached to this driver and detach them.
+> + *
+> + * Note: this must be run with update_lock held.
+> + */
+> +static void appleib_detach_devices(struct appleib_device *ib_dev,
+> +				   struct hid_driver *driver)
+> +{
+> +	struct appleib_hid_dev_info *dev_info;
+> +
+> +	list_for_each_entry(dev_info, &ib_dev->hid_devices, entry)
+> +		appleib_remove_driver_attachments(ib_dev, dev_info, driver);
+> +}
+> +
+> +/*
+> + * Find all drivers that are attached to this device and detach them.
+> + *
+> + * Note: this must be run with update_lock held.
+> + */
+> +static void appleib_detach_drivers(struct appleib_device *ib_dev,
+> +				   struct appleib_hid_dev_info *dev_info)
+> +{
+> +	appleib_remove_driver_attachments(ib_dev, dev_info, NULL);
+> +}
+> +
+> +/**
+> + * Unregister a previously registered HID driver from us.
+> + * @ib_dev: the appleib_device from which to unregister the driver
+> + * @driver: the driver to unregister
+> + */
+> +int appleib_unregister_hid_driver(struct appleib_device *ib_dev,
+> +				  struct hid_driver *driver)
+> +{
+> +	struct appleib_hid_drv_info *drv_info;
+> +
+> +	mutex_lock(&ib_dev->update_lock);
+> +
+> +	list_for_each_entry(drv_info, &ib_dev->hid_drivers, entry) {
+> +		if (drv_info->driver =3D=3D driver) {
+
+This block does look like it perhaps should be in helper function?
+Would help with readability.
+
+> +			appleib_detach_devices(ib_dev, driver);
+> +			list_del_rcu(&drv_info->entry);
+> +			mutex_unlock(&ib_dev->update_lock);
+> +			synchronize_srcu(&ib_dev->lists_srcu);
+> +			kfree(drv_info);
+> +			dev_info(LOG_DEV(ib_dev), "unregistered driver '%s'\n",
+> +				 driver->name);
+> +			return 0;
+> +		}
+> +	}
+> +
+> +	mutex_unlock(&ib_dev->update_lock);
+> +
+> +	return -ENOENT;
+> +}
+> +EXPORT_SYMBOL_GPL(appleib_unregister_hid_driver);
+> +
+> +static int appleib_start_hid_events(struct appleib_hid_dev_info *dev_inf=
+o)
+> +{
+> +	struct hid_device *hdev =3D dev_info->device;
 > +	int rc;
 > +
-> +	als_dev = kzalloc(sizeof(*als_dev), GFP_KERNEL);
-> +	if (!als_dev)
+> +	rc =3D hid_connect(hdev, HID_CONNECT_DEFAULT);
+> +	if (rc) {
+> +		hid_err(hdev, "ib: hid connect failed (%d)\n", rc);
+> +		return rc;
+> +	}
+> +
+> +	rc =3D hid_hw_open(hdev);
+> +	if (rc) {
+> +		hid_err(hdev, "ib: failed to open hid: %d\n", rc);
+> +		hid_disconnect(hdev);
+> +	}
+> +
+> +	if (!rc)
+> +		dev_info->started =3D true;
+> +
+> +	return rc;
+> +}
+> +
+> +static void appleib_stop_hid_events(struct appleib_hid_dev_info *dev_inf=
+o)
+> +{
+> +	if (dev_info->started) {
+> +		hid_hw_close(dev_info->device);
+> +		hid_disconnect(dev_info->device);
+> +		dev_info->started =3D false;
+> +	}
+> +}
+> +
+> +/**
+> + * Register a HID driver with us.
+> + * @ib_dev: the appleib_device with which to register the driver
+> + * @driver: the driver to register
+> + * @data: the driver-data to associate with the driver; this is available
+> + *        from appleib_get_drvdata(...).
+> + */
+> +int appleib_register_hid_driver(struct appleib_device *ib_dev,
+> +				struct hid_driver *driver, void *data)
+> +{
+> +	struct appleib_hid_drv_info *drv_info;
+> +	struct appleib_hid_dev_info *dev_info;
+> +	int rc;
+> +
+> +	if (!driver->probe)
+> +		return -EINVAL;
+> +
+> +	drv_info =3D kzalloc(sizeof(*drv_info), GFP_KERNEL);
+> +	if (!drv_info)
 > +		return -ENOMEM;
 > +
-> +	als_dev->ib_dev = ib_dev;
-> +	als_dev->log_dev = pdata->log_dev;
+> +	drv_info->driver =3D driver;
+> +	drv_info->driver_data =3D data;
 > +
-> +	rc = appleib_register_hid_driver(ib_dev, &appleals_hid_driver, als_dev);
-> +	if (rc) {
-> +		dev_err(als_dev->log_dev, "Error registering hid driver: %d\n",
-> +			rc);
-> +		goto error;
+> +	mutex_lock(&ib_dev->update_lock);
+> +
+> +	list_add_tail_rcu(&drv_info->entry, &ib_dev->hid_drivers);
+> +
+> +	list_for_each_entry(dev_info, &ib_dev->hid_devices, entry) {
+> +		appleib_stop_hid_events(dev_info);
+> +
+> +		appleib_probe_driver(drv_info, dev_info);
+> +
+> +		rc =3D appleib_start_hid_events(dev_info);
+> +		if (rc)
+> +			appleib_detach_drivers(ib_dev, dev_info);
 > +	}
 > +
-> +	platform_set_drvdata(pdev, als_dev);
+> +	mutex_unlock(&ib_dev->update_lock);
+> +
+> +	dev_info(LOG_DEV(ib_dev), "registered driver '%s'\n", driver->name);
 > +
 > +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(appleib_register_hid_driver);
 > +
-> +error:
-> +	kfree(als_dev);
+> +/**
+> + * Get the driver-specific data associated with the given, previously
+> + * registered HID driver (provided in the appleib_register_hid_driver()
+> + * call).
+> + * @ib_dev: the appleib_device with which the driver was registered
+> + * @driver: the driver for which to get the data
+> + */
+> +void *appleib_get_drvdata(struct appleib_device *ib_dev,
+> +			  struct hid_driver *driver)
+> +{
+> +	struct appleib_hid_drv_info *drv_info;
+> +	void *drv_data =3D NULL;
+> +	int idx;
+> +
+> +	idx =3D srcu_read_lock(&ib_dev->lists_srcu);
+> +
+> +	list_for_each_entry_rcu(drv_info, &ib_dev->hid_drivers, entry) {
+> +		if (drv_info->driver =3D=3D driver) {
+> +			drv_data =3D drv_info->driver_data;
+> +			break;
+> +		}
+> +	}
+> +
+> +	srcu_read_unlock(&ib_dev->lists_srcu, idx);
+> +
+> +	return drv_data;
+> +}
+> +EXPORT_SYMBOL_GPL(appleib_get_drvdata);
+> +
+> +/*
+> + * Forward a hid-driver callback to all registered sub-drivers. This is =
+for
+> + * callbacks that return a status as an int.
+> + * @hdev the hid-device
+> + * @forward a function that calls the callback on the given driver
+> + * @args arguments for the forward function
+> + */
+> +static int appleib_forward_int_op(struct hid_device *hdev,
+> +				  int (*forward)(struct appleib_hid_drv_info *,
+> +						 struct hid_device *, void *),
+> +				  void *args)
+> +{
+> +	struct appleib_device *ib_dev =3D hid_get_drvdata(hdev);
+> +	struct appleib_hid_dev_info *dev_info;
+> +	struct appleib_hid_drv_info *drv_info;
+> +	int idx;
+> +	int rc =3D 0;
+> +
+> +	idx =3D srcu_read_lock(&ib_dev->lists_srcu);
+> +
+> +	list_for_each_entry_rcu(dev_info, &ib_dev->hid_devices, entry) {
+> +		if (dev_info->device !=3D hdev)
+> +			continue;
+> +
+> +		list_for_each_entry_rcu(drv_info, &dev_info->drivers, entry) {
+> +			rc =3D forward(drv_info, hdev, args);
+> +			if (rc)
+> +				break;
+> +		}
+> +
+> +		break;
+> +	}
+> +
+> +	srcu_read_unlock(&ib_dev->lists_srcu, idx);
+> +
 > +	return rc;
 > +}
 > +
-> +static int appleals_platform_remove(struct platform_device *pdev)
+> +struct appleib_hid_event_args {
+> +	struct hid_field *field;
+> +	struct hid_usage *usage;
+> +	__s32 value;
+> +};
+> +
+> +static int appleib_hid_event_fwd(struct appleib_hid_drv_info *drv_info,
+> +				 struct hid_device *hdev, void *args)
 > +{
-> +	struct appleib_platform_data *pdata = pdev->dev.platform_data;
-> +	struct appleib_device *ib_dev = pdata->ib_dev;
-> +	struct appleals_device *als_dev = platform_get_drvdata(pdev);
+> +	struct appleib_hid_event_args *evt_args =3D args;
+> +
+> +	return call_driver_func(drv_info, event, int, hdev, evt_args->field,
+> +				evt_args->usage, evt_args->value);
+> +}
+> +
+> +static int appleib_hid_event(struct hid_device *hdev, struct hid_field *=
+field,
+> +			     struct hid_usage *usage, __s32 value)
+> +{
+> +	struct appleib_hid_event_args args =3D {
+> +		.field =3D field,
+> +		.usage =3D usage,
+> +		.value =3D value,
+> +	};
+> +
+> +	return appleib_forward_int_op(hdev, appleib_hid_event_fwd, &args);
+> +}
+> +
+> +static __u8 *appleib_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> +				  unsigned int *rsize)
+> +{
+> +	/* Some fields have a size of 64 bits, which according to HID 1.11
+> +	 * Section 8.4 is not valid ("An item field cannot span more than 4
+> +	 * bytes in a report"). Furthermore, hid_field_extract() complains
+> +	 * when encountering such a field. So turn them into two 32-bit fields
+> +	 * instead.
+> +	 */
+> +
+> +	if (*rsize =3D=3D 634 &&
+> +	    /* Usage Page 0xff12 (vendor defined) */
+> +	    rdesc[212] =3D=3D 0x06 && rdesc[213] =3D=3D 0x12 && rdesc[214] =3D=
+=3D 0xff &&
+> +	    /* Usage 0x51 */
+> +	    rdesc[416] =3D=3D 0x09 && rdesc[417] =3D=3D 0x51 &&
+> +	    /* report size 64 */
+> +	    rdesc[432] =3D=3D 0x75 && rdesc[433] =3D=3D 64 &&
+> +	    /* report count 1 */
+> +	    rdesc[434] =3D=3D 0x95 && rdesc[435] =3D=3D 1) {
+> +		rdesc[433] =3D 32;
+> +		rdesc[435] =3D 2;
+> +		hid_dbg(hdev, "Fixed up first 64-bit field\n");
+> +	}
+> +
+> +	if (*rsize =3D=3D 634 &&
+> +	    /* Usage Page 0xff12 (vendor defined) */
+> +	    rdesc[212] =3D=3D 0x06 && rdesc[213] =3D=3D 0x12 && rdesc[214] =3D=
+=3D 0xff &&
+> +	    /* Usage 0x51 */
+> +	    rdesc[611] =3D=3D 0x09 && rdesc[612] =3D=3D 0x51 &&
+> +	    /* report size 64 */
+> +	    rdesc[627] =3D=3D 0x75 && rdesc[628] =3D=3D 64 &&
+> +	    /* report count 1 */
+> +	    rdesc[629] =3D=3D 0x95 && rdesc[630] =3D=3D 1) {
+> +		rdesc[628] =3D 32;
+> +		rdesc[630] =3D 2;
+> +		hid_dbg(hdev, "Fixed up second 64-bit field\n");
+> +	}
+> +
+> +	return rdesc;
+> +}
+> +
+> +static int appleib_input_configured_fwd(struct appleib_hid_drv_info *drv=
+_info,
+> +					struct hid_device *hdev, void *args)
+> +{
+> +	return call_driver_func(drv_info, input_configured, int, hdev,
+> +				(struct hid_input *)args);
+> +}
+> +
+> +static int appleib_input_configured(struct hid_device *hdev,
+> +				    struct hid_input *hidinput)
+> +{
+> +	return appleib_forward_int_op(hdev, appleib_input_configured_fwd,
+> +				      hidinput);
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int appleib_hid_suspend_fwd(struct appleib_hid_drv_info *drv_info,
+> +				   struct hid_device *hdev, void *args)
+> +{
+> +	return call_driver_func(drv_info, suspend, int, hdev,
+> +				*(pm_message_t *)args);
+> +}
+> +
+> +static int appleib_hid_suspend(struct hid_device *hdev, pm_message_t mes=
+sage)
+> +{
+> +	return appleib_forward_int_op(hdev, appleib_hid_suspend_fwd, &message);
+> +}
+> +
+> +static int appleib_hid_resume_fwd(struct appleib_hid_drv_info *drv_info,
+> +				  struct hid_device *hdev, void *args)
+> +{
+> +	return call_driver_func(drv_info, resume, int, hdev);
+> +}
+> +
+> +static int appleib_hid_resume(struct hid_device *hdev)
+> +{
+> +	return appleib_forward_int_op(hdev, appleib_hid_resume_fwd, NULL);
+> +}
+> +
+> +static int appleib_hid_reset_resume_fwd(struct appleib_hid_drv_info *drv=
+_info,
+> +					struct hid_device *hdev, void *args)
+> +{
+> +	return call_driver_func(drv_info, reset_resume, int, hdev);
+> +}
+> +
+> +static int appleib_hid_reset_resume(struct hid_device *hdev)
+> +{
+> +	return appleib_forward_int_op(hdev, appleib_hid_reset_resume_fwd, NULL);
+> +}
+> +#endif /* CONFIG_PM */
+> +
+> +/**
+> + * Find the field in the report with the given usage.
+> + * @report: the report to search
+> + * @field_usage: the usage of the field to search for
+> + */
+> +struct hid_field *appleib_find_report_field(struct hid_report *report,
+> +					    unsigned int field_usage)
+> +{
+> +	int f, u;
+> +
+> +	for (f =3D 0; f < report->maxfield; f++) {
+> +		struct hid_field *field =3D report->field[f];
+> +
+> +		if (field->logical =3D=3D field_usage)
+> +			return field;
+> +
+> +		for (u =3D 0; u < field->maxusage; u++) {
+> +			if (field->usage[u].hid =3D=3D field_usage)
+> +				return field;
+> +		}
+> +	}
+> +
+> +	return NULL;
+> +}
+> +EXPORT_SYMBOL_GPL(appleib_find_report_field);
+> +
+> +/**
+
+Please use correct kernel-doc style rather than parts of it.
+
+> + * Search all the reports of the device for the field with the given usa=
+ge.
+> + * @hdev: the device whose reports to search
+> + * @application: the usage of application collection that the field must
+> + *               belong to
+> + * @field_usage: the usage of the field to search for
+> + */
+> +struct hid_field *appleib_find_hid_field(struct hid_device *hdev,
+> +					 unsigned int application,
+> +					 unsigned int field_usage)
+> +{
+> +	static const int report_types[] =3D { HID_INPUT_REPORT, HID_OUTPUT_REPO=
+RT,
+> +					    HID_FEATURE_REPORT };
+> +	struct hid_report *report;
+> +	struct hid_field *field;
+> +	int t;
+> +
+> +	for (t =3D 0; t < ARRAY_SIZE(report_types); t++) {
+> +		struct list_head *report_list =3D
+> +			    &hdev->report_enum[report_types[t]].report_list;
+> +		list_for_each_entry(report, report_list, list) {
+> +			if (report->application !=3D application)
+> +				continue;
+> +
+> +			field =3D appleib_find_report_field(report, field_usage);
+> +			if (field)
+> +				return field;
+> +		}
+> +	}
+> +
+> +	return NULL;
+> +}
+> +EXPORT_SYMBOL_GPL(appleib_find_hid_field);
+> +
+> +/**
+> + * Return whether we're currently inside a hid_device_probe or not.
+> + * @ib_dev: the appleib_device
+> + */
+> +bool appleib_in_hid_probe(struct appleib_device *ib_dev)
+> +{
+> +	return ib_dev->in_hid_probe;
+> +}
+> +EXPORT_SYMBOL_GPL(appleib_in_hid_probe);
+> +
+> +static struct appleib_hid_dev_info *
+> +appleib_add_device(struct appleib_device *ib_dev, struct hid_device *hde=
+v,
+> +		   const struct hid_device_id *id)
+> +{
+> +	struct appleib_hid_dev_info *dev_info;
+> +	struct appleib_hid_drv_info *drv_info;
+> +
+> +	/* allocate device-info for this device */
+> +	dev_info =3D kzalloc(sizeof(*dev_info), GFP_KERNEL);
+> +	if (!dev_info)
+> +		return NULL;
+> +
+> +	INIT_LIST_HEAD(&dev_info->drivers);
+> +	dev_info->device =3D hdev;
+> +	dev_info->device_id =3D id;
+> +
+> +	/* notify all our sub drivers */
+> +	mutex_lock(&ib_dev->update_lock);
+> +
+This is interesting. I'd like to see a comment here on what
+this flag is going to do.=20
+
+> +	ib_dev->in_hid_probe =3D true;
+> +
+> +	list_for_each_entry(drv_info, &ib_dev->hid_drivers, entry) {
+> +		appleib_probe_driver(drv_info, dev_info);
+> +	}
+> +
+> +	ib_dev->in_hid_probe =3D false;
+> +
+> +	/* remember this new device */
+> +	list_add_tail_rcu(&dev_info->entry, &ib_dev->hid_devices);
+> +
+> +	mutex_unlock(&ib_dev->update_lock);
+> +
+> +	return dev_info;
+> +}
+> +
+> +static void appleib_remove_device(struct appleib_device *ib_dev,
+> +				  struct appleib_hid_dev_info *dev_info)
+> +{
+> +	list_del_rcu(&dev_info->entry);
+> +	synchronize_srcu(&ib_dev->lists_srcu);
+> +
+> +	appleib_detach_drivers(ib_dev, dev_info);
+> +
+> +	kfree(dev_info);
+> +}
+> +
+> +static int appleib_hid_probe(struct hid_device *hdev,
+> +			     const struct hid_device_id *id)
+> +{
+> +	struct appleib_device *ib_dev;
+> +	struct appleib_hid_dev_info *dev_info;
+> +	struct usb_device *udev;
 > +	int rc;
 > +
-> +	rc = appleib_unregister_hid_driver(ib_dev, &appleals_hid_driver);
+> +	/* check usb config first */
+> +	udev =3D hid_to_usb_dev(hdev);
+> +
+> +	if (udev->actconfig->desc.bConfigurationValue !=3D APPLETB_BASIC_CONFIG=
+) {
+> +		rc =3D usb_driver_set_configuration(udev, APPLETB_BASIC_CONFIG);
+> +		return rc ? rc : -ENODEV;
+> +	}
+> +
+> +	/* Assign the driver data */
+> +	ib_dev =3D appleib_dev;
+> +	hid_set_drvdata(hdev, ib_dev);
+> +
+> +	/* initialize the report info */
+> +	rc =3D hid_parse(hdev);
 > +	if (rc) {
-> +		dev_err(als_dev->log_dev,
-> +			"Error unregistering hid driver: %d\n", rc);
+> +		hid_err(hdev, "ib: hid parse failed (%d)\n", rc);
 > +		goto error;
 > +	}
 > +
-> +	kfree(als_dev);
+> +	/* alloc bufs etc so probe's can send requests; but connect later */
+> +	rc =3D hid_hw_start(hdev, 0);
+> +	if (rc) {
+> +		hid_err(hdev, "ib: hw start failed (%d)\n", rc);
+> +		goto error;
+> +	}
+> +
+> +	/* add this hdev to our device list */
+> +	dev_info =3D appleib_add_device(ib_dev, hdev, id);
+> +	if (!dev_info) {
+> +		rc =3D -ENOMEM;
+> +		goto stop_hw;
+> +	}
+> +
+> +	/* start the hid */
+> +	rc =3D appleib_start_hid_events(dev_info);
+> +	if (rc)
+> +		goto remove_dev;
 > +
 > +	return 0;
 > +
+> +remove_dev:
+> +	mutex_lock(&ib_dev->update_lock);
+> +	appleib_remove_device(ib_dev, dev_info);
+> +	mutex_unlock(&ib_dev->update_lock);
+> +stop_hw:
+> +	hid_hw_stop(hdev);
 > +error:
 > +	return rc;
 > +}
 > +
-> +static const struct platform_device_id appleals_platform_ids[] = {
-> +	{ .name = PLAT_NAME_IB_ALS },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(platform, appleals_platform_ids);
+> +static void appleib_hid_remove(struct hid_device *hdev)
+> +{
+> +	struct appleib_device *ib_dev =3D hid_get_drvdata(hdev);
+> +	struct appleib_hid_dev_info *dev_info;
 > +
-> +static struct platform_driver appleals_platform_driver = {
-> +	.id_table = appleals_platform_ids,
-> +	.driver = {
-> +		.name	= "apple-ib-als",
+> +	mutex_lock(&ib_dev->update_lock);
+> +
+> +	list_for_each_entry(dev_info, &ib_dev->hid_devices, entry) {
+> +		if (dev_info->device =3D=3D hdev) {
+> +			appleib_stop_hid_events(dev_info);
+> +			appleib_remove_device(ib_dev, dev_info);
+> +			break;
+> +		}
+> +	}
+> +
+> +	mutex_unlock(&ib_dev->update_lock);
+> +
+> +	hid_hw_stop(hdev);
+> +}
+> +
+> +static const struct hid_device_id appleib_hid_devices[] =3D {
+> +	{ HID_USB_DEVICE(USB_ID_VENDOR_APPLE, USB_ID_PRODUCT_IBRIDGE) },
+> +	{ },
+> +};
+> +
+> +static struct hid_driver appleib_hid_driver =3D {
+> +	.name =3D "apple-ibridge-hid",
+> +	.id_table =3D appleib_hid_devices,
+> +	.probe =3D appleib_hid_probe,
+> +	.remove =3D appleib_hid_remove,
+> +	.event =3D appleib_hid_event,
+> +	.report_fixup =3D appleib_report_fixup,
+> +	.input_configured =3D appleib_input_configured,
+> +#ifdef CONFIG_PM
+> +	.suspend =3D appleib_hid_suspend,
+> +	.resume =3D appleib_hid_resume,
+> +	.reset_resume =3D appleib_hid_reset_resume,
+> +#endif
+> +};
+> +
+> +static struct appleib_device *appleib_alloc_device(struct acpi_device *a=
+cpi_dev)
+> +{
+> +	struct appleib_device *ib_dev;
+> +	acpi_status sts;
+> +	int rc;
+> +
+> +	/* allocate */
+
+Drop comments that don't anything a quick glance at the code would tell you.
+
+> +	ib_dev =3D kzalloc(sizeof(*ib_dev), GFP_KERNEL);
+> +	if (!ib_dev)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	/* init structures */
+> +	INIT_LIST_HEAD(&ib_dev->hid_drivers);
+> +	INIT_LIST_HEAD(&ib_dev->hid_devices);
+> +	mutex_init(&ib_dev->update_lock);
+> +	init_srcu_struct(&ib_dev->lists_srcu);
+> +
+> +	ib_dev->acpi_dev =3D acpi_dev;
+> +
+> +	/* get iBridge acpi power control method */
+> +	sts =3D acpi_get_handle(acpi_dev->handle, "SOCW", &ib_dev->asoc_socw);
+> +	if (ACPI_FAILURE(sts)) {
+> +		dev_err(LOG_DEV(ib_dev),
+> +			"Error getting handle for ASOC.SOCW method: %s\n",
+> +			acpi_format_exception(sts));
+> +		rc =3D -ENXIO;
+> +		goto free_mem;
+> +	}
+> +
+> +	/* ensure iBridge is powered on */
+> +	sts =3D acpi_execute_simple_method(ib_dev->asoc_socw, NULL, 1);
+> +	if (ACPI_FAILURE(sts))
+> +		dev_warn(LOG_DEV(ib_dev), "SOCW(1) failed: %s\n",
+> +			 acpi_format_exception(sts));
+> +
+> +	return ib_dev;
+> +
+> +free_mem:
+> +	kfree(ib_dev);
+> +	return ERR_PTR(rc);
+> +}
+> +
+> +static int appleib_probe(struct acpi_device *acpi)
+> +{
+> +	struct appleib_device *ib_dev;
+> +	struct appleib_platform_data *pdata;
+Platform_data has a lot of historical meaning in Linux.
+Also you have things in here that are not platform related
+at all, such as the dev pointer.  Hence I would rename it
+as device_data or private or something like that.
+
+> +	int i;
+> +	int ret;
+> +
+> +	if (appleib_dev)
+This singleton bothers me a bit. I'm really not sure why it
+is necessary.  You can just put a pointer to this in
+the pdata for the subdevs and I think that covers most of your
+usecases.  It's generally a bad idea to limit things to one instance
+of a device unless that actually major simplifications.
+I'm not seeing them here.
+
+
+> +		return -EBUSY;
+> +
+> +	ib_dev =3D appleib_alloc_device(acpi);
+> +	if (IS_ERR_OR_NULL(ib_dev))
+> +		return PTR_ERR(ib_dev);
+> +
+> +	ib_dev->subdevs =3D kmemdup(appleib_subdevs, sizeof(appleib_subdevs),
+> +				  GFP_KERNEL);
+Given this is fixed sized and always referenced via ib_dev->subdevs, just
+put the array in there and memcpy into it.  That way you have one less
+allocation and simpler code.
+
+> +	if (!ib_dev->subdevs) {
+> +		ret =3D -ENOMEM;
+> +		goto free_dev;
+> +	}
+> +
+> +	pdata =3D kzalloc(sizeof(*pdata), GFP_KERNEL);
+
+Might as well embed this in ib_dev as well.  That would let
+you used container_of to avoid having to carry the ib_dev pointer
+around in side pdata.
+
+> +	if (!pdata) {
+> +		ret =3D -ENOMEM;
+> +		goto free_subdevs;
+> +	}
+> +
+> +	pdata->ib_dev =3D ib_dev;
+> +	pdata->log_dev =3D LOG_DEV(ib_dev);
+> +	for (i =3D 0; i < ARRAY_SIZE(appleib_subdevs); i++) {
+> +		ib_dev->subdevs[i].platform_data =3D pdata;
+> +		ib_dev->subdevs[i].pdata_size =3D sizeof(*pdata);
+> +	}
+> +
+> +	ret =3D mfd_add_devices(&acpi->dev, PLATFORM_DEVID_NONE,
+> +			      ib_dev->subdevs, ARRAY_SIZE(appleib_subdevs),
+> +			      NULL, 0, NULL);
+> +	if (ret) {
+> +		dev_err(LOG_DEV(ib_dev), "Error adding MFD devices: %d\n", ret);
+> +		goto free_pdata;
+> +	}
+> +
+> +	acpi->driver_data =3D ib_dev;
+> +	appleib_dev =3D ib_dev;
+> +
+> +	ret =3D hid_register_driver(&appleib_hid_driver);
+> +	if (ret) {
+> +		dev_err(LOG_DEV(ib_dev), "Error registering hid driver: %d\n",
+> +			ret);
+> +		goto rem_mfd_devs;
+> +	}
+> +
+> +	return 0;
+> +
+> +rem_mfd_devs:
+> +	mfd_remove_devices(&acpi->dev);
+> +free_pdata:
+> +	kfree(pdata);
+> +free_subdevs:
+> +	kfree(ib_dev->subdevs);
+> +free_dev:
+> +	appleib_dev =3D NULL;
+> +	acpi->driver_data =3D NULL;
+Why at this point?  It's not set to anything until much later in the
+probe flow.  May be worth thinking about devm_ managed allocations
+to cleanup some of these allocations automatically and simplify
+the error handling.
+
+> +	kfree(ib_dev);
+> +	return ret;
+> +}
+> +
+> +static int appleib_remove(struct acpi_device *acpi)
+> +{
+> +	struct appleib_device *ib_dev =3D acpi_driver_data(acpi);
+> +
+> +	mfd_remove_devices(&acpi->dev);
+> +	hid_unregister_driver(&appleib_hid_driver);
+> +
+> +	if (appleib_dev =3D=3D ib_dev)
+=46rom a general reviewability point of view, it's nice to
+keep the remove in the same order as the cleanup on
+error in probe (and hence reverse of probe). That measn
+this should be a little further down.
+
+I'd also like to see a comment on how this condition can be
+false.
+
+> +		appleib_dev =3D NULL;
+> +
+> +	kfree(ib_dev->subdevs[0].platform_data);
+> +	kfree(ib_dev->subdevs);
+> +	kfree(ib_dev);
+
+Is it worth considering devm in here to avoid the need to
+clean all these up by hand?
+
+> +
+> +	return 0;
+> +}
+> +
+> +static int appleib_suspend(struct device *dev)
+> +{
+> +	struct acpi_device *adev;
+> +	struct appleib_device *ib_dev;
+> +	int rc;
+> +
+> +	adev =3D to_acpi_device(dev);
+> +	ib_dev =3D acpi_driver_data(adev);
+Given this appears a few times, probably worth the more compact
+
+	ib_dev =3D acpi_driver_data(to_acpi_device(dev));
+
+Allowing you to drop the adev local variable that doesn't add
+any info.
+
+> +
+> +	rc =3D acpi_execute_simple_method(ib_dev->asoc_socw, NULL, 0);
+> +	if (ACPI_FAILURE(rc))
+> +		dev_warn(LOG_DEV(ib_dev), "SOCW(0) failed: %s\n",
+
+I can sort of see you might want to do the LOG_DEV for consistency
+but here I'm fairly sure it's just dev which might be clearer.
+
+> +			 acpi_format_exception(rc));
+> +
+> +	return 0;
+> +}
+> +
+> +static int appleib_resume(struct device *dev)
+> +{
+> +	struct acpi_device *adev;
+> +	struct appleib_device *ib_dev;
+> +	int rc;
+> +
+> +	adev =3D to_acpi_device(dev);
+> +	ib_dev =3D acpi_driver_data(adev);
+> +
+> +	rc =3D acpi_execute_simple_method(ib_dev->asoc_socw, NULL, 1);
+> +	if (ACPI_FAILURE(rc))
+> +		dev_warn(LOG_DEV(ib_dev), "SOCW(1) failed: %s\n",
+> +			 acpi_format_exception(rc));
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct dev_pm_ops appleib_pm =3D {
+> +	.suspend =3D appleib_suspend,
+> +	.resume =3D appleib_resume,
+> +	.restore =3D appleib_resume,
+> +};
+> +
+> +static const struct acpi_device_id appleib_acpi_match[] =3D {
+> +	{ "APP7777", 0 },
+> +	{ },
+> +};
+> +
+> +MODULE_DEVICE_TABLE(acpi, appleib_acpi_match);
+> +
+> +static struct acpi_driver appleib_driver =3D {
+> +	.name		=3D "apple-ibridge",
+> +	.class		=3D "topcase", /* ? */
+> +	.owner		=3D THIS_MODULE,
+> +	.ids		=3D appleib_acpi_match,
+> +	.ops		=3D {
+> +		.add		=3D appleib_probe,
+> +		.remove		=3D appleib_remove,
 > +	},
-> +	.probe = appleals_platform_probe,
-> +	.remove = appleals_platform_remove,
+> +	.drv		=3D {
+> +		.pm		=3D &appleib_pm,
+> +	},
 > +};
 > +
-> +module_platform_driver(appleals_platform_driver);
+> +module_acpi_driver(appleib_driver)
 > +
-> +MODULE_AUTHOR("Ronald Tschalär");
-> +MODULE_DESCRIPTION("Apple iBridge ALS driver");
+> +MODULE_AUTHOR("Ronald Tschal=C3=A4r");
+> +MODULE_DESCRIPTION("Apple iBridge driver");
 > +MODULE_LICENSE("GPL v2");
-> 
-
--- 
-
-Peter Meerwald-Stadler
-Mobile: +43 664 24 44 418
---324302256-668623410-1555924647=:964--
+> diff --git a/include/linux/mfd/apple-ibridge.h b/include/linux/mfd/apple-=
+ibridge.h
+> new file mode 100644
+> index 000000000000..d321714767f7
+> --- /dev/null
+> +++ b/include/linux/mfd/apple-ibridge.h
+> @@ -0,0 +1,39 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Apple iBridge Driver
+> + *
+> + * Copyright (c) 2018 Ronald Tschal=C3=A4r
+> + */
+> +
+> +#ifndef __LINUX_MFD_APPLE_IBRDIGE_H
+> +#define __LINUX_MFD_APPLE_IBRDIGE_H
+> +
+> +#include <linux/device.h>
+> +#include <linux/hid.h>
+> +
+> +#define PLAT_NAME_IB_TB		"apple-ib-tb"
+> +#define PLAT_NAME_IB_ALS	"apple-ib-als"
+> +
+> +struct appleib_device;
+> +
+> +struct appleib_platform_data {
+> +	struct appleib_device *ib_dev;
+> +	struct device *log_dev;
+> +};
+> +
+> +int appleib_register_hid_driver(struct appleib_device *ib_dev,
+> +				struct hid_driver *driver, void *data);
+> +int appleib_unregister_hid_driver(struct appleib_device *ib_dev,
+> +				  struct hid_driver *driver);
+> +
+> +void *appleib_get_drvdata(struct appleib_device *ib_dev,
+> +			  struct hid_driver *driver);
+> +bool appleib_in_hid_probe(struct appleib_device *ib_dev);
+> +
+> +struct hid_field *appleib_find_report_field(struct hid_report *report,
+> +					    unsigned int field_usage);
+> +struct hid_field *appleib_find_hid_field(struct hid_device *hdev,
+> +					 unsigned int application,
+> +					 unsigned int field_usage);
+> +
+> +#endif

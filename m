@@ -1,30 +1,48 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 3/4] ARM: ep93xx: move pinctrl interfaces into include/linux/soc
-Date: Tue, 23 Apr 2019 12:41:00 +0200
-Message-ID: <CACRpkdaVYZf5y3gn-DFsDCutovtw+3-qyo7oKw3UABdfXDRYsw@mail.gmail.com>
-References: <20190415192734.935387-1-arnd@arndb.de> <20190415192734.935387-3-arnd@arndb.de>
+From: Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH v2] Input: uinput: Avoid Object-Already-Free with a
+ global lock
+Date: Tue, 23 Apr 2019 12:06:12 +0100
+Message-ID: <20190423110611.GL2217@ZenIV.linux.org.uk>
+References: <1554883176-24318-1-git-send-email-mojha@codeaurora.org>
+ <7299a6db-38b7-75c7-633a-00d2257eba45@codeaurora.org>
+ <20190418014321.dptin7tpxpldhsns@penguin>
+ <bb92c3f2-faf1-04ec-4c67-3aba56c507a9@codeaurora.org>
+ <a4d1a2f3-1db7-e300-9569-7b7a2fadd64e@codeaurora.org>
+ <20190419071152.x5ghvbybjhv76uxt@penguin>
+ <f3cd46fb-2bb1-0422-b2be-3f7625ec9c4e@codeaurora.org>
+ <20190423032839.xvbldglrmjxkdntj@penguin>
+ <17f4a0be-ab04-8537-9197-32fbca807f3f@codeaurora.org>
+ <20190423084944.gj2boxfcg7lp4zad@penguin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190415192734.935387-3-arnd@arndb.de>
+Content-Disposition: inline
+In-Reply-To: <20190423084944.gj2boxfcg7lp4zad@penguin>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Hartley Sweeten <hsweeten@visionengravers.com>, Alexander Sverdlin <alexander.sverdlin@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Jens Axboe <axboe@kernel.dk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Mark Brown <broonie@kernel.org>, Olof Johansson <olof@lixom.net>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org, Linux Input <linux-input@vger.kernel.org>, linux-pwm@vger.kernel.org, "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." <alsa-devel@alsa-project.org>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: Mukesh Ojha <mojha@codeaurora.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 15, 2019 at 9:30 PM Arnd Bergmann <arnd@arndb.de> wrote:
+On Tue, Apr 23, 2019 at 08:49:44AM +0000, dmitry.torokhov@gmail.com wrote:
+> On Tue, Apr 23, 2019 at 12:51:13PM +0530, Mukesh Ojha wrote:
 
-> ep93xx does not have a proper pinctrl driver, but does things
-> ad-hoc through mach/platform.h, which is also used for setting
-> up the boards.
->
-> To avoid using mach/*.h headers completely, let's move the interfaces
-> into include/linux/soc/. This is far from great, but gets the job
-> done here, without the need for a proper pinctrl driver.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > I have taken care this case from ioctl and release point of view.
+> > 
+> > Even if the release gets called first it will make the
+> > file->private_data=NULL.
+> > and further call to ioctl will not be a problem as the check is already
+> > there.
+> 
+> Al, do we have any protections in VFS layer from userspace hanging onto
+> a file descriptor and calling ioctl() on it even as another thread
+> calls close() on the same fd?
+> 
+> Should the issue be solved by individual drivers, or more careful
+> accounting for currently running operations is needed at VFS layer?
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Neither.  An overlap of ->release() and ->ioctl() is possible only
+if you've got memory corruption somewhere.
 
-Yours,
-Linus Walleij
+close() overlapping ioctl() is certainly possible, and won't trigger
+that at all - sys_ioctl() holds onto reference to struct file, so
+its refcount won't reach zero until we are done with it.

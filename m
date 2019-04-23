@@ -1,95 +1,98 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/4] ARM: ep93xx: keypad: stop using mach/platform.h
-Date: Tue, 23 Apr 2019 03:22:26 +0000
-Message-ID: <20190423032226.cqbik3hicjomgzqs@penguin>
-References: <20190415192734.935387-1-arnd@arndb.de>
- <20190415192734.935387-2-arnd@arndb.de>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] Input: uinput: Avoid Object-Already-Free with a
+ global lock
+Date: Tue, 23 Apr 2019 03:28:39 +0000
+Message-ID: <20190423032839.xvbldglrmjxkdntj@penguin>
+References: <1554883176-24318-1-git-send-email-mojha@codeaurora.org>
+ <7299a6db-38b7-75c7-633a-00d2257eba45@codeaurora.org>
+ <20190418014321.dptin7tpxpldhsns@penguin>
+ <bb92c3f2-faf1-04ec-4c67-3aba56c507a9@codeaurora.org>
+ <a4d1a2f3-1db7-e300-9569-7b7a2fadd64e@codeaurora.org>
+ <20190419071152.x5ghvbybjhv76uxt@penguin>
+ <f3cd46fb-2bb1-0422-b2be-3f7625ec9c4e@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190415192734.935387-2-arnd@arndb.de>
+In-Reply-To: <f3cd46fb-2bb1-0422-b2be-3f7625ec9c4e@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Hartley Sweeten <hsweeten@visionengravers.com>, Alexander Sverdlin <alexander.sverdlin@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Stefan Agner <stefan@agner.ch>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mukesh Ojha <mojha@codeaurora.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Apr 15, 2019 at 09:25:24PM +0200, Arnd Bergmann wrote:
-> We can communicate the clock rate using platform data rather than setting
-> a flag to use a particular value in the driver, which is cleaner and
-> avoids the dependency.
+On Fri, Apr 19, 2019 at 02:13:48PM +0530, Mukesh Ojha wrote:
 > 
-> No platform in the kernel currently defines the ep93xx keypad device
-> structure, so this is a rather pointless excercise.  Any out of tree
-> users are probably dead now, but if not, they have to change their
-> platform code to match the new platform_data structure.
+> On 4/19/2019 12:41 PM, dmitry.torokhov@gmail.com wrote:
+> > Hi Mukesh,
+> > 
+> > On Fri, Apr 19, 2019 at 12:17:44PM +0530, Mukesh Ojha wrote:
+> > > For some reason my last mail did not get delivered,  sending it again.
+> > > 
+> > > 
+> > > On 4/18/2019 11:55 AM, Mukesh Ojha wrote:
+> > > > 
+> > > > On 4/18/2019 7:13 AM, dmitry.torokhov@gmail.com wrote:
+> > > > > Hi Mukesh,
+> > > > > 
+> > > > > On Mon, Apr 15, 2019 at 03:35:51PM +0530, Mukesh Ojha wrote:
+> > > > > > Hi Dmitry,
+> > > > > > 
+> > > > > > Can you please have a look at this patch ? as this seems to reproducing
+> > > > > > quite frequently
+> > > > > > 
+> > > > > > Thanks,
+> > > > > > Mukesh
+> > > > > > 
+> > > > > > On 4/10/2019 1:29 PM, Mukesh Ojha wrote:
+> > > > > > > uinput_destroy_device() gets called from two places. In one place,
+> > > > > > > uinput_ioctl_handler() where it is protected under a lock
+> > > > > > > udev->mutex but there is no protection on udev device from freeing
+> > > > > > > inside uinput_release().
+> > > > > uinput_release() should be called when last file handle to the uinput
+> > > > > instance is being dropped, so there should be no other users and thus we
+> > > > > can't be racing with anyone.
+> > > > Lets say an example where i am creating input device quite frequently
+> > > > 
+> > > > [   97.836603] input: syz0 as /devices/virtual/input/input262
+> > > > [   97.845589] input: syz0 as /devices/virtual/input/input261
+> > > > [   97.849415] input: syz0 as /devices/virtual/input/input263
+> > > > [   97.856479] input: syz0 as /devices/virtual/input/input264
+> > > > [   97.936128] input: syz0 as /devices/virtual/input/input265
+> > > > 
+> > > > e.g input265
+> > > > 
+> > > > while input265 gets created [1] and handlers are getting registered on
+> > > > that device*fput* gets called on
+> > > > that device as user space got to know that input265 is created and its
+> > > > reference is still 1(rare but possible).
+> > Are you saying that there are 2 threads sharing the same file
+> > descriptor, one issuing the registration ioctl while the other closing
+> > the same fd?
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Dmitry,
+> 
+> I don't have a the exact look inside the app here, but this looks like the
+> same as it is able to do
+> fput on the uinput device.
+> 
+> FYI
+> Syskaller app is running in userspace (which is for syscall fuzzing) on
+> kernel which is enabled
+> with various config fault injection, FAULT_INJECTION,FAIL_SLAB,
+> FAIL_PAGEALLOC, KASAN etc.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Mukesh,
 
-Please feel free to merge with the rest of the patches.
+We need to understand exactly the failure mode. I do not think that
+introducing another mutex into uinput actually fixes the issue, as we do
+not order mutex acquisition, so I think it is still possible for the
+release function to acquire the mutex and run first, and then ioctl
+would run with freed object.
 
-> ---
->  drivers/input/keyboard/Kconfig              | 2 +-
->  drivers/input/keyboard/ep93xx_keypad.c      | 5 +----
->  include/linux/platform_data/keypad-ep93xx.h | 4 ++--
->  3 files changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index a878351f1643..b373f3274542 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -194,7 +194,7 @@ config KEYBOARD_LKKBD
->  
->  config KEYBOARD_EP93XX
->  	tristate "EP93xx Matrix Keypad support"
-> -	depends on ARCH_EP93XX
-> +	depends on ARCH_EP93XX || COMPILE_TEST
->  	select INPUT_MATRIXKMAP
->  	help
->  	  Say Y here to enable the matrix keypad on the Cirrus EP93XX.
-> diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
-> index f77b295e0123..71472f6257c0 100644
-> --- a/drivers/input/keyboard/ep93xx_keypad.c
-> +++ b/drivers/input/keyboard/ep93xx_keypad.c
-> @@ -137,10 +137,7 @@ static void ep93xx_keypad_config(struct ep93xx_keypad *keypad)
->  	struct ep93xx_keypad_platform_data *pdata = keypad->pdata;
->  	unsigned int val = 0;
->  
-> -	if (pdata->flags & EP93XX_KEYPAD_KDIV)
-> -		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLK_DIV4);
-> -	else
-> -		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLK_DIV16);
-> +	clk_set_rate(keypad->clk, pdata->clk_rate);
->  
->  	if (pdata->flags & EP93XX_KEYPAD_DISABLE_3_KEY)
->  		val |= KEY_INIT_DIS3KY;
-> diff --git a/include/linux/platform_data/keypad-ep93xx.h b/include/linux/platform_data/keypad-ep93xx.h
-> index 0e36818e3680..3054fced8509 100644
-> --- a/include/linux/platform_data/keypad-ep93xx.h
-> +++ b/include/linux/platform_data/keypad-ep93xx.h
-> @@ -9,8 +9,7 @@ struct matrix_keymap_data;
->  #define EP93XX_KEYPAD_DIAG_MODE		(1<<1)	/* diagnostic mode */
->  #define EP93XX_KEYPAD_BACK_DRIVE	(1<<2)	/* back driving mode */
->  #define EP93XX_KEYPAD_TEST_MODE		(1<<3)	/* scan only column 0 */
-> -#define EP93XX_KEYPAD_KDIV		(1<<4)	/* 1/4 clock or 1/16 clock */
-> -#define EP93XX_KEYPAD_AUTOREPEAT	(1<<5)	/* enable key autorepeat */
-> +#define EP93XX_KEYPAD_AUTOREPEAT	(1<<4)	/* enable key autorepeat */
->  
->  /**
->   * struct ep93xx_keypad_platform_data - platform specific device structure
-> @@ -24,6 +23,7 @@ struct ep93xx_keypad_platform_data {
->  	unsigned int	debounce;
->  	unsigned int	prescale;
->  	unsigned int	flags;
-> +	unsigned int	clk_rate;
->  };
->  
->  #define EP93XX_MATRIX_ROWS		(8)
-> -- 
-> 2.20.0
-> 
+My guess that this needs to be fixed in VFS layer.
+
+Thanks.
 
 -- 
 Dmitry

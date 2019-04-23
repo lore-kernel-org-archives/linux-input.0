@@ -1,130 +1,186 @@
-From: Yue Haibing <yuehaibing@huawei.com>
-Subject: [PATCH] Input: walkera0701 - Fix possible NULL pointer dereference in walkera0701_detach
-Date: Tue, 23 Apr 2019 22:56:37 +0800
-Message-ID: <20190423145637.35004-1-yuehaibing@huawei.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/2] HID: input: make sure the wheel high resolution multiplier is set
+Date: Tue, 23 Apr 2019 17:46:14 +0200
+Message-ID: <20190423154615.18257-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, sudip@vectorindia.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
+To: Jiri Kosina <jikos@kernel.org>, James Feeney <james@nurealm.net>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+Some old mice have a tendency to not accept the high resolution multiplier.
+They reply with a -EPIPE which was previously ignored.
 
-KASAN report this:
+Force the call to resolution multiplier to be synchronous and actually
+check for the answer. If this fails, consider the mouse like a normal one.
 
-walkera0701: failed to allocate input device
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN PTI
-CPU: 1 PID: 5324 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-RIP: 0010:input_unregister_device+0x21/0xe0 drivers/input/input.c:2192
-Code: 2e 0f 1f 84 00 00 00 00 00 53 48 89 fb e8 07 41 f6 fe 48 8d bb 20 07 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 84 c0 0f 8e 92 00 00 00 80 bb 20 07 00 00
-RSP: 0018:ffff8881f58dfd30 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff82460ca9
-RDX: 00000000000000e4 RSI: ffffc900013d3000 RDI: 0000000000000720
-RBP: 0000000000000000 R08: ffffed103d30caf7 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: dffffc0000000000
-R13: ffffffffc1633000 R14: ffffffffc086b320 R15: 1ffff1103eb1bfaf
-FS:  00007fa407200700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b33924000 CR3: 00000001e270c006 CR4: 00000000007606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- walkera0701_detach+0x8e/0xba [walkera0701]
- port_detach+0x73/0x90 [parport]
- bus_for_each_dev+0x154/0x1e0 drivers/base/bus.c:304
- parport_unregister_driver+0x1f8/0x270 [parport]
- __do_sys_delete_module kernel/module.c:1018 [inline]
- __se_sys_delete_module kernel/module.c:961 [inline]
- __x64_sys_delete_module+0x30c/0x480 kernel/module.c:961
- do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x462e99
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fa4071ffc58 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
-RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00000000200001c0
-RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007fa4072006bc
-R13: 00000000004bcca9 R14: 00000000006f6b48 R15: 00000000ffffffff
-Modules linked in: walkera0701(-) tps65090_regulator intel_th mptbase adm1031 snd_soc_wm8753 snd_soc_core snd_pcm_dmaengine snd_pcm ac97_bus snd_compress rtc_ds1286 snd_seq_dummy snd_seq snd_timer snd_seq_device snd soundcore comedi(C) i2c_mux_ltc4306 i2c_mux max14577_regulator max14577 usbcore hid cmac mc13783_regulator mc13xxx_regulator_core mc13xxx_core of_mdio fixed_phy libphy iptable_security iptable_raw iptable_mangle iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_inte
- l ghash_clmulni_intel ide_pci_generic aesni_intel aes_x86_64 piix crypto_simd cryptd input_leds ide_core psmouse glue_helper intel_agp serio_raw intel_gtt ata_generic agpgart i2c_piix4
- pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: walkera0701]
-Dumping ftrace buffer:
-   (ftrace buffer empty)
----[ end trace 17f6dd401f34af3e ]---
-
-In walkera0701_attach(), if input_allocate_device failed,
-w->input_dev is set to NULL. But in walkera0701_detach it
-is not checked while passing to input_unregister_device(),
-this will trigger a NULL pointer dereference issue.
-
-There is also another possible use-after-free issue, when
-input_register_device() fails, input_free_device be
-called to free input dev, then in walkera0701_detach()
-calling input_unregister_device will trigger use-after-free
-while accessing input dev
-
-This patch set w->parport to NULL on walkera0701_attach failed,
-and only do detach in case attach success.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 221bcb24c653 ("Input: walkera0701 - use parallel port device model")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Fixes: 2dc702c991e377 ("HID: input: use the Resolution Multiplier for
+       high-resolution scrolling")
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1700071
+Reported-and-tested-by: James Feeney <james@nurealm.net>
+Cc: stable@vger.kernel.org  # v5.0+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/joystick/walkera0701.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/hid/hid-core.c  |  7 +++-
+ drivers/hid/hid-input.c | 81 +++++++++++++++++++++++++----------------
+ include/linux/hid.h     |  2 +-
+ 3 files changed, 56 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/input/joystick/walkera0701.c b/drivers/input/joystick/walkera0701.c
-index dce313d..852b8c5 100644
---- a/drivers/input/joystick/walkera0701.c
-+++ b/drivers/input/joystick/walkera0701.c
-@@ -207,13 +207,13 @@ static void walkera0701_attach(struct parport *pp)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 76464aabd20c..92387fc0bf18 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1637,7 +1637,7 @@ static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
+  * Implement a generic .request() callback, using .raw_request()
+  * DO NOT USE in hid drivers directly, but through hid_hw_request instead.
+  */
+-void __hid_request(struct hid_device *hid, struct hid_report *report,
++int __hid_request(struct hid_device *hid, struct hid_report *report,
+ 		int reqtype)
+ {
+ 	char *buf;
+@@ -1646,7 +1646,7 @@ void __hid_request(struct hid_device *hid, struct hid_report *report,
  
- 	if (pp->number != walkera0701_pp_no) {
- 		pr_debug("Not using parport%d.\n", pp->number);
+ 	buf = hid_alloc_report_buf(report, GFP_KERNEL);
+ 	if (!buf)
 -		return;
-+		goto err_out;
- 	}
++		return -ENOMEM;
  
- 	if (pp->irq == -1) {
- 		pr_err("parport %d does not have interrupt assigned\n",
- 			pp->number);
--		return;
-+		goto err_out;
- 	}
+ 	len = hid_report_len(report);
  
- 	w->parport = pp;
-@@ -228,7 +228,7 @@ static void walkera0701_attach(struct parport *pp)
+@@ -1663,8 +1663,11 @@ void __hid_request(struct hid_device *hid, struct hid_report *report,
+ 	if (reqtype == HID_REQ_GET_REPORT)
+ 		hid_input_report(hid, report->type, buf, ret, 0);
  
- 	if (!w->pardevice) {
- 		pr_err("failed to register parport device\n");
--		return;
-+		goto err_out;
- 	}
++	ret = 0;
++
+ out:
+ 	kfree(buf);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(__hid_request);
  
- 	if (parport_negotiate(w->pardevice->port, IEEE1284_MODE_COMPAT)) {
-@@ -279,13 +279,15 @@ static void walkera0701_attach(struct parport *pp)
- 	input_free_device(w->input_dev);
- err_unregister_device:
- 	parport_unregister_device(w->pardevice);
-+err_out:
-+	w->parport = NULL;
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 1fce0076e7dc..fadf76f0a386 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1542,52 +1542,71 @@ static void hidinput_close(struct input_dev *dev)
+ 	hid_hw_close(hid);
  }
  
- static void walkera0701_detach(struct parport *port)
+-static void hidinput_change_resolution_multipliers(struct hid_device *hid)
++static bool __hidinput_change_resolution_multipliers(struct hid_device *hid,
++		struct hid_report *report, bool use_logical_max)
  {
- 	struct walkera_dev *w = &w_dev;
+-	struct hid_report_enum *rep_enum;
+-	struct hid_report *rep;
+ 	struct hid_usage *usage;
++	bool update_needed = false;
+ 	int i, j;
  
--	if (!w->pardevice || w->parport->number != port->number)
-+	if (!w->parport)
- 		return;
+-	rep_enum = &hid->report_enum[HID_FEATURE_REPORT];
+-	list_for_each_entry(rep, &rep_enum->report_list, list) {
+-		bool update_needed = false;
++	if (report->maxfield == 0)
++		return false;
  
- 	input_unregister_device(w->input_dev);
+-		if (rep->maxfield == 0)
+-			continue;
++	/*
++	 * If we have more than one feature within this report we
++	 * need to fill in the bits from the others before we can
++	 * overwrite the ones for the Resolution Multiplier.
++	 */
++	if (report->maxfield > 1) {
++		hid_hw_request(hid, report, HID_REQ_GET_REPORT);
++		hid_hw_wait(hid);
++	}
+ 
+-		/*
+-		 * If we have more than one feature within this report we
+-		 * need to fill in the bits from the others before we can
+-		 * overwrite the ones for the Resolution Multiplier.
++	for (i = 0; i < report->maxfield; i++) {
++		__s32 value = use_logical_max ?
++			      report->field[i]->logical_maximum :
++			      report->field[i]->logical_minimum;
++
++		/* There is no good reason for a Resolution
++		 * Multiplier to have a count other than 1.
++		 * Ignore that case.
+ 		 */
+-		if (rep->maxfield > 1) {
+-			hid_hw_request(hid, rep, HID_REQ_GET_REPORT);
+-			hid_hw_wait(hid);
+-		}
++		if (report->field[i]->report_count != 1)
++			continue;
+ 
+-		for (i = 0; i < rep->maxfield; i++) {
+-			__s32 logical_max = rep->field[i]->logical_maximum;
++		for (j = 0; j < report->field[i]->maxusage; j++) {
++			usage = &report->field[i]->usage[j];
+ 
+-			/* There is no good reason for a Resolution
+-			 * Multiplier to have a count other than 1.
+-			 * Ignore that case.
+-			 */
+-			if (rep->field[i]->report_count != 1)
++			if (usage->hid != HID_GD_RESOLUTION_MULTIPLIER)
+ 				continue;
+ 
+-			for (j = 0; j < rep->field[i]->maxusage; j++) {
+-				usage = &rep->field[i]->usage[j];
++			*report->field[i]->value = value;
++			update_needed = true;
++		}
++	}
++
++	return update_needed;
++}
+ 
+-				if (usage->hid != HID_GD_RESOLUTION_MULTIPLIER)
+-					continue;
++static void hidinput_change_resolution_multipliers(struct hid_device *hid)
++{
++	struct hid_report_enum *rep_enum;
++	struct hid_report *rep;
++	int ret;
+ 
+-				*rep->field[i]->value = logical_max;
+-				update_needed = true;
++	rep_enum = &hid->report_enum[HID_FEATURE_REPORT];
++	list_for_each_entry(rep, &rep_enum->report_list, list) {
++		bool update_needed = __hidinput_change_resolution_multipliers(hid,
++								     rep, true);
++
++		if (update_needed) {
++			ret = __hid_request(hid, rep, HID_REQ_SET_REPORT);
++			if (ret) {
++				__hidinput_change_resolution_multipliers(hid,
++								    rep, false);
++				return;
+ 			}
+ 		}
+-		if (update_needed)
+-			hid_hw_request(hid, rep, HID_REQ_SET_REPORT);
+ 	}
+ 
+ 	/* refresh our structs */
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index ac0c70b4ce10..5a24ebfb5b47 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -894,7 +894,7 @@ struct hid_field *hidinput_get_led_field(struct hid_device *hid);
+ unsigned int hidinput_count_leds(struct hid_device *hid);
+ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
+ void hid_output_report(struct hid_report *report, __u8 *data);
+-void __hid_request(struct hid_device *hid, struct hid_report *rep, int reqtype);
++int __hid_request(struct hid_device *hid, struct hid_report *rep, int reqtype);
+ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags);
+ struct hid_device *hid_allocate_device(void);
+ struct hid_report *hid_register_report(struct hid_device *device,
 -- 
-2.7.0
+2.19.2

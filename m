@@ -1,82 +1,245 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v10 01/11] dt-bindings: mfd: add DT bindings for max77650
-Date: Tue, 23 Apr 2019 11:04:41 +0200
-Message-ID: <20190423090451.23711-2-brgl@bgdev.pl>
-References: <20190423090451.23711-1-brgl@bgdev.pl>
+From: "Life is hard, and then you die" <ronald@innovation.ch>
+Subject: Re: [PATCH 3/3] iio: light: apple-ib-als: Add driver for ALS on
+ iBridge chip.
+Date: Tue, 23 Apr 2019 03:38:55 -0700
+Message-ID: <20190423103855.GB12528@innovation.ch>
+References: <20190422031251.11968-1-ronald@innovation.ch>
+ <20190422031251.11968-4-ronald@innovation.ch>
+ <alpine.DEB.2.21.1904221101420.964@vps.pmeerw.net>
+ <20190422130138.336fb227@archlinux>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190423090451.23711-1-brgl@bgdev.pl>
+Content-Disposition: inline
+In-Reply-To: <20190422130138.336fb227@archlinux>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh@kernel.org>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Add a DT binding document for max77650 ultra-low power PMIC. This
-describes the core mfd device and the GPIO module.
+  Hi Jonathan, Peter,
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
----
- .../devicetree/bindings/mfd/max77650.txt      | 46 +++++++++++++++++++
- 1 file changed, 46 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
+On Mon, Apr 22, 2019 at 01:01:38PM +0100, Jonathan Cameron wrote:
+> On Mon, 22 Apr 2019 11:17:27 +0200 (CEST)
+> Peter Meerwald-Stadler <pmeerw@pmeerw.net> wrote:
+> 
+> > On Sun, 21 Apr 2019, Ronald Tschalär wrote:
+> > 
+> > > On 2016/2017 MacBook Pro's with a Touch Bar the ALS is attached to,
+> > > and exposed via the iBridge device. This provides the driver for that
+> > > sensor.  
+> > 
+> > some comments below inline
+> I'll 'nest' on Peter's review to avoid repetition.
+> 
+> A few additional comments inline.
 
-diff --git a/Documentation/devicetree/bindings/mfd/max77650.txt b/Documentation/devicetree/bindings/mfd/max77650.txt
-new file mode 100644
-index 000000000000..b529d8d19335
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/max77650.txt
-@@ -0,0 +1,46 @@
-+MAX77650 ultra low-power PMIC from Maxim Integrated.
-+
-+Required properties:
-+-------------------
-+- compatible:		Must be "maxim,max77650"
-+- reg:			I2C device address.
-+- interrupts:		The interrupt on the parent the controller is
-+			connected to.
-+- interrupt-controller: Marks the device node as an interrupt controller.
-+- #interrupt-cells:	Must be <2>.
-+
-+- gpio-controller:	Marks the device node as a gpio controller.
-+- #gpio-cells:		Must be <2>. The first cell is the pin number and
-+			the second cell is used to specify the gpio active
-+			state.
-+
-+Optional properties:
-+--------------------
-+gpio-line-names:	Single string containing the name of the GPIO line.
-+
-+The GPIO-controller module is represented as part of the top-level PMIC
-+node. The device exposes a single GPIO line.
-+
-+For device-tree bindings of other sub-modules (regulator, power supply,
-+LEDs and onkey) refer to the binding documents under the respective
-+sub-system directories.
-+
-+For more details on GPIO bindings, please refer to the generic GPIO DT
-+binding document <devicetree/bindings/gpio/gpio.txt>.
-+
-+Example:
-+--------
-+
-+	pmic@48 {
-+		compatible = "maxim,max77650";
-+		reg = <0x48>;
-+
-+		interrupt-controller;
-+		interrupt-parent = <&gpio2>;
-+		#interrupt-cells = <2>;
-+		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
-+
-+		gpio-controller;
-+		#gpio-cells = <2>;
-+		gpio-line-names = "max77650-charger";
-+	};
--- 
-2.21.0
+Thank you both for your reviews. I've applied most of your
+suggestions, so I'm limiting my responses below to just those places
+where I need further clarification or can provide some answers.
+
+[snip]
+> > > +static int appleals_read_raw(struct iio_dev *iio_dev,
+> > > +			     struct iio_chan_spec const *chan,
+> > > +			     int *val, int *val2, long mask)
+> > > +{
+> > > +	struct appleals_device *als_dev =
+> > > +				*(struct appleals_device **)iio_priv(iio_dev);
+> > > +	__s32 value;
+> > > +	int rc;
+> > > +
+> > > +	*val = 0;
+> > > +	*val2 = 0;  
+> > 
+> > no need to set these here
+> > 
+> > > +
+> > > +	switch (mask) {
+> > > +	case IIO_CHAN_INFO_RAW:
+> > > +	case IIO_CHAN_INFO_PROCESSED:
+> > > +		*val = appleals_get_field_value(als_dev, als_dev->illum_field);
+> 
+> How can one read by both processed and raw?
+
+>From my understanding, processed is a converted and normalized value
+of raw? But since the raw value is already in Lux the processed value
+is then the same. Furthermore, looking at userspace apps that read
+these values (e.g. iio-sensor-proxy, lightsd) they seem to be all over
+the map in terms of what sysfs entries they read:
+in_illuminance_input, in_intensity_both_raw, etc. So I figured
+providing both would provide maximal compatibility.
+
+What then is currently the preferred approach here?
+
+> > > +	case IIO_CHAN_INFO_HYSTERESIS:
+> > > +		if (val == APPLEALS_DYN_SENS) {
+> > > +			if (als_dev->cur_hysteresis != APPLEALS_DYN_SENS) {
+> > > +				als_dev->cur_hysteresis = val;
+> > > +				illum = appleals_get_field_value(als_dev,
+> > > +							als_dev->illum_field);
+> > > +				appleals_update_dyn_sensitivity(als_dev, illum);
+> 
+> There is some debate in another thread on whether dynamic sensitivity can be
+> mapped to hysteresis or not...
+
+Is that the "drivers: iio: Add more data field for iio driver
+hysteresis parsing" thread?
+
+In any case, I'm using the value 0 here to indicate that the
+pseudo-percent-relative change sensitivity should be used. Better
+suggestions certainly welcome.
+
+[snip]
+> > > +static const struct iio_chan_spec appleals_channels[] = {
+> > > +	{
+> > > +		.type = IIO_INTENSITY,
+> > > +		.modified = 1,
+> > > +		.channel2 = IIO_MOD_LIGHT_BOTH,
+> > > +		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED) |
+> > > +			BIT(IIO_CHAN_INFO_RAW),
+> Why return both processed and raw?  We don't generally allow that in IIO
+> (there are a few historical exceptions due to us getting it wrong the
+> first time).
+
+Ok. But which should be used then, especially in view of the fact that
+different user-space apps/daemons appear to use different values?
+
+[snip]
+> > > +static int appleals_config_iio(struct appleals_device *als_dev)
+[snip]
+> > > +	iio_dev = iio_device_alloc(sizeof(als_dev));  
+> > 
+> > how about using the devm_ variants?
+
+The problem is that there is no device with the proper lifetime here.
+In particular we can't use hid_device (the only struct device
+available here) because the instances of those can (and do) outlive
+the module. This is a consequence of the hid-driver demuxing: e.g.
+when this als module is unloaded, the hid_device is still in use by
+the touchbar driver, and if this als module is then loaded again it
+will get associated with that same hid_device again.
+
+[snip]
+> > > +	rc = iio_device_register(iio_dev);
+> > > +	if (rc) {
+> > > +		dev_err(als_dev->log_dev, "failed to register iio device: %d\n",
+> > > +			rc);
+> > > +		goto unreg_iio_trig;
+> > > +	}
+> > > +
+> > > +	als_dev->iio_dev = iio_dev;
+> 
+> I really don't like nest of pointers going on in here.  I haven't dug
+> down to check if any of them can be remove, but they are definitely
+> ugly to deal with.
+
+I'm not sure how this can be avoided: *iio_dev is allocated by
+iio_device_alloc(), and this is just storing that pointer in our data
+structure for this als device.
+
+[snip]
+> > > +static int appleals_probe(struct hid_device *hdev,
+> > > +			  const struct hid_device_id *id)
+> > > +{
+> > > +	struct appleals_device *als_dev =
+> > > +		appleib_get_drvdata(hid_get_drvdata(hdev),
+> > > +				    &appleals_hid_driver);
+> > > +	struct hid_field *state_field;
+> > > +	struct hid_field *illum_field;
+> > > +	int rc;
+> > > +
+> > > +	/* find als fields and reports */
+> > > +	state_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
+> > > +					    HID_USAGE_SENSOR_PROP_REPORT_STATE);
+> > > +	illum_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
+> > > +					     HID_USAGE_SENSOR_LIGHT_ILLUM);
+> > > +	if (!state_field || !illum_field)
+> > > +		return -ENODEV;
+> > > +
+> > > +	if (als_dev->hid_dev) {
+> > > +		dev_warn(als_dev->log_dev,
+> > > +			 "Found duplicate ambient light sensor - ignoring\n");
+> 
+> I'll bite.  So how can this actually happen?  What fundamentally breaks in
+> your model if there really are two?  Can you fix whatever that is so
+> as to drop this handling?
+
+This should indeed never happen - the check is just defensive
+programming, in case either some new device in some new model appears,
+or due to some bug somewhere.
+
+To actually handle this I'd need to split up appleals_device into a
+per iBridge-device part and a per ALS-device part, and allow multiple
+ALS-device parts. This is certainly doable, but seemed a bit overkill
+for something that is unlikely to ever be needed.
+
+[snip]
+> > > +static void appleals_remove(struct hid_device *hdev)
+> > > +{
+> > > +	struct appleals_device *als_dev =
+> > > +		appleib_get_drvdata(hid_get_drvdata(hdev),
+> > > +				    &appleals_hid_driver);
+> > > +  
+> > 
+> > could be a lot less if devm_ were used?
+
+Agreed, but see explanation above of why this can't be used.
+
+> > > +	if (als_dev->iio_dev) {
+> > > +		iio_device_unregister(als_dev->iio_dev);
+> > > +
+> > > +		iio_trigger_unregister(als_dev->iio_trig);
+> > > +		iio_trigger_free(als_dev->iio_trig);
+> > > +		als_dev->iio_trig = NULL;
+> 
+> I would be decidedly worried if you actually have any paths
+> where setting these to NULL do anything useful. By the time
+> we get here we should absolutely 'know' nothing will touch
+> these pointers.
+
+I guess I was being overly paranoid here. I've removed these now.
+
+> It is these that are blocking Peter's suggestion of using
+> devm to clean all of this up automatically for you.
+
+No, that is for a different reason - see above.
+
+[snip]
+> > > +static int appleals_platform_probe(struct platform_device *pdev)
+> > > +{
+> > > +	struct appleib_platform_data *pdata = pdev->dev.platform_data;
+> > > +	struct appleib_device *ib_dev = pdata->ib_dev;
+> > > +	struct appleals_device *als_dev;
+> > > +	int rc;
+> > > +
+> > > +	als_dev = kzalloc(sizeof(*als_dev), GFP_KERNEL);
+> > > +	if (!als_dev)
+> > > +		return -ENOMEM;
+> > > +
+> > > +	als_dev->ib_dev = ib_dev;
+> > > +	als_dev->log_dev = pdata->log_dev;
+> > > +
+> > > +	rc = appleib_register_hid_driver(ib_dev, &appleals_hid_driver, als_dev);
+> 
+> Hmm. This is all a bit odd.  We register a platform device, to call it's driver
+> so that it can then register another driver?  I'll let Lee comment on that but
+> it does seem overly complex.
+
+"Normally" this call would be to hid_register_driver(). However, as I
+tried to explain in the cover letter and module comments, at least one
+of the hid_device's needs to be shared by both this als driver and the
+touchbar driver. But the linux device/driver architecture does not
+allow multiple drivers to be attached to a single device. Hence the
+mfd driver implements demuxing hid_driver that allows multiple
+hid_drivers to be registered for a single hid_device. And this is why
+we register our hid_driver with this demuxing driver here instead of
+directly via hid_register_driver().
+
+Does this make sense?
+
+
+  Cheers,
+
+  Ronald

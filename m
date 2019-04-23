@@ -1,44 +1,95 @@
-From: Joseph Salisbury <Joseph.Salisbury@microsoft.com>
-Subject: RE: [PATCH] drivers: hid: Add a module description line
-Date: Tue, 23 Apr 2019 03:25:15 +0000
-Message-ID: <BN8PR21MB11857F653EA51C97A48D12889C230@BN8PR21MB1185.namprd21.prod.outlook.com>
-References: <324016691a62a13ce46c9ccd35c7e492bf609fd6.1555967348.git.joseph.salisbury@microsoft.com>
- <SN6PR2101MB092558880B017881591E41E2D7230@SN6PR2101MB0925.namprd21.prod.outlook.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/4] ARM: ep93xx: keypad: stop using mach/platform.h
+Date: Tue, 23 Apr 2019 03:22:26 +0000
+Message-ID: <20190423032226.cqbik3hicjomgzqs@penguin>
+References: <20190415192734.935387-1-arnd@arndb.de>
+ <20190415192734.935387-2-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <SN6PR2101MB092558880B017881591E41E2D7230@SN6PR2101MB0925.namprd21.prod.outlook.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190415192734.935387-2-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Kelley <mikelley@microsoft.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "sashal@kernel.org" <sashal@kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
-Cc: "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Hartley Sweeten <hsweeten@visionengravers.com>, Alexander Sverdlin <alexander.sverdlin@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Stefan Agner <stefan@agner.ch>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-VGhhbmtzIGZvciB0aGUgZmVlZGJhY2suICBJJ2xsIHByb2JhYmx5IHVwZGF0ZSBlYWNoIHBhdGNo
-IHN1YmplY3Qgd2l0aCB0aGUgbW9kdWxlIG5hbWVzIGFzIHdlbGwuICBJJ2xsIHNlbmQgYSB2MiBm
-b3IgYWxsIHRocmVlLg0KDQpUaGFua3MsDQoNCkpvZQ0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tDQpGcm9tOiBNaWNoYWVsIEtlbGxleSA8bWlrZWxsZXlAbWljcm9zb2Z0LmNvbT4gDQpT
-ZW50OiBNb25kYXksIEFwcmlsIDIyLCAyMDE5IDExOjE2IFBNDQpUbzogSm9zZXBoIFNhbGlzYnVy
-eSA8Sm9zZXBoLlNhbGlzYnVyeUBtaWNyb3NvZnQuY29tPjsgS1kgU3Jpbml2YXNhbiA8a3lzQG1p
-Y3Jvc29mdC5jb20+OyBIYWl5YW5nIFpoYW5nIDxoYWl5YW5nekBtaWNyb3NvZnQuY29tPjsgU3Rl
-cGhlbiBIZW1taW5nZXIgPHN0aGVtbWluQG1pY3Jvc29mdC5jb20+OyBzYXNoYWxAa2VybmVsLm9y
-Zzsgamlrb3NAa2VybmVsLm9yZzsgYmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb20NCkNjOiBs
-aW51eC1oeXBlcnZAdmdlci5rZXJuZWwub3JnOyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7
-IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJFOiBbUEFUQ0hdIGRyaXZl
-cnM6IGhpZDogQWRkIGEgbW9kdWxlIGRlc2NyaXB0aW9uIGxpbmUNCg0KRnJvbTogSm9zZXBoIFNh
-bGlzYnVyeSA8Sm9zZXBoLlNhbGlzYnVyeUBtaWNyb3NvZnQuY29tPiBTZW50OiBNb25kYXksIEFw
-cmlsIDIyLCAyMDE5IDI6MzEgUE0NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEpvc2VwaCBTYWxpc2J1
-cnkgPGpvc2VwaC5zYWxpc2J1cnlAbWljcm9zb2Z0LmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2hp
-ZC9oaWQtaHlwZXJ2LmMgfCAyICsrDQo+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCsp
-DQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWh5cGVydi5jIGIvZHJpdmVycy9o
-aWQvaGlkLWh5cGVydi5jIGluZGV4IA0KPiA3MDQwNDllNjJkNTguLmQzMzExZDcxNGQzNSAxMDA2
-NDQNCj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLWh5cGVydi5jDQo+ICsrKyBiL2RyaXZlcnMvaGlk
-L2hpZC1oeXBlcnYuYw0KPiBAQCAtNjE0LDUgKzYxNCw3IEBAIHN0YXRpYyB2b2lkIF9fZXhpdCBt
-b3VzZXZzY19leGl0KHZvaWQpICB9DQo+IA0KPiAgTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOw0KPiAr
-TU9EVUxFX0RFU0NSSVBUSU9OKCJNaWNyb3NvZnQgSHlwZXItViBTeW50aGV0aWMgSElEIERyaXZl
-ciIpOw0KPiArDQo+ICBtb2R1bGVfaW5pdChtb3VzZXZzY19pbml0KTsNCj4gIG1vZHVsZV9leGl0
-KG1vdXNldnNjX2V4aXQpOw0KPiAtLQ0KPiAyLjE3LjENCg0KRXZlbiB0aG91Z2ggaXQgd2lsbCBs
-aWtlbHkgYmUgcmVkdW5kYW50IHdpdGggdGhlIGNvbW1pdCB0aXRsZSwgdGhlcmUNCnByb2JhYmx5
-IG5lZWRzIHRvIGJlIGEgc2hvcnQgY29tbWl0IG1lc3NhZ2UuICAgKEFuZCBhbHNvIHdpdGggdGhl
-DQpvdGhlciB0d28gc2ltaWxhciBwYXRjaGVzLikNCg0KTWljaGFlbA0KDQo=
+On Mon, Apr 15, 2019 at 09:25:24PM +0200, Arnd Bergmann wrote:
+> We can communicate the clock rate using platform data rather than setting
+> a flag to use a particular value in the driver, which is cleaner and
+> avoids the dependency.
+> 
+> No platform in the kernel currently defines the ep93xx keypad device
+> structure, so this is a rather pointless excercise.  Any out of tree
+> users are probably dead now, but if not, they have to change their
+> platform code to match the new platform_data structure.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Please feel free to merge with the rest of the patches.
+
+> ---
+>  drivers/input/keyboard/Kconfig              | 2 +-
+>  drivers/input/keyboard/ep93xx_keypad.c      | 5 +----
+>  include/linux/platform_data/keypad-ep93xx.h | 4 ++--
+>  3 files changed, 4 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index a878351f1643..b373f3274542 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -194,7 +194,7 @@ config KEYBOARD_LKKBD
+>  
+>  config KEYBOARD_EP93XX
+>  	tristate "EP93xx Matrix Keypad support"
+> -	depends on ARCH_EP93XX
+> +	depends on ARCH_EP93XX || COMPILE_TEST
+>  	select INPUT_MATRIXKMAP
+>  	help
+>  	  Say Y here to enable the matrix keypad on the Cirrus EP93XX.
+> diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+> index f77b295e0123..71472f6257c0 100644
+> --- a/drivers/input/keyboard/ep93xx_keypad.c
+> +++ b/drivers/input/keyboard/ep93xx_keypad.c
+> @@ -137,10 +137,7 @@ static void ep93xx_keypad_config(struct ep93xx_keypad *keypad)
+>  	struct ep93xx_keypad_platform_data *pdata = keypad->pdata;
+>  	unsigned int val = 0;
+>  
+> -	if (pdata->flags & EP93XX_KEYPAD_KDIV)
+> -		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLK_DIV4);
+> -	else
+> -		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLK_DIV16);
+> +	clk_set_rate(keypad->clk, pdata->clk_rate);
+>  
+>  	if (pdata->flags & EP93XX_KEYPAD_DISABLE_3_KEY)
+>  		val |= KEY_INIT_DIS3KY;
+> diff --git a/include/linux/platform_data/keypad-ep93xx.h b/include/linux/platform_data/keypad-ep93xx.h
+> index 0e36818e3680..3054fced8509 100644
+> --- a/include/linux/platform_data/keypad-ep93xx.h
+> +++ b/include/linux/platform_data/keypad-ep93xx.h
+> @@ -9,8 +9,7 @@ struct matrix_keymap_data;
+>  #define EP93XX_KEYPAD_DIAG_MODE		(1<<1)	/* diagnostic mode */
+>  #define EP93XX_KEYPAD_BACK_DRIVE	(1<<2)	/* back driving mode */
+>  #define EP93XX_KEYPAD_TEST_MODE		(1<<3)	/* scan only column 0 */
+> -#define EP93XX_KEYPAD_KDIV		(1<<4)	/* 1/4 clock or 1/16 clock */
+> -#define EP93XX_KEYPAD_AUTOREPEAT	(1<<5)	/* enable key autorepeat */
+> +#define EP93XX_KEYPAD_AUTOREPEAT	(1<<4)	/* enable key autorepeat */
+>  
+>  /**
+>   * struct ep93xx_keypad_platform_data - platform specific device structure
+> @@ -24,6 +23,7 @@ struct ep93xx_keypad_platform_data {
+>  	unsigned int	debounce;
+>  	unsigned int	prescale;
+>  	unsigned int	flags;
+> +	unsigned int	clk_rate;
+>  };
+>  
+>  #define EP93XX_MATRIX_ROWS		(8)
+> -- 
+> 2.20.0
+> 
+
+-- 
+Dmitry

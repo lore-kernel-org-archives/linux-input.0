@@ -1,43 +1,60 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 2/2] HID: input: fix assignment of .value
-Date: Tue, 23 Apr 2019 17:46:15 +0200
-Message-ID: <20190423154615.18257-2-benjamin.tissoires@redhat.com>
-References: <20190423154615.18257-1-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Subject: [PATCH v4 0/2] Basic DT support for Lenovo Miix 630
+Date: Tue, 23 Apr 2019 09:05:43 -0700
+Message-ID: <20190423160543.9922-1-jeffrey.l.hugo@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190423154615.18257-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, James Feeney <james@nurealm.net>, Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org
+Cc: lee.jones@linaro.org, bjorn.andersson@linaro.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, jikos@kernel.org, benjamin.tissoires@redhat.com, hdegoede@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The value field is actually an array of .maxfield. We should assign the
-correct number to the correct usage.
+The Lenovo Miix 630 is one of three ARM based (specifically Qualcomm
+MSM8998) laptops that comes with Windows, and seems to have a dedicated
+following of folks intrested to get Linux up and running on it.
 
-Not that we never encounter a device that requires this ATM, but better
-have the proper code path.
+This series adds support for the basic functionality this is validated
+towork using devicetree.  Although the laptops do feed ACPI to Windows,
+the existing MSM8998 support in mainline is DT based, so DT provides a
+quick path to functionality while ACPI support is investigated.
 
-Fixes: 2dc702c991e377 ("HID: input: use the Resolution Multiplier for
-       high-resolution scrolling")
-Cc: stable@vger.kernel.org  # v5.0+
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The three devices are very similar, but do have differences in the set
+of peripherals supported, so the idea is that the vast majority of the
+support for all three can live in a common include, which should reduce
+overall duplication.  Adding support for the other two devices as a
+follow on should involve minimal work.
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index fadf76f0a386..6dd0294e1133 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1580,7 +1580,7 @@ static bool __hidinput_change_resolution_multipliers(struct hid_device *hid,
- 			if (usage->hid != HID_GD_RESOLUTION_MULTIPLIER)
- 				continue;
- 
--			*report->field[i]->value = value;
-+			report->field[i]->value[j] = value;
- 			update_needed = true;
- 		}
- 	}
+The bleeding edge work for these laptops and work in progress can be
+found at https://github.com/aarch64-laptops/prebuilt
+
+v4:
+-Changed the hid-quirks ELAN handling around per Benjamin Tissoires
+-Dropped new DT binding
+
+v3:
+-Changed "clam" to "clamshell"
+-Defined a dt binding for the combo Elan keyboard + touchpad device
+-Adjusted the HID quirk to be correct for dt boot
+-Removed extranious comment in board dts
+-Fixed board level compatible
+
+v2:
+-Changed "cls" to "clam" since feedback indicated "cls" is too opaque,
+but
+"clamshell" is a mouthfull.  "clam" seems to be a happy medium.
+
+Jeffrey Hugo (3):
+  dt-bindings: input: add Elan 400 combo keyboard/touchpad over i2c
+  HID: quirks: Fix keyboard + touchpad on Lenovo Miix 630 for DT
+  arm64: dts: qcom: Add Lenovo Miix 630
+
+ .../bindings/input/elan,combo400-i2c.txt      |  11 +
+ arch/arm64/boot/dts/qcom/Makefile             |   1 +
+ .../boot/dts/qcom/msm8998-clamshell.dtsi      | 278 ++++++++++++++++++
+ .../boot/dts/qcom/msm8998-lenovo-miix-630.dts |  30 ++
+ drivers/hid/hid-quirks.c                      |   3 +-
+ 5 files changed, 322 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/devicetree/bindings/input/elan,combo400-i2c.txt
+ create mode 100644 arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi
+ create mode 100644 arch/arm64/boot/dts/qcom/msm8998-lenovo-miix-630.dts
+
 -- 
-2.19.2
+2.17.1

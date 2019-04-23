@@ -1,51 +1,33 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 2/2] HID: input: fix assignment of .value
-Date: Tue, 23 Apr 2019 15:36:50 -0400
-Message-ID: <20190423193650.GQ17719@sasha-vm>
-References: <20190423154615.18257-2-benjamin.tissoires@redhat.com>
- <20190423172117.CC66520835@mail.kernel.org>
- <37009110-5a11-7ed4-3315-e87b98cc45b7@nurealm.net>
+Subject: Re: [PATCH][v2] drivers: hid: Add a module description line to the
+ hid_hyperv driver
+Date: Tue, 23 Apr 2019 15:44:50 -0400
+Message-ID: <20190423194450.GR17719@sasha-vm>
+References: <324016691a62a13ce46c9ccd35c7e492bf609fd6.1555967348.git.joseph.salisbury@microsoft.com>
+ <DM5PR2101MB09183A22984131883E033DA7D7230@DM5PR2101MB0918.namprd21.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <37009110-5a11-7ed4-3315-e87b98cc45b7@nurealm.net>
+In-Reply-To: <DM5PR2101MB09183A22984131883E033DA7D7230@DM5PR2101MB0918.namprd21.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: James Feeney <james@nurealm.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To: Michael Kelley <mikelley@microsoft.com>
+Cc: Joseph Salisbury <Joseph.Salisbury@microsoft.com>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Apr 23, 2019 at 11:54:07AM -0600, James Feeney wrote:
->On 4/23/19 11:21 AM, Sasha Levin wrote:
->> Hi,
+On Tue, Apr 23, 2019 at 04:38:05PM +0000, Michael Kelley wrote:
+>From: Joseph Salisbury <joseph.salisbury@microsoft.com> Sent: Monday, April 22, 2019 8:47 PM
 >>
->> [This is an automated email]
->>
->> This commit has been processed because it contains a "Fixes:" tag,
->> fixing commit: 2dc702c991e3 HID: input: use the Resolution Multiplier for high-resolution scrolling.
->>
->> The bot has tested the following trees: v5.0.9.
->>
->> v5.0.9: Failed to apply! Possible dependencies:
->>     724f54bc0063 ("HID: input: make sure the wheel high resolution multiplier is set")
+>> This patch only adds a MODULE_DESCRIPTION statement to the driver.
+>> This change is only cosmetic, so there should be no runtime impact.
 >>
 >>
->> How should we proceed with this patch?
->>
->> --
->> Thanks,
->> Sasha
->>
+>> Signed-off-by: Joseph Salisbury <joseph.salisbury@microsoft.com>
+>> ---
 >
->This patch will only apply *after* the application of the first patch, since they "overlap".
->
->Yes, that is probably not the best circumstance.  I think Benjamin wanted to keep the issue in patch 2/2 distinct.
->
->Was the first patch applied before attempting application of the second patch?
+>Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 
-My script messed up and listed it as a dependency (even though it's not
-upstream) rather than applying it. I'll look into it, sorry for the
-noise.
+Queued up for hyperv-next, thanks!
 
 --
 Thanks,

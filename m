@@ -1,50 +1,88 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/5] input: edt-ft5x06 - Call devm_of_device_links_add()
- to create links
-Date: Wed, 24 Apr 2019 15:52:35 -0700
-Message-ID: <20190424225235.GA225055@dtor-ws>
-References: <20190424101913.1534-1-benjamin.gaignard@st.com>
- <20190424101913.1534-4-benjamin.gaignard@st.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH v2] Input: uinput: Avoid Object-Already-Free with a
+ global lock
+Date: Wed, 24 Apr 2019 23:56:42 +0100
+Message-ID: <20190424225641.GQ2217@ZenIV.linux.org.uk>
+References: <a4d1a2f3-1db7-e300-9569-7b7a2fadd64e@codeaurora.org>
+ <20190419071152.x5ghvbybjhv76uxt@penguin>
+ <f3cd46fb-2bb1-0422-b2be-3f7625ec9c4e@codeaurora.org>
+ <20190423032839.xvbldglrmjxkdntj@penguin>
+ <17f4a0be-ab04-8537-9197-32fbca807f3f@codeaurora.org>
+ <20190423084944.gj2boxfcg7lp4zad@penguin>
+ <20190423110611.GL2217@ZenIV.linux.org.uk>
+ <5614f04f-827d-1668-9ed0-60d93e110b8e@codeaurora.org>
+ <20190424130711.GP2217@ZenIV.linux.org.uk>
+ <5b02ac1e-df3e-d9cd-ecf3-fe60cda2cece@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190424101913.1534-4-benjamin.gaignard@st.com>
+In-Reply-To: <5b02ac1e-df3e-d9cd-ecf3-fe60cda2cece@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Gaignard <benjamin.gaignard@st.com>
-Cc: rafael.j.wysocki@intel.com, robh+dt@kernel.org, mark.rutland@arm.com, hadess@hadess.net, frowand.list@gmail.com, m.felsch@pengutronix.de, agx@sigxcpu.org, yannick.fertre@st.com, arnd@arndb.de, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, broonie@kernel.org
+To: Mukesh Ojha <mojha@codeaurora.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin,
+On Wed, Apr 24, 2019 at 07:39:03PM +0530, Mukesh Ojha wrote:
 
-On Wed, Apr 24, 2019 at 12:19:11PM +0200, Benjamin Gaignard wrote:
-> From: Yannick FertrÃ© <yannick.fertre@st.com>
+> This was my simple program no multithreading just to understand f_counting
 > 
-> Add a call to devm_of_device_links_add() to create links with suppliers
-> at probe time.
+> int main()
+> {
+>         int fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
+>         ioctl(fd, UI_SET_EVBIT, EV_KEY);
+>         close(fd);
+>         return 0;
+> }
 > 
-> Signed-off-by: Yannick Fertré <yannick.fertre@st.com>
-> Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
-> ---
->  drivers/input/touchscreen/edt-ft5x06.c | 2 ++
->  1 file changed, 2 insertions(+)
+>            uinput-532   [002] ....    45.312044: SYSC_ioctl: 2   <= f_count
+
+Er...  So how does it manage to hit ioctl(2) before open(2)?  Confused...
+
+> >    <After fdget()
+>           uinput-532   [002] ....    45.312055: SYSC_ioctl: 2           
+> <After fdput()
+>           uinput-532   [004] ....    45.313766: uinput_open: uinput: 1   /*
+> This is from the uinput driver uinput_open()*/
 > 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-> index 702bfda7ee77..ac9f7e85efb0 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -1167,6 +1167,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
->  
->  	i2c_set_clientdata(client, tsdata);
->  
-> +	devm_of_device_links_add(&client->dev);
-> +
+>   =>>>>                         /* All the above calls happened for the
+> open() in userspace*/
+> 
+>           uinput-532   [004] ....    45.313783: SYSC_ioctl: 1 /* This print
+> is for the trace, i put after fdget */
+>           uinput-532   [004] ....    45.313788: uinput_ioctl_handler:
+> uinput: uinput_ioctl_handler, 1 /* This print is from the uinput_ioctl
+> driver */
+> 
+>           uinput-532   [004] ....    45.313835: SYSC_ioctl: 1 /* This print
+> is for the trace, i put after fdput*/
+>           uinput-532   [004] ....    45.313843: uinput_release: uinput:  0
+> /* And this is from the close()  */
+> 
+> 
+> Should fdget not suppose to increment the f_count here, as it is coming 1 ?
+> This f_count to one is done at the open, but i have no idea how this  below
+> f_count 2 came before open() for
+> this simple program.
 
-This seems pretty generic action and I believe it should be done in
-generic code, either bus (i2c, spi, etc), or in device core.
+If descriptor table is not shared, fdget() will simply return you the reference
+from there, without bothering to bump the refcount.  _And_ having it marked
+"don't drop refcount" in struct fd.
 
-Thanks.
+Rationale: since it's not shared, nobody other than our process can modify
+it.  So unless we remove (and drop) the reference from it ourselves (which
+we certainly have no business doing in ->ioctl() and do not do anywhere
+in drivers/input), it will remain there until we return from syscall.
 
--- 
-Dmitry
+Nobody is allowed to modify descriptor table other than their own.
+And if it's not shared, no other owners can appear while the only
+existing one is in the middle of syscall other than clone() (with
+CLONE_FILES in flags, at that).
+
+For shared descriptor table fdget() bumps file refcount, since there
+the reference in descriptor table itself could be removed and dropped
+by another thread.
+
+And fdget() marks whether fput() is needed in fd.flags, so that
+fdput() does the right thing.

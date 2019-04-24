@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 01/15] HID: debug: fix race condition with between rdesc_show() and device removal
-Date: Wed, 24 Apr 2019 10:51:38 -0400
-Message-ID: <20190424145152.31351-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 3.18 01/10] HID: debug: fix race condition with between rdesc_show() and device removal
+Date: Wed, 24 Apr 2019 10:52:50 -0400
+Message-ID: <20190424145259.31639-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -45,10 +45,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index d7179dd3c9ef..3cafa1d28fed 100644
+index e930627d0c76..71b069bd2a24 100644
 --- a/drivers/hid/hid-debug.c
 +++ b/drivers/hid/hid-debug.c
-@@ -1058,10 +1058,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
+@@ -1057,10 +1057,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
  	seq_printf(f, "\n\n");
  
  	/* dump parsed data and input mappings */

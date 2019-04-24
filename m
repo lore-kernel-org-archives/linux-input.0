@@ -1,70 +1,55 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 03/52] HID: debug: fix race condition with between rdesc_show() and device removal
-Date: Wed, 24 Apr 2019 10:38:21 -0400
-Message-ID: <20190424143911.28890-3-sashal@kernel.org>
-References: <20190424143911.28890-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 01/35] HID: logitech: check the return value of create_singlethread_workqueue
+Date: Wed, 24 Apr 2019 10:46:35 -0400
+Message-ID: <20190424144709.30215-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424143911.28890-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: "He, Bo" <bo.he@intel.com>, "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Kangjie Lu <kjlu@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: "He, Bo" <bo.he@intel.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit cef0d4948cb0a02db37ebfdc320e127c77ab1637 ]
+[ Upstream commit 6c44b15e1c9076d925d5236ddadf1318b0a25ce2 ]
 
-There is a race condition that could happen if hid_debug_rdesc_show()
-is running while hdev is in the process of going away (device removal,
-system suspend, etc) which could result in NULL pointer dereference:
+create_singlethread_workqueue may fail and return NULL. The fix checks if it is
+NULL to avoid NULL pointer dereference.  Also, the fix moves the call of
+create_singlethread_workqueue earlier to avoid resource-release issues.
 
-	 BUG: unable to handle kernel paging request at 0000000783316040
-	 CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
-	 RIP: 0010:hid_dump_device+0x9b/0x160
-	 Call Trace:
-	  hid_debug_rdesc_show+0x72/0x1d0
-	  seq_read+0xe0/0x410
-	  full_proxy_read+0x5f/0x90
-	  __vfs_read+0x3a/0x170
-	  vfs_read+0xa0/0x150
-	  ksys_read+0x58/0xc0
-	  __x64_sys_read+0x1a/0x20
-	  do_syscall_64+0x55/0x110
-	  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Grab driver_input_lock to make sure the input device exists throughout the
-whole process of dumping the rdesc.
-
-[jkosina@suse.cz: update changelog a bit]
-Signed-off-by: "he, bo" <bo.he@intel.com>
-Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-debug.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-logitech-hidpp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index ebc9ffde41e9..a353a011fbdf 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -1060,10 +1060,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
- 	seq_printf(f, "\n\n");
- 
- 	/* dump parsed data and input mappings */
-+	if (down_interruptible(&hdev->driver_input_lock))
-+		return 0;
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 614054af904a..b83d4173fc7f 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1907,6 +1907,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 		kfree(data);
+ 		return -ENOMEM;
+ 	}
++	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
++	if (!data->wq) {
++		kfree(data->effect_ids);
++		kfree(data);
++		return -ENOMEM;
++	}
 +
- 	hid_dump_device(hdev, f);
- 	seq_printf(f, "\n");
- 	hid_dump_input_mapping(hdev, f);
+ 	data->hidpp = hidpp;
+ 	data->feature_index = feature_index;
+ 	data->version = version;
+@@ -1951,7 +1958,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 	/* ignore boost value at response.fap.params[2] */
  
-+	up(&hdev->driver_input_lock);
-+
- 	return 0;
- }
+ 	/* init the hardware command queue */
+-	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
+ 	atomic_set(&data->workqueue_size, 0);
  
+ 	/* initialize with zero autocenter to get wheel in usable state */
 -- 
 2.19.1

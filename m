@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 02/28] HID: debug: fix race condition with between rdesc_show() and device removal
-Date: Wed, 24 Apr 2019 10:49:46 -0400
-Message-ID: <20190424145012.30886-2-sashal@kernel.org>
-References: <20190424145012.30886-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 02/35] HID: debug: fix race condition with between rdesc_show() and device removal
+Date: Wed, 24 Apr 2019 10:46:36 -0400
+Message-ID: <20190424144709.30215-2-sashal@kernel.org>
+References: <20190424144709.30215-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424145012.30886-1-sashal@kernel.org>
+In-Reply-To: <20190424144709.30215-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: "He, Bo" <bo.he@intel.com>, "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -47,10 +47,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index d7179dd3c9ef..3cafa1d28fed 100644
+index a90967cd4987..a0bcbb633b67 100644
 --- a/drivers/hid/hid-debug.c
 +++ b/drivers/hid/hid-debug.c
-@@ -1058,10 +1058,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
+@@ -1060,10 +1060,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
  	seq_printf(f, "\n\n");
  
  	/* dump parsed data and input mappings */

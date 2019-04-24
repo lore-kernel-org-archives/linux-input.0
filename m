@@ -1,54 +1,70 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 02/66] HID: Increase maximum report size allowed by hid_field_extract()
-Date: Wed, 24 Apr 2019 10:32:36 -0400
-Message-ID: <20190424143341.27665-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 04/66] HID: debug: fix race condition with between rdesc_show() and device removal
+Date: Wed, 24 Apr 2019 10:32:38 -0400
+Message-ID: <20190424143341.27665-4-sashal@kernel.org>
 References: <20190424143341.27665-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <20190424143341.27665-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: "He, Bo" <bo.he@intel.com>, "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: "He, Bo" <bo.he@intel.com>
 
-[ Upstream commit 94a9992f7dbdfb28976b565af220e0c4a117144a ]
+[ Upstream commit cef0d4948cb0a02db37ebfdc320e127c77ab1637 ]
 
-Commit 71f6fa90a353 ("HID: increase maximum global item tag report size
-to 256") increases the max report size from 128 to 256.
+There is a race condition that could happen if hid_debug_rdesc_show()
+is running while hdev is in the process of going away (device removal,
+system suspend, etc) which could result in NULL pointer dereference:
 
-We also need to update the report size in hid_field_extract() otherwise
-it complains and truncates now valid report size:
-[ 406.165461] hid-sensor-hub 001F:8086:22D8.0002: hid_field_extract() called with n (192) > 32! (kworker/5:1)
+	 BUG: unable to handle kernel paging request at 0000000783316040
+	 CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
+	 RIP: 0010:hid_dump_device+0x9b/0x160
+	 Call Trace:
+	  hid_debug_rdesc_show+0x72/0x1d0
+	  seq_read+0xe0/0x410
+	  full_proxy_read+0x5f/0x90
+	  __vfs_read+0x3a/0x170
+	  vfs_read+0xa0/0x150
+	  ksys_read+0x58/0xc0
+	  __x64_sys_read+0x1a/0x20
+	  do_syscall_64+0x55/0x110
+	  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-BugLink: https://bugs.launchpad.net/bugs/1818547
-Fixes: 71f6fa90a353 ("HID: increase maximum global item tag report size to 256")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Grab driver_input_lock to make sure the input device exists throughout the
+whole process of dumping the rdesc.
+
+[jkosina@suse.cz: update changelog a bit]
+Signed-off-by: "he, bo" <bo.he@intel.com>
+Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-debug.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9993b692598f..860e21ec6a49 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1301,10 +1301,10 @@ static u32 __extract(u8 *report, unsigned offset, int n)
- u32 hid_field_extract(const struct hid_device *hid, u8 *report,
- 			unsigned offset, unsigned n)
- {
--	if (n > 32) {
--		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
-+	if (n > 256) {
-+		hid_warn(hid, "hid_field_extract() called with n (%d) > 256! (%s)\n",
- 			 n, current->comm);
--		n = 32;
-+		n = 256;
- 	}
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index ac9fda1b5a72..1384e57182af 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -1060,10 +1060,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
+ 	seq_printf(f, "\n\n");
  
- 	return __extract(report, offset, n);
+ 	/* dump parsed data and input mappings */
++	if (down_interruptible(&hdev->driver_input_lock))
++		return 0;
++
+ 	hid_dump_device(hdev, f);
+ 	seq_printf(f, "\n");
+ 	hid_dump_input_mapping(hdev, f);
+ 
++	up(&hdev->driver_input_lock);
++
+ 	return 0;
+ }
+ 
 -- 
 2.19.1

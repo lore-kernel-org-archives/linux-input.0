@@ -1,12 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 02/52] HID: logitech: check the return value of create_singlethread_workqueue
-Date: Wed, 24 Apr 2019 09:57:07 -0400
-Message-ID: <20190424135758.22850-2-sashal@kernel.org>
-References: <20190424135758.22850-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 01/35] HID: logitech: check the return value of create_singlethread_workqueue
+Date: Wed, 24 Apr 2019 09:57:33 -0400
+Message-ID: <20190424135807.22994-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424135758.22850-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Kangjie Lu <kjlu@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -28,7 +26,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 19cc980eebce..8425d3548a41 100644
+index 614054af904a..b83d4173fc7f 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
 @@ -1907,6 +1907,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)

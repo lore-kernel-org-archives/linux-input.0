@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 30/52] HID: input: add mapping for Assistant key
-Date: Wed, 24 Apr 2019 10:38:48 -0400
-Message-ID: <20190424143911.28890-30-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 03/52] HID: debug: fix race condition with between rdesc_show() and device removal
+Date: Wed, 24 Apr 2019 10:38:21 -0400
+Message-ID: <20190424143911.28890-3-sashal@kernel.org>
 References: <20190424143911.28890-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,35 +9,62 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190424143911.28890-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: "He, Bo" <bo.he@intel.com>, "Zhang, Jun" <jun.zhang@intel.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: "He, Bo" <bo.he@intel.com>
 
-[ Upstream commit ce856634af8cda3490947df8ac1ef5843e6356af ]
+[ Upstream commit cef0d4948cb0a02db37ebfdc320e127c77ab1637 ]
 
-According to HUTRR89 usage 0x1cb from the consumer page was assigned to
-allow launching desktop-aware assistant application, so let's add the
-mapping.
+There is a race condition that could happen if hid_debug_rdesc_show()
+is running while hdev is in the process of going away (device removal,
+system suspend, etc) which could result in NULL pointer dereference:
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+	 BUG: unable to handle kernel paging request at 0000000783316040
+	 CPU: 1 PID: 1512 Comm: getevent Tainted: G     U     O 4.19.20-quilt-2e5dc0ac-00029-gc455a447dd55 #1
+	 RIP: 0010:hid_dump_device+0x9b/0x160
+	 Call Trace:
+	  hid_debug_rdesc_show+0x72/0x1d0
+	  seq_read+0xe0/0x410
+	  full_proxy_read+0x5f/0x90
+	  __vfs_read+0x3a/0x170
+	  vfs_read+0xa0/0x150
+	  ksys_read+0x58/0xc0
+	  __x64_sys_read+0x1a/0x20
+	  do_syscall_64+0x55/0x110
+	  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Grab driver_input_lock to make sure the input device exists throughout the
+whole process of dumping the rdesc.
+
+[jkosina@suse.cz: update changelog a bit]
+Signed-off-by: "he, bo" <bo.he@intel.com>
+Signed-off-by: "Zhang, Jun" <jun.zhang@intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-debug.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index a3916e58dbf5..e649940e065d 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -982,6 +982,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x1b8: map_key_clear(KEY_VIDEO);		break;
- 		case 0x1bc: map_key_clear(KEY_MESSENGER);	break;
- 		case 0x1bd: map_key_clear(KEY_INFO);		break;
-+		case 0x1cb: map_key_clear(KEY_ASSISTANT);	break;
- 		case 0x201: map_key_clear(KEY_NEW);		break;
- 		case 0x202: map_key_clear(KEY_OPEN);		break;
- 		case 0x203: map_key_clear(KEY_CLOSE);		break;
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index ebc9ffde41e9..a353a011fbdf 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -1060,10 +1060,15 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
+ 	seq_printf(f, "\n\n");
+ 
+ 	/* dump parsed data and input mappings */
++	if (down_interruptible(&hdev->driver_input_lock))
++		return 0;
++
+ 	hid_dump_device(hdev, f);
+ 	seq_printf(f, "\n");
+ 	hid_dump_input_mapping(hdev, f);
+ 
++	up(&hdev->driver_input_lock);
++
+ 	return 0;
+ }
+ 
 -- 
 2.19.1

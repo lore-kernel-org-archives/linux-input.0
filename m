@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 01/35] HID: logitech: check the return value of create_singlethread_workqueue
-Date: Wed, 24 Apr 2019 09:57:33 -0400
-Message-ID: <20190424135807.22994-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 01/28] HID: logitech: check the return value of create_singlethread_workqueue
+Date: Wed, 24 Apr 2019 09:57:46 -0400
+Message-ID: <20190424135813.23101-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -26,10 +26,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 614054af904a..b83d4173fc7f 100644
+index 2e2515a4c070..3198faf5cff4 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1907,6 +1907,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+@@ -1282,6 +1282,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
  		kfree(data);
  		return -ENOMEM;
  	}
@@ -43,7 +43,7 @@ index 614054af904a..b83d4173fc7f 100644
  	data->hidpp = hidpp;
  	data->feature_index = feature_index;
  	data->version = version;
-@@ -1951,7 +1958,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+@@ -1326,7 +1333,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
  	/* ignore boost value at response.fap.params[2] */
  
  	/* init the hardware command queue */

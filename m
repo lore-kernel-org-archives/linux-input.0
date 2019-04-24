@@ -1,282 +1,89 @@
-From: Jonathan Cameron <jonathan.cameron@huawei.com>
-Subject: Re: [PATCH 3/3] iio: light: apple-ib-als: Add driver for ALS on
- iBridge chip.
-Date: Wed, 24 Apr 2019 13:27:25 +0100
-Message-ID: <20190424132725.00007633@huawei.com>
-References: <20190422031251.11968-1-ronald@innovation.ch>
-        <20190422031251.11968-4-ronald@innovation.ch>
-        <alpine.DEB.2.21.1904221101420.964@vps.pmeerw.net>
-        <20190422130138.336fb227@archlinux>
-        <20190423103855.GB12528@innovation.ch>
+From: Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH v2] Input: uinput: Avoid Object-Already-Free with a
+ global lock
+Date: Wed, 24 Apr 2019 14:07:11 +0100
+Message-ID: <20190424130711.GP2217@ZenIV.linux.org.uk>
+References: <20190418014321.dptin7tpxpldhsns@penguin>
+ <bb92c3f2-faf1-04ec-4c67-3aba56c507a9@codeaurora.org>
+ <a4d1a2f3-1db7-e300-9569-7b7a2fadd64e@codeaurora.org>
+ <20190419071152.x5ghvbybjhv76uxt@penguin>
+ <f3cd46fb-2bb1-0422-b2be-3f7625ec9c4e@codeaurora.org>
+ <20190423032839.xvbldglrmjxkdntj@penguin>
+ <17f4a0be-ab04-8537-9197-32fbca807f3f@codeaurora.org>
+ <20190423084944.gj2boxfcg7lp4zad@penguin>
+ <20190423110611.GL2217@ZenIV.linux.org.uk>
+ <5614f04f-827d-1668-9ed0-60d93e110b8e@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190423103855.GB12528@innovation.ch>
+Content-Disposition: inline
+In-Reply-To: <5614f04f-827d-1668-9ed0-60d93e110b8e@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mukesh Ojha <mojha@codeaurora.org>
+Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gaurav Kohli <gkohli@codeaurora.org>, Peter Hutterer <peter.hutterer@who-t.net>, Martin Kepplinger <martink@posteo.de>, "Paul E. McKenney" <paulmck@linux.ibm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 23 Apr 2019 03:38:55 -0700
-"Life is hard, and then you die" <ronald@innovation.ch> wrote:
+On Wed, Apr 24, 2019 at 05:40:40PM +0530, Mukesh Ojha wrote:
+> 
+> Al,
+> 
+> i tried to put traceprintk inside ioctl after fdget and fdput on a simple
+> call of open  => ioctl => close
 
->   Hi Jonathan, Peter,
-> 
-> On Mon, Apr 22, 2019 at 01:01:38PM +0100, Jonathan Cameron wrote:
-> > On Mon, 22 Apr 2019 11:17:27 +0200 (CEST)
-> > Peter Meerwald-Stadler <pmeerw@pmeerw.net> wrote:
-> >   
-> > > On Sun, 21 Apr 2019, Ronald Tschalär wrote:
-> > >   
-> > > > On 2016/2017 MacBook Pro's with a Touch Bar the ALS is attached to,
-> > > > and exposed via the iBridge device. This provides the driver for that
-> > > > sensor.    
-> > > 
-> > > some comments below inline  
-> > I'll 'nest' on Peter's review to avoid repetition.
-> > 
-> > A few additional comments inline.  
-> 
-> Thank you both for your reviews. I've applied most of your
-> suggestions, so I'm limiting my responses below to just those places
-> where I need further clarification or can provide some answers.
-> 
-> [snip]
-> > > > +static int appleals_read_raw(struct iio_dev *iio_dev,
-> > > > +			     struct iio_chan_spec const *chan,
-> > > > +			     int *val, int *val2, long mask)
-> > > > +{
-> > > > +	struct appleals_device *als_dev =
-> > > > +				*(struct appleals_device **)iio_priv(iio_dev);
-> > > > +	__s32 value;
-> > > > +	int rc;
-> > > > +
-> > > > +	*val = 0;
-> > > > +	*val2 = 0;    
-> > > 
-> > > no need to set these here
-> > >   
-> > > > +
-> > > > +	switch (mask) {
-> > > > +	case IIO_CHAN_INFO_RAW:
-> > > > +	case IIO_CHAN_INFO_PROCESSED:
-> > > > +		*val = appleals_get_field_value(als_dev, als_dev->illum_field);  
-> > 
-> > How can one read by both processed and raw?  
-> 
-> From my understanding, processed is a converted and normalized value
-> of raw? But since the raw value is already in Lux the processed value
-> is then the same. Furthermore, looking at userspace apps that read
-> these values (e.g. iio-sensor-proxy, lightsd) they seem to be all over
-> the map in terms of what sysfs entries they read:
-> in_illuminance_input, in_intensity_both_raw, etc. So I figured
-> providing both would provide maximal compatibility.
-> 
-> What then is currently the preferred approach here?
+in a loop, and multithreaded, presumably?
 
-Just provide the processed value.  We may have to fix any userspace apps
-that aren't checking both.  For the raw version they should be applying the
-scale in userspace.
+> on /dev/uinput.
+> 
+>           uinput-532   [002] ....    45.312044: SYSC_ioctl: 2     <= f_count
+> >    <After fdget()
+>           uinput-532   [002] ....    45.312055: SYSC_ioctl: 2           
+> <After fdput()
+>           uinput-532   [004] ....    45.313766: uinput_open: uinput: 1
+>           uinput-532   [004] ....    45.313783: SYSC_ioctl: 1
+>           uinput-532   [004] ....    45.313788: uinput_ioctl_handler:
+> uinput: uinput_ioctl_handler, 1
+>           uinput-532   [004] ....    45.313835: SYSC_ioctl: 1
+>           uinput-532   [004] ....    45.313843: uinput_release: uinput:  0
+> 
+> 
+> So while a ioctl is running the f_count is 1, so a fput could be run and do
+> atomic_long_dec_and_test
+> this could call release right ?
 
-> 
-> > > > +	case IIO_CHAN_INFO_HYSTERESIS:
-> > > > +		if (val == APPLEALS_DYN_SENS) {
-> > > > +			if (als_dev->cur_hysteresis != APPLEALS_DYN_SENS) {
-> > > > +				als_dev->cur_hysteresis = val;
-> > > > +				illum = appleals_get_field_value(als_dev,
-> > > > +							als_dev->illum_field);
-> > > > +				appleals_update_dyn_sensitivity(als_dev, illum);  
-> > 
-> > There is some debate in another thread on whether dynamic sensitivity can be
-> > mapped to hysteresis or not...  
-> 
-> Is that the "drivers: iio: Add more data field for iio driver
-> hysteresis parsing" thread?
+Look at ksys_ioctl():
+int ksys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
+{
+        int error;
+        struct fd f = fdget(fd);
+an error or refcount bumped
+        if (!f.file)
+                return -EBADF;
+not an error, then.  We know that ->release() won't be called
+until we drop the reference we've just acquired.
+        error = security_file_ioctl(f.file, cmd, arg);
+        if (!error)
+                error = do_vfs_ioctl(f.file, fd, cmd, arg);
+... and we are done with calling ->ioctl(), so
+        fdput(f);
+... we drop the reference we'd acquired.
 
-That's the one.
+Seeing refcount 1 inside ->ioctl() is possible, all right:
 
-> 
-> In any case, I'm using the value 0 here to indicate that the
-> pseudo-percent-relative change sensitivity should be used. Better
-> suggestions certainly welcome.
+CPU1: ioctl(2) resolves fd to struct file *, refcount 2
+CPU2: close(2) rips struct file * from descriptor table and does fput() to drop it;
+	refcount reaches 1 and fput() is done; no call of ->release() yet.
+CPU1: we get arouund to ->ioctl(), where your trace sees refcount 1
+CPU1: done with ->ioctl(), drop our reference.  *NOW* refcount gets to 0, and
+	->release() is called.
 
-It seems we are converging on a new IIO_CHAN_INFO type for sensitivity.
+IOW, in your trace fput() has already been run by close(2); having somebody else
+do that again while we are in ->ioctl() would be a bug (to start with, where
+did they get that struct file * and why wasn't that reference contributing to
+struct file refcount?)
 
-> 
-> [snip]
-> > > > +static const struct iio_chan_spec appleals_channels[] = {
-> > > > +	{
-> > > > +		.type = IIO_INTENSITY,
-> > > > +		.modified = 1,
-> > > > +		.channel2 = IIO_MOD_LIGHT_BOTH,
-> > > > +		.info_mask_separate = BIT(IIO_CHAN_INFO_PROCESSED) |
-> > > > +			BIT(IIO_CHAN_INFO_RAW),  
-> > Why return both processed and raw?  We don't generally allow that in IIO
-> > (there are a few historical exceptions due to us getting it wrong the
-> > first time).  
-> 
-> Ok. But which should be used then, especially in view of the fact that
-> different user-space apps/daemons appear to use different values?
- forwards.
+In all cases we only call ->release() once all references gone - both
+the one(s) in descriptor tables and any transient ones acquired by
+fdget(), etc.
 
-> 
-> [snip]
-> > > > +static int appleals_config_iio(struct appleals_device *als_dev)  
-> [snip]
-> > > > +	iio_dev = iio_device_alloc(sizeof(als_dev));    
-> > > 
-> > > how about using the devm_ variants?  
-> 
-> The problem is that there is no device with the proper lifetime here.
-> In particular we can't use hid_device (the only struct device
-> available here) because the instances of those can (and do) outlive
-> the module. This is a consequence of the hid-driver demuxing: e.g.
-> when this als module is unloaded, the hid_device is still in use by
-> the touchbar driver, and if this als module is then loaded again it
-> will get associated with that same hid_device again.
-Fair enough.
-
-> 
-> [snip]
-> > > > +	rc = iio_device_register(iio_dev);
-> > > > +	if (rc) {
-> > > > +		dev_err(als_dev->log_dev, "failed to register iio device: %d\n",
-> > > > +			rc);
-> > > > +		goto unreg_iio_trig;
-> > > > +	}
-> > > > +
-> > > > +	als_dev->iio_dev = iio_dev;  
-> > 
-> > I really don't like nest of pointers going on in here.  I haven't dug
-> > down to check if any of them can be remove, but they are definitely
-> > ugly to deal with.  
-> 
-> I'm not sure how this can be avoided: *iio_dev is allocated by
-> iio_device_alloc(), and this is just storing that pointer in our data
-> structure for this als device.
-
-You are probably correct.  Ugly will have to stay :(
-This tends to happen when we end up merging various different
-driver subsystems together like this.
-
-> 
-> [snip]
-> > > > +static int appleals_probe(struct hid_device *hdev,
-> > > > +			  const struct hid_device_id *id)
-> > > > +{
-> > > > +	struct appleals_device *als_dev =
-> > > > +		appleib_get_drvdata(hid_get_drvdata(hdev),
-> > > > +				    &appleals_hid_driver);
-> > > > +	struct hid_field *state_field;
-> > > > +	struct hid_field *illum_field;
-> > > > +	int rc;
-> > > > +
-> > > > +	/* find als fields and reports */
-> > > > +	state_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
-> > > > +					    HID_USAGE_SENSOR_PROP_REPORT_STATE);
-> > > > +	illum_field = appleib_find_hid_field(hdev, HID_USAGE_SENSOR_ALS,
-> > > > +					     HID_USAGE_SENSOR_LIGHT_ILLUM);
-> > > > +	if (!state_field || !illum_field)
-> > > > +		return -ENODEV;
-> > > > +
-> > > > +	if (als_dev->hid_dev) {
-> > > > +		dev_warn(als_dev->log_dev,
-> > > > +			 "Found duplicate ambient light sensor - ignoring\n");  
-> > 
-> > I'll bite.  So how can this actually happen?  What fundamentally breaks in
-> > your model if there really are two?  Can you fix whatever that is so
-> > as to drop this handling?  
-> 
-> This should indeed never happen - the check is just defensive
-> programming, in case either some new device in some new model appears,
-> or due to some bug somewhere.
-> 
-> To actually handle this I'd need to split up appleals_device into a
-> per iBridge-device part and a per ALS-device part, and allow multiple
-> ALS-device parts. This is certainly doable, but seemed a bit overkill
-> for something that is unlikely to ever be needed.
-
-Fair enough I guess.
-
-> 
-> [snip]
-> > > > +static void appleals_remove(struct hid_device *hdev)
-> > > > +{
-> > > > +	struct appleals_device *als_dev =
-> > > > +		appleib_get_drvdata(hid_get_drvdata(hdev),
-> > > > +				    &appleals_hid_driver);
-> > > > +    
-> > > 
-> > > could be a lot less if devm_ were used?  
-> 
-> Agreed, but see explanation above of why this can't be used.
-> 
-> > > > +	if (als_dev->iio_dev) {
-> > > > +		iio_device_unregister(als_dev->iio_dev);
-> > > > +
-> > > > +		iio_trigger_unregister(als_dev->iio_trig);
-> > > > +		iio_trigger_free(als_dev->iio_trig);
-> > > > +		als_dev->iio_trig = NULL;  
-> > 
-> > I would be decidedly worried if you actually have any paths
-> > where setting these to NULL do anything useful. By the time
-> > we get here we should absolutely 'know' nothing will touch
-> > these pointers.  
-> 
-> I guess I was being overly paranoid here. I've removed these now.
-> 
-> > It is these that are blocking Peter's suggestion of using
-> > devm to clean all of this up automatically for you.  
-> 
-> No, that is for a different reason - see above.
-> 
-> [snip]
-> > > > +static int appleals_platform_probe(struct platform_device *pdev)
-> > > > +{
-> > > > +	struct appleib_platform_data *pdata = pdev->dev.platform_data;
-> > > > +	struct appleib_device *ib_dev = pdata->ib_dev;
-> > > > +	struct appleals_device *als_dev;
-> > > > +	int rc;
-> > > > +
-> > > > +	als_dev = kzalloc(sizeof(*als_dev), GFP_KERNEL);
-> > > > +	if (!als_dev)
-> > > > +		return -ENOMEM;
-> > > > +
-> > > > +	als_dev->ib_dev = ib_dev;
-> > > > +	als_dev->log_dev = pdata->log_dev;
-> > > > +
-> > > > +	rc = appleib_register_hid_driver(ib_dev, &appleals_hid_driver, als_dev);  
-> > 
-> > Hmm. This is all a bit odd.  We register a platform device, to call it's driver
-> > so that it can then register another driver?  I'll let Lee comment on that but
-> > it does seem overly complex.  
-> 
-> "Normally" this call would be to hid_register_driver().
-
-> However, as I
-> tried to explain in the cover letter and module comments, at least one
-> of the hid_device's needs to be shared by both this als driver and the
-> touchbar driver. But the linux device/driver architecture does not
-> allow multiple drivers to be attached to a single device. Hence the
-> mfd driver implements demuxing hid_driver that allows multiple
-> hid_drivers to be registered for a single hid_device. And this is why
-> we register our hid_driver with this demuxing driver here instead of
-> directly via hid_register_driver().
-
-I'd expect a probe to create a device managed by the driver.  The drive would normally
-be registered on module load, hence _init, rather than probe.
-
-I can't find any instances of hid_register_driver being called from a probe function.
-
-Jonathan
-
-
-> 
-> Does this make sense?
-> 
-> 
->   Cheers,
-> 
->   Ronald
-> 
+I would really like to see a reproducer for the original use-after-free report...

@@ -1,43 +1,57 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 38/66] HID: input: add mapping for Assistant key
-Date: Wed, 24 Apr 2019 10:33:12 -0400
-Message-ID: <20190424143341.27665-38-sashal@kernel.org>
-References: <20190424143341.27665-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/52] HID: logitech: check the return value of create_singlethread_workqueue
+Date: Wed, 24 Apr 2019 10:38:20 -0400
+Message-ID: <20190424143911.28890-2-sashal@kernel.org>
+References: <20190424143911.28890-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424143341.27665-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190424143911.28890-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Kangjie Lu <kjlu@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit ce856634af8cda3490947df8ac1ef5843e6356af ]
+[ Upstream commit 6c44b15e1c9076d925d5236ddadf1318b0a25ce2 ]
 
-According to HUTRR89 usage 0x1cb from the consumer page was assigned to
-allow launching desktop-aware assistant application, so let's add the
-mapping.
+create_singlethread_workqueue may fail and return NULL. The fix checks if it is
+NULL to avoid NULL pointer dereference.  Also, the fix moves the call of
+create_singlethread_workqueue earlier to avoid resource-release issues.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-logitech-hidpp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 59a5608b8dc0..ff92a7b2fc89 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -995,6 +995,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x1b8: map_key_clear(KEY_VIDEO);		break;
- 		case 0x1bc: map_key_clear(KEY_MESSENGER);	break;
- 		case 0x1bd: map_key_clear(KEY_INFO);		break;
-+		case 0x1cb: map_key_clear(KEY_ASSISTANT);	break;
- 		case 0x201: map_key_clear(KEY_NEW);		break;
- 		case 0x202: map_key_clear(KEY_OPEN);		break;
- 		case 0x203: map_key_clear(KEY_CLOSE);		break;
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 19cc980eebce..8425d3548a41 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1907,6 +1907,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 		kfree(data);
+ 		return -ENOMEM;
+ 	}
++	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
++	if (!data->wq) {
++		kfree(data->effect_ids);
++		kfree(data);
++		return -ENOMEM;
++	}
++
+ 	data->hidpp = hidpp;
+ 	data->feature_index = feature_index;
+ 	data->version = version;
+@@ -1951,7 +1958,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 	/* ignore boost value at response.fap.params[2] */
+ 
+ 	/* init the hardware command queue */
+-	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
+ 	atomic_set(&data->workqueue_size, 0);
+ 
+ 	/* initialize with zero autocenter to get wheel in usable state */
 -- 
 2.19.1

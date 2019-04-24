@@ -1,36 +1,47 @@
 From: Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: [PATCH 4/5] Input: goodix: Document links-add property
-Date: Wed, 24 Apr 2019 12:19:12 +0200
-Message-ID: <20190424101913.1534-5-benjamin.gaignard@st.com>
-References: <20190424101913.1534-1-benjamin.gaignard@st.com>
+Subject: [PATCH 0/5] Add of_ functions for device_link_add()
+Date: Wed, 24 Apr 2019 12:19:08 +0200
+Message-ID: <20190424101913.1534-1-benjamin.gaignard@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424101913.1534-1-benjamin.gaignard@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: rafael.j.wysocki@intel.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, hadess@hadess.net, frowand.list@gmail.com, m.felsch@pengutronix.de, agx@sigxcpu.org, yannick.fertre@st.com, arnd@arndb.de
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, broonie@kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>
 List-Id: linux-input@vger.kernel.org
 
-Explain the purpose of links_add property.
+It could happen that we need to control suspend/resume ordering between
+devices without obvious consumer/supplier link. For example when touchscreens
+and DSI panels share the same reset line, in this case we need to be sure 
+of pm_runtime operations ordering between those two devices to correctly
+perform reset.
+DSI panel and touchscreen aren't sharing any heriachical relationship (unlike
+I2C client and I2C bus or regulator client and regulator provider) so we need
+to describe this in device-tree.
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
----
- Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 2 ++
- 1 file changed, 2 insertions(+)
+This series introduce of_device_links_{add,remove} and devm_of_device_links_add()
+helpers to find and parse 'links-add' property in a device-tree node.
+It allows to create and remove links between consumer and suppliers from 
+device-tree data so consumers will be suspend before their suppliers and resume 
+after them.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-index 8cf0b4d38a7e..0447151608c6 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
-@@ -24,6 +24,8 @@ Optional properties:
-  - touchscreen-size-x
-  - touchscreen-size-y
-  - touchscreen-swapped-x-y
-+ - links-add		: List of suppliers handles, suppliers will be
-+			  suspended after goodix device and resume before it.
- 
- The touchscreen-* properties are documented in touchscreen.txt in this
- directory.
+Benjamin Gaignard (3):
+  of/device: Add of_ functions for device_link_{add,remove}
+  Input: edt-ft5x06: Document links-add property
+  Input: goodix: Document links-add property
+
+Yannick FertrÃ© (2):
+  input: edt-ft5x06 - Call devm_of_device_links_add() to create links
+  input: goodix - Call devm_of_device_links_add() to create links
+
+ .../bindings/input/touchscreen/edt-ft5x06.txt      |   2 +
+ .../bindings/input/touchscreen/goodix.txt          |   2 +
+ drivers/input/touchscreen/edt-ft5x06.c             |   2 +
+ drivers/input/touchscreen/goodix.c                 |   3 +
+ drivers/of/device.c                                | 103 +++++++++++++++++++++
+ include/linux/of_device.h                          |  20 ++++
+ 6 files changed, 132 insertions(+)
+
 -- 
 2.15.0

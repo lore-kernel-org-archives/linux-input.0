@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 03/66] HID: logitech: check the return value of create_singlethread_workqueue
-Date: Wed, 24 Apr 2019 09:56:41 -0400
-Message-ID: <20190424135746.22655-3-sashal@kernel.org>
-References: <20190424135746.22655-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/52] HID: logitech: check the return value of create_singlethread_workqueue
+Date: Wed, 24 Apr 2019 09:57:07 -0400
+Message-ID: <20190424135758.22850-2-sashal@kernel.org>
+References: <20190424135758.22850-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424135746.22655-1-sashal@kernel.org>
+In-Reply-To: <20190424135758.22850-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Kangjie Lu <kjlu@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
@@ -22,16 +22,16 @@ create_singlethread_workqueue earlier to avoid resource-release issues.
 
 Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  drivers/hid/hid-logitech-hidpp.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index f040c8a7f9a9..199cc256e9d9 100644
+index 19cc980eebce..8425d3548a41 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2111,6 +2111,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+@@ -1907,6 +1907,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
  		kfree(data);
  		return -ENOMEM;
  	}
@@ -45,7 +45,7 @@ index f040c8a7f9a9..199cc256e9d9 100644
  	data->hidpp = hidpp;
  	data->feature_index = feature_index;
  	data->version = version;
-@@ -2155,7 +2162,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+@@ -1951,7 +1958,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
  	/* ignore boost value at response.fap.params[2] */
  
  	/* init the hardware command queue */

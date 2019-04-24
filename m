@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 02/66] HID: Increase maximum report size allowed by hid_field_extract()
-Date: Wed, 24 Apr 2019 09:56:40 -0400
-Message-ID: <20190424135746.22655-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 03/66] HID: logitech: check the return value of create_singlethread_workqueue
+Date: Wed, 24 Apr 2019 09:56:41 -0400
+Message-ID: <20190424135746.22655-3-sashal@kernel.org>
 References: <20190424135746.22655-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,46 +9,49 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190424135746.22655-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Kangjie Lu <kjlu@umn.edu>, Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 94a9992f7dbdfb28976b565af220e0c4a117144a ]
+[ Upstream commit 6c44b15e1c9076d925d5236ddadf1318b0a25ce2 ]
 
-Commit 71f6fa90a353 ("HID: increase maximum global item tag report size
-to 256") increases the max report size from 128 to 256.
+create_singlethread_workqueue may fail and return NULL. The fix checks if it is
+NULL to avoid NULL pointer dereference.  Also, the fix moves the call of
+create_singlethread_workqueue earlier to avoid resource-release issues.
 
-We also need to update the report size in hid_field_extract() otherwise
-it complains and truncates now valid report size:
-[ 406.165461] hid-sensor-hub 001F:8086:22D8.0002: hid_field_extract() called with n (192) > 32! (kworker/5:1)
-
-BugLink: https://bugs.launchpad.net/bugs/1818547
-Fixes: 71f6fa90a353 ("HID: increase maximum global item tag report size to 256")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9993b692598f..860e21ec6a49 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1301,10 +1301,10 @@ static u32 __extract(u8 *report, unsigned offset, int n)
- u32 hid_field_extract(const struct hid_device *hid, u8 *report,
- 			unsigned offset, unsigned n)
- {
--	if (n > 32) {
--		hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
-+	if (n > 256) {
-+		hid_warn(hid, "hid_field_extract() called with n (%d) > 256! (%s)\n",
- 			 n, current->comm);
--		n = 32;
-+		n = 256;
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index f040c8a7f9a9..199cc256e9d9 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2111,6 +2111,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 		kfree(data);
+ 		return -ENOMEM;
  	}
++	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
++	if (!data->wq) {
++		kfree(data->effect_ids);
++		kfree(data);
++		return -ENOMEM;
++	}
++
+ 	data->hidpp = hidpp;
+ 	data->feature_index = feature_index;
+ 	data->version = version;
+@@ -2155,7 +2162,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+ 	/* ignore boost value at response.fap.params[2] */
  
- 	return __extract(report, offset, n);
+ 	/* init the hardware command queue */
+-	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
+ 	atomic_set(&data->workqueue_size, 0);
+ 
+ 	/* initialize with zero autocenter to get wheel in usable state */
 -- 
 2.19.1

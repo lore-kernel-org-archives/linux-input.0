@@ -1,117 +1,45 @@
-From: Anson Huang <anson.huang@nxp.com>
-Subject: RE: [RESEND] input: keyboard: imx: make sure keyboard can always wake
- up system
-Date: Thu, 25 Apr 2019 01:49:39 +0000
-Message-ID: <DB3PR0402MB39167BC7D996F4FF70B5DD2FF53D0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
-References: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
+From: Benjamin GAIGNARD <benjamin.gaignard@st.com>
+Subject: Re: [PATCH 3/5] input: edt-ft5x06 - Call devm_of_device_links_add()
+ to create links
+Date: Thu, 25 Apr 2019 07:22:03 +0000
+Message-ID: <769d2c1e-8a33-d4fe-a3d9-6de4772b67d4@st.com>
+References: <20190424101913.1534-1-benjamin.gaignard@st.com>
+ <20190424101913.1534-4-benjamin.gaignard@st.com>
+ <20190424225235.GA225055@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190424225235.GA225055@dtor-ws>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: dl-linux-imx <linux-imx@nxp.com>
+Content-ID: <FFB026A3F1B8D5459817496E3480153C@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "rafael.j.wysocki@intel.com" <rafael.j.wysocki@intel.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "hadess@hadess.net" <hadess@hadess.net>, "frowand.list@gmail.com" <frowand.list@gmail.com>, "m.felsch@pengutronix.de" <m.felsch@pengutronix.de>, "agx@sigxcpu.org" <agx@sigxcpu.org>, Yannick FERTRE <yannick.fertre@st.com>, "arnd@arndb.de" <arnd@arndb.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, "broonie@kernel.org" <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Gentle ping...
-
-> -----Original Message-----
-> From: Anson Huang
-> Sent: Thursday, April 4, 2019 9:40 AM
-> To: dmitry.torokhov@gmail.com; shawnguo@kernel.org;
-> s.hauer@pengutronix.de; kernel@pengutronix.de; festevam@gmail.com;
-> linux-input@vger.kernel.org; linux-arm-kernel@lists.infradead.org; linux-
-> kernel@vger.kernel.org
-> Cc: dl-linux-imx <linux-imx@nxp.com>
-> Subject: [RESEND] input: keyboard: imx: make sure keyboard can always
-> wake up system
-> 
-> There are several scenarios that keyboard can NOT wake up system from
-> suspend, e.g., if a keyboard is depressed between system device suspend
-> phase and device noirq suspend phase, the keyboard ISR will be called and
-> both keyboard depress and release interrupts will be disabled, then
-> keyboard will no longer be able to wake up system. Another scenario would
-> be, if a keyboard is kept depressed, and then system goes into suspend, the
-> expected behavior would be when keyboard is released, system will be
-> waked up, but current implementation can NOT achieve that, because both
-> depress and release interrupts are disabled in ISR, and the event check is still
-> in progress.
-> 
-> To fix these issues, need to make sure keyboard's depress or release
-> interrupt is enabled after noirq device suspend phase, this patch moves the
-> suspend/resume callback to noirq suspend/resume phase, and enable the
-> corresponding interrupt according to current keyboard status.
-> 
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-> ---
->  drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
->  1 file changed, 14 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/imx_keypad.c
-> b/drivers/input/keyboard/imx_keypad.c
-> index cf08f4a..97500a2 100644
-> --- a/drivers/input/keyboard/imx_keypad.c
-> +++ b/drivers/input/keyboard/imx_keypad.c
-> @@ -524,11 +524,12 @@ static int imx_keypad_probe(struct
-> platform_device *pdev)
->  	return 0;
->  }
-> 
-> -static int __maybe_unused imx_kbd_suspend(struct device *dev)
-> +static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct imx_keypad *kbd = platform_get_drvdata(pdev);
->  	struct input_dev *input_dev = kbd->input_dev;
-> +	unsigned short reg_val = readw(kbd->mmio_base + KPSR);
-> 
->  	/* imx kbd can wake up system even clock is disabled */
->  	mutex_lock(&input_dev->mutex);
-> @@ -538,13 +539,20 @@ static int __maybe_unused
-> imx_kbd_suspend(struct device *dev)
-> 
->  	mutex_unlock(&input_dev->mutex);
-> 
-> -	if (device_may_wakeup(&pdev->dev))
-> +	if (device_may_wakeup(&pdev->dev)) {
-> +		if (reg_val & KBD_STAT_KPKD)
-> +			reg_val |= KBD_STAT_KRIE;
-> +		if (reg_val & KBD_STAT_KPKR)
-> +			reg_val |= KBD_STAT_KDIE;
-> +		writew(reg_val, kbd->mmio_base + KPSR);
-> +
->  		enable_irq_wake(kbd->irq);
-> +	}
-> 
->  	return 0;
->  }
-> 
-> -static int __maybe_unused imx_kbd_resume(struct device *dev)
-> +static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct imx_keypad *kbd = platform_get_drvdata(pdev); @@ -568,7
-> +576,9 @@ static int __maybe_unused imx_kbd_resume(struct device *dev)
->  	return ret;
->  }
-> 
-> -static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend,
-> imx_kbd_resume);
-> +static const struct dev_pm_ops imx_kbd_pm_ops = {
-> +	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend,
-> +imx_kbd_noirq_resume) };
-> 
->  static struct platform_driver imx_keypad_driver = {
->  	.driver		= {
-> --
-> 2.7.4
+DQpPbiA0LzI1LzE5IDEyOjUyIEFNLCBEbWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+IEhpIEJlbmph
+bWluLA0KPg0KPiBPbiBXZWQsIEFwciAyNCwgMjAxOSBhdCAxMjoxOToxMVBNICswMjAwLCBCZW5q
+YW1pbiBHYWlnbmFyZCB3cm90ZToNCj4+IEZyb206IFlhbm5pY2sgRmVydHLDg8KpIDx5YW5uaWNr
+LmZlcnRyZUBzdC5jb20+DQo+Pg0KPj4gQWRkIGEgY2FsbCB0byBkZXZtX29mX2RldmljZV9saW5r
+c19hZGQoKSB0byBjcmVhdGUgbGlua3Mgd2l0aCBzdXBwbGllcnMNCj4+IGF0IHByb2JlIHRpbWUu
+DQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTogWWFubmljayBGZXJ0csOpIDx5YW5uaWNrLmZlcnRyZUBz
+dC5jb20+DQo+PiBTaWduZWQtb2ZmLWJ5OiBCZW5qYW1pbiBHYWlnbmFyZCA8YmVuamFtaW4uZ2Fp
+Z25hcmRAc3QuY29tPg0KPj4gLS0tDQo+PiAgIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZWR0
+LWZ0NXgwNi5jIHwgMiArKw0KPj4gICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspDQo+
+Pg0KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZWR0LWZ0NXgwNi5j
+IGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9lZHQtZnQ1eDA2LmMNCj4+IGluZGV4IDcwMmJm
+ZGE3ZWU3Ny4uYWM5ZjdlODVlZmIwIDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9pbnB1dC90b3Vj
+aHNjcmVlbi9lZHQtZnQ1eDA2LmMNCj4+ICsrKyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4v
+ZWR0LWZ0NXgwNi5jDQo+PiBAQCAtMTE2Nyw2ICsxMTY3LDggQEAgc3RhdGljIGludCBlZHRfZnQ1
+eDA2X3RzX3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsDQo+PiAgIA0KPj4gICAJaTJj
+X3NldF9jbGllbnRkYXRhKGNsaWVudCwgdHNkYXRhKTsNCj4+ICAgDQo+PiArCWRldm1fb2ZfZGV2
+aWNlX2xpbmtzX2FkZCgmY2xpZW50LT5kZXYpOw0KPj4gKw0KPiBUaGlzIHNlZW1zIHByZXR0eSBn
+ZW5lcmljIGFjdGlvbiBhbmQgSSBiZWxpZXZlIGl0IHNob3VsZCBiZSBkb25lIGluDQo+IGdlbmVy
+aWMgY29kZSwgZWl0aGVyIGJ1cyAoaTJjLCBzcGksIGV0YyksIG9yIGluIGRldmljZSBjb3JlLg0K
+SXQgaXMgZG9uZSAob3IgY291bGQgYmUgZG9uZSkgaW4gbW9zdCBvZiB0aGUgYnVzZXMgb3IgZnJh
+bWV3b3JrIChsaWtlIA0KZm9yIHJlZ3VsYXRvcikNCmJ1dCBJIHRoaW5rIHRoYXQgYWRkaW5nIGl0
+IGluIGRldmljZSBjb3JlIGFkZCBhIGRldmljZS10cmVlIG5vZGUgcGFyc2luZyANCmZvciBhbGwg
+dGhlDQpkcml2ZXJzIHdoaWxlIG9ubHkgYSBmZXcgb2YgdGhlbSB3aWxsIHJlYWxseSBuZWVkIHRo
+aXMgZmVhdHVyZS4gVGhhdCB3aHkgDQpJIGhhdmUgcHV0IHRoZQ0KY2FsbCBoZXJlLg0KDQpCZW5q
+YW1pbg0KPg0KPiBUaGFua3MuDQo+

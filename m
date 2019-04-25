@@ -1,47 +1,87 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH 0/5] Add of_ functions for device_link_add()
-Date: Thu, 25 Apr 2019 13:07:53 -0500
-Message-ID: <CAL_JsqJp9f3Sv08igSyR38Z5eXnAYWMNY29U5qEGLp=r2YReRw@mail.gmail.com>
-References: <20190424101913.1534-1-benjamin.gaignard@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] HID: Increase maximum report size allowed by
+ hid_field_extract()
+Date: Fri, 26 Apr 2019 02:29:11 +0800
+Message-ID: <08CA35F5-1ADC-4C55-ACF5-04B19CC77A25@canonical.com>
+References: <20190308051117.21899-1-kai.heng.feng@canonical.com>
+ <CAO-hwJLDuMZuqKiawnkq3YxL6T9SqNGqQ1Q_Vs=kMKmsx6SD0w@mail.gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.8\))
+Content-Type: text/plain;
+        charset=utf-8;
+        delsp=yes;
+        format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190424101913.1534-1-benjamin.gaignard@st.com>
+In-Reply-To: <CAO-hwJLDuMZuqKiawnkq3YxL6T9SqNGqQ1Q_Vs=kMKmsx6SD0w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Gaignard <benjamin.gaignard@st.com>
-Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Bastien Nocera <hadess@hadess.net>, Frank Rowand <frowand.list@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, =?UTF-8?Q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>, Yannick Fertre <yannick.fertre@st.com>, Arnd Bergmann <arnd@arndb.de>, Linux Input <linux-input@vger.kernel.org>, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com, Mark Brown <broonie@kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, =?utf-8?Q?Ronald_Tschal=C3=A4r?= <ronald@innovation.ch>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Apr 24, 2019 at 5:19 AM Benjamin Gaignard
-<benjamin.gaignard@st.com> wrote:
+at 17:42, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+
+> Hi,
 >
-> It could happen that we need to control suspend/resume ordering between
-> devices without obvious consumer/supplier link. For example when touchscreens
-> and DSI panels share the same reset line, in this case we need to be sure
-> of pm_runtime operations ordering between those two devices to correctly
-> perform reset.
-> DSI panel and touchscreen aren't sharing any heriachical relationship (unlike
-> I2C client and I2C bus or regulator client and regulator provider) so we need
-> to describe this in device-tree.
+>
+> On Fri, Mar 8, 2019 at 6:11 AM Kai-Heng Feng
+> <kai.heng.feng@canonical.com> wrote:
+>> Commit 71f6fa90a353 ("HID: increase maximum global item tag report size
+>> to 256") increases the max report size from 128 to 256.
+>>
+>> We also need to update the report size in hid_field_extract() otherwise
+>> it complains and truncates now valid report size:
+>> [ 406.165461] hid-sensor-hub 001F:8086:22D8.0002: hid_field_extract()  
+>> called with n (192) > 32! (kworker/5:1)
+>>
+>> BugLink: https://bugs.launchpad.net/bugs/1818547
+>> Fixes: 71f6fa90a353 ("HID: increase maximum global item tag report size  
+>> to 256")
+>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>> ---
+>>  drivers/hid/hid-core.c | 6 +++---
+>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 9993b692598f..860e21ec6a49 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -1301,10 +1301,10 @@ static u32 __extract(u8 *report, unsigned  
+>> offset, int n)
+>>  u32 hid_field_extract(const struct hid_device *hid, u8 *report,
+>>                         unsigned offset, unsigned n)
+>
+> Ronald (Cc-ed) raised quite a good point:
+> what's the benefit of removing the error message if this function (and
+> __extract) can only report an unsigned 32 bits value?
 
-Needing to know which touchscreen is attached to a panel could be
-important to describe if you have multiple displays.
-
-Doesn't the reset subsystem already have some support for shared
-resets? Seems like it could provide clients with struct device or
-device_node ptrs to other devices sharing a reset.
+I didn’t spot this, sorry.
 
 >
-> This series introduce of_device_links_{add,remove} and devm_of_device_links_add()
-> helpers to find and parse 'links-add' property in a device-tree node.
+> My take is we should revert 94a9992f7dbdfb28976b upstream and think at
+> a better solution.
 
-Going to document that property somewhere? :)
+I think using a new fix to replace it will be a better approach, as it at  
+least partially solves the issue.
 
-I think this is too generic and coupled to Linux. It doesn't have any
-information as to what is the dependency or connection nor what the
-direction of the dependency is.
+Kai-Heng
 
-I'm not convinced we need to solve this generically vs. defining
-something for this specific example.
+>
+> Cheers,
+> Benjamin
+>
+>> {
+>> -       if (n > 32) {
+>> -               hid_warn(hid, "hid_field_extract() called with n (%d) >  
+>> 32! (%s)\n",
+>> +       if (n > 256) {
+>> +               hid_warn(hid, "hid_field_extract() called with n (%d) >  
+>> 256! (%s)\n",
+>>                          n, current->comm);
+>> -               n = 32;
+>> +               n = 256;
+>>         }
+>>
+>>         return __extract(report, offset, n);
+>> —
 
-Rob
+>> 2.17.1

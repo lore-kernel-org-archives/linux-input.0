@@ -1,247 +1,619 @@
-From: =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>
-Subject: Re: [PATCH v3 7/8] HID: logitech: Enable high-resolution scrolling on
- Logitech mice
-Date: Thu, 25 Apr 2019 14:35:17 +0200
-Message-ID: <CAM4jgCpckiame+H4nXJ3iRQAP4BTKHVQCQxGA0xQ8TJf+-JY3Q@mail.gmail.com>
-References: <20181205004228.10714-1-peter.hutterer@who-t.net>
- <20181205004228.10714-8-peter.hutterer@who-t.net> <CAM4jgCqAh9Pck-9i8F5tO4-Kzpu+SjH-mQnGYThadSf-3b1ikw@mail.gmail.com>
- <CA+jURcuhBRYiqFYHDgK8dDycrPgvzkujTRZfnmYraiHvwE+e6w@mail.gmail.com>
- <CAM4jgCo483upCJWUnpP45zh2LzQWqAZmQREf2622p49a1vbnnA@mail.gmail.com>
- <CAM4jgCqj5gs-q7VKLm90p0a01k_tYAqxA=zxsmShxv4PSGBJ4A@mail.gmail.com>
- <CAO-hwJK7pFvuYZJTKgwkj794=xinekDgN_eLBSViw3v_dWAecw@mail.gmail.com>
- <CAM4jgCrYBr+M+F2iAn8-pPFjiZQ-nPT_H16WcyPKp2PFCM=qhQ@mail.gmail.com>
- <CAO-hwJJkyK_qPEL37QLd3kLuwB2rFBk+5FWg1UCfgr-FzxZ5aw@mail.gmail.com>
- <CAM4jgCrLRxOx-qtq8Wfbc1xmYkNHG9vsRSk_BBK5OPgkLyVYnQ@mail.gmail.com>
- <CAO-hwJ+r1TUQLZqdpNFD4AWC3URro3=Tc56gjV52i=aWrCbL8A@mail.gmail.com>
- <CAM4jgCrT7fAm1gi0L=Ux1GyxdH26cP8e_Dy36dEHF6Lf2F0rAQ@mail.gmail.com> <CAO-hwJKYtNMYEY1iFm-Nh0_+ZJBvPrXmBUPftwbuFd0ugqWVww@mail.gmail.com>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: Re: [PATCH v3 12/26] compat_ioctl: move more drivers to
+ compat_ptr_ioctl
+Date: Thu, 25 Apr 2019 12:21:53 -0300
+Message-ID: <20190425122153.450fc094@coco.lan>
+References: <20190416202013.4034148-1-arnd@arndb.de>
+        <20190416202701.127745-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKYtNMYEY1iFm-Nh0_+ZJBvPrXmBUPftwbuFd0ugqWVww@mail.gmail.com>
+In-Reply-To: <20190416202701.127745-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, lkml <linux-kernel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, y2038@lists.linaro.org, linux-kernel@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Sterba <dsterba@suse.com>, Darren Hart <dvhart@infradead.org>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, devel@driverdev.osuosl.org, qat-linux@intel.com, linux-crypto@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, amd-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-rdma@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-pci@vger
 List-Id: linux-input@vger.kernel.org
 
-Le jeu. 25 avr. 2019 =C3=A0 11:35, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> a =C3=A9crit :
->
-> On Thu, Apr 25, 2019 at 11:29 AM Cl=C3=A9ment VUCHENER
-> <clement.vuchener@gmail.com> wrote:
-> >
-> > Le jeu. 25 avr. 2019 =C3=A0 10:45, Benjamin Tissoires
-> > <benjamin.tissoires@redhat.com> a =C3=A9crit :
-> > >
-> > > On Thu, Apr 25, 2019 at 10:25 AM Cl=C3=A9ment VUCHENER
-> > > <clement.vuchener@gmail.com> wrote:
-> > > >
-> > > > Le jeu. 25 avr. 2019 =C3=A0 09:40, Benjamin Tissoires
-> > > > <benjamin.tissoires@redhat.com> a =C3=A9crit :
-> > > > >
-> > > > > Hi Cl=C3=A9ment,
-> > > > >
-> > > > > On Wed, Apr 24, 2019 at 5:34 PM Cl=C3=A9ment VUCHENER
-> > > > > <clement.vuchener@gmail.com> wrote:
-> > > > > >
-> > > > > > Hi Benjamin,
-> > > > > >
-> > > > > > I tried again to add hi-res wheel support for the G500 with Han=
-s de
-> > > > > > Goede's latest patch series you've just merged in for-5.2/logit=
-ech, it
-> > > > > > is much better but there is still some issues.
-> > > > > >
-> > > > > > The first one is the device index, I need to use device index 0
-> > > > > > instead 0xff. I added a quick and dirty quirk (stealing in the
-> > > > > > QUIRK_CLASS range since the normal quirk range looks full) to c=
-hange
-> > > > > > the device index assigned in __hidpp_send_report. After that th=
-e
-> > > > > > device is correctly initialized and the wheel multiplier is set=
-.
-> > > > >
-> > > > > Hmm, maybe we should restrain a little bit the reserved quirks...
-> > > > > But actually, .driver_data and .quirks are both unsigned long, so=
- you
-> > > > > should be able to use the 64 bits.
-> > > >
-> > > > Only on 64 bits architectures, or is the kernel forcing long intege=
-rs
-> > > > to be 64 bits everywhere?
-> > >
-> > > Damnit, you are correct, there is no such enforcement :/
-> > >
-> > > >
-> > > > >
-> > > > > >
-> > > > > > The second issue is that wheel values are not actually scaled
-> > > > > > according to the multiplier. I get 7/8 full scroll event for ea=
-ch
-> > > > > > wheel step. I think it happens because the mouse is split in tw=
-o
-> > > > > > devices. The first device has the wheel events, and the second =
-device
-> > > > > > has the HID++ reports. The wheel multiplier is only set on the =
-second
-> > > > > > device (where the hi-res mode is enabled) and does not affect t=
-he
-> > > > > > wheel events from the first one.
-> > > > >
-> > > > > I would think this have to do with the device not accepting the
-> > > > > command instead. Can you share some raw logs of the events (ideal=
-ly
-> > > > > with hid-recorder from
-> > > > > https://gitlab.freedesktop.org/libevdev/hid-tools)?
-> > > >
-> > > > I already checked with usbmon and double-checked by querying the
-> > > > register. The flag is set and accepted by the device and it behaves
-> > > > accordingly: it sends about 8 wheel events per step.
-> > >
-> > > OK, that's what I wanted to see.
-> > >
-> > > >
-> > > > hid-recorder takes hidraw nodes as parameters, how do I use it to
-> > > > record the initialization by the driver?
-> > >
-> > > You can't. But it doesn't really matter here because I wanted to chec=
-k
-> > > what your mouse is actually sending after the initialization.
-> > >
-> > > So if I read correctly: the mouse is sending high res data but
-> > > evemu-recorder shows one REL_WHEEL event every 7/8 clicks?
-> >
-> > It is HID++ 1.0, there is no special high res data report, it sends
-> > standard HID mouse wheel report, but more of them.
-> >
-> > To be clear, here is a recording using the modified kernel. I moved
-> > the wheel one step up (8 events are generated), then one step down (8
-> > events again + a 2-event bump).
-> >
-> > # EVEMU 1.3
-> [snipped]
-> > E: 1.975014 8 00 00 00 00 00 00 01 00
-> >
-> > The hi-res events should +/-15 instead of +/-120, and less REL_WHEEL
-> > events should be generated. This looks like the multiplier is set to 1
-> > instead of 8.
-> >
-> > kernel log shows the multiplier is set but only for one of the two devi=
-ces:
-> >
-> > input: Logitech G500 as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.0/0003:046D:C068.0006/i=
-nput/input25
-> > hid-generic 0003:046D:C068.0006: input,hidraw5: USB HID v1.11 Mouse
-> > [Logitech G500] on usb-0000:00:14.0-2/input0
-> > input: Logitech G500 Keyboard as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.1/0003:046D:C068.0007/i=
-nput/input26
-> > input: Logitech G500 Consumer Control as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.1/0003:046D:C068.0007/i=
-nput/input27
-> > hid-generic 0003:046D:C068.0007: input,hiddev97,hidraw6: USB HID v1.11
-> > Keyboard [Logitech G500] on usb-0000:00:14.0-2/input1
-> > input: Logitech G500 as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.0/0003:046D:C068.0006/i=
-nput/input30
-> > logitech-hidpp-device 0003:046D:C068.0006: input,hidraw5: USB HID
-> > v1.11 Mouse [Logitech G500] on usb-0000:00:14.0-2/input0
-> > logitech-hidpp-device 0003:046D:C068.0007: HID++ 1.0 device connected.
-> > logitech-hidpp-device 0003:046D:C068.0007: multiplier =3D 8
-> > input: Logitech G500 as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.1/0003:046D:C068.0007/i=
-nput/input31
-> > logitech-hidpp-device 0003:046D:C068.0007: input,hiddev97,hidraw6: USB
-> > HID v1.11 Keyboard [Logitech G500] on usb-0000:00:14.0-2/input1
-> >
->
-> Oh, now I see. And yes you are correct.
->
-> I wonder if we should not consider the mouse in hid-logitech-dj then.
-> And let hid-logitech-dj merge the 2 nodes together into one hidpp
-> device, and so we are facing a "regular" HID++ device which is
-> consistent.
+Em Tue, 16 Apr 2019 22:25:33 +0200
+Arnd Bergmann <arnd@arndb.de> escreveu:
 
-This would change how userspace see the devices, isn't it? And I don't
-like the dj hidraw nodes, they mess with the device index: you get
-answers with a device index different from the one used in the
-corresponding request.
+> The .ioctl and .compat_ioctl file operations have the same prototype so
+> they can both point to the same function, which works great almost all
+> the time when all the commands are compatible.
+> 
+> One exception is the s390 architecture, where a compat pointer is only
+> 31 bit wide, and converting it into a 64-bit pointer requires calling
+> compat_ptr(). Most drivers here will ever run in s390, but since we now
+> have a generic helper for it, it's easy enough to use it consistently.
+> 
+> I double-checked all these drivers to ensure that all ioctl arguments
+> are used as pointers or are ignored, but are not interpreted as integer
+> values.
+> 
+> Acked-by: Jason Gunthorpe <jgg@mellanox.com>
+> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Acked-by: David Sterba <dsterba@suse.com>
+> Acked-by: Darren Hart (VMware) <dvhart@infradead.org>
+> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/android/binder.c                    | 2 +-
+>  drivers/crypto/qat/qat_common/adf_ctl_drv.c | 2 +-
+>  drivers/dma-buf/dma-buf.c                   | 4 +---
+>  drivers/dma-buf/sw_sync.c                   | 2 +-
+>  drivers/dma-buf/sync_file.c                 | 2 +-
+>  drivers/gpu/drm/amd/amdkfd/kfd_chardev.c    | 2 +-
+>  drivers/hid/hidraw.c                        | 4 +---
+>  drivers/iio/industrialio-core.c             | 2 +-
+>  drivers/infiniband/core/uverbs_main.c       | 4 ++--
+>  drivers/media/rc/lirc_dev.c                 | 4 +---
 
->
-> Unfortunately, I am not sure I'll have the time to work on it this week :=
-/
->
-> Cheers,
-> Benjamin
->
-> > >
-> > > > > > Le mer. 19 d=C3=A9c. 2018 =C3=A0 21:35, Benjamin Tissoires
-> > > > > > <benjamin.tissoires@redhat.com> a =C3=A9crit :
-> > > > > > >
-> > > > > > > On Wed, Dec 19, 2018 at 11:57 AM Cl=C3=A9ment VUCHENER
-> > > > > > > <clement.vuchener@gmail.com> wrote:
-> > > > > > > >
-> > > > > > > > Le sam. 15 d=C3=A9c. 2018 =C3=A0 15:45, Cl=C3=A9ment VUCHEN=
-ER
-> > > > > > > > <clement.vuchener@gmail.com> a =C3=A9crit :
-> > > > > > > > >
-> > > > > > > > > Le ven. 14 d=C3=A9c. 2018 =C3=A0 19:37, Harry Cutts <hcut=
-ts@chromium.org> a =C3=A9crit :
-> > > > > > > > > >
-> > > > > > > > > > Hi Clement,
-> > > > > > > > > >
-> > > > > > > > > > On Fri, 14 Dec 2018 at 05:47, Cl=C3=A9ment VUCHENER
-> > > > > > > > > > <clement.vuchener@gmail.com> wrote:
-> > > > > > > > > > > Hi, The G500s (and the G500 too, I think) does suppor=
-t the "scrolling
-> > > > > > > > > > > acceleration" bit. If I set it, I get around 8 events=
- for each wheel
-> > > > > > > > > > > "click", this is what this driver expects, right? If =
-I understood
-> > > > > > > > > > > correctly, I should try this patch with the
-> > > > > > > > > > > HIDPP_QUIRK_HI_RES_SCROLL_1P0 quirk set for my mouse.
-> > > > > > > > > >
-> > > > > > > > > > Thanks for the info! Yes, that should work.
-> > > > > > > > >
-> > > > > > > > > Well, it is not that simple. I get "Device not connected"=
- errors for
-> > > > > > > > > both interfaces of the mouse.
-> > > > > > > >
-> > > > > > > > I suspect the device is not responding because the hid devi=
-ce is not
-> > > > > > > > started. When is hid_hw_start supposed to be called? It is =
-called
-> > > > > > > > early for HID_QUIRK_CLASS_G920 but later for other device. =
-So the
-> > > > > > > > device is not started when hidpp_is_connected is called. Is=
- this
-> > > > > > > > because most of the device in this driver are not real HID =
-devices but
-> > > > > > > > DJ devices? How should non-DJ devices be treated?
-> > > > > > >
-> > > > > > > Hi Clement,
-> > > > > > >
-> > > > > > > I have a series I sent last September that allows to support =
-non DJ
-> > > > > > > devices on logitech-hidpp
-> > > > > > > (https://patchwork.kernel.org/project/linux-input/list/?serie=
-s=3D16359).
-> > > > > > >
-> > > > > > > In its current form, with the latest upstream kernel, the ser=
-ies will
-> > > > > > > oops during the .event() callback, which is easy enough to fi=
-x.
-> > > > > > > However, I am currently trying to make it better as a second =
-or third
-> > > > > > > reading made me realized that there was a bunch of non-sense =
-in it and
-> > > > > > > a proper support would require slightly more work for the non=
- unifying
-> > > > > > > receiver case.
-> > > > > > >
-> > > > > > > I hope I'll be able to send out something by the end of the w=
-eek.
-> > > > > > >
-> > > > > > > Cheers,
-> > > > > > > Benjamin
+If I understand your patch description well, using compat_ptr_ioctl
+only works if the driver is not for s390, right?
+
+In thesis, nothing prevents to use LIRC API on s390 - as this isn't
+a driver but, instead, RC core feature to expose raw remote controller
+codes to userspace.
+
+Yet, lirc_dev will only work if the system has a remote controller driver.
+
+Well, we don't have any for s390. Despite we don't have such driver, 
+I can't possible see why someone would use a remote controller for a
+mainframe :-p
+
+Anyway, if someone ever come with such driver/usecase, reverting this
+change (or adding an #ifdef to check if arch is 390) should be
+pretty straight forward.
+
+So:
+
+Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+
+
+
+>  drivers/mfd/cros_ec_dev.c                   | 4 +---
+>  drivers/misc/vmw_vmci/vmci_host.c           | 2 +-
+>  drivers/nvdimm/bus.c                        | 4 ++--
+>  drivers/nvme/host/core.c                    | 2 +-
+>  drivers/pci/switch/switchtec.c              | 2 +-
+>  drivers/platform/x86/wmi.c                  | 2 +-
+>  drivers/rpmsg/rpmsg_char.c                  | 4 ++--
+>  drivers/sbus/char/display7seg.c             | 2 +-
+>  drivers/sbus/char/envctrl.c                 | 4 +---
+>  drivers/scsi/3w-xxxx.c                      | 4 +---
+>  drivers/scsi/cxlflash/main.c                | 2 +-
+>  drivers/scsi/esas2r/esas2r_main.c           | 2 +-
+>  drivers/scsi/pmcraid.c                      | 4 +---
+>  drivers/staging/android/ion/ion.c           | 4 +---
+>  drivers/staging/vme/devices/vme_user.c      | 2 +-
+>  drivers/tee/tee_core.c                      | 2 +-
+>  drivers/usb/class/cdc-wdm.c                 | 2 +-
+>  drivers/usb/class/usbtmc.c                  | 4 +---
+>  drivers/virt/fsl_hypervisor.c               | 2 +-
+>  fs/btrfs/super.c                            | 2 +-
+>  fs/ceph/dir.c                               | 2 +-
+>  fs/ceph/file.c                              | 2 +-
+>  fs/fuse/dev.c                               | 2 +-
+>  fs/notify/fanotify/fanotify_user.c          | 2 +-
+>  fs/userfaultfd.c                            | 2 +-
+>  net/rfkill/core.c                           | 2 +-
+>  36 files changed, 39 insertions(+), 57 deletions(-)
+> 
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 4b9c7ca492e6..48109ade7234 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -5998,7 +5998,7 @@ const struct file_operations binder_fops = {
+>  	.owner = THIS_MODULE,
+>  	.poll = binder_poll,
+>  	.unlocked_ioctl = binder_ioctl,
+> -	.compat_ioctl = binder_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.mmap = binder_mmap,
+>  	.open = binder_open,
+>  	.flush = binder_flush,
+> diff --git a/drivers/crypto/qat/qat_common/adf_ctl_drv.c b/drivers/crypto/qat/qat_common/adf_ctl_drv.c
+> index abc7a7f64d64..ef0e482ee04f 100644
+> --- a/drivers/crypto/qat/qat_common/adf_ctl_drv.c
+> +++ b/drivers/crypto/qat/qat_common/adf_ctl_drv.c
+> @@ -68,7 +68,7 @@ static long adf_ctl_ioctl(struct file *fp, unsigned int cmd, unsigned long arg);
+>  static const struct file_operations adf_ctl_ops = {
+>  	.owner = THIS_MODULE,
+>  	.unlocked_ioctl = adf_ctl_ioctl,
+> -	.compat_ioctl = adf_ctl_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  struct adf_ctl_drv_info {
+> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+> index 7c858020d14b..0cb336fe6324 100644
+> --- a/drivers/dma-buf/dma-buf.c
+> +++ b/drivers/dma-buf/dma-buf.c
+> @@ -325,9 +325,7 @@ static const struct file_operations dma_buf_fops = {
+>  	.llseek		= dma_buf_llseek,
+>  	.poll		= dma_buf_poll,
+>  	.unlocked_ioctl	= dma_buf_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl	= dma_buf_ioctl,
+> -#endif
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+>  
+>  /*
+> diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
+> index 32dcf7b4c935..411de6a8a0ad 100644
+> --- a/drivers/dma-buf/sw_sync.c
+> +++ b/drivers/dma-buf/sw_sync.c
+> @@ -419,5 +419,5 @@ const struct file_operations sw_sync_debugfs_fops = {
+>  	.open           = sw_sync_debugfs_open,
+>  	.release        = sw_sync_debugfs_release,
+>  	.unlocked_ioctl = sw_sync_ioctl,
+> -	.compat_ioctl	= sw_sync_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+> diff --git a/drivers/dma-buf/sync_file.c b/drivers/dma-buf/sync_file.c
+> index 4f6305ca52c8..0949f91eb85f 100644
+> --- a/drivers/dma-buf/sync_file.c
+> +++ b/drivers/dma-buf/sync_file.c
+> @@ -488,5 +488,5 @@ static const struct file_operations sync_file_fops = {
+>  	.release = sync_file_release,
+>  	.poll = sync_file_poll,
+>  	.unlocked_ioctl = sync_file_ioctl,
+> -	.compat_ioctl = sync_file_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+> diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+> index 083bd8114db1..5d6ac7885aa7 100644
+> --- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+> +++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
+> @@ -49,7 +49,7 @@ static const char kfd_dev_name[] = "kfd";
+>  static const struct file_operations kfd_fops = {
+>  	.owner = THIS_MODULE,
+>  	.unlocked_ioctl = kfd_ioctl,
+> -	.compat_ioctl = kfd_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.open = kfd_open,
+>  	.mmap = kfd_mmap,
+>  };
+> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+> index 9fc51eff1079..e7284d38b66d 100644
+> --- a/drivers/hid/hidraw.c
+> +++ b/drivers/hid/hidraw.c
+> @@ -476,9 +476,7 @@ static const struct file_operations hidraw_ops = {
+>  	.release =      hidraw_release,
+>  	.unlocked_ioctl = hidraw_ioctl,
+>  	.fasync =	hidraw_fasync,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl   = hidraw_ioctl,
+> -#endif
+> +	.compat_ioctl   = compat_ptr_ioctl,
+>  	.llseek =	noop_llseek,
+>  };
+>  
+> diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+> index 4700fd5d8c90..eed1bea257b4 100644
+> --- a/drivers/iio/industrialio-core.c
+> +++ b/drivers/iio/industrialio-core.c
+> @@ -1635,7 +1635,7 @@ static const struct file_operations iio_buffer_fileops = {
+>  	.owner = THIS_MODULE,
+>  	.llseek = noop_llseek,
+>  	.unlocked_ioctl = iio_ioctl,
+> -	.compat_ioctl = iio_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static int iio_check_unique_scan_index(struct iio_dev *indio_dev)
+> diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
+> index 70b7d80431a9..ac4321d7c800 100644
+> --- a/drivers/infiniband/core/uverbs_main.c
+> +++ b/drivers/infiniband/core/uverbs_main.c
+> @@ -1120,7 +1120,7 @@ static const struct file_operations uverbs_fops = {
+>  	.release = ib_uverbs_close,
+>  	.llseek	 = no_llseek,
+>  	.unlocked_ioctl = ib_uverbs_ioctl,
+> -	.compat_ioctl = ib_uverbs_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static const struct file_operations uverbs_mmap_fops = {
+> @@ -1131,7 +1131,7 @@ static const struct file_operations uverbs_mmap_fops = {
+>  	.release = ib_uverbs_close,
+>  	.llseek	 = no_llseek,
+>  	.unlocked_ioctl = ib_uverbs_ioctl,
+> -	.compat_ioctl = ib_uverbs_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static struct ib_client uverbs_client = {
+> diff --git a/drivers/media/rc/lirc_dev.c b/drivers/media/rc/lirc_dev.c
+> index f862f1b7f996..9ccc7e9cbc8e 100644
+> --- a/drivers/media/rc/lirc_dev.c
+> +++ b/drivers/media/rc/lirc_dev.c
+> @@ -730,9 +730,7 @@ static const struct file_operations lirc_fops = {
+>  	.owner		= THIS_MODULE,
+>  	.write		= ir_lirc_transmit_ir,
+>  	.unlocked_ioctl	= ir_lirc_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl	= ir_lirc_ioctl,
+> -#endif
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  	.read		= ir_lirc_read,
+>  	.poll		= ir_lirc_poll,
+>  	.open		= ir_lirc_open,
+> diff --git a/drivers/mfd/cros_ec_dev.c b/drivers/mfd/cros_ec_dev.c
+> index d275deaecb12..4a602a40d75c 100644
+> --- a/drivers/mfd/cros_ec_dev.c
+> +++ b/drivers/mfd/cros_ec_dev.c
+> @@ -251,9 +251,7 @@ static const struct file_operations fops = {
+>  	.release = ec_device_release,
+>  	.read = ec_device_read,
+>  	.unlocked_ioctl = ec_device_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl = ec_device_ioctl,
+> -#endif
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static void cros_ec_class_release(struct device *dev)
+> diff --git a/drivers/misc/vmw_vmci/vmci_host.c b/drivers/misc/vmw_vmci/vmci_host.c
+> index 997f92543dd4..5bb406dabe85 100644
+> --- a/drivers/misc/vmw_vmci/vmci_host.c
+> +++ b/drivers/misc/vmw_vmci/vmci_host.c
+> @@ -969,7 +969,7 @@ static const struct file_operations vmuser_fops = {
+>  	.release	= vmci_host_close,
+>  	.poll		= vmci_host_poll,
+>  	.unlocked_ioctl	= vmci_host_unlocked_ioctl,
+> -	.compat_ioctl	= vmci_host_unlocked_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+>  
+>  static struct miscdevice vmci_host_miscdev = {
+> diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+> index 7bbff0af29b2..065ebd584482 100644
+> --- a/drivers/nvdimm/bus.c
+> +++ b/drivers/nvdimm/bus.c
+> @@ -1167,7 +1167,7 @@ static const struct file_operations nvdimm_bus_fops = {
+>  	.owner = THIS_MODULE,
+>  	.open = nd_open,
+>  	.unlocked_ioctl = nd_ioctl,
+> -	.compat_ioctl = nd_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.llseek = noop_llseek,
+>  };
+>  
+> @@ -1175,7 +1175,7 @@ static const struct file_operations nvdimm_fops = {
+>  	.owner = THIS_MODULE,
+>  	.open = nd_open,
+>  	.unlocked_ioctl = nvdimm_ioctl,
+> -	.compat_ioctl = nvdimm_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.llseek = noop_llseek,
+>  };
+>  
+> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+> index 2c43e12b70af..560929bee5ce 100644
+> --- a/drivers/nvme/host/core.c
+> +++ b/drivers/nvme/host/core.c
+> @@ -2739,7 +2739,7 @@ static const struct file_operations nvme_dev_fops = {
+>  	.owner		= THIS_MODULE,
+>  	.open		= nvme_dev_open,
+>  	.unlocked_ioctl	= nvme_dev_ioctl,
+> -	.compat_ioctl	= nvme_dev_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+>  
+>  static ssize_t nvme_sysfs_reset(struct device *dev,
+> diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
+> index e22766c79fe9..3a54b4b616e2 100644
+> --- a/drivers/pci/switch/switchtec.c
+> +++ b/drivers/pci/switch/switchtec.c
+> @@ -1006,7 +1006,7 @@ static const struct file_operations switchtec_fops = {
+>  	.read = switchtec_dev_read,
+>  	.poll = switchtec_dev_poll,
+>  	.unlocked_ioctl = switchtec_dev_ioctl,
+> -	.compat_ioctl = switchtec_dev_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static void link_event_work(struct work_struct *work)
+> diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
+> index 7b26b6ccf1a0..dded9cef42f4 100644
+> --- a/drivers/platform/x86/wmi.c
+> +++ b/drivers/platform/x86/wmi.c
+> @@ -889,7 +889,7 @@ static const struct file_operations wmi_fops = {
+>  	.read		= wmi_char_read,
+>  	.open		= wmi_char_open,
+>  	.unlocked_ioctl	= wmi_ioctl,
+> -	.compat_ioctl	= wmi_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+>  
+>  static int wmi_dev_probe(struct device *dev)
+> diff --git a/drivers/rpmsg/rpmsg_char.c b/drivers/rpmsg/rpmsg_char.c
+> index eea5ebbb5119..507bfe163883 100644
+> --- a/drivers/rpmsg/rpmsg_char.c
+> +++ b/drivers/rpmsg/rpmsg_char.c
+> @@ -290,7 +290,7 @@ static const struct file_operations rpmsg_eptdev_fops = {
+>  	.write_iter = rpmsg_eptdev_write_iter,
+>  	.poll = rpmsg_eptdev_poll,
+>  	.unlocked_ioctl = rpmsg_eptdev_ioctl,
+> -	.compat_ioctl = rpmsg_eptdev_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static ssize_t name_show(struct device *dev, struct device_attribute *attr,
+> @@ -451,7 +451,7 @@ static const struct file_operations rpmsg_ctrldev_fops = {
+>  	.open = rpmsg_ctrldev_open,
+>  	.release = rpmsg_ctrldev_release,
+>  	.unlocked_ioctl = rpmsg_ctrldev_ioctl,
+> -	.compat_ioctl = rpmsg_ctrldev_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static void rpmsg_ctrldev_release_device(struct device *dev)
+> diff --git a/drivers/sbus/char/display7seg.c b/drivers/sbus/char/display7seg.c
+> index a36e4cf1841d..c9f60656f54d 100644
+> --- a/drivers/sbus/char/display7seg.c
+> +++ b/drivers/sbus/char/display7seg.c
+> @@ -155,7 +155,7 @@ static long d7s_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+>  static const struct file_operations d7s_fops = {
+>  	.owner =		THIS_MODULE,
+>  	.unlocked_ioctl =	d7s_ioctl,
+> -	.compat_ioctl =		d7s_ioctl,
+> +	.compat_ioctl =		compat_ptr_ioctl,
+>  	.open =			d7s_open,
+>  	.release =		d7s_release,
+>  	.llseek = noop_llseek,
+> diff --git a/drivers/sbus/char/envctrl.c b/drivers/sbus/char/envctrl.c
+> index 1a6e7224017c..dd2dfa85fc68 100644
+> --- a/drivers/sbus/char/envctrl.c
+> +++ b/drivers/sbus/char/envctrl.c
+> @@ -714,9 +714,7 @@ static const struct file_operations envctrl_fops = {
+>  	.owner =		THIS_MODULE,
+>  	.read =			envctrl_read,
+>  	.unlocked_ioctl =	envctrl_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl =		envctrl_ioctl,
+> -#endif
+> +	.compat_ioctl =		compat_ptr_ioctl,
+>  	.open =			envctrl_open,
+>  	.release =		envctrl_release,
+>  	.llseek =		noop_llseek,
+> diff --git a/drivers/scsi/3w-xxxx.c b/drivers/scsi/3w-xxxx.c
+> index 2b1e0d503020..fb6444d0409c 100644
+> --- a/drivers/scsi/3w-xxxx.c
+> +++ b/drivers/scsi/3w-xxxx.c
+> @@ -1049,9 +1049,7 @@ static int tw_chrdev_open(struct inode *inode, struct file *file)
+>  static const struct file_operations tw_fops = {
+>  	.owner		= THIS_MODULE,
+>  	.unlocked_ioctl	= tw_chrdev_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl   = tw_chrdev_ioctl,
+> -#endif
+> +	.compat_ioctl   = compat_ptr_ioctl,
+>  	.open		= tw_chrdev_open,
+>  	.release	= NULL,
+>  	.llseek		= noop_llseek,
+> diff --git a/drivers/scsi/cxlflash/main.c b/drivers/scsi/cxlflash/main.c
+> index 7096810fd222..e13d5de1d76e 100644
+> --- a/drivers/scsi/cxlflash/main.c
+> +++ b/drivers/scsi/cxlflash/main.c
+> @@ -3589,7 +3589,7 @@ static const struct file_operations cxlflash_chr_fops = {
+>  	.owner          = THIS_MODULE,
+>  	.open           = cxlflash_chr_open,
+>  	.unlocked_ioctl	= cxlflash_chr_ioctl,
+> -	.compat_ioctl	= cxlflash_chr_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+>  
+>  /**
+> diff --git a/drivers/scsi/esas2r/esas2r_main.c b/drivers/scsi/esas2r/esas2r_main.c
+> index fdbda5c05aa0..80c5a235d193 100644
+> --- a/drivers/scsi/esas2r/esas2r_main.c
+> +++ b/drivers/scsi/esas2r/esas2r_main.c
+> @@ -613,7 +613,7 @@ static int __init esas2r_init(void)
+>  
+>  /* Handle ioctl calls to "/proc/scsi/esas2r/ATTOnode" */
+>  static const struct file_operations esas2r_proc_fops = {
+> -	.compat_ioctl	= esas2r_proc_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  	.unlocked_ioctl = esas2r_proc_ioctl,
+>  };
+>  
+> diff --git a/drivers/scsi/pmcraid.c b/drivers/scsi/pmcraid.c
+> index e338d7a4f571..c0a1a1218c56 100644
+> --- a/drivers/scsi/pmcraid.c
+> +++ b/drivers/scsi/pmcraid.c
+> @@ -3988,9 +3988,7 @@ static const struct file_operations pmcraid_fops = {
+>  	.open = pmcraid_chr_open,
+>  	.fasync = pmcraid_chr_fasync,
+>  	.unlocked_ioctl = pmcraid_chr_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl = pmcraid_chr_ioctl,
+> -#endif
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.llseek = noop_llseek,
+>  };
+>  
+> diff --git a/drivers/staging/android/ion/ion.c b/drivers/staging/android/ion/ion.c
+> index 92c2914239e3..1663c163edca 100644
+> --- a/drivers/staging/android/ion/ion.c
+> +++ b/drivers/staging/android/ion/ion.c
+> @@ -567,9 +567,7 @@ static long ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+>  static const struct file_operations ion_fops = {
+>  	.owner          = THIS_MODULE,
+>  	.unlocked_ioctl = ion_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl	= ion_ioctl,
+> -#endif
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  };
+>  
+>  static int debug_shrink_set(void *data, u64 val)
+> diff --git a/drivers/staging/vme/devices/vme_user.c b/drivers/staging/vme/devices/vme_user.c
+> index 6a33aaa1a49f..fd0ea4dbcb91 100644
+> --- a/drivers/staging/vme/devices/vme_user.c
+> +++ b/drivers/staging/vme/devices/vme_user.c
+> @@ -494,7 +494,7 @@ static const struct file_operations vme_user_fops = {
+>  	.write = vme_user_write,
+>  	.llseek = vme_user_llseek,
+>  	.unlocked_ioctl = vme_user_unlocked_ioctl,
+> -	.compat_ioctl = vme_user_unlocked_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.mmap = vme_user_mmap,
+>  };
+>  
+> diff --git a/drivers/tee/tee_core.c b/drivers/tee/tee_core.c
+> index 17c64fccbb10..eb97acf09868 100644
+> --- a/drivers/tee/tee_core.c
+> +++ b/drivers/tee/tee_core.c
+> @@ -684,7 +684,7 @@ static const struct file_operations tee_fops = {
+>  	.open = tee_open,
+>  	.release = tee_release,
+>  	.unlocked_ioctl = tee_ioctl,
+> -	.compat_ioctl = tee_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static void tee_release_device(struct device *dev)
+> diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+> index 9e9caff905d5..d48c032580d0 100644
+> --- a/drivers/usb/class/cdc-wdm.c
+> +++ b/drivers/usb/class/cdc-wdm.c
+> @@ -724,7 +724,7 @@ static const struct file_operations wdm_fops = {
+>  	.release =	wdm_release,
+>  	.poll =		wdm_poll,
+>  	.unlocked_ioctl = wdm_ioctl,
+> -	.compat_ioctl = wdm_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.llseek =	noop_llseek,
+>  };
+>  
+> diff --git a/drivers/usb/class/usbtmc.c b/drivers/usb/class/usbtmc.c
+> index 4942122b2346..bbd0308b13f5 100644
+> --- a/drivers/usb/class/usbtmc.c
+> +++ b/drivers/usb/class/usbtmc.c
+> @@ -2220,9 +2220,7 @@ static const struct file_operations fops = {
+>  	.release	= usbtmc_release,
+>  	.flush		= usbtmc_flush,
+>  	.unlocked_ioctl	= usbtmc_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -	.compat_ioctl	= usbtmc_ioctl,
+> -#endif
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  	.fasync         = usbtmc_fasync,
+>  	.poll           = usbtmc_poll,
+>  	.llseek		= default_llseek,
+> diff --git a/drivers/virt/fsl_hypervisor.c b/drivers/virt/fsl_hypervisor.c
+> index 8ba726e600e9..fbf02bf60f62 100644
+> --- a/drivers/virt/fsl_hypervisor.c
+> +++ b/drivers/virt/fsl_hypervisor.c
+> @@ -703,7 +703,7 @@ static const struct file_operations fsl_hv_fops = {
+>  	.poll = fsl_hv_poll,
+>  	.read = fsl_hv_read,
+>  	.unlocked_ioctl = fsl_hv_ioctl,
+> -	.compat_ioctl = fsl_hv_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  };
+>  
+>  static struct miscdevice fsl_hv_misc_dev = {
+> diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+> index 120e4340792a..162ea4b6b417 100644
+> --- a/fs/btrfs/super.c
+> +++ b/fs/btrfs/super.c
+> @@ -2307,7 +2307,7 @@ static const struct super_operations btrfs_super_ops = {
+>  static const struct file_operations btrfs_ctl_fops = {
+>  	.open = btrfs_control_open,
+>  	.unlocked_ioctl	 = btrfs_control_ioctl,
+> -	.compat_ioctl = btrfs_control_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.owner	 = THIS_MODULE,
+>  	.llseek = noop_llseek,
+>  };
+> diff --git a/fs/ceph/dir.c b/fs/ceph/dir.c
+> index 7c060cb22aa3..a493b957713f 100644
+> --- a/fs/ceph/dir.c
+> +++ b/fs/ceph/dir.c
+> @@ -1785,7 +1785,7 @@ const struct file_operations ceph_dir_fops = {
+>  	.open = ceph_open,
+>  	.release = ceph_release,
+>  	.unlocked_ioctl = ceph_ioctl,
+> -	.compat_ioctl = ceph_ioctl,
+> +	.compat_ioctl = compat_ptr_ioctl,
+>  	.fsync = ceph_fsync,
+>  	.lock = ceph_lock,
+>  	.flock = ceph_flock,
+> diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+> index 9f53c3d99304..9b5fe7eee3c1 100644
+> --- a/fs/ceph/file.c
+> +++ b/fs/ceph/file.c
+> @@ -2112,7 +2112,7 @@ const struct file_operations ceph_file_fops = {
+>  	.splice_read = generic_file_splice_read,
+>  	.splice_write = iter_file_splice_write,
+>  	.unlocked_ioctl = ceph_ioctl,
+> -	.compat_ioctl	= ceph_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  	.fallocate	= ceph_fallocate,
+>  	.copy_file_range = ceph_copy_file_range,
+>  };
+> diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+> index 9971a35cf1ef..dcdb26068b71 100644
+> --- a/fs/fuse/dev.c
+> +++ b/fs/fuse/dev.c
+> @@ -2354,7 +2354,7 @@ const struct file_operations fuse_dev_operations = {
+>  	.release	= fuse_dev_release,
+>  	.fasync		= fuse_dev_fasync,
+>  	.unlocked_ioctl = fuse_dev_ioctl,
+> -	.compat_ioctl   = fuse_dev_ioctl,
+> +	.compat_ioctl   = compat_ptr_ioctl,
+>  };
+>  EXPORT_SYMBOL_GPL(fuse_dev_operations);
+>  
+> diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
+> index a90bb19dcfa2..a55aa029a308 100644
+> --- a/fs/notify/fanotify/fanotify_user.c
+> +++ b/fs/notify/fanotify/fanotify_user.c
+> @@ -523,7 +523,7 @@ static const struct file_operations fanotify_fops = {
+>  	.fasync		= NULL,
+>  	.release	= fanotify_release,
+>  	.unlocked_ioctl	= fanotify_ioctl,
+> -	.compat_ioctl	= fanotify_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  	.llseek		= noop_llseek,
+>  };
+>  
+> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+> index 89800fc7dc9d..f93dcf8c996f 100644
+> --- a/fs/userfaultfd.c
+> +++ b/fs/userfaultfd.c
+> @@ -1901,7 +1901,7 @@ static const struct file_operations userfaultfd_fops = {
+>  	.poll		= userfaultfd_poll,
+>  	.read		= userfaultfd_read,
+>  	.unlocked_ioctl = userfaultfd_ioctl,
+> -	.compat_ioctl	= userfaultfd_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  	.llseek		= noop_llseek,
+>  };
+>  
+> diff --git a/net/rfkill/core.c b/net/rfkill/core.c
+> index abca57040f37..3b2f6ea44397 100644
+> --- a/net/rfkill/core.c
+> +++ b/net/rfkill/core.c
+> @@ -1323,7 +1323,7 @@ static const struct file_operations rfkill_fops = {
+>  	.release	= rfkill_fop_release,
+>  #ifdef CONFIG_RFKILL_INPUT
+>  	.unlocked_ioctl	= rfkill_fop_ioctl,
+> -	.compat_ioctl	= rfkill_fop_ioctl,
+> +	.compat_ioctl	= compat_ptr_ioctl,
+>  #endif
+>  	.llseek		= no_llseek,
+>  };
+
+
+
+Thanks,
+Mauro

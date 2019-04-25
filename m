@@ -1,52 +1,47 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 2/2] HID: wacom: Don't report anything prior to the tool
- entering range
-Date: Thu, 25 Apr 2019 10:47:50 -0700
-Message-ID: <CANRwn3Ru+7FGtsY=GaDa7pAJkuagdb6nFtvrFq1qhTWJR0rF9A@mail.gmail.com>
-References: <20190424221258.19992-2-jason.gerecke@wacom.com> <20190425121506.7EBEC218B0@mail.kernel.org>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH 0/5] Add of_ functions for device_link_add()
+Date: Thu, 25 Apr 2019 13:07:53 -0500
+Message-ID: <CAL_JsqJp9f3Sv08igSyR38Z5eXnAYWMNY29U5qEGLp=r2YReRw@mail.gmail.com>
+References: <20190424101913.1534-1-benjamin.gaignard@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190425121506.7EBEC218B0@mail.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Sasha Levin <sashal@kernel.org>
-Cc: Jason Gerecke <jason.gerecke@wacom.com>, Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, "# v3.17+" <stable@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190424101913.1534-1-benjamin.gaignard@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Gaignard <benjamin.gaignard@st.com>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Bastien Nocera <hadess@hadess.net>, Frank Rowand <frowand.list@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, =?UTF-8?Q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>, Yannick Fertre <yannick.fertre@st.com>, Arnd Bergmann <arnd@arndb.de>, Linux Input <linux-input@vger.kernel.org>, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com, Mark Brown <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-I can produce a version of this patch specific to v4.14.113. Please
-let me know the proper process for submitting such a patch.
+On Wed, Apr 24, 2019 at 5:19 AM Benjamin Gaignard
+<benjamin.gaignard@st.com> wrote:
+>
+> It could happen that we need to control suspend/resume ordering between
+> devices without obvious consumer/supplier link. For example when touchscreens
+> and DSI panels share the same reset line, in this case we need to be sure
+> of pm_runtime operations ordering between those two devices to correctly
+> perform reset.
+> DSI panel and touchscreen aren't sharing any heriachical relationship (unlike
+> I2C client and I2C bus or regulator client and regulator provider) so we need
+> to describe this in device-tree.
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+Needing to know which touchscreen is attached to a panel could be
+important to describe if you have multiple displays.
 
-On Thu, Apr 25, 2019 at 5:15 AM Sasha Levin <sashal@kernel.org> wrote:
+Doesn't the reset subsystem already have some support for shared
+resets? Seems like it could provide clients with struct device or
+device_node ptrs to other devices sharing a reset.
+
 >
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: a48324de6d4d HID: wacom: Bluetooth IRQ for Intuos Pro shou=
-ld handle prox/range.
->
-> The bot has tested the following trees: v5.0.9, v4.19.36, v4.14.113.
->
-> v5.0.9: Build OK!
-> v4.19.36: Build OK!
-> v4.14.113: Failed to apply! Possible dependencies:
->     87046b6c995c ("HID: wacom: Add support for 3rd generation Intuos BT")
->     c947218951da ("HID: wacom: Add support for One by Wacom (CTL-472 / CT=
-L-672)")
->
->
-> How should we proceed with this patch?
->
-> --
-> Thanks,
-> Sasha
+> This series introduce of_device_links_{add,remove} and devm_of_device_links_add()
+> helpers to find and parse 'links-add' property in a device-tree node.
+
+Going to document that property somewhere? :)
+
+I think this is too generic and coupled to Linux. It doesn't have any
+information as to what is the dependency or connection nor what the
+direction of the dependency is.
+
+I'm not convinced we need to solve this generically vs. defining
+something for this specific example.
+
+Rob

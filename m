@@ -1,163 +1,66 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/3] mfd: apple-ibridge: Add Apple iBridge MFD driver.
-Date: Thu, 25 Apr 2019 11:39:12 +0200
-Message-ID: <CAO-hwJKcuptG6X7Y0jrQzyLUzZfsXoyWxMmk=v_aPxJh9iv4Gg@mail.gmail.com>
-References: <20190422031251.11968-1-ronald@innovation.ch> <20190422031251.11968-2-ronald@innovation.ch>
- <CAO-hwJLMZvBGheEtH_iU+mBtE4T3OsT6W+=1x-ewzGGP5Fxp4Q@mail.gmail.com> <20190425081948.GB31301@innovation.ch>
+Subject: Re: [PATCH] HID: Increase maximum report size allowed by hid_field_extract()
+Date: Thu, 25 Apr 2019 11:42:50 +0200
+Message-ID: <CAO-hwJLDuMZuqKiawnkq3YxL6T9SqNGqQ1Q_Vs=kMKmsx6SD0w@mail.gmail.com>
+References: <20190308051117.21899-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190425081948.GB31301@innovation.ch>
+In-Reply-To: <20190308051117.21899-1-kai.heng.feng@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Life is hard, and then you die" <ronald@innovation.ch>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Lee Jones <lee.jones@linaro.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, =?UTF-8?Q?Ronald_Tschal=C3=A4r?= <ronald@innovation.ch>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Apr 25, 2019 at 10:19 AM Life is hard, and then you die
-<ronald@innovation.ch> wrote:
->
->
->   Hi Benjamin,
->
-> Thank you for looking at this.
->
-> On Wed, Apr 24, 2019 at 04:18:23PM +0200, Benjamin Tissoires wrote:
-> > On Mon, Apr 22, 2019 at 5:13 AM Ronald Tschalär <ronald@innovation.ch> wrote:
-> > >
-> > > The iBridge device provides access to several devices, including:
-> > > - the Touch Bar
-> > > - the iSight webcam
-> > > - the light sensor
-> > > - the fingerprint sensor
-> > >
-> > > This driver provides the core support for managing the iBridge device
-> > > and the access to the underlying devices. In particular, since the
-> > > functionality for the touch bar and light sensor is exposed via USB HID
-> > > interfaces, and the same HID device is used for multiple functions, this
-> > > driver provides a multiplexing layer that allows multiple HID drivers to
-> > > be registered for a given HID device. This allows the touch bar and ALS
-> > > driver to be separated out into their own modules.
-> >
-> > Sorry for coming late to the party, but IMO this series is far too
-> > complex for what you need.
-> >
-> > As I read this and the first comment of drivers/mfd/apple-ibridge.c,
-> > you need to have a HID driver that multiplex 2 other sub drivers
-> > through one USB communication.
-> > For that, you are using MFD, platform driver and you own sauce instead
-> > of creating a bus.
->
-> Basically correct. To be a bit more precise, there are currently two
-> hid-devices and two drivers (touchbar and als) involved, with
-> connections as follows (pardon the ugly ascii art):
->
->   hdev1  ---  tb-drv
->            /
->           /
->          /
->   hdev2  ---  als-drv
->
-> i.e. the touchbar driver talks to both hdev's, and hdev2's events
-> (reports) are processed by both drivers (though each handles different
-> reports).
->
-> > So, how about we reuse entirely the HID subsystem which already
-> > provides the capability you need (assuming I am correct above).
-> > hid-logitech-dj already does the same kind of stuff and you could:
-> > - create drivers/hid/hid-ibridge.c that handles USB_ID_PRODUCT_IBRIDGE
-> > - hid-ibridge will then register itself to the hid subsystem with a
-> > call to hid_hw_start(hdev, HID_CONNECT_HIDRAW) and
-> > hid_device_io_start(hdev) to enable the events (so you don't create
-> > useless input nodes for it)
-> > - then you add your 2 new devices by calling hid_allocate_device() and
-> > then hid_add_device(). You can even create a new HID group
-> > APPLE_IBRIDGE and allocate 2 new PIDs for them to distinguish them
-> > from the actual USB device.
-> > - then you have 2 brand new HID devices you can create their driver as
-> > a regular ones.
-> >
-> > hid-ibridge.c would just need to behave like any other hid transport
-> > driver (see logi_dj_ll_driver in drivers/hid/hid-logitech-dj.c) and
-> > you can get rid of at least the MFD and the platform part of your
-> > drivers.
-> >
-> > Does it makes sense or am I missing something obvious in the middle?
->
-> Yes, I think I understand, and I think this can work. Basically,
-> instead of demux'ing at the hid-driver level as I am doing now (i.e.
-> the iBridge hid-driver forwarding calls to the sub-hid-drivers), we
-> demux at the hid-device level (events forwarded from iBridge hdev to
-> all "virtual" sub-hdev's, and requests from sub-hdev's forwarded to
-> the original hdev via an iBridge ll_driver attached to the
-> sub-hdev's).
->
-> So I would need to create 3 new "virtual" hid-devices (instances) as
-> follows:
->
->   hdev1  ---  vhdev1  ---  tb-drv
->                         /
->           --  vhdev2  --
->          /
->   hdev2  ---  vhdev3  ---  als-drv
->
-> (vhdev1 is probably not strictly necessary, but makes things more
-> consistent).
+Hi,
 
-Oh, ok.
 
-How about the following:
-
-hdev1 and hdev2 are merged together in hid-apple-ibridge.c, and then
-this driver creates 2 virtual hid drivers that are consistent
-
-like
-
-hdev1---ibridge-drv---vhdev1---tb-drv
-hdev2--/           \--vhdev2---als-drv
+On Fri, Mar 8, 2019 at 6:11 AM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
 >
-> > I have one other comment below.
-> >
-> > Note that I haven't read the whole series as I'd like to first get
-> > your feedback with my comment above.
+> Commit 71f6fa90a353 ("HID: increase maximum global item tag report size
+> to 256") increases the max report size from 128 to 256.
 >
-> Agreed: let's first get the overall strategy stabilized (also so I
-> can avoid having to rewrite the code too many more times ;-) ).
+> We also need to update the report size in hid_field_extract() otherwise
+> it complains and truncates now valid report size:
+> [ 406.165461] hid-sensor-hub 001F:8086:22D8.0002: hid_field_extract() called with n (192) > 32! (kworker/5:1)
 >
-> [snip]
-> > > +static __u8 *appleib_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-> > > +                                 unsigned int *rsize)
-> > > +{
-> > > +       /* Some fields have a size of 64 bits, which according to HID 1.11
-> > > +        * Section 8.4 is not valid ("An item field cannot span more than 4
-> > > +        * bytes in a report"). Furthermore, hid_field_extract() complains
-> >
-> > this must have been fixed in 94a9992f7dbdfb28976b565af220e0c4a117144a
-> > which is part of v5.1, so not sure you actually need the report
-> > descriptor fixup at all.
+> BugLink: https://bugs.launchpad.net/bugs/1818547
+> Fixes: 71f6fa90a353 ("HID: increase maximum global item tag report size to 256")
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+>  drivers/hid/hid-core.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 >
-> Wasn't aware of this change - thanks. Yes, with that the warning
-> message should be gone and this fixup can be avoided.
->
-> One thing I find strange, though, is that while 94a9992f7dbd changes
-> the condition at which the warning is emitted, it still truncates the
-> value to 32 bits, albeit completely silently now for lengths between
-> 32 and 256 bits. I.e. I'm somewhat surprised that hid_field_extract()
-> (and __extract() ) weren't updated to actually return the full values
-> for longer fields. Either that, or the callers of hid_field_extract()
-> changed to read longer fields in 32 bit chunks.
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 9993b692598f..860e21ec6a49 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1301,10 +1301,10 @@ static u32 __extract(u8 *report, unsigned offset, int n)
+>  u32 hid_field_extract(const struct hid_device *hid, u8 *report,
+>                         unsigned offset, unsigned n)
 
-facepalm.
+Ronald (Cc-ed) raised quite a good point:
+what's the benefit of removing the error message if this function (and
+__extract) can only report an unsigned 32 bits value?
 
-Yep this commit is just hiding the dust under the carpet. Let's raise
-that and request a revert :/
+My take is we should revert 94a9992f7dbdfb28976b upstream and think at
+a better solution.
 
 Cheers,
 Benjamin
 
+>  {
+> -       if (n > 32) {
+> -               hid_warn(hid, "hid_field_extract() called with n (%d) > 32! (%s)\n",
+> +       if (n > 256) {
+> +               hid_warn(hid, "hid_field_extract() called with n (%d) > 256! (%s)\n",
+>                          n, current->comm);
+> -               n = 32;
+> +               n = 256;
+>         }
 >
->
->   Cheers,
->
->   Ronald
+>         return __extract(report, offset, n);
+> --
+> 2.17.1
 >

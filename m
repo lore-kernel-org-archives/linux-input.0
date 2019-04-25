@@ -1,30 +1,56 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v10 02/11] dt-bindings: power: supply: add DT bindings
- for max77650
-Date: Thu, 25 Apr 2019 13:34:26 -0500
-Message-ID: <20190425183426.GA30229@bogus>
-References: <20190423090451.23711-1-brgl@bgdev.pl>
- <20190423090451.23711-3-brgl@bgdev.pl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/5] Add of_ functions for device_link_add()
+Date: Thu, 25 Apr 2019 12:24:46 -0700
+Message-ID: <CAKdAkRTUsJ4TU7BrSNXCKiQGZnArao9o_qk7i0xSzYJ1SGU14A@mail.gmail.com>
+References: <20190424101913.1534-1-benjamin.gaignard@st.com> <CAL_JsqJp9f3Sv08igSyR38Z5eXnAYWMNY29U5qEGLp=r2YReRw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190423090451.23711-3-brgl@bgdev.pl>
+In-Reply-To: <CAL_JsqJp9f3Sv08igSyR38Z5eXnAYWMNY29U5qEGLp=r2YReRw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Benjamin Gaignard <benjamin.gaignard@st.com>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Mark Rutland <mark.rutland@arm.com>, Bastien Nocera <hadess@hadess.net>, Frank Rowand <frowand.list@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, =?UTF-8?Q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>, Yannick Fertre <yannick.fertre@st.com>, Arnd Bergmann <arnd@arndb.de>, Linux Input <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com, Mark Brown <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 23 Apr 2019 11:04:42 +0200, Bartosz Golaszewski wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> 
-> Add the DT binding document for the battery charger module of max77650.
-> 
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> ---
->  .../power/supply/max77650-charger.txt         | 28 +++++++++++++++++++
->  1 file changed, 28 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
-> 
+On Thu, Apr 25, 2019 at 11:08 AM Rob Herring <robh+dt@kernel.org> wrote:
+>
+> On Wed, Apr 24, 2019 at 5:19 AM Benjamin Gaignard
+> <benjamin.gaignard@st.com> wrote:
+> >
+> > It could happen that we need to control suspend/resume ordering between
+> > devices without obvious consumer/supplier link. For example when touchscreens
+> > and DSI panels share the same reset line, in this case we need to be sure
+> > of pm_runtime operations ordering between those two devices to correctly
+> > perform reset.
+> > DSI panel and touchscreen aren't sharing any heriachical relationship (unlike
+> > I2C client and I2C bus or regulator client and regulator provider) so we need
+> > to describe this in device-tree.
+>
+> Needing to know which touchscreen is attached to a panel could be
+> important to describe if you have multiple displays.
+>
+> Doesn't the reset subsystem already have some support for shared
+> resets? Seems like it could provide clients with struct device or
+> device_node ptrs to other devices sharing a reset.
+>
+> >
+> > This series introduce of_device_links_{add,remove} and devm_of_device_links_add()
+> > helpers to find and parse 'links-add' property in a device-tree node.
+>
+> Going to document that property somewhere? :)
+>
+> I think this is too generic and coupled to Linux. It doesn't have any
+> information as to what is the dependency or connection nor what the
+> direction of the dependency is.
+>
+> I'm not convinced we need to solve this generically vs. defining
+> something for this specific example.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+I am pretty sure there will be more drivers needing complex
+dependencies. Doesn't ACPI allow defining relationship between devices
+that goes beyond the tree structure?
+
+Thanks.
+
+-- 
+Dmitry

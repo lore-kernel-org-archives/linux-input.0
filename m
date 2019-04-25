@@ -1,107 +1,247 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v10 02/11] dt-bindings: power: supply: add DT bindings
- for max77650
-Date: Wed, 24 Apr 2019 13:31:02 +0200
-Message-ID: <20190424113102.pej37jnlidwfzjhk@earth.universe>
-References: <20190423090451.23711-1-brgl@bgdev.pl>
- <20190423090451.23711-3-brgl@bgdev.pl>
+From: =?UTF-8?Q?Cl=C3=A9ment_VUCHENER?= <clement.vuchener@gmail.com>
+Subject: Re: [PATCH v3 7/8] HID: logitech: Enable high-resolution scrolling on
+ Logitech mice
+Date: Thu, 25 Apr 2019 14:35:17 +0200
+Message-ID: <CAM4jgCpckiame+H4nXJ3iRQAP4BTKHVQCQxGA0xQ8TJf+-JY3Q@mail.gmail.com>
+References: <20181205004228.10714-1-peter.hutterer@who-t.net>
+ <20181205004228.10714-8-peter.hutterer@who-t.net> <CAM4jgCqAh9Pck-9i8F5tO4-Kzpu+SjH-mQnGYThadSf-3b1ikw@mail.gmail.com>
+ <CA+jURcuhBRYiqFYHDgK8dDycrPgvzkujTRZfnmYraiHvwE+e6w@mail.gmail.com>
+ <CAM4jgCo483upCJWUnpP45zh2LzQWqAZmQREf2622p49a1vbnnA@mail.gmail.com>
+ <CAM4jgCqj5gs-q7VKLm90p0a01k_tYAqxA=zxsmShxv4PSGBJ4A@mail.gmail.com>
+ <CAO-hwJK7pFvuYZJTKgwkj794=xinekDgN_eLBSViw3v_dWAecw@mail.gmail.com>
+ <CAM4jgCrYBr+M+F2iAn8-pPFjiZQ-nPT_H16WcyPKp2PFCM=qhQ@mail.gmail.com>
+ <CAO-hwJJkyK_qPEL37QLd3kLuwB2rFBk+5FWg1UCfgr-FzxZ5aw@mail.gmail.com>
+ <CAM4jgCrLRxOx-qtq8Wfbc1xmYkNHG9vsRSk_BBK5OPgkLyVYnQ@mail.gmail.com>
+ <CAO-hwJ+r1TUQLZqdpNFD4AWC3URro3=Tc56gjV52i=aWrCbL8A@mail.gmail.com>
+ <CAM4jgCrT7fAm1gi0L=Ux1GyxdH26cP8e_Dy36dEHF6Lf2F0rAQ@mail.gmail.com> <CAO-hwJKYtNMYEY1iFm-Nh0_+ZJBvPrXmBUPftwbuFd0ugqWVww@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="tzyyotohclek3npg"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190423090451.23711-3-brgl@bgdev.pl>
+In-Reply-To: <CAO-hwJKYtNMYEY1iFm-Nh0_+ZJBvPrXmBUPftwbuFd0ugqWVww@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Harry Cutts <hcutts@chromium.org>, Peter Hutterer <peter.hutterer@who-t.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>, Nestor Lopez Casado <nlopezcasad@logitech.com>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
+Le jeu. 25 avr. 2019 =C3=A0 11:35, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> a =C3=A9crit :
+>
+> On Thu, Apr 25, 2019 at 11:29 AM Cl=C3=A9ment VUCHENER
+> <clement.vuchener@gmail.com> wrote:
+> >
+> > Le jeu. 25 avr. 2019 =C3=A0 10:45, Benjamin Tissoires
+> > <benjamin.tissoires@redhat.com> a =C3=A9crit :
+> > >
+> > > On Thu, Apr 25, 2019 at 10:25 AM Cl=C3=A9ment VUCHENER
+> > > <clement.vuchener@gmail.com> wrote:
+> > > >
+> > > > Le jeu. 25 avr. 2019 =C3=A0 09:40, Benjamin Tissoires
+> > > > <benjamin.tissoires@redhat.com> a =C3=A9crit :
+> > > > >
+> > > > > Hi Cl=C3=A9ment,
+> > > > >
+> > > > > On Wed, Apr 24, 2019 at 5:34 PM Cl=C3=A9ment VUCHENER
+> > > > > <clement.vuchener@gmail.com> wrote:
+> > > > > >
+> > > > > > Hi Benjamin,
+> > > > > >
+> > > > > > I tried again to add hi-res wheel support for the G500 with Han=
+s de
+> > > > > > Goede's latest patch series you've just merged in for-5.2/logit=
+ech, it
+> > > > > > is much better but there is still some issues.
+> > > > > >
+> > > > > > The first one is the device index, I need to use device index 0
+> > > > > > instead 0xff. I added a quick and dirty quirk (stealing in the
+> > > > > > QUIRK_CLASS range since the normal quirk range looks full) to c=
+hange
+> > > > > > the device index assigned in __hidpp_send_report. After that th=
+e
+> > > > > > device is correctly initialized and the wheel multiplier is set=
+.
+> > > > >
+> > > > > Hmm, maybe we should restrain a little bit the reserved quirks...
+> > > > > But actually, .driver_data and .quirks are both unsigned long, so=
+ you
+> > > > > should be able to use the 64 bits.
+> > > >
+> > > > Only on 64 bits architectures, or is the kernel forcing long intege=
+rs
+> > > > to be 64 bits everywhere?
+> > >
+> > > Damnit, you are correct, there is no such enforcement :/
+> > >
+> > > >
+> > > > >
+> > > > > >
+> > > > > > The second issue is that wheel values are not actually scaled
+> > > > > > according to the multiplier. I get 7/8 full scroll event for ea=
+ch
+> > > > > > wheel step. I think it happens because the mouse is split in tw=
+o
+> > > > > > devices. The first device has the wheel events, and the second =
+device
+> > > > > > has the HID++ reports. The wheel multiplier is only set on the =
+second
+> > > > > > device (where the hi-res mode is enabled) and does not affect t=
+he
+> > > > > > wheel events from the first one.
+> > > > >
+> > > > > I would think this have to do with the device not accepting the
+> > > > > command instead. Can you share some raw logs of the events (ideal=
+ly
+> > > > > with hid-recorder from
+> > > > > https://gitlab.freedesktop.org/libevdev/hid-tools)?
+> > > >
+> > > > I already checked with usbmon and double-checked by querying the
+> > > > register. The flag is set and accepted by the device and it behaves
+> > > > accordingly: it sends about 8 wheel events per step.
+> > >
+> > > OK, that's what I wanted to see.
+> > >
+> > > >
+> > > > hid-recorder takes hidraw nodes as parameters, how do I use it to
+> > > > record the initialization by the driver?
+> > >
+> > > You can't. But it doesn't really matter here because I wanted to chec=
+k
+> > > what your mouse is actually sending after the initialization.
+> > >
+> > > So if I read correctly: the mouse is sending high res data but
+> > > evemu-recorder shows one REL_WHEEL event every 7/8 clicks?
+> >
+> > It is HID++ 1.0, there is no special high res data report, it sends
+> > standard HID mouse wheel report, but more of them.
+> >
+> > To be clear, here is a recording using the modified kernel. I moved
+> > the wheel one step up (8 events are generated), then one step down (8
+> > events again + a 2-event bump).
+> >
+> > # EVEMU 1.3
+> [snipped]
+> > E: 1.975014 8 00 00 00 00 00 00 01 00
+> >
+> > The hi-res events should +/-15 instead of +/-120, and less REL_WHEEL
+> > events should be generated. This looks like the multiplier is set to 1
+> > instead of 8.
+> >
+> > kernel log shows the multiplier is set but only for one of the two devi=
+ces:
+> >
+> > input: Logitech G500 as
+> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.0/0003:046D:C068.0006/i=
+nput/input25
+> > hid-generic 0003:046D:C068.0006: input,hidraw5: USB HID v1.11 Mouse
+> > [Logitech G500] on usb-0000:00:14.0-2/input0
+> > input: Logitech G500 Keyboard as
+> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.1/0003:046D:C068.0007/i=
+nput/input26
+> > input: Logitech G500 Consumer Control as
+> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.1/0003:046D:C068.0007/i=
+nput/input27
+> > hid-generic 0003:046D:C068.0007: input,hiddev97,hidraw6: USB HID v1.11
+> > Keyboard [Logitech G500] on usb-0000:00:14.0-2/input1
+> > input: Logitech G500 as
+> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.0/0003:046D:C068.0006/i=
+nput/input30
+> > logitech-hidpp-device 0003:046D:C068.0006: input,hidraw5: USB HID
+> > v1.11 Mouse [Logitech G500] on usb-0000:00:14.0-2/input0
+> > logitech-hidpp-device 0003:046D:C068.0007: HID++ 1.0 device connected.
+> > logitech-hidpp-device 0003:046D:C068.0007: multiplier =3D 8
+> > input: Logitech G500 as
+> > /devices/pci0000:00/0000:00:14.0/usb1/1-2/1-2:1.1/0003:046D:C068.0007/i=
+nput/input31
+> > logitech-hidpp-device 0003:046D:C068.0007: input,hiddev97,hidraw6: USB
+> > HID v1.11 Keyboard [Logitech G500] on usb-0000:00:14.0-2/input1
+> >
+>
+> Oh, now I see. And yes you are correct.
+>
+> I wonder if we should not consider the mouse in hid-logitech-dj then.
+> And let hid-logitech-dj merge the 2 nodes together into one hidpp
+> device, and so we are facing a "regular" HID++ device which is
+> consistent.
 
---tzyyotohclek3npg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This would change how userspace see the devices, isn't it? And I don't
+like the dj hidraw nodes, they mess with the device index: you get
+answers with a device index different from the one used in the
+corresponding request.
 
-Hi,
-
-On Tue, Apr 23, 2019 at 11:04:42AM +0200, Bartosz Golaszewski wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->=20
-> Add the DT binding document for the battery charger module of max77650.
->=20
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> ---
-
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-
--- Sebastian
-
->  .../power/supply/max77650-charger.txt         | 28 +++++++++++++++++++
->  1 file changed, 28 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/power/supply/max776=
-50-charger.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/power/supply/max77650-char=
-ger.txt b/Documentation/devicetree/bindings/power/supply/max77650-charger.t=
-xt
-> new file mode 100644
-> index 000000000000..e6d0fb6ff94e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/power/supply/max77650-charger.txt
-> @@ -0,0 +1,28 @@
-> +Battery charger driver for MAX77650 PMIC from Maxim Integrated.
-> +
-> +This module is part of the MAX77650 MFD device. For more details
-> +see Documentation/devicetree/bindings/mfd/max77650.txt.
-> +
-> +The charger is represented as a sub-node of the PMIC node on the device =
-tree.
-> +
-> +Required properties:
-> +--------------------
-> +- compatible:		Must be "maxim,max77650-charger"
-> +
-> +Optional properties:
-> +--------------------
-> +- input-voltage-min-microvolt:	Minimum CHGIN regulation voltage. Must be=
- one
-> +				of: 4000000, 4100000, 4200000, 4300000,
-> +				4400000, 4500000, 4600000, 4700000.
-> +- input-current-limit-microamp:	CHGIN input current limit (in microamps)=
-=2E Must
-> +				be one of: 95000, 190000, 285000, 380000,
-> +				475000.
-> +
-> +Example:
-> +--------
-> +
-> +	charger {
-> +		compatible =3D "maxim,max77650-charger";
-> +		input-voltage-min-microvolt =3D <4200000>;
-> +		input-current-limit-microamp =3D <285000>;
-> +	};
-> --=20
-> 2.21.0
->=20
-
---tzyyotohclek3npg
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlzASPEACgkQ2O7X88g7
-+pr0JRAApxsn5uxXytg/SEvhNBb/SxefIg95+EkMbpo96sFxk5ZP5xwaRdheUUzC
-0sBN3TDPfn0IQsksQtLaZBqQ+RmQEA/K+PS7reoMNx0he1Xgetd33E6R1dBUR1XX
-zi0thWOgS08u0TIX4tnogtitjVtXrY5tXJGDAqu0lQAhVjMuX8n81XQZ2zgZo4nG
-42I+WP00S6JNI6kWBjHt8enj0ZzXUQc8bfcBm9uGkPpeO0u4DPHAysNeVQQBR0Ef
-x4GoTX26tKiJoNrcV+V7wWDDpnpLV9c8QP0jyJCjCZPGpPtJNNieF79zhfLpgrVN
-lkCamB9WLfigpnZBYgkm8dR7f1ZTFle1haYdGBfj/G/CL+rOPnrBcnQV4mv4VeNZ
-vx5pM+H7EKRNDQASERSDXFejrtMi/VOj+pKxpUZqhyT63SgfVA0kHkTDt7xm+Ovc
-ecvpRgx4FMWCj+FFpMVqIqcLrcdYmlnrOgJQvrkXMADuLW7xkPptQkuPnCUmugDq
-uqZI4uIs7PVD/guIVM6UZhFP+4gsLFkRg8VW4T+I73NIJkN9AbKAp6L7vu2xMeYl
-V3NVfGSp4f8lJNvlNV5auM2b+8vTGX+W7Ef+xUrxHj2Nh6zOR27wmVeDRcsofbmF
-bH6mOSfxHrgnc9LG0LIahlxhIbfcmMr4XCu31xYozmL1GgwuWPM=
-=usHc
------END PGP SIGNATURE-----
-
---tzyyotohclek3npg--
+>
+> Unfortunately, I am not sure I'll have the time to work on it this week :=
+/
+>
+> Cheers,
+> Benjamin
+>
+> > >
+> > > > > > Le mer. 19 d=C3=A9c. 2018 =C3=A0 21:35, Benjamin Tissoires
+> > > > > > <benjamin.tissoires@redhat.com> a =C3=A9crit :
+> > > > > > >
+> > > > > > > On Wed, Dec 19, 2018 at 11:57 AM Cl=C3=A9ment VUCHENER
+> > > > > > > <clement.vuchener@gmail.com> wrote:
+> > > > > > > >
+> > > > > > > > Le sam. 15 d=C3=A9c. 2018 =C3=A0 15:45, Cl=C3=A9ment VUCHEN=
+ER
+> > > > > > > > <clement.vuchener@gmail.com> a =C3=A9crit :
+> > > > > > > > >
+> > > > > > > > > Le ven. 14 d=C3=A9c. 2018 =C3=A0 19:37, Harry Cutts <hcut=
+ts@chromium.org> a =C3=A9crit :
+> > > > > > > > > >
+> > > > > > > > > > Hi Clement,
+> > > > > > > > > >
+> > > > > > > > > > On Fri, 14 Dec 2018 at 05:47, Cl=C3=A9ment VUCHENER
+> > > > > > > > > > <clement.vuchener@gmail.com> wrote:
+> > > > > > > > > > > Hi, The G500s (and the G500 too, I think) does suppor=
+t the "scrolling
+> > > > > > > > > > > acceleration" bit. If I set it, I get around 8 events=
+ for each wheel
+> > > > > > > > > > > "click", this is what this driver expects, right? If =
+I understood
+> > > > > > > > > > > correctly, I should try this patch with the
+> > > > > > > > > > > HIDPP_QUIRK_HI_RES_SCROLL_1P0 quirk set for my mouse.
+> > > > > > > > > >
+> > > > > > > > > > Thanks for the info! Yes, that should work.
+> > > > > > > > >
+> > > > > > > > > Well, it is not that simple. I get "Device not connected"=
+ errors for
+> > > > > > > > > both interfaces of the mouse.
+> > > > > > > >
+> > > > > > > > I suspect the device is not responding because the hid devi=
+ce is not
+> > > > > > > > started. When is hid_hw_start supposed to be called? It is =
+called
+> > > > > > > > early for HID_QUIRK_CLASS_G920 but later for other device. =
+So the
+> > > > > > > > device is not started when hidpp_is_connected is called. Is=
+ this
+> > > > > > > > because most of the device in this driver are not real HID =
+devices but
+> > > > > > > > DJ devices? How should non-DJ devices be treated?
+> > > > > > >
+> > > > > > > Hi Clement,
+> > > > > > >
+> > > > > > > I have a series I sent last September that allows to support =
+non DJ
+> > > > > > > devices on logitech-hidpp
+> > > > > > > (https://patchwork.kernel.org/project/linux-input/list/?serie=
+s=3D16359).
+> > > > > > >
+> > > > > > > In its current form, with the latest upstream kernel, the ser=
+ies will
+> > > > > > > oops during the .event() callback, which is easy enough to fi=
+x.
+> > > > > > > However, I am currently trying to make it better as a second =
+or third
+> > > > > > > reading made me realized that there was a bunch of non-sense =
+in it and
+> > > > > > > a proper support would require slightly more work for the non=
+ unifying
+> > > > > > > receiver case.
+> > > > > > >
+> > > > > > > I hope I'll be able to send out something by the end of the w=
+eek.
+> > > > > > >
+> > > > > > > Cheers,
+> > > > > > > Benjamin

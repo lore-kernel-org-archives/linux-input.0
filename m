@@ -1,80 +1,71 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v10 00/11] mfd: add support for max77650 PMIC
-Date: Thu, 25 Apr 2019 23:46:09 +0200
-Message-ID: <20190425214609.rav7ooxovzhvgn7e@earth.universe>
-References: <20190423090451.23711-1-brgl@bgdev.pl>
- <20190424083127.GB6699@amd>
- <CAMRc=McN78_gJw_T4EPucM8veTC9XRUu7TGJ0J+zPsU=0Hu2GQ@mail.gmail.com>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH 0/5] Add of_ functions for device_link_add()
+Date: Thu, 25 Apr 2019 18:02:59 -0500
+Message-ID: <CAL_JsqJAnaJo4uLgNaqfnNMGYO+qqLaqdEn159hMTYqYE-Afhg@mail.gmail.com>
+References: <20190424101913.1534-1-benjamin.gaignard@st.com>
+ <CAL_JsqJp9f3Sv08igSyR38Z5eXnAYWMNY29U5qEGLp=r2YReRw@mail.gmail.com> <CAKdAkRTUsJ4TU7BrSNXCKiQGZnArao9o_qk7i0xSzYJ1SGU14A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="hkqjlur2zgw6jemw"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMRc=McN78_gJw_T4EPucM8veTC9XRUu7TGJ0J+zPsU=0Hu2GQ@mail.gmail.com>
+In-Reply-To: <CAKdAkRTUsJ4TU7BrSNXCKiQGZnArao9o_qk7i0xSzYJ1SGU14A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Pavel Machek <pavel@denx.de>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@st.com>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Mark Rutland <mark.rutland@arm.com>, Bastien Nocera <hadess@hadess.net>, Frank Rowand <frowand.list@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, =?UTF-8?Q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>, Yannick Fertre <yannick.fertre@st.com>, Arnd Bergmann <arnd@arndb.de>, Linux Input <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-stm32@st-md-mailman.stormreply.com, Mark Brown <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-
---hkqjlur2zgw6jemw
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-On Wed, Apr 24, 2019 at 10:45:00AM +0200, Bartosz Golaszewski wrote:
-> =C5=9Br., 24 kwi 2019 o 10:31 Pavel Machek <pavel@denx.de> napisa=C5=82(a=
-):
+On Thu, Apr 25, 2019 at 2:24 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Thu, Apr 25, 2019 at 11:08 AM Rob Herring <robh+dt@kernel.org> wrote:
 > >
-> > On Tue 2019-04-23 11:04:40, Bartosz Golaszewski wrote:
-> > > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> > On Wed, Apr 24, 2019 at 5:19 AM Benjamin Gaignard
+> > <benjamin.gaignard@st.com> wrote:
 > > >
-> > > This series adds support for max77650 ultra low-power PMIC. It provid=
-es
-> > > the core mfd driver and a set of five sub-drivers for the regulator,
-> > > power supply, gpio, leds and input subsystems.
-> > >
-> > > Patches 1-4 add the DT binding documents. Patch 5 documents mfd_add_d=
-evices().
-> > > Patches 6-10 add all drivers. Last patch adds a MAINTAINERS entry for=
- this
-> > > device.
-> > >
-> > > The regulator part is already upstream.
+> > > It could happen that we need to control suspend/resume ordering between
+> > > devices without obvious consumer/supplier link. For example when touchscreens
+> > > and DSI panels share the same reset line, in this case we need to be sure
+> > > of pm_runtime operations ordering between those two devices to correctly
+> > > perform reset.
+> > > DSI panel and touchscreen aren't sharing any heriachical relationship (unlike
+> > > I2C client and I2C bus or regulator client and regulator provider) so we need
+> > > to describe this in device-tree.
 > >
-> > I see v10 in my inbox... and acks from all over the place, but patches
-> > not going in. Who takes these? I don't think I need another 10
-> > versions in my inbox...
-> >                                                                 Pavel
->=20
-> I think Lee Jones should take them through the MFD tree. With the ack
-> from Sebastian Reichel on the driver part and the example in the
-> charger binding fixed I think they are ready to be picked up.
+> > Needing to know which touchscreen is attached to a panel could be
+> > important to describe if you have multiple displays.
+> >
+> > Doesn't the reset subsystem already have some support for shared
+> > resets? Seems like it could provide clients with struct device or
+> > device_node ptrs to other devices sharing a reset.
+> >
+> > >
+> > > This series introduce of_device_links_{add,remove} and devm_of_device_links_add()
+> > > helpers to find and parse 'links-add' property in a device-tree node.
+> >
+> > Going to document that property somewhere? :)
+> >
+> > I think this is too generic and coupled to Linux. It doesn't have any
+> > information as to what is the dependency or connection nor what the
+> > direction of the dependency is.
+> >
+> > I'm not convinced we need to solve this generically vs. defining
+> > something for this specific example.
+>
+> I am pretty sure there will be more drivers needing complex
+> dependencies. Doesn't ACPI allow defining relationship between devices
+> that goes beyond the tree structure?
 
-Fine with me.
+Can't speak to ACPI, but I assume you where implying ACPI supports
+this so DT should too.
 
--- Sebastian
+Almost every binding we have is defining relationships between
+devices. Interrupts, clocks, gpio, pinctrl, etc. all do this. To use a
+similar example to the one here, we already define the relationship
+between a display and a backlight with a 'backlight' property in the
+display node. Why should touchscreen be any different than backlight?
 
---hkqjlur2zgw6jemw
-Content-Type: application/pgp-signature; name="signature.asc"
+What really concerns me here is folks just add relationships to
+'links-add' which are already captured in DT (such as backlight) just
+because they'll get it for free and not have to go add support to
+handle each specific binding.
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlzCKpoACgkQ2O7X88g7
-+pr2mBAAkSSqMITsZQW+RCxTbutrVPO+dqNO9WPo6/0+bjuOfMLt5V9ty3vimvhi
-K/dCIpbQRO417ZwlyCM+mt5wuhPBGbgOy/65EBAcdFKweDFv4q/tug45qh6V3fZ8
-6iaSwd9wXMf2UttkJZ5UeOX+O+ud19RjBVmoJ8HqUG5LA+ud0ZbUcVDhlUEiMcEJ
-+zNMo0HQpUuKMmHRp2iKlWkoekPFDhEWnQZbuBxwhVhKbvZCX4LavbHeiR3GCkO8
-Q1onr1MjkpFJfrQTjbQLOKFB5i2/I4EMmZ63LECwv5PhaYkb3Rf7dtGj7koS+4ni
-rVKYEvSuiCXDPliimXmV6zorkK4FQd2ykZc+pHamTdEMsqanOr+K/BpSh4qOZvqH
-Mo2t4FiEqKZ2ATKnfimQsqnPG37cr5yq4cKwukL+hND36maWjws0jF9o2HkXJI8Y
-CTcIs+ZGjuDRDgW5bxkpao9P+M16FlKzrkO1EP6LLCBtIQde4nWf5jn26xHj8j56
-QHGToQk12PykVLrXrzpWFYxHilzCtV7ZNdSj02rMFJFiCwcxkqPv2jJqQhILJnuR
-CcdSpEILZZgcTan0H4p7plyOJWoPpminEHFZLHTNkQyywFYXXQRGHVRvNXjc/P/I
-vpvXVsB8WQCEXVhUtJz1fzyEhBSKN0XGOPEWEe6OYtI4rgtm+io=
-=X5TB
------END PGP SIGNATURE-----
-
---hkqjlur2zgw6jemw--
+Rob

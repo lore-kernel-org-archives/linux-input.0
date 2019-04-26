@@ -1,50 +1,73 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: input: add mapping for KEY_KBD_LAYOUT_NEXT
-Date: Fri, 26 Apr 2019 08:38:29 +0200
-Message-ID: <CAO-hwJ+=n0Nh7XbcWRLeO5ay43YVwWK6vmMB=A5H23JKCWCUtg@mail.gmail.com>
-References: <20190425163846.51730-1-dmitry.torokhov@gmail.com> <20190425163846.51730-2-dmitry.torokhov@gmail.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH v3 12/26] compat_ioctl: move more drivers to
+ compat_ptr_ioctl
+Date: Fri, 26 Apr 2019 09:46:13 +0200
+Message-ID: <CAK8P3a3CzKLvpUiVV_k__kkaZ=wg2fqnFEzWYL9qNwBfxMKZ9w@mail.gmail.com>
+References: <20190416202013.4034148-1-arnd@arndb.de>
+ <20190416202701.127745-1-arnd@arndb.de>
+ <20190425122153.450fc094@coco.lan> <20190425153534.GS2217@ZenIV.linux.org.uk>
+ <CAK8P3a2HmiYQJ2FV2FgLiFsD8M9UKteC9Jetx7ja06PQVZWYfA@mail.gmail.com>
+ <5511420228cb38d08a67c0f6a614b7671d7d23d4.camel@sipsolutions.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190425163846.51730-2-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, gwink@chromium.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <5511420228cb38d08a67c0f6a614b7671d7d23d4.camel-cdvu00un1VgdHxzADdlk8Q@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Johannes Berg <johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org>
+Cc: linux-nvme-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sean Young <sean-hENCXIMQXOg@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>, linux-pci <linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, dri-devel <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, sparclinux <sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <mchehab+samsung-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, driverdevel <devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org>, linux-scsi <linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, y2038 Mailman List <y2038-cunTk1MwBs8s++Sfvej+rw@public.gmane.org>, qat-linux-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Jason Gunthorpe <jgg-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, "open list:HID CORE LAYER" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Darren Hart <dvhart-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-remoteproc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linaro-mm-sig-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Jonathan Cameron <Jonathan.Cameron@h>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Apr 25, 2019 at 6:38 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On Thu, Apr 25, 2019 at 11:25 PM Johannes Berg
+<johannes-cdvu00un1VgdHxzADdlk8Q@public.gmane.org> wrote:
+> On Thu, 2019-04-25 at 17:55 +0200, Arnd Bergmann wrote:
+> > On Thu, Apr 25, 2019 at 5:35 PM Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org> wrote:
+> > >
+> > > On Thu, Apr 25, 2019 at 12:21:53PM -0300, Mauro Carvalho Chehab wrote:
+> > >
+> > > > If I understand your patch description well, using compat_ptr_ioctl
+> > > > only works if the driver is not for s390, right?
+> > >
+> > > No; s390 is where "oh, just set ->compat_ioctl same as ->unlocked_ioctl
+> > > and be done with that; compat_ptr() is a no-op anyway" breaks.  IOW,
+> > > s390 is the reason for having compat_ptr_ioctl() in the first place;
+> > > that thing works on all biarch architectures, as long as all stuff
+> > > handled by ->ioctl() takes pointer to arch-independent object as
+> > > argument.  IOW,
+> > >         argument ignored => OK
+> > >         any arithmetical type => no go, compat_ptr() would bugger it
+> > >         pointer to int => OK
+> > >         pointer to string => OK
+> > >         pointer to u64 => OK
+> > >         pointer to struct {u64 addr; char s[11];} => OK
+> >
+> > To be extra pedantic, the 'struct {u64 addr; char s[11];} '
+> > case is also broken on x86, because sizeof (obj) is smaller
+> > on i386, even though the location of the members are
+> > the same. i.e. you can copy_from_user() this
 >
-> HUTRR56 defined a new usage code on consumer page to cycle through
-> set of keyboard layouts, let's add this mapping.
+> Actually, you can't even do that because the struct might sit at the end
+> of a page and then you'd erroneously fault in this case.
 >
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+> We had this a while ago with struct ifreq, see commit 98406133dd and its
+> parents.
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Yes, you are right. Very rare to hit with real-life code, but easily
+reproduced by intentionally hitting it and clearly a bug.
 
-I don't think this will collide with the HID tree, so IMO, you can
-take this through yours if you want.
+As the saying goes
 
-Cheers,
-Benjamin
+  | the difference between "always works" and "almost always works"
+  | is called data corruption
 
->  drivers/hid/hid-input.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index b607286a0bc8..0579b8d3f912 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1051,6 +1051,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->                 case 0x28b: map_key_clear(KEY_FORWARDMAIL);     break;
->                 case 0x28c: map_key_clear(KEY_SEND);            break;
->
-> +               case 0x29d: map_key_clear(KEY_KBD_LAYOUT_NEXT); break;
-> +
->                 case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);             break;
->                 case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);             break;
->                 case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);                break;
-> --
-> 2.21.0.593.g511ec345e18-goog
->
+here the difference is an -EFAULT.
+
+      Arnd

@@ -1,71 +1,68 @@
-From: "Gerecke, Jason" <killertofu@gmail.com>
-Subject: [PATCH 2/2] HID: wacom: Don't report anything prior to the tool entering range
-Date: Fri, 26 Apr 2019 09:35:31 -0700
-Message-ID: <20190426163531.9782-1-jason.gerecke@wacom.com>
-References: <CANRwn3Ru+7FGtsY=GaDa7pAJkuagdb6nFtvrFq1qhTWJR0rF9A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <CANRwn3Ru+7FGtsY=GaDa7pAJkuagdb6nFtvrFq1qhTWJR0rF9A@mail.gmail.com>
-Sender: stable-owner@vger.kernel.org
-To: "# v3.17+" <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>
-Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH v2 3/3] input: keyboard: gpio-keys-polled: skip oftree code when CONFIG_OF disabled
+Date: Fri, 26 Apr 2019 21:01:22 +0200
+Message-ID: <1556305282-24148-4-git-send-email-info@metux.net>
+References: <1556305282-24148-1-git-send-email-info@metux.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1556305282-24148-1-git-send-email-info@metux.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Jason Gerecke <jason.gerecke@wacom.com>
+we don't need to build in oftree probing stuff when oftree isn't
+enabled at all.
 
-If the tool spends some time in prox before entering range, a series of
-events (e.g. ABS_DISTANCE, MSC_SERIAL) can be sent before we or userspace
-have any clue about the pen whose data is being reported. We need to hold
-off on reporting anything until the pen has entered range. Since we still
-want to report events that occur "in prox" after the pen has *left* range
-we use 'wacom-tool[0]' as the indicator that the pen did at one point
-enter range and provide us/userspace with tool type and serial number
-information.
-
-Fixes: a48324de6d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handle prox/range")
-Cc: <stable@vger.kernel.org> # 4.11+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
-Version of patch specifically targeted to stable v4.14.113
+ drivers/input/keyboard/gpio_keys_polled.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
- drivers/hid/wacom_wac.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 03b04bc742dd..e4aeffa56018 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1271,17 +1271,20 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
- 			input_report_abs(pen_input, ABS_Z, rotation);
- 			input_report_abs(pen_input, ABS_WHEEL, get_unaligned_le16(&frame[11]));
- 		}
--		input_report_abs(pen_input, ABS_PRESSURE, get_unaligned_le16(&frame[5]));
--		input_report_abs(pen_input, ABS_DISTANCE, range ? frame[13] : wacom->features.distance_max);
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 3f773b2..65860bf 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -147,6 +147,7 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ static struct gpio_keys_platform_data *
+ gpio_keys_polled_get_devtree_pdata(struct device *dev)
+ {
++#ifdef CONFIG_OF
+ 	struct gpio_keys_platform_data *pdata;
+ 	struct gpio_keys_button *button;
+ 	struct fwnode_handle *child;
+@@ -200,6 +201,9 @@ static void gpio_keys_polled_close(struct input_polled_dev *dev)
+ 	}
  
--		input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x01);
--		input_report_key(pen_input, BTN_STYLUS, frame[0] & 0x02);
--		input_report_key(pen_input, BTN_STYLUS2, frame[0] & 0x04);
-+		if (wacom->tool[0]) {
-+			input_report_abs(pen_input, ABS_PRESSURE, get_unaligned_le16(&frame[5]));
-+			input_report_abs(pen_input, ABS_DISTANCE, range ? frame[13] : wacom->features.distance_max);
+ 	return pdata;
++#else /* CONFIG_OF */
++	return ERR_PTR(-ENOENT);
++#endif /* CONFIG_OF */
+ }
  
--		input_report_key(pen_input, wacom->tool[0], prox);
--		input_event(pen_input, EV_MSC, MSC_SERIAL, wacom->serial[0]);
--		input_report_abs(pen_input, ABS_MISC,
--				 wacom_intuos_id_mangle(wacom->id[0])); /* report tool id */
-+			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x01);
-+			input_report_key(pen_input, BTN_STYLUS, frame[0] & 0x02);
-+			input_report_key(pen_input, BTN_STYLUS2, frame[0] & 0x04);
-+
-+			input_report_key(pen_input, wacom->tool[0], prox);
-+			input_event(pen_input, EV_MSC, MSC_SERIAL, wacom->serial[0]);
-+			input_report_abs(pen_input, ABS_MISC,
-+					 wacom_intuos_id_mangle(wacom->id[0])); /* report tool id */
-+		}
+ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+@@ -222,11 +226,13 @@ static void gpio_keys_polled_set_abs_params(struct input_dev *input,
+ 	input_set_abs_params(input, code, min, max, 0, 0);
+ }
  
- 		wacom->shared->stylus_in_proximity = prox;
++#ifdef CONFIG_OF
+ static const struct of_device_id gpio_keys_polled_of_match[] = {
+ 	{ .compatible = "gpio-keys-polled", },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, gpio_keys_polled_of_match);
++#endif /* CONFIG_OF */
  
+ static struct gpio_desc *gpio_keys_polled_get_gpiod_fwnode(
+ 	struct device *dev,
+@@ -452,7 +458,9 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 	.probe	= gpio_keys_polled_probe,
+ 	.driver	= {
+ 		.name	= DRV_NAME,
++#ifdef CONFIG_OF
+ 		.of_match_table = gpio_keys_polled_of_match,
++#endif /* CONFIG_OF */
+ 	},
+ };
+ module_platform_driver(gpio_keys_polled_driver);
 -- 
-2.21.0
+1.9.1

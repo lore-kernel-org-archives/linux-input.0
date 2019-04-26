@@ -1,85 +1,273 @@
-From: Benjamin GAIGNARD <benjamin.gaignard@st.com>
-Subject: Re: [PATCH 0/5] Add of_ functions for device_link_add()
-Date: Fri, 26 Apr 2019 08:36:10 +0000
-Message-ID: <6a026213-482b-6c82-a965-2ba8a4472928@st.com>
-References: <20190424101913.1534-1-benjamin.gaignard@st.com>
- <CAL_JsqJp9f3Sv08igSyR38Z5eXnAYWMNY29U5qEGLp=r2YReRw@mail.gmail.com>
- <CAKdAkRTUsJ4TU7BrSNXCKiQGZnArao9o_qk7i0xSzYJ1SGU14A@mail.gmail.com>
- <CAL_JsqJAnaJo4uLgNaqfnNMGYO+qqLaqdEn159hMTYqYE-Afhg@mail.gmail.com>
+From: Reinis Danne <rei4dan@gmail.com>
+Subject: [RFC] tty: kb_value with flags for better Unicode support
+Date: Fri, 26 Apr 2019 13:52:24 +0300
+Message-ID: <20190426105224.GB11020@rd-oc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL_JsqJAnaJo4uLgNaqfnNMGYO+qqLaqdEn159hMTYqYE-Afhg@mail.gmail.com>
-Content-Language: en-US
-Content-ID: <7ACCBD2087A7E445B63CCD27E02AF2D8@st.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, Mark Rutland <mark.rutland@arm.com>, Bastien Nocera <hadess@hadess.net>, Frank Rowand <frowand.list@gmail.com>, Marco Felsch <m.felsch@pengutronix.de>, =?utf-8?B?R3VpZG8gR8O8bnRoZXI=?= <agx@sigxcpu.org>, Yannick FERTRE <yannick.fertre@st.com>, Arnd Bergmann <arnd@arndb.de>, Linux Input <linux-input@vger.kernel.org>, DTML <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, Mark Brown <broonie@kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, kbd@lists.altlinux.org
 List-Id: linux-input@vger.kernel.org
 
-DQpPbiA0LzI2LzE5IDE6MDIgQU0sIFJvYiBIZXJyaW5nIHdyb3RlOg0KPiBPbiBUaHUsIEFwciAy
-NSwgMjAxOSBhdCAyOjI0IFBNIERtaXRyeSBUb3Jva2hvdg0KPiA8ZG1pdHJ5LnRvcm9raG92QGdt
-YWlsLmNvbT4gd3JvdGU6DQo+PiBPbiBUaHUsIEFwciAyNSwgMjAxOSBhdCAxMTowOCBBTSBSb2Ig
-SGVycmluZyA8cm9iaCtkdEBrZXJuZWwub3JnPiB3cm90ZToNCj4+PiBPbiBXZWQsIEFwciAyNCwg
-MjAxOSBhdCA1OjE5IEFNIEJlbmphbWluIEdhaWduYXJkDQo+Pj4gPGJlbmphbWluLmdhaWduYXJk
-QHN0LmNvbT4gd3JvdGU6DQo+Pj4+IEl0IGNvdWxkIGhhcHBlbiB0aGF0IHdlIG5lZWQgdG8gY29u
-dHJvbCBzdXNwZW5kL3Jlc3VtZSBvcmRlcmluZyBiZXR3ZWVuDQo+Pj4+IGRldmljZXMgd2l0aG91
-dCBvYnZpb3VzIGNvbnN1bWVyL3N1cHBsaWVyIGxpbmsuIEZvciBleGFtcGxlIHdoZW4gdG91Y2hz
-Y3JlZW5zDQo+Pj4+IGFuZCBEU0kgcGFuZWxzIHNoYXJlIHRoZSBzYW1lIHJlc2V0IGxpbmUsIGlu
-IHRoaXMgY2FzZSB3ZSBuZWVkIHRvIGJlIHN1cmUNCj4+Pj4gb2YgcG1fcnVudGltZSBvcGVyYXRp
-b25zIG9yZGVyaW5nIGJldHdlZW4gdGhvc2UgdHdvIGRldmljZXMgdG8gY29ycmVjdGx5DQo+Pj4+
-IHBlcmZvcm0gcmVzZXQuDQo+Pj4+IERTSSBwYW5lbCBhbmQgdG91Y2hzY3JlZW4gYXJlbid0IHNo
-YXJpbmcgYW55IGhlcmlhY2hpY2FsIHJlbGF0aW9uc2hpcCAodW5saWtlDQo+Pj4+IEkyQyBjbGll
-bnQgYW5kIEkyQyBidXMgb3IgcmVndWxhdG9yIGNsaWVudCBhbmQgcmVndWxhdG9yIHByb3ZpZGVy
-KSBzbyB3ZSBuZWVkDQo+Pj4+IHRvIGRlc2NyaWJlIHRoaXMgaW4gZGV2aWNlLXRyZWUuDQo+Pj4g
-TmVlZGluZyB0byBrbm93IHdoaWNoIHRvdWNoc2NyZWVuIGlzIGF0dGFjaGVkIHRvIGEgcGFuZWwg
-Y291bGQgYmUNCj4+PiBpbXBvcnRhbnQgdG8gZGVzY3JpYmUgaWYgeW91IGhhdmUgbXVsdGlwbGUg
-ZGlzcGxheXMuDQo+Pj4NCj4+PiBEb2Vzbid0IHRoZSByZXNldCBzdWJzeXN0ZW0gYWxyZWFkeSBo
-YXZlIHNvbWUgc3VwcG9ydCBmb3Igc2hhcmVkDQo+Pj4gcmVzZXRzPyBTZWVtcyBsaWtlIGl0IGNv
-dWxkIHByb3ZpZGUgY2xpZW50cyB3aXRoIHN0cnVjdCBkZXZpY2Ugb3INCj4+PiBkZXZpY2Vfbm9k
-ZSBwdHJzIHRvIG90aGVyIGRldmljZXMgc2hhcmluZyBhIHJlc2V0Lg0KU2hhcmluZyByZXNldCB3
-aWxsIG5vdCBoZWxwIGhlcmUgYmVjYXVzZSB3ZSBkb24ndCB3YW50IHRvIGhhdmUgdHdvIHJlc2V0
-DQpvY2N1cmluZyBpbiB0aGUgc2FtZSBsaW5lIGJ1dCBvbmx5IG9uZSB3aGVuIHRoZSBib3RoIGRl
-dmljZXMgYXJlIHJlc3VtZWQuDQpUaGF0IHdoeSB3ZSB0byBmb3JjZSBzdXNwZW5kL3Jlc3VtZSBv
-cmRlcmluZyBhbmQgc28gYWRkIGEgbGluayBiZXR3ZWVuIHRoZQ0KZGV2aWNlcy4NCj4+Pg0KPj4+
-PiBUaGlzIHNlcmllcyBpbnRyb2R1Y2Ugb2ZfZGV2aWNlX2xpbmtzX3thZGQscmVtb3ZlfSBhbmQg
-ZGV2bV9vZl9kZXZpY2VfbGlua3NfYWRkKCkNCj4+Pj4gaGVscGVycyB0byBmaW5kIGFuZCBwYXJz
-ZSAnbGlua3MtYWRkJyBwcm9wZXJ0eSBpbiBhIGRldmljZS10cmVlIG5vZGUuDQo+Pj4gR29pbmcg
-dG8gZG9jdW1lbnQgdGhhdCBwcm9wZXJ0eSBzb21ld2hlcmU/IDopDQpJIGhhdmUgcHV0IGEgZGVz
-Y3JpcHRpb24gb2YgdGhpcyBwcm9wZXJ0eSBpbiBlYWNoIGRldmljZSBiaW5kaW5ncyBidXQgaWYg
-DQp5b3UgY2FuIHRlbGwgbWUNCndoZXJlIHRvIHB1dCBpdCwgSSB3aWxsIGZvbGxvdyB5b3VyIGFk
-dmljZS4NCj4+Pg0KPj4+IEkgdGhpbmsgdGhpcyBpcyB0b28gZ2VuZXJpYyBhbmQgY291cGxlZCB0
-byBMaW51eC4gSXQgZG9lc24ndCBoYXZlIGFueQ0KPj4+IGluZm9ybWF0aW9uIGFzIHRvIHdoYXQg
-aXMgdGhlIGRlcGVuZGVuY3kgb3IgY29ubmVjdGlvbiBub3Igd2hhdCB0aGUNCj4+PiBkaXJlY3Rp
-b24gb2YgdGhlIGRlcGVuZGVuY3kgaXMuDQpDb3VsZCBzb21ldGhpbmcgbGlrZSAnbGluay1zdXBw
-bGllcnMnIG9yICdwbS1ydW50aW1lLWRlcGVuZGVuY2llcycNCmFyZSBtb3JlIGV4cGxpY2l0IHBy
-b3BlcnR5IG5hbWUgdG8gZGVzY3JpYmUgZGlyZWN0aW9uLCBnb2FsLCBhbmQgY29ubmVjdGlvbg0K
-YmV0d2VlbiBjb25zdW1lciBhbmQgc3VwcGxpZXIgPw0KPj4+DQo+Pj4gSSdtIG5vdCBjb252aW5j
-ZWQgd2UgbmVlZCB0byBzb2x2ZSB0aGlzIGdlbmVyaWNhbGx5IHZzLiBkZWZpbmluZw0KPj4+IHNv
-bWV0aGluZyBmb3IgdGhpcyBzcGVjaWZpYyBleGFtcGxlLg0KPj4gSSBhbSBwcmV0dHkgc3VyZSB0
-aGVyZSB3aWxsIGJlIG1vcmUgZHJpdmVycyBuZWVkaW5nIGNvbXBsZXgNCj4+IGRlcGVuZGVuY2ll
-cy4gRG9lc24ndCBBQ1BJIGFsbG93IGRlZmluaW5nIHJlbGF0aW9uc2hpcCBiZXR3ZWVuIGRldmlj
-ZXMNCj4+IHRoYXQgZ29lcyBiZXlvbmQgdGhlIHRyZWUgc3RydWN0dXJlPw0KPiBDYW4ndCBzcGVh
-ayB0byBBQ1BJLCBidXQgSSBhc3N1bWUgeW91IHdoZXJlIGltcGx5aW5nIEFDUEkgc3VwcG9ydHMN
-Cj4gdGhpcyBzbyBEVCBzaG91bGQgdG9vLg0KPg0KPiBBbG1vc3QgZXZlcnkgYmluZGluZyB3ZSBo
-YXZlIGlzIGRlZmluaW5nIHJlbGF0aW9uc2hpcHMgYmV0d2Vlbg0KPiBkZXZpY2VzLiBJbnRlcnJ1
-cHRzLCBjbG9ja3MsIGdwaW8sIHBpbmN0cmwsIGV0Yy4gYWxsIGRvIHRoaXMuIFRvIHVzZSBhDQo+
-IHNpbWlsYXIgZXhhbXBsZSB0byB0aGUgb25lIGhlcmUsIHdlIGFscmVhZHkgZGVmaW5lIHRoZSBy
-ZWxhdGlvbnNoaXANCj4gYmV0d2VlbiBhIGRpc3BsYXkgYW5kIGEgYmFja2xpZ2h0IHdpdGggYSAn
-YmFja2xpZ2h0JyBwcm9wZXJ0eSBpbiB0aGUNCj4gZGlzcGxheSBub2RlLiBXaHkgc2hvdWxkIHRv
-dWNoc2NyZWVuIGJlIGFueSBkaWZmZXJlbnQgdGhhbiBiYWNrbGlnaHQ/DQpJdCBpcyBkaWZmZXJl
-bnQgYmVjYXVzZSBpdCBpcyBvbmx5IGFib3V0IHN1c3BlbmQvcmVzdW1lIG9yZGVyaW5nLg0KVGhl
-cmUgaXMgbm8gbmVlZCBmb3IgYSBwYW5lbCB0byBrbm93cyBhYm91dCB0b3VjaHNjcmVlbiB1bmxp
-a2UNCnRoYW4gYmFja2xpZ2h0IHRoYXQgaXQgY291bGQgZHJpdmUuDQpJIGhhdmUgdGhlIHNhbWUg
-bmVlZCB0byBvcmRlciBzdXNwZW5kL3Jlc3VtZSBvcGVyYXRpb25zIGJldHdlZW4NCkdQVSBhbmQg
-ZGlzcGxheSB0byBiZSBzdXJlIHRoYXQgR1BVIGlzIHN1c3BlbmQgYmVmb3JlIGRpc3BsYXkgYW5k
-IHJlc3VtZQ0KYWZ0ZXIgaXQuDQoNCj4NCj4gV2hhdCByZWFsbHkgY29uY2VybnMgbWUgaGVyZSBp
-cyBmb2xrcyBqdXN0IGFkZCByZWxhdGlvbnNoaXBzIHRvDQo+ICdsaW5rcy1hZGQnIHdoaWNoIGFy
-ZSBhbHJlYWR5IGNhcHR1cmVkIGluIERUIChzdWNoIGFzIGJhY2tsaWdodCkganVzdA0KPiBiZWNh
-dXNlIHRoZXknbGwgZ2V0IGl0IGZvciBmcmVlIGFuZCBub3QgaGF2ZSB0byBnbyBhZGQgc3VwcG9y
-dCB0bw0KPiBoYW5kbGUgZWFjaCBzcGVjaWZpYyBiaW5kaW5nLg0KSXQgd29uJ3QgYmUgZm9yIGZy
-ZWUgc2luY2UgSSBkb24ndCB3YW50IHRvIHB1dCBpdCBpbiBkZXZpY2UgY29yZSBzbyBlYWNoIA0K
-ZHJpdmVyDQp3aWxsIGhhdmUgdG8gYWRkIGEgY2FsbCB0byBhIGZ1bmN0aW9uIHRvIGVuYWJsZSBp
-dCBhbmQgd2lsbCBoYXZlIHRvIA0KZXhwbGFpbiB3aHkgZG9pbmcgaXQuDQoNCkJlbmphbWluDQoN
-Cj4NCj4gUm9i
+Compliment already existing kbdiacruc and kbdiacrsuc structs and
+KD[GS]KBDIACRUC ioctls with Unicode equivalents for kb_value, kbentry and
+KD[GS]KBENT ioctls.
+
+```
+struct kb_valueuc {
+	__u32 flags;		/* 15 used by KTYP */
+	__u32 kb_valueuc;	/* Unicode range: 0x0–0x10ffff */
+};
+
+struct kbentryuc {
+	__u32 kb_table;
+	__u32 kb_index;
+	struct kb_valueuc;
+};
+
+extern kb_valueuc *key_maps[MAX_NR_KEYMAPS];
+
+#define KDGKBENTUC	0x????	/* get one entry in translation table */
+#define KDSKBENTUC	0x????	/* set one entry in translation table */
+```
+
+Motivation
+==========
+
+Since I learned touchtyping, I want to have the same keyboard layout in VT as I
+have in X.  So I wrote a keymap file for Latvian (modern) keyboard layout [1]
+to use with the kbd package and it works, mostly.
+
+I have three issues:
+- Compose sequences with base above Latin-1 not working (fixed).
+- CapsLock not working as expected for characters above Latin-1.
+- Can't use Meta key with characters above Latin-1.
+
+There are three letters above 0xff on level 1 of this keyboard layout:
+ē — U+0113 Dec:275 LATIN SMALL LETTER E WITH MACRON
+ā — U+0101 Dec:257 LATIN SMALL LETTER A WITH MACRON
+ī — U+012B Dec:299 LATIN SMALL LETTER I WITH MACRON
+
+
+Compose
+=======
+
+I have added some extra letters in the free places to be able to type not only
+Latvian and English, but also German and Finnish (e.g., there is letter ö on
+level 3 of ē key) for the rare occasions I need them.
+
+This keyboard layout uses a dead key (dead_acute) to access level 3 symbols
+(the same as AltGr):
+
+compose diacr base to result
+compose '\'' U+0113 to U+00F6
+
+But it didn't work if the base in the compose sequence was above 0xff (patch
+[2] is in tty-next).
+
+
+Key value and flags
+===================
+
+The other two issues could be attributed to the lack of proper flags for key
+values (key type is encoded in its value).
+
+According to keymaps manual:
+```
+Each  keysym  may  be prefixed by a '+' (plus sign), in wich case this keysym
+is treated as a "letter" and therefore affected by the "CapsLock" the same way
+as by "Shift" (to be correct, the CapsLock inverts the Shift state).  The ASCII
+letters ('a'-'z' and 'A'-'Z') are made CapsLock'able by default.  If
+Shift+CapsLock should not produce a lower case symbol, put lines like
+
+      keycode 30 = +a  A
+
+in the map file.
+```
+
+But it doesn't work — CapsLock is ignored for codepoints above 0xff.  Adding
+plus signs to all four maps should make them behave the same way (like in X):
+
+#              0              1              2              3
+#              Plain          Shift          AltGr          AltGr+Shift
+keycode  16 = +U+0113        +U+0112        +U+00F6        +U+00D6
+
+                          |     X       VT
+--------------------------+---------------
+CapsLock                ē |     Ē       ē
+CapsLock+Shift          ē |     ē       Ē
+CapsLock+AltGr          ē |     Ö       Ö
+CapsLock+Shift+AltGr    ē |     ö       ö
+
+For the key to behave properly, its key type (KTYP) has to be 'letter':
+
+include/uapi/linux/keyboard.h:
+#define KT_LETTER	11	/* symbol that can be acted upon by CapsLock */
+
+
+Thus it is necessary to set KTYP for characters beyond Latin-1; which is not
+possible now.
+
+Currently they are defined like this:
+```
+include/linux/keyboard.h:
+
+extern unsigned short *key_maps[MAX_NR_KEYMAPS];
+
+
+drivers/tty/vt/defkeymap.c_shipped:
+
+ushort *key_maps[MAX_NR_KEYMAPS] = {
+	plain_map, shift_map, altgr_map, NULL,
+	ctrl_map, shift_ctrl_map, NULL, NULL,
+	alt_map, NULL, NULL, NULL,
+	ctrl_alt_map, NULL
+};
+
+
+include/uapi/linux/kd.h:
+
+struct kbentry {
+	unsigned char kb_table;
+	unsigned char kb_index;
+	unsigned short kb_value;	<-- Important!
+};
+
+
+#define KDGKBENT	0x4B46	/* gets one entry in translation table */
+#define KDSKBENT	0x4B47	/* sets one entry in translation table */
+
+
+include/linux/kbd_kern.h:
+
+#define U(x) ((x) ^ 0xf000)
+
+#define BRL_UC_ROW 0x2800
+
+
+include/uapi/linux/keyboard.h:
+
+#define K(t,v)		(((t)<<8)|(v))
+#define KTYP(x)		((x) >> 8)
+#define KVAL(x)		((x) & 0xff)
+```
+
+The use of ``unsigned short kb_value`` in ``struct kbentry`` prevents setting
+KTYP for Unicode characters beyond Latin-1 since there are only two bytes in an
+``unsigned short`` and KTYP needs one, not leaving enough space for code points
+beyond 0xff.
+
+This breaks CapsLock for keyboard layouts with characters above Latin-1 [3–6].
+
+I think those bugs are closed by mistake, since, to this day, it doesn't work.
+And it can't work because of the aforementioned kernel limitations (at least as
+far as CapsLock issue in Unicode mode is concerned).
+
+To illustrate, keysym is 16 bits long:
+
+	mmmm tttt nnnn nnnn
+
+	m — mask for (non-)Unicode characters (U macro)
+	t — KTYP
+	n — KVAL
+
+This also limits the number of Unicode characters — from 0xf000 the mask is
+lost. (No Klingon input in VT [not that I want one]. I think
+Documentation/admin-guide/unicode.rst talks only about the output. Or am I
+missing something?)
+
+See vt_do_kdsk_ioctl() and kbd_keycode() in drivers/tty/vt/keyboard.c for how
+the mask and U macro is used.
+
+As a side note: It seems CapsShift has never worked either.  It was suggested
+as a workaround to this issue in one of the kernel bugs, but it obviously
+wouldn't work.  First, CapsShift needs key map 256 and up (limited by
+MAX_NR_KEYMAPS).  Second, in struct kbentry the kb_table index is unsigned char
+(0–255).  So, even if one increased MAX_NR_KEYMAPS and recompiled the kernel,
+they still wouldn't be able to set the key map, because the ioctl can't index
+the table.
+
+
+Solution
+========
+
+A possible fix could be a proper, extensible struct with flags [7] for
+kb_value, used in the key_map[] and a pair of new ioctls (see the top of the
+mail).
+
+I think the increase in memory usage here is not something to worry about.
+
+That would change key_map[] from ushort to __u64.  So instead of 2 bytes per
+keysym, it would use 8 bytes.  The memory usage of keymaps would increase 4
+times.  Since there are 7 keymaps by default with 256 keys each, that would
+increase memory usage by:
+
+	(8-2)*7*256=42*256=10752 B
+
+Each additional keymap would increase memory usage by:
+
+	8*256=2048 B
+
+Increasing the size of kb_table and kb_index might be useful in the future for
+adding multiple keyboard layout support to VT [8].
+
+---
+The increase of memory usage could be cut in half if ``__u32 flags`` is dropped
+and KTYP is put at the last byte of ``__u32 kb_valueuc``:
+
+#define K(t,v)		(((t)<<24)|(v))
+#define KTYP(x)		((x) >> 24)
+#define KVAL(x)		((x) & 0xffffff)
+
+But in this case the future-proofing for flags [7,9] would be lost.
+
+Also, there is possible conflict for programs built with old version of K
+macros running on newer kernels.  The macros would have to be renamed.
+---
+
+
+Affected users
+==============
+
+KTYP or KVAL are used in (they would all have to be updated):
+- kernel/debug/kdb/kdb_keyboard.c
+- drivers/s390/char/keyboard.c
+- drivers/s390/char/tty3270.c
+- drivers/staging/speakup/main.c
+- drivers/tty/vt/keyboard.c
+- drivers/accessibility/braille/braille_console.c
+- arch/m68k/atari/atakeyb.c
+
+In addition to those, ``key_maps`` are used in:
+- drivers/s390/char/defkeymap.c
+- drivers/tty/vt/defkeymap.c_shipped
+- drivers/input/keyboard/amikbd.c
+- include/linux/keyboard.h
+- arch/m68k/amiga/config.c
+
+Also kbd package would have to be updated to take advantage of the change.
+
+
+Is anybody already working on this? Maybe somebody has done it a long time ago
+already, and I just have to do some magic incantations to make it work?
+
+Is it even worth doing?
+
+I'm new to kernel programming, comments from people with better insights are
+very much appreciated.
+
+
+-Reinis
+
+
+[1] https://odo.lv/xwiki/bin/download/Recipes/LatvianKeyboard/Modern.png
+[2] https://lkml.org/lkml/2019/4/11/362
+[3] https://bugzilla.kernel.org/show_bug.cgi?id=7063
+[4] https://bugzilla.kernel.org/show_bug.cgi?id=7746
+[5] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=404503
+[6] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/16638
+[7] https://blog.ffwll.ch/2013/11/botching-up-ioctls.html
+[8] https://www.happyassassin.net/2013/11/23/keyboard-layouts-in-fedora-20-and-previously/
+[9] https://lwn.net/Articles/585415/

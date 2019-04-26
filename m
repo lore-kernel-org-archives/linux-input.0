@@ -1,77 +1,60 @@
 From: =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
-Subject: [RFC PATCH 0/4] Input: mpr121-polled: Add polled driver for MPR121
-Date: Fri, 26 Apr 2019 10:30:16 +0200
-Message-ID: <1556267420-93219-1-git-send-email-michal.vokac@ysoft.com>
+Subject: [RFC PATCH 1/4] dt-bindings: input: Add support for the MPR121 without interrupt line
+Date: Fri, 26 Apr 2019 10:30:17 +0200
+Message-ID: <1556267420-93219-2-git-send-email-michal.vokac@ysoft.com>
+References: <1556267420-93219-1-git-send-email-michal.vokac@ysoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1556267420-93219-1-git-send-email-michal.vokac@ysoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
 Cc: Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Normally, the MPR121 controller uses separate interrupt line to notify
+the I2C host that a key was touched/released. To support platforms that
+can not use the interrupt line, polling of the MPR121 registers can be
+used.
 
-I have to deal with a situation where we have a custom i.MX6 based
-platform in production that uses the MPR121 touchkey controller.
-Unfortunately the chip is connected using only the I2C interface.
-The interrupt line is not used. Back in 2015 (Linux v3.14), my
-colleague modded the existing mpr121_touchkey.c driver to use polling
-instead of interrupt.
-
-For quite some time yet I am in a process of updating the product from
-the ancient Freescale v3.14 kernel to the latest mainline and pushing
-any needed changes upstream. The DT files for our imx6dl-yapp4 platform
-already made it into v5.1-rc.
-
-I rebased and updated our mpr121 patch to the latest mainline.
-It is created as a separate driver, similarly to gpio_keys_polled.
-
-The I2C device is quite susceptible to ESD. An ESD test quite often
-causes reset of the chip or some register randomly changes its value.
-The [PATCH 3/4] adds a write-through register cache. With the cache
-this state can be detected and the device can be re-initialied.
-
-The main question is: Is there any chance that such a polled driver
-could be accepted? Is it correct to implement it as a separate driver
-or should it be done as an option in the existing driver? I can not
-really imagine how I would do that though..
-
-There are also certain worries that the MPR121 chip may no longer be
-available in nonspecifically distant future. In case of EOL I will need
-to add a polled driver for an other touchkey chip. May it be already
-in mainline or a completely new one.
-
-I am also little bit confused from the dt-binding documentation.
-The MPR121 is mentioned in the trivial-devices.yaml but it also has
-its own binding documentation in input/mpr121_touchkey.txt.
-I thought that a certain device/compatible should be documented in just
-one place. The MPR121 device certainly needs more properties than
-just compatible, reg and interrupt so trivial-devices.yaml does not
-seem appropriate.
-
-I will appreciate any comments. Thank you in advance,
-Michal
-
-
-Michal Vokáč (4):
-  dt-bindings: input: Add support for the MPR121 without interrupt line
-  Input: mpr121-polled: Add polling variant of the MPR121 touchkey
-    driver
-  Input: mpr121-polled: Add write-through cache to detect corrupted
-    registers
-  ARM: dts: imx6dl-yapp4: Enable MPR121 touch keypad on Hydra
-
- .../bindings/input/mpr121-touchkey-polled.txt      |  26 ++
- arch/arm/boot/dts/imx6dl-yapp4-common.dtsi         |  12 +
- arch/arm/boot/dts/imx6dl-yapp4-hydra.dts           |   4 +
- drivers/input/keyboard/Kconfig                     |  13 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/mpr121_touchkey_polled.c    | 493 +++++++++++++++++++++
- 6 files changed, 549 insertions(+)
+Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+---
+ .../bindings/input/mpr121-touchkey-polled.txt      | 26 ++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/mpr121-touchkey-polled.txt
- create mode 100644 drivers/input/keyboard/mpr121_touchkey_polled.c
 
+diff --git a/Documentation/devicetree/bindings/input/mpr121-touchkey-polled.txt b/Documentation/devicetree/bindings/input/mpr121-touchkey-polled.txt
+new file mode 100644
+index 000000000000..6bb1d312614c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/mpr121-touchkey-polled.txt
+@@ -0,0 +1,26 @@
++* Freescale MPR121 Controller without interrupt line
++
++Required Properties:
++- compatible:		Should be "fsl,mpr121-touchkey-polled"
++- reg:			The I2C slave address of the device.
++- vdd-supply:		Phandle to the Vdd power supply.
++- linux,keycodes:	Specifies an array of numeric keycode values to
++			be used for reporting button presses. The array can
++			contain up to 12 entries.
++
++Optional Properties:
++- autorepeat:		Enable autorepeat feature.
++
++Example:
++
++#include "dt-bindings/input/input.h"
++
++	touchkeys: keys@5a {
++		compatible = "fsl,mpr121-touchkey-polled";
++		reg = <0x5a>;
++		autorepeat;
++		vdd-supply = <&ldo4_reg>;
++		linux,keycodes = <KEY_0>, <KEY_1>, <KEY_2>, <KEY_3>,
++				<KEY_4> <KEY_5>, <KEY_6>, <KEY_7>,
++				<KEY_8>, <KEY_9>, <KEY_A>, <KEY_B>;
++	};
 -- 
 2.1.4

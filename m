@@ -1,44 +1,48 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH v3 3/3] arm64: dts: qcom: Add Lenovo Miix 630
-Date: Fri, 26 Apr 2019 21:42:45 -0700
-Message-ID: <20190427044245.GD3137@builder>
-References: <20190415160915.16324-1-jeffrey.l.hugo@gmail.com>
- <20190415161115.16466-1-jeffrey.l.hugo@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v5.1-rc6
+Date: Sat, 27 Apr 2019 15:38:54 -0700
+Message-ID: <20190427223854.GA97206@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190415161115.16466-1-jeffrey.l.hugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, lee.jones@linaro.org, dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon 15 Apr 09:11 PDT 2019, Jeffrey Hugo wrote:
-> diff --git a/arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi b/arch/arm64/boot/dts/qcom/msm8998-clamshell.dtsi
-[..]
-> +	thermal-zones {
-> +		battery-thermal {
-> +			polling-delay-passive = <250>;
-> +			polling-delay = <1000>;
-> +
-> +			thermal-sensors = <&tsens0 0>;
+Hi Linus,
 
-I guess you inherited the battery and skin thermal nodes from my MTP
-dts. Unfortunately after talking to Amit I think I got these wrong, and
-they should be &pmi8998_adc 0 and 5 instead.
+Please pull from:
 
-Can you confirm this?
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-> +
-> +			trips {
-> +				battery_crit: trip0 {
-> +					temperature = <60000>;
-> +					hysteresis = <2000>;
-> +					type = "critical";
-> +				};
-> +			};
-> +		};
+to receive updates for the input subsystem. Just a couple of fixups for
+Synaptics RMI4 driver and allowing snvs_pwrkey to be selected on more
+boards.
 
-Regards,
-Bjorn
+Changelog:
+---------
+
+Jacky Bai (1):
+      Input: snvs_pwrkey - make it depend on ARCH_MXC
+
+Lucas Stach (1):
+      Input: synaptics-rmi4 - write config register values to the right offset
+
+Pan Bian (1):
+      Input: synaptics-rmi4 - fix possible double free
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/Kconfig  | 2 +-
+ drivers/input/rmi4/rmi_driver.c | 6 +-----
+ drivers/input/rmi4/rmi_f11.c    | 2 +-
+ 3 files changed, 3 insertions(+), 7 deletions(-)
+
+Thanks.
+
+
+-- 
+Dmitry

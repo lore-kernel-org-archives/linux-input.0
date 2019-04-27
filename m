@@ -1,36 +1,55 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] HID: input: add mapping for KEY_KBD_LAYOUT_NEXT
-Date: Fri, 26 Apr 2019 16:33:39 -0700
-Message-ID: <20190426233339.GA42369@dtor-ws>
-References: <20190425163846.51730-1-dmitry.torokhov@gmail.com>
- <20190425163846.51730-2-dmitry.torokhov@gmail.com>
- <CAO-hwJ+=n0Nh7XbcWRLeO5ay43YVwWK6vmMB=A5H23JKCWCUtg@mail.gmail.com>
+Subject: Re: [PATCH] input: pm8xxx-vibrator: fix a potential NULL pointer
+ dereference
+Date: Fri, 26 Apr 2019 17:27:08 -0700
+Message-ID: <20190427002708.GC42369@dtor-ws>
+References: <20190309053922.22212-1-kjlu@umn.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+=n0Nh7XbcWRLeO5ay43YVwWK6vmMB=A5H23JKCWCUtg@mail.gmail.com>
+In-Reply-To: <20190309053922.22212-1-kjlu@umn.edu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, gwink@chromium.org
+To: Kangjie Lu <kjlu@umn.edu>
+Cc: pakki001@umn.edu, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Apr 26, 2019 at 08:38:29AM +0200, Benjamin Tissoires wrote:
-> On Thu, Apr 25, 2019 at 6:38 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > HUTRR56 defined a new usage code on consumer page to cycle through
-> > set of keyboard layouts, let's add this mapping.
-> >
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> 
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> I don't think this will collide with the HID tree, so IMO, you can
-> take this through yours if you want.
+Hi Kangjie,
 
-OK, I will do that, thanks!
+On Fri, Mar 08, 2019 at 11:39:21PM -0600, Kangjie Lu wrote:
+> In case of_device_get_match_data fails to find the matched data,
+> returns -ENODEV
+
+How can this happen? We will not match again the device if compatible is
+not present in the table.
+
+If this happens I'd rather we crash and burn instead of silently
+ignoring the failure.
+
+Thanks.
+
+> 
+> Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+> ---
+>  drivers/input/misc/pm8xxx-vibrator.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
+> index 7dd1c1fbe42a..740e59c11808 100644
+> --- a/drivers/input/misc/pm8xxx-vibrator.c
+> +++ b/drivers/input/misc/pm8xxx-vibrator.c
+> @@ -196,6 +196,8 @@ static int pm8xxx_vib_probe(struct platform_device *pdev)
+>  	vib->vib_input_dev = input_dev;
+>  
+>  	regs = of_device_get_match_data(&pdev->dev);
+> +	if (unlikely(!regs))
+> +		return -ENODEV;
+>  
+>  	/* operate in manual mode */
+>  	error = regmap_read(vib->regmap, regs->drv_addr, &val);
+> -- 
+> 2.17.1
+> 
 
 -- 
 Dmitry

@@ -1,8 +1,8 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Subject: Re: [Bug 203297] Synaptics touchpad TM-3127 functionality broken by
  PCI runtime power management patch on 4.20.2
-Date: Mon, 29 Apr 2019 09:04:05 +0200
-Message-ID: <CAJZ5v0iYYJBR77R51y1hVKsBQDmUpv5_dtSqMMiCoEZgC5cX=g@mail.gmail.com>
+Date: Mon, 29 Apr 2019 09:45:42 +0200
+Message-ID: <CAO-hwJKvXO6L7m0g1D6wycFP=Wu_qLDyLXTtmm0TkpxT5Z8ygw@mail.gmail.com>
 References: <20190422130814.GJ173520@google.com> <3a1139ef-10ed-6923-73c5-30fbf0c065c3@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
@@ -10,7 +10,7 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <3a1139ef-10ed-6923-73c5-30fbf0c065c3@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Bjorn Helgaas <helgaas@kernel.org>, Keijo Vaara <ferdasyn@rocketmail.com>, Jean Delvare <jdelvare@suse.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux PM <linux-pm@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Cc: Bjorn Helgaas <helgaas@kernel.org>, Keijo Vaara <ferdasyn@rocketmail.com>, Jean Delvare <jdelvare@suse.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-pm@vger.kernel.org, linux-pci@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
 On Fri, Apr 26, 2019 at 2:14 PM Jarkko Nikula
@@ -40,6 +40,23 @@ On Fri, Apr 26, 2019 at 2:14 PM Jarkko Nikula
 > power state dependency Synaptics RMI4 SMBus devices have since it cease
 > to work if SMBus controllers idles between transfers and how this is
 > best to fix?
+
+Hmm, I am not sure there is such an existing architecture you could
+use in a simple patch.
+
+rmi-driver.c does indeed create an input device we could use to toggle
+on/off the PM state, but those callbacks are not wired to the
+transport driver (rmi_smbus.c), so it would required a little bit of
+extra work. And then, there are other RMI4 functions (firmware
+upgrade) that would not be happy if PM is in suspend while there is no
+open input node.
+
+So I think this "hack" (with Mika's comments addressed) should go in
+until someone starts propagating the PM states correctly.
+
+Cheers,
+Benjamin
+
 >
 > Instead of revert I think we'd need to have some method to force SMBus
 > controller on whenever the touchpad is active, like when there is a
@@ -71,12 +88,6 @@ On Fri, Apr 26, 2019 at 2:14 PM Jarkko Nikula
 >
 > +       /* Force SMBus adapter on while RMI4 device is connected */
 > +       pm_runtime_get(&client->adapter->dev);
-
-That should be pm_runtime_get_sync() IMO.
-
-Otherwise, the rmi_register_transport_device() may be called before
-completing the PM transition.
-
 > +
 >         error = rmi_register_transport_device(&rmi_smb->xport);
 >         if (error) {

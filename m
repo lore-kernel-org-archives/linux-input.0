@@ -1,288 +1,257 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5 2/3] Input: add a driver for GPIO controllable
- vibrators
-Date: Tue, 30 Apr 2019 00:14:57 -0700
-Message-ID: <20190430071457.GA148015@dtor-ws>
-References: <20190426194747.22256-1-luca@z3ntu.xyz>
- <20190426194747.22256-2-luca@z3ntu.xyz>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v10 00/11] mfd: add support for max77650 PMIC
+Date: Tue, 30 Apr 2019 11:11:07 +0200
+Message-ID: <CAMRc=MfDVc6nTRTOcDzKtqphtC1J+uDGwwgtuVLCO9yqVUz1nQ@mail.gmail.com>
+References: <20190423090451.23711-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190426194747.22256-2-luca@z3ntu.xyz>
+In-Reply-To: <20190423090451.23711-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Weiss <luca@z3ntu.xyz>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pascal PAILLET-LME <p.paillet@st.com>, Coly Li <colyli@suse.de>, Lee Jones <lee.jones@linaro.org>, Xiaotong Lu <xiaotong.lu@spreadtrum.com>, Brian Masney <masneyb@onstation.org>, Rob Herring <robh@kernel.org>, Baolin Wang <baolin.wang@linaro.org>, David Brown <david.brown@linaro.org>, "open list:ARM/QUALCOMM SUPPORT" <linux-arm-msm@vger.kernel.org>, "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Linux LED Subsystem <linux-leds@vger.kernel.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Linux PM list <linux-pm@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Apr 26, 2019 at 09:47:46PM +0200, Luca Weiss wrote:
-> Provide a simple driver for GPIO controllable vibrators.
-> It will be used by the Fairphone 2.
-> 
-> Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-
-Applied, thank you.
-
-> ---
->  drivers/input/misc/Kconfig      |  12 ++
->  drivers/input/misc/Makefile     |   1 +
->  drivers/input/misc/gpio-vibra.c | 209 ++++++++++++++++++++++++++++++++
->  3 files changed, 222 insertions(+)
->  create mode 100644 drivers/input/misc/gpio-vibra.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index e15ed1bb8558..6dfe9e2fe5b1 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -290,6 +290,18 @@ config INPUT_GPIO_DECODER
->  	 To compile this driver as a module, choose M here: the module
->  	 will be called gpio_decoder.
->  
-> +config INPUT_GPIO_VIBRA
-> +	tristate "GPIO vibrator support"
-> +	depends on GPIOLIB || COMPILE_TEST
-> +	select INPUT_FF_MEMLESS
-> +	help
-> +	  Say Y here to get support for GPIO based vibrator devices.
-> +
-> +	  If unsure, say N.
-> +
-> +	  To compile this driver as a module, choose M here: the module will be
-> +	  called gpio-vibra.
-> +
->  config INPUT_IXP4XX_BEEPER
->  	tristate "IXP4XX Beeper support"
->  	depends on ARCH_IXP4XX
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index b936c5b1d4ac..f38ebbdb05e2 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -36,6 +36,7 @@ obj-$(CONFIG_INPUT_DRV2667_HAPTICS)	+= drv2667.o
->  obj-$(CONFIG_INPUT_GP2A)		+= gp2ap002a00f.o
->  obj-$(CONFIG_INPUT_GPIO_BEEPER)		+= gpio-beeper.o
->  obj-$(CONFIG_INPUT_GPIO_DECODER)	+= gpio_decoder.o
-> +obj-$(CONFIG_INPUT_GPIO_VIBRA)		+= gpio-vibra.o
->  obj-$(CONFIG_INPUT_HISI_POWERKEY)	+= hisi_powerkey.o
->  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
->  obj-$(CONFIG_INPUT_IMS_PCU)		+= ims-pcu.o
-> diff --git a/drivers/input/misc/gpio-vibra.c b/drivers/input/misc/gpio-vibra.c
-> new file mode 100644
-> index 000000000000..b76c81015de9
-> --- /dev/null
-> +++ b/drivers/input/misc/gpio-vibra.c
-> @@ -0,0 +1,209 @@
-> +// SPDX-License-Identifier: GPL-2.0+
-> +/*
-> + *  GPIO vibrator driver
-> + *
-> + *  Copyright (C) 2019 Luca Weiss <luca@z3ntu.xyz>
-> + *
-> + *  Based on PWM vibrator driver:
-> + *  Copyright (C) 2017 Collabora Ltd.
-> + *
-> + *  Based on previous work from:
-> + *  Copyright (C) 2012 Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> + *
-> + *  Based on PWM beeper driver:
-> + *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
-> + */
-> +
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/input.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/of_device.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/property.h>
-> +#include <linux/regulator/consumer.h>
-> +#include <linux/slab.h>
-> +
-> +struct gpio_vibrator {
-> +	struct input_dev *input;
-> +	struct gpio_desc *gpio;
-> +	struct regulator *vcc;
-> +
-> +	struct work_struct play_work;
-> +	bool running;
-> +	bool vcc_on;
-> +};
-> +
-> +static int gpio_vibrator_start(struct gpio_vibrator *vibrator)
-> +{
-> +	struct device *pdev = vibrator->input->dev.parent;
-> +	int err;
-> +
-> +	if (!vibrator->vcc_on) {
-> +		err = regulator_enable(vibrator->vcc);
-> +		if (err) {
-> +			dev_err(pdev, "failed to enable regulator: %d\n", err);
-> +			return err;
-> +		}
-> +		vibrator->vcc_on = true;
-> +	}
-> +
-> +	gpiod_set_value_cansleep(vibrator->gpio, 1);
-> +
-> +	return 0;
-> +}
-> +
-> +static void gpio_vibrator_stop(struct gpio_vibrator *vibrator)
-> +{
-> +	gpiod_set_value_cansleep(vibrator->gpio, 0);
-> +
-> +	if (vibrator->vcc_on) {
-> +		regulator_disable(vibrator->vcc);
-> +		vibrator->vcc_on = false;
-> +	}
-> +}
-> +
-> +static void gpio_vibrator_play_work(struct work_struct *work)
-> +{
-> +	struct gpio_vibrator *vibrator =
-> +		container_of(work, struct gpio_vibrator, play_work);
-> +
-> +	if (vibrator->running)
-> +		gpio_vibrator_start(vibrator);
-> +	else
-> +		gpio_vibrator_stop(vibrator);
-> +}
-> +
-> +static int gpio_vibrator_play_effect(struct input_dev *dev, void *data,
-> +				     struct ff_effect *effect)
-> +{
-> +	struct gpio_vibrator *vibrator = input_get_drvdata(dev);
-> +
-> +	int level = effect->u.rumble.strong_magnitude;
-> +
-> +	if (!level)
-> +		level = effect->u.rumble.weak_magnitude;
-> +
-> +	if (level)
-> +		vibrator->running = true;
-> +	else
-> +		vibrator->running = false;
-> +
-> +	schedule_work(&vibrator->play_work);
-> +
-> +	return 0;
-> +}
-> +
-> +static void gpio_vibrator_close(struct input_dev *input)
-> +{
-> +	struct gpio_vibrator *vibrator = input_get_drvdata(input);
-> +
-> +	cancel_work_sync(&vibrator->play_work);
-> +	gpio_vibrator_stop(vibrator);
-> +	vibrator->running = false;
-> +}
-> +
-> +static int gpio_vibrator_probe(struct platform_device *pdev)
-> +{
-> +	struct gpio_vibrator *vibrator;
-> +	int err;
-> +
-> +	vibrator = devm_kzalloc(&pdev->dev, sizeof(*vibrator), GFP_KERNEL);
-> +	if (!vibrator)
-> +		return -ENOMEM;
-> +
-> +	vibrator->input = devm_input_allocate_device(&pdev->dev);
-> +	if (!vibrator->input)
-> +		return -ENOMEM;
-> +
-> +	vibrator->vcc = devm_regulator_get(&pdev->dev, "vcc");
-> +	err = PTR_ERR_OR_ZERO(vibrator->vcc);
-> +	if (err) {
-> +		if (err != -EPROBE_DEFER)
-> +			dev_err(&pdev->dev, "Failed to request regulator: %d\n",
-> +				err);
-> +		return err;
-> +	}
-> +
-> +	vibrator->gpio = devm_gpiod_get(&pdev->dev, "enable", GPIOD_OUT_LOW);
-> +	err = PTR_ERR_OR_ZERO(vibrator->gpio);
-> +	if (err) {
-> +		if (err != -EPROBE_DEFER)
-> +			dev_err(&pdev->dev, "Failed to request main gpio: %d\n",
-> +				err);
-> +		return err;
-> +	}
-> +
-> +	INIT_WORK(&vibrator->play_work, gpio_vibrator_play_work);
-> +
-> +	vibrator->input->name = "gpio-vibrator";
-> +	vibrator->input->id.bustype = BUS_HOST;
-> +	vibrator->input->close = gpio_vibrator_close;
-> +
-> +	input_set_drvdata(vibrator->input, vibrator);
-> +	input_set_capability(vibrator->input, EV_FF, FF_RUMBLE);
-> +
-> +	err = input_ff_create_memless(vibrator->input, NULL,
-> +				      gpio_vibrator_play_effect);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Couldn't create FF dev: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	err = input_register_device(vibrator->input);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Couldn't register input dev: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, vibrator);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused gpio_vibrator_suspend(struct device *dev)
-> +{
-> +	struct gpio_vibrator *vibrator = dev_get_drvdata(dev);
-> +
-> +	cancel_work_sync(&vibrator->play_work);
-> +	if (vibrator->running)
-> +		gpio_vibrator_stop(vibrator);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused gpio_vibrator_resume(struct device *dev)
-> +{
-> +	struct gpio_vibrator *vibrator = dev_get_drvdata(dev);
-> +
-> +	if (vibrator->running)
-> +		gpio_vibrator_start(vibrator);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(gpio_vibrator_pm_ops,
-> +			 gpio_vibrator_suspend, gpio_vibrator_resume);
-> +
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id gpio_vibra_dt_match_table[] = {
-> +	{ .compatible = "gpio-vibrator" },
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(of, gpio_vibra_dt_match_table);
-> +#endif
-> +
-> +static struct platform_driver gpio_vibrator_driver = {
-> +	.probe	= gpio_vibrator_probe,
-> +	.driver	= {
-> +		.name	= "gpio-vibrator",
-> +		.pm	= &gpio_vibrator_pm_ops,
-> +		.of_match_table = of_match_ptr(gpio_vibra_dt_match_table),
-> +	},
-> +};
-> +module_platform_driver(gpio_vibrator_driver);
-> +
-> +MODULE_AUTHOR("Luca Weiss <luca@z3ntu.xy>");
-> +MODULE_DESCRIPTION("GPIO vibrator driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:gpio-vibrator");
-> -- 
+wt., 23 kwi 2019 o 11:04 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a=
+):
+>
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>
+> This series adds support for max77650 ultra low-power PMIC. It provides
+> the core mfd driver and a set of five sub-drivers for the regulator,
+> power supply, gpio, leds and input subsystems.
+>
+> Patches 1-4 add the DT binding documents. Patch 5 documents mfd_add_devic=
+es().
+> Patches 6-10 add all drivers. Last patch adds a MAINTAINERS entry for thi=
+s
+> device.
+>
+> The regulator part is already upstream.
+>
+> v1 -> v2:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> General:
+> - use C++ style comments for the SPDX license identifier and the
+>   copyright header
+> - s/MODULE_LICENSE("GPL")/MODULE_LICENSE("GPL v2")/
+> - lookup the virtual interrupt numbers in the MFD driver, setup
+>   resources for child devices and use platform_get_irq_byname()
+>   in sub-drivers
+> - picked up review tags
+> - use devm_request_any_context_irq() for interrupt requests
+>
+> LEDs:
+> - changed the max77650_leds_ prefix to max77650_led_
+> - drop the max77650_leds structure as the only field it held was the
+>   regmap pointer, move said pointer to struct max77650_led
+> - change the driver name to "max77650-led"
+> - drop the last return value check and return the result of
+>   regmap_write() directly
+> - change the labeling scheme to one consistent with other LED drivers
+>
+> ONKEY:
+> - drop the key reporting helper and call the input functions directly
+>   from interrupt handlers
+> - rename the rv local variable to error
+> - drop parent device asignment
+>
+> Regulator:
+> - drop the unnecessary init_data lookup from the driver code
+> - drop unnecessary include
+>
+> Charger:
+> - disable the charger on driver remove
+> - change the power supply type to POWER_SUPPLY_TYPE_USB
+>
+> GPIO:
+> - drop interrupt support until we have correct implementation of hierarch=
+ical
+>   irqs in gpiolib
+>
+> v2 -> v3:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> General:
+> - dropped regulator patches as they're already in Mark Brown's branch
+>
+> LED:
+> - fix the compatible string in the DT binding example
+> - use the max_brightness property
+> - use a common prefix ("MAX77650_LED") for all defines in the driver
+>
+> MFD:
+> - add the MODULE_DEVICE_TABLE()
+> - add a sentinel to the of_device_id array
+> - constify the pointers to irq names
+> - use an enum instead of defines for interrupt indexes
+>
+> v3 -> v4:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> GPIO:
+> - as discussed with Linus Walleij: the gpio-controller is now part of
+>   the core mfd module (we don't spawn a sub-node anymore), the binding
+>   document for GPIO has been dropped, the GPIO properties have been
+>   defined in the binding document for the mfd core, the interrupt
+>   functionality has been reintroduced with the irq directly passed from
+>   the mfd part
+> - due to the above changes the Reviewed-by tag from Linus was dropped
+>
+> v4 -> v5:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> General:
+> - add a patch documenting mfd_add_devices()
+>
+> MFD:
+> - pass the regmap irq_chip irq domain to mfd over mfd_add_devices so that
+>   the hw interrupts from resources can be correctly mapped to virtual irq=
+s
+> - remove the enum listing cell indexes
+> - extend Kconfig help
+> - add a link to the programming manual
+> - use REGMAP_IRQ_REG() for regmap interrupts (except for GPI which has
+>   is composed of two hw interrupts for rising and falling edge)
+> - add error messages in probe
+> - use PLATFORM_DEVID_NONE constant in devm_mfd_add_devices()
+> - set irq_base to 0 in regmap_add_irq_chip() as other users to, it's only
+>   relevant if it's > 0
+>
+> Charger:
+> - use non-maxim specific property names for minimum input voltage and cur=
+rent
+>   limit
+> - code shrink by using the enable/disable charger helpers everywhere
+> - use more descriptive names for constants
+>
+> Onkey:
+> - use EV_SW event type for slide mode
+>
+> LED:
+> - remove stray " from Kconfig help
+>
+> v5 -> v6:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> MFD:
+> - remove stray spaces in the binding document
+> - rename the example dt node
+> - remove unnecessary interrupt-parent property from the bindings
+>
+> LED:
+> - add a missing dependency on LEDS_CLASS to Kconfig
+>
+> Onkey:
+> - use boolean for the slide button property
+>
+> Charger:
+> - fix the property names in DT example
+> - make constants even more readable
+>
+> v6 -> v7:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> Charger:
+> - rename the current limit property to current-limit-microamp
+>
+> v7 -> v8:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> General:
+> - collected acks from Lee
+> - changed the documentation for mfd_add_devices() as suggested by Lee
+> - rebased on top of v5.1-rc3
+>
+> v8 > v9:
+> =3D=3D=3D=3D=3D=3D=3D=3D
+>
+> General:
+> - collected new tags
+> - rebased on top of v5.1-rc4
+>
+> MFD:
+> - various improvements in error messages
+> - coding style tweaks
+>
+> Charger:
+> - named the two optional properties in a more descriptive way, so that
+>   we can make them generic for charger bindings if more potential users
+>   appear
+>
+> v9 -> v10:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> General:
+> - added the review tag from Sebastian
+> - rebased on top of v5.1-rc6
+>
+> Charger:
+> - fixed the example in the binding document
+>
+> Bartosz Golaszewski (11):
+>   dt-bindings: mfd: add DT bindings for max77650
+>   dt-bindings: power: supply: add DT bindings for max77650
+>   dt-bindings: leds: add DT bindings for max77650
+>   dt-bindings: input: add DT bindings for max77650
+>   mfd: core: document mfd_add_devices()
+>   mfd: max77650: new core mfd driver
+>   power: supply: max77650: add support for battery charger
+>   gpio: max77650: add GPIO support
+>   leds: max77650: add LEDs support
+>   input: max77650: add onkey support
+>   MAINTAINERS: add an entry for max77650 mfd driver
+>
+>  .../bindings/input/max77650-onkey.txt         |  26 ++
+>  .../bindings/leds/leds-max77650.txt           |  57 +++
+>  .../devicetree/bindings/mfd/max77650.txt      |  46 +++
+>  .../power/supply/max77650-charger.txt         |  28 ++
+>  MAINTAINERS                                   |  14 +
+>  drivers/gpio/Kconfig                          |   7 +
+>  drivers/gpio/Makefile                         |   1 +
+>  drivers/gpio/gpio-max77650.c                  | 190 +++++++++
+>  drivers/input/misc/Kconfig                    |   9 +
+>  drivers/input/misc/Makefile                   |   1 +
+>  drivers/input/misc/max77650-onkey.c           | 121 ++++++
+>  drivers/leds/Kconfig                          |   6 +
+>  drivers/leds/Makefile                         |   1 +
+>  drivers/leds/leds-max77650.c                  | 147 +++++++
+>  drivers/mfd/Kconfig                           |  14 +
+>  drivers/mfd/Makefile                          |   1 +
+>  drivers/mfd/max77650.c                        | 232 +++++++++++
+>  drivers/mfd/mfd-core.c                        |  13 +
+>  drivers/power/supply/Kconfig                  |   7 +
+>  drivers/power/supply/Makefile                 |   1 +
+>  drivers/power/supply/max77650-charger.c       | 368 ++++++++++++++++++
+>  include/linux/mfd/max77650.h                  |  59 +++
+>  22 files changed, 1349 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/max77650-onke=
+y.txt
+>  create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.=
+txt
+>  create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
+>  create mode 100644 Documentation/devicetree/bindings/power/supply/max776=
+50-charger.txt
+>  create mode 100644 drivers/gpio/gpio-max77650.c
+>  create mode 100644 drivers/input/misc/max77650-onkey.c
+>  create mode 100644 drivers/leds/leds-max77650.c
+>  create mode 100644 drivers/mfd/max77650.c
+>  create mode 100644 drivers/power/supply/max77650-charger.c
+>  create mode 100644 include/linux/mfd/max77650.h
+>
+> --
 > 2.21.0
-> 
+>
 
--- 
-Dmitry
+Hi Lee,
+
+just a gentle ping before I leave on vacation.
+
+All the relevant Acks are there. Any chance of getting this in for
+v5.2? Obviously this cannot cause any regressions so it shouldn't be
+too late in the release cycle.
+
+Thanks in advance,
+Bartosz Golaszewski

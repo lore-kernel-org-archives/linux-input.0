@@ -1,82 +1,45 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
- is required
-Date: Tue, 30 Apr 2019 17:42:52 +0200
-Message-ID: <CAJZ5v0gimPdVY8FbzNPZQK=pMGzynpxJqUR_ypSh9OTAsObfrw@mail.gmail.com>
-References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Subject: [PATCH 2/2] Input: edt-ft5x06 - add support for polled configuration
+Date: Tue, 30 Apr 2019 20:58:59 +0200
+Message-ID: <20190430185859.24015-2-nsaenzjulienne@suse.de>
+References: <20190430185859.24015-1-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Keijo Vaara <ferdasyn@rocketmail.com>, linux-input@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, Stable <stable@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190430185859.24015-1-nsaenzjulienne@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 4:23 PM Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
->
-> Multiple users have reported their Synaptics touchpad has stopped
-> working between v4.20.1 and v4.20.2 when using SMBus interface.
->
-> The culprit for this appeared to be commit c5eb1190074c ("PCI / PM: Allow
-> runtime PM without callback functions") that fixed the runtime PM for
-> i2c-i801 SMBus adapter. Those Synaptics touchpad are using i2c-i801
-> for SMBus communication and testing showed they are able to get back
-> working by preventing the runtime suspend of adapter.
->
-> Normally when i2c-i801 SMBus adapter transmits with the client it resumes
-> before operation and autosuspends after.
->
-> However, if client requires SMBus Host Notify protocol, what those
-> Synaptics touchpads do, then the host adapter must not go to runtime
-> suspend since then it cannot process incoming SMBus Host Notify commands
-> the client may send.
->
-> Fix this by keeping I2C/SMBus adapter active in case client requires
-> Host Notify.
->
-> Reported-by: Keijo Vaara <ferdasyn@rocketmail.com>
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=203297
-> Fixes: c5eb1190074c ("PCI / PM: Allow runtime PM without callback functions")
-> Cc: stable@vger.kernel.org # v4.20+
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Some devices might not provide an interrupt line for the touchscreen.
+In that case the driver defaults to using a polled interface.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+---
+ .../devicetree/bindings/input/touchscreen/edt-ft5x06.txt  | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Or please let me know if you want me to take this.
-
-> ---
-> Keijo: could you test this does it fix the issue you reported? This is
-> practically the same diff I sent earlier what you probably haven't tested yet.
-> I wanted to send a commitable fix in case it works since I'll be out of
-> office in a few coming days.
-> ---
->  drivers/i2c/i2c-core-base.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 38af18645133..8149c9e32b69 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -327,6 +327,8 @@ static int i2c_device_probe(struct device *dev)
->
->                 if (client->flags & I2C_CLIENT_HOST_NOTIFY) {
->                         dev_dbg(dev, "Using Host Notify IRQ\n");
-> +                       /* Keep adapter active when Host Notify is required */
-> +                       pm_runtime_get_sync(&client->adapter->dev);
->                         irq = i2c_smbus_host_notify_to_irq(client);
->                 } else if (dev->of_node) {
->                         irq = of_irq_get_byname(dev->of_node, "irq");
-> @@ -431,6 +433,8 @@ static int i2c_device_remove(struct device *dev)
->         device_init_wakeup(&client->dev, false);
->
->         client->irq = client->init_irq;
-> +       if (client->flags & I2C_CLIENT_HOST_NOTIFY)
-> +               pm_runtime_put(&client->adapter->dev);
->
->         return status;
->  }
-> --
-> 2.20.1
->
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+index 870b8c5cce9b..2605994a1257 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
+@@ -24,10 +24,14 @@ Required properties:
+            or:  "focaltech,ft6236"
+ 
+  - reg:         I2C slave address of the chip (0x38)
+- - interrupts:       interrupt specification for the touchdetect
+-                     interrupt
+ 
+ Optional properties:
++- interrupts: interrupt specification for the touchdetect interrupt, if not
++	      supplied the driver will deafult to polling.
++
++- poll-interval: Poll interval time in milliseconds, only relevant if no
++		 interrupt was provided.
++
+  - reset-gpios: GPIO specification for the RESET input
+  - wake-gpios:  GPIO specification for the WAKE input
+ 
+-- 
+2.21.0

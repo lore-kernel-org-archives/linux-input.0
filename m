@@ -1,64 +1,75 @@
-From: Keijo Vaara <ferdasyn@rocketmail.com>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host
- Notify is required
-Date: Thu, 2 May 2019 08:07:58 +0000 (UTC)
-Message-ID: <1541197134.3231703.1556784478268@mail.yahoo.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
+ is required
+Date: Thu, 2 May 2019 18:43:46 +0200
+Message-ID: <20190502164346.GE11535@kunai>
 References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
 Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, stable@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Keijo Vaara <ferdasyn@rocketmail.com>, linux-input@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 4:23 PM Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
->
-> ---
-> Keijo: could you test this does it fix the issue you reported? This is
-> practically the same diff I sent earlier what you probably haven't tested=
- yet.
-> I wanted to send a commitable fix in case it works since I'll be out of
-> office in a few coming days.
-> ---
->=C2=A0 drivers/i2c/i2c-core-base.c | 4 ++++
->=C2=A0 1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 38af18645133..8149c9e32b69 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -327,6 +327,8 @@ static int i2c_device_probe(struct device *dev)
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (client->flags =
-& I2C_CLIENT_HOST_NOTIFY) {
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 dev_dbg(dev, "Using Host Notify IRQ\n");
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 /* Keep adapter active when Host Notify is required */
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 pm_runtime_get_sync(&client->adapter->dev);
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 irq =3D i2c_smbus_host_notify_to_irq(client);
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 } else if (dev->of=
-_node) {
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 irq =3D of_irq_get_byname(dev->of_node, "irq");
-> @@ -431,6 +433,8 @@ static int i2c_device_remove(struct device *dev)
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 device_init_wakeup(&client->dev, false);
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 client->irq =3D client->init_irq;
-> +=C2=A0 =C2=A0 =C2=A0 if (client->flags & I2C_CLIENT_HOST_NOTIFY)
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pm_runtime_put(&client-=
->adapter->dev);
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 return status;
->=C2=A0 }
-> --
-> 2.20.1
->
 
-Thanks guys, I've tested the patch and can confirm it fixes the issue.
+--lkTb+7nhmha7W+c3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Apr 30, 2019 at 05:23:22PM +0300, Jarkko Nikula wrote:
+> Multiple users have reported their Synaptics touchpad has stopped
+> working between v4.20.1 and v4.20.2 when using SMBus interface.
+>=20
+> The culprit for this appeared to be commit c5eb1190074c ("PCI / PM: Allow
+> runtime PM without callback functions") that fixed the runtime PM for
+> i2c-i801 SMBus adapter. Those Synaptics touchpad are using i2c-i801
+> for SMBus communication and testing showed they are able to get back
+> working by preventing the runtime suspend of adapter.
+>=20
+> Normally when i2c-i801 SMBus adapter transmits with the client it resumes
+> before operation and autosuspends after.
+>=20
+> However, if client requires SMBus Host Notify protocol, what those
+> Synaptics touchpads do, then the host adapter must not go to runtime
+> suspend since then it cannot process incoming SMBus Host Notify commands
+> the client may send.
+>=20
+> Fix this by keeping I2C/SMBus adapter active in case client requires
+> Host Notify.
+>=20
+> Reported-by: Keijo Vaara <ferdasyn@rocketmail.com>
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D203297
+> Fixes: c5eb1190074c ("PCI / PM: Allow runtime PM without callback functio=
+ns")
+> Cc: stable@vger.kernel.org # v4.20+
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+
+Applied to for-current-fixed, thanks!
+
+
+--lkTb+7nhmha7W+c3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzLHkIACgkQFA3kzBSg
+KbapUw/9HnAdtGdXtSUvcCCDZyaj63rtRr7jniT8OaAnIjxxSc0xYa8lH5ZnXbSy
+igBMbL7aluqtHG3T3RkiNdAaT2FIs4le5jWfH7ypxBz2nr8XlUuSayA/ogrSm1XU
+uhLKNoPamnouY90dpuvu8wUej8WS9sSPHVayu1AYKYTDOnVYwl3cqPnmQw7DzdWg
+SXJZ7MyfpzTm0S9QBUtzWFkFaty2DtyuWwf7rDo18crnJo+DqslztO1By81Xc41p
+GFScFOBvHXdyY38eHMrDo851sns2WHPeoTox3x3Un0oXHEYg1m67urD1+xK13oOf
+AETuz8kwfeXc/z1hrsv4b9jCKFgYUOXStOc4o/Ig6R6R9Y2rEJi141hLoVEBhv0x
+y2jDsB4RCbsF5pTcJ+L98QCEb1XihELU3VoYvx2HwpgIgbqh/0OgQpqwof2XSMyd
+97XrZf9rCAMLeOyElPat5j7EUPPsw1o2ebf2921lJYfTDjIQyp8pRsLcH967zX4d
+sjtcmRACBgDqdMF/DsShHr25mTJtEg47dvoUWLx98uDj2ryDMdkZmgMhVooAs21t
+fjE/oJ8jTZURPiMoHhs6rEx0FgoUN0KgpOf5rMMY92SzB5NdnCdHVteZuIklgQZw
+52S/MxLZpMPWxPfw7qtWWssSdd1+qIKHn0fCAsMZIoNLgBJGDN4=
+=m1ON
+-----END PGP SIGNATURE-----
+
+--lkTb+7nhmha7W+c3--

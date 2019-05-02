@@ -1,75 +1,27 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
- is required
-Date: Thu, 2 May 2019 18:43:46 +0200
-Message-ID: <20190502164346.GE11535@kunai>
-References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 2/2] Input: edt-ft5x06 - add support for polled
+ configuration
+Date: Thu, 2 May 2019 16:32:17 -0500
+Message-ID: <20190502213217.GA14901@bogus>
+References: <20190430185859.24015-1-nsaenzjulienne@suse.de>
+ <20190430185859.24015-2-nsaenzjulienne@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
-Return-path: <stable-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Keijo Vaara <ferdasyn@rocketmail.com>, linux-input@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, stable@vger.kernel.org
+In-Reply-To: <20190430185859.24015-2-nsaenzjulienne@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Tue, 30 Apr 2019 20:58:59 +0200, Nicolas Saenz Julienne wrote:
+> Some devices might not provide an interrupt line for the touchscreen.
+> In that case the driver defaults to using a polled interface.
+> 
+> Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+> ---
+>  .../devicetree/bindings/input/touchscreen/edt-ft5x06.txt  | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
 
---lkTb+7nhmha7W+c3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Apr 30, 2019 at 05:23:22PM +0300, Jarkko Nikula wrote:
-> Multiple users have reported their Synaptics touchpad has stopped
-> working between v4.20.1 and v4.20.2 when using SMBus interface.
->=20
-> The culprit for this appeared to be commit c5eb1190074c ("PCI / PM: Allow
-> runtime PM without callback functions") that fixed the runtime PM for
-> i2c-i801 SMBus adapter. Those Synaptics touchpad are using i2c-i801
-> for SMBus communication and testing showed they are able to get back
-> working by preventing the runtime suspend of adapter.
->=20
-> Normally when i2c-i801 SMBus adapter transmits with the client it resumes
-> before operation and autosuspends after.
->=20
-> However, if client requires SMBus Host Notify protocol, what those
-> Synaptics touchpads do, then the host adapter must not go to runtime
-> suspend since then it cannot process incoming SMBus Host Notify commands
-> the client may send.
->=20
-> Fix this by keeping I2C/SMBus adapter active in case client requires
-> Host Notify.
->=20
-> Reported-by: Keijo Vaara <ferdasyn@rocketmail.com>
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D203297
-> Fixes: c5eb1190074c ("PCI / PM: Allow runtime PM without callback functio=
-ns")
-> Cc: stable@vger.kernel.org # v4.20+
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-
-Applied to for-current-fixed, thanks!
-
-
---lkTb+7nhmha7W+c3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzLHkIACgkQFA3kzBSg
-KbapUw/9HnAdtGdXtSUvcCCDZyaj63rtRr7jniT8OaAnIjxxSc0xYa8lH5ZnXbSy
-igBMbL7aluqtHG3T3RkiNdAaT2FIs4le5jWfH7ypxBz2nr8XlUuSayA/ogrSm1XU
-uhLKNoPamnouY90dpuvu8wUej8WS9sSPHVayu1AYKYTDOnVYwl3cqPnmQw7DzdWg
-SXJZ7MyfpzTm0S9QBUtzWFkFaty2DtyuWwf7rDo18crnJo+DqslztO1By81Xc41p
-GFScFOBvHXdyY38eHMrDo851sns2WHPeoTox3x3Un0oXHEYg1m67urD1+xK13oOf
-AETuz8kwfeXc/z1hrsv4b9jCKFgYUOXStOc4o/Ig6R6R9Y2rEJi141hLoVEBhv0x
-y2jDsB4RCbsF5pTcJ+L98QCEb1XihELU3VoYvx2HwpgIgbqh/0OgQpqwof2XSMyd
-97XrZf9rCAMLeOyElPat5j7EUPPsw1o2ebf2921lJYfTDjIQyp8pRsLcH967zX4d
-sjtcmRACBgDqdMF/DsShHr25mTJtEg47dvoUWLx98uDj2ryDMdkZmgMhVooAs21t
-fjE/oJ8jTZURPiMoHhs6rEx0FgoUN0KgpOf5rMMY92SzB5NdnCdHVteZuIklgQZw
-52S/MxLZpMPWxPfw7qtWWssSdd1+qIKHn0fCAsMZIoNLgBJGDN4=
-=m1ON
------END PGP SIGNATURE-----
-
---lkTb+7nhmha7W+c3--
+Reviewed-by: Rob Herring <robh@kernel.org>

@@ -1,30 +1,35 @@
-From: Jiri Kosina <jikos@kernel.org>
+From: Fabien DESSENNE <fabien.dessenne@st.com>
 Subject: Re: [PATCH] HID: rmi: fix devm_add_action_or_reset() parameter
-Date: Fri, 3 May 2019 14:42:18 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1905031440570.10635@cbobk.fhfr.pm>
-References: <1555073657-24386-1-git-send-email-fabien.dessenne@st.com> <nycvar.YFH.7.76.1905031418510.10635@cbobk.fhfr.pm> <9628edde-5270-d5a5-7db6-c9ec3f47c742@st.com>
+Date: Fri, 3 May 2019 12:38:18 +0000
+Message-ID: <9628edde-5270-d5a5-7db6-c9ec3f47c742@st.com>
+References: <1555073657-24386-1-git-send-email-fabien.dessenne@st.com>
+ <nycvar.YFH.7.76.1905031418510.10635@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9628edde-5270-d5a5-7db6-c9ec3f47c742@st.com>
+In-Reply-To: <nycvar.YFH.7.76.1905031418510.10635@cbobk.fhfr.pm>
+Content-Language: en-US
+Content-ID: <8C93354F4F1B5C4394EE04057F7F1250@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Fabien DESSENNE <fabien.dessenne@st.com>
+To: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 3 May 2019, Fabien DESSENNE wrote:
-
-> >> -	ret = devm_add_action_or_reset(&hdev->dev, &rmi_irq_teardown, hdata);
-> >> +	ret = devm_add_action_or_reset(&hdev->dev, rmi_irq_teardown, hdata);
-> > Why do you think this is wrong C?
-> 
-> Because I was not aware that both func and &func refer to the same 
-> function pointer.
-> 
-> Now I know :)
-
-Yup, it's defined in 6.3.2.1.4 in C99.
-
--- 
-Jiri Kosina
-SUSE Labs
+DQpPbiAwMy8wNS8yMDE5IDI6MTkgUE0sIEppcmkgS29zaW5hIHdyb3RlOg0KPiBPbiBGcmksIDEy
+IEFwciAyMDE5LCBGYWJpZW4gRGVzc2VubmUgd3JvdGU6DQo+DQo+PiBUaGUgc2Vjb25kIHBhcmFt
+ZXRlciBvZiBkZXZtX2FkZF9hY3Rpb25fb3JfcmVzZXQoKSBzaGFsbCBiZSBhIGZ1bmN0aW9uLA0K
+Pj4gbm90IGEgZnVuY3Rpb24gYWRkcmVzcy4NCj4+DQo+PiBTaWduZWQtb2ZmLWJ5OiBGYWJpZW4g
+RGVzc2VubmUgPGZhYmllbi5kZXNzZW5uZUBzdC5jb20+DQo+PiAtLS0NCj4+ICAgZHJpdmVycy9o
+aWQvaGlkLXJtaS5jIHwgMiArLQ0KPj4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyks
+IDEgZGVsZXRpb24oLSkNCj4+DQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLXJtaS5j
+IGIvZHJpdmVycy9oaWQvaGlkLXJtaS5jDQo+PiBpbmRleCA5ZTMzMTY1Li44NzQ4ZDRkIDEwMDY0
+NA0KPj4gLS0tIGEvZHJpdmVycy9oaWQvaGlkLXJtaS5jDQo+PiArKysgYi9kcml2ZXJzL2hpZC9o
+aWQtcm1pLmMNCj4+IEBAIC02MjMsNyArNjIzLDcgQEAgc3RhdGljIGludCBybWlfc2V0dXBfaXJx
+X2RvbWFpbihzdHJ1Y3QgaGlkX2RldmljZSAqaGRldikNCj4+ICAgCWlmICghaGRhdGEtPmRvbWFp
+bikNCj4+ICAgCQlyZXR1cm4gLUVOT01FTTsNCj4+ICAgDQo+PiAtCXJldCA9IGRldm1fYWRkX2Fj
+dGlvbl9vcl9yZXNldCgmaGRldi0+ZGV2LCAmcm1pX2lycV90ZWFyZG93biwgaGRhdGEpOw0KPj4g
+KwlyZXQgPSBkZXZtX2FkZF9hY3Rpb25fb3JfcmVzZXQoJmhkZXYtPmRldiwgcm1pX2lycV90ZWFy
+ZG93biwgaGRhdGEpOw0KPiBXaHkgZG8geW91IHRoaW5rIHRoaXMgaXMgd3JvbmcgQz8NCg0KDQpC
+ZWNhdXNlIEkgd2FzIG5vdCBhd2FyZSB0aGF0IGJvdGggZnVuYyBhbmQgJmZ1bmMgcmVmZXIgdG8g
+dGhlIHNhbWUgDQpmdW5jdGlvbiBwb2ludGVyLg0KDQpOb3cgSSBrbm93IDopDQoNCg0KPg==

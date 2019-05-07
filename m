@@ -1,8 +1,8 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 Subject: Re: [PATCH][next] Input: qt1050: fix less than zero comparison on an
  unsigned int
-Date: Tue, 7 May 2019 11:27:44 +0300
-Message-ID: <20190507082744.GK2269@kadam>
+Date: Tue, 7 May 2019 10:32:14 +0200
+Message-ID: <20190507083214.rcew5cjfvlbwbov5@pengutronix.de>
 References: <20190507082135.21538-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -11,14 +11,18 @@ Content-Disposition: inline
 In-Reply-To: <20190507082135.21538-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Colin King <colin.king@canonical.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 07, 2019 at 09:21:35AM +0100, Colin King wrote:
+Hi Ian,
+
+On 19-05-07 09:21, Colin King wrote:
 > From: Colin Ian King <colin.king@canonical.com>
 > 
 > Currently the less than zero comparison of val is always false because
 > val is an unsigned int. Fix this by making val a signed int.
+
+Thanks for covering that, was an copy 'n' paste failure..
 > 
 > Addresses-Coverity: ("Unsigned compared against zero")
 > Fixes: a33ff45923c8 ("Input: qt1050 - add Microchip AT42QT1050 support")
@@ -38,13 +42,21 @@ On Tue, May 07, 2019 at 09:21:35AM +0100, Colin King wrote:
 > -	unsigned int val;
 > +	int val;
 
-This code is checking the wrong thing anyway.  It should be:
+I think the proper solution is to add a ret val, because this covers the
+success/fail. I will send a patch to fix this.
 
-	int ret;
+Regards,
+  Marco
 
-	ret = regmap_read(&val);
-	if (ret)
-		return false;
+>  	/* Read Chip ID */
+>  	regmap_read(ts->regmap, QT1050_CHIP_ID, &val);
+> -- 
+> 2.20.1
+> 
+> 
 
-regards,
-dan carpenter
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |

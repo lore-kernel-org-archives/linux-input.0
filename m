@@ -1,45 +1,58 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 03/95] HID: input: add mapping for Expose/Overview key
-Date: Tue,  7 May 2019 01:36:52 -0400
-Message-ID: <20190507053826.31622-3-sashal@kernel.org>
-References: <20190507053826.31622-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 16/81] Input: snvs_pwrkey - initialize necessary driver data before enabling IRQ
+Date: Tue,  7 May 2019 01:34:47 -0400
+Message-ID: <20190507053554.30848-16-sashal@kernel.org>
+References: <20190507053554.30848-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
+In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: Anson Huang <anson.huang@nxp.com>, Anson Huang <Anson.Huang@nxp.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Anson Huang <anson.huang@nxp.com>
 
-[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
+[ Upstream commit bf2a7ca39fd3ab47ef71c621a7ee69d1813b1f97 ]
 
-According to HUTRR77 usage 0x29f from the consumer page is reserved for
-the Desktop application to present all running user’s application windows.
-Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
-add the mapping.
+SNVS IRQ is requested before necessary driver data initialized,
+if there is a pending IRQ during driver probe phase, kernel
+NULL pointer panic will occur in IRQ handler. To avoid such
+scenario, just initialize necessary driver data before enabling
+IRQ. This patch is inspired by NXP's internal kernel tree.
 
+Fixes: d3dc6e232215 ("input: keyboard: imx: add snvs power key driver")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/keyboard/snvs_pwrkey.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d146a9b545ee..35422c419f52 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1016,6 +1016,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
- 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
+diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+index effb63205d3d..4c67cf30a5d9 100644
+--- a/drivers/input/keyboard/snvs_pwrkey.c
++++ b/drivers/input/keyboard/snvs_pwrkey.c
+@@ -148,6 +148,9 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
  
-+		case 0x29f: map_key_clear(KEY_SCALE);		break;
++	pdata->input = input;
++	platform_set_drvdata(pdev, pdata);
 +
- 		default: map_key_clear(KEY_UNKNOWN);
- 		}
- 		break;
+ 	error = devm_request_irq(&pdev->dev, pdata->irq,
+ 			       imx_snvs_pwrkey_interrupt,
+ 			       0, pdev->name, pdev);
+@@ -163,9 +166,6 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
+ 
+-	pdata->input = input;
+-	platform_set_drvdata(pdev, pdata);
+-
+ 	device_init_wakeup(&pdev->dev, pdata->wakeup);
+ 
+ 	return 0;
 -- 
 2.20.1

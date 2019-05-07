@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 07/99] HID: input: add mapping for keyboard Brightness Up/Down/Toggle keys
-Date: Tue,  7 May 2019 01:31:01 -0400
-Message-ID: <20190507053235.29900-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 08/99] HID: input: add mapping for "Toggle Display" key
+Date: Tue,  7 May 2019 01:31:02 -0400
+Message-ID: <20190507053235.29900-8-sashal@kernel.org>
 References: <20190507053235.29900-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,31 +14,36 @@ List-Id: linux-input@vger.kernel.org
 
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 7975a1d6a7afeb3eb61c971a153d24dd8fa032f3 ]
+[ Upstream commit c01908a14bf735b871170092807c618bb9dae654 ]
 
-According to HUTRR73 usages 0x79, 0x7a and 0x7c from the consumer page
-correspond to Brightness Up/Down/Toggle keys, so let's add the mappings.
+According to HUT 1.12 usage 0xb5 from the generic desktop page is reserved
+for switching between external and internal display, so let's add the
+mapping.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-input.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f55bfcabd718..a985d55e3510 100644
+index a985d55e3510..e2b933972465 100644
 --- a/drivers/hid/hid-input.c
 +++ b/drivers/hid/hid-input.c
-@@ -908,6 +908,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
- 		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
+@@ -677,6 +677,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			break;
+ 		}
  
-+		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
-+		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
-+		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
++		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
++			switch (usage->hid & 0xf) {
++			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
++			default: goto ignore;
++			}
++			break;
++		}
 +
- 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
- 		case 0x083: map_key_clear(KEY_LAST);		break;
- 		case 0x084: map_key_clear(KEY_ENTER);		break;
+ 		/*
+ 		 * Some lazy vendors declare 255 usages for System Control,
+ 		 * leading to the creation of ABS_X|Y axis and too many others.
 -- 
 2.20.1

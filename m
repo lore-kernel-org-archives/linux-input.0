@@ -1,10 +1,9 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 06/81] HID: input: add mapping for Expose/Overview key
-Date: Tue,  7 May 2019 01:34:37 -0400
-Message-ID: <20190507053554.30848-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 08/81] HID: input: add mapping for "Toggle Display" key
+Date: Tue,  7 May 2019 01:34:39 -0400
+Message-ID: <20190507053554.30848-8-sashal@kernel.org>
 References: <20190507053554.30848-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190507053554.30848-1-sashal@kernel.org>
@@ -15,31 +14,36 @@ List-Id: linux-input@vger.kernel.org
 
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 96dd86871e1fffbc39e4fa61c9c75ec54ee9af0f ]
+[ Upstream commit c01908a14bf735b871170092807c618bb9dae654 ]
 
-According to HUTRR77 usage 0x29f from the consumer page is reserved for
-the Desktop application to present all running user’s application windows.
-Linux defines KEY_SCALE to request Compiz Scale (Expose) mode, so let's
-add the mapping.
+According to HUT 1.12 usage 0xb5 from the generic desktop page is reserved
+for switching between external and internal display, so let's add the
+mapping.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-input.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index a3916e58dbf5..150b14623749 100644
+index eeb9ba7e8fc6..be0a6958a65a 100644
 --- a/drivers/hid/hid-input.c
 +++ b/drivers/hid/hid-input.c
-@@ -1025,6 +1025,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
- 		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
- 
-+		case 0x29f: map_key_clear(KEY_SCALE);		break;
-+
- 		default: map_key_clear(KEY_UNKNOWN);
+@@ -677,6 +677,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			break;
  		}
- 		break;
+ 
++		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
++			switch (usage->hid & 0xf) {
++			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
++			default: goto ignore;
++			}
++			break;
++		}
++
+ 		/*
+ 		 * Some lazy vendors declare 255 usages for System Control,
+ 		 * leading to the creation of ABS_X|Y axis and too many others.
 -- 
 2.20.1

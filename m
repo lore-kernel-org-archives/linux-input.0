@@ -1,66 +1,57 @@
-From: Colin Ian King <colin.king@canonical.com>
-Subject: Re: [PATCH][next] Input: qt1050: fix less than zero comparison on an
- unsigned int
-Date: Tue, 7 May 2019 09:46:03 +0100
-Message-ID: <e2a30ae6-da97-1abe-3385-d86bc81406f0@canonical.com>
-References: <20190507082135.21538-1-colin.king@canonical.com>
- <20190507083214.rcew5cjfvlbwbov5@pengutronix.de>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/3] mfd: apple-ibridge: Add Apple iBridge MFD driver.
+Date: Tue, 7 May 2019 13:24:15 +0100
+Message-ID: <20190507122415.GC29524@dell>
+References: <20190422031251.11968-1-ronald@innovation.ch>
+ <20190422031251.11968-2-ronald@innovation.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190507083214.rcew5cjfvlbwbov5@pengutronix.de>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190422031251.11968-2-ronald@innovation.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Marco Felsch <m.felsch@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ronald =?iso-8859-1?Q?Tschal=E4r?= <ronald@innovation.ch>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 07/05/2019 09:32, Marco Felsch wrote:
-> Hi Ian,
-> 
-> On 19-05-07 09:21, Colin King wrote:
->> From: Colin Ian King <colin.king@canonical.com>
->>
->> Currently the less than zero comparison of val is always false because
->> val is an unsigned int. Fix this by making val a signed int.
-> 
-> Thanks for covering that, was an copy 'n' paste failure..
->>
->> Addresses-Coverity: ("Unsigned compared against zero")
->> Fixes: a33ff45923c8 ("Input: qt1050 - add Microchip AT42QT1050 support")
->> Signed-off-by: Colin Ian King <colin.king@canonical.com>
->> ---
->>  drivers/input/keyboard/qt1050.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1050.c
->> index 6b1603cb7515..4debddb13972 100644
->> --- a/drivers/input/keyboard/qt1050.c
->> +++ b/drivers/input/keyboard/qt1050.c
->> @@ -222,7 +222,7 @@ static struct regmap_config qt1050_regmap_config = {
->>  
->>  static bool qt1050_identify(struct qt1050_priv *ts)
->>  {
->> -	unsigned int val;
->> +	int val;
-> 
-> I think the proper solution is to add a ret val, because this covers the
-> success/fail. I will send a patch to fix this.
+On Sun, 21 Apr 2019, Ronald Tschalär wrote:
 
-OK, thanks for the follow-up fix.
+> The iBridge device provides access to several devices, including:
+> - the Touch Bar
+> - the iSight webcam
+> - the light sensor
+> - the fingerprint sensor
+> 
+> This driver provides the core support for managing the iBridge device
+> and the access to the underlying devices. In particular, since the
+> functionality for the touch bar and light sensor is exposed via USB HID
+> interfaces, and the same HID device is used for multiple functions, this
+> driver provides a multiplexing layer that allows multiple HID drivers to
+> be registered for a given HID device. This allows the touch bar and ALS
+> driver to be separated out into their own modules.
+> 
+> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+> ---
+>  drivers/mfd/Kconfig               |  15 +
+>  drivers/mfd/Makefile              |   1 +
+>  drivers/mfd/apple-ibridge.c       | 883 ++++++++++++++++++++++++++++++
 
-Regards,
-Colin
+I haven't taken a thorough look through, but I can tell you that the
+vast majority of what you're trying to do here does not belong in
+MFD.  MFD drivers are used to register child devices.  Almost all
+functionality or 'real work' should be contained in the drivers the
+MFD registers, not in the MFD parent itself.  You will need to move
+all 'real work' out into the subordinate device drivers for
+acceptance.
 
-> 
-> Regards,
->   Marco
-> 
->>  	/* Read Chip ID */
->>  	regmap_read(ts->regmap, QT1050_CHIP_ID, &val);
->> -- 
->> 2.20.1
->>
->>
-> 
+>  include/linux/mfd/apple-ibridge.h |  39 ++
+>  4 files changed, 938 insertions(+)
+>  create mode 100644 drivers/mfd/apple-ibridge.c
+>  create mode 100644 include/linux/mfd/apple-ibridge.h
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

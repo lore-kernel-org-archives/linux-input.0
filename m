@@ -1,49 +1,56 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 08/99] HID: input: add mapping for "Toggle Display" key
-Date: Tue,  7 May 2019 01:31:02 -0400
-Message-ID: <20190507053235.29900-8-sashal@kernel.org>
-References: <20190507053235.29900-1-sashal@kernel.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH -next] hid: fix hid-logitech-dj build error
+Date: Tue, 7 May 2019 09:04:53 +0200
+Message-ID: <CAO-hwJKueMUp=4ioCNhgkX2+HWsd9GV4bkKi_+uvzpOV_UED8A@mail.gmail.com>
+References: <e2154a13-0ec5-d39c-52cf-db98867b0496@infradead.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190507053235.29900-1-sashal@kernel.org>
+In-Reply-To: <e2154a13-0ec5-d39c-52cf-db98867b0496@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, kbuild test robot <lkp@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi Randy,
 
-[ Upstream commit c01908a14bf735b871170092807c618bb9dae654 ]
+On Tue, May 7, 2019 at 3:12 AM Randy Dunlap <rdunlap@infradead.org> wrote:
+>
+> From: Randy Dunlap <rdunlap@infradead.org>
+>
+> Fix build error in hid-logitech-dj by making it depend on
+> USB_HID, like several other HID drivers do.
+>
+> Fixes this build error:
+>
+> ERROR: "usb_hid_driver" [drivers/hid/hid-logitech-dj.ko] undefined!
+>
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> ---
+>  drivers/hid/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+>
+> --- mmotm-2019-0425-1630.orig/drivers/hid/Kconfig
+> +++ mmotm-2019-0425-1630/drivers/hid/Kconfig
+> @@ -522,6 +522,7 @@ config HID_LOGITECH
+>  config HID_LOGITECH_DJ
+>         tristate "Logitech Unifying receivers full support"
+>         depends on HIDRAW
+> +       depends on USB_HID
 
-According to HUT 1.12 usage 0xb5 from the generic desktop page is reserved
-for switching between external and internal display, so let's add the
-mapping.
+this is already scheduled in the HID PR:
+https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=for-linus&id=c08f38e9fd0b5486957ed42438ec8fa9b6ebbf4f
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-input.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Cheers,
+Benjamin
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index a985d55e3510..e2b933972465 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -677,6 +677,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			break;
- 		}
- 
-+		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
-+			switch (usage->hid & 0xf) {
-+			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
-+			default: goto ignore;
-+			}
-+			break;
-+		}
-+
- 		/*
- 		 * Some lazy vendors declare 255 usages for System Control,
- 		 * leading to the creation of ABS_X|Y axis and too many others.
--- 
-2.20.1
+>         depends on HID_LOGITECH
+>         select HID_LOGITECH_HIDPP
+>         ---help---
+>
+>

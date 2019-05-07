@@ -1,56 +1,40 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH -next] hid: fix hid-logitech-dj build error
-Date: Tue, 7 May 2019 09:04:53 +0200
-Message-ID: <CAO-hwJKueMUp=4ioCNhgkX2+HWsd9GV4bkKi_+uvzpOV_UED8A@mail.gmail.com>
-References: <e2154a13-0ec5-d39c-52cf-db98867b0496@infradead.org>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH][next] Input: qt1050: fix less than zero comparison on an unsigned int
+Date: Tue,  7 May 2019 09:21:35 +0100
+Message-ID: <20190507082135.21538-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e2154a13-0ec5-d39c-52cf-db98867b0496@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, kbuild test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Marco Felsch <m.felsch@pengutronix.de>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Randy,
+From: Colin Ian King <colin.king@canonical.com>
 
-On Tue, May 7, 2019 at 3:12 AM Randy Dunlap <rdunlap@infradead.org> wrote:
->
-> From: Randy Dunlap <rdunlap@infradead.org>
->
-> Fix build error in hid-logitech-dj by making it depend on
-> USB_HID, like several other HID drivers do.
->
-> Fixes this build error:
->
-> ERROR: "usb_hid_driver" [drivers/hid/hid-logitech-dj.ko] undefined!
->
-> Reported-by: kbuild test robot <lkp@intel.com>
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: linux-input@vger.kernel.org
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> ---
->  drivers/hid/Kconfig |    1 +
->  1 file changed, 1 insertion(+)
->
-> --- mmotm-2019-0425-1630.orig/drivers/hid/Kconfig
-> +++ mmotm-2019-0425-1630/drivers/hid/Kconfig
-> @@ -522,6 +522,7 @@ config HID_LOGITECH
->  config HID_LOGITECH_DJ
->         tristate "Logitech Unifying receivers full support"
->         depends on HIDRAW
-> +       depends on USB_HID
+Currently the less than zero comparison of val is always false because
+val is an unsigned int. Fix this by making val a signed int.
 
-this is already scheduled in the HID PR:
-https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=for-linus&id=c08f38e9fd0b5486957ed42438ec8fa9b6ebbf4f
+Addresses-Coverity: ("Unsigned compared against zero")
+Fixes: a33ff45923c8 ("Input: qt1050 - add Microchip AT42QT1050 support")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/input/keyboard/qt1050.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Cheers,
-Benjamin
-
->         depends on HID_LOGITECH
->         select HID_LOGITECH_HIDPP
->         ---help---
->
->
+diff --git a/drivers/input/keyboard/qt1050.c b/drivers/input/keyboard/qt1050.c
+index 6b1603cb7515..4debddb13972 100644
+--- a/drivers/input/keyboard/qt1050.c
++++ b/drivers/input/keyboard/qt1050.c
+@@ -222,7 +222,7 @@ static struct regmap_config qt1050_regmap_config = {
+ 
+ static bool qt1050_identify(struct qt1050_priv *ts)
+ {
+-	unsigned int val;
++	int val;
+ 
+ 	/* Read Chip ID */
+ 	regmap_read(ts->regmap, QT1050_CHIP_ID, &val);
+-- 
+2.20.1

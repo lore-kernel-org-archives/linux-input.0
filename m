@@ -1,83 +1,44 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 80/95] Input: elan_i2c - add hardware ID for multiple Lenovo laptops
-Date: Tue,  7 May 2019 01:38:09 -0400
-Message-ID: <20190507053826.31622-80-sashal@kernel.org>
-References: <20190507053826.31622-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 04/25] HID: input: add mapping for keyboard Brightness Up/Down/Toggle keys
+Date: Tue,  7 May 2019 01:41:01 -0400
+Message-ID: <20190507054123.32514-4-sashal@kernel.org>
+References: <20190507054123.32514-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
+In-Reply-To: <20190507054123.32514-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: KT Liao <kt.liao@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <alexander.levin@microsoft.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: KT Liao <kt.liao@emc.com.tw>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 738c06d0e4562e0acf9f2c7438a22b2d5afc67aa ]
+[ Upstream commit 7975a1d6a7afeb3eb61c971a153d24dd8fa032f3 ]
 
-There are many Lenovo laptops which need elan_i2c support, this patch adds
-relevant IDs to the Elan driver so that touchpads are recognized.
+According to HUTRR73 usages 0x79, 0x7a and 0x7c from the consumer page
+correspond to Brightness Up/Down/Toggle keys, so let's add the mappings.
 
-Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/elan_i2c_core.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/hid/hid-input.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 2ce805d31ed1..ad89ba143a0e 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1254,22 +1254,47 @@ static const struct acpi_device_id elan_acpi_id[] = {
- 	{ "ELAN0600", 0 },
- 	{ "ELAN0601", 0 },
- 	{ "ELAN0602", 0 },
-+	{ "ELAN0603", 0 },
-+	{ "ELAN0604", 0 },
- 	{ "ELAN0605", 0 },
-+	{ "ELAN0606", 0 },
-+	{ "ELAN0607", 0 },
- 	{ "ELAN0608", 0 },
- 	{ "ELAN0605", 0 },
- 	{ "ELAN0609", 0 },
- 	{ "ELAN060B", 0 },
- 	{ "ELAN060C", 0 },
-+	{ "ELAN060F", 0 },
-+	{ "ELAN0610", 0 },
- 	{ "ELAN0611", 0 },
- 	{ "ELAN0612", 0 },
-+	{ "ELAN0615", 0 },
-+	{ "ELAN0616", 0 },
- 	{ "ELAN0617", 0 },
- 	{ "ELAN0618", 0 },
-+	{ "ELAN0619", 0 },
-+	{ "ELAN061A", 0 },
-+	{ "ELAN061B", 0 },
- 	{ "ELAN061C", 0 },
- 	{ "ELAN061D", 0 },
- 	{ "ELAN061E", 0 },
-+	{ "ELAN061F", 0 },
- 	{ "ELAN0620", 0 },
- 	{ "ELAN0621", 0 },
- 	{ "ELAN0622", 0 },
-+	{ "ELAN0623", 0 },
-+	{ "ELAN0624", 0 },
-+	{ "ELAN0625", 0 },
-+	{ "ELAN0626", 0 },
-+	{ "ELAN0627", 0 },
-+	{ "ELAN0628", 0 },
-+	{ "ELAN0629", 0 },
-+	{ "ELAN062A", 0 },
-+	{ "ELAN062B", 0 },
-+	{ "ELAN062C", 0 },
-+	{ "ELAN062D", 0 },
-+	{ "ELAN0631", 0 },
-+	{ "ELAN0632", 0 },
- 	{ "ELAN1000", 0 },
- 	{ }
- };
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index d31725c4e7b1..302a24931147 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -802,6 +802,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
+ 		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
+ 
++		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
++		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
++		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
++
+ 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
+ 		case 0x083: map_key_clear(KEY_LAST);		break;
+ 		case 0x084: map_key_clear(KEY_ENTER);		break;
 -- 
 2.20.1

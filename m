@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 34/95] Input: synaptics-rmi4 - fix possible double free
-Date: Tue,  7 May 2019 01:37:23 -0400
-Message-ID: <20190507053826.31622-34-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 80/95] Input: elan_i2c - add hardware ID for multiple Lenovo laptops
+Date: Tue,  7 May 2019 01:38:09 -0400
+Message-ID: <20190507053826.31622-80-sashal@kernel.org>
 References: <20190507053826.31622-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,47 +9,75 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190507053826.31622-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Pan Bian <bianpan2016@163.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Cc: KT Liao <kt.liao@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sasha Levin <alexander.levin@microsoft.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: KT Liao <kt.liao@emc.com.tw>
 
-[ Upstream commit bce1a78423961fce676ac65540a31b6ffd179e6d ]
+[ Upstream commit 738c06d0e4562e0acf9f2c7438a22b2d5afc67aa ]
 
-The RMI4 function structure has been released in rmi_register_function
-if error occurs. However, it will be released again in the function
-rmi_create_function, which may result in a double-free bug.
+There are many Lenovo laptops which need elan_i2c support, this patch adds
+relevant IDs to the Elan driver so that touchpads are recognized.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
+Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
 ---
- drivers/input/rmi4/rmi_driver.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index f5954981e9ee..997ccae7ee05 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -883,7 +883,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 
- 	error = rmi_register_function(fn);
- 	if (error)
--		goto err_put_fn;
-+		return error;
- 
- 	if (pdt->function_number == 0x01)
- 		data->f01_container = fn;
-@@ -893,10 +893,6 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
- 	list_add_tail(&fn->node, &data->function_list);
- 
- 	return RMI_SCAN_CONTINUE;
--
--err_put_fn:
--	put_device(&fn->dev);
--	return error;
- }
- 
- void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 2ce805d31ed1..ad89ba143a0e 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1254,22 +1254,47 @@ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0600", 0 },
+ 	{ "ELAN0601", 0 },
+ 	{ "ELAN0602", 0 },
++	{ "ELAN0603", 0 },
++	{ "ELAN0604", 0 },
+ 	{ "ELAN0605", 0 },
++	{ "ELAN0606", 0 },
++	{ "ELAN0607", 0 },
+ 	{ "ELAN0608", 0 },
+ 	{ "ELAN0605", 0 },
+ 	{ "ELAN0609", 0 },
+ 	{ "ELAN060B", 0 },
+ 	{ "ELAN060C", 0 },
++	{ "ELAN060F", 0 },
++	{ "ELAN0610", 0 },
+ 	{ "ELAN0611", 0 },
+ 	{ "ELAN0612", 0 },
++	{ "ELAN0615", 0 },
++	{ "ELAN0616", 0 },
+ 	{ "ELAN0617", 0 },
+ 	{ "ELAN0618", 0 },
++	{ "ELAN0619", 0 },
++	{ "ELAN061A", 0 },
++	{ "ELAN061B", 0 },
+ 	{ "ELAN061C", 0 },
+ 	{ "ELAN061D", 0 },
+ 	{ "ELAN061E", 0 },
++	{ "ELAN061F", 0 },
+ 	{ "ELAN0620", 0 },
+ 	{ "ELAN0621", 0 },
+ 	{ "ELAN0622", 0 },
++	{ "ELAN0623", 0 },
++	{ "ELAN0624", 0 },
++	{ "ELAN0625", 0 },
++	{ "ELAN0626", 0 },
++	{ "ELAN0627", 0 },
++	{ "ELAN0628", 0 },
++	{ "ELAN0629", 0 },
++	{ "ELAN062A", 0 },
++	{ "ELAN062B", 0 },
++	{ "ELAN062C", 0 },
++	{ "ELAN062D", 0 },
++	{ "ELAN0631", 0 },
++	{ "ELAN0632", 0 },
+ 	{ "ELAN1000", 0 },
+ 	{ }
+ };
 -- 
 2.20.1

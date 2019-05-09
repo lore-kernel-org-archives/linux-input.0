@@ -1,87 +1,93 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD, GPIO, Input, LEDs and Power
- due for the v5.2 merge window
-Date: Wed, 8 May 2019 12:11:18 +0100
-Message-ID: <20190508111118.GR3995@dell>
-References: <20190423090451.23711-1-brgl@bgdev.pl>
+From: Anson Huang <anson.huang@nxp.com>
+Subject: RE: [RESEND] input: keyboard: imx: make sure keyboard can always wake
+ up system
+Date: Thu, 9 May 2019 01:41:09 +0000
+Message-ID: <DB3PR0402MB39169FB6DECE7E1DAC178539F5330@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+References: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
+ <DB3PR0402MB39167BC7D996F4FF70B5DD2FF53D0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190423090451.23711-1-brgl@bgdev.pl>
+In-Reply-To: <DB3PR0402MB39167BC7D996F4FF70B5DD2FF53D0@DB3PR0402MB3916.eurprd04.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-input@vger.kernel.org
 
-Enjoy!
-
-The following changes since commit e93c9c99a629c61837d5a7fc2120cd2b6c70dbdd:
-
-  Linux 5.1 (2019-05-05 17:42:58 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-gpio-input-leds-power-v5.2
-
-for you to fetch changes up to 796fad0101d370567c2968bd933b865aa57efaa3:
-
-  MAINTAINERS: Add an entry for MAX77650 PMIC driver (2019-05-08 12:07:12 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD, GPIO, Input, LEDs and Power due for the v5.2 merge window
-
-----------------------------------------------------------------
-Bartosz Golaszewski (11):
-      dt-bindings: mfd: Add DT bindings for max77650
-      dt-bindings: power: supply: Add DT bindings for max77650
-      dt-bindings: leds: Add DT bindings for max77650
-      dt-bindings: input: Add DT bindings for max77650
-      mfd: mfd-core: Document mfd_add_devices()
-      mfd: Add new driver for MAX77650 PMIC
-      power: supply: max77650: Add support for battery charger
-      gpio: max77650: Add GPIO support
-      leds: max77650: Add LEDs support
-      input: max77650: Add onkey support
-      MAINTAINERS: Add an entry for MAX77650 PMIC driver
-
- .../devicetree/bindings/input/max77650-onkey.txt   |  26 ++
- .../devicetree/bindings/leds/leds-max77650.txt     |  57 ++++
- Documentation/devicetree/bindings/mfd/max77650.txt |  46 +++
- .../bindings/power/supply/max77650-charger.txt     |  28 ++
- MAINTAINERS                                        |  14 +
- drivers/gpio/Kconfig                               |   7 +
- drivers/gpio/Makefile                              |   1 +
- drivers/gpio/gpio-max77650.c                       | 190 +++++++++++
- drivers/input/misc/Kconfig                         |   9 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/max77650-onkey.c                | 121 +++++++
- drivers/leds/Kconfig                               |   6 +
- drivers/leds/Makefile                              |   1 +
- drivers/leds/leds-max77650.c                       | 147 ++++++++
- drivers/mfd/Kconfig                                |  14 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/max77650.c                             | 232 +++++++++++++
- drivers/mfd/mfd-core.c                             |  13 +
- drivers/power/supply/Kconfig                       |   7 +
- drivers/power/supply/Makefile                      |   1 +
- drivers/power/supply/max77650-charger.c            | 368 +++++++++++++++++++++
- include/linux/mfd/max77650.h                       |  59 ++++
- 22 files changed, 1349 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/max77650-onkey.txt
- create mode 100644 Documentation/devicetree/bindings/leds/leds-max77650.txt
- create mode 100644 Documentation/devicetree/bindings/mfd/max77650.txt
- create mode 100644 Documentation/devicetree/bindings/power/supply/max77650-charger.txt
- create mode 100644 drivers/gpio/gpio-max77650.c
- create mode 100644 drivers/input/misc/max77650-onkey.c
- create mode 100644 drivers/leds/leds-max77650.c
- create mode 100644 drivers/mfd/max77650.c
- create mode 100644 drivers/power/supply/max77650-charger.c
- create mode 100644 include/linux/mfd/max77650.h
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+UGluZy4uLg0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IEFuc29uIEh1
+YW5nDQo+IFNlbnQ6IFRodXJzZGF5LCBBcHJpbCAyNSwgMjAxOSA5OjUwIEFNDQo+IFRvOiBkbWl0
+cnkudG9yb2tob3ZAZ21haWwuY29tOyBzaGF3bmd1b0BrZXJuZWwub3JnOw0KPiBzLmhhdWVyQHBl
+bmd1dHJvbml4LmRlOyBrZXJuZWxAcGVuZ3V0cm9uaXguZGU7IGZlc3RldmFtQGdtYWlsLmNvbTsN
+Cj4gbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmlu
+ZnJhZGVhZC5vcmc7IGxpbnV4LQ0KPiBrZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+IENjOiBkbC1s
+aW51eC1pbXggPGxpbnV4LWlteEBueHAuY29tPg0KPiBTdWJqZWN0OiBSRTogW1JFU0VORF0gaW5w
+dXQ6IGtleWJvYXJkOiBpbXg6IG1ha2Ugc3VyZSBrZXlib2FyZCBjYW4gYWx3YXlzDQo+IHdha2Ug
+dXAgc3lzdGVtDQo+IA0KPiBHZW50bGUgcGluZy4uLg0KPiANCj4gPiAtLS0tLU9yaWdpbmFsIE1l
+c3NhZ2UtLS0tLQ0KPiA+IEZyb206IEFuc29uIEh1YW5nDQo+ID4gU2VudDogVGh1cnNkYXksIEFw
+cmlsIDQsIDIwMTkgOTo0MCBBTQ0KPiA+IFRvOiBkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tOyBz
+aGF3bmd1b0BrZXJuZWwub3JnOw0KPiA+IHMuaGF1ZXJAcGVuZ3V0cm9uaXguZGU7IGtlcm5lbEBw
+ZW5ndXRyb25peC5kZTsgZmVzdGV2YW1AZ21haWwuY29tOw0KPiA+IGxpbnV4LWlucHV0QHZnZXIu
+a2VybmVsLm9yZzsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOw0KPiA+IGxp
+bnV4LSBrZXJuZWxAdmdlci5rZXJuZWwub3JnDQo+ID4gQ2M6IGRsLWxpbnV4LWlteCA8bGludXgt
+aW14QG54cC5jb20+DQo+ID4gU3ViamVjdDogW1JFU0VORF0gaW5wdXQ6IGtleWJvYXJkOiBpbXg6
+IG1ha2Ugc3VyZSBrZXlib2FyZCBjYW4gYWx3YXlzDQo+ID4gd2FrZSB1cCBzeXN0ZW0NCj4gPg0K
+PiA+IFRoZXJlIGFyZSBzZXZlcmFsIHNjZW5hcmlvcyB0aGF0IGtleWJvYXJkIGNhbiBOT1Qgd2Fr
+ZSB1cCBzeXN0ZW0gZnJvbQ0KPiA+IHN1c3BlbmQsIGUuZy4sIGlmIGEga2V5Ym9hcmQgaXMgZGVw
+cmVzc2VkIGJldHdlZW4gc3lzdGVtIGRldmljZQ0KPiA+IHN1c3BlbmQgcGhhc2UgYW5kIGRldmlj
+ZSBub2lycSBzdXNwZW5kIHBoYXNlLCB0aGUga2V5Ym9hcmQgSVNSIHdpbGwgYmUNCj4gPiBjYWxs
+ZWQgYW5kIGJvdGgga2V5Ym9hcmQgZGVwcmVzcyBhbmQgcmVsZWFzZSBpbnRlcnJ1cHRzIHdpbGwg
+YmUNCj4gPiBkaXNhYmxlZCwgdGhlbiBrZXlib2FyZCB3aWxsIG5vIGxvbmdlciBiZSBhYmxlIHRv
+IHdha2UgdXAgc3lzdGVtLg0KPiA+IEFub3RoZXIgc2NlbmFyaW8gd291bGQgYmUsIGlmIGEga2V5
+Ym9hcmQgaXMga2VwdCBkZXByZXNzZWQsIGFuZCB0aGVuDQo+ID4gc3lzdGVtIGdvZXMgaW50byBz
+dXNwZW5kLCB0aGUgZXhwZWN0ZWQgYmVoYXZpb3Igd291bGQgYmUgd2hlbiBrZXlib2FyZA0KPiA+
+IGlzIHJlbGVhc2VkLCBzeXN0ZW0gd2lsbCBiZSB3YWtlZCB1cCwgYnV0IGN1cnJlbnQgaW1wbGVt
+ZW50YXRpb24gY2FuDQo+ID4gTk9UIGFjaGlldmUgdGhhdCwgYmVjYXVzZSBib3RoIGRlcHJlc3Mg
+YW5kIHJlbGVhc2UgaW50ZXJydXB0cyBhcmUNCj4gPiBkaXNhYmxlZCBpbiBJU1IsIGFuZCB0aGUg
+ZXZlbnQgY2hlY2sgaXMgc3RpbGwgaW4gcHJvZ3Jlc3MuDQo+ID4NCj4gPiBUbyBmaXggdGhlc2Ug
+aXNzdWVzLCBuZWVkIHRvIG1ha2Ugc3VyZSBrZXlib2FyZCdzIGRlcHJlc3Mgb3IgcmVsZWFzZQ0K
+PiA+IGludGVycnVwdCBpcyBlbmFibGVkIGFmdGVyIG5vaXJxIGRldmljZSBzdXNwZW5kIHBoYXNl
+LCB0aGlzIHBhdGNoDQo+ID4gbW92ZXMgdGhlIHN1c3BlbmQvcmVzdW1lIGNhbGxiYWNrIHRvIG5v
+aXJxIHN1c3BlbmQvcmVzdW1lIHBoYXNlLCBhbmQNCj4gPiBlbmFibGUgdGhlIGNvcnJlc3BvbmRp
+bmcgaW50ZXJydXB0IGFjY29yZGluZyB0byBjdXJyZW50IGtleWJvYXJkIHN0YXR1cy4NCj4gPg0K
+PiA+IFNpZ25lZC1vZmYtYnk6IEFuc29uIEh1YW5nIDxBbnNvbi5IdWFuZ0BueHAuY29tPg0KPiA+
+IC0tLQ0KPiA+ICBkcml2ZXJzL2lucHV0L2tleWJvYXJkL2lteF9rZXlwYWQuYyB8IDE4ICsrKysr
+KysrKysrKysrLS0tLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgMTQgaW5zZXJ0aW9ucygrKSwgNCBk
+ZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tleWJvYXJk
+L2lteF9rZXlwYWQuYw0KPiA+IGIvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9pbXhfa2V5cGFkLmMN
+Cj4gPiBpbmRleCBjZjA4ZjRhLi45NzUwMGEyIDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvaW5w
+dXQva2V5Ym9hcmQvaW14X2tleXBhZC5jDQo+ID4gKysrIGIvZHJpdmVycy9pbnB1dC9rZXlib2Fy
+ZC9pbXhfa2V5cGFkLmMNCj4gPiBAQCAtNTI0LDExICs1MjQsMTIgQEAgc3RhdGljIGludCBpbXhf
+a2V5cGFkX3Byb2JlKHN0cnVjdA0KPiA+IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gPiAgCXJl
+dHVybiAwOw0KPiA+ICB9DQo+ID4NCj4gPiAtc3RhdGljIGludCBfX21heWJlX3VudXNlZCBpbXhf
+a2JkX3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQ0KPiA+ICtzdGF0aWMgaW50IF9fbWF5YmVf
+dW51c2VkIGlteF9rYmRfbm9pcnFfc3VzcGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+ID4gIHsN
+Cj4gPiAgCXN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYgPSB0b19wbGF0Zm9ybV9kZXZpY2Uo
+ZGV2KTsNCj4gPiAgCXN0cnVjdCBpbXhfa2V5cGFkICprYmQgPSBwbGF0Zm9ybV9nZXRfZHJ2ZGF0
+YShwZGV2KTsNCj4gPiAgCXN0cnVjdCBpbnB1dF9kZXYgKmlucHV0X2RldiA9IGtiZC0+aW5wdXRf
+ZGV2Ow0KPiA+ICsJdW5zaWduZWQgc2hvcnQgcmVnX3ZhbCA9IHJlYWR3KGtiZC0+bW1pb19iYXNl
+ICsgS1BTUik7DQo+ID4NCj4gPiAgCS8qIGlteCBrYmQgY2FuIHdha2UgdXAgc3lzdGVtIGV2ZW4g
+Y2xvY2sgaXMgZGlzYWJsZWQgKi8NCj4gPiAgCW11dGV4X2xvY2soJmlucHV0X2Rldi0+bXV0ZXgp
+Ow0KPiA+IEBAIC01MzgsMTMgKzUzOSwyMCBAQCBzdGF0aWMgaW50IF9fbWF5YmVfdW51c2VkDQo+
+IGlteF9rYmRfc3VzcGVuZChzdHJ1Y3QNCj4gPiBkZXZpY2UgKmRldikNCj4gPg0KPiA+ICAJbXV0
+ZXhfdW5sb2NrKCZpbnB1dF9kZXYtPm11dGV4KTsNCj4gPg0KPiA+IC0JaWYgKGRldmljZV9tYXlf
+d2FrZXVwKCZwZGV2LT5kZXYpKQ0KPiA+ICsJaWYgKGRldmljZV9tYXlfd2FrZXVwKCZwZGV2LT5k
+ZXYpKSB7DQo+ID4gKwkJaWYgKHJlZ192YWwgJiBLQkRfU1RBVF9LUEtEKQ0KPiA+ICsJCQlyZWdf
+dmFsIHw9IEtCRF9TVEFUX0tSSUU7DQo+ID4gKwkJaWYgKHJlZ192YWwgJiBLQkRfU1RBVF9LUEtS
+KQ0KPiA+ICsJCQlyZWdfdmFsIHw9IEtCRF9TVEFUX0tESUU7DQo+ID4gKwkJd3JpdGV3KHJlZ192
+YWwsIGtiZC0+bW1pb19iYXNlICsgS1BTUik7DQo+ID4gKw0KPiA+ICAJCWVuYWJsZV9pcnFfd2Fr
+ZShrYmQtPmlycSk7DQo+ID4gKwl9DQo+ID4NCj4gPiAgCXJldHVybiAwOw0KPiA+ICB9DQo+ID4N
+Cj4gPiAtc3RhdGljIGludCBfX21heWJlX3VudXNlZCBpbXhfa2JkX3Jlc3VtZShzdHJ1Y3QgZGV2
+aWNlICpkZXYpDQo+ID4gK3N0YXRpYyBpbnQgX19tYXliZV91bnVzZWQgaW14X2tiZF9ub2lycV9y
+ZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQ0KPiA+ICB7DQo+ID4gIAlzdHJ1Y3QgcGxhdGZvcm1f
+ZGV2aWNlICpwZGV2ID0gdG9fcGxhdGZvcm1fZGV2aWNlKGRldik7DQo+ID4gIAlzdHJ1Y3QgaW14
+X2tleXBhZCAqa2JkID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7IEBAIC01NjgsNw0KPiA+
+ICs1NzYsOSBAQCBzdGF0aWMgaW50IF9fbWF5YmVfdW51c2VkIGlteF9rYmRfcmVzdW1lKHN0cnVj
+dCBkZXZpY2UNCj4gKmRldikNCj4gPiAgCXJldHVybiByZXQ7DQo+ID4gIH0NCj4gPg0KPiA+IC1z
+dGF0aWMgU0lNUExFX0RFVl9QTV9PUFMoaW14X2tiZF9wbV9vcHMsIGlteF9rYmRfc3VzcGVuZCwN
+Cj4gPiBpbXhfa2JkX3Jlc3VtZSk7DQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3QgZGV2X3BtX29w
+cyBpbXhfa2JkX3BtX29wcyA9IHsNCj4gPiArCVNFVF9OT0lSUV9TWVNURU1fU0xFRVBfUE1fT1BT
+KGlteF9rYmRfbm9pcnFfc3VzcGVuZCwNCj4gPiAraW14X2tiZF9ub2lycV9yZXN1bWUpIH07DQo+
+ID4NCj4gPiAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIgaW14X2tleXBhZF9kcml2ZXIg
+PSB7DQo+ID4gIAkuZHJpdmVyCQk9IHsNCj4gPiAtLQ0KPiA+IDIuNy40DQoNCg==

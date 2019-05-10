@@ -1,38 +1,44 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: Increase maximum report size allowed by
- hid_field_extract()
-Date: Thu, 9 May 2019 21:30:28 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1905092130010.17054@cbobk.fhfr.pm>
-References: <20190308051117.21899-1-kai.heng.feng@canonical.com> <CAO-hwJLDuMZuqKiawnkq3YxL6T9SqNGqQ1Q_Vs=kMKmsx6SD0w@mail.gmail.com> <08CA35F5-1ADC-4C55-ACF5-04B19CC77A25@canonical.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH 1/3] Input: apanel: avoid panic if ioreamp fails
+Date: Fri, 10 May 2019 11:03:18 +0800
+Message-ID: <20190510030320.109154-1-wangkefeng.wang@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <08CA35F5-1ADC-4C55-ACF5-04B19CC77A25@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, =?ISO-8859-15?Q?Ronald_Tschal=E4r?= <ronald@innovation.ch>
+To: linux-kernel@vger.kernel.org
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Hulk Robot <hulkci@huawei.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 26 Apr 2019, Kai-Heng Feng wrote:
+If ioremap fails, NULL pointer dereference will happen and
+leading to a kernel panic when access the virtual address
+in check_signature().
 
-> >Ronald (Cc-ed) raised quite a good point:
-> >what's the benefit of removing the error message if this function (and
-> >__extract) can only report an unsigned 32 bits value?
-> 
-> I didn’t spot this, sorry.
-> 
-> >
-> >My take is we should revert 94a9992f7dbdfb28976b upstream and think at
-> >a better solution.
-> 
-> I think using a new fix to replace it will be a better approach, as it at
-> least partially solves the issue.
+Fix it by check the return value of ioremap.
 
-Guys, did this fall in between cracks? Is anyone planning to send a fixup?
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ drivers/input/misc/apanel.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Thanks,
-
+diff --git a/drivers/input/misc/apanel.c b/drivers/input/misc/apanel.c
+index c1e66f45d552..1c7262ad4b5b 100644
+--- a/drivers/input/misc/apanel.c
++++ b/drivers/input/misc/apanel.c
+@@ -259,7 +259,9 @@ static int __init apanel_init(void)
+ 	unsigned char i2c_addr;
+ 	int found = 0;
+ 
+-	bios = ioremap(0xF0000, 0x10000); /* Can't fail */
++	bios = ioremap(0xF0000, 0x10000);
++	if (!bios)
++		return -ENOMEM;
+ 
+ 	p = bios_signature(bios);
+ 	if (!p) {
 -- 
-Jiri Kosina
-SUSE Labs
+2.20.1

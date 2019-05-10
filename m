@@ -1,172 +1,63 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 2/4] mfd: ioc3: Add driver for SGI IOC3 chip
-Date: Fri, 10 May 2019 08:14:19 +0100
-Message-ID: <20190510071419.GB7321@dell>
-References: <20190409154610.6735-1-tbogendoerfer@suse.de>
- <20190409154610.6735-3-tbogendoerfer@suse.de>
- <20190508102313.GG3995@dell>
- <20190509160220.bb5382df931e5bd0972276df@suse.de>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [RFC v3] iio: input-bridge: optionally bridge iio acceleometers
+ to create a /dev/input interface
+Date: Fri, 10 May 2019 10:56:55 +0200
+Message-ID: <55468fdd88da9f487789b2073a1babb14bc7a282.camel@hadess.net>
+References: <d52cf9ee5944c90c69f6e74a46d844cef51e487e.1555362312.git.hns@goldelico.com>
+         <0189da8d91652dd3ecf729b03029ab9db5a24f99.camel@hadess.net>
+         <AA2B43FE-E196-4FEC-B4C5-897D0F44A76F@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190509160220.bb5382df931e5bd0972276df@suse.de>
-Sender: netdev-owner@vger.kernel.org
-To: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Paul Burton <paul.burton@mips.com>, James Hogan <jhogan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "David S. Miller" <davem@davemloft.net>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AA2B43FE-E196-4FEC-B4C5-897D0F44A76F@goldelico.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Piel <eric.piel@tremplin-utc.net>, linux-input@vger.kernel.org, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 09 May 2019, Thomas Bogendoerfer wrote:
-
-> On Wed, 8 May 2019 11:23:13 +0100
-> Lee Jones <lee.jones@linaro.org> wrote:
+On Tue, 2019-04-16 at 21:33 +0200, H. Nikolaus Schaller wrote:
+> Hi Bastien,
 > 
-> > On Tue, 09 Apr 2019, Thomas Bogendoerfer wrote:
-> > 
-> > > +static u32 crc8_addr(u64 addr)
-> > > +{
-> > > +	u32 crc = 0;
-> > > +	int i;
-> > > +
-> > > +	for (i = 0; i < 64; i += 8)
-> > > +		crc8_byte(&crc, addr >> i);
-> > > +	return crc;
-> > > +}
-> > 
-> > Not looked into these in any detail, but are you not able to use the
-> > CRC functions already provided by the kernel?
+> > Am 16.04.2019 um 18:04 schrieb Bastien Nocera <hadess@hadess.net>:
+> > This can be done in user-space, reading the data from the IIO driver,
+> > and using uinput to feed it back. Why is doing this at the kernel level
+> > better?
 > 
-> they are using a different polynomial, so I can't use it.
-
-Would it be worth moving support out to somewhere more central so
-others can use this "polynomial"?
-
-> > > +	}
-> > > +	pr_err("ioc3: CRC error in NIC address\n");
-> > > +}
-> > 
-> > This all looks like networking code.  If this is the case, it should
-> > be moved to drivers/networking or similar.
+> Well, I'd estimate that >80% of the current kernel could be done in user-space
+> (but not at the same speed/quality).
 > 
-> no it's not. nic stands for number in a can produced by Dallas Semi also
-> known under the name 1-Wire (https://en.wikipedia.org/wiki/1-Wire).
-> SGI used them to provide partnumber, serialnumber and mac addresses.
-> By placing the code to read the NiCs inside ioc3 driver there is no need
-> for locking and adding library code for accessing these informations.
-
-Great.  So it looks like you should be using this, no?
-
-  drivers/base/regmap/regmap-w1.c
-
-> > > +static struct resource ioc3_uarta_resources[] = {
-> > > +	DEFINE_RES_MEM(offsetof(struct ioc3, sregs.uarta),
-> > 
-> > You are the first user of offsetof() in MFD.  Could you tell me why
-> > it's required please?
+> E.g. TCP could most likely be done by directly accessing the Ethernet layer and
+> providing other processes access through named pipes instead of sockets.
 > 
-> to get the offsets of different chip functions out of a struct.
+> But usually a user-space daemon feeding things back into the kernel is slower
+> (because it is scheduled differently) and needs more resources for running the
+> process and IPC and is less protected against hickups and deadlocks.
 
-I can see what it does on a coding level.
+This is mostly irrelevant for the amount of data we're treating, but it
+doesn't matter too much.
 
-What are you using it for in practical/real terms?
-
-Why wouldn't any other MFD driver require this, but you do?
-
-> > Please drop all of these and statically create the MFD cells like
-> > almost all other MFD drivers do.
+> Two more aspects come to my mind from reading your project page:
 > 
-> I started that way and it blew up the driver and create a bigger mess
-> than I wanted to have. What's your concern with my approach ?
+> a) "It requires libgudev and systemd"
+> b) "Note that a number of kernel bugs will prevent it from working correctly"
 > 
-> I could use static mfd_cell arrays, if there would be a init/startup
-> method per cell, which is called before setting up the platform device.
-> That way I could do the dynamic setup for ethernet and serial devices.
+> a) this makes quite significant assumptions about the user-space while a kernel
+>    driver can be kept independent of this
 
-You can set platform data later.  There are plenty of examples of
-this in the MFD subsystem.  Statically define what you can, and add
-the dynamic stuff later.
+It's made for modern desktop OSes/"traditional" Linux. I don't think
+that those 2 libraries are problematic dependencies unless you're on
+Android, where a replacement could be implemented or iio-sensor-proxy
+modified for that use case.
 
-> > > +static void ioc3_create_devices(struct ioc3_priv_data *ipd)
-> > > +{
-> > > +	struct mfd_cell *cell;
-> > > +
-> > > +	memset(ioc3_mfd_cells, 0, sizeof(ioc3_mfd_cells));
-> > > +	cell = ioc3_mfd_cells;
-> > > +
-> > > +	if (ipd->info->funcs & IOC3_ETH) {
-> > > +		memcpy(ioc3_eth_platform_data.mac_addr, ipd->nic_mac,
-> > > +		       sizeof(ioc3_eth_platform_data.mac_addr));
-> > 
-> > Better to pull the MAC address from within the Ethernet driver.
-> 
-> the NiC where the MAC address is provided is connected to the ioc3
-> chip outside of the ethernet register set. And there is another
-> NiC connected to the same 1-W bus. So moving reading of the MAC
-> address to the ethernet driver duplicates code and adds complexity
-> (locking). Again what's your concern here ?
+> b) if it is in-kernel it will be kept in sync with kernel changes and such bugs
+>    are less likely
 
-Does this go away if you use the already provided 1-wire API?
+No they're not. This warning was because 1) drivers sometimes have bugs
+2) user-space sometimes has bugs 3) user-space sometimes causes the
+kernel to have bugs.
 
-> > > +	if (ipd->info->funcs & IOC3_SER) {
-> > > +		writel(GPCR_UARTA_MODESEL | GPCR_UARTB_MODESEL,
-> > > +			&ipd->regs->gpcr_s);
-> > > +		writel(0, &ipd->regs->gppr[6]);
-> > > +		writel(0, &ipd->regs->gppr[7]);
-> > > +		udelay(100);
-> > > +		writel(readl(&ipd->regs->port_a.sscr) & ~SSCR_DMA_EN,
-> > > +		       &ipd->regs->port_a.sscr);
-> > > +		writel(readl(&ipd->regs->port_b.sscr) & ~SSCR_DMA_EN,
-> > > +		       &ipd->regs->port_b.sscr);
-> > > +		udelay(1000);
-> > 
-> > No idea what any of this does.
-> > 
-> > It looks like it belongs in the serial driver (and needs comments).
-> 
-> it configures the IOC3 chip for serial usage. This is not part of
-> the serial register set, so it IMHO belongs in the MFD driver.
-
-So it does serial things, but doesn't belong in the serial driver?
-
-Could you please go into a bit more detail as to why you think that?
-
-Why is it better here?
-
-It's also totally unreadable by the way!
-
-> > > +	}
-> > > +#if defined(CONFIG_SGI_IP27)
-> > 
-> > What is this?  Can't you obtain this dynamically by probing the H/W?
-> 
-> that's the machine type and the #ifdef CONFIG_xxx are just for saving space,
-> when compiled for other machines and it's easy to remove.
-
-Please find other ways to save the space.  #ifery can get very messy,
-very quickly and is almost always avoidable.
-
-> > > +	if (ipd->info->irq_offset) {
-> > 
-> > What does this really signify?
-> 
-> IOC3 ASICs are most of the time connected to a SGI bridge chip. IOC3 can
-> provide two interrupt lines, which are wired to the bridge chip. The first
-> interrupt is assigned via the PCI core, but since IOC3 is not a PCI multi
-> function device the second interrupt must be treated here. And the used
-> interrupt line on the bridge chip differs between boards.
-
-Please provide a MACRO, function or something else which results in
-more readable code.  Whatever you choose to use, please add this text
-above, it will be helpful for future readers.
-
-> Thank you for your review. I'll address all other comments not cited in
-> my mail.
-
-NP
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+The 2 significant breakages for iio-sensor-proxy were caused by runtime
+PM bugs in the hid-sensor-hub driver, and in the USB core. I doubt a
+kernel-space implementation would have been able to magically fix those
+bugs unfortunately.

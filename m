@@ -1,99 +1,54 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [Letux-kernel] [RFC v2] iio: input-bridge: optionally bridge
- iio acceleometers to create a /dev/input interface
-Date: Sat, 11 May 2019 12:05:36 +0100
-Message-ID: <20190511120536.647c8676@archlinux>
+From: Roderick Colenbrander <thunderbird2k@gmail.com>
+Subject: Re: [RFC v2] iio: input-bridge: optionally bridge iio acceleometers
+ to create a /dev/input interface
+Date: Sat, 11 May 2019 11:47:30 -0700
+Message-ID: <CAEc3jaBTbH=zHogxekRw5i=GtQcRc9O_d68fMwQb-7jdOcvh5w@mail.gmail.com>
 References: <195994ebff28de22eae872df134d086c761b83b8.1554026986.git.hns@goldelico.com>
-        <20190407133037.0ad98897@archlinux>
-        <CD44AFA0-6676-4842-9C80-61BB363DD556@goldelico.com>
-        <20190414124029.1f1f6084@archlinux>
-        <CD6219BE-61FF-4C38-9532-054C60A77F89@goldelico.com>
-        <20190422152014.7c6637ab@archlinux>
-        <CA9A9410-C393-49B9-81FA-D9BC55F04468@goldelico.com>
-        <D4F87479-4FF7-4DBC-81D5-1BA836D2C889@goldelico.com>
+ <20190407133037.0ad98897@archlinux> <CD44AFA0-6676-4842-9C80-61BB363DD556@goldelico.com>
+ <20190414124029.1f1f6084@archlinux> <CAEc3jaCnHLA9PV5gLiBvHT5y26mwMGSUxa3YCO=c+FYmcszePQ@mail.gmail.com>
+ <d9f2ee79b8690939f36377990fb6d6fb08e9f0bc.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <D4F87479-4FF7-4DBC-81D5-1BA836D2C889@goldelico.com>
+In-Reply-To: <d9f2ee79b8690939f36377990fb6d6fb08e9f0bc.camel@hadess.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Piel <eric.piel@tremplin-utc.net>, linux-iio <linux-iio@vger.kernel.org>, kernel@pyra-handheld.com, lkml <linux-kernel@vger.kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Hartmut Knaack <knaack.h@gmx.de>, Discussions about the Letux Kernel <letux-kernel@openphoenux.org>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Jonathan Cameron <jic23@kernel.org>, "H. Nikolaus Schaller" <hns@goldelico.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Piel <eric.piel@tremplin-utc.net>, linux-input <linux-input@vger.kernel.org>, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, lkml <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 9 May 2019 19:02:49 +0200
-"H. Nikolaus Schaller" <hns@goldelico.com> wrote:
+On Fri, May 10, 2019 at 1:57 AM Bastien Nocera <hadess@hadess.net> wrote:
+>
+> On Sun, 2019-04-14 at 09:26 -0700, Roderick Colenbrander wrote:
+> >
+> <snip>
+> > We at the time were one of the first to expose acceleration and gyro
+> > data through /dev/input for DualShock 4 as supported by hid-sony. We
+> > report acceleration in 'g' and angular velocity in 'degree / s'. We
+> > set the resolution to respectively '1 g' and '1 degree / s'. The range
+> > we set to the range of the device e.g. for DS4 -4g to +4g for
+> > acceleration. I need to check though what coordinate system we use,
+> > but I think it is right handed (gyro counter clockwise relative to
+> > acceleration axes).
+>
+> How do you export the gyro information through the input device?
 
-> > Am 09.05.2019 um 11:09 schrieb H. Nikolaus Schaller <hns@goldelico.com>:
-> > 
-> > Hi Jonathan,  
-> >> 
-> >> 
-> >> And how does that work on the common case of a sensor in the lid of a laptop?
-> >> how do you know what angle the screen is at?    
-> > 
-> > Well, I am not aware of laptops where the sensor is in the lid because I am in the handhelds
-> > business, but let's assume it is common.
-> > 
-> > I realized that if the sensor orientation is related to the lid position, while the reference
-> > frame reported to user space is to be referenced to the lap or keyboard of the laptop, there does
-> > not exist a static mount-matrix to describe it properly. So no driver can report that correctly.
-> > 
-> > Therefore, such a device needs a dynamic mount matrix, i.e. there should be a kernel driver that
-> > reads out the lid angle sensor and modifies the mount-matrix of the accelerometer by some sin()/cos()
-> > table.  
-> 
-> One more thought on this topic.
-> 
-> My answer to the question "how do you know what angle the screen is at?" by requiring an ADC to
-> measure some potentiometer in the hinge to make the mount matrix dynamic is probably completely
-> wrong...
+For each DS4, there are multiple evdev devices for a DS4 for
+respectively "gamepad", touchpad and motion sensors. The motion
+sensors one, has INPUT_PROP_ACCELEROMETER set. ABS_X/_Y_Z provide
+acceleration and ABS_RX/_RY/_RZ provide gyro. When we added this we
+also updated the input documentation (event-codes.rst) to allow gyro
+to use the rotational axes.
 
-There are lid angle sensors out independent of this discussion that might work
-as you describe but so far they are rare.  There is one under review for
-cros_ec for example - how it is implemented, no idea!
-
-> 
-> If we take the definition for the mount matrix, it defines a specific g-vector pointing to
-> center of earth if the user is holding the device in a specific position and looking on the display
-> or the keyboard.
-> 
-> So far the description assumes that there is a single accelerometer and display and keys of a phone
-> are in a single plane, i.e. there is no angle and everything is fine.
-> 
-> Now if we simply take the two accelerometers separately, one z-axis is going through the keyboard
-> and the other through the display. Which means if the mount matrices are well defined, the accelerometers
-> should report almost the same values if the display is fully opened by 180 degrees, i.e. the display
-> is sitting flat on the table. This is what my RFC does by autoscaling. The values differ only
-> by noise.
-> 
-> Now what about measuring the lid angle? Well, it is already measured by both accelerometers! If they
-> do not agree, the angle can be calculated by some arctan() based on y and z axis reports...
-Agreed. This is how it is done.
-> 
-> If you close the lid, the display is turned upside down and y and z axes reverse sign.
-> 
-> So there remains only the issue that user-space must know which sensor device file is which sensor
-> and can do the calculation of the lid angle. This is possible because the iio accelerometer name
-> is available through the input event ioctls.
-> 
-> In summary this case also does not need policy or configuration. Just user space using the information
-> that is already presented.
-
-I disagree with that last statement.  If there is a lid angle sensor, policy is
-needed to know which of your associated orientation is the base one and which
-device indicates the lid angle.
-
-Actually most of the time what you will do is pick one 'correct' sensor under
-some configuration of the device and use that.  That is policy.  Yes, you could
-bake the policy in to device tree, but then you can also bake in the association
-between the underlying IIO sensor and any virtual input sensor.
-
-Anyhow, we still disagree on whether any such virtual input interface
-should be a userspace policy decision.  So far I haven't seen any compelling
-argument why it shouldn't be and the flexibility such a policy based interface
-provides is its major advantage.
-
-Thanks,
-
-Jonathan
+> FWIW, we needed to do extra work in iio-sensor-proxy so that the
+> accelerometer in the Sixaxis/DS4 joypads (and uDraw tablet) didn't
+> appear as though they were accelerometer for the system:
+> https://github.com/hadess/iio-sensor-proxy/commit/401d59e54b3123860180d4401e09df8a1e1bc6c3
+>
+> > The two other drivers using INPUT_PROC_ACCELEROMETER are hid-wacom and
+> > hid-udraw-ps3 Wacom. Both seem to report resolution in 'g'  as well.
+>
+> I wrote hid-udraw-ps3, and it's reporting accelerometer data through
+> input because the rest of the driver is input, and it didn't make much
+> sense to use another subsystem for just that small portion of the
+> events the device sends out.
+>

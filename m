@@ -1,79 +1,87 @@
-From: =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <spaz16@wp.pl>
-Subject: [PATCH v3] HID: fix A4Tech horizontal scrolling
-Date: Sun, 12 May 2019 22:33:13 +0200
-Message-ID: <20190512203313.18756-1-spaz16@wp.pl>
-References: <20190507050029.GA5197@jelly>
+From: =?UTF-8?B?QsWCYcW8ZWogU3pjenlnaWXFgg==?= <spaz16@wp.pl>
+Subject: Re: [PATCH] HID: fix A4Tech horizontal scrolling
+Date: Sun, 12 May 2019 22:59:33 +0200
+Message-ID: <549757a1-33b5-e460-d6e7-ee766a792c27@wp.pl>
+References: <20190502213639.7632-1-spaz16@wp.pl>
+ <CAO-hwJLbFv3S9M5N+BKBuafj8H-vToy=2VQd=cvohmaTHLMC3A@mail.gmail.com>
+ <1a40ea07-368a-93f6-8335-dec7ae50bbf4@gmail.com>
+ <CAO-hwJKNH7WoJV-X+egK5cJNNtxamh0L0e1er5dkiTt6KvrmSQ@mail.gmail.com>
+ <20190507050150.GA9838@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190507050029.GA5197@jelly>
+In-Reply-To: <20190507050150.GA9838@jelly>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: igorkuo@gmail.com, peter.hutterer@who-t.net, =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <spaz16@wp.pl>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Igor Kushnir <igorkuo@gmail.com>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Since recent high resolution scrolling changes the A4Tech driver must
-check for the "REL_WHEEL_HI_RES" usage code.
+Hi,
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203369
-Fixes: 2dc702c991e3774af9d7ce410eef410ca9e2357e ("HID: input: use the
-Resolution Multiplier for high-resolution scrolling")
+On 07.05.2019 at 07:01, Peter Hutterer wrote:
+> On Fri, May 03, 2019 at 01:59:23PM +0200, Benjamin Tissoires wrote:
+>> Hi,
+>>
+>> On Fri, May 3, 2019 at 11:43 AM Igor Kushnir <igorkuo@gmail.com> wrote:
+>>>
+>>> Hi Benjamin,
+>>>
+>>> On 5/3/19 10:36 AM, Benjamin Tissoires wrote:
+>>>> Hi,
+>>>>
+>>>> On Thu, May 2, 2019 at 11:37 PM Błażej Szczygieł <spaz16@wp.pl> wrote:
+>>>>>
+>>>>> Since recent high resolution scrolling changes the A4Tech driver must
+>>>>> check for the "REL_WHEEL_HI_RES" usage code.
+>>>>>
+>>>>> Fixes: 2dc702c991e3774af9d7ce410eef410ca9e2357e (HID: input: use the
+>>>>> Resolution Multiplier for high-resolution scrolling)
+>>>>>
+>>>>> Signed-off-by: Błażej Szczygieł <spaz16@wp.pl>
+>>>>
+>>>> Thanks for the patch. I do not doubt this fixes the issues, but I
+>>>> still wonder if we should not export REL_HWHEEL_HI_RES instead of
+>>>> REL_HWHEEL events.
+>>>
+>>>
+>>> If you mean exporting REL_HWHEEL_HI_RES instead of REL_HWHEEL from
+>>> hid-a4tech.c, then it makes sense to me, though I do not know the code
+>>> well enough to be certain.
+>>
+>> Yep, that's what I meant. I am worried that userspace doesn't know
+>> well how to deal with a device that mixes the new and old REL_WHEEL
+>> events.
+> 
+> sorry, I'm not sure what you mean here. The new events are always mixed with
+> the old ones anyway, and both should be treated as separate event streams.
+> The kernel interface to userspace is fairly easy to deal with, it's the rest
+> that's a bit of mess.
+> 
+> [..]
+> 
+>>>
+>>
+>> OK, thanks both of you for your logs, this is helpful.
+>> So just in case I need to come back later, the horizontal wheel is
+>> "just" the normal wheel plus a modifier in the report.
+>>
+>> Anyway, ideally, can we have a v2 of the patch with the 2 changes
+>> requested above in the commit message and the introduction of
+>> REL_HWHEEL_HI_RES events in addition to REL_HWHEEL?
+>> REL_HWHEEL_HI_RES should report `120*value` and we should also keep
+>> the reporting of REL_WHEEL as it is currently.
+>>
+>> Peter, I grepped in the hid code, and it seems hid-cypress.c is having
+>> the exact same issue. Sigh.
+> 
+> yeah, I found that too when grepping through it. seems to be the only other
+> one though and we can use Błażej's patch as boilerplate once it's done.
 
-Signed-off-by: Błażej Szczygieł <spaz16@wp.pl>
----
-Changes in v2:
-- changed commit message
+Peter, I also found comparison of "usage->code ==" with "REL_HWHEEL"
+and "REL_WHEEL" in hid-lenovo.c, hid-apple.c, hid-ezkey.c, hid-lg.c.
+Unfortunatelly, I don't have such devices to test :(
 
-Changes in v3:
-- send also high resolution events
-
- drivers/hid/hid-a4tech.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
-index 9428ea7cdf8a..c3a6ce3613fe 100644
---- a/drivers/hid/hid-a4tech.c
-+++ b/drivers/hid/hid-a4tech.c
-@@ -38,8 +38,10 @@ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
- {
- 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
- 
--	if (usage->type == EV_REL && usage->code == REL_WHEEL)
-+	if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
- 		set_bit(REL_HWHEEL, *bit);
-+		set_bit(REL_HWHEEL_HI_RES, *bit);
-+	}
- 
- 	if ((a4->quirks & A4_2WHEEL_MOUSE_HACK_7) && usage->hid == 0x00090007)
- 		return -1;
-@@ -60,7 +62,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
- 	input = field->hidinput->input;
- 
- 	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8) {
--		if (usage->type == EV_REL && usage->code == REL_WHEEL) {
-+		if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
- 			a4->delayed_value = value;
- 			return 1;
- 		}
-@@ -68,6 +70,8 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
- 		if (usage->hid == 0x000100b8) {
- 			input_event(input, EV_REL, value ? REL_HWHEEL :
- 					REL_WHEEL, a4->delayed_value);
-+			input_event(input, EV_REL, value ? REL_HWHEEL_HI_RES :
-+					REL_WHEEL_HI_RES, a4->delayed_value * 120);
- 			return 1;
- 		}
- 	}
-@@ -77,8 +81,9 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
- 		return 1;
- 	}
- 
--	if (usage->code == REL_WHEEL && a4->hw_wheel) {
-+	if (usage->code == REL_WHEEL_HI_RES && a4->hw_wheel) {
- 		input_event(input, usage->type, REL_HWHEEL, value);
-+		input_event(input, usage->type, REL_HWHEEL_HI_RES, value * 120);
- 		return 1;
- 	}
- 
--- 
-2.21.0
+Cheers,
+Błażej.

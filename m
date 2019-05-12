@@ -1,54 +1,79 @@
-From: Roderick Colenbrander <thunderbird2k@gmail.com>
-Subject: Re: [RFC v2] iio: input-bridge: optionally bridge iio acceleometers
- to create a /dev/input interface
-Date: Sat, 11 May 2019 11:47:30 -0700
-Message-ID: <CAEc3jaBTbH=zHogxekRw5i=GtQcRc9O_d68fMwQb-7jdOcvh5w@mail.gmail.com>
-References: <195994ebff28de22eae872df134d086c761b83b8.1554026986.git.hns@goldelico.com>
- <20190407133037.0ad98897@archlinux> <CD44AFA0-6676-4842-9C80-61BB363DD556@goldelico.com>
- <20190414124029.1f1f6084@archlinux> <CAEc3jaCnHLA9PV5gLiBvHT5y26mwMGSUxa3YCO=c+FYmcszePQ@mail.gmail.com>
- <d9f2ee79b8690939f36377990fb6d6fb08e9f0bc.camel@hadess.net>
+From: =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <spaz16@wp.pl>
+Subject: [PATCH v3] HID: fix A4Tech horizontal scrolling
+Date: Sun, 12 May 2019 22:33:13 +0200
+Message-ID: <20190512203313.18756-1-spaz16@wp.pl>
+References: <20190507050029.GA5197@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d9f2ee79b8690939f36377990fb6d6fb08e9f0bc.camel@hadess.net>
+In-Reply-To: <20190507050029.GA5197@jelly>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Jonathan Cameron <jic23@kernel.org>, "H. Nikolaus Schaller" <hns@goldelico.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Piel <eric.piel@tremplin-utc.net>, linux-input <linux-input@vger.kernel.org>, letux-kernel@openphoenux.org, kernel@pyra-handheld.com, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, lkml <linux-kernel@vger.kernel.org>, linux-iio@vger.kernel.org
+Cc: igorkuo@gmail.com, peter.hutterer@who-t.net, =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <spaz16@wp.pl>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, May 10, 2019 at 1:57 AM Bastien Nocera <hadess@hadess.net> wrote:
->
-> On Sun, 2019-04-14 at 09:26 -0700, Roderick Colenbrander wrote:
-> >
-> <snip>
-> > We at the time were one of the first to expose acceleration and gyro
-> > data through /dev/input for DualShock 4 as supported by hid-sony. We
-> > report acceleration in 'g' and angular velocity in 'degree / s'. We
-> > set the resolution to respectively '1 g' and '1 degree / s'. The range
-> > we set to the range of the device e.g. for DS4 -4g to +4g for
-> > acceleration. I need to check though what coordinate system we use,
-> > but I think it is right handed (gyro counter clockwise relative to
-> > acceleration axes).
->
-> How do you export the gyro information through the input device?
+Since recent high resolution scrolling changes the A4Tech driver must
+check for the "REL_WHEEL_HI_RES" usage code.
 
-For each DS4, there are multiple evdev devices for a DS4 for
-respectively "gamepad", touchpad and motion sensors. The motion
-sensors one, has INPUT_PROP_ACCELEROMETER set. ABS_X/_Y_Z provide
-acceleration and ABS_RX/_RY/_RZ provide gyro. When we added this we
-also updated the input documentation (event-codes.rst) to allow gyro
-to use the rotational axes.
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203369
+Fixes: 2dc702c991e3774af9d7ce410eef410ca9e2357e ("HID: input: use the
+Resolution Multiplier for high-resolution scrolling")
 
-> FWIW, we needed to do extra work in iio-sensor-proxy so that the
-> accelerometer in the Sixaxis/DS4 joypads (and uDraw tablet) didn't
-> appear as though they were accelerometer for the system:
-> https://github.com/hadess/iio-sensor-proxy/commit/401d59e54b3123860180d4401e09df8a1e1bc6c3
->
-> > The two other drivers using INPUT_PROC_ACCELEROMETER are hid-wacom and
-> > hid-udraw-ps3 Wacom. Both seem to report resolution in 'g'  as well.
->
-> I wrote hid-udraw-ps3, and it's reporting accelerometer data through
-> input because the rest of the driver is input, and it didn't make much
-> sense to use another subsystem for just that small portion of the
-> events the device sends out.
->
+Signed-off-by: Błażej Szczygieł <spaz16@wp.pl>
+---
+Changes in v2:
+- changed commit message
+
+Changes in v3:
+- send also high resolution events
+
+ drivers/hid/hid-a4tech.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 9428ea7cdf8a..c3a6ce3613fe 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -38,8 +38,10 @@ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ {
+ 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
+ 
+-	if (usage->type == EV_REL && usage->code == REL_WHEEL)
++	if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
+ 		set_bit(REL_HWHEEL, *bit);
++		set_bit(REL_HWHEEL_HI_RES, *bit);
++	}
+ 
+ 	if ((a4->quirks & A4_2WHEEL_MOUSE_HACK_7) && usage->hid == 0x00090007)
+ 		return -1;
+@@ -60,7 +62,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 	input = field->hidinput->input;
+ 
+ 	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8) {
+-		if (usage->type == EV_REL && usage->code == REL_WHEEL) {
++		if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
+ 			a4->delayed_value = value;
+ 			return 1;
+ 		}
+@@ -68,6 +70,8 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 		if (usage->hid == 0x000100b8) {
+ 			input_event(input, EV_REL, value ? REL_HWHEEL :
+ 					REL_WHEEL, a4->delayed_value);
++			input_event(input, EV_REL, value ? REL_HWHEEL_HI_RES :
++					REL_WHEEL_HI_RES, a4->delayed_value * 120);
+ 			return 1;
+ 		}
+ 	}
+@@ -77,8 +81,9 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 		return 1;
+ 	}
+ 
+-	if (usage->code == REL_WHEEL && a4->hw_wheel) {
++	if (usage->code == REL_WHEEL_HI_RES && a4->hw_wheel) {
+ 		input_event(input, usage->type, REL_HWHEEL, value);
++		input_event(input, usage->type, REL_HWHEEL_HI_RES, value * 120);
+ 		return 1;
+ 	}
+ 
+-- 
+2.21.0

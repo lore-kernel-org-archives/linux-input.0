@@ -1,87 +1,48 @@
-From: =?UTF-8?B?QsWCYcW8ZWogU3pjenlnaWXFgg==?= <spaz16@wp.pl>
-Subject: Re: [PATCH] HID: fix A4Tech horizontal scrolling
-Date: Sun, 12 May 2019 22:59:33 +0200
-Message-ID: <549757a1-33b5-e460-d6e7-ee766a792c27@wp.pl>
-References: <20190502213639.7632-1-spaz16@wp.pl>
- <CAO-hwJLbFv3S9M5N+BKBuafj8H-vToy=2VQd=cvohmaTHLMC3A@mail.gmail.com>
- <1a40ea07-368a-93f6-8335-dec7ae50bbf4@gmail.com>
- <CAO-hwJKNH7WoJV-X+egK5cJNNtxamh0L0e1er5dkiTt6KvrmSQ@mail.gmail.com>
- <20190507050150.GA9838@jelly>
+From: Fabien Parent <fparent@baylibre.com>
+Subject: [PATCH 1/2] dt-bindings: input: mtk-pmic-keys: add MT6392 binding definition
+Date: Mon, 13 May 2019 16:21:19 +0200
+Message-ID: <20190513142120.6527-1-fparent@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190507050150.GA9838@jelly>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Igor Kushnir <igorkuo@gmail.com>, Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, matthias.bgg@gmail.com
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, Fabien Parent <fparent@baylibre.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Add the binding documentation of the mtk-pmic-keys for the MT6392 PMICs.
 
-On 07.05.2019 at 07:01, Peter Hutterer wrote:
-> On Fri, May 03, 2019 at 01:59:23PM +0200, Benjamin Tissoires wrote:
->> Hi,
->>
->> On Fri, May 3, 2019 at 11:43 AM Igor Kushnir <igorkuo@gmail.com> wrote:
->>>
->>> Hi Benjamin,
->>>
->>> On 5/3/19 10:36 AM, Benjamin Tissoires wrote:
->>>> Hi,
->>>>
->>>> On Thu, May 2, 2019 at 11:37 PM Błażej Szczygieł <spaz16@wp.pl> wrote:
->>>>>
->>>>> Since recent high resolution scrolling changes the A4Tech driver must
->>>>> check for the "REL_WHEEL_HI_RES" usage code.
->>>>>
->>>>> Fixes: 2dc702c991e3774af9d7ce410eef410ca9e2357e (HID: input: use the
->>>>> Resolution Multiplier for high-resolution scrolling)
->>>>>
->>>>> Signed-off-by: Błażej Szczygieł <spaz16@wp.pl>
->>>>
->>>> Thanks for the patch. I do not doubt this fixes the issues, but I
->>>> still wonder if we should not export REL_HWHEEL_HI_RES instead of
->>>> REL_HWHEEL events.
->>>
->>>
->>> If you mean exporting REL_HWHEEL_HI_RES instead of REL_HWHEEL from
->>> hid-a4tech.c, then it makes sense to me, though I do not know the code
->>> well enough to be certain.
->>
->> Yep, that's what I meant. I am worried that userspace doesn't know
->> well how to deal with a device that mixes the new and old REL_WHEEL
->> events.
-> 
-> sorry, I'm not sure what you mean here. The new events are always mixed with
-> the old ones anyway, and both should be treated as separate event streams.
-> The kernel interface to userspace is fairly easy to deal with, it's the rest
-> that's a bit of mess.
-> 
-> [..]
-> 
->>>
->>
->> OK, thanks both of you for your logs, this is helpful.
->> So just in case I need to come back later, the horizontal wheel is
->> "just" the normal wheel plus a modifier in the report.
->>
->> Anyway, ideally, can we have a v2 of the patch with the 2 changes
->> requested above in the commit message and the introduction of
->> REL_HWHEEL_HI_RES events in addition to REL_HWHEEL?
->> REL_HWHEEL_HI_RES should report `120*value` and we should also keep
->> the reporting of REL_WHEEL as it is currently.
->>
->> Peter, I grepped in the hid code, and it seems hid-cypress.c is having
->> the exact same issue. Sigh.
-> 
-> yeah, I found that too when grepping through it. seems to be the only other
-> one though and we can use Błażej's patch as boilerplate once it's done.
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+---
+ .../devicetree/bindings/input/mtk-pmic-keys.txt       | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-Peter, I also found comparison of "usage->code ==" with "REL_HWHEEL"
-and "REL_WHEEL" in hid-lenovo.c, hid-apple.c, hid-ezkey.c, hid-lg.c.
-Unfortunatelly, I don't have such devices to test :(
-
-Cheers,
-Błażej.
+diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+index 2888d07c2ef0..858f78e7262c 100644
+--- a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
++++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+@@ -1,15 +1,18 @@
+-MediaTek MT6397/MT6323 PMIC Keys Device Driver
++MediaTek MT6397/MT6392/MT6323 PMIC Keys Device Driver
+ 
+-There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
++There are two key functions provided by MT6397/MT6392/MT6323 PMIC, pwrkey
+ and homekey. The key functions are defined as the subnode of the function
+ node provided by MT6397/MT6323 PMIC that is being defined as one kind
+ of Muti-Function Device (MFD)
+ 
+-For MT6397/MT6323 MFD bindings see:
++For MT6397/MT6392/MT6323 MFD bindings see:
+ Documentation/devicetree/bindings/mfd/mt6397.txt
+ 
+ Required properties:
+-- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++- compatible: Should be one of:
++	- "mediatek,mt6397-keys"
++	- "mediatek,mt6392-keys"
++	- "mediatek,mt6323-keys"
+ - linux,keycodes: See Documentation/devicetree/bindings/input/keys.txt
+ 
+ Optional Properties:
+-- 
+2.20.1

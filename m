@@ -1,24 +1,52 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [git pull] Input updates for v5.2-rc0
-Date: Mon, 13 May 2019 22:55:17 +0000
-Message-ID: <155778811767.1812.6866475534635795487.pr-tracker-bot@kernel.org>
-References: <20190513201235.GA87488@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH V1] elan_i2c: Increment wakeup count if wake source.
+Date: Mon, 13 May 2019 16:29:23 -0700
+Message-ID: <CAKdAkRQ_J6QWxtWpoRQnNWKcJpXox6xVDZWcWYOXkBhPSn99Rw@mail.gmail.com>
+References: <20190513220610.177489-1-ravisadineni@chromium.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190513201235.GA87488@dtor-ws>
+In-Reply-To: <20190513220610.177489-1-ravisadineni@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Ravi Chandra Sadineni <ravisadineni@chromium.org>
+Cc: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Abhishek Bhardwaj <abhishekbh@google.com>, Todd Broch <tbroch@google.com>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The pull request you sent on Mon, 13 May 2019 13:12:35 -0700:
+Hi Ravi,
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+On Mon, May 13, 2019 at 3:06 PM Ravi Chandra Sadineni
+<ravisadineni@chromium.org> wrote:
+>
+> Notify the PM core that this dev is the wake source. This helps
+> userspace daemon tracking the wake source to identify the origin of the
+> wake.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/0aed4b28187078565cafbfe86b62f941d580d840
+I wonder if we could do that form the i2c core instead of individual drivers?
 
-Thank you!
+>
+> Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index f9525d6f0bfe..2c0561e20b7f 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -981,6 +981,8 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
+>         if (error)
+>                 goto out;
+>
+> +       pm_wakeup_event(dev, 0);
+> +
+>         switch (report[ETP_REPORT_ID_OFFSET]) {
+>         case ETP_REPORT_ID:
+>                 elan_report_absolute(data, report);
+> --
+> 2.20.1
+>
+
+Thanks.
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+Dmitry

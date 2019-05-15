@@ -1,7 +1,7 @@
 From: Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: [PATCH v2 5/5] input: goodix - Call of_device_links_add() to create links
-Date: Wed, 15 May 2019 15:11:54 +0200
-Message-ID: <20190515131154.18373-6-benjamin.gaignard@st.com>
+Subject: [PATCH v2 1/5] of/device: Add of_device_link_add function
+Date: Wed, 15 May 2019 15:11:50 +0200
+Message-ID: <20190515131154.18373-2-benjamin.gaignard@st.com>
 References: <20190515131154.18373-1-benjamin.gaignard@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,34 +12,92 @@ To: rafael.j.wysocki@intel.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, m
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, broonie@kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>
 List-Id: linux-input@vger.kernel.org
 
-Add a call to of_device_links_add() to create links with
-suspend dependencies at probe time.
+Use 'suspend-dependencies' property from device node to ensure that
+the listed devices will suspended after it and resumed before it.
 
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
 ---
- drivers/input/touchscreen/goodix.c | 3 +++
- 1 file changed, 3 insertions(+)
+CC: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+version 2:
+- only keep of_device_links_add() and use 
+  DL_FLAG_PM_RUNTIME and DL_FLAG_AUTOREMOVE_CONSUMER flags to follow Rafael
+  advices
+- reword function description
+- try to use a more explicit property name
+  
+ drivers/of/device.c       | 37 +++++++++++++++++++++++++++++++++++++
+ include/linux/of_device.h |  7 +++++++
+ 2 files changed, 44 insertions(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index f57d82220a88..49fd4763f17b 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -30,6 +30,7 @@
- #include <linux/slab.h>
- #include <linux/acpi.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
- #include <asm/unaligned.h>
- 
- struct goodix_ts_data;
-@@ -812,6 +813,8 @@ static int goodix_ts_probe(struct i2c_client *client,
- 
- 	ts->chip = goodix_get_chip_data(ts->id);
- 
-+	of_device_links_add(&client->dev);
+diff --git a/drivers/of/device.c b/drivers/of/device.c
+index 3717f2a20d0d..44ec84eee310 100644
+--- a/drivers/of/device.c
++++ b/drivers/of/device.c
+@@ -336,3 +336,40 @@ int of_device_uevent_modalias(struct device *dev, struct kobj_uevent_env *env)
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(of_device_uevent_modalias);
 +
- 	if (ts->gpiod_int && ts->gpiod_rst) {
- 		/* update device config */
- 		ts->cfg_name = devm_kasprintf(&client->dev, GFP_KERNEL,
++/**
++ * of_device_links_add - Create links between a consumer device
++ * and it listed dependencies from device tree data
++ *
++ * @consumer: consumer device
++ *
++ * Ensure that consumer's dependencies will be suspended after it
++ * and resumed before it.
++ *
++ * Returns 0 on success, < 0 on failure.
++ */
++int of_device_links_add(struct device *consumer)
++{
++	struct device_node *np;
++	struct platform_device *pdev;
++	int i = 0;
++
++	np = of_parse_phandle(consumer->of_node, "suspend-dependencies", i++);
++	while (np) {
++		pdev = of_find_device_by_node(np);
++		of_node_put(np);
++		if (!pdev)
++			return -EINVAL;
++
++		device_link_add(consumer, &pdev->dev,
++				DL_FLAG_PM_RUNTIME |
++				DL_FLAG_AUTOREMOVE_CONSUMER);
++		platform_device_put(pdev);
++
++		np = of_parse_phandle(consumer->of_node, "suspend-dependencies",
++				      i++);
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(of_device_links_add);
+diff --git a/include/linux/of_device.h b/include/linux/of_device.h
+index 8d31e39dd564..83f24c386d51 100644
+--- a/include/linux/of_device.h
++++ b/include/linux/of_device.h
+@@ -41,6 +41,8 @@ extern int of_device_request_module(struct device *dev);
+ extern void of_device_uevent(struct device *dev, struct kobj_uevent_env *env);
+ extern int of_device_uevent_modalias(struct device *dev, struct kobj_uevent_env *env);
+ 
++extern int of_device_links_add(struct device *consumer);
++
+ static inline void of_device_node_put(struct device *dev)
+ {
+ 	of_node_put(dev->of_node);
+@@ -91,6 +93,11 @@ static inline int of_device_uevent_modalias(struct device *dev,
+ 	return -ENODEV;
+ }
+ 
++static int of_device_links_add(struct device *consumer)
++{
++	return 0;
++}
++
+ static inline void of_device_node_put(struct device *dev) { }
+ 
+ static inline const struct of_device_id *__of_match_device(
 -- 
 2.15.0

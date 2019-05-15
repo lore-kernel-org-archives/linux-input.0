@@ -1,7 +1,7 @@
 From: Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: [PATCH v2 2/5] Input: edt-ft5x06: Document suspend-dependencies property
-Date: Wed, 15 May 2019 15:11:51 +0200
-Message-ID: <20190515131154.18373-3-benjamin.gaignard@st.com>
+Subject: [PATCH v2 4/5] Input: goodix: Document suspend-dependencies property
+Date: Wed, 15 May 2019 15:11:53 +0200
+Message-ID: <20190515131154.18373-5-benjamin.gaignard@st.com>
 References: <20190515131154.18373-1-benjamin.gaignard@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,21 +16,21 @@ Explain the purpose of suspend-dependencies property.
 
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
 ---
- Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 2 ++
+ Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-index 870b8c5cce9b..81e8eb44d720 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt
-@@ -60,6 +60,8 @@ Optional properties:
-  - touchscreen-inverted-x  : See touchscreen.txt
-  - touchscreen-inverted-y  : See touchscreen.txt
-  - touchscreen-swapped-x-y : See touchscreen.txt
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+index 8cf0b4d38a7e..5527952054d2 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+@@ -24,6 +24,8 @@ Optional properties:
+  - touchscreen-size-x
+  - touchscreen-size-y
+  - touchscreen-swapped-x-y
 + - suspend-dependencies	: Phandle list of devices which have to be suspended
-+			  after touchscreen device and resumed before it.
++			  after goodix device and resumed before it.
  
- Example:
- 	polytouch: edt-ft5x06@38 {
+ The touchscreen-* properties are documented in touchscreen.txt in this
+ directory.
 -- 
 2.15.0

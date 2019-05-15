@@ -1,103 +1,61 @@
-From: Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: [PATCH v2 1/5] of/device: Add of_device_link_add function
-Date: Wed, 15 May 2019 15:11:50 +0200
-Message-ID: <20190515131154.18373-2-benjamin.gaignard@st.com>
-References: <20190515131154.18373-1-benjamin.gaignard@st.com>
+From: Ravi Chandra Sadineni <ravisadineni@chromium.org>
+Subject: Re: [PATCH V1] elan_i2c: Increment wakeup count if wake source.
+Date: Wed, 15 May 2019 09:17:59 -0700
+Message-ID: <CAEZbON4Z5GKYvMZJ8ojko_f1xzv2rf4uR6cDz2LMxu+XvzTzog@mail.gmail.com>
+References: <20190513220610.177489-1-ravisadineni@chromium.org> <CAKdAkRQ_J6QWxtWpoRQnNWKcJpXox6xVDZWcWYOXkBhPSn99Rw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190515131154.18373-1-benjamin.gaignard@st.com>
+In-Reply-To: <CAKdAkRQ_J6QWxtWpoRQnNWKcJpXox6xVDZWcWYOXkBhPSn99Rw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: rafael.j.wysocki@intel.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, hadess@hadess.net, frowand.list@gmail.com, m.felsch@pengutronix.de, agx@sigxcpu.org, arnd@arndb.de
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, broonie@kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Abhishek Bhardwaj <abhishekbh@google.com>, Todd Broch <tbroch@google.com>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Use 'suspend-dependencies' property from device node to ensure that
-the listed devices will suspended after it and resumed before it.
+Hi Dmitry,
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
----
-CC: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-version 2:
-- only keep of_device_links_add() and use 
-  DL_FLAG_PM_RUNTIME and DL_FLAG_AUTOREMOVE_CONSUMER flags to follow Rafael
-  advices
-- reword function description
-- try to use a more explicit property name
-  
- drivers/of/device.c       | 37 +++++++++++++++++++++++++++++++++++++
- include/linux/of_device.h |  7 +++++++
- 2 files changed, 44 insertions(+)
+On Mon, May 13, 2019 at 4:29 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Ravi,
+>
+> On Mon, May 13, 2019 at 3:06 PM Ravi Chandra Sadineni
+> <ravisadineni@chromium.org> wrote:
+> >
+> > Notify the PM core that this dev is the wake source. This helps
+> > userspace daemon tracking the wake source to identify the origin of the
+> > wake.
+>
+> I wonder if we could do that form the i2c core instead of individual drivers?
+I am sorry, I don't see a way how this could be done.
+>
+> >
+> > Signed-off-by: Ravi Chandra Sadineni <ravisadineni@chromium.org>
+> > ---
+> >  drivers/input/mouse/elan_i2c_core.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> > index f9525d6f0bfe..2c0561e20b7f 100644
+> > --- a/drivers/input/mouse/elan_i2c_core.c
+> > +++ b/drivers/input/mouse/elan_i2c_core.c
+> > @@ -981,6 +981,8 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
+> >         if (error)
+> >                 goto out;
+> >
+> > +       pm_wakeup_event(dev, 0);
+> > +
+> >         switch (report[ETP_REPORT_ID_OFFSET]) {
+> >         case ETP_REPORT_ID:
+> >                 elan_report_absolute(data, report);
+> > --
+> > 2.20.1
+> >
+>
+> Thanks.
+>
+> --
+> Dmitry
 
-diff --git a/drivers/of/device.c b/drivers/of/device.c
-index 3717f2a20d0d..44ec84eee310 100644
---- a/drivers/of/device.c
-+++ b/drivers/of/device.c
-@@ -336,3 +336,40 @@ int of_device_uevent_modalias(struct device *dev, struct kobj_uevent_env *env)
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(of_device_uevent_modalias);
-+
-+/**
-+ * of_device_links_add - Create links between a consumer device
-+ * and it listed dependencies from device tree data
-+ *
-+ * @consumer: consumer device
-+ *
-+ * Ensure that consumer's dependencies will be suspended after it
-+ * and resumed before it.
-+ *
-+ * Returns 0 on success, < 0 on failure.
-+ */
-+int of_device_links_add(struct device *consumer)
-+{
-+	struct device_node *np;
-+	struct platform_device *pdev;
-+	int i = 0;
-+
-+	np = of_parse_phandle(consumer->of_node, "suspend-dependencies", i++);
-+	while (np) {
-+		pdev = of_find_device_by_node(np);
-+		of_node_put(np);
-+		if (!pdev)
-+			return -EINVAL;
-+
-+		device_link_add(consumer, &pdev->dev,
-+				DL_FLAG_PM_RUNTIME |
-+				DL_FLAG_AUTOREMOVE_CONSUMER);
-+		platform_device_put(pdev);
-+
-+		np = of_parse_phandle(consumer->of_node, "suspend-dependencies",
-+				      i++);
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(of_device_links_add);
-diff --git a/include/linux/of_device.h b/include/linux/of_device.h
-index 8d31e39dd564..83f24c386d51 100644
---- a/include/linux/of_device.h
-+++ b/include/linux/of_device.h
-@@ -41,6 +41,8 @@ extern int of_device_request_module(struct device *dev);
- extern void of_device_uevent(struct device *dev, struct kobj_uevent_env *env);
- extern int of_device_uevent_modalias(struct device *dev, struct kobj_uevent_env *env);
- 
-+extern int of_device_links_add(struct device *consumer);
-+
- static inline void of_device_node_put(struct device *dev)
- {
- 	of_node_put(dev->of_node);
-@@ -91,6 +93,11 @@ static inline int of_device_uevent_modalias(struct device *dev,
- 	return -ENODEV;
- }
- 
-+static int of_device_links_add(struct device *consumer)
-+{
-+	return 0;
-+}
-+
- static inline void of_device_node_put(struct device *dev) { }
- 
- static inline const struct of_device_id *__of_match_device(
--- 
-2.15.0
+Thanks,
+Ravi

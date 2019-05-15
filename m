@@ -1,7 +1,7 @@
 From: Benjamin Gaignard <benjamin.gaignard@st.com>
-Subject: [PATCH v2 3/5] input: edt-ft5x06 - Call of_device_links_add() to create links
-Date: Wed, 15 May 2019 15:11:52 +0200
-Message-ID: <20190515131154.18373-4-benjamin.gaignard@st.com>
+Subject: [PATCH v2 5/5] input: goodix - Call of_device_links_add() to create links
+Date: Wed, 15 May 2019 15:11:54 +0200
+Message-ID: <20190515131154.18373-6-benjamin.gaignard@st.com>
 References: <20190515131154.18373-1-benjamin.gaignard@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,26 +12,34 @@ To: rafael.j.wysocki@intel.com, dmitry.torokhov@gmail.com, robh+dt@kernel.org, m
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, broonie@kernel.org, Benjamin Gaignard <benjamin.gaignard@st.com>
 List-Id: linux-input@vger.kernel.org
 
-Add a call to of_device_links_add() to create links with suspend
-dependencies at probe time.
+Add a call to of_device_links_add() to create links with
+suspend dependencies at probe time.
 
 Signed-off-by: Benjamin Gaignard <benjamin.gaignard@st.com>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/touchscreen/goodix.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 702bfda7ee77..65053be10d4e 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1167,6 +1167,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index f57d82220a88..49fd4763f17b 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -30,6 +30,7 @@
+ #include <linux/slab.h>
+ #include <linux/acpi.h>
+ #include <linux/of.h>
++#include <linux/of_device.h>
+ #include <asm/unaligned.h>
  
- 	i2c_set_clientdata(client, tsdata);
+ struct goodix_ts_data;
+@@ -812,6 +813,8 @@ static int goodix_ts_probe(struct i2c_client *client,
+ 
+ 	ts->chip = goodix_get_chip_data(ts->id);
  
 +	of_device_links_add(&client->dev);
 +
- 	irq_flags = irq_get_trigger_type(client->irq);
- 	if (irq_flags == IRQF_TRIGGER_NONE)
- 		irq_flags = IRQF_TRIGGER_FALLING;
+ 	if (ts->gpiod_int && ts->gpiod_rst) {
+ 		/* update device config */
+ 		ts->cfg_name = devm_kasprintf(&client->dev, GFP_KERNEL,
 -- 
 2.15.0

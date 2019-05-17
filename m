@@ -1,44 +1,33 @@
-From: Stefano Manni <stefano.manni@gmail.com>
-Subject: [PATCH 2/2] dt-bindings: input: Add wakeup-source for atmel,maxtouch
-Date: Fri, 17 May 2019 23:17:41 +0200
-Message-ID: <20190517211741.8906-2-stefano.manni@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - add wakeup support
+Date: Fri, 17 May 2019 14:30:16 -0700
+Message-ID: <20190517213016.GA93581@dtor-ws>
 References: <20190517211741.8906-1-stefano.manni@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20190517211741.8906-1-stefano.manni@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: nick@shmanahar.org, dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: Stefano Manni <stefano.manni@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Stefano Manni <stefano.manni@gmail.com>
+Cc: nick@shmanahar.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add wakeup support to the maxtouch driver.
+Hi Sefano,
 
-Signed-off-by: Stefano Manni <stefano.manni@gmail.com>
----
- Documentation/devicetree/bindings/input/atmel,maxtouch.txt | 5 +++++
- 1 file changed, 5 insertions(+)
+On Fri, May 17, 2019 at 11:17:40PM +0200, Stefano Manni wrote:
+> Add wakeup support to the maxtouch driver.
+> The device can wake up the system from suspend,
+> mark the IRQ as wakeup capable, so that device
+> irq is not disabled during system suspend.
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-index c88919480d37..7491a8843c85 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-@@ -31,6 +31,10 @@ Optional properties for main touchpad device:
- 
- - reset-gpios: GPIO specifier for the touchscreen's reset pin (active low)
- 
-+- wakeup-source: use any event on touchscreen as wakeup event.
-+    (Legacy property support: "linux,wakeup")
-+
-+
- Example:
- 
- 	touch@4b {
-@@ -38,4 +42,5 @@ Example:
- 		reg = <0x4b>;
- 		interrupt-parent = <&gpio>;
- 		interrupts = <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_LOW>;
-+		wakeup-source;
- 	};
+This should already be handled by I2C core, see lines after "if
+(client->flags & I2C_CLIENT_WAKE)" in drivers/i2c/i2c-core-base.c.
+
+Unless there is dedicated wakeup interrupt we configure main interrupt
+as wake source.
+
+Thanks.
+
 -- 
-2.20.1
+Dmitry

@@ -1,210 +1,136 @@
-From: Maximilian Luz <luzmaximilian@gmail.com>
-Subject: [RFC 2/2] input: soc_button_array for newer surface devices
-Date: Thu, 16 May 2019 16:25:23 +0200
-Message-ID: <20190516142523.117978-3-luzmaximilian@gmail.com>
-References: <20190516142523.117978-1-luzmaximilian@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
+Subject: Re: [PATCH] Input: walkera0701 - Fix possible NULL pointer
+ dereference in walkera0701_detach
+Date: Fri, 17 May 2019 10:38:31 +0800
+Message-ID: <c907ae31-c1f9-bb5f-02e1-3009a8bbb467@huawei.com>
+References: <20190423145637.35004-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190516142523.117978-1-luzmaximilian@gmail.com>
+In-Reply-To: <20190423145637.35004-1-yuehaibing@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Chen Yu <yu.c.chen@intel.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Maximilian Luz <luzmaximilian@gmail.com>
+To: dmitry.torokhov@gmail.com, sudip@vectorindia.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Power and volume button support for 5th and 6th genration Microsoft
-Surface devices via soc_button_array.
+ping...
 
-Note that these devices use the same MSHW0040 device as on the Surface
-Pro 4, however the implementation is different (GPIOs vs. ACPI
-notifications). Thus some checking is required to ensure we only load
-this driver on the correct devices.
-
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
----
- drivers/input/misc/soc_button_array.c | 134 +++++++++++++++++++++++---
- 1 file changed, 122 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index bb458beecb43..dd67753bbf6e 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -29,6 +29,17 @@ struct soc_button_info {
- 	bool wakeup;
- };
- 
-+/**
-+ * struct soc_device_data - driver data for different device types
-+ * @button_info: specifications of buttons, if NULL specification is assumed to
-+ *               be present in _DSD
-+ * @check: device-specific check (NULL means all will be accepted)
-+ */
-+struct soc_device_data {
-+	struct soc_button_info *button_info;
-+	int (*check)(struct device *dev);
-+};
-+
- /*
-  * Some of the buttons like volume up/down are auto repeat, while others
-  * are not. To support both, we register two platform devices, and put
-@@ -314,6 +325,7 @@ static int soc_button_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	const struct acpi_device_id *id;
-+	struct soc_device_data *device_data;
- 	struct soc_button_info *button_info;
- 	struct soc_button_data *priv;
- 	struct platform_device *pd;
-@@ -324,18 +336,20 @@ static int soc_button_probe(struct platform_device *pdev)
- 	if (!id)
- 		return -ENODEV;
- 
--	if (!id->driver_data) {
-+	device_data = (struct soc_device_data *)id->driver_data;
-+	if (device_data && device_data->check) {
-+		error = device_data->check(dev);
-+		if (error)
-+			return error;
-+	}
-+
-+	if (device_data && device_data->button_info) {
-+		button_info = (struct soc_button_info *)
-+				device_data->button_info;
-+	} else {
- 		button_info = soc_button_get_button_info(dev);
- 		if (IS_ERR(button_info))
- 			return PTR_ERR(button_info);
--	} else {
--		button_info = (struct soc_button_info *)id->driver_data;
--	}
--
--	error = gpiod_count(dev, NULL);
--	if (error < 0) {
--		dev_dbg(dev, "no GPIO attached, ignoring...\n");
--		return -ENODEV;
- 	}
- 
- 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-@@ -361,12 +375,32 @@ static int soc_button_probe(struct platform_device *pdev)
- 	if (!priv->children[0] && !priv->children[1])
- 		return -ENODEV;
- 
--	if (!id->driver_data)
-+	if (!device_data || !device_data->button_info)
- 		devm_kfree(dev, button_info);
- 
- 	return 0;
- }
- 
-+
-+static int soc_device_check_generic(struct device *dev)
-+{
-+	int gpios;
-+
-+	gpios = gpiod_count(dev, NULL);
-+	if (gpios < 0) {
-+		dev_dbg(dev, "no GPIO attached, ignoring...\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct soc_device_data soc_device_ACPI0011 = {
-+	.button_info = NULL,
-+	.check = soc_device_check_generic,
-+};
-+
-+
- /*
-  * Definition of buttons on the tablet. The ACPI index of each button
-  * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-@@ -381,9 +415,85 @@ static struct soc_button_info soc_button_PNP0C40[] = {
- 	{ }
- };
- 
-+static struct soc_device_data soc_device_PNP0C40 = {
-+	.button_info = soc_button_PNP0C40,
-+	.check = soc_device_check_generic,
-+};
-+
-+
-+/*
-+ * Special device check for Surface Book 2 and Surface Pro (2017).
-+ * Both, the Surface Pro 4 (surfacepro3_button.c) and the above mentioned
-+ * devices use MSHW0040 for power and volume buttons, however the way they
-+ * have to be addressed differs. Make sure that we only load this drivers
-+ * for the correct devices by checking the OEM Platform Revision provided by
-+ * the _DSM method.
-+ */
-+#define MSHW0040_DSM_REVISION		0x01
-+#define MSHW0040_DSM_GET_OMPR		0x02	// get OEM Platform Revision
-+static const guid_t MSHW0040_DSM_UUID =
-+	GUID_INIT(0x6fd05c69, 0xcde3, 0x49f4, 0x95, 0xed, 0xab, 0x16, 0x65,
-+		  0x49, 0x80, 0x35);
-+
-+static int soc_device_check_MSHW0040(struct device *dev)
-+{
-+	acpi_handle handle = ACPI_HANDLE(dev);
-+	union acpi_object *result;
-+	u64 oem_platform_rev = 0;
-+	int gpios;
-+
-+	// get OEM platform revision
-+	result = acpi_evaluate_dsm_typed(handle, &MSHW0040_DSM_UUID,
-+					 MSHW0040_DSM_REVISION,
-+					 MSHW0040_DSM_GET_OMPR, NULL,
-+					 ACPI_TYPE_INTEGER);
-+
-+	if (result) {
-+		oem_platform_rev = result->integer.value;
-+		ACPI_FREE(result);
-+	}
-+
-+	if (oem_platform_rev == 0)
-+		return -ENODEV;
-+
-+	dev_dbg(dev, "OEM Platform Revision %llu\n", oem_platform_rev);
-+
-+	/*
-+	 * We are _really_ expecting GPIOs here. If we do not get any, this
-+	 * means the GPIO driver has not been loaded yet (which can happen).
-+	 * Try again later.
-+	 */
-+	gpios = gpiod_count(dev, NULL);
-+	if (gpios < 0)
-+		return -EAGAIN;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Button infos for Microsoft Surface Book 2 and Surface Pro (2017).
-+ * Obtained from DSDT/testing.
-+ */
-+static struct soc_button_info soc_button_MSHW0040[] = {
-+	{ "power", 0, EV_KEY, KEY_POWER, false, true },
-+	{ "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false },
-+	{ "volume_down", 4, EV_KEY, KEY_VOLUMEDOWN, true, false },
-+	{ }
-+};
-+
-+static struct soc_device_data soc_device_MSHW0040 = {
-+	.button_info = soc_button_MSHW0040,
-+	.check = soc_device_check_MSHW0040,
-+};
-+
-+
- static const struct acpi_device_id soc_button_acpi_match[] = {
--	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
--	{ "ACPI0011", 0 },
-+	{ "PNP0C40", (unsigned long)&soc_device_PNP0C40 },
-+	{ "ACPI0011", (unsigned long)&soc_device_ACPI0011 },
-+
-+	/* Microsoft Surface Devices (5th and 6th generation) */
-+	{ "MSHW0040", (unsigned long)&soc_device_MSHW0040 },
-+
- 	{ }
- };
- 
--- 
-2.21.0
+On 2019/4/23 22:56, Yue Haibing wrote:
+> From: YueHaibing <yuehaibing@huawei.com>
+> 
+> KASAN report this:
+> 
+> walkera0701: failed to allocate input device
+> kasan: CONFIG_KASAN_INLINE enabled
+> kasan: GPF could be caused by NULL-ptr deref or user memory access
+> general protection fault: 0000 [#1] SMP KASAN PTI
+> CPU: 1 PID: 5324 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+> RIP: 0010:input_unregister_device+0x21/0xe0 drivers/input/input.c:2192
+> Code: 2e 0f 1f 84 00 00 00 00 00 53 48 89 fb e8 07 41 f6 fe 48 8d bb 20 07 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 84 c0 0f 8e 92 00 00 00 80 bb 20 07 00 00
+> RSP: 0018:ffff8881f58dfd30 EFLAGS: 00010206
+> RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff82460ca9
+> RDX: 00000000000000e4 RSI: ffffc900013d3000 RDI: 0000000000000720
+> RBP: 0000000000000000 R08: ffffed103d30caf7 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000000 R12: dffffc0000000000
+> R13: ffffffffc1633000 R14: ffffffffc086b320 R15: 1ffff1103eb1bfaf
+> FS:  00007fa407200700(0000) GS:ffff8881f7300000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000001b33924000 CR3: 00000001e270c006 CR4: 00000000007606e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> PKRU: 55555554
+> Call Trace:
+>  walkera0701_detach+0x8e/0xba [walkera0701]
+>  port_detach+0x73/0x90 [parport]
+>  bus_for_each_dev+0x154/0x1e0 drivers/base/bus.c:304
+>  parport_unregister_driver+0x1f8/0x270 [parport]
+>  __do_sys_delete_module kernel/module.c:1018 [inline]
+>  __se_sys_delete_module kernel/module.c:961 [inline]
+>  __x64_sys_delete_module+0x30c/0x480 kernel/module.c:961
+>  do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+>  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> RIP: 0033:0x462e99
+> Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+> RSP: 002b:00007fa4071ffc58 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
+> RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
+> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00000000200001c0
+> RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 00007fa4072006bc
+> R13: 00000000004bcca9 R14: 00000000006f6b48 R15: 00000000ffffffff
+> Modules linked in: walkera0701(-) tps65090_regulator intel_th mptbase adm1031 snd_soc_wm8753 snd_soc_core snd_pcm_dmaengine snd_pcm ac97_bus snd_compress rtc_ds1286 snd_seq_dummy snd_seq snd_timer snd_seq_device snd soundcore comedi(C) i2c_mux_ltc4306 i2c_mux max14577_regulator max14577 usbcore hid cmac mc13783_regulator mc13xxx_regulator_core mc13xxx_core of_mdio fixed_phy libphy iptable_security iptable_raw iptable_mangle iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_vti ip_gre ipip sit tunnel4 ip_tunnel hsr veth netdevsim vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon dummy team bonding vcan bridge stp llc ip6_gre gre ip6_tunnel tunnel6 tun joydev mousedev ppdev tpm kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul crc32c_in
+ tel ghash_clmulni_intel ide_pci_generic aesni_intel aes_x86_64 piix crypto_simd cryptd input_leds ide_core psmouse glue_helper intel_agp serio_raw intel_gtt ata_generic agpgart i2c_piix4
+>  pata_acpi parport_pc parport floppy rtc_cmos sch_fq_codel ip_tables x_tables sha1_ssse3 sha1_generic ipv6 [last unloaded: walkera0701]
+> Dumping ftrace buffer:
+>    (ftrace buffer empty)
+> ---[ end trace 17f6dd401f34af3e ]---
+> 
+> In walkera0701_attach(), if input_allocate_device failed,
+> w->input_dev is set to NULL. But in walkera0701_detach it
+> is not checked while passing to input_unregister_device(),
+> this will trigger a NULL pointer dereference issue.
+> 
+> There is also another possible use-after-free issue, when
+> input_register_device() fails, input_free_device be
+> called to free input dev, then in walkera0701_detach()
+> calling input_unregister_device will trigger use-after-free
+> while accessing input dev
+> 
+> This patch set w->parport to NULL on walkera0701_attach failed,
+> and only do detach in case attach success.
+> 
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Fixes: 221bcb24c653 ("Input: walkera0701 - use parallel port device model")
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+> ---
+>  drivers/input/joystick/walkera0701.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/walkera0701.c b/drivers/input/joystick/walkera0701.c
+> index dce313d..852b8c5 100644
+> --- a/drivers/input/joystick/walkera0701.c
+> +++ b/drivers/input/joystick/walkera0701.c
+> @@ -207,13 +207,13 @@ static void walkera0701_attach(struct parport *pp)
+>  
+>  	if (pp->number != walkera0701_pp_no) {
+>  		pr_debug("Not using parport%d.\n", pp->number);
+> -		return;
+> +		goto err_out;
+>  	}
+>  
+>  	if (pp->irq == -1) {
+>  		pr_err("parport %d does not have interrupt assigned\n",
+>  			pp->number);
+> -		return;
+> +		goto err_out;
+>  	}
+>  
+>  	w->parport = pp;
+> @@ -228,7 +228,7 @@ static void walkera0701_attach(struct parport *pp)
+>  
+>  	if (!w->pardevice) {
+>  		pr_err("failed to register parport device\n");
+> -		return;
+> +		goto err_out;
+>  	}
+>  
+>  	if (parport_negotiate(w->pardevice->port, IEEE1284_MODE_COMPAT)) {
+> @@ -279,13 +279,15 @@ static void walkera0701_attach(struct parport *pp)
+>  	input_free_device(w->input_dev);
+>  err_unregister_device:
+>  	parport_unregister_device(w->pardevice);
+> +err_out:
+> +	w->parport = NULL;
+>  }
+>  
+>  static void walkera0701_detach(struct parport *port)
+>  {
+>  	struct walkera_dev *w = &w_dev;
+>  
+> -	if (!w->pardevice || w->parport->number != port->number)
+> +	if (!w->parport)
+>  		return;
+>  
+>  	input_unregister_device(w->input_dev);
+> 

@@ -1,71 +1,90 @@
-From: =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
-Subject: [RFC PATCH v2 4/4] ARM: dts: imx6dl-yapp4: Enable MPR121 touch keypad on Hydra
-Date: Fri, 17 May 2019 15:12:53 +0200
-Message-ID: <1558098773-47416-5-git-send-email-michal.vokac@ysoft.com>
-References: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: wacom: Don't set tool type until we're in range
+Date: Fri, 17 May 2019 16:27:17 +0200
+Message-ID: <CAO-hwJJY=uzATrHic2F+LHOB7TMvzLJyCw2jxYcEVK1_m74B_A@mail.gmail.com>
+References: <20190424221258.19992-1-jason.gerecke@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190424221258.19992-1-jason.gerecke@wacom.com>
+Sender: stable-owner@vger.kernel.org
+To: "Gerecke, Jason" <killertofu@gmail.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, "3.8+" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 List-Id: linux-input@vger.kernel.org
 
-Enable the I2C connected touch keypad on Hydra board.
-Use the polled binding as the interrupt line is not available.
+On Thu, Apr 25, 2019 at 12:13 AM Gerecke, Jason <killertofu@gmail.com> wrote:
+>
+> From: Jason Gerecke <jason.gerecke@wacom.com>
+>
+> The serial number and tool type information that is reported by the tablet
+> while a pen is merely "in prox" instead of fully "in range" can be stale
+> and cause us to report incorrect tool information. Serial number, tool
+> type, and other information is only valid once the pen comes fully in range
+> so we should be careful to not use this information until that point.
+>
+> In particular, this issue may cause the driver to incorectly report
+> BTN_TOOL_RUBBER after switching from the eraser tool back to the pen.
+>
+> Fixes: a48324de6d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handle prox/range")
+> Cc: <stable@vger.kernel.org> # 4.11+
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+> ---
 
-Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
----
- arch/arm/boot/dts/imx6dl-yapp4-common.dtsi | 12 ++++++++++++
- arch/arm/boot/dts/imx6dl-yapp4-hydra.dts   |  4 ++++
- 2 files changed, 16 insertions(+)
+Series applied to for-5.2/fixes
 
-diff --git a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
-index e8d800fec637..65a670e5bd4f 100644
---- a/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
-+++ b/arch/arm/boot/dts/imx6dl-yapp4-common.dtsi
-@@ -4,6 +4,7 @@
- 
- #include <dt-bindings/gpio/gpio.h>
- #include <dt-bindings/interrupt-controller/irq.h>
-+#include <dt-bindings/input/input.h>
- #include <dt-bindings/pwm/pwm.h>
- 
- / {
-@@ -330,6 +331,17 @@
- 		vcc-supply = <&sw2_reg>;
- 		status = "disabled";
- 	};
-+
-+	touchkeys: keys@5a {
-+		compatible = "fsl,mpr121-touchkey-polled";
-+		reg = <0x5a>;
-+		vdd-supply = <&sw2_reg>;
-+		autorepeat;
-+		linux,keycodes = <KEY_1>, <KEY_2>, <KEY_3>, <KEY_4>, <KEY_5>,
-+				<KEY_6>, <KEY_7>, <KEY_8>, <KEY_9>,
-+				<KEY_BACKSPACE>, <KEY_0>, <KEY_ENTER>;
-+		status = "disabled";
-+	};
- };
- 
- &iomuxc {
-diff --git a/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts b/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts
-index f97927064750..84c275bfdd38 100644
---- a/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts
-+++ b/arch/arm/boot/dts/imx6dl-yapp4-hydra.dts
-@@ -45,6 +45,10 @@
- 	status = "okay";
- };
- 
-+&touchkeys {
-+	status = "okay";
-+};
-+
- &usdhc3 {
- 	status = "okay";
- };
--- 
-2.1.4
+Sorry for the delay
+
+Cheers,
+Benjamin
+
+>  drivers/hid/wacom_wac.c | 17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 747730d32ab6..4c1bc239207e 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1236,13 +1236,13 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+>                 /* Add back in missing bits of ID for non-USI pens */
+>                 wacom->id[0] |= (wacom->serial[0] >> 32) & 0xFFFFF;
+>         }
+> -       wacom->tool[0]   = wacom_intuos_get_tool_type(wacom_intuos_id_mangle(wacom->id[0]));
+>
+>         for (i = 0; i < pen_frames; i++) {
+>                 unsigned char *frame = &data[i*pen_frame_len + 1];
+>                 bool valid = frame[0] & 0x80;
+>                 bool prox = frame[0] & 0x40;
+>                 bool range = frame[0] & 0x20;
+> +               bool invert = frame[0] & 0x10;
+>
+>                 if (!valid)
+>                         continue;
+> @@ -1251,9 +1251,24 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+>                         wacom->shared->stylus_in_proximity = false;
+>                         wacom_exit_report(wacom);
+>                         input_sync(pen_input);
+> +
+> +                       wacom->tool[0] = 0;
+> +                       wacom->id[0] = 0;
+> +                       wacom->serial[0] = 0;
+>                         return;
+>                 }
+> +
+>                 if (range) {
+> +                       if (!wacom->tool[0]) { /* first in range */
+> +                               /* Going into range select tool */
+> +                               if (invert)
+> +                                       wacom->tool[0] = BTN_TOOL_RUBBER;
+> +                               else if (wacom->id[0])
+> +                                       wacom->tool[0] = wacom_intuos_get_tool_type(wacom->id[0]);
+> +                               else
+> +                                       wacom->tool[0] = BTN_TOOL_PEN;
+> +                       }
+> +
+>                         input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
+>                         input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+>
+> --
+> 2.21.0
+>

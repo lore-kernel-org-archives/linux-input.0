@@ -1,90 +1,69 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 1/2] HID: wacom: Don't set tool type until we're in range
-Date: Fri, 17 May 2019 16:27:17 +0200
-Message-ID: <CAO-hwJJY=uzATrHic2F+LHOB7TMvzLJyCw2jxYcEVK1_m74B_A@mail.gmail.com>
-References: <20190424221258.19992-1-jason.gerecke@wacom.com>
+Subject: Re: [PATCH 3/3] HID: wacom: Sync INTUOSP2_BT touch state after each
+ frame if necessary
+Date: Fri, 17 May 2019 18:24:40 +0200
+Message-ID: <CAO-hwJJHFW3TJX-JU2OAHHa_FDTTZcwCduy2vQMU2F=i8ZSr7A@mail.gmail.com>
+References: <20190507185322.7168-1-jason.gerecke@wacom.com> <20190507185322.7168-3-jason.gerecke@wacom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190424221258.19992-1-jason.gerecke@wacom.com>
+In-Reply-To: <20190507185322.7168-3-jason.gerecke@wacom.com>
 Sender: stable-owner@vger.kernel.org
 To: "Gerecke, Jason" <killertofu@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, "3.8+" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Armstrong Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, "3.8+" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Apr 25, 2019 at 12:13 AM Gerecke, Jason <killertofu@gmail.com> wrote:
+On Tue, May 7, 2019 at 8:53 PM Gerecke, Jason <killertofu@gmail.com> wrote:
 >
 > From: Jason Gerecke <jason.gerecke@wacom.com>
 >
-> The serial number and tool type information that is reported by the tablet
-> while a pen is merely "in prox" instead of fully "in range" can be stale
-> and cause us to report incorrect tool information. Serial number, tool
-> type, and other information is only valid once the pen comes fully in range
-> so we should be careful to not use this information until that point.
+> The Bluetooth interface of the 2nd-gen Intuos Pro batches together four
+> independent "frames" of finger data into a single report. Each frame
+> is essentially equivalent to a single USB report, with the up-to-10
+> fingers worth of information being spread across two frames. At the
+> moment the driver only calls `input_sync` after processing all four
+> frames have been processed, which can result in the driver sending
+> multiple updates for a single slot within the same SYN_REPORT. This
+> can confuse userspace, so modify the driver to sync more often if
+> necessary (i.e., after reporting the state of all fingers).
 >
-> In particular, this issue may cause the driver to incorectly report
-> BTN_TOOL_RUBBER after switching from the eraser tool back to the pen.
->
-> Fixes: a48324de6d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handle prox/range")
+> Fixes: 4922cd26f0 ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
 > Cc: <stable@vger.kernel.org> # 4.11+
 > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 > ---
 
-Series applied to for-5.2/fixes
-
-Sorry for the delay
+series applied to for-5.2/upstream-fixes
 
 Cheers,
 Benjamin
 
->  drivers/hid/wacom_wac.c | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
+>  drivers/hid/wacom_wac.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
 >
 > diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 747730d32ab6..4c1bc239207e 100644
+> index e848445236d8..09b8e4aac82f 100644
 > --- a/drivers/hid/wacom_wac.c
 > +++ b/drivers/hid/wacom_wac.c
-> @@ -1236,13 +1236,13 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
->                 /* Add back in missing bits of ID for non-USI pens */
->                 wacom->id[0] |= (wacom->serial[0] >> 32) & 0xFFFFF;
->         }
-> -       wacom->tool[0]   = wacom_intuos_get_tool_type(wacom_intuos_id_mangle(wacom->id[0]));
->
->         for (i = 0; i < pen_frames; i++) {
->                 unsigned char *frame = &data[i*pen_frame_len + 1];
->                 bool valid = frame[0] & 0x80;
->                 bool prox = frame[0] & 0x40;
->                 bool range = frame[0] & 0x20;
-> +               bool invert = frame[0] & 0x10;
->
->                 if (!valid)
->                         continue;
-> @@ -1251,9 +1251,24 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
->                         wacom->shared->stylus_in_proximity = false;
->                         wacom_exit_report(wacom);
->                         input_sync(pen_input);
-> +
-> +                       wacom->tool[0] = 0;
-> +                       wacom->id[0] = 0;
-> +                       wacom->serial[0] = 0;
->                         return;
+> @@ -1371,11 +1371,17 @@ static void wacom_intuos_pro2_bt_touch(struct wacom_wac *wacom)
+>                 if (wacom->num_contacts_left <= 0) {
+>                         wacom->num_contacts_left = 0;
+>                         wacom->shared->touch_down = wacom_wac_finger_count_touches(wacom);
+> +                       input_sync(touch_input);
 >                 }
-> +
->                 if (range) {
-> +                       if (!wacom->tool[0]) { /* first in range */
-> +                               /* Going into range select tool */
-> +                               if (invert)
-> +                                       wacom->tool[0] = BTN_TOOL_RUBBER;
-> +                               else if (wacom->id[0])
-> +                                       wacom->tool[0] = wacom_intuos_get_tool_type(wacom->id[0]);
-> +                               else
-> +                                       wacom->tool[0] = BTN_TOOL_PEN;
-> +                       }
-> +
->                         input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
->                         input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+>         }
 >
+> -       input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
+> -       input_sync(touch_input);
+> +       if (wacom->num_contacts_left == 0) {
+> +               // Be careful that we don't accidentally call input_sync with
+> +               // only a partial set of fingers of processed
+> +               input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
+> +               input_sync(touch_input);
+> +       }
+> +
+>  }
+>
+>  static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
 > --
 > 2.21.0
 >

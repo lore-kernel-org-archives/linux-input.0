@@ -1,91 +1,39 @@
-From: Igor Kushnir <igorkuo@gmail.com>
-Subject: Re: [PATCH v3] HID: fix A4Tech horizontal scrolling
-Date: Sat, 18 May 2019 12:08:57 +0300
-Message-ID: <858498ef-b43a-f382-bfbc-e3a2ac9935e4@gmail.com>
-References: <20190507050029.GA5197@jelly>
- <20190512203313.18756-1-spaz16@wp.pl>
+From: stefano.manni@gmail.com
+Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - add wakeup support
+Date: Sat, 18 May 2019 18:55:10 +0200
+Message-ID: <6f94097bb9192424f92e055e8af8062b2ae3e19f.camel@gmail.com>
+References: <20190517211741.8906-1-stefano.manni@gmail.com>
+         <20190517213016.GA93581@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190512203313.18756-1-spaz16@wp.pl>
-Content-Language: uk-UA
+In-Reply-To: <20190517213016.GA93581@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?QsWCYcW8ZWogU3pjenlnaWXFgg==?= <spaz16@wp.pl>
-Cc: peter.hutterer@who-t.net, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: nick@shmanahar.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi!
+Hi Dmitry,
 
-I have verified that the PATCH v3 applied to kernel 5.0.15 fixes 
-horizontal scrolling for my A4Tech WOP-49Z mouse just as well as the 
-previous patch did.
+On Fri, 2019-05-17 at 14:30 -0700, Dmitry Torokhov wrote:
+> Hi Sefano,
+> 
+> On Fri, May 17, 2019 at 11:17:40PM +0200, Stefano Manni wrote:
+> > Add wakeup support to the maxtouch driver.
+> > The device can wake up the system from suspend,
+> > mark the IRQ as wakeup capable, so that device
+> > irq is not disabled during system suspend.
+> 
+> This should already be handled by I2C core, see lines after "if
+> (client->flags & I2C_CLIENT_WAKE)" in drivers/i2c/i2c-core-base.c.
+> 
+> Unless there is dedicated wakeup interrupt we configure main
+> interrupt
+> as wake source.
+> 
 
-Thank you,
-Igor
+what's about the other drivers (e.g. ili210x.c) doing like this?
+Shall they be purged?
 
-On 5/12/19 11:33 PM, Błażej Szczygieł wrote:
-> Since recent high resolution scrolling changes the A4Tech driver must
-> check for the "REL_WHEEL_HI_RES" usage code.
-> 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=203369
-> Fixes: 2dc702c991e3774af9d7ce410eef410ca9e2357e ("HID: input: use the
-> Resolution Multiplier for high-resolution scrolling")
-> 
-> Signed-off-by: Błażej Szczygieł <spaz16@wp.pl>
-> ---
-> Changes in v2:
-> - changed commit message
-> 
-> Changes in v3:
-> - send also high resolution events
-> 
->   drivers/hid/hid-a4tech.c | 11 ++++++++---
->   1 file changed, 8 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
-> index 9428ea7cdf8a..c3a6ce3613fe 100644
-> --- a/drivers/hid/hid-a4tech.c
-> +++ b/drivers/hid/hid-a4tech.c
-> @@ -38,8 +38,10 @@ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
->   {
->   	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
->   
-> -	if (usage->type == EV_REL && usage->code == REL_WHEEL)
-> +	if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
->   		set_bit(REL_HWHEEL, *bit);
-> +		set_bit(REL_HWHEEL_HI_RES, *bit);
-> +	}
->   
->   	if ((a4->quirks & A4_2WHEEL_MOUSE_HACK_7) && usage->hid == 0x00090007)
->   		return -1;
-> @@ -60,7 +62,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
->   	input = field->hidinput->input;
->   
->   	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8) {
-> -		if (usage->type == EV_REL && usage->code == REL_WHEEL) {
-> +		if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
->   			a4->delayed_value = value;
->   			return 1;
->   		}
-> @@ -68,6 +70,8 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
->   		if (usage->hid == 0x000100b8) {
->   			input_event(input, EV_REL, value ? REL_HWHEEL :
->   					REL_WHEEL, a4->delayed_value);
-> +			input_event(input, EV_REL, value ? REL_HWHEEL_HI_RES :
-> +					REL_WHEEL_HI_RES, a4->delayed_value * 120);
->   			return 1;
->   		}
->   	}
-> @@ -77,8 +81,9 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
->   		return 1;
->   	}
->   
-> -	if (usage->code == REL_WHEEL && a4->hw_wheel) {
-> +	if (usage->code == REL_WHEEL_HI_RES && a4->hw_wheel) {
->   		input_event(input, usage->type, REL_HWHEEL, value);
-> +		input_event(input, usage->type, REL_HWHEEL_HI_RES, value * 120);
->   		return 1;
->   	}
->   
-> 
+Thank you.

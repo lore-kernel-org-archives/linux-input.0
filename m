@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 08/10] Input: elan_i2c - export true width/height
-Date: Tue, 21 May 2019 15:27:10 +0200
-Message-ID: <20190521132712.2818-9-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 09/10] Input: elan_i2c - correct the width/size base value
+Date: Tue, 21 May 2019 15:27:11 +0200
+Message-ID: <20190521132712.2818-10-benjamin.tissoires@redhat.com>
 References: <20190521132712.2818-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,9 +12,9 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, R
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-The width/height is actually in the same unit than X and Y. So we should
-not tamper the data, but just set the proper resolution, so that userspace
-can correctly detect which touch is a palm or a finger.
+*_traces are the number of antennas. width_* is thus the space between 2
+antennas. Which means, we should subtract 1 to the number of antennas
+to divide the touchpad by the number of holes between each antenna.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
@@ -22,46 +22,23 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 new in v2
 ---
- drivers/input/mouse/elan_i2c_core.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 7ff044c6cd11..6f4feedb7765 100644
+index 6f4feedb7765..3375eaa9a72e 100644
 --- a/drivers/input/mouse/elan_i2c_core.c
 +++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -45,7 +45,6 @@
- #define DRIVER_NAME		"elan_i2c"
- #define ELAN_VENDOR_ID		0x04f3
- #define ETP_MAX_PRESSURE	255
--#define ETP_FWIDTH_REDUCE	90
- #define ETP_FINGER_WIDTH	15
- #define ETP_RETRY_COUNT		3
+@@ -398,8 +398,8 @@ static int elan_query_device_parameters(struct elan_tp_data *data)
+ 		if (error)
+ 			return error;
+ 	}
+-	data->width_x = data->max_x / x_traces;
+-	data->width_y = data->max_y / y_traces;
++	data->width_x = data->max_x / (x_traces - 1);
++	data->width_y = data->max_y / (y_traces - 1);
  
-@@ -915,12 +914,8 @@ static void elan_report_contact(struct elan_tp_data *data,
- 			return;
- 		}
- 
--		/*
--		 * To avoid treating large finger as palm, let's reduce the
--		 * width x and y per trace.
--		 */
--		area_x = mk_x * (data->width_x - ETP_FWIDTH_REDUCE);
--		area_y = mk_y * (data->width_y - ETP_FWIDTH_REDUCE);
-+		area_x = mk_x * data->width_x;
-+		area_y = mk_y * data->width_y;
- 
- 		major = max(area_x, area_y);
- 		minor = min(area_x, area_y);
-@@ -1123,8 +1118,10 @@ static int elan_setup_input_device(struct elan_tp_data *data)
- 			     ETP_MAX_PRESSURE, 0, 0);
- 	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0,
- 			     ETP_FINGER_WIDTH * max_width, 0, 0);
-+	input_abs_set_res(input, ABS_MT_TOUCH_MAJOR, data->x_res);
- 	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0,
- 			     ETP_FINGER_WIDTH * min_width, 0, 0);
-+	input_abs_set_res(input, ABS_MT_TOUCH_MINOR, data->y_res);
- 
- 	data->input = input;
- 
+ 	if (device_property_read_u32(&client->dev,
+ 				     "touchscreen-x-mm", &x_mm) ||
 -- 
 2.21.0

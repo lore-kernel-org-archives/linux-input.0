@@ -1,46 +1,62 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - add wakeup support
-Date: Mon, 20 May 2019 22:33:26 -0700
-Message-ID: <20190521053326.GH183429@dtor-ws>
-References: <20190517211741.8906-1-stefano.manni@gmail.com>
- <20190517213016.GA93581@dtor-ws>
- <6f94097bb9192424f92e055e8af8062b2ae3e19f.camel@gmail.com>
+Subject: Re: [RFC PATCH v2 0/4] Input: mpr121-polled: Add polled driver for
+ MPR121
+Date: Mon, 20 May 2019 22:37:05 -0700
+Message-ID: <20190521053705.GI183429@dtor-ws>
+References: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6f94097bb9192424f92e055e8af8062b2ae3e19f.camel@gmail.com>
+In-Reply-To: <1558098773-47416-1-git-send-email-michal.vokac@ysoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: stefano.manni@gmail.com
-Cc: nick@shmanahar.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Michal =?utf-8?B?Vm9rw6HEjQ==?= <michal.vokac@ysoft.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, May 18, 2019 at 06:55:10PM +0200, stefano.manni@gmail.com wrote:
-> Hi Dmitry,
-> 
-> On Fri, 2019-05-17 at 14:30 -0700, Dmitry Torokhov wrote:
-> > Hi Sefano,
-> > 
-> > On Fri, May 17, 2019 at 11:17:40PM +0200, Stefano Manni wrote:
-> > > Add wakeup support to the maxtouch driver.
-> > > The device can wake up the system from suspend,
-> > > mark the IRQ as wakeup capable, so that device
-> > > irq is not disabled during system suspend.
-> > 
-> > This should already be handled by I2C core, see lines after "if
-> > (client->flags & I2C_CLIENT_WAKE)" in drivers/i2c/i2c-core-base.c.
-> > 
-> > Unless there is dedicated wakeup interrupt we configure main
-> > interrupt
-> > as wake source.
-> > 
-> 
-> what's about the other drivers (e.g. ili210x.c) doing like this?
-> Shall they be purged?
+Hi Michal,
 
-They were likely done before I2C and driver core were enhanced to handle
-wakeup automatically. We might want to clean them up, as long as we
-verify that they keep working.
+On Fri, May 17, 2019 at 03:12:49PM +0200, Michal Vokáč wrote:
+> Hi,
+> 
+> I have to deal with a situation where we have a custom i.MX6 based
+> platform in production that uses the MPR121 touchkey controller.
+> Unfortunately the chip is connected using only the I2C interface.
+> The interrupt line is not used. Back in 2015 (Linux v3.14), my
+> colleague modded the existing mpr121_touchkey.c driver to use polling
+> instead of interrupt.
+> 
+> For quite some time yet I am in a process of updating the product from
+> the ancient Freescale v3.14 kernel to the latest mainline and pushing
+> any needed changes upstream. The DT files for our imx6dl-yapp4 platform
+> already made it into v5.1-rc.
+> 
+> I rebased and updated our mpr121 patch to the latest mainline.
+> It is created as a separate driver, similarly to gpio_keys_polled.
+> 
+> The I2C device is quite susceptible to ESD. An ESD test quite often
+> causes reset of the chip or some register randomly changes its value.
+> The [PATCH 3/4] adds a write-through register cache. With the cache
+> this state can be detected and the device can be re-initialied.
+> 
+> The main question is: Is there any chance that such a polled driver
+> could be accepted? Is it correct to implement it as a separate driver
+> or should it be done as an option in the existing driver? I can not
+> really imagine how I would do that though..
+> 
+> There are also certain worries that the MPR121 chip may no longer be
+> available in nonspecifically distant future. In case of EOL I will need
+> to add a polled driver for an other touchkey chip. May it be already
+> in mainline or a completely new one.
+
+I think that my addition of input_polled_dev was ultimately a wrong
+thing to do. I am looking into enabling polling mode for regular input
+devices as we then can enable polling mode in existing drivers.
+
+As far as gpio-keys vs gpio-key-polled, I feel that the capabilities of
+polling driver is sufficiently different from interrupt-driven one, so
+we will likely keep them separate.
 
 Thanks.
 

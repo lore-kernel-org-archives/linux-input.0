@@ -1,41 +1,46 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [RESEND] input: keyboard: imx: make sure keyboard can always
- wake up system
-Date: Mon, 20 May 2019 22:30:47 -0700
-Message-ID: <20190521053047.GG183429@dtor-ws>
-References: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] Input: atmel_mxt_ts - add wakeup support
+Date: Mon, 20 May 2019 22:33:26 -0700
+Message-ID: <20190521053326.GH183429@dtor-ws>
+References: <20190517211741.8906-1-stefano.manni@gmail.com>
+ <20190517213016.GA93581@dtor-ws>
+ <6f94097bb9192424f92e055e8af8062b2ae3e19f.camel@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1554341727-16084-1-git-send-email-Anson.Huang@nxp.com>
+In-Reply-To: <6f94097bb9192424f92e055e8af8062b2ae3e19f.camel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <anson.huang@nxp.com>
-Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
+To: stefano.manni@gmail.com
+Cc: nick@shmanahar.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Anson,
-On Thu, Apr 04, 2019 at 01:40:16AM +0000, Anson Huang wrote:
-> There are several scenarios that keyboard can NOT wake up system
-> from suspend, e.g., if a keyboard is depressed between system
-> device suspend phase and device noirq suspend phase, the keyboard
-> ISR will be called and both keyboard depress and release interrupts
-> will be disabled, then keyboard will no longer be able to wake up
-> system. Another scenario would be, if a keyboard is kept depressed,
-> and then system goes into suspend, the expected behavior would be
-> when keyboard is released, system will be waked up, but current
-> implementation can NOT achieve that, because both depress and release
-> interrupts are disabled in ISR, and the event check is still in
-> progress.
+On Sat, May 18, 2019 at 06:55:10PM +0200, stefano.manni@gmail.com wrote:
+> Hi Dmitry,
 > 
-> To fix these issues, need to make sure keyboard's depress or release
-> interrupt is enabled after noirq device suspend phase, this patch
-> moves the suspend/resume callback to noirq suspend/resume phase, and
-> enable the corresponding interrupt according to current keyboard status.
+> On Fri, 2019-05-17 at 14:30 -0700, Dmitry Torokhov wrote:
+> > Hi Sefano,
+> > 
+> > On Fri, May 17, 2019 at 11:17:40PM +0200, Stefano Manni wrote:
+> > > Add wakeup support to the maxtouch driver.
+> > > The device can wake up the system from suspend,
+> > > mark the IRQ as wakeup capable, so that device
+> > > irq is not disabled during system suspend.
+> > 
+> > This should already be handled by I2C core, see lines after "if
+> > (client->flags & I2C_CLIENT_WAKE)" in drivers/i2c/i2c-core-base.c.
+> > 
+> > Unless there is dedicated wakeup interrupt we configure main
+> > interrupt
+> > as wake source.
+> > 
+> 
+> what's about the other drivers (e.g. ili210x.c) doing like this?
+> Shall they be purged?
 
-I believe it is possible for IRQ to be disabled and still  being enabled
-as wakeup source. What happens if you call disable_irq() before
-disabling the clock?
+They were likely done before I2C and driver core were enhanced to handle
+wakeup automatically. We might want to clean them up, as long as we
+verify that they keep working.
 
 Thanks.
 

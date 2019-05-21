@@ -1,56 +1,141 @@
-From: Kai Heng Feng <kai.heng.feng@canonical.com>
-Subject: Re: [PATCH] HID: Increase maximum report size allowed by
- hid_field_extract()
-Date: Wed, 22 May 2019 00:24:24 +0800
-Message-ID: <1B225693-9307-46E2-B468-1529B1FF03CD@canonical.com>
-References: <20190308051117.21899-1-kai.heng.feng@canonical.com>
- <CAO-hwJLDuMZuqKiawnkq3YxL6T9SqNGqQ1Q_Vs=kMKmsx6SD0w@mail.gmail.com>
- <08CA35F5-1ADC-4C55-ACF5-04B19CC77A25@canonical.com>
- <nycvar.YFH.7.76.1905092130010.17054@cbobk.fhfr.pm>
- <CAO-hwJKctsp9=ZJuJB6YRtA+RHuv1NJ+9cWp9hub8oATh1MXCA@mail.gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: 8BIT
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH v4 1/2] HID: quirks: Refactor ELAN 400 and 401 handling
+Date: Tue, 21 May 2019 09:43:24 -0700
+Message-ID: <20190521164324.GA2085@tuxbook-pro>
+References: <20190423160543.9922-1-jeffrey.l.hugo@gmail.com>
+ <20190423160605.9970-1-jeffrey.l.hugo@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAO-hwJKctsp9=ZJuJB6YRtA+RHuv1NJ+9cWp9hub8oATh1MXCA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20190423160605.9970-1-jeffrey.l.hugo@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, =?utf-8?Q?Ronald_Tschal=C3=A4r?= <ronald@innovation.ch>
+To: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, agross@kernel.org, david.brown@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Tue 23 Apr 09:06 PDT 2019, Jeffrey Hugo wrote:
 
-
-> On May 21, 2019, at 9:58 PM, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> There needs to be coordination between hid-quirks and the elan_i2c driver
+> about which devices are handled by what drivers.  Currently, both use
+> whitelists, which results in valid devices being unhandled by default,
+> when they should not be rejected by hid-quirks.  This is quickly becoming
+> an issue.
 > 
-> On Thu, May 9, 2019 at 9:30 PM Jiri Kosina <jikos@kernel.org> wrote:
->> 
->> On Fri, 26 Apr 2019, Kai-Heng Feng wrote:
->> 
->>>> Ronald (Cc-ed) raised quite a good point:
->>>> what's the benefit of removing the error message if this function (and
->>>> __extract) can only report an unsigned 32 bits value?
->>> 
->>> I didn’t spot this, sorry.
->>> 
->>>> 
->>>> My take is we should revert 94a9992f7dbdfb28976b upstream and think at
->>>> a better solution.
->>> 
->>> I think using a new fix to replace it will be a better approach, as it at
->>> least partially solves the issue.
->> 
->> Guys, did this fall in between cracks? Is anyone planning to send a fixup?
->> 
+> Since elan_i2c has a maintained whitelist of what devices it will handle,
+> use that to implement a blacklist in hid-quirks so that only the devices
+> that need to be handled by elan_i2c get rejected by hid-quirks, and
+> everything else is handled by default.  The downside is the whitelist and
+> blacklist need to be kept in sync.
 > 
-> Kai-Heng, have you been able to work on that?
 
-Sorry, I haven’t been able to work on this.
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-Please revert the commit and possibly use *_once() macro to reduce the noise.
+Jiri, the two patches in this series doesn't have a build time
+dependency, so if you take this one through your tree I'll take 2/2
+through arm-soc.
 
-Kai-Heng
+Regards,
+Bjorn
 
+> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> ---
+>  drivers/hid/hid-quirks.c            | 64 ++++++++++++++++++++++++-----
+>  drivers/input/mouse/elan_i2c_core.c |  4 ++
+>  2 files changed, 58 insertions(+), 10 deletions(-)
 > 
-> Cheers,
-> Benjamin
+> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> index 77ffba48cc73..656485e08eb7 100644
+> --- a/drivers/hid/hid-quirks.c
+> +++ b/drivers/hid/hid-quirks.c
+> @@ -987,17 +987,61 @@ bool hid_ignore(struct hid_device *hdev)
+>  		break;
+>  	case USB_VENDOR_ID_ELAN:
+>  		/*
+> -		 * Many Elan devices have a product id of 0x0401 and are handled
+> -		 * by the elan_i2c input driver. But the ACPI HID ELAN0800 dev
+> -		 * is not (and cannot be) handled by that driver ->
+> -		 * Ignore all 0x0401 devs except for the ELAN0800 dev.
+> +		 * Blacklist of everything that gets handled by the elan_i2c
+> +		 * input driver.  This should be kept in sync with the whitelist
+> +		 * that exists in that driver.  This avoids disabling valid
+> +		 * touchpads and other ELAN devices.
+>  		 */
+> -		if (hdev->product == 0x0401 &&
+> -		    strncmp(hdev->name, "ELAN0800", 8) != 0)
+> -			return true;
+> -		/* Same with product id 0x0400 */
+> -		if (hdev->product == 0x0400 &&
+> -		    strncmp(hdev->name, "QTEC0001", 8) != 0)
+> +		if ((hdev->product == 0x0401 || hdev->product == 0x0400) &&
+> +		   (strncmp(hdev->name, "ELAN0000", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0100", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0600", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0601", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0602", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0603", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0604", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0605", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0606", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0607", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0608", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0609", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN060B", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN060C", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN060F", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0610", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0611", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0612", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0613", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0614", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0615", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0616", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0617", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0618", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0619", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN061A", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN061B", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN061C", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN061D", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN061E", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN061F", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0620", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0621", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0622", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0623", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0624", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0625", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0626", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0627", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0628", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0629", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN062A", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN062B", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN062C", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN062D", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0631", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN0632", 8) == 0 ||
+> +		    strncmp(hdev->name, "ELAN1000", 8) == 0 ||
+> +		    strncmp(hdev->name, "elan,ekth3000", 13) == 0))
+>  			return true;
+>  		break;
+>  	}
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index f9525d6f0bfe..3ded19528cd4 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -1332,6 +1332,10 @@ static const struct i2c_device_id elan_id[] = {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, elan_id);
+>  
+> +/*
+> + * when these whtielists get updated, the corresponding blacklist in hid-quirks
+> + * needs to be updated to match.
+> + */
+>  #ifdef CONFIG_ACPI
+>  static const struct acpi_device_id elan_acpi_id[] = {
+>  	{ "ELAN0000", 0 },
+> -- 
+> 2.17.1
+> 
